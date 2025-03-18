@@ -108,10 +108,7 @@ public class GlobalRaoResultImpl implements GlobalRaoResult {
     }
 
     @Override
-    public void write(ZipOutputStream zipOutputStream, TemporalData<Crac> cracs) throws IOException {
-        Properties properties = new Properties();
-        properties.put("rao-result.export.json.flows-in-amperes", "true");
-        properties.put("rao-result.export.json.flows-in-megawatts", "true");
+    public void write(ZipOutputStream zipOutputStream, TemporalData<Crac> cracs, Properties properties) throws IOException {
         raoResultPerTimestamp.getDataPerTimestamp().forEach((timestamp, raoResult) -> {
             try {
                 addRaoResultToZipArchive(timestamp, zipOutputStream, raoResult, cracs.getData(timestamp).orElseThrow(), properties);

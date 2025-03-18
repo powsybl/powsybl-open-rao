@@ -16,6 +16,7 @@ import com.powsybl.openrao.data.crac.api.InstantKind;
 import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Properties;
 import java.util.zip.ZipOutputStream;
 
 /**
@@ -97,5 +98,5 @@ public interface GlobalRaoResult extends RaoResult {
 
     RaoResult getIndividualRaoResult(OffsetDateTime timestamp);
 
-    void write(ZipOutputStream zipOutputStream, TemporalData<Crac> cracs) throws IOException;
+    void write(ZipOutputStream zipOutputStream, TemporalData<Crac> cracs, Properties properties) throws IOException;
 }

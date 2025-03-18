@@ -35,6 +35,7 @@ import java.time.ZoneOffset;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -242,6 +243,13 @@ class GlobalRaoResultImplTest {
     }
 
     @Test
+    void testGetIndividualRaoResult() {
+        assertEquals(raoResultTimestamp1, globalRaoResult.getIndividualRaoResult(TestsUtils.TIMESTAMP_1));
+        assertEquals(raoResultTimestamp2, globalRaoResult.getIndividualRaoResult(TestsUtils.TIMESTAMP_2));
+        assertEquals(raoResultTimestamp3, globalRaoResult.getIndividualRaoResult(TestsUtils.TIMESTAMP_3));
+    }
+
+    @Test
     void testWrite() throws IOException {
         Network network1 = Network.read("/network/3Nodes.uct", GlobalRaoResultImplTest.class.getResourceAsStream("/network/3Nodes.uct"));
         Network network2 = Network.read("/network/3Nodes.uct", GlobalRaoResultImplTest.class.getResourceAsStream("/network/3Nodes.uct"));
@@ -256,11 +264,15 @@ class GlobalRaoResultImplTest {
         OffsetDateTime timestamp2 = OffsetDateTime.of(2025, 2, 14, 11, 40, 0, 0, ZoneOffset.UTC);
         OffsetDateTime timestamp3 = OffsetDateTime.of(2025, 2, 14, 12, 40, 0, 0, ZoneOffset.UTC);
 
-        GlobalRaoResultImpl globalRaoResult = new GlobalRaoResultImpl(null, null, new TemporalDataImpl<>(Map.of(timestamp1, raoResult1, timestamp2, raoResult2, timestamp3, raoResult3)));
+        GlobalRaoResultImpl globalRaoResultToExport = new GlobalRaoResultImpl(null, null, new TemporalDataImpl<>(Map.of(timestamp1, raoResult1, timestamp2, raoResult2, timestamp3, raoResult3)));
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ZipOutputStream zos = new ZipOutputStream(baos);
 
-        globalRaoResult.write(zos, new TemporalDataImpl<>(Map.of(timestamp1, crac1, timestamp2, crac2, timestamp3, crac3)));
+        Properties properties = new Properties();
+        properties.put("rao-result.export.json.flows-in-amperes", "true");
+        properties.put("rao-result.export.json.flows-in-megawatts", "true");
+
+        globalRaoResultToExport.write(zos, new TemporalDataImpl<>(Map.of(timestamp1, crac1, timestamp2, crac2, timestamp3, crac3)), properties);
 
         byte[] zipBytes = baos.toByteArray();
         ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(zipBytes);
@@ -271,18 +283,11 @@ class GlobalRaoResultImplTest {
         while ((entry = zis.getNextEntry()) != null) {
             exportedRaoResults.add(entry.getName());
         }
-        assertEquals(exportedRaoResults.size(), 3);
+
+        assertEquals(3, exportedRaoResults.size());
         assertTrue(exportedRaoResults.contains("raoResult_202502141040.json"));
         assertTrue(exportedRaoResults.contains("raoResult_202502141140.json"));
         assertTrue(exportedRaoResults.contains("raoResult_202502141240.json"));
 
     }
-
-    @Test
-    void testGetIndividualRaoResult() {
-        assertEquals(raoResultTimestamp1, globalRaoResult.getIndividualRaoResult(TestsUtils.TIMESTAMP_1));
-        assertEquals(raoResultTimestamp2, globalRaoResult.getIndividualRaoResult(TestsUtils.TIMESTAMP_2));
-        assertEquals(raoResultTimestamp3, globalRaoResult.getIndividualRaoResult(TestsUtils.TIMESTAMP_3));
-    }
-
 }
