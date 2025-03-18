@@ -53,7 +53,7 @@ public final class InterTemporalRaoSteps {
     }
 
     private static void setNetworkInputsPostIcs(String folderPath) {
-        networkFolderPathPostIcsImport = getResourcesPath().concat("cases/").concat(folderPath+"-postIcsImport/");
+        networkFolderPathPostIcsImport = getResourcesPath().concat("cases/").concat(folderPath + "-postIcsImport/");
     }
 
     @Given("ics static file is {string}")

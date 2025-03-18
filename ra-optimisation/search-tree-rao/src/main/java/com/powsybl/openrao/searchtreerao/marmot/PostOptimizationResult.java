@@ -18,8 +18,6 @@ import com.powsybl.openrao.searchtreerao.result.impl.NetworkActionsResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.OneStateOnlyRaoResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.OptimizationResultImpl;
 
-import static com.powsybl.openrao.searchtreerao.marmot.MarmotUtils.getPreventivePerimeterCnecs;
-
 /** This class concatenates all data around one individual timestamp from running Marmot:
  * - input data (before Marmot): RaoInput
  * - output data (after Marmot):
