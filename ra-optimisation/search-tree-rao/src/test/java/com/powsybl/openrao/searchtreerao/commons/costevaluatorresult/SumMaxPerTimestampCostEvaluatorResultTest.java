@@ -122,8 +122,8 @@ class SumMaxPerTimestampCostEvaluatorResultTest {
         );
 
         // timestamp 1: -120, -10, -50 -> minMargin = -120 -> cost = 120
-        // timestamp 2: -34, -546 -> minMargin = 546
-        // timestamp 3: 43, -76 -> minMargin = 76
+        // timestamp 2: -34, -546 -> minMargin = -546 -> cost = 546
+        // timestamp 3: 43, -76 -> minMargin = -76 -> cost = 76
         // the expected evaluation in the sum of maxes: 120 + 546 + 76 = 742
         assertEquals(742, evaluatorResult.getCost(Set.of(), Set.of()));
     }
@@ -138,11 +138,11 @@ class SumMaxPerTimestampCostEvaluatorResultTest {
             Unit.MEGAWATT
         );
 
-        // contingencies 2 and 3 are excluded so results associated to curativeState1T2 and curativeState1T3 are ignored
+        // contingencies 2 and 3 are excluded so results associated to flowCnecCurativeT2 and flowCnecCurativeT3 are ignored
         // Also exclude cnec-curative12
         // timestamp 1: -10, -50 -> minMargin = -50 ->  cost = 50
         // timestamp 2: 34      -> minMargin = -34 ->  cost = 34
-        // timestamp 3: -43     -> minMargin = 43 ->  cost = 43
+        // timestamp 3: -43     -> minMargin = 43 ->  cost = -43
         // the expected evaluation in the sum of maxes: 50 + 34 - 43 = 41
         assertEquals(41, evaluatorResult.getCost(Set.of("contingency-3", "contingency-2"), Set.of("cnec-curative12")));
     }
