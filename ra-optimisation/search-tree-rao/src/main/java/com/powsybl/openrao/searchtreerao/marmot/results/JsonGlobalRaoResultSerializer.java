@@ -18,6 +18,8 @@ import com.powsybl.openrao.data.raoresult.api.GlobalRaoResult;
 import com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -34,6 +36,7 @@ public class JsonGlobalRaoResultSerializer extends JsonSerializer<GlobalRaoResul
     private static final DateTimeFormatter FILE_NAME_DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMddHHmm");
     private static final String FILE_NAME_TEMPLATE = "raoResult_%s.json";
     private static final String RESULT_PER_TIMESTAMP = "resultPerTimestamp";
+    private static final String COST_RESULTS = "costResults";
 
     @Override
     public void serialize(GlobalRaoResult globalRaoResult, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
@@ -47,6 +50,7 @@ public class JsonGlobalRaoResultSerializer extends JsonSerializer<GlobalRaoResul
         ComputationStatus computationStatus = globalRaoResult.getComputationStatus();
         jsonGenerator.writeStringField(COMPUTATION_STATUS, serializeStatus(computationStatus));
 
+        serializeCostResult(globalRaoResult, jsonGenerator);
         serializeRaoResultPerTimestamp(globalRaoResult, jsonGenerator);
 
         jsonGenerator.writeEndObject();
@@ -62,5 +66,27 @@ public class JsonGlobalRaoResultSerializer extends JsonSerializer<GlobalRaoResul
             jsonGenerator.writeStringField(timestamp.format(FIELD_NAME_DATE_TIME_FORMATTER), getRaoResultFileName(timestamp));
         }
         jsonGenerator.writeEndObject();
+    }
+
+    private static void serializeCostResult(GlobalRaoResult globalRaoResult, JsonGenerator jsonGenerator) throws IOException {
+        jsonGenerator.writeObjectFieldStart(COST_RESULTS);
+        jsonGenerator.writeObjectFieldStart(PREVENTIVE_INSTANT_ID);
+        jsonGenerator.writeNumberField(FUNCTIONAL_COST, roundDouble(globalRaoResult.getGlobalFunctionalCost()));
+
+        jsonGenerator.writeObjectFieldStart(VIRTUAL_COSTS);
+        for (String virtualCostName : globalRaoResult.getVirtualCostNames().stream().sorted().toList()) {
+            double virtualCostForAGivenName = globalRaoResult.getGlobalVirtualCost(virtualCostName);
+            if (!Double.isNaN(virtualCostForAGivenName)) {
+                jsonGenerator.writeNumberField(virtualCostName, roundDouble(virtualCostForAGivenName));
+            }
+        }
+        jsonGenerator.writeEndObject();
+
+        jsonGenerator.writeEndObject();
+        jsonGenerator.writeEndObject();
+    }
+
+    private static BigDecimal roundDouble(double doubleValue) {
+        return new BigDecimal(doubleValue).setScale(2, RoundingMode.HALF_UP);
     }
 }

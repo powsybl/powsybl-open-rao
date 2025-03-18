@@ -18,6 +18,7 @@ import com.powsybl.openrao.data.raoresult.api.GlobalRaoResult;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -27,6 +28,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.Map;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -51,8 +53,12 @@ public class JsonGlobalRaoResultSerializerTest {
         OffsetDateTime timestamp1 = OffsetDateTime.of(2025, 2, 14, 10, 40, 0, 0, ZoneOffset.UTC);
         OffsetDateTime timestamp2 = OffsetDateTime.of(2025, 2, 14, 11, 40, 0, 0, ZoneOffset.UTC);
         OffsetDateTime timestamp3 = OffsetDateTime.of(2025, 2, 14, 12, 40, 0, 0, ZoneOffset.UTC);
-
-        globalRaoResult = new GlobalRaoResultImpl(null, new TemporalDataImpl<>(Map.of(timestamp1, raoResult1, timestamp2, raoResult2, timestamp3, raoResult3)));
+        GlobalLinearOptimizationResult globalLinearOptimizationResult = Mockito.mock(GlobalLinearOptimizationResult.class);
+        Mockito.when(globalLinearOptimizationResult.getFunctionalCost()).thenReturn(65030.0);
+        Mockito.when(globalLinearOptimizationResult.getVirtualCostNames()).thenReturn(Set.of("min-margin-violation-evaluator", "sensitivity-failure-cost"));
+        Mockito.when(globalLinearOptimizationResult.getVirtualCost("min-margin-violation-evaluator")).thenReturn(0.0);
+        Mockito.when(globalLinearOptimizationResult.getVirtualCost("sensitivity-failure-cost")).thenReturn(0.0);
+        globalRaoResult = new GlobalRaoResultImpl(globalLinearOptimizationResult, new TemporalDataImpl<>(Map.of(timestamp1, raoResult1, timestamp2, raoResult2, timestamp3, raoResult3)));
 
     }
 
