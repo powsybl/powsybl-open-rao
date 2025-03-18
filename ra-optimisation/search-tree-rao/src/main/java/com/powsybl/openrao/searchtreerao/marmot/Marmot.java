@@ -70,6 +70,17 @@ public class Marmot implements InterTemporalRaoProvider {
 
     @Override
     public CompletableFuture<TemporalData<RaoResult>> run(InterTemporalRaoInputWithNetworkPaths interTemporalRaoInputWithNetworkPaths, RaoParameters raoParameters) {
+        // MEMORY ISSUES
+        // Modifications done:
+        // - use network paths for runTopologicalOptimization
+        // - configure VM options with -Xmx16g
+        // - reduce topologicalOptimizationResults size via FastRao
+        // TODO :
+        // - continue reducing topologicalOptimizationResults by keeping only initial flows, applied RAs
+        // - reduce FastRaoResultImpl attributes to strictly necessary
+        // OTHER TODO:
+        // - FastMarmot shouldStop: use GlobalObjectiveResult to sort worse cnecs over all timestamps rather than per timestamp
+
         // 1. Run independent RAOs to compute optimal preventive topological remedial actions
         OpenRaoLoggerProvider.TECHNICAL_LOGS.info("[MARMOT] ----- Topological optimization [start]");
         TemporalData<Set<String>> consideredCnecs = new TemporalDataImpl<>();

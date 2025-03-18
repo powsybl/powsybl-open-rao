@@ -83,6 +83,7 @@ public class PowerGradientConstraintFiller implements ProblemFiller {
      * P(g,t) = p0(g,t) + sum_{i \in injectionAction_prev(g,t)} d_i(g) * [delta^{+}(r,s,t) - delta^{-}(r,s,t)]
      * */
     private void addPowerConstraint(LinearProblem linearProblem, String generatorId, OpenRaoMPVariable generatorPowerVariable, OffsetDateTime timestamp) {
+        // Initial power cannot be read from modified network. It is fetched from rangeActionSetPointVariationConstraint's upper bound
         OpenRaoMPConstraint generatorPowerConstraint = linearProblem.addGeneratorPowerConstraint(generatorId, 0., timestamp);
         generatorPowerConstraint.setCoefficient(generatorPowerVariable, 1.0);
         final double[] bound = {0};
@@ -101,17 +102,6 @@ public class PowerGradientConstraintFiller implements ProblemFiller {
                 bound[0] = bound[0] + setPointVariationConstraint.ub() * injectionKey;
             });
         generatorPowerConstraint.setBounds(bound[0], bound[0]);
-    }
-
-    private static double getInitialPower(String generatorId, Network network) {
-        Identifiable<?> networkElement = network.getIdentifiable(generatorId);
-        if (networkElement instanceof Generator generator) {
-            return generator.getTargetP();
-        } else if (networkElement instanceof Load load) {
-            return load.getP0();
-        } else {
-            throw new OpenRaoException("Network element `%s` is neither a generator nor a load.".formatted(generatorId));
-        }
     }
 
     @Override
