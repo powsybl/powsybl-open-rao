@@ -30,11 +30,11 @@
             <artifactId>open-rao-rao-result-impl</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
+        <!--<dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>open-rao-search-tree-rao</artifactId>
             <version>${project.version}</version>
-        </dependency>
+        </dependency>-->
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>open-rao-crac-io-json</artifactId>

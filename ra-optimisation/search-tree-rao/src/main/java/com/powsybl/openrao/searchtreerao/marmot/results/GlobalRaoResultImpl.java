@@ -12,6 +12,7 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.Unit;
+import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
@@ -24,12 +25,19 @@ import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.searchtreerao.marmot.MarmotUtils;
 import com.powsybl.openrao.searchtreerao.result.api.ObjectiveFunctionResult;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -88,6 +96,39 @@ public class GlobalRaoResultImpl implements GlobalRaoResult {
     @Override
     public boolean isSecure(OffsetDateTime timestamp, PhysicalParameter... u) {
         return raoResultPerTimestamp.getData(timestamp).orElseThrow(() -> new OpenRaoException(MISSING_RAO_RESULT_ERROR_MESSAGE)).isSecure(u);
+    }
+
+    @Override
+    public void write(ZipOutputStream zipOutputStream, TemporalData<Crac> cracs) throws IOException {
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMMddHHmm");
+        Properties properties = new Properties();
+        properties.put("rao-result.export.json.flows-in-amperes", "true");
+        properties.put("rao-result.export.json.flows-in-megawatts", "true");
+        raoResultPerTimestamp.getDataPerTimestamp().forEach((timestamp, raoResult) -> {
+            ZipEntry entry = new ZipEntry("raoResult_%s.json".formatted(timestamp.format(dateTimeFormatter)));
+            try {
+                zipOutputStream.putNextEntry(entry);
+
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                raoResult.write("JSON", cracs.getData(timestamp).orElseThrow(), properties, baos);
+                String content = baos.toString();
+                baos.close();
+
+                byte[] bytes = new byte[1024];
+                int length;
+                InputStream is = new ByteArrayInputStream(content.getBytes());
+                while ((length = is.read(bytes)) >= 0) {
+                    zipOutputStream.write(bytes, 0, length);
+                }
+                is.close();
+
+                zipOutputStream.closeEntry();
+            } catch (IOException e) {
+                throw new OpenRaoException("Could not serialize RAO Result for timestamp %s.".formatted(timestamp.format(dateTimeFormatter)), e);
+            }
+        });
+        // TODO: add "header"
+        zipOutputStream.close();
     }
 
     @Override

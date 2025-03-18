@@ -8,10 +8,14 @@
 package com.powsybl.openrao.data.raoresult.api;
 
 import com.powsybl.openrao.commons.PhysicalParameter;
+import com.powsybl.openrao.commons.TemporalData;
+import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 
+import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.zip.ZipOutputStream;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -89,4 +93,6 @@ public interface GlobalRaoResult extends RaoResult {
     default boolean isSecure(OffsetDateTime timestamp) {
         return isSecure(timestamp, PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE);
     }
+
+    void write(ZipOutputStream zipOutputStream, TemporalData<Crac> cracs) throws IOException;
 }
