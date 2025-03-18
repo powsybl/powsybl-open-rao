@@ -125,8 +125,8 @@ public class Marmot implements InterTemporalRaoProvider {
         logCost("[MARMOT] Before global linear optimization: ", initialLinearOptimizationResult, raoParameters, 10);
         logCost("[MARMOT] After global linear optimization: ", linearOptimizationResults, raoParameters, 10);
 
-        interTemporalRaoInput.getRaoInputs().getDataPerTimestamp().forEach(((dateTime, raoInput) ->
-            exportUctNetwork(interTemporalRaoInputWithNetworkPaths.getRaoInputs().getData(dateTime).get(), raoInput, linearOptimizationResults)));
+        interTemporalRaoInput.getRaoInputs().getDataPerTimestamp().forEach((dateTime, raoInput) ->
+            exportUctNetwork(interTemporalRaoInputWithNetworkPaths.getRaoInputs().getData(dateTime).get(), raoInput, linearOptimizationResults));
 
         return CompletableFuture.completedFuture(mergedRaoResults);
     }
