@@ -23,9 +23,11 @@ import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.GlobalRaoResult;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 
+import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.zip.ZipOutputStream;
 
@@ -84,7 +86,7 @@ public class GlobalRaoResultMock implements GlobalRaoResult {
     }
 
     @Override
-    public void write(ZipOutputStream zipOutputStream, TemporalData<Crac> cracs) {
+    public void write(ZipOutputStream zipOutputStream, TemporalData<Crac> cracs, Properties properties) throws IOException {
 
     }
 
