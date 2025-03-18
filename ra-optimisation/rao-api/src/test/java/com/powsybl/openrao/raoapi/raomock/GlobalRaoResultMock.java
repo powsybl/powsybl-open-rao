@@ -13,6 +13,7 @@ import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
+import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
@@ -38,17 +39,17 @@ public class GlobalRaoResultMock implements GlobalRaoResult {
     }
 
     @Override
-    public double getGlobalFunctionalCost() {
+    public double getGlobalFunctionalCost(InstantKind instantKind) {
         return 0;
     }
 
     @Override
-    public double getGlobalVirtualCost() {
+    public double getGlobalVirtualCost(InstantKind instantKind) {
         return 0;
     }
 
     @Override
-    public double getGlobalVirtualCost(String virtualCostName) {
+    public double getGlobalVirtualCost(InstantKind instantKind, String virtualCostName) {
         return 0;
     }
 

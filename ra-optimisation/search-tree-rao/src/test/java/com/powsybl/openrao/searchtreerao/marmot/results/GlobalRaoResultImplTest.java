@@ -15,6 +15,7 @@ import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
+import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
@@ -77,6 +78,12 @@ class GlobalRaoResultImplTest {
         pstRangeAction = Mockito.mock(PstRangeAction.class);
         networkAction = Mockito.mock(NetworkAction.class);
 
+        ObjectiveFunctionResult initialObjectiveFunctionResult = Mockito.mock(ObjectiveFunctionResult.class);
+        Mockito.when(initialObjectiveFunctionResult.getFunctionalCost()).thenReturn(0.);
+        Mockito.when(initialObjectiveFunctionResult.getVirtualCost()).thenReturn(0.);
+        Mockito.when(initialObjectiveFunctionResult.getVirtualCostNames()).thenReturn(Set.of("virtual"));
+        Mockito.when(initialObjectiveFunctionResult.getVirtualCost("virtual")).thenReturn(0.);
+
         ObjectiveFunctionResult objectiveFunctionResult = Mockito.mock(ObjectiveFunctionResult.class);
         Mockito.when(objectiveFunctionResult.getFunctionalCost()).thenReturn(900.);
         Mockito.when(objectiveFunctionResult.getVirtualCost()).thenReturn(100.);
@@ -87,16 +94,22 @@ class GlobalRaoResultImplTest {
         raoResultTimestamp2 = mockRaoResult(true, "RAO 2 succeeded.", 250., 90., flowCnecTimestamp2, 510., 45., stateTimestamp2, 0, 5, 0., 10.2, false);
         raoResultTimestamp3 = mockRaoResult(false, "RAO 3 failed.", 200., 10., flowCnecTimestamp3, 1000., -60., stateTimestamp3, 0, 16, 0., 35.32, true);
 
-        globalRaoResult = new GlobalRaoResultImpl(objectiveFunctionResult, new TemporalDataImpl<>(Map.of(TestsUtils.TIMESTAMP_1, raoResultTimestamp1, TestsUtils.TIMESTAMP_2, raoResultTimestamp2, TestsUtils.TIMESTAMP_3, raoResultTimestamp3)));
+        globalRaoResult = new GlobalRaoResultImpl(initialObjectiveFunctionResult, objectiveFunctionResult, new TemporalDataImpl<>(Map.of(TestsUtils.TIMESTAMP_1, raoResultTimestamp1, TestsUtils.TIMESTAMP_2, raoResultTimestamp2, TestsUtils.TIMESTAMP_3, raoResultTimestamp3)));
     }
 
     @Test
     void testCosts() {
-        assertEquals(1000., globalRaoResult.getGlobalCost());
-        assertEquals(900., globalRaoResult.getGlobalFunctionalCost());
-        assertEquals(100., globalRaoResult.getGlobalVirtualCost());
-        assertEquals(100., globalRaoResult.getGlobalVirtualCost("virtual"));
         assertEquals(Set.of("virtual"), globalRaoResult.getVirtualCostNames());
+
+        assertEquals(0., globalRaoResult.getGlobalCost(null));
+        assertEquals(0., globalRaoResult.getGlobalFunctionalCost(null));
+        assertEquals(0., globalRaoResult.getGlobalVirtualCost(null));
+        assertEquals(0., globalRaoResult.getGlobalVirtualCost(null, "virtual"));
+
+        assertEquals(1000., globalRaoResult.getGlobalCost(InstantKind.PREVENTIVE));
+        assertEquals(900., globalRaoResult.getGlobalFunctionalCost(InstantKind.PREVENTIVE));
+        assertEquals(100., globalRaoResult.getGlobalVirtualCost(InstantKind.PREVENTIVE));
+        assertEquals(100., globalRaoResult.getGlobalVirtualCost(InstantKind.PREVENTIVE, "virtual"));
 
         assertEquals(450., globalRaoResult.getCost(instant, TestsUtils.TIMESTAMP_1));
         assertEquals(450., globalRaoResult.getFunctionalCost(instant, TestsUtils.TIMESTAMP_1));
@@ -243,7 +256,7 @@ class GlobalRaoResultImplTest {
         OffsetDateTime timestamp2 = OffsetDateTime.of(2025, 2, 14, 11, 40, 0, 0, ZoneOffset.UTC);
         OffsetDateTime timestamp3 = OffsetDateTime.of(2025, 2, 14, 12, 40, 0, 0, ZoneOffset.UTC);
 
-        GlobalRaoResultImpl globalRaoResult = new GlobalRaoResultImpl(null, new TemporalDataImpl<>(Map.of(timestamp1, raoResult1, timestamp2, raoResult2, timestamp3, raoResult3)));
+        GlobalRaoResultImpl globalRaoResult = new GlobalRaoResultImpl(null, null, new TemporalDataImpl<>(Map.of(timestamp1, raoResult1, timestamp2, raoResult2, timestamp3, raoResult3)));
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ZipOutputStream zos = new ZipOutputStream(baos);
 

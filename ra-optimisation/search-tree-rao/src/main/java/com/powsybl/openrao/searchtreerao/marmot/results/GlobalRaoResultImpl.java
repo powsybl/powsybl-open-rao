@@ -14,6 +14,7 @@ import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
+import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
@@ -43,14 +44,16 @@ import java.util.zip.ZipOutputStream;
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
 public class GlobalRaoResultImpl implements GlobalRaoResult {
-    private final ObjectiveFunctionResult globalObjectiveFunctionResult;
+    private final ObjectiveFunctionResult initialGlobalObjectiveFunctionResult;
+    private final ObjectiveFunctionResult postPrasGlobalObjectiveFunctionResult;
     private final TemporalData<RaoResult> raoResultPerTimestamp;
 
     private static final String MISSING_RAO_RESULT_ERROR_MESSAGE = "No RAO Result data found for the provided timestamp.";
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMddHHmm");
 
-    public GlobalRaoResultImpl(ObjectiveFunctionResult globalObjectiveFunctionResult, TemporalData<RaoResult> raoResultPerTimestamp) {
-        this.globalObjectiveFunctionResult = globalObjectiveFunctionResult;
+    public GlobalRaoResultImpl(ObjectiveFunctionResult initialGlobalObjectiveFunctionResult, ObjectiveFunctionResult postPrasGlobalObjectiveFunctionResult, TemporalData<RaoResult> raoResultPerTimestamp) {
+        this.initialGlobalObjectiveFunctionResult = initialGlobalObjectiveFunctionResult;
+        this.postPrasGlobalObjectiveFunctionResult = postPrasGlobalObjectiveFunctionResult;
         this.raoResultPerTimestamp = raoResultPerTimestamp;
     }
 
@@ -60,18 +63,18 @@ public class GlobalRaoResultImpl implements GlobalRaoResult {
     }
 
     @Override
-    public double getGlobalFunctionalCost() {
-        return globalObjectiveFunctionResult.getFunctionalCost();
+    public double getGlobalFunctionalCost(InstantKind instantKind) {
+        return getRelevantResult(instantKind).getFunctionalCost();
     }
 
     @Override
-    public double getGlobalVirtualCost() {
-        return globalObjectiveFunctionResult.getVirtualCost();
+    public double getGlobalVirtualCost(InstantKind instantKind) {
+        return getRelevantResult(instantKind).getVirtualCost();
     }
 
     @Override
-    public double getGlobalVirtualCost(String virtualCostName) {
-        return globalObjectiveFunctionResult.getVirtualCost(virtualCostName);
+    public double getGlobalVirtualCost(InstantKind instantKind, String virtualCostName) {
+        return getRelevantResult(instantKind).getVirtualCost(virtualCostName);
     }
 
     @Override
@@ -116,7 +119,8 @@ public class GlobalRaoResultImpl implements GlobalRaoResult {
                 throw new OpenRaoException("Could not serialize RAO Result for timestamp %s.".formatted(timestamp.format(DATE_TIME_FORMATTER)), e);
             }
         });
-        // TODO: add "header"
+
+        // TODO: include serialized summary in ZIP archive and test that it is present
 
         zipOutputStream.close();
     }
@@ -193,7 +197,7 @@ public class GlobalRaoResultImpl implements GlobalRaoResult {
 
     @Override
     public Set<String> getVirtualCostNames() {
-        return globalObjectiveFunctionResult.getVirtualCostNames();
+        return postPrasGlobalObjectiveFunctionResult.getVirtualCostNames();
     }
 
     @Override
@@ -276,5 +280,9 @@ public class GlobalRaoResultImpl implements GlobalRaoResult {
     @Override
     public boolean isSecure(PhysicalParameter... u) {
         return raoResultPerTimestamp.map(raoResult -> raoResult.isSecure(u)).getDataPerTimestamp().values().stream().allMatch(bool -> bool);
+    }
+
+    private ObjectiveFunctionResult getRelevantResult(InstantKind instantKind) {
+        return instantKind == null ? initialGlobalObjectiveFunctionResult : postPrasGlobalObjectiveFunctionResult;
     }
 }

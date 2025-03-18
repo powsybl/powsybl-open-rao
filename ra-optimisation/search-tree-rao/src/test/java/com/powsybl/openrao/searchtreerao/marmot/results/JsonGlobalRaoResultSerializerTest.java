@@ -36,11 +36,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
  */
-public class JsonGlobalRaoResultSerializerTest {
+class JsonGlobalRaoResultSerializerTest {
     private GlobalRaoResult globalRaoResult;
 
     @BeforeEach
-    public void setUp() throws IOException {
+    void setUp() throws IOException {
         Network network1 = Network.read("/network/3Nodes.uct", JsonGlobalRaoResultSerializerTest.class.getResourceAsStream("/network/3Nodes.uct"));
         Network network2 = Network.read("/network/3Nodes.uct", JsonGlobalRaoResultSerializerTest.class.getResourceAsStream("/network/3Nodes.uct"));
         Network network3 = Network.read("/network/3Nodes.uct", JsonGlobalRaoResultSerializerTest.class.getResourceAsStream("/network/3Nodes.uct"));
@@ -53,18 +53,25 @@ public class JsonGlobalRaoResultSerializerTest {
         OffsetDateTime timestamp1 = OffsetDateTime.of(2025, 2, 14, 10, 40, 0, 0, ZoneOffset.UTC);
         OffsetDateTime timestamp2 = OffsetDateTime.of(2025, 2, 14, 11, 40, 0, 0, ZoneOffset.UTC);
         OffsetDateTime timestamp3 = OffsetDateTime.of(2025, 2, 14, 12, 40, 0, 0, ZoneOffset.UTC);
+
+        GlobalLinearOptimizationResult initialLinearOptimizationResult = Mockito.mock(GlobalLinearOptimizationResult.class);
+        Mockito.when(initialLinearOptimizationResult.getFunctionalCost()).thenReturn(0.0);
+        Mockito.when(initialLinearOptimizationResult.getVirtualCostNames()).thenReturn(Set.of("min-margin-violation-evaluator", "sensitivity-failure-cost"));
+        Mockito.when(initialLinearOptimizationResult.getVirtualCost("min-margin-violation-evaluator")).thenReturn(3333333.33);
+        Mockito.when(initialLinearOptimizationResult.getVirtualCost("sensitivity-failure-cost")).thenReturn(0.0);
+
         GlobalLinearOptimizationResult globalLinearOptimizationResult = Mockito.mock(GlobalLinearOptimizationResult.class);
         Mockito.when(globalLinearOptimizationResult.getFunctionalCost()).thenReturn(65030.0);
         Mockito.when(globalLinearOptimizationResult.getVirtualCostNames()).thenReturn(Set.of("min-margin-violation-evaluator", "sensitivity-failure-cost"));
         Mockito.when(globalLinearOptimizationResult.getVirtualCost("min-margin-violation-evaluator")).thenReturn(0.0);
         Mockito.when(globalLinearOptimizationResult.getVirtualCost("sensitivity-failure-cost")).thenReturn(0.0);
-        globalRaoResult = new GlobalRaoResultImpl(globalLinearOptimizationResult, new TemporalDataImpl<>(Map.of(timestamp1, raoResult1, timestamp2, raoResult2, timestamp3, raoResult3)));
+
+        globalRaoResult = new GlobalRaoResultImpl(initialLinearOptimizationResult, globalLinearOptimizationResult, new TemporalDataImpl<>(Map.of(timestamp1, raoResult1, timestamp2, raoResult2, timestamp3, raoResult3)));
 
     }
 
     @Test
-    public void testSerialize() throws IOException {
-
+    void testSerialize() throws IOException {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         try {
             ObjectMapper objectMapper = JsonUtil.createObjectMapper();
@@ -79,7 +86,7 @@ public class JsonGlobalRaoResultSerializerTest {
         String outputStreamString = byteArrayOutputStream.toString();
 
         // import expected json to compare
-        InputStream inputStream = getClass().getResourceAsStream("/raoResult/globalRaoResult_summary.json");
+        InputStream inputStream = getClass().getResourceAsStream("/raoResult/globalRaoSummary.json");
         String inputString = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
         assertEquals(inputString, outputStreamString);
     }
