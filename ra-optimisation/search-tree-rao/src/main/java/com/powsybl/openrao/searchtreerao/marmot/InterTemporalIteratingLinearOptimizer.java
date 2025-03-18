@@ -319,6 +319,13 @@ public final class InterTemporalIteratingLinearOptimizer {
             iteration,
             formatDouble(result.getCost()),
             formatDouble(result.getFunctionalCost()));
+
+        result.getVirtualCostNames().forEach(vc -> {
+            double cost = result.getVirtualCost(vc);
+            if (cost > 1e-6) {
+                TECHNICAL_LOGS.info("{} cost of {}", vc, cost);
+            }
+        });
     }
 
     private static void logWorseResult(int iteration, LinearOptimizationResult bestResult, LinearOptimizationResult currentResult) {
@@ -329,6 +336,13 @@ public final class InterTemporalIteratingLinearOptimizer {
             formatDouble(currentResult.getCost()),
             formatDouble(bestResult.getFunctionalCost()),
             formatDouble(currentResult.getFunctionalCost()));
+
+        currentResult.getVirtualCostNames().forEach(vc -> {
+            double cost = currentResult.getVirtualCost(vc);
+            if (cost > 1e-6) {
+                TECHNICAL_LOGS.info("{} cost of {}", vc, cost);
+            }
+        });
     }
 
     private static String formatDouble(double value) {
