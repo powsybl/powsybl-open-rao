@@ -265,4 +265,11 @@ class GlobalRaoResultImplTest {
 
     }
 
+    @Test
+    void testGetIndividualRaoResult() {
+        assertEquals(raoResultTimestamp1, globalRaoResult.getIndividualRaoResult(TestsUtils.TIMESTAMP_1));
+        assertEquals(raoResultTimestamp2, globalRaoResult.getIndividualRaoResult(TestsUtils.TIMESTAMP_2));
+        assertEquals(raoResultTimestamp3, globalRaoResult.getIndividualRaoResult(TestsUtils.TIMESTAMP_3));
+    }
+
 }

@@ -94,5 +94,7 @@ public interface GlobalRaoResult extends RaoResult {
         return isSecure(timestamp, PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE);
     }
 
+    RaoResult getIndividualRaoResult(OffsetDateTime timestamp);
+
     void write(ZipOutputStream zipOutputStream, TemporalData<Crac> cracs) throws IOException;
 }

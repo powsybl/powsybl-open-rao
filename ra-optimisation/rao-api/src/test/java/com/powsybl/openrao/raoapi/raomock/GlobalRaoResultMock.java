@@ -20,6 +20,7 @@ import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.GlobalRaoResult;
+import com.powsybl.openrao.data.raoresult.api.RaoResult;
 
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -74,6 +75,11 @@ public class GlobalRaoResultMock implements GlobalRaoResult {
     @Override
     public boolean isSecure(OffsetDateTime timestamp, PhysicalParameter... u) {
         return false;
+    }
+
+    @Override
+    public RaoResult getIndividualRaoResult(OffsetDateTime timestamp) {
+        return null;
     }
 
     @Override

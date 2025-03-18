@@ -100,6 +100,11 @@ public class GlobalRaoResultImpl implements GlobalRaoResult {
     }
 
     @Override
+    public RaoResult getIndividualRaoResult(OffsetDateTime timestamp) {
+        return raoResultPerTimestamp.getData(timestamp).orElseThrow(() -> new OpenRaoException(MISSING_RAO_RESULT_ERROR_MESSAGE));
+    }
+
+    @Override
     public void write(ZipOutputStream zipOutputStream, TemporalData<Crac> cracs) throws IOException {
         Properties properties = new Properties();
         properties.put("rao-result.export.json.flows-in-amperes", "true");

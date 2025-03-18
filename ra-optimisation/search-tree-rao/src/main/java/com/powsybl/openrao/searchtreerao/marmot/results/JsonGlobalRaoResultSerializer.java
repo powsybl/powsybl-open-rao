@@ -18,6 +18,8 @@ import com.powsybl.openrao.data.raoresult.api.GlobalRaoResult;
 import com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants;
 
 import java.io.IOException;
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
 
 import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.*;
 
@@ -28,6 +30,10 @@ import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.
 public class JsonGlobalRaoResultSerializer extends JsonSerializer<GlobalRaoResult> {
     private static final String GLOBAL_RAO_RESULT = "GLOBAL_RAO_RESULT";
     private static final String VERSION = "1.0";
+    private static final DateTimeFormatter FIELD_NAME_DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+    private static final DateTimeFormatter FILE_NAME_DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMddHHmm");
+    private static final String FILE_NAME_TEMPLATE = "raoResult_%s.json";
+    private static final String RESULT_PER_TIMESTAMP = "resultPerTimestamp";
 
     @Override
     public void serialize(GlobalRaoResult globalRaoResult, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
@@ -41,6 +47,20 @@ public class JsonGlobalRaoResultSerializer extends JsonSerializer<GlobalRaoResul
         ComputationStatus computationStatus = globalRaoResult.getComputationStatus();
         jsonGenerator.writeStringField(COMPUTATION_STATUS, serializeStatus(computationStatus));
 
+        serializeRaoResultPerTimestamp(globalRaoResult, jsonGenerator);
+
+        jsonGenerator.writeEndObject();
+    }
+
+    private static String getRaoResultFileName(OffsetDateTime timestamp) {
+        return FILE_NAME_TEMPLATE.formatted(timestamp.format(FILE_NAME_DATE_TIME_FORMATTER));
+    }
+
+    private static void serializeRaoResultPerTimestamp(GlobalRaoResult globalRaoResult, JsonGenerator jsonGenerator) throws IOException {
+        jsonGenerator.writeObjectFieldStart(RESULT_PER_TIMESTAMP);
+        for (OffsetDateTime timestamp : globalRaoResult.getTimestamps()) {
+            jsonGenerator.writeStringField(timestamp.format(FIELD_NAME_DATE_TIME_FORMATTER), getRaoResultFileName(timestamp));
+        }
         jsonGenerator.writeEndObject();
     }
 }
