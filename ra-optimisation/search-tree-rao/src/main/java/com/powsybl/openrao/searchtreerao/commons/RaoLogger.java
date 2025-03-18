@@ -418,8 +418,8 @@ public final class RaoLogger {
                                                              ObjectiveFunctionResult objectiveFunctionResult) {
 
         String mostLimitingCnecId = objectiveFunctionResult.getMostLimitingElements(1).get(0).getId();
-        if (mostLimitingCnecId.contains("OUTAGE DUPLICATE")) {
-            logger.info("Limiting element is a fictional CNEC excluded from final cost computation");
+        if (mostLimitingCnecId.contains(OUTAGE_DUPLICATE)) {
+            logger.info(LOG_FICTIONAL_CNEC);
         }
     }
 }

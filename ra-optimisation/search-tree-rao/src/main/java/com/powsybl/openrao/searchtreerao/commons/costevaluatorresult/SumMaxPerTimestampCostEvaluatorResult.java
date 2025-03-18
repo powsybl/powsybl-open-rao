@@ -107,7 +107,7 @@ public class SumMaxPerTimestampCostEvaluatorResult implements CostEvaluatorResul
     @Override
     public List<FlowCnec> getCostlyElements(Set<String> contingenciesToExclude, Set<String> cnecsToExclude) {
         return costlyElements.stream()
-            .filter(flowCnec -> !flowCnec.getId().contains("OUTAGE DUPLICATE"))
+            .filter(flowCnec -> !cnecsToExclude.contains(flowCnec.getId()))
             .filter(flowCnec -> statesContingencyMustBeKept(flowCnec.getState(), contingenciesToExclude))
             .toList();
     }
