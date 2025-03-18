@@ -8,14 +8,18 @@
 package com.powsybl.openrao.searchtreerao.marmot;
 
 import com.google.auto.service.AutoService;
+import com.powsybl.iidm.network.Bus;
+import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
@@ -42,6 +46,7 @@ import com.powsybl.openrao.searchtreerao.result.impl.RangeActionActivationResult
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 import org.mockito.Mockito;
 
+import java.nio.file.Path;
 import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -120,7 +125,58 @@ public class Marmot implements InterTemporalRaoProvider {
         logCost("[MARMOT] Before global linear optimization: ", initialLinearOptimizationResult, raoParameters, 10);
         logCost("[MARMOT] After global linear optimization: ", linearOptimizationResults, raoParameters, 10);
 
+        interTemporalRaoInput.getRaoInputs().getDataPerTimestamp().forEach(((dateTime, raoInput) ->
+            exportUctNetwork(interTemporalRaoInputWithNetworkPaths.getRaoInputs().getData(dateTime).get(), raoInput, linearOptimizationResults)));
+
         return CompletableFuture.completedFuture(mergedRaoResults);
+    }
+
+    private static void exportUctNetwork(RaoInputWithNetworkPaths raoInputWithNetworkPaths, RaoInput raoInput, LinearOptimizationResult linearOptimizationResults) {
+        // RAs have already been applied on network.
+        // But injection RAs have been applied on fictitious generators created during import. Their setpoint
+        // needs to be transposed on initial network's original generators.
+        Network modifiedNetwork = raoInput.getNetwork();
+        String initialNetworkPath = raoInputWithNetworkPaths.getInitialNetworkPath().split(".uct")[0].concat("-copied.uct");
+        Network initialNetwork = Network.read(initialNetworkPath);
+        State preventiveState = raoInput.getCrac().getPreventiveState();
+
+        linearOptimizationResults.getActivatedRangeActions(preventiveState)
+            .forEach(rangeAction -> {
+                if (rangeAction instanceof InjectionRangeAction) {
+                    double optimizedSetpoint = linearOptimizationResults.getOptimizedSetpoint(rangeAction, preventiveState);
+                    double initialSetpoint = ((InjectionRangeAction) rangeAction).getInitialSetpoint();
+                    for (NetworkElement networkElement : rangeAction.getNetworkElements().stream().collect(Collectors.toSet())) {
+                        String busId = modifiedNetwork.getGenerator(networkElement.getId()).getTerminal().getBusBreakerView().getBus().getId();
+                        Bus busInInitialNetwork = initialNetwork.getBusBreakerView().getBus(busId);
+                        // If no generator defined in initial network, create one
+                        // For now, minimumPermissibleReactivePowerGeneration and maximumPermissibleReactivePowerGeneration are hardcoded to -999 and 999
+                        // to prevent infinite values that generate a UCT writer crash. TODO : compute realistic values
+                        String generatorId = busId + "_generator";
+                        if (initialNetwork.getGenerator(generatorId) == null) {
+                            Generator generator = busInInitialNetwork.getVoltageLevel().newGenerator()
+                                .setBus(busId)
+                                .setEnsureIdUnicity(true)
+                                .setId(generatorId)
+                                .setMaxP(999999)
+                                .setMinP(0)
+                                .setTargetP(0)
+                                .setTargetQ(0)
+                                .setTargetV(busInInitialNetwork.getVoltageLevel().getNominalV())
+                                .setVoltageRegulatorOn(false)
+                                .add();
+                            generator.setFictitious(true);
+                            generator.newMinMaxReactiveLimits().setMinQ(-999).setMaxQ(999).add();
+                        }
+                        for (Generator generator : busInInitialNetwork.getGenerators()) {
+                            generator.setTargetP(generator.getTargetP()
+                                + (optimizedSetpoint - initialSetpoint) * ((InjectionRangeAction) rangeAction).getInjectionDistributionKeys().get(networkElement));
+                        }
+                    }
+                }
+            });
+
+        String path = raoInputWithNetworkPaths.getPostIcsImportNetworkPath().split(".jiidm")[0].concat(".uct");
+        initialNetwork.write("UCTE", new Properties(), Path.of(path));
     }
 
     private TemporalData<PrePerimeterResult> buildInitialResults(TemporalData<RaoResult> topologicalOptimizationResults) {
@@ -189,7 +245,7 @@ public class Marmot implements InterTemporalRaoProvider {
                 curativeRemedialActions.getData(timestamp).orElseThrow(),
                 initialResults.getData(timestamp).orElseThrow(),
                 raoParameters)
-        ));
+            ));
         return prePerimeterResults;
     }
 
