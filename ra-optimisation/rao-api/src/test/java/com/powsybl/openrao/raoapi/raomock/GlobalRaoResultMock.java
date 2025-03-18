@@ -69,6 +69,11 @@ public class GlobalRaoResultMock implements GlobalRaoResult {
     }
 
     @Override
+    public boolean isSecure(OffsetDateTime timestamp, PhysicalParameter... u) {
+        return false;
+    }
+
+    @Override
     public ComputationStatus getComputationStatus() {
         return null;
     }

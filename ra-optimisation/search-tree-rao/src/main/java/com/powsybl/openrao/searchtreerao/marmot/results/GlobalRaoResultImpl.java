@@ -26,6 +26,7 @@ import com.powsybl.openrao.searchtreerao.result.api.ObjectiveFunctionResult;
 
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -85,6 +86,11 @@ public class GlobalRaoResultImpl implements GlobalRaoResult {
     }
 
     @Override
+    public boolean isSecure(OffsetDateTime timestamp, PhysicalParameter... u) {
+        return raoResultPerTimestamp.getData(timestamp).orElseThrow(() -> new OpenRaoException(MISSING_RAO_RESULT_ERROR_MESSAGE)).isSecure(u);
+    }
+
+    @Override
     public ComputationStatus getComputationStatus() {
         return MarmotUtils.getGlobalComputationStatus(raoResultPerTimestamp, RaoResult::getComputationStatus);
     }
@@ -126,7 +132,7 @@ public class GlobalRaoResultImpl implements GlobalRaoResult {
 
     @Override
     public double getFunctionalCost(Instant optimizedInstant) {
-        throw new OpenRaoException("Calling getGlobalFunctionalCost with an instant alone is ambiguous. For the global functional cost, use getGlobalFunctionalCost. Otherwise, please provide a timestamp.");
+        throw new OpenRaoException("Calling getFunctionalCost with an instant alone is ambiguous. For the global functional cost, use getGlobalFunctionalCost. Otherwise, please provide a timestamp.");
     }
 
     @Override
@@ -201,14 +207,9 @@ public class GlobalRaoResultImpl implements GlobalRaoResult {
 
     @Override
     public String getExecutionDetails() {
-        StringBuilder executionDetails = new StringBuilder();
-        for (Map.Entry<OffsetDateTime, String> executionDetailsPerTimestamp : raoResultPerTimestamp.map(RaoResult::getExecutionDetails).getDataPerTimestamp().entrySet()) {
-            executionDetails.append(executionDetailsPerTimestamp.getKey().format(DateTimeFormatter.ISO_DATE_TIME));
-            executionDetails.append(": ");
-            executionDetails.append(executionDetailsPerTimestamp.getValue());
-            executionDetails.append(" - ");
-        }
-        return executionDetails.toString();
+        List<String> executionDetails = new ArrayList<>();
+        getTimestamps().forEach(timestamp -> executionDetails.add(timestamp.format(DateTimeFormatter.ISO_DATE_TIME) + ": " + raoResultPerTimestamp.getData(timestamp).orElseThrow().getExecutionDetails()));
+        return String.join(" - ", executionDetails);
     }
 
     @Override

@@ -83,4 +83,10 @@ public interface GlobalRaoResult extends RaoResult {
      * @return whether all the CNECs of the given type(s) are secure at the optimized instant.
      */
     boolean isSecure(Instant optimizedInstant, OffsetDateTime timestamp, PhysicalParameter... u);
+
+    boolean isSecure(OffsetDateTime timestamp, PhysicalParameter... u);
+
+    default boolean isSecure(OffsetDateTime timestamp) {
+        return isSecure(timestamp, PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE);
+    }
 }
