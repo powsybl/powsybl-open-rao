@@ -403,7 +403,7 @@ public class RemedialActionSeriesCreator {
 
         UsageMethod usageMethod = instant.isAuto() ? UsageMethod.FORCED : UsageMethod.AVAILABLE;
         if (!Objects.isNull(sharedDomain)) {
-            addOnFlowConstraintInCountryUsageRule(remedialActionAdder, contingencies, invalidContingencies, sharedDomain, instant, usageMethod);
+            addOnFlowConstraintInCountryUsageRule(remedialActionAdder, contingencies, sharedDomain, instant, usageMethod);
             return;
         }
 
@@ -474,7 +474,7 @@ public class RemedialActionSeriesCreator {
             .add();
     }
 
-    private static void addOnFlowConstraintInCountryUsageRule(RemedialActionAdder<?> remedialActionAdder, List<Contingency> contingencies, List<String> invalidContingencies, Country sharedDomain, Instant instant, UsageMethod usageMethod) {
+    private static void addOnFlowConstraintInCountryUsageRule(RemedialActionAdder<?> remedialActionAdder, List<Contingency> contingencies, Country sharedDomain, Instant instant, UsageMethod usageMethod) {
         OnFlowConstraintInCountryAdder<?> onFlowConstraintInCountryAdder = remedialActionAdder
             .newOnFlowConstraintInCountryUsageRule()
             .withInstant(instant.getId())
