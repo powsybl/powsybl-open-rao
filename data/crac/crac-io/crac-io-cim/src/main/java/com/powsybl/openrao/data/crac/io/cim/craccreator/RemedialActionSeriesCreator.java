@@ -95,7 +95,8 @@ public class RemedialActionSeriesCreator {
             });
 
             if (!Objects.isNull(contingencies) && contingencies.isEmpty() && !Objects.isNull(invalidContingencies) && !invalidContingencies.isEmpty()) {
-                this.remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported("coucou", ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, String.format("CNECs and RAs not imported from this Series because they are only associated to invalid contingencies %s", invalidContingencies)));
+                cimSerie.getRemedialActionSeries().forEach(remedialActionSeries -> this.remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(remedialActionSeries.getMRID(), ImportStatus.INCONSISTENCY_IN_DATA, String.format("This RA is not imported because it is only associated to invalid contingencies %s", invalidContingencies))));
+                resetSeriesContingencies();
                 continue;
             }
 
