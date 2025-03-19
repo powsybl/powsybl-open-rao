@@ -36,6 +36,7 @@ public final class InterTemporalRaoSteps {
     private static String networkFolderPathPostIcsImport;
     private static String icsStaticPath;
     private static String icsSeriesPath;
+    private static String icsGskPath;
     private static InterTemporalRaoInputWithNetworkPaths interTemporalRaoInput;
 
     private InterTemporalRaoSteps() {
@@ -64,6 +65,11 @@ public final class InterTemporalRaoSteps {
     @Given("ics series file is {string}")
     public static void icsSeriesFileIs(String path) {
         icsSeriesPath = getResourcesPath().concat("ics/").concat(path);
+    }
+
+    @Given("ics gsk file is {string}")
+    public static void icsGskFileIs(String path) {
+        icsGskPath = getResourcesPath().concat("ics/").concat(path);
     }
 
     @Given("intertemporal rao inputs are:")
@@ -102,7 +108,8 @@ public final class InterTemporalRaoSteps {
             raoInputs.add(offsetDateTime, raoInput);
         }
         interTemporalRaoInput = new InterTemporalRaoInputWithNetworkPaths(raoInputs, new HashSet<>());
-        IcsImporter.populateInputWithICS(interTemporalRaoInput, new FileInputStream(getFile(icsStaticPath)), new FileInputStream(getFile(icsSeriesPath)));
+        InputStream gskInputStream = icsGskPath == null ? null : new FileInputStream(getFile(icsGskPath));
+        IcsImporter.populateInputWithICS(interTemporalRaoInput, new FileInputStream(getFile(icsStaticPath)), new FileInputStream(getFile(icsSeriesPath)), gskInputStream);
     }
 
     @When("I launch marmot")

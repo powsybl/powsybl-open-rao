@@ -11,7 +11,7 @@
   },
   "topological-actions-optimization" : {
     "relative-minimum-impact-threshold" : 0.01,
-    "absolute-minimum-impact-threshold" : 25
+    "absolute-minimum-impact-threshold" : 100
   },
   "not-optimized-cnecs" : {
     "do-not-optimize-curative-cnecs-for-tsos-without-cras" : false

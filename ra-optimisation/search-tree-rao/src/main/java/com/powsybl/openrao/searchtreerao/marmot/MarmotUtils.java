@@ -8,6 +8,7 @@
 package com.powsybl.openrao.searchtreerao.marmot;
 
 import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.data.crac.api.Crac;
@@ -27,13 +28,11 @@ import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 
 import java.time.OffsetDateTime;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import static org.mockito.Mockito.when;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -62,6 +61,36 @@ public final class MarmotUtils {
             .runBasedOnInitialResults(network, crac, initialResult, null, curativeRemedialActions);
     }
 
+    public static PrePerimeterResult runInitialPrePerimeterSensitivityAnalysis(RaoInput raoInput, AppliedRemedialActions curativeRemedialActions, PrePerimeterResult initialResult, Set<String> consideredCnecs, RaoParameters raoParameters) {
+        Crac crac = raoInput.getCrac();
+        Network network = raoInput.getNetwork();
+        State preventiveState = crac.getPreventiveState();
+        Set<RangeAction<?>> rangeActions = crac.getRangeActions(preventiveState, UsageMethod.AVAILABLE);
+        Set<FlowCnec> filteredCnecs = getFilteredCnecs(crac, consideredCnecs);
+        return new PrePerimeterSensitivityAnalysis(filteredCnecs, rangeActions, raoParameters, ToolProvider.buildFromRaoInputAndParameters(raoInput, raoParameters))
+            .runBasedOnInitialResults(network, crac, initialResult, null, curativeRemedialActions);
+    }
+
+    public static PrePerimeterResult runInitialPrePerimeterSensitivityAnalysisWithoutRangeActions(RaoInput raoInput, RaoParameters raoParameters) {
+        Crac crac = raoInput.getCrac();
+        Network network = raoInput.getNetwork();
+        return new PrePerimeterSensitivityAnalysis(crac.getFlowCnecs(), new HashSet<>(), raoParameters, ToolProvider.buildFromRaoInputAndParameters(raoInput, raoParameters))
+            .runInitialSensitivityAnalysis(network, crac);
+    }
+
+    public static PrePerimeterResult runInitialPrePerimeterSensitivityAnalysisWithoutRangeActions(RaoInput raoInput, AppliedRemedialActions curativeRemedialActions, PrePerimeterResult initialResult, RaoParameters raoParameters) {
+        Crac crac = raoInput.getCrac();
+        Network network = raoInput.getNetwork();
+        return new PrePerimeterSensitivityAnalysis(crac.getFlowCnecs(), new HashSet<>(), raoParameters, ToolProvider.buildFromRaoInputAndParameters(raoInput, raoParameters))
+            .runBasedOnInitialResults(network, crac, initialResult, null, curativeRemedialActions);
+    }
+
+    public static Set<FlowCnec> getFilteredCnecs(Crac crac, Set<String> consideredCnecs) {
+        return crac.getFlowCnecs().stream()
+            .filter(flowCnec -> consideredCnecs.contains(flowCnec.getId()))
+            .collect(Collectors.toSet());
+    }
+
     public static TemporalData<AppliedRemedialActions> getAppliedRemedialActionsInCurative(TemporalData<RaoInput> inputs, TemporalData<RaoResult> raoResults) {
         TemporalData<AppliedRemedialActions> curativeRemedialActions = new TemporalDataImpl<>();
         inputs.getTimestamps().forEach(timestamp -> {
@@ -69,8 +98,14 @@ public final class MarmotUtils {
             RaoResult raoResult = raoResults.getData(timestamp).orElseThrow();
             AppliedRemedialActions appliedRemedialActions = new AppliedRemedialActions();
             for (State state : crac.getStates(crac.getLastInstant())) {
-                appliedRemedialActions.addAppliedNetworkActions(state, raoResult.getActivatedNetworkActionsDuringState(state));
-                raoResult.getActivatedRangeActionsDuringState(state).forEach(ra -> appliedRemedialActions.addAppliedRangeAction(state, ra, raoResult.getOptimizedSetPointOnState(state, ra)));
+                try {
+                    appliedRemedialActions.addAppliedNetworkActions(state, raoResult.getActivatedNetworkActionsDuringState(state));
+                    raoResult.getActivatedRangeActionsDuringState(state).forEach(ra -> appliedRemedialActions.addAppliedRangeAction(state, ra, raoResult.getOptimizedSetPointOnState(state, ra)));
+                } catch (OpenRaoException e) {
+                    if (!e.getMessage().equals("Trying to access perimeter result for the wrong state.")) {
+                        throw e;
+                    }
+                }
             }
             curativeRemedialActions.add(timestamp, appliedRemedialActions);
         });

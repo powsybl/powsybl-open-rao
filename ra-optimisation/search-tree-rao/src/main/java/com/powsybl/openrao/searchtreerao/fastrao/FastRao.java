@@ -130,7 +130,7 @@ public class FastRao implements RaoProvider {
                     consideredCnecs.addAll(getUnsecureFunctionalCnecs(stepResult, parameters.getObjectiveFunctionParameters().getUnit()));
                 }
                 System.out.println(consideredCnecs.size());
-                consideredCnecs.addAll(getCostlyVirtualCnecs(stepResult));
+                consideredCnecs.addAll(getCostlyVirtualCnecs(stepResult, consideredCnecs));
                 System.out.println(consideredCnecs.size());
                 consideredCnecs.add(getWorstPreventiveCnec(stepResult, crac));
                 System.out.println(consideredCnecs.size());
@@ -147,7 +147,7 @@ public class FastRao implements RaoProvider {
 
                 worstCnec = stepResult.getMostLimitingElements(1).get(0);
                 counter++;
-            } while (!(consideredCnecs.contains(worstCnec.getId()) && consideredCnecs.containsAll(getCostlyVirtualCnecs(stepResult))));
+            } while (!(consideredCnecs.contains(worstCnec.getId()) && consideredCnecs.containsAll(getCostlyVirtualCnecs(stepResult, consideredCnecs))));
             networkPool.shutdownAndAwaitTermination(24, TimeUnit.HOURS);
 
             RaoLogger.logObjectiveFunctionResult("Final Result: ",
@@ -205,11 +205,19 @@ public class FastRao implements RaoProvider {
         return flowCnecs;
     }
 
-    private static Set<String> getCostlyVirtualCnecs(ObjectiveFunctionResult ofResult) {
+    private static Set<String> getCostlyVirtualCnecs(ObjectiveFunctionResult ofResult, Set<String> consideredCnecs) {
         Set<String> flowCnecs = new HashSet<>();
-        ofResult.getVirtualCostNames().forEach(name -> ofResult.getCostlyElements(name, Integer.MAX_VALUE).forEach(
-            flowCnec -> flowCnecs.add(flowCnec.getId())
+        ofResult.getVirtualCostNames().stream()
+            .filter(vcName -> !vcName.equals("min-margin-violation-evaluator"))
+            .forEach(name -> ofResult.getCostlyElements(name, Integer.MAX_VALUE).forEach(
+                flowCnec -> flowCnecs.add(flowCnec.getId())
         ));
+        for (FlowCnec flowCnec : ofResult.getCostlyElements("min-margin-violation-evaluator", NUMBER_OF_CNECS_TO_ADD)) {
+            if (consideredCnecs.contains(flowCnec.getId())) {
+                break;
+            }
+            flowCnecs.add(flowCnec.getId());
+        }
         return flowCnecs;
     }
 

@@ -27,7 +27,7 @@ import static com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluat
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
 public class MinMarginViolationEvaluator extends MinMarginEvaluator implements CostEvaluator {
-    private static final double OVERLOAD_PENALTY = 10000d; // TODO : set this in RAO parameters
+    private static final double OVERLOAD_PENALTY = 50d; // TODO : set this in RAO parameters
 
     public MinMarginViolationEvaluator(Set<FlowCnec> flowCnecs, Unit unit, MarginEvaluator marginEvaluator) {
         super(flowCnecs, unit, marginEvaluator);
