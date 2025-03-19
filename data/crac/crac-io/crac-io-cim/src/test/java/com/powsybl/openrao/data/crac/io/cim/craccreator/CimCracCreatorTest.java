@@ -853,7 +853,7 @@ class CimCracCreatorTest {
         assertRemedialActionNotImported("RA2", ImportStatus.INCONSISTENCY_IN_DATA);
         assertRemedialActionNotImported("Angle4", ImportStatus.INCONSISTENCY_IN_DATA);
         assertRemedialActionNotImported("Angle5", ImportStatus.INCONSISTENCY_IN_DATA);
-        assertRemedialActionNotImported("RA6", ImportStatus.INCONSISTENCY_IN_DATA); //ici
+        assertRemedialActionNotImported("RA6", ImportStatus.INCONSISTENCY_IN_DATA);
         assertAngleCnecNotImported("AngleCnec7", ImportStatus.INCONSISTENCY_IN_DATA);
         assertRemedialActionNotImported("RA7", ImportStatus.INCONSISTENCY_IN_DATA);
         assertAngleCnecNotImported("AngleCnec8", ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK);
