@@ -29,21 +29,19 @@ import java.util.zip.ZipOutputStream;
  */
 public class JsonGlobalRaoResultExporter {
 
-    private static final String  GLOBAL_RAO_RESULT_SUMMARY_FILE = "globalRaoResult_summary.json";
+    private static final String GLOBAL_RAO_RESULT_SUMMARY_FILE = "globalRaoResult_summary.json";
     private static final DateTimeFormatter FILE_NAME_DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMddHHmm");
     private static final String FILE_NAME_TEMPLATE = "raoResult_%s.json";
 
-    // TODO Something more similar to RaoResultJsonExporter ?
     public void exportData(GlobalRaoResult globalRaoResult, ZipOutputStream zipOutputStream, Properties properties, TemporalData<Crac> cracs) throws IOException {
 
-        globalRaoResult.getTimestamps().forEach((timestamp) -> {
+        globalRaoResult.getTimestamps().forEach(timestamp -> {
             try {
                 addRaoResultToZipArchive(timestamp, zipOutputStream, globalRaoResult.getIndividualRaoResult(timestamp), cracs.getData(timestamp).orElseThrow(), properties);
             } catch (IOException e) {
                 throw new OpenRaoException("Could not serialize RAO Result for timestamp %s.".formatted(timestamp.format(FILE_NAME_DATE_TIME_FORMATTER)), e);
             }
         });
-        // TODO: add "header"
         addSummaryToZipArchive(globalRaoResult, zipOutputStream);
         zipOutputStream.close();
     }

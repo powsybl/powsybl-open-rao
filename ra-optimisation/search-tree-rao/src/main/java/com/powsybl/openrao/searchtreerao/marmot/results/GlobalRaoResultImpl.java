@@ -43,6 +43,7 @@ public class GlobalRaoResultImpl implements GlobalRaoResult {
     private final TemporalData<RaoResult> raoResultPerTimestamp;
 
     private static final String MISSING_RAO_RESULT_ERROR_MESSAGE = "No RAO Result data found for the provided timestamp.";
+
     public GlobalRaoResultImpl(ObjectiveFunctionResult globalObjectiveFunctionResult, TemporalData<RaoResult> raoResultPerTimestamp) {
         this.globalObjectiveFunctionResult = globalObjectiveFunctionResult;
         this.raoResultPerTimestamp = raoResultPerTimestamp;
