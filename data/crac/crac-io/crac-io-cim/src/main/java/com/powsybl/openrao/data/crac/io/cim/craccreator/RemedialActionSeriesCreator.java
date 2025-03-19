@@ -94,6 +94,11 @@ public class RemedialActionSeriesCreator {
                 }
             });
 
+            if (!Objects.isNull(contingencies) && contingencies.isEmpty() && !Objects.isNull(invalidContingencies) && !invalidContingencies.isEmpty()) {
+                this.remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported("coucou", ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, String.format("CNECs and RAs not imported from this Series because they are only associated to invalid contingencies %s", invalidContingencies)));
+                continue;
+            }
+
             // Read and store Monitored Series
             this.cnecs = getFlowCnecsFromMonitoredAndContingencySeries(cimSerie);
             // Read and store AdditionalConstraint Series
@@ -397,7 +402,7 @@ public class RemedialActionSeriesCreator {
 
         UsageMethod usageMethod = instant.isAuto() ? UsageMethod.FORCED : UsageMethod.AVAILABLE;
         if (!Objects.isNull(sharedDomain)) {
-            addOnFlowConstraintInCountryUsageRule(remedialActionAdder, contingencies, sharedDomain, instant, usageMethod);
+            addOnFlowConstraintInCountryUsageRule(remedialActionAdder, contingencies, invalidContingencies, sharedDomain, instant, usageMethod);
             return;
         }
 
@@ -468,7 +473,7 @@ public class RemedialActionSeriesCreator {
             .add();
     }
 
-    private static void addOnFlowConstraintInCountryUsageRule(RemedialActionAdder<?> remedialActionAdder, List<Contingency> contingencies, Country sharedDomain, Instant instant, UsageMethod usageMethod) {
+    private static void addOnFlowConstraintInCountryUsageRule(RemedialActionAdder<?> remedialActionAdder, List<Contingency> contingencies, List<String> invalidContingencies, Country sharedDomain, Instant instant, UsageMethod usageMethod) {
         OnFlowConstraintInCountryAdder<?> onFlowConstraintInCountryAdder = remedialActionAdder
             .newOnFlowConstraintInCountryUsageRule()
             .withInstant(instant.getId())
