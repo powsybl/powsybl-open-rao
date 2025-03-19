@@ -83,11 +83,6 @@ public class GlobalRaoResultMock implements GlobalRaoResult {
     }
 
     @Override
-    public void write(ZipOutputStream zipOutputStream, TemporalData<Crac> cracs) {
-
-    }
-
-    @Override
     public ComputationStatus getComputationStatus() {
         return null;
     }

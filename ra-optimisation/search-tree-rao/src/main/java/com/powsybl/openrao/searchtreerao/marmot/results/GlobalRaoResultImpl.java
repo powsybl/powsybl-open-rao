@@ -25,10 +25,7 @@ import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.searchtreerao.marmot.MarmotUtils;
 import com.powsybl.openrao.searchtreerao.result.api.ObjectiveFunctionResult;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -36,7 +33,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 /**
@@ -47,8 +43,6 @@ public class GlobalRaoResultImpl implements GlobalRaoResult {
     private final TemporalData<RaoResult> raoResultPerTimestamp;
 
     private static final String MISSING_RAO_RESULT_ERROR_MESSAGE = "No RAO Result data found for the provided timestamp.";
-    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMddHHmm");
-
     public GlobalRaoResultImpl(ObjectiveFunctionResult globalObjectiveFunctionResult, TemporalData<RaoResult> raoResultPerTimestamp) {
         this.globalObjectiveFunctionResult = globalObjectiveFunctionResult;
         this.raoResultPerTimestamp = raoResultPerTimestamp;
@@ -104,41 +98,11 @@ public class GlobalRaoResultImpl implements GlobalRaoResult {
         return raoResultPerTimestamp.getData(timestamp).orElseThrow(() -> new OpenRaoException(MISSING_RAO_RESULT_ERROR_MESSAGE));
     }
 
-    @Override
-    public void write(ZipOutputStream zipOutputStream, TemporalData<Crac> cracs) throws IOException {
+    public void write(JsonGlobalRaoResultExporter jsonExporter, ZipOutputStream zipOutputStream, TemporalData<Crac> cracs) throws IOException {
         Properties properties = new Properties();
         properties.put("rao-result.export.json.flows-in-amperes", "true");
         properties.put("rao-result.export.json.flows-in-megawatts", "true");
-        raoResultPerTimestamp.getDataPerTimestamp().forEach((timestamp, raoResult) -> {
-            try {
-                addRaoResultToZipArchive(timestamp, zipOutputStream, raoResult, cracs.getData(timestamp).orElseThrow(), properties);
-            } catch (IOException e) {
-                throw new OpenRaoException("Could not serialize RAO Result for timestamp %s.".formatted(timestamp.format(DATE_TIME_FORMATTER)), e);
-            }
-        });
-        // TODO: add "header"
-
-        zipOutputStream.close();
-    }
-
-    private static void addRaoResultToZipArchive(OffsetDateTime timestamp, ZipOutputStream zipOutputStream, RaoResult raoResult, Crac crac, Properties properties) throws IOException {
-        ZipEntry entry = new ZipEntry("raoResult_%s.json".formatted(timestamp.format(DATE_TIME_FORMATTER)));
-
-        zipOutputStream.putNextEntry(entry);
-
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        raoResult.write("JSON", crac, properties, baos);
-
-        byte[] bytes = new byte[1024];
-        int length;
-        InputStream is = new ByteArrayInputStream(baos.toByteArray());
-        while ((length = is.read(bytes)) >= 0) {
-            zipOutputStream.write(bytes, 0, length);
-        }
-        is.close();
-        baos.close();
-
-        zipOutputStream.closeEntry();
+        jsonExporter.exportData(this, zipOutputStream, properties, cracs);
     }
 
     @Override

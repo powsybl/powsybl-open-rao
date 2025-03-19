@@ -161,7 +161,5 @@ class MarmotTest {
         assertEquals(20.0, globalRaoResult.getCost(crac2.getPreventiveInstant(), timestamp2));
         assertTrue(globalRaoResult.isActivated(crac2.getPreventiveState(), crac2.getNetworkAction("closeBeFr2")));
 
-        ZipOutputStream zos = new ZipOutputStream(new FileOutputStream("raoResults.zip"));
-        globalRaoResult.write(zos, input.getRaoInputs().map(RaoInput::getCrac));
     }
 }

@@ -9,10 +9,7 @@ package com.powsybl.openrao.searchtreerao.marmot.results;
 
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoSides;
-import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.commons.PhysicalParameter;
-import com.powsybl.openrao.commons.TemporalDataImpl;
-import com.powsybl.openrao.commons.Unit;
+import com.powsybl.openrao.commons.*;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
@@ -243,11 +240,18 @@ class GlobalRaoResultImplTest {
         OffsetDateTime timestamp2 = OffsetDateTime.of(2025, 2, 14, 11, 40, 0, 0, ZoneOffset.UTC);
         OffsetDateTime timestamp3 = OffsetDateTime.of(2025, 2, 14, 12, 40, 0, 0, ZoneOffset.UTC);
 
-        GlobalRaoResultImpl globalRaoResult = new GlobalRaoResultImpl(null, new TemporalDataImpl<>(Map.of(timestamp1, raoResult1, timestamp2, raoResult2, timestamp3, raoResult3)));
+        GlobalLinearOptimizationResult globalLinearOptimizationResult = Mockito.mock(GlobalLinearOptimizationResult.class);
+        Mockito.when(globalLinearOptimizationResult.getFunctionalCost()).thenReturn(65030.0);
+        Mockito.when(globalLinearOptimizationResult.getVirtualCostNames()).thenReturn(Set.of("min-margin-violation-evaluator", "sensitivity-failure-cost"));
+        Mockito.when(globalLinearOptimizationResult.getVirtualCost("min-margin-violation-evaluator")).thenReturn(0.0);
+        Mockito.when(globalLinearOptimizationResult.getVirtualCost("sensitivity-failure-cost")).thenReturn(0.0);
+
+        GlobalRaoResultImpl globalRaoResult = new GlobalRaoResultImpl(globalLinearOptimizationResult, new TemporalDataImpl<>(Map.of(timestamp1, raoResult1, timestamp2, raoResult2, timestamp3, raoResult3)));
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ZipOutputStream zos = new ZipOutputStream(baos);
-
-        globalRaoResult.write(zos, new TemporalDataImpl<>(Map.of(timestamp1, crac1, timestamp2, crac2, timestamp3, crac3)));
+        JsonGlobalRaoResultExporter jsonExporter = new JsonGlobalRaoResultExporter();
+        TemporalData<Crac> cracs = new TemporalDataImpl<>(Map.of(timestamp1, crac1, timestamp2, crac2, timestamp3, crac3));
+        globalRaoResult.write(jsonExporter, zos, cracs);
 
         byte[] zipBytes = baos.toByteArray();
         ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(zipBytes);
@@ -258,10 +262,14 @@ class GlobalRaoResultImplTest {
         while ((entry = zis.getNextEntry()) != null) {
             exportedRaoResults.add(entry.getName());
         }
-        assertEquals(exportedRaoResults.size(), 3);
+
+        // Check if the files are written in the zip with right title
+        assertEquals(exportedRaoResults.size(), 4);
         assertTrue(exportedRaoResults.contains("raoResult_202502141040.json"));
         assertTrue(exportedRaoResults.contains("raoResult_202502141140.json"));
         assertTrue(exportedRaoResults.contains("raoResult_202502141240.json"));
+        assertTrue(exportedRaoResults.contains("raoResult_202502141240.json"));
+        assertTrue(exportedRaoResults.contains("globalRaoResult_summary.json"));
 
     }
 
