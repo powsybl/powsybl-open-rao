@@ -87,6 +87,6 @@ public class JsonGlobalRaoResultSerializer extends JsonSerializer<GlobalRaoResul
     }
 
     private static BigDecimal roundDouble(double doubleValue) {
-        return new BigDecimal(doubleValue).setScale(2, RoundingMode.HALF_UP);
+        return BigDecimal.valueOf(doubleValue).setScale(2, RoundingMode.HALF_UP);
     }
 }
