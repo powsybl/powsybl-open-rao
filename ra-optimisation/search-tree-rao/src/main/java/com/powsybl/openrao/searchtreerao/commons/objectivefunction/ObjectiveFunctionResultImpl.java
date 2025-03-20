@@ -24,17 +24,19 @@ public class ObjectiveFunctionResultImpl implements ObjectiveFunctionResult {
     private final Map<String, CostEvaluatorResult> virtualCostResults;
     private final List<FlowCnec> flowCnecsByMargin;
     private Set<String> excludedContingencies;
+    private Set<String> excludedCnecs;
 
     public ObjectiveFunctionResultImpl(CostEvaluatorResult functionalCostResult, Map<String, CostEvaluatorResult> virtualCostResults, List<FlowCnec> flowCnecsByMargin) {
         this.functionalCostResult = functionalCostResult;
         this.virtualCostResults = virtualCostResults;
         this.flowCnecsByMargin = flowCnecsByMargin;
         this.excludedContingencies = new HashSet<>();
+        this.excludedCnecs = new HashSet<>();
     }
 
     @Override
     public double getFunctionalCost() {
-        return functionalCostResult.getCost(excludedContingencies);
+        return functionalCostResult.getCost(excludedContingencies, excludedCnecs);
     }
 
     @Override
@@ -45,7 +47,7 @@ public class ObjectiveFunctionResultImpl implements ObjectiveFunctionResult {
 
     @Override
     public double getVirtualCost() {
-        return virtualCostResults.values().stream().mapToDouble(result -> result.getCost(excludedContingencies)).sum();
+        return virtualCostResults.values().stream().mapToDouble(result -> result.getCost(excludedContingencies, excludedCnecs)).sum();
     }
 
     @Override
@@ -55,17 +57,22 @@ public class ObjectiveFunctionResultImpl implements ObjectiveFunctionResult {
 
     @Override
     public double getVirtualCost(String virtualCostName) {
-        return virtualCostResults.containsKey(virtualCostName) ? virtualCostResults.get(virtualCostName).getCost(excludedContingencies) : Double.NaN;
+        return virtualCostResults.containsKey(virtualCostName) ? virtualCostResults.get(virtualCostName).getCost(excludedContingencies, excludedCnecs) : Double.NaN;
     }
 
     @Override
     public List<FlowCnec> getCostlyElements(String virtualCostName, int number) {
-        List<FlowCnec> costlyElements = virtualCostResults.get(virtualCostName).getCostlyElements(excludedContingencies);
+        List<FlowCnec> costlyElements = virtualCostResults.get(virtualCostName).getCostlyElements(excludedContingencies, excludedCnecs);
         return costlyElements.subList(0, Math.min(costlyElements.size(), number));
     }
 
     @Override
     public void excludeContingencies(Set<String> contingenciesToExclude) {
         this.excludedContingencies = new HashSet<>(contingenciesToExclude);
+    }
+
+    @Override
+    public void excludeCnecs(Set<String> cnecsToExclude) {
+        this.excludedCnecs = new HashSet<>(cnecsToExclude);
     }
 }
