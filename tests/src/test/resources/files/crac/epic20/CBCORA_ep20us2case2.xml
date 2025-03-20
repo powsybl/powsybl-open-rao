@@ -17,8 +17,6 @@
       <branch eic="1234567890123450" from="FFR2AA1 " name="FFR2AA1  DDE3AA1  1" order="1" to="DDE3AA1 "/>
       <imaxA>2888</imaxA>
       <imaxType>SEASONAL</imaxType>
-      <permanentImaxFactor>1.5</permanentImaxFactor>
-      <temporaryImaxFactor>1.5</temporaryImaxFactor>
       <frmMw>0</frmMw>
       <minRAMfactor>40</minRAMfactor>
       <CNEC>true</CNEC>
@@ -47,8 +45,6 @@
       <branch eic="1234567890123450" from="DDE2AA1 " name="DDE2AA1  NNL3AA1  1" order="1" to="NNL3AA1 "/>
       <imaxA>5774</imaxA>
       <imaxType>SEASONAL</imaxType>
-      <permanentImaxFactor>1.5</permanentImaxFactor>
-      <temporaryImaxFactor>1.5</temporaryImaxFactor>
       <frmMw>0</frmMw>
       <minRAMfactor>80</minRAMfactor>
       <CNEC>true</CNEC>
@@ -61,8 +57,6 @@
       <branch eic="1234567890123450" from="DDE2AA1 " name="DDE2AA1  NNL3AA1  1" order="1" to="NNL3AA1 "/>
       <imaxA>5774</imaxA>
       <imaxType>SEASONAL</imaxType>
-      <permanentImaxFactor>1.5</permanentImaxFactor>
-      <temporaryImaxFactor>1.5</temporaryImaxFactor>
       <frmMw>0</frmMw>
       <minRAMfactor>60</minRAMfactor>
       <CNEC>true</CNEC>
@@ -78,8 +72,6 @@
       <branch eic="1234567890123450" from="NNL2AA1 " name="NNL2AA1  BBE3AA1  1" order="1" to="BBE3AA1 "/>
       <imaxA>5774</imaxA>
       <imaxType>SEASONAL</imaxType>
-      <permanentImaxFactor>1.5</permanentImaxFactor>
-      <temporaryImaxFactor>1.5</temporaryImaxFactor>
       <frmMw>0</frmMw>
       <minRAMfactor>80</minRAMfactor>
       <CNEC>true</CNEC>
@@ -92,8 +84,6 @@
       <branch eic="1234567890123450" from="NNL2AA1 " name="NNL2AA1  BBE3AA1  1" order="1" to="BBE3AA1 "/>
       <imaxA>5774</imaxA>
       <imaxType>SEASONAL</imaxType>
-      <permanentImaxFactor>1.5</permanentImaxFactor>
-      <temporaryImaxFactor>1.5</temporaryImaxFactor>
       <frmMw>0</frmMw>
       <minRAMfactor>60</minRAMfactor>
       <CNEC>true</CNEC>
@@ -109,8 +99,6 @@
       <branch eic="1234567890123450" from="BBE2AA1 " name="BBE2AA1  FFR3AA1  1" order="1" to="FFR3AA1 "/>
       <imaxA>5774</imaxA>
       <imaxType>SEASONAL</imaxType>
-      <permanentImaxFactor>1.5</permanentImaxFactor>
-      <temporaryImaxFactor>1.5</temporaryImaxFactor>
       <frmMw>0</frmMw>
       <minRAMfactor>80</minRAMfactor>
       <CNEC>true</CNEC>
@@ -123,8 +111,6 @@
       <branch eic="1234567890123450" from="BBE2AA1 " name="BBE2AA1  FFR3AA1  1" order="1" to="FFR3AA1 "/>
       <imaxA>5774</imaxA>
       <imaxType>SEASONAL</imaxType>
-      <permanentImaxFactor>1.5</permanentImaxFactor>
-      <temporaryImaxFactor>1.5</temporaryImaxFactor>
       <frmMw>0</frmMw>
       <minRAMfactor>60</minRAMfactor>
       <CNEC>true</CNEC>
