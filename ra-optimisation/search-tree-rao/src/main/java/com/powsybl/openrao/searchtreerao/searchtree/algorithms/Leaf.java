@@ -507,6 +507,18 @@ public class Leaf implements OptimizationResult {
     }
 
     @Override
+    public void excludeCnecs(Set<String> cnecsToExclude) {
+        if (status == Status.EVALUATED) {
+            preOptimObjectiveFunctionResult.excludeCnecs(cnecsToExclude);
+        } else if (status == Status.OPTIMIZED) {
+            postOptimResult.excludeCnecs(cnecsToExclude);
+        } else {
+            throw new OpenRaoException(NO_RESULTS_AVAILABLE);
+        }
+
+    }
+
+    @Override
     public Set<RangeAction<?>> getRangeActions() {
         return optimizationPerimeter.getRangeActions();
     }
