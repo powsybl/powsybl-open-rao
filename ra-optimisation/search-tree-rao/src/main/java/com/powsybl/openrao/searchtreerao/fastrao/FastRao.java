@@ -125,16 +125,14 @@ public class FastRao implements RaoProvider {
             int counter = 1;
             do {
                 addWorstCnecs(consideredCnecs, NUMBER_OF_CNECS_TO_ADD, stepResult);
-                System.out.println(consideredCnecs.size());
                 if (ADD_UNSECURE_CNECS) {
                     consideredCnecs.addAll(getUnsecureFunctionalCnecs(stepResult, parameters.getObjectiveFunctionParameters().getUnit()));
                 }
-                System.out.println(consideredCnecs.size());
-                consideredCnecs.addAll(getCostlyVirtualCnecs(stepResult, consideredCnecs));
-                System.out.println(consideredCnecs.size());
+                consideredCnecs.addAll(getCostlyVirtualCnecs(stepResult));
                 consideredCnecs.add(getWorstPreventiveCnec(stepResult, crac));
-                System.out.println(consideredCnecs.size());
                 cleanVariants(raoInput.getNetwork(), initialNetworkVariants);
+
+                BUSINESS_LOGS.info("{} cnecs to be considered in filtered RAO", consideredCnecs.size());
 
                 raoResult = runFilteredRao(raoInput, parameters, targetEndInstant, consideredCnecs, toolProvider, initialResult, networkPool, counter);
                 stepResult = raoResult.getAppropriateResult(lastInstant);
@@ -147,7 +145,7 @@ public class FastRao implements RaoProvider {
 
                 worstCnec = stepResult.getMostLimitingElements(1).get(0);
                 counter++;
-            } while (!(consideredCnecs.contains(worstCnec.getId()) && consideredCnecs.containsAll(getCostlyVirtualCnecs(stepResult, consideredCnecs))));
+            } while (!(consideredCnecs.contains(worstCnec.getId()) && consideredCnecs.containsAll(getCostlyVirtualCnecs(stepResult))));
             networkPool.shutdownAndAwaitTermination(24, TimeUnit.HOURS);
 
             RaoLogger.logObjectiveFunctionResult("Final Result: ",
@@ -205,19 +203,13 @@ public class FastRao implements RaoProvider {
         return flowCnecs;
     }
 
-    private static Set<String> getCostlyVirtualCnecs(ObjectiveFunctionResult ofResult, Set<String> consideredCnecs) {
+    private static Set<String> getCostlyVirtualCnecs(ObjectiveFunctionResult ofResult) {
         Set<String> flowCnecs = new HashSet<>();
         ofResult.getVirtualCostNames().stream()
-            .filter(vcName -> !vcName.equals("min-margin-violation-evaluator"))
+            .filter(name -> !name.equals("min-margin-violation-evaluator"))
             .forEach(name -> ofResult.getCostlyElements(name, Integer.MAX_VALUE).forEach(
                 flowCnec -> flowCnecs.add(flowCnec.getId())
         ));
-        for (FlowCnec flowCnec : ofResult.getCostlyElements("min-margin-violation-evaluator", NUMBER_OF_CNECS_TO_ADD)) {
-            if (consideredCnecs.contains(flowCnec.getId())) {
-                break;
-            }
-            flowCnecs.add(flowCnec.getId());
-        }
         return flowCnecs;
     }
 

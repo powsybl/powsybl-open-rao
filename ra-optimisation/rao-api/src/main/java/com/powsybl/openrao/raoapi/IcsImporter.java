@@ -22,8 +22,8 @@ import java.util.*;
 
 public final class IcsImporter {
     private static final int OFFSET = 2;
-    private static final double COST_UP = 5;
-    private static final double COST_DOWN = 5;
+    private static final double COST_UP = 10;
+    private static final double COST_DOWN = 10;
     private static final double ACTIVATION_COST = 50;
 
     //TODO:QUALITY CHECK: do PO respect constraints?

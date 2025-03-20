@@ -31,7 +31,7 @@ import static com.powsybl.openrao.commons.Unit.MEGAWATT;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class MaxMinMarginFiller implements ProblemFiller {
-    private static final double OVERLOAD_PENALTY = 50.; // TODO: put this in Rao Parameters and mutualize with evaluator
+    private static final double OVERLOAD_PENALTY = 1000.; // TODO: put this in Rao Parameters and mutualize with evaluator
     protected final Set<FlowCnec> optimizedCnecs;
     private final Unit unit;
     private final boolean costOptimization;
