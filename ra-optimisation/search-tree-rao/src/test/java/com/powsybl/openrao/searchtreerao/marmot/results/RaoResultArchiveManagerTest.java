@@ -35,7 +35,38 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 class RaoResultArchiveManagerTest {
     @Test
-    void testWriteArchive() throws IOException {
+    void testWriteArchiveWithBasicProperties() throws IOException {
+        Properties properties = new Properties();
+        properties.put("rao-result.export.json.flows-in-amperes", "true");
+        properties.put("rao-result.export.json.flows-in-megawatts", "true");
+
+        Set<String> archiveContent = exportArchiveAndGetContent(properties);
+
+        assertEquals(4, archiveContent.size());
+        assertTrue(archiveContent.contains("raoResult_202502141040.json"));
+        assertTrue(archiveContent.contains("raoResult_202502141140.json"));
+        assertTrue(archiveContent.contains("raoResult_202502141240.json"));
+        assertTrue(archiveContent.contains("globalRaoSummary.json"));
+    }
+
+    @Test
+    void testWriteArchiveWithCustomFilenames() throws IOException {
+        Properties properties = new Properties();
+        properties.put("rao-result.export.json.flows-in-amperes", "true");
+        properties.put("rao-result.export.json.flows-in-megawatts", "true");
+        properties.put("global-rao-result.export.filename-template", "'RAO_RESULT_'yyyy-MM-dd'T'HH:mm:ss'.json'");
+        properties.put("global-rao-result.export.summary-filename", "summary.json");
+
+        Set<String> archiveContent = exportArchiveAndGetContent(properties);
+
+        assertEquals(4, archiveContent.size());
+        assertTrue(archiveContent.contains("RAO_RESULT_2025-02-14T10:40:00.json"));
+        assertTrue(archiveContent.contains("RAO_RESULT_2025-02-14T11:40:00.json"));
+        assertTrue(archiveContent.contains("RAO_RESULT_2025-02-14T12:40:00.json"));
+        assertTrue(archiveContent.contains("summary.json"));
+    }
+
+    private static Set<String> exportArchiveAndGetContent(Properties properties) throws IOException {
         Network network1 = Network.read("/network/3Nodes.uct", GlobalRaoResultImplTest.class.getResourceAsStream("/network/3Nodes.uct"));
         Network network2 = Network.read("/network/3Nodes.uct", GlobalRaoResultImplTest.class.getResourceAsStream("/network/3Nodes.uct"));
         Network network3 = Network.read("/network/3Nodes.uct", GlobalRaoResultImplTest.class.getResourceAsStream("/network/3Nodes.uct"));
@@ -65,26 +96,18 @@ class RaoResultArchiveManagerTest {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ZipOutputStream zos = new ZipOutputStream(baos);
 
-        Properties properties = new Properties();
-        properties.put("rao-result.export.json.flows-in-amperes", "true");
-        properties.put("rao-result.export.json.flows-in-megawatts", "true");
-
         globalRaoResultToExport.write(zos, new TemporalDataImpl<>(Map.of(timestamp1, crac1, timestamp2, crac2, timestamp3, crac3)), properties);
 
         byte[] zipBytes = baos.toByteArray();
         ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(zipBytes);
         ZipInputStream zis = new ZipInputStream(byteArrayInputStream);
 
-        Set<String> exportedRaoResults = new HashSet<>();
+        Set<String> archiveContent = new HashSet<>();
         ZipEntry entry;
         while ((entry = zis.getNextEntry()) != null) {
-            exportedRaoResults.add(entry.getName());
+            archiveContent.add(entry.getName());
         }
 
-        assertEquals(4, exportedRaoResults.size());
-        assertTrue(exportedRaoResults.contains("raoResult_202502141040.json"));
-        assertTrue(exportedRaoResults.contains("raoResult_202502141140.json"));
-        assertTrue(exportedRaoResults.contains("raoResult_202502141240.json"));
-        assertTrue(exportedRaoResults.contains("globalRaoSummary.json"));
+        return archiveContent;
     }
 }

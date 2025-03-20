@@ -75,7 +75,7 @@ class JsonGlobalRaoResultSerializerTest {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         try {
             ObjectMapper objectMapper = JsonUtil.createObjectMapper();
-            SimpleModule module = new JsonGlobalRaoResultSerializerModule();
+            SimpleModule module = new JsonGlobalRaoResultSerializerModule("'raoResult_'yyyyMMddHHmm'.json'");
             objectMapper.registerModule(module);
             ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
             writer.writeValue(byteArrayOutputStream, globalRaoResult);

@@ -35,10 +35,14 @@ public class JsonGlobalRaoResultSerializer extends JsonSerializer<GlobalRaoResul
     private static final String VERSION = "1.0";
     private static final String RESULT_PER_TIMESTAMP = "resultPerTimestamp";
     private static final String COST_RESULTS = "costResults";
-    private static final String FILE_NAME_TEMPLATE = "raoResult_%s.json";
 
     private static final DateTimeFormatter FIELD_NAME_DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-    private static final DateTimeFormatter FILE_NAME_DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMddHHmm");
+
+    private final String individualRaoResultFilenameTemplate;
+
+    public JsonGlobalRaoResultSerializer(String individualRaoResultFilenameTemplate) {
+        this.individualRaoResultFilenameTemplate = individualRaoResultFilenameTemplate;
+    }
 
     @Override
     public void serialize(GlobalRaoResult globalRaoResult, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
@@ -53,7 +57,7 @@ public class JsonGlobalRaoResultSerializer extends JsonSerializer<GlobalRaoResul
         jsonGenerator.writeStringField(COMPUTATION_STATUS, serializeStatus(computationStatus));
 
         serializeCostResults(globalRaoResult, jsonGenerator);
-        serializeRaoResultPerTimestamp(globalRaoResult, jsonGenerator);
+        serializeRaoResultPerTimestamp(globalRaoResult, jsonGenerator, individualRaoResultFilenameTemplate);
 
         jsonGenerator.writeEndObject();
     }
@@ -83,15 +87,11 @@ public class JsonGlobalRaoResultSerializer extends JsonSerializer<GlobalRaoResul
         return BigDecimal.valueOf(doubleValue).setScale(2, RoundingMode.HALF_UP);
     }
 
-    private static void serializeRaoResultPerTimestamp(GlobalRaoResult globalRaoResult, JsonGenerator jsonGenerator) throws IOException {
+    private static void serializeRaoResultPerTimestamp(GlobalRaoResult globalRaoResult, JsonGenerator jsonGenerator, String individualRaoResultFilenameTemplate) throws IOException {
         jsonGenerator.writeObjectFieldStart(RESULT_PER_TIMESTAMP);
         for (OffsetDateTime timestamp : globalRaoResult.getTimestamps()) {
-            jsonGenerator.writeStringField(timestamp.format(FIELD_NAME_DATE_TIME_FORMATTER), getRaoResultFileName(timestamp));
+            jsonGenerator.writeStringField(timestamp.format(FIELD_NAME_DATE_TIME_FORMATTER), timestamp.format(DateTimeFormatter.ofPattern(individualRaoResultFilenameTemplate)));
         }
         jsonGenerator.writeEndObject();
-    }
-
-    private static String getRaoResultFileName(OffsetDateTime timestamp) {
-        return FILE_NAME_TEMPLATE.formatted(timestamp.format(FILE_NAME_DATE_TIME_FORMATTER));
     }
 }

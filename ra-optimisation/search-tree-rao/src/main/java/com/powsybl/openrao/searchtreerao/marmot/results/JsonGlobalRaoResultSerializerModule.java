@@ -16,8 +16,8 @@ import com.powsybl.openrao.data.raoresult.api.GlobalRaoResult;
  */
 public class JsonGlobalRaoResultSerializerModule extends SimpleModule {
 
-    public JsonGlobalRaoResultSerializerModule() {
+    public JsonGlobalRaoResultSerializerModule(String individualRaoResultFilenameTemplate) {
         super();
-        this.addSerializer(GlobalRaoResult.class, new JsonGlobalRaoResultSerializer());
+        this.addSerializer(GlobalRaoResult.class, new JsonGlobalRaoResultSerializer(individualRaoResultFilenameTemplate));
     }
 }
