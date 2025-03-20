@@ -7,7 +7,7 @@ Feature: US 15.12.5: Handle HVDC range actions in RAO
 
   @fast @rao @mock @dc @preventive-only @hvdc
   Scenario: US 15.12.5.1: HVDC range action with one preventive CNEC
-    Given network file is "epic15/TestCase16NodesWithHvdc.xiidm"
+    Given network file is "epic15/TestCase16NodesWithHvdc.xiidm" for CORE CC
     Given crac file is "epic15/jsonCrac_ep15us12-5case1.json"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
     When I launch search_tree_rao
@@ -17,7 +17,7 @@ Feature: US 15.12.5: Handle HVDC range actions in RAO
 
   @fast @rao @mock @dc @preventive-only @hvdc
   Scenario: US 15.12.5.2: HVDC range action with two preventive CNECs
-    Given network file is "epic15/TestCase16NodesWithHvdc.xiidm"
+    Given network file is "epic15/TestCase16NodesWithHvdc.xiidm" for CORE CC
     Given crac file is "epic15/jsonCrac_ep15us12-5case2.json"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
     When I launch search_tree_rao
@@ -28,7 +28,7 @@ Feature: US 15.12.5: Handle HVDC range actions in RAO
 
   @fast @rao @mock @dc @preventive-only @hvdc
   Scenario: US 15.12.5.3: HVDC range action with PST range action and two preventive CNECs
-    Given network file is "epic15/TestCase16NodesWithHvdc.xiidm"
+    Given network file is "epic15/TestCase16NodesWithHvdc.xiidm" for CORE CC
     Given crac file is "epic15/jsonCrac_ep15us12-5case3.json"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
     When I launch search_tree_rao
@@ -40,7 +40,7 @@ Feature: US 15.12.5: Handle HVDC range actions in RAO
 
   @fast @rao @mock @dc @preventive-only @hvdc
   Scenario: US 15.12.5.4: HVDC range action with outage CNEC
-    Given network file is "epic15/TestCase16NodesWithHvdc.xiidm"
+    Given network file is "epic15/TestCase16NodesWithHvdc.xiidm" for CORE CC
     Given crac file is "epic15/jsonCrac_ep15us12-5case4.json"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
     When I launch search_tree_rao
@@ -54,7 +54,7 @@ Feature: US 15.12.5: Handle HVDC range actions in RAO
 
   @fast @rao @mock @dc @contingency-scenarios @hvdc
   Scenario: US 15.12.5.5: HVDC range action with one curative perimeter
-    Given network file is "epic15/TestCase16NodesWithHvdc.xiidm"
+    Given network file is "epic15/TestCase16NodesWithHvdc.xiidm" for CORE CC
     Given crac file is "epic15/jsonCrac_ep15us12-5case5.json"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
     When I launch search_tree_rao
@@ -69,7 +69,7 @@ Feature: US 15.12.5: Handle HVDC range actions in RAO
 
   @fast @rao @mock @dc @contingency-scenarios @hvdc
   Scenario: US 15.12.5.6: HVDC range action with two curative perimeters and negative initial flow
-    Given network file is "epic15/TestCase16NodesWithHvdc.xiidm"
+    Given network file is "epic15/TestCase16NodesWithHvdc.xiidm" for CORE CC
     Given crac file is "epic15/jsonCrac_ep15us12-5case6.json"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
     When I launch search_tree_rao
@@ -97,7 +97,7 @@ Feature: US 15.12.5: Handle HVDC range actions in RAO
 
   @fast @rao @mock @dc @contingency-scenarios @hvdc
   Scenario: US 15.12.5.8: HVDC and PST filtering
-    Given network file is "epic15/TestCase16NodesWithHvdc.xiidm"
+    Given network file is "epic15/TestCase16NodesWithHvdc.xiidm" for CORE CC
     Given crac file is "epic15/jsonCrac_ep15us12-5case8.json"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
     When I launch search_tree_rao
