@@ -27,12 +27,19 @@ public abstract class AbstractFlowRaoResult implements RaoResult {
         if (Arrays.stream(u).noneMatch(PhysicalParameter.FLOW::equals)) {
             throw new OpenRaoException("This is a flow RaoResult, isSecure is available for FLOW physical parameter");
         }
-        if (getFunctionalCost(optimizedInstant) >= 0) {
+        if (anyOverload(optimizedInstant)) {
             return false;
         }
         if (Arrays.stream(u).anyMatch(physicalParameter -> !PhysicalParameter.FLOW.equals(physicalParameter))) {
             throw new OpenRaoException("This is a flow RaoResult, flows are secure but other physical parameters' security status is unknown");
         }
         return true;
+    }
+
+    private boolean anyOverload(Instant optimizedInstant) {
+        if (getVirtualCostNames().contains("min-margin-violation-evaluator")) {
+            return getVirtualCost(optimizedInstant, "min-margin-violation-evaluator") > 0;
+        }
+        return getFunctionalCost(optimizedInstant) >= 0;
     }
 }
