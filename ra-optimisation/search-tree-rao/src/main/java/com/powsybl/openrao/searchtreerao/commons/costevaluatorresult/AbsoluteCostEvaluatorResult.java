@@ -24,12 +24,12 @@ public class AbsoluteCostEvaluatorResult implements CostEvaluatorResult {
     }
 
     @Override
-    public double getCost(Set<String> contingenciesToExclude) {
+    public double getCost(Set<String> contingenciesToExclude, Set<String> cnecsToExclude) {
         return cost;
     }
 
     @Override
-    public List<FlowCnec> getCostlyElements(Set<String> contingenciesToExclude) {
+    public List<FlowCnec> getCostlyElements(Set<String> contingenciesToExclude, Set<String> cnecsToExclude) {
         return new ArrayList<>();
     }
 }

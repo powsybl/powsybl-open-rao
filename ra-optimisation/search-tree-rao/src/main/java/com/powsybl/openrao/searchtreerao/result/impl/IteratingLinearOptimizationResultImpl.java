@@ -108,6 +108,11 @@ public class IteratingLinearOptimizationResultImpl implements LinearOptimization
     }
 
     @Override
+    public void excludeCnecs(Set<String> cnecsToExclude) {
+        objectiveFunctionResult.excludeCnecs(cnecsToExclude);
+    }
+
+    @Override
     public LinearProblemStatus getStatus() {
         return status;
     }

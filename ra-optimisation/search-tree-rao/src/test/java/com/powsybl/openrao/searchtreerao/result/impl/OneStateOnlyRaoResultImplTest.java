@@ -78,6 +78,8 @@ class OneStateOnlyRaoResultImplTest {
         cnec2state = mock(State.class);
         when(cnec1.getState()).thenReturn(cnec1state);
         when(cnec2.getState()).thenReturn(cnec2state);
+        when(cnec1.getId()).thenReturn("cnec1");
+        when(cnec2.getId()).thenReturn("cnec2");
 
         when(initialResult.getFunctionalCost()).thenReturn(1000.);
         when(initialResult.getMostLimitingElements(anyInt())).thenReturn(List.of(cnec1));

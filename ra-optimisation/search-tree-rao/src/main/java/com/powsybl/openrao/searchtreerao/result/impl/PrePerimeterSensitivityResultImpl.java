@@ -170,4 +170,9 @@ public class PrePerimeterSensitivityResultImpl implements PrePerimeterResult {
     public void excludeContingencies(Set<String> contingenciesToExclude) {
         objectiveFunctionResult.excludeContingencies(contingenciesToExclude);
     }
+
+    @Override
+    public void excludeCnecs(Set<String> cnecsToExclude) {
+        objectiveFunctionResult.excludeCnecs(cnecsToExclude);
+    }
 }

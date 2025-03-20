@@ -136,7 +136,11 @@ public class AutomatonPerimeterResultImpl implements OptimizationResult {
     @Override
     public void excludeContingencies(Set<String> contingenciesToExclude) {
         postAutomatonSensitivityAnalysisOutput.excludeContingencies(contingenciesToExclude);
+    }
 
+    @Override
+    public void excludeCnecs(Set<String> cnecsToExclude) {
+        postAutomatonSensitivityAnalysisOutput.excludeCnecs(cnecsToExclude);
     }
 
     @Override

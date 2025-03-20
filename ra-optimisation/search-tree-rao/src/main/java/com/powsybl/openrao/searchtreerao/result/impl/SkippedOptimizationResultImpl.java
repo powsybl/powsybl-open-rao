@@ -151,6 +151,11 @@ public class SkippedOptimizationResultImpl implements OptimizationResult {
     }
 
     @Override
+    public void excludeCnecs(Set<String> cnecsToExclude) {
+        // do not do anything
+    }
+
+    @Override
     public Set<RangeAction<?>> getRangeActions() {
         return activatedRangeActions;
     }

@@ -182,6 +182,13 @@ public class CurativeWithSecondPraoResult implements OptimizationResult {
     }
 
     @Override
+    public void excludeCnecs(Set<String> cnecsToExclude) {
+        firstCraoResult.excludeCnecs(cnecsToExclude);
+        secondPraoResult.excludeCnecs(cnecsToExclude);
+        postCraSensitivityObjectiveResult.excludeCnecs(cnecsToExclude);
+    }
+
+    @Override
     public Set<RangeAction<?>> getRangeActions() {
         // Some range actions can be excluded from first CRAO (for example if they are only available after a constraint)
         // but re-optimised in second PRAO
