@@ -84,6 +84,8 @@ public class RemedialActionSeriesCreator {
         this.invalidContingencies = new ArrayList<>();
 
         for (Series cimSerie : getRaSeries()) {
+            resetSeriesContingencies();
+
             // Read and store contingencies
             cimSerie.getContingencySeries().forEach(cimContingency -> {
                 Contingency contingency = getContingencyFromCrac(cimContingency, cracCreationContext);
@@ -94,9 +96,8 @@ public class RemedialActionSeriesCreator {
                 }
             });
 
-            if (!Objects.isNull(contingencies) && contingencies.isEmpty() && !Objects.isNull(invalidContingencies) && !invalidContingencies.isEmpty()) {
+            if (contingencies.isEmpty() && !invalidContingencies.isEmpty()) {
                 cimSerie.getRemedialActionSeries().forEach(remedialActionSeries -> this.remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(remedialActionSeries.getMRID(), ImportStatus.INCONSISTENCY_IN_DATA, String.format("This RA is not imported because it is only associated to invalid contingencies %s", invalidContingencies))));
-                resetSeriesContingencies();
                 continue;
             }
 
@@ -116,7 +117,6 @@ public class RemedialActionSeriesCreator {
                 this.hvdcRangeActionCreators.add(hvdcRangeActionCreator);
                 hvdcRangeActionCreator = null;
             }
-            resetSeriesContingencies();
         }
 
         // Add all RAs from creators to CRAC
@@ -138,11 +138,9 @@ public class RemedialActionSeriesCreator {
                     for (RemedialActionSeries remedialActionSeries : cimSerie.getRemedialActionSeries()) {
                         remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(remedialActionSeries.getMRID(), ImportStatus.INCONSISTENCY_IN_DATA, "Associated angle cnec could not be imported"));
                     }
-                    resetSeriesContingencies();
                     return false;
                 }
             } else {
-                resetSeriesContingencies();
                 return false;
             }
         }
