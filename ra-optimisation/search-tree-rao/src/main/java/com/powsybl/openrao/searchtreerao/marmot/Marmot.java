@@ -8,16 +8,20 @@
 package com.powsybl.openrao.searchtreerao.marmot;
 
 import com.google.auto.service.AutoService;
+import com.powsybl.iidm.network.Bus;
+import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
@@ -45,6 +49,7 @@ import com.powsybl.openrao.searchtreerao.result.impl.RangeActionActivationResult
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 import org.mockito.Mockito;
 
+import java.nio.file.Path;
 import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -69,6 +74,15 @@ public class Marmot implements InterTemporalRaoProvider {
 
     @Override
     public CompletableFuture<TemporalData<RaoResult>> run(InterTemporalRaoInputWithNetworkPaths interTemporalRaoInputWithNetworkPaths, RaoParameters raoParameters) {
+        // MEMORY ISSUES
+        // Modifications done:
+        // - use network paths for runTopologicalOptimization
+        // - configure VM options with -Xmx16g
+        // - reduce topologicalOptimizationResults size via FastRao
+        // - continue reducing topologicalOptimizationResults by keeping only initial flows, applied RAs
+        // TODO :
+        // - reduce FastRaoResultImpl attributes to strictly necessary
+
         // Run independent RAOs to compute optimal preventive topological remedial actions
         OpenRaoLoggerProvider.TECHNICAL_LOGS.info("[MARMOT] ----- Topological optimization [start]");
         TemporalData<Set<String>> consideredCnecs = new TemporalDataImpl<>();
@@ -123,7 +137,6 @@ public class Marmot implements InterTemporalRaoProvider {
             TemporalData<PrePerimeterResult> postTopoResults = runAllInitialPrePerimeterSensitivityAnalysis(interTemporalRaoInput.getRaoInputs(), curativeRemedialActions, initialResults, consideredCnecs, raoParameters);
             OpenRaoLoggerProvider.TECHNICAL_LOGS.info("[MARMOT] Systematic inter-temporal sensitivity analysis [end]");
 
-
             // Build objective function with ONLY THE CONSIDERED CNECS
             ObjectiveFunction filteredObjectiveFunction = buildGlobalObjectiveFunction(interTemporalRaoInput.getRaoInputs().map(RaoInput::getCrac), new GlobalFlowResult(initialResults), consideredCnecs, raoParameters);
             TemporalData<NetworkActionsResult> preventiveTopologicalActions = getPreventiveTopologicalActions(interTemporalRaoInput.getRaoInputs().map(RaoInput::getCrac), topologicalOptimizationResults);
@@ -136,7 +149,6 @@ public class Marmot implements InterTemporalRaoProvider {
 
             // Compute the flows on ALL the cnecs to check if the worst cnecs have changed and were considered in the MIP or not
             loadFlowResults = applyActionsAndRunFullLoadflow(interTemporalRaoInput.getRaoInputs(), curativeRemedialActions, linearOptimizationResults, initialResults, raoParameters);
-
 
             // Create a global result with the flows on ALL cnecs and the actions applied during MIP
             TemporalData<RangeActionActivationResult> rangeActionActivationResultTemporalData = ((GlobalRangeActionActivationResult) linearOptimizationResults.getRangeActionActivationResult()).getRangeActionActivationPerTimestamp();
@@ -152,6 +164,10 @@ public class Marmot implements InterTemporalRaoProvider {
         // Log initial and final results
         //logCost("[MARMOT] Before global linear optimization: ", initialLinearOptimizationResult, raoParameters, 10);
         logCost("[MARMOT] After global linear optimization: ", linearOptimizationResults, raoParameters, 10);
+
+        LinearOptimizationResult finalLinearOptimizationResults = linearOptimizationResults;
+        interTemporalRaoInput.getRaoInputs().getDataPerTimestamp().forEach((dateTime, raoInput) ->
+            exportUctNetwork(interTemporalRaoInputWithNetworkPaths.getRaoInputs().getData(dateTime).orElseThrow(), raoInput, finalLinearOptimizationResults));
 
         return CompletableFuture.completedFuture(mergedRaoResults);
     }
@@ -176,6 +192,54 @@ public class Marmot implements InterTemporalRaoProvider {
             });
         });
         return shouldStop.get();
+    }
+
+    private static void exportUctNetwork(RaoInputWithNetworkPaths raoInputWithNetworkPaths, RaoInput raoInput, LinearOptimizationResult linearOptimizationResults) {
+        // RAs have already been applied on network.
+        // But injection RAs have been applied on fictitious generators created during import. Their setpoint
+        // needs to be transposed on initial network's original generators.
+        Network modifiedNetwork = raoInput.getNetwork();
+        String initialNetworkPath = raoInputWithNetworkPaths.getInitialNetworkPath().split(".uct")[0].concat("-copied.uct");
+        Network initialNetwork = Network.read(initialNetworkPath);
+        State preventiveState = raoInput.getCrac().getPreventiveState();
+
+        linearOptimizationResults.getActivatedRangeActions(preventiveState)
+            .forEach(rangeAction -> {
+                if (rangeAction instanceof InjectionRangeAction) {
+                    double optimizedSetpoint = linearOptimizationResults.getOptimizedSetpoint(rangeAction, preventiveState);
+                    double initialSetpoint = ((InjectionRangeAction) rangeAction).getInitialSetpoint();
+                    for (NetworkElement networkElement : rangeAction.getNetworkElements().stream().collect(Collectors.toSet())) {
+                        String busId = modifiedNetwork.getGenerator(networkElement.getId()).getTerminal().getBusBreakerView().getBus().getId();
+                        Bus busInInitialNetwork = initialNetwork.getBusBreakerView().getBus(busId);
+                        // If no generator defined in initial network, create one
+                        // For now, minimumPermissibleReactivePowerGeneration and maximumPermissibleReactivePowerGeneration are hardcoded to -999 and 999
+                        // to prevent infinite values that generate a UCT writer crash. TODO : compute realistic values
+                        String generatorId = busId + "_generator";
+                        if (initialNetwork.getGenerator(generatorId) == null) {
+                            Generator generator = busInInitialNetwork.getVoltageLevel().newGenerator()
+                                .setBus(busId)
+                                .setEnsureIdUnicity(true)
+                                .setId(generatorId)
+                                .setMaxP(999999)
+                                .setMinP(0)
+                                .setTargetP(0)
+                                .setTargetQ(0)
+                                .setTargetV(busInInitialNetwork.getVoltageLevel().getNominalV())
+                                .setVoltageRegulatorOn(false)
+                                .add();
+                            generator.setFictitious(true);
+                            generator.newMinMaxReactiveLimits().setMinQ(-999).setMaxQ(999).add();
+                        }
+                        for (Generator generator : busInInitialNetwork.getGenerators()) {
+                            generator.setTargetP(generator.getTargetP()
+                                + (optimizedSetpoint - initialSetpoint) * ((InjectionRangeAction) rangeAction).getInjectionDistributionKeys().get(networkElement));
+                        }
+                    }
+                }
+            });
+
+        String path = raoInputWithNetworkPaths.getPostIcsImportNetworkPath().split(".jiidm")[0].concat(".uct");
+        initialNetwork.write("UCTE", new Properties(), Path.of(path));
     }
 
     private TemporalData<PrePerimeterResult> buildInitialResults(TemporalData<RaoResult> topologicalOptimizationResults) {
@@ -252,7 +316,6 @@ public class Marmot implements InterTemporalRaoProvider {
         return raoResult;
     }
 
-
     // TODO: delete this, it is just used for manual testing purposes if we want to run the MIP part only without running the independent RAOs
     private static RaoResult generateMockRaoResult(RaoInput individualRaoInput, RaoParameters raoParameters, TemporalData<Set<String>> consideredCnecs) {
         FastRaoResultImpl raoResult = Mockito.mock(FastRaoResultImpl.class);
@@ -263,7 +326,7 @@ public class Marmot implements InterTemporalRaoProvider {
                 .filter(na -> actionNames.contains(na.getName()))
                 .collect(Collectors.toSet());
             when(raoResult.getActivatedNetworkActionsDuringState(individualRaoInput.getCrac().getPreventiveState())).thenReturn(actions);
-        } if (crac.getTimestamp().orElseThrow().getHour() == 1) {
+        } else if (crac.getTimestamp().orElseThrow().getHour() == 1) {
             Set<String> actionNames = Set.of("TOP_2N_BRUEG_PRA");
             Set<NetworkAction> actions = crac.getNetworkActions().stream()
                 .filter(na -> actionNames.contains(na.getName()))
@@ -303,7 +366,7 @@ public class Marmot implements InterTemporalRaoProvider {
         return prePerimeterResults;
     }
 
-    private static TemporalData<PrePerimeterResult> applyActionsAndRunFullLoadflow(TemporalData<RaoInput> raoInputs, TemporalData<AppliedRemedialActions> curativeRemedialActions, LinearOptimizationResult filteredResult ,TemporalData<PrePerimeterResult> initialResults, RaoParameters raoParameters) {
+    private static TemporalData<PrePerimeterResult> applyActionsAndRunFullLoadflow(TemporalData<RaoInput> raoInputs, TemporalData<AppliedRemedialActions> curativeRemedialActions, LinearOptimizationResult filteredResult, TemporalData<PrePerimeterResult> initialResults, RaoParameters raoParameters) {
         TemporalData<PrePerimeterResult> prePerimeterResults = new TemporalDataImpl<>();
         raoInputs.getDataPerTimestamp().forEach((timestamp, raoInput) -> {
             // duplicate the postTopoScenario variant and switch to the new clone

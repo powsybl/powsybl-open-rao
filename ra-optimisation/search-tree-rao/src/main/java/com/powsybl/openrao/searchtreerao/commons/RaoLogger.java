@@ -7,7 +7,6 @@
 
 package com.powsybl.openrao.searchtreerao.commons;
 
-import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.commons.logs.OpenRaoLogger;
 import com.powsybl.openrao.data.crac.api.Identifiable;
