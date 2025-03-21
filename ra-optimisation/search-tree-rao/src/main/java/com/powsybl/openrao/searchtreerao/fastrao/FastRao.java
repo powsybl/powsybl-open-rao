@@ -217,12 +217,9 @@ public class FastRao implements RaoProvider {
         Crac crac = raoInput.getCrac();
         // 4. Filter CRAC to only keep the worst CNECs
         Crac filteredCrac = copyCrac(crac, raoInput.getNetwork());
-        System.out.println(filteredCrac.getFlowCnecs().size());
         removeFlowCnecsFromCrac(filteredCrac, flowCnecsToKeep);
 
         BUSINESS_LOGS.info("***** Iteration {}: Run filtered RAO [start]", counter);
-        System.out.println(filteredCrac.getFlowCnecs().size());
-        System.out.println(flowCnecsToKeep.size());
 
         RaoInput filteredRaoInput = createFilteredRaoInput(raoInput, filteredCrac);
         RaoResult raoResult;
