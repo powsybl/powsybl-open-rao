@@ -199,7 +199,7 @@ public class Marmot implements InterTemporalRaoProvider {
         // But injection RAs have been applied on fictitious generators created during import. Their setpoint
         // needs to be transposed on initial network's original generators.
         Network modifiedNetwork = raoInput.getNetwork();
-        String initialNetworkPath = raoInputWithNetworkPaths.getInitialNetworkPath().split(".uct")[0].concat("-copied.uct");
+        String initialNetworkPath = raoInputWithNetworkPaths.getInitialNetworkPath();
         Network initialNetwork = Network.read(initialNetworkPath);
         State preventiveState = raoInput.getCrac().getPreventiveState();
 
