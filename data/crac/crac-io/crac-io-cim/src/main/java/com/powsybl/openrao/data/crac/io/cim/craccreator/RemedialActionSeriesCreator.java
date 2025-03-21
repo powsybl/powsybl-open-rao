@@ -214,8 +214,8 @@ public class RemedialActionSeriesCreator {
         }
 
         // --- Availability_MarketObjectStatus
-        String availabilityMarketObjectStus = remedialActionSeries.getAvailabilityMarketObjectStatusStatus();
-        if (!checkAvailabilityMarketObjectStatus(createdRemedialActionId, availabilityMarketObjectStus)) {
+        String availabilityMarketObjectStatus = remedialActionSeries.getAvailabilityMarketObjectStatusStatus();
+        if (!checkAvailabilityMarketObjectStatus(createdRemedialActionId, availabilityMarketObjectStatus)) {
             return;
         }
 
@@ -542,8 +542,8 @@ public class RemedialActionSeriesCreator {
     }
 
     private void resetSeriesContingencies() {
-        contingencies.clear();
-        invalidContingencies.clear();
+        this.contingencies = new ArrayList<>();
+        this.invalidContingencies = new ArrayList<>();
     }
 
     private boolean describesRemedialActionsToImport(Series series) {

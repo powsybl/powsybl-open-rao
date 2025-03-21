@@ -48,6 +48,8 @@ public class HvdcRangeActionCreator {
     private final Map<String, Boolean> isDirectionInverted = new HashMap<>();
     private final List<String> raSeriesIds = new ArrayList<>();
     private final Map<String, OpenRaoImportException> exceptions = new HashMap<>();
+    boolean isAltered = false;
+    String importStatusDetailifIsAltered = "";
 
     public HvdcRangeActionCreator(Crac crac, Network network, List<Contingency> contingencies, List<String> invalidContingencies, Set<Cnec<?>> cnecs, Country sharedDomain, CimCracCreationParameters cimCracCreationParameters) {
         this.crac = crac;
@@ -84,20 +86,8 @@ public class HvdcRangeActionCreator {
                 }
                 networkElementIds.add(networkElementId);
 
-                hvdcRangeActionAdders.putIfAbsent(networkElementId, initHvdcRangeActionAdder(registeredResource));
-
-                boolean isRegisteredResourceInverted = readHvdcRange(
-                    networkElementId,
-                    registeredResource.getResourceCapacityMinimumCapacity().intValue(),
-                    registeredResource.getResourceCapacityMaximumCapacity().intValue(),
-                    registeredResource.getInAggregateNodeMRID().getValue(),
-                    registeredResource.getOutAggregateNodeMRID().getValue());
-
-                if (Objects.nonNull(isRemedialActionSeriesInverted) && !isRemedialActionSeriesInverted.equals(isRegisteredResourceInverted)) {
-                    throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "HVDC registered resources reference lines in opposite directions");
-                } else {
-                    isRemedialActionSeriesInverted = isRegisteredResourceInverted;
-                }
+                checkHvdcNetworkElementAndInitAdder(registeredResource, networkElementId);
+                isRemedialActionSeriesInverted = readRangeAndCheckIfInverted(isRemedialActionSeriesInverted, registeredResource, networkElementId);
             }
 
             Boolean finalIsRemedialActionSeriesInverted = isRemedialActionSeriesInverted;
@@ -108,6 +98,43 @@ public class HvdcRangeActionCreator {
             }
         } catch (OpenRaoImportException e) {
             exceptions.put(remedialActionSeries.getMRID(), e);
+        }
+    }
+
+    private Boolean readRangeAndCheckIfInverted(Boolean isRemedialActionSeriesInverted, RemedialActionRegisteredResource registeredResource, String networkElementId) {
+        boolean isRegisteredResourceInverted = readHvdcRange(
+            networkElementId,
+            registeredResource.getResourceCapacityMinimumCapacity().intValue(),
+            registeredResource.getResourceCapacityMaximumCapacity().intValue(),
+            registeredResource.getInAggregateNodeMRID().getValue(),
+            registeredResource.getOutAggregateNodeMRID().getValue());
+
+        if (Objects.nonNull(isRemedialActionSeriesInverted) && !isRemedialActionSeriesInverted.equals(isRegisteredResourceInverted)) {
+            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "HVDC registered resources reference lines in opposite directions");
+        } else {
+            return isRegisteredResourceInverted;
+        }
+    }
+
+    private void checkHvdcNetworkElementAndInitAdder(RemedialActionRegisteredResource registeredResource, String networkElementId) {
+        checkHvdcNetworkElement(networkElementId);
+        HvdcLine hvdcLine = network.getHvdcLine(networkElementId);
+
+        boolean terminal1Connected = hvdcLine.getConverterStation1().getTerminal().isConnected();
+        boolean terminal2Connected = hvdcLine.getConverterStation2().getTerminal().isConnected();
+        if (terminal1Connected && terminal2Connected) {
+            hvdcRangeActionAdders.putIfAbsent(networkElementId, initHvdcRangeActionAdder(registeredResource));
+        } else {
+            isAltered = true;
+            importStatusDetailifIsAltered = String.format("HVDC line %s has ", hvdcLine.getId());
+            if (!terminal1Connected && !terminal2Connected) {
+                importStatusDetailifIsAltered += "terminals 1 and 2 ";
+            } else if (!terminal1Connected) {
+                importStatusDetailifIsAltered += "terminal 1 ";
+            } else if (!terminal2Connected) {
+                importStatusDetailifIsAltered += "terminal 2 ";
+            }
+            importStatusDetailifIsAltered += "disconnected";
         }
     }
 
@@ -149,23 +176,29 @@ public class HvdcRangeActionCreator {
                 ).collect(Collectors.toSet());
             } catch (OpenRaoException e) {
                 return raSeriesIds.stream().map(id ->
-                        RemedialActionSeriesCreationContext.notImported(id, ImportStatus.INCONSISTENCY_IN_DATA, e.getMessage())).collect(Collectors.toSet());
+                    RemedialActionSeriesCreationContext.notImported(id, ImportStatus.INCONSISTENCY_IN_DATA, e.getMessage())).collect(Collectors.toSet());
             }
         }
 
-        if (invalidContingencies.isEmpty()) {
-            return raSeriesIds.stream().map(id -> RemedialActionSeriesCreationContext.importedHvdcRa(id, createdRaIds, false, isDirectionInverted.get(id), "")).collect(Collectors.toSet());
-        } else {
-            String contingencyList = StringUtils.join(invalidContingencies, ", ");
-            return raSeriesIds.stream().map(id -> RemedialActionSeriesCreationContext.importedHvdcRa(id, createdRaIds, true, isDirectionInverted.get(id), String.format("Contingencies %s were not imported", contingencyList))).collect(Collectors.toSet());
+        if (createdRaIds.isEmpty()) {
+            return raSeriesIds.stream().map(id ->
+                RemedialActionSeriesCreationContext.notImported(id, ImportStatus.INCONSISTENCY_IN_DATA, String.format("All terminals on HVDC lines are disconnected"))
+            ).collect(Collectors.toSet());
         }
 
+        if (!invalidContingencies.isEmpty()) {
+            if (isAltered) {
+                importStatusDetailifIsAltered += "; ";
+            }
+            String contingencyList = StringUtils.join(invalidContingencies, ", ");
+            importStatusDetailifIsAltered += String.format("Contingencies %s were not imported", contingencyList);
+        }
+        return raSeriesIds.stream().map(id -> RemedialActionSeriesCreationContext.importedHvdcRa(id, createdRaIds, isAltered, isDirectionInverted.get(id), importStatusDetailifIsAltered)).collect(Collectors.toSet());
     }
 
     private HvdcRangeActionAdder initHvdcRangeActionAdder(RemedialActionRegisteredResource registeredResource) {
         HvdcRangeActionAdder hvdcRangeActionAdder = crac.newHvdcRangeAction();
         String hvdcId = registeredResource.getMRID().getValue();
-        checkHvdcNetworkElement(hvdcId);
         hvdcRangeActionAdder.withNetworkElement(hvdcId);
 
         // Speed
@@ -229,8 +262,8 @@ public class HvdcRangeActionCreator {
      * @param networkElement - HVDC line name
      * @param minCapacity
      * @param maxCapacity
-     * @param inNode - The area of the related oriented border study where the energy flows INTO.
-     * @param outNode - The area of the related oriented border study where the energy comes FROM.
+     * @param inNode         - The area of the related oriented border study where the energy flows INTO.
+     * @param outNode        - The area of the related oriented border study where the energy comes FROM.
      * @return - the boolean indicates whether the Hvdc line is inverted
      */
     private boolean readHvdcRange(String networkElement, int minCapacity, int maxCapacity, String inNode, String outNode) {
@@ -238,9 +271,6 @@ public class HvdcRangeActionCreator {
         boolean isInverted;
         int min;
         int max;
-        if (Objects.isNull(hvdcLine)) {
-            throw new OpenRaoImportException(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, "Not a HVDC line");
-        }
         String from = hvdcLine.getConverterStation1().getTerminal().getVoltageLevel().getId();
         String to = hvdcLine.getConverterStation2().getTerminal().getVoltageLevel().getId();
 
@@ -259,21 +289,24 @@ public class HvdcRangeActionCreator {
             throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Wrong HVDC inAggregateNode/outAggregateNode");
         }
 
-        if (rangeMin.containsKey(networkElement)) {
-            rangeMin.get(networkElement).add(min);
-        } else {
-            List<Integer> list = new ArrayList<>();
-            list.add(min);
-            rangeMin.put(networkElement, list);
+        if (hvdcLine.getConverterStation1().getTerminal().isConnected() && hvdcLine.getConverterStation2().getTerminal().isConnected()) {
+            if (rangeMin.containsKey(networkElement)) {
+                rangeMin.get(networkElement).add(min);
+            } else {
+                List<Integer> list = new ArrayList<>();
+                list.add(min);
+                rangeMin.put(networkElement, list);
+            }
+
+            if (rangeMax.containsKey(networkElement)) {
+                rangeMax.get(networkElement).add(max);
+            } else {
+                List<Integer> list = new ArrayList<>();
+                list.add(max);
+                rangeMax.put(networkElement, list);
+            }
         }
 
-        if (rangeMax.containsKey(networkElement)) {
-            rangeMax.get(networkElement).add(max);
-        } else {
-            List<Integer> list = new ArrayList<>();
-            list.add(max);
-            rangeMax.put(networkElement, list);
-        }
         return isInverted;
     }
 

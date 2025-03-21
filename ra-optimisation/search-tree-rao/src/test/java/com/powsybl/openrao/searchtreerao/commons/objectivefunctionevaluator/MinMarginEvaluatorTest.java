@@ -45,18 +45,22 @@ class MinMarginEvaluatorTest {
         when(cnec1.isMonitored()).thenReturn(false);
         when(cnec1.isOptimized()).thenReturn(true);
         when(cnec1.getState()).thenReturn(state);
+        when(cnec1.getId()).thenReturn("cnec1");
         cnec2 = Mockito.mock(FlowCnec.class); // Only optimized
         when(cnec2.isMonitored()).thenReturn(false);
         when(cnec2.isOptimized()).thenReturn(true);
         when(cnec2.getState()).thenReturn(state);
+        when(cnec2.getId()).thenReturn("cnec2");
         cnec3 = Mockito.mock(FlowCnec.class); // Optimized and monitored
         when(cnec3.isMonitored()).thenReturn(true);
         when(cnec3.isOptimized()).thenReturn(true);
         when(cnec3.getState()).thenReturn(state);
+        when(cnec3.getId()).thenReturn("cnec3");
         pureMnec = Mockito.mock(FlowCnec.class); // Only monitored
         when(pureMnec.isMonitored()).thenReturn(true);
         when(pureMnec.isOptimized()).thenReturn(false);
         when(pureMnec.getState()).thenReturn(state);
+        when(pureMnec.getId()).thenReturn("pureMnec");
 
         marginEvaluator = Mockito.mock(MarginEvaluator.class);
         flowResult = Mockito.mock(FlowResult.class);
@@ -75,7 +79,7 @@ class MinMarginEvaluatorTest {
 
     @Test
     void computeCost() {
-        assertEquals(250., minMarginEvaluator.evaluate(flowResult, null).getCost(Set.of()), DOUBLE_TOLERANCE);
+        assertEquals(250., minMarginEvaluator.evaluate(flowResult, null).getCost(Set.of(), Set.of()), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -86,12 +90,14 @@ class MinMarginEvaluatorTest {
         when(mnec1.isMonitored()).thenReturn(true);
         when(mnec1.isOptimized()).thenReturn(false);
         when(mnec1.getState()).thenReturn(state);
+        when(mnec1.getId()).thenReturn("mnec1");
         FlowCnec mnec2 = Mockito.mock(FlowCnec.class);
         when(mnec2.isMonitored()).thenReturn(true);
         when(mnec2.isOptimized()).thenReturn(false);
         when(mnec2.getState()).thenReturn(state);
         mockCnecThresholds(mnec1, 1000);
         mockCnecThresholds(mnec2, 2000);
+        when(mnec2.getId()).thenReturn("mnec2");
 
         marginEvaluator = Mockito.mock(MarginEvaluator.class);
         flowResult = Mockito.mock(FlowResult.class);
@@ -99,7 +105,7 @@ class MinMarginEvaluatorTest {
         when(marginEvaluator.getMargin(flowResult, mnec2, MEGAWATT)).thenReturn(200.);
 
         minMarginEvaluator = new MinMarginEvaluator(Set.of(mnec1, mnec2), MEGAWATT, marginEvaluator);
-        assertEquals(-2000, minMarginEvaluator.evaluate(flowResult, null).getCost(Set.of()), DOUBLE_TOLERANCE);
+        assertEquals(-2000, minMarginEvaluator.evaluate(flowResult, null).getCost(Set.of(), Set.of()), DOUBLE_TOLERANCE);
     }
 
     private void mockCnecThresholds(FlowCnec cnec, double threshold) {
@@ -114,6 +120,6 @@ class MinMarginEvaluatorTest {
         mockCnecThresholds(cnec2, 2000);
         mockCnecThresholds(cnec3, 3000);
         mockCnecThresholds(pureMnec, 4000);
-        assertEquals(-4000., minMarginEvaluator.evaluate(flowResult, null).getCost(Set.of()), DOUBLE_TOLERANCE);
+        assertEquals(-4000., minMarginEvaluator.evaluate(flowResult, null).getCost(Set.of(), Set.of()), DOUBLE_TOLERANCE);
     }
 }
