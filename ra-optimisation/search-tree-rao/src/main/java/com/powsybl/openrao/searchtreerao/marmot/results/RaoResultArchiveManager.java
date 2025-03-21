@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.data.crac.api.Crac;
-import com.powsybl.openrao.data.raoresult.api.GlobalRaoResult;
+import com.powsybl.openrao.data.raoresult.api.InterTemporalRaoResult;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 
 import java.io.ByteArrayInputStream;
@@ -32,22 +32,22 @@ import java.util.zip.ZipOutputStream;
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
  */
 public final class RaoResultArchiveManager {
-    private static final String INDIVIDUAL_RAO_RESULT_NAME_TEMPLATE_PROPERTY = "global-rao-result.export.filename-template";
-    private static final String GLOBAL_RAO_RESULT_SUMMARY_FILENAME_PROPERTY = "global-rao-result.export.summary-filename";
+    private static final String INDIVIDUAL_RAO_RESULT_NAME_TEMPLATE_PROPERTY = "inter-temporal-rao-result.export.filename-template";
+    private static final String INTER_TEMPORAL_RAO_RESULT_SUMMARY_FILENAME_PROPERTY = "inter-temporal-rao-result.export.summary-filename";
     private static final String DEFAULT_INDIVIDUAL_RAO_RESULT_NAME_TEMPLATE = "'raoResult_'yyyyMMddHHmm'.json'";
-    private static final String DEFAULT_GLOBAL_RAO_RESULT_SUMMARY_FILENAME = "globalRaoSummary.json";
+    private static final String DEFAULT_INTER_TEMPORAL_RAO_RESULT_SUMMARY_FILENAME = "interTemporalRaoSummary.json";
 
     private RaoResultArchiveManager() {
     }
 
     // default export format is JSON, see later to set export format
-    public static void exportAndZipResults(ZipOutputStream zipOutputStream, GlobalRaoResult globalRaoResult, TemporalData<Crac> cracs, Properties properties) throws IOException {
+    public static void exportAndZipResults(ZipOutputStream zipOutputStream, InterTemporalRaoResult interTemporalRaoResult, TemporalData<Crac> cracs, Properties properties) throws IOException {
         String jsonFileNameTemplate = getIndividualRaoResultFilenameTemplate(properties);
         String summaryFilename = getSummaryFilename(properties);
-        for (OffsetDateTime timestamp : globalRaoResult.getTimestamps()) {
-            addRaoResultToZipArchive(timestamp, zipOutputStream, globalRaoResult.getIndividualRaoResult(timestamp), cracs.getData(timestamp).orElseThrow(), properties, jsonFileNameTemplate);
+        for (OffsetDateTime timestamp : interTemporalRaoResult.getTimestamps()) {
+            addRaoResultToZipArchive(timestamp, zipOutputStream, interTemporalRaoResult.getIndividualRaoResult(timestamp), cracs.getData(timestamp).orElseThrow(), properties, jsonFileNameTemplate);
         }
-        addSummaryToZipArchive(zipOutputStream, globalRaoResult, summaryFilename, jsonFileNameTemplate);
+        addSummaryToZipArchive(zipOutputStream, interTemporalRaoResult, summaryFilename, jsonFileNameTemplate);
         zipOutputStream.close();
     }
 
@@ -57,14 +57,14 @@ public final class RaoResultArchiveManager {
         addEntryToZipArchive(timestamp.format(DateTimeFormatter.ofPattern(jsonFileNameTemplate)), zipOutputStream, byteArrayOutputStream);
     }
 
-    private static void addSummaryToZipArchive(ZipOutputStream zipOutputStream, GlobalRaoResult globalRaoResult, String summaryFilename, String jsonFileNameTemplate) throws IOException {
+    private static void addSummaryToZipArchive(ZipOutputStream zipOutputStream, InterTemporalRaoResult interTemporalRaoResult, String summaryFilename, String jsonFileNameTemplate) throws IOException {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         try {
             ObjectMapper objectMapper = JsonUtil.createObjectMapper();
-            SimpleModule module = new JsonGlobalRaoResultSerializerModule(jsonFileNameTemplate);
+            SimpleModule module = new JsonInterTemporalRaoResultSerializerModule(jsonFileNameTemplate);
             objectMapper.registerModule(module);
             ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
-            writer.writeValue(byteArrayOutputStream, globalRaoResult);
+            writer.writeValue(byteArrayOutputStream, interTemporalRaoResult);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -90,7 +90,7 @@ public final class RaoResultArchiveManager {
     }
 
     private static String getSummaryFilename(Properties properties) {
-        return properties.getProperty(GLOBAL_RAO_RESULT_SUMMARY_FILENAME_PROPERTY, DEFAULT_GLOBAL_RAO_RESULT_SUMMARY_FILENAME);
+        return properties.getProperty(INTER_TEMPORAL_RAO_RESULT_SUMMARY_FILENAME_PROPERTY, DEFAULT_INTER_TEMPORAL_RAO_RESULT_SUMMARY_FILENAME);
     }
 
     private static String getIndividualRaoResultFilenameTemplate(Properties properties) {

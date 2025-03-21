@@ -8,16 +8,16 @@
 package com.powsybl.openrao.searchtreerao.marmot.results;
 
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.powsybl.openrao.data.raoresult.api.GlobalRaoResult;
+import com.powsybl.openrao.data.raoresult.api.InterTemporalRaoResult;
 
 /**
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public class JsonGlobalRaoResultSerializerModule extends SimpleModule {
+public class JsonInterTemporalRaoResultSerializerModule extends SimpleModule {
 
-    public JsonGlobalRaoResultSerializerModule(String individualRaoResultFilenameTemplate) {
+    public JsonInterTemporalRaoResultSerializerModule(String individualRaoResultFilenameTemplate) {
         super();
-        this.addSerializer(GlobalRaoResult.class, new JsonGlobalRaoResultSerializer(individualRaoResultFilenameTemplate));
+        this.addSerializer(InterTemporalRaoResult.class, new JsonInterTemporalRaoResultSerializer(individualRaoResultFilenameTemplate));
     }
 }

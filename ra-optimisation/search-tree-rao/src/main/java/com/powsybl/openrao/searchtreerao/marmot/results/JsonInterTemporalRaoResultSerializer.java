@@ -15,7 +15,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
-import com.powsybl.openrao.data.raoresult.api.GlobalRaoResult;
+import com.powsybl.openrao.data.raoresult.api.InterTemporalRaoResult;
 import com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants;
 
 import java.io.IOException;
@@ -30,8 +30,8 @@ import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
  */
-public class JsonGlobalRaoResultSerializer extends JsonSerializer<GlobalRaoResult> {
-    private static final String GLOBAL_RAO_SUMMARY = "GLOBAL_RAO_SUMMARY";
+public class JsonInterTemporalRaoResultSerializer extends JsonSerializer<InterTemporalRaoResult> {
+    private static final String GLOBAL_RAO_SUMMARY = "INTER_TEMPORAL_RAO_SUMMARY";
     private static final String VERSION = "1.0";
     private static final String RESULT_PER_TIMESTAMP = "resultPerTimestamp";
     private static final String COST_RESULTS = "costResults";
@@ -40,12 +40,12 @@ public class JsonGlobalRaoResultSerializer extends JsonSerializer<GlobalRaoResul
 
     private final String individualRaoResultFilenameTemplate;
 
-    public JsonGlobalRaoResultSerializer(String individualRaoResultFilenameTemplate) {
+    public JsonInterTemporalRaoResultSerializer(String individualRaoResultFilenameTemplate) {
         this.individualRaoResultFilenameTemplate = individualRaoResultFilenameTemplate;
     }
 
     @Override
-    public void serialize(GlobalRaoResult globalRaoResult, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(InterTemporalRaoResult interTemporalRaoResult, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
         // type and version
         jsonGenerator.writeStringField(JsonSerializationConstants.TYPE, GLOBAL_RAO_SUMMARY);
@@ -53,28 +53,28 @@ public class JsonGlobalRaoResultSerializer extends JsonSerializer<GlobalRaoResul
         jsonGenerator.writeStringField(JsonSerializationConstants.INFO, RaoResultJsonConstants.RAO_RESULT_INFO);
 
         // computation status
-        ComputationStatus computationStatus = globalRaoResult.getComputationStatus();
+        ComputationStatus computationStatus = interTemporalRaoResult.getComputationStatus();
         jsonGenerator.writeStringField(COMPUTATION_STATUS, serializeStatus(computationStatus));
 
-        serializeCostResults(globalRaoResult, jsonGenerator);
-        serializeRaoResultPerTimestamp(globalRaoResult, jsonGenerator, individualRaoResultFilenameTemplate);
+        serializeCostResults(interTemporalRaoResult, jsonGenerator);
+        serializeRaoResultPerTimestamp(interTemporalRaoResult, jsonGenerator, individualRaoResultFilenameTemplate);
 
         jsonGenerator.writeEndObject();
     }
 
-    private static void serializeCostResults(GlobalRaoResult globalRaoResult, JsonGenerator jsonGenerator) throws IOException {
+    private static void serializeCostResults(InterTemporalRaoResult interTemporalRaoResult, JsonGenerator jsonGenerator) throws IOException {
         jsonGenerator.writeObjectFieldStart(COST_RESULTS);
-        serializeCostsAfterGivenStep(globalRaoResult, jsonGenerator, null); // initial situation
-        serializeCostsAfterGivenStep(globalRaoResult, jsonGenerator, InstantKind.PREVENTIVE); // after PRAs
+        serializeCostsAfterGivenStep(interTemporalRaoResult, jsonGenerator, null); // initial situation
+        serializeCostsAfterGivenStep(interTemporalRaoResult, jsonGenerator, InstantKind.PREVENTIVE); // after PRAs
         jsonGenerator.writeEndObject();
     }
 
-    private static void serializeCostsAfterGivenStep(GlobalRaoResult globalRaoResult, JsonGenerator jsonGenerator, InstantKind instantKind) throws IOException {
+    private static void serializeCostsAfterGivenStep(InterTemporalRaoResult interTemporalRaoResult, JsonGenerator jsonGenerator, InstantKind instantKind) throws IOException {
         jsonGenerator.writeObjectFieldStart(instantKind == null ? INITIAL_INSTANT_ID : PREVENTIVE_INSTANT_ID);
-        jsonGenerator.writeNumberField(FUNCTIONAL_COST, roundDouble(globalRaoResult.getGlobalFunctionalCost(instantKind)));
+        jsonGenerator.writeNumberField(FUNCTIONAL_COST, roundDouble(interTemporalRaoResult.getGlobalFunctionalCost(instantKind)));
         jsonGenerator.writeObjectFieldStart(VIRTUAL_COSTS);
-        for (String virtualCostName : globalRaoResult.getVirtualCostNames().stream().sorted().toList()) {
-            double virtualCostForAGivenName = globalRaoResult.getGlobalVirtualCost(instantKind, virtualCostName);
+        for (String virtualCostName : interTemporalRaoResult.getVirtualCostNames().stream().sorted().toList()) {
+            double virtualCostForAGivenName = interTemporalRaoResult.getGlobalVirtualCost(instantKind, virtualCostName);
             if (!Double.isNaN(virtualCostForAGivenName)) {
                 jsonGenerator.writeNumberField(virtualCostName, roundDouble(virtualCostForAGivenName));
             }
@@ -87,9 +87,9 @@ public class JsonGlobalRaoResultSerializer extends JsonSerializer<GlobalRaoResul
         return BigDecimal.valueOf(doubleValue).setScale(2, RoundingMode.HALF_UP);
     }
 
-    private static void serializeRaoResultPerTimestamp(GlobalRaoResult globalRaoResult, JsonGenerator jsonGenerator, String individualRaoResultFilenameTemplate) throws IOException {
+    private static void serializeRaoResultPerTimestamp(InterTemporalRaoResult interTemporalRaoResult, JsonGenerator jsonGenerator, String individualRaoResultFilenameTemplate) throws IOException {
         jsonGenerator.writeObjectFieldStart(RESULT_PER_TIMESTAMP);
-        for (OffsetDateTime timestamp : globalRaoResult.getTimestamps()) {
+        for (OffsetDateTime timestamp : interTemporalRaoResult.getTimestamps()) {
             jsonGenerator.writeStringField(timestamp.format(FIELD_NAME_DATE_TIME_FORMATTER), timestamp.format(DateTimeFormatter.ofPattern(individualRaoResultFilenameTemplate)));
         }
         jsonGenerator.writeEndObject();

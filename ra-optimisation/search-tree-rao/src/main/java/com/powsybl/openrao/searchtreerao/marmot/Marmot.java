@@ -89,7 +89,7 @@ public class Marmot implements InterTemporalRaoProvider {
 
         // 5. Build objective function and post topological actions application result
         ObjectiveFunction objectiveFunction = buildGlobalObjectiveFunction(raoInput.getRaoInputs().map(RaoInput::getCrac), new GlobalFlowResult(initialResults.map(PrePerimeterResult::getFlowResult)), new GlobalFlowResult(initialResults.map(PrePerimeterResult::getFlowResult)), raoParameters);
-        ObjectiveFunctionResult initialObjectiveFunctionResult = getInitialObjectiveFunctionResult(initialResults, objectiveFunction);
+        LinearOptimizationResult initialObjectiveFunctionResult = getInitialObjectiveFunctionResult(initialResults, objectiveFunction);
         TemporalData<NetworkActionsResult> preventiveTopologicalActions = getPreventiveTopologicalActions(raoInput.getRaoInputs().map(RaoInput::getCrac), topologicalOptimizationResults);
         LinearOptimizationResult postTopologicalOptimizationResult = getPostTopologicalOptimizationResult(postTopologicalActionsResults, preventiveTopologicalActions, objectiveFunction);
 
@@ -110,8 +110,7 @@ public class Marmot implements InterTemporalRaoProvider {
         InterTemporalRaoResultImpl interTemporalRaoResult = mergeTopologicalAndLinearOptimizationResults(raoInput.getRaoInputs(), initialResults, initialObjectiveFunctionResult, globalLinearOptimizationResult, topologicalOptimizationResults, raoParameters);
 
         // 8. Log initial and final results
-        // TODO: log existing results
-        logCost("[MARMOT] Before topological optimizations: ", getPostTopologicalOptimizationResult(initialResults, new TemporalDataImpl<>(), objectiveFunction), raoParameters, 10);
+        logCost("[MARMOT] Before topological optimizations: ", initialObjectiveFunctionResult, raoParameters, 10);
         logCost("[MARMOT] Before global linear optimization: ", postTopologicalOptimizationResult, raoParameters, 10);
         logCost("[MARMOT] After global linear optimization: ", globalLinearOptimizationResult, raoParameters, 10);
 
@@ -219,7 +218,7 @@ public class Marmot implements InterTemporalRaoProvider {
             allOptimizedStates);
     }
 
-    private ObjectiveFunctionResult getInitialObjectiveFunctionResult(TemporalData<PrePerimeterResult> prePerimeterResults, ObjectiveFunction objectiveFunction) {
+    private LinearOptimizationResult getInitialObjectiveFunctionResult(TemporalData<PrePerimeterResult> prePerimeterResults, ObjectiveFunction objectiveFunction) {
         return new GlobalLinearOptimizationResult(prePerimeterResults.map(PrePerimeterResult::getFlowResult), prePerimeterResults.map(PrePerimeterResult::getSensitivityResult), prePerimeterResults.map(RangeActionActivationResultImpl::new), new TemporalDataImpl<>(), objectiveFunction, LinearProblemStatus.OPTIMAL);
     }
 

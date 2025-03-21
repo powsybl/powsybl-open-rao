@@ -46,7 +46,7 @@ class RaoResultArchiveManagerTest {
         assertTrue(archiveContent.contains("raoResult_202502141040.json"));
         assertTrue(archiveContent.contains("raoResult_202502141140.json"));
         assertTrue(archiveContent.contains("raoResult_202502141240.json"));
-        assertTrue(archiveContent.contains("globalRaoSummary.json"));
+        assertTrue(archiveContent.contains("interTemporalRaoSummary.json"));
     }
 
     @Test
@@ -54,8 +54,8 @@ class RaoResultArchiveManagerTest {
         Properties properties = new Properties();
         properties.put("rao-result.export.json.flows-in-amperes", "true");
         properties.put("rao-result.export.json.flows-in-megawatts", "true");
-        properties.put("global-rao-result.export.filename-template", "'RAO_RESULT_'yyyy-MM-dd'T'HH:mm:ss'.json'");
-        properties.put("global-rao-result.export.summary-filename", "summary.json");
+        properties.put("inter-temporal-rao-result.export.filename-template", "'RAO_RESULT_'yyyy-MM-dd'T'HH:mm:ss'.json'");
+        properties.put("inter-temporal-rao-result.export.summary-filename", "summary.json");
 
         Set<String> archiveContent = exportArchiveAndGetContent(properties);
 
@@ -67,15 +67,15 @@ class RaoResultArchiveManagerTest {
     }
 
     private static Set<String> exportArchiveAndGetContent(Properties properties) throws IOException {
-        Network network1 = Network.read("/network/3Nodes.uct", GlobalRaoResultImplTest.class.getResourceAsStream("/network/3Nodes.uct"));
-        Network network2 = Network.read("/network/3Nodes.uct", GlobalRaoResultImplTest.class.getResourceAsStream("/network/3Nodes.uct"));
-        Network network3 = Network.read("/network/3Nodes.uct", GlobalRaoResultImplTest.class.getResourceAsStream("/network/3Nodes.uct"));
-        Crac crac1 = Crac.read("/crac/crac-redispatching-202502141040.json", GlobalRaoResultImplTest.class.getResourceAsStream("/crac/crac-redispatching-202502141040.json"), network1);
-        Crac crac2 = Crac.read("/crac/crac-redispatching-202502141140.json", GlobalRaoResultImplTest.class.getResourceAsStream("/crac/crac-redispatching-202502141140.json"), network2);
-        Crac crac3 = Crac.read("/crac/crac-redispatching-202502141240.json", GlobalRaoResultImplTest.class.getResourceAsStream("/crac/crac-redispatching-202502141240.json"), network3);
-        RaoResult raoResult1 = RaoResult.read(GlobalRaoResultImplTest.class.getResourceAsStream("/raoResult/raoResult1.json"), crac1);
-        RaoResult raoResult2 = RaoResult.read(GlobalRaoResultImplTest.class.getResourceAsStream("/raoResult/raoResult2.json"), crac2);
-        RaoResult raoResult3 = RaoResult.read(GlobalRaoResultImplTest.class.getResourceAsStream("/raoResult/raoResult3.json"), crac3);
+        Network network1 = Network.read("/network/3Nodes.uct", InterTemporalRaoResultImplTest.class.getResourceAsStream("/network/3Nodes.uct"));
+        Network network2 = Network.read("/network/3Nodes.uct", InterTemporalRaoResultImplTest.class.getResourceAsStream("/network/3Nodes.uct"));
+        Network network3 = Network.read("/network/3Nodes.uct", InterTemporalRaoResultImplTest.class.getResourceAsStream("/network/3Nodes.uct"));
+        Crac crac1 = Crac.read("/crac/crac-redispatching-202502141040.json", InterTemporalRaoResultImplTest.class.getResourceAsStream("/crac/crac-redispatching-202502141040.json"), network1);
+        Crac crac2 = Crac.read("/crac/crac-redispatching-202502141140.json", InterTemporalRaoResultImplTest.class.getResourceAsStream("/crac/crac-redispatching-202502141140.json"), network2);
+        Crac crac3 = Crac.read("/crac/crac-redispatching-202502141240.json", InterTemporalRaoResultImplTest.class.getResourceAsStream("/crac/crac-redispatching-202502141240.json"), network3);
+        RaoResult raoResult1 = RaoResult.read(InterTemporalRaoResultImplTest.class.getResourceAsStream("/raoResult/raoResult1.json"), crac1);
+        RaoResult raoResult2 = RaoResult.read(InterTemporalRaoResultImplTest.class.getResourceAsStream("/raoResult/raoResult2.json"), crac2);
+        RaoResult raoResult3 = RaoResult.read(InterTemporalRaoResultImplTest.class.getResourceAsStream("/raoResult/raoResult3.json"), crac3);
         OffsetDateTime timestamp1 = OffsetDateTime.of(2025, 2, 14, 10, 40, 0, 0, ZoneOffset.UTC);
         OffsetDateTime timestamp2 = OffsetDateTime.of(2025, 2, 14, 11, 40, 0, 0, ZoneOffset.UTC);
         OffsetDateTime timestamp3 = OffsetDateTime.of(2025, 2, 14, 12, 40, 0, 0, ZoneOffset.UTC);
@@ -92,7 +92,7 @@ class RaoResultArchiveManagerTest {
         Mockito.when(globalLinearOptimizationResult.getVirtualCost("min-margin-violation-evaluator")).thenReturn(0.0);
         Mockito.when(globalLinearOptimizationResult.getVirtualCost("sensitivity-failure-cost")).thenReturn(0.0);
 
-        GlobalRaoResultImpl globalRaoResultToExport = new GlobalRaoResultImpl(initialLinearOptimizationResult, globalLinearOptimizationResult, new TemporalDataImpl<>(Map.of(timestamp1, raoResult1, timestamp2, raoResult2, timestamp3, raoResult3)));
+        InterTemporalRaoResultImpl globalRaoResultToExport = new InterTemporalRaoResultImpl(initialLinearOptimizationResult, globalLinearOptimizationResult, new TemporalDataImpl<>(Map.of(timestamp1, raoResult1, timestamp2, raoResult2, timestamp3, raoResult3)));
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ZipOutputStream zos = new ZipOutputStream(baos);
 

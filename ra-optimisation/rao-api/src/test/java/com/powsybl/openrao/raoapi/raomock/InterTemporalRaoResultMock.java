@@ -21,6 +21,7 @@ import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.InterTemporalRaoResult;
+import com.powsybl.openrao.data.raoresult.api.RaoResult;
 
 import java.io.IOException;
 import java.time.OffsetDateTime;
