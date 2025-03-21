@@ -12,6 +12,8 @@ import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.searchtreerao.commons.marginevaluator.MarginEvaluator;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -30,7 +32,9 @@ public class MinMarginViolationEvaluator extends MinMarginEvaluator implements C
     }
 
     @Override
-    protected double computeCostForState(FlowResult flowResult, Set<FlowCnec> flowCnecsOfState) {
-        return Math.max(0, super.computeCostForState(flowResult, flowCnecsOfState)) * OVERLOAD_PENALTY;
+    public Map<FlowCnec, Double> getMarginPerCnec(Set<FlowCnec> flowCnecs, FlowResult flowResult, Unit unit) {
+        Map<FlowCnec, Double> marginPerCnec = new HashMap<>();
+        flowCnecs.forEach(cnec -> marginPerCnec.put(cnec, Math.min(0, marginEvaluator.getMargin(flowResult, cnec, unit)) * OVERLOAD_PENALTY));
+        return marginPerCnec;
     }
 }
