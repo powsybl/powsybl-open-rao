@@ -252,6 +252,8 @@ public class Marmot implements InterTemporalRaoProvider {
         return raoResult;
     }
 
+
+    // TODO: delete this, it is just used for manual testing purposes if we want to run the MIP part only without running the independent RAOs
     private static RaoResult generateMockRaoResult(RaoInput individualRaoInput, RaoParameters raoParameters, TemporalData<Set<String>> consideredCnecs) {
         FastRaoResultImpl raoResult = Mockito.mock(FastRaoResultImpl.class);
         Crac crac = individualRaoInput.getCrac();
@@ -277,6 +279,7 @@ public class Marmot implements InterTemporalRaoProvider {
     }
 
     private static void applyPreventiveTopologicalActionsOnNetwork(TemporalData<RaoInput> raoInputs, TemporalData<RaoResult> topologicalOptimizationResults) {
+        // duplicate the initial scenario to keep it clean
         raoInputs.getDataPerTimestamp().values().forEach(raoInput -> {
             raoInput.getNetwork().getVariantManager().cloneVariant("InitialScenario", "PostTopoScenario");
             raoInput.getNetwork().getVariantManager().setWorkingVariant("PostTopoScenario");
@@ -303,6 +306,7 @@ public class Marmot implements InterTemporalRaoProvider {
     private static TemporalData<PrePerimeterResult> applyActionsAndRunFullLoadflow(TemporalData<RaoInput> raoInputs, TemporalData<AppliedRemedialActions> curativeRemedialActions, LinearOptimizationResult filteredResult ,TemporalData<PrePerimeterResult> initialResults, RaoParameters raoParameters) {
         TemporalData<PrePerimeterResult> prePerimeterResults = new TemporalDataImpl<>();
         raoInputs.getDataPerTimestamp().forEach((timestamp, raoInput) -> {
+            // duplicate the postTopoScenario variant and switch to the new clone
             raoInput.getNetwork().getVariantManager().cloneVariant("PostTopoScenario", "PostPreventiveScenario", true);
             raoInput.getNetwork().getVariantManager().setWorkingVariant("PostPreventiveScenario");
             State preventiveState = raoInput.getCrac().getPreventiveState();
@@ -312,6 +316,7 @@ public class Marmot implements InterTemporalRaoProvider {
                 curativeRemedialActions.getData(timestamp).orElseThrow(),
                 initialResults.getData(timestamp).orElseThrow(),
                 raoParameters));
+            // switch back to the postTopoScenario to avoid keeping applied range actions when entering the MIP
             raoInput.getNetwork().getVariantManager().setWorkingVariant("PostTopoScenario");
         });
         return prePerimeterResults;
