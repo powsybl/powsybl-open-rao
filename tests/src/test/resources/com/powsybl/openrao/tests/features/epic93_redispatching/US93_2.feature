@@ -56,7 +56,7 @@ Feature: US 93.1: power gradient constraints
     When I launch marmot
 
   @fast @rao @dc @redispatching @preventive-only
-  Scenario: US 93.2.2: Test for CORE IDCC 3
+  Scenario: US 93.2.3: Test for CORE IDCC 3
     Given network files are in folder "20240926-FID2-620-v4-10V1001C--00264T-to-10V1001C--00085T"
     Given crac file is "20240926-FSC-ID2-CB-v1-10V1001C--00264T-to-10XFR-RTE------Q.xml"
     Given ics static file is "_10V1001C–00275O_CSA-COMRA-RDSTATIC-D_CORE-20240926-V001_.csv"
@@ -68,6 +68,20 @@ Feature: US 93.1: power gradient constraints
       | 2024-09-26 00:30 | 20240926_0030_2D4_UX0_FEXPORTGRIDMODEL_CGM_10V1001C--00264T.uct |
       | 2024-09-26 01:30 | 20240926_0130_2D4_UX0_FEXPORTGRIDMODEL_CGM_10V1001C--00264T.uct |
       | 2024-09-26 02:30 | 20240926_0230_2D4_UX0_FEXPORTGRIDMODEL_CGM_10V1001C--00264T.uct |
+    When I launch marmot
+
+
+  @fast @rao @dc @redispatching @preventive-only
+  Scenario: US 93.2.2: Test for CORE IDCC 1 TS
+    Given network files are in folder "20240926-FID2-620-v4-10V1001C--00264T-to-10V1001C--00085T"
+    Given crac file is "20240926-FSC-ID2-CB-v1-10V1001C--00264T-to-10XFR-RTE------Q.xml"
+    Given ics static file is "_10V1001C–00275O_CSA-COMRA-RDSTATIC-D_CORE-20240926-V001_.csv"
+    Given ics series file is "_10V1001C–00275O_CSA-COMRA-RDSERIES-D_CORE-20240926-V001_.csv"
+    Given ics gsk file is "_10V1001C--00275O_CSA-INDRA-GSK-D_D2-20240602-V004_.csv"
+    Given configuration file is "epic93/RaoParameters_minCost_megawatt_dc.json"
+    Given intertemporal rao inputs are:
+      | Timestamp        | Network                                                         |
+      | 2024-09-26 00:30 | 20240926_0030_2D4_UX0_FEXPORTGRIDMODEL_CGM_10V1001C--00264T.uct |
     When I launch marmot
 
   @fast @rao @dc @redispatching @preventive-only

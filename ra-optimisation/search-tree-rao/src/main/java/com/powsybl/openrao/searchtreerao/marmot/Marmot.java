@@ -402,7 +402,8 @@ public class Marmot implements InterTemporalRaoProvider {
         ObjectiveFunction objectiveFunction) {
 
         // -- Build IteratingLinearOptimizerInterTemporalInput
-        TemporalData<OptimizationPerimeter> optimizationPerimeterPerTimestamp = computeOptimizationPerimetersPerTimestamp(raoInput.getRaoInputs().map(RaoInput::getCrac), initialResults, consideredCnecs);
+        // Need to use postTopoResults to build perimeter because initialResults does not contain range action setpoints
+        TemporalData<OptimizationPerimeter> optimizationPerimeterPerTimestamp = computeOptimizationPerimetersPerTimestamp(raoInput.getRaoInputs().map(RaoInput::getCrac), postTopoResults, consideredCnecs);
         // no objective function defined in individual IteratingLinearOptimizerInputs as it is global
         Map<OffsetDateTime, IteratingLinearOptimizerInput> linearOptimizerInputPerTimestamp = new HashMap<>();
         raoInput.getRaoInputs().getTimestamps().forEach(timestamp -> linearOptimizerInputPerTimestamp.put(timestamp, IteratingLinearOptimizerInput.create()
@@ -411,7 +412,7 @@ public class Marmot implements InterTemporalRaoProvider {
             .withInitialFlowResult(initialResults.getData(timestamp).orElseThrow())
             .withPrePerimeterFlowResult(initialResults.getData(timestamp).orElseThrow())
             .withPreOptimizationFlowResult(postTopoResults.getData(timestamp).orElseThrow())
-            .withPrePerimeterSetpoints(initialResults.getData(timestamp).orElseThrow())
+            .withPrePerimeterSetpoints(postTopoResults.getData(timestamp).orElseThrow()) //use postTopoResults because initial does not contain setpoints
             .withPreOptimizationSensitivityResult(postTopoResults.getData(timestamp).orElseThrow())
             .withPreOptimizationAppliedRemedialActions(curativeRemedialActions.getData(timestamp).orElseThrow())
             .withToolProvider(ToolProvider.buildFromRaoInputAndParameters(raoInput.getRaoInputs().getData(timestamp).orElseThrow(), parameters))
@@ -454,17 +455,17 @@ public class Marmot implements InterTemporalRaoProvider {
         }
     }
 
-    private static TemporalData<OptimizationPerimeter> computeOptimizationPerimetersPerTimestamp(TemporalData<Crac> cracs, TemporalData<PrePerimeterResult> prePerimeterResults, TemporalData<Set<String>> consideredCnecs) {
+    private static TemporalData<OptimizationPerimeter> computeOptimizationPerimetersPerTimestamp(TemporalData<Crac> cracs, TemporalData<? extends RangeActionSetpointResult> prePerimeterSetpointResults, TemporalData<Set<String>> consideredCnecs) {
         TemporalData<OptimizationPerimeter> optimizationPerimeters = new TemporalDataImpl<>();
         cracs.getTimestamps().forEach(timestamp -> {
             Crac crac = cracs.getData(timestamp).orElseThrow();
-            PrePerimeterResult prePerimeterResult = prePerimeterResults.getData(timestamp).orElseThrow();
+            RangeActionSetpointResult prePerimeterSetpointResult = prePerimeterSetpointResults.getData(timestamp).orElseThrow();
             optimizationPerimeters.add(timestamp, new PreventiveOptimizationPerimeter(
                 crac.getPreventiveState(),
                 MarmotUtils.getFilteredCnecs(crac, consideredCnecs.getData(timestamp).orElseThrow()),
                 new HashSet<>(),
                 new HashSet<>(),
-                crac.getRangeActions(crac.getPreventiveState(), UsageMethod.AVAILABLE).stream().filter(rangeAction -> doesPrePerimeterSetpointRespectRange(rangeAction, prePerimeterResult)).collect(Collectors.toSet())
+                crac.getRangeActions(crac.getPreventiveState(), UsageMethod.AVAILABLE).stream().filter(rangeAction -> doesPrePerimeterSetpointRespectRange(rangeAction, prePerimeterSetpointResult)).collect(Collectors.toSet())
             ));
         });
         return optimizationPerimeters;
