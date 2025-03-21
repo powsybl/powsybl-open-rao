@@ -495,13 +495,13 @@ public interface RaoResult {
     }
 
     /**
-     * Write CRAC data into a file
+     * Write RAO Result data into a file
      *
-     * @param exporters           candidate CRAC exporters
-     * @param format              desired output CRAC data type
+     * @param exporters           candidate RAO Result exporters
+     * @param format              desired output RAO Result data type
      * @param cracCreationContext CRAC creation context that contains the original CRAC
      * @param properties          specific information needed for export
-     * @param outputStream        file where to write the CRAC data
+     * @param outputStream        file where to write the RAO Result data
      */
     private void write(List<Exporter> exporters, String format, CracCreationContext cracCreationContext, Properties properties, OutputStream outputStream) {
         exporters.stream()
@@ -512,25 +512,25 @@ public interface RaoResult {
     }
 
     /**
-     * Write CRAC data into a file
+     * Write RAO Result data into a file
      *
-     * @param format              desired output CRAC data type
+     * @param format              desired output RAO Result data type
      * @param cracCreationContext CRAC creation context that contains the original CRAC
      * @param properties          specific information needed for export
-     * @param outputStream        file where to write the CRAC data
+     * @param outputStream        file where to write the RAO Result data
      */
     default void write(String format, CracCreationContext cracCreationContext, Properties properties, OutputStream outputStream) {
         write(new ServiceLoaderCache<>(Exporter.class).getServices(), format, cracCreationContext, properties, outputStream);
     }
 
     /**
-     * Write CRAC data into a file
+     * Write RAO Result data into a file
      *
-     * @param exporters    candidate CRAC exporters
-     * @param format       desired output CRAC data type
+     * @param exporters    candidate RAO Result exporters
+     * @param format       desired output RAO Result data type
      * @param crac         CRAC data
      * @param properties   specific information needed for export
-     * @param outputStream file where to write the CRAC data
+     * @param outputStream file where to write the RAO Result data
      */
     private void write(List<Exporter> exporters, String format, Crac crac, Properties properties, OutputStream outputStream) {
         exporters.stream()
@@ -541,12 +541,12 @@ public interface RaoResult {
     }
 
     /**
-     * Write CRAC data into a file
+     * Write RAO Result data into a file
      *
-     * @param format       desired output CRAC data type
+     * @param format       desired output RAO Result data type
      * @param crac         CRAC data
      * @param properties   specific information needed for export
-     * @param outputStream file where to write the CRAC data
+     * @param outputStream file where to write the RAO Result data
      */
     default void write(String format, Crac crac, Properties properties, OutputStream outputStream) {
         write(new ServiceLoaderCache<>(Exporter.class).getServices(), format, crac, properties, outputStream);
