@@ -125,16 +125,14 @@ public class FastRao implements RaoProvider {
             int counter = 1;
             do {
                 addWorstCnecs(consideredCnecs, NUMBER_OF_CNECS_TO_ADD, stepResult);
-                System.out.println(consideredCnecs.size());
                 if (ADD_UNSECURE_CNECS) {
                     consideredCnecs.addAll(getUnsecureFunctionalCnecs(stepResult, parameters.getObjectiveFunctionParameters().getUnit()));
                 }
-                System.out.println(consideredCnecs.size());
                 consideredCnecs.addAll(getCostlyVirtualCnecs(stepResult));
-                System.out.println(consideredCnecs.size());
                 consideredCnecs.add(getWorstPreventiveCnec(stepResult, crac));
-                System.out.println(consideredCnecs.size());
                 cleanVariants(raoInput.getNetwork(), initialNetworkVariants);
+
+                BUSINESS_LOGS.info("{} cnecs to be considered in filtered RAO", consideredCnecs.size());
 
                 raoResult = runFilteredRao(raoInput, parameters, targetEndInstant, consideredCnecs, toolProvider, initialResult, networkPool, counter);
                 stepResult = raoResult.getAppropriateResult(lastInstant);
@@ -207,8 +205,10 @@ public class FastRao implements RaoProvider {
 
     private static Set<String> getCostlyVirtualCnecs(ObjectiveFunctionResult ofResult) {
         Set<String> flowCnecs = new HashSet<>();
-        ofResult.getVirtualCostNames().forEach(name -> ofResult.getCostlyElements(name, Integer.MAX_VALUE).forEach(
-            flowCnec -> flowCnecs.add(flowCnec.getId())
+        ofResult.getVirtualCostNames().stream()
+            .filter(name -> !name.equals("min-margin-violation-evaluator"))
+            .forEach(name -> ofResult.getCostlyElements(name, Integer.MAX_VALUE).forEach(
+                flowCnec -> flowCnecs.add(flowCnec.getId())
         ));
         return flowCnecs;
     }
@@ -217,12 +217,9 @@ public class FastRao implements RaoProvider {
         Crac crac = raoInput.getCrac();
         // 4. Filter CRAC to only keep the worst CNECs
         Crac filteredCrac = copyCrac(crac, raoInput.getNetwork());
-        System.out.println(filteredCrac.getFlowCnecs().size());
         removeFlowCnecsFromCrac(filteredCrac, flowCnecsToKeep);
 
         BUSINESS_LOGS.info("***** Iteration {}: Run filtered RAO [start]", counter);
-        System.out.println(filteredCrac.getFlowCnecs().size());
-        System.out.println(flowCnecsToKeep.size());
 
         RaoInput filteredRaoInput = createFilteredRaoInput(raoInput, filteredCrac);
         RaoResult raoResult;

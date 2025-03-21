@@ -29,6 +29,10 @@ public class GlobalRangeActionActivationResult implements RangeActionActivationR
         this.rangeActionActivationPerTimestamp = rangeActionActivationPerTimestamp;
     }
 
+    public TemporalData<RangeActionActivationResult> getRangeActionActivationPerTimestamp() {
+        return rangeActionActivationPerTimestamp;
+    }
+
     @Override
     public Set<RangeAction<?>> getRangeActions() {
         Set<RangeAction<?>> allRangeActions = new HashSet<>();

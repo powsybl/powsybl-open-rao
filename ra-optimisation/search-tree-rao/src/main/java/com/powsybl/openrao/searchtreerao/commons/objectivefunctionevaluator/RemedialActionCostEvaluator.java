@@ -51,15 +51,16 @@ public class RemedialActionCostEvaluator implements CostEvaluator {
 
     private double computeRangeActionCost(RangeAction<?> rangeAction, State state, RemedialActionActivationResult remedialActionActivationResult) {
         double variation = rangeAction instanceof PstRangeAction pstRangeAction ? (double) remedialActionActivationResult.getTapVariation(pstRangeAction, state) : remedialActionActivationResult.getSetPointVariation(rangeAction, state);
+        double after = rangeAction instanceof PstRangeAction pstRangeAction ? (double) remedialActionActivationResult.getOptimizedTap(pstRangeAction, state) : remedialActionActivationResult.getOptimizedSetpoint(rangeAction, state);
         if (variation == 0.0) {
             return 0.0;
         }
         double activationCost = rangeAction.getActivationCost().orElse(0.0);
         VariationDirection variationDirection = variation > 0 ? VariationDirection.UP : VariationDirection.DOWN;
         if (!(rangeAction instanceof PstRangeAction)) {
-            TECHNICAL_LOGS.debug("{} variation of {} MW at state {}", rangeAction.getId(), variation, state);
+            TECHNICAL_LOGS.debug("{} variation of {} MW at state {} ({} -> {})", rangeAction.getId(), variation, state, after - variation, after);
         } else {
-            TECHNICAL_LOGS.debug("{} variation of {} taps at state {}", rangeAction.getId(), variation, state);
+            TECHNICAL_LOGS.debug("{} variation of {} taps at state {} ({} -> {})", rangeAction.getId(), variation, state, after - variation, after);
         }
         return activationCost + Math.abs(variation) * rangeAction.getVariationCost(variationDirection).orElse(0.0);
     }
