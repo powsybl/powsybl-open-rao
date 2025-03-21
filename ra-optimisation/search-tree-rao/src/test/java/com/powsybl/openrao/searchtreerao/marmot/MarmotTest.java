@@ -10,6 +10,7 @@ package com.powsybl.openrao.searchtreerao.marmot;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.generatorconstraints.GeneratorConstraints;
 import com.powsybl.openrao.raoapi.InterTemporalRaoInput;
 import com.powsybl.openrao.raoapi.RaoInput;
@@ -53,7 +54,7 @@ class MarmotTest {
         // first RAOs shift tap to -5 for a cost of 55 each
         // MARMOT should also move the tap to -5 for both timestamps with a total cost of 110
         InterTemporalRaoResultImpl interTemporalRaoResult = (InterTemporalRaoResultImpl) new Marmot().run(input, raoParameters).join();
-        assertEquals(110.0, interTemporalRaoResult.getGlobalCost());
+        assertEquals(110.0, interTemporalRaoResult.getGlobalCost(InstantKind.PREVENTIVE));
 
         assertEquals(55.0, interTemporalRaoResult.getCost(crac1.getPreventiveInstant(), timestamp1));
         assertEquals(-5, interTemporalRaoResult.getOptimizedTapOnState(crac1.getPreventiveState(), crac1.getPstRangeAction("pstBeFr2")));
@@ -85,7 +86,7 @@ class MarmotTest {
         // redispatching of 500 MW in both timestamps 2 & 3 with a cost of 25010 each
         // MARMOT should also activate redispatching at 500 MW for second and third timestamps
         InterTemporalRaoResultImpl interTemporalRaoResult = (InterTemporalRaoResultImpl) new Marmot().run(input, raoParameters).join();
-        assertEquals(50020.0, interTemporalRaoResult.getGlobalCost());
+        assertEquals(50020.0, interTemporalRaoResult.getGlobalCost(InstantKind.PREVENTIVE));
 
         assertEquals(0.0, interTemporalRaoResult.getCost(crac1.getPreventiveInstant(), timestamp1));
         assertEquals(-0.0, interTemporalRaoResult.getOptimizedSetPointOnState(crac1.getPreventiveState(), crac1.getRangeAction("redispatchingAction")));
@@ -122,7 +123,7 @@ class MarmotTest {
         // redispatching of 500 MW in both timestamps 2 & 3 with a cost of 25010 each
         // MARMOT should also activate redispatching at 500 MW for second and third timestamps
         InterTemporalRaoResultImpl interTemporalRaoResult = (InterTemporalRaoResultImpl) new Marmot().run(input, raoParameters).join();
-        assertEquals(65030.0, interTemporalRaoResult.getGlobalCost());
+        assertEquals(65030.0, interTemporalRaoResult.getGlobalCost(InstantKind.PREVENTIVE));
 
         assertEquals(15010.0, interTemporalRaoResult.getCost(crac1.getPreventiveInstant(), timestamp1));
         assertEquals(300.0, interTemporalRaoResult.getOptimizedSetPointOnState(crac1.getPreventiveState(), crac1.getRangeAction("redispatchingAction")));
@@ -151,7 +152,7 @@ class MarmotTest {
         );
 
         InterTemporalRaoResultImpl interTemporalRaoResult = (InterTemporalRaoResultImpl) new Marmot().run(input, raoParameters).join();
-        assertEquals(40.0, interTemporalRaoResult.getGlobalCost());
+        assertEquals(40.0, interTemporalRaoResult.getGlobalCost(InstantKind.PREVENTIVE));
 
         assertEquals(20.0, interTemporalRaoResult.getCost(crac1.getPreventiveInstant(), timestamp1));
         assertTrue(interTemporalRaoResult.isActivated(crac1.getPreventiveState(), crac1.getNetworkAction("closeBeFr2")));

@@ -9,6 +9,7 @@ package com.powsybl.openrao.data.raoresult.api;
 
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.data.crac.api.Instant;
+import com.powsybl.openrao.data.crac.api.InstantKind;
 
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -19,15 +20,15 @@ import java.util.List;
 public interface InterTemporalRaoResult extends RaoResult {
     List<OffsetDateTime> getTimestamps();
 
-    default double getGlobalCost() {
-        return getGlobalFunctionalCost() + getGlobalVirtualCost();
+    default double getGlobalCost(InstantKind instantKind) {
+        return getGlobalFunctionalCost(instantKind) + getGlobalVirtualCost(instantKind);
     }
 
-    double getGlobalFunctionalCost();
+    double getGlobalFunctionalCost(InstantKind instantKind);
 
-    double getGlobalVirtualCost();
+    double getGlobalVirtualCost(InstantKind instantKind);
 
-    double getGlobalVirtualCost(String virtualCostName);
+    double getGlobalVirtualCost(InstantKind instantKind, String virtualCostName);
 
     /**
      * It gives the global cost of the situation at a given {@link Instant} according to the objective
