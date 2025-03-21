@@ -15,7 +15,7 @@ import com.powsybl.iidm.network.VariantManager;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.data.crac.api.Crac;
-import com.powsybl.openrao.data.raoresult.api.GlobalRaoResult;
+import com.powsybl.openrao.data.raoresult.api.InterTemporalRaoResult;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.raomock.AnotherInterTemporalRaoProviderMock;
 import com.powsybl.openrao.raoapi.raomock.InterTemporalRaoProviderMock;
@@ -70,7 +70,7 @@ class InterTemporalRaoTest {
         assertEquals("1.0", defaultRao.getVersion());
 
         // run rao
-        GlobalRaoResult result = defaultRao.run(raoInput, new RaoParameters());
+        InterTemporalRaoResult result = defaultRao.run(raoInput, new RaoParameters());
         assertNotNull(result);
     }
 

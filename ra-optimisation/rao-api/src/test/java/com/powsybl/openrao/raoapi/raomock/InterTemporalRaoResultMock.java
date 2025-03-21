@@ -17,7 +17,7 @@ import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
-import com.powsybl.openrao.data.raoresult.api.GlobalRaoResult;
+import com.powsybl.openrao.data.raoresult.api.InterTemporalRaoResult;
 
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -27,7 +27,7 @@ import java.util.Set;
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public class GlobalRaoResultMock implements GlobalRaoResult {
+public class InterTemporalRaoResultMock implements InterTemporalRaoResult {
     @Override
     public List<OffsetDateTime> getTimestamps() {
         return null;
