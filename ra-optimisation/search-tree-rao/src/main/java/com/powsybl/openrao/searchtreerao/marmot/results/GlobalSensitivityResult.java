@@ -25,37 +25,36 @@ import java.util.Set;
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
-public class GlobalSensitivityResult implements SensitivityResult {
-    private final TemporalData<SensitivityResult> sensitivityResultPerTimestamp;
+public class GlobalSensitivityResult extends AbstractGlobalResult<SensitivityResult> implements SensitivityResult {
 
     public GlobalSensitivityResult(TemporalData<SensitivityResult> sensitivityResultPerTimestamp) {
-        this.sensitivityResultPerTimestamp = sensitivityResultPerTimestamp;
+        super(sensitivityResultPerTimestamp);
     }
 
     @Override
     public ComputationStatus getSensitivityStatus() {
-        return MarmotUtils.getGlobalComputationStatus(sensitivityResultPerTimestamp, SensitivityResult::getSensitivityStatus);
+        return MarmotUtils.getGlobalComputationStatus(resultPerTimestamp, SensitivityResult::getSensitivityStatus);
     }
 
     @Override
     public ComputationStatus getSensitivityStatus(State state) {
-        return MarmotUtils.getDataFromState(sensitivityResultPerTimestamp, state).getSensitivityStatus(state);
+        return MarmotUtils.getDataFromState(resultPerTimestamp, state).getSensitivityStatus(state);
     }
 
     @Override
     public Set<String> getContingencies() {
         Set<String> allContingencies = new HashSet<>();
-        sensitivityResultPerTimestamp.map(SensitivityResult::getContingencies).getDataPerTimestamp().values().forEach(allContingencies::addAll);
+        resultPerTimestamp.map(SensitivityResult::getContingencies).getDataPerTimestamp().values().forEach(allContingencies::addAll);
         return allContingencies;
     }
 
     @Override
     public double getSensitivityValue(FlowCnec flowCnec, TwoSides side, RangeAction<?> rangeAction, Unit unit) {
-        return MarmotUtils.getDataFromState(sensitivityResultPerTimestamp, flowCnec.getState()).getSensitivityValue(flowCnec, side, rangeAction, unit);
+        return MarmotUtils.getDataFromState(resultPerTimestamp, flowCnec.getState()).getSensitivityValue(flowCnec, side, rangeAction, unit);
     }
 
     @Override
     public double getSensitivityValue(FlowCnec flowCnec, TwoSides side, SensitivityVariableSet linearGlsk, Unit unit) {
-        return MarmotUtils.getDataFromState(sensitivityResultPerTimestamp, flowCnec.getState()).getSensitivityValue(flowCnec, side, linearGlsk, unit);
+        return MarmotUtils.getDataFromState(resultPerTimestamp, flowCnec.getState()).getSensitivityValue(flowCnec, side, linearGlsk, unit);
     }
 }

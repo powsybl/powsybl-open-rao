@@ -13,11 +13,9 @@ import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManager;
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.data.crac.api.Crac;
-import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
-import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.data.raoresult.api.InterTemporalRaoResult;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.raomock.AnotherInterTemporalRaoProviderMock;
 import com.powsybl.openrao.raoapi.raomock.InterTemporalRaoProviderMock;
@@ -36,7 +34,6 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -73,12 +70,8 @@ class InterTemporalRaoTest {
         assertEquals("1.0", defaultRao.getVersion());
 
         // run rao
-        OffsetDateTime timestamp = OffsetDateTime.of(2024, 12, 13, 16, 17, 0, 0, ZoneOffset.UTC);
-        TemporalData<RaoResult> result = defaultRao.run(raoInput, new RaoParameters());
+        InterTemporalRaoResult result = defaultRao.run(raoInput, new RaoParameters());
         assertNotNull(result);
-        assertEquals(List.of(timestamp), result.getTimestamps());
-        assertTrue(result.getData(timestamp).isPresent());
-        assertEquals(ComputationStatus.DEFAULT, result.getData(timestamp).get().getComputationStatus());
     }
 
     @Test
