@@ -122,8 +122,14 @@ public class RemedialActionSeriesCreator {
 
     private boolean doNotImportRaSeries(Series cimSerie) {
         // Do not import a series with only ill-defined contingencies
+        boolean illDefinedContingencies = contingencies.isEmpty() && !invalidContingencies.isEmpty();
         // Do not import a series with an ill-defined additional constraint series
-        return contingencies.isEmpty() && !invalidContingencies.isEmpty() || !readAdditionalConstraintSeries(cimSerie);
+        boolean illDefinedAdditionalConstraintSeries = readAdditionalConstraintSeries(cimSerie);
+        if (illDefinedContingencies) {
+            cimSerie.getRemedialActionSeries().forEach(remedialActionSeries -> this.remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(remedialActionSeries.getMRID(), ImportStatus.INCONSISTENCY_IN_DATA, String.format("This RA is not imported because it is only associated to invalid contingencies %s", invalidContingencies))));
+            return true;
+        }
+        return !illDefinedAdditionalConstraintSeries;
     }
 
     /**
