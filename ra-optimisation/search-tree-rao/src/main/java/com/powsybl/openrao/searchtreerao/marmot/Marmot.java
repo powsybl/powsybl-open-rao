@@ -222,8 +222,8 @@ public class Marmot implements InterTemporalRaoProvider {
         return new GlobalLinearOptimizationResult(prePerimeterResults.map(PrePerimeterResult::getFlowResult), prePerimeterResults.map(PrePerimeterResult::getSensitivityResult), prePerimeterResults.map(RangeActionActivationResultImpl::new), new TemporalDataImpl<>(), objectiveFunction, LinearProblemStatus.OPTIMAL);
     }
 
-    private LinearOptimizationResult getPostTopologicalOptimizationResult(TemporalData<PrePerimeterResult> prePerimeterResults, TemporalData<NetworkActionsResult> preventiveTopologicalActions, ObjectiveFunction objectiveFunction) {
-        return new GlobalLinearOptimizationResult(prePerimeterResults.map(PrePerimeterResult::getFlowResult), prePerimeterResults.map(PrePerimeterResult::getSensitivityResult), prePerimeterResults.map(RangeActionActivationResultImpl::new), preventiveTopologicalActions, objectiveFunction, LinearProblemStatus.OPTIMAL);
+    private LinearOptimizationResult getPostTopologicalOptimizationResult(TemporalData<PrePerimeterResult> postTopologicalActionsResults, TemporalData<NetworkActionsResult> preventiveTopologicalActions, ObjectiveFunction objectiveFunction) {
+        return new GlobalLinearOptimizationResult(postTopologicalActionsResults.map(PrePerimeterResult::getFlowResult), postTopologicalActionsResults.map(PrePerimeterResult::getSensitivityResult), postTopologicalActionsResults.map(RangeActionActivationResultImpl::new), preventiveTopologicalActions, objectiveFunction, LinearProblemStatus.OPTIMAL);
     }
 
     @Override
