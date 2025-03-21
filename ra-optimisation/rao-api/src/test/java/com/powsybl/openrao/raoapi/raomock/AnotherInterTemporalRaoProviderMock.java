@@ -9,7 +9,7 @@ package com.powsybl.openrao.raoapi.raomock;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
-import com.powsybl.openrao.data.raoresult.api.GlobalRaoResult;
+import com.powsybl.openrao.data.raoresult.api.InterTemporalRaoResult;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.impl.RaoResultImpl;
 import com.powsybl.openrao.raoapi.InterTemporalRaoInput;
@@ -27,14 +27,14 @@ import java.util.concurrent.CompletableFuture;
 @AutoService(InterTemporalRaoProvider.class)
 public class AnotherInterTemporalRaoProviderMock implements InterTemporalRaoProvider {
     @Override
-    public CompletableFuture<GlobalRaoResult> run(InterTemporalRaoInput raoInput, RaoParameters parameters) {
+    public CompletableFuture<InterTemporalRaoResult> run(InterTemporalRaoInput raoInput, RaoParameters parameters) {
         Map<OffsetDateTime, RaoResult> raoResultPerTimestamp = new HashMap<>();
         for (OffsetDateTime timestamp : raoInput.getTimestampsToRun()) {
             RaoResultImpl raoResult = new RaoResultImpl(raoInput.getRaoInputs().getData(timestamp).orElseThrow().getCrac());
             raoResult.setComputationStatus(ComputationStatus.FAILURE);
             raoResultPerTimestamp.put(timestamp, raoResult);
         }
-        return CompletableFuture.completedFuture(new GlobalRaoResultMock());
+        return CompletableFuture.completedFuture(new InterTemporalRaoResultMock());
     }
 
     @Override

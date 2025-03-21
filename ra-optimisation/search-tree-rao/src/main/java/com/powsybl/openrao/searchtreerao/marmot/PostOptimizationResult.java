@@ -34,7 +34,6 @@ import static com.powsybl.openrao.searchtreerao.marmot.MarmotUtils.getPreventive
  * - input data (before Marmot): RaoInput
  * - output data (after Marmot):
  *      -- RaoResult: output from initial Rao run, containing activated topological actions
- *      -- PrePerimeterResult: output from initial sensitivity computation, after having applied topological actions but before inter-temporal MIP
  *      -- LinearOptimizationResult: output from inter-temporal MIP, containing activated range actions
  *
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}

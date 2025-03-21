@@ -8,7 +8,7 @@
 package com.powsybl.openrao.raoapi;
 
 import com.powsybl.commons.Versionable;
-import com.powsybl.openrao.data.raoresult.api.GlobalRaoResult;
+import com.powsybl.openrao.data.raoresult.api.InterTemporalRaoResult;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 
 import java.util.concurrent.CompletableFuture;
@@ -23,5 +23,5 @@ public interface InterTemporalRaoProvider extends Versionable {
      * @param parameters: RAO parameters.
      * @return A completable future of a RaoComputationResult for each timestamp.
      */
-    CompletableFuture<GlobalRaoResult> run(InterTemporalRaoInput raoInput, RaoParameters parameters);
+    CompletableFuture<InterTemporalRaoResult> run(InterTemporalRaoInput raoInput, RaoParameters parameters);
 }
