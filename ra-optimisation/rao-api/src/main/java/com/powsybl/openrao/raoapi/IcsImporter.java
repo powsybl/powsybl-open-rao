@@ -24,9 +24,13 @@ public final class IcsImporter {
     private static final int OFFSET = 2;
     private static final double COST_UP = 10;
     private static final double COST_DOWN = 10;
-    private static final double ACTIVATION_COST = 50;
+    private static final String MAX_GRADIENT = "1000";
 
-    //TODO:QUALITY CHECK: do PO respect constraints?
+    // TODO:QUALITY CHECK: do PO respect constraints?
+    // TODO:QUALITY CHECK: consistency between gsks defined in static file + gsk file
+
+    // INFOS
+    // Gradient constraints are defined for gsks à la maille parade, et pas par générateur : on applique donc le shift key au Pmax/Pmin
 
     private IcsImporter() {
         //should only be used statically
@@ -127,9 +131,9 @@ public final class IcsImporter {
             PowerGradient powerGradient = PowerGradient.builder()
                 .withNetworkElementId(networkElementPerGskElement.get(nodeId))
                 .withMaxValue(shiftKey * Double.parseDouble(
-                    staticRecord.get("Maximum positive power gradient [MW/h]").isEmpty() ? "1000" : staticRecord.get("Maximum positive power gradient [MW/h]")
+                    staticRecord.get("Maximum positive power gradient [MW/h]").isEmpty() ? MAX_GRADIENT : staticRecord.get("Maximum positive power gradient [MW/h]")
                 )).withMinValue(-shiftKey * Double.parseDouble(
-                    staticRecord.get("Maximum negative power gradient [MW/h]").isEmpty() ? "1000" : staticRecord.get("Maximum negative power gradient [MW/h]")
+                    staticRecord.get("Maximum negative power gradient [MW/h]").isEmpty() ? MAX_GRADIENT : staticRecord.get("Maximum negative power gradient [MW/h]")
                 )).build();
             interTemporalRaoInput.getPowerGradients().add(powerGradient);
         });
@@ -174,9 +178,9 @@ public final class IcsImporter {
         PowerGradient powerGradient = PowerGradient.builder()
             .withNetworkElementId(networkElementId)
             .withMaxValue(Double.parseDouble(
-                staticRecord.get("Maximum positive power gradient [MW/h]").isEmpty() ? "1000" : staticRecord.get("Maximum positive power gradient [MW/h]")
+                staticRecord.get("Maximum positive power gradient [MW/h]").isEmpty() ? MAX_GRADIENT : staticRecord.get("Maximum positive power gradient [MW/h]")
             )).withMinValue(-Double.parseDouble(
-                staticRecord.get("Maximum negative power gradient [MW/h]").isEmpty() ? "1000" : staticRecord.get("Maximum negative power gradient [MW/h]")
+                staticRecord.get("Maximum negative power gradient [MW/h]").isEmpty() ? MAX_GRADIENT : staticRecord.get("Maximum negative power gradient [MW/h]")
             )).build();
         interTemporalRaoInput.getPowerGradients().add(powerGradient);
     }
@@ -225,9 +229,9 @@ public final class IcsImporter {
 
     private static boolean p0RespectsGradients(CSVRecord staticRecord, CSVRecord p0record, Set<OffsetDateTime> dateTimes) {
         double maxGradient = Double.parseDouble(staticRecord.get("Maximum positive power gradient [MW/h]").isEmpty() ?
-            "1000" : staticRecord.get("Maximum positive power gradient [MW/h]"));
+            MAX_GRADIENT : staticRecord.get("Maximum positive power gradient [MW/h]"));
         double minGradient = -Double.parseDouble(staticRecord.get("Maximum negative power gradient [MW/h]").isEmpty() ?
-            "1000" : staticRecord.get("Maximum negative power gradient [MW/h]"));
+            MAX_GRADIENT : staticRecord.get("Maximum negative power gradient [MW/h]"));
 
         Iterator<OffsetDateTime> dateTimeIterator = dateTimes.iterator();
         OffsetDateTime currentDateTime = dateTimeIterator.next();
