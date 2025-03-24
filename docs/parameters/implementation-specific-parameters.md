@@ -380,7 +380,7 @@ See also: [Modelling the maximum minimum relative margin objective function](/ca
 :::{group-tab} JSON
 ~~~json
 {
-  "version" : "3.0",
+  "version" : "3.1",
   "extensions" : {
     "open-rao-search-tree-parameters": {
       "objective-function" : {
@@ -400,7 +400,6 @@ See also: [Modelling the maximum minimum relative margin objective function](/ca
       },
       "topological-actions-optimization" : {
         "max-preventive-search-tree-depth" : 2,
-        "max-auto-search-tree-depth" : 1,
         "max-curative-search-tree-depth" : 2,
         "predefined-combinations" : [ "na1 + na2", "na4 + na5 + na6"],
         "skip-actions-far-from-most-limiting-element" : false,

@@ -16,7 +16,7 @@ public final class RaoParametersCommons {
     private RaoParametersCommons() {
     }
 
-    public static final String RAO_PARAMETERS_VERSION = "3.0";
+    public static final String RAO_PARAMETERS_VERSION = "3.1";
 
     // header
     public static final String VERSION = "version";
@@ -57,7 +57,6 @@ public final class RaoParametersCommons {
     public static final String ST_TOPOLOGICAL_ACTIONS_OPTIMIZATION_SECTION = "search-tree-topological-actions-optimization";
 
     public static final String MAX_PREVENTIVE_SEARCH_TREE_DEPTH = "max-preventive-search-tree-depth";
-    public static final String MAX_AUTO_SEARCH_TREE_DEPTH = "max-auto-search-tree-depth";
     public static final String MAX_CURATIVE_SEARCH_TREE_DEPTH = "max-curative-search-tree-depth";
     public static final String PREDEFINED_COMBINATIONS = "predefined-combinations";
     public static final String RELATIVE_MINIMUM_IMPACT_THRESHOLD = "relative-minimum-impact-threshold";

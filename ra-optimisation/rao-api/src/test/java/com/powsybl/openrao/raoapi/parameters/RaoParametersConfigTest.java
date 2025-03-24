@@ -105,7 +105,6 @@ class RaoParametersConfigTest {
         TopoOptimizationParameters params = parameters.getTopoOptimizationParameters();
         SearchTreeRaoTopoOptimizationParameters paramsExt = parameters.getExtension(OpenRaoSearchTreeParameters.class).getTopoOptimizationParameters();
         assertEquals(3, paramsExt.getMaxPreventiveSearchTreeDepth(), DOUBLE_TOLERANCE);
-        assertEquals(2, paramsExt.getMaxAutoSearchTreeDepth(), DOUBLE_TOLERANCE);
         assertEquals(3, paramsExt.getMaxCurativeSearchTreeDepth(), DOUBLE_TOLERANCE);
         assertEquals(List.of(List.of("na12", "na22"), List.of("na41", "na5", "na6")), paramsExt.getPredefinedCombinations());
         assertEquals(0.9, params.getRelativeMinImpactThreshold(), DOUBLE_TOLERANCE);
