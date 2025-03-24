@@ -44,6 +44,7 @@ class MarmotTest {
     public static String getResourcesPath() {
         return "src/test/resources/";
     }
+
     @Test
     void testTwoTimestampsAndGradientOnGeneratorWithNoAssociatedRemedialAction() throws IOException {
         // we need to import twice the network to avoid variant names conflicts on the same network object
@@ -57,11 +58,10 @@ class MarmotTest {
         OffsetDateTime timestamp1 = OffsetDateTime.of(2025, 2, 13, 11, 35, 0, 0, ZoneOffset.UTC);
         OffsetDateTime timestamp2 = OffsetDateTime.of(2025, 2, 14, 11, 35, 0, 0, ZoneOffset.UTC);
 
-
         TemporalData<RaoInputWithNetworkPaths> raoInputs = new TemporalDataImpl<>(
             Map.of(
-                timestamp1, RaoInputWithNetworkPaths.build(getResourcesPath().concat(networkFilePath),getResourcesPath().concat(networkFilePath), crac1).build(),
-                timestamp2, RaoInputWithNetworkPaths.build(getResourcesPath().concat(networkFilePath),getResourcesPath().concat(networkFilePath), crac2).build()
+                timestamp1, RaoInputWithNetworkPaths.build(getResourcesPath().concat(networkFilePath), getResourcesPath().concat(networkFilePath), crac1).build(),
+                timestamp2, RaoInputWithNetworkPaths.build(getResourcesPath().concat(networkFilePath), getResourcesPath().concat(networkFilePath), crac2).build()
 
             ));
 
@@ -94,9 +94,9 @@ class MarmotTest {
 
         TemporalData<RaoInputWithNetworkPaths> raoInputs = new TemporalDataImpl<>(
             Map.of(
-                timestamp1, RaoInputWithNetworkPaths.build(getResourcesPath().concat(networkFilePath),getResourcesPath().concat(networkFilePath), crac1).build(),
-                timestamp2, RaoInputWithNetworkPaths.build(getResourcesPath().concat(networkFilePath),getResourcesPath().concat(networkFilePath), crac2).build(),
-                timestamp3, RaoInputWithNetworkPaths.build(getResourcesPath().concat(networkFilePath),getResourcesPath().concat(networkFilePath), crac3).build()
+                timestamp1, RaoInputWithNetworkPaths.build(getResourcesPath().concat(networkFilePath), getResourcesPath().concat(networkFilePath), crac1).build(),
+                timestamp2, RaoInputWithNetworkPaths.build(getResourcesPath().concat(networkFilePath), getResourcesPath().concat(networkFilePath), crac2).build(),
+                timestamp3, RaoInputWithNetworkPaths.build(getResourcesPath().concat(networkFilePath), getResourcesPath().concat(networkFilePath), crac3).build()
             ));
         InterTemporalRaoInputWithNetworkPaths input = new InterTemporalRaoInputWithNetworkPaths(
             raoInputs,
@@ -130,9 +130,9 @@ class MarmotTest {
 
         TemporalData<RaoInputWithNetworkPaths> raoInputs = new TemporalDataImpl<>(
             Map.of(
-                timestamp1, RaoInputWithNetworkPaths.build(getResourcesPath().concat(networkFilePath),getResourcesPath().concat(networkFilePath), crac1).build(),
-                timestamp2, RaoInputWithNetworkPaths.build(getResourcesPath().concat(networkFilePath),getResourcesPath().concat(networkFilePath), crac2).build(),
-                timestamp3, RaoInputWithNetworkPaths.build(getResourcesPath().concat(networkFilePath),getResourcesPath().concat(networkFilePath), crac3).build()
+                timestamp1, RaoInputWithNetworkPaths.build(getResourcesPath().concat(networkFilePath), getResourcesPath().concat(networkFilePath), crac1).build(),
+                timestamp2, RaoInputWithNetworkPaths.build(getResourcesPath().concat(networkFilePath), getResourcesPath().concat(networkFilePath), crac2).build(),
+                timestamp3, RaoInputWithNetworkPaths.build(getResourcesPath().concat(networkFilePath), getResourcesPath().concat(networkFilePath), crac3).build()
             ));
         InterTemporalRaoInputWithNetworkPaths input = new InterTemporalRaoInputWithNetworkPaths(
             raoInputs,
@@ -164,8 +164,8 @@ class MarmotTest {
 
         TemporalData<RaoInputWithNetworkPaths> raoInputs = new TemporalDataImpl<>(
             Map.of(
-                timestamp1, RaoInputWithNetworkPaths.build(getResourcesPath().concat(networkFilePath),getResourcesPath().concat(networkFilePath), crac1).build(),
-                timestamp2, RaoInputWithNetworkPaths.build(getResourcesPath().concat(networkFilePath),getResourcesPath().concat(networkFilePath), crac2).build()
+                timestamp1, RaoInputWithNetworkPaths.build(getResourcesPath().concat(networkFilePath), getResourcesPath().concat(networkFilePath), crac1).build(),
+                timestamp2, RaoInputWithNetworkPaths.build(getResourcesPath().concat(networkFilePath), getResourcesPath().concat(networkFilePath), crac2).build()
 
             ));
 
