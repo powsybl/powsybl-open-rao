@@ -23,6 +23,8 @@ import io.cucumber.java.en.When;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.OffsetDateTime;
 import java.util.*;
 
@@ -44,7 +46,7 @@ public final class InterTemporalRaoSteps {
     }
 
     @Given("network files are in folder {string}")
-    public static void networkFilesAreIn(String folderPath) {
+    public static void networkFilesAreIn(String folderPath) throws IOException {
         setNetworkInputs(folderPath);
         setNetworkInputsPostIcs(folderPath);
     }
@@ -53,8 +55,11 @@ public final class InterTemporalRaoSteps {
         networkFolderPath = getResourcesPath().concat("cases/").concat(folderPath + "/");
     }
 
-    private static void setNetworkInputsPostIcs(String folderPath) {
+    private static void setNetworkInputsPostIcs(String folderPath) throws IOException {
         networkFolderPathPostIcsImport = getResourcesPath().concat("cases/").concat(folderPath + "-postIcsImport/");
+        if (!Files.isDirectory(Path.of(networkFolderPathPostIcsImport))) {
+            Files.createDirectories(Path.of(networkFolderPathPostIcsImport));
+        }
     }
 
     @Given("ics static file is {string}")

@@ -604,29 +604,29 @@ class CastorFullOptimizationTest {
 
         assertEquals(Set.of(crac.getNetworkAction("cheapCloseBeFr6")), raoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState()));
 
-        assertEquals(500200.0, raoResult.getCost(crac.getInstant("preventive")), DOUBLE_TOLERANCE);
+        assertEquals(50200.0, raoResult.getCost(crac.getInstant("preventive")), DOUBLE_TOLERANCE);
         assertEquals(200.0, raoResult.getFunctionalCost(crac.getInstant("preventive")), DOUBLE_TOLERANCE);
-        assertEquals(500000.0, raoResult.getVirtualCost(crac.getInstant("preventive")), DOUBLE_TOLERANCE);
-        assertEquals(500000.0, raoResult.getVirtualCost(crac.getInstant("preventive"), "min-margin-violation-evaluator"), DOUBLE_TOLERANCE);
+        assertEquals(50000.0, raoResult.getVirtualCost(crac.getInstant("preventive")), DOUBLE_TOLERANCE);
+        assertEquals(50000.0, raoResult.getVirtualCost(crac.getInstant("preventive"), "min-margin-violation-evaluator"), DOUBLE_TOLERANCE);
 
         assertTrue(raoResult.getActivatedNetworkActionsDuringState(crac.getState("coBeFr2", crac.getInstant("auto"))).isEmpty());
         assertEquals(Set.of(crac.getNetworkAction("closeBeFr7")), raoResult.getActivatedNetworkActionsDuringState(crac.getState("coBeFr3", crac.getInstant("auto"))));
         assertTrue(raoResult.getActivatedNetworkActionsDuringState(crac.getState("coBeFr4", crac.getInstant("auto"))).isEmpty());
         assertEquals(Set.of(crac.getNetworkAction("closeBeFr7")), raoResult.getActivatedNetworkActionsDuringState(crac.getState("coBeFr5", crac.getInstant("auto"))));
 
-        assertEquals(500320.0, raoResult.getCost(crac.getInstant("auto")), DOUBLE_TOLERANCE);
+        assertEquals(50320.0, raoResult.getCost(crac.getInstant("auto")), DOUBLE_TOLERANCE);
         assertEquals(320.0, raoResult.getFunctionalCost(crac.getInstant("auto")), DOUBLE_TOLERANCE);
-        assertEquals(500000.0, raoResult.getVirtualCost(crac.getInstant("auto")), DOUBLE_TOLERANCE);
-        assertEquals(500000.0, raoResult.getVirtualCost(crac.getInstant("auto"), "min-margin-violation-evaluator"), DOUBLE_TOLERANCE);
+        assertEquals(50000.0, raoResult.getVirtualCost(crac.getInstant("auto")), DOUBLE_TOLERANCE);
+        assertEquals(50000.0, raoResult.getVirtualCost(crac.getInstant("auto"), "min-margin-violation-evaluator"), DOUBLE_TOLERANCE);
 
         assertTrue(raoResult.getActivatedNetworkActionsDuringState(crac.getState("coBeFr2", crac.getInstant("curative"))).isEmpty());
         assertTrue(raoResult.getActivatedNetworkActionsDuringState(crac.getState("coBeFr3", crac.getInstant("curative"))).isEmpty());
         assertEquals(Set.of(crac.getNetworkAction("closeBeFr8")), raoResult.getActivatedNetworkActionsDuringState(crac.getState("coBeFr4", crac.getInstant("curative"))));
         assertEquals(Set.of(crac.getNetworkAction("closeBeFr8")), raoResult.getActivatedNetworkActionsDuringState(crac.getState("coBeFr5", crac.getInstant("curative"))));
 
-        assertEquals(501790.0, raoResult.getCost(crac.getLastInstant()), DOUBLE_TOLERANCE);
+        assertEquals(51790.0, raoResult.getCost(crac.getLastInstant()), DOUBLE_TOLERANCE);
         assertEquals(1790.0, raoResult.getFunctionalCost(crac.getLastInstant()), DOUBLE_TOLERANCE);
-        assertEquals(500000.0, raoResult.getVirtualCost(crac.getLastInstant()), DOUBLE_TOLERANCE);
-        assertEquals(500000.0, raoResult.getVirtualCost(crac.getLastInstant(), "min-margin-violation-evaluator"), DOUBLE_TOLERANCE);
+        assertEquals(50000.0, raoResult.getVirtualCost(crac.getLastInstant()), DOUBLE_TOLERANCE);
+        assertEquals(50000.0, raoResult.getVirtualCost(crac.getLastInstant(), "min-margin-violation-evaluator"), DOUBLE_TOLERANCE);
     }
 }
