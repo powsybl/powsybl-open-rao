@@ -8,12 +8,11 @@ package com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator;
 
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.loopflowextension.LoopFlowThreshold;
 import com.powsybl.openrao.searchtreerao.commons.costevaluatorresult.CostEvaluatorResult;
-import com.powsybl.openrao.searchtreerao.commons.costevaluatorresult.SumCostEvaluatorResult;
+import com.powsybl.openrao.searchtreerao.commons.costevaluatorresult.SumCnecWiseCostEvaluatorResult;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.RemedialActionActivationResult;
 
@@ -21,7 +20,6 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator.CostEvaluatorUtils.groupFlowCnecsPerState;
 import static com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator.CostEvaluatorUtils.sortFlowCnecsByDecreasingCost;
 
 /**
@@ -50,26 +48,20 @@ public class LoopFlowViolationCostEvaluator implements CostEvaluator {
 
     @Override
     public CostEvaluatorResult evaluate(FlowResult flowResult, RemedialActionActivationResult remedialActionActivationResult) {
-        Map<FlowCnec, Double> excessPerLoopFlowCnec = loopflowCnecs.stream()
+        Map<FlowCnec, Double> costPerLoopFlowCnec = loopflowCnecs.stream()
             .collect(Collectors.toMap(Function.identity(), loopFlowCnec -> getLoopFlowExcess(flowResult, loopFlowCnec)))
             .entrySet()
             .stream()
             .filter(entry -> entry.getValue() > 0)
-            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-        Map<State, Set<FlowCnec>> flowCnecsPerState = groupFlowCnecsPerState(excessPerLoopFlowCnec.keySet());
-        Map<State, Double> costPerState = flowCnecsPerState.keySet().stream().collect(Collectors.toMap(
-            Function.identity(),
-            state -> loopFlowViolationCost * flowCnecsPerState.get(state).stream()
-                .mapToDouble(excessPerLoopFlowCnec::get)
-                .sum()));
+            .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue() * loopFlowViolationCost));
 
-        if (costPerState.values().stream().anyMatch(loopFlowCost -> loopFlowCost > 0)) {
+        if (costPerLoopFlowCnec.values().stream().anyMatch(loopFlowCost -> loopFlowCost > 0)) {
             // will be logged even if the contingency is filtered out at some point
             OpenRaoLoggerProvider.TECHNICAL_LOGS.info("Some loopflow constraints are not respected.");
         }
 
-        List<FlowCnec> sortedLoopFlowCnecs = sortFlowCnecsByDecreasingCost(excessPerLoopFlowCnec);
-        return new SumCostEvaluatorResult(costPerState, sortedLoopFlowCnecs);
+        List<FlowCnec> sortedLoopFlowCnecs = sortFlowCnecsByDecreasingCost(costPerLoopFlowCnec);
+        return new SumCnecWiseCostEvaluatorResult(costPerLoopFlowCnec, sortedLoopFlowCnecs);
     }
 
     double getLoopFlowExcess(FlowResult flowResult, FlowCnec cnec) {

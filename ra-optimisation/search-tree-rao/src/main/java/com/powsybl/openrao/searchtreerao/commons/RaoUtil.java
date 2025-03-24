@@ -60,7 +60,7 @@ public final class RaoUtil {
 
     public static void checkParameters(RaoParameters raoParameters, RaoInput raoInput) {
         if (raoParameters.getObjectiveFunctionParameters().getUnit().equals(Unit.AMPERE)
-                && getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters().isDc()) {
+            && getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters().isDc()) {
             throw new OpenRaoException(format("Objective function unit %s cannot be calculated with a DC default sensitivity engine", raoParameters.getObjectiveFunctionParameters().getUnit().toString()));
         }
 
@@ -74,16 +74,16 @@ public final class RaoUtil {
         }
 
         if ((raoParameters.getLoopFlowParameters().isPresent()
-                || raoParameters.getObjectiveFunctionParameters().getType().relativePositiveMargins())
-                && (Objects.isNull(raoInput.getReferenceProgram()))) {
+            || raoParameters.getObjectiveFunctionParameters().getType().relativePositiveMargins())
+            && (Objects.isNull(raoInput.getReferenceProgram()))) {
             OpenRaoLoggerProvider.BUSINESS_WARNS.warn("No ReferenceProgram provided. A ReferenceProgram will be generated using information in the network file.");
             raoInput.setReferenceProgram(ReferenceProgramBuilder.buildReferenceProgram(raoInput.getNetwork(), getLoadFlowProvider(raoParameters), getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters()));
         }
 
         if (raoParameters.getLoopFlowParameters().isPresent() && (Objects.isNull(raoInput.getReferenceProgram()) || Objects.isNull(raoInput.getGlskProvider()))) {
             String msg = format(
-                    "Loopflow computation cannot be performed on CRAC %s because it lacks a ReferenceProgram or a GlskProvider",
-                    raoInput.getCrac().getId());
+                "Loopflow computation cannot be performed on CRAC %s because it lacks a ReferenceProgram or a GlskProvider",
+                raoInput.getCrac().getId());
             OpenRaoLoggerProvider.BUSINESS_LOGS.error(msg);
             throw new OpenRaoException(msg);
         }
@@ -193,8 +193,8 @@ public final class RaoUtil {
 
             if (previousUsageState.getInstant().comesBefore(state.getInstant())) {
                 Optional<RangeAction<?>> correspondingRa = optimizationContext.getRangeActionsPerState().get(previousUsageState).stream()
-                        .filter(ra -> ra.getId().equals(rangeAction.getId()) || ra.getNetworkElements().equals(rangeAction.getNetworkElements()))
-                        .findAny();
+                    .filter(ra -> ra.getId().equals(rangeAction.getId()) || ra.getNetworkElements().equals(rangeAction.getNetworkElements()))
+                    .findAny();
 
                 if (correspondingRa.isPresent()) {
                     return Pair.of(correspondingRa.get(), previousUsageState);
@@ -219,4 +219,12 @@ public final class RaoUtil {
         optResult.getActivatedNetworkActions().forEach(networkAction -> networkAction.apply(network));
         optResult.getActivatedRangeActions(state).forEach(rangeAction -> rangeAction.apply(network, optResult.getOptimizedSetpoint(rangeAction, state)));
     }
+
+    public static Set<String> getDuplicateCnecs(Set<FlowCnec> flowcnecs) {
+        return flowcnecs.stream()
+            .filter(flowCnec -> flowCnec.getId().contains("OUTAGE DUPLICATE"))
+            .map(FlowCnec::getId)
+            .collect(Collectors.toSet());
+    }
+
 }

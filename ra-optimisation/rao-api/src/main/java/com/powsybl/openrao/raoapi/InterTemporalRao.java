@@ -13,8 +13,7 @@ import com.powsybl.commons.Versionable;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.commons.TemporalData;
-import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.data.raoresult.api.InterTemporalRaoResult;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.tools.Version;
 
@@ -47,7 +46,7 @@ public final class InterTemporalRao {
             this.provider = Objects.requireNonNull(provider);
         }
 
-        public TemporalData<RaoResult> run(InterTemporalRaoInputWithNetworkPaths raoInput, RaoParameters parameters) {
+        public InterTemporalRaoResult run(InterTemporalRaoInputWithNetworkPaths raoInput, RaoParameters parameters) {
             Objects.requireNonNull(raoInput, "RAO input should not be null");
             Objects.requireNonNull(parameters, "parameters should not be null");
 
@@ -57,7 +56,7 @@ public final class InterTemporalRao {
             return provider.run(raoInput, parameters).join();
         }
 
-        public TemporalData<RaoResult> run(InterTemporalRaoInputWithNetworkPaths raoInput) {
+        public InterTemporalRaoResult run(InterTemporalRaoInputWithNetworkPaths raoInput) {
             return run(raoInput, RaoParameters.load());
         }
 
@@ -138,11 +137,11 @@ public final class InterTemporalRao {
         return new InterTemporalRao.Runner(provider);
     }
 
-    public static TemporalData<RaoResult> run(InterTemporalRaoInputWithNetworkPaths raoInput, RaoParameters parameters) {
+    public static InterTemporalRaoResult run(InterTemporalRaoInputWithNetworkPaths raoInput, RaoParameters parameters) {
         return find().run(raoInput, parameters);
     }
 
-    public static TemporalData<RaoResult> run(InterTemporalRaoInputWithNetworkPaths raoInput) {
+    public static InterTemporalRaoResult run(InterTemporalRaoInputWithNetworkPaths raoInput) {
         return find().run(raoInput);
     }
 }

@@ -70,7 +70,6 @@ Feature: US 93.1: power gradient constraints
       | 2024-09-26 02:30 | 20240926_0230_2D4_UX0_FEXPORTGRIDMODEL_CGM_10V1001C--00264T.uct |
     When I launch marmot
 
-
   @fast @rao @dc @redispatching @preventive-only
   Scenario: US 93.2.2: Test for CORE IDCC 1 TS
     Given network files are in folder "20240926-FID2-620-v4-10V1001C--00264T-to-10V1001C--00085T"

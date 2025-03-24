@@ -23,7 +23,7 @@ public class TemporalDataImpl<T> implements TemporalData<T> {
         this(new HashMap<>());
     }
 
-    public TemporalDataImpl(Map<OffsetDateTime, T> dataPerTimestamp) {
+    public TemporalDataImpl(Map<OffsetDateTime, ? extends T> dataPerTimestamp) {
         this.dataPerTimestamp = new HashMap<>(dataPerTimestamp);
     }
 

@@ -8,7 +8,6 @@
 package com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator;
 
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.searchtreerao.commons.FlowCnecSorting;
 import com.powsybl.openrao.searchtreerao.commons.costevaluatorresult.CostEvaluatorResult;
@@ -17,11 +16,9 @@ import com.powsybl.openrao.searchtreerao.commons.marginevaluator.MarginEvaluator
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.RemedialActionActivationResult;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
-
-import static com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator.CostEvaluatorUtils.groupFlowCnecsPerState;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -39,14 +36,15 @@ public class MinMarginViolationEvaluator extends MinMarginEvaluator implements C
     }
 
     @Override
-    protected double computeCostForState(FlowResult flowResult, Set<FlowCnec> flowCnecsOfState) {
-        return Math.max(0, super.computeCostForState(flowResult, flowCnecsOfState)) * OVERLOAD_PENALTY;
+    public Map<FlowCnec, Double> getCostPerCnec(Set<FlowCnec> flowCnecs, FlowResult flowResult, Unit unit) {
+        Map<FlowCnec, Double> costPerCnec = new HashMap<>();
+        flowCnecs.forEach(cnec -> costPerCnec.put(cnec, Math.min(0, marginEvaluator.getMargin(flowResult, cnec, unit)) * OVERLOAD_PENALTY));
+        return costPerCnec;
     }
 
     @Override
     public CostEvaluatorResult evaluate(FlowResult flowResult, RemedialActionActivationResult remedialActionActivationResult) {
-        Map<State, Set<FlowCnec>> flowCnecsPerState = groupFlowCnecsPerState(flowCnecs);
-        Map<State, Double> costPerState = flowCnecsPerState.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, entry -> computeCostForState(flowResult, entry.getValue())));
-        return new SumMaxPerTimestampCostEvaluatorResult(costPerState, FlowCnecSorting.sortByNegativeMargin(flowCnecs, unit, marginEvaluator, flowResult));
+        Map<FlowCnec, Double> costPerCnec = getCostPerCnec(flowCnecs, flowResult, unit);
+        return new SumMaxPerTimestampCostEvaluatorResult(costPerCnec, FlowCnecSorting.sortByNegativeMargin(flowCnecs, unit, marginEvaluator, flowResult), unit);
     }
 }
