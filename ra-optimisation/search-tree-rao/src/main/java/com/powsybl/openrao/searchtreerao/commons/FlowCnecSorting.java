@@ -31,4 +31,5 @@ public final class FlowCnecSorting {
             .sorted(Comparator.comparingDouble(flowCnec -> marginEvaluator.getMargin(flowResult, flowCnec, unit)))
             .toList();
     }
+
 }
