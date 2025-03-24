@@ -5,13 +5,13 @@
     "unit" : "MW"
   },
   "range-actions-optimization" : {
-    "pst-ra-min-impact-threshold" : 50,
+    "pst-ra-min-impact-threshold" : 0.1,
     "hvdc-ra-min-impact-threshold" : 0.1,
     "injection-ra-min-impact-threshold" : 0.1
   },
   "topological-actions-optimization" : {
     "relative-minimum-impact-threshold" : 0.01,
-    "absolute-minimum-impact-threshold" : 25
+    "absolute-minimum-impact-threshold" : 10
   },
   "not-optimized-cnecs" : {
     "do-not-optimize-curative-cnecs-for-tsos-without-cras" : false
