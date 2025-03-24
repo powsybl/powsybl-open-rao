@@ -20,10 +20,13 @@ import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import org.junit.jupiter.api.Test;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -51,6 +54,10 @@ class MarmotTest {
         String networkFilePath = "/network/2Nodes2ParallelLinesPST.uct";
         Network network1 = Network.read(networkFilePath, MarmotTest.class.getResourceAsStream(networkFilePath));
         Network network2 = Network.read(networkFilePath, MarmotTest.class.getResourceAsStream(networkFilePath));
+        // Create postIcsNetwork:
+        String networkFilePathPostIcsImport = networkFilePath.split(".uct")[0].concat("_modified.jiidm");
+        network1.write("JIIDM", new Properties(), Path.of(getResourcesPath().concat(networkFilePathPostIcsImport)));
+
         Crac crac1 = Crac.read("/crac/crac-20250213.json", MarmotTest.class.getResourceAsStream("/crac/crac-20250213.json"), network1);
         Crac crac2 = Crac.read("/crac/crac-20250214.json", MarmotTest.class.getResourceAsStream("/crac/crac-20250214.json"), network2);
         RaoParameters raoParameters = JsonRaoParameters.read(MarmotTest.class.getResourceAsStream("/parameters/RaoParameters_dc_minObjective_discretePst.json"));
@@ -60,8 +67,8 @@ class MarmotTest {
 
         TemporalData<RaoInputWithNetworkPaths> raoInputs = new TemporalDataImpl<>(
             Map.of(
-                timestamp1, RaoInputWithNetworkPaths.build(getResourcesPath().concat(networkFilePath), getResourcesPath().concat(networkFilePath), crac1).build(),
-                timestamp2, RaoInputWithNetworkPaths.build(getResourcesPath().concat(networkFilePath), getResourcesPath().concat(networkFilePath), crac2).build()
+                timestamp1, RaoInputWithNetworkPaths.build(getResourcesPath().concat(networkFilePath), getResourcesPath().concat(networkFilePathPostIcsImport), crac1).build(),
+                timestamp2, RaoInputWithNetworkPaths.build(getResourcesPath().concat(networkFilePath), getResourcesPath().concat(networkFilePathPostIcsImport), crac2).build()
 
             ));
 
@@ -75,6 +82,10 @@ class MarmotTest {
         TemporalData<RaoResult> results = new Marmot().run(input, raoParameters).join();
         assertEquals(-5, results.getData(timestamp1).get().getOptimizedTapOnState(crac1.getPreventiveState(), crac1.getPstRangeAction("pstBeFr2")));
         assertEquals(-5, results.getData(timestamp2).get().getOptimizedTapOnState(crac2.getPreventiveState(), crac2.getPstRangeAction("pstBeFr2")));
+
+        // Clean created networks
+        cleanExistingNetwork(getResourcesPath().concat(networkFilePathPostIcsImport));
+        cleanExistingNetwork(getResourcesPath().concat(networkFilePathPostIcsImport).split("jiidm")[0].concat("uct"));
     }
 
     @Test
@@ -83,6 +94,10 @@ class MarmotTest {
         Network network1 = Network.read(networkFilePath, MarmotTest.class.getResourceAsStream(networkFilePath));
         Network network2 = Network.read(networkFilePath, MarmotTest.class.getResourceAsStream(networkFilePath));
         Network network3 = Network.read(networkFilePath, MarmotTest.class.getResourceAsStream(networkFilePath));
+        // Create postIcsNetwork:
+        String networkFilePathPostIcsImport = networkFilePath.split(".uct")[0].concat("_modified.jiidm");
+        network1.write("JIIDM", new Properties(), Path.of(getResourcesPath().concat(networkFilePathPostIcsImport)));
+
         Crac crac1 = Crac.read("/crac/crac-redispatching-202502141040.json", MarmotTest.class.getResourceAsStream("/crac/crac-redispatching-202502141040.json"), network1);
         Crac crac2 = Crac.read("/crac/crac-redispatching-202502141140.json", MarmotTest.class.getResourceAsStream("/crac/crac-redispatching-202502141140.json"), network2);
         Crac crac3 = Crac.read("/crac/crac-redispatching-202502141240.json", MarmotTest.class.getResourceAsStream("/crac/crac-redispatching-202502141240.json"), network3);
@@ -94,9 +109,9 @@ class MarmotTest {
 
         TemporalData<RaoInputWithNetworkPaths> raoInputs = new TemporalDataImpl<>(
             Map.of(
-                timestamp1, RaoInputWithNetworkPaths.build(getResourcesPath().concat(networkFilePath), getResourcesPath().concat(networkFilePath), crac1).build(),
-                timestamp2, RaoInputWithNetworkPaths.build(getResourcesPath().concat(networkFilePath), getResourcesPath().concat(networkFilePath), crac2).build(),
-                timestamp3, RaoInputWithNetworkPaths.build(getResourcesPath().concat(networkFilePath), getResourcesPath().concat(networkFilePath), crac3).build()
+                timestamp1, RaoInputWithNetworkPaths.build(getResourcesPath().concat(networkFilePath), getResourcesPath().concat(networkFilePathPostIcsImport), crac1).build(),
+                timestamp2, RaoInputWithNetworkPaths.build(getResourcesPath().concat(networkFilePath), getResourcesPath().concat(networkFilePathPostIcsImport), crac2).build(),
+                timestamp3, RaoInputWithNetworkPaths.build(getResourcesPath().concat(networkFilePath), getResourcesPath().concat(networkFilePathPostIcsImport), crac3).build()
             ));
         InterTemporalRaoInputWithNetworkPaths input = new InterTemporalRaoInputWithNetworkPaths(
             raoInputs,
@@ -111,6 +126,10 @@ class MarmotTest {
         assertEquals(-0.0, results.getData(timestamp1).get().getOptimizedSetPointOnState(crac1.getPreventiveState(), crac1.getRangeAction("redispatchingAction")));
         assertEquals(503.0, results.getData(timestamp2).get().getOptimizedSetPointOnState(crac2.getPreventiveState(), crac2.getRangeAction("redispatchingAction")));
         assertEquals(503.0, results.getData(timestamp3).get().getOptimizedSetPointOnState(crac3.getPreventiveState(), crac3.getRangeAction("redispatchingAction")));
+
+        // Clean created networks
+        cleanExistingNetwork(getResourcesPath().concat(networkFilePathPostIcsImport));
+        cleanExistingNetwork(getResourcesPath().concat(networkFilePathPostIcsImport).split("jiidm")[0].concat("uct"));
     }
 
     @Test
@@ -119,6 +138,10 @@ class MarmotTest {
         Network network1 = Network.read(networkFilePath, MarmotTest.class.getResourceAsStream(networkFilePath));
         Network network2 = Network.read(networkFilePath, MarmotTest.class.getResourceAsStream(networkFilePath));
         Network network3 = Network.read(networkFilePath, MarmotTest.class.getResourceAsStream(networkFilePath));
+        // Create postIcsNetwork:
+        String networkFilePathPostIcsImport = networkFilePath.split(".uct")[0].concat("_modified.jiidm");
+        network1.write("JIIDM", new Properties(), Path.of(getResourcesPath().concat(networkFilePathPostIcsImport)));
+
         Crac crac1 = Crac.read("/crac/crac-redispatching-202502141040.json", MarmotTest.class.getResourceAsStream("/crac/crac-redispatching-202502141040.json"), network1);
         Crac crac2 = Crac.read("/crac/crac-redispatching-202502141140.json", MarmotTest.class.getResourceAsStream("/crac/crac-redispatching-202502141140.json"), network2);
         Crac crac3 = Crac.read("/crac/crac-redispatching-202502141240.json", MarmotTest.class.getResourceAsStream("/crac/crac-redispatching-202502141240.json"), network3);
@@ -130,9 +153,9 @@ class MarmotTest {
 
         TemporalData<RaoInputWithNetworkPaths> raoInputs = new TemporalDataImpl<>(
             Map.of(
-                timestamp1, RaoInputWithNetworkPaths.build(getResourcesPath().concat(networkFilePath), getResourcesPath().concat(networkFilePath), crac1).build(),
-                timestamp2, RaoInputWithNetworkPaths.build(getResourcesPath().concat(networkFilePath), getResourcesPath().concat(networkFilePath), crac2).build(),
-                timestamp3, RaoInputWithNetworkPaths.build(getResourcesPath().concat(networkFilePath), getResourcesPath().concat(networkFilePath), crac3).build()
+                timestamp1, RaoInputWithNetworkPaths.build(getResourcesPath().concat(networkFilePath), getResourcesPath().concat(networkFilePathPostIcsImport), crac1).build(),
+                timestamp2, RaoInputWithNetworkPaths.build(getResourcesPath().concat(networkFilePath), getResourcesPath().concat(networkFilePathPostIcsImport), crac2).build(),
+                timestamp3, RaoInputWithNetworkPaths.build(getResourcesPath().concat(networkFilePath), getResourcesPath().concat(networkFilePathPostIcsImport), crac3).build()
             ));
         InterTemporalRaoInputWithNetworkPaths input = new InterTemporalRaoInputWithNetworkPaths(
             raoInputs,
@@ -148,12 +171,20 @@ class MarmotTest {
         assertEquals(303.0, results.getData(timestamp1).get().getOptimizedSetPointOnState(crac1.getPreventiveState(), crac1.getRangeAction("redispatchingAction")));
         assertEquals(503.0, results.getData(timestamp2).get().getOptimizedSetPointOnState(crac2.getPreventiveState(), crac2.getRangeAction("redispatchingAction")));
         assertEquals(503.0, results.getData(timestamp3).get().getOptimizedSetPointOnState(crac3.getPreventiveState(), crac3.getRangeAction("redispatchingAction")));
+
+        // Clean created networks
+        cleanExistingNetwork(getResourcesPath().concat(networkFilePathPostIcsImport));
+        cleanExistingNetwork(getResourcesPath().concat(networkFilePathPostIcsImport).split("jiidm")[0].concat("uct"));
     }
 
     @Test
     void testWithPreventiveTopologicalAction() throws IOException {
         String networkFilePath = "/network/2Nodes3ParallelLinesPST2LinesClosed.uct";
         Network network1 = Network.read(networkFilePath, MarmotTest.class.getResourceAsStream(networkFilePath));
+        // Create postIcsNetwork:
+        String networkFilePathPostIcsImport = networkFilePath.split(".uct")[0].concat("_modified.jiidm");
+        network1.write("JIIDM", new Properties(), Path.of(getResourcesPath().concat(networkFilePathPostIcsImport)));
+
         Network network2 = Network.read(networkFilePath, MarmotTest.class.getResourceAsStream(networkFilePath));
         Crac crac1 = Crac.read("/crac/crac-topo-202502181007.json", MarmotTest.class.getResourceAsStream("/crac/crac-topo-202502181007.json"), network1);
         Crac crac2 = Crac.read("/crac/crac-topo-202502191007.json", MarmotTest.class.getResourceAsStream("/crac/crac-topo-202502191007.json"), network2);
@@ -164,8 +195,8 @@ class MarmotTest {
 
         TemporalData<RaoInputWithNetworkPaths> raoInputs = new TemporalDataImpl<>(
             Map.of(
-                timestamp1, RaoInputWithNetworkPaths.build(getResourcesPath().concat(networkFilePath), getResourcesPath().concat(networkFilePath), crac1).build(),
-                timestamp2, RaoInputWithNetworkPaths.build(getResourcesPath().concat(networkFilePath), getResourcesPath().concat(networkFilePath), crac2).build()
+                timestamp1, RaoInputWithNetworkPaths.build(getResourcesPath().concat(networkFilePath), getResourcesPath().concat(networkFilePathPostIcsImport), crac1).build(),
+                timestamp2, RaoInputWithNetworkPaths.build(getResourcesPath().concat(networkFilePath), getResourcesPath().concat(networkFilePathPostIcsImport), crac2).build()
 
             ));
 
@@ -177,6 +208,16 @@ class MarmotTest {
         TemporalData<RaoResult> results = new Marmot().run(input, raoParameters).join();
         assertTrue(results.getData(timestamp1).get().isActivated(crac1.getPreventiveState(), crac1.getNetworkAction("closeBeFr2")));
         assertTrue(results.getData(timestamp2).get().isActivated(crac2.getPreventiveState(), crac2.getNetworkAction("closeBeFr2")));
-        assertEquals(40.0, results.getData(timestamp1).get().getCost(crac1.getInstant(InstantKind.PREVENTIVE)));
+        assertEquals(70.0, results.getData(timestamp1).get().getCost(crac1.getInstant(InstantKind.PREVENTIVE)));
+
+        // Clean created networks
+        cleanExistingNetwork(getResourcesPath().concat(networkFilePathPostIcsImport));
+        cleanExistingNetwork(getResourcesPath().concat(networkFilePathPostIcsImport).split("jiidm")[0].concat("uct"));
+    }
+
+    private void cleanExistingNetwork(String path) {
+        File file = new File(Path.of(path).toUri());
+        assertTrue(file.exists());
+        file.delete();
     }
 }

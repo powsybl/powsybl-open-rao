@@ -239,6 +239,7 @@ public class Marmot implements InterTemporalRaoProvider {
             });
 
         String path = raoInputWithNetworkPaths.getPostIcsImportNetworkPath().split(".jiidm")[0].concat(".uct");
+        OpenRaoLoggerProvider.TECHNICAL_LOGS.info("[MARMOT] Exporting network with PRAs for timestamp %s".formatted(raoInputWithNetworkPaths.getCrac().getTimestamp().orElseThrow()));
         initialNetwork.write("UCTE", new Properties(), Path.of(path));
     }
 
