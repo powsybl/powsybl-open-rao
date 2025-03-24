@@ -51,7 +51,7 @@ import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.searchtreerao.commons.RaoLogger.logCost;
 import static com.powsybl.openrao.searchtreerao.marmot.MarmotUtils.getPostOptimizationResults;
-import static com.powsybl.openrao.searchtreerao.marmot.MarmotUtils.getTopologicalOptimizationResult;
+import static com.powsybl.openrao.searchtreerao.marmot.MarmotUtils.getPreventiveOptimizationResults;
 import static com.powsybl.openrao.searchtreerao.marmot.MarmotUtils.runSensitivityAnalysis;
 import static com.powsybl.openrao.searchtreerao.marmot.MarmotUtils.runSensitivityAnalysisBasedOnInitialResult;
 
@@ -78,9 +78,12 @@ public class Marmot implements InterTemporalRaoProvider {
         TemporalData<RaoResult> topologicalOptimizationResults = runTopologicalOptimization(raoInput.getRaoInputs(), raoParameters);
         OpenRaoLoggerProvider.TECHNICAL_LOGS.info("[MARMOT] ----- Topological optimization [end]");
 
-        // 3. Apply preventive topological remedial actions
+        // TODO : Add intertemporal constraint check if none violated then return
+        boolean noInterTemporalConstraint = raoInput.getGeneratorConstraints().isEmpty();
+
+        // 3. Apply preventive topological remedial actions (and preventive range actions if there are no inter-temporal constraints)
         OpenRaoLoggerProvider.TECHNICAL_LOGS.info("[MARMOT] Applying optimal topological actions on networks");
-        applyPreventiveTopologicalActionsOnNetwork(raoInput.getRaoInputs(), topologicalOptimizationResults);
+        applyPreventiveRemedialActionsOnNetwork(raoInput.getRaoInputs(), topologicalOptimizationResults, noInterTemporalConstraint);
 
         // 4. Run sensitivity analysis on all timestamps after topological actions are applied
         OpenRaoLoggerProvider.TECHNICAL_LOGS.info("[MARMOT] Systematic inter-temporal sensitivity analysis after topological actions application [start]");
@@ -94,8 +97,7 @@ public class Marmot implements InterTemporalRaoProvider {
         LinearOptimizationResult postTopologicalOptimizationResult = getPostTopologicalOptimizationResult(postTopologicalActionsResults, preventiveTopologicalActions, objectiveFunction);
 
         // if no inter-temporal constraints are defined, the results can be returned
-        // TODO : Add intertemporal constraint check if none violated then return
-        if (raoInput.getGeneratorConstraints().isEmpty()) {
+        if (noInterTemporalConstraint) {
             OpenRaoLoggerProvider.TECHNICAL_LOGS.info("[MARMOT] No inter-temporal constraint provided; no need to re-optimize range actions");
             return CompletableFuture.completedFuture(new InterTemporalRaoResultImpl(initialObjectiveFunctionResult, postTopologicalOptimizationResult, topologicalOptimizationResults));
         }
@@ -127,11 +129,11 @@ public class Marmot implements InterTemporalRaoProvider {
         });
     }
 
-    private static void applyPreventiveTopologicalActionsOnNetwork(TemporalData<RaoInput> raoInputs, TemporalData<RaoResult> topologicalOptimizationResults) {
-        getTopologicalOptimizationResult(raoInputs, topologicalOptimizationResults)
+    private static void applyPreventiveRemedialActionsOnNetwork(TemporalData<RaoInput> raoInputs, TemporalData<RaoResult> preventiveOptimizationResults, boolean applyPreventiveRangeActions) {
+        getPreventiveOptimizationResults(raoInputs, preventiveOptimizationResults)
             .getDataPerTimestamp()
             .values()
-            .forEach(TopologicalOptimizationResult::applyTopologicalActions);
+            .forEach(preventiveOptimizationResult -> preventiveOptimizationResult.applyPreventiveRemedialActions(applyPreventiveRangeActions));
     }
 
     private static TemporalData<PrePerimeterResult> runAllSensitivityAnalyses(TemporalData<RaoInput> raoInputs, RaoParameters raoParameters) {
