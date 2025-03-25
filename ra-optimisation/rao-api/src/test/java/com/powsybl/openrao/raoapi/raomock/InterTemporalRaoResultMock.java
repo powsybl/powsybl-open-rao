@@ -9,7 +9,9 @@ package com.powsybl.openrao.raoapi.raomock;
 
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.PhysicalParameter;
+import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.Unit;
+import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.State;
@@ -19,11 +21,15 @@ import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.InterTemporalRaoResult;
+import com.powsybl.openrao.data.raoresult.api.RaoResult;
 
+import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
+import java.util.zip.ZipOutputStream;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -72,6 +78,16 @@ public class InterTemporalRaoResultMock implements InterTemporalRaoResult {
     @Override
     public boolean isSecure(OffsetDateTime timestamp, PhysicalParameter... u) {
         return false;
+    }
+
+    @Override
+    public RaoResult getIndividualRaoResult(OffsetDateTime timestamp) {
+        return null;
+    }
+
+    @Override
+    public void write(ZipOutputStream zipOutputStream, TemporalData<Crac> cracs, Properties properties) throws IOException {
+
     }
 
     @Override
