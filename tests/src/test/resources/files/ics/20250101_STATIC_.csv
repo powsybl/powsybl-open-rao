@@ -1,0 +1,2 @@
+RA RD ID;TSO;Preventive;Curative;Time From;Time To;Generator Name;RD description mode;UCT Node or GSK ID;Minimum Redispatch [MW];Fuel type;Minimum up-time [h];Minimum down-time [h];Maximum positive power gradient [MW/h];Maximum negative power gradient [MW/h];Lead time [h];Lag time [h];Startup allowed;Shutdown allowed
+RO_RA_00004;RO;TRUE;FALSE;00:00:00;24:00:00;Power Plant 001;Node;BBE1AA11;50;Coal;72;48;5;15;1;1;FALSE;FALSE
