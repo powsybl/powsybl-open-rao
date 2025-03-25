@@ -35,6 +35,8 @@ import static com.powsybl.openrao.tests.utils.Helpers.getFile;
 
 public final class InterTemporalRaoSteps {
     private static String networkFolderPath;
+    private static String cracFolderPath;
+    private static boolean useIndividualCracs = false;
     private static String networkFolderPathPostIcsImport;
     private static String icsStaticPath;
     private static String icsSeriesPath;
@@ -51,8 +53,19 @@ public final class InterTemporalRaoSteps {
         setNetworkInputsPostIcs(folderPath);
     }
 
+    @Given("crac files are in folder {string}")
+    public static void cracFilesAreIn(String folderPath) {
+        setCracInputs(folderPath);
+        useIndividualCracs = true;
+    }
+
     private static void setNetworkInputs(String folderPath) {
         networkFolderPath = getResourcesPath().concat("cases/").concat(folderPath + "/");
+    }
+
+    private static void setCracInputs(String folderPath) {
+        cracFolderPath = getResourcesPath().concat("crac/").concat(folderPath + "/");
+
     }
 
     private static void setNetworkInputsPostIcs(String folderPath) throws IOException {
@@ -91,7 +104,10 @@ public final class InterTemporalRaoSteps {
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
         }
-        File cracFile = getFile(CommonTestData.cracPath);
+        File cracFile = null;
+        if (!useIndividualCracs) {
+            cracFile = getFile(CommonTestData.cracPath);
+        }
 
         CommonTestData.raoParameters = buildConfig(getFile(CommonTestData.raoParametersPath));
         raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getRangeActionsOptimizationParameters().getLinearOptimizationSolver()
@@ -102,11 +118,18 @@ public final class InterTemporalRaoSteps {
         for (Map<String, String> tsInput : inputs) {
             OffsetDateTime offsetDateTime = getOffsetDateTimeFromBrusselsTimestamp(tsInput.get("Timestamp"));
             TECHNICAL_LOGS.info("**** Loading data for TS {} ****", offsetDateTime);
+            // Network
             String initialNetworkPath = networkFolderPath.concat(tsInput.get("Network"));
             String postIcsNetworkPath = networkFolderPathPostIcsImport.concat(tsInput.get("Network")).split(".uct")[0].concat(".jiidm");
-            addTimestampToCracCreationParameters("FlowBasedConstraintDocument", offsetDateTime, cracCreationParameters);
             Network network = importNetwork(getFile(networkFolderPath.concat(tsInput.get("Network"))), false);
-            Pair<Crac, CracCreationContext> cracImportResult = importCrac(cracFile, network, cracCreationParameters);
+            // Crac
+            Pair<Crac, CracCreationContext> cracImportResult;
+            if (useIndividualCracs) { // only works with json
+                 cracImportResult = importCrac(getFile(cracFolderPath.concat(tsInput.get("Crac"))), network, null);
+            } else {
+                addTimestampToCracCreationParameters("FlowBasedConstraintDocument", offsetDateTime, cracCreationParameters);
+                cracImportResult = importCrac(cracFile, network, cracCreationParameters);
+            }
             RaoInputWithNetworkPaths raoInput = RaoInputWithNetworkPaths
                 .build(initialNetworkPath, postIcsNetworkPath, cracImportResult.getLeft())
                 .build();
