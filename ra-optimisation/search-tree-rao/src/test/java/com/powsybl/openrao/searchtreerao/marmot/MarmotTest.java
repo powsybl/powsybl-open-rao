@@ -7,12 +7,36 @@
 
 package com.powsybl.openrao.searchtreerao.marmot;
 
+import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.commons.TemporalData;
+import com.powsybl.openrao.commons.TemporalDataImpl;
+import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.InstantKind;
+import com.powsybl.openrao.data.intertemporalconstraint.PowerGradient;
+import com.powsybl.openrao.data.raoresult.api.InterTemporalRaoResult;
+import com.powsybl.openrao.raoapi.InterTemporalRaoInputWithNetworkPaths;
+import com.powsybl.openrao.raoapi.RaoInputWithNetworkPaths;
+import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
+import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import org.junit.jupiter.api.Test;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 class MarmotTest {
-
     /*
     TODO
     For each test check the global MARMOT cost and the individual costs for each timestamp.
@@ -20,11 +44,20 @@ class MarmotTest {
     The costs will be separated in a future PR and will have to be checked here.
      */
 
-    /*@Test
+    public static String getResourcesPath() {
+        return "src/test/resources/";
+    }
+
+    @Test
     void testTwoTimestampsAndGradientOnGeneratorWithNoAssociatedRemedialAction() throws IOException {
         // we need to import twice the network to avoid variant names conflicts on the same network object
-        Network network1 = Network.read("/network/2Nodes2ParallelLinesPST.uct", MarmotTest.class.getResourceAsStream("/network/2Nodes2ParallelLinesPST.uct"));
-        Network network2 = Network.read("/network/2Nodes2ParallelLinesPST.uct", MarmotTest.class.getResourceAsStream("/network/2Nodes2ParallelLinesPST.uct"));
+        String networkFilePath = "/network/2Nodes2ParallelLinesPST.uct";
+        Network network1 = Network.read(networkFilePath, MarmotTest.class.getResourceAsStream(networkFilePath));
+        Network network2 = Network.read(networkFilePath, MarmotTest.class.getResourceAsStream(networkFilePath));
+        // Create postIcsNetwork:
+        String networkFilePathPostIcsImport = networkFilePath.split(".uct")[0].concat("_modified.jiidm");
+        network1.write("JIIDM", new Properties(), Path.of(getResourcesPath().concat(networkFilePathPostIcsImport)));
+
         Crac crac1 = Crac.read("/crac/crac-20250213.json", MarmotTest.class.getResourceAsStream("/crac/crac-20250213.json"), network1);
         Crac crac2 = Crac.read("/crac/crac-20250214.json", MarmotTest.class.getResourceAsStream("/crac/crac-20250214.json"), network2);
         RaoParameters raoParameters = JsonRaoParameters.read(MarmotTest.class.getResourceAsStream("/parameters/RaoParameters_dc_minObjective_discretePst.json"));
@@ -32,28 +65,39 @@ class MarmotTest {
         OffsetDateTime timestamp1 = OffsetDateTime.of(2025, 2, 13, 11, 35, 0, 0, ZoneOffset.UTC);
         OffsetDateTime timestamp2 = OffsetDateTime.of(2025, 2, 14, 11, 35, 0, 0, ZoneOffset.UTC);
 
-        InterTemporalRaoInput input = new InterTemporalRaoInput(
-            new TemporalDataImpl<>(Map.of(timestamp1, RaoInput.build(network1, crac1).build(), timestamp2, RaoInput.build(network2, crac2).build())),
+        TemporalData<RaoInputWithNetworkPaths> raoInputs = new TemporalDataImpl<>(
+            Map.of(
+                timestamp1, RaoInputWithNetworkPaths.build(getResourcesPath().concat(networkFilePath), getResourcesPath().concat(networkFilePathPostIcsImport), crac1).build(),
+                timestamp2, RaoInputWithNetworkPaths.build(getResourcesPath().concat(networkFilePath), getResourcesPath().concat(networkFilePathPostIcsImport), crac2).build()
+
+            ));
+
+        InterTemporalRaoInputWithNetworkPaths input = new InterTemporalRaoInputWithNetworkPaths(
+            raoInputs,
             Set.of(new PowerGradient("FFR1AA1 _generator", -1000d, 1000d))
         );
 
         // first RAOs shift tap to -5 for a cost of 55 each
         // MARMOT should also move the tap to -5 for both timestamps with a total cost of 110
-        InterTemporalRaoResultImpl interTemporalRaoResult = (InterTemporalRaoResultImpl) new Marmot().run(input, raoParameters).join();
-        assertEquals(110.0, interTemporalRaoResult.getGlobalCost(InstantKind.PREVENTIVE));
+        InterTemporalRaoResult results = new Marmot().run(input, raoParameters).join();
+        assertEquals(-5, results.getOptimizedTapOnState(crac1.getPreventiveState(), crac1.getPstRangeAction("pstBeFr2")));
+        assertEquals(-5, results.getOptimizedTapOnState(crac2.getPreventiveState(), crac2.getPstRangeAction("pstBeFr2")));
 
-        assertEquals(55.0, interTemporalRaoResult.getCost(crac1.getPreventiveInstant(), timestamp1));
-        assertEquals(-5, interTemporalRaoResult.getOptimizedTapOnState(crac1.getPreventiveState(), crac1.getPstRangeAction("pstBeFr2")));
-
-        assertEquals(55.0, interTemporalRaoResult.getCost(crac2.getPreventiveInstant(), timestamp2));
-        assertEquals(-5, interTemporalRaoResult.getOptimizedTapOnState(crac2.getPreventiveState(), crac2.getPstRangeAction("pstBeFr2")));
+        // Clean created networks
+        cleanExistingNetwork(getResourcesPath().concat(networkFilePathPostIcsImport));
+        cleanExistingNetwork(getResourcesPath().concat(networkFilePathPostIcsImport).split("jiidm")[0].concat("uct"));
     }
 
     @Test
     void testWithRedispatchingAndNoGradientOnImplicatedGenerators() throws IOException {
-        Network network1 = Network.read("/network/3Nodes.uct", MarmotTest.class.getResourceAsStream("/network/3Nodes.uct"));
-        Network network2 = Network.read("/network/3Nodes.uct", MarmotTest.class.getResourceAsStream("/network/3Nodes.uct"));
-        Network network3 = Network.read("/network/3Nodes.uct", MarmotTest.class.getResourceAsStream("/network/3Nodes.uct"));
+        String networkFilePath = "/network/3Nodes.uct";
+        Network network1 = Network.read(networkFilePath, MarmotTest.class.getResourceAsStream(networkFilePath));
+        Network network2 = Network.read(networkFilePath, MarmotTest.class.getResourceAsStream(networkFilePath));
+        Network network3 = Network.read(networkFilePath, MarmotTest.class.getResourceAsStream(networkFilePath));
+        // Create postIcsNetwork:
+        String networkFilePathPostIcsImport = networkFilePath.split(".uct")[0].concat("_modified.jiidm");
+        network1.write("JIIDM", new Properties(), Path.of(getResourcesPath().concat(networkFilePathPostIcsImport)));
+
         Crac crac1 = Crac.read("/crac/crac-redispatching-202502141040.json", MarmotTest.class.getResourceAsStream("/crac/crac-redispatching-202502141040.json"), network1);
         Crac crac2 = Crac.read("/crac/crac-redispatching-202502141140.json", MarmotTest.class.getResourceAsStream("/crac/crac-redispatching-202502141140.json"), network2);
         Crac crac3 = Crac.read("/crac/crac-redispatching-202502141240.json", MarmotTest.class.getResourceAsStream("/crac/crac-redispatching-202502141240.json"), network3);
@@ -63,32 +107,41 @@ class MarmotTest {
         OffsetDateTime timestamp2 = OffsetDateTime.of(2025, 2, 14, 11, 40, 0, 0, ZoneOffset.UTC);
         OffsetDateTime timestamp3 = OffsetDateTime.of(2025, 2, 14, 12, 40, 0, 0, ZoneOffset.UTC);
 
-        InterTemporalRaoInput input = new InterTemporalRaoInput(
-            new TemporalDataImpl<>(Map.of(timestamp1, RaoInput.build(network1, crac1).build(), timestamp2, RaoInput.build(network2, crac2).build(), timestamp3, RaoInput.build(network3, crac3).build())),
+        TemporalData<RaoInputWithNetworkPaths> raoInputs = new TemporalDataImpl<>(
+            Map.of(
+                timestamp1, RaoInputWithNetworkPaths.build(getResourcesPath().concat(networkFilePath), getResourcesPath().concat(networkFilePathPostIcsImport), crac1).build(),
+                timestamp2, RaoInputWithNetworkPaths.build(getResourcesPath().concat(networkFilePath), getResourcesPath().concat(networkFilePathPostIcsImport), crac2).build(),
+                timestamp3, RaoInputWithNetworkPaths.build(getResourcesPath().concat(networkFilePath), getResourcesPath().concat(networkFilePathPostIcsImport), crac3).build()
+            ));
+        InterTemporalRaoInputWithNetworkPaths input = new InterTemporalRaoInputWithNetworkPaths(
+            raoInputs,
             Set.of(new PowerGradient("FFR1AA1 _generator", -250d, 250d))
         );
 
         // no redispatching required during the first timestamp
         // redispatching of 500 MW in both timestamps 2 & 3 with a cost of 25010 each
         // MARMOT should also activate redispatching at 500 MW for second and third timestamps
-        InterTemporalRaoResultImpl interTemporalRaoResult = (InterTemporalRaoResultImpl) new Marmot().run(input, raoParameters).join();
-        assertEquals(50020.0, interTemporalRaoResult.getGlobalCost(InstantKind.PREVENTIVE));
+        InterTemporalRaoResult results = new Marmot().run(input, raoParameters).join();
 
-        assertEquals(0.0, interTemporalRaoResult.getCost(crac1.getPreventiveInstant(), timestamp1));
-        assertEquals(-0.0, interTemporalRaoResult.getOptimizedSetPointOnState(crac1.getPreventiveState(), crac1.getRangeAction("redispatchingAction")));
+        assertEquals(-0.0, results.getOptimizedSetPointOnState(crac1.getPreventiveState(), crac1.getRangeAction("redispatchingAction")));
+        assertEquals(503.0, results.getOptimizedSetPointOnState(crac2.getPreventiveState(), crac2.getRangeAction("redispatchingAction")));
+        assertEquals(503.0, results.getOptimizedSetPointOnState(crac3.getPreventiveState(), crac3.getRangeAction("redispatchingAction")));
 
-        assertEquals(25010.0, interTemporalRaoResult.getCost(crac2.getPreventiveInstant(), timestamp2));
-        assertEquals(503.0, interTemporalRaoResult.getOptimizedSetPointOnState(crac2.getPreventiveState(), crac2.getRangeAction("redispatchingAction")));
-
-        assertEquals(25010.0, interTemporalRaoResult.getCost(crac3.getPreventiveInstant(), timestamp3));
-        assertEquals(503.0, interTemporalRaoResult.getOptimizedSetPointOnState(crac3.getPreventiveState(), crac3.getRangeAction("redispatchingAction")));
+        // Clean created networks
+        cleanExistingNetwork(getResourcesPath().concat(networkFilePathPostIcsImport));
+        cleanExistingNetwork(getResourcesPath().concat(networkFilePathPostIcsImport).split("jiidm")[0].concat("uct"));
     }
 
     @Test
     void testWithRedispatchingAndGradientOnImplicatedGenerators() throws IOException {
-        Network network1 = Network.read("/network/3Nodes.uct", MarmotTest.class.getResourceAsStream("/network/3Nodes.uct"));
-        Network network2 = Network.read("/network/3Nodes.uct", MarmotTest.class.getResourceAsStream("/network/3Nodes.uct"));
-        Network network3 = Network.read("/network/3Nodes.uct", MarmotTest.class.getResourceAsStream("/network/3Nodes.uct"));
+        String networkFilePath = "/network/3Nodes.uct";
+        Network network1 = Network.read(networkFilePath, MarmotTest.class.getResourceAsStream(networkFilePath));
+        Network network2 = Network.read(networkFilePath, MarmotTest.class.getResourceAsStream(networkFilePath));
+        Network network3 = Network.read(networkFilePath, MarmotTest.class.getResourceAsStream(networkFilePath));
+        // Create postIcsNetwork:
+        String networkFilePathPostIcsImport = networkFilePath.split(".uct")[0].concat("_modified.jiidm");
+        network1.write("JIIDM", new Properties(), Path.of(getResourcesPath().concat(networkFilePathPostIcsImport)));
+
         Crac crac1 = Crac.read("/crac/crac-redispatching-202502141040.json", MarmotTest.class.getResourceAsStream("/crac/crac-redispatching-202502141040.json"), network1);
         Crac crac2 = Crac.read("/crac/crac-redispatching-202502141140.json", MarmotTest.class.getResourceAsStream("/crac/crac-redispatching-202502141140.json"), network2);
         Crac crac3 = Crac.read("/crac/crac-redispatching-202502141240.json", MarmotTest.class.getResourceAsStream("/crac/crac-redispatching-202502141240.json"), network3);
@@ -98,33 +151,41 @@ class MarmotTest {
         OffsetDateTime timestamp2 = OffsetDateTime.of(2025, 2, 14, 11, 40, 0, 0, ZoneOffset.UTC);
         OffsetDateTime timestamp3 = OffsetDateTime.of(2025, 2, 14, 12, 40, 0, 0, ZoneOffset.UTC);
 
-        InterTemporalRaoInput input = new InterTemporalRaoInput(
-            new TemporalDataImpl<>(Map.of(timestamp1, RaoInput.build(network1, crac1).build(), timestamp2, RaoInput.build(network2, crac2).build(), timestamp3, RaoInput.build(network3, crac3).build())),
+        TemporalData<RaoInputWithNetworkPaths> raoInputs = new TemporalDataImpl<>(
+            Map.of(
+                timestamp1, RaoInputWithNetworkPaths.build(getResourcesPath().concat(networkFilePath), getResourcesPath().concat(networkFilePathPostIcsImport), crac1).build(),
+                timestamp2, RaoInputWithNetworkPaths.build(getResourcesPath().concat(networkFilePath), getResourcesPath().concat(networkFilePathPostIcsImport), crac2).build(),
+                timestamp3, RaoInputWithNetworkPaths.build(getResourcesPath().concat(networkFilePath), getResourcesPath().concat(networkFilePathPostIcsImport), crac3).build()
+            ));
+        InterTemporalRaoInputWithNetworkPaths input = new InterTemporalRaoInputWithNetworkPaths(
+            raoInputs,
             Set.of(new PowerGradient("FFR3AA1 _generator", 0d, 200d))
         );
 
         // no redispatching required during the first timestamp
-        // MARMOT will activate 300 MW however in timestamp 1 : it is the minimum necessary to be able to activate 500 MW in timestamp 2
+        // MARMOT will activate 3000 MW however in timestamp 1 : it is the minimum necessary to be able to activate 500 MW in timestamp 2
         // due to the max gradient of 200. Not activating 500 MW in timestamps 2 and 3 will create an overload and be very costly.
         // redispatching of 500 MW in both timestamps 2 & 3 with a cost of 25010 each
         // MARMOT should also activate redispatching at 500 MW for second and third timestamps
-        InterTemporalRaoResultImpl interTemporalRaoResult = (InterTemporalRaoResultImpl) new Marmot().run(input, raoParameters).join();
-        assertEquals(65030.0, interTemporalRaoResult.getGlobalCost(InstantKind.PREVENTIVE));
+        InterTemporalRaoResult results = new Marmot().run(input, raoParameters).join();
+        assertEquals(303.0, results.getOptimizedSetPointOnState(crac1.getPreventiveState(), crac1.getRangeAction("redispatchingAction")));
+        assertEquals(503.0, results.getOptimizedSetPointOnState(crac2.getPreventiveState(), crac2.getRangeAction("redispatchingAction")));
+        assertEquals(503.0, results.getOptimizedSetPointOnState(crac3.getPreventiveState(), crac3.getRangeAction("redispatchingAction")));
 
-        assertEquals(15010.0, interTemporalRaoResult.getCost(crac1.getPreventiveInstant(), timestamp1));
-        assertEquals(303.0, interTemporalRaoResult.getOptimizedSetPointOnState(crac1.getPreventiveState(), crac1.getRangeAction("redispatchingAction")));
-
-        assertEquals(25010.0, interTemporalRaoResult.getCost(crac2.getPreventiveInstant(), timestamp2));
-        assertEquals(503.0, interTemporalRaoResult.getOptimizedSetPointOnState(crac2.getPreventiveState(), crac2.getRangeAction("redispatchingAction")));
-
-        assertEquals(25010.0, interTemporalRaoResult.getCost(crac3.getPreventiveInstant(), timestamp3));
-        assertEquals(503.0, interTemporalRaoResult.getOptimizedSetPointOnState(crac3.getPreventiveState(), crac3.getRangeAction("redispatchingAction")));
+        // Clean created networks
+        cleanExistingNetwork(getResourcesPath().concat(networkFilePathPostIcsImport));
+        cleanExistingNetwork(getResourcesPath().concat(networkFilePathPostIcsImport).split("jiidm")[0].concat("uct"));
     }
 
     @Test
     void testWithPreventiveTopologicalAction() throws IOException {
-        Network network1 = Network.read("/network/2Nodes3ParallelLinesPST2LinesClosed.uct", MarmotTest.class.getResourceAsStream("/network/2Nodes3ParallelLinesPST2LinesClosed.uct"));
-        Network network2 = Network.read("/network/2Nodes3ParallelLinesPST2LinesClosed.uct", MarmotTest.class.getResourceAsStream("/network/2Nodes3ParallelLinesPST2LinesClosed.uct"));
+        String networkFilePath = "/network/2Nodes3ParallelLinesPST2LinesClosed.uct";
+        Network network1 = Network.read(networkFilePath, MarmotTest.class.getResourceAsStream(networkFilePath));
+        // Create postIcsNetwork:
+        String networkFilePathPostIcsImport = networkFilePath.split(".uct")[0].concat("_modified.jiidm");
+        network1.write("JIIDM", new Properties(), Path.of(getResourcesPath().concat(networkFilePathPostIcsImport)));
+
+        Network network2 = Network.read(networkFilePath, MarmotTest.class.getResourceAsStream(networkFilePath));
         Crac crac1 = Crac.read("/crac/crac-topo-202502181007.json", MarmotTest.class.getResourceAsStream("/crac/crac-topo-202502181007.json"), network1);
         Crac crac2 = Crac.read("/crac/crac-topo-202502191007.json", MarmotTest.class.getResourceAsStream("/crac/crac-topo-202502191007.json"), network2);
         RaoParameters raoParameters = JsonRaoParameters.read(MarmotTest.class.getResourceAsStream("/parameters/RaoParameters_minCost_megawatt_dc.json"));
@@ -132,18 +193,31 @@ class MarmotTest {
         OffsetDateTime timestamp1 = OffsetDateTime.of(2025, 2, 18, 10, 7, 0, 0, ZoneOffset.UTC);
         OffsetDateTime timestamp2 = OffsetDateTime.of(2025, 2, 19, 10, 7, 0, 0, ZoneOffset.UTC);
 
-        InterTemporalRaoInput input = new InterTemporalRaoInput(
-            new TemporalDataImpl<>(Map.of(timestamp1, RaoInput.build(network1, crac1).build(), timestamp2, RaoInput.build(network2, crac2).build())),
+        TemporalData<RaoInputWithNetworkPaths> raoInputs = new TemporalDataImpl<>(
+            Map.of(
+                timestamp1, RaoInputWithNetworkPaths.build(getResourcesPath().concat(networkFilePath), getResourcesPath().concat(networkFilePathPostIcsImport), crac1).build(),
+                timestamp2, RaoInputWithNetworkPaths.build(getResourcesPath().concat(networkFilePath), getResourcesPath().concat(networkFilePathPostIcsImport), crac2).build()
+
+            ));
+
+        InterTemporalRaoInputWithNetworkPaths input = new InterTemporalRaoInputWithNetworkPaths(
+            raoInputs,
             Set.of(new PowerGradient("FFR1AA1 _generator", -250d, 250d))
         );
 
-        InterTemporalRaoResultImpl interTemporalRaoResult = (InterTemporalRaoResultImpl) new Marmot().run(input, raoParameters).join();
-        assertEquals(40.0, interTemporalRaoResult.getGlobalCost(InstantKind.PREVENTIVE));
+        InterTemporalRaoResult results = new Marmot().run(input, raoParameters).join();
+        assertTrue(results.isActivated(crac1.getPreventiveState(), crac1.getNetworkAction("closeBeFr2")));
+        assertTrue(results.isActivated(crac2.getPreventiveState(), crac2.getNetworkAction("closeBeFr2")));
+        assertEquals(70.0, results.getGlobalCost(InstantKind.PREVENTIVE));
 
-        assertEquals(20.0, interTemporalRaoResult.getCost(crac1.getPreventiveInstant(), timestamp1));
-        assertTrue(interTemporalRaoResult.isActivated(crac1.getPreventiveState(), crac1.getNetworkAction("closeBeFr2")));
+        // Clean created networks
+        cleanExistingNetwork(getResourcesPath().concat(networkFilePathPostIcsImport));
+        cleanExistingNetwork(getResourcesPath().concat(networkFilePathPostIcsImport).split("jiidm")[0].concat("uct"));
+    }
 
-        assertEquals(20.0, interTemporalRaoResult.getCost(crac2.getPreventiveInstant(), timestamp2));
-        assertTrue(interTemporalRaoResult.isActivated(crac2.getPreventiveState(), crac2.getNetworkAction("closeBeFr2")));
-    }*/
+    private void cleanExistingNetwork(String path) {
+        File file = new File(Path.of(path).toUri());
+        assertTrue(file.exists());
+        file.delete();
+    }
 }
