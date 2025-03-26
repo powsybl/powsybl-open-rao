@@ -93,9 +93,12 @@ public class FastRao implements RaoProvider {
 
             ToolProvider toolProvider = ToolProvider.buildFromRaoInputAndParameters(raoInput, parameters);
 
+            //TODO: This is only used to compute initial values, it only needs range actions to fill in setpoint values
+            // but there's no way to use different range actions for sensis and setpoints (so it's slow for nothing)
+            // Maybe extract the runInitialSensitivityAnalysis method like we extracted runBasedOnInitialResults
             PrePerimeterSensitivityAnalysis prePerimeterSensitivityAnalysis = new PrePerimeterSensitivityAnalysis(
                 crac.getFlowCnecs(),
-                new HashSet<>(),
+                crac.getRangeActions(),
                 parameters,
                 toolProvider);
 

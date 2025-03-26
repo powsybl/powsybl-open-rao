@@ -5,6 +5,7 @@ import com.powsybl.iidm.network.LoadType;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
+import com.powsybl.openrao.commons.logs.RaoBusinessWarns;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeActionAdder;
 import com.powsybl.openrao.data.crac.api.rangeaction.VariationDirection;
@@ -19,6 +20,8 @@ import java.io.InputStreamReader;
 import java.nio.file.Path;
 import java.time.OffsetDateTime;
 import java.util.*;
+
+import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
 
 public final class IcsImporter {
     private static final int OFFSET = 2;
@@ -111,13 +114,13 @@ public final class IcsImporter {
                 injectionRangeActionAdder.withNetworkElementAndKey(shiftKey, networkElementPerGskElement.get(nodeId));
             });
 
-            if (staticRecord.get("Preventive").equals("TRUE")) {
+            if (staticRecord.get("Preventive").equalsIgnoreCase("TRUE")) {
                 injectionRangeActionAdder.newOnInstantUsageRule()
                     .withInstant(crac.getPreventiveInstant().getId())
                     .withUsageMethod(UsageMethod.AVAILABLE)
                     .add();
             }
-        /*if (staticRecord.get("Curative").equals("TRUE")) {
+        /*if (staticRecord.get("Curative").equalsIgnoreCase("TRUE")) {
             injectionRangeActionAdder.newOnInstantUsageRule()
                 .withInstant(crac.getLastInstant().getId())
                 .withUsageMethod(UsageMethod.AVAILABLE)
@@ -159,13 +162,13 @@ public final class IcsImporter {
                 .withMin(p0 - Double.parseDouble(seriesPerType.get("RDP-").get(dateTime.getHour() + OFFSET)))
                 .withMax(p0 + Double.parseDouble(seriesPerType.get("RDP+").get(dateTime.getHour() + OFFSET)))
                 .add();
-            if (staticRecord.get("Preventive").equals("TRUE")) {
+            if (staticRecord.get("Preventive").equalsIgnoreCase("TRUE")) {
                 injectionRangeActionAdder.newOnInstantUsageRule()
                     .withInstant(crac.getPreventiveInstant().getId())
                     .withUsageMethod(UsageMethod.AVAILABLE)
                     .add();
             }
-        /*if (staticRecord.get("Curative").equals("TRUE")) {
+        /*if (staticRecord.get("Curative").equalsIgnoreCase("TRUE")) {
             injectionRangeActionAdder.newOnInstantUsageRule()
                 .withInstant(crac.getLastInstant().getId())
                 .withUsageMethod(UsageMethod.AVAILABLE)
@@ -188,14 +191,31 @@ public final class IcsImporter {
     private static String processNetworks(String nodeId, TemporalData<Network> initialNetworks, Map<String, CSVRecord> seriesPerType, double shiftKey) {
         String generatorId = seriesPerType.get("P0").get("RA RD ID") + "_" + nodeId + "_GENERATOR";
         for (Map.Entry<OffsetDateTime, Network> entry : initialNetworks.getDataPerTimestamp().entrySet()) {
-            Bus bus = entry.getValue().getBusBreakerView().getBus(nodeId);
+            Bus bus = findBus(nodeId, entry.getValue());
             if (bus == null) {
+                BUSINESS_WARNS.warn("Redispatching action {} cannot be imported because bus {} could not be found", seriesPerType.get("P0").get("RA RD ID"), nodeId);
                 return null;
             }
             Double p0 = Double.parseDouble(seriesPerType.get("P0").get(entry.getKey().getHour() + OFFSET)) * shiftKey;
             processBus(bus, generatorId, p0);
         }
         return generatorId;
+    }
+
+    //TODO: make this more robust (and less UCTE dependent)
+    private static Bus findBus(String nodeId, Network network) {
+        //First try get the bus in bus breaker view
+        Bus bus = network.getBusBreakerView().getBus(nodeId);
+        if (bus != null) {
+            return bus;
+        }
+
+        //Then if last char is *, remove it
+        if (nodeId.endsWith("*")) {
+            nodeId = nodeId.substring(0, nodeId.length() - 1);
+        }
+        //Try find the bus using bus view
+        return network.getBusBreakerView().getBus(nodeId + " ");
     }
 
     private static void processBus(Bus bus, String generatorId, Double p0) {
@@ -224,7 +244,7 @@ public final class IcsImporter {
 
     private static boolean shouldBeImported(CSVRecord staticRecord, Map<String, Map<String, Double>> weightPerNodePerGsk) {
         return (staticRecord.get("RD description mode").equalsIgnoreCase("NODE") || weightPerNodePerGsk.containsKey(staticRecord.get("UCT Node or GSK ID"))) &&
-            (staticRecord.get("Preventive").equals("TRUE") /*|| staticRecord.get("Curative").equals("TRUE")*/);
+            (staticRecord.get("Preventive").equalsIgnoreCase("TRUE") /*|| staticRecord.get("Curative").equalsIgnoreCase("TRUE")*/);
     }
 
     private static boolean p0RespectsGradients(CSVRecord staticRecord, CSVRecord p0record, Set<OffsetDateTime> dateTimes) {

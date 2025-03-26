@@ -10,15 +10,22 @@ package com.powsybl.openrao.tests.steps;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
+import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.CracCreationContext;
+import com.powsybl.openrao.data.crac.api.Instant;
+import com.powsybl.openrao.data.crac.api.InstantKind;
+import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.crac.api.parameters.JsonCracCreationParameters;
+import com.powsybl.openrao.data.raoresult.api.InterTemporalRaoResult;
 import com.powsybl.openrao.raoapi.*;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
 import io.cucumber.datatable.DataTable;
+import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
+import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -27,11 +34,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.OffsetDateTime;
 import java.util.*;
+import java.util.zip.ZipOutputStream;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
 import static com.powsybl.openrao.tests.steps.CommonTestData.*;
 import static com.powsybl.openrao.tests.utils.Helpers.*;
 import static com.powsybl.openrao.tests.utils.Helpers.getFile;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public final class InterTemporalRaoSteps {
     private static String networkFolderPath;
@@ -42,6 +51,7 @@ public final class InterTemporalRaoSteps {
     private static String icsSeriesPath;
     private static String icsGskPath;
     private static InterTemporalRaoInputWithNetworkPaths interTemporalRaoInput;
+    private static InterTemporalRaoResult interTemporalRaoResult;
 
     private InterTemporalRaoSteps() {
         // should not be instantiated
@@ -142,6 +152,59 @@ public final class InterTemporalRaoSteps {
 
     @When("I launch marmot")
     public static void iLaunchMarmot() {
-        InterTemporalRao.run(interTemporalRaoInput, CommonTestData.getRaoParameters());
+        interTemporalRaoResult = InterTemporalRao.run(interTemporalRaoInput, CommonTestData.getRaoParameters());
+    }
+
+    @When("I export marmot results to {string}")
+    public static void iExportMarmotResults(String outputPath) throws IOException {
+        FileOutputStream fileOutputStream = new FileOutputStream(getFile(getResourcesPath().concat(outputPath)));
+        ZipOutputStream zipOutputStream = new ZipOutputStream(fileOutputStream);
+        Properties properties = new Properties();
+        properties.put("rao-result.export.json.flows-in-megawatts", "true");
+        properties.put("inter-temporal-rao-result.export.filename-template", "'RAO_RESULT_'yyyy-MM-dd'T'HH:mm:ss'.json'");
+        properties.put("inter-temporal-rao-result.export.summary-filename", "summary.json");
+        interTemporalRaoResult.write(zipOutputStream, interTemporalRaoInput.getRaoInputs().map(RaoInputWithNetworkPaths::getCrac), properties);
+    }
+
+    @Then("the optimized margin on {string} for timestamp {string} is {double} MW")
+    public static void theOptimizedMarginOnCnecForTimestampIsMW(String cnecId, String timestamp, double margin) {
+        OffsetDateTime offsetDateTime = getOffsetDateTimeFromBrusselsTimestamp(timestamp);
+        FlowCnec flowCnec = interTemporalRaoInput.getRaoInputs().getData(offsetDateTime).orElseThrow().getCrac().getFlowCnec(cnecId);
+        Instant afterCra = interTemporalRaoInput.getRaoInputs().getData(offsetDateTime).orElseThrow().getCrac().getLastInstant();
+        assertEquals(margin,
+            interTemporalRaoResult.getIndividualRaoResult(offsetDateTime).getMargin(afterCra, flowCnec, Unit.MEGAWATT),
+            SearchTreeRaoSteps.TOLERANCE_FLOW_IN_MEGAWATT);
+    }
+
+    @Then("the functional cost for timestamp {string} is {double}")
+    public static void theFunctionalCostForTimestampIs(String timestamp, double functionalCost) {
+        OffsetDateTime offsetDateTime = getOffsetDateTimeFromBrusselsTimestamp(timestamp);
+        Instant afterCra = interTemporalRaoInput.getRaoInputs().getData(offsetDateTime).orElseThrow().getCrac().getLastInstant();
+        assertEquals(functionalCost,
+            interTemporalRaoResult.getFunctionalCost(afterCra, offsetDateTime),
+            SearchTreeRaoSteps.TOLERANCE_FLOW_IN_MEGAWATT);
+    }
+
+    @Then("the total cost for timestamp {string} is {double}")
+    public static void theTotalCostForTimestampIs(String timestamp, double totalCost) {
+        OffsetDateTime offsetDateTime = getOffsetDateTimeFromBrusselsTimestamp(timestamp);
+        Instant afterCra = interTemporalRaoInput.getRaoInputs().getData(offsetDateTime).orElseThrow().getCrac().getLastInstant();
+        assertEquals(totalCost,
+            interTemporalRaoResult.getCost(afterCra, offsetDateTime),
+            SearchTreeRaoSteps.TOLERANCE_FLOW_IN_MEGAWATT);
+    }
+
+    @Then("the functional cost for all timestamps is {double}")
+    public static void theFunctionalCostForAllTimestampsIs(double functionalCost) {
+        assertEquals(functionalCost,
+            interTemporalRaoResult.getGlobalCost(InstantKind.CURATIVE),
+            SearchTreeRaoSteps.TOLERANCE_FLOW_IN_MEGAWATT);
+    }
+
+    @Then("the total cost for all timestamps is {double}")
+    public static void theTotalCostForAllTimestampsIs(double totalCost) {
+        assertEquals(totalCost,
+            interTemporalRaoResult.getGlobalCost(InstantKind.CURATIVE),
+            SearchTreeRaoSteps.TOLERANCE_FLOW_IN_MEGAWATT);
     }
 }
