@@ -5,20 +5,7 @@
 
 Feature: US 93.1: power gradient constraints
 
-  @fast @rao @mock @ac @preventive-only
-  Scenario: US 11.3.1: Reference
-    Given network file is "common/TestCase12Nodes.uct" for CORE CC
-    Given crac file is "epic11/ls_mnec_networkAction_ref.json"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_ac.json"
-    When I launch search_tree_rao
-    Then the remedial action "Open line FR1- FR2" is used in preventive
-    And line "FFR1AA1  FFR2AA1  1" in network file with PRA has connection status to "false"
-    And the remedial action "PST BE setpoint" is used in preventive
-    And the worst margin is -143.0 MW on cnec "FFR2AA1  DDE3AA1  1 - preventive"
-    And the flow on cnec "NNL2AA1  BBE3AA1  1 - preventive" after PRA should be -1856.0 MW
-#
 #  @fast @rao @dc @redispatching @preventive-only
-  # TODO : make intelligent independant RAOs with curative actions applied
   Scenario: US 93.2.1: Test for CORE IDCC
     Given network files are in folder "20250101-TestCase12Nodes2PSTs"
     Given crac files are in folder "20250101"
