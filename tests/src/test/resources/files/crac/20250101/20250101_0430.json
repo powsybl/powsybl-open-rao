@@ -107,15 +107,9 @@
       "thresholds": [
         {
           "unit": "megawatt",
-          "min": -1500.0,
-          "max": 1500.0,
+          "min": -100.0,
+          "max": 1150.0,
           "side": 1
-        },
-        {
-          "unit": "megawatt",
-          "min": -1500.0,
-          "max": 1500.0,
-          "side": 2
         }
       ]
     }, {
@@ -136,14 +130,8 @@
       "thresholds": [
         {
           "unit": "megawatt",
-          "min": -1500.0,
-          "max": 1500.0,
-          "side": 1
-        },
-        {
-          "unit": "megawatt",
-          "min": -1500.0,
-          "max": 1500.0,
+          "min": -100.0,
+          "max": 1200.0,
           "side": 2
         }
       ]
@@ -181,6 +169,32 @@
   ],
   "pstRangeActions": [
     {
+      "id": "pstDe2De3",
+      "name": "pstDe2De3",
+      "operator": "BE",
+      "variationCosts": {
+        "up": 5.0,
+        "down": 5.0
+      },
+      "onInstantUsageRules": [
+        {
+          "instant": "preventive",
+          "usageMethod": "available"
+        },
+        {
+          "instant": "curative",
+          "usageMethod": "available"
+        }
+      ],
+      "networkElementId": "DDE2AA11 DDE3AA11 1",
+      "ranges": [
+        {
+          "min": -16,
+          "max": 16,
+          "rangeType": "absolute"
+        }
+      ]
+    }, {
       "id": "pstBe2Be3",
       "name": "pstBe2Be3",
       "operator": "BE",

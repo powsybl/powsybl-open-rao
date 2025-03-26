@@ -192,6 +192,10 @@
         {
           "instant": "preventive",
           "usageMethod": "available"
+        },
+        {
+          "instant": "curative",
+          "usageMethod": "available"
         }
       ],
       "networkElementId": "BBE2AA11 BBE3AA11 1",
