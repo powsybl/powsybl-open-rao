@@ -68,7 +68,7 @@ public final class Helpers {
 
     public static Crac importCracFromInternalFormat(File cracFile, Network network) {
         try {
-            return roundTripOnCrac(Crac.read("crac.json", new FileInputStream(cracFile), network), network);
+            return roundTripOnCrac(Crac.read(cracFile.getName(), new FileInputStream(cracFile), network), network);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -123,7 +123,7 @@ public final class Helpers {
 
         // import Crac
         ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
-        return Crac.read("crac.json", inputStream, network);
+        return Crac.read("20250101_0030.json", inputStream, network);
     }
 
     public static ZonalData<SensitivityVariableSet> importUcteGlskFile(File glskFile, OffsetDateTime timestamp, Network network) throws IOException {

@@ -4,20 +4,21 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: US 93.1: power gradient constraints
-#
+
 #  @fast @rao @dc @redispatching @preventive-only
-#  Scenario: US 93.2.1: Test for CORE IDCC
-#    Given network files are in folder "20241028-FID2-620-v4-10V1001C--00264T-to-10V1001C--00085T"
-#    Given crac file is "20241028-FSC-ID2-CB-v1-10V1001C--00264T-to-10XFR-RTE------Q.xml"
-#    Given ics static file is "_10V1001C–00275O_CSA-COMRA-RDSTATIC-D_CORE-20241028-V001_.csv"
-#    Given ics series file is "_10V1001C–00275O_CSA-COMRA-RDSERIES-D_CORE-20241028-V001_.csv"
-#    Given configuration file is "epic93/RaoParameters_minCost_megawatt_dc.json"
-#    Given intertemporal rao inputs are:
-#      | Timestamp        | Network                                                         |
-#      | 2024-10-28 00:30 | 20241028_0030_2D1_UX0_FEXPORTGRIDMODEL_CGM_10V1001C--00264T.uct |
-#      | 2024-10-28 01:30 | 20241028_0130_2D1_UX0_FEXPORTGRIDMODEL_CGM_10V1001C--00264T.uct |
-#      | 2024-10-28 02:30 | 20241028_0230_2D1_UX0_FEXPORTGRIDMODEL_CGM_10V1001C--00264T.uct |
-#    When I launch marmot
+  Scenario: US 93.2.1: Test for CORE IDCC
+    Given network files are in folder "20250101-TestCase12Nodes2PSTs"
+    Given crac files are in folder "20250101"
+#    Given crac file is "epic11/ls_mnec_networkAction_ref.json"
+    Given ics static file is "20250101_STATIC_.csv"
+    Given ics series file is "20250101_SERIES_.csv"
+    Given configuration file is "epic93/RaoParameters_minCost_megawatt_dc.json"
+    Given intertemporal rao inputs are:
+      | Timestamp        | Network                                | Crac               |
+      | 2025-01-01 02:30 | 20250101_0230_TestCase12Nodes2PSTs.uct | 20250101_0230.json |
+      | 2025-01-01 03:30 | 20250101_0330_TestCase12Nodes2PSTs.uct | 20250101_0330.json |
+      | 2025-01-01 04:30 | 20250101_0430_TestCase12Nodes2PSTs.uct | 20250101_0430.json |
+    When I launch marmot
 #
 #  @fast @rao @dc @redispatching @preventive-only
 #  Scenario: US 93.2.2: Test for CORE IDCC 2
