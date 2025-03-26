@@ -93,26 +93,16 @@ public class FastRao implements RaoProvider {
 
             ToolProvider toolProvider = ToolProvider.buildFromRaoInputAndParameters(raoInput, parameters);
 
-            //TODO: This is only used to compute initial values, it only needs range actions to fill in setpoint values
-            // but there's no way to use different range actions for sensis and setpoints (so it's slow for nothing)
-            // Maybe extract the runInitialSensitivityAnalysis method like we extracted runBasedOnInitialResults
-            PrePerimeterSensitivityAnalysis prePerimeterSensitivityAnalysis = new PrePerimeterSensitivityAnalysis(
-                crac.getFlowCnecs(),
-                crac.getRangeActions(),
-                parameters,
-                toolProvider);
-
             // 3. Run initial sensi (for initial values, and to know which cnecs to put in the first rao)
-            PrePerimeterResult initialResult = prePerimeterSensitivityAnalysis.runInitialSensitivityAnalysis(raoInput.getNetwork(), raoInput.getCrac());
+            PrePerimeterResult initialResult = runInitialSensitivityAnalysis(toolProvider, raoInput.getNetwork(), raoInput.getCrac(), parameters);
 
             if (initialResult.getSensitivityStatus() == ComputationStatus.FAILURE) {
                 BUSINESS_LOGS.error("Initial sensitivity analysis failed");
                 return new FailedRaoResultImpl("Initial sensitivity analysis failed");
             }
 
-            RaoLogger.logSensitivityAnalysisResults("Initial sensitivity analysis: ",
-                prePerimeterSensitivityAnalysis.getObjectiveFunction(),
-                RemedialActionActivationResultImpl.empty(initialResult),
+            RaoLogger.logObjectiveFunctionResult("Initial sensitivity analysis: ",
+                initialResult,
                 initialResult,
                 parameters,
                 NUMBER_LOGGED_ELEMENTS_DURING_RAO);
@@ -373,6 +363,45 @@ public class FastRao implements RaoProvider {
             appliedRemedialActions.addAppliedRangeActions(state, raoResult.getOptimizedSetPointsOnState(state));
         });
         return appliedRemedialActions;
+    }
+
+    private static PrePerimeterResult runInitialSensitivityAnalysis(ToolProvider toolProvider,
+                                                                    Network network,
+                                                                    Crac crac,
+                                                                    RaoParameters raoParameters) {
+        Set<FlowCnec> flowCnecs = crac.getFlowCnecs();
+        SensitivityComputer.SensitivityComputerBuilder sensitivityComputerBuilder = SensitivityComputer.create()
+            .withToolProvider(toolProvider)
+            .withCnecs(flowCnecs)
+            .withRangeActions(new HashSet<>())
+            .withOutageInstant(crac.getOutageInstant());
+
+        if (raoParameters.getLoopFlowParameters().isPresent()) {
+            sensitivityComputerBuilder.withCommercialFlowsResults(toolProvider.getLoopFlowComputation(), toolProvider.getLoopFlowCnecs(flowCnecs));
+        }
+        if (raoParameters.getObjectiveFunctionParameters().getType().relativePositiveMargins()) {
+            sensitivityComputerBuilder.withPtdfsResults(toolProvider.getAbsolutePtdfSumsComputation(), flowCnecs);
+        }
+
+        SensitivityComputer sensitivityComputer = sensitivityComputerBuilder.build();
+        sensitivityComputer.compute(network);
+
+        FlowResult flowResult = sensitivityComputer.getBranchResult(network);
+        SensitivityResult sensitivityResult = sensitivityComputer.getSensitivityResult();
+        RangeActionSetpointResult rangeActionSetpointResult = RangeActionSetpointResultImpl.buildWithSetpointsFromNetwork(network, crac.getRangeActions());
+
+        ObjectiveFunction objectiveFunction = ObjectiveFunction.buildForInitialSensitivityComputation(flowCnecs, raoParameters, Set.of());
+        ObjectiveFunctionResult objectiveFunctionResult = objectiveFunction.evaluate(
+            flowResult,
+            RemedialActionActivationResultImpl.empty(rangeActionSetpointResult)
+        );
+
+        return new PrePerimeterSensitivityResultImpl(
+            flowResult,
+            sensitivityResult,
+            rangeActionSetpointResult,
+            objectiveFunctionResult
+        );
     }
 
     private static PrePerimeterSensitivityResultImpl runBasedOnInitialResults(ToolProvider toolProvider,
