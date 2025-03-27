@@ -210,12 +210,12 @@ public final class IcsImporter {
         }
 
         //Then if last char is *, remove it
-        String alternativeId = nodeId;
-        if (alternativeId.endsWith("*")) {
-            alternativeId = alternativeId.substring(0, alternativeId.length() - 1);
+        String modifiedNodeId = nodeId;
+        if (nodeId.endsWith("*")) {
+            modifiedNodeId = nodeId.substring(0, nodeId.length() - 1);
         }
         //Try find the bus using bus view
-        return network.getBusBreakerView().getBus(alternativeId + " ");
+        return network.getBusBreakerView().getBus(modifiedNodeId + " ");
     }
 
     private static void processBus(Bus bus, String generatorId, Double p0) {
