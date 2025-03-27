@@ -16,16 +16,68 @@ Feature: US 93.2: power gradient constraints
       | Timestamp        | Network          |
       | 2019-01-08 00:30 | 12Nodes_0030.uct |
       | 2019-01-08 01:30 | 12Nodes_0130.uct |
+      | 2019-01-08 02:30 | 12Nodes_0230.uct |
+      | 2019-01-08 03:30 | 12Nodes_0330.uct |
     When I launch marmot
     When I export marmot results to "raoresults/results_93_2_1.zip"
-    Then the optimized margin on "NNL2AA1  BBE3AA1  1 - preventive" for timestamp "2019-01-08 00:30" is 426.18 MW
-    And the optimized margin on "NNL2AA1  BBE3AA1  1 - preventive" for timestamp "2019-01-08 01:30" is 1.18 MW
-    And the functional cost for timestamp "2019-01-08 00:30" is 720
-    And the functional cost for timestamp "2019-01-08 01:30" is 3720
-    And the functional cost for all timestamps is 4440
-    And the total cost for timestamp "2019-01-08 00:30" is 720
-    And the total cost for timestamp "2019-01-08 01:30" is 3720
-    And the total cost for all timestamps is 4440
+    Then the optimized margin on "NNL2AA1  BBE3AA1  1 - preventive" for timestamp "2019-01-08 00:30" is 428.18 MW
+    And the optimized margin on "NNL2AA1  BBE3AA1  1 - preventive" for timestamp "2019-01-08 01:30" is 3.18 MW
+    And the optimized margin on "NNL2AA1  BBE3AA1  1 - preventive" for timestamp "2019-01-08 02:30" is 428.18 MW
+    And the optimized margin on "NNL2AA1  BBE3AA1  1 - preventive" for timestamp "2019-01-08 03:30" is 408.18 MW
+    And the functional cost for timestamp "2019-01-08 00:30" is 800
+    And the functional cost for timestamp "2019-01-08 01:30" is 3800
+    And the functional cost for timestamp "2019-01-08 02:30" is 800
+    And the functional cost for timestamp "2019-01-08 03:30" is 0
+    And the functional cost for all timestamps is 5400
+    And the total cost for timestamp "2019-01-08 00:30" is 800
+    And the total cost for timestamp "2019-01-08 01:30" is 3800
+    And the total cost for timestamp "2019-01-08 02:30" is 800
+    And the total cost for timestamp "2019-01-08 03:30" is 0
+    And the total cost for all timestamps is 5400
+
+  @fast @rao @dc @redispatching
+  Scenario: US 93.2.2: Test simple gradient with limiting mnec and topological action
+    Given network files are in folder "epic93/TestCases_93_2_2"
+    Given crac file is "epic93/cbcora_93_2_2.xml"
+    Given ics static file is "epic93/static_93_2_1.csv"
+    Given ics series file is "epic93/series_93_2_1.csv"
+    Given configuration file is "epic93/RaoParameters_minCost_megawatt_dc.json"
+    Given intertemporal rao inputs are:
+      | Timestamp        | Network          |
+      | 2019-01-08 00:30 | 12Nodes_0030.uct |
+      | 2019-01-08 01:30 | 12Nodes_0130.uct |
+    When I launch marmot
+    When I export marmot results to "raoresults/results_93_2_2.zip"
+    Then the optimized margin on "NNL2AA1  BBE3AA1  1 - preventive" for timestamp "2019-01-08 00:30" is 523.04 MW
+    And the optimized margin on "NNL2AA1  BBE3AA1  1 - preventive" for timestamp "2019-01-08 01:30" is 259.8 MW
+    And the functional cost for timestamp "2019-01-08 00:30" is 0
+    And the functional cost for timestamp "2019-01-08 01:30" is 520
+    And the functional cost for all timestamps is 520
+    And the total cost for timestamp "2019-01-08 00:30" is 0
+    And the total cost for timestamp "2019-01-08 01:30" is 520
+    And the total cost for all timestamps is 520
+
+  @fast @rao @dc @redispatching
+  Scenario: US 93.2.3: Test simple gradient, PST also available
+    Given network files are in folder "epic93/TestCases_93_2_1"
+    Given crac file is "epic93/cbcora_93_2_3.xml"
+    Given ics static file is "epic93/static_93_2_1.csv"
+    Given ics series file is "epic93/series_93_2_1.csv"
+    Given configuration file is "epic93/RaoParameters_minCost_megawatt_dc.json"
+    Given intertemporal rao inputs are:
+      | Timestamp        | Network          |
+      | 2019-01-08 00:30 | 12Nodes_0030.uct |
+      | 2019-01-08 01:30 | 12Nodes_0130.uct |
+    When I launch marmot
+    When I export marmot results to "raoresults/results_93_2_1.zip"
+    Then the optimized margin on "NNL2AA1  BBE3AA1  1 - preventive" for timestamp "2019-01-08 00:30" is 408.18 MW
+    And the optimized margin on "NNL2AA1  BBE3AA1  1 - preventive" for timestamp "2019-01-08 01:30" is 2.77 MW
+    And the functional cost for timestamp "2019-01-08 00:30" is 0
+    And the functional cost for timestamp "2019-01-08 01:30" is 1820
+    And the functional cost for all timestamps is 1820
+    And the total cost for timestamp "2019-01-08 00:30" is 0
+    And the total cost for timestamp "2019-01-08 01:30" is 1820
+    And the total cost for all timestamps is 1820
 
 #
 #  @fast @rao @dc @redispatching @preventive-only
@@ -43,7 +95,7 @@ Feature: US 93.2: power gradient constraints
       | 2025-01-01 04:30 | 20250101_0430_TestCase12Nodes2PSTs.uct | 20250101_0430.json |
     When I launch marmot
     When I export marmot results to "raoresults/results_93_2_1_b.zip"
-#
+
 #  @fast @rao @dc @redispatching @preventive-only
 #  Scenario: US 93.2.2: Test for CORE IDCC 2
 #    Given network files are in folder "20240926-FID2-620-v4-10V1001C--00264T-to-10V1001C--00085T"
@@ -79,22 +131,23 @@ Feature: US 93.2: power gradient constraints
 #      | 2024-09-26 22:30 | 20240926_2230_2D4_UX0_FEXPORTGRIDMODEL_CGM_10V1001C--00264T.uct |
 #      | 2024-09-26 23:30 | 20240926_2330_2D4_UX0_FEXPORTGRIDMODEL_CGM_10V1001C--00264T.uct |
 #    When I launch marmot
+#    When I export marmot results to "raoresults/results_93_2_2.zip"
 #
-  @fast @rao @dc @redispatching @preventive-only
-  Scenario: US 93.2.3: Test for CORE IDCC 3
-    Given network files are in folder "20240926-FID2-620-v4-10V1001C--00264T-to-10V1001C--00085T"
-    Given crac file is "20240926-FSC-ID2-CB-v1-10V1001C--00264T-to-10XFR-RTE------Q.xml"
-    Given ics static file is "_10V1001C–00275O_CSA-COMRA-RDSTATIC-D_CORE-20240926-V001_.csv"
-    Given ics series file is "_10V1001C–00275O_CSA-COMRA-RDSERIES-D_CORE-20240926-V001_.csv"
-    Given ics gsk file is "_10V1001C--00275O_CSA-INDRA-GSK-D_D2-20240602-V004_.csv"
-    Given configuration file is "epic93/RaoParameters_minCost_megawatt_dc.json"
-    Given intertemporal rao inputs are:
-      | Timestamp        | Network                                                         |
-      | 2024-09-26 00:30 | 20240926_0030_2D4_UX0_FEXPORTGRIDMODEL_CGM_10V1001C--00264T.uct |
-      | 2024-09-26 01:30 | 20240926_0130_2D4_UX0_FEXPORTGRIDMODEL_CGM_10V1001C--00264T.uct |
-      | 2024-09-26 02:30 | 20240926_0230_2D4_UX0_FEXPORTGRIDMODEL_CGM_10V1001C--00264T.uct |
-    When I launch marmot
-    When I export marmot results to "raoresults/results_93_2_3.zip"
+#  @fast @rao @dc @redispatching @preventive-only
+#  Scenario: US 93.2.3: Test for CORE IDCC 3
+#    Given network files are in folder "20240926-FID2-620-v4-10V1001C--00264T-to-10V1001C--00085T"
+#    Given crac file is "20240926-FSC-ID2-CB-v1-10V1001C--00264T-to-10XFR-RTE------Q.xml"
+#    Given ics static file is "_10V1001C–00275O_CSA-COMRA-RDSTATIC-D_CORE-20240926-V001_.csv"
+#    Given ics series file is "_10V1001C–00275O_CSA-COMRA-RDSERIES-D_CORE-20240926-V001_.csv"
+#    Given ics gsk file is "_10V1001C--00275O_CSA-INDRA-GSK-D_D2-20240602-V004_.csv"
+#    Given configuration file is "epic93/RaoParameters_minCost_megawatt_dc.json"
+#    Given intertemporal rao inputs are:
+#      | Timestamp        | Network                                                         |
+#      | 2024-09-26 00:30 | 20240926_0030_2D4_UX0_FEXPORTGRIDMODEL_CGM_10V1001C--00264T.uct |
+#      | 2024-09-26 01:30 | 20240926_0130_2D4_UX0_FEXPORTGRIDMODEL_CGM_10V1001C--00264T.uct |
+#      | 2024-09-26 02:30 | 20240926_0230_2D4_UX0_FEXPORTGRIDMODEL_CGM_10V1001C--00264T.uct |
+#    When I launch marmot
+#    When I export marmot results to "raoresults/results_93_2_3.zip"
 #
 #
 #  @fast @rao @dc @redispatching @preventive-only

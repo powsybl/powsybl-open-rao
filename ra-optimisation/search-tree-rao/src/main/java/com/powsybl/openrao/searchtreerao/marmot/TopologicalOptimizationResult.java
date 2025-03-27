@@ -23,14 +23,8 @@ import java.util.Set;
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 public record TopologicalOptimizationResult(RaoInput raoInput, RaoResult topologicalOptimizationResult) {
-    private static final String INITIAL_SCENARIO = "InitialScenario";
-    private static final String VARIANT_NAME_SUFFIX = "_with_topological_actions";
 
     public void applyTopologicalActions() {
-        String newNetworkVariantId = INITIAL_SCENARIO + VARIANT_NAME_SUFFIX;
-        raoInput.getNetwork().getVariantManager().setWorkingVariant(INITIAL_SCENARIO);
-        raoInput.getNetwork().getVariantManager().cloneVariant(INITIAL_SCENARIO, newNetworkVariantId);
-        raoInput.getNetwork().getVariantManager().setWorkingVariant(newNetworkVariantId);
         Set<NetworkAction> networkActionsToBeApplied = topologicalOptimizationResult.getActivatedNetworkActionsDuringState(raoInput.getCrac().getPreventiveState());
         if (networkActionsToBeApplied.isEmpty()) {
             OpenRaoLoggerProvider.TECHNICAL_LOGS.info("[MARMOT] No topological actions applied for timestamp {}", raoInput.getCrac().getTimestamp().orElseThrow());

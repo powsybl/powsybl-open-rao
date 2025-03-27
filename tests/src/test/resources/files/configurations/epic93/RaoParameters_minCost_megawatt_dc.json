@@ -19,7 +19,7 @@
   "extensions" : {
     "open-rao-search-tree-parameters" : {
       "objective-function" : {
-        "curative-min-obj-improvement" : 10000.0
+        "curative-min-obj-improvement" : 0.0
       },
       "range-actions-optimization" : {
         "max-mip-iterations" : 2,
@@ -136,6 +136,7 @@
         "available-cpus" : 14
       },
       "mnec-parameters" : {
+        "violation-cost" : 100000.0,
         "constraint-adjustment-coefficient" : 3.0
       }
     }

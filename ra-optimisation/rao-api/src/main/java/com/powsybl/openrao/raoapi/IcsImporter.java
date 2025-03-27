@@ -5,7 +5,6 @@ import com.powsybl.iidm.network.LoadType;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
-import com.powsybl.openrao.commons.logs.RaoBusinessWarns;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeActionAdder;
 import com.powsybl.openrao.data.crac.api.rangeaction.VariationDirection;
@@ -211,11 +210,12 @@ public final class IcsImporter {
         }
 
         //Then if last char is *, remove it
-        if (nodeId.endsWith("*")) {
-            nodeId = nodeId.substring(0, nodeId.length() - 1);
+        String alternativeId = nodeId;
+        if (alternativeId.endsWith("*")) {
+            alternativeId = alternativeId.substring(0, alternativeId.length() - 1);
         }
         //Try find the bus using bus view
-        return network.getBusBreakerView().getBus(nodeId + " ");
+        return network.getBusBreakerView().getBus(alternativeId + " ");
     }
 
     private static void processBus(Bus bus, String generatorId, Double p0) {

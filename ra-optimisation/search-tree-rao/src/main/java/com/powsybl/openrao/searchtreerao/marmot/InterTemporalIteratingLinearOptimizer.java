@@ -77,7 +77,7 @@ public final class InterTemporalIteratingLinearOptimizer {
             linearProblem,
             problemFillers,
             interTemporalProblemFillers,
-            input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::initialFlowResult),
+            input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::preOptimizationFlowResult),
             input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::preOptimizationSensitivityResult),
             input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::prePerimeterSetpoints));
 
@@ -188,11 +188,11 @@ public final class InterTemporalIteratingLinearOptimizer {
         return linearProblemBuilder.build();
     }
 
-    private static void fillLinearProblem(LinearProblem linearProblem, TemporalData<List<ProblemFiller>> problemFillers, List<ProblemFiller> interTemporalProblemFillers, TemporalData<FlowResult> initialFlowResults, TemporalData<SensitivityResult> initialSensitivityResults, TemporalData<RangeActionSetpointResult> initialSetPoints) {
+    private static void fillLinearProblem(LinearProblem linearProblem, TemporalData<List<ProblemFiller>> problemFillers, List<ProblemFiller> interTemporalProblemFillers, TemporalData<FlowResult> flowResults, TemporalData<SensitivityResult> sensitivityResults, TemporalData<RangeActionSetpointResult> setPoints) {
         List<OffsetDateTime> timestamps = problemFillers.getTimestamps();
         timestamps.forEach(timestamp -> {
             List<ProblemFiller> problemFillersForTimestamp = problemFillers.getData(timestamp).orElseThrow();
-            problemFillersForTimestamp.forEach(problemFiller -> problemFiller.fill(linearProblem, initialFlowResults.getData(timestamp).orElseThrow(), initialSensitivityResults.getData(timestamp).orElseThrow(), new RangeActionActivationResultImpl(initialSetPoints.getData(timestamp).orElseThrow())));
+            problemFillersForTimestamp.forEach(problemFiller -> problemFiller.fill(linearProblem, flowResults.getData(timestamp).orElseThrow(), sensitivityResults.getData(timestamp).orElseThrow(), new RangeActionActivationResultImpl(setPoints.getData(timestamp).orElseThrow())));
         });
         // For now, the Power Gradient Constraint filler is the only inter-temporal filler and does not use any input but the linear problem
         // A global inter-temporal flow/sensitivity/set-point result does not exist anyway

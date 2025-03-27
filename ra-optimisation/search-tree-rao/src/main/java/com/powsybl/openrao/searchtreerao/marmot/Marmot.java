@@ -71,6 +71,9 @@ public class Marmot implements InterTemporalRaoProvider {
     private static final String INTER_TEMPORAL_RAO = "InterTemporalRao";
     private static final String VERSION = "1.0.0";
 
+    private static final String INITIAL_SCENARIO = "InitialScenario";
+    private static final String POST_TOPO_SCENARIO = "PostTopoScenario";
+
     @Override
     public CompletableFuture<InterTemporalRaoResult> run(InterTemporalRaoInputWithNetworkPaths interTemporalRaoInputWithNetworkPaths, RaoParameters raoParameters) {
         // MEMORY ISSUES
@@ -98,7 +101,7 @@ public class Marmot implements InterTemporalRaoProvider {
                 .build(network, individualRaoInputWithNetworkPath.getCrac())
                 .build();
             RaoUtil.initData(individualRaoInput, raoParameters);
-            network.getVariantManager().cloneVariant(individualRaoInput.getNetworkVariantId(), "InitialScenario");
+            network.getVariantManager().cloneVariant(individualRaoInput.getNetworkVariantId(), INITIAL_SCENARIO);
             raoInputsWithImportedNetworks.add(datetime, individualRaoInput);
         });
         InterTemporalRaoInput interTemporalRaoInput = new InterTemporalRaoInput(raoInputsWithImportedNetworks, interTemporalRaoInputWithNetworkPaths.getPowerGradients());
@@ -129,7 +132,7 @@ public class Marmot implements InterTemporalRaoProvider {
         do {
             // Clone the PostTopoScenario variant to make sure we work on a clean variant every time
             interTemporalRaoInput.getRaoInputs().getDataPerTimestamp().values().forEach(raoInput -> {
-                raoInput.getNetwork().getVariantManager().cloneVariant("PostTopoScenario", "PreMipScenario", true);
+                raoInput.getNetwork().getVariantManager().cloneVariant(POST_TOPO_SCENARIO, "PreMipScenario", true);
                 raoInput.getNetwork().getVariantManager().setWorkingVariant("PreMipScenario");
             });
 
@@ -272,7 +275,7 @@ public class Marmot implements InterTemporalRaoProvider {
                 .build(Network.read(individualRaoInputWithNetworkPath.getPostIcsImportNetworkPath()), individualRaoInputWithNetworkPath.getCrac())
                 .build();
             RaoUtil.initData(individualRaoInput, raoParameters);
-            individualRaoInput.getNetwork().getVariantManager().cloneVariant(individualRaoInput.getNetworkVariantId(), "InitialScenario");
+            individualRaoInput.getNetwork().getVariantManager().cloneVariant(individualRaoInput.getNetworkVariantId(), INITIAL_SCENARIO);
             individualResults.add(dateTime, generateMockRaoResult(individualRaoInput, raoParameters, consideredCnecs));
         });
         return individualResults; /**/
@@ -344,8 +347,8 @@ public class Marmot implements InterTemporalRaoProvider {
     private static void applyPreventiveTopologicalActionsOnNetwork(TemporalData<RaoInput> raoInputs, TemporalData<RaoResult> topologicalOptimizationResults) {
         // duplicate the initial scenario to keep it clean
         raoInputs.getDataPerTimestamp().values().forEach(raoInput -> {
-            raoInput.getNetwork().getVariantManager().cloneVariant("InitialScenario", "PostTopoScenario");
-            raoInput.getNetwork().getVariantManager().setWorkingVariant("PostTopoScenario");
+            raoInput.getNetwork().getVariantManager().cloneVariant(INITIAL_SCENARIO, POST_TOPO_SCENARIO);
+            raoInput.getNetwork().getVariantManager().setWorkingVariant(POST_TOPO_SCENARIO);
         });
         getTopologicalOptimizationResult(raoInputs, topologicalOptimizationResults)
             .getDataPerTimestamp()
@@ -370,7 +373,7 @@ public class Marmot implements InterTemporalRaoProvider {
         TemporalData<PrePerimeterResult> prePerimeterResults = new TemporalDataImpl<>();
         raoInputs.getDataPerTimestamp().forEach((timestamp, raoInput) -> {
             // duplicate the postTopoScenario variant and switch to the new clone
-            raoInput.getNetwork().getVariantManager().cloneVariant("PostTopoScenario", "PostPreventiveScenario", true);
+            raoInput.getNetwork().getVariantManager().cloneVariant(POST_TOPO_SCENARIO, "PostPreventiveScenario", true);
             raoInput.getNetwork().getVariantManager().setWorkingVariant("PostPreventiveScenario");
             State preventiveState = raoInput.getCrac().getPreventiveState();
             raoInput.getCrac().getRangeActions().forEach(rangeAction -> rangeAction.apply(raoInput.getNetwork(), filteredResult.getOptimizedSetpoint(rangeAction, preventiveState)));
@@ -380,7 +383,7 @@ public class Marmot implements InterTemporalRaoProvider {
                 initialResults.getData(timestamp).orElseThrow(),
                 raoParameters));
             // switch back to the postTopoScenario to avoid keeping applied range actions when entering the MIP
-            raoInput.getNetwork().getVariantManager().setWorkingVariant("PostTopoScenario");
+            raoInput.getNetwork().getVariantManager().setWorkingVariant(POST_TOPO_SCENARIO);
         });
         return prePerimeterResults;
     }
@@ -434,8 +437,14 @@ public class Marmot implements InterTemporalRaoProvider {
             .withSolverParameters(parameters.getExtension(OpenRaoSearchTreeParameters.class).getRangeActionsOptimizationParameters().getLinearOptimizationSolver())
             .withMaxMinRelativeMarginParameters(parameters.getExtension(SearchTreeRaoRelativeMarginsParameters.class))
             .withRaLimitationParameters(new RangeActionLimitationParameters());
-        parameters.getMnecParameters().ifPresent(linearOptimizerParametersBuilder::withMnecParameters);
-        parameters.getLoopFlowParameters().ifPresent(linearOptimizerParametersBuilder::withLoopFlowParameters);
+        if (parameters.getMnecParameters().isPresent()) {
+            linearOptimizerParametersBuilder.withMnecParameters(parameters.getMnecParameters().get());
+            linearOptimizerParametersBuilder.withMnecParametersExtension(parameters.getExtension(OpenRaoSearchTreeParameters.class).getMnecParameters().orElseThrow());
+        }
+        if (parameters.getLoopFlowParameters().isPresent()) {
+            linearOptimizerParametersBuilder.withLoopFlowParameters(parameters.getLoopFlowParameters().get());
+            linearOptimizerParametersBuilder.withLoopFlowParametersExtension(parameters.getExtension(OpenRaoSearchTreeParameters.class).getLoopFlowParameters().orElseThrow());
+        }
         IteratingLinearOptimizerParameters linearOptimizerParameters = linearOptimizerParametersBuilder.build();
 
         return InterTemporalIteratingLinearOptimizer.optimize(interTemporalLinearOptimizerInput, linearOptimizerParameters);
