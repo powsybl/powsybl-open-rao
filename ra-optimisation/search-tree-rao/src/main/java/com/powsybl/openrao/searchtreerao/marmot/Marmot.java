@@ -376,7 +376,9 @@ public class Marmot implements InterTemporalRaoProvider {
             raoInput.getNetwork().getVariantManager().cloneVariant(POST_TOPO_SCENARIO, "PostPreventiveScenario", true);
             raoInput.getNetwork().getVariantManager().setWorkingVariant("PostPreventiveScenario");
             State preventiveState = raoInput.getCrac().getPreventiveState();
-            raoInput.getCrac().getRangeActions().forEach(rangeAction -> rangeAction.apply(raoInput.getNetwork(), filteredResult.getOptimizedSetpoint(rangeAction, preventiveState)));
+            raoInput.getCrac().getPotentiallyAvailableRangeActions(preventiveState).forEach(rangeAction ->
+                rangeAction.apply(raoInput.getNetwork(), filteredResult.getOptimizedSetpoint(rangeAction, preventiveState))
+            );
             prePerimeterResults.add(timestamp, runInitialPrePerimeterSensitivityAnalysisWithoutRangeActions(
                 raoInputs.getData(timestamp).orElseThrow(),
                 curativeRemedialActions.getData(timestamp).orElseThrow(),

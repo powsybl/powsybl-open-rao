@@ -79,6 +79,55 @@ Feature: US 93.2: power gradient constraints
     And the total cost for timestamp "2019-01-08 01:30" is 1820
     And the total cost for all timestamps is 1820
 
+  @fast @rao @dc @redispatching
+  Scenario: US 93.2.4: Test simple gradient, applied curative topo action
+    Given network files are in folder "epic93/TestCases_93_2_4"
+    Given crac file is "epic93/cbcora_93_2_4.xml"
+    Given ics static file is "epic93/static_93_2_1.csv"
+    Given ics series file is "epic93/series_93_2_1.csv"
+    Given configuration file is "epic93/RaoParameters_minCost_megawatt_dc.json"
+    Given intertemporal rao inputs are:
+      | Timestamp        | Network          |
+      | 2019-01-08 00:30 | 12Nodes_0030.uct |
+      | 2019-01-08 01:30 | 12Nodes_0130.uct |
+    When I launch marmot
+    When I export marmot results to "raoresults/results_93_2_4.zip"
+    And the optimized margin on "NNL2AA1  BBE3AA1  1 - N-1 BE-FR 1 - curative" for timestamp "2019-01-08 00:30" is 408.18 MW
+    Then the optimized margin on "NNL2AA1  BBE3AA1  1 - preventive" for timestamp "2019-01-08 00:30" is 428.45 MW
+    And the optimized margin on "NNL2AA1  BBE3AA1  1 - preventive" for timestamp "2019-01-08 01:30" is 2.99 MW
+    And the optimized margin on "NNL2AA1  BBE3AA1  1 - N-1 BE-FR 1 - curative" for timestamp "2019-01-08 01:30" is 272.77 MW
+    And the functional cost for timestamp "2019-01-08 00:30" is 0
+    And the functional cost for timestamp "2019-01-08 01:30" is 1480
+    And the functional cost for all timestamps is 1480
+    And the total cost for timestamp "2019-01-08 00:30" is 0
+    And the total cost for timestamp "2019-01-08 01:30" is 1480
+    And the total cost for all timestamps is 1480
+
+
+  @fast @rao @dc @redispatching
+  Scenario: US 93.2.4-b: Test simple gradient, applied curative range action
+    Given network files are in folder "epic93/TestCases_93_2_4"
+    Given crac file is "epic93/cbcora_93_2_4-b.xml"
+    Given ics static file is "epic93/static_93_2_1.csv"
+    Given ics series file is "epic93/series_93_2_1.csv"
+    Given configuration file is "epic93/RaoParameters_minCost_megawatt_dc.json"
+    Given intertemporal rao inputs are:
+      | Timestamp        | Network          |
+      | 2019-01-08 00:30 | 12Nodes_0030.uct |
+      | 2019-01-08 01:30 | 12Nodes_0130.uct |
+    When I launch marmot
+    When I export marmot results to "raoresults/results_93_2_4-b.zip"
+    And the optimized margin on "NNL2AA1  BBE3AA1  1 - N-1 BE-FR 1 - curative" for timestamp "2019-01-08 00:30" is 408.18 MW
+    Then the optimized margin on "NNL2AA1  BBE3AA1  1 - preventive" for timestamp "2019-01-08 00:30" is 428.45 MW
+    And the optimized margin on "NNL2AA1  BBE3AA1  1 - N-1 BE-FR 1 - curative" for timestamp "2019-01-08 01:30" is 2.77 MW
+    And the optimized margin on "NNL2AA1  BBE3AA1  1 - preventive" for timestamp "2019-01-08 01:30" is 10.8 MW
+    And the functional cost for timestamp "2019-01-08 00:30" is 0
+    And the functional cost for timestamp "2019-01-08 01:30" is 1820
+    And the functional cost for all timestamps is 1820
+    And the total cost for timestamp "2019-01-08 00:30" is 0
+    And the total cost for timestamp "2019-01-08 01:30" is 1820
+    And the total cost for all timestamps is 1820
+
 #
 #  @fast @rao @dc @redispatching @preventive-only
   Scenario: US 93.2.1: Test for CORE IDCC
