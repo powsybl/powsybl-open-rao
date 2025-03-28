@@ -59,7 +59,7 @@ public final class InterTemporalIteratingLinearOptimizer {
     public static GlobalLinearOptimizationResult optimize(InterTemporalIteratingLinearOptimizerInput input, IteratingLinearOptimizerParameters parameters) {
         // 1. Initialize best result using input data
         GlobalLinearOptimizationResult bestResult = createInitialResult(
-            input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::prePerimeterFlowResult),
+            input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::preOptimizationFlowResult),
             input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::preOptimizationSensitivityResult),
             input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::prePerimeterSetpoints).map(RangeActionActivationResultImpl::new),
             input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::appliedNetworkActionsInPrimaryState),

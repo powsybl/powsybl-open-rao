@@ -196,7 +196,7 @@ public final class InterTemporalRaoSteps {
     @Then("the functional cost for all timestamps is {double}")
     public static void theFunctionalCostForAllTimestampsIs(double functionalCost) {
         assertEquals(functionalCost,
-            interTemporalRaoResult.getGlobalCost(InstantKind.CURATIVE),
+            interTemporalRaoResult.getGlobalFunctionalCost(InstantKind.CURATIVE),
             SearchTreeRaoSteps.TOLERANCE_FLOW_IN_MEGAWATT);
     }
 

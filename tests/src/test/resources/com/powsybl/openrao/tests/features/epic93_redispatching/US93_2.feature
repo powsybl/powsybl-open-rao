@@ -128,6 +128,28 @@ Feature: US 93.2: power gradient constraints
     And the total cost for timestamp "2019-01-08 01:30" is 1820
     And the total cost for all timestamps is 1820
 
+  @fast @rao @dc @redispatching
+  Scenario: US 93.2.5: Test simple gradient with topo action, mnec causes second mip optimization
+    Given network files are in folder "epic93/TestCases_93_2_5"
+    Given crac file is "epic93/cbcora_93_2_5.xml"
+    Given ics static file is "epic93/static_93_2_5.csv"
+    Given ics series file is "epic93/series_93_2_5.csv"
+    Given configuration file is "epic93/RaoParameters_minCost_megawatt_dc.json"
+    Given intertemporal rao inputs are:
+      | Timestamp        | Network          |
+      | 2019-01-08 00:30 | 12Nodes_0030.uct |
+      | 2019-01-08 01:30 | 12Nodes_0130.uct |
+    When I launch marmot
+    When I export marmot results to "raoresults/results_93_2_5.zip"
+    Then the optimized margin on "NNL2AA1  BBE3AA1  1 - preventive" for timestamp "2019-01-08 00:30" is 166.91 MW
+    And the optimized margin on "NNL2AA1  BBE3AA1  1 - preventive" for timestamp "2019-01-08 01:30" is -22.93 MW
+    And the functional cost for timestamp "2019-01-08 00:30" is 1880
+    And the functional cost for timestamp "2019-01-08 01:30" is 2080
+    And the functional cost for all timestamps is 3960
+    And the total cost for timestamp "2019-01-08 00:30" is 1880
+    And the total cost for timestamp "2019-01-08 01:30" is 25010.25
+    And the total cost for all timestamps is 26890.25
+
 #
 #  @fast @rao @dc @redispatching @preventive-only
   Scenario: US 93.2.1: Test for CORE IDCC
