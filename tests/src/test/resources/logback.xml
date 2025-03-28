@@ -1,5 +1,26 @@
 <configuration>
+    <property name="LOG_FILE" value="josiris-camarero" />
+    <property name="LOG_DIR" value="/tmp" />
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>DEBUG</level>
+        </filter>
+    </appender>
+    <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+        <file>/tmp/RAO_LOGS/openrao.log</file>
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+
+    <timestamp key="time" datePattern="yyyyMMdd'T'HHmmssSSS"/>
+    <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+        <file>${user.home}/farao-${time}.log</file>
+        <append>false</append>
         <encoder>
             <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
         </encoder>
@@ -7,8 +28,9 @@
 
     <root level="info">
         <appender-ref ref="STDOUT" />
+        <appender-ref ref="FILE" />
     </root>
     <logger name="com.powsybl" level="OFF"/>
-    <logger name="com.powsybl.openrao" level="INFO"/>
+    <logger name="com.powsybl.openrao" level="DEBUG"/>
 
 </configuration>

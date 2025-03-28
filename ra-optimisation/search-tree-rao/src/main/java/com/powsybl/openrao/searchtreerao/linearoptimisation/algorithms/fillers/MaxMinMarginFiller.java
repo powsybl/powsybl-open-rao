@@ -31,7 +31,7 @@ import static com.powsybl.openrao.commons.Unit.MEGAWATT;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class MaxMinMarginFiller implements ProblemFiller {
-    private static final double OVERLOAD_PENALTY = 10000.0; // TODO: put this in Rao Parameters and mutualize with evaluator
+    private static final double OVERLOAD_PENALTY = 1000.; // TODO: put this in Rao Parameters and mutualize with evaluator
     protected final Set<FlowCnec> optimizedCnecs;
     private final Unit unit;
     private final boolean costOptimization;
@@ -71,7 +71,7 @@ public class MaxMinMarginFiller implements ProblemFiller {
      * so it does not take part in the objective.
      */
     private void forceMinMarginToBeNegative(LinearProblem linearProblem) {
-        linearProblem.getMinimumMarginVariable(Optional.ofNullable(timestamp)).setUb(0.0);
+        linearProblem.getMinimumMarginVariable(Optional.ofNullable(timestamp)).setUb(3.0);
     }
 
     @Override
