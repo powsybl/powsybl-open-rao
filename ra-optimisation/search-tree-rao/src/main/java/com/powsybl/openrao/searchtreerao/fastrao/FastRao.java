@@ -296,9 +296,10 @@ public class FastRao implements RaoProvider {
 
         raoInput.getNetwork().getVariantManager().setWorkingVariant(finalVariantId);
 
-        postPraSensi.set(getCompletePrePerimeterSensitivityResultImpl(toolProvider, raoInput, parameters, raoInput.getCrac().getFlowCnecs(), initialResult, initialResult, postPraSensi.get()));
-        postAraSensi.set(getCompletePrePerimeterSensitivityResultImpl(toolProvider, raoInput, parameters, raoInput.getCrac().getFlowCnecs(), initialResult, postPraSensi.get(), postAraSensi.get()));
-        postCraSensi.set(getCompletePrePerimeterSensitivityResultImpl(toolProvider, raoInput, parameters, raoInput.getCrac().getFlowCnecs(), initialResult, postAraSensi.get(), postCraSensi.get()));
+        Set<String> operatorsNotSharingCras = StateTree.findOperatorsNotSharingCras(crac);
+        postPraSensi.set(getCompletePrePerimeterSensitivityResultImpl(toolProvider, operatorsNotSharingCras, parameters, raoInput.getCrac().getFlowCnecs(), initialResult, initialResult, postPraSensi.get()));
+        postAraSensi.set(getCompletePrePerimeterSensitivityResultImpl(toolProvider, operatorsNotSharingCras, parameters, raoInput.getCrac().getFlowCnecs(), initialResult, postPraSensi.get(), postAraSensi.get()));
+        postCraSensi.set(getCompletePrePerimeterSensitivityResultImpl(toolProvider, operatorsNotSharingCras, parameters, raoInput.getCrac().getFlowCnecs(), initialResult, postAraSensi.get(), postCraSensi.get()));
 
         BUSINESS_LOGS.info("***** Iteration {}: Run full sensitivity analysis [end]", counter);
 
@@ -451,19 +452,18 @@ public class FastRao implements RaoProvider {
     }
 
     private static PrePerimeterResult getCompletePrePerimeterSensitivityResultImpl(ToolProvider toolProvider,
-                                                                                   RaoInput raoInput,
+                                                                                   Set<String> operatorsNotSharingCras,
                                                                                    RaoParameters raoParameters,
                                                                                    Set<FlowCnec> flowCnecs,
                                                                                    PrePerimeterResult initialFlowResult,
                                                                                    PrePerimeterResult prePerimeterResult,
                                                                                    PrePerimeterResult currentPrePerimeterResult) {
 
-        Crac crac = raoInput.getCrac();
         ObjectiveFunction objectiveFunction = ObjectiveFunction.build(flowCnecs,
             toolProvider.getLoopFlowCnecs(flowCnecs),
             initialFlowResult,
             prePerimeterResult.getFlowResult(),
-            new StateTree(crac).getOperatorsNotSharingCras(),
+            operatorsNotSharingCras,
             raoParameters,
             Set.of()); //TODO: To complete later if we want to use costly objective function not needed otherwise
 

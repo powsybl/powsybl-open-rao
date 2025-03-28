@@ -133,21 +133,21 @@ Feature: US 93.2: power gradient constraints
 #    When I launch marmot
 #    When I export marmot results to "raoresults/results_93_2_2.zip"
 #
-#  @fast @rao @dc @redispatching @preventive-only
-#  Scenario: US 93.2.3: Test for CORE IDCC 3
-#    Given network files are in folder "20240926-FID2-620-v4-10V1001C--00264T-to-10V1001C--00085T"
-#    Given crac file is "20240926-FSC-ID2-CB-v1-10V1001C--00264T-to-10XFR-RTE------Q.xml"
-#    Given ics static file is "_10V1001C–00275O_CSA-COMRA-RDSTATIC-D_CORE-20240926-V001_.csv"
-#    Given ics series file is "_10V1001C–00275O_CSA-COMRA-RDSERIES-D_CORE-20240926-V001_.csv"
-#    Given ics gsk file is "_10V1001C--00275O_CSA-INDRA-GSK-D_D2-20240602-V004_.csv"
-#    Given configuration file is "epic93/RaoParameters_minCost_megawatt_dc.json"
-#    Given intertemporal rao inputs are:
-#      | Timestamp        | Network                                                         |
-#      | 2024-09-26 00:30 | 20240926_0030_2D4_UX0_FEXPORTGRIDMODEL_CGM_10V1001C--00264T.uct |
-#      | 2024-09-26 01:30 | 20240926_0130_2D4_UX0_FEXPORTGRIDMODEL_CGM_10V1001C--00264T.uct |
-#      | 2024-09-26 02:30 | 20240926_0230_2D4_UX0_FEXPORTGRIDMODEL_CGM_10V1001C--00264T.uct |
-#    When I launch marmot
-#    When I export marmot results to "raoresults/results_93_2_3.zip"
+  @fast @rao @dc @redispatching @preventive-only
+  Scenario: US 93.2.3: Test for CORE IDCC 3
+    Given network files are in folder "20240926-FID2-620-v4-10V1001C--00264T-to-10V1001C--00085T"
+    Given crac file is "20240926-FSC-ID2-CB-v1-10V1001C--00264T-to-10XFR-RTE------Q.xml"
+    Given ics static file is "_10V1001C–00275O_CSA-COMRA-RDSTATIC-D_CORE-20240926-V001_.csv"
+    Given ics series file is "_10V1001C–00275O_CSA-COMRA-RDSERIES-D_CORE-20240926-V001_.csv"
+    Given ics gsk file is "_10V1001C--00275O_CSA-INDRA-GSK-D_D2-20240602-V004_.csv"
+    Given configuration file is "epic93/RaoParameters_minCost_megawatt_dc.json"
+    Given intertemporal rao inputs are:
+      | Timestamp        | Network                                                         |
+      | 2024-09-26 00:30 | 20240926_0030_2D4_UX0_FEXPORTGRIDMODEL_CGM_10V1001C--00264T.uct |
+      | 2024-09-26 01:30 | 20240926_0130_2D4_UX0_FEXPORTGRIDMODEL_CGM_10V1001C--00264T.uct |
+      | 2024-09-26 02:30 | 20240926_0230_2D4_UX0_FEXPORTGRIDMODEL_CGM_10V1001C--00264T.uct |
+    When I launch marmot
+    When I export marmot results to "raoresults/results_93_2_3.zip"
 #
 #
 #  @fast @rao @dc @redispatching @preventive-only
@@ -198,3 +198,40 @@ Feature: US 93.2: power gradient constraints
 #      | 2024-06-02 22:30 | 20240602_2230_2D7_UX0_FEXPORTGRIDMODEL_CGM_10V1001C--00264T.uct |
 #      | 2024-06-02 23:30 | 20240602_2330_2D7_UX0_FEXPORTGRIDMODEL_CGM_10V1001C--00264T.uct |
 #    When I launch marmot
+
+  @fast @rao @dc @redispatching @preventive-only
+  Scenario: US 93.2 : 0712
+    Given network files are in folder "20240712-FID2-620-v4-10V1001C--00264T-to-10V1001C--00085T"
+    Given crac file is "20240712-FSC-ID2-CB-v1-10V1001C--00264T-to-10XFR-RTE------Q.xml"
+    Given ics static file is "_10V1001C–00275O_CSA-COMRA-RDSTATIC-D_CORE-20240712-V001_.csv"
+    Given ics series file is "_10V1001C–00275O_CSA-COMRA-RDSERIES-D_CORE-20240712-V001_.csv"
+    Given ics gsk file is "_10V1001C--00275O_CSA-INDRA-GSK-D_D7-20240712-V001_.csv"
+    Given configuration file is "epic93/RaoParameters_minCost_megawatt_dc.json"
+    Given intertemporal rao inputs are:
+      | Timestamp        | Network                                                         |
+      | 2024-07-12 00:30 | 20240712_0030_FO5_UX1.uct |
+      | 2024-07-12 01:30 | 20240712_0130_FO5_UX1.uct |
+      | 2024-07-12 02:30 | 20240712_0230_FO5_UX1.uct |
+      | 2024-07-12 03:30 | 20240712_0330_FO5_UX1.uct |
+      | 2024-07-12 04:30 | 20240712_0430_FO5_UX1.uct |
+      | 2024-07-12 05:30 | 20240712_0530_FO5_UX1.uct |
+      | 2024-07-12 06:30 | 20240712_0630_FO5_UX1.uct |
+      | 2024-07-12 07:30 | 20240712_0730_FO5_UX1.uct |
+      | 2024-07-12 08:30 | 20240712_0830_FO5_UX1.uct |
+      | 2024-07-12 09:30 | 20240712_0930_FO5_UX1.uct |
+      | 2024-07-12 10:30 | 20240712_1030_FO5_UX1.uct |
+      | 2024-07-12 11:30 | 20240712_1130_FO5_UX1.uct |
+      | 2024-07-12 12:30 | 20240712_1230_FO5_UX1.uct |
+      | 2024-07-12 13:30 | 20240712_1330_FO5_UX1.uct |
+      | 2024-07-12 14:30 | 20240712_1430_FO5_UX1.uct |
+      | 2024-07-12 15:30 | 20240712_1530_FO5_UX1.uct |
+      | 2024-07-12 16:30 | 20240712_1630_FO5_UX1.uct |
+      | 2024-07-12 17:30 | 20240712_1730_FO5_UX1.uct |
+      | 2024-07-12 18:30 | 20240712_1830_FO5_UX1.uct |
+      | 2024-07-12 19:30 | 20240712_1930_FO5_UX1.uct |
+      | 2024-07-12 20:30 | 20240712_2030_FO5_UX1.uct |
+      | 2024-07-12 21:30 | 20240712_2130_FO5_UX1.uct |
+      | 2024-07-12 22:30 | 20240712_2230_FO5_UX1.uct |
+      | 2024-07-12 23:30 | 20240712_2330_FO5_UX1.uct |
+    When I launch marmot
+    When I export marmot results to "raoresults/results_0712.zip"
