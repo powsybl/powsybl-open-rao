@@ -39,7 +39,7 @@
   "networkActionResults" : [ ],
   "rangeActionResults" : [ {
     "rangeActionId" : "pstRange1Id",
-    "initialSetpoint" : 0.0,
+    "initialTap" : -3,
     "activatedStates" : [ {
       "instant" : "preventive",
       "tap" : 3,
