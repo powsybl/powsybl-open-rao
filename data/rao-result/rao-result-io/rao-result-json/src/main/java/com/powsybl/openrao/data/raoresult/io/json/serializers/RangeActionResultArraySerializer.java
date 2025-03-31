@@ -64,7 +64,7 @@ final class RangeActionResultArraySerializer {
                 safeGetOptimizedSetpoint(raoResult, state, rangeAction)),
                 (x, y) -> x,
                 LinkedHashMap::new));
-        writeStateToTapAndSetpointArray(jsonGenerator, activatedSetpoints, RaoResultJsonConstants.STATES_ACTIVATED, rangeAction instanceof PstRangeAction);
+        writeStateToTapAndSetpointArray(jsonGenerator, activatedSetpoints, RaoResultJsonConstants.STATES_ACTIVATED);
 
         jsonGenerator.writeEndObject();
     }
@@ -112,7 +112,7 @@ final class RangeActionResultArraySerializer {
         }
     }
 
-    static void writeStateToTapAndSetpointArray(JsonGenerator jsonGenerator, Map<State, Pair<Integer, Double>> stateToTapAndSetpoint, String arrayName, boolean isPstRangeAction) throws IOException {
+    static void writeStateToTapAndSetpointArray(JsonGenerator jsonGenerator, Map<State, Pair<Integer, Double>> stateToTapAndSetpoint, String arrayName) throws IOException {
         if (stateToTapAndSetpoint.isEmpty()) {
             return;
         }
@@ -126,18 +126,10 @@ final class RangeActionResultArraySerializer {
                 jsonGenerator.writeStringField(RaoResultJsonConstants.CONTINGENCY_ID, optContingency.get().getId());
             }
 
-            if (isPstRangeAction) {
-                Integer tap = entry.getValue().getFirst();
-                if (tap != null) {
-                    jsonGenerator.writeNumberField(RaoResultJsonConstants.TAP, tap);
-                }
-            } else {
-                Double setPoint = entry.getValue().getSecond();
-                if (!Double.isNaN(setPoint)) {
-                    jsonGenerator.writeNumberField(RaoResultJsonConstants.SETPOINT, setPoint);
-                }
+            Double setpoint = entry.getValue().getSecond();
+            if (!Double.isNaN(setpoint)) {
+                jsonGenerator.writeNumberField(RaoResultJsonConstants.SETPOINT, setpoint);
             }
-
             jsonGenerator.writeEndObject();
         }
         jsonGenerator.writeEndArray();
