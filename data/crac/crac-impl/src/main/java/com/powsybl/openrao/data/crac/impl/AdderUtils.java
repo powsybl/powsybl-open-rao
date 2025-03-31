@@ -21,15 +21,15 @@ public final class AdderUtils {
 
     static void assertAttributeNotNull(Object attribute, String className, String attributeDescription, String methodName) {
         if (Objects.isNull(attribute)) {
-            throw new OpenRaoException(String.format("Cannot add %s without a %s. Please use %s with a non null value", className, attributeDescription, methodName));
-            // example: "Cannot add a PstRangeAction without a maximum value. Please use setMaxValue()."
+            throw new OpenRaoException(String.format("Cannot put %s without a %s. Please use %s with a non null value", className, attributeDescription, methodName));
+            // example: "Cannot put a PstRangeAction without a maximum value. Please use setMaxValue()."
         }
     }
 
     static void assertAttributeNotEmpty(Collection<?> attribute, String className, String attributeDescription, String methodName) {
         if (attribute.isEmpty()) {
-            throw new OpenRaoException(String.format("Cannot add %s without a %s. Please use %s", className, attributeDescription, methodName));
-            // example: "Cannot add a InjectionShiftRangeAction without an injectionShiftKey. Please use withNetworkElementAndKey()."
+            throw new OpenRaoException(String.format("Cannot put %s without a %s. Please use %s", className, attributeDescription, methodName));
+            // example: "Cannot put a InjectionShiftRangeAction without an injectionShiftKey. Please use withNetworkElementAndKey()."
         }
     }
 }

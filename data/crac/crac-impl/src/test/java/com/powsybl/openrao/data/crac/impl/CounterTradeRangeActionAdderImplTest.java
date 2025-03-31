@@ -145,7 +145,7 @@ class CounterTradeRangeActionAdderImplTest {
                 .newRange().withMin(-5).withMax(10).add()
                 .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add();
         Exception e = assertThrows(OpenRaoException.class, counterTradeRangeActionAdder::add);
-        assertEquals("Cannot add a CounterTradeRangeAction object with no specified id. Please use withId()", e.getMessage());
+        assertEquals("Cannot put a CounterTradeRangeAction object with no specified id. Please use withId()", e.getMessage());
     }
 
     @Test
@@ -158,7 +158,7 @@ class CounterTradeRangeActionAdderImplTest {
                 .newRange().withMin(-5).withMax(10).add()
                 .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add();
         Exception e = assertThrows(OpenRaoException.class, counterTradeRangeActionAdder::add);
-        assertEquals("Cannot add CounterTradeRangeAction without a exporting country. Please use withExportingCountry() with a non null value", e.getMessage());
+        assertEquals("Cannot put CounterTradeRangeAction without a exporting country. Please use withExportingCountry() with a non null value", e.getMessage());
     }
 
     @Test
@@ -171,7 +171,7 @@ class CounterTradeRangeActionAdderImplTest {
                 .newRange().withMin(-5).withMax(10).add()
                 .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add();
         Exception e = assertThrows(OpenRaoException.class, counterTradeRangeActionAdder::add);
-        assertEquals("Cannot add CounterTradeRangeAction without a importing country. Please use withImportingCountry() with a non null value", e.getMessage());
+        assertEquals("Cannot put CounterTradeRangeAction without a importing country. Please use withImportingCountry() with a non null value", e.getMessage());
     }
 
     @Test
@@ -183,7 +183,7 @@ class CounterTradeRangeActionAdderImplTest {
                 .withImportingCountry(Country.DE)
                 .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add();
         Exception e = assertThrows(OpenRaoException.class, counterTradeRangeActionAdder::add);
-        assertEquals("Cannot add CounterTradeRangeAction without a range. Please use newRange()", e.getMessage());
+        assertEquals("Cannot put CounterTradeRangeAction without a range. Please use newRange()", e.getMessage());
     }
 
     @Test

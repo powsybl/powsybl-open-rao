@@ -17,7 +17,7 @@ import static com.powsybl.openrao.data.crac.impl.AdderUtils.assertAttributeNotNu
 
 /**
  * Adds an OnContingencyState usage rule to a RemedialActionAdder
- * Needs the CRAC to look up the contingency and add the new state if needed
+ * Needs the CRAC to look up the contingency and put the new state if needed
  *
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}

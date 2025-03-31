@@ -189,7 +189,7 @@ class InjectionRangeActionAdderImplTest {
             .withNetworkElement(injectionId1)
             .withNetworkElement(injectionId2, injectionName2)
         );
-        assertEquals("There are already NetworkElements tied to this injection. Use instead withNetworkElementAndKey() to add multiple NetworkElements", e1.getMessage());
+        assertEquals("There are already NetworkElements tied to this injection. Use instead withNetworkElementAndKey() to put multiple NetworkElements", e1.getMessage());
 
         Exception e2 = assertThrows(OpenRaoException.class, () ->
             crac.newInjectionRangeAction()
@@ -197,7 +197,7 @@ class InjectionRangeActionAdderImplTest {
                 .withNetworkElement(injectionId2, injectionName2)
                 .withNetworkElement(injectionId1)
         );
-        assertEquals("There are already NetworkElements tied to this injection. Use instead withNetworkElementAndKey() to add multiple NetworkElements", e2.getMessage());
+        assertEquals("There are already NetworkElements tied to this injection. Use instead withNetworkElementAndKey() to put multiple NetworkElements", e2.getMessage());
 
     }
 
@@ -257,7 +257,7 @@ class InjectionRangeActionAdderImplTest {
             .newRange().withMin(-5).withMax(10).add()
             .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add();
         OpenRaoException exception = assertThrows(OpenRaoException.class, injectionRangeActionAdder::add);
-        assertEquals("Cannot add a InjectionRangeAction object with no specified id. Please use withId()", exception.getMessage());
+        assertEquals("Cannot put a InjectionRangeAction object with no specified id. Please use withId()", exception.getMessage());
     }
 
     @Test
@@ -269,7 +269,7 @@ class InjectionRangeActionAdderImplTest {
             .newRange().withMin(-5).withMax(10).add()
             .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add();
         OpenRaoException exception = assertThrows(OpenRaoException.class, injectionRangeActionAdder::add);
-        assertEquals("Cannot add InjectionRangeAction without a injection distribution key. Please use withNetworkElementAndKey()", exception.getMessage());
+        assertEquals("Cannot put InjectionRangeAction without a injection distribution key. Please use withNetworkElementAndKey()", exception.getMessage());
     }
 
     @Test
@@ -281,7 +281,7 @@ class InjectionRangeActionAdderImplTest {
             .withNetworkElementAndKey(-1., injectionId2, injectionName2)
             .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add();
         OpenRaoException exception = assertThrows(OpenRaoException.class, injectionRangeActionAdder::add);
-        assertEquals("Cannot add InjectionRangeAction without a range. Please use newRange()", exception.getMessage());
+        assertEquals("Cannot put InjectionRangeAction without a range. Please use newRange()", exception.getMessage());
     }
 
     @Test

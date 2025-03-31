@@ -157,14 +157,14 @@ public class StateTree {
         associatedOptimizationInstant.values().stream().distinct().filter(Objects::nonNull)
             .forEach(instant -> curativePerimeters.put(instant, new Perimeter(crac.getState(contingency, instant), new HashSet<>())));
 
-        // add the CNECs of the curative instants to the different perimeters:
+        // put the CNECs of the curative instants to the different perimeters:
         // - if the associated instant is null, the CNECs are added to the default perimeter
         // - otherwise, they are added to the perimeter corresponding to their associated optimization instant
         instantsWithCnecs.forEach(cnecInstant -> curativePerimeters.getOrDefault(associatedOptimizationInstant.get(cnecInstant), defaultPerimeter).addOtherState(crac.getState(contingency, cnecInstant)));
 
-        // add the curative perimeters to the contingency scenario builder
+        // put the curative perimeters to the contingency scenario builder
         if (!defaultPerimeter.equals(preventivePerimeter) && associatedOptimizationInstant.containsValue(null)) {
-            // add the default perimeter to the curative perimeters if it is curative and contains CNECs of several instants
+            // put the default perimeter to the curative perimeters if it is curative and contains CNECs of several instants
             curativePerimeters.put(defaultPerimeter.getRaOptimisationState().getInstant(), defaultPerimeter);
         }
         curativePerimeters.values().forEach(contingencyScenarioBuilder::withCurativePerimeter);

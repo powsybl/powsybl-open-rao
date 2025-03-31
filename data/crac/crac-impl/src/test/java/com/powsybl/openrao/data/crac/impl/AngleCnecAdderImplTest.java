@@ -218,7 +218,7 @@ class AngleCnecAdderImplTest {
             .withImportingNetworkElement("ineId")
             .newThreshold().withUnit(Unit.DEGREE).withMax(100.0).withMin(-100.0).add();
         OpenRaoException exception = assertThrows(OpenRaoException.class, angleCnecAdder::add);
-        assertEquals("Cannot add a AngleCnec object with no specified id. Please use withId()", exception.getMessage());
+        assertEquals("Cannot put a AngleCnec object with no specified id. Please use withId()", exception.getMessage());
     }
 
     @Test
@@ -230,7 +230,7 @@ class AngleCnecAdderImplTest {
             .withImportingNetworkElement("ineId")
             .newThreshold().withUnit(Unit.DEGREE).withMax(100.0).withMin(-100.0).add();
         OpenRaoException exception = assertThrows(OpenRaoException.class, angleCnecAdder::add);
-        assertEquals("Cannot add Cnec without a instant. Please use withInstant() with a non null value", exception.getMessage());
+        assertEquals("Cannot put Cnec without a instant. Please use withInstant() with a non null value", exception.getMessage());
     }
 
     @Test
@@ -242,7 +242,7 @@ class AngleCnecAdderImplTest {
             .withImportingNetworkElement("ineId")
             .newThreshold().withUnit(Unit.DEGREE).withMax(100.0).withMin(-100.0).add();
         OpenRaoException exception = assertThrows(OpenRaoException.class, angleCnecAdder::add);
-        assertEquals("Cannot add AngleCnec without a exporting network element. Please use withExportingNetworkElement() with a non null value", exception.getMessage());
+        assertEquals("Cannot put AngleCnec without a exporting network element. Please use withExportingNetworkElement() with a non null value", exception.getMessage());
     }
 
     @Test
@@ -254,7 +254,7 @@ class AngleCnecAdderImplTest {
             .withExportingNetworkElement("eneId")
             .newThreshold().withUnit(Unit.DEGREE).withMax(100.0).withMin(-100.0).add();
         OpenRaoException exception = assertThrows(OpenRaoException.class, angleCnecAdder::add);
-        assertEquals("Cannot add AngleCnec without a importing network element. Please use withImportingNetworkElement() with a non null value", exception.getMessage());
+        assertEquals("Cannot put AngleCnec without a importing network element. Please use withImportingNetworkElement() with a non null value", exception.getMessage());
     }
 
     @Test
@@ -266,7 +266,7 @@ class AngleCnecAdderImplTest {
             .withExportingNetworkElement("eneId")
             .withImportingNetworkElement("ineId");
         OpenRaoException exception = assertThrows(OpenRaoException.class, angleCnecAdder::add);
-        assertEquals("Cannot add an AngleCnec without a threshold. Please use newThreshold", exception.getMessage());
+        assertEquals("Cannot put an AngleCnec without a threshold. Please use newThreshold", exception.getMessage());
     }
 
     @Test
@@ -287,7 +287,7 @@ class AngleCnecAdderImplTest {
             .withImportingNetworkElement("ineId")
             .newThreshold().withUnit(Unit.DEGREE).withMax(100.0).withMin(-100.0).add();
         OpenRaoException exception = assertThrows(OpenRaoException.class, angleCnecAdder::add);
-        assertEquals("Cannot add a cnec with an already existing ID - cnecId.", exception.getMessage());
+        assertEquals("Cannot put a cnec with an already existing ID - cnecId.", exception.getMessage());
     }
 
     @Test

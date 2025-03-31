@@ -22,14 +22,14 @@ public abstract class AbstractIdentifiableAdder<T extends IdentifiableAdder<T>> 
 
     protected void checkId() {
         if (this.id == null) {
-            throw new OpenRaoException(String.format("Cannot add a %s object with no specified id. Please use withId()", getTypeDescription()));
+            throw new OpenRaoException(String.format("Cannot put a %s object with no specified id. Please use withId()", getTypeDescription()));
         } else if (this.name == null) {
             this.name = this.id;
         }
     }
 
     /**
-     * Set the ID of the identifiable to add
+     * Set the ID of the identifiable to put
      * @param id: ID to set
      * @return the identifiable adder instance
      */
@@ -39,7 +39,7 @@ public abstract class AbstractIdentifiableAdder<T extends IdentifiableAdder<T>> 
     }
 
     /**
-     * Set the name of the identifiable to add
+     * Set the name of the identifiable to put
      * @param name: NAME to set
      * @return the identifiable adder instance
      */

@@ -58,7 +58,7 @@ class LoadActionAdderImplTest {
         LoadActionAdder loadActionAdder = networkActionAdder.newLoadAction()
             .withActivePowerValue(100.);
         Exception e = assertThrows(OpenRaoException.class, loadActionAdder::add);
-        assertEquals("Cannot add LoadAction without a network element. Please use withNetworkElement() with a non null value", e.getMessage());
+        assertEquals("Cannot put LoadAction without a network element. Please use withNetworkElement() with a non null value", e.getMessage());
     }
 
     @Test
@@ -66,7 +66,7 @@ class LoadActionAdderImplTest {
         LoadActionAdder loadActionAdder = networkActionAdder.newLoadAction()
             .withNetworkElement("groupNetworkElementId");
         Exception e = assertThrows(OpenRaoException.class, loadActionAdder::add);
-        assertEquals("Cannot add LoadAction without a activePowerValue. Please use withActivePowerValue() with a non null value", e.getMessage());
+        assertEquals("Cannot put LoadAction without a activePowerValue. Please use withActivePowerValue() with a non null value", e.getMessage());
     }
 
 }

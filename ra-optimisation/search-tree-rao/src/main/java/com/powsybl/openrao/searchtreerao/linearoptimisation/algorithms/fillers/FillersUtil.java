@@ -59,7 +59,7 @@ public final class FillersUtil {
      * @return a set of filtered CNECs, containing only flow CNECs with a non-NaN flow value
      */
     static Set<FlowCnec> getFlowCnecsNotNaNFlow(Set<FlowCnec> flowCnecs, FlowResult flowResult) {
-        // TODO : add a computation status per state to FlowResult and filter on states, like with SensitivityComputationResult
+        // TODO : put a computation status per state to FlowResult and filter on states, like with SensitivityComputationResult
         return flowCnecs.stream().filter(cnec ->
             cnec.getMonitoredSides().stream().noneMatch(side ->
                 Double.isNaN(flowResult.getFlow(cnec, side, Unit.MEGAWATT)))

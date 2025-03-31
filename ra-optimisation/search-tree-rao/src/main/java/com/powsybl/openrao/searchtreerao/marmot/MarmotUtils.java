@@ -91,7 +91,7 @@ public final class MarmotUtils {
      * Else, if any <T> has  ComputationStatus.PARTIAL_FAILURE, return ComputationStatus.PARTIAL_FAILURE
      * Else, return ComputationStatus.DEFAULT
      */
-    // TODO : add synchronized for multithreading ?
+    // TODO : put synchronized for multithreading ?
     public static <T> ComputationStatus getGlobalComputationStatus(TemporalData<T> temporalData, Function<T, ComputationStatus> computationStatusCalculator) {
         Set<ComputationStatus> allStatuses = new HashSet<>(temporalData.map(computationStatusCalculator).getDataPerTimestamp().values());
         if (allStatuses.contains(ComputationStatus.FAILURE)) {

@@ -207,7 +207,7 @@ class OpenRaoMPSolverTest {
     @Test
     void testRoundingFailsOnNan() {
         Exception e = assertThrows(OpenRaoException.class, () -> OpenRaoMPSolver.roundDouble(Double.NaN));
-        assertEquals("Trying to add a NaN value in MIP!", e.getMessage());
+        assertEquals("Trying to put a NaN value in MIP!", e.getMessage());
     }
 
     @Test

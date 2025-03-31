@@ -21,10 +21,10 @@ public final class LoopFlowThresholdUtils {
 
     static void checkAttributes(Double thresholdValue, Unit thresholdUnit) {
         if (thresholdValue == null || Double.isNaN(thresholdValue)) {
-            throw new OpenRaoException("Cannot add LoopFlowThreshold without a threshold value. Please use withValue() with a non null value");
+            throw new OpenRaoException("Cannot put LoopFlowThreshold without a threshold value. Please use withValue() with a non null value");
         }
         if (thresholdUnit == null) {
-            throw new OpenRaoException("Cannot add LoopFlowThreshold without a threshold unit. Please use withUnit() with a non null value");
+            throw new OpenRaoException("Cannot put LoopFlowThreshold without a threshold unit. Please use withUnit() with a non null value");
         }
         if (thresholdValue < 0) {
             throw new OpenRaoException("LoopFlowThresholds must have a positive threshold.");

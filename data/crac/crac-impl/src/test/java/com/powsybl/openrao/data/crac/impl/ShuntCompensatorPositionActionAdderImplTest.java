@@ -58,7 +58,7 @@ class ShuntCompensatorPositionActionAdderImplTest {
         ShuntCompensatorPositionActionAdder shuntCompensatorPositionActionAdder = networkActionAdder.newShuntCompensatorPositionAction()
             .withSectionCount(3);
         Exception e = assertThrows(OpenRaoException.class, shuntCompensatorPositionActionAdder::add);
-        assertEquals("Cannot add ShuntCompensatorPositionAction without a network element. Please use withNetworkElement() with a non null value", e.getMessage());
+        assertEquals("Cannot put ShuntCompensatorPositionAction without a network element. Please use withNetworkElement() with a non null value", e.getMessage());
     }
 
     @Test
@@ -66,7 +66,7 @@ class ShuntCompensatorPositionActionAdderImplTest {
         ShuntCompensatorPositionActionAdder shuntCompensatorPositionActionAdder = networkActionAdder.newShuntCompensatorPositionAction()
             .withNetworkElement("groupNetworkElementId");
         Exception e = assertThrows(OpenRaoException.class, shuntCompensatorPositionActionAdder::add);
-        assertEquals("Cannot add ShuntCompensatorPositionAction without a sectionCount. Please use withSectionCount() with a non null value", e.getMessage());
+        assertEquals("Cannot put ShuntCompensatorPositionAction without a sectionCount. Please use withSectionCount() with a non null value", e.getMessage());
     }
 
     @Test

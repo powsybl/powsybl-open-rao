@@ -214,7 +214,7 @@ class PstRangeActionAdderImplTest {
             .withInitialTap(1)
             .withTapToAngleConversionMap(validTapToAngleConversionMap);
         OpenRaoException exception = assertThrows(OpenRaoException.class, pstRangeActionAdder::add);
-        assertEquals("Cannot add a PstRangeAction object with no specified id. Please use withId()", exception.getMessage());
+        assertEquals("Cannot put a PstRangeAction object with no specified id. Please use withId()", exception.getMessage());
     }
 
     @Test
@@ -225,7 +225,7 @@ class PstRangeActionAdderImplTest {
             .withInitialTap(1)
             .withTapToAngleConversionMap(validTapToAngleConversionMap);
         OpenRaoException exception = assertThrows(OpenRaoException.class, pstRangeActionAdder::add);
-        assertEquals("Cannot add PstRangeAction without a network element. Please use withNetworkElement() with a non null value", exception.getMessage());
+        assertEquals("Cannot put PstRangeAction without a network element. Please use withNetworkElement() with a non null value", exception.getMessage());
     }
 
     @Test
@@ -254,7 +254,7 @@ class PstRangeActionAdderImplTest {
             .withOperator("BE")
             .withTapToAngleConversionMap(validTapToAngleConversionMap);
         OpenRaoException exception = assertThrows(OpenRaoException.class, pstRangeActionAdder::add);
-        assertEquals("Cannot add PstRangeAction without a initial tap. Please use withInitialTap() with a non null value", exception.getMessage());
+        assertEquals("Cannot put PstRangeAction without a initial tap. Please use withInitialTap() with a non null value", exception.getMessage());
     }
 
     @Test
@@ -265,7 +265,7 @@ class PstRangeActionAdderImplTest {
             .withOperator("BE")
             .withInitialTap(0);
         OpenRaoException exception = assertThrows(OpenRaoException.class, pstRangeActionAdder::add);
-        assertEquals("Cannot add PstRangeAction without a tap to angle conversion map. Please use withTapToAngleConversionMap() with a non null value", exception.getMessage());
+        assertEquals("Cannot put PstRangeAction without a tap to angle conversion map. Please use withTapToAngleConversionMap() with a non null value", exception.getMessage());
     }
 
     @Test

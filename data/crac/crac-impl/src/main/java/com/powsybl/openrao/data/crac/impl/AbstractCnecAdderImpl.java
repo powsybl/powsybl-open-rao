@@ -57,7 +57,7 @@ public abstract class AbstractCnecAdderImpl<J extends CnecAdder<J>> extends Abst
         networkElementsIdAndName.entrySet().forEach(entry -> this.owner.addNetworkElement(entry.getKey(), entry.getValue()));
 
         if (owner.getCnec(id) != null) {
-            throw new OpenRaoException(format("Cannot add a cnec with an already existing ID - %s.", id));
+            throw new OpenRaoException(format("Cannot put a cnec with an already existing ID - %s.", id));
         }
     }
 

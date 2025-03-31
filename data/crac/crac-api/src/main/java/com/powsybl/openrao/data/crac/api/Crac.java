@@ -67,7 +67,7 @@ public interface Crac extends Identifiable<Crac> {
     // Contingencies management
 
     /**
-     * Get a {@link ContingencyAdder}, to add a contingency to the Crac
+     * Get a {@link ContingencyAdder}, to put a contingency to the Crac
      */
     ContingencyAdder newContingency();
 
@@ -244,17 +244,17 @@ public interface Crac extends Identifiable<Crac> {
     // Cnecs management
 
     /**
-     * Get a {@link FlowCnecAdder} adder, to add a {@link FlowCnec} to the Crac
+     * Get a {@link FlowCnecAdder} adder, to put a {@link FlowCnec} to the Crac
      */
     FlowCnecAdder newFlowCnec();
 
     /**
-     * Get an {@link AngleCnecAdder} adder, to add an {@link AngleCnec} to the Crac
+     * Get an {@link AngleCnecAdder} adder, to put an {@link AngleCnec} to the Crac
      */
     AngleCnecAdder newAngleCnec();
 
     /**
-     * Get a {@link VoltageCnecAdder} adder, to add a {@link VoltageCnec} to the Crac
+     * Get a {@link VoltageCnecAdder} adder, to put a {@link VoltageCnec} to the Crac
      */
     VoltageCnecAdder newVoltageCnec();
 
@@ -415,23 +415,23 @@ public interface Crac extends Identifiable<Crac> {
     // Range actions management
 
     /**
-     * Get a {@link PstRangeActionAdder}, to add a {@link PstRangeAction} to the crac
+     * Get a {@link PstRangeActionAdder}, to put a {@link PstRangeAction} to the crac
      */
     PstRangeActionAdder newPstRangeAction();
 
     /**
-     * Get a {@link HvdcRangeActionAdder}, to add a {@link HvdcRangeAction} to the crac
+     * Get a {@link HvdcRangeActionAdder}, to put a {@link HvdcRangeAction} to the crac
      */
     HvdcRangeActionAdder newHvdcRangeAction();
 
     /**
-     * Get a {@link InjectionRangeActionAdder}, to add an {@link InjectionRangeAction} to the crac
+     * Get a {@link InjectionRangeActionAdder}, to put an {@link InjectionRangeAction} to the crac
      */
     InjectionRangeActionAdder newInjectionRangeAction();
 
 
     /**
-     * Get a {@link CounterTradeRangeActionAdder}, to add an {@link CounterTradeRangeAction} to the crac
+     * Get a {@link CounterTradeRangeActionAdder}, to put an {@link CounterTradeRangeAction} to the crac
      */
     CounterTradeRangeActionAdder newCounterTradeRangeAction();
 
@@ -533,7 +533,7 @@ public interface Crac extends Identifiable<Crac> {
     // Network actions management
 
     /**
-     * Get a {@link NetworkActionAdder}, to add a {@link NetworkAction} to the crac
+     * Get a {@link NetworkActionAdder}, to put a {@link NetworkAction} to the crac
      */
     NetworkActionAdder newNetworkAction();
 
@@ -574,7 +574,7 @@ public interface Crac extends Identifiable<Crac> {
     RaUsageLimits getRaUsageLimits(Instant instant);
 
     /**
-     * Get a {@link RaUsageLimitsAdder}, to add a {@link RaUsageLimits} to the crac
+     * Get a {@link RaUsageLimitsAdder}, to put a {@link RaUsageLimits} to the crac
      */
     RaUsageLimitsAdder newRaUsageLimits(String instantName);
 

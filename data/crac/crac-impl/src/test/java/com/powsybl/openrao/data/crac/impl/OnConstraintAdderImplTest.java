@@ -248,21 +248,21 @@ class OnConstraintAdderImplTest {
     void testNoCnecException() {
         OnConstraintAdder<NetworkActionAdder, ?> adder = remedialActionAdder.newOnConstraintUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE);
         OpenRaoException exception = assertThrows(OpenRaoException.class, adder::add);
-        assertEquals("Cannot add OnConstraint without a cnec. Please use withCnec() with a non null value", exception.getMessage());
+        assertEquals("Cannot put OnConstraint without a cnec. Please use withCnec() with a non null value", exception.getMessage());
     }
 
     @Test
     void testNoInstantException() {
         OnConstraintAdder<NetworkActionAdder, ?> adder = remedialActionAdder.newOnConstraintUsageRule().withCnec("angleCnec2stateCurativeContingency1").withUsageMethod(UsageMethod.AVAILABLE);
         Exception exception = assertThrows(OpenRaoException.class, adder::add);
-        assertEquals("Cannot add OnConstraint without a instant. Please use withInstant() with a non null value", exception.getMessage());
+        assertEquals("Cannot put OnConstraint without a instant. Please use withInstant() with a non null value", exception.getMessage());
     }
 
     @Test
     void testNoUsageMethodException() {
         OnConstraintAdder<NetworkActionAdder, ?> adder = remedialActionAdder.newOnConstraintUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withCnec("voltageCnec2stateCurativeContingency1");
         OpenRaoException exception = assertThrows(OpenRaoException.class, adder::add);
-        assertEquals("Cannot add OnConstraint without a usage method. Please use withUsageMethod() with a non null value", exception.getMessage());
+        assertEquals("Cannot put OnConstraint without a usage method. Please use withUsageMethod() with a non null value", exception.getMessage());
     }
 
     private void addAngleCnec(String id, String instantId) {

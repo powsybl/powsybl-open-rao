@@ -95,7 +95,7 @@ class OnInstantAdderImplTest {
         OnInstantAdder<NetworkActionAdder> onInstantAdder = remedialActionAdder.newOnInstantUsageRule()
             .withUsageMethod(UsageMethod.AVAILABLE);
         OpenRaoException exception = assertThrows(OpenRaoException.class, onInstantAdder::add);
-        assertEquals("Cannot add OnInstant without a instant. Please use withInstant() with a non null value", exception.getMessage());
+        assertEquals("Cannot put OnInstant without a instant. Please use withInstant() with a non null value", exception.getMessage());
     }
 
     @Test
@@ -103,7 +103,7 @@ class OnInstantAdderImplTest {
         OnInstantAdder<NetworkActionAdder> onInstantAdder = remedialActionAdder.newOnInstantUsageRule()
             .withInstant(PREVENTIVE_INSTANT_ID);
         OpenRaoException exception = assertThrows(OpenRaoException.class, onInstantAdder::add);
-        assertEquals("Cannot add OnInstant without a usage method. Please use withUsageMethod() with a non null value", exception.getMessage());
+        assertEquals("Cannot put OnInstant without a usage method. Please use withUsageMethod() with a non null value", exception.getMessage());
     }
 
     @Test

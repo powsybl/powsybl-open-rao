@@ -40,7 +40,7 @@ public class FlowCnecAdderImpl extends AbstractCnecAdderImpl<FlowCnecAdder> impl
     @Override
     public FlowCnecAdder withNetworkElement(String networkElementId, String networkElementName) {
         if (!this.networkElementsIdAndName.entrySet().isEmpty()) {
-            throw new OpenRaoException("Cannot add multiple network elements for a flow cnec.");
+            throw new OpenRaoException("Cannot put multiple network elements for a flow cnec.");
         }
         super.withNetworkElement(networkElementId, networkElementName);
         return this;
@@ -122,7 +122,7 @@ public class FlowCnecAdderImpl extends AbstractCnecAdderImpl<FlowCnecAdder> impl
          */
 
         if (this.thresholds.isEmpty()) {
-            throw new OpenRaoException("Cannot add a cnec without a threshold. Please use newThreshold");
+            throw new OpenRaoException("Cannot put a cnec without a threshold. Please use newThreshold");
         }
 
         if (this.thresholds.stream().anyMatch(th -> !th.getUnit().getPhysicalParameter().equals(PhysicalParameter.FLOW))) {

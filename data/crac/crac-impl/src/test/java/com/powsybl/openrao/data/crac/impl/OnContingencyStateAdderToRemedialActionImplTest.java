@@ -91,7 +91,7 @@ class OnContingencyStateAdderToRemedialActionImplTest {
         OnContingencyStateAdderToRemedialAction<?> onStateAdderToRemedialAction = remedialAction.newOnStateUsageRule()
             .withUsageMethod(UsageMethod.FORCED);
         OpenRaoException exception = assertThrows(OpenRaoException.class, onStateAdderToRemedialAction::add);
-        assertEquals("Cannot add OnState without a state. Please use withState() with a non null value", exception.getMessage());
+        assertEquals("Cannot put OnState without a state. Please use withState() with a non null value", exception.getMessage());
     }
 
     @Test
@@ -99,7 +99,7 @@ class OnContingencyStateAdderToRemedialActionImplTest {
         OnContingencyStateAdderToRemedialAction<?> onStateAdderToRemedialAction = remedialAction.newOnStateUsageRule()
             .withState(crac.getState(contingency, curativeInstant));
         OpenRaoException exception = assertThrows(OpenRaoException.class, onStateAdderToRemedialAction::add);
-        assertEquals("Cannot add OnState without a usage method. Please use withUsageMethod() with a non null value", exception.getMessage());
+        assertEquals("Cannot put OnState without a usage method. Please use withUsageMethod() with a non null value", exception.getMessage());
     }
 
     @Test

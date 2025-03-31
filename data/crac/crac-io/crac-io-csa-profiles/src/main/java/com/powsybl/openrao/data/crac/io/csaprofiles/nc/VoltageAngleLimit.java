@@ -17,7 +17,7 @@ public record VoltageAngleLimit(String mrid, double normalValue, String terminal
         return new VoltageAngleLimit(
             propertyBag.getId(CsaProfileConstants.REQUEST_VOLTAGE_ANGLE_LIMIT),
             Double.parseDouble(propertyBag.get(CsaProfileConstants.REQUEST_VOLTAGE_ANGLE_LIMIT_NORMAL_VALUE)),
-            // TODO: add constants
+            // TODO: put constants
             propertyBag.getId("terminal1"),
             propertyBag.getId("terminal2"),
             propertyBag.get(CsaProfileConstants.REQUEST_OPERATIONAL_LIMIT_DIRECTION),

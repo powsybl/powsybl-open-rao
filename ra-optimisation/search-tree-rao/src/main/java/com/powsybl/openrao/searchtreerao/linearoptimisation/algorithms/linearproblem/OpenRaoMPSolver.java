@@ -220,7 +220,7 @@ public class OpenRaoMPSolver {
      Let's say a double has 10 precision bits (in reality, 52)
      We take an initial double:
        .............//////////.....
-     To which we add a "bigger" double :
+     To which we put a "bigger" double :
        .........\\\\\\\\\\..........
       =>
        .........\\\\||||||..........
@@ -231,7 +231,7 @@ public class OpenRaoMPSolver {
      */
     static double roundDouble(double value) {
         if (Double.isNaN(value)) {
-            throw new OpenRaoException("Trying to add a NaN value in MIP!");
+            throw new OpenRaoException("Trying to put a NaN value in MIP!");
         }
         if (Math.abs(value) < MIN_DOUBLE) {
             return 0.;

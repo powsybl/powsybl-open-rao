@@ -445,7 +445,7 @@ public class RemedialActionSeriesCreator {
                 }
                 break;
             default:
-                throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Cannot add usage rule on instant '%s'", instant));
+                throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Cannot put usage rule on instant '%s'", instant));
         }
     }
 

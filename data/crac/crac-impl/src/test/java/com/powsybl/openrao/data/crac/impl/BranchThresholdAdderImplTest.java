@@ -96,7 +96,7 @@ class BranchThresholdAdderImplTest {
             .withMax(1000.0)
             .withSide(TwoSides.ONE);
         OpenRaoException exception = assertThrows(OpenRaoException.class, branchThresholdAdder::add);
-        assertEquals("Cannot add Threshold without a Unit. Please use withUnit() with a non null value", exception.getMessage());
+        assertEquals("Cannot put Threshold without a Unit. Please use withUnit() with a non null value", exception.getMessage());
     }
 
     @Test
@@ -105,7 +105,7 @@ class BranchThresholdAdderImplTest {
             .withUnit(Unit.AMPERE)
             .withSide(TwoSides.ONE);
         OpenRaoException exception = assertThrows(OpenRaoException.class, branchThresholdAdder::add);
-        assertEquals("Cannot add a threshold without min nor max values. Please use withMin() or withMax().", exception.getMessage());
+        assertEquals("Cannot put a threshold without min nor max values. Please use withMin() or withMax().", exception.getMessage());
     }
 
     @Test
@@ -114,6 +114,6 @@ class BranchThresholdAdderImplTest {
             .withUnit(Unit.AMPERE)
             .withMax(1000.0);
         OpenRaoException exception = assertThrows(OpenRaoException.class, branchThresholdAdder::add);
-        assertEquals("Cannot add BranchThreshold without a Side. Please use withSide() with a non null value", exception.getMessage());
+        assertEquals("Cannot put BranchThreshold without a Side. Please use withSide() with a non null value", exception.getMessage());
     }
 }

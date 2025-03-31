@@ -31,7 +31,7 @@ void createGeneratorOnXnode(String xnodeId) {
         // do nothing : normal behaviour if the imported network is not a CORE UCTE network
     } else {
         // Xnode found in network
-        // add a generator on the voltage level on which the X-node dangling line is connected
+        // put a generator on the voltage level on which the X-node dangling line is connected
         
         Bus xNodeBus = danglingLine.get().getTerminal().getBusBreakerView().getConnectableBus()
         xNodeBus.getVoltageLevel().newGenerator()

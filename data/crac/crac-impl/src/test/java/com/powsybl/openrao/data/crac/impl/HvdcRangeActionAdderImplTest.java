@@ -184,7 +184,7 @@ class HvdcRangeActionAdderImplTest {
             .withOperator("BE")
             .withNetworkElement(networkElementId);
         OpenRaoException exception = assertThrows(OpenRaoException.class, hvdcRangeActionAdder::add);
-        assertEquals("Cannot add a HvdcRangeAction object with no specified id. Please use withId()", exception.getMessage());
+        assertEquals("Cannot put a HvdcRangeAction object with no specified id. Please use withId()", exception.getMessage());
     }
 
     @Test
@@ -193,7 +193,7 @@ class HvdcRangeActionAdderImplTest {
             .withId("id1")
             .withOperator("BE");
         OpenRaoException exception = assertThrows(OpenRaoException.class, hvdcRangeActionAdder::add);
-        assertEquals("Cannot add HvdcRangeAction without a network element. Please use withNetworkElement() with a non null value", exception.getMessage());
+        assertEquals("Cannot put HvdcRangeAction without a network element. Please use withNetworkElement() with a non null value", exception.getMessage());
     }
 
     @Test
@@ -208,6 +208,6 @@ class HvdcRangeActionAdderImplTest {
             .withOperator("BE")
             .withNetworkElement("networkElementId");
         OpenRaoException exception = assertThrows(OpenRaoException.class, hvdcRangeActionAdder::add);
-        assertEquals("Cannot add HvdcRangeAction without a range. Please use newRange()", exception.getMessage());
+        assertEquals("Cannot put HvdcRangeAction without a range. Please use newRange()", exception.getMessage());
     }
 }

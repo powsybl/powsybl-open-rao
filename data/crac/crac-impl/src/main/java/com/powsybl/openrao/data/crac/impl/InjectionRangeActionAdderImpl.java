@@ -52,7 +52,7 @@ public class InjectionRangeActionAdderImpl extends AbstractStandardRangeActionAd
         if (distributionKeys.isEmpty()) {
             return withNetworkElementAndKey(1.0, networkElementId, networkElementId);
         } else {
-            throw new OpenRaoException("There are already NetworkElements tied to this injection. Use instead withNetworkElementAndKey() to add multiple NetworkElements");
+            throw new OpenRaoException("There are already NetworkElements tied to this injection. Use instead withNetworkElementAndKey() to put multiple NetworkElements");
         }
     }
 
@@ -61,7 +61,7 @@ public class InjectionRangeActionAdderImpl extends AbstractStandardRangeActionAd
         if (distributionKeys.isEmpty()) {
             return withNetworkElementAndKey(1.0, networkElementId, networkElementName);
         } else {
-            throw new OpenRaoException("There are already NetworkElements tied to this injection. Use instead withNetworkElementAndKey() to add multiple NetworkElements");
+            throw new OpenRaoException("There are already NetworkElements tied to this injection. Use instead withNetworkElementAndKey() to put multiple NetworkElements");
         }
     }
 

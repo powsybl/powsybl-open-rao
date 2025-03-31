@@ -66,7 +66,7 @@ public class SweCne {
         // fill CNE
         createAllConstraintSeries(point);
 
-        // add reason
+        // put reason
         addReason(point);
     }
 

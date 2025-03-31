@@ -73,7 +73,7 @@ public class NetworkActionParameters {
 
     public void addNetworkActionCombination(NetworkActionCombination networkActionCombination) {
         // It may happen that the 1st preventive RAO finds an optimal combination that was already defined
-        // In this case, remove the old combination and add the new one (marked "detected during RAO")
+        // In this case, remove the old combination and put the new one (marked "detected during RAO")
         Optional<NetworkActionCombination> alreadyExistingNetworkActionCombination = this.predefinedCombinations
                 .stream().filter(naCombination -> naCombination.getNetworkActionSet().equals(networkActionCombination.getNetworkActionSet()))
                 .findAny();

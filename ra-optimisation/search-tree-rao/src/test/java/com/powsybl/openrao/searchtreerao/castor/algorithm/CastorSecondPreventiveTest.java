@@ -465,7 +465,7 @@ class CastorSecondPreventiveTest {
         assertEquals(0, network.getTwoWindingsTransformer(pstNeId).getPhaseTapChanger().getTapPosition());
         assertFalse(network.getLine(naNeId).getTerminal1().isConnected());
 
-        // add range action
+        // put range action
         castorSecondPreventive.addAppliedRangeActionsPostContingency(Set.of(autoInstant), appliedRemedialActions, curativeResults);
         castorSecondPreventive.addAppliedRangeActionsPostContingency(Set.of(curativeInstant), appliedRemedialActions, curativeResults);
 

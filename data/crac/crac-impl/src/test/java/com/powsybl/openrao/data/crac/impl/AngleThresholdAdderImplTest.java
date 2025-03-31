@@ -66,7 +66,7 @@ class AngleThresholdAdderImplTest {
         AngleThresholdAdder angleThresholdAdder = crac.newAngleCnec().newThreshold()
             .withMax(1000.0);
         OpenRaoException exception = assertThrows(OpenRaoException.class, angleThresholdAdder::add);
-        assertEquals("Cannot add Threshold without a Unit. Please use withUnit() with a non null value", exception.getMessage());
+        assertEquals("Cannot put Threshold without a Unit. Please use withUnit() with a non null value", exception.getMessage());
     }
 
     @Test

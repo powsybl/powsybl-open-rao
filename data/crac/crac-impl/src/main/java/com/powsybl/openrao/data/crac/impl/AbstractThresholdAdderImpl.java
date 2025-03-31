@@ -38,7 +38,7 @@ public abstract class AbstractThresholdAdderImpl<I extends ThresholdAdder<I>> im
     protected void checkThreshold() {
         AdderUtils.assertAttributeNotNull(this.unit, "Threshold", "Unit", "withUnit()");
         if (min == null && max == null) {
-            throw new OpenRaoException("Cannot add a threshold without min nor max values. Please use withMin() or withMax().");
+            throw new OpenRaoException("Cannot put a threshold without min nor max values. Please use withMin() or withMax().");
         }
     }
 }

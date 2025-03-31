@@ -58,7 +58,7 @@ class GeneratorActionAdderImplTest {
         GeneratorActionAdder generatorActionAdder = networkActionAdder.newGeneratorAction()
             .withActivePowerValue(100.);
         Exception e = assertThrows(OpenRaoException.class, generatorActionAdder::add);
-        assertEquals("Cannot add GeneratorAction without a network element. Please use withNetworkElement() with a non null value", e.getMessage());
+        assertEquals("Cannot put GeneratorAction without a network element. Please use withNetworkElement() with a non null value", e.getMessage());
     }
 
     @Test
@@ -66,7 +66,7 @@ class GeneratorActionAdderImplTest {
         GeneratorActionAdder generatorActionAdder = networkActionAdder.newGeneratorAction()
             .withNetworkElement("groupNetworkElementId");
         Exception e = assertThrows(OpenRaoException.class, generatorActionAdder::add);
-        assertEquals("Cannot add GeneratorAction without a activePowerValue. Please use withActivePowerValue() with a non null value", e.getMessage());
+        assertEquals("Cannot put GeneratorAction without a activePowerValue. Please use withActivePowerValue() with a non null value", e.getMessage());
     }
 
 }

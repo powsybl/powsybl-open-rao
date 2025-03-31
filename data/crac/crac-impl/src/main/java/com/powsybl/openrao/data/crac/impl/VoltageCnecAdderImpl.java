@@ -35,7 +35,7 @@ public class VoltageCnecAdderImpl extends AbstractCnecAdderImpl<VoltageCnecAdder
     @Override
     public VoltageCnecAdder withNetworkElement(String networkElementId, String networkElementName) {
         if (!this.networkElementsIdAndName.entrySet().isEmpty()) {
-            throw new OpenRaoException("Cannot add multiple network elements for a voltage cnec.");
+            throw new OpenRaoException("Cannot put multiple network elements for a voltage cnec.");
         }
         super.withNetworkElement(networkElementId, networkElementName);
         return this;
@@ -83,7 +83,7 @@ public class VoltageCnecAdderImpl extends AbstractCnecAdderImpl<VoltageCnecAdder
          */
 
         if (this.thresholds.isEmpty()) {
-            throw new OpenRaoException("Cannot add an VoltageCnec without a threshold. Please use newThreshold");
+            throw new OpenRaoException("Cannot put an VoltageCnec without a threshold. Please use newThreshold");
         }
 
         if (this.thresholds.stream().anyMatch(th -> !th.getUnit().equals(Unit.KILOVOLT))) {

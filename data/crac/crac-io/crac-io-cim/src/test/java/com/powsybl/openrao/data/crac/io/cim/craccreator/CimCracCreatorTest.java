@@ -937,7 +937,7 @@ class CimCracCreatorTest {
         assertTrue(cracCreationContext.getCreationReport().getReport().contains("[REMOVED] VoltageCnec with network element \"_2844585c-0d35-488d-a449-685bcd57afbf\", instant \"all\" and contingency \"all\" was not imported: INCONSISTENCY_IN_DATA. Element _2844585c-0d35-488d-a449-685bcd57afbf is not a voltage level."));
         assertTrue(cracCreationContext.getCreationReport().getReport().contains("[REMOVED] VoltageCnec with network element \"_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0\", instant \"all\" and contingency \"all\" was not imported: INCONSISTENCY_IN_DATA. Element _a708c3bc-465d-4fe7-b6ef-6fa6408a62b0 is not a voltage level."));
         assertTrue(cracCreationContext.getCreationReport().getReport().contains("[REMOVED] VoltageCnec with network element \"all\", instant \"all\" and contingency \"Co-4-name\" was not imported: OTHER. Contingency does not exist in the CRAC or could not be imported."));
-        assertTrue(cracCreationContext.getCreationReport().getReport().contains("[REMOVED] VoltageCnec with network element \"_d77b61ef-61aa-4b22-95f6-b56ca080788d\", instant \"auto\" and contingency \"Co-2-name\" was not imported: INCONSISTENCY_IN_DATA. Cannot add a threshold without min nor max values. Please use withMin() or withMax().."));
+        assertTrue(cracCreationContext.getCreationReport().getReport().contains("[REMOVED] VoltageCnec with network element \"_d77b61ef-61aa-4b22-95f6-b56ca080788d\", instant \"auto\" and contingency \"Co-2-name\" was not imported: INCONSISTENCY_IN_DATA. Cannot put a threshold without min nor max values. Please use withMin() or withMax().."));
     }
 
     @Test

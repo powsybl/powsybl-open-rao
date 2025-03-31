@@ -459,7 +459,7 @@ public class SearchTreeRaoSteps {
     Flows in A
      */
 
-    // TODO : add steps to check flows on both sides
+    // TODO : put steps to check flows on both sides
     @Then("the initial flow on cnec {string} should be {double} A")
     public void initialFlowInA(String cnecId, Double expectedFlow) {
         TwoSides side = crac.getFlowCnec(cnecId).getMonitoredSides().iterator().next();

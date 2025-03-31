@@ -58,7 +58,7 @@ class DanglingLineActionAdderImplTest {
         DanglingLineActionAdder danglingLineActionAdder = networkActionAdder.newDanglingLineAction()
             .withActivePowerValue(100.);
         Exception e = assertThrows(OpenRaoException.class, danglingLineActionAdder::add);
-        assertEquals("Cannot add DanglingLineAction without a network element. Please use withNetworkElement() with a non null value", e.getMessage());
+        assertEquals("Cannot put DanglingLineAction without a network element. Please use withNetworkElement() with a non null value", e.getMessage());
     }
 
     @Test
@@ -66,7 +66,7 @@ class DanglingLineActionAdderImplTest {
         DanglingLineActionAdder danglingLineActionAdder = networkActionAdder.newDanglingLineAction()
             .withNetworkElement("groupNetworkElementId");
         Exception e = assertThrows(OpenRaoException.class, danglingLineActionAdder::add);
-        assertEquals("Cannot add DanglingLineAction without a activePowerValue. Please use withActivePowerValue() with a non null value", e.getMessage());
+        assertEquals("Cannot put DanglingLineAction without a activePowerValue. Please use withActivePowerValue() with a non null value", e.getMessage());
     }
 
 }

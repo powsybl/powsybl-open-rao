@@ -15,5 +15,5 @@ public interface HvdcElementHelper extends ElementHelper {
      */
     boolean isInvertedInNetwork();
 
-    // if there is a need to: add here getInitialSetpoint(), getMaxActivePower(), getMinActivePower()
+    // if there is a need to: put here getInitialSetpoint(), getMaxActivePower(), getMinActivePower()
 }
