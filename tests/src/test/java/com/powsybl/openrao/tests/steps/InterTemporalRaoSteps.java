@@ -101,17 +101,17 @@ public final class InterTemporalRaoSteps {
 
     @Given("ics static file is {string}")
     public static void icsStaticFileIs(String path) {
-        icsStaticPath = getResourcesPath().concat("ics/").concat(path);
+        icsStaticPath = getResourcesPath().concat("ics/static/").concat(path);
     }
 
     @Given("ics series file is {string}")
     public static void icsSeriesFileIs(String path) {
-        icsSeriesPath = getResourcesPath().concat("ics/").concat(path);
+        icsSeriesPath = getResourcesPath().concat("ics/series/").concat(path);
     }
 
     @Given("ics gsk file is {string}")
     public static void icsGskFileIs(String path) {
-        icsGskPath = getResourcesPath().concat("ics/").concat(path);
+        icsGskPath = getResourcesPath().concat("ics/gsk/").concat(path);
     }
 
     @Given("intertemporal rao inputs are:")
