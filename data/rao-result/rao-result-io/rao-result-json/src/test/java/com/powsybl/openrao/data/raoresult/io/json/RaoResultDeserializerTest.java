@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
  */
 class RaoResultDeserializerTest {
     @Test
-    void testRaoResultWithTapForNonPstRangeAction() {
+    void testRaoResultWithTapForNonPstRangeAction() throws IOException {
         Crac crac = ExhaustiveCracCreation.create();
         InputStream raoResultStream = getClass().getResourceAsStream("/rao-result-with-tap-for-non-pst-range-action.json");
         OpenRaoException exception = assertThrows(OpenRaoException.class, () -> RaoResult.read(raoResultStream, crac));
@@ -32,7 +32,7 @@ class RaoResultDeserializerTest {
     }
 
     @Test
-    void testRaoResultWithUnnecessaryPstRangeActionSetPoint() {
+    void testRaoResultWithUnnecessaryPstRangeActionSetPoint() throws IOException {
         Crac crac = ExhaustiveCracCreation.create();
         InputStream raoResultStream = getClass().getResourceAsStream("/rao-result-with-unnecessary-pst-range-action-set-point.json");
         OpenRaoException exception = assertThrows(OpenRaoException.class, () -> RaoResult.read(raoResultStream, crac));
