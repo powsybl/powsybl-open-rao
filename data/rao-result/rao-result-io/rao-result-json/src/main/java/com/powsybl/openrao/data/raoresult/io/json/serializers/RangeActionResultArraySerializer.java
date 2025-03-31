@@ -48,24 +48,20 @@ final class RangeActionResultArraySerializer {
         jsonGenerator.writeStartObject();
         jsonGenerator.writeStringField(RaoResultJsonConstants.RANGEACTION_ID, rangeAction.getId());
 
-        if (rangeAction instanceof PstRangeAction pstRangeAction) {
-            jsonGenerator.writeNumberField(RaoResultJsonConstants.INITIAL_TAP, pstRangeAction.getInitialTap());
-        } else {
-            Double initialSetpoint = safeGetPreOptimizedSetpoint(raoResult, crac.getPreventiveState(), rangeAction);
-            if (!Double.isNaN(initialSetpoint)) {
-                jsonGenerator.writeNumberField(RaoResultJsonConstants.INITIAL_SETPOINT, initialSetpoint);
-            }
+        Double initialSetpoint = safeGetPreOptimizedSetpoint(raoResult, crac.getPreventiveState(), rangeAction);
+        if (!Double.isNaN(initialSetpoint)) {
+            jsonGenerator.writeNumberField(RaoResultJsonConstants.INITIAL_SETPOINT, initialSetpoint);
         }
 
         List<State> statesWhenRangeActionIsActivated = crac.getStates().stream()
-            .filter(state -> safeIsActivatedDuringState(raoResult, state, rangeAction))
-            .sorted(RaoResultJsonConstants.STATE_COMPARATOR)
-            .toList();
+                .filter(state -> safeIsActivatedDuringState(raoResult, state, rangeAction))
+                .sorted(RaoResultJsonConstants.STATE_COMPARATOR)
+                .toList();
 
         Map<State, Pair<Integer, Double>> activatedSetpoints = statesWhenRangeActionIsActivated.stream()
             .collect(Collectors.toMap(
                 Function.identity(), state -> Pair.of(safeGetOptimizedTap(raoResult, state, rangeAction),
-                    safeGetOptimizedSetpoint(raoResult, state, rangeAction)),
+                safeGetOptimizedSetpoint(raoResult, state, rangeAction)),
                 (x, y) -> x,
                 LinkedHashMap::new));
         writeStateToTapAndSetpointArray(jsonGenerator, activatedSetpoints, RaoResultJsonConstants.STATES_ACTIVATED, rangeAction instanceof PstRangeAction);

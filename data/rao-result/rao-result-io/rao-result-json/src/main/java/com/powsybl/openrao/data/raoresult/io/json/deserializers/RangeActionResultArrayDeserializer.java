@@ -36,7 +36,6 @@ final class RangeActionResultArrayDeserializer {
     }
 
     static void deserialize(JsonParser jsonParser, RaoResultImpl raoResult, Crac crac, String jsonFileVersion) throws IOException {
-        Pair<Integer, Integer> version = getVersion(jsonFileVersion);
 
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
 
@@ -78,17 +77,13 @@ final class RangeActionResultArrayDeserializer {
                         break;
 
                     case INITIAL_SETPOINT:
-                        if ((version.getLeft() == 1 && version.getRight() >= 8 || version.getLeft() >= 2)
-                            && rangeAction instanceof PstRangeAction) {
-                            throw new OpenRaoException("Since version 1.8, only the initial taps are reported for PST range actions.");
-                        }
                         jsonParser.nextToken();
                         rangeActionResult.setInitialSetpoint(jsonParser.getDoubleValue());
                         break;
 
                     case STATES_ACTIVATED:
                         jsonParser.nextToken();
-                        deserializeResultsPerStates(jsonParser, rangeActionResult, crac, version, rangeAction);
+                        deserializeResultsPerStates(jsonParser, rangeActionResult, crac, jsonFileVersion, rangeAction);
                         break;
 
                     case AFTER_PRA_SETPOINT:
@@ -102,18 +97,10 @@ final class RangeActionResultArrayDeserializer {
                         break;
 
                     case INITIAL_TAP:
-                        if (version.getLeft() <= 1 && version.getRight() <= 7) {
-                            // skip this, we don't need to read tap because we have the set-point
-                            LOGGER.info("Field {} in {} is no longer used", INITIAL_TAP, RANGEACTION_RESULTS);
-                            jsonParser.nextTextValue();
-                            break;
-                        } else if (rangeAction instanceof PstRangeAction pstRangeAction) {
-                            jsonParser.nextToken();
-                            rangeActionResult.setInitialSetpoint(pstRangeAction.getTapToAngleConversionMap().get(jsonParser.getIntValue()));
-                            break;
-                        } else {
-                            throw new OpenRaoException("Initial taps can only be defined for PST range actions.");
-                        }
+                        // skip this, we don't need to read tap because we have the set-point
+                        LOGGER.info("Field {} in {} is no longer used", INITIAL_TAP, RANGEACTION_RESULTS);
+                        jsonParser.nextTextValue();
+                        break;
 
                     default:
                         throw new OpenRaoException(String.format("Cannot deserialize RaoResult: unexpected field in %s (%s)", RANGEACTION_RESULTS, jsonParser.getCurrentName()));
@@ -122,7 +109,8 @@ final class RangeActionResultArrayDeserializer {
         }
     }
 
-    private static void deserializeResultsPerStates(JsonParser jsonParser, RangeActionResult rangeActionResult, Crac crac, Pair<Integer, Integer> version, RangeAction<?> rangeAction) throws IOException {
+    private static void deserializeResultsPerStates(JsonParser jsonParser, RangeActionResult rangeActionResult, Crac crac, String jsonFileVersion, RangeAction<?> rangeAction) throws IOException {
+        Pair<Integer, Integer> version = getVersion(jsonFileVersion);
         String instantId = null;
         String contingencyId = null;
         Double setpoint = null;
