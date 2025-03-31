@@ -7,17 +7,19 @@
  */
 package com.powsybl.openrao.tests.steps;
 
+import com.powsybl.iidm.network.Bus;
+import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.crac.api.Crac;
-import com.powsybl.openrao.data.crac.api.CracCreationContext;
-import com.powsybl.openrao.data.crac.api.Instant;
-import com.powsybl.openrao.data.crac.api.InstantKind;
+import com.powsybl.openrao.data.crac.api.*;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
+import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.crac.api.parameters.JsonCracCreationParameters;
+import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.InterTemporalRaoResult;
 import com.powsybl.openrao.raoapi.*;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
@@ -33,6 +35,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.OffsetDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.zip.ZipOutputStream;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
@@ -163,6 +166,61 @@ public final class InterTemporalRaoSteps {
         properties.put("inter-temporal-rao-result.export.filename-template", "'RAO_RESULT_'yyyy-MM-dd'T'HH:mm:ss'.json'");
         properties.put("inter-temporal-rao-result.export.summary-filename", "summary.json");
         interTemporalRaoResult.write(zipOutputStream, interTemporalRaoInput.getRaoInputs().map(RaoInputWithNetworkPaths::getCrac), properties);
+    }
+
+    @When("I export networks with PRAs")
+    public static void iExportNetworksWithPras() {
+        interTemporalRaoResult.getTimestamps().forEach(offsetDateTime -> {
+            Set<NetworkAction> preventiveNetworkActions = interTemporalRaoResult.getIndividualRaoResult(offsetDateTime).getActivatedNetworkActionsDuringState(interTemporalRaoInput.getRaoInputs().getData(offsetDateTime).get().getCrac().getPreventiveState());
+            Set<RangeAction<?>> preventiveRangeActions = interTemporalRaoResult.getIndividualRaoResult(offsetDateTime).getActivatedRangeActionsDuringState(interTemporalRaoInput.getRaoInputs().getData(offsetDateTime).get().getCrac().getPreventiveState());
+            Network modifiedNetwork = Network.read(interTemporalRaoInput.getRaoInputs().getData(offsetDateTime).orElseThrow().getPostIcsImportNetworkPath());
+            Network initialNetwork = Network.read(interTemporalRaoInput.getRaoInputs().getData(offsetDateTime).orElseThrow().getInitialNetworkPath());
+
+            // Apply PRAs on modified network
+            preventiveNetworkActions.forEach(networkAction -> networkAction.apply(modifiedNetwork));
+            preventiveRangeActions.forEach(rangeAction -> {
+                double optimizedSetpoint = interTemporalRaoResult.getIndividualRaoResult(offsetDateTime).getOptimizedSetPointOnState(interTemporalRaoInput.getRaoInputs().getData(offsetDateTime).get().getCrac().getPreventiveState(), rangeAction);
+                if (rangeAction instanceof InjectionRangeAction) {
+                    applyRedispatchingAction((InjectionRangeAction) rangeAction, optimizedSetpoint, modifiedNetwork, initialNetwork);
+                } else {
+                    rangeAction.apply(modifiedNetwork, optimizedSetpoint);
+                }
+            });
+            // Export
+            String path = interTemporalRaoInput.getRaoInputs().getData(offsetDateTime).orElseThrow().getPostIcsImportNetworkPath().split(".jiidm")[0].concat(".uct");
+            initialNetwork.write("UCTE", new Properties(), Path.of(path));
+        });
+    }
+
+    private static void applyRedispatchingAction(InjectionRangeAction injectionRangeAction, double optimizedSetpoint, Network modifiedNetwork, Network initialNetwork) {
+        double initialSetpoint = injectionRangeAction.getInitialSetpoint();
+        for (NetworkElement networkElement : injectionRangeAction.getNetworkElements().stream().collect(Collectors.toSet())) {
+            String busId = modifiedNetwork.getGenerator(networkElement.getId()).getTerminal().getBusBreakerView().getBus().getId();
+            Bus busInInitialNetwork = initialNetwork.getBusBreakerView().getBus(busId);
+            // If no generator defined in initial network, create one
+            // For now, minimumPermissibleReactivePowerGeneration and maximumPermissibleReactivePowerGeneration are hardcoded to -999 and 999
+            // to prevent infinite values that generate a UCT writer crash. TODO : compute realistic values
+            String generatorId = busId + "_generator";
+            if (initialNetwork.getGenerator(generatorId) == null) {
+                Generator generator = busInInitialNetwork.getVoltageLevel().newGenerator()
+                    .setBus(busId)
+                    .setEnsureIdUnicity(true)
+                    .setId(generatorId)
+                    .setMaxP(999999)
+                    .setMinP(0)
+                    .setTargetP(0)
+                    .setTargetQ(0)
+                    .setTargetV(busInInitialNetwork.getVoltageLevel().getNominalV())
+                    .setVoltageRegulatorOn(false)
+                    .add();
+                generator.setFictitious(true);
+                generator.newMinMaxReactiveLimits().setMinQ(-999).setMaxQ(999).add();
+            }
+            for (Generator generator : busInInitialNetwork.getGenerators()) {
+                generator.setTargetP(generator.getTargetP()
+                    + (optimizedSetpoint - initialSetpoint) * injectionRangeAction.getInjectionDistributionKeys().get(networkElement));
+            }
+        }
     }
 
     @Then("the optimized margin on {string} for timestamp {string} is {double} MW")
