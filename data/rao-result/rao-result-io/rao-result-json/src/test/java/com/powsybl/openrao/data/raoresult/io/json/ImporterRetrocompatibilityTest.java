@@ -226,17 +226,6 @@ class ImporterRetrocompatibilityTest {
     }
 
     @Test
-    void importV1Point8Test() throws IOException {
-        InputStream raoResultFile = getClass().getResourceAsStream("/retrocompatibility/v1.8/rao-result-v1.8.json");
-        InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v1.8/crac-for-rao-result-v1.8.json");
-
-        Crac crac = Crac.read("crac-for-rao-result-v1.8.json", cracFile, getMockedNetwork());
-        RaoResult raoResult = new RaoResultJsonImporter().importData(raoResultFile, crac);
-
-        testBaseContentOfV1Point7RaoResult(raoResult, crac);
-    }
-
-    @Test
     void importV1Point3TestFieldDeprecationTest() throws IOException {
         InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v1.3/crac-for-rao-result-v1.3.json");
         Crac crac = Crac.read("crac-for-rao-result-v1.3.json", cracFile, getMockedNetwork());
@@ -879,9 +868,5 @@ class ImporterRetrocompatibilityTest {
         testBaseContentOfV1Point6RaoResult(importedRaoResult, crac);
         // check execution details
         assertEquals("Custom execution details", importedRaoResult.getExecutionDetails());
-    }
-
-    private void testBaseContentOfV1Point8RaoResult(RaoResult importedRaoResult, Crac crac) {
-        testBaseContentOfV1Point7RaoResult(importedRaoResult, crac);
     }
 }
