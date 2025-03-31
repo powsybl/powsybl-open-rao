@@ -539,22 +539,20 @@
     } ]
   }, {
     "rangeActionId" : "pstRange1Id",
-    "initialTap" : 2,
+    "initialSetpoint" : 0.0,
     "activatedStates" : [ {
       "instant" : "preventive",
       "tap" : 3
     } ]
   }, {
     "rangeActionId" : "pstRange2Id",
-    "initialTap" : 1
+    "initialSetpoint" : 1.5
   }, {
     "rangeActionId" : "pstRange3Id",
-    "initialTap" : 1
+    "initialSetpoint" : 1.0
   }, {
-    "rangeActionId" : "pstRange4Id",
-    "initialTap" : 1
+    "rangeActionId" : "pstRange4Id"
   }, {
-    "rangeActionId" : "pstRange5Id",
-    "initialTap" : -3
+    "rangeActionId" : "pstRange5Id"
   } ]
 }

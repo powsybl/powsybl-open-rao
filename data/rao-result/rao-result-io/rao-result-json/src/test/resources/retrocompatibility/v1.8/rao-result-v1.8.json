@@ -541,16 +541,16 @@
     } ]
   }, {
     "rangeActionId" : "pstRange1Id",
-    "initialTap" : -3,
+    "initialSetpoint" : 0.0,
     "activatedStates" : [ {
       "instant" : "preventive",
       "tap" : 3
     } ]
   }, {
     "rangeActionId" : "pstRange2Id",
-    "initialTap" : 0
+    "initialSetpoint" : 1.5
   }, {
     "rangeActionId" : "pstRange3Id",
-    "initialTap" : -1
+    "initialSetpoint" : 1.0
   } ]
 }
