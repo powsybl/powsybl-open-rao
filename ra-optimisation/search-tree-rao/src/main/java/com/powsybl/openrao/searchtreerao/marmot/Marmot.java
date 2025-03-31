@@ -155,7 +155,7 @@ public class Marmot implements InterTemporalRaoProvider {
 
             // Create a global result with the flows on ALL cnecs and the actions applied during MIP
             TemporalData<RangeActionActivationResult> rangeActionActivationResultTemporalData = ((GlobalRangeActionActivationResult) linearOptimizationResults.getRangeActionActivationResult()).getRangeActionActivationPerTimestamp();
-            fullResults = new GlobalLinearOptimizationResult(loadFlowResults, postTopoResults.map(PrePerimeterResult::getSensitivityResult), rangeActionActivationResultTemporalData, preventiveTopologicalActions, fullObjectiveFunction, LinearProblemStatus.OPTIMAL);
+            fullResults = new GlobalLinearOptimizationResult(loadFlowResults, loadFlowResults.map(PrePerimeterResult::getSensitivityResult), rangeActionActivationResultTemporalData, preventiveTopologicalActions, fullObjectiveFunction, LinearProblemStatus.OPTIMAL);
 
             logCost("[MARMOT] next iteration of MIP: ", fullResults, raoParameters, 10);
         } while (!shouldStop(loadFlowResults, consideredCnecs)); // Stop if the worst element of each TS has been considered during MIP

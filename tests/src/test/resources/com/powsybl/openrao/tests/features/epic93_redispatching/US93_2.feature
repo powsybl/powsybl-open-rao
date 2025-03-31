@@ -319,6 +319,7 @@ Feature: US 93.2: power gradient constraints
       | Timestamp        | Network                                                         |
       | 2024-09-26 00:30 | 20240926_0030_2D4_UX0_FEXPORTGRIDMODEL_CGM_10V1001C--00264T.uct |
     When I launch marmot
+    When I export marmot results to "raoresults/test.zip"
 
   @fast @rao @dc @redispatching @preventive-only
   Scenario: US 93.2.4: Test for core idcc 0906

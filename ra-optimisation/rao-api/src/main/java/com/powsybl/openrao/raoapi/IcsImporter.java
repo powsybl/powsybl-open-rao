@@ -266,7 +266,7 @@ public final class IcsImporter {
         }
         return true;
     }
-    
+
     private static double parseDoubleWithPossibleCommas(String string) {
         return Double.parseDouble(string.replaceAll(",", "."));
     }
