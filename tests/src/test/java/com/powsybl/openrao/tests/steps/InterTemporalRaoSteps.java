@@ -28,6 +28,7 @@ import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.io.*;
@@ -36,6 +37,7 @@ import java.nio.file.Path;
 import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
@@ -57,6 +59,16 @@ public final class InterTemporalRaoSteps {
 
     private InterTemporalRaoSteps() {
         // should not be instantiated
+    }
+
+    // TODO : add after to run after all @intertemporal scenarios
+    private static void cleanModifiedNetworks() {
+        interTemporalRaoResult.getTimestamps().forEach(offsetDateTime -> {
+            File file = new File(interTemporalRaoInput.getRaoInputs().getData(offsetDateTime).orElseThrow().getPostIcsImportNetworkPath());
+            if (file.exists()) {
+                file.delete();
+            }
+        });
     }
 
     @Given("network files are in folder {string}")
@@ -168,9 +180,12 @@ public final class InterTemporalRaoSteps {
         interTemporalRaoResult.write(zipOutputStream, interTemporalRaoInput.getRaoInputs().map(RaoInputWithNetworkPaths::getCrac), properties);
     }
 
-    @When("I export networks with PRAs")
-    public static void iExportNetworksWithPras() {
-        interTemporalRaoResult.getTimestamps().forEach(offsetDateTime -> {
+    @When("I export networks with PRAs to {string}")
+    public static void iExportNetworksWithPras(String outputPath) throws IOException {
+        FileOutputStream fileOutputStream = new FileOutputStream(getFile(getResourcesPath().concat(outputPath)));
+        ZipOutputStream zipOutputStream = new ZipOutputStream(fileOutputStream);
+
+        for (OffsetDateTime offsetDateTime : interTemporalRaoResult.getTimestamps()) {
             Set<NetworkAction> preventiveNetworkActions = interTemporalRaoResult.getIndividualRaoResult(offsetDateTime).getActivatedNetworkActionsDuringState(interTemporalRaoInput.getRaoInputs().getData(offsetDateTime).get().getCrac().getPreventiveState());
             Set<RangeAction<?>> preventiveRangeActions = interTemporalRaoResult.getIndividualRaoResult(offsetDateTime).getActivatedRangeActionsDuringState(interTemporalRaoInput.getRaoInputs().getData(offsetDateTime).get().getCrac().getPreventiveState());
             Network modifiedNetwork = Network.read(interTemporalRaoInput.getRaoInputs().getData(offsetDateTime).orElseThrow().getPostIcsImportNetworkPath());
@@ -186,10 +201,27 @@ public final class InterTemporalRaoSteps {
                     rangeAction.apply(modifiedNetwork, optimizedSetpoint);
                 }
             });
-            // Export
+            // Write network
             String path = interTemporalRaoInput.getRaoInputs().getData(offsetDateTime).orElseThrow().getPostIcsImportNetworkPath().split(".jiidm")[0].concat(".uct");
+            String name = path.substring(path.lastIndexOf("/") + 1);
             initialNetwork.write("UCTE", new Properties(), Path.of(path));
-        });
+
+            // Add network to zip
+            ZipEntry entry = new ZipEntry(name);
+            zipOutputStream.putNextEntry(entry);
+            File generatedNetwork = new File(path);
+            byte[] fileInByte = FileUtils.readFileToByteArray(generatedNetwork);
+            InputStream is = new ByteArrayInputStream(fileInByte);
+            byte[] bytes = new byte[1024];
+            int length;
+            while ((length = is.read(bytes)) >= 0) {
+                zipOutputStream.write(bytes, 0, length);
+            }
+            is.close();
+            generatedNetwork.delete();
+        }
+        zipOutputStream.close();
+        cleanModifiedNetworks();
     }
 
     private static void applyRedispatchingAction(InjectionRangeAction injectionRangeAction, double optimizedSetpoint, Network modifiedNetwork, Network initialNetwork) {
