@@ -43,6 +43,7 @@ import com.powsybl.openrao.searchtreerao.linearoptimisation.parameters.Iterating
 import com.powsybl.openrao.searchtreerao.marmot.results.*;
 import com.powsybl.openrao.searchtreerao.result.api.*;
 import com.powsybl.openrao.searchtreerao.result.impl.FastRaoResultImpl;
+import com.powsybl.openrao.searchtreerao.result.impl.LightFastRaoResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.NetworkActionsResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.RangeActionActivationResultImpl;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
@@ -125,6 +126,9 @@ public class Marmot implements InterTemporalRaoProvider {
             return CompletableFuture.completedFuture(new InterTemporalRaoResultImpl(initialObjectiveFunctionResult, finalObjectiveFunctionResult, topologicalOptimizationResults));
         }
 
+        // make fast rao result lighter by keeping only initial flow result and filtered rao result for actions
+        replaceFastRaoResultsWithLightVersions(topologicalOptimizationResults);
+
         // Create some variables that will be used in the MIP loops and will still be needed after the loop
         TemporalData<PrePerimeterResult> loadFlowResults;
         LinearOptimizationResult linearOptimizationResults;
@@ -176,6 +180,7 @@ public class Marmot implements InterTemporalRaoProvider {
     }
 
     private boolean shouldStop(TemporalData<PrePerimeterResult> loadFlowResults, TemporalData<Set<String>> consideredCnecs) {
+        int cnecsToAddPerVirtualCostName = 20;
         AtomicBoolean shouldStop = new AtomicBoolean(true);
         // For every TS, for all the virtual costs, go through all the costly cnecs in order.
         // If the cnec has already been considered, go to the next virtual cost
@@ -184,17 +189,25 @@ public class Marmot implements InterTemporalRaoProvider {
             PrePerimeterResult loadFlowResult = loadFlowResults.getData(timestamp).orElseThrow();
             Set<String> cnecs = consideredCnecs.getData(timestamp).orElseThrow();
             loadFlowResult.getVirtualCostNames().forEach(vcName -> {
+                int addedCnecs = 0;
                 for (FlowCnec cnec : loadFlowResult.getCostlyElements(vcName, Integer.MAX_VALUE)) {
-                    if (cnecs.contains(cnec.getId())) {
+                    if (addedCnecs > cnecsToAddPerVirtualCostName) {
                         break;
-                    } else {
+                    } else if (!cnecs.contains(cnec.getId())) {
                         shouldStop.set(false);
                         cnecs.add(cnec.getId());
+                        addedCnecs++;
                     }
                 }
             });
         });
         return shouldStop.get();
+    }
+
+    private void replaceFastRaoResultsWithLightVersions(TemporalData<RaoResult> topologicalOptimizationResults) {
+        topologicalOptimizationResults.getDataPerTimestamp().forEach((timestamp, raoResult) -> {
+            topologicalOptimizationResults.add(timestamp, new LightFastRaoResultImpl((FastRaoResultImpl) raoResult));
+        });
     }
 
     private static void exportUctNetwork(RaoInputWithNetworkPaths raoInputWithNetworkPaths, RaoInput raoInput, LinearOptimizationResult linearOptimizationResults) {
