@@ -171,7 +171,7 @@ class NetworkActionAdderImplTest {
                     .withTapPosition(6)
                     .add();
         OpenRaoException exception = assertThrows(OpenRaoException.class, networkActionAdder::add);
-        assertEquals("Cannot put a NetworkAction object with no specified id. Please use withId()", exception.getMessage());
+        assertEquals("Cannot add a NetworkAction object with no specified id. Please use withId()", exception.getMessage());
     }
 
     @Test

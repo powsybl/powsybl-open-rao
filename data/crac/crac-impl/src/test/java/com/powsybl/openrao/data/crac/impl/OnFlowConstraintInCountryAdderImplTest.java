@@ -118,21 +118,21 @@ class OnFlowConstraintInCountryAdderImplTest {
     void testAbsentCountryException() {
         OnFlowConstraintInCountryAdder<NetworkActionAdder> adder = remedialActionAdder.newOnFlowConstraintInCountryUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE);
         OpenRaoException exception = assertThrows(OpenRaoException.class, adder::add);
-        assertEquals("Cannot put OnFlowConstraintInCountry without a country. Please use withCountry() with a non null value", exception.getMessage());
+        assertEquals("Cannot add OnFlowConstraintInCountry without a country. Please use withCountry() with a non null value", exception.getMessage());
     }
 
     @Test
     void testNoInstantException() {
         OnFlowConstraintInCountryAdder<NetworkActionAdder> adder = remedialActionAdder.newOnFlowConstraintInCountryUsageRule().withCountry(Country.FR).withUsageMethod(UsageMethod.AVAILABLE);
         Exception exception = assertThrows(OpenRaoException.class, adder::add);
-        assertEquals("Cannot put OnFlowConstraintInCountry without a instant. Please use withInstant() with a non null value", exception.getMessage());
+        assertEquals("Cannot add OnFlowConstraintInCountry without a instant. Please use withInstant() with a non null value", exception.getMessage());
     }
 
     @Test
     void testNoUsageMethodException() {
         OnFlowConstraintInCountryAdder<NetworkActionAdder> adder = remedialActionAdder.newOnFlowConstraintInCountryUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withCountry(Country.FR);
         OpenRaoException exception = assertThrows(OpenRaoException.class, adder::add);
-        assertEquals("Cannot put OnFlowConstraintInCountry without a usage method. Please use withUsageMethod() with a non null value", exception.getMessage());
+        assertEquals("Cannot add OnFlowConstraintInCountry without a usage method. Please use withUsageMethod() with a non null value", exception.getMessage());
     }
 
     @Test

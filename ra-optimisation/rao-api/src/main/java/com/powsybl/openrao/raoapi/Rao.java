@@ -157,7 +157,7 @@ public final class Rao {
                 // an exception
                 List<String> raOptimizerNames = providers.stream().map(RaoProvider::getName).toList();
                 throw new OpenRaoException("Several RAO implementations found (" + raOptimizerNames
-                        + "), you must put configuration to select the implementation");
+                        + "), you must add configuration to select the implementation");
             }
             provider = providers.stream()
                     .filter(p -> p.getName().equals(raOptimizerName))

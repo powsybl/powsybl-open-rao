@@ -230,7 +230,7 @@ class FlowCnecAdderImplTest {
         FlowCnecAdder flowCnecAdder = crac.newFlowCnec()
             .withNetworkElement("neId1", "neName1");
         OpenRaoException exception = assertThrows(OpenRaoException.class, () -> flowCnecAdder.withNetworkElement("neId2", "neName2"));
-        assertEquals("Cannot put multiple network elements for a flow cnec.", exception.getMessage());
+        assertEquals("Cannot add multiple network elements for a flow cnec.", exception.getMessage());
     }
 
     @Test
@@ -244,7 +244,7 @@ class FlowCnecAdderImplTest {
             .withNominalVoltage(220)
             .withIMax(2000.);
         OpenRaoException exception = assertThrows(OpenRaoException.class, flowCnecAdder::add);
-        assertEquals("Cannot put a FlowCnec object with no specified id. Please use withId()", exception.getMessage());
+        assertEquals("Cannot add a FlowCnec object with no specified id. Please use withId()", exception.getMessage());
     }
 
     @Test
@@ -258,7 +258,7 @@ class FlowCnecAdderImplTest {
             .withNominalVoltage(220)
             .withIMax(2000.);
         OpenRaoException exception = assertThrows(OpenRaoException.class, flowCnecAdder::add);
-        assertEquals("Cannot put Cnec without a instant. Please use withInstant() with a non null value", exception.getMessage());
+        assertEquals("Cannot add Cnec without a instant. Please use withInstant() with a non null value", exception.getMessage());
     }
 
     @Test
@@ -272,7 +272,7 @@ class FlowCnecAdderImplTest {
             .withNominalVoltage(220)
             .withIMax(2000.);
         OpenRaoException exception = assertThrows(OpenRaoException.class, flowCnecAdder::add);
-        assertEquals("Cannot put Cnec without a network element. Please use withNetworkElement()", exception.getMessage());
+        assertEquals("Cannot add Cnec without a network element. Please use withNetworkElement()", exception.getMessage());
     }
 
     @Test
@@ -286,7 +286,7 @@ class FlowCnecAdderImplTest {
             .withNominalVoltage(220)
             .withIMax(2000.);
         OpenRaoException exception = assertThrows(OpenRaoException.class, flowCnecAdder::add);
-        assertEquals("Cannot put a cnec without a threshold. Please use newThreshold", exception.getMessage());
+        assertEquals("Cannot add a cnec without a threshold. Please use newThreshold", exception.getMessage());
     }
 
     @Test
@@ -305,7 +305,7 @@ class FlowCnecAdderImplTest {
             .withNominalVoltage(220)
             .withIMax(2000.);
         OpenRaoException exception = assertThrows(OpenRaoException.class, flowCnecAdder::add);
-        assertEquals("Cannot put a cnec with an already existing ID - Cnec ID.", exception.getMessage());
+        assertEquals("Cannot add a cnec with an already existing ID - Cnec ID.", exception.getMessage());
     }
 
     @Test

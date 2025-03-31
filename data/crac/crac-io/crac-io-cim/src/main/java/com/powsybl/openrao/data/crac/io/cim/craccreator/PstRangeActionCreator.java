@@ -84,7 +84,7 @@ public class PstRangeActionCreator {
                 .withInitialTap(pstHelper.getInitialTap())
                 .withTapToAngleConversionMap(pstHelper.getTapToAngleConversionMap());
 
-            // ---- put groupId if present
+            // ---- add groupId if present
             if (cimCracCreationParameters != null && cimCracCreationParameters.getRangeActionGroups() != null) {
                 List<String> raGroups = cimCracCreationParameters.getRangeActionGroups().stream()
                     .filter(rangeActionGroup -> rangeActionGroup.getRangeActionsIds().contains(createdRemedialActionId))
@@ -99,7 +99,7 @@ public class PstRangeActionCreator {
                 }
             }
 
-            // -- put speed if present
+            // -- add speed if present
             if (cimCracCreationParameters != null && cimCracCreationParameters.getRangeActionSpeedSet() != null) {
                 cimCracCreationParameters.getRangeActionSpeedSet().stream()
                     .filter(rangeActionSpeed -> rangeActionSpeed.getRangeActionId().equals(createdRemedialActionId))

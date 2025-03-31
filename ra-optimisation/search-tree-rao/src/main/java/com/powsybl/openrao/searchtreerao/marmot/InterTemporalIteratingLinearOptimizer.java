@@ -164,7 +164,7 @@ public final class InterTemporalIteratingLinearOptimizer {
     }
 
     private static List<ProblemFiller> getInterTemporalProblemFillers(InterTemporalIteratingLinearOptimizerInput input) {
-        // TODO: put inter-temporal margin filler (min of all min margins)
+        // TODO: add inter-temporal margin filler (min of all min margins)
         TemporalData<State> preventiveStates = input.iteratingLinearOptimizerInputs().map(linearOptimizerInput -> linearOptimizerInput.optimizationPerimeter().getMainOptimizationState());
         TemporalData<Network> networks = input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::network);
         TemporalData<Set<InjectionRangeAction>> preventiveInjectionRangeActions = input.iteratingLinearOptimizerInputs().map(linearOptimizerInput -> filterPreventiveInjectionRangeAction(linearOptimizerInput.optimizationPerimeter().getRangeActions()));
@@ -181,7 +181,7 @@ public final class InterTemporalIteratingLinearOptimizer {
             .withRelativeMipGap(parameters.getSolverParameters().getRelativeMipGap())
             .withSolverSpecificParameters(parameters.getSolverParameters().getSolverSpecificParameters());
 
-        // put problem fillers for each timestamp and inter-temporal timestamps
+        // add problem fillers for each timestamp and inter-temporal timestamps
         problemFillers.getDataPerTimestamp().values().forEach(problemFillerOfTimestamp -> problemFillerOfTimestamp.forEach(linearProblemBuilder::withProblemFiller));
         interTemporalProblemFillers.forEach(linearProblemBuilder::withProblemFiller);
 

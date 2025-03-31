@@ -200,7 +200,7 @@ class VoltageCnecAdderImplTest {
             .withNetworkElement("neId")
             .newThreshold().withUnit(Unit.KILOVOLT).withMax(100.0).withMin(-100.0).add();
         OpenRaoException exception = assertThrows(OpenRaoException.class, voltageCnecAdder::add);
-        assertEquals("Cannot put a VoltageCnec object with no specified id. Please use withId()", exception.getMessage());
+        assertEquals("Cannot add a VoltageCnec object with no specified id. Please use withId()", exception.getMessage());
     }
 
     @Test
@@ -211,7 +211,7 @@ class VoltageCnecAdderImplTest {
             .withNetworkElement("neId")
             .newThreshold().withUnit(Unit.KILOVOLT).withMax(100.0).withMin(-100.0).add();
         OpenRaoException exception = assertThrows(OpenRaoException.class, voltageCnecAdder::add);
-        assertEquals("Cannot put Cnec without a instant. Please use withInstant() with a non null value", exception.getMessage());
+        assertEquals("Cannot add Cnec without a instant. Please use withInstant() with a non null value", exception.getMessage());
     }
 
     @Test
@@ -222,7 +222,7 @@ class VoltageCnecAdderImplTest {
             .withContingency(contingency1Id)
             .newThreshold().withUnit(Unit.KILOVOLT).withMax(100.0).withMin(-100.0).add();
         OpenRaoException exception = assertThrows(OpenRaoException.class, voltageCnecAdder::add);
-        assertEquals("Cannot put Cnec without a network element. Please use withNetworkElement()", exception.getMessage());
+        assertEquals("Cannot add Cnec without a network element. Please use withNetworkElement()", exception.getMessage());
     }
 
     @Test
@@ -233,7 +233,7 @@ class VoltageCnecAdderImplTest {
             .withContingency(contingency1Id)
             .withNetworkElement("neId");
         OpenRaoException exception = assertThrows(OpenRaoException.class, voltageCnecAdder::add);
-        assertEquals("Cannot put an VoltageCnec without a threshold. Please use newThreshold", exception.getMessage());
+        assertEquals("Cannot add an VoltageCnec without a threshold. Please use newThreshold", exception.getMessage());
     }
 
     @Test
@@ -252,7 +252,7 @@ class VoltageCnecAdderImplTest {
             .withNetworkElement("neId")
             .newThreshold().withUnit(Unit.KILOVOLT).withMax(100.0).withMin(-100.0).add();
         OpenRaoException exception = assertThrows(OpenRaoException.class, voltageCnecAdder::add);
-        assertEquals("Cannot put a cnec with an already existing ID - cnecId.", exception.getMessage());
+        assertEquals("Cannot add a cnec with an already existing ID - cnecId.", exception.getMessage());
     }
 
     @Test

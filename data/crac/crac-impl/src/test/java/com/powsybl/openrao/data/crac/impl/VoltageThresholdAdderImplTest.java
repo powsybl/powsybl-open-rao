@@ -65,7 +65,7 @@ class VoltageThresholdAdderImplTest {
             crac.newVoltageCnec().newThreshold()
                 .withMax(1000.0);
         OpenRaoException exception = assertThrows(OpenRaoException.class, voltageThresholdAdder::add);
-        assertEquals("Cannot put Threshold without a Unit. Please use withUnit() with a non null value", exception.getMessage());
+        assertEquals("Cannot add Threshold without a Unit. Please use withUnit() with a non null value", exception.getMessage());
     }
 
     @Test
@@ -73,6 +73,6 @@ class VoltageThresholdAdderImplTest {
         VoltageThresholdAdder voltageThresholdAdder = crac.newVoltageCnec().newThreshold()
             .withUnit(Unit.KILOVOLT);
         OpenRaoException exception = assertThrows(OpenRaoException.class, voltageThresholdAdder::add);
-        assertEquals("Cannot put a threshold without min nor max values. Please use withMin() or withMax().", exception.getMessage());
+        assertEquals("Cannot add a threshold without min nor max values. Please use withMin() or withMax().", exception.getMessage());
     }
 }

@@ -302,7 +302,7 @@ public class TRemedialActionAdder {
             .withMax(Math.min(-generatorFromHelper.getPmin(), generatorToHelper.getPmax()))
             .add();
 
-        // ---- put groupId if present
+        // ---- add groupId if present
         if (cseCracCreationParameters != null && cseCracCreationParameters.getRangeActionGroups() != null) {
             List<RangeActionGroup> groups = cseCracCreationParameters.getRangeActionGroups().stream()
                 .filter(rangeActionGroup -> rangeActionGroup.getRangeActionsIds().contains(raId))
@@ -406,7 +406,7 @@ public class TRemedialActionAdder {
     private void addOnFlowConstraintUsageRules(RemedialActionAdder<?> remedialActionAdder, TRemedialAction tRemedialAction, Instant raApplicationInstant) {
         if (remedialActionsForCnecsMap.containsKey(tRemedialAction.getName().getV())) {
             for (String flowCnecId : remedialActionsForCnecsMap.get(tRemedialAction.getName().getV())) {
-                // Only put the usage rule if the RemedialAction can be applied before or during CNEC instant
+                // Only add the usage rule if the RemedialAction can be applied before or during CNEC instant
                 if (!crac.getFlowCnec(flowCnecId).getState().getInstant().comesBefore(raApplicationInstant)) {
                     remedialActionAdder.newOnConstraintUsageRule()
                         .withInstant(raApplicationInstant.getId())

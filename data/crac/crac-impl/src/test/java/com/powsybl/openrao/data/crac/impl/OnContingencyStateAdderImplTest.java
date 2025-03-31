@@ -86,7 +86,7 @@ class OnContingencyStateAdderImplTest {
             .withContingency("contingencyId")
             .withUsageMethod(UsageMethod.AVAILABLE);
         OpenRaoException exception = assertThrows(OpenRaoException.class, onContingencyStateAdder::add);
-        assertEquals("Cannot put OnContingencyState without a instant. Please use withInstant() with a non null value", exception.getMessage());
+        assertEquals("Cannot add OnContingencyState without a instant. Please use withInstant() with a non null value", exception.getMessage());
     }
 
     @Test
@@ -95,7 +95,7 @@ class OnContingencyStateAdderImplTest {
             .withInstant(CURATIVE_INSTANT_ID)
             .withUsageMethod(UsageMethod.AVAILABLE);
         OpenRaoException exception = assertThrows(OpenRaoException.class, onContingencyStateAdder::add);
-        assertEquals("Cannot put OnContingencyState without a contingency. Please use withContingency() with a non null value", exception.getMessage());
+        assertEquals("Cannot add OnContingencyState without a contingency. Please use withContingency() with a non null value", exception.getMessage());
     }
 
     @Test
@@ -104,7 +104,7 @@ class OnContingencyStateAdderImplTest {
             .withInstant(CURATIVE_INSTANT_ID)
             .withContingency("contingencyId");
         OpenRaoException exception = assertThrows(OpenRaoException.class, onContingencyStateAdder::add);
-        assertEquals("Cannot put OnContingencyState without a usage method. Please use withUsageMethod() with a non null value", exception.getMessage());
+        assertEquals("Cannot add OnContingencyState without a usage method. Please use withUsageMethod() with a non null value", exception.getMessage());
     }
 
     @Test

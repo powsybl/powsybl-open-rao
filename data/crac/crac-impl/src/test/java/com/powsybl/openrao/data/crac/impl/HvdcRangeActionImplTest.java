@@ -115,7 +115,7 @@ class HvdcRangeActionImplTest {
     @Test
     void hvdcWithoutSpecificRange() {
         OpenRaoException exception = assertThrows(OpenRaoException.class, () -> hvdcRangeActionAdder.add());
-        assertEquals("Cannot put HvdcRangeAction without a range. Please use newRange()", exception.getMessage());
+        assertEquals("Cannot add HvdcRangeAction without a range. Please use newRange()", exception.getMessage());
     }
 
     @Test

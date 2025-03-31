@@ -84,11 +84,11 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
     public void fill(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
         Set<FlowCnec> validFlowCnecs = FillersUtil.getFlowCnecsComputationStatusOk(flowCnecs, sensitivityResult);
 
-        // put variables
+        // add variables
         buildFlowVariables(linearProblem, validFlowCnecs);
         buildRangeActionVariables(linearProblem);
 
-        // put constraints
+        // add constraints
         buildFlowConstraints(linearProblem, validFlowCnecs, flowResult, sensitivityResult, rangeActionActivationResult);
         buildRangeActionConstraints(linearProblem);
         checkAndActivateRangeShrinking(linearProblem, rangeActionActivationResult);
@@ -158,7 +158,7 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
             OpenRaoMPVariable flowVariable = linearProblem.getFlowVariable(cnec, side, Optional.ofNullable(timestamp));
             flowConstraint.setCoefficient(flowVariable, 1);
 
-            // put sensitivity coefficients
+            // add sensitivity coefficients
             addImpactOfRangeActionOnCnec(linearProblem, sensitivityResult, cnec, side, rangeActionActivationResult);
         }));
     }
@@ -266,7 +266,7 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
      * variation variables, and bounds the set-point in an admissible range.
      * S[r,s] = initialSetPoint[r,s] + upwardVariation[r,s] - downwardVariation[r,s]
      *
-     * If r in an injection action, put contribution of its variation to the global balancing constraint (as defined below)
+     * If r in an injection action, add contribution of its variation to the global balancing constraint (as defined below)
      * sum{r InjectionRangeAction} (upwardVariation[r,s] - downwardVariation[r,s]) x sum{distribution keys of r} = 0
      */
     protected abstract void buildConstraintsForRangeActionAndState(LinearProblem linearProblem, RangeAction<?> rangeAction, State state);

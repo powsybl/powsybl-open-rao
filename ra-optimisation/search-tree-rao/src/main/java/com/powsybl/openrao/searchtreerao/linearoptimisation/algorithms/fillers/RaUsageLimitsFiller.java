@@ -122,7 +122,7 @@ public class RaUsageLimitsFiller implements ProblemFiller {
     }
 
     /**
-     * Get relaxation term to put to correct the initial setpoint, to ensure problem feasibility depending on the approximations.
+     * Get relaxation term to add to correct the initial setpoint, to ensure problem feasibility depending on the approximations.
      * If PSTs are modelled with approximate integers, make sure that the initial setpoint is feasible (it should be at
      * a distance smaller than 0.3 * getAverageAbsoluteTapToAngleConversionFactor from a feasible setpoint in the MIP)
      */

@@ -38,19 +38,19 @@ public class GlobalOptimizationPerimeter extends AbstractOptimizationPerimeter {
         Set<FlowCnec> flowCnecs = crac.getFlowCnecs();
         Set<FlowCnec> loopFlowCnecs = AbstractOptimizationPerimeter.getLoopFlowCnecs(flowCnecs, raoParameters, network);
 
-        // put preventive network actions
+        // add preventive network actions
         Set<NetworkAction> availableNetworkActions = crac.getNetworkActions().stream()
             .filter(ra -> RaoUtil.isRemedialActionAvailable(ra, crac.getPreventiveState(), prePerimeterResult, flowCnecs, network, raoParameters))
             .collect(Collectors.toSet());
 
         Map<State, Set<RangeAction<?>>> availableRangeActions = new HashMap<>();
-        // put preventive range actions
+        // add preventive range actions
         availableRangeActions.put(crac.getPreventiveState(), crac.getRangeActions().stream()
             .filter(ra -> RaoUtil.isRemedialActionAvailable(ra, crac.getPreventiveState(), prePerimeterResult, flowCnecs, network, raoParameters))
             .filter(ra -> AbstractOptimizationPerimeter.doesPrePerimeterSetpointRespectRange(ra, prePerimeterResult))
             .collect(Collectors.toSet()));
 
-        //put curative range actions
+        //add curative range actions
         crac.getStates().stream()
             .filter(s -> s.getInstant().isCurative())
             .forEach(state -> {

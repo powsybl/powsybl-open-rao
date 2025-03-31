@@ -113,7 +113,7 @@ public class AngleCnecAdderImpl extends AbstractCnecAdderImpl<AngleCnecAdder> im
          */
 
         if (this.thresholds.isEmpty()) {
-            throw new OpenRaoException("Cannot put an AngleCnec without a threshold. Please use newThreshold");
+            throw new OpenRaoException("Cannot add an AngleCnec without a threshold. Please use newThreshold");
         }
 
         if (this.thresholds.stream().anyMatch(th -> !th.getUnit().equals(Unit.DEGREE))) {

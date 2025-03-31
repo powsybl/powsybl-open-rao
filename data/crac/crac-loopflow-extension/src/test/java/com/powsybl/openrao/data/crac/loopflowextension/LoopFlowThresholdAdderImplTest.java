@@ -56,7 +56,7 @@ class LoopFlowThresholdAdderImplTest {
         LoopFlowThresholdAdder loopFlowThresholdAdder = flowCnec.newExtension(LoopFlowThresholdAdder.class)
             .withUnit(Unit.MEGAWATT);
         OpenRaoException exception = assertThrows(OpenRaoException.class, loopFlowThresholdAdder::add);
-        assertEquals("Cannot put LoopFlowThreshold without a threshold value. Please use withValue() with a non null value", exception.getMessage());
+        assertEquals("Cannot add LoopFlowThreshold without a threshold value. Please use withValue() with a non null value", exception.getMessage());
     }
 
     @Test
@@ -64,7 +64,7 @@ class LoopFlowThresholdAdderImplTest {
         LoopFlowThresholdAdder loopFlowThresholdAdder = flowCnec.newExtension(LoopFlowThresholdAdder.class)
             .withValue(100.0);
         OpenRaoException exception = assertThrows(OpenRaoException.class, loopFlowThresholdAdder::add);
-        assertEquals("Cannot put LoopFlowThreshold without a threshold unit. Please use withUnit() with a non null value", exception.getMessage());
+        assertEquals("Cannot add LoopFlowThreshold without a threshold unit. Please use withUnit() with a non null value", exception.getMessage());
     }
 
     @Test

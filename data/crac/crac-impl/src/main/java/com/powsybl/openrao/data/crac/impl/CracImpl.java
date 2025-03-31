@@ -54,7 +54,7 @@ import static java.lang.String.format;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
-    private static final String ADD_ELEMENT_TO_CRAC_ERROR_MESSAGE = "Please put %s to crac first.";
+    private static final String ADD_ELEMENT_TO_CRAC_ERROR_MESSAGE = "Please add %s to crac first.";
     private static final String SAME_ELEMENT_ID_DIFFERENT_NAME_ERROR_MESSAGE = "A network element with the same ID (%s) but a different name already exists.";
 
     private final Map<String, NetworkElement> networkElements = new HashMap<>();
@@ -134,7 +134,7 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     }
 
     /**
-     * This method put a network element to the crac internal set and returns a network element of this set.
+     * This method add a network element to the crac internal set and returns a network element of this set.
      * If an element with the same data is already added, the element of the internal set will be returned,
      * otherwise it is created and then returned. An error is thrown when an element with an already
      * existing ID is added with a different name.
@@ -375,7 +375,7 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     State addState(Contingency contingency, Instant instant) {
         Objects.requireNonNull(contingency, "Contingency must not be null when adding a state.");
         if (instant.isPreventive()) {
-            throw new OpenRaoException("Impossible to put a preventive state with a contingency.");
+            throw new OpenRaoException("Impossible to add a preventive state with a contingency.");
         }
         if (getState(contingency, instant) != null) {
             return getState(contingency, instant);

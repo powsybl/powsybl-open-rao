@@ -445,7 +445,7 @@ class CracImplTest {
         Contingency contingency1 = new Contingency("co1", "co1", Collections.singletonList(Mockito.mock(ContingencyElement.class)));
         crac.addContingency(contingency1);
         OpenRaoException exception = assertThrows(OpenRaoException.class, () -> crac.addState(contingency1, preventiveInstant));
-        assertEquals("Impossible to put a preventive state with a contingency.", exception.getMessage());
+        assertEquals("Impossible to add a preventive state with a contingency.", exception.getMessage());
     }
 
     @Test
@@ -461,7 +461,7 @@ class CracImplTest {
     void testAddStateBeforecontingencyError() {
         Contingency contingency1 = new Contingency("co1", "co1", Collections.singletonList(Mockito.mock(ContingencyElement.class)));
         OpenRaoException exception = assertThrows(OpenRaoException.class, () -> crac.addState(contingency1, curativeInstant));
-        assertEquals("Please put co1 to crac first.", exception.getMessage());
+        assertEquals("Please add co1 to crac first.", exception.getMessage());
     }
 
     @Test
