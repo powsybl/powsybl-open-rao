@@ -20,6 +20,7 @@ Feature: US 93.2: power gradient constraints
       | 2019-01-08 03:30 | 12Nodes_0330.uct |
     When I launch marmot
     When I export marmot results to "raoresults/results_93_2_1.zip"
+    When I export networks with PRAs to "raoresults/networkWithPras_93_2_1.zip"
     Then the optimized margin on "NNL2AA1  BBE3AA1  1 - preventive" for timestamp "2019-01-08 00:30" is 428.18 MW
     And the optimized margin on "NNL2AA1  BBE3AA1  1 - preventive" for timestamp "2019-01-08 01:30" is 3.18 MW
     And the optimized margin on "NNL2AA1  BBE3AA1  1 - preventive" for timestamp "2019-01-08 02:30" is 428.18 MW
@@ -357,3 +358,4 @@ Feature: US 93.2: power gradient constraints
       | 2024-09-06 23:30 | 20240906_2330_2D5_UX0_FEXPORTGRIDMODEL_CGM_10V1001C--00264T.uct |
     When I launch marmot
     When I export marmot results to "raoresults/results_0906.zip"
+    When I export networks with PRAs to "raoresults/networkWithPras_0906.zip"
