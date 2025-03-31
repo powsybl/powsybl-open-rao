@@ -346,8 +346,8 @@ class RaoResultRoundTripTest {
         assertTrue(raoResult.isActivatedDuringState(pState, pstP));
         assertFalse(raoResult.isActivatedDuringState(cState1, pstP));
         assertFalse(raoResult.isActivatedDuringState(cState2, pstP));
-        assertEquals(2, raoResult.getPreOptimizationTapOnState(pState, pstP));
-        assertEquals(2.5, raoResult.getPreOptimizationSetPointOnState(pState, pstP), DOUBLE_TOLERANCE);
+        assertEquals(-3, raoResult.getPreOptimizationTapOnState(pState, pstP));
+        assertEquals(0., raoResult.getPreOptimizationSetPointOnState(pState, pstP), DOUBLE_TOLERANCE);
         assertEquals(3, raoResult.getOptimizedTapOnState(pState, pstP));
         assertEquals(3., raoResult.getOptimizedSetPointOnState(pState, pstP), DOUBLE_TOLERANCE);
         assertEquals(3., raoResult.getPreOptimizationSetPointOnState(cState1, pstP), DOUBLE_TOLERANCE);
@@ -362,10 +362,10 @@ class RaoResultRoundTripTest {
         assertFalse(raoResult.isActivatedDuringState(pState, pstN));
         assertFalse(raoResult.isActivatedDuringState(cState1, pstN));
         assertFalse(raoResult.isActivatedDuringState(cState2, pstN));
-        assertEquals(1, raoResult.getPreOptimizationTapOnState(pState, pstN));
-        assertEquals(1, raoResult.getOptimizedTapOnState(pState, pstN));
-        assertEquals(1, raoResult.getOptimizedTapOnState(cState1, pstN));
-        assertEquals(1, raoResult.getOptimizedTapOnState(cState2, pstN));
+        assertEquals(0, raoResult.getPreOptimizationTapOnState(pState, pstN));
+        assertEquals(0, raoResult.getOptimizedTapOnState(pState, pstN));
+        assertEquals(0, raoResult.getOptimizedTapOnState(cState1, pstN));
+        assertEquals(0, raoResult.getOptimizedTapOnState(cState2, pstN));
 
         // ---------------------------
         // --- RangeAction results ---
