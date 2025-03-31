@@ -12,7 +12,7 @@
     </parent>
 
     <artifactId>powsybl-open-rao</artifactId>
-    <version>6.4.0</version>
+    <version>6.4.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Open RAO</name>
