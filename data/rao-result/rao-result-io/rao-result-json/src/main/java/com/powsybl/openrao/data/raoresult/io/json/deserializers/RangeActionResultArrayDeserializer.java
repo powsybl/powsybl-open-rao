@@ -9,19 +9,15 @@ package com.powsybl.openrao.data.raoresult.io.json.deserializers;
 
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.Crac;
-import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.impl.RangeActionResult;
 import com.powsybl.openrao.data.raoresult.impl.RaoResultImpl;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
-import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.*;
 import static com.powsybl.openrao.data.raoresult.io.json.deserializers.Utils.*;
@@ -83,7 +79,7 @@ final class RangeActionResultArrayDeserializer {
 
                     case STATES_ACTIVATED:
                         jsonParser.nextToken();
-                        deserializeResultsPerStates(jsonParser, rangeActionResult, crac, jsonFileVersion, rangeAction);
+                        deserializeResultsPerStates(jsonParser, rangeActionResult, crac);
                         break;
 
                     case AFTER_PRA_SETPOINT:
@@ -97,7 +93,7 @@ final class RangeActionResultArrayDeserializer {
                         break;
 
                     case INITIAL_TAP:
-                        // skip this, we don't need to read tap because we have the set-point
+                        // skip this, we don't need to read tap because we have the setpoint
                         LOGGER.info("Field {} in {} is no longer used", INITIAL_TAP, RANGEACTION_RESULTS);
                         jsonParser.nextTextValue();
                         break;
@@ -109,8 +105,7 @@ final class RangeActionResultArrayDeserializer {
         }
     }
 
-    private static void deserializeResultsPerStates(JsonParser jsonParser, RangeActionResult rangeActionResult, Crac crac, String jsonFileVersion, RangeAction<?> rangeAction) throws IOException {
-        Pair<Integer, Integer> version = getVersion(jsonFileVersion);
+    private static void deserializeResultsPerStates(JsonParser jsonParser, RangeActionResult rangeActionResult, Crac crac) throws IOException {
         String instantId = null;
         String contingencyId = null;
         Double setpoint = null;
@@ -128,27 +123,15 @@ final class RangeActionResultArrayDeserializer {
                         break;
 
                     case SETPOINT:
-                        if ((version.getLeft() == 1 && version.getRight() >= 8 || version.getLeft() >= 2)
-                            && rangeAction instanceof PstRangeAction) {
-                            throw new OpenRaoException("Since version 1.8, only the taps are reported for PST range actions.");
-                        }
                         jsonParser.nextToken();
                         setpoint = jsonParser.getDoubleValue();
                         break;
 
                     case TAP:
-                        if (version.getLeft() <= 1 && version.getRight() <= 7) {
-                            // Skip, we already have setpoint
-                            LOGGER.info("Field {} in {} is no longer used", TAP, RANGEACTION_RESULTS);
-                            jsonParser.nextFieldName();
-                            break;
-                        } else if (rangeAction instanceof PstRangeAction pstRangeAction) {
-                            jsonParser.nextToken();
-                            setpoint = pstRangeAction.getTapToAngleConversionMap().get(jsonParser.getIntValue());
-                            break;
-                        } else {
-                            throw new OpenRaoException("Taps can only be defined for PST range actions.");
-                        }
+                        // Skip, we already have setpoint
+                        LOGGER.info("Field {} in {} is no longer used", TAP, RANGEACTION_RESULTS);
+                        jsonParser.nextFieldName();
+                        break;
 
                     default:
                         throw new OpenRaoException(String.format("Cannot deserialize RaoResult: unexpected field in %s (%s)", RANGEACTION_RESULTS, jsonParser.getCurrentName()));
@@ -160,12 +143,5 @@ final class RangeActionResultArrayDeserializer {
             }
             rangeActionResult.addActivationForState(StateDeserializer.getState(instantId, contingencyId, crac, RANGEACTION_RESULTS), setpoint);
         }
-    }
-
-    private static Pair<Integer, Integer> getVersion(String jsonFileVersion) {
-        Pattern pattern = Pattern.compile("([1-9]\\d*)\\.(\\d+)");
-        Matcher matcher = pattern.matcher(jsonFileVersion);
-        matcher.find();
-        return Pair.of(Integer.parseInt(matcher.group(1)), Integer.parseInt(matcher.group(2)));
     }
 }
