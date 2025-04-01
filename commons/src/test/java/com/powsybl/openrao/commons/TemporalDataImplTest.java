@@ -46,7 +46,7 @@ class TemporalDataImplTest {
     @Test
     void testAddData() {
         TemporalData<String> stringTemporalData = new TemporalDataImpl<>();
-        stringTemporalData.add(timestamp3, "ABC");
+        stringTemporalData.put(timestamp3, "ABC");
         assertEquals(Map.of(timestamp3, "ABC"), stringTemporalData.getDataPerTimestamp());
         assertEquals(List.of(timestamp3), stringTemporalData.getTimestamps());
         assertEquals(Optional.of("ABC"), stringTemporalData.getData(timestamp3));

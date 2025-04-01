@@ -31,7 +31,7 @@ public class TemporalDataImpl<T> implements TemporalData<T> {
         return new HashMap<>(dataPerTimestamp);
     }
 
-    public void add(OffsetDateTime timestamp, T data) {
+    public void put(OffsetDateTime timestamp, T data) {
         dataPerTimestamp.put(timestamp, data);
     }
 
