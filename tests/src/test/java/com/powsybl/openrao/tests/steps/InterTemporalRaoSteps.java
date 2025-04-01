@@ -157,7 +157,7 @@ public final class InterTemporalRaoSteps {
             RaoInputWithNetworkPaths raoInput = RaoInputWithNetworkPaths
                 .build(initialNetworkPath, postIcsNetworkPath, cracImportResult.getLeft())
                 .build();
-            raoInputs.add(offsetDateTime, raoInput);
+            raoInputs.put(offsetDateTime, raoInput);
         }
         interTemporalRaoInput = new InterTemporalRaoInputWithNetworkPaths(raoInputs, new HashSet<>());
         InputStream gskInputStream = icsGskPath == null ? null : new FileInputStream(getFile(icsGskPath));

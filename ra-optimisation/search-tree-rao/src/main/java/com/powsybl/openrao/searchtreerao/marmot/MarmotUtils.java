@@ -106,7 +106,7 @@ public final class MarmotUtils {
                     }
                 }
             }
-            curativeRemedialActions.add(timestamp, appliedRemedialActions);
+            curativeRemedialActions.put(timestamp, appliedRemedialActions);
         });
         return curativeRemedialActions;
     }
