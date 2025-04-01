@@ -28,9 +28,8 @@ public final class LibraryLoader {
         final Thread loaderThread = new Thread(() -> {
             try {
                 Loader.loadNativeLibraries();
-            } catch (final Exception e) {
+            } catch (final Exception e) { //NOSONAR
                 TECHNICAL_LOGS.error("Native library jniortools could not be loaded. You can ignore this message if it is not needed.");
-                throw e;
             }
         });
         loaderThread.start();
