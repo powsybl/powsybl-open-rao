@@ -211,7 +211,7 @@ Feature: US 93.2: power gradient constraints
     Given crac file is "20240926-FSC-ID2-CB-v1-10V1001C--00264T-to-10XFR-RTE------Q.xml"
     Given ics static file is "_10V1001C–00275O_CSA-COMRA-RDSTATIC-D_CORE-20240926-V001_.csv"
     Given ics series file is "_10V1001C–00275O_CSA-COMRA-RDSERIES-D_CORE-20240926-V001_.csv"
-    Given ics gsk file is "_10V1001C--00275O_CSA-INDRA-GSK-D_D2-20240602-V004_.csv"
+    Given ics gsk file is "_10V1001C--00275O_CSA-INDRA-GSK-D_D7-20240926-V001_.csv"
     Given configuration file is "epic93/RaoParameters_minCost_megawatt_dc.json"
     Given intertemporal rao inputs are:
       | Timestamp        | Network                                                         |
@@ -375,7 +375,7 @@ Feature: US 93.2: power gradient constraints
     When I export marmot results to "raoresults/test.zip"
 
   @fast @rao @dc @redispatching @preventive-only
-  Scenario: US 93.2.4: Test for core idcc 0906
+  Scenario: Test for core idcc 0718
     Given network files are in folder "20240718-FID2-620-v3-10V1001C--00264T-to-10V1001C--00085T"
     Given crac file is "20240718-FSC-ID2-CB-v1-10V1001C--00264T-to-10XFR-RTE------Q.xml"
     Given ics static file is "_10V1001C–00275O_CSA-COMRA-RDSTATIC-D_CORE-20240718-V001_.csv"

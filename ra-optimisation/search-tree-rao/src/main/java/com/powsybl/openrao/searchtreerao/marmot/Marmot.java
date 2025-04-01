@@ -170,27 +170,30 @@ public class Marmot implements InterTemporalRaoProvider {
         return CompletableFuture.completedFuture(mergedRaoResults);
     }
 
-    private boolean shouldStop(TemporalData<PrePerimeterResult> loadFlowResults, TemporalData<Set<String>> consideredCnecs) {
-        int cnecsToAddPerVirtualCostName = 20;
-        AtomicBoolean shouldStop = new AtomicBoolean(true);
-        // For every TS, for all the virtual costs, go through all the costly cnecs in order.
-        // If the cnec has already been considered, go to the next virtual cost
-        // If not, add it to the considered cnecs, set shouldStop to false, and go to the next cnec
-        loadFlowResults.getTimestamps().forEach(timestamp -> {
-            PrePerimeterResult loadFlowResult = loadFlowResults.getData(timestamp).orElseThrow();
-            Set<String> cnecs = consideredCnecs.getData(timestamp).orElseThrow();
-            loadFlowResult.getVirtualCostNames().forEach(vcName -> {
-                int addedCnecs = 0;
-                for (FlowCnec cnec : loadFlowResult.getCostlyElements(vcName, Integer.MAX_VALUE)) {
-                    if (addedCnecs > cnecsToAddPerVirtualCostName) {
-                        break;
-                    } else if (!cnecs.contains(cnec.getId())) {
-                        shouldStop.set(false);
-                        cnecs.add(cnec.getId());
-                        addedCnecs++;
+        private boolean shouldStop(TemporalData<PrePerimeterResult> loadFlowResults, TemporalData<Set<String>> consideredCnecs) {
+            int cnecsToAddPerVirtualCostName = 20;
+            AtomicBoolean shouldStop = new AtomicBoolean(true);
+            // For every TS, for all the virtual costs, go through all the costly cnecs in order.
+            // If the cnec has already been considered, go to the next virtual cost
+            // If not, add it to the considered cnecs, set shouldStop to false, and go to the next cnec
+            loadFlowResults.getTimestamps().forEach(timestamp -> {
+                PrePerimeterResult loadFlowResult = loadFlowResults.getData(timestamp).orElseThrow();
+                Set<String> cnecs = consideredCnecs.getData(timestamp).orElseThrow();
+                loadFlowResult.getVirtualCostNames().forEach(vcName -> {
+                    int addedCnecs = 0;
+                    boolean worstCnecIsConsidered = false;
+                    for (FlowCnec cnec : loadFlowResult.getCostlyElements(vcName, Integer.MAX_VALUE)) {
+                        if (addedCnecs > cnecsToAddPerVirtualCostName) {
+                            break;
+                        } else if (!cnecs.contains(cnec.getId())) {
+                            shouldStop.set(shouldStop.get() && worstCnecIsConsidered);
+                            cnecs.add(cnec.getId());
+                            addedCnecs++;
+                        } else {
+                            worstCnecIsConsidered = addedCnecs == 0;
+                        }
                     }
-                }
-            });
+                });
         });
         return shouldStop.get();
     }
