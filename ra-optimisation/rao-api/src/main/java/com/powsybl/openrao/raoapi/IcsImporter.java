@@ -41,7 +41,7 @@ public final class IcsImporter {
     public static void populateInputWithICS(InterTemporalRaoInputWithNetworkPaths interTemporalRaoInput, InputStream staticInputStream, InputStream seriesInputStream, InputStream gskInputStream) throws IOException {
         TemporalData<Network> initialNetworks = new TemporalDataImpl<>();
         interTemporalRaoInput.getRaoInputs().getDataPerTimestamp().forEach((dateTime, raoInput) ->
-            initialNetworks.add(dateTime, Network.read(raoInput.getInitialNetworkPath()))
+            initialNetworks.put(dateTime, Network.read(raoInput.getInitialNetworkPath()))
         );
         CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
             .setDelimiter(";")
