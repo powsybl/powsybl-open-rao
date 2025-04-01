@@ -38,7 +38,7 @@ import java.util.Set;
 
 import static com.powsybl.openrao.searchtreerao.marmot.MarmotUtils.getPostOptimizationResults;
 import static com.powsybl.openrao.searchtreerao.marmot.MarmotUtils.getPreventivePerimeterCnecs;
-import static com.powsybl.openrao.searchtreerao.marmot.MarmotUtils.getTopologicalOptimizationResult;
+import static com.powsybl.openrao.searchtreerao.marmot.MarmotUtils.getPreventiveOptimizationResults;
 import static com.powsybl.openrao.searchtreerao.marmot.MarmotUtils.runSensitivityAnalysis;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -161,20 +161,20 @@ class MarmotUtilsTest {
         RaoResult raoResult3 = Mockito.mock(RaoResult.class);
         TemporalData<RaoResult> raoResults = new TemporalDataImpl<>(Map.of(timestamp1, raoResult1, timestamp2, raoResult2, timestamp3, raoResult3));
 
-        TemporalData<TopologicalOptimizationResult> topologicalOptimizationResults = getTopologicalOptimizationResult(inputs, raoResults);
-        assertEquals(List.of(timestamp1, timestamp2, timestamp3), topologicalOptimizationResults.getTimestamps());
+        TemporalData<PreventiveOptimizationResult> preventiveOptimizationResults = getPreventiveOptimizationResults(inputs, raoResults);
+        assertEquals(List.of(timestamp1, timestamp2, timestamp3), preventiveOptimizationResults.getTimestamps());
 
-        TopologicalOptimizationResult topologicalOptimizationResult1 = topologicalOptimizationResults.getData(timestamp1).get();
-        assertEquals(crac1, topologicalOptimizationResult1.raoInput().getCrac());
-        assertEquals(raoResult1, topologicalOptimizationResult1.topologicalOptimizationResult());
+        PreventiveOptimizationResult preventiveOptimizationResult1 = preventiveOptimizationResults.getData(timestamp1).get();
+        assertEquals(crac1, preventiveOptimizationResult1.raoInput().getCrac());
+        assertEquals(raoResult1, preventiveOptimizationResult1.preventiveOptimizationResult());
 
-        TopologicalOptimizationResult topologicalOptimizationResult2 = topologicalOptimizationResults.getData(timestamp2).get();
-        assertEquals(crac2, topologicalOptimizationResult2.raoInput().getCrac());
-        assertEquals(raoResult2, topologicalOptimizationResult2.topologicalOptimizationResult());
+        PreventiveOptimizationResult preventiveOptimizationResult2 = preventiveOptimizationResults.getData(timestamp2).get();
+        assertEquals(crac2, preventiveOptimizationResult2.raoInput().getCrac());
+        assertEquals(raoResult2, preventiveOptimizationResult2.preventiveOptimizationResult());
 
-        TopologicalOptimizationResult topologicalOptimizationResult3 = topologicalOptimizationResults.getData(timestamp3).get();
-        assertEquals(crac3, topologicalOptimizationResult3.raoInput().getCrac());
-        assertEquals(raoResult3, topologicalOptimizationResult3.topologicalOptimizationResult());
+        PreventiveOptimizationResult preventiveOptimizationResult3 = preventiveOptimizationResults.getData(timestamp3).get();
+        assertEquals(crac3, preventiveOptimizationResult3.raoInput().getCrac());
+        assertEquals(raoResult3, preventiveOptimizationResult3.preventiveOptimizationResult());
     }
 
     @Test
