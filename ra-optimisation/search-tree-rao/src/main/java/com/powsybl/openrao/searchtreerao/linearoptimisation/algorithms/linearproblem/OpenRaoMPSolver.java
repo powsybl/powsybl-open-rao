@@ -26,11 +26,7 @@ import java.util.TreeMap;
  */
 public class OpenRaoMPSolver {
     static {
-        try {
-            LibraryLoader.loadLibrary();
-        } catch (Exception e) {
-            OpenRaoLoggerProvider.TECHNICAL_LOGS.error("An exception occurred while loading native libraries.");
-        }
+        LibraryLoader.loadLibrary();
     }
 
     private static final int NUMBER_OF_BITS_TO_ROUND_OFF = 30;
