@@ -146,7 +146,8 @@ public final class InterTemporalRaoSteps {
         }
         interTemporalRaoInput = new InterTemporalRaoInputWithNetworkPaths(raoInputs, new HashSet<>());
         InputStream gskInputStream = icsGskPath == null ? null : new FileInputStream(getFile(icsGskPath));
-        IcsImporter.populateInputWithICS(interTemporalRaoInput, new FileInputStream(getFile(icsStaticPath)), new FileInputStream(getFile(icsSeriesPath)), gskInputStream);
+        IcsImporter.populateInputWithICS(interTemporalRaoInput, new FileInputStream(getFile(icsStaticPath)), new FileInputStream(getFile(icsSeriesPath)), gskInputStream, raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getIcsImporterParameters().orElseThrow());
+
     }
 
     @When("I launch marmot")

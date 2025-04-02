@@ -10,6 +10,7 @@ import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeActionAdder;
 import com.powsybl.openrao.data.crac.api.rangeaction.VariationDirection;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.openrao.data.intertemporalconstraint.PowerGradient;
+import com.powsybl.openrao.raoapi.parameters.extensions.IcsImporterParameters;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 
@@ -24,10 +25,10 @@ import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WA
 
 public final class IcsImporter {
     private static final int OFFSET = 2;
-    private static final double COST_UP = 10;
-    private static final double COST_DOWN = 10;
     private static final String MAX_GRADIENT = "1000";
 
+    private static double costUp;
+    private static double costDown;
     // TODO:QUALITY CHECK: do PO respect constraints?
     // TODO:QUALITY CHECK: consistency between gsks defined in static file + gsk file
 
@@ -38,7 +39,10 @@ public final class IcsImporter {
         //should only be used statically
     }
 
-    public static void populateInputWithICS(InterTemporalRaoInputWithNetworkPaths interTemporalRaoInput, InputStream staticInputStream, InputStream seriesInputStream, InputStream gskInputStream) throws IOException {
+    public static void populateInputWithICS(InterTemporalRaoInputWithNetworkPaths interTemporalRaoInput, InputStream staticInputStream, InputStream seriesInputStream, InputStream gskInputStream, IcsImporterParameters icsImporterParameters) throws IOException {
+        costUp = icsImporterParameters.getCostUp();
+        costDown = icsImporterParameters.getCostDown();
+
         TemporalData<Network> initialNetworks = new TemporalDataImpl<>();
         interTemporalRaoInput.getRaoInputs().getDataPerTimestamp().forEach((dateTime, raoInput) ->
             initialNetworks.add(dateTime, Network.read(raoInput.getInitialNetworkPath()))
@@ -101,8 +105,8 @@ public final class IcsImporter {
                 .withId(raId + "_RD")
                 .withName(staticRecord.get("Generator Name"))
                 .withInitialSetpoint(p0)
-                .withVariationCost(COST_UP, VariationDirection.UP)
-                .withVariationCost(COST_DOWN, VariationDirection.DOWN)
+                .withVariationCost(costUp, VariationDirection.UP)
+                .withVariationCost(costDown, VariationDirection.DOWN)
                 //.withActivationCost(ACTIVATION_COST)
                 .newRange()
                 .withMin(p0 - parseDoubleWithPossibleCommas(seriesPerType.get("RDP-").get(dateTime.getHour() + OFFSET)))
@@ -154,8 +158,8 @@ public final class IcsImporter {
                 .withName(staticRecord.get("Generator Name"))
                 .withNetworkElement(networkElementId)
                 .withInitialSetpoint(p0)
-                .withVariationCost(COST_UP, VariationDirection.UP)
-                .withVariationCost(COST_DOWN, VariationDirection.DOWN)
+                .withVariationCost(costUp, VariationDirection.UP)
+                .withVariationCost(costDown, VariationDirection.DOWN)
                 //.withActivationCost(ACTIVATION_COST)
                 .newRange()
                 .withMin(p0 - parseDoubleWithPossibleCommas(seriesPerType.get("RDP-").get(dateTime.getHour() + OFFSET)))
