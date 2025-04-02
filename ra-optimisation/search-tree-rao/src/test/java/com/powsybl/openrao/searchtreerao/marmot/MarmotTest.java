@@ -85,7 +85,6 @@ class MarmotTest {
 
         // Clean created networks
         cleanExistingNetwork(getResourcesPath().concat(networkFilePathPostIcsImport));
-        cleanExistingNetwork(getResourcesPath().concat(networkFilePathPostIcsImport).split("jiidm")[0].concat("uct"));
     }
 
     @Test
@@ -129,7 +128,6 @@ class MarmotTest {
 
         // Clean created networks
         cleanExistingNetwork(getResourcesPath().concat(networkFilePathPostIcsImport));
-        cleanExistingNetwork(getResourcesPath().concat(networkFilePathPostIcsImport).split("jiidm")[0].concat("uct"));
     }
 
     @Test
@@ -174,7 +172,6 @@ class MarmotTest {
 
         // Clean created networks
         cleanExistingNetwork(getResourcesPath().concat(networkFilePathPostIcsImport));
-        cleanExistingNetwork(getResourcesPath().concat(networkFilePathPostIcsImport).split("jiidm")[0].concat("uct"));
     }
 
     @Test
@@ -212,7 +209,6 @@ class MarmotTest {
 
         // Clean created networks
         cleanExistingNetwork(getResourcesPath().concat(networkFilePathPostIcsImport));
-        cleanExistingNetwork(getResourcesPath().concat(networkFilePathPostIcsImport).split("jiidm")[0].concat("uct"));
     }
 
     private void cleanExistingNetwork(String path) {
