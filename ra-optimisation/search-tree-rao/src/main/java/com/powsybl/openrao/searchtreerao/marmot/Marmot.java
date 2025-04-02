@@ -52,6 +52,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
+import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
 import static com.powsybl.openrao.searchtreerao.commons.RaoLogger.logCost;
 import static com.powsybl.openrao.searchtreerao.marmot.MarmotUtils.*;
 import static org.mockito.Mockito.when;
@@ -128,6 +129,7 @@ public class Marmot implements InterTemporalRaoProvider {
         TemporalData<PrePerimeterResult> loadFlowResults;
         LinearOptimizationResult linearOptimizationResults;
         GlobalLinearOptimizationResult fullResults;
+        int counter = 1;
         do {
             // Clone the PostTopoScenario variant to make sure we work on a clean variant every time
             interTemporalRaoInput.getRaoInputs().getDataPerTimestamp().values().forEach(raoInput -> {
@@ -145,9 +147,9 @@ public class Marmot implements InterTemporalRaoProvider {
             TemporalData<NetworkActionsResult> preventiveTopologicalActions = getPreventiveTopologicalActions(interTemporalRaoInput.getRaoInputs().map(RaoInput::getCrac), topologicalOptimizationResults);
 
             // Create and iteratively solve MIP to find optimal range actions' set-points FOR THE CONSIDERED CNECS
-            OpenRaoLoggerProvider.TECHNICAL_LOGS.info("[MARMOT] ----- Global range actions optimization [start]");
+            OpenRaoLoggerProvider.TECHNICAL_LOGS.info("[MARMOT] ----- Global range actions optimization [start] for iteration {}", counter);
             linearOptimizationResults = optimizeLinearRemedialActions(interTemporalRaoInput, initialResults, postTopoResults, raoParameters, preventiveTopologicalActions, curativeRemedialActions, consideredCnecs, filteredObjectiveFunction);
-            OpenRaoLoggerProvider.TECHNICAL_LOGS.info("[MARMOT] ----- Global range actions optimization [end]");
+            OpenRaoLoggerProvider.TECHNICAL_LOGS.info("[MARMOT] ----- Global range actions optimization [end] for iteration {}", counter);
 
             // Compute the flows on ALL the cnecs to check if the worst cnecs have changed and were considered in the MIP or not
             loadFlowResults = applyActionsAndRunFullLoadflow(interTemporalRaoInput.getRaoInputs(), curativeRemedialActions, linearOptimizationResults, initialResults, raoParameters);
@@ -157,6 +159,7 @@ public class Marmot implements InterTemporalRaoProvider {
             fullResults = new GlobalLinearOptimizationResult(loadFlowResults, loadFlowResults.map(PrePerimeterResult::getSensitivityResult), rangeActionActivationResultTemporalData, preventiveTopologicalActions, fullObjectiveFunction, LinearProblemStatus.OPTIMAL);
 
             logCost("[MARMOT] next iteration of MIP: ", fullResults, raoParameters, 10);
+            counter++;
         } while (!shouldStop(loadFlowResults, consideredCnecs)); // Stop if the worst element of each TS has been considered during MIP
 
         // Merge topological and linear result
@@ -173,6 +176,7 @@ public class Marmot implements InterTemporalRaoProvider {
     private boolean shouldStop(TemporalData<PrePerimeterResult> loadFlowResults, TemporalData<Set<String>> consideredCnecs) {
         int cnecsToAddPerVirtualCostName = 20;
         AtomicBoolean shouldStop = new AtomicBoolean(true);
+        List<LoggingAddedCnecs> addedCnecsForLogging = new ArrayList<>();
         // For every TS, for all the virtual costs, go through all the costly cnecs in order.
         // If the cnec has already been considered, go to the next virtual cost
         // If not, add it to the considered cnecs, set shouldStop to false, and go to the next cnec
@@ -180,6 +184,7 @@ public class Marmot implements InterTemporalRaoProvider {
             PrePerimeterResult loadFlowResult = loadFlowResults.getData(timestamp).orElseThrow();
             Set<String> cnecs = consideredCnecs.getData(timestamp).orElseThrow();
             loadFlowResult.getVirtualCostNames().forEach(vcName -> {
+                LoggingAddedCnecs currentLoggingAddedCnecs = new LoggingAddedCnecs(timestamp, vcName, new ArrayList<>());
                 int addedCnecs = 0;
                 boolean worstCnecIsConsidered = false;
                 for (FlowCnec cnec : loadFlowResult.getCostlyElements(vcName, Integer.MAX_VALUE)) {
@@ -189,13 +194,35 @@ public class Marmot implements InterTemporalRaoProvider {
                         shouldStop.set(shouldStop.get() && worstCnecIsConsidered);
                         cnecs.add(cnec.getId());
                         addedCnecs++;
+                        currentLoggingAddedCnecs.addCnec(cnec.getId());
                     } else {
                         worstCnecIsConsidered = addedCnecs == 0;
                     }
                 }
+                addedCnecsForLogging.add(currentLoggingAddedCnecs);
             });
         });
+        logCnecs(shouldStop, addedCnecsForLogging);
         return shouldStop.get();
+    }
+
+    private static void logCnecs(AtomicBoolean shouldStop, List<LoggingAddedCnecs> addedCnecsForLogging) {
+        if (!shouldStop.get()) {
+            String logMessage = "[MARMOT] Proceeding to next iteration by adding:";
+            for (LoggingAddedCnecs loggingAddedCnecs : addedCnecsForLogging) {
+                if (!loggingAddedCnecs.addedCnecs().isEmpty()) {
+                    logMessage += " for timestamp " + loggingAddedCnecs.offsetDateTime().toString() + " and virtual cost " + loggingAddedCnecs.vcName() + " ";
+                    logMessage += loggingAddedCnecs.addedCnecs().stream().collect(Collectors.joining(", ")) + ";";
+                }
+            }
+            TECHNICAL_LOGS.debug(logMessage);
+        }
+    }
+
+    record LoggingAddedCnecs(OffsetDateTime offsetDateTime, String vcName, List<String> addedCnecs) {
+        private void addCnec(String cnec) {
+            addedCnecs.add(cnec);
+        }
     }
 
     private void replaceFastRaoResultsWithLightVersions(TemporalData<RaoResult> topologicalOptimizationResults) {
