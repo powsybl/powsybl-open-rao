@@ -42,11 +42,11 @@ import java.util.zip.ZipOutputStream;
 public class InterTemporalRaoResultImpl implements InterTemporalRaoResult {
     private final ObjectiveFunctionResult initialGlobalObjectiveFunctionResult;
     private final ObjectiveFunctionResult finalGlobalObjectiveFunctionResult;
-    private final TemporalData<RaoResult> raoResultPerTimestamp;
+    private final TemporalData<? extends RaoResult> raoResultPerTimestamp;
 
     private static final String MISSING_RAO_RESULT_ERROR_MESSAGE = "No RAO Result data found for the provided timestamp.";
 
-    public InterTemporalRaoResultImpl(ObjectiveFunctionResult initialGlobalObjectiveFunctionResult, ObjectiveFunctionResult finalGlobalObjectiveFunctionResult, TemporalData<RaoResult> raoResultPerTimestamp) {
+    public InterTemporalRaoResultImpl(ObjectiveFunctionResult initialGlobalObjectiveFunctionResult, ObjectiveFunctionResult finalGlobalObjectiveFunctionResult, TemporalData<? extends RaoResult> raoResultPerTimestamp) {
         this.initialGlobalObjectiveFunctionResult = initialGlobalObjectiveFunctionResult;
         this.finalGlobalObjectiveFunctionResult = finalGlobalObjectiveFunctionResult;
         this.raoResultPerTimestamp = raoResultPerTimestamp;

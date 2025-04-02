@@ -39,6 +39,7 @@ import com.powsybl.openrao.searchtreerao.linearoptimisation.parameters.Iterating
 import com.powsybl.openrao.searchtreerao.marmot.results.*;
 import com.powsybl.openrao.searchtreerao.result.api.*;
 import com.powsybl.openrao.searchtreerao.result.impl.FastRaoResultImpl;
+import com.powsybl.openrao.searchtreerao.result.impl.LightFastRaoResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.NetworkActionsResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.RangeActionActivationResultImpl;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
@@ -120,6 +121,9 @@ public class Marmot implements InterTemporalRaoProvider {
             return CompletableFuture.completedFuture(new InterTemporalRaoResultImpl(initialObjectiveFunctionResult, finalObjectiveFunctionResult, topologicalOptimizationResults));
         }
 
+        // make fast rao result lighter by keeping only initial flow result and filtered rao result for actions
+        replaceFastRaoResultsWithLightVersions(topologicalOptimizationResults);
+
         // Create some variables that will be used in the MIP loops and will still be needed after the loop
         TemporalData<PrePerimeterResult> loadFlowResults;
         LinearOptimizationResult linearOptimizationResults;
@@ -167,6 +171,7 @@ public class Marmot implements InterTemporalRaoProvider {
     }
 
     private boolean shouldStop(TemporalData<PrePerimeterResult> loadFlowResults, TemporalData<Set<String>> consideredCnecs) {
+        int cnecsToAddPerVirtualCostName = 20;
         AtomicBoolean shouldStop = new AtomicBoolean(true);
         // For every TS, for all the virtual costs, go through all the costly cnecs in order.
         // If the cnec has already been considered, go to the next virtual cost
@@ -175,17 +180,28 @@ public class Marmot implements InterTemporalRaoProvider {
             PrePerimeterResult loadFlowResult = loadFlowResults.getData(timestamp).orElseThrow();
             Set<String> cnecs = consideredCnecs.getData(timestamp).orElseThrow();
             loadFlowResult.getVirtualCostNames().forEach(vcName -> {
+                int addedCnecs = 0;
+                boolean worstCnecIsConsidered = false;
                 for (FlowCnec cnec : loadFlowResult.getCostlyElements(vcName, Integer.MAX_VALUE)) {
-                    if (cnecs.contains(cnec.getId())) {
+                    if (addedCnecs > cnecsToAddPerVirtualCostName) {
                         break;
-                    } else {
-                        shouldStop.set(false);
+                    } else if (!cnecs.contains(cnec.getId())) {
+                        shouldStop.set(shouldStop.get() && worstCnecIsConsidered);
                         cnecs.add(cnec.getId());
+                        addedCnecs++;
+                    } else {
+                        worstCnecIsConsidered = addedCnecs == 0;
                     }
                 }
             });
         });
         return shouldStop.get();
+    }
+
+    private void replaceFastRaoResultsWithLightVersions(TemporalData<RaoResult> topologicalOptimizationResults) {
+        topologicalOptimizationResults.getDataPerTimestamp().forEach((timestamp, raoResult) -> {
+            topologicalOptimizationResults.put(timestamp, new LightFastRaoResultImpl((FastRaoResultImpl) raoResult));
+        });
     }
 
     private TemporalData<PrePerimeterResult> buildInitialResults(TemporalData<RaoResult> topologicalOptimizationResults) {
@@ -426,7 +442,7 @@ public class Marmot implements InterTemporalRaoProvider {
     }
 
     private static InterTemporalRaoResultImpl mergeTopologicalAndLinearOptimizationResults(TemporalData<RaoInput> raoInputs, TemporalData<PrePerimeterResult> initialResults, ObjectiveFunctionResult initialLinearOptimizationResult, GlobalLinearOptimizationResult globalLinearOptimizationResult, TemporalData<RaoResult> topologicalOptimizationResults, RaoParameters raoParameters) {
-        return new InterTemporalRaoResultImpl(initialLinearOptimizationResult, globalLinearOptimizationResult, getPostOptimizationResults(raoInputs, initialResults, globalLinearOptimizationResult, topologicalOptimizationResults, raoParameters).map(PostOptimizationResult::merge));
+        return new InterTemporalRaoResultImpl(initialLinearOptimizationResult, globalLinearOptimizationResult, getPostOptimizationResults(raoInputs, initialResults, globalLinearOptimizationResult, topologicalOptimizationResults, raoParameters));
     }
 
     private static ObjectiveFunction buildGlobalObjectiveFunction(TemporalData<Crac> cracs, FlowResult initialResult, RaoParameters raoParameters) {

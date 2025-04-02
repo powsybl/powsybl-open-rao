@@ -8,8 +8,8 @@
 package com.powsybl.openrao.commons;
 
 import java.time.OffsetDateTime;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -20,15 +20,15 @@ public class TemporalDataImpl<T> implements TemporalData<T> {
     private final Map<OffsetDateTime, T> dataPerTimestamp;
 
     public TemporalDataImpl() {
-        this(new HashMap<>());
+        this(new TreeMap<>());
     }
 
     public TemporalDataImpl(Map<OffsetDateTime, ? extends T> dataPerTimestamp) {
-        this.dataPerTimestamp = new HashMap<>(dataPerTimestamp);
+        this.dataPerTimestamp = new TreeMap<>(dataPerTimestamp);
     }
 
     public Map<OffsetDateTime, T> getDataPerTimestamp() {
-        return new HashMap<>(dataPerTimestamp);
+        return new TreeMap<>(dataPerTimestamp);
     }
 
     public void put(OffsetDateTime timestamp, T data) {
