@@ -103,6 +103,9 @@
         "ptdf-approximation" : "UPDATE_PTDF_WITH_TOPO_AND_PST",
         "constraint-adjustment-coefficient" : 0.5,
         "violation-cost" : 0.0
+      },
+      "min-margins-parameters" : {
+        "overload-penalty" : 800.0
       }
     }
   }

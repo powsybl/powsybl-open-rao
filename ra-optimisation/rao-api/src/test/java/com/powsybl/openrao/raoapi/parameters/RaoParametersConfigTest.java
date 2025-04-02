@@ -205,6 +205,25 @@ class RaoParametersConfigTest {
     }
 
     @Test
+    void checkIcsImporterParametersConfig() {
+        ModuleConfig icsImporterModuleConfig = Mockito.mock(ModuleConfig.class);
+        Mockito.when(icsImporterModuleConfig.getDoubleProperty(eq("cost-up"), anyDouble())).thenReturn(43.);
+        Mockito.when(icsImporterModuleConfig.getDoubleProperty(eq("cost-down"), anyDouble())).thenReturn(43.);
+        Mockito.when(mockedPlatformConfig.getOptionalModuleConfig("ics-importer-parameters")).thenReturn(Optional.of(icsImporterModuleConfig));
+        OpenRaoSearchTreeParametersConfigLoader configLoader = new OpenRaoSearchTreeParametersConfigLoader();
+    }
+
+    @Test
+    void checkMinMarginsParametersConfig() {
+        ModuleConfig minMarginsModuleConfig = Mockito.mock(ModuleConfig.class);
+        Mockito.when(minMarginsModuleConfig.getDoubleProperty(eq("overload-penalty"), anyDouble())).thenReturn(43.);
+        Mockito.when(mockedPlatformConfig.getOptionalModuleConfig("search-tree-min-margins-parameters")).thenReturn(Optional.of(minMarginsModuleConfig));
+        OpenRaoSearchTreeParametersConfigLoader configLoader = new OpenRaoSearchTreeParametersConfigLoader();
+        SearchTreeRaoMinMarginsParameters parameters = configLoader.load(mockedPlatformConfig).getMinMarginsParameters().get();
+        assertEquals(43, parameters.getOverloadPenalty(), DOUBLE_TOLERANCE);
+    }
+
+    @Test
     void checkRelativeMarginsConfig() {
         ModuleConfig relativeMarginsModuleConfig = Mockito.mock(ModuleConfig.class);
         Mockito.when(relativeMarginsModuleConfig.getStringListProperty(eq("ptdf-boundaries"), anyList())).thenReturn(List.of("{FR}-{BE}", "{FR}-{DE}", "{BE}-{22Y201903144---9}-{DE}+{22Y201903145---4}"));

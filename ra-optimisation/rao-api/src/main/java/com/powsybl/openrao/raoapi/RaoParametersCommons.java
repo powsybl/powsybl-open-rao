@@ -124,4 +124,9 @@ public final class RaoParametersCommons {
             throw new OpenRaoException(String.format("Unknown approximation value: %s", string));
         }
     }
+
+    // -- Min Margins parameters
+    public static final String MIN_MARGINS_PARAMETERS = "min-margins-parameters";
+    public static final String ST_MIN_MARGINS_SECTION = "search-tree-min-margins-parameters";
+    public static final String OVERLOAD_PENALTY = "overload-penalty";
 }

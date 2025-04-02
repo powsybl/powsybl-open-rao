@@ -116,6 +116,16 @@ class JsonRaoParametersTest extends AbstractSerDeTest {
         relativeMarginsParametersExtension.setPtdfSumLowerBound(0.05);
         parameters.setRelativeMarginsParameters(relativeMarginsParameters);
         searchTreeParameters.setRelativeMarginsParameters(relativeMarginsParametersExtension);
+        // -- Ics Importer parameters
+        IcsImporterParameters icsImporterParameters = new IcsImporterParameters();
+        icsImporterParameters.setCostUp(10.0);
+        icsImporterParameters.setCostDown(10.0);
+        searchTreeParameters.setIcsImporterParameters(icsImporterParameters);
+
+        // -- Min Margins parameters
+        SearchTreeRaoMinMarginsParameters minMarginsParameters = new SearchTreeRaoMinMarginsParameters();
+        minMarginsParameters.setOverloadPenalty(800.0);
+        searchTreeParameters.setMinMarginsParameters(minMarginsParameters);
 
         roundTripTest(parameters, JsonRaoParameters::write, JsonRaoParameters::read, "/RaoParametersSet_v2.json");
     }

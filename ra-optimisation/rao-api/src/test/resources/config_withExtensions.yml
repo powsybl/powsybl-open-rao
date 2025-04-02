@@ -72,3 +72,6 @@ search-tree-load-flow-and-sensitivity-computation:
 
 search-tree-multi-threading:
   available-cpus: 5
+
+search-tree-min-margins-parameters:
+  overload-penalty : 1000
