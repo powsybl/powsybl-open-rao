@@ -221,11 +221,8 @@ public class Marmot implements InterTemporalRaoProvider {
                     }
                 } else if (loadFlowResult.getVirtualCost(vcName) > 1e-6) {
                     for (FlowCnec cnec : loadFlowResult.getCostlyElements(vcName, Integer.MAX_VALUE)) {
-                        if (addedCnecsForVcName > cnecsToAddPerVirtualCostName) {
-                            break;
-                        } else if (!previousIterationCnecs.contains(cnec.getId())) {
+                        if (!previousIterationCnecs.contains(cnec.getId())) {
                             nextIterationCnecs.add(cnec.getId());
-                            addedCnecsForVcName++;
                             currentLoggingAddedCnecs.addCnec(cnec.getId());
                         }
                     }
