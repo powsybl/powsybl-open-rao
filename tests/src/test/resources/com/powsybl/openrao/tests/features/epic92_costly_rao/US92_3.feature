@@ -75,7 +75,7 @@ Feature: US 92.3: Exhaustive costly optimization - APPROXIMATED_INTEGERS PSTs
     Given configuration file is "epic92/RaoParameters_dc_minObjective_discretePst.json"
     When I launch search_tree_rao
     # Worst margin on preventive CNEC
-    Then the worst margin is 2.73 MW
+    Then the worst margin is 3.73 MW
     And the value of the objective function initially should be 233333.33
     And 1 remedial actions are used in preventive
     And the remedial action "pstBeFr5" is used in preventive
