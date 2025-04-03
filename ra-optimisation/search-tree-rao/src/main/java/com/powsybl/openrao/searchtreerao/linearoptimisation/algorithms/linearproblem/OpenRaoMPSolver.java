@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem;
 
+import com.google.ortools.Loader;
 import com.google.ortools.linearsolver.MPSolver;
 import com.google.ortools.linearsolver.MPSolverParameters;
 import com.powsybl.openrao.commons.OpenRaoException;
@@ -26,7 +27,11 @@ import java.util.TreeMap;
  */
 public class OpenRaoMPSolver {
     static {
-        LibraryLoader.loadLibrary();
+        try {
+            Loader.loadNativeLibraries();
+        } catch (Exception e) {
+            OpenRaoLoggerProvider.TECHNICAL_LOGS.error("Native library jniortools could not be loaded. You can ignore this message if it is not needed.");
+        }
     }
 
     private static final int NUMBER_OF_BITS_TO_ROUND_OFF = 30;
