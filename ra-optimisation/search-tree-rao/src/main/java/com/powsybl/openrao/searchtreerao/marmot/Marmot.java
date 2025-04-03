@@ -195,23 +195,24 @@ public class Marmot implements InterTemporalRaoProvider {
                 .orElse(0.);
 
             loadFlowResult.getVirtualCostNames().forEach(vcName -> {
-                LoggingAddedCnecs currentLoggingAddedCnecs = new LoggingAddedCnecs(timestamp, vcName, new ArrayList<>());
+                LoggingAddedCnecs currentLoggingAddedCnecs = new LoggingAddedCnecs(timestamp, vcName, new ArrayList<>(), new HashMap<>());
 
+                int addedCnecs = 0;
                 if (vcName.equals("min-margin-violation-evaluator")) {
                     for (FlowCnec cnec : loadFlowResult.getCostlyElements(vcName, Integer.MAX_VALUE)) {
-                        if (loadFlowResult.getMargin(cnec, Unit.MEGAWATT) > worstConsideredMargin + marginWindowToConsider) {
+                        if (loadFlowResult.getMargin(cnec, Unit.MEGAWATT) > worstConsideredMargin + marginWindowToConsider && addedCnecs > cnecsToAddPerVirtualCostName) {
                             break;
                         } else if (loadFlowResult.getMargin(cnec, Unit.MEGAWATT) < worstConsideredMargin - minImprovementOnMargin) {
                             shouldStop.set(false);
                             cnecs.add(cnec.getId());
-                            currentLoggingAddedCnecs.addCnec(cnec.getId());
-                        } else {
+                            currentLoggingAddedCnecs.addCnec(cnec.getId(), loadFlowResult.getMargin(cnec, Unit.MEGAWATT));
+                            addedCnecs++;
+                        } else if (!cnecs.contains(cnec.getId())) {
                             cnecs.add(cnec.getId());
-                            currentLoggingAddedCnecs.addCnec(cnec.getId());
+                            currentLoggingAddedCnecs.addCnec(cnec.getId(), loadFlowResult.getMargin(cnec, Unit.MEGAWATT));
                         }
                     }
                 } else {
-                    int addedCnecs = 0;
                     boolean worstCnecIsConsidered = false;
                     for (FlowCnec cnec : loadFlowResult.getCostlyElements(vcName, Integer.MAX_VALUE)) {
                         if (addedCnecs > cnecsToAddPerVirtualCostName) {
@@ -235,20 +236,30 @@ public class Marmot implements InterTemporalRaoProvider {
 
     private static void logCnecs(AtomicBoolean shouldStop, List<LoggingAddedCnecs> addedCnecsForLogging) {
         if (!shouldStop.get()) {
-            String logMessage = "[MARMOT] Proceeding to next iteration by adding:";
+            StringBuilder logMessage = new StringBuilder("[MARMOT] Proceeding to next iteration by adding:");
             for (LoggingAddedCnecs loggingAddedCnecs : addedCnecsForLogging) {
                 if (!loggingAddedCnecs.addedCnecs().isEmpty()) {
-                    logMessage += " for timestamp " + loggingAddedCnecs.offsetDateTime().toString() + " and virtual cost " + loggingAddedCnecs.vcName() + " ";
-                    logMessage += loggingAddedCnecs.addedCnecs().stream().collect(Collectors.joining(", ")) + ";";
+                    logMessage.append(" for timestamp ").append(loggingAddedCnecs.offsetDateTime().toString()).append(" and virtual cost ").append(loggingAddedCnecs.vcName()).append(" ");
+                    for (String cnec : loggingAddedCnecs.addedCnecs()) {
+                        String cnecString = loggingAddedCnecs.vcName().equals("min-margin-violation-evaluator") ?
+                            cnec + "(" + loggingAddedCnecs.margins().get(cnec) + ")" + "," :
+                            cnec + ",";
+                        logMessage.append(cnecString);
+                    }
                 }
             }
-            TECHNICAL_LOGS.debug(logMessage);
+            TECHNICAL_LOGS.info(logMessage.toString());
         }
     }
 
-    record LoggingAddedCnecs(OffsetDateTime offsetDateTime, String vcName, List<String> addedCnecs) {
+    record LoggingAddedCnecs(OffsetDateTime offsetDateTime, String vcName, List<String> addedCnecs, Map<String, Double> margins) {
         private void addCnec(String cnec) {
             addedCnecs.add(cnec);
+        }
+
+        private void addCnec(String cnec, double margin) {
+            addedCnecs.add(cnec);
+            margins.put(cnec, margin);
         }
     }
 
