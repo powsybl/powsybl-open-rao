@@ -175,7 +175,7 @@ public class Marmot implements InterTemporalRaoProvider {
     }
 
     private boolean shouldContinueAndAddCnecs(TemporalData<PrePerimeterResult> loadFlowResults, TemporalData<Set<String>> consideredCnecs) {
-        int cnecsToAddPerVirtualCostName = 20;
+        int cnecsToAddPerVirtualCostName = Integer.MAX_VALUE;
         double minImprovementOnMargin = 1.0;
         double marginWindowToConsider = 5.0;
 
