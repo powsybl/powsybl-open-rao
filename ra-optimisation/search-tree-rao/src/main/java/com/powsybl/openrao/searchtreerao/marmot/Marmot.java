@@ -161,7 +161,7 @@ public class Marmot implements InterTemporalRaoProvider {
 
             logCost("[MARMOT] next iteration of MIP: ", fullResults, raoParameters, 10);
             counter++;
-        } while (!shouldStop(loadFlowResults, consideredCnecs)); // Stop if the worst element of each TS has been considered during MIP
+        } while (shouldContinueAndAddCnecs(loadFlowResults, consideredCnecs)); // Stop if the worst element of each TS has been considered during MIP
 
         // Merge topological and linear result
         OpenRaoLoggerProvider.TECHNICAL_LOGS.info("[MARMOT] Merging topological and linear remedial action results");
@@ -174,82 +174,117 @@ public class Marmot implements InterTemporalRaoProvider {
         return CompletableFuture.completedFuture(mergedRaoResults);
     }
 
-    private boolean shouldStop(TemporalData<PrePerimeterResult> loadFlowResults, TemporalData<Set<String>> consideredCnecs) {
+    private boolean shouldContinueAndAddCnecs(TemporalData<PrePerimeterResult> loadFlowResults, TemporalData<Set<String>> consideredCnecs) {
         int cnecsToAddPerVirtualCostName = 20;
         double minImprovementOnMargin = 1.0;
         double marginWindowToConsider = 5.0;
-        AtomicBoolean shouldStop = new AtomicBoolean(true);
+
+        AtomicBoolean shouldContinue = new AtomicBoolean(false);
+        updateShouldContinue(loadFlowResults, consideredCnecs, minImprovementOnMargin, shouldContinue);
+
+        if (shouldContinue.get()) {
+            updateConsideredCnecs(loadFlowResults, consideredCnecs, marginWindowToConsider, cnecsToAddPerVirtualCostName);
+        }
+        return shouldContinue.get();
+    }
+
+    private static void updateConsideredCnecs(TemporalData<PrePerimeterResult> loadFlowResults, TemporalData<Set<String>> consideredCnecs, double marginWindowToConsider, int cnecsToAddPerVirtualCostName) {
         List<LoggingAddedCnecs> addedCnecsForLogging = new ArrayList<>();
-        // For every TS, for all the virtual costs, go through all the costly cnecs in order.
-        // If the cnec has already been considered, go to the next virtual cost
-        // If not, add it to the considered cnecs, set shouldStop to false, and go to the next cnec
         loadFlowResults.getTimestamps().forEach(timestamp -> {
             PrePerimeterResult loadFlowResult = loadFlowResults.getData(timestamp).orElseThrow();
-            Set<String> cnecs = consideredCnecs.getData(timestamp).orElseThrow();
+            Set<String> previousIterationCnecs = consideredCnecs.getData(timestamp).orElseThrow();
+            Set<String> nextIterationCnecs = new HashSet<>(previousIterationCnecs);
 
             double worstConsideredMargin = loadFlowResult.getCostlyElements("min-margin-violation-evaluator", Integer.MAX_VALUE)
                 .stream()
-                .filter(cnec -> cnecs.contains(cnec.getId()))
+                .filter(cnec -> previousIterationCnecs.contains(cnec.getId()))
                 .findFirst()
                 .map(cnec -> loadFlowResult.getMargin(cnec, Unit.MEGAWATT))
                 .orElse(0.);
 
             loadFlowResult.getVirtualCostNames().forEach(vcName -> {
                 LoggingAddedCnecs currentLoggingAddedCnecs = new LoggingAddedCnecs(timestamp, vcName, new ArrayList<>(), new HashMap<>());
+                int addedCnecsForVcName = 0;
 
-                int addedCnecs = 0;
+                // for min margin violation take all cnecs
                 if (vcName.equals("min-margin-violation-evaluator")) {
                     for (FlowCnec cnec : loadFlowResult.getCostlyElements(vcName, Integer.MAX_VALUE)) {
-                        if (loadFlowResult.getMargin(cnec, Unit.MEGAWATT) > worstConsideredMargin + marginWindowToConsider && addedCnecs > cnecsToAddPerVirtualCostName) {
+                        if (loadFlowResult.getMargin(cnec, Unit.MEGAWATT) > worstConsideredMargin + marginWindowToConsider && addedCnecsForVcName > cnecsToAddPerVirtualCostName) {
+                            // stop if out of window and already added enough
                             break;
-                        } else if (loadFlowResult.getMargin(cnec, Unit.MEGAWATT) < worstConsideredMargin - minImprovementOnMargin) {
-                            shouldStop.set(false);
-                            cnecs.add(cnec.getId());
-                            currentLoggingAddedCnecs.addCnec(cnec.getId(), loadFlowResult.getMargin(cnec, Unit.MEGAWATT));
-                            addedCnecs++;
-                        } else if (!cnecs.contains(cnec.getId())) {
-                            cnecs.add(cnec.getId());
+                        } else if (!previousIterationCnecs.contains(cnec.getId())) {
+                            // if in window or not added enough yet, add
+                            nextIterationCnecs.add(cnec.getId());
+                            addedCnecsForVcName++;
                             currentLoggingAddedCnecs.addCnec(cnec.getId(), loadFlowResult.getMargin(cnec, Unit.MEGAWATT));
                         }
                     }
-                } else {
-                    boolean worstCnecIsConsidered = false;
+                } else if (loadFlowResult.getVirtualCost(vcName) > 1e-6) {
                     for (FlowCnec cnec : loadFlowResult.getCostlyElements(vcName, Integer.MAX_VALUE)) {
-                        if (addedCnecs > cnecsToAddPerVirtualCostName) {
+                        if (addedCnecsForVcName > cnecsToAddPerVirtualCostName) {
                             break;
-                        } else if (!cnecs.contains(cnec.getId())) {
-                            shouldStop.set(shouldStop.get() && worstCnecIsConsidered);
-                            cnecs.add(cnec.getId());
-                            addedCnecs++;
+                        } else if (!previousIterationCnecs.contains(cnec.getId())) {
+                            nextIterationCnecs.add(cnec.getId());
+                            addedCnecsForVcName++;
                             currentLoggingAddedCnecs.addCnec(cnec.getId());
-                        } else {
-                            worstCnecIsConsidered = addedCnecs == 0;
                         }
                     }
                 }
                 addedCnecsForLogging.add(currentLoggingAddedCnecs);
             });
+            consideredCnecs.put(timestamp, nextIterationCnecs);
         });
-        logCnecs(shouldStop, addedCnecsForLogging);
-        return shouldStop.get();
+        logCnecs(addedCnecsForLogging);
     }
 
-    private static void logCnecs(AtomicBoolean shouldStop, List<LoggingAddedCnecs> addedCnecsForLogging) {
-        if (!shouldStop.get()) {
-            StringBuilder logMessage = new StringBuilder("[MARMOT] Proceeding to next iteration by adding:");
-            for (LoggingAddedCnecs loggingAddedCnecs : addedCnecsForLogging) {
-                if (!loggingAddedCnecs.addedCnecs().isEmpty()) {
-                    logMessage.append(" for timestamp ").append(loggingAddedCnecs.offsetDateTime().toString()).append(" and virtual cost ").append(loggingAddedCnecs.vcName()).append(" ");
-                    for (String cnec : loggingAddedCnecs.addedCnecs()) {
-                        String cnecString = loggingAddedCnecs.vcName().equals("min-margin-violation-evaluator") ?
-                            cnec + "(" + loggingAddedCnecs.margins().get(cnec) + ")" + "," :
-                            cnec + ",";
-                        logMessage.append(cnecString);
+    private static void updateShouldContinue(TemporalData<PrePerimeterResult> loadFlowResults, TemporalData<Set<String>> consideredCnecs, double minImprovementOnMargin, AtomicBoolean shouldContinue) {
+        loadFlowResults.getTimestamps().forEach(timestamp -> {
+            PrePerimeterResult loadFlowResult = loadFlowResults.getData(timestamp).orElseThrow();
+            Set<String> previousCnecs = consideredCnecs.getData(timestamp).orElseThrow();
+
+            // for margin violation - need to compare to min improvement on margin
+            // ordered list of cnecs with an overload
+            List<FlowCnec> worstCnecsForMarginViolation = loadFlowResult.getCostlyElements("min-margin-violation-evaluator", Integer.MAX_VALUE);
+            double worstConsideredMargin = worstCnecsForMarginViolation.stream()
+                .filter(cnec -> previousCnecs.contains(cnec.getId()))
+                .findFirst()
+                .map(cnec -> loadFlowResult.getMargin(cnec, Unit.MEGAWATT))
+                .orElse(0.);
+            double worstMarginOfAll = worstCnecsForMarginViolation.stream()
+                .findFirst()
+                .map(cnec -> loadFlowResult.getMargin(cnec, Unit.MEGAWATT))
+                .orElse(0.);
+            // if worst overload > worst considered overload + minImprovementOnLoad
+            if (worstMarginOfAll < worstConsideredMargin - minImprovementOnMargin) {
+                shouldContinue.set(true);
+            }
+
+            // for other violations - just check if cnec was considered
+            loadFlowResult.getVirtualCostNames().stream()
+                .filter(vcName -> !vcName.equals("min-margin-violation-evaluator"))
+                .forEach(vcName -> {
+                    Optional<FlowCnec> worstCnec = loadFlowResult.getCostlyElements(vcName, 1).stream().findFirst();
+                    if (worstCnec.isPresent() && !previousCnecs.contains(worstCnec.get().getId())) {
+                        shouldContinue.set(true);
                     }
+                });
+        });
+    }
+
+    private static void logCnecs(List<LoggingAddedCnecs> addedCnecsForLogging) {
+        StringBuilder logMessage = new StringBuilder("[MARMOT] Proceeding to next iteration by adding:");
+        for (LoggingAddedCnecs loggingAddedCnecs : addedCnecsForLogging) {
+            if (!loggingAddedCnecs.addedCnecs().isEmpty()) {
+                logMessage.append(" for timestamp ").append(loggingAddedCnecs.offsetDateTime().toString()).append(" and virtual cost ").append(loggingAddedCnecs.vcName()).append(" ");
+                for (String cnec : loggingAddedCnecs.addedCnecs()) {
+                    String cnecString = loggingAddedCnecs.vcName().equals("min-margin-violation-evaluator") ?
+                        cnec + "(" + loggingAddedCnecs.margins().get(cnec) + ")" + "," :
+                        cnec + ",";
+                    logMessage.append(cnecString);
                 }
             }
-            TECHNICAL_LOGS.info(logMessage.toString());
         }
+        TECHNICAL_LOGS.info(logMessage.toString());
     }
 
     record LoggingAddedCnecs(OffsetDateTime offsetDateTime, String vcName, List<String> addedCnecs, Map<String, Double> margins) {
