@@ -78,6 +78,7 @@ public final class InterTemporalRaoSteps {
     public void loggerConfiguration(Scenario scenario) {
         String scenarioNameFinal = scenario.getName()
             .replaceAll("\\s+", "-")
+            .replaceAll("/", "-")
             .replaceAll(":", "_");
         MDC.put("scenarioName", scenarioNameFinal);
     }
