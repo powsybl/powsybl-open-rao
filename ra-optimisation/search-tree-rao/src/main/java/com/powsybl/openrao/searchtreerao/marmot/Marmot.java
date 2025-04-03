@@ -12,6 +12,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
+import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.State;
@@ -175,6 +176,8 @@ public class Marmot implements InterTemporalRaoProvider {
 
     private boolean shouldStop(TemporalData<PrePerimeterResult> loadFlowResults, TemporalData<Set<String>> consideredCnecs) {
         int cnecsToAddPerVirtualCostName = 20;
+        double minImprovementOnMargin = 1.0;
+        double marginWindowToConsider = 5.0;
         AtomicBoolean shouldStop = new AtomicBoolean(true);
         List<LoggingAddedCnecs> addedCnecsForLogging = new ArrayList<>();
         // For every TS, for all the virtual costs, go through all the costly cnecs in order.
@@ -183,20 +186,44 @@ public class Marmot implements InterTemporalRaoProvider {
         loadFlowResults.getTimestamps().forEach(timestamp -> {
             PrePerimeterResult loadFlowResult = loadFlowResults.getData(timestamp).orElseThrow();
             Set<String> cnecs = consideredCnecs.getData(timestamp).orElseThrow();
+
+            double worstConsideredMargin = loadFlowResult.getCostlyElements("min-margin-violation-evaluator", Integer.MAX_VALUE)
+                .stream()
+                .filter(cnec -> cnecs.contains(cnec.getId()))
+                .findFirst()
+                .map(cnec -> loadFlowResult.getMargin(cnec, Unit.MEGAWATT))
+                .orElse(0.);
+
             loadFlowResult.getVirtualCostNames().forEach(vcName -> {
                 LoggingAddedCnecs currentLoggingAddedCnecs = new LoggingAddedCnecs(timestamp, vcName, new ArrayList<>());
-                int addedCnecs = 0;
-                boolean worstCnecIsConsidered = false;
-                for (FlowCnec cnec : loadFlowResult.getCostlyElements(vcName, Integer.MAX_VALUE)) {
-                    if (addedCnecs > cnecsToAddPerVirtualCostName) {
-                        break;
-                    } else if (!cnecs.contains(cnec.getId())) {
-                        shouldStop.set(shouldStop.get() && worstCnecIsConsidered);
-                        cnecs.add(cnec.getId());
-                        addedCnecs++;
-                        currentLoggingAddedCnecs.addCnec(cnec.getId());
-                    } else {
-                        worstCnecIsConsidered = addedCnecs == 0;
+
+                if (vcName.equals("min-margin-violation-evaluator")) {
+                    for (FlowCnec cnec : loadFlowResult.getCostlyElements(vcName, Integer.MAX_VALUE)) {
+                        if (loadFlowResult.getMargin(cnec, Unit.MEGAWATT) > worstConsideredMargin + marginWindowToConsider) {
+                            break;
+                        } else if (loadFlowResult.getMargin(cnec, Unit.MEGAWATT) < worstConsideredMargin - minImprovementOnMargin) {
+                            shouldStop.set(false);
+                            cnecs.add(cnec.getId());
+                            currentLoggingAddedCnecs.addCnec(cnec.getId());
+                        } else {
+                            cnecs.add(cnec.getId());
+                            currentLoggingAddedCnecs.addCnec(cnec.getId());
+                        }
+                    }
+                } else {
+                    int addedCnecs = 0;
+                    boolean worstCnecIsConsidered = false;
+                    for (FlowCnec cnec : loadFlowResult.getCostlyElements(vcName, Integer.MAX_VALUE)) {
+                        if (addedCnecs > cnecsToAddPerVirtualCostName) {
+                            break;
+                        } else if (!cnecs.contains(cnec.getId())) {
+                            shouldStop.set(shouldStop.get() && worstCnecIsConsidered);
+                            cnecs.add(cnec.getId());
+                            addedCnecs++;
+                            currentLoggingAddedCnecs.addCnec(cnec.getId());
+                        } else {
+                            worstCnecIsConsidered = addedCnecs == 0;
+                        }
                     }
                 }
                 addedCnecsForLogging.add(currentLoggingAddedCnecs);
