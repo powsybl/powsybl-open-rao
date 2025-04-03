@@ -277,13 +277,14 @@ class MarmotTest {
 
         InterTemporalRaoResultImpl interTemporalRaoResult = (InterTemporalRaoResultImpl) new Marmot().run(input, raoParameters).join();
 
+        // TODO: change overload penalty to 10000 when the parameter is added (won't work until then)
         checkRemedialActionActivation(interTemporalRaoResult, crac1, timestamp1, 11, false, 5000.0);
         checkRemedialActionActivation(interTemporalRaoResult, crac2, timestamp2, 15, false, 5000.0);
         checkRemedialActionActivation(interTemporalRaoResult, crac3, timestamp3, 15, false, 5000.0);
-        // checkRemedialActionActivation(interTemporalRaoResult, crac4, timestamp4, 10, false, 4500.0);
-        // checkRemedialActionActivation(interTemporalRaoResult, crac5, timestamp5, 5, false, 4000.0);
-        // checkRemedialActionActivation(interTemporalRaoResult, crac6, timestamp6, 0, false, 3500.0);
-        // checkRemedialActionActivation(interTemporalRaoResult, crac7, timestamp7, 0, false, 3000.0);
+        checkRemedialActionActivation(interTemporalRaoResult, crac4, timestamp4, 10, false, 4500.0);
+        checkRemedialActionActivation(interTemporalRaoResult, crac5, timestamp5, 5, false, 4000.0);
+        checkRemedialActionActivation(interTemporalRaoResult, crac6, timestamp6, 0, false, 3500.0);
+        checkRemedialActionActivation(interTemporalRaoResult, crac7, timestamp7, 0, false, 3000.0);
         checkRemedialActionActivation(interTemporalRaoResult, crac8, timestamp8, 16, true, 2500.0);
         checkRemedialActionActivation(interTemporalRaoResult, crac9, timestamp9, 16, true, 2500.0);
         checkRemedialActionActivation(interTemporalRaoResult, crac10, timestamp10, 16, true, 2500.0);
