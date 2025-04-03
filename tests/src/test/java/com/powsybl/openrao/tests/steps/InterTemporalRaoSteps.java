@@ -25,11 +25,14 @@ import com.powsybl.openrao.raoapi.*;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
 import io.cucumber.datatable.DataTable;
+import io.cucumber.java.Before;
+import io.cucumber.java.Scenario;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.slf4j.MDC;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -57,7 +60,7 @@ public final class InterTemporalRaoSteps {
     private static InterTemporalRaoInputWithNetworkPaths interTemporalRaoInput;
     private static InterTemporalRaoResult interTemporalRaoResult;
 
-    private InterTemporalRaoSteps() {
+    public InterTemporalRaoSteps() {
         // should not be instantiated
     }
 
@@ -69,6 +72,15 @@ public final class InterTemporalRaoSteps {
                 file.delete();
             }
         });
+    }
+
+    @Before()
+    public void loggerConfiguration(Scenario scenario) {
+        String scenarioNameFinal = scenario.getName()
+            .replaceAll("\\s+", "-")
+            .replaceAll("/", "-")
+            .replaceAll(":", "_");
+        MDC.put("scenarioName", scenarioNameFinal);
     }
 
     @Given("network files are in folder {string}")
