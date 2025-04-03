@@ -161,7 +161,7 @@ public class Marmot implements InterTemporalRaoProvider {
 
             logCost("[MARMOT] next iteration of MIP: ", fullResults, raoParameters, 10);
             counter++;
-        } while (shouldContinueAndAddCnecs(loadFlowResults, consideredCnecs)); // Stop if the worst element of each TS has been considered during MIP
+        } while (shouldContinueAndAddCnecs(loadFlowResults, consideredCnecs) && counter < 10); // Stop if the worst element of each TS has been considered during MIP
 
         // Merge topological and linear result
         OpenRaoLoggerProvider.TECHNICAL_LOGS.info("[MARMOT] Merging topological and linear remedial action results");
