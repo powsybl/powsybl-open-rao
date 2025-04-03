@@ -175,7 +175,7 @@ public class Marmot implements InterTemporalRaoProvider {
     }
 
     private boolean shouldContinueAndAddCnecs(TemporalData<PrePerimeterResult> loadFlowResults, TemporalData<Set<String>> consideredCnecs) {
-        int cnecsToAddPerVirtualCostName = Integer.MAX_VALUE;
+        int cnecsToAddPerVirtualCostName = 20;
         double minImprovementOnMargin = 1.0;
         double marginWindowToConsider = 5.0;
 
@@ -221,11 +221,8 @@ public class Marmot implements InterTemporalRaoProvider {
                     }
                 } else if (loadFlowResult.getVirtualCost(vcName) > 1e-6) {
                     for (FlowCnec cnec : loadFlowResult.getCostlyElements(vcName, Integer.MAX_VALUE)) {
-                        if (addedCnecsForVcName > cnecsToAddPerVirtualCostName) {
-                            break;
-                        } else if (!previousIterationCnecs.contains(cnec.getId())) {
+                        if (!previousIterationCnecs.contains(cnec.getId())) {
                             nextIterationCnecs.add(cnec.getId());
-                            addedCnecsForVcName++;
                             currentLoggingAddedCnecs.addCnec(cnec.getId());
                         }
                     }
