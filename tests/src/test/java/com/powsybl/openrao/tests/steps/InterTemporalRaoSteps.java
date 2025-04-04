@@ -22,8 +22,6 @@ import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.InterTemporalRaoResult;
 import com.powsybl.openrao.raoapi.*;
-import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
-import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.Before;
 import io.cucumber.java.Scenario;
@@ -146,8 +144,6 @@ public final class InterTemporalRaoSteps {
         }
 
         CommonTestData.raoParameters = buildConfig(getFile(CommonTestData.raoParametersPath));
-        raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getRangeActionsOptimizationParameters().getLinearOptimizationSolver()
-            .setSolver(SearchTreeRaoRangeActionsOptimizationParameters.Solver.valueOf("XPRESS"));
 
         TemporalData<RaoInputWithNetworkPaths> raoInputs = new TemporalDataImpl<>();
         List<Map<String, String>> inputs = arg1.asMaps(String.class, String.class);
