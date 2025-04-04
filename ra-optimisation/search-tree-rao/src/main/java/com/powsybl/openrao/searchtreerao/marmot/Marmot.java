@@ -177,11 +177,11 @@ public class Marmot implements InterTemporalRaoProvider {
 
     private boolean shouldContinueAndAddCnecs(TemporalData<PrePerimeterResult> loadFlowResults, TemporalData<Set<String>> consideredCnecs) {
         int cnecsToAddPerVirtualCostName = 20;
-        double minImprovementOnMargin = 1.0;
+        double minRelativeImprovementOnMargin = 0.1;
         double marginWindowToConsider = 5.0;
 
         AtomicBoolean shouldContinue = new AtomicBoolean(false);
-        updateShouldContinue(loadFlowResults, consideredCnecs, minImprovementOnMargin, shouldContinue);
+        updateShouldContinue(loadFlowResults, consideredCnecs, minRelativeImprovementOnMargin, shouldContinue);
 
         if (shouldContinue.get()) {
             updateConsideredCnecs(loadFlowResults, consideredCnecs, marginWindowToConsider, cnecsToAddPerVirtualCostName);
@@ -235,7 +235,7 @@ public class Marmot implements InterTemporalRaoProvider {
         logCnecs(addedCnecsForLogging);
     }
 
-    private static void updateShouldContinue(TemporalData<PrePerimeterResult> loadFlowResults, TemporalData<Set<String>> consideredCnecs, double minImprovementOnMargin, AtomicBoolean shouldContinue) {
+    private static void updateShouldContinue(TemporalData<PrePerimeterResult> loadFlowResults, TemporalData<Set<String>> consideredCnecs, double minRelativeImprovementOnMargin, AtomicBoolean shouldContinue) {
         loadFlowResults.getTimestamps().forEach(timestamp -> {
             PrePerimeterResult loadFlowResult = loadFlowResults.getData(timestamp).orElseThrow();
             Set<String> previousCnecs = consideredCnecs.getData(timestamp).orElseThrow();
@@ -252,8 +252,8 @@ public class Marmot implements InterTemporalRaoProvider {
                 .findFirst()
                 .map(cnec -> loadFlowResult.getMargin(cnec, Unit.MEGAWATT))
                 .orElse(0.);
-            // if worst overload > worst considered overload + minImprovementOnLoad
-            if (worstMarginOfAll < worstConsideredMargin - minImprovementOnMargin) {
+            // if worst overload > worst considered overload *( 1 + minImprovementOnLoad)
+            if (worstMarginOfAll < worstConsideredMargin * (1 + minRelativeImprovementOnMargin) - 1e-6) {
                 shouldContinue.set(true);
             }
 
