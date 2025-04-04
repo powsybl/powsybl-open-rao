@@ -24,6 +24,7 @@ import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.openrao.data.raoresult.api.InterTemporalRaoResult;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.raoapi.*;
+import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
@@ -221,11 +222,8 @@ public class Marmot implements InterTemporalRaoProvider {
                     }
                 } else if (loadFlowResult.getVirtualCost(vcName) > 1e-6) {
                     for (FlowCnec cnec : loadFlowResult.getCostlyElements(vcName, Integer.MAX_VALUE)) {
-                        if (addedCnecsForVcName > cnecsToAddPerVirtualCostName) {
-                            break;
-                        } else if (!previousIterationCnecs.contains(cnec.getId())) {
+                        if (!previousIterationCnecs.contains(cnec.getId())) {
                             nextIterationCnecs.add(cnec.getId());
-                            addedCnecsForVcName++;
                             currentLoggingAddedCnecs.addCnec(cnec.getId());
                         }
                     }
@@ -498,6 +496,10 @@ public class Marmot implements InterTemporalRaoProvider {
             .withSolverParameters(parameters.getExtension(OpenRaoSearchTreeParameters.class).getRangeActionsOptimizationParameters().getLinearOptimizationSolver())
             .withMaxMinRelativeMarginParameters(parameters.getExtension(SearchTreeRaoRelativeMarginsParameters.class))
             .withRaLimitationParameters(new RangeActionLimitationParameters());
+
+        if (parameters.getObjectiveFunctionParameters().getType().equals(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN) | parameters.getObjectiveFunctionParameters().getType().costOptimization()) {
+            linearOptimizerParametersBuilder.withMaxMinMarginParameters(parameters.getExtension(OpenRaoSearchTreeParameters.class).getMinMarginParameters().orElseThrow());
+        }
         if (parameters.getMnecParameters().isPresent()) {
             linearOptimizerParametersBuilder.withMnecParameters(parameters.getMnecParameters().get());
             linearOptimizerParametersBuilder.withMnecParametersExtension(parameters.getExtension(OpenRaoSearchTreeParameters.class).getMnecParameters().orElseThrow());

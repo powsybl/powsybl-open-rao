@@ -10,6 +10,7 @@ package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Identifiable;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoMinMarginParameters;
 import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPConstraint;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPVariable;
@@ -31,19 +32,21 @@ import static com.powsybl.openrao.commons.Unit.MEGAWATT;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class MaxMinMarginFiller implements ProblemFiller {
-    private static final double OVERLOAD_PENALTY = 1000.; // TODO: put this in Rao Parameters and mutualize with evaluator
     protected final Set<FlowCnec> optimizedCnecs;
     private final Unit unit;
     private final boolean costOptimization;
     protected final OffsetDateTime timestamp;
+    private final double overloadPenalty;
 
     public MaxMinMarginFiller(Set<FlowCnec> optimizedCnecs,
                               Unit unit, boolean costOptimization,
+                              SearchTreeRaoMinMarginParameters maxMinMarginParameters,
                               OffsetDateTime timestamp) {
         this.optimizedCnecs = new TreeSet<>(Comparator.comparing(Identifiable::getId));
         this.optimizedCnecs.addAll(optimizedCnecs);
         this.unit = unit;
         this.costOptimization = costOptimization;
+        this.overloadPenalty = maxMinMarginParameters.getOverloadPenalty();
         this.timestamp = timestamp;
     }
 
@@ -142,7 +145,7 @@ public class MaxMinMarginFiller implements ProblemFiller {
      * min(-MM)
      */
     private void fillObjectiveWithMinMargin(LinearProblem linearProblem) {
-        linearProblem.getObjective().setCoefficient(linearProblem.getMinimumMarginVariable(Optional.ofNullable(timestamp)), costOptimization ? -OVERLOAD_PENALTY : -1);
+        linearProblem.getObjective().setCoefficient(linearProblem.getMinimumMarginVariable(Optional.ofNullable(timestamp)), costOptimization ? -overloadPenalty : -1);
     }
 
 }

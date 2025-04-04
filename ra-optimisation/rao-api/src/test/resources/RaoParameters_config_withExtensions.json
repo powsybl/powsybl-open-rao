@@ -184,6 +184,13 @@
         "ptdf-approximation" : "UPDATE_PTDF_WITH_TOPO",
         "constraint-adjustment-coefficient" : 12.0,
         "violation-cost" : 13.0
+      },
+      "ics-importer-parameters" : {
+        "cost-down" : 10.0,
+        "cost-up" : 10.0
+      },
+      "min-margin-parameters" : {
+        "overload-penalty" : 1000.0
       }
     }
   }

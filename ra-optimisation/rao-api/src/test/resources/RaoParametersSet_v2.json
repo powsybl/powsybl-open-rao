@@ -104,6 +104,13 @@
         "ptdf-approximation" : "UPDATE_PTDF_WITH_TOPO_AND_PST",
         "constraint-adjustment-coefficient" : 0.5,
         "violation-cost" : 0.0
+      },
+      "ics-importer-parameters" : {
+        "cost-down" : 10.0,
+        "cost-up" : 10.0
+      },
+      "min-margin-parameters" : {
+        "overload-penalty" : 800.0
       }
     }
   }
