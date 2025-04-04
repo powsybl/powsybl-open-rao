@@ -219,7 +219,7 @@ public class Leaf implements OptimizationResult {
                 .withMnecParameters(parameters.getMnecParameters())
                 .withMnecParametersExtension(parameters.getMnecParametersExtension())
                 .withMaxMinRelativeMarginParameters(parameters.getMaxMinRelativeMarginParameters())
-                .withMaxMinMarginParameters(parameters.getMaxMinMarginsParameters())
+                .withMaxMinMarginParameters(parameters.getMaxMinMarginParameters())
                 .withLoopFlowParameters(parameters.getLoopFlowParameters())
                 .withLoopFlowParametersExtension(parameters.getLoopFlowParametersExtension())
                 .withUnoptimizedCnecParameters(parameters.getUnoptimizedCnecParameters())

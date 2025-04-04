@@ -89,7 +89,7 @@
       "relative-margins-parameters" : {
         "ptdf-sum-lower-bound" : 0.01
       },
-      "min-margins-parameters" : {
+      "min-margin-parameters" : {
         "overload-penalty" : 1000.0
       }
     }

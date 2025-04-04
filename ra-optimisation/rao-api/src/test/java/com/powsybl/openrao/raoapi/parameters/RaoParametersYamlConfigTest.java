@@ -118,7 +118,7 @@ class RaoParametersYamlConfigTest extends AbstractSerDeTest {
         assertEquals(10.0, searchTreeParameters.getIcsImporterParameters().get().getCostDown());
         assertEquals(10.0, searchTreeParameters.getIcsImporterParameters().get().getCostUp());
 
-        assertEquals(1000.0, searchTreeParameters.getMinMarginsParameters().get().getOverloadPenalty());
+        assertEquals(1000.0, searchTreeParameters.getMinMarginParameters().get().getOverloadPenalty());
         // Compare to json
         roundTripTest(parameters, JsonRaoParameters::write, JsonRaoParameters::read, "/RaoParameters_config_withExtensions.json");
     }

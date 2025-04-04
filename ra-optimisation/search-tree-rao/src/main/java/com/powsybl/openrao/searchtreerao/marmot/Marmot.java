@@ -498,7 +498,7 @@ public class Marmot implements InterTemporalRaoProvider {
             .withRaLimitationParameters(new RangeActionLimitationParameters());
 
         if (parameters.getObjectiveFunctionParameters().getType().equals(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN) | parameters.getObjectiveFunctionParameters().getType().costOptimization()) {
-            linearOptimizerParametersBuilder.withMaxMinMarginParameters(parameters.getExtension(OpenRaoSearchTreeParameters.class).getMinMarginsParameters().orElseThrow());
+            linearOptimizerParametersBuilder.withMaxMinMarginParameters(parameters.getExtension(OpenRaoSearchTreeParameters.class).getMinMarginParameters().orElseThrow());
         }
         if (parameters.getMnecParameters().isPresent()) {
             linearOptimizerParametersBuilder.withMnecParameters(parameters.getMnecParameters().get());

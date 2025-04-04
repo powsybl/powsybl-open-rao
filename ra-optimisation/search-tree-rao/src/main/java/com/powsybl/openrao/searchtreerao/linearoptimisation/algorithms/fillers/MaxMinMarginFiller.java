@@ -10,7 +10,7 @@ package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Identifiable;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
-import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoMinMarginsParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoMinMarginParameters;
 import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPConstraint;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPVariable;
@@ -40,7 +40,7 @@ public class MaxMinMarginFiller implements ProblemFiller {
 
     public MaxMinMarginFiller(Set<FlowCnec> optimizedCnecs,
                               Unit unit, boolean costOptimization,
-                              SearchTreeRaoMinMarginsParameters maxMinMarginParameters,
+                              SearchTreeRaoMinMarginParameters maxMinMarginParameters,
                               OffsetDateTime timestamp) {
         this.optimizedCnecs = new TreeSet<>(Comparator.comparing(Identifiable::getId));
         this.optimizedCnecs.addAll(optimizedCnecs);

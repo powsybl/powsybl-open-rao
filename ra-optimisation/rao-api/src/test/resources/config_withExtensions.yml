@@ -78,5 +78,5 @@ ics-importer-parameters:
   cost-up : 10
   cost-down : 10
 
-search-tree-min-margins-parameters:
+search-tree-min-margin-parameters:
   overload-penalty : 1000

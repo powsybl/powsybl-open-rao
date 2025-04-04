@@ -60,8 +60,8 @@ class LinearProblemBuilderTest {
         when(parameters.getRangeActionParametersExtension()).thenReturn(rangeActionParametersExtension);
         SearchTreeRaoRelativeMarginsParameters relativeMarginParameters = Mockito.mock(SearchTreeRaoRelativeMarginsParameters.class);
         when(parameters.getMaxMinRelativeMarginParameters()).thenReturn(relativeMarginParameters);
-        SearchTreeRaoMinMarginsParameters minMarginsParameters = Mockito.mock(SearchTreeRaoMinMarginsParameters.class);
-        when(parameters.getMaxMinMarginParameters()).thenReturn(minMarginsParameters);
+        SearchTreeRaoMinMarginParameters minMarginParameters = Mockito.mock(SearchTreeRaoMinMarginParameters.class);
+        when(parameters.getMaxMinMarginParameters()).thenReturn(minMarginParameters);
         MnecParameters mnecParameters = Mockito.mock(MnecParameters.class);
         when(parameters.getMnecParameters()).thenReturn(mnecParameters);
         SearchTreeRaoMnecParameters mnecParametersExtension = Mockito.mock(SearchTreeRaoMnecParameters.class);

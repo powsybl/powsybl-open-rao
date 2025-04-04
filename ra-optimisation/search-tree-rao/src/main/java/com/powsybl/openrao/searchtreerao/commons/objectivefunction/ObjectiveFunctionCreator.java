@@ -53,8 +53,8 @@ public class ObjectiveFunctionCreator extends AbstractObjectiveFunctionCreator {
         List<CostEvaluator> virtualCostEvaluators = new ArrayList<>();
 
         if (raoParameters.getObjectiveFunctionParameters().getType().costOptimization()) {
-            SearchTreeRaoMinMarginsParameters minMarginsParametersOptional = raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getMinMarginsParameters().orElseThrow();
-            virtualCostEvaluators.add(new MinMarginViolationEvaluator(flowCnecs, unit, marginEvaluator, minMarginsParametersOptional.getOverloadPenalty()));
+            SearchTreeRaoMinMarginParameters minMarginParametersOptional = raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getMinMarginParameters().orElseThrow();
+            virtualCostEvaluators.add(new MinMarginViolationEvaluator(flowCnecs, unit, marginEvaluator, minMarginParametersOptional.getOverloadPenalty()));
         }
 
         // mnec virtual cost evaluator
