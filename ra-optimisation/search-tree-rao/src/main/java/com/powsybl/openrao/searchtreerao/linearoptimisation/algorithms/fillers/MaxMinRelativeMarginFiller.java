@@ -11,6 +11,7 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.raoapi.parameters.extensions.PtdfApproximation;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoMinMarginParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRelativeMarginsParameters;
 import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPConstraint;
@@ -41,9 +42,10 @@ public class MaxMinRelativeMarginFiller extends MaxMinMarginFiller {
     public MaxMinRelativeMarginFiller(Set<FlowCnec> optimizedCnecs,
                                       FlowResult preOptimFlowResult,
                                       Unit unit,
+                                      SearchTreeRaoMinMarginParameters maxMinMarginParameters,
                                       SearchTreeRaoRelativeMarginsParameters maxMinRelativeMarginParameters,
                                       OffsetDateTime timestamp) {
-        super(optimizedCnecs, unit, false, timestamp);
+        super(optimizedCnecs, unit, false, maxMinMarginParameters, timestamp);
         this.preOptimFlowResult = preOptimFlowResult;
         this.ptdfApproximationLevel = maxMinRelativeMarginParameters.getPtdfApproximation();
         this.unit = unit;

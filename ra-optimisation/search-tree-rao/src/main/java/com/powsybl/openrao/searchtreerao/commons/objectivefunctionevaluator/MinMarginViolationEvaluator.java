@@ -24,10 +24,11 @@ import java.util.Set;
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
 public class MinMarginViolationEvaluator extends MinMarginEvaluator implements CostEvaluator {
-    private static final double OVERLOAD_PENALTY = 1000d; // TODO : set this in RAO parameters
+    private final double overloadPenalty;
 
-    public MinMarginViolationEvaluator(Set<FlowCnec> flowCnecs, Unit unit, MarginEvaluator marginEvaluator) {
+    public MinMarginViolationEvaluator(Set<FlowCnec> flowCnecs, Unit unit, MarginEvaluator marginEvaluator, double overloadPenalty) {
         super(flowCnecs, unit, marginEvaluator);
+        this.overloadPenalty = overloadPenalty;
     }
 
     @Override
@@ -38,7 +39,7 @@ public class MinMarginViolationEvaluator extends MinMarginEvaluator implements C
     @Override
     public Map<FlowCnec, Double> getCostPerCnec(Set<FlowCnec> flowCnecs, FlowResult flowResult, Unit unit) {
         Map<FlowCnec, Double> costPerCnec = new HashMap<>();
-        flowCnecs.forEach(cnec -> costPerCnec.put(cnec, Math.min(0, marginEvaluator.getMargin(flowResult, cnec, unit)) * OVERLOAD_PENALTY));
+        flowCnecs.forEach(cnec -> costPerCnec.put(cnec, Math.min(0, marginEvaluator.getMargin(flowResult, cnec, unit)) * overloadPenalty));
         return costPerCnec;
     }
 
