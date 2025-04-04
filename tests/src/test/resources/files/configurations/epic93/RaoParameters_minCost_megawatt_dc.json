@@ -139,6 +139,10 @@
         "violation-cost" : 100000.0,
         "constraint-adjustment-coefficient" : 3.0
       },
+      "ics-importer-parameters" : {
+        "cost-down" : 10.0,
+        "cost-up" : 10.0
+      },
       "min-margin-parameters" : {
         "overload-penalty" : 1000.0
       }
