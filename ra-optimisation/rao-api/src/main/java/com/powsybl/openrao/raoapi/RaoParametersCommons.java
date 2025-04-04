@@ -132,7 +132,7 @@ public final class RaoParametersCommons {
     public static final String COST_DOWN = "cost-down";
 
     // -- Min Margins parameters
-    public static final String MIN_MARGINS_PARAMETERS = "min-margins-parameters";
-    public static final String ST_MIN_MARGINS_SECTION = "search-tree-min-margins-parameters";
+    public static final String MIN_MARGIN_PARAMETERS = "min-margin-parameters";
+    public static final String ST_MIN_MARGIN_SECTION = "search-tree-min-margin-parameters";
     public static final String OVERLOAD_PENALTY = "overload-penalty";
 }

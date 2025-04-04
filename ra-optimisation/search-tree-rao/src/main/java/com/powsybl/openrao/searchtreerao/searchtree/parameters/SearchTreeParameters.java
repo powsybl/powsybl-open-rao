@@ -59,7 +59,7 @@ public class SearchTreeParameters {
 
     private final UnoptimizedCnecParameters unoptimizedCnecParameters;
     private final LinearOptimizationSolver solverParameters;
-    private final SearchTreeRaoMinMarginsParameters maxMinMarginsParameters;
+    private final SearchTreeRaoMinMarginParameters maxMinMarginParameters;
     private final int maxNumberOfIterations;
 
     public SearchTreeParameters(ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction,
@@ -75,7 +75,7 @@ public class SearchTreeParameters {
                                 SearchTreeRaoLoopFlowParameters loopFlowParametersExtension,
                                 UnoptimizedCnecParameters unoptimizedCnecParameters,
                                 LinearOptimizationSolver solverParameters,
-                                SearchTreeRaoMinMarginsParameters maxMinMarginParameters,
+                                SearchTreeRaoMinMarginParameters maxMinMarginParameters,
                                 int maxNumberOfIterations) {
         this.objectiveFunction = objectiveFunction;
         this.objectiveFunctionUnit = objectiveFunctionUnit;
@@ -91,7 +91,7 @@ public class SearchTreeParameters {
         this.loopFlowParametersExtension = loopFlowParametersExtension;
         this.unoptimizedCnecParameters = unoptimizedCnecParameters;
         this.solverParameters = solverParameters;
-        this.maxMinMarginsParameters = maxMinMarginParameters;
+        this.maxMinMarginParameters = maxMinMarginParameters;
         this.maxNumberOfIterations = maxNumberOfIterations;
     }
 
@@ -135,8 +135,8 @@ public class SearchTreeParameters {
         return maxMinRelativeMarginParameters;
     }
 
-    public SearchTreeRaoMinMarginsParameters getMaxMinMarginsParameters() {
-        return maxMinMarginsParameters;
+    public SearchTreeRaoMinMarginParameters getMaxMinMarginParameters() {
+        return maxMinMarginParameters;
     }
 
     public LoopFlowParameters getLoopFlowParameters() {
@@ -293,7 +293,7 @@ public class SearchTreeParameters {
         private SearchTreeRaoLoopFlowParameters loopFlowParametersExtension;
         private UnoptimizedCnecParameters unoptimizedCnecParameters;
         private LinearOptimizationSolver solverParameters;
-        private SearchTreeRaoMinMarginsParameters maxMinMarginsParameters;
+        private SearchTreeRaoMinMarginParameters maxMinMarginParameters;
         private int maxNumberOfIterations;
 
         public SearchTreeParametersBuilder withConstantParametersOverAllRao(RaoParameters raoParameters, Crac crac) {
@@ -313,7 +313,7 @@ public class SearchTreeParameters {
                 this.maxMinRelativeMarginParameters = raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getRelativeMarginsParameters().orElse(null);
             }
             if (raoParameters.hasExtension(OpenRaoSearchTreeParameters.class)) {
-                this.maxMinMarginsParameters = raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getMinMarginsParameters().orElse(null);
+                this.maxMinMarginParameters = raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getMinMarginParameters().orElse(null);
             }
             this.loopFlowParameters = raoParameters.getLoopFlowParameters().orElse(null);
             if (raoParameters.hasExtension(OpenRaoSearchTreeParameters.class)) {
@@ -389,8 +389,8 @@ public class SearchTreeParameters {
             return this;
         }
 
-        public SearchTreeParametersBuilder withMaxMinMarginsParameters(SearchTreeRaoMinMarginsParameters maxMinMarginsParameters) {
-            this.maxMinMarginsParameters = maxMinMarginsParameters;
+        public SearchTreeParametersBuilder withMaxMinMarginParameters(SearchTreeRaoMinMarginParameters maxMinMarginParameters) {
+            this.maxMinMarginParameters = maxMinMarginParameters;
             return this;
         }
 
@@ -410,7 +410,7 @@ public class SearchTreeParameters {
                 loopFlowParametersExtension,
                 unoptimizedCnecParameters,
                 solverParameters,
-                maxMinMarginsParameters,
+                maxMinMarginParameters,
                 maxNumberOfIterations);
         }
     }

@@ -35,7 +35,7 @@ public class InitialSensitivityAnalysisObjectiveFunctionCreator extends Abstract
         List<CostEvaluator> virtualCostEvaluators = new ArrayList<>();
 
         if (raoParameters.getObjectiveFunctionParameters().getType().costOptimization()) {
-            virtualCostEvaluators.add(new MinMarginViolationEvaluator(flowCnecs, unit, marginEvaluator, raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getMinMarginsParameters().orElseThrow().getOverloadPenalty()));
+            virtualCostEvaluators.add(new MinMarginViolationEvaluator(flowCnecs, unit, marginEvaluator, raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getMinMarginParameters().orElseThrow().getOverloadPenalty()));
         }
 
         // sensitivity failure over-cost should be computed on initial sensitivity result too

@@ -17,7 +17,7 @@ import static com.powsybl.openrao.raoapi.RaoParametersCommons.*;
 /**
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
  */
-public class SearchTreeRaoMinMarginsParameters {
+public class SearchTreeRaoMinMarginParameters {
     static final double DEFAULT_OVERLOAD_PENALTY = 1000.0;
     private double overloadPenalty = DEFAULT_OVERLOAD_PENALTY;
 
@@ -29,13 +29,13 @@ public class SearchTreeRaoMinMarginsParameters {
         this.overloadPenalty = overloadPenalty;
     }
 
-    public static Optional<SearchTreeRaoMinMarginsParameters> load(PlatformConfig platformConfig) {
+    public static Optional<SearchTreeRaoMinMarginParameters> load(PlatformConfig platformConfig) {
 
         Objects.requireNonNull(platformConfig);
-        return platformConfig.getOptionalModuleConfig(ST_MIN_MARGINS_SECTION)
+        return platformConfig.getOptionalModuleConfig(ST_MIN_MARGIN_SECTION)
             .map(config -> {
-                SearchTreeRaoMinMarginsParameters parameters = new SearchTreeRaoMinMarginsParameters();
-                parameters.setOverloadPenalty(config.getDoubleProperty(OVERLOAD_PENALTY, SearchTreeRaoMinMarginsParameters.DEFAULT_OVERLOAD_PENALTY));
+                SearchTreeRaoMinMarginParameters parameters = new SearchTreeRaoMinMarginParameters();
+                parameters.setOverloadPenalty(config.getDoubleProperty(OVERLOAD_PENALTY, SearchTreeRaoMinMarginParameters.DEFAULT_OVERLOAD_PENALTY));
                 return parameters;
             });
 

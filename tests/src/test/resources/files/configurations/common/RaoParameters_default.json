@@ -135,7 +135,7 @@
       "multi-threading" : {
         "available-cpus" : 4
       },
-      "min-margins-parameters" : {
+      "min-margin-parameters" : {
         "overload-penalty" : 1000.0
       }
     }

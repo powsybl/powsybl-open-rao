@@ -109,7 +109,7 @@
         "cost-down" : 10.0,
         "cost-up" : 10.0
       },
-      "min-margins-parameters" : {
+      "min-margin-parameters" : {
         "overload-penalty" : 800.0
       }
     }

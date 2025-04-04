@@ -139,7 +139,7 @@
         "violation-cost" : 100000.0,
         "constraint-adjustment-coefficient" : 3.0
       },
-      "min-margins-parameters" : {
+      "min-margin-parameters" : {
         "overload-penalty" : 1000.0
       }
     }

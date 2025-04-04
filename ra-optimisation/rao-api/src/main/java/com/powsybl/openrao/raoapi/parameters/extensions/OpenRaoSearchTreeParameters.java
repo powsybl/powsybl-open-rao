@@ -26,7 +26,7 @@ public class OpenRaoSearchTreeParameters extends AbstractExtension<RaoParameters
     private SecondPreventiveRaoParameters secondPreventiveRaoParameters = new SecondPreventiveRaoParameters();
     private LoadFlowAndSensitivityParameters loadFlowAndSensitivityParameters = new LoadFlowAndSensitivityParameters();
     private Optional<IcsImporterParameters> icsImporterParameters = Optional.empty();
-    private Optional<SearchTreeRaoMinMarginsParameters> minMarginsParameters = Optional.empty();
+    private Optional<SearchTreeRaoMinMarginParameters> minMarginParameters = Optional.empty();
     private Optional<SearchTreeRaoMnecParameters> mnecParameters = Optional.empty();
     private Optional<SearchTreeRaoRelativeMarginsParameters> relativeMarginsParameters = Optional.empty();
     private Optional<SearchTreeRaoLoopFlowParameters> loopFlowParameters = Optional.empty();
@@ -72,8 +72,8 @@ public class OpenRaoSearchTreeParameters extends AbstractExtension<RaoParameters
         this.icsImporterParameters = Optional.of(icsImporterParameters);
     }
 
-    public void setMinMarginsParameters(SearchTreeRaoMinMarginsParameters minMarginsParameters) {
-        this.minMarginsParameters = Optional.of(minMarginsParameters);
+    public void setMinMarginParameters(SearchTreeRaoMinMarginParameters minMarginParameters) {
+        this.minMarginParameters = Optional.of(minMarginParameters);
     }
 
     public SearchTreeRaoObjectiveFunctionParameters getObjectiveFunctionParameters() {
@@ -104,8 +104,8 @@ public class OpenRaoSearchTreeParameters extends AbstractExtension<RaoParameters
         return icsImporterParameters;
     }
 
-    public Optional<SearchTreeRaoMinMarginsParameters> getMinMarginsParameters() {
-        return minMarginsParameters;
+    public Optional<SearchTreeRaoMinMarginParameters> getMinMarginParameters() {
+        return minMarginParameters;
     }
 
     public Optional<SearchTreeRaoMnecParameters> getMnecParameters() {
