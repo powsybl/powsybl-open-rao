@@ -29,7 +29,7 @@
         "injection-ra-sensitivity-threshold" : 0.001,
         "ra-range-shrinking" : "DISABLED",
         "linear-optimization-solver" : {
-          "solver" : "CBC",
+          "solver" : "XPRESS",
           "relative-mip-gap" : 0.001,
           "solver-specific-parameters" : null
         }
