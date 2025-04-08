@@ -182,10 +182,6 @@ public class OpenRaoMPSolver {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }*/
-        if (this.solverSpecificParameters.contains("600")) {
-            long now = System.currentTimeMillis();
-            mpSolver.write("marmot_mip_" + now + ".lp");
-        }
 
         return convertResultStatus(mpSolver.solve(solveConfiguration));
     }
