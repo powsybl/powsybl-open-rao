@@ -199,7 +199,7 @@ public final class InterTemporalRaoSteps {
 
         for (OffsetDateTime offsetDateTime : interTemporalRaoInput.getTimestampsToRun()) {
             FileInputStream raoResultInputStream = new FileInputStream(getFile(getResourcesPath().concat(resultsPath) + "/RAO_RESULT_" + offsetDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")) + ".json"));
-            RaoResult raoResult = RaoResult.read( raoResultInputStream, interTemporalRaoInput.getRaoInputs().getData(offsetDateTime).orElseThrow().getCrac());
+            RaoResult raoResult = RaoResult.read(raoResultInputStream, interTemporalRaoInput.getRaoInputs().getData(offsetDateTime).orElseThrow().getCrac());
 
             Set<NetworkAction> preventiveNetworkActions = raoResult.getActivatedNetworkActionsDuringState(interTemporalRaoInput.getRaoInputs().getData(offsetDateTime).get().getCrac().getPreventiveState());
             Set<RangeAction<?>> preventiveRangeActions = raoResult.getActivatedRangeActionsDuringState(interTemporalRaoInput.getRaoInputs().getData(offsetDateTime).get().getCrac().getPreventiveState());
