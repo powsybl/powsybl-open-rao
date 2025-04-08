@@ -21,6 +21,7 @@ import com.powsybl.openrao.data.crac.api.parameters.JsonCracCreationParameters;
 import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.InterTemporalRaoResult;
+import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.raoapi.*;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import io.cucumber.datatable.DataTable;
@@ -37,6 +38,7 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
@@ -188,6 +190,53 @@ public final class InterTemporalRaoSteps {
         properties.put("inter-temporal-rao-result.export.filename-template", "'RAO_RESULT_'yyyy-MM-dd'T'HH:mm:ss'.json'");
         properties.put("inter-temporal-rao-result.export.summary-filename", "summary.json");
         interTemporalRaoResult.write(zipOutputStream, interTemporalRaoInput.getRaoInputs().map(RaoInputWithNetworkPaths::getCrac), properties);
+    }
+
+    @When("I export networks with PRAs to {string} from raoresult folder {string}")
+    public static void generateNetworksWithPraFromResults(String outputPath, String resultsPath) throws IOException {
+        FileOutputStream fileOutputStream = new FileOutputStream(getFile(getResourcesPath().concat(outputPath)));
+        ZipOutputStream zipOutputStream = new ZipOutputStream(fileOutputStream);
+
+        for (OffsetDateTime offsetDateTime : interTemporalRaoInput.getTimestampsToRun()) {
+            FileInputStream raoResultInputStream = new FileInputStream(getFile(getResourcesPath().concat(resultsPath) + "/RAO_RESULT_" + offsetDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")) + ".json"));
+            RaoResult raoResult = RaoResult.read( raoResultInputStream, interTemporalRaoInput.getRaoInputs().getData(offsetDateTime).orElseThrow().getCrac());
+
+            Set<NetworkAction> preventiveNetworkActions = raoResult.getActivatedNetworkActionsDuringState(interTemporalRaoInput.getRaoInputs().getData(offsetDateTime).get().getCrac().getPreventiveState());
+            Set<RangeAction<?>> preventiveRangeActions = raoResult.getActivatedRangeActionsDuringState(interTemporalRaoInput.getRaoInputs().getData(offsetDateTime).get().getCrac().getPreventiveState());
+            Network modifiedNetwork = Network.read(interTemporalRaoInput.getRaoInputs().getData(offsetDateTime).orElseThrow().getPostIcsImportNetworkPath());
+            Network initialNetwork = Network.read(interTemporalRaoInput.getRaoInputs().getData(offsetDateTime).orElseThrow().getInitialNetworkPath());
+
+            // Apply PRAs on modified network
+            preventiveNetworkActions.forEach(networkAction -> networkAction.apply(initialNetwork));
+            preventiveRangeActions.forEach(rangeAction -> {
+                double optimizedSetpoint = interTemporalRaoResult.getIndividualRaoResult(offsetDateTime).getOptimizedSetPointOnState(interTemporalRaoInput.getRaoInputs().getData(offsetDateTime).get().getCrac().getPreventiveState(), rangeAction);
+                if (rangeAction instanceof InjectionRangeAction) {
+                    applyRedispatchingAction((InjectionRangeAction) rangeAction, optimizedSetpoint, modifiedNetwork, initialNetwork);
+                } else {
+                    rangeAction.apply(initialNetwork, optimizedSetpoint);
+                }
+            });
+            // Write network
+            String path = interTemporalRaoInput.getRaoInputs().getData(offsetDateTime).orElseThrow().getPostIcsImportNetworkPath().split(".jiidm")[0].concat(".uct");
+            String name = path.substring(path.lastIndexOf("/") + 1);
+            initialNetwork.write("UCTE", new Properties(), Path.of(path));
+
+            // Add network to zip
+            ZipEntry entry = new ZipEntry(name);
+            zipOutputStream.putNextEntry(entry);
+            File generatedNetwork = new File(path);
+            byte[] fileInByte = FileUtils.readFileToByteArray(generatedNetwork);
+            InputStream is = new ByteArrayInputStream(fileInByte);
+            byte[] bytes = new byte[1024];
+            int length;
+            while ((length = is.read(bytes)) >= 0) {
+                zipOutputStream.write(bytes, 0, length);
+            }
+            is.close();
+            generatedNetwork.delete();
+        }
+        zipOutputStream.close();
+        cleanModifiedNetworks();
     }
 
     @When("I export networks with PRAs to {string}")
