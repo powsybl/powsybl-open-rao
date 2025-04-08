@@ -202,13 +202,13 @@ public final class InterTemporalRaoSteps {
             Network initialNetwork = Network.read(interTemporalRaoInput.getRaoInputs().getData(offsetDateTime).orElseThrow().getInitialNetworkPath());
 
             // Apply PRAs on modified network
-            preventiveNetworkActions.forEach(networkAction -> networkAction.apply(modifiedNetwork));
+            preventiveNetworkActions.forEach(networkAction -> networkAction.apply(initialNetwork));
             preventiveRangeActions.forEach(rangeAction -> {
                 double optimizedSetpoint = interTemporalRaoResult.getIndividualRaoResult(offsetDateTime).getOptimizedSetPointOnState(interTemporalRaoInput.getRaoInputs().getData(offsetDateTime).get().getCrac().getPreventiveState(), rangeAction);
                 if (rangeAction instanceof InjectionRangeAction) {
                     applyRedispatchingAction((InjectionRangeAction) rangeAction, optimizedSetpoint, modifiedNetwork, initialNetwork);
                 } else {
-                    rangeAction.apply(modifiedNetwork, optimizedSetpoint);
+                    rangeAction.apply(initialNetwork, optimizedSetpoint);
                 }
             });
             // Write network
