@@ -144,7 +144,7 @@ public abstract class AbstractOptimizationPerimeter implements OptimizationPerim
         double minSetPoint = rangeAction.getMinAdmissibleSetpoint(preperimeterSetPoint);
         double maxSetPoint = rangeAction.getMaxAdmissibleSetpoint(preperimeterSetPoint);
 
-        if (preperimeterSetPoint < minSetPoint || preperimeterSetPoint > maxSetPoint) {
+        if (preperimeterSetPoint < minSetPoint + 1e-6 || preperimeterSetPoint > maxSetPoint - 1e6) {
             BUSINESS_WARNS.warn("Range action {} has an initial setpoint of {} that does not respect its allowed range [{} {}]. It will be filtered out of the linear problem.",
                 rangeAction.getId(), preperimeterSetPoint, minSetPoint, maxSetPoint);
             return false;
