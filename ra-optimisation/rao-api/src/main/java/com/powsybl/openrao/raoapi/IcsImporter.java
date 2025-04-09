@@ -74,7 +74,12 @@ public final class IcsImporter {
             if (shouldBeImported(staticRecord, weightPerNodePerGsk)) {
                 String raId = staticRecord.get("RA RD ID");
                 Map<String, CSVRecord> seriesPerType = seriesPerIdAndType.get(raId);
-                if (seriesPerType != null && seriesPerType.containsKey("P0") && seriesPerType.containsKey("RDP-") && seriesPerType.containsKey("RDP+") && p0RespectsGradients(staticRecord, seriesPerType.get("P0"), interTemporalRaoInput.getTimestampsToRun().stream().sorted().toList())) {
+                if (seriesPerType != null &&
+                    seriesPerType.containsKey("P0") &&
+                    seriesPerType.containsKey("RDP-") &&
+                    seriesPerType.containsKey("RDP+") &&
+                    rangeIsOkay(seriesPerType, interTemporalRaoInput.getTimestampsToRun().stream().sorted().toList()) &&
+                    p0RespectsGradients(staticRecord, seriesPerType.get("P0"), interTemporalRaoInput.getTimestampsToRun().stream().sorted().toList())) {
                     if (staticRecord.get("RD description mode").equalsIgnoreCase("NODE")) {
                         importNodeRedispatchingAction(interTemporalRaoInput, staticRecord, initialNetworks, seriesPerType, raId);
                     } else {
@@ -263,10 +268,22 @@ public final class IcsImporter {
             OffsetDateTime nextDateTime = dateTimeIterator.next();
             double diff = parseDoubleWithPossibleCommas(p0record.get(nextDateTime.getHour() + OFFSET)) - parseDoubleWithPossibleCommas(p0record.get(currentDateTime.getHour() + OFFSET));
             if (diff > maxGradient || diff < minGradient) {
-                System.out.printf("%s does not respect power gradients : min/max/diff %f %f %f%n", staticRecord.get(0), minGradient, maxGradient, diff);
+                BUSINESS_WARNS.warn("Redispatching action {} will not be imported because it does not respect power gradients : min/max/diff {} {} {}", staticRecord.get(0), minGradient, maxGradient, diff);
                 return false;
             }
             currentDateTime = nextDateTime;
+        }
+        return true;
+    }
+
+    private static boolean rangeIsOkay(Map<String, CSVRecord> seriesPerType, List<OffsetDateTime> dateTimes) {
+        for (OffsetDateTime dateTime : dateTimes) {
+            double rdpPlus = parseDoubleWithPossibleCommas(seriesPerType.get("RDP+").get(dateTime.getHour() + OFFSET));
+            double rdpMinus = parseDoubleWithPossibleCommas(seriesPerType.get("RDP-").get(dateTime.getHour() + OFFSET));
+            if (rdpPlus < -1e-6 || rdpMinus < -1e-6 || rdpPlus + rdpMinus < 1) {
+                BUSINESS_WARNS.warn("Redispatching action {} will not be imported because of RDP+ {} and RDP- {} (either negative or too small range)", seriesPerType.get("P0").get("RA RD ID"), rdpPlus, rdpMinus);
+                return false;
+            }
         }
         return true;
     }

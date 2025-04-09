@@ -67,7 +67,7 @@ public final class InterTemporalRaoSteps {
 
     // TODO : add after to run after all @intertemporal scenarios
     private static void cleanModifiedNetworks() {
-        interTemporalRaoResult.getTimestamps().forEach(offsetDateTime -> {
+        interTemporalRaoInput.getTimestampsToRun().forEach(offsetDateTime -> {
             File file = new File(interTemporalRaoInput.getRaoInputs().getData(offsetDateTime).orElseThrow().getPostIcsImportNetworkPath());
             if (file.exists()) {
                 file.delete();
