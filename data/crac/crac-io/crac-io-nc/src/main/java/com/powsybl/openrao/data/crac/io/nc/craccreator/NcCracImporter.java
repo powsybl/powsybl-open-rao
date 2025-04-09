@@ -48,11 +48,11 @@ public class NcCracImporter implements Importer {
 
     /**
      * @param inputStream : zip file inputStream
-     * @return csa profile native crac, the tripleStore contains data of every rdf file included in the zip
+     * @return nc native crac, the tripleStore contains data of every rdf file included in the zip
      * each context of the tripleStore contains one rdf file data
      */
     private NcCrac importNativeCrac(InputStream inputStream) {
-        TripleStore tripleStoreCsaProfile = TripleStoreFactory.create(NcConstants.TRIPLESTORE_RDF4J_NAME);
+        TripleStore tripleStoreNcProfile = TripleStoreFactory.create(NcConstants.TRIPLESTORE_RDF4J_NAME);
         ZipEntry zipEntry;
         Map<String, Set<String>> keywordMap = new HashMap<>();
         Pattern keywordPattern = Pattern.compile("<dcat:keyword>([A-Z]{2,3})</dcat:keyword>");
@@ -65,16 +65,16 @@ public class NcCracImporter implements Importer {
             while ((zipEntry = zipInputStream.getNextEntry()) != null && countEntries < maxNbEntries) { //NOSONAR
                 countEntries++;
                 if (!zipEntry.isDirectory()) {
-                    importZipEntry(zipEntry, zipInputStream, maxSizeEntry, keywordPattern, keywordMap, tripleStoreCsaProfile);
+                    importZipEntry(zipEntry, zipInputStream, maxSizeEntry, keywordPattern, keywordMap, tripleStoreNcProfile);
                 }
             }
         } catch (IOException e) {
             OpenRaoLoggerProvider.TECHNICAL_LOGS.error("NC crac import interrupted, cause : {}", e.getMessage());
         }
-        return new NcCrac(tripleStoreCsaProfile, keywordMap);
+        return new NcCrac(tripleStoreNcProfile, keywordMap);
     }
 
-    private static void importZipEntry(ZipEntry zipEntry, ZipInputStream zipInputStream, int maxSizeEntry, Pattern keywordPattern, Map<String, Set<String>> keywordMap, TripleStore tripleStoreCsaProfile) throws IOException {
+    private static void importZipEntry(ZipEntry zipEntry, ZipInputStream zipInputStream, int maxSizeEntry, Pattern keywordPattern, Map<String, Set<String>> keywordMap, TripleStore tripleStoreNcProfile) throws IOException {
         OpenRaoLoggerProvider.BUSINESS_LOGS.info("NC crac import : import of file {}", zipEntry.getName());
         int currentSizeEntry = 0;
         File tempFile;
@@ -82,7 +82,7 @@ public class NcCracImporter implements Importer {
 
         if (SystemUtils.IS_OS_UNIX) {
             FileAttribute<Set<PosixFilePermission>> attr = PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwx------"));
-            tempFile = Files.createTempFile("openRaoCsaProfile", ".tmp", attr).toFile(); // Compliant
+            tempFile = Files.createTempFile("openRaoNc", ".tmp", attr).toFile(); // Compliant
             tempFileOk = true;
         } else {
             tempFile = Files.createTempFile("prefix", "suffix").toFile();  //NOSONAR
@@ -119,7 +119,7 @@ public class NcCracImporter implements Importer {
                 keywordMap.put(keyword, newFilesSet);
             }
             FileInputStream fileInputStream = new FileInputStream(tempFile);
-            tripleStoreCsaProfile.read(fileInputStream, NcConstants.RDF_BASE_URL, zipEntry.getName());
+            tripleStoreNcProfile.read(fileInputStream, NcConstants.RDF_BASE_URL, zipEntry.getName());
         }
         try {
             Files.delete(tempFile.toPath());
@@ -131,11 +131,11 @@ public class NcCracImporter implements Importer {
 
     @Override
     public boolean exists(String filename, InputStream inputStream) {
-        if (!FilenameUtils.getExtension(filename).equals(NcConstants.EXTENSION_FILE_CSA_PROFILE)) {
+        if (!FilenameUtils.getExtension(filename).equals(NcConstants.EXTENSION_FILE_NC_PROFILE)) {
             return false;
         }
-        TripleStore tripleStoreCsaProfile = TripleStoreFactory.create(NcConstants.TRIPLESTORE_RDF4J_NAME);
-        tripleStoreCsaProfile.read(inputStream, NcConstants.RDF_BASE_URL, "");
+        TripleStore tripleStoreNcProfile = TripleStoreFactory.create(NcConstants.TRIPLESTORE_RDF4J_NAME);
+        tripleStoreNcProfile.read(inputStream, NcConstants.RDF_BASE_URL, "");
         return true;
     }
 

@@ -127,10 +127,10 @@ public final class NcCracCreationTestUtil {
     }
 
     public static void assertPstRangeActionImported(NcCracCreationContext cracCreationContext, String id, String networkElement, boolean isAltered, int numberOfUsageRules, String expectedOperator) {
-        ElementaryCreationContext csaProfileElementaryCreationContext = cracCreationContext.getRemedialActionCreationContext(id);
-        assertNotNull(csaProfileElementaryCreationContext);
-        assertTrue(csaProfileElementaryCreationContext.isImported());
-        assertEquals(isAltered, csaProfileElementaryCreationContext.isAltered());
+        ElementaryCreationContext ncElementaryCreationContext = cracCreationContext.getRemedialActionCreationContext(id);
+        assertNotNull(ncElementaryCreationContext);
+        assertTrue(ncElementaryCreationContext.isImported());
+        assertEquals(isAltered, ncElementaryCreationContext.isAltered());
         assertNotNull(cracCreationContext.getCrac().getPstRangeAction(id));
         String actualNetworkElement = cracCreationContext.getCrac().getPstRangeAction(id).getNetworkElement().toString();
         assertEquals(networkElement, actualNetworkElement);
@@ -139,10 +139,10 @@ public final class NcCracCreationTestUtil {
     }
 
     public static void assertNetworkActionImported(NcCracCreationContext cracCreationContext, String id, Set<String> networkElements, boolean isAltered, int numberOfUsageRules, String expectedOperator) {
-        ElementaryCreationContext csaProfileElementaryCreationContext = cracCreationContext.getRemedialActionCreationContext(id);
-        assertNotNull(csaProfileElementaryCreationContext);
-        assertTrue(csaProfileElementaryCreationContext.isImported());
-        assertEquals(isAltered, csaProfileElementaryCreationContext.isAltered());
+        ElementaryCreationContext ncElementaryCreationContext = cracCreationContext.getRemedialActionCreationContext(id);
+        assertNotNull(ncElementaryCreationContext);
+        assertTrue(ncElementaryCreationContext.isImported());
+        assertEquals(isAltered, ncElementaryCreationContext.isAltered());
         assertNotNull(cracCreationContext.getCrac().getNetworkAction(id));
         Set<String> actualNetworkElements = cracCreationContext.getCrac().getNetworkAction(id).getNetworkElements().stream().map(NetworkElement::getId).collect(Collectors.toSet());
         assertEquals(networkElements, actualNetworkElements);
@@ -250,13 +250,13 @@ public final class NcCracCreationTestUtil {
         assertEquals(expectedMaxTap == null ? Integer.MAX_VALUE : expectedMaxTap, pstRangeAction.getRanges().get(0).getMaxTap());
     }
 
-    public static NcCracCreationContext getNcCracCreationContext(String csaProfilesArchive, CracCreationParameters cracCreationParameters) {
-        Network network = getNetworkFromResource(csaProfilesArchive);
-        return getNcCracCreationContext(csaProfilesArchive, network, cracCreationParameters);
+    public static NcCracCreationContext getNcCracCreationContext(String ncArchive, CracCreationParameters cracCreationParameters) {
+        Network network = getNetworkFromResource(ncArchive);
+        return getNcCracCreationContext(ncArchive, network, cracCreationParameters);
     }
 
-    public static NcCracCreationContext getNcCracCreationContext(String csaProfilesArchive) {
-        return getNcCracCreationContext(csaProfilesArchive, cracCreationDefaultParametersWithSweCsaExtension());
+    public static NcCracCreationContext getNcCracCreationContext(String ncArchive) {
+        return getNcCracCreationContext(ncArchive, cracCreationDefaultParametersWithSweCsaExtension());
     }
 
     public static CracCreationParameters cracCreationDefaultParametersWithSweCsaExtension() {
@@ -270,26 +270,26 @@ public final class NcCracCreationTestUtil {
         return cracCreationParameters;
     }
 
-    public static NcCracCreationContext getNcCracCreationContext(String csaProfilesArchive, Network network) {
-        return getNcCracCreationContext(csaProfilesArchive, network, OffsetDateTime.parse("2023-03-29T12:00Z"), cracCreationDefaultParametersWithSweCsaExtension());
+    public static NcCracCreationContext getNcCracCreationContext(String ncsArchive, Network network) {
+        return getNcCracCreationContext(ncsArchive, network, OffsetDateTime.parse("2023-03-29T12:00Z"), cracCreationDefaultParametersWithSweCsaExtension());
     }
 
-    public static NcCracCreationContext getNcCracCreationContext(String csaProfilesArchive, Network network, CracCreationParameters cracCreationParameters) {
-        return getNcCracCreationContext(csaProfilesArchive, network, OffsetDateTime.parse("2023-03-29T12:00Z"), cracCreationParameters);
+    public static NcCracCreationContext getNcCracCreationContext(String ncsArchive, Network network, CracCreationParameters cracCreationParameters) {
+        return getNcCracCreationContext(ncsArchive, network, OffsetDateTime.parse("2023-03-29T12:00Z"), cracCreationParameters);
     }
 
-    public static NcCracCreationContext getNcCracCreationContext(String csaProfilesArchive, Network network, String timestamp) {
-        return getNcCracCreationContext(csaProfilesArchive, network, OffsetDateTime.parse(timestamp), cracCreationDefaultParametersWithSweCsaExtension());
+    public static NcCracCreationContext getNcCracCreationContext(String ncsArchive, Network network, String timestamp) {
+        return getNcCracCreationContext(ncsArchive, network, OffsetDateTime.parse(timestamp), cracCreationDefaultParametersWithSweCsaExtension());
     }
 
-    public static NcCracCreationContext getNcCracCreationContext(String csaProfilesArchive, Network network, OffsetDateTime offsetDateTime) {
-        return getNcCracCreationContext(csaProfilesArchive, network, offsetDateTime, cracCreationDefaultParametersWithSweCsaExtension());
+    public static NcCracCreationContext getNcCracCreationContext(String ncsArchive, Network network, OffsetDateTime offsetDateTime) {
+        return getNcCracCreationContext(ncsArchive, network, offsetDateTime, cracCreationDefaultParametersWithSweCsaExtension());
     }
 
-    public static NcCracCreationContext getNcCracCreationContext(String csaProfilesArchive, Network network, OffsetDateTime offsetDateTime, CracCreationParameters cracCreationParameters) {
-        try (InputStream inputStream = NcCracCreationTestUtil.class.getResourceAsStream(csaProfilesArchive)) {
+    public static NcCracCreationContext getNcCracCreationContext(String ncsArchive, Network network, OffsetDateTime offsetDateTime, CracCreationParameters cracCreationParameters) {
+        try (InputStream inputStream = NcCracCreationTestUtil.class.getResourceAsStream(ncsArchive)) {
             cracCreationParameters.getExtension(NcCracCreationParameters.class).setTimestamp(offsetDateTime);
-            return (NcCracCreationContext) Crac.readWithContext(csaProfilesArchive, inputStream, network, cracCreationParameters);
+            return (NcCracCreationContext) Crac.readWithContext(ncsArchive, inputStream, network, cracCreationParameters);
         } catch (IOException e) {
             throw new OpenRaoException(e);
         }

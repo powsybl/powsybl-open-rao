@@ -1,16 +1,16 @@
-# CSA-Profiles CRAC format
+# NC CRAC format
 
 ## Presentation
 
-For the CSA process, the CRAC data is split over multiple XML files called **CSA profiles**, each one with its own
+For the NC process, the CRAC data is split over multiple XML files called **NC profiles**, each one with its own
 specific purpose, and which were inspired by the CGM format. This format
 was [introduced by ENTSO-E](https://www.entsoe.eu/data/cim/cim-for-grid-models-exchange/). The objects in the different
-CSA profiles reference one another using **mRID** links (UUID format) which makes it possible to separate the
+NC profiles reference one another using **mRID** links (UUID format) which makes it possible to separate the
 information among several distinct files.
 
 ## Header overview
 
-The OpenRAO importer only supports version `2.3` headers for CSA profiles (see
+The OpenRAO importer only supports version `2.3` headers for NC profiles (see
 [ENTSO-E website](https://www.entsoe.eu/Documents/CIM_documents/Grid_Model_CIM/MetadataAndHeaderDataExchangeSpecification_v2.3.0.pdf)).
 
 ```xml
@@ -36,8 +36,8 @@ The OpenRAO importer only supports version `2.3` headers for CSA profiles (see
 </rdf:RDF>
 ```
 
-Each CSA profile is identified by a `dcat:keyword` that states which category of features it bears. To be valid for
-OpenRAO, a profile must have exactly one keyword defined in its header. Besides, OpenRAO currently handles 5 different CSA
+Each NC profile is identified by a `dcat:keyword` that states which category of features it bears. To be valid for
+OpenRAO, a profile must have exactly one keyword defined in its header. Besides, OpenRAO currently handles 5 different NC
 profiles, the keyword and purpose of which are gathered in the following table:
 
 | Keyword | Full Name                | Purpose                                |
@@ -48,7 +48,7 @@ profiles, the keyword and purpose of which are gathered in the following table:
 | RA      | Remedial Action          | Definition of remedial actions.        |
 | SSI     | Steady State Instruction | Overriding data for specific instants. |
 
-Besides, each CSA profile has a period of validity delimited by the `dcat:startDate` and `dcat:endDate` fields (both
+Besides, each NC profile has a period of validity delimited by the `dcat:startDate` and `dcat:endDate` fields (both
 required) in the header. If the time at which the import occurs is outside of this time interval, the profile is
 ignored.
 
@@ -61,11 +61,11 @@ fields read by OpenRAO are displayed in the following chart.
 
 > Fields preceded by a "~" are optional.
 
-![CSA profiles usage overview](/_static/img/CSA-profiles.png)
+![NC profiles usage overview](/_static/img/CSA-profiles.png)
 
 ## Instants
 
-The CSA CRAC is systematically created with 6 instants: preventive, outage, auto and 3 curative instants (named "curative 1", "curative 2" and "curative 3").
+The NC CRAC is systematically created with 6 instants: preventive, outage, auto and 3 curative instants (named "curative 1", "curative 2" and "curative 3").
 
 ## Contingencies
 
@@ -226,7 +226,7 @@ case, the contingency's name is added to the CNEC's name.
 </rdf:RDF>
 ```
 
-Finally, the created CNEC can be optimized (resp. monitored) if the `AssessedElement` has a `SecuredForRegion` (resp. `ScannedForRegion`) attribute pointing to the [EI Code of the CCR](creation-parameters.md#capacity-calculation-region-eic-code) declared in the CSA parameters extension (default is `10Y1001C--00095L`, i.e. SWE CCR).
+Finally, the created CNEC can be optimized (resp. monitored) if the `AssessedElement` has a `SecuredForRegion` (resp. `ScannedForRegion`) attribute pointing to the [EI Code of the CCR](creation-parameters.md#capacity-calculation-region-eic-code) declared in the NC parameters extension (default is `10Y1001C--00095L`, i.e. SWE CCR).
 
 The distinction between the types of CNEC (FlowCNEC, AngleCNEC or VoltageCNEC) comes from the type of `OperationalLimit`
 of the Assessed Element (or the use of a `ConductingEquipment` for FlowCNECs).
@@ -344,7 +344,7 @@ both the maximum (positive) and minimum (negative) FlowCNEC's thresholds.
 
 #### TATL to FlowCNEC instant association
 
-Because of the three curative instants used in the CSA process, the definition of instants for FlowCNECs is based on an algorithm that requires to know the acceptable duration of all the TATLs of a line.
+Because of the three curative instants used in the NC process, the definition of instants for FlowCNECs is based on an algorithm that requires to know the acceptable duration of all the TATLs of a line.
 
 This association is more complex, as the set of TATLs used is not fixed from one line to the next, but the RAO must be able to map each of these limits at all 5 post-contingency instants (outage, auto and curative 1, 2 and 3).
 
@@ -362,7 +362,7 @@ Below are some examples of cases using different sets of TATLs:
 :::
 ::::
 
-The mapping between the different limits and the instants can be done with an algorithm described below. For this to work, the [CSA extension](creation-parameters.md#csa-specific-parameters) of the CracCreationParameters must have been set in the first place to associate each curative instant to its [application time](creation-parameters.md#cra-application-window) and to indicate which TSOs [use the PATL as the final state's limit](creation-parameters.md#use-patl-in-final-state) and which do not.
+The mapping between the different limits and the instants can be done with an algorithm described below. For this to work, the [NC extension](creation-parameters.md#csa-specific-parameters) of the CracCreationParameters must have been set in the first place to associate each curative instant to its [application time](creation-parameters.md#cra-application-window) and to indicate which TSOs [use the PATL as the final state's limit](creation-parameters.md#use-patl-in-final-state) and which do not.
 
 By default, the first curative instant is associated to 300 seconds, the second curative to 600 seconds and the third curative to 1200 seconds.
 
@@ -442,7 +442,7 @@ s `direction`:
   the threshold is `- normalValue`
 
 An AngleCNEC also has two terminals, one being the importing element and the other being the exporting element, which
-imposes the flow direction. Two terminals are referenced by the AngleCNEC in the CSA profiles. The first one (called
+imposes the flow direction. Two terminals are referenced by the AngleCNEC in the NC profiles. The first one (called
 *terminal_1*) is referenced by the `VoltageAngleLimit`'s `AngleReferenceTerminal` field. The second one (called
 *terminal_2*) is referenced by the `OperationalLimitSet`'s `Terminal` field. The flow direction is determined depending
 on the `VoltageAngleLimit`'s `isFlowToRefTerminal` field value:
@@ -538,7 +538,7 @@ Finally, the `timeToImplement` is converted to a number of seconds and used as t
 
 > This `timeToImplement` may also be used to convert a curative remedial action to an auto remedial action (see [this section](#using-gridstatealterationremedialaction-and-timetoimplement)).
 
-In the following, we describe the different types of remedial actions that can be imported in OpenRAO from the CSA
+In the following, we describe the different types of remedial actions that can be imported in OpenRAO from the NC
 profiles. The general pattern is to link a `GridStateAlteration` object which references the parent remedial
 action (`GridStateAlterationRemedialAction`) and a `StaticPropertyRange` which contains the physical and numerical
 definition of the remedial action. The field of the `StaticPropertyRange` are:
@@ -815,11 +815,11 @@ of sections.
 
 #### Using SchemeRemedialActions
 
-![CSA SPS](/_static/img/sps-csa.png){.forced-white-background}
+![NC SPS](/_static/img/sps-csa.png){.forced-white-background}
 
 #### Using GridStateAlterationRemedialAction and timeToImplement
 
-An auto remedial action can also be defined in a more concise way using a `GridStateAlterationRemedialAction` with a `timeToImplement`. If this time, converted to a number of seconds, is below the [sps-max-time-to-implement-threshold-in-seconds](creation-parameters.md#sps-max-time-to-implement-threshold-in-seconds) threshold defined in the CSA CRAC creation parameters, the remedial action will be imported as an ARA instead of a CRA.
+An auto remedial action can also be defined in a more concise way using a `GridStateAlterationRemedialAction` with a `timeToImplement`. If this time, converted to a number of seconds, is below the [sps-max-time-to-implement-threshold-in-seconds](creation-parameters.md#sps-max-time-to-implement-threshold-in-seconds) threshold defined in the NC CRAC creation parameters, the remedial action will be imported as an ARA instead of a CRA.
 
 ### Usage Rules
 

@@ -350,7 +350,7 @@ public final class CommonTestData {
             return cracCreationParameters.getExtension(CimCracCreationParameters.class).getTimestamp();
         } else if (cracFormat.equals("FlowBasedConstraintDocument")) {
             return cracCreationParameters.getExtension(FbConstraintCracCreationParameters.class).getTimestamp();
-        } else if (cracFormat.equals("CsaCrac")) {
+        } else if (cracFormat.equals("NC")) {
             return cracCreationParameters.getExtension(NcCracCreationParameters.class).getTimestamp();
         } else {
             return null;
@@ -367,7 +367,7 @@ public final class CommonTestData {
             FbConstraintCracCreationParameters fbConstraintParams = new FbConstraintCracCreationParameters();
             fbConstraintParams.setTimestamp(timestamp);
             cracCreationParameters.addExtension(FbConstraintCracCreationParameters.class, fbConstraintParams);
-        } else if (cracFormat.equals("CsaCrac")) {
+        } else if (cracFormat.equals("NC")) {
             NcCracCreationParameters csaParams = new NcCracCreationParameters();
             csaParams.setTimestamp(timestamp);
             cracCreationParameters.addExtension(NcCracCreationParameters.class, csaParams);

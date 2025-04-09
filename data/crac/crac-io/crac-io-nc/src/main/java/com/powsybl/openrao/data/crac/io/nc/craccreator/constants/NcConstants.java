@@ -28,7 +28,7 @@ public final class NcConstants {
      * constants to read rdf files
      */
 
-    public static final String EXTENSION_FILE_CSA_PROFILE = "zip";
+    public static final String EXTENSION_FILE_NC_PROFILE = "zip";
 
     public static final String RDF_BASE_URL = "http://entsoe.eu";
 
@@ -38,7 +38,7 @@ public final class NcConstants {
      * constants to access triplestore data
      */
 
-    public static final String SPARQL_FILE_CSA_PROFILE = "nc.sparql";
+    public static final String SPARQL_FILE_NC_PROFILE = "nc.sparql";
 
     /**
      * constants to request file headers

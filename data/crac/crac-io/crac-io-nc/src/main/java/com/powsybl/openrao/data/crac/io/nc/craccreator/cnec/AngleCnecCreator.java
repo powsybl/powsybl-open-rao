@@ -31,8 +31,8 @@ public class AngleCnecCreator extends AbstractCnecCreator {
 
     private final VoltageAngleLimit nativeVoltageAngleLimit;
 
-    public AngleCnecCreator(Crac crac, Network network, AssessedElement nativeAssessedElement, VoltageAngleLimit nativeVoltageAngleLimit, Set<Contingency> linkedContingencies, Set<ElementaryCreationContext> csaProfileCnecCreationContexts, String rejectedLinksAssessedElementContingency, CracCreationParameters cracCreationParameters, Map<String, String> borderPerTso, Map<String, String> borderPerEic) {
-        super(crac, network, nativeAssessedElement, linkedContingencies, csaProfileCnecCreationContexts, rejectedLinksAssessedElementContingency, cracCreationParameters, borderPerTso, borderPerEic);
+    public AngleCnecCreator(Crac crac, Network network, AssessedElement nativeAssessedElement, VoltageAngleLimit nativeVoltageAngleLimit, Set<Contingency> linkedContingencies, Set<ElementaryCreationContext> ncCnecCreationContexts, String rejectedLinksAssessedElementContingency, CracCreationParameters cracCreationParameters, Map<String, String> borderPerTso, Map<String, String> borderPerEic) {
+        super(crac, network, nativeAssessedElement, linkedContingencies, ncCnecCreationContexts, rejectedLinksAssessedElementContingency, cracCreationParameters, borderPerTso, borderPerEic);
         this.nativeVoltageAngleLimit = nativeVoltageAngleLimit;
     }
 

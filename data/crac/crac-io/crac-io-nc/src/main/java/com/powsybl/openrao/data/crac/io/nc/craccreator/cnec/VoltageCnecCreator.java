@@ -31,8 +31,8 @@ public class VoltageCnecCreator extends AbstractCnecCreator {
 
     private final VoltageLimit nativeVoltageLimit;
 
-    public VoltageCnecCreator(Crac crac, Network network, AssessedElement nativeAssessedElement, VoltageLimit nativeVoltageLimit, Set<Contingency> linkedContingencies, Set<ElementaryCreationContext> csaProfileCnecCreationContexts, String rejectedLinksAssessedElementContingency, CracCreationParameters cracCreationParameters, Map<String, String> borderPerTso, Map<String, String> borderPerEic) {
-        super(crac, network, nativeAssessedElement, linkedContingencies, csaProfileCnecCreationContexts, rejectedLinksAssessedElementContingency, cracCreationParameters, borderPerTso, borderPerEic);
+    public VoltageCnecCreator(Crac crac, Network network, AssessedElement nativeAssessedElement, VoltageLimit nativeVoltageLimit, Set<Contingency> linkedContingencies, Set<ElementaryCreationContext> ncCnecCreationContexts, String rejectedLinksAssessedElementContingency, CracCreationParameters cracCreationParameters, Map<String, String> borderPerTso, Map<String, String> borderPerEic) {
+        super(crac, network, nativeAssessedElement, linkedContingencies, ncCnecCreationContexts, rejectedLinksAssessedElementContingency, cracCreationParameters, borderPerTso, borderPerEic);
         this.nativeVoltageLimit = nativeVoltageLimit;
     }
 

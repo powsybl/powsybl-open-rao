@@ -42,8 +42,8 @@ public class FlowCnecCreator extends AbstractCnecCreator {
     private final FlowCnecInstantHelper instantHelper;
     private final CurrentLimit nativeCurrentLimit;
 
-    public FlowCnecCreator(Crac crac, Network network, AssessedElement nativeAssessedElement, CurrentLimit nativeCurrentLimit, Set<Contingency> linkedContingencies, Set<ElementaryCreationContext> csaProfileCnecCreationContexts, String rejectedLinksAssessedElementContingency, CracCreationParameters cracCreationParameters, Map<String, String> borderPerTso, Map<String, String> borderPerEic) {
-        super(crac, network, nativeAssessedElement, linkedContingencies, csaProfileCnecCreationContexts, rejectedLinksAssessedElementContingency, cracCreationParameters, borderPerTso, borderPerEic);
+    public FlowCnecCreator(Crac crac, Network network, AssessedElement nativeAssessedElement, CurrentLimit nativeCurrentLimit, Set<Contingency> linkedContingencies, Set<ElementaryCreationContext> ncCnecCreationContexts, String rejectedLinksAssessedElementContingency, CracCreationParameters cracCreationParameters, Map<String, String> borderPerTso, Map<String, String> borderPerEic) {
+        super(crac, network, nativeAssessedElement, linkedContingencies, ncCnecCreationContexts, rejectedLinksAssessedElementContingency, cracCreationParameters, borderPerTso, borderPerEic);
         this.defaultMonitoredSides = cracCreationParameters.getDefaultMonitoredSides();
         this.nativeCurrentLimit = nativeCurrentLimit;
         ncCracCreationParameters = cracCreationParameters.getExtension(NcCracCreationParameters.class);
@@ -211,7 +211,7 @@ public class FlowCnecCreator extends AbstractCnecCreator {
             thresholds.getOrDefault(Integer.MAX_VALUE, Map.of()).forEach((twoSides, threshold) -> {
                 String cnecName = getCnecName(crac.getPreventiveInstant().getId(), null, twoSides, Integer.MAX_VALUE);
                 addFlowCnec(networkElement, null, crac.getPreventiveInstant().getId(), twoSides, threshold, Integer.MAX_VALUE, useMaxAndMinThresholds);
-                csaProfileCnecCreationContexts.add(StandardElementaryCreationContext.imported(nativeAssessedElement.mrid(), cnecName, cnecName, false, ""));
+                ncCnecCreationContexts.add(StandardElementaryCreationContext.imported(nativeAssessedElement.mrid(), cnecName, cnecName, false, ""));
             });
         }
 
@@ -240,9 +240,9 @@ public class FlowCnecCreator extends AbstractCnecCreator {
                 String cnecName = getCnecName(instant, contingency, twoSides, acceptableDuration);
                 addFlowCnec(networkElement, contingency, instant, twoSides, threshold, acceptableDuration, useMaxAndMinThresholds);
                 if (acceptableDuration == Integer.MAX_VALUE && Boolean.TRUE.equals(forceUseOfPatl.get(twoSides))) {
-                    csaProfileCnecCreationContexts.add(StandardElementaryCreationContext.imported(nativeAssessedElement.mrid(), cnecName, cnecName, true, "TSO %s does not use PATL in final state but has no TATL defined for branch %s on side %s, PATL will be used".formatted(NcCracUtils.getTsoNameFromUrl(nativeAssessedElement.operator()), networkElement.getId(), twoSides)));
+                    ncCnecCreationContexts.add(StandardElementaryCreationContext.imported(nativeAssessedElement.mrid(), cnecName, cnecName, true, "TSO %s does not use PATL in final state but has no TATL defined for branch %s on side %s, PATL will be used".formatted(NcCracUtils.getTsoNameFromUrl(nativeAssessedElement.operator()), networkElement.getId(), twoSides)));
                 } else {
-                    csaProfileCnecCreationContexts.add(StandardElementaryCreationContext.imported(nativeAssessedElement.mrid(), cnecName, cnecName, false, ""));
+                    ncCnecCreationContexts.add(StandardElementaryCreationContext.imported(nativeAssessedElement.mrid(), cnecName, cnecName, false, ""));
                 }
             }
         );

@@ -30,7 +30,7 @@ class FlowCnecInstantHelperTest {
     private LoadingLimits.TemporaryLimit tatl900;
     private LoadingLimits.TemporaryLimit tatl1200;
     private CracCreationParameters parameters;
-    private NcCracCreationParameters csaParameters;
+    private NcCracCreationParameters ncParameters;
     private Crac crac;
     private FlowCnecInstantHelper helper;
 
@@ -39,7 +39,7 @@ class FlowCnecInstantHelperTest {
         initCrac();
         initTatls();
         initCracCreationParameters();
-        helper = new FlowCnecInstantHelper(csaParameters, crac);
+        helper = new FlowCnecInstantHelper(ncParameters, crac);
     }
 
     @Test
@@ -234,10 +234,10 @@ class FlowCnecInstantHelperTest {
 
     private void initCracCreationParameters() {
         parameters = new CracCreationParameters();
-        csaParameters = new NcCracCreationParameters();
-        csaParameters.setCurativeInstants(Map.of("curative 1", 300, "curative 2", 600, "curative 3", 1200));
-        csaParameters.setTsosWhichDoNotUsePatlInFinalState(Set.of("REE"));
-        parameters.addExtension(NcCracCreationParameters.class, csaParameters);
+        ncParameters = new NcCracCreationParameters();
+        ncParameters.setCurativeInstants(Map.of("curative 1", 300, "curative 2", 600, "curative 3", 1200));
+        ncParameters.setTsosWhichDoNotUsePatlInFinalState(Set.of("REE"));
+        parameters.addExtension(NcCracCreationParameters.class, ncParameters);
     }
 
     private void initTatls() {

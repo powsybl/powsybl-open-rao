@@ -47,7 +47,7 @@ class NcCracCreator {
         this.nativeCrac = nativeCrac;
 
         if (offsetDateTime == null) {
-            creationContext.getCreationReport().error("Timestamp is null for csa crac creator.");
+            creationContext.getCreationReport().error("Timestamp is null for NC crac creator.");
             creationContext.creationFailure();
             return creationContext;
         }

@@ -35,18 +35,18 @@ public abstract class AbstractCnecCreator {
     protected final Network network;
     protected final AssessedElement nativeAssessedElement;
     protected final Set<Contingency> linkedContingencies;
-    protected final Set<ElementaryCreationContext> csaProfileCnecCreationContexts;
+    protected final Set<ElementaryCreationContext> ncCnecCreationContexts;
     protected final String rejectedLinksAssessedElementContingency;
     protected final boolean aeSecuredForRegion;
     protected final boolean aeScannedForRegion;
     protected final String border;
 
-    protected AbstractCnecCreator(Crac crac, Network network, AssessedElement nativeAssessedElement, Set<Contingency> linkedContingencies, Set<ElementaryCreationContext> csaProfileCnecCreationContexts, String rejectedLinksAssessedElementContingency, CracCreationParameters cracCreationParameters, Map<String, String> borderPerTso, Map<String, String> borderPerEic) {
+    protected AbstractCnecCreator(Crac crac, Network network, AssessedElement nativeAssessedElement, Set<Contingency> linkedContingencies, Set<ElementaryCreationContext> ncCnecCreationContexts, String rejectedLinksAssessedElementContingency, CracCreationParameters cracCreationParameters, Map<String, String> borderPerTso, Map<String, String> borderPerEic) {
         this.crac = crac;
         this.network = network;
         this.nativeAssessedElement = nativeAssessedElement;
         this.linkedContingencies = linkedContingencies;
-        this.csaProfileCnecCreationContexts = csaProfileCnecCreationContexts;
+        this.ncCnecCreationContexts = ncCnecCreationContexts;
         this.rejectedLinksAssessedElementContingency = rejectedLinksAssessedElementContingency;
         String regionEic = cracCreationParameters.getExtension(NcCracCreationParameters.class).getCapacityCalculationRegionEicCode();
         this.aeSecuredForRegion = isAeSecuredForRegion(regionEic);
@@ -122,9 +122,9 @@ public abstract class AbstractCnecCreator {
 
     protected void markCnecAsImportedAndHandleRejectedContingencies(String cnecName) {
         if (rejectedLinksAssessedElementContingency.isEmpty()) {
-            csaProfileCnecCreationContexts.add(StandardElementaryCreationContext.imported(nativeAssessedElement.mrid(), cnecName, cnecName, false, ""));
+            ncCnecCreationContexts.add(StandardElementaryCreationContext.imported(nativeAssessedElement.mrid(), cnecName, cnecName, false, ""));
         } else {
-            csaProfileCnecCreationContexts.add(StandardElementaryCreationContext.imported(nativeAssessedElement.mrid(), cnecName, cnecName, true, "some cnec for the same assessed element are not imported because of incorrect data for assessed elements for contingencies : " + rejectedLinksAssessedElementContingency));
+            ncCnecCreationContexts.add(StandardElementaryCreationContext.imported(nativeAssessedElement.mrid(), cnecName, cnecName, true, "some cnec for the same assessed element are not imported because of incorrect data for assessed elements for contingencies : " + rejectedLinksAssessedElementContingency));
         }
     }
 

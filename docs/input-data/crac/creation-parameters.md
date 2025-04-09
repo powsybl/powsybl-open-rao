@@ -386,21 +386,21 @@ cracCreationParameters.addExtension(CimCracCreationParameters.class, cimParamete
 :::
 ::::
 
-## CSA-specific parameters
+## NC-specific parameters
 
-The CSA profiles from the [CSA native CRAC format](csa) need additional information to be converted to the internal OpenRAO CRAC format. The user can define a [CsaCracCreationParameters](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac-io/crac-io-csa-profiles/src/main/java/com/powsybl/openrao/data/cracio/csaprofile/parameters/CsaCracCreationParameters.java) extension to the CracCreationParameters object in order to define them.
+The NC profiles from the [NC native CRAC format](nc) need additional information to be converted to the internal OpenRAO CRAC format. The user can define a [CsaCracCreationParameters](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac-io/crac-io-nc/src/main/java/com/powsybl/openrao/data/cracio/nc/parameters/NcCracCreationParameters.java) extension to the CracCreationParameters object in order to define them.
 
 ### capacity-calculation-region-eic-code
 
-In the CSA profiles, the [AssessedElements](csa.md#cnecs) objects can be declared with a `SecuredForRegion` or a `ScannedForRegion` attribute to respectively indicate if the resulting CNEC should be optimized or simply monitored. Both these fields point to the EI code of a Capacity Calculation Region (CCR). For the importer to know which code to expect, it has to be declared in the CRAC creation parameters.
+In the NC profiles, the [AssessedElements](nc.md#cnecs) objects can be declared with a `SecuredForRegion` or a `ScannedForRegion` attribute to respectively indicate if the resulting CNEC should be optimized or simply monitored. Both these fields point to the EI code of a Capacity Calculation Region (CCR). For the importer to know which code to expect, it has to be declared in the CRAC creation parameters.
 
 ### sps-max-time-to-implement-threshold-in-seconds
 
-Instead of using a `SchemeRemedialAction` to define an [auto remedial action](csa.md#using-gridstatealterationremedialaction-and-timetoimplement), it is possible to declare a classical curative `GridStateAlterationRemedialAction` with a `timeToImplement` attribute set to a certain value, which, if below a general configurable time threshold (in seconds), means that the remedial action must be considered as an ARA instead of a CRA.
+Instead of using a `SchemeRemedialAction` to define an [auto remedial action](nc.md#using-gridstatealterationremedialaction-and-timetoimplement), it is possible to declare a classical curative `GridStateAlterationRemedialAction` with a `timeToImplement` attribute set to a certain value, which, if below a general configurable time threshold (in seconds), means that the remedial action must be considered as an ARA instead of a CRA.
 
 ### cra-application-window
 
-Because of the three curative instants used in CSA, the definition of the instant of a FlowCNEC is [quite complex](csa.md#tatl-to-flowcnec-instant-association) and each curative instant must be linked to an application time for the importer to know which instant must be associated to a given TATL (or PATL).
+Because of the three curative instants used in NC, the definition of the instant of a FlowCNEC is [quite complex](nc.md#tatl-to-flowcnec-instant-association) and each curative instant must be linked to an application time for the importer to know which instant must be associated to a given TATL (or PATL).
 
 ### use-patl-in-final-state
 
@@ -412,14 +412,14 @@ This parameter allows the user to define the timestamp for which to create the C
 
 In the json file, the timestamp has to be defined using the ISO 8601 standard ex. " 2019-01-08T12:00+02:00".
 
-### Full CSA example
+### Full NC example
 
 ::::{tabs}
 :::{group-tab} JAVA API
 ```java
 // Create CracCreationParameters and set global parameters
 CracCreationParameters cracCreationParameters = new CracCreationParameters();
-// Create CSA-specific parameters
+// Create NC-specific parameters
 CimCracCreationParameters csaParameters = new CsaCracCreationParameters();
 // Indicate the EI Code of the CCR region (SWE)
 csaParameters.setCapacityCalculationRegionEicCode("10Y1001C--00095L");
@@ -438,7 +438,7 @@ csaParameters.setCraApplicationWindow(Map.of(
     "curative 3", 1200
 ));
 csaParameters.setTimestamp(OffsetDateTime.parse("2019-01-08T12:00+02:00"));
-// Add CSA extension to CracCreationParameters
+// Add NC extension to CracCreationParameters
 cracCreationParameters.addExtension(CsaCracCreationParameters.class, csaParameters);
 ```
 :::
@@ -488,7 +488,7 @@ In the json file, the timestamp has to be defined using the ISO 8601 standard ex
 ```java
 // Create CracCreationParameters and set global parameters
 CracCreationParameters cracCreationParameters = new CracCreationParameters();
-// Create CSA-specific parameters
+// Create NC-specific parameters
 FbConstraintCracCreationParameters fbConstraintParameters = new FbConstraintCracCreationParameters();
 // Add timestamp
 fbConstraintParameters.setTimestamp(OffsetDateTime.parse("2019-01-08T12:00+02:00"));

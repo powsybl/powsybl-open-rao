@@ -42,14 +42,14 @@ public class JsonNcCracCreationParameters implements JsonCracCreationParameters.
     private static final String TIMESTAMP = "timestamp";
 
     @Override
-    public void serialize(NcCracCreationParameters csaParameters, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(NcCracCreationParameters ncParameters, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
-        serializeCapacityCalculationRegionEicCode(csaParameters.getCapacityCalculationRegionEicCode(), jsonGenerator);
-        serializeAutoInstantApplicationTime(csaParameters.getAutoInstantApplicationTime(), jsonGenerator);
-        serializeTsosWhichDoNotUsePatlInFinalState(csaParameters.getTsosWhichDoNotUsePatlInFinalState(), jsonGenerator);
-        serializeCurativeInstants(csaParameters.getCurativeInstants(), jsonGenerator);
-        serializeBorders(csaParameters.getBorders(), jsonGenerator);
-        serializeTimestamp(csaParameters.getTimestamp(), jsonGenerator);
+        serializeCapacityCalculationRegionEicCode(ncParameters.getCapacityCalculationRegionEicCode(), jsonGenerator);
+        serializeAutoInstantApplicationTime(ncParameters.getAutoInstantApplicationTime(), jsonGenerator);
+        serializeTsosWhichDoNotUsePatlInFinalState(ncParameters.getTsosWhichDoNotUsePatlInFinalState(), jsonGenerator);
+        serializeCurativeInstants(ncParameters.getCurativeInstants(), jsonGenerator);
+        serializeBorders(ncParameters.getBorders(), jsonGenerator);
+        serializeTimestamp(ncParameters.getTimestamp(), jsonGenerator);
         jsonGenerator.writeEndObject();
     }
 

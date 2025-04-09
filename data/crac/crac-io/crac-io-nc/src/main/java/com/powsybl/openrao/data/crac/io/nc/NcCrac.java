@@ -49,22 +49,22 @@ import java.util.*;
  */
 public class NcCrac {
 
-    private final TripleStore tripleStoreCsaProfileCrac;
+    private final TripleStore tripleStoreNcCrac;
 
-    private final QueryCatalog queryCatalogCsaProfileCrac;
+    private final QueryCatalog queryCatalogNcCrac;
 
     private final Map<String, Set<String>> keywordMap;
     private Map<String, String> overridingData;
 
-    public NcCrac(TripleStore tripleStoreCsaProfileCrac, Map<String, Set<String>> keywordMap) {
-        this.tripleStoreCsaProfileCrac = tripleStoreCsaProfileCrac;
-        this.queryCatalogCsaProfileCrac = new QueryCatalog(NcConstants.SPARQL_FILE_CSA_PROFILE);
+    public NcCrac(TripleStore tripleStoreNcCrac, Map<String, Set<String>> keywordMap) {
+        this.tripleStoreNcCrac = tripleStoreNcCrac;
+        this.queryCatalogNcCrac = new QueryCatalog(NcConstants.SPARQL_FILE_NC_PROFILE);
         this.keywordMap = keywordMap;
         this.overridingData = new HashMap<>();
     }
 
     public void clearContext(String context) {
-        tripleStoreCsaProfileCrac.clear(context);
+        tripleStoreNcCrac.clear(context);
     }
 
     public void clearKeywordMap(String context) {
@@ -85,7 +85,7 @@ public class NcCrac {
 
     public Map<String, PropertyBags> getHeaders() {
         Map<String, PropertyBags> returnMap = new HashMap<>();
-        tripleStoreCsaProfileCrac.contextNames().forEach(context -> returnMap.put(context, queryTripleStore(NcConstants.REQUEST_HEADER, Set.of(context))));
+        tripleStoreNcCrac.contextNames().forEach(context -> returnMap.put(context, queryTripleStore(NcConstants.REQUEST_HEADER, Set.of(context))));
         return returnMap;
     }
 
@@ -198,7 +198,7 @@ public class NcCrac {
     }
 
     private void addDataFromTripleStoreToMap(Map<String, String> dataMap, String queryName, String queryObjectName, String queryFieldName, HeaderType headerType, OffsetDateTime importTimestamp) {
-        PropertyBags propertyBagsResult = queryTripleStore(queryName, tripleStoreCsaProfileCrac.contextNames());
+        PropertyBags propertyBagsResult = queryTripleStore(queryName, tripleStoreNcCrac.contextNames());
         for (PropertyBag propertyBag : propertyBagsResult) {
             if (HeaderType.START_END_DATE.equals(headerType)) {
                 if (NcCracUtils.checkProfileKeyword(propertyBag, NcKeyword.STEADY_STATE_INSTRUCTION) && NcCracUtils.checkProfileValidityInterval(propertyBag, importTimestamp)) {
@@ -235,20 +235,20 @@ public class NcCrac {
      * @param contexts : list of contexts where the query will be executed (if empty, the query is executed on the whole tripleStore
      */
     private PropertyBags queryTripleStore(String queryKey, Set<String> contexts) {
-        String query = queryCatalogCsaProfileCrac.get(queryKey);
+        String query = queryCatalogNcCrac.get(queryKey);
         if (query == null) {
             OpenRaoLoggerProvider.TECHNICAL_LOGS.warn("Query [{}] not found in catalog", queryKey);
             return new PropertyBags();
         }
 
         if (contexts.isEmpty()) {
-            return tripleStoreCsaProfileCrac.query(query);
+            return tripleStoreNcCrac.query(query);
         }
 
         PropertyBags multiContextsPropertyBags = new PropertyBags();
         for (String context : contexts) {
             String contextQuery = String.format(query, context);
-            multiContextsPropertyBags.addAll(tripleStoreCsaProfileCrac.query(contextQuery));
+            multiContextsPropertyBags.addAll(tripleStoreNcCrac.query(contextQuery));
         }
         return multiContextsPropertyBags;
     }
