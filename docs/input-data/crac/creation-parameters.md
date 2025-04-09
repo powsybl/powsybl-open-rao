@@ -448,7 +448,7 @@ cracCreationParameters.addExtension(CsaCracCreationParameters.class, csaParamete
 {
   "crac-factory" : "CracImplFactory",
   "extensions" : {
-    "CsaCracCreatorParameters" : {
+    "NcCracCreatorParameters" : {
       "capacity-calculation-region-eic-code": "10Y1001C--00095L",
       "sps-max-time-to-implement-threshold-in-seconds": 0,
       "use-patl-in-final-state": {

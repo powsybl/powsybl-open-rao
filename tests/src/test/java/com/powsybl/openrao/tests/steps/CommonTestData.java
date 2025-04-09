@@ -16,8 +16,8 @@ import com.powsybl.openrao.data.crac.api.CracCreationContext;
 import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.crac.api.parameters.JsonCracCreationParameters;
 import com.powsybl.openrao.data.crac.io.cim.parameters.CimCracCreationParameters;
-import com.powsybl.openrao.data.crac.io.csaprofiles.parameters.CsaCracCreationParameters;
 import com.powsybl.openrao.data.crac.io.fbconstraint.parameters.FbConstraintCracCreationParameters;
+import com.powsybl.openrao.data.crac.io.nc.parameters.NcCracCreationParameters;
 import com.powsybl.openrao.data.glsk.virtual.hubs.GlskVirtualHubs;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceProgram;
@@ -351,7 +351,7 @@ public final class CommonTestData {
         } else if (cracFormat.equals("FlowBasedConstraintDocument")) {
             return cracCreationParameters.getExtension(FbConstraintCracCreationParameters.class).getTimestamp();
         } else if (cracFormat.equals("CsaCrac")) {
-            return cracCreationParameters.getExtension(CsaCracCreationParameters.class).getTimestamp();
+            return cracCreationParameters.getExtension(NcCracCreationParameters.class).getTimestamp();
         } else {
             return null;
         }
@@ -368,9 +368,9 @@ public final class CommonTestData {
             fbConstraintParams.setTimestamp(timestamp);
             cracCreationParameters.addExtension(FbConstraintCracCreationParameters.class, fbConstraintParams);
         } else if (cracFormat.equals("CsaCrac")) {
-            CsaCracCreationParameters csaParams = new CsaCracCreationParameters();
+            NcCracCreationParameters csaParams = new NcCracCreationParameters();
             csaParams.setTimestamp(timestamp);
-            cracCreationParameters.addExtension(CsaCracCreationParameters.class, csaParams);
+            cracCreationParameters.addExtension(NcCracCreationParameters.class, csaParams);
         }
     }
 
