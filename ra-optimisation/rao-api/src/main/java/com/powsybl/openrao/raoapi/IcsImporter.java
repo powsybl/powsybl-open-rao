@@ -277,13 +277,18 @@ public final class IcsImporter {
     }
 
     private static boolean rangeIsOkay(Map<String, CSVRecord> seriesPerType, List<OffsetDateTime> dateTimes) {
+        double maxRange = 0.;
         for (OffsetDateTime dateTime : dateTimes) {
             double rdpPlus = parseDoubleWithPossibleCommas(seriesPerType.get("RDP+").get(dateTime.getHour() + OFFSET));
             double rdpMinus = parseDoubleWithPossibleCommas(seriesPerType.get("RDP-").get(dateTime.getHour() + OFFSET));
-            if (rdpPlus < -1e-6 || rdpMinus < -1e-6 || rdpPlus + rdpMinus < 1) {
-                BUSINESS_WARNS.warn("Redispatching action {} will not be imported because of RDP+ {} and RDP- {} (either negative or too small range)", seriesPerType.get("P0").get("RA RD ID"), rdpPlus, rdpMinus);
+            maxRange = Math.max(maxRange, rdpPlus + rdpMinus);
+            if (rdpPlus < -1e-6 || rdpMinus < -1e-6) {
+                BUSINESS_WARNS.warn("Redispatching action {} will not be imported because of RDP+ {} or RDP- {} is negative", seriesPerType.get("P0").get("RA RD ID"), rdpPlus, rdpMinus);
                 return false;
             }
+        }
+        if (maxRange < 1) {
+            BUSINESS_WARNS.warn("Redispatching action {} will not be imported because max range in the day {} MW is too small", seriesPerType.get("P0").get("RA RD ID"), maxRange);
         }
         return true;
     }
