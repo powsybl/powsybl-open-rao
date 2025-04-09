@@ -289,6 +289,7 @@ public final class IcsImporter {
         }
         if (maxRange < 1) {
             BUSINESS_WARNS.warn("Redispatching action {} will not be imported because max range in the day {} MW is too small", seriesPerType.get("P0").get("RA RD ID"), maxRange);
+            return false;
         }
         return true;
     }
