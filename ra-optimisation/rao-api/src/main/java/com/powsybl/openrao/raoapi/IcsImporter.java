@@ -44,9 +44,11 @@ public final class IcsImporter {
         costDown = icsImporterParameters.getCostDown();
 
         TemporalData<Network> initialNetworks = new TemporalDataImpl<>();
-        interTemporalRaoInput.getRaoInputs().getDataPerTimestamp().forEach((dateTime, raoInput) ->
-            initialNetworks.put(dateTime, Network.read(raoInput.getInitialNetworkPath()))
-        );
+        interTemporalRaoInput.getRaoInputs().getDataPerTimestamp().forEach((dateTime, raoInput) -> {
+            Network network = Network.read(raoInput.getInitialNetworkPath());
+            preProcessNetwork(network);
+            initialNetworks.put(dateTime, network);
+        });
         CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
             .setDelimiter(";")
             .setHeader()
@@ -91,6 +93,21 @@ public final class IcsImporter {
 
         initialNetworks.getDataPerTimestamp().forEach((dateTime, initialNetwork) ->
             initialNetwork.write("JIIDM", new Properties(), Path.of(interTemporalRaoInput.getRaoInputs().getData(dateTime).orElseThrow().getPostIcsImportNetworkPath())));
+    }
+
+    private static void preProcessNetwork(Network network) {
+        network.getVoltageLevelStream().forEach(voltageLevel -> {
+            if (safeDoubleEquals(voltageLevel.getNominalV(), 380)) {
+                voltageLevel.setNominalV(400);
+            } else if (safeDoubleEquals(voltageLevel.getNominalV(), 220)) {
+                voltageLevel.setNominalV(225);
+            }
+            // Else, Should not be changed cause is not equal to the default nominal voltage of voltage levels 6 or 7
+        });
+    }
+
+    private static boolean safeDoubleEquals(double a, double b) {
+        return Math.abs(a - b) < 1e-3;
     }
 
     private static void importGskRedispatchingAction(InterTemporalRaoInputWithNetworkPaths interTemporalRaoInput, CSVRecord staticRecord, TemporalData<Network> initialNetworks, Map<String, CSVRecord> seriesPerType, String raId, Map<String, Double> weightPerNode) {
