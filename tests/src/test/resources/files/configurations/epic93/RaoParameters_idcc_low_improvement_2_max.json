@@ -35,15 +35,15 @@
         }
       },
       "topological-actions-optimization" : {
-        "max-preventive-search-tree-depth" : 0,
-        "max-auto-search-tree-depth" : 0,
-        "max-curative-search-tree-depth" : 0,
+        "max-preventive-search-tree-depth" : 2,
+        "max-auto-search-tree-depth" : 2,
+        "max-curative-search-tree-depth" : 2,
         "predefined-combinations" : [ ],
         "skip-actions-far-from-most-limiting-element" : false,
         "max-number-of-boundaries-for-skipping-actions" : 0
       },
       "second-preventive-rao" : {
-        "execution-condition" : "DISABLED",
+        "execution-condition" : "POSSIBLE_CURATIVE_IMPROVEMENT",
         "re-optimize-curative-range-actions" : true,
         "hint-from-first-preventive-rao" : false
       },
@@ -65,7 +65,7 @@
             "writeSlackBus" : true,
             "dc" : true,
             "distributedSlack" : true,
-            "balanceType" : "PROPORTIONAL_TO_LOAD",
+            "balanceType" : "PROPORTIONAL_TO_GENERATION_P",
             "dcUseTransformerRatio" : false,
             "countriesToBalance" : [ "GR", "BE", "SK", "TR", "CH", "RS", "PL", "UA", "BG", "ES", "ME", "CZ", "HR", "AL", "RO", "HU", "AT", "FR", "PT", "DE", "MK", "BA", "SI", "IT", "NL" ],
             "connectedComponentMode" : "MAIN",

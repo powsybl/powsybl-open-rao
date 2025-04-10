@@ -8,6 +8,8 @@ package com.powsybl.openrao.tests.utils;
 
 import com.powsybl.iidm.network.*;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -32,21 +34,54 @@ public final class CoreCcPreprocessor {
     }
 
     private static void balanceNetworkForIdccStudy(Network network) {
-        final double[] totalGeneration = {0};
-        final double[] totalLoad = {0};
+        Map<Country, Double> totalGenerationPerCountry = new HashMap<>();
+        Map<Country, Double> totalLoadPerCountry = new HashMap<>();
+
         network.getGeneratorStream().forEach(generator -> {
-            totalGeneration[0] = totalGeneration[0] + generator.getTargetP();
-        });
-        network.getLoadStream().forEach(load -> {
-            totalLoad[0] = totalLoad[0] + load.getP0();
+            Optional<Substation> substationOptional = generator.getTerminal().getVoltageLevel().getSubstation();
+            if (substationOptional.isPresent()) {
+                Country country = substationOptional.get().getNullableCountry();
+                if (Objects.nonNull(country)) {
+                    totalGenerationPerCountry.putIfAbsent(country, 0.);
+                    totalGenerationPerCountry.put(country, totalGenerationPerCountry.get(country) + generator.getTargetP());
+                }
+            }
         });
 
-        double totalImbalance = totalGeneration[0] - totalLoad[0];
-        double totalInjection = totalGeneration[0] + totalLoad[0];
-        network.getGeneratorStream().forEach(generator ->
-            generator.setTargetP(generator.getTargetP() - totalImbalance * generator.getTargetP() / totalInjection));
-        network.getLoadStream().forEach(load ->
-            load.setP0(load.getP0() + totalImbalance * load.getP0() / totalInjection));
+        network.getLoadStream().forEach(load -> {
+            Optional<Substation> substationOptional = load.getTerminal().getVoltageLevel().getSubstation();
+            if (substationOptional.isPresent()) {
+                Country country = substationOptional.get().getNullableCountry();
+                if (Objects.nonNull(country)) {
+                    totalLoadPerCountry.putIfAbsent(country, 0.);
+                    totalLoadPerCountry.put(country, totalLoadPerCountry.get(country) + load.getP0());
+                }
+            }
+        });
+
+        network.getGeneratorStream().forEach(generator -> {
+            Optional<Substation> substationOptional = generator.getTerminal().getVoltageLevel().getSubstation();
+            if (substationOptional.isPresent()) {
+                Country country = substationOptional.get().getNullableCountry();
+                if (Objects.nonNull(country)) {
+                    double countryImbalance = totalGenerationPerCountry.get(country) - totalLoadPerCountry.get(country);
+                    double countryAbsoluteInjection = totalGenerationPerCountry.get(country) + totalLoadPerCountry.get(country);
+                    generator.setTargetP(generator.getTargetP() - countryImbalance * generator.getTargetP() / countryAbsoluteInjection);
+                }
+            }
+        });
+
+        network.getLoadStream().forEach(load -> {
+            Optional<Substation> substationOptional = load.getTerminal().getVoltageLevel().getSubstation();
+            if (substationOptional.isPresent()) {
+                Country country = substationOptional.get().getNullableCountry();
+                if (Objects.nonNull(country)) {
+                    double countryImbalance = totalGenerationPerCountry.get(country) - totalLoadPerCountry.get(country);
+                    double countryAbsoluteInjection = totalGenerationPerCountry.get(country) + totalLoadPerCountry.get(country);
+                    load.setP0(load.getP0() + countryImbalance * load.getP0() / countryAbsoluteInjection);
+                }
+            }
+        });
     }
 
     private static boolean safeDoubleEquals(double a, double b) {
