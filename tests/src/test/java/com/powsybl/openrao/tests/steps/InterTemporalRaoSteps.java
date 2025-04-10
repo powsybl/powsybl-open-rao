@@ -24,6 +24,7 @@ import com.powsybl.openrao.data.raoresult.api.InterTemporalRaoResult;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.raoapi.*;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
+import com.powsybl.openrao.tests.utils.CoreCcPreprocessor;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.Before;
 import io.cucumber.java.Scenario;
@@ -157,6 +158,7 @@ public final class InterTemporalRaoSteps {
             String initialNetworkPath = networkFolderPath.concat(tsInput.get("Network"));
             String postIcsNetworkPath = networkFolderPathPostIcsImport.concat(tsInput.get("Network")).split(".uct")[0].concat(".jiidm");
             Network network = importNetwork(getFile(networkFolderPath.concat(tsInput.get("Network"))), false);
+            CoreCcPreprocessor.applyCoreCcNetworkPreprocessing(network, false);
             // Crac
             Pair<Crac, CracCreationContext> cracImportResult;
             if (useIndividualCracs) { // only works with json

@@ -310,7 +310,7 @@ public class Marmot implements InterTemporalRaoProvider {
     }
 
     private static TemporalData<RaoResult> runTopologicalOptimization(TemporalData<RaoInputWithNetworkPaths> raoInputs, TemporalData<Set<String>> consideredCnecs, RaoParameters raoParameters) {
-        raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getRangeActionsOptimizationParameters().getLinearOptimizationSolver().setSolverSpecificParameters("MAXTIME 30");
+        raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getRangeActionsOptimizationParameters().getLinearOptimizationSolver().setSolverSpecificParameters("MAXTIME 15");
         TemporalData<RaoResult> individualResults = new TemporalDataImpl<>();
         raoInputs.getDataPerTimestamp().forEach((datetime, individualRaoInputWithNetworkPath) -> {
             RaoInput individualRaoInput = RaoInput
@@ -464,7 +464,7 @@ public class Marmot implements InterTemporalRaoProvider {
         TemporalData<Set<String>> consideredCnecs,
         ObjectiveFunction objectiveFunction) {
 
-        parameters.getExtension(OpenRaoSearchTreeParameters.class).getRangeActionsOptimizationParameters().getLinearOptimizationSolver().setSolverSpecificParameters("MAXTIME 600");
+        parameters.getExtension(OpenRaoSearchTreeParameters.class).getRangeActionsOptimizationParameters().getLinearOptimizationSolver().setSolverSpecificParameters("MAXTIME 60");
 
         // -- Build IteratingLinearOptimizerInterTemporalInput
         // Need to use postTopoResults to build perimeter because initialResults does not contain range action setpoints
