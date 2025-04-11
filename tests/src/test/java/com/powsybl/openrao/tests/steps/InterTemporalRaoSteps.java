@@ -22,6 +22,7 @@ import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.InterTemporalRaoResult;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceProgram;
 import com.powsybl.openrao.raoapi.*;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.tests.utils.CoreCcPreprocessor;
@@ -59,11 +60,18 @@ public final class InterTemporalRaoSteps {
     private static String icsStaticPath;
     private static String icsSeriesPath;
     private static String icsGskPath;
+    private static String refProgPath;
+    private static ReferenceProgram referenceProgram;
     private static InterTemporalRaoInputWithNetworkPaths interTemporalRaoInput;
     private static InterTemporalRaoResult interTemporalRaoResult;
 
     public InterTemporalRaoSteps() {
         // should not be instantiated
+    }
+
+    @Given("intertemporal RefProg file is {string}")
+    public static void refProgFileIs(String path) {
+        refProgPath = getResourcesPath().concat("refprogs/").concat(path);
     }
 
     // TODO : add after to run after all @intertemporal scenarios
@@ -149,6 +157,12 @@ public final class InterTemporalRaoSteps {
 
         CommonTestData.raoParameters = buildConfig(getFile(CommonTestData.raoParametersPath));
 
+        // Reference program
+        if (refProgPath != null) {
+            referenceProgram = importRefProg(getFile(refProgPath) ;
+            int debug =0;
+        }
+
         TemporalData<RaoInputWithNetworkPaths> raoInputs = new TemporalDataImpl<>();
         List<Map<String, String>> inputs = arg1.asMaps(String.class, String.class);
         for (Map<String, String> tsInput : inputs) {
@@ -192,6 +206,16 @@ public final class InterTemporalRaoSteps {
         properties.put("inter-temporal-rao-result.export.filename-template", "'RAO_RESULT_'yyyy-MM-dd'T'HH:mm:ss'.json'");
         properties.put("inter-temporal-rao-result.export.summary-filename", "summary.json");
         interTemporalRaoResult.write(zipOutputStream, interTemporalRaoInput.getRaoInputs().map(RaoInputWithNetworkPaths::getCrac), properties);
+    }
+
+    @When("I export RefProg after redispatching")
+    public static void generateRefProg() throws IOException {
+        // Go through all lines in network with PRAs
+
+
+        //
+
+
     }
 
     @When("I export networks with PRAs to {string} from raoresult folder {string}")
