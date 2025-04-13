@@ -324,8 +324,7 @@ public final class CommonTestData {
 
         // Reference program
         if (refProgPath != null) {
-            referenceProgram = importRefProg(getFile(refProgPath));
-            int debug =0;
+            referenceProgram = importRefProg(getFile(refProgPath), offsetDateTime);
         }
 
         // RaoResult

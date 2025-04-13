@@ -23,6 +23,7 @@ import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.InterTemporalRaoResult;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceProgram;
+import com.powsybl.openrao.data.refprog.refprogxmlimporter.InterTemporalRefProg;
 import com.powsybl.openrao.raoapi.*;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.tests.utils.CoreCcPreprocessor;
@@ -152,16 +153,10 @@ public final class InterTemporalRaoSteps {
         }
         File cracFile = null;
         if (!useIndividualCracs) {
-            cracFile = getFile(CommonTestData.cracPath);
+            cracFile = getFile(cracPath);
         }
 
-        CommonTestData.raoParameters = buildConfig(getFile(CommonTestData.raoParametersPath));
-
-        // Reference program
-        if (refProgPath != null) {
-            referenceProgram = importRefProg(getFile(refProgPath) ;
-            int debug =0;
-        }
+        raoParameters = buildConfig(getFile(raoParametersPath));
 
         TemporalData<RaoInputWithNetworkPaths> raoInputs = new TemporalDataImpl<>();
         List<Map<String, String>> inputs = arg1.asMaps(String.class, String.class);
@@ -194,7 +189,7 @@ public final class InterTemporalRaoSteps {
 
     @When("I launch marmot")
     public static void iLaunchMarmot() {
-        interTemporalRaoResult = InterTemporalRao.run(interTemporalRaoInput, CommonTestData.getRaoParameters());
+        interTemporalRaoResult = InterTemporalRao.run(interTemporalRaoInput, getRaoParameters());
     }
 
     @When("I export marmot results to {string}")
@@ -208,13 +203,19 @@ public final class InterTemporalRaoSteps {
         interTemporalRaoResult.write(zipOutputStream, interTemporalRaoInput.getRaoInputs().map(RaoInputWithNetworkPaths::getCrac), properties);
     }
 
-    @When("I export RefProg after redispatching")
-    public static void generateRefProg() throws IOException {
-        // Go through all lines in network with PRAs
-
-
-        //
-
+    @When("I export RefProg after redispatching to {string} based on networkWithPras folder {string}")
+    public static void generateRefProg(String outputPath, String networkWithPrasPath) throws IOException {
+        TemporalData<Network> networkTemporalData = new TemporalDataImpl<>();
+        for (OffsetDateTime offsetDateTime : interTemporalRaoInput.getTimestampsToRun()) {
+            String networkPath = getResourcesPath().concat(networkWithPrasPath)  + offsetDateTime.format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmm")) + "_2D1_UX2_FINIT_EXPORTGRIDMODEL_DC_CGM_10V1001C--00264T.uct";
+            Network networkWithPrasOneTs = Network.read(networkPath);
+            networkTemporalData.put(offsetDateTime, networkWithPrasOneTs);
+        }
+        if (refProgPath!=null) {
+            InputStream refProgInputStream = new FileInputStream(getFile(refProgPath));
+            InterTemporalRefProg.updateRefProg(refProgInputStream, networkTemporalData, raoParameters, getResourcesPath().concat(outputPath));
+            // TODO : write in different outputPath
+        }
 
     }
 
