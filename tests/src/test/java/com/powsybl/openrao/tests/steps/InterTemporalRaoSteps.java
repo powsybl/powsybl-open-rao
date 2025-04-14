@@ -9,6 +9,7 @@ package com.powsybl.openrao.tests.steps;
 
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Generator;
+import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
@@ -23,8 +24,11 @@ import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.InterTemporalRaoResult;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceProgram;
+import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceProgramBuilder;
 import com.powsybl.openrao.data.refprog.refprogxmlimporter.InterTemporalRefProg;
+import com.powsybl.openrao.data.refprog.refprogxmlimporter.RefProgImporter;
 import com.powsybl.openrao.raoapi.*;
+import com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.tests.utils.CoreCcPreprocessor;
 import io.cucumber.datatable.DataTable;
@@ -47,11 +51,13 @@ import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
 import static com.powsybl.openrao.tests.steps.CommonTestData.*;
 import static com.powsybl.openrao.tests.utils.Helpers.*;
 import static com.powsybl.openrao.tests.utils.Helpers.getFile;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+
 
 public final class InterTemporalRaoSteps {
     private static String networkFolderPath;
@@ -65,6 +71,8 @@ public final class InterTemporalRaoSteps {
     private static ReferenceProgram referenceProgram;
     private static InterTemporalRaoInputWithNetworkPaths interTemporalRaoInput;
     private static InterTemporalRaoResult interTemporalRaoResult;
+
+    private static final List<String> DE_TSOS = List.of("D2", "D4", "D7", "D8");
 
     public InterTemporalRaoSteps() {
         // should not be instantiated
@@ -203,183 +211,217 @@ public final class InterTemporalRaoSteps {
         interTemporalRaoResult.write(zipOutputStream, interTemporalRaoInput.getRaoInputs().map(RaoInputWithNetworkPaths::getCrac), properties);
     }
 
-    @When("I export RefProg after redispatching to {string} based on networkWithPras folder {string}")
-    public static void generateRefProg(String outputPath, String networkWithPrasPath) throws IOException {
+    @When("I export RefProg after redispatching to {string} based on networkWithPras folder {string} and based on raoResults folder {string}")
+    public static void generateRefProg(String outputPath, String networkWithPrasPath, String raoResultsPath) throws IOException {
         TemporalData<Network> networkTemporalData = new TemporalDataImpl<>();
         // Load networks in networkTemporalData
+        // Load redispatchingVolume per timestamp per operator
+        Map<OffsetDateTime, Map<String, Double>> rdVolumes = new HashMap<>();
         for (OffsetDateTime offsetDateTime : interTemporalRaoInput.getTimestampsToRun()) {
-            String networkPath = getResourcesPath().concat(networkWithPrasPath)  + offsetDateTime.format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmm")) + "_2D1_UX2_FINIT_EXPORTGRIDMODEL_DC_CGM_10V1001C--00264T.uct";
+            rdVolumes.put(offsetDateTime, new HashMap<>());
+            String networkPath = getResourcesPath().concat(networkWithPrasPath) + offsetDateTime.format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmm")) + "_2D1_UX2_FINIT_EXPORTGRIDMODEL_DC_CGM_10V1001C--00264T.uct";
             Network networkWithPrasOneTs = Network.read(networkPath);
             networkTemporalData.put(offsetDateTime, networkWithPrasOneTs);
-        }
-        if (refProgPath != null) {
-            InputStream refProgInputStream = new FileInputStream(getFile(refProgPath));
-            InterTemporalRefProg.updateRefProg(refProgInputStream, networkTemporalData, raoParameters, getResourcesPath().concat(outputPath));
-        }
 
-    }
-
-    @When("I export networks with PRAs to {string} from raoresult folder {string}")
-    public static void generateNetworksWithPraFromResults(String outputPath, String resultsPath) throws IOException {
-        FileOutputStream fileOutputStream = new FileOutputStream(getFile(getResourcesPath().concat(outputPath)));
-        ZipOutputStream zipOutputStream = new ZipOutputStream(fileOutputStream);
-
-        for (OffsetDateTime offsetDateTime : interTemporalRaoInput.getTimestampsToRun()) {
-            FileInputStream raoResultInputStream = new FileInputStream(getFile(getResourcesPath().concat(resultsPath) + "/RAO_RESULT_" + offsetDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")) + ".json"));
+            FileInputStream raoResultInputStream = new FileInputStream(getFile(getResourcesPath().concat(raoResultsPath) + "/RAO_RESULT_" + offsetDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")) + ".json"));
             RaoResult raoResult = RaoResult.read(raoResultInputStream, interTemporalRaoInput.getRaoInputs().getData(offsetDateTime).orElseThrow().getCrac());
 
-            Set<NetworkAction> preventiveNetworkActions = raoResult.getActivatedNetworkActionsDuringState(interTemporalRaoInput.getRaoInputs().getData(offsetDateTime).get().getCrac().getPreventiveState());
-            Set<RangeAction<?>> preventiveRangeActions = raoResult.getActivatedRangeActionsDuringState(interTemporalRaoInput.getRaoInputs().getData(offsetDateTime).get().getCrac().getPreventiveState());
-            Network modifiedNetwork = Network.read(interTemporalRaoInput.getRaoInputs().getData(offsetDateTime).orElseThrow().getPostIcsImportNetworkPath());
-            Network initialNetwork = Network.read(interTemporalRaoInput.getRaoInputs().getData(offsetDateTime).orElseThrow().getInitialNetworkPath());
-
-            // Apply PRAs on modified network
-            preventiveNetworkActions.forEach(networkAction -> networkAction.apply(initialNetwork));
-            preventiveRangeActions.forEach(rangeAction -> {
-                double optimizedSetpoint = raoResult.getOptimizedSetPointOnState(interTemporalRaoInput.getRaoInputs().getData(offsetDateTime).get().getCrac().getPreventiveState(), rangeAction);
-                if (rangeAction instanceof InjectionRangeAction) {
-                    applyRedispatchingAction((InjectionRangeAction) rangeAction, optimizedSetpoint, modifiedNetwork, initialNetwork);
-                } else {
-                    rangeAction.apply(initialNetwork, optimizedSetpoint);
+            // Load redispatching volumes
+            Crac crac = interTemporalRaoInput.getRaoInputs().getData(offsetDateTime).get().getCrac();
+            Set<RangeAction<?>> preventiveRangeActions = raoResult.getActivatedRangeActionsDuringState(crac.getPreventiveState());
+            Set<InjectionRangeAction> redispatchingRangeActions = preventiveRangeActions.stream().filter(InjectionRangeAction.class::isInstance).map(InjectionRangeAction.class::cast).collect(Collectors.toSet());
+            redispatchingRangeActions.forEach(rangeAction -> {
+                double redispatchedVolumeForRa = raoResult.getOptimizedSetPointOnState(crac.getPreventiveState(), rangeAction) - rangeAction.getInitialSetpoint();
+                for (String subString : rangeAction.getId().toUpperCase().split("_")) {
+                    if (subString.equals("RA")) {
+                        continue;
+                    } else if (DE_TSOS.contains(subString)) {
+                        rdVolumes.get(offsetDateTime).put("DE", rdVolumes.get(offsetDateTime).getOrDefault("DE", 0.) + redispatchedVolumeForRa);
+                        return;
+                    } else {
+                        rdVolumes.get(offsetDateTime).put(subString, rdVolumes.get(offsetDateTime).getOrDefault(subString, 0.) + redispatchedVolumeForRa);
+                        return;
+                    }
                 }
             });
-            // Write network
-            String path = interTemporalRaoInput.getRaoInputs().getData(offsetDateTime).orElseThrow().getPostIcsImportNetworkPath().split(".jiidm")[0].concat(".uct");
-            String name = path.substring(path.lastIndexOf("/") + 1);
-            initialNetwork.write("UCTE", new Properties(), Path.of(path));
-
-            // Add network to zip
-            ZipEntry entry = new ZipEntry(name);
-            zipOutputStream.putNextEntry(entry);
-            File generatedNetwork = new File(path);
-            byte[] fileInByte = FileUtils.readFileToByteArray(generatedNetwork);
-            InputStream is = new ByteArrayInputStream(fileInByte);
-            byte[] bytes = new byte[1024];
-            int length;
-            while ((length = is.read(bytes)) >= 0) {
-                zipOutputStream.write(bytes, 0, length);
-            }
-            is.close();
-            generatedNetwork.delete();
         }
-        zipOutputStream.close();
-        cleanModifiedNetworks();
-    }
 
-    @When("I export networks with PRAs to {string}")
-    public static void iExportNetworksWithPras(String outputPath) throws IOException {
-        FileOutputStream fileOutputStream = new FileOutputStream(getFile(getResourcesPath().concat(outputPath)));
-        ZipOutputStream zipOutputStream = new ZipOutputStream(fileOutputStream);
 
-        for (OffsetDateTime offsetDateTime : interTemporalRaoResult.getTimestamps()) {
-            Set<NetworkAction> preventiveNetworkActions = interTemporalRaoResult.getIndividualRaoResult(offsetDateTime).getActivatedNetworkActionsDuringState(interTemporalRaoInput.getRaoInputs().getData(offsetDateTime).get().getCrac().getPreventiveState());
-            Set<RangeAction<?>> preventiveRangeActions = interTemporalRaoResult.getIndividualRaoResult(offsetDateTime).getActivatedRangeActionsDuringState(interTemporalRaoInput.getRaoInputs().getData(offsetDateTime).get().getCrac().getPreventiveState());
-            Network modifiedNetwork = Network.read(interTemporalRaoInput.getRaoInputs().getData(offsetDateTime).orElseThrow().getPostIcsImportNetworkPath());
-            Network initialNetwork = Network.read(interTemporalRaoInput.getRaoInputs().getData(offsetDateTime).orElseThrow().getInitialNetworkPath());
 
-            // Apply PRAs on modified network
-            preventiveNetworkActions.forEach(networkAction -> networkAction.apply(initialNetwork));
-            preventiveRangeActions.forEach(rangeAction -> {
-                double optimizedSetpoint = interTemporalRaoResult.getIndividualRaoResult(offsetDateTime).getOptimizedSetPointOnState(interTemporalRaoInput.getRaoInputs().getData(offsetDateTime).get().getCrac().getPreventiveState(), rangeAction);
-                if (rangeAction instanceof InjectionRangeAction) {
-                    applyRedispatchingAction((InjectionRangeAction) rangeAction, optimizedSetpoint, modifiedNetwork, initialNetwork);
-                } else {
-                    rangeAction.apply(initialNetwork, optimizedSetpoint);
+            if (refProgPath != null) {
+                InputStream refProgInputStream = new FileInputStream(getFile(refProgPath));
+//                OffsetDateTime firstTimestamp = interTemporalRaoInput.getTimestampsToRun().stream().findFirst().get();
+//            ReferenceProgram builtRefProg = ReferenceProgramBuilder.buildReferenceProgram(networkTemporalData.getData(firstTimestamp).get(),
+//                LoadFlowAndSensitivityParameters.getSensitivityProvider(raoParameters),
+//                LoadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters());
+//            ReferenceProgram generatedRefProg = RefProgImporter.importRefProg(refProgInputStream, firstTimestamp);
+                InterTemporalRefProg.updateRefProg(refProgInputStream, networkTemporalData, raoParameters, getResourcesPath().concat(outputPath));
+            }
+        }
+
+        @When("I export networks with PRAs to {string} from raoresult folder {string}")
+        public static void generateNetworksWithPraFromResults (String outputPath, String resultsPath) throws IOException
+        {
+            FileOutputStream fileOutputStream = new FileOutputStream(getFile(getResourcesPath().concat(outputPath)));
+            ZipOutputStream zipOutputStream = new ZipOutputStream(fileOutputStream);
+
+            for (OffsetDateTime offsetDateTime : interTemporalRaoInput.getTimestampsToRun()) {
+                FileInputStream raoResultInputStream = new FileInputStream(getFile(getResourcesPath().concat(resultsPath) + "/RAO_RESULT_" + offsetDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")) + ".json"));
+                RaoResult raoResult = RaoResult.read(raoResultInputStream, interTemporalRaoInput.getRaoInputs().getData(offsetDateTime).orElseThrow().getCrac());
+
+                Set<NetworkAction> preventiveNetworkActions = raoResult.getActivatedNetworkActionsDuringState(interTemporalRaoInput.getRaoInputs().getData(offsetDateTime).get().getCrac().getPreventiveState());
+                Set<RangeAction<?>> preventiveRangeActions = raoResult.getActivatedRangeActionsDuringState(interTemporalRaoInput.getRaoInputs().getData(offsetDateTime).get().getCrac().getPreventiveState());
+                Network modifiedNetwork = Network.read(interTemporalRaoInput.getRaoInputs().getData(offsetDateTime).orElseThrow().getPostIcsImportNetworkPath());
+                Network initialNetwork = Network.read(interTemporalRaoInput.getRaoInputs().getData(offsetDateTime).orElseThrow().getInitialNetworkPath());
+
+                // Apply PRAs on modified network
+                preventiveNetworkActions.forEach(networkAction -> networkAction.apply(initialNetwork));
+                preventiveRangeActions.forEach(rangeAction -> {
+                    double optimizedSetpoint = raoResult.getOptimizedSetPointOnState(interTemporalRaoInput.getRaoInputs().getData(offsetDateTime).get().getCrac().getPreventiveState(), rangeAction);
+                    if (rangeAction instanceof InjectionRangeAction) {
+                        applyRedispatchingAction((InjectionRangeAction) rangeAction, optimizedSetpoint, modifiedNetwork, initialNetwork);
+                    } else {
+                        rangeAction.apply(initialNetwork, optimizedSetpoint);
+                    }
+                });
+                // Write network
+                String path = interTemporalRaoInput.getRaoInputs().getData(offsetDateTime).orElseThrow().getPostIcsImportNetworkPath().split(".jiidm")[0].concat(".uct");
+                String name = path.substring(path.lastIndexOf("/") + 1);
+                initialNetwork.write("UCTE", new Properties(), Path.of(path));
+
+                // Add network to zip
+                ZipEntry entry = new ZipEntry(name);
+                zipOutputStream.putNextEntry(entry);
+                File generatedNetwork = new File(path);
+                byte[] fileInByte = FileUtils.readFileToByteArray(generatedNetwork);
+                InputStream is = new ByteArrayInputStream(fileInByte);
+                byte[] bytes = new byte[1024];
+                int length;
+                while ((length = is.read(bytes)) >= 0) {
+                    zipOutputStream.write(bytes, 0, length);
                 }
-            });
-            // Write network
-            String path = interTemporalRaoInput.getRaoInputs().getData(offsetDateTime).orElseThrow().getPostIcsImportNetworkPath().split(".jiidm")[0].concat(".uct");
-            String name = path.substring(path.lastIndexOf("/") + 1);
-            initialNetwork.write("UCTE", new Properties(), Path.of(path));
-
-            // Add network to zip
-            ZipEntry entry = new ZipEntry(name);
-            zipOutputStream.putNextEntry(entry);
-            File generatedNetwork = new File(path);
-            byte[] fileInByte = FileUtils.readFileToByteArray(generatedNetwork);
-            InputStream is = new ByteArrayInputStream(fileInByte);
-            byte[] bytes = new byte[1024];
-            int length;
-            while ((length = is.read(bytes)) >= 0) {
-                zipOutputStream.write(bytes, 0, length);
+                is.close();
+                generatedNetwork.delete();
             }
-            is.close();
-            generatedNetwork.delete();
+            zipOutputStream.close();
+            cleanModifiedNetworks();
         }
-        zipOutputStream.close();
-        cleanModifiedNetworks();
-    }
 
-    private static void applyRedispatchingAction(InjectionRangeAction injectionRangeAction, double optimizedSetpoint, Network modifiedNetwork, Network initialNetwork) {
-        double initialSetpoint = injectionRangeAction.getInitialSetpoint();
-        for (NetworkElement networkElement : injectionRangeAction.getNetworkElements().stream().collect(Collectors.toSet())) {
-            String busId = modifiedNetwork.getGenerator(networkElement.getId()).getTerminal().getBusBreakerView().getBus().getId();
-            Bus busInInitialNetwork = initialNetwork.getBusBreakerView().getBus(busId);
-            // If no generator defined in initial network, create one
-            // For now, minimumPermissibleReactivePowerGeneration and maximumPermissibleReactivePowerGeneration are hardcoded to -999 and 999
-            // to prevent infinite values that generate a UCT writer crash. TODO : compute realistic values
-            String generatorId = busId + "_generator";
-            if (initialNetwork.getGenerator(generatorId) == null) {
-                Generator generator = busInInitialNetwork.getVoltageLevel().newGenerator()
-                    .setBus(busId)
-                    .setEnsureIdUnicity(true)
-                    .setId(generatorId)
-                    .setMaxP(999999)
-                    .setMinP(0)
-                    .setTargetP(0)
-                    .setTargetQ(0)
-                    .setTargetV(busInInitialNetwork.getVoltageLevel().getNominalV())
-                    .setVoltageRegulatorOn(false)
-                    .add();
-                generator.setFictitious(true);
-                generator.newMinMaxReactiveLimits().setMinQ(-999).setMaxQ(999).add();
+        @When("I export networks with PRAs to {string}")
+        public static void iExportNetworksWithPras (String outputPath) throws IOException {
+            FileOutputStream fileOutputStream = new FileOutputStream(getFile(getResourcesPath().concat(outputPath)));
+            ZipOutputStream zipOutputStream = new ZipOutputStream(fileOutputStream);
+
+            for (OffsetDateTime offsetDateTime : interTemporalRaoResult.getTimestamps()) {
+                Set<NetworkAction> preventiveNetworkActions = interTemporalRaoResult.getIndividualRaoResult(offsetDateTime).getActivatedNetworkActionsDuringState(interTemporalRaoInput.getRaoInputs().getData(offsetDateTime).get().getCrac().getPreventiveState());
+                Set<RangeAction<?>> preventiveRangeActions = interTemporalRaoResult.getIndividualRaoResult(offsetDateTime).getActivatedRangeActionsDuringState(interTemporalRaoInput.getRaoInputs().getData(offsetDateTime).get().getCrac().getPreventiveState());
+                Network modifiedNetwork = Network.read(interTemporalRaoInput.getRaoInputs().getData(offsetDateTime).orElseThrow().getPostIcsImportNetworkPath());
+                Network initialNetwork = Network.read(interTemporalRaoInput.getRaoInputs().getData(offsetDateTime).orElseThrow().getInitialNetworkPath());
+
+                // Apply PRAs on modified network
+                preventiveNetworkActions.forEach(networkAction -> networkAction.apply(initialNetwork));
+                preventiveRangeActions.forEach(rangeAction -> {
+                    double optimizedSetpoint = interTemporalRaoResult.getIndividualRaoResult(offsetDateTime).getOptimizedSetPointOnState(interTemporalRaoInput.getRaoInputs().getData(offsetDateTime).get().getCrac().getPreventiveState(), rangeAction);
+                    if (rangeAction instanceof InjectionRangeAction) {
+                        applyRedispatchingAction((InjectionRangeAction) rangeAction, optimizedSetpoint, modifiedNetwork, initialNetwork);
+                    } else {
+                        rangeAction.apply(initialNetwork, optimizedSetpoint);
+                    }
+                });
+                // Write network
+                String path = interTemporalRaoInput.getRaoInputs().getData(offsetDateTime).orElseThrow().getPostIcsImportNetworkPath().split(".jiidm")[0].concat(".uct");
+                String name = path.substring(path.lastIndexOf("/") + 1);
+                initialNetwork.write("UCTE", new Properties(), Path.of(path));
+
+                // Add network to zip
+                ZipEntry entry = new ZipEntry(name);
+                zipOutputStream.putNextEntry(entry);
+                File generatedNetwork = new File(path);
+                byte[] fileInByte = FileUtils.readFileToByteArray(generatedNetwork);
+                InputStream is = new ByteArrayInputStream(fileInByte);
+                byte[] bytes = new byte[1024];
+                int length;
+                while ((length = is.read(bytes)) >= 0) {
+                    zipOutputStream.write(bytes, 0, length);
+                }
+                is.close();
+                generatedNetwork.delete();
             }
-            for (Generator generator : busInInitialNetwork.getGenerators()) {
-                generator.setTargetP(generator.getTargetP()
-                    + (optimizedSetpoint - initialSetpoint) * injectionRangeAction.getInjectionDistributionKeys().get(networkElement));
+            zipOutputStream.close();
+            cleanModifiedNetworks();
+        }
+
+        private static void applyRedispatchingAction (InjectionRangeAction injectionRangeAction,
+        double optimizedSetpoint, Network modifiedNetwork, Network initialNetwork){
+            double initialSetpoint = injectionRangeAction.getInitialSetpoint();
+            for (NetworkElement networkElement : injectionRangeAction.getNetworkElements().stream().collect(Collectors.toSet())) {
+                String busId = modifiedNetwork.getGenerator(networkElement.getId()).getTerminal().getBusBreakerView().getBus().getId();
+                Bus busInInitialNetwork = initialNetwork.getBusBreakerView().getBus(busId);
+                // If no generator defined in initial network, create one
+                // For now, minimumPermissibleReactivePowerGeneration and maximumPermissibleReactivePowerGeneration are hardcoded to -999 and 999
+                // to prevent infinite values that generate a UCT writer crash. TODO : compute realistic values
+                String generatorId = busId + "_generator";
+                if (initialNetwork.getGenerator(generatorId) == null) {
+                    Generator generator = busInInitialNetwork.getVoltageLevel().newGenerator()
+                        .setBus(busId)
+                        .setEnsureIdUnicity(true)
+                        .setId(generatorId)
+                        .setMaxP(999999)
+                        .setMinP(0)
+                        .setTargetP(0)
+                        .setTargetQ(0)
+                        .setTargetV(busInInitialNetwork.getVoltageLevel().getNominalV())
+                        .setVoltageRegulatorOn(false)
+                        .add();
+                    generator.setFictitious(true);
+                    generator.newMinMaxReactiveLimits().setMinQ(-999).setMaxQ(999).add();
+                }
+                for (Generator generator : busInInitialNetwork.getGenerators()) {
+                    generator.setTargetP(generator.getTargetP()
+                        + (optimizedSetpoint - initialSetpoint) * injectionRangeAction.getInjectionDistributionKeys().get(networkElement));
+                }
             }
         }
-    }
 
-    @Then("the optimized margin on {string} for timestamp {string} is {double} MW")
-    public static void theOptimizedMarginOnCnecForTimestampIsMW(String cnecId, String timestamp, double margin) {
-        OffsetDateTime offsetDateTime = getOffsetDateTimeFromBrusselsTimestamp(timestamp);
-        FlowCnec flowCnec = interTemporalRaoInput.getRaoInputs().getData(offsetDateTime).orElseThrow().getCrac().getFlowCnec(cnecId);
-        Instant afterCra = interTemporalRaoInput.getRaoInputs().getData(offsetDateTime).orElseThrow().getCrac().getLastInstant();
-        assertEquals(margin,
-            interTemporalRaoResult.getIndividualRaoResult(offsetDateTime).getMargin(afterCra, flowCnec, Unit.MEGAWATT),
-            SearchTreeRaoSteps.TOLERANCE_FLOW_IN_MEGAWATT);
-    }
+        @Then("the optimized margin on {string} for timestamp {string} is {double} MW")
+        public static void theOptimizedMarginOnCnecForTimestampIsMW (String cnecId, String timestamp,double margin){
+            OffsetDateTime offsetDateTime = getOffsetDateTimeFromBrusselsTimestamp(timestamp);
+            FlowCnec flowCnec = interTemporalRaoInput.getRaoInputs().getData(offsetDateTime).orElseThrow().getCrac().getFlowCnec(cnecId);
+            Instant afterCra = interTemporalRaoInput.getRaoInputs().getData(offsetDateTime).orElseThrow().getCrac().getLastInstant();
+            assertEquals(margin,
+                interTemporalRaoResult.getIndividualRaoResult(offsetDateTime).getMargin(afterCra, flowCnec, Unit.MEGAWATT),
+                SearchTreeRaoSteps.TOLERANCE_FLOW_IN_MEGAWATT);
+        }
 
-    @Then("the functional cost for timestamp {string} is {double}")
-    public static void theFunctionalCostForTimestampIs(String timestamp, double functionalCost) {
-        OffsetDateTime offsetDateTime = getOffsetDateTimeFromBrusselsTimestamp(timestamp);
-        Instant afterCra = interTemporalRaoInput.getRaoInputs().getData(offsetDateTime).orElseThrow().getCrac().getLastInstant();
-        assertEquals(functionalCost,
-            interTemporalRaoResult.getFunctionalCost(afterCra, offsetDateTime),
-            SearchTreeRaoSteps.TOLERANCE_FLOW_IN_MEGAWATT);
-    }
+        @Then("the functional cost for timestamp {string} is {double}")
+        public static void theFunctionalCostForTimestampIs (String timestamp,double functionalCost){
+            OffsetDateTime offsetDateTime = getOffsetDateTimeFromBrusselsTimestamp(timestamp);
+            Instant afterCra = interTemporalRaoInput.getRaoInputs().getData(offsetDateTime).orElseThrow().getCrac().getLastInstant();
+            assertEquals(functionalCost,
+                interTemporalRaoResult.getFunctionalCost(afterCra, offsetDateTime),
+                SearchTreeRaoSteps.TOLERANCE_FLOW_IN_MEGAWATT);
+        }
 
-    @Then("the total cost for timestamp {string} is {double}")
-    public static void theTotalCostForTimestampIs(String timestamp, double totalCost) {
-        OffsetDateTime offsetDateTime = getOffsetDateTimeFromBrusselsTimestamp(timestamp);
-        Instant afterCra = interTemporalRaoInput.getRaoInputs().getData(offsetDateTime).orElseThrow().getCrac().getLastInstant();
-        assertEquals(totalCost,
-            interTemporalRaoResult.getCost(afterCra, offsetDateTime),
-            SearchTreeRaoSteps.TOLERANCE_FLOW_IN_MEGAWATT);
-    }
+        @Then("the total cost for timestamp {string} is {double}")
+        public static void theTotalCostForTimestampIs (String timestamp,double totalCost){
+            OffsetDateTime offsetDateTime = getOffsetDateTimeFromBrusselsTimestamp(timestamp);
+            Instant afterCra = interTemporalRaoInput.getRaoInputs().getData(offsetDateTime).orElseThrow().getCrac().getLastInstant();
+            assertEquals(totalCost,
+                interTemporalRaoResult.getCost(afterCra, offsetDateTime),
+                SearchTreeRaoSteps.TOLERANCE_FLOW_IN_MEGAWATT);
+        }
 
-    @Then("the functional cost for all timestamps is {double}")
-    public static void theFunctionalCostForAllTimestampsIs(double functionalCost) {
-        assertEquals(functionalCost,
-            interTemporalRaoResult.getGlobalFunctionalCost(InstantKind.CURATIVE),
-            SearchTreeRaoSteps.TOLERANCE_FLOW_IN_MEGAWATT);
-    }
+        @Then("the functional cost for all timestamps is {double}")
+        public static void theFunctionalCostForAllTimestampsIs ( double functionalCost){
+            assertEquals(functionalCost,
+                interTemporalRaoResult.getGlobalFunctionalCost(InstantKind.CURATIVE),
+                SearchTreeRaoSteps.TOLERANCE_FLOW_IN_MEGAWATT);
+        }
 
-    @Then("the total cost for all timestamps is {double}")
-    public static void theTotalCostForAllTimestampsIs(double totalCost) {
-        assertEquals(totalCost,
-            interTemporalRaoResult.getGlobalCost(InstantKind.CURATIVE),
-            SearchTreeRaoSteps.TOLERANCE_FLOW_IN_MEGAWATT);
+        @Then("the total cost for all timestamps is {double}")
+        public static void theTotalCostForAllTimestampsIs ( double totalCost){
+            assertEquals(totalCost,
+                interTemporalRaoResult.getGlobalCost(InstantKind.CURATIVE),
+                SearchTreeRaoSteps.TOLERANCE_FLOW_IN_MEGAWATT);
+        }
     }
-}

@@ -7,7 +7,6 @@
 package com.powsybl.openrao.data.refprog.refprogxmlimporter;
 
 import com.powsybl.iidm.network.Country;
-import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Substation;
 import com.powsybl.loadflow.LoadFlow;
@@ -16,8 +15,6 @@ import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.openrao.commons.EICode;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.TemporalData;
-import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceExchangeData;
-import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceProgram;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import jakarta.xml.bind.JAXBContext;
@@ -28,12 +25,8 @@ import xsd.etso_core_cmpts.QuantityType;
 
 import java.io.*;
 import java.math.BigDecimal;
-import java.nio.file.Path;
-import java.time.Duration;
-import java.time.OffsetDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.temporal.Temporal;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.*;
 
@@ -48,6 +41,7 @@ public final class InterTemporalRefProg {
 
     private static Map<EICode, Map<EICode, Double>> sumAllTieLines(Network networkWithPras) {
         // For each networkWithPra, compute exchange per zone on all tie lines
+        AtomicInteger count = new AtomicInteger();
         Map<EICode, Map<EICode, Double>> exchangeValues = new HashMap<>();
         networkWithPras.getTieLines().forEach(tieLine -> {
             Country country1;
@@ -83,21 +77,26 @@ public final class InterTemporalRefProg {
                 return;
             }
             Double value = tieLine.getTerminal1().getP(); // DC => flux(terminal2) = - flux(terminal1)
-            if (Double.isNaN(value) && tieLine.getTerminal1().isConnected() && tieLine.getTerminal2().isConnected()) {
-                BUSINESS_WARNS.warn("NaN for tieLine {} terminal 1 getP.", tieLine);
+            if (Double.isNaN(value)) {
+                if (tieLine.getTerminal1().isConnected() && tieLine.getTerminal2().isConnected()) {
+                    BUSINESS_WARNS.warn("NaN for tieLine {} terminal 1 getP although both terminals are connected", tieLine);
+                }
+                // Do not put NaNs in map
                 return;
             }
             exchangeValues.putIfAbsent(eiCode1, new HashMap<>());
             exchangeValues.get(eiCode1).put(eiCode2, exchangeValues.get(eiCode1).getOrDefault(eiCode2, 0.0) + value);
             exchangeValues.putIfAbsent(eiCode2, new HashMap<>());
             exchangeValues.get(eiCode2).put(eiCode1, exchangeValues.get(eiCode2).getOrDefault(eiCode1, 0.0) - value);
+            count.addAndGet(1);
         });
+        BUSINESS_WARNS.warn("Total number of tieLines found: {}.", count.get());
         return exchangeValues;
     }
 
     public static void updateRefProg(InputStream inputStream, TemporalData<Network> networkWithPras, RaoParameters raoParameters, String outputPath) {
         Map<Integer, Map<EICode, Map<EICode, Double>>> exchangeValuesByTs = new HashMap<>();
-        networkWithPras.getDataPerTimestamp().forEach(((offsetDateTime, network) -> {
+        networkWithPras.getDataPerTimestamp().forEach((offsetDateTime, network) -> {
             BUSINESS_WARNS.warn("**** Timestamp {} ****", offsetDateTime);
             // Compute loadflow
             String loadFlowProvider = raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getLoadFlowAndSensitivityParameters().getLoadFlowProvider();
@@ -110,7 +109,7 @@ public final class InterTemporalRefProg {
             // Compute exchange per zone
             int hour = 1 + offsetDateTime.getHour();
             exchangeValuesByTs.putIfAbsent(hour, sumAllTieLines(network));
-        }));
+        });
 
         // Load initial RefProg
         PublicationDocument document = importXmlDocument(inputStream);
@@ -155,7 +154,6 @@ public final class InterTemporalRefProg {
         }
     }
 
-
     private static PublicationDocument importXmlDocument(InputStream inputStream) {
         try {
             JAXBContext jaxbContext = JAXBContext.newInstance(PublicationDocument.class);
@@ -170,7 +168,7 @@ public final class InterTemporalRefProg {
         try {
             JAXBContext jaxbContext = JAXBContext.newInstance(PublicationDocument.class);
             Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
-            jaxbMarshaller.setProperty( Marshaller.JAXB_FORMATTED_OUTPUT, true);
+            jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
             jaxbMarshaller.marshal(publicationDocument, new FileOutputStream(outputPath));
         } catch (FileNotFoundException e) {
             throw new OpenRaoException(e);
