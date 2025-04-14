@@ -206,15 +206,15 @@ public final class InterTemporalRaoSteps {
     @When("I export RefProg after redispatching to {string} based on networkWithPras folder {string}")
     public static void generateRefProg(String outputPath, String networkWithPrasPath) throws IOException {
         TemporalData<Network> networkTemporalData = new TemporalDataImpl<>();
+        // Load networks in networkTemporalData
         for (OffsetDateTime offsetDateTime : interTemporalRaoInput.getTimestampsToRun()) {
             String networkPath = getResourcesPath().concat(networkWithPrasPath)  + offsetDateTime.format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmm")) + "_2D1_UX2_FINIT_EXPORTGRIDMODEL_DC_CGM_10V1001C--00264T.uct";
             Network networkWithPrasOneTs = Network.read(networkPath);
             networkTemporalData.put(offsetDateTime, networkWithPrasOneTs);
         }
-        if (refProgPath!=null) {
+        if (refProgPath != null) {
             InputStream refProgInputStream = new FileInputStream(getFile(refProgPath));
             InterTemporalRefProg.updateRefProg(refProgInputStream, networkTemporalData, raoParameters, getResourcesPath().concat(outputPath));
-            // TODO : write in different outputPath
         }
 
     }

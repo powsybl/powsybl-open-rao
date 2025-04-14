@@ -46,7 +46,6 @@ public class EICode {
     public String getAreaCode() {
         return areaCode;
     }
-    public Country getCountry() { return optionalCountry.isPresent() ? optionalCountry.get() : null; }
 
     public boolean isCountryCode() {
         return optionalCountry.isPresent();

@@ -9,6 +9,7 @@ package com.powsybl.openrao.data.refprog.refprogxmlimporter;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.Substation;
 import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.LoadFlowResult;
@@ -45,37 +46,72 @@ public final class InterTemporalRefProg {
     private InterTemporalRefProg() {
     }
 
-    private static Map<Country, Map<Country, Double>> sumAllTieLines(Network networkWithPras) {
+    private static Map<EICode, Map<EICode, Double>> sumAllTieLines(Network networkWithPras) {
         // For each networkWithPra, compute exchange per zone on all tie lines
-        Map<Country, Map<Country, Double>> exchangeValues = new HashMap<>();
+        Map<EICode, Map<EICode, Double>> exchangeValues = new HashMap<>();
         networkWithPras.getTieLines().forEach(tieLine -> {
-            Country country1 = tieLine.getTerminal1().getVoltageLevel().getSubstation().get().getCountry().get();
-            Country country2 = tieLine.getTerminal2().getVoltageLevel().getSubstation().get().getCountry().get();
-            // TODO : handle NaN
+            Country country1;
+            Country country2;
+            Optional<Substation> substation1 = tieLine.getTerminal1().getVoltageLevel().getSubstation();
+            if (substation1.isEmpty()) {
+                BUSINESS_WARNS.warn("Substation not found for tieLine {} terminal 1 voltage level {}.", tieLine, tieLine.getTerminal1().getVoltageLevel());
+                return;
+            } else {
+                country1 = substation1.get().getCountry().get();
+            }
+
+            Optional<Substation> substation2 = tieLine.getTerminal1().getVoltageLevel().getSubstation();
+            if (substation1.isEmpty()) {
+                BUSINESS_WARNS.warn("Substation not found for tieLine {} terminal 2 voltage level {}.", tieLine, tieLine.getTerminal2().getVoltageLevel());
+                return;
+            } else {
+                country2 = substation2.get().getCountry().get();
+            }
+            EICode eiCode1;
+            EICode eiCode2;
+
+            try {
+                eiCode1 = new EICode(country1);
+            } catch (IllegalArgumentException e) {
+                BUSINESS_WARNS.warn("cannot find EICode for country {}.", country1);
+                return;
+            }
+            try {
+                eiCode2 = new EICode(country2);
+            } catch (IllegalArgumentException e) {
+                BUSINESS_WARNS.warn("cannot find EICode for country {}.", country2);
+                return;
+            }
             Double value = tieLine.getTerminal1().getP(); // DC => flux(terminal2) = - flux(terminal1)
-            exchangeValues.putIfAbsent(country1, new HashMap<>());
-            exchangeValues.get(country1).put(country2, exchangeValues.get(country1).getOrDefault(country2, 0.0) + value);
-            exchangeValues.putIfAbsent(country2, new HashMap<>());
-            exchangeValues.get(country2).put(country1, exchangeValues.get(country2).getOrDefault(country1, 0.0) - value);
+            if (Double.isNaN(value)) {
+                BUSINESS_WARNS.warn("NaN for tieLine {} terminal 1 getP.", tieLine);
+                return;
+            }
+            exchangeValues.putIfAbsent(eiCode1, new HashMap<>());
+            exchangeValues.get(eiCode1).put(eiCode2, exchangeValues.get(eiCode1).getOrDefault(eiCode2, 0.0) + value);
+            exchangeValues.putIfAbsent(eiCode2, new HashMap<>());
+            exchangeValues.get(eiCode2).put(eiCode1, exchangeValues.get(eiCode2).getOrDefault(eiCode1, 0.0) - value);
         });
         return exchangeValues;
     }
 
     public static void updateRefProg(InputStream inputStream, TemporalData<Network> networkWithPras, RaoParameters raoParameters, String outputPath) {
-        Map<Integer, Map<Country, Map<Country, Double>>> exchangeValuesByTs = new HashMap<>();
+        Map<Integer, Map<EICode, Map<EICode, Double>>> exchangeValuesByTs = new HashMap<>();
         networkWithPras.getDataPerTimestamp().forEach(((offsetDateTime, network) -> {
             // Compute loadflow
             String loadFlowProvider = raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getLoadFlowAndSensitivityParameters().getLoadFlowProvider();
             LoadFlowParameters loadFlowParameters = raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters();
             LoadFlowResult loadFlowResult = LoadFlow.find(loadFlowProvider)
                 .run(network, loadFlowParameters);
+            if (loadFlowResult.isFailed()) {
+                BUSINESS_WARNS.warn("LoadFlow error.");
+            }
             // Compute exchange per zone
             int hour = 1 + offsetDateTime.getHour();
             exchangeValuesByTs.putIfAbsent(hour, sumAllTieLines(network));
         }));
 
-        // TODO : check with a network without any PRAS that we're computing the same thing as before
-
+        // Load initial RefProg
         PublicationDocument document = importXmlDocument(inputStream);
         List<ReferenceExchangeData> exchangeDataList = new ArrayList<>();
         document.getPublicationTimeSeries().forEach(timeSeries -> {
@@ -83,28 +119,29 @@ public final class InterTemporalRefProg {
             EICode outArea = new EICode(outAreaValue);
             String inAreaValue = timeSeries.getInArea().getV();
             EICode inArea = new EICode(inAreaValue);
+            // Modify specific timeseries according to exchangeValuesByTs
             setFlow(timeSeries, inArea, outArea, exchangeValuesByTs);
         });
         exportXmlDocument(document, outputPath);
     }
 
-    private static void setFlow(PublicationTimeSeriesType timeSeries, EICode inArea, EICode outArea, Map<Integer, Map<Country, Map<Country, Double>>> exchangeValuesByTs) {
+    private static void setFlow(PublicationTimeSeriesType timeSeries, EICode inArea, EICode outArea, Map<Integer, Map<EICode, Map<EICode, Double>>> exchangeValuesByTs) {
         String timeSeriesInterval = timeSeries.getPeriod().get(0).getTimeInterval().getV();
         OffsetDateTime timeSeriesStart = OffsetDateTime.parse(timeSeriesInterval.substring(0, timeSeriesInterval.indexOf("/")), DateTimeFormatter.ISO_DATE_TIME);
         Duration resolution = Duration.parse(timeSeries.getPeriod().get(0).getResolution().getV().toString());
         List<IntervalType> validIntervals = timeSeries.getPeriod().get(0).getInterval().stream().toList();
         double oldFlow = 0;
         double newFlow = 0;
-        // TODO : why did we set inArea outArea here
         if (!validIntervals.isEmpty()) {
             IntervalType validInterval = validIntervals.get(0);
-            Map<Country, Map<Country, Double>> exchangeValuesForSpecificTs = exchangeValuesByTs.get(validInterval.getPos().getV());
+            Map<EICode, Map<EICode, Double>> exchangeValuesForSpecificTs = exchangeValuesByTs.get(validInterval.getPos().getV());
             oldFlow = validInterval.getQty().getV().doubleValue();
-            // TODO : quel sens inArea -> outArea ou outArea -> inArea?
-            if (Objects.nonNull(inArea.getCountry()) && Objects.nonNull(outArea.getCountry())) {
-                if (Objects.nonNull(exchangeValuesForSpecificTs.get(inArea.getCountry()))) {
-                    newFlow = exchangeValuesForSpecificTs.get(inArea.getCountry()).get(outArea.getCountry());
-                    if (!Double.isNaN(newFlow)) {
+            if (Objects.nonNull(exchangeValuesForSpecificTs.get(inArea))) {
+                if (Objects.nonNull(exchangeValuesForSpecificTs.get(inArea).get(outArea))) {
+                    newFlow = exchangeValuesForSpecificTs.get(inArea).get(outArea);
+                    if (Double.isNaN(newFlow)) {
+                        BUSINESS_WARNS.warn("New flow is NaN for inArea {} and outArea {} and Ts {}", inArea, outArea, validInterval.getPos().getV());
+                    } else {
                         QuantityType newFlowQuantity = new QuantityType();
                         newFlowQuantity.setV(BigDecimal.valueOf(newFlow));
                         validInterval.setQty(newFlowQuantity);
