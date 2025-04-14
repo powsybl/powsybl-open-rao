@@ -60,8 +60,8 @@ public final class InterTemporalRefProg {
                 country1 = substation1.get().getCountry().get();
             }
 
-            Optional<Substation> substation2 = tieLine.getTerminal1().getVoltageLevel().getSubstation();
-            if (substation1.isEmpty()) {
+            Optional<Substation> substation2 = tieLine.getTerminal2().getVoltageLevel().getSubstation();
+            if (substation2.isEmpty()) {
                 BUSINESS_WARNS.warn("Substation not found for tieLine {} terminal 2 voltage level {}.", tieLine, tieLine.getTerminal2().getVoltageLevel());
                 return;
             } else {
@@ -83,7 +83,7 @@ public final class InterTemporalRefProg {
                 return;
             }
             Double value = tieLine.getTerminal1().getP(); // DC => flux(terminal2) = - flux(terminal1)
-            if (Double.isNaN(value)) {
+            if (Double.isNaN(value) && tieLine.getTerminal1().isConnected() && tieLine.getTerminal2().isConnected()) {
                 BUSINESS_WARNS.warn("NaN for tieLine {} terminal 1 getP.", tieLine);
                 return;
             }
@@ -98,6 +98,7 @@ public final class InterTemporalRefProg {
     public static void updateRefProg(InputStream inputStream, TemporalData<Network> networkWithPras, RaoParameters raoParameters, String outputPath) {
         Map<Integer, Map<EICode, Map<EICode, Double>>> exchangeValuesByTs = new HashMap<>();
         networkWithPras.getDataPerTimestamp().forEach(((offsetDateTime, network) -> {
+            BUSINESS_WARNS.warn("**** Timestamp {} ****", offsetDateTime);
             // Compute loadflow
             String loadFlowProvider = raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getLoadFlowAndSensitivityParameters().getLoadFlowProvider();
             LoadFlowParameters loadFlowParameters = raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters();
@@ -113,7 +114,6 @@ public final class InterTemporalRefProg {
 
         // Load initial RefProg
         PublicationDocument document = importXmlDocument(inputStream);
-        List<ReferenceExchangeData> exchangeDataList = new ArrayList<>();
         document.getPublicationTimeSeries().forEach(timeSeries -> {
             String outAreaValue = timeSeries.getOutArea().getV();
             EICode outArea = new EICode(outAreaValue);
@@ -126,25 +126,29 @@ public final class InterTemporalRefProg {
     }
 
     private static void setFlow(PublicationTimeSeriesType timeSeries, EICode inArea, EICode outArea, Map<Integer, Map<EICode, Map<EICode, Double>>> exchangeValuesByTs) {
-        String timeSeriesInterval = timeSeries.getPeriod().get(0).getTimeInterval().getV();
-        OffsetDateTime timeSeriesStart = OffsetDateTime.parse(timeSeriesInterval.substring(0, timeSeriesInterval.indexOf("/")), DateTimeFormatter.ISO_DATE_TIME);
-        Duration resolution = Duration.parse(timeSeries.getPeriod().get(0).getResolution().getV().toString());
         List<IntervalType> validIntervals = timeSeries.getPeriod().get(0).getInterval().stream().toList();
         double oldFlow = 0;
         double newFlow = 0;
-        if (!validIntervals.isEmpty()) {
-            IntervalType validInterval = validIntervals.get(0);
-            Map<EICode, Map<EICode, Double>> exchangeValuesForSpecificTs = exchangeValuesByTs.get(validInterval.getPos().getV());
-            oldFlow = validInterval.getQty().getV().doubleValue();
-            if (Objects.nonNull(exchangeValuesForSpecificTs.get(inArea))) {
-                if (Objects.nonNull(exchangeValuesForSpecificTs.get(inArea).get(outArea))) {
-                    newFlow = exchangeValuesForSpecificTs.get(inArea).get(outArea);
-                    if (Double.isNaN(newFlow)) {
-                        BUSINESS_WARNS.warn("New flow is NaN for inArea {} and outArea {} and Ts {}", inArea, outArea, validInterval.getPos().getV());
-                    } else {
-                        QuantityType newFlowQuantity = new QuantityType();
-                        newFlowQuantity.setV(BigDecimal.valueOf(newFlow));
-                        validInterval.setQty(newFlowQuantity);
+        // TODO why check validIntervals empty
+        if (validIntervals.isEmpty()) {
+            BUSINESS_WARNS.warn("Valid intervals is empty");
+        } else if (validIntervals.size() != 24) {
+            BUSINESS_WARNS.warn("Valid intervals has wrong size ({} instead of 24)", validIntervals.size());
+        } else {
+            for (IntervalType validInterval : validIntervals) {
+                Map<EICode, Map<EICode, Double>> exchangeValuesForSpecificTs = exchangeValuesByTs.get(validInterval.getPos().getV());
+                oldFlow = validInterval.getQty().getV().doubleValue();
+                if (Objects.nonNull(exchangeValuesForSpecificTs.get(inArea))) {
+                    if (Objects.nonNull(exchangeValuesForSpecificTs.get(inArea).get(outArea))) {
+                        newFlow = exchangeValuesForSpecificTs.get(inArea).get(outArea);
+                        if (Double.isNaN(newFlow)) {
+                            BUSINESS_WARNS.warn("New flow is NaN for inArea {} and outArea {} and Ts {}", inArea, outArea, validInterval.getPos().getV());
+                        } else {
+                            BUSINESS_WARNS.warn("New flow set from {} to {} for inArea {} and outArea {} and Ts {}", oldFlow, newFlow, inArea, outArea, validInterval.getPos().getV());
+                            QuantityType newFlowQuantity = new QuantityType();
+                            newFlowQuantity.setV(BigDecimal.valueOf(newFlow));
+                            validInterval.setQty(newFlowQuantity);
+                        }
                     }
                 }
             }
