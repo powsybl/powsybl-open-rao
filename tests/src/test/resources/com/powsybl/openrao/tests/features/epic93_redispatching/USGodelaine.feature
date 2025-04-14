@@ -81,7 +81,7 @@ Feature: US 93.3: US Godelaine
 #    When I launch marmot
 #    When I export marmot results to "raoresults/results_20241028.zip"
 #    When I export networks with PRAs to "raoresults/networkWithPras_20241028.zip"
-    When I export RefProg after redispatching to "generatedRefProgs/20241028-FID2-632-v2-10V1001C--00264T-to-10V1001C--00085T.xml" based on networkWithPras folder "cases/idcc/20241028-FID2-734-v1-10V1001C--00264T-to-10V1001C--00085T 1/" and based on raoResults folder "raoresults/results_20241028/"
+    When I export RefProg after redispatching to "generatedRefProgs/20241028-FID2-632-v2-10V1001C--00264T-to-10V1001C--00085T.xml" based on raoResults folder "raoresults/results_20241028/"
 #    When I export RefProg after redispatching to "generatedRefProgs/20241028-FID2-632-v2-10V1001C--00264T-to-10V1001C--00085T.xml" based on networkWithPras folder "raoresults/networkWithPras_20241028/"
 
 
