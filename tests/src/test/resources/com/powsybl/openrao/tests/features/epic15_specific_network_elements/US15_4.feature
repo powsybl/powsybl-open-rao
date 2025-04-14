@@ -12,8 +12,8 @@ Feature: US 15.4: Consider two margins on tie-lines for each half-line with rela
     When I import crac
     Then it should have the following flow CNECs:
       | Name            | NetworkElementId                          | Instant    | Contingency | Optimized | Monitored | ImaxLeft | ImaxRight | NominalVoltageLeft | NominalVoltageRight |
-      | Cnec BE-FR Left | BBE2AA1  X_BEFR1  1 + FFR3AA1  X_BEFR1  1 | preventive |             | yes       | no        | 5000.0   | 5000.0    | 400.0              | 400.0               |
-      | Cnec BE-FR Left | BBE2AA1  X_BEFR1  1 + FFR3AA1  X_BEFR1  1 | outage     | N-1 DE-NL   | yes       | no        | 5000.0   | 5000.0    | 400.0              | 400.0               |
+      | Cnec BE-FR Left | BBE2AA1  X_BEFR1  1 + FFR3AA1  X_BEFR1  1 | preventive |             | yes       | no        | 5000.0   | 5000.0    | 380.0              | 380.0               |
+      | Cnec BE-FR Left | BBE2AA1  X_BEFR1  1 + FFR3AA1  X_BEFR1  1 | outage     | N-1 DE-NL   | yes       | no        | 5000.0   | 5000.0    | 380.0              | 380.0               |
     And the flow cnecs should have the following thresholds:
       | CnecId                                                         | Unit   | Min   | Max  | Side  |
       | BBE2AA1  X_BEFR1  1 + FFR3AA1  X_BEFR1  1 - preventive         | AMPERE | -1500 | 1500 | ONE  |
