@@ -122,5 +122,9 @@
             <artifactId>mockito-core</artifactId>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>com.powsybl</groupId>
+            <artifactId>open-rao-crac-io-fb-constraint</artifactId>
+        </dependency>
     </dependencies>
 </project>

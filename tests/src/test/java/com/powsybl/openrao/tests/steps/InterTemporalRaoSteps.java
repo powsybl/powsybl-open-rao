@@ -20,10 +20,12 @@ import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.crac.api.parameters.JsonCracCreationParameters;
 import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
+import com.powsybl.openrao.data.crac.io.fbconstraint.FbConstraintCreationContext;
 import com.powsybl.openrao.data.raoresult.api.InterTemporalRaoResult;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.raoapi.*;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
+import com.powsybl.openrao.searchtreerao.marmot.f711.F711Utils;
 import com.powsybl.openrao.tests.utils.CoreCcPreprocessor;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.Before;
@@ -61,6 +63,7 @@ public final class InterTemporalRaoSteps {
     private static String icsGskPath;
     private static InterTemporalRaoInputWithNetworkPaths interTemporalRaoInput;
     private static InterTemporalRaoResult interTemporalRaoResult;
+    private static Map<OffsetDateTime, CracCreationContext> cracCreationContexts;
 
     public InterTemporalRaoSteps() {
         // should not be instantiated
@@ -134,6 +137,7 @@ public final class InterTemporalRaoSteps {
     }
 
     public static void loadDataForInterTemporalRao(DataTable arg1) throws IOException {
+        cracCreationContexts = new HashMap<>();
         CracCreationParameters cracCreationParameters;
         try {
             String ccpToImport = getResourcesPath().concat(DEFAULT_CRAC_CREATION_PARAMETERS_PATH);
@@ -171,6 +175,7 @@ public final class InterTemporalRaoSteps {
                 .build(initialNetworkPath, postIcsNetworkPath, cracImportResult.getLeft())
                 .build();
             raoInputs.put(offsetDateTime, raoInput);
+            cracCreationContexts.put(offsetDateTime, cracImportResult.getRight());
         }
         interTemporalRaoInput = new InterTemporalRaoInputWithNetworkPaths(raoInputs, new HashSet<>());
         InputStream gskInputStream = icsGskPath == null ? null : new FileInputStream(getFile(icsGskPath));
@@ -356,5 +361,12 @@ public final class InterTemporalRaoSteps {
         assertEquals(totalCost,
             interTemporalRaoResult.getGlobalCost(InstantKind.CURATIVE),
             SearchTreeRaoSteps.TOLERANCE_FLOW_IN_MEGAWATT);
+    }
+
+    @When("I export F711 for business date {string}") // expected format yyyyMMdd
+    public static void exportF711(String businessDate) {
+        Map<OffsetDateTime, RaoResult> raoResults = new HashMap<>();
+        interTemporalRaoInput.getTimestampsToRun().forEach(timestamp -> raoResults.put(timestamp, interTemporalRaoResult.getIndividualRaoResult(timestamp)));
+        F711Utils.write(new TemporalDataImpl<>(raoResults), new TemporalDataImpl<>(cracCreationContexts).map(FbConstraintCreationContext.class::cast), cracPath, getResourcesPath().concat("raoresults/%s-FID2-711-v1-10V1001C--00264T-to-10V1001C--00085T.xml").formatted(businessDate));
     }
 }
