@@ -12,7 +12,7 @@ Feature: IDCC POC v1
     Given ics static file is "_110V1001C--00200I_CSA-COMRA-RDSTATIC-D_CORE-20240122-V001_.csv"
     Given ics series file is "_110V1001C--00200I_CSA-COMRA-RDSERIES-D_CORE-20240122-V001_.csv"
     Given ics gsk file is "_110V1001C--00200I_CSA-COMRA-GSK-D_CORE-20240122-V001_.csv"
-    Given configuration file is "idcc/RaoParameters_idcc_low_improvement_2_max.json"
+    Given configuration file is "idcc/RaoParameters_idcc_low_improvement_2_max_min_margin.json"
     Given intertemporal rao inputs are:
       | Timestamp        | Network                                                                 |
       | 2024-01-22 00:30 | 20240122_0030_2D1_UX2_FINIT_EXPORTGRIDMODEL_DC_CGM_10V1001C--00264T.uct |
@@ -51,7 +51,7 @@ Feature: IDCC POC v1
     Given ics static file is "_110V1001C--00200I_CSA-COMRA-RDSTATIC-D_CORE-20240131-V001_.csv"
     Given ics series file is "_110V1001C--00200I_CSA-COMRA-RDSERIES-D_CORE-20240131-V001_.csv"
     Given ics gsk file is "_110V1001C--00200I_CSA-COMRA-GSK-D_CORE-20240131-V001_.csv"
-    Given configuration file is "idcc/RaoParameters_idcc_low_improvement_2_max.json"
+    Given configuration file is "idcc/RaoParameters_idcc_low_improvement_2_max_min_margin.json"
     Given intertemporal rao inputs are:
       | Timestamp        | Network                                                                 |
       | 2024-01-31 00:30 | 20240131_0030_2D3_UX2_FINIT_EXPORTGRIDMODEL_DC_CGM_10V1001C--00264T.uct |
@@ -90,7 +90,7 @@ Feature: IDCC POC v1
     Given ics static file is "_110V1001C--00200I_CSA-COMRA-RDSTATIC-D_CORE-20240222-V001_.csv"
     Given ics series file is "_110V1001C--00200I_CSA-COMRA-RDSERIES-D_CORE-20240222-V001_.csv"
     Given ics gsk file is "_110V1001C--00200I_CSA-COMRA-GSK-D_CORE-20240222-V001_.csv"
-    Given configuration file is "idcc/RaoParameters_idcc_low_improvement_2_max.json"
+    Given configuration file is "idcc/RaoParameters_idcc_low_improvement_2_max_min_margin.json"
     Given intertemporal rao inputs are:
       | Timestamp        | Network                                                                 |
       | 2024-02-22 00:30 | 20240222_0030_2D4_UX2_FINIT_EXPORTGRIDMODEL_DC_CGM_10V1001C--00264T.uct |
@@ -129,7 +129,7 @@ Feature: IDCC POC v1
     Given ics static file is "_110V1001C--00200I_CSA-COMRA-RDSTATIC-D_CORE-20240224-V001_.csv"
     Given ics series file is "_110V1001C--00200I_CSA-COMRA-RDSERIES-D_CORE-20240224-V001_.csv"
     Given ics gsk file is "_10V1001C--00200I_CSA-INDRA-GSK-D_D7-20240224-V001_.csv"
-    Given configuration file is "idcc/RaoParameters_idcc_low_improvement_2_max.json"
+    Given configuration file is "idcc/RaoParameters_idcc_low_improvement_2_max_min_margin.json"
     Given intertemporal rao inputs are:
       | Timestamp        | Network                                                                 |
       | 2024-02-24 00:30 | 20240224_0030_2D6_UX2_FINIT_EXPORTGRIDMODEL_DC_CGM_10V1001C--00264T.uct |
@@ -169,7 +169,7 @@ Feature: IDCC POC v1
     Given ics static file is "_10V1001C–00275O_CSA-COMRA-RDSTATIC-D_CORE-20240502-V001_.csv"
     Given ics series file is "_10V1001C–00275O_CSA-COMRA-RDSERIES-D_CORE-20240502-V001_.csv"
     Given ics gsk file is "_10V1001C--00200I_CSA-INDRA-GSK-D_D7-20240502-V001_.csv"
-    Given configuration file is "idcc/RaoParameters_idcc_low_improvement_2_max.json"
+    Given configuration file is "idcc/RaoParameters_idcc_low_improvement_2_max_min_margin.json"
     Given intertemporal rao inputs are:
       | Timestamp        | Network                                                                 |
       | 2024-05-02 00:30 | 20240502_0030_2D4_UX2_FINIT_EXPORTGRIDMODEL_DC_CGM_10V1001C--00264T.uct |
@@ -208,7 +208,7 @@ Feature: IDCC POC v1
     Given ics static file is "_10V1001C–00275O_CSA-COMRA-RDSTATIC-D_CORE-20240526-V001_.csv"
     Given ics series file is "_10V1001C–00275O_CSA-COMRA-RDSERIES-D_CORE-20240526-V001_.csv"
     Given ics gsk file is "_10V1001C--00275O_CSA-INDRA-GSK-D_D7-20240526-V001_.csv"
-    Given configuration file is "idcc/RaoParameters_idcc_low_improvement_2_max.json"
+    Given configuration file is "idcc/RaoParameters_idcc_low_improvement_2_max_min_margin.json"
     Given intertemporal rao inputs are:
       | Timestamp        | Network                                                                 |
       | 2024-05-26 00:30 | 20240526_0030_2D7_UX2_FINIT_EXPORTGRIDMODEL_DC_CGM_10V1001C--00264T.uct |
@@ -247,7 +247,7 @@ Feature: IDCC POC v1
     Given ics static file is "_10V1001C–00275O_CSA-COMRA-RDSTATIC-D_CORE-20240602-V001_.csv"
     Given ics series file is "_10V1001C–00275O_CSA-COMRA-RDSERIES-D_CORE-20240602-V001_.csv"
     Given ics gsk file is "_10V1001C--00275O_CSA-INDRA-GSK-D_D7-20240602-V001_.csv"
-    Given configuration file is "idcc/RaoParameters_idcc_low_improvement_2_max.json"
+    Given configuration file is "idcc/RaoParameters_idcc_low_improvement_2_max_min_margin.json"
     Given intertemporal rao inputs are:
       | Timestamp        | Network                                                                 |
       | 2024-06-02 00:30 | 20240602_0030_2D7_UX2_FINIT_EXPORTGRIDMODEL_DC_CGM_10V1001C--00264T.uct |
@@ -286,7 +286,7 @@ Feature: IDCC POC v1
     Given ics static file is "_10V1001C–00275O_CSA-COMRA-RDSTATIC-D_CORE-20240606-V001_.csv"
     Given ics series file is "_10V1001C–00275O_CSA-COMRA-RDSERIES-D_CORE-20240606-V001_.csv"
     Given ics gsk file is "_10V1001C--00275O_CSA-INDRA-GSK-D_D7-20240606-V001_.csv"
-    Given configuration file is "idcc/RaoParameters_idcc_low_improvement_2_max.json"
+    Given configuration file is "idcc/RaoParameters_idcc_low_improvement_2_max_min_margin.json"
     Given intertemporal rao inputs are:
       | Timestamp        | Network                                                                 |
       | 2024-06-06 00:30 | 20240606_0030_2D4_UX2_FINIT_EXPORTGRIDMODEL_DC_CGM_10V1001C--00264T.uct |
@@ -325,7 +325,7 @@ Feature: IDCC POC v1
     Given ics static file is "_10V1001C–00275O_CSA-COMRA-RDSTATIC-D_CORE-20240628-V001_.csv"
     Given ics series file is "_10V1001C–00275O_CSA-COMRA-RDSERIES-D_CORE-20240628-V001_.csv"
     Given ics gsk file is "_10V1001C--00275O_CSA-INDRA-GSK-D_D7-20240628-V001_.csv"
-    Given configuration file is "idcc/RaoParameters_idcc_low_improvement_2_max.json"
+    Given configuration file is "idcc/RaoParameters_idcc_low_improvement_2_max_min_margin.json"
     Given intertemporal rao inputs are:
       | Timestamp        | Network                                                                 |
       | 2024-06-28 00:30 | 20240628_0030_2D5_UX2_FINIT_EXPORTGRIDMODEL_DC_CGM_10V1001C--00264T.uct |
@@ -365,7 +365,7 @@ Feature: IDCC POC v1
     Given ics static file is "_10V1001C–00275O_CSA-COMRA-RDSTATIC-D_CORE-20240704-V001_.csv"
     Given ics series file is "_10V1001C–00275O_CSA-COMRA-RDSERIES-D_CORE-20240704-V001_.csv"
     Given ics gsk file is "_10V1001C--00275O_CSA-INDRA-GSK-D_D7-20240704-V001_.csv"
-    Given configuration file is "idcc/RaoParameters_idcc_low_improvement_2_max.json"
+    Given configuration file is "idcc/RaoParameters_idcc_low_improvement_2_max_min_margin.json"
     Given intertemporal rao inputs are:
       | Timestamp        | Network                                                                 |
       | 2024-07-04 00:30 | 20240704_0030_2D4_UX2_FINIT_EXPORTGRIDMODEL_DC_CGM_10V1001C--00264T.uct |
@@ -405,7 +405,7 @@ Feature: IDCC POC v1
     Given ics static file is "_10V1001C–00275O_CSA-COMRA-RDSTATIC-D_CORE-20240711-V001_.csv"
     Given ics series file is "_10V1001C–00275O_CSA-COMRA-RDSERIES-D_CORE-20240711-V001_.csv"
     Given ics gsk file is "_10V1001C--00275O_CSA-INDRA-GSK-D_D7-20240711-V001_.csv"
-    Given configuration file is "idcc/RaoParameters_idcc_low_improvement_2_max.json"
+    Given configuration file is "idcc/RaoParameters_idcc_low_improvement_2_max_min_margin.json"
     Given intertemporal rao inputs are:
       | Timestamp        | Network                                                                 |
       | 2024-07-11 00:30 | 20240711_0030_2D4_UX2_FINIT_EXPORTGRIDMODEL_DC_CGM_10V1001C--00264T.uct |
@@ -445,7 +445,7 @@ Feature: IDCC POC v1
     Given ics static file is "_10V1001C–00275O_CSA-COMRA-RDSTATIC-D_CORE-20240712-V001_.csv"
     Given ics series file is "_10V1001C–00275O_CSA-COMRA-RDSERIES-D_CORE-20240712-V001_.csv"
     Given ics gsk file is "_10V1001C--00275O_CSA-INDRA-GSK-D_D7-20240712-V001_.csv"
-    Given configuration file is "idcc/RaoParameters_idcc_low_improvement_2_max.json"
+    Given configuration file is "idcc/RaoParameters_idcc_low_improvement_2_max_min_margin.json"
     Given intertemporal rao inputs are:
       | Timestamp        | Network                                                                 |
       | 2024-07-12 00:30 | 20240712_0030_2D5_UX2_FINIT_EXPORTGRIDMODEL_DC_CGM_10V1001C--00264T.uct |
@@ -485,7 +485,7 @@ Feature: IDCC POC v1
     Given ics static file is "_10V1001C–00275O_CSA-COMRA-RDSTATIC-D_CORE-20240716-V001_.csv"
     Given ics series file is "_10V1001C–00275O_CSA-COMRA-RDSERIES-D_CORE-20240716-V001_.csv"
     Given ics gsk file is "_10V1001C--00275O_CSA-INDRA-GSK-D_D7-20240716-V001_.csv"
-    Given configuration file is "idcc/RaoParameters_idcc_low_improvement_2_max.json"
+    Given configuration file is "idcc/RaoParameters_idcc_low_improvement_2_max_min_margin.json"
     Given intertemporal rao inputs are:
       | Timestamp        | Network                                                                 |
       | 2024-07-16 00:30 | 20240716_0030_2D2_UX2_FINIT_EXPORTGRIDMODEL_DC_CGM_10V1001C--00264T.uct |
@@ -525,7 +525,7 @@ Feature: IDCC POC v1
     Given ics static file is "_10V1001C–00275O_CSA-COMRA-RDSTATIC-D_CORE-20240718-V001_.csv"
     Given ics series file is "_10V1001C–00275O_CSA-COMRA-RDSERIES-D_CORE-20240718-V001_.csv"
     Given ics gsk file is "_10V1001C--00275O_CSA-INDRA-GSK-D_D7-20240718-V001_.csv"
-    Given configuration file is "idcc/RaoParameters_idcc_low_improvement_2_max.json"
+    Given configuration file is "idcc/RaoParameters_idcc_low_improvement_2_max_min_margin.json"
     Given intertemporal rao inputs are:
       | Timestamp        | Network                                                                 |
       | 2024-07-18 00:30 | 20240718_0030_2D4_UX2_FINIT_EXPORTGRIDMODEL_DC_CGM_10V1001C--00264T.uct |
@@ -564,7 +564,7 @@ Feature: IDCC POC v1
     Given ics static file is "_10V1001C–00275O_CSA-COMRA-RDSTATIC-D_CORE-20240730-V001_.csv"
     Given ics series file is "_10V1001C–00275O_CSA-COMRA-RDSERIES-D_CORE-20240730-V001_.csv"
     Given ics gsk file is "_10V1001C--00275O_CSA-INDRA-GSK-D_D7-20240730-V001_.csv"
-    Given configuration file is "idcc/RaoParameters_idcc_low_improvement_2_max.json"
+    Given configuration file is "idcc/RaoParameters_idcc_low_improvement_2_max_min_margin.json"
     Given intertemporal rao inputs are:
       | Timestamp        | Network                                                                 |
       | 2024-07-30 00:30 | 20240730_0030_2D2_UX2_FINIT_EXPORTGRIDMODEL_DC_CGM_10V1001C--00264T.uct |
@@ -604,7 +604,7 @@ Feature: IDCC POC v1
     Given ics static file is "_10V1001C–00275O_CSA-COMRA-RDSTATIC-D_CORE-20240826-V001_.csv"
     Given ics series file is "_10V1001C–00275O_CSA-COMRA-RDSERIES-D_CORE-20240826-V001_.csv"
     Given ics gsk file is "_10V1001C--00275O_CSA-INDRA-GSK-D_D7-20240826-V001_.csv"
-    Given configuration file is "idcc/RaoParameters_idcc_low_improvement_2_max.json"
+    Given configuration file is "idcc/RaoParameters_idcc_low_improvement_2_max_min_margin.json"
     Given intertemporal rao inputs are:
       | Timestamp        | Network                                                                 |
       | 2024-08-26 00:30 | 20240826_0030_2D1_UX2_FINIT_EXPORTGRIDMODEL_DC_CGM_10V1001C--00264T.uct |
@@ -644,7 +644,7 @@ Feature: IDCC POC v1
     Given ics static file is "_10V1001C–00275O_CSA-COMRA-RDSTATIC-D_CORE-20240906-V001_.csv"
     Given ics series file is "_10V1001C–00275O_CSA-COMRA-RDSERIES-D_CORE-20240906-V001_.csv"
     Given ics gsk file is "_10V1001C--00275O_CSA-INDRA-GSK-D_D7-20240906-V001_.csv"
-    Given configuration file is "idcc/RaoParameters_idcc_low_improvement_2_max.json"
+    Given configuration file is "idcc/RaoParameters_idcc_low_improvement_2_max_min_margin.json"
     Given intertemporal rao inputs are:
       | Timestamp        | Network                                                                 |
       | 2024-09-06 00:30 | 20240906_0030_2D5_UX2_FINIT_EXPORTGRIDMODEL_DC_CGM_10V1001C--00264T.uct |
@@ -684,7 +684,7 @@ Feature: IDCC POC v1
     Given ics static file is "_10V1001C–00275O_CSA-COMRA-RDSTATIC-D_CORE-20240910-V001_.csv"
     Given ics series file is "_10V1001C–00275O_CSA-COMRA-RDSERIES-D_CORE-20240910-V001_.csv"
     Given ics gsk file is "_10V1001C--00275O_CSA-INDRA-GSK-D_D7-20240910-V001_.csv"
-    Given configuration file is "idcc/RaoParameters_idcc_low_improvement_2_max.json"
+    Given configuration file is "idcc/RaoParameters_idcc_low_improvement_2_max_min_margin.json"
     Given intertemporal rao inputs are:
       | Timestamp        | Network                                                                 |
       | 2024-09-10 00:30 | 20240910_0030_2D2_UX2_FINIT_EXPORTGRIDMODEL_DC_CGM_10V1001C--00264T.uct |
@@ -724,7 +724,7 @@ Feature: IDCC POC v1
     Given ics static file is "_10V1001C–00275O_CSA-COMRA-RDSTATIC-D_CORE-20240926-V001_.csv"
     Given ics series file is "_10V1001C–00275O_CSA-COMRA-RDSERIES-D_CORE-20240926-V001_.csv"
     Given ics gsk file is "_10V1001C--00275O_CSA-INDRA-GSK-D_D7-20240926-V001_.csv"
-    Given configuration file is "idcc/RaoParameters_idcc_low_improvement_2_max.json"
+    Given configuration file is "idcc/RaoParameters_idcc_low_improvement_2_max_min_margin.json"
     Given intertemporal rao inputs are:
       | Timestamp        | Network                                                                 |
       | 2024-09-26 00:30 | 20240926_0030_2D4_UX2_FINIT_EXPORTGRIDMODEL_DC_CGM_10V1001C--00264T.uct |
@@ -764,7 +764,7 @@ Feature: IDCC POC v1
     Given ics static file is "_10V1001C–00275O_CSA-COMRA-RDSTATIC-D_CORE-20241013-V001_.csv"
     Given ics series file is "_10V1001C–00275O_CSA-COMRA-RDSERIES-D_CORE-20241013-V001_.csv"
     Given ics gsk file is "_10V1001C--00275O_CSA-INDRA-GSK-D_D7-20241013-V001_.csv"
-    Given configuration file is "idcc/RaoParameters_idcc_low_improvement_2_max.json"
+    Given configuration file is "idcc/RaoParameters_idcc_low_improvement_2_max_min_margin.json"
     Given intertemporal rao inputs are:
       | Timestamp        | Network                                                                 |
       | 2024-10-13 00:30 | 20241013_0030_2D7_UX2_FINIT_EXPORTGRIDMODEL_DC_CGM_10V1001C--00264T.uct |
@@ -804,7 +804,7 @@ Feature: IDCC POC v1
     Given ics static file is "_10V1001C–00275O_CSA-COMRA-RDSTATIC-D_CORE-20241028-V001_.csv"
     Given ics series file is "_10V1001C–00275O_CSA-COMRA-RDSERIES-D_CORE-20241028-V001_.csv"
     Given ics gsk file is "_10V1001C--00275O_CSA-INDRA-GSK-D_D7-20241028-V001_.csv"
-    Given configuration file is "idcc/RaoParameters_idcc_low_improvement_2_max.json"
+    Given configuration file is "idcc/RaoParameters_idcc_low_improvement_2_max_min_margin.json"
     Given intertemporal rao inputs are:
       | Timestamp        | Network                                                                 |
       | 2024-10-28 00:30 | 20241028_0030_2D1_UX2_FINIT_EXPORTGRIDMODEL_DC_CGM_10V1001C--00264T.uct |
