@@ -42,6 +42,7 @@ Feature: US 93.3: US Thomas
     When I launch marmot
     When I export marmot results to "raoresults/results_20240602.zip"
     When I export networks with PRAs to "raoresults/networkWithPras_20240602.zip"
+    When I export F711 for business date "20240602"
 
   @slow @rao @idcc @thomas
   Scenario: US 93.3.10: 20240704
@@ -80,6 +81,7 @@ Feature: US 93.3: US Thomas
     When I launch marmot
     When I export marmot results to "raoresults/results_20240704.zip"
     When I export networks with PRAs to "raoresults/networkWithPras_20240704.zip"
+    When I export F711 for business date "20240704"
 
   @slow @rao @idcc @godelaine
   Scenario: US 93.3.11: 20240711
@@ -118,6 +120,7 @@ Feature: US 93.3: US Thomas
     When I launch marmot
     When I export marmot results to "raoresults/results_20240711.zip"
     When I export networks with PRAs to "raoresults/networkWithPras_20240711.zip"
+    When I export F711 for business date "20240711"
 
 
   @slow @rao @idcc @godelaine
@@ -157,6 +160,7 @@ Feature: US 93.3: US Thomas
     When I launch marmot
     When I export marmot results to "raoresults/results_20240712.zip"
     When I export networks with PRAs to "raoresults/networkWithPras_20240712.zip"
+    When I export F711 for business date "20240712"
 
   @slow @rao @idcc @roxane
   Scenario: US 93.3.3: 20240222
@@ -195,6 +199,7 @@ Feature: US 93.3: US Thomas
     When I launch marmot
     When I export marmot results to "raoresults/results_20240222.zip"
     When I export networks with PRAs to "raoresults/networkWithPras_20240222.zip"
+    When I export F711 for business date "20240222"
 
   @slow @rao @idcc @done-philippe
   Scenario: US 93.3.14: 20240718
@@ -233,6 +238,7 @@ Feature: US 93.3: US Thomas
     When I launch marmot
     When I export marmot results to "raoresults/results_20240718.zip"
     When I export networks with PRAs to "raoresults/networkWithPras_20240718.zip"
+    When I export F711 for business date "20240718"
 
   @slow @rao @idcc @godelaine
   Scenario: US 93.3.16: 20240730
@@ -271,6 +277,7 @@ Feature: US 93.3: US Thomas
     When I launch marmot
     When I export marmot results to "raoresults/results_20240730.zip"
     When I export networks with PRAs to "raoresults/networkWithPras_20240730.zip"
+    When I export F711 for business date "20240730"
 
   @slow @rao @idcc @philippe
   Scenario: US 93.3.17: 20240826
@@ -309,6 +316,7 @@ Feature: US 93.3: US Thomas
     When I launch marmot
     When I export marmot results to "raoresults/results_20240826.zip"
     When I export networks with PRAs to "raoresults/networkWithPras_20240826.zip"
+    When I export F711 for business date "20240826"
 
   @slow @rao @idcc @philippe
   Scenario: US 93.3.18: 20240906
@@ -347,6 +355,7 @@ Feature: US 93.3: US Thomas
     When I launch marmot
     When I export marmot results to "raoresults/results_20240906.zip"
     When I export networks with PRAs to "raoresults/networkWithPras_20240906.zip"
+    When I export F711 for business date "20240906"
 
   @slow @rao @idcc @godelaine
   Scenario: US 93.3.13: 20240716
@@ -385,3 +394,4 @@ Feature: US 93.3: US Thomas
     When I launch marmot
     When I export marmot results to "raoresults/results_20240716.zip"
     When I export networks with PRAs to "raoresults/networkWithPras_20240716.zip"
+    When I export F711 for business date "20240716"
