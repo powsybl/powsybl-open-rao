@@ -595,8 +595,12 @@ public class Marmot implements InterTemporalRaoProvider {
             Set<NetworkAction> activatedNetworkActions = new HashSet<>();
             RangeActionActivationResultImpl rangeActionActivationResult = new RangeActionActivationResultImpl(initialResults.getData(timestamp).orElseThrow());
             for (State state : raoInputs.getData(timestamp).orElseThrow().getCrac().getStates()) {
-                activatedNetworkActions.addAll(independentRaoResult.getActivatedNetworkActionsDuringState(state));
-                independentRaoResult.getOptimizedSetPointsOnState(state).forEach((rangeAction, setpoint) -> rangeActionActivationResult.putResult(rangeAction, state, setpoint));
+                try {
+                    activatedNetworkActions.addAll(independentRaoResult.getActivatedNetworkActionsDuringState(state));
+                    independentRaoResult.getOptimizedSetPointsOnState(state).forEach((rangeAction, setpoint) -> rangeActionActivationResult.putResult(rangeAction, state, setpoint));
+                } catch (OpenRaoException e) {
+                    // error can happen because of OneStateOnlyRaoResults
+                }
             }
             independentNetworkActionResults.put(timestamp, new NetworkActionsResultImpl(activatedNetworkActions));
             independentRangeActionResults.put(timestamp, rangeActionActivationResult);
