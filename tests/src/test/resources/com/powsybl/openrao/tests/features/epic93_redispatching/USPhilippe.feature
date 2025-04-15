@@ -40,7 +40,7 @@ Feature: US 93.3: US Philippe
       | 2024-07-18 21:30 | 20240718_2130_2D4_UX2_FINIT_EXPORTGRIDMODEL_DC_CGM_10V1001C--00264T.uct |
       | 2024-07-18 22:30 | 20240718_2230_2D4_UX2_FINIT_EXPORTGRIDMODEL_DC_CGM_10V1001C--00264T.uct |
       | 2024-07-18 23:30 | 20240718_2330_2D4_UX2_FINIT_EXPORTGRIDMODEL_DC_CGM_10V1001C--00264T.uct |
-    When I export RefProg after redispatching to "generatedRefProgs/refprog_07_18.xml" based on raoResults folder "raoresults/results_20240718/"
+    When I export RefProg after redispatching to "generatedRefProgs/refprog_07_18v2.xml" based on raoResults folder "raoresults/results_20240718/"
     When I launch marmot
     When I export marmot results to "raoresults/results_20240718.zip"
     When I export networks with PRAs to "raoresults/networkWithPras_20240718.zip"
