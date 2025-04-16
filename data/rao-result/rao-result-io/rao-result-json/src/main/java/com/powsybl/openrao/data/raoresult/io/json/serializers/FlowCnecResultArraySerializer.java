@@ -68,7 +68,7 @@ final class FlowCnecResultArraySerializer {
                     try {
                         serializeFlowCnecResultForOptimizationState(curativeInstant, flowCnec, raoResult, crac, flowUnits, jsonGenerator);
                     } catch (IOException e) {
-                        throw new OpenRaoException("An error occured when serializing Voltage Cnec results", e);
+                        throw new OpenRaoException("An error occurred when serializing FlowCNEC results", e);
                     }
                 }
             });
