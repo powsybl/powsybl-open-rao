@@ -28,7 +28,6 @@ import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 import com.powsybl.openrao.util.AbstractNetworkPool;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -51,7 +50,6 @@ import static com.powsybl.openrao.raoapi.parameters.extensions.MultithreadingPar
 public class RemedialActionsApplier {
 
     private static final String CONTINGENCY_SCENARIO = "ContingencyScenario";
-    private static final int NUMBER_LOGGED_ELEMENTS_DURING_RAO = 2;
 
     private final Crac crac;
     private final RaoParameters raoParameters;
@@ -110,7 +108,6 @@ public class RemedialActionsApplier {
         final Optional<State> automatonState = optimizedScenario.getAutomatonState();
         final Set<State> curativeStates = new HashSet<>();
         optimizedScenario.getCurativePerimeters().forEach(perimeter -> curativeStates.addAll(perimeter.getAllStates()));
-        final PrePerimeterResult preCurativeResult = prePerimeterSensitivityOutput;
         final double sensitivityFailureOvercost = getSensitivityFailureOvercost(raoParameters);
 
         // Simulate automaton instant
@@ -123,10 +120,8 @@ public class RemedialActionsApplier {
             curativeStates.forEach(curativeState -> contingencyScenarioResults.put(curativeState, new SkippedOptimizationResultImpl(curativeState, new HashSet<>(), new HashSet<>(), ComputationStatus.FAILURE, sensitivityFailureOvercost)));
         } else {
             boolean allPreviousPerimetersSucceded = true;
-            PrePerimeterResult previousPerimeterResult = preCurativeResult;
+            PrePerimeterResult previousPerimeterResult = prePerimeterSensitivityOutput;
             // Optimize curative perimeters
-            final Map<State, OptimizationResult> resultsPerPerimeter = new HashMap<>();
-            final Map<State, PrePerimeterResult> prePerimeterResultPerPerimeter = new HashMap<>();
             for (final Perimeter curativePerimeter : optimizedScenario.getCurativePerimeters()) {
                 final State curativeState = curativePerimeter.getRaOptimisationState();
                 if (previousPerimeterResult == null) {
@@ -134,15 +129,10 @@ public class RemedialActionsApplier {
                 }
                 final Set<FlowCnec> flowCnecs = getFlowCnecsOfPerimeter(curativePerimeter, crac);
                 final OptimizationResult optimizationResult = applyOptimizedRemedialActions(previousPerimeterResult, flowCnecs, curativeState, networkClone, raoResult, toolProvider, raoParameters, crac, pstRaMap.getOrDefault(curativeState, Map.of())).getOptimizationResult(curativeState);
-
-                prePerimeterResultPerPerimeter.put(curativePerimeter.getRaOptimisationState(), previousPerimeterResult);
                 if (allPreviousPerimetersSucceded) {
                     allPreviousPerimetersSucceded = optimizationResult.getSensitivityStatus() == DEFAULT;
                     contingencyScenarioResults.put(curativeState, optimizationResult);
                     previousPerimeterResult = null;
-                    if (allPreviousPerimetersSucceded) {
-                        resultsPerPerimeter.put(curativePerimeter.getRaOptimisationState(), optimizationResult);
-                    }
                 } else {
                     contingencyScenarioResults.put(curativeState, new SkippedOptimizationResultImpl(curativeState, new HashSet<>(), new HashSet<>(), ComputationStatus.FAILURE, sensitivityFailureOvercost));
                 }
@@ -190,14 +180,13 @@ public class RemedialActionsApplier {
         return new OneStateOnlyRaoResultImpl(state, prePerimeterResult, optimizationResult, perimeterFlowCnecs);
     }
 
-
     static Set<FlowCnec> getFlowCnecsOfPerimeter(final Perimeter perimeter,
-                                                 final Crac crac){
+                                                 final Crac crac) {
         return perimeter
                 .getAllStates()
                 .stream()
                 .map(crac::getFlowCnecs)
-                .flatMap(Collection::parallelStream)
+                .flatMap(Collection::stream)
                 .collect(Collectors.toSet());
     }
 }
