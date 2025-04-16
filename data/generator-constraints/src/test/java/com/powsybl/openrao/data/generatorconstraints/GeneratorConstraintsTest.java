@@ -81,7 +81,7 @@ class GeneratorConstraintsTest {
 
     @Test
     void testNegativePMax() {
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> GeneratorConstraints.create().withGeneratorId("generator").withPMin(-400.).withPMax(-200.).withLeadTime(1.).withLagTime(1.).build());
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> GeneratorConstraints.create().withGeneratorId("generator").withPMax(-200.).withLeadTime(1.).withLagTime(1.).build());
         assertEquals("The maximal power of the generator must be positive.", exception.getMessage());
     }
     @Test
