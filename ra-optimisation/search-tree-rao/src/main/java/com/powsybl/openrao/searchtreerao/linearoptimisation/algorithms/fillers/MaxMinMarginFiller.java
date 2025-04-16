@@ -74,7 +74,7 @@ public class MaxMinMarginFiller implements ProblemFiller {
      * so it does not take part in the objective.
      */
     private void forceMinMarginToBeNegative(LinearProblem linearProblem) {
-        linearProblem.getMinimumMarginVariable(Optional.ofNullable(timestamp)).setUb(3.0);
+        linearProblem.getMinimumMarginVariable(Optional.ofNullable(timestamp)).setUb(10.0);
     }
 
     @Override
