@@ -25,8 +25,6 @@ import java.util.*;
  */
 public final class InterTemporalRefProg {
 
-    private static final List<String> DE_TSOS = List.of("D2", "D4", "D7", "D8");
-
     private InterTemporalRefProg() {
     }
 

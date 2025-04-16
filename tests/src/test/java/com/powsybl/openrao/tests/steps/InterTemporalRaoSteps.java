@@ -242,8 +242,6 @@ public final class InterTemporalRaoSteps {
 
         if (refProgPath != null) {
             InputStream refProgInputStream = new FileInputStream(getFile(refProgPath));
-//            OffsetDateTime firstTimestamp = interTemporalRaoInput.getTimestampsToRun().stream().findFirst().get();
-//            ReferenceProgram generatedRefProg = RefProgImporter.importRefProg(refProgInputStream, firstTimestamp);
             InterTemporalRefProg.updateRefProg(refProgInputStream, new TemporalDataImpl<>(rdVolumes), becValues, getResourcesPath().concat(outputPath));
         }
     }
