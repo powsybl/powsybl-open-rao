@@ -12,7 +12,6 @@ import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.data.crac.io.fbconstraint.FbConstraintCreationContext;
 import com.powsybl.openrao.data.crac.io.fbconstraint.xsd.FlowBasedConstraintDocument;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
-import com.powsybl.openrao.raoapi.RaoInput;
 import org.threeten.extra.Interval;
 
 import java.io.FileInputStream;

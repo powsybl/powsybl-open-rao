@@ -15,7 +15,12 @@ import com.powsybl.openrao.data.raoresult.api.RaoResult;
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public class F711Utils {
+public final class F711Utils {
+
+    private F711Utils() {
+        // should not be instantiated
+    }
+
     public static void write(TemporalData<RaoResult> raoResults, TemporalData<FbConstraintCreationContext> cracCreationContexts, String cracPath, String outputPath) {
         DailyF711GeneratorInputs provider = new DailyF711GeneratorInputs(raoResults, cracCreationContexts, cracPath);
         FlowBasedConstraintDocument fbc = DailyF711Generator.generate(provider);
