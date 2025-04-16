@@ -30,10 +30,10 @@ class GeneratorConstraintsTest {
             .withLagTime(2.)
             .build();
         assertEquals("generator", generatorConstraints.getGeneratorId());
-        assertEquals(400., generatorConstraints.getPMin());
-        assertEquals(1000., generatorConstraints.getPMax());
-        assertEquals(1., generatorConstraints.getLeadTime());
-        assertEquals(2., generatorConstraints.getLagTime());
+        assertEquals(Optional.of(400.), generatorConstraints.getPMin());
+        assertEquals(Optional.of(1000.), generatorConstraints.getPMax());
+        assertEquals(Optional.of(1.), generatorConstraints.getLeadTime());
+        assertEquals(Optional.of(2.), generatorConstraints.getLagTime());
         assertTrue(generatorConstraints.getMinUpTime().isEmpty());
         assertTrue(generatorConstraints.getMaxUpTime().isEmpty());
         assertTrue(generatorConstraints.getMinOffTime().isEmpty());
@@ -56,10 +56,10 @@ class GeneratorConstraintsTest {
             .withDownwardPowerGradient(-100.)
             .build();
         assertEquals("generator", generatorConstraints.getGeneratorId());
-        assertEquals(400., generatorConstraints.getPMin());
-        assertEquals(1000., generatorConstraints.getPMax());
-        assertEquals(1., generatorConstraints.getLeadTime());
-        assertEquals(2., generatorConstraints.getLagTime());
+        assertEquals(Optional.of(400.), generatorConstraints.getPMin());
+        assertEquals(Optional.of(1000.), generatorConstraints.getPMax());
+        assertEquals(Optional.of(1.), generatorConstraints.getLeadTime());
+        assertEquals(Optional.of(2.), generatorConstraints.getLagTime());
         assertEquals(Optional.of(4.), generatorConstraints.getMinUpTime());
         assertEquals(Optional.of(6.5), generatorConstraints.getMaxUpTime());
         assertEquals(Optional.of(3.), generatorConstraints.getMinOffTime());
@@ -68,28 +68,9 @@ class GeneratorConstraintsTest {
     }
 
     @Test
-    void testBuildWithMissingData() {
-        OpenRaoException exception;
-
-        // missing id
-        exception = assertThrows(OpenRaoException.class, () -> GeneratorConstraints.create().withPMin(400.).withPMax(1000.).withLeadTime(1.).withLagTime(1.).build());
+    void testBuildWithMissingId() {
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> GeneratorConstraints.create().withPMin(400.).withPMax(1000.).withLeadTime(1.).withLagTime(1.).build());
         assertEquals("The id of the generator is mandatory.", exception.getMessage());
-
-        // missing pMin
-        exception = assertThrows(OpenRaoException.class, () -> GeneratorConstraints.create().withGeneratorId("generator").withPMax(1000.).withLeadTime(1.).withLagTime(1.).build());
-        assertEquals("The pMin of the generator is mandatory.", exception.getMessage());
-
-        // missing pMax
-        exception = assertThrows(OpenRaoException.class, () -> GeneratorConstraints.create().withGeneratorId("generator").withPMin(400.).withLeadTime(1.).withLagTime(1.).build());
-        assertEquals("The pMax of the generator is mandatory.", exception.getMessage());
-
-        // missing lead time
-        exception = assertThrows(OpenRaoException.class, () -> GeneratorConstraints.create().withGeneratorId("generator").withPMin(400.).withPMax(1000.).withLagTime(1.).build());
-        assertEquals("The lead time of the generator is mandatory.", exception.getMessage());
-
-        // missing lag time
-        exception = assertThrows(OpenRaoException.class, () -> GeneratorConstraints.create().withGeneratorId("generator").withPMin(400.).withPMax(1000.).withLeadTime(1.).build());
-        assertEquals("The lag time of the generator is mandatory.", exception.getMessage());
     }
 
     @Test
