@@ -55,8 +55,8 @@ public final class InterTemporalRefProg {
                 final Double[] qty = {interval.getQty().getV().doubleValue()};
 
                 netRedispatchingPerCountry.forEach((country, netRD) -> {
-                    if (becValues.containsKey(inArea) && becValues.get(inArea).containsKey(outArea)) {
-                        qty[0] = qty[0] + becValues.get(inArea).get(outArea).get(country) * netRD;
+                    if (becValues.containsKey(outArea) && becValues.get(outArea).containsKey(inArea)) {
+                        qty[0] = qty[0] + becValues.get(outArea).get(inArea).get(country) * netRD;
                     }
                 });
                 interval.getQty().setV(BigDecimal.valueOf(Math.round(qty[0])));
