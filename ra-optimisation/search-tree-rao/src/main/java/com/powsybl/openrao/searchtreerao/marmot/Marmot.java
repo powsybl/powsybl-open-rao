@@ -310,6 +310,7 @@ public class Marmot implements InterTemporalRaoProvider {
     }
 
     private static TemporalData<RaoResult> runTopologicalOptimization(TemporalData<RaoInputWithNetworkPaths> raoInputs, TemporalData<Set<String>> consideredCnecs, RaoParameters raoParameters) {
+        raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getRangeActionsOptimizationParameters().getLinearOptimizationSolver().setSolverSpecificParameters("MAXTIME 15");
         TemporalData<RaoResult> individualResults = new TemporalDataImpl<>();
         raoInputs.getDataPerTimestamp().forEach((datetime, individualRaoInputWithNetworkPath) -> {
             RaoInput individualRaoInput = RaoInput
@@ -463,6 +464,8 @@ public class Marmot implements InterTemporalRaoProvider {
         TemporalData<Set<String>> consideredCnecs,
         ObjectiveFunction objectiveFunction) {
 
+        parameters.getExtension(OpenRaoSearchTreeParameters.class).getRangeActionsOptimizationParameters().getLinearOptimizationSolver().setSolverSpecificParameters("MAXTIME 60");
+
         // -- Build IteratingLinearOptimizerInterTemporalInput
         // Need to use postTopoResults to build perimeter because initialResults does not contain range action setpoints
         TemporalData<OptimizationPerimeter> optimizationPerimeterPerTimestamp = computeOptimizationPerimetersPerTimestamp(raoInput.getRaoInputs().map(RaoInput::getCrac), postTopoResults, consideredCnecs);
@@ -518,7 +521,7 @@ public class Marmot implements InterTemporalRaoProvider {
         double minSetPoint = rangeAction.getMinAdmissibleSetpoint(preperimeterSetPoint);
         double maxSetPoint = rangeAction.getMaxAdmissibleSetpoint(preperimeterSetPoint);
 
-        if (preperimeterSetPoint < minSetPoint || preperimeterSetPoint > maxSetPoint) {
+        if (preperimeterSetPoint < minSetPoint - 1e-6 || preperimeterSetPoint > maxSetPoint + 1e-6) {
             BUSINESS_WARNS.warn("Range action {} has an initial setpoint of {} that does not respect its allowed range [{} {}]. It will be filtered out of the linear problem.",
                 rangeAction.getId(), preperimeterSetPoint, minSetPoint, maxSetPoint);
             return false;

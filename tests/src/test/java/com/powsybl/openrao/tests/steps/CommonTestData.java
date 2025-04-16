@@ -271,7 +271,7 @@ public final class CommonTestData {
             throw new OpenRaoException("You have not defined a network file. All tests need a network file.");
         }
         if (coreCcNetworkPreprocessing) {
-            CoreCcPreprocessor.applyCoreCcNetworkPreprocessing(network);
+            CoreCcPreprocessor.applyCoreCcNetworkPreprocessing(network, true);
         }
 
         // CracCreationParameters

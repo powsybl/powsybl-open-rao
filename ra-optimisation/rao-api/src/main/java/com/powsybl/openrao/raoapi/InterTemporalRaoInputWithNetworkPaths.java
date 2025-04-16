@@ -14,6 +14,7 @@ import com.powsybl.openrao.data.intertemporalconstraint.PowerGradient;
 import java.time.OffsetDateTime;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 /**
@@ -27,7 +28,7 @@ public class InterTemporalRaoInputWithNetworkPaths {
 
     public InterTemporalRaoInputWithNetworkPaths(TemporalData<RaoInputWithNetworkPaths> raoInputs, Set<OffsetDateTime> timestampsToRun, Set<PowerGradient> powerGradients) {
         this.raoInputs = raoInputs;
-        this.timestampsToRun = timestampsToRun;
+        this.timestampsToRun = new TreeSet<>(timestampsToRun);
         this.powerGradients = powerGradients;
         checkTimestampsToRun();
     }

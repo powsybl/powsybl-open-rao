@@ -15,16 +15,18 @@ public final class CoreCcPreprocessor {
         // must not be used
     }
 
-    public static void applyCoreCcNetworkPreprocessing(Network network) {
+    public static void applyCoreCcNetworkPreprocessing(Network network, boolean shouldCreateInjections) {
         network.getVoltageLevelStream().forEach(CoreCcPreprocessor::updateVoltageLevelNominalV);
 
+        if (shouldCreateInjections) {
         /* When importing an UCTE network file, powsybl ignores generators and loads that do not have an initial power flow.
         It can cause an error if a GLSK file associated to this network includes some factors on
         these nodes. The GLSK importers looks for a Generator (GSK) or Load (LSK) associated to this
         node. If the Generator/Load does not exist, the GLSK cannot be created.
         This script fix this problem, by creating for all missing generators a generator (P, Q = 0),
         and all missing loads a load (P, Q = 0). */
-        createMissingGeneratorsAndLoads(network);
+            createMissingGeneratorsAndLoads(network);
+        }
     }
 
     private static boolean safeDoubleEquals(double a, double b) {
