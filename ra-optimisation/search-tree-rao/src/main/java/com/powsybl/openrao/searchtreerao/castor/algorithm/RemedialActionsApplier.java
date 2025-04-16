@@ -59,11 +59,11 @@ public class RemedialActionsApplier {
     private final StateTree stateTree;
     private final RaoResult raoResult;
 
-    public RemedialActionsApplier(Crac crac,
-                                  RaoParameters raoParameters,
-                                  ToolProvider toolProvider,
-                                  StateTree stateTree,
-                                  RaoResult raoResult) {
+    public RemedialActionsApplier(final Crac crac,
+                                  final RaoParameters raoParameters,
+                                  final ToolProvider toolProvider,
+                                  final StateTree stateTree,
+                                  final RaoResult raoResult) {
         this.crac = crac;
         this.raoParameters = raoParameters;
         this.toolProvider = toolProvider;
@@ -71,47 +71,47 @@ public class RemedialActionsApplier {
         this.raoResult = raoResult;
     }
 
-    public Map<State, OptimizationResult> optimizeContingencyScenarios(Network network,
-                                                                       PrePerimeterResult prePerimeterSensitivityOutput,
-                                                                       Map<State, Map<RangeAction<?>, Double>> pstRaMap) {
-        Map<State, OptimizationResult> contingencyScenarioResults = new ConcurrentHashMap<>();
+    public Map<State, OptimizationResult> optimizeContingencyScenarios(final Network network,
+                                                                       final PrePerimeterResult prePerimeterSensitivityOutput,
+                                                                       final Map<State, Map<RangeAction<?>, Double>> pstRaMap) {
+        final Map<State, OptimizationResult> contingencyScenarioResults = new ConcurrentHashMap<>();
         // Create a new variant
-        String newVariant = RandomizedString.getRandomizedString(CONTINGENCY_SCENARIO, network.getVariantManager().getVariantIds(), 10);
+        final String newVariant = RandomizedString.getRandomizedString(CONTINGENCY_SCENARIO, network.getVariantManager().getVariantIds(), 10);
         network.getVariantManager().cloneVariant(network.getVariantManager().getWorkingVariantId(), newVariant);
         network.getVariantManager().setWorkingVariant(newVariant);
         // Go through all contingency scenarios
-        try (AbstractNetworkPool networkPool = AbstractNetworkPool.create(network, newVariant, getAvailableCPUs(raoParameters), true)) {
-            List<ForkJoinTask<Object>> tasks = stateTree.getContingencyScenarios().stream().map(optimizedScenario ->
+        try (final AbstractNetworkPool networkPool = AbstractNetworkPool.create(network, newVariant, getAvailableCPUs(raoParameters), true)) {
+            final List<ForkJoinTask<Object>> tasks = stateTree.getContingencyScenarios().stream().map(optimizedScenario ->
                     networkPool.submit(() -> runScenario(prePerimeterSensitivityOutput, optimizedScenario,
                             networkPool, contingencyScenarioResults, pstRaMap))
             ).toList();
-            for (ForkJoinTask<Object> task : tasks) {
+            for (final ForkJoinTask<Object> task : tasks) {
                 try {
                     task.get();
-                } catch (ExecutionException e) {
+                } catch (final ExecutionException e) {
                     throw new OpenRaoException(e);
                 }
             }
             networkPool.shutdownAndAwaitTermination(24, TimeUnit.HOURS);
-        } catch (InterruptedException e) {
+        } catch (final InterruptedException e) {
             Thread.currentThread().interrupt();
         }
         return contingencyScenarioResults;
     }
 
-    private Object runScenario(PrePerimeterResult prePerimeterSensitivityOutput,
-                               ContingencyScenario optimizedScenario,
-                               AbstractNetworkPool networkPool,
-                               Map<State, OptimizationResult> contingencyScenarioResults,
-                               Map<State, Map<RangeAction<?>, Double>> pstRaMap) throws InterruptedException {
-        Network networkClone = networkPool.getAvailableNetwork(); //This is where the threads actually wait for available networks
+    private Object runScenario(final PrePerimeterResult prePerimeterSensitivityOutput,
+                               final ContingencyScenario optimizedScenario,
+                               final AbstractNetworkPool networkPool,
+                               final Map<State, OptimizationResult> contingencyScenarioResults,
+                               final Map<State, Map<RangeAction<?>, Double>> pstRaMap) throws InterruptedException {
+        final Network networkClone = networkPool.getAvailableNetwork(); //This is where the threads actually wait for available networks
 
         // Init variables
-        Optional<State> automatonState = optimizedScenario.getAutomatonState();
-        Set<State> curativeStates = new HashSet<>();
+        final Optional<State> automatonState = optimizedScenario.getAutomatonState();
+        final Set<State> curativeStates = new HashSet<>();
         optimizedScenario.getCurativePerimeters().forEach(perimeter -> curativeStates.addAll(perimeter.getAllStates()));
-        PrePerimeterResult preCurativeResult = prePerimeterSensitivityOutput;
-        double sensitivityFailureOvercost = getSensitivityFailureOvercost(raoParameters);
+        final PrePerimeterResult preCurativeResult = prePerimeterSensitivityOutput;
+        final double sensitivityFailureOvercost = getSensitivityFailureOvercost(raoParameters);
 
         // Simulate automaton instant
         // Do not simulate curative instant if last sensitivity analysis failed
@@ -125,15 +125,15 @@ public class RemedialActionsApplier {
             boolean allPreviousPerimetersSucceded = true;
             PrePerimeterResult previousPerimeterResult = preCurativeResult;
             // Optimize curative perimeters
-            Map<State, OptimizationResult> resultsPerPerimeter = new HashMap<>();
-            Map<State, PrePerimeterResult> prePerimeterResultPerPerimeter = new HashMap<>();
-            for (Perimeter curativePerimeter : optimizedScenario.getCurativePerimeters()) {
-                State curativeState = curativePerimeter.getRaOptimisationState();
+            final Map<State, OptimizationResult> resultsPerPerimeter = new HashMap<>();
+            final Map<State, PrePerimeterResult> prePerimeterResultPerPerimeter = new HashMap<>();
+            for (final Perimeter curativePerimeter : optimizedScenario.getCurativePerimeters()) {
+                final State curativeState = curativePerimeter.getRaOptimisationState();
                 if (previousPerimeterResult == null) {
                     previousPerimeterResult = getPreCurativePerimeterSensitivityAnalysis(curativePerimeter).runBasedOnInitialResults(networkClone, crac, null, stateTree.getOperatorsNotSharingCras(), null);
                 }
-                Set<FlowCnec> flowCnecs = getFlowCnecsOfPerimeter(curativePerimeter, crac);
-                OptimizationResult optimizationResult = applyOptimizedRemedialActions(previousPerimeterResult, flowCnecs, curativeState, networkClone, raoResult, toolProvider, raoParameters, crac, pstRaMap.getOrDefault(curativeState, Map.of())).getOptimizationResult(curativeState);
+                final Set<FlowCnec> flowCnecs = getFlowCnecsOfPerimeter(curativePerimeter, crac);
+                final OptimizationResult optimizationResult = applyOptimizedRemedialActions(previousPerimeterResult, flowCnecs, curativeState, networkClone, raoResult, toolProvider, raoParameters, crac, pstRaMap.getOrDefault(curativeState, Map.of())).getOptimizationResult(curativeState);
 
                 prePerimeterResultPerPerimeter.put(curativePerimeter.getRaOptimisationState(), previousPerimeterResult);
                 if (allPreviousPerimetersSucceded) {
@@ -152,10 +152,10 @@ public class RemedialActionsApplier {
         return null;
     }
 
-    private PrePerimeterSensitivityAnalysis getPreCurativePerimeterSensitivityAnalysis(Perimeter curativePerimeter) {
-        Set<FlowCnec> flowCnecsInSensi = crac.getFlowCnecs(curativePerimeter.getRaOptimisationState());
-        Set<RangeAction<?>> rangeActionsInSensi = new HashSet<>(crac.getPotentiallyAvailableRangeActions(curativePerimeter.getRaOptimisationState()));
-        for (State curativeState : curativePerimeter.getAllStates()) {
+    private PrePerimeterSensitivityAnalysis getPreCurativePerimeterSensitivityAnalysis(final Perimeter curativePerimeter) {
+        final Set<FlowCnec> flowCnecsInSensi = crac.getFlowCnecs(curativePerimeter.getRaOptimisationState());
+        final Set<RangeAction<?>> rangeActionsInSensi = new HashSet<>(crac.getPotentiallyAvailableRangeActions(curativePerimeter.getRaOptimisationState()));
+        for (final State curativeState : curativePerimeter.getAllStates()) {
             flowCnecsInSensi.addAll(crac.getFlowCnecs(curativeState));
         }
         return new PrePerimeterSensitivityAnalysis(flowCnecsInSensi, rangeActionsInSensi, raoParameters, toolProvider);
@@ -179,7 +179,7 @@ public class RemedialActionsApplier {
         forcedSetPoints.forEach((rangeAction, setPoint) -> rangeActionActivationResult.putResult(rangeAction, state, setPoint));
         rangeActionActivationResult.getOptimizedSetpointsOnState(state).forEach((rangeAction, setPoint) -> rangeAction.apply(network, setPoint));
 
-        AppliedRemedialActions curativeRAs = new AppliedRemedialActions();
+        final AppliedRemedialActions curativeRAs = new AppliedRemedialActions();
         if (state.getInstant().isCurative()) {
             curativeRAs.addAppliedNetworkActions(state, networkActionsResult.getActivatedNetworkActions());
             curativeRAs.addAppliedRangeActions(state, rangeActionActivationResult.getOptimizedSetpointsOnState(state));
@@ -191,8 +191,8 @@ public class RemedialActionsApplier {
     }
 
 
-    static Set<FlowCnec> getFlowCnecsOfPerimeter(Perimeter perimeter,
-                                                 Crac crac){
+    static Set<FlowCnec> getFlowCnecsOfPerimeter(final Perimeter perimeter,
+                                                 final Crac crac){
         return perimeter
                 .getAllStates()
                 .stream()

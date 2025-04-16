@@ -58,9 +58,9 @@ public class PstSeriesRaoResult {
     private final RaoParameters raoParameters;
     private final RaoResult initialRaoResult;
 
-    public PstSeriesRaoResult(RaoInput raoInput,
-                              RaoParameters raoParameters,
-                              RaoResult initialRaoResult) {
+    public PstSeriesRaoResult(final RaoInput raoInput,
+                              final RaoParameters raoParameters,
+                              final RaoResult initialRaoResult) {
         this.raoInput = raoInput;
         this.crac = raoInput.getCrac();
         this.network = raoInput.getNetwork();
@@ -68,25 +68,25 @@ public class PstSeriesRaoResult {
         this.initialRaoResult = initialRaoResult;
     }
 
-    public CompletableFuture<RaoResult> run(Map<State, Map<RangeAction<?>, Double>> forcedSetPointsByState) {
+    public CompletableFuture<RaoResult> run(final Map<State, Map<RangeAction<?>, Double>> forcedSetPointsByState) {
         String currentStep = "data initialization";
 
         try {
             RaoUtil.initData(raoInput, raoParameters);
-            StateTree stateTree = new StateTree(crac);
-            ToolProvider toolProvider = ToolProvider.buildFromRaoInputAndParameters(raoInput, raoParameters);
+            final StateTree stateTree = new StateTree(crac);
+            final ToolProvider toolProvider = ToolProvider.buildFromRaoInputAndParameters(raoInput, raoParameters);
 
             currentStep = "initial sensitivity analysis";
             // ----- INITIAL SENSI -----
             // compute initial sensitivity on all CNECs
             // (this is necessary to have initial flows for MNEC and loopflow constraints on CNECs, in preventive and curative perimeters)
-            PrePerimeterSensitivityAnalysis prePerimeterSensitivityAnalysis = new PrePerimeterSensitivityAnalysis(
+            final PrePerimeterSensitivityAnalysis prePerimeterSensitivityAnalysis = new PrePerimeterSensitivityAnalysis(
                 crac.getFlowCnecs(),
                 crac.getRangeActions(),
                 raoParameters,
                 toolProvider);
 
-            PrePerimeterResult initialOutput;
+            final PrePerimeterResult initialOutput;
             initialOutput = prePerimeterSensitivityAnalysis.runInitialSensitivityAnalysis(network, crac);
             if (initialOutput.getSensitivityStatus() == ComputationStatus.FAILURE) {
                 BUSINESS_LOGS.error("Initial sensitivity analysis failed");
@@ -108,15 +108,15 @@ public class PstSeriesRaoResult {
             network.getVariantManager().cloneVariant(network.getVariantManager().getWorkingVariantId(), SECOND_PREVENTIVE_SCENARIO_BEFORE_OPT);
             network.getVariantManager().setWorkingVariant(PREVENTIVE_SCENARIO);
 
-            State preventiveState = crac.getPreventiveState();
+            final State preventiveState = crac.getPreventiveState();
             if (stateTree.getContingencyScenarios().isEmpty()) {
-                OneStateOnlyRaoResultImpl result = RemedialActionsApplier.applyOptimizedRemedialActions(initialOutput,
+                final OneStateOnlyRaoResultImpl result = RemedialActionsApplier.applyOptimizedRemedialActions(initialOutput,
                         crac.getFlowCnecs(), preventiveState, network, initialRaoResult, toolProvider, raoParameters, crac, forcedSetPointsByState.getOrDefault(preventiveState, Map.of()));
                 return postCheckResults(result, initialOutput, raoParameters.getObjectiveFunctionParameters());
             }
 
-            Set<FlowCnec> preventivePerimeterCnecs = RemedialActionsApplier.getFlowCnecsOfPerimeter(stateTree.getBasecaseScenario(), crac);
-            OptimizationResult preventiveResult = RemedialActionsApplier.applyOptimizedRemedialActions(initialOutput, preventivePerimeterCnecs, preventiveState, network, initialRaoResult, toolProvider, raoParameters, crac, forcedSetPointsByState.getOrDefault(preventiveState, Map.of()))
+            final Set<FlowCnec> preventivePerimeterCnecs = RemedialActionsApplier.getFlowCnecsOfPerimeter(stateTree.getBasecaseScenario(), crac);
+            final OptimizationResult preventiveResult = RemedialActionsApplier.applyOptimizedRemedialActions(initialOutput, preventivePerimeterCnecs, preventiveState, network, initialRaoResult, toolProvider, raoParameters, crac, forcedSetPointsByState.getOrDefault(preventiveState, Map.of()))
                     .getOptimizationResult(preventiveState);
 
             // ----- SENSI POST-PRA -----
@@ -128,13 +128,13 @@ public class PstSeriesRaoResult {
             network.getVariantManager().setWorkingVariant(PREVENTIVE_SCENARIO);
             applyRemedialActions(network, preventiveResult, preventiveState);
 
-            PrePerimeterResult preCurativeSensitivityAnalysisOutput = prePerimeterSensitivityAnalysis.runBasedOnInitialResults(network, crac, initialOutput, Collections.emptySet(), null);
+            final PrePerimeterResult preCurativeSensitivityAnalysisOutput = prePerimeterSensitivityAnalysis.runBasedOnInitialResults(network, crac, initialOutput, Collections.emptySet(), null);
             if (preCurativeSensitivityAnalysisOutput.getSensitivityStatus() == ComputationStatus.FAILURE) {
                 BUSINESS_LOGS.error("Systematic sensitivity analysis after preventive remedial actions failed");
                 return CompletableFuture.completedFuture(new FailedRaoResultImpl("Systematic sensitivity analysis after preventive remedial actions failed"));
             }
 
-            RaoResult mergedRaoResults;
+            final RaoResult mergedRaoResults;
 
             // ----- CURATIVE PERIMETERS OPTIMIZATION -----
             currentStep = "contingency scenarios";
@@ -143,7 +143,7 @@ public class PstSeriesRaoResult {
             // If stop criterion is SECURE and preventive perimeter was not secure, do not run post-contingency RAOs
             // (however RAO could continue depending on parameter optimize-curative-if-basecase-unsecure)
 
-            double preventiveOptimalCost = preventiveResult.getCost();
+            final double preventiveOptimalCost = preventiveResult.getCost();
             if (shouldStopOptimisationIfPreventiveUnsecure(preventiveOptimalCost)) {
                 BUSINESS_LOGS.info("Preventive perimeter could not be secured; there is no point in optimizing post-contingency perimeters. The RAO will be interrupted here.");
                 mergedRaoResults = new PreventiveAndCurativesRaoResultImpl(preventiveState, initialOutput, preventiveResult, preCurativeSensitivityAnalysisOutput, crac, raoParameters.getObjectiveFunctionParameters());
@@ -151,24 +151,24 @@ public class PstSeriesRaoResult {
             }
 
 
-            RemedialActionsApplier remedialActionsApplier = new RemedialActionsApplier(crac,
+            final RemedialActionsApplier remedialActionsApplier = new RemedialActionsApplier(crac,
                     raoParameters, toolProvider, stateTree, initialRaoResult);
             remedialActionsApplier.optimizeContingencyScenarios(network, preCurativeSensitivityAnalysisOutput, forcedSetPointsByState);
 
-            TreeParameters automatonTreeParameters = TreeParameters.buildForAutomatonPerimeter(raoParameters);
-            TreeParameters curativeTreeParameters = TreeParameters.buildForCurativePerimeter(raoParameters, preventiveOptimalCost);
-            CastorContingencyScenarios castorContingencyScenarios = new CastorContingencyScenarios(crac, raoParameters, toolProvider, stateTree, automatonTreeParameters, curativeTreeParameters, initialOutput);
-            Map<State, OptimizationResult> postContingencyResults = castorContingencyScenarios.optimizeContingencyScenarios(network, preCurativeSensitivityAnalysisOutput, false);
+            final TreeParameters automatonTreeParameters = TreeParameters.buildForAutomatonPerimeter(raoParameters);
+            final TreeParameters curativeTreeParameters = TreeParameters.buildForCurativePerimeter(raoParameters, preventiveOptimalCost);
+            final CastorContingencyScenarios castorContingencyScenarios = new CastorContingencyScenarios(crac, raoParameters, toolProvider, stateTree, automatonTreeParameters, curativeTreeParameters, initialOutput);
+            final Map<State, OptimizationResult> postContingencyResults = castorContingencyScenarios.optimizeContingencyScenarios(network, preCurativeSensitivityAnalysisOutput, false);
 
             mergedRaoResults = new PreventiveAndCurativesRaoResultImpl(stateTree, initialOutput, preventiveResult, preCurativeSensitivityAnalysisOutput, postContingencyResults, crac, raoParameters.getObjectiveFunctionParameters());
             return postCheckResults(mergedRaoResults, initialOutput, raoParameters.getObjectiveFunctionParameters());
-        } catch (RuntimeException e) {
+        } catch (final RuntimeException e) {
             BUSINESS_LOGS.error("{} \n {}", e.getMessage(), ExceptionUtils.getStackTrace(e));
             return CompletableFuture.completedFuture(new FailedRaoResultImpl(String.format("RAO failed during %s : %s", currentStep, e.getMessage())));
         }
     }
 
-    private boolean shouldStopOptimisationIfPreventiveUnsecure(double preventiveOptimalCost) {
+    private boolean shouldStopOptimisationIfPreventiveUnsecure(final double preventiveOptimalCost) {
         return raoParameters.getObjectiveFunctionParameters().getType().equals(ObjectiveFunctionParameters.ObjectiveFunctionType.SECURE_FLOW)
             && preventiveOptimalCost > 0
             && !raoParameters.getObjectiveFunctionParameters().getEnforceCurativeSecurity();
@@ -177,13 +177,13 @@ public class PstSeriesRaoResult {
     /**
      * Return initial result if RAO has increased cost
      */
-    private CompletableFuture<RaoResult> postCheckResults(RaoResult raoResult, PrePerimeterResult initialResult, ObjectiveFunctionParameters objectiveFunctionParameters) {
+    private CompletableFuture<RaoResult> postCheckResults(final RaoResult raoResult, final PrePerimeterResult initialResult, final ObjectiveFunctionParameters objectiveFunctionParameters) {
         RaoResult finalRaoResult = raoResult;
 
-        double initialCost = initialResult.getCost();
-        double initialFunctionalCost = initialResult.getFunctionalCost();
-        double initialVirtualCost = initialResult.getVirtualCost();
-        Instant lastInstant = crac.getLastInstant();
+        final double initialCost = initialResult.getCost();
+        final double initialFunctionalCost = initialResult.getFunctionalCost();
+        final double initialVirtualCost = initialResult.getVirtualCost();
+        final Instant lastInstant = crac.getLastInstant();
         double finalCost = finalRaoResult.getCost(lastInstant);
         double finalFunctionalCost = finalRaoResult.getFunctionalCost(lastInstant);
         double finalVirtualCost = finalRaoResult.getVirtualCost(lastInstant);
@@ -205,8 +205,8 @@ public class PstSeriesRaoResult {
             }
         }
 
-        Map<String, Double> initialVirtualCostDetailed = getVirtualCostDetailed(initialResult);
-        Map<String, Double> finalVirtualCostDetailed = getVirtualCostDetailed(finalRaoResult, crac.getLastInstant());
+        final Map<String, Double> initialVirtualCostDetailed = getVirtualCostDetailed(initialResult);
+        final Map<String, Double> finalVirtualCostDetailed = getVirtualCostDetailed(finalRaoResult, crac.getLastInstant());
 
         // Log costs before and after RAO
         BUSINESS_LOGS.info("Cost before RAO = {} (functional: {}, virtual: {}{}), cost after RAO = {} (functional: {}, virtual: {}{})",
