@@ -36,8 +36,12 @@ public final class CoreCcPreprocessor {
     private static void updateVoltageLevelNominalV(VoltageLevel voltageLevel) {
         if (safeDoubleEquals(voltageLevel.getNominalV(), 380)) {
             voltageLevel.setNominalV(400);
+        } else if (safeDoubleEquals(voltageLevel.getNominalV(), 330)) {
+            voltageLevel.setNominalV(347.368);
         } else if (safeDoubleEquals(voltageLevel.getNominalV(), 220)) {
             voltageLevel.setNominalV(225);
+        } else if (safeDoubleEquals(voltageLevel.getNominalV(), 120)) {
+            voltageLevel.setNominalV(132);
         }
         // Else, Should not be changed cause is not equal to the default nominal voltage of voltage levels 6 or 7
     }

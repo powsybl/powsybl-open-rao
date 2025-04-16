@@ -35,10 +35,15 @@ import com.powsybl.sensitivity.SensitivityVariableSet;
 import io.cucumber.java.Before;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.When;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.io.*;
 import java.time.OffsetDateTime;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
 
 import static com.powsybl.openrao.tests.utils.Helpers.*;
 import static com.powsybl.openrao.tests.utils.Helpers.getOffsetDateTimeFromBrusselsTimestamp;
@@ -392,5 +397,38 @@ public final class CommonTestData {
             throw new IllegalArgumentException("Unknown parameter in configuration file", e);
         }
         return config;
+    }
+
+    @When("I compare_csv_results")
+    public static void iCompare_csv_results() {
+        try (InputStream results1 = new FileInputStream(getResourcesPath().concat("620_prod.csv"));
+            InputStream results2 = new FileInputStream(getResourcesPath().concat("815_prod.csv"))) {
+            CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
+                .setDelimiter(",")
+                .setHeader()
+                .setSkipHeaderRecord(true)
+                .get();
+            Iterable<CSVRecord> csvRecords1 = csvFormat.parse(new InputStreamReader(results1));
+            Map<String, Double> fref1Map = new HashMap<>();
+            csvRecords1.forEach(csvRecord -> {
+                fref1Map.put(csvRecord.get("NEC_ID"), Double.parseDouble(csvRecord.get("F_ref")));
+            });
+            Iterable<CSVRecord> csvRecords2 = csvFormat.parse(new InputStreamReader(results2));
+            Map<String, Double> fref2Map = new HashMap<>();
+            csvRecords2.forEach(csvRecord -> {
+                fref2Map.put(csvRecord.get("NEC_ID"), Double.parseDouble(csvRecord.get("F_ref")));
+            });
+            Map<String, Double> diffs = new HashMap<>();
+            fref1Map.forEach((cnec, fref) -> diffs.put(cnec, Math.abs(fref - fref2Map.getOrDefault(cnec, fref))));
+            diffs.entrySet().stream().sorted(Comparator.comparingDouble(Map.Entry::getValue)).forEach((entry) -> {
+                if (entry.getValue() > 5.) {
+                    System.out.printf("%s diff of %f\n", entry.getKey(), entry.getValue());
+                }
+            });
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

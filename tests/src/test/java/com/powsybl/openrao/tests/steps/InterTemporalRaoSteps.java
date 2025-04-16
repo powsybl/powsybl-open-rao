@@ -7,9 +7,20 @@
  */
 package com.powsybl.openrao.tests.steps;
 
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.glsk.commons.CountryEICode;
+import com.powsybl.iidm.network.*;
+import com.powsybl.loadflow.LoadFlow;
+import com.powsybl.loadflow.LoadFlowParameters;
+import com.powsybl.nad.NadParameters;
+import com.powsybl.nad.NetworkAreaDiagram;
+import com.powsybl.nad.build.iidm.VoltageLevelFilter;
+import com.powsybl.nad.layout.LayoutParameters;
+import com.powsybl.nad.svg.SvgParameters;
+import com.powsybl.openloadflow.OpenLoadFlowParameters;
+import com.powsybl.openloadflow.dc.equations.DcApproximationType;
+import com.powsybl.openloadflow.network.LinePerUnitMode;
+import com.powsybl.openloadflow.network.ReferenceBusSelectionMode;
+import com.powsybl.openloadflow.network.SlackBusSelectionMode;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.commons.Unit;
@@ -24,6 +35,7 @@ import com.powsybl.openrao.data.raoresult.api.InterTemporalRaoResult;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceProgram;
 import com.powsybl.openrao.data.refprog.refprogxmlimporter.InterTemporalRefProg;
+import com.powsybl.openrao.data.refprog.refprogxmlimporter.RefProgImporter;
 import com.powsybl.openrao.raoapi.*;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.tests.utils.CoreCcPreprocessor;
@@ -242,8 +254,8 @@ public final class InterTemporalRaoSteps {
 
         if (refProgPath != null) {
             InputStream refProgInputStream = new FileInputStream(getFile(refProgPath));
-//            OffsetDateTime firstTimestamp = interTemporalRaoInput.getTimestampsToRun().stream().findFirst().get();
-//            ReferenceProgram generatedRefProg = RefProgImporter.importRefProg(refProgInputStream, firstTimestamp);
+            //OffsetDateTime firstTimestamp = interTemporalRaoInput.getTimestampsToRun().stream().findFirst().get();
+            //ReferenceProgram generatedRefProg = RefProgImporter.importRefProg(refProgInputStream, firstTimestamp);
             InterTemporalRefProg.updateRefProg(refProgInputStream, new TemporalDataImpl<>(rdVolumes), becValues, getResourcesPath().concat(outputPath));
         }
     }
@@ -445,4 +457,108 @@ public final class InterTemporalRaoSteps {
             interTemporalRaoResult.getGlobalCost(InstantKind.CURATIVE),
             SearchTreeRaoSteps.TOLERANCE_FLOW_IN_MEGAWATT);
     }
+
+    @When("I check flows")
+    public void iCheckFlows() {
+        Network network = Network.read(getResourcesPath().concat("cases/idcc/20240718-FID2-734-v1-10V1001C--00264T-to-10V1001C--00085T/20240718_0030_2D4_UX2_FINIT_EXPORTGRIDMODEL_DC_CGM_10V1001C--00264T.uct"));
+        //Network network = Network.read(getResourcesPath().concat("cases/idcc/20240718-FID2-620-v3-10V1001C--00264T-to-10V1001C--00085T/20240718_0030_FO4_UX0.uct"));
+        CoreCcPreprocessor.applyCoreCcNetworkPreprocessing(network, false);
+        LoadFlowParameters loadFlowParameters = new LoadFlowParameters();
+        loadFlowParameters.setDc(true);
+        loadFlowParameters.setBalanceType(LoadFlowParameters.BalanceType.PROPORTIONAL_TO_GENERATION_P);
+
+
+        LoadFlow.find("OpenLoadFlow").run(network, loadFlowParameters);
+        System.out.printf("flow before contingency %.2f\n", network.getLine("DHE_WO11 D8WOL_11 1").getTerminal1().getP());
+
+        network.getLine("DHE_WO12 D8WOL_11 1").getTerminal1().disconnect();
+        network.getLine("DHE_WO12 D8WOL_11 1").getTerminal2().disconnect();
+        network.getLine("DHE_WO12 D2HELM11 1").getTerminal1().disconnect();
+        network.getLine("DHE_WO12 D2HELM11 1").getTerminal2().disconnect();
+
+        LoadFlow.find("OpenLoadFlow").run(network, loadFlowParameters);
+        System.out.printf("flow after contingency %.2f\n", network.getLine("DHE_WO11 D8WOL_11 1").getTerminal1().getP());
+
+        /*SvgParameters svgParameters = new SvgParameters().setFixedHeight(3000);
+        LayoutParameters layoutParameters = new LayoutParameters().setSpringRepulsionFactorForceLayout(0.7);
+        NadParameters nadParameters = new NadParameters().setSvgParameters(svgParameters).setLayoutParameters(layoutParameters);
+        VoltageLevelFilter vlFilter = VoltageLevelFilter.createVoltageLevelDepthFilter(network, "DHE_WO1", 5);
+        NetworkAreaDiagram.draw(network, Path.of("/tmp/diagram2.svg"), nadParameters, vlFilter);*/
+    }
+
+    /*private void rebalance(Network network) {
+        InputStream inputStream = null;
+        try {
+            inputStream = new FileInputStream(getResourcesPath().concat("refprogs/idcc/refprog_initial.xml"));
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+        ReferenceProgram referenceProgram = RefProgImporter.importRefProg(inputStream, getOffsetDateTimeFromBrusselsTimestamp("2024-07-18 00:30"));
+
+        Map<Country, Double> totalGenerationPerCountry = new HashMap<>();
+        Map<Country, Double> totalLoadPerCountry = new HashMap<>();
+
+        network.getGeneratorStream().forEach(generator -> {
+            Optional<Substation> substationOptional = generator.getTerminal().getVoltageLevel().getSubstation();
+            Country country = substationOptional.get().getNullableCountry();
+            totalGenerationPerCountry.putIfAbsent(country, 0.);
+            totalGenerationPerCountry.put(country, totalGenerationPerCountry.get(country) + generator.getTargetP());
+        });
+
+        network.getLoadStream().forEach(load -> {
+            Optional<Substation> substationOptional = load.getTerminal().getVoltageLevel().getSubstation();
+            Country country = substationOptional.get().getNullableCountry();
+            totalLoadPerCountry.putIfAbsent(country, 0.);
+            totalLoadPerCountry.put(country, totalLoadPerCountry.get(country) + load.getP0());
+        });
+
+        Map<Country, Double> netPositionPerCountry = new HashMap<>();
+        totalGenerationPerCountry.keySet().forEach(country -> {
+            netPositionPerCountry.put(country, totalGenerationPerCountry.get(country) - totalLoadPerCountry.get(country));
+        });
+
+        netPositionPerCountry.forEach((country, netPosition) -> {
+            if (country == Country.XK) {
+                return;
+            }
+            double refProgNP = referenceProgram.getGlobalNetPosition(new CountryEICode(country).getCode());
+            double delta = refProgNP - netPosition;
+            double totalInjection = totalGenerationPerCountry.get(country) + totalLoadPerCountry.get(country);
+            System.out.printf("delta of %.2f for country %s\n", delta, country);
+            network.getGeneratorStream().forEach(generator -> {
+                Optional<Substation> substationOptional = generator.getTerminal().getVoltageLevel().getSubstation();
+                if (country == substationOptional.get().getNullableCountry()) {
+                    generator.setTargetP(generator.getTargetP() + delta * generator.getTargetP() / totalInjection);
+                }
+            });
+
+            network.getLoadStream().forEach(load -> {
+                Optional<Substation> substationOptional = load.getTerminal().getVoltageLevel().getSubstation();
+                if (country == substationOptional.get().getNullableCountry()) {
+                    load.setP0(load.getP0() - delta * load.getP0() / totalInjection);
+                }
+            });
+        });
+        Map<Country, Double> newTotalGenerationPerCountry = new HashMap<>();
+        Map<Country, Double> newTotalLoadPerCountry = new HashMap<>();
+
+        network.getGeneratorStream().forEach(generator -> {
+            Optional<Substation> substationOptional = generator.getTerminal().getVoltageLevel().getSubstation();
+            Country country = substationOptional.get().getNullableCountry();
+            newTotalGenerationPerCountry.putIfAbsent(country, 0.);
+            newTotalGenerationPerCountry.put(country, newTotalGenerationPerCountry.get(country) + generator.getTargetP());
+        });
+
+        network.getLoadStream().forEach(load -> {
+            Optional<Substation> substationOptional = load.getTerminal().getVoltageLevel().getSubstation();
+            Country country = substationOptional.get().getNullableCountry();
+            newTotalLoadPerCountry.putIfAbsent(country, 0.);
+            newTotalLoadPerCountry.put(country, newTotalLoadPerCountry.get(country) + load.getP0());
+        });
+
+        Map<Country, Double> newNetPositionPerCountry = new HashMap<>();
+        totalGenerationPerCountry.keySet().forEach(country -> {
+            newNetPositionPerCountry.put(country, newTotalGenerationPerCountry.get(country) - newTotalLoadPerCountry.get(country));
+        });
+    }*/
 }

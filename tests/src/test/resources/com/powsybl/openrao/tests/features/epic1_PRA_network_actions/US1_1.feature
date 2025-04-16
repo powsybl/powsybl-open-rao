@@ -22,3 +22,9 @@ Feature: US 1.1: Security assessment without any remedial action
     Then the margin on cnec "BBE2AA1  FFR3AA1  1 - Defaut FR1 FR3 - curative" after CRA should be 848.0 A
     Then the margin on cnec "BBE2AA1  FFR3AA1  1 - Defaut FR1 FR2 - outage" after PRA should be 1056.0 A
     Then the margin on cnec "BBE2AA1  FFR3AA1  1 - Defaut FR1 FR2 - curative" after CRA should be 1056.0 A
+
+  Scenario: Compare csvs
+    When I compare_csv_results
+
+  Scenario: Check flows
+    When I check flows
