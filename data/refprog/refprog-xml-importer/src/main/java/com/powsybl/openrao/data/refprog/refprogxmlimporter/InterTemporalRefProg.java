@@ -18,10 +18,16 @@ import java.io.*;
 import java.math.BigDecimal;
 import java.util.*;
 
+import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
+
 /**
- * RefProg xml file importer
+ * InterTemporal Ref Prog file contains exchange values for 24 timestamps.
+ * updateRefProg imports initial xml intertemporal ref prog file, modifies values according to redispatching volumes
+ * per country weighted by becKeys, and exports new intertemporal ref prog file to output path.
  *
- * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
+ * @author  Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
+ * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
+ *
  */
 public final class InterTemporalRefProg {
 
@@ -39,7 +45,7 @@ public final class InterTemporalRefProg {
                 inArea = new CountryEICode(pubTS.getInArea().getV()).getCountry().toString();
                 outArea = new CountryEICode(pubTS.getOutArea().getV()).getCountry().toString();
             } catch (IllegalArgumentException e) {
-                //BUSINESS_WARNS.warn("cannot find EICode for country {} or {}.", pubTS.getInArea(), pubTS.getOutArea());
+                BUSINESS_WARNS.warn("cannot find EICode for country {} or {}.", pubTS.getInArea(), pubTS.getOutArea());
                 return;
             }
 

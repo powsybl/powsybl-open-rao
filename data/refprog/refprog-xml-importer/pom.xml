@@ -70,10 +70,6 @@
             <artifactId>junit-jupiter</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>com.powsybl</groupId>
-            <artifactId>open-rao-rao-api</artifactId>
-        </dependency>
     </dependencies>
 
 </project>
