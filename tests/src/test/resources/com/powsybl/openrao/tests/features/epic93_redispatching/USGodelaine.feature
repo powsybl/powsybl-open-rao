@@ -52,6 +52,7 @@ Feature: US 93.3: US Godelaine
     Given ics series file is "_10V1001C–00275O_CSA-COMRA-RDSERIES-D_CORE-20241028-V001_.csv"
     Given ics gsk file is "_10V1001C--00275O_CSA-INDRA-GSK-D_D7-20241028-V001_.csv"
     Given configuration file is "idcc/RaoParameters_idcc_low_improvement_2_max.json"
+    Given intertemporal RefProg file is "20241028-FID2-632-v2-10V1001C--00264T-to-10V1001C--00085T.xml"
     Given intertemporal rao inputs are:
       | Timestamp        | Network                                                                 |
       | 2024-10-28 00:30 | 20241028_0030_2D1_UX2_FINIT_EXPORTGRIDMODEL_DC_CGM_10V1001C--00264T.uct |
@@ -80,6 +81,7 @@ Feature: US 93.3: US Godelaine
       | 2024-10-28 23:30 | 20241028_2330_2D1_UX2_FINIT_EXPORTGRIDMODEL_DC_CGM_10V1001C--00264T.uct |
     When I launch marmot
     When I export marmot results to "raoresults/results_20241028.zip"
+    When I export RefProg after redispatching to "generatedRefProgs/20241028-FID2-632-v2-10V1001C--00264T-to-10V1001C--00085T.xml" based on raoResults folder "raoresults/results_20241028/"
     When I export networks with PRAs to "raoresults/networkWithPras_20241028.zip"
     When I export F711 for business date "20241028"
 

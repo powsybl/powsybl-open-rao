@@ -13,6 +13,7 @@ Feature: US 93.3: US Philippe
     Given ics series file is "_10V1001C–00275O_CSA-COMRA-RDSERIES-D_CORE-20240718-V001_.csv"
     Given ics gsk file is "_10V1001C--00275O_CSA-INDRA-GSK-D_D7-20240718-V001_.csv"
     Given configuration file is "idcc/RaoParameters_idcc_low_improvement_2_max.json"
+    Given intertemporal RefProg file is "idcc/refprog_initial.xml"
     Given intertemporal rao inputs are:
       | Timestamp        | Network                                                                 |
       | 2024-07-18 00:30 | 20240718_0030_2D4_UX2_FINIT_EXPORTGRIDMODEL_DC_CGM_10V1001C--00264T.uct |
@@ -41,6 +42,7 @@ Feature: US 93.3: US Philippe
       | 2024-07-18 23:30 | 20240718_2330_2D4_UX2_FINIT_EXPORTGRIDMODEL_DC_CGM_10V1001C--00264T.uct |
     When I launch marmot
     When I export marmot results to "raoresults/results_20240718.zip"
+    When I export RefProg after redispatching to "generatedRefProgs/refprog_07_18v2.xml" based on raoResults folder "raoresults/results_20240718/"
     When I export networks with PRAs to "raoresults/networkWithPras_20240718.zip"
     When I export F711 for business date "20240718"
 

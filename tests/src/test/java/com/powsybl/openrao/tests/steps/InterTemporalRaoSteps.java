@@ -23,6 +23,8 @@ import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.io.fbconstraint.FbConstraintCreationContext;
 import com.powsybl.openrao.data.raoresult.api.InterTemporalRaoResult;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceProgram;
+import com.powsybl.openrao.data.refprog.refprogxmlimporter.InterTemporalRefProg;
 import com.powsybl.openrao.raoapi.*;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.searchtreerao.marmot.f711.F711Utils;
@@ -33,6 +35,8 @@ import io.cucumber.java.Scenario;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.MDC;
@@ -61,12 +65,21 @@ public final class InterTemporalRaoSteps {
     private static String icsStaticPath;
     private static String icsSeriesPath;
     private static String icsGskPath;
+    private static String refProgPath;
+    private static ReferenceProgram referenceProgram;
     private static InterTemporalRaoInputWithNetworkPaths interTemporalRaoInput;
     private static InterTemporalRaoResult interTemporalRaoResult;
     private static Map<OffsetDateTime, CracCreationContext> cracCreationContexts;
 
+    private static final List<String> DE_TSOS = List.of("D2", "D4", "D7", "D8");
+
     public InterTemporalRaoSteps() {
         // should not be instantiated
+    }
+
+    @Given("intertemporal RefProg file is {string}")
+    public static void refProgFileIs(String path) {
+        refProgPath = getResourcesPath().concat("refprogs/").concat(path);
     }
 
     // TODO : add after to run after all @intertemporal scenarios
@@ -148,10 +161,10 @@ public final class InterTemporalRaoSteps {
         }
         File cracFile = null;
         if (!useIndividualCracs) {
-            cracFile = getFile(CommonTestData.cracPath);
+            cracFile = getFile(cracPath);
         }
 
-        CommonTestData.raoParameters = buildConfig(getFile(CommonTestData.raoParametersPath));
+        raoParameters = buildConfig(getFile(raoParametersPath));
 
         TemporalData<RaoInputWithNetworkPaths> raoInputs = new TemporalDataImpl<>();
         List<Map<String, String>> inputs = arg1.asMaps(String.class, String.class);
@@ -185,7 +198,7 @@ public final class InterTemporalRaoSteps {
 
     @When("I launch marmot")
     public static void iLaunchMarmot() {
-        interTemporalRaoResult = InterTemporalRao.run(interTemporalRaoInput, CommonTestData.getRaoParameters());
+        interTemporalRaoResult = InterTemporalRao.run(interTemporalRaoInput, getRaoParameters());
     }
 
     @When("I export marmot results to {string}")
@@ -197,6 +210,79 @@ public final class InterTemporalRaoSteps {
         properties.put("inter-temporal-rao-result.export.filename-template", "'RAO_RESULT_'yyyy-MM-dd'T'HH:mm:ss'.json'");
         properties.put("inter-temporal-rao-result.export.summary-filename", "summary.json");
         interTemporalRaoResult.write(zipOutputStream, interTemporalRaoInput.getRaoInputs().map(RaoInputWithNetworkPaths::getCrac), properties);
+    }
+
+    @When("I export RefProg after redispatching to {string} based on raoResults folder {string}")
+    public static void generateRefProg(String outputPath, String raoResultsPath) throws IOException {
+        // Load networks in networkTemporalData
+        // Load redispatchingVolume per timestamp per operator
+        Map<OffsetDateTime, Map<String, Double>> rdVolumes = new HashMap<>();
+        for (OffsetDateTime offsetDateTime : interTemporalRaoInput.getTimestampsToRun()) {
+            rdVolumes.put(offsetDateTime, new HashMap<>());
+
+            FileInputStream raoResultInputStream = new FileInputStream(getFile(getResourcesPath().concat(raoResultsPath) + "/RAO_RESULT_" + offsetDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")) + ".json"));
+            RaoResult raoResult = RaoResult.read(raoResultInputStream, interTemporalRaoInput.getRaoInputs().getData(offsetDateTime).orElseThrow().getCrac());
+
+            // Load redispatching volumes
+            Crac crac = interTemporalRaoInput.getRaoInputs().getData(offsetDateTime).get().getCrac();
+            Set<RangeAction<?>> preventiveRangeActions = raoResult.getActivatedRangeActionsDuringState(crac.getPreventiveState());
+            Set<InjectionRangeAction> redispatchingRangeActions = preventiveRangeActions.stream().filter(InjectionRangeAction.class::isInstance).map(InjectionRangeAction.class::cast).collect(Collectors.toSet());
+            redispatchingRangeActions.forEach(rangeAction -> {
+                double redispatchedVolumeForRa = raoResult.getOptimizedSetPointOnState(crac.getPreventiveState(), rangeAction) - rangeAction.getInitialSetpoint();
+                for (String subString : rangeAction.getId().toUpperCase().split("_")) {
+                    if (subString.equals("RA")) {
+                        continue;
+                    } else if (DE_TSOS.contains(subString)) {
+                        rdVolumes.get(offsetDateTime).put("DE", rdVolumes.get(offsetDateTime).getOrDefault("DE", 0.) + redispatchedVolumeForRa);
+                        return;
+                    } else {
+                        rdVolumes.get(offsetDateTime).put(subString, rdVolumes.get(offsetDateTime).getOrDefault(subString, 0.) + redispatchedVolumeForRa);
+                        return;
+                    }
+                }
+            });
+        }
+
+        Map<String, Map<String, Map<String, Double>>> becValues = importBecValues();
+
+        if (refProgPath != null) {
+            InputStream refProgInputStream = new FileInputStream(getFile(refProgPath));
+            InterTemporalRefProg.updateRefProg(refProgInputStream, new TemporalDataImpl<>(rdVolumes), becValues, getResourcesPath().concat(outputPath));
+        }
+    }
+
+    private static Map<String, Map<String, Map<String, Double>>> importBecValues() {
+        List<String> coreCountries = List.of("AT", "BE", "CZ", "DE", "FR", "HR", "HU", "NL", "PL", "RO", "SI", "SK");
+        Map<String, Map<String, Map<String, Double>>> becValues = new HashMap<>();
+        try (InputStream inputStream = new FileInputStream(getResourcesPath().concat("sharingKeysBEC.csv"))) {
+            CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
+                .setDelimiter(";")
+                .setHeader()
+                .setSkipHeaderRecord(true)
+                .get();
+            Iterable<CSVRecord> becRecords = csvFormat.parse(new InputStreamReader(inputStream));
+
+            for (CSVRecord record : becRecords) {
+                List<String> countries = List.of(record.get(0).split("->"));
+                String country1 = countries.get(0).toUpperCase();
+                String country2 = countries.get(1).toUpperCase();
+
+                becValues.putIfAbsent(country1, new HashMap<>());
+                becValues.get(country1).putIfAbsent(country2, new HashMap<>());
+
+                becValues.putIfAbsent(country2, new HashMap<>());
+                becValues.get(country2).putIfAbsent(country1, new HashMap<>());
+
+                coreCountries.forEach(coreCountry -> {
+                    double value = Double.parseDouble(record.get(coreCountry).replaceAll(",", "."));
+                    becValues.get(country1).get(country2).put(coreCountry, value);
+                    becValues.get(country2).get(country1).put(coreCountry, -value);
+                });
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return becValues;
     }
 
     @When("I export networks with PRAs to {string} from raoresult folder {string}")
