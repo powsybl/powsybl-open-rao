@@ -24,10 +24,10 @@ Feature: US 93.1: Redispatching actions
     When I launch search_tree_rao
     Then 1 remedial actions are used in preventive
     And the remedial action "redispatchingAction" is used in preventive
-    And the setpoint of RangeAction "redispatchingAction" should be 500.0 MW in preventive
+    And the setpoint of RangeAction "redispatchingAction" should be 509.0 MW in preventive
     And the margin on cnec "cnecFr1Fr3Preventive" after PRA should be 0.0 MW
-    # Total cost : 10 for activation + 50 x 500 MW shift = 25010
-    And the value of the objective function after PRA should be 25010.0
+    # Total cost : 10 for activation + 50 x 509 MW shift = 25460
+    And the value of the objective function after PRA should be 25460.0
 
   @fast @rao @dc @redispatching @preventive-only
   Scenario: US 93.1.2: Unbalanced redispatching

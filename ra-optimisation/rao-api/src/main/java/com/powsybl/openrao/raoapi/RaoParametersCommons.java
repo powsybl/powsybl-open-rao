@@ -125,4 +125,14 @@ public final class RaoParametersCommons {
             throw new OpenRaoException(String.format("Unknown approximation value: %s", string));
         }
     }
+
+    // -- ICS Importer parameters
+    public static final String ICS_IMPORTER_PARAMETERS = "ics-importer-parameters";
+    public static final String COST_UP = "cost-up";
+    public static final String COST_DOWN = "cost-down";
+
+    // -- Min Margins parameters
+    public static final String MIN_MARGIN_PARAMETERS = "min-margin-parameters";
+    public static final String ST_MIN_MARGIN_SECTION = "search-tree-min-margin-parameters";
+    public static final String OVERLOAD_PENALTY = "overload-penalty";
 }

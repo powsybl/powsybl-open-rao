@@ -13,10 +13,7 @@ import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.raoapi.parameters.LoopFlowParameters;
 import com.powsybl.openrao.raoapi.parameters.MnecParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
-import com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters;
-import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
-import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoLoopFlowParameters;
-import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoMnecParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.*;
 import com.powsybl.openrao.searchtreerao.commons.marginevaluator.MarginEvaluator;
 import com.powsybl.openrao.searchtreerao.commons.marginevaluator.MarginEvaluatorWithMarginDecreaseUnoptimizedCnecs;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator.*;
@@ -56,7 +53,8 @@ public class ObjectiveFunctionCreator extends AbstractObjectiveFunctionCreator {
         List<CostEvaluator> virtualCostEvaluators = new ArrayList<>();
 
         if (raoParameters.getObjectiveFunctionParameters().getType().costOptimization()) {
-            virtualCostEvaluators.add(new MinMarginViolationEvaluator(flowCnecs, unit, marginEvaluator));
+            SearchTreeRaoMinMarginParameters minMarginParametersOptional = raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getMinMarginParameters().orElseThrow();
+            virtualCostEvaluators.add(new MinMarginViolationEvaluator(flowCnecs, unit, marginEvaluator, minMarginParametersOptional.getOverloadPenalty()));
         }
 
         // mnec virtual cost evaluator

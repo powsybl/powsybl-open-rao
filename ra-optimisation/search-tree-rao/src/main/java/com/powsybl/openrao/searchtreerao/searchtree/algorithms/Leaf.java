@@ -103,9 +103,9 @@ public class Leaf implements OptimizationResult {
         this.prePerimeterSetpoints = prePerimeterSetpoints;
         if (!Objects.isNull(newCombinationToApply)) {
             this.appliedNetworkActionsInPrimaryState = Stream.concat(
-                            alreadyAppliedNetworkActionsInPrimaryState.stream(),
-                            newCombinationToApply.getNetworkActionSet().stream())
-                    .collect(Collectors.toSet());
+                    alreadyAppliedNetworkActionsInPrimaryState.stream(),
+                    newCombinationToApply.getNetworkActionSet().stream())
+                .collect(Collectors.toSet());
         } else {
             this.appliedNetworkActionsInPrimaryState = alreadyAppliedNetworkActionsInPrimaryState;
         }
@@ -195,38 +195,39 @@ public class Leaf implements OptimizationResult {
 
             // build input
             IteratingLinearOptimizerInput linearOptimizerInput = IteratingLinearOptimizerInput.create()
-                    .withNetwork(network)
-                    .withOptimizationPerimeter(searchTreeInput.getOptimizationPerimeter())
-                    .withInitialFlowResult(searchTreeInput.getInitialFlowResult())
-                    .withPrePerimeterFlowResult(searchTreeInput.getPrePerimeterResult())
-                    .withPrePerimeterSetpoints(prePerimeterSetpoints)
-                    .withPreOptimizationFlowResult(preOptimFlowResult)
-                    .withPreOptimizationSensitivityResult(preOptimSensitivityResult)
-                    .withPreOptimizationAppliedRemedialActions(appliedRemedialActionsInSecondaryStates)
-                    .withRaActivationFromParentLeaf(raActivationResultFromParentLeaf)
-                    .withAppliedNetworkActionsInPrimaryState(new NetworkActionsResultImpl(appliedNetworkActionsInPrimaryState))
-                    .withObjectiveFunction(searchTreeInput.getObjectiveFunction())
-                    .withToolProvider(searchTreeInput.getToolProvider())
-                    .withOutageInstant(searchTreeInput.getOutageInstant())
-                    .build();
+                .withNetwork(network)
+                .withOptimizationPerimeter(searchTreeInput.getOptimizationPerimeter())
+                .withInitialFlowResult(searchTreeInput.getInitialFlowResult())
+                .withPrePerimeterFlowResult(searchTreeInput.getPrePerimeterResult())
+                .withPrePerimeterSetpoints(prePerimeterSetpoints)
+                .withPreOptimizationFlowResult(preOptimFlowResult)
+                .withPreOptimizationSensitivityResult(preOptimSensitivityResult)
+                .withPreOptimizationAppliedRemedialActions(appliedRemedialActionsInSecondaryStates)
+                .withRaActivationFromParentLeaf(raActivationResultFromParentLeaf)
+                .withAppliedNetworkActionsInPrimaryState(new NetworkActionsResultImpl(appliedNetworkActionsInPrimaryState))
+                .withObjectiveFunction(searchTreeInput.getObjectiveFunction())
+                .withToolProvider(searchTreeInput.getToolProvider())
+                .withOutageInstant(searchTreeInput.getOutageInstant())
+                .build();
 
             // build parameters
             IteratingLinearOptimizerParameters linearOptimizerParameters = IteratingLinearOptimizerParameters.create()
-                    .withObjectiveFunction(parameters.getObjectiveFunction())
-                    .withObjectiveFunctionUnit(parameters.getObjectiveFunctionUnit())
-                    .withRangeActionParameters(parameters.getRangeActionParameters())
-                    .withRangeActionParametersExtension(parameters.getRangeActionParametersExtension())
-                    .withMnecParameters(parameters.getMnecParameters())
-                    .withMnecParametersExtension(parameters.getMnecParametersExtension())
-                    .withMaxMinRelativeMarginParameters(parameters.getMaxMinRelativeMarginParameters())
-                    .withLoopFlowParameters(parameters.getLoopFlowParameters())
-                    .withLoopFlowParametersExtension(parameters.getLoopFlowParametersExtension())
-                    .withUnoptimizedCnecParameters(parameters.getUnoptimizedCnecParameters())
-                    .withRaLimitationParameters(getRaLimitationParameters(searchTreeInput.getOptimizationPerimeter(), parameters))
-                    .withSolverParameters(parameters.getSolverParameters())
-                    .withMaxNumberOfIterations(parameters.getMaxNumberOfIterations())
-                    .withRaRangeShrinking(parameters.getTreeParameters().raRangeShrinking())
-                    .build();
+                .withObjectiveFunction(parameters.getObjectiveFunction())
+                .withObjectiveFunctionUnit(parameters.getObjectiveFunctionUnit())
+                .withRangeActionParameters(parameters.getRangeActionParameters())
+                .withRangeActionParametersExtension(parameters.getRangeActionParametersExtension())
+                .withMnecParameters(parameters.getMnecParameters())
+                .withMnecParametersExtension(parameters.getMnecParametersExtension())
+                .withMaxMinRelativeMarginParameters(parameters.getMaxMinRelativeMarginParameters())
+                .withMaxMinMarginParameters(parameters.getMaxMinMarginParameters())
+                .withLoopFlowParameters(parameters.getLoopFlowParameters())
+                .withLoopFlowParametersExtension(parameters.getLoopFlowParametersExtension())
+                .withUnoptimizedCnecParameters(parameters.getUnoptimizedCnecParameters())
+                .withRaLimitationParameters(getRaLimitationParameters(searchTreeInput.getOptimizationPerimeter(), parameters))
+                .withSolverParameters(parameters.getSolverParameters())
+                .withMaxNumberOfIterations(parameters.getMaxNumberOfIterations())
+                .withRaRangeShrinking(parameters.getTreeParameters().raRangeShrinking())
+                .build();
 
             postOptimResult = IteratingLinearOptimizer.optimize(linearOptimizerInput, linearOptimizerParameters);
 
@@ -240,7 +241,7 @@ public class Leaf implements OptimizationResult {
 
     private void resetPreOptimRangeActionsSetpoints(OptimizationPerimeter optimizationContext) {
         optimizationContext.getRangeActionsPerState().forEach((state, rangeActions) ->
-                rangeActions.forEach(ra -> ra.apply(network, raActivationResultFromParentLeaf.getOptimizedSetpoint(ra, state))));
+            rangeActions.forEach(ra -> ra.apply(network, raActivationResultFromParentLeaf.getOptimizedSetpoint(ra, state))));
     }
 
     RangeActionLimitationParameters getRaLimitationParameters(OptimizationPerimeter context, SearchTreeParameters parameters) {
@@ -317,7 +318,7 @@ public class Leaf implements OptimizationResult {
      */
     public String getIdentifier() {
         return isRoot() ? "Root leaf" :
-                "network action(s): " + appliedNetworkActionsInPrimaryState.stream().map(NetworkAction::getName).collect(Collectors.joining(", "));
+            "network action(s): " + appliedNetworkActionsInPrimaryState.stream().map(NetworkAction::getName).collect(Collectors.joining(", "));
     }
 
     @Override
@@ -341,12 +342,12 @@ public class Leaf implements OptimizationResult {
     long getNumberOfActivatedRangeActions() {
         if (status == Status.EVALUATED) {
             return (long) optimizationPerimeter.getRangeActionsPerState().keySet().stream()
-                    .mapToDouble(s -> raActivationResultFromParentLeaf.getActivatedRangeActions(s).size())
-                    .sum();
+                .mapToDouble(s -> raActivationResultFromParentLeaf.getActivatedRangeActions(s).size())
+                .sum();
         } else if (status == Status.OPTIMIZED) {
             return (long) optimizationPerimeter.getRangeActionsPerState().keySet().stream()
-                    .mapToDouble(s -> postOptimResult.getActivatedRangeActions(s).size())
-                    .sum();
+                .mapToDouble(s -> postOptimResult.getActivatedRangeActions(s).size())
+                .sum();
         } else {
             throw new OpenRaoException(NO_RESULTS_AVAILABLE);
         }
@@ -644,7 +645,7 @@ public class Leaf implements OptimizationResult {
     @Override
     public double getSensitivityValue(FlowCnec flowCnec, TwoSides side, RangeAction<?> rangeAction, Unit unit) {
         if (status == Status.EVALUATED ||
-                status == Status.OPTIMIZED && !postOptimResult.getRangeActions().contains(rangeAction)) {
+            status == Status.OPTIMIZED && !postOptimResult.getRangeActions().contains(rangeAction)) {
             return preOptimSensitivityResult.getSensitivityValue(flowCnec, side, rangeAction, unit);
         } else if (status == Status.OPTIMIZED) {
             return postOptimResult.getSensitivityValue(flowCnec, side, rangeAction, unit);

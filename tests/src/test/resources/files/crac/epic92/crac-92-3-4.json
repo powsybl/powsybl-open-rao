@@ -52,14 +52,14 @@
       "thresholds": [
         {
           "unit": "megawatt",
-          "min": -130.0,
-          "max": 130.0,
+          "min": -131.0,
+          "max": 131.0,
           "side": 1
         },
         {
           "unit": "megawatt",
-          "min": -130.0,
-          "max": 130.0,
+          "min": -131.0,
+          "max": 131.0,
           "side": 2
         }
       ]
