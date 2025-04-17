@@ -64,6 +64,7 @@ class PstRangeActionCreationTest {
         NcCracCreationTestUtil.assertRaNotImported(cracCreationContext, "remedial-action-12", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action remedial-action-12 will not be imported because StaticPropertyRange has wrong value of valueKind, the only allowed value is absolute");
     }
 
+    // TODO: remove time to implement threshold for ARAs since they are built from 'isManual from now on
     @Test
     void importPstSps0second() {
         CracCreationParameters importedParameters = JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/ncCracCreationParameters_SPS_0_sec.json"));

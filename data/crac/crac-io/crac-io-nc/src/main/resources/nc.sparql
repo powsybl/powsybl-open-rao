@@ -264,7 +264,7 @@ SELECT *
             ?gridStateAlterationRemedialAction nc:RemedialAction.RemedialActionSystemOperator ?tso .
         }
         OPTIONAL {
-            ?gridStateAlterationRemedialAction nc:RemedialAction.isManual ?tso .
+            ?gridStateAlterationRemedialAction nc:RemedialAction.isManual ?isManual .
         }
     }
 }
