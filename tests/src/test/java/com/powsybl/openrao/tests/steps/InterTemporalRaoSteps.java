@@ -44,11 +44,13 @@ import org.slf4j.MDC;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
@@ -212,42 +214,50 @@ public final class InterTemporalRaoSteps {
         interTemporalRaoResult.write(zipOutputStream, interTemporalRaoInput.getRaoInputs().map(RaoInputWithNetworkPaths::getCrac), properties);
     }
 
-    @When("I export RefProg after redispatching to {string} based on raoResults folder {string}")
-    public static void generateRefProg(String outputPath, String raoResultsPath) throws IOException {
-        // Load networks in networkTemporalData
-        // Load redispatchingVolume per timestamp per operator
-        Map<OffsetDateTime, Map<String, Double>> rdVolumes = new HashMap<>();
-        for (OffsetDateTime offsetDateTime : interTemporalRaoInput.getTimestampsToRun()) {
-            rdVolumes.put(offsetDateTime, new HashMap<>());
+    @When("I export RefProg after redispatching to {string} based on raoResults zip {string}")
+    public static void generateRefProg(String outputPath, String raoResultsZipPath) throws IOException {
 
-            FileInputStream raoResultInputStream = new FileInputStream(getFile(getResourcesPath().concat(raoResultsPath) + "/RAO_RESULT_" + offsetDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")) + ".json"));
-            RaoResult raoResult = RaoResult.read(raoResultInputStream, interTemporalRaoInput.getRaoInputs().getData(offsetDateTime).orElseThrow().getCrac());
+        //Unzip the given zip file to a temp folder
+        Path tempDir = Files.createTempDirectory("raoResults_");
+        unzipZipToFolder(getResourcesPath().concat(raoResultsZipPath), tempDir);
+        try {
+            // Load networks in networkTemporalData
+            // Load redispatchingVolume per timestamp per operator
+            Map<OffsetDateTime, Map<String, Double>> rdVolumes = new HashMap<>();
+            for (OffsetDateTime offsetDateTime : interTemporalRaoInput.getTimestampsToRun()) {
+                rdVolumes.put(offsetDateTime, new HashMap<>());
+                String filename = "RAO_RESULT_" + offsetDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")) + ".json";
+                FileInputStream raoResultInputStream = new FileInputStream(getFile(String.valueOf(tempDir.resolve(filename))));
+                RaoResult raoResult = RaoResult.read(raoResultInputStream, interTemporalRaoInput.getRaoInputs().getData(offsetDateTime).orElseThrow().getCrac());
 
-            // Load redispatching volumes
-            Crac crac = interTemporalRaoInput.getRaoInputs().getData(offsetDateTime).get().getCrac();
-            Set<RangeAction<?>> preventiveRangeActions = raoResult.getActivatedRangeActionsDuringState(crac.getPreventiveState());
-            Set<InjectionRangeAction> redispatchingRangeActions = preventiveRangeActions.stream().filter(InjectionRangeAction.class::isInstance).map(InjectionRangeAction.class::cast).collect(Collectors.toSet());
-            redispatchingRangeActions.forEach(rangeAction -> {
-                double redispatchedVolumeForRa = raoResult.getOptimizedSetPointOnState(crac.getPreventiveState(), rangeAction) - rangeAction.getInitialSetpoint();
-                for (String subString : rangeAction.getId().toUpperCase().split("_")) {
-                    if (subString.equals("RA")) {
-                        continue;
-                    } else if (DE_TSOS.contains(subString)) {
-                        rdVolumes.get(offsetDateTime).put("DE", rdVolumes.get(offsetDateTime).getOrDefault("DE", 0.) + redispatchedVolumeForRa);
-                        return;
-                    } else {
-                        rdVolumes.get(offsetDateTime).put(subString, rdVolumes.get(offsetDateTime).getOrDefault(subString, 0.) + redispatchedVolumeForRa);
-                        return;
+                // Load redispatching volumes
+                Crac crac = interTemporalRaoInput.getRaoInputs().getData(offsetDateTime).get().getCrac();
+                Set<RangeAction<?>> preventiveRangeActions = raoResult.getActivatedRangeActionsDuringState(crac.getPreventiveState());
+                Set<InjectionRangeAction> redispatchingRangeActions = preventiveRangeActions.stream().filter(InjectionRangeAction.class::isInstance).map(InjectionRangeAction.class::cast).collect(Collectors.toSet());
+                redispatchingRangeActions.forEach(rangeAction -> {
+                    double redispatchedVolumeForRa = raoResult.getOptimizedSetPointOnState(crac.getPreventiveState(), rangeAction) - rangeAction.getInitialSetpoint();
+                    for (String subString : rangeAction.getId().toUpperCase().split("_")) {
+                        if (subString.equals("RA")) {
+                            continue;
+                        } else if (DE_TSOS.contains(subString)) {
+                            rdVolumes.get(offsetDateTime).put("DE", rdVolumes.get(offsetDateTime).getOrDefault("DE", 0.) + redispatchedVolumeForRa);
+                            return;
+                        } else {
+                            rdVolumes.get(offsetDateTime).put(subString, rdVolumes.get(offsetDateTime).getOrDefault(subString, 0.) + redispatchedVolumeForRa);
+                            return;
+                        }
                     }
-                }
-            });
-        }
+                });
+            }
 
-        Map<String, Map<String, Map<String, Double>>> becValues = importBecValues();
+            Map<String, Map<String, Map<String, Double>>> becValues = importBecValues();
 
-        if (refProgPath != null) {
-            InputStream refProgInputStream = new FileInputStream(getFile(refProgPath));
-            InterTemporalRefProg.updateRefProg(refProgInputStream, new TemporalDataImpl<>(rdVolumes), becValues, getResourcesPath().concat(outputPath));
+            if (refProgPath != null) {
+                InputStream refProgInputStream = new FileInputStream(getFile(refProgPath));
+                InterTemporalRefProg.updateRefProg(refProgInputStream, new TemporalDataImpl<>(rdVolumes), becValues, getResourcesPath().concat(outputPath));
+            }
+        } finally {
+            deleteDirectoryRecursively(tempDir);
         }
     }
 
@@ -285,55 +295,90 @@ public final class InterTemporalRaoSteps {
         return becValues;
     }
 
-    @When("I export networks with PRAs to {string} from raoresult folder {string}")
-    public static void generateNetworksWithPraFromResults(String outputPath, String resultsPath) throws IOException {
+    private static void unzipZipToFolder(String zipFilePathStr, Path outputDir) throws IOException {
+        try (ZipInputStream zis = new ZipInputStream(new FileInputStream(zipFilePathStr))) {
+            ZipEntry entry;
+            while ((entry = zis.getNextEntry()) != null) {
+                Path newFilePath = outputDir.resolve(entry.getName());
+                if (entry.isDirectory()) {
+                    Files.createDirectories(newFilePath);
+                } else {
+                    Files.createDirectories(newFilePath.getParent());
+                    Files.copy(zis, newFilePath, StandardCopyOption.REPLACE_EXISTING);
+                }
+            }
+        }
+    }
+
+    private static void deleteDirectoryRecursively(Path path) throws IOException {
+        if (Files.exists(path)) {
+            Files.walk(path)
+                .sorted(Comparator.reverseOrder())
+                .map(Path::toFile)
+                .forEach(File::delete);
+        }
+    }
+
+    @When("I export networks with PRAs to {string} based on raoResults zip {string}")
+    public static void generateNetworksWithPraFromResults(String outputPath, String raoResultsZipPath) throws IOException {
+
+        //Unzip the given zip file to a temp folder
+        Path tempDir = Files.createTempDirectory("raoResults_");
+        unzipZipToFolder(getResourcesPath().concat(raoResultsZipPath), tempDir);
+
         FileOutputStream fileOutputStream = new FileOutputStream(getFile(getResourcesPath().concat(outputPath)));
         ZipOutputStream zipOutputStream = new ZipOutputStream(fileOutputStream);
+        try {
+            for (OffsetDateTime offsetDateTime : interTemporalRaoInput.getTimestampsToRun()) {
 
-        for (OffsetDateTime offsetDateTime : interTemporalRaoInput.getTimestampsToRun()) {
-            FileInputStream raoResultInputStream = new FileInputStream(getFile(getResourcesPath().concat(resultsPath) + "/RAO_RESULT_" + offsetDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")) + ".json"));
-            RaoResult raoResult = RaoResult.read(raoResultInputStream, interTemporalRaoInput.getRaoInputs().getData(offsetDateTime).orElseThrow().getCrac());
+                String filename = "RAO_RESULT_" + offsetDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")) + ".json";
+                FileInputStream raoResultInputStream = new FileInputStream(getFile(String.valueOf(tempDir.resolve(filename))));
+                RaoResult raoResult = RaoResult.read(raoResultInputStream, interTemporalRaoInput.getRaoInputs().getData(offsetDateTime).orElseThrow().getCrac());
 
-            Set<NetworkAction> preventiveNetworkActions = raoResult.getActivatedNetworkActionsDuringState(interTemporalRaoInput.getRaoInputs().getData(offsetDateTime).get().getCrac().getPreventiveState());
-            Set<RangeAction<?>> preventiveRangeActions = raoResult.getActivatedRangeActionsDuringState(interTemporalRaoInput.getRaoInputs().getData(offsetDateTime).get().getCrac().getPreventiveState());
-            Network modifiedNetwork = Network.read(interTemporalRaoInput.getRaoInputs().getData(offsetDateTime).orElseThrow().getPostIcsImportNetworkPath());
-            Network initialNetwork = Network.read(interTemporalRaoInput.getRaoInputs().getData(offsetDateTime).orElseThrow().getInitialNetworkPath());
+                Set<NetworkAction> preventiveNetworkActions = raoResult.getActivatedNetworkActionsDuringState(interTemporalRaoInput.getRaoInputs().getData(offsetDateTime).get().getCrac().getPreventiveState());
+                Set<RangeAction<?>> preventiveRangeActions = raoResult.getActivatedRangeActionsDuringState(interTemporalRaoInput.getRaoInputs().getData(offsetDateTime).get().getCrac().getPreventiveState());
+                Network modifiedNetwork = Network.read(interTemporalRaoInput.getRaoInputs().getData(offsetDateTime).orElseThrow().getPostIcsImportNetworkPath());
+                Network initialNetwork = Network.read(interTemporalRaoInput.getRaoInputs().getData(offsetDateTime).orElseThrow().getInitialNetworkPath());
 
-            // Apply PRAs on modified network
-            preventiveNetworkActions.forEach(networkAction -> networkAction.apply(initialNetwork));
-            preventiveRangeActions.forEach(rangeAction -> {
-                double optimizedSetpoint = raoResult.getOptimizedSetPointOnState(interTemporalRaoInput.getRaoInputs().getData(offsetDateTime).get().getCrac().getPreventiveState(), rangeAction);
-                if (rangeAction instanceof InjectionRangeAction) {
-                    applyRedispatchingAction((InjectionRangeAction) rangeAction, optimizedSetpoint, modifiedNetwork, initialNetwork);
-                } else {
-                    rangeAction.apply(initialNetwork, optimizedSetpoint);
+                // Apply PRAs on modified network
+                preventiveNetworkActions.forEach(networkAction -> networkAction.apply(initialNetwork));
+                preventiveRangeActions.forEach(rangeAction -> {
+                    double optimizedSetpoint = raoResult.getOptimizedSetPointOnState(interTemporalRaoInput.getRaoInputs().getData(offsetDateTime).get().getCrac().getPreventiveState(), rangeAction);
+                    if (rangeAction instanceof InjectionRangeAction) {
+                        applyRedispatchingAction((InjectionRangeAction) rangeAction, optimizedSetpoint, modifiedNetwork, initialNetwork);
+                    } else {
+                        rangeAction.apply(initialNetwork, optimizedSetpoint);
+                    }
+                });
+                // Write network
+                String path = interTemporalRaoInput.getRaoInputs().getData(offsetDateTime).orElseThrow().getPostIcsImportNetworkPath().split(".jiidm")[0].concat(".uct");
+                String name = path.substring(path.lastIndexOf("/") + 1);
+                initialNetwork.write("UCTE", new Properties(), Path.of(path));
+
+                // Add network to zip
+                ZipEntry entry = new ZipEntry(name);
+                zipOutputStream.putNextEntry(entry);
+                File generatedNetwork = new File(path);
+                byte[] fileInByte = FileUtils.readFileToByteArray(generatedNetwork);
+                InputStream is = new ByteArrayInputStream(fileInByte);
+                byte[] bytes = new byte[1024];
+                int length;
+                while ((length = is.read(bytes)) >= 0) {
+                    zipOutputStream.write(bytes, 0, length);
                 }
-            });
-            // Write network
-            String path = interTemporalRaoInput.getRaoInputs().getData(offsetDateTime).orElseThrow().getPostIcsImportNetworkPath().split(".jiidm")[0].concat(".uct");
-            String name = path.substring(path.lastIndexOf("/") + 1);
-            initialNetwork.write("UCTE", new Properties(), Path.of(path));
-
-            // Add network to zip
-            ZipEntry entry = new ZipEntry(name);
-            zipOutputStream.putNextEntry(entry);
-            File generatedNetwork = new File(path);
-            byte[] fileInByte = FileUtils.readFileToByteArray(generatedNetwork);
-            InputStream is = new ByteArrayInputStream(fileInByte);
-            byte[] bytes = new byte[1024];
-            int length;
-            while ((length = is.read(bytes)) >= 0) {
-                zipOutputStream.write(bytes, 0, length);
+                is.close();
+                generatedNetwork.delete();
             }
-            is.close();
-            generatedNetwork.delete();
+            zipOutputStream.close();
+            cleanModifiedNetworks();
+        } finally {
+            deleteDirectoryRecursively(tempDir);
         }
-        zipOutputStream.close();
-        cleanModifiedNetworks();
     }
 
     @When("I export networks with PRAs to {string}")
     public static void iExportNetworksWithPras(String outputPath) throws IOException {
+
         FileOutputStream fileOutputStream = new FileOutputStream(getFile(getResourcesPath().concat(outputPath)));
         ZipOutputStream zipOutputStream = new ZipOutputStream(fileOutputStream);
 
@@ -455,4 +500,23 @@ public final class InterTemporalRaoSteps {
         interTemporalRaoInput.getTimestampsToRun().forEach(timestamp -> raoResults.put(timestamp, interTemporalRaoResult.getIndividualRaoResult(timestamp)));
         F711Utils.write(new TemporalDataImpl<>(raoResults), new TemporalDataImpl<>(cracCreationContexts).map(FbConstraintCreationContext.class::cast), cracPath, getResourcesPath().concat("raoresults/%s-FID2-711-v1-10V1001C--00264T-to-10V1001C--00085T.xml").formatted(businessDate));
     }
+    @When("I export F711 for business date {string} based on raoResults zip {string}") // expected format yyyyMMdd
+    public static void exportF711(String businessDate, String raoResultsZipPath) throws IOException {
+        //Unzip the given zip file to a temp folder
+        Path tempDir = Files.createTempDirectory("raoResults_");
+        unzipZipToFolder(getResourcesPath().concat(raoResultsZipPath), tempDir);
+        try {
+            Map<OffsetDateTime, RaoResult> raoResults = new HashMap<>();
+            for (OffsetDateTime timestamp : interTemporalRaoInput.getTimestampsToRun()) {
+                    String filename = "RAO_RESULT_" + timestamp.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")) + ".json";
+                    FileInputStream raoResultInputStream = new FileInputStream(getFile(String.valueOf(tempDir.resolve(filename))));
+                    RaoResult raoResult = RaoResult.read(raoResultInputStream, interTemporalRaoInput.getRaoInputs().getData(timestamp).orElseThrow().getCrac());
+                    raoResults.put(timestamp, raoResult);
+            }
+            F711Utils.write(new TemporalDataImpl<>(raoResults), new TemporalDataImpl<>(cracCreationContexts).map(FbConstraintCreationContext.class::cast), cracPath, getResourcesPath().concat("generatedF711/%s-FID2-711-v1-10V1001C--00264T-to-10V1001C--00085T.xml").formatted(businessDate));
+        } finally {
+            deleteDirectoryRecursively(tempDir);
+        }
+    }
+
 }

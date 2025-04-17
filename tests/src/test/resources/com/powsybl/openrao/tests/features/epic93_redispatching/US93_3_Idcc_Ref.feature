@@ -42,9 +42,9 @@ Feature: US 93.3: CORE IDCC data
       | 2024-01-22 23:30 | 20240122_2330_2D1_UX2_FINIT_EXPORTGRIDMODEL_DC_CGM_10V1001C--00264T.uct |
     When I launch marmot
     When I export marmot results to "raoresults/results_20240122.zip"
-    When I export RefProg after redispatching to "generatedRefProgs/20240122-FID2-632-v2-10V1001C--00264T-to-10V1001C--00085T.xml" based on raoResults folder "raoresults/results_20240122/"
-    When I export networks with PRAs to "raoresults/networkWithPras_20240122.zip"
-    When I export F711 for business date "20240122"
+    When I export RefProg after redispatching to "generatedRefProgs/20240122-FID2-632-v2-10V1001C--00264T-to-10V1001C--00085T.xml" based on raoResults zip "raoresults/results_20240122.zip"
+    When I export networks with PRAs to "generatedNetworkWithPras/networkWithPras_20240122.zip" based on raoResults zip "raoresults/results_20240122.zip"
+    When I export F711 for business date "20240122" based on raoResults zip "raoresults/results_20240122.zip"
 
   @slow @rao @idcc @roxane
   Scenario: US 93.3.2: 20240131
@@ -83,9 +83,9 @@ Feature: US 93.3: CORE IDCC data
       | 2024-01-31 23:30 | 20240131_2330_2D3_UX2_FINIT_EXPORTGRIDMODEL_DC_CGM_10V1001C--00264T.uct |
     When I launch marmot
     When I export marmot results to "raoresults/results_20240131.zip"
-    When I export RefProg after redispatching to "generatedRefProgs/20240131-FID2-632-v2-10V1001C--00264T-to-10V1001C--00085T.xml" based on raoResults folder "raoresults/results_20240131/"
-    When I export networks with PRAs to "raoresults/networkWithPras_20240131.zip"
-    When I export F711 for business date "20240131"
+    When I export RefProg after redispatching to "generatedRefProgs/20240131-FID2-632-v2-10V1001C--00264T-to-10V1001C--00085T.xml" based on raoResults zip "raoresults/results_20240131.zip"
+    When I export networks with PRAs to "raoresults/networkWithPras_20240131.zip" based on raoResults zip "raoresults/results_20240131.zip"
+    When I export F711 for business date "20240131" based on raoResults zip "raoresults/results_20240131.zip"
 
   @slow @rao @idcc @roxane
   Scenario: US 93.3.3: 20240222
@@ -124,9 +124,9 @@ Feature: US 93.3: CORE IDCC data
       | 2024-02-22 23:30 | 20240222_2330_2D4_UX2_FINIT_EXPORTGRIDMODEL_DC_CGM_10V1001C--00264T.uct |
     When I launch marmot
     When I export marmot results to "raoresults/results_20240222.zip"
-    When I export RefProg after redispatching to "generatedRefProgs/20240222-FID2-632-v3-10V1001C--00264T-to-10V1001C--00085T.xml" based on raoResults folder "raoresults/results_20240222/"
-    When I export networks with PRAs to "raoresults/networkWithPras_20240222.zip"
-    When I export F711 for business date "20240222"
+    When I export RefProg after redispatching to "generatedRefProgs/20240222-FID2-632-v3-10V1001C--00264T-to-10V1001C--00085T.xml" based on raoResults zip "raoresults/results_20240222.zip"
+    When I export networks with PRAs to "raoresults/networkWithPras_20240222.zip" based on raoResults zip "raoresults/results_20240222.zip"
+    When I export F711 for business date "20240222" based on raoResults zip "raoresults/results_20240222.zip"
 
   @slow @rao @idcc @roxane
   Scenario: US 93.3.4: 20240224
@@ -165,9 +165,9 @@ Feature: US 93.3: CORE IDCC data
       | 2024-02-24 23:30 | 20240224_2330_2D6_UX2_FINIT_EXPORTGRIDMODEL_DC_CGM_10V1001C--00264T.uct |
     When I launch marmot
     When I export marmot results to "raoresults/results_20240224.zip"
-    When I export RefProg after redispatching to "generatedRefProgs/20240224-FID2-632-v3-10V1001C--00264T-to-10V1001C--00085T.xml" based on raoResults folder "raoresults/results_20240224/"
-    When I export networks with PRAs to "raoresults/networkWithPras_20240224.zip"
-    When I export F711 for business date "20240224"
+    When I export RefProg after redispatching to "generatedRefProgs/20240224-FID2-632-v3-10V1001C--00264T-to-10V1001C--00085T.xml" based on raoResults zip "raoresults/results_20240224.zip"
+    When I export networks with PRAs to "raoresults/networkWithPras_20240224.zip" based on raoResults zip "raoresults/results_20240224.zip"
+    When I export F711 for business date "20240224" based on raoResults zip "raoresults/results_20240224.zip"
 
   @slow @rao @idcc @roxane
   Scenario: US 93.3.5: 20240502
@@ -206,9 +206,9 @@ Feature: US 93.3: CORE IDCC data
       | 2024-05-02 23:30 | 20240502_2330_2D4_UX2_FINIT_EXPORTGRIDMODEL_DC_CGM_10V1001C--00264T.uct |
     When I launch marmot
     When I export marmot results to "raoresults/results_20240502.zip"
-    When I export RefProg after redispatching to "generatedRefProgs/20240502-FID2-632-v2-10V1001C--00264T-to-10V1001C--00085T.xml" based on raoResults folder "raoresults/results_20240502/"
-    When I export networks with PRAs to "raoresults/networkWithPras_20240502.zip"
-    When I export F711 for business date "20240502"
+    When I export RefProg after redispatching to "generatedRefProgs/20240502-FID2-632-v2-10V1001C--00264T-to-10V1001C--00085T.xml" based on raoResults zip "raoresults/results_20240502.zip"
+    When I export networks with PRAs to "raoresults/networkWithPras_20240502.zip" based on raoResults zip "raoresults/results_20240502.zip"
+    When I export F711 for business date "20240502" based on raoResults zip "raoresults/results_20240502.zip"
 
   @slow @rao @idcc @thomas
   Scenario: US 93.3.6: 20240526
@@ -247,9 +247,9 @@ Feature: US 93.3: CORE IDCC data
       | 2024-05-26 23:30 | 20240526_2330_2D7_UX2_FINIT_EXPORTGRIDMODEL_DC_CGM_10V1001C--00264T.uct |
     When I launch marmot
     When I export marmot results to "raoresults/results_20240526.zip"
-    When I export RefProg after redispatching to "generatedRefProgs/20240526-FID2-632-v2-10V1001C--00264T-to-10V1001C--00085T.xml" based on raoResults folder "raoresults/results_20240526/"
-    When I export networks with PRAs to "raoresults/networkWithPras_20240526.zip"
-    When I export F711 for business date "20240526"
+    When I export RefProg after redispatching to "generatedRefProgs/20240526-FID2-632-v2-10V1001C--00264T-to-10V1001C--00085T.xml" based on raoResults zip "raoresults/results_20240526.zip"
+    When I export networks with PRAs to "raoresults/networkWithPras_20240526.zip" based on raoResults zip "raoresults/results_20240526.zip"
+    When I export F711 for business date "20240526" based on raoResults zip "raoresults/results_20240526.zip"
 
   @slow @rao @idcc @thomas
   Scenario: US 93.3.7: 20240602
@@ -288,9 +288,9 @@ Feature: US 93.3: CORE IDCC data
       | 2024-06-02 23:30 | 20240602_2330_2D7_UX2_FINIT_EXPORTGRIDMODEL_DC_CGM_10V1001C--00264T.uct |
     When I launch marmot
     When I export marmot results to "raoresults/results_20240602.zip"
-    When I export RefProg after redispatching to "generatedRefProgs/20240602-FID2-632-v2-10V1001C--00264T-to-10V1001C--00085T.xml" based on raoResults folder "raoresults/results_20240602/"
-    When I export networks with PRAs to "raoresults/networkWithPras_20240602.zip"
-    When I export F711 for business date "20240602"
+    When I export RefProg after redispatching to "generatedRefProgs/20240602-FID2-632-v2-10V1001C--00264T-to-10V1001C--00085T.xml" based on raoResults zip "raoresults/results_20240602.zip"
+    When I export networks with PRAs to "raoresults/networkWithPras_20240602.zip" based on raoResults zip "raoresults/results_20240602.zip"
+    When I export F711 for business date "20240602" based on raoResults zip "raoresults/results_20240602.zip"
 
   @slow @rao @idcc @thomas
   Scenario: US 93.3.8: 20240606
@@ -329,9 +329,9 @@ Feature: US 93.3: CORE IDCC data
       | 2024-06-06 23:30 | 20240606_2330_2D4_UX2_FINIT_EXPORTGRIDMODEL_DC_CGM_10V1001C--00264T.uct |
     When I launch marmot
     When I export marmot results to "raoresults/results_20240606.zip"
-    When I export RefProg after redispatching to "generatedRefProgs/20240606-FID2-632-v2-10V1001C--00264T-to-10V1001C--00085T.xml" based on raoResults folder "raoresults/results_20240606/"
-    When I export networks with PRAs to "raoresults/networkWithPras_20240606.zip"
-    When I export F711 for business date "20240606"
+    When I export RefProg after redispatching to "generatedRefProgs/20240606-FID2-632-v2-10V1001C--00264T-to-10V1001C--00085T.xml" based on raoResults zip "raoresults/results_20240606.zip"
+    When I export networks with PRAs to "raoresults/networkWithPras_20240606.zip" based on raoResults zip "raoresults/results_20240606.zip"
+    When I export F711 for business date "20240606" based on raoResults zip "raoresults/results_20240606.zip"
 
   @slow @rao @idcc @thomas
   Scenario: US 93.3.9: 20240628
@@ -370,9 +370,9 @@ Feature: US 93.3: CORE IDCC data
       | 2024-06-28 23:30 | 20240628_2330_2D5_UX2_FINIT_EXPORTGRIDMODEL_DC_CGM_10V1001C--00264T.uct |
     When I launch marmot
     When I export marmot results to "raoresults/results_20240628.zip"
-    When I export RefProg after redispatching to "generatedRefProgs/20240628-FID2-632-v2-10V1001C--00264T-to-10V1001C--00085T.xml" based on raoResults folder "raoresults/results_20240628/"
-    When I export networks with PRAs to "raoresults/networkWithPras_20240628.zip"
-    When I export F711 for business date "20240628"
+    When I export RefProg after redispatching to "generatedRefProgs/20240628-FID2-632-v2-10V1001C--00264T-to-10V1001C--00085T.xml" based on raoResults zip "raoresults/results_20240628.zip"
+    When I export networks with PRAs to "raoresults/networkWithPras_20240628.zip" based on raoResults zip "raoresults/results_20240628.zip"
+    When I export F711 for business date "20240628" based on raoResults zip "raoresults/results_20240628.zip"
 
   @slow @rao @idcc @thomas
   Scenario: US 93.3.10: 20240704
@@ -411,9 +411,9 @@ Feature: US 93.3: CORE IDCC data
       | 2024-07-04 23:30 | 20240704_2330_2D4_UX2_FINIT_EXPORTGRIDMODEL_DC_CGM_10V1001C--00264T.uct |
     When I launch marmot
     When I export marmot results to "raoresults/results_20240704.zip"
-    When I export RefProg after redispatching to "generatedRefProgs/20240704-FID2-632-v2-10V1001C--00264T-to-10V1001C--00085T.xml" based on raoResults folder "raoresults/results_20240704/"
-    When I export networks with PRAs to "raoresults/networkWithPras_20240704.zip"
-    When I export F711 for business date "20240704"
+    When I export RefProg after redispatching to "generatedRefProgs/20240704-FID2-632-v2-10V1001C--00264T-to-10V1001C--00085T.xml" based on raoResults zip "raoresults/results_20240704.zip"
+    When I export networks with PRAs to "raoresults/networkWithPras_20240704.zip" based on raoResults zip "raoresults/results_20240704.zip"
+    When I export F711 for business date "20240704" based on raoResults zip "raoresults/results_20240704.zip"
 
   @slow @rao @idcc @godelaine
   Scenario: US 93.3.11: 20240711
@@ -452,9 +452,9 @@ Feature: US 93.3: CORE IDCC data
       | 2024-07-11 23:30 | 20240711_2330_2D4_UX2_FINIT_EXPORTGRIDMODEL_DC_CGM_10V1001C--00264T.uct |
     When I launch marmot
     When I export marmot results to "raoresults/results_20240711.zip"
-    When I export RefProg after redispatching to "generatedRefProgs/20240711-FID2-632-v2-10V1001C--00264T-to-10V1001C--00085T.xml" based on raoResults folder "raoresults/results_20240711/"
-    When I export networks with PRAs to "raoresults/networkWithPras_20240711.zip"
-    When I export F711 for business date "20240711"
+    When I export RefProg after redispatching to "generatedRefProgs/20240711-FID2-632-v2-10V1001C--00264T-to-10V1001C--00085T.xml" based on raoResults zip "raoresults/results_20240711.zip"
+    When I export networks with PRAs to "raoresults/networkWithPras_20240711.zip" based on raoResults zip "raoresults/results_20240711.zip"
+    When I export F711 for business date "20240711" based on raoResults zip "raoresults/results_20240711.zip"
 
   @slow @rao @idcc @godelaine
   Scenario: US 93.3.12: 20240712
@@ -493,9 +493,9 @@ Feature: US 93.3: CORE IDCC data
       | 2024-07-12 23:30 | 20240712_2330_2D5_UX2_FINIT_EXPORTGRIDMODEL_DC_CGM_10V1001C--00264T.uct |
     When I launch marmot
     When I export marmot results to "raoresults/results_20240712.zip"
-    When I export RefProg after redispatching to "generatedRefProgs/20240712-FID2-632-v2-10V1001C--00264T-to-10V1001C--00085T.xml" based on raoResults folder "raoresults/results_20240712/"
-    When I export networks with PRAs to "raoresults/networkWithPras_20240712.zip"
-    When I export F711 for business date "20240712"
+    When I export RefProg after redispatching to "generatedRefProgs/20240712-FID2-632-v2-10V1001C--00264T-to-10V1001C--00085T.xml" based on raoResults zip "raoresults/results_20240712.zip"
+    When I export networks with PRAs to "raoresults/networkWithPras_20240712.zip" based on raoResults zip "raoresults/results_20240712.zip"
+    When I export F711 for business date "20240712" based on raoResults zip "raoresults/results_20240712.zip"
 
   @slow @rao @idcc @godelaine
   Scenario: US 93.3.13: 20240716
@@ -534,9 +534,9 @@ Feature: US 93.3: CORE IDCC data
       | 2024-07-16 23:30 | 20240716_2330_2D2_UX2_FINIT_EXPORTGRIDMODEL_DC_CGM_10V1001C--00264T.uct |
     When I launch marmot
     When I export marmot results to "raoresults/results_20240716.zip"
-    When I export RefProg after redispatching to "generatedRefProgs/20240716-FID2-632-v2-10V1001C--00264T-to-10V1001C--00085T.xml" based on raoResults folder "raoresults/results_20240716/"
-    When I export networks with PRAs to "raoresults/networkWithPras_20240716.zip"
-    When I export F711 for business date "20240716"
+    When I export RefProg after redispatching to "generatedRefProgs/20240716-FID2-632-v2-10V1001C--00264T-to-10V1001C--00085T.xml" based on raoResults zip "raoresults/results_20240716.zip"
+    When I export networks with PRAs to "raoresults/networkWithPras_20240716.zip" based on raoResults zip "raoresults/results_20240716.zip"
+    When I export F711 for business date "20240716" based on raoResults zip "raoresults/results_20240716.zip"
 
   @slow @rao @idcc @done-philippe
   Scenario: US 93.3.14: 20240718
@@ -575,9 +575,9 @@ Feature: US 93.3: CORE IDCC data
       | 2024-07-18 23:30 | 20240718_2330_2D4_UX2_FINIT_EXPORTGRIDMODEL_DC_CGM_10V1001C--00264T.uct |
     When I launch marmot
     When I export marmot results to "raoresults/results_20240718.zip"
-    When I export RefProg after redispatching to "generatedRefProgs/20240718-FSC-ID2-REFPROG-v1-10V1001C--00264T-to-10XFR-RTE------Q.xml" based on raoResults folder "raoresults/results_20240718/"
-    When I export networks with PRAs to "raoresults/networkWithPras_20240718.zip"
-    When I export F711 for business date "20240718"
+    When I export RefProg after redispatching to "generatedRefProgs/20240718-FSC-ID2-REFPROG-v1-10V1001C--00264T-to-10XFR-RTE------Q.xml" based on raoResults zip "raoresults/results_20240718.zip"
+    When I export networks with PRAs to "raoresults/networkWithPras_20240718.zip" based on raoResults zip "raoresults/results_20240718.zip"
+    When I export F711 for business date "20240718" based on raoResults zip "raoresults/results_20240718.zip"
 
 
   @slow @rao @idcc @godelaine
@@ -617,9 +617,9 @@ Feature: US 93.3: CORE IDCC data
       | 2024-07-30 23:30 | 20240730_2330_2D2_UX2_FINIT_EXPORTGRIDMODEL_DC_CGM_10V1001C--00264T.uct |
     When I launch marmot
     When I export marmot results to "raoresults/results_20240730.zip"
-    When I export RefProg after redispatching to "generatedRefProgs/20240730-FID2-632-v2-10V1001C--00264T-to-10V1001C--00085T.xml" based on raoResults folder "raoresults/results_20240730/"
-    When I export networks with PRAs to "raoresults/networkWithPras_20240730.zip"
-    When I export F711 for business date "20240730"
+    When I export RefProg after redispatching to "generatedRefProgs/20240730-FID2-632-v2-10V1001C--00264T-to-10V1001C--00085T.xml" based on raoResults zip "raoresults/results_20240730.zip"
+    When I export networks with PRAs to "raoresults/networkWithPras_20240730.zip" based on raoResults zip "raoresults/results_20240730.zip"
+    When I export F711 for business date "20240730" based on raoResults zip "raoresults/results_20240730.zip"
 
   @slow @rao @idcc @philippe
   Scenario: US 93.3.17: 20240826
@@ -658,9 +658,9 @@ Feature: US 93.3: CORE IDCC data
       | 2024-08-26 23:30 | 20240826_2330_2D1_UX2_FINIT_EXPORTGRIDMODEL_DC_CGM_10V1001C--00264T.uct |
     When I launch marmot
     When I export marmot results to "raoresults/results_20240826.zip"
-    When I export RefProg after redispatching to "generatedRefProgs/20240826-FID2-632-v2-10V1001C--00264T-to-10V1001C--00085T.xml" based on raoResults folder "raoresults/results_20240826/"
-    When I export networks with PRAs to "raoresults/networkWithPras_20240826.zip"
-    When I export F711 for business date "20240826"
+    When I export RefProg after redispatching to "generatedRefProgs/20240826-FID2-632-v2-10V1001C--00264T-to-10V1001C--00085T.xml" based on raoResults zip "raoresults/results_20240826.zip"
+    When I export networks with PRAs to "raoresults/networkWithPras_20240826.zip" based on raoResults zip "raoresults/results_20240826.zip"
+    When I export F711 for business date "20240826" based on raoResults zip "raoresults/results_20240826.zip"
 
   @slow @rao @idcc @philippe
   Scenario: US 93.3.18: 20240906
@@ -699,9 +699,9 @@ Feature: US 93.3: CORE IDCC data
       | 2024-09-06 23:30 | 20240906_2330_2D5_UX2_FINIT_EXPORTGRIDMODEL_DC_CGM_10V1001C--00264T.uct |
     When I launch marmot
     When I export marmot results to "raoresults/results_20240906.zip"
-    When I export RefProg after redispatching to "generatedRefProgs/20240906-FID2-632-v2-10V1001C--00264T-to-10V1001C--00085T.xml" based on raoResults folder "raoresults/results_20240906/"
-    When I export networks with PRAs to "raoresults/networkWithPras_20240906.zip"
-    When I export F711 for business date "20240906"
+    When I export RefProg after redispatching to "generatedRefProgs/20240906-FID2-632-v2-10V1001C--00264T-to-10V1001C--00085T.xml" based on raoResults zip "raoresults/results_20240906.zip"
+    When I export networks with PRAs to "raoresults/networkWithPras_20240906.zip" based on raoResults zip "raoresults/results_20240906.zip"
+    When I export F711 for business date "20240906" based on raoResults zip "raoresults/results_20240906.zip"
 
   @slow @rao @idcc @philippe
   Scenario: US 93.3.19: 20240910
@@ -740,9 +740,9 @@ Feature: US 93.3: CORE IDCC data
       | 2024-09-10 23:30 | 20240910_2330_2D2_UX2_FINIT_EXPORTGRIDMODEL_DC_CGM_10V1001C--00264T.uct |
     When I launch marmot
     When I export marmot results to "raoresults/results_20240910.zip"
-    When I export RefProg after redispatching to "generatedRefProgs/20240910-FID2-632-v2-10V1001C--00264T-to-10V1001C--00085T.xml" based on raoResults folder "raoresults/results_20240910/"
-    When I export networks with PRAs to "raoresults/networkWithPras_20240910.zip"
-    When I export F711 for business date "20240910"
+    When I export RefProg after redispatching to "generatedRefProgs/20240910-FID2-632-v2-10V1001C--00264T-to-10V1001C--00085T.xml" based on raoResults zip "raoresults/results_20240910.zip"
+    When I export networks with PRAs to "raoresults/networkWithPras_20240910.zip" based on raoResults zip "raoresults/results_20240910.zip"
+    When I export F711 for business date "20240910" based on raoResults zip "raoresults/results_20240910.zip"
 
   @slow @rao @idcc @philippe
   Scenario: US 93.3.20: 20240926
@@ -781,9 +781,9 @@ Feature: US 93.3: CORE IDCC data
       | 2024-09-26 23:30 | 20240926_2330_2D4_UX2_FINIT_EXPORTGRIDMODEL_DC_CGM_10V1001C--00264T.uct |
     When I launch marmot
     When I export marmot results to "raoresults/results_20240926.zip"
-    When I export RefProg after redispatching to "generatedRefProgs/20240926-FID2-632-v2-10V1001C--00264T-to-10V1001C--00085T.xml" based on raoResults folder "raoresults/results_20240926/"
-    When I export networks with PRAs to "raoresults/networkWithPras_20240926.zip"
-    When I export F711 for business date "20240926"
+    When I export RefProg after redispatching to "generatedRefProgs/20240926-FID2-632-v2-10V1001C--00264T-to-10V1001C--00085T.xml" based on raoResults zip "raoresults/results_20240926.zip"
+    When I export networks with PRAs to "raoresults/networkWithPras_20240926.zip" based on raoResults zip "raoresults/results_20240926.zip"
+    When I export F711 for business date "20240926" based on raoResults zip "raoresults/results_20240926.zip"
 
   @slow @rao @idcc @philippe
   Scenario: US 93.3.21: 20241013
@@ -822,9 +822,9 @@ Feature: US 93.3: CORE IDCC data
       | 2024-10-13 23:30 | 20241013_2330_2D7_UX2_FINIT_EXPORTGRIDMODEL_DC_CGM_10V1001C--00264T.uct |
     When I launch marmot
     When I export marmot results to "raoresults/results_20241013.zip"
-    When I export RefProg after redispatching to "generatedRefProgs/20241013-FID2-632-v2-10V1001C--00264T-to-10V1001C--00085T.xml" based on raoResults folder "raoresults/results_20241013/"
-    When I export networks with PRAs to "raoresults/networkWithPras_20241013.zip"
-    When I export F711 for business date "20241013"
+    When I export RefProg after redispatching to "generatedRefProgs/20241013-FID2-632-v2-10V1001C--00264T-to-10V1001C--00085T.xml" based on raoResults zip "raoresults/results_20241013.zip"
+    When I export networks with PRAs to "raoresults/networkWithPras_20241013.zip" based on raoResults zip "raoresults/results_20241013.zip"
+    When I export F711 for business date "20241013" based on raoResults zip "raoresults/results_20241013.zip"
 
   @slow @rao @idcc @philippe
   Scenario: US 93.3.22: 20241028
@@ -863,9 +863,9 @@ Feature: US 93.3: CORE IDCC data
       | 2024-10-28 23:30 | 20241028_2330_2D1_UX2_FINIT_EXPORTGRIDMODEL_DC_CGM_10V1001C--00264T.uct |
     When I launch marmot
     When I export marmot results to "raoresults/results_20241028.zip"
-    When I export RefProg after redispatching to "generatedRefProgs/20241028-FID2-632-v2-10V1001C--00264T-to-10V1001C--00085T.xml" based on raoResults folder "raoresults/results_20241028/"
-    When I export networks with PRAs to "raoresults/networkWithPras_20241028.zip"
-    When I export F711 for business date "20241028"
+    When I export RefProg after redispatching to "generatedRefProgs/20241028-FID2-632-v2-10V1001C--00264T-to-10V1001C--00085T.xml" based on raoResults zip "raoresults/results_20241028.zip"
+    When I export networks with PRAs to "raoresults/networkWithPras_20241028.zip" based on raoResults zip "raoresults/results_20241028.zip"
+    When I export F711 for business date "20241028" based on raoResults zip "raoresults/results_20241028.zip"
 
 
 
