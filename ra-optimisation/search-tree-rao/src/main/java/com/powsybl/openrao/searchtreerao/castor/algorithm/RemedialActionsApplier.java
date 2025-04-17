@@ -13,6 +13,7 @@ import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
+import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
@@ -175,7 +176,8 @@ public class RemedialActionsApplier {
             curativeRAs.addAppliedRangeActions(state, rangeActionActivationResult.getOptimizedSetpointsOnState(state));
         }
 
-        final PrePerimeterResult postRAperimeterResult = new PrePerimeterSensitivityAnalysis(perimeterFlowCnecs, crac.getRangeActions(state), raoParameters, toolProvider).runBasedOnInitialResults(network, crac, prePerimeterResult, Set.of(), curativeRAs);
+        final PrePerimeterResult postRAperimeterResult = new PrePerimeterSensitivityAnalysis(perimeterFlowCnecs, crac.getRangeActions(state, UsageMethod.AVAILABLE, UsageMethod.FORCED), raoParameters, toolProvider)
+                .runBasedOnInitialResults(network, crac, prePerimeterResult, Set.of(), curativeRAs);
         final OptimizationResultImpl optimizationResult = new OptimizationResultImpl(postRAperimeterResult, postRAperimeterResult, postRAperimeterResult, networkActionsResult, rangeActionActivationResult);
         return new OneStateOnlyRaoResultImpl(state, prePerimeterResult, optimizationResult, perimeterFlowCnecs);
     }

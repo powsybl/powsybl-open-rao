@@ -19,7 +19,6 @@ import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.searchtreerao.commons.RaoLogger;
 import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
-import com.powsybl.openrao.searchtreerao.commons.parameters.TreeParameters;
 import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
 import com.powsybl.openrao.searchtreerao.result.impl.FailedRaoResultImpl;
@@ -44,9 +43,9 @@ import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.applyRemedialAct
  * @author Daniel Thirion {@literal <daniel.thirion at rte-france.com>}
  */
 public class PstSeriesRaoResult {
+    //TODO Attention en sortie du traitement initial les variants existent déjà après optimisation
     private static final String INITIAL_SCENARIO = "InitialScenario";
     private static final String PREVENTIVE_SCENARIO = "PreventiveScenario";
-    private static final String SECOND_PREVENTIVE_SCENARIO_BEFORE_OPT = "SecondPreventiveScenario";
     private static final int NUMBER_LOGGED_ELEMENTS_DURING_RAO = 2;
 
     private final RaoInput raoInput;
@@ -100,9 +99,9 @@ public class PstSeriesRaoResult {
             // run search tree on preventive perimeter
             currentStep = "first preventive";
 
+            //TODO récupérer l'initial variant et non le working variant pour repartir du réseau initial
             network.getVariantManager().cloneVariant(network.getVariantManager().getWorkingVariantId(), INITIAL_SCENARIO);
             network.getVariantManager().cloneVariant(network.getVariantManager().getWorkingVariantId(), PREVENTIVE_SCENARIO);
-            network.getVariantManager().cloneVariant(network.getVariantManager().getWorkingVariantId(), SECOND_PREVENTIVE_SCENARIO_BEFORE_OPT);
             network.getVariantManager().setWorkingVariant(PREVENTIVE_SCENARIO);
 
             final State preventiveState = crac.getPreventiveState();
@@ -150,14 +149,9 @@ public class PstSeriesRaoResult {
 
             final RemedialActionsApplier remedialActionsApplier = new RemedialActionsApplier(crac,
                     raoParameters, toolProvider, stateTree, initialRaoResult);
-            remedialActionsApplier.optimizeContingencyScenarios(network, preCurativeSensitivityAnalysisOutput, forcedSetPointsByState);
+            final Map<State, OptimizationResult> stateOptimizationResultMap = remedialActionsApplier.optimizeContingencyScenarios(network, preCurativeSensitivityAnalysisOutput, forcedSetPointsByState);
 
-            final TreeParameters automatonTreeParameters = TreeParameters.buildForAutomatonPerimeter(raoParameters);
-            final TreeParameters curativeTreeParameters = TreeParameters.buildForCurativePerimeter(raoParameters, preventiveOptimalCost);
-            final CastorContingencyScenarios castorContingencyScenarios = new CastorContingencyScenarios(crac, raoParameters, toolProvider, stateTree, automatonTreeParameters, curativeTreeParameters, initialOutput);
-            final Map<State, OptimizationResult> postContingencyResults = castorContingencyScenarios.optimizeContingencyScenarios(network, preCurativeSensitivityAnalysisOutput, false);
-
-            mergedRaoResults = new PreventiveAndCurativesRaoResultImpl(stateTree, initialOutput, preventiveResult, preCurativeSensitivityAnalysisOutput, postContingencyResults, crac, raoParameters.getObjectiveFunctionParameters());
+            mergedRaoResults = new PreventiveAndCurativesRaoResultImpl(stateTree, initialOutput, preventiveResult, preCurativeSensitivityAnalysisOutput, stateOptimizationResultMap, crac, raoParameters.getObjectiveFunctionParameters());
             return CompletableFuture.completedFuture(mergedRaoResults);
         } catch (final RuntimeException e) {
             BUSINESS_LOGS.error("{} \n {}", e.getMessage(), ExceptionUtils.getStackTrace(e));
