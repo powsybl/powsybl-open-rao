@@ -49,10 +49,6 @@ public record TreeParameters(StopCriterion stopCriterion, double targetObjective
         }
     }
 
-    public static TreeParameters buildForAutomatonPerimeter(RaoParameters parameters) {
-        return new TreeParameters(StopCriterion.AT_TARGET_OBJECTIVE_VALUE, 0.0, getMaxAutoSearchTreeDepth(parameters), 1, false);
-    }
-
     public static TreeParameters buildForCurativePerimeter(RaoParameters parameters, Double preventiveOptimizedCost) {
         StopCriterion stopCriterion = StopCriterion.AT_TARGET_OBJECTIVE_VALUE;
         double targetObjectiveValue;

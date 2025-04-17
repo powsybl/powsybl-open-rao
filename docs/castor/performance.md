@@ -50,7 +50,7 @@ by national operators due to the timing constraint for real-time operations. For
 consideration.
 
 ---
-See also: [Preventive search stop criterion parameters](/parameters.md#max-preventive-search-tree-depth), [Automaton search stop criterion parameters](/parameters.md#max-auto-search-tree-depth), [Curative search stop criterion parameters](/parameters.md#max-curative-search-tree-depth)
+See also: [Preventive search stop criterion parameters](/parameters.md#max-preventive-search-tree-depth), [Curative search stop criterion parameters](/parameters.md#max-curative-search-tree-depth)
 
 ---
 

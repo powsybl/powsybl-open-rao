@@ -134,7 +134,7 @@ def new_rao_param(data: dict, file_path: str) -> dict:
             "hvdc-sensitivity-threshold", "injection-ra-sensitivity-threshold",
             "ra-range-shrinking", "linear-optimization-solver"])
         move_to_extension(data, "topological-actions-optimization",
-            ["max-preventive-search-tree-depth", "max-auto-search-tree-depth",
+            ["max-preventive-search-tree-depth",
             "max-curative-search-tree-depth", "predefined-combinations",
             "skip-actions-far-from-most-limiting-element",
             "max-number-of-boundaries-for-skipping-actions"])
