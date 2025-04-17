@@ -64,10 +64,12 @@ final class FlowCnecResultArraySerializer {
                 serializeFlowCnecResultForOptimizationState(crac.getInstant(InstantKind.AUTO), flowCnec, raoResult, crac, flowUnits, jsonGenerator);
             }
             crac.getInstants(InstantKind.CURATIVE).forEach(curativeInstant -> {
-                try {
-                    serializeFlowCnecResultForOptimizationState(curativeInstant, flowCnec, raoResult, crac, flowUnits, jsonGenerator);
-                } catch (IOException e) {
-                    throw new OpenRaoException("An error occured when serializing Voltage Cnec results", e);
+                if (!curativeInstant.comesAfter(instant)) {
+                    try {
+                        serializeFlowCnecResultForOptimizationState(curativeInstant, flowCnec, raoResult, crac, flowUnits, jsonGenerator);
+                    } catch (IOException e) {
+                        throw new OpenRaoException("An error occurred when serializing FlowCNEC results", e);
+                    }
                 }
             });
         }
