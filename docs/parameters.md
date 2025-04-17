@@ -181,7 +181,6 @@ rao-topological-actions-optimization:
 
 search-tree-topological-actions-optimization:
   max-preventive-search-tree-depth: 3
-  max-auto-search-tree-depth: 2
   max-curative-search-tree-depth: 3
   predefined-combinations: [ "{na1}+{na2}", "{na3}+{na4}+{na5}" ]
   relative-minimum-impact-threshold: 0.0
