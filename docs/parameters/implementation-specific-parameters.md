@@ -137,11 +137,6 @@ when searching for the best network actions.
 - **Usage**: maximum search-tree depth for preventive optimization.  
   Applies to the preventive RAO.
 
-##### max-auto-search-tree-depth
-- **Expected value**: integer
-- **Default value**: 2^32 -1 (max integer value)
-- **Usage**: maximum search-tree depth for the optimization of available auto network actions.
-
 ##### max-curative-search-tree-depth
 - **Expected value**: integer
 - **Default value**: 2^32 -1 (max integer value)
@@ -380,7 +375,7 @@ See also: [Modelling the maximum minimum relative margin objective function](/ca
 :::{group-tab} JSON
 ~~~json
 {
-  "version" : "3.0",
+  "version" : "3.1",
   "extensions" : {
     "open-rao-search-tree-parameters": {
       "objective-function" : {
@@ -400,7 +395,6 @@ See also: [Modelling the maximum minimum relative margin objective function](/ca
       },
       "topological-actions-optimization" : {
         "max-preventive-search-tree-depth" : 2,
-        "max-auto-search-tree-depth" : 1,
         "max-curative-search-tree-depth" : 2,
         "predefined-combinations" : [ "na1 + na2", "na4 + na5 + na6"],
         "skip-actions-far-from-most-limiting-element" : false,
@@ -498,7 +492,6 @@ search-tree-linear-optimization-solver:
 
 search-tree-topological-actions-optimization:
   max-preventive-search-tree-depth: 3
-  max-auto-search-tree-depth: 2
   max-curative-search-tree-depth: 3
   predefined-combinations: [ "{na1}+{na2}", "{na3}+{na4}+{na5}" ]
   relative-minimum-impact-threshold: 0.0
