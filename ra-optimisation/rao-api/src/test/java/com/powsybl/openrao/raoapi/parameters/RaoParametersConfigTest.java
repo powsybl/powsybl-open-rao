@@ -96,7 +96,6 @@ class RaoParametersConfigTest {
         topoActionsModuleConfig.setStringProperty("absolute-minimum-impact-threshold", Objects.toString(22));
         MapModuleConfig topoActionsModuleConfigExt = platformCfg.createModuleConfig("search-tree-topological-actions-optimization");
         topoActionsModuleConfigExt.setStringProperty("max-preventive-search-tree-depth", Objects.toString(3));
-        topoActionsModuleConfigExt.setStringProperty("max-auto-search-tree-depth", Objects.toString(2));
         topoActionsModuleConfigExt.setStringProperty("max-curative-search-tree-depth", Objects.toString(3));
         topoActionsModuleConfigExt.setStringListProperty("predefined-combinations", List.of("{na12} + {na22}", "{na41} + {na5} + {na6}"));
         topoActionsModuleConfigExt.setStringProperty("skip-actions-far-from-most-limiting-element", Objects.toString(true));

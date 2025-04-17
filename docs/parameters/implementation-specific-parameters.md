@@ -137,11 +137,6 @@ when searching for the best network actions.
 - **Usage**: maximum search-tree depth for preventive optimization.  
   Applies to the preventive RAO.
 
-##### max-auto-search-tree-depth
-- **Expected value**: integer
-- **Default value**: 2^32 -1 (max integer value)
-- **Usage**: maximum search-tree depth for the optimization of available auto network actions.
-
 ##### max-curative-search-tree-depth
 - **Expected value**: integer
 - **Default value**: 2^32 -1 (max integer value)
@@ -497,7 +492,6 @@ search-tree-linear-optimization-solver:
 
 search-tree-topological-actions-optimization:
   max-preventive-search-tree-depth: 3
-  max-auto-search-tree-depth: 2
   max-curative-search-tree-depth: 3
   predefined-combinations: [ "{na1}+{na2}", "{na3}+{na4}+{na5}" ]
   relative-minimum-impact-threshold: 0.0
