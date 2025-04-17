@@ -29,7 +29,6 @@ final class JsonTopoOptimizationParameters {
     static void serialize(OpenRaoSearchTreeParameters parameters, JsonGenerator jsonGenerator) throws IOException {
         jsonGenerator.writeObjectFieldStart(TOPOLOGICAL_ACTIONS_OPTIMIZATION);
         jsonGenerator.writeNumberField(MAX_PREVENTIVE_SEARCH_TREE_DEPTH, parameters.getTopoOptimizationParameters().getMaxPreventiveSearchTreeDepth());
-        jsonGenerator.writeNumberField(MAX_AUTO_SEARCH_TREE_DEPTH, parameters.getTopoOptimizationParameters().getMaxAutoSearchTreeDepth());
         jsonGenerator.writeNumberField(MAX_CURATIVE_SEARCH_TREE_DEPTH, parameters.getTopoOptimizationParameters().getMaxCurativeSearchTreeDepth());
         jsonGenerator.writeFieldName(PREDEFINED_COMBINATIONS);
         jsonGenerator.writeStartArray();
@@ -52,10 +51,6 @@ final class JsonTopoOptimizationParameters {
                 case MAX_PREVENTIVE_SEARCH_TREE_DEPTH:
                     jsonParser.nextToken();
                     searchTreeParameters.getTopoOptimizationParameters().setMaxPreventiveSearchTreeDepth(jsonParser.getIntValue());
-                    break;
-                case MAX_AUTO_SEARCH_TREE_DEPTH:
-                    jsonParser.nextToken();
-                    searchTreeParameters.getTopoOptimizationParameters().setMaxAutoSearchTreeDepth(jsonParser.getIntValue());
                     break;
                 case MAX_CURATIVE_SEARCH_TREE_DEPTH:
                     jsonParser.nextToken();
