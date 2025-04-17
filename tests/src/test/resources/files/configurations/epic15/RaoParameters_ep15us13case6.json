@@ -1,5 +1,5 @@
 {
-  "version" : "3.0",
+  "version" : "3.1",
   "objective-function" : {
     "type" : "MAX_MIN_MARGIN",
     "unit" : "A",
@@ -39,7 +39,6 @@
       },
       "topological-actions-optimization" : {
         "max-preventive-search-tree-depth" : 2147483647,
-        "max-auto-search-tree-depth" : 2147483647,
         "max-curative-search-tree-depth" : 2147483647,
         "predefined-combinations" : [ [ "open_fr1_fr3", "open_be1_be4", "open_fr1_fr2" ] ],
         "skip-actions-far-from-most-limiting-element" : false,

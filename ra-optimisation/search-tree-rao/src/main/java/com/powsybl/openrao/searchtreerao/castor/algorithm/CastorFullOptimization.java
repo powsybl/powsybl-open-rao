@@ -164,9 +164,8 @@ public class CastorFullOptimization {
             }
 
             BUSINESS_LOGS.info("----- Post-contingency perimeters optimization [start]");
-            TreeParameters automatonTreeParameters = TreeParameters.buildForAutomatonPerimeter(raoParameters);
             TreeParameters curativeTreeParameters = TreeParameters.buildForCurativePerimeter(raoParameters, preventiveOptimalCost);
-            CastorContingencyScenarios castorContingencyScenarios = new CastorContingencyScenarios(crac, raoParameters, toolProvider, stateTree, automatonTreeParameters, curativeTreeParameters, initialOutput);
+            CastorContingencyScenarios castorContingencyScenarios = new CastorContingencyScenarios(crac, raoParameters, toolProvider, stateTree, curativeTreeParameters, initialOutput);
             Map<State, OptimizationResult> postContingencyResults = castorContingencyScenarios.optimizeContingencyScenarios(network, preCurativeSensitivityAnalysisOutput, false);
             BUSINESS_LOGS.info("----- Post-contingency perimeters optimization [end]");
 
