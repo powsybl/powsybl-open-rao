@@ -21,7 +21,7 @@
         <module>crac-io-commons</module>
         <module>crac-io-cse</module>
         <module>crac-io-cim</module>
-        <module>crac-io-csa-profiles</module>
         <module>crac-io-fb-constraint</module>
+        <module>crac-io-nc</module>
     </modules>
 </project>

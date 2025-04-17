@@ -20,7 +20,7 @@ explicitly cast it to its implementation, if you desire to access its class' spe
 CracCreationContext <|-- UcteCracCreationContext
 JsonCracCreationContext --|> CracCreationContext
 CimCracCreationContext --|> CracCreationContext
-CsaProfilesCreationContext --|> CracCreationContext
+NcCreationContext --|> CracCreationContext
 interface UcteCracCreationContext {
 }
 interface CracCreationContext {

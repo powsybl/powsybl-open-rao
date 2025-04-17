@@ -1,0 +1,8 @@
+{
+  "crac-factory" : "CracImplFactory",
+  "extensions" : {
+    "NcCracCreatorParameters" : {
+       "unknown-field": "unknown-field"
+    }
+  }
+}

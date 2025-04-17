@@ -27,7 +27,7 @@ The formats currently supported by OpenRAO are:
 - [FlowBasedConstraint document](fbconstraint), also known as Merged-CB, CBCORA or F301 (import only)
 - [CSE CRAC](cse) (import only)
 - [CIM CRAC](cim) (import only)
-- [CSA PROFILES CRAC](csa) (import only)
+- [CSA PROFILES CRAC](nc) (import only)
 
 ## Versioning of internal JSON CRAC files
 Json files and json importer/exporter are versioned.  

@@ -19,15 +19,15 @@ import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.CracCreationContext;
 import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.crac.io.cim.craccreator.CimCracCreationContext;
-import com.powsybl.openrao.data.crac.io.csaprofiles.craccreator.CsaProfileCracCreationContext;
 import com.powsybl.openrao.data.crac.io.cse.CseCracCreationContext;
 import com.powsybl.openrao.data.crac.io.fbconstraint.FbConstraintCreationContext;
+import com.powsybl.openrao.data.crac.io.nc.craccreator.NcCracCreationContext;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceProgram;
 import com.powsybl.openrao.data.refprog.refprogxmlimporter.RefProgImporter;
 import com.powsybl.openrao.tests.steps.CommonTestData;
 import com.powsybl.openrao.tests.utils.round_trip_crac.RoundTripCimCracCreationContext;
-import com.powsybl.openrao.tests.utils.round_trip_crac.RoundTripCsaProfileCracCreationContext;
+import com.powsybl.openrao.tests.utils.round_trip_crac.RoundTripNcCracCreationContext;
 import com.powsybl.openrao.tests.utils.round_trip_crac.RoundTripCseCracCreationContext;
 import com.powsybl.openrao.tests.utils.round_trip_crac.RoundTripFbConstraintCreationContext;
 import com.powsybl.sensitivity.SensitivityVariableSet;
@@ -109,8 +109,8 @@ public final class Helpers {
             return new RoundTripCseCracCreationContext((CseCracCreationContext) cracCreationContext, crac);
         } else if (cracCreationContext instanceof CimCracCreationContext) {
             return new RoundTripCimCracCreationContext((CimCracCreationContext) cracCreationContext, crac);
-        } else if (cracCreationContext instanceof CsaProfileCracCreationContext) {
-            return new RoundTripCsaProfileCracCreationContext((CsaProfileCracCreationContext) cracCreationContext, crac);
+        } else if (cracCreationContext instanceof NcCracCreationContext) {
+            return new RoundTripNcCracCreationContext((NcCracCreationContext) cracCreationContext, crac);
         } else {
             throw new NotImplementedException(String.format("%s type is not supported", cracCreationContext.getClass().getName()));
         }

@@ -1,8 +1,0 @@
-{
-  "crac-factory" : "CracImplFactory",
-  "extensions" : {
-    "CsaCracCreatorParameters" : {
-       "unknown-field": "unknown-field"
-    }
-  }
-}
