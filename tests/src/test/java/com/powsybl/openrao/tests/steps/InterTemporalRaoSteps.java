@@ -500,6 +500,7 @@ public final class InterTemporalRaoSteps {
         interTemporalRaoInput.getTimestampsToRun().forEach(timestamp -> raoResults.put(timestamp, interTemporalRaoResult.getIndividualRaoResult(timestamp)));
         F711Utils.write(new TemporalDataImpl<>(raoResults), new TemporalDataImpl<>(cracCreationContexts).map(FbConstraintCreationContext.class::cast), cracPath, getResourcesPath().concat("raoresults/%s-FID2-711-v1-10V1001C--00264T-to-10V1001C--00085T.xml").formatted(businessDate));
     }
+
     @When("I export F711 for business date {string} based on raoResults zip {string}") // expected format yyyyMMdd
     public static void exportF711(String businessDate, String raoResultsZipPath) throws IOException {
         //Unzip the given zip file to a temp folder
@@ -508,10 +509,10 @@ public final class InterTemporalRaoSteps {
         try {
             Map<OffsetDateTime, RaoResult> raoResults = new HashMap<>();
             for (OffsetDateTime timestamp : interTemporalRaoInput.getTimestampsToRun()) {
-                    String filename = "RAO_RESULT_" + timestamp.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")) + ".json";
-                    FileInputStream raoResultInputStream = new FileInputStream(getFile(String.valueOf(tempDir.resolve(filename))));
-                    RaoResult raoResult = RaoResult.read(raoResultInputStream, interTemporalRaoInput.getRaoInputs().getData(timestamp).orElseThrow().getCrac());
-                    raoResults.put(timestamp, raoResult);
+                String filename = "RAO_RESULT_" + timestamp.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")) + ".json";
+                FileInputStream raoResultInputStream = new FileInputStream(getFile(String.valueOf(tempDir.resolve(filename))));
+                RaoResult raoResult = RaoResult.read(raoResultInputStream, interTemporalRaoInput.getRaoInputs().getData(timestamp).orElseThrow().getCrac());
+                raoResults.put(timestamp, raoResult);
             }
             F711Utils.write(new TemporalDataImpl<>(raoResults), new TemporalDataImpl<>(cracCreationContexts).map(FbConstraintCreationContext.class::cast), cracPath, getResourcesPath().concat("generatedF711/%s-FID2-711-v1-10V1001C--00264T-to-10V1001C--00085T.xml").formatted(businessDate));
         } finally {
