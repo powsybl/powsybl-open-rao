@@ -866,14 +866,3 @@ Feature: US 93.3: CORE IDCC data
     When I export RefProg after redispatching to "generatedRefProgs/20241028-FID2-632-v2-10V1001C--00264T-to-10V1001C--00085T.xml" based on raoResults zip "raoresults/results_20241028.zip"
     When I export networks with PRAs to "raoresults/networkWithPras_20241028.zip" based on raoResults zip "raoresults/results_20241028.zip"
     When I export F711 for business date "20241028" based on raoResults zip "raoresults/results_20241028.zip"
-
-
-
-
-
-
-
-
-
-
-
