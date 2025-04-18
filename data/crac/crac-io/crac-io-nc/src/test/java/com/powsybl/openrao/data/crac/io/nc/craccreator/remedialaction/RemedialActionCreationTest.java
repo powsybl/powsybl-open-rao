@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
+import java.time.OffsetDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -152,8 +153,8 @@ class RemedialActionCreationTest {
 
     @Test
     void importR3() throws FileNotFoundException {
-        Network network = Network.read("/profiles/R3.zip", getClass().getResourceAsStream("/profiles/R3.zip"));
-        NcCracCreationContext cracCreationContext = NcCracCreationTestUtil.getNcCracCreationContext("/profiles/R3.zip", network, "2023-05-12T00:00:00Z");
+        String cgmesNcArchive = "/absolute/path/to/archive.zip"; // TODO: change here
+        NcCracCreationContext cracCreationContext = NcCracCreationTestUtil.getNcCracCreationContextFromAbsolutePath(cgmesNcArchive, "2023-05-12T00:00:00Z");
         OutputStream os = new FileOutputStream("crac-R3.json");
         Crac crac = cracCreationContext.getCrac();
         crac.write("JSON", os);

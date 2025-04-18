@@ -37,6 +37,7 @@ import com.powsybl.openrao.data.crac.io.nc.parameters.NcCracCreationParameters;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Paths;
@@ -284,6 +285,22 @@ public final class NcCracCreationTestUtil {
 
     public static NcCracCreationContext getNcCracCreationContext(String ncsArchive, Network network, OffsetDateTime offsetDateTime) {
         return getNcCracCreationContext(ncsArchive, network, offsetDateTime, cracCreationDefaultParametersWithSweCsaExtension());
+    }
+
+    public static NcCracCreationContext getNcCracCreationContextFromAbsolutePath(String ncsArchive, String offsetDateTime) {
+        Network network;
+        try (InputStream inputStream = new FileInputStream(ncsArchive)) {
+            network = Network.read(ncsArchive, inputStream);
+        } catch (IOException e) {
+            throw new OpenRaoException(e);
+        }
+        CracCreationParameters cracCreationParameters = cracCreationDefaultParametersWithSweCsaExtension();
+        try (InputStream inputStream = new FileInputStream(ncsArchive)) {
+            cracCreationParameters.getExtension(NcCracCreationParameters.class).setTimestamp(OffsetDateTime.parse(offsetDateTime));
+            return (NcCracCreationContext) Crac.readWithContext(ncsArchive, inputStream, network, cracCreationParameters);
+        } catch (IOException e) {
+            throw new OpenRaoException(e);
+        }
     }
 
     public static NcCracCreationContext getNcCracCreationContext(String ncsArchive, Network network, OffsetDateTime offsetDateTime, CracCreationParameters cracCreationParameters) {
