@@ -16,8 +16,8 @@
             <timeInterval v="2019-01-07T23:00Z/2019-01-08T23:00Z"/>
             <branch eic="1234567890123450" from="NNL2AA1 " name="NNL2AA1  BBE3AA1  1" order="1" to="BBE3AA1 "/>
             <imaxType>SEASONAL</imaxType>
-            <permanentImaxA>600</permanentImaxA>
-            <temporaryImaxA>600</temporaryImaxA>
+            <permanentImaxA>570</permanentImaxA>
+            <temporaryImaxA>570</temporaryImaxA>
             <frmMw>0</frmMw>
             <minRAMfactor>75</minRAMfactor>
             <CNEC>true</CNEC>
@@ -29,8 +29,8 @@
             <timeInterval v="2019-01-07T23:00Z/2019-01-08T23:00Z"/>
             <branch eic="1234567890123450" from="FFR2AA1 " name="FFR2AA1  DDE3AA1  1" order="1" to="DDE3AA1 "/>
             <imaxType>SEASONAL</imaxType>
-            <permanentImaxA>1000</permanentImaxA>
-            <temporaryImaxA>1000</temporaryImaxA>
+            <permanentImaxA>950</permanentImaxA>
+            <temporaryImaxA>950</temporaryImaxA>
             <frmMw>0</frmMw>
             <minRAMfactor>75</minRAMfactor>
             <CNEC>true</CNEC>
@@ -42,8 +42,8 @@
             <timeInterval v="2019-01-07T23:00Z/2019-01-08T23:00Z"/>
             <branch eic="1234567890123450" from="BBE1AA1 " name="BBE1AA1  BBE3AA1  1" order="1" to="BBE3AA1 "/>
             <imaxType>SEASONAL</imaxType>
-            <permanentImaxA>5</permanentImaxA>
-            <temporaryImaxA>5</temporaryImaxA>
+            <permanentImaxA>4</permanentImaxA>
+            <temporaryImaxA>4</temporaryImaxA>
             <frmMw>0</frmMw>
             <minRAMfactor>75</minRAMfactor>
             <CNEC>false</CNEC>

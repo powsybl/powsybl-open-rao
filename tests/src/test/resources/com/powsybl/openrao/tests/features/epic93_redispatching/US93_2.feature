@@ -21,20 +21,20 @@ Feature: US 93.2: power gradient constraints
     When I launch marmot
     When I export marmot results to "raoresults/results_93_2_1.zip"
     When I export networks with PRAs to "raoresults/networkWithPras_93_2_1.zip"
-    Then the optimized margin on "NNL2AA1  BBE3AA1  1 - preventive" for timestamp "2019-01-08 00:30" is 428.18 MW
-    And the optimized margin on "NNL2AA1  BBE3AA1  1 - preventive" for timestamp "2019-01-08 01:30" is 3.18 MW
-    And the optimized margin on "NNL2AA1  BBE3AA1  1 - preventive" for timestamp "2019-01-08 02:30" is 428.18 MW
+    Then the optimized margin on "NNL2AA1  BBE3AA1  1 - preventive" for timestamp "2019-01-08 00:30" is 435.18 MW
+    And the optimized margin on "NNL2AA1  BBE3AA1  1 - preventive" for timestamp "2019-01-08 01:30" is 10.18 MW
+    And the optimized margin on "NNL2AA1  BBE3AA1  1 - preventive" for timestamp "2019-01-08 02:30" is 435.18 MW
     And the optimized margin on "NNL2AA1  BBE3AA1  1 - preventive" for timestamp "2019-01-08 03:30" is 408.18 MW
-    And the functional cost for timestamp "2019-01-08 00:30" is 800
-    And the functional cost for timestamp "2019-01-08 01:30" is 3800
-    And the functional cost for timestamp "2019-01-08 02:30" is 800
+    And the functional cost for timestamp "2019-01-08 00:30" is 1080
+    And the functional cost for timestamp "2019-01-08 01:30" is 4080
+    And the functional cost for timestamp "2019-01-08 02:30" is 1080
     And the functional cost for timestamp "2019-01-08 03:30" is 0
-    And the functional cost for all timestamps is 5400
-    And the total cost for timestamp "2019-01-08 00:30" is 800
-    And the total cost for timestamp "2019-01-08 01:30" is 3800
-    And the total cost for timestamp "2019-01-08 02:30" is 800
+    And the functional cost for all timestamps is 6240
+    And the total cost for timestamp "2019-01-08 00:30" is 1080
+    And the total cost for timestamp "2019-01-08 01:30" is 4080
+    And the total cost for timestamp "2019-01-08 02:30" is 1080
     And the total cost for timestamp "2019-01-08 03:30" is 0
-    And the total cost for all timestamps is 5400
+    And the total cost for all timestamps is 6240
 
   @fast @rao @dc @redispatching
   Scenario: US 93.2.2: Test simple gradient with limiting mnec and topological action
@@ -71,15 +71,15 @@ Feature: US 93.2: power gradient constraints
       | 2019-01-08 01:30 | 12Nodes_0130.uct |
     When I launch marmot
     When I export marmot results to "raoresults/results_93_2_3.zip"
-    When I export networks with PRAs to "raoresults/networkWithPras_93_2_3.zip" from raoresult folder "raoresults/results_93_2_3"
+    When I export networks with PRAs to "raoresults/networkWithPras_93_2_3.zip"
     Then the optimized margin on "NNL2AA1  BBE3AA1  1 - preventive" for timestamp "2019-01-08 00:30" is 408.18 MW
-    And the optimized margin on "NNL2AA1  BBE3AA1  1 - preventive" for timestamp "2019-01-08 01:30" is 2.77 MW
+    And the optimized margin on "NNL2AA1  BBE3AA1  1 - preventive" for timestamp "2019-01-08 01:30" is 10.07 MW
     And the functional cost for timestamp "2019-01-08 00:30" is 0
-    And the functional cost for timestamp "2019-01-08 01:30" is 1820
-    And the functional cost for all timestamps is 1820
+    And the functional cost for timestamp "2019-01-08 01:30" is 1900
+    And the functional cost for all timestamps is 1900
     And the total cost for timestamp "2019-01-08 00:30" is 0
-    And the total cost for timestamp "2019-01-08 01:30" is 1820
-    And the total cost for all timestamps is 1820
+    And the total cost for timestamp "2019-01-08 01:30" is 1900
+    And the total cost for all timestamps is 1900
 
   @fast @rao @dc @redispatching
   Scenario: US 93.2.4: Test simple gradient, applied curative topo action
@@ -96,14 +96,14 @@ Feature: US 93.2: power gradient constraints
     When I export marmot results to "raoresults/results_93_2_4.zip"
     And the optimized margin on "NNL2AA1  BBE3AA1  1 - N-1 BE-FR 1 - curative" for timestamp "2019-01-08 00:30" is 408.18 MW
     Then the optimized margin on "NNL2AA1  BBE3AA1  1 - preventive" for timestamp "2019-01-08 00:30" is 428.45 MW
-    And the optimized margin on "NNL2AA1  BBE3AA1  1 - preventive" for timestamp "2019-01-08 01:30" is 2.99 MW
-    And the optimized margin on "NNL2AA1  BBE3AA1  1 - N-1 BE-FR 1 - curative" for timestamp "2019-01-08 01:30" is 272.77 MW
+    And the optimized margin on "NNL2AA1  BBE3AA1  1 - preventive" for timestamp "2019-01-08 01:30" is 9.88 MW
+    And the optimized margin on "NNL2AA1  BBE3AA1  1 - N-1 BE-FR 1 - curative" for timestamp "2019-01-08 01:30" is 276.83 MW
     And the functional cost for timestamp "2019-01-08 00:30" is 0
-    And the functional cost for timestamp "2019-01-08 01:30" is 1480
-    And the functional cost for all timestamps is 1480
+    And the functional cost for timestamp "2019-01-08 01:30" is 1780
+    And the functional cost for all timestamps is 1780
     And the total cost for timestamp "2019-01-08 00:30" is 0
-    And the total cost for timestamp "2019-01-08 01:30" is 1480
-    And the total cost for all timestamps is 1480
+    And the total cost for timestamp "2019-01-08 01:30" is 1780
+    And the total cost for all timestamps is 1780
 
 
   @fast @rao @dc @redispatching
@@ -121,14 +121,14 @@ Feature: US 93.2: power gradient constraints
     When I export marmot results to "raoresults/results_93_2_4-b.zip"
     And the optimized margin on "NNL2AA1  BBE3AA1  1 - N-1 BE-FR 1 - curative" for timestamp "2019-01-08 00:30" is 408.18 MW
     Then the optimized margin on "NNL2AA1  BBE3AA1  1 - preventive" for timestamp "2019-01-08 00:30" is 428.45 MW
-    And the optimized margin on "NNL2AA1  BBE3AA1  1 - N-1 BE-FR 1 - curative" for timestamp "2019-01-08 01:30" is 2.77 MW
-    And the optimized margin on "NNL2AA1  BBE3AA1  1 - preventive" for timestamp "2019-01-08 01:30" is 10.8 MW
+    And the optimized margin on "NNL2AA1  BBE3AA1  1 - N-1 BE-FR 1 - curative" for timestamp "2019-01-08 01:30" is 10.07 MW
+    And the optimized margin on "NNL2AA1  BBE3AA1  1 - preventive" for timestamp "2019-01-08 01:30" is 12.64 MW
     And the functional cost for timestamp "2019-01-08 00:30" is 0
-    And the functional cost for timestamp "2019-01-08 01:30" is 1820
-    And the functional cost for all timestamps is 1820
+    And the functional cost for timestamp "2019-01-08 01:30" is 1900
+    And the functional cost for all timestamps is 1900
     And the total cost for timestamp "2019-01-08 00:30" is 0
-    And the total cost for timestamp "2019-01-08 01:30" is 1820
-    And the total cost for all timestamps is 1820
+    And the total cost for timestamp "2019-01-08 01:30" is 1900
+    And the total cost for all timestamps is 1900
 
   @fast @rao @dc @redispatching
   Scenario: US 93.2.5: Test simple gradient with topo action, mnec causes second mip optimization
