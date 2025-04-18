@@ -52,7 +52,7 @@ public class NcRemedialActionsCreator {
     private final PstRangeActionCreator pstRangeActionCreator;
     private final Set<GridStateAlterationRemedialAction> nativeRemedialActions;
 
-    public NcRemedialActionsCreator(Crac crac, Network network, NcCrac nativeCrac, NcCracCreationContext cracCreationContext, int spsMaxTimeToImplementThreshold, Set<ElementaryCreationContext> cnecCreationContexts) {
+    public NcRemedialActionsCreator(Crac crac, Network network, NcCrac nativeCrac, NcCracCreationContext cracCreationContext, Set<ElementaryCreationContext> cnecCreationContexts) {
         this.crac = crac;
         this.elementaryActionsHelper = new ElementaryActionsHelper(nativeCrac);
         this.networkActionCreator = new NetworkActionCreator(this.crac, network);
