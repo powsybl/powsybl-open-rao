@@ -28,6 +28,7 @@ public class SumMaxPerTimestampCostEvaluatorResult implements CostEvaluatorResul
     private final List<FlowCnec> costlyElements;
     private final Map<FlowCnec, Double> marginPerCnec;
     private final Unit unit;
+    private double highestThreshold = Double.NaN;
 
     public SumMaxPerTimestampCostEvaluatorResult(Map<FlowCnec, Double> marginPerCnec, List<FlowCnec> costlyElements, Unit unit) {
         this.marginPerCnec = marginPerCnec;
@@ -65,7 +66,10 @@ public class SumMaxPerTimestampCostEvaluatorResult implements CostEvaluatorResul
     }
 
     private double getHighestThresholdAmongFlowCnecs() {
-        return marginPerCnec.keySet().stream().map(this::getHighestThreshold).max(Double::compareTo).orElse(0.0);
+        if (Double.isNaN(highestThreshold)) {
+            highestThreshold = marginPerCnec.keySet().stream().map(this::getHighestThreshold).max(Double::compareTo).orElse(0.0);
+        }
+        return highestThreshold;
     }
 
     private double getHighestThreshold(FlowCnec flowCnec) {

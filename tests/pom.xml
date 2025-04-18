@@ -5,7 +5,7 @@
     <parent>
         <artifactId>powsybl-open-rao</artifactId>
         <groupId>com.powsybl</groupId>
-        <version>6.4.0-SNAPSHOT</version>
+        <version>6.5.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -106,7 +106,7 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>open-rao-crac-io-csa-profiles</artifactId>
+            <artifactId>open-rao-crac-io-nc</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>

@@ -1,5 +1,5 @@
 {
-  "version" : "3.0",
+  "version" : "3.1",
   "objective-function" : {
     "type" : "MAX_MIN_MARGIN",
     "unit" : "MW",
@@ -44,7 +44,6 @@
       },
       "topological-actions-optimization" : {
         "max-preventive-search-tree-depth" : 3,
-        "max-auto-search-tree-depth" : 2,
         "max-curative-search-tree-depth" : 3,
         "predefined-combinations" : [ [ "na1", "na2" ], [ "na3", "na4", "na5" ] ],
         "skip-actions-far-from-most-limiting-element" : true,
@@ -85,6 +84,7 @@
                 "slackBusesIds" : [ ],
                 "slackDistributionFailureBehavior" : "LEAVE_ON_SLACK_BUS",
                 "voltageRemoteControl" : true,
+                "voltageRemoteControlRobustMode" : true,
                 "lowImpedanceBranchMode" : "REPLACE_BY_ZERO_IMPEDANCE_LINE",
                 "loadPowerFactorConstant" : false,
                 "plausibleActivePowerLimit" : 5000.0,
@@ -151,7 +151,9 @@
                 "fictitiousGeneratorVoltageControlCheckMode" : "FORCED",
                 "areaInterchangeControl" : false,
                 "areaInterchangeControlAreaType" : "ControlArea",
-                "areaInterchangePMaxMismatch" : 2.0
+                "areaInterchangePMaxMismatch" : 2.0,
+                "forceTargetQInReactiveLimits" : false,
+                "disableInconsistentVoltageControls" : false
               }
             }
           },
