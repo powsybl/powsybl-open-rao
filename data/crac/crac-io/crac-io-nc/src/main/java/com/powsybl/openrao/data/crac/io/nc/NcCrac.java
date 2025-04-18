@@ -17,15 +17,11 @@ import com.powsybl.openrao.data.crac.io.nc.objects.Contingency;
 import com.powsybl.openrao.data.crac.io.nc.objects.ContingencyEquipment;
 import com.powsybl.openrao.data.crac.io.nc.objects.ContingencyWithRemedialAction;
 import com.powsybl.openrao.data.crac.io.nc.objects.CurrentLimit;
-import com.powsybl.openrao.data.crac.io.nc.objects.GridStateAlterationCollection;
 import com.powsybl.openrao.data.crac.io.nc.objects.GridStateAlterationRemedialAction;
 import com.powsybl.openrao.data.crac.io.nc.objects.RemedialActionDependency;
 import com.powsybl.openrao.data.crac.io.nc.objects.RemedialActionGroup;
-import com.powsybl.openrao.data.crac.io.nc.objects.RemedialActionScheme;
 import com.powsybl.openrao.data.crac.io.nc.objects.RotatingMachineAction;
-import com.powsybl.openrao.data.crac.io.nc.objects.SchemeRemedialAction;
 import com.powsybl.openrao.data.crac.io.nc.objects.ShuntCompensatorModification;
-import com.powsybl.openrao.data.crac.io.nc.objects.Stage;
 import com.powsybl.openrao.data.crac.io.nc.objects.StaticPropertyRange;
 import com.powsybl.openrao.data.crac.io.nc.objects.TapChanger;
 import com.powsybl.openrao.data.crac.io.nc.objects.TapPositionAction;
@@ -159,22 +155,6 @@ public class NcCrac {
 
     public Set<ContingencyWithRemedialAction> getContingencyWithRemedialActions() {
         return new NcPropertyBagsConverter<>(ContingencyWithRemedialAction::fromPropertyBag).convert(getPropertyBags(NcKeyword.REMEDIAL_ACTION, OverridingObjectsFields.CONTINGENCY_WITH_REMEDIAL_ACTION, NcConstants.REQUEST_CONTINGENCY_WITH_REMEDIAL_ACTION));
-    }
-
-    public Set<Stage> getStages() {
-        return new NcPropertyBagsConverter<>(Stage::fromPropertyBag).convert(getPropertyBags(NcKeyword.REMEDIAL_ACTION, NcConstants.STAGE));
-    }
-
-    public Set<GridStateAlterationCollection> getGridStateAlterationCollections() {
-        return new NcPropertyBagsConverter<>(GridStateAlterationCollection::fromPropertyBag).convert(getPropertyBags(NcKeyword.REMEDIAL_ACTION, NcConstants.GRID_STATE_ALTERATION_COLLECTION));
-    }
-
-    public Set<RemedialActionScheme> getRemedialActionSchemes() {
-        return new NcPropertyBagsConverter<>(RemedialActionScheme::fromPropertyBag).convert(getPropertyBags(NcKeyword.REMEDIAL_ACTION, OverridingObjectsFields.REMEDIAL_ACTION_SCHEME, NcConstants.REMEDIAL_ACTION_SCHEME));
-    }
-
-    public Set<SchemeRemedialAction> getSchemeRemedialActions() {
-        return new NcPropertyBagsConverter<>(SchemeRemedialAction::fromPropertyBag).convert(getPropertyBags(NcKeyword.REMEDIAL_ACTION, OverridingObjectsFields.SCHEME_REMEDIAL_ACTION, NcConstants.REQUEST_SCHEME_REMEDIAL_ACTION));
     }
 
     public Set<RemedialActionGroup> getRemedialActionGroups() {

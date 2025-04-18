@@ -6,22 +6,16 @@
  */
 package com.powsybl.openrao.data.crac.io.nc.craccreator.remedialaction;
 
-import com.powsybl.contingency.Contingency;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.io.nc.craccreator.NcCracCreationContext;
 import com.powsybl.openrao.data.crac.io.nc.craccreator.NcCracCreationTestUtil;
-import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
-import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
-import com.powsybl.openrao.data.crac.api.parameters.JsonCracCreationParameters;
 import org.junit.jupiter.api.Test;
 
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -62,86 +56,6 @@ class PstRangeActionCreationTest {
         NcCracCreationTestUtil.assertRaNotImported(cracCreationContext, "remedial-action-10", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action remedial-action-10 will not be imported because there is more than ONE StaticPropertyRange with direction RelativeDirectionKind.up");
         NcCracCreationTestUtil.assertRaNotImported(cracCreationContext, "remedial-action-11", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action remedial-action-11 will not be imported because there is more than ONE StaticPropertyRange with direction RelativeDirectionKind.down");
         NcCracCreationTestUtil.assertRaNotImported(cracCreationContext, "remedial-action-12", ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action remedial-action-12 will not be imported because StaticPropertyRange has wrong value of valueKind, the only allowed value is absolute");
-    }
-
-    @Test
-    void importPstSps0second() {
-        CracCreationParameters importedParameters = JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/ncCracCreationParameters_SPS_0_sec.json"));
-        NcCracCreationContext cracCreationContext = NcCracCreationTestUtil.getNcCracCreationContext("/profiles/remedialactions/CSA-92_PST-SPS_with_0_sec_threshold.zip", NcCracCreationTestUtil.NETWORK, importedParameters);
-
-        List<Contingency> importedContingencies = cracCreationContext.getCrac().getContingencies().stream().sorted(Comparator.comparing(Contingency::getId)).toList();
-        assertEquals(1, importedContingencies.size());
-
-        NcCracCreationTestUtil.assertContingencyEquality(importedContingencies.get(0), "contingency", "RTE_CO", Set.of("FFR1AA1  FFR2AA1  1"));
-
-        List<FlowCnec> importedFlowCnecs = cracCreationContext.getCrac().getFlowCnecs().stream().sorted(Comparator.comparing(FlowCnec::getId)).toList();
-        assertEquals(5, importedFlowCnecs.size());
-
-        NcCracCreationTestUtil.assertFlowCnecEquality(importedFlowCnecs.get(0), "RTE_AE1 (ae-1) - RTE_CO - auto - TWO - TATL 900", "FFR2AA1  FFR3AA1  1",
-            NcCracCreationTestUtil.AUTO_INSTANT_ID, "contingency", null, null, 4000.0, -4000.0, Set.of(TwoSides.TWO), "RTE", "ES-FR");
-        NcCracCreationTestUtil.assertFlowCnecEquality(importedFlowCnecs.get(1), "RTE_AE1 (ae-1) - RTE_CO - curative 1 - TWO - TATL 900", "FFR2AA1  FFR3AA1  1",
-            NcCracCreationTestUtil.CURATIVE_1_INSTANT_ID, "contingency", null, null, 4000.0, -4000.0, Set.of(TwoSides.TWO), "RTE", "ES-FR");
-        NcCracCreationTestUtil.assertFlowCnecEquality(importedFlowCnecs.get(2), "RTE_AE2 (ae-2) - RTE_CO - curative 2 - TWO", "FFR2AA1  FFR3AA1  1",
-            NcCracCreationTestUtil.CURATIVE_2_INSTANT_ID, "contingency", null, null, 2500.0, -2500.0, Set.of(TwoSides.TWO), "RTE", "ES-FR");
-        NcCracCreationTestUtil.assertFlowCnecEquality(importedFlowCnecs.get(3), "RTE_AE2 (ae-2) - RTE_CO - curative 3 - TWO", "FFR2AA1  FFR3AA1  1",
-            NcCracCreationTestUtil.CURATIVE_3_INSTANT_ID, "contingency", null, null, 2500.0, -2500.0, Set.of(TwoSides.TWO), "RTE", "ES-FR");
-        NcCracCreationTestUtil.assertFlowCnecEquality(importedFlowCnecs.get(4), "RTE_AE2 (ae-2) - preventive - TWO", "FFR2AA1  FFR3AA1  1",
-            NcCracCreationTestUtil.PREVENTIVE_INSTANT_ID, null, null, null, 2500.0, -2500.0, Set.of(TwoSides.TWO), "RTE", "ES-FR");
-
-        List<PstRangeAction> importedPstRangeActions = cracCreationContext.getCrac().getPstRangeActions().stream().sorted(Comparator.comparing(PstRangeAction::getId)).toList();
-        assertEquals(3, importedPstRangeActions.size());
-
-        NcCracCreationTestUtil.assertPstRangeActionImported(cracCreationContext, "auto-pst-be2-be3", "BBE2AA1  BBE3AA1  1", false, 1, null);
-        NcCracCreationTestUtil.assertHasOnConstraintUsageRule(cracCreationContext, "auto-pst-be2-be3", "RTE_AE1 (ae-1) - RTE_CO - auto - TWO - TATL 900", cracCreationContext.getCrac().getInstant(NcCracCreationTestUtil.AUTO_INSTANT_ID), UsageMethod.FORCED, FlowCnec.class);
-        NcCracCreationTestUtil.assertPstRangeActionImported(cracCreationContext, "cra-pst-be2-be3", "BBE2AA1  BBE3AA1  1", false, 5, null);
-        NcCracCreationTestUtil.assertHasOnConstraintUsageRule(cracCreationContext, "cra-pst-be2-be3", "RTE_AE2 (ae-2) - RTE_CO - curative 2 - TWO", cracCreationContext.getCrac().getInstant(NcCracCreationTestUtil.CURATIVE_1_INSTANT_ID), UsageMethod.AVAILABLE, FlowCnec.class);
-        NcCracCreationTestUtil.assertHasOnConstraintUsageRule(cracCreationContext, "cra-pst-be2-be3", "RTE_AE2 (ae-2) - RTE_CO - curative 2 - TWO", cracCreationContext.getCrac().getInstant(NcCracCreationTestUtil.CURATIVE_2_INSTANT_ID), UsageMethod.AVAILABLE, FlowCnec.class);
-        NcCracCreationTestUtil.assertHasOnConstraintUsageRule(cracCreationContext, "cra-pst-be2-be3", "RTE_AE2 (ae-2) - RTE_CO - curative 3 - TWO", cracCreationContext.getCrac().getInstant(NcCracCreationTestUtil.CURATIVE_1_INSTANT_ID), UsageMethod.AVAILABLE, FlowCnec.class);
-        NcCracCreationTestUtil.assertHasOnConstraintUsageRule(cracCreationContext, "cra-pst-be2-be3", "RTE_AE2 (ae-2) - RTE_CO - curative 3 - TWO", cracCreationContext.getCrac().getInstant(NcCracCreationTestUtil.CURATIVE_2_INSTANT_ID), UsageMethod.AVAILABLE, FlowCnec.class);
-        NcCracCreationTestUtil.assertHasOnConstraintUsageRule(cracCreationContext, "cra-pst-be2-be3", "RTE_AE2 (ae-2) - RTE_CO - curative 3 - TWO", cracCreationContext.getCrac().getInstant(NcCracCreationTestUtil.CURATIVE_3_INSTANT_ID), UsageMethod.AVAILABLE, FlowCnec.class);
-        NcCracCreationTestUtil.assertPstRangeActionImported(cracCreationContext, "cra-pst-fr2-fr4", "FFR2AA1  FFR4AA1  1", false, 3, null);
-        NcCracCreationTestUtil.assertHasOnInstantUsageRule(cracCreationContext, "cra-pst-fr2-fr4", NcCracCreationTestUtil.CURATIVE_1_INSTANT_ID, UsageMethod.AVAILABLE);
-        NcCracCreationTestUtil.assertHasOnInstantUsageRule(cracCreationContext, "cra-pst-fr2-fr4", NcCracCreationTestUtil.CURATIVE_2_INSTANT_ID, UsageMethod.AVAILABLE);
-        NcCracCreationTestUtil.assertHasOnInstantUsageRule(cracCreationContext, "cra-pst-fr2-fr4", NcCracCreationTestUtil.CURATIVE_3_INSTANT_ID, UsageMethod.AVAILABLE);
-    }
-
-    @Test
-    void importPstSps60seconds() {
-        CracCreationParameters importedParameters = JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/ncCracCreationParameters_SPS_60_sec.json"));
-        NcCracCreationContext cracCreationContext = NcCracCreationTestUtil.getNcCracCreationContext("/profiles/remedialactions/CSA-92_PST-SPS_with_60_sec_threshold.zip", NcCracCreationTestUtil.NETWORK, importedParameters);
-
-        List<Contingency> importedContingencies = cracCreationContext.getCrac().getContingencies().stream().sorted(Comparator.comparing(Contingency::getId)).toList();
-        assertEquals(1, importedContingencies.size());
-
-        NcCracCreationTestUtil.assertContingencyEquality(importedContingencies.get(0), "contingency", "RTE_CO", Set.of("FFR1AA1  FFR2AA1  1"));
-
-        List<FlowCnec> importedFlowCnecs = cracCreationContext.getCrac().getFlowCnecs().stream().sorted(Comparator.comparing(FlowCnec::getId)).toList();
-        assertEquals(5, importedFlowCnecs.size());
-
-        NcCracCreationTestUtil.assertFlowCnecEquality(importedFlowCnecs.get(0), "RTE_AE1 (ae-1) - RTE_CO - auto - TWO - TATL 900", "FFR2AA1  FFR3AA1  1",
-            NcCracCreationTestUtil.AUTO_INSTANT_ID, "contingency", null, null, 4000.0, -4000.0, Set.of(TwoSides.TWO), "RTE", "ES-FR");
-        NcCracCreationTestUtil.assertFlowCnecEquality(importedFlowCnecs.get(1), "RTE_AE1 (ae-1) - RTE_CO - curative 1 - TWO - TATL 900", "FFR2AA1  FFR3AA1  1",
-            NcCracCreationTestUtil.CURATIVE_1_INSTANT_ID, "contingency", null, null, 4000.0, -4000.0, Set.of(TwoSides.TWO), "RTE", "ES-FR");
-        NcCracCreationTestUtil.assertFlowCnecEquality(importedFlowCnecs.get(2), "RTE_AE2 (ae-2) - RTE_CO - curative 2 - TWO", "FFR2AA1  FFR3AA1  1",
-            NcCracCreationTestUtil.CURATIVE_2_INSTANT_ID, "contingency", null, null, 2500.0, -2500.0, Set.of(TwoSides.TWO), "RTE", "ES-FR");
-        NcCracCreationTestUtil.assertFlowCnecEquality(importedFlowCnecs.get(3), "RTE_AE2 (ae-2) - RTE_CO - curative 3 - TWO", "FFR2AA1  FFR3AA1  1",
-            NcCracCreationTestUtil.CURATIVE_3_INSTANT_ID, "contingency", null, null, 2500.0, -2500.0, Set.of(TwoSides.TWO), "RTE", "ES-FR");
-        NcCracCreationTestUtil.assertFlowCnecEquality(importedFlowCnecs.get(4), "RTE_AE2 (ae-2) - preventive - TWO", "FFR2AA1  FFR3AA1  1",
-            NcCracCreationTestUtil.PREVENTIVE_INSTANT_ID, null, null, null, 2500.0, -2500.0, Set.of(TwoSides.TWO), "RTE", "ES-FR");
-
-        List<PstRangeAction> importedPstRangeActions = cracCreationContext.getCrac().getPstRangeActions().stream().sorted(Comparator.comparing(PstRangeAction::getId)).toList();
-        assertEquals(3, importedPstRangeActions.size());
-
-        NcCracCreationTestUtil.assertPstRangeActionImported(cracCreationContext, "auto-pst-be2-be3", "BBE2AA1  BBE3AA1  1", false, 1, null);
-        NcCracCreationTestUtil.assertHasOnContingencyStateUsageRule(cracCreationContext, "auto-pst-be2-be3", "contingency", NcCracCreationTestUtil.AUTO_INSTANT_ID, UsageMethod.FORCED);
-        NcCracCreationTestUtil.assertPstRangeActionImported(cracCreationContext, "cra-pst-be2-be3", "BBE2AA1  BBE3AA1  1", false, 3, null);
-        NcCracCreationTestUtil.assertHasOnContingencyStateUsageRule(cracCreationContext, "cra-pst-be2-be3", "contingency", NcCracCreationTestUtil.CURATIVE_1_INSTANT_ID, UsageMethod.AVAILABLE);
-        NcCracCreationTestUtil.assertHasOnContingencyStateUsageRule(cracCreationContext, "cra-pst-be2-be3", "contingency", NcCracCreationTestUtil.CURATIVE_2_INSTANT_ID, UsageMethod.AVAILABLE);
-        NcCracCreationTestUtil.assertHasOnContingencyStateUsageRule(cracCreationContext, "cra-pst-be2-be3", "contingency", NcCracCreationTestUtil.CURATIVE_3_INSTANT_ID, UsageMethod.AVAILABLE);
-        NcCracCreationTestUtil.assertPstRangeActionImported(cracCreationContext, "cra-pst-fr2-fr4", "FFR2AA1  FFR4AA1  1", false, 3, null);
-        NcCracCreationTestUtil.assertHasOnInstantUsageRule(cracCreationContext, "cra-pst-fr2-fr4", NcCracCreationTestUtil.CURATIVE_1_INSTANT_ID, UsageMethod.AVAILABLE);
-        NcCracCreationTestUtil.assertHasOnInstantUsageRule(cracCreationContext, "cra-pst-fr2-fr4", NcCracCreationTestUtil.CURATIVE_2_INSTANT_ID, UsageMethod.AVAILABLE);
-        NcCracCreationTestUtil.assertHasOnInstantUsageRule(cracCreationContext, "cra-pst-fr2-fr4", NcCracCreationTestUtil.CURATIVE_3_INSTANT_ID, UsageMethod.AVAILABLE);
     }
 
     @Test

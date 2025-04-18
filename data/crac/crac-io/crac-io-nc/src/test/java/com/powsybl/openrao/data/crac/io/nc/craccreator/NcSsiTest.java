@@ -559,99 +559,9 @@ class NcSsiTest {
     }
 
     @Test
-    void activateDeactivateSchemeRemedialAction() {
-        // General case
-        cracCreationContext = getNcCracCreationContext("/profiles/ssi/SSI-17_SchemeRemedialAction.zip", NETWORK, "2023-01-01T22:30Z");
-        crac = cracCreationContext.getCrac();
-
-        assertEquals(1, crac.getNetworkActions().size());
-        NetworkAction remedialAction = crac.getNetworkActions().iterator().next();
-        assertEquals("ara-1", remedialAction.getId());
-        assertEquals("RTE_ARA-1", remedialAction.getName());
-
-        assertEquals(1, remedialAction.getElementaryActions().size());
-        Action elementaryAction = remedialAction.getElementaryActions().iterator().next();
-        assertTrue(elementaryAction instanceof SwitchAction);
-        assertEquals("BBE1AA1  BBE4AA1  1", ((SwitchAction) elementaryAction).getSwitchId());
-        assertTrue(((SwitchAction) elementaryAction).isOpen());
-
-        assertEquals(1, remedialAction.getUsageRules().size());
-        assertEquals(crac.getInstant(AUTO_INSTANT_ID), remedialAction.getUsageRules().iterator().next().getInstant());
-        assertEquals(UsageMethod.FORCED, remedialAction.getUsageRules().iterator().next().getUsageMethod());
-
-        assertRaNotImported(cracCreationContext, "ara-2", ImportStatus.NOT_FOR_RAO, "Remedial action ara-2 will not be imported because normalAvailable is set to false");
-
-        // With SSI
-        cracCreationContext = getNcCracCreationContext("/profiles/ssi/SSI-17_SchemeRemedialAction.zip", NETWORK, "2024-01-31T12:30Z");
-        crac = cracCreationContext.getCrac();
-
-        assertEquals(1, crac.getNetworkActions().size());
-        remedialAction = crac.getNetworkActions().iterator().next();
-        assertEquals("ara-2", remedialAction.getId());
-        assertEquals("RTE_ARA-2", remedialAction.getName());
-
-        assertEquals(1, remedialAction.getElementaryActions().size());
-        elementaryAction = remedialAction.getElementaryActions().iterator().next();
-        assertTrue(elementaryAction instanceof SwitchAction);
-        assertEquals("DDE3AA1  DDE4AA1  1", ((SwitchAction) elementaryAction).getSwitchId());
-        assertTrue(((SwitchAction) elementaryAction).isOpen());
-
-        assertEquals(1, remedialAction.getUsageRules().size());
-        assertEquals(crac.getInstant(AUTO_INSTANT_ID), remedialAction.getUsageRules().iterator().next().getInstant());
-        assertEquals(UsageMethod.FORCED, remedialAction.getUsageRules().iterator().next().getUsageMethod());
-
-        assertRaNotImported(cracCreationContext, "ara-1", ImportStatus.NOT_FOR_RAO, "Remedial action ara-1 will not be imported because normalAvailable is set to false");
-    }
-
-    @Test
-    void activateDeactivateRemedialActionScheme() {
-        // General case
-        cracCreationContext = getNcCracCreationContext("/profiles/ssi/SSI-18_RemedialActionScheme.zip", NETWORK, "2023-01-01T22:30Z");
-        crac = cracCreationContext.getCrac();
-
-        assertEquals(1, crac.getNetworkActions().size());
-        NetworkAction remedialAction = crac.getNetworkActions().iterator().next();
-        assertEquals("ara-1", remedialAction.getId());
-        assertEquals("RTE_ARA-1", remedialAction.getName());
-
-        assertEquals(1, remedialAction.getElementaryActions().size());
-        Action elementaryAction = remedialAction.getElementaryActions().iterator().next();
-        assertTrue(elementaryAction instanceof SwitchAction);
-        assertEquals("BBE1AA1  BBE4AA1  1", ((SwitchAction) elementaryAction).getSwitchId());
-        assertTrue(((SwitchAction) elementaryAction).isOpen());
-
-        assertEquals(1, remedialAction.getUsageRules().size());
-        assertEquals(crac.getInstant(AUTO_INSTANT_ID), remedialAction.getUsageRules().iterator().next().getInstant());
-        assertEquals(UsageMethod.FORCED, remedialAction.getUsageRules().iterator().next().getUsageMethod());
-
-        assertRaNotImported(cracCreationContext, "ara-2", ImportStatus.NOT_FOR_RAO, "Remedial action ara-2 will not be imported because RemedialActionScheme remedial-action-scheme-2 is not armed");
-
-        // With SSI
-        cracCreationContext = getNcCracCreationContext("/profiles/ssi/SSI-18_RemedialActionScheme.zip", NETWORK, "2024-01-31T12:30Z");
-        crac = cracCreationContext.getCrac();
-
-        assertEquals(1, crac.getNetworkActions().size());
-        remedialAction = crac.getNetworkActions().iterator().next();
-        assertEquals("ara-2", remedialAction.getId());
-        assertEquals("RTE_ARA-2", remedialAction.getName());
-
-        assertEquals(1, remedialAction.getElementaryActions().size());
-        elementaryAction = remedialAction.getElementaryActions().iterator().next();
-        assertTrue(elementaryAction instanceof SwitchAction);
-        assertEquals("DDE3AA1  DDE4AA1  1", ((SwitchAction) elementaryAction).getSwitchId());
-        assertTrue(((SwitchAction) elementaryAction).isOpen());
-
-        assertEquals(1, remedialAction.getUsageRules().size());
-        assertEquals(crac.getInstant(AUTO_INSTANT_ID), remedialAction.getUsageRules().iterator().next().getInstant());
-        assertEquals(UsageMethod.FORCED, remedialAction.getUsageRules().iterator().next().getUsageMethod());
-
-        assertRaNotImported(cracCreationContext, "ara-1", ImportStatus.NOT_FOR_RAO, "Remedial action ara-1 will not be imported because RemedialActionScheme remedial-action-scheme-1 is not armed");
-    }
-
-    @Test
     void activateDeactivateRemedialActionDependency() {
         // General case
-        cracCreationContext = getNcCracCreationContext("/profiles/ssi/SSI-19_RemedialActionDependency.zip", NETWORK, "2023-01-01T22:30Z");
+        cracCreationContext = getNcCracCreationContext("/profiles/ssi/SSI-17_RemedialActionDependency.zip", NETWORK, "2023-01-01T22:30Z");
         assertNetworkActionImported(cracCreationContext, "remedial-action-group", Set.of("FFR1AA1 _generator", "BBE1AA1  BBE4AA1  1"), true, 1, "RTE");
         assertEquals("Remedial Action Group", cracCreationContext.getCrac().getRemedialAction("remedial-action-group").getName());
         assertNetworkActionImported(cracCreationContext, "redispatching-action-fr2", Set.of("FFR2AA1 _generator"), false, 1, "RTE");
@@ -660,7 +570,7 @@ class NcSsiTest {
             cracCreationContext.getRemedialActionCreationContext("remedial-action-group").getImportStatusDetail());
 
         // With SSI
-        cracCreationContext = getNcCracCreationContext("/profiles/ssi/SSI-19_RemedialActionDependency.zip", NETWORK, "2024-01-31T12:30Z");
+        cracCreationContext = getNcCracCreationContext("/profiles/ssi/SSI-17_RemedialActionDependency.zip", NETWORK, "2024-01-31T12:30Z");
         assertNetworkActionImported(cracCreationContext, "remedial-action-group", Set.of("FFR2AA1 _generator", "BBE1AA1  BBE4AA1  1"), true, 1, "RTE");
         assertEquals("Remedial Action Group", cracCreationContext.getCrac().getRemedialAction("remedial-action-group").getName());
         assertNetworkActionImported(cracCreationContext, "redispatching-action-fr1", Set.of("FFR1AA1 _generator"), false, 1, "RTE");
@@ -672,24 +582,24 @@ class NcSsiTest {
     @Test
     void overrideRemedialActionGroup() {
         // General case
-        cracCreationContext = getNcCracCreationContext("/profiles/ssi/SSI-20_RemedialActionGroup.zip", NETWORK, "2023-01-01T22:30Z");
+        cracCreationContext = getNcCracCreationContext("/profiles/ssi/SSI-18_RemedialActionGroup.zip", NETWORK, "2023-01-01T22:30Z");
         assertNetworkActionImported(cracCreationContext, "remedial-action-group", Set.of("BBE1AA1  BBE4AA1  1", "DDE3AA1  DDE4AA1  1"), true, 1, "RTE");
         assertEquals("The RemedialActionGroup with mRID remedial-action-group was turned into a remedial action from the following remedial actions: open-be1-be4, open-de3-de4",
             cracCreationContext.getRemedialActionCreationContext("remedial-action-group").getImportStatusDetail());
 
         // With SSI 1
-        cracCreationContext = getNcCracCreationContext("/profiles/ssi/SSI-20_RemedialActionGroup.zip", NETWORK, "2024-01-31T12:30Z");
+        cracCreationContext = getNcCracCreationContext("/profiles/ssi/SSI-18_RemedialActionGroup.zip", NETWORK, "2024-01-31T12:30Z");
         assertEquals(0, cracCreationContext.getCrac().getRemedialActions().size());
         assertEquals("Remedial action group remedial-action-group will not be imported because the remedial action open-be1-be4 does not exist or not imported. All RA's depending in that group will be ignored: open-be1-be4, open-de3-de4",
             cracCreationContext.getRemedialActionCreationContext("remedial-action-group").getImportStatusDetail());
         // With SSI 2
-        cracCreationContext = getNcCracCreationContext("/profiles/ssi/SSI-20_RemedialActionGroup.zip", NETWORK, "2024-02-01T12:30Z");
+        cracCreationContext = getNcCracCreationContext("/profiles/ssi/SSI-18_RemedialActionGroup.zip", NETWORK, "2024-02-01T12:30Z");
         assertEquals(2, cracCreationContext.getCrac().getRemedialActions().size());
         assertEquals("The RemedialActionGroup with mRID remedial-action-group was turned into a remedial action from the following remedial actions: open-de3-de4",
             cracCreationContext.getRemedialActionCreationContext("remedial-action-group").getImportStatusDetail());
 
         // With SSI 3
-        cracCreationContext = getNcCracCreationContext("/profiles/ssi/SSI-20_RemedialActionGroup.zip", NETWORK, "2024-02-02T12:30Z");
+        cracCreationContext = getNcCracCreationContext("/profiles/ssi/SSI-18_RemedialActionGroup.zip", NETWORK, "2024-02-02T12:30Z");
         assertEquals(1, cracCreationContext.getCrac().getRemedialActions().size());
         assertEquals("The RemedialActionGroup with mRID remedial-action-group was turned into a remedial action from the following remedial actions: open-de3-de4",
             cracCreationContext.getRemedialActionCreationContext("remedial-action-group").getImportStatusDetail());
