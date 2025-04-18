@@ -10,12 +10,21 @@ package com.powsybl.openrao.searchtreerao.castor.algorithm;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.RemedialAction;
+import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
+import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
+import com.powsybl.openrao.searchtreerao.commons.RaoLogger;
 import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
+import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
+import com.powsybl.openrao.searchtreerao.result.impl.PrePerimeterSensitivityResultImpl;
+import com.powsybl.openrao.searchtreerao.result.impl.RangeActionSetpointResultImpl;
 
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
+
+import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -55,8 +64,52 @@ public class AutomatonBatch implements Comparable<AutomatonBatch> {
         }
     }
 
-    public OptimizationResult simulate(Network network) {
+    public OptimizationResult simulate(Network network, State automatonState, OptimizationResult preBatchOptimizationResult) {
+        Set<NetworkAction> appliedTopologicalAutomatons = preBatchOptimizationResult.getActivatedNetworkActions();
+        Map<RangeAction<?>, Double> appliedAutomatonSetPoints = preBatchOptimizationResult.getOptimizedSetpointsOnState(automatonState);
+        TECHNICAL_LOGS.info("Simulating automaton batch for state {} and speed {}", automatonState.getId(), timeAfterOutage);
+
+        // STEP 1: Simulate topological automatons
+        OptimizationResult postTopologicalAutomatonsResult = simulateTopologicalAutomatons(network, automatonState, preBatchOptimizationResult, appliedAutomatonSetPoints);
+        if (AutomatonSimulationUtils.isSecure(postTopologicalAutomatonsResult)) {
+            return postTopologicalAutomatonsResult;
+        }
+
+        // STEP 2: Simulate range automatons
         return null;
+    }
+
+    private OptimizationResult simulateTopologicalAutomatons(Network network, State automatonState, OptimizationResult preBatchOptimizationResult, Map<RangeAction<?>, Double> appliedAutomatonSetPoints) {
+        Set<NetworkAction> topologicalAutomatonsToSimulate = new HashSet<>();
+        topologicalAutomatons.forEach(
+            networkAction -> {
+                if (networkAction.hasImpactOnNetwork(network)) {
+                    topologicalAutomatonsToSimulate.add(networkAction);
+                } else {
+                    TECHNICAL_LOGS.info("Automaton {} - {} has been skipped as it has no impact on network.", networkAction.getId(), networkAction.getName());
+                }
+            }
+        );
+
+        if (topologicalAutomatonsToSimulate.isEmpty()) {
+            return preBatchOptimizationResult;
+        }
+
+        topologicalAutomatonsToSimulate.forEach(
+            networkAction -> {
+                TECHNICAL_LOGS.debug("Activating automaton {} - {}.", networkAction.getId(), networkAction.getName());
+                networkAction.apply(network);
+            }
+        );
+
+        // -- Sensitivity analysis must be run to evaluate available auto range actions
+        // -- If network actions have been applied, run sensitivity :
+        TECHNICAL_LOGS.info("Running sensitivity analysis post application of topological automatons for automaton state {} and batch speed {}.", automatonState.getId(), timeAfterOutage);
+        PrePerimeterResult automatonRangeActionOptimizationSensitivityAnalysisOutput = preAutoPstOptimizationSensitivityAnalysis.runBasedOnInitialResults(network, crac, initialFlowResult, operatorsNotSharingCras, null);
+        if (automatonRangeActionOptimizationSensitivityAnalysisOutput.getSensitivityStatus(automatonState) == ComputationStatus.FAILURE) {
+            return new AutomatonSimulator.TopoAutomatonSimulationResult(automatonRangeActionOptimizationSensitivityAnalysisOutput, topologicalAutomatonsToSimulate);
+        }
+        RaoLogger.logMostLimitingElementsResults(TECHNICAL_LOGS, automatonRangeActionOptimizationSensitivityAnalysisOutput, Set.of(automatonState), raoParameters.getObjectiveFunctionParameters().getType(), raoParameters.getObjectiveFunctionParameters().getUnit(), numberLoggedElementsDuringRao);
     }
 
     @Override
