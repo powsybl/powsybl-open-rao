@@ -1,5 +1,7 @@
 package com.powsybl.openrao.data.crac.io.nc.craccreator.remedialaction;
 
+import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.io.nc.craccreator.NcCracCreationContext;
 import com.powsybl.openrao.data.crac.io.nc.craccreator.NcCracCreationTestUtil;
 import com.powsybl.openrao.data.crac.api.RemedialAction;
@@ -10,6 +12,9 @@ import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
 import org.junit.jupiter.api.Test;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -143,5 +148,14 @@ class RemedialActionCreationTest {
 
         NcCracCreationTestUtil.assertPstRangeActionImported((PstRangeAction) importedRemedialActions.get(1), "remedial-action-10", "RTE_RA10", "BBE2AA1  BBE3AA1  1", null, null, "RTE");
         assertTrue(importedRemedialActions.get(1).getUsageRules().isEmpty());
+    }
+
+    @Test
+    void importR3() throws FileNotFoundException {
+        Network network = Network.read("/profiles/R3.zip", getClass().getResourceAsStream("/profiles/R3.zip"));
+        NcCracCreationContext cracCreationContext = NcCracCreationTestUtil.getNcCracCreationContext("/profiles/R3.zip", network, "2023-05-12T00:00:00Z");
+        OutputStream os = new FileOutputStream("crac-R3.json");
+        Crac crac = cracCreationContext.getCrac();
+        crac.write("JSON", os);
     }
 }
