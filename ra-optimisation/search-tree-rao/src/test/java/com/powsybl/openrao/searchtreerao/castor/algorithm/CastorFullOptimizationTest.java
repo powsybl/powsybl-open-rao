@@ -19,12 +19,10 @@ import com.powsybl.openrao.commons.logs.RaoBusinessLogs;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.CracFactory;
 import com.powsybl.openrao.data.crac.api.InstantKind;
-import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.networkaction.ActionType;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
-import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.OptimizationStepsExecuted;
@@ -42,7 +40,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
@@ -353,53 +350,6 @@ class CastorFullOptimizationTest {
     }
 
     @Test
-    void optimizationWithAutoSearchTree() throws IOException {
-        setup("12Nodes_2_twin_lines.uct", "small-crac-available-aras.json");
-        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_DC.json"));
-
-        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
-
-        // One FORCED topological ARA is simulated
-        // Two AVAILABLE topological ARA are present in the CRAC but one is enough to secure the network
-        // One FORCED PST ARA will not be used because the network is already secure after the search tree
-
-        State automatonState = crac.getState("Contingency DE2 NL3 1", crac.getInstant("auto"));
-        Set<RangeAction<?>> appliedPstAras = raoResult.getActivatedRangeActionsDuringState(automatonState);
-
-        assertEquals(Set.of("ARA_CLOSE_DE2_NL3_2", "ARA_CLOSE_NL2_BE3_2"), raoResult.getActivatedNetworkActionsDuringState(automatonState).stream().map(NetworkAction::getId).collect(Collectors.toSet()));
-        assertTrue(appliedPstAras.isEmpty());
-
-        assertEquals(-382.0, raoResult.getFlow(crac.getInstant("preventive"), crac.getFlowCnec("NNL2AA1  BBE3AA1  1 - preventive"), TwoSides.ONE, Unit.MEGAWATT), 1.);
-        assertEquals(-1000.0, raoResult.getFlow(crac.getInstant("outage"), crac.getFlowCnec("NNL2AA1  BBE3AA1  1 - Contingency DE2 NL3 1 - outage"), TwoSides.ONE, Unit.MEGAWATT), 1.);
-        assertEquals(-207.0, raoResult.getFlow(crac.getInstant("auto"), crac.getFlowCnec("NNL2AA1  BBE3AA1  1 - Contingency DE2 NL3 1 - auto"), TwoSides.ONE, Unit.MEGAWATT), 1.);
-        assertEquals(-207.0, raoResult.getFlow(crac.getInstant("curative"), crac.getFlowCnec("NNL2AA1  BBE3AA1  1 - Contingency DE2 NL3 1 - curative"), TwoSides.ONE, Unit.MEGAWATT), 1.);
-    }
-
-    @Test
-    void optimizationWithAutoSearchTreeAndAutoPsts() throws IOException {
-        setup("12Nodes_2_twin_lines.uct", "small-crac-available-aras-low-limits-thresholds.json");
-        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_DC.json"));
-
-        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
-
-        State automatonState = crac.getState("Contingency DE2 NL3 1", crac.getInstant("auto"));
-        List<NetworkAction> appliedNetworkAras = raoResult.getActivatedNetworkActionsDuringState(automatonState).stream().sorted(Comparator.comparing(NetworkAction::getId)).toList();
-        Set<RangeAction<?>> appliedPstAras = raoResult.getActivatedRangeActionsDuringState(automatonState);
-
-        assertEquals(3, appliedNetworkAras.size());
-        assertEquals("ARA_CLOSE_DE2_NL3_2", appliedNetworkAras.get(0).getId());
-        assertEquals("ARA_CLOSE_NL2_BE3_2", appliedNetworkAras.get(1).getId());
-        assertEquals("ARA_INJECTION_SETPOINT_800MW", appliedNetworkAras.get(2).getId());
-        assertEquals(1, appliedPstAras.size());
-        assertEquals("ARA_PST_BE", appliedPstAras.iterator().next().getId());
-
-        assertEquals(-382.0, raoResult.getFlow(crac.getInstant("preventive"), crac.getFlowCnec("NNL2AA1  BBE3AA1  1 - preventive"), TwoSides.ONE, Unit.MEGAWATT), 1.);
-        assertEquals(-1000.0, raoResult.getFlow(crac.getInstant("outage"), crac.getFlowCnec("NNL2AA1  BBE3AA1  1 - Contingency DE2 NL3 1 - outage"), TwoSides.ONE, Unit.MEGAWATT), 1.);
-        assertEquals(-131.0, raoResult.getFlow(crac.getInstant("auto"), crac.getFlowCnec("NNL2AA1  BBE3AA1  1 - Contingency DE2 NL3 1 - auto"), TwoSides.ONE, Unit.MEGAWATT), 1.);
-        assertEquals(-131.0, raoResult.getFlow(crac.getInstant("curative"), crac.getFlowCnec("NNL2AA1  BBE3AA1  1 - Contingency DE2 NL3 1 - curative"), TwoSides.ONE, Unit.MEGAWATT), 1.);
-    }
-
-    @Test
     void threeCurativeInstantsWithCumulativeMaximumNumberOfApplicableRemedialActions() throws IOException {
         setup("12Nodes_4ParallelLines.uct", "small-crac-ra-limits-per-instant.json");
         RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_DC.json"));
@@ -589,44 +539,5 @@ class CastorFullOptimizationTest {
         assertEquals(10.0, raoResult.getCost(crac.getInstant("preventive")), DOUBLE_TOLERANCE);
         assertEquals(10.0, raoResult.getFunctionalCost(crac.getInstant("preventive")), DOUBLE_TOLERANCE);
         assertEquals(0.0, raoResult.getVirtualCost(crac.getInstant("preventive")), DOUBLE_TOLERANCE);
-    }
-
-    @Test
-    void costlyAutoAndCurativeRaoNetworkActionsOnly() throws IOException {
-        network = Network.read("2Nodes8ParallelLines5LinesClosed.uct", getClass().getResourceAsStream("/network/2Nodes8ParallelLines5LinesClosed.uct"));
-        crac = Crac.read("small-crac-costly-auto-and-curative-4-scenarios.json", getClass().getResourceAsStream("/crac/small-crac-costly-auto-and-curative-4-scenarios.json"), network);
-        RaoInput raoInput = RaoInput.build(network, crac).build();
-        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_dc_minObjective.json"));
-
-        // Run RAO
-        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
-        assertEquals(Set.of("min-margin-violation-evaluator", "sensitivity-failure-cost"), raoResult.getVirtualCostNames());
-
-        assertEquals(Set.of(crac.getNetworkAction("cheapCloseBeFr6")), raoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState()));
-
-        assertEquals(50200.0, raoResult.getCost(crac.getInstant("preventive")), DOUBLE_TOLERANCE);
-        assertEquals(200.0, raoResult.getFunctionalCost(crac.getInstant("preventive")), DOUBLE_TOLERANCE);
-        assertEquals(50000.0, raoResult.getVirtualCost(crac.getInstant("preventive")), DOUBLE_TOLERANCE);
-        assertEquals(50000.0, raoResult.getVirtualCost(crac.getInstant("preventive"), "min-margin-violation-evaluator"), DOUBLE_TOLERANCE);
-
-        assertTrue(raoResult.getActivatedNetworkActionsDuringState(crac.getState("coBeFr2", crac.getInstant("auto"))).isEmpty());
-        assertEquals(Set.of(crac.getNetworkAction("closeBeFr7")), raoResult.getActivatedNetworkActionsDuringState(crac.getState("coBeFr3", crac.getInstant("auto"))));
-        assertTrue(raoResult.getActivatedNetworkActionsDuringState(crac.getState("coBeFr4", crac.getInstant("auto"))).isEmpty());
-        assertEquals(Set.of(crac.getNetworkAction("closeBeFr7")), raoResult.getActivatedNetworkActionsDuringState(crac.getState("coBeFr5", crac.getInstant("auto"))));
-
-        assertEquals(50320.0, raoResult.getCost(crac.getInstant("auto")), DOUBLE_TOLERANCE);
-        assertEquals(320.0, raoResult.getFunctionalCost(crac.getInstant("auto")), DOUBLE_TOLERANCE);
-        assertEquals(50000.0, raoResult.getVirtualCost(crac.getInstant("auto")), DOUBLE_TOLERANCE);
-        assertEquals(50000.0, raoResult.getVirtualCost(crac.getInstant("auto"), "min-margin-violation-evaluator"), DOUBLE_TOLERANCE);
-
-        assertTrue(raoResult.getActivatedNetworkActionsDuringState(crac.getState("coBeFr2", crac.getInstant("curative"))).isEmpty());
-        assertTrue(raoResult.getActivatedNetworkActionsDuringState(crac.getState("coBeFr3", crac.getInstant("curative"))).isEmpty());
-        assertEquals(Set.of(crac.getNetworkAction("closeBeFr8")), raoResult.getActivatedNetworkActionsDuringState(crac.getState("coBeFr4", crac.getInstant("curative"))));
-        assertEquals(Set.of(crac.getNetworkAction("closeBeFr8")), raoResult.getActivatedNetworkActionsDuringState(crac.getState("coBeFr5", crac.getInstant("curative"))));
-
-        assertEquals(51790.0, raoResult.getCost(crac.getLastInstant()), DOUBLE_TOLERANCE);
-        assertEquals(1790.0, raoResult.getFunctionalCost(crac.getLastInstant()), DOUBLE_TOLERANCE);
-        assertEquals(50000.0, raoResult.getVirtualCost(crac.getLastInstant()), DOUBLE_TOLERANCE);
-        assertEquals(50000.0, raoResult.getVirtualCost(crac.getLastInstant(), "min-margin-violation-evaluator"), DOUBLE_TOLERANCE);
     }
 }

@@ -71,7 +71,6 @@ class JsonRaoParametersTest extends AbstractSerDeTest {
         searchTreeParameters.getRangeActionsOptimizationParameters().setRaRangeShrinking(RaRangeShrinking.ENABLED);
         // TopologicalActions optimization parameters
         searchTreeParameters.getTopoOptimizationParameters().setMaxPreventiveSearchTreeDepth(10);
-        searchTreeParameters.getTopoOptimizationParameters().setMaxAutoSearchTreeDepth(3);
         searchTreeParameters.getTopoOptimizationParameters().setMaxCurativeSearchTreeDepth(10);
         parameters.getTopoOptimizationParameters().setRelativeMinImpactThreshold(0.1);
         parameters.getTopoOptimizationParameters().setAbsoluteMinImpactThreshold(20);
@@ -140,7 +139,6 @@ class JsonRaoParametersTest extends AbstractSerDeTest {
         assertEquals(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN, parameters.getObjectiveFunctionParameters().getType());
         OpenRaoSearchTreeParameters searchTreeParameters = parameters.getExtension(OpenRaoSearchTreeParameters.class);
         assertEquals(5, searchTreeParameters.getTopoOptimizationParameters().getMaxPreventiveSearchTreeDepth(), DOUBLE_TOLERANCE);
-        assertEquals(2, searchTreeParameters.getTopoOptimizationParameters().getMaxAutoSearchTreeDepth(), DOUBLE_TOLERANCE);
         assertEquals(5, searchTreeParameters.getTopoOptimizationParameters().getMaxCurativeSearchTreeDepth(), DOUBLE_TOLERANCE);
         assertEquals(0, parameters.getTopoOptimizationParameters().getRelativeMinImpactThreshold(), DOUBLE_TOLERANCE);
         assertEquals(1, parameters.getTopoOptimizationParameters().getAbsoluteMinImpactThreshold(), DOUBLE_TOLERANCE);
