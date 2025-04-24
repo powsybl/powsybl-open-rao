@@ -262,7 +262,7 @@ public final class AutomatonSimulator {
         // -- If network actions have been applied, run sensitivity :
         PrePerimeterResult automatonRangeActionOptimizationSensitivityAnalysisOutput = prePerimeterSensitivityOutput;
         if (!appliedNetworkActions.isEmpty()) {
-            TECHNICAL_LOGS.info("Running sensitivity analysis post application of auto network actions for automaton state {}.", automatonState.getId());
+            TECHNICAL_LOGS.info("Running sensitivity analysis post application of auto network actions for automaton state {} for speed {}.", automatonState.getId(), speed);
             automatonRangeActionOptimizationSensitivityAnalysisOutput = preAutoPstOptimizationSensitivityAnalysis.runBasedOnInitialResults(network, crac, initialFlowResult, operatorsNotSharingCras, null);
             if (automatonRangeActionOptimizationSensitivityAnalysisOutput.getSensitivityStatus(automatonState) == ComputationStatus.FAILURE) {
                 return new TopoAutomatonSimulationResult(automatonRangeActionOptimizationSensitivityAnalysisOutput, allAppliedAutomatons);
@@ -320,7 +320,7 @@ public final class AutomatonSimulator {
         }
 
         if (!activatedRangeActions.isEmpty()) {
-            finalPostAutoResult = runPreCurativeSensitivityComputation(automatonState, curativeStates, network);
+            finalPostAutoResult = runPostRangeAutomatonsSensitivityComputation(automatonState, curativeStates, network, speed);
             if (finalPostAutoResult.getSensitivityStatus(automatonState) == ComputationStatus.FAILURE) {
                 return new RangeAutomatonSimulationResult(finalPostAutoResult, allActivatedRangeAutomatons, initialSetPoints, rangeActionsWithSetpoint);
             }
@@ -415,7 +415,7 @@ public final class AutomatonSimulator {
      * The sensitivity analysis is run on curative range actions, to be used at curative instant.
      * This function returns a prePerimeterResult that will be used to build an AutomatonPerimeterResult.
      */
-    private PrePerimeterResult runPreCurativeSensitivityComputation(State automatonState, Set<State> curativeStates, Network network) {
+    private PrePerimeterResult runPostRangeAutomatonsSensitivityComputation(State automatonState, Set<State> curativeStates, Network network, int speed) {
         // -- Run sensitivity computation before running curative RAO later
         // -- Get curative range actions
         Set<RangeAction<?>> curativeRangeActions = new HashSet<>();
@@ -432,7 +432,7 @@ public final class AutomatonSimulator {
             toolProvider);
 
         // Run computation
-        TECHNICAL_LOGS.info("Running pre curative sensitivity analysis after auto state {}.", automatonState.getId());
+        TECHNICAL_LOGS.info("Running post range automatons sensitivity analysis after auto state {} for speed {}.", automatonState.getId(), speed);
         return prePerimeterSensitivityAnalysis.runBasedOnInitialResults(network, crac, initialFlowResult, operatorsNotSharingCras, null);
     }
 

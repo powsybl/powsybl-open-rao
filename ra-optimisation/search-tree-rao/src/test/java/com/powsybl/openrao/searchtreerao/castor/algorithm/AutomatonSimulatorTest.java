@@ -550,7 +550,7 @@ class AutomatonSimulatorTest {
         when(mockedPrePerimeterResult.getSensitivityValue(cnec1, TwoSides.TWO, ara1, Unit.MEGAWATT)).thenReturn(0.);
         when(mockedPrePerimeterResult.getSensitivityValue(cnec1, TwoSides.TWO, ara2, Unit.MEGAWATT)).thenReturn(0.);
 
-        AutomatonSimulator.RangeAutomatonSimulationResult result = automatonSimulator.simulateRangeAutomatons(autoState, Set.of(curativeState), network, mockedPreAutoPerimeterSensitivityAnalysis, mockedPrePerimeterResult, 3, Set.of(), Map.of(ara1, 0.1, ara2, 0.1), Map.of());
+        AutomatonSimulator.RangeAutomatonSimulationResult result = automatonSimulator.simulateRangeAutomatons(autoState, Set.of(curativeState), network, mockedPreAutoPerimeterSensitivityAnalysis, mockedPrePerimeterResult, 3, Set.of(), Map.of(ara1, 0.1, ara2, 0.1), Map.of(ara1, 0.1, ara2, 0.1));
 
         assertNotNull(result);
         assertNotNull(result.perimeterResult());
