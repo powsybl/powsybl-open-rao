@@ -106,7 +106,7 @@ public final class AutomatonSimulator {
 
     /**
      * This function simulates automatons at AUTO instant. First, it simulates topological automatons,
-     * then range actions by order of speed. TODO: Network actions by speed is not implemented yet
+     * then range actions by order of speed.
      * Returns an AutomatonPerimeterResult
      */
     AutomatonPerimeterResultImpl simulateAutomatonState(State automatonState, Set<State> curativeStates, Network network) {
@@ -129,7 +129,6 @@ public final class AutomatonSimulator {
 
         for (int speed : getAllSortedSpeeds(automatonState)) {
             TECHNICAL_LOGS.info("Simulating automaton batch for speed {}", speed);
-            // TODO: use previous sensi + include automatons from previous batch
             // I) Simulate FORCED topological automatons
             topoSimulationResult = simulateTopologicalAutomatons(automatonState, network, preAutoPstOptimizationSensitivityAnalysis, speed, topoSimulationResult.activatedNetworkActions(), rangeAutomatonSimulationResult.perimeterResult());
 
@@ -246,7 +245,7 @@ public final class AutomatonSimulator {
             });
 
         if (appliedNetworkActions.isEmpty()) {
-            return new TopoAutomatonSimulationResult(prePerimeterSensitivityOutput, previouslyActivatedTopologicalAutomatons);
+            return new TopoAutomatonSimulationResult(preAutomatonsPerimeterResult, previouslyActivatedTopologicalAutomatons);
         }
 
         // -- Apply
@@ -260,7 +259,7 @@ public final class AutomatonSimulator {
 
         // -- Sensitivity analysis must be run to evaluate available auto range actions
         // -- If network actions have been applied, run sensitivity :
-        PrePerimeterResult automatonRangeActionOptimizationSensitivityAnalysisOutput = prePerimeterSensitivityOutput;
+        PrePerimeterResult automatonRangeActionOptimizationSensitivityAnalysisOutput = preAutomatonsPerimeterResult;
         if (!appliedNetworkActions.isEmpty()) {
             TECHNICAL_LOGS.info("Running sensitivity analysis post application of auto network actions for automaton state {} for speed {}.", automatonState.getId(), speed);
             automatonRangeActionOptimizationSensitivityAnalysisOutput = preAutoPstOptimizationSensitivityAnalysis.runBasedOnInitialResults(network, crac, initialFlowResult, operatorsNotSharingCras, null);
