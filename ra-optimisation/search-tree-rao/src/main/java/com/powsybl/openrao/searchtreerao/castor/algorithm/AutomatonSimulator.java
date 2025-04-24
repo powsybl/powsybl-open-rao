@@ -136,8 +136,8 @@ public final class AutomatonSimulator {
             // Sensitivity analysis failed :
             if (topoSimulationResult.perimeterResult().getSensitivityStatus(automatonState) == ComputationStatus.FAILURE) {
                 return new AutomatonPerimeterResultImpl(
-                    topoSimulationResult.perimeterResult(),
                     rangeAutomatonSimulationResult.perimeterResult(),
+                    topoSimulationResult.perimeterResult(),
                     topoSimulationResult.activatedNetworkActions(),
                     rangeAutomatonSimulationResult.activatedRangeActions(),
                     rangeAutomatonSimulationResult.rangeActionsWithSetpoint(),
