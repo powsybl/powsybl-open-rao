@@ -200,19 +200,6 @@ public final class AutomatonSimulator {
         return failedAutomatonPerimeterResultImpl;
     }
 
-    AutomatonPerimeterResultImpl createFailedAutomatonPerimeterResult(State autoState, PrePerimeterResult result, Set<NetworkAction> activatedNetworkActions, String defineMoment) {
-        AutomatonPerimeterResultImpl failedAutomatonPerimeterResultImpl = new AutomatonPerimeterResultImpl(
-            result,
-            result,
-            activatedNetworkActions,
-            new HashSet<>(),
-            new HashMap<>(),
-            autoState);
-        TECHNICAL_LOGS.info("Automaton state {} has failed during sensitivity computation {} topological automaton simulation.", autoState.getId(), defineMoment);
-        RaoLogger.logFailedOptimizationSummary(BUSINESS_LOGS, autoState, failedAutomatonPerimeterResultImpl.getActivatedNetworkActions(), getRangeActionsAndTheirTapsAppliedOnState(failedAutomatonPerimeterResultImpl, autoState));
-        return failedAutomatonPerimeterResultImpl;
-    }
-
     /**
      * Utility class to hold the results of topo actions simulation
      */
