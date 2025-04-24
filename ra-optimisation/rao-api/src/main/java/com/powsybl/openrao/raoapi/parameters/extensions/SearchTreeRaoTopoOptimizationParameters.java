@@ -32,7 +32,6 @@ public class SearchTreeRaoTopoOptimizationParameters {
     private static final int DEFAULT_MAX_NUMBER_OF_BOUNDARIES_FOR_SKIPPING_ACTIONS = 2;
     // Attributes
     private int maxPreventiveSearchTreeDepth = DEFAULT_MAX_SEARCH_TREE_DEPTH;
-    private int maxAutoSearchTreeDepth = DEFAULT_MAX_SEARCH_TREE_DEPTH;
     private int maxCurativeSearchTreeDepth = DEFAULT_MAX_SEARCH_TREE_DEPTH;
     private List<List<String>> predefinedCombinations = DEFAULT_PREDEFINED_COMBINATIONS;
     private boolean skipActionsFarFromMostLimitingElement = DEFAULT_SKIP_ACTIONS_FAR_FROM_MOST_LIMITING_ELEMENT;
@@ -40,10 +39,6 @@ public class SearchTreeRaoTopoOptimizationParameters {
 
     public void setMaxPreventiveSearchTreeDepth(int maxPreventiveSearchTreeDepth) {
         this.maxPreventiveSearchTreeDepth = maxPreventiveSearchTreeDepth;
-    }
-
-    public void setMaxAutoSearchTreeDepth(int maxAutoSearchTreeDepth) {
-        this.maxAutoSearchTreeDepth = maxAutoSearchTreeDepth;
     }
 
     public void setMaxCurativeSearchTreeDepth(int maxCurativeSearchTreeDepth) {
@@ -71,10 +66,6 @@ public class SearchTreeRaoTopoOptimizationParameters {
         return maxPreventiveSearchTreeDepth;
     }
 
-    public int getMaxAutoSearchTreeDepth() {
-        return maxAutoSearchTreeDepth;
-    }
-
     public int getMaxCurativeSearchTreeDepth() {
         return maxCurativeSearchTreeDepth;
     }
@@ -97,7 +88,6 @@ public class SearchTreeRaoTopoOptimizationParameters {
         platformConfig.getOptionalModuleConfig(ST_TOPOLOGICAL_ACTIONS_OPTIMIZATION_SECTION)
                 .ifPresent(config -> {
                     parameters.setMaxPreventiveSearchTreeDepth(config.getIntProperty(MAX_PREVENTIVE_SEARCH_TREE_DEPTH, DEFAULT_MAX_SEARCH_TREE_DEPTH));
-                    parameters.setMaxAutoSearchTreeDepth(config.getIntProperty(MAX_AUTO_SEARCH_TREE_DEPTH, DEFAULT_MAX_SEARCH_TREE_DEPTH));
                     parameters.setMaxCurativeSearchTreeDepth(config.getIntProperty(MAX_CURATIVE_SEARCH_TREE_DEPTH, DEFAULT_MAX_SEARCH_TREE_DEPTH));
                     parameters.setPredefinedCombinations(ParametersUtil.convertListToListOfList(config.getStringListProperty(PREDEFINED_COMBINATIONS, ParametersUtil.convertListOfListToList(DEFAULT_PREDEFINED_COMBINATIONS))));
                     parameters.setSkipActionsFarFromMostLimitingElement(config.getBooleanProperty(SKIP_ACTIONS_FAR_FROM_MOST_LIMITING_ELEMENT, DEFAULT_SKIP_ACTIONS_FAR_FROM_MOST_LIMITING_ELEMENT));
@@ -109,13 +99,6 @@ public class SearchTreeRaoTopoOptimizationParameters {
     public static int getMaxPreventiveSearchTreeDepth(RaoParameters parameters) {
         if (parameters.hasExtension(OpenRaoSearchTreeParameters.class)) {
             return parameters.getExtension(OpenRaoSearchTreeParameters.class).getTopoOptimizationParameters().getMaxPreventiveSearchTreeDepth();
-        }
-        return DEFAULT_MAX_SEARCH_TREE_DEPTH;
-    }
-
-    public static int getMaxAutoSearchTreeDepth(RaoParameters parameters) {
-        if (parameters.hasExtension(OpenRaoSearchTreeParameters.class)) {
-            return parameters.getExtension(OpenRaoSearchTreeParameters.class).getTopoOptimizationParameters().getMaxAutoSearchTreeDepth();
         }
         return DEFAULT_MAX_SEARCH_TREE_DEPTH;
     }
