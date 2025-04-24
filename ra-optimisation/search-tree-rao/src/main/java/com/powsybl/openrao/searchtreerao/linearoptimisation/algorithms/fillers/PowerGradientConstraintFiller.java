@@ -12,7 +12,7 @@ import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
-import com.powsybl.openrao.data.intertemporalconstraint.PowerGradient;
+import com.powsybl.openrao.data.generatorconstraints.GeneratorConstraints;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPConstraint;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPVariable;
@@ -35,13 +35,13 @@ public class PowerGradientConstraintFiller implements ProblemFiller {
     private final TemporalData<State> preventiveStates;
     private final TemporalData<Network> networkPerTimestamp;
     private final TemporalData<Set<InjectionRangeAction>> injectionRangeActionsPerTimestamp;
-    private final Set<PowerGradient> powerGradients;
+    private final Set<GeneratorConstraints> generatorConstraints;
 
-    public PowerGradientConstraintFiller(TemporalData<State> preventiveStates, TemporalData<Network> networkPerTimestamp, TemporalData<Set<InjectionRangeAction>> injectionRangeActionsPerTimestamp, Set<PowerGradient> powerGradients) {
+    public PowerGradientConstraintFiller(TemporalData<State> preventiveStates, TemporalData<Network> networkPerTimestamp, TemporalData<Set<InjectionRangeAction>> injectionRangeActionsPerTimestamp, Set<GeneratorConstraints> generatorConstraints) {
         this.preventiveStates = preventiveStates;
         this.networkPerTimestamp = networkPerTimestamp;
         this.injectionRangeActionsPerTimestamp = injectionRangeActionsPerTimestamp;
-        this.powerGradients = powerGradients;
+        this.generatorConstraints = generatorConstraints;
     }
 
     //  TODO : only create generator variables when necessary (map injection range actions/generators)
@@ -50,8 +50,8 @@ public class PowerGradientConstraintFiller implements ProblemFiller {
         List<OffsetDateTime> timestamps = preventiveStates.getTimestamps();
         IntStream.range(0, timestamps.size()).forEach(timestampIndex -> {
             OffsetDateTime timestamp = timestamps.get(timestampIndex);
-            powerGradients.forEach(powerGradient -> {
-                String generatorId = powerGradient.getNetworkElementId();
+            generatorConstraints.forEach(powerGradient -> {
+                String generatorId = powerGradient.getGeneratorId();
                 OpenRaoMPVariable generatorPowerVariable = linearProblem.addGeneratorPowerVariable(generatorId, timestamp);
                 addPowerConstraint(linearProblem, generatorId, generatorPowerVariable, timestamp);
                 if (timestampIndex > 0) {
@@ -64,13 +64,13 @@ public class PowerGradientConstraintFiller implements ProblemFiller {
     /** Build a Generator Power Gradient Constraint for a generator g at timestamp t
      * p^{-}(g) * delta(t, t + 1) <= P(g, t + 1) - P(g, t) <= p^{+}(g) * delta_t(t, t + 1)
      * */
-    private static void addPowerGradientConstraint(LinearProblem linearProblem, PowerGradient constraint, OffsetDateTime currentTimestamp, OffsetDateTime previousTimestamp, OpenRaoMPVariable generatorPowerVariable) {
+    private static void addPowerGradientConstraint(LinearProblem linearProblem, GeneratorConstraints generatorConstraints, OffsetDateTime currentTimestamp, OffsetDateTime previousTimestamp, OpenRaoMPVariable generatorPowerVariable) {
         double timeGap = previousTimestamp.until(currentTimestamp, ChronoUnit.HOURS);
-        double lb = constraint.getMinValue().map(minValue -> minValue * timeGap).orElse(-linearProblem.infinity());
-        double ub = constraint.getMaxValue().map(maxValue -> maxValue * timeGap).orElse(linearProblem.infinity());
-        String generatorId = constraint.getNetworkElementId();
+        double lb = generatorConstraints.getDownwardPowerGradient().map(minValue -> minValue * timeGap).orElse(-linearProblem.infinity());
+        double ub = generatorConstraints.getUpwardPowerGradient().map(maxValue -> maxValue * timeGap).orElse(linearProblem.infinity());
+        String generatorId = generatorConstraints.getGeneratorId();
         OpenRaoMPConstraint generatorPowerGradientConstraint = linearProblem.addGeneratorPowerGradientConstraint(generatorId, currentTimestamp, previousTimestamp, lb, ub);
-        OpenRaoMPVariable previousGeneratorPowerVariable = linearProblem.getGeneratorPowerVariable(constraint.getNetworkElementId(), previousTimestamp);
+        OpenRaoMPVariable previousGeneratorPowerVariable = linearProblem.getGeneratorPowerVariable(generatorConstraints.getGeneratorId(), previousTimestamp);
         generatorPowerGradientConstraint.setCoefficient(generatorPowerVariable, 1.0);
         generatorPowerGradientConstraint.setCoefficient(previousGeneratorPowerVariable, -1.0);
     }

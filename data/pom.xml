@@ -20,7 +20,6 @@
         <module>flowbased-domain</module>
         <module>generator-constraints</module>
         <module>glsk</module>
-        <module>inter-temporal-constraint</module>
         <module>rao-result</module>
         <module>refprog</module>
         <module>virtual-hubs</module>

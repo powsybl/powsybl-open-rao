@@ -103,7 +103,7 @@ public class Marmot implements InterTemporalRaoProvider {
             network.getVariantManager().cloneVariant(individualRaoInput.getNetworkVariantId(), INITIAL_SCENARIO);
             raoInputsWithImportedNetworks.put(datetime, individualRaoInput);
         });
-        InterTemporalRaoInput interTemporalRaoInput = new InterTemporalRaoInput(raoInputsWithImportedNetworks, interTemporalRaoInputWithNetworkPaths.getPowerGradients());
+        InterTemporalRaoInput interTemporalRaoInput = new InterTemporalRaoInput(raoInputsWithImportedNetworks, interTemporalRaoInputWithNetworkPaths.getGeneratorConstraints());
 
         // Apply preventive topological remedial actions
         OpenRaoLoggerProvider.TECHNICAL_LOGS.info("[MARMOT] Applying optimal topological actions on networks");
@@ -118,7 +118,7 @@ public class Marmot implements InterTemporalRaoProvider {
 
         // if no inter-temporal constraints are defined, the results can be returned
         // TODO : Add intertemporal constraint check if none violated then return
-        if (interTemporalRaoInputWithNetworkPaths.getPowerGradients().isEmpty()) {
+        if (interTemporalRaoInputWithNetworkPaths.getGeneratorConstraints().isEmpty()) {
             ObjectiveFunctionResult finalObjectiveFunctionResult = getIndependantRaoGlobalObjectiveFunctionResult(topologicalOptimizationResults, initialResults, raoInputsWithImportedNetworks, fullObjectiveFunction);
             OpenRaoLoggerProvider.TECHNICAL_LOGS.info("[MARMOT] No inter-temporal constraint provided; no need to re-optimize range actions");
             return CompletableFuture.completedFuture(new InterTemporalRaoResultImpl(initialObjectiveFunctionResult, finalObjectiveFunctionResult, topologicalOptimizationResults));
@@ -484,7 +484,7 @@ public class Marmot implements InterTemporalRaoProvider {
             .withOutageInstant(raoInput.getRaoInputs().getData(timestamp).orElseThrow().getCrac().getOutageInstant())
             .withAppliedNetworkActionsInPrimaryState(preventiveTopologicalActions.getData(timestamp).orElseThrow())
             .build()));
-        InterTemporalIteratingLinearOptimizerInput interTemporalLinearOptimizerInput = new InterTemporalIteratingLinearOptimizerInput(new TemporalDataImpl<>(linearOptimizerInputPerTimestamp), objectiveFunction, raoInput.getPowerGradients());
+        InterTemporalIteratingLinearOptimizerInput interTemporalLinearOptimizerInput = new InterTemporalIteratingLinearOptimizerInput(new TemporalDataImpl<>(linearOptimizerInputPerTimestamp), objectiveFunction, raoInput.getGeneratorConstraints());
 
         // Build parameters
         // Unoptimized cnec parameters ignored because only PRAs

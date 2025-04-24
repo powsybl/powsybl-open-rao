@@ -126,5 +126,14 @@
             <groupId>com.powsybl</groupId>
             <artifactId>open-rao-crac-io-fb-constraint</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.powsybl</groupId>
+            <artifactId>open-rao-generator-constraints</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.powsybl</groupId>
+            <artifactId>open-rao-generator-constraints</artifactId>
+        </dependency>
     </dependencies>
 </project>

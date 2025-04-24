@@ -12,7 +12,7 @@ import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.InstantKind;
-import com.powsybl.openrao.data.intertemporalconstraint.PowerGradient;
+import com.powsybl.openrao.data.generatorconstraints.GeneratorConstraints;
 import com.powsybl.openrao.data.raoresult.api.InterTemporalRaoResult;
 import com.powsybl.openrao.raoapi.InterTemporalRaoInputWithNetworkPaths;
 import com.powsybl.openrao.raoapi.RaoInputWithNetworkPaths;
@@ -74,7 +74,7 @@ class MarmotTest {
 
         InterTemporalRaoInputWithNetworkPaths input = new InterTemporalRaoInputWithNetworkPaths(
             raoInputs,
-            Set.of(new PowerGradient("FFR1AA1 _generator", -1000d, 1000d))
+            Set.of(GeneratorConstraints.create().withGeneratorId("FFR1AA1 _generator").withLeadTime(0.0).withLagTime(0.0).withPMin(0.0).withPMax(1000.0).withUpwardPowerGradient(1000.0).withDownwardPowerGradient(-1000.0).build())
         );
 
         // first RAOs shift tap to -5 for a cost of 55 each
@@ -114,7 +114,7 @@ class MarmotTest {
             ));
         InterTemporalRaoInputWithNetworkPaths input = new InterTemporalRaoInputWithNetworkPaths(
             raoInputs,
-            Set.of(new PowerGradient("FFR1AA1 _generator", -250d, 250d))
+            Set.of(GeneratorConstraints.create().withGeneratorId("FFR1AA1 _generator").withLeadTime(0.0).withLagTime(0.0).withPMin(0.0).withPMax(1000.0).withUpwardPowerGradient(250.0).withDownwardPowerGradient(-250.0).build())
         );
 
         // no redispatching required during the first timestamp
@@ -157,7 +157,7 @@ class MarmotTest {
             ));
         InterTemporalRaoInputWithNetworkPaths input = new InterTemporalRaoInputWithNetworkPaths(
             raoInputs,
-            Set.of(new PowerGradient("FFR3AA1 _generator", 0d, 200d))
+            Set.of(GeneratorConstraints.create().withGeneratorId("FFR3AA1 _generator").withLeadTime(0.0).withLagTime(0.0).withPMin(0.0).withPMax(1000.0).withUpwardPowerGradient(200.0).withDownwardPowerGradient(0.0).build())
         );
 
         // no redispatching required during the first timestamp
@@ -199,7 +199,8 @@ class MarmotTest {
 
         InterTemporalRaoInputWithNetworkPaths input = new InterTemporalRaoInputWithNetworkPaths(
             raoInputs,
-            Set.of(new PowerGradient("FFR1AA1 _generator", -250d, 250d))
+            Set.of(GeneratorConstraints.create().withGeneratorId("FFR1AA1 _generator").withLeadTime(0.0).withLagTime(0.0).withPMin(0.0).withPMax(1000.0).withUpwardPowerGradient(250.0).withDownwardPowerGradient(-250.0).build())
+
         );
 
         InterTemporalRaoResult results = new Marmot().run(input, raoParameters).join();

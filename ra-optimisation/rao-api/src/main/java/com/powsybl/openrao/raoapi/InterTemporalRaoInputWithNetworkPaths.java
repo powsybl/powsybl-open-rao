@@ -9,7 +9,7 @@ package com.powsybl.openrao.raoapi;
 
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.TemporalData;
-import com.powsybl.openrao.data.intertemporalconstraint.PowerGradient;
+import com.powsybl.openrao.data.generatorconstraints.GeneratorConstraints;
 
 import java.time.OffsetDateTime;
 import java.util.HashSet;
@@ -24,17 +24,17 @@ import java.util.stream.Collectors;
 public class InterTemporalRaoInputWithNetworkPaths {
     private final TemporalData<RaoInputWithNetworkPaths> raoInputs;
     private final Set<OffsetDateTime> timestampsToRun;
-    private final Set<PowerGradient> powerGradients;
+    private final Set<GeneratorConstraints> generatorConstraints;
 
-    public InterTemporalRaoInputWithNetworkPaths(TemporalData<RaoInputWithNetworkPaths> raoInputs, Set<OffsetDateTime> timestampsToRun, Set<PowerGradient> powerGradients) {
+    public InterTemporalRaoInputWithNetworkPaths(TemporalData<RaoInputWithNetworkPaths> raoInputs, Set<OffsetDateTime> timestampsToRun, Set<GeneratorConstraints> generatorConstraints) {
         this.raoInputs = raoInputs;
         this.timestampsToRun = new TreeSet<>(timestampsToRun);
-        this.powerGradients = powerGradients;
+        this.generatorConstraints = generatorConstraints;
         checkTimestampsToRun();
     }
 
-    public InterTemporalRaoInputWithNetworkPaths(TemporalData<RaoInputWithNetworkPaths> raoInputs, Set<PowerGradient> powerGradients) {
-        this(raoInputs, new HashSet<>(raoInputs.getTimestamps()), powerGradients);
+    public InterTemporalRaoInputWithNetworkPaths(TemporalData<RaoInputWithNetworkPaths> raoInputs, Set<GeneratorConstraints> generatorConstraints) {
+        this(raoInputs, new HashSet<>(raoInputs.getTimestamps()), generatorConstraints);
     }
 
     public TemporalData<RaoInputWithNetworkPaths> getRaoInputs() {
@@ -45,8 +45,8 @@ public class InterTemporalRaoInputWithNetworkPaths {
         return timestampsToRun;
     }
 
-    public Set<PowerGradient> getPowerGradients() {
-        return powerGradients;
+    public Set<GeneratorConstraints> getGeneratorConstraints() {
+        return generatorConstraints;
     }
 
     private void checkTimestampsToRun() {

@@ -168,7 +168,7 @@ public final class InterTemporalIteratingLinearOptimizer {
         TemporalData<State> preventiveStates = input.iteratingLinearOptimizerInputs().map(linearOptimizerInput -> linearOptimizerInput.optimizationPerimeter().getMainOptimizationState());
         TemporalData<Network> networks = input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::network);
         TemporalData<Set<InjectionRangeAction>> preventiveInjectionRangeActions = input.iteratingLinearOptimizerInputs().map(linearOptimizerInput -> filterPreventiveInjectionRangeAction(linearOptimizerInput.optimizationPerimeter().getRangeActions()));
-        return List.of(new PowerGradientConstraintFiller(preventiveStates, networks, preventiveInjectionRangeActions, input.powerGradients()));
+        return List.of(new PowerGradientConstraintFiller(preventiveStates, networks, preventiveInjectionRangeActions, input.generatorConstraints()));
     }
 
     private static Set<InjectionRangeAction> filterPreventiveInjectionRangeAction(Set<RangeAction<?>> rangeActions) {

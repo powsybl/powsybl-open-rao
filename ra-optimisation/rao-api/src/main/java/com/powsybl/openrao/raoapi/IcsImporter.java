@@ -9,7 +9,7 @@ import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeActionAdder;
 import com.powsybl.openrao.data.crac.api.rangeaction.VariationDirection;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
-import com.powsybl.openrao.data.intertemporalconstraint.PowerGradient;
+import com.powsybl.openrao.data.generatorconstraints.GeneratorConstraints;
 import com.powsybl.openrao.raoapi.parameters.extensions.IcsImporterParameters;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
@@ -156,14 +156,14 @@ public final class IcsImporter {
         });
 
         weightPerNode.forEach((nodeId, shiftKey) -> {
-            PowerGradient powerGradient = PowerGradient.builder()
-                .withNetworkElementId(networkElementPerGskElement.get(nodeId))
-                .withMaxValue(shiftKey * parseDoubleWithPossibleCommas(
+            GeneratorConstraints generatorConstraints = GeneratorConstraints.create()
+                .withGeneratorId(nodeId)
+                .withUpwardPowerGradient(shiftKey * parseDoubleWithPossibleCommas(
                     staticRecord.get("Maximum positive power gradient [MW/h]").isEmpty() ? MAX_GRADIENT : staticRecord.get("Maximum positive power gradient [MW/h]")
-                )).withMinValue(-shiftKey * parseDoubleWithPossibleCommas(
+                )).withDownwardPowerGradient(-shiftKey * parseDoubleWithPossibleCommas(
                     staticRecord.get("Maximum negative power gradient [MW/h]").isEmpty() ? MAX_GRADIENT : staticRecord.get("Maximum negative power gradient [MW/h]")
                 )).build();
-            interTemporalRaoInput.getPowerGradients().add(powerGradient);
+            interTemporalRaoInput.getGeneratorConstraints().add(generatorConstraints);
         });
     }
 
@@ -203,14 +203,14 @@ public final class IcsImporter {
 
         });
 
-        PowerGradient powerGradient = PowerGradient.builder()
-            .withNetworkElementId(networkElementId)
-            .withMaxValue(parseDoubleWithPossibleCommas(
+        GeneratorConstraints generatorConstraints = GeneratorConstraints.create()
+            .withGeneratorId(networkElementId)
+            .withUpwardPowerGradient(parseDoubleWithPossibleCommas(
                 staticRecord.get("Maximum positive power gradient [MW/h]").isEmpty() ? MAX_GRADIENT : staticRecord.get("Maximum positive power gradient [MW/h]")
-            )).withMinValue(-parseDoubleWithPossibleCommas(
+            )).withDownwardPowerGradient(-parseDoubleWithPossibleCommas(
                 staticRecord.get("Maximum negative power gradient [MW/h]").isEmpty() ? MAX_GRADIENT : staticRecord.get("Maximum negative power gradient [MW/h]")
             )).build();
-        interTemporalRaoInput.getPowerGradients().add(powerGradient);
+        interTemporalRaoInput.getGeneratorConstraints().add(generatorConstraints);
     }
 
     private static String processNetworks(String nodeId, TemporalData<Network> initialNetworks, Map<String, CSVRecord> seriesPerType, double shiftKey) {

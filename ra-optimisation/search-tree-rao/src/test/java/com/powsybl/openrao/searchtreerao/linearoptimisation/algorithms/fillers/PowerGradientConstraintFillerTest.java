@@ -17,7 +17,7 @@ import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
-import com.powsybl.openrao.data.intertemporalconstraint.PowerGradient;
+import com.powsybl.openrao.data.generatorconstraints.GeneratorConstraints;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.raoapi.InterTemporalRaoInput;
 import com.powsybl.openrao.raoapi.RaoInput;
@@ -73,12 +73,11 @@ class PowerGradientConstraintFillerTest {
         RaoInput raoInput2 = RaoInput.build(network2, crac2).build();
         RaoInput raoInput3 = RaoInput.build(network3, crac3).build();
 
-        //create powerGradientConstraint
-        PowerGradient powerGradientFFR1AA1 = new PowerGradient("FFR1AA1 _load", -300.0, 500.0);
-        PowerGradient powerGradientFFR2AA1 = new PowerGradient("FFR2AA1 _generator", -100.0, 200.0);
-        PowerGradient powerGradientFFR3AA1 = new PowerGradient("FFR3AA1 _load", -150.0, 40.0);
+        GeneratorConstraints generatorConstraintsFr1 = GeneratorConstraints.create().withGeneratorId("FFR1AA1 _load").withLeadTime(0.0).withLagTime(0.0).withPMin(0.0).withPMax(1000.0).withUpwardPowerGradient(500.0).withDownwardPowerGradient(-300.0).build();
+        GeneratorConstraints generatorConstraintsFr2 = GeneratorConstraints.create().withGeneratorId("FFR2AA1 _generator").withLeadTime(0.0).withLagTime(0.0).withPMin(0.0).withPMax(1000.0).withUpwardPowerGradient(200.0).withDownwardPowerGradient(-100.0).build();
+        GeneratorConstraints generatorConstraintsFr3 = GeneratorConstraints.create().withGeneratorId("FFR3AA1 _load").withLeadTime(0.0).withLagTime(0.0).withPMin(0.0).withPMax(1000.0).withUpwardPowerGradient(40.0).withDownwardPowerGradient(-150.0).build();
 
-        input = new InterTemporalRaoInput(new TemporalDataImpl<>(Map.of(timestamp1, raoInput1, timestamp2, raoInput2, timestamp3, raoInput3)), Set.of(powerGradientFFR1AA1, powerGradientFFR3AA1, powerGradientFFR2AA1));
+        input = new InterTemporalRaoInput(new TemporalDataImpl<>(Map.of(timestamp1, raoInput1, timestamp2, raoInput2, timestamp3, raoInput3)), Set.of(generatorConstraintsFr1, generatorConstraintsFr2, generatorConstraintsFr3));
 
         parameters = new RaoParameters();
     }
@@ -88,12 +87,11 @@ class PowerGradientConstraintFillerTest {
         Crac crac1 = Crac.read("crac-1600.json", PowerGradientConstraintFillerTest.class.getResourceAsStream("/crac/crac-1600.json"), network1);
         RaoInput raoInput1 = RaoInput.build(network1, crac1).build();
 
-        //create powerGradientConstraint
-        PowerGradient powerGradientFFR1AA1 = new PowerGradient("FFR1AA1 _load", -300.0, 500.0);
-        PowerGradient powerGradientFFR2AA1 = new PowerGradient("FFR2AA1 _generator", -100.0, 200.0);
-        PowerGradient powerGradientFFR3AA1 = new PowerGradient("FFR3AA1 _load", -150.0, 40.0);
+        GeneratorConstraints generatorConstraintsFr1 = GeneratorConstraints.create().withGeneratorId("FFR1AA1 _load").withLeadTime(0.0).withLagTime(0.0).withPMin(0.0).withPMax(1000.0).withUpwardPowerGradient(500.0).withDownwardPowerGradient(-300.0).build();
+        GeneratorConstraints generatorConstraintsFr2 = GeneratorConstraints.create().withGeneratorId("FFR2AA1 _generator").withLeadTime(0.0).withLagTime(0.0).withPMin(0.0).withPMax(1000.0).withUpwardPowerGradient(200.0).withDownwardPowerGradient(-100.0).build();
+        GeneratorConstraints generatorConstraintsFr3 = GeneratorConstraints.create().withGeneratorId("FFR3AA1 _load").withLeadTime(0.0).withLagTime(0.0).withPMin(0.0).withPMax(1000.0).withUpwardPowerGradient(40.0).withDownwardPowerGradient(-150.0).build();
 
-        input = new InterTemporalRaoInput(new TemporalDataImpl<>(Map.of(timestamp1, raoInput1)), Set.of(powerGradientFFR1AA1, powerGradientFFR2AA1, powerGradientFFR3AA1));
+        input = new InterTemporalRaoInput(new TemporalDataImpl<>(Map.of(timestamp1, raoInput1)), Set.of(generatorConstraintsFr1, generatorConstraintsFr2, generatorConstraintsFr3));
         parameters = new RaoParameters();
     }
 
@@ -130,12 +128,12 @@ class PowerGradientConstraintFillerTest {
         TemporalData<State> preventiveStates = input.getRaoInputs().map(RaoInput::getCrac).map(crac -> crac.getPreventiveState()).map(State.class::cast);
         TemporalData<Network> networks = input.getRaoInputs().map(RaoInput::getNetwork).map(Network.class::cast);
         TemporalData<Set<InjectionRangeAction>> injectionRangeActions = input.getRaoInputs().map(RaoInput::getCrac).map(crac -> crac.getRangeActions(crac.getPreventiveState(), UsageMethod.AVAILABLE).stream().filter(InjectionRangeAction.class::isInstance).map(InjectionRangeAction.class::cast).collect(Collectors.toSet()));
-        Set<PowerGradient> gradients = input.getPowerGradients();
+        Set<GeneratorConstraints> generatorConstraints = input.getGeneratorConstraints();
         PowerGradientConstraintFiller powerGradientConstraintFiller = new PowerGradientConstraintFiller(
             preventiveStates,
             networks,
             injectionRangeActions,
-            gradients);
+            generatorConstraints);
         linearProblemBuilder.withProblemFiller(powerGradientConstraintFiller);
     }
 
@@ -239,11 +237,11 @@ class PowerGradientConstraintFillerTest {
     void testMissingGradientBound() throws IOException {
         createThreeTSInput();
 
-        PowerGradient powerGradientFFR1AA1 = new PowerGradient("FFR1AA1 _load", null, 960.0);
-        PowerGradient powerGradientFFR2AA1 = new PowerGradient("FFR2AA1 _generator", -100.0, null);
-        PowerGradient powerGradientFFR3AA1 = new PowerGradient("FFR3AA1 _load", -200.0, 300.0);
+        GeneratorConstraints generatorConstraintsFr1 = GeneratorConstraints.create().withGeneratorId("FFR1AA1 _load").withLeadTime(0.0).withLagTime(0.0).withPMin(0.0).withPMax(1000.0).withUpwardPowerGradient(960.0).build();
+        GeneratorConstraints generatorConstraintsFr2 = GeneratorConstraints.create().withGeneratorId("FFR2AA1 _generator").withLeadTime(0.0).withLagTime(0.0).withPMin(0.0).withPMax(1000.0).withDownwardPowerGradient(-100.0).build();
+        GeneratorConstraints generatorConstraintsFr3 = GeneratorConstraints.create().withGeneratorId("FFR3AA1 _load").withLeadTime(0.0).withLagTime(0.0).withPMin(0.0).withPMax(1000.0).withUpwardPowerGradient(300.0).withDownwardPowerGradient(-200.0).build();
 
-        input = new InterTemporalRaoInput(new TemporalDataImpl<>(input.getRaoInputs().getDataPerTimestamp()), Set.of(powerGradientFFR1AA1, powerGradientFFR3AA1, powerGradientFFR2AA1));
+        input = new InterTemporalRaoInput(new TemporalDataImpl<>(input.getRaoInputs().getDataPerTimestamp()), Set.of(generatorConstraintsFr1, generatorConstraintsFr2, generatorConstraintsFr3));
 
         setUpLinearProblem();
 

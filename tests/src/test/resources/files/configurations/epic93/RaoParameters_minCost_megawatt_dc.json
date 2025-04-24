@@ -1,5 +1,5 @@
 {
-  "version" : "3.0",
+  "version" : "3.1",
   "objective-function" : {
     "type" : "MIN_COST",
     "unit" : "MW"
@@ -36,7 +36,6 @@
       },
       "topological-actions-optimization" : {
         "max-preventive-search-tree-depth" : 2,
-        "max-auto-search-tree-depth" : 2,
         "max-curative-search-tree-depth" : 2,
         "predefined-combinations" : [ ],
         "skip-actions-far-from-most-limiting-element" : false,
