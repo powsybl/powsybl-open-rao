@@ -157,7 +157,7 @@ public final class IcsImporter {
 
         weightPerNode.forEach((nodeId, shiftKey) -> {
             GeneratorConstraints generatorConstraints = GeneratorConstraints.create()
-                .withGeneratorId(nodeId)
+                .withGeneratorId(networkElementPerGskElement.get(nodeId))
                 .withUpwardPowerGradient(shiftKey * parseDoubleWithPossibleCommas(
                     staticRecord.get("Maximum positive power gradient [MW/h]").isEmpty() ? MAX_GRADIENT : staticRecord.get("Maximum positive power gradient [MW/h]")
                 )).withDownwardPowerGradient(-shiftKey * parseDoubleWithPossibleCommas(
