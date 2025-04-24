@@ -608,6 +608,14 @@ class AutomatonSimulatorTest {
     }
 
     @Test
+    void testSimulateRangeAutomatonsFailure() {
+        when(mockedPrePerimeterResult.getSensitivityStatus()).thenReturn(ComputationStatus.FAILURE);
+        AutomatonSimulator.RangeAutomatonSimulationResult result = automatonSimulator.simulateRangeAutomatons(autoState, Set.of(), network, mockedPreAutoPerimeterSensitivityAnalysis, mockedPrePerimeterResult, 3, Set.of(), Map.of(), Map.of());
+        assertNotNull(result);
+        assertEquals(ComputationStatus.FAILURE, result.perimeterResult().getSensitivityStatus());
+    }
+
+    @Test
     void testSimulateAutomatonState() {
         State curativeState = mock(State.class);
         Instant curativeInstant = Mockito.mock(Instant.class);
@@ -683,6 +691,4 @@ class AutomatonSimulatorTest {
         assertEquals(45.72718047413281, network.getHvdcLine("BBE2AA12 FFR3AA12 1").getActivePowerSetpoint(), DOUBLE_TOLERANCE);
         assertEquals(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER, network.getHvdcLine("BBE2AA12 FFR3AA12 1").getConvertersMode());
     }
-
-    // TODO: add complex test case with automatons of different speeds
 }
