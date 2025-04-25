@@ -40,11 +40,11 @@ public class MinMarginEvaluator implements CostEvaluator {
 
     @Override
     public CostEvaluatorResult evaluate(FlowResult flowResult, RemedialActionActivationResult remedialActionActivationResult) {
-        Map<FlowCnec, Double> marginPerCnec = getCostPerCnec(flowCnecs, flowResult, unit);
+        Map<FlowCnec, Double> marginPerCnec = getMarginPerCnec(flowCnecs, flowResult, unit);
         return new SumMaxPerTimestampCostEvaluatorResult(marginPerCnec, FlowCnecSorting.sortByMargin(flowCnecs, unit, marginEvaluator, flowResult), unit);
     }
 
-    protected Map<FlowCnec, Double> getCostPerCnec(Set<FlowCnec> flowCnecs, FlowResult flowResult, Unit unit) {
+    protected Map<FlowCnec, Double> getMarginPerCnec(Set<FlowCnec> flowCnecs, FlowResult flowResult, Unit unit) {
         Map<FlowCnec, Double> marginPerCnec = new HashMap<>();
         flowCnecs.forEach(cnec -> marginPerCnec.put(cnec, marginEvaluator.getMargin(flowResult, cnec, unit)));
         return marginPerCnec;

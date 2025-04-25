@@ -37,7 +37,7 @@ public class MinMarginViolationEvaluator extends MinMarginEvaluator implements C
     }
 
     @Override
-    public Map<FlowCnec, Double> getCostPerCnec(Set<FlowCnec> flowCnecs, FlowResult flowResult, Unit unit) {
+    public Map<FlowCnec, Double> getMarginPerCnec(Set<FlowCnec> flowCnecs, FlowResult flowResult, Unit unit) {
         Map<FlowCnec, Double> costPerCnec = new HashMap<>();
         flowCnecs.forEach(cnec -> costPerCnec.put(cnec, Math.min(0, marginEvaluator.getMargin(flowResult, cnec, unit)) * overloadPenalty));
         return costPerCnec;
@@ -45,7 +45,7 @@ public class MinMarginViolationEvaluator extends MinMarginEvaluator implements C
 
     @Override
     public CostEvaluatorResult evaluate(FlowResult flowResult, RemedialActionActivationResult remedialActionActivationResult) {
-        Map<FlowCnec, Double> costPerCnec = getCostPerCnec(flowCnecs, flowResult, unit);
+        Map<FlowCnec, Double> costPerCnec = getMarginPerCnec(flowCnecs, flowResult, unit);
         return new SumMaxPerTimestampCostEvaluatorResult(costPerCnec, FlowCnecSorting.sortByNegativeMargin(flowCnecs, unit, marginEvaluator, flowResult), unit);
     }
 }
