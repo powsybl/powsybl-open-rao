@@ -250,26 +250,6 @@
           "flow" : 3310.50
         }
       }
-    },
-    "curative" : {
-      "ampere" : {
-        "margin" : 3321.00,
-        "side1" : {
-          "flow" : 3320.00
-        },
-        "side2" : {
-          "flow" : 3320.50
-        }
-      },
-      "megawatt" : {
-        "margin" : 3311.00,
-        "side1" : {
-          "flow" : 3310.00
-        },
-        "side2" : {
-          "flow" : 3310.50
-        }
-      }
     }
   }, {
     "flowCnecId" : "cnec3curId",
