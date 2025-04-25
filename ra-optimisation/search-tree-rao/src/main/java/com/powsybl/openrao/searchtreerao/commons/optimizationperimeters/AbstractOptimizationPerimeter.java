@@ -35,6 +35,7 @@ public abstract class AbstractOptimizationPerimeter implements OptimizationPerim
     private final Set<FlowCnec> loopFlowCnecs;
     private final Set<NetworkAction> availableNetworkActions;
     private final Map<State, Set<RangeAction<?>>> availableRangeActions;
+    private static final double EPSILON =  1e-6;
 
     protected AbstractOptimizationPerimeter(State mainOptimizationState,
                                          Set<FlowCnec> flowCnecs,
@@ -144,7 +145,7 @@ public abstract class AbstractOptimizationPerimeter implements OptimizationPerim
         double minSetPoint = rangeAction.getMinAdmissibleSetpoint(preperimeterSetPoint);
         double maxSetPoint = rangeAction.getMaxAdmissibleSetpoint(preperimeterSetPoint);
 
-        if (preperimeterSetPoint < minSetPoint || preperimeterSetPoint > maxSetPoint) {
+        if (preperimeterSetPoint < minSetPoint - EPSILON || preperimeterSetPoint > maxSetPoint + EPSILON) {
             BUSINESS_WARNS.warn("Range action {} has an initial setpoint of {} that does not respect its allowed range [{} {}]. It will be filtered out of the linear problem.",
                 rangeAction.getId(), preperimeterSetPoint, minSetPoint, maxSetPoint);
             return false;
@@ -162,7 +163,7 @@ public abstract class AbstractOptimizationPerimeter implements OptimizationPerim
         for (String group : groups) {
             Set<RangeAction<?>> groupRangeActions = rangeActions.stream().filter(rangeAction -> rangeAction.getGroupId().isPresent() && rangeAction.getGroupId().get().equals(group)).collect(Collectors.toSet());
             double preperimeterSetPoint = prePerimeterSetPoints.getSetpoint(groupRangeActions.iterator().next());
-            if (groupRangeActions.stream().anyMatch(rangeAction -> Math.abs(prePerimeterSetPoints.getSetpoint(rangeAction) - preperimeterSetPoint) > 1e-6)) {
+            if (groupRangeActions.stream().anyMatch(rangeAction -> Math.abs(prePerimeterSetPoints.getSetpoint(rangeAction) - preperimeterSetPoint) > EPSILON)) {
                 BUSINESS_WARNS.warn("Range actions of group {} do not have the same prePerimeter setpoint. They will be filtered out of the linear problem.", group);
                 rangeActions.removeAll(groupRangeActions);
             }
