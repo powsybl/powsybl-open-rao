@@ -35,7 +35,7 @@ public abstract class AbstractOptimizationPerimeter implements OptimizationPerim
     private final Set<FlowCnec> loopFlowCnecs;
     private final Set<NetworkAction> availableNetworkActions;
     private final Map<State, Set<RangeAction<?>>> availableRangeActions;
-    private static final double EPSILON =  1e-6;
+    private static final double EPSILON = 1e-6;
 
     protected AbstractOptimizationPerimeter(State mainOptimizationState,
                                          Set<FlowCnec> flowCnecs,
