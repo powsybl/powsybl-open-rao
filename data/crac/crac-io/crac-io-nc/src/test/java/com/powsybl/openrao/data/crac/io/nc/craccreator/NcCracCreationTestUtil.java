@@ -263,7 +263,6 @@ public final class NcCracCreationTestUtil {
         CracCreationParameters cracCreationParameters = new CracCreationParameters();
         cracCreationParameters.addExtension(NcCracCreationParameters.class, new NcCracCreationParameters());
         cracCreationParameters.getExtension(NcCracCreationParameters.class).setCapacityCalculationRegionEicCode("10Y1001C--00095L");
-        cracCreationParameters.getExtension(NcCracCreationParameters.class).setAutoInstantApplicationTime(0);
         cracCreationParameters.getExtension(NcCracCreationParameters.class).setCurativeInstants(Map.of("curative 1", 300, "curative 2", 600, "curative 3", 1200));
         cracCreationParameters.getExtension(NcCracCreationParameters.class).setTsosWhichDoNotUsePatlInFinalState(Set.of("REE"));
         cracCreationParameters.getExtension(NcCracCreationParameters.class).setBorders(Set.of(new Border("ES-FR", "10YDOM--ES-FR--D", "RTE"), new Border("ES-PT", "10YDOM--ES-PT--T", "REN")));
