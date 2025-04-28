@@ -124,6 +124,7 @@ public final class NcConstants {
     public static final String TAP_CHANGER = "tapChanger";
     public static final String POWER_TRANSFORMER = "powerTransformer";
     public static final String REQUEST_TAP_CHANGER = "tapChanger";
+    public static final String IS_MANUAL = "isManual";
 
     /**
      * requests for flow cnec
