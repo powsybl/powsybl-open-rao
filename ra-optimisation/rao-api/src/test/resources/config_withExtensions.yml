@@ -75,3 +75,4 @@ search-tree-multi-threading:
 
 search-tree-min-margins-parameters:
   overload-penalty : 1000
+  min-margin-upper-bound : 0

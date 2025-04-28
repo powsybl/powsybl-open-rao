@@ -39,7 +39,6 @@ public class JsonOpenRaoSearchTreeParameters implements JsonRaoParameters.Extens
         JsonMnecParameters.serialize(parameters, jsonGenerator);
         JsonRelativeMarginsParameters.serialize(parameters, jsonGenerator);
         JsonLoopFlowParameters.serialize(parameters, jsonGenerator);
-        JsonIcsImporterParameters.serialize(parameters, jsonGenerator);
         JsonMinMarginsParameters.serialize(parameters, jsonGenerator);
         jsonGenerator.writeEndObject();
     }
@@ -88,10 +87,6 @@ public class JsonOpenRaoSearchTreeParameters implements JsonRaoParameters.Extens
                 case LOOP_FLOW_PARAMETERS:
                     parser.nextToken();
                     JsonLoopFlowParameters.deserialize(parser, parameters);
-                    break;
-                case ICS_IMPORTER_PARAMETERS:
-                    parser.nextToken();
-                    JsonIcsImporterParameters.deserialize(parser, parameters);
                     break;
                 case MIN_MARGINS_PARAMETERS:
                     parser.nextToken();

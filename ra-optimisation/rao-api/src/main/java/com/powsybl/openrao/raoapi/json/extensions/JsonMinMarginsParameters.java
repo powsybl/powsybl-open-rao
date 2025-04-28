@@ -31,6 +31,7 @@ final class JsonMinMarginsParameters {
         if (minMarginsParameters.isPresent()) {
             jsonGenerator.writeObjectFieldStart(MIN_MARGINS_PARAMETERS);
             jsonGenerator.writeObjectField(OVERLOAD_PENALTY, minMarginsParameters.get().getOverloadPenalty());
+            jsonGenerator.writeObjectField(MIN_MARGIN_UPPER_BOUND, minMarginsParameters.get().getMinMarginUpperBound());
             jsonGenerator.writeEndObject();
         }
 
@@ -42,6 +43,9 @@ final class JsonMinMarginsParameters {
             switch (jsonParser.getCurrentName()) {
                 case OVERLOAD_PENALTY:
                     minMarginsParameters.setOverloadPenalty(jsonParser.getValueAsDouble());
+                    break;
+                case MIN_MARGIN_UPPER_BOUND:
+                    minMarginsParameters.setMinMarginUpperBound(jsonParser.getValueAsDouble());
                     break;
                 default:
                     throw new OpenRaoException(String.format("Cannot deserialize min margins parameters: unexpected field in %s (%s)", MIN_MARGINS_PARAMETERS, jsonParser.getCurrentName()));

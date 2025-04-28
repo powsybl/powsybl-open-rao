@@ -105,7 +105,8 @@
         "violation-cost" : 0.0
       },
       "min-margins-parameters" : {
-        "overload-penalty" : 800.0
+        "overload-penalty" : 800.0,
+        "min-margin-upper-bound" : 3.0
       }
     }
   }
