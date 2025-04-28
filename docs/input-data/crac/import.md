@@ -16,7 +16,7 @@ Examples of uses of CRAC import/export are given below:
 
 ~~~java
 // import a CRAC from a file or an input stream
-Crac crac = Crac.read("crac.json", new FileInputStream(new File("/tmp/crac.json")), network, null, new CracCreationParameters());
+Crac crac = Crac.read("crac.json", new FileInputStream(new File("/tmp/crac.json")), network, new CracCreationParameters());
 
 // export a CRAC in JSON to a file or output stream
 crac.write("JSON", Paths.get("/tmp/crac.json"));
@@ -27,7 +27,7 @@ The formats currently supported by OpenRAO are:
 - [FlowBasedConstraint document](fbconstraint), also known as Merged-CB, CBCORA or F301 (import only)
 - [CSE CRAC](cse) (import only)
 - [CIM CRAC](cim) (import only)
-- [CSA PROFILES CRAC](csa) (import only)
+- [CSA PROFILES CRAC](nc) (import only)
 
 ## Versioning of internal JSON CRAC files
 Json files and json importer/exporter are versioned.  
@@ -72,17 +72,16 @@ It is necessary to add the needed format importers (`Importer` implementation) t
 
 ~~~java
 // If you need access to the CracCreationContext:
-CracCreationContext cracCreationContext = Crac.readWithContext(filename, inputStream, network, offsetDateTime, cracCreationParameters);
+CracCreationContext cracCreationContext = Crac.readWithContext(filename, inputStream, network, cracCreationParameters);
 Crac crac = cracCreationContext.getCrac();
 
 // If you don't need the CracCreationContext and only care about the Crac:
-Crac crac = Crac.read(filename, inputStream, network, offsetDateTime, cracCreationParameters)
+Crac crac = Crac.read(filename, inputStream, network, cracCreationParameters)
 ~~~
 Where:
 - **filename** is the name of the native or json CRAC file (useful to start guessing the file's format).
 - **inputStream** is the stream with the contents of the CRAC file.
 - **network** is the PowSyBl network object that OpenRAO shall use to interpret the CRAC file.
-- **offsetDateTime** is the date-time for which the CRAC object should be created, if the native CRAC format requires it.
 - **cracCreationParameters** is the [CracCreationParameters](creation-parameters.md) object that allows adding context 
   and data to the CRAC object creation.
 

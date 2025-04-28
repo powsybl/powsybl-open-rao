@@ -42,7 +42,7 @@ Feature: US 15.13: Handle combined RAs by configuration
     Given crac file is "epic15/CseCrac_ep15us13case2_3_4.xml"
     Given configuration file is "epic15/RaoParameters_ep15us13case2.json"
     Given crac creation parameters file is "epic15/us_15_13_3.json"
-    When I launch search_tree_rao at "2021-04-30 22:30"
+    When I launch search_tree_rao
     Then 2 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     And the remedial action "open_fr1_fr3" is used after "co1_fr2_fr3_1" at "curative"
     And the remedial action "close_fr1_fr5" is used after "co1_fr2_fr3_1" at "curative"
@@ -56,7 +56,7 @@ Feature: US 15.13: Handle combined RAs by configuration
     Given crac file is "epic15/CseCrac_ep15us13case2_3_4.xml"
     Given configuration file is "epic15/RaoParameters_ep15us13case2.json"
     Given crac creation parameters file is "epic15/us15_13_4.json"
-    When I launch search_tree_rao at "2021-04-30 22:30"
+    When I launch search_tree_rao
     Then 2 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     And the remedial action "open_fr1_fr3" is used after "co1_fr2_fr3_1" at "curative"
     And the remedial action "close_fr1_fr5" is used after "co1_fr2_fr3_1" at "curative"

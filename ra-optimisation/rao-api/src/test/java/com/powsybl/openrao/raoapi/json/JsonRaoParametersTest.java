@@ -7,14 +7,12 @@
 package com.powsybl.openrao.raoapi.json;
 
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
-import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
-import com.powsybl.openrao.raoapi.parameters.SecondPreventiveRaoParameters;
-import com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParametersExtension;
-import com.powsybl.openrao.raoapi.parameters.extensions.MnecParametersExtension;
-import com.powsybl.openrao.raoapi.parameters.extensions.PtdfApproximation;
-import com.powsybl.openrao.raoapi.parameters.extensions.RelativeMarginsParametersExtension;
+import com.powsybl.openrao.raoapi.parameters.extensions.*;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.PstModel;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.RaRangeShrinking;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -51,68 +49,73 @@ class JsonRaoParametersTest extends AbstractSerDeTest {
     @Test
     void roundTrip() throws IOException {
         RaoParameters parameters = new RaoParameters();
+        parameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters());
+        OpenRaoSearchTreeParameters searchTreeParameters = parameters.getExtension(OpenRaoSearchTreeParameters.class);
         // Objective Function parameters
-        parameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN_IN_AMPERE);
-        parameters.getObjectiveFunctionParameters().setForbidCostIncrease(true);
-        parameters.getObjectiveFunctionParameters().setPreventiveStopCriterion(ObjectiveFunctionParameters.PreventiveStopCriterion.MIN_OBJECTIVE);
-        parameters.getObjectiveFunctionParameters().setCurativeStopCriterion(ObjectiveFunctionParameters.CurativeStopCriterion.PREVENTIVE_OBJECTIVE_AND_SECURE);
-        parameters.getObjectiveFunctionParameters().setCurativeMinObjImprovement(983);
-        parameters.getObjectiveFunctionParameters().setOptimizeCurativeIfPreventiveUnsecure(true);
+        parameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN);
+        parameters.getObjectiveFunctionParameters().setUnit(Unit.AMPERE);
+        searchTreeParameters.getObjectiveFunctionParameters().setCurativeMinObjImprovement(983);
+        parameters.getObjectiveFunctionParameters().setEnforceCurativeSecurity(true);
         // RangeActionsOptimization parameters
-        parameters.getRangeActionsOptimizationParameters().setMaxMipIterations(30);
-        parameters.getRangeActionsOptimizationParameters().setPstPenaltyCost(10);
-        parameters.getRangeActionsOptimizationParameters().setPstSensitivityThreshold(0.2);
-        parameters.getRangeActionsOptimizationParameters().setHvdcPenaltyCost(1);
-        parameters.getRangeActionsOptimizationParameters().setHvdcSensitivityThreshold(0.3);
-        parameters.getRangeActionsOptimizationParameters().setInjectionRaPenaltyCost(1.2);
-        parameters.getRangeActionsOptimizationParameters().setInjectionRaSensitivityThreshold(0.7);
-        parameters.getRangeActionsOptimizationParameters().getLinearOptimizationSolver().setSolverSpecificParameters("TREEMEMORYLIMIT 20");
-        parameters.getRangeActionsOptimizationParameters().getLinearOptimizationSolver().setSolver(RangeActionsOptimizationParameters.Solver.SCIP);
-        parameters.getRangeActionsOptimizationParameters().getLinearOptimizationSolver().setRelativeMipGap(1e-5);
-        parameters.getRangeActionsOptimizationParameters().setPstModel(RangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS);
-        parameters.getRangeActionsOptimizationParameters().setRaRangeShrinking(RangeActionsOptimizationParameters.RaRangeShrinking.ENABLED);
+        searchTreeParameters.getRangeActionsOptimizationParameters().setMaxMipIterations(30);
+        parameters.getRangeActionsOptimizationParameters().setPstRAMinImpactThreshold(10);
+        searchTreeParameters.getRangeActionsOptimizationParameters().setPstSensitivityThreshold(0.2);
+        parameters.getRangeActionsOptimizationParameters().setHvdcRAMinImpactThreshold(1);
+        searchTreeParameters.getRangeActionsOptimizationParameters().setHvdcSensitivityThreshold(0.3);
+        parameters.getRangeActionsOptimizationParameters().setInjectionRAMinImpactThreshold(1.2);
+        searchTreeParameters.getRangeActionsOptimizationParameters().setInjectionRaSensitivityThreshold(0.7);
+        searchTreeParameters.getRangeActionsOptimizationParameters().getLinearOptimizationSolver().setSolverSpecificParameters("TREEMEMORYLIMIT 20");
+        searchTreeParameters.getRangeActionsOptimizationParameters().getLinearOptimizationSolver().setSolver(SearchTreeRaoRangeActionsOptimizationParameters.Solver.SCIP);
+        searchTreeParameters.getRangeActionsOptimizationParameters().getLinearOptimizationSolver().setRelativeMipGap(1e-5);
+        searchTreeParameters.getRangeActionsOptimizationParameters().setPstModel(PstModel.APPROXIMATED_INTEGERS);
+        searchTreeParameters.getRangeActionsOptimizationParameters().setRaRangeShrinking(RaRangeShrinking.ENABLED);
         // TopologicalActions optimization parameters
-        parameters.getTopoOptimizationParameters().setMaxPreventiveSearchTreeDepth(10);
-        parameters.getTopoOptimizationParameters().setMaxAutoSearchTreeDepth(3);
-        parameters.getTopoOptimizationParameters().setMaxCurativeSearchTreeDepth(10);
+        searchTreeParameters.getTopoOptimizationParameters().setMaxPreventiveSearchTreeDepth(10);
+        searchTreeParameters.getTopoOptimizationParameters().setMaxCurativeSearchTreeDepth(10);
         parameters.getTopoOptimizationParameters().setRelativeMinImpactThreshold(0.1);
         parameters.getTopoOptimizationParameters().setAbsoluteMinImpactThreshold(20);
-        parameters.getTopoOptimizationParameters().setPredefinedCombinations(List.of(List.of("na-id-1", "na-id-2"), List.of("na-id-1", "na-id-3", "na-id-4")));
+        searchTreeParameters.getTopoOptimizationParameters().setPredefinedCombinations(List.of(List.of("na-id-1", "na-id-2"), List.of("na-id-1", "na-id-3", "na-id-4")));
         // Multi-threading parameters
-        parameters.getMultithreadingParameters().setContingencyScenariosInParallel(15);
-        parameters.getMultithreadingParameters().setPreventiveLeavesInParallel(21);
-        parameters.getMultithreadingParameters().setAutoLeavesInParallel(30);
-        parameters.getMultithreadingParameters().setCurativeLeavesInParallel(22);
+        searchTreeParameters.getMultithreadingParameters().setAvailableCPUs(21);
         // Second preventive RAO parameters
-        parameters.getSecondPreventiveRaoParameters().setExecutionCondition(SecondPreventiveRaoParameters.ExecutionCondition.POSSIBLE_CURATIVE_IMPROVEMENT);
-        parameters.getSecondPreventiveRaoParameters().setReOptimizeCurativeRangeActions(true);
-        parameters.getSecondPreventiveRaoParameters().setHintFromFirstPreventiveRao(true);
+        searchTreeParameters.getSecondPreventiveRaoParameters().setExecutionCondition(SecondPreventiveRaoParameters.ExecutionCondition.POSSIBLE_CURATIVE_IMPROVEMENT);
+        searchTreeParameters.getSecondPreventiveRaoParameters().setReOptimizeCurativeRangeActions(true);
+        searchTreeParameters.getSecondPreventiveRaoParameters().setHintFromFirstPreventiveRao(true);
         // Not optimized cnecs parameters
         parameters.getNotOptimizedCnecsParameters().setDoNotOptimizeCurativeCnecsForTsosWithoutCras(false);
         // LoadFlow and sensitivity parameters
-        parameters.getLoadFlowAndSensitivityParameters().setLoadFlowProvider("OpenLoadFlowProvider");
-        parameters.getLoadFlowAndSensitivityParameters().setSensitivityProvider("OpenSensitivityAnalysis");
+        searchTreeParameters.getLoadFlowAndSensitivityParameters().setLoadFlowProvider("OpenLoadFlowProvider");
+        searchTreeParameters.getLoadFlowAndSensitivityParameters().setSensitivityProvider("OpenSensitivityAnalysis");
         // Extensions
         // -- LoopFlow parameters
-        parameters.addExtension(LoopFlowParametersExtension.class, new LoopFlowParametersExtension());
-        parameters.getExtension(LoopFlowParametersExtension.class).setAcceptableIncrease(20.);
-        parameters.getExtension(LoopFlowParametersExtension.class).setPtdfApproximation(PtdfApproximation.UPDATE_PTDF_WITH_TOPO_AND_PST);
-        parameters.getExtension(LoopFlowParametersExtension.class).setConstraintAdjustmentCoefficient(0.5);
+        com.powsybl.openrao.raoapi.parameters.LoopFlowParameters loopFlowParameters = new com.powsybl.openrao.raoapi.parameters.LoopFlowParameters();
+        SearchTreeRaoLoopFlowParameters loopFlowParametersExtension = new SearchTreeRaoLoopFlowParameters();
+        loopFlowParameters.setAcceptableIncrease(20.);
+        loopFlowParametersExtension.setPtdfApproximation(PtdfApproximation.UPDATE_PTDF_WITH_TOPO_AND_PST);
+        loopFlowParametersExtension.setConstraintAdjustmentCoefficient(0.5);
         List<String> countries = new ArrayList<>();
         countries.add("BE");
         countries.add("FR");
-        parameters.getExtension(LoopFlowParametersExtension.class).setCountries(countries);
+        loopFlowParameters.setCountries(countries);
+        parameters.setLoopFlowParameters(loopFlowParameters);
+        searchTreeParameters.setLoopFlowParameters(loopFlowParametersExtension);
         // -- Mnec parameters
-        parameters.addExtension(MnecParametersExtension.class, new MnecParametersExtension());
-        parameters.getExtension(MnecParametersExtension.class).setViolationCost(20);
-        parameters.getExtension(MnecParametersExtension.class).setAcceptableMarginDecrease(30);
-        parameters.getExtension(MnecParametersExtension.class).setConstraintAdjustmentCoefficient(3);
+        com.powsybl.openrao.raoapi.parameters.MnecParameters mnecParameters = new com.powsybl.openrao.raoapi.parameters.MnecParameters();
+        SearchTreeRaoMnecParameters mnecParametersExtension = new SearchTreeRaoMnecParameters();
+        mnecParametersExtension.setViolationCost(20);
+        mnecParameters.setAcceptableMarginDecrease(30);
+        mnecParametersExtension.setConstraintAdjustmentCoefficient(3);
+        parameters.setMnecParameters(mnecParameters);
+        searchTreeParameters.setMnecParameters(mnecParametersExtension);
         // -- Relative Margins parameters
-        parameters.addExtension(RelativeMarginsParametersExtension.class, new RelativeMarginsParametersExtension());
+        com.powsybl.openrao.raoapi.parameters.RelativeMarginsParameters relativeMarginsParameters = new com.powsybl.openrao.raoapi.parameters.RelativeMarginsParameters();
+        SearchTreeRaoRelativeMarginsParameters relativeMarginsParametersExtension = new SearchTreeRaoRelativeMarginsParameters();
         List<String> stringBoundaries = new ArrayList<>(Arrays.asList("{FR}-{ES}", "{ES}-{PT}", "{BE}-{22Y201903144---9}-{DE}-{22Y201903145---4}"));
-        parameters.getExtension(RelativeMarginsParametersExtension.class).setPtdfBoundariesFromString(stringBoundaries);
-        parameters.getExtension(RelativeMarginsParametersExtension.class).setPtdfApproximation(PtdfApproximation.UPDATE_PTDF_WITH_TOPO);
-        parameters.getExtension(RelativeMarginsParametersExtension.class).setPtdfSumLowerBound(0.05);
+        relativeMarginsParameters.setPtdfBoundariesFromString(stringBoundaries);
+        relativeMarginsParametersExtension.setPtdfApproximation(PtdfApproximation.UPDATE_PTDF_WITH_TOPO);
+        relativeMarginsParametersExtension.setPtdfSumLowerBound(0.05);
+        parameters.setRelativeMarginsParameters(relativeMarginsParameters);
+        searchTreeParameters.setRelativeMarginsParameters(relativeMarginsParametersExtension);
 
         roundTripTest(parameters, JsonRaoParameters::write, JsonRaoParameters::read, "/RaoParametersSet_v2.json");
     }
@@ -122,29 +125,25 @@ class JsonRaoParametersTest extends AbstractSerDeTest {
         RaoParameters parameters = JsonRaoParameters.read(getClass().getResourceAsStream("/RaoParameters_default_v2.json"));
         assertEquals(1, parameters.getExtensions().size());
         JsonRaoParameters.update(parameters, getClass().getResourceAsStream("/RaoParameters_update_v2.json"));
-        assertEquals(2, parameters.getExtensions().size());
-        assertEquals(ObjectiveFunctionParameters.PreventiveStopCriterion.MIN_OBJECTIVE, parameters.getObjectiveFunctionParameters().getPreventiveStopCriterion());
-        assertEquals(5, parameters.getTopoOptimizationParameters().getMaxPreventiveSearchTreeDepth(), DOUBLE_TOLERANCE);
-        assertEquals(2, parameters.getTopoOptimizationParameters().getMaxAutoSearchTreeDepth(), DOUBLE_TOLERANCE);
-        assertEquals(5, parameters.getTopoOptimizationParameters().getMaxCurativeSearchTreeDepth(), DOUBLE_TOLERANCE);
+        assertEquals(1, parameters.getExtensions().size());
+        assertEquals(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN, parameters.getObjectiveFunctionParameters().getType());
+        OpenRaoSearchTreeParameters searchTreeParameters = parameters.getExtension(OpenRaoSearchTreeParameters.class);
+        assertEquals(5, searchTreeParameters.getTopoOptimizationParameters().getMaxPreventiveSearchTreeDepth(), DOUBLE_TOLERANCE);
+        assertEquals(5, searchTreeParameters.getTopoOptimizationParameters().getMaxCurativeSearchTreeDepth(), DOUBLE_TOLERANCE);
         assertEquals(0, parameters.getTopoOptimizationParameters().getRelativeMinImpactThreshold(), DOUBLE_TOLERANCE);
         assertEquals(1, parameters.getTopoOptimizationParameters().getAbsoluteMinImpactThreshold(), DOUBLE_TOLERANCE);
-        assertEquals(8, parameters.getMultithreadingParameters().getPreventiveLeavesInParallel());
-        assertEquals(4, parameters.getMultithreadingParameters().getAutoLeavesInParallel());
-        assertEquals(3, parameters.getMultithreadingParameters().getCurativeLeavesInParallel());
-        assertTrue(parameters.getTopoOptimizationParameters().getSkipActionsFarFromMostLimitingElement());
-        assertEquals(2, parameters.getTopoOptimizationParameters().getMaxNumberOfBoundariesForSkippingActions());
+        assertEquals(8, searchTreeParameters.getMultithreadingParameters().getAvailableCPUs());
+        assertTrue(searchTreeParameters.getTopoOptimizationParameters().getSkipActionsFarFromMostLimitingElement());
+        assertEquals(2, searchTreeParameters.getTopoOptimizationParameters().getMaxNumberOfBoundariesForSkippingActions());
         assertTrue(parameters.getNotOptimizedCnecsParameters().getDoNotOptimizeCurativeCnecsForTsosWithoutCras());
-        assertEquals(SecondPreventiveRaoParameters.ExecutionCondition.COST_INCREASE, parameters.getSecondPreventiveRaoParameters().getExecutionCondition());
-        assertTrue(parameters.getSecondPreventiveRaoParameters().getHintFromFirstPreventiveRao());
+        assertEquals(SecondPreventiveRaoParameters.ExecutionCondition.COST_INCREASE, searchTreeParameters.getSecondPreventiveRaoParameters().getExecutionCondition());
+        assertTrue(searchTreeParameters.getSecondPreventiveRaoParameters().getHintFromFirstPreventiveRao());
         // Extensions
-        MnecParametersExtension mnecParameters = parameters.getExtension(MnecParametersExtension.class);
-        assertEquals(888, mnecParameters.getAcceptableMarginDecrease(), DOUBLE_TOLERANCE);
-        assertEquals(23, mnecParameters.getViolationCost(), DOUBLE_TOLERANCE);
-        assertEquals(4, mnecParameters.getConstraintAdjustmentCoefficient(), DOUBLE_TOLERANCE);
-        RelativeMarginsParametersExtension relativeMarginsParameters = parameters.getExtension(RelativeMarginsParametersExtension.class);
-        assertEquals(0.06, relativeMarginsParameters.getPtdfSumLowerBound(), DOUBLE_TOLERANCE);
-        assertEquals(List.of("{FR}-{ES}"), relativeMarginsParameters.getPtdfBoundariesAsString());
+        assertEquals(888, parameters.getMnecParameters().get().getAcceptableMarginDecrease(), DOUBLE_TOLERANCE);
+        assertEquals(23, searchTreeParameters.getMnecParameters().get().getViolationCost(), DOUBLE_TOLERANCE);
+        assertEquals(4, searchTreeParameters.getMnecParameters().get().getConstraintAdjustmentCoefficient(), DOUBLE_TOLERANCE);
+        assertEquals(0.06, searchTreeParameters.getRelativeMarginsParameters().get().getPtdfSumLowerBound(), DOUBLE_TOLERANCE);
+        assertEquals(List.of("{FR}-{ES}"), parameters.getRelativeMarginsParameters().get().getPtdfBoundariesAsString());
     }
 
     @Test
@@ -177,7 +176,7 @@ class JsonRaoParametersTest extends AbstractSerDeTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"LoopFlowError", "PrevStopCriterionError", "CurStopCriterionError", "WrongField"})
+    @ValueSource(strings = {"LoopFlowError", "ObjFuncTypeError", "WrongField"})
     void importNokTest(String source) {
         InputStream inputStream = getClass().getResourceAsStream("/RaoParametersWith" + source + "_v2.json");
         assertThrows(OpenRaoException.class, () -> JsonRaoParameters.read(inputStream));

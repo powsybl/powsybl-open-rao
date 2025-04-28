@@ -81,13 +81,13 @@
                             <Measurements>
                                 <measurementType>A01</measurementType>
                                 <unitSymbol>AMP</unitSymbol>
-                                <positiveFlowIn>A01</positiveFlowIn>
-                                <analogValues.value>0</analogValues.value>
+                                <positiveFlowIn>A02</positiveFlowIn>
+                                <analogValues.value>1919.4</analogValues.value>
                             </Measurements>
                             <Measurements>
                                 <measurementType>A13</measurementType>
                                 <unitSymbol>AMP</unitSymbol>
-                                <positiveFlowIn>A01</positiveFlowIn>
+                                <positiveFlowIn>A02</positiveFlowIn>
                                 <analogValues.value>500</analogValues.value>
                             </Measurements>
                         </RegisteredResource>

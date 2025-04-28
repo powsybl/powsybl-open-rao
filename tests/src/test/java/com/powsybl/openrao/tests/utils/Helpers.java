@@ -19,15 +19,15 @@ import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.CracCreationContext;
 import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.crac.io.cim.craccreator.CimCracCreationContext;
-import com.powsybl.openrao.data.crac.io.csaprofiles.craccreator.CsaProfileCracCreationContext;
 import com.powsybl.openrao.data.crac.io.cse.CseCracCreationContext;
 import com.powsybl.openrao.data.crac.io.fbconstraint.FbConstraintCreationContext;
+import com.powsybl.openrao.data.crac.io.nc.craccreator.NcCracCreationContext;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceProgram;
 import com.powsybl.openrao.data.refprog.refprogxmlimporter.RefProgImporter;
 import com.powsybl.openrao.tests.steps.CommonTestData;
 import com.powsybl.openrao.tests.utils.round_trip_crac.RoundTripCimCracCreationContext;
-import com.powsybl.openrao.tests.utils.round_trip_crac.RoundTripCsaProfileCracCreationContext;
+import com.powsybl.openrao.tests.utils.round_trip_crac.RoundTripNcCracCreationContext;
 import com.powsybl.openrao.tests.utils.round_trip_crac.RoundTripCseCracCreationContext;
 import com.powsybl.openrao.tests.utils.round_trip_crac.RoundTripFbConstraintCreationContext;
 import com.powsybl.sensitivity.SensitivityVariableSet;
@@ -56,12 +56,12 @@ public final class Helpers {
         return Network.read(Paths.get(networkFile.toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
     }
 
-    public static Pair<Crac, CracCreationContext> importCrac(File cracFile, Network network, String timestamp, CracCreationParameters cracCreationParameters) throws IOException {
+    public static Pair<Crac, CracCreationContext> importCrac(File cracFile, Network network, CracCreationParameters cracCreationParameters) throws IOException {
         if (cracFile.getName().endsWith(".json")) {
-            // for now, the only JSON format is the farao internal format
+            // for now, the only JSON format is the open rao internal format
             return Pair.of(importCracFromInternalFormat(cracFile, network), null);
         } else {
-            CracCreationContext ccc = importCracFromNativeCrac(cracFile, network, timestamp, cracCreationParameters);
+            CracCreationContext ccc = importCracFromNativeCrac(cracFile, network, cracCreationParameters);
             return Pair.of(ccc.getCrac(), ccc);
         }
     }
@@ -74,7 +74,7 @@ public final class Helpers {
         }
     }
 
-    public static CracCreationContext importCracFromNativeCrac(File cracFile, Network network, String timestamp, CracCreationParameters cracCreationParameters) throws IOException {
+    public static CracCreationContext importCracFromNativeCrac(File cracFile, Network network, CracCreationParameters cracCreationParameters) throws IOException {
         byte[] cracBytes = null;
         try (InputStream cracInputStream = new BufferedInputStream(new FileInputStream(cracFile))) {
             cracBytes = getBytesFromInputStream(cracInputStream);
@@ -82,8 +82,7 @@ public final class Helpers {
             e.printStackTrace();
             throw new OpenRaoException("Could not load CRAC file", e);
         }
-        OffsetDateTime offsetDateTime = getOffsetDateTimeFromBrusselsTimestamp(timestamp);
-        CracCreationContext cracCreationContext = Crac.readWithContext(cracFile.getName(), new ByteArrayInputStream(cracBytes), network, offsetDateTime, cracCreationParameters);
+        CracCreationContext cracCreationContext = Crac.readWithContext(cracFile.getName(), new ByteArrayInputStream(cracBytes), network, cracCreationParameters);
         // round-trip CRAC json export/import to test it implicitly
         return roundTripOnCracCreationContext(cracCreationContext, network);
     }
@@ -110,8 +109,8 @@ public final class Helpers {
             return new RoundTripCseCracCreationContext((CseCracCreationContext) cracCreationContext, crac);
         } else if (cracCreationContext instanceof CimCracCreationContext) {
             return new RoundTripCimCracCreationContext((CimCracCreationContext) cracCreationContext, crac);
-        } else if (cracCreationContext instanceof CsaProfileCracCreationContext) {
-            return new RoundTripCsaProfileCracCreationContext((CsaProfileCracCreationContext) cracCreationContext, crac);
+        } else if (cracCreationContext instanceof NcCracCreationContext) {
+            return new RoundTripNcCracCreationContext((NcCracCreationContext) cracCreationContext, crac);
         } else {
             throw new NotImplementedException(String.format("%s type is not supported", cracCreationContext.getClass().getName()));
         }
@@ -127,7 +126,7 @@ public final class Helpers {
         return Crac.read("crac.json", inputStream, network);
     }
 
-    public static ZonalData<SensitivityVariableSet> importUcteGlskFile(File glskFile, String timestamp, Network network) throws IOException {
+    public static ZonalData<SensitivityVariableSet> importUcteGlskFile(File glskFile, OffsetDateTime timestamp, Network network) throws IOException {
         InputStream inputStream = new FileInputStream(glskFile);
         UcteGlskDocument ucteGlskDocument = UcteGlskDocument.importGlsk(inputStream);
 
@@ -135,13 +134,13 @@ public final class Helpers {
         if (timestamp == null) {
             instant = getStartInstantOfUcteGlsk(ucteGlskDocument);
         } else {
-            instant = getOffsetDateTimeFromBrusselsTimestamp(timestamp).toInstant();
+            instant = timestamp.toInstant();
         }
 
         return ucteGlskDocument.getZonalGlsks(network, instant);
     }
 
-    public static ZonalData<Scalable> importMonitoringGlskFile(File monitoringGlskFile, String timestamp, Network network) throws IOException {
+    public static ZonalData<Scalable> importMonitoringGlskFile(File monitoringGlskFile, OffsetDateTime timestamp, Network network) throws IOException {
         InputStream inputStream = new FileInputStream(monitoringGlskFile);
         CimGlskDocument cimGlskDocument = CimGlskDocument.importGlsk(inputStream);
 
@@ -149,7 +148,7 @@ public final class Helpers {
         if (timestamp == null) {
             instant = cimGlskDocument.getInstantStart();
         } else {
-            instant = getOffsetDateTimeFromBrusselsTimestamp(timestamp).toInstant();
+            instant = timestamp.toInstant();
         }
 
         return cimGlskDocument.getZonalScalable(network, instant);
@@ -167,13 +166,12 @@ public final class Helpers {
             .toOffsetDateTime();
     }
 
-    public static ReferenceProgram importRefProg(File refProgFile, String timestamp) throws IOException {
-        if (timestamp == null) {
+    public static ReferenceProgram importRefProg(File refProgFile, OffsetDateTime offsetDateTime) throws IOException {
+        if (offsetDateTime == null) {
             throw new OpenRaoException("A timestamp should be provided in order to import the refProg file.");
         }
 
         InputStream refProgInputStream = new FileInputStream(refProgFile);
-        OffsetDateTime offsetDateTime = getOffsetDateTimeFromBrusselsTimestamp(timestamp);
         return RefProgImporter.importRefProg(refProgInputStream, offsetDateTime);
     }
 

@@ -36,7 +36,7 @@ The creation of a small CRAC is for instance made in this test class of powsybl-
 :::
 :::{group-tab} JSON file
 An example of a small CRAC in the json internal format of OpenRAO is given below:  
-[example on GitHub](https://github.com/powsybl/powsybl-open-rao/blob/main/ra-optimisation/search-tree-rao/src/test/resources/crac/small-crac-with-network-actions.json)
+[example on GitHub](https://github.com/powsybl/open-rao/blob/db4de51df5029841d4860bc7bfe38c55c2c7b176/data/crac/crac-io/crac-io-json/src/test/resources/retrocompatibility/v2/crac-v2.7.json)
 :::
 ::::
   
@@ -283,7 +283,7 @@ one/left. The convention of OpenRAO is that a positive flow is a flow in the "di
 a flow in the "opposite" direction.
 
 > 💡  **NOTE**  
-> A OpenRAO FlowCnec is one implementation of the generic ["BranchCnec"](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac/crac-api/src/main/java/com/powsybl/openrao/data/cracapi/cnec/BranchCnec.java).
+> A OpenRAO FlowCnec is one implementation of the generic ["BranchCnec"](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac/crac-api/src/main/java/com/powsybl/openrao/data/crac/api/cnec/BranchCnec.java).
 > If needed, this would allow you a fast implementation of other types of CNECs, on branches, but with a monitored
 > physical parameter other than power flow.
 
@@ -1166,16 +1166,6 @@ Note that the [PstHelper utility class](https://github.com/powsybl/powsybl-open-
     } ],
     "networkElementId" : "pst-network-element-id",
     "groupId" : "pst-range-action-1 is aligned with pst-range-action-2",
-    "initialTap" : 2,
-    "tapToAngleConversionMap" : {
-      "-3" : 0.0,
-      "-2" : 0.5,
-      "-1" : 1.0,
-      "0" : 1.5,
-      "1" : 2.0,
-      "2" : 2.5,
-      "3" : 3.0
-    },
     "speed" : 1,
     "ranges" : [ {
       "min" : 0,
@@ -1367,8 +1357,8 @@ It is a costly remedial action which is currently not handled by the RAO.
         .withGroupId("group-id")
    		.withOperator("operator")
         .withActivationCost(100d)
-        .withVariationCost(1000d, RangeAction.VariationDirection.UP)
-        .withVariationCost(2000d, RangeAction.VariationDirection.DOWN)
+        .withVariationCost(1000d, VariationDirection.UP)
+        .withVariationCost(2000d, VariationDirection.DOWN)
         .withExportingCountry(Country.FR)
         .withImportingCountry(Country.ES)
         .withInitialSetpoint(50)

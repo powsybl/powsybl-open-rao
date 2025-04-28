@@ -18,7 +18,7 @@ import java.io.IOException;
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
- * @author Godelaine De-Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
+ * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 final class ComputationStatusMapDeserializer {
 

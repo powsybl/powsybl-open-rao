@@ -14,8 +14,6 @@ import com.powsybl.openrao.data.crac.io.commons.api.stdcreationcontext.UcteCracC
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.io.cne.swe.SweCneExporter;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
-import com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParametersExtension;
-import com.powsybl.openrao.raoapi.parameters.extensions.MnecParametersExtension;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -76,14 +74,14 @@ public final class CneHelper {
 
     private static void fillPropertiesWithRaoParameters(Properties properties, RaoParameters raoParameters) {
         switch (raoParameters.getObjectiveFunctionParameters().getType()) {
-            case MAX_MIN_RELATIVE_MARGIN_IN_AMPERE, MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT -> properties.setProperty("rao-result.export.core-cne.relative-positive-margins", "true");
-            case MAX_MIN_MARGIN_IN_AMPERE, MAX_MIN_MARGIN_IN_MEGAWATT -> properties.setProperty("rao-result.export.core-cne.relative-positive-margins", "false");
+            case MAX_MIN_RELATIVE_MARGIN -> properties.setProperty("rao-result.export.core-cne.relative-positive-margins", "true");
+            case MAX_MIN_MARGIN -> properties.setProperty("rao-result.export.core-cne.relative-positive-margins", "false");
         }
-        if (raoParameters.hasExtension(LoopFlowParametersExtension.class)) {
+        if (raoParameters.getLoopFlowParameters().isPresent()) {
             properties.setProperty("rao-result.export.core-cne.with-loop-flows", "true");
         }
-        if (raoParameters.hasExtension(MnecParametersExtension.class)) {
-            properties.setProperty("rao-result.export.core-cne.mnec-acceptable-margin-diminution", String.valueOf(raoParameters.getExtension(MnecParametersExtension.class).getAcceptableMarginDecrease()));
+        if (raoParameters.getMnecParameters().isPresent()) {
+            properties.setProperty("rao-result.export.core-cne.mnec-acceptable-margin-diminution", String.valueOf(raoParameters.getMnecParameters().get().getAcceptableMarginDecrease()));
         }
     }
 

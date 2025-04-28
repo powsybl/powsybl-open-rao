@@ -21,13 +21,32 @@ public class UcteNetworkAnalyzerProperties {
         REPLACE_8TH_CHARACTER_WITH_WILDCARD
     }
 
-    private BusIdMatchPolicy busIdMatchPolicy;
+    public enum SuffixMatchPriority {
+        ORDERCODE_BEFORE_NAME,
+        NAME_BEFORE_ORDERCODE,
+        ALL
+    }
+
+    private static final SuffixMatchPriority DEFAULT_SUFFIX_MATCH_PRIORITY = SuffixMatchPriority.ALL;
+
+    private final BusIdMatchPolicy busIdMatchPolicy;
+    private final SuffixMatchPriority suffixMatchPriority;
 
     public UcteNetworkAnalyzerProperties(BusIdMatchPolicy busIdMatchPolicy) {
+        this(busIdMatchPolicy, DEFAULT_SUFFIX_MATCH_PRIORITY);
+    }
+
+    public UcteNetworkAnalyzerProperties(BusIdMatchPolicy busIdMatchPolicy, SuffixMatchPriority suffixMatchPriority) {
         this.busIdMatchPolicy = busIdMatchPolicy;
+        this.suffixMatchPriority = suffixMatchPriority;
     }
 
     public BusIdMatchPolicy getBusIdMatchPolicy() {
         return busIdMatchPolicy;
     }
+
+    public SuffixMatchPriority getSuffixMatchPriority() {
+        return suffixMatchPriority;
+    }
+
 }

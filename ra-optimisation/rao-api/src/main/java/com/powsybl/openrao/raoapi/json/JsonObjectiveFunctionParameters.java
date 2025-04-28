@@ -7,6 +7,7 @@
 package com.powsybl.openrao.raoapi.json;
 
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -27,11 +28,8 @@ final class JsonObjectiveFunctionParameters {
     static void serialize(RaoParameters parameters, JsonGenerator jsonGenerator) throws IOException {
         jsonGenerator.writeObjectFieldStart(OBJECTIVE_FUNCTION);
         jsonGenerator.writeObjectField(TYPE, parameters.getObjectiveFunctionParameters().getType());
-        jsonGenerator.writeBooleanField(FORBID_COST_INCREASE, parameters.getObjectiveFunctionParameters().getForbidCostIncrease());
-        jsonGenerator.writeObjectField(PREVENTIVE_STOP_CRITERION, parameters.getObjectiveFunctionParameters().getPreventiveStopCriterion());
-        jsonGenerator.writeObjectField(CURATIVE_STOP_CRITERION, parameters.getObjectiveFunctionParameters().getCurativeStopCriterion());
-        jsonGenerator.writeNumberField(CURATIVE_MIN_OBJ_IMPROVEMENT, parameters.getObjectiveFunctionParameters().getCurativeMinObjImprovement());
-        jsonGenerator.writeBooleanField(OPTIMIZE_CURATIVE_IF_PREVENTIVE_UNSECURE, parameters.getObjectiveFunctionParameters().getOptimizeCurativeIfPreventiveUnsecure());
+        jsonGenerator.writeObjectField(UNIT, parameters.getObjectiveFunctionParameters().getUnit());
+        jsonGenerator.writeBooleanField(ENFORCE_CURATIVE_SECURITY, parameters.getObjectiveFunctionParameters().getEnforceCurativeSecurity());
         jsonGenerator.writeEndObject();
     }
 
@@ -41,23 +39,12 @@ final class JsonObjectiveFunctionParameters {
                 case TYPE:
                     raoParameters.getObjectiveFunctionParameters().setType(stringToObjectiveFunction(jsonParser.nextTextValue()));
                     break;
-                case FORBID_COST_INCREASE:
+                case UNIT:
+                    raoParameters.getObjectiveFunctionParameters().setUnit(stringToObjectiveFunctionUnit(jsonParser.nextTextValue()));
+                    break;
+                case ENFORCE_CURATIVE_SECURITY:
                     jsonParser.nextToken();
-                    raoParameters.getObjectiveFunctionParameters().setForbidCostIncrease(jsonParser.getBooleanValue());
-                    break;
-                case PREVENTIVE_STOP_CRITERION:
-                    raoParameters.getObjectiveFunctionParameters().setPreventiveStopCriterion(stringToPreventiveStopCriterion(jsonParser.nextTextValue()));
-                    break;
-                case CURATIVE_STOP_CRITERION:
-                    raoParameters.getObjectiveFunctionParameters().setCurativeStopCriterion(stringToCurativeStopCriterion(jsonParser.nextTextValue()));
-                    break;
-                case CURATIVE_MIN_OBJ_IMPROVEMENT:
-                    jsonParser.nextToken();
-                    raoParameters.getObjectiveFunctionParameters().setCurativeMinObjImprovement(jsonParser.getValueAsDouble());
-                    break;
-                case OPTIMIZE_CURATIVE_IF_PREVENTIVE_UNSECURE:
-                    jsonParser.nextToken();
-                    raoParameters.getObjectiveFunctionParameters().setOptimizeCurativeIfPreventiveUnsecure(jsonParser.getBooleanValue());
+                    raoParameters.getObjectiveFunctionParameters().setEnforceCurativeSecurity(jsonParser.getBooleanValue());
                     break;
                 default:
                     throw new OpenRaoException(String.format("Cannot deserialize objective function parameters: unexpected field in %s (%s)", OBJECTIVE_FUNCTION, jsonParser.getCurrentName()));
@@ -73,20 +60,17 @@ final class JsonObjectiveFunctionParameters {
         }
     }
 
-    private static ObjectiveFunctionParameters.PreventiveStopCriterion stringToPreventiveStopCriterion(String string) {
+    private static Unit stringToObjectiveFunctionUnit(String string) {
+        Unit unit;
         try {
-            return ObjectiveFunctionParameters.PreventiveStopCriterion.valueOf(string);
+            unit = Unit.getEnum(string);
         } catch (IllegalArgumentException e) {
-            throw new OpenRaoException(String.format("Unknown preventive stop criterion: %s", string));
+            throw new OpenRaoException(String.format("Unknown objective function unit value: %s", string));
         }
-    }
-
-    private static ObjectiveFunctionParameters.CurativeStopCriterion stringToCurativeStopCriterion(String string) {
-        try {
-            return ObjectiveFunctionParameters.CurativeStopCriterion.valueOf(string);
-        } catch (IllegalArgumentException e) {
-            throw new OpenRaoException(String.format("Unknown curative stop criterion: %s", string));
+        if (unit != Unit.MEGAWATT && unit != Unit.AMPERE) {
+            throw new OpenRaoException(String.format("Unknown objective function unit value: %s", string));
         }
+        return unit;
     }
 
 }

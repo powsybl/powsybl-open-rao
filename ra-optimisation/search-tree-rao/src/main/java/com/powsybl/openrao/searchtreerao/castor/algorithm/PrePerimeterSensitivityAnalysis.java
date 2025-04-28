@@ -6,13 +6,13 @@
  */
 package com.powsybl.openrao.searchtreerao.castor.algorithm;
 
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
-import com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParametersExtension;
-import com.powsybl.openrao.raoapi.parameters.extensions.RelativeMarginsParametersExtension;
+import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.searchtreerao.result.api.*;
 import com.powsybl.openrao.searchtreerao.result.impl.PrePerimeterSensitivityResultImpl;
 import com.powsybl.openrao.searchtreerao.commons.SensitivityComputer;
@@ -23,7 +23,10 @@ import com.powsybl.openrao.searchtreerao.result.impl.RemedialActionActivationRes
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 import com.powsybl.iidm.network.Network;
 
+import java.util.Objects;
 import java.util.Set;
+
+import static java.lang.String.format;
 
 /**
  * This class aims at performing the sensitivity analysis before the optimization of a perimeter. At these specific
@@ -61,7 +64,7 @@ public class PrePerimeterSensitivityAnalysis {
     public PrePerimeterResult runInitialSensitivityAnalysis(Network network, Crac crac, Set<State> optimizedStates) {
         SensitivityComputer.SensitivityComputerBuilder sensitivityComputerBuilder = buildSensiBuilder()
             .withOutageInstant(crac.getOutageInstant());
-        if (raoParameters.hasExtension(LoopFlowParametersExtension.class)) {
+        if (raoParameters.getLoopFlowParameters().isPresent()) {
             sensitivityComputerBuilder.withCommercialFlowsResults(toolProvider.getLoopFlowComputation(), toolProvider.getLoopFlowCnecs(flowCnecs));
         }
         if (raoParameters.getObjectiveFunctionParameters().getType().relativePositiveMargins()) {
@@ -82,15 +85,21 @@ public class PrePerimeterSensitivityAnalysis {
 
         SensitivityComputer.SensitivityComputerBuilder sensitivityComputerBuilder = buildSensiBuilder()
             .withOutageInstant(crac.getOutageInstant());
-        if (raoParameters.hasExtension(LoopFlowParametersExtension.class)) {
-            if (raoParameters.getExtension(LoopFlowParametersExtension.class).getPtdfApproximation().shouldUpdatePtdfWithTopologicalChange()) {
-                sensitivityComputerBuilder.withCommercialFlowsResults(toolProvider.getLoopFlowComputation(), toolProvider.getLoopFlowCnecs(flowCnecs));
-            } else {
-                sensitivityComputerBuilder.withCommercialFlowsResults(initialFlowResult);
-            }
+        OpenRaoSearchTreeParameters searchTreeParameters = raoParameters.getExtension(OpenRaoSearchTreeParameters.class);
+        if (!Objects.isNull(searchTreeParameters)) {
+            searchTreeParameters.getLoopFlowParameters().ifPresent(loopFlowParameters -> {
+                if (loopFlowParameters.getPtdfApproximation().shouldUpdatePtdfWithTopologicalChange()) {
+                    sensitivityComputerBuilder.withCommercialFlowsResults(toolProvider.getLoopFlowComputation(), toolProvider.getLoopFlowCnecs(flowCnecs));
+                } else {
+                    sensitivityComputerBuilder.withCommercialFlowsResults(initialFlowResult);
+                }
+            });
         }
         if (raoParameters.getObjectiveFunctionParameters().getType().relativePositiveMargins()) {
-            if (raoParameters.getExtension(RelativeMarginsParametersExtension.class).getPtdfApproximation().shouldUpdatePtdfWithTopologicalChange()) {
+            if (Objects.isNull(searchTreeParameters)) {
+                throw new OpenRaoException(format("Objective function %s requires an extension with relative margins parameters", raoParameters.getObjectiveFunctionParameters().getType()));
+            }
+            if (searchTreeParameters.getRelativeMarginsParameters().orElseThrow().getPtdfApproximation().shouldUpdatePtdfWithTopologicalChange()) {
                 sensitivityComputerBuilder.withPtdfsResults(toolProvider.getAbsolutePtdfSumsComputation(), flowCnecs);
             } else {
                 sensitivityComputerBuilder.withPtdfsResults(initialFlowResult);

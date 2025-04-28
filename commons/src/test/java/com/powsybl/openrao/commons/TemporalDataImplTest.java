@@ -46,9 +46,18 @@ class TemporalDataImplTest {
     @Test
     void testAddData() {
         TemporalData<String> stringTemporalData = new TemporalDataImpl<>();
-        stringTemporalData.add(timestamp3, "ABC");
+        stringTemporalData.put(timestamp3, "ABC");
         assertEquals(Map.of(timestamp3, "ABC"), stringTemporalData.getDataPerTimestamp());
         assertEquals(List.of(timestamp3), stringTemporalData.getTimestamps());
         assertEquals(Optional.of("ABC"), stringTemporalData.getData(timestamp3));
+    }
+
+    @Test
+    void testMap() {
+        Map<OffsetDateTime, String> stringPerTimestamp = Map.of(timestamp1, "Hello world!", timestamp2, "OpenRAO");
+        TemporalData<String> stringTemporalData = new TemporalDataImpl<>(stringPerTimestamp);
+
+        TemporalData<Integer> intTemporalData = stringTemporalData.map(String::length);
+        assertEquals(Map.of(timestamp1, 12, timestamp2, 7), intTemporalData.getDataPerTimestamp());
     }
 }

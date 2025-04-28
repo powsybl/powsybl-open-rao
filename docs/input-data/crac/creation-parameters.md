@@ -35,9 +35,9 @@ OpenRAO's [CracCreationParameters](https://github.com/powsybl/powsybl-open-rao/b
 defines a few parameters needed for all native CRAC formats.
 
 ### crac-factory
-OpenRAO's [Crac](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac/crac-api/src/main/java/com/powsybl/openrao/data/cracapi/Crac.java) 
+OpenRAO's [Crac](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac/crac-api/src/main/java/com/powsybl/openrao/data/crac/api/Crac.java) 
 object is actually just an interface, with a default implementation in [CracImpl](https://github.com/powsybl/powsybl-open-rao/tree/main/data/crac/crac-impl/src/main/java/com/powsybl/openrao/data/cracimpl).  
-As a OpenRAO toolbox user, you are allowed to define your own custom Crac implementation. This implementation shall be instanced using a [CracFactory](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac/crac-api/src/main/java/com/powsybl/openrao/data/cracapi/CracFactory.java).  
+As a OpenRAO toolbox user, you are allowed to define your own custom Crac implementation. This implementation shall be instanced using a [CracFactory](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac/crac-api/src/main/java/com/powsybl/openrao/data/crac/api/CracFactory.java).  
 OpenRAO's default implementation is [CracImplFactory](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac/crac-impl/src/main/java/com/powsybl/openrao/data/cracimpl/CracImplFactory.java).  
 Parameter "crac-factory" allows the user to define which CracFactory implementation (thus which Crac implementation) to 
 use. If you do not have a custom implementation (which should be the case of most users), set it to "CracImplFactory".  
@@ -252,6 +252,10 @@ at defined instants (the contingences shall be identified by their CIM CRAC mRID
 - For every instant, the minimum and maximum voltage thresholds to be respected for every nominal voltage level.  
 See [example below](#full-cim-example) for a better illustration.
 
+### timestamp
+This parameter allows the user to define the timestamp for which to create the CRAC.
+
+In the json file, the timestamp has to be defined using the ISO 8601 standard ex. " 2019-01-08T12:00+02:00"
 
 ### Full CIM example
 
@@ -299,6 +303,7 @@ cimParameters.setVoltageCnecsCreationParameters(new VoltageCnecsCreationParamete
     ),
     voltageMonitoredElements
 ));
+cimParameters.setTimestamp(OffsetDateTime.parse("2019-01-08T12:00+02:00"));
 // Add CIM extension to CracCreationParameters
 cracCreationParameters.addExtension(CimCracCreationParameters.class, cimParameters);
 ```
@@ -372,7 +377,8 @@ cracCreationParameters.addExtension(CimCracCreationParameters.class, cimParamete
           "ne1",
           "ne2"
         ]
-      }
+      },
+      "timestamp": "2019-01-08T12:00+02:00"
     }
   }
 }
@@ -380,34 +386,40 @@ cracCreationParameters.addExtension(CimCracCreationParameters.class, cimParamete
 :::
 ::::
 
-## CSA-specific parameters
+## NC-specific parameters
 
-The CSA profiles from the [CSA native CRAC format](csa) need additional information to be converted to the internal OpenRAO CRAC format. The user can define a [CsaCracCreationParameters](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac-io/crac-io-csa-profiles/src/main/java/com/powsybl/openrao/data/cracio/csaprofile/parameters/CsaCracCreationParameters.java) extension to the CracCreationParameters object in order to define them.
+The NC profiles from the [NC native CRAC format](nc) need additional information to be converted to the internal OpenRAO CRAC format. The user can define a [CsaCracCreationParameters](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac-io/crac-io-nc/src/main/java/com/powsybl/openrao/data/cracio/nc/parameters/NcCracCreationParameters.java) extension to the CracCreationParameters object in order to define them.
 
 ### capacity-calculation-region-eic-code
 
-In the CSA profiles, the [AssessedElements](csa.md#cnecs) objects can be declared with a `SecuredForRegion` or a `ScannedForRegion` attribute to respectively indicate if the resulting CNEC should be optimized or simply monitored. Both these fields point to the EI code of a Capacity Calculation Region (CCR). For the importer to know which code to expect, it has to be declared in the CRAC creation parameters.
+In the NC profiles, the [AssessedElements](nc.md#cnecs) objects can be declared with a `SecuredForRegion` or a `ScannedForRegion` attribute to respectively indicate if the resulting CNEC should be optimized or simply monitored. Both these fields point to the EI code of a Capacity Calculation Region (CCR). For the importer to know which code to expect, it has to be declared in the CRAC creation parameters.
 
 ### sps-max-time-to-implement-threshold-in-seconds
 
-Instead of using a `SchemeRemedialAction` to define an [auto remedial action](csa.md#using-gridstatealterationremedialaction-and-timetoimplement), it is possible to declare a classical curative `GridStateAlterationRemedialAction` with a `timeToImplement` attribute set to a certain value, which, if below a general configurable time threshold (in seconds), means that the remedial action must be considered as an ARA instead of a CRA.
+Instead of using a `SchemeRemedialAction` to define an [auto remedial action](nc.md#using-gridstatealterationremedialaction-and-timetoimplement), it is possible to declare a classical curative `GridStateAlterationRemedialAction` with a `timeToImplement` attribute set to a certain value, which, if below a general configurable time threshold (in seconds), means that the remedial action must be considered as an ARA instead of a CRA.
 
 ### cra-application-window
 
-Because of the three curative instants used in CSA, the definition of the instant of a FlowCNEC is [quite complex](csa.md#tatl-to-flowcnec-instant-association) and each curative instant must be linked to an application time for the importer to know which instant must be associated to a given TATL (or PATL).
+Because of the three curative instants used in NC, the definition of the instant of a FlowCNEC is [quite complex](nc.md#tatl-to-flowcnec-instant-association) and each curative instant must be linked to an application time for the importer to know which instant must be associated to a given TATL (or PATL).
 
 ### use-patl-in-final-state
 
 Usually, the PATL is used as the operational limit for the final state (i.e. after all three batches of CRAs have been applied) but some TSOs may want to use a TATL instead so this information has to be configurable.
 
-### Full CSA example
+### timestamp
+
+This parameter allows the user to define the timestamp for which to create the CRAC.
+
+In the json file, the timestamp has to be defined using the ISO 8601 standard ex. " 2019-01-08T12:00+02:00".
+
+### Full NC example
 
 ::::{tabs}
 :::{group-tab} JAVA API
 ```java
 // Create CracCreationParameters and set global parameters
 CracCreationParameters cracCreationParameters = new CracCreationParameters();
-// Create CSA-specific parameters
+// Create NC-specific parameters
 CimCracCreationParameters csaParameters = new CsaCracCreationParameters();
 // Indicate the EI Code of the CCR region (SWE)
 csaParameters.setCapacityCalculationRegionEicCode("10Y1001C--00095L");
@@ -425,7 +437,8 @@ csaParameters.setCraApplicationWindow(Map.of(
     "curative 2", 600,
     "curative 3", 1200
 ));
-// Add CSA extension to CracCreationParameters
+csaParameters.setTimestamp(OffsetDateTime.parse("2019-01-08T12:00+02:00"));
+// Add NC extension to CracCreationParameters
 cracCreationParameters.addExtension(CsaCracCreationParameters.class, csaParameters);
 ```
 :::
@@ -435,7 +448,7 @@ cracCreationParameters.addExtension(CsaCracCreationParameters.class, csaParamete
 {
   "crac-factory" : "CracImplFactory",
   "extensions" : {
-    "CsaCracCreatorParameters" : {
+    "NcCracCreatorParameters" : {
       "capacity-calculation-region-eic-code": "10Y1001C--00095L",
       "sps-max-time-to-implement-threshold-in-seconds": 0,
       "use-patl-in-final-state": {
@@ -447,7 +460,50 @@ cracCreationParameters.addExtension(CsaCracCreationParameters.class, csaParamete
         "curative 1": 300,
         "curative 2": 600,
         "curative 3": 1200
-      }
+      }, 
+      "timestamp": "2019-01-08T12:00+02:00"
+    }
+  }
+}
+```
+:::
+::::
+
+## Flow Based Constraint-specific parameters
+
+The Flow Based Constraint from the [Flow Based Constraint CRAC format](fbconstraint) need an additional information to be converted to the internal OpenRAO CRAC format. 
+The user can define a [FbConstraintCracCreationParameters](https://github.com/powsybl/powsybl-open-rao/tree/main/data/crac/crac-io/crac-io-fb-constraint/src/main/java/com/powsybl/openrao/data/crac/io/fbconstraint/parameters/FbConstraintCracCreationParameters.java) extension to the CracCreationParameters object in order to define them.
+
+### timestamp
+
+This parameter allows the user to define the timestamp for which to create the CRAC.
+
+In the json file, the timestamp has to be defined using the ISO 8601 standard ex. " 2019-01-08T12:00+02:00".
+
+
+### Full FbConstraint example
+
+::::{tabs}
+:::{group-tab} JAVA API
+```java
+// Create CracCreationParameters and set global parameters
+CracCreationParameters cracCreationParameters = new CracCreationParameters();
+// Create NC-specific parameters
+FbConstraintCracCreationParameters fbConstraintParameters = new FbConstraintCracCreationParameters();
+// Add timestamp
+fbConstraintParameters.setTimestamp(OffsetDateTime.parse("2019-01-08T12:00+02:00"));
+// Add FbConstraint extension to CracCreationParameters
+cracCreationParameters.addExtension(FbConstraintCracCreationParameters.class, fbConstraintParameters);
+```
+:::
+
+:::{group-tab} JSON file
+```json
+{
+  "crac-factory" : "CracImplFactory",
+  "extensions" : {
+    "FbConstraintCracCreatorParameters" : {
+      "timestamp": "2019-01-08T12:00+02:00"
     }
   }
 }

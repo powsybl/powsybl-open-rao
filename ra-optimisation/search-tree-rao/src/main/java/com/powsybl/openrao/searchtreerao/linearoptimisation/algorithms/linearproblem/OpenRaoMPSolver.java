@@ -12,7 +12,7 @@ import com.google.ortools.linearsolver.MPSolver;
 import com.google.ortools.linearsolver.MPSolverParameters;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
-import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
 import com.powsybl.openrao.searchtreerao.result.api.LinearProblemStatus;
 
 import java.util.Map;
@@ -36,13 +36,13 @@ public class OpenRaoMPSolver {
 
     private static final int NUMBER_OF_BITS_TO_ROUND_OFF = 30;
     private static final double MIN_DOUBLE = 1e-6;
-    private static final Map<RangeActionsOptimizationParameters.Solver, Double> SOLVER_INFINITY = Map.of(
-        RangeActionsOptimizationParameters.Solver.CBC, Double.POSITIVE_INFINITY,
-        RangeActionsOptimizationParameters.Solver.SCIP, 1E20,
-        RangeActionsOptimizationParameters.Solver.XPRESS, 1E20
+    private static final Map<SearchTreeRaoRangeActionsOptimizationParameters.Solver, Double> SOLVER_INFINITY = Map.of(
+        SearchTreeRaoRangeActionsOptimizationParameters.Solver.CBC, Double.POSITIVE_INFINITY,
+        SearchTreeRaoRangeActionsOptimizationParameters.Solver.SCIP, 1E20,
+        SearchTreeRaoRangeActionsOptimizationParameters.Solver.XPRESS, 1E20
     );
 
-    private final RangeActionsOptimizationParameters.Solver solver;
+    private final SearchTreeRaoRangeActionsOptimizationParameters.Solver solver;
     private final String optProblemName;
     private MPSolver mpSolver;
     private final MPSolverParameters solveConfiguration;
@@ -52,7 +52,7 @@ public class OpenRaoMPSolver {
     OpenRaoMPObjective objective;
     private boolean objectiveMinimization = true;
 
-    public OpenRaoMPSolver(String optProblemName, RangeActionsOptimizationParameters.Solver solver) {
+    public OpenRaoMPSolver(String optProblemName, SearchTreeRaoRangeActionsOptimizationParameters.Solver solver) {
         this.solver = solver;
         this.optProblemName = optProblemName;
         solveConfiguration = new MPSolverParameters();
@@ -72,11 +72,11 @@ public class OpenRaoMPSolver {
         }
     }
 
-    public RangeActionsOptimizationParameters.Solver getSolver() {
+    public SearchTreeRaoRangeActionsOptimizationParameters.Solver getSolver() {
         return solver;
     }
 
-    private MPSolver.OptimizationProblemType getOrToolsProblemType(RangeActionsOptimizationParameters.Solver solver) {
+    private MPSolver.OptimizationProblemType getOrToolsProblemType(SearchTreeRaoRangeActionsOptimizationParameters.Solver solver) {
         Objects.requireNonNull(solver);
         return switch (solver) {
             case CBC -> MPSolver.OptimizationProblemType.CBC_MIXED_INTEGER_PROGRAMMING;

@@ -10,20 +10,21 @@ package com.powsybl.openrao.searchtreerao.commons.objectivefunction;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
+import com.powsybl.openrao.raoapi.parameters.LoopFlowParameters;
+import com.powsybl.openrao.raoapi.parameters.MnecParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
-import com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParametersExtension;
-import com.powsybl.openrao.raoapi.parameters.extensions.MnecParametersExtension;
+import com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoLoopFlowParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoMnecParameters;
 import com.powsybl.openrao.searchtreerao.commons.marginevaluator.MarginEvaluator;
 import com.powsybl.openrao.searchtreerao.commons.marginevaluator.MarginEvaluatorWithMarginDecreaseUnoptimizedCnecs;
-import com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator.CostEvaluator;
-import com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator.LoopFlowViolationCostEvaluator;
-import com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator.MinMarginViolationEvaluator;
-import com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator.MnecViolationCostEvaluator;
-import com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator.SensitivityFailureOvercostEvaluator;
+import com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator.*;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -59,28 +60,38 @@ public class ObjectiveFunctionCreator extends AbstractObjectiveFunctionCreator {
         }
 
         // mnec virtual cost evaluator
-        if (raoParameters.hasExtension(MnecParametersExtension.class)) {
-            virtualCostEvaluators.add(new MnecViolationCostEvaluator(
-                flowCnecs.stream().filter(Cnec::isMonitored).collect(Collectors.toSet()),
-                raoParameters.getObjectiveFunctionParameters().getType().getUnit(),
-                initialFlowResult,
-                raoParameters.getExtension(MnecParametersExtension.class)
-            ));
+        if (raoParameters.hasExtension(OpenRaoSearchTreeParameters.class)) {
+            Optional<MnecParameters> mnecParametersOptional = raoParameters.getMnecParameters();
+            Optional<SearchTreeRaoMnecParameters> mnecParametersExtensionOptional = raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getMnecParameters();
+            if (mnecParametersOptional.isPresent() && mnecParametersExtensionOptional.isPresent()) {
+                virtualCostEvaluators.add(new MnecViolationCostEvaluator(
+                    flowCnecs.stream().filter(Cnec::isMonitored).collect(Collectors.toSet()),
+                    raoParameters.getObjectiveFunctionParameters().getUnit(),
+                    initialFlowResult,
+                    mnecParametersOptional.get().getAcceptableMarginDecrease(),
+                    mnecParametersExtensionOptional.get().getViolationCost()
+                ));
+            }
         }
 
         // loop-flow virtual cost evaluator
-        if (raoParameters.hasExtension(LoopFlowParametersExtension.class)) {
-            virtualCostEvaluators.add(new LoopFlowViolationCostEvaluator(
-                loopFlowCnecs,
-                initialFlowResult,
-                raoParameters.getExtension(LoopFlowParametersExtension.class)
-            ));
+        if (raoParameters.hasExtension(OpenRaoSearchTreeParameters.class)) {
+            Optional<LoopFlowParameters> loopFlowParametersOptional = raoParameters.getLoopFlowParameters();
+            Optional<SearchTreeRaoLoopFlowParameters> loopFlowParametersExtensionOptional = raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getLoopFlowParameters();
+            if (loopFlowParametersOptional.isPresent() && loopFlowParametersExtensionOptional.isPresent()) {
+                virtualCostEvaluators.add(new LoopFlowViolationCostEvaluator(
+                    loopFlowCnecs,
+                    initialFlowResult,
+                    loopFlowParametersOptional.get().getAcceptableIncrease(),
+                    loopFlowParametersExtensionOptional.get().getViolationCost()
+                ));
+            }
         }
 
         // If sensi failed, create a high virtual cost via SensitivityFailureOvercostEvaluator
         // to ensure that corresponding leaf is not selected
-        if (raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityFailureOvercost() > 0) {
-            virtualCostEvaluators.add(new SensitivityFailureOvercostEvaluator(flowCnecs, raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityFailureOvercost()));
+        if (LoadFlowAndSensitivityParameters.getSensitivityFailureOvercost(raoParameters) > 0) {
+            virtualCostEvaluators.add(new SensitivityFailureOvercostEvaluator(flowCnecs, LoadFlowAndSensitivityParameters.getSensitivityFailureOvercost(raoParameters)));
         }
 
         return virtualCostEvaluators;

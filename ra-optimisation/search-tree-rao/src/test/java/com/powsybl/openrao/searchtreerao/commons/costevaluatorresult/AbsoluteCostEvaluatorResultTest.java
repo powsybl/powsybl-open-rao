@@ -21,7 +21,7 @@ class AbsoluteCostEvaluatorResultTest {
     @Test
     void testEvaluator() {
         AbsoluteCostEvaluatorResult evaluatorResult = new AbsoluteCostEvaluatorResult(100.0);
-        assertEquals(100.0, evaluatorResult.getCost(Set.of()));
-        assertTrue(evaluatorResult.getCostlyElements(Set.of()).isEmpty());
+        assertEquals(100.0, evaluatorResult.getCost(Set.of(), Set.of()));
+        assertTrue(evaluatorResult.getCostlyElements(Set.of(), Set.of()).isEmpty());
     }
 }

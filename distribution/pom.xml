@@ -7,7 +7,7 @@
     <parent>
         <groupId>com.powsybl</groupId>
         <artifactId>powsybl-open-rao</artifactId>
-        <version>6.3.0-SNAPSHOT</version>
+        <version>6.5.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>open-rao-distribution</artifactId>
@@ -24,12 +24,12 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>open-rao-core-cne-exporter</artifactId>
+            <artifactId>open-rao-commons</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>open-rao-swe-cne-exporter</artifactId>
+            <artifactId>open-rao-core-cne-exporter</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -39,12 +39,12 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>open-rao-crac-io-commons</artifactId>
+            <artifactId>open-rao-crac-impl</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>open-rao-crac-impl</artifactId>
+            <artifactId>open-rao-crac-io-commons</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -64,16 +64,6 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>open-rao-commons</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>open-rao-flowbased-domain</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
             <artifactId>open-rao-flowbased-computation-api</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -84,12 +74,27 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>open-rao-flowbased-domain</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>open-rao-glsk-virtual-hubs</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>open-rao-generator-constraints</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>open-rao-loopflow-computation</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>open-rao-rao-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -129,7 +134,7 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>open-rao-rao-api</artifactId>
+            <artifactId>open-rao-swe-cne-exporter</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

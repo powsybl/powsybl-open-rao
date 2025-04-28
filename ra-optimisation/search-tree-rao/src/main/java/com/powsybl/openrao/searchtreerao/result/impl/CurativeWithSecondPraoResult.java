@@ -18,6 +18,7 @@ import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.VariationDirection;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.searchtreerao.result.api.*;
 import com.powsybl.sensitivity.SensitivityVariableSet;
@@ -40,8 +41,9 @@ public class CurativeWithSecondPraoResult implements OptimizationResult {
     private final FlowResult postCraSensitivityFlowResult; // contains final flows
     private final ObjectiveFunctionResult postCraSensitivityObjectiveResult; // contains final flows
     private final SensitivityResult postCraSensitivitySensitivityResult; // contains final flows
+    private final boolean costOptimization;
 
-    private CurativeWithSecondPraoResult(State state, OptimizationResult firstCraoResult, OptimizationResult secondPraoResult, Set<RemedialAction<?>> remedialActionsExcludedFromSecondPreventive, FlowResult postCraSensitivityFlowResult, ObjectiveFunctionResult postCraSensitivityObjectiveResult, SensitivityResult postCraSensitivitySensitivityResult) {
+    private CurativeWithSecondPraoResult(State state, OptimizationResult firstCraoResult, OptimizationResult secondPraoResult, Set<RemedialAction<?>> remedialActionsExcludedFromSecondPreventive, FlowResult postCraSensitivityFlowResult, ObjectiveFunctionResult postCraSensitivityObjectiveResult, SensitivityResult postCraSensitivitySensitivityResult, boolean costOptimization) {
         this.state = state;
         this.firstCraoResult = firstCraoResult;
         this.secondPraoResult = secondPraoResult;
@@ -49,10 +51,11 @@ public class CurativeWithSecondPraoResult implements OptimizationResult {
         this.postCraSensitivityFlowResult = postCraSensitivityFlowResult;
         this.postCraSensitivityObjectiveResult = postCraSensitivityObjectiveResult;
         this.postCraSensitivitySensitivityResult = postCraSensitivitySensitivityResult;
+        this.costOptimization = costOptimization;
     }
 
-    public CurativeWithSecondPraoResult(State state, OptimizationResult firstCraoResult, OptimizationResult secondPraoResult, Set<RemedialAction<?>> remedialActionsExcludedFromSecondPreventive, PrePerimeterResult postCraPrePerimeterResult) {
-        this(state, firstCraoResult, secondPraoResult, remedialActionsExcludedFromSecondPreventive, postCraPrePerimeterResult, postCraPrePerimeterResult, postCraPrePerimeterResult);
+    public CurativeWithSecondPraoResult(State state, OptimizationResult firstCraoResult, OptimizationResult secondPraoResult, Set<RemedialAction<?>> remedialActionsExcludedFromSecondPreventive, PrePerimeterResult postCraPrePerimeterResult, boolean costOptimization) {
+        this(state, firstCraoResult, secondPraoResult, remedialActionsExcludedFromSecondPreventive, postCraPrePerimeterResult, postCraPrePerimeterResult, postCraPrePerimeterResult, costOptimization);
     }
 
     private void checkState(State stateToCheck) {
@@ -123,9 +126,23 @@ public class CurativeWithSecondPraoResult implements OptimizationResult {
 
     @Override
     public double getFunctionalCost() {
-        // Careful : this returns functional cost over all curative perimeters, but it should be enough for normal use
-        // since we never really need functional cost per perimeter at the end of the RAO
-        return postCraSensitivityObjectiveResult.getFunctionalCost();
+        if (costOptimization) {
+            return getActivatedNetworkActions().stream().mapToDouble(networkAction -> networkAction.getActivationCost().orElse(0.0)).sum()
+                + getActivatedRangeActions(state).stream().mapToDouble(this::computeRangeActionCost).sum();
+        } else {
+            // Careful : this returns functional cost over all curative perimeters, but it should be enough for normal use
+            // since we never really need functional cost per perimeter at the end of the RAO
+            return postCraSensitivityObjectiveResult.getFunctionalCost();
+        }
+    }
+
+    private double computeRangeActionCost(RangeAction<?> rangeAction) {
+        double variation = rangeAction instanceof PstRangeAction pstRangeAction ? getTapVariation(pstRangeAction, state) : getSetPointVariation(rangeAction, state);
+        if (variation == 0.0) {
+            return 0.0;
+        }
+        double variationCost = variation * (variation > 0 ? rangeAction.getVariationCost(VariationDirection.UP).orElse(0.0) : rangeAction.getVariationCost(VariationDirection.DOWN).orElse(0.0));
+        return rangeAction.getActivationCost().orElse(0.0) + variationCost;
     }
 
     @Override
@@ -162,6 +179,13 @@ public class CurativeWithSecondPraoResult implements OptimizationResult {
         firstCraoResult.excludeContingencies(contingenciesToExclude);
         secondPraoResult.excludeContingencies(contingenciesToExclude);
         postCraSensitivityObjectiveResult.excludeContingencies(contingenciesToExclude);
+    }
+
+    @Override
+    public void excludeCnecs(Set<String> cnecsToExclude) {
+        firstCraoResult.excludeCnecs(cnecsToExclude);
+        secondPraoResult.excludeCnecs(cnecsToExclude);
+        postCraSensitivityObjectiveResult.excludeCnecs(cnecsToExclude);
     }
 
     @Override

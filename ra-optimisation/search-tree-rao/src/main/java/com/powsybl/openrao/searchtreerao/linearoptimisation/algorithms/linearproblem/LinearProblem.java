@@ -12,14 +12,16 @@ import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
-import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.ProblemFiller;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.LinearProblemStatus;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
 import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
 
+import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import static com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblemIdGenerator.*;
 
@@ -82,13 +84,17 @@ public final class LinearProblem {
         return new LinearProblemBuilder();
     }
 
-    LinearProblem(List<ProblemFiller> fillerList, RangeActionActivationResult raActivationFromParentLeaf, RangeActionsOptimizationParameters.Solver solver, double relativeMipGap, String solverSpecificParameters) {
+    LinearProblem(List<ProblemFiller> fillerList, RangeActionActivationResult raActivationFromParentLeaf, SearchTreeRaoRangeActionsOptimizationParameters.Solver solver, double relativeMipGap, String solverSpecificParameters) {
         this.solver = new OpenRaoMPSolver(OPT_PROBLEM_NAME, solver);
         this.fillerList = fillerList;
         this.raActivationFromParentLeaf = raActivationFromParentLeaf;
         this.relativeMipGap = relativeMipGap;
         this.solverSpecificParameters = solverSpecificParameters;
         this.solver.setMinimization();
+    }
+
+    public void reset() {
+        solver.resetModel();
     }
 
     public List<ProblemFiller> getFillers() {
@@ -101,7 +107,7 @@ public final class LinearProblem {
 
     public void updateBetweenSensiIteration(FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
         // TODO: only reset if failed states have changed? Then we need access to all CRAC states in order to query the sensitivity result
-        this.solver.resetModel();
+        reset();
         fillerList.forEach(problemFiller -> problemFiller.fill(this, flowResult, sensitivityResult, rangeActionActivationResult));
     }
 
@@ -131,20 +137,20 @@ public final class LinearProblem {
         return solver.numConstraints();
     }
 
-    public OpenRaoMPVariable addFlowVariable(double lb, double ub, FlowCnec cnec, TwoSides side) {
-        return solver.makeNumVar(lb, ub, flowVariableId(cnec, side));
+    public OpenRaoMPVariable addFlowVariable(double lb, double ub, FlowCnec cnec, TwoSides side, Optional<OffsetDateTime> timestamp) {
+        return solver.makeNumVar(lb, ub, flowVariableId(cnec, side, timestamp));
     }
 
-    public OpenRaoMPVariable getFlowVariable(FlowCnec cnec, TwoSides side) {
-        return solver.getVariable(flowVariableId(cnec, side));
+    public OpenRaoMPVariable getFlowVariable(FlowCnec cnec, TwoSides side, Optional<OffsetDateTime> timestamp) {
+        return solver.getVariable(flowVariableId(cnec, side, timestamp));
     }
 
-    public OpenRaoMPConstraint addFlowConstraint(double lb, double ub, FlowCnec cnec, TwoSides side) {
-        return solver.makeConstraint(lb, ub, flowConstraintId(cnec, side));
+    public OpenRaoMPConstraint addFlowConstraint(double lb, double ub, FlowCnec cnec, TwoSides side, Optional<OffsetDateTime> timestamp) {
+        return solver.makeConstraint(lb, ub, flowConstraintId(cnec, side, timestamp));
     }
 
-    public OpenRaoMPConstraint getFlowConstraint(FlowCnec cnec, TwoSides side) {
-        return solver.getConstraint(flowConstraintId(cnec, side));
+    public OpenRaoMPConstraint getFlowConstraint(FlowCnec cnec, TwoSides side, Optional<OffsetDateTime> timestamp) {
+        return solver.getConstraint(flowConstraintId(cnec, side, timestamp));
     }
 
     public OpenRaoMPVariable addRangeActionSetpointVariable(double lb, double ub, RangeAction<?> rangeAction, State state) {
@@ -267,109 +273,109 @@ public final class LinearProblem {
         return solver.getVariable(absoluteRangeActionVariationVariableId(rangeAction, state));
     }
 
-    public OpenRaoMPConstraint addMinimumMarginConstraint(double lb, double ub, FlowCnec cnec, TwoSides side, MarginExtension belowOrAboveThreshold) {
-        return solver.makeConstraint(lb, ub, minimumMarginConstraintId(cnec, side, belowOrAboveThreshold));
+    public OpenRaoMPConstraint addMinimumMarginConstraint(double lb, double ub, FlowCnec cnec, TwoSides side, MarginExtension belowOrAboveThreshold, Optional<OffsetDateTime> timestamp) {
+        return solver.makeConstraint(lb, ub, minimumMarginConstraintId(cnec, side, belowOrAboveThreshold, timestamp));
     }
 
-    public OpenRaoMPConstraint getMinimumMarginConstraint(FlowCnec cnec, TwoSides side, MarginExtension belowOrAboveThreshold) {
-        return solver.getConstraint(minimumMarginConstraintId(cnec, side, belowOrAboveThreshold));
+    public OpenRaoMPConstraint getMinimumMarginConstraint(FlowCnec cnec, TwoSides side, MarginExtension belowOrAboveThreshold, Optional<OffsetDateTime> timestamp) {
+        return solver.getConstraint(minimumMarginConstraintId(cnec, side, belowOrAboveThreshold, timestamp));
     }
 
-    public OpenRaoMPConstraint addMinimumRelMarginSignDefinitionConstraint(double lb, double ub) {
-        return solver.makeConstraint(lb, ub, minimumRelMarginSignDefinitionConstraintId());
+    public OpenRaoMPConstraint addMinimumRelMarginSignDefinitionConstraint(double lb, double ub, Optional<OffsetDateTime> timestamp) {
+        return solver.makeConstraint(lb, ub, minimumRelMarginSignDefinitionConstraintId(timestamp));
     }
 
-    public OpenRaoMPConstraint getMinimumRelMarginSignDefinitionConstraint() {
-        return solver.getConstraint(minimumRelMarginSignDefinitionConstraintId());
+    public OpenRaoMPConstraint getMinimumRelMarginSignDefinitionConstraint(Optional<OffsetDateTime> timestamp) {
+        return solver.getConstraint(minimumRelMarginSignDefinitionConstraintId(timestamp));
     }
 
-    public OpenRaoMPConstraint addMinimumRelMarginSetToZeroConstraint(double lb, double ub) {
-        return solver.makeConstraint(lb, ub, minimumRelativeMarginSetToZeroConstraintId());
+    public OpenRaoMPConstraint addMinimumRelMarginSetToZeroConstraint(double lb, double ub, Optional<OffsetDateTime> timestamp) {
+        return solver.makeConstraint(lb, ub, minimumRelativeMarginSetToZeroConstraintId(timestamp));
     }
 
-    public OpenRaoMPConstraint getMinimumRelMarginSetToZeroConstraint() {
-        return solver.getConstraint(minimumRelativeMarginSetToZeroConstraintId());
+    public OpenRaoMPConstraint getMinimumRelMarginSetToZeroConstraint(Optional<OffsetDateTime> timestamp) {
+        return solver.getConstraint(minimumRelativeMarginSetToZeroConstraintId(timestamp));
     }
 
-    public OpenRaoMPConstraint addMinimumRelativeMarginConstraint(double lb, double ub, FlowCnec cnec, TwoSides side, MarginExtension belowOrAboveThreshold) {
-        return solver.makeConstraint(lb, ub, minimumRelativeMarginConstraintId(cnec, side, belowOrAboveThreshold));
+    public OpenRaoMPConstraint addMinimumRelativeMarginConstraint(double lb, double ub, FlowCnec cnec, TwoSides side, MarginExtension belowOrAboveThreshold, Optional<OffsetDateTime> timestamp) {
+        return solver.makeConstraint(lb, ub, minimumRelativeMarginConstraintId(cnec, side, belowOrAboveThreshold, timestamp));
     }
 
-    public OpenRaoMPConstraint getMinimumRelativeMarginConstraint(FlowCnec cnec, TwoSides side, MarginExtension belowOrAboveThreshold) {
-        return solver.getConstraint(minimumRelativeMarginConstraintId(cnec, side, belowOrAboveThreshold));
+    public OpenRaoMPConstraint getMinimumRelativeMarginConstraint(FlowCnec cnec, TwoSides side, MarginExtension belowOrAboveThreshold, Optional<OffsetDateTime> timestamp) {
+        return solver.getConstraint(minimumRelativeMarginConstraintId(cnec, side, belowOrAboveThreshold, timestamp));
     }
 
-    public OpenRaoMPVariable addMinimumMarginVariable(double lb, double ub) {
-        return solver.makeNumVar(lb, ub, minimumMarginVariableId());
+    public OpenRaoMPVariable addMinimumMarginVariable(double lb, double ub, Optional<OffsetDateTime> timestamp) {
+        return solver.makeNumVar(lb, ub, minimumMarginVariableId(timestamp));
     }
 
-    public OpenRaoMPVariable getMinimumMarginVariable() {
-        return solver.getVariable(minimumMarginVariableId());
+    public OpenRaoMPVariable getMinimumMarginVariable(Optional<OffsetDateTime> timestamp) {
+        return solver.getVariable(minimumMarginVariableId(timestamp));
     }
 
-    public OpenRaoMPVariable addMinimumRelativeMarginVariable(double lb, double ub) {
-        return solver.makeNumVar(lb, ub, minimumRelativeMarginVariableId());
+    public OpenRaoMPVariable addMinimumRelativeMarginVariable(double lb, double ub, Optional<OffsetDateTime> timestamp) {
+        return solver.makeNumVar(lb, ub, minimumRelativeMarginVariableId(timestamp));
     }
 
-    public OpenRaoMPVariable getMinimumRelativeMarginVariable() {
-        return solver.getVariable(minimumRelativeMarginVariableId());
+    public OpenRaoMPVariable getMinimumRelativeMarginVariable(Optional<OffsetDateTime> timestamp) {
+        return solver.getVariable(minimumRelativeMarginVariableId(timestamp));
     }
 
-    public OpenRaoMPVariable addMinimumRelativeMarginSignBinaryVariable() {
-        return solver.makeBoolVar(minimumRelativeMarginSignBinaryVariableId());
+    public OpenRaoMPVariable addMinimumRelativeMarginSignBinaryVariable(Optional<OffsetDateTime> timestamp) {
+        return solver.makeBoolVar(minimumRelativeMarginSignBinaryVariableId(timestamp));
     }
 
-    public OpenRaoMPVariable getMinimumRelativeMarginSignBinaryVariable() {
-        return solver.getVariable(minimumRelativeMarginSignBinaryVariableId());
+    public OpenRaoMPVariable getMinimumRelativeMarginSignBinaryVariable(Optional<OffsetDateTime> timestamp) {
+        return solver.getVariable(minimumRelativeMarginSignBinaryVariableId(timestamp));
     }
 
     //Begin MaxLoopFlowFiller section
-    public OpenRaoMPConstraint addMaxLoopFlowConstraint(double lb, double ub, FlowCnec cnec, TwoSides side, BoundExtension lbOrUb) {
-        return solver.makeConstraint(lb, ub, maxLoopFlowConstraintId(cnec, side, lbOrUb));
+    public OpenRaoMPConstraint addMaxLoopFlowConstraint(double lb, double ub, FlowCnec cnec, TwoSides side, BoundExtension lbOrUb, Optional<OffsetDateTime> timestamp) {
+        return solver.makeConstraint(lb, ub, maxLoopFlowConstraintId(cnec, side, lbOrUb, timestamp));
     }
 
-    public OpenRaoMPConstraint getMaxLoopFlowConstraint(FlowCnec cnec, TwoSides side, BoundExtension lbOrUb) {
-        return solver.getConstraint(maxLoopFlowConstraintId(cnec, side, lbOrUb));
+    public OpenRaoMPConstraint getMaxLoopFlowConstraint(FlowCnec cnec, TwoSides side, BoundExtension lbOrUb, Optional<OffsetDateTime> timestamp) {
+        return solver.getConstraint(maxLoopFlowConstraintId(cnec, side, lbOrUb, timestamp));
     }
 
-    public OpenRaoMPVariable addLoopflowViolationVariable(double lb, double ub, FlowCnec cnec, TwoSides side) {
-        return solver.makeNumVar(lb, ub, loopflowViolationVariableId(cnec, side));
+    public OpenRaoMPVariable addLoopflowViolationVariable(double lb, double ub, FlowCnec cnec, TwoSides side, Optional<OffsetDateTime> timestamp) {
+        return solver.makeNumVar(lb, ub, loopflowViolationVariableId(cnec, side, timestamp));
     }
 
-    public OpenRaoMPVariable getLoopflowViolationVariable(FlowCnec cnec, TwoSides side) {
-        return solver.getVariable(loopflowViolationVariableId(cnec, side));
+    public OpenRaoMPVariable getLoopflowViolationVariable(FlowCnec cnec, TwoSides side, Optional<OffsetDateTime> timestamp) {
+        return solver.getVariable(loopflowViolationVariableId(cnec, side, timestamp));
     }
 
-    public OpenRaoMPVariable addMnecViolationVariable(double lb, double ub, FlowCnec mnec, TwoSides side) {
-        return solver.makeNumVar(lb, ub, mnecViolationVariableId(mnec, side));
+    public OpenRaoMPVariable addMnecViolationVariable(double lb, double ub, FlowCnec mnec, TwoSides side, Optional<OffsetDateTime> timestamp) {
+        return solver.makeNumVar(lb, ub, mnecViolationVariableId(mnec, side, timestamp));
     }
 
-    public OpenRaoMPVariable getMnecViolationVariable(FlowCnec mnec, TwoSides side) {
-        return solver.getVariable(mnecViolationVariableId(mnec, side));
+    public OpenRaoMPVariable getMnecViolationVariable(FlowCnec mnec, TwoSides side, Optional<OffsetDateTime> timestamp) {
+        return solver.getVariable(mnecViolationVariableId(mnec, side, timestamp));
     }
 
-    public OpenRaoMPConstraint addMnecFlowConstraint(double lb, double ub, FlowCnec mnec, TwoSides side, MarginExtension belowOrAboveThreshold) {
-        return solver.makeConstraint(lb, ub, mnecFlowConstraintId(mnec, side, belowOrAboveThreshold));
+    public OpenRaoMPConstraint addMnecFlowConstraint(double lb, double ub, FlowCnec mnec, TwoSides side, MarginExtension belowOrAboveThreshold, Optional<OffsetDateTime> timestamp) {
+        return solver.makeConstraint(lb, ub, mnecFlowConstraintId(mnec, side, belowOrAboveThreshold, timestamp));
     }
 
-    public OpenRaoMPConstraint getMnecFlowConstraint(FlowCnec mnec, TwoSides side, MarginExtension belowOrAboveThreshold) {
-        return solver.getConstraint(mnecFlowConstraintId(mnec, side, belowOrAboveThreshold));
+    public OpenRaoMPConstraint getMnecFlowConstraint(FlowCnec mnec, TwoSides side, MarginExtension belowOrAboveThreshold, Optional<OffsetDateTime> timestamp) {
+        return solver.getConstraint(mnecFlowConstraintId(mnec, side, belowOrAboveThreshold, timestamp));
     }
 
-    public OpenRaoMPVariable addOptimizeCnecBinaryVariable(FlowCnec cnec, TwoSides side) {
-        return solver.makeIntVar(0, 1, optimizeCnecBinaryVariableId(cnec, side));
+    public OpenRaoMPVariable addOptimizeCnecBinaryVariable(FlowCnec cnec, TwoSides side, Optional<OffsetDateTime> timestamp) {
+        return solver.makeIntVar(0, 1, optimizeCnecBinaryVariableId(cnec, side, timestamp));
     }
 
-    public OpenRaoMPVariable getOptimizeCnecBinaryVariable(FlowCnec cnec, TwoSides side) {
-        return solver.getVariable(optimizeCnecBinaryVariableId(cnec, side));
+    public OpenRaoMPVariable getOptimizeCnecBinaryVariable(FlowCnec cnec, TwoSides side, Optional<OffsetDateTime> timestamp) {
+        return solver.getVariable(optimizeCnecBinaryVariableId(cnec, side, timestamp));
     }
 
-    public OpenRaoMPConstraint addDontOptimizeCnecConstraint(double lb, double ub, FlowCnec cnec, TwoSides side, MarginExtension belowOrAboveThreshold) {
-        return solver.makeConstraint(lb, ub, dontOptimizeCnecConstraintId(cnec, side, belowOrAboveThreshold));
+    public OpenRaoMPConstraint addDontOptimizeCnecConstraint(double lb, double ub, FlowCnec cnec, TwoSides side, MarginExtension belowOrAboveThreshold, Optional<OffsetDateTime> timestamp) {
+        return solver.makeConstraint(lb, ub, dontOptimizeCnecConstraintId(cnec, side, belowOrAboveThreshold, timestamp));
     }
 
-    public OpenRaoMPConstraint getDontOptimizeCnecConstraint(FlowCnec cnec, TwoSides side, MarginExtension belowOrAboveThreshold) {
-        return solver.getConstraint(dontOptimizeCnecConstraintId(cnec, side, belowOrAboveThreshold));
+    public OpenRaoMPConstraint getDontOptimizeCnecConstraint(FlowCnec cnec, TwoSides side, MarginExtension belowOrAboveThreshold, Optional<OffsetDateTime> timestamp) {
+        return solver.getConstraint(dontOptimizeCnecConstraintId(cnec, side, belowOrAboveThreshold, timestamp));
     }
 
     public OpenRaoMPConstraint addMaxRaConstraint(double lb, double ub, State state) {
@@ -466,6 +472,68 @@ public final class LinearProblem {
 
     public OpenRaoMPConstraint getRangeActionAbsoluteVariationConstraint(RangeAction<?> rangeAction, State state) {
         return solver.getConstraint(rangeActionAbsoluteVariationConstraintId(rangeAction, state));
+    }
+
+    public OpenRaoMPConstraint addInjectionBalanceConstraint(State state) {
+        return solver.makeConstraint(0.0, 0.0, injectionBalanceConstraintId(state));
+    }
+
+    public OpenRaoMPConstraint getInjectionBalanceConstraint(State state) {
+        return solver.getConstraint(injectionBalanceConstraintId(state));
+    }
+
+    public OpenRaoMPVariable addTotalPstRangeActionTapVariationVariable(PstRangeAction pstRangeAction, State state, LinearProblem.VariationDirectionExtension variationDirection) {
+        return solver.makeIntVar(0, infinity(), totalPstRangeActionTapVariationVariableId(pstRangeAction, state, variationDirection));
+    }
+
+    public OpenRaoMPVariable getTotalPstRangeActionTapVariationVariable(PstRangeAction pstRangeAction, State state, LinearProblem.VariationDirectionExtension variationDirection) {
+        return solver.getVariable(totalPstRangeActionTapVariationVariableId(pstRangeAction, state, variationDirection));
+    }
+
+    public OpenRaoMPConstraint addTotalPstRangeActionTapVariationConstraint(PstRangeAction pstRangeAction, State state) {
+        return solver.makeConstraint(0, 0, totalPstRangeActionTapVariationConstraintId(pstRangeAction, state));
+    }
+
+    public OpenRaoMPVariable addTapVariable(PstRangeAction pstRangeAction, State state) {
+        int minTap = pstRangeAction.getTapToAngleConversionMap().keySet().stream().min(Integer::compareTo).orElseThrow();
+        int maxTap = pstRangeAction.getTapToAngleConversionMap().keySet().stream().max(Integer::compareTo).orElseThrow();
+        return solver.makeIntVar(minTap, maxTap, tapVariableId(pstRangeAction, state));
+    }
+
+    public OpenRaoMPVariable getTapVariable(PstRangeAction pstRangeAction, State state) {
+        return solver.getVariable(tapVariableId(pstRangeAction, state));
+    }
+
+    public OpenRaoMPConstraint addTapConstraint(PstRangeAction pstRangeAction, State state) {
+        return solver.makeConstraint(0, 0, tapConstraintId(pstRangeAction, state));
+    }
+
+    public OpenRaoMPConstraint getTapConstraint(PstRangeAction pstRangeAction, State state) {
+        return solver.getConstraint(tapConstraintId(pstRangeAction, state));
+    }
+
+    public OpenRaoMPVariable addGeneratorPowerVariable(String generatorId, OffsetDateTime timestamp) {
+        return solver.makeNumVar(-solver.infinity(), solver.infinity(), generatorPowerVariableId(generatorId, timestamp));
+    }
+
+    public OpenRaoMPVariable getGeneratorPowerVariable(String generatorId, OffsetDateTime timestamp) {
+        return solver.getVariable(generatorPowerVariableId(generatorId, timestamp));
+    }
+
+    public OpenRaoMPConstraint addGeneratorPowerConstraint(String generatorId, double initialPower, OffsetDateTime timestamp) {
+        return solver.makeConstraint(initialPower, initialPower, generatorPowerConstraintId(generatorId, timestamp));
+    }
+
+    public OpenRaoMPConstraint getGeneratorPowerConstraint(String generatorId, OffsetDateTime timestamp) {
+        return solver.getConstraint(generatorPowerConstraintId(generatorId, timestamp));
+    }
+
+    public OpenRaoMPConstraint addGeneratorPowerGradientConstraint(String generatorId, OffsetDateTime currentTimestamp, OffsetDateTime previousTimestamp, double lb, double ub) {
+        return solver.makeConstraint(lb, ub, generatorPowerGradientConstraintId(generatorId, currentTimestamp, previousTimestamp));
+    }
+
+    public OpenRaoMPConstraint getGeneratorPowerGradientConstraint(String generatorId, OffsetDateTime currentTimestamp, OffsetDateTime previousTimestamp) {
+        return solver.getConstraint(generatorPowerGradientConstraintId(generatorId, currentTimestamp, previousTimestamp));
     }
 
     public double infinity() {

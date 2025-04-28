@@ -42,6 +42,7 @@ import com.powsybl.openrao.data.crac.api.networkaction.NetworkActionAdder;
 import com.powsybl.openrao.data.crac.api.usagerule.OnContingencyState;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 
+import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -70,13 +71,27 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     private final Map<String, NetworkAction> networkActions = new HashMap<>();
     private final Map<Instant, RaUsageLimits> raUsageLimitsPerInstant = new HashMap<>();
     private Instant lastInstantAdded = null;
+    private final OffsetDateTime timestamp;
+
+    public CracImpl(String id, String name, OffsetDateTime timestamp) {
+        super(id, name);
+        this.timestamp = timestamp;
+    }
 
     public CracImpl(String id, String name) {
-        super(id, name);
+        this(id, name, null);
+    }
+
+    public CracImpl(String id, OffsetDateTime timestamp) {
+        this(id, id, timestamp);
     }
 
     public CracImpl(String id) {
-        this(id, id);
+        this(id, id, null);
+    }
+
+    public Optional<OffsetDateTime> getTimestamp() {
+        return Optional.ofNullable(timestamp);
     }
 
     // ========================================
@@ -316,7 +331,7 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
 
     @Override
     public State getPreventiveState() {
-        return states.get("preventive");
+        return states.get(StateIdHelper.getStateId(getInstant(InstantKind.PREVENTIVE), timestamp));
     }
 
     @Override
@@ -344,14 +359,14 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     @Override
     public State getState(Contingency contingency, Instant instant) {
         Objects.requireNonNull(contingency, "Contingency must not be null when getting a state.");
-        return states.get(contingency.getId() + " - " + instant.getId());
+        return states.get(StateIdHelper.getStateId(contingency, instant, timestamp));
     }
 
     State addPreventiveState() {
         if (getPreventiveState() != null) {
             return getPreventiveState();
         } else {
-            State state = new PreventiveState(getPreventiveInstant());
+            State state = new PreventiveState(getPreventiveInstant(), timestamp);
             states.put(state.getId(), state);
             return state;
         }
@@ -368,7 +383,7 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
             if (!contingencies.containsKey(contingency.getId())) {
                 throw new OpenRaoException(format(ADD_ELEMENT_TO_CRAC_ERROR_MESSAGE, contingency.getId()));
             }
-            State state = new PostContingencyState(getContingency(contingency.getId()), instant);
+            State state = new PostContingencyState(getContingency(contingency.getId()), instant, timestamp);
             states.put(state.getId(), state);
             return state;
         }

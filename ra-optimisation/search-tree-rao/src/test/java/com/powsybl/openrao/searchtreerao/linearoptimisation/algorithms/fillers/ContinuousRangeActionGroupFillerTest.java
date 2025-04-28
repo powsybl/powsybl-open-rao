@@ -10,8 +10,8 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
-import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPConstraint;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPVariable;
@@ -56,22 +56,23 @@ class ContinuousRangeActionGroupFillerTest extends AbstractFillerTest {
         rangeActions.put(state, Set.of(pstRa1, pstRa2));
         Mockito.when(optimizationPerimeter.getRangeActionsPerState()).thenReturn(rangeActions);
 
-        RangeActionsOptimizationParameters rangeActionParameters = RangeActionsOptimizationParameters.buildFromRaoParameters(new RaoParameters());
-
-        CoreProblemFiller coreProblemFiller = new CoreProblemFiller(
+        MarginCoreProblemFiller coreProblemFiller = new MarginCoreProblemFiller(
             optimizationPerimeter,
             initialRangeActionSetpointResult,
-                rangeActionParameters,
+            (new RaoParameters()).getRangeActionsOptimizationParameters(),
+            null,
             Unit.MEGAWATT,
-            false, RangeActionsOptimizationParameters.PstModel.CONTINUOUS);
+            false,
+            SearchTreeRaoRangeActionsOptimizationParameters.PstModel.CONTINUOUS,
+            null);
 
         ContinuousRangeActionGroupFiller continuousRangeActionGroupFiller = new ContinuousRangeActionGroupFiller(
-            rangeActions);
+            rangeActions, null);
 
         LinearProblem linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(continuousRangeActionGroupFiller)
-            .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
+            .withSolver(SearchTreeRaoRangeActionsOptimizationParameters.Solver.SCIP)
             .build();
 
         // fill problem

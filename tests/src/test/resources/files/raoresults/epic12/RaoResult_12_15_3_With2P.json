@@ -62,6 +62,14 @@
           "flow" : -1919.4
         }
       }
+    },
+    "afterCRA" : {
+      "ampere" : {
+        "margin" : -1419.4,
+        "leftSide" : {
+          "flow" : -1919.4
+        }
+      }
     }
   }, {
     "flowCnecId" : "N1013_N1014 - preventive",

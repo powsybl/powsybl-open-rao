@@ -11,7 +11,7 @@ import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.rangeaction.CounterTradeRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.CounterTradeRangeActionAdder;
-import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.VariationDirection;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.iidm.network.Country;
 import org.junit.jupiter.api.BeforeEach;
@@ -39,8 +39,8 @@ class CounterTradeRangeActionAdderImplTest {
                 .withOperator("BE")
                 .withGroupId("groupId1")
                 .withActivationCost(1000d)
-                .withVariationCost(10000d, RangeAction.VariationDirection.UP)
-                .withVariationCost(20000d, RangeAction.VariationDirection.DOWN)
+                .withVariationCost(10000d, VariationDirection.UP)
+                .withVariationCost(20000d, VariationDirection.DOWN)
                 .newRange().withMin(-5).withMax(10).add()
                 .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
                 .withExportingCountry(Country.FR)
@@ -51,8 +51,8 @@ class CounterTradeRangeActionAdderImplTest {
         assertEquals("id1", counterTradeRangeAction.getName());
         assertEquals("BE", counterTradeRangeAction.getOperator());
         assertEquals(Optional.of(1000d), counterTradeRangeAction.getActivationCost());
-        assertEquals(Optional.of(10000d), counterTradeRangeAction.getVariationCost(RangeAction.VariationDirection.UP));
-        assertEquals(Optional.of(20000d), counterTradeRangeAction.getVariationCost(RangeAction.VariationDirection.DOWN));
+        assertEquals(Optional.of(10000d), counterTradeRangeAction.getVariationCost(VariationDirection.UP));
+        assertEquals(Optional.of(20000d), counterTradeRangeAction.getVariationCost(VariationDirection.DOWN));
         assertTrue(counterTradeRangeAction.getGroupId().isPresent());
         assertEquals("groupId1", counterTradeRangeAction.getGroupId().get());
         assertEquals(1, counterTradeRangeAction.getRanges().size());
@@ -78,8 +78,8 @@ class CounterTradeRangeActionAdderImplTest {
         assertEquals("BE", counterTradeRangeAction.getOperator());
         assertTrue(counterTradeRangeAction.getGroupId().isEmpty());
         assertTrue(counterTradeRangeAction.getActivationCost().isEmpty());
-        assertTrue(counterTradeRangeAction.getVariationCost(RangeAction.VariationDirection.UP).isEmpty());
-        assertTrue(counterTradeRangeAction.getVariationCost(RangeAction.VariationDirection.DOWN).isEmpty());
+        assertTrue(counterTradeRangeAction.getVariationCost(VariationDirection.UP).isEmpty());
+        assertTrue(counterTradeRangeAction.getVariationCost(VariationDirection.DOWN).isEmpty());
         assertEquals(1, counterTradeRangeAction.getRanges().size());
         assertEquals(1, counterTradeRangeAction.getUsageRules().size());
         assertEquals(Country.FR, counterTradeRangeAction.getExportingCountry());

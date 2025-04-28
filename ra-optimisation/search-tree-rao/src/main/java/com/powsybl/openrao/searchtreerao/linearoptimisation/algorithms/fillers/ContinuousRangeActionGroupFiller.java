@@ -15,6 +15,7 @@ import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
 import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
 
+import java.time.OffsetDateTime;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -26,9 +27,11 @@ import java.util.Set;
 public class ContinuousRangeActionGroupFiller implements ProblemFiller {
 
     private final Map<State, Set<RangeAction<?>>> rangeActionsPerState;
+    private final OffsetDateTime timestamp;
 
-    public ContinuousRangeActionGroupFiller(Map<State, Set<RangeAction<?>>> rangeActionsPerState) {
+    public ContinuousRangeActionGroupFiller(Map<State, Set<RangeAction<?>>> rangeActionsPerState, OffsetDateTime timestamp) {
         this.rangeActionsPerState = rangeActionsPerState;
+        this.timestamp = timestamp;
     }
 
     @Override

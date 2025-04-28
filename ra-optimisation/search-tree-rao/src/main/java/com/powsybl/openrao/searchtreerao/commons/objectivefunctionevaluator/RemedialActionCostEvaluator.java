@@ -10,6 +10,7 @@ package com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.VariationDirection;
 import com.powsybl.openrao.searchtreerao.commons.costevaluatorresult.AbsoluteCostEvaluatorResult;
 import com.powsybl.openrao.searchtreerao.commons.costevaluatorresult.CostEvaluatorResult;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
@@ -52,7 +53,7 @@ public class RemedialActionCostEvaluator implements CostEvaluator {
             return 0.0;
         }
         double activationCost = rangeAction.getActivationCost().orElse(0.0);
-        RangeAction.VariationDirection variationDirection = variation > 0 ? RangeAction.VariationDirection.UP : RangeAction.VariationDirection.DOWN;
+        VariationDirection variationDirection = variation > 0 ? VariationDirection.UP : VariationDirection.DOWN;
         return activationCost + Math.abs(variation) * rangeAction.getVariationCost(variationDirection).orElse(0.0);
     }
 }

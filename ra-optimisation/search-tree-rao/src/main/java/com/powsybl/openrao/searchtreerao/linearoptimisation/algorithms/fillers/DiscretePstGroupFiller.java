@@ -16,6 +16,7 @@ import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
 import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
 
+import java.time.OffsetDateTime;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -27,10 +28,12 @@ public class DiscretePstGroupFiller implements ProblemFiller {
 
     private final State optimizedState;
     private final Map<State, Set<PstRangeAction>> pstRangeActions;
+    private final OffsetDateTime timestamp;
 
-    public DiscretePstGroupFiller(State optimizedState, Map<State, Set<PstRangeAction>> pstRangeActions) {
+    public DiscretePstGroupFiller(State optimizedState, Map<State, Set<PstRangeAction>> pstRangeActions, OffsetDateTime timestamp) {
         this.pstRangeActions = pstRangeActions;
         this.optimizedState = optimizedState;
+        this.timestamp = timestamp;
     }
 
     @Override

@@ -18,7 +18,7 @@ Feature: US 20.5: Advanced 2nd preventive run conditions
   @fast @rao @mock @ac @second-preventive
   Scenario: US 20.5.2: Cost has increased during RAO, fall back to initial solution (copy of 20.1.2)
     Given network file is "common/TestCase16Nodes.uct"
-    Given crac file is "epic13/SL_ep13us3case1.json"
+    Given crac file is "epic20/SL_ep20us5case2.json"
     Given configuration file is "epic20/RaoParameters_maxMargin_ampere_forbid_cost_increase.json"
     When I launch search_tree_rao
     Then 0 remedial actions are used in preventive
@@ -41,7 +41,7 @@ Feature: US 20.5: Advanced 2nd preventive run conditions
   @fast @rao @mock @ac @second-preventive
   Scenario: US 20.5.4: Cost has increased during RAO, run 2P (copy of 20.1.2)
     Given network file is "common/TestCase16Nodes.uct"
-    Given crac file is "epic13/SL_ep13us3case1.json"
+    Given crac file is "epic20/SL_ep20us5case2.json"
     Given configuration file is "epic20/RaoParameters_maxMargin_ampere_2p_if_cost_increase.json"
     When I launch search_tree_rao
     Then 2 remedial actions are used in preventive

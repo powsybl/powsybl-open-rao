@@ -32,6 +32,7 @@ import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.openrao.data.crac.impl.AngleCnecValue;
+import com.powsybl.openrao.data.crac.io.cim.parameters.CimCracCreationParameters;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.crac.io.cim.craccreator.CimCracCreationContext;
@@ -91,7 +92,9 @@ class AngleMonitoringTest {
         importParams.put("iidm.import.cgmes.source-for-iidm-id", "rdfID");
         network = Network.read(Paths.get(new File(AngleMonitoringTest.class.getResource("/MicroGrid.zip").getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
         InputStream is = getClass().getResourceAsStream(fileName);
-        CimCracCreationContext cracCreationContext = (CimCracCreationContext) Crac.readWithContext(fileName, is, network, parametrableOffsetDateTime, cracCreationParameters);
+        cracCreationParameters.addExtension(CimCracCreationParameters.class, new CimCracCreationParameters());
+        cracCreationParameters.getExtension(CimCracCreationParameters.class).setTimestamp(parametrableOffsetDateTime);
+        CimCracCreationContext cracCreationContext = (CimCracCreationContext) Crac.readWithContext(fileName, is, network, cracCreationParameters);
         crac = cracCreationContext.getCrac();
         curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
     }
@@ -161,7 +164,7 @@ class AngleMonitoringTest {
         assertEquals(Cnec.SecurityStatus.FAILURE, angleMonitoringResult.getStatus());
         angleMonitoringResult.getAppliedRas().forEach((state, networkActions) -> assertTrue(networkActions.isEmpty()));
         assertTrue(angleMonitoringResult.getCnecResults().stream().map(CnecResult::getValue).filter(AngleCnecValue.class::isInstance).allMatch(angleCnecValue -> ((AngleCnecValue) angleCnecValue).value().isNaN()));
-        assertEquals(angleMonitoringResult.printConstraints(), List.of("ANGLE monitoring failed due to a load flow divergence or an inconsistency in the crac."));
+        assertEquals(angleMonitoringResult.printConstraints(), List.of("ANGLE monitoring failed due to a load flow divergence or an inconsistency in the crac or in the parameters."));
     }
 
     @Test
@@ -364,5 +367,18 @@ class AngleMonitoringTest {
         assertFalse(raoResultWithAngleMonitoring.isSecure());
     }
 
+    @Test
+    void testNoZonalDataInputForAngleMonitoring() {
+        setUpCracFactory("network.xiidm");
+        mockCurativeStatesSecure();
+        naL1Cur = crac.newNetworkAction()
+            .withId("Injection L1 - 2")
+            .newLoadAction().withNetworkElement("LD2").withActivePowerValue(50.).add()
+            .newOnConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withCnec(acCur1.getId()).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .add();
+        MonitoringInput monitoringInput = new MonitoringInput.MonitoringInputBuilder().withCrac(crac).withNetwork(network).withRaoResult(raoResult).withPhysicalParameter(PhysicalParameter.ANGLE).build();
+        angleMonitoringResult = new Monitoring("OpenLoadFlow", loadFlowParameters).runMonitoring(monitoringInput, 2);
+        assertEquals(Cnec.SecurityStatus.FAILURE, angleMonitoringResult.getStatus());
+    }
 }
 

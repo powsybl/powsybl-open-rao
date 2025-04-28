@@ -213,10 +213,14 @@ public class Leaf implements OptimizationResult {
             // build parameters
             IteratingLinearOptimizerParameters linearOptimizerParameters = IteratingLinearOptimizerParameters.create()
                     .withObjectiveFunction(parameters.getObjectiveFunction())
+                    .withObjectiveFunctionUnit(parameters.getObjectiveFunctionUnit())
                     .withRangeActionParameters(parameters.getRangeActionParameters())
+                    .withRangeActionParametersExtension(parameters.getRangeActionParametersExtension())
                     .withMnecParameters(parameters.getMnecParameters())
+                    .withMnecParametersExtension(parameters.getMnecParametersExtension())
                     .withMaxMinRelativeMarginParameters(parameters.getMaxMinRelativeMarginParameters())
                     .withLoopFlowParameters(parameters.getLoopFlowParameters())
+                    .withLoopFlowParametersExtension(parameters.getLoopFlowParametersExtension())
                     .withUnoptimizedCnecParameters(parameters.getUnoptimizedCnecParameters())
                     .withRaLimitationParameters(getRaLimitationParameters(searchTreeInput.getOptimizationPerimeter(), parameters))
                     .withSolverParameters(parameters.getSolverParameters())
@@ -496,6 +500,18 @@ public class Leaf implements OptimizationResult {
             preOptimObjectiveFunctionResult.excludeContingencies(contingenciesToExclude);
         } else if (status == Status.OPTIMIZED) {
             postOptimResult.excludeContingencies(contingenciesToExclude);
+        } else {
+            throw new OpenRaoException(NO_RESULTS_AVAILABLE);
+        }
+
+    }
+
+    @Override
+    public void excludeCnecs(Set<String> cnecsToExclude) {
+        if (status == Status.EVALUATED) {
+            preOptimObjectiveFunctionResult.excludeCnecs(cnecsToExclude);
+        } else if (status == Status.OPTIMIZED) {
+            postOptimResult.excludeCnecs(cnecsToExclude);
         } else {
             throw new OpenRaoException(NO_RESULTS_AVAILABLE);
         }

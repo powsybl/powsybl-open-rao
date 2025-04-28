@@ -48,6 +48,24 @@ public class InjectionRangeActionAdderImpl extends AbstractStandardRangeActionAd
     }
 
     @Override
+    public InjectionRangeActionAdder withNetworkElement(String networkElementId) {
+        if (distributionKeys.isEmpty()) {
+            return withNetworkElementAndKey(1.0, networkElementId, networkElementId);
+        } else {
+            throw new OpenRaoException("There are already NetworkElements tied to this injection. Use instead withNetworkElementAndKey() to add multiple NetworkElements");
+        }
+    }
+
+    @Override
+    public InjectionRangeActionAdder withNetworkElement(String networkElementId, String networkElementName) {
+        if (distributionKeys.isEmpty()) {
+            return withNetworkElementAndKey(1.0, networkElementId, networkElementName);
+        } else {
+            throw new OpenRaoException("There are already NetworkElements tied to this injection. Use instead withNetworkElementAndKey() to add multiple NetworkElements");
+        }
+    }
+
+    @Override
     public InjectionRangeAction add() {
         checkId();
         checkAutoUsageRules();

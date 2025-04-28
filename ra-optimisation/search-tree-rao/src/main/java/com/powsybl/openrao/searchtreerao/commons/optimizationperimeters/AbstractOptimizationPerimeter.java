@@ -14,7 +14,6 @@ import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.loopflowextension.LoopFlowThreshold;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
-import com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParametersExtension;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
 import com.powsybl.iidm.network.Network;
 
@@ -36,6 +35,7 @@ public abstract class AbstractOptimizationPerimeter implements OptimizationPerim
     private final Set<FlowCnec> loopFlowCnecs;
     private final Set<NetworkAction> availableNetworkActions;
     private final Map<State, Set<RangeAction<?>>> availableRangeActions;
+    private static final double EPSILON = 1e-6;
 
     protected AbstractOptimizationPerimeter(State mainOptimizationState,
                                          Set<FlowCnec> flowCnecs,
@@ -120,21 +120,21 @@ public abstract class AbstractOptimizationPerimeter implements OptimizationPerim
     }
 
     public static Set<FlowCnec> getLoopFlowCnecs(Set<FlowCnec> flowCnecs, RaoParameters raoParameters, Network network) {
-        if (raoParameters.hasExtension(LoopFlowParametersExtension.class)
-                && !raoParameters.getExtension(LoopFlowParametersExtension.class).getCountries().isEmpty()) {
-            // loopFlow limited, and set of country for which loop-flow are monitored is defined
-            return flowCnecs.stream()
-                .filter(cnec -> !Objects.isNull(cnec.getExtension(LoopFlowThreshold.class)) &&
-                    cnec.getLocation(network).stream().anyMatch(country -> country.isPresent() && raoParameters.getExtension(LoopFlowParametersExtension.class).getCountries().contains(country.get())))
-                .collect(Collectors.toSet());
-        } else if (raoParameters.hasExtension(LoopFlowParametersExtension.class)) {
-
-            // loopFlow limited, but no set of country defined
-            return flowCnecs.stream()
-                .filter(cnec -> !Objects.isNull(cnec.getExtension(LoopFlowThreshold.class)))
-                .collect(Collectors.toSet());
+        Optional<com.powsybl.openrao.raoapi.parameters.LoopFlowParameters> loopFlowParametersOptional = raoParameters.getLoopFlowParameters();
+        if (loopFlowParametersOptional.isPresent()) {
+            if (!loopFlowParametersOptional.get().getCountries().isEmpty()) {
+                // loopFlow limited, and set of country for which loop-flow are monitored is defined
+                return flowCnecs.stream()
+                    .filter(cnec -> !Objects.isNull(cnec.getExtension(LoopFlowThreshold.class)) &&
+                        cnec.getLocation(network).stream().anyMatch(country -> country.isPresent() && loopFlowParametersOptional.get().getCountries().contains(country.get())))
+                    .collect(Collectors.toSet());
+            } else {
+                // loopFlow limited, but no set of country defined
+                return flowCnecs.stream()
+                    .filter(cnec -> !Objects.isNull(cnec.getExtension(LoopFlowThreshold.class)))
+                    .collect(Collectors.toSet());
+            }
         } else {
-
             //no loopFLow limitation
             return Collections.emptySet();
         }
@@ -145,7 +145,7 @@ public abstract class AbstractOptimizationPerimeter implements OptimizationPerim
         double minSetPoint = rangeAction.getMinAdmissibleSetpoint(preperimeterSetPoint);
         double maxSetPoint = rangeAction.getMaxAdmissibleSetpoint(preperimeterSetPoint);
 
-        if (preperimeterSetPoint < minSetPoint || preperimeterSetPoint > maxSetPoint) {
+        if (preperimeterSetPoint < minSetPoint - EPSILON || preperimeterSetPoint > maxSetPoint + EPSILON) {
             BUSINESS_WARNS.warn("Range action {} has an initial setpoint of {} that does not respect its allowed range [{} {}]. It will be filtered out of the linear problem.",
                 rangeAction.getId(), preperimeterSetPoint, minSetPoint, maxSetPoint);
             return false;
@@ -163,7 +163,7 @@ public abstract class AbstractOptimizationPerimeter implements OptimizationPerim
         for (String group : groups) {
             Set<RangeAction<?>> groupRangeActions = rangeActions.stream().filter(rangeAction -> rangeAction.getGroupId().isPresent() && rangeAction.getGroupId().get().equals(group)).collect(Collectors.toSet());
             double preperimeterSetPoint = prePerimeterSetPoints.getSetpoint(groupRangeActions.iterator().next());
-            if (groupRangeActions.stream().anyMatch(rangeAction -> Math.abs(prePerimeterSetPoints.getSetpoint(rangeAction) - preperimeterSetPoint) > 1e-6)) {
+            if (groupRangeActions.stream().anyMatch(rangeAction -> Math.abs(prePerimeterSetPoints.getSetpoint(rangeAction) - preperimeterSetPoint) > EPSILON)) {
                 BUSINESS_WARNS.warn("Range actions of group {} do not have the same prePerimeter setpoint. They will be filtered out of the linear problem.", group);
                 rangeActions.removeAll(groupRangeActions);
             }

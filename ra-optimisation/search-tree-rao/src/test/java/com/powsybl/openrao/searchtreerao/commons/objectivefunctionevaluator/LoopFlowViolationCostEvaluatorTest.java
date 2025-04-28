@@ -11,7 +11,8 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.loopflowextension.LoopFlowThreshold;
-import com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParametersExtension;
+import com.powsybl.openrao.raoapi.parameters.LoopFlowParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoLoopFlowParameters;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -35,7 +36,9 @@ class LoopFlowViolationCostEvaluatorTest {
     private FlowCnec cnec2;
     private FlowResult initialLoopFlows;
     private FlowResult currentLoopFlows;
-    private LoopFlowParametersExtension parameters;
+    private LoopFlowParameters parameters;
+    private SearchTreeRaoLoopFlowParameters parametersExtension;
+
     private LoopFlowViolationCostEvaluator evaluator;
 
     @BeforeEach
@@ -47,16 +50,19 @@ class LoopFlowViolationCostEvaluatorTest {
         when(cnec1.getMonitoredSides()).thenReturn(Set.of(TwoSides.ONE));
         when(cnec1.getExtension(LoopFlowThreshold.class)).thenReturn(cnec1Extension);
         when(cnec1.getState()).thenReturn(state);
+        when(cnec1.getId()).thenReturn("cnec1");
 
         LoopFlowThreshold cnec2Extension = Mockito.mock(LoopFlowThreshold.class);
         cnec2 = Mockito.mock(FlowCnec.class);
         when(cnec2.getMonitoredSides()).thenReturn(Set.of(TwoSides.ONE));
         when(cnec2.getExtension(LoopFlowThreshold.class)).thenReturn(cnec2Extension);
         when(cnec2.getState()).thenReturn(state);
+        when(cnec2.getId()).thenReturn("cnec2");
 
         initialLoopFlows = Mockito.mock(FlowResult.class);
         currentLoopFlows = Mockito.mock(FlowResult.class);
-        parameters = Mockito.mock(LoopFlowParametersExtension.class);
+        parameters = Mockito.mock(LoopFlowParameters.class);
+        parametersExtension = Mockito.mock(SearchTreeRaoLoopFlowParameters.class);
     }
 
     private void setInputThresholdWithReliabilityMargin(FlowCnec branchCnec, double inputThresholdWIthReliabilityMargin) {
@@ -77,11 +83,11 @@ class LoopFlowViolationCostEvaluatorTest {
     }
 
     private void setViolationCost(double violationCost) {
-        when(parameters.getViolationCost()).thenReturn(violationCost);
+        when(parametersExtension.getViolationCost()).thenReturn(violationCost);
     }
 
     private void buildLoopFlowViolationCostEvaluator() {
-        evaluator = new LoopFlowViolationCostEvaluator(Set.of(cnec1, cnec2), initialLoopFlows, parameters);
+        evaluator = new LoopFlowViolationCostEvaluator(Set.of(cnec1, cnec2), initialLoopFlows, parameters.getAcceptableIncrease(), parametersExtension.getViolationCost());
     }
 
     @Test
@@ -185,7 +191,7 @@ class LoopFlowViolationCostEvaluatorTest {
 
         buildLoopFlowViolationCostEvaluator();
 
-        assertEquals(150, evaluator.evaluate(currentLoopFlows, null).getCost(Set.of()), DOUBLE_TOLERANCE);
+        assertEquals(150, evaluator.evaluate(currentLoopFlows, null).getCost(Set.of(), Set.of()), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -205,7 +211,7 @@ class LoopFlowViolationCostEvaluatorTest {
 
         buildLoopFlowViolationCostEvaluator();
 
-        assertEquals(300, evaluator.evaluate(currentLoopFlows, null).getCost(Set.of()), DOUBLE_TOLERANCE);
+        assertEquals(300, evaluator.evaluate(currentLoopFlows, null).getCost(Set.of(), Set.of()), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -225,7 +231,7 @@ class LoopFlowViolationCostEvaluatorTest {
 
         buildLoopFlowViolationCostEvaluator();
 
-        List<FlowCnec> costlyElements = evaluator.evaluate(currentLoopFlows, null).getCostlyElements(Set.of());
+        List<FlowCnec> costlyElements = evaluator.evaluate(currentLoopFlows, null).getCostlyElements(Set.of(), Set.of());
         assertEquals(2, costlyElements.size());
         assertSame(cnec1, costlyElements.get(0));
         assertSame(cnec2, costlyElements.get(1));
@@ -248,7 +254,7 @@ class LoopFlowViolationCostEvaluatorTest {
 
         buildLoopFlowViolationCostEvaluator();
 
-        List<FlowCnec> costlyElements = evaluator.evaluate(currentLoopFlows, null).getCostlyElements(Set.of());
+        List<FlowCnec> costlyElements = evaluator.evaluate(currentLoopFlows, null).getCostlyElements(Set.of(), Set.of());
         assertEquals(1, costlyElements.size());
         assertSame(cnec2, costlyElements.get(0));
     }

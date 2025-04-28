@@ -5,7 +5,7 @@
     <parent>
         <artifactId>open-rao-ra-optimisation</artifactId>
         <groupId>com.powsybl</groupId>
-        <version>6.3.0-SNAPSHOT</version>
+        <version>6.5.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -32,6 +32,11 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>open-rao-crac-impl</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>com.google.ortools</groupId>
             <artifactId>ortools-java</artifactId>
         </dependency>
@@ -49,12 +54,6 @@
             <artifactId>open-rao-crac-impl</artifactId>
             <version>${project.version}</version>
             <type>test-jar</type>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>open-rao-crac-impl</artifactId>
-            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -101,6 +100,11 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-launcher</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

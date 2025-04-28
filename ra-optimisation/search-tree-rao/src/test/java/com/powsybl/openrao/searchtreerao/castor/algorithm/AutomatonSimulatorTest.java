@@ -28,6 +28,7 @@ import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
@@ -233,8 +234,11 @@ class AutomatonSimulatorTest {
         autoState = crac.getState(contingency1, autoInstant);
 
         RaoParameters raoParameters = new RaoParameters();
-        raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
-        raoParameters.getLoadFlowAndSensitivityParameters().setSensitivityProvider("OpenLoadFlow");
+        raoParameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters());
+        OpenRaoSearchTreeParameters searchTreeParameters = raoParameters.getExtension(OpenRaoSearchTreeParameters.class);
+        raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN);
+        raoParameters.getObjectiveFunctionParameters().setUnit(Unit.MEGAWATT);
+        searchTreeParameters.getLoadFlowAndSensitivityParameters().setSensitivityProvider("OpenLoadFlow");
 
         mockedPreAutoPerimeterSensitivityAnalysis = mock(PrePerimeterSensitivityAnalysis.class);
         mockedPrePerimeterResult = mock(PrePerimeterResult.class);
@@ -331,9 +335,9 @@ class AutomatonSimulatorTest {
         assertEquals(2451.3764524964786, result.getRight().get(hvdcRa1), DOUBLE_TOLERANCE);
         assertEquals(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER, network.getHvdcLine(hvdcRa1.getNetworkElement().getId()).getConvertersMode());
         assertEquals(2451.3764524964786, network.getHvdcLine(hvdcRa1.getNetworkElement().getId()).getActivePowerSetpoint(), DOUBLE_TOLERANCE);
-        assertEquals(-46.65616621806521, result.getRight().get(hvdcRa2), DOUBLE_TOLERANCE);
+        assertEquals(-45.72718047413281, result.getRight().get(hvdcRa2), DOUBLE_TOLERANCE);
         assertEquals(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER, network.getHvdcLine(hvdcRa2.getNetworkElement().getId()).getConvertersMode());
-        assertEquals(46.65616621806521, network.getHvdcLine(hvdcRa2.getNetworkElement().getId()).getActivePowerSetpoint(), DOUBLE_TOLERANCE);
+        assertEquals(45.72718047413281, network.getHvdcLine(hvdcRa2.getNetworkElement().getId()).getActivePowerSetpoint(), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -357,31 +361,6 @@ class AutomatonSimulatorTest {
         Pair<PrePerimeterResult, Map<HvdcRangeAction, Double>> result = automatonSimulator.disableHvdcAngleDroopActivePowerControl(List.of(ra2), network, mockedPreAutoPerimeterSensitivityAnalysis, prePerimeterResult, autoState);
         assertEquals(prePerimeterResult, result.getLeft());
         assertEquals(Map.of(), result.getRight());
-    }
-
-    @Test
-    void testDisableHvdcAngleDroopControl5() {
-        // Test with phi1 < phi2
-        PrePerimeterResult prePerimeterResult = mock(PrePerimeterResult.class);
-        when(mockedPreAutoPerimeterSensitivityAnalysis.runBasedOnInitialResults(any(), any(), any(), any(), any())).thenReturn(mockedPrePerimeterResult);
-
-        HvdcLine hvdcLine = network.getHvdcLine("BBE2AA11 FFR3AA11 1");
-        hvdcLine.getExtension(HvdcAngleDroopActivePowerControl.class).setP0(100f);
-        network.getGenerator("BBE2AA11_generator").setTargetP(0);
-        network.getLoad("BBE2AA11_load").setP0(3000);
-        network.getGenerator("FFR3AA11_generator").setTargetP(6460);
-        network.getLoad("FFR3AA11_load").setP0(0);
-        network.getGenerator("FFR5AA11_generator").setTargetP(6460);
-        network.getLoad("FFR5AA11_load").setP0(0);
-        hvdcLine.setConvertersMode(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER);
-
-        Pair<PrePerimeterResult, Map<HvdcRangeAction, Double>> result = automatonSimulator.disableHvdcAngleDroopActivePowerControl(List.of(hvdcRa1), network, mockedPreAutoPerimeterSensitivityAnalysis, prePerimeterResult, autoState);
-        assertFalse(network.getHvdcLine("BBE2AA11 FFR3AA11 1").getExtension(HvdcAngleDroopActivePowerControl.class).isEnabled());
-        assertEquals(mockedPrePerimeterResult, result.getLeft());
-        assertEquals(1, result.getRight().size());
-        assertEquals(-813.9957894885341, result.getRight().get(hvdcRa1), DOUBLE_TOLERANCE);
-        assertEquals(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER, network.getHvdcLine(hvdcRa1.getNetworkElement().getId()).getConvertersMode());
-        assertEquals(813.9957894885341, network.getHvdcLine(hvdcRa1.getNetworkElement().getId()).getActivePowerSetpoint(), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -655,7 +634,7 @@ class AutomatonSimulatorTest {
         SensitivityResult mockedSensitivityResult = mock(SensitivityResult.class);
         when(mockedPrePerimeterResult.getSensitivityResult()).thenReturn(mockedSensitivityResult);
 
-        AutomatonPerimeterResultImpl result = automatonSimulator.simulateAutomatonState(autoState, Set.of(curativeState), network, null, null);
+        AutomatonPerimeterResultImpl result = automatonSimulator.simulateAutomatonState(autoState, Set.of(curativeState), network);
         assertNotNull(result);
         assertEquals(Set.of(), result.getActivatedNetworkActions());
         assertEquals(Set.of(), result.getActivatedRangeActions(autoState));
@@ -670,7 +649,7 @@ class AutomatonSimulatorTest {
         Instant curativeInstant = Mockito.mock(Instant.class);
         when(curativeState.getInstant()).thenReturn(curativeInstant);
         when(curativeState.getContingency()).thenReturn(Optional.of(crac.getContingency("contingency1")));
-        AutomatonPerimeterResultImpl result = automatonSimulator.simulateAutomatonState(autoState, Set.of(curativeState), network, null, null);
+        AutomatonPerimeterResultImpl result = automatonSimulator.simulateAutomatonState(autoState, Set.of(curativeState), network);
         assertNotNull(result);
         assertEquals(ComputationStatus.FAILURE, result.getComputationStatus());
         assertEquals(Set.of(), result.getActivatedRangeActions(autoState));
@@ -697,7 +676,7 @@ class AutomatonSimulatorTest {
         assertFalse(network.getHvdcLine("BBE2AA12 FFR3AA12 1").getExtension(HvdcAngleDroopActivePowerControl.class).isEnabled());
         assertEquals(2451.3764524964786, network.getHvdcLine("BBE2AA11 FFR3AA11 1").getActivePowerSetpoint(), DOUBLE_TOLERANCE);
         assertEquals(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER, network.getHvdcLine("BBE2AA11 FFR3AA11 1").getConvertersMode());
-        assertEquals(46.65616621806521, network.getHvdcLine("BBE2AA12 FFR3AA12 1").getActivePowerSetpoint(), DOUBLE_TOLERANCE);
+        assertEquals(45.72718047413281, network.getHvdcLine("BBE2AA12 FFR3AA12 1").getActivePowerSetpoint(), DOUBLE_TOLERANCE);
         assertEquals(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER, network.getHvdcLine("BBE2AA12 FFR3AA12 1").getConvertersMode());
     }
 }

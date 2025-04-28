@@ -11,6 +11,8 @@ import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.PstModel;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.Solver;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPConstraint;
@@ -58,31 +60,36 @@ class DiscretePstGroupFillerTest extends AbstractFillerTest {
         rangeActions.put(state, Set.of(pstRa1, pstRa2));
         Mockito.when(optimizationPerimeter.getRangeActionsPerState()).thenReturn(rangeActions);
 
-        RangeActionsOptimizationParameters rangeActionParameters = RangeActionsOptimizationParameters.buildFromRaoParameters(new RaoParameters());
+        RangeActionsOptimizationParameters rangeActionParameters = (new RaoParameters()).getRangeActionsOptimizationParameters();
 
-        CoreProblemFiller coreProblemFiller = new CoreProblemFiller(
+        MarginCoreProblemFiller coreProblemFiller = new MarginCoreProblemFiller(
             optimizationPerimeter,
             initialRangeActionSetpointResult,
-                rangeActionParameters,
+            rangeActionParameters,
+            null,
             Unit.MEGAWATT,
-            false, RangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS);
+            false,
+            PstModel.APPROXIMATED_INTEGERS,
+            null);
 
         Map<State, Set<PstRangeAction>> pstRangeActions = new HashMap<>();
         pstRangeActions.put(state, Set.of(pstRa1, pstRa2));
         DiscretePstTapFiller discretePstTapFiller = new DiscretePstTapFiller(
             optimizationPerimeter,
             pstRangeActions,
-            initialRangeActionSetpointResult);
+            initialRangeActionSetpointResult,
+            rangeActionParameters,
+            false, null);
 
         DiscretePstGroupFiller discretePstGroupFiller = new DiscretePstGroupFiller(
             state,
-            pstRangeActions);
+            pstRangeActions, null);
 
         LinearProblem linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(discretePstTapFiller)
             .withProblemFiller(discretePstGroupFiller)
-            .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
+            .withSolver(Solver.SCIP)
             .withInitialRangeActionActivationResult(getInitialRangeActionActivationResult())
             .build();
 
@@ -123,8 +130,8 @@ class DiscretePstGroupFillerTest extends AbstractFillerTest {
         linearProblem.updateBetweenSensiIteration(flowResult, sensitivityResult, updatedRangeActionActivationResult);
 
         // Re-fetch the constraints because the MIP has been rebuilt
-        groupTap1C = linearProblem.getPstGroupTapConstraint(pstRa1, state);
         groupTap2C = linearProblem.getPstGroupTapConstraint(pstRa2, state);
+        groupTap1C = linearProblem.getPstGroupTapConstraint(pstRa1, state);
 
         // check constraints
         assertEquals(-10, groupTap1C.lb(), 1e-6);

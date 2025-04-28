@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.searchtree.parameters;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.RaUsageLimits;
@@ -14,9 +15,11 @@ import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
-import com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParametersExtension;
-import com.powsybl.openrao.raoapi.parameters.extensions.MnecParametersExtension;
-import com.powsybl.openrao.raoapi.parameters.extensions.RelativeMarginsParametersExtension;
+import com.powsybl.openrao.raoapi.parameters.LoopFlowParameters;
+import com.powsybl.openrao.raoapi.parameters.MnecParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRelativeMarginsParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
 import com.powsybl.openrao.searchtreerao.commons.parameters.*;
 import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
@@ -49,42 +52,50 @@ class SearchTreeParametersTest {
     @Test
     void testWithConstantParametersOverAllRao() {
         RaoParameters raoParameters = new RaoParameters();
+        raoParameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters());
+        OpenRaoSearchTreeParameters raoParametersExtension = raoParameters.getExtension(OpenRaoSearchTreeParameters.class);
         Crac crac = Mockito.mock(Crac.class);
         builder.withConstantParametersOverAllRao(raoParameters, crac);
         SearchTreeParameters searchTreeParameters = builder.build();
         assertNotNull(searchTreeParameters);
 
         assertEquals(raoParameters.getObjectiveFunctionParameters().getType(), searchTreeParameters.getObjectiveFunction());
-        assertEquals(NetworkActionParameters.buildFromRaoParameters(raoParameters.getTopoOptimizationParameters(), crac), searchTreeParameters.getNetworkActionParameters());
+        assertEquals(NetworkActionParameters.buildFromRaoParameters(raoParameters, crac), searchTreeParameters.getNetworkActionParameters());
         assertEquals(crac.getRaUsageLimitsPerInstant(), searchTreeParameters.getRaLimitationParameters());
-        assertEquals(RangeActionsOptimizationParameters.buildFromRaoParameters(raoParameters), searchTreeParameters.getRangeActionParameters());
-        assertEquals(raoParameters.getExtension(MnecParametersExtension.class), searchTreeParameters.getMnecParameters());
-        assertEquals(raoParameters.getExtension(RelativeMarginsParametersExtension.class), searchTreeParameters.getMaxMinRelativeMarginParameters());
-        assertEquals(raoParameters.getExtension(LoopFlowParametersExtension.class), searchTreeParameters.getLoopFlowParameters());
-        assertEquals(raoParameters.getRangeActionsOptimizationParameters().getLinearOptimizationSolver(), searchTreeParameters.getSolverParameters());
-        assertEquals(raoParameters.getRangeActionsOptimizationParameters().getMaxMipIterations(), searchTreeParameters.getMaxNumberOfIterations());
+        assertEquals(raoParameters.getRangeActionsOptimizationParameters(), searchTreeParameters.getRangeActionParameters());
+        assertEquals(raoParameters.getMnecParameters().orElse(null), searchTreeParameters.getMnecParameters());
+        assertEquals(raoParameters.getLoopFlowParameters().orElse(null), searchTreeParameters.getLoopFlowParameters());
+        assertEquals(raoParametersExtension.getMnecParameters().orElse(null), searchTreeParameters.getMnecParametersExtension());
+        assertEquals(raoParametersExtension.getRelativeMarginsParameters().orElse(null), searchTreeParameters.getMaxMinRelativeMarginParameters());
+        assertEquals(raoParametersExtension.getLoopFlowParameters().orElse(null), searchTreeParameters.getLoopFlowParametersExtension());
+        assertEquals(raoParametersExtension.getRangeActionsOptimizationParameters().getLinearOptimizationSolver(), searchTreeParameters.getSolverParameters());
+        assertEquals(raoParametersExtension.getRangeActionsOptimizationParameters().getMaxMipIterations(), searchTreeParameters.getMaxNumberOfIterations());
     }
 
     @Test
     void testIndividualSetters() {
         ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction = Mockito.mock(ObjectiveFunctionParameters.ObjectiveFunctionType.class);
+        Unit objectiveFunctionUnit = Mockito.mock(Unit.class);
         TreeParameters treeParameters = Mockito.mock(TreeParameters.class);
         NetworkActionParameters networkActionParameters = Mockito.mock(NetworkActionParameters.class);
         Map<Instant, RaUsageLimits> raLimitationParameters = new HashMap<>();
         RangeActionsOptimizationParameters rangeActionParameters = Mockito.mock(RangeActionsOptimizationParameters.class);
-        MnecParametersExtension mnecParameters = Mockito.mock(MnecParametersExtension.class);
-        RelativeMarginsParametersExtension maxMinRelativeMarginParameters = Mockito.mock(RelativeMarginsParametersExtension.class);
-        LoopFlowParametersExtension loopFlowParameters = Mockito.mock(LoopFlowParametersExtension.class);
+        SearchTreeRaoRangeActionsOptimizationParameters rangeActionParametersExtension = Mockito.mock(SearchTreeRaoRangeActionsOptimizationParameters.class);
+        MnecParameters mnecParameters = Mockito.mock(MnecParameters.class);
+        SearchTreeRaoRelativeMarginsParameters maxMinRelativeMarginParameters = Mockito.mock(SearchTreeRaoRelativeMarginsParameters.class);
+        LoopFlowParameters loopFlowParameters = Mockito.mock(LoopFlowParameters.class);
         UnoptimizedCnecParameters unoptimizedCnecParameters = Mockito.mock(UnoptimizedCnecParameters.class);
-        RangeActionsOptimizationParameters.LinearOptimizationSolver solverParameters = Mockito.mock(RangeActionsOptimizationParameters.LinearOptimizationSolver.class);
+        SearchTreeRaoRangeActionsOptimizationParameters.LinearOptimizationSolver solverParameters = Mockito.mock(SearchTreeRaoRangeActionsOptimizationParameters.LinearOptimizationSolver.class);
         int maxNumberOfIterations = 3;
 
         SearchTreeParameters searchTreeParameters = builder
             .with0bjectiveFunction(objectiveFunction)
+            .with0bjectiveFunctionUnit(objectiveFunctionUnit)
             .withTreeParameters(treeParameters)
             .withNetworkActionParameters(networkActionParameters)
             .withGlobalRemedialActionLimitationParameters(raLimitationParameters)
             .withRangeActionParameters(rangeActionParameters)
+            .withRangeActionParametersExtension(rangeActionParametersExtension)
             .withMnecParameters(mnecParameters)
             .withMaxMinRelativeMarginParameters(maxMinRelativeMarginParameters)
             .withLoopFlowParameters(loopFlowParameters)

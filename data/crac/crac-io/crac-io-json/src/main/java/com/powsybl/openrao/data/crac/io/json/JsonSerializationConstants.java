@@ -17,6 +17,7 @@ import com.powsybl.openrao.data.crac.api.networkaction.ActionType;
 import com.powsybl.openrao.data.crac.api.networkaction.SingleNetworkElementActionAdder;
 import com.powsybl.openrao.data.crac.api.range.RangeType;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.VariationDirection;
 import com.powsybl.openrao.data.crac.api.threshold.BranchThreshold;
 import com.powsybl.openrao.data.crac.api.threshold.Threshold;
 import com.powsybl.openrao.data.crac.api.usagerule.OnConstraint;
@@ -43,7 +44,7 @@ public final class JsonSerializationConstants {
     private JsonSerializationConstants() {
     }
 
-    public static final String CRAC_IO_VERSION = "2.6";
+    public static final String CRAC_IO_VERSION = "2.7";
     /*
     v1.1: addition of switchPairs
     v1.2: addition of injectionRangeAction
@@ -61,6 +62,7 @@ public final class JsonSerializationConstants {
     v2.4: new names for onConstraint and cnecId, side left/right -> one/two
     v2.5: elementary actions have new type coming from core remedial actions
     v2.6: addition of activation-cost and variation-costs for remedial actions
+    v2.7: addition of timestamp
      */
 
     // headers
@@ -141,6 +143,7 @@ public final class JsonSerializationConstants {
 
     public static final String ID = "id";
     public static final String NAME = "name";
+    public static final String TIMESTAMP = "timestamp";
     public static final String EXTENSIONS = "extensions";
 
     public static final String RANGES = "ranges";
@@ -509,8 +512,8 @@ public final class JsonSerializationConstants {
     }
 
     public static void serializeVariationCosts(RangeAction<?> rangeAction, JsonGenerator gen) throws IOException {
-        Optional<Double> variationCostUp = rangeAction.getVariationCost(RangeAction.VariationDirection.UP);
-        Optional<Double> variationCostDown = rangeAction.getVariationCost(RangeAction.VariationDirection.DOWN);
+        Optional<Double> variationCostUp = rangeAction.getVariationCost(VariationDirection.UP);
+        Optional<Double> variationCostDown = rangeAction.getVariationCost(VariationDirection.DOWN);
         if (variationCostUp.isEmpty() && variationCostDown.isEmpty()) {
             return;
         }
@@ -524,11 +527,11 @@ public final class JsonSerializationConstants {
         gen.writeEndObject();
     }
 
-    public static RangeAction.VariationDirection deserializeVariationDirection(String variationDirection) {
+    public static VariationDirection deserializeVariationDirection(String variationDirection) {
         if (JsonSerializationConstants.UP.equals(variationDirection)) {
-            return RangeAction.VariationDirection.UP;
+            return VariationDirection.UP;
         } else if (JsonSerializationConstants.DOWN.equals(variationDirection)) {
-            return RangeAction.VariationDirection.DOWN;
+            return VariationDirection.DOWN;
         } else {
             throw new OpenRaoException("Unexpected variation direction '%s'.".formatted(variationDirection));
         }

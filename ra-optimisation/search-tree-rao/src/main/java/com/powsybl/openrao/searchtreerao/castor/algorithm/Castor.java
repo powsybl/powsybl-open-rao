@@ -7,6 +7,8 @@
 
 package com.powsybl.openrao.searchtreerao.castor.algorithm;
 
+import com.google.ortools.Loader;
+import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.RaoProvider;
@@ -23,11 +25,20 @@ import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.*;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
- * @author Godelaine De-Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
+ * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 @AutoService(RaoProvider.class)
 public class Castor implements RaoProvider {
+
+    static {
+        try {
+            Loader.loadNativeLibraries();
+        } catch (Exception e) {
+            OpenRaoLoggerProvider.TECHNICAL_LOGS.error("Native library jniortools could not be loaded. You can ignore this message if it is not needed.");
+        }
+    }
+
     private static final String SEARCH_TREE_RAO = "SearchTreeRao";
 
     // Do not store any big object in this class as it is a static RaoProvider

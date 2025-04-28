@@ -13,6 +13,7 @@ import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
 import com.powsybl.openrao.data.crac.io.commons.api.StandardElementaryCreationContext;
+import com.powsybl.openrao.data.crac.io.fbconstraint.parameters.FbConstraintCracCreationParameters;
 import com.powsybl.openrao.data.crac.io.fbconstraint.xsd.CriticalBranchType;
 import com.powsybl.openrao.data.crac.io.fbconstraint.xsd.FlowBasedConstraintDocument;
 import com.powsybl.openrao.data.crac.io.fbconstraint.xsd.IndependantComplexVariant;
@@ -29,6 +30,7 @@ import java.util.stream.Collectors;
 
 import static com.google.common.collect.Iterables.isEmpty;
 import static com.powsybl.openrao.data.crac.io.commons.ucte.UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WILDCARDS;
+import static com.powsybl.openrao.data.crac.io.commons.ucte.UcteNetworkAnalyzerProperties.SuffixMatchPriority.NAME_BEFORE_ORDERCODE;
 
 /**
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
@@ -42,9 +44,14 @@ class FbConstraintCracCreator {
             .newInstant("curative", InstantKind.CURATIVE);
     }
 
-    FbConstraintCreationContext createCrac(FlowBasedConstraintDocument fbConstraintDocument, Network network, OffsetDateTime offsetDateTime, CracCreationParameters cracCreatorParameters) {
+    FbConstraintCreationContext createCrac(FlowBasedConstraintDocument fbConstraintDocument, Network network, CracCreationParameters cracCreatorParameters) {
+        FbConstraintCracCreationParameters fbConstraintCracCreationParameters = cracCreatorParameters.getExtension(FbConstraintCracCreationParameters.class);
+        OffsetDateTime offsetDateTime = null;
+        if (fbConstraintCracCreationParameters != null) {
+            offsetDateTime = fbConstraintCracCreationParameters.getTimestamp();
+        }
         FbConstraintCreationContext creationContext = new FbConstraintCreationContext(offsetDateTime, network.getNameOrId());
-        Crac crac = cracCreatorParameters.getCracFactory().create(fbConstraintDocument.getDocumentIdentification().getV());
+        Crac crac = cracCreatorParameters.getCracFactory().create(fbConstraintDocument.getDocumentIdentification().getV(), fbConstraintDocument.getDocumentIdentification().getV(), offsetDateTime);
         addFbContraintInstants(crac);
         RaUsageLimitsAdder.addRaUsageLimits(crac, cracCreatorParameters);
 
@@ -59,7 +66,7 @@ class FbConstraintCracCreator {
             return creationContext.creationFailure();
         }
 
-        UcteNetworkAnalyzer ucteNetworkAnalyzer = new UcteNetworkAnalyzer(network, new UcteNetworkAnalyzerProperties(COMPLETE_WITH_WILDCARDS));
+        UcteNetworkAnalyzer ucteNetworkAnalyzer = new UcteNetworkAnalyzer(network, new UcteNetworkAnalyzerProperties(COMPLETE_WITH_WILDCARDS, NAME_BEFORE_ORDERCODE));
 
         // Store all Outages while reading CriticalBranches and ComplexVariants
         List<OutageReader> outageReaders = new ArrayList<>();

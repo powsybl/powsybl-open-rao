@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema#",
+  "$id": "https://www.powsybl.org?open-rao-crac-schema=pst-range-action-v2.6.json",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "name": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "operator": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "activationCost": "number",
+    "variationCosts": {
+      "$ref": "resource:/schemas/variation-costs/variation-costs-v2.6.json"
+    },
+    "groupId": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "speed": {
+      "type": "number"
+    },
+    "networkElementId": {
+      "type": "string"
+    },
+    "ranges": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "rangeType": {
+            "$ref": "resource:/schemas/range-type/range-type-v2.3.json"
+          },
+          "max": {
+            "type": "number"
+          },
+          "min": {
+            "type": "number"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "rangeType"
+        ]
+      }
+    },
+    "onInstantUsageRules": {
+      "type": "array",
+      "items": {
+        "$ref": "resource:/schemas/on-instant-usage-rule/on-instant-usage-rule-v2.0.json"
+      }
+    },
+    "onContingencyStateUsageRules": {
+      "type": "array",
+      "items": {
+        "$ref": "resource:/schemas/on-contingency-state-usage-rule/on-contingency-state-usage-rule-v2.0.json"
+      }
+    },
+    "onConstraintUsageRules": {
+      "type": "array",
+      "items": {
+        "$ref": "resource:/schemas/on-constraint-usage-rule/on-constraint-usage-rule-v2.4.json"
+      }
+    },
+    "onFlowConstraintInCountryUsageRules": {
+      "type": "array",
+      "items": {
+        "$ref": "resource:/schemas/on-flow-constraint-in-country-usage-rule/on-flow-constraint-in-country-usage-rule-v2.2.json"
+      }
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "networkElementId",
+    "ranges"
+  ]
+}

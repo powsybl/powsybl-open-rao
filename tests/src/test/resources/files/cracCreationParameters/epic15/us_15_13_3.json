@@ -8,5 +8,10 @@
     "max-topo-per-tso" : { },
     "max-pst-per-tso" : { },
     "max-ra-per-tso" : { }
-  }]
+  }],
+  "extensions": {
+    "CimCracCreatorParameters": {
+      "timestamp": "2021-04-30T22:30+02:00"
+    }
+  }
 }

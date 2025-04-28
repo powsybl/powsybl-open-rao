@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms;
 
+import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.CracFactory;
 import com.powsybl.openrao.data.crac.api.Instant;
@@ -16,7 +17,7 @@ import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.impl.utils.NetworkImportsUtil;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
-import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
 import com.powsybl.openrao.searchtreerao.commons.SensitivityComputer;
 import com.powsybl.openrao.searchtreerao.commons.adapter.BranchResultAdapter;
 import com.powsybl.openrao.searchtreerao.commons.adapter.SensitivityResultAdapter;
@@ -99,14 +100,15 @@ class IteratingLinearOptimizerTest {
         when(input.optimizationPerimeter()).thenReturn(optimizationPerimeter);
 
         parameters = Mockito.mock(IteratingLinearOptimizerParameters.class);
-        RangeActionsOptimizationParameters.LinearOptimizationSolver solverParameters = Mockito.mock(RangeActionsOptimizationParameters.LinearOptimizationSolver.class);
-        when(solverParameters.getSolver()).thenReturn(RangeActionsOptimizationParameters.Solver.CBC);
+        SearchTreeRaoRangeActionsOptimizationParameters.LinearOptimizationSolver solverParameters = Mockito.mock(SearchTreeRaoRangeActionsOptimizationParameters.LinearOptimizationSolver.class);
+        when(solverParameters.getSolver()).thenReturn(SearchTreeRaoRangeActionsOptimizationParameters.Solver.CBC);
         when(parameters.getSolverParameters()).thenReturn(solverParameters);
         when(parameters.getMaxNumberOfIterations()).thenReturn(5);
-        RangeActionsOptimizationParameters rangeActionParameters = Mockito.mock(RangeActionsOptimizationParameters.class);
-        when(rangeActionParameters.getPstModel()).thenReturn(RangeActionsOptimizationParameters.PstModel.CONTINUOUS);
-        when(parameters.getRangeActionParameters()).thenReturn(rangeActionParameters);
-        when(parameters.getObjectiveFunction()).thenReturn(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN_IN_MEGAWATT);
+        SearchTreeRaoRangeActionsOptimizationParameters rangeActionParameters = Mockito.mock(SearchTreeRaoRangeActionsOptimizationParameters.class);
+        when(rangeActionParameters.getPstModel()).thenReturn(SearchTreeRaoRangeActionsOptimizationParameters.PstModel.CONTINUOUS);
+        when(parameters.getRangeActionParametersExtension()).thenReturn(rangeActionParameters);
+        when(parameters.getObjectiveFunction()).thenReturn(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN);
+        when(parameters.getObjectiveFunctionUnit()).thenReturn(Unit.MEGAWATT);
         when(parameters.getRaRangeShrinking()).thenReturn(false);
 
         linearProblem = Mockito.mock(LinearProblem.class);
@@ -165,8 +167,8 @@ class IteratingLinearOptimizerTest {
                 objectiveFunctionResults[i] = objectiveFunctionResult;
             }
             when(objectiveFunction.evaluate(any(), any())).thenReturn(
-                    initialObjectiveFunctionResult,
-                    objectiveFunctionResults
+                initialObjectiveFunctionResult,
+                objectiveFunctionResults
             );
         }
     }
@@ -174,6 +176,7 @@ class IteratingLinearOptimizerTest {
     private void mockLinearProblem(List<LinearProblemStatus> statuses, List<Double> setPoints) {
         doAnswer(new Answer() {
             private int count = 0;
+
             public Object answer(InvocationOnMock invocation) {
                 count += 1;
                 if (statuses.get(count - 1) == LinearProblemStatus.OPTIMAL) {
@@ -326,8 +329,8 @@ class IteratingLinearOptimizerTest {
         mockFunctionalCost(100., 120., 105., 90., 100., 95.);
         Crac crac = CracFactory.findDefault().create("test-crac");
         rangeAction = crac.newPstRangeAction().withId("test-pst").withNetworkElement("BBE2AA1  BBE3AA1  1")
-                .withInitialTap(0)
-                .withTapToAngleConversionMap(Map.of(0, 0., 1, 1., 2, 2., 3, 3., 4, 4., 5, 5.)).add();
+            .withInitialTap(0)
+            .withTapToAngleConversionMap(Map.of(0, 0., 1, 1., 2, 2., 3, 3., 4, 4., 5, 5.)).add();
         when(optimizationPerimeter.getRangeActionsPerState()).thenReturn(Map.of(
             optimizedState, Set.of(rangeAction)
         ));

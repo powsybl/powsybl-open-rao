@@ -1,8 +1,26 @@
 {
   "type" : "CRAC",
-  "version" : "1.0",
+  "version" : "2.6",
   "id": "LS_unsecure",
   "name": "LS_unsecure",
+  "instants": [
+    {
+      "id": "preventive",
+      "kind": "PREVENTIVE"
+    },
+    {
+      "id": "outage",
+      "kind": "OUTAGE"
+    },
+    {
+      "id": "auto",
+      "kind": "AUTO"
+    },
+    {
+      "id": "curative",
+      "kind": "CURATIVE"
+    }
+  ],
   "networkElementsNamePerId": { },
   "contingencies": [
     {
@@ -22,7 +40,7 @@
         "unit": "megawatt",
         "max": 750,
         "min" : -750,
-        "rule" : "onRightSide"
+        "side" : 2
       } ],
       "contingencyId": "N-1 NL1-NL3",
       "instant" : "curative",
@@ -38,7 +56,7 @@
         "unit": "megawatt",
         "max": 750,
         "min" : -750,
-        "rule" : "onLeftSide"
+        "side" : 1
       } ],
       "instant": "preventive",
       "optimized": true,
@@ -52,6 +70,11 @@
       "operator": "BE",
       "initialTap": 0,
       "speed": 1,
+      "activationCost": 15.0,
+      "variationCosts": {
+        "up": 10.0,
+        "down": 10.0
+      },
       "tapToAngleConversionMap" : {
         "-1" : -0.3896097993971608,
         "0" : 0.0,
@@ -87,13 +110,13 @@
         "15" : 5.839110508104064,
         "16" : 6.2276423729910535
       },
-      "freeToUseUsageRules": [
+      "onInstantUsageRules": [
         {
           "usageMethod": "available",
           "instant": "preventive"
         }
       ],
-      "onStateUsageRules" : [ {
+      "onContingencyStateUsageRules" : [ {
         "instant" : "curative",
         "contingencyId" : "N-1 NL1-NL3",
         "usageMethod" : "available"
@@ -148,13 +171,13 @@
         "15" : 5.839110508104064,
         "16" : 6.2276423729910535
       },
-      "freeToUseUsageRules": [
+      "onInstantUsageRules": [
         {
           "usageMethod": "available",
           "instant": "preventive"
         }
       ],
-      "onStateUsageRules" : [ {
+      "onContingencyStateUsageRules" : [ {
         "instant" : "auto",
         "contingencyId" : "N-1 NL1-NL3",
         "usageMethod" : "available"

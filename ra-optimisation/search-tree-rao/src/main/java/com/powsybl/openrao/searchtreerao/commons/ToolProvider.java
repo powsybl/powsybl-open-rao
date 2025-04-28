@@ -19,8 +19,8 @@ import com.powsybl.openrao.loopflowcomputation.LoopFlowComputation;
 import com.powsybl.openrao.loopflowcomputation.LoopFlowComputationImpl;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
-import com.powsybl.openrao.raoapi.parameters.extensions.LoopFlowParametersExtension;
-import com.powsybl.openrao.raoapi.parameters.extensions.RelativeMarginsParametersExtension;
+import com.powsybl.openrao.raoapi.parameters.LoopFlowParameters;
+import com.powsybl.openrao.raoapi.parameters.RelativeMarginsParameters;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 import com.powsybl.openrao.sensitivityanalysis.SystematicSensitivityInterface;
 import com.powsybl.glsk.commons.ZonalData;
@@ -31,6 +31,9 @@ import com.powsybl.sensitivity.SensitivityVariableSet;
 
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getSensitivityProvider;
+import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -60,10 +63,10 @@ public final class ToolProvider {
     }
 
     public Set<FlowCnec> getLoopFlowCnecs(Set<FlowCnec> allCnecs) {
-        LoopFlowParametersExtension loopFlowParameters = raoParameters.getExtension(LoopFlowParametersExtension.class);
-        if (raoParameters.hasExtension(LoopFlowParametersExtension.class) && !loopFlowParameters.getCountries().isEmpty()) {
+        Optional<LoopFlowParameters> loopFlowParametersOptional = raoParameters.getLoopFlowParameters();
+        if (loopFlowParametersOptional.isPresent() && !loopFlowParametersOptional.get().getCountries().isEmpty()) {
             return allCnecs.stream()
-                .filter(cnec -> hasLoopFlowExtension(cnec) && cnecIsInCountryList(cnec, network, loopFlowParameters.getCountries()))
+                .filter(cnec -> hasLoopFlowExtension(cnec) && cnecIsInCountryList(cnec, network, loopFlowParametersOptional.get().getCountries()))
                 .collect(Collectors.toSet());
         } else {
             return allCnecs.stream()
@@ -91,13 +94,13 @@ public final class ToolProvider {
                                                                             Instant outageInstant) {
 
         SystematicSensitivityInterface.SystematicSensitivityInterfaceBuilder builder = SystematicSensitivityInterface.builder()
-            .withSensitivityProviderName(raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityProvider())
-            .withParameters(raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters())
+            .withSensitivityProviderName(getSensitivityProvider(raoParameters))
+            .withParameters(getSensitivityWithLoadFlowParameters(raoParameters))
             .withRangeActionSensitivities(rangeActions, cnecs, Collections.singleton(Unit.MEGAWATT))
             .withAppliedRemedialActions(appliedRemedialActions)
             .withOutageInstant(outageInstant);
 
-        if (!raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters().isDc()) {
+        if (!getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters().isDc()) {
             builder.withLoadflow(cnecs, Collections.singleton(Unit.AMPERE));
         }
 
@@ -116,10 +119,11 @@ public final class ToolProvider {
     }
 
     Set<String> getEicForObjectiveFunction() {
-        if (!raoParameters.hasExtension(RelativeMarginsParametersExtension.class)) {
+        Optional<RelativeMarginsParameters> optionalRelativeMarginsParameters = raoParameters.getRelativeMarginsParameters();
+        if (optionalRelativeMarginsParameters.isEmpty()) {
             throw new OpenRaoException("No relative margins parameters were defined");
         }
-        return raoParameters.getExtension(RelativeMarginsParametersExtension.class).getPtdfBoundaries().stream().
+        return optionalRelativeMarginsParameters.get().getPtdfBoundaries().stream().
             flatMap(boundary -> boundary.getEiCodes().stream()).
             map(EICode::getAreaCode).
             collect(Collectors.toSet());
@@ -211,14 +215,15 @@ public final class ToolProvider {
             );
         }
         if (raoParameters.getObjectiveFunctionParameters().getType().relativePositiveMargins()) {
-            if (!raoParameters.hasExtension(RelativeMarginsParametersExtension.class)) {
+            Optional<RelativeMarginsParameters> optionalRelativeMarginsParameters = raoParameters.getRelativeMarginsParameters();
+            if (optionalRelativeMarginsParameters.isEmpty()) {
                 throw new OpenRaoException("No relative margins parameters were defined with objective function " + raoParameters.getObjectiveFunctionParameters().getType());
             }
             toolProviderBuilder.withAbsolutePtdfSumsComputation(
                 raoInput.getGlskProvider(),
                 new AbsolutePtdfSumsComputation(
                     raoInput.getGlskProvider(),
-                        raoParameters.getExtension(RelativeMarginsParametersExtension.class).getPtdfBoundaries()
+                    optionalRelativeMarginsParameters.get().getPtdfBoundaries()
                 )
             );
         }

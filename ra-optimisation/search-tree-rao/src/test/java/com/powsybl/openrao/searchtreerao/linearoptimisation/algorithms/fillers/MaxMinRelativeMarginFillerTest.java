@@ -12,10 +12,11 @@ import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
-import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.PtdfApproximation;
-import com.powsybl.openrao.raoapi.parameters.extensions.RelativeMarginsParametersExtension;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRelativeMarginsParameters;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPConstraint;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPVariable;
@@ -32,6 +33,7 @@ import org.mockito.Mockito;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import static com.powsybl.openrao.commons.Unit.AMPERE;
@@ -48,9 +50,9 @@ class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
     private static final double PRECISE_DOUBLE_TOLERANCE = 1e-9;
 
     private LinearProblem linearProblem;
-    private CoreProblemFiller coreProblemFiller;
+    private MarginCoreProblemFiller coreProblemFiller;
     private MaxMinRelativeMarginFiller maxMinRelativeMarginFiller;
-    private RelativeMarginsParametersExtension parameters;
+    private SearchTreeRaoRelativeMarginsParameters parameters;
     private RangeActionSetpointResult initialRangeActionSetpointResult;
 
     @BeforeEach
@@ -68,21 +70,26 @@ class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
         Mockito.when(optimizationPerimeter.getRangeActionsPerState()).thenReturn(rangeActions);
 
         RaoParameters raoParameters = new RaoParameters();
-        raoParameters.getRangeActionsOptimizationParameters().setPstPenaltyCost(0.01);
-        raoParameters.getRangeActionsOptimizationParameters().setHvdcPenaltyCost(0.01);
-        raoParameters.getRangeActionsOptimizationParameters().setInjectionRaPenaltyCost(0.01);
-        raoParameters.addExtension(RelativeMarginsParametersExtension.class, new RelativeMarginsParametersExtension());
-        raoParameters.getExtension(RelativeMarginsParametersExtension.class).setPtdfSumLowerBound(0.01);
-        raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN_IN_MEGAWATT);
-        RangeActionsOptimizationParameters rangeActionParameters = RangeActionsOptimizationParameters.buildFromRaoParameters(raoParameters);
-        parameters = raoParameters.getExtension(RelativeMarginsParametersExtension.class);
+        raoParameters.getRangeActionsOptimizationParameters().setPstRAMinImpactThreshold(0.01);
+        raoParameters.getRangeActionsOptimizationParameters().setHvdcRAMinImpactThreshold(0.01);
+        raoParameters.getRangeActionsOptimizationParameters().setInjectionRAMinImpactThreshold(0.01);
+        OpenRaoSearchTreeParameters searchTreeParameters = new OpenRaoSearchTreeParameters();
+        raoParameters.addExtension(OpenRaoSearchTreeParameters.class, searchTreeParameters);
+        parameters = new SearchTreeRaoRelativeMarginsParameters();
+        searchTreeParameters.setRelativeMarginsParameters(parameters);
+        parameters.setPtdfSumLowerBound(0.01);
+        raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN);
+        raoParameters.getObjectiveFunctionParameters().setUnit(MEGAWATT);
 
-        coreProblemFiller = new CoreProblemFiller(
+        coreProblemFiller = new MarginCoreProblemFiller(
             optimizationPerimeter,
             initialRangeActionSetpointResult,
-            rangeActionParameters,
+            raoParameters.getRangeActionsOptimizationParameters(),
+            null,
             MEGAWATT,
-            false, RangeActionsOptimizationParameters.PstModel.CONTINUOUS);
+            false,
+            SearchTreeRaoRangeActionsOptimizationParameters.PstModel.CONTINUOUS,
+            null);
     }
 
     private void createMaxMinRelativeMarginFiller(Unit unit, double cnecInitialAbsolutePtdfSum) {
@@ -92,15 +99,15 @@ class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
             Set.of(cnec1),
             initialFlowResult,
             unit,
-            parameters
-        );
+            parameters,
+            null);
     }
 
     private void buildLinearProblem() {
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(maxMinRelativeMarginFiller)
-            .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
+            .withSolver(SearchTreeRaoRangeActionsOptimizationParameters.Solver.SCIP)
             .withInitialRangeActionActivationResult(getInitialRangeActionActivationResult())
             .build();
         linearProblem.fill(flowResult, sensitivityResult);
@@ -118,21 +125,21 @@ class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
         createMaxMinRelativeMarginFiller(AMPERE, 0.005);
         buildLinearProblem();
 
-        OpenRaoMPVariable flowCnec1 = linearProblem.getFlowVariable(cnec1, TwoSides.ONE);
+        OpenRaoMPVariable flowCnec1 = linearProblem.getFlowVariable(cnec1, TwoSides.ONE, Optional.empty());
         OpenRaoMPVariable absoluteVariation = linearProblem.getAbsoluteRangeActionVariationVariable(pstRangeAction, cnec1.getState());
 
         // check minimum margin variable
-        OpenRaoMPVariable minimumMargin = linearProblem.getMinimumMarginVariable();
+        OpenRaoMPVariable minimumMargin = linearProblem.getMinimumMarginVariable(Optional.empty());
         assertNotNull(minimumMargin);
         assertEquals(0.0, minimumMargin.ub(), PRECISE_DOUBLE_TOLERANCE);
-        OpenRaoMPVariable minimumRelativeMargin = linearProblem.getMinimumRelativeMarginVariable();
+        OpenRaoMPVariable minimumRelativeMargin = linearProblem.getMinimumRelativeMarginVariable(Optional.empty());
         assertNotNull(minimumRelativeMargin);
 
         // check minimum margin constraints
-        OpenRaoMPConstraint cnec1AboveThreshold = linearProblem.getMinimumMarginConstraint(cnec1, TwoSides.ONE, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
-        OpenRaoMPConstraint cnec1BelowThreshold = linearProblem.getMinimumMarginConstraint(cnec1, TwoSides.ONE, LinearProblem.MarginExtension.BELOW_THRESHOLD);
-        OpenRaoMPConstraint cnec1AboveThresholdRelative = linearProblem.getMinimumRelativeMarginConstraint(cnec1, TwoSides.ONE, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
-        OpenRaoMPConstraint cnec1BelowThresholdRelative = linearProblem.getMinimumRelativeMarginConstraint(cnec1, TwoSides.ONE, LinearProblem.MarginExtension.BELOW_THRESHOLD);
+        OpenRaoMPConstraint cnec1AboveThreshold = linearProblem.getMinimumMarginConstraint(cnec1, TwoSides.ONE, LinearProblem.MarginExtension.ABOVE_THRESHOLD, Optional.empty());
+        OpenRaoMPConstraint cnec1BelowThreshold = linearProblem.getMinimumMarginConstraint(cnec1, TwoSides.ONE, LinearProblem.MarginExtension.BELOW_THRESHOLD, Optional.empty());
+        OpenRaoMPConstraint cnec1AboveThresholdRelative = linearProblem.getMinimumRelativeMarginConstraint(cnec1, TwoSides.ONE, LinearProblem.MarginExtension.ABOVE_THRESHOLD, Optional.empty());
+        OpenRaoMPConstraint cnec1BelowThresholdRelative = linearProblem.getMinimumRelativeMarginConstraint(cnec1, TwoSides.ONE, LinearProblem.MarginExtension.BELOW_THRESHOLD, Optional.empty());
         assertNotNull(cnec1AboveThreshold);
         assertNotNull(cnec1BelowThreshold);
         assertEquals(-linearProblem.infinity(), cnec1BelowThreshold.lb(), linearProblem.infinity() * 1e-3);
@@ -183,27 +190,27 @@ class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
             Set.of(cnec1),
             initialFlowResult,
             MEGAWATT,
-            parameters
-        );
+            parameters,
+            null);
         buildLinearProblem();
         linearProblem.updateBetweenSensiIteration(mockFlowResult(0.6), sensitivityResult, new RangeActionActivationResultImpl(initialRangeActionSetpointResult));
         checkFillerContentMw(0.6);
     }
 
     private void checkFillerContentMw(double expectedPtdfSum) {
-        OpenRaoMPVariable flowCnec1 = linearProblem.getFlowVariable(cnec1, TwoSides.ONE);
+        OpenRaoMPVariable flowCnec1 = linearProblem.getFlowVariable(cnec1, TwoSides.ONE, Optional.empty());
         OpenRaoMPVariable absoluteVariation = linearProblem.getAbsoluteRangeActionVariationVariable(pstRangeAction, cnec1.getState());
 
         // check minimum margin variable
-        OpenRaoMPVariable minimumMargin = linearProblem.getMinimumMarginVariable();
+        OpenRaoMPVariable minimumMargin = linearProblem.getMinimumMarginVariable(Optional.empty());
         assertEquals(0.0, minimumMargin.ub(), PRECISE_DOUBLE_TOLERANCE);
-        OpenRaoMPVariable minimumRelativeMargin = linearProblem.getMinimumRelativeMarginVariable();
+        OpenRaoMPVariable minimumRelativeMargin = linearProblem.getMinimumRelativeMarginVariable(Optional.empty());
 
         // check minimum margin constraints
-        OpenRaoMPConstraint cnec1AboveThreshold = linearProblem.getMinimumMarginConstraint(cnec1, TwoSides.ONE, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
-        OpenRaoMPConstraint cnec1BelowThreshold = linearProblem.getMinimumMarginConstraint(cnec1, TwoSides.ONE, LinearProblem.MarginExtension.BELOW_THRESHOLD);
-        OpenRaoMPConstraint cnec1AboveThresholdRelative = linearProblem.getMinimumRelativeMarginConstraint(cnec1, TwoSides.ONE, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
-        OpenRaoMPConstraint cnec1BelowThresholdRelative = linearProblem.getMinimumRelativeMarginConstraint(cnec1, TwoSides.ONE, LinearProblem.MarginExtension.BELOW_THRESHOLD);
+        OpenRaoMPConstraint cnec1AboveThreshold = linearProblem.getMinimumMarginConstraint(cnec1, TwoSides.ONE, LinearProblem.MarginExtension.ABOVE_THRESHOLD, Optional.empty());
+        OpenRaoMPConstraint cnec1BelowThreshold = linearProblem.getMinimumMarginConstraint(cnec1, TwoSides.ONE, LinearProblem.MarginExtension.BELOW_THRESHOLD, Optional.empty());
+        OpenRaoMPConstraint cnec1AboveThresholdRelative = linearProblem.getMinimumRelativeMarginConstraint(cnec1, TwoSides.ONE, LinearProblem.MarginExtension.ABOVE_THRESHOLD, Optional.empty());
+        OpenRaoMPConstraint cnec1BelowThresholdRelative = linearProblem.getMinimumRelativeMarginConstraint(cnec1, TwoSides.ONE, LinearProblem.MarginExtension.BELOW_THRESHOLD, Optional.empty());
         assertEquals(-linearProblem.infinity(), cnec1BelowThreshold.lb(), linearProblem.infinity() * 1e-3);
         assertEquals(-MIN_FLOW_1, cnec1BelowThreshold.ub(), DOUBLE_TOLERANCE);
         assertEquals(-linearProblem.infinity(), cnec1AboveThreshold.lb(), linearProblem.infinity() * 1e-3);
@@ -237,8 +244,8 @@ class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
             Set.of(cnec1),
             initialFlowResult,
             MEGAWATT,
-            parameters
-        );
+            parameters,
+            null);
         buildLinearProblem();
         checkFillerContentMw(0.1234);
         linearProblem.updateBetweenSensiIteration(mockFlowResult(Double.NaN), sensitivityResult, new RangeActionActivationResultImpl(initialRangeActionSetpointResult));

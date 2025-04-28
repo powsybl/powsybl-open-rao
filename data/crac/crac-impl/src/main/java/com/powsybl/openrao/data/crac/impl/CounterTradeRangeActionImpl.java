@@ -10,6 +10,7 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.range.StandardRange;
 import com.powsybl.openrao.data.crac.api.rangeaction.CounterTradeRangeAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.VariationDirection;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;

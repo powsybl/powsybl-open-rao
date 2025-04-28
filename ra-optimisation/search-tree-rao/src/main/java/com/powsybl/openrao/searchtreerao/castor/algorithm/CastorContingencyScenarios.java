@@ -35,13 +35,15 @@ import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.*;
 import static com.powsybl.openrao.data.raoresult.api.ComputationStatus.DEFAULT;
+import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getSensitivityFailureOvercost;
+import static com.powsybl.openrao.raoapi.parameters.extensions.MultithreadingParameters.getAvailableCPUs;
 import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.applyRemedialActions;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
- * @author Godelaine De-Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
+ * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class CastorContingencyScenarios {
@@ -53,7 +55,6 @@ public class CastorContingencyScenarios {
     private final RaoParameters raoParameters;
     private final ToolProvider toolProvider;
     private final StateTree stateTree;
-    private final TreeParameters automatonTreeParameters;
     private final TreeParameters curativeTreeParameters;
     private final PrePerimeterResult initialSensitivityOutput;
 
@@ -61,14 +62,12 @@ public class CastorContingencyScenarios {
                                       RaoParameters raoParameters,
                                       ToolProvider toolProvider,
                                       StateTree stateTree,
-                                      TreeParameters automatonTreeParameters,
                                       TreeParameters curativeTreeParameters,
                                       PrePerimeterResult initialSensitivityOutput) {
         this.crac = crac;
         this.raoParameters = raoParameters;
         this.toolProvider = toolProvider;
         this.stateTree = stateTree;
-        this.automatonTreeParameters = automatonTreeParameters;
         this.curativeTreeParameters = curativeTreeParameters;
         this.initialSensitivityOutput = initialSensitivityOutput;
     }
@@ -84,7 +83,7 @@ public class CastorContingencyScenarios {
         // Create an automaton simulator
         AutomatonSimulator automatonSimulator = new AutomatonSimulator(crac, raoParameters, toolProvider, initialSensitivityOutput, prePerimeterSensitivityOutput, stateTree.getOperatorsNotSharingCras(), NUMBER_LOGGED_ELEMENTS_DURING_RAO);
         // Go through all contingency scenarios
-        try (AbstractNetworkPool networkPool = AbstractNetworkPool.create(network, newVariant, raoParameters.getMultithreadingParameters().getContingencyScenariosInParallel(), true)) {
+        try (AbstractNetworkPool networkPool = AbstractNetworkPool.create(network, newVariant, getAvailableCPUs(raoParameters), true)) {
             AtomicInteger remainingScenarios = new AtomicInteger(stateTree.getContingencyScenarios().size());
             List<ForkJoinTask<Object>> tasks = stateTree.getContingencyScenarios().stream().map(optimizedScenario ->
                 networkPool.submit(() -> runScenario(prePerimeterSensitivityOutput, automatonsOnly, optimizedScenario, networkPool, automatonSimulator, contingencyScenarioResults, remainingScenarios))
@@ -112,18 +111,16 @@ public class CastorContingencyScenarios {
         Set<State> curativeStates = new HashSet<>();
         optimizedScenario.getCurativePerimeters().forEach(perimeter -> curativeStates.addAll(perimeter.getAllStates()));
         PrePerimeterResult preCurativeResult = prePerimeterSensitivityOutput;
-        double sensitivityFailureOvercost = raoParameters.getLoadFlowAndSensitivityParameters().getSensitivityFailureOvercost();
+        double sensitivityFailureOvercost = getSensitivityFailureOvercost(raoParameters);
 
         // Simulate automaton instant
         boolean autoStateSensiFailed = false;
         if (automatonState.isPresent()) {
-            AutomatonPerimeterResultImpl automatonResult = automatonSimulator.simulateAutomatonState(automatonState.get(), curativeStates, networkClone, stateTree, automatonTreeParameters);
+            AutomatonPerimeterResultImpl automatonResult = automatonSimulator.simulateAutomatonState(automatonState.get(), curativeStates, networkClone);
+            contingencyScenarioResults.put(automatonState.get(), automatonResult);
             if (automatonResult.getComputationStatus() == ComputationStatus.FAILURE) {
                 autoStateSensiFailed = true;
-                //contingencyScenarioResults.put(automatonState.get(), new SkippedOptimizationResultImpl(automatonState.get(), automatonResult.getActivatedNetworkActions(), automatonResult.getActivatedRangeActions(automatonState.get()), ComputationStatus.FAILURE, sensitivityFailureOvercost));
-                contingencyScenarioResults.put(automatonState.get(), automatonResult);
             } else {
-                contingencyScenarioResults.put(automatonState.get(), automatonResult);
                 preCurativeResult = automatonResult.getPostAutomatonSensitivityAnalysisOutput();
             }
         }

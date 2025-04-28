@@ -44,7 +44,7 @@ import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_LO
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
- * @author Godelaine De-Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
+ * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class CastorOneStateOnly {
@@ -90,8 +90,7 @@ public class CastorOneStateOnly {
             // TODO: see how to handle multiple curative instants here
             State curativeState = raoInput.getCrac().getState(raoInput.getOptimizedState().getContingency().orElseThrow(), raoInput.getCrac().getInstant(InstantKind.CURATIVE));
             AutomatonSimulator automatonSimulator = new AutomatonSimulator(raoInput.getCrac(), raoParameters, toolProvider, initialResults, initialResults, stateTree.getOperatorsNotSharingCras(), 2);
-            TreeParameters automatonTreeParameters = TreeParameters.buildForAutomatonPerimeter(raoParameters);
-            optimizationResult = automatonSimulator.simulateAutomatonState(raoInput.getOptimizedState(), Set.of(curativeState), raoInput.getNetwork(), stateTree, automatonTreeParameters);
+            optimizationResult = automatonSimulator.simulateAutomatonState(raoInput.getOptimizedState(), Set.of(curativeState), raoInput.getNetwork());
         } else {
             if (raoInput.getOptimizedState().equals(raoInput.getCrac().getPreventiveState())) {
                 optPerimeter = PreventiveOptimizationPerimeter.buildWithPreventiveCnecsOnly(raoInput.getCrac(), raoInput.getNetwork(), raoParameters, initialResults);

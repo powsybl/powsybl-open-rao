@@ -55,7 +55,10 @@ public final class Rao {
             Objects.requireNonNull(raoInput, "RAO input should not be null");
             Objects.requireNonNull(parameters, "parameters should not be null");
 
-            Version openRaoVersion = ServiceLoader.load(Version.class).findFirst().orElseThrow();
+            Version openRaoVersion = ServiceLoader.load(Version.class).stream()
+                .map(ServiceLoader.Provider::get)
+                .filter(version -> version.getRepositoryName().equals("open-rao"))
+                .findFirst().orElseThrow();
             BUSINESS_WARNS.warn("Running RAO using Open RAO version {} from git commit {}.", openRaoVersion.getMavenProjectVersion(), openRaoVersion.getGitVersion());
 
             return provider.run(raoInput, parameters, targetEndInstant);
@@ -77,7 +80,10 @@ public final class Rao {
             Objects.requireNonNull(raoInput, "RAO input should not be null");
             Objects.requireNonNull(parameters, "parameters should not be null");
 
-            Version openRaoVersion = ServiceLoader.load(Version.class).findFirst().orElseThrow();
+            Version openRaoVersion = ServiceLoader.load(Version.class).stream()
+                .map(ServiceLoader.Provider::get)
+                .filter(version -> version.getRepositoryName().equals("open-rao"))
+                .findFirst().orElseThrow();
             BUSINESS_WARNS.warn("Running RAO using Open RAO version {} from git commit {}.", openRaoVersion.getMavenProjectVersion(), openRaoVersion.getGitVersion());
 
             return provider.run(raoInput, parameters, targetEndInstant).join();
@@ -149,7 +155,7 @@ public final class Rao {
         RaoProvider provider;
         if (providers.size() == 1 && raOptimizerName == null) {
             // no information to select the implementation but only one provider, so we can use it by default
-            // (that is be the most common use case)
+            // (that is the most common use case)
             provider = providers.get(0);
         } else {
             if (providers.size() > 1 && raOptimizerName == null) {

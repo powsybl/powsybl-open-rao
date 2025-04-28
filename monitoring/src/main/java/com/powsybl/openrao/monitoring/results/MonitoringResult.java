@@ -65,7 +65,7 @@ public class MonitoringResult {
 
     public List<String> printConstraints() {
         if (status.equals(SecurityStatus.FAILURE)) {
-            return List.of(physicalParameter + " monitoring failed due to a load flow divergence or an inconsistency in the crac.");
+            return List.of(physicalParameter + " monitoring failed due to a load flow divergence or an inconsistency in the crac or in the parameters.");
         }
         List<String> constraints = new ArrayList<>();
         cnecResults.stream()
@@ -81,7 +81,9 @@ public class MonitoringResult {
         return constraints;
     }
 
-    public void combine(MonitoringResult monitoringResult) {
+    // Add synchronized in the signature to make the function blocking
+    // Necessary because in the function runMonitoring this function is called in parallel threads -> can cause overwriting conflict.
+    public synchronized void combine(MonitoringResult monitoringResult) {
         Set<CnecResult> thisCnecResults = new HashSet<>(this.getCnecResults());
         Set<CnecResult> otherCnecResults = monitoringResult.getCnecResults();
         thisCnecResults.addAll(otherCnecResults);
@@ -116,4 +118,9 @@ public class MonitoringResult {
         }
         return SecurityStatus.SECURE;
     }
+
+    public void setStatusToFailure() {
+        this.status = SecurityStatus.FAILURE;
+    }
+
 }

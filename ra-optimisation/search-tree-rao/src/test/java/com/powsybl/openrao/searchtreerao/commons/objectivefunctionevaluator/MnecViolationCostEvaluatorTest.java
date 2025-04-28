@@ -9,7 +9,6 @@ package com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
-import com.powsybl.openrao.raoapi.parameters.extensions.MnecParametersExtension;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -45,39 +44,32 @@ class MnecViolationCostEvaluatorTest {
         when(mnec1.isOptimized()).thenReturn(true);
         when(mnec1.isMonitored()).thenReturn(true);
         when(mnec1.getState()).thenReturn(state);
+        when(mnec1.getId()).thenReturn("mnec1");
         mnec2 = Mockito.mock(FlowCnec.class);
         when(mnec2.isOptimized()).thenReturn(false);
         when(mnec2.isMonitored()).thenReturn(true);
         when(mnec2.getState()).thenReturn(state);
+        when(mnec2.getId()).thenReturn("mnec2");
         pureCnec = Mockito.mock(FlowCnec.class);
         when(pureCnec.isOptimized()).thenReturn(true);
         when(pureCnec.isMonitored()).thenReturn(false);
         when(pureCnec.getState()).thenReturn(state);
+        when(pureCnec.getId()).thenReturn("pureCnec");
 
         initialFlowResult = Mockito.mock(FlowResult.class);
         currentFlowResult = Mockito.mock(FlowResult.class);
-
-        MnecParametersExtension mnecExtension1 = new MnecParametersExtension();
-        mnecExtension1.setAcceptableMarginDecrease(50);
-        mnecExtension1.setViolationCost(10);
-        mnecExtension1.setConstraintAdjustmentCoefficient(1);
-
-        MnecParametersExtension mnecExtension2 = new MnecParametersExtension();
-        mnecExtension2.setAcceptableMarginDecrease(20);
-        mnecExtension2.setViolationCost(2);
-        mnecExtension2.setConstraintAdjustmentCoefficient(1);
 
         evaluator1 = new MnecViolationCostEvaluator(
             Set.of(mnec1, pureCnec),
             Unit.MEGAWATT,
             initialFlowResult,
-            mnecExtension1
+            50, 10
         );
         evaluator2 = new MnecViolationCostEvaluator(
             Set.of(mnec1, pureCnec),
             Unit.MEGAWATT,
             initialFlowResult,
-            mnecExtension2
+            20, 2
         );
     }
 
@@ -87,16 +79,11 @@ class MnecViolationCostEvaluatorTest {
         when(initialFlowResult.getMargin(mnec2, unit)).thenReturn(-200.);
         when(currentFlowResult.getMargin(mnec2, unit)).thenReturn(-400.);
 
-        MnecParametersExtension mnec = new MnecParametersExtension();
-        mnec.setAcceptableMarginDecrease(50);
-        mnec.setViolationCost(violationCost);
-        mnec.setConstraintAdjustmentCoefficient(1);
-
         return new MnecViolationCostEvaluator(
             Set.of(mnec1, mnec2, pureCnec),
             unit,
             initialFlowResult,
-            mnec
+            50, violationCost
         );
     }
 
@@ -109,7 +96,7 @@ class MnecViolationCostEvaluatorTest {
     void getElementsInViolation() {
         MnecViolationCostEvaluator evaluator = createEvaluatorWithCosts(10, Unit.MEGAWATT);
 
-        List<FlowCnec> costlyElements = evaluator.evaluate(currentFlowResult, null).getCostlyElements(Set.of());
+        List<FlowCnec> costlyElements = evaluator.evaluate(currentFlowResult, null).getCostlyElements(Set.of(), Set.of());
         assertEquals(2, costlyElements.size());
         assertSame(mnec2, costlyElements.get(0));
         assertSame(mnec1, costlyElements.get(1));
@@ -137,13 +124,13 @@ class MnecViolationCostEvaluatorTest {
 
         assertEquals(
             expectedCostWithEval1,
-            evaluator1.evaluate(currentFlowResult, null).getCost(Set.of()),
+            evaluator1.evaluate(currentFlowResult, null).getCost(Set.of(), Set.of()),
             DOUBLE_TOLERANCE
         );
 
         assertEquals(
             expectedCostWithEval2,
-            evaluator2.evaluate(currentFlowResult, null).getCost(Set.of()),
+            evaluator2.evaluate(currentFlowResult, null).getCost(Set.of(), Set.of()),
             DOUBLE_TOLERANCE
         );
     }
@@ -152,7 +139,7 @@ class MnecViolationCostEvaluatorTest {
     void testAmperes() {
         MnecViolationCostEvaluator evaluator = createEvaluatorWithCosts(10, Unit.AMPERE);
 
-        List<FlowCnec> costlyElements = evaluator.evaluate(currentFlowResult, null).getCostlyElements(Set.of());
+        List<FlowCnec> costlyElements = evaluator.evaluate(currentFlowResult, null).getCostlyElements(Set.of(), Set.of());
         assertEquals(2, costlyElements.size());
         assertSame(mnec2, costlyElements.get(0));
         assertSame(mnec1, costlyElements.get(1));

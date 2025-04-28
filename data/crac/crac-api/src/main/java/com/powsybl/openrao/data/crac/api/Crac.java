@@ -59,6 +59,11 @@ import static java.lang.String.format;
  */
 public interface Crac extends Identifiable<Crac> {
 
+    /**
+     * Get the timestamp of the Crac.
+     */
+    Optional<OffsetDateTime> getTimestamp();
+
     // Contingencies management
 
     /**
@@ -594,9 +599,9 @@ public interface Crac extends Identifiable<Crac> {
      * @param cracCreationParameters extra CRAC creation parameters
      * @return CracCreationContext object
      */
-    static CracCreationContext readWithContext(String filename, InputStream inputStream, Network network, OffsetDateTime offsetDateTime, CracCreationParameters cracCreationParameters) throws IOException {
+    static CracCreationContext readWithContext(String filename, InputStream inputStream, Network network, CracCreationParameters cracCreationParameters) throws IOException {
         byte[] bytes = getBytesFromInputStream(inputStream);
-        return findImporter(filename, bytes).importData(new ByteArrayInputStream(bytes), cracCreationParameters, network, offsetDateTime);
+        return findImporter(filename, bytes).importData(new ByteArrayInputStream(bytes), cracCreationParameters, network);
     }
 
     private static Importer findImporter(String filename, byte[] bytes) {
@@ -615,7 +620,7 @@ public interface Crac extends Identifiable<Crac> {
      * @return CracCreationContext object
      */
     static CracCreationContext readWithContext(String filename, InputStream inputStream, Network network) throws IOException {
-        return readWithContext(filename, inputStream, network, null, CracCreationParameters.load());
+        return readWithContext(filename, inputStream, network, CracCreationParameters.load());
     }
 
     /**
@@ -627,8 +632,8 @@ public interface Crac extends Identifiable<Crac> {
      * @param cracCreationParameters extra CRAC creation parameters
      * @return CRAC object
      */
-    static Crac read(String filename, InputStream inputStream, Network network, OffsetDateTime offsetDateTime, CracCreationParameters cracCreationParameters) throws IOException {
-        return readWithContext(filename, inputStream, network, offsetDateTime, cracCreationParameters).getCrac();
+    static Crac read(String filename, InputStream inputStream, Network network, CracCreationParameters cracCreationParameters) throws IOException {
+        return readWithContext(filename, inputStream, network, cracCreationParameters).getCrac();
     }
 
     /**
@@ -640,7 +645,7 @@ public interface Crac extends Identifiable<Crac> {
      * @return CRAC object
      */
     static Crac read(String filename, InputStream inputStream, Network network) throws IOException {
-        return read(filename, inputStream, network, null, CracCreationParameters.load());
+        return read(filename, inputStream, network, CracCreationParameters.load());
     }
 
     private static byte[] getBytesFromInputStream(InputStream inputStream) throws IOException {

@@ -11,8 +11,8 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
-import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPConstraint;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPVariable;
@@ -27,6 +27,7 @@ import org.mockito.Mockito;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -38,7 +39,7 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class MaxMinMarginFillerTest extends AbstractFillerTest {
     private LinearProblem linearProblem;
-    private CoreProblemFiller coreProblemFiller;
+    private MarginCoreProblemFiller coreProblemFiller;
     private MaxMinMarginFiller maxMinMarginFiller;
 
     @BeforeEach
@@ -56,28 +57,30 @@ class MaxMinMarginFillerTest extends AbstractFillerTest {
         Mockito.when(optimizationPerimeter.getRangeActionsPerState()).thenReturn(rangeActions);
 
         RaoParameters raoParameters = new RaoParameters();
-        raoParameters.getRangeActionsOptimizationParameters().setPstPenaltyCost(0.01);
-        raoParameters.getRangeActionsOptimizationParameters().setHvdcPenaltyCost(0.01);
-        raoParameters.getRangeActionsOptimizationParameters().setInjectionRaPenaltyCost(0.01);
-        RangeActionsOptimizationParameters rangeActionParameters = RangeActionsOptimizationParameters.buildFromRaoParameters(raoParameters);
+        raoParameters.getRangeActionsOptimizationParameters().setPstRAMinImpactThreshold(0.01);
+        raoParameters.getRangeActionsOptimizationParameters().setHvdcRAMinImpactThreshold(0.01);
+        raoParameters.getRangeActionsOptimizationParameters().setInjectionRAMinImpactThreshold(0.01);
 
-        coreProblemFiller = new CoreProblemFiller(
+        coreProblemFiller = new MarginCoreProblemFiller(
             optimizationPerimeter,
             initialRangeActionSetpointResult,
-                rangeActionParameters,
+            raoParameters.getRangeActionsOptimizationParameters(),
+            null,
             Unit.MEGAWATT,
-            false, RangeActionsOptimizationParameters.PstModel.CONTINUOUS);
+            false,
+            SearchTreeRaoRangeActionsOptimizationParameters.PstModel.CONTINUOUS,
+            null);
     }
 
     private void createMaxMinMarginFiller(Unit unit) {
-        maxMinMarginFiller = new MaxMinMarginFiller(Set.of(cnec1), unit);
+        maxMinMarginFiller = new MaxMinMarginFiller(Set.of(cnec1), unit, false, null);
     }
 
     private void buildLinearProblem() {
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(maxMinMarginFiller)
-            .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
+            .withSolver(SearchTreeRaoRangeActionsOptimizationParameters.Solver.SCIP)
             .withInitialRangeActionActivationResult(getInitialRangeActionActivationResult())
             .build();
         linearProblem.fill(flowResult, sensitivityResult);
@@ -88,16 +91,16 @@ class MaxMinMarginFillerTest extends AbstractFillerTest {
         createMaxMinMarginFiller(Unit.MEGAWATT);
         buildLinearProblem();
 
-        OpenRaoMPVariable flowCnec1 = linearProblem.getFlowVariable(cnec1, TwoSides.ONE);
+        OpenRaoMPVariable flowCnec1 = linearProblem.getFlowVariable(cnec1, TwoSides.ONE, Optional.empty());
         OpenRaoMPVariable absoluteVariation = linearProblem.getAbsoluteRangeActionVariationVariable(pstRangeAction, cnec1.getState());
 
         // check minimum margin variable
-        OpenRaoMPVariable minimumMargin = linearProblem.getMinimumMarginVariable();
+        OpenRaoMPVariable minimumMargin = linearProblem.getMinimumMarginVariable(Optional.empty());
         assertNotNull(minimumMargin);
 
         // check minimum margin constraints
-        OpenRaoMPConstraint cnec1AboveThreshold = linearProblem.getMinimumMarginConstraint(cnec1, TwoSides.ONE, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
-        OpenRaoMPConstraint cnec1BelowThreshold = linearProblem.getMinimumMarginConstraint(cnec1, TwoSides.ONE, LinearProblem.MarginExtension.BELOW_THRESHOLD);
+        OpenRaoMPConstraint cnec1AboveThreshold = linearProblem.getMinimumMarginConstraint(cnec1, TwoSides.ONE, LinearProblem.MarginExtension.ABOVE_THRESHOLD, Optional.empty());
+        OpenRaoMPConstraint cnec1BelowThreshold = linearProblem.getMinimumMarginConstraint(cnec1, TwoSides.ONE, LinearProblem.MarginExtension.BELOW_THRESHOLD, Optional.empty());
         assertNotNull(cnec1AboveThreshold);
         assertNotNull(cnec1BelowThreshold);
         assertEquals(-linearProblem.infinity(), cnec1BelowThreshold.lb(), linearProblem.infinity() * 1e-3);
@@ -130,16 +133,16 @@ class MaxMinMarginFillerTest extends AbstractFillerTest {
         createMaxMinMarginFiller(Unit.AMPERE);
         buildLinearProblem();
 
-        OpenRaoMPVariable flowCnec1 = linearProblem.getFlowVariable(cnec1, TwoSides.ONE);
+        OpenRaoMPVariable flowCnec1 = linearProblem.getFlowVariable(cnec1, TwoSides.ONE, Optional.empty());
         OpenRaoMPVariable absoluteVariation = linearProblem.getAbsoluteRangeActionVariationVariable(pstRangeAction, cnec1.getState());
 
         // check minimum margin variable
-        OpenRaoMPVariable minimumMargin = linearProblem.getMinimumMarginVariable();
+        OpenRaoMPVariable minimumMargin = linearProblem.getMinimumMarginVariable(Optional.empty());
         assertNotNull(minimumMargin);
 
         // check minimum margin constraints
-        OpenRaoMPConstraint cnec1AboveThreshold = linearProblem.getMinimumMarginConstraint(cnec1, TwoSides.ONE, LinearProblem.MarginExtension.ABOVE_THRESHOLD);
-        OpenRaoMPConstraint cnec1BelowThreshold = linearProblem.getMinimumMarginConstraint(cnec1, TwoSides.ONE, LinearProblem.MarginExtension.BELOW_THRESHOLD);
+        OpenRaoMPConstraint cnec1AboveThreshold = linearProblem.getMinimumMarginConstraint(cnec1, TwoSides.ONE, LinearProblem.MarginExtension.ABOVE_THRESHOLD, Optional.empty());
+        OpenRaoMPConstraint cnec1BelowThreshold = linearProblem.getMinimumMarginConstraint(cnec1, TwoSides.ONE, LinearProblem.MarginExtension.BELOW_THRESHOLD, Optional.empty());
         assertNotNull(cnec1AboveThreshold);
         assertNotNull(cnec1BelowThreshold);
         assertEquals(-linearProblem.infinity(), cnec1BelowThreshold.lb(), linearProblem.infinity() * 1e-3);
@@ -167,7 +170,7 @@ class MaxMinMarginFillerTest extends AbstractFillerTest {
         createMaxMinMarginFiller(Unit.MEGAWATT);
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(maxMinMarginFiller)
-            .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
+            .withSolver(SearchTreeRaoRangeActionsOptimizationParameters.Solver.SCIP)
             .build();
 
         // AbsoluteRangeActionVariables present, but no the FlowVariables
@@ -182,14 +185,14 @@ class MaxMinMarginFillerTest extends AbstractFillerTest {
             createMaxMinMarginFiller(Unit.MEGAWATT);
             linearProblem = new LinearProblemBuilder()
                 .withProblemFiller(maxMinMarginFiller)
-                .withSolver(RangeActionsOptimizationParameters.Solver.SCIP)
+                .withSolver(SearchTreeRaoRangeActionsOptimizationParameters.Solver.SCIP)
                 .build();
 
             // FlowVariables present , but not the absoluteRangeActionVariables present,
-            // This should work since range actions can be filtered out by the CoreProblemFiller if their number
+            // This should work since range actions can be filtered out by the MarginCoreProblemFiller if their number
             // exceeds the max-pst-per-tso parameter
-            linearProblem.addFlowVariable(0.0, 0.0, cnec1, TwoSides.ONE);
-            linearProblem.addFlowVariable(0.0, 0.0, cnec2, TwoSides.TWO);
+            linearProblem.addFlowVariable(0.0, 0.0, cnec1, TwoSides.ONE, Optional.empty());
+            linearProblem.addFlowVariable(0.0, 0.0, cnec2, TwoSides.TWO, Optional.empty());
             linearProblem.fill(flowResult, sensitivityResult);
         } catch (Exception e) {
             fail();
