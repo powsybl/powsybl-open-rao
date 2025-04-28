@@ -10,7 +10,7 @@ information among several distinct files.
 
 ## Header overview
 
-The OpenRAO importer only supports version `2.3` headers for NC profiles (see
+The OpenRAO importer only supports NC version `2.3` (see
 [ENTSO-E website](https://www.entsoe.eu/Documents/CIM_documents/Grid_Model_CIM/MetadataAndHeaderDataExchangeSpecification_v2.3.0.pdf)).
 
 ```xml
@@ -65,7 +65,9 @@ fields read by OpenRAO are displayed in the following chart.
 
 ## Instants
 
-The NC CRAC is systematically created with 6 instants: preventive, outage, auto and 3 curative instants (named "curative 1", "curative 2" and "curative 3").
+The NC CRAC is systematically created with 4 instants: preventive, outage and auto.
+
+The curative instants must be declared alongside an application window (number of seconds after the outage) in the [NC CRAC creation parameters](creation-parameters.md#nc-specific-parameters).
 
 ## Contingencies
 
@@ -151,7 +153,7 @@ associated to the impacted network elements through `ContingencyEquipment` objec
 :::
 ::::
 
-A contingency is imported only if the `normalMustStudy` field is set to `true` and if it is referenced by a
+A contingency is imported only if the `normalMustStudy` field is set to `true` and if it is referenced by at least one
 valid `ContingencyEquipment`, i.e. having `Equipment` pointing to an existing network element and a `contingentStatus`
 being `outOfService`. A contingency with no associated `ContingencyEquipment` will be ignored.
 
@@ -514,6 +516,7 @@ and instant of the remedial action.
         <cim:IdentifiedObject.name>RA</cim:IdentifiedObject.name>
         <cim:IdentifiedObject.description>Example of RA</cim:IdentifiedObject.description>
         <nc:RemedialAction.normalAvailable>true</nc:RemedialAction.normalAvailable>
+        <nc:RemedialAction.isManual>true</nc:RemedialAction.isManual>
         <nc:RemedialAction.kind rdf:resource="http://entsoe.eu/ns/nc#RemedialActionKind.preventive"/>
         <nc:RemedialAction.timeToImplement>PT50S</nc:RemedialAction.timeToImplement>
         <nc:RemedialAction.RemedialActionSystemOperator
@@ -532,7 +535,11 @@ As for the [contingencies](#contingencies), the `mRID` is used as the remedial a
 the `RemedialActionSystemOperator` and `name` are concatenated together to create the remedial action's name. The
 instant of the remedial action is determined by the `kind` which can be either `preventive` or `curative`.
 
-> If the remedial action has its `kind` field set to `curative`, the remedial action will be imported for all 3 curative instants at once.
+> If the remedial action has its `kind` field set to `curative`, the remedial action will be imported for all curative instants at once.
+
+If the remedial action is of kind `curative` and its `isManual` attribute is present and set to `false`, the importer will interpret this remedial action as an automaton. Thus, its [usage rules](#usage-rules) will all be defined for the auto instant.
+
+> Preventive automatons are not supported by OpenRAO so preventive remedial actions with `isManual` set to false will be ignored.
 
 Finally, the `timeToImplement` is converted to a number of seconds and used as the remedial action's speed.
 
@@ -810,16 +817,6 @@ of sections.
 
 :::
 ::::
-
-### Auto remedial actions
-
-#### Using SchemeRemedialActions
-
-![NC SPS](/_static/img/sps-csa.png){.forced-white-background}
-
-#### Using GridStateAlterationRemedialAction and timeToImplement
-
-An auto remedial action can also be defined in a more concise way using a `GridStateAlterationRemedialAction` with a `timeToImplement`. If this time, converted to a number of seconds, is below the [sps-max-time-to-implement-threshold-in-seconds](creation-parameters.md#sps-max-time-to-implement-threshold-in-seconds) threshold defined in the NC CRAC creation parameters, the remedial action will be imported as an ARA instead of a CRA.
 
 ### Usage Rules
 
