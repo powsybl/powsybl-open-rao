@@ -63,7 +63,6 @@
         <module>commons</module>
         <module>data</module>
         <module>distribution</module>
-        <module>flowbased-computation</module>
         <module>loopflow-computation</module>
         <module>ra-optimisation</module>
         <module>sensitivity-analysis</module>
