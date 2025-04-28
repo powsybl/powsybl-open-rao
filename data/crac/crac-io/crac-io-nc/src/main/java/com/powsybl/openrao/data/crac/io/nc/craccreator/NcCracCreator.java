@@ -59,7 +59,7 @@ class NcCracCreator {
 
         createContingencies();
         createCnecs(cracCreationParameters);
-        createRemedialActions(ncParameters.getAutoInstantApplicationTime());
+        createRemedialActions();
 
         creationContext.buildCreationReport();
         return creationContext.creationSuccess(crac);
@@ -73,8 +73,8 @@ class NcCracCreator {
         sortedCurativeInstants.forEach(instantName -> crac.newInstant(instantName, InstantKind.CURATIVE));
     }
 
-    private void createRemedialActions(int spsMaxTimeToImplementThreshold) {
-        new NcRemedialActionsCreator(crac, network, nativeCrac, creationContext, spsMaxTimeToImplementThreshold, creationContext.getCnecCreationContexts());
+    private void createRemedialActions() {
+        new NcRemedialActionsCreator(crac, network, nativeCrac, creationContext, creationContext.getCnecCreationContexts());
     }
 
     private void createContingencies() {
