@@ -9,12 +9,8 @@ package com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator;
 
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
-import com.powsybl.openrao.searchtreerao.commons.FlowCnecSorting;
-import com.powsybl.openrao.searchtreerao.commons.costevaluatorresult.CostEvaluatorResult;
-import com.powsybl.openrao.searchtreerao.commons.costevaluatorresult.SumMaxPerTimestampCostEvaluatorResult;
 import com.powsybl.openrao.searchtreerao.commons.marginevaluator.MarginEvaluator;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
-import com.powsybl.openrao.searchtreerao.result.api.RemedialActionActivationResult;
 
 import java.util.HashMap;
 import java.util.Map;
