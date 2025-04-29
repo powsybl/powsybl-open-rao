@@ -31,16 +31,11 @@ public class GlobalRemedialActionActivationResult extends GlobalRangeActionActiv
 
     public GlobalRemedialActionActivationResult(TemporalData<RangeActionActivationResult> rangeActionActivationPerTimestamp, TemporalData<NetworkActionsResult> preventiveTopologicalActions) {
         super(rangeActionActivationPerTimestamp);
-        // TODO remove network action copy and renaming
         Map<State, Set<NetworkAction>> globalNetworkActionsResultPerState = new HashMap<>();
         preventiveTopologicalActions.getDataPerTimestamp()
             .forEach((timestamp, networkActionsResult) ->
                 networkActionsResult.getActivatedNetworkActionsPerState()
                 .forEach((state, networkActions) -> {
-                    Set<NetworkAction> networkActionsSetWithTimestamp = new HashSet<>();
-                    networkActions.forEach(networkAction -> {
-                        networkActionsSetWithTimestamp.add(NetworkActionImpl.copyWithNewId(networkAction, networkAction.getId() + " - " + timestamp.format(DateTimeFormatter.ISO_DATE_TIME)));
-                    });
                     globalNetworkActionsResultPerState.put(state, networkActions);
                 })
             );
