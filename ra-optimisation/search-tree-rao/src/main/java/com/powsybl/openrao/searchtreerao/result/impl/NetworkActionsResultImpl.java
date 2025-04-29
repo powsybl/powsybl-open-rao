@@ -34,6 +34,8 @@ public class NetworkActionsResultImpl implements NetworkActionsResult {
 
     @Override
     public Set<NetworkAction> getActivatedNetworkActions() {
+        // Caution: If the same action is used during two different states,
+        // it will appear only once in the resulting Set because sets do not allow duplicates.
         return activatedNetworkActionsPerState.values().stream().flatMap(Set::stream).collect(Collectors.toSet());
     }
 
