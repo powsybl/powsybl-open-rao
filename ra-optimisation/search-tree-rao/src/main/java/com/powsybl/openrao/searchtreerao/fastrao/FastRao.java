@@ -82,6 +82,12 @@ public class FastRao implements RaoProvider {
     @Override
     public CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters parameters, Instant targetEndInstant) {
         RaoUtil.initData(raoInput, parameters);
+
+        if (raoInput.getOptimizedState() != null) {
+            BUSINESS_LOGS.error("Fast Rao do not support optimization on one given state only");
+            return CompletableFuture.completedFuture(new FailedRaoResultImpl("Fast Rao do not support optimization on one given state only"));
+        }
+
         return CompletableFuture.completedFuture(launchFilteredRao(raoInput, parameters, targetEndInstant, new HashSet<>()));
     }
 
