@@ -87,7 +87,7 @@ public class SearchTreeRaoSteps {
 
     @When("I launch search_tree_rao at {string}")
     public void iLaunchSearchTreeRao(String timestamp) {
-        launchRao(null, null, timestamp, FAST_RAO);
+        launchRao(null, null, timestamp, SEARCH_TREE_RAO);
     }
 
     @When("I launch search_tree_rao at {string} on {string}")
@@ -117,12 +117,12 @@ public class SearchTreeRaoSteps {
 
     @When("I launch loopflow search_tree_rao with default loopflow limit as {double} percent of pmax")
     public void iLaunchSearchTreeRaoWithDefaultLoopflowLimit(double percentage) {
-        launchRao(null, null, null, percentage, FAST_RAO, null);
+        launchRao(null, null, null, percentage, SEARCH_TREE_RAO, null);
     }
 
     @When("I launch loopflow search_tree_rao at {string} with default loopflow limit as {double} percent of pmax")
     public void iLaunchSearchTreeRaoWithDefaultLoopflowLimit(String timestamp, double percentage) {
-        launchRao(null, null, timestamp, percentage, FAST_RAO, null);
+        launchRao(null, null, timestamp, percentage, SEARCH_TREE_RAO, null);
     }
 
     @When("I launch loopflow_computation with OpenLoadFlow")
@@ -622,7 +622,7 @@ public class SearchTreeRaoSteps {
     }
 
     private void launchRao(int timeLimit) {
-        launchRao(null, null, null, null, FAST_RAO, timeLimit);
+        launchRao(null, null, null, null, SEARCH_TREE_RAO, timeLimit);
     }
 
     private void launchRao(String contingencyId, InstantKind instantKind, String timestamp, String raoType) {
