@@ -99,7 +99,7 @@ class RemedialActionActivationResultImplTest {
             .add()
             .add();
 
-        NetworkActionsResultImpl networkActionsResult = new NetworkActionsResultImpl(Set.of(topologicalAction1));
+        NetworkActionsResultImpl networkActionsResult = new NetworkActionsResultImpl(Map.of(state, Set.of(topologicalAction1)));
 
         rangeActionSetpointResult = new RangeActionSetpointResultImpl(Map.of(pstRangeAction, 0d, injectionRangeAction1, 60d, injectionRangeAction2, 25d, hvdcRangeAction, 300d));
 
