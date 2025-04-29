@@ -152,7 +152,7 @@ public class Leaf implements OptimizationResult {
      * If the computation works fine status is updated to EVALUATED otherwise it is set to ERROR.
      */
     void evaluate(ObjectiveFunction objectiveFunction, SensitivityComputer sensitivityComputer) {
-        RemedialActionActivationResult remedialActionActivationResult = new RemedialActionActivationResultImpl(raActivationResultFromParentLeaf, new NetworkActionsResultImpl(appliedNetworkActionsInPrimaryState));
+        RemedialActionActivationResult remedialActionActivationResult = new RemedialActionActivationResultImpl(raActivationResultFromParentLeaf, new NetworkActionsResultImpl(Map.of(optimizationPerimeter.getMainOptimizationState(), appliedNetworkActionsInPrimaryState)));
         if (status.equals(Status.EVALUATED)) {
             TECHNICAL_LOGS.debug("Leaf has already been evaluated");
             preOptimObjectiveFunctionResult = objectiveFunction.evaluate(preOptimFlowResult, remedialActionActivationResult);
@@ -204,7 +204,7 @@ public class Leaf implements OptimizationResult {
                     .withPreOptimizationSensitivityResult(preOptimSensitivityResult)
                     .withPreOptimizationAppliedRemedialActions(appliedRemedialActionsInSecondaryStates)
                     .withRaActivationFromParentLeaf(raActivationResultFromParentLeaf)
-                    .withAppliedNetworkActionsInPrimaryState(new NetworkActionsResultImpl(appliedNetworkActionsInPrimaryState))
+                    .withAppliedNetworkActionsInPrimaryState(new NetworkActionsResultImpl(Map.of(optimizationPerimeter.getMainOptimizationState(), appliedNetworkActionsInPrimaryState)))
                     .withObjectiveFunction(searchTreeInput.getObjectiveFunction())
                     .withToolProvider(searchTreeInput.getToolProvider())
                     .withOutageInstant(searchTreeInput.getOutageInstant())
@@ -426,6 +426,11 @@ public class Leaf implements OptimizationResult {
     @Override
     public Set<NetworkAction> getActivatedNetworkActions() {
         return appliedNetworkActionsInPrimaryState;
+    }
+
+    @Override
+    public Map<State, Set<NetworkAction>> getActivatedNetworkActionsPerState() {
+        return Map.of(optimizationPerimeter.getMainOptimizationState(), appliedNetworkActionsInPrimaryState);
     }
 
     @Override

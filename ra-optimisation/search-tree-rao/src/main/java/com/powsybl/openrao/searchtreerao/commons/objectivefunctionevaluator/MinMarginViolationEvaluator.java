@@ -24,7 +24,7 @@ import java.util.Set;
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
 public class MinMarginViolationEvaluator extends MinMarginEvaluator implements CostEvaluator {
-    private final double OVERLOAD_PENALTY = 10000d;
+    private static final double OVERLOAD_PENALTY = 10000d;
 
     public MinMarginViolationEvaluator(Set<FlowCnec> flowCnecs, Unit unit, MarginEvaluator marginEvaluator) {
         super(flowCnecs, unit, marginEvaluator);
