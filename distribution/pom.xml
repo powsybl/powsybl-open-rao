@@ -19,7 +19,7 @@
         <!-- open-rao dependencies -->
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>monitoring</artifactId>
+            <artifactId>open-rao-monitoring</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

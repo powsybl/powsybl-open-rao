@@ -58,7 +58,7 @@
         <!-- Compile dependencies -->
         <dependency>
             <groupId>com.powsybl</groupId>
-            <artifactId>monitoring</artifactId>
+            <artifactId>open-rao-monitoring</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
