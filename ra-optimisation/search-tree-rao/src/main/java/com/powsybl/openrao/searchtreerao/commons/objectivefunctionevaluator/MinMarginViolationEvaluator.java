@@ -41,10 +41,4 @@ public class MinMarginViolationEvaluator extends MinMarginEvaluator implements C
         flowCnecs.forEach(cnec -> costPerCnec.put(cnec, Math.min(0, marginEvaluator.getMargin(flowResult, cnec, unit)) * OVERLOAD_PENALTY));
         return costPerCnec;
     }
-
-    @Override
-    public CostEvaluatorResult evaluate(FlowResult flowResult, RemedialActionActivationResult remedialActionActivationResult) {
-        Map<FlowCnec, Double> costPerCnec = getMarginPerCnec(flowCnecs, flowResult, unit);
-        return new SumMaxPerTimestampCostEvaluatorResult(costPerCnec, FlowCnecSorting.sortByMargin(flowCnecs, unit, marginEvaluator, flowResult), unit);
-    }
 }
