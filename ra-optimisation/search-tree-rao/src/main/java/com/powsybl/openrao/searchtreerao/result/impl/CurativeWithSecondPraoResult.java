@@ -125,8 +125,14 @@ public class CurativeWithSecondPraoResult implements OptimizationResult {
     }
 
     @Override
+    public Map<State, Set<NetworkAction>> getActivatedNetworkActionsPerState() {
+        return firstCraoResult.getActivatedNetworkActionsPerState();
+    }
+
+    @Override
     public double getFunctionalCost() {
         if (costOptimization) {
+            // TODO update with per state cost
             return getActivatedNetworkActions().stream().mapToDouble(networkAction -> networkAction.getActivationCost().orElse(0.0)).sum()
                 + getActivatedRangeActions(state).stream().mapToDouble(this::computeRangeActionCost).sum();
         } else {

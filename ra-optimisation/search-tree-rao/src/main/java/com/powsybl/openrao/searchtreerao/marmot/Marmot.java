@@ -65,6 +65,8 @@ public class Marmot implements InterTemporalRaoProvider {
 
     private static final String INTER_TEMPORAL_RAO = "InterTemporalRao";
     private static final String VERSION = "1.0.0";
+    // TODO : Put in Parameters
+    private static final String INDEPENDENT_RAO_PROVIDER = "SearchTreeRao";
 
     @Override
     public CompletableFuture<InterTemporalRaoResult> run(InterTemporalRaoInput raoInput, RaoParameters raoParameters) {
@@ -121,7 +123,7 @@ public class Marmot implements InterTemporalRaoProvider {
         return raoInputs.map(individualRaoInput -> {
             String logMessage = "[MARMOT] Running RAO for timestamp %s [{}]".formatted(individualRaoInput.getCrac().getTimestamp().orElseThrow());
             OpenRaoLoggerProvider.TECHNICAL_LOGS.info(logMessage, "start");
-            RaoResult raoResult = Rao.run(individualRaoInput, raoParameters);
+            RaoResult raoResult = Rao.find(INDEPENDENT_RAO_PROVIDER).run(individualRaoInput, raoParameters);
             OpenRaoLoggerProvider.TECHNICAL_LOGS.info(logMessage, "end");
             return raoResult;
         });
@@ -144,7 +146,11 @@ public class Marmot implements InterTemporalRaoProvider {
 
     private static TemporalData<NetworkActionsResult> getPreventiveTopologicalActions(TemporalData<Crac> cracs, TemporalData<RaoResult> raoResults) {
         Map<OffsetDateTime, NetworkActionsResult> preventiveTopologicalActions = new HashMap<>();
-        cracs.getTimestamps().forEach(timestamp -> preventiveTopologicalActions.put(timestamp, new NetworkActionsResultImpl(raoResults.getData(timestamp).orElseThrow().getActivatedNetworkActionsDuringState(cracs.getData(timestamp).orElseThrow().getPreventiveState()))));
+
+        cracs.getTimestamps().forEach(timestamp -> {
+            State state = cracs.getData(timestamp).orElseThrow().getPreventiveState();
+            preventiveTopologicalActions.put(timestamp, new NetworkActionsResultImpl(Map.of(state, raoResults.getData(timestamp).orElseThrow().getActivatedNetworkActionsDuringState(state))));
+        });
         return new TemporalDataImpl<>(preventiveTopologicalActions);
     }
 

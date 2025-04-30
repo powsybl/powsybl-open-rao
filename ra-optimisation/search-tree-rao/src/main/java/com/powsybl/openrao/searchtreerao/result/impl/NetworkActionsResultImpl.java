@@ -7,29 +7,38 @@
 
 package com.powsybl.openrao.searchtreerao.result.impl;
 
+import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.searchtreerao.result.api.NetworkActionsResult;
 
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
 public class NetworkActionsResultImpl implements NetworkActionsResult {
 
-    private final Set<NetworkAction> activatedNetworkActions;
+    private final Map<State, Set<NetworkAction>> activatedNetworkActionsPerState;
 
-    public NetworkActionsResultImpl(Set<NetworkAction> activatedNetworkActions) {
-        this.activatedNetworkActions = activatedNetworkActions;
+    public NetworkActionsResultImpl(Map<State, Set<NetworkAction>> activatedNetworkActionsPerState) {
+        this.activatedNetworkActionsPerState = activatedNetworkActionsPerState;
     }
 
     @Override
     public boolean isActivated(NetworkAction networkAction) {
-        return activatedNetworkActions.contains(networkAction);
+        return activatedNetworkActionsPerState.values().stream()
+            .anyMatch(set -> set.contains(networkAction));
     }
 
     @Override
     public Set<NetworkAction> getActivatedNetworkActions() {
-        return activatedNetworkActions;
+        return activatedNetworkActionsPerState.values().stream().flatMap(Set::stream).collect(Collectors.toSet());
+    }
+
+    @Override
+    public Map<State, Set<NetworkAction>> getActivatedNetworkActionsPerState() {
+        return activatedNetworkActionsPerState;
     }
 }
