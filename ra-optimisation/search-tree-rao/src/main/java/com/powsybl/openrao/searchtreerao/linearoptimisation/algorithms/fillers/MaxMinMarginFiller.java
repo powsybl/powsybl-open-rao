@@ -10,6 +10,7 @@ package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Identifiable;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoMinMarginsParameters;
 import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPConstraint;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPVariable;
@@ -31,19 +32,23 @@ import static com.powsybl.openrao.commons.Unit.MEGAWATT;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class MaxMinMarginFiller implements ProblemFiller {
-    private static final double OVERLOAD_PENALTY = 10000.0; // TODO: put this in Rao Parameters and mutualize with evaluator
     protected final Set<FlowCnec> optimizedCnecs;
     private final Unit unit;
     private final boolean costOptimization;
     protected final OffsetDateTime timestamp;
+    private final double overloadPenalty;
+    private final double minMarginUpperBound;
 
     public MaxMinMarginFiller(Set<FlowCnec> optimizedCnecs,
                               Unit unit, boolean costOptimization,
+                              SearchTreeRaoMinMarginsParameters maxMinMarginParameters,
                               OffsetDateTime timestamp) {
         this.optimizedCnecs = new TreeSet<>(Comparator.comparing(Identifiable::getId));
         this.optimizedCnecs.addAll(optimizedCnecs);
         this.unit = unit;
         this.costOptimization = costOptimization;
+        this.overloadPenalty = maxMinMarginParameters.getOverloadPenalty();
+        this.minMarginUpperBound = maxMinMarginParameters.getMinMarginUpperBound();
         this.timestamp = timestamp;
     }
 
@@ -53,11 +58,14 @@ public class MaxMinMarginFiller implements ProblemFiller {
 
         // build variables
         buildMinimumMarginVariable(linearProblem, validFlowCnecs);
+        if (costOptimization) {
+            linearProblem.addMinMarginViolationVariable(Optional.ofNullable(timestamp));
+        }
 
         // build constraints
         buildMinimumMarginConstraints(linearProblem, validFlowCnecs);
         if (costOptimization) {
-            forceMinMarginToBeNegative(linearProblem);
+            addMinMarginViolationConstraint(linearProblem);
         }
 
         // complete objective
@@ -70,8 +78,10 @@ public class MaxMinMarginFiller implements ProblemFiller {
      * If the actual min margin is non-negative, the variable will be forced to 0,
      * so it does not take part in the objective.
      */
-    private void forceMinMarginToBeNegative(LinearProblem linearProblem) {
-        linearProblem.getMinimumMarginVariable(Optional.ofNullable(timestamp)).setUb(0.0);
+    private void addMinMarginViolationConstraint(LinearProblem linearProblem) {
+        OpenRaoMPConstraint minMarginViolationConstraint = linearProblem.addMinMarginViolationConstraint(Optional.ofNullable(timestamp), minMarginUpperBound);
+        minMarginViolationConstraint.setCoefficient(linearProblem.getMinMarginViolationVariable(Optional.ofNullable(timestamp)), 1.0);
+        minMarginViolationConstraint.setCoefficient(linearProblem.getMinimumMarginVariable(Optional.ofNullable(timestamp)), 1.0);
     }
 
     @Override
@@ -142,7 +152,11 @@ public class MaxMinMarginFiller implements ProblemFiller {
      * min(-MM)
      */
     private void fillObjectiveWithMinMargin(LinearProblem linearProblem) {
-        linearProblem.getObjective().setCoefficient(linearProblem.getMinimumMarginVariable(Optional.ofNullable(timestamp)), costOptimization ? -OVERLOAD_PENALTY : -1);
+        if (costOptimization) {
+            linearProblem.getObjective().setCoefficient(linearProblem.getMinMarginViolationVariable(Optional.ofNullable(timestamp)), overloadPenalty);
+        } else {
+            linearProblem.getObjective().setCoefficient(linearProblem.getMinimumMarginVariable(Optional.ofNullable(timestamp)), -1);
+        }
     }
 
 }

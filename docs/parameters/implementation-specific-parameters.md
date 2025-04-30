@@ -367,6 +367,22 @@ See also: [Modelling the maximum minimum relative margin objective function](/ca
   function from diverging to infinity (resulting in unbounded problems), the denominator should be prevented from
   getting close to zero. This parameter acts as a lower bound to the denominator.
 
+#### Min margin optional parameters
+
+These parameters are meant to be used in costly optimization only.
+
+##### overload-penalty
+
+- **Expected value**: numeric positive value, no unit (monetary cost)
+- **Default value**: 1000.0
+- **Usage**: Monetary penalty taken in account for each MW or A of overload on the min margin.
+
+##### min-margin-upper-bound
+
+- **Expected value**: numeric positive value, in MW or A unit (same as min margin)
+- **Default value**: 0.0
+- **Usage**: Used to force the linear solver to apply the overload penalty if the min margin is positive but below this upper bound. This is meant to prevent the RAO from choosing set-points that make the min margin exactly equal to 0 (might create rounding issues).
+
 ## Examples
 > ⚠️  **NOTE**  
 > The following examples in json and yaml are not equivalent
@@ -474,6 +490,10 @@ See also: [Modelling the maximum minimum relative margin objective function](/ca
       "ptdf-boundaries" : [ "{FR}-{BE}", "{FR}-{DE}", "{BE}-{NL}", "{NL}-{DE}", "{DE}-{PL}", "{DE}-{CZ}", "{DE}-{AT}", "{PL}-{CZ}", "{PL}-{SK}", "{CZ}-{SK}", "{CZ}-{AT}", "{AT}-{HU}", "{AT}-{SI}", "{SI}-{HR}", "{SK}-{HU}", "{HU}-{RO}", "{HU}-{HR}", "{BE}-{22Y201903144---9}-{DE}+{22Y201903145---4}" ],
       "ptdf-approximation" : "FIXED_PTDF",
       "ptdf-sum-lower-bound" : 0.01
+    },
+    "min-margins-parameters" : {
+      "overload-penalty": 1000.0,
+      "min-margin-upper-bound": 0.0
     }
   }
 }

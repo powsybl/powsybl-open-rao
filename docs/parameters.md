@@ -134,24 +134,24 @@ Examples of rao parameters with business and implementation specific parameters
             }
           }
         }
+      },
+      "loop-flow-parameters" : {
+        "acceptable-increase" : 10.0,
+        "ptdf-approximation" : "FIXED_PTDF",
+        "constraint-adjustment-coefficient" : 10.0,
+        "violation-cost" : 10.0,
+        "countries" : [ "FR", "ES", "PT" ]
+      },
+      "mnec-parameters" : {
+        "acceptable-margin-decrease" : 50.0,
+        "violation-cost" : 10.0,
+        "constraint-adjustment-coefficient" : 1.0
+      },
+      "relative-margins-parameters" : {
+        "ptdf-boundaries" : [ "{FR}-{BE}", "{FR}-{DE}", "{BE}-{NL}", "{NL}-{DE}", "{DE}-{PL}", "{DE}-{CZ}", "{DE}-{AT}", "{PL}-{CZ}", "{PL}-{SK}", "{CZ}-{SK}", "{CZ}-{AT}", "{AT}-{HU}", "{AT}-{SI}", "{SI}-{HR}", "{SK}-{HU}", "{HU}-{RO}", "{HU}-{HR}", "{BE}-{22Y201903144---9}-{DE}+{22Y201903145---4}" ],
+        "ptdf-approximation" : "FIXED_PTDF",
+        "ptdf-sum-lower-bound" : 0.01
       }
-    },
-    "loop-flow-parameters" : {
-      "acceptable-increase" : 10.0,
-      "ptdf-approximation" : "FIXED_PTDF",
-      "constraint-adjustment-coefficient" : 10.0,
-      "violation-cost" : 10.0,
-      "countries" : [ "FR", "ES", "PT" ]
-    },
-    "mnec-parameters" : {
-      "acceptable-margin-decrease" : 50.0,
-      "violation-cost" : 10.0,
-      "constraint-adjustment-coefficient" : 1.0
-    },
-    "relative-margins-parameters" : {
-      "ptdf-boundaries" : [ "{FR}-{BE}", "{FR}-{DE}", "{BE}-{NL}", "{NL}-{DE}", "{DE}-{PL}", "{DE}-{CZ}", "{DE}-{AT}", "{PL}-{CZ}", "{PL}-{SK}", "{CZ}-{SK}", "{CZ}-{AT}", "{AT}-{HU}", "{AT}-{SI}", "{SI}-{HR}", "{SK}-{HU}", "{HU}-{RO}", "{HU}-{HR}", "{BE}-{22Y201903144---9}-{DE}+{22Y201903145---4}" ],
-      "ptdf-approximation" : "FIXED_PTDF",
-      "ptdf-sum-lower-bound" : 0.01
     }
   }
 }

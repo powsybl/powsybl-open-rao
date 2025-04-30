@@ -536,6 +536,18 @@ public final class LinearProblem {
         return solver.getConstraint(generatorPowerGradientConstraintId(generatorId, currentTimestamp, previousTimestamp));
     }
 
+    public OpenRaoMPVariable addMinMarginViolationVariable(Optional<OffsetDateTime> timestamp) {
+        return solver.makeNumVar(0, infinity(), minMarginViolationVariableId(timestamp));
+    }
+
+    public OpenRaoMPVariable getMinMarginViolationVariable(Optional<OffsetDateTime> timestamp) {
+        return solver.getVariable(minMarginViolationVariableId(timestamp));
+    }
+
+    public OpenRaoMPConstraint addMinMarginViolationConstraint(Optional<OffsetDateTime> timestamp, double minMarginUpperBound) {
+        return solver.makeConstraint(minMarginUpperBound, infinity(), minMarginViolationConstraintId(timestamp));
+    }
+
     public double infinity() {
         return solver.infinity();
     }
