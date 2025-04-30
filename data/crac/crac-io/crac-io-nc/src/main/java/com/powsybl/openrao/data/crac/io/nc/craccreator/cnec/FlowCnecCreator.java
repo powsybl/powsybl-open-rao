@@ -37,7 +37,7 @@ import static com.powsybl.openrao.data.crac.io.nc.craccreator.constants.NcConsta
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
 public class FlowCnecCreator extends AbstractCnecCreator {
-    private NcCracCreationParameters ncCracCreationParameters;
+    private final NcCracCreationParameters ncCracCreationParameters;
     private final Set<TwoSides> defaultMonitoredSides;
     private final FlowCnecInstantHelper instantHelper;
     private final CurrentLimit nativeCurrentLimit;
