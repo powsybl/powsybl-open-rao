@@ -41,9 +41,9 @@ class RemedialActionCreationTest {
         NcCracCreationTestUtil.assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-3", "contingency-1", NcCracCreationTestUtil.CURATIVE_3_INSTANT_ID, UsageMethod.AVAILABLE);
 
         NcCracCreationTestUtil.assertPstRangeActionImported((PstRangeAction) importedRemedialActions.get(3), "remedial-action-4", "RTE_RA4", "BBE2AA1  BBE3AA1  1", null, null, "RTE");
-        NcCracCreationTestUtil.assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-4", "contingency-2", NcCracCreationTestUtil.CURATIVE_1_INSTANT_ID, UsageMethod.FORCED);
-        NcCracCreationTestUtil.assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-4", "contingency-2", NcCracCreationTestUtil.CURATIVE_2_INSTANT_ID, UsageMethod.FORCED);
-        NcCracCreationTestUtil.assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-4", "contingency-2", NcCracCreationTestUtil.CURATIVE_3_INSTANT_ID, UsageMethod.FORCED);
+        NcCracCreationTestUtil.assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-4", "contingency-2", NcCracCreationTestUtil.CURATIVE_1_INSTANT_ID, UsageMethod.AVAILABLE);
+        NcCracCreationTestUtil.assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-4", "contingency-2", NcCracCreationTestUtil.CURATIVE_2_INSTANT_ID, UsageMethod.AVAILABLE);
+        NcCracCreationTestUtil.assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-4", "contingency-2", NcCracCreationTestUtil.CURATIVE_3_INSTANT_ID, UsageMethod.AVAILABLE);
 
         assertEquals(3, ((NetworkAction) importedRemedialActions.get(4)).getElementaryActions().size());
         NcCracCreationTestUtil.assertHasOnInstantUsageRule(cracCreationContext, "remedial-action-5", NcCracCreationTestUtil.PREVENTIVE_INSTANT_ID, UsageMethod.AVAILABLE);
@@ -53,12 +53,15 @@ class RemedialActionCreationTest {
         NcCracCreationTestUtil.assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-6", "contingency-1", NcCracCreationTestUtil.CURATIVE_1_INSTANT_ID, UsageMethod.AVAILABLE);
         NcCracCreationTestUtil.assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-6", "contingency-1", NcCracCreationTestUtil.CURATIVE_2_INSTANT_ID, UsageMethod.AVAILABLE);
         NcCracCreationTestUtil.assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-6", "contingency-1", NcCracCreationTestUtil.CURATIVE_3_INSTANT_ID, UsageMethod.AVAILABLE);
-        NcCracCreationTestUtil.assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-6", "contingency-2", NcCracCreationTestUtil.CURATIVE_1_INSTANT_ID, UsageMethod.FORCED);
-        NcCracCreationTestUtil.assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-6", "contingency-2", NcCracCreationTestUtil.CURATIVE_2_INSTANT_ID, UsageMethod.FORCED);
-        NcCracCreationTestUtil.assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-6", "contingency-2", NcCracCreationTestUtil.CURATIVE_3_INSTANT_ID, UsageMethod.FORCED);
+        NcCracCreationTestUtil.assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-6", "contingency-2", NcCracCreationTestUtil.CURATIVE_1_INSTANT_ID, UsageMethod.AVAILABLE);
+        NcCracCreationTestUtil.assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-6", "contingency-2", NcCracCreationTestUtil.CURATIVE_2_INSTANT_ID, UsageMethod.AVAILABLE);
+        NcCracCreationTestUtil.assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-6", "contingency-2", NcCracCreationTestUtil.CURATIVE_3_INSTANT_ID, UsageMethod.AVAILABLE);
 
         NcCracCreationTestUtil.assertPstRangeActionImported((PstRangeAction) importedRemedialActions.get(6), "remedial-action-9", "RTE_RA9", "BBE2AA1  BBE3AA1  1", null, null, "RTE");
-        assertEquals(0, importedRemedialActions.get(6).getUsageRules().size());
+        assertEquals(3, importedRemedialActions.get(6).getUsageRules().size());
+        NcCracCreationTestUtil.assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-9", "contingency-1", NcCracCreationTestUtil.CURATIVE_1_INSTANT_ID, UsageMethod.AVAILABLE);
+        NcCracCreationTestUtil.assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-9", "contingency-1", NcCracCreationTestUtil.CURATIVE_2_INSTANT_ID, UsageMethod.AVAILABLE);
+        NcCracCreationTestUtil.assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-9", "contingency-1", NcCracCreationTestUtil.CURATIVE_3_INSTANT_ID, UsageMethod.AVAILABLE);
 
         assertEquals(3, cracCreationContext.getRemedialActionCreationContexts().stream().filter(context -> !context.isImported()).toList().size());
 
@@ -87,17 +90,13 @@ class RemedialActionCreationTest {
         NcCracCreationTestUtil.assertPstRangeActionImported((PstRangeAction) importedRemedialActions.get(3), "remedial-action-3", "RTE_RA3", "BBE2AA1  BBE3AA1  1", null, null, "RTE");
         assertEquals(2, importedRemedialActions.get(3).getUsageRules().size());
         NcCracCreationTestUtil.assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-3", "contingency-1", NcCracCreationTestUtil.AUTO_INSTANT_ID, UsageMethod.FORCED);
-        // TODO: fix this as the usage rule should be ignored (included automatons should be illegal) NOT_FOR_RAO?
-        NcCracCreationTestUtil.assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-3", "contingency-2", NcCracCreationTestUtil.AUTO_INSTANT_ID, UsageMethod.AVAILABLE);
+        NcCracCreationTestUtil.assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-3", "contingency-2", NcCracCreationTestUtil.AUTO_INSTANT_ID, UsageMethod.FORCED);
 
         NcCracCreationTestUtil.assertPstRangeActionImported((PstRangeAction) importedRemedialActions.get(4), "remedial-action-4", "RTE_RA4", "BBE2AA1  BBE3AA1  1", null, null, "RTE");
-        assertEquals(6, importedRemedialActions.get(4).getUsageRules().size());
-        NcCracCreationTestUtil.assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-4", "contingency-1", NcCracCreationTestUtil.CURATIVE_1_INSTANT_ID, UsageMethod.FORCED);
-        NcCracCreationTestUtil.assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-4", "contingency-1", NcCracCreationTestUtil.CURATIVE_2_INSTANT_ID, UsageMethod.FORCED);
-        NcCracCreationTestUtil.assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-4", "contingency-1", NcCracCreationTestUtil.CURATIVE_3_INSTANT_ID, UsageMethod.FORCED);
-        NcCracCreationTestUtil.assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-4", "contingency-2", NcCracCreationTestUtil.CURATIVE_1_INSTANT_ID, UsageMethod.AVAILABLE);
-        NcCracCreationTestUtil.assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-4", "contingency-2", NcCracCreationTestUtil.CURATIVE_2_INSTANT_ID, UsageMethod.AVAILABLE);
-        NcCracCreationTestUtil.assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-4", "contingency-2", NcCracCreationTestUtil.CURATIVE_3_INSTANT_ID, UsageMethod.AVAILABLE);
+        assertEquals(3, importedRemedialActions.get(4).getUsageRules().size());
+        NcCracCreationTestUtil.assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-4", "contingency-1", NcCracCreationTestUtil.CURATIVE_1_INSTANT_ID, UsageMethod.AVAILABLE);
+        NcCracCreationTestUtil.assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-4", "contingency-1", NcCracCreationTestUtil.CURATIVE_2_INSTANT_ID, UsageMethod.AVAILABLE);
+        NcCracCreationTestUtil.assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-4", "contingency-1", NcCracCreationTestUtil.CURATIVE_3_INSTANT_ID, UsageMethod.AVAILABLE);
 
         NcCracCreationTestUtil.assertPstRangeActionImported((PstRangeAction) importedRemedialActions.get(5), "remedial-action-5", "RTE_RA5", "BBE2AA1  BBE3AA1  1", null, null, "RTE");
         assertEquals(2, importedRemedialActions.get(5).getUsageRules().size());
