@@ -21,7 +21,6 @@ import java.util.Set;
 public class NcCracCreationParameters extends AbstractExtension<CracCreationParameters> {
     private String capacityCalculationRegionEicCode = "10Y1001C--00095L"; // swe as default
     private Set<String> tsosWhichDoNotUsePatlInFinalState = Set.of();
-    private int autoInstantApplicationTime = 0;
     private Map<String, Integer> curativeInstants = Map.of("curative 1", 300, "curative 2", 600, "curative 3", 1200);
     private Set<Border> borders = Set.of();
     private OffsetDateTime timestamp = null;
@@ -39,10 +38,6 @@ public class NcCracCreationParameters extends AbstractExtension<CracCreationPara
         return tsosWhichDoNotUsePatlInFinalState;
     }
 
-    public int getAutoInstantApplicationTime() {
-        return autoInstantApplicationTime;
-    }
-
     public Map<String, Integer> getCurativeInstants() {
         return curativeInstants;
     }
@@ -53,10 +48,6 @@ public class NcCracCreationParameters extends AbstractExtension<CracCreationPara
 
     public void setCapacityCalculationRegionEicCode(String capacityCalculationRegionEicCode) {
         this.capacityCalculationRegionEicCode = capacityCalculationRegionEicCode;
-    }
-
-    public void setAutoInstantApplicationTime(int autoInstantApplicationTime) {
-        this.autoInstantApplicationTime = autoInstantApplicationTime;
     }
 
     public void setTsosWhichDoNotUsePatlInFinalState(Set<String> tsosWhichDoNotUsePatlInFinalState) {
