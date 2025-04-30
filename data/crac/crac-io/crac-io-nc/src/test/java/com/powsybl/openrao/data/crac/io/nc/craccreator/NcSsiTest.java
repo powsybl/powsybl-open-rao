@@ -70,7 +70,7 @@ class NcSsiTest {
         assertEquals(crac.getInstant(PREVENTIVE_INSTANT_ID), remedialAction.getUsageRules().iterator().next().getInstant());
         assertEquals(UsageMethod.AVAILABLE, remedialAction.getUsageRules().iterator().next().getUsageMethod());
 
-        assertRaNotImported(cracCreationContext, "remedial-action-2", ImportStatus.NOT_FOR_RAO, "Remedial action remedial-action-2 will not be imported because normalAvailable is set to false");
+        assertRaNotImported(cracCreationContext, "remedial-action-2", ImportStatus.NOT_FOR_RAO, "Remedial action remedial-action-2 will not be imported because it is set as unavailable");
 
         // With SSI
         cracCreationContext = getNcCracCreationContext("/profiles/ssi/SSI-2_RemedialAction.zip", NETWORK, "2024-01-31T12:30Z");
@@ -91,7 +91,7 @@ class NcSsiTest {
         assertEquals(crac.getInstant(PREVENTIVE_INSTANT_ID), remedialAction.getUsageRules().iterator().next().getInstant());
         assertEquals(UsageMethod.AVAILABLE, remedialAction.getUsageRules().iterator().next().getUsageMethod());
 
-        assertRaNotImported(cracCreationContext, "remedial-action-1", ImportStatus.NOT_FOR_RAO, "Remedial action remedial-action-1 will not be imported because normalAvailable is set to false");
+        assertRaNotImported(cracCreationContext, "remedial-action-1", ImportStatus.NOT_FOR_RAO, "Remedial action remedial-action-1 will not be imported because it is set as unavailable");
     }
 
     @Test

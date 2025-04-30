@@ -74,7 +74,7 @@ public class NcRemedialActionsCreator {
             try {
                 checkKind(nativeRemedialAction);
                 if (!nativeRemedialAction.normalAvailable()) {
-                    throw new OpenRaoImportException(ImportStatus.NOT_FOR_RAO, String.format("Remedial action %s will not be imported because normalAvailable is set to false", nativeRemedialAction.mrid()));
+                    throw new OpenRaoImportException(ImportStatus.NOT_FOR_RAO, String.format("Remedial action %s will not be imported because it is set as unavailable", nativeRemedialAction.mrid()));
                 }
                 RemedialActionType remedialActionType = getRemedialActionType(nativeRemedialAction.mrid(), nativeRemedialAction.mrid());
                 RemedialActionAdder<?> remedialActionAdder;
