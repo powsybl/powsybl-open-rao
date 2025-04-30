@@ -120,16 +120,4 @@ class NetworkActionImplTest {
         assertFalse(crac.getNetworkAction("aligned-psts").isCompatibleWith(crac.getNetworkAction("switch-pair-and-pst")));
         assertTrue(crac.getNetworkAction("switch-pair-and-pst").isCompatibleWith(crac.getNetworkAction("switch-pair-and-pst")));
     }
-
-    @Test
-    void testCopyWithNewId() {
-        NetworkAction duplicate = NetworkActionImpl.copyWithNewId(networkAction1, "copy");
-        assertEquals("copy", duplicate.getId());
-        assertEquals("name", duplicate.getName());
-        assertEquals("operator", duplicate.getOperator());
-        assertEquals(Optional.of(10), duplicate.getSpeed());
-        assertEquals(1, duplicate.getUsageRules().size());
-        assertEquals(1, duplicate.getElementaryActions().size());
-        assertEquals(generator.getId(), duplicate.getNetworkElements().iterator().next().getId());
-    }
 }

@@ -7,8 +7,10 @@
 
 package com.powsybl.openrao.searchtreerao.result.api;
 
+import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -30,4 +32,11 @@ public interface NetworkActionsResult {
      * @return The set of activated network actions.
      */
     Set<NetworkAction> getActivatedNetworkActions();
+
+    /**
+     * It retrieves the {@link NetworkAction} instances activated, grouped by {@link State}.
+     *
+     * @return A map where each key ({@link State}) corresponds to a set of activated network actions during said state.
+     */
+    Map<State, Set<NetworkAction>> getActivatedNetworkActionsPerState();
 }
