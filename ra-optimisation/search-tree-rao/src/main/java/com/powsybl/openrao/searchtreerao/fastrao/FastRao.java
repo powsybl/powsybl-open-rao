@@ -88,6 +88,8 @@ public class FastRao implements RaoProvider {
             return CompletableFuture.completedFuture(new FailedRaoResultImpl("Fast Rao do not support optimization on one given state only"));
         }
 
+        // TODO add warning for multi curative
+
         return CompletableFuture.completedFuture(launchFilteredRao(raoInput, parameters, targetEndInstant, new HashSet<>()));
     }
 
