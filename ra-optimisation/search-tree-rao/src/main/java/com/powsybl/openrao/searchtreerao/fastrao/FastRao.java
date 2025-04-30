@@ -114,7 +114,7 @@ public class FastRao implements RaoProvider {
                 return new FailedRaoResultImpl("Initial sensitivity analysis failed");
             }
 
-            RaoLogger.logSensitivityAnalysisResults("Initial sensitivity analysis: ",
+            RaoLogger.logSensitivityAnalysisResults("[FAST RAO] Initial sensitivity analysis: ",
                 prePerimeterSensitivityAnalysis.getObjectiveFunction(),
                 RemedialActionActivationResultImpl.empty(initialResult),
                 initialResult,
