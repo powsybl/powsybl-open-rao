@@ -117,6 +117,13 @@ class JsonRaoParametersTest extends AbstractSerDeTest {
         parameters.setRelativeMarginsParameters(relativeMarginsParameters);
         searchTreeParameters.setRelativeMarginsParameters(relativeMarginsParametersExtension);
 
+        parameters.addExtension(FastRaoParameters.class, new FastRaoParameters());
+        FastRaoParameters fastRaoParameters = parameters.getExtension(FastRaoParameters.class);
+        // -- Fast Rao Parameters
+        fastRaoParameters.setMarginLimit(5);
+        fastRaoParameters.setAddUnsecureCnecs(false);
+        fastRaoParameters.setNumberOfCnecsToAdd(20);
+
         roundTripTest(parameters, JsonRaoParameters::write, JsonRaoParameters::read, "/RaoParametersSet_v2.json");
     }
 
@@ -125,7 +132,7 @@ class JsonRaoParametersTest extends AbstractSerDeTest {
         RaoParameters parameters = JsonRaoParameters.read(getClass().getResourceAsStream("/RaoParameters_default_v2.json"));
         assertEquals(1, parameters.getExtensions().size());
         JsonRaoParameters.update(parameters, getClass().getResourceAsStream("/RaoParameters_update_v2.json"));
-        assertEquals(1, parameters.getExtensions().size());
+        assertEquals(2, parameters.getExtensions().size());
         assertEquals(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN, parameters.getObjectiveFunctionParameters().getType());
         OpenRaoSearchTreeParameters searchTreeParameters = parameters.getExtension(OpenRaoSearchTreeParameters.class);
         assertEquals(5, searchTreeParameters.getTopoOptimizationParameters().getMaxPreventiveSearchTreeDepth(), DOUBLE_TOLERANCE);
@@ -144,6 +151,12 @@ class JsonRaoParametersTest extends AbstractSerDeTest {
         assertEquals(4, searchTreeParameters.getMnecParameters().get().getConstraintAdjustmentCoefficient(), DOUBLE_TOLERANCE);
         assertEquals(0.06, searchTreeParameters.getRelativeMarginsParameters().get().getPtdfSumLowerBound(), DOUBLE_TOLERANCE);
         assertEquals(List.of("{FR}-{ES}"), parameters.getRelativeMarginsParameters().get().getPtdfBoundariesAsString());
+
+        FastRaoParameters fastRaoParameters = parameters.getExtension(FastRaoParameters.class);
+        assertEquals(true, fastRaoParameters.getAddUnsecureCnecs());
+        assertEquals(40, fastRaoParameters.getNumberOfCnecsToAdd());
+        assertEquals(6.0, fastRaoParameters.getMarginLimit(), DOUBLE_TOLERANCE);
+
     }
 
     @Test
