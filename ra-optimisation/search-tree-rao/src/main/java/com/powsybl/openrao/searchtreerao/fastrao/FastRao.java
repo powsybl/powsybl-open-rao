@@ -57,7 +57,6 @@ import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_LO
 public class FastRao implements RaoProvider {
     private static final String FAST_RAO = "FastRao";
     private static final int NUMBER_LOGGED_ELEMENTS_DURING_RAO = 2;
-    private static final int NUMBER_LOGGED_ELEMENTS_END_RAO = 10;
     private static final int NUMBER_OF_CNECS_TO_ADD = 20;
     private static final boolean ADD_UNSECURE_CNECS = false;
     private static final double MARGIN_LIMIT = 5;
