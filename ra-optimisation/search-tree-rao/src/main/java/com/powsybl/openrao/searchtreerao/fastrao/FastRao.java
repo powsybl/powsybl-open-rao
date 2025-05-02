@@ -23,6 +23,7 @@ import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.RaoProvider;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.FastRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.CastorFullOptimization;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.PrePerimeterSensitivityAnalysis;
@@ -57,9 +58,6 @@ import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_LO
 public class FastRao implements RaoProvider {
     private static final String FAST_RAO = "FastRao";
     private static final int NUMBER_LOGGED_ELEMENTS_DURING_RAO = 2;
-    private static final int NUMBER_OF_CNECS_TO_ADD = 20;
-    private static final boolean ADD_UNSECURE_CNECS = false;
-    private static final double MARGIN_LIMIT = 5;
     // Do not store any big object in this class as it is a static RaoProvider
     // Objects stored in memory will not be released at the end of the RAO run
 
@@ -82,12 +80,20 @@ public class FastRao implements RaoProvider {
     public CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters parameters, Instant targetEndInstant) {
         RaoUtil.initData(raoInput, parameters);
 
-        if (raoInput.getOptimizedState() != null) {
-            BUSINESS_LOGS.error("Fast Rao do not support optimization on one given state only");
-            return CompletableFuture.completedFuture(new FailedRaoResultImpl("Fast Rao do not support optimization on one given state only"));
+        if (!parameters.hasExtension(FastRaoParameters.class)){
+            BUSINESS_LOGS.error("Fast Rao requires FastRaoParameters");
+            return CompletableFuture.completedFuture(new FailedRaoResultImpl("Fast Rao requires FastRaoParameters"));
         }
 
-        // TODO add warning for multi curative
+        if (raoInput.getOptimizedState() != null) {
+            BUSINESS_LOGS.error("Fast Rao does not support optimization on one given state only");
+            return CompletableFuture.completedFuture(new FailedRaoResultImpl("Fast Rao does not support optimization on one given state only"));
+        }
+
+        if (raoInput.getCrac().getInstants(InstantKind.CURATIVE).size() > 1) {
+            BUSINESS_LOGS.error("Fast Rao does not support multi-curative optimization");
+            return CompletableFuture.completedFuture(new FailedRaoResultImpl("Fast Rao does not support multi-curative optimization"));
+        }
 
         return CompletableFuture.completedFuture(launchFilteredRao(raoInput, parameters, targetEndInstant, new HashSet<>()));
     }
@@ -130,9 +136,9 @@ public class FastRao implements RaoProvider {
             int counter = 1;
 
             do {
-                addWorstCnecs(consideredCnecs, NUMBER_OF_CNECS_TO_ADD, stepResult);
-                if (ADD_UNSECURE_CNECS) {
-                    consideredCnecs.addAll(getUnsecureFunctionalCnecs(stepResult, parameters.getObjectiveFunctionParameters().getUnit()));
+                addWorstCnecs(consideredCnecs, parameters.getExtension(FastRaoParameters.class).getNumberOfCnecsToAdd() , stepResult);
+                if (parameters.getExtension(FastRaoParameters.class).getAddUnsecureCnecs()) {
+                    consideredCnecs.addAll(getUnsecureFunctionalCnecs(stepResult, parameters.getObjectiveFunctionParameters().getUnit(), parameters.getExtension(FastRaoParameters.class).getMarginLimit()));
                 }
                 consideredCnecs.addAll(getCostlyVirtualCnecs(stepResult));
                 consideredCnecs.add(getWorstPreventiveCnec(stepResult, crac));
@@ -199,11 +205,11 @@ public class FastRao implements RaoProvider {
         );
     }
 
-    private static Set<FlowCnec> getUnsecureFunctionalCnecs(PrePerimeterResult prePerimeterResult, Unit unit) {
+    private static Set<FlowCnec> getUnsecureFunctionalCnecs(PrePerimeterResult prePerimeterResult, Unit unit, Double marginLimit) {
         List<FlowCnec> orderedCnecs = prePerimeterResult.getMostLimitingElements(Integer.MAX_VALUE);
         Set<FlowCnec> flowCnecs = new HashSet<>();
         for (FlowCnec cnec : orderedCnecs) {
-            if (prePerimeterResult.getMargin(cnec, unit) < MARGIN_LIMIT) {
+            if (prePerimeterResult.getMargin(cnec, unit) < marginLimit) {
                 flowCnecs.add(cnec);
             }
         }
