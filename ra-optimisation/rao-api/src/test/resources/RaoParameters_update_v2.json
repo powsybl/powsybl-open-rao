@@ -21,6 +21,11 @@
     "ptdf-boundaries" : [ "{FR}-{ES}" ]
   },
   "extensions" : {
+    "fast-rao-parameters" : {
+      "number-of-cnecs-to-add" : 40,
+      "add-unsecure-cnecs" : true,
+      "margin-limit" : 6.0
+    },
     "open-rao-search-tree-parameters" : {
       "range-actions-optimization" : {
         "max-mip-iterations" : 5,

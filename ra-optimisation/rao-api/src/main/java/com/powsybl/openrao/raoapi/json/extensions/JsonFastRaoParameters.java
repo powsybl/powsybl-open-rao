@@ -9,7 +9,11 @@ package com.powsybl.openrao.raoapi.json.extensions;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.google.auto.service.AutoService;
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.FastRaoParameters;
 
 import java.io.IOException;
@@ -19,23 +23,25 @@ import static com.powsybl.openrao.raoapi.RaoParametersCommons.*;
 /**
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
  */
-public class JsonFastRaoParameters {
+@AutoService(JsonRaoParameters.ExtensionSerializer.class)
+public class JsonFastRaoParameters implements JsonRaoParameters.ExtensionSerializer<FastRaoParameters> {
 
-    private JsonFastRaoParameters() {
-    }
-
-    static void serialize(FastRaoParameters parameters, JsonGenerator jsonGenerator) throws IOException {
-        jsonGenerator.writeObjectFieldStart(FAST_RAO_PARAMETERS);
-        jsonGenerator.writeNumberField(NUMBER_OF_CNECS_TO_ADD, parameters.getNumberOfCnecsToAdd());
-        jsonGenerator.writeBooleanField(ADD_UNSECURE_CNECS, parameters.getAddUnsecureCnecs());
-        jsonGenerator.writeNumberField(MARGIN_LIMIT, parameters.getMarginLimit());
+    @Override
+    public void serialize(FastRaoParameters fastRaoParameters, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+        jsonGenerator.writeStartObject();
+        jsonGenerator.writeNumberField(NUMBER_OF_CNECS_TO_ADD, fastRaoParameters.getNumberOfCnecsToAdd());
+        jsonGenerator.writeBooleanField(ADD_UNSECURE_CNECS, fastRaoParameters.getAddUnsecureCnecs());
+        jsonGenerator.writeNumberField(MARGIN_LIMIT, fastRaoParameters.getMarginLimit());
         jsonGenerator.writeEndObject();
     }
 
-    static void deserialize(JsonParser jsonParser, FastRaoParameters fastRaoParameters) throws IOException {
+    @Override
+    public FastRaoParameters deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
+        FastRaoParameters fastRaoParameters = new FastRaoParameters();
         while (!jsonParser.nextToken().isStructEnd()) {
             switch (jsonParser.getCurrentName()) {
                 case NUMBER_OF_CNECS_TO_ADD:
+                    jsonParser.nextToken();
                     fastRaoParameters.setNumberOfCnecsToAdd(jsonParser.getIntValue());
                     break;
                 case ADD_UNSECURE_CNECS:
@@ -50,6 +56,21 @@ public class JsonFastRaoParameters {
                     throw new OpenRaoException(String.format("Cannot deserialize fast rao parameters: unexpected field in %s (%s)", FAST_RAO_PARAMETERS, jsonParser.getCurrentName()));
             }
         }
+        return fastRaoParameters;
     }
 
+    @Override
+    public String getExtensionName() {
+        return "fast-rao-parameters";
+    }
+
+    @Override
+    public String getCategoryName() {
+        return "rao-parameters";
+    }
+
+    @Override
+    public Class<? super FastRaoParameters> getExtensionClass() {
+        return FastRaoParameters.class;
+    }
 }
