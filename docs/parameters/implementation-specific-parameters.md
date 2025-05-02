@@ -367,6 +367,10 @@ See also: [Modelling the maximum minimum relative margin objective function](/ca
   function from diverging to infinity (resulting in unbounded problems), the denominator should be prevented from
   getting close to zero. This parameter acts as a lower bound to the denominator.
 
+### Fast Rao Parameters extension
+
+> TODO : add doc later ! 
+
 ## Examples
 > ⚠️  **NOTE**  
 > The following examples in json and yaml are not equivalent
@@ -523,3 +527,4 @@ open-loadflow-default-parameters:
 ~~~
 :::
 ::::
+
