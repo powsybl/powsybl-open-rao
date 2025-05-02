@@ -80,7 +80,7 @@ public class FastRao implements RaoProvider {
     public CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters parameters, Instant targetEndInstant) {
         RaoUtil.initData(raoInput, parameters);
 
-        if (!parameters.hasExtension(FastRaoParameters.class)){
+        if (!parameters.hasExtension(FastRaoParameters.class)) {
             BUSINESS_LOGS.error("Fast Rao requires FastRaoParameters");
             return CompletableFuture.completedFuture(new FailedRaoResultImpl("Fast Rao requires FastRaoParameters"));
         }
@@ -136,7 +136,7 @@ public class FastRao implements RaoProvider {
             int counter = 1;
 
             do {
-                addWorstCnecs(consideredCnecs, parameters.getExtension(FastRaoParameters.class).getNumberOfCnecsToAdd() , stepResult);
+                addWorstCnecs(consideredCnecs, parameters.getExtension(FastRaoParameters.class).getNumberOfCnecsToAdd(), stepResult);
                 if (parameters.getExtension(FastRaoParameters.class).getAddUnsecureCnecs()) {
                     consideredCnecs.addAll(getUnsecureFunctionalCnecs(stepResult, parameters.getObjectiveFunctionParameters().getUnit(), parameters.getExtension(FastRaoParameters.class).getMarginLimit()));
                 }
