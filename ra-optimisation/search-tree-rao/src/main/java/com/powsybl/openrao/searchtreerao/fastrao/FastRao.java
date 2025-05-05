@@ -147,7 +147,7 @@ public class FastRao implements RaoProvider {
                 raoResult = runFilteredRao(raoInput, parameters, targetEndInstant, consideredCnecs, toolProvider, initialResult, networkPool, counter);
                 stepResult = raoResult.getAppropriateResult(lastInstant);
 
-                RaoLogger.logObjectifFunctionResult(String.format("[FAST RAO]Iteration %d: sensitivity analysis: ", counter),
+                RaoLogger.logObjectifFunctionResult(String.format("[FAST RAO] Iteration %d: sensitivity analysis: ", counter),
                     stepResult,
                     stepResult,
                     parameters,
