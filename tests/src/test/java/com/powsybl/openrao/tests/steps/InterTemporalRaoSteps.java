@@ -23,13 +23,13 @@ import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.io.fbconstraint.FbConstraintCreationContext;
 import com.powsybl.openrao.data.raoresult.api.InterTemporalRaoResult;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
-import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceProgram;
 import com.powsybl.openrao.data.refprog.refprogxmlimporter.InterTemporalRefProg;
 import com.powsybl.openrao.raoapi.*;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.searchtreerao.marmot.f711.F711Utils;
 import com.powsybl.openrao.tests.utils.CoreCcPreprocessor;
 import io.cucumber.datatable.DataTable;
+import io.cucumber.java.After;
 import io.cucumber.java.Before;
 import io.cucumber.java.Scenario;
 import io.cucumber.java.en.Given;
@@ -44,6 +44,7 @@ import org.slf4j.MDC;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
@@ -68,7 +69,6 @@ public final class InterTemporalRaoSteps {
     private static String icsSeriesPath;
     private static String icsGskPath;
     private static String refProgPath;
-    private static ReferenceProgram referenceProgram;
     private static InterTemporalRaoInputWithNetworkPaths interTemporalRaoInput;
     private static InterTemporalRaoResult interTemporalRaoResult;
     private static Map<OffsetDateTime, CracCreationContext> cracCreationContexts;
@@ -84,14 +84,11 @@ public final class InterTemporalRaoSteps {
         refProgPath = getResourcesPath().concat("refprogs/").concat(path);
     }
 
-    // TODO : add after to run after all @intertemporal scenarios
-    private static void cleanModifiedNetworks() {
-        interTemporalRaoInput.getTimestampsToRun().forEach(offsetDateTime -> {
-            File file = new File(interTemporalRaoInput.getRaoInputs().getData(offsetDateTime).orElseThrow().getPostIcsImportNetworkPath());
-            if (file.exists()) {
-                file.delete();
-            }
-        });
+    @After()
+    public void cleanModifiedNetworks() throws IOException {
+        if (networkFolderPathPostIcsImport != null) {
+            deleteDirectoryRecursively(Paths.get(networkFolderPathPostIcsImport));
+        }
     }
 
     @Before()
@@ -370,7 +367,6 @@ public final class InterTemporalRaoSteps {
                 generatedNetwork.delete();
             }
             zipOutputStream.close();
-            cleanModifiedNetworks();
         } finally {
             deleteDirectoryRecursively(tempDir);
         }
@@ -418,7 +414,6 @@ public final class InterTemporalRaoSteps {
             generatedNetwork.delete();
         }
         zipOutputStream.close();
-        cleanModifiedNetworks();
     }
 
     private static void applyRedispatchingAction(InjectionRangeAction injectionRangeAction, double optimizedSetpoint, Network modifiedNetwork, Network initialNetwork) {
