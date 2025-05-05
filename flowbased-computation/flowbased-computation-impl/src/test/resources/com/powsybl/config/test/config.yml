@@ -1,5 +1,0 @@
-load-flow:
-  default: "MockLoadflow"
-
-componentDefaultConfig:
-  SensitivityComputationFactory: "com.powsybl.openrao.flowbasedcomputation.impl.SensitivityComputationFactoryMock"

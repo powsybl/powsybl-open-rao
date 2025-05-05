@@ -33,6 +33,7 @@ import com.powsybl.openrao.searchtreerao.result.impl.RemedialActionActivationRes
 import java.util.Map;
 import java.util.Set;
 
+
 /** This class concatenates all data around one individual timestamp from running Marmot:
  * - input data (before Marmot): RaoInput
  * - output data (after Marmot):
@@ -58,7 +59,7 @@ public class PostOptimizationResult implements RaoResult {
 
         State preventiveState = crac.getPreventiveState();
         ObjectiveFunction objectiveFunction = ObjectiveFunction.build(crac.getFlowCnecs(), Set.of(), initialResult, initialResult, Set.of(), raoParameters, Set.of(preventiveState));
-        NetworkActionsResult networkActionsResult = new NetworkActionsResultImpl(topologicalOptimizationResult.getActivatedNetworkActionsDuringState(preventiveState));
+        NetworkActionsResult networkActionsResult = new NetworkActionsResultImpl(Map.of(preventiveState, topologicalOptimizationResult.getActivatedNetworkActionsDuringState(preventiveState)));
         //TODO: also consider cost of curative actions
         RemedialActionActivationResult remedialActionActivationResult = new RemedialActionActivationResultImpl(postMipResult.getRangeActionActivationResult(crac.getTimestamp().orElseThrow()), networkActionsResult);
         this.singleTimestampObjectiveFunctionResult = objectiveFunction.evaluate(postMipResult, remedialActionActivationResult);

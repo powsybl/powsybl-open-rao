@@ -32,7 +32,6 @@ public class JsonNcCracCreationParameters implements JsonCracCreationParameters.
 
     private static final String CAPACITY_CALCULATION_REGION_EIC_CODE = "capacity-calculation-region-eic-code";
     private static final String TSOS_WHICH_DO_NOT_USE_PATL_IN_FINAL_STATE = "tsos-which-do-not-use-patl-in-final-state";
-    private static final String AUTO_INSTANT_APPLICATION_TIME = "auto-instant-application-time";
     private static final String CURATIVE_INSTANTS = "curative-instants";
     private static final String NAME = "name";
     private static final String APPLICATION_TIME = "application-time";
@@ -45,7 +44,6 @@ public class JsonNcCracCreationParameters implements JsonCracCreationParameters.
     public void serialize(NcCracCreationParameters ncParameters, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
         serializeCapacityCalculationRegionEicCode(ncParameters.getCapacityCalculationRegionEicCode(), jsonGenerator);
-        serializeAutoInstantApplicationTime(ncParameters.getAutoInstantApplicationTime(), jsonGenerator);
         serializeTsosWhichDoNotUsePatlInFinalState(ncParameters.getTsosWhichDoNotUsePatlInFinalState(), jsonGenerator);
         serializeCurativeInstants(ncParameters.getCurativeInstants(), jsonGenerator);
         serializeBorders(ncParameters.getBorders(), jsonGenerator);
@@ -60,10 +58,6 @@ public class JsonNcCracCreationParameters implements JsonCracCreationParameters.
                 case CAPACITY_CALCULATION_REGION_EIC_CODE:
                     jsonParser.nextToken();
                     parameters.setCapacityCalculationRegionEicCode(jsonParser.readValueAs(String.class));
-                    break;
-                case AUTO_INSTANT_APPLICATION_TIME:
-                    jsonParser.nextToken();
-                    parameters.setAutoInstantApplicationTime(jsonParser.readValueAs(Integer.class));
                     break;
                 case TSOS_WHICH_DO_NOT_USE_PATL_IN_FINAL_STATE:
                     jsonParser.nextToken();
@@ -106,10 +100,6 @@ public class JsonNcCracCreationParameters implements JsonCracCreationParameters.
 
     private void serializeCapacityCalculationRegionEicCode(String eicCode, JsonGenerator jsonGenerator) throws IOException {
         jsonGenerator.writeStringField(CAPACITY_CALCULATION_REGION_EIC_CODE, eicCode);
-    }
-
-    private void serializeAutoInstantApplicationTime(Integer spsMaxTimeToImplementThresholdInSeconds, JsonGenerator jsonGenerator) throws IOException {
-        jsonGenerator.writeStringField(AUTO_INSTANT_APPLICATION_TIME, spsMaxTimeToImplementThresholdInSeconds.toString());
     }
 
     private void serializeTsosWhichDoNotUsePatlInFinalState(Set<String> usePatlInFinalState, JsonGenerator jsonGenerator) throws IOException {

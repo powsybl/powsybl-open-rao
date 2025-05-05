@@ -450,7 +450,10 @@ public class Marmot implements InterTemporalRaoProvider {
 
     private static TemporalData<NetworkActionsResult> getPreventiveTopologicalActions(TemporalData<Crac> cracs, TemporalData<RaoResult> raoResults) {
         Map<OffsetDateTime, NetworkActionsResult> preventiveTopologicalActions = new HashMap<>();
-        cracs.getTimestamps().forEach(timestamp -> preventiveTopologicalActions.put(timestamp, new NetworkActionsResultImpl(raoResults.getData(timestamp).orElseThrow().getActivatedNetworkActionsDuringState(cracs.getData(timestamp).orElseThrow().getPreventiveState()))));
+        cracs.getTimestamps().forEach(timestamp -> {
+            State preventiveState = cracs.getData(timestamp).orElseThrow().getPreventiveState();
+            preventiveTopologicalActions.put(timestamp, new NetworkActionsResultImpl(Map.of(preventiveState, raoResults.getData(timestamp).orElseThrow().getActivatedNetworkActionsDuringState(preventiveState))));
+        });
         return new TemporalDataImpl<>(preventiveTopologicalActions);
     }
 
