@@ -582,7 +582,7 @@ public class Marmot implements InterTemporalRaoProvider {
     private ObjectiveFunctionResult getInitialObjectiveFunctionResult(TemporalData<PrePerimeterResult> initialResults, ObjectiveFunction objectiveFunction) {
         GlobalFlowResult globalFlowResult = new GlobalFlowResult(initialResults);
         TemporalData<RangeActionActivationResult> rangeActionActivationResults = initialResults.map(RangeActionActivationResultImpl::new);
-        TemporalData<NetworkActionsResult> networkActionsResults = initialResults.map(result -> new NetworkActionsResultImpl(new HashSet<>()));
+        TemporalData<NetworkActionsResult> networkActionsResults = initialResults.map(result -> new NetworkActionsResultImpl(new HashMap<>()));
         return objectiveFunction.evaluate(globalFlowResult, new GlobalRemedialActionActivationResult(rangeActionActivationResults, networkActionsResults));
     }
 
@@ -595,13 +595,13 @@ public class Marmot implements InterTemporalRaoProvider {
         raoInputs.getTimestamps().forEach(timestamp -> {
             RaoResult independentRaoResult = independentRaoResults.getData(timestamp).orElseThrow();
 
-            Set<NetworkAction> activatedNetworkActions = new HashSet<>();
+            Map<State, Set<NetworkAction>> activatedNetworkActionsPerState = new HashMap<>();
             RangeActionActivationResultImpl rangeActionActivationResult = new RangeActionActivationResultImpl(initialResults.getData(timestamp).orElseThrow());
             for (State state : raoInputs.getData(timestamp).orElseThrow().getCrac().getStates()) {
-                activatedNetworkActions.addAll(independentRaoResult.getActivatedNetworkActionsDuringState(state));
+                activatedNetworkActionsPerState.put(state, independentRaoResult.getActivatedNetworkActionsDuringState(state));
                 independentRaoResult.getOptimizedSetPointsOnState(state).forEach((rangeAction, setpoint) -> rangeActionActivationResult.putResult(rangeAction, state, setpoint));
             }
-            independentNetworkActionResults.put(timestamp, new NetworkActionsResultImpl(activatedNetworkActions));
+            independentNetworkActionResults.put(timestamp, new NetworkActionsResultImpl(activatedNetworkActionsPerState));
             independentRangeActionResults.put(timestamp, rangeActionActivationResult);
         });
 

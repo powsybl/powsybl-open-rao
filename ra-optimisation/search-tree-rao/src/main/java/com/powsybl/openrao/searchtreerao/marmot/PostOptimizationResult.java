@@ -33,7 +33,6 @@ import com.powsybl.openrao.searchtreerao.result.impl.RemedialActionActivationRes
 import java.util.Map;
 import java.util.Set;
 
-
 /** This class concatenates all data around one individual timestamp from running Marmot:
  * - input data (before Marmot): RaoInput
  * - output data (after Marmot):
