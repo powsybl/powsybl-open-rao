@@ -311,7 +311,7 @@ public final class AutomatonSimulator {
         }
 
         if (!activatedRangeActions.isEmpty()) {
-            finalPostAutoResult = runPostRangeAutomatonsSensitivityComputation(automatonState, curativeStates, network, speed);
+            finalPostAutoResult = preAutoPerimeterSensitivityAnalysis.runBasedOnInitialResults(network, crac, initialFlowResult, operatorsNotSharingCras, null);
             if (finalPostAutoResult.getSensitivityStatus(automatonState) == ComputationStatus.FAILURE) {
                 return new RangeAutomatonSimulationResult(finalPostAutoResult, allActivatedRangeAutomatons, initialSetPoints, rangeActionsWithSetpoint);
             }
@@ -399,32 +399,6 @@ public final class AutomatonSimulator {
             return false;
         }
         return true;
-    }
-
-    /**
-     * This functions runs a sensitivity analysis when the remedial actions simulation process is over.
-     * The sensitivity analysis is run on curative range actions, to be used at curative instant.
-     * This function returns a prePerimeterResult that will be used to build an AutomatonPerimeterResult.
-     */
-    private PrePerimeterResult runPostRangeAutomatonsSensitivityComputation(State automatonState, Set<State> curativeStates, Network network, int speed) {
-        // -- Run sensitivity computation before running curative RAO later
-        // -- Get curative range actions
-        Set<RangeAction<?>> curativeRangeActions = new HashSet<>();
-        // Get cnecs
-        Set<FlowCnec> flowCnecs = crac.getFlowCnecs(automatonState);
-        for (State curativeState : curativeStates) {
-            curativeRangeActions.addAll(crac.getRangeActions(curativeState, UsageMethod.AVAILABLE));
-            flowCnecs.addAll(crac.getFlowCnecs(curativeState));
-        }
-        PrePerimeterSensitivityAnalysis prePerimeterSensitivityAnalysis = new PrePerimeterSensitivityAnalysis(
-            flowCnecs,
-            curativeRangeActions,
-            raoParameters,
-            toolProvider);
-
-        // Run computation
-        TECHNICAL_LOGS.info("Running post range automatons sensitivity analysis after auto state {} for speed {}.", automatonState.getId(), speed);
-        return prePerimeterSensitivityAnalysis.runBasedOnInitialResults(network, crac, initialFlowResult, operatorsNotSharingCras, null);
     }
 
     /**
