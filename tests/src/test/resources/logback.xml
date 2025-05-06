@@ -1,14 +1,36 @@
 <configuration>
+    <property name="LOG_FILE" value="josiris-camarero" />
+    <property name="LOG_DIR" value="/tmp" />
+
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
             <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
         </encoder>
     </appender>
 
+    <appender name="SIFT" class="ch.qos.logback.classic.sift.SiftingAppender">
+        <!-- in the absence of the class attribute, it is assumed that the
+             desired discriminator type is
+             ch.qos.logback.classic.sift.MDCBasedDiscriminator -->
+        <discriminator>
+            <key>scenarioName</key>
+            <defaultValue>unknown</defaultValue>
+        </discriminator>
+        <sift>
+            <appender name="FILE-${userid}" class="ch.qos.logback.core.FileAppender">
+                <file>/tmp/marmot/${scenarioName}.log</file>
+                <encoder>
+                    <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+                </encoder>
+            </appender>
+        </sift>
+    </appender>
+
     <root level="info">
         <appender-ref ref="STDOUT" />
+        <appender-ref ref="SIFT" />
     </root>
     <logger name="com.powsybl" level="OFF"/>
-    <logger name="com.powsybl.openrao" level="INFO"/>
+    <logger name="com.powsybl.openrao" level="DEBUG"/>
 
 </configuration>
