@@ -130,7 +130,7 @@ As mentioned above, for NTC Capacity calculation/ CEP Validation, this stop crit
 These stop criteria only make sense for a minimum margin objective function (may it be absolute or relative).  
 
 On both stop criteria, [additional constraints](parameters.md#network-actions-optimisation-parameters) can be added, for example:
-- the maximal number of consecutive chosen network actions, also called search tree depth (for [preventive](parameters.md#max-preventive-search-tree-depth), [auto](parameters.md#max-auto-search-tree-depth) and [curative](parameters.md#max-curative-search-tree-depth) search trees),
+- the maximal number of consecutive chosen network actions, also called search tree depth (for [preventive](parameters.md#max-preventive-search-tree-depth) and [curative](parameters.md#max-curative-search-tree-depth) search trees),
 - the [minimal relative gain](parameters.md#relative-minimum-impact-threshold) of objective function between two consecutive network actions (i.e. between two search tree depths).
 
 ## Algorithm

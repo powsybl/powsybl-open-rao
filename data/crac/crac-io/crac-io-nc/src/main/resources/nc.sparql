@@ -1,0 +1,818 @@
+#
+# Copyright (c) 2023, RTE (http://www.rte-france.com)
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+#
+
+# query: contingencyEquipment
+PREFIX cim: <http://iec.ch/TC57/CIM100#>
+SELECT *
+{
+GRAPH <%s> {
+    ?contingencyEquipment
+        rdf:type cim:ContingencyEquipment ;
+        cim:ContingencyEquipment.Equipment ?contingencyEquipmentId ;
+        cim:ContingencyElement.Contingency ?contingency ;
+        cim:ContingencyEquipment.contingentStatus ?contingentStatus ;
+}
+}
+
+# query: header
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+SELECT *
+{
+GRAPH <%s> {
+    ?fullModel
+        dcat:keyword ?keyword ;
+    OPTIONAL {
+        ?fullModel
+            dcat:startDate ?startDate ;
+            dcat:endDate ?endDate ;
+        }
+}
+}
+
+# query: ordinaryContingency
+PREFIX cim: <http://iec.ch/TC57/CIM100#>
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+SELECT *
+{
+GRAPH <%s> {
+    ?contingency
+        rdf:type nc:OrdinaryContingency ;
+        nc:Contingency.normalMustStudy ?normalMustStudy ;
+    OPTIONAL {
+            ?contingency cim:IdentifiedObject.name ?name .
+            }
+    OPTIONAL {
+            ?contingency nc:Contingency.EquipmentOperator ?idEquipmentOperator .
+            }
+}
+}
+
+# query: exceptionalContingency
+PREFIX cim: <http://iec.ch/TC57/CIM100#>
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+SELECT *
+{
+GRAPH <%s> {
+    ?contingency
+        rdf:type nc:ExceptionalContingency ;
+        nc:Contingency.normalMustStudy ?normalMustStudy ;
+    OPTIONAL {
+            ?contingency cim:IdentifiedObject.name ?name .
+            }
+    OPTIONAL {
+            ?contingency nc:Contingency.EquipmentOperator ?idEquipmentOperator .
+            }
+}
+}
+
+# query: outOfRangeContingency
+PREFIX cim: <http://iec.ch/TC57/CIM100#>
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+SELECT *
+{
+GRAPH <%s> {
+    ?contingency
+        rdf:type nc:OutOfRangeContingency ;
+        nc:Contingency.normalMustStudy ?normalMustStudy ;
+    OPTIONAL {
+            ?contingency cim:IdentifiedObject.name ?name .
+            }
+    OPTIONAL {
+            ?contingency nc:Contingency.EquipmentOperator ?idEquipmentOperator .
+            }
+}
+}
+
+# query: assessedElement
+PREFIX cim: <http://iec.ch/TC57/CIM100#>
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+SELECT *
+{
+GRAPH <%s> {
+    ?assessedElement
+        rdf:type nc:AssessedElement ;
+        nc:AssessedElement.inBaseCase ?inBaseCase ;
+        cim:IdentifiedObject.name ?name ;
+        nc:AssessedElement.AssessedSystemOperator ?assessedSystemOperator .
+    OPTIONAL {
+                ?assessedElement nc:AssessedElement.ConductingEquipment ?conductingEquipment .
+                }
+    OPTIONAL {
+                ?assessedElement nc:AssessedElement.OperationalLimit ?operationalLimit .
+                }
+    OPTIONAL {
+                ?assessedElement nc:AssessedElement.isCombinableWithContingency ?isCombinableWithContingency .
+            }
+    OPTIONAL {
+               ?assessedElement nc:AssessedElement.normalEnabled ?normalEnabled .
+            }
+    OPTIONAL {
+                ?assessedElement nc:AssessedElement.SecuredForRegion ?securedForRegion .
+            }
+    OPTIONAL {
+                ?assessedElement nc:AssessedElement.ScannedForRegion ?scannedForRegion .
+            }
+    OPTIONAL {
+                ?assessedElement nc:AssessedElement.flowReliabilityMargin ?flowReliabilityMargin .
+            }
+    OPTIONAL {
+                ?assessedElement nc:AssessedElement.OverlappingZone ?overlappingZone .
+            }
+}
+}
+
+# query: assessedElementWithRemedialAction
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+SELECT *
+{
+GRAPH <%s> {
+    ?assessedElementWithRemedialAction
+        rdf:type nc:AssessedElementWithRemedialAction ;
+        nc:AssessedElementWithRemedialAction.RemedialAction ?remedialAction ;
+        nc:AssessedElementWithRemedialAction.AssessedElement ?assessedElement ;
+        nc:AssessedElementWithRemedialAction.combinationConstraintKind ?combinationConstraintKind .
+    OPTIONAL {
+        ?assessedElementWithRemedialAction
+            nc:AssessedElementWithRemedialAction.normalEnabled ?normalEnabled .
+    }
+}
+}
+
+# query: assessedElementWithContingency
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+SELECT *
+{
+GRAPH <%s> {
+    ?assessedElementWithContingency
+        rdf:type nc:AssessedElementWithContingency ;
+        nc:AssessedElementWithContingency.Contingency ?contingency ;
+        nc:AssessedElementWithContingency.AssessedElement ?assessedElement ;
+        nc:AssessedElementWithContingency.combinationConstraintKind ?combinationConstraintKind .
+    OPTIONAL {
+        ?assessedElementWithContingency
+            nc:AssessedElementWithContingency.normalEnabled ?normalEnabled .
+    }
+}
+}
+
+# query: currentLimit
+PREFIX cim: <http://iec.ch/TC57/2013/CIM-schema-cim16#>
+PREFIX entsoe: <http://entsoe.eu/CIM/SchemaExtension/3/1#>
+SELECT *
+{
+    GRAPH <%s> {
+        ?currentLimit
+            rdf:type cim:CurrentLimit ;
+            cim:CurrentLimit.value ?value ;
+            cim:OperationalLimit.OperationalLimitSet ?operationalLimitSet ;
+            cim:OperationalLimit.OperationalLimitType ?operationalLimitType .
+        ?operationalLimitSet
+            rdf:type cim:OperationalLimitSet ;
+            cim:OperationalLimitSet.Terminal ?terminal .
+        ?operationalLimitType
+            rdf:type cim:OperationalLimitType ;
+            entsoe:OperationalLimitType.limitType ?limitType ;
+            cim:OperationalLimitType.direction ?direction .
+        OPTIONAL {
+            ?operationalLimitType
+                cim:OperationalLimitType.acceptableDuration ?acceptableDuration .
+        }
+    }
+}
+
+# query: voltageLimit
+PREFIX cim: <http://iec.ch/TC57/2013/CIM-schema-cim16#>
+PREFIX entsoe: <http://entsoe.eu/CIM/SchemaExtension/3/1#>
+SELECT *
+{
+GRAPH <%s> {
+    ?voltageLimit
+        rdf:type cim:VoltageLimit ;
+        cim:VoltageLimit.value ?value ;
+        cim:OperationalLimit.OperationalLimitSet ?operationalLimitSet ;
+        cim:OperationalLimit.OperationalLimitType ?operationalLimitType .
+    ?operationalLimitSet
+        rdf:type cim:OperationalLimitSet ;
+        cim:OperationalLimitSet.Equipment ?equipment .
+    ?operationalLimitType
+        rdf:type cim:OperationalLimitType ;
+        entsoe:OperationalLimitType.limitType ?limitType .
+    OPTIONAL {
+        ?operationalLimitType
+            cim:OperationalLimitType.isInfiniteDuration ?isInfiniteDuration .
+    }
+}
+}
+
+# query: voltageAngleLimit
+PREFIX cim: <http://iec.ch/TC57/CIM100#>
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+
+SELECT *
+{
+    GRAPH <%s> {
+        ?voltageAngleLimit
+            rdf:type nc:VoltageAngleLimit ;
+            nc:VoltageAngleLimit.normalValue ?normalValue ;
+            nc:VoltageAngleLimit.AngleReferenceTerminal ?terminal1 ;
+            cim:OperationalLimit.OperationalLimitSet ?operationalLimitSet ;
+            cim:OperationalLimit.OperationalLimitType ?operationalLimitType .
+        ?operationalLimitSet
+            rdf:type cim:OperationalLimitSet ;
+            cim:OperationalLimitSet.Terminal ?terminal2 .
+        ?operationalLimitType
+            rdf:type cim:OperationalLimitType ;
+            cim:OperationalLimitType.direction ?direction .
+
+        OPTIONAL {
+                ?voltageAngleLimit
+                    nc:VoltageAngleLimit.isFlowToRefTerminal ?isFlowToRefTerminal .
+            }
+    }
+}
+
+# query: gridStateAlterationRemedialAction
+PREFIX cim: <http://iec.ch/TC57/CIM100#>
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+
+SELECT *
+{
+    GRAPH <%s> {
+        ?gridStateAlterationRemedialAction
+            rdf:type nc:GridStateAlterationRemedialAction ;
+            cim:IdentifiedObject.mRID ?mRID ;
+            nc:RemedialAction.normalAvailable ?normalAvailable ;
+            nc:RemedialAction.kind ?kind .
+
+        OPTIONAL {
+            ?gridStateAlterationRemedialAction cim:IdentifiedObject.name ?name .
+        }
+        OPTIONAL {
+            ?gridStateAlterationRemedialAction nc:RemedialAction.timeToImplement ?timeToImplement .
+        }
+        OPTIONAL {
+            ?gridStateAlterationRemedialAction nc:RemedialAction.RemedialActionSystemOperator ?tso .
+        }
+        OPTIONAL {
+            ?gridStateAlterationRemedialAction nc:RemedialAction.isManual ?isManual .
+        }
+    }
+}
+
+# query: contingencyWithRemedialAction
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+SELECT *
+{
+GRAPH <%s> {
+    ?contingencyWithRemedialAction
+        rdf:type nc:ContingencyWithRemedialAction ;
+        nc:ContingencyWithRemedialAction.mRID ?mRID ;
+        nc:ContingencyWithRemedialAction.RemedialAction ?remedialAction ;
+        nc:ContingencyWithRemedialAction.Contingency ?contingency ;
+        nc:ContingencyWithRemedialAction.combinationConstraintKind ?combinationConstraintKind ;
+
+        OPTIONAL {
+                ?contingencyWithRemedialAction nc:ContingencyWithRemedialAction.normalEnabled ?normalEnabled .
+            }
+}
+}
+
+# query: topologyAction
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX cim: <http://iec.ch/TC57/CIM100#>
+SELECT *
+{
+GRAPH <%s> {
+    ?topologyAction
+        rdf:type nc:TopologyAction ;
+        cim:IdentifiedObject.mRID ?mRID ;
+        nc:TopologyAction.Switch ?switchId ;
+        nc:GridStateAlteration.PropertyReference ?propertyReference ;
+
+        OPTIONAL {
+            ?topologyAction nc:GridStateAlteration.normalEnabled ?normalEnabled .
+        }
+        OPTIONAL {
+            ?topologyAction nc:GridStateAlteration.GridStateAlterationRemedialAction ?gridStateAlterationRemedialAction .
+        }
+        OPTIONAL {
+            ?topologyAction nc:GridStateAlteration.GridStateAlterationCollection ?gridStateAlterationCollection .
+        }
+}
+}
+
+# query: rotatingMachineAction
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX cim: <http://iec.ch/TC57/CIM100#>
+SELECT *
+{
+    GRAPH <%s> {
+        ?rotatingMachineAction
+            rdf:type nc:RotatingMachineAction ;
+            cim:IdentifiedObject.mRID ?mRID ;
+            nc:GridStateAlteration.PropertyReference ?propertyReference ;
+            nc:RotatingMachineAction.RotatingMachine ?rotatingMachineId ;
+
+            OPTIONAL {
+                ?rotatingMachineAction nc:GridStateAlteration.normalEnabled ?normalEnabled .
+            }
+            OPTIONAL {
+                ?rotatingMachineAction nc:GridStateAlteration.GridStateAlterationRemedialAction ?gridStateAlterationRemedialAction .
+            }
+            OPTIONAL {
+                ?rotatingMachineAction nc:GridStateAlteration.GridStateAlterationCollection ?gridStateAlterationCollection .
+            }
+    }
+}
+
+# query: shuntCompensatorModification
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX cim: <http://iec.ch/TC57/CIM100#>
+SELECT *
+{
+    GRAPH <%s> {
+        ?shuntCompensatorModification
+            rdf:type nc:ShuntCompensatorModification ;
+            cim:IdentifiedObject.mRID ?mRID ;
+            nc:GridStateAlteration.PropertyReference ?propertyReference ;
+            nc:ShuntCompensatorModification.ShuntCompensator ?shuntCompensatorId ;
+
+        OPTIONAL {
+            ?shuntCompensatorModification nc:GridStateAlteration.normalEnabled ?normalEnabled .
+        }
+        OPTIONAL {
+            ?shuntCompensatorModification nc:GridStateAlteration.GridStateAlterationRemedialAction ?gridStateAlterationRemedialAction .
+        }
+        OPTIONAL {
+            ?shuntCompensatorModification nc:GridStateAlteration.GridStateAlterationCollection ?gridStateAlterationCollection .
+        }
+    }
+}
+
+# query: staticPropertyRange
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX cim: <http://iec.ch/TC57/CIM100#>
+SELECT *
+{
+GRAPH <%s> {
+    ?staticPropertyRange
+        rdf:type nc:StaticPropertyRange ;
+        cim:IdentifiedObject.mRID ?mRID ;
+        nc:RangeConstraint.normalValue ?normalValue ;
+        nc:RangeConstraint.valueKind ?valueKind ;
+        nc:RangeConstraint.direction ?direction ;
+        nc:RangeConstraint.GridStateAlteration ?gridStateAlteration ;
+        nc:StaticPropertyRange.PropertyReference ?propertyReference;
+}
+}
+
+# query: tapPositionAction
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX cim: <http://iec.ch/TC57/CIM100#>
+SELECT *
+{
+GRAPH <%s> {
+    ?tapPositionAction
+        rdf:type nc:TapPositionAction ;
+        cim:IdentifiedObject.mRID ?mRID ;
+        nc:GridStateAlteration.PropertyReference ?propertyReference;
+        nc:TapPositionAction.TapChanger ?tapChangerId ;
+
+        OPTIONAL {
+            ?tapPositionAction nc:GridStateAlteration.normalEnabled ?normalEnabled .
+        }
+        OPTIONAL {
+            ?tapPositionAction nc:GridStateAlteration.GridStateAlterationRemedialAction ?gridStateAlterationRemedialAction .
+        }
+        OPTIONAL {
+            ?tapPositionAction nc:GridStateAlteration.GridStateAlterationCollection ?gridStateAlterationCollection .
+        }
+}
+}
+
+# query: remedialActionSchedule
+PREFIX cim: <http://iec.ch/TC57/CIM100#>
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+
+SELECT *
+{
+    GRAPH <%s> {
+        ?remedialActionSchedule
+            rdf:type nc:RemedialActionSchedule ;
+            cim:IdentifiedObject.mRID ?mRID ;
+    }
+}
+
+# query: schemeRemedialAction
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX cim: <http://iec.ch/TC57/CIM100#>
+SELECT *
+{
+    GRAPH <%s> {
+    ?schemeRemedialAction
+        rdf:type nc:SchemeRemedialAction ;
+        cim:IdentifiedObject.mRID ?mRID ;
+        nc:RemedialAction.kind ?kind ;
+        nc:RemedialAction.normalAvailable ?normalAvailable .
+        OPTIONAL {
+            ?schemeRemedialAction cim:IdentifiedObject.name ?name .
+        }
+        OPTIONAL {
+            ?schemeRemedialAction nc:RemedialAction.timeToImplement ?timeToImplement .
+        }
+        OPTIONAL {
+            ?schemeRemedialAction nc:RemedialAction.RemedialActionSystemOperator ?tso .
+        }
+}
+}
+
+# query: remedialActionScheme
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX cim: <http://iec.ch/TC57/CIM100#>
+SELECT *
+{
+    GRAPH <%s> {
+            ?remedialActionScheme
+                rdf:type nc:RemedialActionScheme ;
+                cim:IdentifiedObject.mRID ?mRID ;
+                nc:RemedialActionScheme.kind ?kind ;
+                nc:RemedialActionScheme.normalArmed ?normalArmed ;
+                nc:RemedialActionScheme.ArmedRemedialAction ?schemeRemedialAction .
+    }
+}
+
+# query: stage
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX cim: <http://iec.ch/TC57/CIM100#>
+SELECT *
+{
+GRAPH <%s> {
+        ?stage
+            rdf:type nc:Stage ;
+            cim:IdentifiedObject.mRID ?mRID ;
+            nc:Stage.GridStateAlterationCollection ?gridStateAlterationCollection;
+            nc:Stage.RemedialActionScheme ?remedialActionScheme;
+}
+}
+
+# query: gridStateAlterationCollection
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX cim: <http://iec.ch/TC57/CIM100#>
+SELECT *
+{
+GRAPH <%s> {
+    ?gridStateAlterationCollection
+        rdf:type nc:GridStateAlterationCollection ;
+        cim:IdentifiedObject.mRID ?mRID ;
+
+}
+}
+
+# query: contingencyOverriding
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+SELECT *
+{
+GRAPH <%s> {
+    ?fullModel
+        dcat:startDate ?startDate ;
+        dcat:endDate ?endDate ;
+        dcat:keyword ?keyword .
+    ?contingency
+        rdf:type nc:Contingency ;
+        nc:Contingency.mustStudy ?mustStudy ;
+}
+}
+
+# query: assessedElementOverriding
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+SELECT *
+{
+GRAPH <%s> {
+    ?fullModel
+        dcat:startDate ?startDate ;
+        dcat:endDate ?endDate ;
+        dcat:keyword ?keyword .
+    ?assessedElement
+        rdf:type nc:AssessedElement ;
+        nc:AssessedElement.enabled ?enabled .
+}
+}
+
+# query: assessedElementWithContingencyOverriding
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+SELECT *
+{
+GRAPH <%s> {
+    ?fullModel
+        dcat:startDate ?startDate ;
+        dcat:endDate ?endDate ;
+        dcat:keyword ?keyword .
+    ?assessedElementWithContingency
+        rdf:type nc:AssessedElementWithContingency;
+        nc:AssessedElementWithContingency.enabled ?enabled .
+}
+}
+
+# query: assessedElementWithRemedialActionOverriding
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+SELECT *
+{
+GRAPH <%s> {
+    ?fullModel
+        dcat:startDate ?startDate ;
+        dcat:endDate ?endDate ;
+        dcat:keyword ?keyword .
+    ?assessedElementWithRemedialAction
+        rdf:type nc:AssessedElementWithRemedialAction ;
+        nc:AssessedElementWithRemedialAction.enabled ?enabled .
+}
+}
+
+# query: contingencyWithRemedialActionOverriding
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+SELECT *
+{
+GRAPH <%s> {
+    ?fullModel
+        dcat:startDate ?startDate ;
+        dcat:endDate ?endDate ;
+        dcat:keyword ?keyword .
+    ?contingencyWithRemedialAction
+        rdf:type nc:ContingencyWithRemedialAction ;
+        nc:ContingencyWithRemedialAction.enabled ?enabled .
+}
+}
+
+# query: gridStateAlterationRemedialActionOverriding
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+SELECT *
+{
+GRAPH <%s> {
+    ?fullModel
+        dcat:startDate ?startDate ;
+        dcat:endDate ?endDate ;
+        dcat:keyword ?keyword .
+    ?gridStateAlterationRemedialAction
+        rdf:type nc:GridStateAlterationRemedialAction ;
+        nc:RemedialAction.available ?available .
+}
+}
+
+# query: schemeRemedialActionOverriding
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+SELECT *
+{
+GRAPH <%s> {
+    ?fullModel
+        dcat:startDate ?startDate ;
+        dcat:endDate ?endDate ;
+        dcat:keyword ?keyword .
+    ?schemeRemedialAction
+        rdf:type nc:SchemeRemedialAction ;
+        nc:RemedialAction.available ?available .
+}
+}
+
+# query: gridStateAlterationOverriding
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+SELECT *
+{
+GRAPH <%s> {
+    ?fullModel
+        dcat:startDate ?startDate ;
+        dcat:endDate ?endDate ;
+        dcat:keyword ?keyword .
+    ?gridStateAlteration
+        rdf:type nc:GridStateAlteration ;
+        nc:GridStateAlteration.enabled ?enabled .
+}
+}
+
+# query: topologyActionOverriding
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+SELECT *
+{
+GRAPH <%s> {
+    ?fullModel
+        dcat:startDate ?startDate ;
+        dcat:endDate ?endDate ;
+        dcat:keyword ?keyword .
+    ?topologyAction
+        rdf:type nc:GridStateAlteration ;
+        nc:GridStateAlteration.enabled ?enabled .
+}
+}
+
+# query: rotatingMachineActionOverriding
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+SELECT *
+{
+GRAPH <%s> {
+    ?fullModel
+        dcat:startDate ?startDate ;
+        dcat:endDate ?endDate ;
+        dcat:keyword ?keyword .
+    ?rotatingMachineAction
+        rdf:type nc:GridStateAlteration ;
+        nc:GridStateAlteration.enabled ?enabled .
+}
+}
+
+# query: shuntCompensatorModificationOverriding
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+SELECT *
+{
+GRAPH <%s> {
+    ?fullModel
+        dcat:startDate ?startDate ;
+        dcat:endDate ?endDate ;
+        dcat:keyword ?keyword .
+    ?shuntCompensatorModification
+        rdf:type nc:GridStateAlteration ;
+        nc:GridStateAlteration.enabled ?enabled .
+}
+}
+
+# query: tapPositionActionOverriding
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+SELECT *
+{
+GRAPH <%s> {
+    ?fullModel
+        dcat:startDate ?startDate ;
+        dcat:endDate ?endDate ;
+        dcat:keyword ?keyword .
+    ?tapPositionAction
+        rdf:type nc:GridStateAlteration ;
+        nc:GridStateAlteration.enabled ?enabled .
+}
+}
+
+# query: staticPropertyRangeOverriding
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+SELECT *
+{
+GRAPH <%s> {
+    ?fullModel
+        dcat:startDate ?startDate ;
+        dcat:endDate ?endDate ;
+        dcat:keyword ?keyword .
+    ?staticPropertyRange
+        rdf:type nc:RangeConstraint ;
+        nc:RangeConstraint.value ?value .
+}
+}
+
+# query: remedialActionSchemeOverriding
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+SELECT *
+{
+GRAPH <%s> {
+    ?fullModel
+        dcat:startDate ?startDate ;
+        dcat:endDate ?endDate ;
+        dcat:keyword ?keyword .
+    ?remedialActionScheme
+        rdf:type nc:RemedialActionScheme ;
+        nc:RemedialActionScheme.armed ?armed .
+}
+}
+
+# query: voltageAngleLimitOverriding
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+SELECT *
+{
+GRAPH <%s> {
+    ?fullModel
+        dcat:startDate ?startDate ;
+        dcat:endDate ?endDate ;
+        dcat:keyword ?keyword .
+    ?voltageAngleLimit
+        rdf:type nc:VoltageAngleLimit ;
+        nc:VoltageAngleLimit.value ?value .
+}
+}
+
+# query: currentLimitOverriding
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX md: <http://iec.ch/TC57/61970-552/ModelDescription/1#>
+SELECT *
+{
+GRAPH <%s> {
+    ?fullModel
+        md:Model.scenarioTime ?scenarioTime ;
+        md:Model.profile ?profile .
+    ?currentLimit
+        rdf:type nc:CurrentLimit ;
+        nc:CurrentLimit.value ?value .
+}
+}
+
+# query: voltageLimitOverriding
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX md: <http://iec.ch/TC57/61970-552/ModelDescription/1#>
+SELECT *
+{
+GRAPH <%s> {
+    ?fullModel
+        md:Model.scenarioTime ?scenarioTime ;
+        md:Model.profile ?profile .
+    ?voltageLimit
+        rdf:type nc:VoltageLimit ;
+        nc:VoltageLimit.value ?value .
+}
+}
+
+# query: remedialActionGroup
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX cim: <http://iec.ch/TC57/CIM100#>
+SELECT *
+{
+GRAPH <%s> {
+    ?remedialActionGroup
+        rdf:type nc:RemedialActionGroup ;
+        cim:IdentifiedObject.mRID ?mRID ;
+    OPTIONAL {
+        ?remedialActionGroup cim:IdentifiedObject.name ?name .
+    }
+}
+}
+
+# query: remedialActionDependency
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX cim: <http://iec.ch/TC57/CIM100#>
+SELECT *
+{
+GRAPH <%s> {
+    ?remedialActionDependency
+        rdf:type nc:RemedialActionDependency ;
+        nc:RemedialActionDependency.kind ?kind ;
+        nc:RemedialActionDependency.mRID ?mRID ;
+        nc:RemedialActionDependency.RemedialAction ?remedialAction ;
+        nc:RemedialActionDependency.DependingRemedialActionGroup ?dependingRemedialActionGroup ;
+        OPTIONAL {
+            ?remedialActionDependency nc:RemedialActionDependency.normalEnabled ?normalEnabled .
+        }
+}
+}
+
+
+# query: remedialActionDependencyOverriding
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+SELECT *
+{
+GRAPH <%s> {
+    ?fullModel
+        dcat:startDate ?startDate ;
+        dcat:endDate ?endDate ;
+        dcat:keyword ?keyword .
+    ?remedialActionDependency
+        rdf:type nc:RemedialActionDependency ;
+        nc:RemedialActionDependency.enabled ?enabled .
+}
+}
+
+# query: tapChanger
+PREFIX cim: <http://iec.ch/TC57/2013/CIM-schema-cim16#>
+SELECT *
+{
+VALUES ?type { cim:PhaseTapChangerSymmetrical cim:PhaseTapChangerAsymmetrical cim:PhaseTapChangerLinear cim:PhaseTapChangerTabular cim:RatioTapChanger }
+GRAPH <%s> {
+    ?tapChanger rdf:type ?type .
+
+    # Conditionally bind the correct TransformerEnd based on the type of the tap changer
+    BIND(IF(?type = cim:RatioTapChanger, cim:RatioTapChanger.TransformerEnd, cim:PhaseTapChanger.TransformerEnd) AS ?transformerEndProperty)
+
+    ?tapChanger ?transformerEndProperty ?transformerEnd .
+
+    ?transformerEnd rdf:type cim:PowerTransformerEnd ;
+                    cim:PowerTransformerEnd.PowerTransformer ?powerTransformer .
+}
+}

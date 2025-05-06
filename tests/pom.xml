@@ -58,7 +58,7 @@
         <!-- Compile dependencies -->
         <dependency>
             <groupId>com.powsybl</groupId>
-            <artifactId>monitoring</artifactId>
+            <artifactId>open-rao-monitoring</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
@@ -106,7 +106,7 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>open-rao-crac-io-csa-profiles</artifactId>
+            <artifactId>open-rao-crac-io-nc</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
@@ -119,24 +119,6 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>open-rao-crac-loopflow-extension</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>open-rao-flowbased-computation-api</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>open-rao-flowbased-computation-impl</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>open-rao-flowbased-domain</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>

@@ -202,7 +202,7 @@ Feature: US 92.1: Costly network actions optimization
     - scenario 1: no ARA and no CRA -> 50 MW overload
     - scenario 2: forced ARA and no CRA
     - scenario 3: no ARA and available CRA
-    - scenario 4: available ARA and available CRA
+    - scenario 4: forced ARA and available CRA
     Given network file is "epic92/2Nodes8ParallelLines5LinesClosed.uct"
     Given crac file is "epic92/crac-92-1-11.json"
     Given configuration file is "epic92/RaoParameters_dc_minObjective.json"

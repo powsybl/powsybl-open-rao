@@ -354,7 +354,7 @@
         {
           "instant": "auto",
           "contingencyId": "coBeFr5",
-          "usageMethod": "available"
+          "usageMethod": "forced"
         }
       ],
       "terminalsConnectionActions": [

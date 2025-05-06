@@ -1,5 +1,5 @@
 {
-  "version" : "3.0",
+  "version" : "3.1",
   "objective-function" : {
     "type" : "MAX_MIN_MARGIN"
   },
