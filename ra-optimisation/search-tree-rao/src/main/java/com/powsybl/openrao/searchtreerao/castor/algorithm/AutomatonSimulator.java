@@ -384,7 +384,7 @@ public final class AutomatonSimulator {
     private PrePerimeterResult runPreCurativeSensitivityComputation(State automatonState, Set<State> curativeStates, Network network) {
         // -- Run sensitivity computation before running curative RAO later
         // -- Get curative range actions
-        Set<RangeAction<?>> curativeRangeActions = new HashSet<>();
+        Set<RangeAction<?>> curativeRangeActions = new HashSet<>(crac.getRangeActions(automatonState, UsageMethod.FORCED));
         // Get cnecs
         Set<FlowCnec> flowCnecs = crac.getFlowCnecs(automatonState);
         for (State curativeState : curativeStates) {
