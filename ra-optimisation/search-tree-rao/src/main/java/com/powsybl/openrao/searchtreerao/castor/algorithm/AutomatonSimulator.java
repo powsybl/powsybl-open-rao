@@ -141,7 +141,7 @@ public final class AutomatonSimulator {
             }
 
             // II) Simulate range actions
-            rangeAutomatonSimulationResult = simulateRangeAutomatons(automatonState, curativeStates, network, preAutoPstOptimizationSensitivityAnalysis, topoSimulationResult.perimeterResult(), speed, rangeAutomatonSimulationResult.activatedRangeActions(), initialSetPoints, rangeAutomatonSimulationResult.rangeActionsWithSetpoint());
+            rangeAutomatonSimulationResult = simulateRangeAutomatons(automatonState, network, preAutoPstOptimizationSensitivityAnalysis, topoSimulationResult.perimeterResult(), speed, rangeAutomatonSimulationResult.activatedRangeActions(), initialSetPoints, rangeAutomatonSimulationResult.rangeActionsWithSetpoint());
 
             // Sensitivity analysis failed :
             if (rangeAutomatonSimulationResult.perimeterResult().getSensitivityStatus(automatonState) == ComputationStatus.FAILURE) {
@@ -273,7 +273,7 @@ public final class AutomatonSimulator {
     ) {
     }
 
-    RangeAutomatonSimulationResult simulateRangeAutomatons(State automatonState, Set<State> curativeStates, Network network, PrePerimeterSensitivityAnalysis preAutoPerimeterSensitivityAnalysis, PrePerimeterResult postTopoResult, int speed, Set<RangeAction<?>> previouslyAppliedRangeAutomatons, Map<RangeAction<?>, Double> initialSetPoints, Map<RangeAction<?>, Double> setPoints) {
+    RangeAutomatonSimulationResult simulateRangeAutomatons(State automatonState, Network network, PrePerimeterSensitivityAnalysis preAutoPerimeterSensitivityAnalysis, PrePerimeterResult postTopoResult, int speed, Set<RangeAction<?>> previouslyAppliedRangeAutomatons, Map<RangeAction<?>, Double> initialSetPoints, Map<RangeAction<?>, Double> setPoints) {
         PrePerimeterResult finalPostAutoResult = postTopoResult;
         // -- Create groups of aligned range actions
         List<List<RangeAction<?>>> rangeActionsOnAutomatonState = buildRangeActionsGroupsForSpeed(finalPostAutoResult, automatonState, network, speed);
