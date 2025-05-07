@@ -99,17 +99,4 @@ public class NetworkActionImpl extends AbstractRemedialAction<NetworkAction> imp
         return super.hashCode();
     }
 
-    public static NetworkAction copyWithNewId(NetworkAction networkAction, String newId) {
-        return new NetworkActionImpl(
-            newId,
-            networkAction.getName(),
-            networkAction.getOperator(),
-            networkAction.getUsageRules(),
-            networkAction.getElementaryActions(),
-            networkAction.getSpeed().orElse(null),
-            networkAction.getActivationCost().orElse(null),
-            networkAction.getNetworkElements()
-        );
-    }
-
 }

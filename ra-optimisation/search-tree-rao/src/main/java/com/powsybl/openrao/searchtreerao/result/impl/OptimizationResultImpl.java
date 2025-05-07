@@ -186,4 +186,8 @@ public class OptimizationResultImpl implements OptimizationResult {
         objectiveFunctionResult.excludeCnecs(cnecsToExclude);
     }
 
+    @Override
+    public Map<State, Set<NetworkAction>> getActivatedNetworkActionsPerState() {
+        return networkActionsResult.getActivatedNetworkActionsPerState();
+    }
 }
