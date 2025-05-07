@@ -48,7 +48,6 @@ class CurativeOptimizationPerimeterTest extends AbstractOptimizationPerimeterTes
         assertTrue(optPerimeter.getRangeActionsPerState().get(cState1).contains(cRA));
     }
 
-
     @Test
     void curativePerimeterTestRAFiltered() {
         Mockito.when(prePerimeterResult.getSetpoint(cRA)).thenReturn(1000.0 + 2 * 1e-6);

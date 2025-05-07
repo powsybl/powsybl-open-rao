@@ -155,9 +155,9 @@ abstract class AbstractOptimizationPerimeterTest {
         RangeActionSetpointResult prePerimeterSetpoints = Mockito.mock(RangeActionSetpointResult.class);
 
         //respect range with epsilon
-        when(prePerimeterSetpoints.getSetpoint(rangeAction)).thenReturn(100.0+0.5*1e-6);
-        when(rangeAction.getMinAdmissibleSetpoint(100.0+0.5*1e-6)).thenReturn(0.0);
-        when(rangeAction.getMaxAdmissibleSetpoint(100.0+0.5*1e-6)).thenReturn(100.0);
+        when(prePerimeterSetpoints.getSetpoint(rangeAction)).thenReturn(100.0 + 0.5 * 1e-6);
+        when(rangeAction.getMinAdmissibleSetpoint(100.0 + 0.5 * 1e-6)).thenReturn(0.0);
+        when(rangeAction.getMaxAdmissibleSetpoint(100.0 + 0.5 * 1e-6)).thenReturn(100.0);
         assertTrue(AbstractOptimizationPerimeter.doesPrePerimeterSetpointRespectRange(rangeAction, prePerimeterSetpoints));
 
         // not in range slightly outside of bound +- EPSILON
