@@ -48,6 +48,14 @@ class CurativeOptimizationPerimeterTest extends AbstractOptimizationPerimeterTes
         assertTrue(optPerimeter.getRangeActionsPerState().get(cState1).contains(cRA));
     }
 
+
+    @Test
+    void curativePerimeterTestRAFiltered() {
+        Mockito.when(prePerimeterResult.getSetpoint(cRA)).thenReturn(1000.0 + 2 * 1e-6);
+        OptimizationPerimeter optPerimeter = CurativeOptimizationPerimeter.build(cState1, crac, network, raoParameters, prePerimeterResult);
+        assertEquals(0, optPerimeter.getRangeActions().size());
+    }
+
     @Test
     void curativePerimeterbuildOnPreventiveStateTest() {
         assertThrows(OpenRaoException.class, () -> CurativeOptimizationPerimeter.build(pState, crac, network, raoParameters, prePerimeterResult));

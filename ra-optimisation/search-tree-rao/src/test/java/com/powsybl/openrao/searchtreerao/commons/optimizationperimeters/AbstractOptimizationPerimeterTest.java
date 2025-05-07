@@ -18,8 +18,14 @@ import com.powsybl.openrao.data.crac.impl.utils.NetworkImportsUtil;
 import com.powsybl.openrao.data.crac.loopflowextension.LoopFlowThresholdAdder;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
+import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.when;
 
 abstract class AbstractOptimizationPerimeterTest {
     private static final String PREVENTIVE_INSTANT_ID = "preventive";
@@ -142,4 +148,23 @@ abstract class AbstractOptimizationPerimeterTest {
 
         prePerimeterResult = Mockito.mock(PrePerimeterResult.class);
     }
+
+    @Test
+    void testDoesPrePerimeterSetpointRespectRange() {
+        RangeAction<?> rangeAction = Mockito.mock(RangeAction.class);
+        RangeActionSetpointResult prePerimeterSetpoints = Mockito.mock(RangeActionSetpointResult.class);
+
+        //respect range with epsilon
+        when(prePerimeterSetpoints.getSetpoint(rangeAction)).thenReturn(100.0+0.5*1e-6);
+        when(rangeAction.getMinAdmissibleSetpoint(100.0+0.5*1e-6)).thenReturn(0.0);
+        when(rangeAction.getMaxAdmissibleSetpoint(100.0+0.5*1e-6)).thenReturn(100.0);
+        assertTrue(AbstractOptimizationPerimeter.doesPrePerimeterSetpointRespectRange(rangeAction, prePerimeterSetpoints));
+
+        // not in range slightly outside of bound +- EPSILON
+        when(prePerimeterSetpoints.getSetpoint(rangeAction)).thenReturn(100.0 + 2 * 1e-6);
+        when(rangeAction.getMinAdmissibleSetpoint(100.0 + 2 * 1e-6)).thenReturn(0.0);
+        when(rangeAction.getMaxAdmissibleSetpoint(100.0 + 2 * 1e-6)).thenReturn(100.0);
+        assertFalse(AbstractOptimizationPerimeter.doesPrePerimeterSetpointRespectRange(rangeAction, prePerimeterSetpoints));
+    }
+
 }
