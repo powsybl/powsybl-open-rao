@@ -108,7 +108,7 @@ class PowerGradientConstraintFillerTest {
 
             RangeActionsOptimizationParameters rangeActionParameters = parameters.getRangeActionsOptimizationParameters();
             Map<RangeAction<?>, Double> map = new HashMap<>();
-            crac.getRangeActions(crac.getPreventiveState(), UsageMethod.AVAILABLE).forEach(action -> map.put(action, 0.0));
+            crac.getRangeActions(crac.getPreventiveState(), UsageMethod.AVAILABLE).forEach(action -> map.put(action, 200.0));
             RangeActionSetpointResult rangeActionSetpointResult = new RangeActionSetpointResultImpl(map);
             MarginCoreProblemFiller coreProblemFiller = new MarginCoreProblemFiller(
                 optimizationPerimeter,
@@ -150,7 +150,6 @@ class PowerGradientConstraintFillerTest {
         buildAndFillLinearProblem();
     }
 
-    // TODO : test with rangeActionSetPointVariationConstraint used to have lb and ub != 0
     @Test
     void testGeneratorPowerConstraintFiller() throws IOException {
         createOneTSInput();
@@ -176,10 +175,10 @@ class PowerGradientConstraintFillerTest {
         // check bound
         assertEquals(0., fr1Timestamp1PowerConstraint.ub());
         assertEquals(0., fr1Timestamp1PowerConstraint.lb());
-        assertEquals(0., fr2Timestamp1PowerConstraint.ub());
-        assertEquals(0., fr2Timestamp1PowerConstraint.lb());
-        assertEquals(0., fr3Timestamp1PowerConstraint.ub());
-        assertEquals(0., fr3Timestamp1PowerConstraint.lb());
+        assertEquals(-1 * 200. + -0.5 * 200, fr2Timestamp1PowerConstraint.ub());
+        assertEquals(-1 * 200. + -0.5 * 200, fr2Timestamp1PowerConstraint.lb());
+        assertEquals(0.4 * 200. + 0.5 * 200, fr3Timestamp1PowerConstraint.ub());
+        assertEquals(0.4 * 200. + 0.5 * 200, fr3Timestamp1PowerConstraint.lb());
 
         Crac crac1 = input.getRaoInputs().getData(timestamp1).get().getCrac();
         // check coefficient for injection action variable
