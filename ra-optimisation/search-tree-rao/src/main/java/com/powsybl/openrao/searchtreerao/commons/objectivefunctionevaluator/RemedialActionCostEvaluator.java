@@ -8,6 +8,7 @@
 package com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator;
 
 import com.powsybl.openrao.data.crac.api.State;
+import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.VariationDirection;
@@ -16,6 +17,7 @@ import com.powsybl.openrao.searchtreerao.commons.costevaluatorresult.CostEvaluat
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.RemedialActionActivationResult;
 
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -39,7 +41,12 @@ public class RemedialActionCostEvaluator implements CostEvaluator {
     }
 
     private double getTotalNetworkActionsCost(RemedialActionActivationResult remedialActionActivationResult) {
-        return remedialActionActivationResult.getActivatedNetworkActions().stream().mapToDouble(networkAction -> networkAction.getActivationCost().orElse(0.0)).sum();
+        double totalNetworkActionsCost = 0;
+        Map<State, Set<NetworkAction>> networkActionsPerState = remedialActionActivationResult.getActivatedNetworkActionsPerState();
+        for (State state : networkActionsPerState.keySet()) {
+            totalNetworkActionsCost += networkActionsPerState.get(state).stream().mapToDouble(networkAction -> networkAction.getActivationCost().orElse(0.0)).sum();
+        }
+        return totalNetworkActionsCost;
     }
 
     private double getTotalRangeActionsCost(RemedialActionActivationResult remedialActionActivationResult) {
