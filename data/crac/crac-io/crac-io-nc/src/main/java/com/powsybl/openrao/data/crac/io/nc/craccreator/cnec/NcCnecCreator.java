@@ -98,7 +98,7 @@ public class NcCnecCreator {
         }
 
         // We check whether the AssessedElement is defined using an OperationalLimit
-        com.powsybl.openrao.data.crac.io.nc.craccreator.constants.LimitType limitType = getLimit(nativeAssessedElement);
+        LimitType limitType = getLimit(nativeAssessedElement);
 
         checkAeScannedSecuredCoherence(nativeAssessedElement);
 
@@ -125,12 +125,12 @@ public class NcCnecCreator {
         }
     }
 
-    private com.powsybl.openrao.data.crac.io.nc.craccreator.constants.LimitType getLimit(AssessedElement nativeAssessedElement) {
+    private LimitType getLimit(AssessedElement nativeAssessedElement) {
         if (nativeCurrentLimitPerId.get(nativeAssessedElement.operationalLimit()) != null) {
-            return com.powsybl.openrao.data.crac.io.nc.craccreator.constants.LimitType.CURRENT;
+            return LimitType.CURRENT;
         }
         if (nativeVoltageLimitPerId.get(nativeAssessedElement.operationalLimit()) != null) {
-            return com.powsybl.openrao.data.crac.io.nc.craccreator.constants.LimitType.VOLTAGE;
+            return LimitType.VOLTAGE;
         }
         if (nativeVoltageAngleLimitPerId.get(nativeAssessedElement.operationalLimit()) != null) {
             return LimitType.ANGLE;
