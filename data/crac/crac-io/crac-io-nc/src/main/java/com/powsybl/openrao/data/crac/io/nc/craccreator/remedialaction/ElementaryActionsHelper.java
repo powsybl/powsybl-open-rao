@@ -9,7 +9,6 @@ package com.powsybl.openrao.data.crac.io.nc.craccreator.remedialaction;
 import com.powsybl.openrao.data.crac.io.nc.NcCrac;
 import com.powsybl.openrao.data.crac.io.nc.craccreator.NcAggregator;
 import com.powsybl.openrao.data.crac.io.nc.objects.ContingencyWithRemedialAction;
-import com.powsybl.openrao.data.crac.io.nc.objects.GridStateAlterationRemedialAction;
 import com.powsybl.openrao.data.crac.io.nc.objects.RemedialActionDependency;
 import com.powsybl.openrao.data.crac.io.nc.objects.RemedialActionGroup;
 import com.powsybl.openrao.data.crac.io.nc.objects.RotatingMachineAction;
@@ -26,22 +25,16 @@ import java.util.Set;
  */
 public class ElementaryActionsHelper {
     private final Set<RemedialActionGroup> nativeRemedialActionGroups;
-    private final Set<GridStateAlterationRemedialAction> nativeGridStateAlterationRemedialActions;
     private final Map<String, Set<RemedialActionDependency>> nativeRemedialActionDependencyPerNativeRemedialActionGroup;
     private final Map<String, Set<TopologyAction>> nativeTopologyActionsPerNativeRemedialAction;
-    private final Map<String, Set<TopologyAction>> nativeTopologyActionsPerNativeRemedialActionAuto;
     private final Map<String, Set<RotatingMachineAction>> nativeRotatingMachineActionsPerNativeRemedialAction;
-    private final Map<String, Set<RotatingMachineAction>> nativeRotatingMachineActionsPerNativeRemedialActionAuto;
     private final Map<String, Set<ShuntCompensatorModification>> nativeShuntCompensatorModificationsPerNativeRemedialAction;
-    private final Map<String, Set<ShuntCompensatorModification>> nativeShuntCompensatorModificationsPerNativeRemedialActionAuto;
     private final Map<String, Set<TapPositionAction>> nativeTapPositionActionsPerNativeRemedialAction;
-    private final Map<String, Set<TapPositionAction>> nativeTapPositionActionsPerNativeRemedialActionAuto;
     private final Map<String, Set<StaticPropertyRange>> nativeStaticPropertyRangesPerNativeGridStateAlteration;
     final Map<String, Set<ContingencyWithRemedialAction>> nativeContingencyWithRemedialActionPerNativeRemedialAction;
 
     public ElementaryActionsHelper(NcCrac nativeCrac) {
         this.nativeRemedialActionGroups = nativeCrac.getRemedialActionGroups();
-        this.nativeGridStateAlterationRemedialActions = nativeCrac.getGridStateAlterationRemedialActions();
 
         this.nativeRemedialActionDependencyPerNativeRemedialActionGroup = new NcAggregator<>(RemedialActionDependency::dependingRemedialActionGroup).aggregate(nativeCrac.getRemedialActionDependencies());
 
@@ -52,12 +45,6 @@ public class ElementaryActionsHelper {
         this.nativeRotatingMachineActionsPerNativeRemedialAction = new NcAggregator<>(RotatingMachineAction::gridStateAlterationRemedialAction).aggregate(nativeCrac.getRotatingMachineActions());
         this.nativeShuntCompensatorModificationsPerNativeRemedialAction = new NcAggregator<>(ShuntCompensatorModification::gridStateAlterationRemedialAction).aggregate(nativeCrac.getShuntCompensatorModifications());
         this.nativeTapPositionActionsPerNativeRemedialAction = new NcAggregator<>(TapPositionAction::gridStateAlterationRemedialAction).aggregate(nativeCrac.getTapPositionActions());
-
-        this.nativeTopologyActionsPerNativeRemedialActionAuto = new NcAggregator<>(TopologyAction::gridStateAlterationCollection).aggregate(nativeCrac.getTopologyActions());
-        this.nativeRotatingMachineActionsPerNativeRemedialActionAuto = new NcAggregator<>(RotatingMachineAction::gridStateAlterationCollection).aggregate(nativeCrac.getRotatingMachineActions());
-        this.nativeShuntCompensatorModificationsPerNativeRemedialActionAuto = new NcAggregator<>(ShuntCompensatorModification::gridStateAlterationCollection).aggregate(nativeCrac.getShuntCompensatorModifications());
-        this.nativeTapPositionActionsPerNativeRemedialActionAuto = new NcAggregator<>(TapPositionAction::gridStateAlterationCollection).aggregate(nativeCrac.getTapPositionActions());
-
     }
 
     public Map<String, Set<RemedialActionDependency>> getNativeRemedialActionDependencyPerNativeRemedialActionGroup() {

@@ -17,9 +17,6 @@ public final class NcConstants {
     public static final String PREVENTIVE_INSTANT = "preventive";
     public static final String OUTAGE_INSTANT = "outage";
     public static final String AUTO_INSTANT = "auto";
-    public static final String CURATIVE_1_INSTANT = "curative 1";
-    public static final String CURATIVE_2_INSTANT = "curative 2";
-    public static final String CURATIVE_3_INSTANT = "curative 3";
 
     private NcConstants() {
     }
@@ -85,10 +82,7 @@ public final class NcConstants {
      */
 
     public static final String REMEDIAL_ACTION_NAME = "name";
-    public static final String SCHEME_REMEDIAL_ACTION = "schemeRemedialAction";
     public static final String REMEDIAL_ACTION_SCHEME = "remedialActionScheme";
-    public static final String STAGE = "stage";
-    public static final String SIPS = "http://entsoe.eu/ns/nc#RemedialActionSchemeKind.sips";
     public static final String NORMAL_ARMED = "normalArmed";
     public static final String OVERRIDE_ARMED = "armed";
     public static final String DEPENDING_REMEDIAL_ACTION_GROUP = "dependingRemedialActionGroup";
@@ -142,9 +136,6 @@ public final class NcConstants {
     public static final String REQUEST_ASSESSED_ELEMENT_CONDUCTING_EQUIPMENT = "conductingEquipment";
     public static final String REQUEST_ASSESSED_ELEMENT_NORMAL_ENABLED = "normalEnabled";
     public static final String REQUEST_ASSESSED_ELEMENT_IS_COMBINABLE_WITH_CONTINGENCY = "isCombinableWithContingency";
-    public static final String REQUEST_ASSESSED_ELEMENT_IS_COMBINABLE_WITH_REMEDIAL_ACTION = "isCombinableWithRemedialAction";
-    public static final String REQUEST_ASSESSED_ELEMENT_WITH_CONTINGENCY_COMBINATION_CONSTRAINT_KIND = "combinationConstraintKind";
-    public static final String REQUEST_ASSESSED_ELEMENT_WITH_CONTINGENCY_NORMAL_ENABLED = "normalEnabled";
     public static final String REQUEST_ASSESSED_ELEMENT_SCANNED_FOR_REGION = "scannedForRegion";
     public static final String REQUEST_ASSESSED_ELEMENT_SECURED_FOR_REGION = "securedForRegion";
     public static final String REQUEST_FLOW_RELIABILITY_MARGIN = "flowReliabilityMargin";

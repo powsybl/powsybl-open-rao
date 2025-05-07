@@ -829,7 +829,8 @@ and an **AVAILABLE usage method**.
 
 If the remedial action is linked to a contingency, its usage method is no longer onInstant and is now
 **onContingencyState**. This link is created with a `ContingencyWithRemedialAction` object that bounds together the
-remedial action and the contingency.
+remedial action and the contingency. The usage method will be `AVAILABLE` is the remedial action is a CRA and `FORCED`
+if it is an automaton.
 
 ```xml
 <!-- RA Profile -->
@@ -838,7 +839,7 @@ remedial action and the contingency.
     <nc:ContingencyWithRemedialAction rdf:ID="_contingency-with-remedial-action">
         <nc:ContingencyWithRemedialAction.mRID>contingency-with-remedial-action</nc:ContingencyWithRemedialAction.mRID>
         <nc:ContingencyWithRemedialAction.combinationConstraintKind
-                rdf:resource="http://entsoe.eu/ns/nc#ElementCombinationConstraintKind.considered"/>
+                rdf:resource="http://entsoe.eu/ns/nc#ElementCombinationConstraintKind.included"/>
         <nc:ContingencyWithRemedialAction.RemedialAction rdf:resource="#_remedial-action"/>
         <nc:ContingencyWithRemedialAction.Contingency rdf:resource="#_contingency"/>
         <nc:ContingencyWithRemedialAction.normalEnabled>true</nc:ContingencyWithRemedialAction.normalEnabled>
@@ -847,20 +848,16 @@ remedial action and the contingency.
 </rdf:RDF>
 ```
 
-The usage method depends on the value of the `combinationConstraintKind` field:
-
-- if it is `considered`, the usage method is **AVAILABLE**;
-- if it is `included`, the usage method is **FORCED**;
-
-> ⛔ **Cases with different `combinationConstraintKind` values for the same remedial action-contingency couple**
->
-> This case is illegal and will be discarded at the import.
+> **⛔ Illegal situations**
+> - A preventive remedial action cannot be linked to a contingency.
+> - If several links between the same remedial action and the same contingency exist, they will all be ignored to avoid any ambiguity.
 
 #### OnConstraint
 
 If the remedial action is linked to an assessed element (a CNEC), its usage method is no longer onInstant and is now
 **onConstraint**. This link is created with a `AssessedElementWithRemedialAction` object that bounds together the
-assessed element and the contingency.
+assessed element and the contingency. The usage method will be `AVAILABLE` is the remedial action is a CRA and `FORCED`
+if it is an automaton.
 
 ```xml
 <!-- AE Profile -->
@@ -879,5 +876,5 @@ assessed element and the contingency.
 </rdf:RDF>
 ```
 
-The usage method depends on the value of the `combinationConstraintKind` field. If it is `considered`, the usage method
-is **AVAILABLE** whereas the usage method is **FORCED** if the fields is `included`.
+> - If several FlowCNECs were created from the `AssessedElement`, an onConstraint usage rule is created for each as long as the instant of the FlowCNEC occurs after the instant of the remedial action (except for ARAs for which only auto CNECs are supported)
+> - If the `AssessedElement` is also linked to a `Contingency`, only the FlowCNECs monitored after said contingency will be considered for the onConstraint usage rules (see previous bullet point)

@@ -6,9 +6,17 @@
  */
 package com.powsybl.openrao.data.crac.io.nc.objects;
 
+import com.powsybl.openrao.data.crac.io.nc.craccreator.constants.NcConstants;
+
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
 public interface Association extends NCObject {
+    String INCLUDED = NcConstants.ENTSOE_NS_NC_URL + "#ElementCombinationConstraintKind.included";
+
     String combinationConstraintKind();
+
+    default boolean isIncluded() {
+        return INCLUDED.equals(combinationConstraintKind());
+    }
 }

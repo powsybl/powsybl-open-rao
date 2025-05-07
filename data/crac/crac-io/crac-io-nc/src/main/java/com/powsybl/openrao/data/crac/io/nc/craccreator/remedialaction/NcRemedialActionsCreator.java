@@ -15,7 +15,6 @@ import com.powsybl.openrao.data.crac.io.nc.NcCrac;
 import com.powsybl.openrao.data.crac.io.nc.craccreator.NcCracCreationContext;
 import com.powsybl.openrao.data.crac.io.nc.craccreator.NcCracUtils;
 import com.powsybl.openrao.data.crac.io.nc.craccreator.NcAggregator;
-import com.powsybl.openrao.data.crac.io.nc.craccreator.constants.ElementCombinationConstraintKind;
 import com.powsybl.openrao.data.crac.io.nc.craccreator.constants.RemedialActionKind;
 import com.powsybl.openrao.data.crac.io.nc.objects.AssessedElementWithRemedialAction;
 import com.powsybl.openrao.data.crac.io.nc.objects.ContingencyWithRemedialAction;
@@ -75,7 +74,7 @@ public class NcRemedialActionsCreator {
             try {
                 checkKind(nativeRemedialAction);
                 if (!nativeRemedialAction.normalAvailable()) {
-                    throw new OpenRaoImportException(ImportStatus.NOT_FOR_RAO, String.format("Remedial action %s will not be imported because normalAvailable is set to false", nativeRemedialAction.mrid()));
+                    throw new OpenRaoImportException(ImportStatus.NOT_FOR_RAO, String.format("Remedial action %s will not be imported because it is set as unavailable", nativeRemedialAction.mrid()));
                 }
                 RemedialActionType remedialActionType = getRemedialActionType(nativeRemedialAction.mrid(), nativeRemedialAction.mrid());
                 RemedialActionAdder<?> remedialActionAdder;
@@ -160,12 +159,11 @@ public class NcRemedialActionsCreator {
         cnecStatusMap.forEach((cnecId, cnecStatus) -> {
             if (cnecStatus.isValid()) {
                 Cnec<?> cnec = crac.getCnec(cnecId);
-                UsageMethod usageMethod = getUsageMethod(cnecStatus.elementCombinationConstraintKind());
                 if (isOnConstraintInstantCoherent(cnec.getState().getInstant(), instant)) {
                     remedialActionAdder.newOnConstraintUsageRule()
                         .withInstant(instant.getId())
                         .withCnec(cnecId)
-                        .withUsageMethod(usageMethod)
+                        .withUsageMethod(getUsageMethod(instant))
                         .add();
                 }
             } else {
@@ -187,7 +185,7 @@ public class NcRemedialActionsCreator {
                 remedialActionAdder.newOnContingencyStateUsageRule()
                     .withInstant(instant.getId())
                     .withContingency(contingencyId)
-                    .withUsageMethod(getUsageMethod(contingencyStatus.elementCombinationConstraintKind()))
+                    .withUsageMethod(getUsageMethod(instant))
                     .add();
             } else {
                 alterations.add(contingencyStatus.statusDetails());
@@ -217,8 +215,8 @@ public class NcRemedialActionsCreator {
         return InstantKind.CURATIVE;
     }
 
-    private UsageMethod getUsageMethod(ElementCombinationConstraintKind elementCombinationConstraintKind) {
-        return ElementCombinationConstraintKind.INCLUDED.equals(elementCombinationConstraintKind) ? UsageMethod.FORCED : UsageMethod.AVAILABLE;
+    private UsageMethod getUsageMethod(Instant instant) {
+        return instant.isAuto() ? UsageMethod.FORCED : UsageMethod.AVAILABLE;
     }
 
     private static void checkKind(GridStateAlterationRemedialAction nativeRemedialAction) {
