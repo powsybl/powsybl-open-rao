@@ -39,26 +39,26 @@ public class UcteNetworkAnalyzer {
         return properties;
     }
 
-    UcteMatchingResult findContingencyElement(String from, String to, String suffix) {
+    public UcteMatchingResult findContingencyElement(String from, String to, String suffix) {
         return connectablesInNetwork.lookForConnectable(completeNodeName(from), completeNodeName(to), suffix, properties,
                 ConnectableType.INTERNAL_LINE, ConnectableType.TIE_LINE, ConnectableType.DANGLING_LINE, ConnectableType.VOLTAGE_TRANSFORMER, ConnectableType.PST, ConnectableType.HVDC, ConnectableType.SWITCH);
     }
 
-    UcteMatchingResult findFlowElement(String from, String to, String suffix) {
+    public UcteMatchingResult findFlowElement(String from, String to, String suffix) {
         return connectablesInNetwork.lookForConnectable(completeNodeName(from), completeNodeName(to), suffix, properties,
                 ConnectableType.INTERNAL_LINE, ConnectableType.TIE_LINE, ConnectableType.DANGLING_LINE, ConnectableType.VOLTAGE_TRANSFORMER, ConnectableType.PST);
     }
 
-    UcteMatchingResult findTopologicalElement(String from, String to, String suffix) {
+    public UcteMatchingResult findTopologicalElement(String from, String to, String suffix) {
         return connectablesInNetwork.lookForConnectable(completeNodeName(from), completeNodeName(to), suffix, properties,
                 ConnectableType.INTERNAL_LINE, ConnectableType.TIE_LINE, ConnectableType.DANGLING_LINE, ConnectableType.VOLTAGE_TRANSFORMER, ConnectableType.PST, ConnectableType.SWITCH);
     }
 
-    UcteMatchingResult findPstElement(String from, String to, String suffix) {
+    public UcteMatchingResult findPstElement(String from, String to, String suffix) {
         return connectablesInNetwork.lookForConnectable(completeNodeName(from), completeNodeName(to), suffix, properties, ConnectableType.PST);
     }
 
-    UcteMatchingResult findHvdcElement(String from, String to, String suffix) {
+    public UcteMatchingResult findHvdcElement(String from, String to, String suffix) {
         return connectablesInNetwork.lookForConnectable(completeNodeName(from), completeNodeName(to), suffix, properties, ConnectableType.HVDC);
     }
 
