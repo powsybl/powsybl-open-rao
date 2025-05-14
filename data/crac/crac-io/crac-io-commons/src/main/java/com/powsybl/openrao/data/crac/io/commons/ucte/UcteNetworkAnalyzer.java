@@ -13,6 +13,7 @@ import com.powsybl.iidm.network.*;
 /**
  * A utility class, that stores network information so as to speed up
  * the identification of Ucte branches within a Iidm network.
+ * The class is public because it can be useful in other projects.
  *
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
