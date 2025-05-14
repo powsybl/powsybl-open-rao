@@ -24,7 +24,7 @@ import java.util.Set;
  *
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-class UcteConnectable implements Comparable<UcteConnectable> {
+public class UcteConnectable implements Comparable<UcteConnectable> {
 
     private final Identifiable<?> iidmIdentifiable;
 
@@ -37,7 +37,7 @@ class UcteConnectable implements Comparable<UcteConnectable> {
     private final boolean isIidmConventionInverted; //transformer conventions between iidm and UCTE formats are inverted
     private final ConnectableType type;
 
-    enum Side {
+    public enum Side {
         ONE,
         TWO, // a tie-line contains two half-lines, each half-line point towards one side of the tie-line
         BOTH // used for all elements but tie-lines
