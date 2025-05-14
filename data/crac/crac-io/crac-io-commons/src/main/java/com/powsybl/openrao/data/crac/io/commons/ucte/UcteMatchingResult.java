@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.Identifiable;
 /**
  * @author Baptiste Seguinot{@literal <baptiste.seguinot at rte-france.com>}
  */
-final class UcteMatchingResult {
+public final class UcteMatchingResult {
 
     private static final UcteMatchingResult NOT_FOUND = new UcteMatchingResult(MatchStatus.NOT_FOUND, null, false, null);
     private static final UcteMatchingResult SEVERAL_MATCH = new UcteMatchingResult(MatchStatus.SEVERAL_MATCH, null, false, null);
@@ -22,7 +22,7 @@ final class UcteMatchingResult {
     private boolean isInverted;
     private final Identifiable<?> iidmIdentifiable;
 
-    enum MatchStatus {
+    public enum MatchStatus {
         SINGLE_MATCH(true),
         NOT_FOUND(false),
         SEVERAL_MATCH(true);
@@ -34,11 +34,11 @@ final class UcteMatchingResult {
         }
     }
 
-    boolean hasMatched() {
+    public boolean hasMatched() {
         return status.hasMatched;
     }
 
-    boolean isInverted() {
+    public boolean isInverted() {
         return isInverted;
     }
 
@@ -66,15 +66,15 @@ final class UcteMatchingResult {
         return this;
     }
 
-    Identifiable<?> getIidmIdentifiable() {
+    public Identifiable<?> getIidmIdentifiable() {
         return iidmIdentifiable;
     }
 
-    UcteConnectable.Side getSide() {
+    public UcteConnectable.Side getSide() {
         return side;
     }
 
-    MatchStatus getStatus() {
+    public MatchStatus getStatus() {
         return status;
     }
 }
