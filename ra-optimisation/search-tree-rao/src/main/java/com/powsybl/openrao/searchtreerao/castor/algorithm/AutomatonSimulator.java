@@ -256,7 +256,7 @@ public final class AutomatonSimulator {
         PrePerimeterResult automatonRangeActionOptimizationSensitivityAnalysisOutput = preAutomatonsPerimeterResult;
         if (!appliedNetworkActions.isEmpty()) {
             TECHNICAL_LOGS.info("Running sensitivity analysis post application of auto network actions for automaton state {} for speed {}.", automatonBatchInput.automatonState().getId(), automatonBatchInput.batchSpeed);
-            automatonRangeActionOptimizationSensitivityAnalysisOutput = automatonBatchInput.preAutoPerimeterSensitivityAnalysis().runBasedOnInitialResults(automatonBatchInput.network(), crac, initialFlowResult, operatorsNotSharingCras, null);
+            automatonRangeActionOptimizationSensitivityAnalysisOutput = automatonBatchInput.runPostBatchSensitivityAnalysis(crac, initialFlowResult, operatorsNotSharingCras);
             if (automatonRangeActionOptimizationSensitivityAnalysisOutput.getSensitivityStatus(automatonBatchInput.automatonState()) == ComputationStatus.FAILURE) {
                 return new TopoAutomatonSimulationResult(automatonRangeActionOptimizationSensitivityAnalysisOutput, allAppliedAutomatons);
             }
@@ -313,7 +313,7 @@ public final class AutomatonSimulator {
         }
 
         if (!activatedRangeActions.isEmpty()) {
-            finalPostAutoResult = automatonBatchInput.preAutoPerimeterSensitivityAnalysis().runBasedOnInitialResults(automatonBatchInput.network(), crac, initialFlowResult, operatorsNotSharingCras, null);
+            finalPostAutoResult = automatonBatchInput.runPostBatchSensitivityAnalysis(crac, initialFlowResult, operatorsNotSharingCras);
             if (finalPostAutoResult.getSensitivityStatus(automatonBatchInput.automatonState()) == ComputationStatus.FAILURE) {
                 return new RangeAutomatonSimulationResult(finalPostAutoResult, allActivatedRangeAutomatons, initialSetPoints, rangeActionsWithSetpoint);
             }
@@ -750,5 +750,8 @@ public final class AutomatonSimulator {
     }
 
     record AutomatonBatchInput(State automatonState, Network network, PrePerimeterSensitivityAnalysis preAutoPerimeterSensitivityAnalysis, int batchSpeed) {
+        PrePerimeterResult runPostBatchSensitivityAnalysis(Crac crac, FlowResult initialFlowResult, Set<String> operatorsNotSharingCras) {
+            return preAutoPerimeterSensitivityAnalysis.runBasedOnInitialResults(network, crac, initialFlowResult, operatorsNotSharingCras, null);
+        }
     }
 }
