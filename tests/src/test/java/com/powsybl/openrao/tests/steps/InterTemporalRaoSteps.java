@@ -26,6 +26,7 @@ import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.refprog.refprogxmlimporter.InterTemporalRefProg;
 import com.powsybl.openrao.raoapi.*;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
+import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.CurativeOptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.marmot.f711.F711Utils;
 import com.powsybl.openrao.tests.utils.CoreCcPreprocessor;
 import io.cucumber.datatable.DataTable;
@@ -47,6 +48,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -163,16 +165,12 @@ public final class InterTemporalRaoSteps {
             cracFile = getFile(cracPath);
         }
 
-        raoParameters = buildConfig(getFile(raoParametersPath));
 
-        TemporalData<RaoInputWithNetworkPaths> raoInputs = new TemporalDataImpl<>();
         List<Map<String, String>> inputs = arg1.asMaps(String.class, String.class);
         for (Map<String, String> tsInput : inputs) {
             OffsetDateTime offsetDateTime = getOffsetDateTimeFromBrusselsTimestamp(tsInput.get("Timestamp"));
             TECHNICAL_LOGS.info("**** Loading data for TS {} ****", offsetDateTime);
             // Network
-            String initialNetworkPath = networkFolderPath.concat(tsInput.get("Network"));
-            String postIcsNetworkPath = networkFolderPathPostIcsImport.concat(tsInput.get("Network")).split(".uct")[0].concat(".jiidm");
             Network network = importNetwork(getFile(networkFolderPath.concat(tsInput.get("Network"))), false);
             CoreCcPreprocessor.applyCoreCcNetworkPreprocessing(network, false);
             // Crac
@@ -183,16 +181,18 @@ public final class InterTemporalRaoSteps {
                 addTimestampToCracCreationParameters("FlowBasedConstraintDocument", offsetDateTime, cracCreationParameters);
                 cracImportResult = importCrac(cracFile, network, cracCreationParameters);
             }
-            RaoInputWithNetworkPaths raoInput = RaoInputWithNetworkPaths
-                .build(initialNetworkPath, postIcsNetworkPath, cracImportResult.getLeft())
-                .build();
-            raoInputs.put(offsetDateTime, raoInput);
-            cracCreationContexts.put(offsetDateTime, cracImportResult.getRight());
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd_HHmm");
+            DateTimeFormatter formatterDate = DateTimeFormatter.ofPattern("yyyyMMdd");
+            String directoryPath = "/home/chenrox/crac/" + offsetDateTime.format(formatterDate);
+            String outputPath = directoryPath + "/crac_" + offsetDateTime.format(formatter) + ".json";
+            Path directory = Paths.get(directoryPath);
+            if (!Files.exists(directory)) {
+                Files.createDirectories(directory);
+            }
+            try (OutputStream outputStream = new FileOutputStream(outputPath)) {
+                cracImportResult.getLeft().write("JSON", outputStream);
+            }
         }
-        interTemporalRaoInput = new InterTemporalRaoInputWithNetworkPaths(raoInputs, new HashSet<>());
-        InputStream gskInputStream = icsGskPath == null ? null : new FileInputStream(getFile(icsGskPath));
-        IcsImporter.populateInputWithICS(interTemporalRaoInput, new FileInputStream(getFile(icsStaticPath)), new FileInputStream(getFile(icsSeriesPath)), gskInputStream, raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getIcsImporterParameters().orElseThrow());
-
     }
 
     @When("I launch marmot")
