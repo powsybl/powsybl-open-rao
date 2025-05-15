@@ -550,7 +550,8 @@ class AutomatonSimulatorTest {
         when(mockedPrePerimeterResult.getSensitivityValue(cnec1, TwoSides.TWO, ara1, Unit.MEGAWATT)).thenReturn(0.);
         when(mockedPrePerimeterResult.getSensitivityValue(cnec1, TwoSides.TWO, ara2, Unit.MEGAWATT)).thenReturn(0.);
 
-        AutomatonSimulator.RangeAutomatonSimulationResult result = automatonSimulator.simulateRangeAutomatons(autoState, network, mockedPreAutoPerimeterSensitivityAnalysis, mockedPrePerimeterResult, 3, Set.of(), Map.of(ara1, 0.1, ara2, 0.1), Map.of(ara1, 0.1, ara2, 0.1));
+        AutomatonSimulator.AutomatonBatchInput automatonBatchInput = new AutomatonSimulator.AutomatonBatchInput(autoState, network, mockedPreAutoPerimeterSensitivityAnalysis, 3);
+        AutomatonSimulator.RangeAutomatonSimulationResult result = automatonSimulator.simulateRangeAutomatons(automatonBatchInput, mockedPrePerimeterResult, Set.of(), Map.of(ara1, 0.1, ara2, 0.1), Map.of(ara1, 0.1, ara2, 0.1));
 
         assertNotNull(result);
         assertNotNull(result.perimeterResult());
@@ -568,14 +569,16 @@ class AutomatonSimulatorTest {
         when(mockedPrePerimeterResult.getMargin(cnec2, Unit.MEGAWATT)).thenReturn(-100.);
         network.getVariantManager().cloneVariant(initialVariantId, workingVariantId);
         network.getVariantManager().setWorkingVariant(workingVariantId);
-        AutomatonSimulator.TopoAutomatonSimulationResult result = automatonSimulator.simulateTopologicalAutomatons(autoState, network, mockedPreAutoPerimeterSensitivityAnalysis, 0, Set.of(), mockedPrePerimeterResult);
+
+        AutomatonSimulator.AutomatonBatchInput automatonBatchInput = new AutomatonSimulator.AutomatonBatchInput(autoState, network, mockedPreAutoPerimeterSensitivityAnalysis, 0);
+        AutomatonSimulator.TopoAutomatonSimulationResult result = automatonSimulator.simulateTopologicalAutomatons(automatonBatchInput, Set.of(), mockedPrePerimeterResult);
         assertNotNull(result);
         assertNotNull(result.perimeterResult());
         assertEquals(Set.of(na), result.activatedNetworkActions());
 
         // NA already activated (stay on same variant), do not activate NA
         when(mockedPrePerimeterResult.getMargin(cnec2, Unit.MEGAWATT)).thenReturn(-100.);
-        result = automatonSimulator.simulateTopologicalAutomatons(autoState, network, mockedPreAutoPerimeterSensitivityAnalysis, 0, Set.of(), mockedPrePerimeterResult);
+        result = automatonSimulator.simulateTopologicalAutomatons(automatonBatchInput, Set.of(), mockedPrePerimeterResult);
         assertNotNull(result);
         assertNotNull(result.perimeterResult());
         assertEquals(Set.of(), result.activatedNetworkActions());
@@ -584,7 +587,7 @@ class AutomatonSimulatorTest {
         when(mockedPrePerimeterResult.getMargin(cnec2, Unit.MEGAWATT)).thenReturn(0.);
         network.getVariantManager().cloneVariant(initialVariantId, workingVariantId, true);
         network.getVariantManager().setWorkingVariant(workingVariantId);
-        result = automatonSimulator.simulateTopologicalAutomatons(autoState, network, mockedPreAutoPerimeterSensitivityAnalysis, 0, Set.of(), mockedPrePerimeterResult);
+        result = automatonSimulator.simulateTopologicalAutomatons(automatonBatchInput, Set.of(), mockedPrePerimeterResult);
         assertNotNull(result);
         assertNotNull(result.perimeterResult());
         assertEquals(Set.of(na), result.activatedNetworkActions());
@@ -593,7 +596,7 @@ class AutomatonSimulatorTest {
         when(mockedPrePerimeterResult.getMargin(cnec2, Unit.MEGAWATT)).thenReturn(1.);
         network.getVariantManager().cloneVariant(initialVariantId, workingVariantId, true);
         network.getVariantManager().setWorkingVariant(workingVariantId);
-        result = automatonSimulator.simulateTopologicalAutomatons(autoState, network, mockedPreAutoPerimeterSensitivityAnalysis, 0, Set.of(), mockedPrePerimeterResult);
+        result = automatonSimulator.simulateTopologicalAutomatons(automatonBatchInput, Set.of(), mockedPrePerimeterResult);
         assertNotNull(result);
         assertNotNull(result.perimeterResult());
         assertEquals(Set.of(), result.activatedNetworkActions());
@@ -602,7 +605,8 @@ class AutomatonSimulatorTest {
     @Test
     void testSimulateTopologicalAutomatonsFailure() {
         when(mockedPrePerimeterResult.getSensitivityStatus()).thenReturn(ComputationStatus.FAILURE);
-        AutomatonSimulator.TopoAutomatonSimulationResult result = automatonSimulator.simulateTopologicalAutomatons(autoState, network, mockedPreAutoPerimeterSensitivityAnalysis, 0, Set.of(), mockedPrePerimeterResult);
+        AutomatonSimulator.AutomatonBatchInput automatonBatchInput = new AutomatonSimulator.AutomatonBatchInput(autoState, network, mockedPreAutoPerimeterSensitivityAnalysis, 0);
+        AutomatonSimulator.TopoAutomatonSimulationResult result = automatonSimulator.simulateTopologicalAutomatons(automatonBatchInput, Set.of(), mockedPrePerimeterResult);
         assertNotNull(result);
         assertEquals(ComputationStatus.FAILURE, result.perimeterResult().getSensitivityStatus());
     }
@@ -610,7 +614,8 @@ class AutomatonSimulatorTest {
     @Test
     void testSimulateRangeAutomatonsFailure() {
         when(mockedPrePerimeterResult.getSensitivityStatus()).thenReturn(ComputationStatus.FAILURE);
-        AutomatonSimulator.RangeAutomatonSimulationResult result = automatonSimulator.simulateRangeAutomatons(autoState, network, mockedPreAutoPerimeterSensitivityAnalysis, mockedPrePerimeterResult, 3, Set.of(), Map.of(), Map.of());
+        AutomatonSimulator.AutomatonBatchInput automatonBatchInput = new AutomatonSimulator.AutomatonBatchInput(autoState, network, mockedPreAutoPerimeterSensitivityAnalysis, 3);
+        AutomatonSimulator.RangeAutomatonSimulationResult result = automatonSimulator.simulateRangeAutomatons(automatonBatchInput, mockedPrePerimeterResult, Set.of(), Map.of(), Map.of());
         assertNotNull(result);
         assertEquals(ComputationStatus.FAILURE, result.perimeterResult().getSensitivityStatus());
     }
