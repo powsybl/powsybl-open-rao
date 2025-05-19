@@ -36,8 +36,8 @@ public class MaxMinMarginFiller implements ProblemFiller {
     private final Unit unit;
     private final boolean costOptimization;
     protected final OffsetDateTime timestamp;
-    private final double overloadPenalty;
-    private final double minMarginUpperBound;
+    private final double shiftedViolationPenalty;
+    private final double shiftedViolationThreshold;
 
     public MaxMinMarginFiller(Set<FlowCnec> optimizedCnecs,
                               Unit unit, boolean costOptimization,
@@ -47,8 +47,8 @@ public class MaxMinMarginFiller implements ProblemFiller {
         this.optimizedCnecs.addAll(optimizedCnecs);
         this.unit = unit;
         this.costOptimization = costOptimization;
-        this.overloadPenalty = maxMinMarginParameters.getShiftedViolationPenalty();
-        this.minMarginUpperBound = maxMinMarginParameters.getShiftedViolationThreshold();
+        this.shiftedViolationPenalty = maxMinMarginParameters.getShiftedViolationPenalty();
+        this.shiftedViolationThreshold = maxMinMarginParameters.getShiftedViolationThreshold();
         this.timestamp = timestamp;
     }
 
@@ -59,13 +59,13 @@ public class MaxMinMarginFiller implements ProblemFiller {
         // build variables
         buildMinimumMarginVariable(linearProblem, validFlowCnecs);
         if (costOptimization) {
-            linearProblem.addMinMarginViolationVariable(Optional.ofNullable(timestamp));
+            linearProblem.addMinMarginShiftedViolationVariable(Optional.ofNullable(timestamp));
         }
 
         // build constraints
         buildMinimumMarginConstraints(linearProblem, validFlowCnecs);
         if (costOptimization) {
-            addMinMarginViolationConstraint(linearProblem);
+            addMinMarginShiftedViolationConstraint(linearProblem);
         }
 
         // complete objective
@@ -73,15 +73,18 @@ public class MaxMinMarginFiller implements ProblemFiller {
     }
 
     /**
-     * Force the min margin to be negative. Used in costly optimization where
-     * overloads are considered as a virtual cost.
-     * If the actual min margin is non-negative, the variable will be forced to 0,
-     * so it does not take part in the objective.
+     * Shifts the security domain of the RAO by shiftedViolationThreshold (only in costly optimization).
+     * All CNECs with a margin below shiftedViolationThreshold would be considered as not-secure during linear RAO:
+     * <ul>
+     *     <li>if minMargin >= shiftedViolationThreshold : minMarginShiftedViolationConstraint can be at 0 to minimize objective function</li>
+     *     <li>if minMargin < shiftedViolationThreshold : minMarginShiftedViolationConstraint = shiftedViolationThreshold - minimumMargin</li>
+     * </ul>
+     * Each unit of minMarginShiftedViolationConstraint over 0 is penalized by shiftedViolationPenalty.
      */
-    private void addMinMarginViolationConstraint(LinearProblem linearProblem) {
-        OpenRaoMPConstraint minMarginViolationConstraint = linearProblem.addMinMarginViolationConstraint(Optional.ofNullable(timestamp), minMarginUpperBound);
-        minMarginViolationConstraint.setCoefficient(linearProblem.getMinMarginViolationVariable(Optional.ofNullable(timestamp)), 1.0);
-        minMarginViolationConstraint.setCoefficient(linearProblem.getMinimumMarginVariable(Optional.ofNullable(timestamp)), 1.0);
+    private void addMinMarginShiftedViolationConstraint(LinearProblem linearProblem) {
+        OpenRaoMPConstraint minMarginShiftedViolationConstraint = linearProblem.addMinMarginShiftedViolationConstraint(Optional.ofNullable(timestamp), shiftedViolationThreshold);
+        minMarginShiftedViolationConstraint.setCoefficient(linearProblem.getMinMarginShiftedViolationVariable(Optional.ofNullable(timestamp)), 1.0);
+        minMarginShiftedViolationConstraint.setCoefficient(linearProblem.getMinimumMarginVariable(Optional.ofNullable(timestamp)), 1.0);
     }
 
     @Override
@@ -153,7 +156,7 @@ public class MaxMinMarginFiller implements ProblemFiller {
      */
     private void fillObjectiveWithMinMargin(LinearProblem linearProblem) {
         if (costOptimization) {
-            linearProblem.getObjective().setCoefficient(linearProblem.getMinMarginViolationVariable(Optional.ofNullable(timestamp)), overloadPenalty);
+            linearProblem.getObjective().setCoefficient(linearProblem.getMinMarginShiftedViolationVariable(Optional.ofNullable(timestamp)), shiftedViolationPenalty);
         } else {
             linearProblem.getObjective().setCoefficient(linearProblem.getMinimumMarginVariable(Optional.ofNullable(timestamp)), -1);
         }

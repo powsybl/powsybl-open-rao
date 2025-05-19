@@ -59,7 +59,7 @@ public final class LinearProblemIdGenerator {
     private static final String TOTAL_PST_RANGE_ACTION_TAP_VARIATION = "totalpstrangeactiontapvariation";
     private static final String GENERATOR_POWER = "generatorpower";
     private static final String GENERATOR_POWER_GRADIENT_CONSTRAINT = "generatorpowergradientconstraint";
-    private static final String MIN_MARGIN_VIOLATION = "minmarginviolation";
+    private static final String MIN_MARGIN_SHIFTED_VIOLATION = "minmarginshiftedviolation";
     private static final DateTimeFormatter DATE_TIME_FORMATER = DateTimeFormatter.ofPattern("yyyyMMddHHmm");
 
     private LinearProblemIdGenerator() {
@@ -276,11 +276,11 @@ public final class LinearProblemIdGenerator {
         return formatName(Optional.empty(), GENERATOR_POWER_GRADIENT_CONSTRAINT, generatorId, currentTimestamp.format(DATE_TIME_FORMATER), previousTimestamp.format(DATE_TIME_FORMATER), CONSTRAINT_SUFFIX);
     }
 
-    public static String minMarginViolationVariableId(Optional<OffsetDateTime> timestamp) {
-        return formatName(timestamp, MIN_MARGIN_VIOLATION, VARIABLE_SUFFIX);
+    public static String minMarginShiftedViolationVariableId(Optional<OffsetDateTime> timestamp) {
+        return formatName(timestamp, MIN_MARGIN_SHIFTED_VIOLATION, VARIABLE_SUFFIX);
     }
 
-    public static String minMarginViolationConstraintId(Optional<OffsetDateTime> timestamp) {
-        return formatName(timestamp, MIN_MARGIN_VIOLATION, CONSTRAINT_SUFFIX);
+    public static String minMarginShiftedViolationConstraintId(Optional<OffsetDateTime> timestamp) {
+        return formatName(timestamp, MIN_MARGIN_SHIFTED_VIOLATION, CONSTRAINT_SUFFIX);
     }
 }
