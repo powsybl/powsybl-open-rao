@@ -13,7 +13,7 @@ import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
-import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoMinMarginsParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoCostlyMinMarginParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRelativeMarginsParameters;
@@ -98,7 +98,7 @@ class UnoptimizedCnecFillerMarginDecreaseRuleTest extends AbstractFillerTest {
     }
 
     private void buildLinearProblemWithMaxMinMargin(boolean initialFlowsAreNan) {
-        SearchTreeRaoMinMarginsParameters maxMinMarginParameters = new SearchTreeRaoMinMarginsParameters();
+        SearchTreeRaoCostlyMinMarginParameters maxMinMarginParameters = new SearchTreeRaoCostlyMinMarginParameters();
         UnoptimizedCnecParameters unoptimizedCnecParameters = new UnoptimizedCnecParameters(Set.of("NL"));
         MaxMinMarginFiller maxMinMarginFiller = new MaxMinMarginFiller(Set.of(cnecNl, cnecFr), Unit.MEGAWATT, false, maxMinMarginParameters, null);
         FlowResult initialFlowResult = Mockito.mock(FlowResult.class);
@@ -124,7 +124,7 @@ class UnoptimizedCnecFillerMarginDecreaseRuleTest extends AbstractFillerTest {
 
     private void buildLinearProblemWithMaxMinRelativeMargin() {
         SearchTreeRaoRelativeMarginsParameters maxMinRelativeMarginParameters = new SearchTreeRaoRelativeMarginsParameters();
-        SearchTreeRaoMinMarginsParameters maxMinMarginParameters = new SearchTreeRaoMinMarginsParameters();
+        SearchTreeRaoCostlyMinMarginParameters maxMinMarginParameters = new SearchTreeRaoCostlyMinMarginParameters();
         UnoptimizedCnecParameters unoptimizedCnecParameters = new UnoptimizedCnecParameters(Set.of("NL"));
         FlowResult initialFlowResult = Mockito.mock(FlowResult.class);
         when(initialFlowResult.getMargin(cnecNl, TwoSides.TWO, Unit.MEGAWATT)).thenReturn(400.);

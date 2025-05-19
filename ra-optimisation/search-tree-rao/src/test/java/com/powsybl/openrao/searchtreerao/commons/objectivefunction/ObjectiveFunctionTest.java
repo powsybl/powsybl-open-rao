@@ -18,7 +18,7 @@ import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.LoopFlowParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoLoopFlowParameters;
-import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoMinMarginsParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoCostlyMinMarginParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoMnecParameters;
 import com.powsybl.openrao.searchtreerao.result.api.*;
 import com.powsybl.openrao.searchtreerao.result.impl.RangeActionSetpointResultImpl;
@@ -155,7 +155,7 @@ class ObjectiveFunctionTest {
         raoParameters.getObjectiveFunctionParameters().setUnit(Unit.AMPERE);
         assertTrue(raoParameters.getObjectiveFunctionParameters().getType().costOptimization());
         raoParameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters());
-        raoParameters.getExtension(OpenRaoSearchTreeParameters.class).setMinMarginsParameters(new SearchTreeRaoMinMarginsParameters());
+        raoParameters.getExtension(OpenRaoSearchTreeParameters.class).setMinMarginsParameters(new SearchTreeRaoCostlyMinMarginParameters());
 
         ObjectiveFunction objectiveFunction = ObjectiveFunction.buildForInitialSensitivityComputation(Set.of(), raoParameters, Set.of());
         assertNotNull(objectiveFunction);
@@ -170,7 +170,7 @@ class ObjectiveFunctionTest {
         assertTrue(raoParameters.getObjectiveFunctionParameters().getType().costOptimization());
         assertTrue(raoParameters.getObjectiveFunctionParameters().getType().costOptimization());
         raoParameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters());
-        raoParameters.getExtension(OpenRaoSearchTreeParameters.class).setMinMarginsParameters(new SearchTreeRaoMinMarginsParameters());
+        raoParameters.getExtension(OpenRaoSearchTreeParameters.class).setMinMarginsParameters(new SearchTreeRaoCostlyMinMarginParameters());
 
         ObjectiveFunction objectiveFunction = ObjectiveFunction.buildForInitialSensitivityComputation(Set.of(), raoParameters, Set.of());
         assertNotNull(objectiveFunction);
@@ -185,7 +185,7 @@ class ObjectiveFunctionTest {
         assertTrue(raoParameters.getObjectiveFunctionParameters().getType().costOptimization());
         assertTrue(raoParameters.getObjectiveFunctionParameters().getType().costOptimization());
         raoParameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters());
-        raoParameters.getExtension(OpenRaoSearchTreeParameters.class).setMinMarginsParameters(new SearchTreeRaoMinMarginsParameters());
+        raoParameters.getExtension(OpenRaoSearchTreeParameters.class).setMinMarginsParameters(new SearchTreeRaoCostlyMinMarginParameters());
 
         ObjectiveFunction objectiveFunction = ObjectiveFunction.build(Set.of(), Set.of(), null, null, Set.of(), raoParameters, Set.of());
         assertNotNull(objectiveFunction);
@@ -200,7 +200,7 @@ class ObjectiveFunctionTest {
         assertTrue(raoParameters.getObjectiveFunctionParameters().getType().costOptimization());
         assertTrue(raoParameters.getObjectiveFunctionParameters().getType().costOptimization());
         raoParameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters());
-        raoParameters.getExtension(OpenRaoSearchTreeParameters.class).setMinMarginsParameters(new SearchTreeRaoMinMarginsParameters());
+        raoParameters.getExtension(OpenRaoSearchTreeParameters.class).setMinMarginsParameters(new SearchTreeRaoCostlyMinMarginParameters());
 
         ObjectiveFunction objectiveFunction = ObjectiveFunction.build(Set.of(), Set.of(), null, null, Set.of(), raoParameters, Set.of());
         assertNotNull(objectiveFunction);

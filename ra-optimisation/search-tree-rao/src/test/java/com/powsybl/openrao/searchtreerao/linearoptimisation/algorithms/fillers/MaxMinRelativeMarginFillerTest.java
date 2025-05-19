@@ -50,7 +50,7 @@ class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
     private MarginCoreProblemFiller coreProblemFiller;
     private MaxMinRelativeMarginFiller maxMinRelativeMarginFiller;
     private SearchTreeRaoRelativeMarginsParameters parameters;
-    private SearchTreeRaoMinMarginsParameters minMarginsParameters;
+    private SearchTreeRaoCostlyMinMarginParameters minMarginsParameters;
     private RangeActionSetpointResult initialRangeActionSetpointResult;
 
     @BeforeEach
@@ -79,7 +79,7 @@ class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN);
         raoParameters.getObjectiveFunctionParameters().setUnit(MEGAWATT);
 
-        minMarginsParameters = new SearchTreeRaoMinMarginsParameters();
+        minMarginsParameters = new SearchTreeRaoCostlyMinMarginParameters();
         searchTreeParameters.setMinMarginsParameters(minMarginsParameters);
 
         coreProblemFiller = new MarginCoreProblemFiller(

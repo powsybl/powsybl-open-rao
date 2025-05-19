@@ -214,13 +214,13 @@ class RaoParametersConfigTest {
     }
 
     @Test
-    void checkMinMarginsParametersConfig() {
+    void checkCostlyMinMarginParametersConfig() {
         ModuleConfig minMarginsModuleConfig = Mockito.mock(ModuleConfig.class);
-        Mockito.when(minMarginsModuleConfig.getDoubleProperty(eq("overload-penalty"), anyDouble())).thenReturn(43.);
-        Mockito.when(mockedPlatformConfig.getOptionalModuleConfig("search-tree-min-margins-parameters")).thenReturn(Optional.of(minMarginsModuleConfig));
+        Mockito.when(minMarginsModuleConfig.getDoubleProperty(eq("shifted-violation-penalty"), anyDouble())).thenReturn(43.);
+        Mockito.when(mockedPlatformConfig.getOptionalModuleConfig("search-tree-costly-min-margin-parameters")).thenReturn(Optional.of(minMarginsModuleConfig));
         OpenRaoSearchTreeParametersConfigLoader configLoader = new OpenRaoSearchTreeParametersConfigLoader();
-        SearchTreeRaoMinMarginsParameters parameters = configLoader.load(mockedPlatformConfig).getMinMarginsParameters().get();
-        assertEquals(43, parameters.getOverloadPenalty(), DOUBLE_TOLERANCE);
+        SearchTreeRaoCostlyMinMarginParameters parameters = configLoader.load(mockedPlatformConfig).getMinMarginsParameters().get();
+        assertEquals(43, parameters.getShiftedViolationPenalty(), DOUBLE_TOLERANCE);
     }
 
     @Test

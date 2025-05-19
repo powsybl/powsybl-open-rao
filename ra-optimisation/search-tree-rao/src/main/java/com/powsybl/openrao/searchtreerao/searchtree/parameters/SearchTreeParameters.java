@@ -59,7 +59,7 @@ public class SearchTreeParameters {
 
     private final UnoptimizedCnecParameters unoptimizedCnecParameters;
     private final LinearOptimizationSolver solverParameters;
-    private final SearchTreeRaoMinMarginsParameters maxMinMarginsParameters;
+    private final SearchTreeRaoCostlyMinMarginParameters maxMinMarginsParameters;
     private final int maxNumberOfIterations;
 
     public SearchTreeParameters(ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction,
@@ -75,7 +75,7 @@ public class SearchTreeParameters {
                                 SearchTreeRaoLoopFlowParameters loopFlowParametersExtension,
                                 UnoptimizedCnecParameters unoptimizedCnecParameters,
                                 LinearOptimizationSolver solverParameters,
-                                SearchTreeRaoMinMarginsParameters maxMinMarginParameters,
+                                SearchTreeRaoCostlyMinMarginParameters maxMinMarginParameters,
                                 int maxNumberOfIterations) {
         this.objectiveFunction = objectiveFunction;
         this.objectiveFunctionUnit = objectiveFunctionUnit;
@@ -135,7 +135,7 @@ public class SearchTreeParameters {
         return maxMinRelativeMarginParameters;
     }
 
-    public SearchTreeRaoMinMarginsParameters getMaxMinMarginsParameters() {
+    public SearchTreeRaoCostlyMinMarginParameters getMaxMinMarginsParameters() {
         return maxMinMarginsParameters;
     }
 
@@ -293,7 +293,7 @@ public class SearchTreeParameters {
         private SearchTreeRaoLoopFlowParameters loopFlowParametersExtension;
         private UnoptimizedCnecParameters unoptimizedCnecParameters;
         private LinearOptimizationSolver solverParameters;
-        private SearchTreeRaoMinMarginsParameters maxMinMarginsParameters;
+        private SearchTreeRaoCostlyMinMarginParameters maxMinMarginsParameters;
         private int maxNumberOfIterations;
 
         public SearchTreeParametersBuilder withConstantParametersOverAllRao(RaoParameters raoParameters, Crac crac) {
@@ -389,7 +389,7 @@ public class SearchTreeParameters {
             return this;
         }
 
-        public SearchTreeParametersBuilder withMaxMinMarginsParameters(SearchTreeRaoMinMarginsParameters maxMinMarginsParameters) {
+        public SearchTreeParametersBuilder withMaxMinMarginsParameters(SearchTreeRaoCostlyMinMarginParameters maxMinMarginsParameters) {
             this.maxMinMarginsParameters = maxMinMarginsParameters;
             return this;
         }

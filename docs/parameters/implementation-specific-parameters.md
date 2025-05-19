@@ -371,13 +371,13 @@ See also: [Modelling the maximum minimum relative margin objective function](/ca
 
 These parameters are meant to be used in costly optimization only.
 
-##### overload-penalty
+##### shifted-violation-penalty
 
 - **Expected value**: numeric positive value, no unit (monetary cost)
 - **Default value**: 1000.0
 - **Usage**: Monetary penalty taken in account for each MW or A of overload on the min margin.
 
-##### min-margin-upper-bound
+##### shifted-violation-threshold
 
 - **Expected value**: numeric positive value, in MW or A unit (same as min margin)
 - **Default value**: 0.0
@@ -491,9 +491,9 @@ These parameters are meant to be used in costly optimization only.
       "ptdf-approximation" : "FIXED_PTDF",
       "ptdf-sum-lower-bound" : 0.01
     },
-    "min-margins-parameters" : {
-      "overload-penalty": 1000.0,
-      "min-margin-upper-bound": 0.0
+    "costly-min-margin-parameters" : {
+      "shifted-violation-penalty": 1000.0,
+      "shifted-violation-threshold": 0.0
     }
   }
 }

@@ -88,7 +88,7 @@ public class JsonOpenRaoSearchTreeParameters implements JsonRaoParameters.Extens
                     parser.nextToken();
                     JsonLoopFlowParameters.deserialize(parser, parameters);
                     break;
-                case MIN_MARGINS_PARAMETERS:
+                case COSTLY_MIN_MARGIN_PARAMETERS:
                     parser.nextToken();
                     JsonMinMarginsParameters.deserialize(parser, parameters);
                     break;

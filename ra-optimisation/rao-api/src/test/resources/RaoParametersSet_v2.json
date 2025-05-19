@@ -104,9 +104,9 @@
         "constraint-adjustment-coefficient" : 0.5,
         "violation-cost" : 0.0
       },
-      "min-margins-parameters" : {
-        "overload-penalty" : 800.0,
-        "min-margin-upper-bound" : 3.0
+      "costly-min-margin-parameters" : {
+        "shifted-violation-penalty" : 800.0,
+        "shifted-violation-threshold" : 3.0
       }
     }
   }

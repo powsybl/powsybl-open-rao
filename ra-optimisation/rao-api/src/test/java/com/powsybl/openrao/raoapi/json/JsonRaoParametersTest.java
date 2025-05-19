@@ -118,9 +118,9 @@ class JsonRaoParametersTest extends AbstractSerDeTest {
         searchTreeParameters.setRelativeMarginsParameters(relativeMarginsParametersExtension);
 
         // -- Min Margins parameters
-        SearchTreeRaoMinMarginsParameters minMarginsParameters = new SearchTreeRaoMinMarginsParameters();
-        minMarginsParameters.setOverloadPenalty(800.0);
-        minMarginsParameters.setMinMarginUpperBound(3.0);
+        SearchTreeRaoCostlyMinMarginParameters minMarginsParameters = new SearchTreeRaoCostlyMinMarginParameters();
+        minMarginsParameters.setShiftedViolationPenalty(800.0);
+        minMarginsParameters.setShiftedViolationThreshold(3.0);
         searchTreeParameters.setMinMarginsParameters(minMarginsParameters);
 
         roundTripTest(parameters, JsonRaoParameters::write, JsonRaoParameters::read, "/RaoParametersSet_v2.json");

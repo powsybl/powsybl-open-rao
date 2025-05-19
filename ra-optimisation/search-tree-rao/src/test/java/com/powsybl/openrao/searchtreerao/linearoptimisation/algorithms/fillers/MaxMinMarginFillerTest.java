@@ -12,7 +12,7 @@ import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
-import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoMinMarginsParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoCostlyMinMarginParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPConstraint;
@@ -74,8 +74,8 @@ class MaxMinMarginFillerTest extends AbstractFillerTest {
     }
 
     private void createMaxMinMarginFiller(Unit unit) {
-        SearchTreeRaoMinMarginsParameters minMarginsParameters = new SearchTreeRaoMinMarginsParameters();
-        minMarginsParameters.setOverloadPenalty(1000.0);
+        SearchTreeRaoCostlyMinMarginParameters minMarginsParameters = new SearchTreeRaoCostlyMinMarginParameters();
+        minMarginsParameters.setShiftedViolationPenalty(1000.0);
         maxMinMarginFiller = new MaxMinMarginFiller(Set.of(cnec1), unit, false, minMarginsParameters, null);
     }
 

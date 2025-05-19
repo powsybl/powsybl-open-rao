@@ -11,7 +11,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
-import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoMinMarginsParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoCostlyMinMarginParameters;
 
 import java.io.IOException;
 import java.util.Optional;
@@ -27,28 +27,28 @@ final class JsonMinMarginsParameters {
     }
 
     static void serialize(OpenRaoSearchTreeParameters parameters, JsonGenerator jsonGenerator) throws IOException {
-        Optional<SearchTreeRaoMinMarginsParameters> minMarginsParameters = parameters.getMinMarginsParameters();
+        Optional<SearchTreeRaoCostlyMinMarginParameters> minMarginsParameters = parameters.getMinMarginsParameters();
         if (minMarginsParameters.isPresent()) {
-            jsonGenerator.writeObjectFieldStart(MIN_MARGINS_PARAMETERS);
-            jsonGenerator.writeObjectField(OVERLOAD_PENALTY, minMarginsParameters.get().getOverloadPenalty());
-            jsonGenerator.writeObjectField(MIN_MARGIN_UPPER_BOUND, minMarginsParameters.get().getMinMarginUpperBound());
+            jsonGenerator.writeObjectFieldStart(COSTLY_MIN_MARGIN_PARAMETERS);
+            jsonGenerator.writeObjectField(SHIFTED_VIOLATION_PENALTY, minMarginsParameters.get().getShiftedViolationPenalty());
+            jsonGenerator.writeObjectField(SHIFTED_VIOLATION_THRESHOLD, minMarginsParameters.get().getShiftedViolationThreshold());
             jsonGenerator.writeEndObject();
         }
 
     }
 
     static void deserialize(JsonParser jsonParser, OpenRaoSearchTreeParameters searchTreeParameters) throws IOException {
-        SearchTreeRaoMinMarginsParameters minMarginsParameters = new SearchTreeRaoMinMarginsParameters();
+        SearchTreeRaoCostlyMinMarginParameters minMarginsParameters = new SearchTreeRaoCostlyMinMarginParameters();
         while (!jsonParser.nextToken().isStructEnd()) {
             switch (jsonParser.getCurrentName()) {
-                case OVERLOAD_PENALTY:
-                    minMarginsParameters.setOverloadPenalty(jsonParser.getValueAsDouble());
+                case SHIFTED_VIOLATION_PENALTY:
+                    minMarginsParameters.setShiftedViolationPenalty(jsonParser.getValueAsDouble());
                     break;
-                case MIN_MARGIN_UPPER_BOUND:
-                    minMarginsParameters.setMinMarginUpperBound(jsonParser.getValueAsDouble());
+                case SHIFTED_VIOLATION_THRESHOLD:
+                    minMarginsParameters.setShiftedViolationThreshold(jsonParser.getValueAsDouble());
                     break;
                 default:
-                    throw new OpenRaoException(String.format("Cannot deserialize min margins parameters: unexpected field in %s (%s)", MIN_MARGINS_PARAMETERS, jsonParser.getCurrentName()));
+                    throw new OpenRaoException(String.format("Cannot deserialize min margins parameters: unexpected field in %s (%s)", COSTLY_MIN_MARGIN_PARAMETERS, jsonParser.getCurrentName()));
             }
             searchTreeParameters.setMinMarginsParameters(minMarginsParameters);
         }
