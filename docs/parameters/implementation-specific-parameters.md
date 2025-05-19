@@ -375,13 +375,13 @@ These parameters are meant to be used in costly optimization only.
 
 - **Expected value**: numeric positive value, no unit (monetary cost)
 - **Default value**: 1000.0
-- **Usage**: Monetary penalty taken in account for each MW or A of overload on the min margin.
+- **Usage**: Monetary penalty taken in account for each MW or A of overload on the min margin, with respect to `shifted-violation-threshold`.
 
 ##### shifted-violation-threshold
 
 - **Expected value**: numeric positive value, in MW or A unit (same as min margin)
 - **Default value**: 0.0
-- **Usage**: Used to force the linear solver to apply the overload penalty if the min margin is positive but below this upper bound. This is meant to prevent the RAO from choosing set-points that make the min margin exactly equal to 0 (might create rounding issues).
+- **Usage**: Shifts the security domain of the CNECs (only for costly optimization): each FlowCNEC with a margin below `shifted-violation-threshold` will be considered as in violation during the linear RAO. This is meant to prevent the RAO from choosing set-points that make the min margin exactly equal to 0 (which might create rounding issues).
 
 ## Examples
 > ⚠️  **NOTE**  
