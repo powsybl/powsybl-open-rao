@@ -6,12 +6,8 @@
  */
 package com.powsybl.openrao.data.crac.io.nc.craccreator.remedialaction;
 
-import com.powsybl.openrao.data.crac.io.nc.craccreator.constants.ElementCombinationConstraintKind;
-
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public record AssociationStatus(boolean isValid,
-                                ElementCombinationConstraintKind elementCombinationConstraintKind,
-                                String statusDetails) {
+public record AssociationStatus(boolean isValid, String statusDetails) {
 }
