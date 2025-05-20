@@ -241,8 +241,7 @@ public class FlowCnecCreator extends AbstractCnecCreator {
 
             linkedContingencies.forEach(
                 contingency -> thresholds.forEach(
-                    (acceptableDuration, limitThresholds) -> limitThresholds.forEach(
-                        (twoSides, threshold) -> addCurativeFlowCnec(networkElement, useMaxAndMinThresholds, instantToDurationMaps, forceUseOfPatl, contingency, acceptableDuration, twoSides, threshold))));
+                    (acceptableDuration, thresholdPerSide) -> addCurativeFlowCnec(networkElement, useMaxAndMinThresholds, instantToDurationMaps, forceUseOfPatl, contingency, acceptableDuration, thresholdPerSide)));
         }
     }
 
@@ -258,6 +257,26 @@ public class FlowCnecCreator extends AbstractCnecCreator {
                 }
             }
         );
+    }
+
+    private void addCurativeFlowCnec(Branch<?> networkElement, boolean useMaxAndMinThresholds, Map<TwoSides, Map<String, Integer>> instantToDurationMaps, Map<TwoSides, Boolean> forceUseOfPatl, Contingency contingency, Integer acceptableDuration, Map<TwoSides, Double> thresholdPerSide) {
+        Map<String, Map<TwoSides, Double>> thresholdPerSidePerInstant = new HashMap<>();
+        for (TwoSides twoSides : thresholdPerSide.keySet()) {
+            double threshold = thresholdPerSide.get(twoSides);
+            Set<String> instantsForSide = instantHelper.getPostContingencyInstantsAssociatedToLimitDuration(instantToDurationMaps.get(twoSides), acceptableDuration);
+            for (String instant : instantsForSide) {
+                thresholdPerSidePerInstant.computeIfAbsent(instant, k -> new HashMap<>()).putIfAbsent(twoSides, threshold);
+            }
+        }
+        thresholdPerSidePerInstant.forEach((instant, thresholdsOfInstant) -> {
+            String cnecName = getCnecName(instant, contingency, acceptableDuration);
+            addFlowCnec(networkElement, contingency, instant, thresholdsOfInstant, acceptableDuration, useMaxAndMinThresholds);
+            if (acceptableDuration == Integer.MAX_VALUE && thresholdPerSide.keySet().stream().anyMatch(twoSides -> Boolean.TRUE.equals(forceUseOfPatl.get(twoSides)))) {
+                ncCnecCreationContexts.add(StandardElementaryCreationContext.imported(nativeAssessedElement.mrid(), cnecName, cnecName, true, "TSO %s does not use PATL in final state but has no TATL defined for branch %s on at least one of its sides, PATL will be used".formatted(NcCracUtils.getTsoNameFromUrl(nativeAssessedElement.operator()), networkElement.getId())));
+            } else {
+                ncCnecCreationContexts.add(StandardElementaryCreationContext.imported(nativeAssessedElement.mrid(), cnecName, cnecName, false, ""));
+            }
+        });
     }
 
     private Map<Integer, Map<TwoSides, Double>> getPermanentAndTemporaryLimitsOfOperationalLimit(Identifiable<?> branch, String terminalId) {
