@@ -86,7 +86,7 @@ public abstract class AbstractCnecCreator {
         return "AssessedElement " + nativeAssessedElement.mrid() + " ignored because " + reason;
     }
 
-    // TODO: use CnecNameBuilder
+    // TODO: use CnecNameBuilder (use " - PATL" if time=infinity?)
 
     protected String getCnecName(String instantId, Contingency contingency) {
         // Need to include the mRID in the name in case the AssessedElement's name is not unique
@@ -99,19 +99,9 @@ public abstract class AbstractCnecCreator {
         return "%s (%s) - %s%s%s".formatted(nativeAssessedElement.getUniqueName(), nativeAssessedElement.mrid(), contingency == null ? "" : contingency.getName().orElse(contingency.getId()) + " - ", instantId, acceptableDuration == Integer.MAX_VALUE ? "" : " - TATL " + acceptableDuration);
     }
 
-    protected String getCnecName(String instantId, Contingency contingency, TwoSides side, int acceptableDuration) {
-        // Need to include the mRID in the name in case the AssessedElement's name is not unique
-        // Add TATL duration in case to CNECs of the same instant are created with different TATLs
-        return "%s (%s) - %s%s - %s%s".formatted(nativeAssessedElement.getUniqueName(), nativeAssessedElement.mrid(), contingency == null ? "" : contingency.getName().orElse(contingency.getId()) + " - ", instantId, side.name(), acceptableDuration == Integer.MAX_VALUE ? "" : " - TATL " + acceptableDuration);
-    }
-
     protected void addCnecBaseInformation(CnecAdder<?> cnecAdder, Contingency contingency, String instantId) {
         String cnecName = getCnecName(instantId, contingency);
         initCnecAdder(cnecAdder, contingency, instantId, cnecName);
-    }
-
-    protected void addCnecBaseInformation(CnecAdder<?> cnecAdder, Contingency contingency, String instantId, TwoSides side, int acceptableDuration) {
-        initCnecAdder(cnecAdder, contingency, instantId, getCnecName(instantId, contingency, side, acceptableDuration));
     }
 
     protected void addCnecBaseInformation(CnecAdder<?> cnecAdder, Contingency contingency, String instantId, int acceptableDuration) {
