@@ -27,26 +27,26 @@ class MnecTest {
         NcCracCreationContext cracCreationContext = NcCracCreationTestUtil.getNcCracCreationContext("/profiles/cnecs/SecuredAndScannedAssessedElements.zip", NcCracCreationTestUtil.NETWORK);
 
         assertEquals(7, cracCreationContext.getCrac().getFlowCnecs().size());
-        assertTrue(cracCreationContext.getCrac().getFlowCnec("RTE_AE2 (ae-2) - preventive").isOptimized());
-        assertFalse(cracCreationContext.getCrac().getFlowCnec("RTE_AE2 (ae-2) - preventive").isMonitored());
+        assertTrue(cracCreationContext.getCrac().getFlowCnec("RTE_AE2 (ae-2) - preventive - PATL").isOptimized());
+        assertFalse(cracCreationContext.getCrac().getFlowCnec("RTE_AE2 (ae-2) - preventive - PATL").isMonitored());
 
-        assertFalse(cracCreationContext.getCrac().getFlowCnec("RTE_AE3 (ae-3) - preventive").isOptimized());
-        assertTrue(cracCreationContext.getCrac().getFlowCnec("RTE_AE3 (ae-3) - preventive").isMonitored());
+        assertFalse(cracCreationContext.getCrac().getFlowCnec("RTE_AE3 (ae-3) - preventive - PATL").isOptimized());
+        assertTrue(cracCreationContext.getCrac().getFlowCnec("RTE_AE3 (ae-3) - preventive - PATL").isMonitored());
 
-        assertTrue(cracCreationContext.getCrac().getFlowCnec("RTE_AE5 (ae-5) - preventive").isOptimized());
-        assertFalse(cracCreationContext.getCrac().getFlowCnec("RTE_AE5 (ae-5) - preventive").isMonitored());
+        assertTrue(cracCreationContext.getCrac().getFlowCnec("RTE_AE5 (ae-5) - preventive - PATL").isOptimized());
+        assertFalse(cracCreationContext.getCrac().getFlowCnec("RTE_AE5 (ae-5) - preventive - PATL").isMonitored());
 
-        assertFalse(cracCreationContext.getCrac().getFlowCnec("RTE_AE6 (ae-6) - preventive").isOptimized());
-        assertFalse(cracCreationContext.getCrac().getFlowCnec("RTE_AE6 (ae-6) - preventive").isMonitored());
+        assertFalse(cracCreationContext.getCrac().getFlowCnec("RTE_AE6 (ae-6) - preventive - PATL").isOptimized());
+        assertFalse(cracCreationContext.getCrac().getFlowCnec("RTE_AE6 (ae-6) - preventive - PATL").isMonitored());
 
-        assertFalse(cracCreationContext.getCrac().getFlowCnec("RTE_AE7 (ae-7) - preventive").isOptimized());
-        assertTrue(cracCreationContext.getCrac().getFlowCnec("RTE_AE7 (ae-7) - preventive").isMonitored());
+        assertFalse(cracCreationContext.getCrac().getFlowCnec("RTE_AE7 (ae-7) - preventive - PATL").isOptimized());
+        assertTrue(cracCreationContext.getCrac().getFlowCnec("RTE_AE7 (ae-7) - preventive - PATL").isMonitored());
 
-        assertFalse(cracCreationContext.getCrac().getFlowCnec("RTE_AE8 (ae-8) - preventive").isOptimized());
-        assertFalse(cracCreationContext.getCrac().getFlowCnec("RTE_AE8 (ae-8) - preventive").isMonitored());
+        assertFalse(cracCreationContext.getCrac().getFlowCnec("RTE_AE8 (ae-8) - preventive - PATL").isOptimized());
+        assertFalse(cracCreationContext.getCrac().getFlowCnec("RTE_AE8 (ae-8) - preventive - PATL").isMonitored());
 
-        assertFalse(cracCreationContext.getCrac().getFlowCnec("RTE_AE9 (ae-9) - preventive").isOptimized());
-        assertFalse(cracCreationContext.getCrac().getFlowCnec("RTE_AE9 (ae-9) - preventive").isMonitored());
+        assertFalse(cracCreationContext.getCrac().getFlowCnec("RTE_AE9 (ae-9) - preventive - PATL").isOptimized());
+        assertFalse(cracCreationContext.getCrac().getFlowCnec("RTE_AE9 (ae-9) - preventive - PATL").isMonitored());
 
         List<ElementaryCreationContext> notImportedCnecCreationContexts = cracCreationContext.getCnecCreationContexts().stream().filter(c -> !c.isImported())
             .sorted(Comparator.comparing(ElementaryCreationContext::getNativeObjectId)).toList();

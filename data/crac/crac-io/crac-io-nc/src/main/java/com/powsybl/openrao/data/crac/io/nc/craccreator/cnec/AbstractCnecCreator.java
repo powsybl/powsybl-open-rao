@@ -13,7 +13,6 @@ import com.powsybl.openrao.data.crac.io.nc.parameters.NcCracCreationParameters;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.cnec.CnecAdder;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnecAdder;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.crac.io.commons.api.ElementaryCreationContext;
 import com.powsybl.openrao.data.crac.io.commons.api.StandardElementaryCreationContext;
@@ -86,8 +85,6 @@ public abstract class AbstractCnecCreator {
         return "AssessedElement " + nativeAssessedElement.mrid() + " ignored because " + reason;
     }
 
-    // TODO: use CnecNameBuilder (use " - PATL" if time=infinity?)
-
     protected String getCnecName(String instantId, Contingency contingency) {
         // Need to include the mRID in the name in case the AssessedElement's name is not unique
         return "%s (%s) - %s%s".formatted(nativeAssessedElement.getUniqueName(), nativeAssessedElement.mrid(), contingency == null ? "" : contingency.getName().orElse(contingency.getId()) + " - ", instantId);
@@ -96,7 +93,8 @@ public abstract class AbstractCnecCreator {
     protected String getCnecName(String instantId, Contingency contingency, int acceptableDuration) {
         // Need to include the mRID in the name in case the AssessedElement's name is not unique
         // Add TATL duration in case to CNECs of the same instant are created with different TATLs
-        return "%s (%s) - %s%s%s".formatted(nativeAssessedElement.getUniqueName(), nativeAssessedElement.mrid(), contingency == null ? "" : contingency.getName().orElse(contingency.getId()) + " - ", instantId, acceptableDuration == Integer.MAX_VALUE ? "" : " - TATL " + acceptableDuration);
+        String operationalLimitSuffix = acceptableDuration == Integer.MAX_VALUE ? "PATL" : "TATL " + acceptableDuration;
+        return getCnecName(instantId, contingency) + " - " + operationalLimitSuffix;
     }
 
     protected void addCnecBaseInformation(CnecAdder<?> cnecAdder, Contingency contingency, String instantId) {
