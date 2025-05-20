@@ -15,8 +15,12 @@ import java.time.OffsetDateTime;
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
  */
 public class FbConstraintCracCreationParameters extends AbstractExtension<CracCreationParameters> {
+    private static final double DEFAULT_ICS_COST_UP = 10;
+    private static final double DEFAULT_ICS_COST_DOWN = 10;
 
     private OffsetDateTime timestamp;
+    private double icsCostUp = DEFAULT_ICS_COST_UP;
+    private double icsCostDown = DEFAULT_ICS_COST_DOWN;
 
     @Override
     public String getName() {
@@ -29,5 +33,21 @@ public class FbConstraintCracCreationParameters extends AbstractExtension<CracCr
 
     public OffsetDateTime getTimestamp() {
         return timestamp;
+    }
+
+    public void setIcsCostUp(double icsCostUp) {
+        this.icsCostUp = icsCostUp;
+    }
+
+    public double getIcsCostUp() {
+        return icsCostUp;
+    }
+
+    public void setIcsCostDown(double icsCostDown) {
+        this.icsCostDown = icsCostDown;
+    }
+
+    public double getIcsCostDown() {
+        return icsCostDown;
     }
 }

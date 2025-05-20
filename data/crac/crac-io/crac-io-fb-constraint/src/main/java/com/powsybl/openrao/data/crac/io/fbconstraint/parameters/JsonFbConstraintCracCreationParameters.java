@@ -25,6 +25,8 @@ import java.time.format.DateTimeFormatter;
 public class JsonFbConstraintCracCreationParameters implements JsonCracCreationParameters.ExtensionSerializer<FbConstraintCracCreationParameters> {
 
     private static final String TIMESTAMP = "timestamp";
+    private static final String ICS_COST_UP = "ics-cost-up";
+    private static final String ICS_COST_DOWN = "ics-cost-down";
 
     @Override
     public String getExtensionName() {
@@ -51,12 +53,20 @@ public class JsonFbConstraintCracCreationParameters implements JsonCracCreationP
     @Override
     public FbConstraintCracCreationParameters deserializeAndUpdate(JsonParser jsonParser, DeserializationContext deserializationContext, FbConstraintCracCreationParameters parameters) throws IOException {
         while (!jsonParser.nextToken().isStructEnd()) {
-            if (jsonParser.getCurrentName().equals(TIMESTAMP)) {
-                jsonParser.nextToken();
-                parameters.setTimestamp(OffsetDateTime.parse(jsonParser.readValueAs(String.class)));
-                break;
-            } else {
-                throw new OpenRaoException("Unexpected field: " + jsonParser.getCurrentName());
+            switch (jsonParser.getCurrentName()) {
+                case TIMESTAMP -> {
+                    jsonParser.nextToken();
+                    parameters.setTimestamp(OffsetDateTime.parse(jsonParser.readValueAs(String.class)));
+                }
+                case ICS_COST_UP -> {
+                    jsonParser.nextToken();
+                    parameters.setIcsCostUp(jsonParser.readValueAs(Double.class));
+                }
+                case ICS_COST_DOWN -> {
+                    jsonParser.nextToken();
+                    parameters.setIcsCostDown(jsonParser.readValueAs(Double.class));
+                }
+                default -> throw new OpenRaoException("Unexpected field: " + jsonParser.getCurrentName());
             }
         }
 
