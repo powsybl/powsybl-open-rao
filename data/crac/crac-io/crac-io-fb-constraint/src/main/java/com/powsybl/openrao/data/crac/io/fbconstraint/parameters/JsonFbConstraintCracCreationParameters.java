@@ -47,6 +47,8 @@ public class JsonFbConstraintCracCreationParameters implements JsonCracCreationP
     public void serialize(FbConstraintCracCreationParameters fbConstraintParameters, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
         serializeTimestamp(fbConstraintParameters.getTimestamp(), jsonGenerator);
+        jsonGenerator.writeNumberField(ICS_COST_UP, fbConstraintParameters.getIcsCostUp());
+        jsonGenerator.writeNumberField(ICS_COST_DOWN, fbConstraintParameters.getIcsCostDown());
         jsonGenerator.writeEndObject();
     }
 
