@@ -38,6 +38,7 @@ public class JsonNcCracCreationParameters implements JsonCracCreationParameters.
     private static final String BORDERS = "borders";
     private static final String EIC = "eic";
     private static final String DEFAULT_FOR_TSO = "default-for-tso";
+    private static final String RESTRICTED_CURATIVE_BATCHES_PER_TSO = "restricted-curative-batches-per-tso";
     private static final String TIMESTAMP = "timestamp";
 
     @Override
@@ -47,6 +48,7 @@ public class JsonNcCracCreationParameters implements JsonCracCreationParameters.
         serializeTsosWhichDoNotUsePatlInFinalState(ncParameters.getTsosWhichDoNotUsePatlInFinalState(), jsonGenerator);
         serializeCurativeInstants(ncParameters.getCurativeInstants(), jsonGenerator);
         serializeBorders(ncParameters.getBorders(), jsonGenerator);
+        serializeRestrictedCurativeBatchesPerTso(ncParameters.getRestrictedCurativeBatchesPerTso(), jsonGenerator);
         serializeTimestamp(ncParameters.getTimestamp(), jsonGenerator);
         jsonGenerator.writeEndObject();
     }
@@ -70,6 +72,10 @@ public class JsonNcCracCreationParameters implements JsonCracCreationParameters.
                 case BORDERS:
                     jsonParser.nextToken();
                     parameters.setBorders(deserializeBorders(jsonParser));
+                    break;
+                case RESTRICTED_CURATIVE_BATCHES_PER_TSO:
+                    jsonParser.nextToken();
+                    parameters.setRestrictedCurativeBatchesPerTso(deserializeRestrictedCurativeBatchesPerTso(jsonParser));
                     break;
                 case TIMESTAMP:
                     jsonParser.nextToken();
@@ -131,6 +137,28 @@ public class JsonNcCracCreationParameters implements JsonCracCreationParameters.
         jsonGenerator.writeEndArray();
     }
 
+    private void serializeRestrictedCurativeBatchesPerTso(Map<String, Set<String>> restrictedCurativeBatchesPerTso, JsonGenerator jsonGenerator) throws IOException {
+        jsonGenerator.writeFieldName(RESTRICTED_CURATIVE_BATCHES_PER_TSO);
+        jsonGenerator.writeStartObject();
+        restrictedCurativeBatchesPerTso.forEach((operator, curativeInstants) -> {
+            try {
+                jsonGenerator.writeFieldName(operator);
+                jsonGenerator.writeStartArray();
+                curativeInstants.forEach(curativeInstant -> {
+                    try {
+                        jsonGenerator.writeString(curativeInstant);
+                    } catch (IOException e) {
+                        throwSerializationError(RESTRICTED_CURATIVE_BATCHES_PER_TSO, e);
+                    }
+                });
+                jsonGenerator.writeEndArray();
+            } catch (IOException e) {
+                throwSerializationError(RESTRICTED_CURATIVE_BATCHES_PER_TSO, e);
+            }
+        });
+        jsonGenerator.writeEndObject();
+    }
+
     private void serializeBorders(Set<Border> borders, JsonGenerator jsonGenerator) throws IOException {
         jsonGenerator.writeFieldName(BORDERS);
         jsonGenerator.writeStartArray();
@@ -179,6 +207,12 @@ public class JsonNcCracCreationParameters implements JsonCracCreationParameters.
             curativeInstants.put(name, applicationTime);
         }
         return curativeInstants;
+    }
+
+    private Map<String, Set<String>> deserializeRestrictedCurativeBatchesPerTso(JsonParser jsonParser) throws IOException {
+        Map<String, Set<String>> restrictedCurativeBatchesPerTso = new HashMap<>();
+        // TODO
+        return restrictedCurativeBatchesPerTso;
     }
 
     private Set<Border> deserializeBorders(JsonParser jsonParser) throws IOException {
