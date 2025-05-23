@@ -5,7 +5,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-
 package com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator;
 
 import com.powsybl.openrao.commons.Unit;
@@ -22,6 +21,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -37,8 +37,7 @@ class MinMarginViolationEvaluatorTest {
         Mockito.when(flowCnec.isOptimized()).thenReturn(true);
         Mockito.when(flowCnec.getId()).thenReturn("cnec1");
         Mockito.when(flowResult.getMargin(flowCnec, Unit.MEGAWATT)).thenReturn(-1d);
-
-        MinMarginViolationEvaluator evaluator = new MinMarginViolationEvaluator(Set.of(flowCnec), Unit.MEGAWATT, new BasicMarginEvaluator());
+        MinMarginViolationEvaluator evaluator = new MinMarginViolationEvaluator(Set.of(flowCnec), Unit.MEGAWATT, new BasicMarginEvaluator(), 10000.0);
         CostEvaluatorResult result = evaluator.evaluate(flowResult, null);
         assertEquals(10000.0, result.getCost(Set.of(), Set.of()));
         assertEquals(List.of(flowCnec), result.getCostlyElements(Set.of(), Set.of()));
@@ -55,9 +54,9 @@ class MinMarginViolationEvaluatorTest {
         Mockito.when(flowCnec.getId()).thenReturn("cnec1");
         Mockito.when(flowResult.getMargin(flowCnec, Unit.MEGAWATT)).thenReturn(500d);
 
-        MinMarginViolationEvaluator evaluator = new MinMarginViolationEvaluator(Set.of(flowCnec), Unit.MEGAWATT, new BasicMarginEvaluator());
+        MinMarginViolationEvaluator evaluator = new MinMarginViolationEvaluator(Set.of(flowCnec), Unit.MEGAWATT, new BasicMarginEvaluator(), 10000);
         CostEvaluatorResult result = evaluator.evaluate(flowResult, null);
         assertEquals(0.0, result.getCost(Set.of(), Set.of()));
-        assertEquals(List.of(flowCnec), result.getCostlyElements(Set.of(), Set.of()));
+        assertTrue(result.getCostlyElements(Set.of(), Set.of()).isEmpty());
     }
 }

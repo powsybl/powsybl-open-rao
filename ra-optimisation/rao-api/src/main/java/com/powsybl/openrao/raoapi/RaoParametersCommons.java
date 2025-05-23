@@ -124,4 +124,10 @@ public final class RaoParametersCommons {
             throw new OpenRaoException(String.format("Unknown approximation value: %s", string));
         }
     }
+
+    // -- Min Margins parameters
+    public static final String COSTLY_MIN_MARGIN_PARAMETERS = "costly-min-margin-parameters";
+    public static final String ST_COSTLY_MIN_MARGIN_SECTION = "search-tree-costly-min-margin-parameters";
+    public static final String SHIFTED_VIOLATION_PENALTY = "shifted-violation-penalty";
+    public static final String SHIFTED_VIOLATION_THRESHOLD = "shifted-violation-threshold";
 }
