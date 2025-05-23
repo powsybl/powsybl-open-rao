@@ -23,7 +23,7 @@ public class NcCracCreationParameters extends AbstractExtension<CracCreationPara
     private Set<String> tsosWhichDoNotUsePatlInFinalState = Set.of();
     private Map<String, Integer> curativeInstants = Map.of("curative 1", 300, "curative 2", 600, "curative 3", 1200);
     private Set<Border> borders = Set.of();
-    private Map<String, Set<String>> restrictedCurativeBatchesPerTso = new HashMap<>();
+    private Map<String, Set<String>> restrictedCurativeBatchesPerTso = Map.of("REE", Set.of("curative 1"));
     private OffsetDateTime timestamp = null;
 
     @Override

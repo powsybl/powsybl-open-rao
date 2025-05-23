@@ -21,6 +21,7 @@ import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -211,7 +212,12 @@ public class JsonNcCracCreationParameters implements JsonCracCreationParameters.
 
     private Map<String, Set<String>> deserializeRestrictedCurativeBatchesPerTso(JsonParser jsonParser) throws IOException {
         Map<String, Set<String>> restrictedCurativeBatchesPerTso = new HashMap<>();
-        // TODO
+        while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
+            String operator = jsonParser.currentName();
+            jsonParser.nextToken();
+            String[] instants = jsonParser.readValueAs(String[].class);
+            restrictedCurativeBatchesPerTso.put(operator, new HashSet<>(List.of(instants)));
+        }
         return restrictedCurativeBatchesPerTso;
     }
 
