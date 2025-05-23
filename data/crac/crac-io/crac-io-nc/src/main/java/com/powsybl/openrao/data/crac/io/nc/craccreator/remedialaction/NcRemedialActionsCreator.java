@@ -36,6 +36,7 @@ import com.powsybl.openrao.data.crac.io.commons.api.ElementaryCreationContext;
 import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
 import com.powsybl.openrao.data.crac.io.commons.api.StandardElementaryCreationContext;
 import com.powsybl.openrao.data.crac.io.commons.OpenRaoImportException;
+import com.powsybl.openrao.data.crac.io.nc.parameters.NcCracCreationParameters;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -50,11 +51,13 @@ public class NcRemedialActionsCreator {
     private final NetworkActionCreator networkActionCreator;
     private final PstRangeActionCreator pstRangeActionCreator;
     private final Set<GridStateAlterationRemedialAction> nativeRemedialActions;
+    private final NcCracCreationParameters ncCracCreationParameters;
 
-    public NcRemedialActionsCreator(Crac crac, Network network, NcCrac nativeCrac, NcCracCreationContext cracCreationContext, Set<ElementaryCreationContext> cnecCreationContexts) {
+    public NcRemedialActionsCreator(Crac crac, Network network, NcCrac nativeCrac, NcCracCreationContext cracCreationContext, Set<ElementaryCreationContext> cnecCreationContexts, NcCracCreationParameters ncCracCreationParameters) {
         this.crac = crac;
         this.elementaryActionsHelper = new ElementaryActionsHelper(nativeCrac);
         this.networkActionCreator = new NetworkActionCreator(this.crac, network);
+        this.ncCracCreationParameters = ncCracCreationParameters;
         Map<String, String> pstPerTapChanger = new NcAggregator<>(TapChanger::powerTransformer).aggregate(nativeCrac.getTapChangers()).entrySet().stream().collect(Collectors.toMap(entry -> entry.getValue().iterator().next().mrid(), Map.Entry::getKey));
         this.pstRangeActionCreator = new PstRangeActionCreator(this.crac, network, pstPerTapChanger);
         Map<String, Set<AssessedElementWithRemedialAction>> linkedAeWithRa = new NcAggregator<>(AssessedElementWithRemedialAction::remedialAction).aggregate(nativeCrac.getAssessedElementWithRemedialActions());
@@ -131,7 +134,8 @@ public class NcRemedialActionsCreator {
         }
 
         InstantKind instantKind = getInstantKind(nativeRemedialAction);
-        crac.getInstants(instantKind).forEach(instant -> addUsageRules(nativeRemedialAction.mrid(), linkedAeWithRa.getOrDefault(nativeRemedialAction.mrid(), Set.of()), linkedCoWithRa.getOrDefault(nativeRemedialAction.mrid(), Set.of()), cnecCreationContexts, remedialActionAdder, alterations, instant));
+        Set<Instant> instants = getInstants(instantKind, nativeRemedialAction.operator() == null ? null : NcCracUtils.getTsoNameFromUrl(nativeRemedialAction.operator()));
+        instants.forEach(instant -> addUsageRules(nativeRemedialAction.mrid(), linkedAeWithRa.getOrDefault(nativeRemedialAction.mrid(), Set.of()), linkedCoWithRa.getOrDefault(nativeRemedialAction.mrid(), Set.of()), cnecCreationContexts, remedialActionAdder, alterations, instant));
         remedialActionAdder.add();
 
         if (alterations.isEmpty()) {
@@ -139,6 +143,14 @@ public class NcRemedialActionsCreator {
         } else {
             contextByRaId.put(nativeRemedialAction.mrid(), StandardElementaryCreationContext.imported(nativeRemedialAction.mrid(), null, nativeRemedialAction.mrid(), true, String.join(". ", alterations)));
         }
+    }
+
+    private Set<Instant> getInstants(InstantKind instantKind, String operator) {
+        Set<Instant> instants = crac.getInstants(instantKind);
+        if (instantKind == InstantKind.CURATIVE && operator != null && ncCracCreationParameters.getRestrictedCurativeBatchesPerTso().containsKey(operator)) {
+            return instants.stream().filter(instant -> ncCracCreationParameters.getRestrictedCurativeBatchesPerTso().get(operator).contains(instant.getId())).collect(Collectors.toSet());
+        }
+        return instants;
     }
 
     private void addUsageRules(String remedialActionId, Set<AssessedElementWithRemedialAction> linkedAssessedElementWithRemedialActions, Set<ContingencyWithRemedialAction> linkedContingencyWithRemedialActions, Set<ElementaryCreationContext> cnecCreationContexts, RemedialActionAdder<?>
