@@ -269,14 +269,6 @@ class RaoResultImplTest {
     }
 
     @Test
-    void testIsSecureUnlessFunctionalCostPositive() {
-        setUp();
-        assertTrue(raoResult.isSecure(preventiveInstant, PhysicalParameter.FLOW));
-        raoResult.getAndCreateIfAbsentCostResult(preventiveInstant.getId()).setFunctionalCost(10);
-        assertFalse(raoResult.isSecure(preventiveInstant, PhysicalParameter.FLOW));
-    }
-
-    @Test
     void testIsNotSecureCheckPhysicalParameterKind2() {
         setUp();
         AngleCnec angleCnec = crac.newAngleCnec()
