@@ -345,7 +345,9 @@ public class RaoResultImpl implements RaoResult {
                     }
                 }
                 case FLOW -> {
-                    if (getFunctionalCost(optimizedInstant) > 0) {
+                    if (crac.getFlowCnecs().stream()
+                        .filter(FlowCnec::isOptimized)
+                        .anyMatch(this::isFlowCnecUnsecure)) {
                         return false;
                     }
                 }
@@ -365,6 +367,19 @@ public class RaoResultImpl implements RaoResult {
             }
         }
         return true;
+    }
+
+    private boolean isFlowCnecUnsecure(FlowCnec flowCnec) {
+        return isFlowCnecUnsecure(flowCnec, Unit.MEGAWATT) || isFlowCnecUnsecure(flowCnec, Unit.AMPERE);
+    }
+
+    private boolean isFlowCnecUnsecure(FlowCnec flowCnec, Unit unit) {
+        return crac.getSortedInstants()
+            .stream()
+            .filter(instant -> !instant.comesAfter(flowCnec.getState().getInstant()))
+            .map(instant -> getMargin(instant, flowCnec, unit))
+            .filter(margin -> !Double.isNaN(margin))
+            .anyMatch(margin -> margin < 0);
     }
 
     @Override
