@@ -6,6 +6,7 @@ castor/rao-steps.md
 castor/special-features.md
 castor/linear-problem.md
 castor/costly-optimization.md
+castor/redispatching.md
 castor/monitoring.md
 castor/performance.md
 castor/applications.md
