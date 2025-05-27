@@ -7,9 +7,9 @@
 
 package com.powsybl.openrao.data.crac.io.json.deserializers;
 
-import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.data.crac.io.commons.FlowCnecAdderUtil;
 import com.powsybl.openrao.data.crac.io.json.ExtensionsHandler;
 import com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants;
 import com.powsybl.openrao.data.crac.api.Crac;
@@ -104,7 +104,7 @@ public final class FlowCnecArrayDeserializer {
                         throw new OpenRaoException("Unexpected field in FlowCnec: " + jsonParser.getCurrentName());
                 }
             }
-            readImax(flowCnecAdder, network, networkElementId);
+            FlowCnecAdderUtil.setCurrentLimits(flowCnecAdder, network, networkElementId);
             FlowCnec cnec = flowCnecAdder.add();
             if (!extensions.isEmpty()) {
                 ExtensionsHandler.getExtensionsSerializers().addExtensions(cnec, extensions);
@@ -126,40 +126,6 @@ public final class FlowCnecArrayDeserializer {
             throw new OpenRaoException("nominalVoltage array of a flowCnec cannot contain more than 2 values");
         }
         return null;
-    }
-
-    private static void readImax(FlowCnecAdder flowCnecAdder, Network network, String networkElementId) {
-        Branch<?> branch = network.getBranch(networkElementId);
-        if (branch == null) {
-            throw new OpenRaoException("No branch with id %s was found in the network.".formatted(networkElementId));
-        }
-        Double currentLimitLeft = getCurrentLimit(branch, TwoSides.ONE);
-        Double currentLimitRight = getCurrentLimit(branch, TwoSides.TWO);
-        if (Objects.nonNull(currentLimitLeft) && Objects.nonNull(currentLimitRight)) {
-            flowCnecAdder.withIMax(currentLimitLeft, TwoSides.ONE);
-            flowCnecAdder.withIMax(currentLimitRight, TwoSides.TWO);
-        } else {
-            throw new OpenRaoException(String.format("Unable to get branch current limits from network for branch %s", branch.getId()));
-        }
-    }
-
-    // TODO: same as CIM, NC importers -> mutualize in commons or utils
-    private static Double getCurrentLimit(Branch<?> branch, TwoSides side) {
-        if (hasCurrentLimit(branch, side)) {
-            return branch.getCurrentLimits(side).orElseThrow().getPermanentLimit();
-        }
-        if (side == TwoSides.ONE && hasCurrentLimit(branch, TwoSides.TWO)) {
-            return branch.getCurrentLimits(TwoSides.TWO).orElseThrow().getPermanentLimit() * branch.getTerminal1().getVoltageLevel().getNominalV() / branch.getTerminal2().getVoltageLevel().getNominalV();
-        }
-        if (side == TwoSides.TWO && hasCurrentLimit(branch, TwoSides.ONE)) {
-            return branch.getCurrentLimits(TwoSides.ONE).orElseThrow().getPermanentLimit() * branch.getTerminal2().getVoltageLevel().getNominalV() / branch.getTerminal1().getVoltageLevel().getNominalV();
-        }
-        return null;
-    }
-
-    // TODO: same as CIM importer -> mutualize in commons or utils
-    private static boolean hasCurrentLimit(Branch<?> branch, TwoSides side) {
-        return branch.getCurrentLimits(side).isPresent();
     }
 
     private static void readReliabilityMargin(JsonParser jsonParser, String version, FlowCnecAdder flowCnecAdder) throws IOException {

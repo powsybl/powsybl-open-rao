@@ -21,6 +21,7 @@ import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnecAdder;
 import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.openrao.data.crac.io.commons.FlowCnecAdderUtil;
 import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
 import com.powsybl.openrao.data.crac.io.commons.cgmes.CgmesBranchHelper;
 import com.powsybl.iidm.network.Branch;
@@ -247,6 +248,7 @@ public class MonitoredSeriesCreator {
         try {
             cnecId = addThreshold(flowCnecAdder, unit, branchHelper, cnecNativeId, direction, threshold);
             setNominalVoltage(flowCnecAdder, branchHelper);
+            FlowCnecAdderUtil.setCurrentLimits(flowCnecAdder, network, branchHelper.getBranch().getId());
             setCurrentsLimit(flowCnecAdder, branchHelper);
         } catch (OpenRaoException e) {
             if (instant.isPreventive()) {
