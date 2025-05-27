@@ -6,8 +6,8 @@ selection of remedial actions cost-wise.
 
 > ⚙️ **Objective function setting**
 >
-> To run OpenRAO in costly mode, the [objective function type](../parameters/business-parameters.md#type) must be set
-> to `MIN_COST`.
+> To run OpenRAO in costly mode, the [objective function type](../parameters/business-parameters.md#type) must be set to
+> `MIN_COST`.
 
 The costly mode induces some changes in the optimization model by adding new variables and new constraints that are not
 required in the margin maximization mode. The objective function itself is also different to account for the monetary
@@ -31,9 +31,9 @@ are two categories of such costs:
    represent the cost for shifting the set-point of 1 MW (for HVDC or redispatching actions) or passing one tap for
    PSTs. Note that the variation costs can be different based on the variation direction (upward or downward).
 
-Using the same notations as in
-the [section dedicated to the linear problem](linear-problem/core-problem-filler.md#remedial-actions-cost-optimization),
-the participation of the costs of remedial actions to the objective function is simply the sum of the activation and
+Using the same notations as in the
+[section dedicated to the linear problem](linear-problem/core-problem-filler.md#remedial-actions-cost-optimization), the
+participation of the costs of remedial actions to the objective function is simply the sum of the activation and
 variation costs of remedial actions for all optimization states. It represents the functional (i.e. _real_) cost of the
 objective function.
 
@@ -58,7 +58,8 @@ margin can be broken down into two parts:
 
 $$MM + MMV \geq 0 \text{, with } MM \leq 0 \text{ and } MMV \geq 0$$
 
-> TODO: link to parameter
+> ⚙️ The security domain shift is set with the
+> [`shifted-violation-threshold`](../parameters/implementation-specific-parameters.md#shifted-violation-threshold) parameter.
 
 ### Shifting the security domain
 
@@ -79,10 +80,14 @@ $P_{overload}$, ensures that the RAO will try using as many remedial actions as 
 
 $$\text{Minimize } P_{overload} \times MMV$$
 
-> TODO: link to parameter
+In order to minimize the impact of the penalty, the RAO will aim to reduce the value of $MMV$ as much as possible, which
+implies that it will have to increase the value of $MM$ in order to get closer to the secure domain.
 
-> TODO: explain why it works (penalty >=0 so RAO tries to minimize MMV, i.e. maximize -MM)
+> ⚙️ The overload penalty is set with the
+> [`shifted-violation-penalty`](../parameters/implementation-specific-parameters.md#shifted-violation-penalty) parameter.
 
 ## Objective function
 
-$$\text{Minimize } \underbrace{\sum_{r \in \mathcal{RA}} \sum_{s \in \mathcal{S}} c(r, s)}_{\text{Functional cost = remedial actions expenses}} + \underbrace{P_{overload} \times MMV}_{\text{Virtual cost = penalty on minimal margin violation}}$$
+$$\text{Minimize } \underbrace{\sum_{r \in \mathcal{RA}} \sum_{s \in \mathcal{S}}
+c(r, s)}_{\text{Functional cost = remedial actions expenses}} + \underbrace{P_{overload}
+\times MMV}_{\text{Virtual cost = penalty on minimal margin violation}}$$
