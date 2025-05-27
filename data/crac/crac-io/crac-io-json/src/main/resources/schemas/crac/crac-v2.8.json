@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema#",
-  "$id": "https://www.powsybl.orgopen-rao-crac-schema=crac-v2.7.schema",
+  "$id": "https://www.powsybl.orgopen-rao-crac-schema=crac-v2.8.schema",
   "title": "CRAC",
   "description": "Contingency list, Remedial Actions and additional Constraints",
   "type": "object",
@@ -9,7 +9,7 @@
       "const": "CRAC"
     },
     "version": {
-      "const": "2.7"
+      "const": "2.8"
     },
     "info": {
       "type": "string"
@@ -51,7 +51,7 @@
       "type": "array",
       "items": {
         "items": {
-          "$ref": "resource:/schemas/flow-cnec/flow-cnec-v2.4.json"
+          "$ref": "resource:/schemas/flow-cnec/flow-cnec-v2.8.json"
         }
       }
     },
