@@ -8,6 +8,8 @@
 package com.powsybl.openrao.data.crac.io.commons;
 
 import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.network.DanglingLine;
+import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
@@ -23,17 +25,26 @@ public final class FlowCnecAdderUtil {
     }
 
     public static void setCurrentLimits(FlowCnecAdder flowCnecAdder, Network network, String networkElementId) {
-        Branch<?> branch = network.getBranch(networkElementId);
-        if (branch == null) {
-            throw new OpenRaoException("No branch with id %s was found in the network.".formatted(networkElementId));
+        Identifiable<?> networkElement = network.getIdentifiable(networkElementId);
+        if (networkElement == null) {
+            throw new OpenRaoException("No network element with id %s was found in the network.".formatted(networkElementId));
         }
-        Double currentLimitLeft = getCurrentLimit(branch, TwoSides.ONE);
-        Double currentLimitRight = getCurrentLimit(branch, TwoSides.TWO);
-        if (Objects.nonNull(currentLimitLeft) && Objects.nonNull(currentLimitRight)) {
-            flowCnecAdder.withIMax(currentLimitLeft, TwoSides.ONE);
-            flowCnecAdder.withIMax(currentLimitRight, TwoSides.TWO);
+        if (networkElement instanceof Branch<?> branch) {
+            Double currentLimitLeft = getCurrentLimit(branch, TwoSides.ONE);
+            Double currentLimitRight = getCurrentLimit(branch, TwoSides.TWO);
+            if (Objects.nonNull(currentLimitLeft) && Objects.nonNull(currentLimitRight)) {
+                flowCnecAdder.withIMax(currentLimitLeft, TwoSides.ONE);
+                flowCnecAdder.withIMax(currentLimitRight, TwoSides.TWO);
+            } else {
+                throw new OpenRaoException(String.format("Unable to get branch current limits from network for branch %s", branch.getId()));
+            }
+        } else if (networkElement instanceof DanglingLine danglingLine) {
+            // TODO: get side?
+            double currentLimit = danglingLine.getCurrentLimits().orElseThrow(() -> new OpenRaoException(String.format("Unable to get current limits from network for dangling line %s", danglingLine.getId()))).getPermanentLimit();
+            flowCnecAdder.withIMax(currentLimit, TwoSides.ONE);
+            flowCnecAdder.withIMax(currentLimit, TwoSides.TWO);
         } else {
-            throw new OpenRaoException(String.format("Unable to get branch current limits from network for branch %s", branch.getId()));
+            throw new OpenRaoException("No branch or dangling line with id %s was found in the network.".formatted(networkElementId));
         }
     }
 
