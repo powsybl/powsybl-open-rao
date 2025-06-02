@@ -7,7 +7,7 @@
     <parent>
         <groupId>com.powsybl</groupId>
         <artifactId>powsybl-open-rao</artifactId>
-        <version>6.5.0-SNAPSHOT</version>
+        <version>6.6.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>open-rao-distribution</artifactId>
@@ -19,7 +19,7 @@
         <!-- open-rao dependencies -->
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>monitoring</artifactId>
+            <artifactId>open-rao-monitoring</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -60,21 +60,6 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>open-rao-crac-util</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>open-rao-flowbased-computation-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>open-rao-flowbased-computation-impl</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>open-rao-flowbased-domain</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
