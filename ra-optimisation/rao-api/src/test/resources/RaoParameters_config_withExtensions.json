@@ -186,6 +186,10 @@
         "ptdf-approximation" : "UPDATE_PTDF_WITH_TOPO",
         "constraint-adjustment-coefficient" : 12.0,
         "violation-cost" : 13.0
+      },
+      "costly-min-margin-parameters" : {
+        "shifted-violation-penalty" : 1000.0,
+        "shifted-violation-threshold" : 0.0
       }
     }
   }
