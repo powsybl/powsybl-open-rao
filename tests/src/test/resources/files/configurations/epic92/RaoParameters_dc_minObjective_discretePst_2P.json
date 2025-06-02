@@ -133,6 +133,10 @@
       },
       "multi-threading" : {
         "available-cpus" : 4
+      },
+      "costly-min-margin-parameters": {
+        "shifted-violation-penalty" : 10000.0,
+        "shifted-violation-threshold": 0.0
       }
     }
   }
