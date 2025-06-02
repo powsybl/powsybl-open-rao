@@ -32,4 +32,11 @@ public final class FlowCnecSorting {
             .toList();
     }
 
+    public static List<FlowCnec> sortByNegativeMargin(Set<FlowCnec> flowCnecs, Unit unit, MarginEvaluator marginEvaluator, FlowResult flowResult) {
+        return flowCnecs.stream()
+            .filter(Cnec::isOptimized)
+            .filter(flowCnec -> marginEvaluator.getMargin(flowResult, flowCnec, unit) < 0)
+            .sorted(Comparator.comparingDouble(flowCnec -> marginEvaluator.getMargin(flowResult, flowCnec, unit)))
+            .toList();
+    }
 }
