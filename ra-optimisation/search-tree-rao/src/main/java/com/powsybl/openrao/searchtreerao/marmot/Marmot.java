@@ -24,7 +24,6 @@ import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.openrao.data.raoresult.api.InterTemporalRaoResult;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.raoapi.*;
-import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoCostlyMinMarginParameters;
@@ -505,9 +504,6 @@ public class Marmot implements InterTemporalRaoProvider {
             .withRaLimitationParameters(new RangeActionLimitationParameters())
             .withMinMarginParameters(parameters.getExtension(OpenRaoSearchTreeParameters.class).getMinMarginsParameters().orElse(new SearchTreeRaoCostlyMinMarginParameters()));
 
-        if (parameters.getObjectiveFunctionParameters().getType().equals(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN) | parameters.getObjectiveFunctionParameters().getType().costOptimization()) {
-            linearOptimizerParametersBuilder.withMaxMinMarginParameters(parameters.getExtension(OpenRaoSearchTreeParameters.class).getMinMarginParameters().orElseThrow());
-        }
         if (parameters.getMnecParameters().isPresent()) {
             linearOptimizerParametersBuilder.withMnecParameters(parameters.getMnecParameters().get());
             linearOptimizerParametersBuilder.withMnecParametersExtension(parameters.getExtension(OpenRaoSearchTreeParameters.class).getMnecParameters().orElseThrow());

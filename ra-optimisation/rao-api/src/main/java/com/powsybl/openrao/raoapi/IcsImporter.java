@@ -10,7 +10,6 @@ import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeActionAdder;
 import com.powsybl.openrao.data.crac.api.rangeaction.VariationDirection;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.openrao.data.generatorconstraints.GeneratorConstraints;
-import com.powsybl.openrao.raoapi.parameters.extensions.IcsImporterParameters;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 
@@ -39,9 +38,9 @@ public final class IcsImporter {
         //should only be used statically
     }
 
-    public static void populateInputWithICS(InterTemporalRaoInputWithNetworkPaths interTemporalRaoInput, InputStream staticInputStream, InputStream seriesInputStream, InputStream gskInputStream, IcsImporterParameters icsImporterParameters) throws IOException {
-        costUp = icsImporterParameters.getCostUp();
-        costDown = icsImporterParameters.getCostDown();
+    public static void populateInputWithICS(InterTemporalRaoInputWithNetworkPaths interTemporalRaoInput, InputStream staticInputStream, InputStream seriesInputStream, InputStream gskInputStream, double icsCostUp, double icsCostDown) throws IOException {
+        costUp = icsCostUp;
+        costDown = icsCostDown;
 
         TemporalData<Network> initialNetworks = new TemporalDataImpl<>();
         interTemporalRaoInput.getRaoInputs().getDataPerTimestamp().forEach((dateTime, raoInput) -> {

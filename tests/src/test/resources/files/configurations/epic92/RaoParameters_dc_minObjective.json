@@ -109,7 +109,7 @@
         "available-cpus" : 1
       },
       "costly-min-margin-parameters": {
-        "shifted-violation-penalty" : 10000.0,
+        "shifted-violation-penalty" : 1000.0,
         "shifted-violation-threshold": 0.0
       }
     }

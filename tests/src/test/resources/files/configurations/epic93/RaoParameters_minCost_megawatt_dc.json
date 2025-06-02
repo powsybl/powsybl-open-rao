@@ -139,6 +139,7 @@
         "constraint-adjustment-coefficient" : 3.0
       },
       "costly-min-margin-parameters" : {
+        "shifted-violation-threshold" : 10,
         "shifted-violation-penalty" : 1000.0
       }
     }
