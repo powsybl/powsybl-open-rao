@@ -30,7 +30,7 @@ public final class IteratingLinearOptimizerParameters {
     private final MnecParameters mnecParameters;
     private final SearchTreeRaoMnecParameters mnecParametersExtension;
     private final SearchTreeRaoRelativeMarginsParameters maxMinRelativeMarginParameters;
-    private final SearchTreeRaoMinMarginParameters maxMinMarginParameters;
+    private final SearchTreeRaoCostlyMinMarginParameters minMarginsParameters;
     private final LoopFlowParameters loopFlowParameters;
     private final SearchTreeRaoLoopFlowParameters loopFlowParametersExtension;
     private final UnoptimizedCnecParameters unoptimizedCnecParameters;
@@ -47,7 +47,7 @@ public final class IteratingLinearOptimizerParameters {
                                                MnecParameters mnecParameters,
                                                SearchTreeRaoMnecParameters mnecParametersExtension,
                                                SearchTreeRaoRelativeMarginsParameters maxMinRelativeMarginParameters,
-                                               SearchTreeRaoMinMarginParameters maxMinMarginParameters,
+                                               SearchTreeRaoCostlyMinMarginParameters minMarginsParameters,
                                                LoopFlowParameters loopFlowParameters,
                                                SearchTreeRaoLoopFlowParameters loopFlowParametersExtension,
                                                UnoptimizedCnecParameters unoptimizedCnecParameters,
@@ -62,7 +62,7 @@ public final class IteratingLinearOptimizerParameters {
         this.mnecParameters = mnecParameters;
         this.mnecParametersExtension = mnecParametersExtension;
         this.maxMinRelativeMarginParameters = maxMinRelativeMarginParameters;
-        this.maxMinMarginParameters = maxMinMarginParameters;
+        this.minMarginsParameters = minMarginsParameters;
         this.loopFlowParameters = loopFlowParameters;
         this.loopFlowParametersExtension = loopFlowParametersExtension;
         this.unoptimizedCnecParameters = unoptimizedCnecParameters;
@@ -117,8 +117,8 @@ public final class IteratingLinearOptimizerParameters {
         return maxMinRelativeMarginParameters;
     }
 
-    public SearchTreeRaoMinMarginParameters getMaxMinMarginParameters() {
-        return maxMinMarginParameters;
+    public SearchTreeRaoCostlyMinMarginParameters getMinMarginParameters() {
+        return minMarginsParameters;
     }
 
     public LoopFlowParameters getLoopFlowParameters() {
@@ -163,7 +163,7 @@ public final class IteratingLinearOptimizerParameters {
         private MnecParameters mnecParameters;
         private SearchTreeRaoMnecParameters mnecParametersExtension;
         private SearchTreeRaoRelativeMarginsParameters maxMinRelativeMarginParameters;
-        private SearchTreeRaoMinMarginParameters maxMinMarginParameters;
+        private SearchTreeRaoCostlyMinMarginParameters minMarginsParameters;
         private LoopFlowParameters loopFlowParameters;
         private SearchTreeRaoLoopFlowParameters loopFlowParametersExtension;
         private UnoptimizedCnecParameters unoptimizedCnecParameters;
@@ -207,8 +207,8 @@ public final class IteratingLinearOptimizerParameters {
             return this;
         }
 
-        public LinearOptimizerParametersBuilder withMaxMinMarginParameters(SearchTreeRaoMinMarginParameters maxMinMarginParameters) {
-            this.maxMinMarginParameters = maxMinMarginParameters;
+        public LinearOptimizerParametersBuilder withMinMarginParameters(SearchTreeRaoCostlyMinMarginParameters maxMinMarginsParameters) {
+            this.minMarginsParameters = maxMinMarginsParameters;
             return this;
         }
 
@@ -260,7 +260,7 @@ public final class IteratingLinearOptimizerParameters {
                 mnecParameters,
                 mnecParametersExtension,
                 maxMinRelativeMarginParameters,
-                maxMinMarginParameters,
+                minMarginsParameters,
                 loopFlowParameters,
                 loopFlowParametersExtension,
                 unoptimizedCnecParameters,

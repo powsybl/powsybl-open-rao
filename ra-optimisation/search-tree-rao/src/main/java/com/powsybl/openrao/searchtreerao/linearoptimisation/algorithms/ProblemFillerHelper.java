@@ -85,7 +85,7 @@ public final class ProblemFillerHelper {
                 input.optimizationPerimeter().getOptimizedFlowCnecs(),
                 input.preOptimizationFlowResult(),
                 parameters.getObjectiveFunctionUnit(),
-                parameters.getMaxMinMarginParameters(),
+                parameters.getMinMarginParameters(),
                 parameters.getMaxMinRelativeMarginParameters(),
                 timestamp
             );
@@ -95,7 +95,7 @@ public final class ProblemFillerHelper {
                 input.optimizationPerimeter().getOptimizedFlowCnecs(),
                 parameters.getObjectiveFunctionUnit(),
                 parameters.getObjectiveFunction().costOptimization(),
-                parameters.getMaxMinMarginParameters(),
+                parameters.getMinMarginParameters(),
                 timestamp
             );
             problemFillers.add(maxMinMarginFiller);

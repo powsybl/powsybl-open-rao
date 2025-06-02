@@ -25,8 +25,7 @@ public class OpenRaoSearchTreeParameters extends AbstractExtension<RaoParameters
     private MultithreadingParameters multithreadingParameters = new MultithreadingParameters();
     private SecondPreventiveRaoParameters secondPreventiveRaoParameters = new SecondPreventiveRaoParameters();
     private LoadFlowAndSensitivityParameters loadFlowAndSensitivityParameters = new LoadFlowAndSensitivityParameters();
-    private Optional<IcsImporterParameters> icsImporterParameters = Optional.empty();
-    private Optional<SearchTreeRaoMinMarginParameters> minMarginParameters = Optional.empty();
+    private Optional<SearchTreeRaoCostlyMinMarginParameters> minMarginsParameters = Optional.empty();
     private Optional<SearchTreeRaoMnecParameters> mnecParameters = Optional.empty();
     private Optional<SearchTreeRaoRelativeMarginsParameters> relativeMarginsParameters = Optional.empty();
     private Optional<SearchTreeRaoLoopFlowParameters> loopFlowParameters = Optional.empty();
@@ -68,12 +67,8 @@ public class OpenRaoSearchTreeParameters extends AbstractExtension<RaoParameters
         this.loopFlowParameters = Optional.of(loopFlowParameters);
     }
 
-    public void setIcsImporterParameters(IcsImporterParameters icsImporterParameters) {
-        this.icsImporterParameters = Optional.of(icsImporterParameters);
-    }
-
-    public void setMinMarginParameters(SearchTreeRaoMinMarginParameters minMarginParameters) {
-        this.minMarginParameters = Optional.of(minMarginParameters);
+    public void setMinMarginsParameters(SearchTreeRaoCostlyMinMarginParameters minMarginsParameters) {
+        this.minMarginsParameters = Optional.of(minMarginsParameters);
     }
 
     public SearchTreeRaoObjectiveFunctionParameters getObjectiveFunctionParameters() {
@@ -100,12 +95,8 @@ public class OpenRaoSearchTreeParameters extends AbstractExtension<RaoParameters
         return loadFlowAndSensitivityParameters;
     }
 
-    public Optional<IcsImporterParameters> getIcsImporterParameters() {
-        return icsImporterParameters;
-    }
-
-    public Optional<SearchTreeRaoMinMarginParameters> getMinMarginParameters() {
-        return minMarginParameters;
+    public Optional<SearchTreeRaoCostlyMinMarginParameters> getMinMarginsParameters() {
+        return minMarginsParameters;
     }
 
     public Optional<SearchTreeRaoMnecParameters> getMnecParameters() {

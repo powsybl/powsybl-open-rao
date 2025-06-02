@@ -12,7 +12,6 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.io.nc.NcCrac;
 import com.powsybl.openrao.data.crac.io.nc.craccreator.NcCracCreationContext;
 import com.powsybl.openrao.data.crac.io.nc.craccreator.NcAggregator;
-import com.powsybl.openrao.data.crac.io.nc.craccreator.constants.ElementCombinationConstraintKind;
 import com.powsybl.openrao.data.crac.io.nc.craccreator.constants.LimitType;
 import com.powsybl.openrao.data.crac.io.nc.objects.AssessedElement;
 import com.powsybl.openrao.data.crac.io.nc.objects.AssessedElementWithContingency;
@@ -149,7 +148,7 @@ public class NcCnecCreator {
         }
 
         // Illegal element combination constraint kind
-        if (!ElementCombinationConstraintKind.INCLUDED.toString().equals(nativeAssessedElementWithContingency.combinationConstraintKind())) {
+        if (!nativeAssessedElementWithContingency.isIncluded()) {
             ncCnecCreationContexts.add(StandardElementaryCreationContext.notImported(assessedElementId, null, ImportStatus.INCONSISTENCY_IN_DATA, "The contingency " + nativeAssessedElementWithContingency.contingency() + " is linked to the assessed element with an illegal elementCombinationConstraint kind"));
             combinableContingenciesSet.remove(contingencyToLink);
             return false;

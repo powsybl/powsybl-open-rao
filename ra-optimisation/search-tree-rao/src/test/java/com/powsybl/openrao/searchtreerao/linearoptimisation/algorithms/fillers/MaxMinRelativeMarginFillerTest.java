@@ -50,7 +50,7 @@ class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
     private MarginCoreProblemFiller coreProblemFiller;
     private MaxMinRelativeMarginFiller maxMinRelativeMarginFiller;
     private SearchTreeRaoRelativeMarginsParameters parameters;
-    private SearchTreeRaoMinMarginParameters minMarginParameters;
+    private SearchTreeRaoCostlyMinMarginParameters minMarginsParameters;
     private RangeActionSetpointResult initialRangeActionSetpointResult;
 
     @BeforeEach
@@ -79,8 +79,8 @@ class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN);
         raoParameters.getObjectiveFunctionParameters().setUnit(MEGAWATT);
 
-        minMarginParameters = new SearchTreeRaoMinMarginParameters();
-        searchTreeParameters.setMinMarginParameters(minMarginParameters);
+        minMarginsParameters = new SearchTreeRaoCostlyMinMarginParameters();
+        searchTreeParameters.setMinMarginsParameters(minMarginsParameters);
 
         coreProblemFiller = new MarginCoreProblemFiller(
             optimizationPerimeter,
@@ -100,7 +100,7 @@ class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
             Set.of(cnec1),
             initialFlowResult,
             unit,
-            minMarginParameters,
+            minMarginsParameters,
             parameters,
             null);
     }
@@ -192,7 +192,7 @@ class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
             Set.of(cnec1),
             initialFlowResult,
             MEGAWATT,
-            minMarginParameters,
+            minMarginsParameters,
             parameters,
             null);
         buildLinearProblem();
@@ -247,7 +247,7 @@ class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
             Set.of(cnec1),
             initialFlowResult,
             MEGAWATT,
-            minMarginParameters,
+            minMarginsParameters,
             parameters,
             null);
         buildLinearProblem();

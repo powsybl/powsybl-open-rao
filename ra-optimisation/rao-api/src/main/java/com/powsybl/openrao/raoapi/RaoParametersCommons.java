@@ -125,13 +125,9 @@ public final class RaoParametersCommons {
         }
     }
 
-    // -- ICS Importer parameters
-    public static final String ICS_IMPORTER_PARAMETERS = "ics-importer-parameters";
-    public static final String COST_UP = "cost-up";
-    public static final String COST_DOWN = "cost-down";
-
     // -- Min Margins parameters
-    public static final String MIN_MARGIN_PARAMETERS = "min-margin-parameters";
-    public static final String ST_MIN_MARGIN_SECTION = "search-tree-min-margin-parameters";
-    public static final String OVERLOAD_PENALTY = "overload-penalty";
+    public static final String COSTLY_MIN_MARGIN_PARAMETERS = "costly-min-margin-parameters";
+    public static final String ST_COSTLY_MIN_MARGIN_SECTION = "search-tree-costly-min-margin-parameters";
+    public static final String SHIFTED_VIOLATION_PENALTY = "shifted-violation-penalty";
+    public static final String SHIFTED_VIOLATION_THRESHOLD = "shifted-violation-threshold";
 }

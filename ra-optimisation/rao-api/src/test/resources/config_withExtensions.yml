@@ -73,9 +73,6 @@ search-tree-load-flow-and-sensitivity-computation:
 search-tree-multi-threading:
   available-cpus: 5
 
-ics-importer-parameters:
-  cost-up : 10
-  cost-down : 10
-
-search-tree-min-margin-parameters:
-  overload-penalty : 1000
+search-tree-costly-min-margin-parameters:
+  shifted-violation-penalty : 1000
+  shifted-violation-threshold : 0
