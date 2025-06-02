@@ -29,6 +29,8 @@ class JsonFbConstraintCracCreationParametersTest {
         CracCreationParameters exportedParameters = new CracCreationParameters();
         FbConstraintCracCreationParameters exportedFbConstraintParameters = new FbConstraintCracCreationParameters();
         exportedFbConstraintParameters.setTimestamp(OffsetDateTime.parse("2025-01-10T05:00:00Z"));
+        exportedFbConstraintParameters.setIcsCostUp(30.0);
+        exportedFbConstraintParameters.setIcsCostDown(15.0);
         exportedParameters.addExtension(FbConstraintCracCreationParameters.class, exportedFbConstraintParameters);
 
         // roundTrip
@@ -41,6 +43,8 @@ class JsonFbConstraintCracCreationParametersTest {
         FbConstraintCracCreationParameters fbConstraintCracCreationParameters = importedParameters.getExtension(FbConstraintCracCreationParameters.class);
         assertNotNull(fbConstraintCracCreationParameters);
         assertEquals(OffsetDateTime.parse("2025-01-10T05:00:00Z"), fbConstraintCracCreationParameters.getTimestamp());
+        assertEquals(30.0, fbConstraintCracCreationParameters.getIcsCostUp());
+        assertEquals(15.0, fbConstraintCracCreationParameters.getIcsCostDown());
     }
 
     @Test
@@ -50,6 +54,8 @@ class JsonFbConstraintCracCreationParametersTest {
         FbConstraintCracCreationParameters fbConstraintCracCreationParameters = importedParameters.getExtension(FbConstraintCracCreationParameters.class);
         assertNotNull(fbConstraintCracCreationParameters);
         assertEquals(OffsetDateTime.parse("2025-01-10T05:00:00Z"), fbConstraintCracCreationParameters.getTimestamp());
+        assertEquals(50.0, fbConstraintCracCreationParameters.getIcsCostUp());
+        assertEquals(20.0, fbConstraintCracCreationParameters.getIcsCostDown());
     }
 
     @Test
