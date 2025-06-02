@@ -136,7 +136,7 @@
       },
       "costly-min-margin-parameters" : {
         "shifted-violation-penalty" : 1000.0,
-        "shifted-violation-threshold": 0.0
+        "shifted-violation-threshold": 10
       }
     }
   }
