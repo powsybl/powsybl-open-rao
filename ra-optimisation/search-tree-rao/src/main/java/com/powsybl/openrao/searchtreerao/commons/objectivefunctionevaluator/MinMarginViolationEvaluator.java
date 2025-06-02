@@ -24,11 +24,11 @@ import java.util.Set;
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
 public class MinMarginViolationEvaluator extends MinMarginEvaluator implements CostEvaluator {
-    private final double overloadPenalty;
+    private final double shiftedViolationPenalty;
 
-    public MinMarginViolationEvaluator(Set<FlowCnec> flowCnecs, Unit unit, MarginEvaluator marginEvaluator, double overloadPenalty) {
+    public MinMarginViolationEvaluator(Set<FlowCnec> flowCnecs, Unit unit, MarginEvaluator marginEvaluator, double shiftedViolationPenalty) {
         super(flowCnecs, unit, marginEvaluator);
-        this.overloadPenalty = overloadPenalty;
+        this.shiftedViolationPenalty = shiftedViolationPenalty;
     }
 
     @Override
@@ -44,7 +44,7 @@ public class MinMarginViolationEvaluator extends MinMarginEvaluator implements C
 
     private Map<FlowCnec, Double> getCostPerCnec(Set<FlowCnec> flowCnecs, FlowResult flowResult, Unit unit) {
         Map<FlowCnec, Double> costPerCnec = new HashMap<>();
-        flowCnecs.forEach(cnec -> costPerCnec.put(cnec, Math.min(0, marginEvaluator.getMargin(flowResult, cnec, unit)) * overloadPenalty));
+        flowCnecs.forEach(cnec -> costPerCnec.put(cnec, Math.min(0, marginEvaluator.getMargin(flowResult, cnec, unit)) * shiftedViolationPenalty));
         return costPerCnec;
     }
 }
