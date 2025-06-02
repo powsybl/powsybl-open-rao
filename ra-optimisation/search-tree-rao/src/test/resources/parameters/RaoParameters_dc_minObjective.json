@@ -107,6 +107,9 @@
       },
       "multi-threading" : {
         "available-cpus" : 1
+      },
+      "costly-min-margin-parameters" : {
+        "shifted-violation-penalty" : 1000.0
       }
     }
   }
