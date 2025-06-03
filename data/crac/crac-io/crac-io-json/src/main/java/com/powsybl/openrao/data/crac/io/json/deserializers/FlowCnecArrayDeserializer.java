@@ -85,7 +85,7 @@ public final class FlowCnecArrayDeserializer {
                         if (JsonSerializationConstants.getPrimaryVersionNumber(version) == 1
                             || JsonSerializationConstants.getPrimaryVersionNumber(version) == 2 && JsonSerializationConstants.getSubVersionNumber(version) <= 7) {
                             jsonParser.readValueAs(Double[].class);
-                            BUSINESS_WARNS.warn("The iMax is now fetched in the network so the value in the CRAC will not be read.");
+                            BUSINESS_WARNS.warn("iMax is now fetched in the network so the value in the CRAC will not be read.");
                             break;
                         }
                         throw new OpenRaoException("From version 2.8 onwards, iMax is deprecated.");
@@ -94,7 +94,7 @@ public final class FlowCnecArrayDeserializer {
                         if (JsonSerializationConstants.getPrimaryVersionNumber(version) == 1
                             || JsonSerializationConstants.getPrimaryVersionNumber(version) == 2 && JsonSerializationConstants.getSubVersionNumber(version) <= 7) {
                             jsonParser.readValueAs(Double[].class);
-                            BUSINESS_WARNS.warn("The nominalV is now fetched in the network so the value in the CRAC will not be read.");
+                            BUSINESS_WARNS.warn("nominalV is now fetched in the network so the value in the CRAC will not be read.");
                             break;
                         }
                         throw new OpenRaoException("From version 2.8 onwards, nominalV is deprecated.");
