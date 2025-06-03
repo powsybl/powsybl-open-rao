@@ -55,7 +55,7 @@ Feature: US 15.3: Handle transformers
 
   @fast @rao @mock @ac @preventive-only
   Scenario: US 15.3.2: Handle transformers on a small test case in AC - On side 2
-    Given network file is "epic15/TestCase12Nodes_with_2_voltage_levels_2.uct"
+    Given network file is "epic15/TestCase12Nodes_with_2_voltage_levels_2_side_2.uct"
     Given crac file is "epic15/SL_ep15us3case2_RIGHT.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch search_tree_rao
@@ -80,7 +80,7 @@ Feature: US 15.3: Handle transformers
 
   @fast @rao @mock @ac @preventive-only
   Scenario: US 15.3.3: Handle transformers with threshold in Ampere
-    Given network file is "epic15/TestCase12Nodes_with_2_voltage_levels_2.uct"
+    Given network file is "epic15/TestCase12Nodes_with_2_voltage_levels_2_side_2.uct"
     Given crac file is "epic15/SL_ep15us3case3.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch search_tree_rao
