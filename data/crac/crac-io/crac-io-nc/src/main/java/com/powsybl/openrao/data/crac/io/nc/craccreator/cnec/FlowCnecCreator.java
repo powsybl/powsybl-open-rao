@@ -157,17 +157,6 @@ public class FlowCnecCreator extends AbstractCnecCreator {
         adder.add();
     }
 
-    private void setNominalVoltage(FlowCnecAdder flowCnecAdder, Branch<?> branch) {
-        double voltageLevelLeft = branch.getTerminal1().getVoltageLevel().getNominalV();
-        double voltageLevelRight = branch.getTerminal2().getVoltageLevel().getNominalV();
-        if (voltageLevelLeft > 1e-6 && voltageLevelRight > 1e-6) {
-            flowCnecAdder.withNominalVoltage(voltageLevelLeft, TwoSides.ONE);
-            flowCnecAdder.withNominalVoltage(voltageLevelRight, TwoSides.TWO);
-        } else {
-            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Voltage level for branch " + branch.getId() + " is 0 in network");
-        }
-    }
-
     private void addFlowCnec(Branch<?> networkElement, Contingency contingency, String instantId, Map<TwoSides, Double> thresholdPerSide, int limitDuration, boolean useMaxAndMinThresholds) {
         if (thresholdPerSide.isEmpty()) {
             return;
@@ -176,7 +165,7 @@ public class FlowCnecCreator extends AbstractCnecCreator {
         addCnecBaseInformation(cnecAdder, contingency, instantId, limitDuration);
         thresholdPerSide.forEach((twoSides, threshold) -> addFlowCnecThreshold(cnecAdder, twoSides, threshold, useMaxAndMinThresholds));
         cnecAdder.withNetworkElement(networkElement.getId());
-        setNominalVoltage(cnecAdder, networkElement);
+        FlowCnecAdderUtil.setNominalVoltages(cnecAdder, network, networkElement.getId());
         FlowCnecAdderUtil.setCurrentLimits(cnecAdder, network, networkElement.getId());
         cnecAdder.add();
     }

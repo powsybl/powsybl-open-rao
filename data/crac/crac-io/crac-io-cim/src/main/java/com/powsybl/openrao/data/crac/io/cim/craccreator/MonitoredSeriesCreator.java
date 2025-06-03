@@ -247,7 +247,7 @@ public class MonitoredSeriesCreator {
         String cnecId;
         try {
             cnecId = addThreshold(flowCnecAdder, unit, branchHelper, cnecNativeId, direction, threshold);
-            setNominalVoltage(flowCnecAdder, branchHelper);
+            FlowCnecAdderUtil.setNominalVoltages(flowCnecAdder, network, branchHelper.getBranch().getId());
             FlowCnecAdderUtil.setCurrentLimits(flowCnecAdder, network, branchHelper.getBranch().getId());
         } catch (OpenRaoException e) {
             if (instant.isPreventive()) {
@@ -344,17 +344,6 @@ public class MonitoredSeriesCreator {
                 .withMin(min)
                 .add()
         );
-    }
-
-    private void setNominalVoltage(FlowCnecAdder flowCnecAdder, CgmesBranchHelper branchHelper) {
-        double voltageLevelLeft = branchHelper.getBranch().getTerminal1().getVoltageLevel().getNominalV();
-        double voltageLevelRight = branchHelper.getBranch().getTerminal2().getVoltageLevel().getNominalV();
-        if (voltageLevelLeft > 1e-6 && voltageLevelRight > 1e-6) {
-            flowCnecAdder.withNominalVoltage(voltageLevelLeft, TwoSides.ONE);
-            flowCnecAdder.withNominalVoltage(voltageLevelRight, TwoSides.TWO);
-        } else {
-            throw new OpenRaoException(String.format("Voltage level for branch %s is 0 in network.", branchHelper.getBranch().getId()));
-        }
     }
 
     private boolean hasCurrentLimit(Branch<?> branch, TwoSides side) {
