@@ -13,6 +13,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnecAdder;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.Objects;
 
@@ -21,6 +22,24 @@ import java.util.Objects;
  */
 public final class FlowCnecAdderUtil {
     private FlowCnecAdderUtil() {
+    }
+
+    public static Pair<Double, Double> setNominalVoltages(FlowCnecAdder flowCnecAdder, Network network, String networkElementId) {
+        Branch<?> branch = network.getBranch(networkElementId);
+        if (branch != null) {
+            double nominalV1 = branch.getTerminal1().getVoltageLevel().getNominalV();
+            double nominalV2 = branch.getTerminal2().getVoltageLevel().getNominalV();
+            flowCnecAdder.withNominalVoltage(nominalV1, TwoSides.ONE);
+            flowCnecAdder.withNominalVoltage(nominalV2, TwoSides.TWO);
+            return Pair.of(nominalV1, nominalV2);
+        }
+        DanglingLine danglingLine = network.getDanglingLine(networkElementId);
+        if (danglingLine != null) {
+            double nominalV = danglingLine.getTerminal().getVoltageLevel().getNominalV();
+            flowCnecAdder.withNominalVoltage(nominalV);
+            return Pair.of(nominalV, nominalV);
+        }
+        throw new OpenRaoException("No branch or dangling line with id %s was found in the network.".formatted(networkElementId));
     }
 
     public static void setCurrentLimits(FlowCnecAdder flowCnecAdder, Network network, String networkElementId) {

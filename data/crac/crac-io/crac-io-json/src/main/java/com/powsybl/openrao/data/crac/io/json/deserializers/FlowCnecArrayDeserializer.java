@@ -13,7 +13,6 @@ import com.powsybl.openrao.data.crac.io.commons.FlowCnecAdderUtil;
 import com.powsybl.openrao.data.crac.io.json.ExtensionsHandler;
 import com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants;
 import com.powsybl.openrao.data.crac.api.Crac;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnecAdder;
 import com.fasterxml.jackson.core.JsonParser;
@@ -42,7 +41,6 @@ public final class FlowCnecArrayDeserializer {
         }
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             FlowCnecAdder flowCnecAdder = crac.newFlowCnec();
-            String networkElementId = null;
             List<Extension<FlowCnec>> extensions = new ArrayList<>();
             Pair<Double, Double> nominalV = null;
             while (!jsonParser.nextToken().isStructEnd()) {
@@ -54,7 +52,9 @@ public final class FlowCnecArrayDeserializer {
                         flowCnecAdder.withName(jsonParser.nextTextValue());
                         break;
                     case JsonSerializationConstants.NETWORK_ELEMENT_ID:
-                        networkElementId = readNetworkElementId(jsonParser, networkElementsNamesPerId, flowCnecAdder);
+                        String networkElementId = readNetworkElementId(jsonParser, networkElementsNamesPerId, flowCnecAdder);
+                        nominalV = FlowCnecAdderUtil.setNominalVoltages(flowCnecAdder, network, networkElementId);
+                        FlowCnecAdderUtil.setCurrentLimits(flowCnecAdder, network, networkElementId);
                         break;
                     case JsonSerializationConstants.OPERATOR:
                         flowCnecAdder.withOperator(jsonParser.nextTextValue());
@@ -90,8 +90,14 @@ public final class FlowCnecArrayDeserializer {
                         }
                         throw new OpenRaoException("From version 2.8 onwards, iMax is deprecated.");
                     case JsonSerializationConstants.NOMINAL_VOLTAGE:
-                        nominalV = readNominalVoltage(jsonParser, flowCnecAdder);
-                        break;
+                        jsonParser.nextToken();
+                        if (JsonSerializationConstants.getPrimaryVersionNumber(version) == 1
+                            || JsonSerializationConstants.getPrimaryVersionNumber(version) == 2 && JsonSerializationConstants.getSubVersionNumber(version) <= 7) {
+                            jsonParser.readValueAs(Double[].class);
+                            BUSINESS_WARNS.warn("The nominalV is now fetched in the network so the value in the CRAC will not be read.");
+                            break;
+                        }
+                        throw new OpenRaoException("From version 2.8 onwards, nominalV is deprecated.");
                     case JsonSerializationConstants.THRESHOLDS:
                         jsonParser.nextToken();
                         BranchThresholdArrayDeserializer.deserialize(jsonParser, flowCnecAdder, nominalV, version);
@@ -104,28 +110,11 @@ public final class FlowCnecArrayDeserializer {
                         throw new OpenRaoException("Unexpected field in FlowCnec: " + jsonParser.getCurrentName());
                 }
             }
-            FlowCnecAdderUtil.setCurrentLimits(flowCnecAdder, network, networkElementId);
             FlowCnec cnec = flowCnecAdder.add();
             if (!extensions.isEmpty()) {
                 ExtensionsHandler.getExtensionsSerializers().addExtensions(cnec, extensions);
             }
         }
-    }
-
-    private static Pair<Double, Double> readNominalVoltage(JsonParser jsonParser, FlowCnecAdder flowCnecAdder) throws IOException {
-        jsonParser.nextToken();
-        Double[] nominalV = jsonParser.readValueAs(Double[].class);
-        if (nominalV.length == 1) {
-            flowCnecAdder.withNominalVoltage(nominalV[0]);
-            return Pair.of(nominalV[0], nominalV[0]);
-        } else if (nominalV.length == 2) {
-            flowCnecAdder.withNominalVoltage(nominalV[0], TwoSides.ONE);
-            flowCnecAdder.withNominalVoltage(nominalV[1], TwoSides.TWO);
-            return Pair.of(nominalV[0], nominalV[1]);
-        } else if (nominalV.length > 2) {
-            throw new OpenRaoException("nominalVoltage array of a flowCnec cannot contain more than 2 values");
-        }
-        return null;
     }
 
     private static void readReliabilityMargin(JsonParser jsonParser, String version, FlowCnecAdder flowCnecAdder) throws IOException {
