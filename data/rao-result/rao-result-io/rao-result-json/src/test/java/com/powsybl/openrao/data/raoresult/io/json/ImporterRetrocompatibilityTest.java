@@ -99,6 +99,8 @@ class ImporterRetrocompatibilityTest {
     private static void addBranch(Network network, String branchId) {
         Branch<?> branch = Mockito.mock(Branch.class);
         Mockito.when(branch.getId()).thenReturn(branchId);
+        addMockedTerminal(branch, ONE);
+        addMockedTerminal(branch, TWO);
         CurrentLimits currentLimits1 = Mockito.mock(CurrentLimits.class);
         Mockito.when(currentLimits1.getPermanentLimit()).thenReturn(2000.);
         Mockito.when(branch.getCurrentLimits(ONE)).thenReturn(Optional.of(currentLimits1));
@@ -106,6 +108,18 @@ class ImporterRetrocompatibilityTest {
         Mockito.when(currentLimits2.getPermanentLimit()).thenReturn(2000.);
         Mockito.when(branch.getCurrentLimits(TWO)).thenReturn(Optional.of(currentLimits2));
         Mockito.when(network.getBranch(branchId)).thenReturn(branch);
+    }
+
+    private static void addMockedTerminal(Branch<?> branch, TwoSides side) {
+        Terminal terminal = Mockito.mock(Terminal.class);
+        VoltageLevel voltageLevel = Mockito.mock(VoltageLevel.class);
+        Mockito.when(voltageLevel.getNominalV()).thenReturn(400.);
+        Mockito.when(terminal.getVoltageLevel()).thenReturn(voltageLevel);
+        if (side == ONE) {
+            Mockito.when(branch.getTerminal1()).thenReturn(terminal);
+        } else {
+            Mockito.when(branch.getTerminal2()).thenReturn(terminal);
+        }
     }
 
     @Test
