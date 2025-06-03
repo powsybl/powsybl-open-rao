@@ -32,14 +32,14 @@ public final class FlowCnecAdderUtil {
                 flowCnecAdder.withIMax(currentLimitLeft, TwoSides.ONE);
                 flowCnecAdder.withIMax(currentLimitRight, TwoSides.TWO);
             } else {
-                throw new OpenRaoException(String.format("Unable to get branch current limits from network for branch %s", branch.getId()));
+                throw new OpenRaoException(String.format("Unable to get current limits from network for branch %s.", branch.getId()));
             }
         } else {
             // TODO: is it relevant to define a CNEC on a dangling line? Should not it be a tie-line with only one monitored side?
             DanglingLine danglingLine = network.getDanglingLine(networkElementId);
             if (danglingLine != null) {
                 // TODO: get side?
-                double currentLimit = danglingLine.getCurrentLimits().orElseThrow(() -> new OpenRaoException(String.format("Unable to get current limits from network for dangling line %s", danglingLine.getId()))).getPermanentLimit();
+                double currentLimit = danglingLine.getCurrentLimits().orElseThrow(() -> new OpenRaoException(String.format("Unable to get current limits from network for dangling line %s.", danglingLine.getId()))).getPermanentLimit();
                 flowCnecAdder.withIMax(currentLimit, TwoSides.ONE);
                 flowCnecAdder.withIMax(currentLimit, TwoSides.TWO);
             } else {
