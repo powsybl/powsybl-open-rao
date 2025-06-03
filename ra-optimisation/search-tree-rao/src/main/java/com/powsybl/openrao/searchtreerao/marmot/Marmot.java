@@ -9,14 +9,12 @@ package com.powsybl.openrao.searchtreerao.marmot;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.State;
-import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
@@ -45,7 +43,6 @@ import com.powsybl.openrao.searchtreerao.result.impl.LightFastRaoResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.NetworkActionsResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.RangeActionActivationResultImpl;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
-import org.mockito.Mockito;
 
 import java.time.OffsetDateTime;
 import java.util.*;
@@ -57,7 +54,6 @@ import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WA
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
 import static com.powsybl.openrao.searchtreerao.commons.RaoLogger.logCost;
 import static com.powsybl.openrao.searchtreerao.marmot.MarmotUtils.*;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -72,6 +68,7 @@ public class Marmot implements InterTemporalRaoProvider {
 
     private static final String INITIAL_SCENARIO = "InitialScenario";
     private static final String POST_TOPO_SCENARIO = "PostTopoScenario";
+    private static final String MIN_MARGIN_VIOLATION_EVALUATOR = "min-margin-violation-evaluator";
 
     @Override
     public CompletableFuture<InterTemporalRaoResult> run(InterTemporalRaoInputWithNetworkPaths interTemporalRaoInputWithNetworkPaths, RaoParameters raoParameters) {
@@ -196,7 +193,7 @@ public class Marmot implements InterTemporalRaoProvider {
             Set<String> previousIterationCnecs = consideredCnecs.getData(timestamp).orElseThrow();
             Set<String> nextIterationCnecs = new HashSet<>(previousIterationCnecs);
 
-            double worstConsideredMargin = loadFlowResult.getCostlyElements("min-margin-violation-evaluator", Integer.MAX_VALUE)
+            double worstConsideredMargin = loadFlowResult.getCostlyElements(MIN_MARGIN_VIOLATION_EVALUATOR, Integer.MAX_VALUE)
                 .stream()
                 .filter(cnec -> previousIterationCnecs.contains(cnec.getId()))
                 .findFirst()
@@ -208,7 +205,7 @@ public class Marmot implements InterTemporalRaoProvider {
                 int addedCnecsForVcName = 0;
 
                 // for min margin violation take all cnecs
-                if (vcName.equals("min-margin-violation-evaluator")) {
+                if (vcName.equals(MIN_MARGIN_VIOLATION_EVALUATOR)) {
                     for (FlowCnec cnec : loadFlowResult.getCostlyElements(vcName, Integer.MAX_VALUE)) {
                         if (loadFlowResult.getMargin(cnec, Unit.MEGAWATT) > worstConsideredMargin + marginWindowToConsider && addedCnecsForVcName > cnecsToAddPerVirtualCostName) {
                             // stop if out of window and already added enough
@@ -242,7 +239,7 @@ public class Marmot implements InterTemporalRaoProvider {
 
             // for margin violation - need to compare to min improvement on margin
             // ordered list of cnecs with an overload
-            List<FlowCnec> worstCnecsForMarginViolation = loadFlowResult.getCostlyElements("min-margin-violation-evaluator", Integer.MAX_VALUE);
+            List<FlowCnec> worstCnecsForMarginViolation = loadFlowResult.getCostlyElements(MIN_MARGIN_VIOLATION_EVALUATOR, Integer.MAX_VALUE);
             double worstConsideredMargin = worstCnecsForMarginViolation.stream()
                 .filter(cnec -> previousCnecs.contains(cnec.getId()))
                 .findFirst()
@@ -259,7 +256,7 @@ public class Marmot implements InterTemporalRaoProvider {
 
             // for other violations - just check if cnec was considered
             loadFlowResult.getVirtualCostNames().stream()
-                .filter(vcName -> !vcName.equals("min-margin-violation-evaluator"))
+                .filter(vcName -> !vcName.equals(MIN_MARGIN_VIOLATION_EVALUATOR))
                 .forEach(vcName -> {
                     Optional<FlowCnec> worstCnec = loadFlowResult.getCostlyElements(vcName, 1).stream().findFirst();
                     if (worstCnec.isPresent() && !previousCnecs.contains(worstCnec.get().getId())) {
@@ -275,7 +272,7 @@ public class Marmot implements InterTemporalRaoProvider {
             if (!loggingAddedCnecs.addedCnecs().isEmpty()) {
                 logMessage.append(" for timestamp ").append(loggingAddedCnecs.offsetDateTime().toString()).append(" and virtual cost ").append(loggingAddedCnecs.vcName()).append(" ");
                 for (String cnec : loggingAddedCnecs.addedCnecs()) {
-                    String cnecString = loggingAddedCnecs.vcName().equals("min-margin-violation-evaluator") ?
+                    String cnecString = loggingAddedCnecs.vcName().equals(MIN_MARGIN_VIOLATION_EVALUATOR) ?
                         cnec + "(" + loggingAddedCnecs.margins().get(cnec) + ")" + "," :
                         cnec + ",";
                     logMessage.append(cnecString);
@@ -297,9 +294,7 @@ public class Marmot implements InterTemporalRaoProvider {
     }
 
     private void replaceFastRaoResultsWithLightVersions(TemporalData<RaoResult> topologicalOptimizationResults) {
-        topologicalOptimizationResults.getDataPerTimestamp().forEach((timestamp, raoResult) -> {
-            topologicalOptimizationResults.put(timestamp, new LightFastRaoResultImpl((FastRaoResultImpl) raoResult));
-        });
+        topologicalOptimizationResults.getDataPerTimestamp().forEach((timestamp, raoResult) -> topologicalOptimizationResults.put(timestamp, new LightFastRaoResultImpl((FastRaoResultImpl) raoResult)));
     }
 
     private TemporalData<PrePerimeterResult> buildInitialResults(TemporalData<RaoResult> topologicalOptimizationResults) {
@@ -337,69 +332,6 @@ public class Marmot implements InterTemporalRaoProvider {
             individualResults.add(dateTime, generateMockRaoResult(individualRaoInput, raoParameters, consideredCnecs));
         });
         return individualResults; /**/
-    }
-
-    private static RaoResult generateMockRaoResult(RaoInput individualRaoInput, RaoResult raoResult) {
-        //TODO: create a proper object (record?) for this instead of using Mockito
-        FastRaoResultImpl mockedRaoResult = Mockito.mock(FastRaoResultImpl.class);
-        Crac crac = individualRaoInput.getCrac();
-        State preventiveState = crac.getPreventiveState();
-        when(mockedRaoResult.getActivatedNetworkActionsDuringState(preventiveState)).thenReturn(raoResult.getActivatedNetworkActionsDuringState(preventiveState));
-        when(mockedRaoResult.getInitialResult()).thenReturn(((FastRaoResultImpl) raoResult).getInitialResult());
-
-        for (State state : crac.getStates(crac.getLastInstant())) {
-            // This is to get around the cases where the result is a OneStateOnlyRaoResultImpl in the cases where the FastRao filtered rao only optimized the preventive state
-            // (If we catch an error with message "Trying to access perimeter result for the wrong state.", we know no actions were applied in curative)
-            boolean errorCaught = false;
-            try {
-                raoResult.getActivatedNetworkActionsDuringState(state);
-                raoResult.getActivatedRangeActionsDuringState(state);
-                raoResult.getActivatedRangeActionsDuringState(state).forEach(ra ->
-                    raoResult.getOptimizedSetPointOnState(state, ra)
-                );
-            } catch (OpenRaoException e) {
-                errorCaught = true;
-                if (!e.getMessage().equals("Trying to access perimeter result for the wrong state.")) {
-                    throw e;
-                } else {
-                    when(mockedRaoResult.getActivatedNetworkActionsDuringState(state)).thenReturn(Collections.emptySet());
-                    when(mockedRaoResult.getActivatedRangeActionsDuringState(state)).thenReturn(Collections.emptySet());
-                }
-            }
-            if (!errorCaught) {
-                when(mockedRaoResult.getActivatedNetworkActionsDuringState(state)).thenReturn(raoResult.getActivatedNetworkActionsDuringState(state));
-                when(mockedRaoResult.getActivatedRangeActionsDuringState(state)).thenReturn(raoResult.getActivatedRangeActionsDuringState(state));
-                raoResult.getActivatedRangeActionsDuringState(state).forEach(ra ->
-                    when(mockedRaoResult.getOptimizedSetPointOnState(state, ra)).thenReturn(raoResult.getOptimizedSetPointOnState(state, ra))
-                );
-            }
-        }
-        return raoResult;
-    }
-
-    // TODO: delete this, it is just used for manual testing purposes if we want to run the MIP part only without running the independent RAOs
-    private static RaoResult generateMockRaoResult(RaoInput individualRaoInput, RaoParameters raoParameters, TemporalData<Set<String>> consideredCnecs) {
-        FastRaoResultImpl raoResult = Mockito.mock(FastRaoResultImpl.class);
-        Crac crac = individualRaoInput.getCrac();
-        if (crac.getTimestamp().orElseThrow().getHour() == 2) {
-            Set<String> actionNames = Set.of("TOP_2NV_DOEL_PRA", "TOP_2N_AUBAN_PRA");
-            Set<NetworkAction> actions = crac.getNetworkActions().stream()
-                .filter(na -> actionNames.contains(na.getName()))
-                .collect(Collectors.toSet());
-            when(raoResult.getActivatedNetworkActionsDuringState(individualRaoInput.getCrac().getPreventiveState())).thenReturn(actions);
-        } else if (crac.getTimestamp().orElseThrow().getHour() == 1) {
-            Set<String> actionNames = Set.of("TOP_2N_BRUEG_PRA");
-            Set<NetworkAction> actions = crac.getNetworkActions().stream()
-                .filter(na -> actionNames.contains(na.getName()))
-                .collect(Collectors.toSet());
-            when(raoResult.getActivatedNetworkActionsDuringState(individualRaoInput.getCrac().getPreventiveState())).thenReturn(actions);
-        } else {
-            when(raoResult.getActivatedNetworkActionsDuringState(individualRaoInput.getCrac().getPreventiveState())).thenReturn(new HashSet<>());
-        }
-        PrePerimeterResult initialResult = MarmotUtils.runInitialPrePerimeterSensitivityAnalysisWithoutRangeActions(individualRaoInput, raoParameters);
-        when(raoResult.getInitialResult()).thenReturn(initialResult);
-        consideredCnecs.put(crac.getTimestamp().orElseThrow(), initialResult.getCostlyElements("min-margin-violation-evaluator", 300).stream().map(Cnec::getId).collect(Collectors.toSet()));
-        return raoResult;
     }
 
     private static void applyPreventiveTopologicalActionsOnNetwork(TemporalData<RaoInput> raoInputs, TemporalData<RaoResult> topologicalOptimizationResults) {
@@ -517,14 +449,14 @@ public class Marmot implements InterTemporalRaoProvider {
         return InterTemporalIteratingLinearOptimizer.optimize(interTemporalLinearOptimizerInput, linearOptimizerParameters);
     }
 
-    private static boolean doesPrePerimeterSetpointRespectRange(RangeAction<?> rangeAction, RangeActionSetpointResult prePerimeterSetpoints) {
-        double preperimeterSetPoint = prePerimeterSetpoints.getSetpoint(rangeAction);
-        double minSetPoint = rangeAction.getMinAdmissibleSetpoint(preperimeterSetPoint);
-        double maxSetPoint = rangeAction.getMaxAdmissibleSetpoint(preperimeterSetPoint);
+    private static boolean doesPrePerimeterSetPointRespectRange(RangeAction<?> rangeAction, RangeActionSetpointResult prePerimeterSetpoints) {
+        double prePerimeterSetPoint = prePerimeterSetpoints.getSetpoint(rangeAction);
+        double minSetPoint = rangeAction.getMinAdmissibleSetpoint(prePerimeterSetPoint);
+        double maxSetPoint = rangeAction.getMaxAdmissibleSetpoint(prePerimeterSetPoint);
 
-        if (preperimeterSetPoint < minSetPoint - 1e-6 || preperimeterSetPoint > maxSetPoint + 1e-6) {
+        if (prePerimeterSetPoint < minSetPoint - 1e-6 || prePerimeterSetPoint > maxSetPoint + 1e-6) {
             BUSINESS_WARNS.warn("Range action {} has an initial setpoint of {} that does not respect its allowed range [{} {}]. It will be filtered out of the linear problem.",
-                rangeAction.getId(), preperimeterSetPoint, minSetPoint, maxSetPoint);
+                rangeAction.getId(), prePerimeterSetPoint, minSetPoint, maxSetPoint);
             return false;
         } else {
             return true;
@@ -541,7 +473,7 @@ public class Marmot implements InterTemporalRaoProvider {
                 MarmotUtils.getFilteredCnecs(crac, consideredCnecs.getData(timestamp).orElseThrow()),
                 new HashSet<>(),
                 new HashSet<>(),
-                crac.getRangeActions(crac.getPreventiveState(), UsageMethod.AVAILABLE).stream().filter(rangeAction -> doesPrePerimeterSetpointRespectRange(rangeAction, prePerimeterSetpointResult)).collect(Collectors.toSet())
+                crac.getRangeActions(crac.getPreventiveState(), UsageMethod.AVAILABLE).stream().filter(rangeAction -> doesPrePerimeterSetPointRespectRange(rangeAction, prePerimeterSetpointResult)).collect(Collectors.toSet())
             ));
         });
         return optimizationPerimeters;
