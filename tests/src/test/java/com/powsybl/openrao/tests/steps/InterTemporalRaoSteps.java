@@ -74,6 +74,8 @@ public final class InterTemporalRaoSteps {
     private static Map<OffsetDateTime, CracCreationContext> cracCreationContexts;
 
     private static final List<String> DE_TSOS = List.of("D2", "D4", "D7", "D8");
+    static final String DEFAULT_CRAC_CREATION_PARAMETERS_PATH = "cracCreationParameters/epic93/CracCreationParameters_93.json";
+
 
     public InterTemporalRaoSteps() {
         // should not be instantiated
@@ -180,7 +182,7 @@ public final class InterTemporalRaoSteps {
             if (useIndividualCracs) { // only works with json
                 cracImportResult = importCrac(getFile(cracFolderPath.concat(tsInput.get("Crac"))), network, null);
             } else {
-                addTimestampToCracCreationParameters("FlowBasedConstraintDocument", offsetDateTime, cracCreationParameters);
+                cracCreationParameters.getExtension(FbConstraintCracCreationParameters.class).setTimestamp(offsetDateTime);
                 cracImportResult = importCrac(cracFile, network, cracCreationParameters);
             }
             RaoInputWithNetworkPaths raoInput = RaoInputWithNetworkPaths
