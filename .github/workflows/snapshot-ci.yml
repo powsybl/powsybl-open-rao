@@ -1,0 +1,192 @@
+name: Snapshot CI
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - 'ci/core-*'
+
+jobs:
+  build:
+    name: Build and test on ${{ matrix.os }} with ${{ matrix.jvm }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ ubuntu-latest, windows-latest, macos-latest ]
+        jvm: [ java, graalvm ]
+
+  steps:
+    - name: Extract core version from branch
+      if: startsWith(github.ref_name, 'ci/')
+      run: |
+        BRANCH_NAME="${GITHUB_REF_NAME##*/}"  # ex: ci/core-6.8.0-SNAPSHOT
+        VERSION="${BRANCH_NAME#ci/core-}"     # ex: 6.8.0-SNAPSHOT
+        echo "CORE_VERSION=$VERSION" >> $GITHUB_ENV
+
+    # Setup GraalVM
+    - name: Setup GraalVM
+      uses: graalvm/setup-graalvm@v1
+      with:
+        java-version: '17'
+        distribution: 'graalvm'
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+
+    # Define scripts path
+    - name: Set up script path
+      run: |
+            SCRIPTS_PATH="${GITHUB_WORKSPACE}/scripts/.github/workflows/scripts"
+            if [[ "${{ matrix.config.name }}" == "windows" ]]; then
+              SCRIPTS_PATH=$(echo "$SCRIPTS_PATH" | sed 's/\\/\//g')
+            fi
+            echo "SCRIPTS_PATH=$SCRIPTS_PATH" >> $GITHUB_ENV  
+
+    # Build powsybl-core on main branch
+    - name: Checkout core sources
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      with:
+        repository: powsybl/powsybl-core
+        ref: main
+        path: powsybl-core
+
+    - name: Build powsybl-core
+      run: mvn -batch-mode --no-transfer-progress clean install -DskipTests
+      working-directory: ./powsybl-core
+
+    # Checkout script
+    # The script check_snapshot_branch.sh is located in the workflow folder of the repository
+    # It is necessary for checking out the integration branch if it exists
+    - name: Checkout script
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      with:
+        sparse-checkout: |
+          .github
+        sparse-checkout-cone-mode: false
+        path: scripts
+
+    # Build Open-Loadflow
+    - name: Checking for powsybl-open-loadflow snapshot branch
+      run: ${{ env.SCRIPTS_PATH }}/check_snapshot_branch.sh "https://github.com/powsybl/powsybl-open-loadflow.git" ${{ env.CORE_VERSION }}
+
+    - name: Checkout powsybl-open-loadflow sources
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      with:
+        repository: powsybl/powsybl-open-loadflow
+        ref: ${{ env.SNAPSHOT_BRANCH }}
+        path: powsybl-open-loadflow
+
+    - name: Change core version in pom.xml
+      run: mvn versions:set-property -Dproperty=powsybl-core.version -DnewVersion=${{ env.CORE_VERSION}} -DgenerateBackupPoms=false
+      working-directory: ./powsybl-open-loadflow
+
+    - name: Build powsybl-open-loadflow
+      id: build_olf
+      continue-on-error: true
+      run: ${{ env.SCRIPTS_PATH }}/build_module.sh "powsybl-open-loadflow" "mvn -batch-mode --no-transfer-progress clean install" ${{ matrix.config.name }}  ${{ matrix.python.name }}
+      working-directory: ./powsybl-open-loadflow
+
+    - name: Store job result
+      if: always()
+      run: |
+        echo "${{ steps.build_olf.outputs.BUILD_RESULT }}" >> job_result_${{ matrix.config.name }}-${{ matrix.python.name }}.txt
+
+    - name: Print file
+      run: |
+        echo "============================================="
+        cat job_result_${{ matrix.config.name }}-${{ matrix.python.name }}.txt
+        echo "============================================="
+
+    - name: Get OLF_VERSION
+      run: echo "OLF_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
+      working-directory: ./powsybl-open-loadflow
+
+    # Build powsybl-entsoe
+    - name: Checking for powsybl-entsoe snapshot branch
+      run: ${{ env.SCRIPTS_PATH }}/check_snapshot_branch.sh  "https://github.com/powsybl/powsybl-entsoe.git" ${{ env.CORE_VERSION }}
+
+    - name: Checkout powsybl-entsoe sources
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      with:
+        repository: powsybl/powsybl-entsoe
+        ref: ${{ env.SNAPSHOT_BRANCH }}
+        path: powsybl-entsoe
+
+    - name: Change core/loadflow version in pom.xml
+      run: |
+        mvn versions:set-property -Dproperty=powsyblcore.version -DnewVersion=${{ env.CORE_VERSION}} -DgenerateBackupPoms=false
+        mvn versions:set-property -Dproperty=powsyblopenloadflow.version -DnewVersion=${{ env.OLF_VERSION}} -DgenerateBackupPoms=false
+      working-directory: ./powsybl-entsoe
+
+    - name: Build powsybl-entsoe
+      id: build_entsoe
+      continue-on-error: true
+      run: ${{ env.SCRIPTS_PATH }}/build_module.sh "powsybl-entsoe" "mvn -batch-mode --no-transfer-progress clean install" ${{ matrix.config.name }}  ${{ matrix.python.name }}
+      working-directory: ./powsybl-entsoe
+
+    - name: Store job result
+      if: always()
+      run: |
+        echo "${{ steps.build_entsoe.outputs.BUILD_RESULT }}" >> job_result_${{ matrix.config.name }}-${{ matrix.python.name }}.txt
+
+    - name: Print file
+      run: |
+        echo "============================================="
+        cat job_result_${{ matrix.config.name }}-${{ matrix.python.name }}.txt
+        echo "============================================="
+
+    - name: Get ENTSOE_VERSION
+      run: echo "ENTSOE_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
+      working-directory: ./powsybl-entsoe
+
+    # Build powsybl-open-rao
+    - name: Checking for powsybl-open-rao snapshot branch
+      run: ${{ env.SCRIPTS_PATH }}/check_snapshot_branch.sh "https://github.com/powsybl/powsybl-open-rao.git" ${{ env.CORE_VERSION }}
+
+    - name: Checkout powsybl-open-rao sources
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      with:
+        repository: powsybl/powsybl-open-rao
+        ref: ${{ env.SNAPSHOT_BRANCH }}
+        path: powsybl-openrao
+
+    - name: Change core/entsoe/loadflow version in pom.xml
+      run: |
+        mvn versions:set-property -Dproperty=powsybl.core.version -DnewVersion=${{ env.CORE_VERSION}} -DgenerateBackupPoms=false
+        mvn versions:set-property -Dproperty=powsybl.entsoe.version -DnewVersion=${{ env.ENTSOE_VERSION}} -DgenerateBackupPoms=false
+        mvn versions:set-property -Dproperty=powsybl.openloadflow.version -DnewVersion=${{ env.OLF_VERSION}} -DgenerateBackupPoms=false
+      working-directory: ./powsybl-openrao
+
+
+    - name: Build powsybl-open-rao
+      id: build_rao
+      continue-on-error: true
+      run: ${{ env.SCRIPTS_PATH }}/build_module.sh "powsybl-open-rao" "mvn -batch-mode --no-transfer-progress clean install" ${{ matrix.config.name }} ${{ matrix.python.name }}
+      working-directory: ./powsybl-openrao
+
+    - name: Store job result
+      if: always()
+      run: |
+          echo "${{ steps.build_rao.outputs.BUILD_RESULT }}" >> job_result_${{ matrix.config.name }}-${{ matrix.python.name }}.txt
+
+    - name: Print file
+      run: |
+        echo "============================================="
+        cat job_result_${{ matrix.config.name }}-${{ matrix.python.name }}.txt
+        echo "============================================="
+
+    - name: Build with Maven
+      if: matrix.os == 'ubuntu-latest'
+      run: mvn --batch-mode -Pjacoco install -DskipCucumberTests=true
+
+    - name: Run SonarCloud analysis
+      if: matrix.os == 'ubuntu-latest'
+      run: >
+        mvn --batch-mode -DskipTests sonar:sonar
+        -Dsonar.host.url=https://sonarcloud.io
+        -Dsonar.organization=powsybl-ci-github
+        -Dsonar.projectKey=com.powsybl:open-rao
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+    - name: Run cucumber tests
+      run: mvn test -pl tests
