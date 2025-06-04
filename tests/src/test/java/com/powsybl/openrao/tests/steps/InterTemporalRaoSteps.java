@@ -76,7 +76,6 @@ public final class InterTemporalRaoSteps {
     private static final List<String> DE_TSOS = List.of("D2", "D4", "D7", "D8");
     static final String DEFAULT_CRAC_CREATION_PARAMETERS_PATH = "cracCreationParameters/epic93/CracCreationParameters_93.json";
 
-
     public InterTemporalRaoSteps() {
         // should not be instantiated
     }
