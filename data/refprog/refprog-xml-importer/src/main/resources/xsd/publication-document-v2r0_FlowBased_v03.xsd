@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?> <!-- UNI-LT CCt adaptation: ReceiverCategory added for timestamp code. Version increased to flowbased_v03 (from v02) -->
 <xsd:schema xmlns:ecc="etso-core-cmpts.xsd" xmlns:xsd="http://www.w3.org/2001/XMLSchema" ecc:VersionRelease="7.0" elementFormDefault="qualified" attributeFormDefault="unqualified">
 	<xsd:import namespace="etso-core-cmpts.xsd" schemaLocation="etso-core-cmpts.xsd" />
 	<!-- ETSO Document Automatically generated from a UML class diagram using XMI. Generation tool version 1.7 -->
@@ -143,6 +143,11 @@
 						<xsd:documentation></xsd:documentation>
 					</xsd:annotation>
 				</xsd:element>
+				<xsd:element name="ProcessType" minOccurs="0" maxOccurs="1" type="ecc:ProcessType">
+					<xsd:annotation>
+						<xsd:documentation></xsd:documentation>
+					</xsd:annotation>
+				</xsd:element>
 				<xsd:element name="SenderIdentification" type="ecc:PartyType">
 					<xsd:annotation>
 						<xsd:documentation></xsd:documentation>
@@ -163,6 +168,11 @@
 						<xsd:documentation></xsd:documentation>
 					</xsd:annotation>
 				</xsd:element>
+				<xsd:element name="ReceiverCategory" type="ecc:CodeType" minOccurs="0" maxOccurs="1">  <!-- Added. Optional. CodeType = string with max length 3 -->
+					<xsd:annotation>
+						<xsd:documentation></xsd:documentation>
+					</xsd:annotation>
+				</xsd:element>
 				<xsd:element name="CreationDateTime" type="ecc:MessageDateTimeType">
 					<xsd:annotation>
 						<xsd:documentation></xsd:documentation>
@@ -178,7 +188,8 @@
 						<xsd:documentation></xsd:documentation>
 					</xsd:annotation>
 				</xsd:element>
-				<xsd:element minOccurs="1" maxOccurs="unbounded" name="PublicationTimeSeries" type="PublicationTimeSeries_Type" />
+				<!-- updated for Flow Based project - originally mandatory Time Series made optional so that only header could be present in exceptional situations -->
+				<xsd:element minOccurs="0" maxOccurs="unbounded" name="PublicationTimeSeries" type="PublicationTimeSeries_Type" />
 			</xsd:sequence>
 			<xsd:attribute name="DtdVersion" type="xsd:string" use="required" />
 			<xsd:attribute name="DtdRelease" type="xsd:string" use="required" />

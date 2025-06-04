@@ -87,7 +87,7 @@ class TopologicalOptimizationResultTest {
         TopologicalOptimizationResult topologicalOptimizationResult1 = new TopologicalOptimizationResult(raoInput1, raoResult1);
         topologicalOptimizationResult1.applyTopologicalActions();
 
-        assertEquals("InitialScenario_with_topological_actions", network1.getVariantManager().getWorkingVariantId());
+        assertEquals("InitialScenario", network1.getVariantManager().getWorkingVariantId());
         assertFalse(network1.getLine("DDE1AA1  DDE2AA1  1").getTerminal1().isConnected());
         assertFalse(network1.getLine("DDE1AA1  DDE2AA1  1").getTerminal2().isConnected());
 
@@ -101,7 +101,7 @@ class TopologicalOptimizationResultTest {
         TopologicalOptimizationResult topologicalOptimizationResult2 = new TopologicalOptimizationResult(raoInput2, raoResult2);
         topologicalOptimizationResult2.applyTopologicalActions();
 
-        assertEquals("InitialScenario_with_topological_actions", network2.getVariantManager().getWorkingVariantId());
+        assertEquals("InitialScenario", network2.getVariantManager().getWorkingVariantId());
         assertEquals(5, network2.getTwoWindingsTransformer("BBE2AA1  BBE3AA1  1").getPhaseTapChanger().getTapPosition());
         assertEquals(5, network2.getTwoWindingsTransformer("DDE2AA1  DDE3AA1  1").getPhaseTapChanger().getTapPosition());
 
@@ -115,7 +115,7 @@ class TopologicalOptimizationResultTest {
         TopologicalOptimizationResult topologicalOptimizationResult3 = new TopologicalOptimizationResult(raoInput3, raoResult3);
         topologicalOptimizationResult3.applyTopologicalActions();
 
-        assertEquals("InitialScenario_with_topological_actions", network3.getVariantManager().getWorkingVariantId());
+        assertEquals("InitialScenario", network3.getVariantManager().getWorkingVariantId());
         assertEquals(0.0, network3.getGenerator("NNL1AA1 _generator").getTargetP());
         assertEquals(0.0, network3.getGenerator("FFR1AA1 _generator").getTargetP());
 

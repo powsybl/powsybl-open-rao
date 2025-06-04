@@ -10,7 +10,6 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
-import com.powsybl.openrao.searchtreerao.result.impl.FailedRaoResultImpl;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 
@@ -46,7 +45,7 @@ class RaoResultSerializer extends AbstractJsonSerializer<RaoResult> {
         jsonGenerator.writeStringField(COMPUTATION_STATUS, serializeStatus(computationStatus));
         jsonGenerator.writeStringField(EXECUTION_DETAILS, raoResult.getExecutionDetails());
 
-        if (!(raoResult instanceof FailedRaoResultImpl)) {
+        if (!ComputationStatus.FAILURE.equals(computationStatus)) {
             CostResultMapSerializer.serialize(raoResult, crac, jsonGenerator);
             ComputationStatusMapSerializer.serialize(raoResult, crac, jsonGenerator);
             FlowCnecResultArraySerializer.serialize(raoResult, crac, flowUnits, jsonGenerator);
