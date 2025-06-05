@@ -5,9 +5,9 @@ on:
   pull_request:
     branches:
       - 'ci/**-**'
-    push:
-      branches:
-        - 'ci/**-**'
+  push:
+    branches:
+      - 'ci/**-**'
 
 jobs:
   build:
