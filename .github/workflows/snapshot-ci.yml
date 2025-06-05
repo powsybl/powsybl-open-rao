@@ -38,9 +38,12 @@ jobs:
           distribution: 'graalvm'
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Set up script path
         run: |
-          SCRIPTS_PATH="${GITHUB_WORKSPACE}/scripts/.github/workflows/scripts"
+          SCRIPTS_PATH="${GITHUB_WORKSPACE}/.github/workflows/scripts"
           if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
             SCRIPTS_PATH=$(echo "$SCRIPTS_PATH" | sed 's/\\/\//g')
           fi
