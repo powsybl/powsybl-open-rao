@@ -50,11 +50,12 @@ jobs:
         uses: actions/checkout@v4
         with:
           sparse-checkout: |
-            .github/workflows/scripts
-          sparse-checkout-cone-mode: false
+            .github/
+          sparse-checkout-cone-mode: true
 
       - name: Confirm script is present
         run: |
+          ls -l ${GITHUB_WORKSPACE}/.github/workflows
           ls -l ${GITHUB_WORKSPACE}/.github/workflows/scripts
           test -f "${{ env.SCRIPTS_PATH }}/check_snapshot_branch.sh" && echo "Script OK" || echo "Script MISSING"
 
