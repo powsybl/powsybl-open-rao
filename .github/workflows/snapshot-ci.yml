@@ -28,8 +28,11 @@ jobs:
         if: startsWith(github.ref_name, 'testci/')
         run: |
           BRANCH_NAME="${GITHUB_REF_NAME##*/}"         
-          VERSION="${BRANCH_NAME##*core-}"               
-          echo "CORE_VERSION=$VERSION" >> $GITHUB_ENV
+          VERSION="${BRANCH_NAME#*-}"             
+          echo "SNAPSHOT_VERSION=$VERSION" >> $GITHUB_ENV
+
+      - name: Check Version
+        run: echo SNAPSHOT_VERSION
 
       - name: Setup GraalVM
         uses: graalvm/setup-graalvm@v1
@@ -57,7 +60,7 @@ jobs:
 
       # Build powsybl-core
       - name: Checking for powsybl-core snapshot branch
-        run: ${{ env.SCRIPTS_PATH }}/check_snapshot_branch.sh "https://github.com/powsybl/powsybl-open-loadflow.git" ${{ env.CORE_VERSION }}
+        run: ${{ env.SCRIPTS_PATH }}/check_snapshot_branch.sh "https://github.com/powsybl/powsybl-open-loadflow.git" ${{ env.SNAPSHOT_VERSION }}
 
       - name: Checkout core sources
         uses: actions/checkout@v4
@@ -70,9 +73,13 @@ jobs:
         run: mvn -batch-mode --no-transfer-progress clean install -DskipTests
         working-directory: ./powsybl-core
 
+      - name: Get CORE_VERSION
+        run: echo "CORE_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
+        working-directory: ./powsybl-core
+
       # Build powsybl-open-loadflow
       - name: Checking for powsybl-open-loadflow snapshot branch
-        run: ${{ env.SCRIPTS_PATH }}/check_snapshot_branch.sh "https://github.com/powsybl/powsybl-open-loadflow.git" ${{ env.CORE_VERSION }}
+        run: ${{ env.SCRIPTS_PATH }}/check_snapshot_branch.sh "https://github.com/powsybl/powsybl-open-loadflow.git" ${{ env.SNAPSHOT_VERSION }}
 
       - name: Checkout powsybl-open-loadflow sources
         uses: actions/checkout@v4
@@ -95,7 +102,7 @@ jobs:
 
       # Build powsybl-entsoe
       - name: Checking for powsybl-entsoe snapshot branch
-        run: ${{ env.SCRIPTS_PATH }}/check_snapshot_branch.sh "https://github.com/powsybl/powsybl-entsoe.git" ${{ env.CORE_VERSION }}
+        run: ${{ env.SCRIPTS_PATH }}/check_snapshot_branch.sh "https://github.com/powsybl/powsybl-entsoe.git" ${{ env.SNAPSHOT_VERSION }}
 
       - name: Checkout powsybl-entsoe sources
         uses: actions/checkout@v4
@@ -119,9 +126,6 @@ jobs:
         working-directory: ./powsybl-entsoe
 
       # Build powsybl-open-rao
-      - name: Checking for powsybl-open-rao snapshot branch
-        run: ${{ env.SCRIPTS_PATH }}/check_snapshot_branch.sh "https://github.com/powsybl/powsybl-open-rao.git" ${{ env.CORE_VERSION }}
-
       - name: Checkout powsybl-open-rao sources
         uses: actions/checkout@v4
         with:
