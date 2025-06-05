@@ -32,7 +32,7 @@ jobs:
           echo "SNAPSHOT_VERSION=$VERSION" >> $GITHUB_ENV
 
       - name: Check Version
-        run: echo SNAPSHOT_VERSION
+        run: echo $SNAPSHOT_VERSION
 
       - name: Setup GraalVM
         uses: graalvm/setup-graalvm@v1
