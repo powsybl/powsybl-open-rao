@@ -49,16 +49,12 @@ jobs:
           fi
           echo "SCRIPTS_PATH=$SCRIPTS_PATH" >> $GITHUB_ENV  
 
-      - name: Checkout repo
+      - name: Checkout script
         uses: actions/checkout@v4
-
-      - name: Inspect script dir
-        run: |
-          echo "What is scripts?"
-          file ${GITHUB_WORKSPACE}/.github/workflows/scripts || echo "scripts does not exist"
-          
-          echo "Listing contents"
-          ls -al ${GITHUB_WORKSPACE}/.github/workflows/scripts || echo "Cannot list contents"
+        with:
+          sparse-checkout: |
+            .github
+          sparse-checkout-cone-mode: false
 
       - name: Confirm script is present
         run: |
@@ -147,6 +143,7 @@ jobs:
       - name: Build with Maven
         if: matrix.os == 'ubuntu-latest'
         run: mvn --batch-mode -Pjacoco install -DskipCucumberTests=true
+        working-directory: ./powsybl-open-rao
 
       - name: Build with Maven
         if: matrix.os != 'ubuntu-latest'
