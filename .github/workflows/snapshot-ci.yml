@@ -38,7 +38,7 @@ jobs:
           distribution: 'graalvm'
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Checkout repository
+      - name: Checkout full repo
         uses: actions/checkout@v4
 
       - name: Set up script path
@@ -49,10 +49,11 @@ jobs:
           fi
           echo "SCRIPTS_PATH=$SCRIPTS_PATH" >> $GITHUB_ENV  
 
-      - name: Debug scripts path
+      - name: List script files
         run: |
-          echo "SCRIPTS_PATH=$SCRIPTS_PATH"
-          ls -lR "$SCRIPTS_PATH" || echo "Script directory not found"
+          echo "Script path: $SCRIPTS_PATH"
+          ls -l "$SCRIPTS_PATH"
+          
 
       - name: Checkout core sources
         uses: actions/checkout@v4
