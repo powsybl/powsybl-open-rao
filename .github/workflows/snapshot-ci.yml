@@ -49,16 +49,12 @@ jobs:
           fi
           echo "SCRIPTS_PATH=$SCRIPTS_PATH" >> $GITHUB_ENV  
 
-      - name: Checkout repo
+      - name: Checkout script
         uses: actions/checkout@v4
-
-      - name: Inspect script dir
-        run: |
-          echo "What is scripts?"
-          file ${GITHUB_WORKSPACE}/.github/workflows/scripts || echo "scripts does not exist"
-          
-          echo "Listing contents"
-          ls -al ${GITHUB_WORKSPACE}/.github/workflows/scripts || echo "Cannot list contents"
+        with:
+          sparse-checkout: |
+            .github
+          sparse-checkout-cone-mode: false
 
       - name: Confirm script is present
         run: |
@@ -68,7 +64,6 @@ jobs:
 
       - name: Checking for powsybl-core snapshot branch
         run: ${{ env.SCRIPTS_PATH }}/check_snapshot_branch.sh "https://github.com/powsybl/powsybl-open-loadflow.git" ${{ env.CORE_VERSION }}
-
 
       - name: Checkout core sources
         uses: actions/checkout@v4
