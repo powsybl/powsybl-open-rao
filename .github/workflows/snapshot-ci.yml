@@ -4,10 +4,7 @@ on:
   workflow_dispatch:
   pull_request:
     branches:
-      - 'testci/core-*'
-  push:
-    branches:
-      - 'testci/core-*'
+      - 'ci/*-*'
 
 jobs:
   build:
@@ -25,7 +22,7 @@ jobs:
     steps:
 
       - name: Extract core version from branch
-        if: startsWith(github.ref_name, 'testci/')
+        if: startsWith(github.ref_name, 'ci/')
         run: |
           BRANCH_NAME="${GITHUB_REF_NAME##*/}"         
           VERSION="${BRANCH_NAME#*-}"             
