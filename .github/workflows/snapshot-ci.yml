@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   pull_request:
     branches:
-      - 'ci/core-*'
+      - 'testci/core-*'
 
 jobs:
   build:
@@ -17,10 +17,10 @@ jobs:
     steps:
 
       - name: Extract core version from branch
-        if: startsWith(github.ref_name, 'ci/')
+        if: startsWith(github.ref_name, 'testci/')
         run: |
           BRANCH_NAME="${GITHUB_REF_NAME##*/}"
-          VERSION="${BRANCH_NAME#ci/core-}"
+          VERSION="${BRANCH_NAME#testci/core-}"
           echo "CORE_VERSION=$VERSION" >> $GITHUB_ENV
 
       - name: Setup GraalVM
