@@ -31,9 +31,6 @@ jobs:
           VERSION="${BRANCH_NAME##*core-}"               
           echo "CORE_VERSION=$VERSION" >> $GITHUB_ENV
 
-      - name: Check core version
-        run: echo $CORE_VERSION
-
       - name: Setup GraalVM
         uses: graalvm/setup-graalvm@v1
         with:
@@ -57,9 +54,10 @@ jobs:
           sparse-checkout-cone-mode: false
           path: scripts
 
+
+      # Build powsybl-core
       - name: Checking for powsybl-core snapshot branch
         run: ${{ env.SCRIPTS_PATH }}/check_snapshot_branch.sh "https://github.com/powsybl/powsybl-open-loadflow.git" ${{ env.CORE_VERSION }}
-
 
       - name: Checkout core sources
         uses: actions/checkout@v4
@@ -72,6 +70,7 @@ jobs:
         run: mvn -batch-mode --no-transfer-progress clean install -DskipTests
         working-directory: ./powsybl-core
 
+      # Build powsybl-open-loadflow
       - name: Checking for powsybl-open-loadflow snapshot branch
         run: ${{ env.SCRIPTS_PATH }}/check_snapshot_branch.sh "https://github.com/powsybl/powsybl-open-loadflow.git" ${{ env.CORE_VERSION }}
 
@@ -94,6 +93,7 @@ jobs:
         run: echo "OLF_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
         working-directory: ./powsybl-open-loadflow
 
+      # Build powsybl-entsoe
       - name: Checking for powsybl-entsoe snapshot branch
         run: ${{ env.SCRIPTS_PATH }}/check_snapshot_branch.sh "https://github.com/powsybl/powsybl-entsoe.git" ${{ env.CORE_VERSION }}
 
@@ -118,6 +118,7 @@ jobs:
         run: echo "ENTSOE_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
         working-directory: ./powsybl-entsoe
 
+      # Build powsybl-open-rao
       - name: Checking for powsybl-open-rao snapshot branch
         run: ${{ env.SCRIPTS_PATH }}/check_snapshot_branch.sh "https://github.com/powsybl/powsybl-open-rao.git" ${{ env.CORE_VERSION }}
 
