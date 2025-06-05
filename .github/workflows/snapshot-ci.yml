@@ -46,17 +46,6 @@ jobs:
           fi
           echo "SCRIPTS_PATH=$SCRIPTS_PATH" >> $GITHUB_ENV  
 
-      - name: Checkout core sources
-        uses: actions/checkout@v4
-        with:
-          repository: powsybl/powsybl-core
-          ref: main
-          path: powsybl-core
-
-      - name: Build powsybl-core
-        run: mvn -batch-mode --no-transfer-progress clean install -DskipTests
-        working-directory: ./powsybl-core
-
       - name: Checkout script
         uses: actions/checkout@v4
         with:
@@ -67,8 +56,19 @@ jobs:
 
       - name: Confirm script is present
         run: |
-          ls -l ${GITHUB_WORKSPACE}
+          ls -l ${GITHUB_WORKSPACE}/scripts
           test -f "${{ env.SCRIPTS_PATH }}/check_snapshot_branch.sh" && echo "Script OK" || echo "Script MISSING"
+
+      - name: Checkout core sources
+        uses: actions/checkout@v4
+        with:
+          repository: powsybl/powsybl-core
+          ref: main
+          path: powsybl-core
+
+      - name: Build powsybl-core
+        run: mvn -batch-mode --no-transfer-progress clean install -DskipTests
+        working-directory: ./powsybl-core
 
       - name: Checking for powsybl-open-loadflow snapshot branch
         run: ${{ env.SCRIPTS_PATH }}/check_snapshot_branch.sh "https://github.com/powsybl/powsybl-open-loadflow.git" ${{ env.CORE_VERSION }}
