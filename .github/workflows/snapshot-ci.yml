@@ -31,6 +31,9 @@ jobs:
           VERSION="${BRANCH_NAME#testci/core-}"
           echo "CORE_VERSION=$VERSION" >> $GITHUB_ENV
 
+      - name: Check core version
+        run: echo $CORE_VERSION
+
       - name: Setup GraalVM
         uses: graalvm/setup-graalvm@v1
         with:
