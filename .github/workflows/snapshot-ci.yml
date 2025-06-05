@@ -65,6 +65,9 @@ jobs:
           sparse-checkout-cone-mode: false
           path: scripts
 
+      - name: Confirm script is present
+        run: test -f "${{ env.SCRIPTS_PATH }}/check_snapshot_branch.sh" && echo "Script OK" || echo "Script MISSING"
+
       - name: Checking for powsybl-open-loadflow snapshot branch
         run: ${{ env.SCRIPTS_PATH }}/check_snapshot_branch.sh "https://github.com/powsybl/powsybl-open-loadflow.git" ${{ env.CORE_VERSION }}
 
