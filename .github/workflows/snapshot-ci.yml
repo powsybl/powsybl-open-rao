@@ -49,11 +49,20 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
+      - name: Inspect script dir
+        run: |
+          echo "What is scripts?"
+          file ${GITHUB_WORKSPACE}/.github/workflows/scripts || echo "scripts does not exist"
+          
+          echo "Listing contents"
+          ls -al ${GITHUB_WORKSPACE}/.github/workflows/scripts || echo "Cannot list contents"
+
       - name: Confirm script is present
         run: |
           ls -l ${GITHUB_WORKSPACE}/.github/workflows
           ls -l ${GITHUB_WORKSPACE}/.github/workflows/scripts
           test -f "${{ env.SCRIPTS_PATH }}/check_snapshot_branch.sh" && echo "Script OK" || echo "Script MISSING"
+
 
       - name: Checkout core sources
         uses: actions/checkout@v4
