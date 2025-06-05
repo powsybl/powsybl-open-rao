@@ -4,10 +4,10 @@ on:
   workflow_dispatch:
   pull_request:
     branches:
-      - 'ci/*'
+      - 'testci/*'
   push:
     branches:
-      - 'ci/*'
+      - 'testci/*'
 
 jobs:
   build:
