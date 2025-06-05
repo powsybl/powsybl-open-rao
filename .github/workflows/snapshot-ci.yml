@@ -27,8 +27,8 @@ jobs:
       - name: Extract core version from branch
         if: startsWith(github.ref_name, 'testci/')
         run: |
-          BRANCH_NAME="${GITHUB_REF_NAME##*/}"
-          VERSION="${BRANCH_NAME#testci/core-}"
+          BRANCH_NAME="${GITHUB_REF_NAME##*/}"         
+          VERSION="${BRANCH_NAME##*core-}"               
           echo "CORE_VERSION=$VERSION" >> $GITHUB_ENV
 
       - name: Check core version
