@@ -40,7 +40,7 @@ jobs:
 
       - name: Set up script path
         run: |
-          SCRIPTS_PATH="${GITHUB_WORKSPACE}/scripts/.github/workflows/scripts"
+          SCRIPTS_PATH="${GITHUB_WORKSPACE}/.github/workflows/scripts"
           if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
             SCRIPTS_PATH=$(echo "$SCRIPTS_PATH" | sed 's/\\/\//g')
           fi
@@ -52,12 +52,11 @@ jobs:
           sparse-checkout: |
             .github
           sparse-checkout-cone-mode: false
-          path: scripts
 
       - name: Confirm script is present
         run: |
-          ls -l ${GITHUB_WORKSPACE}/scripts/.github/workflows
-          ls -l ${GITHUB_WORKSPACE}/scripts/.github/workflows/scripts
+          ls -l ${GITHUB_WORKSPACE}/.github/workflows
+          ls -l ${GITHUB_WORKSPACE}/.github/workflows/scripts
           test -f "${{ env.SCRIPTS_PATH }}/check_snapshot_branch.sh" && echo "Script OK" || echo "Script MISSING"
 
       - name: Checkout core sources
