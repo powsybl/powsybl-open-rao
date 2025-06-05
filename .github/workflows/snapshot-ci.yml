@@ -43,7 +43,7 @@ jobs:
 
       - name: Set up script path
         run: |
-          SCRIPTS_PATH="${GITHUB_WORKSPACE}/.github/workflows/scripts"
+          SCRIPTS_PATH="${GITHUB_WORKSPACE}/scripts/.github/workflows/scripts"
           if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
             SCRIPTS_PATH=$(echo "$SCRIPTS_PATH" | sed 's/\\/\//g')
           fi
@@ -55,12 +55,7 @@ jobs:
           sparse-checkout: |
             .github
           sparse-checkout-cone-mode: false
-
-      - name: Confirm script is present
-        run: |
-          ls -l ${GITHUB_WORKSPACE}/.github/workflows
-          ls -l ${GITHUB_WORKSPACE}/.github/workflows/scripts
-          test -f "${{ env.SCRIPTS_PATH }}/check_snapshot_branch.sh" && echo "Script OK" || echo "Script MISSING"
+          path: scripts
 
       - name: Checking for powsybl-core snapshot branch
         run: ${{ env.SCRIPTS_PATH }}/check_snapshot_branch.sh "https://github.com/powsybl/powsybl-open-loadflow.git" ${{ env.CORE_VERSION }}
@@ -128,20 +123,25 @@ jobs:
 
       - name: Checkout powsybl-open-rao sources
         uses: actions/checkout@v4
+        with:
+          path: powsybl-openrao
 
       - name: Change core/entsoe/loadflow version in pom.xml
         run: |
           mvn versions:set-property -Dproperty=powsybl.core.version -DnewVersion=${{ env.CORE_VERSION }} -DgenerateBackupPoms=false
           mvn versions:set-property -Dproperty=powsybl.entsoe.version -DnewVersion=${{ env.ENTSOE_VERSION }} -DgenerateBackupPoms=false
           mvn versions:set-property -Dproperty=powsybl.openloadflow.version -DnewVersion=${{ env.OLF_VERSION }} -DgenerateBackupPoms=false
+        working-directory: ./powsybl-openrao
 
       - name: Build with Maven
         if: matrix.os == 'ubuntu-latest'
         run: mvn --batch-mode -Pjacoco install -DskipCucumberTests=true
+        working-directory: ./powsybl-openrao
 
       - name: Build with Maven
         if: matrix.os != 'ubuntu-latest'
         run: mvn --batch-mode install -DskipCucumberTests=true
+        working-directory: ./powsybl-openrao
 
       - name: Run SonarCloud analysis
         if: matrix.os == 'ubuntu-latest'
@@ -153,6 +153,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        working-directory: ./powsybl-openrao
 
       - name: Run cucumber tests
         run: mvn test -pl tests
+        working-directory: ./powsybl-openrao
