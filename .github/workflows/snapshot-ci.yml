@@ -38,25 +38,16 @@ jobs:
           distribution: 'graalvm'
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Checkout full repo
-        uses: actions/checkout@v4
-
       - name: Set up script path
         run: |
-          SCRIPTS_PATH="${GITHUB_WORKSPACE}/.github/workflows/scripts"
+          SCRIPTS_PATH="${GITHUB_WORKSPACE}/scripts/.github/workflows/scripts"
           if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
             SCRIPTS_PATH=$(echo "$SCRIPTS_PATH" | sed 's/\\/\//g')
           fi
           echo "SCRIPTS_PATH=$SCRIPTS_PATH" >> $GITHUB_ENV  
 
-      - name: List script files
-        run: |
-          echo "Script path: $SCRIPTS_PATH"
-          ls -l "$SCRIPTS_PATH"
-          
-
       - name: Checkout core sources
-        uses: actions/checkout@v4
+        uses: actions/checkout@v11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           repository: powsybl/powsybl-core
           ref: main
@@ -67,7 +58,7 @@ jobs:
         working-directory: ./powsybl-core
 
       - name: Checkout script
-        uses: actions/checkout@v4
+        uses: actions/checkout@v11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           sparse-checkout: |
             .github
@@ -78,7 +69,7 @@ jobs:
         run: ${{ env.SCRIPTS_PATH }}/check_snapshot_branch.sh "https://github.com/powsybl/powsybl-open-loadflow.git" ${{ env.CORE_VERSION }}
 
       - name: Checkout powsybl-open-loadflow sources
-        uses: actions/checkout@v4
+        uses: actions/checkout@v11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           repository: powsybl/powsybl-open-loadflow
           ref: ${{ env.SNAPSHOT_BRANCH }}
