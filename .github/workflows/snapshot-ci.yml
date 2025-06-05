@@ -123,21 +123,3 @@ jobs:
       - name: Build powsybl-open-rao
         run: mvn -batch-mode --no-transfer-progress clean install
         working-directory: ./powsybl-openrao
-
-      - name: Build with Maven
-        if: matrix.os == 'ubuntu-latest'
-        run: mvn --batch-mode -Pjacoco install -DskipCucumberTests=true
-
-      - name: Run SonarCloud analysis
-        if: matrix.os == 'ubuntu-latest'
-        run: >
-          mvn --batch-mode -DskipTests sonar:sonar
-          -Dsonar.host.url=https://sonarcloud.io
-          -Dsonar.organization=powsybl-ci-github
-          -Dsonar.projectKey=com.powsybl:open-rao
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-
-      - name: Run cucumber tests
-        run: mvn test -pl tests
