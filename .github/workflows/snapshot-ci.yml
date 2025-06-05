@@ -46,6 +46,16 @@ jobs:
           fi
           echo "SCRIPTS_PATH=$SCRIPTS_PATH" >> $GITHUB_ENV  
 
+      - name: Checking for powsybl-open-rao snapshot branch
+        run: ${{ env.SCRIPTS_PATH }}/check_snapshot_branch.sh "https://github.com/powsybl/powsybl-open-rao.git" ${{ env.CORE_VERSION }}
+
+      - name: Checkout powsybl-open-rao sources
+        uses: actions/checkout@v4
+        with:
+          repository: powsybl/powsybl-open-rao
+          ref: ${{ env.SNAPSHOT_BRANCH }}
+          path: powsybl-openrao
+
       - name: Checkout script
         uses: actions/checkout@v4
         with:
@@ -115,16 +125,6 @@ jobs:
       - name: Get ENTSOE_VERSION
         run: echo "ENTSOE_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
         working-directory: ./powsybl-entsoe
-
-      - name: Checking for powsybl-open-rao snapshot branch
-        run: ${{ env.SCRIPTS_PATH }}/check_snapshot_branch.sh "https://github.com/powsybl/powsybl-open-rao.git" ${{ env.CORE_VERSION }}
-
-      - name: Checkout powsybl-open-rao sources
-        uses: actions/checkout@v4
-        with:
-          repository: powsybl/powsybl-open-rao
-          ref: ${{ env.SNAPSHOT_BRANCH }}
-          path: powsybl-openrao
 
       - name: Change core/entsoe/loadflow version in pom.xml
         run: |
