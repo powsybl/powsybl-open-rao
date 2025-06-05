@@ -63,12 +63,15 @@ jobs:
           ls -l ${GITHUB_WORKSPACE}/.github/workflows/scripts
           test -f "${{ env.SCRIPTS_PATH }}/check_snapshot_branch.sh" && echo "Script OK" || echo "Script MISSING"
 
+      - name: Checking for powsybl-core snapshot branch
+        run: ${{ env.SCRIPTS_PATH }}/check_snapshot_branch.sh "https://github.com/powsybl/powsybl-open-loadflow.git" ${{ env.CORE_VERSION }}
+
 
       - name: Checkout core sources
         uses: actions/checkout@v4
         with:
           repository: powsybl/powsybl-core
-          ref: ${{ env.CORE_VERSION}}
+          ref: ${{ env.SNAPSHOT_BRANCH }}
           path: powsybl-core
 
       - name: Build powsybl-core
