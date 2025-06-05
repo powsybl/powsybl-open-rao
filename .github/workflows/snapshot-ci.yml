@@ -128,9 +128,6 @@ jobs:
 
       - name: Checkout powsybl-open-rao sources
         uses: actions/checkout@v4
-        with:
-          repository: powsybl/powsybl-open-rao
-          ref: ${{ env.SNAPSHOT_BRANCH }}
 
       - name: Change core/entsoe/loadflow version in pom.xml
         run: |
