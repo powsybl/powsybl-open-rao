@@ -40,11 +40,16 @@ jobs:
 
       - name: Set up script path
         run: |
-          SCRIPTS_PATH="${GITHUB_WORKSPACE}/scripts/.github/workflows/scripts"
+          SCRIPTS_PATH="${GITHUB_WORKSPACE}/.github/workflows/scripts"
           if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
             SCRIPTS_PATH=$(echo "$SCRIPTS_PATH" | sed 's/\\/\//g')
           fi
           echo "SCRIPTS_PATH=$SCRIPTS_PATH" >> $GITHUB_ENV  
+
+      - name: Debug scripts path
+        run: |
+          echo "SCRIPTS_PATH=$SCRIPTS_PATH"
+          ls -lR "$SCRIPTS_PATH" || echo "Script directory not found"
 
       - name: Checkout core sources
         uses: actions/checkout@v4
