@@ -46,12 +46,8 @@ jobs:
           fi
           echo "SCRIPTS_PATH=$SCRIPTS_PATH" >> $GITHUB_ENV  
 
-      - name: Checkout script
+      - name: Checkout repo
         uses: actions/checkout@v4
-        with:
-          sparse-checkout: |
-            .github/
-          sparse-checkout-cone-mode: true
 
       - name: Confirm script is present
         run: |
