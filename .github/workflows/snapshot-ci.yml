@@ -22,15 +22,16 @@ jobs:
     steps:
 
       - name: Extract core version from branch
+        if: github.event_name == 'pull_request'
         run: |
-          BRANCH_NAME="${GITHUB_REF_NAME##*/}"     
-          echo $BRANCH_NAME
-          VERSION="${BRANCH_NAME#*-}"       
-          echo $VERSION
+          TARGET_BRANCH="${{ github.event.pull_request.base.ref }}"
+          echo "Full target branch: $TARGET_BRANCH"
+          VERSION="${TARGET_BRANCH#*-}"  
+          echo "Extracted version: $VERSION"
           echo "SNAPSHOT_VERSION=$VERSION" >> $GITHUB_ENV
 
       - name: Extract target branch name
-        if: github.event_name == 'pull_request'
+
         run: |
           echo "Target branch is: ${{ github.event.pull_request.base.ref }}"
 
