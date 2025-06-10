@@ -44,8 +44,7 @@ jobs:
           if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
             SCRIPTS_PATH=$(echo "$SCRIPTS_PATH" | sed 's/\\/\//g')
           fi
-          echo "SCRIPTS_PATH=$SCRIPTS_PATH" >> $GITHUB_ENV  
-
+          echo "SCRIPTS_PATH=$SCRIPTS_PATH" >> $GITHUB_ENV
       - name: Checkout script
         uses: actions/checkout@v4
         with:
@@ -53,6 +52,7 @@ jobs:
             .github
           sparse-checkout-cone-mode: false
           path: scripts
+
 
       # Build powsybl-core
       - name: Checking for powsybl-core snapshot branch
