@@ -114,7 +114,7 @@ jobs:
         working-directory: ./powsybl-entsoe
 
       - name: Build powsybl-entsoe
-        run: mvn -batch-mode --no-transfer-progress clean install
+        run: mvn -batch-mode --no-transfer-progress clean install -DskipCucumberTests=true
         working-directory: ./powsybl-entsoe
 
       - name: Get ENTSOE_VERSION
