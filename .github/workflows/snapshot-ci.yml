@@ -22,7 +22,6 @@ jobs:
     steps:
 
       - name: Extract core version from branch
-        if: startsWith(github.ref_name, 'ci/')
         run: |
           BRANCH_NAME="${GITHUB_REF_NAME##*/}"     
           echo $BRANCH_NAME
