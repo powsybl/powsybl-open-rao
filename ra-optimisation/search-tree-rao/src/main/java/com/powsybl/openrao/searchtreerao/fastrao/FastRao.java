@@ -79,26 +79,25 @@ public class FastRao implements RaoProvider {
     @Override
     public CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters parameters, Instant targetEndInstant) {
         RaoUtil.initData(raoInput, parameters);
-
-        if (!parameters.hasExtension(FastRaoParameters.class)) {
-            BUSINESS_LOGS.error("Fast Rao requires FastRaoParameters");
-            return CompletableFuture.completedFuture(new FailedRaoResultImpl("Fast Rao requires FastRaoParameters"));
-        }
-
-        if (raoInput.getOptimizedState() != null) {
-            BUSINESS_LOGS.error("Fast Rao does not support optimization on one given state only");
-            return CompletableFuture.completedFuture(new FailedRaoResultImpl("Fast Rao does not support optimization on one given state only"));
-        }
-
-        if (raoInput.getCrac().getInstants(InstantKind.CURATIVE).size() > 1) {
-            BUSINESS_LOGS.error("Fast Rao does not support multi-curative optimization");
-            return CompletableFuture.completedFuture(new FailedRaoResultImpl("Fast Rao does not support multi-curative optimization"));
-        }
-
         return CompletableFuture.completedFuture(launchFilteredRao(raoInput, parameters, targetEndInstant, new HashSet<>()));
     }
 
     public static RaoResult launchFilteredRao(RaoInput raoInput, RaoParameters parameters, Instant targetEndInstant, Set<FlowCnec> consideredCnecs) {
+
+        if (!parameters.hasExtension(FastRaoParameters.class)) {
+            BUSINESS_LOGS.error("Fast Rao requires FastRaoParameters");
+            return new FailedRaoResultImpl("Fast Rao requires FastRaoParameters");
+        }
+
+        if (raoInput.getOptimizedState() != null) {
+            BUSINESS_LOGS.error("Fast Rao does not support optimization on one given state only");
+            return new FailedRaoResultImpl("Fast Rao does not support optimization on one given state only");
+        }
+
+        if (raoInput.getCrac().getInstants(InstantKind.CURATIVE).size() > 1) {
+            BUSINESS_LOGS.error("Fast Rao does not support multi-curative optimization");
+            return new FailedRaoResultImpl("Fast Rao does not support multi-curative optimization");
+        }
 
         try {
             // Retrieve input data
