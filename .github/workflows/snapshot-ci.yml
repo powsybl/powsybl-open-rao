@@ -4,10 +4,7 @@ on:
   workflow_dispatch:
   pull_request:
     branches:
-      - 'testci/core-*'
-  push:
-    branches:
-      - 'testci/core-*'
+      - 'ci/**-**'
 
 jobs:
   build:
@@ -25,11 +22,14 @@ jobs:
     steps:
 
       - name: Extract core version from branch
-        if: startsWith(github.ref_name, 'testci/')
+        if: startsWith(github.ref_name, 'ci/')
         run: |
-          BRANCH_NAME="${GITHUB_REF_NAME##*/}"
-          VERSION="${BRANCH_NAME#testci/core-}"
-          echo "CORE_VERSION=$VERSION" >> $GITHUB_ENV
+          BRANCH_NAME="${GITHUB_REF_NAME##*/}"         
+          VERSION="${BRANCH_NAME#*-}"             
+          echo "SNAPSHOT_VERSION=$VERSION" >> $GITHUB_ENV
+
+      - name: Check Version
+        run: echo $SNAPSHOT_VERSION
 
       - name: Setup GraalVM
         uses: graalvm/setup-graalvm@v1
@@ -40,43 +40,42 @@ jobs:
 
       - name: Set up script path
         run: |
-          SCRIPTS_PATH="${GITHUB_WORKSPACE}/.github/workflows/scripts"
+          SCRIPTS_PATH="${GITHUB_WORKSPACE}/scripts/.github/workflows/scripts"
           if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
             SCRIPTS_PATH=$(echo "$SCRIPTS_PATH" | sed 's/\\/\//g')
           fi
           echo "SCRIPTS_PATH=$SCRIPTS_PATH" >> $GITHUB_ENV  
 
-      - name: Checkout repo
+      - name: Checkout script
         uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            .github
+          sparse-checkout-cone-mode: false
+          path: scripts
 
-      - name: Inspect script dir
-        run: |
-          echo "What is scripts?"
-          file ${GITHUB_WORKSPACE}/.github/workflows/scripts || echo "scripts does not exist"
-          
-          echo "Listing contents"
-          ls -al ${GITHUB_WORKSPACE}/.github/workflows/scripts || echo "Cannot list contents"
-
-      - name: Confirm script is present
-        run: |
-          ls -l ${GITHUB_WORKSPACE}/.github/workflows
-          ls -l ${GITHUB_WORKSPACE}/.github/workflows/scripts
-          test -f "${{ env.SCRIPTS_PATH }}/check_snapshot_branch.sh" && echo "Script OK" || echo "Script MISSING"
-
+      # Build powsybl-core
+      - name: Checking for powsybl-core snapshot branch
+        run: ${{ env.SCRIPTS_PATH }}/check_snapshot_branch.sh "https://github.com/powsybl/powsybl-open-loadflow.git" ${{ env.SNAPSHOT_VERSION }}
 
       - name: Checkout core sources
         uses: actions/checkout@v4
         with:
           repository: powsybl/powsybl-core
-          ref: main
+          ref: ${{ env.SNAPSHOT_BRANCH }}
           path: powsybl-core
 
       - name: Build powsybl-core
         run: mvn -batch-mode --no-transfer-progress clean install -DskipTests
         working-directory: ./powsybl-core
 
+      - name: Get CORE_VERSION
+        run: echo "CORE_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
+        working-directory: ./powsybl-core
+
+      # Build powsybl-open-loadflow
       - name: Checking for powsybl-open-loadflow snapshot branch
-        run: ${{ env.SCRIPTS_PATH }}/check_snapshot_branch.sh "https://github.com/powsybl/powsybl-open-loadflow.git" ${{ env.CORE_VERSION }}
+        run: ${{ env.SCRIPTS_PATH }}/check_snapshot_branch.sh "https://github.com/powsybl/powsybl-open-loadflow.git" ${{ env.SNAPSHOT_VERSION }}
 
       - name: Checkout powsybl-open-loadflow sources
         uses: actions/checkout@v4
@@ -97,8 +96,9 @@ jobs:
         run: echo "OLF_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
         working-directory: ./powsybl-open-loadflow
 
+      # Build powsybl-entsoe
       - name: Checking for powsybl-entsoe snapshot branch
-        run: ${{ env.SCRIPTS_PATH }}/check_snapshot_branch.sh "https://github.com/powsybl/powsybl-entsoe.git" ${{ env.CORE_VERSION }}
+        run: ${{ env.SCRIPTS_PATH }}/check_snapshot_branch.sh "https://github.com/powsybl/powsybl-entsoe.git" ${{ env.SNAPSHOT_VERSION }}
 
       - name: Checkout powsybl-entsoe sources
         uses: actions/checkout@v4
@@ -121,14 +121,10 @@ jobs:
         run: echo "ENTSOE_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
         working-directory: ./powsybl-entsoe
 
-      - name: Checking for powsybl-open-rao snapshot branch
-        run: ${{ env.SCRIPTS_PATH }}/check_snapshot_branch.sh "https://github.com/powsybl/powsybl-open-rao.git" ${{ env.CORE_VERSION }}
-
+      # Build powsybl-open-rao
       - name: Checkout powsybl-open-rao sources
         uses: actions/checkout@v4
         with:
-          repository: powsybl/powsybl-open-rao
-          ref: ${{ env.SNAPSHOT_BRANCH }}
           path: powsybl-openrao
 
       - name: Change core/entsoe/loadflow version in pom.xml
@@ -138,6 +134,28 @@ jobs:
           mvn versions:set-property -Dproperty=powsybl.openloadflow.version -DnewVersion=${{ env.OLF_VERSION }} -DgenerateBackupPoms=false
         working-directory: ./powsybl-openrao
 
-      - name: Build powsybl-open-rao
-        run: mvn -batch-mode --no-transfer-progress clean install
+      - name: Build with Maven
+        if: matrix.os == 'ubuntu-latest'
+        run: mvn --batch-mode -Pjacoco install -DskipCucumberTests=true
+        working-directory: ./powsybl-openrao
+
+      - name: Build with Maven
+        if: matrix.os != 'ubuntu-latest'
+        run: mvn --batch-mode install -DskipCucumberTests=true
+        working-directory: ./powsybl-openrao
+
+      - name: Run SonarCloud analysis
+        if: matrix.os == 'ubuntu-latest'
+        run: >
+          mvn --batch-mode -DskipTests sonar:sonar
+          -Dsonar.host.url=https://sonarcloud.io
+          -Dsonar.organization=powsybl-ci-github
+          -Dsonar.projectKey=com.powsybl:open-rao
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        working-directory: ./powsybl-openrao
+
+      - name: Run cucumber tests
+        run: mvn test -pl tests
         working-directory: ./powsybl-openrao
