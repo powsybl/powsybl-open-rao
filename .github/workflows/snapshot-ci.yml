@@ -29,6 +29,11 @@ jobs:
           echo $VERSION
           echo "SNAPSHOT_VERSION=$VERSION" >> $GITHUB_ENV
 
+      - name: Extract target branch name
+        if: github.event_name == 'pull_request'
+        run: |
+          echo "Target branch is: ${{ github.event.pull_request.base.ref }}"
+
       - name: Check Version
         run: echo $SNAPSHOT_VERSION
 
