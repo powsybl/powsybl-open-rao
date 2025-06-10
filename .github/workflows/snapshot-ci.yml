@@ -24,8 +24,10 @@ jobs:
       - name: Extract core version from branch
         if: startsWith(github.ref_name, 'ci/')
         run: |
-          BRANCH_NAME="${GITHUB_REF_NAME##*/}"         
-          VERSION="${BRANCH_NAME#*-}"             
+          BRANCH_NAME="${GITHUB_REF_NAME##*/}"     
+          echo $BRANCH_NAME
+          VERSION="${BRANCH_NAME#*-}"       
+          echo $VERSION
           echo "SNAPSHOT_VERSION=$VERSION" >> $GITHUB_ENV
 
       - name: Check Version
