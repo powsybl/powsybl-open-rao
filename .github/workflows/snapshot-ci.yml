@@ -159,3 +159,4 @@ jobs:
       - name: Run cucumber tests
         run: mvn test -pl tests
         working-directory: ./powsybl-openrao
+
