@@ -6,6 +6,7 @@ on:
     branches:
       - 'ci/**-**'
 
+
 jobs:
   build:
     name: Build and test on ${{ matrix.os }} with ${{ matrix.jvm }}
