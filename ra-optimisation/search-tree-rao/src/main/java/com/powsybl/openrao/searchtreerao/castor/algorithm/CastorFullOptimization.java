@@ -112,7 +112,7 @@ public class CastorFullOptimization {
 
             if (stateTree.getContingencyScenarios().isEmpty()) {
                 OneStateOnlyRaoResultImpl result = optimizePreventivePerimeter(stateTree, toolProvider, initialOutput);
-                BUSINESS_LOGS.info("----- Preventive perimeter optimization [end]");
+                BUSINESS_LOGS.info("----- PreventivepreCurativeSensitivityAnalysisOutput perimeter optimization [end]");
                 // log final result
                 RaoLogger.logMostLimitingElementsResults(TECHNICAL_LOGS, result.getPostOptimizationResult(), raoParameters.getObjectiveFunctionParameters().getType(), raoParameters.getObjectiveFunctionParameters().getUnit(), 10);
                 RaoLogger.checkIfMostLimitingElementIsFictional(BUSINESS_LOGS, result.getPostOptimizationResult());
