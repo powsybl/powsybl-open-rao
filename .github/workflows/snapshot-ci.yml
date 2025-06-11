@@ -21,11 +21,13 @@ jobs:
 
     steps:
 
-      - name: Extract core version from branch
-        if: startsWith(github.ref_name, 'ci/')
+      - name: Extract version from branch
+        if: github.event_name == 'pull_request'
         run: |
-          BRANCH_NAME="${GITHUB_REF_NAME##*/}"         
-          VERSION="${BRANCH_NAME#*-}"             
+          TARGET_BRANCH="${{ github.event.pull_request.base.ref }}"
+          echo "Full target branch: $TARGET_BRANCH"
+          VERSION="${TARGET_BRANCH#*-}"  
+          echo "Extracted version: $VERSION"
           echo "SNAPSHOT_VERSION=$VERSION" >> $GITHUB_ENV
 
       - name: Check Version
@@ -44,7 +46,7 @@ jobs:
           if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
             SCRIPTS_PATH=$(echo "$SCRIPTS_PATH" | sed 's/\\/\//g')
           fi
-          echo "SCRIPTS_PATH=$SCRIPTS_PATH" >> $GITHUB_ENV  
+          echo "SCRIPTS_PATH=$SCRIPTS_PATH" >> $GITHUB_ENV
 
       - name: Checkout script
         uses: actions/checkout@v4
@@ -159,4 +161,3 @@ jobs:
       - name: Run cucumber tests
         run: mvn test -pl tests
         working-directory: ./powsybl-openrao
-
