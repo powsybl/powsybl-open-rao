@@ -8,6 +8,7 @@ This insight forms the foundation of Fast RAO: by excluding these consistently s
 and focusing only on the critical ones, we can significantly reduce the problem's complexity. Resulting in a lighter optimization
 problem that can be solved more quickly without compromising system security.
 
+Read more about Fast RAO [here](../_static/pdf/FastRAO.pdf)
 ## Algorithm
 
 Fast Rao iteratively builds a set of the **critical** CNECs. Starting with an empty set of CNECs, at each iteration, 
