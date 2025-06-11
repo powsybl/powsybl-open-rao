@@ -164,6 +164,7 @@ public class FastRao implements RaoProvider {
                 parameters,
                 NUMBER_LOGGED_ELEMENTS_DURING_RAO);
 
+            raoResult.setFinalConsideredCnecs(consideredCnecs);
             return raoResult;
 
         } catch (IOException e) {

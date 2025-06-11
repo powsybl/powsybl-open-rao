@@ -36,6 +36,7 @@ public class FastRaoResultImpl implements RaoResult {
     private final RaoResult filteredRaoResult;
     private final Crac crac;
     private String executionDetails;
+    private Set<FlowCnec> finalConsideredCnecs = new HashSet<>();
 
     public FastRaoResultImpl(PrePerimeterResult initialResult,
                              PrePerimeterResult afterPraResult,
@@ -269,6 +270,14 @@ public class FastRaoResultImpl implements RaoResult {
     @Override
     public boolean isSecure(PhysicalParameter... u) {
         return isSecure(crac.getLastInstant(), u);
+    }
+
+    public void setFinalConsideredCnecs(Set<FlowCnec> finalConsideredCnecs) {
+        this.finalConsideredCnecs = finalConsideredCnecs;
+    }
+
+    public Set<FlowCnec> getFinalConsideredCnecs() {
+        return finalConsideredCnecs;
     }
 
 }
