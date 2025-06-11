@@ -10,7 +10,7 @@ quickly without compromising system security.
 
 ## Algorithm
 
-Fast Rao gradually iteratively builds a set of the **critical** CNECs.Starting with an empty set of CNECs, at each iteration, we selectively adds only the CNECs that are
+Fast Rao iteratively builds a set of the **critical** CNECs.Starting with an empty set of CNECs, at each iteration, we selectively adds only the CNECs that are
 identified as critical for the problem. See the diagram below.
 
 Running multiple RAO on smaller problems is more efficient than performing a single RAO on the
