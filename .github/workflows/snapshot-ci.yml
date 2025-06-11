@@ -21,7 +21,7 @@ jobs:
 
     steps:
 
-      - name: Extract core version from branch
+      - name: Extract version from branch
         if: github.event_name == 'pull_request'
         run: |
           TARGET_BRANCH="${{ github.event.pull_request.base.ref }}"
