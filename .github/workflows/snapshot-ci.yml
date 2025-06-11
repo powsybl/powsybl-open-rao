@@ -30,11 +30,6 @@ jobs:
           echo "Extracted version: $VERSION"
           echo "SNAPSHOT_VERSION=$VERSION" >> $GITHUB_ENV
 
-      - name: Extract target branch name
-
-        run: |
-          echo "Target branch is: ${{ github.event.pull_request.base.ref }}"
-
       - name: Check Version
         run: echo $SNAPSHOT_VERSION
 
@@ -52,6 +47,7 @@ jobs:
             SCRIPTS_PATH=$(echo "$SCRIPTS_PATH" | sed 's/\\/\//g')
           fi
           echo "SCRIPTS_PATH=$SCRIPTS_PATH" >> $GITHUB_ENV
+
       - name: Checkout script
         uses: actions/checkout@v4
         with:
@@ -59,7 +55,6 @@ jobs:
             .github
           sparse-checkout-cone-mode: false
           path: scripts
-
 
       # Build powsybl-core
       - name: Checking for powsybl-core snapshot branch
