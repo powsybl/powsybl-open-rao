@@ -234,9 +234,7 @@ public class FastRao implements RaoProvider {
         RaoInput filteredRaoInput = createFilteredRaoInput(raoInput, filteredCrac);
         RaoResult raoResult;
         try {
-            String networkVariantId = raoInput.getNetwork().getVariantManager().getWorkingVariantId();
             raoResult = new CastorFullOptimization(filteredRaoInput, parameters, targetEndInstant).run().get();
-            raoInput.getNetwork().getVariantManager().setWorkingVariant(networkVariantId);
             List<String> preventiveNetworkActions = raoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState()).stream()
                 .map(Identifiable::getId)
                 .toList();
