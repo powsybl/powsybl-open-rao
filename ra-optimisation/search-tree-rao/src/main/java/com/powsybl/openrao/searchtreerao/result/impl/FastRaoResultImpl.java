@@ -272,11 +272,11 @@ public class FastRaoResultImpl implements RaoResult {
         return isSecure(crac.getLastInstant(), u);
     }
 
-    public void setFinalConsideredCnecs(Set<FlowCnec> finalConsideredCnecs) {
+    public void setCriticalCnecs(Set<FlowCnec> finalConsideredCnecs) {
         this.finalConsideredCnecs = finalConsideredCnecs;
     }
 
-    public Set<FlowCnec> getFinalConsideredCnecs() {
+    public Set<FlowCnec> getCriticalCnecs() {
         return finalConsideredCnecs;
     }
 

@@ -68,7 +68,7 @@ class RaoResultSerializerTest {
             when(fastRaoResult.getComputationStatus(state)).thenReturn(ComputationStatus.FAILURE);
         }
 
-        when(fastRaoResult.getFinalConsideredCnecs()).thenReturn(crac.getFlowCnecs());
+        when(fastRaoResult.getCriticalCnecs()).thenReturn(crac.getFlowCnecs());
 
         // export RaoResult
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();

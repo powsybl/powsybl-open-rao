@@ -23,7 +23,7 @@ public final class CnecSetSerializer {
     private CnecSetSerializer() { }
 
     static void serialize(FastRaoResultImpl raoResult, JsonGenerator jsonGenerator) throws IOException {
-        List<FlowCnec> sortedListofFlowCnecs = raoResult.getFinalConsideredCnecs().stream()
+        List<FlowCnec> sortedListofFlowCnecs = raoResult.getCriticalCnecs().stream()
             .sorted(Comparator.comparing(FlowCnec::getId))
             .toList();
         jsonGenerator.writeArrayFieldStart(RaoResultJsonConstants.CRITICAL_CNECS_SET);
