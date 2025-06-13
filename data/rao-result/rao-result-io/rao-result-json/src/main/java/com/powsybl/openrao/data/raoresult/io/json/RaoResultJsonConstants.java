@@ -129,7 +129,8 @@ public final class RaoResultJsonConstants {
     public static final String SECOND_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION = "Second preventive fellback to initial situation";
 
     // fast rao specific field
-    public static final String FAST_RAO_FINAL_FLOWCNEC_SET = "fastRaoFinalFlowCnecSet";
+    public static final String FAST_RAO = "fast-rao";
+    public static final String CRITICAL_CNECS_SET = "critical-cnecs";
 
     // manipulate version
     public static int getPrimaryVersionNumber(String fullVersion) {

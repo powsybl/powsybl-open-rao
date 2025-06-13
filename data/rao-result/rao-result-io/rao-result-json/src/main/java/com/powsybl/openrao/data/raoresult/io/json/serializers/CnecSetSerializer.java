@@ -19,14 +19,14 @@ import java.util.List;
 /**
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
  */
-public class CnecSetSerializer {
+public final class CnecSetSerializer {
     private CnecSetSerializer() { }
 
     static void serialize(FastRaoResultImpl raoResult, JsonGenerator jsonGenerator) throws IOException {
         List<FlowCnec> sortedListofFlowCnecs = raoResult.getFinalConsideredCnecs().stream()
             .sorted(Comparator.comparing(FlowCnec::getId))
             .toList();
-        jsonGenerator.writeArrayFieldStart(RaoResultJsonConstants.FAST_RAO_FINAL_FLOWCNEC_SET);
+        jsonGenerator.writeArrayFieldStart(RaoResultJsonConstants.CRITICAL_CNECS_SET);
         for (FlowCnec consideredCnec : sortedListofFlowCnecs) {
             jsonGenerator.writeStartObject();
             jsonGenerator.writeStringField(RaoResultJsonConstants.FLOWCNEC_ID, consideredCnec.getId());
@@ -34,5 +34,4 @@ public class CnecSetSerializer {
         }
         jsonGenerator.writeEndArray();
     }
-
 }

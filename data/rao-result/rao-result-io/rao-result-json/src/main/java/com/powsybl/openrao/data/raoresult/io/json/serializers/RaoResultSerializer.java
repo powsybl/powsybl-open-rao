@@ -57,7 +57,12 @@ class RaoResultSerializer extends AbstractJsonSerializer<RaoResult> {
             RangeActionResultArraySerializer.serialize(raoResult, crac, jsonGenerator);
         }
         if (raoResult instanceof FastRaoResultImpl) {
+            jsonGenerator.writeObjectFieldStart("extension");
+            jsonGenerator.writeObjectFieldStart("fast-rao");
             CnecSetSerializer.serialize((FastRaoResultImpl) raoResult, jsonGenerator);
+            jsonGenerator.writeEndObject();
+            jsonGenerator.writeEndObject();
+
         }
 
         jsonGenerator.writeEndObject();

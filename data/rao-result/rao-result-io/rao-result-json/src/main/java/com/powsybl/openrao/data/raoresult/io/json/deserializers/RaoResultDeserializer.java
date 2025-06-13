@@ -116,10 +116,13 @@ public class RaoResultDeserializer extends JsonDeserializer<RaoResult> {
                 case RANGEACTION_RESULTS:
                     importRangeAction(jsonParser, raoResult, jsonFileVersion);
                     break;
-                case FAST_RAO_FINAL_FLOWCNEC_SET:
-                    while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
-                        // do nothing
+                case "extension":
+                    jsonParser.nextToken();
+                    if (jsonParser.nextFieldName() == FAST_RAO) {
+                        jsonParser.nextToken();
+                        FastRaoExtensionDeserializer.deserialize(jsonParser, raoResult, crac);
                     }
+
                     break;
                 default:
                     throw new OpenRaoException(String.format("Cannot deserialize RaoResult: unexpected field (%s)", jsonParser.getCurrentName()));
