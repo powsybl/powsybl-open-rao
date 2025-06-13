@@ -52,20 +52,20 @@ class FastRaoResultImplTest {
 
     @Test
     void testGetComputationStatus() {
-        when(initialResult.getComputationStatus()).thenReturn(DEFAULT);
-        when(afterPraResult.getComputationStatus()).thenReturn(PARTIAL_FAILURE);
-        when(afterAraResult.getComputationStatus()).thenReturn(DEFAULT);
-        when(finalResult.getComputationStatus()).thenReturn(DEFAULT);
+        when(initialResult.getSensitivityStatus()).thenReturn(DEFAULT);
+        when(afterPraResult.getSensitivityStatus()).thenReturn(PARTIAL_FAILURE);
+        when(afterAraResult.getSensitivityStatus()).thenReturn(DEFAULT);
+        when(finalResult.getSensitivityStatus()).thenReturn(DEFAULT);
         FastRaoResultImpl result = new FastRaoResultImpl(
             initialResult, afterPraResult, afterAraResult, finalResult, filteredRaoResult, crac
         );
         ComputationStatus status = result.getComputationStatus();
         assert(status == PARTIAL_FAILURE);
 
-        when(initialResult.getComputationStatus()).thenReturn(FAILURE);
-        when(afterPraResult.getComputationStatus()).thenReturn(DEFAULT);
-        when(afterAraResult.getComputationStatus()).thenReturn(PARTIAL_FAILURE);
-        when(finalResult.getComputationStatus()).thenReturn(DEFAULT);
+        when(initialResult.getSensitivityStatus()).thenReturn(FAILURE);
+        when(afterPraResult.getSensitivityStatus()).thenReturn(DEFAULT);
+        when(afterAraResult.getSensitivityStatus()).thenReturn(PARTIAL_FAILURE);
+        when(finalResult.getSensitivityStatus()).thenReturn(DEFAULT);
         result = new FastRaoResultImpl(
             initialResult, afterPraResult, afterAraResult, finalResult, filteredRaoResult, crac
         );
@@ -96,5 +96,10 @@ class FastRaoResultImplTest {
         assertEquals(afterAraResult, result.getAppropriateResult(crac.getInstant("curative"), flowCnec));
         assertEquals(initialResult, result.getAppropriateResult(null, flowCnec));
 
+    }
+
+    @Test
+    void testGetVirtualCostNames() {
+        //TODO
     }
 }
