@@ -20,7 +20,7 @@ entire, much larger problem at once.
 ![Current state of the algorithm](../_static/img/FastRAO.png)
 
 > Currently, Fast RAO does not support multi-curative optimization
-> It is also not adapted to maximize the min margin
+> The current implementation is also not adapted to maximize the min margin 
 
 ## Parameters 
 
