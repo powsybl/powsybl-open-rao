@@ -36,7 +36,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 public class FastRaoTest {
     @Test
-    public void testRunFilteredRaoOnSimpleCase() throws IOException {
+    public void testRunFilteredRaoOnPreventiveOnlyCase() throws IOException {
         // US 4.3.1 as a UT
         Network network = Network.read("/network/TestCase12Nodes.uct", getClass().getResourceAsStream("/network/TestCase12Nodes.uct"));
         Crac crac = Crac.read("/crac/SL_ep4us3.json", getClass().getResourceAsStream("/crac/SL_ep4us3.json"), network);
@@ -49,6 +49,22 @@ public class FastRaoTest {
         FastRaoResultImpl raoResult = (FastRaoResultImpl) FastRao.launchFilteredRao(individualRaoInput, raoParameters, null, new HashSet<>());
         assertEquals(-37.7, raoResult.getFunctionalCost(crac.getLastInstant()), 1e-1);
         assertEquals(6, raoResult.getCriticalCnecs().size());
+    }
+
+    @Test
+    public void testRunFilteredRaoOnComplexCase() throws IOException {
+        // US 13.3.1 as a UT but with objective function SECURE_FLOW
+        Network network = Network.read("/network/TestCase16Nodes.uct", getClass().getResourceAsStream("/network/TestCase16Nodes.uct"));
+        Crac crac = Crac.read("/crac/SL_ep13us3case1.json", getClass().getResourceAsStream("/crac/SL_ep13us3case1.json"), network);
+        RaoInput individualRaoInput = RaoInput.build(network, crac).build();
+        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_maxMargin_ampere.json"));
+        FastRaoParameters fastRaoParameters = new FastRaoParameters();
+        fastRaoParameters.setNumberOfCnecsToAdd(1);
+        fastRaoParameters.setAddUnsecureCnecs(true);
+        raoParameters.addExtension(FastRaoParameters.class, fastRaoParameters);
+        FastRaoResultImpl raoResult = (FastRaoResultImpl) FastRao.launchFilteredRao(individualRaoInput, raoParameters, null, new HashSet<>());
+        assertEquals(-113.65, raoResult.getFunctionalCost(crac.getLastInstant()), 1e-1);
+        assertEquals(2, raoResult.getCriticalCnecs().size());
     }
 
     @Test
