@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.searchtreerao.castor.algorithm;
 
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
@@ -139,8 +140,8 @@ public class CastorFullOptimization {
                     .runBasedOnInitialPreviousAndOptimizationResults(network, crac, initialOutput, CompletableFuture.completedFuture(initialOutput), Collections.emptySet(), preventiveResult, null)
                     .get();
             } catch (InterruptedException | ExecutionException e) {
-                BUSINESS_LOGS.error("Systematic sensitivity analysis after preventive remedial actions failed");
-                return CompletableFuture.completedFuture(new FailedRaoResultImpl("Systematic sensitivity analysis after preventive remedial actions failed"));
+                Thread.currentThread().interrupt();
+                throw new OpenRaoException("Exception during post preventive sensitivity analysis", e);
             }
             PrePerimeterResult preCurativeSensitivityAnalysisOutput = postPreventiveResult.getPrePerimeterResultForAllFollowingStates();
             if (preCurativeSensitivityAnalysisOutput.getSensitivityStatus() == ComputationStatus.FAILURE) {

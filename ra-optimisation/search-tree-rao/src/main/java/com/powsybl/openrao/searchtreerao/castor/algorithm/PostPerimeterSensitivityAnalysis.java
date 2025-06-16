@@ -13,6 +13,8 @@ import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoLoopFlowParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRelativeMarginsParameters;
 import com.powsybl.openrao.searchtreerao.commons.SensitivityComputer;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
@@ -21,6 +23,7 @@ import com.powsybl.openrao.searchtreerao.result.impl.*;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -84,15 +87,17 @@ public class PostPerimeterSensitivityAnalysis {
             .withRangeActions(rangeActions)
             .withOutageInstant(crac.getOutageInstant());
 
-        if (raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getLoopFlowParameters().isPresent()) {
-            if (raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getLoopFlowParameters().get().getPtdfApproximation().shouldUpdatePtdfWithTopologicalChange()) {
+        Optional<SearchTreeRaoLoopFlowParameters> optionalLoopFlowParameters = raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getLoopFlowParameters();
+        if (optionalLoopFlowParameters.isPresent()) {
+            if (optionalLoopFlowParameters.get().getPtdfApproximation().shouldUpdatePtdfWithTopologicalChange()) {
                 sensitivityComputerBuilder.withCommercialFlowsResults(toolProvider.getLoopFlowComputation(), toolProvider.getLoopFlowCnecs(flowCnecs));
             } else {
                 sensitivityComputerBuilder.withCommercialFlowsResults(initialFlowResult);
             }
         }
-        if (raoParameters.getObjectiveFunctionParameters().getType().relativePositiveMargins()) {
-            if (raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getRelativeMarginsParameters().get().getPtdfApproximation().shouldUpdatePtdfWithTopologicalChange()) {
+        Optional<SearchTreeRaoRelativeMarginsParameters> optionalRelativeMarginParameters = raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getRelativeMarginsParameters();
+        if (optionalRelativeMarginParameters.isPresent()) {
+            if (optionalRelativeMarginParameters.get().getPtdfApproximation().shouldUpdatePtdfWithTopologicalChange()) {
                 sensitivityComputerBuilder.withPtdfsResults(toolProvider.getAbsolutePtdfSumsComputation(), flowCnecs);
             } else {
                 sensitivityComputerBuilder.withPtdfsResults(initialFlowResult);
