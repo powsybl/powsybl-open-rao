@@ -193,6 +193,7 @@ public class CastorContingencyScenarios {
                 optimizationResult,
                 new AppliedRemedialActions()).get();
         } catch (InterruptedException | ExecutionException e) {
+            Thread.currentThread().interrupt();
             throw new OpenRaoException(String.format("Error while running sensi after state %s", state.getId()), e);
         }
     }
