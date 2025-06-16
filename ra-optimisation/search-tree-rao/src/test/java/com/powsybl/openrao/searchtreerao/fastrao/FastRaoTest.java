@@ -24,7 +24,6 @@ import org.mockito.Mockito;
 
 import java.io.IOException;
 import java.util.HashSet;
-import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -37,7 +36,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class FastRaoTest {
     @Test
     public void testRunFilteredRaoOnPreventiveOnlyCase() throws IOException {
-        // US 4.3.1 as a UT
+        // US 4.3.1 as a UT to test OneStateOnly
         Network network = Network.read("/network/TestCase12Nodes.uct", getClass().getResourceAsStream("/network/TestCase12Nodes.uct"));
         Crac crac = Crac.read("/crac/SL_ep4us3.json", getClass().getResourceAsStream("/crac/SL_ep4us3.json"), network);
         RaoInput individualRaoInput = RaoInput.build(network, crac).build();
@@ -65,6 +64,26 @@ public class FastRaoTest {
         FastRaoResultImpl raoResult = (FastRaoResultImpl) FastRao.launchFilteredRao(individualRaoInput, raoParameters, null, new HashSet<>());
         assertEquals(-113.65, raoResult.getFunctionalCost(crac.getLastInstant()), 1e-1);
         assertEquals(2, raoResult.getCriticalCnecs().size());
+    }
+    @Test
+    public void testRunFilteredRaoOnComplexCase2() throws IOException {
+        //TODO : With at least 2 preventive network actions
+
+    }
+
+    @Test
+    public void testInitialSensiFailed() throws IOException {
+        // US 2.3.4
+        Network network = Network.read("/network/US2-3-case4-networkDiverge.uct", getClass().getResourceAsStream("/network/US2-3-case4-networkDiverge.uct"));
+        Crac crac = Crac.read("/crac/SL_ep2us3case4.json", getClass().getResourceAsStream("/crac/SL_ep2us3case4.json"), network);
+        RaoInput individualRaoInput = RaoInput.build(network, crac).build();
+        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_posMargin_ampere.json"));
+        FastRaoParameters fastRaoParameters = new FastRaoParameters();
+        fastRaoParameters.setNumberOfCnecsToAdd(1);
+        raoParameters.addExtension(FastRaoParameters.class, fastRaoParameters);
+        RaoResult raoResult = FastRao.launchFilteredRao(individualRaoInput, raoParameters, null, new HashSet<>());
+        assertTrue(raoResult instanceof FailedRaoResultImpl);
+        assertEquals("Initial sensitivity analysis failed", raoResult.getExecutionDetails());
     }
 
     @Test
