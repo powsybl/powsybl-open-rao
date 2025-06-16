@@ -74,7 +74,7 @@ class FastRaoResultImplTest {
         when(finalResult.getSensitivityStatus()).thenReturn(DEFAULT);
 
         ComputationStatus status = result.getComputationStatus();
-        assert(status == PARTIAL_FAILURE);
+        assertTrue(status == PARTIAL_FAILURE);
 
         when(initialResult.getSensitivityStatus()).thenReturn(FAILURE);
         when(afterPraResult.getSensitivityStatus()).thenReturn(DEFAULT);
@@ -84,12 +84,12 @@ class FastRaoResultImplTest {
             initialResult, afterPraResult, afterAraResult, finalResult, filteredRaoResult, crac
         );
         status = result.getComputationStatus();
-        assert(status == FAILURE);
+        assertTrue(status == FAILURE);
         assertFalse(result.isSecure(PhysicalParameter.FLOW));
     }
 
     @Test
-    void TestGetAppropriateResult() {
+    void testGetAppropriateResult() {
         assertEquals(initialResult, result.getAppropriateResult(null));
         assertEquals(afterPraResult, result.getAppropriateResult(crac.getInstant("preventive")));
         assertEquals(afterPraResult, result.getAppropriateResult(crac.getInstant("outage")));
@@ -99,7 +99,7 @@ class FastRaoResultImplTest {
     }
 
     @Test
-    void TestGetAppropriateResultFlowCnec() {
+    void testGetAppropriateResultFlowCnec() {
         FlowCnec flowCnec = crac.getFlowCnec("cnec3autoId");
         assertEquals(afterPraResult, result.getAppropriateResult(crac.getInstant("preventive"), flowCnec));
         assertEquals(afterAraResult, result.getAppropriateResult(crac.getInstant("auto"), flowCnec));
@@ -121,7 +121,7 @@ class FastRaoResultImplTest {
     }
 
     @Test
-    void testGetVirtualCostNames_bothNull() {
+    void testGetVirtualCostNamesBothNull() {
         when(initialResult.getVirtualCostNames()).thenReturn(null);
         when(finalResult.getVirtualCostNames()).thenReturn(null);
         Set<String> allNames = result.getVirtualCostNames();
@@ -169,7 +169,7 @@ class FastRaoResultImplTest {
     }
 
     @Test
-    void testActivatedActionsDuringState(){
+    void testActivatedActionsDuringState() {
         // Mocks for activation tests
         NetworkAction networkAction = Mockito.mock(NetworkAction.class);
         RangeAction<?> rangeAction = Mockito.mock(RangeAction.class);
@@ -191,7 +191,6 @@ class FastRaoResultImplTest {
         when(filteredRaoResult.getActivatedRangeActionsDuringState(state)).thenReturn(Set.of(rangeAction));
         assertEquals(Set.of(networkAction), result.getActivatedNetworkActionsDuringState(state));
         assertEquals(Set.of(rangeAction), result.getActivatedRangeActionsDuringState(state));
-
 
         when(filteredRaoResult.getPreOptimizationTapOnState(state, pstRangeAction)).thenReturn(11);
         when(filteredRaoResult.getOptimizedTapOnState(state, pstRangeAction)).thenReturn(12);

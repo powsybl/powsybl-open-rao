@@ -67,6 +67,7 @@ public class FastRaoTest {
         assertEquals(314.7, raoResult.getFunctionalCost(crac.getLastInstant()), 1e-1);
         assertEquals(2, raoResult.getCriticalCnecs().size());
     }
+
     @Test
     public void testRunFilteredRao2() throws IOException {
         // Test with 2 preventive network actions activated
@@ -127,5 +128,4 @@ public class FastRaoTest {
         assertTrue(raoResult instanceof FailedRaoResultImpl);
         assertEquals("Fast Rao does not support multi-curative optimization", raoResult.getExecutionDetails());
     }
-
 }
