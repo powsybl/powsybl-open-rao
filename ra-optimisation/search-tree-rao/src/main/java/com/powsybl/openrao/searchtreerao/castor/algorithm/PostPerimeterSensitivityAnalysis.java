@@ -43,10 +43,6 @@ public class PostPerimeterSensitivityAnalysis {
     private final RaoParameters raoParameters;
     private final ToolProvider toolProvider;
 
-    // built internally
-    private SensitivityComputer sensitivityComputer;
-    private ObjectiveFunction objectiveFunction;
-
     public PostPerimeterSensitivityAnalysis(Set<FlowCnec> flowCnecs,
                                             Set<RangeAction<?>> rangeActions,
                                             RaoParameters raoParameters,
@@ -61,14 +57,12 @@ public class PostPerimeterSensitivityAnalysis {
                                             Set<State> states,
                                             RaoParameters raoParameters,
                                             ToolProvider toolProvider) {
-        Set<RangeAction<?>> rangeActions = new HashSet<>();
-        Set<FlowCnec> flowCnecs = new HashSet<>();
+        this.rangeActions = new HashSet<>();
+        this.flowCnecs = new HashSet<>();
         for (State state : states) {
-            rangeActions.addAll(crac.getPotentiallyAvailableRangeActions(state));
-            flowCnecs.addAll(crac.getFlowCnecs(state));
+            this.rangeActions.addAll(crac.getPotentiallyAvailableRangeActions(state));
+            this.flowCnecs.addAll(crac.getFlowCnecs(state));
         }
-        this.flowCnecs = flowCnecs;
-        this.rangeActions = rangeActions;
         this.raoParameters = raoParameters;
         this.toolProvider = toolProvider;
     }
@@ -114,13 +108,15 @@ public class PostPerimeterSensitivityAnalysis {
         SensitivityResult sensitivityResult = sensitivityComputer.getSensitivityResult();
 
         return Executors.newSingleThreadExecutor().submit(() -> {
-            ObjectiveFunction objectiveFunction = ObjectiveFunction.build(flowCnecs,
+            ObjectiveFunction objectiveFunction = ObjectiveFunction.build(
+                flowCnecs,
                 toolProvider.getLoopFlowCnecs(flowCnecs),
                 initialFlowResult,
                 previousResultsFuture.get(),
                 operatorsNotSharingCras,
                 raoParameters,
-                Set.of()); //TODO: To complete later if we want to use costly objective function not needed otherwise
+                optimizationResult.getActivatedRangeActionsPerState().keySet()
+            );
 
             ObjectiveFunctionResult objectiveFunctionResult = objectiveFunction.evaluate(
                 flowResult,
