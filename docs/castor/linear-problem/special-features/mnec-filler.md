@@ -4,7 +4,7 @@
 
 | Name               | Symbol                   | Details                                                                                                                                                                                                                             |
 |--------------------|--------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| MonitoredFlowCnecs | $c \in \mathcal{C} ^{m}$ | Set of FlowCnecs[^1] which are ['monitored'](/input-data/crac/json.md#optimised-and-monitored-cnecs). MonitoredFlowCnecs is a subset of [FlowCnecs](core-problem-filler.md#used-input-data): $\mathcal{C} ^{o} \subset \mathcal{C}$ |
+| MonitoredFlowCnecs | $c \in \mathcal{C} ^{m}$ | Set of FlowCnecs[^1] which are ['monitored'](/input-data/crac/json.md#optimised-and-monitored-cnecs). MonitoredFlowCnecs is a subset of [FlowCnecs](../core-problem-filler.md#used-input-data): $\mathcal{C} ^{o} \subset \mathcal{C}$ |
 | Initial flow       | $f_{0} (c)$              | flow before RAO of MonitoredFlowCnec $c$, in MW                                                                                                                                                                                     |
 | Upper threshold    | $f^{+}_{threshold} (c)$  | Upper threshold of FlowCnec $c$, in MW, defined in the CRAC                                                                                                                                                                         |
 | Lower threshold    | $f^{-}_{threshold} (c)$  | Lower threshold of FlowCnec $c$, in MW, defined in the CRAC                                                                                                                                                                         |
@@ -30,7 +30,7 @@
 
 | Name | Symbol | Defined in                                                                 |
 |------|--------|----------------------------------------------------------------------------|
-| Flow | $F(c)$ | [CoreProblemFiller](core-problem-filler.md#defined-optimization-variables) |
+| Flow | $F(c)$ | [CoreProblemFiller](../core-problem-filler.md#defined-optimization-variables) |
 
 ## Defined constraints
 
