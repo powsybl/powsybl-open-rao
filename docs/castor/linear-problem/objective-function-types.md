@@ -1,4 +1,4 @@
-# Special features
+# Objective function types
 
 ```{toctree}
 :hidden:

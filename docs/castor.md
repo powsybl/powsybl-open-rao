@@ -114,7 +114,7 @@ For the NTC Capacity calculation, only the positive margin stop criterion is act
 iterative security analysis at different values of commercial exchanges. It is also valid for the CEP Validation 
 performed at national or regional level.
 
-### Costly
+#### Costly
 
 The objective is to try to secure the network at the lowest expenses possible, as described [here](castor/linear-problem/objective-function-types/costly-optimization.md#optimization-of-costly-remedial-actions)
 

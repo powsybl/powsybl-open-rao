@@ -1,4 +1,4 @@
-# Special features
+# Costly specific
 
 ```{toctree}
 :hidden:
