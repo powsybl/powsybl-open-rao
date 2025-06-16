@@ -2,17 +2,15 @@
 
 ```{toctree}
 :hidden:
+linear-problem/objective-function-types.md
+linear-problem/special-features.md
+linear-problem/costly-specific.md
 linear-problem/core-problem-filler.md
-linear-problem/max-min-margin-filler.md
-linear-problem/max-min-relative-margin-filler.md
-linear-problem/max-loop-flow-filler.md
-linear-problem/mnec-filler.md
 linear-problem/continuous-range-action-group-filler.md
 linear-problem/discrete-pst-tap-filler.md
 linear-problem/discrete-pst-group-filler.md
-linear-problem/unoptimized-cnec-filler-cra.md
 linear-problem/ra-usage-limits-filler.md
-linear-problem/power-gradient-constraint-filler.md
+
 ```
 
 ## Introduction
