@@ -16,9 +16,9 @@ castor/applications.md
 
 Unlike purely linear optimisation, a search-tree algorithm does not neglect the non-linearity of efficient remedial actions such as curative and preventive topological actions. Incorrect modeling of remedial actions such as topological remedial actions could lead to over or underestimate their impact and then result in a biased network situation that could endanger the system security.
 
-So far, the search-tree algorithm has proved for many years its relevance and efficiency on current daily operational processes on CWE, Northern Italy and SWE Capacity calculation. 
+So far, the search-tree algorithm has proved for many years its relevance and efficiency on current daily operational processes on CORE, Northern Italy and SWE Capacity calculation. 
 
-For each topological remedial action applied, the search-tree will systematically optimise PST taps & HVDC setpoints by applying a [linear optimisation](./castor/linear-problem.md). By considering both topological remedial actions and linear remedial actions at every step, instead of considering only one after the other, CASTOR's results are optimal.
+For each topological remedial action applied, the search-tree will systematically optimise range actions' setpoints (such as PST taps & HVDC setpoints) by applying a [linear optimisation](./castor/linear-problem.md). By considering both topological remedial actions and linear remedial actions at every step, instead of considering only one after the other, CASTOR's results are optimal.
 
 The optimisation problem is a non-convex and non-linear one, dealing with topology changes on the network, which represent discrete actions by definition. The problem treated by the optimiser is a combinatorial problem. Search-tree algorithms are commonly used for high complexity mathematical problems, containing combinatorial and discrete aspects.
 
@@ -61,7 +61,9 @@ As a matter of clarification, connecting/disconnecting a generation unit can als
 
 ## Objective function
 
-### For Flow-based Capacity calculation – minimum margin
+### Minimum margin
+
+### For Flow-based Capacity calculation
 
 The objective function is used to determine at each step of the search tree which remedial action is the best. 
 A variant of it is also used when solving the [linear optimisation problem](./castor/linear-problem.md).
@@ -100,7 +102,7 @@ optimisation are also configurable in order to comply with process specificities
 [loop flows](/castor/special-features/loop-flows) required for Flow based CORE Capacity Calculation).
 
 
-### For NTC Capacity calculation/CEP Validation
+#### For NTC Capacity calculation/CEP Validation
 
 The objective function is :
 
@@ -111,6 +113,10 @@ OF = min_i(F_{max_i}-F_i)
 For the NTC Capacity calculation, only the positive margin stop criterion is activated. This is equivalent to an 
 iterative security analysis at different values of commercial exchanges. It is also valid for the CEP Validation 
 performed at national or regional level.
+
+### Costly
+
+The objective is to try to secure the network at the lowest expenses possible, as described [here](castor/costly-optimization.md/#optimization-of-costly-remedial-actions)
 
 ## Inputs
 

@@ -29,9 +29,9 @@
 
 | Name                    | Symbol | Defined in                                                                                  |
 |-------------------------|--------|---------------------------------------------------------------------------------------------|
-| Flow                    | $F(c)$ | [CoreProblemFiller](core-problem-filler.md#defined-optimization-variables)                  |
-| Minimum margin          | $MM$   | [MaxMinMarginFiller](max-min-margin-filler.md#defined-optimization-variables)                  |
-| Minimum relative margin | $MRM$  | [MaxMinRelativeMarginFiller](max-min-relative-margin-filler.md#defined-optimization-variables) |
+| Flow                    | $F(c)$ | [CoreProblemFiller](../core-problem-filler.md#defined-optimization-variables)                  |
+| Minimum margin          | $MM$   | [MaxMinMarginFiller](../objective-function-types/max-min-margin-filler.md#defined-optimization-variables)                  |
+| Minimum relative margin | $MRM$  | [MaxMinRelativeMarginFiller](../objective-function-types/max-min-relative-margin-filler.md#defined-optimization-variables) |
 
 ## Defined constraints
 
@@ -72,8 +72,8 @@ constraints is defined.*
 
 ### Updating the minimum margin constraints
 
-(These are originally defined in [MaxMinMarginFiller](max-min-margin-filler.md#defined-constraints)
-and [MaxMinRelativeMarginFiller](max-min-relative-margin-filler.md#defined-constraints))
+(These are originally defined in [MaxMinMarginFiller](../objective-function-types/max-min-margin-filler.md#defined-constraints)
+and [MaxMinRelativeMarginFiller](../objective-function-types/max-min-relative-margin-filler.md#defined-constraints))
 
 For CNECs which should not be optimized, their RAM should not be taken into account in the minimum margin variable
 unless their margin is decreased.

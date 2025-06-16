@@ -21,8 +21,8 @@
 
 | Name                                      | Symbol              | Defined in                                                                 |
 |-------------------------------------------|---------------------|----------------------------------------------------------------------------|
-| Range Action upward set-point variation   | $\Delta^{+}(r,s,t)$ | [CoreProblemFiller](core-problem-filler.md#defined-optimization-variables) |
-| Range Action downward set-point variation | $\Delta^{-}(r,s,t)$ | [CoreProblemFiller](core-problem-filler.md#defined-optimization-variables) |
+| Range Action upward set-point variation   | $\Delta^{+}(r,s,t)$ | [CoreProblemFiller](../core-problem-filler.md#defined-optimization-variables) |
+| Range Action downward set-point variation | $\Delta^{-}(r,s,t)$ | [CoreProblemFiller](../core-problem-filler.md#defined-optimization-variables) |
 
 ## Defined constraints
 

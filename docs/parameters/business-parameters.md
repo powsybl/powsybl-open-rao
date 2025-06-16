@@ -13,6 +13,7 @@ These parameters (objective-function) configure the remedial action optimisation
   - "SECURE_FLOW"
   - "MAX_MIN_MARGIN"
   - "MAX_MIN_RELATIVE_MARGIN"
+  - "MIN_COST"
 - **Default value**: "SECURE_FLOW"
 - **Usage**: this parameter sets the objective function of the RAO. For now, the existing objective function are:
   - **SECURE_FLOW**: The search-tree will stop as soon as it finds a solution where the minimum margin is positive.
@@ -20,6 +21,7 @@ These parameters (objective-function) configure the remedial action optimisation
     maximum value, or until another stop criterion has been reached (e.g. [max-preventive-search-tree-depth](#max-preventive-search-tree-depth)).
   - **MAX_MIN_RELATIVE_MARGIN**: same as MAX_MIN_MARGIN, but the margins will be relative
     (divided by the absolute sum of PTDFs) when they are positive.
+  - **MIN_COST**: the search-tree will minimize minimal margin violation and remedial action expenses
 
 #### unit
 - **Expected value**: one of the following:
