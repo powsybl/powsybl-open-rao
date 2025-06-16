@@ -190,7 +190,7 @@ Feature: US 92.1: Costly network actions optimization
     And the remedial action "closeBeFr4" is used after "coBeFr2" at "auto"
     # Activation of closeBeFr2 (200) + activation of closeBeFr3 (1350)
     # Overload penalty (33.33 * 10000) not taken in account since the automaton simulator does not "see" curative CNECs
-    And the value of the objective function after ARA should be 1550.0
+    And the value of the objective function after ARA should be 334883.33
     And 1 remedial actions are used after "coBeFr2" at "curative"
     And the remedial action "closeBeFr5" is used after "coBeFr2" at "curative"
     # Activation of closeBeFr2 (200) + activation of closeBeFr3 (1350) + activation of closeBeFr5 (850)
@@ -220,7 +220,7 @@ Feature: US 92.1: Costly network actions optimization
     And 1 remedial actions are used after "coBeFr5" at "auto"
     And the remedial action "closeBeFr7" is used after "coBeFr5" at "auto"
     # Activation of closeBeFr6 (2500) + activation of closeBeFr7 twice (2 * 60) + overload penalty (50 * 10000)
-    And the value of the objective function after ARA should be 502620.0
+    And the value of the objective function after ARA should be 669286.67
     And 0 remedial actions are used after "coBeFr2" at "curative"
     And 0 remedial actions are used after "coBeFr3" at "curative"
     And 1 remedial actions are used after "coBeFr4" at "curative"
