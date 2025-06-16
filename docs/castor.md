@@ -116,7 +116,7 @@ performed at national or regional level.
 
 ### Costly
 
-The objective is to try to secure the network at the lowest expenses possible, as described [here](castor/costly-optimization.md/#optimization-of-costly-remedial-actions)
+The objective is to try to secure the network at the lowest expenses possible, as described [here](castor/linear-problem/objective-function-types/costly-optimization.md#optimization-of-costly-remedial-actions)
 
 ## Inputs
 
