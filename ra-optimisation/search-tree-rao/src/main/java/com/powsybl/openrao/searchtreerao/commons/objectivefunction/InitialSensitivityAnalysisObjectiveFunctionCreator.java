@@ -11,6 +11,7 @@ import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.searchtreerao.commons.marginevaluator.MarginEvaluator;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator.CostEvaluator;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator.MinMarginViolationEvaluator;
@@ -34,7 +35,7 @@ public class InitialSensitivityAnalysisObjectiveFunctionCreator extends Abstract
         List<CostEvaluator> virtualCostEvaluators = new ArrayList<>();
 
         if (raoParameters.getObjectiveFunctionParameters().getType().costOptimization()) {
-            virtualCostEvaluators.add(new MinMarginViolationEvaluator(flowCnecs, unit, marginEvaluator));
+            virtualCostEvaluators.add(new MinMarginViolationEvaluator(flowCnecs, unit, marginEvaluator, raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getMinMarginsParameters().orElseThrow().getShiftedViolationPenalty()));
         }
 
         // sensitivity failure over-cost should be computed on initial sensitivity result too

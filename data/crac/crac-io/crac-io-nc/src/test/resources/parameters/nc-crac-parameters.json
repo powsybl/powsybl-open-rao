@@ -31,7 +31,16 @@
           "eic": "10YDOM--ES-PT--T",
           "default-for-tso": "REN"
         }
-      ]
+      ],
+      "restricted-curative-batches-per-tso": {
+        "REE": [
+          "curative 1",
+          "curative 2"
+        ],
+        "REN": [
+          "curative 1"
+        ]
+      }
     }
   }
 }

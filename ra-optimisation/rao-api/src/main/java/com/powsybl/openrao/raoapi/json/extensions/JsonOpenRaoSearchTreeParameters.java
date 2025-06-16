@@ -39,6 +39,7 @@ public class JsonOpenRaoSearchTreeParameters implements JsonRaoParameters.Extens
         JsonMnecParameters.serialize(parameters, jsonGenerator);
         JsonRelativeMarginsParameters.serialize(parameters, jsonGenerator);
         JsonLoopFlowParameters.serialize(parameters, jsonGenerator);
+        JsonMinMarginsParameters.serialize(parameters, jsonGenerator);
         jsonGenerator.writeEndObject();
     }
 
@@ -86,6 +87,10 @@ public class JsonOpenRaoSearchTreeParameters implements JsonRaoParameters.Extens
                 case LOOP_FLOW_PARAMETERS:
                     parser.nextToken();
                     JsonLoopFlowParameters.deserialize(parser, parameters);
+                    break;
+                case COSTLY_MIN_MARGIN_PARAMETERS:
+                    parser.nextToken();
+                    JsonMinMarginsParameters.deserialize(parser, parameters);
                     break;
                 default:
                     throw new OpenRaoException("Unexpected field in open rao search tree parameters: " + parser.getCurrentName());
