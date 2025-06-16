@@ -17,6 +17,7 @@ import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.FastRaoParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.searchtreerao.result.impl.FailedRaoResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.FastRaoResultImpl;
 import org.junit.jupiter.api.Test;
@@ -24,16 +25,17 @@ import org.mockito.Mockito;
 
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
  */
 public class FastRaoTest {
+
     @Test
     public void testRunFilteredRaoOnPreventiveOnlyCase() throws IOException {
         // US 4.3.1 as a UT to test OneStateOnly
@@ -52,23 +54,31 @@ public class FastRaoTest {
 
     @Test
     public void testRunFilteredRaoOnComplexCase() throws IOException {
-        // US 13.3.1 as a UT but with objective function SECURE_FLOW
+        // US 13.4.3 as a UT but with objective function SECURE_FLOW, case with prev and cur RA
         Network network = Network.read("/network/TestCase16Nodes.uct", getClass().getResourceAsStream("/network/TestCase16Nodes.uct"));
-        Crac crac = Crac.read("/crac/SL_ep13us3case1.json", getClass().getResourceAsStream("/crac/SL_ep13us3case1.json"), network);
+        Crac crac = Crac.read("/crac/SL_ep13us4case3.json", getClass().getResourceAsStream("/crac/SL_ep13us4case3.json"), network);
         RaoInput individualRaoInput = RaoInput.build(network, crac).build();
-        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_maxMargin_ampere.json"));
+        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_secure_ampere.json"));
         FastRaoParameters fastRaoParameters = new FastRaoParameters();
         fastRaoParameters.setNumberOfCnecsToAdd(1);
         fastRaoParameters.setAddUnsecureCnecs(true);
         raoParameters.addExtension(FastRaoParameters.class, fastRaoParameters);
         FastRaoResultImpl raoResult = (FastRaoResultImpl) FastRao.launchFilteredRao(individualRaoInput, raoParameters, null, new HashSet<>());
-        assertEquals(-113.65, raoResult.getFunctionalCost(crac.getLastInstant()), 1e-1);
+        assertEquals(314.7, raoResult.getFunctionalCost(crac.getLastInstant()), 1e-1);
         assertEquals(2, raoResult.getCriticalCnecs().size());
     }
     @Test
-    public void testRunFilteredRaoOnComplexCase2() throws IOException {
-        //TODO : With at least 2 preventive network actions
-
+    public void testRunFilteredRao2() throws IOException {
+        // Test with 2 preventive network actions activated
+        Network network = Network.read("/network/3Nodes1LineOpen.uct", getClass().getResourceAsStream("/network/3Nodes1LineOpen.uct"));
+        Crac crac = Crac.read("/crac/fast-rao-UT-2prev-network-action.json", getClass().getResourceAsStream("/crac/fast-rao-UT-2prev-network-action.json"), network);
+        RaoInput individualRaoInput = RaoInput.build(network, crac).build();
+        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_secure.json"));
+        FastRaoParameters fastRaoParameters = new FastRaoParameters();
+        raoParameters.addExtension(FastRaoParameters.class, fastRaoParameters);
+        FastRaoResultImpl raoResult = (FastRaoResultImpl) FastRao.launchFilteredRao(individualRaoInput, raoParameters, null, new HashSet<>());
+        assertEquals(-33.39, raoResult.getFunctionalCost(crac.getLastInstant()), 1e-1);
+        assertEquals(List.of(List.of("Close FR2 FR3", "Close FR1 FR2")), raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getTopoOptimizationParameters().getPredefinedCombinations());
     }
 
     @Test

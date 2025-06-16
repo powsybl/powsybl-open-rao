@@ -3,7 +3,7 @@
   "objective-function" : {
     "type" : "SECURE_FLOW",
     "unit" : "A",
-    "enforce-curative-security" : false
+    "enforce-curative-security" : true
   },
   "range-actions-optimization" : {
     "pst-ra-min-impact-threshold" : 0.01,

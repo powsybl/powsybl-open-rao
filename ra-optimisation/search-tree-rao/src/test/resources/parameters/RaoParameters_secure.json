@@ -1,8 +1,9 @@
 {
   "version" : "3.1",
   "objective-function" : {
-    "type" : "SECURE_FLOW",
-    "unit" : "MW"
+    "type" : "MAX_MIN_MARGIN",
+    "unit" : "MW",
+    "enforce-curative-security" : false
   },
   "range-actions-optimization" : {
     "pst-ra-min-impact-threshold" : 0.01,
@@ -19,7 +20,7 @@
   "extensions" : {
     "open-rao-search-tree-parameters" : {
       "objective-function" : {
-        "curative-min-obj-improvement" : 0.0
+        "curative-min-obj-improvement" : 10000.0
       },
       "range-actions-optimization" : {
         "max-mip-iterations" : 5,
@@ -61,7 +62,7 @@
             "shuntCompensatorVoltageControlOn" : false,
             "readSlackBus" : false,
             "writeSlackBus" : true,
-            "dc" : true,
+            "dc" : false,
             "distributedSlack" : true,
             "balanceType" : "PROPORTIONAL_TO_GENERATION_P",
             "dcUseTransformerRatio" : false,
