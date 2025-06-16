@@ -266,29 +266,30 @@ public final class NcCracCreationTestUtil {
         cracCreationParameters.getExtension(NcCracCreationParameters.class).setCurativeInstants(Map.of("curative 1", 300, "curative 2", 600, "curative 3", 1200));
         cracCreationParameters.getExtension(NcCracCreationParameters.class).setTsosWhichDoNotUsePatlInFinalState(Set.of("REE"));
         cracCreationParameters.getExtension(NcCracCreationParameters.class).setBorders(Set.of(new Border("ES-FR", "10YDOM--ES-FR--D", "RTE"), new Border("ES-PT", "10YDOM--ES-PT--T", "REN")));
+        cracCreationParameters.getExtension(NcCracCreationParameters.class).setRestrictedCurativeBatchesPerTso(Map.of("REE", Set.of("curative 1")));
         return cracCreationParameters;
     }
 
-    public static NcCracCreationContext getNcCracCreationContext(String ncsArchive, Network network) {
-        return getNcCracCreationContext(ncsArchive, network, OffsetDateTime.parse("2023-03-29T12:00Z"), cracCreationDefaultParametersWithSweCsaExtension());
+    public static NcCracCreationContext getNcCracCreationContext(String ncArchive, Network network) {
+        return getNcCracCreationContext(ncArchive, network, OffsetDateTime.parse("2023-03-29T12:00Z"), cracCreationDefaultParametersWithSweCsaExtension());
     }
 
-    public static NcCracCreationContext getNcCracCreationContext(String ncsArchive, Network network, CracCreationParameters cracCreationParameters) {
-        return getNcCracCreationContext(ncsArchive, network, OffsetDateTime.parse("2023-03-29T12:00Z"), cracCreationParameters);
+    public static NcCracCreationContext getNcCracCreationContext(String ncArchive, Network network, CracCreationParameters cracCreationParameters) {
+        return getNcCracCreationContext(ncArchive, network, OffsetDateTime.parse("2023-03-29T12:00Z"), cracCreationParameters);
     }
 
-    public static NcCracCreationContext getNcCracCreationContext(String ncsArchive, Network network, String timestamp) {
-        return getNcCracCreationContext(ncsArchive, network, OffsetDateTime.parse(timestamp), cracCreationDefaultParametersWithSweCsaExtension());
+    public static NcCracCreationContext getNcCracCreationContext(String ncArchive, Network network, String timestamp) {
+        return getNcCracCreationContext(ncArchive, network, OffsetDateTime.parse(timestamp), cracCreationDefaultParametersWithSweCsaExtension());
     }
 
-    public static NcCracCreationContext getNcCracCreationContext(String ncsArchive, Network network, OffsetDateTime offsetDateTime) {
-        return getNcCracCreationContext(ncsArchive, network, offsetDateTime, cracCreationDefaultParametersWithSweCsaExtension());
+    public static NcCracCreationContext getNcCracCreationContext(String ncArchive, Network network, OffsetDateTime offsetDateTime) {
+        return getNcCracCreationContext(ncArchive, network, offsetDateTime, cracCreationDefaultParametersWithSweCsaExtension());
     }
 
-    public static NcCracCreationContext getNcCracCreationContext(String ncsArchive, Network network, OffsetDateTime offsetDateTime, CracCreationParameters cracCreationParameters) {
-        try (InputStream inputStream = NcCracCreationTestUtil.class.getResourceAsStream(ncsArchive)) {
+    public static NcCracCreationContext getNcCracCreationContext(String ncArchive, Network network, OffsetDateTime offsetDateTime, CracCreationParameters cracCreationParameters) {
+        try (InputStream inputStream = NcCracCreationTestUtil.class.getResourceAsStream(ncArchive)) {
             cracCreationParameters.getExtension(NcCracCreationParameters.class).setTimestamp(offsetDateTime);
-            return (NcCracCreationContext) Crac.readWithContext(ncsArchive, inputStream, network, cracCreationParameters);
+            return (NcCracCreationContext) Crac.readWithContext(ncArchive, inputStream, network, cracCreationParameters);
         } catch (IOException e) {
             throw new OpenRaoException(e);
         }

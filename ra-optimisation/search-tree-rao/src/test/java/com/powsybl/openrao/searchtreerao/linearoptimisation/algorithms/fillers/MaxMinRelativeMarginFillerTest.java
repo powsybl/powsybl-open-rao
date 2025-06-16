@@ -12,11 +12,8 @@ import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
-import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
-import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.*;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
-import com.powsybl.openrao.raoapi.parameters.extensions.PtdfApproximation;
-import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRelativeMarginsParameters;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPConstraint;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPVariable;
@@ -53,6 +50,7 @@ class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
     private MarginCoreProblemFiller coreProblemFiller;
     private MaxMinRelativeMarginFiller maxMinRelativeMarginFiller;
     private SearchTreeRaoRelativeMarginsParameters parameters;
+    private SearchTreeRaoCostlyMinMarginParameters minMarginsParameters;
     private RangeActionSetpointResult initialRangeActionSetpointResult;
 
     @BeforeEach
@@ -81,6 +79,9 @@ class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN);
         raoParameters.getObjectiveFunctionParameters().setUnit(MEGAWATT);
 
+        minMarginsParameters = new SearchTreeRaoCostlyMinMarginParameters();
+        searchTreeParameters.setMinMarginsParameters(minMarginsParameters);
+
         coreProblemFiller = new MarginCoreProblemFiller(
             optimizationPerimeter,
             initialRangeActionSetpointResult,
@@ -99,6 +100,7 @@ class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
             Set.of(cnec1),
             initialFlowResult,
             unit,
+            minMarginsParameters,
             parameters,
             null);
     }
@@ -190,6 +192,7 @@ class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
             Set.of(cnec1),
             initialFlowResult,
             MEGAWATT,
+            minMarginsParameters,
             parameters,
             null);
         buildLinearProblem();
@@ -244,6 +247,7 @@ class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
             Set.of(cnec1),
             initialFlowResult,
             MEGAWATT,
+            minMarginsParameters,
             parameters,
             null);
         buildLinearProblem();

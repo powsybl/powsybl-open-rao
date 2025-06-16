@@ -2,7 +2,9 @@
   "crac-factory" : "CracImplFactory",
   "extensions" : {
     "FbConstraintCracCreatorParameters" : {
-      "timestamp": "2025-01-10T05:00:00Z"
+      "timestamp": "2025-01-10T05:00:00Z",
+      "ics-cost-up": 50.0,
+      "ics-cost-down": 20.0
     }
   }
 }
