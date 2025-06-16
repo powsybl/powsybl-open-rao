@@ -17,7 +17,7 @@ import com.powsybl.openrao.searchtreerao.commons.SensitivityComputer;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
 import com.powsybl.openrao.searchtreerao.result.api.*;
-import com.powsybl.openrao.searchtreerao.result.impl.OptimizationResultImpl;
+import com.powsybl.openrao.searchtreerao.result.impl.*;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 
 import java.util.HashSet;
@@ -70,18 +70,18 @@ public class PostPerimeterSensitivityAnalysis {
         this.toolProvider = toolProvider;
     }
 
-    public Future<OptimizationResult> runBasedOnInitialAndPreviousResults(Network network,
-                                                                          Crac crac,
-                                                                          FlowResult initialFlowResult,
-                                                                          Future<FlowResult> previousResultsFuture,
-                                                                          Set<String> operatorsNotSharingCras,
-                                                                          RemedialActionActivationResult remedialActionActivationResult,
-                                                                          AppliedRemedialActions appliedCurativeRemedialActions) {
+    public Future<PostPerimeterResult> runBasedOnInitialPreviousAndOptimizationResults(Network network,
+                                                                           Crac crac,
+                                                                           FlowResult initialFlowResult,
+                                                                           Future<FlowResult> previousResultsFuture,
+                                                                           Set<String> operatorsNotSharingCras,
+                                                                           OptimizationResult optimizationResult,
+                                                                           AppliedRemedialActions appliedCurativeRemedialActions) {
 
         SensitivityComputer.SensitivityComputerBuilder sensitivityComputerBuilder = SensitivityComputer.create()
             .withToolProvider(toolProvider)
             .withCnecs(flowCnecs)
-            .withRangeActions(new HashSet<>())
+            .withRangeActions(rangeActions)
             .withOutageInstant(crac.getOutageInstant());
 
         if (raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getLoopFlowParameters().isPresent()) {
@@ -119,16 +119,15 @@ public class PostPerimeterSensitivityAnalysis {
 
             ObjectiveFunctionResult objectiveFunctionResult = objectiveFunction.evaluate(
                 flowResult,
-                remedialActionActivationResult
+                new RemedialActionActivationResultImpl(optimizationResult, optimizationResult)
             );
 
-            return new OptimizationResultImpl(
-                objectiveFunctionResult,
+            return new PostPerimeterResult(optimizationResult, new PrePerimeterSensitivityResultImpl(
                 flowResult,
                 sensitivityResult,
-                remedialActionActivationResult,
-                remedialActionActivationResult
-            );
+                RangeActionSetpointResultImpl.buildWithSetpointsFromNetwork(network, rangeActions),
+                objectiveFunctionResult
+            ));
         });
     }
 }

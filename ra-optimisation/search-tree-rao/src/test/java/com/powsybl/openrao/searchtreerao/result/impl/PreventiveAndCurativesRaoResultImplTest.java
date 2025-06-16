@@ -61,8 +61,9 @@ class PreventiveAndCurativesRaoResultImplTest {
     private Instant autoInstant;
     private Instant curativeInstant;
     private PrePerimeterResult initialResult;
-    private OptimizationResult postPrevResult;
-    private PrePerimeterResult preCurativeResult;
+    private OptimizationResult prevResult;
+    private PrePerimeterResult postPrevPrePerimResult;
+    private PostPerimeterResult postPrevResult;
     private PstRangeAction pstRangeAction;
     private RangeAction<?> rangeAction;
     private NetworkAction networkAction;
@@ -78,8 +79,14 @@ class PreventiveAndCurativesRaoResultImplTest {
     private State curativeState3;
     private PreventiveAndCurativesRaoResultImpl output;
     private OptimizationResult autoResult1;
+    private PrePerimeterResult postAutoPrePerimResult1;
+    private PostPerimeterResult postAutoResult1;
     private OptimizationResult curativeResult1;
+    private PrePerimeterResult postCurativePrePerimResult1;
+    private PostPerimeterResult postCurativeResult1;
     private OptimizationResult curativeResult2;
+    private PrePerimeterResult postCurativePrePerimResult2;
+    private PostPerimeterResult postCurativeResult2;
     private StateTree stateTree;
     private final ObjectiveFunctionParameters objectiveFunctionParameters = new ObjectiveFunctionParameters();
 
@@ -180,12 +187,15 @@ class PreventiveAndCurativesRaoResultImplTest {
         when(curativeState3.getInstant()).thenReturn(curativeInstant);
 
         initialResult = mock(PrePerimeterResult.class);
-        postPrevResult = mock(OptimizationResult.class);
-        preCurativeResult = mock(PrePerimeterResult.class);
+        prevResult = mock(OptimizationResult.class);
+        postPrevPrePerimResult = mock(PrePerimeterResult.class);
 
         autoResult1 = mock(OptimizationResult.class);
+        postAutoPrePerimResult1 = mock(PrePerimeterResult.class);
         curativeResult1 = mock(OptimizationResult.class);
+        postCurativePrePerimResult1 = mock(PrePerimeterResult.class);
         curativeResult2 = mock(OptimizationResult.class);
+        postCurativePrePerimResult2 = mock(PrePerimeterResult.class);
 
         pstRangeAction = mock(PstRangeAction.class);
         rangeAction = mock(RangeAction.class);
@@ -202,25 +212,26 @@ class PreventiveAndCurativesRaoResultImplTest {
         mockCnecResults(initialResult, cnec1, -1000, -500, -2000, -1000);
         mockCnecResults(initialResult, cnec2, -500, -250, -1500, -750);
 
-        when(postPrevResult.getFunctionalCost()).thenReturn(-1020.);
-        when(postPrevResult.getMostLimitingElements(anyInt())).thenReturn(List.of(cnec2));
-        mockVirtualCosts(postPrevResult, -120, -40, List.of(cnec1), -100, List.of(cnec2));
-        when(postPrevResult.isActivated(networkAction)).thenReturn(true);
-        when(postPrevResult.getActivatedNetworkActions()).thenReturn(Set.of(networkAction));
-        when(postPrevResult.getActivatedRangeActions(preventiveState)).thenReturn(Set.of(rangeAction));
-        when(postPrevResult.getOptimizedSetpoint(eq(pstRangeAction), any())).thenReturn(28.9);
-        when(postPrevResult.getOptimizedSetpoint(eq(rangeAction), any())).thenReturn(25.6);
-        when(postPrevResult.getOptimizedTap(eq(pstRangeAction), any())).thenReturn(22);
-        when(postPrevResult.getRangeActions()).thenReturn(Set.of(rangeAction, pstRangeAction));
-        when(postPrevResult.getActivatedRangeActions(preventiveState)).thenReturn(Set.of(rangeAction, pstRangeAction));
-        when(postPrevResult.getOptimizedTapsOnState(any())).thenReturn(Map.of(pstRangeAction, 22));
-        when(postPrevResult.getOptimizedSetpointsOnState(any())).thenReturn(Map.of(pstRangeAction, 28.9, rangeAction, 25.6));
-        mockCnecResults(postPrevResult, cnec1, 520, 270, 1520, 770);
-        mockCnecResults(postPrevResult, cnec2, 1020, 520, 2020, 1020);
+        when(prevResult.getFunctionalCost()).thenReturn(-1020.);
+        when(prevResult.getMostLimitingElements(anyInt())).thenReturn(List.of(cnec2));
+        mockVirtualCosts(prevResult, -120, -40, List.of(cnec1), -100, List.of(cnec2));
+        when(prevResult.isActivated(networkAction)).thenReturn(true);
+        when(prevResult.getActivatedNetworkActions()).thenReturn(Set.of(networkAction));
+        when(prevResult.getActivatedRangeActions(preventiveState)).thenReturn(Set.of(rangeAction));
+        when(prevResult.getOptimizedSetpoint(eq(pstRangeAction), any())).thenReturn(28.9);
+        when(prevResult.getOptimizedSetpoint(eq(rangeAction), any())).thenReturn(25.6);
+        when(prevResult.getOptimizedTap(eq(pstRangeAction), any())).thenReturn(22);
+        when(prevResult.getRangeActions()).thenReturn(Set.of(rangeAction, pstRangeAction));
+        when(prevResult.getActivatedRangeActions(preventiveState)).thenReturn(Set.of(rangeAction, pstRangeAction));
+        when(prevResult.getOptimizedTapsOnState(any())).thenReturn(Map.of(pstRangeAction, 22));
+        when(prevResult.getOptimizedSetpointsOnState(any())).thenReturn(Map.of(pstRangeAction, 28.9, rangeAction, 25.6));
+        mockCnecResults(prevResult, cnec1, 520, 270, 1520, 770);
+        mockCnecResults(prevResult, cnec2, 1020, 520, 2020, 1020);
+        postPrevResult = new PostPerimeterResult(prevResult, postPrevPrePerimResult);
 
-        when(autoResult1.getFunctionalCost()).thenReturn(-1025.);
-        when(autoResult1.getMostLimitingElements(anyInt())).thenReturn(List.of(cnec2));
-        mockVirtualCosts(autoResult1, -125, -45, List.of(cnec1auto), -105, List.of(cnec1));
+        when(postAutoPrePerimResult1.getFunctionalCost()).thenReturn(-1025.);
+        when(postAutoPrePerimResult1.getMostLimitingElements(anyInt())).thenReturn(List.of(cnec2));
+        mockVirtualCosts(postAutoPrePerimResult1, -125, -45, List.of(cnec1auto), -105, List.of(cnec1));
         when(autoResult1.isActivated(networkAction)).thenReturn(false);
         when(autoResult1.getActivatedNetworkActions()).thenReturn(Set.of());
         when(autoResult1.getOptimizedSetpoint(pstRangeAction, autoState1)).thenReturn(28.9);
@@ -230,12 +241,13 @@ class PreventiveAndCurativesRaoResultImplTest {
         when(autoResult1.getActivatedRangeActions(autoState1)).thenReturn(Set.of(rangeAction, pstRangeAction));
         when(autoResult1.getOptimizedTapsOnState(autoState1)).thenReturn(Map.of(pstRangeAction, 22));
         when(autoResult1.getOptimizedSetpointsOnState(autoState1)).thenReturn(Map.of(pstRangeAction, 28.9, rangeAction, 25.6));
-        mockCnecResults(autoResult1, cnec1auto, 523, 273, 1523, 773);
-        mockCnecResults(autoResult1, cnec1, 525, 275, 1525, 775);
+        mockCnecResults(postAutoPrePerimResult1, cnec1auto, 523, 273, 1523, 773);
+        mockCnecResults(postAutoPrePerimResult1, cnec1, 525, 275, 1525, 775);
+        postAutoResult1 = new PostPerimeterResult(autoResult1, postAutoPrePerimResult1);
 
-        when(curativeResult1.getFunctionalCost()).thenReturn(-1030.);
-        when(curativeResult1.getMostLimitingElements(anyInt())).thenReturn(List.of(cnec2));
-        mockVirtualCosts(curativeResult1, -130, -50, List.of(cnec1), -110, List.of(cnec2));
+        when(postCurativePrePerimResult1.getFunctionalCost()).thenReturn(-1030.);
+        when(postCurativePrePerimResult1.getMostLimitingElements(anyInt())).thenReturn(List.of(cnec2));
+        mockVirtualCosts(postCurativePrePerimResult1, -130, -50, List.of(cnec1), -110, List.of(cnec2));
         when(curativeResult1.isActivated(networkAction)).thenReturn(false);
         when(curativeResult1.getActivatedNetworkActions()).thenReturn(Set.of());
         when(curativeResult1.getOptimizedSetpoint(pstRangeAction, curativeState1)).thenReturn(28.9);
@@ -245,11 +257,12 @@ class PreventiveAndCurativesRaoResultImplTest {
         when(curativeResult1.getActivatedRangeActions(curativeState1)).thenReturn(Set.of());
         when(curativeResult1.getOptimizedTapsOnState(curativeState1)).thenReturn(Map.of(pstRangeAction, 22));
         when(curativeResult1.getOptimizedSetpointsOnState(curativeState1)).thenReturn(Map.of(pstRangeAction, 28.9, rangeAction, 25.6));
-        mockCnecResults(curativeResult1, cnec1, 530, 280, 1530, 780);
+        mockCnecResults(postCurativePrePerimResult1, cnec1, 530, 280, 1530, 780);
+        postCurativeResult1 = new PostPerimeterResult(curativeResult1, postCurativePrePerimResult1);
 
-        when(curativeResult2.getFunctionalCost()).thenReturn(-1040.);
-        when(curativeResult2.getMostLimitingElements(anyInt())).thenReturn(List.of(cnec2));
-        mockVirtualCosts(curativeResult2, -140, -60, List.of(cnec1), -120, List.of(cnec2));
+        when(postCurativePrePerimResult2.getFunctionalCost()).thenReturn(-1040.);
+        when(postCurativePrePerimResult2.getMostLimitingElements(anyInt())).thenReturn(List.of(cnec2));
+        mockVirtualCosts(postCurativePrePerimResult2, -140, -60, List.of(cnec1), -120, List.of(cnec2));
         when(curativeResult2.isActivated(networkAction)).thenReturn(false);
         when(curativeResult2.getActivatedNetworkActions()).thenReturn(Set.of());
         when(curativeResult2.getOptimizedSetpoint(pstRangeAction, curativeState2)).thenReturn(48.9);
@@ -259,17 +272,18 @@ class PreventiveAndCurativesRaoResultImplTest {
         when(curativeResult2.getActivatedRangeActions(curativeState2)).thenReturn(Set.of(pstRangeAction));
         when(curativeResult2.getOptimizedTapsOnState(curativeState2)).thenReturn(Map.of(pstRangeAction, 42));
         when(curativeResult2.getOptimizedSetpointsOnState(curativeState2)).thenReturn(Map.of(pstRangeAction, 28.9, rangeAction, 25.6));
-        mockCnecResults(curativeResult2, cnec2, 1040, 540, 2040, 1040);
+        mockCnecResults(postCurativePrePerimResult2, cnec2, 1040, 540, 2040, 1040);
+        postCurativeResult2 = new PostPerimeterResult(curativeResult2, postCurativePrePerimResult2);
 
-        when(preCurativeResult.getFunctionalCost()).thenReturn(-1050.);
-        when(preCurativeResult.getMostLimitingElements(anyInt())).thenReturn(List.of(cnec3));
-        mockVirtualCosts(preCurativeResult, -150, -70, List.of(cnec3, cnec2), -130, List.of(cnec1, cnec4));
-        when(preCurativeResult.getSetpoint(pstRangeAction)).thenReturn(58.9);
-        when(preCurativeResult.getSetpoint(rangeAction)).thenReturn(55.6);
-        when(preCurativeResult.getTap(pstRangeAction)).thenReturn(52);
-        when(preCurativeResult.getRangeActions()).thenReturn(Set.of(rangeAction, pstRangeAction));
-        mockCnecResults(preCurativeResult, cnec2, 1050, 550, 2050, 1050);
-        mockCnecResults(preCurativeResult, cnec1, 5050, 300, 1550, 800);
+        when(postPrevPrePerimResult.getFunctionalCost()).thenReturn(-1050.);
+        when(postPrevPrePerimResult.getMostLimitingElements(anyInt())).thenReturn(List.of(cnec3));
+        mockVirtualCosts(postPrevPrePerimResult, -150, -70, List.of(cnec3, cnec2), -130, List.of(cnec1, cnec4));
+        when(postPrevPrePerimResult.getSetpoint(pstRangeAction)).thenReturn(58.9);
+        when(postPrevPrePerimResult.getSetpoint(rangeAction)).thenReturn(55.6);
+        when(postPrevPrePerimResult.getTap(pstRangeAction)).thenReturn(52);
+        when(postPrevPrePerimResult.getRangeActions()).thenReturn(Set.of(rangeAction, pstRangeAction));
+        mockCnecResults(postPrevPrePerimResult, cnec2, 1050, 550, 2050, 1050);
+        mockCnecResults(postPrevPrePerimResult, cnec1, 5050, 300, 1550, 800);
 
         stateTree = mock(StateTree.class);
         Perimeter preventivePerimeter = new Perimeter(preventiveState, null);
@@ -294,8 +308,9 @@ class PreventiveAndCurativesRaoResultImplTest {
             stateTree,
             initialResult,
             postPrevResult,
-            preCurativeResult,
-            Map.of(autoState1, autoResult1, curativeState1, curativeResult1, curativeState2, curativeResult2), crac, objectiveFunctionParameters);
+            Map.of(autoState1, postAutoResult1, curativeState1, postCurativeResult1, curativeState2, postCurativeResult2),
+            crac,
+            objectiveFunctionParameters);
     }
 
     private void mockCnecResults(FlowResult flowResult, FlowCnec cnec, double marginMw, double marginA, double relMarginMw, double relMarginA) {
@@ -332,7 +347,7 @@ class PreventiveAndCurativesRaoResultImplTest {
     @Test
     void testGetComputationStatus() {
         when(initialResult.getSensitivityStatus()).thenReturn(ComputationStatus.DEFAULT);
-        when(postPrevResult.getSensitivityStatus()).thenReturn(ComputationStatus.DEFAULT);
+        when(prevResult.getSensitivityStatus()).thenReturn(ComputationStatus.DEFAULT);
         when(autoResult1.getSensitivityStatus(Mockito.any())).thenReturn(ComputationStatus.DEFAULT);
         when(curativeResult1.getSensitivityStatus(Mockito.any())).thenReturn(ComputationStatus.DEFAULT);
         when(curativeResult2.getSensitivityStatus(Mockito.any())).thenReturn(ComputationStatus.DEFAULT);
@@ -343,10 +358,10 @@ class PreventiveAndCurativesRaoResultImplTest {
         assertEquals(ComputationStatus.FAILURE, output.getComputationStatus());
 
         when(initialResult.getSensitivityStatus()).thenReturn(ComputationStatus.DEFAULT);
-        when(postPrevResult.getSensitivityStatus()).thenReturn(ComputationStatus.FAILURE);
+        when(prevResult.getSensitivityStatus()).thenReturn(ComputationStatus.FAILURE);
         assertEquals(ComputationStatus.FAILURE, output.getComputationStatus());
 
-        when(postPrevResult.getSensitivityStatus()).thenReturn(ComputationStatus.DEFAULT);
+        when(prevResult.getSensitivityStatus()).thenReturn(ComputationStatus.DEFAULT);
         when(curativeResult2.getSensitivityStatus(Mockito.any())).thenReturn(ComputationStatus.FAILURE);
         assertEquals(ComputationStatus.PARTIAL_FAILURE, output.getComputationStatus());
 
@@ -358,7 +373,7 @@ class PreventiveAndCurativesRaoResultImplTest {
         assertEquals(ComputationStatus.PARTIAL_FAILURE, output.getComputationStatus());
 
         when(initialResult.getSensitivityStatus()).thenReturn(ComputationStatus.DEFAULT);
-        when(postPrevResult.getSensitivityStatus()).thenReturn(ComputationStatus.PARTIAL_FAILURE);
+        when(prevResult.getSensitivityStatus()).thenReturn(ComputationStatus.PARTIAL_FAILURE);
         assertEquals(ComputationStatus.PARTIAL_FAILURE, output.getComputationStatus());
     }
 
@@ -369,9 +384,9 @@ class PreventiveAndCurativesRaoResultImplTest {
         assertEquals(-1020., output.getFunctionalCost(autoInstant), DOUBLE_TOLERANCE);
         assertEquals(-1020., output.getFunctionalCost(curativeInstant), DOUBLE_TOLERANCE);
 
-        when(postPrevResult.getFunctionalCost()).thenReturn(-2020.);
-        assertEquals(-1025., output.getFunctionalCost(autoInstant), DOUBLE_TOLERANCE);
-        assertEquals(-1025., output.getFunctionalCost(curativeInstant), DOUBLE_TOLERANCE);
+        when(prevResult.getFunctionalCost()).thenReturn(-2020.);
+        assertEquals(-2020., output.getFunctionalCost(autoInstant), DOUBLE_TOLERANCE);
+        assertEquals(-2020., output.getFunctionalCost(curativeInstant), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -410,21 +425,6 @@ class PreventiveAndCurativesRaoResultImplTest {
         assertEquals(-205., output.getVirtualCost(autoInstant, "lf"), DOUBLE_TOLERANCE);
         assertEquals(-150., output.getVirtualCost(curativeInstant, "mnec"), DOUBLE_TOLERANCE);
         assertEquals(-330., output.getVirtualCost(curativeInstant, "lf"), DOUBLE_TOLERANCE);
-    }
-
-    @Test
-    void testGetCostlyElements() {
-        assertEquals(List.of(cnec2), output.getCostlyElements(null, "mnec", 5));
-        assertEquals(List.of(cnec1), output.getCostlyElements(null, "lf", 15));
-
-        assertEquals(List.of(cnec3, cnec2), output.getCostlyElements(preventiveInstant, "mnec", 5));
-        assertEquals(List.of(cnec1, cnec4), output.getCostlyElements(preventiveInstant, "lf", 15));
-
-        assertNull(output.getCostlyElements(autoInstant, "mnec", 5));
-        assertNull(output.getCostlyElements(autoInstant, "lf", 15));
-
-        assertNull(output.getCostlyElements(curativeInstant, "mnec", 5));
-        assertNull(output.getCostlyElements(curativeInstant, "lf", 15));
     }
 
     @Test
@@ -469,7 +469,7 @@ class PreventiveAndCurativesRaoResultImplTest {
         when(autoResult1.getActivatedNetworkActions()).thenReturn(Set.of(networkAction));
         assertEquals(Set.of(networkAction), output.getActivatedNetworkActionsDuringState(autoState1));
 
-        when(postPrevResult.getActivatedNetworkActions()).thenReturn(Set.of());
+        when(prevResult.getActivatedNetworkActions()).thenReturn(Set.of());
         assertEquals(Set.of(), output.getActivatedNetworkActionsDuringState(preventiveState));
         assertEquals(Set.of(), output.getActivatedNetworkActionsDuringState(curativeState3));
     }
@@ -501,7 +501,7 @@ class PreventiveAndCurativesRaoResultImplTest {
 
     @Test
     void testGetOptimizedTapOnState() {
-        when(postPrevResult.getOptimizedTap(eq(pstRangeAction), any())).thenReturn(202);
+        when(prevResult.getOptimizedTap(eq(pstRangeAction), any())).thenReturn(202);
         assertEquals(202, output.getOptimizedTapOnState(preventiveState, pstRangeAction));
         assertEquals(22, output.getOptimizedTapOnState(autoState1, pstRangeAction));
         assertEquals(22, output.getOptimizedTapOnState(curativeState1, pstRangeAction));
@@ -521,7 +521,7 @@ class PreventiveAndCurativesRaoResultImplTest {
 
     @Test
     void testGetOptimizedSetPointOnState() {
-        when(postPrevResult.getOptimizedSetpoint(eq(pstRangeAction), any())).thenReturn(567.);
+        when(prevResult.getOptimizedSetpoint(eq(pstRangeAction), any())).thenReturn(567.);
         assertEquals(567, output.getOptimizedSetPointOnState(preventiveState, pstRangeAction), DOUBLE_TOLERANCE);
         assertEquals(28.9, output.getOptimizedSetPointOnState(autoState1, pstRangeAction), DOUBLE_TOLERANCE);
         assertEquals(28.9, output.getOptimizedSetPointOnState(curativeState1, pstRangeAction), DOUBLE_TOLERANCE);
@@ -537,7 +537,7 @@ class PreventiveAndCurativesRaoResultImplTest {
         assertEquals(Set.of(pstRangeAction), output.getActivatedRangeActionsDuringState(curativeState2));
         assertEquals(Set.of(), output.getActivatedRangeActionsDuringState(curativeState3));
 
-        when(postPrevResult.getActivatedRangeActions(preventiveState)).thenReturn(Set.of(pstRangeAction));
+        when(prevResult.getActivatedRangeActions(preventiveState)).thenReturn(Set.of(pstRangeAction));
         assertEquals(Set.of(pstRangeAction), output.getActivatedRangeActionsDuringState(preventiveState));
     }
 
@@ -562,7 +562,7 @@ class PreventiveAndCurativesRaoResultImplTest {
 
     @Test
     void testGetOptimizedSetPointsOnState() {
-        when(postPrevResult.getOptimizedSetpointsOnState(any())).thenReturn(Map.of(pstRangeAction, 222., rangeAction, 111.));
+        when(prevResult.getOptimizedSetpointsOnState(any())).thenReturn(Map.of(pstRangeAction, 222., rangeAction, 111.));
         when(autoResult1.getOptimizedSetpointsOnState(autoState1)).thenReturn(Map.of(pstRangeAction, 222., rangeAction, 111.));
 
         when(curativeResult1.getOptimizedSetpointsOnState(curativeState1)).thenReturn(Map.of(pstRangeAction, 333.));
@@ -583,8 +583,8 @@ class PreventiveAndCurativesRaoResultImplTest {
     @Test
     void testGetFlow() {
         when(initialResult.getFlow(cnec1, ONE, MEGAWATT, null)).thenReturn(10.);
-        when(preCurativeResult.getFlow(cnec2, TWO, AMPERE, preventiveInstant)).thenReturn(20.);
-        when(postPrevResult.getFlow(cnec3, TWO, MEGAWATT, curativeInstant)).thenReturn(30.);
+        when(postPrevPrePerimResult.getFlow(cnec2, TWO, AMPERE, preventiveInstant)).thenReturn(20.);
+        when(postPrevPrePerimResult.getFlow(cnec3, TWO, MEGAWATT, curativeInstant)).thenReturn(30.);
         when(cnec3.getState()).thenReturn(curativeState3);
         assertEquals(10., output.getFlow(null, cnec1, ONE, MEGAWATT), DOUBLE_TOLERANCE);
         assertEquals(20., output.getFlow(preventiveInstant, cnec2, TWO, AMPERE), DOUBLE_TOLERANCE);
@@ -594,8 +594,8 @@ class PreventiveAndCurativesRaoResultImplTest {
     @Test
     void testGetMargin() {
         when(initialResult.getMargin(cnec1, MEGAWATT)).thenReturn(10.);
-        when(preCurativeResult.getMargin(cnec2, AMPERE)).thenReturn(20.);
-        when(postPrevResult.getMargin(cnec3, MEGAWATT)).thenReturn(30.);
+        when(postPrevPrePerimResult.getMargin(cnec2, AMPERE)).thenReturn(20.);
+        when(postPrevPrePerimResult.getMargin(cnec3, MEGAWATT)).thenReturn(30.);
         when(cnec3.getState()).thenReturn(curativeState3);
         assertEquals(10., output.getMargin(null, cnec1, MEGAWATT), DOUBLE_TOLERANCE);
         assertEquals(20., output.getMargin(preventiveInstant, cnec2, AMPERE), DOUBLE_TOLERANCE);
@@ -605,8 +605,8 @@ class PreventiveAndCurativesRaoResultImplTest {
     @Test
     void testGetRelativeMargin() {
         when(initialResult.getRelativeMargin(cnec1, MEGAWATT)).thenReturn(10.);
-        when(preCurativeResult.getRelativeMargin(cnec2, AMPERE)).thenReturn(20.);
-        when(postPrevResult.getRelativeMargin(cnec3, MEGAWATT)).thenReturn(30.);
+        when(postPrevPrePerimResult.getRelativeMargin(cnec2, AMPERE)).thenReturn(20.);
+        when(postPrevPrePerimResult.getRelativeMargin(cnec3, MEGAWATT)).thenReturn(30.);
         when(cnec3.getState()).thenReturn(curativeState3);
         assertEquals(10., output.getRelativeMargin(null, cnec1, MEGAWATT), DOUBLE_TOLERANCE);
         assertEquals(20., output.getRelativeMargin(preventiveInstant, cnec2, AMPERE), DOUBLE_TOLERANCE);
@@ -616,8 +616,8 @@ class PreventiveAndCurativesRaoResultImplTest {
     @Test
     void testGetCommercialFlow() {
         when(initialResult.getCommercialFlow(cnec1, ONE, MEGAWATT)).thenReturn(10.);
-        when(preCurativeResult.getCommercialFlow(cnec2, TWO, AMPERE)).thenReturn(20.);
-        when(curativeResult1.getCommercialFlow(cnec3, TWO, MEGAWATT)).thenReturn(30.);
+        when(postPrevPrePerimResult.getCommercialFlow(cnec2, TWO, AMPERE)).thenReturn(20.);
+        when(postCurativePrePerimResult1.getCommercialFlow(cnec3, TWO, MEGAWATT)).thenReturn(30.);
         when(cnec3.getState()).thenReturn(curativeState1);
         assertEquals(10., output.getCommercialFlow(null, cnec1, ONE, MEGAWATT), DOUBLE_TOLERANCE);
         assertEquals(20., output.getCommercialFlow(preventiveInstant, cnec2, TWO, AMPERE), DOUBLE_TOLERANCE);
@@ -627,8 +627,8 @@ class PreventiveAndCurativesRaoResultImplTest {
     @Test
     void testGetLoopFlow() {
         when(initialResult.getLoopFlow(cnec1, ONE, MEGAWATT)).thenReturn(10.);
-        when(preCurativeResult.getLoopFlow(cnec2, TWO, AMPERE)).thenReturn(20.);
-        when(curativeResult2.getLoopFlow(cnec3, TWO, MEGAWATT)).thenReturn(30.);
+        when(postPrevPrePerimResult.getLoopFlow(cnec2, TWO, AMPERE)).thenReturn(20.);
+        when(postCurativePrePerimResult2.getLoopFlow(cnec3, TWO, MEGAWATT)).thenReturn(30.);
         when(cnec3.getState()).thenReturn(curativeState2);
         assertEquals(10., output.getLoopFlow(null, cnec1, ONE, MEGAWATT), DOUBLE_TOLERANCE);
         assertEquals(20., output.getLoopFlow(preventiveInstant, cnec2, TWO, AMPERE), DOUBLE_TOLERANCE);
@@ -638,9 +638,9 @@ class PreventiveAndCurativesRaoResultImplTest {
     @Test
     void testGetPtdfZonalSum() {
         when(initialResult.getPtdfZonalSum(cnec1, ONE)).thenReturn(10.);
-        when(preCurativeResult.getPtdfZonalSum(cnec2, TWO)).thenReturn(20.);
-        when(autoResult1.getPtdfZonalSum(cnec1auto, ONE)).thenReturn(25.);
-        when(curativeResult2.getPtdfZonalSum(cnec3, TWO)).thenReturn(30.);
+        when(postPrevPrePerimResult.getPtdfZonalSum(cnec2, TWO)).thenReturn(20.);
+        when(postAutoPrePerimResult1.getPtdfZonalSum(cnec1auto, ONE)).thenReturn(25.);
+        when(postCurativePrePerimResult2.getPtdfZonalSum(cnec3, TWO)).thenReturn(30.);
         when(cnec3.getState()).thenReturn(curativeState2);
         assertEquals(10., output.getPtdfZonalSum(null, cnec1, ONE), DOUBLE_TOLERANCE);
         assertEquals(20., output.getPtdfZonalSum(preventiveInstant, cnec2, TWO), DOUBLE_TOLERANCE);
@@ -660,7 +660,7 @@ class PreventiveAndCurativesRaoResultImplTest {
         when(outageState.getInstant()).thenReturn(outageInstant);
 
         when(initialResult.getPtdfZonalSum(cnec1, ONE)).thenReturn(1.);
-        when(postPrevResult.getPtdfZonalSum(cnec1, ONE)).thenReturn(2.);
+        when(prevResult.getPtdfZonalSum(cnec1, ONE)).thenReturn(2.);
         when(autoResult1.getPtdfZonalSum(cnec1, ONE)).thenReturn(3.);
         when(curativeResult1.getPtdfZonalSum(cnec1, ONE)).thenReturn(4.);
         when(curativeResult2.getPtdfZonalSum(cnec1, ONE)).thenReturn(5.);
@@ -722,7 +722,7 @@ class PreventiveAndCurativesRaoResultImplTest {
     @Test
     void testNoPostContingencyResultGetters() {
         // Test if only preventive RAO has been conducted
-        output = new PreventiveAndCurativesRaoResultImpl(preventiveState, initialResult, postPrevResult, preCurativeResult, crac, objectiveFunctionParameters);
+        output = new PreventiveAndCurativesRaoResultImpl(preventiveState, initialResult, new PostPerimeterResult(prevResult, postPrevPrePerimResult), crac, objectiveFunctionParameters);
 
         // Test get functional cost
         assertEquals(1000., output.getFunctionalCost(null), DOUBLE_TOLERANCE);
@@ -755,16 +755,6 @@ class PreventiveAndCurativesRaoResultImplTest {
         assertEquals(-70., output.getVirtualCost(curativeInstant, "mnec"), DOUBLE_TOLERANCE);
         assertEquals(-130., output.getVirtualCost(curativeInstant, "lf"), DOUBLE_TOLERANCE);
 
-        // Test get costly elements
-        assertEquals(List.of(cnec2), output.getCostlyElements(null, "mnec", 5));
-        assertEquals(List.of(cnec1), output.getCostlyElements(null, "lf", 15));
-        assertEquals(List.of(cnec3, cnec2), output.getCostlyElements(preventiveInstant, "mnec", 5));
-        assertEquals(List.of(cnec1, cnec4), output.getCostlyElements(preventiveInstant, "lf", 15));
-        assertEquals(List.of(cnec3, cnec2), output.getCostlyElements(autoInstant, "mnec", 5));
-        assertEquals(List.of(cnec1, cnec4), output.getCostlyElements(autoInstant, "lf", 15));
-        assertEquals(List.of(cnec3, cnec2), output.getCostlyElements(curativeInstant, "mnec", 5));
-        assertEquals(List.of(cnec1, cnec4), output.getCostlyElements(curativeInstant, "lf", 15));
-
         // Test was activated before state
         assertFalse(output.wasActivatedBeforeState(preventiveState, networkAction));
         assertTrue(output.wasActivatedBeforeState(autoState1, networkAction));
@@ -784,7 +774,7 @@ class PreventiveAndCurativesRaoResultImplTest {
         assertEquals(Set.of(), output.getActivatedNetworkActionsDuringState(curativeState1));
         assertEquals(Set.of(), output.getActivatedNetworkActionsDuringState(curativeState2));
         assertEquals(Set.of(), output.getActivatedNetworkActionsDuringState(curativeState3));
-        when(postPrevResult.getActivatedNetworkActions()).thenReturn(Set.of());
+        when(prevResult.getActivatedNetworkActions()).thenReturn(Set.of());
         assertEquals(Set.of(), output.getActivatedNetworkActionsDuringState(preventiveState));
         assertEquals(Set.of(), output.getActivatedNetworkActionsDuringState(curativeState3));
 
@@ -807,7 +797,7 @@ class PreventiveAndCurativesRaoResultImplTest {
         assertEquals("State null was not optimized and does not have pre-optim values", exception.getMessage());
 
         // Test get optimized tap
-        when(postPrevResult.getOptimizedTap(eq(pstRangeAction), any())).thenReturn(202);
+        when(prevResult.getOptimizedTap(eq(pstRangeAction), any())).thenReturn(202);
         assertEquals(202, output.getOptimizedTapOnState(preventiveState, pstRangeAction));
         assertEquals(202, output.getOptimizedTapOnState(autoState1, pstRangeAction));
         assertEquals(202, output.getOptimizedTapOnState(curativeState1, pstRangeAction));
@@ -826,7 +816,7 @@ class PreventiveAndCurativesRaoResultImplTest {
         assertEquals("State null was not optimized and does not have pre-optim values", exception.getMessage());
 
         // Test get optimized setpoint
-        when(postPrevResult.getOptimizedSetpoint(eq(pstRangeAction), any())).thenReturn(567.);
+        when(prevResult.getOptimizedSetpoint(eq(pstRangeAction), any())).thenReturn(567.);
         assertEquals(567, output.getOptimizedSetPointOnState(preventiveState, pstRangeAction), DOUBLE_TOLERANCE);
         assertEquals(567, output.getOptimizedSetPointOnState(autoState1, pstRangeAction), DOUBLE_TOLERANCE);
         assertEquals(567, output.getOptimizedSetPointOnState(curativeState1, pstRangeAction), DOUBLE_TOLERANCE);
@@ -839,7 +829,7 @@ class PreventiveAndCurativesRaoResultImplTest {
         assertEquals(Set.of(), output.getActivatedRangeActionsDuringState(curativeState1));
         assertEquals(Set.of(), output.getActivatedRangeActionsDuringState(curativeState2));
         assertEquals(Set.of(), output.getActivatedRangeActionsDuringState(curativeState3));
-        when(postPrevResult.getActivatedRangeActions(preventiveState)).thenReturn(Set.of(pstRangeAction));
+        when(prevResult.getActivatedRangeActions(preventiveState)).thenReturn(Set.of(pstRangeAction));
         assertEquals(Set.of(pstRangeAction), output.getActivatedRangeActionsDuringState(preventiveState));
 
         // Test get optimized taps
@@ -850,7 +840,7 @@ class PreventiveAndCurativesRaoResultImplTest {
         assertEquals(Map.of(pstRangeAction, 22), output.getOptimizedTapsOnState(curativeState3));
 
         // Test get optimized setpoints
-        when(postPrevResult.getOptimizedSetpointsOnState(any())).thenReturn(Map.of(pstRangeAction, 222., rangeAction, 111.));
+        when(prevResult.getOptimizedSetpointsOnState(any())).thenReturn(Map.of(pstRangeAction, 222., rangeAction, 111.));
         assertEquals(Map.of(pstRangeAction, 222., rangeAction, 111.), output.getOptimizedSetPointsOnState(preventiveState));
         assertEquals(Map.of(pstRangeAction, 222., rangeAction, 111.), output.getOptimizedSetPointsOnState(autoState1));
         assertEquals(Map.of(pstRangeAction, 222., rangeAction, 111.), output.getOptimizedSetPointsOnState(curativeState1));
@@ -859,8 +849,8 @@ class PreventiveAndCurativesRaoResultImplTest {
 
         // Test get flow
         when(initialResult.getFlow(cnec1, ONE, MEGAWATT, null)).thenReturn(10.);
-        when(preCurativeResult.getFlow(cnec2, TWO, AMPERE, preventiveInstant)).thenReturn(20.);
-        when(preCurativeResult.getFlow(cnec3, TWO, MEGAWATT, curativeInstant)).thenReturn(30.);
+        when(postPrevPrePerimResult.getFlow(cnec2, TWO, AMPERE, preventiveInstant)).thenReturn(20.);
+        when(postPrevPrePerimResult.getFlow(cnec3, TWO, MEGAWATT, curativeInstant)).thenReturn(30.);
         when(cnec3.getState()).thenReturn(curativeState3);
         assertEquals(10., output.getFlow(null, cnec1, ONE, MEGAWATT), DOUBLE_TOLERANCE);
         assertEquals(20., output.getFlow(preventiveInstant, cnec2, TWO, AMPERE), DOUBLE_TOLERANCE);
@@ -868,8 +858,8 @@ class PreventiveAndCurativesRaoResultImplTest {
 
         // Test get margin
         when(initialResult.getMargin(cnec1, MEGAWATT)).thenReturn(10.);
-        when(preCurativeResult.getMargin(cnec2, AMPERE)).thenReturn(20.);
-        when(preCurativeResult.getMargin(cnec3, MEGAWATT)).thenReturn(30.);
+        when(postPrevPrePerimResult.getMargin(cnec2, AMPERE)).thenReturn(20.);
+        when(postPrevPrePerimResult.getMargin(cnec3, MEGAWATT)).thenReturn(30.);
         when(cnec3.getState()).thenReturn(curativeState3);
         assertEquals(10., output.getMargin(null, cnec1, MEGAWATT), DOUBLE_TOLERANCE);
         assertEquals(20., output.getMargin(preventiveInstant, cnec2, AMPERE), DOUBLE_TOLERANCE);
@@ -877,8 +867,8 @@ class PreventiveAndCurativesRaoResultImplTest {
 
         // Test get relative margin
         when(initialResult.getRelativeMargin(cnec1, MEGAWATT)).thenReturn(10.);
-        when(preCurativeResult.getRelativeMargin(cnec2, AMPERE)).thenReturn(20.);
-        when(preCurativeResult.getRelativeMargin(cnec3, MEGAWATT)).thenReturn(30.);
+        when(postPrevPrePerimResult.getRelativeMargin(cnec2, AMPERE)).thenReturn(20.);
+        when(postPrevPrePerimResult.getRelativeMargin(cnec3, MEGAWATT)).thenReturn(30.);
         when(cnec3.getState()).thenReturn(curativeState3);
         assertEquals(10., output.getRelativeMargin(null, cnec1, MEGAWATT), DOUBLE_TOLERANCE);
         assertEquals(20., output.getRelativeMargin(preventiveInstant, cnec2, AMPERE), DOUBLE_TOLERANCE);
@@ -886,8 +876,8 @@ class PreventiveAndCurativesRaoResultImplTest {
 
         // Test get commercial flow
         when(initialResult.getCommercialFlow(cnec1, ONE, MEGAWATT)).thenReturn(10.);
-        when(preCurativeResult.getCommercialFlow(cnec2, TWO, AMPERE)).thenReturn(20.);
-        when(preCurativeResult.getCommercialFlow(cnec3, TWO, MEGAWATT)).thenReturn(25.);
+        when(postPrevPrePerimResult.getCommercialFlow(cnec2, TWO, AMPERE)).thenReturn(20.);
+        when(postPrevPrePerimResult.getCommercialFlow(cnec3, TWO, MEGAWATT)).thenReturn(25.);
         when(cnec3.getState()).thenReturn(curativeState1);
         assertEquals(10., output.getCommercialFlow(null, cnec1, ONE, MEGAWATT), DOUBLE_TOLERANCE);
         assertEquals(20., output.getCommercialFlow(preventiveInstant, cnec2, TWO, AMPERE), DOUBLE_TOLERANCE);
@@ -895,8 +885,8 @@ class PreventiveAndCurativesRaoResultImplTest {
 
         // Test get loopflow
         when(initialResult.getLoopFlow(cnec1, ONE, MEGAWATT)).thenReturn(10.);
-        when(preCurativeResult.getLoopFlow(cnec2, TWO, AMPERE)).thenReturn(20.);
-        when(preCurativeResult.getLoopFlow(cnec3, TWO, MEGAWATT)).thenReturn(25.);
+        when(postPrevPrePerimResult.getLoopFlow(cnec2, TWO, AMPERE)).thenReturn(20.);
+        when(postPrevPrePerimResult.getLoopFlow(cnec3, TWO, MEGAWATT)).thenReturn(25.);
         when(cnec3.getState()).thenReturn(curativeState2);
         assertEquals(10., output.getLoopFlow(null, cnec1, ONE, MEGAWATT), DOUBLE_TOLERANCE);
         assertEquals(20., output.getLoopFlow(preventiveInstant, cnec2, TWO, AMPERE), DOUBLE_TOLERANCE);
@@ -904,8 +894,8 @@ class PreventiveAndCurativesRaoResultImplTest {
 
         // Test get ptdf zonal sum
         when(initialResult.getPtdfZonalSum(cnec1, ONE)).thenReturn(10.);
-        when(preCurativeResult.getPtdfZonalSum(cnec2, TWO)).thenReturn(20.);
-        when(preCurativeResult.getPtdfZonalSum(cnec3, TWO)).thenReturn(30.);
+        when(postPrevPrePerimResult.getPtdfZonalSum(cnec2, TWO)).thenReturn(20.);
+        when(postPrevPrePerimResult.getPtdfZonalSum(cnec3, TWO)).thenReturn(30.);
         when(cnec3.getState()).thenReturn(curativeState2);
         assertEquals(10., output.getPtdfZonalSum(null, cnec1, ONE), DOUBLE_TOLERANCE);
         assertEquals(20., output.getPtdfZonalSum(preventiveInstant, cnec2, TWO), DOUBLE_TOLERANCE);
@@ -915,13 +905,13 @@ class PreventiveAndCurativesRaoResultImplTest {
     @Test
     void testNoPostContingencyResultGetPerimeterResult() {
         // Test if only preventive RAO has been conducted
-        output = new PreventiveAndCurativesRaoResultImpl(preventiveState, initialResult, postPrevResult, preCurativeResult, crac, objectiveFunctionParameters);
+        output = new PreventiveAndCurativesRaoResultImpl(preventiveState, initialResult, new PostPerimeterResult(prevResult, postPrevPrePerimResult), crac, objectiveFunctionParameters);
 
         State outageState = mock(State.class);
         when(outageState.getInstant()).thenReturn(outageInstant);
 
         when(initialResult.getPtdfZonalSum(cnec1, ONE)).thenReturn(1.);
-        when(postPrevResult.getPtdfZonalSum(cnec1, ONE)).thenReturn(2.);
+        when(prevResult.getPtdfZonalSum(cnec1, ONE)).thenReturn(2.);
         when(autoResult1.getPtdfZonalSum(cnec1, ONE)).thenReturn(3.);
         when(curativeResult1.getPtdfZonalSum(cnec1, ONE)).thenReturn(4.);
         when(curativeResult2.getPtdfZonalSum(cnec1, ONE)).thenReturn(5.);
@@ -978,11 +968,10 @@ class PreventiveAndCurativesRaoResultImplTest {
         output = new PreventiveAndCurativesRaoResultImpl(
             stateTree,
             initialResult,
-            postPrevResult,
-            secondPreventivePerimeterResult,
+            new PostPerimeterResult(prevResult, postPrevPrePerimResult),
+            new PostPerimeterResult(secondPreventivePerimeterResult, postPrevPrePerimResult),
             remedialActionsExcludedFromSecondPreventive,
-            preCurativeResult,
-            Map.of(autoState1, autoResult1, curativeState1, curativeResult1, curativeState2, curativeResult2), crac, objectiveFunctionParameters);
+            Map.of(autoState1, postAutoResult1, curativeState1, postCurativeResult1, curativeState2, postCurativeResult2), crac, objectiveFunctionParameters);
 
         when(secondPreventivePerimeterResult.getActivatedRangeActions(preventiveState)).thenReturn(Set.of(rangeAction));
         when(secondPreventivePerimeterResult.getActivatedNetworkActions()).thenReturn(Set.of(networkAction));
@@ -1015,11 +1004,10 @@ class PreventiveAndCurativesRaoResultImplTest {
         output = new PreventiveAndCurativesRaoResultImpl(
             stateTree,
             initialResult,
-            postPrevResult,
-            secondPreventivePerimeterResult,
+            new PostPerimeterResult(prevResult, postPrevPrePerimResult),
+            new PostPerimeterResult(secondPreventivePerimeterResult, postPrevPrePerimResult),
             remedialActionsExcludedFromSecondPreventive,
-            preCurativeResult,
-            Map.of(autoState1, autoResult1, curativeState1, curativeResult1, curativeState2, curativeResult2),
+            Map.of(autoState1, postAutoResult1, curativeState1, postCurativeResult1, curativeState2, postCurativeResult2),
             postSecondAraoResults, crac, objectiveFunctionParameters);
 
         when(postSecondAraoResults.getFunctionalCost()).thenReturn(123.);
@@ -1030,8 +1018,6 @@ class PreventiveAndCurativesRaoResultImplTest {
         assertEquals(579., output.getCost(curativeInstant), DOUBLE_TOLERANCE);
         assertEquals(400., output.getVirtualCost(curativeInstant, "mnec"), DOUBLE_TOLERANCE);
         assertEquals(56., output.getVirtualCost(curativeInstant, "lf"), DOUBLE_TOLERANCE);
-        assertEquals(List.of(cnec2, cnec4), output.getCostlyElements(curativeInstant, "mnec", 100));
-        assertEquals(List.of(cnec1, cnec4), output.getCostlyElements(curativeInstant, "lf", 100));
     }
 
     @Test
