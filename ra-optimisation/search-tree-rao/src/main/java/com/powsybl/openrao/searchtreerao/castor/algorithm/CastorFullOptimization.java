@@ -134,15 +134,7 @@ public class CastorFullOptimization {
             network.getVariantManager().setWorkingVariant(PREVENTIVE_SCENARIO);
             applyRemedialActions(network, preventiveResult, crac.getPreventiveState());
 
-            PostPerimeterResult postPreventiveResult;
-            try {
-                postPreventiveResult = new PostPerimeterSensitivityAnalysis(crac.getFlowCnecs(), crac.getRangeActions(), raoParameters, toolProvider)
-                    .runBasedOnInitialPreviousAndOptimizationResults(network, crac, initialOutput, CompletableFuture.completedFuture(initialOutput), Collections.emptySet(), preventiveResult, null)
-                    .get();
-            } catch (InterruptedException | ExecutionException e) {
-                Thread.currentThread().interrupt();
-                throw new OpenRaoException("Exception during post preventive sensitivity analysis", e);
-            }
+            PostPerimeterResult postPreventiveResult = computePostPreventiveResult(toolProvider, initialOutput, preventiveResult);
             PrePerimeterResult preCurativeSensitivityAnalysisOutput = postPreventiveResult.getPrePerimeterResultForAllFollowingStates();
             if (preCurativeSensitivityAnalysisOutput.getSensitivityStatus() == ComputationStatus.FAILURE) {
                 BUSINESS_LOGS.error("Systematic sensitivity analysis after preventive remedial actions failed");
@@ -206,6 +198,19 @@ public class CastorFullOptimization {
             BUSINESS_LOGS.error("{} \n {}", e.getMessage(), ExceptionUtils.getStackTrace(e));
             return CompletableFuture.completedFuture(new FailedRaoResultImpl(String.format("RAO failed during %s : %s", currentStep, e.getMessage())));
         }
+    }
+
+    private PostPerimeterResult computePostPreventiveResult(ToolProvider toolProvider, PrePerimeterResult initialOutput, OptimizationResult preventiveResult) {
+        PostPerimeterResult postPreventiveResult;
+        try {
+            postPreventiveResult = new PostPerimeterSensitivityAnalysis(crac.getFlowCnecs(), crac.getRangeActions(), raoParameters, toolProvider)
+                .runBasedOnInitialPreviousAndOptimizationResults(network, crac, initialOutput, CompletableFuture.completedFuture(initialOutput), Collections.emptySet(), preventiveResult, null)
+                .get();
+        } catch (InterruptedException | ExecutionException e) {
+            Thread.currentThread().interrupt();
+            throw new OpenRaoException("Exception during post preventive sensitivity analysis", e);
+        }
+        return postPreventiveResult;
     }
 
     private boolean shouldStopOptimisationIfPreventiveUnsecure(double preventiveOptimalCost) {
