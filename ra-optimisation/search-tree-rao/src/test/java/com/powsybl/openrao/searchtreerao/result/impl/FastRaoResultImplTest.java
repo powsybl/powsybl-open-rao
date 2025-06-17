@@ -204,6 +204,7 @@ class FastRaoResultImplTest {
         assertEquals(7.7, result.getOptimizedSetPointOnState(state, rangeAction));
         assertEquals(Map.of(pstRangeAction, 13), result.getOptimizedTapsOnState(state));
         assertEquals(Map.of(rangeAction, 8.8), result.getOptimizedSetPointsOnState(state));
+
     }
 
     @Test
