@@ -5,8 +5,7 @@
 input-data/network.md
 input-data/glsk.md
 input-data/crac.md
-input-data/reference-program.md
-input-data/virtual-hubs.md
+input-data/specific-input-data.md
 ```
 
 ## Network
