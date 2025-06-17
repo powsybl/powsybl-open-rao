@@ -2,7 +2,7 @@
 title: Internal JSON CRAC format
 ---
 
-# Internal JSON CRAC format
+# JSON CRAC format
 
 ## Introduction
 
