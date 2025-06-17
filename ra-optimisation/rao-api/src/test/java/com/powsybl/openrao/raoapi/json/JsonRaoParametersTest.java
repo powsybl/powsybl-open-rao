@@ -117,12 +117,11 @@ class JsonRaoParametersTest extends AbstractSerDeTest {
         parameters.setRelativeMarginsParameters(relativeMarginsParameters);
         searchTreeParameters.setRelativeMarginsParameters(relativeMarginsParametersExtension);
 
-        parameters.addExtension(FastRaoParameters.class, new FastRaoParameters());
-        FastRaoParameters fastRaoParameters = parameters.getExtension(FastRaoParameters.class);
-        // -- Fast Rao Parameters
-        fastRaoParameters.setMarginLimit(5);
-        fastRaoParameters.setAddUnsecureCnecs(false);
-        fastRaoParameters.setNumberOfCnecsToAdd(20);
+        // -- Min Margins parameters
+        SearchTreeRaoCostlyMinMarginParameters minMarginsParameters = new SearchTreeRaoCostlyMinMarginParameters();
+        minMarginsParameters.setShiftedViolationPenalty(800.0);
+        minMarginsParameters.setShiftedViolationThreshold(3.0);
+        searchTreeParameters.setMinMarginsParameters(minMarginsParameters);
 
         roundTripTest(parameters, JsonRaoParameters::write, JsonRaoParameters::read, "/RaoParametersSet_v2.json");
     }
@@ -151,7 +150,6 @@ class JsonRaoParametersTest extends AbstractSerDeTest {
         assertEquals(4, searchTreeParameters.getMnecParameters().get().getConstraintAdjustmentCoefficient(), DOUBLE_TOLERANCE);
         assertEquals(0.06, searchTreeParameters.getRelativeMarginsParameters().get().getPtdfSumLowerBound(), DOUBLE_TOLERANCE);
         assertEquals(List.of("{FR}-{ES}"), parameters.getRelativeMarginsParameters().get().getPtdfBoundariesAsString());
-
     }
 
     @Test

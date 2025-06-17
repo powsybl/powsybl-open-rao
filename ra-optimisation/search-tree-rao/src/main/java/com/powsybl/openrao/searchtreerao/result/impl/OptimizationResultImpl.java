@@ -82,11 +82,6 @@ public class OptimizationResultImpl implements OptimizationResult {
     }
 
     @Override
-    public Map<State, Set<NetworkAction>> getActivatedNetworkActionsPerState() {
-        return networkActionsResult.getActivatedNetworkActionsPerState();
-    }
-
-    @Override
     public double getFunctionalCost() {
         return objectiveFunctionResult.getFunctionalCost();
     }
@@ -191,4 +186,8 @@ public class OptimizationResultImpl implements OptimizationResult {
         objectiveFunctionResult.excludeCnecs(cnecsToExclude);
     }
 
+    @Override
+    public Map<State, Set<NetworkAction>> getActivatedNetworkActionsPerState() {
+        return networkActionsResult.getActivatedNetworkActionsPerState();
+    }
 }

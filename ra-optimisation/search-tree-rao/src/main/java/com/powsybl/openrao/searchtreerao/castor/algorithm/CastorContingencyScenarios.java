@@ -120,9 +120,7 @@ public class CastorContingencyScenarios {
             contingencyScenarioResults.put(automatonState.get(), automatonResult);
             if (automatonResult.getComputationStatus() == ComputationStatus.FAILURE) {
                 autoStateSensiFailed = true;
-                contingencyScenarioResults.put(automatonState.get(), new SkippedOptimizationResultImpl(automatonState.get(), automatonResult.getActivatedNetworkActions(), automatonResult.getActivatedRangeActions(automatonState.get()), ComputationStatus.FAILURE, sensitivityFailureOvercost));
             } else {
-                contingencyScenarioResults.put(automatonState.get(), automatonResult);
                 preCurativeResult = automatonResult.getPostAutomatonSensitivityAnalysisOutput();
             }
         }

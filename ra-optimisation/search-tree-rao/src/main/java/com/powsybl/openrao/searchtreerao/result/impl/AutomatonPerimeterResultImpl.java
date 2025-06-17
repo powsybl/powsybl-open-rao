@@ -89,7 +89,7 @@ public class AutomatonPerimeterResultImpl implements OptimizationResult {
     public Set<NetworkAction> getActivatedNetworkActions() {
         Set<NetworkAction> networkActions = new HashSet<>();
         networkActions.addAll(forcedNetworkActions);
-        return networkActions;
+        return forcedNetworkActions;
     }
 
     @Override

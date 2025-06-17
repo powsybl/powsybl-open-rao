@@ -126,7 +126,7 @@ See also: [Modelling loop-flows and their virtual cost](/castor/linear-problem/m
   the initial loop-flow on the cnec, and *acceptableAugmentation* the so-called "loop-flow-acceptable-augmentation"
   coefficient.  
   If this constraint cannot be respected and the loop-flow exceeds the aforementioned threshold, the objective function
-  associated to this situation will be penalized (see also [violation-cost](#violation-cost))
+  associated to this situation will be penalized (see also [violation-cost](implementation-specific-parameters.md#violation-cost))
 
 #### countries
 - **Expected value**: array of country codes "XX"

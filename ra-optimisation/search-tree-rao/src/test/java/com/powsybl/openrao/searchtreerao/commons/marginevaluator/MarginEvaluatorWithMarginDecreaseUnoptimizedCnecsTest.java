@@ -81,7 +81,11 @@ class MarginEvaluatorWithMarginDecreaseUnoptimizedCnecsTest {
         when(flowCnec.getState()).thenReturn(state);
         when(currentFlowResult.getMargin(flowCnec, TwoSides.ONE, Unit.MEGAWATT)).thenReturn(200.);
         when(prePerimeterFlowResult.getMargin(flowCnec, TwoSides.ONE, Unit.MEGAWATT)).thenReturn(100.);
-
+        State state = Mockito.mock(State.class);
+        Instant instant = Mockito.mock(Instant.class);
+        when(state.getInstant()).thenReturn(instant);
+        when(instant.isCurative()).thenReturn(true);
+        when(flowCnec.getState()).thenReturn(state);
         double margin = marginEvaluatorWithUnoptimizedCnecs.getMargin(currentFlowResult, flowCnec, Unit.MEGAWATT);
         assertEquals(Double.MAX_VALUE, margin, DOUBLE_TOLERANCE);
     }

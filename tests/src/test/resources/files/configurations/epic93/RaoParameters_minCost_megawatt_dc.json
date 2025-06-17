@@ -132,7 +132,14 @@
         }
       },
       "multi-threading" : {
-        "available-cpus" : 4
+        "available-cpus" : 14
+      },
+      "mnec-parameters" : {
+        "violation-cost" : 100000.0,
+        "constraint-adjustment-coefficient" : 3.0
+      },
+      "costly-min-margin-parameters" : {
+        "shifted-violation-penalty" : 1000.0
       }
     }
   }

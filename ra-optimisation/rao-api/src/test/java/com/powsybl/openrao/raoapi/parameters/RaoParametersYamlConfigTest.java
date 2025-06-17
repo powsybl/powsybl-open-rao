@@ -90,7 +90,7 @@ class RaoParametersYamlConfigTest extends AbstractSerDeTest {
         assertEquals(2, loadFlowAndSensitivityParameters.getSensitivityFailureOvercost(), DOUBLE_TOLERANCE);
 
         // EXTENSIONS
-        assertEquals(2, parameters.getExtensions().size());
+        assertEquals(1, parameters.getExtensions().size());
 
         assertTrue(parameters.getLoopFlowParameters().isPresent());
         assertTrue(searchTreeParameters.getLoopFlowParameters().isPresent());
@@ -114,6 +114,8 @@ class RaoParametersYamlConfigTest extends AbstractSerDeTest {
         assertEquals(0.02, searchTreeParameters.getRelativeMarginsParameters().get().getPtdfSumLowerBound(), DOUBLE_TOLERANCE);
         assertEquals(expectedBoundaries, parameters.getRelativeMarginsParameters().get().getPtdfBoundariesAsString());
 
+        assertEquals(1000.0, searchTreeParameters.getMinMarginsParameters().get().getShiftedViolationPenalty());
+        assertEquals(0.0, searchTreeParameters.getMinMarginsParameters().get().getShiftedViolationThreshold());
         // Compare to json
         roundTripTest(parameters, JsonRaoParameters::write, JsonRaoParameters::read, "/RaoParameters_config_withExtensions.json");
     }

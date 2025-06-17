@@ -10,14 +10,11 @@ package com.powsybl.openrao.searchtreerao.marmot.results;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
-import com.powsybl.openrao.data.crac.impl.NetworkActionImpl;
 import com.powsybl.openrao.searchtreerao.result.api.NetworkActionsResult;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
 import com.powsybl.openrao.searchtreerao.result.api.RemedialActionActivationResult;
 
-import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -36,10 +33,6 @@ public class GlobalRemedialActionActivationResult extends GlobalRangeActionActiv
             .forEach((timestamp, networkActionsResult) ->
                 networkActionsResult.getActivatedNetworkActionsPerState()
                 .forEach((state, networkActions) -> {
-                    Set<NetworkAction> networkActionsSetWithTimestamp = new HashSet<>();
-                    networkActions.forEach(networkAction -> {
-                        networkActionsSetWithTimestamp.add(NetworkActionImpl.copyWithNewId(networkAction, networkAction.getId() + " - " + timestamp.format(DateTimeFormatter.ISO_DATE_TIME)));
-                    });
                     globalNetworkActionsResultPerState.put(state, networkActions);
                 })
             );
@@ -55,7 +48,6 @@ public class GlobalRemedialActionActivationResult extends GlobalRangeActionActiv
 
     @Override
     public Set<NetworkAction> getActivatedNetworkActions() {
-        // TODO remove this ?
         return this.globalNetworkActionsResultPerState.values().stream().flatMap(Set::stream).collect(Collectors.toSet());
     }
 

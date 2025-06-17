@@ -28,11 +28,6 @@
     "countries" : [ "BE", "FR" ]
   },
   "extensions" : {
-    "fast-rao-parameters" : {
-      "number-of-cnecs-to-add" : 20,
-      "add-unsecure-cnecs" : false,
-      "margin-limit" : 5.0
-    },
     "open-rao-search-tree-parameters" : {
       "objective-function" : {
         "curative-min-obj-improvement" : 983.0
@@ -108,6 +103,10 @@
         "ptdf-approximation" : "UPDATE_PTDF_WITH_TOPO_AND_PST",
         "constraint-adjustment-coefficient" : 0.5,
         "violation-cost" : 0.0
+      },
+      "costly-min-margin-parameters" : {
+        "shifted-violation-penalty" : 800.0,
+        "shifted-violation-threshold" : 3.0
       }
     }
   }

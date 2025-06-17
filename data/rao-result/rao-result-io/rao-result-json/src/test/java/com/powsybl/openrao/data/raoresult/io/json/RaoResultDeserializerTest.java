@@ -9,17 +9,14 @@ package com.powsybl.openrao.data.raoresult.io.json;
 
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.Crac;
-import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.impl.utils.ExhaustiveCracCreation;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
-import com.powsybl.openrao.data.raoresult.impl.RaoResultImpl;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
 import java.io.InputStream;
-import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -39,22 +36,5 @@ class RaoResultDeserializerTest {
         InputStream raoResultStream = getClass().getResourceAsStream("/rao-result-with-unnecessary-pst-range-action-set-point.json");
         OpenRaoException exception = assertThrows(OpenRaoException.class, () -> RaoResult.read(raoResultStream, crac));
         assertEquals("Since version 1.8, only the taps are reported for PST range actions.", exception.getMessage());
-    }
-
-    @Test
-    void testRaoResultWithFastRaoExtension() throws IOException {
-        Crac crac = ExhaustiveCracCreation.create();
-        InputStream raoResultStream = getClass().getResourceAsStream("/rao-result-fastrao-extension.json");
-        RaoResultImpl raoResult = (RaoResultImpl) RaoResult.read(raoResultStream, crac);
-        Set<FlowCnec> criticalFlowCnecs = raoResult.getCriticalCnecs().get();
-        assertEquals(criticalFlowCnecs, crac.getFlowCnecs());
-    }
-
-    @Test
-    void testRaoResultWithoutFastRaoExtension() throws IOException {
-        Crac crac = ExhaustiveCracCreation.create();
-        InputStream raoResultStream = getClass().getResourceAsStream("/rao-result.json");
-        RaoResultImpl raoResult = (RaoResultImpl) RaoResult.read(raoResultStream, crac);
-        assertFalse(raoResult.getCriticalCnecs().isPresent());
     }
 }
