@@ -367,22 +367,24 @@ See also: [Modelling the maximum minimum relative margin objective function](/ca
   function from diverging to infinity (resulting in unbounded problems), the denominator should be prevented from
   getting close to zero. This parameter acts as a lower bound to the denominator.
 
-#### Min margin optional parameters
+### Fast Rao Parameters extension
 
-These parameters are meant to be used in costly optimization only.
+#### number-of-cnecs-to-add
+- **Expected value**: integer, no unit
+- **Default value**: 20 
+- **Usage**: this value correspond to the number of worst CNECs (in terms of margin) to add to the set of considered CNECs 
+at each iteration of fast rao
 
-##### shifted-violation-penalty
+#### add-unsecure-cnecs
+- **Expected value**: boolean
+- **Default value**: false
+- **Usage**: Indicate if we add all unsecure CNECs to the set of considered CNECs at each iteration of fast rao
 
-- **Expected value**: numeric positive value, no unit (monetary cost)
-- **Default value**: 1000.0
-- **Usage**: Monetary penalty taken in account for each MW or A of overload on the min margin, with respect to `shifted-violation-threshold`.
-
-##### shifted-violation-threshold
-
-- **Expected value**: numeric positive value, in MW or A unit (same as min margin)
-- **Default value**: 0.0
-- **Usage**: Shifts the security domain of the CNECs (only for costly optimization): each FlowCNEC with a margin below `shifted-violation-threshold` will be considered as in violation during the linear RAO. This is meant to prevent the RAO from choosing set-points that make the min margin exactly equal to 0 (which might create rounding issues).
-
+#### margin-limit
+- **Expected value**: numeric values, in MEGAWATT unit
+- **Default value**: 5
+- **Usage**: If add-unsecure-cnecs, a CNEC will be considered unsecure if its margin is lower than margin-limit
+- 
 ## Examples
 > ⚠️  **NOTE**  
 > The following examples in json and yaml are not equivalent
@@ -393,6 +395,11 @@ These parameters are meant to be used in costly optimization only.
 {
   "version" : "3.1",
   "extensions" : {
+    "fast-rao-parameters" : {
+      "number-of-cnecs-to-add" : 20,
+      "add-unsecure-cnecs" : false,
+      "margin-limit" : 5.0
+    },
     "open-rao-search-tree-parameters": {
       "objective-function" : {
         "curative-min-obj-improvement" : 0.0
@@ -490,10 +497,6 @@ These parameters are meant to be used in costly optimization only.
       "ptdf-boundaries" : [ "{FR}-{BE}", "{FR}-{DE}", "{BE}-{NL}", "{NL}-{DE}", "{DE}-{PL}", "{DE}-{CZ}", "{DE}-{AT}", "{PL}-{CZ}", "{PL}-{SK}", "{CZ}-{SK}", "{CZ}-{AT}", "{AT}-{HU}", "{AT}-{SI}", "{SI}-{HR}", "{SK}-{HU}", "{HU}-{RO}", "{HU}-{HR}", "{BE}-{22Y201903144---9}-{DE}+{22Y201903145---4}" ],
       "ptdf-approximation" : "FIXED_PTDF",
       "ptdf-sum-lower-bound" : 0.01
-    },
-    "costly-min-margin-parameters" : {
-      "shifted-violation-penalty": 1000.0,
-      "shifted-violation-threshold": 0.0
     }
   }
 }
@@ -540,6 +543,13 @@ open-loadflow-default-parameters:
   maxPlausibleTargetVoltage: 1.5
   plausibleActivePowerLimit: 10000
   newtonRaphsonConvEpsPerEq : 1.0E-2
+
+
+fast-rao-parameters:
+  number-of-cnecs-to-add: 20
+  add-unsecure-cnecs: false
+  margin-limit: 5.0
 ~~~
 :::
 ::::
+

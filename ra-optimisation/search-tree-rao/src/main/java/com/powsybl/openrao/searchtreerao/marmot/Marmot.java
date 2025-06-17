@@ -23,7 +23,6 @@ import com.powsybl.openrao.raoapi.Rao;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
-import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoCostlyMinMarginParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRelativeMarginsParameters;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
@@ -66,6 +65,8 @@ public class Marmot implements InterTemporalRaoProvider {
 
     private static final String INTER_TEMPORAL_RAO = "InterTemporalRao";
     private static final String VERSION = "1.0.0";
+    // TODO : Put in Parameters
+    private static final String INDEPENDENT_RAO_PROVIDER = "SearchTreeRao";
 
     @Override
     public CompletableFuture<InterTemporalRaoResult> run(InterTemporalRaoInput raoInput, RaoParameters raoParameters) {
@@ -122,7 +123,7 @@ public class Marmot implements InterTemporalRaoProvider {
         return raoInputs.map(individualRaoInput -> {
             String logMessage = "[MARMOT] Running RAO for timestamp %s [{}]".formatted(individualRaoInput.getCrac().getTimestamp().orElseThrow());
             OpenRaoLoggerProvider.TECHNICAL_LOGS.info(logMessage, "start");
-            RaoResult raoResult = Rao.run(individualRaoInput, raoParameters);
+            RaoResult raoResult = Rao.find(INDEPENDENT_RAO_PROVIDER).run(individualRaoInput, raoParameters);
             OpenRaoLoggerProvider.TECHNICAL_LOGS.info(logMessage, "end");
             return raoResult;
         });
@@ -145,9 +146,10 @@ public class Marmot implements InterTemporalRaoProvider {
 
     private static TemporalData<NetworkActionsResult> getPreventiveTopologicalActions(TemporalData<Crac> cracs, TemporalData<RaoResult> raoResults) {
         Map<OffsetDateTime, NetworkActionsResult> preventiveTopologicalActions = new HashMap<>();
+
         cracs.getTimestamps().forEach(timestamp -> {
-            State preventiveState = cracs.getData(timestamp).orElseThrow().getPreventiveState();
-            preventiveTopologicalActions.put(timestamp, new NetworkActionsResultImpl(Map.of(preventiveState, raoResults.getData(timestamp).orElseThrow().getActivatedNetworkActionsDuringState(preventiveState))));
+            State state = cracs.getData(timestamp).orElseThrow().getPreventiveState();
+            preventiveTopologicalActions.put(timestamp, new NetworkActionsResultImpl(Map.of(state, raoResults.getData(timestamp).orElseThrow().getActivatedNetworkActionsDuringState(state))));
         });
         return new TemporalDataImpl<>(preventiveTopologicalActions);
     }
@@ -185,8 +187,7 @@ public class Marmot implements InterTemporalRaoProvider {
             .withRaRangeShrinking(SearchTreeRaoRangeActionsOptimizationParameters.RaRangeShrinking.ENABLED.equals(parameters.getExtension(OpenRaoSearchTreeParameters.class).getRangeActionsOptimizationParameters().getRaRangeShrinking()) || SearchTreeRaoRangeActionsOptimizationParameters.RaRangeShrinking.ENABLED_IN_FIRST_PRAO_AND_CRAO.equals(parameters.getExtension(OpenRaoSearchTreeParameters.class).getRangeActionsOptimizationParameters().getRaRangeShrinking()))
             .withSolverParameters(parameters.getExtension(OpenRaoSearchTreeParameters.class).getRangeActionsOptimizationParameters().getLinearOptimizationSolver())
             .withMaxMinRelativeMarginParameters(parameters.getExtension(SearchTreeRaoRelativeMarginsParameters.class))
-            .withRaLimitationParameters(new RangeActionLimitationParameters())
-            .withMinMarginParameters(parameters.getExtension(OpenRaoSearchTreeParameters.class).getMinMarginsParameters().orElse(new SearchTreeRaoCostlyMinMarginParameters()));
+            .withRaLimitationParameters(new RangeActionLimitationParameters());
         parameters.getMnecParameters().ifPresent(linearOptimizerParametersBuilder::withMnecParameters);
         parameters.getLoopFlowParameters().ifPresent(linearOptimizerParametersBuilder::withLoopFlowParameters);
         IteratingLinearOptimizerParameters linearOptimizerParameters = linearOptimizerParametersBuilder.build();
