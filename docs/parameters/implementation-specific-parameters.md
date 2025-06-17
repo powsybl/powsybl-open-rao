@@ -513,6 +513,10 @@ at each iteration of fast rao
       "ptdf-boundaries" : [ "{FR}-{BE}", "{FR}-{DE}", "{BE}-{NL}", "{NL}-{DE}", "{DE}-{PL}", "{DE}-{CZ}", "{DE}-{AT}", "{PL}-{CZ}", "{PL}-{SK}", "{CZ}-{SK}", "{CZ}-{AT}", "{AT}-{HU}", "{AT}-{SI}", "{SI}-{HR}", "{SK}-{HU}", "{HU}-{RO}", "{HU}-{HR}", "{BE}-{22Y201903144---9}-{DE}+{22Y201903145---4}" ],
       "ptdf-approximation" : "FIXED_PTDF",
       "ptdf-sum-lower-bound" : 0.01
+    },
+    "costly-min-margin-parameters" : {
+      "shifted-violation-penalty": 1000.0,
+      "shifted-violation-threshold": 0.0
     }
   }
 }

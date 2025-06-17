@@ -53,6 +53,7 @@ public class MarginEvaluatorWithMarginDecreaseUnoptimizedCnecs implements Margin
         if (countriesNotToOptimize.contains(flowCnec.getOperator())
             && newMargin > prePerimeterMargin - .0001 * Math.abs(prePerimeterMargin)
             && flowCnec.getState().getInstant().isCurative()) {
+
             return Double.MAX_VALUE;
         }
         return newMargin;
