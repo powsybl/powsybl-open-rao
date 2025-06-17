@@ -31,9 +31,10 @@ The minimum margin violation ($MMV$)  represents the gap (MW or A) between the m
 $$MM + MMV \geq \Delta_{secure} \text{, with }  MMV \geq 0$$
 
 
-($MMV$) is penalized by a penalty $P_{overload}$ in the objective function, representing the cost of not having secured the network.
+$MMV$ is penalized by a penalty $P_{overload}$ in the objective function, representing the cost of not having secured the network.
 
-Participation to the objective function:
+Participation to the objective function: 
+
 $$\text{Minimize } P_{overload} \times MMV$$
 
 > ⚙️ The overload penalty is set with the
