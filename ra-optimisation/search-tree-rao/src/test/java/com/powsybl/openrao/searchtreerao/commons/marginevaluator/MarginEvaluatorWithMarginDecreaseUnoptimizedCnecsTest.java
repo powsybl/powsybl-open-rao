@@ -74,11 +74,6 @@ class MarginEvaluatorWithMarginDecreaseUnoptimizedCnecsTest {
     @Test
     void getMarginInMegawattOnUnconstrainedUnoptimizedCnec() {
         when(flowCnec.getOperator()).thenReturn("FR");
-        Instant instant = Mockito.mock(Instant.class);
-        when(instant.isCurative()).thenReturn(true);
-        State state = Mockito.mock(State.class);
-        when(state.getInstant()).thenReturn(instant);
-        when(flowCnec.getState()).thenReturn(state);
         when(currentFlowResult.getMargin(flowCnec, TwoSides.ONE, Unit.MEGAWATT)).thenReturn(200.);
         when(prePerimeterFlowResult.getMargin(flowCnec, TwoSides.ONE, Unit.MEGAWATT)).thenReturn(100.);
         State state = Mockito.mock(State.class);

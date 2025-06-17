@@ -73,6 +73,10 @@ search-tree-load-flow-and-sensitivity-computation:
 search-tree-multi-threading:
   available-cpus: 5
 
+search-tree-costly-min-margin-parameters:
+  shifted-violation-penalty : 1000
+  shifted-violation-threshold : 0
+
 fast-rao-parameters:
   number-of-cnecs-to-add: 20
   add-unsecure-cnecs: false

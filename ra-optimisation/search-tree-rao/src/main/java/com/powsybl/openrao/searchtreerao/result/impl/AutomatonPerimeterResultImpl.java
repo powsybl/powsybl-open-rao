@@ -98,11 +98,6 @@ public class AutomatonPerimeterResultImpl implements OptimizationResult {
     }
 
     @Override
-    public Map<State, Set<NetworkAction>> getActivatedNetworkActionsPerState() {
-        return Map.of(optimizedState, getActivatedNetworkActions());
-    }
-
-    @Override
     public double getFunctionalCost() {
         return postAutomatonSensitivityAnalysisOutput.getFunctionalCost();
     }
