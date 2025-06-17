@@ -5,12 +5,12 @@ maxdepth: 2
 hidden: true
 ---
 
+getting-started.md
 glossary.md
 input-data.md
 output-data.md
 castor.md
 parameters.md
-tutorial.md
 ```
 
 ![PowSyBl Logo](/_static/logos/logo_lfe_powsybl.svg)

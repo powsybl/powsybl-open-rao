@@ -276,7 +276,7 @@ crac.newNetworkAction()
 
 ## RAO Parameters
 
-Next, define the parameters to run the RAO using the [RaoParameters](./parameters.md) object
+Next, define the parameters to run the RAO using the [RaoParameters](../parameters.md) object
 
 ```java
 RaoParameters raoParameters = new RaoParameters();
