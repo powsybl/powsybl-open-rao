@@ -158,7 +158,7 @@ public class CastorFullOptimization {
             double preventiveOptimalCost = preventiveResult.getCost();
             if (shouldStopOptimisationIfPreventiveUnsecure(preventiveOptimalCost)) {
                 BUSINESS_LOGS.info("Preventive perimeter could not be secured; there is no point in optimizing post-contingency perimeters. The RAO will be interrupted here.");
-                mergedRaoResults = new PreventiveAndCurativesRaoResultImpl(crac.getPreventiveState(), initialOutput, postPreventiveResult, crac, raoParameters.getObjectiveFunctionParameters());
+                mergedRaoResults = new PreventiveAndCurativesRaoResultImpl(stateTree, initialOutput, postPreventiveResult, crac, raoParameters);
                 // log results
                 RaoLogger.logMostLimitingElementsResults(BUSINESS_LOGS, preCurativeSensitivityAnalysisOutput, raoParameters.getObjectiveFunctionParameters().getType(), raoParameters.getObjectiveFunctionParameters().getUnit(), NUMBER_LOGGED_ELEMENTS_END_RAO);
                 RaoLogger.checkIfMostLimitingElementIsFictional(BUSINESS_LOGS, preCurativeSensitivityAnalysisOutput);
@@ -173,7 +173,7 @@ public class CastorFullOptimization {
 
             // ----- SECOND PREVENTIVE PERIMETER OPTIMIZATION -----
             currentStep = "second preventive optimization";
-            mergedRaoResults = new PreventiveAndCurativesRaoResultImpl(stateTree, initialOutput, postPreventiveResult, postContingencyResults, crac, raoParameters.getObjectiveFunctionParameters());
+            mergedRaoResults = new PreventiveAndCurativesRaoResultImpl(stateTree, initialOutput, postPreventiveResult, postContingencyResults, crac, raoParameters);
             boolean logFinalResultsOutsideOfSecondPreventive = true;
             // Run second preventive when necessary
             CastorSecondPreventive castorSecondPreventive = new CastorSecondPreventive(crac, raoParameters, network, stateTree, toolProvider, targetEndInstant);

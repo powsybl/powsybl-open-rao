@@ -210,16 +210,20 @@ public class CastorSecondPreventive {
         RaoLogger.logMostLimitingElementsResults(BUSINESS_LOGS, postCraSensitivityAnalysisOutput, raoParameters.getObjectiveFunctionParameters().getType(), raoParameters.getObjectiveFunctionParameters().getUnit(), NUMBER_LOGGED_ELEMENTS_END_RAO);
         RaoLogger.checkIfMostLimitingElementIsFictional(BUSINESS_LOGS, postCraSensitivityAnalysisOutput);
 
+        PostPerimeterResult postPraResult = new PostPerimeterResult(
+            secondPreventiveRaoResult.perimeterResult,
+            secondPreventiveRaoResult.postPraSensitivityAnalysisOutput
+        );
+
         return new PreventiveAndCurativesRaoResultImpl(
             stateTree,
             initialOutput,
             firstPreventiveResult,
-            new PostPerimeterResult(secondPreventiveRaoResult.perimeterResult(), secondPreventiveRaoResult.postPraSensitivityAnalysisOutput),
+            postPraResult,
             secondPreventiveRaoResult.remedialActionsExcluded(),
             newPostContingencyResults,
-            postCraSensitivityAnalysisOutput,
             crac,
-            raoParameters.getObjectiveFunctionParameters());
+            raoParameters);
     }
 
     private record SecondPreventiveRaoResult(OptimizationResult perimeterResult,
