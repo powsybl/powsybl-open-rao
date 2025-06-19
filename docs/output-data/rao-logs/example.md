@@ -55,7 +55,7 @@ INFO  c.p.o.commons.logs.RaoBusinessLogs - ----- Preventive perimeter optimizati
 
 ### Root leaf
 
-Then it starts the [search-tree](/castor.md#algorithm) algorithm, starting by evaluating the 
+Then it starts the [search-tree](../../algorithms/castor.md#search-tree-algorithm) algorithm, starting by evaluating the 
 "root leaf": it assesses CNEC constraints on the network, considering only CNECs that belong to the 
 [preventive perimeter](/castor/rao-steps.md#preventive-perimeter), 
 before applying any preventive remedial action.  

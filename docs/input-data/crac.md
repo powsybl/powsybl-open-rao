@@ -51,7 +51,7 @@ Any 2 or more range actions (of same type) can be aligned into range action "gro
 ### Network action
 
 Network actions are any other kind of action on the network, such as the opening/closing of a network element, setting the tap position of a PST to a given set-point, etc. They can only be activated, or remain inactive.
-They are used in the [search-tree RAO](/castor.md#algorithm) only.  
+They are used in the [search-tree RAO](../algorithms/castor.md#castor-the-rao-algorithm) only.  
 
 One network action can combine one or multiple elementary actions. These are the types of elementary actions handled in OpenRAO:
 

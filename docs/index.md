@@ -9,7 +9,7 @@ getting-started.md
 glossary.md
 input-data.md
 output-data.md
-castor.md
+algorithms.md
 parameters.md
 ```
 

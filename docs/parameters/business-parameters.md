@@ -18,7 +18,7 @@ These parameters (objective-function) configure the remedial action optimisation
 - **Usage**: this parameter sets the objective function of the RAO. For now, the existing objective function are:
   - **SECURE_FLOW**: The search-tree will stop as soon as it finds a solution where the minimum margin is positive.
   - **MAX_MIN_MARGIN**: the search-tree will maximize the minimum margin until it converges to a
-    maximum value, or until another stop criterion has been reached (e.g. [max-preventive-search-tree-depth](#max-preventive-search-tree-depth)).
+    maximum value, or until another stop criterion has been reached (e.g. [max-preventive-search-tree-depth](implementation-specific-parameters.md#max-preventive-search-tree-depth)).
   - **MAX_MIN_RELATIVE_MARGIN**: same as MAX_MIN_MARGIN, but the margins will be relative
     (divided by the absolute sum of PTDFs) when they are positive.
   - **MIN_COST**: the search-tree will minimize minimal margin violation and remedial action expenses
@@ -30,9 +30,9 @@ These parameters (objective-function) configure the remedial action optimisation
 - **Default value**: "MEGAWATT"
 - **Usage**: this parameter sets the objective function unit of the RAO. For now, the existing objective function units are:
   - **MEGAWATT**: the margins to maximize are considered in MW.
-  - **AMPERE**: the margins to maximize are considered in A.
-    Note that CNECs from different voltage levels will not have the same weight in the objective function depending on the unit
-    considered (MW or A). Ampere unit only works in AC-load-flow mode (see [sensitivity-parameters](#sensitivity-parameters)).
+    - **AMPERE**: the margins to maximize are considered in A.
+      Note that CNECs from different voltage levels will not have the same weight in the objective function depending on the unit
+      considered (MW or A). Ampere unit only works in AC-load-flow mode (see [sensitivity-parameters](implementation-specific-parameters.md#sensitivity-parameters)).
 
 #### enforce-curative-security
 - **Expected value**: true/false
@@ -76,7 +76,7 @@ These parameters (range-actions-optimization) tune the [linear optimiser](/casto
   optimisation problem of the RAO, in the same way as the two types of RangeAction above.
 
 ### Network actions optimisation parameters
-These parameters (topological-actions-optimization) tune the [search-tree algorithm](/castor.md#algorithm) 
+These parameters (topological-actions-optimization) tune the [search-tree algorithm](../algorithms/castor.md#search-tree-algorithm) 
 when searching for the best network actions.
 
 #### absolute-minimum-impact-threshold
@@ -116,7 +116,7 @@ optimisation of specific CNECs in specific conditions.
 Adding a LoopFlowParameters to RaoParameters will activate [loop-flow constraints](/castor/special-features/loop-flows.md).  
 (The RAO will monitor the loop-flows on CNECs that have a LoopFlowThreshold extension.)  
 The following parameters tune some of these constraints, the one which are not implementation specific. 
-See also: [Modelling loop-flows and their virtual cost](/castor/linear-problem/max-loop-flow-filler.md)
+See also: [Modelling loop-flows and their virtual cost](../algorithms/castor/linear-problem/special-features/max-loop-flow-filler.md)
 
 #### acceptable-increase
 - **Expected value**: numeric values, in MEGAWATT unit
@@ -140,10 +140,9 @@ See also: [Modelling loop-flows and their virtual cost](/castor/linear-problem/m
   Netherlands.
 
 ### MNEC optional parameter
-Adding a MnecParameters to RaoParameters will activate [MNEC constraints](/castor/linear-problem/mnec-filler.md).  
+Adding a MnecParameters to RaoParameters will activate [MNEC constraints](../algorithms/castor/linear-problem/special-features/mnec-filler.md).  
 (The RAO will only monitor CNECs that are only ["monitored"](/input-data/crac/json.md#cnecs)).
 The following parameters tune some of these constraints, the one which are not implementation specific.
-See also: [Modelling MNECs and their virtual cost](/castor/linear-problem/mnec-filler.md)
 
 #### acceptable-margin-decrease
 - **Expected value**: numeric values, in MEGAWATT unit
@@ -160,7 +159,7 @@ See also: [Modelling MNECs and their virtual cost](/castor/linear-problem/mnec-f
 ### Relative margins optional parameter
 Adding a RelativeMarginsParameters is mandatory when [objective function is relative](#type).  
 The following parameters tune some constraints, the one which are not implementation specific.
-See also: [Modelling the maximum minimum relative margin objective function](/castor/linear-problem/max-min-relative-margin-filler.md)
+See also: [Modelling the maximum minimum relative margin objective function](../algorithms/castor/linear-problem/objective-function-types/max-min-relative-margin-filler.md)
 
 #### ptdf-boundaries
 - **Expected value**: array of zone-to-zone PTDF computation definition, expressed as an equation.  

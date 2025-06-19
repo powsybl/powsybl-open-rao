@@ -22,7 +22,7 @@ of the remedial actions on the network flows with linear sensitivity coefficient
 It therefore solves linear optimisation problems to find the optimal set-points for the remedial actions. 
 Moreover, it can iterate over several reference points in order to mitigate the linear approximation inherent to its optimisation problem.
 
-In particular, the Linear RAO module is used in [CASTOR](/castor.md#algorithm).
+In particular, the Linear RAO module is used in [CASTOR](../castor.md#castor-the-rao-algorithm)
 
 ## Inputs
 

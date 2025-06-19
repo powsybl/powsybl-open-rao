@@ -34,8 +34,15 @@ A Jupyter notebook is defined [here](https://github.com/powsybl/pypowsybl-notebo
   - Rao results are defined in a json file, described [here](output-data/rao-result.md)
 
 ## Understanding OpenRao
+
 - The following pages describe how OpenRao works:
-  - [CASTOR algorithm](castor.md)
-  - [Optimisation steps](castor/rao-steps.md)
-- For a fine understanding of the constraints defined in the Linear Problem, see this [section](castor/linear-problem)
-- 
+  - [CASTOR, the RAO algorithm](algorithms/castor.md)
+  - [Optimisation steps](algorithms/castor/rao-steps.md)
+  - [Monitoring module](algorithms/monitoring.md)
+
+- For a fine understanding of the constraints defined in the Linear Problem, see this [section](algorithms/castor/linear-problem)
+
+
+## Fine tuning your implementation of OpenRao
+
+Check [Combining performance and complexity](algorithms/castor/performance.md) to adapt your rao implementation.

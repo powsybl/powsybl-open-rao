@@ -1,4 +1,6 @@
-# Combine Performance and Complexity
+# Combining Performance and Complexity
+
+The following sections refer to parameterizable options.
 
 ## Parallelization
 
@@ -24,7 +26,7 @@ When performing optimisation on multiple timestamps, it is also possible to sepa
 the different studied situations on different threads.
 
 ---
-See also: [Computations parallelism parameters](/parameters.md#multi-threading-parameters)
+See also: [Computations parallelism parameters](../../parameters/implementation-specific-parameters.md#multi-threading-parameters)
 
 ---
 
@@ -45,12 +47,9 @@ search-tree depth will be configured in order to match the allotted time for the
 
 By defining the search-tree depth as a parameter, CASTOR can be used easily in both applications.
 
-Later on, that search tree depth will be configurable per TSO to reflect the maximum consecutive remedial actions allowed
-by national operators due to the timing constraint for real-time operations. For now only the total depth is taken into
-consideration.
 
 ---
-See also: [Preventive search stop criterion parameters](/parameters.md#max-preventive-search-tree-depth), [Curative search stop criterion parameters](/parameters.md#max-curative-search-tree-depth)
+See also: [Preventive search stop criterion parameters](../../parameters/implementation-specific-parameters.md#max-preventive-search-tree-depth), [Curative search stop criterion parameters](/../../parameters/implementation-specific-parameters.md#max-curative-search-tree-depth)
 
 ---
 
@@ -61,8 +60,8 @@ optimisation with performance expected by the operational process. The network-a
 represents the minimal relative/absolute increase of objective function between two consecutive chosen network actions.
  
 This minimal relative gain is expressed as a percentage of previous objective function (0.2 for 20%). 
-By setting this parameter at a higher value, this could fasten the computation time while focusing only 
-on the most efficient remedial actions. This avoids simulating a high number of remedial actions to only have
+By setting this parameter at a higher value, this could **fasten the computation time while focusing only 
+on the most efficient remedial actions**. This avoids simulating a high number of remedial actions to only have
 a small gain on a single CNEC.
 
 This parameter can be defined also through absolute increase :

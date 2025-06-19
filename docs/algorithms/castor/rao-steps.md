@@ -7,15 +7,15 @@ available remedial actions available, the problem is divided into preventive and
 The definition of CNEC and associated usage rules allows to distinguish four temporal situations or instants in the
 problem:
 
-- “Before outage situation”: immediately before the occurrence of a fault.
-- “After outage situation”: immediately after the occurrence of a fault and prior to the potential application
+- **Before outage situation**: immediately before the occurrence of a fault.
+- **After outage situation**: immediately after the occurrence of a fault and prior to the potential application
   of post-fault actions (if applicable).
-- "After automatons": grid situations which follow the application of automatic remedial actions (automatons)
+- **After automatons**: grid situations which follow the application of automatic remedial actions (automatons)
   (if applicable) in the case of a particular contingency. *Note that this perimeter is simulated, not optimised*
-- “After curative situations”: grid situations which follow the application of curative actions
+- **After curative situations**: grid situations which follow the application of curative actions
   (if applicable) in the case of a particular contingency.
 
-This leads to the consideration of different optimisation perimeters. Each perimeter calls for the application of one
+This leads to the consideration of different **optimisation perimeters**. Each perimeter calls for the application of one
 set of remedial actions. The preventive perimeter is the first computed. Optimisation will try to maximise the objective
 function value on this first perimeter (or just secure it, depending on the stop criterion). Then, each contingency in
 curative defines one perimeter of curative optimisation. Optimisation will try to maximise the objective function value
@@ -165,6 +165,11 @@ the flow in curative would remain higher than the PATL value, which would corres
 (situation for Outage 2 in the figure below).
 
 ![Curative CNEC in preventive example](/_static/img/curative2.png)
+
+### Multiple curative instants
+
+TODO + schema or link towards schema in NC 
+
 
 ## Second preventive RAO
 

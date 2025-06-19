@@ -167,7 +167,7 @@ The instant is a moment in the chronology of a contingency event. Four instants 
   to reduce some constraints, even though they can generate constraints elsewhere in the network. A CRAC may contain any
   number of instants of kind auto.
 - the **curative** instant kind occurs after a contingency happens, after enough time that would allow the human activation
-  of curative remedial actions. A CRAC may contain any number of instants of kind auto.
+  of curative remedial actions. A CRAC may contain any number of instants of kind curative.
 
 > 💡  **NOTE**  
 > Flow / angle / voltage limits on critical network elements are usually different for each instant.  
