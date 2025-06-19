@@ -7,9 +7,320 @@
 
 package com.powsybl.openrao.searchtreerao.result.impl;
 
+import com.powsybl.contingency.ContingencyElementType;
+import com.powsybl.openrao.data.crac.api.*;
+import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
+import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
+import com.powsybl.openrao.data.crac.api.range.RangeType;
+import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
+import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
+import com.powsybl.openrao.data.crac.impl.CracImpl;
+import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
+import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
+import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
+import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
+import com.powsybl.openrao.searchtreerao.castor.algorithm.StateTree;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+import org.opentest4j.AssertionFailedError;
+
+import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static com.powsybl.iidm.network.TwoSides.ONE;
+import static com.powsybl.openrao.commons.Unit.*;
+
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 class PreventiveAndCurativesRaoResultImplTest {
+    private static final Map<InstantKind, Double> FLOW_PER_INSTANT = Map.of(InstantKind.OUTAGE, 10d, InstantKind.AUTO, 20d, InstantKind.CURATIVE, 30d);
+    private static final Map<InstantKind, Double> FLOW_PER_OPTIMIZED_INSTANT = Map.of(InstantKind.PREVENTIVE, 100d, InstantKind.AUTO, 200d, InstantKind.CURATIVE, 300d);
+
+    private static final double DOUBLE_TOLERANCE = 1e-3;
+    private Crac crac;
+    private Instant preventiveInstant;
+    private Instant autoInstant;
+    private Instant curativeInstant;
+    private PstRangeAction pstRangeAction;
+    private RangeAction<?> rangeAction;
+    private NetworkAction networkAction;
+    private List<Set<Instant>> optimizationInstantsPerContingency;
+
+    private PrePerimeterResult initialResult;
+    private OptimizationResult prevResult;
+    private PrePerimeterResult postPrevPrePerimResult;
+    private PostPerimeterResult postPrevResult;
+    private OptimizationResult autoResult3;
+    private PrePerimeterResult postAutoPrePerimResult3;
+    private PostPerimeterResult postAutoResult3;
+    private OptimizationResult autoResult4;
+    private PrePerimeterResult postAutoPrePerimResult4;
+    private PostPerimeterResult postAutoResult4;
+    private OptimizationResult curativeResult2;
+    private PrePerimeterResult postCurativePrePerimResult2;
+    private PostPerimeterResult postCurativeResult2;
+    private OptimizationResult curativeResult3;
+    private PrePerimeterResult postCurativePrePerimResult3;
+    private PostPerimeterResult postCurativeResult3;
+    private Map<State, PostPerimeterResult> postContingencyResults;
+
+    private PreventiveAndCurativesRaoResultImpl output;
+
+    private StateTree stateTree;
+    private final ObjectiveFunctionParameters objectiveFunctionParameters = new ObjectiveFunctionParameters();
+
+    private void initCrac() {
+        crac = new CracImpl("crac");
+        // Instants
+        crac.newInstant("preventive", InstantKind.PREVENTIVE)
+            .newInstant("outage", InstantKind.OUTAGE)
+            .newInstant("auto", InstantKind.AUTO)
+            .newInstant("curative", InstantKind.CURATIVE);
+        for (int i = 1; i <= 4; i++) {
+            crac.newContingency()
+                .withId("contingency-" + i)
+                .withName("CO" + i)
+                .withContingencyElement("element-" + i, ContingencyElementType.LINE)
+                .add();
+            crac.newFlowCnec()
+                .withId("cnec-" + i + "out")
+                .withInstant("outage")
+                .withContingency("contingency-" + i)
+                .withNetworkElement("line-" + i)
+                .withOptimized(true)
+                .withMonitored(false)
+                .newThreshold()
+                .withSide(ONE)
+                .withUnit(MEGAWATT)
+                .withMin(0d) // so margin = flow for simplicity
+                .add()
+                .add();
+            crac.newFlowCnec()
+                .withId("cnec-" + i + "auto")
+                .withInstant("auto")
+                .withContingency("contingency-" + i)
+                .withNetworkElement("line-" + i)
+                .withOptimized(true)
+                .withMonitored(false)
+                .newThreshold()
+                .withSide(ONE)
+                .withUnit(MEGAWATT)
+                .withMin(0d) // so margin = flow for simplicity
+                .add()
+                .add();
+            crac.newFlowCnec()
+                .withId("cnec-" + i + "cur")
+                .withInstant("curative")
+                .withContingency("contingency-" + i)
+                .withNetworkElement("line-" + i)
+                .withOptimized(true)
+                .withMonitored(false)
+                .newThreshold()
+                .withSide(ONE)
+                .withUnit(MEGAWATT)
+                .withMin(0d) // so margin = flow for simplicity
+                .add()
+                .add();
+        }
+        pstRangeAction = crac.newPstRangeAction()
+            .withId("pst")
+            .withNetworkElement("pst-elt")
+            .withInitialTap(0)
+            .withTapToAngleConversionMap(Map.of(-1, -1., 0, 0., 1, 1.))
+            .newTapRange()
+                .withMinTap(-1)
+                .withMaxTap(1)
+                .withRangeType(RangeType.ABSOLUTE)
+                .add()
+            .newOnInstantUsageRule()
+                .withInstant("preventive")
+                .withUsageMethod(UsageMethod.AVAILABLE)
+                .add()
+            .add();
+    }
+
+    @BeforeEach
+    public void setUp() {
+        initCrac();
+        preventiveInstant = crac.getInstant("preventive");
+        autoInstant = crac.getInstant("auto");
+        curativeInstant = crac.getInstant("curative");
+
+        optimizationInstantsPerContingency = List.of(
+            Set.of(preventiveInstant),
+            Set.of(preventiveInstant, curativeInstant),
+            Set.of(preventiveInstant, autoInstant, curativeInstant),
+            Set.of(preventiveInstant, autoInstant));
+
+        postContingencyResults = new HashMap<>();
+
+        prepareInitialResult();
+        preparePreventiveResult();
+        prepareAutoResult3();
+        prepareAutoResult4();
+        prepareCurativeResult2();
+        prepareCurativeResult3();
+
+        StateTree stateTree = mock(StateTree.class);
+
+        output = new PreventiveAndCurativesRaoResultImpl(stateTree, initialResult, postPrevResult, postContingencyResults, crac, new RaoParameters());
+    }
+
+    private void prepareInitialResult() {
+        initialResult = Mockito.mock(PrePerimeterResult.class);
+        crac.getFlowCnecs().forEach(cnec -> {
+            double flow = -1 * (FLOW_PER_INSTANT.get(cnec.getState().getInstant().getKind()) + Double.parseDouble(cnec.getId().charAt(5) + ""));
+            when(initialResult.getFlow(cnec, ONE, MEGAWATT)).thenReturn(flow);
+            when(initialResult.getMargin(cnec, ONE, MEGAWATT)).thenReturn(flow);
+        });
+        when(initialResult.getFunctionalCost()).thenReturn(34.); //cnec4 at curative
+        when(initialResult.getVirtualCost("sensitivity-failure-cost")).thenReturn(34.1);
+    }
+
+    private void preparePreventiveResult() {
+        prevResult = Mockito.mock(OptimizationResult.class);
+        postPrevPrePerimResult = Mockito.mock(PrePerimeterResult.class);
+        postPrevResult = new PostPerimeterResult(prevResult, postPrevPrePerimResult);
+        prepareResultsForState(prevResult, postPrevPrePerimResult, crac.getPreventiveState());
+    }
+
+    private void prepareAutoResult3() {
+        autoResult3 = Mockito.mock(OptimizationResult.class);
+        postAutoPrePerimResult3 = Mockito.mock(PrePerimeterResult.class);
+        postAutoResult3 = new PostPerimeterResult(autoResult3, postAutoPrePerimResult3);
+        prepareResultsForState(autoResult3, postAutoPrePerimResult3, crac.getState("contingency-3", autoInstant));
+        postContingencyResults.put(crac.getState("contingency-3", autoInstant), postAutoResult3);
+    }
+
+    private void prepareAutoResult4() {
+        autoResult4 = Mockito.mock(OptimizationResult.class);
+        postAutoPrePerimResult4 = Mockito.mock(PrePerimeterResult.class);
+        postAutoResult4 = new PostPerimeterResult(autoResult4, postAutoPrePerimResult4);
+        prepareResultsForState(autoResult4, postAutoPrePerimResult4, crac.getState("contingency-4", autoInstant));
+        postContingencyResults.put(crac.getState("contingency-4", autoInstant), postAutoResult4);
+    }
+
+    private void prepareCurativeResult2() {
+        curativeResult2 = Mockito.mock(OptimizationResult.class);
+        postCurativePrePerimResult2 = Mockito.mock(PrePerimeterResult.class);
+        postCurativeResult2 = new PostPerimeterResult(curativeResult2, postCurativePrePerimResult2);
+        prepareResultsForState(curativeResult2, postCurativePrePerimResult2, crac.getState("contingency-2", curativeInstant));
+        postContingencyResults.put(crac.getState("contingency-2", curativeInstant), postCurativeResult2);
+    }
+
+    private void prepareCurativeResult3() {
+        curativeResult3 = Mockito.mock(OptimizationResult.class);
+        postCurativePrePerimResult3 = Mockito.mock(PrePerimeterResult.class);
+        postCurativeResult3 = new PostPerimeterResult(curativeResult3, postCurativePrePerimResult3);
+        prepareResultsForState(curativeResult3, postCurativePrePerimResult3, crac.getState("contingency-3", curativeInstant));
+        postContingencyResults.put(crac.getState("contingency-3", curativeInstant), postCurativeResult3);
+    }
+
+    private void prepareResultsForState(OptimizationResult optimizationResult, PrePerimeterResult prePerimeterResult, State state) {
+        AtomicReference<Double> lowestPerimeterFlow = new AtomicReference<>(Double.MAX_VALUE);
+        AtomicReference<Double> lowestPostPerimeterFlow = new AtomicReference<>(Double.MAX_VALUE);
+        Instant instant = state.getInstant();
+        crac.getFlowCnecs().stream()
+            .filter(cnec -> instant.isPreventive() || cnec.getState().getContingency().equals(state.getContingency()))
+            .forEach(cnec -> {
+                double signum = shouldBeSecured(cnec, instant) ? 1 : -1;
+                // flow = +/- abc with
+                // +/- depends of if cnec can be optimized later
+                // a depends on most recent optimization (0 for init, 1 for auto, 2 for auto, 3 for cur)
+                // b depends on instant of cnec
+                // c depends on contingency
+                double flow = signum * (
+                    FLOW_PER_OPTIMIZED_INSTANT.get(getMostRecentOptimInstant(cnec, instant).getKind()) +
+                    FLOW_PER_INSTANT.get(cnec.getState().getInstant().getKind()) +
+                    Double.parseDouble(cnec.getId().charAt(5) + ""));
+                if (isCnecOptimizedDuringInstant(cnec, instant)) {
+                    addFlowAndMarginResults(optimizationResult, cnec, flow, instant);
+                    lowestPerimeterFlow.set(Math.min(lowestPerimeterFlow.get(), flow));
+                }
+                if (!instant.comesAfter(cnec.getState().getInstant())) {
+                    addFlowAndMarginResults(prePerimeterResult, cnec, flow, instant);
+                    lowestPostPerimeterFlow.set(Math.min(lowestPostPerimeterFlow.get(), flow));
+                }
+            });
+        when(optimizationResult.getFunctionalCost()).thenReturn(-lowestPerimeterFlow.get());
+        when(prePerimeterResult.getFunctionalCost()).thenReturn(-lowestPostPerimeterFlow.get());
+        when(optimizationResult.getVirtualCost("sensitivity-failure-cost")).thenReturn(-lowestPerimeterFlow.get() + 0.1);
+        when(prePerimeterResult.getVirtualCost("sensitivity-failure-cost")).thenReturn(-lowestPostPerimeterFlow.get() + 0.1);
+    }
+
+    private void addFlowAndMarginResults(FlowResult flowResult, FlowCnec cnec, double flow, Instant instant) {
+        when(flowResult.getFlow(cnec, ONE, MEGAWATT)).thenReturn(flow);
+        for (Instant i : crac.getSortedInstants()) {
+            if (!i.comesBefore(instant)) {
+                when(flowResult.getFlow(cnec, ONE, MEGAWATT, i)).thenReturn(flow);
+            }
+        }
+        when(flowResult.getMargin(cnec, ONE, MEGAWATT)).thenReturn(flow);
+        when(flowResult.getMargin(cnec, MEGAWATT)).thenReturn(flow);
+    }
+
+    private boolean isCnecOptimizedDuringInstant(FlowCnec cnec, Instant instant) {
+        return shouldBeSecured(cnec, instant) && getMostRecentOptimInstant(cnec, instant).equals(instant);
+    }
+
+    private Instant getMostRecentOptimInstant(FlowCnec cnec, Instant instant) {
+        return optimizationInstantsPerContingency.get(Integer.parseInt(cnec.getId().charAt(5) + "") - 1).stream()
+            .filter(i -> !i.comesAfter(instant))
+            .max(Instant::compareTo)
+            .orElse(null);
+    }
+
+    private boolean shouldBeSecured(FlowCnec cnec, Instant instant) {
+        return optimizationInstantsPerContingency.get(Integer.parseInt(cnec.getId().charAt(5) + "") - 1).stream()
+            .noneMatch(i -> i.comesAfter(instant) && !i.comesAfter(cnec.getState().getInstant()));
+    }
+
+    @Test
+    public void testResult() {
+        checkFunctionalCosts();
+        checkVirtualCosts();
+        checkFlows();
+    }
+
+    private void checkFunctionalCosts() {
+        assertEquals(34., output.getFunctionalCost(null), DOUBLE_TOLERANCE);
+        assertEquals(134., output.getFunctionalCost(preventiveInstant), DOUBLE_TOLERANCE);
+        assertEquals(233., output.getFunctionalCost(autoInstant), DOUBLE_TOLERANCE);
+        assertEquals(-111., output.getFunctionalCost(curativeInstant), DOUBLE_TOLERANCE);
+    }
+
+    private void checkVirtualCosts() {
+        assertEquals(34.1, output.getVirtualCost(null), DOUBLE_TOLERANCE);
+        assertEquals(134.1, output.getVirtualCost(preventiveInstant), DOUBLE_TOLERANCE);
+        assertEquals(233.1, output.getVirtualCost(autoInstant), DOUBLE_TOLERANCE);
+        assertEquals(0., output.getVirtualCost(curativeInstant), DOUBLE_TOLERANCE);
+    }
+
+    private void checkFlows() {
+        for (FlowCnec cnec : crac.getFlowCnecs().stream().sorted(Comparator.comparing(Identifiable::getId)).toList()) {
+            for (Instant instant : List.of(preventiveInstant, autoInstant, curativeInstant)) {
+                if (!instant.comesAfter(cnec.getState().getInstant())) {
+                    double signum = shouldBeSecured(cnec, instant) ? 1 : -1;
+                    double expectedFlow = signum * (
+                        FLOW_PER_OPTIMIZED_INSTANT.get(getMostRecentOptimInstant(cnec, instant).getKind()) +
+                            FLOW_PER_INSTANT.get(cnec.getState().getInstant().getKind()) +
+                            Double.parseDouble(cnec.getId().charAt(5) + ""));
+                    try {
+                        assertEquals(expectedFlow, output.getFlow(instant, cnec, ONE, MEGAWATT), DOUBLE_TOLERANCE);
+                    } catch (AssertionFailedError e) {
+                        System.out.println("Error for flow on " + cnec.getId() + " at " + instant);
+                        throw e;
+                    }
+                }
+            }
+        }
+    }
 
 }
