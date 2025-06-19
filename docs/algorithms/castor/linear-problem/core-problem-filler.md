@@ -1,5 +1,7 @@
 # Modelling CNECs and range actions
 
+This page gathers core constraints, i.e constraints that need to be defined at the beginning of the optimization problem.
+
 ## Used input data
 
 | Name                          | Symbol                   | Details                                                                                                                                                                                                                                                                                                                     |
@@ -47,6 +49,8 @@ information [here](/input-data/crac/json.md#range-actions))
 
 ### Impact of rangeActions on FlowCnecs flows
 
+**The following equation is the RAO's keystone, linking a FlowCnec's flow to linear range actions' setpoints.**
+
 $$
 \begin{equation}
 F(c) = f_{n}(c) + \sum_{r \in \mathcal{RA(s)}} \sigma_n (r,c,s) * [A(r,s) - \alpha_{n}(r,s)] , \forall (c) \in
@@ -62,7 +66,7 @@ with $s$ the state on $c$ which is evaluated
 
 #### Using the absolute variation variable
 
-> The following equations are used if the RAO is used in (relative) minimum margin optimization mode.
+**The following equation links a range action's setpoint to its upward/downward variations.**
 
 $$
 \begin{equation}
@@ -91,18 +95,8 @@ $$
 \end{equation}
 $$
 
-#### Using the upward and downward variation variables
 
-> The following equations are used if the RAO is used in remedial actions' cost optimization mode.
-
-$$A(r,s) = \Delta^{+}(r,s) - \Delta^{-}(r,s) + A(r,s') , \forall (r,s) \in \mathcal{RA}$$
-
-with $A(r,s')$ the set-point of the last range action on the same element as $r$ but a state preceding $s$. If none such
-range actions exists, then $A(r,s') = \alpha_{0}(r)$
-
-### Range action activation variable
-
-> The following equations are used if the RAO is used in remedial actions' cost optimization mode.
+### Costly only - Range action activation variable
 
 $$\left ( \alpha_{\max}(r, s) - \alpha_{\min}(r, s) \right ) \delta(r,s) \geq \Delta^{+}(r,s) + \Delta^{-}(r,s) , \forall (r,s) \in \mathcal{RA}$$
 
@@ -111,7 +105,8 @@ range action $r$ at state $s$.
 
 ### Shrinking the allowed range
 
-If parameter [ra-range-shrinking](/parameters.md#ra-range-shrinking) is enabled, the allowed range for range actions
+** The following equations are used to mitigate diverging behaviors that may occur due to non linearity.**
+If parameter [ra-range-shrinking](../../../parameters/implementation-specific-parameters.md#ra-range-shrinking) is enabled, the allowed range for range actions
 is shrunk after each iteration according to the following constraints:
 
 $$
@@ -135,13 +130,13 @@ $$
 The value $\frac{2}{3}$ has been chosen to force the linear problem convergence while allowing the RA to go
 back to its initial solution if needed.
 
-### Injection balance constraint
+### Costly only - Injection balance constraint
 
-The network must remain balanced in terms of production and consumption after injection variations:
+The network must remain balanced in terms of production and consumption after injection variations (redispatching):
 
 $$\sum_{r \in \mathcal{IRA}(s)} \left ( \Delta^{+} (r, s) - \Delta^{-} (r, s) \right ) \times \sum_{d \in \mathcal{DK(r)}} d = 0, \forall s$$
 
-## Contribution to the objective function
+## Contribution of these constraints to the objective function
 
 ### Margin optimization
 
@@ -153,7 +148,7 @@ $$
 \end{equation}
 $$
 
-### Remedial actions' cost optimization
+### Costly only - Remedial actions' cost optimization
 
 $$
 \begin{equation}

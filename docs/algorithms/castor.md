@@ -1,15 +1,11 @@
-# CASTOR, the OpenRao algorithm
+# CASTOR, the RAO algorithm
 
 ```{toctree}
 :hidden:
 castor/rao-steps.md
 castor/special-features.md
 castor/linear-problem.md
-castor/costly-optimization.md
-castor/redispatching.md
-castor/monitoring.md
 castor/performance.md
-castor/applications.md
 ```
 
 **CASTOR** (**CA**lculation with **S**calable and **T**ransparent **O**ptimise**R**) relies on a search-tree algorithm.
@@ -17,15 +13,15 @@ castor/applications.md
 ## Remedial actions considered
 
 CASTOR considers the following remedial actions:
-- **P**reventive **R**emedial **A**ctions (fully shared) hereafter **“PRA"**
-- **A**utomatic **R**emedial **A**ctions (shared after a critical outage) hereafter **“ARA”**. Note that these remedial actions are simulatedrather than optimised.
-- **C**urative **R**emedial **A**ctions (shared after a critical outage) hereafter **“CRA”**
+- <span style='color: red;'>**P**reventive</span> **R**emedial **A**ctions (fully shared) hereafter **PRA**
+- <span style='color: red;'>**A**utomatic</span> **R**emedial **A**ctions (shared after a critical outage) hereafter **ARA**. Note that these remedial actions are simulatedrather than optimised.
+- <span style='color: red;'>**C**urative</span> **R**emedial **A**ctions (shared after a critical outage) hereafter **CRA**
 
 ### Linear Remedial actions
 
 The impact of some types of remedial actions on flows could be considered to be linear: optimisation of HVDC setpoints and optimisation of generation unit setpoints. In addition to these, CASTOR also considers phase shifter transformers as linear remedial actions.[^1]
 
-[^1]: CASTOR offers different approximation levels for modelling PSTs. See [the relevant RAO parameter](parameters.md#pst-model) for more information.
+[^1]: CASTOR offers different approximation levels for modelling PSTs. See [the relevant RAO parameter](../parameters.md#pst-model) for more information.
 
 A phase shifter transformer (PST) is defined by its range of acceptable tap settings.
 This acceptable tap setting can be defined by three different ways:
@@ -50,7 +46,7 @@ As a matter of clarification, connecting/disconnecting a generation unit can als
 For each iteration/step (a level of depth in tree):
 - Determination of available remedial actions.
 - Once the list of available remedial actions is defined, candidates are created. Each candidate corresponds to a grid situation, where one (or more) remedial actions are applied.
-- A skippable [optimisation of the linear remedial](./castor/linear-problem.md) actions is done.
+- A skippable [optimisation of the linear remedial](castor/linear-problem.md) actions is done.
 - A security analysis determines for each candidate the value of the objective function. The security analysis consists of a series of DC (or AC) load-flow computations (for each defined contingency).
 - In order to maximise the objective function, values obtained for each candidate are compared: the candidate leading to the best increase of objective function value is selected. The remedial actions corresponding to this candidate are applied.
 
@@ -67,7 +63,7 @@ In this figure above, 3 non-linear remedial actions are available, as well as a 
 RA1 alone could have led to bigger objective function value than RA2 or RA3. However, when taking PSTs into account,
 RA2 with optimised PSTs is more efficient than other RA and optimised tap settings.
 
-This illustrates the usefulness of optimising linear remedial actions at every step.
+This illustrates the **usefulness of optimising linear remedial actions at every step**.
 
 
 ## Algorithm details
@@ -79,7 +75,7 @@ This illustrates the usefulness of optimising linear remedial actions at every s
 ##### For Flow-based Capacity calculation
 
 The objective function is used to determine at each step of the search tree which remedial action is the best. 
-A variant of it is also used when solving the [linear optimisation problem](./castor/linear-problem.md).
+A variant of it is also used when solving the [linear optimisation problem](castor/linear-problem.md).
 
 The active flow $F_i$ on a CNEC $i$ is:
 
@@ -129,7 +125,7 @@ performed at national or regional level.
 
 #### Costly
 
-The objective is to try to secure the network at the lowest expenses possible, as described [here](castor/linear-problem/objective-function-types/costly-optimization.md#optimization-of-costly-remedial-actions)
+The objective is to try to secure the network at the lowest expenses possible, as described [here](castor/linear-problem/objective-function-types/costly-optimization.md#optimization-of-costly-remedial-actions).
 
 
 ### Stop criterion
@@ -143,9 +139,9 @@ As mentioned above, for NTC Capacity calculation/ CEP Validation, this stop crit
 
 These stop criteria only make sense for a minimum margin objective function (may it be absolute or relative).  
 
-On both stop criteria, [additional constraints](parameters.md#network-actions-optimisation-parameters) can be added, for example:
-- the maximal number of consecutive chosen network actions, also called search tree depth (for [preventive](parameters.md#max-preventive-search-tree-depth) and [curative](parameters.md#max-curative-search-tree-depth) search trees),
-- the [minimal relative gain](parameters.md#relative-minimum-impact-threshold) of objective function between two consecutive network actions (i.e. between two search tree depths).
+On both stop criteria, [additional constraints](../parameters.md#network-actions-optimisation-parameters) can be added, for example:
+- the maximal number of consecutive chosen network actions, also called search tree depth (for [preventive](../parameters.md#max-preventive-search-tree-depth) and [curative](../parameters.md#max-curative-search-tree-depth) search trees),
+- the [minimal relative gain](../parameters.md#relative-minimum-impact-threshold) of objective function between two consecutive network actions (i.e. between two search tree depths).
 
 
 ## Choices behind CASTOR
@@ -154,7 +150,7 @@ Unlike purely linear optimisation, a search-tree algorithm does not neglect the 
 
 So far, the search-tree algorithm has proved for many years its relevance and efficiency on current daily operational processes on CORE, Northern Italy and SWE Capacity calculation.
 
-For each topological remedial action applied, the search-tree will systematically optimise range actions' setpoints (such as PST taps & HVDC setpoints) by applying a [linear optimisation](./castor/linear-problem.md). By considering both topological remedial actions and linear remedial actions at every step, instead of considering only one after the other, CASTOR's results are optimal.
+For each topological remedial action applied, the search-tree will systematically optimise range actions' setpoints (such as PST taps & HVDC setpoints) by applying a [linear optimisation](castor/linear-problem.md). By considering both topological remedial actions and linear remedial actions at every step, instead of considering only one after the other, CASTOR's results are optimal.
 
 The optimisation problem is a non-convex and non-linear one, dealing with topology changes on the network, which represent discrete actions by definition. The problem treated by the optimiser is a combinatorial problem. Search-tree algorithms are commonly used for high complexity mathematical problems, containing combinatorial and discrete aspects.
 
@@ -164,5 +160,5 @@ Some remedial actions such as PSTs & HVDCs are treated via a linear optimisation
 
 A search-tree algorithm will optimise all couples of critical branches and critical outages to define a set of remedial actions covering all these network states. This limits the impact of net position forecasts, which are highly uncertain because of the uncertainty in the power generation forecasts (renewables, unforeseeable events...).
 
-For example, let’s assume there that is no available preventive remedial action (for simplicity) and focus on the [CNEC](./input-data/crac.md#cnec) with the minimum relative margin (let's call it CNE1C1).  
+For example, let’s assume there that is no available preventive remedial action (for simplicity) and focus on the [CNEC](../input-data/crac.md#cnec) with the minimum relative margin (let's call it CNE1C1).  
 The optimiser will search for a curative remedial action increasing margin of CNE1C1. However, considering only CNE1C1 could be relevant if, and only if, the net position forecast is highly reliable and accurate. As stated before, this could not be acceptable for the security of the system. That is why the search tree will also identify optimised remedial actions for CNE1C2, CNE1C3…

@@ -1,7 +1,7 @@
 # ICS
 
 ICS data contains necessary data to define redispatching actions' specific constraints. ICS data are only used for 
-[costly computations](../../castor/linear-problem/costly-specific.md)
+[costly computations](../../algorithms/castor/linear-problem/costly-specific.md)
 
 ### Static
 Static ICS data defines a remedial action's generator's static constraints:

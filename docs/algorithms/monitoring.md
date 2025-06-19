@@ -1,6 +1,6 @@
 # Monitoring
 
-CASTOR has a monitoring module that can be used apart from the RAO to monitor Angles and/or Voltages:
+OpenRAO has a monitoring module that can be used apart from the RAO to monitor Angles and/or Voltages:
 
 ## Introduction
 
