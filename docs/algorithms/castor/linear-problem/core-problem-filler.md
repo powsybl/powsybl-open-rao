@@ -49,7 +49,7 @@ information [here](/input-data/crac/json.md#range-actions))
 
 ### Impact of rangeActions on FlowCnecs flows
 
-**The following equation is the RAO's keystone, linking a FlowCnec's flow to linear range actions' setpoints.**
+<span style='color: forestgreen;'>The following equation is the RAO's keystone, linking a FlowCnec's flow to linear range actions' setpoints.</span>
 
 $$
 \begin{equation}
@@ -66,7 +66,7 @@ with $s$ the state on $c$ which is evaluated
 
 #### Using the absolute variation variable
 
-**The following equation links a range action's setpoint to its upward/downward variations.**
+<span style='color: forestgreen;'>The following equation links a range action's setpoint to its upward/downward variations.</span>
 
 $$
 \begin{equation}
@@ -96,7 +96,7 @@ $$
 $$
 
 
-### Costly only - Range action activation variable
+### <span style='color: blue;'>Costly only - Range action activation variable</span>
 
 $$\left ( \alpha_{\max}(r, s) - \alpha_{\min}(r, s) \right ) \delta(r,s) \geq \Delta^{+}(r,s) + \Delta^{-}(r,s) , \forall (r,s) \in \mathcal{RA}$$
 
@@ -105,7 +105,7 @@ range action $r$ at state $s$.
 
 ### Shrinking the allowed range
 
-** The following equations are used to mitigate diverging behaviors that may occur due to non linearity.**
+<span style='color: forestgreen;'>The following equations are used to mitigate diverging behaviors that may occur due to non linearity.</span>
 If parameter [ra-range-shrinking](../../../parameters/implementation-specific-parameters.md#ra-range-shrinking) is enabled, the allowed range for range actions
 is shrunk after each iteration according to the following constraints:
 
