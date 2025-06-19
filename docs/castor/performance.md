@@ -73,3 +73,45 @@ This parameter can be defined also through absolute increase :
 See also: [Network actions impact parameters](/parameters.md#network-actions-optimisation-parameters), [Range actions impact parameters](/parameters.md#range-actions-optimisation-parameters)
 
 ---
+
+## Fast RAO
+
+In general case, network congestion varies significantly across different transmission lines and system states.
+This variation leads to an important observation: certain CNECs consistently maintain positive security margins,
+regardless of which RAs are applied.
+
+This insight forms the foundation of Fast RAO: by excluding these consistently secure CNECs from the optimization process  
+and focusing only on the critical ones, we can significantly reduce the problem's complexity. Resulting in a lighter optimization
+problem that can be solved more quickly without compromising system security.
+
+Read more about Fast RAO [here](../_static/pdf/FastRAO.pdf)
+
+### Algorithm
+
+Fast Rao iteratively builds a set of the **critical** CNECs. Starting with an empty set of CNECs, at each iteration,
+we selectively add only the CNECs that are identified as critical for the problem. See the diagram below.
+
+Running multiple RAO on smaller problems is more efficient than performing a single RAO on the
+entire, much larger problem at once.
+
+![Current state of the algorithm](../_static/img/FastRAO.png)
+
+> Currently, Fast RAO does not support multi-curative optimization
+
+> The current implementation is not adapted to maximize the min margin
+
+### How to run an optimization process using FastRao
+
+```java
+
+RaoInput raoInput = RaoInput.build(network, crac).build();
+RaoResult raoResult = Rao.find("FastRao").run(raoInput, raoParameters);
+
+// Run FastRAO with a pre defined set of cnecs to consider
+FastRao.launchFilteredRao(raoInput, raoParameters, targetEndInstant, consideredCnecs);
+```
+
+### Fast Rao Specific Parameters
+
+See [fast rao parameters section](../parameters/implementation-specific-parameters.md#number-of-cnecs-to-add)
+

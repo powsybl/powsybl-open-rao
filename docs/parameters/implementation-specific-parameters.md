@@ -383,6 +383,24 @@ These parameters are meant to be used in costly optimization only.
 - **Default value**: 0.0
 - **Usage**: Shifts the security domain of the CNECs (only for costly optimization): each FlowCNEC with a margin below `shifted-violation-threshold` will be considered as in violation during the linear RAO. This is meant to prevent the RAO from choosing set-points that make the min margin exactly equal to 0 (which might create rounding issues).
 
+### Fast Rao Parameters extension
+
+#### number-of-cnecs-to-add
+- **Expected value**: integer, no unit
+- **Default value**: 20 
+- **Usage**: this value correspond to the number of worst CNECs (in terms of margin) to add to the set of considered CNECs 
+at each iteration of fast rao
+
+#### add-unsecure-cnecs
+- **Expected value**: boolean
+- **Default value**: false
+- **Usage**: Indicate if we add all unsecure CNECs to the set of considered CNECs at each iteration of fast rao
+
+#### margin-limit
+- **Expected value**: numeric values, in MEGAWATT unit
+- **Default value**: 5
+- **Usage**: If add-unsecure-cnecs, a CNEC will be considered unsecure if its margin is lower than margin-limit
+- 
 ## Examples
 > ⚠️  **NOTE**  
 > The following examples in json and yaml are not equivalent
@@ -393,6 +411,11 @@ These parameters are meant to be used in costly optimization only.
 {
   "version" : "3.1",
   "extensions" : {
+    "fast-rao-parameters" : {
+      "number-of-cnecs-to-add" : 20,
+      "add-unsecure-cnecs" : false,
+      "margin-limit" : 5.0
+    },
     "open-rao-search-tree-parameters": {
       "objective-function" : {
         "curative-min-obj-improvement" : 0.0
@@ -540,6 +563,13 @@ open-loadflow-default-parameters:
   maxPlausibleTargetVoltage: 1.5
   plausibleActivePowerLimit: 10000
   newtonRaphsonConvEpsPerEq : 1.0E-2
+
+
+fast-rao-parameters:
+  number-of-cnecs-to-add: 20
+  add-unsecure-cnecs: false
+  margin-limit: 5.0
 ~~~
 :::
 ::::
+
