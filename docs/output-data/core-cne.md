@@ -14,8 +14,8 @@
 
 ## Contents of the CORE CNE file
 
-Here is an overview of the general structure of the CORE CNE document, detailed in the following sections: 
-![CORE CNE general structure](/_static/img/core-cne-structure.png)
+Here is an overview of the general structure of the CORE CNE document, detailed in the following sections:
+![CORE CNE general structure](../_static/img/core-cne-structure.png)
 
 ### Header
 
