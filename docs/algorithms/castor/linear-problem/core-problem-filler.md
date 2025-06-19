@@ -96,7 +96,7 @@ $$
 $$
 
 
-### <span style='color: blue;'>Costly only - Range action activation variable</span>
+### <span style='color: maroon;'>Costly only</span>- Range action activation variable
 
 $$\left ( \alpha_{\max}(r, s) - \alpha_{\min}(r, s) \right ) \delta(r,s) \geq \Delta^{+}(r,s) + \Delta^{-}(r,s) , \forall (r,s) \in \mathcal{RA}$$
 
@@ -106,6 +106,7 @@ range action $r$ at state $s$.
 ### Shrinking the allowed range
 
 <span style='color: forestgreen;'>The following equations are used to mitigate diverging behaviors that may occur due to non linearity.</span>
+
 If parameter [ra-range-shrinking](../../../parameters/implementation-specific-parameters.md#ra-range-shrinking) is enabled, the allowed range for range actions
 is shrunk after each iteration according to the following constraints:
 
@@ -130,7 +131,7 @@ $$
 The value $\frac{2}{3}$ has been chosen to force the linear problem convergence while allowing the RA to go
 back to its initial solution if needed.
 
-### Costly only - Injection balance constraint
+### <span style='color: maroon;'>Costly only</span> - Injection balance constraint
 
 The network must remain balanced in terms of production and consumption after injection variations (redispatching):
 
@@ -148,7 +149,7 @@ $$
 \end{equation}
 $$
 
-### Costly only - Remedial actions' cost optimization
+### <span style='color: maroon;'>Costly only</span> - Remedial actions' cost optimization
 
 $$
 \begin{equation}

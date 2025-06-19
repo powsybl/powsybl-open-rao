@@ -1,7 +1,7 @@
 ```{toctree}
 ---
 caption: Contents of this website
-maxdepth: 2
+maxdepth: 3
 hidden: true
 ---
 
