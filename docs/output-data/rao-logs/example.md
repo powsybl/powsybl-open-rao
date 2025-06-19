@@ -25,7 +25,7 @@ INFO  c.p.o.commons.logs.RaoBusinessLogs - Initial sensitivity analysis: cost = 
 INFO  c.p.o.commons.logs.RaoBusinessLogs - Limiting element #01: margin = -182.55 MW, element NNL1AA1  NNL3AA1  1 at state Contingency_FR1_FR3 - outage, CNEC ID = "NL1-NL3-D - outage"
 INFO  c.p.o.commons.logs.RaoBusinessLogs - Limiting element #02: margin = -166.08 MW, element FFR2AA1  FFR3AA1  1 at state preventive, CNEC ID = "FR2-FR3-O - preventive"
 ~~~
-In this case, the most limiting CNEC is "NL1-NL3-D - outage" (this is its unique ID in the [OpenRAO CRAC object](/input-data/crac/json.md)).  
+In this case, the most limiting CNEC is "NL1-NL3-D - outage" (this is its unique ID in the [OpenRAO CRAC object](../input-data/crac/json.md)).  
 It monitors network element "NNL1AA1  NNL3AA1  1", after contingency "Contingency_FR1_FR3" (unique ID of the contingency 
 in the OpenRAO CRAC), at the "outage" instant (i.e. before applying auto & curative actions).
 The margin on this CNEC is -182.55MW, so the branch is actually over-charged by 182MW.
@@ -33,8 +33,7 @@ The margin on this CNEC is -182.55MW, so the branch is actually over-charged by 
 The second most-limiting CNEC is "FR2-FR3-O - preventive" with a margin of -166 MW.
 
 ## First preventive RAO
-
-Next comes the [first preventive RAO](/castor/rao-steps.md#preventive-perimeter).
+Next comes the [first preventive RAO](../../algorithms/castor/rao-steps.md#preventive-perimeter).
 
 > 💡  **NOTE**
 > This step is delimited by the two following lines:
@@ -57,7 +56,7 @@ INFO  c.p.o.commons.logs.RaoBusinessLogs - ----- Preventive perimeter optimizati
 
 Then it starts the [search-tree](../../algorithms/castor.md#search-tree-algorithm) algorithm, starting by evaluating the 
 "root leaf": it assesses CNEC constraints on the network, considering only CNECs that belong to the 
-[preventive perimeter](/castor/rao-steps.md#preventive-perimeter), 
+[preventive perimeter](../../algorithms/castor/rao-steps.md#preventive-perimeter), 
 before applying any preventive remedial action.  
 It needs not re-run a sensitivity analysis (or load-flow computation), as this has already been done. It just needs to 
 restrict constraints assessment on the perimeter's CNECs.  
@@ -72,10 +71,10 @@ INFO  c.p.openrao.commons.logs.TechnicalLogs - Limiting element #01: margin = -1
 INFO  c.p.openrao.commons.logs.TechnicalLogs - Limiting element #02: margin = -166.08 MW, element FFR2AA1  FFR3AA1  1 at state preventive, CNEC ID = "FR2-FR3-O - preventive"
 ~~~
 
-After root leaf evaluation, the RAO conducts [range action linear optimisation](/castor/linear-problem.md) 
-before applying any [network action](/input-data/crac.md#network-action).  
+After root leaf evaluation, the RAO conducts [range action linear optimisation](../../algorithms/castor/linear-problem.md) 
+before applying any [network action](../../input-data/crac.md#network-action). 
 This step is usually quick and allows the RAO to try to secure the network / improve margins using only remedial actions 
-with a linear impact on the network ([range actions](/input-data/crac.md#range-action)).  
+with a linear impact on the network ([range actions](../../input-data/crac.md#range-action)).  
 Multiple "MILP -> sensitivity analysis" iterations can be needed until the optimisation converges to an optimal set of 
 set-point for range actions (in the example, 2 iterations are needed at the root leaf).
 
@@ -101,12 +100,12 @@ The RAO successfully decreased the objection function value to 179.1 by setting 
 (Note that the objective function seen by the RAO is the opposite of the minimum margin).  
 So it increased the margin on the most limiting element from -182MW to -179MW.  
 This is not a lot (but it's a good start); you can limit using range actions for small margin improvements using 
-[the dedicated parameters](/parameters.md#range-actions-optimisation-parameters).
+[the dedicated parameters](../../parameters/business-parameters.md#range-actions-optimisation-parameters).
 
 ### Network actions optimisation
 
 After getting the most out of range actions, the RAO then goes on to choosing the best network actions.  
-It does so by choosing the single best network action (or [pre-defined network action combination](/parameters.md#predefined-combinations)) 
+It does so by choosing the single best network action (or [pre-defined network action combination](../../parameters/implementation-specific-parameters.md#predefined-combinations)) 
 first ("search depth 1"), then trying to combine it with the remaining actions to get a two-actions combo 
 ("search depth 2"), ... until the minimum margin cannot be improved anymore, or until there are no remaining network 
 actions to try.  
@@ -244,8 +243,8 @@ Every contingency is treated separately:
 - Each auto instant is simulated to select triggered automatons (if AUTO CNECs and remedial actions exist)
 - Each curative instant is optimised in a search-tree to select best curative actions
 
-In this case, the CRAC only defines one contingency: "Contingency_FR1_FR3".  
-As many contingency scenarios are created as there are contingencies in the CRAC (with associated [remedial actions](/castor/rao-steps.md#extension-of-the-preventive-perimeter-to-the-curative-situation)).
+In this case, the CRAC only defines one contingency: "Contingency_FR1_FR3".
+As many contingency scenarios are created as there are contingencies in the CRAC (with associated [remedial actions](../../algorithms/castor/rao-steps.md#extension-of-the-preventive-perimeter-to-the-curative-situation)).
 
 ~~~
 INFO  c.p.o.commons.logs.RaoBusinessLogs - ----- Post-contingency perimeters optimization [start]
