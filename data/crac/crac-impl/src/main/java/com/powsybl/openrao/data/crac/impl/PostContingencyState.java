@@ -28,7 +28,7 @@ public class PostContingencyState implements State {
     private Instant instant;
     private OffsetDateTime timestamp;
 
-    PostContingencyState(Contingency contingency, Instant instant, OffsetDateTime timestamp) {
+    public PostContingencyState(Contingency contingency, Instant instant, OffsetDateTime timestamp) {
         if (instant.isPreventive()) {
             throw new OpenRaoException("Instant cannot be preventive");
         }
