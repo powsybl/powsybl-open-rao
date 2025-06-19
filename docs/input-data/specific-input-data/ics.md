@@ -1,7 +1,7 @@
 # ICS
 
 ICS data contains necessary data to define redispatching actions' specific constraints. ICS data are only used for 
-[costly computations](../../algorithms/castor/linear-problem/costly-specific.md)
+[costly computations](../../algorithms/castor/linear-problem/costly-specific.md).
 
 ### Static
 Static ICS data defines a remedial action's generator's static constraints:
@@ -43,4 +43,4 @@ from P0 (RDP- and RDP+, positive values). These values are defined as time serie
 | Node   | UCT code of the node described with 8 characters.                                        |
 | Weight | Weight for GSK at respective node.  Sum of weights for all nodes in one GSK should be 1. |
 
-![ICS Importer](../_static/img/ics-importer.png)
+![ICS Importer](../../_static/img/ics-importer.png)

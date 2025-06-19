@@ -27,11 +27,11 @@ A Jupyter notebook is defined [here](https://github.com/powsybl/pypowsybl-notebo
 
 - Mandatory [input data](input-data.md) are:
   - a [network](input-data/network.md)
-  - a [crac](input-data/crac.md). Crac objects are detailed [here](input-data/crac/json.md)
-- You will also need to define a set of [rao parameters](parameters.md) 
+  - a [CRAC](input-data/crac.md). CRAC objects are detailed [here](input-data/crac/json.md).
+- You will also need to define a set of [rao parameters](parameters.md).
 - Outputs:
-  - Step-by-step calculation is detailed in the [logs](output-data/rao-logs.md). Learn more about how logs are configured [here](output-data/rao-logs/example.md)
-  - Rao results are defined in a json file, described [here](output-data/rao-result.md)
+  - Step-by-step calculation is detailed in the [logs](output-data/rao-logs.md). Learn more about how logs are configured [here](output-data/rao-logs/example.md).
+  - Rao results are defined in a json file, described [here](output-data/rao-result.md).
 
 ## Understanding OpenRao
 
@@ -40,7 +40,7 @@ A Jupyter notebook is defined [here](https://github.com/powsybl/pypowsybl-notebo
   - [Optimisation steps](algorithms/castor/rao-steps.md)
   - [Monitoring module](algorithms/monitoring.md)
 
-- For a fine understanding of the constraints defined in the Linear Problem, see this [section](algorithms/castor/linear-problem)
+- For a fine understanding of the constraints defined in the Linear Problem, see this [section](algorithms/castor/linear-problem).
 
 
 ## Fine tuning your implementation of OpenRao
