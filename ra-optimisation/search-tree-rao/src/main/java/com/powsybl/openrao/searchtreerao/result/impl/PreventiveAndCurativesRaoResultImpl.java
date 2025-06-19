@@ -202,7 +202,6 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
     }
 
     private void excludeDuplicateCnecs() {
-
         Set<FlowCnec> flowCnecs = crac.getFlowCnecs();
         Set<String> cnecsToExclude = getDuplicateCnecs(flowCnecs);
         // exclude fictional cnec from the results
