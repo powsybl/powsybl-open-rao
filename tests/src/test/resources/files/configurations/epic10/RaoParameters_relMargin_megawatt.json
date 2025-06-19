@@ -87,9 +87,6 @@
       },
       "relative-margins-parameters" : {
         "ptdf-sum-lower-bound" : 0.01
-      },
-      "costly-min-margin-parameters" : {
-        "shifted-violation-penalty" : 1000.0
       }
     }
   }
