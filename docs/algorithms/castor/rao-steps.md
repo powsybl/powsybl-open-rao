@@ -168,8 +168,17 @@ the flow in curative would remain higher than the PATL value, which would corres
 
 ### Multiple curative instants
 
-TODO + schema or link towards schema in NC 
+It is possible to define multiple curative instants in the CRAC to monitor more gradually the flow variations on lines
+and get closer to a "real-time" modelling. Curative instants are optimized sequentially and greedily, i.e. the results
+of the first curative instant are applied and considered definitive before entering the second curative instant
+optimization. This optimization is carried out using a search-tree algorithm just as
+[described above](#curative-perimeters).
 
+What was described in the [previous section](#extension-of-the-preventive-perimeter-to-the-curative-situation) also
+stands for multi-curative situations. If a curative instant has no remedial actions available, all its FlowCNECs will be
+included in its previous instant's perimeter.
+
+![PATL vs TATL](../../_static/img/tatl-instant.png){.forced-white-background}
 
 ## Second preventive RAO
 
@@ -185,7 +194,7 @@ The differences with the first preventive RAO are that, in this run:
 - **curative remedial actions** that were selected in the curative perimeter are supposed activated*, in order for
   the preventive RAO to focus on constraints that cannot be solved by curative actions.
 
-_* It is possible to re-optimise curative range actions during second preventive RAO
+_* It is possible to re-optimise curative range actions (for all curative instants) during second preventive RAO
 using [this parameter](../../parameters/implementation-specific-parameters.md#re-optimize-curative-range-actions)._
 
-![PATL vs TATL](../../_static/img/rao_steps.png){.forced-white-background} 
+![PATL vs TATL](../../_static/img/rao_steps.png){.forced-white-background}
