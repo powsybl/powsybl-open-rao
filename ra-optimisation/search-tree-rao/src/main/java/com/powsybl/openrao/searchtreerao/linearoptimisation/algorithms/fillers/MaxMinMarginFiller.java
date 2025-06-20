@@ -36,19 +36,17 @@ public class MaxMinMarginFiller implements ProblemFiller {
     private final Unit unit;
     private final boolean costOptimization;
     protected final OffsetDateTime timestamp;
-    private final double shiftedViolationPenalty;
-    private final double shiftedViolationThreshold;
+    private final SearchTreeRaoCostlyMinMarginParameters costlyMinMarginParameters;
 
     public MaxMinMarginFiller(Set<FlowCnec> optimizedCnecs,
                               Unit unit, boolean costOptimization,
-                              SearchTreeRaoCostlyMinMarginParameters maxMinMarginParameters,
+                              SearchTreeRaoCostlyMinMarginParameters costlyMinMarginParameters,
                               OffsetDateTime timestamp) {
         this.optimizedCnecs = new TreeSet<>(Comparator.comparing(Identifiable::getId));
         this.optimizedCnecs.addAll(optimizedCnecs);
         this.unit = unit;
         this.costOptimization = costOptimization;
-        this.shiftedViolationPenalty = maxMinMarginParameters.getShiftedViolationPenalty();
-        this.shiftedViolationThreshold = maxMinMarginParameters.getShiftedViolationThreshold();
+        this.costlyMinMarginParameters = costlyMinMarginParameters;
         this.timestamp = timestamp;
     }
 
@@ -82,7 +80,7 @@ public class MaxMinMarginFiller implements ProblemFiller {
      * Each unit of minMarginShiftedViolationConstraint over 0 is penalized by shiftedViolationPenalty.
      */
     private void addMinMarginShiftedViolationConstraint(LinearProblem linearProblem) {
-        OpenRaoMPConstraint minMarginShiftedViolationConstraint = linearProblem.addMinMarginShiftedViolationConstraint(Optional.ofNullable(timestamp), shiftedViolationThreshold);
+        OpenRaoMPConstraint minMarginShiftedViolationConstraint = linearProblem.addMinMarginShiftedViolationConstraint(Optional.ofNullable(timestamp), costlyMinMarginParameters.getShiftedViolationThreshold());
         minMarginShiftedViolationConstraint.setCoefficient(linearProblem.getMinMarginShiftedViolationVariable(Optional.ofNullable(timestamp)), 1.0);
         minMarginShiftedViolationConstraint.setCoefficient(linearProblem.getMinimumMarginVariable(Optional.ofNullable(timestamp)), 1.0);
     }
@@ -156,7 +154,7 @@ public class MaxMinMarginFiller implements ProblemFiller {
      */
     private void fillObjectiveWithMinMargin(LinearProblem linearProblem) {
         if (costOptimization) {
-            linearProblem.getObjective().setCoefficient(linearProblem.getMinMarginShiftedViolationVariable(Optional.ofNullable(timestamp)), shiftedViolationPenalty);
+            linearProblem.getObjective().setCoefficient(linearProblem.getMinMarginShiftedViolationVariable(Optional.ofNullable(timestamp)), costlyMinMarginParameters.getShiftedViolationPenalty());
         } else {
             linearProblem.getObjective().setCoefficient(linearProblem.getMinimumMarginVariable(Optional.ofNullable(timestamp)), -1);
         }
