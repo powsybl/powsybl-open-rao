@@ -97,6 +97,7 @@ class RaoResultArchiveManagerTest {
         ZipOutputStream zos = new ZipOutputStream(baos);
 
         globalRaoResultToExport.write(zos, new TemporalDataImpl<>(Map.of(timestamp1, crac1, timestamp2, crac2, timestamp3, crac3)), properties);
+        baos.close();
 
         byte[] zipBytes = baos.toByteArray();
         ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(zipBytes);

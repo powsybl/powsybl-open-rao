@@ -48,7 +48,6 @@ public final class RaoResultArchiveManager {
             addRaoResultToZipArchive(timestamp, zipOutputStream, interTemporalRaoResult.getIndividualRaoResult(timestamp), cracs.getData(timestamp).orElseThrow(), properties, jsonFileNameTemplate);
         }
         addSummaryToZipArchive(zipOutputStream, interTemporalRaoResult, summaryFilename, jsonFileNameTemplate);
-        zipOutputStream.close();
     }
 
     private static void addRaoResultToZipArchive(OffsetDateTime timestamp, ZipOutputStream zipOutputStream, RaoResult raoResult, Crac crac, Properties properties, String jsonFileNameTemplate) throws IOException {
@@ -75,6 +74,7 @@ public final class RaoResultArchiveManager {
         ZipEntry entry = new ZipEntry(entryName);
         zipOutputStream.putNextEntry(entry);
         addOutputStreamContentToZipAndClose(zipOutputStream, byteArrayOutputStream);
+        byteArrayOutputStream.close();
         zipOutputStream.closeEntry();
     }
 
@@ -86,7 +86,6 @@ public final class RaoResultArchiveManager {
             zipOutputStream.write(bytes, 0, length);
         }
         is.close();
-        byteArrayOutputStream.close();
     }
 
     private static String getSummaryFilename(Properties properties) {
