@@ -8,9 +8,9 @@
 
 ## Used parameters
 
-| Name                                             | Details                                                            |
-|--------------------------------------------------|--------------------------------------------------------------------|
-| [pst-model](/parameters.md#pst-model) | This filler is used only if this parameters is set to *CONTINUOUS* |
+| Name                                                                             | Details                                                            |
+|----------------------------------------------------------------------------------|--------------------------------------------------------------------|
+| [pst-model](../../../parameters/implementation-specific-parameters.md#pst-model) | This filler is used only if this parameters is set to *CONTINUOUS* |
 
 ## Defined optimization variables
 

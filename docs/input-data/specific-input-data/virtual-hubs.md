@@ -26,7 +26,7 @@ A virtual hub therefore has :
 - an EIC code (e.g. EIC1) 
 - and an associated UCTE node (e.g. XNODE_1).
 
-The EIC code can also be found in the [RefProg file](reference-program). The virtual hub is indeed referenced in the RefProg file with a given associated net position.
+The EIC code can also be found in the [RefProg file](reference-program.md). The virtual hub is indeed referenced in the RefProg file with a given associated net position.
 The EIC code can however not be found in the GLSK file, the GLSK of the virtual hub is implicitly a factor of 100% on the unique UCTE node of the hub.
 
 

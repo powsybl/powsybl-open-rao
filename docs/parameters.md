@@ -10,12 +10,12 @@ parameters/implementation-specific-parameters.md
 
 The RAO parameters allow tuning the RAO.
 
-It contains **business parameters** (see [business-parameters](/parameters/business_parameters)) which allow
+It contains **business parameters** (see [business-parameters](parameters/business-parameters.md)) which allow
 to choose the business objective function of the RAO (maximize min margin, get a positive margin, ...), 
 to activate/deactivate optional business features, etc.
 
 It also contains **extensions** which are **implementation specific parameters** 
-(see [implementation-specific-parameters](/parameters/implementation-specific-parameters)), in particular the open 
+(see [implementation-specific-parameters](parameters/implementation-specific-parameters.md)), in particular the open 
 rao search tree extension. These extensions allow to fine-tune the search algorithm, improve performance and/or 
 quality of results.
 

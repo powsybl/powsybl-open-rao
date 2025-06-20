@@ -14,7 +14,7 @@ This extension is used to configure Open RAO specific parameters for search tree
 - **Expected value**: numeric value, where the unit is that of the objective function
 - **Default value**: 0
 - **Usage**: used as a minimum improvement of the preventive RAO objective value for the curative RAO objective value,
-  when [type](#type) is set to MAX_MIN_MARGIN or MAX_MIN_RELATIVE_MARGIN.
+  when [type](business-parameters.md#type) is set to MAX_MIN_MARGIN or MAX_MIN_RELATIVE_MARGIN.
 
 #### Range actions optimisation parameters
 These parameters (range-actions-optimization) tune the [linear optimiser](../algorithms/castor/linear-problem.md) used to optimise range actions.  
@@ -90,7 +90,7 @@ These parameters (range-actions-optimization) tune the [linear optimiser](../alg
     1. If the linear problem finds a solution worse than in its previous iteration, it continues iterating.  
        When stop condition is met ([max-mip-iterations](#max-mip-iterations) reached, or two successive iterations have
        the same optimal RA set-points), then the problem returns the best solution it has found.
-    2. At each new iteration, the range action's allowed range shrinks according to equations [described here](/../algorithms/castor/linear-problem/core-problem-filler.md#shrinking-the-allowed-range).
+    2. At each new iteration, the range action's allowed range shrinks according to equations [described here](../algorithms/castor/linear-problem/core-problem-filler.md#shrinking-the-allowed-range).
        These equations have been chosen to force the linear problem convergence while allowing the RA to go
        back to its initial solution if needed.
   - **ENABLED_IN_FIRST_PRAO_AND_CRAO**:
@@ -150,7 +150,7 @@ when searching for the best network actions.
   actions that the user considers interesting to test together during the RAO.  
   These combinations will be tested in the first search depth of the search-tree
 
-![Search-tree-with-combinations](/_static/img/Search-tree-with-combinations.png){.forced-white-background}
+![Search-tree-with-combinations](../_static/img/Search-tree-with-combinations.png){.forced-white-background}
 
 ##### skip-actions-far-from-most-limiting-element
 - **Expected value**: true/false
@@ -296,6 +296,7 @@ See also: [Modelling loop-flows and their virtual cost](../algorithms/castor/lin
     *Note that this option is only relevant in AC-loadflow mode, as the UPDATE_PTDF_WITH_TOPO already maximizes accuracy in DC.*
 
 ##### constraint-adjustment-coefficient
+
 - **Expected value**: numeric values, in MEGAWATT unit
 - **Default value**: 0.0 MW
 - **Usage**: this parameter acts as a margin which tightens, in the linear optimisation problem of RAO, the bounds of the
@@ -314,11 +315,14 @@ See also: [Modelling loop-flows and their virtual cost](../algorithms/castor/lin
   *violation-cost x sum{cnec} excess-loop-flow(cnec)*
 
 #### MNEC optional parameter
+
 Adding a MnecParameters to OpenRaoSearchTreeParameters will activate [MNEC constraints](../algorithms/castor/linear-problem/special-features/mnec-filler.md).  
-(The RAO will only monitor CNECs that are only ["monitored"](/input-data/crac/json.md#cnecs)).
+(The RAO will only monitor CNECs that are only ["monitored"](../input-data/crac/json.md#cnecs)).
 The following parameters tune some of these constraints, the one which are implementation specific.
 
+<a id="mnec-violation-cost"></a>
 ##### violation-cost
+
 - **Expected value**: numeric values, no unit (it applies as a multiplier for the constraint violation inside the
   objective function)
 - **Default value**: 10.0 (same as [loop-flow violation cost](#violation-cost))
@@ -328,7 +332,9 @@ The following parameters tune some of these constraints, the one which are imple
   MNECs' constraints are respected. The penalty injected in the objective function is equal to the violation (difference
   between actual margin and least acceptable margin) multiplied by this parameter.
 
+<a id="mnec-violation-constraint-adjustment-coefficient"></a>
 ##### constraint-adjustment-coefficient
+
 - **Expected value**: numeric values, in MEGAWATT unit
 - **Default value**: 0.0
 - **Usage**: this coefficient is here to mitigate the approximation made by the linear optimisation (approximation = use

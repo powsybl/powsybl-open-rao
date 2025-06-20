@@ -11,7 +11,7 @@
 
 | Name                                             | Details                                                                       |
 |--------------------------------------------------|-------------------------------------------------------------------------------|
-| [pst-model](/parameters.md#pst-model) | This filler is used only if this parameters is set to *APPROXIMATED_INTEGERS* |
+| [pst-model](../../../parameters/implementation-specific-parameters.md#pst-model) | This filler is used only if this parameters is set to *APPROXIMATED_INTEGERS* |
 
 ## Defined optimization variables
 

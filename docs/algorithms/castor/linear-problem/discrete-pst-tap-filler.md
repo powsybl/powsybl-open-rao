@@ -13,13 +13,13 @@
 
 [^1]: PST range actions' lower & upper bounds are computed using CRAC + network + previous RAO results, depending on the
 types of their ranges: ABSOLUTE, RELATIVE_TO_INITIAL_NETWORK, RELATIVE_TO_PREVIOUS_INSTANT (more
-information [here](/input-data/crac/json.md#range-actions))
+information [here](../../../input-data/crac/json.md#range-actions))
 
 ## Used parameters
 
-| Name                                             | Details                                                                       |
-|--------------------------------------------------|-------------------------------------------------------------------------------|
-| [pst-model](/parameters.md#pst-model) | This filler is used only if this parameters is set to *APPROXIMATED_INTEGERS* |
+| Name                                                                             | Details                                                                       |
+|----------------------------------------------------------------------------------|-------------------------------------------------------------------------------|
+| [pst-model](../../../parameters/implementation-specific-parameters.md#pst-model) | This filler is used only if this parameters is set to *APPROXIMATED_INTEGERS* |
 
 ## Defined optimization variables
 

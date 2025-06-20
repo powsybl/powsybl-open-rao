@@ -49,7 +49,7 @@ By defining the search-tree depth as a parameter, CASTOR can be used easily in b
 
 
 ---
-See also: [Preventive search stop criterion parameters](../../parameters/implementation-specific-parameters.md#max-preventive-search-tree-depth), [Curative search stop criterion parameters](/../../parameters/implementation-specific-parameters.md#max-curative-search-tree-depth)
+See also: [Preventive search stop criterion parameters](../../parameters/implementation-specific-parameters.md#max-preventive-search-tree-depth), [Curative search stop criterion parameters](../../parameters/implementation-specific-parameters.md#max-curative-search-tree-depth)
 
 ---
 
@@ -69,6 +69,6 @@ This parameter can be defined also through absolute increase :
 - minimum impact (in MW/degree or A/degree) for the use of PST/HVDC
 
 ---
-See also: [Network actions impact parameters](/parameters.md#network-actions-optimisation-parameters), [Range actions impact parameters](/parameters.md#range-actions-optimisation-parameters)
+See also: [Network actions impact parameters](../../parameters/business-parameters.md#network-actions-optimisation-parameters), [Range actions impact parameters](../../parameters/business-parameters.md#range-actions-optimisation-parameters)
 
 ---

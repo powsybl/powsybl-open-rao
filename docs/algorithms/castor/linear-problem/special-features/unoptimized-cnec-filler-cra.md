@@ -15,9 +15,9 @@
 
 ## Used parameters
 
-| Name                                                                                                                                  | Details                                                                             |
-|---------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------|
-| [do-not-optimize-curative-cnecs-for-tsos-without-cras](/parameters.md#do-not-optimize-curative-cnecs-for-tsos-without-cras) | This filler is only used if this parameter is activated, and only for curative RAO. |
+| Name                                                                                                                                                       | Details                                                                             |
+|------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------|
+| [do-not-optimize-curative-cnecs-for-tsos-without-cras](../../../../parameters/business-parameters.md#do-not-optimize-curative-cnecs-for-tsos-without-cras) | This filler is only used if this parameter is activated, and only for curative RAO. |
 
 ## Defined optimization variables
 
