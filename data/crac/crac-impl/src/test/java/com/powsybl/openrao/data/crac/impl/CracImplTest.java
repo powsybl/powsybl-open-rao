@@ -975,20 +975,15 @@ class CracImplTest {
     }
 
     @Test
-    void testGetInstantsByKindWithTwoInstantsPerInstantKind() {
-        crac.newInstant("preventive 2", InstantKind.PREVENTIVE)
-            .newInstant("outage 2", InstantKind.OUTAGE)
-            .newInstant("auto 2", InstantKind.AUTO)
-            .newInstant("curative 2", InstantKind.CURATIVE);
-        Instant preventiveInstant2 = crac.getInstant("preventive 2");
-        Instant outageInstant2 = crac.getInstant("outage 2");
-        Instant autoInstant2 = crac.getInstant("auto 2");
-        Instant curativeInstant2 = crac.getInstant("curative 2");
+    void testTwoPreventiveInstants() {
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> crac.newInstant("preventive 2", InstantKind.PREVENTIVE));
+        assertEquals("Only one preventive instant is allowed", exception.getMessage());
+    }
 
-        assertEquals(Set.of(preventiveInstant, preventiveInstant2), crac.getInstants(InstantKind.PREVENTIVE));
-        assertEquals(Set.of(outageInstant, outageInstant2), crac.getInstants(InstantKind.OUTAGE));
-        assertEquals(Set.of(autoInstant, autoInstant2), crac.getInstants(InstantKind.AUTO));
-        assertEquals(Set.of(curativeInstant, curativeInstant2), crac.getInstants(InstantKind.CURATIVE));
+    @Test
+    void testTwoOutageInstants() {
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> crac.newInstant("outage 2", InstantKind.OUTAGE));
+        assertEquals("Only one outage instant is allowed", exception.getMessage());
     }
 
     @Test
@@ -1313,5 +1308,25 @@ class CracImplTest {
         assertEquals(Set.of(flowCnec), crac.getCnecs(PhysicalParameter.FLOW, crac.getState("co1", crac.getInstant(CURATIVE_INSTANT_ID))));
         assertEquals(Set.of(angleCnec), crac.getCnecs(PhysicalParameter.ANGLE, crac.getState("co1", crac.getInstant(CURATIVE_INSTANT_ID))));
         assertEquals(Set.of(voltageCnec), crac.getCnecs(PhysicalParameter.VOLTAGE, crac.getState("co1", crac.getInstant(CURATIVE_INSTANT_ID))));
+    }
+
+    @Test
+    void createCracWithSeveralAutoInstants() {
+        CracImpl badCrac = new CracImpl("crac");
+        badCrac.newInstant("preventive", InstantKind.PREVENTIVE);
+        badCrac.newInstant("outage", InstantKind.OUTAGE);
+        badCrac.newInstant("auto-1", InstantKind.AUTO);
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> badCrac.newInstant("auto-2", InstantKind.AUTO));
+        assertEquals("Only one auto instant is allowed and it must occur between outage and curative instants", exception.getMessage());
+    }
+
+    @Test
+    void createCracWithAutoInstantAfterCurative() {
+        CracImpl badCrac = new CracImpl("crac");
+        badCrac.newInstant("preventive", InstantKind.PREVENTIVE);
+        badCrac.newInstant("outage", InstantKind.OUTAGE);
+        badCrac.newInstant("curative", InstantKind.CURATIVE);
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> badCrac.newInstant("auto", InstantKind.AUTO));
+        assertEquals("Only one auto instant is allowed and it must occur between outage and curative instants", exception.getMessage());
     }
 }
