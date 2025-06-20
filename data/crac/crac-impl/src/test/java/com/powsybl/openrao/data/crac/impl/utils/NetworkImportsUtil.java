@@ -200,7 +200,7 @@ public final class NetworkImportsUtil {
             .setTargetV(400.0)
             .setVoltageRegulatorOn(true)
             .add();
-        for (String lineId : List.of("ne1Id", "ne2Id", "ne3Id")) {
+        for (String lineId : List.of("ne1Id", "ne2Id", "ne3Id", "ne4Id", "ne5Id")) {
             network.newLine()
                 .setId(lineId)
                 .setVoltageLevel1("VL1")

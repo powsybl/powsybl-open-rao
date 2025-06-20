@@ -17,7 +17,7 @@ Feature: US 5.1: Maximum margin stop criterion
 
   @fast @rao @mock @ac @preventive-only
   Scenario: US 5.1.0.b: use relevant number of decimals for margin and cost logging
-    Given network file is "common/TestCase12Nodes.uct"
+    Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic5/SL_ep5us1b.json"
     Given configuration file is "common/RaoParameters_posMargin_ampere.json"
     When I launch search_tree_rao
