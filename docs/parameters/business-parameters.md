@@ -46,8 +46,8 @@ These parameters (objective-function) configure the remedial action optimisation
 second preventive won't be run, even if curative cost is higher, in order to save computation time* 
 
 ### Range actions optimisation parameters
-These parameters (range-actions-optimization) tune the [linear optimiser](/castor/linear-problem.md) used to optimise range actions.  
-(See [Modelling CNECs and range actions](/castor/linear-problem/core-problem-filler.md))
+These parameters (range-actions-optimization) tune the [linear optimiser](../algorithms/castor/linear-problem.md) used to optimise range actions.  
+(See [Modelling CNECs and range actions](../algorithms/castor/linear-problem/core-problem-filler.md))
 
 #### pst-ra-min-impact-threshold
 - **Expected value**: numeric value, unit: unit of the objective function / ° (per degree)
@@ -113,7 +113,7 @@ optimisation of specific CNECs in specific conditions.
   This parameter should be set to true for CORE CC.
 
 ### Loop-flow optional parameter
-Adding a LoopFlowParameters to RaoParameters will activate [loop-flow constraints](/castor/special-features/loop-flows.md).  
+Adding a LoopFlowParameters to RaoParameters will activate [loop-flow constraints](../algorithms/castor/special-features/loop-flows.md).  
 (The RAO will monitor the loop-flows on CNECs that have a LoopFlowThreshold extension.)  
 The following parameters tune some of these constraints, the one which are not implementation specific. 
 See also: [Modelling loop-flows and their virtual cost](../algorithms/castor/linear-problem/special-features/max-loop-flow-filler.md)
@@ -140,11 +140,13 @@ See also: [Modelling loop-flows and their virtual cost](../algorithms/castor/lin
   Netherlands.
 
 ### MNEC optional parameter
+
 Adding a MnecParameters to RaoParameters will activate [MNEC constraints](../algorithms/castor/linear-problem/special-features/mnec-filler.md).  
-(The RAO will only monitor CNECs that are only ["monitored"](/input-data/crac/json.md#cnecs)).
+(The RAO will only monitor CNECs that are only ["monitored"](../input-data/crac/json.md#cnecs)).
 The following parameters tune some of these constraints, the one which are not implementation specific.
 
 #### acceptable-margin-decrease
+
 - **Expected value**: numeric values, in MEGAWATT unit
 - **Default value**: 50 MW (required by CORE CC methodology)
 - **Usage**: the decrease of the initial margin that is allowed by the optimisation on MNECs.  

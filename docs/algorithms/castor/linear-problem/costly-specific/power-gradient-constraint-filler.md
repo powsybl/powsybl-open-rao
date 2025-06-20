@@ -19,8 +19,8 @@
 
 ## Used optimization variables
 
-| Name                                      | Symbol              | Defined in                                                                 |
-|-------------------------------------------|---------------------|----------------------------------------------------------------------------|
+| Name                                      | Symbol              | Defined in                                                                    |
+|-------------------------------------------|---------------------|-------------------------------------------------------------------------------|
 | Range Action upward set-point variation   | $\Delta^{+}(r,s,t)$ | [CoreProblemFiller](../core-problem-filler.md#defined-optimization-variables) |
 | Range Action downward set-point variation | $\Delta^{-}(r,s,t)$ | [CoreProblemFiller](../core-problem-filler.md#defined-optimization-variables) |
 
@@ -28,7 +28,7 @@
 
 ### Define the impact of injections on generator
 
-For a given generator $g$ at state $s$ of timestamp $t \in \mathcal{T}$, we denote $\mathcal{I}(g,s,t)$ the set of [injection range actions](/input-data/crac/json.html#injection-range-action) defined at state $s$ for timestamp $t$ that act on $g$. For each such injection range action $i$, $d_{i}(g)$ denotes the distribution key of $g$ for this very remedial action. The power of $g$ at state $s$ is:
+For a given generator $g$ at state $s$ of timestamp $t \in \mathcal{T}$, we denote $\mathcal{I}(g,s,t)$ the set of [injection range actions](../../../../input-data/crac/json.md#injection-range-action) defined at state $s$ for timestamp $t$ that act on $g$. For each such injection range action $i$, $d_{i}(g)$ denotes the distribution key of $g$ for this very remedial action. The power of $g$ at state $s$ is:
 
 $$\forall g, t \quad  P(g,s,t) = p_{0}(g,s,t) + \sum_{i \in \mathcal{I}(g,s,t)} d_i(g) \left [ \Delta^{+}(r,s,t) - \Delta^{-}(r,s,t) \right ]$$
 

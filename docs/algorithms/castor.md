@@ -21,7 +21,7 @@ CASTOR considers the following remedial actions:
 
 The impact of some types of remedial actions on flows could be considered to be linear: optimisation of HVDC setpoints and optimisation of generation unit setpoints. In addition to these, CASTOR also considers phase shifter transformers as linear remedial actions.[^1]
 
-[^1]: CASTOR offers different approximation levels for modelling PSTs. See [the relevant RAO parameter](../parameters.md#pst-model) for more information.
+[^1]: CASTOR offers different approximation levels for modelling PSTs. See [the relevant RAO parameter](../parameters/implementation-specific-parameters.md#pst-model) for more information.
 
 A phase shifter transformer (PST) is defined by its range of acceptable tap settings.
 This acceptable tap setting can be defined by three different ways:
@@ -41,7 +41,7 @@ As a matter of clarification, connecting/disconnecting a generation unit can als
 
 ## Search tree algorithm
 
-![Search tree RAO algorithm](/_static/img/search-tree-algo-with-linear.jpg)
+![Search tree RAO algorithm](../_static/img/search-tree-algo-with-linear.jpg)
 
 For each iteration/step (a level of depth in tree):
 - Determination of available remedial actions.
@@ -56,7 +56,7 @@ Note that if no candidate can increase the objective function value more than co
 
 By default, CASTOR always studies the combination of PST and other linear remedial actions with each individual non-linear remedial action. This allows to better take into consideration the joint effect of non-linear remedial with available LRAs (in particular if the non-linear remedial action impacts significantly the sensitivity of available LRAs, typically if both actions are in close electrical vicinity).
 
-![Search Tree example](/_static/img/search-tree-example.png){.forced-white-background}
+![Search Tree example](../_static/img/search-tree-example.png){.forced-white-background}
 
 In this figure above, 3 non-linear remedial actions are available, as well as a list of PSTs (LRAs). Each non-linear remedial action is applied on the grid situation. However, prior to an assessment of the objective function value, sensitivities are assessed (with consideration of the applied non-linear action), and LRAs are optimised.
 
@@ -108,7 +108,7 @@ of CNEC $i$ relatively to a commercial border (zone-to-zone) of the capacity cal
 
 The objective function of CASTOR is also configurable. The constraints taken into account within the 
 optimisation are also configurable in order to comply with process specificities (i.e. limitation of 
-[loop flows](/castor/special-features/loop-flows) required for Flow based CORE Capacity Calculation).
+[loop flows](castor/special-features/loop-flows.md) required for Flow based CORE Capacity Calculation).
 
 
 ##### For NTC Capacity calculation/CEP Validation

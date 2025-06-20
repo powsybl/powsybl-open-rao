@@ -30,7 +30,7 @@ OpenRAO distinguishes two types of remedial actions, **range actions** and **net
 
 Range actions are actions on the network with a degree of freedom: the choice of a **set-point** within a given range. 
 These actions can be optimised linearly, with some approximations. For more information related to the linear optimisation 
-of range actions in OpenRAO, please refer to the [dedicated documentation page](/castor/linear-problem.md).
+of range actions in OpenRAO, please refer to the [dedicated documentation page](../algorithms/castor/linear-problem.md).
 
 They can be defined on some categories of network elements:
 - Phase Shift Transformer (PST),

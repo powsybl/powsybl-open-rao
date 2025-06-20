@@ -21,7 +21,7 @@
 | pre-perimeter tap position                   | $t_{0}(r)$                       | tap of PstRangeAction $r$ at the end of the previous optimization perimeter (or initial tap if preventive perimeter)                                                                                                                                     |
 
 *Note that this filler uses crac-creation-parameters
-defined [here](/input-data/crac/creation-parameters.md#ra-usage-limits-per-instant). Nonetheless, they are modified to
+defined [here](../../../input-data/crac/creation-parameters.md#ra-usage-limits-per-instant). Nonetheless, they are modified to
 take into account applied topological actions first.*
 
 ## Defined optimization variables
@@ -60,7 +60,7 @@ $$
 *⚠️ In order to mitigate rounding issues, and ensure that the max and min setpoints are feasible, a small "epsilon" (
 1e-4) is added to max / subtracted to min setpoint.*
 
-*⚠️ In order to mitigate PST tap ↔ angle approximation in "[APPROXIMATED_INTEGERS](/parameters.md#pst-model)"
+*⚠️ In order to mitigate PST tap ↔ angle approximation in "[APPROXIMATED_INTEGERS](../../../parameters/implementation-specific-parameters.md#pst-model)"
 mode, and ensure that the initial setpoint is feasible, a correction factor is added or subtracted from the initial
 setpoint in the constraints above. This coefficient is computed as 30% of the average tap to angle conversion factor:*  
 *correction = 0.3 x abs((max angle - min angle) / (max tap - min tap))*
@@ -116,7 +116,7 @@ $$
 
 ### Define the absolute tap variation variable
 
-_️⚠️ Only if [APPROXIMATED_INTEGERS](/parameters.md#pst-model) mode._
+_️⚠️ Only if [APPROXIMATED_INTEGERS](../../../parameters/implementation-specific-parameters.md#pst-model) mode._
 
 _💡 Ideally, we would like to define $\Delta t (r) = | t_{n}(r) + \Delta t^{+} (r) - \Delta t^{-} (r) - t_{0}(r) |$
 but this is not linear. Instead, a classical workaround is done as follows:_
@@ -133,7 +133,7 @@ $$
 
 ### Maximum number of elementary actions per TSO
 
-_️⚠️ Only if [APPROXIMATED_INTEGERS](/parameters.md#pst-model) mode._
+_️⚠️ Only if [APPROXIMATED_INTEGERS](../../../parameters/implementation-specific-parameters.md#pst-model) mode._
 
 $$
 \begin{equation}

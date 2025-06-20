@@ -28,7 +28,7 @@ In particular, the Linear RAO module is used in [CASTOR](../castor.md#castor-the
 
 The main inputs of the algorithm are:
 - the network of the "initial situation", where the remedial actions are supposed to be at their "initial position",
-- an extract of the original [CRAC](/input-data/crac.md), containing only the range actions to be optimised.
+- an extract of the original [CRAC](../../input-data/crac.md), containing only the range actions to be optimised.
 
 ## Outputs
 
@@ -45,7 +45,7 @@ These sensitivities (or Phase Shifter Distribution Factors, PSDF) are re-compute
 
 Hereunder, the specific workflow related to linear optimisation.
 
-![Linear RAO algorithm](/_static/img/linear-rao-algo.png)
+![Linear RAO algorithm](../../_static/img/linear-rao-algo.png)
 
 ### Forcing set-points of a defined set of linear remedial actions to be equal
 
@@ -53,7 +53,7 @@ CASTOR can be configured to define groups of "aligned" LRAs whose taps should be
 
 ### Minimum impact of a LRA in the linear optimisation
 
-In order to control the usage of LRAs in the optimisation, it is possible to set a constraint in the optimisation problem: the change in set-point value of one particular LRA should not have an impact on the objective function smaller than a configurable value (see [pst-sensitivity-threshold](/parameters.md#pst-sensitivity-threshold), [hvdc-sensitivity-threshold](/parameters.md#hvdc-sensitivity-threshold), and [injection-ra-sensitivity-threshold](/parameters.md#injection-ra-sensitivity-threshold)).
+In order to control the usage of LRAs in the optimisation, it is possible to set a constraint in the optimisation problem: the change in set-point value of one particular LRA should not have an impact on the objective function smaller than a configurable value (see [pst-sensitivity-threshold](../../parameters/implementation-specific-parameters.md#pst-sensitivity-threshold), [hvdc-sensitivity-threshold](../../parameters/implementation-specific-parameters.md#hvdc-sensitivity-threshold), and [injection-ra-sensitivity-threshold](../../parameters/implementation-specific-parameters.md#injection-ra-sensitivity-threshold)).
 
 When computing the LRA sensitivities, only the ones which are higher than these parameters are considered and the others are considered zero. This allows us to filter out the PSTs which don't have a big enough impact on the CNECs.
 
@@ -63,7 +63,7 @@ $$\begin{equation}
 \max MM - \sum_{lra \in \mathcal{LRA}} \Delta_{lra} c^{LRA}
 \end{equation}$$
 
-with $MM$ the minimum margin, $\mathcal{LRA}$ the set of LRAs, $\Delta_{lra}$ the variation of setpoint of the LRA $lra$, and $c^{LRA}$ the penalty cost (see [pst-ra-min-impact-threshold](/parameters.md#pst-ra-min-impact-threshold), [hvdc-ra-min-impact-threshold](/parameters.md#hvdc-ra-min-impact-threshold), and [injection-ra-min-impact-threshold](/parameters.md#injection-ra-min-impact-threshold)).
+with $MM$ the minimum margin, $\mathcal{LRA}$ the set of LRAs, $\Delta_{lra}$ the variation of setpoint of the LRA $lra$, and $c^{LRA}$ the penalty cost (see [pst-ra-min-impact-threshold](../../parameters/business-parameters.md#pst-ra-min-impact-threshold), [hvdc-ra-min-impact-threshold](../../parameters/business-parameters.md#hvdc-ra-min-impact-threshold), and [injection-ra-min-impact-threshold](../../parameters/business-parameters.md#injection-ra-min-impact-threshold)).
 
 This way, if two solutions provide (almost) the same minimum margin, the problem will favor the one that changes the setpoints the 
 least.

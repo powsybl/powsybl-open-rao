@@ -6,7 +6,7 @@ selection of remedial actions cost-wise.
 
 > ⚙️ **Objective function setting**
 >
-> To run OpenRAO in costly mode, the [objective function type](../parameters/business-parameters.md#type) must be set to
+> To run OpenRAO in costly mode, the [objective function type](../../../../parameters/business-parameters.md#type) must be set to
 > `MIN_COST`
 
 In costly mode, the goal of the RAO is two-fold:
@@ -21,7 +21,7 @@ to future rounding errors, one solution is to shift the security domain of the l
 of error. This security shift is noted as $\Delta_{secure}$.
 
 > ⚙️ The security domain shift is set with the
-> [`shifted-violation-threshold`](../parameters/implementation-specific-parameters.md#shifted-violation-threshold) parameter.
+> [`shifted-violation-threshold`](../../../../parameters/implementation-specific-parameters.md#shifted-violation-threshold) parameter.
 
 <!-- TODO: definir ça en paramètre comme dans loop flow-->
 
@@ -38,7 +38,7 @@ Participation to the objective function:
 $$\text{Minimize } P_{overload} \times MMV$$
 
 > ⚙️ The overload penalty is set with the
-> [`shifted-violation-penalty`](../parameters/implementation-specific-parameters.md#shifted-violation-penalty) parameter.
+> [`shifted-violation-penalty`](../../../../parameters/implementation-specific-parameters.md#shifted-violation-penalty) parameter.
 
 
 ## Remedial action cost
@@ -46,12 +46,12 @@ $$\text{Minimize } P_{overload} \times MMV$$
 Remedial actions have inherent costs that represent the operators' expenses. Costs can be divided in two categories:
 
 1. **activation costs** which are only taken into account if the remedial action is chosen by the RAO;
-2. **variation costs**, only defined for [range actions](../input-data/crac/json.md#range-actions). They
+2. **variation costs**, only defined for [range actions](../../../../input-data/crac/json.md#range-actions). They
    represent what it costs to shift an HVDC or redispatching action's set-point by 1 MW, or to pass one tap for
    PSTs. These variation costs can be different based on the variation direction (upward or downward).
 
 Using the same notations as in the
-[section dedicated to the linear problem](linear-problem/core-problem-filler.md#remedial-actions-cost-optimization), the
+[section dedicated to the linear problem](../core-problem-filler.md#span-stylecolor-marooncostly-onlyspan---remedial-actions-cost-optimization), the
 participation of the costs of remedial actions to the objective function is the sum of the activation and
 variation costs of remedial actions for all optimization states.
 

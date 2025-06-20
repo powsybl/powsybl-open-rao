@@ -25,7 +25,7 @@ INFO  c.p.o.commons.logs.RaoBusinessLogs - Initial sensitivity analysis: cost = 
 INFO  c.p.o.commons.logs.RaoBusinessLogs - Limiting element #01: margin = -182.55 MW, element NNL1AA1  NNL3AA1  1 at state Contingency_FR1_FR3 - outage, CNEC ID = "NL1-NL3-D - outage"
 INFO  c.p.o.commons.logs.RaoBusinessLogs - Limiting element #02: margin = -166.08 MW, element FFR2AA1  FFR3AA1  1 at state preventive, CNEC ID = "FR2-FR3-O - preventive"
 ~~~
-In this case, the most limiting CNEC is "NL1-NL3-D - outage" (this is its unique ID in the [OpenRAO CRAC object](../input-data/crac/json.md)).  
+In this case, the most limiting CNEC is "NL1-NL3-D - outage" (this is its unique ID in the [OpenRAO CRAC object](../../input-data/crac/json.md)).  
 It monitors network element "NNL1AA1  NNL3AA1  1", after contingency "Contingency_FR1_FR3" (unique ID of the contingency 
 in the OpenRAO CRAC), at the "outage" instant (i.e. before applying auto & curative actions).
 The margin on this CNEC is -182.55MW, so the branch is actually over-charged by 182MW.

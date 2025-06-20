@@ -52,7 +52,7 @@ The first step is to import a network for the simulation. As an example, we will
 network that is made of 18 lines including 1 PST spread over 4 countries. All the production (1000 MW) is located in the
 Netherlands (node _NNL1AA1_) and the consumption (1000 MW) is in France (node _FFR1AA1_).
 
-![Basecase network](/_static/img/tutorial/basecase.svg){.forced-white-background}
+![Basecase network](../_static/img/tutorial/basecase.svg){.forced-white-background}
 
 We will create a UCTE file to model this network, so it can be processed and imported for the RAO. Copy and paste the
 network data in a file named `12Nodes.uct` that you shall store in the resources directory of the project.
@@ -114,7 +114,7 @@ resulting problems on the network thanks to remedial actions.
 
 ## Create CRAC
 
-The [CRAC](/input-data/crac.md) is the data object that contains all the key information for the RAO, i.e. the
+The [CRAC](../input-data/crac.md) is the data object that contains all the key information for the RAO, i.e. the
 contingencies to simulate, the CNECs to optimise and the remedial actions to apply. The RAO's Java API allows users to
 manually fill the CRAC with all the required and desired data.
 
@@ -129,7 +129,7 @@ the information required to model our scenario.
 
 ### Create contingencies
 
-Start by defining a [contingency](/input-data/crac/json.md#contingencies) called "contingency", on line
+Start by defining a [contingency](../input-data/crac/json.md#contingencies) called "contingency", on line
 _NNL3AA1 DDE2AA1 1_, with the following code:
 
 ```java
@@ -141,7 +141,7 @@ crac.newContingency()
 
 ### Add instants
 
-Once the contingencies are added, we can now create the different [instants](/input-data/crac/json.md#instants-and-states)
+Once the contingencies are added, we can now create the different [instants](../input-data/crac/json.md#instants-and-states)
 of the optimisation process. An instant is added thanks to the `newInstant` method. Both an identifier and
 an `InstantKind` (`PREVENTIVE`, `OUTAGE`, `AUTO` or `CURATIVE`) must be provided. The instants must also be declared in
 **chronological order**.
@@ -164,8 +164,8 @@ Now that contingencies and instants are all set, we can start adding CNECs and r
 
 ### Create FlowCNECs
 
-The next step is to create the [CNECs](/input-data/crac/json.md#cnecs). For our example and given the simple network
-we are using, we will only consider [FlowCNECs](/input-data/crac/json.md#flow-cnecs) that correspond to lines in the
+The next step is to create the [CNECs](../input-data/crac/json.md#cnecs). For our example and given the simple network
+we are using, we will only consider [FlowCNECs](../input-data/crac/json.md#flow-cnecs) that correspond to lines in the
 network that will have to be optimised flow-wise after contingencies (and in basecase). The FlowCNECs also have
 thresholds that indicate the maximum admissible flow on the line for a given instant.
 
@@ -227,7 +227,7 @@ crac.newFlowCnec()
 
 #### Add a preventive PST range action
 
-Let us add preventive a [PST range action](/input-data/crac/json.md#range-actions). For simplicity's sake, it is
+Let us add preventive a [PST range action](../input-data/crac/json.md#range-actions). For simplicity's sake, it is
 easier to rely on an `IidmPstHelper` which fetches the PST's information in the network to create the remedial action.
 
 ```java
@@ -307,7 +307,7 @@ raoParameters.getRangeActionsOptimizationParameters().setPstModel(RangeActionsOp
 
 ## Run the RAO
 
- Run the RAO using the following code to produce a [`RaoResult`](/output-data/rao-result.md) object:
+ Run the RAO using the following code to produce a [`RaoResult`](../output-data/rao-result.md) object:
 
  ```java
  RaoInput.RaoInputBuilder raoInputBuilder = RaoInput.build(network, crac);
@@ -328,7 +328,7 @@ As presented earlier, the whole electricity production (1000 MW) in the network 
 is divided evenly among lines _NNL2AA1 BBE3AA1 1_ and _DDE2AA1 NNL3AA1 1_. The consumption (1000 MW as well) is entirely
 locate at node _FFR1AA1_.
 
-![Basecase network](/_static/img/tutorial/basecase.svg){.forced-white-background}
+![Basecase network](../_static/img/tutorial/basecase.svg){.forced-white-background}
 
 However, the PATL of line _NNL2AA1 BBE3AA1 1_ is set to 410 MW which is below the current 500 MW flow on the line. Thus,
 remedial actions must be applied to solve this base case issue. In The CRAC, we only defined one preventive remedial
@@ -356,7 +356,7 @@ When reading the preventive perimeter's logs above, we notice that the RAO set t
 increases the flow margin on line _NNL2AA1 BBE3AA1 1_ up to 8.15 MW (i.e. reduces the flow to 402 MW). The preventive
 perimeter is thus secured. The network with the preventive remedial action applied is displayed below.
 
-![Network with PRAs applied](/_static/img/tutorial/preventive.svg){.forced-white-background}
+![Network with PRAs applied](../_static/img/tutorial/preventive.svg){.forced-white-background}
 
 ### Loss of line
 
@@ -364,7 +364,7 @@ The contingency is then simulated: line _NNL3AA1 DDE2AA1 1_ is lost. The network
 is
 now of 1000 MW (the whole production power) on line _NNL2AA1 BBE3AA1 1_.
 
-![Network after outage](/_static/img/tutorial/outage.svg){.forced-white-background}
+![Network after outage](../_static/img/tutorial/outage.svg){.forced-white-background}
 
 However, the line's TATL is exactly 1000 MW so the network is temporarily secure. Note that this result is coherent with
 the most limiting element displayed at the end of the preventive perimeter logs:
@@ -419,7 +419,7 @@ We can see in the logs that the remedial action was indeed applied, increasing t
 76.67 MW (i.e. decreasing the flow to 333 MW which is below the PATL). At the end of the curative perimeter, the network
 is secure and the three parallel lines are all connected.
 
-![Network with CRAs applied](/_static/img/tutorial/curative.svg){.forced-white-background}
+![Network with CRAs applied](../_static/img/tutorial/curative.svg){.forced-white-background}
 
 ### Final results
 

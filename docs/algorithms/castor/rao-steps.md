@@ -46,7 +46,7 @@ That's why, regardless of the impacts on CNECs, forced automatic remedial action
 activation conditions are met (e.g. after a given contingency).
 In CASTOR, this simulation is carried out in two stages, the first handling specifically the automatic remedial
 actions for which there is not set-point to compute. These remedial actions are
-called [network actions](/input-data/crac/json.md#network-actions). They include topological actions, injection
+called [network actions](../../input-data/crac/json.md#network-actions). They include topological actions, injection
 set-points, PST set-points, switch pairs.
 
 #### Automatic network actions simulation
@@ -100,7 +100,7 @@ need to determine the set-point on which they are applied.
 
 Here is an example of the simulation of automatic range actions:
 
-![Simulation_Of_Auto_Range_Actions](/_static/img/simulation_ara.png)
+![Simulation_Of_Auto_Range_Actions](../../_static/img/simulation_ara.png)
 
 ## Curative perimeters
 
@@ -124,7 +124,7 @@ Operationally, curative actions are sized in order to overcome the difference be
 While during preventive actions, only the TATL has to be respected (active flow should remain below this value),
 curative actions (if properly sized), should be able to reduce the active flow in order to respect the PATL value.
 
-![PATL vs TATL](/_static/img/patl-tatl.png){.forced-white-background}
+![PATL vs TATL](../../_static/img/patl-tatl.png){.forced-white-background}
 
 When curative actions are not sized properly and are not sufficient to respect the two limits, CASTOR will then
 investigate additional preventive remedial actions, by running
@@ -147,7 +147,7 @@ function value can be increased through the application of this action) when com
   against this limit due to applied preventive actions. Curative actions should then normally make the flow go below the
   PATL value.
 
-![Different thresholds for different instants](/_static/img/curative1.png)
+![Different thresholds for different instants](../../_static/img/curative1.png)
 
 ### Extension of the preventive perimeter to the curative situation
 
@@ -164,7 +164,7 @@ the PATL and TATL value. If such preventive solution were selected, due to the u
 the flow in curative would remain higher than the PATL value, which would correspond to an overload on the grid element
 (situation for Outage 2 in the figure below).
 
-![Curative CNEC in preventive example](/_static/img/curative2.png)
+![Curative CNEC in preventive example](../../_static/img/curative2.png)
 
 ### Multiple curative instants
 
@@ -176,7 +176,7 @@ TODO + schema or link towards schema in NC
 Given the sequential nature of CASTOR's search-tree algorithm, some constraints on curative CNECs that cannot be solved
 by curative remedial actions are not seen by the preventive RAO.  
 After the curative RAO is complete, the user has the possibility
-to [run a second preventive RAO](/parameters.md#second-preventive-rao-parameters).  
+to [run a second preventive RAO](../../parameters/implementation-specific-parameters.md#second-preventive-rao-parameters).  
 The differences with the first preventive RAO are that, in this run:
 
 - **all CNECs** are optimised, whatever their state;
@@ -186,6 +186,6 @@ The differences with the first preventive RAO are that, in this run:
   the preventive RAO to focus on constraints that cannot be solved by curative actions.
 
 _* It is possible to re-optimise curative range actions during second preventive RAO
-using [this parameter](/parameters.md#re-optimize-curative-range-actions)._
+using [this parameter](../../parameters/implementation-specific-parameters.md#re-optimize-curative-range-actions)._
 
-![PATL vs TATL](/_static/img/rao_steps.png){.forced-white-background} 
+![PATL vs TATL](../../_static/img/rao_steps.png){.forced-white-background} 

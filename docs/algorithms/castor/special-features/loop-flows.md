@@ -12,7 +12,7 @@ When the power flows from the production areas to the consumers, the current phy
   - **import/export flows**: the current only travels through lines that are in Z1 or Z2
   - **transit flows**: the current travels through lines that are in at least 3 different bidding zones
 
-![Different types of flows](/_static/img/Flows.png)
+![Different types of flows](../../../_static/img/Flows.png)
 
 Therefore, loop-flows are the flows remaining on cross-border 
 lines when no commercial exchanges are present. Loop-flows limit the capacity available for the market.
@@ -36,12 +36,12 @@ F_{commercial} (c) = \sum_{z \in LFC} PTDF(c,z) * NP(z)
 \end{equation}$$
 
 With:
-- LFC, the set of bidding zones for which we compute the commercial flows, set under [loop-flow-countries](/parameters.md#countries)
-- NP, the net position of the bidding zone z, read from the [ReferenceProgram](/input-data/reference-program.md)
-- PTDF, the power transfer distribution factor of the bidding zone z on the FlowCnec c, eventually recomputed within the RAO depending on the value of the configuration parameter [loop-flow-approximation](/parameters.md#ptdf-approximation).
-The PTDF represents FlowCnec c's sensitivity to a variation of the net position on the bidding zone Z mapped on the network according to [GLSK](/input-data/glsk.md)).
+- LFC, the set of bidding zones for which we compute the commercial flows, set under [loop-flow-countries](../../../parameters/business-parameters.md#countries)
+- NP, the net position of the bidding zone z, read from the [ReferenceProgram](../../../input-data/specific-input-data/reference-program.md)
+- PTDF, the power transfer distribution factor of the bidding zone z on the FlowCnec c, eventually recomputed within the RAO depending on the value of the configuration parameter [loop-flow-approximation](../../../parameters/implementation-specific-parameters.md#ptdf-approximation).
+The PTDF represents FlowCnec c's sensitivity to a variation of the net position on the bidding zone Z mapped on the network according to [GLSK](../../../input-data/glsk.md)).
 
 
 ## Implementation
 
-Loop-flow limitation are modelled in the RAO under the linear problem as constraints for each CNEC $i$ forcing the loop-flows within their bounds, see [Loop-flow constraints](/castor/linear-problem/max-loop-flow-filler.md).
+Loop-flow limitation are modelled in the RAO under the linear problem as constraints for each CNEC $i$ forcing the loop-flows within their bounds, see [Loop-flow constraints](../linear-problem/special-features/max-loop-flow-filler.md).

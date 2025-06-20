@@ -2,38 +2,38 @@
 
 ## Used input data
 
-| Name               | Symbol                   | Details                                                                                                                                                                                                                             |
-|--------------------|--------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| OptimisedFlowCnecs | $c \in \mathcal{C} ^{o}$ | Set of FlowCnecs[^1] which are ['optimised'](/input-data/crac/json.md#optimised-and-monitored-cnecs). OptimisedFlowCnecs is a subset of [FlowCnecs](../core-problem-filler.md#used-input-data): $\mathcal{C} ^{o} \subset \mathcal{C}$ |
-| upper threshold    | $f^{+}_{threshold} (c)$  | Upper threshold of FlowCnec $c$, in MW, as defined in the CRAC                                                                                                                                                                      |
-| lower threshold    | $f^{-}_{threshold} (c)$  | Lower threshold of FlowCnec $c$, in MW, defined in the CRAC                                                                                                                                                                         |
-| nominal voltage    | $U_{nom}(c)$             | Nominal voltage of OptimizedFlowCnec $c$                                                                                                                                                                                            |
+| Name               | Symbol                   | Details                                                                                                                                                                                                                                           |
+|--------------------|--------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| OptimisedFlowCnecs | $c \in \mathcal{C} ^{o}$ | Set of FlowCnecs[^1] which are ['optimised'](../../../../input-data/crac/json.md#optimised-and-monitored-cnecs). OptimisedFlowCnecs is a subset of [FlowCnecs](../core-problem-filler.md#used-input-data): $\mathcal{C} ^{o} \subset \mathcal{C}$ |
+| upper threshold    | $f^{+}_{threshold} (c)$  | Upper threshold of FlowCnec $c$, in MW, as defined in the CRAC                                                                                                                                                                                    |
+| lower threshold    | $f^{-}_{threshold} (c)$  | Lower threshold of FlowCnec $c$, in MW, defined in the CRAC                                                                                                                                                                                       |
+| nominal voltage    | $U_{nom}(c)$             | Nominal voltage of OptimizedFlowCnec $c$                                                                                                                                                                                                          |
 
 [^1]: CNECs that belong to a state for which sensitivity computations failed are ignored in the MILP
 
 ## Used parameters
 
-| Name                                   | Details |
-|----------------------------------------|---|
-| [type](/parameters.md#type) | Used to set the unit (AMPERE/MW) of the objective function |
+| Name                                                       | Details                                                    |
+|------------------------------------------------------------|------------------------------------------------------------|
+| [type](../../../../parameters/business-parameters.md#type) | Used to set the unit (AMPERE/MW) of the objective function |
 
 ## Defined optimization variables
 
-| Name | Symbol | Details | Type | Index | Unit | Lower bound | Upper bound |
-|---|---|---|---|---|---|---|---|
-| Minimum margin | $MM$ | the minimum margin over all OptimizedFlowCnecs | Real value | one scalar variable for the whole problem | MW or AMPERE (depending on [objective-function](/parameters.md#objective-function-parameters) unit) | $-\infty$ | $+\infty$ |
+| Name           | Symbol | Details                                        | Type       | Index                                     | Unit                                                                                                                               | Lower bound | Upper bound |
+|----------------|--------|------------------------------------------------|------------|-------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------|-------------|-------------|
+| Minimum margin | $MM$   | the minimum margin over all OptimizedFlowCnecs | Real value | one scalar variable for the whole problem | MW or AMPERE (depending on [objective-function](../../../../parameters/business-parameters.md#objective-function-parameters) unit) | $-\infty$   | $+\infty$   |
 
 ## Used optimization variables
 
-| Name | Symbol | Defined in                                                                 |
-|---|---|----------------------------------------------------------------------------|
+| Name | Symbol | Defined in                                                                    |
+|------|--------|-------------------------------------------------------------------------------|
 | Flow | $F(c)$ | [CoreProblemFiller](../core-problem-filler.md#defined-optimization-variables) |
 
 ## Defined constraints
 
 ### Define the minimum margin variable
 
-#### If [objective-function](/parameters.md#objective-function-parameters) is in MW
+#### If [objective-function](../../../../parameters/business-parameters.md#objective-function-parameters) is in MW
 
 $$
 \begin{equation}
@@ -50,7 +50,7 @@ $$
 Note that OptimizedFlowCnec might have only one threshold (upper or lower), in that case, only one of the two above constraints is defined.
 <br>
 
-#### If [objective-function](/parameters.md#objective-function-parameters) is in AMPERE
+#### If [objective-function](../../../../parameters/business-parameters.md#objective-function-parameters) is in AMPERE
 
 $$
 \begin{equation}
