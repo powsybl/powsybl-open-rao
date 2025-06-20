@@ -112,7 +112,8 @@ public class CostCoreProblemFiller extends AbstractCoreProblemFiller {
      */
     @Override
     protected void fillObjective(LinearProblem linearProblem) {
-        optimizationContext.getRangeActionsPerState().forEach((state, rangeActions) -> rangeActions.forEach(ra -> {
+        optimizationContext.getRangeActionsPerState().forEach((state, rangeActions) ->
+            rangeActions.forEach(ra -> {
                 OpenRaoMPVariable upwardVariationVariable = linearProblem.getRangeActionVariationVariable(ra, state, LinearProblem.VariationDirectionExtension.UPWARD);
                 OpenRaoMPVariable downwardVariationVariable = linearProblem.getRangeActionVariationVariable(ra, state, LinearProblem.VariationDirectionExtension.DOWNWARD);
 

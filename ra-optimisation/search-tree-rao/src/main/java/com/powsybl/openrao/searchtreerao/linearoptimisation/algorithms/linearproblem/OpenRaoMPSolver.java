@@ -175,6 +175,14 @@ public class OpenRaoMPSolver {
         if (OpenRaoLoggerProvider.TECHNICAL_LOGS.isTraceEnabled()) {
             mpSolver.enableOutput();
         }
+        /*try {
+            long now = System.currentTimeMillis();
+            OpenRaoLoggerProvider.BUSINESS_WARNS.warn("{}", now);
+            FileUtils.writeStringToFile(new File("/tmp/marmot" + now + ".lp"), mpSolver.exportModelAsLpFormat(), StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }*/
+
         return convertResultStatus(mpSolver.solve(solveConfiguration));
     }
 

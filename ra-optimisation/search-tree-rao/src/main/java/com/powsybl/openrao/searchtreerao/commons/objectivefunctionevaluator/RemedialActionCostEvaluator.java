@@ -17,8 +17,12 @@ import com.powsybl.openrao.searchtreerao.commons.costevaluatorresult.CostEvaluat
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.RemedialActionActivationResult;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Map;
 import java.util.Set;
+
+import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -56,11 +60,25 @@ public class RemedialActionCostEvaluator implements CostEvaluator {
 
     private double computeRangeActionCost(RangeAction<?> rangeAction, State state, RemedialActionActivationResult remedialActionActivationResult) {
         double variation = rangeAction instanceof PstRangeAction pstRangeAction ? (double) remedialActionActivationResult.getTapVariation(pstRangeAction, state) : remedialActionActivationResult.getSetPointVariation(rangeAction, state);
+        double after = rangeAction instanceof PstRangeAction pstRangeAction ? (double) remedialActionActivationResult.getOptimizedTap(pstRangeAction, state) : remedialActionActivationResult.getOptimizedSetpoint(rangeAction, state);
         if (variation == 0.0) {
             return 0.0;
         }
         double activationCost = rangeAction.getActivationCost().orElse(0.0);
         VariationDirection variationDirection = variation > 0 ? VariationDirection.UP : VariationDirection.DOWN;
+        if (!(rangeAction instanceof PstRangeAction)) {
+            TECHNICAL_LOGS.debug("{} variation of {} MW at state {} ({} -> {})", rangeAction.getId(),
+                BigDecimal.valueOf(variation).setScale(2, RoundingMode.HALF_UP),
+                state,
+                BigDecimal.valueOf(after - variation).setScale(2, RoundingMode.HALF_UP),
+                BigDecimal.valueOf(after).setScale(2, RoundingMode.HALF_UP));
+        } else {
+            TECHNICAL_LOGS.debug("{} variation of {} taps at state {} ({} -> {})", rangeAction.getId(),
+                BigDecimal.valueOf(variation).setScale(2, RoundingMode.HALF_UP),
+                state,
+                BigDecimal.valueOf(after - variation).setScale(2, RoundingMode.HALF_UP),
+                BigDecimal.valueOf(after).setScale(2, RoundingMode.HALF_UP));
+        }
         return activationCost + Math.abs(variation) * rangeAction.getVariationCost(variationDirection).orElse(0.0);
     }
 }
