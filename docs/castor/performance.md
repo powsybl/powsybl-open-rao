@@ -98,7 +98,6 @@ entire, much larger problem at once.
 
 > Currently, Fast RAO does not support multi-curative optimization
 
-> The current implementation is not adapted to maximize the min margin
 
 ### How to run an optimization process using FastRao
 
