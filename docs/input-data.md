@@ -31,7 +31,7 @@ CRAC/CBCORA (Critical Branch/Critical Outages/Remedial Actions) are not yet harm
 To limit dependencies with input/output formats, OpenRAO uses its own [CRAC format](input-data/crac/json.md) in order to be easily
 adaptable for any process.
 
-Please refer to the [dedicated CRAC section](input-data/crac.md) for more information.
+Please refer to the [dedicated CRAC section](../../../input-data/crac.md) for more information.
 
 CRAC exchange formats actually supported by OpenRAO:
 - [JSON CRAC](input-data/crac/json.md) (OpenRAO-specific)
