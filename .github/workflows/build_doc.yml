@@ -8,7 +8,7 @@ on:
 
 jobs:
   doc_ubuntu:
-    name: Build documentation on Ubuntu
+    name: ⚙️ Build documentation on Ubuntu
     runs-on: ubuntu-latest
     steps:
       - name: Checkout sources
@@ -25,12 +25,10 @@ jobs:
           pip3 install -r docs/requirements.txt
 
       - name: Build doc
-        run: |
-          sphinx-build -a docs ./build-docs
+        run: sphinx-build -a docs ./build-docs
 
-  links_check:
-    name: Check broken links
-    # needs: doc_ubuntu
+  broken_links_check:
+    name: 🔗 Look for broken links
     runs-on: ubuntu-latest
     steps:
       - name: Checkout sources
@@ -45,4 +43,6 @@ jobs:
         run: npm install -g markdown-link-check
 
       - name: Check all Markdown links
-        run: markdown-link-check ./docs -q
+        run: |
+          FILES=$(find ./docs -type f -name "*.md")
+          markdown-link-check -q $FILES
