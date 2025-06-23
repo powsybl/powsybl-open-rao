@@ -107,6 +107,7 @@ public class PostPerimeterSensitivityAnalysis {
         FlowResult flowResult = sensitivityComputer.getBranchResult(network);
         SensitivityResult sensitivityResult = sensitivityComputer.getSensitivityResult();
 
+        // Thread is executed once previousResultsFuture is fetched
         return Executors.newSingleThreadExecutor().submit(() -> {
             ObjectiveFunction objectiveFunction = ObjectiveFunction.build(
                 flowCnecs,

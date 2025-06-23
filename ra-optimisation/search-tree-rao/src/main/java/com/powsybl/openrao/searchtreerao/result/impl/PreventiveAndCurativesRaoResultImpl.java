@@ -114,11 +114,16 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
         return new OptimizationResultImpl(objectiveFunctionResult, secondPreventivePerimeterResult.getOptimizationResult(), secondPreventivePerimeterResult.getOptimizationResult(), secondPreventivePerimeterResult.getOptimizationResult(), secondPreventivePerimeterResult.getOptimizationResult());
     }
 
-    //Fill in results for states which were not optimized separately (either in preventive, or for states with no elements at all)
+    /**
+     * Fill in results for states which were not optimized separately (either in preventive, or for states with no elements at all)
+     * We go through only 2nd if statement for cases with CNECs without actions : state is defined, but no optimization was performed
+     */
     private void completePostContingencyResultsMap(StateTree stateTree) {
         crac.getContingencies().forEach(contingency -> {
             crac.getSortedInstants().stream().filter(instant -> !instant.isPreventive() && !instant.isOutage()).forEach(instant -> {
                 State state = crac.getState(contingency, instant);
+                // States are defined in crac when there are associated cnecs or actions.
+                // When no state is defined, we still want to evaluate objective functions at given contingency/instant
                 if (Objects.isNull(state)) {
                     state = new PostContingencyState(contingency, instant, crac.getTimestamp().orElse(null));
                 }

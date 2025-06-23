@@ -145,6 +145,7 @@ public class SearchTree {
             logOptimizationSummary(optimalLeaf);
             optimalLeaf.finalizeOptimization();
             return CompletableFuture.completedFuture(optimalLeaf);
+        // Actions have been applied on root leaf, finally revert to initial network
         } finally {
             input.getNetwork().getVariantManager().setWorkingVariant(preSearchTreeVariantId);
         }

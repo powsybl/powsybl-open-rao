@@ -117,7 +117,7 @@ public class CastorContingencyScenarios {
         boolean autoStateSensiFailed = false;
         if (automatonState.isPresent()) {
             AutomatonPerimeterResultImpl automatonResult = automatonSimulator.simulateAutomatonState(automatonState.get(), curativeStates, networkClone);
-            //recompute sensi and objective function considering all instants following auto + auto
+            //recompute sensi and objective function considering auto + all instants following auto
             PostPerimeterResult postAutoResult = getResultPostState(automatonState.get(), networkClone, prePerimeterSensitivityOutput, automatonResult);
             contingencyScenarioResults.put(automatonState.get(), postAutoResult);
             if (automatonResult.getComputationStatus() == ComputationStatus.FAILURE) {
@@ -153,7 +153,7 @@ public class CastorContingencyScenarios {
                     OptimizationResult curativeResult = optimizeCurativePerimeter(curativePerimeter, networkClone, previousPerimeterResult, resultsPerPerimeter, prePerimeterResultPerPerimeter);
                     allPreviousPerimetersSucceded = curativeResult.getSensitivityStatus() == DEFAULT;
                     applyRemedialActions(networkClone, curativeResult, curativeState);
-                    //recompute sensi and objective function considering all instants following curative + curative (useful if mult curative)
+                    //recompute sensi and objective function considering curative + all instants following curative (useful if mult curative)
                     PostPerimeterResult postCurativeResult = getResultPostState(curativeState, networkClone, prePerimeterSensitivityOutput, curativeResult);
                     contingencyScenarioResults.put(curativeState, postCurativeResult);
                     previousPerimeterResult = null;
