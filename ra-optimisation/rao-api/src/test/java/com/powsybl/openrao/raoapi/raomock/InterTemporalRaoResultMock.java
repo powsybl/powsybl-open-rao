@@ -41,17 +41,17 @@ public class InterTemporalRaoResultMock implements InterTemporalRaoResult {
     }
 
     @Override
-    public double getGlobalFunctionalCost(InstantKind instantKind) {
+    public double getGlobalFunctionalCost(Instant instant) {
         return 0;
     }
 
     @Override
-    public double getGlobalVirtualCost(InstantKind instantKind) {
+    public double getGlobalVirtualCost(Instant instant) {
         return 0;
     }
 
     @Override
-    public double getGlobalVirtualCost(InstantKind instantKind, String virtualCostName) {
+    public double getGlobalVirtualCost(Instant instant, String virtualCostName) {
         return 0;
     }
 

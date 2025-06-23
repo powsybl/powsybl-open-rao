@@ -36,6 +36,7 @@ import java.util.zip.ZipOutputStream;
 public final class RaoResultArchiveManager {
     private static final String INDIVIDUAL_RAO_RESULT_NAME_TEMPLATE_PROPERTY = "inter-temporal-rao-result.export.filename-template";
     private static final String INTER_TEMPORAL_RAO_RESULT_SUMMARY_FILENAME_PROPERTY = "inter-temporal-rao-result.export.summary-filename";
+    private static final String INTER_TEMPORAL_RAO_RESULT_PREVENTIVE_ONLY = "inter-temporal-rao-result.export.preventive-only";
     private static final String DEFAULT_INDIVIDUAL_RAO_RESULT_NAME_TEMPLATE = "'raoResult_'yyyyMMddHHmm'.json'";
     private static final String DEFAULT_INTER_TEMPORAL_RAO_RESULT_SUMMARY_FILENAME = "interTemporalRaoSummary.json";
 
@@ -50,7 +51,7 @@ public final class RaoResultArchiveManager {
             addRaoResultToZipArchive(timestamp, zipOutputStream, interTemporalRaoResult.getIndividualRaoResult(timestamp), cracs.getData(timestamp).orElseThrow(), properties, jsonFileNameTemplate);
         }
         List<Instant> instants = cracs.getDataPerTimestamp().values().iterator().next().getSortedInstants();
-        addSummaryToZipArchive(zipOutputStream, interTemporalRaoResult, summaryFilename, jsonFileNameTemplate, instants);
+        addSummaryToZipArchive(zipOutputStream, interTemporalRaoResult, summaryFilename, jsonFileNameTemplate, instants, exportOnlyPreventiveResults(properties));
     }
 
     private static void addRaoResultToZipArchive(OffsetDateTime timestamp, ZipOutputStream zipOutputStream, RaoResult raoResult, Crac crac, Properties properties, String jsonFileNameTemplate) throws IOException {
@@ -60,11 +61,11 @@ public final class RaoResultArchiveManager {
         byteArrayOutputStream.close();
     }
 
-    private static void addSummaryToZipArchive(ZipOutputStream zipOutputStream, InterTemporalRaoResult interTemporalRaoResult, String summaryFilename, String jsonFileNameTemplate, List<Instant> instants) throws IOException {
+    private static void addSummaryToZipArchive(ZipOutputStream zipOutputStream, InterTemporalRaoResult interTemporalRaoResult, String summaryFilename, String jsonFileNameTemplate, List<Instant> instants, boolean preventiveOnly) throws IOException {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         try {
             ObjectMapper objectMapper = JsonUtil.createObjectMapper();
-            SimpleModule module = new JsonInterTemporalRaoResultSerializerModule(jsonFileNameTemplate, instants);
+            SimpleModule module = new JsonInterTemporalRaoResultSerializerModule(jsonFileNameTemplate, preventiveOnly ? List.of(instants.get(0)) : instants);
             objectMapper.registerModule(module);
             ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
             writer.writeValue(byteArrayOutputStream, interTemporalRaoResult);
@@ -99,5 +100,9 @@ public final class RaoResultArchiveManager {
 
     private static String getIndividualRaoResultFilenameTemplate(Properties properties) {
         return properties.getProperty(INDIVIDUAL_RAO_RESULT_NAME_TEMPLATE_PROPERTY, DEFAULT_INDIVIDUAL_RAO_RESULT_NAME_TEMPLATE);
+    }
+
+    private static boolean exportOnlyPreventiveResults(Properties properties) {
+        return Boolean.parseBoolean(properties.getProperty(INTER_TEMPORAL_RAO_RESULT_PREVENTIVE_ONLY));
     }
 }

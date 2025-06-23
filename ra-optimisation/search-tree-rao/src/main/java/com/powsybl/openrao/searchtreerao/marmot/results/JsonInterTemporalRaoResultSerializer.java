@@ -81,10 +81,10 @@ public class JsonInterTemporalRaoResultSerializer extends JsonSerializer<InterTe
 
     private void serializeCostsAfterGivenStep(InterTemporalRaoResult interTemporalRaoResult, JsonGenerator jsonGenerator, Instant instant) throws IOException {
         jsonGenerator.writeObjectFieldStart(instant == null ? INITIAL_INSTANT_ID : instant.getName());
-        jsonGenerator.writeNumberField(FUNCTIONAL_COST, roundDouble(interTemporalRaoResult.getGlobalFunctionalCost(instant == null ? null : instant.getKind())));
+        jsonGenerator.writeNumberField(FUNCTIONAL_COST, roundDouble(interTemporalRaoResult.getGlobalFunctionalCost(instant)));
         jsonGenerator.writeObjectFieldStart(VIRTUAL_COSTS);
         for (String virtualCostName : interTemporalRaoResult.getVirtualCostNames().stream().sorted().toList()) {
-            double virtualCostForAGivenName = interTemporalRaoResult.getGlobalVirtualCost(instant == null ? null : instant.getKind(), virtualCostName);
+            double virtualCostForAGivenName = interTemporalRaoResult.getGlobalVirtualCost(instant, virtualCostName);
             if (!Double.isNaN(virtualCostForAGivenName)) {
                 jsonGenerator.writeNumberField(virtualCostName, roundDouble(virtualCostForAGivenName));
             }
