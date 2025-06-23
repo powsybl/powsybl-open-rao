@@ -60,7 +60,7 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
                                                PrePerimeterResult resultsWithPrasForAllCnecs,
                                                Crac crac,
                                                ObjectiveFunctionParameters objectiveFunctionParameters) {
-        this(preventiveState, initialResult, preventivePerimeterResult, preventivePerimeterResult, new HashSet<>(), resultsWithPrasForAllCnecs, new HashMap<>(), null, crac, objectiveFunctionParameters);
+        this(preventiveState, initialResult, preventivePerimeterResult, preventivePerimeterResult, resultsWithPrasForAllCnecs, new HashMap<>(), null, crac, objectiveFunctionParameters);
         excludeDuplicateCnecs();
     }
 
@@ -75,22 +75,6 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
                                                Crac crac,
                                                ObjectiveFunctionParameters objectiveFunctionParameters) {
         this(stateTree.getBasecaseScenario().getRaOptimisationState(), initialResult, preventivePerimeterResult, preventivePerimeterResult, resultsWithPrasForAllCnecs, buildPostContingencyResults(stateTree, postContingencyResults), null, crac, objectiveFunctionParameters);
-        excludeContingencies(getContingenciesToExclude(stateTree));
-        excludeDuplicateCnecs();
-    }
-
-    /**
-     * Constructor used when preventive and post-contingency RAOs have been run, if 2 preventive RAOs were run
-     */
-    public PreventiveAndCurativesRaoResultImpl(StateTree stateTree,
-                                               PrePerimeterResult initialResult,
-                                               OptimizationResult firstPreventivePerimeterResult,
-                                               OptimizationResult secondPreventivePerimeterResult,
-                                               PrePerimeterResult resultsWithPrasForAllCnecs,
-                                               Map<State, OptimizationResult> postContingencyResults,
-                                               Crac crac,
-                                               ObjectiveFunctionParameters objectiveFunctionParameters) {
-        this(stateTree.getBasecaseScenario().getRaOptimisationState(), initialResult, firstPreventivePerimeterResult, secondPreventivePerimeterResult, resultsWithPrasForAllCnecs, buildPostContingencyResults(stateTree, postContingencyResults), secondPreventivePerimeterResult, crac, objectiveFunctionParameters);
         excludeContingencies(getContingenciesToExclude(stateTree));
         excludeDuplicateCnecs();
     }
