@@ -12,7 +12,8 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 
-import com.powsybl.openrao.data.crac.api.InstantKind;
+import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.InterTemporalRaoResult;
@@ -23,6 +24,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.*;
 
@@ -39,9 +41,11 @@ public class JsonInterTemporalRaoResultSerializer extends JsonSerializer<InterTe
     private static final DateTimeFormatter FIELD_NAME_DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
     private final String individualRaoResultFilenameTemplate;
+    private final List<Instant> instants;
 
-    public JsonInterTemporalRaoResultSerializer(String individualRaoResultFilenameTemplate) {
+    public JsonInterTemporalRaoResultSerializer(String individualRaoResultFilenameTemplate, List<Instant> instants) {
         this.individualRaoResultFilenameTemplate = individualRaoResultFilenameTemplate;
+        this.instants = instants;
     }
 
     @Override
@@ -62,19 +66,25 @@ public class JsonInterTemporalRaoResultSerializer extends JsonSerializer<InterTe
         jsonGenerator.writeEndObject();
     }
 
-    private static void serializeCostResults(InterTemporalRaoResult interTemporalRaoResult, JsonGenerator jsonGenerator) throws IOException {
+    private void serializeCostResults(InterTemporalRaoResult interTemporalRaoResult, JsonGenerator jsonGenerator) throws IOException {
         jsonGenerator.writeObjectFieldStart(COST_RESULTS);
         serializeCostsAfterGivenStep(interTemporalRaoResult, jsonGenerator, null); // initial situation
-        serializeCostsAfterGivenStep(interTemporalRaoResult, jsonGenerator, InstantKind.PREVENTIVE); // after PRAs
+        instants.forEach(instant -> {
+            try {
+                serializeCostsAfterGivenStep(interTemporalRaoResult, jsonGenerator, instant);
+            } catch (IOException e) {
+                throw new OpenRaoException(e);
+            }
+        });
         jsonGenerator.writeEndObject();
     }
 
-    private static void serializeCostsAfterGivenStep(InterTemporalRaoResult interTemporalRaoResult, JsonGenerator jsonGenerator, InstantKind instantKind) throws IOException {
-        jsonGenerator.writeObjectFieldStart(instantKind == null ? INITIAL_INSTANT_ID : PREVENTIVE_INSTANT_ID);
-        jsonGenerator.writeNumberField(FUNCTIONAL_COST, roundDouble(interTemporalRaoResult.getGlobalFunctionalCost(instantKind)));
+    private void serializeCostsAfterGivenStep(InterTemporalRaoResult interTemporalRaoResult, JsonGenerator jsonGenerator, Instant instant) throws IOException {
+        jsonGenerator.writeObjectFieldStart(instant == null ? INITIAL_INSTANT_ID : instant.getName());
+        jsonGenerator.writeNumberField(FUNCTIONAL_COST, roundDouble(interTemporalRaoResult.getGlobalFunctionalCost(instant == null ? null : instant.getKind())));
         jsonGenerator.writeObjectFieldStart(VIRTUAL_COSTS);
         for (String virtualCostName : interTemporalRaoResult.getVirtualCostNames().stream().sorted().toList()) {
-            double virtualCostForAGivenName = interTemporalRaoResult.getGlobalVirtualCost(instantKind, virtualCostName);
+            double virtualCostForAGivenName = interTemporalRaoResult.getGlobalVirtualCost(instant == null ? null : instant.getKind(), virtualCostName);
             if (!Double.isNaN(virtualCostForAGivenName)) {
                 jsonGenerator.writeNumberField(virtualCostName, roundDouble(virtualCostForAGivenName));
             }

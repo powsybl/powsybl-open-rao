@@ -14,6 +14,7 @@ import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.raoresult.api.InterTemporalRaoResult;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,6 +28,7 @@ import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -38,6 +40,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  */
 class JsonInterTemporalRaoResultSerializerTest {
     private InterTemporalRaoResult interTemporalRaoResult;
+    private Instant preventiveInstant;
 
     @BeforeEach
     void setUp() throws IOException {
@@ -47,6 +50,7 @@ class JsonInterTemporalRaoResultSerializerTest {
         Crac crac1 = Crac.read("/crac/crac-redispatching-202502141040.json", JsonInterTemporalRaoResultSerializerTest.class.getResourceAsStream("/crac/crac-redispatching-202502141040.json"), network1);
         Crac crac2 = Crac.read("/crac/crac-redispatching-202502141140.json", JsonInterTemporalRaoResultSerializerTest.class.getResourceAsStream("/crac/crac-redispatching-202502141140.json"), network2);
         Crac crac3 = Crac.read("/crac/crac-redispatching-202502141240.json", JsonInterTemporalRaoResultSerializerTest.class.getResourceAsStream("/crac/crac-redispatching-202502141240.json"), network3);
+        preventiveInstant = crac1.getPreventiveInstant();
         RaoResult raoResult1 = RaoResult.read(JsonInterTemporalRaoResultSerializerTest.class.getResourceAsStream("/raoResult/raoResult1.json"), crac1);
         RaoResult raoResult2 = RaoResult.read(JsonInterTemporalRaoResultSerializerTest.class.getResourceAsStream("/raoResult/raoResult2.json"), crac2);
         RaoResult raoResult3 = RaoResult.read(JsonInterTemporalRaoResultSerializerTest.class.getResourceAsStream("/raoResult/raoResult3.json"), crac3);
@@ -75,7 +79,7 @@ class JsonInterTemporalRaoResultSerializerTest {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         try {
             ObjectMapper objectMapper = JsonUtil.createObjectMapper();
-            SimpleModule module = new JsonInterTemporalRaoResultSerializerModule("'raoResult_'yyyyMMddHHmm'.json'");
+            SimpleModule module = new JsonInterTemporalRaoResultSerializerModule("'raoResult_'yyyyMMddHHmm'.json'", List.of(preventiveInstant));
             objectMapper.registerModule(module);
             ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
             writer.writeValue(byteArrayOutputStream, interTemporalRaoResult);
