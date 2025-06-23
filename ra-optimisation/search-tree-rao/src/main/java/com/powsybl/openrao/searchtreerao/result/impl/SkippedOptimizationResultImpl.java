@@ -116,6 +116,11 @@ public class SkippedOptimizationResultImpl implements OptimizationResult {
     }
 
     @Override
+    public Map<State, Set<NetworkAction>> getActivatedNetworkActionsPerState() {
+        return Map.of(state, activatedNetworkActions);
+    }
+
+    @Override
     public double getFunctionalCost() {
         return -1.0;
     }
@@ -148,6 +153,11 @@ public class SkippedOptimizationResultImpl implements OptimizationResult {
     @Override
     public void excludeContingencies(Set<String> contingenciesToExclude) {
         //do not do anything
+    }
+
+    @Override
+    public void excludeCnecs(Set<String> cnecsToExclude) {
+        // do not do anything
     }
 
     @Override

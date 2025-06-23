@@ -59,6 +59,7 @@ public final class LinearProblemIdGenerator {
     private static final String TOTAL_PST_RANGE_ACTION_TAP_VARIATION = "totalpstrangeactiontapvariation";
     private static final String GENERATOR_POWER = "generatorpower";
     private static final String GENERATOR_POWER_GRADIENT_CONSTRAINT = "generatorpowergradientconstraint";
+    private static final String MIN_MARGIN_SHIFTED_VIOLATION = "minmarginshiftedviolation";
     private static final DateTimeFormatter DATE_TIME_FORMATER = DateTimeFormatter.ofPattern("yyyyMMddHHmm");
 
     private LinearProblemIdGenerator() {
@@ -264,14 +265,22 @@ public final class LinearProblemIdGenerator {
     }
 
     public static String generatorPowerVariableId(String generatorId, OffsetDateTime timestamp) {
-        return formatName(Optional.of(timestamp), GENERATOR_POWER, generatorId, VARIABLE_SUFFIX);
+        return formatName(Optional.ofNullable(timestamp), GENERATOR_POWER, generatorId, VARIABLE_SUFFIX);
     }
 
     public static String generatorPowerConstraintId(String generatorId, OffsetDateTime timestamp) {
-        return formatName(Optional.of(timestamp), GENERATOR_POWER, generatorId, CONSTRAINT_SUFFIX);
+        return formatName(Optional.ofNullable(timestamp), GENERATOR_POWER, generatorId, CONSTRAINT_SUFFIX);
     }
 
     public static String generatorPowerGradientConstraintId(String generatorId, OffsetDateTime currentTimestamp, OffsetDateTime previousTimestamp) {
         return formatName(Optional.empty(), GENERATOR_POWER_GRADIENT_CONSTRAINT, generatorId, currentTimestamp.format(DATE_TIME_FORMATER), previousTimestamp.format(DATE_TIME_FORMATER), CONSTRAINT_SUFFIX);
+    }
+
+    public static String minMarginShiftedViolationVariableId(Optional<OffsetDateTime> timestamp) {
+        return formatName(timestamp, MIN_MARGIN_SHIFTED_VIOLATION, VARIABLE_SUFFIX);
+    }
+
+    public static String minMarginShiftedViolationConstraintId(Optional<OffsetDateTime> timestamp) {
+        return formatName(timestamp, MIN_MARGIN_SHIFTED_VIOLATION, CONSTRAINT_SUFFIX);
     }
 }

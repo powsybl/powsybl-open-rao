@@ -21,6 +21,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -81,7 +82,7 @@ class RemedialActionCostEvaluatorImplTest {
         Mockito.when(optimizationPerimeter.getMonitoredStates()).thenReturn(Set.of());
 
         remedialActionActivationResult = Mockito.mock(RemedialActionActivationResultImpl.class);
-        Mockito.when(remedialActionActivationResult.getActivatedNetworkActions()).thenReturn(Set.of(topologyAction));
+        Mockito.when(remedialActionActivationResult.getActivatedNetworkActionsPerState()).thenReturn(Map.of(state, Set.of(topologyAction)));
         Mockito.when(remedialActionActivationResult.getActivatedRangeActions(state)).thenReturn(Set.of(pstRangeAction1, pstRangeAction2, injectionRangeAction1, injectionRangeAction2, hvdcRangeAction1, hvdcRangeAction2));
         Mockito.when(remedialActionActivationResult.getTapVariation(pstRangeAction1, state)).thenReturn(2);
         Mockito.when(remedialActionActivationResult.getTapVariation(pstRangeAction2, state)).thenReturn(-5);
@@ -95,6 +96,6 @@ class RemedialActionCostEvaluatorImplTest {
     void testTotalRemedialActionCost() {
         RemedialActionCostEvaluator evaluator = new RemedialActionCostEvaluator(Set.of(state));
         assertEquals("remedial-action-cost-evaluator", evaluator.getName());
-        assertEquals(11587.25, evaluator.evaluate(null, remedialActionActivationResult).getCost(Set.of()));
+        assertEquals(11587.25, evaluator.evaluate(null, remedialActionActivationResult).getCost(Set.of(), Set.of()));
     }
 }

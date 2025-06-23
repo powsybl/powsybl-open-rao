@@ -137,11 +137,6 @@ when searching for the best network actions.
 - **Usage**: maximum search-tree depth for preventive optimization.  
   Applies to the preventive RAO.
 
-##### max-auto-search-tree-depth
-- **Expected value**: integer
-- **Default value**: 2^32 -1 (max integer value)
-- **Usage**: maximum search-tree depth for the optimization of available auto network actions.
-
 ##### max-curative-search-tree-depth
 - **Expected value**: integer
 - **Default value**: 2^32 -1 (max integer value)
@@ -372,6 +367,22 @@ See also: [Modelling the maximum minimum relative margin objective function](/ca
   function from diverging to infinity (resulting in unbounded problems), the denominator should be prevented from
   getting close to zero. This parameter acts as a lower bound to the denominator.
 
+#### Min margin optional parameters
+
+These parameters are meant to be used in costly optimization only.
+
+##### shifted-violation-penalty
+
+- **Expected value**: numeric positive value, no unit (monetary cost)
+- **Default value**: 1000.0
+- **Usage**: Monetary penalty taken in account for each MW or A of overload on the min margin, with respect to `shifted-violation-threshold`.
+
+##### shifted-violation-threshold
+
+- **Expected value**: numeric positive value, in MW or A unit (same as min margin)
+- **Default value**: 0.0
+- **Usage**: Shifts the security domain of the CNECs (only for costly optimization): each FlowCNEC with a margin below `shifted-violation-threshold` will be considered as in violation during the linear RAO. This is meant to prevent the RAO from choosing set-points that make the min margin exactly equal to 0 (which might create rounding issues).
+
 ## Examples
 > ⚠️  **NOTE**  
 > The following examples in json and yaml are not equivalent
@@ -380,7 +391,7 @@ See also: [Modelling the maximum minimum relative margin objective function](/ca
 :::{group-tab} JSON
 ~~~json
 {
-  "version" : "3.0",
+  "version" : "3.1",
   "extensions" : {
     "open-rao-search-tree-parameters": {
       "objective-function" : {
@@ -400,7 +411,6 @@ See also: [Modelling the maximum minimum relative margin objective function](/ca
       },
       "topological-actions-optimization" : {
         "max-preventive-search-tree-depth" : 2,
-        "max-auto-search-tree-depth" : 1,
         "max-curative-search-tree-depth" : 2,
         "predefined-combinations" : [ "na1 + na2", "na4 + na5 + na6"],
         "skip-actions-far-from-most-limiting-element" : false,
@@ -479,6 +489,10 @@ See also: [Modelling the maximum minimum relative margin objective function](/ca
       "ptdf-boundaries" : [ "{FR}-{BE}", "{FR}-{DE}", "{BE}-{NL}", "{NL}-{DE}", "{DE}-{PL}", "{DE}-{CZ}", "{DE}-{AT}", "{PL}-{CZ}", "{PL}-{SK}", "{CZ}-{SK}", "{CZ}-{AT}", "{AT}-{HU}", "{AT}-{SI}", "{SI}-{HR}", "{SK}-{HU}", "{HU}-{RO}", "{HU}-{HR}", "{BE}-{22Y201903144---9}-{DE}+{22Y201903145---4}" ],
       "ptdf-approximation" : "FIXED_PTDF",
       "ptdf-sum-lower-bound" : 0.01
+    },
+    "costly-min-margin-parameters" : {
+      "shifted-violation-penalty": 1000.0,
+      "shifted-violation-threshold": 0.0
     }
   }
 }
@@ -497,7 +511,6 @@ search-tree-linear-optimization-solver:
 
 search-tree-topological-actions-optimization:
   max-preventive-search-tree-depth: 3
-  max-auto-search-tree-depth: 2
   max-curative-search-tree-depth: 3
   predefined-combinations: [ "{na1}+{na2}", "{na3}+{na4}+{na5}" ]
   relative-minimum-impact-threshold: 0.0

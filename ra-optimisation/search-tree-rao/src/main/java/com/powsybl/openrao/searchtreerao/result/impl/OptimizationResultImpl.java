@@ -180,4 +180,14 @@ public class OptimizationResultImpl implements OptimizationResult {
     public double getSensitivityValue(FlowCnec flowCnec, TwoSides side, SensitivityVariableSet linearGlsk, Unit unit) {
         return sensitivityResult.getSensitivityValue(flowCnec, side, linearGlsk, unit);
     }
+
+    @Override
+    public void excludeCnecs(Set<String> cnecsToExclude) {
+        objectiveFunctionResult.excludeCnecs(cnecsToExclude);
+    }
+
+    @Override
+    public Map<State, Set<NetworkAction>> getActivatedNetworkActionsPerState() {
+        return networkActionsResult.getActivatedNetworkActionsPerState();
+    }
 }

@@ -5,7 +5,7 @@
     <parent>
         <artifactId>open-rao-rao-result-io</artifactId>
         <groupId>com.powsybl</groupId>
-        <version>6.4.0-SNAPSHOT</version>
+        <version>6.6.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -28,11 +28,6 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>open-rao-rao-result-impl</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>open-rao-search-tree-rao</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

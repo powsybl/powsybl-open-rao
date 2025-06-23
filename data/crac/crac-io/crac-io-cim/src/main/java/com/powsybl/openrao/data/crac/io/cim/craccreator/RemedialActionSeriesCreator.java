@@ -84,6 +84,8 @@ public class RemedialActionSeriesCreator {
         this.invalidContingencies = new ArrayList<>();
 
         for (Series cimSerie : getRaSeries()) {
+            resetSeriesContingencies();
+
             // Read and store contingencies
             cimSerie.getContingencySeries().forEach(cimContingency -> {
                 Contingency contingency = getContingencyFromCrac(cimContingency, cracCreationContext);
@@ -96,8 +98,9 @@ public class RemedialActionSeriesCreator {
 
             // Read and store Monitored Series
             this.cnecs = getFlowCnecsFromMonitoredAndContingencySeries(cimSerie);
+
             // Read and store AdditionalConstraint Series
-            if (!readAdditionalConstraintSeries(cimSerie)) {
+            if (doNotImportRaSeries(cimSerie)) {
                 continue;
             }
             // Read and create / modify RA creators
@@ -110,12 +113,23 @@ public class RemedialActionSeriesCreator {
                 this.hvdcRangeActionCreators.add(hvdcRangeActionCreator);
                 hvdcRangeActionCreator = null;
             }
-            resetSeriesContingencies();
         }
 
         // Add all RAs from creators to CRAC
         addAllRemedialActionsToCrac();
         this.cracCreationContext.setRemedialActionSeriesCreationContexts(remedialActionSeriesCreationContexts);
+    }
+
+    private boolean doNotImportRaSeries(Series cimSerie) {
+        // Do not import a series with only ill-defined contingencies
+        boolean illDefinedContingencies = contingencies.isEmpty() && !invalidContingencies.isEmpty();
+        // Do not import a series with an ill-defined additional constraint series
+        boolean illDefinedAdditionalConstraintSeries = readAdditionalConstraintSeries(cimSerie);
+        if (illDefinedContingencies) {
+            cimSerie.getRemedialActionSeries().forEach(remedialActionSeries -> this.remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(remedialActionSeries.getMRID(), ImportStatus.INCONSISTENCY_IN_DATA, String.format("This RA is not imported because it is only associated to invalid contingencies %s", invalidContingencies))));
+            return true;
+        }
+        return !illDefinedAdditionalConstraintSeries;
     }
 
     /**
@@ -132,11 +146,9 @@ public class RemedialActionSeriesCreator {
                     for (RemedialActionSeries remedialActionSeries : cimSerie.getRemedialActionSeries()) {
                         remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(remedialActionSeries.getMRID(), ImportStatus.INCONSISTENCY_IN_DATA, "Associated angle cnec could not be imported"));
                     }
-                    resetSeriesContingencies();
                     return false;
                 }
             } else {
-                resetSeriesContingencies();
                 return false;
             }
         }
@@ -214,8 +226,8 @@ public class RemedialActionSeriesCreator {
         }
 
         // --- Availability_MarketObjectStatus
-        String availabilityMarketObjectStus = remedialActionSeries.getAvailabilityMarketObjectStatusStatus();
-        if (!checkAvailabilityMarketObjectStatus(createdRemedialActionId, availabilityMarketObjectStus)) {
+        String availabilityMarketObjectStatus = remedialActionSeries.getAvailabilityMarketObjectStatusStatus();
+        if (!checkAvailabilityMarketObjectStatus(createdRemedialActionId, availabilityMarketObjectStatus)) {
             return;
         }
 
@@ -542,8 +554,8 @@ public class RemedialActionSeriesCreator {
     }
 
     private void resetSeriesContingencies() {
-        contingencies.clear();
-        invalidContingencies.clear();
+        this.contingencies = new ArrayList<>();
+        this.invalidContingencies = new ArrayList<>();
     }
 
     private boolean describesRemedialActionsToImport(Series series) {

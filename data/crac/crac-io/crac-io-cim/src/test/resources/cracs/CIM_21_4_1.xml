@@ -852,6 +852,47 @@
             </RegisteredResource>
           </RemedialAction_Series>
         </Series>
+        <Series>
+          <mRID>RA-Series-28</mRID>
+          <businessType>B56</businessType>
+          <name>Network-Action-With-Invalid-Contingencies</name>
+          <optimization_MarketObjectStatus.status>A52</optimization_MarketObjectStatus.status>
+          <Contingency_Series>
+            <mRID>Co-1_invalid</mRID>
+            <name>Co-1-name_invalid</name>
+            <RegisteredResource>
+              <mRID codingScheme="A02">_ffbabc27-1ccd-4fdc-b037-e341_invalid</mRID>
+              <name>Co1NetworkElementName_invalid</name>
+              <in_Domain.mRID codingScheme="A01">1------0</in_Domain.mRID>
+              <out_Domain.mRID codingScheme="A01">1------0</out_Domain.mRID>
+            </RegisteredResource>
+          </Contingency_Series>
+          <Contingency_Series>
+            <mRID>Co-2_invalid</mRID>
+            <name>Co-2-name_invalid</name>
+            <RegisteredResource>
+              <mRID codingScheme="A02">_e8acf6b6-99cb-45ad-b8dc-16c7_invalid</mRID>
+              <name>Co2NetworkElementName_invalid</name>
+              <in_Domain.mRID codingScheme="A01">1------0</in_Domain.mRID>
+              <out_Domain.mRID codingScheme="A01">1------0</out_Domain.mRID>
+            </RegisteredResource>
+          </Contingency_Series>
+          <RemedialAction_Series>
+            <mRID>ARA_28</mRID>
+            <name>Network-Action-With-Invalid-Contingencies</name>
+            <businessType>B59</businessType>
+            <applicationMode_MarketObjectStatus.status>A20</applicationMode_MarketObjectStatus.status>
+            <availability_MarketObjectStatus.status>A39</availability_MarketObjectStatus.status>
+            <RegisteredResource>
+              <mRID codingScheme="A02">_ffbabc27-1ccd-4fdc-b037-e341706c8d29</mRID>
+              <name>RA1-name</name>
+              <pSRType.psrType>A01</pSRType.psrType>
+              <in_Domain.mRID codingScheme="A01">1------0</in_Domain.mRID>
+              <out_Domain.mRID codingScheme="A01">1------0</out_Domain.mRID>
+              <marketObjectStatus.status>A23</marketObjectStatus.status>
+            </RegisteredResource>
+          </RemedialAction_Series>
+        </Series>
       </Point>
     </Period>
   </TimeSeries>

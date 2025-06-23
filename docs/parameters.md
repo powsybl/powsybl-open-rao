@@ -36,7 +36,7 @@ Examples of rao parameters with business and implementation specific parameters
 :::{group-tab} JSON
 ~~~json
 {
-  "version" : "3.0",
+  "version" : "3.1",
   "objective-function" : {
     "type" : "SECURE_FLOW",
     "unit" : "A",
@@ -73,7 +73,6 @@ Examples of rao parameters with business and implementation specific parameters
       },
       "topological-actions-optimization" : {
         "max-preventive-search-tree-depth" : 2,
-        "max-auto-search-tree-depth" : 1,
         "max-curative-search-tree-depth" : 2,
         "predefined-combinations" : [ "na1 + na2", "na4 + na5 + na6"],
         "skip-actions-far-from-most-limiting-element" : false,
@@ -134,24 +133,24 @@ Examples of rao parameters with business and implementation specific parameters
             }
           }
         }
+      },
+      "loop-flow-parameters" : {
+        "acceptable-increase" : 10.0,
+        "ptdf-approximation" : "FIXED_PTDF",
+        "constraint-adjustment-coefficient" : 10.0,
+        "violation-cost" : 10.0,
+        "countries" : [ "FR", "ES", "PT" ]
+      },
+      "mnec-parameters" : {
+        "acceptable-margin-decrease" : 50.0,
+        "violation-cost" : 10.0,
+        "constraint-adjustment-coefficient" : 1.0
+      },
+      "relative-margins-parameters" : {
+        "ptdf-boundaries" : [ "{FR}-{BE}", "{FR}-{DE}", "{BE}-{NL}", "{NL}-{DE}", "{DE}-{PL}", "{DE}-{CZ}", "{DE}-{AT}", "{PL}-{CZ}", "{PL}-{SK}", "{CZ}-{SK}", "{CZ}-{AT}", "{AT}-{HU}", "{AT}-{SI}", "{SI}-{HR}", "{SK}-{HU}", "{HU}-{RO}", "{HU}-{HR}", "{BE}-{22Y201903144---9}-{DE}+{22Y201903145---4}" ],
+        "ptdf-approximation" : "FIXED_PTDF",
+        "ptdf-sum-lower-bound" : 0.01
       }
-    },
-    "loop-flow-parameters" : {
-      "acceptable-increase" : 10.0,
-      "ptdf-approximation" : "FIXED_PTDF",
-      "constraint-adjustment-coefficient" : 10.0,
-      "violation-cost" : 10.0,
-      "countries" : [ "FR", "ES", "PT" ]
-    },
-    "mnec-parameters" : {
-      "acceptable-margin-decrease" : 50.0,
-      "violation-cost" : 10.0,
-      "constraint-adjustment-coefficient" : 1.0
-    },
-    "relative-margins-parameters" : {
-      "ptdf-boundaries" : [ "{FR}-{BE}", "{FR}-{DE}", "{BE}-{NL}", "{NL}-{DE}", "{DE}-{PL}", "{DE}-{CZ}", "{DE}-{AT}", "{PL}-{CZ}", "{PL}-{SK}", "{CZ}-{SK}", "{CZ}-{AT}", "{AT}-{HU}", "{AT}-{SI}", "{SI}-{HR}", "{SK}-{HU}", "{HU}-{RO}", "{HU}-{HR}", "{BE}-{22Y201903144---9}-{DE}+{22Y201903145---4}" ],
-      "ptdf-approximation" : "FIXED_PTDF",
-      "ptdf-sum-lower-bound" : 0.01
     }
   }
 }
@@ -181,7 +180,6 @@ rao-topological-actions-optimization:
 
 search-tree-topological-actions-optimization:
   max-preventive-search-tree-depth: 3
-  max-auto-search-tree-depth: 2
   max-curative-search-tree-depth: 3
   predefined-combinations: [ "{na1}+{na2}", "{na3}+{na4}+{na5}" ]
   relative-minimum-impact-threshold: 0.0

@@ -114,6 +114,11 @@ public class CurativeWithSecondPraoResult implements OptimizationResult {
     }
 
     @Override
+    public Map<State, Set<NetworkAction>> getActivatedNetworkActionsPerState() {
+        return firstCraoResult.getActivatedNetworkActionsPerState();
+    }
+
+    @Override
     public double getFunctionalCost() {
         if (costOptimization) {
             return getActivatedNetworkActions().stream().mapToDouble(networkAction -> networkAction.getActivationCost().orElse(0.0)).sum()
@@ -168,6 +173,13 @@ public class CurativeWithSecondPraoResult implements OptimizationResult {
         firstCraoResult.excludeContingencies(contingenciesToExclude);
         secondPraoResult.excludeContingencies(contingenciesToExclude);
         postCraSensitivityObjectiveResult.excludeContingencies(contingenciesToExclude);
+    }
+
+    @Override
+    public void excludeCnecs(Set<String> cnecsToExclude) {
+        firstCraoResult.excludeCnecs(cnecsToExclude);
+        secondPraoResult.excludeCnecs(cnecsToExclude);
+        postCraSensitivityObjectiveResult.excludeCnecs(cnecsToExclude);
     }
 
     @Override

@@ -27,7 +27,7 @@ public interface TemporalData<T> {
         return getDataPerTimestamp().keySet().stream().sorted().toList();
     }
 
-    void add(OffsetDateTime timestamp, T data);
+    void put(OffsetDateTime timestamp, T data);
 
     <U> TemporalData<U> map(Function<T, U> function);
 }
