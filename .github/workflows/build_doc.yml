@@ -1,4 +1,4 @@
-name: Build documentation
+name: Documentation
 
 on:
   push:
@@ -46,8 +46,9 @@ jobs:
         run: |
           BROKEN_LINKS=$(markdown-link-check -q ./docs)
           if [ -n "$BROKEN_LINKS" ]; then
-            echo "Found broken links: $BROKEN_LINKS"
+            echo "❌ Found broken links: $BROKEN_LINKS"
             exit 1
           else
+            echo "✔️ No broken links found"
             exit 0
           fi
