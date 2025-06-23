@@ -44,5 +44,20 @@ jobs:
 
       - name: Check all Markdown links
         run: |
-          FILES=$(find ./docs -type f -name "*.md")
-          markdown-link-check -q $FILES
+          set -e
+          has_error=0
+          for file in $(find ./docs -type f -name "*.md"); do
+            echo "Checking $file"
+            markdown-link-check -q "$file"
+            if [ $? -ne 0 ]; then
+              echo "❌ Broken links found in $file"
+              has_error=1
+            fi
+          done
+          if [ "$has_error" -ne 0 ]; then
+            echo "❌ At least one file has broken links."
+            exit 1
+          else
+            echo "✅ All links are valid."
+          fi
+        
