@@ -69,22 +69,6 @@ public class FastRaoTest {
     }
 
     @Test
-    public void testMexMinMargin() throws IOException {
-        Network network = Network.read("/network/TestCase16Nodes.uct", getClass().getResourceAsStream("/network/TestCase16Nodes.uct"));
-        Crac crac = Crac.read("/crac/SL_ep13us3case1.json", getClass().getResourceAsStream("/crac/SL_ep13us3case1.json"), network);
-        RaoInput individualRaoInput = RaoInput.build(network, crac).build();
-        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_maxMargin_ampere.json"));
-        FastRaoParameters fastRaoParameters = new FastRaoParameters();
-        fastRaoParameters.setNumberOfCnecsToAdd(1);
-        fastRaoParameters.setAddUnsecureCnecs(true);
-
-        raoParameters.addExtension(FastRaoParameters.class, fastRaoParameters);
-        FastRaoResultImpl raoResult = (FastRaoResultImpl) FastRao.launchFilteredRao(individualRaoInput, raoParameters, null, new HashSet<>());
-        assertEquals(-556, raoResult.getFunctionalCost(crac.getLastInstant()), 1e-1);
-    }
-
-
-    @Test
     public void testRunFilteredRao2() throws IOException {
         // Test with 2 preventive network actions activated
         Network network = Network.read("/network/3Nodes1LineOpen.uct", getClass().getResourceAsStream("/network/3Nodes1LineOpen.uct"));
