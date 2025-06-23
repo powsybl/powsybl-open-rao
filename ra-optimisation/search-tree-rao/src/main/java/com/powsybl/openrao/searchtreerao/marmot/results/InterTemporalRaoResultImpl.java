@@ -12,8 +12,8 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.Unit;
+import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
-import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
@@ -25,12 +25,15 @@ import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.searchtreerao.marmot.MarmotUtils;
 import com.powsybl.openrao.searchtreerao.result.api.ObjectiveFunctionResult;
 
+import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
+import java.util.zip.ZipOutputStream;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -54,18 +57,18 @@ public class InterTemporalRaoResultImpl implements InterTemporalRaoResult {
     }
 
     @Override
-    public double getGlobalFunctionalCost(InstantKind instantKind) {
-        return getRelevantResult(instantKind).getFunctionalCost();
+    public double getGlobalFunctionalCost(Instant instant) {
+        return getRelevantResult(instant).getFunctionalCost();
     }
 
     @Override
-    public double getGlobalVirtualCost(InstantKind instantKind) {
-        return getRelevantResult(instantKind).getVirtualCost();
+    public double getGlobalVirtualCost(Instant instant) {
+        return getRelevantResult(instant).getVirtualCost();
     }
 
     @Override
-    public double getGlobalVirtualCost(InstantKind instantKind, String virtualCostName) {
-        return getRelevantResult(instantKind).getVirtualCost(virtualCostName);
+    public double getGlobalVirtualCost(Instant instant, String virtualCostName) {
+        return getRelevantResult(instant).getVirtualCost(virtualCostName);
     }
 
     @Override
@@ -91,6 +94,16 @@ public class InterTemporalRaoResultImpl implements InterTemporalRaoResult {
     @Override
     public boolean isSecure(OffsetDateTime timestamp, PhysicalParameter... u) {
         return raoResultPerTimestamp.getData(timestamp).orElseThrow(() -> new OpenRaoException(MISSING_RAO_RESULT_ERROR_MESSAGE)).isSecure(u);
+    }
+
+    @Override
+    public RaoResult getIndividualRaoResult(OffsetDateTime timestamp) {
+        return raoResultPerTimestamp.getData(timestamp).orElseThrow(() -> new OpenRaoException(MISSING_RAO_RESULT_ERROR_MESSAGE));
+    }
+
+    @Override
+    public void write(ZipOutputStream zipOutputStream, TemporalData<Crac> cracs, Properties properties) throws IOException {
+        RaoResultArchiveManager.exportAndZipResults(zipOutputStream, this, cracs, properties);
     }
 
     @Override
@@ -230,7 +243,13 @@ public class InterTemporalRaoResultImpl implements InterTemporalRaoResult {
         return raoResultPerTimestamp.map(raoResult -> raoResult.isSecure(u)).getDataPerTimestamp().values().stream().allMatch(bool -> bool);
     }
 
-    private ObjectiveFunctionResult getRelevantResult(InstantKind instantKind) {
-        return instantKind == null ? initialGlobalObjectiveFunctionResult : postPrasGlobalObjectiveFunctionResult;
+    private ObjectiveFunctionResult getRelevantResult(Instant instant) {
+        if (instant == null) {
+            return initialGlobalObjectiveFunctionResult;
+        } else if (instant.isPreventive()) {
+            return postPrasGlobalObjectiveFunctionResult;
+        } else {
+            throw new OpenRaoException("Inter-temporal curative results are not yet handled by OpenRAO.");
+        }
     }
 }
