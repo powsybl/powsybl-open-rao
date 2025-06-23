@@ -38,4 +38,4 @@ jobs:
 
       - name: Check all Markdown links
         run: |
-          xargs -0 -n1 markdown-link-check ./docs -q || exit 1
+          markdown-link-check ./docs -q
