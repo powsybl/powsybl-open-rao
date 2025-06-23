@@ -54,6 +54,7 @@ public final class RaoResultArchiveManager {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         raoResult.write("JSON", crac, properties, byteArrayOutputStream);
         addEntryToZipArchive(timestamp.format(DateTimeFormatter.ofPattern(jsonFileNameTemplate)), zipOutputStream, byteArrayOutputStream);
+        byteArrayOutputStream.close();
     }
 
     private static void addSummaryToZipArchive(ZipOutputStream zipOutputStream, InterTemporalRaoResult interTemporalRaoResult, String summaryFilename, String jsonFileNameTemplate) throws IOException {
@@ -68,6 +69,7 @@ public final class RaoResultArchiveManager {
             throw new UncheckedIOException(e);
         }
         addEntryToZipArchive(summaryFilename, zipOutputStream, byteArrayOutputStream);
+        byteArrayOutputStream.close();
     }
 
     private static void addEntryToZipArchive(String entryName, ZipOutputStream zipOutputStream, ByteArrayOutputStream byteArrayOutputStream) throws IOException {
