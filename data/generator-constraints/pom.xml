@@ -7,7 +7,7 @@
     <parent>
         <artifactId>open-rao-data</artifactId>
         <groupId>com.powsybl</groupId>
-        <version>6.5.0</version>
+        <version>6.5.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>open-rao-generator-constraints</artifactId>
