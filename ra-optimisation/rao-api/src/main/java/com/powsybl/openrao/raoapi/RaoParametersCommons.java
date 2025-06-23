@@ -16,7 +16,7 @@ public final class RaoParametersCommons {
     private RaoParametersCommons() {
     }
 
-    public static final String RAO_PARAMETERS_VERSION = "3.0";
+    public static final String RAO_PARAMETERS_VERSION = "3.1";
 
     // header
     public static final String VERSION = "version";
@@ -57,7 +57,6 @@ public final class RaoParametersCommons {
     public static final String ST_TOPOLOGICAL_ACTIONS_OPTIMIZATION_SECTION = "search-tree-topological-actions-optimization";
 
     public static final String MAX_PREVENTIVE_SEARCH_TREE_DEPTH = "max-preventive-search-tree-depth";
-    public static final String MAX_AUTO_SEARCH_TREE_DEPTH = "max-auto-search-tree-depth";
     public static final String MAX_CURATIVE_SEARCH_TREE_DEPTH = "max-curative-search-tree-depth";
     public static final String PREDEFINED_COMBINATIONS = "predefined-combinations";
     public static final String RELATIVE_MINIMUM_IMPACT_THRESHOLD = "relative-minimum-impact-threshold";
@@ -125,4 +124,10 @@ public final class RaoParametersCommons {
             throw new OpenRaoException(String.format("Unknown approximation value: %s", string));
         }
     }
+
+    // -- Min Margins parameters
+    public static final String COSTLY_MIN_MARGIN_PARAMETERS = "costly-min-margin-parameters";
+    public static final String ST_COSTLY_MIN_MARGIN_SECTION = "search-tree-costly-min-margin-parameters";
+    public static final String SHIFTED_VIOLATION_PENALTY = "shifted-violation-penalty";
+    public static final String SHIFTED_VIOLATION_THRESHOLD = "shifted-violation-threshold";
 }

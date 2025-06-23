@@ -116,6 +116,11 @@ public class SkippedOptimizationResultImpl implements OptimizationResult {
     }
 
     @Override
+    public Map<State, Set<NetworkAction>> getActivatedNetworkActionsPerState() {
+        return Map.of(state, activatedNetworkActions);
+    }
+
+    @Override
     public double getFunctionalCost() {
         return -1.0;
     }

@@ -1,0 +1,37 @@
+{
+  "crac-factory": "CracImplFactory",
+  "extensions": {
+    "NcCracCreatorParameters": {
+      "capacity-calculation-region-eic-code": 100,
+      "tsos-which-do-not-use-patl-in-final-state": [
+        "REE"
+      ],
+      "curative-instants": [
+        {
+          "name": "curative 1",
+          "application-time": 300
+        },
+        {
+          "name": "curative 2",
+          "application-time": 600
+        },
+        {
+          "name": "curative 3",
+          "application-time": 1200
+        }
+      ],
+      "borders": [
+        {
+          "name": "ES-FR",
+          "eic": "10YDOM--ES-FR--D",
+          "default-for-tso": "RTE"
+        },
+        {
+          "name": "ES-PT",
+          "eic": "10YDOM--ES-PT--T",
+          "default-for-tso": "REN"
+        }
+      ]
+    }
+  }
+}

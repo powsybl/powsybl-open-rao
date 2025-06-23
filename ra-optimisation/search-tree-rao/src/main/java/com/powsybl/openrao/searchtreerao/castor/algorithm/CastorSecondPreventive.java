@@ -308,10 +308,10 @@ public class CastorSecondPreventive {
         );
     }
 
-    private Set<NetworkAction> getAllAppliedNetworkAraAndCra(AppliedRemedialActions appliedArasAndCras) {
-        Set<NetworkAction> appliedNetworkActions = new HashSet<>();
+    private Map<State, Set<NetworkAction>> getAllAppliedNetworkAraAndCra(AppliedRemedialActions appliedArasAndCras) {
+        Map<State, Set<NetworkAction>> appliedNetworkActions = new HashMap<>();
         crac.getStates().stream().filter(state -> state.getInstant().isAuto() || state.getInstant().isCurative())
-            .forEach(state -> appliedNetworkActions.addAll(appliedArasAndCras.getAppliedNetworkActions(state)));
+            .forEach(state -> appliedNetworkActions.put(state, appliedArasAndCras.getAppliedNetworkActions(state)));
         return appliedNetworkActions;
     }
 

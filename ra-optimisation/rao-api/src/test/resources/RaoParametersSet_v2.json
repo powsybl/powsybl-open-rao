@@ -1,5 +1,5 @@
 {
-  "version" : "3.0",
+  "version" : "3.1",
   "objective-function" : {
     "type" : "MAX_MIN_MARGIN",
     "unit" : "A",
@@ -47,7 +47,6 @@
       },
       "topological-actions-optimization" : {
         "max-preventive-search-tree-depth" : 10,
-        "max-auto-search-tree-depth" : 3,
         "max-curative-search-tree-depth" : 10,
         "predefined-combinations" : [ [ "na-id-1", "na-id-2" ], [ "na-id-1", "na-id-3", "na-id-4" ] ],
         "skip-actions-far-from-most-limiting-element" : false,
@@ -104,6 +103,10 @@
         "ptdf-approximation" : "UPDATE_PTDF_WITH_TOPO_AND_PST",
         "constraint-adjustment-coefficient" : 0.5,
         "violation-cost" : 0.0
+      },
+      "costly-min-margin-parameters" : {
+        "shifted-violation-penalty" : 800.0,
+        "shifted-violation-threshold" : 3.0
       }
     }
   }

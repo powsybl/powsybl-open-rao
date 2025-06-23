@@ -1,5 +1,5 @@
 {
-  "version" : "3.0",
+  "version" : "3.1",
   "objective-function" : {
     "type" : "MIN_COST",
     "unit" : "MW"
@@ -36,7 +36,6 @@
       },
       "topological-actions-optimization" : {
         "max-preventive-search-tree-depth" : 5,
-        "max-auto-search-tree-depth" : 5,
         "max-curative-search-tree-depth" : 5,
         "predefined-combinations" : [ ],
         "skip-actions-far-from-most-limiting-element" : false,
@@ -133,7 +132,14 @@
         }
       },
       "multi-threading" : {
-        "available-cpus" : 4
+        "available-cpus" : 14
+      },
+      "mnec-parameters" : {
+        "violation-cost" : 100000.0,
+        "constraint-adjustment-coefficient" : 3.0
+      },
+      "costly-min-margin-parameters" : {
+        "shifted-violation-penalty" : 1000.0
       }
     }
   }
