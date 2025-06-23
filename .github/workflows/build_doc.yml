@@ -28,6 +28,14 @@ jobs:
         run: |
           sphinx-build -a docs ./build-docs
 
+  links_check:
+    name: Check broken links
+    # needs: doc_ubuntu
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v1
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
@@ -37,5 +45,4 @@ jobs:
         run: npm install -g markdown-link-check
 
       - name: Check all Markdown links
-        run: |
-          markdown-link-check ./docs -q
+        run: markdown-link-check ./docs -q
