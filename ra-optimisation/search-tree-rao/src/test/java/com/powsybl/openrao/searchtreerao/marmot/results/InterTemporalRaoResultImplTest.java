@@ -13,7 +13,6 @@ import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Instant;
-import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
@@ -59,6 +58,7 @@ class InterTemporalRaoResultImplTest {
         stateTimestamp3 = TestsUtils.mockState(TestsUtils.TIMESTAMP_3);
 
         instant = Mockito.mock(Instant.class);
+        Mockito.when(instant.isPreventive()).thenReturn(true);
 
         flowCnecTimestamp1 = TestsUtils.mockFlowCnec(stateTimestamp1);
         flowCnecTimestamp2 = TestsUtils.mockFlowCnec(stateTimestamp2);
@@ -95,10 +95,10 @@ class InterTemporalRaoResultImplTest {
         assertEquals(0., interTemporalRaoResult.getGlobalVirtualCost(null));
         assertEquals(0., interTemporalRaoResult.getGlobalVirtualCost(null, "virtual"));
 
-        assertEquals(1000., interTemporalRaoResult.getGlobalCost(InstantKind.PREVENTIVE));
-        assertEquals(900., interTemporalRaoResult.getGlobalFunctionalCost(InstantKind.PREVENTIVE));
-        assertEquals(100., interTemporalRaoResult.getGlobalVirtualCost(InstantKind.PREVENTIVE));
-        assertEquals(100., interTemporalRaoResult.getGlobalVirtualCost(InstantKind.PREVENTIVE, "virtual"));
+        assertEquals(1000., interTemporalRaoResult.getGlobalCost(instant));
+        assertEquals(900., interTemporalRaoResult.getGlobalFunctionalCost(instant));
+        assertEquals(100., interTemporalRaoResult.getGlobalVirtualCost(instant));
+        assertEquals(100., interTemporalRaoResult.getGlobalVirtualCost(instant, "virtual"));
 
         assertEquals(450., interTemporalRaoResult.getCost(instant, TestsUtils.TIMESTAMP_1));
         assertEquals(450., interTemporalRaoResult.getFunctionalCost(instant, TestsUtils.TIMESTAMP_1));
