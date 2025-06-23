@@ -1,5 +1,5 @@
 {
-  "version" : "3.0",
+  "version" : "3.1",
   "objective-function" : {
     "type" : "SECURE_FLOW",
     "unit" : "MW",
@@ -37,7 +37,6 @@
       },
       "topological-actions-optimization" : {
         "max-preventive-search-tree-depth" : 2147483647,
-        "max-auto-search-tree-depth" : 2147483647,
         "max-curative-search-tree-depth" : 2147483647,
         "predefined-combinations" : [ ],
         "skip-actions-far-from-most-limiting-element" : false,
@@ -78,6 +77,7 @@
                 "slackBusesIds" : [ ],
                 "slackDistributionFailureBehavior" : "LEAVE_ON_SLACK_BUS",
                 "voltageRemoteControl" : true,
+                "voltageRemoteControlRobustMode" : true,
                 "lowImpedanceBranchMode" : "REPLACE_BY_ZERO_IMPEDANCE_LINE",
                 "loadPowerFactorConstant" : false,
                 "plausibleActivePowerLimit" : 5000.0,
@@ -144,7 +144,9 @@
                 "fictitiousGeneratorVoltageControlCheckMode" : "FORCED",
                 "areaInterchangeControl" : false,
                 "areaInterchangeControlAreaType" : "ControlArea",
-                "areaInterchangePMaxMismatch" : 2.0
+                "areaInterchangePMaxMismatch" : 2.0,
+                "forceTargetQInReactiveLimits" : false,
+                "disableInconsistentVoltageControls" : false
               }
             }
           },
