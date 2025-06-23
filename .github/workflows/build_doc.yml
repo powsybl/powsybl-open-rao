@@ -46,7 +46,7 @@ jobs:
         run: |
           BROKEN_LINKS=$(markdown-link-check -q ./docs)
           if [ -n "$BROKEN_LINKS" ]; then
-            echo "Found broken links"
+            echo "Found broken links: $BROKEN_LINKS"
             exit 1
           else
             exit 0
