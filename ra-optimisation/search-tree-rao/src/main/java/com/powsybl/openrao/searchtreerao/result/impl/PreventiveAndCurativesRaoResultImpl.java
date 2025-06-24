@@ -104,14 +104,28 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
         Set<FlowCnec> flowCnecs = crac.getFlowCnecs().stream()
             .filter(flowCnec -> flowCnec.getState().isPreventive() || flowCnec.getState().getInstant().getKind().equals(InstantKind.OUTAGE))
             .collect(Collectors.toSet());
-        //For non loopflow cnecs, the result returns NaN
+        //For non loopflow cnecs, the result returns NaN or is missing commercial flows
         Set<FlowCnec> loopFlowCnecs = flowCnecs.stream()
-            .filter(flowCnec -> !Double.isNaN(initialResult.getLoopFlow(flowCnec, flowCnec.getMonitoredSides().iterator().next(), Unit.MEGAWATT)))
+            .filter(this::initialResultContainsLoopFlowResult)
             .collect(Collectors.toSet());
         ObjectiveFunction objectiveFunction = ObjectiveFunction.build(flowCnecs, loopFlowCnecs, initialResult, initialResult, Collections.emptySet(), raoParameters, Set.of(crac.getPreventiveState()));
         RemedialActionActivationResult remedialActionActivationResult = new RemedialActionActivationResultImpl(secondPreventivePerimeterResult.getOptimizationResult(), secondPreventivePerimeterResult.getOptimizationResult());
         ObjectiveFunctionResult objectiveFunctionResult = objectiveFunction.evaluate(secondPreventivePerimeterResult.getOptimizationResult(), remedialActionActivationResult);
         return new OptimizationResultImpl(objectiveFunctionResult, secondPreventivePerimeterResult.getOptimizationResult(), secondPreventivePerimeterResult.getOptimizationResult(), secondPreventivePerimeterResult.getOptimizationResult(), secondPreventivePerimeterResult.getOptimizationResult());
+    }
+
+    private boolean initialResultContainsLoopFlowResult(FlowCnec flowCnec) {
+        boolean loopflowPresent;
+        try {
+            loopflowPresent = !Double.isNaN(initialResult.getLoopFlow(flowCnec, flowCnec.getMonitoredSides().iterator().next(), Unit.MEGAWATT));
+        } catch (OpenRaoException e) {
+            if (e.getMessage().contains("No commercial flow")) {
+                loopflowPresent = false;
+            } else {
+                throw e;
+            }
+        }
+        return loopflowPresent;
     }
 
     /**
@@ -146,7 +160,7 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
         //compute objective function only considering that state cnecs
         Set<FlowCnec> stateCnecs = crac.getFlowCnecs(state);
         Set<FlowCnec> loopFlowCnecs = stateCnecs.stream()
-            .filter(flowCnec -> !Double.isNaN(previousResult.getLoopFlow(flowCnec, flowCnec.getMonitoredSides().iterator().next(), Unit.MEGAWATT)))
+            .filter(this::initialResultContainsLoopFlowResult)
             .collect(Collectors.toSet());
         RemedialActionActivationResult raActivationResult = RemedialActionActivationResultImpl.empty(previousResult);
         ObjectiveFunctionResult stateOfResult = ObjectiveFunction.build(
@@ -169,7 +183,7 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
                 return x;
             });
         Set<FlowCnec> allFollowingStatesLoopFlowCnecs = stateCnecs.stream()
-            .filter(flowCnec -> !Double.isNaN(previousResult.getLoopFlow(flowCnec, flowCnec.getMonitoredSides().iterator().next(), Unit.MEGAWATT)))
+            .filter(this::initialResultContainsLoopFlowResult)
             .collect(Collectors.toSet());
         ObjectiveFunctionResult followingStatesOfResult = ObjectiveFunction.build(
             allFollowingStatesCnecs,
