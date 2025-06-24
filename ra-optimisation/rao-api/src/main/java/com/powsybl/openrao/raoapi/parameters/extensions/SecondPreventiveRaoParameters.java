@@ -82,11 +82,7 @@ public class SecondPreventiveRaoParameters {
 
     public static boolean getSecondPreventiveReOptimizeCurativeRangeActions(RaoParameters parameters) {
         if (parameters.hasExtension(OpenRaoSearchTreeParameters.class)) {
-            boolean reOptimizeCurativeRangeActions = parameters.getExtension(OpenRaoSearchTreeParameters.class).getSecondPreventiveRaoParameters().getReOptimizeCurativeRangeActions();
-            if (!reOptimizeCurativeRangeActions) {
-                BUSINESS_WARNS.warn("Non re-optimizing curative range actions is deprecated. Curative range actions re-optimization will be enforced in a future OpenRAO version.");
-            }
-            return reOptimizeCurativeRangeActions;
+            return parameters.getExtension(OpenRaoSearchTreeParameters.class).getSecondPreventiveRaoParameters().getReOptimizeCurativeRangeActions();
         }
         BUSINESS_WARNS.warn("No second preventive parameters provided, by default curative range actions will not be re-optimized but this is deprecated. Curative range actions re-optimization will be enforced in a future OpenRAO version.");
         return DEFAULT_RE_OPTIMIZE_CURATIVE_RANGE_ACTIONS;
