@@ -13,7 +13,6 @@ import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 
 import java.util.Objects;
 
-import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.*;
 /**
  * Second preventive parameters for RAO
@@ -84,7 +83,6 @@ public class SecondPreventiveRaoParameters {
         if (parameters.hasExtension(OpenRaoSearchTreeParameters.class)) {
             return parameters.getExtension(OpenRaoSearchTreeParameters.class).getSecondPreventiveRaoParameters().getReOptimizeCurativeRangeActions();
         }
-        BUSINESS_WARNS.warn("No second preventive parameters provided, by default curative range actions will not be re-optimized but this is deprecated. Curative range actions re-optimization will be enforced in a future OpenRAO version.");
         return DEFAULT_RE_OPTIMIZE_CURATIVE_RANGE_ACTIONS;
     }
 

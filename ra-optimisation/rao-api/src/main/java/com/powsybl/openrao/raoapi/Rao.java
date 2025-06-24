@@ -95,9 +95,11 @@ public final class Rao {
         }
 
         public void deprecateNonGlobalSecondPreventive(RaoParameters parameters) {
-            boolean reOptimizeCurativeRangeActions = parameters.getExtension(OpenRaoSearchTreeParameters.class).getSecondPreventiveRaoParameters().getReOptimizeCurativeRangeActions();
-            if (!reOptimizeCurativeRangeActions) {
-                BUSINESS_WARNS.warn("Non re-optimizing curative range actions is deprecated. Curative range actions re-optimization will be mandatory in a future OpenRAO version.");
+            if (parameters.hasExtension(OpenRaoSearchTreeParameters.class)) {
+                boolean reOptimizeCurativeRangeActions = parameters.getExtension(OpenRaoSearchTreeParameters.class).getSecondPreventiveRaoParameters().getReOptimizeCurativeRangeActions();
+                if (!reOptimizeCurativeRangeActions) {
+                    BUSINESS_WARNS.warn("Non re-optimizing curative range actions is deprecated. Curative range actions re-optimization will be mandatory in a future OpenRAO version.");
+                }
             }
         }
 
