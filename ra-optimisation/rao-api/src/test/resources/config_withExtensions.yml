@@ -55,7 +55,6 @@ search-tree-linear-optimization-solver:
 
 search-tree-topological-actions-optimization:
   max-preventive-search-tree-depth: 3
-  max-auto-search-tree-depth: 2
   max-curative-search-tree-depth: 3
   predefined-combinations: [ "{na1}+{na2}", "{na3}+{na4}+{na5}" ]
   skip-actions-far-from-most-limiting-element: true
@@ -73,3 +72,7 @@ search-tree-load-flow-and-sensitivity-computation:
 
 search-tree-multi-threading:
   available-cpus: 5
+
+search-tree-costly-min-margin-parameters:
+  shifted-violation-penalty : 1000
+  shifted-violation-threshold : 0

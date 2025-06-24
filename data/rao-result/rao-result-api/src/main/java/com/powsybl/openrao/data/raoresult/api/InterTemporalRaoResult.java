@@ -8,11 +8,15 @@
 package com.powsybl.openrao.data.raoresult.api;
 
 import com.powsybl.openrao.commons.PhysicalParameter;
+import com.powsybl.openrao.commons.TemporalData;
+import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
-import com.powsybl.openrao.data.crac.api.InstantKind;
 
+import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Properties;
+import java.util.zip.ZipOutputStream;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -20,15 +24,15 @@ import java.util.List;
 public interface InterTemporalRaoResult extends RaoResult {
     List<OffsetDateTime> getTimestamps();
 
-    default double getGlobalCost(InstantKind instantKind) {
-        return getGlobalFunctionalCost(instantKind) + getGlobalVirtualCost(instantKind);
+    default double getGlobalCost(Instant instant) {
+        return getGlobalFunctionalCost(instant) + getGlobalVirtualCost(instant);
     }
 
-    double getGlobalFunctionalCost(InstantKind instantKind);
+    double getGlobalFunctionalCost(Instant instant);
 
-    double getGlobalVirtualCost(InstantKind instantKind);
+    double getGlobalVirtualCost(Instant instant);
 
-    double getGlobalVirtualCost(InstantKind instantKind, String virtualCostName);
+    double getGlobalVirtualCost(Instant instant, String virtualCostName);
 
     /**
      * It gives the global cost of the situation at a given {@link Instant} according to the objective
@@ -90,4 +94,8 @@ public interface InterTemporalRaoResult extends RaoResult {
     default boolean isSecure(OffsetDateTime timestamp) {
         return isSecure(timestamp, PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE);
     }
+
+    RaoResult getIndividualRaoResult(OffsetDateTime timestamp);
+
+    void write(ZipOutputStream zipOutputStream, TemporalData<Crac> cracs, Properties properties) throws IOException;
 }

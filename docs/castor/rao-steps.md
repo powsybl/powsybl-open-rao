@@ -39,12 +39,12 @@ An automaton perimeter can be defined for each defined contingency. Each automat
 Optimal preventive actions selected by the preventive RAO are applied in this perimeter.
 
 While preventive and curative remedial actions are always optimized to prevent overloads in their respective perimeters,
-auto remedial actions can actually either be optimized or forced in the automaton perimeter, depending on the usage
-method. Indeed, in real life an "automated protection" is triggered when an outage takes place, even if its triggering
-causes another constraint somewhere else in the network.
+auto remedial actions are actually forced in the automaton perimeter, depending on the usage method. Indeed, in real
+life an "automated protection" is triggered when an outage takes place, even if its triggering causes another constraint
+somewhere else in the network.
 That's why, regardless of the impacts on CNECs, forced automatic remedial actions are activated if their specific
 activation conditions are met (e.g. after a given contingency).
-In CASTOR, this simulation is carried out in three stages, the first two handling specifically the automatic remedial
+In CASTOR, this simulation is carried out in two stages, the first handling specifically the automatic remedial
 actions for which there is not set-point to compute. These remedial actions are
 called [network actions](/input-data/crac/json.md#network-actions). They include topological actions, injection
 set-points, PST set-points, switch pairs.
@@ -53,22 +53,17 @@ set-points, PST set-points, switch pairs.
 
 First, all automatic network actions with a FORCED usage method are applied on the network. FORCED means that no optimization is carried out and that as long as the triggering conditions are met, the remedial action is applied.
 
-#### Automatic search tree
-
-Then, the automatic network actions which are available (i.e. not mandatory to apply) are selected by the RAO if they
-help making the network secure, using a search-tree algorithm (similar to what is done in preventive or curative).
-
 #### Automatic range actions simulation
 
-Finally, automatic range actions are applied one by one, as long as some of the perimeter's CNECs are overloaded. Range
+Then, automatic range actions are applied one by one, as long as some of the perimeter's CNECs are overloaded. Range
 actions include PSTs and HVDCs. The remedial actions' speed determines the order in which they are applied: the fastest
 range actions are simulated first. Aligned range actions are simulated simultaneously.
 
-> Note that auto range actions must have a FORCED usage method.  
+> Note that auto range actions must have a FORCED usage method too.  
 
-Automatic range actions' setpoint is computed using the results of a sensitivity analysis computation, during which the
+Automatic range actions' set-point is computed using the results of a sensitivity analysis computation, during which the
 sensitivity $\sigma$ of a range action on a CNEC is computed. By focusing on the worse overloaded CNEC, we can compute
-the automatic range action's optimal setpoint to relieve that CNEC with the following formula:
+the automatic range action's optimal set-point to relieve that CNEC with the following formula:
 
 $$\begin{equation}
 A_{optimal} = A_{current} + {sign}{(F(c)}) * \frac{\min(0, margin(c))}{\sigma}

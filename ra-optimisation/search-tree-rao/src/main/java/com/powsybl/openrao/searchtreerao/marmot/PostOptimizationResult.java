@@ -26,6 +26,7 @@ import com.powsybl.openrao.searchtreerao.result.impl.OneStateOnlyRaoResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.OptimizationResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.RemedialActionActivationResultImpl;
 
+import java.util.Map;
 import java.util.Set;
 
 import static com.powsybl.openrao.searchtreerao.marmot.MarmotUtils.getPreventivePerimeterCnecs;
@@ -44,7 +45,7 @@ public record PostOptimizationResult(RaoInput raoInput, PrePerimeterResult initi
         Crac crac = raoInput.getCrac();
         State preventiveState = crac.getPreventiveState();
         ObjectiveFunction objectiveFunction = ObjectiveFunction.build(MarmotUtils.getPreventivePerimeterCnecs(crac), Set.of(), initialResult, prePerimeterFlowResult, Set.of(), raoParameters, Set.of(preventiveState));
-        NetworkActionsResult networkActionsResult = new NetworkActionsResultImpl(topologicalOptimizationResult.getActivatedNetworkActionsDuringState(preventiveState));
+        NetworkActionsResult networkActionsResult = new NetworkActionsResultImpl(Map.of(preventiveState, topologicalOptimizationResult.getActivatedNetworkActionsDuringState(preventiveState)));
         RemedialActionActivationResult remedialActionActivationResult = new RemedialActionActivationResultImpl(finalRangeActionActivationResult, networkActionsResult);
         ObjectiveFunctionResult objectiveFunctionResult = objectiveFunction.evaluate(finalFlowResult, remedialActionActivationResult);
         OptimizationResult mergedOptimizationResult = new OptimizationResultImpl(objectiveFunctionResult, finalFlowResult, finalSensitivityResult, networkActionsResult, finalRangeActionActivationResult);
