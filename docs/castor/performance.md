@@ -76,23 +76,36 @@ See also: [Network actions impact parameters](/parameters.md#network-actions-opt
 
 ## Fast RAO
 
-In general case, network congestion varies significantly across different transmission lines and system states.
+In general case, network congestion varies significantly across different CNECs and states.
 This variation leads to an important observation: certain CNECs consistently maintain positive security margins,
-regardless of which RAs are applied.
+regardless of which RAs are applied. Another observation is that running multiple RAO on smaller problems is more efficient than performing a single RAO on the
+entire, much larger problem at once.
 
-This insight forms the foundation of Fast RAO: by excluding these consistently secure CNECs from the optimization process  
-and focusing only on the critical ones, we can significantly reduce the problem's complexity. Resulting in a lighter optimization
-problem that can be solved more quickly without compromising system security.
-
-Read more about Fast RAO [here](../_static/pdf/FastRAO.pdf)
+These insights form the foundation of Fast RAO: by iteratively building and focusing only on a set of critical CNECs, we
+can significantly reduce the problem's complexity. Resulting in a lighter optimization problem that can be solved faster without compromising system security.
 
 ### Algorithm
 
-Fast Rao iteratively builds a set of the **critical** CNECs. Starting with an empty set of CNECs, at each iteration,
-we selectively add only the CNECs that are identified as critical for the problem. See the diagram below.
+See this illustration of the algorithm.
 
-Running multiple RAO on smaller problems is more efficient than performing a single RAO on the
-entire, much larger problem at once.
+<table>
+  <tr>
+    <td style="vertical-align: top; width:50%;">
+      <img src="../_static/img/FastRAO.gif" alt="FastRAO Illustration" style="max-width:100%;">
+    </td>
+    <td style="vertical-align: top; width:50%;">
+       We begin by computing margins for all CNECs via a loadflow in the initial state
+      and we identify two insecure ones to include in a first RAO. After applying the resulting actions, we run another loadflow check.
+    The two previous CNECs are secure but we find a new unsecure one. This loop continues: running RAO, applying results, 
+      checking all CNECs until all are secure.
+    </td>
+  </tr>
+</table>
+
+
+Fast Rao iteratively builds a set of the **critical** CNECs. Starting with an empty set of CNECs, at each iteration,
+we selectively add only the CNECs that are identified as critical for the problem. 
+See the diagram below for more details on how the set of critical CNECs is build.
 
 ![Current state of the algorithm](../_static/img/FastRAO.png)
 
