@@ -7,7 +7,7 @@
     <parent>
         <groupId>com.powsybl</groupId>
         <artifactId>open-rao-virtual-hubs</artifactId>
-        <version>6.4.0</version>
+        <version>6.4.1-SNAPSHOT</version>
     </parent>
     <artifactId>open-rao-virtual-hubs-api</artifactId>
     <dependencies>
