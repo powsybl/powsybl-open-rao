@@ -228,3 +228,22 @@ Feature: US 92.1: Costly network actions optimization
     And the remedial action "closeBeFr8" is used after "coBeFr5" at "curative"
     # Activation of closeBeFr6 (2500) + activation of closeBeFr7 twice (2 * 60) + activation of closeBeFr8 twice (2 * 735) + overload penalty (50 * 10000)
     And the value of the objective function after CRA should be 504090.0
+
+  @fast @costly @rao
+  Scenario: US 92.1.12: Preventive and auto optimization - curative overload
+    No available CRAs so the curative CNEC will always be overloaded.
+    The overload must appear in the cost in both preventive and auto instants.
+    Given network file is "epic92/2Nodes8ParallelLines5LinesClosed.uct"
+    Given crac file is "epic92/crac-92-1-12.json"
+    Given configuration file is "epic92/RaoParameters_dc_minObjective.json"
+    When I launch search_tree_rao
+    Then the worst margin is -66.67 MW
+    And the value of the objective function initially should be 1500000.0
+    And 1 remedial actions are used in preventive
+    And the remedial action "closeBeFr6" is used in preventive
+    # Activation of closeBeFr6 (2500) + curative overload penalty (100 * 10000)
+    And the value of the objective function after PRA should be 1002500.0
+    And 1 remedial actions are used after "coBeFr" at "auto"
+    And the remedial action "closeBeFr7" is used after "coBeFr" at "auto"
+    # Activation of closeBeFr6 (2500) + activation of closeBeFr7 (60) + curative overload penalty (66.67 * 10000)
+    And the value of the objective function after ARA should be 669226.67
