@@ -225,6 +225,7 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
         Set<String> cnecsToExclude = getDuplicateCnecs(flowCnecs);
         // exclude fictional cnec from the results
         initialResult.excludeCnecs(cnecsToExclude);
+        preventiveAndOutageOnlyResult.excludeCnecs(cnecsToExclude);
         firstPreventivePerimeterResult.getOptimizationResult().excludeCnecs(cnecsToExclude);
         secondPreventivePerimeterResult.getOptimizationResult().excludeCnecs(cnecsToExclude);
         firstPreventivePerimeterResult.getPrePerimeterResultForAllFollowingStates().excludeCnecs(cnecsToExclude);
@@ -237,6 +238,7 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
 
     private void excludeContingencies(Set<String> contingenciesToExclude) {
         initialResult.excludeContingencies(contingenciesToExclude);
+        preventiveAndOutageOnlyResult.excludeContingencies(contingenciesToExclude);
         firstPreventivePerimeterResult.getOptimizationResult().excludeContingencies(contingenciesToExclude);
         secondPreventivePerimeterResult.getOptimizationResult().excludeContingencies(contingenciesToExclude);
         firstPreventivePerimeterResult.getPrePerimeterResultForAllFollowingStates().excludeContingencies(contingenciesToExclude);
