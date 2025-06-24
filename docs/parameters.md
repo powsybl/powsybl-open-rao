@@ -36,7 +36,7 @@ Examples of rao parameters with business and implementation specific parameters
 :::{group-tab} JSON
 ~~~json
 {
-  "version" : "3.1",
+  "version" : "3.2",
   "objective-function" : {
     "type" : "SECURE_FLOW",
     "unit" : "A",
@@ -83,7 +83,6 @@ Examples of rao parameters with business and implementation specific parameters
       },
       "second-preventive-rao" : {
         "execution-condition" : "POSSIBLE_CURATIVE_IMPROVEMENT",
-        "re-optimize-curative-range-actions" : false,
         "hint-from-first-preventive-rao" : true
       },
       "load-flow-and-sensitivity-computation" : {

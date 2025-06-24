@@ -180,7 +180,7 @@ See also: [Modelling the maximum minimum relative margin objective function](/ca
 :::{group-tab} JSON
 ~~~json
 {
-  "version" : "3.1",
+  "version" : "3.2",
   "objective-function" : {
     "type" : "SECURE_FLOW",
     "unit" : "A",
