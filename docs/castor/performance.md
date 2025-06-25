@@ -115,7 +115,11 @@ See the diagram below for more details on how the set of critical CNECs is build
 ### How to run an optimization process using FastRao
 
 ```java
+// Make sure to add FastRaoParameters extension to your raoParameters
+FastRaoParameters fastRaoParameters = new FastRaoParameters();
+raoParameters.addExtension(FastRaoParameters.class, fastRaoParameters);
 
+// Run 
 RaoInput raoInput = RaoInput.build(network, crac).build();
 RaoResult raoResult = Rao.find("FastRao").run(raoInput, raoParameters);
 
