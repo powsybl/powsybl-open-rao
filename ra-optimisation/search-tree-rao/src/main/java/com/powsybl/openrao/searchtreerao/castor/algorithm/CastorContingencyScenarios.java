@@ -177,6 +177,11 @@ public class CastorContingencyScenarios {
     }
 
     private PostPerimeterResult getResultPostState(State state, Network networkClone, PrePerimeterResult prePerimeterSensitivityOutput, OptimizationResult optimizationResult) {
+        // if it's the last instant, no need to recompute things because the optimization result already contains all following states. (none)
+        if (state.getInstant().equals(crac.getLastInstant())) {
+            return new PostPerimeterResult(optimizationResult,
+                new PrePerimeterSensitivityResultImpl(optimizationResult, optimizationResult, RangeActionSetpointResultImpl.buildFromActivationOfRangeActionAtState(optimizationResult, state), optimizationResult));
+        }
         Set<State> statesToConsider = new HashSet<>();
         statesToConsider.add(state);
         crac.getStates(state.getContingency().orElseThrow()).stream()
