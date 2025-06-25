@@ -62,24 +62,6 @@
       "side" : 1
     } ]
   }, {
-    "id" : "nl1_nl2_3_auto - co_nl1_nl_2_1",
-    "name" : "nl1_nl2_3_auto - co_nl1_nl_2_1",
-    "networkElementId" : "NNL1AA1  NNL2AA1  3",
-    "operator" : "NL",
-    "instant" : "auto",
-    "contingencyId" : "co_nl1_nl_2_1",
-    "optimized" : true,
-    "monitored" : false,
-    "reliabilityMargin" : 0.0,
-    "iMax" : [ NaN ],
-    "nominalV" : [ 220.0 ],
-    "thresholds" : [ {
-      "unit" : "megawatt",
-      "max" : 600.0,
-      "min" : -600.0,
-      "side" : 1
-    } ]
-  },{
     "id" : "nl1_nl2_2_auto - co_nl1_nl_2_3",
     "name" : "nl1_nl2_2_auto - co_nl1_nl_2_3",
     "networkElementId" : "NNL1AA1  NNL2AA1  2",
