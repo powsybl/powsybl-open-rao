@@ -27,6 +27,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * This class aims at performing the sensitivity analysis before the optimization of a perimeter. At these specific
@@ -70,45 +71,54 @@ public class PostPerimeterSensitivityAnalysis {
     public Future<PostPerimeterResult> runBasedOnInitialPreviousAndOptimizationResults(Network network,
                                                                            Crac crac,
                                                                            FlowResult initialFlowResult,
-                                                                           Future<FlowResult> previousResultsFuture,
+                                                                           Future<PrePerimeterResult> previousResultsFuture,
                                                                            Set<String> operatorsNotSharingCras,
                                                                            OptimizationResult optimizationResult,
                                                                            AppliedRemedialActions appliedCurativeRemedialActions) {
 
-        SensitivityComputer.SensitivityComputerBuilder sensitivityComputerBuilder = SensitivityComputer.create()
-            .withToolProvider(toolProvider)
-            .withCnecs(flowCnecs)
-            .withRangeActions(rangeActions)
-            .withOutageInstant(crac.getOutageInstant());
+        AtomicReference<FlowResult> flowResult = new AtomicReference<>();
+        AtomicReference<SensitivityResult> sensitivityResult = new AtomicReference<>();
+        boolean actionWasTaken = actionWasTaken(optimizationResult);
+        if (actionWasTaken) {
+            SensitivityComputer.SensitivityComputerBuilder sensitivityComputerBuilder = SensitivityComputer.create()
+                .withToolProvider(toolProvider)
+                .withCnecs(flowCnecs)
+                .withRangeActions(rangeActions)
+                .withOutageInstant(crac.getOutageInstant());
 
-        Optional<SearchTreeRaoLoopFlowParameters> optionalLoopFlowParameters = raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getLoopFlowParameters();
-        if (optionalLoopFlowParameters.isPresent()) {
-            if (optionalLoopFlowParameters.get().getPtdfApproximation().shouldUpdatePtdfWithTopologicalChange()) {
-                sensitivityComputerBuilder.withCommercialFlowsResults(toolProvider.getLoopFlowComputation(), toolProvider.getLoopFlowCnecs(flowCnecs));
-            } else {
-                sensitivityComputerBuilder.withCommercialFlowsResults(initialFlowResult);
+            Optional<SearchTreeRaoLoopFlowParameters> optionalLoopFlowParameters = raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getLoopFlowParameters();
+            if (optionalLoopFlowParameters.isPresent()) {
+                if (optionalLoopFlowParameters.get().getPtdfApproximation().shouldUpdatePtdfWithTopologicalChange()) {
+                    sensitivityComputerBuilder.withCommercialFlowsResults(toolProvider.getLoopFlowComputation(), toolProvider.getLoopFlowCnecs(flowCnecs));
+                } else {
+                    sensitivityComputerBuilder.withCommercialFlowsResults(initialFlowResult);
+                }
             }
-        }
-        Optional<SearchTreeRaoRelativeMarginsParameters> optionalRelativeMarginParameters = raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getRelativeMarginsParameters();
-        if (optionalRelativeMarginParameters.isPresent()) {
-            if (optionalRelativeMarginParameters.get().getPtdfApproximation().shouldUpdatePtdfWithTopologicalChange()) {
-                sensitivityComputerBuilder.withPtdfsResults(toolProvider.getAbsolutePtdfSumsComputation(), flowCnecs);
-            } else {
-                sensitivityComputerBuilder.withPtdfsResults(initialFlowResult);
+            Optional<SearchTreeRaoRelativeMarginsParameters> optionalRelativeMarginParameters = raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getRelativeMarginsParameters();
+            if (optionalRelativeMarginParameters.isPresent()) {
+                if (optionalRelativeMarginParameters.get().getPtdfApproximation().shouldUpdatePtdfWithTopologicalChange()) {
+                    sensitivityComputerBuilder.withPtdfsResults(toolProvider.getAbsolutePtdfSumsComputation(), flowCnecs);
+                } else {
+                    sensitivityComputerBuilder.withPtdfsResults(initialFlowResult);
+                }
             }
-        }
-        if (appliedCurativeRemedialActions != null) {
-            // for 2nd preventive initial sensi
-            sensitivityComputerBuilder.withAppliedRemedialActions(appliedCurativeRemedialActions);
-        }
-        SensitivityComputer sensitivityComputer = sensitivityComputerBuilder.build();
-        sensitivityComputer.compute(network);
+            if (appliedCurativeRemedialActions != null) {
+                // for 2nd preventive initial sensi
+                sensitivityComputerBuilder.withAppliedRemedialActions(appliedCurativeRemedialActions);
+            }
+            SensitivityComputer sensitivityComputer = sensitivityComputerBuilder.build();
+            sensitivityComputer.compute(network);
 
-        FlowResult flowResult = sensitivityComputer.getBranchResult(network);
-        SensitivityResult sensitivityResult = sensitivityComputer.getSensitivityResult();
+            flowResult.set(sensitivityComputer.getBranchResult(network));
+            sensitivityResult.set(sensitivityComputer.getSensitivityResult());
+        }
 
         // Thread is executed once previousResultsFuture is fetched
         return Executors.newSingleThreadExecutor().submit(() -> {
+            if (!actionWasTaken) {
+                flowResult.set(previousResultsFuture.get());
+                sensitivityResult.set(previousResultsFuture.get());
+            }
             ObjectiveFunction objectiveFunction = ObjectiveFunction.build(
                 flowCnecs,
                 toolProvider.getLoopFlowCnecs(flowCnecs),
@@ -120,16 +130,24 @@ public class PostPerimeterSensitivityAnalysis {
             );
 
             ObjectiveFunctionResult objectiveFunctionResult = objectiveFunction.evaluate(
-                flowResult,
+                flowResult.get(),
                 new RemedialActionActivationResultImpl(optimizationResult, optimizationResult)
             );
 
             return new PostPerimeterResult(optimizationResult, new PrePerimeterSensitivityResultImpl(
-                flowResult,
-                sensitivityResult,
+                flowResult.get(),
+                sensitivityResult.get(),
                 RangeActionSetpointResultImpl.buildWithSetpointsFromNetwork(network, rangeActions),
                 objectiveFunctionResult
             ));
         });
+    }
+
+    private boolean actionWasTaken(OptimizationResult optimizationResult) {
+        if (!optimizationResult.getActivatedNetworkActions().isEmpty()) {
+            return true;
+        }
+        return optimizationResult.getActivatedRangeActionsPerState().values().stream()
+            .anyMatch(set -> !set.isEmpty());
     }
 }

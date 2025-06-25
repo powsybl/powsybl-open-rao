@@ -154,7 +154,7 @@ public class CastorContingencyScenarios {
                     allPreviousPerimetersSucceded = curativeResult.getSensitivityStatus() == DEFAULT;
                     applyRemedialActions(networkClone, curativeResult, curativeState);
                     //recompute sensi and objective function considering curative + all instants following curative (useful if mult curative)
-                    PostPerimeterResult postCurativeResult = getResultPostState(curativeState, networkClone, prePerimeterSensitivityOutput, curativeResult);
+                    PostPerimeterResult postCurativeResult = getResultPostState(curativeState, networkClone, previousPerimeterResult, curativeResult);
                     contingencyScenarioResults.put(curativeState, postCurativeResult);
                     previousPerimeterResult = null;
                     if (allPreviousPerimetersSucceded) {
