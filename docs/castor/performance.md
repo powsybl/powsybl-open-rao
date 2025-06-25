@@ -93,7 +93,7 @@ See this illustration of the algorithm.
     <td style="vertical-align: top; width:50%;">
       <img src="../_static/img/FastRAO.gif" alt="FastRAO Illustration" style="max-width:100%;">
     </td>
-    <td style="vertical-align: top; width:50%;">
+    <td style="vertical-align: middle; width:50%;">
        We begin by computing margins for all CNECs via a loadflow in the initial state
       and we identify two insecure ones to include in a first RAO. After applying the resulting actions, we run another loadflow check.
     The two previous CNECs are secure but we find a new unsecure one. This loop continues: running RAO, applying results, 
