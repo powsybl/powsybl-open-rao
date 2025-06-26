@@ -51,7 +51,7 @@ public class MarginCoreProblemFiller extends AbstractCoreProblemFiller {
      * activations. This penalty cost prioritizes the solutions which change as little
      * as possible the set points of the RangeActions.
      * <p>
-     * min( sum{r in RangeAction} penaltyCost[r] (upwardVariation[r] + downwardVariation[r]) )
+     * min( sum{r in RangeAction} penaltyCost[r]  - (upwardVariation[r] + downwardVariation[r]) )
      */
     @Override
     protected void fillObjective(LinearProblem linearProblem) {
