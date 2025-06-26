@@ -34,11 +34,12 @@ take into account applied topological actions first.*
 
 ## Used optimization variables
 
-| Name                                  | Symbol             | Defined in                                                                        |
-|---------------------------------------|--------------------|-----------------------------------------------------------------------------------|
-| RA setpoint absolute variation        | $\Delta A(r,s)$    | [CoreProblemFiller](core-problem-filler.md#defined-optimization-variables)        |
-| PstRangeAction tap upward variation   | $\Delta t^{+} (r)$ | [DiscretePstTapFiller](discrete-pst-tap-filler.md#defined-optimization-variables) |
-| PstRangeAction tap downward variation | $\Delta t^{-} (r)$ | [DiscretePstTapFiller](discrete-pst-tap-filler.md#defined-optimization-variables) |
+| Name                                     | Symbol             | Defined in                                                                        |
+|------------------------------------------|--------------------|-----------------------------------------------------------------------------------|
+| RangeAction set-point upward variation   | $\Delta^{+}(r,s)$  | [CoreProblemFiller](core-problem-filler.md#defined-optimization-variables)        |
+| RangeAction set-point downward variation | $\Delta^{-}(r,s)$  | [CoreProblemFiller](core-problem-filler.md#defined-optimization-variables)        |
+| PstRangeAction tap upward variation      | $\Delta t^{+} (r)$ | [DiscretePstTapFiller](discrete-pst-tap-filler.md#defined-optimization-variables) |
+| PstRangeAction tap downward variation    | $\Delta t^{-} (r)$ | [DiscretePstTapFiller](discrete-pst-tap-filler.md#defined-optimization-variables) |
 
 ## Defined constraints
 
@@ -50,7 +51,7 @@ Force the binary to 1 if optimal setpoint should be different from pre-perimeter
 
 $$
 \begin{equation}
-\Delta A(r,s) \geq \delta (r,s) * (\alpha_{\max}(r)(\alpha _0(r)) - \alpha_{\min}(r)(\alpha _0(r)))  ,
+\Delta^{+}(r,s) + \Delta^{-}(r,s) \geq \delta (r,s) * (\alpha_{\max}(r)(\alpha _0(r)) - \alpha_{\min}(r)(\alpha _0(r)))  ,
 \forall (r,s) \in \mathcal{RA}
 \end{equation}
 $$
