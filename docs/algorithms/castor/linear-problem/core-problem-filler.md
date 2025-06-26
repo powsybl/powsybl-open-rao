@@ -13,10 +13,10 @@ This page gathers core constraints, i.e constraints that need to be defined at t
 | Injection Distribution keys   | $d \in \mathcal{DK(r)}$  | set of distribution keys of InjectionRangeAction $r$. Each distribution key is linked to a NetworkElement.                                                                                                                                                                                                                  |
 | Iteration number              | $n$                      | number of current iteration                                                                                                                                                                                                                                                                                                 |
 | ReferenceFlow                 | $f_{n}(c)$               | reference flow, for FlowCnec $c$. <br>The reference flow is the flow at the beginning of the current iteration of the MILP, around which the sensitivities are computed                                                                                                                                                     |
-| PrePerimeterSetpoints         | $\alpha _0(r)$           | setpoint of RangeAction $r$ at the beginning of the optimization                                                                                                                                                                                                                                                            |
-| ReferenceSetpoints            | $\alpha _n(r)$           | setpoint of RangeAction $r$ at the beginning of the current iteration of the MILP, around which the sensitivities are computed                                                                                                                                                                                              |
+| PrePerimeterSetpoints         | $\alpha _0(r)$           | set-point of RangeAction $r$ at the beginning of the optimization                                                                                                                                                                                                                                                           |
+| ReferenceSetpoints            | $\alpha _n(r)$           | set-point of RangeAction $r$ at the beginning of the current iteration of the MILP, around which the sensitivities are computed                                                                                                                                                                                             |
 | Sensitivities                 | $\sigma _{n}(r,c,s)$     | sensitivity of RangeAction $r$ on FlowCnec $c$ for state $s$                                                                                                                                                                                                                                                                |
-| Previous RA setpoint          | $A_{n-1}(r,s)$           | optimal setpoint of RangeAction $r$ on state $s$ in previous iteration ($n-1$)                                                                                                                                                                                                                                              |
+| Previous RA set-point         | $A_{n-1}(r,s)$           | optimal set-point of RangeAction $r$ on state $s$ in previous iteration ($n-1$)                                                                                                                                                                                                                                             |
 | Activation cost of RA         | $c_{act}(r)$             | cost to spend to activate the range action                                                                                                                                                                                                                                                                                  |
 | Upward variation cost of RA   | $c_{\Delta}^{+}(r)$      | cost to spend for each MW (resp. tap) changed in the upward direction for a standard range action (resp. PST range action)                                                                                                                                                                                                  |
 | Downward variation cost of RA | $c_{\Delta}^{-}(r)$      | cost to spend for each MW (resp. tap) changed in the downward direction for a standard range action (resp. PST range action)                                                                                                                                                                                                |
@@ -48,7 +48,7 @@ information [here](../../../input-data/crac/json.md#range-actions))
 
 ### Impact of rangeActions on FlowCnecs flows
 
-<span style='color: forestgreen;'>The following equation is the RAO's keystone, linking a FlowCnec's flow to linear range actions' setpoints.</span>
+<span style='color: forestgreen;'>The following equation is the RAO's keystone, linking a FlowCnec's flow to linear range actions' set-points.</span>
 
 $$
 \begin{equation}
@@ -63,7 +63,7 @@ with $s$ the state on $c$ which is evaluated
 
 ### Definition of the set-point variations of the RangeActions
 
-<span style='color: forestgreen;'>The following equation links a range action's setpoint to its upward/downward variations.</span>
+<span style='color: forestgreen;'>The following equation links a range action's set-point to its upward/downward variations.</span>
 
 $$
 \begin{equation}

@@ -16,17 +16,17 @@
 
 | Name           | Symbol         | Details                       | Type       | Index                                                           | Unit                                                                 | Lower bound | Upper bound |
 |----------------|----------------|-------------------------------|------------|-----------------------------------------------------------------|----------------------------------------------------------------------|-------------|-------------|
-| Group setpoint | $A^{group}(g)$ | The setpoint of the group $g$ | Real value | One variable for every element of (ContinuousRangeActionGroups) | Degrees for PST range action groups; MW for HVDC range action groups | $-\infty$   | $+\infty$   |
+| Group set-point | $A^{group}(g)$ | The set-point of the group $g$ | Real value | One variable for every element of (ContinuousRangeActionGroups) | Degrees for PST range action groups; MW for HVDC range action groups | $-\infty$   | $+\infty$   |
 
 ## Used optimization variables
 
 | Name        | Symbol | Defined in                                                                 |
 |-------------|--------|----------------------------------------------------------------------------|
-| RA setpoint | $A(r)$ | [CoreProblemFiller](core-problem-filler.md#defined-optimization-variables) |
+| RA set-point | $A(r)$ | [CoreProblemFiller](core-problem-filler.md#defined-optimization-variables) |
 
 ## Defined constraints
 
-### Equality of the setpoints of the RangeActions of the same group
+### Equality of the set-points of the RangeActions of the same group
 
 $$
 \begin{equation}
