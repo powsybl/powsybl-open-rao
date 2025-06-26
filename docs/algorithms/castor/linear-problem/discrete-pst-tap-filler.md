@@ -37,7 +37,7 @@ information [here](../../../input-data/crac/json.md#range-actions))
 
 | Name        | Symbol | Defined in                                                                 |
 |-------------|--------|----------------------------------------------------------------------------|
-| RA setpoint | $A(r, s)$ | [CoreProblemFiller](core-problem-filler.md#defined-optimization-variables) |
+| RA set-point | $A(r, s)$ | [CoreProblemFiller](core-problem-filler.md#defined-optimization-variables) |
 
 ## Defined constraints
 

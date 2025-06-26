@@ -7,9 +7,9 @@
 | RangeActions                                 | $r,s \in \mathcal{RA}$           | Set of optimised RangeActions and state on which they are applied (PSTs, HVDCs, InjectionRangeActions...)                                                                                                                                                |
 | PstRangeActions                              | $r \in \mathcal{RA}^{PST}$       | Set of PST RangeActions                                                                                                                                                                                                                                  |
 | States                                       | $s \in \mathcal{S}$              | Set of states on which RangeActions are optimized                                                                                                                                                                                                        |
-| PrePerimeterSetpoints                        | $\alpha _0(r)$                   | Setpoint of RangeAction $r$ at the beginning of the optimisation                                                                                                                                                                                         |
-| Range upper bound                            | $\alpha_{\max}(r)(\alpha _0(r))$ | Highest allowed setpoint for a range action $r$, given its pre-perimeter setpoint $\alpha _0(r)$                                                                                                                                                         |
-| Range lower bound                            | $\alpha_{\min}(r)(\alpha _0(r))$ | Lowest allowed setpoint for a range action $r$, given its pre-perimeter setpoint $\alpha _0(r)$                                                                                                                                                          |
+| PrePerimeterSetpoints                        | $\alpha _0(r)$                   | Set-point of RangeAction $r$ at the beginning of the optimisation                                                                                                                                                                                        |
+| Range upper bound                            | $\alpha_{\max}(r)(\alpha _0(r))$ | Highest allowed set-point for a range action $r$, given its pre-perimeter set-point $\alpha _0(r)$                                                                                                                                                         |
+| Range lower bound                            | $\alpha_{\min}(r)(\alpha _0(r))$ | Lowest allowed set-point for a range action $r$, given its pre-perimeter set-point $\alpha _0(r)$                                                                                                                                                          |
 | Maximum number of RAs                        | $nRA^{max}(s)$                   | Maximum number of range actions that can be used on state $s$                                                                                                                                                                                            |
 | Maximum number of TSOs                       | $nTSO^{max}(s)$                  | Maximum number of TSOs that can use at least one range action (those in "TSO exclusions" do not count) on state $s$                                                                                                                                      |
 | TSO exclusions                               | $tso \in \mathcal{TSO_{ex}}(s)$  | TSOs that do not count in the "Maximum number of TSOs" constraint on state $s$ (typically because they already have an activated network action outside the MILP, and that maxTso has been decremented, so using range actions for these TSOs is "free") |
@@ -47,7 +47,7 @@ Let the following symbol indicate the subset of RangeActions belonging to TSO (t
 
 ### Define the binary variable
 
-Force the binary to 1 if optimal setpoint should be different from pre-perimeter setpoint:
+Force the binary to 1 if optimal set-point should be different from pre-perimeter set-point:
 
 $$
 \begin{equation}
@@ -58,12 +58,12 @@ $$
 
 <br>
 
-*⚠️ In order to mitigate rounding issues, and ensure that the max and min setpoints are feasible, a small "epsilon" (
-1e-4) is added to max / subtracted to min setpoint.*
+*⚠️ In order to mitigate rounding issues, and ensure that the max and min set-points are feasible, a small "epsilon" (
+1e-4) is added to max / subtracted to min set-point.*
 
 *⚠️ In order to mitigate PST tap ↔ angle approximation in "[APPROXIMATED_INTEGERS](../../../parameters/implementation-specific-parameters.md#pst-model)"
-mode, and ensure that the initial setpoint is feasible, a correction factor is added or subtracted from the initial
-setpoint in the constraints above. This coefficient is computed as 30% of the average tap to angle conversion factor:*  
+mode, and ensure that the initial set-point is feasible, a correction factor is added or subtracted from the initial
+set-point in the constraints above. This coefficient is computed as 30% of the average tap to angle conversion factor:*  
 *correction = 0.3 x abs((max angle - min angle) / (max tap - min tap))*
 
 ### Maximum number of remedial actions
