@@ -15,6 +15,7 @@ import com.powsybl.commons.Versionable;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SecondPreventiveRaoParameters;
 import com.powsybl.tools.Version;
 
 import java.time.Instant;
@@ -96,7 +97,7 @@ public final class Rao {
 
         public void deprecateNonGlobalSecondPreventive(RaoParameters parameters) {
             if (parameters.hasExtension(OpenRaoSearchTreeParameters.class)) {
-                boolean reOptimizeCurativeRangeActions = parameters.getExtension(OpenRaoSearchTreeParameters.class).getSecondPreventiveRaoParameters().getReOptimizeCurativeRangeActions();
+                boolean reOptimizeCurativeRangeActions = SecondPreventiveRaoParameters.getSecondPreventiveReOptimizeCurativeRangeActions(parameters);
                 if (!reOptimizeCurativeRangeActions) {
                     BUSINESS_WARNS.warn("Non re-optimizing curative range actions is deprecated. Curative range actions re-optimization will be mandatory in a future OpenRAO version.");
                 }
