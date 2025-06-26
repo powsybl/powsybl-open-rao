@@ -386,6 +386,17 @@ class JsonRetrocompatibilityTest {
         testContentOfV2Point7Crac(crac);
     }
 
+    @Test
+    void importV2Point8Test() throws IOException {
+        // removed iMax from FlowCNECs
+        String cracFilePath = "/retrocompatibility/v2/crac-v2.8.json";
+        InputStream cracFile = getClass().getResourceAsStream(cracFilePath);
+
+        Crac crac = Crac.read(cracFilePath, cracFile, network);
+        assertEquals(7, crac.getNetworkActions().size());
+        testContentOfV2Point8Crac(crac);
+    }
+
     private void testContentOfV1Point0Crac(Crac crac) {
         Instant preventiveInstant = crac.getInstant("preventive");
         Instant autoInstant = crac.getInstant("auto");
@@ -449,7 +460,7 @@ class JsonRetrocompatibilityTest {
         assertEquals(2000., crac.getFlowCnec("cnec2prevId").getIMax(TwoSides.TWO), 1e-3);
         assertEquals(380., crac.getFlowCnec("cnec2prevId").getNominalVoltage(TwoSides.ONE), 1e-3);
         assertEquals(220., crac.getFlowCnec("cnec2prevId").getNominalVoltage(TwoSides.TWO), 1e-3);
-        assertEquals(Double.NaN, crac.getFlowCnec("cnec1prevId").getIMax(TwoSides.ONE), 1e-3);
+        assertEquals(1000., crac.getFlowCnec("cnec1prevId").getIMax(TwoSides.ONE), 1e-3);
         assertEquals(1000., crac.getFlowCnec("cnec1prevId").getIMax(TwoSides.TWO), 1e-3);
         assertEquals(220., crac.getFlowCnec("cnec1prevId").getNominalVoltage(TwoSides.ONE), 1e-3);
         assertEquals(220., crac.getFlowCnec("cnec1prevId").getNominalVoltage(TwoSides.TWO), 1e-3);
@@ -907,5 +918,9 @@ class JsonRetrocompatibilityTest {
         Optional<OffsetDateTime> timestamp = crac.getTimestamp();
         assertTrue(timestamp.isPresent());
         assertEquals(OffsetDateTime.of(2025, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC), timestamp.get());
+    }
+
+    private void testContentOfV2Point8Crac(Crac crac) {
+        testContentOfV2Point7Crac(crac);
     }
 }
