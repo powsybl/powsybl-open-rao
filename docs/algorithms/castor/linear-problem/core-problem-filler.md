@@ -36,7 +36,6 @@ This page gathers core constraints, i.e constraints that need to be defined at t
 |---------------------------------|-------------------|----------------------------------------------------------------------------------------------------------------------|---------------------|--------------------------------------------------|-----------------------------------------------------------|-----------------------|-----------------------|
 | Flow                            | $F(c)$            | flow of FlowCnec $c$                                                                                                 | Real value          | One variable for every element of (FlowCnecs)    | MW                                                        | $-\infty$             | $+\infty$             |
 | RA set-point                    | $A(r,s)$          | set-point of RangeAction $r$ on state $s$                                                                            | Real value          | One variable for every element of (RangeActions) | Degrees for PST range actions; MW for other range actions | Range lower bound[^2] | Range upper bound[^2] |
-| RA set-point absolute variation | $\Delta A(r,s)$   | The absolute set-point variation of RangeAction $r$ on state $s$, from set-point on previous state to "RA set-point" | Real positive value | One variable for every element of (RangeActions) | Degrees for PST range actions; MW for other range actions | 0                     | $+\infty$             |
 | RA set-point upward variation   | $\Delta^{+}(r,s)$ | The upward set-point variation of RangeAction $r$ on state $s$, from set-point on previous state to "RA set-point"   | Real positive value | One variable for every element of (RangeActions) | Degrees for PST range actions; MW for other range actions | 0                     | $+\infty$             |
 | RA set-point downward variation | $\Delta^{-}(r,s)$ | The downward set-point variation of RangeAction $r$ on state $s$, from set-point on previous state to "RA set-point" | Real positive value | One variable for every element of (RangeActions) | Degrees for PST range actions; MW for other range actions | 0                     | $+\infty$             |
 | RA activation                   | $\delta(r,s)$     | Binary variable that indicates whether the range action $r$ is activated at state $s$                                | Binary              | One variable for every element of (RangeActions) | None                                                      | 0                     | 1                     |
@@ -64,8 +63,6 @@ with $s$ the state on $c$ which is evaluated
 
 ### Definition of the set-point variations of the RangeActions
 
-#### Using the absolute variation variable
-
 <span style='color: forestgreen;'>The following equation links a range action's setpoint to its upward/downward variations.</span>
 
 $$
@@ -86,15 +83,6 @@ If so, this constraint will be modeled directly via PST taps, see [here](discret
 When converting them in angle, we take the smallest angle step between two tap changes.
 Despite artificially tightening the bounds, this is the only way to ensure we respect the tap limits as the tap to angle map is non linear.  
 With PST modeled as APPROXIMATED_INTEGERS, we can directly use the taps and therefore avoid this approximation.
-
-### Definition of the absolute variations of the RangeActions
-
-$$
-\begin{equation}
-\Delta A(r,s) = \Delta^{+}(r,s) + \Delta^{-}(r,s) , \forall (r,s) \in \mathcal{RA}
-\end{equation}
-$$
-
 
 ### <span style='color: maroon;'>Costly only</span>- Range action activation variable
 
@@ -145,7 +133,7 @@ Small penalisation for the use of RangeActions:
 
 $$
 \begin{equation}
-\min \sum_{r,s \in \mathcal{RA}} (c^{penalty}_{ra}(r) \Delta A(r,s))
+\min \sum_{r,s \in \mathcal{RA}} \left ( c^{penalty}_{ra}(r) \left ( \Delta^{+}(r,s) + \Delta^{-}(r,s) \right ) \right )
 \end{equation}
 $$
 
