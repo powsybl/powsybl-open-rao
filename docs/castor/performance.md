@@ -73,3 +73,61 @@ This parameter can be defined also through absolute increase :
 See also: [Network actions impact parameters](/parameters.md#network-actions-optimisation-parameters), [Range actions impact parameters](/parameters.md#range-actions-optimisation-parameters)
 
 ---
+
+## Fast RAO
+
+In general case, network congestion varies significantly across different CNECs and states.
+This variation leads to an important observation: certain CNECs consistently maintain positive security margins,
+regardless of which RAs are applied. Another observation is that running multiple RAO on smaller problems is more efficient than performing a single RAO on the
+entire, much larger problem at once.
+
+These insights form the foundation of Fast RAO: by iteratively building and focusing only on a set of critical CNECs, we
+can significantly reduce the problem's complexity. Resulting in a lighter optimization problem that can be solved faster without compromising system security.
+
+### Algorithm
+
+See this illustration of the algorithm.
+
+<table>
+  <tr>
+    <td style="vertical-align: top; width:50%;">
+      <img src="../_static/img/FastRAO.gif" alt="FastRAO Illustration" style="max-width:100%;">
+    </td>
+    <td style="vertical-align: middle; width:50%;">
+       We begin by computing margins for all CNECs via a loadflow in the initial state
+      and we identify two insecure ones to include in a first RAO. After applying the resulting actions, we run another loadflow check.
+    The two previous CNECs are secure but we find a new unsecure one. This loop continues: running RAO, applying results, 
+      checking all CNECs until all are secure.
+    </td>
+  </tr>
+</table>
+
+
+Fast Rao iteratively builds a set of the **critical** CNECs. Starting with an empty set of CNECs, at each iteration,
+we selectively add only the CNECs that are identified as critical for the problem. 
+See the diagram below for more details on how the set of critical CNECs is build.
+
+![Current state of the algorithm](../_static/img/FastRAO.png)
+
+> Currently, Fast RAO does not support multi-curative optimization
+
+
+### How to run an optimization process using FastRao
+
+```java
+// Make sure to add FastRaoParameters extension to your raoParameters
+FastRaoParameters fastRaoParameters = new FastRaoParameters();
+raoParameters.addExtension(FastRaoParameters.class, fastRaoParameters);
+
+// Run 
+RaoInput raoInput = RaoInput.build(network, crac).build();
+RaoResult raoResult = Rao.find("FastRao").run(raoInput, raoParameters);
+
+// Run FastRAO with a pre defined set of cnecs to consider
+FastRao.launchFilteredRao(raoInput, raoParameters, targetEndInstant, consideredCnecs);
+```
+
+### Fast Rao Specific Parameters
+
+See [fast rao parameters section](../parameters/implementation-specific-parameters.md#number-of-cnecs-to-add)
+
