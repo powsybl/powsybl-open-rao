@@ -91,16 +91,6 @@ class LinearProblemTest {
     }
 
     @Test
-    void rangeActionAbsoluteVariationVariableTest() {
-        Exception e = assertThrows(OpenRaoException.class, () -> linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction, state));
-        assertEquals("Variable rangeaction_id_null_absolutevariation_variable has not been created yet", e.getMessage());
-        linearProblem.addAbsoluteRangeActionVariationVariable(LB, UB, rangeAction, state);
-        assertNotNull(linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction, state));
-        assertEquals(LB, linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction, state).lb(), DOUBLE_TOLERANCE);
-        assertEquals(UB, linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction, state).ub(), DOUBLE_TOLERANCE);
-    }
-
-    @Test
     void pstTapVariationIntegerAndBinaryVariablesTest() {
         Exception e = assertThrows(OpenRaoException.class, () -> linearProblem.getPstTapVariationVariable(rangeAction, state, UPWARD));
         assertEquals("Variable rangeaction_id_null_tapvariationupward_variable has not been created yet", e.getMessage());
