@@ -1,4 +1,4 @@
-# Costly specific
+# Inter-temporal constraints
 
 ```{toctree}
 :hidden:

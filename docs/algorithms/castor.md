@@ -14,7 +14,7 @@ castor/performance.md
 
 CASTOR considers the following remedial actions:
 - <span style='color: forestgreen;'>**P**reventive</span> **R**emedial **A**ctions (fully shared) hereafter **PRA**
-- <span style='color: forestgreen;'>**A**utomatic</span> **R**emedial **A**ctions (shared after a critical outage) hereafter **ARA**. Note that these remedial actions are simulatedrather than optimised.
+- <span style='color: forestgreen;'>**A**utomatic</span> **R**emedial **A**ctions (shared after a critical outage) hereafter **ARA**. Note that these remedial actions are simulated rather than optimised.
 - <span style='color: forestgreen;'>**C**urative</span> **R**emedial **A**ctions (shared after a critical outage) hereafter **CRA**
 
 ### Linear Remedial actions
