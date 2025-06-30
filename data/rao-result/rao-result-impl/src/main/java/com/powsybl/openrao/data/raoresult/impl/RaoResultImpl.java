@@ -374,7 +374,7 @@ public class RaoResultImpl implements RaoResult {
     }
 
     private boolean isFlowCnecUnsecure(FlowCnec flowCnec, Unit unit) {
-        boolean test =  crac.getSortedInstants()
+        boolean test = crac.getSortedInstants()
             .stream()
             .filter(instant -> !instant.comesBefore(flowCnec.getState().getInstant()))
             .map(instant -> getMargin(instant, flowCnec, unit))
