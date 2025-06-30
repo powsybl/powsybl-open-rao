@@ -40,7 +40,7 @@ jobs:
           node-version: '24'
 
       - name: Install markdown-link-check
-        run: npm install -g markdown-link-check
+        run: npm install -g markdown-link-check@3.13.7
 
       - name: Check all Markdown links
         run: |
