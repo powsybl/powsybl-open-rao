@@ -14,6 +14,7 @@ import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
+import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.openrao.data.raoresult.api.InterTemporalRaoResult;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
@@ -43,6 +44,7 @@ import com.powsybl.openrao.searchtreerao.result.api.NetworkActionsResult;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
 import com.powsybl.openrao.searchtreerao.result.impl.NetworkActionsResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.RangeActionActivationResultImpl;
+import com.powsybl.openrao.searchtreerao.result.impl.RangeActionSetpointResultImpl;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 
 import java.time.OffsetDateTime;
@@ -84,6 +86,8 @@ public class Marmot implements InterTemporalRaoProvider {
 
         // 3. Apply preventive topological remedial actions (and preventive range actions if there are no inter-temporal constraints)
         OpenRaoLoggerProvider.TECHNICAL_LOGS.info("[MARMOT] Applying optimal topological actions on networks");
+        ObjectiveFunction objectiveFunction = buildGlobalObjectiveFunction(raoInput.getRaoInputs().map(RaoInput::getCrac), new GlobalFlowResult(initialResults.map(PrePerimeterResult::getFlowResult)), new GlobalFlowResult(initialResults.map(PrePerimeterResult::getFlowResult)), raoParameters);
+        LinearOptimizationResult initialObjectiveFunctionResult = getInitialObjectiveFunctionResult(initialResults, objectiveFunction);
         applyPreventiveRemedialActionsOnNetwork(raoInput.getRaoInputs(), topologicalOptimizationResults, noInterTemporalConstraint);
 
         // 4. Run sensitivity analysis on all timestamps after topological actions are applied
@@ -91,11 +95,9 @@ public class Marmot implements InterTemporalRaoProvider {
         TemporalData<PrePerimeterResult> postTopologicalActionsResults = runAllSensitivityAnalysesBasedOnInitialResult(raoInput.getRaoInputs(), raoParameters, initialResults.map(PrePerimeterResult::getFlowResult));
         OpenRaoLoggerProvider.TECHNICAL_LOGS.info("[MARMOT] Systematic inter-temporal sensitivity analysis after topological actions application [end]");
 
-        // 5. Build objective function and post topological actions application result
-        ObjectiveFunction objectiveFunction = buildGlobalObjectiveFunction(raoInput.getRaoInputs().map(RaoInput::getCrac), new GlobalFlowResult(initialResults.map(PrePerimeterResult::getFlowResult)), new GlobalFlowResult(initialResults.map(PrePerimeterResult::getFlowResult)), raoParameters);
-        LinearOptimizationResult initialObjectiveFunctionResult = getInitialObjectiveFunctionResult(initialResults, objectiveFunction);
+        // 5. Evaluate objective function after topological actions application result
         TemporalData<NetworkActionsResult> preventiveTopologicalActions = getPreventiveTopologicalActions(raoInput.getRaoInputs().map(RaoInput::getCrac), topologicalOptimizationResults);
-        LinearOptimizationResult postTopologicalOptimizationResult = getPostTopologicalOptimizationResult(postTopologicalActionsResults, preventiveTopologicalActions, objectiveFunction);
+        LinearOptimizationResult postTopologicalOptimizationResult = getPostTopologicalOptimizationResult(initialResults.map(PrePerimeterResult::getRangeActionSetpointResult), postTopologicalActionsResults, objectiveFunction, topologicalOptimizationResults, raoInput.getRaoInputs().map(individualRaoInput -> individualRaoInput.getCrac().getPreventiveState()));
 
         // if no inter-temporal constraints are defined, the results can be returned
         if (noInterTemporalConstraint) {
@@ -226,11 +228,42 @@ public class Marmot implements InterTemporalRaoProvider {
     }
 
     private LinearOptimizationResult getInitialObjectiveFunctionResult(TemporalData<PrePerimeterResult> prePerimeterResults, ObjectiveFunction objectiveFunction) {
-        return new GlobalLinearOptimizationResult(prePerimeterResults.map(PrePerimeterResult::getFlowResult), prePerimeterResults.map(PrePerimeterResult::getSensitivityResult), prePerimeterResults.map(RangeActionActivationResultImpl::new), new TemporalDataImpl<>(), objectiveFunction, LinearProblemStatus.OPTIMAL);
+        TemporalData<RangeActionActivationResult> rangeActionActivationResults = prePerimeterResults.map(RangeActionActivationResultImpl::new);
+        TemporalData<NetworkActionsResult> networkActionsResults = new TemporalDataImpl<>();
+        return new GlobalLinearOptimizationResult(prePerimeterResults.map(PrePerimeterResult::getFlowResult), prePerimeterResults.map(PrePerimeterResult::getSensitivityResult), rangeActionActivationResults, networkActionsResults, objectiveFunction, LinearProblemStatus.OPTIMAL);
     }
 
-    private LinearOptimizationResult getPostTopologicalOptimizationResult(TemporalData<PrePerimeterResult> prePerimeterResults, TemporalData<NetworkActionsResult> preventiveTopologicalActions, ObjectiveFunction objectiveFunction) {
-        return new GlobalLinearOptimizationResult(prePerimeterResults.map(PrePerimeterResult::getFlowResult), prePerimeterResults.map(PrePerimeterResult::getSensitivityResult), prePerimeterResults.map(RangeActionActivationResultImpl::new), preventiveTopologicalActions, objectiveFunction, LinearProblemStatus.OPTIMAL);
+    private LinearOptimizationResult getPostTopologicalOptimizationResult(TemporalData<RangeActionSetpointResult> allInitialSetPoints, TemporalData<PrePerimeterResult> prePerimeterResults, ObjectiveFunction objectiveFunction, TemporalData<RaoResult> topologicalOptimizationResults, TemporalData<State> preventiveStates) {
+        TemporalData<RangeActionActivationResult> rangeActionActivationResults = getRangeActionActivationResults(allInitialSetPoints, topologicalOptimizationResults, preventiveStates);
+        TemporalData<NetworkActionsResult> networkActionsResults = getNetworkActionActivationResults(topologicalOptimizationResults, preventiveStates);
+        return new GlobalLinearOptimizationResult(prePerimeterResults.map(PrePerimeterResult::getFlowResult), prePerimeterResults.map(PrePerimeterResult::getSensitivityResult), rangeActionActivationResults, networkActionsResults, objectiveFunction, LinearProblemStatus.OPTIMAL);
+    }
+
+    private static TemporalData<RangeActionActivationResult> getRangeActionActivationResults(TemporalData<RangeActionSetpointResult> allInitialSetPoints, TemporalData<RaoResult> topologicalOptimizationResults, TemporalData<State> preventiveStates) {
+        Map<OffsetDateTime, RangeActionActivationResult> rangeActionsResults = new HashMap<>();
+        topologicalOptimizationResults.getTimestamps().forEach(
+            timestamp -> {
+                State preventiveState = preventiveStates.getData(timestamp).orElseThrow();
+                RangeActionSetpointResult initialSetPoints = allInitialSetPoints.getData(timestamp).orElseThrow();
+                RangeActionSetpointResult optimizedSetPoints = new RangeActionSetpointResultImpl(topologicalOptimizationResults.getData(timestamp).orElseThrow().getOptimizedSetPointsOnState(preventiveState));
+                RangeActionActivationResultImpl rangeActionActivationResult = new RangeActionActivationResultImpl(initialSetPoints);
+                optimizedSetPoints.getRangeActions().forEach(rangeAction -> rangeActionActivationResult.putResult(rangeAction, preventiveState, optimizedSetPoints.getSetpoint(rangeAction)));
+                rangeActionsResults.put(timestamp, rangeActionActivationResult);
+            }
+        );
+        return new TemporalDataImpl<>(rangeActionsResults);
+    }
+
+    private static TemporalData<NetworkActionsResult> getNetworkActionActivationResults(TemporalData<RaoResult> topologicalOptimizationResults, TemporalData<State> preventiveStates) {
+        Map<OffsetDateTime, NetworkActionsResult> networkActionsResults = new HashMap<>();
+        topologicalOptimizationResults.getTimestamps().forEach(
+            timestamp -> {
+                State preventiveState = preventiveStates.getData(timestamp).orElseThrow();
+                Set<NetworkAction> activatedNetworkActions = topologicalOptimizationResults.getData(timestamp).orElseThrow().getActivatedNetworkActionsDuringState(preventiveState);
+                networkActionsResults.put(timestamp, new NetworkActionsResultImpl(Map.of(preventiveState, activatedNetworkActions)));
+            }
+        );
+        return new TemporalDataImpl<>(networkActionsResults);
     }
 
     @Override
