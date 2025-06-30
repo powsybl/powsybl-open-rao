@@ -21,7 +21,7 @@ import static com.powsybl.openrao.raoapi.RaoParametersCommons.*;
  */
 public class SecondPreventiveRaoParameters {
     private static final ExecutionCondition DEFAULT_EXECUTION_CONDITION = ExecutionCondition.DISABLED;
-    private static final boolean DEFAULT_RE_OPTIMIZE_CURATIVE_RANGE_ACTIONS = false;
+    private static final boolean DEFAULT_RE_OPTIMIZE_CURATIVE_RANGE_ACTIONS = true;
     private static final boolean DEFAULT_HINT_FROM_FIRST_PREVENTIVE_RAO = false;
 
     private ExecutionCondition executionCondition = DEFAULT_EXECUTION_CONDITION;
