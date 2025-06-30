@@ -374,12 +374,16 @@ public class RaoResultImpl implements RaoResult {
     }
 
     private boolean isFlowCnecUnsecure(FlowCnec flowCnec, Unit unit) {
-        return crac.getSortedInstants()
+        boolean test =  crac.getSortedInstants()
             .stream()
             .filter(instant -> !instant.comesBefore(flowCnec.getState().getInstant()))
             .map(instant -> getMargin(instant, flowCnec, unit))
             .filter(margin -> !Double.isNaN(margin))
             .anyMatch(margin -> margin < 0);
+        if (test) {
+            System.out.println("Negative margin (" + getMargin(crac.getLastInstant(), flowCnec, unit) + ") for flowCnec " + flowCnec.getId() + " at " + flowCnec.getState().getInstant());
+        }
+        return test;
     }
 
     @Override
