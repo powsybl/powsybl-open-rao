@@ -14,11 +14,14 @@ import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionConfigLoader;
 import com.powsybl.commons.extensions.ExtensionProviders;
+import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoLoopFlowParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoMnecParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRelativeMarginsParameters;
 
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -190,5 +193,13 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
                 parameters.setLoopFlowParameters(new com.powsybl.openrao.raoapi.parameters.LoopFlowParameters());
             }
         }
+    }
+
+    public static RaoParameters read(InputStream inputStream) {
+        return JsonRaoParameters.read(inputStream);
+    }
+
+    public void write(OutputStream outputStream) {
+        JsonRaoParameters.write(this, outputStream);
     }
 }
