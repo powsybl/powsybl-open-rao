@@ -27,6 +27,7 @@ import com.powsybl.openrao.data.raoresult.api.OptimizationStepsExecuted;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -370,20 +371,23 @@ public class RaoResultImpl implements RaoResult {
     }
 
     private boolean isFlowCnecUnsecure(FlowCnec flowCnec) {
-        return isFlowCnecUnsecure(flowCnec, Unit.MEGAWATT) || isFlowCnecUnsecure(flowCnec, Unit.AMPERE);
+        // Check if values in A are present:
+        // - if so, the security status of the CNEC is based on the minimal ampere margin
+        // - otherwise, the MW results are checked
+        // This is done to avoid inaccurate conversions between A and MW in AC mode
+        double minAmpereMargin = getMarginStream(flowCnec, Unit.AMPERE).collect(Collectors.toSet()).stream().min(Double::compareTo).orElse(Double.MAX_VALUE);
+        if (minAmpereMargin != Double.MAX_VALUE) {
+            return minAmpereMargin < 0;
+        }
+        return getMarginStream(flowCnec, Unit.MEGAWATT).anyMatch(margin -> margin < 0);
     }
 
-    private boolean isFlowCnecUnsecure(FlowCnec flowCnec, Unit unit) {
-        boolean test = crac.getSortedInstants()
+    private Stream<Double> getMarginStream(FlowCnec flowCnec, Unit unit) {
+        return crac.getSortedInstants()
             .stream()
             .filter(instant -> !instant.comesBefore(flowCnec.getState().getInstant()))
             .map(instant -> getMargin(instant, flowCnec, unit))
-            .filter(margin -> !Double.isNaN(margin))
-            .anyMatch(margin -> margin < 0);
-        if (test) {
-            System.out.println("Negative margin (" + getMargin(crac.getLastInstant(), flowCnec, unit) + ") for flowCnec " + flowCnec.getId() + " at " + flowCnec.getState().getInstant());
-        }
-        return test;
+            .filter(margin -> !Double.isNaN(margin));
     }
 
     @Override
