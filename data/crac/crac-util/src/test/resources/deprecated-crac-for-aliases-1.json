@@ -12,9 +12,9 @@
       "networkElementsIds" : [ "FFR2AA1H DDE3AA1F 1" ]
     }],
   "flowCnecs" : [ {
-    "id" : "FFR2AA1  DDE3AA1  1 - Curatif - Contingency 1",
+    "id" : "FFR2AA1H DDE3AA1F 1 - Curatif - Contingency 1",
     "name" : "Tie-line FR DE",
-    "networkElementId" : "FFR2AA1  DDE3AA1  1",
+    "networkElementId" : "FFR2AA1H DDE3AA1F 1",
     "contingencyId" : "Contingency 1",
     "instant": "curative",
     "frm" : 0.0,
@@ -49,9 +49,9 @@
       }
     }
   }, {
-    "id" : "DDE1AA1  DDE2AA1  1 - Défaut - Contingency 1",
+    "id" : "DDE1AA1D DDE2AA1E 1 - Défaut - Contingency 1",
     "name" : "Line DE1 DE2",
-    "networkElementId" : "DDE1AA1  DDE2AA1  1",
+    "networkElementId" : "DDE1AA1D DDE2AA1E 1",
     "contingencyId" : "Contingency 1",
     "instant": "outage",
     "frm" : -1.0,
@@ -87,9 +87,9 @@
       }
     }
   }, {
-    "id" : "DDE1AA1  DDE2AA1  1 - Curatif - Contingency 1",
+    "id" : "DDE1AA1D DDE2AA1E 1 - Curatif - Contingency 1",
     "name" : "Line DE1 DE2",
-    "networkElementId" : "DDE1AA1  DDE2AA1  1",
+    "networkElementId" : "DDE1AA1D DDE2AA1E 1",
     "contingencyId" : "Contingency 1",
     "instant": "curative",
     "frm" : 2.0,
@@ -125,9 +125,9 @@
       }
     }
   }, {
-    "id" : "DDE1AA1  DDE2AA1  1 - N - preventive",
+    "id" : "DDE1AA1D DDE2AA1E 1 - N - preventive",
     "name" : "Line DE1 DE2",
-    "networkElementId" : "DDE1AA1  DDE2AA1  1",
+    "networkElementId" : "DDE1AA1D DDE2AA1E 1",
     "instant" : "preventive",
     "frm" : 3.0,
     "nominalV" : [ 380.0 ],
@@ -162,9 +162,9 @@
       }
     }
   }, {
-    "id" : "FFR2AA1  DDE3AA1  1 - Défaut - Contingency 1",
+    "id" : "FFR2AA1H DDE3AA1F 1 - Défaut - Contingency 1",
     "name" : "Tie-line FR DE",
-    "networkElementId" : "FFR2AA1  DDE3AA1  1",
+    "networkElementId" : "FFR2AA1H DDE3AA1F 1",
     "contingencyId" : "Contingency 1",
     "instant": "outage",
     "frm" : 4.0,
@@ -199,9 +199,9 @@
       }
     }
   }, {
-    "id" : "FFR2AA1  DDE3AA1  1 - N - preventive",
+    "id" : "FFR2AA1H DDE3AA1F 1 - N - preventive",
     "name" : "Tie-line FR DE",
-    "networkElementId" : "FFR2AA1  DDE3AA1  1",
+    "networkElementId" : "FFR2AA1H DDE3AA1F 1",
     "instant" : "preventive",
     "frm" : 5.0,
     "nominalV" : [ 380.0 ],
