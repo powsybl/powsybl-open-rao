@@ -53,7 +53,7 @@
     },
     "afterPRA" : {
       "ampere" : {
-        "margin" : -75.64,
+        "margin" : 75.64,
         "leftSide" : {
           "flow" : -1075.64
         }
@@ -87,7 +87,7 @@
     },
     "afterCRA" : {
       "ampere" : {
-        "margin" : -199.95,
+        "margin" : 199.95,
         "leftSide" : {
           "flow" : -699.95
         }

@@ -107,9 +107,9 @@
         <maven.jar.version>3.3.0</maven.jar.version>
         <maven.jvnet.jaxb.version>4.0.8</maven.jvnet.jaxb.version>
         <mockito.core.version>5.12.0</mockito.core.version>
-        <powsybl.core.version>6.7.0</powsybl.core.version>
-        <powsybl.entsoe.version>2.13.0</powsybl.entsoe.version>
-        <powsybl.openloadflow.version>1.15.0</powsybl.openloadflow.version>
+        <powsybl.core.version>6.7.2</powsybl.core.version>
+        <powsybl.entsoe.version>2.13.1</powsybl.entsoe.version>
+        <powsybl.openloadflow.version>1.15.2</powsybl.openloadflow.version>
         <slf4j.version>2.0.13</slf4j.version>
         <xmlunit.core.version>2.10.0</xmlunit.core.version>
         <com.networknt.version>1.5.3</com.networknt.version>
