@@ -477,6 +477,7 @@ class CastorFullOptimizationTest {
     void catchDuringInitialSensitivity() throws IOException {
         setup("small-network-2P.uct", "small-crac-2P.json");
         RaoParameters raoParameters = new RaoParameters();
+        raoParameters.getObjectiveFunctionParameters().setUnit(Unit.MEGAWATT);
         OpenRaoSearchTreeParameters searchTreeParameters = Mockito.spy(new OpenRaoSearchTreeParameters());
         raoParameters.addExtension(OpenRaoSearchTreeParameters.class, searchTreeParameters);
         when(searchTreeParameters.getLoadFlowAndSensitivityParameters()).thenThrow(new OpenRaoException("Testing exception handling"));

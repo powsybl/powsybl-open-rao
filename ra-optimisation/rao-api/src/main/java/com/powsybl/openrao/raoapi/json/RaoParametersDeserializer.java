@@ -21,6 +21,7 @@ import java.util.List;
 
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.*;
 import static com.powsybl.openrao.raoapi.parameters.RaoParameters.addOptionalExtensionsDefaultValuesIfExist;
+import static com.powsybl.openrao.raoapi.parameters.RaoParameters.checkRaoParametersCoherence;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -86,6 +87,7 @@ public class RaoParametersDeserializer extends StdDeserializer<RaoParameters> {
         }
         extensions.forEach(extension -> parameters.addExtension((Class) extension.getClass(), extension));
         addOptionalExtensionsDefaultValuesIfExist(parameters);
+        checkRaoParametersCoherence(parameters);
         return parameters;
     }
 }
