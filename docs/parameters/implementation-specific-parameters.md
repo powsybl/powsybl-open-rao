@@ -383,24 +383,23 @@ These parameters are meant to be used in costly optimization only.
 - **Default value**: 0.0
 - **Usage**: Shifts the security domain of the CNECs (only for costly optimization): each FlowCNEC with a margin below `shifted-violation-threshold` will be considered as in violation during the linear RAO. This is meant to prevent the RAO from choosing set-points that make the min margin exactly equal to 0 (which might create rounding issues).
 
-### Fast Rao Parameters extension
+### FastRAO Parameters extension
 
 #### number-of-cnecs-to-add
 - **Expected value**: integer, no unit
 - **Default value**: 20 
-- **Usage**: this value correspond to the number of worst CNECs (in terms of margin) to add to the set of considered CNECs 
-at each iteration of fast rao
+- **Usage**: This value corresponds to the number of worst CNECs (in terms of margin) to be added to the set of considered CNECs at each iteration of FastRAO.
 
 #### add-unsecure-cnecs
 - **Expected value**: boolean
 - **Default value**: false
-- **Usage**: Indicate if we add all unsecure CNECs to the set of considered CNECs at each iteration of fast rao
+- **Usage**: Indicates whether all unsecure CNECs are added to the set of considered CNECs at each iteration of FastRAO.
 
 #### margin-limit
-- **Expected value**: numeric values, in MEGAWATT unit
+- **Expected value**: numeric value, in MW unit
 - **Default value**: 5
-- **Usage**: If add-unsecure-cnecs, a CNEC will be considered unsecure if its margin is lower than margin-limit
-- 
+- **Usage**: If add-unsecure-cnecs is enabled, a CNEC will be considered unsecure if its margin is lower than margin-limit.
+
 ## Examples
 > ⚠️  **NOTE**  
 > The following examples in json and yaml are not equivalent
