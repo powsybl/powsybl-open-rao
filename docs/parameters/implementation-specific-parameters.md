@@ -398,7 +398,7 @@ These parameters are meant to be used in costly optimization only.
 #### margin-limit
 - **Expected value**: numeric value, in MW unit
 - **Default value**: 5
-- **Usage**: If add-unsecure-cnecs is enabled, a CNEC will be considered unsecure if its margin is lower than margin-limit.
+- **Usage**: If `add-unsecure-cnecs` is enabled, a CNEC will be considered unsecure if its margin is lower than `margin-limit`.
 
 ## Examples
 > ⚠️  **NOTE**  
