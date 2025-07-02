@@ -7,7 +7,7 @@ the current on both sides of the line, on the left side only, or on the right si
 In DC convention, it doesn't matter: it is enough for the RAO to monitor the left side, allowing it to have a smaller optimisation problem.  
 In AC convention, it is generally preferred to monitor both sides, as flows on both sides can be different because of losses.  
   
-In OpenRAO's [internal CRAC format](json), it is possible to define which side(s) to monitor, and this is needed in the RAO.  
+In OpenRAO's [internal CRAC format](json.md), it is possible to define which side(s) to monitor, and this is needed in the RAO.  
 However, no CRAC format actually defines this configuration, thus it is necessary to add an extra configuration object 
 when creating a CRAC object to be used in the RAO.  
 This is the purpose of OpenRAO's "CRAC creation parameters".
@@ -31,18 +31,21 @@ parameters = JsonCracCreationParameters.read(jsonFilePath);
   
   
 ## Non-specific parameters
-OpenRAO's [CracCreationParameters](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac-io/crac-io-api/src/main/java/com/powsybl/openrao/data/cracio/api/parameters/CracCreationParameters.java) 
+
+OpenRAO's [CracCreationParameters](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac/crac-api/src/main/java/com/powsybl/openrao/data/crac/api/parameters/CracCreationParameters.java) 
 defines a few parameters needed for all native CRAC formats.
 
 ### crac-factory
+
 OpenRAO's [Crac](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac/crac-api/src/main/java/com/powsybl/openrao/data/crac/api/Crac.java) 
-object is actually just an interface, with a default implementation in [CracImpl](https://github.com/powsybl/powsybl-open-rao/tree/main/data/crac/crac-impl/src/main/java/com/powsybl/openrao/data/cracimpl).  
+object is actually just an interface, with a default implementation in [CracImpl](https://github.com/powsybl/powsybl-open-rao/tree/main/data/crac/crac-impl/src/main/java/com/powsybl/openrao/data/crac/impl).  
 As a OpenRAO toolbox user, you are allowed to define your own custom Crac implementation. This implementation shall be instanced using a [CracFactory](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac/crac-api/src/main/java/com/powsybl/openrao/data/crac/api/CracFactory.java).  
-OpenRAO's default implementation is [CracImplFactory](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac/crac-impl/src/main/java/com/powsybl/openrao/data/cracimpl/CracImplFactory.java).  
+OpenRAO's default implementation is [CracImplFactory](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac/crac-impl/src/main/java/com/powsybl/openrao/data/crac/impl/CracImplFactory.java).  
 Parameter "crac-factory" allows the user to define which CracFactory implementation (thus which Crac implementation) to 
 use. If you do not have a custom implementation (which should be the case of most users), set it to "CracImplFactory".  
 
 ### default-monitored-line-side
+
 This parameter defines which side(s) of a line the RAO should monitor by default (side is defined as per [PowSyBl](inv:powsyblcore:*:*#index) 
 convention), when optimizing line's flow margin.    
 Note that this parameter is ignored when the line side to monitor is defined by the native CRAC itself (e.g. when a 
@@ -89,7 +92,7 @@ The RAs usage limits contain the following fields :
     - _Default value:_ empty map
     - _Usage:_ It defines the maximum number of elementary actions allowed for each TSO, for the given instant. For PST range actions, moving one tap is considered to be an elementary action.
     The TSOs should be identified using the same IDs as in the CRAC. If a TSO is not listed in this map, then the number of its allowed RAs is supposed infinite.
-    _⚠️ This usage limit is only applicable if PSTs are approximated as integer taps (see [APPROXIMATED_INTEGERS](/parameters.md#pst-model))._
+    _⚠️ This usage limit is only applicable if PSTs are approximated as integer taps (see [APPROXIMATED_INTEGERS](../../parameters/implementation-specific-parameters.md#pst-modell))._
 
 ### complete example
 ::::{tabs}
@@ -121,8 +124,8 @@ cracCreationParameters.addRaUsageLimitsForAGivenInstant("curative", raUsageLimit
 
 ## CSE-specific parameters
 
-The [CSE native crac format](cse) lacks important information that other formats don't.  
-The user can define a [CseCracCreationParameters](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac-io/crac-io-cse/src/main/java/com/powsybl/openrao/data/cracio/cse/parameters/CseCracCreationParameters.java) 
+The [CSE native crac format](cse.md) lacks important information that other formats don't.  
+The user can define a [CseCracCreationParameters](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac/crac-io/crac-io-cse/src/main/java/com/powsybl/openrao/data/crac/io/cse/parameters/CseCracCreationParameters.java) 
 extension to the CracCreationParameters object in order to define them.  
 
 ### range-action-groups (CSE)
@@ -136,7 +139,7 @@ See [example below](#full-cse-example) for a better illustration.
 ### bus-bar-change-switches
 
 As explained in the CSE native CRAC format section [here](cse.md#bus-bar-change), bus-bar-change remedial actions are defined in OpenRAO 
-as [switch pair network actions](/input-data/crac.md#switch-pair).  
+as [switch pair network actions](../crac.md#switch-pair).  
 These switches are not defined in the native CRAC nor in the original network, they should be created artificially in the 
 network and their IDs should be sent to the RAO.  
 This parameter allows the definition of the switch(es) to open and the switch(es) to close for every bus-bar change remedial action.  
@@ -207,8 +210,8 @@ cracCreationParameters.addExtension(CseCracCreationParameters.class, cseParamete
 
 ## CIM-specific parameters
 
-The [CIM native CRAC format](cim) lacks important information that other formats don't.  
-The user can define a [CimCracCreationParameters](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac-io/crac-io-cim/src/main/java/com/powsybl/openrao/data/cracio/cim/parameters/CimCracCreationParameters.java)
+The [CIM native CRAC format](cim.md) lacks important information that other formats don't.  
+The user can define a [CimCracCreationParameters](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac/crac-io/crac-io-cim/src/main/java/com/powsybl/openrao/data/crac/io/cim/parameters/CimCracCreationParameters.java)
 extension to the CracCreationParameters object in order to define them.
 
 ### timeseries-mrids
@@ -253,6 +256,7 @@ at defined instants (the contingences shall be identified by their CIM CRAC mRID
 See [example below](#full-cim-example) for a better illustration.
 
 ### timestamp
+
 This parameter allows the user to define the timestamp for which to create the CRAC.
 
 In the json file, the timestamp has to be defined using the ISO 8601 standard ex. " 2019-01-08T12:00+02:00"
@@ -388,7 +392,7 @@ cracCreationParameters.addExtension(CimCracCreationParameters.class, cimParamete
 
 ## NC-specific parameters
 
-The NC profiles from the [NC native CRAC format](nc) need additional information to be converted to the internal OpenRAO CRAC format. The user can define a [NcCracCreationParameters](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac-io/crac-io-nc/src/main/java/com/powsybl/openrao/data/cracio/nc/parameters/NcCracCreationParameters.java) extension to the CracCreationParameters object in order to define them.
+The NC profiles from the [NC native CRAC format](nc.md) need additional information to be converted to the internal OpenRAO CRAC format. The user can define a [NcCracCreationParameters](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac/crac-io/crac-io-nc/src/main/java/com/powsybl/openrao/data/crac/io/nc/parameters/NcCracCreationParameters.java) extension to the CracCreationParameters object in order to define them.
 
 ### capacity-calculation-region-eic-code
 
@@ -481,7 +485,7 @@ cracCreationParameters.addExtension(CsaCracCreationParameters.class, csaParamete
 
 ## Flow Based Constraint-specific parameters
 
-The Flow Based Constraint from the [Flow Based Constraint CRAC format](fbconstraint) need an additional information to be converted to the internal OpenRAO CRAC format. 
+The Flow Based Constraint from the [Flow Based Constraint CRAC format](fbconstraint.md) need an additional information to be converted to the internal OpenRAO CRAC format. 
 The user can define a [FbConstraintCracCreationParameters](https://github.com/powsybl/powsybl-open-rao/tree/main/data/crac/crac-io/crac-io-fb-constraint/src/main/java/com/powsybl/openrao/data/crac/io/fbconstraint/parameters/FbConstraintCracCreationParameters.java) extension to the CracCreationParameters object in order to define them.
 
 ### timestamp
