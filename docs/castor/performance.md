@@ -117,7 +117,8 @@ all CNECs until all are secure.
 
 FastRAO iteratively builds a set of the **critical** CNECs. Starting with an empty set of CNECs, at each iteration,
 we selectively add only the CNECs that are identified as critical for the problem. 
-See the diagram below for more details on how the set of critical CNECs is built.
+
+The diagram below illustrates how the set of critical CNECs is built.
 
 ![Current state of the algorithm](../_static/img/FastRAO.png)
 
@@ -135,11 +136,11 @@ raoParameters.addExtension(FastRaoParameters.class, fastRaoParameters);
 RaoInput raoInput = RaoInput.build(network, crac).build();
 RaoResult raoResult = Rao.find("FastRao").run(raoInput, raoParameters);
 
-// Run FastRAO with a pre defined set of cnecs to consider
+// Run FastRAO with a predefined set of CNECs to consider
 FastRao.launchFilteredRao(raoInput, raoParameters, targetEndInstant, consideredCnecs);
 ```
 
-### FastRAO Specific Parameters
+### FastRAO-specific parameters
 
 See [FastRAO parameters section](../parameters/implementation-specific-parameters.md#number-of-cnecs-to-add)
 
