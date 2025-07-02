@@ -166,10 +166,12 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             assertNotNull(binary);
             assertNotNull(constraint);
 
-            OpenRaoMPVariable absoluteVariationVariable = linearProblem.getAbsoluteRangeActionVariationVariable(ra, state);
+            OpenRaoMPVariable upwardVariationVariable = linearProblem.getRangeActionVariationVariable(ra, state, LinearProblem.VariationDirectionExtension.UPWARD);
+            OpenRaoMPVariable downwardVariationVariable = linearProblem.getRangeActionVariationVariable(ra, state, LinearProblem.VariationDirectionExtension.DOWNWARD);
             double initialSetpoint = prePerimeterRangeActionActivationResult.getOptimizedSetpoint(ra, state);
 
-            assertEquals(1, constraint.getCoefficient(absoluteVariationVariable), DOUBLE_TOLERANCE);
+            assertEquals(1, constraint.getCoefficient(upwardVariationVariable), DOUBLE_TOLERANCE);
+            assertEquals(1, constraint.getCoefficient(downwardVariationVariable), DOUBLE_TOLERANCE);
             assertEquals(-(ra.getMaxAdmissibleSetpoint(initialSetpoint) + RANGE_ACTION_SETPOINT_EPSILON - ra.getMinAdmissibleSetpoint(initialSetpoint)), constraint.getCoefficient(binary), DOUBLE_TOLERANCE);
             assertEquals(-linearProblem.infinity(), constraint.lb(), linearProblem.infinity() * 1e-3);
         });
@@ -199,10 +201,12 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             assertNotNull(binary);
             assertNotNull(constraint);
 
-            OpenRaoMPVariable absoluteVariationVariable = linearProblem.getAbsoluteRangeActionVariationVariable(ra, state);
+            OpenRaoMPVariable upwardVariationVariable = linearProblem.getRangeActionVariationVariable(ra, state, LinearProblem.VariationDirectionExtension.UPWARD);
+            OpenRaoMPVariable downwardVariationVariable = linearProblem.getRangeActionVariationVariable(ra, state, LinearProblem.VariationDirectionExtension.DOWNWARD);
             double initialSetpoint = prePerimeterRangeActionActivationResult.getOptimizedSetpoint(ra, state);
 
-            assertEquals(1, constraint.getCoefficient(absoluteVariationVariable), DOUBLE_TOLERANCE);
+            assertEquals(1, constraint.getCoefficient(upwardVariationVariable), DOUBLE_TOLERANCE);
+            assertEquals(1, constraint.getCoefficient(downwardVariationVariable), DOUBLE_TOLERANCE);
             assertEquals(-(ra.getMaxAdmissibleSetpoint(initialSetpoint) + RANGE_ACTION_SETPOINT_EPSILON - ra.getMinAdmissibleSetpoint(initialSetpoint)), constraint.getCoefficient(binary), DOUBLE_TOLERANCE);
             assertEquals(-linearProblem.infinity(), constraint.lb(), linearProblem.infinity() * 1e-3);
         });
