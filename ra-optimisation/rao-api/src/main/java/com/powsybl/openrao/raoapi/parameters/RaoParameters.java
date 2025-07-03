@@ -14,14 +14,10 @@ import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionConfigLoader;
 import com.powsybl.commons.extensions.ExtensionProviders;
-import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.raoapi.parameters.extensions.*;
 
 import java.util.Objects;
 import java.util.Optional;
-
-import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_LOGS;
 
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
@@ -126,7 +122,6 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
         load(parameters, platformConfig);
         parameters.loadExtensions(platformConfig);
         addOptionalExtensionsDefaultValuesIfExist(parameters);
-        checkRaoParametersCoherence(parameters);
         return parameters;
     }
 
@@ -190,16 +185,6 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
         } else {
             if (!Objects.isNull(extension) && extension.getLoopFlowParameters().isPresent()) {
                 parameters.setLoopFlowParameters(new com.powsybl.openrao.raoapi.parameters.LoopFlowParameters());
-            }
-        }
-    }
-
-    public static void checkRaoParametersCoherence(RaoParameters raoParameters) {
-        if (raoParameters.hasExtension(OpenRaoSearchTreeParameters.class)) {
-            if (!raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters().isDc()
-                && raoParameters.getObjectiveFunctionParameters().getUnit() == Unit.MEGAWATT) {
-                BUSINESS_LOGS.error("Incoherent RaoParameters: Objective function unit in MEGAWATT is not allowed when using AC load flow.");
-                throw new OpenRaoException("Objective function unit in MEGAWATT is not allowed when using AC load flow.");
             }
         }
     }
