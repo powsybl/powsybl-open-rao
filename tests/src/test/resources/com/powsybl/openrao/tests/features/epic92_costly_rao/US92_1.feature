@@ -18,9 +18,9 @@ Feature: US 92.1: Costly network actions optimization
 
   @fast @preventive-only @costly @rao
   Scenario: US 92.1.2: Selection of cheapest network action even if it does not maximize minimum margin
-    Line BE-FR-3 has a higher resistance than line BE-FR-2 which means that closing the latter will lead
-    to a higher margin on the optimized CNEC. However, closing line BE-FR-3 is cheaper and still secures
-    the CNEC so it will be chosen by the RAO.
+  Line BE-FR-3 has a higher resistance than line BE-FR-2 which means that closing the latter will lead
+  to a higher margin on the optimized CNEC. However, closing line BE-FR-3 is cheaper and still secures
+  the CNEC so it will be chosen by the RAO.
     Given network file is "epic92/2Nodes3ParallelLines.uct"
     Given crac file is "epic92/crac-92-1-2.json"
     Given configuration file is "epic92/RaoParameters_dc_minObjective.json"
@@ -32,8 +32,8 @@ Feature: US 92.1: Costly network actions optimization
 
   @fast @preventive-only @costly @rao
   Scenario: US 92.1.2.bis: Duplicate of 92.1.2 in MAX_MIN_MARGIN mode
-    The situation is the same as in US 92.1.2 but the RAO maximizes the minimum margin.
-    As activation costs are not taken in account, both lines will be closed.
+  The situation is the same as in US 92.1.2 but the RAO maximizes the minimum margin.
+  As activation costs are not taken in account, both lines will be closed.
     Given network file is "epic92/2Nodes3ParallelLines.uct"
     Given crac file is "epic92/crac-92-1-2.json"
     Given configuration file is "epic92/RaoParameters_margin_dc_minObjective.json"
@@ -58,9 +58,9 @@ Feature: US 92.1: Costly network actions optimization
 
   @fast @preventive-only @costly @rao
   Scenario: US 92.1.4: Selection of cheapest of 3 equivalent network actions but overload remains at the end of RAO
-    Only one network action can be used (behavior set in the RAO parameters) so the RAO chooses the cheapest
-    remedial action available to reduce the overload and thus the penalty cost. The total cost is:
-    100 (overload in MW) * 10000 (penalty cost in currency/MW) + 220 (cost of the chosen remedial action)
+  Only one network action can be used (behavior set in the RAO parameters) so the RAO chooses the cheapest
+  remedial action available to reduce the overload and thus the penalty cost. The total cost is:
+  100 (overload in MW) * 10000 (penalty cost in currency/MW) + 220 (cost of the chosen remedial action)
     Given network file is "epic92/2Nodes4ParallelLines.uct"
     Given crac file is "epic92/crac-92-1-3.json"
     Given configuration file is "epic92/RaoParameters_dc_minObjective_maxDepth1.json"
@@ -73,12 +73,12 @@ Feature: US 92.1: Costly network actions optimization
 
   @fast @preventive-only @costly @rao
   Scenario: US 92.1.5: Sub-optimal case
-    Closing line BE-FR-2 costs 1000 but solves the constraint immediately. The optimal case is to
-    close lines BE-FR-3 and BE-FR-4 successively (the order does not matter) for a total expense of 50.
-    Yet, because of the penalty cost for overloads, the RAO still counts an over-cost of 100000 because
-    closing BE-FR-3 or BE-FR-4 alone only reduce the minimum margin to -100 MW. As closing BE-FR-2 looks optimal
-    at depth 1, the greedy search-tree keeps it at depth 2 but there is no need to apply additional remedial
-    actions since the network is already secure.
+  Closing line BE-FR-2 costs 1000 but solves the constraint immediately. The optimal case is to
+  close lines BE-FR-3 and BE-FR-4 successively (the order does not matter) for a total expense of 50.
+  Yet, because of the penalty cost for overloads, the RAO still counts an over-cost of 100000 because
+  closing BE-FR-3 or BE-FR-4 alone only reduce the minimum margin to -100 MW. As closing BE-FR-2 looks optimal
+  at depth 1, the greedy search-tree keeps it at depth 2 but there is no need to apply additional remedial
+  actions since the network is already secure.
     Given network file is "epic92/2Nodes4ParallelLinesDifferentResistances.uct"
     Given crac file is "epic92/crac-92-1-5.json"
     Given configuration file is "epic92/RaoParameters_dc_minObjective.json"
@@ -197,11 +197,11 @@ Feature: US 92.1: Costly network actions optimization
 
   @fast @costly @rao
   Scenario: US 92.1.11: Preventive, auto and curative optimization - 4 comprehensive scenarios
-    4 scenarios are optimized in parallel:
-    - scenario 1: no ARA and no CRA -> 50 MW overload
-    - scenario 2: forced ARA and no CRA
-    - scenario 3: no ARA and available CRA
-    - scenario 4: forced ARA and available CRA
+  4 scenarios are optimized in parallel:
+  - scenario 1: no ARA and no CRA -> 50 MW overload
+  - scenario 2: forced ARA and no CRA
+  - scenario 3: no ARA and available CRA
+  - scenario 4: forced ARA and available CRA
     Given network file is "epic92/2Nodes8ParallelLines5LinesClosed.uct"
     Given crac file is "epic92/crac-92-1-11.json"
     Given configuration file is "epic92/RaoParameters_dc_minObjective.json"
@@ -228,3 +228,37 @@ Feature: US 92.1: Costly network actions optimization
     And the remedial action "closeBeFr8" is used after "coBeFr5" at "curative"
     # Activation of closeBeFr6 (2500) + activation of closeBeFr7 twice (2 * 60) + activation of closeBeFr8 twice (2 * 735) + overload penalty (50 * 10000)
     And the value of the objective function after CRA should be 504090.0
+
+  @fast @costly @rao
+  Scenario: US 92.1.12: Preventive and auto optimization - curative overload
+  4 scenarios are optimized in parallel with a curative overload each time:
+  - scenario 1: no ARA and no CRA -> 50 MW overload
+  - scenario 2: forced ARA and no CRA -> 66.67 MW overload
+  - scenario 3: no ARA and available CRA -> 41.67 MW overload
+  - scenario 4: forced ARA and available CRA -> 10 MW overload
+    Given network file is "epic92/2Nodes8ParallelLines5LinesClosed.uct"
+    Given crac file is "epic92/crac-92-1-12.json"
+    Given configuration file is "epic92/RaoParameters_dc_minObjective.json"
+    When I launch search_tree_rao
+    Then the worst margin is -66.67 MW
+    And the value of the objective function initially should be 1500000.0
+    And 1 remedial actions are used in preventive
+    And the remedial action "closeBeFr6" is used in preventive
+    # Activation of closeBeFr6 (2500) + overload penalty (100 * 10000) on cnecBeFrCurative - coBeFr3
+    And the value of the objective function after PRA should be 1002500.0
+    And 0 remedial actions are used after "coBeFr2" at "auto"
+    And 1 remedial actions are used after "coBeFr3" at "auto"
+    And the remedial action "closeBeFr7" is used after "coBeFr3" at "auto"
+    And 0 remedial actions are used after "coBeFr4" at "auto"
+    And 1 remedial actions are used after "coBeFr5" at "auto"
+    And the remedial action "closeBeFr7" is used after "coBeFr5" at "auto"
+    # Activation of closeBeFr6 (2500) + activation of closeBeFr7 twice (2 * 60) + overload penalty on cnecBeFrCurative - coBeFr4 (75 * 10000)
+    And the value of the objective function after ARA should be 752620.0
+    And 0 remedial actions are used after "coBeFr2" at "curative"
+    And 0 remedial actions are used after "coBeFr3" at "curative"
+    And 1 remedial actions are used after "coBeFr4" at "curative"
+    And the remedial action "closeBeFr8" is used after "coBeFr4" at "curative"
+    And 1 remedial actions are used after "coBeFr5" at "curative"
+    And the remedial action "closeBeFr8" is used after "coBeFr5" at "curative"
+    # Activation of closeBeFr6 (2500) + activation of closeBeFr7 twice (2 * 60) + activation of closeBeFr8 twice (2 * 735) + overload penalty on cnecBeFrCurative - coBeFr3 (66.67 * 10000)
+    And the value of the objective function after CRA should be 670756.67
