@@ -140,7 +140,7 @@ RaoResult raoResult = Rao.find("FastRao").run(raoInput, raoParameters);
 FastRao.launchFilteredRao(raoInput, raoParameters, targetEndInstant, consideredCnecs);
 ```
 
-### FastRAO-specific parameters
+### FastRAO specific parameters
 
 See [FastRAO parameters section](../parameters/implementation-specific-parameters.md#number-of-cnecs-to-add)
 
