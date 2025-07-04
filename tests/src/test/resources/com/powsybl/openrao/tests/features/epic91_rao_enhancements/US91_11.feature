@@ -27,16 +27,16 @@ Feature: US 91.11: optimize computations for SECURE stop criterion
   Scenario: US 91.11.3: Skip curative optimization
     Given network file is "epic13/TestCase12NodesForCurative.uct"
     Given crac file is "epic91/CBCORA_ep91us11case3.xml"
-    Given configuration file is "common/RaoParameters_posMargin_megawatt_ac.json"
+    Given configuration file is "common/RaoParameters_posMargin_ampere_ac.json"
     When I launch search_tree_rao at "2019-01-08 00:30"
     Then its security status should be "UNSECURED"
     And 0 remedial actions are used in preventive
     And 0 remedial actions are used after "Contingency" at "curative"
-    And the worst margin is -70.9 MW
+    And the worst margin is -77.4 A
     # Check that curative CNECs' results are available
-    And the margin on cnec "CnecCurativeDir - curative" after PRA should be 1359.6 MW
-    And the margin on cnec "CnecCurativeDir - curative" after ARA should be 1359.6 MW
-    And the margin on cnec "CnecCurativeDir - curative" after CRA should be 1359.6 MW
-    And the margin on cnec "CnecCurativeOppo - curative" after PRA should be 1931.3 MW
-    And the margin on cnec "CnecCurativeOppo - curative" after ARA should be 1931.3 MW
-    And the margin on cnec "CnecCurativeOppo - curative" after CRA should be 1931.3 MW
+    And the margin on cnec "CnecCurativeDir - curative" after PRA should be 2087.4 A
+    And the margin on cnec "CnecCurativeDir - curative" after ARA should be 2087.4 A
+    And the margin on cnec "CnecCurativeDir - curative" after CRA should be 2087.4 A
+    And the margin on cnec "CnecCurativeOppo - curative" after PRA should be 2912.6 A
+    And the margin on cnec "CnecCurativeOppo - curative" after ARA should be 2912.6 A
+    And the margin on cnec "CnecCurativeOppo - curative" after CRA should be 2912.6 A

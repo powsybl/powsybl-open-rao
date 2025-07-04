@@ -11,11 +11,11 @@ Feature: US 7.16: monitor loopflows on specific countries
     Given crac file is "epic7/crac_lf_rao_3_cbcora.xml"
     Given loopflow glsk file is "common/glsk_lots_of_lf_12nodes.xml"
     Given RefProg file is "epic7/refProg_12nodes.xml"
-    Given configuration file is "epic7/RaoParameters_maxMargin_mw_ac_lf_false_5_100_BE_NL.json"
+    Given configuration file is "epic7/RaoParameters_maxMargin_ampere_ac_lf_false_5_100_BE_NL.json"
     When I launch loopflow search_tree_rao at "2019-01-08 21:30" with default loopflow limit as 0.0 percent of pmax
 
-    Then the worst margin is -143.0 MW
-    Then the worst margin is -143.0 MW on cnec "FFR2AA1  DDE3AA1  1 - preventive"
+    Then the worst margin is -208.0 A
+    Then the worst margin is -208.0 A on cnec "FFR2AA1  DDE3AA1  1 - preventive"
     Then the tap of PstRangeAction "PRA_PST_BE" should be -16 in preventive
     Then the remedial action "Open FR1 FR2" is used in preventive
 
@@ -37,11 +37,11 @@ Feature: US 7.16: monitor loopflows on specific countries
     Given crac file is "epic7/crac_lf_rao_3_with_frm_cbcora.xml"
     Given loopflow glsk file is "common/glsk_lots_of_lf_12nodes.xml"
     Given RefProg file is "epic7/refProg_12nodes.xml"
-    Given configuration file is "epic7/RaoParameters_maxMargin_mw_ac_lf_false_5_100_NL.json"
+    Given configuration file is "epic7/RaoParameters_maxMargin_ampere_ac_lf_false_5_100_NL.json"
     When I launch loopflow search_tree_rao at "2019-01-08 21:30" with default loopflow limit as 0.0 percent of pmax
 
-    Then the worst margin is -235.0 MW
-    Then the worst margin is -235.0 MW on cnec "FFR2AA1  DDE3AA1  1 - preventive"
+    Then the worst margin is -340 A
+    Then the worst margin is -340 A on cnec "FFR2AA1  DDE3AA1  1 - preventive"
     Then the tap of PstRangeAction "PRA_PST_BE" should be -12 in preventive
     Then the remedial action "Open FR1 FR2" is used in preventive
 

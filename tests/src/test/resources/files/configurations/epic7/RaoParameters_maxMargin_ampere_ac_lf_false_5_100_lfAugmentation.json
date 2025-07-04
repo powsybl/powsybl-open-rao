@@ -2,7 +2,7 @@
   "version" : "3.1",
   "objective-function" : {
     "type" : "MAX_MIN_MARGIN",
-    "unit" : "MW",
+    "unit" : "A",
     "enforce-curative-security" : false
   },
   "range-actions-optimization" : {
@@ -21,7 +21,7 @@
     "acceptable-margin-decrease" : 50.0
   },
   "loop-flow-parameters" : {
-    "acceptable-increase" : 0.0,
+    "acceptable-increase" : 40.0,
     "countries" : [ ]
   },
   "extensions" : {
@@ -87,7 +87,7 @@
         "constraint-adjustment-coefficient" : 0.0
       },
       "loop-flow-parameters" : {
-        "ptdf-approximation" : "FIXED_PTDF",
+        "ptdf-approximation" : "UPDATE_PTDF_WITH_TOPO_AND_PST",
         "constraint-adjustment-coefficient" : 5.0,
         "violation-cost" : 100.0
       }

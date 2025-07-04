@@ -2,7 +2,7 @@
   "version" : "3.1",
   "objective-function" : {
     "type" : "MAX_MIN_MARGIN",
-    "unit" : "MW",
+    "unit" : "A",
     "enforce-curative-security" : false
   },
   "range-actions-optimization" : {
@@ -88,7 +88,7 @@
       },
       "loop-flow-parameters" : {
         "ptdf-approximation" : "UPDATE_PTDF_WITH_TOPO_AND_PST",
-        "constraint-adjustment-coefficient" : 10.0,
+        "constraint-adjustment-coefficient" : 3.0,
         "violation-cost" : 100.0
       }
     }
