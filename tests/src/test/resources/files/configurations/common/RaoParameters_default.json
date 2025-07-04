@@ -2,7 +2,7 @@
   "version" : "3.2.1",
   "objective-function" : {
     "type" : "SECURE_FLOW",
-    "unit" : "MW"
+    "unit" : "A"
   },
   "range-actions-optimization" : {
     "pst-ra-min-impact-threshold" : 0.01,

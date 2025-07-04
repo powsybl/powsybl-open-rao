@@ -2,7 +2,7 @@
   "version" : "3.2.1",
   "objective-function" : {
     "type" : "MAX_MIN_MARGIN",
-    "unit" : "MW",
+    "unit" : "A",
     "enforce-curative-security" : false
   },
   "range-actions-optimization" : {
@@ -18,7 +18,7 @@
     "do-not-optimize-curative-cnecs-for-tsos-without-cras" : false
   },
   "mnec-parameters" : {
-    "acceptable-margin-decrease" : 180.0
+    "acceptable-margin-decrease" : 20.0
   },
   "extensions" : {
     "open-rao-search-tree-parameters" : {
