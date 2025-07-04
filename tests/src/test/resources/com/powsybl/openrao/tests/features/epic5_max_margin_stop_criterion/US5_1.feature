@@ -62,7 +62,7 @@ Feature: US 5.1: Maximum margin stop criterion
   Scenario: US 5.1.4.a: maximum margin stop criterion: absolute minimum impact threshold reached
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic5/SL_ep5us1.json"
-    Given configuration file is "epic5/RaoParameters_maxMargin_absoluteMinImpact190.json"
+    Given configuration file is "epic5/RaoParameters_maxMargin_absoluteMinImpact275_ampere.json"
     When I launch search_tree_rao
     Then its security status should be "SECURED"
     Then the worst margin is 1442.0 A
@@ -74,7 +74,7 @@ Feature: US 5.1: Maximum margin stop criterion
   Scenario: US 5.1.4.b: maximum margin stop criterion: absolute minimum impact threshold not reached
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic5/SL_ep5us1.json"
-    Given configuration file is "epic5/RaoParameters_maxMargin_absoluteMinImpact195.json"
+    Given configuration file is "epic5/RaoParameters_maxMargin_absoluteMinImpact280_ampere.json"
     When I launch search_tree_rao
     Then its security status should be "SECURED"
     Then the worst margin is 500.0 MW
