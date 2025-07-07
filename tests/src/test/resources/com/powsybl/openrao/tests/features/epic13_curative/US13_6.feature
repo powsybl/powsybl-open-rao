@@ -63,7 +63,9 @@ Feature: US 13.6: cross validation curative optimization and MNECs
     Given crac file is "epic13/MergedCB_ep13us6case4.xml"
     Given configuration file is "epic11/RaoParameters_maxMargin_ampere_ac_mnecDimin20.json"
     When I launch search_tree_rao at "2019-01-08 12:00"
+    # The MNEC initial margin is -83 MW, acceptable margin decrease is 20 MW
     Then the margin on cnec "NL2-BE3-O - outage" after PRA should be -103.0 MW
+    # Apply 1 remedial action that lowers functional cost but slightly increase virtual cost
     And 1 remedial actions are used in preventive
     And the tap of PstRangeAction "PRA_PST_BE" should be 14 in preventive
     And the margin on cnec "FR2-FR3-O - preventive" after PRA should be -267 MW
@@ -170,7 +172,7 @@ Feature: US 13.6: cross validation curative optimization and MNECs
     When I launch search_tree_rao at "2019-01-08 12:00"
     # The only curative element is a MNEC is NL2-BE3-0 - curative with a temporary threshold of 2298 A and a permanent one at 2237 A
     # Margin after preventive perimeter optimization -> 1 A OK (2298 A-2297 A). But in curative the margin is -60 A (2237 A - 2297 A).
-    # "CRA_PST_BE" applied to remove MNEC violation.
+    # "CRA_PST_BE" applied to remove MNEC violation without improving functional cost.
     Then 1 remedial actions are used in preventive
     And the tap of PstRangeAction "PRA_PST_BE" should be -4 in preventive
     And 1 remedial actions are used after "Contingency_FR1_FR3" at "curative"
