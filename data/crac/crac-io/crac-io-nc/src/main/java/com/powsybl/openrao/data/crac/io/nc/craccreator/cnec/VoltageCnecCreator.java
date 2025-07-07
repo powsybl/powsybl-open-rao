@@ -71,8 +71,7 @@ public class VoltageCnecCreator extends AbstractCnecCreator {
             throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, writeAssessedElementIgnoredReasonMessage("the network element " + networkElement.getId() + " is not a bus bar section"));
         }
 
-        String networkElementId = networkElement.getId();
-        voltageCnecAdder.withNetworkElement(networkElementId);
+        voltageCnecAdder.withNetworkElement(getVoltageLevel(networkElement).getId());
 
         if (!nativeVoltageLimit.isInfiniteDuration()) {
             throw new OpenRaoImportException(ImportStatus.NOT_YET_HANDLED_BY_OPEN_RAO, writeAssessedElementIgnoredReasonMessage("only permanent voltage limits (with infinite duration) are currently handled"));

@@ -74,16 +74,6 @@ public class AngleCnecCreator extends AbstractCnecCreator {
         return getVoltageLevel(networkElement).getId();
     }
 
-    private VoltageLevel getVoltageLevel(Identifiable<?> networkElement) {
-        if (networkElement.getType().equals(IdentifiableType.BUS)) {
-            return network.getBusBreakerView().getBus(networkElement.getId()).getVoltageLevel();
-        }
-        if (networkElement.getType().equals(IdentifiableType.BUSBAR_SECTION)) {
-            return network.getBusbarSection(networkElement.getId()).getTerminal().getVoltageLevel();
-        }
-        throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, writeAssessedElementIgnoredReasonMessage("the network element " + networkElement.getId() + " is neither a bus nor a bus bar section"));
-    }
-
     private void addAngleLimitThreshold(AngleCnecAdder angleCnecAdder) {
         if (nativeVoltageAngleLimit.normalValue() < 0) {
             throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, writeAssessedElementIgnoredReasonMessage("the angle limit's normal value is negative"));
