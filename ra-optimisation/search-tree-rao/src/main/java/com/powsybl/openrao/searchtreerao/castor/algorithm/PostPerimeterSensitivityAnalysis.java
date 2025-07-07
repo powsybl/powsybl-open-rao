@@ -25,6 +25,8 @@ import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicReference;
@@ -68,13 +70,13 @@ public class PostPerimeterSensitivityAnalysis {
         this.toolProvider = toolProvider;
     }
 
-    public Future<PostPerimeterResult> runBasedOnInitialPreviousAndOptimizationResults(Network network,
-                                                                           Crac crac,
-                                                                           FlowResult initialFlowResult,
-                                                                           Future<PrePerimeterResult> previousResultsFuture,
-                                                                           Set<String> operatorsNotSharingCras,
-                                                                           OptimizationResult optimizationResult,
-                                                                           AppliedRemedialActions appliedCurativeRemedialActions) {
+    public CompletableFuture<PostPerimeterResult> runBasedOnInitialPreviousAndOptimizationResults(Network network,
+                                                                                                  Crac crac,
+                                                                                                  FlowResult initialFlowResult,
+                                                                                                  CompletableFuture<PrePerimeterResult> previousResultsFuture,
+                                                                                                  Set<String> operatorsNotSharingCras,
+                                                                                                  OptimizationResult optimizationResult,
+                                                                                                  AppliedRemedialActions appliedCurativeRemedialActions) {
 
         AtomicReference<FlowResult> flowResult = new AtomicReference<>();
         AtomicReference<SensitivityResult> sensitivityResult = new AtomicReference<>();
@@ -114,32 +116,36 @@ public class PostPerimeterSensitivityAnalysis {
         }
 
         // Thread is executed once previousResultsFuture is fetched
-        return Executors.newSingleThreadExecutor().submit(() -> {
-            if (!actionWasTaken) {
-                flowResult.set(previousResultsFuture.get());
-                sensitivityResult.set(previousResultsFuture.get());
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                if (!actionWasTaken) {
+                    flowResult.set(previousResultsFuture.get());
+                    sensitivityResult.set(previousResultsFuture.get());
+                }
+                ObjectiveFunction objectiveFunction = ObjectiveFunction.build(
+                    flowCnecs,
+                    toolProvider.getLoopFlowCnecs(flowCnecs),
+                    initialFlowResult,
+                    previousResultsFuture.get(),
+                    operatorsNotSharingCras,
+                    raoParameters,
+                    optimizationResult.getActivatedRangeActionsPerState().keySet()
+                );
+
+                ObjectiveFunctionResult objectiveFunctionResult = objectiveFunction.evaluate(
+                    flowResult.get(),
+                    new RemedialActionActivationResultImpl(optimizationResult, optimizationResult)
+                );
+
+                return new PostPerimeterResult(optimizationResult, new PrePerimeterSensitivityResultImpl(
+                    flowResult.get(),
+                    sensitivityResult.get(),
+                    RangeActionSetpointResultImpl.buildWithSetpointsFromNetwork(network, rangeActions),
+                    objectiveFunctionResult
+                ));
+            } catch (InterruptedException | ExecutionException e) {
+                throw new RuntimeException(e);
             }
-            ObjectiveFunction objectiveFunction = ObjectiveFunction.build(
-                flowCnecs,
-                toolProvider.getLoopFlowCnecs(flowCnecs),
-                initialFlowResult,
-                previousResultsFuture.get(),
-                operatorsNotSharingCras,
-                raoParameters,
-                optimizationResult.getActivatedRangeActionsPerState().keySet()
-            );
-
-            ObjectiveFunctionResult objectiveFunctionResult = objectiveFunction.evaluate(
-                flowResult.get(),
-                new RemedialActionActivationResultImpl(optimizationResult, optimizationResult)
-            );
-
-            return new PostPerimeterResult(optimizationResult, new PrePerimeterSensitivityResultImpl(
-                flowResult.get(),
-                sensitivityResult.get(),
-                RangeActionSetpointResultImpl.buildWithSetpointsFromNetwork(network, rangeActions),
-                objectiveFunctionResult
-            ));
         });
     }
 

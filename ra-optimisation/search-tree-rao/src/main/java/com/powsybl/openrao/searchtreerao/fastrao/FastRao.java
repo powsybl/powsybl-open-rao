@@ -256,47 +256,9 @@ public class FastRao implements RaoProvider {
 
         BUSINESS_LOGS.info("[FAST RAO] Iteration {}: Run full sensitivity analysis [start]", counter);
 
-        AtomicReference<PrePerimeterResult> postPraSensi = new AtomicReference<>();
-        AtomicReference<PrePerimeterResult> postAraSensi = new AtomicReference<>();
-        AtomicReference<PrePerimeterResult> postCraSensi = new AtomicReference<>();
-
-        ForkJoinTask<?> computePostPraSensi = networkPool.submit(() -> {
-            try {
-                Network networkCopy = networkPool.getAvailableNetwork();
-                applyOptimalPreventiveRemedialActions(networkCopy, filteredCrac.getPreventiveState(), raoResult);
-                postPraSensi.set(runBasedOnInitialResults(toolProvider, raoInput, networkCopy, parameters, crac.getFlowCnecs(), new AppliedRemedialActions(), initialResult));
-                networkPool.releaseUsedNetwork(networkCopy);
-
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-        });
-
-        ForkJoinTask<?> computePostAraSensi = networkPool.submit(() -> {
-            try {
-                Network networkCopy = networkPool.getAvailableNetwork();
-                applyOptimalPreventiveRemedialActions(networkCopy, filteredCrac.getPreventiveState(), raoResult);
-                // Keep the actions activated during auto states
-                AppliedRemedialActions appliedAutoRemedialActions = createAppliedRemedialActions(filteredCrac, raoResult, InstantKind.AUTO);
-                postAraSensi.set(runBasedOnInitialResults(toolProvider, raoInput, networkCopy, parameters, crac.getFlowCnecs(), appliedAutoRemedialActions, initialResult));
-                networkPool.releaseUsedNetwork(networkCopy);
-
-            } catch (OpenRaoException | InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-        });
-
-        ForkJoinTask<?> computePostCraSensi = networkPool.submit(() -> {
-            try {
-                Network networkCopy = networkPool.getAvailableNetwork();
-                applyOptimalPreventiveRemedialActions(networkCopy, filteredCrac.getPreventiveState(), raoResult);
-                AppliedRemedialActions appliedRemedialActions = createAppliedRemedialActions(filteredCrac, raoResult, InstantKind.CURATIVE);
-                postCraSensi.set(runBasedOnInitialResults(toolProvider, raoInput, networkCopy, parameters, raoInput.getCrac().getFlowCnecs(), appliedRemedialActions, initialResult));
-                networkPool.releaseUsedNetwork(networkCopy);
-            } catch (InterruptedException | OpenRaoException e) {
-                throw new RuntimeException(e);
-            }
-        });
+        CompletableFuture<PostPerimeterResult> postPraResult = getPostPerimeterResult(CompletableFuture.completedFuture(initialResult));
+        CompletableFuture<PostPerimeterResult> postAraResult = getPostPerimeterResult(postPraResult);
+        CompletableFuture<PostPerimeterResult> postCraResult = getPostPerimeterResult(postAraResult);
 
         computePostPraSensi.join();
         computePostAraSensi.join();
@@ -304,13 +266,22 @@ public class FastRao implements RaoProvider {
 
         raoInput.getNetwork().getVariantManager().setWorkingVariant(finalVariantId);
 
-        postPraSensi.set(completePrePerimeterSensitivityResultWithObjectiveFunction(toolProvider, raoInput, parameters, raoInput.getCrac().getFlowCnecs(), initialResult, initialResult, postPraSensi.get(), createRemedialActionsResults(InstantKind.PREVENTIVE, raoResult, crac, initialResult), InstantKind.PREVENTIVE));
-        postAraSensi.set(completePrePerimeterSensitivityResultWithObjectiveFunction(toolProvider, raoInput, parameters, raoInput.getCrac().getFlowCnecs(), initialResult, postPraSensi.get(), postAraSensi.get(), createRemedialActionsResults(InstantKind.AUTO, raoResult, crac, initialResult), InstantKind.AUTO));
-        postCraSensi.set(completePrePerimeterSensitivityResultWithObjectiveFunction(toolProvider, raoInput, parameters, raoInput.getCrac().getFlowCnecs(), initialResult, postAraSensi.get(), postCraSensi.get(), createRemedialActionsResults(InstantKind.CURATIVE, raoResult, crac, initialResult), InstantKind.CURATIVE));
+        postPraResult.set(completePrePerimeterSensitivityResultWithObjectiveFunction(toolProvider, raoInput, parameters, raoInput.getCrac().getFlowCnecs(), initialResult, initialResult, postPraResult.get(), createRemedialActionsResults(InstantKind.PREVENTIVE, raoResult, crac, initialResult), InstantKind.PREVENTIVE));
+        postAraResult.set(completePrePerimeterSensitivityResultWithObjectiveFunction(toolProvider, raoInput, parameters, raoInput.getCrac().getFlowCnecs(), initialResult, postPraResult.get(), postAraResult.get(), createRemedialActionsResults(InstantKind.AUTO, raoResult, crac, initialResult), InstantKind.AUTO));
+        postCraResult.set(completePrePerimeterSensitivityResultWithObjectiveFunction(toolProvider, raoInput, parameters, raoInput.getCrac().getFlowCnecs(), initialResult, postAraResult.get(), postCraResult.get(), createRemedialActionsResults(InstantKind.CURATIVE, raoResult, crac, initialResult), InstantKind.CURATIVE));
 
         BUSINESS_LOGS.info("[FAST RAO] Iteration {}: Run full sensitivity analysis [end]", counter);
 
-        return new FastRaoResultImpl(initialResult, postPraSensi.get(), postAraSensi.get(), postCraSensi.get(), raoResult, raoInput.getCrac());
+        return new FastRaoResultImpl(initialResult, postPraResult.get(), postAraResult.get(), postCraResult.get(), raoResult, raoInput.getCrac());
+    }
+
+    private static CompletableFuture<PostPerimeterResult> getPostPerimeterResult(CompletableFuture<PostPerimeterResult> postPerimeterResultFuture) {
+        CompletableFuture<PrePerimeterResult> prePerimeterResultCompletableFuture = postPerimeterResultFuture.thenApply(PostPerimeterResult::getPrePerimeterResultForAllFollowingStates);
+        return getPostPerimeterResult(prePerimeterResultCompletableFuture);
+    }
+
+    private static CompletableFuture<PostPerimeterResult> getPostPerimeterResult(Future<PrePerimeterResult> prePerimeterResultFuture) {
+
     }
 
     private static RemedialActionActivationResult createRemedialActionsResults(InstantKind instantKind, RaoResult raoResult, Crac crac, PrePerimeterResult initialResult) {
@@ -389,86 +360,5 @@ public class FastRao implements RaoProvider {
             }
         );
         return appliedRemedialActions;
-    }
-
-    private static PrePerimeterSensitivityResultImpl runBasedOnInitialResults(ToolProvider toolProvider,
-                                                                                         RaoInput raoInput,
-                                                                                         Network network,
-                                                                                         RaoParameters raoParameters,
-                                                                                         Set<FlowCnec> flowCnecs,
-                                                                                         AppliedRemedialActions appliedRemedialActions,
-                                                                                         PrePerimeterResult initialFlowResult) throws InterruptedException {
-        Crac crac = raoInput.getCrac();
-        SensitivityComputer.SensitivityComputerBuilder sensitivityComputerBuilder = SensitivityComputer.create()
-            .withToolProvider(toolProvider)
-            .withCnecs(flowCnecs)
-            .withRangeActions(crac.getRangeActions())
-            .withOutageInstant(raoInput.getCrac().getOutageInstant());
-
-        if (raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getLoopFlowParameters().isPresent()) {
-            if (raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getLoopFlowParameters().get().getPtdfApproximation().shouldUpdatePtdfWithTopologicalChange()) {
-                sensitivityComputerBuilder.withCommercialFlowsResults(toolProvider.getLoopFlowComputation(), toolProvider.getLoopFlowCnecs(flowCnecs));
-            } else {
-                sensitivityComputerBuilder.withCommercialFlowsResults(initialFlowResult);
-            }
-        }
-        if (raoParameters.getObjectiveFunctionParameters().getType().relativePositiveMargins()) {
-            if (raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getRelativeMarginsParameters().get().getPtdfApproximation().shouldUpdatePtdfWithTopologicalChange()) {
-                sensitivityComputerBuilder.withPtdfsResults(toolProvider.getAbsolutePtdfSumsComputation(), flowCnecs);
-            } else {
-                sensitivityComputerBuilder.withPtdfsResults(initialFlowResult);
-            }
-        }
-
-        if (appliedRemedialActions != null) {
-            // for 2nd preventive initial sensi
-            sensitivityComputerBuilder.withAppliedRemedialActions(appliedRemedialActions);
-        }
-        SensitivityComputer sensitivityComputer = sensitivityComputerBuilder.build();
-        sensitivityComputer.compute(network);
-
-        FlowResult flowResult = sensitivityComputer.getBranchResult(network);
-        SensitivityResult sensitivityResult = sensitivityComputer.getSensitivityResult();
-        RangeActionSetpointResult rangeActionSetpointResult = RangeActionSetpointResultImpl.buildWithSetpointsFromNetwork(network, crac.getRangeActions());
-
-        return new PrePerimeterSensitivityResultImpl(
-            flowResult,
-            sensitivityResult,
-            rangeActionSetpointResult,
-            null
-        );
-    }
-
-    private static PrePerimeterResult completePrePerimeterSensitivityResultWithObjectiveFunction(ToolProvider toolProvider,
-                                                                                                 RaoInput raoInput,
-                                                                                                 RaoParameters raoParameters,
-                                                                                                 Set<FlowCnec> flowCnecs,
-                                                                                                 PrePerimeterResult initialFlowResult,
-                                                                                                 PrePerimeterResult prePerimeterResult,
-                                                                                                 PrePerimeterResult currentPrePerimeterResult,
-                                                                                                 RemedialActionActivationResult remedialActionsResult,
-                                                                                                 InstantKind instantKind) {
-
-        Crac crac = raoInput.getCrac();
-        ObjectiveFunction objectiveFunction = ObjectiveFunction.build(flowCnecs,
-            toolProvider.getLoopFlowCnecs(flowCnecs),
-            initialFlowResult,
-            prePerimeterResult.getFlowResult(),
-            new StateTree(crac).getOperatorsNotSharingCras(),
-            raoParameters,
-            crac.getStates().stream().filter(state -> state.getInstant().getKind().ordinal() <= instantKind.ordinal()).collect(Collectors.toSet())
-            );
-
-        ObjectiveFunctionResult objectiveFunctionResult = objectiveFunction.evaluate(
-            currentPrePerimeterResult.getFlowResult(),
-            remedialActionsResult
-        );
-
-        return new PrePerimeterSensitivityResultImpl(
-            currentPrePerimeterResult.getFlowResult(),
-            currentPrePerimeterResult.getSensitivityResult(),
-            currentPrePerimeterResult.getRangeActionSetpointResult(),
-            objectiveFunctionResult
-        );
     }
 }
