@@ -314,10 +314,10 @@ These modifications are actually impossible to do easily in a PowSyBl network wi
 For this reason, the user shall pre-process the network in order to create fictitious buses and switches that shall be opened 
 or closed by these remedial actions.  
 
-![bus-bar-equivalent-model](/_static/img/busbar.png)  
+![bus-bar-equivalent-model](../../_static/img/busbar.png)  
 
 Using [CseCracCreationParameters](creation-parameters.md#cse-specific-parameters), OpenRAO can then map these remedial actions to the switches 
-created by the user, and interpret BusBar remedial actions as [SwitchPairs](/input-data/crac.md#switch-pair).
+created by the user, and interpret BusBar remedial actions as [SwitchPairs](../crac.md#switch-pair).
 
 ## CriticalBranches
 

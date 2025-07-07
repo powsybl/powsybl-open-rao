@@ -2,7 +2,7 @@
 
 ## Introduction
 This package contains 470+ automated functional tests for OpenRAO, for behavior-driven development. 
-They are automatically run on each Pull Request using the [dedicated workflow](../.github/workflows/run_cucumber_tests.yml) 
+They are automatically run on each Pull Request using the [dedicated workflow](../.github/workflows/build_and_test.yml) 
 and are a required check for merging PRs.  
 The package uses the [Cucumber framework](https://cucumber.io/), 
 and the tests are divided into "scenarios" and "features", according to the Cucumber terminology:
@@ -13,7 +13,7 @@ and the tests are divided into "scenarios" and "features", according to the Cucu
 The source code of this package is divided in four main parts:
 1. The [RunCucumberTest](src/test/java/com/powsybl/openrao/tests/RunCucumberTest.java) main class is a test class that 
    runs the Cucumber tests through a JUnit plugin
-2. The [features](src/test/resources/features) directory contains the "feature" files, that contain the actual description 
+2. The [features](src/test/resources/com/powsybl/openrao/tests/features) directory contains the "feature" files, that contain the actual description 
    of the features, written in [Gerkin](https://cucumber.io/docs/gherkin/) syntax (see [Features](#features)).
 3. The [files](src/test/resources/files) directory contains the file resources for the tests (CRACs, Networks, etc) 
    separated according to their business type.
