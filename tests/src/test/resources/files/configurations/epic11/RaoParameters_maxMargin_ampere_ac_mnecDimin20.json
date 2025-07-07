@@ -2,7 +2,7 @@
   "version" : "3.1",
   "objective-function" : {
     "type" : "MAX_MIN_MARGIN",
-    "unit" : "MW",
+    "unit" : "A",
     "enforce-curative-security" : false
   },
   "range-actions-optimization" : {
@@ -65,7 +65,7 @@
             "shuntCompensatorVoltageControlOn" : false,
             "readSlackBus" : true,
             "writeSlackBus" : true,
-            "dc" : true,
+            "dc" : false,
             "distributedSlack" : true,
             "balanceType" : "PROPORTIONAL_TO_GENERATION_P",
             "dcUseTransformerRatio" : true,
