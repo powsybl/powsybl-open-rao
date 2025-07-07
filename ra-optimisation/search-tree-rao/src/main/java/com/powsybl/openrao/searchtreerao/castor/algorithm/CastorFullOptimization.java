@@ -156,7 +156,7 @@ public class CastorFullOptimization {
             // optimize contingency scenarios (auto + curative instants)
 
             // If stop criterion is SECURE and preventive perimeter was not secure, do not run post-contingency RAOs
-            // (however RAO could continue depending on parameter optimize-curative-if-basecase-unsecure)
+            // (however RAO could continue depending on parameter enforce-curative-if-basecase-unsecure)
             double preventiveOptimalCost = preventiveResult.getCost();
             if (shouldStopOptimisationIfPreventiveUnsecure(preventiveOptimalCost)) {
                 BUSINESS_LOGS.info("Preventive perimeter could not be secured; there is no point in optimizing post-contingency perimeters. The RAO will be interrupted here.");
