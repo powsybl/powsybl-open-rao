@@ -67,11 +67,11 @@ public final class MarmotUtils {
         return flowCnecs;
     }
 
-    public static TemporalData<TopologicalOptimizationResult> getTopologicalOptimizationResult(TemporalData<RaoInput> raoInputs, TemporalData<RaoResult> topologicalOptimizationResults) {
+    public static TemporalData<PreventiveOptimizationResult> getPreventiveOptimizationResults(TemporalData<RaoInput> raoInputs, TemporalData<RaoResult> topologicalOptimizationResults) {
         List<OffsetDateTime> timestamps = raoInputs.getTimestamps();
-        Map<OffsetDateTime, TopologicalOptimizationResult> topologicalOptimizationResultMap = new HashMap<>();
-        timestamps.forEach(timestamp -> topologicalOptimizationResultMap.put(timestamp, new TopologicalOptimizationResult(raoInputs.getData(timestamp).orElseThrow(), topologicalOptimizationResults.getData(timestamp).orElseThrow())));
-        return new TemporalDataImpl<>(topologicalOptimizationResultMap);
+        Map<OffsetDateTime, PreventiveOptimizationResult> preventiveOptimizationResultMap = new HashMap<>();
+        timestamps.forEach(timestamp -> preventiveOptimizationResultMap.put(timestamp, new PreventiveOptimizationResult(raoInputs.getData(timestamp).orElseThrow(), topologicalOptimizationResults.getData(timestamp).orElseThrow())));
+        return new TemporalDataImpl<>(preventiveOptimizationResultMap);
     }
 
     public static TemporalData<PostOptimizationResult> getPostOptimizationResults(TemporalData<RaoInput> raoInputs, TemporalData<PrePerimeterResult> initialResults, GlobalLinearOptimizationResult globalLinearOptimizationResult, TemporalData<RaoResult> topologicalOptimizationResults, RaoParameters raoParameters) {
