@@ -168,6 +168,9 @@ Feature: US 13.6: cross validation curative optimization and MNECs
     Given crac file is "epic13/CBCORA_ep13us6case11.xml"
     Given configuration file is "epic13/RaoParameters_13_6_11.json"
     When I launch search_tree_rao at "2019-01-08 12:00"
+    # The only curative element is a MNEC is NL2-BE3-0 - curative with a temporary threshold of 2298 A and a permanent one at 2237 A
+    # Margin after preventive perimeter optimization -> 1 A OK (2298 A-2297 A). But in curative the margin is -60 A (2237 A - 2297 A).
+    # "CRA_PST_BE" applied to remove MNEC violation.
     Then 1 remedial actions are used in preventive
     And the tap of PstRangeAction "PRA_PST_BE" should be -4 in preventive
     And 1 remedial actions are used after "Contingency_FR1_FR3" at "curative"
