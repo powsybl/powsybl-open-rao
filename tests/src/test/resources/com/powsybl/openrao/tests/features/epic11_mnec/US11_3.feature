@@ -30,11 +30,14 @@ Feature: US 11.3: Handle mnecs in search tree with only network actions
     And the margin on cnec "NNL2AA1  BBE3AA1  1 - preventive" after PRA should be 152.4 A
     And the flow on cnec "NNL2AA1  BBE3AA1  1 - preventive" after PRA should be -2445.7 A
 
-  @fast @rao @mock @ac @preventive-only @mnec
+  @fast @rao @mock @dc @preventive-only @mnec
   Scenario: US 11.3.3: margin on MNEC should stay above initial value - 180 MW
+    The two network actions should be applied to maximize the margin on the CNEC.
+    However, the constraint on the MNEC only allows a 180 MW increase on the overload
+    so only the PST tap action is applied.
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic11/ls_mnec_networkAction_3_3.json"
-    Given configuration file is "epic11/RaoParameters_maxMargin_ampere_ac_mnecDimin180.json"
+    Given configuration file is "epic11/RaoParameters_maxMargin_megawatt_dc_mnecDimin180.json"
     When I launch search_tree_rao
     Then the remedial action "PST BE setpoint" is used in preventive
     And PST "BBE2AA1  BBE3AA1  1" in network file with PRA is on tap -16
