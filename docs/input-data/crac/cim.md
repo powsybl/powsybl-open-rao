@@ -40,9 +40,11 @@ Each timeseries is configured using a curve: either **SEQUENTIAL_FIXED_SIZE_BLOC
 or **VARIABLE_SIZED_BLOCK_CURVE**  (value "A03").
 - In the case of SEQUENTIAL_FIXED_SIZE_BLOCKS_CURVE_TYPE, all period's points represent one resolution timespan (**resolution** is a parameter i.e. 60 minutes), their **position** parameter gives their relative start and end in their periods timespan (starting from "1")  depending on resolution.
 - In the case of VARIABLE_SIZED_BLOCK_CURVE, period's points can represent multiple resolution timespans, their **position** parameter gives their relative start, and their end is either equal to the next defined point's beginning, or the end of the period if no other point is defined after.
+
 ### Period examples
 
 #### SEQUENTIAL_FIXED_SIZE_BLOCKS_CURVE_TYPE
+
 All period points are present from position 1 to position 24, and represent an hour (because resolution is "PT60M" = 60 minutes):
 - point position 1 is applicable for timestamps between 2021-04-01T22:00Z (included) and 2021-04-01T23:00Z (excluded)
 - point position 2 is applicable for timestamps between 2021-04-01T23:00Z (included) and 2021-04-01T24:00Z (excluded)
@@ -122,7 +124,7 @@ All period points are present from position 1 to position 24, and represent an h
   </TimeSeries>
 ```
 
-## Contingencies 
+## Contingencies
 
 ```xml
  <Series>
@@ -146,9 +148,9 @@ All period points are present from position 1 to position 24, and represent an h
 ```
 Contingencies are listed in Series of business type B55, B56 or B57. They are defined in Contingency_Series elements. The associated network elements are defined in the registered resources.
 
-## CNECs 
+## CNECs
 
-### FlowCnecs 
+### FlowCnecs
 
 ```xml
 <Series>
@@ -191,7 +193,7 @@ As it is defined in the CRAC model, a CNEC is associated to a state. If the Seri
 
 Finally, a CNEC can be named in the following way : _[network element name] - [side (placeholder if the branch is a TieLine)] - [direction in which the CNEC is monitored (placeholder)] - [monitored (placeholder for MNECs)] - [contingency (placeholder for when a contingency is defined.)] - [instant]_.
 
-### AngleCnecs 
+### AngleCnecs
 
 ```xml
 <Series>
@@ -230,7 +232,7 @@ and with a threshold with a max bound defined by quantity. In order to be secure
 exporting element angle - importing element angle <= max bound    
 In the CIM CRAC, AngleCnecs are actually defined with their corresponding remedial actions in B56 Series (ie Remedial Action series). The Contingency_Series (unique) refers to the contingency after which the AngleCnec is monitored.  
 
-### VoltageCnecs 
+### VoltageCnecs
 
 [VoltageCnecs are defined in the CimCracCreationParameters](creation-parameters.md#voltage-cnecs-creation-parameters). 
 Nevertheless, they are imported via the CimCracCreator because that's where the information on which contingencies are imported lies. 
