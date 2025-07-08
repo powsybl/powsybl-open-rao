@@ -128,7 +128,8 @@ class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
         buildLinearProblem();
 
         OpenRaoMPVariable flowCnec1 = linearProblem.getFlowVariable(cnec1, TwoSides.ONE, Optional.empty());
-        OpenRaoMPVariable absoluteVariation = linearProblem.getAbsoluteRangeActionVariationVariable(pstRangeAction, cnec1.getState());
+        OpenRaoMPVariable upwardVariation = linearProblem.getRangeActionVariationVariable(pstRangeAction, cnec1.getState(), LinearProblem.VariationDirectionExtension.UPWARD);
+        OpenRaoMPVariable downwardVariation = linearProblem.getRangeActionVariationVariable(pstRangeAction, cnec1.getState(), LinearProblem.VariationDirectionExtension.DOWNWARD);
 
         // check minimum margin variable
         OpenRaoMPVariable minimumMargin = linearProblem.getMinimumMarginVariable(Optional.empty());
@@ -159,14 +160,15 @@ class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
         assertEquals(380.0 * Math.sqrt(3) / 1000, cnec1AboveThreshold.getCoefficient(minimumMargin), DOUBLE_TOLERANCE);
 
         // check objective
-        assertEquals(0.01, linearProblem.getObjective().getCoefficient(absoluteVariation), DOUBLE_TOLERANCE); // penalty cost
+        assertEquals(0.01, linearProblem.getObjective().getCoefficient(upwardVariation), DOUBLE_TOLERANCE); // penalty cost
+        assertEquals(0.01, linearProblem.getObjective().getCoefficient(downwardVariation), DOUBLE_TOLERANCE); // penalty cost
         assertEquals(-1.0, linearProblem.getObjective().getCoefficient(minimumMargin), DOUBLE_TOLERANCE);
         assertEquals(-1.0, linearProblem.getObjective().getCoefficient(minimumRelativeMargin), DOUBLE_TOLERANCE);
         assertTrue(linearProblem.minimization());
 
         // check the number of variables and constraints
-        assertEquals(8, linearProblem.numVariables());
-        assertEquals(9, linearProblem.numConstraints());
+        assertEquals(7, linearProblem.numVariables());
+        assertEquals(8, linearProblem.numConstraints());
     }
 
     private FlowResult mockFlowResult(double cnecAbsolutePtdfSum) {
@@ -202,7 +204,8 @@ class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
 
     private void checkFillerContentMw(double expectedPtdfSum) {
         OpenRaoMPVariable flowCnec1 = linearProblem.getFlowVariable(cnec1, TwoSides.ONE, Optional.empty());
-        OpenRaoMPVariable absoluteVariation = linearProblem.getAbsoluteRangeActionVariationVariable(pstRangeAction, cnec1.getState());
+        OpenRaoMPVariable upwardVariation = linearProblem.getRangeActionVariationVariable(pstRangeAction, cnec1.getState(), LinearProblem.VariationDirectionExtension.UPWARD);
+        OpenRaoMPVariable downwardVariation = linearProblem.getRangeActionVariationVariable(pstRangeAction, cnec1.getState(), LinearProblem.VariationDirectionExtension.DOWNWARD);
 
         // check minimum margin variable
         OpenRaoMPVariable minimumMargin = linearProblem.getMinimumMarginVariable(Optional.empty());
@@ -227,14 +230,15 @@ class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
         // TODO : more checks ?
 
         // check objective
-        assertEquals(0.01, linearProblem.getObjective().getCoefficient(absoluteVariation), DOUBLE_TOLERANCE);
+        assertEquals(0.01, linearProblem.getObjective().getCoefficient(upwardVariation), DOUBLE_TOLERANCE);
+        assertEquals(0.01, linearProblem.getObjective().getCoefficient(downwardVariation), DOUBLE_TOLERANCE);
         assertEquals(-1.0, linearProblem.getObjective().getCoefficient(minimumMargin), DOUBLE_TOLERANCE);
         assertEquals(-1.0, linearProblem.getObjective().getCoefficient(minimumRelativeMargin), DOUBLE_TOLERANCE);
         assertTrue(linearProblem.minimization());
 
         // check the number of variables and constraints
-        assertEquals(8, linearProblem.numVariables());
-        assertEquals(9, linearProblem.numConstraints());
+        assertEquals(7, linearProblem.numVariables());
+        assertEquals(8, linearProblem.numConstraints());
     }
 
     @Test
