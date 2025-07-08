@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.data.crac.io.nc.craccreator.cnec;
 
+import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.crac.io.nc.craccreator.constants.OperationalLimitDirectionKind;
