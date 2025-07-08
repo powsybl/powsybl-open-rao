@@ -6,7 +6,6 @@
  */
 package com.powsybl.openrao.data.crac.io.nc.craccreator.cnec;
 
-import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.crac.io.nc.craccreator.constants.OperationalLimitDirectionKind;
@@ -18,7 +17,6 @@ import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.crac.io.commons.api.ElementaryCreationContext;
 import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
 import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.data.crac.io.commons.OpenRaoImportException;
 
@@ -72,16 +70,6 @@ public class AngleCnecCreator extends AbstractCnecCreator {
             throw new OpenRaoImportException(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, writeAssessedElementIgnoredReasonMessage("the angle limit equipment " + terminalId + " is missing in network"));
         }
         return getVoltageLevel(networkElement).getId();
-    }
-
-    private VoltageLevel getVoltageLevel(Identifiable<?> networkElement) {
-        if (networkElement.getType().equals(IdentifiableType.BUS)) {
-            return network.getBusBreakerView().getBus(networkElement.getId()).getVoltageLevel();
-        }
-        if (networkElement.getType().equals(IdentifiableType.BUSBAR_SECTION)) {
-            return network.getBusbarSection(networkElement.getId()).getTerminal().getVoltageLevel();
-        }
-        throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, writeAssessedElementIgnoredReasonMessage("the network element " + networkElement.getId() + " is neither a bus nor a bus bar section"));
     }
 
     private void addAngleLimitThreshold(AngleCnecAdder angleCnecAdder) {

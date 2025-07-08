@@ -7,6 +7,10 @@
 package com.powsybl.openrao.data.crac.io.nc.craccreator.cnec;
 
 import com.powsybl.contingency.Contingency;
+import com.powsybl.iidm.network.IdentifiableType;
+import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.openrao.data.crac.io.commons.OpenRaoImportException;
+import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
 import com.powsybl.openrao.data.crac.io.nc.craccreator.NcCracUtils;
 import com.powsybl.openrao.data.crac.io.nc.objects.AssessedElement;
 import com.powsybl.openrao.data.crac.io.nc.parameters.NcCracCreationParameters;
@@ -133,5 +137,15 @@ public abstract class AbstractCnecCreator {
             return borderPerEic.getOrDefault(NcCracUtils.getEicFromUrl(nativeAssessedElement.overlappingZone()), null);
         }
         return borderPerTso.getOrDefault(NcCracUtils.getTsoNameFromUrl(nativeAssessedElement.operator()), null);
+    }
+
+    protected VoltageLevel getVoltageLevel(Identifiable<?> networkElement) {
+        if (networkElement.getType().equals(IdentifiableType.BUS)) {
+            return network.getBusBreakerView().getBus(networkElement.getId()).getVoltageLevel();
+        }
+        if (networkElement.getType().equals(IdentifiableType.BUSBAR_SECTION)) {
+            return network.getBusbarSection(networkElement.getId()).getTerminal().getVoltageLevel();
+        }
+        throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, writeAssessedElementIgnoredReasonMessage("the network element " + networkElement.getId() + " is neither a bus nor a bus bar section"));
     }
 }
