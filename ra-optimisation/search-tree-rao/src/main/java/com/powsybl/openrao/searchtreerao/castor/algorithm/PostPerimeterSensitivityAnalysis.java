@@ -12,9 +12,6 @@ import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
-import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
-import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoLoopFlowParameters;
-import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRelativeMarginsParameters;
 import com.powsybl.openrao.searchtreerao.commons.SensitivityComputer;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
@@ -22,93 +19,56 @@ import com.powsybl.openrao.searchtreerao.result.api.*;
 import com.powsybl.openrao.searchtreerao.result.impl.*;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 
-import java.util.HashSet;
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
- * This class aims at performing the sensitivity analysis before the optimization of a perimeter. At these specific
- * instants we actually want to compute all the results on the network. They will be useful either for the optimization
- * or to fill results in the final output.
+ * This class aims at performing the sensitivity analysis after the optimization of a perimeter. The result can be used as a
+ * starting point for the next perimeter, but it is also needed for the costs, margins and flows of elements after an optimization instant.
  *
- * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
+ * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
-public class PostPerimeterSensitivityAnalysis {
+public class PostPerimeterSensitivityAnalysis extends AbstractMultiPerimeterSensitivityAnalysis {
 
-    // actual input
-    private final Set<FlowCnec> flowCnecs;
-    private final Set<RangeAction<?>> rangeActions;
-    private final RaoParameters raoParameters;
-    private final ToolProvider toolProvider;
-
-    public PostPerimeterSensitivityAnalysis(Set<FlowCnec> flowCnecs,
+    public PostPerimeterSensitivityAnalysis(Crac crac,
+                                            Set<FlowCnec> flowCnecs,
                                             Set<RangeAction<?>> rangeActions,
                                             RaoParameters raoParameters,
                                             ToolProvider toolProvider) {
-        this.flowCnecs = flowCnecs;
-        this.rangeActions = rangeActions;
-        this.raoParameters = raoParameters;
-        this.toolProvider = toolProvider;
+        super(crac, flowCnecs, rangeActions, raoParameters, toolProvider);
     }
 
     public PostPerimeterSensitivityAnalysis(Crac crac,
                                             Set<State> states,
                                             RaoParameters raoParameters,
                                             ToolProvider toolProvider) {
-        this.rangeActions = new HashSet<>();
-        this.flowCnecs = new HashSet<>();
-        for (State state : states) {
-            this.rangeActions.addAll(crac.getPotentiallyAvailableRangeActions(state));
-            this.flowCnecs.addAll(crac.getFlowCnecs(state));
-        }
-        this.raoParameters = raoParameters;
-        this.toolProvider = toolProvider;
+        super(crac, states, raoParameters, toolProvider);
     }
 
+    /**
+     * This method requires:
+     * <ul>
+     *     <li> the initialFlowResult to be able to compute mnec and loopflow thresholds </li>
+     *     <li> the previousResultsFuture for countries not sharing CRAs </li>
+     *     <li> the optimizationResult of the given perimeter for action cost </li>
+     * </ul>
+     */
     public Future<PostPerimeterResult> runBasedOnInitialPreviousAndOptimizationResults(Network network,
-                                                                           Crac crac,
-                                                                           FlowResult initialFlowResult,
-                                                                           Future<PrePerimeterResult> previousResultsFuture,
-                                                                           Set<String> operatorsNotSharingCras,
-                                                                           OptimizationResult optimizationResult,
-                                                                           AppliedRemedialActions appliedCurativeRemedialActions) {
+                                                                                       FlowResult initialFlowResult,
+                                                                                       Future<PrePerimeterResult> previousResultsFuture,
+                                                                                       Set<String> operatorsNotSharingCras,
+                                                                                       OptimizationResult optimizationResult,
+                                                                                       AppliedRemedialActions appliedCurativeRemedialActions) {
 
         AtomicReference<FlowResult> flowResult = new AtomicReference<>();
         AtomicReference<SensitivityResult> sensitivityResult = new AtomicReference<>();
         boolean actionWasTaken = actionWasTaken(optimizationResult);
         if (actionWasTaken) {
-            SensitivityComputer.SensitivityComputerBuilder sensitivityComputerBuilder = SensitivityComputer.create()
-                .withToolProvider(toolProvider)
-                .withCnecs(flowCnecs)
-                .withRangeActions(rangeActions)
-                .withOutageInstant(crac.getOutageInstant());
+            SensitivityComputer sensitivityComputer = buildSensitivityComputer(initialFlowResult, appliedCurativeRemedialActions);
 
-            Optional<SearchTreeRaoLoopFlowParameters> optionalLoopFlowParameters = raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getLoopFlowParameters();
-            if (optionalLoopFlowParameters.isPresent()) {
-                if (optionalLoopFlowParameters.get().getPtdfApproximation().shouldUpdatePtdfWithTopologicalChange()) {
-                    sensitivityComputerBuilder.withCommercialFlowsResults(toolProvider.getLoopFlowComputation(), toolProvider.getLoopFlowCnecs(flowCnecs));
-                } else {
-                    sensitivityComputerBuilder.withCommercialFlowsResults(initialFlowResult);
-                }
-            }
-            Optional<SearchTreeRaoRelativeMarginsParameters> optionalRelativeMarginParameters = raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getRelativeMarginsParameters();
-            if (optionalRelativeMarginParameters.isPresent()) {
-                if (optionalRelativeMarginParameters.get().getPtdfApproximation().shouldUpdatePtdfWithTopologicalChange()) {
-                    sensitivityComputerBuilder.withPtdfsResults(toolProvider.getAbsolutePtdfSumsComputation(), flowCnecs);
-                } else {
-                    sensitivityComputerBuilder.withPtdfsResults(initialFlowResult);
-                }
-            }
-            if (appliedCurativeRemedialActions != null) {
-                // for 2nd preventive initial sensi
-                sensitivityComputerBuilder.withAppliedRemedialActions(appliedCurativeRemedialActions);
-            }
-            SensitivityComputer sensitivityComputer = sensitivityComputerBuilder.build();
             sensitivityComputer.compute(network);
-
             flowResult.set(sensitivityComputer.getBranchResult(network));
             sensitivityResult.set(sensitivityComputer.getSensitivityResult());
         }

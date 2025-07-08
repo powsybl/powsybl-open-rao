@@ -146,7 +146,7 @@ public class CastorContingencyScenarios {
             for (Perimeter curativePerimeter : optimizedScenario.getCurativePerimeters()) {
                 State curativeState = curativePerimeter.getRaOptimisationState();
                 if (previousPerimeterResult == null) {
-                    previousPerimeterResult = getPreCurativePerimeterSensitivityAnalysis(curativePerimeter).runBasedOnInitialResults(networkClone, crac, null, stateTree.getOperatorsNotSharingCras(), null);
+                    previousPerimeterResult = getPreCurativePerimeterSensitivityAnalysis(curativePerimeter).runBasedOnInitialResults(networkClone, null, stateTree.getOperatorsNotSharingCras(), null);
                 }
                 prePerimeterResultPerPerimeter.put(curativePerimeter.getRaOptimisationState(), previousPerimeterResult);
                 if (allPreviousPerimetersSucceded) {
@@ -191,7 +191,6 @@ public class CastorContingencyScenarios {
         try {
             return postPerimeterSensitivityAnalysis.runBasedOnInitialPreviousAndOptimizationResults(
                 networkClone,
-                crac,
                 initialSensitivityOutput,
                 CompletableFuture.completedFuture(prePerimeterSensitivityOutput),
                 stateTree.getOperatorsNotSharingCras(),
@@ -209,7 +208,7 @@ public class CastorContingencyScenarios {
         for (State curativeState : curativePerimeter.getAllStates()) {
             flowCnecsInSensi.addAll(crac.getFlowCnecs(curativeState));
         }
-        return new PrePerimeterSensitivityAnalysis(flowCnecsInSensi, rangeActionsInSensi, raoParameters, toolProvider);
+        return new PrePerimeterSensitivityAnalysis(crac, flowCnecsInSensi, rangeActionsInSensi, raoParameters, toolProvider);
     }
 
     private OptimizationResult optimizeCurativePerimeter(Perimeter curativePerimeter,

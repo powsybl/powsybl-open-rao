@@ -10,11 +10,6 @@ package com.powsybl.openrao.searchtreerao.result.impl;
 import com.powsybl.contingency.ContingencyElementType;
 import com.powsybl.openrao.data.crac.api.*;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
-import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
-import com.powsybl.openrao.data.crac.api.range.RangeType;
-import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
-import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.openrao.data.crac.impl.CracImpl;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
@@ -48,9 +43,6 @@ class PreventiveAndCurativesRaoResultImplTest {
     private Instant preventiveInstant;
     private Instant autoInstant;
     private Instant curativeInstant;
-    private PstRangeAction pstRangeAction;
-    private RangeAction<?> rangeAction;
-    private NetworkAction networkAction;
     private List<Set<Instant>> optimizationInstantsPerContingency;
 
     private PrePerimeterResult initialResult;
@@ -69,7 +61,7 @@ class PreventiveAndCurativesRaoResultImplTest {
     private OptimizationResult curativeResult3;
     private PrePerimeterResult postCurativePrePerimResult3;
     private PostPerimeterResult postCurativeResult3;
-    private Map<State, PostPerimeterResult> postContingencyResults;
+    private Map<State, PostPerimeterResult> postContingencyResults = new HashMap<>();
 
     private PreventiveAndCurativesRaoResultImpl output;
 
@@ -129,21 +121,6 @@ class PreventiveAndCurativesRaoResultImplTest {
                 .add()
                 .add();
         }
-        pstRangeAction = crac.newPstRangeAction()
-            .withId("pst")
-            .withNetworkElement("pst-elt")
-            .withInitialTap(0)
-            .withTapToAngleConversionMap(Map.of(-1, -1., 0, 0., 1, 1.))
-            .newTapRange()
-                .withMinTap(-1)
-                .withMaxTap(1)
-                .withRangeType(RangeType.ABSOLUTE)
-                .add()
-            .newOnInstantUsageRule()
-                .withInstant("preventive")
-                .withUsageMethod(UsageMethod.AVAILABLE)
-                .add()
-            .add();
     }
 
     @BeforeEach
@@ -153,14 +130,25 @@ class PreventiveAndCurativesRaoResultImplTest {
         autoInstant = crac.getInstant("auto");
         curativeInstant = crac.getInstant("curative");
 
+        /**
+         * Optimized instants:
+         * -----------------------------------------------------
+         * |                   * PREVENTIVE *                  |
+         * -     --     -     --     ---------------------------
+         * |   AUTO 1   |   AUTO 2   | * AUTO 3 * | * AUTO 4 * |
+         * -     --     ---------------------------     --     -
+         * |   CURA 1   | * CURA 2 * | * CURA 3 * |   CURA 4   |
+         * -----------------------------------------------------
+         */
+
         optimizationInstantsPerContingency = List.of(
             Set.of(preventiveInstant),
             Set.of(preventiveInstant, curativeInstant),
             Set.of(preventiveInstant, autoInstant, curativeInstant),
             Set.of(preventiveInstant, autoInstant));
 
-        postContingencyResults = new HashMap<>();
-
+        // only prepare results for perimeters that were optimized (like it would be in a normal run)
+        // The result class will fill in the "holes".
         prepareInitialResult();
         preparePreventiveResult();
         prepareAutoResult3();
@@ -233,7 +221,7 @@ class PreventiveAndCurativesRaoResultImplTest {
                 double signum = shouldBeSecured(cnec, instant) ? 1 : -1;
                 // flow = +/- abc with
                 // +/- depends of if cnec can be optimized later
-                // a depends on most recent optimization (0 for init, 1 for auto, 2 for auto, 3 for cur)
+                // a depends on most recent optimization (0 for init, 1 for prev, 2 for auto, 3 for cur)
                 // b depends on instant of cnec
                 // c depends on contingency
                 double flow = signum * (
