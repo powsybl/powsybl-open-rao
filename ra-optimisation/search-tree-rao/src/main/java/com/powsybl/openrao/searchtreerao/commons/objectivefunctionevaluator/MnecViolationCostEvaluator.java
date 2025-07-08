@@ -6,10 +6,12 @@
  */
 package com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator;
 
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
+import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.searchtreerao.commons.costevaluatorresult.CostEvaluatorResult;
 import com.powsybl.openrao.searchtreerao.commons.costevaluatorresult.SumCnecWiseCostEvaluatorResult;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
@@ -69,6 +71,6 @@ public class MnecViolationCostEvaluator implements CostEvaluator {
     private double computeMnecViolation(FlowResult flowResult, FlowCnec mnec) {
         double initialMargin = initialFlowResult.getMargin(mnec, unit);
         double currentMargin = flowResult.getMargin(mnec, unit);
-        return Math.max(0, Math.min(0, initialMargin - mnecAcceptableMarginDecrease) - currentMargin);
+        return Math.max(0, Math.min(0, initialMargin - mnecAcceptableMarginDecrease * RaoUtil.getFlowUnitMultiplier(mnec, TwoSides.ONE, Unit.MEGAWATT, unit)) - currentMargin);
     }
 }
