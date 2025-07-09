@@ -255,12 +255,12 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
 
     @Override
     public ComputationStatus getComputationStatus() {
-        if (initialResult.getSensitivityStatus() == FAILURE
-            || finalPreventivePerimeterResult.getOptimizationResult().getSensitivityStatus() == FAILURE) {
+        if (initialResult.getComputationStatus() == FAILURE
+            || finalPreventivePerimeterResult.getOptimizationResult().getComputationStatus() == FAILURE) {
             return FAILURE;
         }
-        if (initialResult.getSensitivityStatus() == PARTIAL_FAILURE ||
-            finalPreventivePerimeterResult.getOptimizationResult().getSensitivityStatus() == PARTIAL_FAILURE ||
+        if (initialResult.getComputationStatus() == PARTIAL_FAILURE ||
+            finalPreventivePerimeterResult.getOptimizationResult().getComputationStatus() == PARTIAL_FAILURE ||
             postContingencyResults.entrySet().stream().anyMatch(entry ->
                 entry.getValue() == null || entry.getValue().getOptimizationResult().getSensitivityStatus(entry.getKey()) != DEFAULT)) {
             return PARTIAL_FAILURE;

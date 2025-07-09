@@ -14,7 +14,7 @@ import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.range.RangeType;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.openrao.data.crac.impl.CracImpl;
-import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
+import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
@@ -68,9 +68,6 @@ class PreventiveAndCurativesRaoResultImplTest {
     private Map<State, PostPerimeterResult> postContingencyResults = new HashMap<>();
 
     private PreventiveAndCurativesRaoResultImpl output;
-
-    private StateTree stateTree;
-    private final ObjectiveFunctionParameters objectiveFunctionParameters = new ObjectiveFunctionParameters();
 
     private void initCrac() {
         crac = new CracImpl("crac");
@@ -336,5 +333,23 @@ class PreventiveAndCurativesRaoResultImplTest {
         crac.getStates().stream()
             .filter(state -> !state.getInstant().isOutage())
             .forEach(state -> assertNotNull(output.getOptimizationResult(state.getInstant(), state)));
+    }
+
+    @Test
+    public void testGlobalComputationStatusWhenFinalPreventiveFails() {
+        when(prevResult.getComputationStatus()).thenReturn(ComputationStatus.FAILURE);
+        assertEquals(ComputationStatus.FAILURE, output.getComputationStatus());
+    }
+
+    @Test
+    public void testGlobalComputationStatusWhenFinalPreventivePartiallyFails() {
+        when(prevResult.getComputationStatus()).thenReturn(ComputationStatus.PARTIAL_FAILURE);
+        assertEquals(ComputationStatus.PARTIAL_FAILURE, output.getComputationStatus());
+    }
+
+    @Test
+    public void testGlobalComputationStatusWhenAContingencyFails() {
+        when(autoResult4.getComputationStatus()).thenReturn(ComputationStatus.FAILURE);
+        assertEquals(ComputationStatus.PARTIAL_FAILURE, output.getComputationStatus());
     }
 }
