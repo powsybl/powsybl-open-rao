@@ -16,6 +16,8 @@ import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.openrao.data.crac.impl.CracImpl;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.openrao.searchtreerao.castor.algorithm.ContingencyScenario;
+import com.powsybl.openrao.searchtreerao.castor.algorithm.Perimeter;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
@@ -172,7 +174,7 @@ class PreventiveAndCurativesRaoResultImplTest {
         prepareCurativeResult2();
         prepareCurativeResult3();
 
-        StateTree stateTree = mock(StateTree.class);
+        StateTree stateTree = generateStateTree();
 
         output = new PreventiveAndCurativesRaoResultImpl(stateTree, initialResult, postPrevResult, postContingencyResults, crac, new RaoParameters());
     }
@@ -258,6 +260,10 @@ class PreventiveAndCurativesRaoResultImplTest {
         when(prePerimeterResult.getFunctionalCost()).thenReturn(-lowestPostPerimeterFlow.get());
         when(optimizationResult.getVirtualCost("sensitivity-failure-cost")).thenReturn(-lowestPerimeterFlow.get() + 0.1);
         when(prePerimeterResult.getVirtualCost("sensitivity-failure-cost")).thenReturn(-lowestPostPerimeterFlow.get() + 0.1);
+        if (!state.isPreventive()) {
+            Set<String> contingencies = Set.of(state.getContingency().get().getId());
+            when(optimizationResult.getContingencies()).thenReturn(contingencies);
+        }
     }
 
     private void addFlowAndMarginResults(FlowResult flowResult, FlowCnec cnec, double flow, Instant instant) {
@@ -285,6 +291,28 @@ class PreventiveAndCurativesRaoResultImplTest {
     private boolean shouldBeSecured(FlowCnec cnec, Instant instant) {
         return optimizationInstantsPerContingency.get(Integer.parseInt(cnec.getId().charAt(5) + "") - 1).stream()
             .noneMatch(i -> i.comesAfter(instant) && !i.comesAfter(cnec.getState().getInstant()));
+    }
+
+    private StateTree generateStateTree() {
+        StateTree stateTree = Mockito.mock(StateTree.class);
+        Set<ContingencyScenario> contingencyScenarios = new HashSet<>();
+        for (int i = 1; i <= 4; i++) {
+            Set<Instant> optimizationInstants = optimizationInstantsPerContingency.get(i - 1);
+            ContingencyScenario contingencyScenario = Mockito.mock(ContingencyScenario.class);
+            when(contingencyScenario.getContingency()).thenReturn(crac.getContingency("contingency-" + i));
+            if (optimizationInstants.contains(autoInstant)) {
+                when(contingencyScenario.getAutomatonState()).thenReturn(Optional.of(crac.getState("contingency-" + i, autoInstant)));
+            } else {
+                when(contingencyScenario.getAutomatonState()).thenReturn(Optional.empty());
+            }
+            if (optimizationInstants.contains(curativeInstant)) {
+                Perimeter curativePerimeter = Mockito.mock(Perimeter.class);
+                when(curativePerimeter.getRaOptimisationState()).thenReturn(crac.getState("contingency-" + i, curativeInstant));
+            }
+            contingencyScenarios.add(contingencyScenario);
+        }
+        when(stateTree.getContingencyScenarios()).thenReturn(contingencyScenarios);
+        return stateTree;
     }
 
     @Test
