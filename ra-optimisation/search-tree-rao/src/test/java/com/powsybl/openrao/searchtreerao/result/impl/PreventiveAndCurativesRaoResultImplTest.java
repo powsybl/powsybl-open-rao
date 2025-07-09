@@ -28,6 +28,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static com.powsybl.iidm.network.TwoSides.ONE;
@@ -292,6 +293,7 @@ class PreventiveAndCurativesRaoResultImplTest {
         checkFunctionalCosts();
         checkVirtualCosts();
         checkFlows();
+        checkOptimizationResults();
     }
 
     private void checkFunctionalCosts() {
@@ -326,5 +328,11 @@ class PreventiveAndCurativesRaoResultImplTest {
                 }
             }
         }
+    }
+
+    private void checkOptimizationResults() {
+        crac.getStates().stream()
+            .filter(state -> !state.getInstant().isOutage())
+            .forEach(state -> assertNotNull(output.getOptimizationResult(state.getInstant(), state)));
     }
 }

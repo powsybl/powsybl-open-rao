@@ -274,7 +274,7 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
         while (instant != null) {
             OptimizationResult perimeterResult = getOptimizationResult(instant, state);
             if (Objects.nonNull(perimeterResult)) {
-                return perimeterResult.getSensitivityStatus(state);
+                return perimeterResult.getComputationStatus(state);
             }
             instant = crac.getInstantBefore(instant);
         }
