@@ -452,17 +452,10 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
     @Override
     public Set<String> getVirtualCostNames() {
         Set<String> virtualCostNames = new HashSet<>();
-        if (initialResult.getVirtualCostNames() != null) {
-            virtualCostNames.addAll(initialResult.getVirtualCostNames());
-        }
-        if (firstPreventivePerimeterResult.getOptimizationResult().getVirtualCostNames() != null) {
-            virtualCostNames.addAll(firstPreventivePerimeterResult.getOptimizationResult().getVirtualCostNames());
-        }
-        if (finalPreventivePerimeterResult.getOptimizationResult().getVirtualCostNames() != null) {
-            virtualCostNames.addAll(finalPreventivePerimeterResult.getOptimizationResult().getVirtualCostNames());
-        }
-        postContingencyResults.values().stream()
-            .filter(optimizationResult -> optimizationResult.getOptimizationResult().getVirtualCostNames() != null)
+        virtualCostNames.addAll(initialResult.getVirtualCostNames());
+        virtualCostNames.addAll(firstPreventivePerimeterResult.getOptimizationResult().getVirtualCostNames());
+        virtualCostNames.addAll(finalPreventivePerimeterResult.getOptimizationResult().getVirtualCostNames());
+        postContingencyResults.values()
             .forEach(optimizationResult -> virtualCostNames.addAll(optimizationResult.getOptimizationResult().getVirtualCostNames()));
 
         return virtualCostNames;
