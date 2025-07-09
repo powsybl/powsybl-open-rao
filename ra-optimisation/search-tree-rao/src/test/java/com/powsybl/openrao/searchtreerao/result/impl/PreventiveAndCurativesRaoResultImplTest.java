@@ -10,6 +10,8 @@ package com.powsybl.openrao.searchtreerao.result.impl;
 import com.powsybl.contingency.ContingencyElementType;
 import com.powsybl.openrao.data.crac.api.*;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
+import com.powsybl.openrao.data.crac.api.range.RangeType;
+import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.openrao.data.crac.impl.CracImpl;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
@@ -121,6 +123,21 @@ class PreventiveAndCurativesRaoResultImplTest {
                 .add()
                 .add();
         }
+        crac.newPstRangeAction()
+            .withId("pst")
+            .withNetworkElement("pst-elt")
+            .withInitialTap(0)
+            .withTapToAngleConversionMap(Map.of(-1, -1., 0, 0., 1, 1.))
+            .newTapRange()
+            .withMinTap(-1)
+            .withMaxTap(1)
+            .withRangeType(RangeType.ABSOLUTE)
+            .add()
+            .newOnInstantUsageRule()
+            .withInstant("preventive")
+            .withUsageMethod(UsageMethod.AVAILABLE)
+            .add()
+            .add();
     }
 
     @BeforeEach

@@ -14,6 +14,7 @@ import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -60,20 +61,23 @@ public abstract class AbstractMultiPerimeterSensitivityAnalysis {
             .withRangeActions(rangeActions)
             .withOutageInstant(crac.getOutageInstant());
 
-        Optional<SearchTreeRaoLoopFlowParameters> optionalLoopFlowParameters = raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getLoopFlowParameters();
-        if (optionalLoopFlowParameters.isPresent()) {
-            if (optionalLoopFlowParameters.get().getPtdfApproximation().shouldUpdatePtdfWithTopologicalChange()) {
-                sensitivityComputerBuilder.withCommercialFlowsResults(toolProvider.getLoopFlowComputation(), toolProvider.getLoopFlowCnecs(flowCnecs));
-            } else {
-                sensitivityComputerBuilder.withCommercialFlowsResults(initialFlowResult);
+        OpenRaoSearchTreeParameters searchTreeParameters = raoParameters.getExtension(OpenRaoSearchTreeParameters.class);
+        if (Objects.nonNull(searchTreeParameters)) {
+            Optional<SearchTreeRaoLoopFlowParameters> optionalLoopFlowParameters = searchTreeParameters.getLoopFlowParameters();
+            if (optionalLoopFlowParameters.isPresent()) {
+                if (optionalLoopFlowParameters.get().getPtdfApproximation().shouldUpdatePtdfWithTopologicalChange()) {
+                    sensitivityComputerBuilder.withCommercialFlowsResults(toolProvider.getLoopFlowComputation(), toolProvider.getLoopFlowCnecs(flowCnecs));
+                } else {
+                    sensitivityComputerBuilder.withCommercialFlowsResults(initialFlowResult);
+                }
             }
-        }
-        Optional<SearchTreeRaoRelativeMarginsParameters> optionalRelativeMarginParameters = raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getRelativeMarginsParameters();
-        if (optionalRelativeMarginParameters.isPresent()) {
-            if (optionalRelativeMarginParameters.get().getPtdfApproximation().shouldUpdatePtdfWithTopologicalChange()) {
-                sensitivityComputerBuilder.withPtdfsResults(toolProvider.getAbsolutePtdfSumsComputation(), flowCnecs);
-            } else {
-                sensitivityComputerBuilder.withPtdfsResults(initialFlowResult);
+            Optional<SearchTreeRaoRelativeMarginsParameters> optionalRelativeMarginParameters = searchTreeParameters.getRelativeMarginsParameters();
+            if (optionalRelativeMarginParameters.isPresent()) {
+                if (optionalRelativeMarginParameters.get().getPtdfApproximation().shouldUpdatePtdfWithTopologicalChange()) {
+                    sensitivityComputerBuilder.withPtdfsResults(toolProvider.getAbsolutePtdfSumsComputation(), flowCnecs);
+                } else {
+                    sensitivityComputerBuilder.withPtdfsResults(initialFlowResult);
+                }
             }
         }
         if (appliedCurativeRemedialActions != null) {
