@@ -7,6 +7,8 @@
 
 package com.powsybl.openrao.searchtreerao.result.impl;
 
+import com.powsybl.openrao.data.crac.api.State;
+import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
@@ -15,16 +17,22 @@ import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public class LinearProblemResult extends RangeActionActivationResultImpl {
+    private static final double ACTIVATION_THRESHOLD = 1e-6;
 
-    public LinearProblemResult(LinearProblem linearProblem, RangeActionSetpointResult prePerimeterSetpoints, OptimizationPerimeter optimizationContext) {
-        super(prePerimeterSetpoints);
+    public LinearProblemResult(LinearProblem linearProblem, RangeActionSetpointResult prePerimeterSetPoints, OptimizationPerimeter optimizationContext) {
+        super(prePerimeterSetPoints);
         optimizationContext.getRangeActionsPerState().forEach((state, rangeActions) ->
             rangeActions.forEach(rangeAction -> {
-                if (linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction, state).solutionValue() > 1e-6) {
+                if (wasRangeActionActivated(linearProblem, rangeAction, state)) {
                     double setPoint = linearProblem.getRangeActionSetpointVariable(rangeAction, state).solutionValue();
                     putResult(rangeAction, state, setPoint);
                 }
             })
         );
+    }
+
+    private static boolean wasRangeActionActivated(LinearProblem linearProblem, RangeAction<?> rangeAction, State state) {
+        return linearProblem.getRangeActionVariationVariable(rangeAction, state, LinearProblem.VariationDirectionExtension.UPWARD).solutionValue()
+            + linearProblem.getRangeActionVariationVariable(rangeAction, state, LinearProblem.VariationDirectionExtension.DOWNWARD).solutionValue() > ACTIVATION_THRESHOLD;
     }
 }
