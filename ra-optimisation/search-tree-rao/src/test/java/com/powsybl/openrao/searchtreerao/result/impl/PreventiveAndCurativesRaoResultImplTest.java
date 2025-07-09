@@ -8,6 +8,7 @@
 package com.powsybl.openrao.searchtreerao.result.impl;
 
 import com.powsybl.contingency.ContingencyElementType;
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.*;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.range.RangeType;
@@ -185,6 +186,7 @@ class PreventiveAndCurativesRaoResultImplTest {
             double flow = -1 * (FLOW_PER_INSTANT.get(cnec.getState().getInstant().getKind()) + Double.parseDouble(cnec.getId().charAt(5) + ""));
             when(initialResult.getFlow(cnec, ONE, MEGAWATT)).thenReturn(flow);
             when(initialResult.getMargin(cnec, ONE, MEGAWATT)).thenReturn(flow);
+            when(initialResult.getLoopFlow(cnec, ONE, MEGAWATT)).thenThrow(new OpenRaoException("No commercial flow"));
         });
         when(initialResult.getFunctionalCost()).thenReturn(34.); //cnec4 at curative
         when(initialResult.getVirtualCost("sensitivity-failure-cost")).thenReturn(34.1);

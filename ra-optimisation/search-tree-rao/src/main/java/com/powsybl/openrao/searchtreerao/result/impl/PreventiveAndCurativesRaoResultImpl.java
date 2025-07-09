@@ -297,11 +297,7 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
                 .findAny().map(s -> postContingencyResults.get(s).getOptimizationResult()).orElse(null);
         }
         if (optimizedInstant.isCurative()) {
-            if (postContingencyResults.containsKey(state)) {
-                return postContingencyResults.get(state).getOptimizationResult();
-            } else {
-                return null;
-            }
+            return postContingencyResults.get(state).getOptimizationResult();
         }
         throw new OpenRaoException(String.format("Optimized instant %s was not recognized", optimizedInstant));
     }
