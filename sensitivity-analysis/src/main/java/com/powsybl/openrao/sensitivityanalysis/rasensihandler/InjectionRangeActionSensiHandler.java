@@ -41,6 +41,12 @@ public class InjectionRangeActionSensiHandler implements RangeActionSensiHandler
     }
 
     @Override
+    public double getSensitivityOnIntensity(FlowCnec cnec, TwoSides side, SystematicSensitivityResult sensitivityResult) {
+        return sensitivityResult.getSensitivityOnIntensity(getPositiveGlskMapId(), cnec, side) * getKeySum(getPositiveGlskMap())
+            - sensitivityResult.getSensitivityOnIntensity(getNegativeGlskMapId(), cnec, side) * getKeySum(getNegativeGlskMap());
+    }
+
+    @Override
     public void checkConsistency(Network network) {
         injectionRangeAction.getInjectionDistributionKeys().forEach((k, v) -> {
             Identifiable<?> identifiable = network.getIdentifiable(k.getId());
