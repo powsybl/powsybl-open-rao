@@ -88,7 +88,7 @@ class LoopFlowViolationCostEvaluatorTest {
     }
 
     private void buildLoopFlowViolationCostEvaluator() {
-        evaluator = new LoopFlowViolationCostEvaluator(Set.of(cnec1, cnec2), initialLoopFlows, parameters.getAcceptableIncrease(), parametersExtension.getViolationCost());
+        evaluator = new LoopFlowViolationCostEvaluator(Set.of(cnec1, cnec2), initialLoopFlows, parameters.getAcceptableIncrease(), parametersExtension.getViolationCost(), Unit.MEGAWATT);
     }
 
     @Test
