@@ -18,10 +18,10 @@ Feature: US 11.3: Handle mnecs in search tree with only network actions
     And the flow on cnec "NNL2AA1  BBE3AA1  1 - preventive" after PRA should be 2684.7 A
 
   @fast @rao @mock @ac @preventive-only @mnec
-  Scenario: US 11.3.2: margin on MNEC should stay positive (initial margin > 180MW)
+Scenario: US 11.3.2: margin on MNEC should stay positive (initial margin > 260 A)
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic11/ls_mnec_networkAction_3_2.json"
-    Given configuration file is "epic11/RaoParameters_maxMargin_ampere_ac_mnecDimin180.json"
+    Given configuration file is "epic11/RaoParameters_maxMargin_ampere_ac_mnecDimin260.json"
     When I launch search_tree_rao
     Then the remedial action "Open line FR1- FR2" is used in preventive
     And line "FFR1AA1  FFR2AA1  1" in network file with PRA has connection status to "false"
@@ -35,7 +35,7 @@ Feature: US 11.3: Handle mnecs in search tree with only network actions
 
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic11/ls_mnec_networkAction_3_3.json"
-    Given configuration file is "epic11/RaoParameters_maxMargin_ampere_ac_mnecDimin180.json"
+    Given configuration file is "epic11/RaoParameters_maxMargin_ampere_ac_mnecDimin260.json"
     When I launch search_tree_rao
     # The mnec is NNL2AA1  BBE3AA1  1 - preventive with initial initial margin is -725.4 A
     Then the remedial action "PST BE setpoint" is used in preventive
