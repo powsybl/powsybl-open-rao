@@ -99,6 +99,7 @@ class MaxLoopFlowFillerTest extends AbstractFillerTest {
             initialFlowResult,
             loopFlowParameters,
             loopFlowParametersExtension,
+            Unit.MEGAWATT,
             null
         );
     }
@@ -226,6 +227,7 @@ class MaxLoopFlowFillerTest extends AbstractFillerTest {
             initialFlowResult,
             loopFlowParameters,
             loopFlowParametersExtension,
+            Unit.MEGAWATT,
             null
         );
 
@@ -284,6 +286,7 @@ class MaxLoopFlowFillerTest extends AbstractFillerTest {
             initialFlowResult,
             loopFlowParameters,
             loopFlowParametersExtension,
+            Unit.MEGAWATT,
             null
         );
         setCommercialFlowValue(49);
