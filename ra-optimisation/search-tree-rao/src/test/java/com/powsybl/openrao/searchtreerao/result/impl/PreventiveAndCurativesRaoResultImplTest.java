@@ -32,7 +32,6 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static com.powsybl.iidm.network.TwoSides.ONE;
 import static com.powsybl.openrao.commons.Unit.*;
