@@ -111,37 +111,6 @@ public class SystematicSensitivityResult {
         return this;
     }
 
-    public SystematicSensitivityResult postTreatIntensities() {
-        postTreatIntensitiesOnState(nStateResult);
-        postContingencyResults.values().forEach(map -> map.values().forEach(this::postTreatIntensitiesOnState));
-        return this;
-    }
-
-    /**
-     * Sensitivity providers return absolute values for intensities
-     * In case flows are negative, we shall replace this value by its opposite
-     */
-    private void postTreatIntensitiesOnState(StateResult stateResult) {
-        stateResult.getReferenceFlows()
-            .forEach((neId, sideAndFlow) -> {
-                if (stateResult.getReferenceIntensities().containsKey(neId)) {
-                    sideAndFlow.forEach((side, flow) -> {
-                        if (flow < 0) {
-                            stateResult.getReferenceIntensities().get(neId).put(side, -stateResult.getReferenceIntensities().get(neId).get(side));
-                        }
-                    });
-                }
-                if (stateResult.getIntensitySensitivities().containsKey(neId)) {
-                    sideAndFlow.forEach((side, flow) -> {
-                        if (flow < 0) {
-                            Map<String, Map<TwoSides, Double>> sensitivities = stateResult.getIntensitySensitivities().get(neId);
-                            sensitivities.forEach((actionId, sideToSensi) -> sensitivities.get(actionId).put(side, -sideToSensi.get(side)));
-                        }
-                    });
-                }
-            });
-    }
-
     public SystematicSensitivityResult postTreatHvdcs(Network network, Map<String, HvdcRangeAction> hvdcRangeActions) {
         postTreatHvdcsOnState(network, hvdcRangeActions, nStateResult);
         postContingencyResults.values().forEach(stringStateResultMap ->
@@ -206,6 +175,7 @@ public class SystematicSensitivityResult {
                 .computeIfAbsent(factor.getVariableId(), k -> new EnumMap<>(TwoSides.class))
                 .putIfAbsent(side, sensitivity * activePowerCoefficient);
         } else if (factor.getFunctionType().equals(SensitivityFunctionType.BRANCH_CURRENT_1) || factor.getFunctionType().equals(SensitivityFunctionType.BRANCH_CURRENT_2)) {
+            // TODO Change sign  of the reference and sensi depending on sign of flow in mw ?
             stateResult.getReferenceIntensities()
                 .computeIfAbsent(factor.getFunctionId(), k -> new EnumMap<>(TwoSides.class))
                 .putIfAbsent(side, reference);
