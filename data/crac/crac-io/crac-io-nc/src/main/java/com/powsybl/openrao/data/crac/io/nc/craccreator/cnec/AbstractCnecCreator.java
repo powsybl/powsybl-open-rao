@@ -7,13 +7,16 @@
 package com.powsybl.openrao.data.crac.io.nc.craccreator.cnec;
 
 import com.powsybl.contingency.Contingency;
+import com.powsybl.iidm.network.IdentifiableType;
+import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.openrao.data.crac.io.commons.OpenRaoImportException;
+import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
 import com.powsybl.openrao.data.crac.io.nc.craccreator.NcCracUtils;
 import com.powsybl.openrao.data.crac.io.nc.objects.AssessedElement;
 import com.powsybl.openrao.data.crac.io.nc.parameters.NcCracCreationParameters;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.cnec.CnecAdder;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnecAdder;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.crac.io.commons.api.ElementaryCreationContext;
 import com.powsybl.openrao.data.crac.io.commons.api.StandardElementaryCreationContext;
@@ -91,10 +94,11 @@ public abstract class AbstractCnecCreator {
         return "%s (%s) - %s%s".formatted(nativeAssessedElement.getUniqueName(), nativeAssessedElement.mrid(), contingency == null ? "" : contingency.getName().orElse(contingency.getId()) + " - ", instantId);
     }
 
-    protected String getCnecName(String instantId, Contingency contingency, TwoSides side, int acceptableDuration) {
+    protected String getCnecName(String instantId, Contingency contingency, int acceptableDuration) {
         // Need to include the mRID in the name in case the AssessedElement's name is not unique
         // Add TATL duration in case to CNECs of the same instant are created with different TATLs
-        return "%s (%s) - %s%s - %s%s".formatted(nativeAssessedElement.getUniqueName(), nativeAssessedElement.mrid(), contingency == null ? "" : contingency.getName().orElse(contingency.getId()) + " - ", instantId, side.name(), acceptableDuration == Integer.MAX_VALUE ? "" : " - TATL " + acceptableDuration);
+        String operationalLimitSuffix = acceptableDuration == Integer.MAX_VALUE ? "PATL" : "TATL " + acceptableDuration;
+        return getCnecName(instantId, contingency) + " - " + operationalLimitSuffix;
     }
 
     protected void addCnecBaseInformation(CnecAdder<?> cnecAdder, Contingency contingency, String instantId) {
@@ -102,8 +106,8 @@ public abstract class AbstractCnecCreator {
         initCnecAdder(cnecAdder, contingency, instantId, cnecName);
     }
 
-    protected void addCnecBaseInformation(CnecAdder<?> cnecAdder, Contingency contingency, String instantId, TwoSides side, int acceptableDuration) {
-        initCnecAdder(cnecAdder, contingency, instantId, getCnecName(instantId, contingency, side, acceptableDuration));
+    protected void addCnecBaseInformation(CnecAdder<?> cnecAdder, Contingency contingency, String instantId, int acceptableDuration) {
+        initCnecAdder(cnecAdder, contingency, instantId, getCnecName(instantId, contingency, acceptableDuration));
     }
 
     private void initCnecAdder(CnecAdder<?> cnecAdder, Contingency contingency, String instantId, String cnecName) {
@@ -133,5 +137,15 @@ public abstract class AbstractCnecCreator {
             return borderPerEic.getOrDefault(NcCracUtils.getEicFromUrl(nativeAssessedElement.overlappingZone()), null);
         }
         return borderPerTso.getOrDefault(NcCracUtils.getTsoNameFromUrl(nativeAssessedElement.operator()), null);
+    }
+
+    protected VoltageLevel getVoltageLevel(Identifiable<?> networkElement) {
+        if (networkElement.getType().equals(IdentifiableType.BUS)) {
+            return network.getBusBreakerView().getBus(networkElement.getId()).getVoltageLevel();
+        }
+        if (networkElement.getType().equals(IdentifiableType.BUSBAR_SECTION)) {
+            return network.getBusbarSection(networkElement.getId()).getTerminal().getVoltageLevel();
+        }
+        throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, writeAssessedElementIgnoredReasonMessage("the network element " + networkElement.getId() + " is neither a bus nor a bus bar section"));
     }
 }

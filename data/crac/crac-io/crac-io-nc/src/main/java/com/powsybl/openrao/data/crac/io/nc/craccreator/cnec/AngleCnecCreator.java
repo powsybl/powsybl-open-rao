@@ -17,7 +17,6 @@ import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.crac.io.commons.api.ElementaryCreationContext;
 import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
 import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.data.crac.io.commons.OpenRaoImportException;
 
@@ -70,10 +69,7 @@ public class AngleCnecCreator extends AbstractCnecCreator {
         if (networkElement == null) {
             throw new OpenRaoImportException(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, writeAssessedElementIgnoredReasonMessage("the angle limit equipment " + terminalId + " is missing in network"));
         }
-        if (!networkElement.getType().equals(IdentifiableType.BUS) && !networkElement.getType().equals(IdentifiableType.BUSBAR_SECTION)) {
-            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, writeAssessedElementIgnoredReasonMessage("the network element " + networkElement.getId() + " is not a bus bar section"));
-        }
-        return networkElement.getId();
+        return getVoltageLevel(networkElement).getId();
     }
 
     private void addAngleLimitThreshold(AngleCnecAdder angleCnecAdder) {

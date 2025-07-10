@@ -61,7 +61,7 @@ fields read by OpenRAO are displayed in the following chart.
 
 > Fields preceded by a "~" are optional.
 
-![NC profiles usage overview](/_static/img/CSA-profiles.png)
+![NC profiles usage overview](../../_static/img/CSA-profiles.png)
 
 ## Instants
 
@@ -354,13 +354,13 @@ Below are some examples of cases using different sets of TATLs:
 
 ::::{tabs}
 :::{group-tab} General Case
-![Association TATL-instant](/_static/img/tatl-instant.png){.forced-white-background}
+![Association TATL-instant](../../_static/img/tatl-instant.png){.forced-white-background}
 :::
 :::{group-tab} No TATL 300
-![Association TATL-instant](/_static/img/tatl-instant-no-tatl-300.png){.forced-white-background}
+![Association TATL-instant](../../_static/img/tatl-instant-no-tatl-300.png){.forced-white-background}
 :::
 :::{group-tab} No TATL 600
-![Association TATL-instant](/_static/img/tatl-instant-no-tatl-600.png){.forced-white-background}
+![Association TATL-instant](../../_static/img/tatl-instant-no-tatl-600.png){.forced-white-background}
 :::
 ::::
 
@@ -542,8 +542,6 @@ If the remedial action is of kind `curative` and its `isManual` attribute is pre
 > Preventive automatons are not supported by OpenRAO so preventive remedial actions with `isManual` set to false will be ignored.
 
 Finally, the `timeToImplement` is converted to a number of seconds and used as the remedial action's speed.
-
-> This `timeToImplement` may also be used to convert a curative remedial action to an auto remedial action (see [this section](#using-gridstatealterationremedialaction-and-timetoimplement)).
 
 In the following, we describe the different types of remedial actions that can be imported in OpenRAO from the NC
 profiles. The general pattern is to link a `GridStateAlteration` object which references the parent remedial

@@ -180,9 +180,12 @@ class IteratingLinearOptimizerTest {
             public Object answer(InvocationOnMock invocation) {
                 count += 1;
                 if (statuses.get(count - 1) == LinearProblemStatus.OPTIMAL) {
-                    OpenRaoMPVariable absVariationMpVarMock = Mockito.mock(OpenRaoMPVariable.class);
-                    when(absVariationMpVarMock.solutionValue()).thenReturn(Math.abs(setPoints.get(count - 1)));
-                    when(linearProblem.getAbsoluteRangeActionVariationVariable(rangeAction, optimizedState)).thenReturn(absVariationMpVarMock);
+                    OpenRaoMPVariable upwardVariationMpVarMock = Mockito.mock(OpenRaoMPVariable.class);
+                    OpenRaoMPVariable downwardVariationMpVarMock = Mockito.mock(OpenRaoMPVariable.class);
+                    when(upwardVariationMpVarMock.solutionValue()).thenReturn(Math.abs(setPoints.get(count - 1)));
+                    when(downwardVariationMpVarMock.solutionValue()).thenReturn(0.0);
+                    when(linearProblem.getRangeActionVariationVariable(rangeAction, optimizedState, LinearProblem.VariationDirectionExtension.UPWARD)).thenReturn(upwardVariationMpVarMock);
+                    when(linearProblem.getRangeActionVariationVariable(rangeAction, optimizedState, LinearProblem.VariationDirectionExtension.DOWNWARD)).thenReturn(downwardVariationMpVarMock);
                     OpenRaoMPVariable setpointMpVarMock = Mockito.mock(OpenRaoMPVariable.class);
                     when(setpointMpVarMock.solutionValue()).thenReturn(setPoints.get(count - 1));
                     when(linearProblem.getRangeActionSetpointVariable(rangeAction, optimizedState)).thenReturn(setpointMpVarMock);

@@ -132,7 +132,19 @@ class LinearProblemResultTest {
                 ra3, Mockito.mock(OpenRaoMPVariable.class),
                 ra4, Mockito.mock(OpenRaoMPVariable.class)));
 
-        Map<State, Map<RangeAction<?>, OpenRaoMPVariable>> setPointVariationVariablePerRangeAction = Map.of(
+        Map<State, Map<RangeAction<?>, OpenRaoMPVariable>> upwardSetPointVariationVariablePerRangeAction = Map.of(
+            preventiveState, Map.of(
+                pst1, Mockito.mock(OpenRaoMPVariable.class),
+                pst2, Mockito.mock(OpenRaoMPVariable.class),
+                ra3, Mockito.mock(OpenRaoMPVariable.class),
+                ra4, Mockito.mock(OpenRaoMPVariable.class)),
+            aCurativeState, Map.of(
+                pst1, Mockito.mock(OpenRaoMPVariable.class),
+                pst2, Mockito.mock(OpenRaoMPVariable.class),
+                ra3, Mockito.mock(OpenRaoMPVariable.class),
+                ra4, Mockito.mock(OpenRaoMPVariable.class)));
+
+        Map<State, Map<RangeAction<?>, OpenRaoMPVariable>> downwardSetPointVariationVariablePerRangeAction = Map.of(
             preventiveState, Map.of(
                 pst1, Mockito.mock(OpenRaoMPVariable.class),
                 pst2, Mockito.mock(OpenRaoMPVariable.class),
@@ -149,9 +161,12 @@ class LinearProblemResultTest {
             Mockito.when(linearProblem.getRangeActionSetpointVariable(ra, state)).thenReturn(setPointVariable);
             Mockito.when(setPointVariable.solutionValue()).thenReturn(setPointPerRangeAction.get(state).get(ra));
 
-            OpenRaoMPVariable setPointVariationVariable = setPointVariationVariablePerRangeAction.get(state).get(ra);
-            Mockito.when(linearProblem.getAbsoluteRangeActionVariationVariable(ra, state)).thenReturn(setPointVariationVariable);
-            Mockito.when(setPointVariationVariable.solutionValue()).thenReturn(setPointVariationPerRangeAction.get(state).get(ra));
+            OpenRaoMPVariable upwardSetPointVariationVariable = upwardSetPointVariationVariablePerRangeAction.get(state).get(ra);
+            OpenRaoMPVariable downwardSetPointVariationVariable = downwardSetPointVariationVariablePerRangeAction.get(state).get(ra);
+            Mockito.when(linearProblem.getRangeActionVariationVariable(ra, state, LinearProblem.VariationDirectionExtension.UPWARD)).thenReturn(upwardSetPointVariationVariable);
+            Mockito.when(linearProblem.getRangeActionVariationVariable(ra, state, LinearProblem.VariationDirectionExtension.DOWNWARD)).thenReturn(downwardSetPointVariationVariable);
+            Mockito.when(upwardSetPointVariationVariable.solutionValue()).thenReturn(setPointVariationPerRangeAction.get(state).get(ra));
+            Mockito.when(downwardSetPointVariationVariable.solutionValue()).thenReturn(0.0);
         }));
 
         Mockito.when(pst1.convertAngleToTap(1.5)).thenReturn(3);

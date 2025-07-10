@@ -2,7 +2,7 @@
 title: Internal JSON CRAC format
 ---
 
-# Internal JSON CRAC format
+# JSON CRAC format
 
 ## Introduction
 
@@ -24,7 +24,8 @@ network elements that might be critical after specific outages, and the remedial
   - or using the OpenRAO internal Json CRAC format.
 
 Note that other pages of this documentation describe how the OpenRAO CRAC object model can be built with other standard 
-CRAC formats, such as the [FlowBasedConstraint](fbconstraint) format, the [CSE](cse) Format, and the [CIM](cim) format.
+CRAC formats, such as the [FlowBasedConstraint](fbconstraint.md) format, the [CSE](cse.md) Format, the [CIM](cim.md)
+format and the [NC](nc.md) format.
 
 ## Full CRAC examples
 Example of complete CRACs are given below
@@ -32,7 +33,7 @@ Example of complete CRACs are given below
 ::::{tabs}
 :::{group-tab} JAVA creation API
 The creation of a small CRAC is for instance made in this test class of powsybl-open-rao repository:  
-[example on GitHub](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac/crac-impl/src/test/java/com/powsybl/openrao/data/cracimpl/utils/CommonCracCreation.java)
+[example on GitHub](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac/crac-impl/src/test/java/com/powsybl/openrao/data/crac/impl/utils/CommonCracCreation.java)
 :::
 :::{group-tab} JSON file
 An example of a small CRAC in the json internal format of OpenRAO is given below:  
@@ -164,10 +165,10 @@ The instant is a moment in the chronology of a contingency event. Four instants 
   curative remedial action. A CRAC may contain only one instant of kind outage.
 - the **auto** instant kind occurs after a contingency happens, and spans through the activation of automatic curative
   remedial actions ("automatons") that are triggered without any human intervention. These automatons are pre-configured
-  to reduce some constraints, even though they can generate constraints elsewhere in the network. A CRAC may contain any
-  number of instants of kind auto.
+  to reduce some constraints, even though they can generate constraints elsewhere in the network. A CRAC may contain
+  only one instant of kind auto.
 - the **curative** instant kind occurs after a contingency happens, after enough time that would allow the human activation
-  of curative remedial actions. A CRAC may contain any number of instants of kind auto.
+  of curative remedial actions. A CRAC may contain any number of instants of kind curative.
 
 > 💡  **NOTE**  
 > Flow / angle / voltage limits on critical network elements are usually different for each instant.  
@@ -178,7 +179,7 @@ The instant is a moment in the chronology of a contingency event. Four instants 
 > more restrictive permanent limits (PATL).  
 > OpenRAO allows a different limit setting for different instants on critical network elements (see [CNECs](#cnecs)).
 >
-> ![patl-vs-tatl](/_static/img/patl-tatl.png){.forced-white-background}
+> ![patl-vs-tatl](../../_static/img/patl-tatl.png){.forced-white-background}
 > (**PRA** = Preventive Remedial Action,
 > **ARA** = Automatic Remedial Action,
 > **CRA** = Curative Remedial Action)
@@ -191,7 +192,7 @@ The OpenRAO object model includes the notion of "state". A state is either:
 
 The scheme below illustrates these notions of instant and state. It highlights the combinations of the situations which can be described in a CRAC, with a base-case situation, but also variants of this situation occurring at different moments in time after different probable and hypothetical contingencies.
 
-![Instants & states](/_static/img/States_AUTO.png)
+![Instants & states](../../_static/img/States_AUTO.png)
 
 States are not directly added to a OpenRAO CRAC object model; they are implicitly created by business objects
 that are described in the following paragraphs ([CNECs](#cnecs) and [remedial actions](#remedial-actions-and-usages-rules)).
@@ -243,11 +244,11 @@ The contingency is omitted if the CNEC is defined at the preventive instant.
 
 > 💡  **NOTE**  
 > A OpenRAO CNEC is associated to one instant and one contingency only. This is not the case for all native CRAC formats:
-> for instance, in the [CORE merged-CB CRAC format](fbconstraint), the post-outage CNECs are implicitly defined for the
+> for instance, in the [CORE merged-CB CRAC format](fbconstraint.md), the post-outage CNECs are implicitly defined for the
 > two instants outage and curative.
 >
 > However, we are talking here about the internal OpenRAO CRAC format, which has its own independent conventions, and which
-> is imported from native CRAC formats using [CRAC importers](import).
+> is imported from native CRAC formats using [CRAC importers](import.md).
 
 A CNEC has an operator, i.e. the identifier of the TSO operating its network element.
 It may also have a border, which can be useful on some processes to know where the line is located and so which remedial actions could be useful for it.
@@ -306,7 +307,7 @@ flow of the FlowCnec should ideally remain.
   Therefore, for FlowCnecs that only have one minimum or one maximum value, the flow is implicitly monitored in
   only one direction (see example 1 of picture below).
 
-![FlowCnec-Threshold](/_static/img/flowcnec.png)
+![FlowCnec-Threshold](../../_static/img/flowcnec.png)
 
 
 In the examples above, all the thresholds are defined in megawatt. If the thresholds are defined in ampere, or in %Imax,
@@ -434,11 +435,11 @@ crac.newFlowCnec()
 ::::
 
 #### Loop-flow extension
-When a FlowCnec carries a LoopFlowThreshold extension (and if [loop-flow constraints are enabled in the RAO](/parameters.md#loop-flow-extension)),
-its loop-flow is monitored by the RAO, that will keep it [under its threshold](/castor/special-features/loop-flows.md)
+When a FlowCnec carries a LoopFlowThreshold extension (and if [loop-flow constraints are enabled in the RAO](../../parameters/implementation-specific-parameters.md#loop-flow-optional-parameter)),
+its loop-flow is monitored by the RAO, that will keep it [under its threshold](../../algorithms/castor/special-features/loop-flows.md)
 when optimising remedial actions.  
 The loop-flow extension defines the loop-flow threshold to be respected by the RAO (even though the initial loop-flow
-value on this CNEC may override this user-defined thrshold, as explained [here](/castor/linear-problem/max-loop-flow-filler.md)).
+value on this CNEC may override this user-defined thrshold, as explained [here](../../algorithms/castor/linear-problem/special-features/max-loop-flow-filler.md)).
 
 ::::{tabs}
 :::{group-tab} JAVA creation API
@@ -501,7 +502,7 @@ An AngleCnec has the following specificities:
 
 > 💡  **NOTE**
 > AngleCnecs currently cannot be optimised by the RAO, but they are monitored by an independent
-> [Monitoring](/castor/monitoring.md) module with **ANGLE** as physical parameter.
+> [Monitoring](../../algorithms/monitoring.md) module with **ANGLE** as physical parameter.
 
 #### Creating an AngleCnec
 In OpenRAO, AngleCnecs can be created by the java API, or written in the json CRAC internal format, as shown below:
@@ -610,7 +611,7 @@ A "VoltageCnec" is a CNEC on which we monitor the voltage on substations. It has
 
 > 💡  **NOTE**
 > VoltageCnecs currently cannot be optimised by the RAO, but they are monitored by an independent
-> [VoltageMonitoring](/castor/monitoring.md) module with **VOLTAGE** as physical parameter.
+> [VoltageMonitoring](../../algorithms/monitoring.md) module with **VOLTAGE** as physical parameter.
 
 #### Creating a VoltageCnec
 In OpenRAO, VoltageCnecs can be created by the java API, or written in the json CRAC internal format, as shown below:
@@ -1152,7 +1153,7 @@ crac.newPstRangeAction()
     .add();
 ~~~
 In that case, the validity domain of the PST (intersection of its ranges and feasible taps) is [1; 3]
-Note that the [PstHelper utility class](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac-io/crac-io-util/src/main/java/com/powsybl/openrao/data/cracio/common/PstHelper.java) can ease the creation of the TapToAngleConversionMap.
+Note that the [PstHelper utility class](https://github.com/powsybl/powsybl-open-rao/blob/main/data/crac/crac-io/crac-io-commons/src/main/java/com/powsybl/openrao/data/crac/io/commons/PstHelper.java) can ease the creation of the TapToAngleConversionMap.
 :::
 :::{group-tab} JSON file
 ~~~json
@@ -1277,7 +1278,7 @@ Each impacted generator or load has an associated "key", which is a coefficient 
 This range action is mainly used to represent an HVDC line in an AC equivalent model (where the line is disconnected and
 replaced by two injections, one on each side of the line, with opposite keys of 1 and -1).
 
-![HVDC AC model](/_static/img/HVDC_AC_model.png){.forced-white-background}
+![HVDC AC model](../../_static/img/HVDC_AC_model.png){.forced-white-background}
 
 Two or more [aligned injection range actions](#range-actions) must have the same (random) group ID defined. The RAO will
 make sure their optimized set-points are always equal.
