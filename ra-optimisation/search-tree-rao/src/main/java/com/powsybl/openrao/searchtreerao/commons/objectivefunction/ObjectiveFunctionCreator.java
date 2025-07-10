@@ -81,7 +81,8 @@ public class ObjectiveFunctionCreator extends AbstractObjectiveFunctionCreator {
                     loopFlowCnecs,
                     initialFlowResult,
                     loopFlowParametersOptional.get().getAcceptableIncrease(),
-                    loopFlowParametersExtensionOptional.get().getViolationCost()
+                    loopFlowParametersExtensionOptional.get().getViolationCost(),
+                    raoParameters.getObjectiveFunctionParameters().getUnit()
                 ));
             }
         }
