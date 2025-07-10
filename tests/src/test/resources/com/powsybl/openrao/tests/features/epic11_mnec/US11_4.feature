@@ -39,13 +39,16 @@ Feature: US 11.4: Handle mnecs in search tree with range actions and network act
   Scenario: US 11.4.3: Search Tree RAO - 2 MNECs with one curative
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic11/ls_mixed_4_3.json"
-    Given configuration file is "epic11/RaoParameters_maxMargin_ampere_ac_mnecDimin20.json"
+    Given configuration file is "epic11/RaoParameters_maxMargin_ampere_ac_mnecDimin30.json"
     When I launch rao
     Then the remedial action "Open line NL1-NL2" is used in preventive
     And line "NNL1AA1  NNL2AA1  1" in network file with PRA has connection status to "false"
     And the tap of PstRangeAction "PRA_PST_BE" should be -9 in preventive
     And PST "BBE2AA1  BBE3AA1  1" in network file with PRA is on tap -9
     And 2 remedial actions are used in preventive
+    And the worst margin is -176.0 A on cnec "FFR2AA1  FFR3AA1  1 - preventive"
+    And the flow on cnec "NNL2AA1  NNL3AA1  1 - preventive" after PRA should be 1544.0 A
+    And the flow on cnec "DDE1AA1  DDE2AA1  1 - Contingency FR1 FR3 - curative" after PRA should be 535.0 A
     And the worst margin is -119.0 MW on cnec "FFR2AA1  FFR3AA1  1 - preventive"
     And the flow on cnec "NNL2AA1  NNL3AA1  1 - preventive" after PRA should be 1069.0 MW on side 1
     And the flow on cnec "DDE1AA1  DDE2AA1  1 - Contingency FR1 FR3 - curative" after PRA should be -370.0 MW on side 1
@@ -70,8 +73,9 @@ Feature: US 11.4: Handle mnecs in search tree with range actions and network act
   Scenario: US 11.4.4.b: margin on MNEC should stay positive
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic11/MergedCB_4_4.xml"
-    Given configuration file is "epic11/RaoParameters_maxMargin_ampere_ac_mnecDimin20.json"
+    Given configuration file is "epic11/RaoParameters_maxMargin_ampere_ac_mnecDimin30.json"
     When I launch rao at "2019-01-08 12:00"
+    # The mnec is NL2-BE3-D - preventive
     Then the remedial action "Open line NL1-NL2" is used in preventive
     And line "NNL1AA1  NNL2AA1  1" in network file with PRA has connection status to "false"
     And the tap of PstRangeAction "PRA_PST_BE" should be -11 in preventive
