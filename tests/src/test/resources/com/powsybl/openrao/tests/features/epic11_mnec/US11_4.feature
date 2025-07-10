@@ -25,7 +25,7 @@ Feature: US 11.4: Handle mnecs in search tree with range actions and network act
   Scenario: US 11.4.2: margin on MNEC should stay positive
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic11/ls_mixed_4_2.json"
-    Given configuration file is "epic11/RaoParameters_maxMargin_ampere_ac_mnecDimin20.json"
+    Given configuration file is "epic11/RaoParameters_maxMargin_ampere_ac_mnecDimin30.json"
     When I launch search_tree_rao
     Then the remedial action "Open line NL1-NL2" is used in preventive
     And line "NNL1AA1  NNL2AA1  1" in network file with PRA has connection status to "false"
