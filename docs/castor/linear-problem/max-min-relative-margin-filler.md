@@ -5,8 +5,8 @@
 | Name                     | Symbol                    | Details                                                                                                                                                                                                                                                                                                                                                |
 |--------------------------|---------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | OptimisedFlowCnecs       | $c \in \mathcal{C} ^{o}$  | Set of FlowCnecs[^1] which are ['optimised'](/input-data/crac/json.md#optimised-and-monitored-cnecs). OptimisedFlowCnecs is a subset of [FlowCnecs](core-problem-filler.md#used-input-data): $\mathcal{C} ^{o} \subset \mathcal{C}$                                                                                                                    |
-| upper threshold          | $f^{+}_{threshold} (c)$   | Upper threshold of FlowCnec $c$, in MW, as defined in the CRAC                                                                                                                                                                                                                                                                                         |
-| lower threshold          | $f^{-}_{threshold} (c)$   | Lower threshold of FlowCnec $c$, in MW, defined in the CRAC                                                                                                                                                                                                                                                                                            |
+| upper threshold          | $f^{+}_{threshold} (c)$   | Upper threshold of FlowCnec $c$, in MW or A  (depending on objective function's unit) , as defined in the CRAC                                                                                                                                                                                                                                         |
+| lower threshold          | $f^{-}_{threshold} (c)$   | Lower threshold of FlowCnec $c$, in MW or A (depending on objective function's unit), defined in the CRAC                                                                                                                                                                                                                                              |
 | nominal voltage          | $U_{nom}(c)$              | Nominal voltage of OptimizedFlowCnec $c$                                                                                                                                                                                                                                                                                                               |
 | Absolute PTDF sum        | $\sigma_{ptdf}(c)$        | Absolute zone to zone PTDF sum[^2] of FlowCnec $c$.                                                                                                                                                                                                                                                                                                    |
 | Highest threshold value  | $MaxRAM$                  | A "bigM" which is computed (by OpenRAO) as the greatest absolute possible value of the CNEC threshold, among all CNECs in the CRAC. <br> It represents the common greatest possible value for a given CNEC's margin (exception made of CNECs only constrained in one direction, but this value should be high enough not to have any effect on those). |
@@ -21,7 +21,7 @@ And $PTDF_{zTos}(z1, c)$, the zone-to-slack PTDF of bidding zone $z1$ on CNEC $c
 
 | Name                                                                   | Symbol               | Details                                                                                                                                                                                                                                                                                                          |
 |------------------------------------------------------------------------|----------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| [type](/parameters.md#type)                                 |                      | This filler is only used if the objective function is MAX_MIN_MARGIN.                                                                                                                                                                                                                                            |
+| [type](/parameters.md#type)                                 |                      | This filler is only used if the objective function is MAX_MIN_REL_MARGIN.                                                                                                                                                                                                                                        |
 | [ptdf-sum-lower-bound](/parameters.md#ptdf-sum-lower-bound) | $\varepsilon_{PTDF}$ | zToz PTDF sum below this value are lifted to the ptdf-sum-lower-bound, to avoid a bad conditionning of the problem where the value of relative margins are very high. <br>*Its impact on the accuracy of the problem is insignificant, as high relative margins do not usually define the min. relative margin.* |
 
 ## Defined optimization variables
@@ -74,7 +74,7 @@ The following constraints define the new $MRM$ variable:
 
 $$
 \begin{equation}
-MRM \leq \frac{f^{+}_{threshold} (c) - F(c)}{\sigma^{\prime}_{ptdf}(c) c^{unit}(c)} + (1 - P) * m_{min}^{relRAM},
+MRM \leq \frac{f^{+}_{threshold} (c) - F(c)}{\sigma^{\prime}_{ptdf}(c)} + (1 - P) * m_{min}^{relRAM},
 \forall c \in \mathcal{C} ^{o}
 \end{equation}
 $$
@@ -83,7 +83,7 @@ $$
 
 $$
 \begin{equation}
-MRM \leq \frac{F(c) - f^{-}_{threshold} (c)}{\sigma\prime_{ptdf}(c) c^{unit}(c)} + (1 - P) * m_{min}^{relRAM}, \forall c
+MRM \leq \frac{F(c) - f^{-}_{threshold} (c)}{\sigma\prime_{ptdf}(c) } + (1 - P) * m_{min}^{relRAM}, \forall c
 \in \mathcal{C} ^{o}
 \end{equation}
 $$
@@ -103,9 +103,6 @@ $$m_{max}^{relRAM} = MaxRAM / \varepsilon_{PTDF}$$
 
 $$m_{min}^{relRAM} = m_{max}^{relRAM} * 5$$
 
-- and the unit conversion coefficient is defined as follows:
-    - If the [objective-function](/parameters.md#objective-function-parameters) is in MW: $c^{unit}(c) = 1$
-    - If it is in AMPERE: $c^{unit}(c) = \frac{U_{nom}(c) \sqrt{3}}{1000}$
 
 Note that an OptimizedFlowCnec might have only one threshold (upper or lower). In that case, only one of the two
 constraints above is defined.
