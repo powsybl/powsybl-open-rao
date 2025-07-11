@@ -48,10 +48,11 @@ public class HvdcRangeActionCreator {
     private final Map<String, Boolean> isDirectionInverted = new HashMap<>();
     private final List<String> raSeriesIds = new ArrayList<>();
     private final Map<String, OpenRaoImportException> exceptions = new HashMap<>();
+    private final String applicationModeMarketObjectStatus;
     boolean isAltered = false;
     String importStatusDetailifIsAltered = "";
 
-    public HvdcRangeActionCreator(Crac crac, Network network, List<Contingency> contingencies, List<String> invalidContingencies, Set<Cnec<?>> cnecs, Country sharedDomain, CimCracCreationParameters cimCracCreationParameters) {
+    public HvdcRangeActionCreator(Crac crac, Network network, List<Contingency> contingencies, List<String> invalidContingencies, Set<Cnec<?>> cnecs, Country sharedDomain, CimCracCreationParameters cimCracCreationParameters, String applicationModeMarketObjectStatus) {
         this.crac = crac;
         this.network = network;
         this.contingencies = contingencies;
@@ -59,6 +60,7 @@ public class HvdcRangeActionCreator {
         this.cnecs = cnecs;
         this.sharedDomain = sharedDomain;
         this.cimCracCreationParameters = cimCracCreationParameters;
+        this.applicationModeMarketObjectStatus = applicationModeMarketObjectStatus;
     }
 
     public void addDirection(RemedialActionSeries remedialActionSeries) {
@@ -211,7 +213,7 @@ public class HvdcRangeActionCreator {
         }
 
         // Usage rules
-        RemedialActionSeriesCreator.addUsageRules(crac, CimConstants.ApplicationModeMarketObjectStatus.AUTO.getStatus(), hvdcRangeActionAdder, contingencies, invalidContingencies, cnecs, sharedDomain);
+        RemedialActionSeriesCreator.addUsageRules(crac, applicationModeMarketObjectStatus, hvdcRangeActionAdder, contingencies, invalidContingencies, cnecs, sharedDomain);
 
         return hvdcRangeActionAdder;
     }
