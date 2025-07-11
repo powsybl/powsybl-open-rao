@@ -127,6 +127,17 @@ public class RangeActionActivationResultImpl implements RangeActionActivationRes
     }
 
     @Override
+    public Map<State, Set<RangeAction<?>>> getActivatedRangeActionsPerState() {
+        Set<State> states = new HashSet<>();
+        elementaryResultMap.values().stream()
+            .map(ElementaryResult::getAllStatesWithActivation)
+            .forEach(states::addAll);
+        Map<State, Set<RangeAction<?>>> activatedRangeActionsPerState = new HashMap<>();
+        states.forEach(state -> activatedRangeActionsPerState.put(state, getActivatedRangeActions(state)));
+        return activatedRangeActionsPerState;
+    }
+
+    @Override
     public double getOptimizedSetpoint(RangeAction<?> rangeAction, State state) {
         computeSetpointsPerStatePerPst();
         String networkElementsIds = concatenateNetworkElementsIds(rangeAction);

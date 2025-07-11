@@ -9,7 +9,7 @@ package com.powsybl.openrao.searchtreerao.result.functionalcostcomputer;
 
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
-import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
+import com.powsybl.openrao.searchtreerao.result.api.ObjectiveFunctionResult;
 
 import java.util.Map;
 
@@ -17,12 +17,12 @@ import java.util.Map;
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
 public class TotalFunctionalCostComputer extends AbstractFunctionalCostComputer {
-    public TotalFunctionalCostComputer(OptimizationResult optimizationResult, Map<State, OptimizationResult> postContingencyResults) {
-        super(optimizationResult, postContingencyResults);
+    public TotalFunctionalCostComputer(ObjectiveFunctionResult initialResult, ObjectiveFunctionResult preventiveResult, Map<State, ? extends ObjectiveFunctionResult> postContingencyResults) {
+        super(initialResult, preventiveResult, postContingencyResults);
     }
 
     @Override
     public double computeFunctionalCost(Instant instant) {
-        return instant == null ? 0.0 : optimizationResult.getFunctionalCost() + streamPostContingencyResultsBeforeInstant(instant).sum();
+        return instant == null ? initialResult.getFunctionalCost() : preventiveResult.getFunctionalCost() + streamPostContingencyResultsBeforeInstant(instant).sum();
     }
 }
