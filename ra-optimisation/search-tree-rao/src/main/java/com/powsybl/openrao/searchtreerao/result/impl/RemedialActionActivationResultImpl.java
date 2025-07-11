@@ -52,6 +52,11 @@ public class RemedialActionActivationResultImpl implements RemedialActionActivat
     }
 
     @Override
+    public Map<State, Set<RangeAction<?>>> getActivatedRangeActionsPerState() {
+        return rangeActionActivationResult.getActivatedRangeActionsPerState();
+    }
+
+    @Override
     public double getOptimizedSetpoint(RangeAction<?> rangeAction, State state) {
         return rangeActionActivationResult.getOptimizedSetpoint(rangeAction, state);
     }
@@ -81,7 +86,13 @@ public class RemedialActionActivationResultImpl implements RemedialActionActivat
         return rangeActionActivationResult.getTapVariation(pstRangeAction, state);
     }
 
-    public static RemedialActionActivationResultImpl empty(RangeActionSetpointResult rangeActionSetpointResult) {
-        return new RemedialActionActivationResultImpl(new RangeActionActivationResultImpl(rangeActionSetpointResult), new NetworkActionsResultImpl(Set.of()));
+    @Override
+    public Map<State, Set<NetworkAction>> getActivatedNetworkActionsPerState() {
+        return networkActionsResult.getActivatedNetworkActionsPerState();
     }
+
+    public static RemedialActionActivationResultImpl empty(RangeActionSetpointResult rangeActionSetpointResult) {
+        return new RemedialActionActivationResultImpl(new RangeActionActivationResultImpl(rangeActionSetpointResult), new NetworkActionsResultImpl(Map.of()));
+    }
+
 }

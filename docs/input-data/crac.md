@@ -8,7 +8,7 @@ crac/json.md
 crac/fbconstraint.md
 crac/cse.md
 crac/cim.md
-crac/csa.md
+crac/nc.md
 crac/creation-context.md
 ```
 
@@ -30,7 +30,7 @@ OpenRAO distinguishes two types of remedial actions, **range actions** and **net
 
 Range actions are actions on the network with a degree of freedom: the choice of a **set-point** within a given range. 
 These actions can be optimised linearly, with some approximations. For more information related to the linear optimisation 
-of range actions in OpenRAO, please refer to the [dedicated documentation page](/castor/linear-problem.md).
+of range actions in OpenRAO, please refer to the [dedicated documentation page](../algorithms/castor/linear-problem.md).
 
 They can be defined on some categories of network elements:
 - Phase Shift Transformer (PST),
@@ -51,7 +51,7 @@ Any 2 or more range actions (of same type) can be aligned into range action "gro
 ### Network action
 
 Network actions are any other kind of action on the network, such as the opening/closing of a network element, setting the tap position of a PST to a given set-point, etc. They can only be activated, or remain inactive.
-They are used in the [search-tree RAO](/castor.md#algorithm) only.  
+They are used in the [search-tree RAO](../algorithms/castor.md#castor-the-rao-algorithm) only.  
 
 One network action can combine one or multiple elementary actions. These are the types of elementary actions handled in OpenRAO:
 

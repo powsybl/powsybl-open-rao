@@ -265,14 +265,6 @@ public final class LinearProblem {
         return solver.getConstraint(pstGroupTapConstraintId(rangeAction, state));
     }
 
-    public OpenRaoMPVariable addAbsoluteRangeActionVariationVariable(double lb, double ub, RangeAction<?> rangeAction, State state) {
-        return solver.makeNumVar(lb, ub, absoluteRangeActionVariationVariableId(rangeAction, state));
-    }
-
-    public OpenRaoMPVariable getAbsoluteRangeActionVariationVariable(RangeAction<?> rangeAction, State state) {
-        return solver.getVariable(absoluteRangeActionVariationVariableId(rangeAction, state));
-    }
-
     public OpenRaoMPConstraint addMinimumMarginConstraint(double lb, double ub, FlowCnec cnec, TwoSides side, MarginExtension belowOrAboveThreshold, Optional<OffsetDateTime> timestamp) {
         return solver.makeConstraint(lb, ub, minimumMarginConstraintId(cnec, side, belowOrAboveThreshold, timestamp));
     }
@@ -466,14 +458,6 @@ public final class LinearProblem {
         return solver.getConstraint(rangeActionSetPointVariationConstraintId(rangeAction, state));
     }
 
-    public OpenRaoMPConstraint addRangeActionAbsoluteVariationConstraint(RangeAction<?> rangeAction, State state) {
-        return solver.makeConstraint(0.0, 0.0, rangeActionAbsoluteVariationConstraintId(rangeAction, state));
-    }
-
-    public OpenRaoMPConstraint getRangeActionAbsoluteVariationConstraint(RangeAction<?> rangeAction, State state) {
-        return solver.getConstraint(rangeActionAbsoluteVariationConstraintId(rangeAction, state));
-    }
-
     public OpenRaoMPConstraint addInjectionBalanceConstraint(State state) {
         return solver.makeConstraint(0.0, 0.0, injectionBalanceConstraintId(state));
     }
@@ -534,6 +518,18 @@ public final class LinearProblem {
 
     public OpenRaoMPConstraint getGeneratorPowerGradientConstraint(String generatorId, OffsetDateTime currentTimestamp, OffsetDateTime previousTimestamp) {
         return solver.getConstraint(generatorPowerGradientConstraintId(generatorId, currentTimestamp, previousTimestamp));
+    }
+
+    public OpenRaoMPVariable addMinMarginShiftedViolationVariable(Optional<OffsetDateTime> timestamp) {
+        return solver.makeNumVar(0, infinity(), minMarginShiftedViolationVariableId(timestamp));
+    }
+
+    public OpenRaoMPVariable getMinMarginShiftedViolationVariable(Optional<OffsetDateTime> timestamp) {
+        return solver.getVariable(minMarginShiftedViolationVariableId(timestamp));
+    }
+
+    public OpenRaoMPConstraint addMinMarginShiftedViolationConstraint(Optional<OffsetDateTime> timestamp, double minMarginUpperBound) {
+        return solver.makeConstraint(minMarginUpperBound, infinity(), minMarginShiftedViolationConstraintId(timestamp));
     }
 
     public double infinity() {

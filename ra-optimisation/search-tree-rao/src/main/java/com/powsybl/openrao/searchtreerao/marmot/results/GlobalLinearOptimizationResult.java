@@ -25,6 +25,7 @@ import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
 import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -34,9 +35,9 @@ import java.util.Set;
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 public class GlobalLinearOptimizationResult implements LinearOptimizationResult {
-    private final FlowResult globalFlowResult;
-    private final SensitivityResult globalSensitivityResult;
-    private final RangeActionActivationResult globalRangeActionActivationResult;
+    private final GlobalFlowResult globalFlowResult;
+    private final GlobalSensitivityResult globalSensitivityResult;
+    private final GlobalRangeActionActivationResult globalRangeActionActivationResult;
     private final ObjectiveFunctionResult globalObjectiveFunctionResult;
     private LinearProblemStatus status;
 
@@ -46,6 +47,18 @@ public class GlobalLinearOptimizationResult implements LinearOptimizationResult 
         this.globalRangeActionActivationResult = new GlobalRangeActionActivationResult(rangeActionActivationResults);
         this.globalObjectiveFunctionResult = objectiveFunction.evaluate(globalFlowResult, new GlobalRemedialActionActivationResult(rangeActionActivationResults, preventiveTopologicalActions));
         this.status = status;
+    }
+
+    public FlowResult getFlowResult(OffsetDateTime timestamp) {
+        return globalFlowResult.getIndividualResult(timestamp);
+    }
+
+    public SensitivityResult getSensitivityResult(OffsetDateTime timestamp) {
+        return globalSensitivityResult.getIndividualResult(timestamp);
+    }
+
+    public RangeActionActivationResult getRangeActionActivationResult(OffsetDateTime timestamp) {
+        return globalRangeActionActivationResult.getIndividualResult(timestamp);
     }
 
     @Override
@@ -128,6 +141,11 @@ public class GlobalLinearOptimizationResult implements LinearOptimizationResult 
     }
 
     @Override
+    public void excludeCnecs(Set<String> cnecsToExclude) {
+        globalObjectiveFunctionResult.excludeCnecs(cnecsToExclude);
+    }
+
+    @Override
     public Set<RangeAction<?>> getRangeActions() {
         return globalRangeActionActivationResult.getRangeActions();
     }
@@ -135,6 +153,11 @@ public class GlobalLinearOptimizationResult implements LinearOptimizationResult 
     @Override
     public Set<RangeAction<?>> getActivatedRangeActions(State state) {
         return globalRangeActionActivationResult.getActivatedRangeActions(state);
+    }
+
+    @Override
+    public Map<State, Set<RangeAction<?>>> getActivatedRangeActionsPerState() {
+        return globalRangeActionActivationResult.getActivatedRangeActionsPerState();
     }
 
     @Override

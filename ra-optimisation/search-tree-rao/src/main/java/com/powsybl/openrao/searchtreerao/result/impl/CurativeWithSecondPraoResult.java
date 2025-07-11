@@ -125,6 +125,11 @@ public class CurativeWithSecondPraoResult implements OptimizationResult {
     }
 
     @Override
+    public Map<State, Set<NetworkAction>> getActivatedNetworkActionsPerState() {
+        return firstCraoResult.getActivatedNetworkActionsPerState();
+    }
+
+    @Override
     public double getFunctionalCost() {
         if (costOptimization) {
             return getActivatedNetworkActions().stream().mapToDouble(networkAction -> networkAction.getActivationCost().orElse(0.0)).sum()
@@ -182,6 +187,13 @@ public class CurativeWithSecondPraoResult implements OptimizationResult {
     }
 
     @Override
+    public void excludeCnecs(Set<String> cnecsToExclude) {
+        firstCraoResult.excludeCnecs(cnecsToExclude);
+        secondPraoResult.excludeCnecs(cnecsToExclude);
+        postCraSensitivityObjectiveResult.excludeCnecs(cnecsToExclude);
+    }
+
+    @Override
     public Set<RangeAction<?>> getRangeActions() {
         // Some range actions can be excluded from first CRAO (for example if they are only available after a constraint)
         // but re-optimised in second PRAO
@@ -196,6 +208,11 @@ public class CurativeWithSecondPraoResult implements OptimizationResult {
         Set<RangeAction<?>> activated = firstCraoResult.getActivatedRangeActions(state).stream().filter(ra -> !isCraIncludedInSecondPreventiveRao(ra)).collect(Collectors.toSet());
         activated.addAll(secondPraoResult.getActivatedRangeActions(state));
         return activated;
+    }
+
+    @Override
+    public Map<State, Set<RangeAction<?>>> getActivatedRangeActionsPerState() {
+        return Map.of(state, getActivatedRangeActions(state));
     }
 
     @Override

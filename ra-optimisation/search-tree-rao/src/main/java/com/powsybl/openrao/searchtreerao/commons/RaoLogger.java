@@ -26,6 +26,7 @@ import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.Optimiza
 import com.powsybl.openrao.searchtreerao.result.api.*;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.Perimeter;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.ContingencyScenario;
+import com.powsybl.openrao.searchtreerao.result.impl.PostPerimeterResult;
 import com.powsybl.openrao.searchtreerao.searchtree.algorithms.Leaf;
 import org.apache.commons.lang3.StringUtils;
 
@@ -41,6 +42,9 @@ import static java.lang.String.format;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public final class RaoLogger {
+    private static final String OUTAGE_DUPLICATE = "OUTAGE_DUPLICATE";
+    private static final String LOG_FICTIONAL_CNEC = "Limiting element is a fictional CNEC that is excluded from final cost computation";
+
     private RaoLogger() {
     }
 
@@ -195,7 +199,7 @@ public final class RaoLogger {
                                                       Perimeter preventivePerimeter,
                                                       OptimizationResult basecaseOptimResult,
                                                       Set<ContingencyScenario> contingencyScenarios,
-                                                      Map<State, OptimizationResult> contingencyOptimizationResults,
+                                                      Map<State, PostPerimeterResult> contingencyOptimizationResults,
                                                       ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction,
                                                       Unit unit,
                                                       int numberOfLoggedElements) {
@@ -206,7 +210,7 @@ public final class RaoLogger {
     public static List<String> getMostLimitingElementsResults(Perimeter preventivePerimeter,
                                                               OptimizationResult basecaseOptimResult,
                                                               Set<ContingencyScenario> contingencyScenarios,
-                                                              Map<State, OptimizationResult> contingencyOptimizationResults,
+                                                              Map<State, PostPerimeterResult> contingencyOptimizationResults,
                                                               ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction,
                                                               Unit unit,
                                                               int numberOfLoggedElements) {
@@ -219,12 +223,12 @@ public final class RaoLogger {
         contingencyScenarios.forEach(contingencyScenario -> {
             Optional<State> automatonState = contingencyScenario.getAutomatonState();
             automatonState.ifPresent(state -> mostLimitingElementsAndMargins.putAll(
-                getMostLimitingElementsAndMargins(contingencyOptimizationResults.get(state), Set.of(state), unit, relativePositiveMargins, numberOfLoggedElements)
+                getMostLimitingElementsAndMargins(contingencyOptimizationResults.get(state).getOptimizationResult(), Set.of(state), unit, relativePositiveMargins, numberOfLoggedElements)
             ));
             contingencyScenario.getCurativePerimeters()
                 .forEach(
                     curativePerimeter -> mostLimitingElementsAndMargins.putAll(
-                        getMostLimitingElementsAndMargins(contingencyOptimizationResults.get(curativePerimeter.getRaOptimisationState()), Set.of(curativePerimeter.getRaOptimisationState()), unit, relativePositiveMargins, numberOfLoggedElements)
+                        getMostLimitingElementsAndMargins(contingencyOptimizationResults.get(curativePerimeter.getRaOptimisationState()).getOptimizationResult(), Set.of(curativePerimeter.getRaOptimisationState()), unit, relativePositiveMargins, numberOfLoggedElements)
                     )
                 );
         });
@@ -361,5 +365,62 @@ public final class RaoLogger {
             .filter(virtualCostName -> raoResult.getVirtualCost(instant, virtualCostName) > 1e-6)
             .collect(Collectors.toMap(Function.identity(),
                 name -> Math.round(raoResult.getVirtualCost(instant, name) * 100.0) / 100.0));
+    }
+
+    public static List<FlowCnec> getSortedFlowCnecs(Perimeter preventivePerimeter,
+                                                    OptimizationResult basecaseOptimResult,
+                                                    Set<ContingencyScenario> contingencyScenarios,
+                                                    Map<State, PostPerimeterResult> contingencyOptimizationResults,
+                                                    ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction,
+                                                    Unit unit) {
+
+        // get list of the most limiting element (preventive, auto and curative perimeter combined)
+        boolean relativePositiveMargins = objectiveFunction.relativePositiveMargins();
+
+        Map<FlowCnec, Double> mostLimitingElementsAndMargins =
+            getMostLimitingElementsAndMargins(basecaseOptimResult, preventivePerimeter.getAllStates(), unit, relativePositiveMargins, 1);
+
+        contingencyScenarios.forEach(contingencyScenario -> {
+            Optional<State> automatonState = contingencyScenario.getAutomatonState();
+            automatonState.ifPresent(state -> mostLimitingElementsAndMargins.putAll(
+                getMostLimitingElementsAndMargins(contingencyOptimizationResults.get(state).getOptimizationResult(), Set.of(state), unit, relativePositiveMargins, 1)
+            ));
+            contingencyScenario.getCurativePerimeters()
+                .forEach(
+                    curativePerimeter -> mostLimitingElementsAndMargins.putAll(
+                        getMostLimitingElementsAndMargins(contingencyOptimizationResults.get(curativePerimeter.getRaOptimisationState()).getOptimizationResult(), Set.of(curativePerimeter.getRaOptimisationState()), unit, relativePositiveMargins, 1)
+                    )
+                );
+        });
+
+        List<FlowCnec> sortedCnecs = mostLimitingElementsAndMargins.keySet().stream()
+            .sorted(Comparator.comparing(mostLimitingElementsAndMargins::get))
+            .toList();
+
+        return sortedCnecs;
+    }
+
+    public static void checkIfMostLimitingElementIsFictional(OpenRaoLogger logger,
+                                                             Perimeter preventivePerimeter,
+                                                             OptimizationResult basecaseOptimResult,
+                                                             Set<ContingencyScenario> contingencyScenarios,
+                                                             Map<State, PostPerimeterResult> contingencyOptimizationResults,
+                                                             ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction,
+                                                             Unit unit) {
+
+        List<FlowCnec> sortedFlowCnecs = getSortedFlowCnecs(preventivePerimeter, basecaseOptimResult, contingencyScenarios, contingencyOptimizationResults, objectiveFunction, unit);
+        String mostLimitingCnecId = sortedFlowCnecs.get(0).getId();
+        if (mostLimitingCnecId.contains(OUTAGE_DUPLICATE)) {
+            logger.info(LOG_FICTIONAL_CNEC);
+        }
+    }
+
+    public static void checkIfMostLimitingElementIsFictional(OpenRaoLogger logger,
+                                                             ObjectiveFunctionResult objectiveFunctionResult) {
+
+        String mostLimitingCnecId = objectiveFunctionResult.getMostLimitingElements(1).get(0).getId();
+        if (mostLimitingCnecId.contains(OUTAGE_DUPLICATE)) {
+            logger.info(LOG_FICTIONAL_CNEC);
+        }
     }
 }

@@ -1,15 +1,15 @@
 # CRAC creation context
 
 ## Introduction
-When OpenRAO tries to import a [CRAC object](json) from a business CRAC file ([FlowBasedConstraint](fbconstraint), [CSE](cse), 
-[CIM](cim), ...) or from an older version of the [JSON](json) format, some data transformation can happen, and data 
+When OpenRAO tries to import a [CRAC object](json.md) from a business CRAC file ([FlowBasedConstraint](fbconstraint.md), [CSE](cse.md), 
+[CIM](cim.md), ...) or from an older version of the [JSON](json.md) format, some data transformation can happen, and data 
 present in the final CRAC object will not be a "one-to-one" exact representation of the data in the original file.  
-This can be an issue for the final user, as [querying the RAO result file or object](/output-data/rao-result.md#contents-of-the-rao-result) 
+This can be an issue for the final user, as [querying the RAO result file or object](../../output-data/rao-result.md#contents-of-the-rao-result) 
 needs knowledge of the artefacts OpenRAO created during CRAC creation.  
 The `CracCreationContext` object produced by the CRAC importer allows the user to access meta-information 
 about the CRAC creation process, and to map the original file to the created artifacts in the OpenRAO object, or to 
 error messages if some objects could not be imported.  
-This is particularly useful if the user needs to export the RAO result in a format different from [OpenRAO's internal format](/output-data/rao-result.md), 
+This is particularly useful if the user needs to export the RAO result in a format different from [OpenRAO's internal format](../../output-data/rao-result.md), 
 and to reference CNECs and remedial actions as they were defined in the original (native) CRAC file.  
 Many implementations of CracCreationContext exist, depending on the original format. Every implementation has its own 
 specific API. CracCreationContext can be obtained with the `readWithContext` methods, but you have to 
@@ -20,7 +20,7 @@ explicitly cast it to its implementation, if you desire to access its class' spe
 CracCreationContext <|-- UcteCracCreationContext
 JsonCracCreationContext --|> CracCreationContext
 CimCracCreationContext --|> CracCreationContext
-CsaProfilesCreationContext --|> CracCreationContext
+NcCreationContext --|> CracCreationContext
 interface UcteCracCreationContext {
 }
 interface CracCreationContext {
@@ -521,7 +521,7 @@ _**This section is under construction**_
 ## JSON implementation
 
 The JsonCracCreationContext is a basic implementation of CracCreationContext.  
-Since the [JSON](json) format is OpenRAO's native format, not much transformation is made when importing a json CRAC 
+Since the [JSON](json.md) format is OpenRAO's native format, not much transformation is made when importing a json CRAC 
 file; thus, in most cases, the JSON CRAC creation context is not much of a use.  
 However, the importer does not throw exceptions, so it is important to check its success flag.  
 In the future, the object may evolve to contain information about transformations made in the rare cases where the user 

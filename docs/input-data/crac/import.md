@@ -2,15 +2,15 @@
 
 ## Introduction
 
-The [OpenRAO CRAC object model](json) can be directly imported and exported using the CRAC API.  
+The [OpenRAO CRAC object model](json.md) can be directly imported and exported using the CRAC API.  
 
 The JSON format - also called OpenRAO internal format - is a raw image of the CRAC object model of OpenRAO. It is 
 particularly suited to exchange a CRAC java object through files, for instance to exchange CRAC data between 
 microservices or Kubernetes pods of an application. It has an importer and an exporter. The complete round-trip 
-(java object → export → json file → import → java object) has been designed so that the CRAC at the 
+(java object → export → json file → import → java object) has been designed so that the CRAC at the 
 beginning of the chain is exactly the same as the one at the end of the chain.  
 
-Examples of JSON formats are given on this [page](json).  
+Examples of JSON formats are given on this [page](json.md).  
 
 Examples of uses of CRAC import/export are given below:  
 
@@ -23,13 +23,14 @@ crac.write("JSON", Paths.get("/tmp/crac.json"));
 ~~~
 
 The formats currently supported by OpenRAO are:
-- [OpenRAO JSON format](json) (import & export)
-- [FlowBasedConstraint document](fbconstraint), also known as Merged-CB, CBCORA or F301 (import only)
-- [CSE CRAC](cse) (import only)
-- [CIM CRAC](cim) (import only)
-- [CSA PROFILES CRAC](csa) (import only)
+- [OpenRAO JSON format](json.md) (import & export)
+- [FlowBasedConstraint document](fbconstraint.md), also known as Merged-CB, CBCORA or F301 (import only)
+- [CSE CRAC](cse.md) (import only)
+- [CIM CRAC](cim.md) (import only)
+- [CSA PROFILES CRAC](nc.md) (import only)
 
 ## Versioning of internal JSON CRAC files
+
 Json files and json importer/exporter are versioned.  
 The version number does not correspond to the version number of powsybl-open-rao. The version only increases when a 
 modification is made within the JSON importer / exporter.  
@@ -50,20 +51,20 @@ modification is made within the JSON importer / exporter.
 
 ## CracCreationParameters and CracCreationContext
 
-The [OpenRAO CRAC object model](json) is not a bijection ("one-to-one" mapping) of existing "business" (or "native") formats:  
-- The same business objects can be modelled differently in native formats, and in OpenRAO. For example, an [OpenRAO CNEC](json#cnecs) 
+The [OpenRAO CRAC object model](json.md) is not a bijection ("one-to-one" mapping) of existing "business" (or "native") formats:  
+- The same business objects can be modelled differently in native formats, and in OpenRAO. For example, an [OpenRAO CNEC](json.md#cnecs) 
   can be modelled as an implicit coupling of a line and a contingency, defined independently in the native format.
-- The perimeter of the "CRAC" business object is not rigid. [OpenRAO's CRAC object](json) offers the possibility to model 
-  more business objects than most native formats. For instance, it can model [remedial action usage limits](json#ras-usage-limitations), 
+- The perimeter of the "CRAC" business object is not rigid. [OpenRAO's CRAC object](json.md) offers the possibility to model 
+  more business objects than most native formats. For instance, it can model [remedial action usage limits](json.md#ras-usage-limitations), 
   which is currently not supported by any native format.
 
 To handle this complex mapping, extra objects have been created:  
-- The CRAC importers return a [CracCreationContext](creation-context) object, that contains:
+- The CRAC importers return a [CracCreationContext](creation-context.md) object, that contains:
     - the created OpenRAO CRAC object
     - additional information which explains how the initial format has been mapped into the OpenRAO format. This 
       mapping is often not straightforward (see below). The CracCreationContext enables to keep in memory a link 
       between the native CRAC and the OpenRAO CRAC objects, in order to allow business assessment of the RAO's results.
-- The CRAC importers can process a [CracCreationParameters](creation-parameters) object, that allows the user to add to 
+- The CRAC importers can process a [CracCreationParameters](creation-parameters.md) object, that allows the user to add to 
   the OpenRAO CRAC object information that is not possible to model in the native format (see examples [here](creation-parameters.md)).
 
 ## Importing a CRAC object from a file
@@ -101,4 +102,4 @@ Developers are welcome to add CRAC importers/exporters to handle their native fo
 `Exporter` interface of the CRAC I/O module, and add the implementations to their run-time dependencies.
 There is no obligation to publish the resulting code.  
 You can find inspiration in existing CRAC importers' code on our [GitHub](https://github.com/powsybl/powsybl-open-rao).  
-You should also get familiar with our java [CRAC creation API](json).  
+You should also get familiar with our java [CRAC creation API](json.md).  

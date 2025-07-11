@@ -108,6 +108,11 @@ public class IteratingLinearOptimizationResultImpl implements LinearOptimization
     }
 
     @Override
+    public void excludeCnecs(Set<String> cnecsToExclude) {
+        objectiveFunctionResult.excludeCnecs(cnecsToExclude);
+    }
+
+    @Override
     public LinearProblemStatus getStatus() {
         return status;
     }
@@ -150,6 +155,11 @@ public class IteratingLinearOptimizationResultImpl implements LinearOptimization
     @Override
     public Set<RangeAction<?>> getActivatedRangeActions(State state) {
         return rangeActionActivationResult.getActivatedRangeActions(state);
+    }
+
+    @Override
+    public Map<State, Set<RangeAction<?>>> getActivatedRangeActionsPerState() {
+        return rangeActionActivationResult.getActivatedRangeActionsPerState();
     }
 
     @Override

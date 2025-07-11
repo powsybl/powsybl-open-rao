@@ -65,13 +65,14 @@ public class CastorOneStateOnly {
 
         // compute initial sensitivity on CNECs of the only optimized state
         PrePerimeterSensitivityAnalysis prePerimeterSensitivityAnalysis = new PrePerimeterSensitivityAnalysis(
-                raoInput.getCrac().getFlowCnecs(raoInput.getOptimizedState()),
-                raoInput.getCrac().getRangeActions(raoInput.getOptimizedState(), UsageMethod.AVAILABLE),
-                raoParameters,
-                toolProvider);
+            raoInput.getCrac(),
+            raoInput.getCrac().getFlowCnecs(raoInput.getOptimizedState()),
+            raoInput.getCrac().getRangeActions(raoInput.getOptimizedState(), UsageMethod.AVAILABLE),
+            raoParameters,
+            toolProvider);
 
         PrePerimeterResult initialResults;
-        initialResults = prePerimeterSensitivityAnalysis.runInitialSensitivityAnalysis(raoInput.getNetwork(), raoInput.getCrac(), Set.of(raoInput.getOptimizedState()));
+        initialResults = prePerimeterSensitivityAnalysis.runInitialSensitivityAnalysis(raoInput.getNetwork(), Set.of(raoInput.getOptimizedState()));
         if (initialResults.getSensitivityStatus() == ComputationStatus.FAILURE) {
             BUSINESS_LOGS.error("Initial sensitivity analysis failed");
             return CompletableFuture.completedFuture(new FailedRaoResultImpl("Initial sensitivity analysis failed"));
@@ -90,8 +91,7 @@ public class CastorOneStateOnly {
             // TODO: see how to handle multiple curative instants here
             State curativeState = raoInput.getCrac().getState(raoInput.getOptimizedState().getContingency().orElseThrow(), raoInput.getCrac().getInstant(InstantKind.CURATIVE));
             AutomatonSimulator automatonSimulator = new AutomatonSimulator(raoInput.getCrac(), raoParameters, toolProvider, initialResults, initialResults, stateTree.getOperatorsNotSharingCras(), 2);
-            TreeParameters automatonTreeParameters = TreeParameters.buildForAutomatonPerimeter(raoParameters);
-            optimizationResult = automatonSimulator.simulateAutomatonState(raoInput.getOptimizedState(), Set.of(curativeState), raoInput.getNetwork(), stateTree, automatonTreeParameters);
+            optimizationResult = automatonSimulator.simulateAutomatonState(raoInput.getOptimizedState(), Set.of(curativeState), raoInput.getNetwork());
         } else {
             if (raoInput.getOptimizedState().equals(raoInput.getCrac().getPreventiveState())) {
                 optPerimeter = PreventiveOptimizationPerimeter.buildWithPreventiveCnecsOnly(raoInput.getCrac(), raoInput.getNetwork(), raoParameters, initialResults);

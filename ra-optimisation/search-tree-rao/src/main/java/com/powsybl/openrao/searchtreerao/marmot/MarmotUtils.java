@@ -22,8 +22,10 @@ import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.PrePerimeterSensitivityAnalysis;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
-import com.powsybl.openrao.searchtreerao.result.api.LinearOptimizationResult;
+import com.powsybl.openrao.searchtreerao.marmot.results.GlobalLinearOptimizationResult;
+import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
+import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 
 import java.time.OffsetDateTime;
 import java.util.HashMap;
@@ -43,12 +45,20 @@ public final class MarmotUtils {
     private MarmotUtils() {
     }
 
-    public static PrePerimeterResult runInitialPrePerimeterSensitivityAnalysis(RaoInput raoInput, RaoParameters raoParameters) {
+    public static PrePerimeterResult runSensitivityAnalysis(RaoInput raoInput, RaoParameters raoParameters) {
         Crac crac = raoInput.getCrac();
         Network network = raoInput.getNetwork();
         State preventiveState = crac.getPreventiveState();
         Set<RangeAction<?>> rangeActions = crac.getRangeActions(preventiveState, UsageMethod.AVAILABLE);
-        return new PrePerimeterSensitivityAnalysis(getPreventivePerimeterCnecs(crac), rangeActions, raoParameters, ToolProvider.buildFromRaoInputAndParameters(raoInput, raoParameters)).runInitialSensitivityAnalysis(network, crac);
+        return new PrePerimeterSensitivityAnalysis(crac, getPreventivePerimeterCnecs(crac), rangeActions, raoParameters, ToolProvider.buildFromRaoInputAndParameters(raoInput, raoParameters)).runInitialSensitivityAnalysis(network);
+    }
+
+    public static PrePerimeterResult runSensitivityAnalysisBasedOnInitialResult(RaoInput raoInput, RaoParameters raoParameters, FlowResult initialFlowResult) {
+        Crac crac = raoInput.getCrac();
+        Network network = raoInput.getNetwork();
+        State preventiveState = crac.getPreventiveState();
+        Set<RangeAction<?>> rangeActions = crac.getRangeActions(preventiveState, UsageMethod.AVAILABLE);
+        return new PrePerimeterSensitivityAnalysis(crac, getPreventivePerimeterCnecs(crac), rangeActions, raoParameters, ToolProvider.buildFromRaoInputAndParameters(raoInput, raoParameters)).runBasedOnInitialResults(network, initialFlowResult, Set.of(), new AppliedRemedialActions());
     }
 
     public static Set<FlowCnec> getPreventivePerimeterCnecs(Crac crac) {
@@ -57,17 +67,17 @@ public final class MarmotUtils {
         return flowCnecs;
     }
 
-    public static TemporalData<TopologicalOptimizationResult> getTopologicalOptimizationResult(TemporalData<RaoInput> raoInputs, TemporalData<RaoResult> topologicalOptimizationResults) {
+    public static TemporalData<PreventiveOptimizationResult> getPreventiveOptimizationResults(TemporalData<RaoInput> raoInputs, TemporalData<RaoResult> topologicalOptimizationResults) {
         List<OffsetDateTime> timestamps = raoInputs.getTimestamps();
-        Map<OffsetDateTime, TopologicalOptimizationResult> topologicalOptimizationResultMap = new HashMap<>();
-        timestamps.forEach(timestamp -> topologicalOptimizationResultMap.put(timestamp, new TopologicalOptimizationResult(raoInputs.getData(timestamp).orElseThrow(), topologicalOptimizationResults.getData(timestamp).orElseThrow())));
-        return new TemporalDataImpl<>(topologicalOptimizationResultMap);
+        Map<OffsetDateTime, PreventiveOptimizationResult> preventiveOptimizationResultMap = new HashMap<>();
+        timestamps.forEach(timestamp -> preventiveOptimizationResultMap.put(timestamp, new PreventiveOptimizationResult(raoInputs.getData(timestamp).orElseThrow(), topologicalOptimizationResults.getData(timestamp).orElseThrow())));
+        return new TemporalDataImpl<>(preventiveOptimizationResultMap);
     }
 
-    public static TemporalData<PostOptimizationResult> getPostOptimizationResults(TemporalData<RaoInput> raoInputs, TemporalData<PrePerimeterResult> initialResults, LinearOptimizationResult linearOptimizationResults, TemporalData<RaoResult> topologicalOptimizationResults) {
+    public static TemporalData<PostOptimizationResult> getPostOptimizationResults(TemporalData<RaoInput> raoInputs, TemporalData<PrePerimeterResult> initialResults, GlobalLinearOptimizationResult globalLinearOptimizationResult, TemporalData<RaoResult> topologicalOptimizationResults, RaoParameters raoParameters) {
         List<OffsetDateTime> timestamps = raoInputs.getTimestamps();
         Map<OffsetDateTime, PostOptimizationResult> postOptimizationResults = new HashMap<>();
-        timestamps.forEach(timestamp -> postOptimizationResults.put(timestamp, new PostOptimizationResult(raoInputs.getData(timestamp).orElseThrow(), initialResults.getData(timestamp).orElseThrow(), linearOptimizationResults, topologicalOptimizationResults.getData(timestamp).orElseThrow())));
+        timestamps.forEach(timestamp -> postOptimizationResults.put(timestamp, new PostOptimizationResult(raoInputs.getData(timestamp).orElseThrow(), initialResults.getData(timestamp).orElseThrow(), initialResults.getData(timestamp).orElseThrow(), globalLinearOptimizationResult.getFlowResult(timestamp), globalLinearOptimizationResult.getSensitivityResult(timestamp), globalLinearOptimizationResult.getRangeActionActivationResult(timestamp), topologicalOptimizationResults.getData(timestamp).orElseThrow(), raoParameters)));
         return new TemporalDataImpl<>(postOptimizationResults);
     }
 

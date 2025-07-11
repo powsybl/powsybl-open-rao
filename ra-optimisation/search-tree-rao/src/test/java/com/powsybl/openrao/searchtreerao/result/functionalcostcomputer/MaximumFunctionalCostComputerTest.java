@@ -21,7 +21,7 @@ class MaximumFunctionalCostComputerTest extends FunctionalCostComputerTestUtils 
     @BeforeEach
     void setUp() {
         init();
-        functionalCostComputer = new MaximumFunctionalCostComputer(secondPreventivePerimeterResult, postContingencyResults);
+        functionalCostComputer = new MaximumFunctionalCostComputer(initialResult, secondPreventivePerimeterResult, postContingencyResults);
     }
 
     @Test
