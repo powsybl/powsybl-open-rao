@@ -30,6 +30,7 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import static com.powsybl.openrao.commons.Unit.*;
@@ -87,7 +88,24 @@ class ImporterRetrocompatibilityTest {
         for (int i = 0; i <= 3; i++) {
             Mockito.when(network.getTwoWindingsTransformer("pst" + (i == 0 ? "" : i))).thenReturn(twt);
         }
+        addBranch(network, "ne1Id");
+        addBranch(network, "ne2Id");
+        addBranch(network, "ne3Id");
+        addBranch(network, "ne4Id");
+        addBranch(network, "ne5Id");
         return network;
+    }
+
+    private static void addBranch(Network network, String branchId) {
+        Branch<?> branch = Mockito.mock(Branch.class);
+        Mockito.when(branch.getId()).thenReturn(branchId);
+        CurrentLimits currentLimits1 = Mockito.mock(CurrentLimits.class);
+        Mockito.when(currentLimits1.getPermanentLimit()).thenReturn(2000.);
+        Mockito.when(branch.getCurrentLimits(ONE)).thenReturn(Optional.of(currentLimits1));
+        CurrentLimits currentLimits2 = Mockito.mock(CurrentLimits.class);
+        Mockito.when(currentLimits2.getPermanentLimit()).thenReturn(2000.);
+        Mockito.when(branch.getCurrentLimits(TWO)).thenReturn(Optional.of(currentLimits2));
+        Mockito.when(network.getBranch(branchId)).thenReturn(branch);
     }
 
     @Test

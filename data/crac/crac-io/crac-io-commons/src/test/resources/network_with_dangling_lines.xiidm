@@ -1,0 +1,645 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_13" id="TestCase_PstAmbiguity" caseDate="2025-06-03T14:04:51.487+02:00" forecastDistance="0" sourceFormat="UCTE" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+    <iidm:substation id="BBE1AA" country="BE">
+        <iidm:voltageLevel id="BBE1AA1" nominalV="380.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="BBE1AA1 ">
+                    <iidm:property name="geographicalName" value="BE1"/>
+                </iidm:bus>
+            </iidm:busBreakerTopology>
+            <iidm:generator id="BBE1AA1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="1500.0" targetV="400.0" targetQ="0.0" bus="BBE1AA1 " connectableBus="BBE1AA1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+            <iidm:load id="BBE1AA1 _load" loadType="UNDEFINED" p0="2000.0" q0="0.0" bus="BBE1AA1 " connectableBus="BBE1AA1 "/>
+        </iidm:voltageLevel>
+        <iidm:voltageLevel id="BBE1AA2" nominalV="220.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="BBE1AA2 ">
+                    <iidm:property name="geographicalName" value="BE1"/>
+                </iidm:bus>
+            </iidm:busBreakerTopology>
+            <iidm:generator id="BBE1AA2 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="500.0" targetV="225.0" targetQ="0.0" bus="BBE1AA2 " connectableBus="BBE1AA2 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+            <iidm:load id="BBE1AA2 _load" loadType="UNDEFINED" p0="1000.0" q0="0.0" bus="BBE1AA2 " connectableBus="BBE1AA2 "/>
+            <iidm:danglingLine id="BBE1AA2  XBEFR32  1" name="" p0="0.0" q0="0.0" r="0.0" x="10.0" g="0.0" b="0.0" generationVoltageRegulationOn="false" generationMinP="-1.7976931348623157E308" generationMaxP="1.7976931348623157E308" generationTargetP="-0.0" generationTargetQ="-0.0" bus="BBE1AA2 " connectableBus="BBE1AA2 " pairingKey="XBEFR32 " selectedOperationalLimitsGroupId="DEFAULT">
+                <iidm:property name="isCoupler" value="false"/>
+                <iidm:property name="status_XNode" value="EQUIVALENT"/>
+                <iidm:property name="geographicalName" value=""/>
+                <iidm:property name="elementName" value="TL BE1X"/>
+                <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
+                <iidm:operationalLimitsGroup id="DEFAULT">
+                    <iidm:currentLimits permanentLimit="1000.0"/>
+                </iidm:operationalLimitsGroup>
+            </iidm:danglingLine>
+        </iidm:voltageLevel>
+        <iidm:twoWindingsTransformer id="BBE1AA1  BBE1AA2  1" r="3.579" x="141.29" g="0.0" b="0.0" ratedU1="225.0" ratedU2="400.0" voltageLevelId1="BBE1AA2" bus1="BBE1AA2 " connectableBus1="BBE1AA2 " voltageLevelId2="BBE1AA1" bus2="BBE1AA1 " connectableBus2="BBE1AA1 " selectedOperationalLimitsGroupId2="DEFAULT">
+            <iidm:property name="nomimalPower" value="300.0"/>
+            <iidm:property name="elementName" value="TR BE1"/>
+            <iidm:operationalLimitsGroup2 id="DEFAULT">
+                <iidm:currentLimits permanentLimit="1000.0"/>
+            </iidm:operationalLimitsGroup2>
+        </iidm:twoWindingsTransformer>
+    </iidm:substation>
+    <iidm:substation id="BBE2AA" country="BE">
+        <iidm:voltageLevel id="BBE2AA1" nominalV="220.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="BBE2AA1 ">
+                    <iidm:property name="geographicalName" value="BE2"/>
+                </iidm:bus>
+                <iidm:bus id="BBE2AA11">
+                    <iidm:property name="geographicalName" value="BE2"/>
+                </iidm:bus>
+                <iidm:bus id="BBE2AA12">
+                    <iidm:property name="geographicalName" value="BE2"/>
+                </iidm:bus>
+                <iidm:bus id="BBE2AA13">
+                    <iidm:property name="geographicalName" value="BE2"/>
+                </iidm:bus>
+            </iidm:busBreakerTopology>
+            <iidm:generator id="BBE2AA1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="3000.0" targetV="400.0" targetQ="0.0" bus="BBE2AA1 " connectableBus="BBE2AA1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+            <iidm:generator id="BBE2AA11_generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="2500.0" targetV="400.0" targetQ="0.0" bus="BBE2AA11" connectableBus="BBE2AA11">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+            <iidm:generator id="BBE2AA12_generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="2500.0" targetV="400.0" targetQ="0.0" bus="BBE2AA12" connectableBus="BBE2AA12">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+            <iidm:generator id="BBE2AA13_generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="2500.0" targetV="400.0" targetQ="0.0" bus="BBE2AA13" connectableBus="BBE2AA13">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+            <iidm:load id="BBE2AA1 _load" loadType="UNDEFINED" p0="1000.0" q0="0.0" bus="BBE2AA1 " connectableBus="BBE2AA1 "/>
+            <iidm:load id="BBE2AA11_load" loadType="UNDEFINED" p0="1500.0" q0="0.0" bus="BBE2AA11" connectableBus="BBE2AA11"/>
+            <iidm:load id="BBE2AA12_load" loadType="UNDEFINED" p0="1500.0" q0="0.0" bus="BBE2AA12" connectableBus="BBE2AA12"/>
+            <iidm:load id="BBE2AA13_load" loadType="UNDEFINED" p0="1500.0" q0="0.0" bus="BBE2AA13" connectableBus="BBE2AA13"/>
+            <iidm:danglingLine id="XBEFR11  BBE2AA1  1" name="" p0="0.0" q0="0.0" r="0.0" x="10.0" g="0.0" b="0.0" generationVoltageRegulationOn="false" generationMinP="-1.7976931348623157E308" generationMaxP="1.7976931348623157E308" generationTargetP="-0.0" generationTargetQ="-0.0" bus="BBE2AA1 " connectableBus="BBE2AA1 " pairingKey="XBEFR11 " selectedOperationalLimitsGroupId="DEFAULT">
+                <iidm:property name="isCoupler" value="false"/>
+                <iidm:property name="status_XNode" value="EQUIVALENT"/>
+                <iidm:property name="geographicalName" value=""/>
+                <iidm:property name="elementName" value="TL BE2X"/>
+                <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
+                <iidm:operationalLimitsGroup id="DEFAULT">
+                    <iidm:currentLimits permanentLimit="5000.0"/>
+                </iidm:operationalLimitsGroup>
+            </iidm:danglingLine>
+            <iidm:danglingLine id="BBE2AA1  XBE2AL1  1" name="" p0="123.0" q0="0.0" r="0.0" x="10.0" g="0.0" b="0.0" generationVoltageRegulationOn="false" generationMinP="-1.7976931348623157E308" generationMaxP="1.7976931348623157E308" generationTargetP="-0.0" generationTargetQ="-0.0" bus="BBE2AA1 " connectableBus="BBE2AA1 " pairingKey="XBE2AL1 " selectedOperationalLimitsGroupId="DEFAULT">
+                <iidm:property name="isCoupler" value="false"/>
+                <iidm:property name="status_XNode" value="EQUIVALENT"/>
+                <iidm:property name="geographicalName" value=""/>
+                <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
+                <iidm:operationalLimitsGroup id="DEFAULT">
+                    <iidm:currentLimits permanentLimit="1250.0"/>
+                </iidm:operationalLimitsGroup>
+            </iidm:danglingLine>
+        </iidm:voltageLevel>
+        <iidm:voltageLevel id="BBE2AA2" nominalV="220.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="BBE2AA2 ">
+                    <iidm:property name="geographicalName" value="BE3"/>
+                </iidm:bus>
+            </iidm:busBreakerTopology>
+            <iidm:generator id="BBE2AA2 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="500.0" targetV="225.0" targetQ="0.0" bus="BBE2AA2 " connectableBus="BBE2AA2 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+            <iidm:load id="BBE2AA2 _load" loadType="UNDEFINED" p0="500.0" q0="0.0" bus="BBE2AA2 " connectableBus="BBE2AA2 "/>
+            <iidm:danglingLine id="XBEFR22  BBE2AA2  1" name="" p0="0.0" q0="0.0" r="0.0" x="10.0" g="0.0" b="0.0" generationVoltageRegulationOn="false" generationMinP="-1.7976931348623157E308" generationMaxP="1.7976931348623157E308" generationTargetP="-0.0" generationTargetQ="-0.0" bus="BBE2AA2 " connectableBus="BBE2AA2 " pairingKey="XBEFR22 " selectedOperationalLimitsGroupId="DEFAULT">
+                <iidm:property name="isCoupler" value="false"/>
+                <iidm:property name="status_XNode" value="EQUIVALENT"/>
+                <iidm:property name="geographicalName" value=""/>
+                <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
+                <iidm:operationalLimitsGroup id="DEFAULT">
+                    <iidm:currentLimits permanentLimit="1000.0"/>
+                </iidm:operationalLimitsGroup>
+            </iidm:danglingLine>
+        </iidm:voltageLevel>
+        <iidm:twoWindingsTransformer id="BBE2AA2  BBE2AA1  2" r="0.207" x="15.9" g="2.4E-6" b="-5.49E-6" ratedU1="400.0" ratedU2="225.0" voltageLevelId1="BBE2AA1" bus1="BBE2AA1 " connectableBus1="BBE2AA1 " voltageLevelId2="BBE2AA2" bus2="BBE2AA2 " connectableBus2="BBE2AA2 " selectedOperationalLimitsGroupId2="DEFAULT">
+            <iidm:property name="nomimalPower" value="400.0"/>
+            <iidm:operationalLimitsGroup2 id="DEFAULT">
+                <iidm:currentLimits permanentLimit="1200.0"/>
+            </iidm:operationalLimitsGroup2>
+        </iidm:twoWindingsTransformer>
+        <iidm:twoWindingsTransformer id="BBE2AA13 BBE2AA11 1" r="0.0" x="10.0" g="0.0" b="0.0" ratedU1="400.0" ratedU2="400.0" voltageLevelId1="BBE2AA1" bus1="BBE2AA11" connectableBus1="BBE2AA11" voltageLevelId2="BBE2AA1" bus2="BBE2AA13" connectableBus2="BBE2AA13" selectedOperationalLimitsGroupId2="DEFAULT">
+            <iidm:property name="nomimalPower" value="1000.0"/>
+            <iidm:property name="elementName" value="PST BE"/>
+            <iidm:phaseTapChanger lowTapPosition="-16" tapPosition="0" regulationMode="FIXED_TAP">
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="-6.2276423729910535"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="-5.839110508104064"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="-5.4504442277066305"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="-5.061652408895631"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="-4.672743946063913"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="-4.283727749689918"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="-3.894612745121778"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="-3.505407871356285"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="-3.1161220798131644"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="-2.7267643331050597"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="-2.337343603803646"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="-1.9478688732023104"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="-1.5583491300758083"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="-1.1687933694373345"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="-0.7792105912934298"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="-0.3896097993971608"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="0.0"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="0.3896097993971608"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="0.7792105912934298"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="1.1687933694373345"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="1.5583491300758083"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="1.9478688732023104"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="2.337343603803646"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="2.7267643331050597"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="3.1161220798131644"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="3.505407871356285"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="3.894612745121778"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="4.283727749689918"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="4.672743946063913"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="5.061652408895631"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="5.4504442277066305"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="5.839110508104064"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="6.2276423729910535"/>
+            </iidm:phaseTapChanger>
+            <iidm:operationalLimitsGroup2 id="DEFAULT">
+                <iidm:currentLimits permanentLimit="4500.0"/>
+            </iidm:operationalLimitsGroup2>
+        </iidm:twoWindingsTransformer>
+        <iidm:twoWindingsTransformer id="BBE2AA12 BBE2AA11 2" r="0.0" x="10.0" g="0.0" b="0.0" ratedU1="400.0" ratedU2="400.0" voltageLevelId1="BBE2AA1" bus1="BBE2AA11" connectableBus1="BBE2AA11" voltageLevelId2="BBE2AA1" bus2="BBE2AA12" connectableBus2="BBE2AA12" selectedOperationalLimitsGroupId2="DEFAULT">
+            <iidm:property name="nomimalPower" value="1000.0"/>
+            <iidm:property name="elementName" value="PST BE"/>
+            <iidm:phaseTapChanger lowTapPosition="-16" tapPosition="0" regulationMode="FIXED_TAP">
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="-6.2276423729910535"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="-5.839110508104064"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="-5.4504442277066305"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="-5.061652408895631"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="-4.672743946063913"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="-4.283727749689918"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="-3.894612745121778"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="-3.505407871356285"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="-3.1161220798131644"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="-2.7267643331050597"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="-2.337343603803646"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="-1.9478688732023104"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="-1.5583491300758083"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="-1.1687933694373345"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="-0.7792105912934298"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="-0.3896097993971608"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="0.0"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="0.3896097993971608"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="0.7792105912934298"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="1.1687933694373345"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="1.5583491300758083"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="1.9478688732023104"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="2.337343603803646"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="2.7267643331050597"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="3.1161220798131644"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="3.505407871356285"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="3.894612745121778"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="4.283727749689918"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="4.672743946063913"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="5.061652408895631"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="5.4504442277066305"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="5.839110508104064"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="6.2276423729910535"/>
+            </iidm:phaseTapChanger>
+            <iidm:operationalLimitsGroup2 id="DEFAULT">
+                <iidm:currentLimits permanentLimit="4500.0"/>
+            </iidm:operationalLimitsGroup2>
+        </iidm:twoWindingsTransformer>
+    </iidm:substation>
+    <iidm:substation id="BBE3AA" country="BE">
+        <iidm:voltageLevel id="BBE3AA1" nominalV="380.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="BBE3AA1 ">
+                    <iidm:property name="geographicalName" value="BE3"/>
+                </iidm:bus>
+            </iidm:busBreakerTopology>
+            <iidm:generator id="BBE3AA1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="2500.0" targetV="400.0" targetQ="0.0" bus="BBE3AA1 " connectableBus="BBE3AA1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+            <iidm:load id="BBE3AA1 _load" loadType="UNDEFINED" p0="1500.0" q0="0.0" bus="BBE3AA1 " connectableBus="BBE3AA1 "/>
+            <iidm:danglingLine id="XNLBE11  BBE3AA1  1" name="" p0="0.0" q0="0.0" r="0.0" x="10.0" g="0.0" b="0.0" generationVoltageRegulationOn="false" generationMinP="-1.7976931348623157E308" generationMaxP="1.7976931348623157E308" generationTargetP="-0.0" generationTargetQ="-0.0" bus="BBE3AA1 " connectableBus="BBE3AA1 " pairingKey="XNLBE11 " selectedOperationalLimitsGroupId="DEFAULT">
+                <iidm:property name="isCoupler" value="false"/>
+                <iidm:property name="status_XNode" value="EQUIVALENT"/>
+                <iidm:property name="geographicalName" value=""/>
+                <iidm:property name="elementName" value="TL BE3X"/>
+                <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
+                <iidm:operationalLimitsGroup id="DEFAULT">
+                    <iidm:currentLimits permanentLimit="2800.0"/>
+                </iidm:operationalLimitsGroup>
+            </iidm:danglingLine>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:substation id="DDE1AA" country="DE">
+        <iidm:voltageLevel id="DDE1AA1" nominalV="380.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="DDE1AA1 ">
+                    <iidm:property name="geographicalName" value="DE1"/>
+                </iidm:bus>
+            </iidm:busBreakerTopology>
+            <iidm:generator id="DDE1AA1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="2500.0" targetV="400.0" targetQ="0.0" bus="DDE1AA1 " connectableBus="DDE1AA1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+            <iidm:load id="DDE1AA1 _load" loadType="UNDEFINED" p0="3500.0" q0="0.0" bus="DDE1AA1 " connectableBus="DDE1AA1 "/>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:substation id="DDE2AA" country="DE">
+        <iidm:voltageLevel id="DDE2AA1" nominalV="380.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="DDE2AA1 ">
+                    <iidm:property name="geographicalName" value="DE2"/>
+                </iidm:bus>
+            </iidm:busBreakerTopology>
+            <iidm:generator id="DDE2AA1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="2000.0" targetV="400.0" targetQ="0.0" bus="DDE2AA1 " connectableBus="DDE2AA1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+            <iidm:load id="DDE2AA1 _load" loadType="UNDEFINED" p0="3000.0" q0="0.0" bus="DDE2AA1 " connectableBus="DDE2AA1 "/>
+            <iidm:danglingLine id="DDE2AA1  XDENL11  1" name="" p0="0.0" q0="0.0" r="0.0" x="10.0" g="0.0" b="0.0" generationVoltageRegulationOn="false" generationMinP="-1.7976931348623157E308" generationMaxP="1.7976931348623157E308" generationTargetP="-0.0" generationTargetQ="-0.0" bus="DDE2AA1 " connectableBus="DDE2AA1 " pairingKey="XDENL11 " selectedOperationalLimitsGroupId="DEFAULT">
+                <iidm:property name="isCoupler" value="false"/>
+                <iidm:property name="status_XNode" value="EQUIVALENT"/>
+                <iidm:property name="geographicalName" value=""/>
+                <iidm:property name="elementName" value="TL DE2X"/>
+                <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
+                <iidm:operationalLimitsGroup id="DEFAULT">
+                    <iidm:currentLimits permanentLimit="5000.0"/>
+                </iidm:operationalLimitsGroup>
+            </iidm:danglingLine>
+            <iidm:danglingLine id="XDE2AL1  DDE2AA1  1" name="" p0="-123.0" q0="0.0" r="0.0" x="10.0" g="0.0" b="0.0" generationVoltageRegulationOn="false" generationMinP="-1.7976931348623157E308" generationMaxP="1.7976931348623157E308" generationTargetP="-0.0" generationTargetQ="-0.0" bus="DDE2AA1 " connectableBus="DDE2AA1 " pairingKey="XDE2AL1 " selectedOperationalLimitsGroupId="DEFAULT">
+                <iidm:property name="isCoupler" value="false"/>
+                <iidm:property name="status_XNode" value="EQUIVALENT"/>
+                <iidm:property name="geographicalName" value=""/>
+                <iidm:property name="elementName" value="DL AL"/>
+                <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
+                <iidm:operationalLimitsGroup id="DEFAULT">
+                    <iidm:currentLimits permanentLimit="1245.0"/>
+                </iidm:operationalLimitsGroup>
+            </iidm:danglingLine>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:substation id="DDE3AA" country="DE">
+        <iidm:voltageLevel id="DDE3AA1" nominalV="380.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="DDE3AA1 ">
+                    <iidm:property name="geographicalName" value="DE3"/>
+                </iidm:bus>
+            </iidm:busBreakerTopology>
+            <iidm:generator id="DDE3AA1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="1500.0" targetV="400.0" targetQ="0.0" bus="DDE3AA1 " connectableBus="DDE3AA1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+            <iidm:load id="DDE3AA1 _load" loadType="UNDEFINED" p0="2000.0" q0="0.0" bus="DDE3AA1 " connectableBus="DDE3AA1 "/>
+            <iidm:danglingLine id="XFRDE11  DDE3AA1  1" name="" p0="0.0" q0="0.0" r="0.0" x="10.0" g="0.0" b="0.0" generationVoltageRegulationOn="false" generationMinP="-1.7976931348623157E308" generationMaxP="1.7976931348623157E308" generationTargetP="-0.0" generationTargetQ="-0.0" bus="DDE3AA1 " connectableBus="DDE3AA1 " pairingKey="XFRDE11 " selectedOperationalLimitsGroupId="DEFAULT">
+                <iidm:property name="isCoupler" value="false"/>
+                <iidm:property name="status_XNode" value="EQUIVALENT"/>
+                <iidm:property name="geographicalName" value=""/>
+                <iidm:property name="elementName" value="TL DE3X"/>
+                <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
+                <iidm:operationalLimitsGroup id="DEFAULT">
+                    <iidm:currentLimits permanentLimit="4800.0"/>
+                </iidm:operationalLimitsGroup>
+            </iidm:danglingLine>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:substation id="FFR1AA" country="FR">
+        <iidm:voltageLevel id="FFR1AA1" nominalV="380.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="FFR1AA1 ">
+                    <iidm:property name="geographicalName" value="FR1"/>
+                </iidm:bus>
+            </iidm:busBreakerTopology>
+            <iidm:generator id="FFR1AA1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="2000.0" targetV="400.0" targetQ="0.0" bus="FFR1AA1 " connectableBus="FFR1AA1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+            <iidm:load id="FFR1AA1 _load" loadType="UNDEFINED" p0="1000.0" q0="0.0" bus="FFR1AA1 " connectableBus="FFR1AA1 "/>
+        </iidm:voltageLevel>
+        <iidm:voltageLevel id="FFR1AA2" nominalV="220.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="FFR1AA2 ">
+                    <iidm:property name="geographicalName" value="FR1"/>
+                </iidm:bus>
+            </iidm:busBreakerTopology>
+            <iidm:generator id="FFR1AA2 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="500.0" targetV="225.0" targetQ="0.0" bus="FFR1AA2 " connectableBus="FFR1AA2 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+            <iidm:load id="FFR1AA2 _load" loadType="UNDEFINED" p0="1000.0" q0="0.0" bus="FFR1AA2 " connectableBus="FFR1AA2 "/>
+            <iidm:danglingLine id="FFR1AA2  XBEFR32  1" name="" p0="0.0" q0="0.0" r="0.0" x="10.0" g="0.0" b="0.0" generationVoltageRegulationOn="false" generationMinP="-1.7976931348623157E308" generationMaxP="1.7976931348623157E308" generationTargetP="-0.0" generationTargetQ="-0.0" bus="FFR1AA2 " connectableBus="FFR1AA2 " pairingKey="XBEFR32 " selectedOperationalLimitsGroupId="DEFAULT">
+                <iidm:property name="isCoupler" value="false"/>
+                <iidm:property name="status_XNode" value="EQUIVALENT"/>
+                <iidm:property name="geographicalName" value=""/>
+                <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
+                <iidm:operationalLimitsGroup id="DEFAULT">
+                    <iidm:currentLimits permanentLimit="1000.0"/>
+                </iidm:operationalLimitsGroup>
+            </iidm:danglingLine>
+        </iidm:voltageLevel>
+        <iidm:twoWindingsTransformer id="FFR1AA2  FFR1AA1  5" r="0.2033" x="13.716" g="0.0" b="0.0" ratedU1="400.1" ratedU2="225.0" voltageLevelId1="FFR1AA1" bus1="FFR1AA1 " connectableBus1="FFR1AA1 " voltageLevelId2="FFR1AA2" bus2="FFR1AA2 " connectableBus2="FFR1AA2 " selectedOperationalLimitsGroupId2="DEFAULT">
+            <iidm:property name="nomimalPower" value="344.5"/>
+            <iidm:property name="elementName" value="TR FR1"/>
+            <iidm:operationalLimitsGroup2 id="DEFAULT">
+                <iidm:currentLimits permanentLimit="1500.0"/>
+            </iidm:operationalLimitsGroup2>
+        </iidm:twoWindingsTransformer>
+    </iidm:substation>
+    <iidm:substation id="FFR2AA" country="FR">
+        <iidm:voltageLevel id="FFR2AA1" nominalV="380.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="FFR2AA1 ">
+                    <iidm:property name="geographicalName" value="FR2"/>
+                </iidm:bus>
+            </iidm:busBreakerTopology>
+            <iidm:generator id="FFR2AA1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="2500.0" targetV="400.0" targetQ="0.0" bus="FFR2AA1 " connectableBus="FFR2AA1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+            <iidm:load id="FFR2AA1 _load" loadType="UNDEFINED" p0="3500.0" q0="0.0" bus="FFR2AA1 " connectableBus="FFR2AA1 "/>
+            <iidm:danglingLine id="XFRDE11  FFR2AA1  1" name="" p0="0.0" q0="0.0" r="0.0" x="10.0" g="0.0" b="0.0" generationVoltageRegulationOn="false" generationMinP="-1.7976931348623157E308" generationMaxP="1.7976931348623157E308" generationTargetP="-0.0" generationTargetQ="-0.0" bus="FFR2AA1 " connectableBus="FFR2AA1 " pairingKey="XFRDE11 " selectedOperationalLimitsGroupId="DEFAULT">
+                <iidm:property name="isCoupler" value="false"/>
+                <iidm:property name="status_XNode" value="EQUIVALENT"/>
+                <iidm:property name="geographicalName" value=""/>
+                <iidm:property name="elementName" value="TL FR2X"/>
+                <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
+                <iidm:operationalLimitsGroup id="DEFAULT">
+                    <iidm:currentLimits permanentLimit="4400.0"/>
+                </iidm:operationalLimitsGroup>
+            </iidm:danglingLine>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:substation id="FFR3AA" country="FR">
+        <iidm:voltageLevel id="FFR3AA1" nominalV="380.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="FFR3AA1 ">
+                    <iidm:property name="geographicalName" value="FR3"/>
+                </iidm:bus>
+            </iidm:busBreakerTopology>
+            <iidm:generator id="FFR3AA1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="3000.0" targetV="400.0" targetQ="0.0" bus="FFR3AA1 " connectableBus="FFR3AA1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+            <iidm:load id="FFR3AA1 _load" loadType="UNDEFINED" p0="1500.0" q0="0.0" bus="FFR3AA1 " connectableBus="FFR3AA1 "/>
+            <iidm:danglingLine id="FFR3AA1  XBEFR11  1" name="" p0="0.0" q0="0.0" r="0.0" x="10.0" g="0.0" b="0.0" generationVoltageRegulationOn="false" generationMinP="-1.7976931348623157E308" generationMaxP="1.7976931348623157E308" generationTargetP="-0.0" generationTargetQ="-0.0" bus="FFR3AA1 " connectableBus="FFR3AA1 " pairingKey="XBEFR11 " selectedOperationalLimitsGroupId="DEFAULT">
+                <iidm:property name="isCoupler" value="false"/>
+                <iidm:property name="status_XNode" value="EQUIVALENT"/>
+                <iidm:property name="geographicalName" value=""/>
+                <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
+                <iidm:operationalLimitsGroup id="DEFAULT" />
+            </iidm:danglingLine>
+        </iidm:voltageLevel>
+        <iidm:voltageLevel id="FFR3AA2" nominalV="220.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="FFR3AA2 ">
+                    <iidm:property name="geographicalName" value="FR3"/>
+                </iidm:bus>
+            </iidm:busBreakerTopology>
+            <iidm:generator id="FFR3AA2 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="500.0" targetV="225.0" targetQ="0.0" bus="FFR3AA2 " connectableBus="FFR3AA2 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+            <iidm:load id="FFR3AA2 _load" loadType="UNDEFINED" p0="1500.0" q0="0.0" bus="FFR3AA2 " connectableBus="FFR3AA2 "/>
+            <iidm:danglingLine id="XBEFR22  FFR3AA2  1" name="" p0="0.0" q0="0.0" r="0.0" x="10.0" g="0.0" b="0.0" generationVoltageRegulationOn="false" generationMinP="-1.7976931348623157E308" generationMaxP="1.7976931348623157E308" generationTargetP="-0.0" generationTargetQ="-0.0" bus="FFR3AA2 " connectableBus="FFR3AA2 " pairingKey="XBEFR22 " selectedOperationalLimitsGroupId="DEFAULT">
+                <iidm:property name="isCoupler" value="false"/>
+                <iidm:property name="status_XNode" value="EQUIVALENT"/>
+                <iidm:property name="geographicalName" value=""/>
+                <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
+                <iidm:operationalLimitsGroup id="DEFAULT">
+                    <iidm:currentLimits permanentLimit="1000.0"/>
+                </iidm:operationalLimitsGroup>
+            </iidm:danglingLine>
+        </iidm:voltageLevel>
+        <iidm:twoWindingsTransformer id="FFR3AA1  FFR3AA2  1" r="0.56" x="42.336" g="8.562E-7" b="-3.3375E-6" ratedU1="225.0" ratedU2="400.0" voltageLevelId1="FFR3AA2" bus1="FFR3AA2 " connectableBus1="FFR3AA2 " voltageLevelId2="FFR3AA1" bus2="FFR3AA1 " connectableBus2="FFR3AA1 " selectedOperationalLimitsGroupId2="DEFAULT">
+            <iidm:property name="nomimalPower" value="100.0"/>
+            <iidm:operationalLimitsGroup2 id="DEFAULT">
+                <iidm:currentLimits permanentLimit="1000.0"/>
+            </iidm:operationalLimitsGroup2>
+        </iidm:twoWindingsTransformer>
+    </iidm:substation>
+    <iidm:substation id="NNL1AA" country="NL">
+        <iidm:voltageLevel id="NNL1AA1" nominalV="220.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="NNL1AA1 ">
+                    <iidm:property name="geographicalName" value="NL1"/>
+                </iidm:bus>
+            </iidm:busBreakerTopology>
+            <iidm:generator id="NNL1AA1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="1500.0" targetV="400.0" targetQ="0.0" bus="NNL1AA1 " connectableBus="NNL1AA1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+            <iidm:load id="NNL1AA1 _load" loadType="UNDEFINED" p0="1000.0" q0="0.0" bus="NNL1AA1 " connectableBus="NNL1AA1 "/>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:substation id="NNL2AA" country="NL">
+        <iidm:voltageLevel id="NNL2AA1" nominalV="380.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="NNL2AA1 ">
+                    <iidm:property name="geographicalName" value="NL2"/>
+                </iidm:bus>
+            </iidm:busBreakerTopology>
+            <iidm:generator id="NNL2AA1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="1500.0" targetV="400.0" targetQ="0.0" bus="NNL2AA1 " connectableBus="NNL2AA1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+            <iidm:load id="NNL2AA1 _load" loadType="UNDEFINED" p0="1000.0" q0="0.0" bus="NNL2AA1 " connectableBus="NNL2AA1 "/>
+            <iidm:danglingLine id="NNL2AA1  XNLBE11  1" name="" p0="0.0" q0="0.0" r="0.0" x="10.0" g="0.0" b="0.0" generationVoltageRegulationOn="false" generationMinP="-1.7976931348623157E308" generationMaxP="1.7976931348623157E308" generationTargetP="-0.0" generationTargetQ="-0.0" bus="NNL2AA1 " connectableBus="NNL2AA1 " pairingKey="XNLBE11 " selectedOperationalLimitsGroupId="DEFAULT">
+                <iidm:property name="isCoupler" value="false"/>
+                <iidm:property name="status_XNode" value="EQUIVALENT"/>
+                <iidm:property name="geographicalName" value=""/>
+                <iidm:property name="elementName" value="TL NL2X"/>
+                <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
+                <iidm:operationalLimitsGroup id="DEFAULT">
+                    <iidm:currentLimits permanentLimit="3200.0"/>
+                </iidm:operationalLimitsGroup>
+            </iidm:danglingLine>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:substation id="NNL3AA" country="NL">
+        <iidm:voltageLevel id="NNL3AA1" nominalV="380.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="NNL3AA1 ">
+                    <iidm:property name="geographicalName" value="NL3"/>
+                </iidm:bus>
+            </iidm:busBreakerTopology>
+            <iidm:generator id="NNL3AA1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="2000.0" targetV="400.0" targetQ="0.0" bus="NNL3AA1 " connectableBus="NNL3AA1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+            <iidm:load id="NNL3AA1 _load" loadType="UNDEFINED" p0="2500.0" q0="0.0" bus="NNL3AA1 " connectableBus="NNL3AA1 "/>
+            <iidm:danglingLine id="NNL3AA1  XDENL11  1" name="" p0="0.0" q0="0.0" r="0.0" x="10.0" g="0.0" b="0.0" generationVoltageRegulationOn="false" generationMinP="-1.7976931348623157E308" generationMaxP="1.7976931348623157E308" generationTargetP="-0.0" generationTargetQ="-0.0" bus="NNL3AA1 " connectableBus="NNL3AA1 " pairingKey="XDENL11 " selectedOperationalLimitsGroupId="DEFAULT">
+                <iidm:property name="isCoupler" value="false"/>
+                <iidm:property name="status_XNode" value="EQUIVALENT"/>
+                <iidm:property name="geographicalName" value=""/>
+                <iidm:property name="elementName" value="TL NL3X"/>
+                <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
+                <iidm:operationalLimitsGroup id="DEFAULT">
+                    <iidm:currentLimits permanentLimit="5000.0"/>
+                </iidm:operationalLimitsGroup>
+            </iidm:danglingLine>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:line id="BBE1AA1  BBE2AA1  1" r="0.0" x="10.0" g1="0.0" b1="0.0" g2="0.0" b2="0.0" voltageLevelId1="BBE1AA1" bus1="BBE1AA1 " connectableBus1="BBE1AA1 " voltageLevelId2="BBE2AA1" bus2="BBE2AA1 " connectableBus2="BBE2AA1 " selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT">
+        <iidm:operationalLimitsGroup1 id="DEFAULT">
+            <iidm:currentLimits permanentLimit="5000.0"/>
+        </iidm:operationalLimitsGroup1>
+        <iidm:operationalLimitsGroup2 id="DEFAULT" />
+    </iidm:line>
+    <iidm:line id="BBE1AA1  BBE3AA1  1" r="0.0" x="10.0" g1="0.0" b1="0.0" g2="0.0" b2="0.0" voltageLevelId1="BBE1AA1" bus1="BBE1AA1 " connectableBus1="BBE1AA1 " voltageLevelId2="BBE3AA1" bus2="BBE3AA1 " connectableBus2="BBE3AA1 " selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT">
+        <iidm:property name="elementName" value="BR BE1BE3"/>
+        <iidm:operationalLimitsGroup1 id="DEFAULT" />
+        <iidm:operationalLimitsGroup2 id="DEFAULT" />
+    </iidm:line>
+    <iidm:line id="BBE1AA2  BBE2AA2  1" r="0.0" x="10.0" g1="0.0" b1="0.0" g2="0.0" b2="0.0" voltageLevelId1="BBE1AA2" bus1="BBE1AA2 " connectableBus1="BBE1AA2 " voltageLevelId2="BBE2AA2" bus2="BBE2AA2 " connectableBus2="BBE2AA2 " selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT">
+        <iidm:property name="elementName" value="BR BE1BE2"/>
+        <iidm:operationalLimitsGroup1 id="DEFAULT">
+            <iidm:currentLimits permanentLimit="1000.0"/>
+        </iidm:operationalLimitsGroup1>
+        <iidm:operationalLimitsGroup2 id="DEFAULT">
+            <iidm:currentLimits permanentLimit="1000.0"/>
+        </iidm:operationalLimitsGroup2>
+    </iidm:line>
+    <iidm:line id="FFR1AA1  FFR2AA1  1" r="0.0" x="10.0" g1="0.0" b1="0.0" g2="0.0" b2="0.0" voltageLevelId1="FFR1AA1" bus1="FFR1AA1 " connectableBus1="FFR1AA1 " voltageLevelId2="FFR2AA1" bus2="FFR2AA1 " connectableBus2="FFR2AA1 " selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT">
+        <iidm:property name="elementName" value="BR FR1FR2"/>
+        <iidm:operationalLimitsGroup1 id="DEFAULT">
+            <iidm:currentLimits permanentLimit="5000.0"/>
+        </iidm:operationalLimitsGroup1>
+        <iidm:operationalLimitsGroup2 id="DEFAULT">
+            <iidm:currentLimits permanentLimit="5000.0"/>
+        </iidm:operationalLimitsGroup2>
+    </iidm:line>
+    <iidm:line id="FFR1AA1  FFR3AA1  1" r="0.0" x="10.0" g1="0.0" b1="0.0" g2="0.0" b2="0.0" voltageLevelId1="FFR1AA1" bus1="FFR1AA1 " connectableBus1="FFR1AA1 " voltageLevelId2="FFR3AA1" bus2="FFR3AA1 " connectableBus2="FFR3AA1 " selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT">
+        <iidm:operationalLimitsGroup1 id="DEFAULT">
+            <iidm:currentLimits permanentLimit="5000.0"/>
+        </iidm:operationalLimitsGroup1>
+        <iidm:operationalLimitsGroup2 id="DEFAULT">
+            <iidm:currentLimits permanentLimit="5000.0"/>
+        </iidm:operationalLimitsGroup2>
+    </iidm:line>
+    <iidm:line id="FFR1AA1  FFR3AA1  2" r="0.0" x="10.0" g1="0.0" b1="0.0" g2="0.0" b2="0.0" voltageLevelId1="FFR1AA1" bus1="FFR1AA1 " connectableBus1="FFR1AA1 " voltageLevelId2="FFR3AA1" bus2="FFR3AA1 " connectableBus2="FFR3AA1 " selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT">
+        <iidm:property name="elementName" value="BR FR1FR3"/>
+        <iidm:operationalLimitsGroup1 id="DEFAULT">
+            <iidm:currentLimits permanentLimit="5000.0"/>
+        </iidm:operationalLimitsGroup1>
+        <iidm:operationalLimitsGroup2 id="DEFAULT">
+            <iidm:currentLimits permanentLimit="5000.0"/>
+        </iidm:operationalLimitsGroup2>
+    </iidm:line>
+    <iidm:line id="FFR2AA1  FFR3AA1  1" r="0.0" x="10.0" g1="0.0" b1="0.0" g2="0.0" b2="0.0" voltageLevelId1="FFR2AA1" bus1="FFR2AA1 " connectableBus1="FFR2AA1 " voltageLevelId2="FFR3AA1" bus2="FFR3AA1 " connectableBus2="FFR3AA1 " selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT">
+        <iidm:operationalLimitsGroup1 id="DEFAULT">
+            <iidm:currentLimits permanentLimit="5000.0"/>
+        </iidm:operationalLimitsGroup1>
+        <iidm:operationalLimitsGroup2 id="DEFAULT">
+            <iidm:currentLimits permanentLimit="5000.0"/>
+        </iidm:operationalLimitsGroup2>
+    </iidm:line>
+    <iidm:line id="FFR1AA2  FFR3AA2  1" r="0.0" x="10.0" g1="0.0" b1="0.0" g2="0.0" b2="0.0" voltageLevelId1="FFR1AA2" bus1="FFR1AA2 " connectableBus1="FFR1AA2 " voltageLevelId2="FFR3AA2" bus2="FFR3AA2 " connectableBus2="FFR3AA2 " selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT">
+        <iidm:operationalLimitsGroup1 id="DEFAULT">
+            <iidm:currentLimits permanentLimit="1000.0"/>
+        </iidm:operationalLimitsGroup1>
+        <iidm:operationalLimitsGroup2 id="DEFAULT">
+            <iidm:currentLimits permanentLimit="1000.0"/>
+        </iidm:operationalLimitsGroup2>
+    </iidm:line>
+    <iidm:line id="DDE1AA1  DDE2AA1  1" r="0.0" x="10.0" g1="0.0" b1="0.0" g2="0.0" b2="0.0" voltageLevelId1="DDE1AA1" bus1="DDE1AA1 " connectableBus1="DDE1AA1 " voltageLevelId2="DDE2AA1" bus2="DDE2AA1 " connectableBus2="DDE2AA1 " selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT">
+        <iidm:operationalLimitsGroup1 id="DEFAULT">
+            <iidm:currentLimits permanentLimit="5000.0"/>
+        </iidm:operationalLimitsGroup1>
+        <iidm:operationalLimitsGroup2 id="DEFAULT">
+            <iidm:currentLimits permanentLimit="5000.0"/>
+        </iidm:operationalLimitsGroup2>
+    </iidm:line>
+    <iidm:line id="DDE1AA1  DDE3AA1  1" r="0.0" x="10.0" g1="0.0" b1="0.0" g2="0.0" b2="0.0" voltageLevelId1="DDE1AA1" bus1="DDE1AA1 " connectableBus1="DDE1AA1 " voltageLevelId2="DDE3AA1" bus2="DDE3AA1 " connectableBus2="DDE3AA1 " selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT">
+        <iidm:operationalLimitsGroup1 id="DEFAULT">
+            <iidm:currentLimits permanentLimit="5000.0"/>
+        </iidm:operationalLimitsGroup1>
+        <iidm:operationalLimitsGroup2 id="DEFAULT">
+            <iidm:currentLimits permanentLimit="5000.0"/>
+        </iidm:operationalLimitsGroup2>
+    </iidm:line>
+    <iidm:line id="DDE2AA1  DDE3AA1  1" r="0.0" x="10.0" g1="0.0" b1="0.0" g2="0.0" b2="0.0" voltageLevelId1="DDE2AA1" bus1="DDE2AA1 " connectableBus1="DDE2AA1 " voltageLevelId2="DDE3AA1" bus2="DDE3AA1 " connectableBus2="DDE3AA1 " selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT">
+        <iidm:operationalLimitsGroup1 id="DEFAULT">
+            <iidm:currentLimits permanentLimit="5000.0"/>
+        </iidm:operationalLimitsGroup1>
+        <iidm:operationalLimitsGroup2 id="DEFAULT">
+            <iidm:currentLimits permanentLimit="5000.0"/>
+        </iidm:operationalLimitsGroup2>
+    </iidm:line>
+    <iidm:line id="NNL1AA1  NNL2AA1  1" r="0.0" x="10.0" g1="0.0" b1="0.0" g2="0.0" b2="0.0" voltageLevelId1="NNL1AA1" bus1="NNL1AA1 " connectableBus1="NNL1AA1 " voltageLevelId2="NNL2AA1" bus2="NNL2AA1 " connectableBus2="NNL2AA1 " selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT">
+        <iidm:operationalLimitsGroup1 id="DEFAULT">
+            <iidm:currentLimits permanentLimit="5000.0"/>
+        </iidm:operationalLimitsGroup1>
+        <iidm:operationalLimitsGroup2 id="DEFAULT">
+            <iidm:currentLimits permanentLimit="5000.0"/>
+        </iidm:operationalLimitsGroup2>
+    </iidm:line>
+    <iidm:line id="NNL1AA1  NNL3AA1  1" r="0.0" x="10.0" g1="0.0" b1="0.0" g2="0.0" b2="0.0" voltageLevelId1="NNL1AA1" bus1="NNL1AA1 " connectableBus1="NNL1AA1 " voltageLevelId2="NNL3AA1" bus2="NNL3AA1 " connectableBus2="NNL3AA1 " selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT">
+        <iidm:operationalLimitsGroup1 id="DEFAULT" />
+        <iidm:operationalLimitsGroup2 id="DEFAULT">
+            <iidm:currentLimits permanentLimit="5000.0"/>
+        </iidm:operationalLimitsGroup2>
+    </iidm:line>
+    <iidm:line id="NNL2AA1  NNL3AA1  1" r="0.0" x="10.0" g1="0.0" b1="0.0" g2="0.0" b2="0.0" voltageLevelId1="NNL2AA1" bus1="NNL2AA1 " connectableBus1="NNL2AA1 " voltageLevelId2="NNL3AA1" bus2="NNL3AA1 " connectableBus2="NNL3AA1 " selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT">
+        <iidm:operationalLimitsGroup1 id="DEFAULT">
+            <iidm:currentLimits permanentLimit="5000.0"/>
+        </iidm:operationalLimitsGroup1>
+        <iidm:operationalLimitsGroup2 id="DEFAULT">
+            <iidm:currentLimits permanentLimit="5000.0"/>
+        </iidm:operationalLimitsGroup2>
+    </iidm:line>
+    <iidm:tieLine id="FFR3AA1  XBEFR11  1 + XBEFR11  BBE2AA1  1" danglingLineId1="FFR3AA1  XBEFR11  1" danglingLineId2="XBEFR11  BBE2AA1  1">
+        <iidm:property name="elementName_2" value="TL BE2X"/>
+        <iidm:property name="status_XNode" value="EQUIVALENT"/>
+        <iidm:property name="geographicalName" value=""/>
+    </iidm:tieLine>
+    <iidm:tieLine id="XFRDE11  DDE3AA1  1 + XFRDE11  FFR2AA1  1" danglingLineId1="XFRDE11  DDE3AA1  1" danglingLineId2="XFRDE11  FFR2AA1  1">
+        <iidm:property name="elementName_2" value="TL FR2X"/>
+        <iidm:property name="elementName_1" value="TL DE3X"/>
+        <iidm:property name="status_XNode" value="EQUIVALENT"/>
+        <iidm:property name="geographicalName" value=""/>
+    </iidm:tieLine>
+    <iidm:tieLine id="XBEFR22  BBE2AA2  1 + XBEFR22  FFR3AA2  1" danglingLineId1="XBEFR22  BBE2AA2  1" danglingLineId2="XBEFR22  FFR3AA2  1">
+        <iidm:property name="status_XNode" value="EQUIVALENT"/>
+        <iidm:property name="geographicalName" value=""/>
+    </iidm:tieLine>
+    <iidm:tieLine id="DDE2AA1  XDENL11  1 + NNL3AA1  XDENL11  1" danglingLineId1="DDE2AA1  XDENL11  1" danglingLineId2="NNL3AA1  XDENL11  1">
+        <iidm:property name="elementName_2" value="TL NL3X"/>
+        <iidm:property name="elementName_1" value="TL DE2X"/>
+        <iidm:property name="status_XNode" value="EQUIVALENT"/>
+        <iidm:property name="geographicalName" value=""/>
+    </iidm:tieLine>
+    <iidm:tieLine id="NNL2AA1  XNLBE11  1 + XNLBE11  BBE3AA1  1" danglingLineId1="NNL2AA1  XNLBE11  1" danglingLineId2="XNLBE11  BBE3AA1  1">
+        <iidm:property name="elementName_2" value="TL BE3X"/>
+        <iidm:property name="elementName_1" value="TL NL2X"/>
+        <iidm:property name="status_XNode" value="EQUIVALENT"/>
+        <iidm:property name="geographicalName" value=""/>
+    </iidm:tieLine>
+    <iidm:tieLine id="BBE1AA2  XBEFR32  1 + FFR1AA2  XBEFR32  1" danglingLineId1="BBE1AA2  XBEFR32  1" danglingLineId2="FFR1AA2  XBEFR32  1">
+        <iidm:property name="elementName_1" value="TL BE1X"/>
+        <iidm:property name="status_XNode" value="EQUIVALENT"/>
+        <iidm:property name="geographicalName" value=""/>
+    </iidm:tieLine>
+    <iidm:area id="BE" areaType="ControlArea">
+        <iidm:voltageLevelRef id="BBE1AA1"/>
+        <iidm:voltageLevelRef id="BBE1AA2"/>
+        <iidm:voltageLevelRef id="BBE2AA1"/>
+        <iidm:voltageLevelRef id="BBE2AA2"/>
+        <iidm:voltageLevelRef id="BBE3AA1"/>
+        <iidm:areaBoundary ac="true" type="boundaryRef" id="BBE1AA2  XBEFR32  1"/>
+        <iidm:areaBoundary ac="true" type="boundaryRef" id="XBEFR11  BBE2AA1  1"/>
+        <iidm:areaBoundary ac="true" type="boundaryRef" id="BBE2AA1  XBE2AL1  1"/>
+        <iidm:areaBoundary ac="true" type="boundaryRef" id="XBEFR22  BBE2AA2  1"/>
+        <iidm:areaBoundary ac="true" type="boundaryRef" id="XNLBE11  BBE3AA1  1"/>
+    </iidm:area>
+    <iidm:area id="DE" areaType="ControlArea">
+        <iidm:voltageLevelRef id="DDE1AA1"/>
+        <iidm:voltageLevelRef id="DDE2AA1"/>
+        <iidm:voltageLevelRef id="DDE3AA1"/>
+        <iidm:areaBoundary ac="true" type="boundaryRef" id="DDE2AA1  XDENL11  1"/>
+        <iidm:areaBoundary ac="true" type="boundaryRef" id="XDE2AL1  DDE2AA1  1"/>
+        <iidm:areaBoundary ac="true" type="boundaryRef" id="XFRDE11  DDE3AA1  1"/>
+    </iidm:area>
+    <iidm:area id="FR" areaType="ControlArea">
+        <iidm:voltageLevelRef id="FFR1AA1"/>
+        <iidm:voltageLevelRef id="FFR1AA2"/>
+        <iidm:voltageLevelRef id="FFR2AA1"/>
+        <iidm:voltageLevelRef id="FFR3AA1"/>
+        <iidm:voltageLevelRef id="FFR3AA2"/>
+        <iidm:areaBoundary ac="true" type="boundaryRef" id="FFR1AA2  XBEFR32  1"/>
+        <iidm:areaBoundary ac="true" type="boundaryRef" id="XFRDE11  FFR2AA1  1"/>
+        <iidm:areaBoundary ac="true" type="boundaryRef" id="FFR3AA1  XBEFR11  1"/>
+        <iidm:areaBoundary ac="true" type="boundaryRef" id="XBEFR22  FFR3AA2  1"/>
+    </iidm:area>
+    <iidm:area id="NL" areaType="ControlArea">
+        <iidm:voltageLevelRef id="NNL1AA1"/>
+        <iidm:voltageLevelRef id="NNL2AA1"/>
+        <iidm:voltageLevelRef id="NNL3AA1"/>
+        <iidm:areaBoundary ac="true" type="boundaryRef" id="NNL2AA1  XNLBE11  1"/>
+        <iidm:areaBoundary ac="true" type="boundaryRef" id="NNL3AA1  XDENL11  1"/>
+    </iidm:area>
+</iidm:network>
