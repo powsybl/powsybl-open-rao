@@ -156,6 +156,11 @@ public class GlobalLinearOptimizationResult implements LinearOptimizationResult 
     }
 
     @Override
+    public Map<State, Set<RangeAction<?>>> getActivatedRangeActionsPerState() {
+        return globalRangeActionActivationResult.getActivatedRangeActionsPerState();
+    }
+
+    @Override
     public double getOptimizedSetpoint(RangeAction<?> rangeAction, State state) {
         return globalRangeActionActivationResult.getOptimizedSetpoint(rangeAction, state);
     }

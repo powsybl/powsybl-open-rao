@@ -10,6 +10,7 @@ package com.powsybl.openrao.searchtreerao.marmot.results;
 import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.searchtreerao.marmot.TestsUtils;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
 import org.junit.jupiter.api.BeforeEach;
@@ -102,5 +103,14 @@ class GlobalRangeActionActivationResultTest {
         assertEquals(Map.of(pstRangeActionTimestamp1, 6.22), globalRangeActionActivationResult.getOptimizedSetpointsOnState(stateTimestamp1));
         assertEquals(Map.of(pstRangeActionTimestamp2, 12.11), globalRangeActionActivationResult.getOptimizedSetpointsOnState(stateTimestamp2));
         assertEquals(Map.of(pstRangeActionTimestamp3, 0.55), globalRangeActionActivationResult.getOptimizedSetpointsOnState(stateTimestamp3));
+    }
+
+    @Test
+    void testActivatedRangeActionsPerState() {
+        Map<State, Set<RangeAction<?>>> activatedRangeActionsPerState = globalRangeActionActivationResult.getActivatedRangeActionsPerState();
+        assertEquals(Set.of(stateTimestamp1, stateTimestamp2, stateTimestamp3), activatedRangeActionsPerState.keySet());
+        assertEquals(Set.of(pstRangeActionTimestamp1), activatedRangeActionsPerState.get(stateTimestamp1));
+        assertEquals(Set.of(pstRangeActionTimestamp2), activatedRangeActionsPerState.get(stateTimestamp2));
+        assertEquals(Set.of(pstRangeActionTimestamp3), activatedRangeActionsPerState.get(stateTimestamp3));
     }
 }

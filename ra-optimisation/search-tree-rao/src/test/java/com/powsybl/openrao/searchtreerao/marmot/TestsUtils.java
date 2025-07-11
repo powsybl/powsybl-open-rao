@@ -63,6 +63,7 @@ public final class TestsUtils {
         RangeActionActivationResult rangeActionActivationResult = Mockito.mock(RangeActionActivationResult.class);
         Mockito.when(rangeActionActivationResult.getRangeActions()).thenReturn(Set.of(pstRangeAction));
         Mockito.when(rangeActionActivationResult.getActivatedRangeActions(state)).thenReturn(Set.of(pstRangeAction));
+        Mockito.when(rangeActionActivationResult.getActivatedRangeActionsPerState()).thenReturn(Map.of(state, Set.of(pstRangeAction)));
         Mockito.when(rangeActionActivationResult.getOptimizedTap(pstRangeAction, state)).thenReturn(tap);
         Mockito.when(rangeActionActivationResult.getTapVariation(pstRangeAction, state)).thenReturn(tap);
         Mockito.when(rangeActionActivationResult.getOptimizedTapsOnState(state)).thenReturn(Map.of(pstRangeAction, tap));

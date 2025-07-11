@@ -6,13 +6,11 @@
  */
 package com.powsybl.openrao.searchtreerao.castor.algorithm;
 
-import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
-import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.searchtreerao.result.api.*;
 import com.powsybl.openrao.searchtreerao.result.impl.PrePerimeterSensitivityResultImpl;
 import com.powsybl.openrao.searchtreerao.commons.SensitivityComputer;
@@ -23,10 +21,7 @@ import com.powsybl.openrao.searchtreerao.result.impl.RemedialActionActivationRes
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 import com.powsybl.iidm.network.Network;
 
-import java.util.Objects;
 import java.util.Set;
-
-import static java.lang.String.format;
 
 /**
  * This class aims at performing the sensitivity analysis before the optimization of a perimeter. At these specific
@@ -35,33 +30,25 @@ import static java.lang.String.format;
  *
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class PrePerimeterSensitivityAnalysis {
-
-    // actual input
-    private final Set<FlowCnec> flowCnecs;
-    private final Set<RangeAction<?>> rangeActions;
-    private final RaoParameters raoParameters;
-    private final ToolProvider toolProvider;
+public class PrePerimeterSensitivityAnalysis extends AbstractMultiPerimeterSensitivityAnalysis {
 
     // built internally
     private SensitivityComputer sensitivityComputer;
     private ObjectiveFunction objectiveFunction;
 
-    public PrePerimeterSensitivityAnalysis(Set<FlowCnec> flowCnecs,
+    public PrePerimeterSensitivityAnalysis(Crac crac,
+                                           Set<FlowCnec> flowCnecs,
                                            Set<RangeAction<?>> rangeActions,
                                            RaoParameters raoParameters,
                                            ToolProvider toolProvider) {
-        this.flowCnecs = flowCnecs;
-        this.rangeActions = rangeActions;
-        this.raoParameters = raoParameters;
-        this.toolProvider = toolProvider;
+        super(crac, flowCnecs, rangeActions, raoParameters, toolProvider);
     }
 
-    public PrePerimeterResult runInitialSensitivityAnalysis(Network network, Crac crac) {
-        return runInitialSensitivityAnalysis(network, crac, Set.of());
+    public PrePerimeterResult runInitialSensitivityAnalysis(Network network) {
+        return runInitialSensitivityAnalysis(network, Set.of());
     }
 
-    public PrePerimeterResult runInitialSensitivityAnalysis(Network network, Crac crac, Set<State> optimizedStates) {
+    public PrePerimeterResult runInitialSensitivityAnalysis(Network network, Set<State> optimizedStates) {
         SensitivityComputer.SensitivityComputerBuilder sensitivityComputerBuilder = buildSensiBuilder()
             .withOutageInstant(crac.getOutageInstant());
         if (raoParameters.getLoopFlowParameters().isPresent()) {
@@ -78,39 +65,11 @@ public class PrePerimeterSensitivityAnalysis {
     }
 
     public PrePerimeterResult runBasedOnInitialResults(Network network,
-                                                       Crac crac,
                                                        FlowResult initialFlowResult,
                                                        Set<String> operatorsNotSharingCras,
                                                        AppliedRemedialActions appliedCurativeRemedialActions) {
 
-        SensitivityComputer.SensitivityComputerBuilder sensitivityComputerBuilder = buildSensiBuilder()
-            .withOutageInstant(crac.getOutageInstant());
-        OpenRaoSearchTreeParameters searchTreeParameters = raoParameters.getExtension(OpenRaoSearchTreeParameters.class);
-        if (!Objects.isNull(searchTreeParameters)) {
-            searchTreeParameters.getLoopFlowParameters().ifPresent(loopFlowParameters -> {
-                if (loopFlowParameters.getPtdfApproximation().shouldUpdatePtdfWithTopologicalChange()) {
-                    sensitivityComputerBuilder.withCommercialFlowsResults(toolProvider.getLoopFlowComputation(), toolProvider.getLoopFlowCnecs(flowCnecs));
-                } else {
-                    sensitivityComputerBuilder.withCommercialFlowsResults(initialFlowResult);
-                }
-            });
-        }
-        if (raoParameters.getObjectiveFunctionParameters().getType().relativePositiveMargins()) {
-            if (Objects.isNull(searchTreeParameters)) {
-                throw new OpenRaoException(format("Objective function %s requires an extension with relative margins parameters", raoParameters.getObjectiveFunctionParameters().getType()));
-            }
-            if (searchTreeParameters.getRelativeMarginsParameters().orElseThrow().getPtdfApproximation().shouldUpdatePtdfWithTopologicalChange()) {
-                sensitivityComputerBuilder.withPtdfsResults(toolProvider.getAbsolutePtdfSumsComputation(), flowCnecs);
-            } else {
-                sensitivityComputerBuilder.withPtdfsResults(initialFlowResult);
-            }
-        }
-        if (appliedCurativeRemedialActions != null) {
-            // for 2nd preventive initial sensi
-            sensitivityComputerBuilder.withAppliedRemedialActions(appliedCurativeRemedialActions);
-        }
-        sensitivityComputer = sensitivityComputerBuilder.build();
-
+        sensitivityComputer = buildSensitivityComputer(initialFlowResult, appliedCurativeRemedialActions);
         objectiveFunction = ObjectiveFunction.build(flowCnecs, toolProvider.getLoopFlowCnecs(flowCnecs), initialFlowResult, initialFlowResult, operatorsNotSharingCras, raoParameters, Set.of(crac.getPreventiveState()));
 
         return runAndGetResult(network, objectiveFunction);
