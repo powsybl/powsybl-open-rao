@@ -85,7 +85,6 @@
         </sonar.coverage.jacoco.xmlReportPaths>
 
         <!-- Dependencies versions -->
-        <apache.commons.lang3>3.13.0</apache.commons.lang3>
         <cucumber.bom.version>7.20.1</cucumber.bom.version>
         <commonsio.version>2.16.1</commonsio.version>
         <google.autoservice.version>1.1.1</google.autoservice.version>
@@ -446,11 +445,6 @@
             </dependency>
 
             <!-- Compile dependencies -->
-            <dependency>
-                <groupId>org.apache.commons</groupId>
-                <artifactId>commons-lang3</artifactId>
-                <version>${apache.commons.lang3}</version>
-            </dependency>
             <dependency>
                 <groupId>commons-io</groupId>
                 <artifactId>commons-io</artifactId>
