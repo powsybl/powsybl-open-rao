@@ -49,10 +49,10 @@ class SystematicSensitivityAdapterTest {
         assertEquals(25, result.getReferenceFlow(crac.getFlowCnec("cnec2stateCurativeContingency1"), TWO), DOUBLE_TOLERANCE);
 
         assertEquals(25, result.getReferenceIntensity(crac.getFlowCnec("cnec2basecase"), ONE), DOUBLE_TOLERANCE);
-        assertEquals(30, result.getReferenceIntensity(crac.getFlowCnec("cnec2basecase"), TWO), DOUBLE_TOLERANCE);
+        assertEquals(-30, result.getReferenceIntensity(crac.getFlowCnec("cnec2basecase"), TWO), DOUBLE_TOLERANCE);
 
-        assertEquals(200, result.getReferenceIntensity(crac.getFlowCnec("cnec1stateCurativeContingency2"), ONE), DOUBLE_TOLERANCE);
-        assertEquals(200, result.getReferenceIntensity(crac.getFlowCnec("cnec2stateCurativeContingency1"), ONE), DOUBLE_TOLERANCE);
+        assertEquals(-200, result.getReferenceIntensity(crac.getFlowCnec("cnec1stateCurativeContingency2"), ONE), DOUBLE_TOLERANCE);
+        assertEquals(-200, result.getReferenceIntensity(crac.getFlowCnec("cnec2stateCurativeContingency1"), ONE), DOUBLE_TOLERANCE);
         assertEquals(205, result.getReferenceIntensity(crac.getFlowCnec("cnec1stateCurativeContingency2"), TWO), DOUBLE_TOLERANCE);
         assertEquals(205, result.getReferenceIntensity(crac.getFlowCnec("cnec2stateCurativeContingency1"), TWO), DOUBLE_TOLERANCE);
 
@@ -85,8 +85,8 @@ class SystematicSensitivityAdapterTest {
         assertEquals(25, result.getReferenceIntensity(crac.getFlowCnec("cnec2basecase"), ONE), DOUBLE_TOLERANCE);
         assertEquals(0, result.getReferenceIntensity(crac.getFlowCnec("cnec2basecase"), TWO), DOUBLE_TOLERANCE);
 
-        assertEquals(200, result.getReferenceIntensity(crac.getFlowCnec("cnec1stateCurativeContingency2"), ONE), DOUBLE_TOLERANCE);
-        assertEquals(200, result.getReferenceIntensity(crac.getFlowCnec("cnec2stateCurativeContingency1"), ONE), DOUBLE_TOLERANCE);
+        assertEquals(-200, result.getReferenceIntensity(crac.getFlowCnec("cnec1stateCurativeContingency2"), ONE), DOUBLE_TOLERANCE);
+        assertEquals(-200, result.getReferenceIntensity(crac.getFlowCnec("cnec2stateCurativeContingency1"), ONE), DOUBLE_TOLERANCE);
         assertEquals(0, result.getReferenceIntensity(crac.getFlowCnec("cnec1stateCurativeContingency2"), TWO), DOUBLE_TOLERANCE);
         assertEquals(0, result.getReferenceIntensity(crac.getFlowCnec("cnec2stateCurativeContingency1"), TWO), DOUBLE_TOLERANCE);
 
@@ -131,9 +131,9 @@ class SystematicSensitivityAdapterTest {
         assertEquals(25, result.getReferenceFlow(crac.getFlowCnec("cnec1stateCurativeContingency2"), TWO), DOUBLE_TOLERANCE);
 
         assertEquals(25, result.getReferenceIntensity(crac.getFlowCnec("cnec2basecase"), ONE), DOUBLE_TOLERANCE);
-        assertEquals(30, result.getReferenceIntensity(crac.getFlowCnec("cnec2basecase"), TWO), DOUBLE_TOLERANCE);
+        assertEquals(-30, result.getReferenceIntensity(crac.getFlowCnec("cnec2basecase"), TWO), DOUBLE_TOLERANCE);
 
-        assertEquals(200, result.getReferenceIntensity(crac.getFlowCnec("cnec1stateCurativeContingency2"), ONE), DOUBLE_TOLERANCE);
+        assertEquals(-200, result.getReferenceIntensity(crac.getFlowCnec("cnec1stateCurativeContingency2"), ONE), DOUBLE_TOLERANCE);
         assertEquals(205, result.getReferenceIntensity(crac.getFlowCnec("cnec1stateCurativeContingency2"), TWO), DOUBLE_TOLERANCE);
 
         assertEquals(0.5, result.getSensitivityOnFlow(crac.getRangeAction("pst"), crac.getFlowCnec("cnec2basecase"), ONE), DOUBLE_TOLERANCE);
@@ -146,7 +146,7 @@ class SystematicSensitivityAdapterTest {
         assertEquals(-40, result.getReferenceFlow(crac.getFlowCnec("cnec2stateCurativeContingency1"), ONE), DOUBLE_TOLERANCE);
         assertEquals(45, result.getReferenceFlow(crac.getFlowCnec("cnec2stateCurativeContingency1"), TWO), DOUBLE_TOLERANCE);
 
-        assertEquals(90, result.getReferenceIntensity(crac.getFlowCnec("cnec2stateCurativeContingency1"), ONE), DOUBLE_TOLERANCE);
+        assertEquals(-90, result.getReferenceIntensity(crac.getFlowCnec("cnec2stateCurativeContingency1"), ONE), DOUBLE_TOLERANCE);
         assertEquals(95, result.getReferenceIntensity(crac.getFlowCnec("cnec2stateCurativeContingency1"), TWO), DOUBLE_TOLERANCE);
 
         assertEquals(-2.5, result.getSensitivityOnFlow(crac.getRangeAction("pst"), crac.getFlowCnec("cnec2stateCurativeContingency1"), ONE), DOUBLE_TOLERANCE);
@@ -156,7 +156,7 @@ class SystematicSensitivityAdapterTest {
         assertEquals(-20, result.getReferenceFlow(crac.getFlowCnec("cnec2stateOutageContingency1"), ONE), DOUBLE_TOLERANCE);
         assertEquals(25, result.getReferenceFlow(crac.getFlowCnec("cnec2stateOutageContingency1"), TWO), DOUBLE_TOLERANCE);
 
-        assertEquals(200, result.getReferenceIntensity(crac.getFlowCnec("cnec2stateOutageContingency1"), ONE), DOUBLE_TOLERANCE);
+        assertEquals(-200, result.getReferenceIntensity(crac.getFlowCnec("cnec2stateOutageContingency1"), ONE), DOUBLE_TOLERANCE);
         assertEquals(205, result.getReferenceIntensity(crac.getFlowCnec("cnec2stateOutageContingency1"), TWO), DOUBLE_TOLERANCE);
 
         assertEquals(-5, result.getSensitivityOnFlow(crac.getRangeAction("pst"), crac.getFlowCnec("cnec2stateOutageContingency1"), ONE), DOUBLE_TOLERANCE);

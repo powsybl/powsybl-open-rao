@@ -76,6 +76,30 @@ class SystematicSensitivityResultTest {
         linearGlsk = glskProvider.getData("10YFR-RTE------C");
     }
 
+    @Test
+    void testPostTreatIntensities() {
+        setUpWith12Nodes();
+        // When
+        SensitivityAnalysisResult sensitivityAnalysisResult = SensitivityAnalysis.find().run(network,
+            rangeActionSensitivityProvider.getAllFactors(network),
+            ptdfSensitivityProvider.getContingencies(network),
+            new ArrayList<>(),
+            SensitivityAnalysisParameters.load());
+        SystematicSensitivityResult result = new SystematicSensitivityResult().completeData(sensitivityAnalysisResult, outageInstantOrder);
+
+        // Before postTreating intensities
+        assertEquals(-20, result.getReferenceFlow(contingencyCnec, TwoSides.ONE), EPSILON);
+        assertEquals(200, result.getReferenceIntensity(contingencyCnec, TwoSides.ONE), EPSILON);
+        assertEquals(25, result.getReferenceFlow(contingencyCnec, TwoSides.TWO), EPSILON);
+        assertEquals(205, result.getReferenceIntensity(contingencyCnec, TwoSides.TWO), EPSILON);
+
+        // After postTreating intensities
+        result.postTreatIntensities();
+        assertEquals(-20, result.getReferenceFlow(contingencyCnec, TwoSides.ONE), EPSILON);
+        assertEquals(-200, result.getReferenceIntensity(contingencyCnec, TwoSides.ONE), EPSILON);
+        assertEquals(25, result.getReferenceFlow(contingencyCnec, TwoSides.TWO), EPSILON);
+        assertEquals(205, result.getReferenceIntensity(contingencyCnec, TwoSides.TWO), EPSILON);
+    }
 
     @Test
     void testPstResultManipulation() {
@@ -86,7 +110,7 @@ class SystematicSensitivityResultTest {
             rangeActionSensitivityProvider.getContingencies(network),
             new ArrayList<>(),
             SensitivityAnalysisParameters.load());
-        SystematicSensitivityResult result = new SystematicSensitivityResult().completeData(sensitivityAnalysisResult, outageInstantOrder);
+        SystematicSensitivityResult result = new SystematicSensitivityResult().completeData(sensitivityAnalysisResult, outageInstantOrder).postTreatIntensities();
 
         // Then
         assertTrue(result.isSuccess());
@@ -97,12 +121,12 @@ class SystematicSensitivityResultTest {
         assertEquals(25, result.getReferenceIntensity(nStateCnec, TwoSides.ONE), EPSILON);
         assertEquals(0.5, result.getSensitivityOnFlow(rangeAction, nStateCnec, TwoSides.ONE), EPSILON);
         assertEquals(-15, result.getReferenceFlow(nStateCnec, TwoSides.TWO), EPSILON);
-        assertEquals(30, result.getReferenceIntensity(nStateCnec, TwoSides.TWO), EPSILON);
+        assertEquals(-30, result.getReferenceIntensity(nStateCnec, TwoSides.TWO), EPSILON);
         assertEquals(-0.55, result.getSensitivityOnFlow(rangeAction, nStateCnec, TwoSides.TWO), EPSILON);
 
         //  after contingency
         assertEquals(-20, result.getReferenceFlow(contingencyCnec, TwoSides.ONE), EPSILON);
-        assertEquals(200, result.getReferenceIntensity(contingencyCnec, TwoSides.ONE), EPSILON);
+        assertEquals(-200, result.getReferenceIntensity(contingencyCnec, TwoSides.ONE), EPSILON);
         assertEquals(-5, result.getSensitivityOnFlow(rangeAction, contingencyCnec, TwoSides.ONE), EPSILON);
         assertEquals(25, result.getReferenceFlow(contingencyCnec, TwoSides.TWO), EPSILON);
         assertEquals(205, result.getReferenceIntensity(contingencyCnec, TwoSides.TWO), EPSILON);
@@ -118,7 +142,7 @@ class SystematicSensitivityResultTest {
             ptdfSensitivityProvider.getContingencies(network),
             new ArrayList<>(),
             SensitivityAnalysisParameters.load());
-        SystematicSensitivityResult result = new SystematicSensitivityResult().completeData(sensitivityAnalysisResult, outageInstantOrder);
+        SystematicSensitivityResult result = new SystematicSensitivityResult().completeData(sensitivityAnalysisResult, outageInstantOrder).postTreatIntensities();
 
         // Then
         assertTrue(result.isSuccess());
@@ -141,7 +165,7 @@ class SystematicSensitivityResultTest {
         setUpWith12Nodes();
         // When
         SensitivityAnalysisResult sensitivityAnalysisResult = Mockito.mock(SensitivityAnalysisResult.class);
-        SystematicSensitivityResult result = new SystematicSensitivityResult().completeData(sensitivityAnalysisResult, outageInstantOrder);
+        SystematicSensitivityResult result = new SystematicSensitivityResult().completeData(sensitivityAnalysisResult, outageInstantOrder).postTreatIntensities();
 
         // Then
         assertFalse(result.isSuccess());
@@ -193,6 +217,7 @@ class SystematicSensitivityResultTest {
             SensitivityAnalysisParameters.load());
         SystematicSensitivityResult result = new SystematicSensitivityResult()
             .completeData(sensitivityAnalysisResult, outageInstantOrder)
+            .postTreatIntensities()
             .postTreatHvdcs(network, hvdcs);
 
         assertEquals(30., result.getReferenceFlow(nStateCnec, TwoSides.ONE), EPSILON);
@@ -216,6 +241,7 @@ class SystematicSensitivityResultTest {
             SensitivityAnalysisParameters.load());
         SystematicSensitivityResult result = new SystematicSensitivityResult()
             .completeData(sensitivityAnalysisResult, outageInstantOrder)
+            .postTreatIntensities()
             .postTreatHvdcs(network, hvdcs);
 
         assertEquals(30., result.getReferenceFlow(nStateCnec, TwoSides.ONE), EPSILON);
@@ -260,7 +286,7 @@ class SystematicSensitivityResultTest {
             List.of(contingency),
             new ArrayList<>(),
             SensitivityAnalysisParameters.load());
-        SystematicSensitivityResult result = new SystematicSensitivityResult().completeData(sensitivityAnalysisResult, outageInstantOrder);
+        SystematicSensitivityResult result = new SystematicSensitivityResult().completeData(sensitivityAnalysisResult, outageInstantOrder).postTreatIntensities();
 
         // N is in SUCCESS, N-1 in failure
         assertTrue(result.isSuccess());
@@ -413,7 +439,5 @@ class SystematicSensitivityResultTest {
 
         assertEquals(SystematicSensitivityResult.SensitivityComputationStatus.FAILURE, result.getStatus());
     }
-
-    //TODO add test for getSensitivityOnIntensity
 
 }
