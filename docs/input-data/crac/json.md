@@ -1275,8 +1275,10 @@ In that case, the validity domain of the HVDC is [-5; 10].
 An InjectionRangeAction modifies given generators' & loads' injection set-points inside a given range.  
 Each impacted generator or load has an associated "key", which is a coefficient of impact that is applied on its set-point.
 
-This range action is mainly used to represent an HVDC line in an AC equivalent model (where the line is disconnected and
-replaced by two injections, one on each side of the line, with opposite keys of 1 and -1).
+This range action has two main applications:
+* to represent redispatching remedial actions for [inter-temporal computations](../../algorithms/castor/linear-problem/inter-temporal-constraints.md)
+* to represent an HVDC line in an AC equivalent model (where the line is disconnected and
+replaced by two injections, one on each side of the line, with opposite keys of 1 and -1), as illustrated in the following diagram.
 
 ![HVDC AC model](../../_static/img/HVDC_AC_model.png){.forced-white-background}
 
