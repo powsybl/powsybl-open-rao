@@ -10,6 +10,9 @@
         <version>6.7.0-SNAPSHOT</version>
     </parent>
     <artifactId>open-rao-virtual-hubs-api</artifactId>
+    <packaging>jar</packaging>
+    <name>Virtual hubs object model</name>
+    <description>Object model for Virtual hubs</description>
     <dependencies>
         <dependency>
             <groupId>org.junit.jupiter</groupId>

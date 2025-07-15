@@ -11,6 +11,9 @@
     </parent>
 
     <artifactId>open-rao-virtual-hubs-network-extension</artifactId>
+    <packaging>jar</packaging>
+    <name>Virtual hubs network extension</name>
+    <description>Network extension for virtual hubs</description>
 
     <dependencies>
         <!-- Compile dependencies -->

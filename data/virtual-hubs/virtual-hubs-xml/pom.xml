@@ -11,6 +11,9 @@
     </parent>
 
     <artifactId>open-rao-virtual-hubs-xml</artifactId>
+    <packaging>jar</packaging>
+    <name>Virtual hubs XML converter</name>
+    <description>Conversion between XML data and virtual hubs</description>
 
     <dependencies>
         <dependency>
