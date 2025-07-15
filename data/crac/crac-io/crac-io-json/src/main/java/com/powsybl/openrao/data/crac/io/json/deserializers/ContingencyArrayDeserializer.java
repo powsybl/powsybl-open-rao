@@ -7,7 +7,7 @@
 
 package com.powsybl.openrao.data.crac.io.json.deserializers;
 
-import com.powsybl.contingency.ContingencyElement;
+import com.powsybl.contingency.ContingencyElementFactory;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
@@ -51,7 +51,7 @@ final class ContingencyArrayDeserializer {
                                     + " does not exist in network " + network.getId()
                                     + ", so it does not have type information and can not be converted to a contingency element.");
                             }
-                            adder.withContingencyElement(neId, ContingencyElement.of(ne).getType());
+                            adder.withContingencyElement(neId, ContingencyElementFactory.create(ne).getType());
                         }
                         break;
                     default:

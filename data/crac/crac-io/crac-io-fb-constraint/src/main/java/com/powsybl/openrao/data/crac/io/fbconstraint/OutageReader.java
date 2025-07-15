@@ -6,7 +6,7 @@
  */
 package com.powsybl.openrao.data.crac.io.fbconstraint;
 
-import com.powsybl.contingency.ContingencyElement;
+import com.powsybl.contingency.ContingencyElementFactory;
 import com.powsybl.contingency.ContingencyElementType;
 import com.powsybl.openrao.data.crac.api.ContingencyAdder;
 import com.powsybl.openrao.data.crac.api.Crac;
@@ -91,8 +91,8 @@ class OutageReader {
                     this.isOutageValid = false;
                     this.invalidOutageReason = String.format("one of the two Xnodes of outage %s was not found in the network: %s, %s", outage.getId(), hvdcVH.getFrom(), hvdcVH.getTo());
                 } else {
-                    outageElementIdsAndContingencyType.put(dl1.getId(), ContingencyElement.of(dl1).getType());
-                    outageElementIdsAndContingencyType.put(dl2.getId(), ContingencyElement.of(dl2).getType());
+                    outageElementIdsAndContingencyType.put(dl1.getId(), ContingencyElementFactory.create(dl1).getType());
+                    outageElementIdsAndContingencyType.put(dl2.getId(), ContingencyElementFactory.create(dl2).getType());
                 }
             });
         }

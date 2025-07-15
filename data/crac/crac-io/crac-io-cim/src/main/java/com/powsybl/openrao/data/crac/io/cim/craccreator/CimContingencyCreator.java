@@ -7,7 +7,7 @@
 
 package com.powsybl.openrao.data.crac.io.cim.craccreator;
 
-import com.powsybl.contingency.ContingencyElement;
+import com.powsybl.contingency.ContingencyElementFactory;
 import com.powsybl.contingency.ContingencyElementType;
 import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.TieLine;
@@ -81,7 +81,7 @@ public class CimContingencyCreator {
             Identifiable<?> networkElement = getNetworkElementInNetwork(registeredResource.getMRID().getValue());
             if (networkElement != null) {
                 String networkElementId = networkElement.getId();
-                ContingencyElementType contingencyElementType = ContingencyElement.of(networkElement).getType();
+                ContingencyElementType contingencyElementType = ContingencyElementFactory.create(networkElement).getType();
                 contingencyAdder.withContingencyElement(networkElementId, contingencyElementType);
                 anyRegisteredResourceOk = true;
             } else {

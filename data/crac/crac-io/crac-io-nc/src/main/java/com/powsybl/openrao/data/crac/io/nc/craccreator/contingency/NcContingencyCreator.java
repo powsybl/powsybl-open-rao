@@ -7,7 +7,7 @@
 
 package com.powsybl.openrao.data.crac.io.nc.craccreator.contingency;
 
-import com.powsybl.contingency.ContingencyElement;
+import com.powsybl.contingency.ContingencyElementFactory;
 import com.powsybl.contingency.ContingencyElementType;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.openrao.data.crac.api.ContingencyAdder;
@@ -100,7 +100,7 @@ public class NcContingencyCreator {
                 if (networkElement == null) {
                     missingNetworkElements.add(nativeContingencyEquipment.equipment());
                 } else {
-                    ContingencyElementType contingencyElementType = ContingencyElement.of(networkElement).getType();
+                    ContingencyElementType contingencyElementType = ContingencyElementFactory.create(networkElement).getType();
                     contingencyAdder.withContingencyElement(networkElement.getId(), contingencyElementType);
                 }
             }

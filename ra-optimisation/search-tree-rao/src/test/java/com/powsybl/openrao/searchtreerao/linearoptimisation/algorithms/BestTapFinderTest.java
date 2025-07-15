@@ -19,7 +19,9 @@ import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.Optimiza
 import com.powsybl.openrao.searchtreerao.result.api.*;
 import com.powsybl.openrao.searchtreerao.result.impl.RangeActionActivationResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.RangeActionSetpointResultImpl;
+import com.powsybl.iidm.network.DefaultMessageHeader;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.Validable;
 import com.powsybl.iidm.network.ValidationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -88,13 +90,14 @@ class BestTapFinderTest {
     }
 
     private void mockPstRangeAction(PstRangeAction pstRangeAction) {
-        when(pstRangeAction.convertTapToAngle(-3)).thenThrow(new ValidationException(() -> "header", "Out of bound"));
+        Validable.MessageHeader messageHeader = new DefaultMessageHeader("PST", "1");
+        when(pstRangeAction.convertTapToAngle(-3)).thenThrow(new ValidationException(() -> messageHeader, "Out of bound"));
         when(pstRangeAction.convertTapToAngle(-2)).thenReturn(-2.5);
         when(pstRangeAction.convertTapToAngle(-1)).thenReturn(-0.75);
         when(pstRangeAction.convertTapToAngle(0)).thenReturn(0.);
         when(pstRangeAction.convertTapToAngle(1)).thenReturn(0.75);
         when(pstRangeAction.convertTapToAngle(2)).thenReturn(2.5);
-        when(pstRangeAction.convertTapToAngle(3)).thenThrow(new ValidationException(() -> "header", "Out of bound"));
+        when(pstRangeAction.convertTapToAngle(3)).thenThrow(new ValidationException(() -> messageHeader, "Out of bound"));
     }
 
     private void setClosestTapPosition(PstRangeAction pstRangeAction, double setPoint, int tapPosition) {

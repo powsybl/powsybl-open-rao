@@ -7,7 +7,7 @@
 
 package com.powsybl.openrao.data.crac.io.commons.ucte;
 
-import com.powsybl.contingency.ContingencyElement;
+import com.powsybl.contingency.ContingencyElementFactory;
 import com.powsybl.contingency.ContingencyElementType;
 import com.powsybl.openrao.data.crac.io.commons.ElementHelper;
 import com.powsybl.iidm.network.Identifiable;
@@ -95,7 +95,7 @@ public class UcteContingencyElementHelper extends AbstractUcteConnectableHelper 
         Identifiable<?> networkElement = ucteMatchingResult.getIidmIdentifiable();
 
         this.connectableIdInNetwork = networkElement.getId();
-        this.connectableContingencyTypeInNetwork = ContingencyElement.of(networkElement).getType();
+        this.connectableContingencyTypeInNetwork = ContingencyElementFactory.create(networkElement).getType();
 
     }
 }
