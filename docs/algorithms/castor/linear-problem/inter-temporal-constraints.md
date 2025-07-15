@@ -2,7 +2,7 @@
 
 ```{toctree}
 :hidden:
-costly-specific/power-gradient-constraint-filler.md
+inter-temporal-constraints/power-gradient-constraint-filler.md
 ```
 
 Remedial actions can be integrated in costly computations by configuring their activation cost
