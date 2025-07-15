@@ -58,6 +58,7 @@ public class SearchTree {
     private static final int NUMBER_LOGGED_ELEMENTS_DURING_TREE = 2;
     private static final int NUMBER_LOGGED_ELEMENTS_END_TREE = 5;
     private static final int NUMBER_LOGGED_VIRTUAL_COSTLY_ELEMENTS = 10;
+    private static final String SEARCH_TREE_WORKING_VARIANT_ID = "SearchTreeWorkingVariantId";
 
     /**
      * attribute defined in constructor of the search tree class
@@ -94,52 +95,60 @@ public class SearchTree {
     }
 
     public CompletableFuture<OptimizationResult> run() {
+        String preSearchTreeVariantId = input.getNetwork().getVariantManager().getWorkingVariantId();
+        input.getNetwork().getVariantManager().cloneVariant(preSearchTreeVariantId, SEARCH_TREE_WORKING_VARIANT_ID, true);
+        input.getNetwork().getVariantManager().setWorkingVariant(SEARCH_TREE_WORKING_VARIANT_ID);
+        try {
+            initLeaves(input);
 
-        initLeaves(input);
+            TECHNICAL_LOGS.debug("Evaluating root leaf");
+            rootLeaf.evaluate(input.getObjectiveFunction(), getSensitivityComputerForEvaluation(true));
+            if (rootLeaf.getStatus().equals(Leaf.Status.ERROR)) {
+                topLevelLogger.info("Could not evaluate leaf: {}", rootLeaf);
+                logOptimizationSummary(rootLeaf);
+                rootLeaf.finalizeOptimization();
 
-        TECHNICAL_LOGS.debug("Evaluating root leaf");
-        rootLeaf.evaluate(input.getObjectiveFunction(), getSensitivityComputerForEvaluation(true));
-        if (rootLeaf.getStatus().equals(Leaf.Status.ERROR)) {
-            topLevelLogger.info("Could not evaluate leaf: {}", rootLeaf);
-            logOptimizationSummary(rootLeaf);
-            rootLeaf.finalizeOptimization();
-            return CompletableFuture.completedFuture(rootLeaf);
-        } else if (stopCriterionReached(rootLeaf)) {
-            topLevelLogger.info("Stop criterion reached on {}", rootLeaf);
-            RaoLogger.logMostLimitingElementsResults(topLevelLogger, rootLeaf, parameters.getObjectiveFunction(), parameters.getObjectiveFunctionUnit(), NUMBER_LOGGED_ELEMENTS_END_TREE);
-            logOptimizationSummary(rootLeaf);
-            rootLeaf.finalizeOptimization();
-            return CompletableFuture.completedFuture(rootLeaf);
+                return CompletableFuture.completedFuture(rootLeaf);
+            } else if (stopCriterionReached(rootLeaf)) {
+                topLevelLogger.info("Stop criterion reached on {}", rootLeaf);
+                RaoLogger.logMostLimitingElementsResults(topLevelLogger, rootLeaf, parameters.getObjectiveFunction(), parameters.getObjectiveFunctionUnit(), NUMBER_LOGGED_ELEMENTS_END_TREE);
+                logOptimizationSummary(rootLeaf);
+                rootLeaf.finalizeOptimization();
+                return CompletableFuture.completedFuture(rootLeaf);
+            }
+
+            TECHNICAL_LOGS.info("{}", rootLeaf);
+            RaoLogger.logMostLimitingElementsResults(TECHNICAL_LOGS, rootLeaf, parameters.getObjectiveFunction(), parameters.getObjectiveFunctionUnit(), NUMBER_LOGGED_ELEMENTS_DURING_TREE);
+
+            TECHNICAL_LOGS.info("Linear optimization on root leaf");
+            optimizeLeaf(rootLeaf);
+
+            topLevelLogger.info("{}", rootLeaf);
+            RaoLogger.logRangeActions(TECHNICAL_LOGS, optimalLeaf, input.getOptimizationPerimeter(), null);
+            RaoLogger.logMostLimitingElementsResults(topLevelLogger, optimalLeaf, parameters.getObjectiveFunction(), parameters.getObjectiveFunctionUnit(), NUMBER_LOGGED_ELEMENTS_DURING_TREE);
+            logVirtualCostInformation(rootLeaf, "");
+
+            if (stopCriterionReached(rootLeaf)) {
+                logOptimizationSummary(rootLeaf);
+                rootLeaf.finalizeOptimization();
+                return CompletableFuture.completedFuture(rootLeaf);
+            }
+
+            iterateOnTree();
+
+            TECHNICAL_LOGS.info("Search-tree RAO completed with status {}", optimalLeaf.getSensitivityStatus());
+
+            TECHNICAL_LOGS.info("Best leaf: {}", optimalLeaf);
+            RaoLogger.logRangeActions(TECHNICAL_LOGS, optimalLeaf, input.getOptimizationPerimeter(), "Best leaf: ");
+            RaoLogger.logMostLimitingElementsResults(TECHNICAL_LOGS, optimalLeaf, parameters.getObjectiveFunction(), parameters.getObjectiveFunctionUnit(), NUMBER_LOGGED_ELEMENTS_END_TREE);
+
+            logOptimizationSummary(optimalLeaf);
+            optimalLeaf.finalizeOptimization();
+            return CompletableFuture.completedFuture(optimalLeaf);
+        // Actions have been applied on root leaf, finally revert to initial network
+        } finally {
+            input.getNetwork().getVariantManager().setWorkingVariant(preSearchTreeVariantId);
         }
-
-        TECHNICAL_LOGS.info("{}", rootLeaf);
-        RaoLogger.logMostLimitingElementsResults(TECHNICAL_LOGS, rootLeaf, parameters.getObjectiveFunction(), parameters.getObjectiveFunctionUnit(), NUMBER_LOGGED_ELEMENTS_DURING_TREE);
-
-        TECHNICAL_LOGS.info("Linear optimization on root leaf");
-        optimizeLeaf(rootLeaf);
-
-        topLevelLogger.info("{}", rootLeaf);
-        RaoLogger.logRangeActions(TECHNICAL_LOGS, optimalLeaf, input.getOptimizationPerimeter(), null);
-        RaoLogger.logMostLimitingElementsResults(topLevelLogger, optimalLeaf, parameters.getObjectiveFunction(), parameters.getObjectiveFunctionUnit(), NUMBER_LOGGED_ELEMENTS_DURING_TREE);
-        logVirtualCostInformation(rootLeaf, "");
-
-        if (stopCriterionReached(rootLeaf)) {
-            logOptimizationSummary(rootLeaf);
-            rootLeaf.finalizeOptimization();
-            return CompletableFuture.completedFuture(rootLeaf);
-        }
-
-        iterateOnTree();
-
-        TECHNICAL_LOGS.info("Search-tree RAO completed with status {}", optimalLeaf.getSensitivityStatus());
-
-        TECHNICAL_LOGS.info("Best leaf: {}", optimalLeaf);
-        RaoLogger.logRangeActions(TECHNICAL_LOGS, optimalLeaf, input.getOptimizationPerimeter(), "Best leaf: ");
-        RaoLogger.logMostLimitingElementsResults(TECHNICAL_LOGS, optimalLeaf, parameters.getObjectiveFunction(), parameters.getObjectiveFunctionUnit(), NUMBER_LOGGED_ELEMENTS_END_TREE);
-
-        logOptimizationSummary(optimalLeaf);
-        optimalLeaf.finalizeOptimization();
-        return CompletableFuture.completedFuture(optimalLeaf);
     }
 
     void initLeaves(SearchTreeInput input) {

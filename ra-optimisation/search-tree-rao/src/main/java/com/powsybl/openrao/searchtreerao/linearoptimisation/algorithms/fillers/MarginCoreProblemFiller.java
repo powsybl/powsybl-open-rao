@@ -51,14 +51,18 @@ public class MarginCoreProblemFiller extends AbstractCoreProblemFiller {
      * activations. This penalty cost prioritizes the solutions which change as little
      * as possible the set points of the RangeActions.
      * <p>
-     * min( sum{r in RangeAction} penaltyCost[r] - AV[r] )
+     * min( sum{r in RangeAction} penaltyCost[r]  - (upwardVariation[r] + downwardVariation[r]) )
      */
     @Override
     protected void fillObjective(LinearProblem linearProblem) {
         optimizationContext.getRangeActionsPerState().forEach((state, rangeActions) -> rangeActions.forEach(ra -> {
-            OpenRaoMPVariable absoluteVariationVariable = linearProblem.getAbsoluteRangeActionVariationVariable(ra, state);
-            if (absoluteVariationVariable != null) {
-                linearProblem.getObjective().setCoefficient(absoluteVariationVariable, getRangeActionPenaltyCost(ra, rangeActionParameters));
+            OpenRaoMPVariable upwardVariationVariable = linearProblem.getRangeActionVariationVariable(ra, state, LinearProblem.VariationDirectionExtension.UPWARD);
+            if (upwardVariationVariable != null) {
+                linearProblem.getObjective().setCoefficient(upwardVariationVariable, getRangeActionPenaltyCost(ra, rangeActionParameters));
+            }
+            OpenRaoMPVariable downwardVariationVariable = linearProblem.getRangeActionVariationVariable(ra, state, LinearProblem.VariationDirectionExtension.DOWNWARD);
+            if (downwardVariationVariable != null) {
+                linearProblem.getObjective().setCoefficient(downwardVariationVariable, getRangeActionPenaltyCost(ra, rangeActionParameters));
             }
         }));
     }

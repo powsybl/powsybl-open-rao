@@ -10,12 +10,12 @@ parameters/implementation-specific-parameters.md
 
 The RAO parameters allow tuning the RAO.
 
-It contains **business parameters** (see [business-parameters](/parameters/business_parameters)) which allow
+It contains **business parameters** (see [business-parameters](parameters/business-parameters.md)) which allow
 to choose the business objective function of the RAO (maximize min margin, get a positive margin, ...), 
 to activate/deactivate optional business features, etc.
 
 It also contains **extensions** which are **implementation specific parameters** 
-(see [implementation-specific-parameters](/parameters/implementation-specific-parameters)), in particular the open 
+(see [implementation-specific-parameters](parameters/implementation-specific-parameters.md)), in particular the open 
 rao search tree extension. These extensions allow to fine-tune the search algorithm, improve performance and/or 
 quality of results.
 
@@ -134,24 +134,24 @@ Examples of rao parameters with business and implementation specific parameters
             }
           }
         }
+      },
+      "loop-flow-parameters" : {
+        "acceptable-increase" : 10.0,
+        "ptdf-approximation" : "FIXED_PTDF",
+        "constraint-adjustment-coefficient" : 10.0,
+        "violation-cost" : 10.0,
+        "countries" : [ "FR", "ES", "PT" ]
+      },
+      "mnec-parameters" : {
+        "acceptable-margin-decrease" : 50.0,
+        "violation-cost" : 10.0,
+        "constraint-adjustment-coefficient" : 1.0
+      },
+      "relative-margins-parameters" : {
+        "ptdf-boundaries" : [ "{FR}-{BE}", "{FR}-{DE}", "{BE}-{NL}", "{NL}-{DE}", "{DE}-{PL}", "{DE}-{CZ}", "{DE}-{AT}", "{PL}-{CZ}", "{PL}-{SK}", "{CZ}-{SK}", "{CZ}-{AT}", "{AT}-{HU}", "{AT}-{SI}", "{SI}-{HR}", "{SK}-{HU}", "{HU}-{RO}", "{HU}-{HR}", "{BE}-{22Y201903144---9}-{DE}+{22Y201903145---4}" ],
+        "ptdf-approximation" : "FIXED_PTDF",
+        "ptdf-sum-lower-bound" : 0.01
       }
-    },
-    "loop-flow-parameters" : {
-      "acceptable-increase" : 10.0,
-      "ptdf-approximation" : "FIXED_PTDF",
-      "constraint-adjustment-coefficient" : 10.0,
-      "violation-cost" : 10.0,
-      "countries" : [ "FR", "ES", "PT" ]
-    },
-    "mnec-parameters" : {
-      "acceptable-margin-decrease" : 50.0,
-      "violation-cost" : 10.0,
-      "constraint-adjustment-coefficient" : 1.0
-    },
-    "relative-margins-parameters" : {
-      "ptdf-boundaries" : [ "{FR}-{BE}", "{FR}-{DE}", "{BE}-{NL}", "{NL}-{DE}", "{DE}-{PL}", "{DE}-{CZ}", "{DE}-{AT}", "{PL}-{CZ}", "{PL}-{SK}", "{CZ}-{SK}", "{CZ}-{AT}", "{AT}-{HU}", "{AT}-{SI}", "{SI}-{HR}", "{SK}-{HU}", "{HU}-{RO}", "{HU}-{HR}", "{BE}-{22Y201903144---9}-{DE}+{22Y201903145---4}" ],
-      "ptdf-approximation" : "FIXED_PTDF",
-      "ptdf-sum-lower-bound" : 0.01
     }
   }
 }
