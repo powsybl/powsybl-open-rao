@@ -11,6 +11,9 @@
     </parent>
 
     <artifactId>open-rao-virtual-hubs-network-assigner</artifactId>
+    <packaging>jar</packaging>
+    <name>Virtual hubs network assigner</name>
+    <description>Network assigner for virtual hubs</description>
 
     <dependencies>
         <!-- Compile dependencies -->
