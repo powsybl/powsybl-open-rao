@@ -57,10 +57,6 @@
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-ucte-util</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-        </dependency>
 
         <!-- Test dependencies -->
         <dependency>
