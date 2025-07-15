@@ -153,7 +153,7 @@ crac.newContingency()
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **contingency element type**: type of element in the network. Currently, PowSyBl handles: 
 GENERATOR, STATIC_VAR_COMPENSATOR, SHUNT_COMPENSATOR, BRANCH, HVDC_LINE, BUSBAR_SECTION, DANGLING_LINE, LINE, TWO_WINDINGS_TRANSFORMER, 
 THREE_WINDINGS_TRANSFORMER, LOAD, SWITCH, BATTERY, BUS, TIE_LINE. The contingency elements type can be retrieved from the PowSyBl Network using the network element id, using: 
-`ContingencyElement.of(network.getIdentifiable(id)).getType()`.  
+`ContingencyElementFactory.create(network.getIdentifiable(id)).getType()`.  
 :::
 ::::
 
