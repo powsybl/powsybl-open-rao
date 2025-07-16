@@ -48,7 +48,7 @@ Feature: US 13.6: cross validation curative optimization and MNECs
   Scenario: US 13.6.3: CBCORA - Curative MNECs limited by their initial margin - CRAs only
     Given network file is "epic13/TestCase12NodesDifferentPstTap.uct" for CORE CC
     Given crac file is "epic13/MergedCB_ep13us6case3.xml"
-    Given configuration file is "epic11/RaoParameters_maxMargin_ampere_ac_mnecDimin20.json"
+    Given configuration file is "epic11/RaoParameters_maxMargin_ampere_ac_mnecDimin30.json"
     When I launch rao at "2019-01-08 12:00"
     Then the margin on cnec "NL2-BE3-O - outage" after PRA should be -83.0 MW
     And the margin on cnec "NL2-BE3-O - curative" after CRA should be -103.0 MW
@@ -61,7 +61,7 @@ Feature: US 13.6: cross validation curative optimization and MNECs
   Scenario: US 13.6.4: CBCORA - Curative MNECs limited by their initial margin - PRAs and CRAs
     Given network file is "epic13/TestCase12NodesDifferentPstTap.uct" for CORE CC
     Given crac file is "epic13/MergedCB_ep13us6case4.xml"
-    Given configuration file is "epic11/RaoParameters_maxMargin_ampere_ac_mnecDimin20.json"
+    Given configuration file is "epic11/RaoParameters_maxMargin_ampere_ac_mnecDimin30.json"
     When I launch rao at "2019-01-08 12:00"
     Then the margin on cnec "NL2-BE3-O - outage" after PRA should be -103.0 MW
     And 1 remedial actions are used in preventive
@@ -73,7 +73,7 @@ Feature: US 13.6: cross validation curative optimization and MNECs
     And 1 remedial actions are used after "Contingency_FR1_FR3" at "curative"
     And the remedial action "Open line DE1-DE2" is used after "Contingency_FR1_FR3" at "curative"
     And the margin on cnec "FR2-FR3-OO - curative" after CRA should be -137.0 MW
-    And the value of the objective function after CRA should be 273
+    And the value of the objective function after CRA should be 402
 
   @fast @rao @mock @ac @contingency-scenarios @mnec
   Scenario: US 13.6.5: Simple case with a mix of preventive and curative remedial actions and a MNEC in preventive limited by threshold
