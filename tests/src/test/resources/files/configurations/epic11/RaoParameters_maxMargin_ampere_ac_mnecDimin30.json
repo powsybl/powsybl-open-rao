@@ -18,7 +18,7 @@
     "do-not-optimize-curative-cnecs-for-tsos-without-cras" : false
   },
   "mnec-parameters" : {
-    "acceptable-margin-decrease" : 30.0
+    "acceptable-margin-decrease" : 29.0
   },
   "extensions" : {
     "open-rao-search-tree-parameters" : {
@@ -79,7 +79,7 @@
         "available-cpus" : 1
       },
       "mnec-parameters" : {
-        "violation-cost" : 10.0,
+        "violation-cost" : 15.0,
         "constraint-adjustment-coefficient" : 0.0
       }
     }
