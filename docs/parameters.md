@@ -190,7 +190,6 @@ search-tree-multi-threading:
 
 search-tree-second-preventive-rao:
   execution-condition: POSSIBLE_CURATIVE_IMPROVEMENT
-  re-optimize-curative-range-actions: true
   hint-from-first-preventive-rao: true
 
 rao-not-optimized-cnecs:
