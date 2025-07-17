@@ -7,12 +7,12 @@
     <parent>
         <groupId>com.powsybl</groupId>
         <artifactId>powsybl-parent</artifactId>
-        <version>19</version>
+        <version>20.2</version>
         <relativePath/>
     </parent>
 
     <artifactId>powsybl-open-rao</artifactId>
-    <version>6.6.0-SNAPSHOT</version>
+    <version>6.7.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Open RAO</name>
@@ -85,7 +85,6 @@
         </sonar.coverage.jacoco.xmlReportPaths>
 
         <!-- Dependencies versions -->
-        <apache.commons.lang3>3.13.0</apache.commons.lang3>
         <cucumber.bom.version>7.20.1</cucumber.bom.version>
         <commonsio.version>2.16.1</commonsio.version>
         <google.autoservice.version>1.1.1</google.autoservice.version>
@@ -107,9 +106,9 @@
         <maven.jar.version>3.3.0</maven.jar.version>
         <maven.jvnet.jaxb.version>4.0.8</maven.jvnet.jaxb.version>
         <mockito.core.version>5.12.0</mockito.core.version>
-        <powsybl.core.version>6.7.2</powsybl.core.version>
-        <powsybl.entsoe.version>2.13.1</powsybl.entsoe.version>
-        <powsybl.openloadflow.version>1.15.2</powsybl.openloadflow.version>
+        <powsybl.core.version>6.8.0</powsybl.core.version>
+        <powsybl.entsoe.version>2.14.0</powsybl.entsoe.version>
+        <powsybl.openloadflow.version>1.16.0</powsybl.openloadflow.version>
         <slf4j.version>2.0.13</slf4j.version>
         <xmlunit.core.version>2.10.0</xmlunit.core.version>
         <com.networknt.version>1.5.3</com.networknt.version>
@@ -447,11 +446,6 @@
 
             <!-- Compile dependencies -->
             <dependency>
-                <groupId>org.apache.commons</groupId>
-                <artifactId>commons-lang3</artifactId>
-                <version>${apache.commons.lang3}</version>
-            </dependency>
-            <dependency>
                 <groupId>commons-io</groupId>
                 <artifactId>commons-io</artifactId>
                 <version>${commonsio.version}</version>
@@ -470,6 +464,11 @@
                 <groupId>com.google.ortools</groupId>
                 <artifactId>ortools-java</artifactId>
                 <version>${google.ortools.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-core</artifactId>
+                <version>${jackson.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
