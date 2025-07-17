@@ -66,7 +66,7 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
                                                PostPerimeterResult preventivePerimeterResult,
                                                Crac crac,
                                                RaoParameters raoParameters) {
-        this(stateTree, initialResult, preventivePerimeterResult, preventivePerimeterResult, new HashSet<>(), new HashMap<>(), crac, raoParameters);
+        this(stateTree, initialResult, preventivePerimeterResult, preventivePerimeterResult, new HashMap<>(), crac, raoParameters);
     }
 
     /**
@@ -78,7 +78,7 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
                                                Map<State, PostPerimeterResult> postContingencyResults,
                                                Crac crac,
                                                RaoParameters raoParameters) {
-        this(stateTree, initialResult, preventiveResult, preventiveResult, new HashSet<>(), postContingencyResults, crac, raoParameters);
+        this(stateTree, initialResult, preventiveResult, preventiveResult, postContingencyResults, crac, raoParameters);
     }
 
     /**
@@ -88,7 +88,6 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
                                                PrePerimeterResult initialResult,
                                                PostPerimeterResult firstPreventivePerimeterResult,
                                                PostPerimeterResult secondPreventivePerimeterResult,
-                                               Set<RemedialAction<?>> remedialActionsExcludedFromSecondPreventive,
                                                Map<State, PostPerimeterResult> postContingencyPerimeterResults,
                                                Crac crac,
                                                RaoParameters raoParameters) {
@@ -594,7 +593,7 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
     @Override
     public Set<RangeAction<?>> getActivatedRangeActionsDuringState(State state) {
         if (state.getInstant().isPreventive()) {
-            return finalPreventivePerimeterResult.getActivatedRangeActions(state);
+            return finalPreventivePerimeterResult.getOptimizationResult().getActivatedRangeActions(state);
         } else if (postContingencyResults.containsKey(state)) {
             return postContingencyResults.get(state).getOptimizationResult().getActivatedRangeActions(state);
         } else {
