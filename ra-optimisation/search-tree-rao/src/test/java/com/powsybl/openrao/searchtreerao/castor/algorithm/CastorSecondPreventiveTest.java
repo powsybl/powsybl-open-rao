@@ -33,6 +33,7 @@ import com.powsybl.openrao.raoapi.parameters.extensions.SecondPreventiveRaoParam
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
+import com.powsybl.openrao.searchtreerao.result.impl.PostPerimeterResult;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -267,10 +268,18 @@ class CastorSecondPreventiveTest {
         RaoParameters parameters = new RaoParameters();
         parameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters());
         OpenRaoSearchTreeParameters searchTreeParameters = parameters.getExtension(OpenRaoSearchTreeParameters.class);
+
         OptimizationResult preventiveResult = Mockito.mock(OptimizationResult.class);
+        PostPerimeterResult postPreventiveResult = Mockito.mock(PostPerimeterResult.class);
+        when(postPreventiveResult.getOptimizationResult()).thenReturn(preventiveResult);
         OptimizationResult optimizationResult1 = Mockito.mock(OptimizationResult.class);
+        PostPerimeterResult postOptimizationResult1 = Mockito.mock(PostPerimeterResult.class);
+        when(postOptimizationResult1.getOptimizationResult()).thenReturn(optimizationResult1);
         OptimizationResult optimizationResult2 = Mockito.mock(OptimizationResult.class);
-        Collection<OptimizationResult> curativeResults = Set.of(optimizationResult1, optimizationResult2);
+        PostPerimeterResult postOptimizationResult2 = Mockito.mock(PostPerimeterResult.class);
+        when(postOptimizationResult2.getOptimizationResult()).thenReturn(optimizationResult2);
+
+        Collection<PostPerimeterResult> curativeResults = Set.of(postOptimizationResult1, postOptimizationResult2);
         CastorSecondPreventive castorSecondPreventive = new CastorSecondPreventive(crac, parameters, network, null, null, null);
 
         // No SearchTreeRaoParameters extension
@@ -311,11 +320,19 @@ class CastorSecondPreventiveTest {
         RaoParameters parameters = new RaoParameters();
         parameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters());
         OpenRaoSearchTreeParameters searchTreeParameters = parameters.getExtension(OpenRaoSearchTreeParameters.class);
-        OptimizationResult preventiveResult = Mockito.mock(OptimizationResult.class);
         RaoResult postFirstPreventiveRaoResult = Mockito.mock(RaoResult.class);
+
+        OptimizationResult preventiveResult = Mockito.mock(OptimizationResult.class);
+        PostPerimeterResult postPreventiveResult = Mockito.mock(PostPerimeterResult.class);
+        when(postPreventiveResult.getOptimizationResult()).thenReturn(preventiveResult);
         OptimizationResult optimizationResult1 = Mockito.mock(OptimizationResult.class);
+        PostPerimeterResult postOptimizationResult1 = Mockito.mock(PostPerimeterResult.class);
+        when(postOptimizationResult1.getOptimizationResult()).thenReturn(optimizationResult1);
         OptimizationResult optimizationResult2 = Mockito.mock(OptimizationResult.class);
-        Collection<OptimizationResult> curativeResults = Set.of(optimizationResult1, optimizationResult2);
+        PostPerimeterResult postOptimizationResult2 = Mockito.mock(PostPerimeterResult.class);
+        when(postOptimizationResult2.getOptimizationResult()).thenReturn(optimizationResult2);
+
+        Collection<PostPerimeterResult> curativeResults = Set.of(postOptimizationResult1, postOptimizationResult2);
 
         searchTreeParameters.getSecondPreventiveRaoParameters().setExecutionCondition(SecondPreventiveRaoParameters.ExecutionCondition.POSSIBLE_CURATIVE_IMPROVEMENT);
         searchTreeParameters.getObjectiveFunctionParameters().setCurativeMinObjImprovement(10.);
@@ -342,10 +359,18 @@ class CastorSecondPreventiveTest {
         RaoParameters parameters = new RaoParameters();
         parameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters());
         OpenRaoSearchTreeParameters searchTreeParameters = parameters.getExtension(OpenRaoSearchTreeParameters.class);
+
         OptimizationResult preventiveResult = Mockito.mock(OptimizationResult.class);
+        PostPerimeterResult postPreventiveResult = Mockito.mock(PostPerimeterResult.class);
+        when(postPreventiveResult.getOptimizationResult()).thenReturn(preventiveResult);
         OptimizationResult optimizationResult1 = Mockito.mock(OptimizationResult.class);
+        PostPerimeterResult postOptimizationResult1 = Mockito.mock(PostPerimeterResult.class);
+        when(postOptimizationResult1.getOptimizationResult()).thenReturn(optimizationResult1);
         OptimizationResult optimizationResult2 = Mockito.mock(OptimizationResult.class);
-        Collection<OptimizationResult> curativeResults = Set.of(optimizationResult1, optimizationResult2);
+        PostPerimeterResult postOptimizationResult2 = Mockito.mock(PostPerimeterResult.class);
+        when(postOptimizationResult2.getOptimizationResult()).thenReturn(optimizationResult2);
+
+        Collection<PostPerimeterResult> curativeResults = Set.of(postOptimizationResult1, postOptimizationResult2);
 
         searchTreeParameters.getSecondPreventiveRaoParameters().setExecutionCondition(SecondPreventiveRaoParameters.ExecutionCondition.POSSIBLE_CURATIVE_IMPROVEMENT);
         // Default objective function parameters are enough for SecondPreventiveRaoParameters to be true if there is enough time
@@ -365,10 +390,18 @@ class CastorSecondPreventiveTest {
         RaoParameters parameters = new RaoParameters();
         parameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters());
         OpenRaoSearchTreeParameters searchTreeParameters = parameters.getExtension(OpenRaoSearchTreeParameters.class);
+
         OptimizationResult preventiveResult = Mockito.mock(OptimizationResult.class);
+        PostPerimeterResult postPreventiveResult = Mockito.mock(PostPerimeterResult.class);
+        when(postPreventiveResult.getOptimizationResult()).thenReturn(preventiveResult);
         OptimizationResult optimizationResult1 = Mockito.mock(OptimizationResult.class);
+        PostPerimeterResult postOptimizationResult1 = Mockito.mock(PostPerimeterResult.class);
+        when(postOptimizationResult1.getOptimizationResult()).thenReturn(optimizationResult1);
         OptimizationResult optimizationResult2 = Mockito.mock(OptimizationResult.class);
-        Collection<OptimizationResult> curativeResults = Set.of(optimizationResult1, optimizationResult2);
+        PostPerimeterResult postOptimizationResult2 = Mockito.mock(PostPerimeterResult.class);
+        when(postOptimizationResult2.getOptimizationResult()).thenReturn(optimizationResult2);
+
+        Collection<PostPerimeterResult> curativeResults = Set.of(postOptimizationResult1, postOptimizationResult2);
 
         searchTreeParameters.getSecondPreventiveRaoParameters().setExecutionCondition(SecondPreventiveRaoParameters.ExecutionCondition.COST_INCREASE);
         // Default objective function parameters are enough for SecondPreventiveRaoParameters to be true if cost at curative allows it
@@ -403,13 +436,17 @@ class CastorSecondPreventiveTest {
         Mockito.doReturn(Set.of(ra1)).when(optimResult1).getActivatedRangeActions(Mockito.any());
         Mockito.doReturn(-1.5583491325378418).when(optimResult1).getOptimizedSetpoint(eq(ra1), Mockito.any());
         Mockito.doReturn(Set.of()).when(optimResult1).getActivatedNetworkActions();
+        PostPerimeterResult postOptimizationResult1 = Mockito.mock(PostPerimeterResult.class);
+        when(postOptimizationResult1.getOptimizationResult()).thenReturn(optimResult1);
 
         OptimizationResult optimResult2 = Mockito.mock(OptimizationResult.class);
         Mockito.doReturn(Set.of(ra1)).when(optimResult1).getActivatedRangeActions(Mockito.any());
         Mockito.doReturn(0.).when(optimResult2).getOptimizedSetpoint(eq(ra1), Mockito.any());
         Mockito.doReturn(Set.of(na1)).when(optimResult2).getActivatedNetworkActions();
+        PostPerimeterResult postOptimizationResult2 = Mockito.mock(PostPerimeterResult.class);
+        when(postOptimizationResult2.getOptimizationResult()).thenReturn(optimResult2);
 
-        Map<State, OptimizationResult> curativeResults = Map.of(state1, optimResult1, state2, optimResult2);
+        Map<State, PostPerimeterResult> curativeResults = Map.of(state1, postOptimizationResult1, state2, postOptimizationResult2);
         CastorSecondPreventive castorSecondPreventive = new CastorSecondPreventive(crac, null, network, null, null, null);
 
         AppliedRemedialActions appliedRemedialActions = new AppliedRemedialActions();
@@ -465,8 +502,17 @@ class CastorSecondPreventiveTest {
         OptimizationResult optimizationResult21 = mockOptimizationResult(Set.of(na211));
         OptimizationResult optimizationResult22 = mockOptimizationResult(Set.of(na221, na222));
 
-        Map<State, OptimizationResult> postContingencyResults = Map.of(state11, optimizationResult11, state12, optimizationResult12,
-            state21, optimizationResult21, state22, optimizationResult22);
+        PostPerimeterResult postOptimizationResult11 = Mockito.mock(PostPerimeterResult.class);
+        when(postOptimizationResult11.getOptimizationResult()).thenReturn(optimizationResult11);
+        PostPerimeterResult postOptimizationResult12 = Mockito.mock(PostPerimeterResult.class);
+        when(postOptimizationResult12.getOptimizationResult()).thenReturn(optimizationResult12);
+        PostPerimeterResult postOptimizationResult21 = Mockito.mock(PostPerimeterResult.class);
+        when(postOptimizationResult21.getOptimizationResult()).thenReturn(optimizationResult21);
+        PostPerimeterResult postOptimizationResult22 = Mockito.mock(PostPerimeterResult.class);
+        when(postOptimizationResult22.getOptimizationResult()).thenReturn(optimizationResult22);
+
+        Map<State, PostPerimeterResult> postContingencyResults = Map.of(state11, postOptimizationResult11, state12, postOptimizationResult12,
+            state21, postOptimizationResult21, state22, postOptimizationResult22);
         CastorSecondPreventive castorSecondPreventive = new CastorSecondPreventive(crac, null, network, null, null, null);
 
         castorSecondPreventive.addAppliedNetworkActionsPostContingency(Set.of(), appliedRemedialActions, postContingencyResults);
@@ -514,8 +560,17 @@ class CastorSecondPreventiveTest {
         OptimizationResult optimizationResult21 = mockOptimizationResult(Set.of(ra211), state21);
         OptimizationResult optimizationResult22 = mockOptimizationResult(Set.of(ra221, ra222), state22);
 
-        Map<State, OptimizationResult> postContingencyResults = Map.of(state11, optimizationResult11, state12, optimizationResult12,
-            state21, optimizationResult21, state22, optimizationResult22);
+        PostPerimeterResult postOptimizationResult11 = Mockito.mock(PostPerimeterResult.class);
+        when(postOptimizationResult11.getOptimizationResult()).thenReturn(optimizationResult11);
+        PostPerimeterResult postOptimizationResult12 = Mockito.mock(PostPerimeterResult.class);
+        when(postOptimizationResult12.getOptimizationResult()).thenReturn(optimizationResult12);
+        PostPerimeterResult postOptimizationResult21 = Mockito.mock(PostPerimeterResult.class);
+        when(postOptimizationResult21.getOptimizationResult()).thenReturn(optimizationResult21);
+        PostPerimeterResult postOptimizationResult22 = Mockito.mock(PostPerimeterResult.class);
+        when(postOptimizationResult22.getOptimizationResult()).thenReturn(optimizationResult22);
+
+        Map<State, PostPerimeterResult> postContingencyResults = Map.of(state11, postOptimizationResult11, state12, postOptimizationResult12,
+            state21, postOptimizationResult21, state22, postOptimizationResult22);
         CastorSecondPreventive castorSecondPreventive = new CastorSecondPreventive(crac, null, network, null, null, null);
 
         castorSecondPreventive.addAppliedRangeActionsPostContingency(Set.of(), appliedRemedialActions, postContingencyResults);

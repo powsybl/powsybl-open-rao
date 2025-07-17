@@ -21,7 +21,7 @@ class TotalFunctionalCostComputerTest extends FunctionalCostComputerTestUtils {
     @BeforeEach
     void setUp() {
         init();
-        functionalCostComputer = new TotalFunctionalCostComputer(secondPreventivePerimeterResult, postContingencyResults);
+        functionalCostComputer = new TotalFunctionalCostComputer(initialResult, secondPreventivePerimeterResult, postContingencyResults);
     }
 
     @Test
@@ -46,6 +46,6 @@ class TotalFunctionalCostComputerTest extends FunctionalCostComputerTestUtils {
 
     @Test
     void testTotalFunctionalCostForNullInstant() {
-        assertEquals(0.0, functionalCostComputer.computeFunctionalCost(null));
+        assertEquals(50.0, functionalCostComputer.computeFunctionalCost(null));
     }
 }

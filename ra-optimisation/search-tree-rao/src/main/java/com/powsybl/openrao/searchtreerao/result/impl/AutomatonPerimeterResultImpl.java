@@ -149,6 +149,11 @@ public class AutomatonPerimeterResultImpl implements OptimizationResult {
     }
 
     @Override
+    public Map<State, Set<RangeAction<?>>> getActivatedRangeActionsPerState() {
+        return Map.of(optimizedState, activatedRangeActions);
+    }
+
+    @Override
     public double getOptimizedSetpoint(RangeAction<?> rangeAction, State state) {
         checkState(state);
         return rangeActionsWithSetpoint.get(rangeAction);

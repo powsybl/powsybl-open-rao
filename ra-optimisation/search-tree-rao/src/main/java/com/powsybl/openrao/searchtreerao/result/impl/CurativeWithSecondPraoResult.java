@@ -198,6 +198,11 @@ public class CurativeWithSecondPraoResult implements OptimizationResult {
     }
 
     @Override
+    public Map<State, Set<RangeAction<?>>> getActivatedRangeActionsPerState() {
+        return Map.of(state, getActivatedRangeActions(state));
+    }
+
+    @Override
     public double getOptimizedSetpoint(RangeAction<?> rangeAction, State state) {
         checkState(state);
         return secondPraoResult.getOptimizedSetpoint(rangeAction, state);
