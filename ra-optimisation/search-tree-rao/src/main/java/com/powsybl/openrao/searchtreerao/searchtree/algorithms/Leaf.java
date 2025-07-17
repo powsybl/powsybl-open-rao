@@ -541,6 +541,17 @@ public class Leaf implements OptimizationResult {
     }
 
     @Override
+    public Map<State, Set<RangeAction<?>>> getActivatedRangeActionsPerState() {
+        if (status == Status.EVALUATED) {
+            return raActivationResultFromParentLeaf.getActivatedRangeActionsPerState();
+        } else if (status == Status.OPTIMIZED) {
+            return postOptimResult.getActivatedRangeActionsPerState();
+        } else {
+            throw new OpenRaoException(NO_RESULTS_AVAILABLE);
+        }
+    }
+
+    @Override
     public double getOptimizedSetpoint(RangeAction<?> rangeAction, State state) {
         if (status == Status.EVALUATED) {
             return raActivationResultFromParentLeaf.getOptimizedSetpoint(rangeAction, state);

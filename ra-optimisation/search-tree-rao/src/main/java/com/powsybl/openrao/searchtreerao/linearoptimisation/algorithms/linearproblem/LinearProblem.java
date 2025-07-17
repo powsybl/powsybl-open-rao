@@ -265,14 +265,6 @@ public final class LinearProblem {
         return solver.getConstraint(pstGroupTapConstraintId(rangeAction, state));
     }
 
-    public OpenRaoMPVariable addAbsoluteRangeActionVariationVariable(double lb, double ub, RangeAction<?> rangeAction, State state) {
-        return solver.makeNumVar(lb, ub, absoluteRangeActionVariationVariableId(rangeAction, state));
-    }
-
-    public OpenRaoMPVariable getAbsoluteRangeActionVariationVariable(RangeAction<?> rangeAction, State state) {
-        return solver.getVariable(absoluteRangeActionVariationVariableId(rangeAction, state));
-    }
-
     public OpenRaoMPConstraint addMinimumMarginConstraint(double lb, double ub, FlowCnec cnec, TwoSides side, MarginExtension belowOrAboveThreshold, Optional<OffsetDateTime> timestamp) {
         return solver.makeConstraint(lb, ub, minimumMarginConstraintId(cnec, side, belowOrAboveThreshold, timestamp));
     }
@@ -464,14 +456,6 @@ public final class LinearProblem {
 
     public OpenRaoMPConstraint getRangeActionSetPointVariationConstraint(RangeAction<?> rangeAction, State state) {
         return solver.getConstraint(rangeActionSetPointVariationConstraintId(rangeAction, state));
-    }
-
-    public OpenRaoMPConstraint addRangeActionAbsoluteVariationConstraint(RangeAction<?> rangeAction, State state) {
-        return solver.makeConstraint(0.0, 0.0, rangeActionAbsoluteVariationConstraintId(rangeAction, state));
-    }
-
-    public OpenRaoMPConstraint getRangeActionAbsoluteVariationConstraint(RangeAction<?> rangeAction, State state) {
-        return solver.getConstraint(rangeActionAbsoluteVariationConstraintId(rangeAction, state));
     }
 
     public OpenRaoMPConstraint addInjectionBalanceConstraint(State state) {

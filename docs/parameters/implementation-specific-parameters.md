@@ -14,11 +14,11 @@ This extension is used to configure Open RAO specific parameters for search tree
 - **Expected value**: numeric value, where the unit is that of the objective function
 - **Default value**: 0
 - **Usage**: used as a minimum improvement of the preventive RAO objective value for the curative RAO objective value,
-  when [type](#type) is set to MAX_MIN_MARGIN or MAX_MIN_RELATIVE_MARGIN.
+  when [type](business-parameters.md#type) is set to MAX_MIN_MARGIN or MAX_MIN_RELATIVE_MARGIN.
 
 #### Range actions optimisation parameters
-These parameters (range-actions-optimization) tune the [linear optimiser](/castor/linear-problem.md) used to optimise range actions.  
-(See [Modelling CNECs and range actions](/castor/linear-problem/core-problem-filler.md))
+These parameters (range-actions-optimization) tune the [linear optimiser](../algorithms/castor/linear-problem.md) used to optimise range actions.  
+(See [Modelling CNECs and range actions](../algorithms/castor/linear-problem/core-problem-filler.md))
 
 ##### max-mip-iterations
 - **Expected value**: integer
@@ -48,7 +48,7 @@ These parameters (range-actions-optimization) tune the [linear optimiser](/casto
     used as a multiplier of the sensitivity values when representing the impact of the PST on CNECs. This approach is
     more precise and thus has the advantage of better respecting Loop-Flow and MNEC constraints. But it introduces
     integer variables (tap positions) and can be harder to solve.  
-    See [Using integer variables for PST taps](/castor/linear-problem/discrete-pst-tap-filler.md).
+    See [Using integer variables for PST taps](../algorithms/castor/linear-problem/discrete-pst-tap-filler.md).
 
 ##### pst-sensitivity-threshold
 - **Expected value**: numeric value, unit: MW / ° (per degree)
@@ -85,12 +85,12 @@ These parameters (range-actions-optimization) tune the [linear optimiser](/casto
   active+reactive computations, this approximation may be incorrect. The linear problem can thus find a worse solution
   than in its previous iteration.
   - **DISABLED**: if this situation occurs, the linear problem stops and returns the previous solution,
-    see this schema : [Linear Remedial Actions Optimisation](/castor/linear-problem.md#algorithm).
+    see this schema : [Linear Remedial Actions Optimisation](../algorithms/castor/linear-problem.md#algorithm).
   - **ENABLED**: this introduces two new behaviors to the iterating linear optimiser:
     1. If the linear problem finds a solution worse than in its previous iteration, it continues iterating.  
        When stop condition is met ([max-mip-iterations](#max-mip-iterations) reached, or two successive iterations have
        the same optimal RA set-points), then the problem returns the best solution it has found.
-    2. At each new iteration, the range action's allowed range shrinks according to equations [described here](/castor/linear-problem/core-problem-filler.md#shrinking-the-allowed-range).
+    2. At each new iteration, the range action's allowed range shrinks according to equations [described here](../algorithms/castor/linear-problem/core-problem-filler.md#shrinking-the-allowed-range).
        These equations have been chosen to force the linear problem convergence while allowing the RA to go
        back to its initial solution if needed.
   - **ENABLED_IN_FIRST_PRAO_AND_CRAO**:
@@ -128,7 +128,7 @@ These are parameters that tune the solver used to solve the MIP problem.
   not enough.
 
 #### Network actions optimisation parameters
-These parameters (topological-actions-optimization) tune the [search-tree algorithm](/castor.md#algorithm)
+These parameters (topological-actions-optimization) tune the [search-tree algorithm](../algorithms/castor.md#search-tree-algorithm)
 when searching for the best network actions.
 
 ##### max-preventive-search-tree-depth
@@ -150,7 +150,7 @@ when searching for the best network actions.
   actions that the user considers interesting to test together during the RAO.  
   These combinations will be tested in the first search depth of the search-tree
 
-![Search-tree-with-combinations](/_static/img/Search-tree-with-combinations.png){.forced-white-background}
+![Search-tree-with-combinations](../_static/img/Search-tree-with-combinations.png){.forced-white-background}
 
 ##### skip-actions-far-from-most-limiting-element
 - **Expected value**: true/false
@@ -176,7 +176,7 @@ when searching for the best network actions.
   though they share the Alegro line)*
 
 #### Second preventive RAO parameters
-These parameters (second-preventive-rao) tune the behaviour of the [second preventive RAO](/castor/rao-steps.md#second-preventive-rao).
+These parameters (second-preventive-rao) tune the behaviour of the [second preventive RAO](../algorithms/castor/rao-steps.md#second-preventive-rao).
 
 ##### execution-condition
 - **Expected value**: one of the following:
@@ -192,7 +192,7 @@ These parameters (second-preventive-rao) tune the behaviour of the [second preve
     during curative RAO
   - **POSSIBLE_CURATIVE_IMPROVEMENT**: a 2nd preventive RAO is run only if it is possible to improve a curative perimeter,
     i.e. if the curative RAO stop criterion on at least one contingency is not reached.  
-    This depends on the value of parameter [type](#type):
+    This depends on the value of parameter [type](business-parameters.md#type):
     - **SECURE_FLOW**: 2nd preventive RAO is run if one curative perimeter is not secure after optimisation
     - **MAX_MIN_MARGIN** or **MAX_MIN_RELATIVE_MARGIN**: 2nd preventive RAO is run if one curative perimeter reached an objective function value
       after optimisation that is worse than the preventive perimeter's (decreased by [curative-min-obj-improvement](#curative-min-obj-improvement))
@@ -274,10 +274,10 @@ These parameters (multi-threading) allow you to run a RAO making the most out of
   of the RAO might significantly decrease on a machine with limited memory resources.*
 
 #### Loop-flow optional parameter
-Adding a LoopFlowParameters to OpenRaoSearchTreeParameters will activate [loop-flow constraints](/castor/special-features/loop-flows.md).  
+Adding a LoopFlowParameters to OpenRaoSearchTreeParameters will activate [loop-flow constraints](../algorithms/castor/special-features/loop-flows.md).  
 (The RAO will monitor the loop-flows on CNECs that have a LoopFlowThreshold extension.)  
 The following parameters tune some of these constraints, the one which are implementation specific.
-See also: [Modelling loop-flows and their virtual cost](/castor/linear-problem/max-loop-flow-filler.md)  
+See also: [Modelling loop-flows and their virtual cost](../algorithms/castor/linear-problem/special-features/max-loop-flow-filler.md)  
 
 ##### ptdf-approximation
 - **Expected value**: one of the following:
@@ -296,6 +296,7 @@ See also: [Modelling loop-flows and their virtual cost](/castor/linear-problem/m
     *Note that this option is only relevant in AC-loadflow mode, as the UPDATE_PTDF_WITH_TOPO already maximizes accuracy in DC.*
 
 ##### constraint-adjustment-coefficient
+
 - **Expected value**: numeric values, in MEGAWATT unit
 - **Default value**: 0.0 MW
 - **Usage**: this parameter acts as a margin which tightens, in the linear optimisation problem of RAO, the bounds of the
@@ -314,12 +315,14 @@ See also: [Modelling loop-flows and their virtual cost](/castor/linear-problem/m
   *violation-cost x sum{cnec} excess-loop-flow(cnec)*
 
 #### MNEC optional parameter
-Adding a MnecParameters to OpenRaoSearchTreeParameters will activate [MNEC constraints](/castor/linear-problem/mnec-filler.md).  
-(The RAO will only monitor CNECs that are only ["monitored"](/input-data/crac/json.md#cnecs)).
-The following parameters tune some of these constraints, the one which are implementation specific.
-See also: [Modelling MNECs and their virtual cost](/castor/linear-problem/mnec-filler.md)  
 
+Adding a MnecParameters to OpenRaoSearchTreeParameters will activate [MNEC constraints](../algorithms/castor/linear-problem/special-features/mnec-filler.md).  
+(The RAO will only monitor CNECs that are only ["monitored"](../input-data/crac/json.md#cnecs)).
+The following parameters tune some of these constraints, the one which are implementation specific.
+
+<a id="mnec-violation-cost"></a>
 ##### violation-cost
+
 - **Expected value**: numeric values, no unit (it applies as a multiplier for the constraint violation inside the
   objective function)
 - **Default value**: 10.0 (same as [loop-flow violation cost](#violation-cost))
@@ -329,7 +332,9 @@ See also: [Modelling MNECs and their virtual cost](/castor/linear-problem/mnec-f
   MNECs' constraints are respected. The penalty injected in the objective function is equal to the violation (difference
   between actual margin and least acceptable margin) multiplied by this parameter.
 
+<a id="mnec-violation-constraint-adjustment-coefficient"></a>
 ##### constraint-adjustment-coefficient
+
 - **Expected value**: numeric values, in MEGAWATT unit
 - **Default value**: 0.0
 - **Usage**: this coefficient is here to mitigate the approximation made by the linear optimisation (approximation = use
@@ -340,9 +345,9 @@ See also: [Modelling MNECs and their virtual cost](/castor/linear-problem/mnec-f
   approximations are removed (i.e. taps have been rounded and real flow calculated)
 
 #### Relative margins optional parameter
-Adding a RelativeMarginsParameters is mandatory when [objective function is relative](#type).  
+Adding a RelativeMarginsParameters is mandatory when [objective function is relative](business-parameters.md#type).  
 The following parameters tune the constraints which are implementation specific.
-See also: [Modelling the maximum minimum relative margin objective function](/castor/linear-problem/max-min-relative-margin-filler.md)
+See also: [Modelling the maximum minimum relative margin objective function](../algorithms/castor/linear-problem/objective-function-types/max-min-relative-margin-filler.md)
 
 ##### ptdf-approximation
 - **Expected value**: one of the following:

@@ -6,7 +6,6 @@
  */
 package com.powsybl.openrao.data.crac.io.nc.craccreator.cnec;
 
-import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.crac.io.nc.craccreator.constants.LimitTypeKind;
@@ -67,12 +66,7 @@ public class VoltageCnecCreator extends AbstractCnecCreator {
             throw new OpenRaoImportException(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, writeAssessedElementIgnoredReasonMessage("the voltage limit equipment " + nativeVoltageLimit.equipment() + " is missing in network"));
         }
 
-        if (!networkElement.getType().equals(IdentifiableType.BUS) && !networkElement.getType().equals(IdentifiableType.BUSBAR_SECTION)) {
-            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, writeAssessedElementIgnoredReasonMessage("the network element " + networkElement.getId() + " is not a bus bar section"));
-        }
-
-        String networkElementId = networkElement.getId();
-        voltageCnecAdder.withNetworkElement(networkElementId);
+        voltageCnecAdder.withNetworkElement(getVoltageLevel(networkElement).getId());
 
         if (!nativeVoltageLimit.isInfiniteDuration()) {
             throw new OpenRaoImportException(ImportStatus.NOT_YET_HANDLED_BY_OPEN_RAO, writeAssessedElementIgnoredReasonMessage("only permanent voltage limits (with infinite duration) are currently handled"));

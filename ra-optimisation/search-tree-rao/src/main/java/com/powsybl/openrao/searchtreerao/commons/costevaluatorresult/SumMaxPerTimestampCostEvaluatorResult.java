@@ -42,6 +42,10 @@ public class SumMaxPerTimestampCostEvaluatorResult implements CostEvaluatorResul
         Map<FlowCnec, Double> filteredCnecs = marginPerCnec.entrySet().stream()
             .filter(entry -> !cnecsToExclude.contains(entry.getKey().getId()))
             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        if (filteredCnecs.isEmpty()) {
+            return -Double.MAX_VALUE;
+        }
+
         // Compute state wise cost
         Map<State, Set<FlowCnec>> flowCnecsPerState = groupFlowCnecsPerState(filteredCnecs.keySet());
         Map<State, Double> costPerState = flowCnecsPerState.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, entry -> computeCostForState(entry.getValue())));

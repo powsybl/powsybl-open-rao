@@ -7,7 +7,7 @@
 
 package com.powsybl.openrao.data.crac.util;
 
-import com.powsybl.contingency.ContingencyElement;
+import com.powsybl.contingency.ContingencyElementFactory;
 import com.powsybl.contingency.ContingencyElementType;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
@@ -40,7 +40,7 @@ class CracValidatorTest {
     private Instant outageInstant;
 
     private ContingencyElementType getContingencyType(String id) {
-        return ContingencyElement.of(network.getIdentifiable(id)).getType();
+        return ContingencyElementFactory.create(network.getIdentifiable(id)).getType();
     }
 
     @BeforeEach
