@@ -105,9 +105,14 @@ public final class ToolProvider {
             .withSensitivityProviderName(getSensitivityProvider(raoParameters))
             .withParameters(getSensitivityWithLoadFlowParameters(raoParameters))
             .withAppliedRemedialActions(appliedRemedialActions)
-            .withLoadflow(cnecs, Collections.singleton(objectiveFunctionUnit))
             .withRangeActionSensitivities(rangeActions, cnecs, Collections.singleton(objectiveFunctionUnit))
             .withOutageInstant(outageInstant);
+
+        if (getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters().isDc()){
+            builder.withLoadflow(cnecs, Collections.singleton(objectiveFunctionUnit));
+        } else {
+            builder.withLoadflow(cnecs, Set.of(Unit.AMPERE, Unit.MEGAWATT));
+        }
 
         if (computePtdfs && computeLoopFlows) {
             Set<String> eic = getEicForObjectiveFunction();
