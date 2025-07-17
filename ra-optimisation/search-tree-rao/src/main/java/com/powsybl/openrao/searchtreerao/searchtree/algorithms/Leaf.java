@@ -243,6 +243,11 @@ public class Leaf implements OptimizationResult {
             rangeActions.forEach(ra -> ra.apply(network, raActivationResultFromParentLeaf.getOptimizedSetpoint(ra, state))));
     }
 
+    /**
+     *  This method computes remedial action limitation parameters. ALready applied network actions must be taken into account.
+     *  In all steps except second preventive, context is main optimization state and appliedNetworkActionsInPrimaryState contain
+     *  the state's applied network actions. But during second preventive, primary state refers to preventive, and secondary states to other optimized states.
+     */
     RangeActionLimitationParameters getRaLimitationParameters(OptimizationPerimeter context, SearchTreeParameters parameters) {
         RangeActionLimitationParameters limitationParameters = new RangeActionLimitationParameters();
 

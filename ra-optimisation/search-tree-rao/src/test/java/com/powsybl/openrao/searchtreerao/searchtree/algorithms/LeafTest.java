@@ -779,14 +779,14 @@ class LeafTest {
     @Test
     void testRaLimitations() {
         Instant primaryInstant = optimizedState.getInstant();
-        Instant secondaryInstant = Mockito.mock(Instant.class);
-        Instant secondaryInstantWithoutLimit = Mockito.mock(Instant.class);
 
+        Instant secondaryInstant = Mockito.mock(Instant.class);
         State secondaryStateWithActions = Mockito.mock(State.class);
         when(secondaryStateWithActions.getInstant()).thenReturn(secondaryInstant);
         State secondaryStateWithoutActions = Mockito.mock(State.class);
         when(secondaryStateWithoutActions.getInstant()).thenReturn(secondaryInstant);
 
+        Instant secondaryInstantWithoutLimit = Mockito.mock(Instant.class);
         State nonLimitedState = Mockito.mock(State.class);
         when(nonLimitedState.getInstant()).thenReturn(secondaryInstantWithoutLimit);
 
