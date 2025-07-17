@@ -275,7 +275,7 @@ public final class AutomatonSimulator {
 
     RangeAutomatonSimulationResult simulateRangeAutomatons(State automatonState, Set<State> curativeStates, Network network, PrePerimeterSensitivityAnalysis preAutoPerimeterSensitivityAnalysis, PrePerimeterResult postTopoResult, int speed, Set<RangeAction<?>> previouslyAppliedRangeAutomatons, Map<RangeAction<?>, Double> initialSetPoints, Map<RangeAction<?>, Double> setPoints) {
         PrePerimeterResult finalPostAutoResult = postTopoResult;
-        // -- Create groups of aligned range actions
+        // -- Create groups of aligned range actions (except PSTs)
         List<List<RangeAction<?>>> rangeActionsOnAutomatonState = buildRangeActionsGroupsForSpeed(finalPostAutoResult, automatonState, network, speed);
         // -- Build AutomatonPerimeterResultImpl objects
         // -- rangeActionsWithSetpoint contains all available automaton range actions
@@ -295,7 +295,7 @@ public final class AutomatonSimulator {
             Set<FlowCnec> flowCnecs = gatherFlowCnecsForAutoRangeAction(availableRa, automatonState, network);
             // Shift
             RangeAutomatonSimulationResult postShiftResult = shiftRangeActionsUntilFlowCnecsSecure(
-                alignedRa,
+                alignedRa.stream().filter(ra -> !(ra instanceof PstRangeAction)).toList(),
                 flowCnecs,
                 network,
                 preAutoPerimeterSensitivityAnalysis,
