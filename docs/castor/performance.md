@@ -86,44 +86,40 @@ faster without compromising system security.
 
 ### Algorithm
 
-See this illustration of the algorithm.
-
-
-
-<table>
-  <tr>
-    <td style="vertical-align: top; width:50%;">
-      <img src="../_static/img/FastRAO.gif" alt="FastRAO Illustration" style="max-width:100%;">
-    </td>
-    <td style="vertical-align: middle; width:50%;">
-    Let’s consider the reachable area defined in black.
-
-The system contains three types of CNECs:
-- Green CNECs: Always secure and can be ignored.
-- Red CNECs: Define the boundary of the secure area; these are the most relevant for the RAO.
-- Purple CNECs: May become unsecure, but only if a red CNEC is also unsecure, so they are less critical.
-
-The green area represents the secure region found after a RAO. The goal is to build a set of CNECs (ideally only the red ones) 
-that will lead to a solution where all CNECs are secure.
-
-We begin by computing the margins for all CNECs via a loadflow in the initial state and identify two unsecure ones to 
-include in the first RAO. After applying the resulting actions, we run another loadflow check. The two previous CNECs
-are now secure, but a new unsecure one is found. This loop continues: running RAO, applying results, and checking 
-all CNECs until all are secure.
-    </td>
-  </tr>
-</table>
-
-
 FastRAO iteratively builds a set of the **critical** CNECs. Starting with an empty set of CNECs, at each iteration,
 we selectively add only the CNECs that are identified as critical for the problem. 
 
-The diagram below illustrates how the set of critical CNECs is built.
+The diagram below illustrates how the set of critical CNECs is built. In the next section, you can also find an illustration of the algorithm using a simple example.
 
 ![Current state of the algorithm](../_static/img/FastRAO.png)
 
 > Currently, FastRAO does not support multi-curative optimization
 
+#### Illustration of the algorithm
+
+<table>
+  <tr>
+    <td style="vertical-align: middle; width:50%;">
+      <img src="../_static/img/FastRAO.gif" alt="FastRAO Illustration" style="max-width:100%;">
+    </td>
+    <td style="vertical-align: middle; width:50%;">
+    In this example, let’s consider the reachable area defined in black, rao results indicated by a (+), and CNECs' limit represented by a line.
+
+The system contains three types of CNECs:
+- Green CNECs: Always secure and can be ignored.
+- Red CNECs: Define the boundary of the secure area; these are the most relevant for the RAO.
+- Purple CNECs: Hard to single out from red CNECs, as they too can become unsecure; but if a purple CNEC is unsecure, so is a red CNEC; that's why only red CNECs have an impact on the RAO.
+
+The green area represents the secure region found after a RAO. The goal is to build a set of CNECs (ideally only the red ones)
+that will lead to a solution where all CNECs are secure.
+
+We begin by computing the margins for all CNECs via a loadflow in the initial state and identify two unsecure ones to
+include in the first RAO. After applying the resulting actions, we run another loadflow check. The two previous CNECs
+are now secure, but a new unsecure one is found. This loop continues: running RAO, applying results, and checking
+all CNECs until all are secure.
+</td>
+  </tr>
+</table>
 
 ### How to run an optimization process using FastRAO
 
@@ -140,7 +136,8 @@ RaoResult raoResult = Rao.find("FastRao").run(raoInput, raoParameters);
 FastRao.launchFilteredRao(raoInput, raoParameters, targetEndInstant, consideredCnecs);
 ```
 
-### FastRAO specific parameters
+---
 
-See [FastRAO parameters section](../parameters/implementation-specific-parameters.md#number-of-cnecs-to-add)
+See also [FastRAO parameters section](../parameters/implementation-specific-parameters.md#number-of-cnecs-to-add)
 
+---
