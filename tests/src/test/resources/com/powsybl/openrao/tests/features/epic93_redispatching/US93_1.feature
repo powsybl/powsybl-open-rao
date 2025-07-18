@@ -44,6 +44,7 @@ Feature: US 93.1: Redispatching actions
   Scenario: US 93.1.3: Multiple redispatching actions keep network balanced
   Both redispatching actions have distribution keys that do not sum to 0, the actions should be activated together and the result is
   optimal when all generators are shut down.
+    # Doesn't work with FASTRAO because of the final sensi after CRA, the set point (1000 and -1000) are not dispatched according to key (1 and 1)
     Given network file is "epic93/3Nodes.uct"
     Given crac file is "epic93/crac-93-1-3.json"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
