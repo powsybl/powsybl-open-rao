@@ -17,8 +17,6 @@
       <branch eic="1234567890123450" from="DDE3AA1 " name="DDE3AA1  X_DEFR1  1" order="1" to="X_DEFR1 "/>
       <imaxA>2020</imaxA>
       <imaxType>SEASONAL</imaxType>
-      <permanentImaxFactor>1.5</permanentImaxFactor>
-      <temporaryImaxFactor>1.5</temporaryImaxFactor>
       <frmMw>0</frmMw>
       <minRAMfactor>75</minRAMfactor>
       <CNEC>true</CNEC>
@@ -31,8 +29,6 @@
       <branch eic="1234567890123450" from="DDE2AA1 " name="DDE2AA1  X_NLDE1  1" order="1" to="X_NLDE1 "/>
       <imaxA>5774</imaxA>
       <imaxType>SEASONAL</imaxType>
-      <permanentImaxFactor>1.5</permanentImaxFactor>
-      <temporaryImaxFactor>1.5</temporaryImaxFactor>
       <frmMw>0</frmMw>
       <minRAMfactor>75</minRAMfactor>
       <CNEC>true</CNEC>
@@ -45,8 +41,6 @@
       <branch eic="1234567890123450" from="BBE3AA1 " name="BBE3AA1  X_NLBE1  1" order="1" to="X_NLBE1 "/>
       <imaxA>5774</imaxA>
       <imaxType>SEASONAL</imaxType>
-      <permanentImaxFactor>1.5</permanentImaxFactor>
-      <temporaryImaxFactor>1.5</temporaryImaxFactor>
       <frmMw>0</frmMw>
       <minRAMfactor>75</minRAMfactor>
       <CNEC>true</CNEC>
@@ -59,8 +53,6 @@
       <branch eic="1234567890123450" from="BBE2AA1 " name="BBE2AA1  X_BEFR1  1" order="1" to="X_BEFR1 "/>
       <imaxA>5774</imaxA>
       <imaxType>SEASONAL</imaxType>
-      <permanentImaxFactor>1.5</permanentImaxFactor>
-      <temporaryImaxFactor>1.5</temporaryImaxFactor>
       <frmMw>0</frmMw>
       <minRAMfactor>75</minRAMfactor>
       <CNEC>true</CNEC>
