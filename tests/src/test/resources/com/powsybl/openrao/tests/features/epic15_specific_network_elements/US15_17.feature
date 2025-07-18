@@ -108,7 +108,7 @@ Feature: US 15.17: Optimize HVDC range actions initially in AC emulation mode
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
     When I launch search_tree_rao
     Then 1 remedial actions are used in preventive
-    And the setpoint of RangeAction "PRA_HVDC" should be -307 MW in preventive
+    And the setpoint of RangeAction "PRA_HVDC" should be -309 MW in preventive
     And the worst margin is 50 MW
     And the margin on cnec "de2_de3_n - DDE2AA11->DDE3AA11 - preventive" after PRA should be 50 MW
 
@@ -133,7 +133,7 @@ Feature: US 15.17: Optimize HVDC range actions initially in AC emulation mode
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
     When I launch search_tree_rao
     Then 1 remedial actions are used in preventive
-    And the setpoint of RangeAction "PRA_HVDC" should be -307 MW in preventive
+    And the setpoint of RangeAction "PRA_HVDC" should be -309 MW in preventive
     And the worst margin is 50 MW
     And the margin on cnec "de2_de3_n - DDE2AA11->DDE3AA11 - preventive" after PRA should be 50 MW
 

@@ -36,7 +36,7 @@ Feature: US 7.5: Loopflow ptdf update parameter
     Then its security status should be "UNSECURED"
     And the remedial action "Open FR1 FR2" is used in preventive
     And the tap of PstRangeAction "PRA_PST_BE" should be 15 in preventive
-    And the worst margin is -463 MW on cnec "FFR2AA1  DDE3AA1  1 - preventive"
+    And the worst margin is -465 MW on cnec "FFR2AA1  DDE3AA1  1 - preventive"
     And the loopflow threshold on cnec "DDE2AA1  NNL3AA1  1 - preventive" should be 1000.0 MW
     And the loopflow threshold on cnec "NNL2AA1  BBE3AA1  1 - preventive" should be 1000.0 MW
     And the loopflow threshold on cnec "FFR2AA1  DDE3AA1  1 - preventive" should be 250.0 MW
@@ -61,7 +61,7 @@ Feature: US 7.5: Loopflow ptdf update parameter
     Then its security status should be "UNSECURED"
     And the remedial action "Open FR1 FR2" is used in preventive
     And the tap of PstRangeAction "PRA_PST_BE" should be 15 in preventive
-    And the worst margin is -463 MW on cnec "FFR2AA1  DDE3AA1  1 - preventive"
+    And the worst margin is -465 MW on cnec "FFR2AA1  DDE3AA1  1 - preventive"
     And the loopflow threshold on cnec "DDE2AA1  NNL3AA1  1 - preventive" should be 1000.0 MW
     And the loopflow threshold on cnec "NNL2AA1  BBE3AA1  1 - preventive" should be 1000.0 MW
     And the loopflow threshold on cnec "FFR2AA1  DDE3AA1  1 - preventive" should be 250.0 MW

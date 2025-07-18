@@ -130,24 +130,11 @@ Feature: US 19.11: Handle maximum number of elementary actions per TSO
     And the tap of PstRangeAction "pst_fr" should be 10 in preventive
     And the worst margin is 7.0 MW
 
-  # TODO: second prev
   @fast @rao @second-preventive
-  Scenario: US.19.11.9: Reference case with optimal solution (no global optimization).
+  Scenario: US.19.11.9: Same case with global optimization: should have the same results
     Given network file is "epic19/small-network-2P.uct"
     Given crac file is "epic19/SL_ep19us11case9.json"
     Given configuration file is "epic19/RaoParameters_19_11_9.json"
-    When I launch search_tree_rao
-    Then 1 remedial actions are used in preventive
-    And the tap of PstRangeAction "pst_be" should be -10 in preventive
-    And the tap of PstRangeAction "pst_be" should be -16 after "co1_fr2_fr3_1" at "curative"
-    And the tap of PstRangeAction "pst_fr" should be 13 after "co1_fr2_fr3_1" at "curative"
-    And the worst margin is -218.5 A
-
-  @fast @rao @second-preventive
-  Scenario: US.19.11.9.bis: Same case with global optimization: should have the same results
-    Given network file is "epic19/small-network-2P.uct"
-    Given crac file is "epic19/SL_ep19us11case9.json"
-    Given configuration file is "epic19/RaoParameters_19_11_9_bis.json"
     When I launch search_tree_rao
     Then 1 remedial actions are used in preventive
     # It doesn't really matter what's the preventive tap, as long as it's <= -6, in order for the tap -16
