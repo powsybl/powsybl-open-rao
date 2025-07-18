@@ -20,6 +20,7 @@ import com.powsybl.openrao.data.crac.io.json.JsonExport;
 import com.powsybl.openrao.data.crac.io.json.JsonImport;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.data.raoresult.api.extension.CriticalCnecsResult;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.RaoProvider;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
@@ -164,7 +165,10 @@ public class FastRao implements RaoProvider {
                 parameters,
                 NUMBER_LOGGED_ELEMENTS_DURING_RAO);
 
-            raoResult.setCriticalCnecs(consideredCnecs);
+            raoResult.addExtension(
+                CriticalCnecsResult.class,
+                new CriticalCnecsResult(consideredCnecs.stream().map(FlowCnec::getId).collect(Collectors.toSet()))
+            );
             return raoResult;
 
         } catch (IOException e) {

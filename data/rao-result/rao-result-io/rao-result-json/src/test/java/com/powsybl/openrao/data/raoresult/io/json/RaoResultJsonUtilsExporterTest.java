@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-class RaoResultJsonExporterTest {
+class RaoResultJsonUtilsExporterTest {
     private final RaoResultJsonExporter exporter = new RaoResultJsonExporter();
 
     @Test

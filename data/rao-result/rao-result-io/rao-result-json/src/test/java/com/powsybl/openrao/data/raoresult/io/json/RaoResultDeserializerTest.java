@@ -12,12 +12,14 @@ import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.impl.utils.ExhaustiveCracCreation;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.data.raoresult.api.extension.CriticalCnecsResult;
 import com.powsybl.openrao.data.raoresult.impl.RaoResultImpl;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -46,8 +48,8 @@ class RaoResultDeserializerTest {
         Crac crac = ExhaustiveCracCreation.create();
         InputStream raoResultStream = getClass().getResourceAsStream("/rao-result-fastrao-extension.json");
         RaoResultImpl raoResult = (RaoResultImpl) RaoResult.read(raoResultStream, crac);
-        Set<FlowCnec> criticalFlowCnecs = raoResult.getCriticalCnecs().get();
-        assertEquals(criticalFlowCnecs, crac.getFlowCnecs());
+        Set<String> criticalFlowCnecs = raoResult.getExtension(CriticalCnecsResult.class).getCriticalCnecIds();
+        assertEquals(criticalFlowCnecs, crac.getFlowCnecs().stream().map(FlowCnec::getId).collect(Collectors.toSet()));
     }
 
     @Test

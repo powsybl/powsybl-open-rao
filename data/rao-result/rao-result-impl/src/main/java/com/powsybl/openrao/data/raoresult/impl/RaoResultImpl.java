@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.data.raoresult.impl;
 
+import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.openrao.commons.MinOrMax;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
@@ -32,7 +33,7 @@ import java.util.stream.Stream;
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class RaoResultImpl implements RaoResult {
+public class RaoResultImpl extends AbstractExtendable<RaoResult> implements RaoResult {
 
     private static final FlowCnecResult DEFAULT_FLOWCNEC_RESULT = new FlowCnecResult();
     private static final AngleCnecResult DEFAULT_ANGLECNEC_RESULT = new AngleCnecResult();
