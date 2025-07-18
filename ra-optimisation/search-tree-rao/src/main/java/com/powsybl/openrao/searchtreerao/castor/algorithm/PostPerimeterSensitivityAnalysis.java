@@ -20,6 +20,7 @@ import com.powsybl.openrao.searchtreerao.result.impl.*;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicReference;
@@ -55,12 +56,12 @@ public class PostPerimeterSensitivityAnalysis extends AbstractMultiPerimeterSens
      *     <li> the optimizationResult of the given perimeter for action cost </li>
      * </ul>
      */
-    public Future<PostPerimeterResult> runBasedOnInitialPreviousAndOptimizationResults(Network network,
-                                                                                       FlowResult initialFlowResult,
-                                                                                       Future<PrePerimeterResult> previousResultsFuture,
-                                                                                       Set<String> operatorsNotSharingCras,
-                                                                                       OptimizationResult optimizationResult,
-                                                                                       AppliedRemedialActions appliedCurativeRemedialActions) {
+    public CompletableFuture<PostPerimeterResult> runBasedOnInitialPreviousAndOptimizationResults(Network network,
+                                                                                                         FlowResult initialFlowResult,
+                                                                                                         Future<PrePerimeterResult> previousResultsFuture,
+                                                                                                         Set<String> operatorsNotSharingCras,
+                                                                                                         OptimizationResult optimizationResult,
+                                                                                                         AppliedRemedialActions appliedCurativeRemedialActions) {
 
         AtomicReference<FlowResult> flowResult = new AtomicReference<>();
         AtomicReference<SensitivityResult> sensitivityResult = new AtomicReference<>();
