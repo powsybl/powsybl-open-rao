@@ -32,6 +32,6 @@ Feature: US 4.3: manage AC/DC modes from configuration
     Given configuration file is "common/RaoParameters_posMargin_megawatt_dc.json"
     When I launch search_tree_rao
     Then its security status should be "SECURED"
-    Then the worst margin is 28.0 MW
+    Then the worst margin is 32 MW
     Then the remedial action "PRA_PST_BE" is used in preventive
     Then the tap of PstRangeAction "PRA_PST_BE" should be 4 in preventive

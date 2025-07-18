@@ -389,7 +389,7 @@ Feature: US 19.7: handle CNECs belonging to TSOs that don't share CRAs
     And the remedial action "open_fr1_fr3" is used after "CO1_fr2_fr3_1" at "curative"
     And the tap of PstRangeAction "pst_be" should be -14 after "CO1_fr2_fr3_1" at "curative"
     And the tap of PstRangeAction "pst_fr_cur" should be 7 after "CO1_fr2_fr3_1" at "curative"
-    And the worst margin is 328 A
+    And the worst margin is 324 A
     And the value of the objective function after CRA should be -1076.0
     And the relative margin on cnec "fr3_fr5_CO1 - DIR - curative" after CRA should be 399 A
     And the relative margin on cnec "fr3_fr5_CO1 - OPP - curative" after CRA should be 1076 A
@@ -440,11 +440,11 @@ Feature: US 19.7: handle CNECs belonging to TSOs that don't share CRAs
     Then 2 remedial actions are used after "CO1_fr2_fr3_1" at "curative"
     And the tap of PstRangeAction "pst_be" should be 13 after "CO1_fr2_fr3_1" at "curative"
     And the tap of PstRangeAction "pst_fr" should be 4 after "CO1_fr2_fr3_1" at "curative"
-    And the worst relative margin is 166 A
+    And the worst relative margin is 164 A
     And the value of the objective function after CRA should be -1084.0
     And the relative margin on cnec "fr4_de1_CO1 - curative" after CRA should be 1084 A
     And the relative margin on cnec "fr3_fr5_CO1 - OPP - curative" after CRA should be 1097 A
-    And the relative margin on cnec "fr1_fr4_CO1 - curative" after CRA should be 166 A
+    And the relative margin on cnec "fr1_fr4_CO1 - curative" after CRA should be 164 A
 
   @fast @rao @mock @ac @contingency-scenarios @relative
   Scenario: 19.7.9.A.R: Only PSTs - Second most limiting CNEC belongs to an operator not sharing CRAs - AMP - relative

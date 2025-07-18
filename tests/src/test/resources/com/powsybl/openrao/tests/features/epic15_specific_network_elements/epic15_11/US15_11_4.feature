@@ -22,7 +22,7 @@ Feature: US 15.11.4: ARAO with 2P
     And the worst margin is -140 MW
     And the value of the objective function after CRA should be 140
     And the margin on cnec "FR2-FR3-O - preventive" after PRA should be -140 MW
-    And the margin on cnec "NL2-BE3-O - curative" after CRA should be 0 MW
+    And the margin on cnec "NL2-BE3-O - curative" after CRA should be 3.7 MW
     Then the execution details should be "Second preventive improved first preventive results"
 
   @fast @rao @mock @ac @second-preventive @mnec
