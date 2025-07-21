@@ -153,7 +153,7 @@ public class CastorSecondPreventive {
 
         // Run 2nd automaton simulation and update results
         BUSINESS_LOGS.info("----- Re-optimization of post-contingency scenarios [start]");
-        Map<State, PostPerimeterResult> newPostContingencyResults = castorContingencyScenarios.optimizeContingencyScenarios(network, secondPreventiveRaoResult.postPraSensitivityAnalysisOutput, false);
+        Map<State, PostPerimeterResult> newPostContingencyResults = castorContingencyScenarios.optimizeContingencyScenarios(network, secondPreventiveRaoResult.postPraSensitivityAnalysisOutput);
         BUSINESS_LOGS.info("----- Re-optimization of post-contingency scenarios [end]");
 
         BUSINESS_LOGS.info("Merging first, second preventive and post-contingency RAO results:");
