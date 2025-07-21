@@ -330,14 +330,14 @@ class PreventiveAndCurativesRaoResultImplTest {
     private void checkOptimizedSetpointsOnState() {
         Map<RangeAction<?>, Double> preventiveMap = output.getOptimizedSetPointsOnState(crac.getPreventiveState());
         assertEquals(preventiveMap.size(), 1);
-        assertEquals(preventiveMap.get(crac.getRangeAction("pst")), FLOW_PER_OPTIMIZED_INSTANT.get((InstantKind.PREVENTIVE)));
+        assertEquals(preventiveMap.get(crac.getRangeAction("pst")), FLOW_PER_OPTIMIZED_INSTANT.get(InstantKind.PREVENTIVE));
         // optimized state
         Map<RangeAction<?>, Double> auto3Map = output.getOptimizedSetPointsOnState(crac.getState("contingency-3", crac.getInstant(InstantKind.AUTO)));
         assertEquals(auto3Map.size(), 1);
-        assertEquals(auto3Map.get(crac.getRangeAction("pst")), FLOW_PER_OPTIMIZED_INSTANT.get((InstantKind.AUTO)));
+        assertEquals(auto3Map.get(crac.getRangeAction("pst")), FLOW_PER_OPTIMIZED_INSTANT.get(InstantKind.AUTO));
         // not optimized state
         Map<RangeAction<?>, Double> cur4Map = output.getOptimizedSetPointsOnState(crac.getState("contingency-4", crac.getInstant(InstantKind.CURATIVE)));
-        assert(cur4Map.isEmpty());
+        assert cur4Map.isEmpty();
     }
 
     private void checkFunctionalCosts() {
