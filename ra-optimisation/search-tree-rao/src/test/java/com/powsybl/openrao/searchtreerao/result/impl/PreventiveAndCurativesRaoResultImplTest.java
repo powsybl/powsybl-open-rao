@@ -12,6 +12,7 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.*;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.range.RangeType;
+import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.openrao.data.crac.impl.CracImpl;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
@@ -263,6 +264,9 @@ class PreventiveAndCurativesRaoResultImplTest {
             Set<String> contingencies = Set.of(state.getContingency().get().getId());
             when(optimizationResult.getContingencies()).thenReturn(contingencies);
         }
+        Map<RangeAction<?>, Double> optimizedSetpointsOnState = new HashMap<>();
+        optimizedSetpointsOnState.put(crac.getRangeAction("pst"), FLOW_PER_OPTIMIZED_INSTANT.get(instant.getKind()));
+        when(optimizationResult.getOptimizedSetpointsOnState(state)).thenReturn(optimizedSetpointsOnState);
     }
 
     private void addFlowAndMarginResults(FlowResult flowResult, FlowCnec cnec, double flow, Instant instant) {
@@ -320,6 +324,20 @@ class PreventiveAndCurativesRaoResultImplTest {
         checkVirtualCosts();
         checkFlows();
         checkOptimizationResults();
+        checkOptimizedSetpointsOnState();
+    }
+
+    private void checkOptimizedSetpointsOnState() {
+        Map<RangeAction<?>, Double> preventiveMap = output.getOptimizedSetPointsOnState(crac.getPreventiveState());
+        assertEquals(preventiveMap.size(), 1);
+        assertEquals(preventiveMap.get(crac.getRangeAction("pst")), FLOW_PER_OPTIMIZED_INSTANT.get((InstantKind.PREVENTIVE)));
+        // optimized state
+        Map<RangeAction<?>, Double> auto3Map = output.getOptimizedSetPointsOnState(crac.getState("contingency-3", crac.getInstant(InstantKind.AUTO)));
+        assertEquals(auto3Map.size(), 1);
+        assertEquals(auto3Map.get(crac.getRangeAction("pst")), FLOW_PER_OPTIMIZED_INSTANT.get((InstantKind.AUTO)));
+        // not optimized state
+        Map<RangeAction<?>, Double> cur4Map = output.getOptimizedSetPointsOnState(crac.getState("contingency-4", crac.getInstant(InstantKind.CURATIVE)));
+        assert(cur4Map.isEmpty());
     }
 
     private void checkFunctionalCosts() {
