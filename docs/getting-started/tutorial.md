@@ -1,5 +1,3 @@
-<<<<<<<< HEAD:docs/tutorial.md
-========
 # Tutorial
 
 In this tutorial, we will see how to run a simple RAO from a network file and a CRAC. The CRAC will be created from
@@ -620,4 +618,3 @@ import com.powsybl.sensitivity.SensitivityAnalysisParameters;
    }
 
 ```
->>>>>>>> main:docs/getting-started/tutorial.md
