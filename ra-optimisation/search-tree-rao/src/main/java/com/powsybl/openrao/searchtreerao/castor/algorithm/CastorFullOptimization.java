@@ -180,7 +180,7 @@ public class CastorFullOptimization {
             // Run second preventive when necessary
             CastorSecondPreventive castorSecondPreventive = new CastorSecondPreventive(crac, raoParameters, network, stateTree, toolProvider, targetEndInstant);
             if (castorSecondPreventive.shouldRunSecondPreventiveRao(preventiveResult, postContingencyResults.values(), mergedRaoResults, preventiveRaoTime)) {
-                RaoResult secondPreventiveRaoResults = castorSecondPreventive.runSecondPreventiveAndAutoRao(castorContingencyScenarios, prePerimeterSensitivityAnalysis, initialOutput, postPreventiveResult, postContingencyResults);
+                RaoResult secondPreventiveRaoResults = castorSecondPreventive.runSecondPreventiveAutoAndCurativeRao(castorContingencyScenarios, prePerimeterSensitivityAnalysis, initialOutput, postPreventiveResult, postContingencyResults);
                 if (secondPreventiveImprovesResults(secondPreventiveRaoResults, mergedRaoResults)) {
                     mergedRaoResults = secondPreventiveRaoResults;
                     mergedRaoResults.setExecutionDetails(OptimizationStepsExecuted.SECOND_PREVENTIVE_IMPROVED_FIRST);

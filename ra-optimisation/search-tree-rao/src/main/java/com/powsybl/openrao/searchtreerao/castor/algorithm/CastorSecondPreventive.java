@@ -134,11 +134,11 @@ public class CastorSecondPreventive {
         return postFirstRaoResult.getCost(curativeInstant) > preventiveResult.getCost() - curativeMinObjImprovement;
     }
 
-    RaoResult runSecondPreventiveAndAutoRao(CastorContingencyScenarios castorContingencyScenarios,
-                                            PrePerimeterSensitivityAnalysis prePerimeterSensitivityAnalysis,
-                                            PrePerimeterResult initialOutput,
-                                            PostPerimeterResult firstPreventiveResult,
-                                            Map<State, PostPerimeterResult> postContingencyResults) {
+    RaoResult runSecondPreventiveAutoAndCurativeRao(CastorContingencyScenarios castorContingencyScenarios,
+                                                    PrePerimeterSensitivityAnalysis prePerimeterSensitivityAnalysis,
+                                                    PrePerimeterResult initialOutput,
+                                                    PostPerimeterResult firstPreventiveResult,
+                                                    Map<State, PostPerimeterResult> postContingencyResults) {
         // Run 2nd preventive RAO
         SecondPreventiveRaoResult secondPreventiveRaoResult;
         try {
@@ -151,7 +151,7 @@ public class CastorSecondPreventive {
             return new FailedRaoResultImpl(String.format("RAO failed during second preventive : %s", e.getMessage()));
         }
 
-        // Run 2nd automaton simulation and update results
+        // Run 2nd automaton simulation, 2nd curative optimization and update results
         BUSINESS_LOGS.info("----- Re-optimization of post-contingency scenarios [start]");
         Map<State, PostPerimeterResult> newPostContingencyResults = castorContingencyScenarios.optimizeContingencyScenarios(network, secondPreventiveRaoResult.postPraSensitivityAnalysisOutput);
         BUSINESS_LOGS.info("----- Re-optimization of post-contingency scenarios [end]");
@@ -163,21 +163,21 @@ public class CastorSecondPreventive {
         // ------ appliedCras from secondPreventiveRaoResult
         AppliedRemedialActions appliedArasAndCras = secondPreventiveRaoResult.appliedArasAndCras().copyCurative();
         // ------ + curative range actions optimized during second preventive with global optimization
-        if (getSecondPreventiveReOptimizeCurativeRangeActions(raoParameters)) {
-            for (Map.Entry<State, PostPerimeterResult> entry : postContingencyResults.entrySet()) {
-                State state = entry.getKey();
-                if (!state.getInstant().isCurative()) {
-                    continue;
-                }
-                secondPreventiveRaoResult.perimeterResult().getActivatedRangeActions(state)
-                    .forEach(rangeAction -> appliedArasAndCras.addAppliedRangeAction(state, rangeAction, secondPreventiveRaoResult.perimeterResult.getOptimizedSetpoint(rangeAction, state)));
-            }
-        }
+        // if (getSecondPreventiveReOptimizeCurativeRangeActions(raoParameters)) {
+        //     for (Map.Entry<State, PostPerimeterResult> entry : postContingencyResults.entrySet()) {
+        //         State state = entry.getKey();
+        //         if (!state.getInstant().isCurative()) {
+        //             continue;
+        //         }
+        //         secondPreventiveRaoResult.perimeterResult().getActivatedRangeActions(state)
+        //             .forEach(rangeAction -> appliedArasAndCras.addAppliedRangeAction(state, rangeAction, secondPreventiveRaoResult.perimeterResult.getOptimizedSetpoint(rangeAction, state)));
+        //     }
+        // }
         // ---- Auto remedial actions : computed during second auto, saved in newPostContingencyResults
         // ---- only RAs from perimeters that haven't failed are included in appliedArasAndCras
         // ---- this check is only performed here because SkippedOptimizationResultImpl with appliedRas can only be generated for AUTO instant
         newPostContingencyResults.entrySet().stream().filter(entry ->
-                !(entry.getValue().getOptimizationResult() instanceof SkippedOptimizationResultImpl) && entry.getKey().getInstant().isAuto())
+                !(entry.getValue().getOptimizationResult() instanceof SkippedOptimizationResultImpl))
             .forEach(entry -> {
                 appliedArasAndCras.addAppliedNetworkActions(entry.getKey(), entry.getValue().getOptimizationResult().getActivatedNetworkActions());
                 entry.getValue().getOptimizationResult().getActivatedRangeActions(entry.getKey()).forEach(rangeAction -> appliedArasAndCras.addAppliedRangeAction(entry.getKey(), rangeAction, entry.getValue().getOptimizationResult().getOptimizedSetpoint(rangeAction, entry.getKey())));
