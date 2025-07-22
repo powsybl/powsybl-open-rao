@@ -435,11 +435,6 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
         }
     }
 
-    public List<FlowCnec> getMostLimitingElements() {
-        //TODO : store values to be able to merge easily
-        return null;
-    }
-
     @Override
     public double getVirtualCost(Instant optimizedInstant) {
         AtomicReference<Double> s = new AtomicReference<>(0.);
@@ -543,7 +538,6 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
             return false;
         }
     }
-
 
     @Override
     public int getPreOptimizationTapOnState(State state, PstRangeAction pstRangeAction) {
