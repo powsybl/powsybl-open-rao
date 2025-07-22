@@ -342,7 +342,7 @@ class PreventiveAndCurativesRaoResultImplTest {
         Map<PstRangeAction, Integer> optimizedTapsPreventive = output.getOptimizedTapsOnState(crac.getPreventiveState());
         assertEquals(1, optimizedTapsPreventive.size());
         assertEquals(1, optimizedTapsPreventive.get(pst));
-        assertEquals(output.getActivatedRangeActionsDuringState(crac.getPreventiveState()), pst);
+        assertEquals(output.getActivatedRangeActionsDuringState(crac.getPreventiveState()), Set.of(pst));
 
         // optimized state
         State auto3state = crac.getState("contingency-3", crac.getInstant(InstantKind.AUTO));
@@ -353,7 +353,7 @@ class PreventiveAndCurativesRaoResultImplTest {
         Map<PstRangeAction, Integer> optimizedTapsauto3state = output.getOptimizedTapsOnState(auto3state);
         assertEquals(1, optimizedTapsauto3state.size());
         assertEquals(2, optimizedTapsauto3state.get(pst));
-        assertEquals(output.getActivatedRangeActionsDuringState(auto3state), pst);
+        assertEquals(output.getActivatedRangeActionsDuringState(auto3state), Set.of(pst));
 
         // not optimized state
         State cur4state = crac.getState("contingency-4", crac.getInstant(InstantKind.CURATIVE));
