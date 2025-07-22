@@ -183,7 +183,7 @@ See also: [Modelling the maximum minimum relative margin objective function](../
 :::{group-tab} JSON
 ~~~json
 {
-  "version" : "3.1",
+  "version" : "3.2",
   "objective-function" : {
     "type" : "SECURE_FLOW",
     "unit" : "A",
@@ -223,7 +223,6 @@ search-tree-multi-threading:
 
 search-tree-second-preventive-rao:
   execution-condition: POSSIBLE_CURATIVE_IMPROVEMENT
-  re-optimize-curative-range-actions: true
   hint-from-first-preventive-rao: true
 
 rao-not-optimized-cnecs:
