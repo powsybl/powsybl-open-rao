@@ -29,6 +29,7 @@ import com.powsybl.openrao.searchtreerao.result.api.ObjectiveFunctionResult;
 import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.Perimeter;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.ContingencyScenario;
+import com.powsybl.openrao.searchtreerao.result.impl.PostPerimeterResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -257,8 +258,12 @@ class RaoLoggerTest {
                 .build());
 
         OptimizationResult co1AutoOptimResult = mock(OptimizationResult.class);
+        PostPerimeterResult postCo1AutoResult = mock(PostPerimeterResult.class);
+        when(postCo1AutoResult.getOptimizationResult()).thenReturn(co1AutoOptimResult);
         OptimizationResult co1CurativeOptimResult = mock(OptimizationResult.class);
-        Map<State, OptimizationResult> contingencyOptimizationResults = Map.of(stateCo1Auto, co1AutoOptimResult, stateCo1Curative, co1CurativeOptimResult);
+        PostPerimeterResult postCo1CurativeResult = mock(PostPerimeterResult.class);
+        when(postCo1CurativeResult.getOptimizationResult()).thenReturn(co1CurativeOptimResult);
+        Map<State, PostPerimeterResult> contingencyOptimizationResults = Map.of(stateCo1Auto, postCo1AutoResult, stateCo1Curative, postCo1CurativeResult);
 
         mockCnecFlowResult(co1AutoOptimResult, cnec1, 25, 40, 15, 11, .1);
         mockCnecFlowResult(co1AutoOptimResult, cnec4, 35, 50, -21, -21, .4);

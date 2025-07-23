@@ -7,10 +7,13 @@
     <parent>
         <groupId>com.powsybl</groupId>
         <artifactId>open-rao-virtual-hubs</artifactId>
-        <version>6.6.0-SNAPSHOT</version>
+        <version>6.7.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>open-rao-virtual-hubs-xml</artifactId>
+    <packaging>jar</packaging>
+    <name>Virtual hubs XML converter</name>
+    <description>Conversion between XML data and virtual hubs</description>
 
     <dependencies>
         <dependency>
