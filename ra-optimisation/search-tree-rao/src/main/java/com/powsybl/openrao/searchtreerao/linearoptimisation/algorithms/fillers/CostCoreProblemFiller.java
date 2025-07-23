@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers;
 
+import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.State;
@@ -39,8 +40,9 @@ public class CostCoreProblemFiller extends AbstractCoreProblemFiller {
                                  Unit unit,
                                  boolean raRangeShrinking,
                                  SearchTreeRaoRangeActionsOptimizationParameters.PstModel pstModel,
-                                 OffsetDateTime timestamp) {
-        super(optimizationContext, prePerimeterRangeActionSetpoints, rangeActionParameters, rangeActionParametersExtension, unit, raRangeShrinking, pstModel, timestamp);
+                                 OffsetDateTime timestamp,
+                                 Network network) {
+        super(optimizationContext, prePerimeterRangeActionSetpoints, rangeActionParameters, rangeActionParametersExtension, unit, raRangeShrinking, pstModel, timestamp, network);
         if (SearchTreeRaoRangeActionsOptimizationParameters.PstModel.CONTINUOUS.equals(pstModel)) {
             throw new OpenRaoException("Costly remedial action optimization is only available for the APPROXIMATED_INTEGERS mode of PST range actions.");
         }
@@ -78,7 +80,7 @@ public class CostCoreProblemFiller extends AbstractCoreProblemFiller {
             double minSetPoint;
             double maxSetPoint;
 
-            Pair<RangeAction<?>, State> lastAvailableRangeAction = RaoUtil.getLastAvailableRangeActionOnSameNetworkElement(optimizationContext, rangeAction, state);
+            Pair<RangeAction<?>, State> lastAvailableRangeAction = RaoUtil.getLastAvailableRangeActionOnSameNetworkElement(optimizationContext.getMainOptimizationState(), availableRangeActions, rangeAction, state);
 
             if (lastAvailableRangeAction == null) {
                 // if state is equal to masterState,
@@ -112,7 +114,7 @@ public class CostCoreProblemFiller extends AbstractCoreProblemFiller {
      */
     @Override
     protected void fillObjective(LinearProblem linearProblem) {
-        optimizationContext.getRangeActionsPerState().forEach((state, rangeActions) -> rangeActions.forEach(ra -> {
+        availableRangeActions.forEach((state, rangeActions) -> rangeActions.forEach(ra -> {
                 OpenRaoMPVariable upwardVariationVariable = linearProblem.getRangeActionVariationVariable(ra, state, LinearProblem.VariationDirectionExtension.UPWARD);
                 OpenRaoMPVariable downwardVariationVariable = linearProblem.getRangeActionVariationVariable(ra, state, LinearProblem.VariationDirectionExtension.DOWNWARD);
 

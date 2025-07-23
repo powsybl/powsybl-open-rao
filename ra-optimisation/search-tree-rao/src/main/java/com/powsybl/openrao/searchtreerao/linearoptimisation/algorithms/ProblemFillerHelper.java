@@ -62,7 +62,8 @@ public final class ProblemFillerHelper {
                 parameters.getObjectiveFunctionUnit(),
                 parameters.getRaRangeShrinking(),
                 getPstModel(parameters.getRangeActionParametersExtension()),
-                timestamp
+                timestamp,
+                input.network()
             );
             problemFillers.add(costCoreProblemFiller);
         } else {
@@ -74,7 +75,8 @@ public final class ProblemFillerHelper {
                 parameters.getObjectiveFunctionUnit(),
                 parameters.getRaRangeShrinking(),
                 getPstModel(parameters.getRangeActionParametersExtension()),
-                timestamp
+                timestamp,
+                input.network()
             );
             problemFillers.add(marginCoreProblemFiller);
         }
@@ -151,19 +153,24 @@ public final class ProblemFillerHelper {
                 input.prePerimeterSetpoints(),
                 parameters.getRangeActionParameters(),
                 parameters.getObjectiveFunction().costOptimization(),
-                timestamp
+                timestamp,
+                input.network(),
+                parameters.getObjectiveFunctionUnit()
             );
             problemFillers.add(discretePstTapFiller);
             DiscretePstGroupFiller discretePstGroupFiller = new DiscretePstGroupFiller(
                 input.optimizationPerimeter().getMainOptimizationState(),
                 pstRangeActions,
-                timestamp
+                timestamp,
+                input.optimizationPerimeter().getFlowCnecs(),
+                input.network(),
+                parameters.getObjectiveFunctionUnit()
             );
             problemFillers.add(discretePstGroupFiller);
-            ContinuousRangeActionGroupFiller continuousRangeActionGroupFiller = new ContinuousRangeActionGroupFiller(otherRa, timestamp);
+            ContinuousRangeActionGroupFiller continuousRangeActionGroupFiller = new ContinuousRangeActionGroupFiller(otherRa, timestamp, input.optimizationPerimeter().getFlowCnecs(), input.network(), parameters.getObjectiveFunctionUnit());
             problemFillers.add(continuousRangeActionGroupFiller);
         } else if (SearchTreeRaoRangeActionsOptimizationParameters.PstModel.CONTINUOUS.equals(pstModel)) {
-            ContinuousRangeActionGroupFiller continuousRangeActionGroupFiller = new ContinuousRangeActionGroupFiller(input.optimizationPerimeter().getRangeActionsPerState(), timestamp);
+            ContinuousRangeActionGroupFiller continuousRangeActionGroupFiller = new ContinuousRangeActionGroupFiller(input.optimizationPerimeter().getRangeActionsPerState(), timestamp, input.optimizationPerimeter().getFlowCnecs(), input.network(), parameters.getObjectiveFunctionUnit());
             problemFillers.add(continuousRangeActionGroupFiller);
         }
 
@@ -178,7 +185,9 @@ public final class ProblemFillerHelper {
                 getPstModel(parameters.getRangeActionParametersExtension()) == SearchTreeRaoRangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS,
                 input.network(),
                 parameters.getObjectiveFunction().costOptimization(),
-                timestamp
+                timestamp,
+                input.optimizationPerimeter().getFlowCnecs(),
+                parameters.getObjectiveFunctionUnit()
             );
             problemFillers.add(raUsageLimitsFiller);
         }

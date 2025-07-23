@@ -90,7 +90,8 @@ class UnoptimizedCnecFillerMarginDecreaseRuleTest extends AbstractFillerTest {
             MEGAWATT,
             false,
             SearchTreeRaoRangeActionsOptimizationParameters.PstModel.CONTINUOUS,
-            null);
+            null,
+            network);
     }
 
     private void buildLinearProblemWithMaxMinMargin() {

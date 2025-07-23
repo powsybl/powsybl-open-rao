@@ -206,7 +206,7 @@ class RaoUtilTest {
             .add();
 
         // Asserts that the method returns True when given an empty set
-        assertTrue(RaoUtil.isRemedialActionAvailable(na1, optimizedState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters));
+        assertTrue(RaoUtil.isRemedialActionAvailable(na1, optimizedState, prePerimeterResult, crac.getFlowCnecs(), network, Unit.MEGAWATT));
 
         RemedialAction<?> na2 = crac.newNetworkAction().withId("na2")
             .newSwitchAction().withNetworkElement("ne2").withActionType(ActionType.OPEN).add()
@@ -215,32 +215,32 @@ class RaoUtilTest {
 
         when(flowResult.getMargin(eq(flowCnec), any())).thenReturn(10.);
         when(prePerimeterResult.getMargin(eq(flowCnec), any())).thenReturn(10.);
-        assertFalse(RaoUtil.isRemedialActionAvailable(na2, optimizedState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters));
+        assertFalse(RaoUtil.isRemedialActionAvailable(na2, optimizedState, prePerimeterResult, crac.getFlowCnecs(), network, Unit.MEGAWATT));
 
         when(flowResult.getMargin(eq(flowCnec), any())).thenReturn(-10.);
         when(prePerimeterResult.getMargin(eq(flowCnec), any())).thenReturn(-10.);
-        assertTrue(RaoUtil.isRemedialActionAvailable(na2, optimizedState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters));
+        assertTrue(RaoUtil.isRemedialActionAvailable(na2, optimizedState, prePerimeterResult, crac.getFlowCnecs(), network, Unit.MEGAWATT));
 
         when(flowResult.getMargin(eq(flowCnec), any())).thenReturn(0.);
         when(prePerimeterResult.getMargin(eq(flowCnec), any())).thenReturn(0.);
-        assertTrue(RaoUtil.isRemedialActionAvailable(na2, optimizedState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters));
+        assertTrue(RaoUtil.isRemedialActionAvailable(na2, optimizedState, prePerimeterResult, crac.getFlowCnecs(), network, Unit.MEGAWATT));
 
         optimizedState = crac.getPreventiveState();
-        assertFalse(RaoUtil.isRemedialActionAvailable(na1, optimizedState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters));
-        assertFalse(RaoUtil.isRemedialActionAvailable(na2, optimizedState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters));
+        assertFalse(RaoUtil.isRemedialActionAvailable(na1, optimizedState, prePerimeterResult, crac.getFlowCnecs(), network, Unit.MEGAWATT));
+        assertFalse(RaoUtil.isRemedialActionAvailable(na2, optimizedState, prePerimeterResult, crac.getFlowCnecs(), network, Unit.MEGAWATT));
 
         // asserts that a preventive remedial action with forced usage rule cannot be available
         RemedialAction<?> na3 = crac.newNetworkAction().withId("na3")
             .newTerminalsConnectionAction().withNetworkElement("ne2").withActionType(ActionType.CLOSE).add()
             .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.FORCED).add()
             .add();
-        assertFalse(RaoUtil.isRemedialActionAvailable(na3, optimizedState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters));
+        assertFalse(RaoUtil.isRemedialActionAvailable(na3, optimizedState, prePerimeterResult, crac.getFlowCnecs(), network, Unit.MEGAWATT));
 
         // asserts that a remedial action with no usage rule cannot be available
         NetworkAction networkActionWhithoutUsageRule = Mockito.mock(NetworkAction.class);
         when(networkActionWhithoutUsageRule.getName()).thenReturn("ra without usage rule");
         when(networkActionWhithoutUsageRule.getUsageRules()).thenReturn(Set.of());
-        assertFalse(RaoUtil.isRemedialActionAvailable(networkActionWhithoutUsageRule, optimizedState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters));
+        assertFalse(RaoUtil.isRemedialActionAvailable(networkActionWhithoutUsageRule, optimizedState, prePerimeterResult, crac.getFlowCnecs(), network, Unit.MEGAWATT));
 
         // mock AUTO state for the next assertions
         NetworkAction automatonRa = Mockito.mock(NetworkAction.class);
@@ -254,16 +254,16 @@ class RaoUtilTest {
         // remedial action with OnInstant Usage Rule
         when(automatonRa.getUsageRules()).thenReturn(Set.of(onInstant));
         when(onInstant.getUsageMethod(automatonState)).thenReturn(UsageMethod.FORCED);
-        assertTrue(RaoUtil.isRemedialActionForced(automatonRa, automatonState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters));
+        assertTrue(RaoUtil.isRemedialActionForced(automatonRa, automatonState, prePerimeterResult, crac.getFlowCnecs(), network, Unit.MEGAWATT));
         when(onInstant.getUsageMethod(automatonState)).thenReturn(UsageMethod.AVAILABLE);
-        assertTrue(RaoUtil.isRemedialActionAvailable(automatonRa, automatonState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters));
+        assertTrue(RaoUtil.isRemedialActionAvailable(automatonRa, automatonState, prePerimeterResult, crac.getFlowCnecs(), network, Unit.MEGAWATT));
 
         // remedial action with OnFlowConstraint Usage Rule
         when(automatonRa.getUsageRules()).thenReturn(Set.of(onFlowConstraint));
         when(onFlowConstraint.getUsageMethod(automatonState)).thenReturn(UsageMethod.AVAILABLE);
-        assertFalse(RaoUtil.isRemedialActionAvailable(automatonRa, automatonState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters));
+        assertFalse(RaoUtil.isRemedialActionAvailable(automatonRa, automatonState, prePerimeterResult, crac.getFlowCnecs(), network, Unit.MEGAWATT));
         when(onFlowConstraint.getUsageMethod(automatonState)).thenReturn(UsageMethod.FORCED);
-        assertFalse(RaoUtil.isRemedialActionAvailable(automatonRa, automatonState, prePerimeterResult, crac.getFlowCnecs(), network, raoParameters));
+        assertFalse(RaoUtil.isRemedialActionAvailable(automatonRa, automatonState, prePerimeterResult, crac.getFlowCnecs(), network, Unit.MEGAWATT));
     }
 
     @Test
@@ -352,7 +352,7 @@ class RaoUtilTest {
     }
 
     private void assertIsOnFlowInCountryAvailable(RemedialAction<?> ra, State optimizedState, FlowResult flowResult, boolean available) {
-        assertEquals(available, RaoUtil.isRemedialActionAvailable(ra, optimizedState, flowResult, ra.getFlowCnecsConstrainingUsageRules(crac.getFlowCnecs(), network, optimizedState), network, raoParameters));
+        assertEquals(available, RaoUtil.isRemedialActionAvailable(ra, optimizedState, flowResult, ra.getFlowCnecsConstrainingUsageRules(crac.getFlowCnecs(), network, optimizedState), network, Unit.MEGAWATT));
     }
 
     @Test
@@ -371,7 +371,7 @@ class RaoUtilTest {
         State outageState = Mockito.mock(State.class);
         Mockito.when(outageState.getContingency()).thenReturn(Optional.of(crac.getContingency("Contingency FR1 FR3")));
         Mockito.when(outageState.getInstant()).thenReturn(crac.getInstant(InstantKind.OUTAGE));
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> RaoUtil.getLastAvailableRangeActionOnSameNetworkElement(optimizationContext, crac.getRangeActions().iterator().next(), outageState));
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> RaoUtil.getLastAvailableRangeActionOnSameNetworkElement(optimizationContext.getMainOptimizationState(), optimizationContext.getRangeActionsPerState(), crac.getRangeActions().iterator().next(), outageState));
         assertEquals("Linear optimization does not handle range actions which are neither PREVENTIVE nor CURATIVE.", exception.getMessage());
     }
 
@@ -411,6 +411,6 @@ class RaoUtilTest {
         Mockito.when(optimizationContext.getMainOptimizationState()).thenReturn(curativeState1);
         Mockito.when(optimizationContext.getRangeActionsPerState()).thenReturn(Map.of(curativeState1, Set.of(rangeAction1)));
 
-        assertEquals(Pair.of(rangeAction1, curativeState1), RaoUtil.getLastAvailableRangeActionOnSameNetworkElement(optimizationContext, rangeAction2, curativeState3));
+        assertEquals(Pair.of(rangeAction1, curativeState1), RaoUtil.getLastAvailableRangeActionOnSameNetworkElement(optimizationContext.getMainOptimizationState(), optimizationContext.getRangeActionsPerState(), rangeAction2, curativeState3));
     }
 }

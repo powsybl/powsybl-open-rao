@@ -226,7 +226,7 @@ public final class AutomatonSimulator {
         Set<FlowCnec> flowCnecs = crac.getFlowCnecs(automatonState);
         Set<NetworkAction> appliedNetworkActions = new HashSet<>();
         crac.getNetworkActions().stream()
-            .filter(ra -> RaoUtil.isRemedialActionForced(ra, automatonState, preAutomatonsPerimeterResult, flowCnecs, network, raoParameters))
+            .filter(ra -> RaoUtil.isRemedialActionForced(ra, automatonState, preAutomatonsPerimeterResult, flowCnecs, network, flowUnit))
             .filter(ra -> getSpeed(ra) == speed)
             .forEach(networkAction -> {
                 if (networkAction.hasImpactOnNetwork(network)) {
@@ -347,7 +347,7 @@ public final class AutomatonSimulator {
         // 1) Get available range actions
         // -- First get forced range actions
         List<RangeAction<?>> availableRangeActions = crac.getRangeActions().stream()
-            .filter(ra -> RaoUtil.isRemedialActionForced(ra, automatonState, rangeActionSensitivity, crac.getFlowCnecs(), network, raoParameters))
+            .filter(ra -> RaoUtil.isRemedialActionForced(ra, automatonState, rangeActionSensitivity, crac.getFlowCnecs(), network, flowUnit))
             .filter(ra -> getSpeed(ra) == speed)
             .toList();
 

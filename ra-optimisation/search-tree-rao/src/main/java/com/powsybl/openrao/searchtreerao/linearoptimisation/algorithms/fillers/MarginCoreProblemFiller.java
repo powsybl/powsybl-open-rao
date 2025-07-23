@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers;
 
+import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
@@ -31,8 +32,9 @@ public class MarginCoreProblemFiller extends AbstractCoreProblemFiller {
                                    Unit unit,
                                    boolean raRangeShrinking,
                                    SearchTreeRaoRangeActionsOptimizationParameters.PstModel pstModel,
-                                   OffsetDateTime timestamp) {
-        super(optimizationContext, prePerimeterRangeActionSetpoints, rangeActionParameters, rangeActionParametersExtension, unit, raRangeShrinking, pstModel, timestamp);
+                                   OffsetDateTime timestamp,
+                                   Network network) {
+        super(optimizationContext, prePerimeterRangeActionSetpoints, rangeActionParameters, rangeActionParametersExtension, unit, raRangeShrinking, pstModel, timestamp, network);
     }
 
     /**
@@ -55,7 +57,7 @@ public class MarginCoreProblemFiller extends AbstractCoreProblemFiller {
      */
     @Override
     protected void fillObjective(LinearProblem linearProblem) {
-        optimizationContext.getRangeActionsPerState().forEach((state, rangeActions) -> rangeActions.forEach(ra -> {
+        availableRangeActions.forEach((state, rangeActions) -> rangeActions.forEach(ra -> {
             OpenRaoMPVariable upwardVariationVariable = linearProblem.getRangeActionVariationVariable(ra, state, LinearProblem.VariationDirectionExtension.UPWARD);
             if (upwardVariationVariable != null) {
                 linearProblem.getObjective().setCoefficient(upwardVariationVariable, getRangeActionPenaltyCost(ra, rangeActionParameters));

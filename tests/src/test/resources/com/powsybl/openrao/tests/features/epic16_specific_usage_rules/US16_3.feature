@@ -62,17 +62,21 @@ Feature: User Story #16.3: Activate remedial actions only after a specific const
 
   @fast @rao @mock @ac @contingency-scenarios
   Scenario: US 16.3.5: Curative onConstraint RA with a constraint triggered by another curative RA
+    First iteration: BE2 FR3 in secure so pst_fr is unavailable => pst_be moved to tap 2
+    Second iteration: BE2 FR3 in overloaded so pst_fr becomes available => pst_fr moved to tap 16
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic16/SL_ep16us3case5.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch search_tree_rao
     Then 0 remedial actions are used in preventive
-    And 1 remedial actions are used after "co1_fr2_fr3_1" at "curative"
+    And 2 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     And the remedial action "pst_be" is used after "co1_fr2_fr3_1" at "curative"
     And the tap of PstRangeAction "pst_be" should be 2 after "co1_fr2_fr3_1" at "curative"
-    And the worst margin is -37 A
-    And the margin on cnec "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be -37 A
-    And the margin on cnec "BBE2AA1  FFR3AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be -13 A
+    And the remedial action "pst_fr" is used after "co1_fr2_fr3_1" at "curative"
+    And the tap of PstRangeAction "pst_fr" should be 16 after "co1_fr2_fr3_1" at "curative"
+    And the worst margin is -8.48 A
+    And the margin on cnec "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be -8.48 A
+    And the margin on cnec "BBE2AA1  FFR3AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be 20.16 A
 
   @fast @rao @mock @ac @contingency-scenarios
   Scenario: US 16.3.6: Curative onConstraint RA with no constraint triggered

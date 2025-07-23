@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.result.impl;
 
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
@@ -32,7 +33,13 @@ public class LinearProblemResult extends RangeActionActivationResultImpl {
     }
 
     private static boolean wasRangeActionActivated(LinearProblem linearProblem, RangeAction<?> rangeAction, State state) {
-        return linearProblem.getRangeActionVariationVariable(rangeAction, state, LinearProblem.VariationDirectionExtension.UPWARD).solutionValue()
-            + linearProblem.getRangeActionVariationVariable(rangeAction, state, LinearProblem.VariationDirectionExtension.DOWNWARD).solutionValue() > ACTIVATION_THRESHOLD;
+        try {
+            return linearProblem.getRangeActionVariationVariable(rangeAction, state, LinearProblem.VariationDirectionExtension.UPWARD).solutionValue()
+                + linearProblem.getRangeActionVariationVariable(rangeAction, state, LinearProblem.VariationDirectionExtension.DOWNWARD).solutionValue() > ACTIVATION_THRESHOLD;
+        } catch (OpenRaoException e) {
+            // TODO: handle this more properly
+            // case if the variable does not exist because on an unsatisfied flow constraint
+            return false;
+        }
     }
 }

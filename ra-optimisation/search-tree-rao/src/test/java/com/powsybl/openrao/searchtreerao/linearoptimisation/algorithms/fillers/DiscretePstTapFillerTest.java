@@ -92,7 +92,8 @@ class DiscretePstTapFillerTest extends AbstractFillerTest {
             Unit.MEGAWATT,
             false,
             PstModel.APPROXIMATED_INTEGERS,
-            null);
+            null,
+            network);
 
         Map<State, Set<PstRangeAction>> pstRangeActions = new HashMap<>();
         pstRangeActions.put(preventiveState, Set.of(pstRangeAction));
@@ -102,7 +103,7 @@ class DiscretePstTapFillerTest extends AbstractFillerTest {
             pstRangeActions,
             initialRangeActionSetpointResult,
             rangeActionParameters,
-            true, null);
+            true, null, network, Unit.MEGAWATT);
 
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)

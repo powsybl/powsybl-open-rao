@@ -6,8 +6,11 @@
  */
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers;
 
+import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.State;
+import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPConstraint;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem;
@@ -27,15 +30,24 @@ import java.util.Set;
 public class ContinuousRangeActionGroupFiller implements ProblemFiller {
 
     private final Map<State, Set<RangeAction<?>>> rangeActionsPerState;
+    private Map<State, Set<RangeAction<?>>> availableRangeActionsPerState;
     private final OffsetDateTime timestamp;
+    private final Set<FlowCnec> flowCnecs;
+    private final Network network;
+    private final Unit unit;
 
-    public ContinuousRangeActionGroupFiller(Map<State, Set<RangeAction<?>>> rangeActionsPerState, OffsetDateTime timestamp) {
+    public ContinuousRangeActionGroupFiller(Map<State, Set<RangeAction<?>>> rangeActionsPerState, OffsetDateTime timestamp, Set<FlowCnec> flowCnecs, Network network, Unit unit) {
         this.rangeActionsPerState = rangeActionsPerState;
+        this.availableRangeActionsPerState = rangeActionsPerState;
         this.timestamp = timestamp;
+        this.flowCnecs = flowCnecs;
+        this.network = network;
+        this.unit = unit;
     }
 
     @Override
     public void fill(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
+        availableRangeActionsPerState = FillersUtil.getAvailableRangeActions(rangeActionsPerState, flowResult, sensitivityResult, flowCnecs, network, unit);
         buildRangeActionGroupConstraint(linearProblem);
     }
 
@@ -46,7 +58,7 @@ public class ContinuousRangeActionGroupFiller implements ProblemFiller {
 
     private void buildRangeActionGroupConstraint(LinearProblem linearProblem) {
 
-        rangeActionsPerState.forEach((state, rangeActions) -> rangeActions.forEach(ra -> {
+        availableRangeActionsPerState.forEach((state, rangeActions) -> rangeActions.forEach(ra -> {
             Optional<String> optGroupId = ra.getGroupId();
             // if range action belongs to a group
             if (optGroupId.isPresent()) {

@@ -90,7 +90,8 @@ class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
             MEGAWATT,
             false,
             SearchTreeRaoRangeActionsOptimizationParameters.PstModel.CONTINUOUS,
-            null);
+            null,
+            network);
     }
 
     private void createMaxMinRelativeMarginFiller(Unit unit, double cnecInitialAbsolutePtdfSum) {

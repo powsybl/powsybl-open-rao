@@ -107,7 +107,8 @@ class CostCoreProblemFillerTest extends AbstractFillerTest {
             Unit.MEGAWATT,
             raRangeShrinking,
             pstModel,
-            null);
+            null,
+            network);
         buildLinearProblem();
     }
 

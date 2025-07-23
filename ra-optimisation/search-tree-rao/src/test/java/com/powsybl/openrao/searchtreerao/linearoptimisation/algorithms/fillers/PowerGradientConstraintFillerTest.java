@@ -118,7 +118,8 @@ class PowerGradientConstraintFillerTest {
                 Unit.MEGAWATT,
                 false,
                 SearchTreeRaoRangeActionsOptimizationParameters.PstModel.CONTINUOUS,
-                entry.getKey()
+                entry.getKey(),
+                entry.getValue().getNetwork()
             );
             linearProblemBuilder.withProblemFiller(coreProblemFiller);
         });
