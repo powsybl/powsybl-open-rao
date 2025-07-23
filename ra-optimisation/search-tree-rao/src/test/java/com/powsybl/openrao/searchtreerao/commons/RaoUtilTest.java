@@ -7,7 +7,6 @@
 
 package com.powsybl.openrao.searchtreerao.commons;
 
-
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
 import com.powsybl.contingency.Contingency;
@@ -49,7 +48,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
@@ -69,7 +67,6 @@ class RaoUtilTest {
     private static final String PREVENTIVE_INSTANT_ID = "preventive";
     private static final String CURATIVE_INSTANT_ID = "curative";
     private static final String AUTO_INSTANT_ID = "auto";
-    private static final Logger log = LoggerFactory.getLogger(RaoUtilTest.class);
 
     private RaoParameters raoParameters;
     private RaoInput raoInput;

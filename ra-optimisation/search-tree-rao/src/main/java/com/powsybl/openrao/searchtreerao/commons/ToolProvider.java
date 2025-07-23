@@ -108,7 +108,7 @@ public final class ToolProvider {
             .withRangeActionSensitivities(rangeActions, cnecs, Collections.singleton(objectiveFunctionUnit))
             .withOutageInstant(outageInstant);
 
-        if (getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters().isDc()){
+        if (getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters().isDc()) {
             builder.withLoadflow(cnecs, Collections.singleton(objectiveFunctionUnit));
         } else {
             builder.withLoadflow(cnecs, Set.of(Unit.AMPERE, Unit.MEGAWATT));

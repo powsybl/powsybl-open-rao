@@ -25,8 +25,6 @@ import java.time.OffsetDateTime;
 import java.util.Optional;
 import java.util.Set;
 
-import static com.powsybl.openrao.commons.Unit.MEGAWATT;
-
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
@@ -141,8 +139,8 @@ public class MaxMinRelativeMarginFiller extends MaxMinMarginFiller {
                 minimumMarginNegative = linearProblem.addMinimumRelativeMarginConstraint(-linearProblem.infinity(), linearProblem.infinity(), cnec, side, LinearProblem.MarginExtension.BELOW_THRESHOLD, Optional.ofNullable(timestamp));
             }
             minimumMarginNegative.setUb(-minFlow.get() + relMarginCoef * maxNegativeRelativeRam);
-            minimumMarginNegative.setCoefficient(minRelMarginVariable,  relMarginCoef);
-            minimumMarginNegative.setCoefficient(minRelMarginSignBinaryVariable,  relMarginCoef * maxNegativeRelativeRam);
+            minimumMarginNegative.setCoefficient(minRelMarginVariable, relMarginCoef);
+            minimumMarginNegative.setCoefficient(minRelMarginSignBinaryVariable, relMarginCoef * maxNegativeRelativeRam);
             minimumMarginNegative.setCoefficient(flowVariable, -1);
         }
         if (maxFlow.isPresent()) {

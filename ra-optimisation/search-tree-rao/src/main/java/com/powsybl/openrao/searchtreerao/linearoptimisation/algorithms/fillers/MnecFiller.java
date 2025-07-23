@@ -9,7 +9,6 @@ package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Identifiable;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
-import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPConstraint;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPVariable;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem;
@@ -22,8 +21,6 @@ import java.util.Comparator;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
-
-import static com.powsybl.openrao.commons.Unit.MEGAWATT;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
