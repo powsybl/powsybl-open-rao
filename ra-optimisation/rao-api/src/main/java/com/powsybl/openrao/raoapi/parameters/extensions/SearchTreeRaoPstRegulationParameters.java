@@ -32,7 +32,7 @@ public class SearchTreeRaoPstRegulationParameters {
         this.pstsToRegulate = pstsToRegulate;
     }
 
-    public List<String> getPstsToRegulate(RaoParameters raoParameters) {
+    public static List<String> getPstsToRegulate(RaoParameters raoParameters) {
         if (raoParameters.hasExtension(SearchTreeRaoPstRegulationParameters.class)) {
             return raoParameters.getExtension(SearchTreeRaoPstRegulationParameters.class).getPstsToRegulate();
         }

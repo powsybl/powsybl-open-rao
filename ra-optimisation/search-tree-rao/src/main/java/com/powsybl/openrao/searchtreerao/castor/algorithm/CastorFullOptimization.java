@@ -6,16 +6,22 @@
  */
 package com.powsybl.openrao.searchtreerao.castor.algorithm;
 
+import com.powsybl.contingency.Contingency;
+import com.powsybl.iidm.network.PhaseTapChanger;
+import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
+import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.State;
+import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.OptimizationStepsExecuted;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoPstRegulationParameters;
 import com.powsybl.openrao.searchtreerao.commons.RaoLogger;
 import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
@@ -30,13 +36,17 @@ import com.powsybl.openrao.searchtreerao.searchtree.inputs.SearchTreeInput;
 import com.powsybl.openrao.searchtreerao.searchtree.parameters.SearchTreeParameters;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.util.AbstractNetworkPool;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.*;
+import static com.powsybl.openrao.raoapi.parameters.extensions.MultithreadingParameters.getAvailableCPUs;
 import static com.powsybl.openrao.searchtreerao.commons.RaoLogger.formatDoubleBasedOnMargin;
 import static com.powsybl.openrao.searchtreerao.commons.RaoLogger.getVirtualCostDetailed;
 import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.applyRemedialActions;
@@ -52,6 +62,7 @@ public class CastorFullOptimization {
     private static final String INITIAL_SCENARIO = "InitialScenario";
     private static final String PREVENTIVE_SCENARIO = "PreventiveScenario";
     private static final String SECOND_PREVENTIVE_SCENARIO_BEFORE_OPT = "SecondPreventiveScenario";
+    private static final String PST_REGULATION = "PSTRegulation";
     private static final int NUMBER_LOGGED_ELEMENTS_DURING_RAO = 2;
     private static final int NUMBER_LOGGED_ELEMENTS_END_RAO = 10;
     private static final double EPSILON = 1e-6;
@@ -286,6 +297,16 @@ public class CastorFullOptimization {
             formatDoubleBasedOnMargin(finalCost, -finalCost), formatDoubleBasedOnMargin(finalFunctionalCost, -finalCost), formatDoubleBasedOnMargin(finalVirtualCost, -finalCost),
             finalVirtualCostDetailed.isEmpty() ? "" : " " + finalVirtualCostDetailed);
 
+        List<String> pstsToRegulate = SearchTreeRaoPstRegulationParameters.getPstsToRegulate(raoParameters);
+        if (!pstsToRegulate.isEmpty()) {
+            BUSINESS_LOGS.info("=== PST regulation [start]");
+            BUSINESS_LOGS.info("PSTs to regulate: {}", String.join(", ", pstsToRegulate));
+            finalRaoResult = regulatePsts(pstsToRegulate, finalRaoResult);
+            BUSINESS_LOGS.info("=== PST regulation [end]");
+            logPostPstRegulationCosts(finalRaoResult, lastInstant);
+            // TODO: log new most limiting elements
+        }
+
         return CompletableFuture.completedFuture(finalRaoResult);
     }
 
@@ -317,4 +338,133 @@ public class CastorFullOptimization {
         applyRemedialActions(network, optResult, crac.getPreventiveState());
         return new OneStateOnlyRaoResultImpl(crac.getPreventiveState(), initialResult, optResult, searchTreeInput.getOptimizationPerimeter().getFlowCnecs());
     }
+
+    // PST regulation
+
+    private RaoResult regulatePsts(List<String> pstsToRegulate, RaoResult raoResult) {
+        // start from initial variant
+        network.getVariantManager().cloneVariant(INITIAL_SCENARIO, PST_REGULATION);
+        network.getVariantManager().setWorkingVariant(PST_REGULATION);
+
+        // apply optimal preventive remedial actions
+        applyOptimalRemedialActionsForState(network, raoResult, crac.getPreventiveState());
+
+        // filter out non-curative PSTs
+        Set<PstRangeAction> rangeActionsToRegulate = getPstRangeActionsForRegulation(pstsToRegulate);
+
+        // regulate PSTs for each curative scenario in parallel
+        try (AbstractNetworkPool networkPool = AbstractNetworkPool.create(network, network.getVariantManager().getWorkingVariantId(), getAvailableCPUs(raoParameters), true)) {
+            List<ForkJoinTask<RaoResult>> tasks = crac.getContingencies().stream().map(contingency ->
+                networkPool.submit(() -> regulatePstsForContingencyScenario(contingency, networkPool.getAvailableNetwork(), rangeActionsToRegulate, raoResult))
+            ).toList();
+            // TODO: get tasks content and merge final results
+            return null;
+        } catch (Exception e) {
+            Thread.currentThread().interrupt();
+            BUSINESS_LOGS.warn("An error occurred during PST regulation, pre-regulation RAO result will be kept.");
+            return raoResult;
+        }
+    }
+
+    private static void applyOptimalRemedialActionsForState(Network networkClone, RaoResult raoResult, State state) {
+        raoResult.getActivatedNetworkActionsDuringState(state).forEach(networkAction -> networkAction.apply(networkClone));
+        raoResult.getActivatedRangeActionsDuringState(state).forEach(rangeAction -> rangeAction.apply(networkClone, raoResult.getOptimizedSetPointOnState(state, rangeAction)));
+    }
+
+    private Set<PstRangeAction> getPstRangeActionsForRegulation(List<String> pstsToRegulate) {
+        Map<String, PstRangeAction> rangeActionPerPst = getRangeActionPerPst(pstsToRegulate);
+        Set<PstRangeAction> rangeActionsToRegulate = new HashSet<>();
+        for (String pstId : pstsToRegulate) {
+            if (rangeActionPerPst.containsKey(pstId)) {
+                rangeActionsToRegulate.add(rangeActionPerPst.get(pstId));
+            } else {
+                BUSINESS_LOGS.info("PST {} cannot be regulated as no curative PST range action was defined for it.", pstId);
+            }
+        }
+        return rangeActionsToRegulate;
+    }
+
+    private Map<String, PstRangeAction> getRangeActionPerPst(List<String> pstsToRegulate) {
+        return crac.getPstRangeActions().stream()
+            .filter(pstRangeAction -> pstRangeAction.getUsageRules().stream().anyMatch(usageRule -> usageRule.getInstant() == crac.getLastInstant()))
+            .filter(pstRangeAction -> pstsToRegulate.contains(pstRangeAction.getNetworkElement().getId()))
+            .collect(Collectors.toMap(pstRangeAction -> pstRangeAction.getNetworkElement().getId(), Function.identity()));
+    }
+
+    private RaoResult regulatePstsForContingencyScenario(Contingency contingency, Network networkClone, Set<PstRangeAction> rangeActionsToRegulate, RaoResult raoResult) {
+        simulateContingencyAndAppyCurativeActions(contingency, networkClone, raoResult);
+        Set<PstRangeAction> pstsRangeActionsToShift = filterOutPstsInAbutment(rangeActionsToRegulate, contingency, networkClone);
+        Map<PstRangeAction, Integer> initialTapPerPst = getInitialTapPerPst(pstsRangeActionsToShift, networkClone);
+        Map<PstRangeAction, Integer> regulatedTapPerPst = PstRegulator.regulatePsts(networkClone, pstsRangeActionsToShift, raoParameters.getExtension(LoadFlowParameters.class));
+        logPstRegulationResultsForContingencyScenario(contingency, initialTapPerPst, regulatedTapPerPst);
+        // TODO: apply
+        return raoResult;
+    }
+
+    private static Set<PstRangeAction> filterOutPstsInAbutment(Set<PstRangeAction> rangeActionsToRegulate, Contingency contingency, Network networkClone) {
+        Set<PstRangeAction> pstsRangeActionsToShift = new HashSet<>();
+        for (PstRangeAction pstRangeAction : rangeActionsToRegulate) {
+            if (isPstInAbutment(pstRangeAction, networkClone)) {
+                BUSINESS_LOGS.info("PST {} will not be regulated for contingency scenario {} as it is in abutment.", pstRangeAction.getNetworkElement().getId(), contingency.getId());
+            } else {
+                pstsRangeActionsToShift.add(pstRangeAction);
+            }
+        }
+        return pstsRangeActionsToShift;
+    }
+
+    private static boolean isPstInAbutment(PstRangeAction pstRangeAction, Network networkClone) {
+        PhaseTapChanger phaseTapChanger = networkClone.getTwoWindingsTransformer(pstRangeAction.getNetworkElement().getId()).getPhaseTapChanger();
+        int currentTapPosition = phaseTapChanger.getTapPosition();
+        return phaseTapChanger.getHighTapPosition() == currentTapPosition || phaseTapChanger.getLowTapPosition() == currentTapPosition;
+    }
+
+    private void simulateContingencyAndAppyCurativeActions(Contingency contingency, Network networkClone, RaoResult raoResult) {
+        // simulate contingency
+        contingency.toModification().apply(networkClone);
+
+        // apply automatons
+        if (crac.hasAutoInstant()) {
+            applyOptimalRemedialActionsForState(networkClone, raoResult, crac.getState(contingency, crac.getInstant(InstantKind.AUTO)));
+        }
+
+        // apply optimal curative remedial actions
+        crac.getInstants(InstantKind.CURATIVE).stream()
+            .map(instant -> crac.getState(contingency, instant))
+            .forEach(state -> applyOptimalRemedialActionsForState(networkClone, raoResult, state));
+    }
+
+    private static Map<PstRangeAction, Integer> getInitialTapPerPst(Set<PstRangeAction> rangeActionsToRegulate, Network networkClone) {
+        return rangeActionsToRegulate.stream().collect(Collectors.toMap(Function.identity(), pstRangeAction -> networkClone.getTwoWindingsTransformer(pstRangeAction.getNetworkElement().getId()).getPhaseTapChanger().getTapPosition()));
+    }
+
+    private static void logPstRegulationResultsForContingencyScenario(Contingency contingency,
+                                                                      Map<PstRangeAction, Integer> initialTapPerPst,
+                                                                      Map<PstRangeAction, Integer> regulatedTapPerPst) {
+        List<PstRangeAction> sortedPstRangeActions = initialTapPerPst.keySet().stream().sorted().toList();
+        List<String> shiftDetails = new ArrayList<>();
+        sortedPstRangeActions.forEach(
+            pstRangeAction -> {
+                int initialTap = initialTapPerPst.get(pstRangeAction);
+                int regulatedTap = regulatedTapPerPst.get(pstRangeAction);
+                if (initialTap != regulatedTap) {
+                    shiftDetails.add("%s (%s -> %s)".formatted(pstRangeAction.getName(), initialTap, regulatedTap));
+                }
+            }
+        );
+        BUSINESS_LOGS.info("PST regulation for contingency scenario %s: %s".formatted(contingency.getId(), String.join(", ", shiftDetails)));
+    }
+
+    private static void logPostPstRegulationCosts(RaoResult postPstRegulationRaoResult, Instant lastInstant) {
+        Map<String, Double> postPstRegulationVirtualCostDetailed = getVirtualCostDetailed(postPstRegulationRaoResult, lastInstant);
+        double postRegulationCost = postPstRegulationRaoResult.getCost(lastInstant);
+        double postRegulationFunctionalCost = postPstRegulationRaoResult.getFunctionalCost(lastInstant);
+        double postRegulationVirtualCost = postPstRegulationRaoResult.getVirtualCost(lastInstant);
+
+        // Log costs before and after RAO
+        BUSINESS_LOGS.info("Cost after PST regulation = {} (functional: {}, virtual: {}{})",
+            formatDoubleBasedOnMargin(postRegulationCost, -postRegulationCost), formatDoubleBasedOnMargin(postRegulationFunctionalCost, -postRegulationCost), formatDoubleBasedOnMargin(postRegulationVirtualCost, -postRegulationCost),
+            postPstRegulationVirtualCostDetailed.isEmpty() ? "" : " " + postPstRegulationVirtualCostDetailed);
+    }
+
 }

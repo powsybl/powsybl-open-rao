@@ -73,6 +73,7 @@ public final class PstRegulator {
         loadFlowParameters.setPhaseShifterRegulationOn(true);
         LoadFlow.find("OpenLoadFlow").run(network, loadFlowParameters);
         loadFlowParameters.setPhaseShifterRegulationOn(initialPhaseShifterRegulationOnValue);
+        // TODO: loadFlowParameters.getExtension(OpenLoadFlowParameters.class).setMaxOuterLoopIterations(100);
     }
 
     private static int getRegulatedTap(Network network, PstRangeAction pstRangeAction) {
