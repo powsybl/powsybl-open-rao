@@ -13,6 +13,7 @@ import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.data.raoresult.api.extension.CriticalCnecsResult;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
@@ -49,7 +50,7 @@ public class FastRaoTest {
         raoParameters.addExtension(FastRaoParameters.class, fastRaoParameters);
         FastRaoResultImpl raoResult = (FastRaoResultImpl) FastRao.launchFilteredRao(individualRaoInput, raoParameters, null, new HashSet<>());
         assertEquals(-37.7, raoResult.getFunctionalCost(crac.getLastInstant()), 1e-1);
-        assertEquals(6, raoResult.getCriticalCnecs().size());
+        assertEquals(6, raoResult.getExtension(CriticalCnecsResult.class).getCriticalCnecIds().size());
     }
 
     @Test
@@ -65,7 +66,7 @@ public class FastRaoTest {
         raoParameters.addExtension(FastRaoParameters.class, fastRaoParameters);
         FastRaoResultImpl raoResult = (FastRaoResultImpl) FastRao.launchFilteredRao(individualRaoInput, raoParameters, null, new HashSet<>());
         assertEquals(314.7, raoResult.getFunctionalCost(crac.getLastInstant()), 1e-1);
-        assertEquals(2, raoResult.getCriticalCnecs().size());
+        assertEquals(2, raoResult.getExtension(CriticalCnecsResult.class).getCriticalCnecIds().size());
     }
 
     @Test

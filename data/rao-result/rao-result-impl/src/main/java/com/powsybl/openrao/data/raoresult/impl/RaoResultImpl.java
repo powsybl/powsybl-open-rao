@@ -52,7 +52,6 @@ public class RaoResultImpl extends AbstractExtendable<RaoResult> implements RaoR
     private final Map<NetworkAction, NetworkActionResult> networkActionResults = new HashMap<>();
     private final Map<RangeAction<?>, RangeActionResult> rangeActionResults = new HashMap<>();
     private final Map<String, CostResult> costResults = new HashMap<>();
-    private Optional<Set<FlowCnec>> criticalCnecs = Optional.empty();
 
     private String executionDetails = OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY;
 
@@ -412,13 +411,5 @@ public class RaoResultImpl extends AbstractExtendable<RaoResult> implements RaoR
     @Override
     public String getExecutionDetails() {
         return executionDetails;
-    }
-
-    public void setCriticalCnecs(Set<FlowCnec> criticalCnecs) {
-        this.criticalCnecs = Optional.ofNullable(criticalCnecs);
-    }
-
-    public Optional<Set<FlowCnec>> getCriticalCnecs() {
-        return criticalCnecs;
     }
 }

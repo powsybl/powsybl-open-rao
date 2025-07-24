@@ -57,6 +57,6 @@ class RaoResultDeserializerTest {
         Crac crac = ExhaustiveCracCreation.create();
         InputStream raoResultStream = getClass().getResourceAsStream("/rao-result.json");
         RaoResultImpl raoResult = (RaoResultImpl) RaoResult.read(raoResultStream, crac);
-        assertFalse(raoResult.getCriticalCnecs().isPresent());
+        assertNull(raoResult.getExtension(CriticalCnecsResult.class));
     }
 }
