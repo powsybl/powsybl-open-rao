@@ -180,7 +180,6 @@ class RaoParametersConfigTest {
         assertEquals(PtdfApproximation.UPDATE_PTDF_WITH_TOPO, parameters.getPtdfApproximation());
         assertEquals(45, parameters.getConstraintAdjustmentCoefficient(), DOUBLE_TOLERANCE);
         assertEquals(43, parameters.getViolationCost(), DOUBLE_TOLERANCE);
-        Set<Country> expectedCountries = Set.of(Country.FR, Country.ES, Country.PT);
     }
 
     @Test
