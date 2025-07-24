@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers;
 
+import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
@@ -59,6 +60,8 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
     protected final boolean raRangeShrinking;
     protected final PstModel pstModel;
     protected final OffsetDateTime timestamp;
+    protected final Network network;
+    protected Map<State, Set<RangeAction<?>>> availableRangeActions;
 
     protected AbstractCoreProblemFiller(OptimizationPerimeter optimizationContext,
                                         RangeActionSetpointResult prePerimeterRangeActionSetpoints,
@@ -67,7 +70,8 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
                                         Unit unit,
                                         boolean raRangeShrinking,
                                         PstModel pstModel,
-                                        OffsetDateTime timestamp) {
+                                        OffsetDateTime timestamp,
+                                        Network network) {
         this.optimizationContext = optimizationContext;
         this.prePerimeterRangeActionSetpoints = prePerimeterRangeActionSetpoints;
         this.flowCnecs = new TreeSet<>(Comparator.comparing(Identifiable::getId));
@@ -78,11 +82,14 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
         this.raRangeShrinking = raRangeShrinking;
         this.pstModel = pstModel;
         this.timestamp = timestamp;
+        this.network = network;
+        this.availableRangeActions = optimizationContext.getRangeActionsPerState();
     }
 
     @Override
     public void fill(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
         Set<FlowCnec> validFlowCnecs = FillersUtil.getFlowCnecsComputationStatusOk(flowCnecs, sensitivityResult);
+        availableRangeActions = FillersUtil.getAvailableRangeActions(optimizationContext.getRangeActionsPerState(), flowResult, sensitivityResult, flowCnecs, network, unit);
 
         // add variables
         buildFlowVariables(linearProblem, validFlowCnecs);
@@ -127,8 +134,8 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
      * and its initial value. It is given in the same unit as S[r].
      */
     private void buildRangeActionVariables(LinearProblem linearProblem) {
-        optimizationContext.getRangeActionsPerState().forEach((state, rangeActions) ->
-            rangeActions.forEach(rangeAction -> addAllRangeActionVariables(linearProblem, rangeAction, state))
+        availableRangeActions.forEach((state, rangeActions) -> rangeActions
+                .forEach(rangeAction -> addAllRangeActionVariables(linearProblem, rangeAction, state))
         );
     }
 
@@ -165,7 +172,7 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
     private void addImpactOfRangeActionOnCnec(LinearProblem linearProblem, SensitivityResult sensitivityResult, FlowCnec cnec, TwoSides side, RangeActionActivationResult rangeActionActivationResult) {
         OpenRaoMPConstraint flowConstraint = linearProblem.getFlowConstraint(cnec, side, Optional.ofNullable(timestamp));
 
-        List<State> statesBeforeCnec = FillersUtil.getPreviousStates(cnec.getState(), optimizationContext).stream()
+        List<State> statesBeforeCnec = FillersUtil.getPreviousStates(cnec.getState(), availableRangeActions).stream()
             .sorted((s1, s2) -> Integer.compare(s2.getInstant().getOrder(), s1.getInstant().getOrder())) // start with curative state
             .toList();
 
@@ -173,7 +180,7 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
 
         for (State state : statesBeforeCnec) {
             // Impact of range action on cnec is only added on the last instant on which rangeAction is available
-            for (RangeAction<?> rangeAction : optimizationContext.getRangeActionsPerState().get(state)) {
+            for (RangeAction<?> rangeAction : availableRangeActions.get(state)) {
                 // todo: make that cleaner, it is ugly
                 if (!alreadyConsideredAction.contains(rangeAction)) {
                     addImpactOfRangeActionOnCnec(linearProblem, sensitivityResult, rangeAction, state, cnec, side, flowConstraint, rangeActionActivationResult);
@@ -214,7 +221,7 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
     }
 
     private void buildRangeActionConstraints(LinearProblem linearProblem) {
-        optimizationContext.getRangeActionsPerState().entrySet().stream()
+        availableRangeActions.entrySet().stream()
             .sorted(Comparator.comparingInt(e -> e.getKey().getInstant().getOrder()))
             .forEach(entry -> {
                 addGlobalInjectionBalanceConstraint(linearProblem, entry.getKey());
@@ -223,7 +230,7 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
     }
 
     private void addGlobalInjectionBalanceConstraint(LinearProblem linearProblem, State state) {
-        if (optimizationContext.getRangeActionsPerState().get(state).stream().anyMatch(InjectionRangeAction.class::isInstance)) {
+        if (availableRangeActions.get(state).stream().anyMatch(InjectionRangeAction.class::isInstance)) {
             linearProblem.addInjectionBalanceConstraint(state);
         }
     }
@@ -234,7 +241,7 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
         }
         if (iteration > 0) {
             // don't shrink the range for the first iteration
-            optimizationContext.getRangeActionsPerState().forEach((state, rangeActionSet) -> rangeActionSet.forEach(rangeAction -> updateConstraintsForRangeAction(linearProblem, rangeAction, state, rangeActionActivationResult, iteration, timestamp)));
+            availableRangeActions.forEach((state, rangeActionSet) -> rangeActionSet.forEach(rangeAction -> updateConstraintsForRangeAction(linearProblem, rangeAction, state, rangeActionActivationResult, iteration, timestamp)));
         }
         iteration++;
     }
@@ -280,7 +287,7 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
         setPointVariationConstraint.setCoefficient(upwardVariationVariable, -1.0);
         setPointVariationConstraint.setCoefficient(downwardVariationVariable, 1.0);
 
-        Pair<RangeAction<?>, State> lastAvailableRangeAction = RaoUtil.getLastAvailableRangeActionOnSameNetworkElement(optimizationContext, rangeAction, state);
+        Pair<RangeAction<?>, State> lastAvailableRangeAction = RaoUtil.getLastAvailableRangeActionOnSameNetworkElement(optimizationContext.getMainOptimizationState(), availableRangeActions, rangeAction, state);
 
         if (lastAvailableRangeAction == null) {
             // if state is equal to masterState,
@@ -403,7 +410,7 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
 
     private Set<RangeAction<?>> getAvailableRangeActionsOnSameAction(RangeAction<?> rangeAction) {
         Set<RangeAction<?>> rangeActions = new HashSet<>();
-        optimizationContext.getRangeActionsPerState().forEach((state, raSet) ->
+        availableRangeActions.forEach((state, raSet) ->
             raSet.forEach(ra -> {
                 if (ra.getId().equals(rangeAction.getId()) || ra.getNetworkElements().equals(rangeAction.getNetworkElements())) {
                     rangeActions.add(ra);

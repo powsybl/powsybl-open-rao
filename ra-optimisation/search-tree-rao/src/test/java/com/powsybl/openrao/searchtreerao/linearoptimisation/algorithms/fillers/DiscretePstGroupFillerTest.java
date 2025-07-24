@@ -70,7 +70,8 @@ class DiscretePstGroupFillerTest extends AbstractFillerTest {
             Unit.MEGAWATT,
             false,
             PstModel.APPROXIMATED_INTEGERS,
-            null);
+            null,
+            network);
 
         Map<State, Set<PstRangeAction>> pstRangeActions = new HashMap<>();
         pstRangeActions.put(state, Set.of(pstRa1, pstRa2));
@@ -79,11 +80,12 @@ class DiscretePstGroupFillerTest extends AbstractFillerTest {
             pstRangeActions,
             initialRangeActionSetpointResult,
             rangeActionParameters,
-            false, null);
+            false, null, network, Unit.MEGAWATT);
 
         DiscretePstGroupFiller discretePstGroupFiller = new DiscretePstGroupFiller(
             state,
-            pstRangeActions, null);
+            pstRangeActions, null,
+            crac.getFlowCnecs(), network, Unit.MEGAWATT);
 
         LinearProblem linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)

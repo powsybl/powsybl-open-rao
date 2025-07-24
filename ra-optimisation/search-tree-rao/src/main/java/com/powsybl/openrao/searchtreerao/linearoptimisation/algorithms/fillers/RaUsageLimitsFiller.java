@@ -8,8 +8,10 @@
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers;
 
 import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.State;
+import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.searchtreerao.commons.parameters.RangeActionLimitationParameters;
@@ -40,6 +42,7 @@ import java.util.stream.Collectors;
 public class RaUsageLimitsFiller implements ProblemFiller {
 
     private final Map<State, Set<RangeAction<?>>> rangeActions;
+    private Map<State, Set<RangeAction<?>>> availableRangeActions;
     private final RangeActionSetpointResult prePerimeterRangeActionSetpoints;
     private final RangeActionLimitationParameters rangeActionLimitationParameters;
     private final boolean arePstSetpointsApproximated;
@@ -47,25 +50,33 @@ public class RaUsageLimitsFiller implements ProblemFiller {
     private final Network network;
     private final boolean costOptimization;
     private final OffsetDateTime timestamp;
+    private final Set<FlowCnec> flowCnecs;
+    private final Unit unit;
 
     public RaUsageLimitsFiller(Map<State, Set<RangeAction<?>>> rangeActions,
                                RangeActionSetpointResult prePerimeterRangeActionSetpoints,
                                RangeActionLimitationParameters rangeActionLimitationParameters,
                                boolean arePstSetpointsApproximated,
                                Network network, boolean costOptimization,
-                               OffsetDateTime timestamp) {
+                               OffsetDateTime timestamp,
+                               Set<FlowCnec> flowCnecs,
+                               Unit unit) {
         this.rangeActions = rangeActions;
+        this.availableRangeActions = rangeActions;
         this.prePerimeterRangeActionSetpoints = prePerimeterRangeActionSetpoints;
         this.rangeActionLimitationParameters = rangeActionLimitationParameters;
         this.arePstSetpointsApproximated = arePstSetpointsApproximated;
         this.network = network;
         this.costOptimization = costOptimization;
         this.timestamp = timestamp;
+        this.flowCnecs = flowCnecs;
+        this.unit = unit;
     }
 
     @Override
     public void fill(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
-        rangeActions.forEach((state, rangeActionSet) -> {
+        availableRangeActions = FillersUtil.getAvailableRangeActions(rangeActions, flowResult, sensitivityResult, flowCnecs, network, unit);
+        availableRangeActions.forEach((state, rangeActionSet) -> {
             if (!rangeActionLimitationParameters.areRangeActionLimitedForState(state)) {
                 return;
             }
@@ -91,7 +102,7 @@ public class RaUsageLimitsFiller implements ProblemFiller {
 
     @Override
     public void updateBetweenMipIteration(LinearProblem linearProblem, RangeActionActivationResult rangeActionActivationResult) {
-        rangeActions.forEach((state, rangeActionSet) -> {
+        availableRangeActions.forEach((state, rangeActionSet) -> {
             Map<String, Integer> maxElementaryActionsPerTso = rangeActionLimitationParameters.getMaxElementaryActionsPerTso(state);
             Map<String, Set<PstRangeAction>> pstRangeActionsPerTso = new HashMap<>();
             rangeActionSet.stream()
@@ -157,11 +168,11 @@ public class RaUsageLimitsFiller implements ProblemFiller {
 
     private void addMaxRaConstraint(LinearProblem linearProblem, State state) {
         Integer maxRa = rangeActionLimitationParameters.getMaxRangeActions(state);
-        if (maxRa == null || maxRa >= rangeActions.get(state).size()) {
+        if (maxRa == null || maxRa >= availableRangeActions.get(state).size()) {
             return;
         }
         OpenRaoMPConstraint maxRaConstraint = linearProblem.addMaxRaConstraint(0, maxRa, state);
-        rangeActions.get(state).forEach(ra -> {
+        availableRangeActions.get(state).forEach(ra -> {
             OpenRaoMPVariable isVariationVariable = linearProblem.getRangeActionVariationBinary(ra, state);
             maxRaConstraint.setCoefficient(isVariationVariable, 1);
         });
@@ -173,7 +184,7 @@ public class RaUsageLimitsFiller implements ProblemFiller {
             return;
         }
         Set<String> maxTsoExclusions = rangeActionLimitationParameters.getMaxTsoExclusion(state);
-        Set<String> constraintTsos = rangeActions.get(state).stream()
+        Set<String> constraintTsos = availableRangeActions.get(state).stream()
             .map(RemedialAction::getOperator)
             .filter(Objects::nonNull)
             .filter(tso -> !maxTsoExclusions.contains(tso))
@@ -189,7 +200,7 @@ public class RaUsageLimitsFiller implements ProblemFiller {
             // ... and the constraints that will define it
             // tsoRaUsed >= ra1_used, tsoRaUsed >= ra2_used + ...
 
-            rangeActions.get(state).stream().filter(ra -> tso.equals(ra.getOperator()))
+            availableRangeActions.get(state).stream().filter(ra -> tso.equals(ra.getOperator()))
                 .forEach(ra -> {
                     OpenRaoMPConstraint tsoRaUsedConstraint = linearProblem.addTsoRaUsedConstraint(0, linearProblem.infinity(), tso, ra, state);
                     tsoRaUsedConstraint.setCoefficient(tsoRaUsedVariable, 1);
@@ -205,7 +216,7 @@ public class RaUsageLimitsFiller implements ProblemFiller {
         }
         maxRaPerTso.forEach((tso, maxRaForTso) -> {
             OpenRaoMPConstraint maxRaPerTsoConstraint = linearProblem.addMaxRaPerTsoConstraint(0, maxRaForTso, tso, state);
-            rangeActions.get(state).stream().filter(ra -> tso.equals(ra.getOperator()))
+            availableRangeActions.get(state).stream().filter(ra -> tso.equals(ra.getOperator()))
                 .forEach(ra -> maxRaPerTsoConstraint.setCoefficient(linearProblem.getRangeActionVariationBinary(ra, state), 1));
         });
     }
@@ -217,7 +228,7 @@ public class RaUsageLimitsFiller implements ProblemFiller {
         }
         maxPstPerTso.forEach((tso, maxPstForTso) -> {
             OpenRaoMPConstraint maxPstPerTsoConstraint = linearProblem.addMaxPstPerTsoConstraint(0, maxPstForTso, tso, state);
-            rangeActions.get(state).stream().filter(ra -> ra instanceof PstRangeAction && tso.equals(ra.getOperator()))
+            availableRangeActions.get(state).stream().filter(ra -> ra instanceof PstRangeAction && tso.equals(ra.getOperator()))
                 .forEach(ra -> maxPstPerTsoConstraint.setCoefficient(linearProblem.getRangeActionVariationBinary(ra, state), 1));
         });
     }
@@ -229,7 +240,7 @@ public class RaUsageLimitsFiller implements ProblemFiller {
         }
 
         Map<String, Set<PstRangeAction>> pstRangeActionsPerTso = new HashMap<>();
-        rangeActions.getOrDefault(state, Set.of()).stream()
+        availableRangeActions.getOrDefault(state, Set.of()).stream()
             .filter(PstRangeAction.class::isInstance)
             .filter(rangeAction -> maxElementaryActionsPerTso.containsKey(rangeAction.getOperator()))
             .map(PstRangeAction.class::cast)

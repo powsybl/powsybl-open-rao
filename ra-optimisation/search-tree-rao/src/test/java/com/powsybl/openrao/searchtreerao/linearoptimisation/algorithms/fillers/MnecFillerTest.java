@@ -113,7 +113,8 @@ class MnecFillerTest extends AbstractFillerTest {
             Unit.MEGAWATT,
             false,
             PstModel.CONTINUOUS,
-            null);
+            null,
+            network);
     }
 
     private void fillProblemWithFiller(Unit unit) {

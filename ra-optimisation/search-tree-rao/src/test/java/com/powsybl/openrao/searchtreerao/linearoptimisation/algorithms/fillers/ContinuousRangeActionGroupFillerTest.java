@@ -64,10 +64,11 @@ class ContinuousRangeActionGroupFillerTest extends AbstractFillerTest {
             Unit.MEGAWATT,
             false,
             SearchTreeRaoRangeActionsOptimizationParameters.PstModel.CONTINUOUS,
-            null);
+            null,
+            network);
 
         ContinuousRangeActionGroupFiller continuousRangeActionGroupFiller = new ContinuousRangeActionGroupFiller(
-            rangeActions, null);
+            rangeActions, null, crac.getFlowCnecs(), network, Unit.MEGAWATT);
 
         LinearProblem linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)

@@ -7,8 +7,11 @@
 
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers;
 
+import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.State;
+import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPConstraint;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem;
@@ -28,24 +31,33 @@ public class DiscretePstGroupFiller implements ProblemFiller {
 
     private final State optimizedState;
     private final Map<State, Set<PstRangeAction>> pstRangeActions;
+    private Map<State, Set<PstRangeAction>> availablePstRangeActions;
     private final OffsetDateTime timestamp;
+    private final Set<FlowCnec> flowCnecs;
+    private final Network network;
+    private final Unit unit;
 
-    public DiscretePstGroupFiller(State optimizedState, Map<State, Set<PstRangeAction>> pstRangeActions, OffsetDateTime timestamp) {
+    public DiscretePstGroupFiller(State optimizedState, Map<State, Set<PstRangeAction>> pstRangeActions, OffsetDateTime timestamp, Set<FlowCnec> flowCnecs, Network network, Unit unit) {
         this.pstRangeActions = pstRangeActions;
+        this.availablePstRangeActions = pstRangeActions;
         this.optimizedState = optimizedState;
         this.timestamp = timestamp;
+        this.flowCnecs = flowCnecs;
+        this.network = network;
+        this.unit = unit;
     }
 
     @Override
     public void fill(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
-        pstRangeActions.forEach((state, rangeActionSet) -> rangeActionSet.forEach(rangeAction ->
+        availablePstRangeActions = FillersUtil.getAvailablePstRangeActions(pstRangeActions, flowResult, sensitivityResult, flowCnecs, network, unit);
+        availablePstRangeActions.forEach((state, rangeActionSet) -> rangeActionSet.forEach(rangeAction ->
             buildRangeActionGroupConstraint(linearProblem, rangeAction, state, rangeActionActivationResult)
         ));
     }
 
     @Override
     public void updateBetweenMipIteration(LinearProblem linearProblem, RangeActionActivationResult rangeActionActivationResult) {
-        pstRangeActions.forEach((state, rangeActionSet) -> rangeActionSet.forEach(rangeAction ->
+        availablePstRangeActions.forEach((state, rangeActionSet) -> rangeActionSet.forEach(rangeAction ->
             updateRangeActionGroupConstraint(linearProblem, rangeAction, state, rangeActionActivationResult)
         ));
     }
