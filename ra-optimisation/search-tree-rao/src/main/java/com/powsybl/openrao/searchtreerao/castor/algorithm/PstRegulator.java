@@ -7,15 +7,18 @@
 
 package com.powsybl.openrao.searchtreerao.castor.algorithm;
 
+import com.powsybl.iidm.network.LoadingLimits;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.OperationalLimitsGroup;
 import com.powsybl.iidm.network.PhaseTapChanger;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
+import org.apache.commons.lang3.tuple.Pair;
 
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
@@ -29,7 +32,7 @@ public final class PstRegulator {
     }
 
     public static Map<PstRangeAction, Integer> regulatePsts(Network network, Set<PstRangeAction> pstRangeActions, LoadFlowParameters loadFlowParameters) {
-        // TODO: see if always use PATL or provide threshold from monitored FlowCNEC
+        // TODO: use threshold from monitored FlowCNEC instead of PATL?
         pstRangeActions.forEach(pstRangeAction -> setRegulationForPst(network, pstRangeAction));
         runLoadFlowWithRegulation(network, loadFlowParameters);
         return pstRangeActions.stream().collect(Collectors.toMap(Function.identity(), pstRangeAction -> getRegulatedTap(network, pstRangeAction)));
@@ -37,10 +40,13 @@ public final class PstRegulator {
 
     private static void setRegulationForPst(Network network, PstRangeAction pstRangeAction) {
         TwoWindingsTransformer twt = getTwoWindingsTransformer(network, pstRangeAction);
+        Pair<TwoSides, Double> lowestPermanentLimitAndSide = getLowestPermanentLimitAndAssociatedSide(twt);
         PhaseTapChanger phaseTapChanger = twt.getPhaseTapChanger();
-        phaseTapChanger.setRegulating(true);
+        phaseTapChanger.setRegulationValue(lowestPermanentLimitAndSide.getRight());
+        phaseTapChanger.setRegulationTerminal(twt.getTerminal(lowestPermanentLimitAndSide.getLeft()));
         phaseTapChanger.setRegulationMode(PhaseTapChanger.RegulationMode.CURRENT_LIMITER);
-        phaseTapChanger.setRegulationValue(getPermanentLimit(twt));
+        phaseTapChanger.setTargetDeadband(Double.MAX_VALUE);
+        phaseTapChanger.setRegulating(true);
     }
 
     private static TwoWindingsTransformer getTwoWindingsTransformer(Network network, PstRangeAction pstRangeAction) {
@@ -52,11 +58,14 @@ public final class PstRegulator {
         return twt;
     }
 
-    private static double getPermanentLimit(TwoWindingsTransformer twt) {
-        Set<Double> permanentLimits = new HashSet<>();
-        twt.getOperationalLimitsGroups1().forEach(operationalLimitsGroup -> operationalLimitsGroup.getCurrentLimits().ifPresent(currentLimits -> permanentLimits.add(currentLimits.getPermanentLimit())));
-        twt.getOperationalLimitsGroups2().forEach(operationalLimitsGroup -> operationalLimitsGroup.getCurrentLimits().ifPresent(currentLimits -> permanentLimits.add(currentLimits.getPermanentLimit())));
-        return permanentLimits.stream().min(Double::compareTo).orElse(Double.MAX_VALUE);
+    private static Pair<TwoSides, Double> getLowestPermanentLimitAndAssociatedSide(TwoWindingsTransformer twt) {
+        Double permanentLimit1 = twt.getOperationalLimitsGroups1().stream().map(PstRegulator::getPermanentLimit).min(Double::compareTo).orElse(Double.MAX_VALUE);
+        Double permanentLimit2 = twt.getOperationalLimitsGroups2().stream().map(PstRegulator::getPermanentLimit).min(Double::compareTo).orElse(Double.MAX_VALUE);
+        return permanentLimit1 <= permanentLimit2 ? Pair.of(TwoSides.ONE, permanentLimit1) : Pair.of(TwoSides.TWO, permanentLimit2);
+    }
+
+    private static Double getPermanentLimit(OperationalLimitsGroup operationalLimitsGroup) {
+        return operationalLimitsGroup.getCurrentLimits().map(LoadingLimits::getPermanentLimit).orElse(Double.MAX_VALUE);
     }
 
     private static void runLoadFlowWithRegulation(Network network, LoadFlowParameters loadFlowParameters) {
@@ -67,6 +76,6 @@ public final class PstRegulator {
     }
 
     private static int getRegulatedTap(Network network, PstRangeAction pstRangeAction) {
-        return getTwoWindingsTransformer(network, pstRangeAction).getPhaseTapChanger().getTapPosition();
+        return getTwoWindingsTransformer(network, pstRangeAction).getPhaseTapChanger().getSolvedTapPosition();
     }
 }
