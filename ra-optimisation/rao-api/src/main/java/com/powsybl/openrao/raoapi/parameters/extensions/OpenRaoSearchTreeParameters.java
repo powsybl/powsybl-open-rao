@@ -29,6 +29,7 @@ public class OpenRaoSearchTreeParameters extends AbstractExtension<RaoParameters
     private Optional<SearchTreeRaoMnecParameters> mnecParameters = Optional.empty();
     private Optional<SearchTreeRaoRelativeMarginsParameters> relativeMarginsParameters = Optional.empty();
     private Optional<SearchTreeRaoLoopFlowParameters> loopFlowParameters = Optional.empty();
+    private Optional<SearchTreeRaoPstRegulationParameters> pstRegulationParameters = Optional.empty();
 
     // Getters and setters
     public void setObjectiveFunctionParameters(SearchTreeRaoObjectiveFunctionParameters objectiveFunctionParameters) {
@@ -71,6 +72,10 @@ public class OpenRaoSearchTreeParameters extends AbstractExtension<RaoParameters
         this.minMarginsParameters = Optional.of(minMarginsParameters);
     }
 
+    public void setPstRegulationParameters(SearchTreeRaoPstRegulationParameters pstRegulationParameters) {
+        this.pstRegulationParameters = Optional.of(pstRegulationParameters);
+    }
+
     public SearchTreeRaoObjectiveFunctionParameters getObjectiveFunctionParameters() {
         return objectiveFunctionParameters;
     }
@@ -109,6 +114,10 @@ public class OpenRaoSearchTreeParameters extends AbstractExtension<RaoParameters
 
     public Optional<SearchTreeRaoLoopFlowParameters> getLoopFlowParameters() {
         return loopFlowParameters;
+    }
+
+    public Optional<SearchTreeRaoPstRegulationParameters> getPstRegulationParameters() {
+        return pstRegulationParameters;
     }
 
     @Override

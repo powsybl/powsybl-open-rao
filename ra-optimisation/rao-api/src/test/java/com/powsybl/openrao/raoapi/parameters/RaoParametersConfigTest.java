@@ -235,6 +235,16 @@ class RaoParametersConfigTest {
     }
 
     @Test
+    void checkPstRegulationConfigExtension() {
+        ModuleConfig pstRegulationModuleConfig = Mockito.mock(ModuleConfig.class);
+        Mockito.when(pstRegulationModuleConfig.getStringListProperty(eq("psts-to-regulate"), anyList())).thenReturn(List.of("pst-1", "pst-2"));
+        Mockito.when(mockedPlatformConfig.getOptionalModuleConfig("search-tree-pst-regulation-parameters")).thenReturn(Optional.of(pstRegulationModuleConfig));
+        OpenRaoSearchTreeParametersConfigLoader configLoader = new OpenRaoSearchTreeParametersConfigLoader();
+        SearchTreeRaoPstRegulationParameters pstRegulationParameters = configLoader.load(mockedPlatformConfig).getPstRegulationParameters().get();
+        assertEquals(List.of("pst-1", "pst-2"), pstRegulationParameters.getPstsToRegulate());
+    }
+
+    @Test
     void checkMultipleConfigs() {
         MapModuleConfig objectiveFunctionModuleConfig = platformCfg.createModuleConfig("rao-objective-function");
         objectiveFunctionModuleConfig.setStringProperty("type", "MAX_MIN_RELATIVE_MARGIN");

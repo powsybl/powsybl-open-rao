@@ -107,6 +107,9 @@
       "costly-min-margin-parameters" : {
         "shifted-violation-penalty" : 800.0,
         "shifted-violation-threshold" : 3.0
+      },
+      "pst-regulation-parameters" : {
+        "psts-to-regulate" : [ "pst-1", "pst-2" ]
       }
     }
   }
