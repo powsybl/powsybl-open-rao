@@ -96,7 +96,7 @@ public final class CastorPstRegulation {
     }
 
     private static PstRegulationResult regulatePstsForContingencyScenario(Contingency contingency, Network networkClone, Crac crac, Set<PstRangeAction> rangeActionsToRegulate, RaoResult raoResult, RaoParameters raoParameters) {
-        simulateContingencyAndAppyCurativeActions(contingency, networkClone, crac, raoResult);
+        simulateContingencyAndApplyCurativeActions(contingency, networkClone, crac, raoResult);
         Set<PstRangeAction> pstsRangeActionsToShift = filterOutPstsInAbutment(rangeActionsToRegulate, contingency, networkClone);
         Map<PstRangeAction, Integer> initialTapPerPst = getInitialTapPerPst(pstsRangeActionsToShift, networkClone);
         Map<PstRangeAction, Integer> regulatedTapPerPst = PstRegulator.regulatePsts(networkClone, pstsRangeActionsToShift, getLoadFlowParameters(raoParameters));
@@ -127,7 +127,7 @@ public final class CastorPstRegulation {
         return phaseTapChanger.getHighTapPosition() == currentTapPosition || phaseTapChanger.getLowTapPosition() == currentTapPosition;
     }
 
-    private static void simulateContingencyAndAppyCurativeActions(Contingency contingency, Network networkClone, Crac crac, RaoResult raoResult) {
+    private static void simulateContingencyAndApplyCurativeActions(Contingency contingency, Network networkClone, Crac crac, RaoResult raoResult) {
         // simulate contingency
         contingency.toModification().apply(networkClone);
 
