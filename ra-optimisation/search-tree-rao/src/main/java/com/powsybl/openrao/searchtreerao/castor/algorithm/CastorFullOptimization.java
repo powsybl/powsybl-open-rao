@@ -21,6 +21,7 @@ import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoPstRegulationParameters;
 import com.powsybl.openrao.searchtreerao.commons.RaoLogger;
 import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
@@ -358,10 +359,17 @@ public class CastorFullOptimization {
                 networkPool.submit(() -> regulatePstsForContingencyScenario(contingency, networkPool.getAvailableNetwork(), rangeActionsToRegulate, raoResult))
             ).toList();
             // TODO: get tasks content and merge final results
+            for (ForkJoinTask<RaoResult> task : tasks) {
+                try {
+                    task.get();
+                } catch (ExecutionException e) {
+                    throw new OpenRaoException(e);
+                }
+            }
             return null;
         } catch (Exception e) {
             Thread.currentThread().interrupt();
-            BUSINESS_LOGS.warn("An error occurred during PST regulation, pre-regulation RAO result will be kept.");
+            BUSINESS_WARNS.warn("An error occurred during PST regulation, pre-regulation RAO result will be kept.");
             return raoResult;
         }
     }
@@ -395,10 +403,14 @@ public class CastorFullOptimization {
         simulateContingencyAndAppyCurativeActions(contingency, networkClone, raoResult);
         Set<PstRangeAction> pstsRangeActionsToShift = filterOutPstsInAbutment(rangeActionsToRegulate, contingency, networkClone);
         Map<PstRangeAction, Integer> initialTapPerPst = getInitialTapPerPst(pstsRangeActionsToShift, networkClone);
-        Map<PstRangeAction, Integer> regulatedTapPerPst = PstRegulator.regulatePsts(networkClone, pstsRangeActionsToShift, raoParameters.getExtension(LoadFlowParameters.class));
+        Map<PstRangeAction, Integer> regulatedTapPerPst = PstRegulator.regulatePsts(networkClone, pstsRangeActionsToShift, getLoadFlowParameters());
         logPstRegulationResultsForContingencyScenario(contingency, initialTapPerPst, regulatedTapPerPst);
         // TODO: apply
         return raoResult;
+    }
+
+    private LoadFlowParameters getLoadFlowParameters() {
+        return raoParameters.hasExtension(OpenRaoSearchTreeParameters.class) ? raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters() : new LoadFlowParameters();
     }
 
     private static Set<PstRangeAction> filterOutPstsInAbutment(Set<PstRangeAction> rangeActionsToRegulate, Contingency contingency, Network networkClone) {
@@ -452,7 +464,9 @@ public class CastorFullOptimization {
                 }
             }
         );
-        BUSINESS_LOGS.info("PST regulation for contingency scenario %s: %s".formatted(contingency.getId(), String.join(", ", shiftDetails)));
+        if (!shiftDetails.isEmpty()) {
+            BUSINESS_LOGS.info("PST regulation for contingency scenario %s: %s".formatted(contingency.getId(), String.join(", ", shiftDetails)));
+        }
     }
 
     private static void logPostPstRegulationCosts(RaoResult postPstRegulationRaoResult, Instant lastInstant) {

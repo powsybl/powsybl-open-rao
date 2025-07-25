@@ -33,8 +33,9 @@ public class SearchTreeRaoPstRegulationParameters {
     }
 
     public static List<String> getPstsToRegulate(RaoParameters raoParameters) {
-        if (raoParameters.hasExtension(SearchTreeRaoPstRegulationParameters.class)) {
-            return raoParameters.getExtension(SearchTreeRaoPstRegulationParameters.class).getPstsToRegulate();
+        if (raoParameters.hasExtension(OpenRaoSearchTreeParameters.class)) {
+            Optional<SearchTreeRaoPstRegulationParameters> pstRegulationParameters = raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getPstRegulationParameters();
+            return pstRegulationParameters.map(SearchTreeRaoPstRegulationParameters::getPstsToRegulate).orElse(DEFAULT_PSTS_TO_REGULATE);
         }
         return DEFAULT_PSTS_TO_REGULATE;
     }
