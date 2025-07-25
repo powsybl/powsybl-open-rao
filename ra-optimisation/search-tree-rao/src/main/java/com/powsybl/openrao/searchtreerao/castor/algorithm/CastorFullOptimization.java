@@ -16,6 +16,7 @@ import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoPstRegulationParameters;
 import com.powsybl.openrao.searchtreerao.commons.RaoLogger;
 import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
@@ -47,11 +48,13 @@ import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.applyRemedialAct
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
+ * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
 public class CastorFullOptimization {
     private static final String INITIAL_SCENARIO = "InitialScenario";
     private static final String PREVENTIVE_SCENARIO = "PreventiveScenario";
     private static final String SECOND_PREVENTIVE_SCENARIO_BEFORE_OPT = "SecondPreventiveScenario";
+    private static final String PST_REGULATION = "PSTRegulation";
     private static final int NUMBER_LOGGED_ELEMENTS_DURING_RAO = 2;
     private static final int NUMBER_LOGGED_ELEMENTS_END_RAO = 10;
     private static final double EPSILON = 1e-6;
@@ -139,7 +142,7 @@ public class CastorFullOptimization {
             PostPerimeterResult postPreventiveResult = computePostPreventiveResult(toolProvider, initialOutput, preventiveResult);
             PrePerimeterResult preCurativeSensitivityAnalysisOutput = postPreventiveResult.getPrePerimeterResultForAllFollowingStates();
             if (preCurativeSensitivityAnalysisOutput.getSensitivityStatus() == ComputationStatus.FAILURE) {
-                BUSINESS_LOGS.error("Systematic sensitivity analysis after preventive remedial actions failed");
+                BUSINESS_LOGS.error("Systematic screate pst regulation resultensitivity analysis after preventive remedial actions failed");
                 return CompletableFuture.completedFuture(new FailedRaoResultImpl("Systematic sensitivity analysis after preventive remedial actions failed"));
             }
             RaoLogger.logSensitivityAnalysisResults("Systematic sensitivity analysis after preventive remedial actions: ",
@@ -195,6 +198,19 @@ public class CastorFullOptimization {
                 RaoLogger.logMostLimitingElementsResults(BUSINESS_LOGS, stateTree.getBasecaseScenario(), preventiveResult, stateTree.getContingencyScenarios(), postContingencyResults, raoParameters.getObjectiveFunctionParameters().getType(), raoParameters.getObjectiveFunctionParameters().getUnit(), NUMBER_LOGGED_ELEMENTS_END_RAO);
                 RaoLogger.checkIfMostLimitingElementIsFictional(BUSINESS_LOGS, stateTree.getBasecaseScenario(), preventiveResult, stateTree.getContingencyScenarios(), postContingencyResults, raoParameters.getObjectiveFunctionParameters().getType(), raoParameters.getObjectiveFunctionParameters().getUnit());
             }
+
+            // PST regulation
+            List<String> pstsToRegulate = SearchTreeRaoPstRegulationParameters.getPstsToRegulate(raoParameters);
+            if (!pstsToRegulate.isEmpty()) {
+                BUSINESS_LOGS.info("----- PST regulation [start]");
+                network.getVariantManager().cloneVariant(INITIAL_SCENARIO, PST_REGULATION);
+                network.getVariantManager().setWorkingVariant(PST_REGULATION);
+                BUSINESS_LOGS.info("PSTs to regulate: {}", String.join(", ", pstsToRegulate));
+                Set<PstRegulationResult> pstRegulationResults = CastorPstRegulation.regulatePsts(pstsToRegulate, network, crac, raoParameters, mergedRaoResults);
+                // mergedRaoResults = mergePstRegulationAndRaoResults();
+                BUSINESS_LOGS.info("----- PST regulation [end]");
+            }
+
             return postCheckResults(mergedRaoResults, initialOutput, raoParameters.getObjectiveFunctionParameters());
         } catch (RuntimeException e) {
             BUSINESS_LOGS.error("{} \n {}", e.getMessage(), ExceptionUtils.getStackTrace(e));

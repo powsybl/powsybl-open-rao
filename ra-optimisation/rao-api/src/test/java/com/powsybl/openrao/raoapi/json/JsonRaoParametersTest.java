@@ -123,6 +123,11 @@ class JsonRaoParametersTest extends AbstractSerDeTest {
         minMarginsParameters.setShiftedViolationThreshold(3.0);
         searchTreeParameters.setMinMarginsParameters(minMarginsParameters);
 
+        // -- PST regulation parameters
+        SearchTreeRaoPstRegulationParameters pstRegulationParameters = new SearchTreeRaoPstRegulationParameters();
+        pstRegulationParameters.setPstsToRegulate(List.of("pst-1", "pst-2"));
+        searchTreeParameters.setPstRegulationParameters(pstRegulationParameters);
+
         roundTripTest(parameters, JsonRaoParameters::write, JsonRaoParameters::read, "/RaoParametersSet_v2.json");
     }
 
