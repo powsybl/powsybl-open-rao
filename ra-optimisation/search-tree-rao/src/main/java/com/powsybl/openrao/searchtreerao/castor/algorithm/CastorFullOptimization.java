@@ -207,6 +207,17 @@ public class CastorFullOptimization {
                 RaoLogger.logMostLimitingElementsResults(BUSINESS_LOGS, stateTree.getBasecaseScenario(), preventiveResult, stateTree.getContingencyScenarios(), postContingencyResults, raoParameters.getObjectiveFunctionParameters().getType(), raoParameters.getObjectiveFunctionParameters().getUnit(), NUMBER_LOGGED_ELEMENTS_END_RAO);
                 RaoLogger.checkIfMostLimitingElementIsFictional(BUSINESS_LOGS, stateTree.getBasecaseScenario(), preventiveResult, stateTree.getContingencyScenarios(), postContingencyResults, raoParameters.getObjectiveFunctionParameters().getType(), raoParameters.getObjectiveFunctionParameters().getUnit());
             }
+
+            // PST regulation
+            List<String> pstsToRegulate = SearchTreeRaoPstRegulationParameters.getPstsToRegulate(raoParameters);
+            if (!pstsToRegulate.isEmpty()) {
+                BUSINESS_LOGS.info("----- PST regulation [start]");
+                BUSINESS_LOGS.info("PSTs to regulate: {}", String.join(", ", pstsToRegulate));
+                Set<PstRegulationResult> pstRegulationResults = regulatePsts(pstsToRegulate, mergedRaoResults);
+                // mergedRaoResults = mergePstRegulationAndRaoResults();
+                BUSINESS_LOGS.info("----- PST regulation [end]");
+            }
+
             return postCheckResults(mergedRaoResults, initialOutput, raoParameters.getObjectiveFunctionParameters());
         } catch (RuntimeException e) {
             BUSINESS_LOGS.error("{} \n {}", e.getMessage(), ExceptionUtils.getStackTrace(e));
@@ -298,16 +309,6 @@ public class CastorFullOptimization {
             formatDoubleBasedOnMargin(finalCost, -finalCost), formatDoubleBasedOnMargin(finalFunctionalCost, -finalCost), formatDoubleBasedOnMargin(finalVirtualCost, -finalCost),
             finalVirtualCostDetailed.isEmpty() ? "" : " " + finalVirtualCostDetailed);
 
-        List<String> pstsToRegulate = SearchTreeRaoPstRegulationParameters.getPstsToRegulate(raoParameters);
-        if (!pstsToRegulate.isEmpty()) {
-            BUSINESS_LOGS.info("=== PST regulation [start]");
-            BUSINESS_LOGS.info("PSTs to regulate: {}", String.join(", ", pstsToRegulate));
-            finalRaoResult = regulatePsts(pstsToRegulate, finalRaoResult);
-            BUSINESS_LOGS.info("=== PST regulation [end]");
-            logPostPstRegulationCosts(finalRaoResult, lastInstant);
-            // TODO: log new most limiting elements
-        }
-
         return CompletableFuture.completedFuture(finalRaoResult);
     }
 
@@ -342,7 +343,7 @@ public class CastorFullOptimization {
 
     // PST regulation
 
-    private RaoResult regulatePsts(List<String> pstsToRegulate, RaoResult raoResult) {
+    private Set<PstRegulationResult> regulatePsts(List<String> pstsToRegulate, RaoResult raoResult) {
         // start from initial variant
         network.getVariantManager().cloneVariant(INITIAL_SCENARIO, PST_REGULATION);
         network.getVariantManager().setWorkingVariant(PST_REGULATION);
@@ -355,22 +356,22 @@ public class CastorFullOptimization {
 
         // regulate PSTs for each curative scenario in parallel
         try (AbstractNetworkPool networkPool = AbstractNetworkPool.create(network, network.getVariantManager().getWorkingVariantId(), getAvailableCPUs(raoParameters), true)) {
-            List<ForkJoinTask<RaoResult>> tasks = crac.getContingencies().stream().map(contingency ->
+            List<ForkJoinTask<PstRegulationResult>> tasks = crac.getContingencies().stream().map(contingency ->
                 networkPool.submit(() -> regulatePstsForContingencyScenario(contingency, networkPool.getAvailableNetwork(), rangeActionsToRegulate, raoResult))
             ).toList();
-            // TODO: get tasks content and merge final results
-            for (ForkJoinTask<RaoResult> task : tasks) {
+            Set<PstRegulationResult> pstRegulationResults = new HashSet<>();
+            for (ForkJoinTask<PstRegulationResult> task : tasks) {
                 try {
-                    task.get();
+                    pstRegulationResults.add(task.get());
                 } catch (ExecutionException e) {
                     throw new OpenRaoException(e);
                 }
             }
-            return null;
+            return pstRegulationResults;
         } catch (Exception e) {
             Thread.currentThread().interrupt();
             BUSINESS_WARNS.warn("An error occurred during PST regulation, pre-regulation RAO result will be kept.");
-            return raoResult;
+            return Set.of();
         }
     }
 
@@ -399,14 +400,14 @@ public class CastorFullOptimization {
             .collect(Collectors.toMap(pstRangeAction -> pstRangeAction.getNetworkElement().getId(), Function.identity()));
     }
 
-    private RaoResult regulatePstsForContingencyScenario(Contingency contingency, Network networkClone, Set<PstRangeAction> rangeActionsToRegulate, RaoResult raoResult) {
+    private PstRegulationResult regulatePstsForContingencyScenario(Contingency contingency, Network networkClone, Set<PstRangeAction> rangeActionsToRegulate, RaoResult raoResult) {
         simulateContingencyAndAppyCurativeActions(contingency, networkClone, raoResult);
         Set<PstRangeAction> pstsRangeActionsToShift = filterOutPstsInAbutment(rangeActionsToRegulate, contingency, networkClone);
         Map<PstRangeAction, Integer> initialTapPerPst = getInitialTapPerPst(pstsRangeActionsToShift, networkClone);
         Map<PstRangeAction, Integer> regulatedTapPerPst = PstRegulator.regulatePsts(networkClone, pstsRangeActionsToShift, getLoadFlowParameters());
         logPstRegulationResultsForContingencyScenario(contingency, initialTapPerPst, regulatedTapPerPst);
         // TODO: apply
-        return raoResult;
+        return new PstRegulationResult(contingency, regulatedTapPerPst);
     }
 
     private LoadFlowParameters getLoadFlowParameters() {
@@ -469,16 +470,7 @@ public class CastorFullOptimization {
         }
     }
 
-    private static void logPostPstRegulationCosts(RaoResult postPstRegulationRaoResult, Instant lastInstant) {
-        Map<String, Double> postPstRegulationVirtualCostDetailed = getVirtualCostDetailed(postPstRegulationRaoResult, lastInstant);
-        double postRegulationCost = postPstRegulationRaoResult.getCost(lastInstant);
-        double postRegulationFunctionalCost = postPstRegulationRaoResult.getFunctionalCost(lastInstant);
-        double postRegulationVirtualCost = postPstRegulationRaoResult.getVirtualCost(lastInstant);
-
-        // Log costs before and after RAO
-        BUSINESS_LOGS.info("Cost after PST regulation = {} (functional: {}, virtual: {}{})",
-            formatDoubleBasedOnMargin(postRegulationCost, -postRegulationCost), formatDoubleBasedOnMargin(postRegulationFunctionalCost, -postRegulationCost), formatDoubleBasedOnMargin(postRegulationVirtualCost, -postRegulationCost),
-            postPstRegulationVirtualCostDetailed.isEmpty() ? "" : " " + postPstRegulationVirtualCostDetailed);
+    private RaoResult mergePstRegulationAndRaoResults() {
+        return null;
     }
-
 }
