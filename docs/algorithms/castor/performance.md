@@ -136,8 +136,8 @@ FastRao.launchFilteredRao(raoInput, raoParameters, targetEndInstant, consideredC
 ```
 
 ---
-
-See also [FastRAO parameters section](../parameters/implementation-specific-parameters.md#number-of-cnecs-to-add)
+[](../../parameters/implementation-specific-parameters.md#number-of-cnecs-to-add)
+See also [FastRAO parameters section](../../parameters/implementation-specific-parameters.md#number-of-cnecs-to-add)
 
 ---
 
