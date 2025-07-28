@@ -161,11 +161,6 @@ class FastRaoResultImplTest {
         assertEquals(List.of(crac.getFlowCnec("cnec2prevId"), crac.getFlowCnec("cnec3autoId")),
             result.getMostLimitingElements(preventive, 2));
         assertEquals(List.of(crac.getFlowCnec("cnec2prevId")), result.getCostlyElements(preventive, "vcost1", 1));
-
-        // get/setCriticalCnecs
-        Set<FlowCnec> cnecSet = Set.of(flowCnec);
-        result.setCriticalCnecs(cnecSet);
-        assertEquals(cnecSet, result.getCriticalCnecs());
     }
 
     @Test
