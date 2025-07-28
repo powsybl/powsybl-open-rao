@@ -19,11 +19,11 @@ Feature: US 15.3: Handle transformers
     And the margin on cnec "BBE2AA2  BBE2AA1  2 - preventive" after PRA should be 73 MW
     And the margin on cnec "BBE2AA2  BBE2AA1  2 - co_fr - outage" after PRA should be 129 MW
     And the margin on cnec "BBE1AA1  BBE1AA2  1 - preventive" after PRA should be 192 MW
-    And the margin on cnec "FFR3AA1  FFR3AA2  1 - preventive" after PRA should be 195 MW
+    And the margin on cnec "FFR3AA1  FFR3AA2  1 - preventive" after PRA should be 198 MW
     And the margin on cnec "FFR3AA1  FFR3AA2  1 - co_fr - outage" after PRA should be 207 MW
-    And the margin on cnec "FFR1AA2  FFR1AA1  5 - preventive" after PRA should be 293 MW
+    And the margin on cnec "FFR1AA2  FFR1AA1  5 - preventive" after PRA should be 297 MW
     And the margin on cnec "BBE1AA1  BBE1AA2  1 - co_fr - outage" after PRA should be 296 MW
-    And the margin on cnec "FFR1AA2  FFR1AA1  5 - co_fr - outage" after PRA should be 543 MW
+    And the margin on cnec "FFR1AA2  FFR1AA1  5 - co_fr - outage" after PRA should be 550 MW
 
   @fast @rao @mock @ac @preventive-only
   Scenario: US 15.3.2: Handle transformers on a small test case in AC - On side 1
@@ -37,8 +37,8 @@ Feature: US 15.3: Handle transformers
     And the tap of PstRangeAction "pst_be" should be -15 in preventive
     And the worst margin is 110 A
     And the margin on cnec "FFR1AA2  FFR1AA1  5 - preventive" after PRA should be 110 A
-    And the margin on cnec "BBE2AA2  BBE2AA1  2 - preventive" after PRA should be 110 A
-    And the margin on cnec "BBE2AA2  BBE2AA1  2 - co_fr - outage" after PRA should be 192 A
+    And the margin on cnec "BBE2AA2  BBE2AA1  2 - preventive" after PRA should be 110.7 A
+    And the margin on cnec "BBE2AA2  BBE2AA1  2 - co_fr - outage" after PRA should be 192.7 A
     And the margin on cnec "FFR3AA1  FFR3AA2  1 - preventive" after PRA should be 222 A
     And the margin on cnec "FFR1AA2  FFR1AA1  5 - co_fr - outage" after PRA should be 312 A
     And the margin on cnec "FFR3AA1  FFR3AA2  1 - co_fr - outage" after PRA should be 391 A
@@ -64,10 +64,10 @@ Feature: US 15.3: Handle transformers
     And the remedial action "open_be1_be2" is used in preventive
     And the tap of PstRangeAction "pst_be" should be 7 in preventive
     And the worst margin is 137 A
-    And the margin on cnec "BBE2AA2  BBE2AA1  2 - preventive" after PRA should be 137 A
+    And the margin on cnec "BBE2AA2  BBE2AA1  2 - preventive" after PRA should be 139 A
     And the margin on cnec "FFR3AA1  FFR3AA2  1 - preventive" after PRA should be 137 A
     And the margin on cnec "FFR3AA1  FFR3AA2  1 - co_fr - outage" after PRA should be 220 A
-    And the margin on cnec "FFR1AA2  FFR1AA1  5 - preventive" after PRA should be 234 A
+    And the margin on cnec "FFR1AA2  FFR1AA1  5 - preventive" after PRA should be 232 A
     And the margin on cnec "BBE1AA1  BBE1AA2  1 - preventive" after PRA should be 254 A
     And the "upper" threshold on cnec "BBE2AA2  BBE2AA1  2 - preventive" should be 1200 A
     And the "upper" threshold on cnec "BBE2AA2  BBE2AA1  2 - co_fr - outage" should be 1380 A

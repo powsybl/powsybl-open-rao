@@ -399,8 +399,8 @@
       "max" : 10,
       "rangeType" : "relativeToInitialNetwork"
     }, {
-      "min" : -10,
-      "max" : 10,
+      "min" : -4,
+      "max" : 4,
       "rangeType" : "relativeToPreviousInstant"
     } ]
   } ],

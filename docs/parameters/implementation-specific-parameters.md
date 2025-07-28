@@ -197,15 +197,6 @@ These parameters (second-preventive-rao) tune the behaviour of the [second preve
     - **MAX_MIN_MARGIN** or **MAX_MIN_RELATIVE_MARGIN**: 2nd preventive RAO is run if one curative perimeter reached an objective function value
       after optimisation that is worse than the preventive perimeter's (decreased by [curative-min-obj-improvement](#curative-min-obj-improvement))
 
-##### re-optimize-curative-range-actions
-- **Expected value**: true/false
-- **Default value**: false
-- **Usage**:
-  - **false**: the 2nd preventive RAO will optimize only the preventive remedial actions, keeping **all** optimal
-    curative remedial actions selected during the curative RAO.
-  - **true**: the 2nd preventive RAO will optimize preventive remedial actions **and** curative range actions, keeping
-    only the optimal curative **topological** actions computed in the curative RAO.
-
 ##### hint-from-first-preventive-rao
 - **Expected value**: true/false
 - **Default value**: false
@@ -413,7 +404,7 @@ These parameters are meant to be used in costly optimization only.
 :::{group-tab} JSON
 ~~~json
 {
-  "version" : "3.1",
+  "version" : "3.2",
   "extensions" : {
     "fast-rao-parameters" : {
       "number-of-cnecs-to-add" : 20,
@@ -448,7 +439,6 @@ These parameters are meant to be used in costly optimization only.
       },
       "second-preventive-rao" : {
         "execution-condition" : "POSSIBLE_CURATIVE_IMPROVEMENT",
-        "re-optimize-curative-range-actions" : false,
         "hint-from-first-preventive-rao" : true
       },
       "load-flow-and-sensitivity-computation" : {
@@ -549,7 +539,6 @@ search-tree-multi-threading:
 
 search-tree-second-preventive-rao:
   execution-condition: POSSIBLE_CURATIVE_IMPROVEMENT
-  re-optimize-curative-range-actions: true
   hint-from-first-preventive-rao: true
 
 search-tree-load-flow-and-sensitivity-computation:
