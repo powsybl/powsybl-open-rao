@@ -44,6 +44,7 @@ import static java.lang.String.format;
 public final class RaoLogger {
     private static final String OUTAGE_DUPLICATE = "OUTAGE_DUPLICATE";
     private static final String LOG_FICTIONAL_CNEC = "Limiting element is a fictional CNEC that is excluded from final cost computation";
+    public static final String COST_FUNCTIONAL_VIRTUAL = "cost = {} (functional: {}, virtual: {}{})";
 
     private RaoLogger() {
     }
@@ -62,7 +63,7 @@ public final class RaoLogger {
         ObjectiveFunctionResult prePerimeterObjectiveFunctionResult = objectiveFunction.evaluate(sensitivityAnalysisResult, remedialActionActivationResult);
         Map<String, Double> virtualCostDetailed = getVirtualCostDetailed(prePerimeterObjectiveFunctionResult);
 
-        BUSINESS_LOGS.info(prefix + "cost = {} (functional: {}, virtual: {}{})",
+        BUSINESS_LOGS.info(prefix + COST_FUNCTIONAL_VIRTUAL,
             formatDoubleBasedOnMargin(prePerimeterObjectiveFunctionResult.getCost(), -prePerimeterObjectiveFunctionResult.getCost()),
             formatDoubleBasedOnMargin(prePerimeterObjectiveFunctionResult.getFunctionalCost(), -prePerimeterObjectiveFunctionResult.getCost()),
             formatDoubleBasedOnMargin(prePerimeterObjectiveFunctionResult.getVirtualCost(), -prePerimeterObjectiveFunctionResult.getCost()),
@@ -86,7 +87,7 @@ public final class RaoLogger {
 
         Map<String, Double> virtualCostDetailed = getVirtualCostDetailed(linearOptimizationResult);
 
-        BUSINESS_LOGS.info(prefix + "cost = {} (functional: {}, virtual: {}{})",
+        BUSINESS_LOGS.info(prefix + COST_FUNCTIONAL_VIRTUAL,
             formatDoubleBasedOnMargin(linearOptimizationResult.getCost(), -linearOptimizationResult.getCost()),
             formatDoubleBasedOnMargin(linearOptimizationResult.getFunctionalCost(), -linearOptimizationResult.getCost()),
             formatDoubleBasedOnMargin(linearOptimizationResult.getVirtualCost(), -linearOptimizationResult.getCost()),
@@ -99,11 +100,11 @@ public final class RaoLogger {
             numberOfLoggedLimitingElements);
     }
 
-    public static void logObjectifFunctionResult(String prefix,
-                                                     ObjectiveFunctionResult objectiveFunctionResult,
-                                                     PrePerimeterResult sensitivityAnalysisResult,
-                                                     RaoParameters raoParameters,
-                                                     int numberOfLoggedLimitingElements) {
+    public static void logObjectiveFunctionResult(String prefix,
+                                                  ObjectiveFunctionResult objectiveFunctionResult,
+                                                  PrePerimeterResult sensitivityAnalysisResult,
+                                                  RaoParameters raoParameters,
+                                                  int numberOfLoggedLimitingElements) {
 
         if (!BUSINESS_LOGS.isInfoEnabled()) {
             return;
@@ -111,7 +112,7 @@ public final class RaoLogger {
 
         Map<String, Double> virtualCostDetailed = getVirtualCostDetailed(objectiveFunctionResult);
 
-        BUSINESS_LOGS.info(prefix + "cost = {} (functional: {}, virtual: {}{})",
+        BUSINESS_LOGS.info(prefix + COST_FUNCTIONAL_VIRTUAL,
             formatDoubleBasedOnMargin(objectiveFunctionResult.getCost(), -objectiveFunctionResult.getCost()),
             formatDoubleBasedOnMargin(objectiveFunctionResult.getFunctionalCost(), -objectiveFunctionResult.getCost()),
             formatDoubleBasedOnMargin(objectiveFunctionResult.getVirtualCost(), -objectiveFunctionResult.getCost()),
@@ -418,11 +419,9 @@ public final class RaoLogger {
                 );
         });
 
-        List<FlowCnec> sortedCnecs = mostLimitingElementsAndMargins.keySet().stream()
+        return mostLimitingElementsAndMargins.keySet().stream()
             .sorted(Comparator.comparing(mostLimitingElementsAndMargins::get))
             .toList();
-
-        return sortedCnecs;
     }
 
     public static void checkIfMostLimitingElementIsFictional(OpenRaoLogger logger,

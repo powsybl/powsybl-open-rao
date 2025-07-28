@@ -32,7 +32,6 @@ import com.powsybl.openrao.searchtreerao.castor.algorithm.PrePerimeterSensitivit
 import com.powsybl.openrao.searchtreerao.castor.algorithm.StateTree;
 import com.powsybl.openrao.searchtreerao.commons.RaoLogger;
 import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
-import com.powsybl.openrao.searchtreerao.commons.SensitivityComputer;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
 import com.powsybl.openrao.searchtreerao.result.api.*;
@@ -143,13 +142,15 @@ public class FastRao implements RaoProvider {
                     consideredCnecs.addAll(getUnsecureFunctionalCnecs(stepResult, parameters.getObjectiveFunctionParameters().getUnit(), parameters.getExtension(FastRaoParameters.class).getMarginLimit()));
                 }
                 consideredCnecs.addAll(getCostlyVirtualCnecs(stepResult));
+                // Add worst preventive cnec to considered cencs to ensure preventive state is defined
                 consideredCnecs.add(getWorstPreventiveCnec(stepResult, crac));
+                // TODO pourquoi clean variants, ne nettoie t on pas au fur et à mesure les variantes ?
                 cleanVariants(raoInput.getNetwork(), initialNetworkVariants, raoInput.getNetworkVariantId());
 
                 raoResult = runFilteredRao(raoInput, parameters, targetEndInstant, consideredCnecs, toolProvider, initialResult, networkPool, counter);
                 stepResult = raoResult.getAppropriateResult(lastInstant);
 
-                RaoLogger.logObjectifFunctionResult(String.format("[FAST RAO] Iteration %d: sensitivity analysis: ", counter),
+                RaoLogger.logObjectiveFunctionResult(String.format("[FAST RAO] Iteration %d: sensitivity analysis: ", counter),
                     stepResult,
                     stepResult,
                     parameters,
@@ -161,7 +162,7 @@ public class FastRao implements RaoProvider {
 
             networkPool.shutdownAndAwaitTermination(24, TimeUnit.HOURS);
 
-            RaoLogger.logObjectifFunctionResult("[FAST RAO] Final Result: ",
+            RaoLogger.logObjectiveFunctionResult("[FAST RAO] Final Result: ",
                 stepResult,
                 stepResult,
                 parameters,
@@ -176,7 +177,8 @@ public class FastRao implements RaoProvider {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+            Thread.currentThread().interrupt();
+            throw new OpenRaoException("Error while running full FAST RAO loop", e);
         }
     }
 
@@ -228,10 +230,10 @@ public class FastRao implements RaoProvider {
         return flowCnecs;
     }
 
-    private static FastRaoResultImpl runFilteredRao(RaoInput raoInput, RaoParameters parameters, Instant targetEndInstant, Set<FlowCnec> flowCnecsToKeep, ToolProvider toolProvider, PrePerimeterResult initialResult, AbstractNetworkPool networkPool, int counter) throws IOException, InterruptedException {
+    private static FastRaoResultImpl runFilteredRao(RaoInput raoInput, RaoParameters parameters, Instant targetEndInstant, Set<FlowCnec> flowCnecsToKeep, ToolProvider toolProvider, PrePerimeterResult initialResult, AbstractNetworkPool networkPool, int counter) {
         Crac crac = raoInput.getCrac();
 
-        // Filter CRAC to only keep the worst CNECs
+        // Filter CRAC to only keep flowCnecsToKeep
         Crac filteredCrac = copyCrac(crac, raoInput.getNetwork());
         removeFlowCnecsFromCrac(filteredCrac, flowCnecsToKeep);
 
@@ -244,6 +246,7 @@ public class FastRao implements RaoProvider {
             List<String> preventiveNetworkActions = raoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState()).stream()
                 .map(Identifiable::getId)
                 .toList();
+            // Define combinations to improve performance
             if (preventiveNetworkActions.size() >= 2) {
                 List<List<String>> predefinedCombinations = parameters.getExtension(OpenRaoSearchTreeParameters.class).getTopoOptimizationParameters().getPredefinedCombinations();
                 if (!predefinedCombinations.contains(preventiveNetworkActions)) {
@@ -252,7 +255,9 @@ public class FastRao implements RaoProvider {
                 parameters.getExtension(OpenRaoSearchTreeParameters.class).getTopoOptimizationParameters().setPredefinedCombinations(predefinedCombinations);
             }
         } catch (InterruptedException | ExecutionException e) {
-            throw new RuntimeException(e);
+            Thread.currentThread().interrupt();
+            throw new OpenRaoException("Error while running filtered RAO", e);
+
         }
 
         BUSINESS_LOGS.info("[FAST RAO] Iteration {}: Run filtered RAO [end]", counter);
@@ -262,44 +267,113 @@ public class FastRao implements RaoProvider {
 
         BUSINESS_LOGS.info("[FAST RAO] Iteration {}: Run full sensitivity analysis [start]", counter);
 
+        // Compute sensitivity analyses after PRA, after ARA, after CRA to build RaoResult
         StateTree stateTree = new StateTree(crac);
 
-        //TODO:
-        // - recuperer un network
-        // - apply preventive actions on network
-        // - generate optimization result for each instant?
-        // - generate AppliedRemedialActions for auto and curative
+        // TODO PostPerimeterSensitivtyAnalysis's runBasedOnInitialPreviousAndOptimizationResults
+        // could wait for a Future<PostPerimeterResult>. On n'aurait plus à caster puis recréer un Future ici
+        // 1) Post PRA
+        AtomicReference<PrePerimeterResult> postPraSensi = new AtomicReference<>();
+        ForkJoinTask<?> computePostPraSensi = networkPool.submit(() -> {
+            try {
+                Network networkCopy = networkPool.getAvailableNetwork();
+                // Apply PRAs
+                applyOptimalPreventiveRemedialActions(networkCopy, filteredCrac.getPreventiveState(), raoResult);
+                // Generate optimization result based on previous result, i.e initial result
+                RemedialActionActivationResult postPraRemedialActionActivationResult = createRemedialActionsResults(InstantKind.PREVENTIVE, raoResult, filteredCrac, initialResult);
+                ObjectiveFunctionResult objectiveFunctionResult = generatePreviousObjectiveFunctionResult(toolProvider, raoInput,
+                    parameters, crac.getFlowCnecs(), initialResult, CompletableFuture.completedFuture(initialResult), postPraRemedialActionActivationResult, InstantKind.PREVENTIVE).get();
+                OptimizationResult postPraOptimizationResult = new OptimizationResultImpl(objectiveFunctionResult, initialResult,
+                    initialResult, postPraRemedialActionActivationResult, postPraRemedialActionActivationResult);
+                // Run sensi. Objective function result is updated right after with latest sensi results.
+                PostPerimeterSensitivityAnalysis postPraPerimeterSensiAnalysis = new PostPerimeterSensitivityAnalysis(crac, crac.getStates(), parameters, toolProvider);
+                postPraSensi.set(postPraPerimeterSensiAnalysis.runBasedOnInitialPreviousAndOptimizationResults(
+                    networkCopy,
+                    initialResult,
+                    CompletableFuture.completedFuture(initialResult),
+                    stateTree.getOperatorsNotSharingCras(),
+                    postPraOptimizationResult,
+                    new AppliedRemedialActions()).get().getPrePerimeterResultForAllFollowingStates());
+                networkPool.releaseUsedNetwork(networkCopy);
+            } catch (InterruptedException | ExecutionException e) {
+                Thread.currentThread().interrupt();
+                throw new OpenRaoException("Error while running post pra sensi", e);
+            }
+        });
 
-        CompletableFuture<PostPerimeterResult> postPraSensi = new PostPerimeterSensitivityAnalysis(crac, crac.getStates(), parameters, toolProvider)
-            .runBasedOnInitialPreviousAndOptimizationResults(
-                raoInput.getNetwork(),
-                initialResult,
-                CompletableFuture.completedFuture(initialResult),
-                stateTree.getOperatorsNotSharingCras(),
-                raoResult,
-                new AppliedRemedialActions());
+        // Post ARA sensi is based on post PRA results for optimization result.
+        computePostPraSensi.join();
 
-        CompletableFuture<PostPerimeterResult> postAraSensi = new PostPerimeterSensitivityAnalysis(crac, crac.getStates(), parameters, toolProvider)
-            .runBasedOnInitialPreviousAndOptimizationResults(
-                raoInput.getNetwork(),
-                initialResult,
-                postPraSensi.thenApply(PostPerimeterResult::getPrePerimeterResultForAllFollowingStates),
-                stateTree.getOperatorsNotSharingCras(),
-                raoResult,
-                new AppliedRemedialActions());
+        // 2) Post ARA
+        AtomicReference<PrePerimeterResult> postAraSensi = new AtomicReference<>();
+        ForkJoinTask<?> computePostAraSensi = networkPool.submit(() -> {
+            try {
+                Network networkCopy = networkPool.getAvailableNetwork();
+                // Apply PRAs
+                applyOptimalPreventiveRemedialActions(networkCopy, crac.getPreventiveState(), raoResult);
+                // Generate optimization result based on previous result, i.e postPraSensi
+                RemedialActionActivationResult postAraRemedialActionActivationResult = createRemedialActionsResults(InstantKind.AUTO, raoResult, crac, initialResult);
+                AppliedRemedialActions appliedAutoRemedialActions = createAppliedRemedialActions(crac, raoResult, InstantKind.AUTO);
+                ObjectiveFunctionResult objectiveFunctionResult = generatePreviousObjectiveFunctionResult(toolProvider, raoInput,
+                    parameters, crac.getFlowCnecs(), initialResult, CompletableFuture.completedFuture(postPraSensi.get()), postAraRemedialActionActivationResult, InstantKind.AUTO).get();
+                OptimizationResult postAraOptimizationResult = new OptimizationResultImpl(objectiveFunctionResult, initialResult,
+                    initialResult, postAraRemedialActionActivationResult, postAraRemedialActionActivationResult);
+                // Run sensi with auto remedial actions. Objective function result is updated right after with latest sensi results.
+                PostPerimeterSensitivityAnalysis postPerimeterSensiAnalysis = new PostPerimeterSensitivityAnalysis(crac, crac.getStates(), parameters, toolProvider);
+                postAraSensi.set(postPerimeterSensiAnalysis.runBasedOnInitialPreviousAndOptimizationResults(
+                    networkCopy,
+                    initialResult,
+                    CompletableFuture.completedFuture(postPraSensi.get()),
+                    stateTree.getOperatorsNotSharingCras(),
+                    postAraOptimizationResult,
+                    appliedAutoRemedialActions).get().getPrePerimeterResultForAllFollowingStates());
+                networkPool.releaseUsedNetwork(networkCopy);
+            } catch (InterruptedException | ExecutionException e) {
+                Thread.currentThread().interrupt();
+                throw new OpenRaoException("Error while running post ara sensi", e);
+            }
+        });
 
-        CompletableFuture<PostPerimeterResult> postCraSensi = new PostPerimeterSensitivityAnalysis(crac, crac.getStates(), parameters, toolProvider)
-            .runBasedOnInitialPreviousAndOptimizationResults(
-                raoInput.getNetwork(),
-                initialResult,
-                postAraSensi.thenApply(PostPerimeterResult::getPrePerimeterResultForAllFollowingStates),
-                stateTree.getOperatorsNotSharingCras(),
-                raoResult,
-                new AppliedRemedialActions());
+        // Post CRA sensi is based on post ARA results for optimization result.
+        computePostAraSensi.join();
+
+        // 3) Post CRA
+        AtomicReference<PrePerimeterResult> postCraSensi = new AtomicReference<>();
+        ForkJoinTask<?> computePostCraSensi = networkPool.submit(() -> {
+            try {
+                Network networkCopy = networkPool.getAvailableNetwork();
+                // Apply PRAs
+                applyOptimalPreventiveRemedialActions(networkCopy, filteredCrac.getPreventiveState(), raoResult);
+                // Generate optimization result based on previous result, i.e postAraSensi
+                RemedialActionActivationResult postCraRemedialActionActivationResult = createRemedialActionsResults(InstantKind.CURATIVE, raoResult, crac, initialResult);
+                AppliedRemedialActions appliedRemedialActions = createAppliedRemedialActions(filteredCrac, raoResult, InstantKind.CURATIVE);
+                Future<ObjectiveFunctionResult> objectiveFunctionResult = generatePreviousObjectiveFunctionResult(toolProvider, raoInput,
+                    parameters, crac.getFlowCnecs(), initialResult, CompletableFuture.completedFuture(postAraSensi.get()), postCraRemedialActionActivationResult, InstantKind.CURATIVE);
+                OptimizationResult postCraOptimizationResult = new OptimizationResultImpl(objectiveFunctionResult.get(), initialResult,
+                    initialResult, postCraRemedialActionActivationResult, postCraRemedialActionActivationResult);
+                // Run sensi with curative remedial actions. Objective function result is updated right after with latest sensi results.
+                PostPerimeterSensitivityAnalysis postPerimeterSensiAnalysis = new PostPerimeterSensitivityAnalysis(crac, crac.getStates(), parameters, toolProvider);
+                postCraSensi.set(postPerimeterSensiAnalysis.runBasedOnInitialPreviousAndOptimizationResults(
+                    networkCopy,
+                    initialResult,
+                    CompletableFuture.completedFuture(postAraSensi.get()),
+                    stateTree.getOperatorsNotSharingCras(),
+                    postCraOptimizationResult,
+                    appliedRemedialActions).get().getPrePerimeterResultForAllFollowingStates());
+                networkPool.releaseUsedNetwork(networkCopy);
+            } catch (InterruptedException | ExecutionException e) {
+                Thread.currentThread().interrupt();
+                throw new OpenRaoException("Error while running post cra sensi", e);
+            }
+        });
+
+        computePostCraSensi.join();
+        raoInput.getNetwork().getVariantManager().setWorkingVariant(finalVariantId);
 
         BUSINESS_LOGS.info("[FAST RAO] Iteration {}: Run full sensitivity analysis [end]", counter);
 
         return new FastRaoResultImpl(initialResult, postPraSensi.get(), postAraSensi.get(), postCraSensi.get(), raoResult, raoInput.getCrac());
+
     }
 
     private static RemedialActionActivationResult createRemedialActionsResults(InstantKind instantKind, RaoResult raoResult, Crac crac, PrePerimeterResult initialResult) {
@@ -310,9 +384,9 @@ public class FastRao implements RaoProvider {
             State preventiveState = crac.getPreventiveState();
             networkActionsActivated.put(preventiveState, raoResult.getActivatedNetworkActionsDuringState(preventiveState));
             if (!raoResult.getActivatedRangeActionsDuringState(preventiveState).isEmpty()) {
-                raoResult.getOptimizedSetPointsOnState(preventiveState).entrySet().forEach(entry -> {
-                    rangeActionActivationResult.putResult(entry.getKey(), preventiveState, entry.getValue());
-                });
+                raoResult.getOptimizedSetPointsOnState(preventiveState).entrySet().forEach(entry ->
+                    rangeActionActivationResult.putResult(entry.getKey(), preventiveState, entry.getValue())
+                );
             }
             return new RemedialActionActivationResultImpl(rangeActionActivationResult, new NetworkActionsResultImpl(networkActionsActivated));
         }
@@ -324,10 +398,9 @@ public class FastRao implements RaoProvider {
                 if (state.getInstant().getKind().ordinal() <= instantKind.ordinal()) {
                     networkActionsActivated.put(state, raoResult.getActivatedNetworkActionsDuringState(state));
                     if (!raoResult.getActivatedRangeActionsDuringState(state).isEmpty()) {
-                        raoResult.getOptimizedSetPointsOnState(state).entrySet().forEach(entry -> {
-                            rangeActionActivationResult.putResult(entry.getKey(), state, entry.getValue());
-                        });
-
+                        raoResult.getOptimizedSetPointsOnState(state).entrySet().forEach(entry ->
+                            rangeActionActivationResult.putResult(entry.getKey(), state, entry.getValue())
+                        );
                     }
                 }
             });
@@ -365,6 +438,33 @@ public class FastRao implements RaoProvider {
         raoResult.getActivatedNetworkActionsDuringState(state).forEach(networkAction -> networkAction.apply(networkCopy));
     }
 
+    private static Future<ObjectiveFunctionResult> generatePreviousObjectiveFunctionResult(ToolProvider toolProvider,
+                                                                           RaoInput raoInput,
+                                                                           RaoParameters raoParameters,
+                                                                           Set<FlowCnec> flowCnecs,
+                                                                           PrePerimeterResult initialFlowResult,
+                                                                           Future<PrePerimeterResult> previousPrePerimeterResult,
+                                                                           RemedialActionActivationResult remedialActionsResult,
+                                                                           InstantKind instantKind) {
+
+        Crac crac = raoInput.getCrac();
+        return Executors.newSingleThreadExecutor().submit(() -> {
+            ObjectiveFunction objectiveFunction = ObjectiveFunction.build(flowCnecs,
+                toolProvider.getLoopFlowCnecs(flowCnecs),
+                initialFlowResult,
+                previousPrePerimeterResult.get().getFlowResult(),
+                new StateTree(crac).getOperatorsNotSharingCras(),
+                raoParameters,
+                crac.getStates().stream().filter(state -> state.getInstant().getKind().ordinal() <= instantKind.ordinal()).collect(Collectors.toSet())
+            );
+
+            return objectiveFunction.evaluate(
+                previousPrePerimeterResult.get().getFlowResult(),
+                remedialActionsResult
+            );
+        });
+    }
+
     private static AppliedRemedialActions createAppliedRemedialActions(Crac crac, RaoResult raoResult, InstantKind instantKind) {
         if (raoResult instanceof OneStateOnlyRaoResultImpl) {
             return new AppliedRemedialActions();
@@ -380,84 +480,4 @@ public class FastRao implements RaoProvider {
         return appliedRemedialActions;
     }
 
-    private static PrePerimeterSensitivityResultImpl runBasedOnInitialResults(ToolProvider toolProvider,
-                                                                                         RaoInput raoInput,
-                                                                                         Network network,
-                                                                                         RaoParameters raoParameters,
-                                                                                         Set<FlowCnec> flowCnecs,
-                                                                                         AppliedRemedialActions appliedRemedialActions,
-                                                                                         PrePerimeterResult initialFlowResult) throws InterruptedException {
-        Crac crac = raoInput.getCrac();
-        SensitivityComputer.SensitivityComputerBuilder sensitivityComputerBuilder = SensitivityComputer.create()
-            .withToolProvider(toolProvider)
-            .withCnecs(flowCnecs)
-            .withRangeActions(crac.getRangeActions())
-            .withOutageInstant(raoInput.getCrac().getOutageInstant());
-
-        if (raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getLoopFlowParameters().isPresent()) {
-            if (raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getLoopFlowParameters().get().getPtdfApproximation().shouldUpdatePtdfWithTopologicalChange()) {
-                sensitivityComputerBuilder.withCommercialFlowsResults(toolProvider.getLoopFlowComputation(), toolProvider.getLoopFlowCnecs(flowCnecs));
-            } else {
-                sensitivityComputerBuilder.withCommercialFlowsResults(initialFlowResult);
-            }
-        }
-        if (raoParameters.getObjectiveFunctionParameters().getType().relativePositiveMargins()) {
-            if (raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getRelativeMarginsParameters().get().getPtdfApproximation().shouldUpdatePtdfWithTopologicalChange()) {
-                sensitivityComputerBuilder.withPtdfsResults(toolProvider.getAbsolutePtdfSumsComputation(), flowCnecs);
-            } else {
-                sensitivityComputerBuilder.withPtdfsResults(initialFlowResult);
-            }
-        }
-
-        if (appliedRemedialActions != null) {
-            // for 2nd preventive initial sensi
-            sensitivityComputerBuilder.withAppliedRemedialActions(appliedRemedialActions);
-        }
-        SensitivityComputer sensitivityComputer = sensitivityComputerBuilder.build();
-        sensitivityComputer.compute(network);
-
-        FlowResult flowResult = sensitivityComputer.getBranchResult(network);
-        SensitivityResult sensitivityResult = sensitivityComputer.getSensitivityResult();
-        RangeActionSetpointResult rangeActionSetpointResult = RangeActionSetpointResultImpl.buildWithSetpointsFromNetwork(network, crac.getRangeActions());
-
-        return new PrePerimeterSensitivityResultImpl(
-            flowResult,
-            sensitivityResult,
-            rangeActionSetpointResult,
-            null
-        );
-    }
-
-    private static PrePerimeterResult completePrePerimeterSensitivityResultWithObjectiveFunction(ToolProvider toolProvider,
-                                                                                                 RaoInput raoInput,
-                                                                                                 RaoParameters raoParameters,
-                                                                                                 Set<FlowCnec> flowCnecs,
-                                                                                                 PrePerimeterResult initialFlowResult,
-                                                                                                 PrePerimeterResult prePerimeterResult,
-                                                                                                 PrePerimeterResult currentPrePerimeterResult,
-                                                                                                 RemedialActionActivationResult remedialActionsResult,
-                                                                                                 InstantKind instantKind) {
-
-        Crac crac = raoInput.getCrac();
-        ObjectiveFunction objectiveFunction = ObjectiveFunction.build(flowCnecs,
-            toolProvider.getLoopFlowCnecs(flowCnecs),
-            initialFlowResult,
-            prePerimeterResult.getFlowResult(),
-            new StateTree(crac).getOperatorsNotSharingCras(),
-            raoParameters,
-            crac.getStates().stream().filter(state -> state.getInstant().getKind().ordinal() <= instantKind.ordinal()).collect(Collectors.toSet())
-            );
-
-        ObjectiveFunctionResult objectiveFunctionResult = objectiveFunction.evaluate(
-            currentPrePerimeterResult.getFlowResult(),
-            remedialActionsResult
-        );
-
-        return new PrePerimeterSensitivityResultImpl(
-            currentPrePerimeterResult.getFlowResult(),
-            currentPrePerimeterResult.getSensitivityResult(),
-            currentPrePerimeterResult.getRangeActionSetpointResult(),
-            objectiveFunctionResult
-        );
-    }
 }
