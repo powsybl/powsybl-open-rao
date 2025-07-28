@@ -292,4 +292,22 @@ class RaoParametersConfigTest {
         Mockito.when(mockedPlatformConfig.getOptionalModuleConfig("rao-relative-margins-parameters")).thenReturn(Optional.of(relativeMarginsModuleConfig));
         assertThrows(OpenRaoException.class, () -> RaoParameters.load(mockedPlatformConfig));
     }
+
+    @Test
+    void checkFastRaoConfig() {
+        ModuleConfig fastRaoModuleConfig = Mockito.mock(ModuleConfig.class);
+        Mockito.when(fastRaoModuleConfig.getIntProperty(eq("number-of-cnecs-to-add"), anyInt())).thenReturn(20);
+        Mockito.when(fastRaoModuleConfig.getBooleanProperty(eq("add-unsecure-cnecs"), anyBoolean())).thenReturn(false);
+        Mockito.when(fastRaoModuleConfig.getDoubleProperty(eq("margin-limit"), anyDouble())).thenReturn(5.0);
+
+        Mockito.when(mockedPlatformConfig.getOptionalModuleConfig("fast-rao-parameters")).thenReturn(Optional.of(fastRaoModuleConfig));
+
+        FastRaoConfigLoader configLoader = new FastRaoConfigLoader();
+        FastRaoParameters parameters = configLoader.load(mockedPlatformConfig);
+
+        assertEquals(20, parameters.getNumberOfCnecsToAdd());
+        assertFalse(parameters.getAddUnsecureCnecs());
+        assertEquals(5.0, parameters.getMarginLimit(), DOUBLE_TOLERANCE);
+    }
+
 }
