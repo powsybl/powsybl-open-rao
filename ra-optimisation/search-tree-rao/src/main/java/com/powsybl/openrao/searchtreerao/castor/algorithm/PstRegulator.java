@@ -76,6 +76,7 @@ public final class PstRegulator {
             loadFlowParameters.addExtension(OpenLoadFlowParameters.class, new OpenLoadFlowParameters());
         }
         loadFlowParameters.getExtension(OpenLoadFlowParameters.class).setMaxOuterLoopIterations(100);
+        loadFlowParameters.getExtension(OpenLoadFlowParameters.class).setMaxNewtonRaphsonIterations(20);
         LoadFlow.find("OpenLoadFlow").run(network, loadFlowParameters);
         loadFlowParameters.setPhaseShifterRegulationOn(initialPhaseShifterRegulationOnValue);
     }

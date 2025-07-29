@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import org.junit.jupiter.api.Test;
 
@@ -31,12 +32,14 @@ class CastorPstRegulationTest {
         Network network = Network.read("4NodesSeries.uct", getClass().getResourceAsStream("/network/4NodesSeries.uct"));
         Crac crac = Crac.read("crac-for-regulation.json", getClass().getResourceAsStream("/crac/crac-for-regulation.json"), network);
         RaoResult raoResult = RaoResult.read(getClass().getResourceAsStream("/raoResult/raoResultPreRegulation.json"), crac);
+        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_ac_3pstsRegulation.json"));
 
         PstRangeAction pst34 = crac.getPstRangeAction("pstFr34");
 
         // TODO: set up log appender for logs check
+        // TODO: if ran with new RaoParameters() instead => infinite loop (need to investigate which parameters are mandatory)
         List<String> pstsToRegulate = List.of("FFR1AA1  FFR2AA1  2", "FFR2AA1  FFR3AA1  2", "FFR3AA1  FFR4AA1  2");
-        Set<PstRegulationResult> pstRegulationResults = CastorPstRegulation.regulatePsts(pstsToRegulate, network, crac, new RaoParameters(), raoResult);
+        Set<PstRegulationResult> pstRegulationResults = CastorPstRegulation.regulatePsts(pstsToRegulate, network, crac, raoParameters, raoResult);
 
         assertEquals(3, pstRegulationResults.size());
 
