@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinTask;
@@ -96,12 +97,14 @@ public final class CastorPstRegulation {
     }
 
     private static PstRegulationResult regulatePstsForContingencyScenario(Contingency contingency, Network networkClone, Crac crac, Set<PstRangeAction> rangeActionsToRegulate, RaoResult raoResult, RaoParameters raoParameters) {
+        if (crac.getState(contingency, crac.getLastInstant()) == null) {
+            return new PstRegulationResult(contingency, Map.of());
+        }
         simulateContingencyAndApplyCurativeActions(contingency, networkClone, crac, raoResult);
         Set<PstRangeAction> pstsRangeActionsToShift = filterOutPstsInAbutment(rangeActionsToRegulate, contingency, networkClone);
         Map<PstRangeAction, Integer> initialTapPerPst = getInitialTapPerPst(pstsRangeActionsToShift, networkClone);
         Map<PstRangeAction, Integer> regulatedTapPerPst = PstRegulator.regulatePsts(networkClone, pstsRangeActionsToShift, getLoadFlowParameters(raoParameters));
         logPstRegulationResultsForContingencyScenario(contingency, initialTapPerPst, regulatedTapPerPst);
-        // TODO: apply?
         return new PstRegulationResult(contingency, regulatedTapPerPst);
     }
 
@@ -133,12 +136,16 @@ public final class CastorPstRegulation {
 
         // apply automatons
         if (crac.hasAutoInstant()) {
-            applyOptimalRemedialActionsForState(networkClone, raoResult, crac.getState(contingency, crac.getInstant(InstantKind.AUTO)));
+            State autoState = crac.getState(contingency, crac.getInstant(InstantKind.AUTO));
+            if (autoState != null) {
+                applyOptimalRemedialActionsForState(networkClone, raoResult, autoState);
+            }
         }
 
         // apply optimal curative remedial actions
         crac.getInstants(InstantKind.CURATIVE).stream()
             .map(instant -> crac.getState(contingency, instant))
+            .filter(Objects::nonNull)
             .forEach(state -> applyOptimalRemedialActionsForState(networkClone, raoResult, state));
     }
 

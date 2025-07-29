@@ -222,7 +222,8 @@ public class CastorFullOptimization {
                 network.getVariantManager().setWorkingVariant(PST_REGULATION);
                 BUSINESS_LOGS.info("PSTs to regulate: {}", String.join(", ", pstsToRegulate));
                 Set<PstRegulationResult> pstRegulationResults = CastorPstRegulation.regulatePsts(pstsToRegulate, network, crac, raoParameters, mergedRaoResults);
-                postContingencyResults = mergeRaoAndPstRegulationResults(pstRegulationResults, initialOutput, postPreventiveResult, secondPreventiveResult, stateTree, postContingencyResults, prePerimeterSensitivityAnalysis);
+                // TODO: use postContingencyResults instead of RAO Results
+                postContingencyResults = mergeRaoAndPstRegulationResults(pstRegulationResults, secondPreventiveResult, postContingencyResults, prePerimeterSensitivityAnalysis);
                 mergedRaoResults = new PreventiveAndCurativesRaoResultImpl(
                     stateTree,
                     initialOutput,
@@ -365,15 +366,12 @@ public class CastorFullOptimization {
         return new OneStateOnlyRaoResultImpl(crac.getPreventiveState(), initialResult, optResult, searchTreeInput.getOptimizationPerimeter().getFlowCnecs());
     }
 
-    private Map<State, PostPerimeterResult> mergeRaoAndPstRegulationResults(Set<PstRegulationResult> pstRegulationResults, PrePerimeterResult initialOutput, PostPerimeterResult firstPreventiveResult, PostPerimeterResult postPraResult, StateTree stateTree, Map<State, PostPerimeterResult> postContingencyResults, PrePerimeterSensitivityAnalysis prePerimeterSensitivityAnalysis) {
+    private Map<State, PostPerimeterResult> mergeRaoAndPstRegulationResults(Set<PstRegulationResult> pstRegulationResults, PostPerimeterResult postPraResult, Map<State, PostPerimeterResult> postContingencyResults, PrePerimeterSensitivityAnalysis prePerimeterSensitivityAnalysis) {
         network.getVariantManager().setWorkingVariant(PREVENTIVE_SCENARIO);
-        Map<State, PostPerimeterResult> postRegulationPostContingencyResults = new HashMap<>();
+        Map<State, PostPerimeterResult> postRegulationPostContingencyResults = new HashMap<>(postContingencyResults);
         for (PstRegulationResult pstRegulationResult : pstRegulationResults) {
             State curativeState = crac.getState(pstRegulationResult.contingency().getId(), crac.getLastInstant());
-            PostPerimeterResult postCrasResult = postContingencyResults.get(curativeState);
-            if (pstRegulationResult.regulatedTapPerPst().isEmpty()) {
-                postRegulationPostContingencyResults.put(curativeState, postCrasResult);
-            } else {
+            if (!pstRegulationResult.regulatedTapPerPst().isEmpty()) {
                 String postRegulationVariantName = "PostPstRegulation_Contingency_%s".formatted(pstRegulationResult.contingency().getId());
                 network.getVariantManager().cloneVariant(PREVENTIVE_SCENARIO, postRegulationVariantName);
                 network.getVariantManager().setWorkingVariant(postRegulationVariantName);
@@ -391,6 +389,7 @@ public class CastorFullOptimization {
                     }
                 }
                 crac.getInstants(InstantKind.CURATIVE).stream().map(instant -> crac.getState(pstRegulationResult.contingency().getId(), instant))
+                    .filter(Objects::nonNull)
                     .forEach(cState -> {
                         previousStates.add(cState);
                         appliedArasAndCras.addAppliedNetworkActions(cState, postContingencyResults.get(cState).getOptimizationResult().getActivatedNetworkActions());

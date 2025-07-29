@@ -61,5 +61,60 @@ Feature: US 91.13: PST Regulation
     And the worst margin is 418.84 A
     And the margin on cnec "cnecBeFr1Curative" after CRA should be 418.84 A
 
-  # TODO: US 91.13.3: test with two contingencies => one requires regulation and not the other
+  @ac @fast @rao
+  Scenario: US 91.13.3.a: 3 contingencies and 3 PSTs
+    Given network file is "epic91/4NodesSeries.uct"
+    Given crac file is "epic91/crac-91-13-3.json"
+    Given configuration file is "epic91/RaoParameters_ac.json"
+    When I launch search_tree_rao
+    Then the worst margin is 7.13 A on cnec "cnecFr34PstAuto"
+    And the margin on cnec "cnecFr34Curative" after CRA should be 984.32 A
+    # Preventive taps
+    And the tap of PstRangeAction "pstFr12" should be 16 in preventive
+    And the tap of PstRangeAction "pstFr23" should be 9 in preventive
+    And the tap of PstRangeAction "pstFr34" should be 16 in preventive
+    # Auto taps
+    And the tap of PstRangeAction "pstFr34" should be 6 after "Contingency FR 34" at "auto"
+    # Curative taps
+    And the tap of PstRangeAction "pstFr12" should be 16 after "Contingency FR 12" at "curative"
+    And the tap of PstRangeAction "pstFr12" should be 16 after "Contingency FR 23" at "curative"
+    And the tap of PstRangeAction "pstFr12" should be 16 after "Contingency FR 34" at "curative"
+    And the tap of PstRangeAction "pstFr23" should be 9 after "Contingency FR 12" at "curative"
+    And the tap of PstRangeAction "pstFr23" should be 9 after "Contingency FR 23" at "curative"
+    And the tap of PstRangeAction "pstFr23" should be 9 after "Contingency FR 34" at "curative"
+    And the tap of PstRangeAction "pstFr34" should be 16 after "Contingency FR 12" at "curative"
+    And the tap of PstRangeAction "pstFr34" should be 16 after "Contingency FR 23" at "curative"
+    And the tap of PstRangeAction "pstFr34" should be 9 after "Contingency FR 34" at "curative"
+
+  @ac @fast @rao @pst-regulation
+  Scenario: US 91.13.3.b: Duplicate of US 91.13.3.a with PST regulation
+  /!\ TEST IS FLAKY -> need to investigate
+  PST regulation is performed on all three PSTs but the behavior varies from one to another:
+  - pstFr12: the PST is in abutment so it cannot be moved
+  - pstFr23: the PST is only available in preventive so it cannot be regulated
+  - pstFr34: the PST is in abutment so it cannot be moved, except after "Contingency FR 34" thanks to the automaton
+  The curative margin on FR3-FR4 is reduced because of regulation.
+    Given network file is "epic91/4NodesSeries.uct"
+    Given crac file is "epic91/crac-91-13-3.json"
+    Given configuration file is "epic91/RaoParameters_ac_3pstsRegulation.json"
+    When I launch search_tree_rao
+    Then the worst margin is 7.13 A on cnec "cnecFr34PstAuto"
+    And the margin on cnec "cnecFr34Curative" after CRA should be 513.72 A
+    # Preventive taps
+    And the tap of PstRangeAction "pstFr12" should be 16 in preventive
+    And the tap of PstRangeAction "pstFr23" should be 9 in preventive
+    And the tap of PstRangeAction "pstFr34" should be 16 in preventive
+    # Auto taps
+    And the tap of PstRangeAction "pstFr34" should be 6 after "Contingency FR 34" at "auto"
+    # Curative taps
+    And the tap of PstRangeAction "pstFr12" should be 16 after "Contingency FR 12" at "curative"
+    And the tap of PstRangeAction "pstFr12" should be 16 after "Contingency FR 23" at "curative"
+    And the tap of PstRangeAction "pstFr12" should be 16 after "Contingency FR 34" at "curative"
+    And the tap of PstRangeAction "pstFr23" should be 9 after "Contingency FR 12" at "curative"
+    And the tap of PstRangeAction "pstFr23" should be 9 after "Contingency FR 23" at "curative"
+    And the tap of PstRangeAction "pstFr23" should be 9 after "Contingency FR 34" at "curative"
+    And the tap of PstRangeAction "pstFr34" should be 16 after "Contingency FR 12" at "curative"
+    And the tap of PstRangeAction "pstFr34" should be 16 after "Contingency FR 23" at "curative"
+    And the tap of PstRangeAction "pstFr34" should be 3 after "Contingency FR 34" at "curative"
+
   # TODO: US 91.13.4: test with two PSTs regulated => change worst CNEC
