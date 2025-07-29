@@ -222,7 +222,7 @@ public class CastorFullOptimization {
                 network.getVariantManager().setWorkingVariant(PST_REGULATION);
                 BUSINESS_LOGS.info("PSTs to regulate: {}", String.join(", ", pstsToRegulate));
                 Set<PstRegulationResult> pstRegulationResults = CastorPstRegulation.regulatePsts(pstsToRegulate, network, crac, raoParameters, mergedRaoResults);
-                // TODO: use postContingencyResults instead of RAO Results
+                // TODO: use postContingencyResults instead of RAO Results (only if a CNEC on PST is required to trigger regulation)
                 postContingencyResults = mergeRaoAndPstRegulationResults(pstRegulationResults, secondPreventiveResult, postContingencyResults, prePerimeterSensitivityAnalysis);
                 mergedRaoResults = new PreventiveAndCurativesRaoResultImpl(
                     stateTree,

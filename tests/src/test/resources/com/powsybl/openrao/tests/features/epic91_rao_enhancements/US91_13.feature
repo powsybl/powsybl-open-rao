@@ -116,5 +116,3 @@ Feature: US 91.13: PST Regulation
     And the tap of PstRangeAction "pstFr34" should be 16 after "Contingency FR 12" at "curative"
     And the tap of PstRangeAction "pstFr34" should be 16 after "Contingency FR 23" at "curative"
     And the tap of PstRangeAction "pstFr34" should be 3 after "Contingency FR 34" at "curative"
-
-  # TODO: US 91.13.4: test with two PSTs regulated => change worst CNEC

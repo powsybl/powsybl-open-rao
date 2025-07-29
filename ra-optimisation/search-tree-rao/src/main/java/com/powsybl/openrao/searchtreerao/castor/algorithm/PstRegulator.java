@@ -15,6 +15,7 @@ import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowParameters;
+import com.powsybl.openloadflow.OpenLoadFlowParameters;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import org.apache.commons.lang3.tuple.Pair;
@@ -71,9 +72,12 @@ public final class PstRegulator {
     private static void runLoadFlowWithRegulation(Network network, LoadFlowParameters loadFlowParameters) {
         boolean initialPhaseShifterRegulationOnValue = loadFlowParameters.isPhaseShifterRegulationOn();
         loadFlowParameters.setPhaseShifterRegulationOn(true);
+        if (loadFlowParameters.getExtension(OpenLoadFlowParameters.class) == null) {
+            loadFlowParameters.addExtension(OpenLoadFlowParameters.class, new OpenLoadFlowParameters());
+        }
+        loadFlowParameters.getExtension(OpenLoadFlowParameters.class).setMaxOuterLoopIterations(100);
         LoadFlow.find("OpenLoadFlow").run(network, loadFlowParameters);
         loadFlowParameters.setPhaseShifterRegulationOn(initialPhaseShifterRegulationOnValue);
-        // TODO: loadFlowParameters.getExtension(OpenLoadFlowParameters.class).setMaxOuterLoopIterations(100);
     }
 
     private static int getRegulatedTap(Network network, PstRangeAction pstRangeAction) {

@@ -7,8 +7,49 @@
 
 package com.powsybl.openrao.searchtreerao.castor.algorithm;
 
+import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
+import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import org.junit.jupiter.api.Test;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public class CastorPstRegulationTest {
+class CastorPstRegulationTest {
+    @Test
+    void testPstRegulationWithSeveralContingencyScenarios() throws IOException {
+        Network network = Network.read("4NodesSeries.uct", getClass().getResourceAsStream("/network/4NodesSeries.uct"));
+        Crac crac = Crac.read("crac-for-regulation.json", getClass().getResourceAsStream("/crac/crac-for-regulation.json"), network);
+        RaoResult raoResult = RaoResult.read(getClass().getResourceAsStream("/raoResult/raoResultPreRegulation.json"), crac);
+
+        PstRangeAction pst34 = crac.getPstRangeAction("pstFr34");
+
+        // TODO: set up log appender for logs check
+        List<String> pstsToRegulate = List.of("FFR1AA1  FFR2AA1  2", "FFR2AA1  FFR3AA1  2", "FFR3AA1  FFR4AA1  2");
+        Set<PstRegulationResult> pstRegulationResults = CastorPstRegulation.regulatePsts(pstsToRegulate, network, crac, new RaoParameters(), raoResult);
+
+        assertEquals(3, pstRegulationResults.size());
+
+        // Contingency FR1-FR2
+        PstRegulationResult pstRegulationResultCoFr12 = pstRegulationResults.stream().filter(pstRegulationResult -> "Contingency FR 12".equals(pstRegulationResult.contingency().getId())).findFirst().get();
+        assertTrue(pstRegulationResultCoFr12.regulatedTapPerPst().isEmpty());
+
+        // Contingency FR2-FR3
+        PstRegulationResult pstRegulationResultCoFr23 = pstRegulationResults.stream().filter(pstRegulationResult -> "Contingency FR 23".equals(pstRegulationResult.contingency().getId())).findFirst().get();
+        assertTrue(pstRegulationResultCoFr23.regulatedTapPerPst().isEmpty());
+
+        // Contingency FR3-FR4
+        PstRegulationResult pstRegulationResultCoFr34 = pstRegulationResults.stream().filter(pstRegulationResult -> "Contingency FR 34".equals(pstRegulationResult.contingency().getId())).findFirst().get();
+        assertEquals(Map.of(pst34, 3), pstRegulationResultCoFr34.regulatedTapPerPst());
+    }
 }

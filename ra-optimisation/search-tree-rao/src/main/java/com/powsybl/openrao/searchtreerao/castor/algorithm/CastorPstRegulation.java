@@ -29,6 +29,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinTask;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -63,6 +64,7 @@ public final class CastorPstRegulation {
                     throw new OpenRaoException(e);
                 }
             }
+            networkPool.shutdownAndAwaitTermination(1000, TimeUnit.SECONDS);
             return pstRegulationResults;
         } catch (Exception e) {
             Thread.currentThread().interrupt();
