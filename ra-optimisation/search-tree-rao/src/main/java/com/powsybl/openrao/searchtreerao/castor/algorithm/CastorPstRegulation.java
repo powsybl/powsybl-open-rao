@@ -54,7 +54,7 @@ public final class CastorPstRegulation {
         // regulate PSTs for each curative scenario in parallel
         try (AbstractNetworkPool networkPool = AbstractNetworkPool.create(network, network.getVariantManager().getWorkingVariantId(), getAvailableCPUs(raoParameters), true)) {
             List<ForkJoinTask<PstRegulationResult>> tasks = crac.getContingencies().stream().map(contingency ->
-                networkPool.submit(() -> regulatePstsForContingencyScenario(contingency, networkPool.getAvailableNetwork(), crac, rangeActionsToRegulate, raoResult, raoParameters))
+                networkPool.submit(() -> regulatePstsForContingencyScenario(contingency, networkPool.getAvailableNetwork(), crac, rangeActionsToRegulate, raoResult, raoParameters, networkPool))
             ).toList();
             Set<PstRegulationResult> pstRegulationResults = new HashSet<>();
             for (ForkJoinTask<PstRegulationResult> task : tasks) {
@@ -98,7 +98,7 @@ public final class CastorPstRegulation {
             .collect(Collectors.toMap(pstRangeAction -> pstRangeAction.getNetworkElement().getId(), Function.identity()));
     }
 
-    private static PstRegulationResult regulatePstsForContingencyScenario(Contingency contingency, Network networkClone, Crac crac, Set<PstRangeAction> rangeActionsToRegulate, RaoResult raoResult, RaoParameters raoParameters) {
+    private static PstRegulationResult regulatePstsForContingencyScenario(Contingency contingency, Network networkClone, Crac crac, Set<PstRangeAction> rangeActionsToRegulate, RaoResult raoResult, RaoParameters raoParameters, AbstractNetworkPool networkPool) throws InterruptedException {
         if (crac.getState(contingency, crac.getLastInstant()) == null) {
             return new PstRegulationResult(contingency, Map.of());
         }
@@ -107,6 +107,7 @@ public final class CastorPstRegulation {
         Map<PstRangeAction, Integer> initialTapPerPst = getInitialTapPerPst(pstsRangeActionsToShift, networkClone);
         Map<PstRangeAction, Integer> regulatedTapPerPst = PstRegulator.regulatePsts(networkClone, pstsRangeActionsToShift, getLoadFlowParameters(raoParameters));
         logPstRegulationResultsForContingencyScenario(contingency, initialTapPerPst, regulatedTapPerPst);
+        networkPool.releaseUsedNetwork(networkClone);
         return new PstRegulationResult(contingency, regulatedTapPerPst);
     }
 

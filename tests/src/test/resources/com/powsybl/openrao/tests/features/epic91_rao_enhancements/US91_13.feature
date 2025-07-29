@@ -88,7 +88,6 @@ Feature: US 91.13: PST Regulation
 
   @ac @fast @rao @pst-regulation
   Scenario: US 91.13.3.b: Duplicate of US 91.13.3.a with PST regulation
-  /!\ TEST IS FLAKY -> need to investigate
   PST regulation is performed on all three PSTs but the behavior varies from one to another:
   - pstFr12: the PST is in abutment so it cannot be moved
   - pstFr23: the PST is only available in preventive so it cannot be regulated
