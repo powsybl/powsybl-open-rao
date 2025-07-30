@@ -15,7 +15,6 @@ import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowParameters;
-import com.powsybl.openloadflow.OpenLoadFlowParameters;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import org.apache.commons.lang3.tuple.Pair;
@@ -35,7 +34,7 @@ public final class PstRegulator {
     public static Map<PstRangeAction, Integer> regulatePsts(Network network, Set<PstRangeAction> pstRangeActions, LoadFlowParameters loadFlowParameters) {
         // TODO: use threshold from monitored FlowCNEC instead of PATL?
         pstRangeActions.forEach(pstRangeAction -> setRegulationForPst(network, pstRangeAction));
-        runLoadFlowWithRegulation(network, loadFlowParameters);
+        LoadFlow.find("OpenLoadFlow").run(network, loadFlowParameters);
         return pstRangeActions.stream().collect(Collectors.toMap(Function.identity(), pstRangeAction -> getRegulatedTap(network, pstRangeAction)));
     }
 
@@ -67,18 +66,6 @@ public final class PstRegulator {
 
     private static Double getPermanentLimit(OperationalLimitsGroup operationalLimitsGroup) {
         return operationalLimitsGroup.getCurrentLimits().map(LoadingLimits::getPermanentLimit).orElse(Double.MAX_VALUE);
-    }
-
-    private static void runLoadFlowWithRegulation(Network network, LoadFlowParameters loadFlowParameters) {
-        boolean initialPhaseShifterRegulationOnValue = loadFlowParameters.isPhaseShifterRegulationOn();
-        loadFlowParameters.setPhaseShifterRegulationOn(true);
-        if (loadFlowParameters.getExtension(OpenLoadFlowParameters.class) == null) {
-            loadFlowParameters.addExtension(OpenLoadFlowParameters.class, new OpenLoadFlowParameters());
-        }
-        loadFlowParameters.getExtension(OpenLoadFlowParameters.class).setMaxOuterLoopIterations(100);
-        loadFlowParameters.getExtension(OpenLoadFlowParameters.class).setMaxNewtonRaphsonIterations(20);
-        LoadFlow.find("OpenLoadFlow").run(network, loadFlowParameters);
-        loadFlowParameters.setPhaseShifterRegulationOn(initialPhaseShifterRegulationOnValue);
     }
 
     private static int getRegulatedTap(Network network, PstRangeAction pstRangeAction) {

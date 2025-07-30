@@ -11,6 +11,7 @@ import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.loadflow.LoadFlowParameters;
+import com.powsybl.openloadflow.OpenLoadFlowParameters;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.InstantKind;
@@ -45,6 +46,12 @@ public final class CastorPstRegulation {
     }
 
     public static Set<PstRegulationResult> regulatePsts(List<String> pstsToRegulate, Network network, Crac crac, RaoParameters raoParameters, RaoResult raoResult) {
+        // update loadflow parameters
+        LoadFlowParameters loadFlowParameters = raoParameters.hasExtension(OpenRaoSearchTreeParameters.class) ?
+            raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters() : new LoadFlowParameters();
+        boolean initialPhaseShifterRegulationOnValue = loadFlowParameters.isPhaseShifterRegulationOn();
+        updateLoadFlowParametersForPstRegulation(loadFlowParameters);
+
         // apply optimal preventive remedial actions
         applyOptimalRemedialActionsForState(network, raoResult, crac.getPreventiveState());
 
@@ -52,9 +59,9 @@ public final class CastorPstRegulation {
         Set<PstRangeAction> rangeActionsToRegulate = getPstRangeActionsForRegulation(pstsToRegulate, crac);
 
         // regulate PSTs for each curative scenario in parallel
-        try (AbstractNetworkPool networkPool = AbstractNetworkPool.create(network, network.getVariantManager().getWorkingVariantId(), getAvailableCPUs(raoParameters), true)) {
+        try (AbstractNetworkPool networkPool = AbstractNetworkPool.create(network, network.getVariantManager().getWorkingVariantId(), getNumberOfThreads(crac, raoParameters), true)) {
             List<ForkJoinTask<PstRegulationResult>> tasks = crac.getContingencies().stream().map(contingency ->
-                networkPool.submit(() -> regulatePstsForContingencyScenario(contingency, networkPool.getAvailableNetwork(), crac, rangeActionsToRegulate, raoResult, raoParameters, networkPool))
+                networkPool.submit(() -> regulatePstsForContingencyScenario(contingency, crac, rangeActionsToRegulate, raoResult, loadFlowParameters, networkPool))
             ).toList();
             Set<PstRegulationResult> pstRegulationResults = new HashSet<>();
             for (ForkJoinTask<PstRegulationResult> task : tasks) {
@@ -70,7 +77,17 @@ public final class CastorPstRegulation {
             Thread.currentThread().interrupt();
             BUSINESS_WARNS.warn("An error occurred during PST regulation, pre-regulation RAO result will be kept.");
             return Set.of();
+        } finally {
+            loadFlowParameters.setPhaseShifterRegulationOn(initialPhaseShifterRegulationOnValue);
         }
+    }
+
+    private static void updateLoadFlowParametersForPstRegulation(LoadFlowParameters loadFlowParameters) {
+        loadFlowParameters.setPhaseShifterRegulationOn(true);
+        if (loadFlowParameters.getExtension(OpenLoadFlowParameters.class) == null) {
+            loadFlowParameters.addExtension(OpenLoadFlowParameters.class, new OpenLoadFlowParameters());
+        }
+        loadFlowParameters.getExtension(OpenLoadFlowParameters.class).setMaxOuterLoopIterations(1000);
     }
 
     private static void applyOptimalRemedialActionsForState(Network networkClone, RaoResult raoResult, State state) {
@@ -98,21 +115,22 @@ public final class CastorPstRegulation {
             .collect(Collectors.toMap(pstRangeAction -> pstRangeAction.getNetworkElement().getId(), Function.identity()));
     }
 
-    private static PstRegulationResult regulatePstsForContingencyScenario(Contingency contingency, Network networkClone, Crac crac, Set<PstRangeAction> rangeActionsToRegulate, RaoResult raoResult, RaoParameters raoParameters, AbstractNetworkPool networkPool) throws InterruptedException {
+    private static int getNumberOfThreads(Crac crac, RaoParameters raoParameters) {
+        return Math.min(getAvailableCPUs(raoParameters), crac.getContingencies().size());
+    }
+
+    private static PstRegulationResult regulatePstsForContingencyScenario(Contingency contingency, Crac crac, Set<PstRangeAction> rangeActionsToRegulate, RaoResult raoResult, LoadFlowParameters loadFlowParameters, AbstractNetworkPool networkPool) throws InterruptedException {
         if (crac.getState(contingency, crac.getLastInstant()) == null) {
             return new PstRegulationResult(contingency, Map.of());
         }
+        Network networkClone = networkPool.getAvailableNetwork();
         simulateContingencyAndApplyCurativeActions(contingency, networkClone, crac, raoResult);
         Set<PstRangeAction> pstsRangeActionsToShift = filterOutPstsInAbutment(rangeActionsToRegulate, contingency, networkClone);
         Map<PstRangeAction, Integer> initialTapPerPst = getInitialTapPerPst(pstsRangeActionsToShift, networkClone);
-        Map<PstRangeAction, Integer> regulatedTapPerPst = PstRegulator.regulatePsts(networkClone, pstsRangeActionsToShift, getLoadFlowParameters(raoParameters));
+        Map<PstRangeAction, Integer> regulatedTapPerPst = PstRegulator.regulatePsts(networkClone, pstsRangeActionsToShift, loadFlowParameters);
         logPstRegulationResultsForContingencyScenario(contingency, initialTapPerPst, regulatedTapPerPst);
         networkPool.releaseUsedNetwork(networkClone);
         return new PstRegulationResult(contingency, regulatedTapPerPst);
-    }
-
-    private static LoadFlowParameters getLoadFlowParameters(RaoParameters raoParameters) {
-        return raoParameters.hasExtension(OpenRaoSearchTreeParameters.class) ? raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters() : new LoadFlowParameters();
     }
 
     private static Set<PstRangeAction> filterOutPstsInAbutment(Set<PstRangeAction> rangeActionsToRegulate, Contingency contingency, Network networkClone) {
