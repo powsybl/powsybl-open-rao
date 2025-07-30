@@ -6,12 +6,14 @@
  */
 package com.powsybl.openrao.data.raoresult.io.json.serializers;
 
+import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonUtils;
 
 import java.io.IOException;
 import java.util.Set;
@@ -53,7 +55,9 @@ class RaoResultSerializer extends AbstractJsonSerializer<RaoResult> {
             VoltageCnecResultArraySerializer.serialize(raoResult, crac, jsonGenerator);
             NetworkActionResultArraySerializer.serialize(raoResult, crac, jsonGenerator);
             RangeActionResultArraySerializer.serialize(raoResult, crac, jsonGenerator);
+            JsonUtil.writeExtensions(raoResult, jsonGenerator, serializerProvider, RaoResultJsonUtils.getExtensionSerializers());
         }
+
         jsonGenerator.writeEndObject();
     }
 }

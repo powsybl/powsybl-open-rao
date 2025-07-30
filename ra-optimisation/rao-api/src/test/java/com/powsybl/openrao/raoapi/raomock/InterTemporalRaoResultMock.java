@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.raoapi.raomock;
 
+import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.TemporalData;
@@ -33,7 +34,7 @@ import java.util.zip.ZipOutputStream;
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public class InterTemporalRaoResultMock implements InterTemporalRaoResult {
+public class InterTemporalRaoResultMock extends AbstractExtendable<RaoResult> implements InterTemporalRaoResult {
     @Override
     public List<OffsetDateTime> getTimestamps() {
         return null;
