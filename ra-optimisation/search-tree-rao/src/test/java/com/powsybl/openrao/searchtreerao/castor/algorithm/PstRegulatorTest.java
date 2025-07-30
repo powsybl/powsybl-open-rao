@@ -9,6 +9,7 @@ package com.powsybl.openrao.searchtreerao.castor.algorithm;
 
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlowParameters;
+import com.powsybl.openloadflow.OpenLoadFlowParameters;
 import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import org.junit.jupiter.api.BeforeEach;
@@ -30,6 +31,10 @@ class PstRegulatorTest {
     @BeforeEach
     void setUp() {
         network = Network.read("/network/2Nodes2ParallelLinesPST.uct", PstRegulatorTest.class.getResourceAsStream("/network/2Nodes2ParallelLinesPST.uct"));
+        loadFlowParameters.setPhaseShifterRegulationOn(true);
+        OpenLoadFlowParameters openLoadFlowParameters = new OpenLoadFlowParameters();
+        openLoadFlowParameters.setMaxOuterLoopIterations(1000);
+        loadFlowParameters.addExtension(OpenLoadFlowParameters.class, openLoadFlowParameters);
     }
 
     @Test
