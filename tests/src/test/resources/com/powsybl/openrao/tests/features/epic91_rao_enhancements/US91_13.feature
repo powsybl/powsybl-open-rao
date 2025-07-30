@@ -7,7 +7,7 @@ Feature: US 91.13: PST Regulation
 
   @ac @fast @rao
   Scenario: US 91.13.1.a: Unsecure case with 2 nodes and 1 PST
-    Given network file is "epic91/2Nodes2ParallelLinesPST.uct"
+    Given network file is "epic91/2Nodes3ParallelLinesPST.uct"
     Given crac file is "epic91/crac-91-13-1.json"
     Given configuration file is "epic91/RaoParameters_ac.json"
     When I launch search_tree_rao
@@ -22,7 +22,7 @@ Feature: US 91.13: PST Regulation
   Scenario: US 91.13.1.b: Duplicate of US 91.13.1.a with PST regulation
   At the end of curative optimization, the PST is still unsecure but can be secured by moving the tap to position 7
   even if it worsens the minimum margin significantly.
-    Given network file is "epic91/2Nodes2ParallelLinesPST.uct"
+    Given network file is "epic91/2Nodes3ParallelLinesPST.uct"
     Given crac file is "epic91/crac-91-13-1.json"
     Given configuration file is "epic91/RaoParameters_ac_pstRegulation.json"
     When I launch search_tree_rao
@@ -37,7 +37,7 @@ Feature: US 91.13: PST Regulation
   Scenario: US 91.13.2.a: Margin is maximized by putting the PST in abutment
   By putting the PST on tap -16, the margin on the preventive and curative CNECs is maximized.
   The PST is overloaded but this is invisible for the RAO since no CNEC is defined for it.
-    Given network file is "epic91/2Nodes2ParallelLinesPST.uct"
+    Given network file is "epic91/2Nodes3ParallelLinesPST.uct"
     Given crac file is "epic91/crac-91-13-2.json"
     Given configuration file is "epic91/RaoParameters_ac.json"
     When I launch search_tree_rao
@@ -51,7 +51,7 @@ Feature: US 91.13: PST Regulation
   Scenario: US 91.13.2.b: Duplicate of US 91.13.2.a with PST regulation
   At the end of curative optimization, the PST is still unsecure but can be secured by moving the tap to position 7.
   However, the PST in is abutment at tap -16 so it cannot be regulated, thus leaving the situation as is.
-    Given network file is "epic91/2Nodes2ParallelLinesPST.uct"
+    Given network file is "epic91/2Nodes3ParallelLinesPST.uct"
     Given crac file is "epic91/crac-91-13-2.json"
     Given configuration file is "epic91/RaoParameters_ac_pstRegulation.json"
     When I launch search_tree_rao
