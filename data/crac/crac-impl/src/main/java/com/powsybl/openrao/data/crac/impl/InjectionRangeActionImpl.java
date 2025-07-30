@@ -30,6 +30,7 @@ import java.util.stream.Collectors;
  */
 public class InjectionRangeActionImpl extends AbstractRangeAction<InjectionRangeAction> implements InjectionRangeAction {
 
+    private static final double EPSILON = 1e-6;
     private final Map<NetworkElement, Double> injectionDistributionKeys;
     private final List<StandardRange> ranges;
     private final double initialSetpoint;
@@ -77,6 +78,8 @@ public class InjectionRangeActionImpl extends AbstractRangeAction<InjectionRange
         injectionDistributionKeys.forEach((ne, sk) -> applyInjection(network, ne.getId(), targetSetpoint * sk));
     }
 
+    // Initial setpoint was taken into account in linear probleme, hence targetSetpoint represents network's initial value + optimized variation
+    // That's why we overwrite network's exisiting generator/load.
     private void applyInjection(Network network, String injectionId, double targetSetpoint) {
         Generator generator = network.getGenerator(injectionId);
         if (generator != null) {
@@ -112,20 +115,26 @@ public class InjectionRangeActionImpl extends AbstractRangeAction<InjectionRange
         }
     }
 
+    // When injection range action has several generators/loads, each generator/load's value divided by its key
+    // must be equal because an injection range action has a unique setpoint.
+    // For instance : gen1 has a production of 10 in network with key 1, gen2 has a production of 20 with key 2
+    // In this case, current setpoint = 10.
     @Override
     public double getCurrentSetpoint(Network network) {
         List<Double> currentSetpoints = injectionDistributionKeys.entrySet().stream()
-                .map(entry -> getInjectionSetpoint(network, entry.getKey().getId(), entry.getValue()))
-                .collect(Collectors.toList());
+            .map(entry -> getInjectionSetpoint(network, entry.getKey().getId(), entry.getValue()))
+            .collect(Collectors.toList());
 
         if (currentSetpoints.size() == 1) {
             return currentSetpoints.get(0);
         } else {
+            // Injection range action has several generators / loads
+            // By sorting current setpionts, we check that all generator/load values divided by their key are equal.
             Collections.sort(currentSetpoints);
-            if (Math.abs(currentSetpoints.get(0) - currentSetpoints.get(currentSetpoints.size() - 1)) < 1) {
+            if (Math.abs(currentSetpoints.get(0) - currentSetpoints.get(currentSetpoints.size() - 1)) < EPSILON) {
                 return currentSetpoints.get(0);
             } else {
-                throw new OpenRaoException(String.format("Cannot evaluate reference setpoint of InjectionRangeAction %s, as the injections are not distributed according to their key", this.getId()));
+                throw new OpenRaoException(String.format("Cannot evaluate current setpoint of InjectionRangeAction %s, as several injections are not distributed according to their key", this.getId()));
             }
         }
     }
@@ -160,7 +169,7 @@ public class InjectionRangeActionImpl extends AbstractRangeAction<InjectionRange
             return false;
         }
         return this.injectionDistributionKeys.equals(((InjectionRangeAction) o).getInjectionDistributionKeys())
-                && this.ranges.equals(((InjectionRangeAction) o).getRanges());
+            && this.ranges.equals(((InjectionRangeAction) o).getRanges());
     }
 
     @Override

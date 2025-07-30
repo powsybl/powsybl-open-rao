@@ -5,6 +5,9 @@
 
 Feature: US 93.1: Redispatching actions
 
+  # faire un test avec crac load/ et loads dans le réseau
+  # pour les cracs generateurs => générateurs dans le réseau
+
   @fast @rao @dc @redispatching @preventive-only
   Scenario: US 93.1.1.a: Basic redispatching maxMargin
     Given network file is "epic93/3Nodes.uct"
