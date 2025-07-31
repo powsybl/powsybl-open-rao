@@ -78,7 +78,7 @@ public class InjectionRangeActionImpl extends AbstractRangeAction<InjectionRange
         injectionDistributionKeys.forEach((ne, sk) -> applyInjection(network, ne.getId(), targetSetpoint * sk));
     }
 
-    // Initial setpoint was taken into account in linear probleme, hence targetSetpoint represents network's initial value + optimized variation
+    // Initial setpoint was taken into account in linear problem, hence targetSetpoint represents network's initial value + optimized variation
     // That's why we overwrite network's exisiting generator/load.
     private void applyInjection(Network network, String injectionId, double targetSetpoint) {
         Generator generator = network.getGenerator(injectionId);
