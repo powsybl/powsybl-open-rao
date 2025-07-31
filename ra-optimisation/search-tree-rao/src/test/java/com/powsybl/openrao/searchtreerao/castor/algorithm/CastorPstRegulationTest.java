@@ -55,20 +55,20 @@ class CastorPstRegulationTest {
         // Contingency FR1-FR2: both curative PSTs are in abutment so no regulation is performed
         PstRegulationResult pstRegulationResultCoFr12 = getPstRegulationResultForGivenContingency(pstRegulationResults, "Contingency FR 12");
         assertEquals(Map.of(pst12, -15, pst34, -5), pstRegulationResultCoFr12.regulatedTapPerPst());
-        assertEquals("Contingency scenario Contingency FR 12: FlowCnec cnecFr34PstCurative - Co12 defined on PST FFR3AA1  FFR4AA1  2 is the limiting element, PST regulation will be performed.", logMessages.get(0));
-        assertEquals("PST regulation for contingency scenario Contingency FR 12: pstFr12 (-10 -> -15), pstFr34 (0 -> -5)", logMessages.get(4));
+        assertEquals("Contingency scenario 'Contingency FR 12': at least one FlowCnec defined on a PST is a limiting element, PST regulation will be performed.", logMessages.get(0));
+        assertEquals("PST regulation for contingency scenario 'Contingency FR 12': pstFr12 (-10 -> -15), pstFr34 (0 -> -5)", logMessages.get(4));
 
         // Contingency FR2-FR3: both curative PSTs are in abutment so no regulation is performed
         PstRegulationResult pstRegulationResultCoFr23 = getPstRegulationResultForGivenContingency(pstRegulationResults, "Contingency FR 23");
         assertEquals(Map.of(pst12, -5, pst34, -5), pstRegulationResultCoFr23.regulatedTapPerPst());
-        assertEquals("Contingency scenario Contingency FR 23: FlowCnec cnecFr23PstCurative - Co23 defined on PST FFR2AA1  FFR3AA1  2 is the limiting element, PST regulation will be performed.", logMessages.get(1));
-        assertEquals("PST regulation for contingency scenario Contingency FR 23: pstFr12 (0 -> -5), pstFr34 (0 -> -5)", logMessages.get(5));
+        assertEquals("Contingency scenario 'Contingency FR 23': at least one FlowCnec defined on a PST is a limiting element, PST regulation will be performed.", logMessages.get(1));
+        assertEquals("PST regulation for contingency scenario 'Contingency FR 23': pstFr12 (0 -> -5), pstFr34 (0 -> -5)", logMessages.get(5));
 
         // Contingency FR3-FR4: PST FR1-FR2 in abutment, but not FR3-FR4 thanks to auto shift thus it is moved to tap 3
         PstRegulationResult pstRegulationResultCoFr34 = getPstRegulationResultForGivenContingency(pstRegulationResults, "Contingency FR 34");
         assertEquals(Map.of(pst12, -5, pst34, -15), pstRegulationResultCoFr34.regulatedTapPerPst());
-        assertEquals("Contingency scenario Contingency FR 34: FlowCnec cnecFr12PstCurative - Co34 defined on PST FFR1AA1  FFR2AA1  2 is the limiting element, PST regulation will be performed.", logMessages.get(2));
-        assertEquals("PST regulation for contingency scenario Contingency FR 34: pstFr12 (0 -> -5)", logMessages.get(6));
+        assertEquals("Contingency scenario 'Contingency FR 34': at least one FlowCnec defined on a PST is a limiting element, PST regulation will be performed.", logMessages.get(2));
+        assertEquals("PST regulation for contingency scenario 'Contingency FR 34': pstFr12 (0 -> -5)", logMessages.get(6));
     }
 
     private static ListAppender<ILoggingEvent> getBusinessLogs() {
