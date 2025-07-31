@@ -21,9 +21,9 @@
   "networkElementsNamePerId": {},
   "flowCnecs": [
     {
-      "id": "cnecFr1Fr3Preventive",
-      "name": "cnecFr1Fr3Preventive",
-      "networkElementId": "FFR1AA1  FFR3AA1  1",
+      "id": "cnecFr1Fr2Preventive",
+      "name": "cnecFr1Fr2Preventive",
+      "networkElementId": "FFR1AA1  FFR2AA1  1",
       "operator": "FR",
       "instant": "preventive",
       "contingencyId": null,
@@ -38,14 +38,14 @@
       "thresholds": [
         {
           "unit": "megawatt",
-          "min": -500.0,
-          "max": 500.0,
+          "min": -300.0,
+          "max": 300.0,
           "side": 1
         },
         {
           "unit": "megawatt",
-          "min": -500.0,
-          "max": 500.0,
+          "min": -300.0,
+          "max": 300.0,
           "side": 2
         }
       ]
@@ -68,8 +68,8 @@
         }
       ],
       "networkElementIdsAndKeys": {
-        "FFR3AA1 _generator": 1.0,
-        "FFR2AA1 _generator": -1.0
+        "FFR2AA1 _generator": -1.0,
+        "FFR1AA1 _generator": 1.0
       },
       "initialSetpoint": 0,
       "ranges": [
