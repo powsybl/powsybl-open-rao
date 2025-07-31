@@ -17,6 +17,8 @@ import com.fasterxml.jackson.core.JsonToken;
 import java.io.IOException;
 import java.util.*;
 
+import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
+
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
@@ -59,7 +61,8 @@ public final class InjectionRangeActionArrayDeserializer {
             String networkElementId = jsonParser.getCurrentName();
             // check if an another injection action was already defined on the same network element.
             if (networkElementsUsedList.contains(networkElementId)) {
-                throw new OpenRaoException("Two different injection actions can not be defined on the same network element : " + networkElementId);
+                TECHNICAL_LOGS.warn("If the injection range action is used to represent a redispatching remedial action :" +
+                    "two different injection actions in the crac can not be defined on the same network element : " + networkElementId);
             }
             networkElementsUsedList.add(networkElementId);
             jsonParser.nextToken();

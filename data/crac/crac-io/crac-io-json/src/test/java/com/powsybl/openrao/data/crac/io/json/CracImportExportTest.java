@@ -97,16 +97,6 @@ class CracImportExportTest {
     }
 
     @Test
-    void testImportCracErrorInjectionActionsDeserialization() throws IOException {
-        Network network = Network.read("4Nodes.uct", getClass().getResourceAsStream("/4Nodes.uct"));
-        CracCreationContext context = new JsonImport().importData(getClass().getResourceAsStream("/crac-injection-actions-error.json"), new CracCreationParameters(), network );
-        assertNotNull(context);
-        assertFalse(context.isCreationSuccessful());
-        assertNull(context.getCrac());
-        assertEquals(List.of("[ERROR] Two different injection actions can not be defined on the same network element : FFR1AA1 _generator"), context.getCreationReport().getReport());
-    }
-
-    @Test
     void explicitJsonRoundTripTest() {
         Crac crac = ExhaustiveCracCreation.create();
         Crac importedCrac = RoundTripUtil.explicitJsonRoundTrip(crac, ExhaustiveCracCreation.createAssociatedNetwork());
