@@ -72,12 +72,12 @@
         }
       ]
     }, {
-      "id": "cnecFr23Outage",
-      "name": "cnecFr23Outage",
-      "networkElementId": "FFR2AA1  FFR3AA1  1",
+      "id": "cnecFr34PstAuto",
+      "name": "cnecFr34PstAuto",
+      "networkElementId": "FFR3AA1  FFR4AA1  2",
       "operator": "FR",
-      "instant": "outage",
-      "contingencyId": "Contingency FR 23",
+      "instant": "auto",
+      "contingencyId": "Contingency FR 34",
       "optimized": true,
       "monitored": false,
       "iMax": [
@@ -89,21 +89,21 @@
       "thresholds": [
         {
           "unit": "ampere",
-          "min": -1500.0,
-          "max": 1500.0,
+          "min": -1000.0,
+          "max": 1000.0,
           "side": 1
         },
         {
           "unit": "ampere",
-          "min": -1500.0,
-          "max": 1500.0,
+          "min": -1000.0,
+          "max": 1000.0,
           "side": 2
         }
       ]
     }, {
-      "id": "cnecFr12Curative",
-      "name": "cnecFr12Curative",
-      "networkElementId": "FFR1AA1  FFR2AA1  1",
+      "id": "cnecFr12PstCurative - Co12",
+      "name": "cnecFr12PstCurative - Co12",
+      "networkElementId": "FFR1AA1  FFR2AA1  2",
       "operator": "FR",
       "instant": "curative",
       "contingencyId": "Contingency FR 12",
@@ -130,9 +130,9 @@
         }
       ]
     }, {
-      "id": "cnecFr23Curative",
-      "name": "cnecFr23Curative",
-      "networkElementId": "FFR2AA1  FFR3AA1  1",
+      "id": "cnecFr12PstCurative - Co23",
+      "name": "cnecFr12PstCurative - Co23",
+      "networkElementId": "FFR1AA1  FFR2AA1  2",
       "operator": "FR",
       "instant": "curative",
       "contingencyId": "Contingency FR 23",
@@ -159,9 +159,9 @@
         }
       ]
     }, {
-      "id": "cnecFr34Curative",
-      "name": "cnecFr34Curative",
-      "networkElementId": "FFR3AA1  FFR4AA1  1",
+      "id": "cnecFr12PstCurative - Co34",
+      "name": "cnecFr12PstCurative - Co34",
+      "networkElementId": "FFR1AA1  FFR2AA1  2",
       "operator": "FR",
       "instant": "curative",
       "contingencyId": "Contingency FR 34",
@@ -188,11 +188,69 @@
         }
       ]
     }, {
-      "id": "cnecFr34PstAuto",
-      "name": "cnecFr34PstAuto",
-      "networkElementId": "FFR3AA1  FFR4AA1  2",
+      "id": "cnecFr23PstCurative - Co12",
+      "name": "cnecFr23PstCurative - Co12",
+      "networkElementId": "FFR2AA1  FFR3AA1  2",
       "operator": "FR",
-      "instant": "auto",
+      "instant": "curative",
+      "contingencyId": "Contingency FR 12",
+      "optimized": true,
+      "monitored": false,
+      "iMax": [
+        NaN
+      ],
+      "nominalV": [
+        400.0
+      ],
+      "thresholds": [
+        {
+          "unit": "ampere",
+          "min": -1000.0,
+          "max": 1000.0,
+          "side": 1
+        },
+        {
+          "unit": "ampere",
+          "min": -1000.0,
+          "max": 1000.0,
+          "side": 2
+        }
+      ]
+    }, {
+      "id": "cnecFr23PstCurative - Co23",
+      "name": "cnecFr23PstCurative - Co23",
+      "networkElementId": "FFR2AA1  FFR3AA1  2",
+      "operator": "FR",
+      "instant": "curative",
+      "contingencyId": "Contingency FR 23",
+      "optimized": true,
+      "monitored": false,
+      "iMax": [
+        NaN
+      ],
+      "nominalV": [
+        400.0
+      ],
+      "thresholds": [
+        {
+          "unit": "ampere",
+          "min": -1000.0,
+          "max": 1000.0,
+          "side": 1
+        },
+        {
+          "unit": "ampere",
+          "min": -1000.0,
+          "max": 1000.0,
+          "side": 2
+        }
+      ]
+    }, {
+      "id": "cnecFr23PstCurative - Co34",
+      "name": "cnecFr23PstCurative - Co34",
+      "networkElementId": "FFR2AA1  FFR3AA1  2",
+      "operator": "FR",
+      "instant": "curative",
       "contingencyId": "Contingency FR 34",
       "optimized": true,
       "monitored": false,
@@ -205,14 +263,101 @@
       "thresholds": [
         {
           "unit": "ampere",
-          "min": -1200.0,
-          "max": 1200.0,
+          "min": -1000.0,
+          "max": 1000.0,
           "side": 1
         },
         {
           "unit": "ampere",
-          "min": -1200.0,
-          "max": 1200.0,
+          "min": -1000.0,
+          "max": 1000.0,
+          "side": 2
+        }
+      ]
+    }, {
+      "id": "cnecFr34PstCurative - Co12",
+      "name": "cnecFr34PstCurative - Co12",
+      "networkElementId": "FFR3AA1  FFR4AA1  2",
+      "operator": "FR",
+      "instant": "curative",
+      "contingencyId": "Contingency FR 12",
+      "optimized": true,
+      "monitored": false,
+      "iMax": [
+        NaN
+      ],
+      "nominalV": [
+        400.0
+      ],
+      "thresholds": [
+        {
+          "unit": "ampere",
+          "min": -1000.0,
+          "max": 1000.0,
+          "side": 1
+        },
+        {
+          "unit": "ampere",
+          "min": -1000.0,
+          "max": 1000.0,
+          "side": 2
+        }
+      ]
+    }, {
+      "id": "cnecFr34PstCurative - Co23",
+      "name": "cnecFr34PstCurative - Co23",
+      "networkElementId": "FFR3AA1  FFR4AA1  2",
+      "operator": "FR",
+      "instant": "curative",
+      "contingencyId": "Contingency FR 23",
+      "optimized": true,
+      "monitored": false,
+      "iMax": [
+        NaN
+      ],
+      "nominalV": [
+        400.0
+      ],
+      "thresholds": [
+        {
+          "unit": "ampere",
+          "min": -1000.0,
+          "max": 1000.0,
+          "side": 1
+        },
+        {
+          "unit": "ampere",
+          "min": -1000.0,
+          "max": 1000.0,
+          "side": 2
+        }
+      ]
+    }, {
+      "id": "cnecFr34PstCurative - Co34",
+      "name": "cnecFr34PstCurative - Co34",
+      "networkElementId": "FFR3AA1  FFR4AA1  2",
+      "operator": "FR",
+      "instant": "curative",
+      "contingencyId": "Contingency FR 34",
+      "optimized": true,
+      "monitored": false,
+      "iMax": [
+        NaN
+      ],
+      "nominalV": [
+        400.0
+      ],
+      "thresholds": [
+        {
+          "unit": "ampere",
+          "min": -1000.0,
+          "max": 1000.0,
+          "side": 1
+        },
+        {
+          "unit": "ampere",
+          "min": -1000.0,
+          "max": 1000.0,
           "side": 2
         }
       ]
@@ -223,10 +368,10 @@
       "id": "pstFr12",
       "name": "pstFr12",
       "operator": "FR",
-      "onConstraintUsageRules": [
+      "onContingencyStateUsageRules": [
         {
           "instant": "curative",
-          "cnecId": "cnecFr12Curative",
+          "contingencyId": "Contingency FR 12",
           "usageMethod": "available"
         }
       ],
@@ -261,17 +406,16 @@
       "name": "pstFr34",
       "operator": "FR",
       "speed": 0,
-      "onInstantUsageRules": [
-        {
-          "instant": "curative",
-          "usageMethod": "available"
-        }
-      ],
       "onConstraintUsageRules": [
         {
           "instant": "auto",
           "cnecId": "cnecFr34PstAuto",
           "usageMethod": "forced"
+        },
+        {
+          "instant": "curative",
+          "cnecId": "cnecFr34PstCurative - Co34",
+          "usageMethod": "available"
         }
       ],
       "networkElementId": "FFR3AA1  FFR4AA1  2",

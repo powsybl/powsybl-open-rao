@@ -6,7 +6,9 @@
 Feature: US 91.13: PST Regulation
 
   @ac @fast @rao
-  Scenario: US 91.13.1.a: Unsecure case with 2 nodes and 1 PST
+  Scenario: US 91.13.1.a: Unsecure case with a trade-off tap position - PST is the limiting element
+  The curative scenario cannot be secured, the curative tap is chosen such that both curative CNECs are overloaded but
+  with the lowest global overload reachable. The PST is the most limiting element at the end of curative.
     Given network file is "epic91/2Nodes3ParallelLinesPST.uct"
     Given crac file is "epic91/crac-91-13-1.json"
     Given configuration file is "epic91/RaoParameters_ac.json"
@@ -21,7 +23,8 @@ Feature: US 91.13: PST Regulation
   @ac @fast @rao @pst-regulation
   Scenario: US 91.13.1.b: Duplicate of US 91.13.1.a with PST regulation
   At the end of curative optimization, the PST is still unsecure but can be secured by moving the tap to position 7
-  even if it worsens the minimum margin significantly.
+  even if it worsens the minimum margin significantly. Regulation can be performed because the PST is the most
+  limiting element.
     Given network file is "epic91/2Nodes3ParallelLinesPST.uct"
     Given crac file is "epic91/crac-91-13-1.json"
     Given configuration file is "epic91/RaoParameters_ac_pstRegulation.json"
@@ -34,91 +37,114 @@ Feature: US 91.13: PST Regulation
     And the margin on cnec "cnecBeFr2Curative" after CRA should be 15.49 A
 
   @ac @fast @rao
-  Scenario: US 91.13.2.a: Margin is maximized by putting the PST in abutment
-  By putting the PST on tap -16, the margin on the preventive and curative CNECs is maximized.
-  The PST is overloaded but this is invisible for the RAO since no CNEC is defined for it.
+  Scenario: US 91.13.2.a: Unsecure case with a trade-off tap position - PST not is the limiting element
+  The curative scenario cannot be secured, the curative tap is chosen such that both curative CNECs are overloaded but
+  with the lowest global overload reachable. The PST is not the most limiting element at the end of curative.
     Given network file is "epic91/2Nodes3ParallelLinesPST.uct"
     Given crac file is "epic91/crac-91-13-2.json"
     Given configuration file is "epic91/RaoParameters_ac.json"
     When I launch search_tree_rao
     Then the tap of PstRangeAction "pstBeFr2" should be -16 in preventive
-    And the margin on cnec "cnecBeFr1Preventive" after PRA should be 579.65 A
-    And the tap of PstRangeAction "pstBeFr2" should be -16 after "Contingency BE1 FR1 3" at "curative"
-    And the worst margin is 418.84 A
-    And the margin on cnec "cnecBeFr1Curative" after CRA should be 418.84 A
+    And the margin on cnec "cnecBeFr1Preventive" after PRA should be 1479.65 A
+    And the tap of PstRangeAction "pstBeFr2" should be 4 after "Contingency BE1 FR1 3" at "curative"
+    And the worst margin is -247.23 A
+    And the margin on cnec "cnecBeFr1Curative" after CRA should be -247.23 A
+    And the margin on cnec "cnecBeFr2Curative" after CRA should be -219.56 A
 
   @ac @fast @rao @pst-regulation
   Scenario: US 91.13.2.b: Duplicate of US 91.13.2.a with PST regulation
-  At the end of curative optimization, the PST is still unsecure but can be secured by moving the tap to position 7.
-  However, the PST in is abutment at tap -16 so it cannot be regulated, thus leaving the situation as is.
+  At the end of curative optimization, the PST is still unsecure but can be secured by moving the tap to position 7
+  even if it worsens the minimum margin significantly. Regulation cannot be performed because the PST is not the most
+  limiting element.
     Given network file is "epic91/2Nodes3ParallelLinesPST.uct"
     Given crac file is "epic91/crac-91-13-2.json"
     Given configuration file is "epic91/RaoParameters_ac_pstRegulation.json"
     When I launch search_tree_rao
     Then the tap of PstRangeAction "pstBeFr2" should be -16 in preventive
-    And the margin on cnec "cnecBeFr1Preventive" after PRA should be 579.65 A
-    And the tap of PstRangeAction "pstBeFr2" should be -16 after "Contingency BE1 FR1 3" at "curative"
-    And the worst margin is 418.84 A
-    And the margin on cnec "cnecBeFr1Curative" after CRA should be 418.84 A
+    And the margin on cnec "cnecBeFr1Preventive" after PRA should be 1479.65 A
+    And the tap of PstRangeAction "pstBeFr2" should be 4 after "Contingency BE1 FR1 3" at "curative"
+    And the worst margin is -247.23 A
+    And the margin on cnec "cnecBeFr1Curative" after CRA should be -247.23 A
+    And the margin on cnec "cnecBeFr2Curative" after CRA should be -219.56 A
 
   @ac @fast @rao
-  Scenario: US 91.13.3.a: 3 contingencies and 3 PSTs
+  Scenario: US 91.13.3.a: 3 contingency scenarios and 3 PSTs with different use cases
+  - Scenario 12: PST 34 has a negative margin of -444.08 A so even though PST 12 should go up to -16 to maximize its own
+  margin, the minimal margin does not improve below -10 (margin at -9 is about -462 A)
+  - Scenario 23: trade-off tap between preventive CNEC and curative PST leading the preventive tap of PST 23 to be -6
+  - Scenario 34: automaton secures PST 34 straight from auto instant at tap -15
+  Each curative scenario is unsecure with some PSTs overloaded.
     Given network file is "epic91/4NodesSeries.uct"
     Given crac file is "epic91/crac-91-13-3.json"
     Given configuration file is "epic91/RaoParameters_ac.json"
     When I launch search_tree_rao
-    Then the worst margin is 7.13 A on cnec "cnecFr34PstAuto"
-    And the margin on cnec "cnecFr34Curative" after CRA should be 984.32 A
     # Preventive taps
-    And the tap of PstRangeAction "pstFr12" should be 16 in preventive
-    And the tap of PstRangeAction "pstFr23" should be 9 in preventive
-    And the tap of PstRangeAction "pstFr34" should be 16 in preventive
+    And the tap of PstRangeAction "pstFr12" should be 0 in preventive
+    And the tap of PstRangeAction "pstFr23" should be -6 in preventive
+    And the tap of PstRangeAction "pstFr34" should be 0 in preventive
     # Auto taps
-    And the tap of PstRangeAction "pstFr34" should be 6 after "Contingency FR 34" at "auto"
+    And the tap of PstRangeAction "pstFr34" should be -15 after "Contingency FR 34" at "auto"
     # Curative taps
-    And the tap of PstRangeAction "pstFr12" should be 16 after "Contingency FR 12" at "curative"
-    And the tap of PstRangeAction "pstFr12" should be 16 after "Contingency FR 23" at "curative"
-    And the tap of PstRangeAction "pstFr12" should be 16 after "Contingency FR 34" at "curative"
-    And the tap of PstRangeAction "pstFr23" should be 9 after "Contingency FR 12" at "curative"
-    And the tap of PstRangeAction "pstFr23" should be 9 after "Contingency FR 23" at "curative"
-    And the tap of PstRangeAction "pstFr23" should be 9 after "Contingency FR 34" at "curative"
-    And the tap of PstRangeAction "pstFr34" should be 16 after "Contingency FR 12" at "curative"
-    And the tap of PstRangeAction "pstFr34" should be 16 after "Contingency FR 23" at "curative"
-    And the tap of PstRangeAction "pstFr34" should be 9 after "Contingency FR 34" at "curative"
+    And the tap of PstRangeAction "pstFr12" should be -10 after "Contingency FR 12" at "curative"
+    And the tap of PstRangeAction "pstFr12" should be 0 after "Contingency FR 23" at "curative"
+    And the tap of PstRangeAction "pstFr12" should be 0 after "Contingency FR 34" at "curative"
+    And the tap of PstRangeAction "pstFr23" should be -6 after "Contingency FR 12" at "curative"
+    And the tap of PstRangeAction "pstFr23" should be -6 after "Contingency FR 23" at "curative"
+    And the tap of PstRangeAction "pstFr23" should be -6 after "Contingency FR 34" at "curative"
+    And the tap of PstRangeAction "pstFr34" should be 0 after "Contingency FR 12" at "curative"
+    And the tap of PstRangeAction "pstFr34" should be 0 after "Contingency FR 23" at "curative"
+    And the tap of PstRangeAction "pstFr34" should be -15 after "Contingency FR 34" at "curative"
+    # Curative margins
+    And the margin on cnec "cnecFr12PstCurative - Co12" after CRA should be -384.40 A
+    And the margin on cnec "cnecFr12PstCurative - Co23" after CRA should be -444.08 A
+    And the margin on cnec "cnecFr12PstCurative - Co34" after CRA should be -444.08 A
+    And the margin on cnec "cnecFr23PstCurative - Co12" after CRA should be 184.55 A
+    And the margin on cnec "cnecFr23PstCurative - Co23" after CRA should be -697.26 A
+    And the margin on cnec "cnecFr23PstCurative - Co34" after CRA should be 184.55 A
+    And the margin on cnec "cnecFr34PstCurative - Co12" after CRA should be -444.08 A
+    And the margin on cnec "cnecFr34PstCurative - Co23" after CRA should be -444.08 A
+    And the margin on cnec "cnecFr34PstCurative - Co34" after CRA should be 5.78 A
 
   @ac @fast @rao @pst-regulation
   Scenario: US 91.13.3.b: Duplicate of US 91.13.3.a with PST regulation
-  PST regulation is performed on all three PSTs but the behavior varies from one to another:
-  - pstFr12: the PST is in abutment so it cannot be moved
-  - pstFr23: the PST is only available in preventive so it cannot be regulated
-  - pstFr34: the PST is in abutment so it cannot be moved, except after "Contingency FR 34" thanks to the automaton
-  The curative margin on FR3-FR4 is reduced because of regulation.
+  Regulation is perfomed on PSTs 12 and 34 because they can be moved in curative.
+  The regulation tap is either -15 is the contingency was parallel to the PST or -5 otherwise.
     Given network file is "epic91/4NodesSeries.uct"
     Given crac file is "epic91/crac-91-13-3.json"
     Given configuration file is "epic91/RaoParameters_ac_3pstsRegulation.json"
     When I launch search_tree_rao
-    Then the worst margin is 7.13 A on cnec "cnecFr34PstAuto"
-    And the margin on cnec "cnecFr34Curative" after CRA should be 513.72 A
     # Preventive taps
-    And the tap of PstRangeAction "pstFr12" should be 16 in preventive
-    And the tap of PstRangeAction "pstFr23" should be 9 in preventive
-    And the tap of PstRangeAction "pstFr34" should be 16 in preventive
+    And the tap of PstRangeAction "pstFr12" should be 0 in preventive
+    And the tap of PstRangeAction "pstFr23" should be -6 in preventive
+    And the tap of PstRangeAction "pstFr34" should be 0 in preventive
     # Auto taps
-    And the tap of PstRangeAction "pstFr34" should be 6 after "Contingency FR 34" at "auto"
+    And the tap of PstRangeAction "pstFr34" should be -15 after "Contingency FR 34" at "auto"
     # Curative taps
-    And the tap of PstRangeAction "pstFr12" should be 16 after "Contingency FR 12" at "curative"
-    And the tap of PstRangeAction "pstFr12" should be 16 after "Contingency FR 23" at "curative"
-    And the tap of PstRangeAction "pstFr12" should be 16 after "Contingency FR 34" at "curative"
-    And the tap of PstRangeAction "pstFr23" should be 9 after "Contingency FR 12" at "curative"
-    And the tap of PstRangeAction "pstFr23" should be 9 after "Contingency FR 23" at "curative"
-    And the tap of PstRangeAction "pstFr23" should be 9 after "Contingency FR 34" at "curative"
-    And the tap of PstRangeAction "pstFr34" should be 16 after "Contingency FR 12" at "curative"
-    And the tap of PstRangeAction "pstFr34" should be 16 after "Contingency FR 23" at "curative"
-    And the tap of PstRangeAction "pstFr34" should be 3 after "Contingency FR 34" at "curative"
+    And the tap of PstRangeAction "pstFr12" should be -15 after "Contingency FR 12" at "curative"
+    And the tap of PstRangeAction "pstFr12" should be -5 after "Contingency FR 23" at "curative"
+    And the tap of PstRangeAction "pstFr12" should be -5 after "Contingency FR 34" at "curative"
+    And the tap of PstRangeAction "pstFr23" should be -6 after "Contingency FR 12" at "curative"
+    And the tap of PstRangeAction "pstFr23" should be -6 after "Contingency FR 23" at "curative"
+    And the tap of PstRangeAction "pstFr23" should be -6 after "Contingency FR 34" at "curative"
+    And the tap of PstRangeAction "pstFr34" should be -5 after "Contingency FR 12" at "curative"
+    And the tap of PstRangeAction "pstFr34" should be -5 after "Contingency FR 23" at "curative"
+    And the tap of PstRangeAction "pstFr34" should be -15 after "Contingency FR 34" at "curative"
+    # Curative margins
+    And the margin on cnec "cnecFr12PstCurative - Co12" after CRA should be 5.78 A
+    And the margin on cnec "cnecFr12PstCurative - Co23" after CRA should be 78.98 A
+    And the margin on cnec "cnecFr12PstCurative - Co34" after CRA should be 78.98 A
+    And the margin on cnec "cnecFr23PstCurative - Co12" after CRA should be 184.55 A
+    And the margin on cnec "cnecFr23PstCurative - Co23" after CRA should be -697.26 A
+    And the margin on cnec "cnecFr23PstCurative - Co34" after CRA should be 184.55 A
+    And the margin on cnec "cnecFr34PstCurative - Co12" after CRA should be 78.98 A
+    And the margin on cnec "cnecFr34PstCurative - Co23" after CRA should be 78.98 A
+    And the margin on cnec "cnecFr34PstCurative - Co34" after CRA should be 5.78 A
 
   @ac @fast @rao @pst-regulation
   Scenario: US 91.13.4: Regulation with two equivalent parallel PSTs
-    Both PSTs are put in abutment because of their symmetric behaviors.
+  The two PSTs are identical. Status quo is not to move any tap leaving both overloaded at the end of curative
+  optimization. PST regulation will put both in abutment at tap 16 since the loadflow regulates tap by only focusing on
+  one PST instead of the whole network.
     Given network file is "epic91/2Nodes3ParallelLines2PSTs.uct"
     Given crac file is "epic91/crac-91-13-4.json"
     Given configuration file is "epic91/RaoParameters_ac_2pstsRegulation.json"

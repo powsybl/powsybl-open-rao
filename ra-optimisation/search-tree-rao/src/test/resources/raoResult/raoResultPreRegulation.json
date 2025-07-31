@@ -6,31 +6,31 @@
   "executionDetails" : "The RAO only went through first preventive",
   "costResults" : {
     "initial" : {
-      "functionalCost" : 777.35,
+      "functionalCost" : 1167.45,
       "virtualCost" : {
         "sensitivity-failure-cost" : 0.00
       }
     },
     "preventive" : {
-      "functionalCost" : 777.35,
+      "functionalCost" : 1167.45,
       "virtualCost" : {
         "sensitivity-failure-cost" : 0.00
       }
     },
     "outage" : {
-      "functionalCost" : 777.35,
+      "functionalCost" : 1167.45,
       "virtualCost" : {
         "sensitivity-failure-cost" : 0.00
       }
     },
     "auto" : {
-      "functionalCost" : -7.13,
+      "functionalCost" : 1167.45,
       "virtualCost" : {
         "sensitivity-failure-cost" : 0.00
       }
     },
     "curative" : {
-      "functionalCost" : -7.13,
+      "functionalCost" : 758.18,
       "virtualCost" : {
         "sensitivity-failure-cost" : 0.00
       }
@@ -38,118 +38,140 @@
   },
   "computationStatusMap" : [ ],
   "flowCnecResults" : [ {
-    "flowCnecId" : "cnecFr12Curative",
+    "flowCnecId" : "cnecFr12PstCurative - Co12",
     "initial" : {
       "ampere" : {
-        "margin" : 467.81,
+        "margin" : -1167.45,
         "side1" : {
-          "flow" : 532.19
+          "flow" : 2167.45
         },
         "side2" : {
-          "flow" : 532.19
+          "flow" : 2167.45
         }
       }
     },
     "preventive" : {
       "ampere" : {
-        "margin" : 467.81,
+        "margin" : -1167.45,
         "side1" : {
-          "flow" : 532.19
+          "flow" : 2167.45
         },
         "side2" : {
-          "flow" : 532.19
+          "flow" : 2167.45
         }
       }
     },
     "auto" : {
       "ampere" : {
-        "margin" : 467.81,
+        "margin" : -1167.45,
         "side1" : {
-          "flow" : 532.19
+          "flow" : 2167.45
         },
         "side2" : {
-          "flow" : 532.19
+          "flow" : 2167.45
         }
       }
     },
     "curative" : {
       "ampere" : {
-        "margin" : 467.81,
+        "margin" : -384.40,
         "side1" : {
-          "flow" : 532.19
+          "flow" : 1384.40
         },
         "side2" : {
-          "flow" : 532.19
+          "flow" : 1384.40
         }
       }
     }
   }, {
-    "flowCnecId" : "cnecFr23Curative",
+    "flowCnecId" : "cnecFr12PstCurative - Co23",
     "initial" : {
       "ampere" : {
-        "margin" : 278.22,
+        "margin" : -444.08,
         "side1" : {
-          "flow" : -721.78
+          "flow" : 1444.08
         },
         "side2" : {
-          "flow" : -721.78
+          "flow" : 1444.08
         }
       }
     },
     "preventive" : {
       "ampere" : {
-        "margin" : 984.31,
+        "margin" : -444.08,
         "side1" : {
-          "flow" : -15.69
+          "flow" : 1444.08
         },
         "side2" : {
-          "flow" : -15.69
+          "flow" : 1444.08
         }
       }
     },
     "auto" : {
       "ampere" : {
-        "margin" : 984.31,
+        "margin" : -444.08,
         "side1" : {
-          "flow" : -15.69
+          "flow" : 1444.08
         },
         "side2" : {
-          "flow" : -15.69
+          "flow" : 1444.08
         }
       }
     },
     "curative" : {
       "ampere" : {
-        "margin" : 984.31,
+        "margin" : -444.08,
         "side1" : {
-          "flow" : -15.69
+          "flow" : 1444.08
         },
         "side2" : {
-          "flow" : -15.69
+          "flow" : 1444.08
         }
       }
     }
   }, {
-    "flowCnecId" : "cnecFr23Outage",
+    "flowCnecId" : "cnecFr12PstCurative - Co34",
     "initial" : {
       "ampere" : {
-        "margin" : 778.22,
+        "margin" : -444.08,
         "side1" : {
-          "flow" : -721.78
+          "flow" : 1444.08
         },
         "side2" : {
-          "flow" : -721.78
+          "flow" : 1444.08
         }
       }
     },
     "preventive" : {
       "ampere" : {
-        "margin" : 1484.31,
+        "margin" : -444.08,
         "side1" : {
-          "flow" : -15.69
+          "flow" : 1444.08
         },
         "side2" : {
-          "flow" : -15.69
+          "flow" : 1444.08
+        }
+      }
+    },
+    "auto" : {
+      "ampere" : {
+        "margin" : -444.08,
+        "side1" : {
+          "flow" : 1444.08
+        },
+        "side2" : {
+          "flow" : 1444.08
+        }
+      }
+    },
+    "curative" : {
+      "ampere" : {
+        "margin" : -444.08,
+        "side1" : {
+          "flow" : 1444.08
+        },
+        "side2" : {
+          "flow" : 1444.08
         }
       }
     }
@@ -157,69 +179,161 @@
     "flowCnecId" : "cnecFr23Preventive",
     "initial" : {
       "ampere" : {
-        "margin" : 518.85,
+        "margin" : -444.08,
         "side1" : {
-          "flow" : -481.15
+          "flow" : -1444.08
         },
         "side2" : {
-          "flow" : -481.15
+          "flow" : -1444.08
         }
       }
     },
     "preventive" : {
       "ampere" : {
-        "margin" : 989.55,
+        "margin" : -758.18,
         "side1" : {
-          "flow" : -10.45
+          "flow" : -1758.18
         },
         "side2" : {
-          "flow" : -10.45
+          "flow" : -1758.18
         }
       }
     }
   }, {
-    "flowCnecId" : "cnecFr34Curative",
+    "flowCnecId" : "cnecFr23PstCurative - Co12",
     "initial" : {
       "ampere" : {
-        "margin" : 467.81,
+        "margin" : -444.08,
         "side1" : {
-          "flow" : 532.19
+          "flow" : 1444.08
         },
         "side2" : {
-          "flow" : 532.19
+          "flow" : 1444.08
         }
       }
     },
     "preventive" : {
       "ampere" : {
-        "margin" : 467.81,
+        "margin" : 183.55,
         "side1" : {
-          "flow" : 532.19
+          "flow" : 816.45
         },
         "side2" : {
-          "flow" : 532.19
+          "flow" : 816.45
         }
       }
     },
     "auto" : {
       "ampere" : {
-        "margin" : 749.10,
+        "margin" : 183.55,
         "side1" : {
-          "flow" : -250.90
+          "flow" : 816.45
         },
         "side2" : {
-          "flow" : -250.90
+          "flow" : 816.45
         }
       }
     },
     "curative" : {
       "ampere" : {
-        "margin" : 984.31,
+        "margin" : 183.55,
         "side1" : {
-          "flow" : -15.69
+          "flow" : 816.45
         },
         "side2" : {
-          "flow" : -15.69
+          "flow" : 816.45
+        }
+      }
+    }
+  }, {
+    "flowCnecId" : "cnecFr23PstCurative - Co23",
+    "initial" : {
+      "ampere" : {
+        "margin" : -1167.45,
+        "side1" : {
+          "flow" : 2167.45
+        },
+        "side2" : {
+          "flow" : 2167.45
+        }
+      }
+    },
+    "preventive" : {
+      "ampere" : {
+        "margin" : -697.27,
+        "side1" : {
+          "flow" : 1697.27
+        },
+        "side2" : {
+          "flow" : 1697.27
+        }
+      }
+    },
+    "auto" : {
+      "ampere" : {
+        "margin" : -697.27,
+        "side1" : {
+          "flow" : 1697.27
+        },
+        "side2" : {
+          "flow" : 1697.27
+        }
+      }
+    },
+    "curative" : {
+      "ampere" : {
+        "margin" : -697.27,
+        "side1" : {
+          "flow" : 1697.27
+        },
+        "side2" : {
+          "flow" : 1697.27
+        }
+      }
+    }
+  }, {
+    "flowCnecId" : "cnecFr23PstCurative - Co34",
+    "initial" : {
+      "ampere" : {
+        "margin" : -444.08,
+        "side1" : {
+          "flow" : 1444.08
+        },
+        "side2" : {
+          "flow" : 1444.08
+        }
+      }
+    },
+    "preventive" : {
+      "ampere" : {
+        "margin" : 183.55,
+        "side1" : {
+          "flow" : 816.45
+        },
+        "side2" : {
+          "flow" : 816.45
+        }
+      }
+    },
+    "auto" : {
+      "ampere" : {
+        "margin" : 183.55,
+        "side1" : {
+          "flow" : 816.45
+        },
+        "side2" : {
+          "flow" : 816.45
+        }
+      }
+    },
+    "curative" : {
+      "ampere" : {
+        "margin" : 183.55,
+        "side1" : {
+          "flow" : 816.45
+        },
+        "side2" : {
+          "flow" : 816.45
         }
       }
     }
@@ -227,34 +341,172 @@
     "flowCnecId" : "cnecFr34PstAuto",
     "initial" : {
       "ampere" : {
-        "margin" : -777.35,
+        "margin" : -1167.45,
         "side1" : {
-          "flow" : 1977.35
+          "flow" : 2167.45
         },
         "side2" : {
-          "flow" : 1977.35
+          "flow" : 2167.45
         }
       }
     },
     "preventive" : {
       "ampere" : {
-        "margin" : -777.35,
+        "margin" : -1167.45,
         "side1" : {
-          "flow" : 1977.35
+          "flow" : 2167.45
         },
         "side2" : {
-          "flow" : 1977.35
+          "flow" : 2167.45
         }
       }
     },
     "auto" : {
       "ampere" : {
-        "margin" : 7.13,
+        "margin" : 5.78,
         "side1" : {
-          "flow" : 1192.87
+          "flow" : 994.22
         },
         "side2" : {
-          "flow" : 1192.87
+          "flow" : 994.22
+        }
+      }
+    }
+  }, {
+    "flowCnecId" : "cnecFr34PstCurative - Co12",
+    "initial" : {
+      "ampere" : {
+        "margin" : -444.08,
+        "side1" : {
+          "flow" : 1444.08
+        },
+        "side2" : {
+          "flow" : 1444.08
+        }
+      }
+    },
+    "preventive" : {
+      "ampere" : {
+        "margin" : -444.08,
+        "side1" : {
+          "flow" : 1444.08
+        },
+        "side2" : {
+          "flow" : 1444.08
+        }
+      }
+    },
+    "auto" : {
+      "ampere" : {
+        "margin" : -444.08,
+        "side1" : {
+          "flow" : 1444.08
+        },
+        "side2" : {
+          "flow" : 1444.08
+        }
+      }
+    },
+    "curative" : {
+      "ampere" : {
+        "margin" : -444.08,
+        "side1" : {
+          "flow" : 1444.08
+        },
+        "side2" : {
+          "flow" : 1444.08
+        }
+      }
+    }
+  }, {
+    "flowCnecId" : "cnecFr34PstCurative - Co23",
+    "initial" : {
+      "ampere" : {
+        "margin" : -444.08,
+        "side1" : {
+          "flow" : 1444.08
+        },
+        "side2" : {
+          "flow" : 1444.08
+        }
+      }
+    },
+    "preventive" : {
+      "ampere" : {
+        "margin" : -444.08,
+        "side1" : {
+          "flow" : 1444.08
+        },
+        "side2" : {
+          "flow" : 1444.08
+        }
+      }
+    },
+    "auto" : {
+      "ampere" : {
+        "margin" : -444.08,
+        "side1" : {
+          "flow" : 1444.08
+        },
+        "side2" : {
+          "flow" : 1444.08
+        }
+      }
+    },
+    "curative" : {
+      "ampere" : {
+        "margin" : -444.08,
+        "side1" : {
+          "flow" : 1444.08
+        },
+        "side2" : {
+          "flow" : 1444.08
+        }
+      }
+    }
+  }, {
+    "flowCnecId" : "cnecFr34PstCurative - Co34",
+    "initial" : {
+      "ampere" : {
+        "margin" : -1167.45,
+        "side1" : {
+          "flow" : 2167.45
+        },
+        "side2" : {
+          "flow" : 2167.45
+        }
+      }
+    },
+    "preventive" : {
+      "ampere" : {
+        "margin" : -1167.45,
+        "side1" : {
+          "flow" : 2167.45
+        },
+        "side2" : {
+          "flow" : 2167.45
+        }
+      }
+    },
+    "auto" : {
+      "ampere" : {
+        "margin" : 5.78,
+        "side1" : {
+          "flow" : 994.22
+        },
+        "side2" : {
+          "flow" : 994.22
+        }
+      }
+    },
+    "curative" : {
+      "ampere" : {
+        "margin" : 5.78,
+        "side1" : {
+          "flow" : 994.22
+        },
+        "side2" : {
+          "flow" : 994.22
         }
       }
     }
@@ -264,25 +516,26 @@
   "networkActionResults" : [ ],
   "rangeActionResults" : [ {
     "rangeActionId" : "pstFr12",
-    "initialTap" : 16
+    "initialTap" : 0,
+    "activatedStates" : [ {
+      "instant" : "curative",
+      "contingency" : "Contingency FR 12",
+      "tap" : -10
+    } ]
   }, {
     "rangeActionId" : "pstFr23",
     "initialTap" : 0,
     "activatedStates" : [ {
       "instant" : "preventive",
-      "tap" : 9
+      "tap" : -6
     } ]
   }, {
     "rangeActionId" : "pstFr34",
-    "initialTap" : 16,
+    "initialTap" : 0,
     "activatedStates" : [ {
       "instant" : "auto",
       "contingency" : "Contingency FR 34",
-      "tap" : 6
-    }, {
-      "instant" : "curative",
-      "contingency" : "Contingency FR 34",
-      "tap" : 9
+      "tap" : -15
     } ]
   } ]
 }

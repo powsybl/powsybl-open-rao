@@ -9,18 +9,21 @@ package com.powsybl.openrao.searchtreerao.castor.algorithm;
 
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.openloadflow.OpenLoadFlowParameters;
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.State;
+import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.util.AbstractNetworkPool;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -48,8 +51,7 @@ public final class CastorPstRegulation {
 
     public static Set<PstRegulationResult> regulatePsts(List<String> pstsToRegulate, Network network, Crac crac, RaoParameters raoParameters, RaoResult raoResult) {
         // update loadflow parameters
-        LoadFlowParameters loadFlowParameters = raoParameters.hasExtension(OpenRaoSearchTreeParameters.class) ?
-            raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters() : new LoadFlowParameters();
+        LoadFlowParameters loadFlowParameters = getLoadFlowParameters(raoParameters);
         boolean initialPhaseShifterRegulationOnValue = loadFlowParameters.isPhaseShifterRegulationOn();
         updateLoadFlowParametersForPstRegulation(loadFlowParameters);
 
@@ -62,7 +64,7 @@ public final class CastorPstRegulation {
         // regulate PSTs for each curative scenario in parallel
         try (AbstractNetworkPool networkPool = AbstractNetworkPool.create(network, network.getVariantManager().getWorkingVariantId(), getNumberOfThreads(crac, raoParameters), true)) {
             List<ForkJoinTask<PstRegulationResult>> tasks = crac.getContingencies().stream().map(contingency ->
-                networkPool.submit(() -> regulatePstsForContingencyScenario(contingency, crac, rangeActionsToRegulate, raoResult, loadFlowParameters, networkPool))
+                networkPool.submit(() -> regulatePstsForContingencyScenario(contingency, crac, pstsToRegulate, rangeActionsToRegulate, raoResult, loadFlowParameters, networkPool, raoParameters.getObjectiveFunctionParameters().getUnit()))
             ).toList();
             Set<PstRegulationResult> pstRegulationResults = new HashSet<>();
             for (ForkJoinTask<PstRegulationResult> task : tasks) {
@@ -81,6 +83,10 @@ public final class CastorPstRegulation {
         } finally {
             loadFlowParameters.setPhaseShifterRegulationOn(initialPhaseShifterRegulationOnValue);
         }
+    }
+
+    private static LoadFlowParameters getLoadFlowParameters(RaoParameters raoParameters) {
+        return raoParameters.hasExtension(OpenRaoSearchTreeParameters.class) ? raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters() : new LoadFlowParameters();
     }
 
     private static void updateLoadFlowParametersForPstRegulation(LoadFlowParameters loadFlowParameters) {
@@ -110,6 +116,7 @@ public final class CastorPstRegulation {
     }
 
     private static Map<String, PstRangeAction> getRangeActionPerPst(List<String> pstsToRegulate, Crac crac) {
+        // filter out preventive only range actions, as results reporting would be less relevant
         return crac.getPstRangeActions().stream()
             .filter(pstRangeAction -> pstRangeAction.getUsageRules().stream().anyMatch(usageRule -> usageRule.getInstant() == crac.getLastInstant()))
             .filter(pstRangeAction -> pstsToRegulate.contains(pstRangeAction.getNetworkElement().getId()))
@@ -120,37 +127,44 @@ public final class CastorPstRegulation {
         return Math.min(getAvailableCPUs(raoParameters), crac.getContingencies().size());
     }
 
-    private static PstRegulationResult regulatePstsForContingencyScenario(Contingency contingency, Crac crac, Set<PstRangeAction> rangeActionsToRegulate, RaoResult raoResult, LoadFlowParameters loadFlowParameters, AbstractNetworkPool networkPool) throws InterruptedException {
-        if (crac.getState(contingency, crac.getLastInstant()) == null) {
-            return new PstRegulationResult(contingency, Map.of());
+    private static PstRegulationResult regulatePstsForContingencyScenario(Contingency contingency, Crac crac, List<String> pstsToRegulate, Set<PstRangeAction> rangeActionsToRegulate, RaoResult raoResult, LoadFlowParameters loadFlowParameters, AbstractNetworkPool networkPool, Unit unit) throws InterruptedException {
+        Pair<FlowCnec, Double> mostLimitingElementAndMargin = getMostLimitingElement(contingency, crac, raoResult, unit);
+        boolean regulatePsts = scenarioNeedsRegulation(mostLimitingElementAndMargin.getKey(), mostLimitingElementAndMargin.getValue(), pstsToRegulate);
+        if (regulatePsts) {
+            logPstRegulationTriggeringReason(contingency, mostLimitingElementAndMargin.getLeft());
+            Network networkClone = networkPool.getAvailableNetwork();
+            simulateContingencyAndApplyCurativeActions(contingency, networkClone, crac, raoResult);
+            Map<PstRangeAction, Integer> initialTapPerPst = getInitialTapPerPst(rangeActionsToRegulate, networkClone);
+            Map<PstRangeAction, Integer> regulatedTapPerPst = PstRegulator.regulatePsts(networkClone, rangeActionsToRegulate, loadFlowParameters);
+            logPstRegulationResultsForContingencyScenario(contingency, initialTapPerPst, regulatedTapPerPst);
+            networkPool.releaseUsedNetwork(networkClone);
+            return new PstRegulationResult(contingency, regulatedTapPerPst);
         }
-        // TODO: regulate only if the most limiting element is one of the PSTs to regulate
-        Network networkClone = networkPool.getAvailableNetwork();
-        simulateContingencyAndApplyCurativeActions(contingency, networkClone, crac, raoResult);
-        Set<PstRangeAction> pstsRangeActionsToShift = filterOutPstsInAbutment(rangeActionsToRegulate, contingency, networkClone);
-        Map<PstRangeAction, Integer> initialTapPerPst = getInitialTapPerPst(pstsRangeActionsToShift, networkClone);
-        Map<PstRangeAction, Integer> regulatedTapPerPst = PstRegulator.regulatePsts(networkClone, pstsRangeActionsToShift, loadFlowParameters);
-        logPstRegulationResultsForContingencyScenario(contingency, initialTapPerPst, regulatedTapPerPst);
-        networkPool.releaseUsedNetwork(networkClone);
-        return new PstRegulationResult(contingency, regulatedTapPerPst);
+        return new PstRegulationResult(contingency, Map.of());
     }
 
-    private static Set<PstRangeAction> filterOutPstsInAbutment(Set<PstRangeAction> rangeActionsToRegulate, Contingency contingency, Network networkClone) {
-        Set<PstRangeAction> pstsRangeActionsToShift = new HashSet<>();
-        for (PstRangeAction pstRangeAction : rangeActionsToRegulate) {
-            if (isPstInAbutment(pstRangeAction, networkClone)) {
-                BUSINESS_LOGS.info("PST {} will not be regulated for contingency scenario {} as it is in abutment.", pstRangeAction.getNetworkElement().getId(), contingency.getId());
-            } else {
-                pstsRangeActionsToShift.add(pstRangeAction);
-            }
-        }
-        return pstsRangeActionsToShift;
+    private static Pair<FlowCnec, Double> getMostLimitingElement(Contingency contingency, Crac crac, RaoResult raoResult, Unit unit) {
+        Instant lastInstant = crac.getLastInstant();
+        Map<FlowCnec, Double> marginPerCnec = crac.getFlowCnecs().stream()
+            .filter(flowCnec -> lastInstant.equals(flowCnec.getState().getInstant()))
+            .filter(flowCnec -> flowCnec.getState().getContingency().isPresent())
+            .filter(flowCnec -> contingency.equals(flowCnec.getState().getContingency().get()))
+            .collect(Collectors.toMap(Function.identity(), flowCnec -> raoResult.getMargin(lastInstant, flowCnec, unit)));
+        Map.Entry<FlowCnec, Double> mostLimitingElementAndMargin = marginPerCnec.entrySet().stream().sorted(Map.Entry.comparingByValue()).toList().get(0);
+        return Pair.of(mostLimitingElementAndMargin.getKey(), mostLimitingElementAndMargin.getValue());
     }
 
-    private static boolean isPstInAbutment(PstRangeAction pstRangeAction, Network networkClone) {
-        PhaseTapChanger phaseTapChanger = networkClone.getTwoWindingsTransformer(pstRangeAction.getNetworkElement().getId()).getPhaseTapChanger();
-        int currentTapPosition = phaseTapChanger.getTapPosition();
-        return phaseTapChanger.getHighTapPosition() == currentTapPosition || phaseTapChanger.getLowTapPosition() == currentTapPosition;
+    /**
+     * This method determines whether the contingency scenario needs PST regulation to be performed after RAO.
+     * The conditions for PST regulation to be triggered are that the most limiting element must be defined on one of
+     * the PSTs to regulate, and it must be overloaded.
+     * @param mostLimitingElement the FlowCnec with the lowest margin
+     * @param margin the margin of the most limiting element
+     * @param pstsToRegulate all the PSTs that need to be regulated
+     * @return boolean indicating if the regulation conditions are met
+     */
+    private static boolean scenarioNeedsRegulation(FlowCnec mostLimitingElement, double margin, List<String> pstsToRegulate) {
+        return margin < 0 && pstsToRegulate.contains(mostLimitingElement.getNetworkElement().getId());
     }
 
     private static void simulateContingencyAndApplyCurativeActions(Contingency contingency, Network networkClone, Crac crac, RaoResult raoResult) {
@@ -174,6 +188,10 @@ public final class CastorPstRegulation {
 
     private static Map<PstRangeAction, Integer> getInitialTapPerPst(Set<PstRangeAction> rangeActionsToRegulate, Network networkClone) {
         return rangeActionsToRegulate.stream().collect(Collectors.toMap(Function.identity(), pstRangeAction -> networkClone.getTwoWindingsTransformer(pstRangeAction.getNetworkElement().getId()).getPhaseTapChanger().getTapPosition()));
+    }
+
+    private static void logPstRegulationTriggeringReason(Contingency contingency, FlowCnec mostLimitingElement) {
+        BUSINESS_LOGS.info("Contingency scenario {}: FlowCnec {} defined on PST {} is the limiting element, PST regulation will be performed.", contingency.getId(), mostLimitingElement.getId(), mostLimitingElement.getNetworkElement().getId());
     }
 
     private static void logPstRegulationResultsForContingencyScenario(Contingency contingency,
