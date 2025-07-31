@@ -68,14 +68,14 @@
         }
       ],
       "networkElementIdsAndKeys": {
-        "FFR1AA1 _generator": 1.0,
-        "FFR2AA1 _generator": -0.7
+        "FFR2AA1 _load": -1.0,
+        "FFR1AA1 _load": 1.0
       },
       "initialSetpoint": 0,
       "ranges": [
         {
-          "min": -300.0,
-          "max": 300.0
+          "min": -1000.0,
+          "max": 1000.0
         }
       ]
     }
