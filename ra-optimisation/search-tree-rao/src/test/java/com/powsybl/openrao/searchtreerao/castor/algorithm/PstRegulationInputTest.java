@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
@@ -30,12 +31,14 @@ class PstRegulationInputTest {
         // thresholds are properly defined on both sides
         PstRangeAction pstBeFr2 = crac.getPstRangeAction("pstBeFr2");
         PstRegulationInput pst1RegulationInput = PstRegulationInput.of(pstBeFr2, crac);
+        assertNotNull(pst1RegulationInput);
         assertEquals(TwoSides.TWO, pst1RegulationInput.limitingSide());
         assertEquals(500.0, pst1RegulationInput.limitingThreshold());
 
         // thresholds are defined only one side 1
         PstRangeAction pstBeFr3 = crac.getPstRangeAction("pstBeFr3");
         PstRegulationInput pst2RegulationInput = PstRegulationInput.of(pstBeFr3, crac);
+        assertNotNull(pst2RegulationInput);
         assertEquals(TwoSides.ONE, pst2RegulationInput.limitingSide());
         assertEquals(250.0, pst2RegulationInput.limitingThreshold());
 
