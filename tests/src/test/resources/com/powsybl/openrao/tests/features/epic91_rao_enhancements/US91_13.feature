@@ -115,3 +115,13 @@ Feature: US 91.13: PST Regulation
     And the tap of PstRangeAction "pstFr34" should be 16 after "Contingency FR 12" at "curative"
     And the tap of PstRangeAction "pstFr34" should be 16 after "Contingency FR 23" at "curative"
     And the tap of PstRangeAction "pstFr34" should be 3 after "Contingency FR 34" at "curative"
+
+  @ac @fast @rao @pst-regulation
+  Scenario: US 91.13.4: Regulation with two equivalent parallel PSTs
+    Both PSTs are put in abutment because of their symmetric behaviors.
+    Given network file is "epic91/2Nodes3ParallelLines2PSTs.uct"
+    Given crac file is "epic91/crac-91-13-4.json"
+    Given configuration file is "epic91/RaoParameters_ac_2pstsRegulation.json"
+    When I launch search_tree_rao
+    And the tap of PstRangeAction "pstBeFr2" should be 16 after "Contingency BE1 FR1 1" at "curative"
+    And the tap of PstRangeAction "pstBeFr3" should be 16 after "Contingency BE1 FR1 1" at "curative"

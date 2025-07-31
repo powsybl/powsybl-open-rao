@@ -23,6 +23,7 @@ import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParamet
 import com.powsybl.openrao.util.AbstractNetworkPool;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -123,6 +124,7 @@ public final class CastorPstRegulation {
         if (crac.getState(contingency, crac.getLastInstant()) == null) {
             return new PstRegulationResult(contingency, Map.of());
         }
+        // TODO: regulate only if the most limiting element is one of the PSTs to regulate
         Network networkClone = networkPool.getAvailableNetwork();
         simulateContingencyAndApplyCurativeActions(contingency, networkClone, crac, raoResult);
         Set<PstRangeAction> pstsRangeActionsToShift = filterOutPstsInAbutment(rangeActionsToRegulate, contingency, networkClone);
@@ -177,7 +179,7 @@ public final class CastorPstRegulation {
     private static void logPstRegulationResultsForContingencyScenario(Contingency contingency,
                                                                       Map<PstRangeAction, Integer> initialTapPerPst,
                                                                       Map<PstRangeAction, Integer> regulatedTapPerPst) {
-        List<PstRangeAction> sortedPstRangeActions = initialTapPerPst.keySet().stream().sorted().toList();
+        List<PstRangeAction> sortedPstRangeActions = initialTapPerPst.keySet().stream().sorted(Comparator.comparing(PstRangeAction::getId)).toList();
         List<String> shiftDetails = new ArrayList<>();
         sortedPstRangeActions.forEach(
             pstRangeAction -> {
