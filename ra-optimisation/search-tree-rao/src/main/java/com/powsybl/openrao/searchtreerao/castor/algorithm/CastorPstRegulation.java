@@ -134,8 +134,9 @@ public final class CastorPstRegulation {
             logPstRegulationTriggeringReason(contingency);
             Network networkClone = networkPool.getAvailableNetwork();
             simulateContingencyAndApplyCurativeActions(contingency, networkClone, crac, raoResult);
+            Set<PstRegulationInput> pstRegulationInputs = rangeActionsToRegulate.stream().map(pstRangeAction -> PstRegulationInput.of(pstRangeAction, crac)).filter(Objects::nonNull).collect(Collectors.toSet());
             Map<PstRangeAction, Integer> initialTapPerPst = getInitialTapPerPst(rangeActionsToRegulate, networkClone);
-            Map<PstRangeAction, Integer> regulatedTapPerPst = PstRegulator.regulatePsts(networkClone, rangeActionsToRegulate, loadFlowParameters);
+            Map<PstRangeAction, Integer> regulatedTapPerPst = PstRegulator.regulatePsts(pstRegulationInputs, networkClone, loadFlowParameters);
             logPstRegulationResultsForContingencyScenario(contingency, initialTapPerPst, regulatedTapPerPst);
             networkPool.releaseUsedNetwork(networkClone);
             return new PstRegulationResult(contingency, regulatedTapPerPst);

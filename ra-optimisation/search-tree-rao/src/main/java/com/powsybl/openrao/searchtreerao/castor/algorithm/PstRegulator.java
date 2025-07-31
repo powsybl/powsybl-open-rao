@@ -7,21 +7,16 @@
 
 package com.powsybl.openrao.searchtreerao.castor.algorithm;
 
-import com.powsybl.iidm.network.LoadingLimits;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.OperationalLimitsGroup;
 import com.powsybl.iidm.network.PhaseTapChanger;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
-import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -31,19 +26,17 @@ public final class PstRegulator {
     private PstRegulator() {
     }
 
-    public static Map<PstRangeAction, Integer> regulatePsts(Network network, Set<PstRangeAction> pstRangeActions, LoadFlowParameters loadFlowParameters) {
-        // TODO: use threshold from monitored FlowCNEC instead of PATL?
-        pstRangeActions.forEach(pstRangeAction -> setRegulationForPst(network, pstRangeAction));
+    public static Map<PstRangeAction, Integer> regulatePsts(Set<PstRegulationInput> pstRegulationInputs, Network network, LoadFlowParameters loadFlowParameters) {
+        pstRegulationInputs.forEach(pstRegulationInput -> setRegulationForPst(network, pstRegulationInput));
         LoadFlow.find("OpenLoadFlow").run(network, loadFlowParameters);
-        return pstRangeActions.stream().collect(Collectors.toMap(Function.identity(), pstRangeAction -> getRegulatedTap(network, pstRangeAction)));
+        return pstRegulationInputs.stream().collect(Collectors.toMap(PstRegulationInput::pstRangeAction, pstRegulationInput -> getRegulatedTap(network, pstRegulationInput.pstRangeAction())));
     }
 
-    private static void setRegulationForPst(Network network, PstRangeAction pstRangeAction) {
-        TwoWindingsTransformer twt = getTwoWindingsTransformer(network, pstRangeAction);
-        Pair<TwoSides, Double> lowestPermanentLimitAndSide = getLowestPermanentLimitAndAssociatedSide(twt);
+    private static void setRegulationForPst(Network network, PstRegulationInput pstRegulationInput) {
+        TwoWindingsTransformer twt = getTwoWindingsTransformer(network, pstRegulationInput.pstRangeAction());
         PhaseTapChanger phaseTapChanger = twt.getPhaseTapChanger();
-        phaseTapChanger.setRegulationValue(lowestPermanentLimitAndSide.getRight());
-        phaseTapChanger.setRegulationTerminal(twt.getTerminal(lowestPermanentLimitAndSide.getLeft()));
+        phaseTapChanger.setRegulationValue(pstRegulationInput.limitingThreshold());
+        phaseTapChanger.setRegulationTerminal(twt.getTerminal(pstRegulationInput.limitingSide()));
         phaseTapChanger.setRegulationMode(PhaseTapChanger.RegulationMode.CURRENT_LIMITER);
         phaseTapChanger.setTargetDeadband(Double.MAX_VALUE);
         phaseTapChanger.setRegulating(true);
@@ -56,16 +49,6 @@ public final class PstRegulator {
             throw new OpenRaoException("No two-windings transformer with id %s found in network.".formatted(pstId));
         }
         return twt;
-    }
-
-    private static Pair<TwoSides, Double> getLowestPermanentLimitAndAssociatedSide(TwoWindingsTransformer twt) {
-        Double permanentLimit1 = twt.getOperationalLimitsGroups1().stream().map(PstRegulator::getPermanentLimit).min(Double::compareTo).orElse(Double.MAX_VALUE);
-        Double permanentLimit2 = twt.getOperationalLimitsGroups2().stream().map(PstRegulator::getPermanentLimit).min(Double::compareTo).orElse(Double.MAX_VALUE);
-        return permanentLimit1 <= permanentLimit2 ? Pair.of(TwoSides.ONE, permanentLimit1) : Pair.of(TwoSides.TWO, permanentLimit2);
-    }
-
-    private static Double getPermanentLimit(OperationalLimitsGroup operationalLimitsGroup) {
-        return operationalLimitsGroup.getCurrentLimits().map(LoadingLimits::getPermanentLimit).orElse(Double.MAX_VALUE);
     }
 
     private static int getRegulatedTap(Network network, PstRangeAction pstRangeAction) {
