@@ -97,6 +97,16 @@ class CracImportExportTest {
     }
 
     @Test
+    void testImportCracErrorInjectionActionsDeserialization() throws IOException {
+        Network network = Network.read("4Nodes.uct", getClass().getResourceAsStream("/4Nodes.uct"));
+        CracCreationContext context = new JsonImport().importData(getClass().getResourceAsStream("/crac-injection-actions-error.json"), new CracCreationParameters(), network );
+        assertNotNull(context);
+        assertFalse(context.isCreationSuccessful());
+        assertNull(context.getCrac());
+        assertEquals(List.of("[ERROR] Two different injection actions can not be defined on the same network element : FFR1AA1 _generator"), context.getCreationReport().getReport());
+    }
+
+    @Test
     void explicitJsonRoundTripTest() {
         Crac crac = ExhaustiveCracCreation.create();
         Crac importedCrac = RoundTripUtil.explicitJsonRoundTrip(crac, ExhaustiveCracCreation.createAssociatedNetwork());
@@ -541,4 +551,5 @@ class CracImportExportTest {
         OpenRaoException exception = assertThrows(OpenRaoException.class, () -> new JsonImport().exists("cracWithErrors.json", CracImportExportTest.class.getResourceAsStream("/cracWithErrors.json")));
         assertEquals("JSON file is not a valid CRAC v2.5. Reasons: /instants/3/kind: does not have a value in the enumeration [\"PREVENTIVE\", \"OUTAGE\", \"AUTO\", \"CURATIVE\"]; /contingencies/1/networkElementsIds/0: integer found, string expected; /contingencies/1/networkElementsIds/1: integer found, string expected; /contingencies/2: required property 'networkElementsIds' not found", exception.getMessage());
     }
+
 }

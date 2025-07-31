@@ -15,7 +15,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 
 import java.io.IOException;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -24,10 +24,13 @@ public final class InjectionRangeActionArrayDeserializer {
     private InjectionRangeActionArrayDeserializer() {
     }
 
+    static Set<String> networkElementsUsedList;
+
     public static void deserialize(JsonParser jsonParser, String version, Crac crac, Map<String, String> networkElementsNamesPerId) throws IOException {
         if (networkElementsNamesPerId == null) {
             throw new OpenRaoException(String.format("Cannot deserialize %s before %s", JsonSerializationConstants.INJECTION_RANGE_ACTIONS, JsonSerializationConstants.NETWORK_ELEMENTS_NAME_PER_ID));
         }
+        networkElementsUsedList = new HashSet<>();
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             InjectionRangeActionAdder injectionRangeActionAdder = crac.newInjectionRangeAction();
 
@@ -54,6 +57,11 @@ public final class InjectionRangeActionArrayDeserializer {
 
         while (!jsonParser.nextToken().isStructEnd()) {
             String networkElementId = jsonParser.getCurrentName();
+            // check if an another injection action was already defined on the same network element.
+            if (networkElementsUsedList.contains(networkElementId)) {
+                throw new OpenRaoException("Two different injection actions can not be defined on the same network element : " + networkElementId);
+            }
+            networkElementsUsedList.add(networkElementId);
             jsonParser.nextToken();
             double key = jsonParser.getDoubleValue();
             if (networkElementsNamesPerId.containsKey(networkElementId)) {
