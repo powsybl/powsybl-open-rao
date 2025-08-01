@@ -88,9 +88,13 @@ public final class StandardRangeActionDeserializer {
                 standardRangeActionAdder.withGroupId(jsonParser.nextTextValue());
                 break;
             case JsonSerializationConstants.INITIAL_SETPOINT:
-                jsonParser.nextToken();
-                standardRangeActionAdder.withInitialSetpoint(jsonParser.getDoubleValue());
-                break;
+                if (JsonSerializationConstants.getPrimaryVersionNumber(version) > 2 || JsonSerializationConstants.getPrimaryVersionNumber(version) == 2 && JsonSerializationConstants.getSubVersionNumber(version) > 7) {
+                    throw new OpenRaoException("initialSetpoint field is no longer used since CRAC version 2.8, the value is now directly determined from the network");
+                } else {
+                    jsonParser.nextToken();
+                    standardRangeActionAdder.withInitialSetpoint(jsonParser.getDoubleValue());
+                    break;
+                }
             case JsonSerializationConstants.RANGES:
                 jsonParser.nextToken();
                 StandardRangeArrayDeserializer.deserialize(jsonParser, standardRangeActionAdder);

@@ -44,7 +44,7 @@ public final class JsonSerializationConstants {
     private JsonSerializationConstants() {
     }
 
-    public static final String CRAC_IO_VERSION = "2.7";
+    public static final String CRAC_IO_VERSION = "2.8";
     /*
     v1.1: addition of switchPairs
     v1.2: addition of injectionRangeAction
