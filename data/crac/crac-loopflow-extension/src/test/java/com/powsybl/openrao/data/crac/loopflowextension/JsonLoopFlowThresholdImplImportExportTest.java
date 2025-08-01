@@ -13,6 +13,7 @@ import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.impl.CracImplFactory;
+import com.powsybl.openrao.data.crac.impl.utils.NetworkImportsUtil;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
@@ -35,7 +36,7 @@ class JsonLoopFlowThresholdImplImportExportTest {
 
         crac.newFlowCnec()
                 .withId("cnec1")
-                .withNetworkElement("ne1")
+                .withNetworkElement("ne1Id")
                 .withInstant(PREVENTIVE_INSTANT_ID)
                 .newThreshold().withSide(TwoSides.ONE).withUnit(Unit.AMPERE).withMin(-500.).add()
                 .withNominalVoltage(380.)
@@ -44,7 +45,7 @@ class JsonLoopFlowThresholdImplImportExportTest {
 
         crac.newFlowCnec()
                 .withId("cnec2")
-                .withNetworkElement("ne2")
+                .withNetworkElement("ne2Id")
                 .withInstant(PREVENTIVE_INSTANT_ID)
                 .newThreshold().withSide(TwoSides.ONE).withUnit(Unit.PERCENT_IMAX).withMin(-0.3).add()
                 .withNominalVoltage(380.)
@@ -54,7 +55,7 @@ class JsonLoopFlowThresholdImplImportExportTest {
 
         crac.newFlowCnec()
                 .withId("cnec3")
-                .withNetworkElement("ne3")
+                .withNetworkElement("ne3Id")
                 .withInstant(PREVENTIVE_INSTANT_ID)
                 .newThreshold().withSide(TwoSides.ONE).withUnit(Unit.MEGAWATT).withMin(-700.).withMax(700.).add()
                 .add();
@@ -63,10 +64,13 @@ class JsonLoopFlowThresholdImplImportExportTest {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         crac.write("JSON", outputStream);
 
+        // create network
+        Network network = NetworkImportsUtil.createNetworkForJsonRetrocompatibilityTest();
+
         // import Crac
         Crac importedCrac;
         try (ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray())) {
-            importedCrac = Crac.read("crac.json", inputStream, Network.create("test", "test"));
+            importedCrac = Crac.read("crac.json", inputStream, network);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
