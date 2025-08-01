@@ -74,8 +74,8 @@
       "initialSetpoint": 0,
       "ranges": [
         {
-          "min": -300.0,
-          "max": 300.0
+          "min": -1000.0,
+          "max": 1000.0
         }
       ]
     }
