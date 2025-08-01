@@ -166,7 +166,6 @@ Feature: US 91.13: PST Regulation
     And the margin on cnec "cnecFr2Fr3Curative" after CRA should be -579.06 A
     And the margin on cnec "cnecFr1Fr3Curative" after CRA should be -559.13 A
 
-
   @ac @fast @rao @pst-regulation
   Scenario: US 91.13.5.b: Duplicate of US 91.13.5.a with PST regulation
   The line in series with the PST is overloaded, triggering PST regulation.
