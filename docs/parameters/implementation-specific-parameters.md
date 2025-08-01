@@ -392,9 +392,9 @@ These parameters are meant to be used in costly optimization only.
 
 ##### psts-to-regulate
 
-- **Expected value**: a list of string, each being the identifier of a PST in the network
-- **Default value**: empty list
-- **Usage**: List of PSTs to regulate at the end of curative optimization if a FlowCNEC defined on any of these PSTs is overloaded and is the most limiting element.
+- **Expected value**: a map with string keys (each being the identifier of a PST in the network) and string values (each being the line secured by the regulated PST)
+- **Default value**: empty map
+- **Usage**: List of PSTs to regulate at the end of curative optimization if a FlowCNEC defined on any of their associated elements is overloaded and is the most limiting element.
 
 ## Examples
 > ⚠️  **NOTE**  
@@ -509,7 +509,10 @@ These parameters are meant to be used in costly optimization only.
       "shifted-violation-threshold": 0.0
     },
     "pst-regulation-parameters" : {
-      "psts-to-regulate": [ "pst-1", "pst-2" ]
+      "psts-to-regulate": {
+        "pst-1": "line-1",
+        "pst-2": "line-2"
+      }
     }
   }
 }
