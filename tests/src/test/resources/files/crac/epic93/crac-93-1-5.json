@@ -53,8 +53,8 @@
   ],
   "injectionRangeActions": [
     {
-      "id": "redispatchingAction",
-      "name": "redispatchingAction",
+      "id": "redispatchingActionFR1FR2",
+      "name": "redispatchingActionFR1FR2",
       "operator": "FR",
       "activationCost": 10.0,
       "variationCosts": {
@@ -68,8 +68,34 @@
         }
       ],
       "networkElementIdsAndKeys": {
-        "FFR2AA1 _generator": -1.0,
-        "FFR1AA1 _generator": 1.0
+        "FFR1AA1 _generator": 1.0,
+        "FFR2AA1 _generator": -0.7
+      },
+      "initialSetpoint": 0,
+      "ranges": [
+        {
+          "min": -1000.0,
+          "max": 1000.0
+        }
+      ]
+    },
+    {
+      "id": "redispatchingActionFR3",
+      "name": "redispatchingActionFR3",
+      "operator": "FR",
+      "activationCost": 10.0,
+      "variationCosts": {
+        "up": 50.0,
+        "down": 50.0
+      },
+      "onInstantUsageRules": [
+        {
+          "instant": "preventive",
+          "usageMethod": "available"
+        }
+      ],
+      "networkElementIdsAndKeys": {
+        "FFR3AA1 _generator": 0.6
       },
       "initialSetpoint": 0,
       "ranges": [

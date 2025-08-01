@@ -541,4 +541,5 @@ class CracImportExportTest {
         OpenRaoException exception = assertThrows(OpenRaoException.class, () -> new JsonImport().exists("cracWithErrors.json", CracImportExportTest.class.getResourceAsStream("/cracWithErrors.json")));
         assertEquals("JSON file is not a valid CRAC v2.5. Reasons: /instants/3/kind: does not have a value in the enumeration [\"PREVENTIVE\", \"OUTAGE\", \"AUTO\", \"CURATIVE\"]; /contingencies/1/networkElementsIds/0: integer found, string expected; /contingencies/1/networkElementsIds/1: integer found, string expected; /contingencies/2: required property 'networkElementsIds' not found", exception.getMessage());
     }
+
 }
