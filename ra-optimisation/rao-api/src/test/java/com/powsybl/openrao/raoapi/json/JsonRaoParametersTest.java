@@ -30,6 +30,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.RAO_PARAMETERS_VERSION;
 import static org.junit.jupiter.api.Assertions.*;
@@ -125,7 +126,7 @@ class JsonRaoParametersTest extends AbstractSerDeTest {
 
         // -- PST regulation parameters
         SearchTreeRaoPstRegulationParameters pstRegulationParameters = new SearchTreeRaoPstRegulationParameters();
-        pstRegulationParameters.setPstsToRegulate(List.of("pst-1", "pst-2"));
+        pstRegulationParameters.setPstsToRegulate(Map.of("pst-1", "network-element-1", "pst-2", "network-element-2"));
         searchTreeParameters.setPstRegulationParameters(pstRegulationParameters);
 
         roundTripTest(parameters, JsonRaoParameters::write, JsonRaoParameters::read, "/RaoParametersSet_v2.json");

@@ -568,7 +568,7 @@ class CastorFullOptimizationTest {
 
         // second run with regulation: regulation shifts PST's tap to position 7 to remove the overload but worsens min margin
         SearchTreeRaoPstRegulationParameters pstRegulationParameters = new SearchTreeRaoPstRegulationParameters();
-        pstRegulationParameters.setPstsToRegulate(List.of("BBE1AA1  FFR1AA1  2"));
+        pstRegulationParameters.setPstsToRegulate(Map.of("BBE1AA1  FFR1AA1  2", "BBE1AA1  FFR1AA1  2"));
         raoParameters.getExtension(OpenRaoSearchTreeParameters.class).setPstRegulationParameters(pstRegulationParameters);
 
         network = Network.read("2Nodes3ParallelLinesPST.uct", getClass().getResourceAsStream("/network/2Nodes3ParallelLinesPST.uct"));

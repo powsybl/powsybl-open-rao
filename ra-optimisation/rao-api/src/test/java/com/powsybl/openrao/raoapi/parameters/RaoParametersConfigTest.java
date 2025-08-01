@@ -240,7 +240,7 @@ class RaoParametersConfigTest {
         Mockito.when(mockedPlatformConfig.getOptionalModuleConfig("search-tree-pst-regulation-parameters")).thenReturn(Optional.of(pstRegulationModuleConfig));
         OpenRaoSearchTreeParametersConfigLoader configLoader = new OpenRaoSearchTreeParametersConfigLoader();
         SearchTreeRaoPstRegulationParameters pstRegulationParameters = configLoader.load(mockedPlatformConfig).getPstRegulationParameters().get();
-        assertEquals(List.of("pst-1", "pst-2"), pstRegulationParameters.getPstsToRegulate());
+        assertEquals(Map.of("pst-1", "network-element-1", "pst-2", "network-element-2"), pstRegulationParameters.getPstsToRegulate());
     }
 
     @Test

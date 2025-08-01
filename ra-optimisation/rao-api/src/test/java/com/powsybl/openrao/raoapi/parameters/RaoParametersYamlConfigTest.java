@@ -118,7 +118,7 @@ class RaoParametersYamlConfigTest extends AbstractSerDeTest {
         assertEquals(0.0, searchTreeParameters.getMinMarginsParameters().get().getShiftedViolationThreshold());
 
         assertTrue(searchTreeParameters.getPstRegulationParameters().isPresent());
-        assertEquals(List.of("pst-1", "pst-2"), searchTreeParameters.getPstRegulationParameters().get().getPstsToRegulate());
+        assertEquals(Map.of("pst-1", "network-element-1", "pst-2", "network-element-2"), searchTreeParameters.getPstRegulationParameters().get().getPstsToRegulate());
 
         // Compare to json
         roundTripTest(parameters, JsonRaoParameters::write, JsonRaoParameters::read, "/RaoParameters_config_withExtensions.json");

@@ -10,29 +10,29 @@ package com.powsybl.openrao.raoapi.parameters.extensions;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
-import static com.powsybl.openrao.raoapi.RaoParametersCommons.PSTS_TO_REGULATE;
+// import static com.powsybl.openrao.raoapi.RaoParametersCommons.PSTS_TO_REGULATE;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.ST_PST_REGULATION_SECTION;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
 public class SearchTreeRaoPstRegulationParameters {
-    private static final List<String> DEFAULT_PSTS_TO_REGULATE = new ArrayList<>();
-    private List<String> pstsToRegulate = DEFAULT_PSTS_TO_REGULATE;
+    private static final Map<String, String> DEFAULT_PSTS_TO_REGULATE = new HashMap<>();
+    private Map<String, String> pstsToRegulate = DEFAULT_PSTS_TO_REGULATE;
 
-    public List<String> getPstsToRegulate() {
+    public Map<String, String> getPstsToRegulate() {
         return pstsToRegulate;
     }
 
-    public void setPstsToRegulate(List<String> pstsToRegulate) {
+    public void setPstsToRegulate(Map<String, String> pstsToRegulate) {
         this.pstsToRegulate = pstsToRegulate;
     }
 
-    public static List<String> getPstsToRegulate(RaoParameters raoParameters) {
+    public static Map<String, String> getPstsToRegulate(RaoParameters raoParameters) {
         if (raoParameters.hasExtension(OpenRaoSearchTreeParameters.class)) {
             Optional<SearchTreeRaoPstRegulationParameters> pstRegulationParameters = raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getPstRegulationParameters();
             return pstRegulationParameters.map(SearchTreeRaoPstRegulationParameters::getPstsToRegulate).orElse(DEFAULT_PSTS_TO_REGULATE);
@@ -44,7 +44,7 @@ public class SearchTreeRaoPstRegulationParameters {
         return platformConfig.getOptionalModuleConfig(ST_PST_REGULATION_SECTION).map(
             config -> {
                 SearchTreeRaoPstRegulationParameters pstRegulationParameters = new SearchTreeRaoPstRegulationParameters();
-                pstRegulationParameters.setPstsToRegulate(config.getStringListProperty(PSTS_TO_REGULATE, DEFAULT_PSTS_TO_REGULATE));
+                // TODO: pstRegulationParameters.setPstsToRegulate(config.getStringListProperty(PSTS_TO_REGULATE, DEFAULT_PSTS_TO_REGULATE));
                 return pstRegulationParameters;
             });
     }

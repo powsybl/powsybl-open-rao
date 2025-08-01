@@ -44,7 +44,7 @@ class CastorPstRegulationTest {
         ListAppender<ILoggingEvent> listAppender = getBusinessLogs();
         List<ILoggingEvent> logsList = listAppender.list;
 
-        List<String> pstsToRegulate = List.of("FFR1AA1  FFR2AA1  2", "FFR2AA1  FFR3AA1  2", "FFR3AA1  FFR4AA1  2");
+        Map<String, String> pstsToRegulate = Map.of("FFR1AA1  FFR2AA1  2", "FFR1AA1  FFR2AA1  2", "FFR2AA1  FFR3AA1  2", "FFR2AA1  FFR3AA1  2", "FFR3AA1  FFR4AA1  2", "FFR3AA1  FFR4AA1  2");
         Set<PstRegulationResult> pstRegulationResults = CastorPstRegulation.regulatePsts(pstsToRegulate, network, crac, raoParameters, raoResult);
         List<String> logMessages = logsList.stream().map(ILoggingEvent::getFormattedMessage).sorted().toList();
 

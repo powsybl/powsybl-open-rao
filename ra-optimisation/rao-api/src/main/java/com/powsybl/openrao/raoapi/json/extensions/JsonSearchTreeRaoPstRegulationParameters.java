@@ -14,7 +14,8 @@ import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParamet
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoPstRegulationParameters;
 
 import java.io.IOException;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.PSTS_TO_REGULATE;
@@ -31,11 +32,11 @@ public final class JsonSearchTreeRaoPstRegulationParameters {
         Optional<SearchTreeRaoPstRegulationParameters> pstRegulationParameters = parameters.getPstRegulationParameters();
         if (pstRegulationParameters.isPresent()) {
             jsonGenerator.writeObjectFieldStart(PST_REGULATION_PARAMETERS);
-            jsonGenerator.writeArrayFieldStart(PSTS_TO_REGULATE);
-            for (String pstToRegulate : pstRegulationParameters.get().getPstsToRegulate()) {
-                jsonGenerator.writeString(pstToRegulate);
+            jsonGenerator.writeObjectFieldStart(PSTS_TO_REGULATE);
+            for (Map.Entry<String, String> entry : pstRegulationParameters.get().getPstsToRegulate().entrySet().stream().sorted(Map.Entry.comparingByValue()).toList()) {
+                jsonGenerator.writeStringField(entry.getKey(), entry.getValue());
             }
-            jsonGenerator.writeEndArray();
+            jsonGenerator.writeEndObject();
             jsonGenerator.writeEndObject();
         }
 
@@ -47,7 +48,7 @@ public final class JsonSearchTreeRaoPstRegulationParameters {
             switch (jsonParser.getCurrentName()) {
                 case PSTS_TO_REGULATE:
                     jsonParser.nextToken();
-                    pstRegulationParameters.setPstsToRegulate(List.of(jsonParser.readValueAs(String[].class)));
+                    pstRegulationParameters.setPstsToRegulate(jsonParser.readValueAs(HashMap.class));
                     break;
                 default:
                     throw new OpenRaoException(String.format("Cannot deserialize PST regulation parameters: unexpected field in %s (%s)", PST_REGULATION_PARAMETERS, jsonParser.getCurrentName()));

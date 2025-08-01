@@ -194,7 +194,10 @@
         "shifted-violation-threshold" : 0.0
       },
       "pst-regulation-parameters" : {
-        "psts-to-regulate" : [ "pst-1", "pst-2" ]
+        "psts-to-regulate" : {
+          "pst-1" : "network-element-1",
+          "pst-2" : "network-element-2"
+        }
       }
     }
   }

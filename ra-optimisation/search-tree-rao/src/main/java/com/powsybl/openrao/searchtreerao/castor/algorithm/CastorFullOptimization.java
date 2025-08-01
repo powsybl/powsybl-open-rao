@@ -216,12 +216,12 @@ public class CastorFullOptimization {
 
             // PST regulation
             // TODO: only trigger in AC?
-            List<String> pstsToRegulate = SearchTreeRaoPstRegulationParameters.getPstsToRegulate(raoParameters);
+            Map<String, String> pstsToRegulate = SearchTreeRaoPstRegulationParameters.getPstsToRegulate(raoParameters);
             if (!pstsToRegulate.isEmpty()) {
                 BUSINESS_LOGS.info("----- PST regulation [start]");
                 network.getVariantManager().cloneVariant(INITIAL_SCENARIO, PST_REGULATION);
                 network.getVariantManager().setWorkingVariant(PST_REGULATION);
-                BUSINESS_LOGS.info("PSTs to regulate: {}", String.join(", ", pstsToRegulate));
+                BUSINESS_LOGS.info("PSTs to regulate: {}", String.join(", ", pstsToRegulate.keySet()));
                 Set<PstRegulationResult> pstRegulationResults = CastorPstRegulation.regulatePsts(pstsToRegulate, network, crac, raoParameters, mergedRaoResults);
                 postContingencyResults = mergeRaoAndPstRegulationResults(pstRegulationResults, secondPreventiveResult, postContingencyResults, prePerimeterSensitivityAnalysis);
                 mergedRaoResults = new PreventiveAndCurativesRaoResultImpl(
