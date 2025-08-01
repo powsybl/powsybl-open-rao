@@ -50,7 +50,7 @@ public class SearchTreeRaoPstRegulationParameters {
                 List<String> pstsToRegulateAndMonitoredLines = config.getStringListProperty(PSTS_TO_REGULATE, List.of());
                 Map<String, String> pstsToRegulate = new HashMap<>();
                 for (String pstToRegulateAndMonitoredLine : pstsToRegulateAndMonitoredLines) {
-                    Pattern pattern = Pattern.compile("^\\{(?<pstId>.+)}:\\{(?<monitoredLineId>.+)}$");
+                    Pattern pattern = Pattern.compile("^\\{(?<pstId>[a-zA-Z0-9_ -]+)}:\\{(?<monitoredLineId>[a-zA-Z0-9_ -]+)}$");
                     Matcher matcher = pattern.matcher(pstToRegulateAndMonitoredLine);
                     if (matcher.find()) {
                         pstsToRegulate.put(matcher.group("pstId"), matcher.group("monitoredLineId"));
