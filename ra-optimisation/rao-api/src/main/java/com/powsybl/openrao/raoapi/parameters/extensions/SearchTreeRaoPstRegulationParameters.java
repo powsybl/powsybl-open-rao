@@ -11,10 +11,13 @@ import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-// import static com.powsybl.openrao.raoapi.RaoParametersCommons.PSTS_TO_REGULATE;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.PSTS_TO_REGULATE;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.ST_PST_REGULATION_SECTION;
 
 /**
@@ -44,7 +47,16 @@ public class SearchTreeRaoPstRegulationParameters {
         return platformConfig.getOptionalModuleConfig(ST_PST_REGULATION_SECTION).map(
             config -> {
                 SearchTreeRaoPstRegulationParameters pstRegulationParameters = new SearchTreeRaoPstRegulationParameters();
-                // TODO: pstRegulationParameters.setPstsToRegulate(config.getStringListProperty(PSTS_TO_REGULATE, DEFAULT_PSTS_TO_REGULATE));
+                List<String> pstsToRegulateAndMonitoredLines = config.getStringListProperty(PSTS_TO_REGULATE, List.of());
+                Map<String, String> pstsToRegulate = new HashMap<>();
+                for (String pstToRegulateAndMonitoredLine : pstsToRegulateAndMonitoredLines) {
+                    Pattern pattern = Pattern.compile("^\\{(?<pstId>.+)}:\\{(?<monitoredLineId>.+)}$");
+                    Matcher matcher = pattern.matcher(pstToRegulateAndMonitoredLine);
+                    if (matcher.find()) {
+                        pstsToRegulate.put(matcher.group("pstId"), matcher.group("monitoredLineId"));
+                    }
+                }
+                pstRegulationParameters.setPstsToRegulate(pstsToRegulate);
                 return pstRegulationParameters;
             });
     }
