@@ -21,11 +21,10 @@ import java.util.stream.Collectors;
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
 public record PstRegulationInput(PstRangeAction pstRangeAction, TwoSides limitingSide, double limitingThreshold) {
-    public static PstRegulationInput of(PstRangeAction pstRangeAction, Crac crac) {
-        String pstId = pstRangeAction.getNetworkElement().getId();
+    public static PstRegulationInput of(PstRangeAction pstRangeAction, String monitoredNetworkElement, Crac crac) {
         Instant lastInstant = crac.getLastInstant();
         Set<FlowCnec> curativeFlowCnecs = crac.getFlowCnecs().stream()
-            .filter(flowCnec -> pstId.equals(flowCnec.getNetworkElement().getId()))
+            .filter(flowCnec -> monitoredNetworkElement.equals(flowCnec.getNetworkElement().getId()))
             .filter(flowCnec -> lastInstant.equals(flowCnec.getState().getInstant()))
             .collect(Collectors.toSet());
         if (curativeFlowCnecs.isEmpty()) {

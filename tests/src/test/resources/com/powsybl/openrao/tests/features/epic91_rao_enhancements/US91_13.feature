@@ -151,3 +151,32 @@ Feature: US 91.13: PST Regulation
     When I launch search_tree_rao
     And the tap of PstRangeAction "pstBeFr2" should be 16 after "Contingency BE1 FR1 1" at "curative"
     And the tap of PstRangeAction "pstBeFr3" should be 16 after "Contingency BE1 FR1 1" at "curative"
+
+  @ac @fast @rao
+  Scenario: US 91.13.5.a: Unsecure case with a trade-off tap position - Monitored line in series with PST
+  The PST itself is not overloaded but the line connected in series is.
+    Given network file is "epic91/3NodesPSTSeries.uct"
+    Given crac file is "epic91/crac-91-13-5.json"
+    Given configuration file is "epic91/RaoParameters_ac.json"
+    When I launch search_tree_rao
+    Then the tap of PstRangeAction "pstFr1Fr2" should be -16 in preventive
+    And the margin on cnec "cnecFr1Fr3Preventive" after PRA should be 346.79 A
+    And the tap of PstRangeAction "pstFr1Fr2" should be -7 after "Contingency FR1 FR3 3" at "curative"
+    And the worst margin is -579.06 A
+    And the margin on cnec "cnecFr2Fr3Curative" after CRA should be -579.06 A
+    And the margin on cnec "cnecFr1Fr3Curative" after CRA should be -559.13 A
+
+
+  @ac @fast @rao @pst-regulation
+  Scenario: US 91.13.5.b: Duplicate of US 91.13.5.a with PST regulation
+  The line in series with the PST is overloaded, triggering PST regulation.
+    Given network file is "epic91/3NodesPSTSeries.uct"
+    Given crac file is "epic91/crac-91-13-5.json"
+    Given configuration file is "epic91/RaoParameters_ac_pstRegulationSeries.json"
+    When I launch search_tree_rao
+    Then the tap of PstRangeAction "pstFr1Fr2" should be -16 in preventive
+    And the margin on cnec "cnecFr1Fr3Preventive" after PRA should be 346.79 A
+    And the tap of PstRangeAction "pstFr1Fr2" should be 5 after "Contingency FR1 FR3 3" at "curative"
+    And the worst margin is -1187.64 A
+    And the margin on cnec "cnecFr1Fr3Curative" after CRA should be -1187.64 A
+    And the margin on cnec "cnecFr2Fr3Curative" after CRA should be 48.36 A

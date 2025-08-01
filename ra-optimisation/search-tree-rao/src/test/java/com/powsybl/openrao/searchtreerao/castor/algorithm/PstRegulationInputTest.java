@@ -30,20 +30,20 @@ class PstRegulationInputTest {
 
         // thresholds are properly defined on both sides
         PstRangeAction pstBeFr2 = crac.getPstRangeAction("pstBeFr2");
-        PstRegulationInput pst1RegulationInput = PstRegulationInput.of(pstBeFr2, crac);
+        PstRegulationInput pst1RegulationInput = PstRegulationInput.of(pstBeFr2, "BBE1AA1  FFR1AA1  2", crac);
         assertNotNull(pst1RegulationInput);
         assertEquals(TwoSides.TWO, pst1RegulationInput.limitingSide());
         assertEquals(500.0, pst1RegulationInput.limitingThreshold());
 
         // thresholds are defined only one side 1
         PstRangeAction pstBeFr3 = crac.getPstRangeAction("pstBeFr3");
-        PstRegulationInput pst2RegulationInput = PstRegulationInput.of(pstBeFr3, crac);
+        PstRegulationInput pst2RegulationInput = PstRegulationInput.of(pstBeFr3, "BBE1AA1  FFR1AA1  3", crac);
         assertNotNull(pst2RegulationInput);
         assertEquals(TwoSides.ONE, pst2RegulationInput.limitingSide());
         assertEquals(250.0, pst2RegulationInput.limitingThreshold());
 
         // no FlowCNEC defined
         PstRangeAction pstBeFr4 = crac.getPstRangeAction("pstBeFr4");
-        assertNull(PstRegulationInput.of(pstBeFr4, crac));
+        assertNull(PstRegulationInput.of(pstBeFr4, "BBE1AA1  FFR1AA1  4", crac));
     }
 }

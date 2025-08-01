@@ -134,7 +134,7 @@ public final class CastorPstRegulation {
             logPstRegulationTriggeringReason(contingency);
             Network networkClone = networkPool.getAvailableNetwork();
             simulateContingencyAndApplyCurativeActions(contingency, networkClone, crac, raoResult);
-            Set<PstRegulationInput> pstRegulationInputs = rangeActionsToRegulate.stream().map(pstRangeAction -> PstRegulationInput.of(pstRangeAction, crac)).filter(Objects::nonNull).collect(Collectors.toSet());
+            Set<PstRegulationInput> pstRegulationInputs = rangeActionsToRegulate.stream().map(pstRangeAction -> PstRegulationInput.of(pstRangeAction, pstsToRegulate.get(pstRangeAction.getNetworkElement().getId()), crac)).filter(Objects::nonNull).collect(Collectors.toSet());
             Map<PstRangeAction, Integer> initialTapPerPst = getInitialTapPerPst(rangeActionsToRegulate, networkClone);
             Map<PstRangeAction, Integer> regulatedTapPerPst = PstRegulator.regulatePsts(pstRegulationInputs, networkClone, loadFlowParameters);
             logPstRegulationResultsForContingencyScenario(contingency, initialTapPerPst, regulatedTapPerPst);
@@ -199,6 +199,7 @@ public final class CastorPstRegulation {
     }
 
     private static void logPstRegulationTriggeringReason(Contingency contingency) {
+        // TODO: update message
         BUSINESS_LOGS.info("Contingency scenario '{}': at least one FlowCnec defined on a PST is a limiting element, PST regulation will be performed.", contingency.getId());
     }
 
