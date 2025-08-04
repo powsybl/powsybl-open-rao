@@ -55,6 +55,7 @@ import static com.powsybl.openrao.searchtreerao.castor.algorithm.AutomatonSimula
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class SearchTree {
+    private static final double EPSILON = 1e-6;
     private static final int NUMBER_LOGGED_ELEMENTS_DURING_TREE = 2;
     private static final int NUMBER_LOGGED_ELEMENTS_END_TREE = 5;
     private static final int NUMBER_LOGGED_VIRTUAL_COSTLY_ELEMENTS = 10;
@@ -432,10 +433,10 @@ public class SearchTree {
      * @return True if the stop criterion has been reached on this leaf.
      */
     private boolean stopCriterionReached(Leaf leaf) {
-        if (leaf.getVirtualCost() > 1e-6) {
+        if (leaf.getVirtualCost() > EPSILON) {
             return false;
         }
-        if (purelyVirtual && leaf.getVirtualCost() < 1e-6) {
+        if (purelyVirtual && leaf.getVirtualCost() < EPSILON) {
             TECHNICAL_LOGS.debug("Perimeter is purely virtual and virtual cost is zero. Exiting search tree.");
             return true;
         }
@@ -446,7 +447,9 @@ public class SearchTree {
      * Returns true if a given cost value satisfies the stop criterion
      */
     boolean costSatisfiesStopCriterion(double cost) {
-        if (parameters.getTreeParameters().stopCriterion().equals(TreeParameters.StopCriterion.MIN_OBJECTIVE)) {
+        if (parameters.getObjectiveFunction().costOptimization()) {
+            return cost < EPSILON;
+        } else if (parameters.getTreeParameters().stopCriterion().equals(TreeParameters.StopCriterion.MIN_OBJECTIVE)) {
             return false;
         } else if (parameters.getTreeParameters().stopCriterion().equals(TreeParameters.StopCriterion.AT_TARGET_OBJECTIVE_VALUE)) {
             return cost < parameters.getTreeParameters().targetObjectiveValue();
@@ -492,7 +495,7 @@ public class SearchTree {
      */
     private void logVirtualCostInformation(Leaf leaf, String prefix) {
         leaf.getVirtualCostNames().stream()
-                .filter(virtualCostName -> leaf.getVirtualCost(virtualCostName) > 1e-6)
+                .filter(virtualCostName -> leaf.getVirtualCost(virtualCostName) > EPSILON)
                 .forEach(virtualCostName -> logVirtualCostDetails(leaf, virtualCostName, prefix));
     }
 
