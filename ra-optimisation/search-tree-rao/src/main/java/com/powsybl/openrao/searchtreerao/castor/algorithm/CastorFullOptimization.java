@@ -214,6 +214,15 @@ public class CastorFullOptimization {
                 }
             }
 
+            // Log final results
+            if (logFinalResultsOutsideOfSecondPreventive) {
+                BUSINESS_LOGS.info("Merging preventive and post-contingency RAO results:");
+                RaoLogger.logMostLimitingElementsResults(BUSINESS_LOGS, stateTree.getBasecaseScenario(), preventiveResult, stateTree.getContingencyScenarios(), postContingencyResults, raoParameters.getObjectiveFunctionParameters().getType(), raoParameters.getObjectiveFunctionParameters().getUnit(), NUMBER_LOGGED_ELEMENTS_END_RAO);
+                RaoLogger.checkIfMostLimitingElementIsFictional(BUSINESS_LOGS, stateTree.getBasecaseScenario(), preventiveResult, stateTree.getContingencyScenarios(), postContingencyResults, raoParameters.getObjectiveFunctionParameters().getType(), raoParameters.getObjectiveFunctionParameters().getUnit());
+            }
+
+            CompletableFuture<RaoResult> raoResult = postCheckResults(mergedRaoResults, initialOutput, raoParameters.getObjectiveFunctionParameters());
+
             // PST regulation
             // TODO: only trigger in AC?
             Map<String, String> pstsToRegulate = SearchTreeRaoPstRegulationParameters.getPstsToRegulate(raoParameters);
@@ -222,9 +231,9 @@ public class CastorFullOptimization {
                 network.getVariantManager().cloneVariant(INITIAL_SCENARIO, PST_REGULATION);
                 network.getVariantManager().setWorkingVariant(PST_REGULATION);
                 BUSINESS_LOGS.info("PSTs to regulate: {}", String.join(", ", pstsToRegulate.keySet()));
-                Set<PstRegulationResult> pstRegulationResults = CastorPstRegulation.regulatePsts(pstsToRegulate, network, crac, raoParameters, mergedRaoResults);
+                Set<PstRegulationResult> pstRegulationResults = CastorPstRegulation.regulatePsts(pstsToRegulate, network, crac, raoParameters, raoResult.get());
                 postContingencyResults = mergeRaoAndPstRegulationResults(pstRegulationResults, secondPreventiveResult, postContingencyResults, prePerimeterSensitivityAnalysis);
-                mergedRaoResults = new PreventiveAndCurativesRaoResultImpl(
+                RaoResult raoResultWithRegulation = new PreventiveAndCurativesRaoResultImpl(
                     stateTree,
                     initialOutput,
                     postPreventiveResult,
@@ -234,18 +243,32 @@ public class CastorFullOptimization {
                     crac,
                     raoParameters);
                 BUSINESS_LOGS.info("----- PST regulation [end]");
+
+                double initialCost = initialOutput.getCost();
+                double initialFunctionalCost = initialOutput.getFunctionalCost();
+                double initialVirtualCost = initialOutput.getVirtualCost();
+                Instant lastInstant = crac.getLastInstant();
+                double finalCost = raoResultWithRegulation.getCost(lastInstant);
+                double finalFunctionalCost = raoResultWithRegulation.getFunctionalCost(lastInstant);
+                double finalVirtualCost = raoResultWithRegulation.getVirtualCost(lastInstant);
+
+                Map<String, Double> initialVirtualCostDetailed = getVirtualCostDetailed(initialOutput);
+                Map<String, Double> finalVirtualCostDetailed = getVirtualCostDetailed(raoResultWithRegulation, crac.getLastInstant());
+
+                // Log costs before and after RAO
+                BUSINESS_LOGS.info("Cost before RAO = {} (functional: {}, virtual: {}{}), cost after regulation = {} (functional: {}, virtual: {}{})",
+                    formatDoubleBasedOnMargin(initialCost, -initialCost), formatDoubleBasedOnMargin(initialFunctionalCost, -initialCost), formatDoubleBasedOnMargin(initialVirtualCost, -initialCost),
+                    initialVirtualCostDetailed.isEmpty() ? "" : " " + initialVirtualCostDetailed,
+                    formatDoubleBasedOnMargin(finalCost, -finalCost), formatDoubleBasedOnMargin(finalFunctionalCost, -finalCost), formatDoubleBasedOnMargin(finalVirtualCost, -finalCost),
+                    finalVirtualCostDetailed.isEmpty() ? "" : " " + finalVirtualCostDetailed);
+
+                return CompletableFuture.completedFuture(raoResultWithRegulation);
             }
 
-            // Log final results
-            if (logFinalResultsOutsideOfSecondPreventive) {
-                BUSINESS_LOGS.info("Merging preventive and post-contingency RAO results:");
-                RaoLogger.logMostLimitingElementsResults(BUSINESS_LOGS, stateTree.getBasecaseScenario(), preventiveResult, stateTree.getContingencyScenarios(), postContingencyResults, raoParameters.getObjectiveFunctionParameters().getType(), raoParameters.getObjectiveFunctionParameters().getUnit(), NUMBER_LOGGED_ELEMENTS_END_RAO);
-                RaoLogger.checkIfMostLimitingElementIsFictional(BUSINESS_LOGS, stateTree.getBasecaseScenario(), preventiveResult, stateTree.getContingencyScenarios(), postContingencyResults, raoParameters.getObjectiveFunctionParameters().getType(), raoParameters.getObjectiveFunctionParameters().getUnit());
-            }
-
-            return postCheckResults(mergedRaoResults, initialOutput, raoParameters.getObjectiveFunctionParameters());
-        } catch (RuntimeException e) {
+            return raoResult;
+        } catch (RuntimeException | ExecutionException | InterruptedException e) {
             BUSINESS_LOGS.error("{} \n {}", e.getMessage(), ExceptionUtils.getStackTrace(e));
+            Thread.currentThread().interrupt();
             return CompletableFuture.completedFuture(new FailedRaoResultImpl(String.format("RAO failed during %s : %s", currentStep, e.getMessage())));
         }
     }
