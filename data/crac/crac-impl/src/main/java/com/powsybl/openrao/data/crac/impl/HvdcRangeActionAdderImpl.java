@@ -7,6 +7,8 @@
 
 package com.powsybl.openrao.data.crac.impl;
 
+import com.powsybl.iidm.network.HvdcLine;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.data.crac.api.NetworkElement;
@@ -53,6 +55,26 @@ public class HvdcRangeActionAdderImpl extends AbstractStandardRangeActionAdder<H
 
     @Override
     public HvdcRangeAction add() {
+        runCheckBeforeAdding();
+
+        NetworkElement networkElement = this.getCrac().addNetworkElement(networkElementId, networkElementName);
+        HvdcRangeActionImpl hvdcWithRange = new HvdcRangeActionImpl(this.id, this.name, this.operator, this.usageRules, ranges, initialSetpoint, networkElement, groupId, speed, activationCost, variationCosts);
+        this.getCrac().addHvdcRangeAction(hvdcWithRange);
+        return hvdcWithRange;
+    }
+
+    @Override
+    public HvdcRangeAction addWithInitialSetpointFromNetwork(Network network) {
+        runCheckBeforeAdding();
+
+        NetworkElement networkElement = this.getCrac().addNetworkElement(networkElementId, networkElementName);
+        this.initialSetpoint = getCurrentSetpoint(network, networkElement);
+        HvdcRangeActionImpl hvdcWithRange = new HvdcRangeActionImpl(this.id, this.name, this.operator, this.usageRules, ranges, initialSetpoint, networkElement, groupId, speed, activationCost, variationCosts);
+        this.getCrac().addHvdcRangeAction(hvdcWithRange);
+        return hvdcWithRange;
+    }
+
+    private void runCheckBeforeAdding() {
         checkId();
         checkAutoUsageRules();
         assertAttributeNotNull(networkElementId, HVDC_RANGE_ACTION, "network element", "withNetworkElement()");
@@ -65,10 +87,21 @@ public class HvdcRangeActionAdderImpl extends AbstractStandardRangeActionAdder<H
         if (usageRules.isEmpty()) {
             OpenRaoLoggerProvider.BUSINESS_WARNS.warn("HvdcRangeAction {} does not contain any usage rule, by default it will never be available", id);
         }
+    }
 
-        NetworkElement networkElement = this.getCrac().addNetworkElement(networkElementId, networkElementName);
-        HvdcRangeActionImpl hvdcWithRange = new HvdcRangeActionImpl(this.id, this.name, this.operator, this.usageRules, ranges, initialSetpoint, networkElement, groupId, speed, activationCost, variationCosts);
-        this.getCrac().addHvdcRangeAction(hvdcWithRange);
-        return hvdcWithRange;
+    private HvdcLine getHvdcLine(Network network, NetworkElement networkElement) {
+        HvdcLine hvdcLine = network.getHvdcLine(networkElement.getId());
+        if (hvdcLine == null) {
+            throw new OpenRaoException(String.format("HvdcLine %s does not exist in the current network.", networkElement.getId()));
+        }
+        return hvdcLine;
+    }
+
+    public double getCurrentSetpoint(Network network, NetworkElement networkElement) {
+        if (getHvdcLine(network, networkElement).getConvertersMode() == HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER) {
+            return getHvdcLine(network, networkElement).getActivePowerSetpoint();
+        } else {
+            return -getHvdcLine(network, networkElement).getActivePowerSetpoint();
+        }
     }
 }

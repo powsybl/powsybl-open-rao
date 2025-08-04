@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.data.crac.api.rangeaction;
 
+import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.data.crac.api.range.StandardRangeAdder;
 
 /**
@@ -21,9 +22,9 @@ public interface InjectionRangeActionAdder extends StandardRangeActionAdder<Inje
 
     InjectionRangeActionAdder withNetworkElement(String networkElementId, String networkElementName);
 
-    InjectionRangeActionAdder withInitialSetpoint(double initialSetpoint);
-
     StandardRangeAdder<InjectionRangeActionAdder> newRange();
 
     InjectionRangeAction add();
+
+    InjectionRangeAction addWithInitialSetpointFromNetwork(Network network);
 }

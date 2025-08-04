@@ -7,12 +7,16 @@
 
 package com.powsybl.openrao.data.crac.impl;
 
+import com.powsybl.iidm.network.Generator;
+import com.powsybl.iidm.network.Load;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeActionAdder;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
 import static com.powsybl.openrao.data.crac.impl.AdderUtils.assertAttributeNotEmpty;
@@ -66,7 +70,26 @@ public class InjectionRangeActionAdderImpl extends AbstractStandardRangeActionAd
     }
 
     @Override
+    public InjectionRangeAction addWithInitialSetpointFromNetwork(Network network) {
+        runCheckBeforeAdding();
+
+        Map<NetworkElement, Double> neAndDk = addNetworkElements();
+        this.initialSetpoint = getCurrentSetpoint(network, neAndDk);
+        InjectionRangeAction injectionRangeAction = new InjectionRangeActionImpl(this.id, this.name, this.operator, this.groupId, this.usageRules, this.ranges, this.initialSetpoint, neAndDk, speed, activationCost, variationCosts);
+        this.getCrac().addInjectionRangeAction(injectionRangeAction);
+        return injectionRangeAction;
+    }
+
+    @Override
     public InjectionRangeAction add() {
+        runCheckBeforeAdding();
+        Map<NetworkElement, Double> neAndDk = addNetworkElements();
+        InjectionRangeAction injectionRangeAction = new InjectionRangeActionImpl(this.id, this.name, this.operator, this.groupId, this.usageRules, this.ranges, this.initialSetpoint, neAndDk, speed, activationCost, variationCosts);
+        this.getCrac().addInjectionRangeAction(injectionRangeAction);
+        return injectionRangeAction;
+    }
+
+    public void runCheckBeforeAdding() {
         checkId();
         checkAutoUsageRules();
         if (!Objects.isNull(getCrac().getRemedialAction(id))) {
@@ -84,11 +107,40 @@ public class InjectionRangeActionAdderImpl extends AbstractStandardRangeActionAd
         if (usageRules.isEmpty()) {
             BUSINESS_WARNS.warn("InjectionRangeAction {} does not contain any usage rule, by default it will never be available", id);
         }
+    }
+    public static double getCurrentSetpoint(Network network, Map<NetworkElement, Double> injectionDistributionKeys) {
+        List<Double> currentSetpoints = injectionDistributionKeys.entrySet().stream()
+            .map(entry -> getInjectionSetpoint(network, entry.getKey().getId(), entry.getValue()))
+            .collect(Collectors.toList());
 
-        Map<NetworkElement, Double> neAndDk = addNetworkElements();
-        InjectionRangeAction injectionRangeAction = new InjectionRangeActionImpl(this.id, this.name, this.operator, this.groupId, this.usageRules, this.ranges, this.initialSetpoint, neAndDk, speed, activationCost, variationCosts);
-        this.getCrac().addInjectionRangeAction(injectionRangeAction);
-        return injectionRangeAction;
+        if (currentSetpoints.size() == 1) {
+            return currentSetpoints.get(0);
+        } else {
+            Collections.sort(currentSetpoints);
+            if (Math.abs(currentSetpoints.get(0) - currentSetpoints.get(currentSetpoints.size() - 1)) < 1) {
+                return currentSetpoints.get(0);
+            } else {
+                throw new OpenRaoException(String.format("Cannot evaluate reference setpoint of InjectionRangeAction, as the injections are not distributed according to their key"));
+            }
+        }
+    }
+
+    public static double getInjectionSetpoint(Network network, String injectionId, double distributionKey) {
+        Generator generator = network.getGenerator(injectionId);
+        if (generator != null) {
+            return generator.getTargetP() / distributionKey;
+        }
+
+        Load load = network.getLoad(injectionId);
+        if (load != null) {
+            return -load.getP0() / distributionKey;
+        }
+
+        if (network.getIdentifiable(injectionId) == null) {
+            throw new OpenRaoException(String.format("Injection %s not found in network", injectionId));
+        } else {
+            throw new OpenRaoException(String.format("%s refers to an object of the network which is not an handled Injection (not a Load, not a Generator)", injectionId));
+        }
     }
 
     private void checkNetworkElements() {

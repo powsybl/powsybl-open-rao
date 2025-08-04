@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.crac.io.json.deserializers;
 
+import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants;
 import com.powsybl.openrao.data.crac.api.Crac;
@@ -24,7 +25,7 @@ public final class HvdcRangeActionArrayDeserializer {
     private HvdcRangeActionArrayDeserializer() {
     }
 
-    public static void deserialize(JsonParser jsonParser, String version, Crac crac, Map<String, String> networkElementsNamesPerId) throws IOException {
+    public static void deserialize(JsonParser jsonParser, String version, Crac crac, Map<String, String> networkElementsNamesPerId, Network network) throws IOException {
         if (networkElementsNamesPerId == null) {
             throw new OpenRaoException(String.format("Cannot deserialize %s before %s", JsonSerializationConstants.HVDC_RANGE_ACTIONS, JsonSerializationConstants.NETWORK_ELEMENTS_NAME_PER_ID));
         }
@@ -40,11 +41,7 @@ public final class HvdcRangeActionArrayDeserializer {
                     throw new OpenRaoException("Unexpected field in HvdcRangeAction: " + jsonParser.getCurrentName());
                 }
             }
-            if (JsonSerializationConstants.getPrimaryVersionNumber(version) <= 1 && JsonSerializationConstants.getSubVersionNumber(version) < 3) {
-                // initial setpoint was not exported then, set default value to 0 to avoid errors
-                hvdcRangeActionAdder.withInitialSetpoint(0);
-            }
-            hvdcRangeActionAdder.add();
+            hvdcRangeActionAdder.addWithInitialSetpointFromNetwork(network);
         }
     }
 
