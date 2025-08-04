@@ -243,6 +243,9 @@ public class CastorFullOptimization {
                     crac,
                     raoParameters);
                 BUSINESS_LOGS.info("----- PST regulation [end]");
+                BUSINESS_LOGS.info("Merging RAO and PST regulation results:");
+                RaoLogger.logMostLimitingElementsResults(BUSINESS_LOGS, stateTree.getBasecaseScenario(), preventiveResult, stateTree.getContingencyScenarios(), postContingencyResults, raoParameters.getObjectiveFunctionParameters().getType(), raoParameters.getObjectiveFunctionParameters().getUnit(), NUMBER_LOGGED_ELEMENTS_END_RAO);
+                RaoLogger.checkIfMostLimitingElementIsFictional(BUSINESS_LOGS, stateTree.getBasecaseScenario(), preventiveResult, stateTree.getContingencyScenarios(), postContingencyResults, raoParameters.getObjectiveFunctionParameters().getType(), raoParameters.getObjectiveFunctionParameters().getUnit());
                 return postCheckResults(raoResultWithRegulation, initialOutput, raoParameters.getObjectiveFunctionParameters(), false);
             }
 
