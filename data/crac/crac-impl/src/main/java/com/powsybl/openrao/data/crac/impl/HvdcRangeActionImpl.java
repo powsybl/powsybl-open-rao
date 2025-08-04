@@ -36,10 +36,10 @@ public class HvdcRangeActionImpl extends AbstractRangeAction<HvdcRangeAction> im
 
     private final NetworkElement networkElement;
     private final List<StandardRange> ranges;
-    private final double initialSetpoint;
+    private final Double initialSetpoint;
 
     HvdcRangeActionImpl(String id, String name, String operator, Set<UsageRule> usageRules, List<StandardRange> ranges,
-                        double initialSetpoint, NetworkElement networkElement, String groupId, Integer speed, Double activationCost, Map<VariationDirection, Double> variationCosts) {
+                        Double initialSetpoint, NetworkElement networkElement, String groupId, Integer speed, Double activationCost, Map<VariationDirection, Double> variationCosts) {
         super(id, name, operator, usageRules, groupId, speed, activationCost, variationCosts);
         this.networkElement = networkElement;
         this.ranges = ranges;

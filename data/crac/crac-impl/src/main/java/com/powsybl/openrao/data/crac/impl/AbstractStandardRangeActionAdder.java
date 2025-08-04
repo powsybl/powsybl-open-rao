@@ -41,12 +41,6 @@ public abstract class AbstractStandardRangeActionAdder<T extends StandardRangeAc
     }
 
     @Override
-    public T withInitialSetpoint(double initialSetpoint) {
-        this.initialSetpoint = initialSetpoint;
-        return (T) this;
-    }
-
-    @Override
     public T withVariationCost(Double variationCost, VariationDirection variationDirection) {
         this.variationCosts.put(variationDirection, variationCost);
         return (T) this;

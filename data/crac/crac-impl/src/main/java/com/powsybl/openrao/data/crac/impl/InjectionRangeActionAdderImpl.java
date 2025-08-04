@@ -84,7 +84,7 @@ public class InjectionRangeActionAdderImpl extends AbstractStandardRangeActionAd
     public InjectionRangeAction add() {
         runCheckBeforeAdding();
         Map<NetworkElement, Double> neAndDk = addNetworkElements();
-        InjectionRangeAction injectionRangeAction = new InjectionRangeActionImpl(this.id, this.name, this.operator, this.groupId, this.usageRules, this.ranges, this.initialSetpoint, neAndDk, speed, activationCost, variationCosts);
+        InjectionRangeAction injectionRangeAction = new InjectionRangeActionImpl(this.id, this.name, this.operator, this.groupId, this.usageRules, this.ranges, null, neAndDk, speed, activationCost, variationCosts);
         this.getCrac().addInjectionRangeAction(injectionRangeAction);
         return injectionRangeAction;
     }
@@ -108,6 +108,7 @@ public class InjectionRangeActionAdderImpl extends AbstractStandardRangeActionAd
             BUSINESS_WARNS.warn("InjectionRangeAction {} does not contain any usage rule, by default it will never be available", id);
         }
     }
+
     public static double getCurrentSetpoint(Network network, Map<NetworkElement, Double> injectionDistributionKeys) {
         List<Double> currentSetpoints = injectionDistributionKeys.entrySet().stream()
             .map(entry -> getInjectionSetpoint(network, entry.getKey().getId(), entry.getValue()))
