@@ -9,7 +9,6 @@ package com.powsybl.openrao.data.crac.impl;
 
 import com.powsybl.action.HvdcActionBuilder;
 import com.powsybl.commons.report.ReportNode;
-import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.range.StandardRange;
 import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
@@ -94,31 +93,19 @@ public class HvdcRangeActionImpl extends AbstractRangeAction<HvdcRangeAction> im
 
     public void logDisableHvdcAngleDroopActivePowerControl(Network network) {
         if (isAngleDroopActivePowerControlEnabled(network)) {
-            HvdcLine hvdcLine = getHvdcLine(network);
+            HvdcLine hvdcLine = HvdcRangeActionUtils.getHvdcLine(network, networkElement);
             TECHNICAL_LOGS.debug("Disabling HvdcAngleDroopActivePowerControl on HVDC line {}", hvdcLine.getId());
         }
     }
 
     public boolean isAngleDroopActivePowerControlEnabled(Network network) {
-        HvdcAngleDroopActivePowerControl hvdcAngleDroopActivePowerControl = getHvdcLine(network).getExtension(HvdcAngleDroopActivePowerControl.class);
+        HvdcAngleDroopActivePowerControl hvdcAngleDroopActivePowerControl = HvdcRangeActionUtils.getHvdcLine(network, networkElement).getExtension(HvdcAngleDroopActivePowerControl.class);
         return hvdcAngleDroopActivePowerControl != null && hvdcAngleDroopActivePowerControl.isEnabled();
-    }
-
-    private HvdcLine getHvdcLine(Network network) {
-        HvdcLine hvdcLine = network.getHvdcLine(networkElement.getId());
-        if (hvdcLine == null) {
-            throw new OpenRaoException(String.format("HvdcLine %s does not exist in the current network.", networkElement.getId()));
-        }
-        return hvdcLine;
     }
 
     @Override
     public double getCurrentSetpoint(Network network) {
-        if (getHvdcLine(network).getConvertersMode() == HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER) {
-            return getHvdcLine(network).getActivePowerSetpoint();
-        } else {
-            return -getHvdcLine(network).getActivePowerSetpoint();
-        }
+        return HvdcRangeActionUtils.getCurrentSetpoint(network, networkElement);
     }
 
     @Override

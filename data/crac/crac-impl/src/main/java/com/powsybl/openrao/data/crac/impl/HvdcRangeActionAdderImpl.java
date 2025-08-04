@@ -68,7 +68,7 @@ public class HvdcRangeActionAdderImpl extends AbstractStandardRangeActionAdder<H
         runCheckBeforeAdding();
 
         NetworkElement networkElement = this.getCrac().addNetworkElement(networkElementId, networkElementName);
-        this.initialSetpoint = getCurrentSetpoint(network, networkElement);
+        this.initialSetpoint = HvdcRangeActionUtils.getCurrentSetpoint(network, networkElement);
         HvdcRangeActionImpl hvdcWithRange = new HvdcRangeActionImpl(this.id, this.name, this.operator, this.usageRules, ranges, initialSetpoint, networkElement, groupId, speed, activationCost, variationCosts);
         this.getCrac().addHvdcRangeAction(hvdcWithRange);
         return hvdcWithRange;
