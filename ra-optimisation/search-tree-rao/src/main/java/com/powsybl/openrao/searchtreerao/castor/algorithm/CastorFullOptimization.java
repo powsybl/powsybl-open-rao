@@ -192,7 +192,6 @@ public class CastorFullOptimization {
                         globalSecondPreventiveResult.secondPreventiveRaoResult().perimeterResult(),
                         globalSecondPreventiveResult.secondPreventiveRaoResult().postPraSensitivityAnalysisOutput()
                     );
-                    postContingencyResults = globalSecondPreventiveResult.postContingencyResults();
                 }
                 RaoResult secondPreventiveRaoResults = globalSecondPreventiveResult.hasFailed() ?
                     new FailedRaoResultImpl(globalSecondPreventiveResult.errorMessage()) :
@@ -206,6 +205,7 @@ public class CastorFullOptimization {
                         crac,
                         raoParameters);
                 if (secondPreventiveImprovesResults(secondPreventiveRaoResults, mergedRaoResults)) {
+                    postContingencyResults = globalSecondPreventiveResult.postContingencyResults();
                     mergedRaoResults = secondPreventiveRaoResults;
                     mergedRaoResults.setExecutionDetails(OptimizationStepsExecuted.SECOND_PREVENTIVE_IMPROVED_FIRST);
                     logFinalResultsOutsideOfSecondPreventive = false;
