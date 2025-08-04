@@ -562,6 +562,7 @@ class CastorFullOptimizationTest {
         // first run without regulation: min margin is maximized by setting PST on tap -2 even though PSt is overloaded
         // but not seen by the RAO because it has no associated FlowCNEC
         RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
+        assertEquals(690.23, raoResult.getCost(crac.getLastInstant()), 1e-2);
         assertEquals(-2, raoResult.getOptimizedTapOnState(curativeState, pstRangeAction));
         assertEquals(-676.38, raoResult.getMargin(curativeInstant, curativeCnecOnLine, Unit.AMPERE), 1e-2);
         assertEquals(-690.23, raoResult.getMargin(curativeInstant, curativeCnecOnPst, Unit.AMPERE), 1e-2);
@@ -575,6 +576,7 @@ class CastorFullOptimizationTest {
         raoInput = RaoInput.build(network, crac).build(); // reload RAO inputs to avoid issues on existing variants
 
         RaoResult raoResultWithRegulation = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
+        assertEquals(1382.77, raoResultWithRegulation.getCost(crac.getLastInstant()), 1e-2);
         assertEquals(7, raoResultWithRegulation.getOptimizedTapOnState(curativeState, pstRangeAction));
         assertEquals(-1382.77, raoResultWithRegulation.getMargin(curativeInstant, curativeCnecOnLine, Unit.AMPERE), 1e-2);
         assertEquals(15.49, raoResultWithRegulation.getMargin(curativeInstant, curativeCnecOnPst, Unit.AMPERE), 1e-2);

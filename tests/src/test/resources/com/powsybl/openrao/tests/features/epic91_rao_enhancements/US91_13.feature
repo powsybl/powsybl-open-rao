@@ -16,6 +16,7 @@ Feature: US 91.13: PST Regulation
     Then the tap of PstRangeAction "pstBeFr2" should be -16 in preventive
     And the margin on cnec "cnecBeFr1Preventive" after PRA should be 579.65 A
     And the tap of PstRangeAction "pstBeFr2" should be -2 after "Contingency BE1 FR1 3" at "curative"
+    And the value of the objective function after CRA should be 690.23
     And the worst margin is -690.23 A
     And the margin on cnec "cnecBeFr2Curative" after CRA should be -690.23 A
     And the margin on cnec "cnecBeFr1Curative" after CRA should be -676.38 A
@@ -32,6 +33,7 @@ Feature: US 91.13: PST Regulation
     Then the tap of PstRangeAction "pstBeFr2" should be -16 in preventive
     And the margin on cnec "cnecBeFr1Preventive" after PRA should be 579.65 A
     And the tap of PstRangeAction "pstBeFr2" should be 7 after "Contingency BE1 FR1 3" at "curative"
+    And the value of the objective function after CRA should be 1382.77
     And the worst margin is -1382.77 A
     And the margin on cnec "cnecBeFr1Curative" after CRA should be -1382.77 A
     And the margin on cnec "cnecBeFr2Curative" after CRA should be 15.49 A
@@ -47,6 +49,7 @@ Feature: US 91.13: PST Regulation
     Then the tap of PstRangeAction "pstBeFr2" should be -16 in preventive
     And the margin on cnec "cnecBeFr1Preventive" after PRA should be 1479.65 A
     And the tap of PstRangeAction "pstBeFr2" should be 4 after "Contingency BE1 FR1 3" at "curative"
+    And the value of the objective function after CRA should be 247.23
     And the worst margin is -247.23 A
     And the margin on cnec "cnecBeFr1Curative" after CRA should be -247.23 A
     And the margin on cnec "cnecBeFr2Curative" after CRA should be -219.56 A
@@ -63,6 +66,7 @@ Feature: US 91.13: PST Regulation
     Then the tap of PstRangeAction "pstBeFr2" should be -16 in preventive
     And the margin on cnec "cnecBeFr1Preventive" after PRA should be 1479.65 A
     And the tap of PstRangeAction "pstBeFr2" should be 4 after "Contingency BE1 FR1 3" at "curative"
+    And the value of the objective function after CRA should be 247.23
     And the worst margin is -247.23 A
     And the margin on cnec "cnecBeFr1Curative" after CRA should be -247.23 A
     And the margin on cnec "cnecBeFr2Curative" after CRA should be -219.56 A
@@ -104,6 +108,9 @@ Feature: US 91.13: PST Regulation
     And the margin on cnec "cnecFr34PstCurative - Co12" after CRA should be -444.08 A
     And the margin on cnec "cnecFr34PstCurative - Co23" after CRA should be -444.08 A
     And the margin on cnec "cnecFr34PstCurative - Co34" after CRA should be 5.78 A
+    # Overall
+    And the value of the objective function after CRA should be 758.18
+    And the worst margin is -758.18 A
 
   @ac @fast @rao @pst-regulation
   Scenario: US 91.13.3.b: Duplicate of US 91.13.3.a with PST regulation
@@ -139,6 +146,9 @@ Feature: US 91.13: PST Regulation
     And the margin on cnec "cnecFr34PstCurative - Co12" after CRA should be 78.98 A
     And the margin on cnec "cnecFr34PstCurative - Co23" after CRA should be 78.98 A
     And the margin on cnec "cnecFr34PstCurative - Co34" after CRA should be 5.78 A
+    # Overall
+    And the value of the objective function after CRA should be 758.18
+    And the worst margin is -758.18 A
 
   @ac @fast @rao @pst-regulation
   Scenario: US 91.13.4: Regulation with two equivalent parallel PSTs
@@ -162,6 +172,7 @@ Feature: US 91.13: PST Regulation
     Then the tap of PstRangeAction "pstFr1Fr2" should be -16 in preventive
     And the margin on cnec "cnecFr1Fr3Preventive" after PRA should be 346.79 A
     And the tap of PstRangeAction "pstFr1Fr2" should be -7 after "Contingency FR1 FR3 3" at "curative"
+    And the value of the objective function after CRA should be 579.06
     And the worst margin is -579.06 A
     And the margin on cnec "cnecFr2Fr3Curative" after CRA should be -579.06 A
     And the margin on cnec "cnecFr1Fr3Curative" after CRA should be -559.13 A
@@ -176,6 +187,7 @@ Feature: US 91.13: PST Regulation
     Then the tap of PstRangeAction "pstFr1Fr2" should be -16 in preventive
     And the margin on cnec "cnecFr1Fr3Preventive" after PRA should be 346.79 A
     And the tap of PstRangeAction "pstFr1Fr2" should be 5 after "Contingency FR1 FR3 3" at "curative"
+    And the value of the objective function after CRA should be 1187.64
     And the worst margin is -1187.64 A
     And the margin on cnec "cnecFr1Fr3Curative" after CRA should be -1187.64 A
     And the margin on cnec "cnecFr2Fr3Curative" after CRA should be 48.36 A
