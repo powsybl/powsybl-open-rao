@@ -44,7 +44,7 @@ class PstRegulatorTest {
         Mockito.when(networkElement.getId()).thenReturn("BBE1AA1  FFR1AA1  2");
         PstRangeAction pstRangeAction = Mockito.mock(PstRangeAction.class);
         Mockito.when(pstRangeAction.getNetworkElement()).thenReturn(networkElement);
-        Map<PstRangeAction, Integer> regulatedTapPerPst = PstRegulator.regulatePsts(Set.of(new PstRegulationInput(pstRangeAction, TwoSides.ONE, 500.0)), network, loadFlowParameters);
+        Map<PstRangeAction, Integer> regulatedTapPerPst = PstRegulator.regulatePsts(Set.of(new ElementaryPstRegulationInput(pstRangeAction, TwoSides.ONE, 500.0)), network, loadFlowParameters);
         // PATL of PST is 500 A; tap must be in range [3; 15]
         assertEquals(Map.of(pstRangeAction, 3), regulatedTapPerPst);
     }
@@ -57,7 +57,7 @@ class PstRegulatorTest {
         Mockito.when(networkElement.getId()).thenReturn("BBE1AA1  FFR1AA1  2");
         PstRangeAction pstRangeAction = Mockito.mock(PstRangeAction.class);
         Mockito.when(pstRangeAction.getNetworkElement()).thenReturn(networkElement);
-        Map<PstRangeAction, Integer> regulatedTapPerPst = PstRegulator.regulatePsts(Set.of(new PstRegulationInput(pstRangeAction, TwoSides.ONE, 500.0)), network, loadFlowParameters);
+        Map<PstRangeAction, Integer> regulatedTapPerPst = PstRegulator.regulatePsts(Set.of(new ElementaryPstRegulationInput(pstRangeAction, TwoSides.ONE, 500.0)), network, loadFlowParameters);
         // PATL of PST is 500 A; tap must be in range [3; 15]
         assertEquals(Map.of(pstRangeAction, 8), regulatedTapPerPst);
     }

@@ -10,6 +10,8 @@ package com.powsybl.openrao.searchtreerao.castor.algorithm;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.InstantKind;
+import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import org.junit.jupiter.api.Test;
 
@@ -22,28 +24,29 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-class PstRegulationInputTest {
+class ElementaryPstRegulationInputTest {
     @Test
     void testRetrieveLimitingThresholdInCrac() throws IOException {
         Network network = Network.read("2Nodes4ParallelLines3PSTs.uct", getClass().getResourceAsStream("/network/2Nodes4ParallelLines3PSTs.uct"));
         Crac crac = Crac.read("crac-3-psts.json", getClass().getResourceAsStream("/crac/crac-3-psts.json"), network);
+        State state = crac.getState("Contingency BE1 FR1 1", crac.getInstant(InstantKind.CURATIVE));
 
         // thresholds are properly defined on both sides
         PstRangeAction pstBeFr2 = crac.getPstRangeAction("pstBeFr2");
-        PstRegulationInput pst1RegulationInput = PstRegulationInput.of(pstBeFr2, "BBE1AA1  FFR1AA1  2", crac);
+        ElementaryPstRegulationInput pst1RegulationInput = ElementaryPstRegulationInput.of(pstBeFr2, "BBE1AA1  FFR1AA1  2", state, crac);
         assertNotNull(pst1RegulationInput);
         assertEquals(TwoSides.TWO, pst1RegulationInput.limitingSide());
         assertEquals(500.0, pst1RegulationInput.limitingThreshold());
 
         // thresholds are defined only one side 1
         PstRangeAction pstBeFr3 = crac.getPstRangeAction("pstBeFr3");
-        PstRegulationInput pst2RegulationInput = PstRegulationInput.of(pstBeFr3, "BBE1AA1  FFR1AA1  3", crac);
+        ElementaryPstRegulationInput pst2RegulationInput = ElementaryPstRegulationInput.of(pstBeFr3, "BBE1AA1  FFR1AA1  3", state, crac);
         assertNotNull(pst2RegulationInput);
         assertEquals(TwoSides.ONE, pst2RegulationInput.limitingSide());
         assertEquals(250.0, pst2RegulationInput.limitingThreshold());
 
         // no FlowCNEC defined
         PstRangeAction pstBeFr4 = crac.getPstRangeAction("pstBeFr4");
-        assertNull(PstRegulationInput.of(pstBeFr4, "BBE1AA1  FFR1AA1  4", crac));
+        assertNull(ElementaryPstRegulationInput.of(pstBeFr4, "BBE1AA1  FFR1AA1  4", state, crac));
     }
 }

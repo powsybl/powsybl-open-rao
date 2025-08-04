@@ -26,17 +26,17 @@ public final class PstRegulator {
     private PstRegulator() {
     }
 
-    public static Map<PstRangeAction, Integer> regulatePsts(Set<PstRegulationInput> pstRegulationInputs, Network network, LoadFlowParameters loadFlowParameters) {
-        pstRegulationInputs.forEach(pstRegulationInput -> setRegulationForPst(network, pstRegulationInput));
+    public static Map<PstRangeAction, Integer> regulatePsts(Set<ElementaryPstRegulationInput> elementaryPstRegulationInputs, Network network, LoadFlowParameters loadFlowParameters) {
+        elementaryPstRegulationInputs.forEach(elementaryPstRegulationInput -> setRegulationForPst(network, elementaryPstRegulationInput));
         LoadFlow.find("OpenLoadFlow").run(network, loadFlowParameters);
-        return pstRegulationInputs.stream().collect(Collectors.toMap(PstRegulationInput::pstRangeAction, pstRegulationInput -> getRegulatedTap(network, pstRegulationInput.pstRangeAction())));
+        return elementaryPstRegulationInputs.stream().collect(Collectors.toMap(ElementaryPstRegulationInput::pstRangeAction, pstRegulationInput -> getRegulatedTap(network, pstRegulationInput.pstRangeAction())));
     }
 
-    private static void setRegulationForPst(Network network, PstRegulationInput pstRegulationInput) {
-        TwoWindingsTransformer twt = getTwoWindingsTransformer(network, pstRegulationInput.pstRangeAction());
+    private static void setRegulationForPst(Network network, ElementaryPstRegulationInput elementaryPstRegulationInput) {
+        TwoWindingsTransformer twt = getTwoWindingsTransformer(network, elementaryPstRegulationInput.pstRangeAction());
         PhaseTapChanger phaseTapChanger = twt.getPhaseTapChanger();
-        phaseTapChanger.setRegulationValue(pstRegulationInput.limitingThreshold());
-        phaseTapChanger.setRegulationTerminal(twt.getTerminal(pstRegulationInput.limitingSide()));
+        phaseTapChanger.setRegulationValue(elementaryPstRegulationInput.limitingThreshold());
+        phaseTapChanger.setRegulationTerminal(twt.getTerminal(elementaryPstRegulationInput.limitingSide()));
         phaseTapChanger.setRegulationMode(PhaseTapChanger.RegulationMode.CURRENT_LIMITER);
         phaseTapChanger.setTargetDeadband(Double.MAX_VALUE);
         phaseTapChanger.setRegulating(true);
