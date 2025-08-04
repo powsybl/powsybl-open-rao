@@ -14,6 +14,7 @@ import com.powsybl.openloadflow.OpenLoadFlowParameters;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.Identifiable;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.State;
@@ -23,7 +24,6 @@ import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.util.AbstractNetworkPool;
-import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -31,6 +31,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinTask;
@@ -128,51 +129,39 @@ public final class CastorPstRegulation {
     }
 
     private static PstRegulationResult regulatePstsForContingencyScenario(Contingency contingency, Crac crac, Map<String, String> pstsToRegulate, Set<PstRangeAction> rangeActionsToRegulate, RaoResult raoResult, LoadFlowParameters loadFlowParameters, AbstractNetworkPool networkPool, Unit unit) throws InterruptedException {
-        Pair<Set<FlowCnec>, Double> mostLimitingElementsAndMargin = getMostLimitingElements(contingency, crac, raoResult, unit);
-        boolean regulatePsts = scenarioNeedsRegulation(mostLimitingElementsAndMargin.getKey(), mostLimitingElementsAndMargin.getValue(), new HashSet<>(pstsToRegulate.values()));
-        if (regulatePsts) {
-            logPstRegulationTriggeringReason(contingency);
+        Optional<FlowCnec> mostLimitingElement = getMostLimitingElementProtectedByPst(contingency, crac, raoResult, unit, new HashSet<>(pstsToRegulate.values()));
+        if (mostLimitingElement.isPresent()) {
             Network networkClone = networkPool.getAvailableNetwork();
             simulateContingencyAndApplyCurativeActions(contingency, networkClone, crac, raoResult);
             Set<PstRegulationInput> pstRegulationInputs = rangeActionsToRegulate.stream().map(pstRangeAction -> PstRegulationInput.of(pstRangeAction, pstsToRegulate.get(pstRangeAction.getNetworkElement().getId()), crac)).filter(Objects::nonNull).collect(Collectors.toSet());
             Map<PstRangeAction, Integer> initialTapPerPst = getInitialTapPerPst(rangeActionsToRegulate, networkClone);
             Map<PstRangeAction, Integer> regulatedTapPerPst = PstRegulator.regulatePsts(pstRegulationInputs, networkClone, loadFlowParameters);
-            logPstRegulationResultsForContingencyScenario(contingency, initialTapPerPst, regulatedTapPerPst);
+            logPstRegulationResultsForContingencyScenario(contingency, initialTapPerPst, regulatedTapPerPst, mostLimitingElement.get());
             networkPool.releaseUsedNetwork(networkClone);
             return new PstRegulationResult(contingency, regulatedTapPerPst);
         }
         return new PstRegulationResult(contingency, Map.of());
     }
 
-    private static Pair<Set<FlowCnec>, Double> getMostLimitingElements(Contingency contingency, Crac crac, RaoResult raoResult, Unit unit) {
+    private static Optional<FlowCnec> getMostLimitingElementProtectedByPst(Contingency contingency, Crac crac, RaoResult raoResult, Unit unit, Set<String> linesInSeriesWithPst) {
         Instant lastInstant = crac.getLastInstant();
-        Map<FlowCnec, Double> marginPerCnec = crac.getFlowCnecs().stream()
+        Map<FlowCnec, Double> overloadedElementsAndMargin = crac.getFlowCnecs().stream()
             .filter(flowCnec -> lastInstant.equals(flowCnec.getState().getInstant()))
             .filter(flowCnec -> flowCnec.getState().getContingency().isPresent())
             .filter(flowCnec -> contingency.equals(flowCnec.getState().getContingency().get()))
+            .filter(flowCnec -> raoResult.getMargin(lastInstant, flowCnec, unit) < 0)
             .collect(Collectors.toMap(Function.identity(), flowCnec -> raoResult.getMargin(lastInstant, flowCnec, unit)));
-        if (marginPerCnec.isEmpty()) {
-            return Pair.of(Set.of(), Double.MAX_VALUE);
+        if (overloadedElementsAndMargin.isEmpty()) {
+            return Optional.empty();
         }
         // handle the situation when the minimal margin is common to several elements
-        List<Map.Entry<FlowCnec, Double>> sortedMargins = marginPerCnec.entrySet().stream().sorted(Map.Entry.comparingByValue()).toList();
+        List<Map.Entry<FlowCnec, Double>> sortedMargins = overloadedElementsAndMargin.entrySet().stream().sorted(Map.Entry.comparingByValue()).toList();
         double minMargin = sortedMargins.get(0).getValue();
         Set<FlowCnec> limitingElements = new HashSet<>();
         sortedMargins.stream().filter(entry -> entry.getValue() == minMargin).forEach(entry -> limitingElements.add(entry.getKey()));
-        return Pair.of(limitingElements, minMargin);
-    }
-
-    /**
-     * This method determines whether the contingency scenario needs PST regulation to be performed after RAO.
-     * The conditions for PST regulation to be triggered are that the most limiting element must be defined on one of
-     * the PSTs to regulate, and it must be overloaded.
-     * @param mostLimitingElements the FlowCnecs with the lowest margin
-     * @param margin the margin of the most limiting element
-     * @param linesInSeriesWithRegulatedPsts all the lines monitored by regulated PSTs
-     * @return boolean indicating if the regulation conditions are met
-     */
-    private static boolean scenarioNeedsRegulation(Set<FlowCnec> mostLimitingElements, double margin, Set<String> linesInSeriesWithRegulatedPsts) {
-        return margin < 0 && mostLimitingElements.stream().anyMatch(limitingElement -> linesInSeriesWithRegulatedPsts.contains(limitingElement.getNetworkElement().getId()));
+        return limitingElements.stream()
+            .filter(flowCnec -> linesInSeriesWithPst.contains(flowCnec.getNetworkElement().getId()))
+            .min(Comparator.comparing(Identifiable::getId));
     }
 
     private static void simulateContingencyAndApplyCurativeActions(Contingency contingency, Network networkClone, Crac crac, RaoResult raoResult) {
@@ -198,14 +187,10 @@ public final class CastorPstRegulation {
         return rangeActionsToRegulate.stream().collect(Collectors.toMap(Function.identity(), pstRangeAction -> networkClone.getTwoWindingsTransformer(pstRangeAction.getNetworkElement().getId()).getPhaseTapChanger().getTapPosition()));
     }
 
-    private static void logPstRegulationTriggeringReason(Contingency contingency) {
-        // TODO: update message
-        BUSINESS_LOGS.info("Contingency scenario '{}': at least one FlowCnec defined on a PST is a limiting element, PST regulation will be performed.", contingency.getId());
-    }
-
     private static void logPstRegulationResultsForContingencyScenario(Contingency contingency,
                                                                       Map<PstRangeAction, Integer> initialTapPerPst,
-                                                                      Map<PstRangeAction, Integer> regulatedTapPerPst) {
+                                                                      Map<PstRangeAction, Integer> regulatedTapPerPst,
+                                                                      FlowCnec mostLimitingElement) {
         List<PstRangeAction> sortedPstRangeActions = initialTapPerPst.keySet().stream().sorted(Comparator.comparing(PstRangeAction::getId)).toList();
         List<String> shiftDetails = new ArrayList<>();
         sortedPstRangeActions.forEach(
@@ -218,7 +203,7 @@ public final class CastorPstRegulation {
             }
         );
         if (!shiftDetails.isEmpty()) {
-            BUSINESS_LOGS.info("PST regulation for contingency scenario '%s': %s".formatted(contingency.getId(), String.join(", ", shiftDetails)));
+            BUSINESS_LOGS.info("FlowCNEC '{}' of contingency scenario '{}' is overloaded and is the most limiting element, PST regulation has been triggered: {}", mostLimitingElement.getId(), contingency.getName().orElse(contingency.getId()), String.join(", ", shiftDetails));
         }
     }
 }
