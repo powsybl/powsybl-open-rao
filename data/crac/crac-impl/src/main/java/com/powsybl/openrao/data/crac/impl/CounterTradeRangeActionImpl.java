@@ -55,7 +55,7 @@ public class CounterTradeRangeActionImpl extends AbstractRangeAction<CounterTrad
     }
 
     @Override
-    public double getInitialSetpoint() {
+    public Double getInitialSetpoint() {
         return initialSetpoint;
     }
 

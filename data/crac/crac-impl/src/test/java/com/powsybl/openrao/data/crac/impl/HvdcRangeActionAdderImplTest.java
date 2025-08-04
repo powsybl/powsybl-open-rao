@@ -73,7 +73,7 @@ class HvdcRangeActionAdderImplTest {
         assertEquals(1, crac.getNetworkElements().size());
         assertNotNull(crac.getNetworkElement(networkElementId));
         // by default if not read from the network the initial setpoint is 0.
-        assertEquals(0.0, hvdcRangeAction.getInitialSetpoint());
+        assertEquals(null, hvdcRangeAction.getInitialSetpoint());
     }
 
     @Test

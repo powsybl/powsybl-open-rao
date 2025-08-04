@@ -68,7 +68,7 @@ public class InjectionRangeActionImpl extends AbstractRangeAction<InjectionRange
     }
 
     @Override
-    public double getInitialSetpoint() {
+    public Double getInitialSetpoint() {
         return initialSetpoint;
     }
 

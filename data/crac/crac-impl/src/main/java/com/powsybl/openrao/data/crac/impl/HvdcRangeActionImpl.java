@@ -72,7 +72,7 @@ public class HvdcRangeActionImpl extends AbstractRangeAction<HvdcRangeAction> im
     }
 
     @Override
-    public double getInitialSetpoint() {
+    public Double getInitialSetpoint() {
         return initialSetpoint;
     }
 
