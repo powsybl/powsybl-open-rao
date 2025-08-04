@@ -96,6 +96,16 @@ public final class NetworkImportsUtil {
             .setConverterStationId1("C1")
             .setConverterStationId2("C2")
             .add();
+        network.newHvdcLine()
+            .setId("hvdc")
+            .setR(1.0)
+            .setConvertersMode(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER)
+            .setNominalV(400)
+            .setActivePowerSetpoint(500)
+            .setMaxP(700)
+            .setConverterStationId1("C1")
+            .setConverterStationId2("C2")
+            .add();
     }
 
     public static void addDanglingLine(Network network) {
