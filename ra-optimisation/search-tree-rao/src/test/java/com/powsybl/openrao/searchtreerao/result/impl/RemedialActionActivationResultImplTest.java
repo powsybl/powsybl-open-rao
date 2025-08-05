@@ -71,6 +71,7 @@ class RemedialActionActivationResultImplTest {
 
         injectionRangeAction1 = crac.newInjectionRangeAction()
             .withId("injection-range-action-1")
+            .withInitialSetpoint(50d)
             .withNetworkElementAndKey(1d, "generator")
             .newRange()
             .withMin(0d)
@@ -80,6 +81,7 @@ class RemedialActionActivationResultImplTest {
 
         injectionRangeAction2 = crac.newInjectionRangeAction()
             .withId("injection-range-action-2")
+            .withInitialSetpoint(25d)
             .withNetworkElementAndKey(1d, "load")
             .newRange()
             .withMin(10d)
@@ -89,6 +91,7 @@ class RemedialActionActivationResultImplTest {
 
         hvdcRangeAction = crac.newHvdcRangeAction()
             .withId("hvdc-range-action")
+            .withInitialSetpoint(0d)
             .withNetworkElement("hvdc")
             .newRange()
             .withMin(-1000d)

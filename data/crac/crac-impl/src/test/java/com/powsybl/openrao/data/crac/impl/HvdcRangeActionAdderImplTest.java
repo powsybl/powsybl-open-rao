@@ -7,8 +7,6 @@
 
 package com.powsybl.openrao.data.crac.impl;
 
-import com.powsybl.iidm.network.HvdcLine;
-import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.networkaction.ActionType;
@@ -18,12 +16,10 @@ import com.powsybl.openrao.data.crac.api.rangeaction.VariationDirection;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
@@ -72,66 +68,23 @@ class HvdcRangeActionAdderImplTest {
         assertEquals(1, hvdcRangeAction.getUsageRules().size());
         assertEquals(1, crac.getNetworkElements().size());
         assertNotNull(crac.getNetworkElement(networkElementId));
-        // by default if not read from the network the initial setpoint is 0.
-        assertEquals(null, hvdcRangeAction.getInitialSetpoint());
-    }
-
-    @Test
-    void testAddWithInitialSetpointFromNetwork() {
-        Network network = Mockito.mock(Network.class);
-        HvdcLine hvdcLine = Mockito.mock(HvdcLine.class);
-        when(network.getHvdcLine(networkElementId)).thenReturn(hvdcLine);
-        when(hvdcLine.getActivePowerSetpoint()).thenReturn(50.0);
-        when(hvdcLine.getConvertersMode()).thenReturn(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER);
-
-        HvdcRangeAction hvdcRangeAction = crac.newHvdcRangeAction()
-            .withId("id1")
-            .withOperator("BE")
-            .withNetworkElement(networkElementId)
-            .withGroupId("groupId1")
-            .withActivationCost(100d)
-            .withVariationCost(500d, VariationDirection.UP)
-            .withVariationCost(800d, VariationDirection.DOWN)
-            .newRange().withMin(-5).withMax(10).add()
-            .newOnInstantUsageRule()
-            .withInstant(PREVENTIVE_INSTANT_ID)
-            .withUsageMethod(UsageMethod.AVAILABLE)
-            .add()
-            .addWithInitialSetpointFromNetwork(network);
-
-        assertEquals(1, crac.getRangeActions().size());
-        assertEquals(networkElementId, hvdcRangeAction.getNetworkElement().getId());
-        assertEquals(Optional.of(100d), hvdcRangeAction.getActivationCost());
-        assertEquals(Optional.of(500d), hvdcRangeAction.getVariationCost(VariationDirection.UP));
-        assertEquals(Optional.of(800d), hvdcRangeAction.getVariationCost(VariationDirection.DOWN));
-        assertEquals("BE", hvdcRangeAction.getOperator());
-        assertEquals(1, hvdcRangeAction.getRanges().size());
-        assertEquals(1, hvdcRangeAction.getUsageRules().size());
-        assertEquals(1, crac.getNetworkElements().size());
-        assertNotNull(crac.getNetworkElement(networkElementId));
-        // by default if not read from the network the initial setpoint is 0.
-        assertEquals(50.0, hvdcRangeAction.getInitialSetpoint());
     }
 
     @Test
     void testAddAuto() {
-        Network network = Mockito.mock(Network.class);
-        HvdcLine hvdcLine = Mockito.mock(HvdcLine.class);
-        when(network.getHvdcLine(networkElementId)).thenReturn(hvdcLine);
-        when(hvdcLine.getActivePowerSetpoint()).thenReturn(1.0);
-        when(hvdcLine.getConvertersMode()).thenReturn(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER);
         HvdcRangeAction hvdcRangeAction = crac.newHvdcRangeAction()
                 .withId("id1")
                 .withOperator("BE")
                 .withNetworkElement(networkElementId)
                 .withGroupId("groupId1")
                 .withSpeed(1)
+                .withInitialSetpoint(1)
                 .newRange().withMin(-5).withMax(10).add()
                 .newOnInstantUsageRule()
                 .withInstant(AUTO_INSTANT_ID)
                 .withUsageMethod(UsageMethod.FORCED)
                 .add()
-                .addWithInitialSetpointFromNetwork(network);
+                .add();
 
         assertEquals(1, crac.getRangeActions().size());
         assertEquals(networkElementId, hvdcRangeAction.getNetworkElement().getId());
@@ -154,6 +107,7 @@ class HvdcRangeActionAdderImplTest {
             .withOperator("BE")
             .withNetworkElement(networkElementId)
             .withGroupId("groupId1")
+            .withInitialSetpoint(1)
             .newRange().withMin(-5).withMax(10).add()
             .newOnInstantUsageRule()
             .withInstant(AUTO_INSTANT_ID)

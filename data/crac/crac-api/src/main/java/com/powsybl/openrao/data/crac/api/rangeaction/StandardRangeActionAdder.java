@@ -18,6 +18,8 @@ public interface StandardRangeActionAdder<T extends StandardRangeActionAdder<T>>
 
     T withGroupId(String groupId);
 
+    T withInitialSetpoint(double initialSetpoint);
+
     T withVariationCost(Double variationCost, VariationDirection variationDirection);
 
 }

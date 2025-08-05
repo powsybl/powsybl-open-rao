@@ -292,6 +292,7 @@ public class TRemedialActionAdder {
             .withOperator(tRemedialAction.getOperator().getV())
             .withNetworkElementAndKey(-1., generatorFromHelper.getGeneratorId())
             .withNetworkElementAndKey(1., generatorToHelper.getGeneratorId())
+            .withInitialSetpoint(generatorToHelper.getCurrentP())
             .newRange()
             .withMin(tRemedialAction.getHVDCRange().getMin().getV())
             .withMax(tRemedialAction.getHVDCRange().getMax().getV())
@@ -315,7 +316,7 @@ public class TRemedialActionAdder {
         }
 
         addUsageRules(injectionRangeActionAdder, tRemedialAction);
-        injectionRangeActionAdder.addWithInitialSetpointFromNetwork(network);
+        injectionRangeActionAdder.add();
         cseCracCreationContext.addRemedialActionCreationContext(CseHvdcCreationContext.imported(tRemedialAction,
             raId,
             hvdcNodes.getFromNode().getV(),
