@@ -188,7 +188,7 @@ public final class CastorPstRegulation {
 
     private static PstRegulationResult regulatePstsForContingencyScenario(PstRegulationInput pstRegulationInput, Crac crac, Set<PstRangeAction> rangeActionsToRegulate, RaoResult raoResult, LoadFlowParameters loadFlowParameters, AbstractNetworkPool networkPool) throws InterruptedException {
         Network networkClone = networkPool.getAvailableNetwork();
-        Contingency contingency = pstRegulationInput.curativeState().getContingency().get();
+        Contingency contingency = pstRegulationInput.curativeState().getContingency().orElseThrow();
         simulateContingencyAndApplyCurativeActions(contingency, networkClone, crac, raoResult);
         Map<PstRangeAction, Integer> initialTapPerPst = getInitialTapPerPst(rangeActionsToRegulate, networkClone);
         Map<PstRangeAction, Integer> regulatedTapPerPst = PstRegulator.regulatePsts(pstRegulationInput.elementaryPstRegulationInputs(), networkClone, loadFlowParameters);
