@@ -21,11 +21,9 @@ import static com.powsybl.openrao.raoapi.RaoParametersCommons.*;
  */
 public class SecondPreventiveRaoParameters {
     private static final ExecutionCondition DEFAULT_EXECUTION_CONDITION = ExecutionCondition.DISABLED;
-    private static final boolean DEFAULT_RE_OPTIMIZE_CURATIVE_RANGE_ACTIONS = true;
     private static final boolean DEFAULT_HINT_FROM_FIRST_PREVENTIVE_RAO = false;
 
     private ExecutionCondition executionCondition = DEFAULT_EXECUTION_CONDITION;
-    private boolean reOptimizeCurativeRangeActions = DEFAULT_RE_OPTIMIZE_CURATIVE_RANGE_ACTIONS;
     private boolean hintFromFirstPreventiveRao = DEFAULT_HINT_FROM_FIRST_PREVENTIVE_RAO;
 
     public enum ExecutionCondition {
@@ -38,20 +36,12 @@ public class SecondPreventiveRaoParameters {
         this.executionCondition = executionCondition;
     }
 
-    public void setReOptimizeCurativeRangeActions(boolean reOptimizeCurativeRangeActions) {
-        this.reOptimizeCurativeRangeActions = reOptimizeCurativeRangeActions;
-    }
-
     public void setHintFromFirstPreventiveRao(boolean hintFromFirstPreventiveRao) {
         this.hintFromFirstPreventiveRao = hintFromFirstPreventiveRao;
     }
 
     public ExecutionCondition getExecutionCondition() {
         return executionCondition;
-    }
-
-    public boolean getReOptimizeCurativeRangeActions() {
-        return reOptimizeCurativeRangeActions;
     }
 
     public boolean getHintFromFirstPreventiveRao() {
@@ -64,7 +54,6 @@ public class SecondPreventiveRaoParameters {
         platformConfig.getOptionalModuleConfig(SECOND_PREVENTIVE_RAO_SECTION)
                 .ifPresent(config -> {
                     parameters.setExecutionCondition(config.getEnumProperty(EXECUTION_CONDITION, ExecutionCondition.class, DEFAULT_EXECUTION_CONDITION));
-                    parameters.setReOptimizeCurativeRangeActions(config.getBooleanProperty(RE_OPTIMIZE_CURATIVE_RANGE_ACTIONS, DEFAULT_RE_OPTIMIZE_CURATIVE_RANGE_ACTIONS));
                     parameters.setHintFromFirstPreventiveRao(config.getBooleanProperty(HINT_FROM_FIRST_PREVENTIVE_RAO, DEFAULT_HINT_FROM_FIRST_PREVENTIVE_RAO));
 
                 });
@@ -76,13 +65,6 @@ public class SecondPreventiveRaoParameters {
             return parameters.getExtension(OpenRaoSearchTreeParameters.class).getSecondPreventiveRaoParameters().getExecutionCondition();
         }
         return DEFAULT_EXECUTION_CONDITION;
-    }
-
-    public static boolean getSecondPreventiveReOptimizeCurativeRangeActions(RaoParameters parameters) {
-        if (parameters.hasExtension(OpenRaoSearchTreeParameters.class)) {
-            return parameters.getExtension(OpenRaoSearchTreeParameters.class).getSecondPreventiveRaoParameters().getReOptimizeCurativeRangeActions();
-        }
-        return DEFAULT_RE_OPTIMIZE_CURATIVE_RANGE_ACTIONS;
     }
 
     public static boolean getSecondPreventiveHintFromFirstPreventiveRao(RaoParameters parameters) {

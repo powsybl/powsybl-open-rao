@@ -15,8 +15,8 @@ Feature: US 2.3: Combine range PST and NetworkAction optimization
     Then 2 remedial actions are used in preventive
     Then the tap of PstRangeAction "SelectTapPST43" should be -16 in preventive
     Then the remedial action "CloseLine322" is used in preventive
-    Then the worst margin is 26.0 A
-    Then the margin on cnec "FFR1AA1  FFR2AA1  1 - preventive" after PRA should be 26.0 A
+    Then the worst margin is 28.6 A
+    Then the margin on cnec "FFR1AA1  FFR2AA1  1 - preventive" after PRA should be 28.6 A
 
   @fast @rao @mock @ac @preventive-only
   Scenario: US 2.3.2: no network actions involved in the best solution
