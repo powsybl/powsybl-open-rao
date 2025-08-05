@@ -7,6 +7,9 @@
 
 package com.powsybl.openrao.data.crac.impl;
 
+import com.powsybl.iidm.network.Generator;
+import com.powsybl.iidm.network.Load;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
@@ -15,6 +18,7 @@ import com.powsybl.openrao.data.crac.api.rangeaction.VariationDirection;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import java.util.Optional;
 
@@ -71,12 +75,41 @@ class InjectionRangeActionAdderImplTest {
         assertEquals(2, injectionRangeAction.getInjectionDistributionKeys().size());
         assertEquals(1., injectionRangeAction.getInjectionDistributionKeys().get(crac.getNetworkElement(injectionId1)), 1e-6);
         assertEquals(-1., injectionRangeAction.getInjectionDistributionKeys().get(crac.getNetworkElement(injectionId2)), 1e-6);
+        assertNull(injectionRangeAction.getInitialSetpoint());
 
         assertEquals(2, crac.getNetworkElements().size());
         assertNotNull(crac.getNetworkElement(injectionId1));
         assertNotNull(crac.getNetworkElement(injectionId2));
 
         assertEquals(1, crac.getRangeActions().size());
+    }
+
+
+    @Test
+    void testAddWithInitialSetpointFromNetwork() {
+
+        Network network = Mockito.mock(Network.class);
+        Generator generator = Mockito.mock(Generator.class);
+        Mockito.when(generator.getTargetP()).thenReturn(10.0);
+        Mockito.when(network.getGenerator("BBE2AA11_Generator")).thenReturn(generator);
+        Load load = Mockito.mock(Load.class);
+        Mockito.when(load.getP0()).thenReturn(20.0);
+        Mockito.when(network.getLoad("FFR3AA11_Load")).thenReturn(load);
+
+        InjectionRangeAction injectionRangeAction = crac.newInjectionRangeAction()
+            .withId("id1")
+            .withOperator("BE")
+            .withGroupId("groupId1")
+            .withActivationCost(200d)
+            .withVariationCost(700d, VariationDirection.UP)
+            .withVariationCost(1000d, VariationDirection.DOWN)
+            .withNetworkElementAndKey(1., injectionId1)
+            .withNetworkElementAndKey(-2., injectionId2, injectionName2)
+            .newRange().withMin(-5).withMax(10).add()
+            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .addWithInitialSetpointFromNetwork(network);
+
+        assertEquals(10.0, injectionRangeAction.getInitialSetpoint());
     }
 
     @Test

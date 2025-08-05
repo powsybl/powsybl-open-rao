@@ -89,19 +89,4 @@ public class HvdcRangeActionAdderImpl extends AbstractStandardRangeActionAdder<H
         }
     }
 
-    private HvdcLine getHvdcLine(Network network, NetworkElement networkElement) {
-        HvdcLine hvdcLine = network.getHvdcLine(networkElement.getId());
-        if (hvdcLine == null) {
-            throw new OpenRaoException(String.format("HvdcLine %s does not exist in the current network.", networkElement.getId()));
-        }
-        return hvdcLine;
-    }
-
-    public double getCurrentSetpoint(Network network, NetworkElement networkElement) {
-        if (getHvdcLine(network, networkElement).getConvertersMode() == HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER) {
-            return getHvdcLine(network, networkElement).getActivePowerSetpoint();
-        } else {
-            return -getHvdcLine(network, networkElement).getActivePowerSetpoint();
-        }
-    }
 }

@@ -541,4 +541,14 @@ class CracImportExportTest {
         OpenRaoException exception = assertThrows(OpenRaoException.class, () -> new JsonImport().exists("cracWithErrors.json", CracImportExportTest.class.getResourceAsStream("/cracWithErrors.json")));
         assertEquals("JSON file is not a valid CRAC v2.5. Reasons: /instants/3/kind: does not have a value in the enumeration [\"PREVENTIVE\", \"OUTAGE\", \"AUTO\", \"CURATIVE\"]; /contingencies/1/networkElementsIds/0: integer found, string expected; /contingencies/1/networkElementsIds/1: integer found, string expected; /contingencies/2: required property 'networkElementsIds' not found", exception.getMessage());
     }
+
+    @Test
+    void testImportCracWithInitialSetpoint() {
+        // From version 2.8, the initial setpoint of a range action is read from the network
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> new JsonImport().exists("crac2.8-with-initialsetpoint.json", CracImportExportTest.class.getResourceAsStream("/crac2.8-with-initialsetpoint.json")));
+        assertEquals("JSON file is not a valid CRAC v2.8. Reasons: " +
+            "/hvdcRangeActions/0: property 'initialSetpoint' is not defined in the schema and the schema does not allow additional properties; " +
+            "/injectionRangeActions/0: property 'initialSetpoint' is not defined in the schema and the schema does not allow additional properties; " +
+            "/counterTradeRangeActions/0: property 'initialSetpoint' is not defined in the schema and the schema does not allow additional properties", exception.getMessage());
+    }
 }
