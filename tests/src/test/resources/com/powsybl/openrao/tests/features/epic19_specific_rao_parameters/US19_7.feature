@@ -7,6 +7,8 @@ Feature: US 19.7: handle CNECs belonging to TSOs that don't share CRAs
 
   @fast @rao @mock @ac @contingency-scenarios
   Scenario: 19.7.1.A: All CNECs belong to one operator not sharing CRAs - AMP
+    # The worst margin belong to a curative CNECs (not taken into account since all CNECs belongs to an operator not sharing cras)
+    # The "limiting" one for the objective function is the worst preventive CNECs
     Given network file is "epic19/TestCase16Nodes_with_different_imax.uct" for CORE CC
     Given crac file is "epic19/CBCORA_ep19us7case1.xml"
     Given configuration file is "epic19/RaoParameters_maxMargin_ampere_shareCra.json"
