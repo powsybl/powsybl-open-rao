@@ -5,13 +5,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.powsybl.openrao.data.crac.impl;
+package com.powsybl.openrao.data.crac.io.commons.ucte;
 
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.data.crac.api.NetworkElement;
 
 import java.util.Collections;
 import java.util.List;
@@ -21,14 +20,14 @@ import java.util.stream.Collectors;
 /**
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
  */
-public final class InjectionRangeActionUtils {
+public final class InjectionRangeActionHelper {
 
-    private InjectionRangeActionUtils() {
+    private InjectionRangeActionHelper() {
     }
 
-    public static double getCurrentSetpoint(Network network, Map<NetworkElement, Double> injectionDistributionKeys) {
+    public static double getCurrentSetpoint(Network network, Map<String, Double> injectionDistributionKeys) {
         List<Double> currentSetpoints = injectionDistributionKeys.entrySet().stream()
-            .map(entry -> getInjectionSetpoint(network, entry.getKey().getId(), entry.getValue()))
+            .map(entry -> getInjectionSetpoint(network, entry.getKey(), entry.getValue()))
             .collect(Collectors.toList());
 
         if (currentSetpoints.size() == 1) {
@@ -60,4 +59,5 @@ public final class InjectionRangeActionUtils {
             throw new OpenRaoException(String.format("%s refers to an object of the network which is not an handled Injection (not a Load, not a Generator)", injectionId));
         }
     }
+
 }

@@ -18,10 +18,12 @@ import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.data.crac.io.commons.ucte.InjectionRangeActionHelper;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -112,7 +114,13 @@ public class InjectionRangeActionImpl extends AbstractRangeAction<InjectionRange
 
     @Override
     public double getCurrentSetpoint(Network network) {
-        return InjectionRangeActionUtils.getCurrentSetpoint(network, injectionDistributionKeys);
+        return InjectionRangeActionHelper.getCurrentSetpoint(
+            network,
+            injectionDistributionKeys.entrySet().stream().collect(Collectors.toMap(
+                entry -> entry.getKey().getId(),
+                Map.Entry::getValue
+            ))
+        );
     }
 
     @Override

@@ -85,33 +85,6 @@ class InjectionRangeActionAdderImplTest {
     }
 
     @Test
-    void testAddWithInitialSetpointFromNetwork() {
-
-        Network network = Mockito.mock(Network.class);
-        Generator generator = Mockito.mock(Generator.class);
-        Mockito.when(generator.getTargetP()).thenReturn(10.0);
-        Mockito.when(network.getGenerator("BBE2AA11_Generator")).thenReturn(generator);
-        Load load = Mockito.mock(Load.class);
-        Mockito.when(load.getP0()).thenReturn(20.0);
-        Mockito.when(network.getLoad("FFR3AA11_Load")).thenReturn(load);
-
-        InjectionRangeAction injectionRangeAction = crac.newInjectionRangeAction()
-            .withId("id1")
-            .withOperator("BE")
-            .withGroupId("groupId1")
-            .withActivationCost(200d)
-            .withVariationCost(700d, VariationDirection.UP)
-            .withVariationCost(1000d, VariationDirection.DOWN)
-            .withNetworkElementAndKey(1., injectionId1)
-            .withNetworkElementAndKey(-2., injectionId2, injectionName2)
-            .newRange().withMin(-5).withMax(10).add()
-            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
-            .addWithInitialSetpointFromNetwork(network);
-
-        assertEquals(10.0, injectionRangeAction.getInitialSetpoint());
-    }
-
-    @Test
     void testAddWithSumOnSameInjection() {
         InjectionRangeAction injectionRangeAction = crac.newInjectionRangeAction()
                 .withId("id1")

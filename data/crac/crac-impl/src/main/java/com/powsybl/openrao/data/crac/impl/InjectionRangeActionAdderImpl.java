@@ -7,7 +7,6 @@
 
 package com.powsybl.openrao.data.crac.impl;
 
-import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
@@ -45,6 +44,9 @@ public class InjectionRangeActionAdderImpl extends AbstractStandardRangeActionAd
     @Override
     public InjectionRangeActionAdder withNetworkElementAndKey(double key, String networkElementId, String networkElementName) {
         distributionKeys.add(new DistributionKeyOnNetworkElement(key, networkElementId, networkElementName));
+        if (Math.abs(key) > 1e-3) {
+            this.getCrac().addNetworkElement(networkElementId, networkElementName);
+        }
         return this;
     }
 
@@ -67,20 +69,9 @@ public class InjectionRangeActionAdderImpl extends AbstractStandardRangeActionAd
     }
 
     @Override
-    public InjectionRangeAction addWithInitialSetpointFromNetwork(Network network) {
-        runCheckBeforeAdding();
-
-        Map<NetworkElement, Double> neAndDk = addNetworkElements();
-        this.initialSetpoint = InjectionRangeActionUtils.getCurrentSetpoint(network, neAndDk);
-        InjectionRangeAction injectionRangeAction = new InjectionRangeActionImpl(this.id, this.name, this.operator, this.groupId, this.usageRules, this.ranges, this.initialSetpoint, neAndDk, speed, activationCost, variationCosts);
-        this.getCrac().addInjectionRangeAction(injectionRangeAction);
-        return injectionRangeAction;
-    }
-
-    @Override
     public InjectionRangeAction add() {
         runCheckBeforeAdding();
-        Map<NetworkElement, Double> neAndDk = addNetworkElements();
+        Map<NetworkElement, Double> neAndDk = getDistributionKeyMap();
         InjectionRangeAction injectionRangeAction = new InjectionRangeActionImpl(this.id, this.name, this.operator, this.groupId, this.usageRules, this.ranges, this.initialSetpoint, neAndDk, speed, activationCost, variationCosts);
         this.getCrac().addInjectionRangeAction(injectionRangeAction);
         return injectionRangeAction;
@@ -110,11 +101,11 @@ public class InjectionRangeActionAdderImpl extends AbstractStandardRangeActionAd
         distributionKeys.forEach(dK -> assertAttributeNotNull(dK.networkElementId, INJECTION_RANGE_ACTION, "network element", "withNetworkElementAndKey()"));
     }
 
-    private Map<NetworkElement, Double> addNetworkElements() {
+    private Map<NetworkElement, Double> getDistributionKeyMap() {
         Map<NetworkElement, Double> distributionKeyMap = new HashMap<>();
         distributionKeys.forEach(sK -> {
             if (Math.abs(sK.distributionKey) > 1e-3) {
-                NetworkElement networkElement = this.getCrac().addNetworkElement(sK.networkElementId, sK.networkElementName);
+                NetworkElement networkElement = this.getCrac().getNetworkElement(sK.networkElementId);
                 distributionKeyMap.merge(networkElement, sK.distributionKey, Double::sum);
             }
         });
