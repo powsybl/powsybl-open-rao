@@ -28,10 +28,10 @@ public class CounterTradeRangeActionImpl extends AbstractRangeAction<CounterTrad
     private final Country exportingCountry;
     private final Country importingCountry;
     private final List<StandardRange> ranges;
-    private final double initialSetpoint;
+    private final Double initialSetpoint;
 
     CounterTradeRangeActionImpl(String id, String name, String operator, String groupId, Set<UsageRule> usageRules,
-                                List<StandardRange> ranges, double initialSetpoint, Integer speed, Double activationCost, Map<VariationDirection, Double> variationCosts, Country exportingCountry, Country importingCountry) {
+                                List<StandardRange> ranges, Double initialSetpoint, Integer speed, Double activationCost, Map<VariationDirection, Double> variationCosts, Country exportingCountry, Country importingCountry) {
         super(id, name, operator, usageRules, groupId, speed, activationCost, variationCosts);
         this.ranges = ranges;
         this.initialSetpoint = initialSetpoint;
