@@ -26,5 +26,4 @@ public interface HvdcRangeActionAdder extends StandardRangeActionAdder<HvdcRange
 
     HvdcRangeAction add();
 
-    HvdcRangeAction addWithInitialSetpointFromNetwork(Network network);
 }

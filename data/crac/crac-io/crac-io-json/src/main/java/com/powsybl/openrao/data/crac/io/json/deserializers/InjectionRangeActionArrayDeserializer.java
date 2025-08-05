@@ -62,11 +62,10 @@ public final class InjectionRangeActionArrayDeserializer {
             double key = jsonParser.getDoubleValue();
             if (networkElementsNamesPerId.containsKey(networkElementId)) {
                 adder.withNetworkElementAndKey(key, networkElementId, networkElementsNamesPerId.get(networkElementId));
-                injectionDistributionKeys.put(networkElementId, key);
             } else {
                 adder.withNetworkElementAndKey(key, networkElementId);
-                injectionDistributionKeys.put(networkElementId, key);
             }
+            injectionDistributionKeys.put(networkElementId, key);
         }
         return injectionDistributionKeys;
     }

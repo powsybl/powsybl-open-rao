@@ -9,6 +9,7 @@ package com.powsybl.openrao.data.crac.io.json.deserializers;
 
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.data.crac.io.commons.ucte.HvdcRangeActionHelper;
 import com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeActionAdder;
@@ -31,26 +32,30 @@ public final class HvdcRangeActionArrayDeserializer {
         }
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             HvdcRangeActionAdder hvdcRangeActionAdder = crac.newHvdcRangeAction();
+            String networkElementId = null;
             while (!jsonParser.nextToken().isStructEnd()) {
                 if (StandardRangeActionDeserializer.addCommonElement(hvdcRangeActionAdder, jsonParser, version)) {
                     continue;
                 }
                 if (jsonParser.getCurrentName().equals(JsonSerializationConstants.NETWORK_ELEMENT_ID)) {
-                    readNetworkElementId(jsonParser, networkElementsNamesPerId, hvdcRangeActionAdder);
+                    networkElementId = readNetworkElementId(jsonParser, networkElementsNamesPerId, hvdcRangeActionAdder);
                 } else {
                     throw new OpenRaoException("Unexpected field in HvdcRangeAction: " + jsonParser.getCurrentName());
                 }
             }
-            hvdcRangeActionAdder.addWithInitialSetpointFromNetwork(network);
+            double initialSetpoint = HvdcRangeActionHelper.getCurrentSetpoint(network, networkElementId);
+            hvdcRangeActionAdder.withInitialSetpoint(initialSetpoint);
+            hvdcRangeActionAdder.add();
         }
     }
 
-    private static void readNetworkElementId(JsonParser jsonParser, Map<String, String> networkElementsNamesPerId, HvdcRangeActionAdder hvdcRangeActionAdder) throws IOException {
+    private static String readNetworkElementId(JsonParser jsonParser, Map<String, String> networkElementsNamesPerId, HvdcRangeActionAdder hvdcRangeActionAdder) throws IOException {
         String networkElementId = jsonParser.nextTextValue();
         if (networkElementsNamesPerId.containsKey(networkElementId)) {
             hvdcRangeActionAdder.withNetworkElement(networkElementId, networkElementsNamesPerId.get(networkElementId));
         } else {
             hvdcRangeActionAdder.withNetworkElement(networkElementId);
         }
+        return networkElementId;
     }
 }

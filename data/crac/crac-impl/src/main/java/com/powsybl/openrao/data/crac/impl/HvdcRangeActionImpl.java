@@ -17,6 +17,7 @@ import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
+import com.powsybl.openrao.data.crac.io.commons.ucte.HvdcRangeActionHelper;
 
 import java.util.Collections;
 import java.util.List;
@@ -93,19 +94,19 @@ public class HvdcRangeActionImpl extends AbstractRangeAction<HvdcRangeAction> im
 
     public void logDisableHvdcAngleDroopActivePowerControl(Network network) {
         if (isAngleDroopActivePowerControlEnabled(network)) {
-            HvdcLine hvdcLine = HvdcRangeActionUtils.getHvdcLine(network, networkElement);
+            HvdcLine hvdcLine = HvdcRangeActionHelper.getHvdcLine(network, networkElement.getId());
             TECHNICAL_LOGS.debug("Disabling HvdcAngleDroopActivePowerControl on HVDC line {}", hvdcLine.getId());
         }
     }
 
     public boolean isAngleDroopActivePowerControlEnabled(Network network) {
-        HvdcAngleDroopActivePowerControl hvdcAngleDroopActivePowerControl = HvdcRangeActionUtils.getHvdcLine(network, networkElement).getExtension(HvdcAngleDroopActivePowerControl.class);
+        HvdcAngleDroopActivePowerControl hvdcAngleDroopActivePowerControl = HvdcRangeActionHelper.getHvdcLine(network, networkElement.getId()).getExtension(HvdcAngleDroopActivePowerControl.class);
         return hvdcAngleDroopActivePowerControl != null && hvdcAngleDroopActivePowerControl.isEnabled();
     }
 
     @Override
     public double getCurrentSetpoint(Network network) {
-        return HvdcRangeActionUtils.getCurrentSetpoint(network, networkElement);
+        return HvdcRangeActionHelper.getCurrentSetpoint(network, networkElement.getId());
     }
 
     @Override

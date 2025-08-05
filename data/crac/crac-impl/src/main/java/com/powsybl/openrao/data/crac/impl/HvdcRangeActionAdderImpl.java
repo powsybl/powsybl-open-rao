@@ -7,7 +7,6 @@
 
 package com.powsybl.openrao.data.crac.impl;
 
-import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.data.crac.api.NetworkElement;
@@ -29,6 +28,7 @@ public class HvdcRangeActionAdderImpl extends AbstractStandardRangeActionAdder<H
     public static final String HVDC_RANGE_ACTION = "HvdcRangeAction";
     private String networkElementId;
     private String networkElementName;
+    private NetworkElement networkElement;
 
     @Override
     protected String getTypeDescription() {
@@ -49,25 +49,13 @@ public class HvdcRangeActionAdderImpl extends AbstractStandardRangeActionAdder<H
     public HvdcRangeActionAdder withNetworkElement(String networkElementId, String networkElementName) {
         this.networkElementId = networkElementId;
         this.networkElementName = networkElementName;
+        this.networkElement = this.getCrac().addNetworkElement(networkElementId, networkElementName);
         return this;
     }
 
     @Override
     public HvdcRangeAction add() {
         runCheckBeforeAdding();
-
-        NetworkElement networkElement = this.getCrac().addNetworkElement(networkElementId, networkElementName);
-        HvdcRangeActionImpl hvdcWithRange = new HvdcRangeActionImpl(this.id, this.name, this.operator, this.usageRules, ranges, initialSetpoint, networkElement, groupId, speed, activationCost, variationCosts);
-        this.getCrac().addHvdcRangeAction(hvdcWithRange);
-        return hvdcWithRange;
-    }
-
-    @Override
-    public HvdcRangeAction addWithInitialSetpointFromNetwork(Network network) {
-        runCheckBeforeAdding();
-
-        NetworkElement networkElement = this.getCrac().addNetworkElement(networkElementId, networkElementName);
-        this.initialSetpoint = HvdcRangeActionUtils.getCurrentSetpoint(network, networkElement);
         HvdcRangeActionImpl hvdcWithRange = new HvdcRangeActionImpl(this.id, this.name, this.operator, this.usageRules, ranges, initialSetpoint, networkElement, groupId, speed, activationCost, variationCosts);
         this.getCrac().addHvdcRangeAction(hvdcWithRange);
         return hvdcWithRange;
