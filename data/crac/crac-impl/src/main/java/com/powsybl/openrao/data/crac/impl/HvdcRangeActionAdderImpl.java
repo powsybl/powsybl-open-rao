@@ -7,7 +7,6 @@
 
 package com.powsybl.openrao.data.crac.impl;
 
-import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;

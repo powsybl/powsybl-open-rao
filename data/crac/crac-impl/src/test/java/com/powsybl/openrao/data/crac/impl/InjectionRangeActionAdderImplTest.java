@@ -84,7 +84,6 @@ class InjectionRangeActionAdderImplTest {
         assertEquals(1, crac.getRangeActions().size());
     }
 
-
     @Test
     void testAddWithInitialSetpointFromNetwork() {
 
