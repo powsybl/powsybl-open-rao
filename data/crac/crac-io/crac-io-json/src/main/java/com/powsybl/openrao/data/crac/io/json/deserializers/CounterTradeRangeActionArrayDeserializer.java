@@ -36,7 +36,7 @@ public final class CounterTradeRangeActionArrayDeserializer {
             }
             if (JsonSerializationConstants.getPrimaryVersionNumber(version) <= 1 && JsonSerializationConstants.getSubVersionNumber(version) < 3) {
                 // initial setpoint was not exported then, set default value to 0 to avoid errors
-                counterTradeRangeActionAdder.withInitialSetpoint(0);
+                counterTradeRangeActionAdder.withInitialSetpoint(0.0);
             }
             counterTradeRangeActionAdder.add();
         }

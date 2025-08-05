@@ -7,7 +7,6 @@
 
 package com.powsybl.openrao.data.crac.api.rangeaction;
 
-import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.data.crac.api.range.StandardRangeAdder;
 
 /**
@@ -20,7 +19,7 @@ public interface HvdcRangeActionAdder extends StandardRangeActionAdder<HvdcRange
 
     HvdcRangeActionAdder withNetworkElement(String networkElementId, String networkElementName);
 
-    HvdcRangeActionAdder withInitialSetpoint(double initialSetpoint);
+    HvdcRangeActionAdder withInitialSetpoint(Double initialSetpoint);
 
     StandardRangeAdder<HvdcRangeActionAdder> newRange();
 
