@@ -56,6 +56,7 @@ class HvdcRangeActionAdderImplTest {
                 .withInstant(PREVENTIVE_INSTANT_ID)
                 .withUsageMethod(UsageMethod.AVAILABLE)
                 .add()
+                .withInitialSetpoint(10.0)
                 .add();
 
         assertEquals(1, crac.getRangeActions().size());
@@ -67,7 +68,27 @@ class HvdcRangeActionAdderImplTest {
         assertEquals(1, hvdcRangeAction.getRanges().size());
         assertEquals(1, hvdcRangeAction.getUsageRules().size());
         assertEquals(1, crac.getNetworkElements().size());
+        assertEquals(10., hvdcRangeAction.getInitialSetpoint());
         assertNotNull(crac.getNetworkElement(networkElementId));
+    }
+
+    @Test
+    void testAddWithoutInitialSetpoint() {
+        HvdcRangeAction hvdcRangeAction = crac.newHvdcRangeAction()
+            .withId("id1")
+            .withOperator("BE")
+            .withNetworkElement(networkElementId)
+            .withGroupId("groupId1")
+            .withActivationCost(100d)
+            .withVariationCost(500d, VariationDirection.UP)
+            .withVariationCost(800d, VariationDirection.DOWN)
+            .newRange().withMin(-5).withMax(10).add()
+            .newOnInstantUsageRule()
+            .withInstant(PREVENTIVE_INSTANT_ID)
+            .withUsageMethod(UsageMethod.AVAILABLE)
+            .add()
+            .add();
+        assertNull(hvdcRangeAction.getInitialSetpoint());
     }
 
     @Test

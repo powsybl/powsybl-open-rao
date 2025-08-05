@@ -55,6 +55,7 @@ class InjectionRangeActionAdderImplTest {
                 .withNetworkElementAndKey(-1., injectionId2, injectionName2)
                 .newRange().withMin(-5).withMax(10).add()
                 .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .withInitialSetpoint(10.0)
                 .add();
 
         assertEquals("id1", injectionRangeAction.getId());
@@ -71,13 +72,31 @@ class InjectionRangeActionAdderImplTest {
         assertEquals(2, injectionRangeAction.getInjectionDistributionKeys().size());
         assertEquals(1., injectionRangeAction.getInjectionDistributionKeys().get(crac.getNetworkElement(injectionId1)), 1e-6);
         assertEquals(-1., injectionRangeAction.getInjectionDistributionKeys().get(crac.getNetworkElement(injectionId2)), 1e-6);
-        assertNull(injectionRangeAction.getInitialSetpoint());
+        assertEquals(10.0, injectionRangeAction.getInitialSetpoint());
 
         assertEquals(2, crac.getNetworkElements().size());
         assertNotNull(crac.getNetworkElement(injectionId1));
         assertNotNull(crac.getNetworkElement(injectionId2));
 
         assertEquals(1, crac.getRangeActions().size());
+    }
+
+    @Test
+    void testAddWithoutInitialSetpoint() {
+
+        InjectionRangeAction injectionRangeAction = crac.newInjectionRangeAction()
+            .withId("id1")
+            .withOperator("BE")
+            .withGroupId("groupId1")
+            .withActivationCost(200d)
+            .withVariationCost(700d, VariationDirection.UP)
+            .withVariationCost(1000d, VariationDirection.DOWN)
+            .withNetworkElementAndKey(1., injectionId1)
+            .withNetworkElementAndKey(-2., injectionId2, injectionName2)
+            .newRange().withMin(-5).withMax(10).add()
+            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .add();
+        assertNull(injectionRangeAction.getInitialSetpoint());
     }
 
     @Test
