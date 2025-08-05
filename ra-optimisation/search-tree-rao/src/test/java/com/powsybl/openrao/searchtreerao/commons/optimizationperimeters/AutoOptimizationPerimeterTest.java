@@ -16,7 +16,6 @@ import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.ActionType;
-import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.openrao.data.crac.impl.CracImplFactory;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
@@ -40,8 +39,7 @@ class AutoOptimizationPerimeterTest {
         State preventiveState = Mockito.mock(State.class);
         Mockito.when(preventiveState.getInstant()).thenReturn(preventiveInstant);
         Set<FlowCnec> emptyFlowCnecSet = Set.of();
-        Set<NetworkAction> emptyNetworkActionSet = Set.of();
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> new AutoOptimizationPerimeter(preventiveState, emptyFlowCnecSet, emptyFlowCnecSet, emptyNetworkActionSet));
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> new AutoOptimizationPerimeter(preventiveState, emptyFlowCnecSet, emptyFlowCnecSet));
         assertEquals("an AutoOptimizationPerimeter must be based on an auto state", exception.getMessage());
     }
 
