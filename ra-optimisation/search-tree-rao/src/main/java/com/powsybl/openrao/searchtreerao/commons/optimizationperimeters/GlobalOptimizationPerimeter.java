@@ -11,8 +11,8 @@ import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
+import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
-import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
 import com.powsybl.iidm.network.Network;
 
@@ -38,14 +38,9 @@ public class GlobalOptimizationPerimeter extends AbstractOptimizationPerimeter {
         Set<FlowCnec> flowCnecs = crac.getFlowCnecs();
         Set<FlowCnec> loopFlowCnecs = AbstractOptimizationPerimeter.getLoopFlowCnecs(flowCnecs, raoParameters, network);
 
-        // add preventive network actions
-        Set<NetworkAction> availableNetworkActions = crac.getNetworkActions().stream()
-            .filter(ra -> RaoUtil.isRemedialActionAvailable(ra, crac.getPreventiveState(), prePerimeterResult, flowCnecs, network, raoParameters))
-            .collect(Collectors.toSet());
-
         Map<State, Set<RangeAction<?>>> availableRangeActions = new HashMap<>();
         // add preventive range actions
-        availableRangeActions.put(crac.getPreventiveState(), crac.getRangeActions().stream()
+        availableRangeActions.put(crac.getPreventiveState(), crac.getRangeActions(crac.getPreventiveState(), UsageMethod.AVAILABLE).stream()
             .filter(ra -> AbstractOptimizationPerimeter.doesPrePerimeterSetpointRespectRange(ra, prePerimeterResult))
             .collect(Collectors.toSet()));
 
@@ -53,7 +48,7 @@ public class GlobalOptimizationPerimeter extends AbstractOptimizationPerimeter {
         crac.getStates().stream()
             .filter(s -> s.getInstant().isCurative())
             .forEach(state -> {
-                Set<RangeAction<?>> availableRaForState = crac.getRangeActions().stream()
+                Set<RangeAction<?>> availableRaForState = crac.getRangeActions(state, UsageMethod.AVAILABLE).stream()
                     .filter(ra -> AbstractOptimizationPerimeter.doesPrePerimeterSetpointRespectRange(ra, prePerimeterResult))
                     .collect(Collectors.toSet());
                 if (!availableRaForState.isEmpty()) {
@@ -66,7 +61,7 @@ public class GlobalOptimizationPerimeter extends AbstractOptimizationPerimeter {
         return new GlobalOptimizationPerimeter(crac.getPreventiveState(),
             flowCnecs,
             loopFlowCnecs,
-            availableNetworkActions,
+            crac.getNetworkActions(crac.getPreventiveState(), UsageMethod.AVAILABLE),
             availableRangeActions);
     }
 }

@@ -63,8 +63,8 @@ class PreventiveOptimizationPerimeterTest extends AbstractOptimizationPerimeterT
         OptimizationPerimeter optPerimeter = PreventiveOptimizationPerimeter.buildFromBasecaseScenario(preventivePerimeter, crac, network, raoParameters, prePerimeterResult);
 
         assertEquals(Set.of(oCnec1, cCnec2), optPerimeter.getLoopFlowCnecs());
-        assertTrue(optPerimeter.getRangeActions().isEmpty());
-        assertTrue(optPerimeter.getRangeActionOptimizationStates().isEmpty());
+        assertEquals(Set.of(crac.getRangeAction("preventive-ra")), optPerimeter.getRangeActions());
+        assertEquals(Set.of(crac.getPreventiveState()), optPerimeter.getRangeActionOptimizationStates());
     }
 
     @Test

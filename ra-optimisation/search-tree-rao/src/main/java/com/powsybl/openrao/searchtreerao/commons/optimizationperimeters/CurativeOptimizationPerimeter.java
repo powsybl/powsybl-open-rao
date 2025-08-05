@@ -45,7 +45,7 @@ public class CurativeOptimizationPerimeter extends AbstractOptimizationPerimeter
         Set<FlowCnec> flowCnecs = crac.getFlowCnecs(curativeState);
         Set<FlowCnec> loopFlowCnecs = AbstractOptimizationPerimeter.getLoopFlowCnecs(flowCnecs, raoParameters, network);
 
-        Set<RangeAction<?>> availableRangeActions = crac.getRangeActions().stream()
+        Set<RangeAction<?>> availableRangeActions = crac.getRangeActions(curativeState, UsageMethod.AVAILABLE).stream()
             .filter(ra -> AbstractOptimizationPerimeter.doesPrePerimeterSetpointRespectRange(ra, prePerimeterResult))
             .collect(Collectors.toSet());
         removeAlignedRangeActionsWithDifferentInitialSetpoints(availableRangeActions, prePerimeterResult);
