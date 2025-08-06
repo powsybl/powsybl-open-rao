@@ -127,8 +127,8 @@ public final class RaoUtil {
      * 3) It computes the "strongest" usage method.
      * The remedial action is available if and only if the usage method is "AVAILABLE".
      */
-    public static boolean isRemedialActionAvailable(RemedialAction<?> remedialAction, State state, FlowResult flowResult, Set<FlowCnec> flowCnecs, Network network, RaoParameters raoParameters) {
-        UsageMethod finalUsageMethod = getFinalUsageMethod(remedialAction, state, flowResult, flowCnecs, network, raoParameters);
+    public static boolean isRemedialActionAvailable(RemedialAction<?> remedialAction, State state, FlowResult flowResult, Set<FlowCnec> flowCnecs, Network network, Unit unit) {
+        UsageMethod finalUsageMethod = getFinalUsageMethod(remedialAction, state, flowResult, flowCnecs, network, unit);
         return finalUsageMethod != null && finalUsageMethod.equals(UsageMethod.AVAILABLE);
     }
 
@@ -141,8 +141,8 @@ public final class RaoUtil {
      * For automatonState, the remedial action is forced if and only if the usage method is "FORCED".
      * For non-automaton states, a forced remedial action is not supported and the remedial action is ignored.
      */
-    public static boolean isRemedialActionForced(RemedialAction<?> remedialAction, State state, FlowResult flowResult, Set<FlowCnec> flowCnecs, Network network, RaoParameters raoParameters) {
-        UsageMethod finalUsageMethod = getFinalUsageMethod(remedialAction, state, flowResult, flowCnecs, network, raoParameters);
+    public static boolean isRemedialActionForced(RemedialAction<?> remedialAction, State state, FlowResult flowResult, Set<FlowCnec> flowCnecs, Network network, Unit unit) {
+        UsageMethod finalUsageMethod = getFinalUsageMethod(remedialAction, state, flowResult, flowCnecs, network, unit);
         if (finalUsageMethod == null) {
             return false;
         }
@@ -153,14 +153,14 @@ public final class RaoUtil {
         return finalUsageMethod.equals(UsageMethod.FORCED);
     }
 
-    private static UsageMethod getFinalUsageMethod(RemedialAction<?> remedialAction, State state, FlowResult flowResult, Set<FlowCnec> flowCnecs, Network network, RaoParameters raoParameters) {
+    private static UsageMethod getFinalUsageMethod(RemedialAction<?> remedialAction, State state, FlowResult flowResult, Set<FlowCnec> flowCnecs, Network network, Unit unit) {
         Set<UsageRule> usageRules = remedialAction.getUsageRules();
         if (usageRules.isEmpty()) {
             OpenRaoLoggerProvider.BUSINESS_WARNS.warn(format("The remedial action %s has no usage rule and therefore will not be available.", remedialAction.getName()));
             return null;
         }
 
-        Set<UsageMethod> usageMethods = getAllUsageMethods(usageRules, remedialAction, state, flowResult, flowCnecs, network, raoParameters);
+        Set<UsageMethod> usageMethods = getAllUsageMethods(usageRules, remedialAction, state, flowResult, flowCnecs, network, unit);
         return UsageMethod.getStrongestUsageMethod(usageMethods);
     }
 
@@ -168,11 +168,11 @@ public final class RaoUtil {
      * Returns a set of usageMethods corresponding to a remedialAction.
      * It filters out every OnFlowConstraint(InCountry) that is not applicable due to positive margins.
      */
-    private static Set<UsageMethod> getAllUsageMethods(Set<UsageRule> usageRules, RemedialAction<?> remedialAction, State state, FlowResult flowResult, Set<FlowCnec> flowCnecs, Network network, RaoParameters raoParameters) {
+    private static Set<UsageMethod> getAllUsageMethods(Set<UsageRule> usageRules, RemedialAction<?> remedialAction, State state, FlowResult flowResult, Set<FlowCnec> flowCnecs, Network network, Unit unit) {
         return usageRules.stream()
             .filter(ur -> ur instanceof OnContingencyState || ur instanceof OnInstant
                 || (ur instanceof OnFlowConstraintInCountry || ur instanceof OnConstraint<?> onConstraint && onConstraint.getCnec() instanceof FlowCnec)
-                && isAnyMarginNegative(flowResult, remedialAction.getFlowCnecsConstrainingForOneUsageRule(ur, flowCnecs, network), raoParameters.getObjectiveFunctionParameters().getUnit()))
+                && isAnyMarginNegative(flowResult, remedialAction.getFlowCnecsConstrainingForOneUsageRule(ur, flowCnecs, network), unit))
             .map(ur -> ur.getUsageMethod(state))
             .collect(Collectors.toSet());
     }

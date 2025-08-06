@@ -23,6 +23,7 @@ import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
+import com.powsybl.openrao.data.crac.api.usagerule.OnInstant;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
@@ -300,10 +301,14 @@ class SearchTreeTest {
         raoWithoutLoopFlowLimitation();
         setStopCriterionAtTargetObjectiveValue(0.);
 
+        OnInstant onInstant = Mockito.mock(OnInstant.class);
+        when(onInstant.getUsageMethod()).thenReturn(UsageMethod.AVAILABLE);
+        when(onInstant.getUsageMethod(any())).thenReturn(UsageMethod.AVAILABLE);
+
         NetworkAction networkAction1 = Mockito.mock(NetworkAction.class);
         NetworkAction networkAction2 = Mockito.mock(NetworkAction.class);
-        when(networkAction1.getUsageMethod(any())).thenReturn(UsageMethod.AVAILABLE);
-        when(networkAction2.getUsageMethod(any())).thenReturn(UsageMethod.AVAILABLE);
+        when(networkAction1.getUsageRules()).thenReturn(Set.of(onInstant));
+        when(networkAction2.getUsageRules()).thenReturn(Set.of(onInstant));
         when(networkAction1.getOperator()).thenReturn("operator1");
         when(networkAction2.getOperator()).thenReturn("operator2");
         when(networkAction1.getId()).thenReturn("na1");
