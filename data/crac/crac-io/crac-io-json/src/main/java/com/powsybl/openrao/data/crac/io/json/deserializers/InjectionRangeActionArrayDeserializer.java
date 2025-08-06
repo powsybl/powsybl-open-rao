@@ -7,14 +7,18 @@
 
 package com.powsybl.openrao.data.crac.io.json.deserializers;
 
+import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants;
+import com.powsybl.openrao.data.crac.io.commons.iidm.IidmInjectionHelper;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeActionAdder;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.*;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
@@ -28,7 +32,7 @@ public final class InjectionRangeActionArrayDeserializer {
 
     static Set<String> networkElementsUsedList;
 
-    public static void deserialize(JsonParser jsonParser, String version, Crac crac, Map<String, String> networkElementsNamesPerId) throws IOException {
+    public static void deserialize(JsonParser jsonParser, String version, Crac crac, Map<String, String> networkElementsNamesPerId, Network network) throws IOException {
         if (networkElementsNamesPerId == null) {
             throw new OpenRaoException(String.format("Cannot deserialize %s before %s", JsonSerializationConstants.INJECTION_RANGE_ACTIONS, JsonSerializationConstants.NETWORK_ELEMENTS_NAME_PER_ID));
         }
@@ -36,27 +40,28 @@ public final class InjectionRangeActionArrayDeserializer {
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             InjectionRangeActionAdder injectionRangeActionAdder = crac.newInjectionRangeAction();
 
+            Map<String, Double> injectionDistributionKeys = null;
             while (!jsonParser.nextToken().isStructEnd()) {
                 if (StandardRangeActionDeserializer.addCommonElement(injectionRangeActionAdder, jsonParser, version)) {
                     continue;
                 }
                 if (jsonParser.getCurrentName().equals(JsonSerializationConstants.NETWORK_ELEMENT_IDS_AND_KEYS)) {
                     jsonParser.nextToken();
-                    deserializeInjectionDistributionKeys(jsonParser, injectionRangeActionAdder, networkElementsNamesPerId);
+                    injectionDistributionKeys = deserializeInjectionDistributionKeys(jsonParser, injectionRangeActionAdder, networkElementsNamesPerId);
                 } else {
                     throw new OpenRaoException("Unexpected field in InjectionRangeAction: " + jsonParser.getCurrentName());
                 }
             }
-            if (JsonSerializationConstants.getPrimaryVersionNumber(version) <= 1 && JsonSerializationConstants.getSubVersionNumber(version) < 3) {
-                // initial setpoint was not exported then, set default value to 0 to avoid errors
-                injectionRangeActionAdder.withInitialSetpoint(0);
-            }
+
+            double initialSetpoint = IidmInjectionHelper.getCurrentSetpoint(network, injectionDistributionKeys);
+            injectionRangeActionAdder.withInitialSetpoint(initialSetpoint);
             injectionRangeActionAdder.add();
+
         }
     }
 
-    private static void deserializeInjectionDistributionKeys(JsonParser jsonParser, InjectionRangeActionAdder adder, Map<String, String> networkElementsNamesPerId) throws IOException {
-
+    private static Map<String, Double> deserializeInjectionDistributionKeys(JsonParser jsonParser, InjectionRangeActionAdder adder, Map<String, String> networkElementsNamesPerId) throws IOException {
+        Map<String, Double> injectionDistributionKeys = new HashMap<>();
         while (!jsonParser.nextToken().isStructEnd()) {
             String networkElementId = jsonParser.getCurrentName();
             // check if an another injection action was already defined on the same network element.
@@ -72,6 +77,8 @@ public final class InjectionRangeActionArrayDeserializer {
             } else {
                 adder.withNetworkElementAndKey(key, networkElementId);
             }
+            injectionDistributionKeys.put(networkElementId, key);
         }
+        return injectionDistributionKeys;
     }
 }
