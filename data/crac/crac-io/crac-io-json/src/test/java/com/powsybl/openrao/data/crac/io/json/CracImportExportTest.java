@@ -88,6 +88,14 @@ class CracImportExportTest {
     }
 
     @Test
+    void testTwoInjectionOnOneGenerator() {
+        // Authorized but their should be a warning
+        Network network = NetworkImportsUtil.createNetworkForJsonRetrocompatibilityTest();
+        CracCreationContext context = new JsonImport().importData(getClass().getResourceAsStream("/cracTwoInjectionOneGenerator.json"), new CracCreationParameters(), network);
+        assertTrue(context.isCreationSuccessful());
+    }
+
+    @Test
     void testImportFailure() {
         CracCreationContext context = new JsonImport().importData(getClass().getResourceAsStream("/retrocompatibility/v2/crac-v2.5.json"), new CracCreationParameters(), Mockito.mock(Network.class));
         assertNotNull(context);
