@@ -18,8 +18,8 @@ import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.data.crac.io.commons.iidm.IidmInjectionHelper;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -32,10 +32,10 @@ public class InjectionRangeActionImpl extends AbstractRangeAction<InjectionRange
 
     private final Map<NetworkElement, Double> injectionDistributionKeys;
     private final List<StandardRange> ranges;
-    private final double initialSetpoint;
+    private final Double initialSetpoint;
 
     InjectionRangeActionImpl(String id, String name, String operator, String groupId, Set<UsageRule> usageRules,
-                             List<StandardRange> ranges, double initialSetpoint, Map<NetworkElement, Double> injectionDistributionKeys, Integer speed, Double activationCost, Map<VariationDirection, Double> variationCosts) {
+                             List<StandardRange> ranges, Double initialSetpoint, Map<NetworkElement, Double> injectionDistributionKeys, Integer speed, Double activationCost, Map<VariationDirection, Double> variationCosts) {
         super(id, name, operator, usageRules, groupId, speed, activationCost, variationCosts);
         this.ranges = ranges;
         this.initialSetpoint = initialSetpoint;
@@ -68,7 +68,7 @@ public class InjectionRangeActionImpl extends AbstractRangeAction<InjectionRange
     }
 
     @Override
-    public double getInitialSetpoint() {
+    public Double getInitialSetpoint() {
         return initialSetpoint;
     }
 
@@ -114,38 +114,13 @@ public class InjectionRangeActionImpl extends AbstractRangeAction<InjectionRange
 
     @Override
     public double getCurrentSetpoint(Network network) {
-        List<Double> currentSetpoints = injectionDistributionKeys.entrySet().stream()
-                .map(entry -> getInjectionSetpoint(network, entry.getKey().getId(), entry.getValue()))
-                .collect(Collectors.toList());
-
-        if (currentSetpoints.size() == 1) {
-            return currentSetpoints.get(0);
-        } else {
-            Collections.sort(currentSetpoints);
-            if (Math.abs(currentSetpoints.get(0) - currentSetpoints.get(currentSetpoints.size() - 1)) < 1) {
-                return currentSetpoints.get(0);
-            } else {
-                throw new OpenRaoException(String.format("Cannot evaluate reference setpoint of InjectionRangeAction %s, as the injections are not distributed according to their key", this.getId()));
-            }
-        }
-    }
-
-    public double getInjectionSetpoint(Network network, String injectionId, double distributionKey) {
-        Generator generator = network.getGenerator(injectionId);
-        if (generator != null) {
-            return generator.getTargetP() / distributionKey;
-        }
-
-        Load load = network.getLoad(injectionId);
-        if (load != null) {
-            return -load.getP0() / distributionKey;
-        }
-
-        if (network.getIdentifiable(injectionId) == null) {
-            throw new OpenRaoException(String.format("Injection %s not found in network", injectionId));
-        } else {
-            throw new OpenRaoException(String.format("%s refers to an object of the network which is not an handled Injection (not a Load, not a Generator)", injectionId));
-        }
+        return IidmInjectionHelper.getCurrentSetpoint(
+            network,
+            injectionDistributionKeys.entrySet().stream().collect(Collectors.toMap(
+                entry -> entry.getKey().getId(),
+                Map.Entry::getValue
+            ))
+        );
     }
 
     @Override

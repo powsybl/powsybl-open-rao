@@ -34,7 +34,6 @@ public final class StandardRangeActionSerializer {
         serializeVariationCosts(value, gen);
         UsageRulesSerializer.serializeUsageRules(value, gen);
         serializeGroupId(value, gen);
-        gen.writeNumberField(JsonSerializationConstants.INITIAL_SETPOINT, value.getInitialSetpoint());
         serializeRanges(value, gen);
     }
 
