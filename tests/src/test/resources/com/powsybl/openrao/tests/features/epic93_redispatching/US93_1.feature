@@ -36,7 +36,7 @@ Feature: US 93.1: Redispatching actions
   Scenario: US 93.1.2: Extremely basic redispatching on 2 nodes network - minCost
   The initial setpoint is 1000, it is then updated to 300.0 (because the threshold of the line FR1 FR2 is 300)
   after optim => delta = 1000-300 = 700
-  Total cost : 10 for activation + 50 x 700 MW shift = 25010
+  Total cost : 10 for activation + 50 x 700 MW shift = 35010
     Given network file is "epic93/2Nodes.uct"
     Given crac file is "epic93/crac-93-1-1.json"
     Given configuration file is "epic93/RaoParameters_minCost_megawatt_dc.json"
@@ -84,7 +84,7 @@ Feature: US 93.1: Redispatching actions
       - redispatchingActionFR1FR2: initial setpoint = 1000 = 1000/1 = -700/-0.7, final = 529 => delta- = 471
       - redispatchingActionFR3: initial setpoint = -300/0.6 = -500, final = -265 => delta+ = −235
       => 471*(1-0.7)-235*0.6 = 0.3 ~ 0
-  Objective function breakdow: 10+471*50+10+235*50 = 35320
+  Objective function breakdown: 10+471*50+10+235*50 = 35320
     Given network file is "epic93/3Nodes.uct"
     Given crac file is "epic93/crac-93-1-5.json"
     Given configuration file is "epic93/RaoParameters_minCost_megawatt_dc.json"

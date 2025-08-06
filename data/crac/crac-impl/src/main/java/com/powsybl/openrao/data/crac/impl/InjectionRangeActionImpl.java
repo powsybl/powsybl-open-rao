@@ -30,7 +30,6 @@ import java.util.stream.Collectors;
  */
 public class InjectionRangeActionImpl extends AbstractRangeAction<InjectionRangeAction> implements InjectionRangeAction {
 
-    private static final double EPSILON = 1e-6;
     private final Map<NetworkElement, Double> injectionDistributionKeys;
     private final List<StandardRange> ranges;
     private final Double initialSetpoint;
