@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.powsybl.openrao.data.crac.io.commons.ucte;
+package com.powsybl.openrao.data.crac.io.commons.iidm;
 
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Network;
@@ -14,9 +14,9 @@ import com.powsybl.openrao.commons.OpenRaoException;
 /**
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
  */
-public final class HvdcRangeActionHelper {
+public final class IidmHvdcHelper {
 
-    private HvdcRangeActionHelper() {
+    private IidmHvdcHelper() {
     }
 
     public static HvdcLine getHvdcLine(Network network, String networkElementId) {

@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.powsybl.openrao.data.crac.io.commons.ucte;
+package com.powsybl.openrao.data.crac.io.commons.iidm;
 
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Network;
@@ -18,7 +18,7 @@ import static org.mockito.Mockito.when;
 /**
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
  */
-public class HvdcRangeActionHelperTest {
+public class IidmHvdcHelperTest {
 
     @Test
     void testAddWithInitialSetpointFromNetwork() {
@@ -27,9 +27,9 @@ public class HvdcRangeActionHelperTest {
         when(network.getHvdcLine("hvdc")).thenReturn(hvdcLine);
         when(hvdcLine.getActivePowerSetpoint()).thenReturn(50.0);
         when(hvdcLine.getConvertersMode()).thenReturn(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER);
-        assertEquals(50, HvdcRangeActionHelper.getCurrentSetpoint(network, "hvdc"));
+        assertEquals(50, IidmHvdcHelper.getCurrentSetpoint(network, "hvdc"));
 
         when(hvdcLine.getConvertersMode()).thenReturn(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER);
-        assertEquals(-50, HvdcRangeActionHelper.getCurrentSetpoint(network, "hvdc"));
+        assertEquals(-50, IidmHvdcHelper.getCurrentSetpoint(network, "hvdc"));
     }
 }

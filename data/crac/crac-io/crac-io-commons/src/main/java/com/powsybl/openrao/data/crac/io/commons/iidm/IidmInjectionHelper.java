@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.powsybl.openrao.data.crac.io.commons.ucte;
+package com.powsybl.openrao.data.crac.io.commons.iidm;
 
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Load;
@@ -20,9 +20,9 @@ import java.util.stream.Collectors;
 /**
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
  */
-public final class InjectionRangeActionHelper {
+public final class IidmInjectionHelper {
 
-    private InjectionRangeActionHelper() {
+    private IidmInjectionHelper() {
     }
 
     public static double getCurrentSetpoint(Network network, Map<String, Double> injectionDistributionKeys) {

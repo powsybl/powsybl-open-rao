@@ -18,7 +18,7 @@ import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.openrao.data.crac.io.commons.ucte.InjectionRangeActionHelper;
+import com.powsybl.openrao.data.crac.io.commons.iidm.IidmInjectionHelper;
 
 import java.util.List;
 import java.util.Map;
@@ -114,7 +114,7 @@ public class InjectionRangeActionImpl extends AbstractRangeAction<InjectionRange
 
     @Override
     public double getCurrentSetpoint(Network network) {
-        return InjectionRangeActionHelper.getCurrentSetpoint(
+        return IidmInjectionHelper.getCurrentSetpoint(
             network,
             injectionDistributionKeys.entrySet().stream().collect(Collectors.toMap(
                 entry -> entry.getKey().getId(),

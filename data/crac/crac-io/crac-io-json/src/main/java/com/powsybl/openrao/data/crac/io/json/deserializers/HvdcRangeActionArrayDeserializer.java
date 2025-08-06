@@ -9,7 +9,7 @@ package com.powsybl.openrao.data.crac.io.json.deserializers;
 
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.data.crac.io.commons.ucte.HvdcRangeActionHelper;
+import com.powsybl.openrao.data.crac.io.commons.iidm.IidmHvdcHelper;
 import com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeActionAdder;
@@ -43,7 +43,7 @@ public final class HvdcRangeActionArrayDeserializer {
                     throw new OpenRaoException("Unexpected field in HvdcRangeAction: " + jsonParser.getCurrentName());
                 }
             }
-            double initialSetpoint = HvdcRangeActionHelper.getCurrentSetpoint(network, networkElementId);
+            double initialSetpoint = IidmHvdcHelper.getCurrentSetpoint(network, networkElementId);
             hvdcRangeActionAdder.withInitialSetpoint(initialSetpoint);
             hvdcRangeActionAdder.add();
         }

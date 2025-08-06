@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.powsybl.openrao.data.crac.io.commons.ucte;
+package com.powsybl.openrao.data.crac.io.commons.iidm;
 
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Load;
@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /**
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
  */
-public class InjectionRangeActionHelperTest {
+public class IidmInjectionHelperTest {
     @Test
     void getInjectionSetpointFromNetwork() {
         Network network = Mockito.mock(Network.class);
@@ -30,7 +30,7 @@ public class InjectionRangeActionHelperTest {
         Load load = Mockito.mock(Load.class);
         Mockito.when(load.getP0()).thenReturn(20.0);
         Mockito.when(network.getLoad("FFR3AA11_Load")).thenReturn(load);
-        Double initialSetpoint = InjectionRangeActionHelper.getCurrentSetpoint(network, Map.of("BBE2AA11_Generator", 1., "FFR3AA11_Load", -2.));
+        Double initialSetpoint = IidmInjectionHelper.getCurrentSetpoint(network, Map.of("BBE2AA11_Generator", 1., "FFR3AA11_Load", -2.));
         assertEquals(10., initialSetpoint);
     }
 }
