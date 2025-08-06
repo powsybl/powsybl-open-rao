@@ -83,7 +83,6 @@
   "additionalProperties": false,
   "required": [
     "id",
-    "networkElementId",
-    "ranges"
+    "networkElementId"
   ]
 }
