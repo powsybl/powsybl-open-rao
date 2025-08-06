@@ -34,6 +34,7 @@ public final class CounterTradeRangeActionArrayDeserializer {
             while (!jsonParser.nextToken().isStructEnd()) {
                 addElement(counterTradeRangeActionAdder, jsonParser, version);
             }
+            counterTradeRangeActionAdder.withInitialSetpoint(0.0);
             counterTradeRangeActionAdder.add();
         }
     }
