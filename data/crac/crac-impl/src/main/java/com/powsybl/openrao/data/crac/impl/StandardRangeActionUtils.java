@@ -20,7 +20,7 @@ public final class StandardRangeActionUtils {
     private StandardRangeActionUtils() {
     }
 
-    static double getMinAdmissibleSetpoint(double previousInstantSetPoint, List<StandardRange> ranges, double initialSetpoint) {
+    static double getMinAdmissibleSetpoint(double previousInstantSetPoint, List<StandardRange> ranges, Double initialSetpoint) {
         double minAdmissibleSetpoint = Double.NEGATIVE_INFINITY;
         for (StandardRange range : ranges) {
             switch (range.getRangeType()) {
@@ -40,7 +40,7 @@ public final class StandardRangeActionUtils {
         return minAdmissibleSetpoint;
     }
 
-    static double getMaxAdmissibleSetpoint(double previousInstantSetPoint, List<StandardRange> ranges, double initialSetpoint) {
+    static double getMaxAdmissibleSetpoint(double previousInstantSetPoint, List<StandardRange> ranges, Double initialSetpoint) {
         double maxAdmissibleSetpoint = Double.POSITIVE_INFINITY;
         for (StandardRange range : ranges) {
             switch (range.getRangeType()) {
