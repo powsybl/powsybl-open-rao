@@ -19,11 +19,12 @@ import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_L
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public class MaximumNumberOfRemedialActionPerTsoFilter implements NetworkActionCombinationFilter {
+public class MaximumNumberOfRemedialActionPerTsoFilter extends AbstractNetworkActionCombinationFilter {
     private final Map<String, Integer> maxTopoPerTso;
     private final Map<String, Integer> maxRaPerTso;
 
     public MaximumNumberOfRemedialActionPerTsoFilter(Map<String, Integer> maxTopoPerTso, Map<String, Integer> maxRaPerTso) {
+        super("the maximum number of remedial actions has been exceeded for one of their operators");
         this.maxTopoPerTso = maxTopoPerTso;
         this.maxRaPerTso = maxRaPerTso;
     }
@@ -36,7 +37,7 @@ public class MaximumNumberOfRemedialActionPerTsoFilter implements NetworkActionC
      * </ol>
      * If the first condition is not met for at least one TSO, the combination is not kept. If the second condition is not met for at least one TSO, the combination is kept but the range actions will be unapplied for the next optimization.
      */
-    public Set<NetworkActionCombination> filter(Set<NetworkActionCombination> naCombinations, OptimizationResult optimizationResult) {
+    public Set<NetworkActionCombination> filterOutCombinations(Set<NetworkActionCombination> naCombinations, OptimizationResult optimizationResult) {
         Set<NetworkActionCombination> filteredNaCombinations = new HashSet<>();
         Map<String, Integer> maxNaPerTso = getMaxNetworkActionPerTso(optimizationResult);
         for (NetworkActionCombination naCombination : naCombinations) {

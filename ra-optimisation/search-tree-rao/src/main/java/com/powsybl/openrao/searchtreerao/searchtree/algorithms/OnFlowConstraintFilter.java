@@ -18,18 +18,17 @@ import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
-
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public class OnFlowConstraintFilter implements NetworkActionCombinationFilter {
+public class OnFlowConstraintFilter extends AbstractNetworkActionCombinationFilter {
     private final State state;
     private final Set<FlowCnec> flowCnecs;
     private final Network network;
     private final Unit unit;
 
     public OnFlowConstraintFilter(State state, Set<FlowCnec> flowCnecs, Network network, Unit unit) {
+        super("at least one of their network actions is unavailable");
         this.state = state;
         this.flowCnecs = flowCnecs;
         this.network = network;
@@ -37,14 +36,10 @@ public class OnFlowConstraintFilter implements NetworkActionCombinationFilter {
     }
 
     @Override
-    public Set<NetworkActionCombination> filter(Set<NetworkActionCombination> naCombinations, OptimizationResult optimizationResult) {
-        Set<NetworkActionCombination> filteredNaCombinations = naCombinations.stream()
+    public Set<NetworkActionCombination> filterOutCombinations(Set<NetworkActionCombination> naCombinations, OptimizationResult optimizationResult) {
+        return naCombinations.stream()
             .filter(naCombination -> naCombination.getNetworkActionSet().stream()
                 .allMatch(networkAction -> RaoUtil.isRemedialActionAvailable(networkAction, state, optimizationResult, flowCnecs, network, unit)))
             .collect(Collectors.toSet());
-        if (filteredNaCombinations.size() < naCombinations.size()) {
-            TECHNICAL_LOGS.info("{} network action combinations have been filtered out because one of their network actions is unavailable", naCombinations.size() - filteredNaCombinations.size());
-        }
-        return filteredNaCombinations;
     }
 }

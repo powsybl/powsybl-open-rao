@@ -15,9 +15,12 @@ import java.util.stream.Collectors;
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public class AlreadyAppliedNetworkActionsFilter implements NetworkActionCombinationFilter {
+public class AlreadyAppliedNetworkActionsFilter extends AbstractNetworkActionCombinationFilter {
+    protected AlreadyAppliedNetworkActionsFilter() {
+        super("they were already applied on the network");
+    }
 
-    public Set<NetworkActionCombination> filter(Set<NetworkActionCombination> naCombinations, OptimizationResult optimizationResult) {
+    protected Set<NetworkActionCombination> filterOutCombinations(Set<NetworkActionCombination> naCombinations, OptimizationResult optimizationResult) {
         return naCombinations.stream()
             .filter(naCombination -> naCombination.getNetworkActionSet().stream().noneMatch(na -> optimizationResult.getActivatedNetworkActions().contains(na)))
             .collect(Collectors.toSet());

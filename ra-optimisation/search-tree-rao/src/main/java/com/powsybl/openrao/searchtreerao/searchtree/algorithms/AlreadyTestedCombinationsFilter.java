@@ -18,10 +18,11 @@ import java.util.stream.Collectors;
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public class AlreadyTestedCombinationsFilter implements NetworkActionCombinationFilter {
+public class AlreadyTestedCombinationsFilter extends AbstractNetworkActionCombinationFilter {
     private final List<NetworkActionCombination> preDefinedNaCombinations;
 
     public AlreadyTestedCombinationsFilter(List<NetworkActionCombination> preDefinedNaCombinations) {
+        super("they have already been tested");
         this.preDefinedNaCombinations = preDefinedNaCombinations;
     }
 
@@ -32,7 +33,7 @@ public class AlreadyTestedCombinationsFilter implements NetworkActionCombination
      * no need to bloom on ra2. If the remedial action ra2 was relevant, the combination ra1+ra2 would have been
      * already selected in the previous depths.
      */
-    public Set<NetworkActionCombination> filter(Set<NetworkActionCombination> naCombinations, OptimizationResult optimizationResult) {
+    protected Set<NetworkActionCombination> filterOutCombinations(Set<NetworkActionCombination> naCombinations, OptimizationResult optimizationResult) {
         List<NetworkAction> alreadyTestedNetworkActions = new ArrayList<>();
 
         for (NetworkActionCombination preDefinedCombination : preDefinedNaCombinations) {

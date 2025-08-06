@@ -18,18 +18,17 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
-
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public class FarFromMostLimitingElementFilter implements NetworkActionCombinationFilter {
+public class FarFromMostLimitingElementFilter extends AbstractNetworkActionCombinationFilter {
     private final Network network;
     private final CountryGraph countryGraph;
     private final boolean filterFarElements;
     private final int maxNumberOfBoundariesForSkippingNetworkActions;
 
     public FarFromMostLimitingElementFilter(Network network, boolean filterFarElements, int maxNumberOfBoundariesForSkippingNetworkActions) {
+        super("they are too far from the most limiting element");
         this.network = network;
         countryGraph = new CountryGraph(network);
         this.filterFarElements = filterFarElements;
@@ -41,21 +40,16 @@ public class FarFromMostLimitingElementFilter implements NetworkActionCombinatio
      * feature, and setting the number of boundaries allowed between the network action and the limiting element.
      * The most limiting elements are the most limiting functional cost element, and all elements with a non-zero virtual cost.
      */
-    public Set<NetworkActionCombination> filter(Set<NetworkActionCombination> naCombinations, OptimizationResult optimizationResult) {
+    public Set<NetworkActionCombination> filterOutCombinations(Set<NetworkActionCombination> naCombinations, OptimizationResult optimizationResult) {
         if (!filterFarElements) {
             return naCombinations;
         }
 
         Set<Optional<Country>> worstCnecLocation = getOptimizedMostLimitingElementsLocation(optimizationResult);
 
-        Set<NetworkActionCombination> filteredNaCombinations = naCombinations.stream()
+        return naCombinations.stream()
             .filter(naCombination -> naCombination.getNetworkActionSet().stream().anyMatch(na -> isNetworkActionCloseToLocations(na, worstCnecLocation, countryGraph)))
             .collect(Collectors.toSet());
-
-        if (naCombinations.size() > filteredNaCombinations.size()) {
-            TECHNICAL_LOGS.info("{} network action combinations have been filtered out because they are too far from the most limiting element", naCombinations.size() - filteredNaCombinations.size());
-        }
-        return filteredNaCombinations;
     }
 
     Set<Optional<Country>> getOptimizedMostLimitingElementsLocation(OptimizationResult optimizationResult) {

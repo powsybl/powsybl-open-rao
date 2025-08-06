@@ -12,16 +12,14 @@ import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
 import java.util.HashSet;
 import java.util.Set;
 
-import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
-
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public class MaximumNumberOfRemedialActionsFilter implements NetworkActionCombinationFilter {
-
+public class MaximumNumberOfRemedialActionsFilter extends AbstractNetworkActionCombinationFilter {
     private final int maxRa;
 
     public MaximumNumberOfRemedialActionsFilter(int maxRa) {
+        super("the maximum number of usable remedial actions has been reached");
         this.maxRa = maxRa;
     }
 
@@ -33,7 +31,7 @@ public class MaximumNumberOfRemedialActionsFilter implements NetworkActionCombin
      * </ol>
      * If the first condition is not met, the combination is not kept. If the second condition is not met, the combination is kept but the range actions will be unapplied for the next optimization.
      */
-    public Set<NetworkActionCombination> filter(Set<NetworkActionCombination> naCombinations, OptimizationResult optimizationResult) {
+    public Set<NetworkActionCombination> filterOutCombinations(Set<NetworkActionCombination> naCombinations, OptimizationResult optimizationResult) {
         Set<NetworkActionCombination> filteredNaCombinations = new HashSet<>();
         for (NetworkActionCombination naCombination : naCombinations) {
             int naCombinationSize = naCombination.getNetworkActionSet().size();
@@ -42,11 +40,6 @@ public class MaximumNumberOfRemedialActionsFilter implements NetworkActionCombin
                 filteredNaCombinations.add(naCombination);
             }
         }
-
-        if (naCombinations.size() > filteredNaCombinations.size()) {
-            TECHNICAL_LOGS.info("{} network action combinations have been filtered out because the max number of usable RAs has been reached", naCombinations.size() - filteredNaCombinations.size());
-        }
-
         return filteredNaCombinations;
     }
 }
