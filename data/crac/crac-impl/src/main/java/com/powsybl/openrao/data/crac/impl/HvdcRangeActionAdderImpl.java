@@ -75,5 +75,4 @@ public class HvdcRangeActionAdderImpl extends AbstractStandardRangeActionAdder<H
             OpenRaoLoggerProvider.BUSINESS_WARNS.warn("HvdcRangeAction {} does not contain any usage rule, by default it will never be available", id);
         }
     }
-
 }
