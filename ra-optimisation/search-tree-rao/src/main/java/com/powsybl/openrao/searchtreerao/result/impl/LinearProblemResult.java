@@ -9,9 +9,11 @@ package com.powsybl.openrao.searchtreerao.result.impl;
 
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
-import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
+
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -19,9 +21,9 @@ import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
 public class LinearProblemResult extends RangeActionActivationResultImpl {
     private static final double ACTIVATION_THRESHOLD = 1e-6;
 
-    public LinearProblemResult(LinearProblem linearProblem, RangeActionSetpointResult prePerimeterSetPoints, OptimizationPerimeter optimizationContext) {
+    public LinearProblemResult(LinearProblem linearProblem, RangeActionSetpointResult prePerimeterSetPoints, Map<State, Set<RangeAction<?>>> availableRangeActionsPerState) {
         super(prePerimeterSetPoints);
-        optimizationContext.getRangeActionsPerState().forEach((state, rangeActions) ->
+        availableRangeActionsPerState.forEach((state, rangeActions) ->
             rangeActions.forEach(rangeAction -> {
                 if (wasRangeActionActivated(linearProblem, rangeAction, state)) {
                     double setPoint = linearProblem.getRangeActionSetpointVariable(rangeAction, state).solutionValue();

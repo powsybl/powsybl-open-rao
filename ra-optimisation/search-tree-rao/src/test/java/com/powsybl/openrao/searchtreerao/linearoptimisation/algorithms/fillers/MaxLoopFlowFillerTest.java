@@ -80,6 +80,7 @@ class MaxLoopFlowFillerTest extends AbstractFillerTest {
         RangeActionsOptimizationParameters rangeActionParameters = (new RaoParameters()).getRangeActionsOptimizationParameters();
         coreProblemFiller = new MarginCoreProblemFiller(
             optimizationPerimeter,
+            optimizationPerimeter.getRangeActionsPerState(),
             initialRangeActionSetpointResult,
             rangeActionParameters,
             null,

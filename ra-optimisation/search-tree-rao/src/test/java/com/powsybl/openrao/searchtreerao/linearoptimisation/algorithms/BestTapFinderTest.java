@@ -134,11 +134,12 @@ class BestTapFinderTest {
             rangeActionActivationResult,
             network,
             optimizationPerimeter,
+            optimizationPerimeter.getRangeActionsPerState(),
             rangeActionSetpointResult,
             linearOptimizationResult,
             Unit.MEGAWATT
         );
-        roundOtherRas(rangeActionActivationResult, optimizationPerimeter, roundedResult);
+        roundOtherRas(rangeActionActivationResult, optimizationPerimeter.getRangeActionsPerState(), roundedResult);
         return roundedResult;
     }
 

@@ -96,6 +96,7 @@ class IteratingLinearOptimizerTest {
         when(optimizationPerimeter.getRangeActionsPerState()).thenReturn(Map.of(
             optimizedState, Set.of(rangeAction)
         ));
+        when(input.rangeActionsPerState()).thenReturn(Map.of(optimizedState, Set.of(rangeAction)));
         when(optimizationPerimeter.getMainOptimizationState()).thenReturn(optimizedState);
         when(input.optimizationPerimeter()).thenReturn(optimizationPerimeter);
 
@@ -337,6 +338,7 @@ class IteratingLinearOptimizerTest {
         when(optimizationPerimeter.getRangeActionsPerState()).thenReturn(Map.of(
             optimizedState, Set.of(rangeAction)
         ));
+        when(input.rangeActionsPerState()).thenReturn(Map.of(optimizedState, Set.of(rangeAction)));
         when(optimizationPerimeter.getRangeActionOptimizationStates()).thenReturn(Set.of(optimizedState));
         rangeActionSetpointResult = new RangeActionSetpointResultImpl(Map.of(rangeAction, 5.));
         when(input.prePerimeterSetpoints()).thenReturn(rangeActionSetpointResult);

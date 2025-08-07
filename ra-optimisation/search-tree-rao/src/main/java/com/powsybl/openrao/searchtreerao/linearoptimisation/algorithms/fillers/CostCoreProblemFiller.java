@@ -25,7 +25,9 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -33,6 +35,7 @@ import java.util.Optional;
 public class CostCoreProblemFiller extends AbstractCoreProblemFiller {
 
     public CostCoreProblemFiller(OptimizationPerimeter optimizationContext,
+                                 Map<State, Set<RangeAction<?>>> availableRangeActionsPerState,
                                  RangeActionSetpointResult prePerimeterRangeActionSetpoints,
                                  RangeActionsOptimizationParameters rangeActionParameters,
                                  SearchTreeRaoRangeActionsOptimizationParameters rangeActionParametersExtension,
@@ -40,7 +43,7 @@ public class CostCoreProblemFiller extends AbstractCoreProblemFiller {
                                  boolean raRangeShrinking,
                                  SearchTreeRaoRangeActionsOptimizationParameters.PstModel pstModel,
                                  OffsetDateTime timestamp) {
-        super(optimizationContext, prePerimeterRangeActionSetpoints, rangeActionParameters, rangeActionParametersExtension, unit, raRangeShrinking, pstModel, timestamp);
+        super(optimizationContext, availableRangeActionsPerState, prePerimeterRangeActionSetpoints, rangeActionParameters, rangeActionParametersExtension, unit, raRangeShrinking, pstModel, timestamp);
         if (SearchTreeRaoRangeActionsOptimizationParameters.PstModel.CONTINUOUS.equals(pstModel)) {
             throw new OpenRaoException("Costly remedial action optimization is only available for the APPROXIMATED_INTEGERS mode of PST range actions.");
         }
@@ -112,7 +115,7 @@ public class CostCoreProblemFiller extends AbstractCoreProblemFiller {
      */
     @Override
     protected void fillObjective(LinearProblem linearProblem) {
-        optimizationContext.getRangeActionsPerState().forEach((state, rangeActions) -> rangeActions.forEach(ra -> {
+        availableRangeActionsPerState.forEach((state, rangeActions) -> rangeActions.forEach(ra -> {
                 OpenRaoMPVariable upwardVariationVariable = linearProblem.getRangeActionVariationVariable(ra, state, LinearProblem.VariationDirectionExtension.UPWARD);
                 OpenRaoMPVariable downwardVariationVariable = linearProblem.getRangeActionVariationVariable(ra, state, LinearProblem.VariationDirectionExtension.DOWNWARD);
 

@@ -18,6 +18,8 @@ import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearpro
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
 
 import java.time.OffsetDateTime;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -25,6 +27,7 @@ import java.time.OffsetDateTime;
 public class MarginCoreProblemFiller extends AbstractCoreProblemFiller {
 
     public MarginCoreProblemFiller(OptimizationPerimeter optimizationContext,
+                                   Map<State, Set<RangeAction<?>>> availableRangeActionsPerState,
                                    RangeActionSetpointResult prePerimeterRangeActionSetpoints,
                                    RangeActionsOptimizationParameters rangeActionParameters,
                                    SearchTreeRaoRangeActionsOptimizationParameters rangeActionParametersExtension,
@@ -32,7 +35,7 @@ public class MarginCoreProblemFiller extends AbstractCoreProblemFiller {
                                    boolean raRangeShrinking,
                                    SearchTreeRaoRangeActionsOptimizationParameters.PstModel pstModel,
                                    OffsetDateTime timestamp) {
-        super(optimizationContext, prePerimeterRangeActionSetpoints, rangeActionParameters, rangeActionParametersExtension, unit, raRangeShrinking, pstModel, timestamp);
+        super(optimizationContext, availableRangeActionsPerState, prePerimeterRangeActionSetpoints, rangeActionParameters, rangeActionParametersExtension, unit, raRangeShrinking, pstModel, timestamp);
     }
 
     /**
@@ -55,7 +58,7 @@ public class MarginCoreProblemFiller extends AbstractCoreProblemFiller {
      */
     @Override
     protected void fillObjective(LinearProblem linearProblem) {
-        optimizationContext.getRangeActionsPerState().forEach((state, rangeActions) -> rangeActions.forEach(ra -> {
+        availableRangeActionsPerState.forEach((state, rangeActions) -> rangeActions.forEach(ra -> {
             OpenRaoMPVariable upwardVariationVariable = linearProblem.getRangeActionVariationVariable(ra, state, LinearProblem.VariationDirectionExtension.UPWARD);
             if (upwardVariationVariable != null) {
                 linearProblem.getObjective().setCoefficient(upwardVariationVariable, getRangeActionPenaltyCost(ra, rangeActionParameters));

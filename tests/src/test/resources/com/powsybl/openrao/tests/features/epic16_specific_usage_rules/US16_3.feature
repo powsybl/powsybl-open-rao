@@ -21,17 +21,20 @@ Feature: User Story #16.3: Activate remedial actions only after a specific const
     And the margin on cnec "FFR2AA1  DDE3AA1  1 - co1_fr2_fr3_1 - curative" after PRA should be 492 A
 
   @fast @rao @mock @ac @preventive-only
-  Scenario: US 16.3.2: Preventive onConstraint RAs with a constraint triggered by another preventive RA, no reevaluation
+  Scenario: US 16.3.2: Preventive onConstraint RAs with a constraint triggered by another preventive RA
+  At depth 1 close_fr1_fr5 is applied. The overload on curative CNEC FR1 FR4 is still present so
+  close_fr1_fr5 is used as well.
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic16/SL_ep16us3case2.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch search_tree_rao
-    Then 1 remedial actions are used in preventive
+    Then 2 remedial actions are used in preventive
     And the remedial action "close_fr1_fr5" is used in preventive
-    And the worst margin is -45 A
-    And the margin on cnec "BBE2AA1  FFR3AA1  1 - preventive" after PRA should be -45 A
-    And the margin on cnec "FFR1AA1  FFR4AA1  1 - co1_fr2_fr3_1 - curative" after PRA should be -41 A
-    And the margin on cnec "BBE2AA1  FFR3AA1  1 - co1_fr2_fr3_1 - curative" after PRA should be 81 A
+    And the remedial action "open_fr1_fr3" is used in preventive
+    And the worst margin is 45.17 A
+    And the margin on cnec "BBE2AA1  FFR3AA1  1 - preventive" after PRA should be 45.17 A
+    And the margin on cnec "FFR1AA1  FFR4AA1  1 - co1_fr2_fr3_1 - curative" after PRA should be 158.45 A
+    And the margin on cnec "BBE2AA1  FFR3AA1  1 - co1_fr2_fr3_1 - curative" after PRA should be 264.2 A
 
   @fast @rao @mock @ac @preventive-only
   Scenario: US 16.3.3: Preventive onConstraint RAs with no constraint triggered
@@ -164,17 +167,20 @@ Feature: User Story #16.3: Activate remedial actions only after a specific const
     And the margin on cnec "be2_fr3_co1 - BBE2AA1 ->FFR3AA1   - co1_fr2_fr3_1 - curative" after CRA should be 72 A
 
   @fast @rao @mock @ac @preventive-only
-  Scenario: US 16.3.12: Preventive onConstraint RA with constraint triggered on outage CNEC, does not re evaluate
+  Scenario: US 16.3.12: Preventive onConstraint RA with constraint triggered on outage CNEC
+  Same case as 16.3.2 with a CSE CRAC and an onFlowConstraint usage rule based on an outage CNEC
+  instead of a curative one.
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic16/CseCrac_16_3_12.xml"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch search_tree_rao
-    Then 1 remedial actions are used in preventive
+    Then 2 remedial actions are used in preventive
     And the remedial action "close_fr1_fr5" is used in preventive
-    And the worst margin is -45 A
-    And the margin on cnec "be2_fr3_n - BBE2AA1 ->FFR3AA1  - preventive" after PRA should be -45 A
-    And the margin on cnec "fr1_fr4_co1 - FFR1AA1 ->FFR4AA1   - co1_fr2_fr3_1 - outage" after PRA should be -41 A
-    And the margin on cnec "be2_fr3_co1 - BBE2AA1 ->FFR3AA1   - co1_fr2_fr3_1 - curative" after PRA should be 81 A
+    And the remedial action "open_fr1_fr3" is used in preventive
+    And the worst margin is 45.17 A
+    And the margin on cnec "be2_fr3_n - BBE2AA1 ->FFR3AA1  - preventive" after PRA should be 45.17 A
+    And the margin on cnec "fr1_fr4_co1 - FFR1AA1 ->FFR4AA1   - co1_fr2_fr3_1 - outage" after PRA should be 158.45 A
+    And the margin on cnec "be2_fr3_co1 - BBE2AA1 ->FFR3AA1   - co1_fr2_fr3_1 - curative" after PRA should be 264.2 A
 
   @fast @rao @mock @ac @contingency-scenarios
   Scenario: US 16.3.13: Test with a maximum number of CRA 1/2
@@ -192,14 +198,20 @@ Feature: User Story #16.3: Activate remedial actions only after a specific const
 
   @fast @rao @mock @ac @contingency-scenarios
   Scenario: US 16.3.14: Test with a maximum number of CRA 2/2
+    Before onFlowConstraint reevaluation, only PST BE was used and moved to tap 1 in curative.
+    With reevaluation, at depth 1, when close_de3_de4 is activated, an overload of 15 A appears
+    on FFR3AA1  FFR5AA1  1 making PST FR available. Moving this PST to tap 16 in this situation
+    improves the min margin.
     Given network file is "epic16/TestCase16Nodes_3psts.uct"
     Given crac file is "epic16/SL_ep16us3case14.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch search_tree_rao
     Then 0 remedial actions are used in preventive
-    And 1 remedial actions are used after "co1_fr2_fr3_1" at "curative"
-    And the remedial action "pst_be" is used after "co1_fr2_fr3_1" at "curative"
-    And the tap of PstRangeAction "pst_be" should be 1 after "co1_fr2_fr3_1" at "curative"
-    And the worst margin is -5 A
-    And the margin on cnec "BBE2AA1  FFR3AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be -5 A
-    And the margin on cnec "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be 3 A
+    And 2 remedial actions are used after "co1_fr2_fr3_1" at "curative"
+    And the remedial action "close_de3_de4" is used after "co1_fr2_fr3_1" at "curative"
+    And the remedial action "pst_fr" is used after "co1_fr2_fr3_1" at "curative"
+    And the tap of PstRangeAction "pst_fr" should be 16 after "co1_fr2_fr3_1" at "curative"
+    And the tap of PstRangeAction "pst_be" should be 0 after "co1_fr2_fr3_1" at "curative"
+    And the worst margin is 19.35 A
+    And the margin on cnec "BBE2AA1  FFR3AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be 60.86 A
+    And the margin on cnec "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be 19.35 A
