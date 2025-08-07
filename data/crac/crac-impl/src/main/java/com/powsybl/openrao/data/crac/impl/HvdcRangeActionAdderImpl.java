@@ -28,6 +28,7 @@ public class HvdcRangeActionAdderImpl extends AbstractStandardRangeActionAdder<H
     public static final String HVDC_RANGE_ACTION = "HvdcRangeAction";
     private String networkElementId;
     private String networkElementName;
+    private NetworkElement networkElement;
 
     @Override
     protected String getTypeDescription() {
@@ -48,11 +49,19 @@ public class HvdcRangeActionAdderImpl extends AbstractStandardRangeActionAdder<H
     public HvdcRangeActionAdder withNetworkElement(String networkElementId, String networkElementName) {
         this.networkElementId = networkElementId;
         this.networkElementName = networkElementName;
+        this.networkElement = this.getCrac().addNetworkElement(networkElementId, networkElementName);
         return this;
     }
 
     @Override
     public HvdcRangeAction add() {
+        runCheckBeforeAdding();
+        HvdcRangeActionImpl hvdcWithRange = new HvdcRangeActionImpl(this.id, this.name, this.operator, this.usageRules, ranges, initialSetpoint, networkElement, groupId, speed, activationCost, variationCosts);
+        this.getCrac().addHvdcRangeAction(hvdcWithRange);
+        return hvdcWithRange;
+    }
+
+    private void runCheckBeforeAdding() {
         checkId();
         checkAutoUsageRules();
         assertAttributeNotNull(networkElementId, HVDC_RANGE_ACTION, "network element", "withNetworkElement()");
@@ -65,10 +74,5 @@ public class HvdcRangeActionAdderImpl extends AbstractStandardRangeActionAdder<H
         if (usageRules.isEmpty()) {
             OpenRaoLoggerProvider.BUSINESS_WARNS.warn("HvdcRangeAction {} does not contain any usage rule, by default it will never be available", id);
         }
-
-        NetworkElement networkElement = this.getCrac().addNetworkElement(networkElementId, networkElementName);
-        HvdcRangeActionImpl hvdcWithRange = new HvdcRangeActionImpl(this.id, this.name, this.operator, this.usageRules, ranges, initialSetpoint, networkElement, groupId, speed, activationCost, variationCosts);
-        this.getCrac().addHvdcRangeAction(hvdcWithRange);
-        return hvdcWithRange;
     }
 }
