@@ -53,7 +53,7 @@ public class PreventiveOptimizationPerimeter extends AbstractOptimizationPerimet
     }
 
     public static PreventiveOptimizationPerimeter buildForStates(State preventiveState, Set<State> allMonitoredStates, Crac crac, Network network, RaoParameters raoParameters, PrePerimeterResult prePerimeterResult) {
-        return buildForStates(preventiveState, allMonitoredStates, crac, network, crac.getRangeActions(), raoParameters, prePerimeterResult);
+        return buildForStates(preventiveState, allMonitoredStates, crac, network, crac.getRangeActions(preventiveState, UsageMethod.AVAILABLE), raoParameters, prePerimeterResult);
     }
 
     public static PreventiveOptimizationPerimeter buildForStates(State preventiveState, Set<State> allMonitoredStates, Crac crac, Network network, Set<RangeAction<?>> rangeActions, RaoParameters raoParameters, PrePerimeterResult prePerimeterResult) {
@@ -67,7 +67,7 @@ public class PreventiveOptimizationPerimeter extends AbstractOptimizationPerimet
 
         Set<FlowCnec> loopFlowCnecs = AbstractOptimizationPerimeter.getLoopFlowCnecs(flowCnecs, raoParameters, network);
 
-        Set<RangeAction<?>> availableRangeActions = crac.getRangeActions(preventiveState, UsageMethod.AVAILABLE);
+        Set<RangeAction<?>> availableRangeActions = rangeActions.stream().filter(rangeAction -> AbstractOptimizationPerimeter.doesPrePerimeterSetpointRespectRange(rangeAction, prePerimeterResult)).collect(Collectors.toSet());
         removeAlignedRangeActionsWithDifferentInitialSetpoints(availableRangeActions, prePerimeterResult);
 
         return new PreventiveOptimizationPerimeter(preventiveState,
