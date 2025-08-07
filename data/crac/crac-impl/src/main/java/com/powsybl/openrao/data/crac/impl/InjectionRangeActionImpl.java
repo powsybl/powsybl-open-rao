@@ -77,6 +77,8 @@ public class InjectionRangeActionImpl extends AbstractRangeAction<InjectionRange
         injectionDistributionKeys.forEach((ne, sk) -> applyInjection(network, ne.getId(), targetSetpoint * sk));
     }
 
+    // Initial setpoint was taken into account in linear problem, hence targetSetpoint represents network's initial value + optimized variation
+    // That's why we overwrite network's exisiting generator/load.
     private void applyInjection(Network network, String injectionId, double targetSetpoint) {
         Generator generator = network.getGenerator(injectionId);
         if (generator != null) {
@@ -112,6 +114,10 @@ public class InjectionRangeActionImpl extends AbstractRangeAction<InjectionRange
         }
     }
 
+    // When injection range action has several generators/loads, each generator/load's value divided by its key
+    // must be equal because an injection range action has a unique setpoint.
+    // For instance : gen1 has a production of 10 in network with key 1, gen2 has a production of 20 with key 2
+    // In this case, current setpoint = 10.
     @Override
     public double getCurrentSetpoint(Network network) {
         return IidmInjectionHelper.getCurrentSetpoint(
@@ -135,7 +141,7 @@ public class InjectionRangeActionImpl extends AbstractRangeAction<InjectionRange
             return false;
         }
         return this.injectionDistributionKeys.equals(((InjectionRangeAction) o).getInjectionDistributionKeys())
-                && this.ranges.equals(((InjectionRangeAction) o).getRanges());
+            && this.ranges.equals(((InjectionRangeAction) o).getRanges());
     }
 
     @Override
