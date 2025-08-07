@@ -131,19 +131,23 @@ Feature: US 15.13: Handle combined RAs by configuration
     And the margin on cnec "fr2_de3_co1 - FFR2AA1 ->DDE3AA1   - co1_fr2_fr3_1 - curative" after CRA should be 491 A
 
   @fast @rao @mock @ac @preventive-only
-  Scenario: US 15.13.9: onConstraint remedial action is not re evaluated after the activation of a combination of RA
+  Scenario: US 15.13.9: onConstraint remedial action is re evaluated after the activation of a combination of RA and made unavailable
+    At depth 1, the best combination is {open_fr1_fr3, open_be1_be4}.
+    Applying both these actions remove the overload on BE2 FR3 making close_fr1_fr5 unavailable.
+    Thus, only two actions are used.
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic15/CseCrac_ep15us13case9.xml"
     Given configuration file is "epic15/RaoParameters_ep15us13case5.json"
     When I launch search_tree_rao at "2021-04-30 22:30"
-    Then 3 remedial actions are used in preventive
+    Then 2 remedial actions are used in preventive
     And the remedial action "open_fr1_fr3" is used in preventive
     And the remedial action "open_be1_be4" is used in preventive
-    And the worst margin is 97 A
-    And the margin on cnec "be2_fr3_n - BBE2AA1 ->FFR3AA1  - preventive" after PRA should be 97 A
-    And the margin on cnec "fr1_fr4_co1 - FFR1AA1 ->FFR4AA1   - co1_fr2_fr3_1 - curative" after CRA should be 102 A
-    And the margin on cnec "fr2_de3_n - FFR2AA1 ->DDE3AA1  - preventive" after PRA should be 272 A
-    And the margin on cnec "be2_fr3_co1 - BBE2AA1 ->FFR3AA1   - co1_fr2_fr3_1 - curative" after CRA should be 311 A
+    And 0 remedial actions are used after "co1_fr2_fr3_1" at "curative"
+    And the worst margin is -77.48 A
+    And the margin on cnec "be2_fr3_n - BBE2AA1 ->FFR3AA1  - preventive" after PRA should be -77.48 A
+    And the margin on cnec "fr1_fr4_co1 - FFR1AA1 ->FFR4AA1   - co1_fr2_fr3_1 - curative" after CRA should be 615.43 A
+    And the margin on cnec "fr2_de3_n - FFR2AA1 ->DDE3AA1  - preventive" after PRA should be 307 A
+    And the margin on cnec "be2_fr3_co1 - BBE2AA1 ->FFR3AA1   - co1_fr2_fr3_1 - curative" after CRA should be 106.22 A
 
   @fast @rao @mock @ac @preventive-only
   Scenario: US 15.13.10: not imported combinations of RA
