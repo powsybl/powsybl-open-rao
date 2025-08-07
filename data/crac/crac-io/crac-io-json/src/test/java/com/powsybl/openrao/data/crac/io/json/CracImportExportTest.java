@@ -6,12 +6,16 @@
  */
 package com.powsybl.openrao.data.crac.io.json;
 
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
 import com.powsybl.action.*;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
+import com.powsybl.openrao.commons.logs.TechnicalLogs;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.CracCreationContext;
 import com.powsybl.openrao.data.crac.api.Instant;
@@ -37,11 +41,13 @@ import com.powsybl.openrao.data.crac.impl.utils.ExhaustiveCracCreation;
 import com.powsybl.openrao.data.crac.impl.utils.NetworkImportsUtil;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -85,6 +91,26 @@ class CracImportExportTest {
         CracCreationContext context = new JsonImport().importData(getClass().getResourceAsStream("/cracMissingPst.json"), new CracCreationParameters(), network);
         assertFalse(context.isCreationSuccessful());
         assertEquals(List.of("[ERROR] PST missing-pst does not exist in the current network"), context.getCreationReport().getReport());
+    }
+
+    @Test
+    void testTwoInjectionOnOneGenerator() {
+        Logger logger = (Logger) LoggerFactory.getLogger(TechnicalLogs.class);
+        ListAppender<ILoggingEvent> listAppender = new ListAppender<>();
+        listAppender.start();
+        logger.addAppender(listAppender);
+
+        List<ILoggingEvent> logsList = listAppender.list;
+
+        Network network = NetworkImportsUtil.createNetworkForJsonRetrocompatibilityTest();
+        CracCreationContext context = new JsonImport().importData(getClass().getResourceAsStream("/cracTwoInjectionOneGenerator.json"), new CracCreationParameters(), network);
+        assertTrue(context.isCreationSuccessful());
+
+        logsList.sort(Comparator.comparing(ILoggingEvent::getMessage));
+        assertEquals(2, logsList.size());
+        assertEquals("If the injection range action is used to represent a redispatching remedial action :two different injection actions in the crac can not be defined on the same network element : generator1Id", logsList.get(0).getFormattedMessage());
+        assertEquals("If the injection range action is used to represent a redispatching remedial action :two different injection actions in the crac can not be defined on the same network element : generator2Id", logsList.get(1).getFormattedMessage());
+
     }
 
     @Test
