@@ -198,14 +198,19 @@ Feature: User Story #16.3: Activate remedial actions only after a specific const
 
   @fast @rao @mock @ac @contingency-scenarios
   Scenario: US 16.3.14: Test with a maximum number of CRA 2/2
+    Before onFlowConstraint reevaluation, only PST BE was used and moved to tap 1 in curative.
+    With reevaluation, at depth 1, when close_de3_de4 is activated, an overload of 15 A appears
+    on FFR3AA1  FFR5AA1  1 making PST FR available. Moving this PST to tap 16 in this situation
+    improves the min margin.
     Given network file is "epic16/TestCase16Nodes_3psts.uct"
     Given crac file is "epic16/SL_ep16us3case14.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch search_tree_rao
     Then 0 remedial actions are used in preventive
-    And 1 remedial actions are used after "co1_fr2_fr3_1" at "curative"
-    And the remedial action "pst_be" is used after "co1_fr2_fr3_1" at "curative"
-    And the tap of PstRangeAction "pst_be" should be 1 after "co1_fr2_fr3_1" at "curative"
-    And the worst margin is -5 A
-    And the margin on cnec "BBE2AA1  FFR3AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be -5 A
-    And the margin on cnec "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be 3 A
+    And 2 remedial actions are used after "co1_fr2_fr3_1" at "curative"
+    And the remedial action "close_de3_de4" is used after "co1_fr2_fr3_1" at "curative"
+    And the remedial action "pst_fr" is used after "co1_fr2_fr3_1" at "curative"
+    And the tap of PstRangeAction "pst_fr" should be 16 after "co1_fr2_fr3_1" at "curative"
+    And the worst margin is 32.85 A
+    And the margin on cnec "BBE2AA1  FFR3AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be 32.85 A
+    And the margin on cnec "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be 35.97 A
