@@ -142,7 +142,6 @@ Feature: US 15.13: Handle combined RAs by configuration
     Then 2 remedial actions are used in preventive
     And the remedial action "open_fr1_fr3" is used in preventive
     And the remedial action "open_be1_be4" is used in preventive
-    And 0 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     And the worst margin is -77.48 A
     And the margin on cnec "be2_fr3_n - BBE2AA1 ->FFR3AA1  - preventive" after PRA should be -77.48 A
     And the margin on cnec "fr1_fr4_co1 - FFR1AA1 ->FFR4AA1   - co1_fr2_fr3_1 - curative" after CRA should be 615.43 A
