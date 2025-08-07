@@ -211,6 +211,7 @@ Feature: User Story #16.3: Activate remedial actions only after a specific const
     And the remedial action "close_de3_de4" is used after "co1_fr2_fr3_1" at "curative"
     And the remedial action "pst_fr" is used after "co1_fr2_fr3_1" at "curative"
     And the tap of PstRangeAction "pst_fr" should be 16 after "co1_fr2_fr3_1" at "curative"
-    And the worst margin is 32.85 A
-    And the margin on cnec "BBE2AA1  FFR3AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be 32.85 A
-    And the margin on cnec "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be 35.97 A
+    And the tap of PstRangeAction "pst_be" should be 0 after "co1_fr2_fr3_1" at "curative"
+    And the worst margin is 19.35 A
+    And the margin on cnec "BBE2AA1  FFR3AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be 60.86 A
+    And the margin on cnec "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be 19.35 A
