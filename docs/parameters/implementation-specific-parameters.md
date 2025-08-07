@@ -404,7 +404,7 @@ These parameters are meant to be used in costly optimization only.
 :::{group-tab} JSON
 ~~~json
 {
-  "version" : "3.1",
+  "version" : "3.2",
   "extensions" : {
     "open-rao-search-tree-parameters": {
       "objective-function" : {
