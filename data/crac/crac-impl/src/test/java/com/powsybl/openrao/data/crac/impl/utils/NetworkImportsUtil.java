@@ -96,6 +96,16 @@ public final class NetworkImportsUtil {
             .setConverterStationId1("C1")
             .setConverterStationId2("C2")
             .add();
+        network.newHvdcLine()
+            .setId("hvdc")
+            .setR(1.0)
+            .setConvertersMode(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER)
+            .setNominalV(400)
+            .setActivePowerSetpoint(500)
+            .setMaxP(700)
+            .setConverterStationId1("C1")
+            .setConverterStationId2("C2")
+            .add();
     }
 
     public static void addDanglingLine(Network network) {
@@ -264,6 +274,86 @@ public final class NetworkImportsUtil {
         danglingLine.getTerminal()
             .setP(0.)
             .setQ(0.);
+
+        VscConverterStation cs1 = vl1.newVscConverterStation()
+            .setId("C1")
+            .setName("Converter1")
+            .setConnectableBus("B1")
+            .setBus("B1")
+            .setLossFactor(1.1f)
+            .setVoltageSetpoint(405.0)
+            .setVoltageRegulatorOn(true)
+            .add();
+        cs1.getTerminal()
+            .setP(100.0)
+            .setQ(50.0);
+        cs1.newReactiveCapabilityCurve()
+            .beginPoint()
+            .setP(5.0)
+            .setMinQ(0.0)
+            .setMaxQ(10.0)
+            .endPoint()
+            .beginPoint()
+            .setP(10.0)
+            .setMinQ(0.0)
+            .setMaxQ(10.0)
+            .endPoint()
+            .add();
+        VscConverterStation cs2 = vl2.newVscConverterStation()
+            .setId("C2")
+            .setName("Converter2")
+            .setConnectableBus("B21")
+            .setBus("B21")
+            .setLossFactor(1.1f)
+            .setReactivePowerSetpoint(123)
+            .setVoltageRegulatorOn(false)
+            .add();
+        cs2.newMinMaxReactiveLimits()
+            .setMinQ(0.0)
+            .setMaxQ(10.0)
+            .add();
+
+        network.newHvdcLine()
+            .setId("hvdc")
+            .setR(1.0)
+            .setConvertersMode(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER)
+            .setNominalV(400)
+            .setActivePowerSetpoint(100)
+            .setMaxP(700)
+            .setConverterStationId1("C1")
+            .setConverterStationId2("C2")
+            .add();
+
+        network.newHvdcLine()
+            .setId("hvdc2")
+            .setR(1.0)
+            .setConvertersMode(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER)
+            .setNominalV(400)
+            .setActivePowerSetpoint(100)
+            .setMaxP(700)
+            .setConverterStationId1("C1")
+            .setConverterStationId2("C2")
+            .add();
+
+        // add element necessary for injectionRangeAction
+        vl1.newGenerator()
+            .setId("generator2Id")
+            .setBus("B1")
+            .setMaxP(100.0)
+            .setMinP(50.0)
+            .setTargetP(-50.0)
+            .setTargetV(400.0)
+            .setVoltageRegulatorOn(true)
+            .add();
+        vl1.newGenerator()
+            .setId("generator1Id")
+            .setBus("B2")
+            .setMaxP(100.0)
+            .setMinP(50.0)
+            .setTargetP(50.0)
+            .setTargetV(400.0)
+            .setVoltageRegulatorOn(true)
+            .add();
         return network;
     }
 
