@@ -230,8 +230,9 @@ public final class RaoUtil {
     }
 
     public static Map<State, Set<RangeAction<?>>> getAvailableRangeActionsPerState(Map<State, Set<RangeAction<?>>> rangeActionsPerState, FlowResult prePerimeterFlowResult, Set<FlowCnec> flowCnecs, Network network, Unit unit) {
+        Set<FlowCnec> overloadedCnecs = flowCnecs.stream().filter(flowCnec -> prePerimeterFlowResult.getMargin(flowCnec, unit) < 0).collect(Collectors.toSet());
         Map<State, Set<RangeAction<?>>> availableRangeActions = new HashMap<>();
-        rangeActionsPerState.forEach((state, rangeActions) -> availableRangeActions.put(state, rangeActions.stream().filter(rangeAction -> isRemedialActionAvailable(rangeAction, state, prePerimeterFlowResult, flowCnecs, network, unit)).collect(Collectors.toSet())));
+        rangeActionsPerState.forEach((state, rangeActions) -> availableRangeActions.put(state, rangeActions.stream().filter(rangeAction -> isRemedialActionAvailable(rangeAction, state, prePerimeterFlowResult, overloadedCnecs, network, unit)).collect(Collectors.toSet())));
         return availableRangeActions;
     }
 }
