@@ -101,7 +101,7 @@ public final class InterTemporalIteratingLinearOptimizer {
 
             // c. Get and round range action activation results from solver results
             // TODO: we could use a GlobalRangeActionActivationResult rather than a TemporalData<RangeActionActivationResult>
-            TemporalData<RangeActionActivationResult> rangeActionActivationPerTimestamp = retrieveRangeActionActivationResults(linearProblem, input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::prePerimeterSetpoints), input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::optimizationPerimeter));
+            TemporalData<RangeActionActivationResult> rangeActionActivationPerTimestamp = retrieveRangeActionActivationResults(linearProblem, input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::prePerimeterSetpoints), input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::rangeActionsPerState));
             Map<OffsetDateTime, RangeActionActivationResult> roundedResults = new HashMap<>();
 
             for (OffsetDateTime timestamp : rangeActionActivationPerTimestamp.getTimestamps()) {
@@ -113,7 +113,7 @@ public final class InterTemporalIteratingLinearOptimizer {
 
             // d. Check if set-points have changed; if no, return the best result
             if (!hasAnyRangeActionChanged(
-                input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::optimizationPerimeter),
+                input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::rangeActionsPerState),
                 previousResult,
                 rangeActionActivationPerTimestamp)) {
                 TECHNICAL_LOGS.info("Iteration {}: same results as previous iterations, optimal solution found", iteration);
@@ -303,7 +303,7 @@ public final class InterTemporalIteratingLinearOptimizer {
 
             solveStatus = solveLinearProblem(linearProblem, iteration);
             if (solveStatus == LinearProblemStatus.OPTIMAL || solveStatus == LinearProblemStatus.FEASIBLE) {
-                TemporalData<RangeActionActivationResult> updatedLinearProblemResults = retrieveRangeActionActivationResults(linearProblem, input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::prePerimeterSetpoints), input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::optimizationPerimeter));
+                TemporalData<RangeActionActivationResult> updatedLinearProblemResults = retrieveRangeActionActivationResults(linearProblem, input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::prePerimeterSetpoints), input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::rangeActionsPerState));
                 Map<OffsetDateTime, RangeActionActivationResult> roundedResults = new HashMap<>();
                 updatedLinearProblemResults.getDataPerTimestamp().forEach((timestamp, rangeActionActivationResult) -> roundedResults.put(timestamp, roundResult(rangeActionActivationResult, bestResult, input.iteratingLinearOptimizerInputs().getData(timestamp).orElseThrow(), parameters)));
                 rangeActionActivationResults = new TemporalDataImpl<>(roundedResults);
@@ -370,22 +370,20 @@ public final class InterTemporalIteratingLinearOptimizer {
             .forEach(ra -> roundedResult.putResult(ra, state, Math.round(linearProblemResult.getOptimizedSetpoint(ra, state)))));
     }
 
-    private static TemporalData<RangeActionActivationResult> retrieveRangeActionActivationResults(LinearProblem linearProblem, TemporalData<RangeActionSetpointResult> prePerimeterSetPoints, TemporalData<OptimizationPerimeter> optimizationPerimeters) {
+    private static TemporalData<RangeActionActivationResult> retrieveRangeActionActivationResults(LinearProblem linearProblem, TemporalData<RangeActionSetpointResult> prePerimeterSetPoints, TemporalData<Map<State, Set<RangeAction<?>>>> availableRangeActions) {
         Map<OffsetDateTime, RangeActionActivationResult> linearOptimizationResults = new HashMap<>();
-        List<OffsetDateTime> timestamps = optimizationPerimeters.getTimestamps();
-        // TODO: filter OFC
-        timestamps.forEach(timestamp -> linearOptimizationResults.put(timestamp, new LinearProblemResult(linearProblem, prePerimeterSetPoints.getData(timestamp).orElseThrow(), Map.of())));
+        List<OffsetDateTime> timestamps = availableRangeActions.getTimestamps();
+        timestamps.forEach(timestamp -> linearOptimizationResults.put(timestamp, new LinearProblemResult(linearProblem, prePerimeterSetPoints.getData(timestamp).orElseThrow(), availableRangeActions.getData(timestamp).orElseThrow())));
         return new TemporalDataImpl<>(linearOptimizationResults);
     }
 
     // Stop criterion
 
-    private static boolean hasAnyRangeActionChanged(TemporalData<OptimizationPerimeter> optimizationPerimeters, RangeActionActivationResult previousSetPoints, TemporalData<RangeActionActivationResult> newSetPoints) {
-        for (OffsetDateTime timestamp : optimizationPerimeters.getTimestamps()) {
-            OptimizationPerimeter optimizationPerimeter = optimizationPerimeters.getData(timestamp).orElseThrow();
+    private static boolean hasAnyRangeActionChanged(TemporalData<Map<State, Set<RangeAction<?>>>> availableRangeActions, RangeActionActivationResult previousSetPoints, TemporalData<RangeActionActivationResult> newSetPoints) {
+        for (OffsetDateTime timestamp : availableRangeActions.getTimestamps()) {
+            Map<State, Set<RangeAction<?>>> availableRangeActionsPerState = availableRangeActions.getData(timestamp).orElseThrow();
             RangeActionActivationResult newSetPointsAtTimestamp = newSetPoints.getData(timestamp).orElseThrow();
-            // TODO: filter OFC
-            for (Map.Entry<State, Set<RangeAction<?>>> activatedRangeActionAtState : optimizationPerimeter.getRangeActionsPerState().entrySet()) {
+            for (Map.Entry<State, Set<RangeAction<?>>> activatedRangeActionAtState : availableRangeActionsPerState.entrySet()) {
                 State state = activatedRangeActionAtState.getKey();
                 for (RangeAction<?> rangeAction : activatedRangeActionAtState.getValue()) {
                     if (Math.abs(newSetPointsAtTimestamp.getOptimizedSetpoint(rangeAction, state) - previousSetPoints.getOptimizedSetpoint(rangeAction, state)) >= 1e-6) {

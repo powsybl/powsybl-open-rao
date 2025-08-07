@@ -15,7 +15,6 @@ import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
-import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.openrao.data.raoresult.api.InterTemporalRaoResult;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
@@ -166,7 +165,7 @@ public class Marmot implements InterTemporalRaoProvider {
         raoInput.getRaoInputs().getTimestamps().forEach(timestamp -> linearOptimizerInputPerTimestamp.put(timestamp, IteratingLinearOptimizerInput.create()
             .withNetwork(raoInput.getRaoInputs().getData(timestamp).orElseThrow().getNetwork())
             .withOptimizationPerimeter(optimizationPerimeterPerTimestamp.getData(timestamp).orElseThrow())
-            // TODO: add range actions
+            .withRangeActionsPerState(RaoUtil.getAvailableRangeActionsPerState(optimizationPerimeterPerTimestamp.getData(timestamp).orElseThrow().getRangeActionsPerState(), postTopologicalActionsResults.getData(timestamp).orElseThrow(), optimizationPerimeterPerTimestamp.getData(timestamp).orElseThrow().getFlowCnecs(), raoInput.getRaoInputs().getData(timestamp).orElseThrow().getNetwork(), parameters.getObjectiveFunctionParameters().getUnit()))
             .withInitialFlowResult(initialResults.getData(timestamp).orElseThrow())
             .withPrePerimeterFlowResult(initialResults.getData(timestamp).orElseThrow())
             .withPreOptimizationFlowResult(postTopologicalActionsResults.getData(timestamp).orElseThrow())
