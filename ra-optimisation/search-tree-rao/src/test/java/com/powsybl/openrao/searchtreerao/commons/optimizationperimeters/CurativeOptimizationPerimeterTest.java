@@ -7,6 +7,7 @@
 package com.powsybl.openrao.searchtreerao.commons.optimizationperimeters;
 
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -29,6 +30,7 @@ class CurativeOptimizationPerimeterTest extends AbstractOptimizationPerimeterTes
     @Test
     void curativePerimeterTest() {
         Mockito.when(prePerimeterResult.getSetpoint(cRA)).thenReturn(500.);
+        Mockito.when(prePerimeterResult.getSensitivityStatus(cState1)).thenReturn(ComputationStatus.DEFAULT);
         OptimizationPerimeter optPerimeter = CurativeOptimizationPerimeter.build(cState1, crac, network, raoParameters, prePerimeterResult);
 
         assertEquals(cState1, optPerimeter.getMainOptimizationState());
@@ -50,6 +52,8 @@ class CurativeOptimizationPerimeterTest extends AbstractOptimizationPerimeterTes
 
     @Test
     void curativePerimeterbuildOnPreventiveStateTest() {
-        assertThrows(OpenRaoException.class, () -> CurativeOptimizationPerimeter.build(pState, crac, network, raoParameters, prePerimeterResult));
+        Mockito.when(prePerimeterResult.getSensitivityStatus(pState)).thenReturn(ComputationStatus.DEFAULT);
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> CurativeOptimizationPerimeter.build(pState, crac, network, raoParameters, prePerimeterResult));
+        assertEquals("a CurativeOptimizationContext must be based on a curative state", exception.getMessage());
     }
 }
