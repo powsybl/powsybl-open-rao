@@ -64,6 +64,7 @@ class DiscretePstGroupFillerTest extends AbstractFillerTest {
 
         MarginCoreProblemFiller coreProblemFiller = new MarginCoreProblemFiller(
             optimizationPerimeter,
+            optimizationPerimeter.getRangeActionsPerState(),
             initialRangeActionSetpointResult,
             rangeActionParameters,
             null,
@@ -79,11 +80,11 @@ class DiscretePstGroupFillerTest extends AbstractFillerTest {
             pstRangeActions,
             initialRangeActionSetpointResult,
             rangeActionParameters,
-            false, null);
+            false);
 
         DiscretePstGroupFiller discretePstGroupFiller = new DiscretePstGroupFiller(
             state,
-            pstRangeActions, null);
+            pstRangeActions);
 
         LinearProblem linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)

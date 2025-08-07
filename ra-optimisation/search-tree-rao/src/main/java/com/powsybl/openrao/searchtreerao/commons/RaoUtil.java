@@ -32,6 +32,8 @@ import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
 import org.apache.commons.lang3.tuple.Pair;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -227,4 +229,9 @@ public final class RaoUtil {
             .collect(Collectors.toSet());
     }
 
+    public static Map<State, Set<RangeAction<?>>> getAvailableRangeActionsPerState(Map<State, Set<RangeAction<?>>> rangeActionsPerState, FlowResult prePerimeterFlowResult, Set<FlowCnec> flowCnecs, Network network, Unit unit) {
+        Map<State, Set<RangeAction<?>>> availableRangeActions = new HashMap<>();
+        rangeActionsPerState.forEach((state, rangeActions) -> availableRangeActions.put(state, rangeActions.stream().filter(rangeAction -> isRemedialActionAvailable(rangeAction, state, prePerimeterFlowResult, flowCnecs, network, unit)).collect(Collectors.toSet())));
+        return availableRangeActions;
+    }
 }

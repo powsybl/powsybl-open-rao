@@ -86,6 +86,7 @@ class DiscretePstTapFillerTest extends AbstractFillerTest {
 
         MarginCoreProblemFiller coreProblemFiller = new MarginCoreProblemFiller(
             optimizationPerimeter,
+            optimizationPerimeter.getRangeActionsPerState(),
             initialRangeActionSetpointResult,
             rangeActionParameters,
             null,
@@ -102,7 +103,7 @@ class DiscretePstTapFillerTest extends AbstractFillerTest {
             pstRangeActions,
             initialRangeActionSetpointResult,
             rangeActionParameters,
-            true, null);
+            true);
 
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)

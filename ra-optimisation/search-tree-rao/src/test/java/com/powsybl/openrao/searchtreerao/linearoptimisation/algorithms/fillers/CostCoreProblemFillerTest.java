@@ -101,6 +101,7 @@ class CostCoreProblemFillerTest extends AbstractFillerTest {
 
         coreProblemFiller = new CostCoreProblemFiller(
             optimizationPerimeter,
+            optimizationPerimeter.getRangeActionsPerState(),
             initialRangeActionSetpointResult,
             rangeActionParameters,
             searchTreeParameters.getRangeActionsOptimizationParameters(),

@@ -12,12 +12,14 @@ import com.powsybl.openrao.data.crac.api.Identifiable;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
+import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
 
 import java.util.Comparator;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
@@ -30,8 +32,8 @@ public final class FillersUtil {
     private FillersUtil() {
     }
 
-    static Set<State> getPreviousStates(State refState, OptimizationPerimeter optimizationContext) {
-        return optimizationContext.getRangeActionsPerState().keySet().stream()
+    static Set<State> getPreviousStates(State refState, Map<State, Set<RangeAction<?>>> availableRangeActionsPerState) {
+        return availableRangeActionsPerState.keySet().stream()
                 .filter(s -> s.getContingency().equals(refState.getContingency()) || s.getContingency().isEmpty())
                 .filter(s -> s.getInstant().comesBefore(refState.getInstant()) || s.getInstant().equals(refState.getInstant()))
                 .collect(Collectors.toSet());

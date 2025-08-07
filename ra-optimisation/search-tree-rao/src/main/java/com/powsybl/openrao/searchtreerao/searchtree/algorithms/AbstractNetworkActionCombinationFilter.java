@@ -27,7 +27,10 @@ public abstract class AbstractNetworkActionCombinationFilter implements NetworkA
     @Override
     public Set<NetworkActionCombination> filter(Set<NetworkActionCombination> naCombinations, OptimizationResult optimizationResult) {
         Set<NetworkActionCombination> filteredNaCombinations = filterOutCombinations(naCombinations, optimizationResult);
-        logFilteringReason(naCombinations.size() - filteredNaCombinations.size());
+        int numberOfFilteredCombinations = naCombinations.size() - filteredNaCombinations.size();
+        if (numberOfFilteredCombinations > 0) {
+            logFilteringReason(numberOfFilteredCombinations);
+        }
         return filteredNaCombinations;
     }
 

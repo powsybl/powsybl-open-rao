@@ -26,7 +26,6 @@ import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
 import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
 import org.apache.commons.lang3.tuple.Pair;
 
-import java.time.OffsetDateTime;
 import java.util.*;
 
 /**
@@ -39,21 +38,18 @@ public class DiscretePstTapFiller implements ProblemFiller {
     private final RangeActionSetpointResult prePerimeterRangeActionSetpoints;
     private final RangeActionsOptimizationParameters rangeActionsParameters;
     private final boolean costOptimization;
-    private final OffsetDateTime timestamp;
     private int iteration = 0;
 
     public DiscretePstTapFiller(OptimizationPerimeter optimizationPerimeter,
                                 Map<State, Set<PstRangeAction>> rangeActions,
                                 RangeActionSetpointResult prePerimeterRangeActionSetpoints,
                                 RangeActionsOptimizationParameters rangeActionsParameters,
-                                boolean costOptimization,
-                                OffsetDateTime timestamp) {
+                                boolean costOptimization) {
         this.optimizationPerimeter = optimizationPerimeter;
         this.rangeActions = rangeActions;
         this.prePerimeterRangeActionSetpoints = prePerimeterRangeActionSetpoints;
         this.rangeActionsParameters = rangeActionsParameters;
         this.costOptimization = costOptimization;
-        this.timestamp = timestamp;
     }
 
     @Override

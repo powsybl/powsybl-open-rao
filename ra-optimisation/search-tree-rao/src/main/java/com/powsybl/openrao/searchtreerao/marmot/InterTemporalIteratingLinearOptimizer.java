@@ -347,6 +347,7 @@ public final class InterTemporalIteratingLinearOptimizer {
                 linearProblemResult,
                 input.network(),
                 input.optimizationPerimeter(),
+                input.rangeActionsPerState(),
                 input.prePerimeterSetpoints(),
                 previousResult,
                 parameters.getObjectiveFunctionUnit()
@@ -372,7 +373,8 @@ public final class InterTemporalIteratingLinearOptimizer {
     private static TemporalData<RangeActionActivationResult> retrieveRangeActionActivationResults(LinearProblem linearProblem, TemporalData<RangeActionSetpointResult> prePerimeterSetPoints, TemporalData<OptimizationPerimeter> optimizationPerimeters) {
         Map<OffsetDateTime, RangeActionActivationResult> linearOptimizationResults = new HashMap<>();
         List<OffsetDateTime> timestamps = optimizationPerimeters.getTimestamps();
-        timestamps.forEach(timestamp -> linearOptimizationResults.put(timestamp, new LinearProblemResult(linearProblem, prePerimeterSetPoints.getData(timestamp).orElseThrow(), optimizationPerimeters.getData(timestamp).orElseThrow())));
+        // TODO: filter OFC
+        timestamps.forEach(timestamp -> linearOptimizationResults.put(timestamp, new LinearProblemResult(linearProblem, prePerimeterSetPoints.getData(timestamp).orElseThrow(), Map.of())));
         return new TemporalDataImpl<>(linearOptimizationResults);
     }
 
@@ -382,6 +384,7 @@ public final class InterTemporalIteratingLinearOptimizer {
         for (OffsetDateTime timestamp : optimizationPerimeters.getTimestamps()) {
             OptimizationPerimeter optimizationPerimeter = optimizationPerimeters.getData(timestamp).orElseThrow();
             RangeActionActivationResult newSetPointsAtTimestamp = newSetPoints.getData(timestamp).orElseThrow();
+            // TODO: filter OFC
             for (Map.Entry<State, Set<RangeAction<?>>> activatedRangeActionAtState : optimizationPerimeter.getRangeActionsPerState().entrySet()) {
                 State state = activatedRangeActionAtState.getKey();
                 for (RangeAction<?> rangeAction : activatedRangeActionAtState.getValue()) {

@@ -99,6 +99,7 @@ class MarginCoreProblemFillerTest extends AbstractFillerTest {
 
         coreProblemFiller = new MarginCoreProblemFiller(
             optimizationPerimeter,
+            optimizationPerimeter.getRangeActionsPerState(),
             initialRangeActionSetpointResult,
             raoParameters.getRangeActionsOptimizationParameters(),
             searchTreeParameters.getRangeActionsOptimizationParameters(),

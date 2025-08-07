@@ -20,6 +20,7 @@ import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
+import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.searchtreerao.commons.SensitivityComputer;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.GlobalOptimizationPerimeter;
@@ -193,22 +194,30 @@ public class Leaf implements OptimizationResult {
         if (status.equals(Status.EVALUATED) || status.equals(Status.OPTIMIZED)) {
             TECHNICAL_LOGS.debug("Optimizing leaf...");
 
+            // Filter out range actions with unsatisfied usage rules conditions
+            Map<State, Set<RangeAction<?>>> availableRangeActions = RaoUtil.getAvailableRangeActionsPerState(
+                searchTreeInput.getOptimizationPerimeter().getRangeActionsPerState(), preOptimFlowResult,
+                searchTreeInput.getOptimizationPerimeter().getFlowCnecs(), searchTreeInput.getNetwork(),
+                parameters.getObjectiveFunctionUnit()
+            );
+
             // build input
             IteratingLinearOptimizerInput linearOptimizerInput = IteratingLinearOptimizerInput.create()
-                    .withNetwork(network)
-                    .withOptimizationPerimeter(searchTreeInput.getOptimizationPerimeter())
-                    .withInitialFlowResult(searchTreeInput.getInitialFlowResult())
-                    .withPrePerimeterFlowResult(searchTreeInput.getPrePerimeterResult())
-                    .withPrePerimeterSetpoints(prePerimeterSetpoints)
-                    .withPreOptimizationFlowResult(preOptimFlowResult)
-                    .withPreOptimizationSensitivityResult(preOptimSensitivityResult)
-                    .withPreOptimizationAppliedRemedialActions(appliedRemedialActionsInSecondaryStates)
-                    .withRaActivationFromParentLeaf(raActivationResultFromParentLeaf)
-                    .withAppliedNetworkActionsInPrimaryState(new NetworkActionsResultImpl(Map.of(optimizationPerimeter.getMainOptimizationState(), appliedNetworkActionsInPrimaryState)))
-                    .withObjectiveFunction(searchTreeInput.getObjectiveFunction())
-                    .withToolProvider(searchTreeInput.getToolProvider())
-                    .withOutageInstant(searchTreeInput.getOutageInstant())
-                    .build();
+                .withNetwork(network)
+                .withOptimizationPerimeter(searchTreeInput.getOptimizationPerimeter())
+                .withRangeActionsPerState(availableRangeActions)
+                .withInitialFlowResult(searchTreeInput.getInitialFlowResult())
+                .withPrePerimeterFlowResult(searchTreeInput.getPrePerimeterResult())
+                .withPrePerimeterSetpoints(prePerimeterSetpoints)
+                .withPreOptimizationFlowResult(preOptimFlowResult)
+                .withPreOptimizationSensitivityResult(preOptimSensitivityResult)
+                .withPreOptimizationAppliedRemedialActions(appliedRemedialActionsInSecondaryStates)
+                .withRaActivationFromParentLeaf(raActivationResultFromParentLeaf)
+                .withAppliedNetworkActionsInPrimaryState(new NetworkActionsResultImpl(Map.of(optimizationPerimeter.getMainOptimizationState(), appliedNetworkActionsInPrimaryState)))
+                .withObjectiveFunction(searchTreeInput.getObjectiveFunction())
+                .withToolProvider(searchTreeInput.getToolProvider())
+                .withOutageInstant(searchTreeInput.getOutageInstant())
+                .build();
 
             // build parameters
             IteratingLinearOptimizerParameters linearOptimizerParameters = IteratingLinearOptimizerParameters.create()

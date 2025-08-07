@@ -112,6 +112,7 @@ class PowerGradientConstraintFillerTest {
             RangeActionSetpointResult rangeActionSetpointResult = new RangeActionSetpointResultImpl(map);
             MarginCoreProblemFiller coreProblemFiller = new MarginCoreProblemFiller(
                 optimizationPerimeter,
+                optimizationPerimeter.getRangeActionsPerState(),
                 rangeActionSetpointResult,
                 rangeActionParameters,
                 null,
