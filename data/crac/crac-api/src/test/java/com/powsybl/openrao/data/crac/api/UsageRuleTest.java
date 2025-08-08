@@ -93,7 +93,7 @@ class UsageRuleTest {
         }
     }
 
-    public class OnFlowConstraintInCountryMock implements OnFlowConstraintInCountry {
+    public static class OnFlowConstraintInCountryMock implements OnFlowConstraintInCountry {
         private final Instant instant;
         private final Country country;
         private final Contingency contingency;
