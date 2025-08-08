@@ -820,15 +820,13 @@ of sections.
 
 #### OnInstant
 
-By default, if no additional information is given, the remedial action is imported with an **onInstant usage rule**
-and an **AVAILABLE usage method**.
+By default, if no additional information is given, the remedial action is imported with an **onInstant usage rule**.
 
 #### OnContingencyState
 
-If the remedial action is linked to a contingency, its usage method is no longer onInstant and is now
+If the remedial action is linked to a contingency, its usage rule is no longer onInstant and is now
 **onContingencyState**. This link is created with a `ContingencyWithRemedialAction` object that bounds together the
-remedial action and the contingency. The usage method will be `AVAILABLE` is the remedial action is a CRA and `FORCED`
-if it is an automaton.
+remedial action and the contingency.
 
 ```xml
 <!-- RA Profile -->
@@ -852,10 +850,9 @@ if it is an automaton.
 
 #### OnConstraint
 
-If the remedial action is linked to an assessed element (a CNEC), its usage method is no longer onInstant and is now
+If the remedial action is linked to an assessed element (a CNEC), its usage rule is no longer onInstant and is now
 **onConstraint**. This link is created with a `AssessedElementWithRemedialAction` object that bounds together the
-assessed element and the contingency. The usage method will be `AVAILABLE` is the remedial action is a CRA and `FORCED`
-if it is an automaton.
+assessed element and the contingency.
 
 ```xml
 <!-- AE Profile -->

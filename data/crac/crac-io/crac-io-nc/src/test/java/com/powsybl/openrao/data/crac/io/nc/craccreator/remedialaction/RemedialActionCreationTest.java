@@ -8,7 +8,6 @@ import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
 import com.powsybl.openrao.data.crac.io.nc.parameters.NcCracCreationParameters;
 import org.junit.jupiter.api.Test;
@@ -32,41 +31,41 @@ class RemedialActionCreationTest {
         assertEquals(7, importedRemedialActions.size());
 
         NcCracCreationTestUtil.assertPstRangeActionImported((PstRangeAction) importedRemedialActions.get(0), "remedial-action-1", "remedial-action-1", "BBE2AA1  BBE3AA1  1", null, null, null);
-        NcCracCreationTestUtil.assertHasOnInstantUsageRule(cracCreationContext, "remedial-action-1", NcCracCreationTestUtil.PREVENTIVE_INSTANT_ID, UsageMethod.AVAILABLE);
+        NcCracCreationTestUtil.assertHasOnInstantUsageRule(cracCreationContext, "remedial-action-1", NcCracCreationTestUtil.PREVENTIVE_INSTANT_ID);
 
         NcCracCreationTestUtil.assertPstRangeActionImported((PstRangeAction) importedRemedialActions.get(1), "remedial-action-2", "RA2", "BBE2AA1  BBE3AA1  1", null, null, null);
-        NcCracCreationTestUtil.assertHasOnInstantUsageRule(cracCreationContext, "remedial-action-2", NcCracCreationTestUtil.CURATIVE_1_INSTANT_ID, UsageMethod.AVAILABLE);
-        NcCracCreationTestUtil.assertHasOnInstantUsageRule(cracCreationContext, "remedial-action-2", NcCracCreationTestUtil.CURATIVE_2_INSTANT_ID, UsageMethod.AVAILABLE);
-        NcCracCreationTestUtil.assertHasOnInstantUsageRule(cracCreationContext, "remedial-action-2", NcCracCreationTestUtil.CURATIVE_3_INSTANT_ID, UsageMethod.AVAILABLE);
+        NcCracCreationTestUtil.assertHasOnInstantUsageRule(cracCreationContext, "remedial-action-2", NcCracCreationTestUtil.CURATIVE_1_INSTANT_ID);
+        NcCracCreationTestUtil.assertHasOnInstantUsageRule(cracCreationContext, "remedial-action-2", NcCracCreationTestUtil.CURATIVE_2_INSTANT_ID);
+        NcCracCreationTestUtil.assertHasOnInstantUsageRule(cracCreationContext, "remedial-action-2", NcCracCreationTestUtil.CURATIVE_3_INSTANT_ID);
 
         NcCracCreationTestUtil.assertPstRangeActionImported((PstRangeAction) importedRemedialActions.get(2), "remedial-action-3", "remedial-action-3", "BBE2AA1  BBE3AA1  1", null, null, "RTE");
         assertEquals(Optional.of(10), importedRemedialActions.get(2).getSpeed());
-        NcCracCreationTestUtil.assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-3", "contingency-1", NcCracCreationTestUtil.CURATIVE_1_INSTANT_ID, UsageMethod.AVAILABLE);
-        NcCracCreationTestUtil.assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-3", "contingency-1", NcCracCreationTestUtil.CURATIVE_2_INSTANT_ID, UsageMethod.AVAILABLE);
-        NcCracCreationTestUtil.assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-3", "contingency-1", NcCracCreationTestUtil.CURATIVE_3_INSTANT_ID, UsageMethod.AVAILABLE);
+        NcCracCreationTestUtil.assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-3", "contingency-1", NcCracCreationTestUtil.CURATIVE_1_INSTANT_ID);
+        NcCracCreationTestUtil.assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-3", "contingency-1", NcCracCreationTestUtil.CURATIVE_2_INSTANT_ID);
+        NcCracCreationTestUtil.assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-3", "contingency-1", NcCracCreationTestUtil.CURATIVE_3_INSTANT_ID);
 
         NcCracCreationTestUtil.assertPstRangeActionImported((PstRangeAction) importedRemedialActions.get(3), "remedial-action-4", "RTE_RA4", "BBE2AA1  BBE3AA1  1", null, null, "RTE");
-        NcCracCreationTestUtil.assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-4", "contingency-2", NcCracCreationTestUtil.CURATIVE_1_INSTANT_ID, UsageMethod.AVAILABLE);
-        NcCracCreationTestUtil.assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-4", "contingency-2", NcCracCreationTestUtil.CURATIVE_2_INSTANT_ID, UsageMethod.AVAILABLE);
-        NcCracCreationTestUtil.assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-4", "contingency-2", NcCracCreationTestUtil.CURATIVE_3_INSTANT_ID, UsageMethod.AVAILABLE);
+        NcCracCreationTestUtil.assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-4", "contingency-2", NcCracCreationTestUtil.CURATIVE_1_INSTANT_ID);
+        NcCracCreationTestUtil.assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-4", "contingency-2", NcCracCreationTestUtil.CURATIVE_2_INSTANT_ID);
+        NcCracCreationTestUtil.assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-4", "contingency-2", NcCracCreationTestUtil.CURATIVE_3_INSTANT_ID);
 
         assertEquals(3, ((NetworkAction) importedRemedialActions.get(4)).getElementaryActions().size());
-        NcCracCreationTestUtil.assertHasOnInstantUsageRule(cracCreationContext, "remedial-action-5", NcCracCreationTestUtil.PREVENTIVE_INSTANT_ID, UsageMethod.AVAILABLE);
+        NcCracCreationTestUtil.assertHasOnInstantUsageRule(cracCreationContext, "remedial-action-5", NcCracCreationTestUtil.PREVENTIVE_INSTANT_ID);
 
         NcCracCreationTestUtil.assertPstRangeActionImported((PstRangeAction) importedRemedialActions.get(5), "remedial-action-6", "RTE_RA6", "BBE2AA1  BBE3AA1  1", null, null, "RTE");
         assertEquals(6, importedRemedialActions.get(5).getUsageRules().size());
-        NcCracCreationTestUtil.assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-6", "contingency-1", NcCracCreationTestUtil.CURATIVE_1_INSTANT_ID, UsageMethod.AVAILABLE);
-        NcCracCreationTestUtil.assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-6", "contingency-1", NcCracCreationTestUtil.CURATIVE_2_INSTANT_ID, UsageMethod.AVAILABLE);
-        NcCracCreationTestUtil.assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-6", "contingency-1", NcCracCreationTestUtil.CURATIVE_3_INSTANT_ID, UsageMethod.AVAILABLE);
-        NcCracCreationTestUtil.assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-6", "contingency-2", NcCracCreationTestUtil.CURATIVE_1_INSTANT_ID, UsageMethod.AVAILABLE);
-        NcCracCreationTestUtil.assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-6", "contingency-2", NcCracCreationTestUtil.CURATIVE_2_INSTANT_ID, UsageMethod.AVAILABLE);
-        NcCracCreationTestUtil.assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-6", "contingency-2", NcCracCreationTestUtil.CURATIVE_3_INSTANT_ID, UsageMethod.AVAILABLE);
+        NcCracCreationTestUtil.assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-6", "contingency-1", NcCracCreationTestUtil.CURATIVE_1_INSTANT_ID);
+        NcCracCreationTestUtil.assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-6", "contingency-1", NcCracCreationTestUtil.CURATIVE_2_INSTANT_ID);
+        NcCracCreationTestUtil.assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-6", "contingency-1", NcCracCreationTestUtil.CURATIVE_3_INSTANT_ID);
+        NcCracCreationTestUtil.assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-6", "contingency-2", NcCracCreationTestUtil.CURATIVE_1_INSTANT_ID);
+        NcCracCreationTestUtil.assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-6", "contingency-2", NcCracCreationTestUtil.CURATIVE_2_INSTANT_ID);
+        NcCracCreationTestUtil.assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-6", "contingency-2", NcCracCreationTestUtil.CURATIVE_3_INSTANT_ID);
 
         NcCracCreationTestUtil.assertPstRangeActionImported((PstRangeAction) importedRemedialActions.get(6), "remedial-action-9", "RTE_RA9", "BBE2AA1  BBE3AA1  1", null, null, "RTE");
         assertEquals(3, importedRemedialActions.get(6).getUsageRules().size());
-        NcCracCreationTestUtil.assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-9", "contingency-1", NcCracCreationTestUtil.CURATIVE_1_INSTANT_ID, UsageMethod.AVAILABLE);
-        NcCracCreationTestUtil.assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-9", "contingency-1", NcCracCreationTestUtil.CURATIVE_2_INSTANT_ID, UsageMethod.AVAILABLE);
-        NcCracCreationTestUtil.assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-9", "contingency-1", NcCracCreationTestUtil.CURATIVE_3_INSTANT_ID, UsageMethod.AVAILABLE);
+        NcCracCreationTestUtil.assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-9", "contingency-1", NcCracCreationTestUtil.CURATIVE_1_INSTANT_ID);
+        NcCracCreationTestUtil.assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-9", "contingency-1", NcCracCreationTestUtil.CURATIVE_2_INSTANT_ID);
+        NcCracCreationTestUtil.assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-9", "contingency-1", NcCracCreationTestUtil.CURATIVE_3_INSTANT_ID);
 
         assertEquals(3, cracCreationContext.getRemedialActionCreationContexts().stream().filter(context -> !context.isImported()).toList().size());
 
@@ -84,50 +83,50 @@ class RemedialActionCreationTest {
 
         NcCracCreationTestUtil.assertPstRangeActionImported((PstRangeAction) importedRemedialActions.get(0), "remedial-action-1", "RTE_RA1", "BBE2AA1  BBE3AA1  1", null, null, "RTE");
         assertEquals(1, importedRemedialActions.get(0).getUsageRules().size());
-        NcCracCreationTestUtil.assertHasOnInstantUsageRule(cracCreationContext, "remedial-action-1", NcCracCreationTestUtil.PREVENTIVE_INSTANT_ID, UsageMethod.AVAILABLE);
+        NcCracCreationTestUtil.assertHasOnInstantUsageRule(cracCreationContext, "remedial-action-1", NcCracCreationTestUtil.PREVENTIVE_INSTANT_ID);
 
         NcCracCreationTestUtil.assertPstRangeActionImported((PstRangeAction) importedRemedialActions.get(2), "remedial-action-2", "RTE_RA2", "BBE2AA1  BBE3AA1  1", null, null, "RTE");
         assertEquals(3, importedRemedialActions.get(2).getUsageRules().size());
-        NcCracCreationTestUtil.assertHasOnInstantUsageRule(cracCreationContext, "remedial-action-2", NcCracCreationTestUtil.CURATIVE_1_INSTANT_ID, UsageMethod.AVAILABLE);
-        NcCracCreationTestUtil.assertHasOnInstantUsageRule(cracCreationContext, "remedial-action-2", NcCracCreationTestUtil.CURATIVE_2_INSTANT_ID, UsageMethod.AVAILABLE);
-        NcCracCreationTestUtil.assertHasOnInstantUsageRule(cracCreationContext, "remedial-action-2", NcCracCreationTestUtil.CURATIVE_3_INSTANT_ID, UsageMethod.AVAILABLE);
+        NcCracCreationTestUtil.assertHasOnInstantUsageRule(cracCreationContext, "remedial-action-2", NcCracCreationTestUtil.CURATIVE_1_INSTANT_ID);
+        NcCracCreationTestUtil.assertHasOnInstantUsageRule(cracCreationContext, "remedial-action-2", NcCracCreationTestUtil.CURATIVE_2_INSTANT_ID);
+        NcCracCreationTestUtil.assertHasOnInstantUsageRule(cracCreationContext, "remedial-action-2", NcCracCreationTestUtil.CURATIVE_3_INSTANT_ID);
 
         NcCracCreationTestUtil.assertPstRangeActionImported((PstRangeAction) importedRemedialActions.get(3), "remedial-action-3", "RTE_RA3", "BBE2AA1  BBE3AA1  1", null, null, "RTE");
         assertEquals(2, importedRemedialActions.get(3).getUsageRules().size());
-        NcCracCreationTestUtil.assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-3", "contingency-1", NcCracCreationTestUtil.AUTO_INSTANT_ID, UsageMethod.FORCED);
-        NcCracCreationTestUtil.assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-3", "contingency-2", NcCracCreationTestUtil.AUTO_INSTANT_ID, UsageMethod.FORCED);
+        NcCracCreationTestUtil.assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-3", "contingency-1", NcCracCreationTestUtil.AUTO_INSTANT_ID);
+        NcCracCreationTestUtil.assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-3", "contingency-2", NcCracCreationTestUtil.AUTO_INSTANT_ID);
 
         NcCracCreationTestUtil.assertPstRangeActionImported((PstRangeAction) importedRemedialActions.get(4), "remedial-action-4", "RTE_RA4", "BBE2AA1  BBE3AA1  1", null, null, "RTE");
         assertEquals(3, importedRemedialActions.get(4).getUsageRules().size());
-        NcCracCreationTestUtil.assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-4", "contingency-1", NcCracCreationTestUtil.CURATIVE_1_INSTANT_ID, UsageMethod.AVAILABLE);
-        NcCracCreationTestUtil.assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-4", "contingency-1", NcCracCreationTestUtil.CURATIVE_2_INSTANT_ID, UsageMethod.AVAILABLE);
-        NcCracCreationTestUtil.assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-4", "contingency-1", NcCracCreationTestUtil.CURATIVE_3_INSTANT_ID, UsageMethod.AVAILABLE);
+        NcCracCreationTestUtil.assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-4", "contingency-1", NcCracCreationTestUtil.CURATIVE_1_INSTANT_ID);
+        NcCracCreationTestUtil.assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-4", "contingency-1", NcCracCreationTestUtil.CURATIVE_2_INSTANT_ID);
+        NcCracCreationTestUtil.assertHasOnContingencyStateUsageRule(cracCreationContext, "remedial-action-4", "contingency-1", NcCracCreationTestUtil.CURATIVE_3_INSTANT_ID);
 
         NcCracCreationTestUtil.assertPstRangeActionImported((PstRangeAction) importedRemedialActions.get(5), "remedial-action-5", "RTE_RA5", "BBE2AA1  BBE3AA1  1", null, null, "RTE");
         assertEquals(1, importedRemedialActions.get(5).getUsageRules().size());
-        NcCracCreationTestUtil.assertHasOnConstraintUsageRule(cracCreationContext, "remedial-action-5", "RTE_AE2 (assessed-element-2) - RTE_CO2 - auto - TATL 900", NcCracCreationTestUtil.AUTO_INSTANT_ID, UsageMethod.FORCED, FlowCnec.class);
+        NcCracCreationTestUtil.assertHasOnConstraintUsageRule(cracCreationContext, "remedial-action-5", "RTE_AE2 (assessed-element-2) - RTE_CO2 - auto - TATL 900", NcCracCreationTestUtil.AUTO_INSTANT_ID, FlowCnec.class);
 
         NcCracCreationTestUtil.assertPstRangeActionImported((PstRangeAction) importedRemedialActions.get(6), "remedial-action-6", "RTE_RA6", "BBE2AA1  BBE3AA1  1", null, null, "RTE");
         assertEquals(6, importedRemedialActions.get(6).getUsageRules().size());
-        NcCracCreationTestUtil.assertHasOnConstraintUsageRule(cracCreationContext, "remedial-action-6", "RTE_AE2 (assessed-element-2) - RTE_CO2 - curative 1 - TATL 900", NcCracCreationTestUtil.CURATIVE_1_INSTANT_ID, UsageMethod.AVAILABLE, FlowCnec.class);
-        NcCracCreationTestUtil.assertHasOnConstraintUsageRule(cracCreationContext, "remedial-action-6", "RTE_AE2 (assessed-element-2) - RTE_CO2 - curative 2 - PATL", NcCracCreationTestUtil.CURATIVE_1_INSTANT_ID, UsageMethod.AVAILABLE, FlowCnec.class);
-        NcCracCreationTestUtil.assertHasOnConstraintUsageRule(cracCreationContext, "remedial-action-6", "RTE_AE2 (assessed-element-2) - RTE_CO2 - curative 3 - PATL", NcCracCreationTestUtil.CURATIVE_1_INSTANT_ID, UsageMethod.AVAILABLE, FlowCnec.class);
-        NcCracCreationTestUtil.assertHasOnConstraintUsageRule(cracCreationContext, "remedial-action-6", "RTE_AE2 (assessed-element-2) - RTE_CO2 - curative 2 - PATL", NcCracCreationTestUtil.CURATIVE_2_INSTANT_ID, UsageMethod.AVAILABLE, FlowCnec.class);
-        NcCracCreationTestUtil.assertHasOnConstraintUsageRule(cracCreationContext, "remedial-action-6", "RTE_AE2 (assessed-element-2) - RTE_CO2 - curative 3 - PATL", NcCracCreationTestUtil.CURATIVE_2_INSTANT_ID, UsageMethod.AVAILABLE, FlowCnec.class);
-        NcCracCreationTestUtil.assertHasOnConstraintUsageRule(cracCreationContext, "remedial-action-6", "RTE_AE2 (assessed-element-2) - RTE_CO2 - curative 3 - PATL", NcCracCreationTestUtil.CURATIVE_3_INSTANT_ID, UsageMethod.AVAILABLE, FlowCnec.class);
+        NcCracCreationTestUtil.assertHasOnConstraintUsageRule(cracCreationContext, "remedial-action-6", "RTE_AE2 (assessed-element-2) - RTE_CO2 - curative 1 - TATL 900", NcCracCreationTestUtil.CURATIVE_1_INSTANT_ID, FlowCnec.class);
+        NcCracCreationTestUtil.assertHasOnConstraintUsageRule(cracCreationContext, "remedial-action-6", "RTE_AE2 (assessed-element-2) - RTE_CO2 - curative 2 - PATL", NcCracCreationTestUtil.CURATIVE_1_INSTANT_ID, FlowCnec.class);
+        NcCracCreationTestUtil.assertHasOnConstraintUsageRule(cracCreationContext, "remedial-action-6", "RTE_AE2 (assessed-element-2) - RTE_CO2 - curative 3 - PATL", NcCracCreationTestUtil.CURATIVE_1_INSTANT_ID, FlowCnec.class);
+        NcCracCreationTestUtil.assertHasOnConstraintUsageRule(cracCreationContext, "remedial-action-6", "RTE_AE2 (assessed-element-2) - RTE_CO2 - curative 2 - PATL", NcCracCreationTestUtil.CURATIVE_2_INSTANT_ID, FlowCnec.class);
+        NcCracCreationTestUtil.assertHasOnConstraintUsageRule(cracCreationContext, "remedial-action-6", "RTE_AE2 (assessed-element-2) - RTE_CO2 - curative 3 - PATL", NcCracCreationTestUtil.CURATIVE_2_INSTANT_ID, FlowCnec.class);
+        NcCracCreationTestUtil.assertHasOnConstraintUsageRule(cracCreationContext, "remedial-action-6", "RTE_AE2 (assessed-element-2) - RTE_CO2 - curative 3 - PATL", NcCracCreationTestUtil.CURATIVE_3_INSTANT_ID, FlowCnec.class);
 
         NcCracCreationTestUtil.assertPstRangeActionImported((PstRangeAction) importedRemedialActions.get(7), "remedial-action-7", "RTE_RA7", "BBE2AA1  BBE3AA1  1", null, null, "RTE");
         assertEquals(1, importedRemedialActions.get(7).getUsageRules().size());
-        NcCracCreationTestUtil.assertHasOnConstraintUsageRule(cracCreationContext, "remedial-action-7", "RTE_AE2 (assessed-element-2) - RTE_CO2 - auto - TATL 900", NcCracCreationTestUtil.AUTO_INSTANT_ID, UsageMethod.FORCED, FlowCnec.class);
+        NcCracCreationTestUtil.assertHasOnConstraintUsageRule(cracCreationContext, "remedial-action-7", "RTE_AE2 (assessed-element-2) - RTE_CO2 - auto - TATL 900", NcCracCreationTestUtil.AUTO_INSTANT_ID, FlowCnec.class);
 
         NcCracCreationTestUtil.assertPstRangeActionImported((PstRangeAction) importedRemedialActions.get(8), "remedial-action-8", "RTE_RA8", "BBE2AA1  BBE3AA1  1", null, null, "RTE");
         assertEquals(6, importedRemedialActions.get(8).getUsageRules().size());
-        NcCracCreationTestUtil.assertHasOnConstraintUsageRule(cracCreationContext, "remedial-action-8", "RTE_AE2 (assessed-element-2) - RTE_CO2 - curative 1 - TATL 900", NcCracCreationTestUtil.CURATIVE_1_INSTANT_ID, UsageMethod.AVAILABLE, FlowCnec.class);
-        NcCracCreationTestUtil.assertHasOnConstraintUsageRule(cracCreationContext, "remedial-action-8", "RTE_AE2 (assessed-element-2) - RTE_CO2 - curative 2 - PATL", NcCracCreationTestUtil.CURATIVE_1_INSTANT_ID, UsageMethod.AVAILABLE, FlowCnec.class);
-        NcCracCreationTestUtil.assertHasOnConstraintUsageRule(cracCreationContext, "remedial-action-8", "RTE_AE2 (assessed-element-2) - RTE_CO2 - curative 3 - PATL", NcCracCreationTestUtil.CURATIVE_1_INSTANT_ID, UsageMethod.AVAILABLE, FlowCnec.class);
-        NcCracCreationTestUtil.assertHasOnConstraintUsageRule(cracCreationContext, "remedial-action-8", "RTE_AE2 (assessed-element-2) - RTE_CO2 - curative 2 - PATL", NcCracCreationTestUtil.CURATIVE_2_INSTANT_ID, UsageMethod.AVAILABLE, FlowCnec.class);
-        NcCracCreationTestUtil.assertHasOnConstraintUsageRule(cracCreationContext, "remedial-action-8", "RTE_AE2 (assessed-element-2) - RTE_CO2 - curative 3 - PATL", NcCracCreationTestUtil.CURATIVE_2_INSTANT_ID, UsageMethod.AVAILABLE, FlowCnec.class);
-        NcCracCreationTestUtil.assertHasOnConstraintUsageRule(cracCreationContext, "remedial-action-8", "RTE_AE2 (assessed-element-2) - RTE_CO2 - curative 3 - PATL", NcCracCreationTestUtil.CURATIVE_3_INSTANT_ID, UsageMethod.AVAILABLE, FlowCnec.class);
+        NcCracCreationTestUtil.assertHasOnConstraintUsageRule(cracCreationContext, "remedial-action-8", "RTE_AE2 (assessed-element-2) - RTE_CO2 - curative 1 - TATL 900", NcCracCreationTestUtil.CURATIVE_1_INSTANT_ID, FlowCnec.class);
+        NcCracCreationTestUtil.assertHasOnConstraintUsageRule(cracCreationContext, "remedial-action-8", "RTE_AE2 (assessed-element-2) - RTE_CO2 - curative 2 - PATL", NcCracCreationTestUtil.CURATIVE_1_INSTANT_ID, FlowCnec.class);
+        NcCracCreationTestUtil.assertHasOnConstraintUsageRule(cracCreationContext, "remedial-action-8", "RTE_AE2 (assessed-element-2) - RTE_CO2 - curative 3 - PATL", NcCracCreationTestUtil.CURATIVE_1_INSTANT_ID, FlowCnec.class);
+        NcCracCreationTestUtil.assertHasOnConstraintUsageRule(cracCreationContext, "remedial-action-8", "RTE_AE2 (assessed-element-2) - RTE_CO2 - curative 2 - PATL", NcCracCreationTestUtil.CURATIVE_2_INSTANT_ID, FlowCnec.class);
+        NcCracCreationTestUtil.assertHasOnConstraintUsageRule(cracCreationContext, "remedial-action-8", "RTE_AE2 (assessed-element-2) - RTE_CO2 - curative 3 - PATL", NcCracCreationTestUtil.CURATIVE_2_INSTANT_ID, FlowCnec.class);
+        NcCracCreationTestUtil.assertHasOnConstraintUsageRule(cracCreationContext, "remedial-action-8", "RTE_AE2 (assessed-element-2) - RTE_CO2 - curative 3 - PATL", NcCracCreationTestUtil.CURATIVE_3_INSTANT_ID, FlowCnec.class);
 
         NcCracCreationTestUtil.assertPstRangeActionImported((PstRangeAction) importedRemedialActions.get(9), "remedial-action-9", "RTE_RA9", "BBE2AA1  BBE3AA1  1", null, null, "RTE");
         assertEquals(0, importedRemedialActions.get(9).getUsageRules().size());

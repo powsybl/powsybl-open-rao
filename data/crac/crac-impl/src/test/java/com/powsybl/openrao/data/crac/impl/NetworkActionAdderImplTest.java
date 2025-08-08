@@ -12,7 +12,6 @@ import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkActionAdder;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -59,7 +58,6 @@ class NetworkActionAdderImplTest {
                 .add()
             .newOnInstantUsageRule()
                 .withInstant(PREVENTIVE_INSTANT_ID)
-                .withUsageMethod(UsageMethod.AVAILABLE)
                 .add()
             .add();
 
@@ -109,12 +107,10 @@ class NetworkActionAdderImplTest {
                 .add()
             .newOnInstantUsageRule()
                 .withInstant(PREVENTIVE_INSTANT_ID)
-                .withUsageMethod(UsageMethod.AVAILABLE)
                 .add()
             .newOnContingencyStateUsageRule()
                 .withInstant(CURATIVE_INSTANT_ID)
                 .withContingency("contingencyId")
-                .withUsageMethod(UsageMethod.AVAILABLE)
                 .add()
             .add();
 

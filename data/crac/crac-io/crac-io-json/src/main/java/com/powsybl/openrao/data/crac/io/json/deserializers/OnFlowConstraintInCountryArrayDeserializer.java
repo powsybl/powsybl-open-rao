@@ -8,16 +8,15 @@
 package com.powsybl.openrao.data.crac.io.json.deserializers;
 
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.RemedialActionAdder;
 import com.powsybl.openrao.data.crac.api.usagerule.OnFlowConstraintInCountryAdder;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.powsybl.iidm.network.Country;
 
 import java.io.IOException;
 
+import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
 import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.*;
 
 /**
@@ -35,16 +34,17 @@ public final class OnFlowConstraintInCountryArrayDeserializer {
                     case INSTANT:
                         String instantId = jsonParser.nextTextValue();
                         adder.withInstant(instantId);
-                        if (getPrimaryVersionNumber(version) < 2) {
-                            adder.withUsageMethod(deseralizeInstantKind(instantId).equals(InstantKind.AUTO) ? UsageMethod.FORCED : UsageMethod.AVAILABLE);
-                        }
                         break;
                     case CONTINGENCY_ID:
                         adder.withContingency(jsonParser.nextTextValue());
                         break;
                     case USAGE_METHOD:
-                        adder.withUsageMethod(deserializeUsageMethod(jsonParser.nextTextValue()));
-                        break;
+                        if (getPrimaryVersionNumber(version) < 2 || getPrimaryVersionNumber(version) == 2 && getSubVersionNumber(version) < 8) {
+                            BUSINESS_WARNS.warn("Usage methods are no longer read since they are redundant with the usage rule's instant.");
+                            break;
+                        } else {
+                            throw new OpenRaoException("Unexpected field in OnFlowConstraintInCountry: " + jsonParser.getCurrentName());
+                        }
                     case COUNTRY:
                         adder.withCountry(Country.valueOf(jsonParser.nextTextValue()));
                         break;

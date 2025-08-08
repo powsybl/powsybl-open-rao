@@ -19,7 +19,5 @@ public interface OnFlowConstraintInCountryAdder<T extends RemedialActionAdder<T>
 
     OnFlowConstraintInCountryAdder<T> withCountry(Country country);
 
-    OnFlowConstraintInCountryAdder<T> withUsageMethod(UsageMethod usageMethod);
-
     T add();
 }

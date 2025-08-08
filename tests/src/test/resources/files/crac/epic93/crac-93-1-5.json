@@ -63,8 +63,7 @@
       },
       "onInstantUsageRules": [
         {
-          "instant": "preventive",
-          "usageMethod": "available"
+          "instant": "preventive"
         }
       ],
       "networkElementIdsAndKeys": {
@@ -89,8 +88,7 @@
       },
       "onInstantUsageRules": [
         {
-          "instant": "preventive",
-          "usageMethod": "available"
+          "instant": "preventive"
         }
       ],
       "networkElementIdsAndKeys": {

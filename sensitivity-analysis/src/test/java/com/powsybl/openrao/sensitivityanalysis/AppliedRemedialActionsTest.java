@@ -16,7 +16,6 @@ import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.networkaction.ActionType;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.openrao.data.crac.impl.utils.CommonCracCreation;
 import com.powsybl.openrao.data.crac.impl.utils.NetworkImportsUtil;
 import org.junit.jupiter.api.BeforeEach;
@@ -49,12 +48,12 @@ class AppliedRemedialActionsTest {
         networkAction = crac.newNetworkAction()
                 .withId("na-id")
                 .newTerminalsConnectionAction().withActionType(ActionType.OPEN).withNetworkElement("BBE2AA1  FFR3AA1  1").add()
-                .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(CURATIVE_INSTANT_ID).add()
+                .newOnInstantUsageRule().withInstant(CURATIVE_INSTANT_ID).add()
                 .add();
         autoNetworkAction = crac.newNetworkAction()
             .withId("na-auto-id")
             .newTerminalsConnectionAction().withActionType(ActionType.OPEN).withNetworkElement("BBE2AA1  FFR3AA1  1").add()
-            .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(AUTO_INSTANT_ID).add()
+            .newOnInstantUsageRule().withInstant(AUTO_INSTANT_ID).add()
             .add();
     }
 
