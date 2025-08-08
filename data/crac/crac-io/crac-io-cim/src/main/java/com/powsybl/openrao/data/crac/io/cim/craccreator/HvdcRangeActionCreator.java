@@ -22,6 +22,7 @@ import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
+import com.powsybl.openrao.data.crac.io.commons.iidm.IidmHvdcHelper;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -200,6 +201,9 @@ public class HvdcRangeActionCreator {
         HvdcRangeActionAdder hvdcRangeActionAdder = crac.newHvdcRangeAction();
         String hvdcId = registeredResource.getMRID().getValue();
         hvdcRangeActionAdder.withNetworkElement(hvdcId);
+
+        double initialSetpoint = IidmHvdcHelper.getCurrentSetpoint(network, hvdcId);
+        hvdcRangeActionAdder.withInitialSetpoint(initialSetpoint);
 
         // Speed
         if (cimCracCreationParameters != null && cimCracCreationParameters.getRangeActionSpeedSet() != null) {

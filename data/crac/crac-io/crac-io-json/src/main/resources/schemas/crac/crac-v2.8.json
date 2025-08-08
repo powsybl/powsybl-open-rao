@@ -80,19 +80,19 @@
     "hvdcRangeActions": {
       "type": "array",
       "items": {
-        "$ref": "resource:/schemas/hvdc-range-action/hvdc-range-action-v2.6.json"
+        "$ref": "resource:/schemas/hvdc-range-action/hvdc-range-action-v2.8.json"
       }
     },
     "injectionRangeActions": {
       "type": "array",
       "items": {
-        "$ref": "resource:/schemas/injection-range-action/injection-range-action-v2.6.json"
+        "$ref": "resource:/schemas/injection-range-action/injection-range-action-v2.8.json"
       }
     },
     "counterTradeRangeActions": {
       "type": "array",
       "items": {
-        "$ref": "resource:/schemas/counter-trade-range-action/counter-trade-range-action-v2.6.json"
+        "$ref": "resource:/schemas/counter-trade-range-action/counter-trade-range-action-v2.8.json"
       }
     },
     "networkActions": {

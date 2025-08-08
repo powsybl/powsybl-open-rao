@@ -93,6 +93,24 @@ class ImporterRetrocompatibilityTest {
         addBranch(network, "ne3Id");
         addBranch(network, "ne4Id");
         addBranch(network, "ne5Id");
+
+        HvdcLine hvdcLine = Mockito.mock(HvdcLine.class);
+        Mockito.when(hvdcLine.getActivePowerSetpoint()).thenReturn(0.0);
+        Mockito.when(hvdcLine.getConvertersMode()).thenReturn(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER);
+        Mockito.when(network.getHvdcLine("hvdc")).thenReturn(hvdcLine);
+
+        HvdcLine hvdcLine2 = Mockito.mock(HvdcLine.class);
+        Mockito.when(hvdcLine2.getActivePowerSetpoint()).thenReturn(0.0);
+        Mockito.when(hvdcLine2.getConvertersMode()).thenReturn(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER);
+        Mockito.when(network.getHvdcLine("hvdc2")).thenReturn(hvdcLine2);
+
+        Generator generator = Mockito.mock(Generator.class);
+        Mockito.when(generator.getTargetP()).thenReturn(0.0);
+        Mockito.when(network.getGenerator("generator2Id")).thenReturn(generator);
+
+        Generator generator2 = Mockito.mock(Generator.class);
+        Mockito.when(generator2.getTargetP()).thenReturn(0.0);
+        Mockito.when(network.getGenerator("generator1Id")).thenReturn(generator2);
         return network;
     }
 

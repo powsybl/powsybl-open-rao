@@ -388,7 +388,7 @@ class JsonRetrocompatibilityTest {
 
     @Test
     void importV2Point8Test() throws IOException {
-        // removed iMax from FlowCNECs
+        // removed initialSetPoint field for range action (hvdc, injection, counter trade range action) and iMax from FlowCNECs
         String cracFilePath = "/retrocompatibility/v2/crac-v2.8.json";
         InputStream cracFile = getClass().getResourceAsStream(cracFilePath);
 
@@ -922,5 +922,9 @@ class JsonRetrocompatibilityTest {
 
     private void testContentOfV2Point8Crac(Crac crac) {
         testContentOfV2Point7Crac(crac);
+
+        assertEquals(100, crac.getHvdcRangeAction("hvdcRange1Id").getInitialSetpoint(), 1e-3);
+        assertEquals(-100, crac.getHvdcRangeAction("hvdcRange2Id").getInitialSetpoint(), 1e-3);
+        assertEquals(50, crac.getInjectionRangeAction("injectionRange1Id").getInitialSetpoint(), 1e-3);
     }
 }

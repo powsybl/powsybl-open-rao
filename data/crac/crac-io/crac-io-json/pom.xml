@@ -24,6 +24,10 @@
             <groupId>com.networknt</groupId>
             <artifactId>json-schema-validator</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.powsybl</groupId>
+            <artifactId>open-rao-crac-io-commons</artifactId>
+        </dependency>
 
         <!-- Test dependencies -->
         <dependency>
@@ -81,7 +85,8 @@
         </dependency>
         <dependency>
             <groupId>com.powsybl</groupId>
-            <artifactId>open-rao-crac-io-commons</artifactId>
+            <artifactId>powsybl-ucte-converter</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
