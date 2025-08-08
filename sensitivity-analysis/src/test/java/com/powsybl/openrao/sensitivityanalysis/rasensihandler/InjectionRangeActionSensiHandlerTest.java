@@ -13,7 +13,6 @@ import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.openrao.data.crac.impl.utils.CommonCracCreation;
 import com.powsybl.openrao.sensitivityanalysis.SystematicSensitivityResult;
 import com.powsybl.iidm.network.Network;
@@ -40,7 +39,7 @@ class InjectionRangeActionSensiHandlerTest {
                 .withNetworkElementAndKey(-0.2, "FFR3AA12_generator")
                 .withNetworkElementAndKey(-0.3, "FFR3AA12_load")
                 .newRange().withMin(-1000).withMax(1000).add()
-                .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
                 .add();
 
         InjectionRangeActionSensiHandler sensiHandler = new InjectionRangeActionSensiHandler(injectionRangeAction);
@@ -55,7 +54,7 @@ class InjectionRangeActionSensiHandlerTest {
         InjectionRangeAction injectionRangeAction = crac.newInjectionRangeAction().withId("injectionRangeId")
                 .withNetworkElementAndKey(1, "BBE2AA12_generator")
                 .newRange().withMin(-1000).withMax(1000).add()
-                .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
                 .add();
 
         InjectionRangeActionSensiHandler sensiHandler = new InjectionRangeActionSensiHandler(injectionRangeAction);
@@ -78,7 +77,7 @@ class InjectionRangeActionSensiHandlerTest {
                 .withNetworkElementAndKey(-0.2, "FFR3AA12_generator")
                 .withNetworkElementAndKey(-0.3, "FFR3AA12_load")
                 .newRange().withMin(-1000).withMax(1000).add()
-                .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
                 .add();
 
         InjectionRangeActionSensiHandler sensiHandler = new InjectionRangeActionSensiHandler(injectionRangeAction);
@@ -101,7 +100,7 @@ class InjectionRangeActionSensiHandlerTest {
         InjectionRangeAction injectionRangeAction = crac.newInjectionRangeAction().withId("injectionRangeId")
                 .withNetworkElementAndKey(1, "BBE1AA11 BBE2AA11 1")
                 .newRange().withMin(-1000).withMax(1000).add()
-                .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
                 .add();
 
         InjectionRangeActionSensiHandler sensiHandler = new InjectionRangeActionSensiHandler(injectionRangeAction);
@@ -118,7 +117,7 @@ class InjectionRangeActionSensiHandlerTest {
         InjectionRangeAction injectionRangeAction = crac.newInjectionRangeAction().withId("injectionRangeId")
                 .withNetworkElementAndKey(1, "unknown")
                 .newRange().withMin(-1000).withMax(1000).add()
-                .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
                 .add();
 
         InjectionRangeActionSensiHandler sensiHandler = new InjectionRangeActionSensiHandler(injectionRangeAction);

@@ -529,7 +529,7 @@ public class CastorSecondPreventive {
         Set<RangeAction<?>> rangeActionsToRemove = new HashSet<>();
         setPointResults.forEach((state, spMap) -> {
             if (!state.isPreventive()) {
-                Set<RangeAction<?>> activatableRangeActions = crac.getPotentiallyAvailableRangeActions(state);
+                Set<RangeAction<?>> activatableRangeActions = crac.getRangeActions(state);
                 Set<NetworkAction> activatedNetworkActions = contingencyResults.get(state).getOptimizationResult().getActivatedNetworkActions();
                 spMap.forEach((ra, setPoint) -> {
                     if (setPoint.equals(setPointResults.get(preventiveState).get(ra))

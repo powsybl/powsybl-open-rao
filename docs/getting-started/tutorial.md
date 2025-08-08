@@ -253,7 +253,7 @@ crac.newPstRangeAction()
       .add()
    .newOnInstantUsageRule()
       .withInstant("preventive")
-      .withUsageMethod(UsageMethod.AVAILABLE)
+      
       .add()
    .add();
 ```
@@ -277,7 +277,7 @@ crac.newNetworkAction()
       .newOnContingencyStateUsageRule()
          .withInstant("curative")
          .withContingency("contingency")
-         .withUsageMethod(UsageMethod.AVAILABLE)
+         
          .add()
       .add();
 ```
@@ -461,7 +461,6 @@ import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.networkaction.ActionType;
 import com.powsybl.openrao.data.crac.api.range.RangeType;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.openrao.data.crac.io.commons.iidm.IidmPstHelper;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.raoapi.Rao;
@@ -550,7 +549,6 @@ import com.powsybl.sensitivity.SensitivityAnalysisParameters;
                  .add()
                  .newOnInstantUsageRule()
                  .withInstant("preventive")
-                 .withUsageMethod(UsageMethod.AVAILABLE)
                  .add()
                  .add();
 
@@ -568,7 +566,6 @@ import com.powsybl.sensitivity.SensitivityAnalysisParameters;
                  .newOnContingencyStateUsageRule()
                  .withInstant("curative")
                  .withContingency("contingency")
-                 .withUsageMethod(UsageMethod.AVAILABLE)
                  .add()
                  .add();
 

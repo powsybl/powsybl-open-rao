@@ -22,7 +22,6 @@ import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.openrao.data.crac.impl.utils.ExhaustiveCracCreation;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
@@ -473,16 +472,16 @@ class RaoResultRoundTripTest {
         crac.newPstRangeAction().withId("pst-prev").withNetworkElement("pst").withInitialTap(-1)
             .withTapToAngleConversionMap(Map.of(-1, -10., 0, 0., 1, 10., 2, 20., 3, 30.))
             .withSpeed(1)
-            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
             .add();
         crac.newPstRangeAction().withId("pst-auto").withNetworkElement("pst").withInitialTap(-1)
             .withTapToAngleConversionMap(Map.of(-1, -10., 0, 0., 1, 10., 2, 20., 3, 30.))
             .withSpeed(1)
-            .newOnInstantUsageRule().withInstant(AUTO_INSTANT_ID).withUsageMethod(UsageMethod.FORCED).add()
+            .newOnInstantUsageRule().withInstant(AUTO_INSTANT_ID).add()
             .add();
         crac.newPstRangeAction().withId("pst-cur").withNetworkElement("pst").withInitialTap(-1)
             .withTapToAngleConversionMap(Map.of(-1, -10., 0, 0., 1, 10., 2, 20., 3, 30.))
-            .newOnInstantUsageRule().withInstant(CURATIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnInstantUsageRule().withInstant(CURATIVE_INSTANT_ID).add()
             .add();
 
         // dummy flow cnecs

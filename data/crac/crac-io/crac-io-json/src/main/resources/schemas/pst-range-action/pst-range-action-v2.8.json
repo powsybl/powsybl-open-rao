@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema#",
-  "$id": "https://www.powsybl.org?open-rao-crac-schema=counter-trade-range-action-v2.8.json",
+  "$id": "https://www.powsybl.org?open-rao-crac-schema=pst-range-action-v2.8.json",
   "type": "object",
   "properties": {
     "id": {
@@ -31,17 +31,17 @@
     "speed": {
       "type": "number"
     },
-    "exportingCountry": {
-      "$ref": "resource:/schemas/country/country-v1.3.json"
-    },
-    "importingCountry": {
-      "$ref": "resource:/schemas/country/country-v1.3.json"
+    "networkElementId": {
+      "type": "string"
     },
     "ranges": {
       "type": "array",
       "items": {
         "type": "object",
         "properties": {
+          "rangeType": {
+            "$ref": "resource:/schemas/range-type/range-type-v2.3.json"
+          },
           "max": {
             "type": "number"
           },
@@ -49,7 +49,10 @@
             "type": "number"
           }
         },
-        "additionalProperties": false
+        "additionalProperties": false,
+        "required": [
+          "rangeType"
+        ]
       }
     },
     "onInstantUsageRules": {
@@ -80,8 +83,7 @@
   "additionalProperties": false,
   "required": [
     "id",
-    "exportingCountry",
-    "importingCountry",
+    "networkElementId",
     "ranges"
   ]
 }

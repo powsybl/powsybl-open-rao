@@ -11,8 +11,8 @@ import com.powsybl.openrao.data.crac.api.State;
 
 /**
  * The OnContingencyState UsageRule is defined on a given State. For instance, if a RemedialAction
- * has an OnContingencyState UsageRule with State "curative-co1" and UsageMethod FORCED, this
- * RemedialAction will be forced in the State "curative-co1".
+ * has an OnContingencyState UsageRule with State "curative-co1", this RemedialAction will be
+ * available in the State "curative-co1". If the state is "auto", it will be forced.
  *
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */

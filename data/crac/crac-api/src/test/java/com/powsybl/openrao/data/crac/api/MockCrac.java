@@ -19,7 +19,6 @@ import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeActionAdder;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeActionAdder;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
 import com.powsybl.openrao.data.crac.api.cnec.AngleCnecAdder;
 import com.powsybl.openrao.data.crac.api.cnec.BranchCnec;
@@ -339,12 +338,7 @@ public final class MockCrac implements Crac {
     }
 
     @Override
-    public Set<RangeAction<?>> getRangeActions(State state, UsageMethod... usageMethod) {
-        return null;
-    }
-
-    @Override
-    public Set<RangeAction<?>> getPotentiallyAvailableRangeActions(State state) {
+    public Set<RangeAction<?>> getRangeActions(State state) {
         return null;
     }
 
@@ -419,12 +413,7 @@ public final class MockCrac implements Crac {
     }
 
     @Override
-    public Set<NetworkAction> getNetworkActions(State state, UsageMethod... usageMethod) {
-        return null;
-    }
-
-    @Override
-    public Set<NetworkAction> getPotentiallyAvailableNetworkActions(State state) {
+    public Set<NetworkAction> getNetworkActions(State state) {
         return null;
     }
 

@@ -15,7 +15,6 @@ import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.openrao.data.raoresult.api.InterTemporalRaoResult;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.raoapi.InterTemporalRaoInput;
@@ -205,7 +204,7 @@ public class Marmot implements InterTemporalRaoProvider {
                 MarmotUtils.getPreventivePerimeterCnecs(crac),
                 new HashSet<>(),
                 new HashSet<>(),
-                crac.getRangeActions(crac.getPreventiveState(), UsageMethod.AVAILABLE)
+                crac.getRangeActions(crac.getPreventiveState())
             )
         );
     }

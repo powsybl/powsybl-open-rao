@@ -18,7 +18,6 @@ import com.powsybl.openrao.data.crac.api.usagerule.OnContingencyState;
 import com.powsybl.openrao.data.crac.api.usagerule.OnContingencyStateAdderToRemedialAction;
 import com.powsybl.openrao.data.crac.api.usagerule.OnFlowConstraintInCountry;
 import com.powsybl.openrao.data.crac.api.usagerule.OnInstant;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
@@ -36,9 +35,8 @@ public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extend
     protected Set<UsageRule> usageRules;
     protected Integer speed;
     protected Double activationCost;
-    private boolean computedUsageMethods = false;
-    private Map<State, UsageMethod> usageMethodPerState;
-    private Map<Instant, UsageMethod> usageMethodPerInstant;
+    private Set<State> definitionStates;
+    private Set<Instant> definitionInstants;
 
     protected AbstractRemedialAction(String id, String name, String operator, Set<UsageRule> usageRules, Integer speed, Double activationCost) {
         super(id, name);
@@ -49,7 +47,6 @@ public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extend
     }
 
     void addUsageRule(UsageRule usageRule) {
-        computedUsageMethods = false;
         this.usageRules.add(usageRule);
     }
 
@@ -78,56 +75,26 @@ public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extend
         return Optional.ofNullable(activationCost);
     }
 
-    @Override
-    public UsageMethod getUsageMethod(State state) {
-        if (!computedUsageMethods) {
-            computeUsageMethodPerStateAndInstant();
-            computedUsageMethods = true;
-        }
-        if (usageMethodPerState.getOrDefault(state, UsageMethod.UNDEFINED).equals(usageMethodPerInstant.getOrDefault(state.getInstant(), UsageMethod.UNDEFINED))) {
-            return usageMethodPerInstant.getOrDefault(state.getInstant(), UsageMethod.UNDEFINED);
-        }
-        return UsageMethod.getStrongestUsageMethod(Set.of(
-            usageMethodPerState.getOrDefault(state, UsageMethod.UNDEFINED),
-            usageMethodPerInstant.getOrDefault(state.getInstant(), UsageMethod.UNDEFINED)));
-    }
-
-    private void computeUsageMethodPerStateAndInstant() {
-        usageMethodPerState = new HashMap<>();
-        usageMethodPerInstant = new HashMap<>();
+    private void computeDefinitionStatesAndInstants() {
+        definitionStates = new HashSet<>();
+        definitionInstants = new HashSet<>();
 
         for (UsageRule usageRule : usageRules) {
             if (usageRule.getInstant().isPreventive()) {
-                updateMapWithValue(usageMethodPerInstant, usageRule.getInstant(), usageRule.getUsageMethod());
+                definitionInstants.add(usageRule.getInstant());
             } else if (usageRule instanceof OnConstraint<?> oc) {
                 State state = oc.getCnec().getState();
                 if (usageRule.getInstant().equals(state.getInstant())) {
-                    updateMapWithValue(usageMethodPerState, state, usageRule.getUsageMethod());
+                    definitionStates.add(state);
                 }
             } else if (usageRule instanceof OnContingencyState ocs) {
                 State state = ocs.getState();
-                updateMapWithValue(usageMethodPerState, state, usageRule.getUsageMethod());
+                definitionStates.add(state);
             } else if (usageRule instanceof OnFlowConstraintInCountry || usageRule instanceof OnInstant) {
-                updateMapWithValue(usageMethodPerInstant, usageRule.getInstant(), usageRule.getUsageMethod());
+                definitionInstants.add(usageRule.getInstant());
             } else {
                 throw new OpenRaoException(String.format("Usage rule of type %s is not implemented yet.", usageRule.getClass().getName()));
             }
-        }
-    }
-
-    private void updateMapWithValue(Map<Instant, UsageMethod> map, Instant key, UsageMethod value) {
-        if (!map.containsKey(key)) {
-            map.put(key, value);
-        } else if (!value.equals(map.get(key))) {
-            map.put(key, UsageMethod.getStrongestUsageMethod(Set.of(map.get(key), value)));
-        }
-    }
-
-    private void updateMapWithValue(Map<State, UsageMethod> map, State key, UsageMethod value) {
-        if (!map.containsKey(key)) {
-            map.put(key, value);
-        } else if (!value.equals(map.get(key))) {
-            map.put(key, UsageMethod.getStrongestUsageMethod(Set.of(map.get(key), value)));
         }
     }
 
@@ -159,11 +126,26 @@ public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extend
     }
 
     private <T extends UsageRule> List<T> getUsageRules(Class<T> usageRuleClass, State state) {
-        return getUsageRules().stream().filter(usageRuleClass::isInstance).map(usageRuleClass::cast)
-            .filter(ofc -> state.getInstant().isAuto() ?
-                ofc.getUsageMethod(state).equals(UsageMethod.FORCED) :
-                ofc.getUsageMethod(state).equals(UsageMethod.AVAILABLE) || ofc.getUsageMethod(state).equals(UsageMethod.FORCED))
+        return getUsageRules().stream()
+            .filter(usageRuleClass::isInstance)
+            .map(usageRuleClass::cast)
+            .filter(usageRule -> isUsageRuleDefinedForState(usageRule, state))
             .toList();
+    }
+
+    // TODO: duplicated code -> see where to put it
+    public static boolean isUsageRuleDefinedForState(UsageRule usageRule, State state) {
+        if (!usageRule.getInstant().equals(state.getInstant())) {
+            return false;
+        }
+        if (usageRule instanceof OnContingencyState onContingencyState) {
+            return onContingencyState.getState().equals(state);
+        } else if (usageRule instanceof OnConstraint<?> onConstraint) {
+            return onConstraint.getInstant().isPreventive() || onConstraint.getCnec().getState().getContingency().equals(state.getContingency());
+        } else if (usageRule instanceof OnFlowConstraintInCountry onFlowConstraintInCountry) {
+            return onFlowConstraintInCountry.getContingency().isEmpty() || onFlowConstraintInCountry.getContingency().equals(state.getContingency());
+        }
+        return usageRule instanceof OnInstant;
     }
 
     private static boolean isCnecInCountry(Cnec<?> cnec, Country country, Network network) {
