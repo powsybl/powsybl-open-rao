@@ -129,23 +129,8 @@ public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extend
         return getUsageRules().stream()
             .filter(usageRuleClass::isInstance)
             .map(usageRuleClass::cast)
-            .filter(usageRule -> isUsageRuleDefinedForState(usageRule, state))
+            .filter(usageRule -> usageRule.isDefinedForState(state))
             .toList();
-    }
-
-    // TODO: duplicated code -> see where to put it
-    public static boolean isUsageRuleDefinedForState(UsageRule usageRule, State state) {
-        if (!usageRule.getInstant().equals(state.getInstant())) {
-            return false;
-        }
-        if (usageRule instanceof OnContingencyState onContingencyState) {
-            return onContingencyState.getState().equals(state);
-        } else if (usageRule instanceof OnConstraint<?> onConstraint) {
-            return onConstraint.getInstant().isPreventive() || onConstraint.getCnec().getState().getContingency().equals(state.getContingency());
-        } else if (usageRule instanceof OnFlowConstraintInCountry onFlowConstraintInCountry) {
-            return onFlowConstraintInCountry.getContingency().isEmpty() || onFlowConstraintInCountry.getContingency().equals(state.getContingency());
-        }
-        return usageRule instanceof OnInstant;
     }
 
     private static boolean isCnecInCountry(Cnec<?> cnec, Country country, Network network) {

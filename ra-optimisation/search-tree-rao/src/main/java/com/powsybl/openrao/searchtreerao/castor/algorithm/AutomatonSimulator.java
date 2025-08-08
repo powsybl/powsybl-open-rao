@@ -326,7 +326,7 @@ public final class AutomatonSimulator {
                                                     State automatonState,
                                                     Network network) {
         if (availableRa.getUsageRules().stream().filter(usageRule -> usageRule instanceof OnInstant || usageRule instanceof OnContingencyState)
-            .anyMatch(usageRule -> RaoUtil.isUsageRuleDefinedForState(usageRule, automatonState))) {
+            .anyMatch(usageRule -> usageRule.isDefinedForState(automatonState))) {
             return crac.getFlowCnecs(automatonState);
         } else {
             return availableRa.getFlowCnecsConstrainingUsageRules(crac.getFlowCnecs(automatonState), network, automatonState);

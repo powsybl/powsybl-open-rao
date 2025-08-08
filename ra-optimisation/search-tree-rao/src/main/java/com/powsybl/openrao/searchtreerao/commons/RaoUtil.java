@@ -21,7 +21,6 @@ import com.powsybl.openrao.data.crac.api.usagerule.OnConstraint;
 import com.powsybl.openrao.data.crac.api.usagerule.OnContingencyState;
 import com.powsybl.openrao.data.crac.api.usagerule.OnFlowConstraintInCountry;
 import com.powsybl.openrao.data.crac.api.usagerule.OnInstant;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
 import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceProgramBuilder;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
@@ -182,23 +181,4 @@ public final class RaoUtil {
             .map(FlowCnec::getId)
             .collect(Collectors.toSet());
     }
-
-    public static boolean isRemedialActionDefinedForState(RemedialAction<?> remedialAction, State state) {
-        return remedialAction.getUsageRules().stream().anyMatch(usageRule -> isUsageRuleDefinedForState(usageRule, state));
-    }
-
-    public static boolean isUsageRuleDefinedForState(UsageRule usageRule, State state) {
-        if (!usageRule.getInstant().equals(state.getInstant())) {
-            return false;
-        }
-        if (usageRule instanceof OnContingencyState onContingencyState) {
-            return onContingencyState.getState().equals(state);
-        } else if (usageRule instanceof OnConstraint<?> onConstraint) {
-            return onConstraint.getInstant().isPreventive() || onConstraint.getCnec().getState().getContingency().equals(state.getContingency());
-        } else if (usageRule instanceof OnFlowConstraintInCountry onFlowConstraintInCountry) {
-            return onFlowConstraintInCountry.getContingency().isEmpty() || onFlowConstraintInCountry.getContingency().equals(state.getContingency());
-        }
-        return usageRule instanceof OnInstant;
-    }
-
 }

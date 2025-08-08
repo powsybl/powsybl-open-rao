@@ -39,11 +39,7 @@ import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeActionAdder;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkActionAdder;
-import com.powsybl.openrao.data.crac.api.usagerule.OnConstraint;
 import com.powsybl.openrao.data.crac.api.usagerule.OnContingencyState;
-import com.powsybl.openrao.data.crac.api.usagerule.OnFlowConstraintInCountry;
-import com.powsybl.openrao.data.crac.api.usagerule.OnInstant;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
 
 import java.time.OffsetDateTime;
 import java.util.*;
@@ -792,21 +788,7 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     }
 
     private static boolean isRemedialActionDefinedForState(RemedialAction<?> remedialAction, State state) {
-        return remedialAction.getUsageRules().stream().anyMatch(usageRule -> isUsageRuleDefinedForState(usageRule, state));
-    }
-
-    private static boolean isUsageRuleDefinedForState(UsageRule usageRule, State state) {
-        if (!usageRule.getInstant().equals(state.getInstant())) {
-            return false;
-        }
-        if (usageRule instanceof OnContingencyState onContingencyState) {
-            return onContingencyState.getState().equals(state);
-        } else if (usageRule instanceof OnConstraint<?> onConstraint) {
-            return onConstraint.getInstant().isPreventive() || onConstraint.getCnec().getState().getContingency().equals(state.getContingency());
-        } else if (usageRule instanceof OnFlowConstraintInCountry onFlowConstraintInCountry) {
-            return onFlowConstraintInCountry.getContingency().isEmpty() || onFlowConstraintInCountry.getContingency().equals(state.getContingency());
-        }
-        return usageRule instanceof OnInstant;
+        return remedialAction.getUsageRules().stream().anyMatch(usageRule -> usageRule.isDefinedForState(state));
     }
 
     @Override

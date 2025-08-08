@@ -10,11 +10,6 @@ package com.powsybl.openrao.data.raoresult.io.cne.core;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.TsoEICode;
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
-import com.powsybl.openrao.data.crac.api.usagerule.OnConstraint;
-import com.powsybl.openrao.data.crac.api.usagerule.OnContingencyState;
-import com.powsybl.openrao.data.crac.api.usagerule.OnFlowConstraintInCountry;
-import com.powsybl.openrao.data.crac.api.usagerule.OnInstant;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
 import com.powsybl.openrao.data.raoresult.io.cne.commons.CneHelper;
 import com.powsybl.openrao.data.raoresult.io.cne.core.xsd.ConstraintSeries;
 import com.powsybl.openrao.data.raoresult.io.cne.core.xsd.ContingencySeries;
@@ -164,7 +159,7 @@ public final class CoreCneRemedialActionsCreator {
     }
 
     public void createPostOptimPstRangeActionSeries(PstRangeAction rangeAction, InstantKind optimizedInstantKind, State state, ConstraintSeries constraintSeriesB56) {
-        if (rangeAction.getUsageRules().stream().noneMatch(usageRule -> isUsageRuleDefinedForState(usageRule, state))) {
+        if (rangeAction.getUsageRules().stream().noneMatch(usageRule -> usageRule.isDefinedForState(state))) {
             return;
         }
         // using RaoResult.isActivatedDuringState may throw an exception
@@ -176,21 +171,6 @@ public final class CoreCneRemedialActionsCreator {
             createPstRangeActionRegisteredResource(rangeAction, state, remedialActionSeries);
             constraintSeriesB56.getRemedialActionSeries().add(remedialActionSeries);
         }
-    }
-
-    // TODO: duplicated code
-    private static boolean isUsageRuleDefinedForState(UsageRule usageRule, State state) {
-        if (!usageRule.getInstant().equals(state.getInstant())) {
-            return false;
-        }
-        if (usageRule instanceof OnContingencyState onContingencyState) {
-            return onContingencyState.getState().equals(state);
-        } else if (usageRule instanceof OnConstraint<?> onConstraint) {
-            return onConstraint.getInstant().isPreventive() || onConstraint.getCnec().getState().getContingency().equals(state.getContingency());
-        } else if (usageRule instanceof OnFlowConstraintInCountry onFlowConstraintInCountry) {
-            return onFlowConstraintInCountry.getContingency().isEmpty() || onFlowConstraintInCountry.getContingency().equals(state.getContingency());
-        }
-        return usageRule instanceof OnInstant;
     }
 
     private RemedialActionSeries createB56RemedialActionSeries(String remedialActionId, String remedialActionName, String operator, InstantKind optimizedInstantKind) {
@@ -239,7 +219,7 @@ public final class CoreCneRemedialActionsCreator {
     }
 
     public void createPostOptimNetworkRemedialActionSeries(NetworkAction networkAction, InstantKind optimizedInstantKind, State state, ConstraintSeries constraintSeriesB56) {
-        if (networkAction.getUsageRules().stream().noneMatch(usageRule -> isUsageRuleDefinedForState(usageRule, state))) {
+        if (networkAction.getUsageRules().stream().noneMatch(usageRule -> usageRule.isDefinedForState(state))) {
             return;
         }
         // using RaoResult.isActivatedDuringState may throw an exception
@@ -254,7 +234,7 @@ public final class CoreCneRemedialActionsCreator {
     public void addRemedialActionsToOtherConstraintSeries(List<RemedialActionSeries> remedialActionSeriesList, List<ConstraintSeries> constraintSeriesList) {
         remedialActionSeriesList.forEach(remedialActionSeries -> {
             RemedialActionSeries shortPostOptimRemedialActionSeries = newRemedialActionSeries(remedialActionSeries.getMRID(), remedialActionSeries.getName(), remedialActionSeries.getApplicationModeMarketObjectStatusStatus());
-            constraintSeriesList.stream().forEach(constraintSeries -> constraintSeries.getRemedialActionSeries().add(shortPostOptimRemedialActionSeries));
+            constraintSeriesList.forEach(constraintSeries -> constraintSeries.getRemedialActionSeries().add(shortPostOptimRemedialActionSeries));
         });
     }
 }

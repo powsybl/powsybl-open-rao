@@ -8,6 +8,7 @@
 package com.powsybl.openrao.data.crac.api.usagerule;
 
 import com.powsybl.openrao.data.crac.api.Instant;
+import com.powsybl.openrao.data.crac.api.State;
 
 /**
  * The UsageRule defines conditions under which a RemedialAction can be used.
@@ -19,4 +20,6 @@ public interface UsageRule {
      * Get the Instant of the usage rule
      */
     Instant getInstant();
+
+    boolean isDefinedForState(State state);
 }

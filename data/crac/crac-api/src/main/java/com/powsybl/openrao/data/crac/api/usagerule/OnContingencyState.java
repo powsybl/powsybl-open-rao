@@ -27,4 +27,8 @@ public interface OnContingencyState extends UsageRule {
      * Get the Contingency associated to the state of the OnContingencyState usage rule
      */
     Contingency getContingency();
+
+    default boolean isDefinedForState(State state) {
+        return state.equals(getState());
+    }
 }
