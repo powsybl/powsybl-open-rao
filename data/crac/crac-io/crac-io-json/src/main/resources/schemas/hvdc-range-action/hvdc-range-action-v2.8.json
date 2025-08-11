@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema#",
-  "$id": "https://www.powsybl.org?open-rao-crac-schema=pst-range-action-v2.7.json",
+  "$id": "https://www.powsybl.org?open-rao-crac-schema=hvdc-range-action-v2.8.json",
   "type": "object",
   "properties": {
     "id": {
@@ -39,9 +39,6 @@
       "items": {
         "type": "object",
         "properties": {
-          "rangeType": {
-            "$ref": "resource:/schemas/range-type/range-type-v2.3.json"
-          },
           "max": {
             "type": "number"
           },
@@ -49,10 +46,7 @@
             "type": "number"
           }
         },
-        "additionalProperties": false,
-        "required": [
-          "rangeType"
-        ]
+        "additionalProperties": false
       }
     },
     "onInstantUsageRules": {
