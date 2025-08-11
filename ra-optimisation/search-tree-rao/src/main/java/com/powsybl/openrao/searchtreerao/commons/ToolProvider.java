@@ -32,8 +32,7 @@ import com.powsybl.sensitivity.SensitivityVariableSet;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getSensitivityProvider;
-import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters;
+import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.*;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -92,14 +91,7 @@ public final class ToolProvider {
                                                                             boolean computeLoopFlows,
                                                                             AppliedRemedialActions appliedRemedialActions,
                                                                             Instant outageInstant) {
-        // TODO: replace with a getUnit ? Move logic in raoParameters
-        // In AC, the objective function is in Ampere and in DC in MW
-        Unit objectiveFunctionUnit;
-        if (getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters().isDc()) {
-            objectiveFunctionUnit = Unit.MEGAWATT;
-        } else {
-            objectiveFunctionUnit = Unit.AMPERE;
-        }
+        Unit objectiveFunctionUnit = getObjectiveFunctionUnit(raoParameters);
 
         SystematicSensitivityInterface.SystematicSensitivityInterfaceBuilder builder = SystematicSensitivityInterface.builder()
             .withSensitivityProviderName(getSensitivityProvider(raoParameters))
@@ -214,13 +206,15 @@ public final class ToolProvider {
         ToolProvider.ToolProviderBuilder toolProviderBuilder = ToolProvider.create()
             .withNetwork(raoInput.getNetwork())
             .withRaoParameters(raoParameters);
+
         if (raoInput.getReferenceProgram() != null) {
             toolProviderBuilder.withLoopFlowComputation(
                 raoInput.getReferenceProgram(),
                 raoInput.getGlskProvider(),
                 new LoopFlowComputationImpl(
                     raoInput.getGlskProvider(),
-                    raoInput.getReferenceProgram()
+                    raoInput.getReferenceProgram(),
+                    getObjectiveFunctionUnit(raoParameters)
                 )
             );
         }

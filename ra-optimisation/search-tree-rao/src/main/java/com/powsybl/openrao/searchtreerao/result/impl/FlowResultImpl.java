@@ -102,6 +102,7 @@ public class FlowResultImpl implements FlowResult {
     @Override
     public double getCommercialFlow(FlowCnec flowCnec, TwoSides side, Unit unit) {
         if (unit != Unit.MEGAWATT) {
+            // TODO: allow in AMPERE too
             throw new OpenRaoException("Commercial flows only in MW.");
         }
         if (fixedCommercialFlows != null) {

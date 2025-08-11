@@ -313,6 +313,10 @@ public class SystematicSensitivityResult {
         return stateResult.getIntensitySensitivities().get(cnec.getNetworkElement().getId()).get(variableId).get(side);
     }
 
+    public double getSensitivityOnIntensity(SensitivityVariableSet glsk, FlowCnec cnec, TwoSides side) {
+        return getSensitivityOnIntensity(glsk.getId(), cnec, side);
+    }
+
     public double getSensitivityOnFlow(SensitivityVariableSet glsk, FlowCnec cnec, TwoSides side) {
         return getSensitivityOnFlow(glsk.getId(), cnec, side);
     }
