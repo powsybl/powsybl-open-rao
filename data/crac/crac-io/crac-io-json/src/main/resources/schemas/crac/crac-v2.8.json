@@ -74,7 +74,7 @@
     "pstRangeActions": {
       "type": "array",
       "items": {
-        "$ref": "resource:/schemas/pst-range-action/pst-range-action-v2.7.json"
+        "$ref": "resource:/schemas/pst-range-action/pst-range-action-v2.8.json"
       }
     },
     "hvdcRangeActions": {
