@@ -14,7 +14,6 @@ import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.iidm.network.TwoSides;
-import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.result.api.*;
 import com.powsybl.openrao.searchtreerao.result.impl.RangeActionActivationResultImpl;
@@ -25,8 +24,6 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static com.powsybl.openrao.commons.Unit.MEGAWATT;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -231,15 +228,15 @@ public final class BestTapFinder {
         double minMargin2 = Double.MAX_VALUE;
         for (FlowCnec flowCnec : linearOptimizationResult.getMostLimitingElements(10)) {
             for (TwoSides side : flowCnec.getMonitoredSides()) {
-                double sensitivity = linearOptimizationResult.getSensitivityValue(flowCnec, side, pstRangeAction, MEGAWATT);
+                double sensitivity = linearOptimizationResult.getSensitivityValue(flowCnec, side, pstRangeAction, unit);
                 double currentSetPoint = pstRangeAction.getCurrentSetpoint(network);
-                double referenceFlow = linearOptimizationResult.getFlow(flowCnec, side, unit) * RaoUtil.getFlowUnitMultiplier(flowCnec, side, unit, MEGAWATT);
+                double referenceFlow = linearOptimizationResult.getFlow(flowCnec, side, unit);
 
                 double flow1 = sensitivity * (angle1 - currentSetPoint) + referenceFlow;
                 double flow2 = sensitivity * (angle2 - currentSetPoint) + referenceFlow;
 
-                minMargin1 = Math.min(minMargin1, flowCnec.computeMargin(flow1, side, MEGAWATT));
-                minMargin2 = Math.min(minMargin2, flowCnec.computeMargin(flow2, side, MEGAWATT));
+                minMargin1 = Math.min(minMargin1, flowCnec.computeMargin(flow1, side, unit));
+                minMargin2 = Math.min(minMargin2, flowCnec.computeMargin(flow2, side, unit));
             }
         }
         return Pair.of(minMargin1, minMargin2);
