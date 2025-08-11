@@ -101,17 +101,19 @@ public final class RaoLogger {
 
     public static void logRangeActions(OpenRaoLogger logger,
                                        Leaf leaf,
-                                       OptimizationPerimeter
-                                           optimizationContext, String prefix) {
+                                       OptimizationPerimeter optimizationContext,
+                                       String prefix) {
 
         boolean globalPstOptimization = optimizationContext instanceof GlobalOptimizationPerimeter;
 
         List<String> rangeActionSetpoints = optimizationContext.getRangeActionOptimizationStates().stream().flatMap(state ->
             leaf.getActivatedRangeActions(state).stream().map(rangeAction -> {
-                double rangeActionValue = rangeAction instanceof PstRangeAction pstRangeAction ? leaf.getOptimizedTap(pstRangeAction, state) :
+                double valueVariation = rangeAction instanceof PstRangeAction pstRangeAction ? leaf.getTapVariation(pstRangeAction, state) :
+                    leaf.getSetPointVariation(rangeAction, state);
+                double postOptimValue = rangeAction instanceof PstRangeAction pstRangeAction ? leaf.getOptimizedTap(pstRangeAction, state) :
                     leaf.getOptimizedSetpoint(rangeAction, state);
-                return globalPstOptimization ? format("%s@%s: %.0f", rangeAction.getName(), state.getId(), rangeActionValue) :
-                    format("%s: %.0f", rangeAction.getName(), rangeActionValue);
+                return globalPstOptimization ? format("%s@%s: %.0f (var: %.0f)", rangeAction.getName(), state.getId(), postOptimValue, valueVariation) :
+                    format("%s: %.0f (var: %.0f)", rangeAction.getName(), postOptimValue, valueVariation);
             })).toList();
 
         boolean isRangeActionSetPointEmpty = rangeActionSetpoints.isEmpty();

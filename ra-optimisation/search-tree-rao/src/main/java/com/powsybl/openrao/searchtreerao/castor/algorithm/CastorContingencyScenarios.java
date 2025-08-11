@@ -166,8 +166,20 @@ public class CastorContingencyScenarios {
             }
         }
         TECHNICAL_LOGS.debug("Remaining post-contingency scenarios to optimize: {}", remainingScenarios.decrementAndGet());
-        networkPool.releaseUsedNetwork(networkClone);
+        boolean actionWasApplied = contingencyScenarioResults.entrySet().stream()
+            .filter(stateAndResult -> stateAndResult.getKey().getContingency().orElseThrow().equals(optimizedScenario.getContingency()))
+            .anyMatch(this::isAnyActionApplied);
+        networkPool.releaseUsedNetwork(networkClone, actionWasApplied);
         return null;
+    }
+
+    private boolean isAnyActionApplied(Map.Entry<State, PostPerimeterResult> stateAndResult) {
+        State state = stateAndResult.getKey();
+        PostPerimeterResult postPerimeterResult = stateAndResult.getValue();
+        boolean anyRangeActionApplied = !postPerimeterResult.getOptimizationResult().getActivatedRangeActions(state).isEmpty();
+        boolean anyNetworkActionApplied = !postPerimeterResult.getOptimizationResult().getActivatedNetworkActions().isEmpty();
+        return anyRangeActionApplied || anyNetworkActionApplied;
+
     }
 
     private PostPerimeterResult generateSkippedPostPerimeterResult(State state, double sensitivityFailureOvercost) {
@@ -280,7 +292,7 @@ public class CastorContingencyScenarios {
         if (treeParameters.stopCriterion().equals(TreeParameters.StopCriterion.MIN_OBJECTIVE)) {
             return false;
         } else if (treeParameters.stopCriterion().equals(TreeParameters.StopCriterion.AT_TARGET_OBJECTIVE_VALUE)) {
-            return result.getCost() < treeParameters.targetObjectiveValue();
+            return result.getCost() < treeParameters.targetObjectiveValue() + 1e-6;
         } else {
             throw new OpenRaoException("Unexpected stop criterion: " + treeParameters.stopCriterion());
         }
