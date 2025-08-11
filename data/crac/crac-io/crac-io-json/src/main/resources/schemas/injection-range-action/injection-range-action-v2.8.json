@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema#",
-  "$id": "https://www.powsybl.org?open-rao-crac-schema=pst-range-action-v2.7.json",
+  "$id": "https://www.powsybl.org?open-rao-crac-schema=injection-range-action-v2.8.json",
   "type": "object",
   "properties": {
     "id": {
@@ -31,17 +31,17 @@
     "speed": {
       "type": "number"
     },
-    "networkElementId": {
-      "type": "string"
+    "networkElementIdsAndKeys": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "number"
+      }
     },
     "ranges": {
       "type": "array",
       "items": {
         "type": "object",
         "properties": {
-          "rangeType": {
-            "$ref": "resource:/schemas/range-type/range-type-v2.3.json"
-          },
           "max": {
             "type": "number"
           },
@@ -49,10 +49,7 @@
             "type": "number"
           }
         },
-        "additionalProperties": false,
-        "required": [
-          "rangeType"
-        ]
+        "additionalProperties": false
       }
     },
     "onInstantUsageRules": {
@@ -83,7 +80,7 @@
   "additionalProperties": false,
   "required": [
     "id",
-    "networkElementId",
+    "networkElementIdsAndKeys",
     "ranges"
   ]
 }
