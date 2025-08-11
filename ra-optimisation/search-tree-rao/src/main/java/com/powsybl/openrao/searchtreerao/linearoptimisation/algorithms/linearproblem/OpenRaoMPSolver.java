@@ -14,7 +14,11 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
 import com.powsybl.openrao.searchtreerao.result.api.LinearProblemStatus;
+import org.apache.commons.io.FileUtils;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Objects;
 import java.util.TreeMap;
@@ -174,6 +178,13 @@ public class OpenRaoMPSolver {
     public LinearProblemStatus solve() {
         if (OpenRaoLoggerProvider.TECHNICAL_LOGS.isTraceEnabled()) {
             mpSolver.enableOutput();
+        }
+        try {
+            long now = System.currentTimeMillis();
+            OpenRaoLoggerProvider.BUSINESS_WARNS.warn("{}", now);
+            FileUtils.writeStringToFile(new File("/tmp/marmot" + now + ".lp"), mpSolver.exportModelAsLpFormat(), StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
         return convertResultStatus(mpSolver.solve(solveConfiguration));
     }
