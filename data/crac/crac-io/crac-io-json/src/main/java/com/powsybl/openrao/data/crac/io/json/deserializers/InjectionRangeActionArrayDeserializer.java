@@ -19,6 +19,9 @@ import com.fasterxml.jackson.core.JsonToken;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.*;
+
+import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -27,10 +30,13 @@ public final class InjectionRangeActionArrayDeserializer {
     private InjectionRangeActionArrayDeserializer() {
     }
 
+    static Set<String> networkElementsUsedList;
+
     public static void deserialize(JsonParser jsonParser, String version, Crac crac, Map<String, String> networkElementsNamesPerId, Network network) throws IOException {
         if (networkElementsNamesPerId == null) {
             throw new OpenRaoException(String.format("Cannot deserialize %s before %s", JsonSerializationConstants.INJECTION_RANGE_ACTIONS, JsonSerializationConstants.NETWORK_ELEMENTS_NAME_PER_ID));
         }
+        networkElementsUsedList = new HashSet<>();
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             InjectionRangeActionAdder injectionRangeActionAdder = crac.newInjectionRangeAction();
 
@@ -58,6 +64,12 @@ public final class InjectionRangeActionArrayDeserializer {
         Map<String, Double> injectionDistributionKeys = new HashMap<>();
         while (!jsonParser.nextToken().isStructEnd()) {
             String networkElementId = jsonParser.getCurrentName();
+            // check if an another injection action was already defined on the same network element.
+            if (networkElementsUsedList.contains(networkElementId)) {
+                TECHNICAL_LOGS.warn("If the injection range action is used to represent a redispatching remedial action :" +
+                    "two different injection actions in the crac can not be defined on the same network element : " + networkElementId);
+            }
+            networkElementsUsedList.add(networkElementId);
             jsonParser.nextToken();
             double key = jsonParser.getDoubleValue();
             if (networkElementsNamesPerId.containsKey(networkElementId)) {
