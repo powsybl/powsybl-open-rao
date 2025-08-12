@@ -88,7 +88,7 @@ public final class FlowCnecArrayDeserializer {
                             BUSINESS_WARNS.warn("The iMax is now fetched in the network so the value in the CRAC will not be read.");
                             break;
                         }
-                        throw new OpenRaoException("From version 2.8 onwards, iMax is deprecated.");
+                        throw new OpenRaoException("From version 2.8 onwards, iMax is deprecated and is read from the network.");
                     case JsonSerializationConstants.NOMINAL_VOLTAGE:
                         nominalV = readNominalVoltage(jsonParser, flowCnecAdder);
                         break;
