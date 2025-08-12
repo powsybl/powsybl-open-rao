@@ -84,14 +84,14 @@ public final class CracValidator {
         FlowCnecAdder adder = crac.newFlowCnec()
             .withId(cnec.getId() + " - OUTAGE DUPLICATE")
             .withNetworkElement(cnec.getNetworkElement().getId())
-            .withIMax(cnec.getIMax(TwoSides.ONE), TwoSides.ONE)
-            .withIMax(cnec.getIMax(TwoSides.TWO), TwoSides.TWO)
             .withNominalVoltage(cnec.getNominalVoltage(TwoSides.ONE), TwoSides.ONE)
             .withNominalVoltage(cnec.getNominalVoltage(TwoSides.TWO), TwoSides.TWO)
             .withReliabilityMargin(cnec.getReliabilityMargin())
             .withInstant(outageInstant.getId()).withContingency(cnec.getState().getContingency().orElseThrow().getId())
             .withOptimized(cnec.isOptimized())
             .withMonitored(cnec.isMonitored());
+        cnec.getIMax(TwoSides.ONE).ifPresent(iMax -> adder.withIMax(iMax, TwoSides.ONE));
+        cnec.getIMax(TwoSides.TWO).ifPresent(iMax -> adder.withIMax(iMax, TwoSides.TWO));
         copyThresholds(cnec, adder);
         adder.add();
     }

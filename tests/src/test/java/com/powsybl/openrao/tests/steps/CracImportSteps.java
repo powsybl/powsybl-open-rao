@@ -244,12 +244,12 @@ public class CracImportSteps {
                 .orElseThrow(Exception::new);
 
             if (expectedCnec.get("ImaxLeft") != null) {
-                assertEquals(Double.parseDouble(expectedCnec.get("ImaxLeft")), flowCnec.getIMax(TwoSides.ONE), DOUBLE_TOLERANCE);
+                assertEquals(Double.parseDouble(expectedCnec.get("ImaxLeft")), flowCnec.getIMax(TwoSides.ONE).get(), DOUBLE_TOLERANCE);
             } else {
                 assertNull(flowCnec.getIMax(TwoSides.ONE));
             }
             if (expectedCnec.get("ImaxRight") != null) {
-                assertEquals(Double.parseDouble(expectedCnec.get("ImaxRight")), flowCnec.getIMax(TwoSides.TWO), DOUBLE_TOLERANCE);
+                assertEquals(Double.parseDouble(expectedCnec.get("ImaxRight")), flowCnec.getIMax(TwoSides.TWO).get(), DOUBLE_TOLERANCE);
             } else {
                 assertNull(flowCnec.getIMax(TwoSides.TWO));
             }
