@@ -25,7 +25,6 @@ import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.crac.io.commons.api.StandardElementaryCreationContext;
 import com.powsybl.iidm.network.*;
 import com.powsybl.openrao.data.crac.io.commons.OpenRaoImportException;
-import com.powsybl.openrao.data.crac.io.commons.FlowCnecAdderUtil;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -177,7 +176,6 @@ public class FlowCnecCreator extends AbstractCnecCreator {
         thresholdPerSide.forEach((twoSides, threshold) -> addFlowCnecThreshold(cnecAdder, twoSides, threshold, useMaxAndMinThresholds));
         cnecAdder.withNetworkElement(networkElement.getId());
         setNominalVoltage(cnecAdder, networkElement);
-        FlowCnecAdderUtil.setCurrentLimits(cnecAdder, network, networkElement.getId());
         cnecAdder.add();
     }
 

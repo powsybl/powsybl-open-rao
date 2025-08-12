@@ -9,7 +9,8 @@ package com.powsybl.openrao.data.crac.io.json.deserializers;
 
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.data.crac.io.commons.FlowCnecAdderUtil;
+import com.powsybl.openrao.data.crac.io.commons.CnecElementHelper;
+import com.powsybl.openrao.data.crac.io.commons.iidm.IidmCnecElementHelper;
 import com.powsybl.openrao.data.crac.io.json.ExtensionsHandler;
 import com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants;
 import com.powsybl.openrao.data.crac.api.Crac;
@@ -104,7 +105,8 @@ public final class FlowCnecArrayDeserializer {
                         throw new OpenRaoException("Unexpected field in FlowCnec: " + jsonParser.getCurrentName());
                 }
             }
-            FlowCnecAdderUtil.setCurrentLimits(flowCnecAdder, network, networkElementId);
+            IidmCnecElementHelper cnecElementHelper = new IidmCnecElementHelper(networkElementId, network);
+            addIMax(cnecElementHelper, flowCnecAdder);
             FlowCnec cnec = flowCnecAdder.add();
             if (!extensions.isEmpty()) {
                 ExtensionsHandler.getExtensionsSerializers().addExtensions(cnec, extensions);
@@ -154,5 +156,21 @@ public final class FlowCnecArrayDeserializer {
             flowCnecAdder.withNetworkElement(networkElementId);
         }
         return networkElementId;
+    }
+
+    private static void addIMax(CnecElementHelper cnecElementHelper, FlowCnecAdder flowCnecAdder) {
+        Double currentLimit1 = cnecElementHelper.getCurrentLimit(TwoSides.ONE);
+        Double currentLimit2 = cnecElementHelper.getCurrentLimit(TwoSides.TWO);
+        if (currentLimit1 == null && currentLimit2 == null) {
+            throw new OpenRaoException("Unable to retrieve current limits for branch %s.".formatted(cnecElementHelper.getIdInNetwork()));
+        }
+        if (currentLimit1 == null) {
+            flowCnecAdder.withIMax(currentLimit2);
+        } else if (currentLimit2 == null) {
+            flowCnecAdder.withIMax(currentLimit1);
+        } else {
+            flowCnecAdder.withIMax(currentLimit1, TwoSides.ONE);
+            flowCnecAdder.withIMax(currentLimit2, TwoSides.TWO);
+        }
     }
 }

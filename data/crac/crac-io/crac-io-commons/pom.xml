@@ -74,11 +74,6 @@
             <version>${project.version}</version>
             <scope>compile</scope>
         </dependency>
-        <dependency>
-            <groupId>com.powsybl</groupId>
-            <artifactId>open-rao-crac-impl</artifactId>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 
 </project>

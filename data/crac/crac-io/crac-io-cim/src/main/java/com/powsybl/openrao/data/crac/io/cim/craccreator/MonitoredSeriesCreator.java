@@ -21,11 +21,11 @@ import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnecAdder;
 import com.powsybl.iidm.network.TwoSides;
-import com.powsybl.openrao.data.crac.io.commons.FlowCnecAdderUtil;
 import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
 import com.powsybl.openrao.data.crac.io.commons.cgmes.CgmesBranchHelper;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.data.crac.io.commons.iidm.IidmCnecElementHelper;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
@@ -248,7 +248,9 @@ public class MonitoredSeriesCreator {
         try {
             cnecId = addThreshold(flowCnecAdder, unit, branchHelper, cnecNativeId, direction, threshold);
             setNominalVoltage(flowCnecAdder, branchHelper);
-            FlowCnecAdderUtil.setCurrentLimits(flowCnecAdder, network, branchHelper.getBranch().getId());
+            IidmCnecElementHelper cnecElementHelper = new IidmCnecElementHelper(branchHelper.getBranch().getId(), network);
+            flowCnecAdder.withIMax(cnecElementHelper.getCurrentLimit(TwoSides.ONE), TwoSides.ONE);
+            flowCnecAdder.withIMax(cnecElementHelper.getCurrentLimit(TwoSides.TWO), TwoSides.TWO);
         } catch (OpenRaoException e) {
             if (instant.isPreventive()) {
                 measurementCreationContext.addCnecCreationContext(null, instant, CnecCreationContext.notImported(ImportStatus.OTHER, e.getMessage()));
