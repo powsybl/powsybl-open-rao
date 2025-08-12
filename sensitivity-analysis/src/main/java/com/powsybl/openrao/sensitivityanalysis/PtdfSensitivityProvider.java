@@ -7,6 +7,7 @@
 package com.powsybl.openrao.sensitivityanalysis;
 
 import com.powsybl.openrao.commons.Unit;
+import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.iidm.network.TwoSides;
@@ -32,6 +33,13 @@ public class PtdfSensitivityProvider extends AbstractSimpleSensitivityProvider {
 
     PtdfSensitivityProvider(ZonalData<SensitivityVariableSet> glsk, Set<FlowCnec> cnecs, Set<Unit> units) {
         super(cnecs, units);
+
+        // todo : handle PTDFs in AMPERE
+        if (factorsInAmpere || !factorsInMegawatt) {
+            OpenRaoLoggerProvider.TECHNICAL_LOGS.warn("PtdfSensitivity provider currently only handle Megawatt unit");
+            factorsInMegawatt = true;
+            factorsInAmpere = false;
+        }
         this.glsk = Objects.requireNonNull(glsk);
     }
 
@@ -72,23 +80,18 @@ public class PtdfSensitivityProvider extends AbstractSimpleSensitivityProvider {
         List<SensitivityFactor> factors = new ArrayList<>();
         Map<NetworkElement, Set<TwoSides>> networkElementsAndSides = new HashMap<>();
         flowCnecsStream.forEach(cnec -> networkElementsAndSides.computeIfAbsent(cnec.getNetworkElement(), k -> new HashSet<>()).addAll(cnec.getMonitoredSides()));
-        networkElementsAndSides.forEach((ne, sides) ->
-            sides.forEach(side ->
-                mapCountryLinearGlsk.values().forEach(linearGlsk ->
-                    getSensitivityFunctionTypes(sides).forEach(functionType ->
-                        factors.add(new SensitivityFactor(
-                            functionType,
+        networkElementsAndSides
+            .forEach((ne, sides) ->
+                sides.forEach(side ->
+                    mapCountryLinearGlsk.values().stream()
+                        .map(linearGlsk -> new SensitivityFactor(
+                            sideToActivePowerFunctionType(side),
                             ne.getId(),
                             SensitivityVariableType.INJECTION_ACTIVE_POWER,
                             linearGlsk.getId(),
                             true,
-                            contingencyContext
-                        ))
-                    )
-                )
-            )
-        );
-
+                            contingencyContext))
+                        .forEach(factors::add)));
         return factors;
     }
 
@@ -97,21 +100,12 @@ public class PtdfSensitivityProvider extends AbstractSimpleSensitivityProvider {
         return new HashMap<>();
     }
 
-    private Set<SensitivityFunctionType> getSensitivityFunctionTypes(Set<TwoSides> sides) {
-        Set<SensitivityFunctionType> sensitivityFunctionTypes = new HashSet<>();
-        if (factorsInMegawatt && sides.contains(TwoSides.ONE)) {
-            sensitivityFunctionTypes.add(SensitivityFunctionType.BRANCH_ACTIVE_POWER_1);
+    private SensitivityFunctionType sideToActivePowerFunctionType(TwoSides side) {
+        if (side.equals(TwoSides.ONE)) {
+            return SensitivityFunctionType.BRANCH_ACTIVE_POWER_1;
+        } else {
+            return SensitivityFunctionType.BRANCH_ACTIVE_POWER_2;
         }
-        if (factorsInMegawatt && sides.contains(TwoSides.TWO)) {
-            sensitivityFunctionTypes.add(SensitivityFunctionType.BRANCH_ACTIVE_POWER_2);
-        }
-        if (factorsInAmpere && sides.contains(TwoSides.ONE)) {
-            sensitivityFunctionTypes.add(SensitivityFunctionType.BRANCH_CURRENT_1);
-        }
-        if (factorsInAmpere && sides.contains(TwoSides.TWO)) {
-            sensitivityFunctionTypes.add(SensitivityFunctionType.BRANCH_CURRENT_2);
-        }
-        return sensitivityFunctionTypes;
     }
 
     @Override

@@ -9,7 +9,6 @@ package com.powsybl.openrao.raoapi.parameters.extensions;
 
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.loadflow.LoadFlowParameters;
-import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.sensitivity.SensitivityAnalysisParameters;
 
@@ -110,14 +109,6 @@ public class LoadFlowAndSensitivityParameters {
             return raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters();
         }
         return cleanLoadFlowParameters(new SensitivityAnalysisParameters());
-    }
-
-    public static Unit getObjectiveFunctionUnit(RaoParameters raoParameters) {
-        if (getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters().isDc()) {
-            return Unit.MEGAWATT;
-        } else {
-            return Unit.AMPERE;
-        }
     }
 
     private static SensitivityAnalysisParameters cleanLoadFlowParameters(SensitivityAnalysisParameters sensitivityAnalysisParameters) {

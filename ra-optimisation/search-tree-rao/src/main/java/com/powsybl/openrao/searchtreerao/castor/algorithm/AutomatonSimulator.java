@@ -64,6 +64,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.powsybl.openrao.commons.Unit.MEGAWATT;
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_LOGS;
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
@@ -603,8 +604,9 @@ public final class AutomatonSimulator {
 
             // Aligned range actions have the same set-point :
             double currentSetpoint = alignedRangeActions.get(0).getCurrentSetpoint(network);
-            double cnecFlow = automatonRangeActionOptimizationSensitivityAnalysisOutput.getFlow(toBeShiftedCnec, side, flowUnit);
-            double cnecMargin = automatonRangeActionOptimizationSensitivityAnalysisOutput.getMargin(toBeShiftedCnec, side, flowUnit);
+            double conversionToMegawatt = RaoUtil.getFlowUnitMultiplier(toBeShiftedCnec, side, flowUnit, MEGAWATT);
+            double cnecFlow = conversionToMegawatt * automatonRangeActionOptimizationSensitivityAnalysisOutput.getFlow(toBeShiftedCnec, side, flowUnit);
+            double cnecMargin = conversionToMegawatt * automatonRangeActionOptimizationSensitivityAnalysisOutput.getMargin(toBeShiftedCnec, side, flowUnit);
             double optimalSetpoint = computeOptimalSetpoint(currentSetpoint, cnecFlow, cnecMargin, sensitivityValue, alignedRangeActions.get(0), minSetpoint, maxSetpoint);
 
             // On first iteration, define direction
@@ -651,7 +653,7 @@ public final class AutomatonSimulator {
         // Under-estimate range action sensitivity if convergence to margin = 0 is slow (ie if multiple passes
         // through this loop have been needed to secure the same CNEC)
         for (RangeAction<?> rangeAction : alignedRangeActions) {
-            sensitivityValue += sensitivityUnderestimator * automatonRangeActionOptimizationSensitivityAnalysisOutput.getSensitivityValue(toBeShiftedCnec, side, rangeAction, flowUnit);
+            sensitivityValue += sensitivityUnderestimator * automatonRangeActionOptimizationSensitivityAnalysisOutput.getSensitivityValue(toBeShiftedCnec, side, rangeAction, MEGAWATT);
         }
         return sensitivityValue;
     }
