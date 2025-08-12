@@ -15,7 +15,7 @@ that are at stake in power grids. Indeed, generators must be operated under cert
 constraints that restrict the range of power they can deliver over a bounded period of time. Among these constraints are
 **power gradient constraints** (in MW/h for instance) that restrict the power variation of a generator over time.
 
-<!-- TODO: include an image with the program of a generator to display power gradient constraints -->
+![](../_static/img/generator-with-gradients.png)
 
 When aiming for a more realistic modelling of the power grid, such constraints must be taken in account and some RCCs
 have already expressed their need for including intertemporal constraints in RAO optimization.
