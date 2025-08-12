@@ -21,8 +21,6 @@ public interface InjectionRangeActionAdder extends StandardRangeActionAdder<Inje
 
     InjectionRangeActionAdder withNetworkElement(String networkElementId, String networkElementName);
 
-    InjectionRangeActionAdder withInitialSetpoint(double initialSetpoint);
-
     StandardRangeAdder<InjectionRangeActionAdder> newRange();
 
     InjectionRangeAction add();
