@@ -65,7 +65,7 @@ class JsonLoopFlowThresholdImplImportExportTest {
         crac.write("JSON", outputStream);
 
         // create network
-        Network network = NetworkImportsUtil.createNetworkForJsonRetrocompatibilityTest();
+        Network network = NetworkImportsUtil.createNetworkForJsonRetrocompatibilityTest(0.0);
 
         // import Crac
         Crac importedCrac;

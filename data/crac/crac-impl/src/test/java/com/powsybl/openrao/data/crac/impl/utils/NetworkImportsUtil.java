@@ -143,7 +143,7 @@ public final class NetworkImportsUtil {
         shuntCompensator.getTerminal().setP(0.).setQ(0.);
     }
 
-    public static Network createNetworkForJsonRetrocompatibilityTest() {
+    public static Network createNetworkForJsonRetrocompatibilityTest(double tapOffset) {
         Network network = Network.create("test", "test");
         Substation s = network.newSubstation()
             .setId("S1")
@@ -230,7 +230,7 @@ public final class NetworkImportsUtil {
                 .setLowTapPosition(-5);
             for (int j = -5; j <= 5; j++) {
                 ptcAdder.beginStep()
-                    .setAlpha(j * 0.5)
+                    .setAlpha(j * 0.5 + tapOffset)
                     .endStep();
             }
             ptcAdder.add();

@@ -78,7 +78,7 @@ class CracImportExportTest {
 
     @Test
     void testNonNullOffsetDateTime() {
-        Network network = NetworkImportsUtil.createNetworkForJsonRetrocompatibilityTest();
+        Network network = NetworkImportsUtil.createNetworkForJsonRetrocompatibilityTest(0.0);
         CracCreationContext context = new JsonImport().importData(getClass().getResourceAsStream("/retrocompatibility/v2/crac-v2.5.json"), new CracCreationParameters(), network);
         assertTrue(context.isCreationSuccessful());
         assertNull(context.getTimeStamp());
@@ -87,7 +87,7 @@ class CracImportExportTest {
 
     @Test
     void testPstMissingInNetwork() {
-        Network network = NetworkImportsUtil.createNetworkForJsonRetrocompatibilityTest();
+        Network network = NetworkImportsUtil.createNetworkForJsonRetrocompatibilityTest(0.0);
         CracCreationContext context = new JsonImport().importData(getClass().getResourceAsStream("/cracMissingPst.json"), new CracCreationParameters(), network);
         assertFalse(context.isCreationSuccessful());
         assertEquals(List.of("[ERROR] PST missing-pst does not exist in the current network"), context.getCreationReport().getReport());
@@ -102,7 +102,7 @@ class CracImportExportTest {
 
         List<ILoggingEvent> logsList = listAppender.list;
 
-        Network network = NetworkImportsUtil.createNetworkForJsonRetrocompatibilityTest();
+        Network network = NetworkImportsUtil.createNetworkForJsonRetrocompatibilityTest(0.0);
         CracCreationContext context = new JsonImport().importData(getClass().getResourceAsStream("/cracTwoInjectionOneGenerator.json"), new CracCreationParameters(), network);
         assertTrue(context.isCreationSuccessful());
 

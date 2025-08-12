@@ -79,7 +79,7 @@ class JsonRetrocompatibilityTest {
 
     @BeforeEach
     public void setUp() {
-        network = NetworkImportsUtil.createNetworkForJsonRetrocompatibilityTest();
+        network = NetworkImportsUtil.createNetworkForJsonRetrocompatibilityTest(0.0);
     }
 
     @Test
