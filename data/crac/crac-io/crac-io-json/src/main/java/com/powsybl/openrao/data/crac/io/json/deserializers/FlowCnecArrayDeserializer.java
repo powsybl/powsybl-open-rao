@@ -46,6 +46,7 @@ public final class FlowCnecArrayDeserializer {
             String networkElementId = null;
             List<Extension<FlowCnec>> extensions = new ArrayList<>();
             Pair<Double, Double> nominalV = null;
+            boolean hasPercentIMaxThresholds = false;
             while (!jsonParser.nextToken().isStructEnd()) {
                 switch (jsonParser.getCurrentName()) {
                     case JsonSerializationConstants.ID:
@@ -95,7 +96,7 @@ public final class FlowCnecArrayDeserializer {
                         break;
                     case JsonSerializationConstants.THRESHOLDS:
                         jsonParser.nextToken();
-                        BranchThresholdArrayDeserializer.deserialize(jsonParser, flowCnecAdder, nominalV, version);
+                        hasPercentIMaxThresholds = BranchThresholdArrayDeserializer.deserialize(jsonParser, flowCnecAdder, nominalV, version);
                         break;
                     case JsonSerializationConstants.EXTENSIONS:
                         jsonParser.nextToken();
@@ -105,8 +106,10 @@ public final class FlowCnecArrayDeserializer {
                         throw new OpenRaoException("Unexpected field in FlowCnec: " + jsonParser.getCurrentName());
                 }
             }
-            IidmCnecElementHelper cnecElementHelper = new IidmCnecElementHelper(networkElementId, network);
-            addIMax(cnecElementHelper, flowCnecAdder);
+            if (hasPercentIMaxThresholds) {
+                IidmCnecElementHelper cnecElementHelper = new IidmCnecElementHelper(networkElementId, network);
+                addIMax(cnecElementHelper, flowCnecAdder);
+            }
             FlowCnec cnec = flowCnecAdder.add();
             if (!extensions.isEmpty()) {
                 ExtensionsHandler.getExtensionsSerializers().addExtensions(cnec, extensions);

@@ -8,6 +8,7 @@
 package com.powsybl.openrao.data.crac.io.json.deserializers;
 
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnecAdder;
 import com.powsybl.openrao.data.crac.api.threshold.BranchThresholdAdder;
@@ -26,13 +27,18 @@ public final class BranchThresholdArrayDeserializer {
     private BranchThresholdArrayDeserializer() {
     }
 
-    public static void deserialize(JsonParser jsonParser, FlowCnecAdder ownerAdder, Pair<Double, Double> nominalV, String version) throws IOException {
+    public static boolean deserialize(JsonParser jsonParser, FlowCnecAdder ownerAdder, Pair<Double, Double> nominalV, String version) throws IOException {
+        boolean hasPercentIMaxThresholds = false;
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             BranchThresholdAdder branchThresholdAdder = ownerAdder.newThreshold();
             while (!jsonParser.nextToken().isStructEnd()) {
                 switch (jsonParser.getCurrentName()) {
                     case JsonSerializationConstants.UNIT:
-                        branchThresholdAdder.withUnit(JsonSerializationConstants.deserializeUnit(jsonParser.nextTextValue()));
+                        Unit unit = JsonSerializationConstants.deserializeUnit(jsonParser.nextTextValue());
+                        branchThresholdAdder.withUnit(unit);
+                        if (Unit.PERCENT_IMAX.equals(unit)) {
+                            hasPercentIMaxThresholds = true;
+                        }
                         break;
                     case JsonSerializationConstants.MIN:
                         jsonParser.nextToken();
@@ -69,5 +75,6 @@ public final class BranchThresholdArrayDeserializer {
             }
             branchThresholdAdder.add();
         }
+        return hasPercentIMaxThresholds;
     }
 }
