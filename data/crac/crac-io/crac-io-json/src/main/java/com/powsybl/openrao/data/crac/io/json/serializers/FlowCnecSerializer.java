@@ -43,17 +43,12 @@ public class FlowCnecSerializer<I extends FlowCnec> extends AbstractJsonSerializ
         gen.writeObjectField(JsonSerializationConstants.MONITORED, flowCnec.isMonitored());
         gen.writeNumberField(JsonSerializationConstants.RELIABILITY_MARGIN, flowCnec.getReliabilityMargin());
 
-        serializeIMax(flowCnec, gen);
         serializeNominalVoltage(flowCnec, gen);
         serializeThresholds(flowCnec, gen);
 
         JsonUtil.writeExtensions(flowCnec, gen, serializerProvider, ExtensionsHandler.getExtensionsSerializers());
 
         gen.writeEndObject();
-    }
-
-    private void serializeIMax(FlowCnec flowCnec, JsonGenerator gen) throws IOException {
-        serializeDoubleValuesOnBothSide(gen, flowCnec.getIMax(TwoSides.ONE), flowCnec.getIMax(TwoSides.TWO), JsonSerializationConstants.I_MAX);
     }
 
     private void serializeNominalVoltage(FlowCnec flowCnec, JsonGenerator gen) throws IOException {
