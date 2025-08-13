@@ -6,6 +6,9 @@
  */
 package com.powsybl.openrao.sensitivityanalysis;
 
+import com.powsybl.iidm.network.Connectable;
+import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.Terminal;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
@@ -93,5 +96,13 @@ public abstract class AbstractSimpleSensitivityProvider implements CnecSensitivi
     @Override
     public void enableFactorsForBaseCaseSituation() {
         this.afterContingencyOnly = false;
+    }
+
+    protected static boolean isConnected(FlowCnec flowCnec, Network network) {
+        Identifiable<?> identifiable = network.getIdentifiable(flowCnec.getNetworkElement().getId());
+        if (identifiable instanceof Connectable<?> connectable) {
+            return connectable.getTerminals().stream().allMatch(Terminal::isConnected);
+        }
+        return true; // by default
     }
 }
