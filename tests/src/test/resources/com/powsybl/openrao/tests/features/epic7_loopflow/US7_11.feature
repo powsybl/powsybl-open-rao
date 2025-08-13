@@ -10,7 +10,7 @@ Feature: US 7.11: Additional tests with CBCORA input files and FRM
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic7/crac_lf_rao_3_cbcora.xml"
     Given loopflow glsk file is "common/glsk_lots_of_lf_12nodes.xml"
-    Given configuration file is "epic7/RaoParameters_maxMargin_ampere_ac_lf_false_5_100.json"
+    Given configuration file is "epic7/RaoParameters_maxMargin_mw_dc_lf_false_5_100_update.json"
 
     When I launch loopflow search_tree_rao at "2019-01-08 00:00" with default loopflow limit as 0.0 percent of pmax
     # if the loopflow limit is defined equal to zero, josiris-server will not create LoopFlowExtensions
@@ -39,7 +39,7 @@ Feature: US 7.11: Additional tests with CBCORA input files and FRM
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic7/crac_lf_rao_3_with_frm_cbcora.xml"
     Given loopflow glsk file is "common/glsk_lots_of_lf_12nodes.xml"
-    Given configuration file is "epic7/RaoParameters_maxMargin_ampere_ac_lf_false_5_100.json"
+    Given configuration file is "epic7/RaoParameters_maxMargin_mw_dc_lf_false_5_100_update.json"
 
     When I launch loopflow search_tree_rao at "2019-01-08 12:00" with default loopflow limit as 0.0 percent of pmax
       # if the loopflow limit is defined equal to zero, josiris-server will not create LoopFlowExtensions
