@@ -79,7 +79,7 @@ class JsonRetrocompatibilityTest {
 
     @BeforeEach
     public void setUp() {
-        network = NetworkImportsUtil.createNetworkForJsonRetrocompatibilityTest();
+        network = NetworkImportsUtil.createNetworkForJsonRetrocompatibilityTest(0.0);
     }
 
     @Test
@@ -388,7 +388,7 @@ class JsonRetrocompatibilityTest {
 
     @Test
     void importV2Point8Test() throws IOException {
-        // remove initialSetPoint field for range action (hvdc, injection, counter trade range action)
+        // removed initialSetPoint field for range action (hvdc, injection, counter trade range action) and iMax from FlowCNECs
         String cracFilePath = "/retrocompatibility/v2/crac-v2.8.json";
         InputStream cracFile = getClass().getResourceAsStream(cracFilePath);
 
@@ -456,12 +456,12 @@ class JsonRetrocompatibilityTest {
         assertEquals("operator4", crac.getFlowCnec("cnec4prevId").getOperator());
 
         // check iMax and nominal voltage
-        assertEquals(2000., crac.getFlowCnec("cnec2prevId").getIMax(TwoSides.ONE), 1e-3);
-        assertEquals(2000., crac.getFlowCnec("cnec2prevId").getIMax(TwoSides.TWO), 1e-3);
+        assertEquals(2000., crac.getFlowCnec("cnec2prevId").getIMax(TwoSides.ONE).get(), 1e-3);
+        assertEquals(2000., crac.getFlowCnec("cnec2prevId").getIMax(TwoSides.TWO).get(), 1e-3);
         assertEquals(380., crac.getFlowCnec("cnec2prevId").getNominalVoltage(TwoSides.ONE), 1e-3);
         assertEquals(220., crac.getFlowCnec("cnec2prevId").getNominalVoltage(TwoSides.TWO), 1e-3);
-        assertEquals(Double.NaN, crac.getFlowCnec("cnec1prevId").getIMax(TwoSides.ONE), 1e-3);
-        assertEquals(1000., crac.getFlowCnec("cnec1prevId").getIMax(TwoSides.TWO), 1e-3);
+        assertTrue(crac.getFlowCnec("cnec1prevId").getIMax(TwoSides.ONE).isEmpty());
+        assertTrue(crac.getFlowCnec("cnec1prevId").getIMax(TwoSides.TWO).isEmpty());
         assertEquals(220., crac.getFlowCnec("cnec1prevId").getNominalVoltage(TwoSides.ONE), 1e-3);
         assertEquals(220., crac.getFlowCnec("cnec1prevId").getNominalVoltage(TwoSides.TWO), 1e-3);
 

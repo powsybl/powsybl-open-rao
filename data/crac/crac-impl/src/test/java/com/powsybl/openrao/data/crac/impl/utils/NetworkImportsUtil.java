@@ -8,8 +8,6 @@ package com.powsybl.openrao.data.crac.impl.utils;
 
 import com.powsybl.iidm.network.*;
 
-import java.util.List;
-
 /**
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
@@ -145,7 +143,7 @@ public final class NetworkImportsUtil {
         shuntCompensator.getTerminal().setP(0.).setQ(0.);
     }
 
-    public static Network createNetworkForJsonRetrocompatibilityTest() {
+    public static Network createNetworkForJsonRetrocompatibilityTest(double tapOffset) {
         Network network = Network.create("test", "test");
         Substation s = network.newSubstation()
             .setId("S1")
@@ -210,21 +208,12 @@ public final class NetworkImportsUtil {
             .setTargetV(400.0)
             .setVoltageRegulatorOn(true)
             .add();
-        for (String lineId : List.of("ne1Id", "ne2Id", "ne3Id")) {
-            network.newLine()
-                .setId(lineId)
-                .setVoltageLevel1("VL1")
-                .setBus1("B1")
-                .setVoltageLevel2("VL2")
-                .setBus2("B21")
-                .setR(1.0)
-                .setX(1.0)
-                .setG1(0.0)
-                .setB1(0.0)
-                .setG2(0.0)
-                .setB2(0.0)
-                .add();
-        }
+
+        addLine(network, "ne1Id", null, 1000.0);
+        addLine(network, "ne2Id", 2000.0, 2000.0);
+        addLine(network, "ne3Id", 2000.0, 2000.0);
+        addLine(network, "ne4Id", null, 1000.0);
+        addLine(network, "ne5Id", 2000.0, 2000.0);
 
         for (int i = 0; i <= 4; i++) {
             TwoWindingsTransformer twt = s.newTwoWindingsTransformer()
@@ -241,7 +230,7 @@ public final class NetworkImportsUtil {
                 .setLowTapPosition(-5);
             for (int j = -5; j <= 5; j++) {
                 ptcAdder.beginStep()
-                    .setAlpha(j * 0.5)
+                    .setAlpha(j * 0.5 + tapOffset)
                     .endStep();
             }
             ptcAdder.add();
@@ -357,4 +346,25 @@ public final class NetworkImportsUtil {
         return network;
     }
 
+    private static void addLine(Network network, String lineId, Double permanentLimit1, Double permanentLimit2) {
+        Line line = network.newLine()
+            .setId(lineId)
+            .setVoltageLevel1("VL1")
+            .setBus1("B1")
+            .setVoltageLevel2("VL2")
+            .setBus2("B21")
+            .setR(1.0)
+            .setX(1.0)
+            .setG1(0.0)
+            .setB1(0.0)
+            .setG2(0.0)
+            .setB2(0.0)
+            .add();
+        if (permanentLimit1 != null) {
+            line.newCurrentLimits1().setPermanentLimit(permanentLimit1).add();
+        }
+        if (permanentLimit2 != null) {
+            line.newCurrentLimits2().setPermanentLimit(permanentLimit2).add();
+        }
+    }
 }

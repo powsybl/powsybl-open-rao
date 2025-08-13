@@ -29,9 +29,6 @@
       "contingencyId": null,
       "optimized": true,
       "monitored": false,
-      "iMax": [
-        NaN
-      ],
       "nominalV": [
         400.0
       ],

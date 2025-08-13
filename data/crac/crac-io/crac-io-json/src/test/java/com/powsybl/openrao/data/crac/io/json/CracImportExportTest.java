@@ -78,7 +78,7 @@ class CracImportExportTest {
 
     @Test
     void testNonNullOffsetDateTime() {
-        Network network = NetworkImportsUtil.createNetworkForJsonRetrocompatibilityTest();
+        Network network = NetworkImportsUtil.createNetworkForJsonRetrocompatibilityTest(0.0);
         CracCreationContext context = new JsonImport().importData(getClass().getResourceAsStream("/retrocompatibility/v2/crac-v2.5.json"), new CracCreationParameters(), network);
         assertTrue(context.isCreationSuccessful());
         assertNull(context.getTimeStamp());
@@ -87,7 +87,7 @@ class CracImportExportTest {
 
     @Test
     void testPstMissingInNetwork() {
-        Network network = NetworkImportsUtil.createNetworkForJsonRetrocompatibilityTest();
+        Network network = NetworkImportsUtil.createNetworkForJsonRetrocompatibilityTest(0.0);
         CracCreationContext context = new JsonImport().importData(getClass().getResourceAsStream("/cracMissingPst.json"), new CracCreationParameters(), network);
         assertFalse(context.isCreationSuccessful());
         assertEquals(List.of("[ERROR] PST missing-pst does not exist in the current network"), context.getCreationReport().getReport());
@@ -102,7 +102,7 @@ class CracImportExportTest {
 
         List<ILoggingEvent> logsList = listAppender.list;
 
-        Network network = NetworkImportsUtil.createNetworkForJsonRetrocompatibilityTest();
+        Network network = NetworkImportsUtil.createNetworkForJsonRetrocompatibilityTest(0.0);
         CracCreationContext context = new JsonImport().importData(getClass().getResourceAsStream("/cracTwoInjectionOneGenerator.json"), new CracCreationParameters(), network);
         assertTrue(context.isCreationSuccessful());
 
@@ -223,12 +223,12 @@ class CracImportExportTest {
         assertEquals("operator4", crac.getFlowCnec("cnec4prevId").getOperator());
 
         // check iMax and nominal voltage
-        assertEquals(2000., crac.getFlowCnec("cnec2prevId").getIMax(TwoSides.ONE), 1e-3);
-        assertEquals(2000., crac.getFlowCnec("cnec2prevId").getIMax(TwoSides.TWO), 1e-3);
+        assertEquals(2000., crac.getFlowCnec("cnec2prevId").getIMax(TwoSides.ONE).get(), 1e-3);
+        assertEquals(2000., crac.getFlowCnec("cnec2prevId").getIMax(TwoSides.TWO).get(), 1e-3);
         assertEquals(380., crac.getFlowCnec("cnec2prevId").getNominalVoltage(TwoSides.ONE), 1e-3);
         assertEquals(220., crac.getFlowCnec("cnec2prevId").getNominalVoltage(TwoSides.TWO), 1e-3);
-        assertEquals(Double.NaN, crac.getFlowCnec("cnec1prevId").getIMax(TwoSides.ONE), 1e-3);
-        assertEquals(1000., crac.getFlowCnec("cnec1prevId").getIMax(TwoSides.TWO), 1e-3);
+        assertTrue(crac.getFlowCnec("cnec1prevId").getIMax(TwoSides.ONE).isEmpty());
+        assertTrue(crac.getFlowCnec("cnec1prevId").getIMax(TwoSides.TWO).isEmpty());
         assertEquals(220., crac.getFlowCnec("cnec1prevId").getNominalVoltage(TwoSides.ONE), 1e-3);
         assertEquals(220., crac.getFlowCnec("cnec1prevId").getNominalVoltage(TwoSides.TWO), 1e-3);
 

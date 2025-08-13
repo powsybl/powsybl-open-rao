@@ -63,7 +63,7 @@ public final class JsonSerializationConstants {
     v2.5: elementary actions have new type coming from core remedial actions
     v2.6: addition of activation-cost and variation-costs for remedial actions
     v2.7: addition of timestamp
-     v2.8: removal of range actions' initial set-point, optional ranges for PST range actions
+    v2.8: removal of range actions' initial set-point and FlowCNECs' iMax, optional ranges for PST range actions
      */
 
     // headers
