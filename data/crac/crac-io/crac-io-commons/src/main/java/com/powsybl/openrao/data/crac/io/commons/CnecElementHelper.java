@@ -22,7 +22,7 @@ public interface CnecElementHelper extends ElementHelper {
      * The side corresponds to the side of the element in the network, which might be inverted
      * (see isInvertedInNetwork()).
      */
-    double getNominalVoltage(TwoSides side);
+    Double getNominalVoltage(TwoSides side);
 
     /**
      * If the CNEC element is valid, returns the current limit on a given side of the Branch.

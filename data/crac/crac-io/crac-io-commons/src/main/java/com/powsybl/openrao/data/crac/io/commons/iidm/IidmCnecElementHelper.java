@@ -82,7 +82,7 @@ public class IidmCnecElementHelper implements CnecElementHelper {
      * The side corresponds to the side of the branch in the network, which might be inverted
      * compared from the from/to nodes of the UcteBranch (see isInvertedInNetwork()).
      */
-    public double getNominalVoltage(TwoSides side) {
+    public Double getNominalVoltage(TwoSides side) {
         if (side.equals(TwoSides.ONE)) {
             return nominalVoltageLeft;
         } else {

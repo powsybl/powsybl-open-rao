@@ -43,32 +43,11 @@ public class FlowCnecSerializer<I extends FlowCnec> extends AbstractJsonSerializ
         gen.writeObjectField(JsonSerializationConstants.MONITORED, flowCnec.isMonitored());
         gen.writeNumberField(JsonSerializationConstants.RELIABILITY_MARGIN, flowCnec.getReliabilityMargin());
 
-        serializeNominalVoltage(flowCnec, gen);
         serializeThresholds(flowCnec, gen);
 
         JsonUtil.writeExtensions(flowCnec, gen, serializerProvider, ExtensionsHandler.getExtensionsSerializers());
 
         gen.writeEndObject();
-    }
-
-    private void serializeNominalVoltage(FlowCnec flowCnec, JsonGenerator gen) throws IOException {
-        serializeDoubleValuesOnBothSide(gen, flowCnec.getNominalVoltage(TwoSides.ONE), flowCnec.getNominalVoltage(TwoSides.TWO), JsonSerializationConstants.NOMINAL_VOLTAGE);
-    }
-
-    private void serializeDoubleValuesOnBothSide(JsonGenerator gen, Double valueSideLeft, Double valueSideRight, String fieldName) throws IOException {
-
-        if (valueSideLeft == null && valueSideRight == null) {
-            return;
-        }
-
-        gen.writeArrayFieldStart(fieldName);
-        if (valueSideLeft != null && valueSideLeft.equals(valueSideRight)) {
-            gen.writeNumber(valueSideLeft);
-        } else {
-            gen.writeNumber(valueSideLeft != null ? valueSideLeft : Double.NaN);
-            gen.writeNumber(valueSideRight != null ? valueSideRight : Double.NaN);
-        }
-        gen.writeEndArray();
     }
 
     private void serializeThresholds(FlowCnec flowCnec, JsonGenerator gen) throws IOException {
