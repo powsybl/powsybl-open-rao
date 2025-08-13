@@ -51,7 +51,7 @@ Feature: US 12.1: handling of curative optimization in the CORE CNE export
     Given network file is "common/TestCase16Nodes.uct" for CORE CC
     Given crac file is "epic12/MergedCB_12_1_5.xml"
     Given loopflow glsk file is "common/glsk_proportional_12nodes.xml"
-    Given configuration file is "epic13/RaoParameters_relMargin_ampere.json"
+    Given configuration file is "epic13/RaoParameters_relMargin_megawatt.json"
     Given RaoResult file is "epic12/RaoResult_12_1_5.json"
     When I export CORE CNE at "2019-01-08 00:00"
     Then the CORE CNE file is xsd-compliant
