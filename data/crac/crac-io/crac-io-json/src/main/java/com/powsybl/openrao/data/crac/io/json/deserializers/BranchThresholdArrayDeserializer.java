@@ -7,8 +7,10 @@
 
 package com.powsybl.openrao.data.crac.io.json.deserializers;
 
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
+import com.powsybl.openrao.data.crac.io.commons.CnecElementHelper;
 import com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnecAdder;
 import com.powsybl.openrao.data.crac.api.threshold.BranchThresholdAdder;
@@ -27,12 +29,11 @@ public final class BranchThresholdArrayDeserializer {
     private BranchThresholdArrayDeserializer() {
     }
 
-    /**
-     * Deserializes the thresholds of a FlowCnec from a JSON CRAC file and adds their information
-     * to the FlowCNEC adder. Returns true if at least one of thresholds is in %Imax, false otherwise.
-     */
-    public static boolean deserialize(JsonParser jsonParser, FlowCnecAdder ownerAdder, Pair<Double, Double> nominalV, String version) throws IOException {
-        boolean hasPercentIMaxThresholds = false;
+    public static void deserialize(JsonParser jsonParser, FlowCnecAdder ownerAdder, CnecElementHelper cnecElementHelper, String version) throws IOException {
+        boolean iMaxFetched = false;
+        Pair<Double, Double> nominalV = readNominalV(cnecElementHelper);
+        ownerAdder.withNominalVoltage(nominalV.getLeft(), TwoSides.ONE);
+        ownerAdder.withNominalVoltage(nominalV.getRight(), TwoSides.TWO);
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             BranchThresholdAdder branchThresholdAdder = ownerAdder.newThreshold();
             while (!jsonParser.nextToken().isStructEnd()) {
@@ -40,8 +41,10 @@ public final class BranchThresholdArrayDeserializer {
                     case JsonSerializationConstants.UNIT:
                         Unit unit = JsonSerializationConstants.deserializeUnit(jsonParser.nextTextValue());
                         branchThresholdAdder.withUnit(unit);
-                        if (Unit.PERCENT_IMAX.equals(unit)) {
-                            hasPercentIMaxThresholds = true;
+                        // FlowCNEC's iMax is required only if it ahs a threshold with a %IMax unit
+                        if (Unit.PERCENT_IMAX.equals(unit) && !iMaxFetched) {
+                            addIMax(cnecElementHelper, ownerAdder);
+                            iMaxFetched = true;
                         }
                         break;
                     case JsonSerializationConstants.MIN:
@@ -79,6 +82,36 @@ public final class BranchThresholdArrayDeserializer {
             }
             branchThresholdAdder.add();
         }
-        return hasPercentIMaxThresholds;
+    }
+
+    private static void addIMax(CnecElementHelper cnecElementHelper, FlowCnecAdder flowCnecAdder) {
+        Double currentLimit1 = cnecElementHelper.getCurrentLimit(TwoSides.ONE);
+        Double currentLimit2 = cnecElementHelper.getCurrentLimit(TwoSides.TWO);
+        if (currentLimit1 == null && currentLimit2 == null) {
+            throw new OpenRaoException("Unable to retrieve current limits for branch %s.".formatted(cnecElementHelper.getIdInNetwork()));
+        }
+        if (currentLimit1 == null) {
+            flowCnecAdder.withIMax(currentLimit2);
+        } else if (currentLimit2 == null) {
+            flowCnecAdder.withIMax(currentLimit1);
+        } else {
+            flowCnecAdder.withIMax(currentLimit1, TwoSides.ONE);
+            flowCnecAdder.withIMax(currentLimit2, TwoSides.TWO);
+        }
+    }
+
+    private static Pair<Double, Double> readNominalV(CnecElementHelper cnecElementHelper) {
+        Double nominalVoltage1 = cnecElementHelper.getNominalVoltage(TwoSides.ONE);
+        Double nominalVoltage2 = cnecElementHelper.getNominalVoltage(TwoSides.TWO);
+        if (nominalVoltage1 == null && nominalVoltage2 == null) {
+            throw new OpenRaoException("Unable to retrieve nominal voltages for branch %s.".formatted(cnecElementHelper.getIdInNetwork()));
+        }
+        if (nominalVoltage1 == null) {
+            return Pair.of(nominalVoltage2, nominalVoltage2);
+        } else if (nominalVoltage2 == null) {
+            return Pair.of(nominalVoltage1, nominalVoltage1);
+        } else {
+            return Pair.of(nominalVoltage1, nominalVoltage2);
+        }
     }
 }

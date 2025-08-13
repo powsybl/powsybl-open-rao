@@ -92,7 +92,7 @@ public class UcteFlowElementHelper extends AbstractUcteConnectableHelper impleme
     }
 
     @Override
-    public double getNominalVoltage(TwoSides side) {
+    public Double getNominalVoltage(TwoSides side) {
         if (side.equals(TwoSides.ONE)) {
             return nominalVoltageLeft;
         } else {

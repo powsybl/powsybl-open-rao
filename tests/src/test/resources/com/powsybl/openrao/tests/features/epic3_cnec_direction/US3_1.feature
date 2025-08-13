@@ -13,12 +13,12 @@ Feature: US 3.1: Import of a cnec monitored in a single direction
     When I import crac
     Then it should have the following flow CNECs:
       | Name                    | NetworkElementId    | Instant    | Contingency         | Optimized | Monitored | ImaxLeft | ImaxRight | NominalVoltageLeft | NominalVoltageRight |
-      | Tie-line BE FR or to ex | BBE2AA1  FFR3AA1  1 | preventive |                     | yes       | no        | NaN      | NaN       | 400.0              | 400.0               |
-      | Tie-line BE FR or to ex | BBE2AA1  FFR3AA1  1 | curative   | Contingency FR1 FR3 | yes       | no        | NaN      | NaN       | 400.0              | 400.0               |
-      | Tie-line BE FR or to ex | BBE2AA1  FFR3AA1  1 | outage     | Contingency FR1 FR3 | yes       | no        | NaN      | NaN       | 400.0              | 400.0               |
-      | Tie-line FR DE          | FFR2AA1  DDE3AA1  1 | preventive |                     | yes       | no        | NaN      | NaN       | 400.0              | 400.0               |
-      | Tie-line FR DE          | FFR2AA1  DDE3AA1  1 | curative   | Contingency FR1 FR3 | yes       | no        | NaN      | NaN       | 400.0              | 400.0               |
-      | Tie-line FR DE          | FFR2AA1  DDE3AA1  1 | outage     | Contingency FR1 FR3 | yes       | no        | NaN      | NaN       | 400.0              | 400.0               |
+      | Tie-line BE FR or to ex | BBE2AA1  FFR3AA1  1 | preventive |                     | yes       | no        | NaN      | NaN       | 380.0              | 380.0               |
+      | Tie-line BE FR or to ex | BBE2AA1  FFR3AA1  1 | curative   | Contingency FR1 FR3 | yes       | no        | NaN      | NaN       | 380.0              | 380.0               |
+      | Tie-line BE FR or to ex | BBE2AA1  FFR3AA1  1 | outage     | Contingency FR1 FR3 | yes       | no        | NaN      | NaN       | 380.0              | 380.0               |
+      | Tie-line FR DE          | FFR2AA1  DDE3AA1  1 | preventive |                     | yes       | no        | NaN      | NaN       | 380.0              | 380.0               |
+      | Tie-line FR DE          | FFR2AA1  DDE3AA1  1 | curative   | Contingency FR1 FR3 | yes       | no        | NaN      | NaN       | 380.0              | 380.0               |
+      | Tie-line FR DE          | FFR2AA1  DDE3AA1  1 | outage     | Contingency FR1 FR3 | yes       | no        | NaN      | NaN       | 380.0              | 380.0               |
     Then the flow cnecs should have the following thresholds:
       | CnecId                                               | Unit   | Min   | Max  | Side |
       | BBE2AA1  FFR3AA1  1 - preventive                     | AMPERE | None  | 1500 | TWO  |

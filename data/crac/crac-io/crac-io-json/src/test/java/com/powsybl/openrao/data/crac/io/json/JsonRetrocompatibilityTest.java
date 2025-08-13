@@ -458,12 +458,12 @@ class JsonRetrocompatibilityTest {
         // check iMax and nominal voltage
         assertEquals(2000., crac.getFlowCnec("cnec2prevId").getIMax(TwoSides.ONE).get(), 1e-3);
         assertEquals(2000., crac.getFlowCnec("cnec2prevId").getIMax(TwoSides.TWO).get(), 1e-3);
-        assertEquals(380., crac.getFlowCnec("cnec2prevId").getNominalVoltage(TwoSides.ONE), 1e-3);
-        assertEquals(220., crac.getFlowCnec("cnec2prevId").getNominalVoltage(TwoSides.TWO), 1e-3);
+        assertEquals(400., crac.getFlowCnec("cnec2prevId").getNominalVoltage(TwoSides.ONE), 1e-3);
+        assertEquals(400., crac.getFlowCnec("cnec2prevId").getNominalVoltage(TwoSides.TWO), 1e-3);
         assertTrue(crac.getFlowCnec("cnec1prevId").getIMax(TwoSides.ONE).isEmpty());
         assertTrue(crac.getFlowCnec("cnec1prevId").getIMax(TwoSides.TWO).isEmpty());
-        assertEquals(220., crac.getFlowCnec("cnec1prevId").getNominalVoltage(TwoSides.ONE), 1e-3);
-        assertEquals(220., crac.getFlowCnec("cnec1prevId").getNominalVoltage(TwoSides.TWO), 1e-3);
+        assertEquals(400., crac.getFlowCnec("cnec1prevId").getNominalVoltage(TwoSides.ONE), 1e-3);
+        assertEquals(400., crac.getFlowCnec("cnec1prevId").getNominalVoltage(TwoSides.TWO), 1e-3);
 
         // check threshold
         assertEquals(1, crac.getFlowCnec("cnec4prevId").getThresholds().size());
@@ -477,8 +477,9 @@ class JsonRetrocompatibilityTest {
             .anyMatch(thr -> thr.getSide().equals(TwoSides.ONE) && thr.getUnit().equals(Unit.AMPERE) && thr.min().orElse(-999.).equals(-800.)));
         assertTrue(crac.getFlowCnec("cnec2prevId").getThresholds().stream()
             .anyMatch(thr -> thr.getSide().equals(TwoSides.ONE) && thr.getUnit().equals(Unit.PERCENT_IMAX) && thr.min().orElse(-999.).equals(-0.3)));
+        // nominalV is the same on both sides so the threshold can either be defined on side ONE or TWO
         assertTrue(crac.getFlowCnec("cnec2prevId").getThresholds().stream()
-            .anyMatch(thr -> thr.getSide().equals(TwoSides.TWO) && thr.getUnit().equals(Unit.AMPERE) && thr.max().orElse(-999.).equals(1200.)));
+            .anyMatch(thr -> thr.getUnit().equals(Unit.AMPERE) && thr.max().orElse(-999.).equals(1200.)));
 
         // ---------------------------
         // --- test NetworkActions ---
