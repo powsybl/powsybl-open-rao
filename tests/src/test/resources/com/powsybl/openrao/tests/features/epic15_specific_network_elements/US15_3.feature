@@ -62,7 +62,7 @@ Feature: US 15.3: Handle transformers
     Then 3 remedial actions are used in preventive
     And the remedial action "open_be1_fr1" is used in preventive
     And the remedial action "open_be1_be2" is used in preventive
-    And the tap of PstRangeAction "pst_be" should be 7 in preventive
+    And the tap of PstRangeAction "pst_be" should be 8 in preventive
     And the worst margin is 137 A
     And the margin on cnec "BBE2AA2  BBE2AA1  2 - preventive" after PRA should be 137 A
     And the margin on cnec "FFR3AA1  FFR3AA2  1 - preventive" after PRA should be 137 A

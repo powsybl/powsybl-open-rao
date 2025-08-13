@@ -1,7 +1,7 @@
 {
   "version" : "3.1",
   "objective-function" : {
-    "type" : "MAX_MIN_RELATIVE_MARGIN",
+    "type" : "MAX_MIN_MARGIN",
     "unit" : "A",
     "enforce-curative-security" : false
   },
@@ -18,10 +18,7 @@
     "do-not-optimize-curative-cnecs-for-tsos-without-cras" : false
   },
   "mnec-parameters" : {
-    "acceptable-margin-decrease" : 50.0
-  },
-  "relative-margins-parameters" : {
-    "ptdf-boundaries" : [ "{FR}-{DE}", "{FR}-{BE}", "{BE}-{NL}", "{BE}-{DE}", "{DE}-{NL}" ]
+    "acceptable-margin-decrease" : 29.0
   },
   "extensions" : {
     "open-rao-search-tree-parameters" : {
@@ -82,11 +79,8 @@
         "available-cpus" : 1
       },
       "mnec-parameters" : {
-        "violation-cost" : 10.0,
+        "violation-cost" : 15.0,
         "constraint-adjustment-coefficient" : 0.0
-      },
-      "relative-margins-parameters" : {
-        "ptdf-sum-lower-bound" : 0.01
       }
     }
   }

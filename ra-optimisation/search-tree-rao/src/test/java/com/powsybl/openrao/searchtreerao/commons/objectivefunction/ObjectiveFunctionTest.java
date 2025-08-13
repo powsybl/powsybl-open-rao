@@ -68,6 +68,7 @@ class ObjectiveFunctionTest {
     @Test
     void testWithFunctionalCostOnly() {
         RaoParameters raoParameters = new RaoParameters();
+        raoParameters.getObjectiveFunctionParameters().setUnit(Unit.MEGAWATT);
         OpenRaoSearchTreeParameters openRaoSearchTreeParameters = new OpenRaoSearchTreeParameters();
         openRaoSearchTreeParameters.getLoadFlowAndSensitivityParameters().setSensitivityFailureOvercost(0.0);
         raoParameters.addExtension(OpenRaoSearchTreeParameters.class, openRaoSearchTreeParameters);
@@ -85,6 +86,7 @@ class ObjectiveFunctionTest {
     @Test
     void testWithFunctionalAndVirtualCost() {
         RaoParameters raoParameters = new RaoParameters();
+        raoParameters.getObjectiveFunctionParameters().setUnit(Unit.MEGAWATT);
         OpenRaoSearchTreeParameters openRaoSearchTreeParameters = new OpenRaoSearchTreeParameters();
         openRaoSearchTreeParameters.getLoadFlowAndSensitivityParameters().setSensitivityFailureOvercost(0.0);
         raoParameters.addExtension(OpenRaoSearchTreeParameters.class, openRaoSearchTreeParameters);

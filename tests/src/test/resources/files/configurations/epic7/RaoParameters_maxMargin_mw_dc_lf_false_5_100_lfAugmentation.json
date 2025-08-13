@@ -1,8 +1,9 @@
 {
   "version" : "3.1",
   "objective-function" : {
-    "type" : "SECURE_FLOW",
-    "unit" : "MW"
+    "type" : "MAX_MIN_MARGIN",
+    "unit" : "MW",
+    "enforce-curative-security" : false
   },
   "range-actions-optimization" : {
     "pst-ra-min-impact-threshold" : 0.01,
@@ -19,10 +20,14 @@
   "mnec-parameters" : {
     "acceptable-margin-decrease" : 50.0
   },
+  "loop-flow-parameters" : {
+    "acceptable-increase" : 40.0,
+    "countries" : [ ]
+  },
   "extensions" : {
     "open-rao-search-tree-parameters" : {
       "objective-function" : {
-        "curative-min-obj-improvement" : 0.0
+        "curative-min-obj-improvement" : 10000.0
       },
       "range-actions-optimization" : {
         "max-mip-iterations" : 10,
@@ -64,13 +69,13 @@
             "shuntCompensatorVoltageControlOn" : false,
             "readSlackBus" : true,
             "writeSlackBus" : true,
-            "dc" : false,
+            "dc" : true,
             "distributedSlack" : true,
             "balanceType" : "PROPORTIONAL_TO_GENERATION_P",
             "dcUseTransformerRatio" : true,
             "countriesToBalance" : [ ],
             "connectedComponentMode" : "MAIN",
-            "hvdcAcEmulation" : true
+            "hvdcAcEmulation" : false
           }
         }
       },
@@ -80,6 +85,11 @@
       "mnec-parameters" : {
         "violation-cost" : 10.0,
         "constraint-adjustment-coefficient" : 0.0
+      },
+      "loop-flow-parameters" : {
+        "ptdf-approximation" : "UPDATE_PTDF_WITH_TOPO_AND_PST",
+        "constraint-adjustment-coefficient" : 5.0,
+        "violation-cost" : 100.0
       }
     }
   }

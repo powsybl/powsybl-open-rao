@@ -12,6 +12,7 @@ import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
+import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
@@ -37,8 +38,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getLoadFlowProvider;
-import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters;
+import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_LOGS;
+import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.*;
 import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.getPstModel;
 import static java.lang.String.format;
 
@@ -51,6 +52,7 @@ public final class RaoUtil {
 
     public static void initData(RaoInput raoInput, RaoParameters raoParameters) {
         checkParameters(raoParameters, raoInput);
+        checkCnecsThresholdsUnit(raoParameters, raoInput);
         initNetwork(raoInput.getNetwork(), raoInput.getNetworkVariantId());
     }
 
@@ -62,6 +64,13 @@ public final class RaoUtil {
         if (raoParameters.getObjectiveFunctionParameters().getUnit().equals(Unit.AMPERE)
             && getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters().isDc()) {
             throw new OpenRaoException(format("Objective function unit %s cannot be calculated with a DC default sensitivity engine", raoParameters.getObjectiveFunctionParameters().getUnit().toString()));
+        }
+
+        if (raoParameters.getObjectiveFunctionParameters().getUnit().equals(Unit.MEGAWATT)
+            && !getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters().isDc()) {
+            String msg = "Objective function unit MEGAWATT cannot be calculated with a AC default sensitivity engine";
+            BUSINESS_LOGS.error(msg);
+            throw new OpenRaoException(msg);
         }
 
         if (raoParameters.getObjectiveFunctionParameters().getType().relativePositiveMargins()) {
@@ -93,6 +102,32 @@ public final class RaoUtil {
             String msg = "The PSTs must be approximated as integers to use the limitations of elementary actions as a constraint in the RAO.";
             OpenRaoLoggerProvider.BUSINESS_LOGS.error(msg);
             throw new OpenRaoException(msg);
+        }
+
+        if (raoParameters.getObjectiveFunctionParameters().getType().relativePositiveMargins()
+            && getObjectiveFunctionUnit(raoParameters).equals(Unit.AMPERE)) {
+            String msg = "The objective function unit must be MEGAWATT to use relative positive margins";
+            OpenRaoLoggerProvider.BUSINESS_LOGS.error(msg);
+            throw new OpenRaoException(msg);
+        }
+
+        if (raoParameters.getLoopFlowParameters().isPresent()
+            && getObjectiveFunctionUnit(raoParameters).equals(Unit.AMPERE)) {
+            String msg = "The objective function unit must be MEGAWATT to use loopflow computation";
+            OpenRaoLoggerProvider.BUSINESS_LOGS.error(msg);
+            throw new OpenRaoException(msg);
+        }
+    }
+
+    public static void checkCnecsThresholdsUnit(RaoParameters raoParameters, RaoInput raoInput) {
+        Crac crac = raoInput.getCrac();
+        if (!getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters().isDc()) {
+            crac.getFlowCnecs().forEach(flowCnec -> {
+                if (flowCnec.getThresholds().stream().anyMatch(branchThreshold -> branchThreshold.getUnit().equals(Unit.MEGAWATT))) {
+                    String msg = format("A threshold for the flowCnec %s is defined in MW but the loadflow computation is in AC. It will be imprecisely converted by the RAO which could create uncoherent results due to side effects  ", flowCnec.getId());
+                    OpenRaoLoggerProvider.BUSINESS_WARNS.warn(msg);
+                }
+            });
         }
     }
 
