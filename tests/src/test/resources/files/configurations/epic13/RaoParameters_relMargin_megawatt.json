@@ -2,7 +2,7 @@
   "version" : "3.1",
   "objective-function" : {
     "type" : "MAX_MIN_RELATIVE_MARGIN",
-    "unit" : "A",
+    "unit" : "MW",
     "enforce-curative-security" : false
   },
   "range-actions-optimization" : {
@@ -68,13 +68,13 @@
             "shuntCompensatorVoltageControlOn" : false,
             "readSlackBus" : true,
             "writeSlackBus" : true,
-            "dc" : false,
+            "dc" : true,
             "distributedSlack" : true,
             "balanceType" : "PROPORTIONAL_TO_GENERATION_P",
             "dcUseTransformerRatio" : true,
             "countriesToBalance" : [ ],
             "connectedComponentMode" : "MAIN",
-            "hvdcAcEmulation" : true
+            "hvdcAcEmulation" : false
           }
         }
       },

@@ -5,7 +5,7 @@
 
 Feature: US 10.1: Linear RAO with relative margin
 
-  @fast @rao @mock @ac @preventive-only @relative
+  @fast @rao @mock @dc @preventive-only @relative
   Scenario: US 10.1.1: unsecured case
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic10/ls_relative_margin_unsecure.json"
@@ -19,7 +19,7 @@ Feature: US 10.1: Linear RAO with relative margin
     And the relative margin on cnec "NNL2AA1  BBE3AA1  1 - preventive" after PRA should be 2297.1 MW
     And the relative margin on cnec "DDE2AA1  NNL3AA1  1 - preventive" after PRA should be 2475.3 MW
 
-  @fast @rao @mock @ac @preventive-only @relative
+  @fast @rao @mock @dc @preventive-only @relative
   Scenario: US 10.1.2: secured case
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic10/ls_relative_margin.json"
@@ -34,7 +34,7 @@ Feature: US 10.1: Linear RAO with relative margin
     And the relative margin on cnec "FFR2AA1  DDE3AA1  1 - preventive" after PRA should be 2392.4 MW
     And the absolute PTDF sum on cnec "FFR2AA1  DDE3AA1  1 - preventive" initially should be 1.477
 
-  @fast @rao @mock @ac @preventive-only @relative
+  @fast @rao @mock @dc @preventive-only @relative
   Scenario: US 10.1.3: secured case with open monitored branch
     Given network file is "common/TestCase12NodesWithOpenBranch.uct"
     Given crac file is "epic10/ls_relative_margin_with_open_branch.json"
