@@ -49,7 +49,7 @@ to deal with. The idea is thus to first run RAOs in parallel to optimize all the
 This allows MARMOT to find combinations of preventive and curative topological actions for all timestamps with a
 strategy which is way more efficient that if they were tried at random.
 
-When the topological actions for all timestamps were retrieved, they are applied on their respective network and a
+When the topological actions for all timestamps are retrieved, they are applied on their respective network and a
 **global intertemporal linear optimization** is carried out to fine-tune the set-points of all linear actions (PSTs,
 injections, redispatching, ...) and smooth them out over time such that they respect the provided intertemporal
 constraints.
