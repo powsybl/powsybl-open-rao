@@ -57,6 +57,7 @@ public interface Cnec<I extends Cnec<I>> extends Identifiable<I> {
     PhysicalParameter getPhysicalParameter();
 
     /**
+     * TODO: move to monitoring
      * @param network: the network object used to look for actual result of the Cnec
      * @param unit: the unit object used to look for the kind of the {@link Cnec} and the kind of the {@link CnecValue}
      * @return a CnecValue  as result of the {@link Cnec} depending on the cnec kind
@@ -64,6 +65,7 @@ public interface Cnec<I extends Cnec<I>> extends Identifiable<I> {
     CnecValue computeValue(Network network, Unit unit);
 
     /**
+     * TODO: move to monitoring
      * @param network: the network object used to look for actual result of the Cnec
      * @param unit: the unit object used to look for the kind of the {@link Cnec}
      * @return a double as the worst margin of a @{@link CnecValue} relatively to the @{@link Cnec} thresholds
@@ -71,6 +73,7 @@ public interface Cnec<I extends Cnec<I>> extends Identifiable<I> {
     double computeMargin(Network network, Unit unit);
 
     /**
+     * TODO: move to monitoring
      * @param network: the network object used to look for actual result of the Cnec
      * @param unit: the unit object used to look for the kind of the {@link Cnec}
      * Returns a {@link SecurityStatus} describing the {@link Cnec} result compared to the thresholds

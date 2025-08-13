@@ -140,15 +140,6 @@ public class FlowCnecImpl extends AbstractBranchCnec<FlowCnec> implements FlowCn
         }
     }
 
-    public boolean isConnected(Network network) {
-        Identifiable<?> identifiable = network.getIdentifiable(getNetworkElement().getId());
-        if (identifiable instanceof Connectable) {
-            Connectable<?> connectable = (Connectable<?>) identifiable;
-            return connectable.getTerminals().stream().allMatch(Terminal::isConnected);
-        }
-        return true; // by default
-    }
-
     @Override
     public PhysicalParameter getPhysicalParameter() {
         return PhysicalParameter.FLOW;
