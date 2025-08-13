@@ -27,6 +27,10 @@ public final class BranchThresholdArrayDeserializer {
     private BranchThresholdArrayDeserializer() {
     }
 
+    /**
+     * Deserializes the thresholds of a FlowCnec from a JSON CRAC file and adds their information
+     * to the FlowCNEC adder. Returns true if at least one of thresholds is in %Imax, false otherwise.
+     */
     public static boolean deserialize(JsonParser jsonParser, FlowCnecAdder ownerAdder, Pair<Double, Double> nominalV, String version) throws IOException {
         boolean hasPercentIMaxThresholds = false;
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
