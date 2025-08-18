@@ -20,7 +20,7 @@ import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.monitoring.angle.AngleCnecResult;
 import com.powsybl.openrao.monitoring.angle.AngleCnecValue;
 import com.powsybl.openrao.monitoring.angle.AngleMonitoringResult;
-import com.powsybl.openrao.monitoring.api.SecurityStatus;
+import com.powsybl.openrao.monitoring.SecurityStatus;
 import com.powsybl.openrao.monitoring.results.MonitoringResult;
 import com.powsybl.openrao.monitoring.results.RaoResultWithAngleMonitoring;
 import org.junit.jupiter.api.Assertions;

@@ -22,12 +22,11 @@ import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
-import com.powsybl.openrao.monitoring.api.CnecValue;
-import com.powsybl.openrao.monitoring.api.SecurityStatus;
 import com.powsybl.openrao.monitoring.results.CnecResult;
 import com.powsybl.openrao.monitoring.results.MonitoringResult;
 import com.powsybl.openrao.monitoring.voltage.VoltageCnecValue;
 import com.powsybl.openrao.monitoring.voltage.VoltageMonitoring;
+import com.powsybl.openrao.monitoring.voltage.VoltageMonitoringInput;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -123,7 +122,7 @@ class VoltageMonitoringTest {
     }
 
     private void runVoltageMonitoring() {
-        MonitoringInput monitoringInput = new MonitoringInput.MonitoringInputBuilder().withCrac(crac).withNetwork(network).withRaoResult(raoResult).withPhysicalParameter(PhysicalParameter.VOLTAGE).build();
+        MonitoringInput<VoltageCnec> monitoringInput = new VoltageMonitoringInput(crac, network, raoResult);
         voltageMonitoringResult = new VoltageMonitoring("OpenLoadFlow", loadFlowParameters).runMonitoring(monitoringInput, 1);
     }
 
@@ -557,7 +556,7 @@ class VoltageMonitoringTest {
         when(raoResult.getComputationStatus()).thenReturn(ComputationStatus.DEFAULT);
         when(raoResult.isSecure()).thenReturn(true);
 
-        MonitoringInput monitoringInput = new MonitoringInput.MonitoringInputBuilder().withCrac(crac).withNetwork(network).withRaoResult(raoResult).withPhysicalParameter(PhysicalParameter.VOLTAGE).build();
+        MonitoringInput<VoltageCnec> monitoringInput = new VoltageMonitoringInput(crac, network, raoResult);
         RaoResult raoResultWithVoltageMonitoring = VoltageMonitoring.runAndUpdateRaoResult("OpenLoadFlow", loadFlowParameters, 1, monitoringInput);
 
         assertFalse(raoResultWithVoltageMonitoring.isSecure(PhysicalParameter.VOLTAGE));

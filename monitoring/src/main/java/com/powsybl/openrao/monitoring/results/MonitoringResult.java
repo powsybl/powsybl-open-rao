@@ -11,7 +11,7 @@ import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
-import com.powsybl.openrao.monitoring.api.SecurityStatus;
+import com.powsybl.openrao.monitoring.SecurityStatus;
 
 import java.util.Arrays;
 import java.util.List;

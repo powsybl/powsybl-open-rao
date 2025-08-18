@@ -10,7 +10,7 @@ package com.powsybl.openrao.monitoring.angle;
 import com.powsybl.openrao.commons.MeasurementRounding;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
-import com.powsybl.openrao.monitoring.api.SecurityStatus;
+import com.powsybl.openrao.monitoring.SecurityStatus;
 import com.powsybl.openrao.monitoring.results.AbstractCnecResult;
 
 /**

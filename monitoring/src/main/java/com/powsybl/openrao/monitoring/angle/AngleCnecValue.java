@@ -8,7 +8,7 @@
 package com.powsybl.openrao.monitoring.angle;
 
 import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
-import com.powsybl.openrao.monitoring.api.CnecValue;
+import com.powsybl.openrao.monitoring.CnecValue;
 
 /**
  * @author Mohamed Ben Rejeb {@literal <mohamed.ben-rejeb at rte-france.com>}

@@ -16,7 +16,7 @@ import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
 import com.powsybl.openrao.data.crac.api.cnec.AngleCnecAdder;
 import com.powsybl.openrao.data.crac.impl.CracImplFactory;
-import com.powsybl.openrao.monitoring.api.SecurityStatus;
+import com.powsybl.openrao.monitoring.SecurityStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;

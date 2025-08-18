@@ -18,6 +18,7 @@ import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.monitoring.MonitoringInput;
 import com.powsybl.openrao.monitoring.angle.AngleCnecValue;
 import com.powsybl.openrao.monitoring.angle.AngleMonitoring;
+import com.powsybl.openrao.monitoring.angle.AngleMonitoringInput;
 import com.powsybl.openrao.monitoring.results.CnecResult;
 import com.powsybl.openrao.monitoring.results.MonitoringResult;
 import io.cucumber.datatable.DataTable;
@@ -55,7 +56,7 @@ public class AngleMonitoringSteps {
         CommonTestData.loadData(cracTimestamp);
         Network network = CommonTestData.getNetwork();
         RaoResult raoResult = CommonTestData.getRaoResult();
-        MonitoringInput angleMonitoringInput = MonitoringInput.buildWithAngle(network, CommonTestData.getCrac(), raoResult, CommonTestData.getMonitoringGlsks()).build();
+        MonitoringInput<AngleCnec> angleMonitoringInput = new AngleMonitoringInput(CommonTestData.getCrac(), network, raoResult, CommonTestData.getMonitoringGlsks());
         MonitoringResult<AngleCnec> angleMonitoringResult = new AngleMonitoring("OpenLoadFlow", loadFlowParameters).runMonitoring(angleMonitoringInput, numberOfLoadFlowsInParallel);
         CommonTestData.setMonitoringResult(angleMonitoringResult);
     }

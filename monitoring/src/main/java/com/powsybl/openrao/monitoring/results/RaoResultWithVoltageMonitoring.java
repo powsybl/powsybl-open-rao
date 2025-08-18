@@ -19,7 +19,7 @@ import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.RaoResultClone;
-import com.powsybl.openrao.monitoring.api.SecurityStatus;
+import com.powsybl.openrao.monitoring.SecurityStatus;
 import com.powsybl.openrao.monitoring.voltage.VoltageCnecValue;
 
 import java.util.*;

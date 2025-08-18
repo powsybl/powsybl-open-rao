@@ -7,12 +7,17 @@
 
 package com.powsybl.openrao.monitoring.voltage;
 
+import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
-import com.powsybl.openrao.monitoring.CnecValue;
+import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.monitoring.AbstractMonitoringInput;
 
 /**
- * @author Mohamed Ben Rejeb {@literal <mohamed.ben-rejeb at rte-france.com>}
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public record VoltageCnecValue(Double minValue, Double maxValue) implements CnecValue<VoltageCnec> {
+public class VoltageMonitoringInput extends AbstractMonitoringInput<VoltageCnec> {
+    public VoltageMonitoringInput(Crac crac, Network network, RaoResult raoResult) {
+        super(crac, network, raoResult, null);
+    }
 }

@@ -18,7 +18,7 @@ import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.RaoResultClone;
 import com.powsybl.openrao.monitoring.angle.AngleCnecValue;
-import com.powsybl.openrao.monitoring.api.SecurityStatus;
+import com.powsybl.openrao.monitoring.SecurityStatus;
 
 import java.util.*;
 import java.util.stream.Collectors;

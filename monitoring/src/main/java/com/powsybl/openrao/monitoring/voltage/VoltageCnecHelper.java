@@ -14,8 +14,8 @@ import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
-import com.powsybl.openrao.monitoring.api.CnecHelper;
-import com.powsybl.openrao.monitoring.api.SecurityStatus;
+import com.powsybl.openrao.monitoring.CnecHelper;
+import com.powsybl.openrao.monitoring.SecurityStatus;
 
 import java.util.HashSet;
 import java.util.Set;

@@ -10,6 +10,7 @@ package com.powsybl.openrao.monitoring.angle;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.RemedialAction;
@@ -18,7 +19,7 @@ import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.monitoring.AbstractMonitoring;
 import com.powsybl.openrao.monitoring.MonitoringInput;
-import com.powsybl.openrao.monitoring.api.SecurityStatus;
+import com.powsybl.openrao.monitoring.SecurityStatus;
 import com.powsybl.openrao.monitoring.results.CnecResult;
 import com.powsybl.openrao.monitoring.results.MonitoringResult;
 import com.powsybl.openrao.monitoring.results.RaoResultWithAngleMonitoring;
@@ -35,6 +36,11 @@ import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WA
 public class AngleMonitoring extends AbstractMonitoring<AngleCnec> {
     public AngleMonitoring(String loadFlowProvider, LoadFlowParameters loadFlowParameters) {
         super(loadFlowProvider, loadFlowParameters);
+    }
+
+    @Override
+    protected PhysicalParameter getPhysicalParameter() {
+        return PhysicalParameter.ANGLE;
     }
 
     @Override
@@ -73,7 +79,7 @@ public class AngleMonitoring extends AbstractMonitoring<AngleCnec> {
      * Main function : runs AngleMonitoring computation on all AngleCnecs defined in the CRAC.
      * Returns an RaoResult enhanced with AngleMonitoringResult
      */
-    public static RaoResult runAndUpdateRaoResult(String loadFlowProvider, LoadFlowParameters loadFlowParameters, int numberOfLoadFlowsInParallel, MonitoringInput monitoringInput) throws OpenRaoException {
+    public static RaoResult runAndUpdateRaoResult(String loadFlowProvider, LoadFlowParameters loadFlowParameters, int numberOfLoadFlowsInParallel, MonitoringInput<AngleCnec> monitoringInput) throws OpenRaoException {
         return new RaoResultWithAngleMonitoring(monitoringInput.getRaoResult(), new AngleMonitoring(loadFlowProvider, loadFlowParameters).runMonitoring(monitoringInput, numberOfLoadFlowsInParallel));
     }
 }

@@ -10,8 +10,8 @@ package com.powsybl.openrao.monitoring.results;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
-import com.powsybl.openrao.monitoring.api.CnecValue;
-import com.powsybl.openrao.monitoring.api.SecurityStatus;
+import com.powsybl.openrao.monitoring.CnecValue;
+import com.powsybl.openrao.monitoring.SecurityStatus;
 
 /**
  * @author Mohamed Ben Rejeb {@literal <mohamed.ben-rejeb at rte-france.com>}

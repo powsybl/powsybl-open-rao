@@ -26,7 +26,6 @@ import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.usagerule.OnConstraint;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
-import com.powsybl.openrao.monitoring.api.SecurityStatus;
 import com.powsybl.openrao.monitoring.redispatching.RedispatchAction;
 import com.powsybl.openrao.monitoring.results.*;
 import com.powsybl.openrao.util.AbstractNetworkPool;
@@ -56,8 +55,8 @@ public abstract class AbstractMonitoring<I extends Cnec<?>> implements Monitorin
         this.loadFlowParameters = loadFlowParameters;
     }
 
-    public MonitoringResult<I> runMonitoring(MonitoringInput monitoringInput, int numberOfLoadFlowsInParallel) {
-        PhysicalParameter physicalParameter = monitoringInput.getPhysicalParameter();
+    public MonitoringResult<I> runMonitoring(MonitoringInput<I> monitoringInput, int numberOfLoadFlowsInParallel) {
+        PhysicalParameter physicalParameter = getPhysicalParameter();
         Network inputNetwork = monitoringInput.getNetwork();
         Crac crac = monitoringInput.getCrac();
         RaoResult raoResult = monitoringInput.getRaoResult();
@@ -128,6 +127,8 @@ public abstract class AbstractMonitoring<I extends Cnec<?>> implements Monitorin
         return monitoringResult;
     }
 
+    protected abstract PhysicalParameter getPhysicalParameter();
+
     protected abstract MonitoringResult<I> makeEmptySecureResult();
 
     protected abstract Set<I> getCnecs(Crac crac);
@@ -136,8 +137,8 @@ public abstract class AbstractMonitoring<I extends Cnec<?>> implements Monitorin
         return getCnecs(crac).stream().filter(cnec -> state.equals(cnec.getState())).collect(Collectors.toSet());
     }
 
-    private MonitoringResult<I> monitorCnecs(State state, Set<I> cnecs, Network network, MonitoringInput monitoringInput) {
-        PhysicalParameter physicalParameter = monitoringInput.getPhysicalParameter();
+    private MonitoringResult<I> monitorCnecs(State state, Set<I> cnecs, Network network, MonitoringInput<I> monitoringInput) {
+        PhysicalParameter physicalParameter = getPhysicalParameter();
         Unit unit = parameterToUnitMap.get(physicalParameter);
         Set<CnecResult<I>> cnecResults = new HashSet<>();
         BUSINESS_LOGS.info("-- '{}' Monitoring at state '{}' [start]", physicalParameter, state);
@@ -273,7 +274,8 @@ public abstract class AbstractMonitoring<I extends Cnec<?>> implements Monitorin
     private AppliedNetworkActionsResult applyNetworkActions(Network network, Set<NetworkAction> availableNetworkActions, String cnecId, MonitoringInput monitoringInput) {
         AppliedNetworkActionsResult appliedNetworkActionsResult;
         Set<RemedialAction<?>> appliedNetworkActions = new TreeSet<>(Comparator.comparing(RemedialAction::getId));
-        if (monitoringInput.getPhysicalParameter().equals(PhysicalParameter.VOLTAGE)) {
+        // TODO: handle in implementations
+        if (getPhysicalParameter().equals(PhysicalParameter.VOLTAGE)) {
             for (NetworkAction na : availableNetworkActions) {
                 na.apply(network);
                 appliedNetworkActions.add(na);

@@ -11,7 +11,7 @@ import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
-import com.powsybl.openrao.monitoring.api.SecurityStatus;
+import com.powsybl.openrao.monitoring.SecurityStatus;
 import com.powsybl.openrao.monitoring.results.AbstractMonitoringResult;
 import com.powsybl.openrao.monitoring.results.CnecResult;
 

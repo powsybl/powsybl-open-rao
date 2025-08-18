@@ -12,8 +12,8 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
-import com.powsybl.openrao.monitoring.api.CnecHelper;
-import com.powsybl.openrao.monitoring.api.SecurityStatus;
+import com.powsybl.openrao.monitoring.CnecHelper;
+import com.powsybl.openrao.monitoring.SecurityStatus;
 
 /**
  * @author Mohamed Ben Rejeb {@literal <mohamed.ben-rejeb at rte-france.com>}

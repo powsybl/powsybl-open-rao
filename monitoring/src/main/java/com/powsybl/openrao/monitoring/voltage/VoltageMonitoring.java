@@ -9,6 +9,7 @@ package com.powsybl.openrao.monitoring.voltage;
 
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlowParameters;
+import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.RemedialAction;
@@ -17,7 +18,7 @@ import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.monitoring.AbstractMonitoring;
 import com.powsybl.openrao.monitoring.MonitoringInput;
-import com.powsybl.openrao.monitoring.api.SecurityStatus;
+import com.powsybl.openrao.monitoring.SecurityStatus;
 import com.powsybl.openrao.monitoring.results.CnecResult;
 import com.powsybl.openrao.monitoring.results.MonitoringResult;
 import com.powsybl.openrao.monitoring.results.RaoResultWithVoltageMonitoring;
@@ -34,6 +35,11 @@ import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WA
 public class VoltageMonitoring extends AbstractMonitoring<VoltageCnec> {
     public VoltageMonitoring(String loadFlowProvider, LoadFlowParameters loadFlowParameters) {
         super(loadFlowProvider, loadFlowParameters);
+    }
+
+    @Override
+    protected PhysicalParameter getPhysicalParameter() {
+        return PhysicalParameter.VOLTAGE;
     }
 
     @Override
@@ -72,7 +78,7 @@ public class VoltageMonitoring extends AbstractMonitoring<VoltageCnec> {
      * Main function : runs VoltageMonitoring computation on all VoltageCnecs defined in the CRAC.
      * Returns an RaoResult enhanced with VoltageMonitoringResult
      */
-    public static RaoResult runAndUpdateRaoResult(String loadFlowProvider, LoadFlowParameters loadFlowParameters, int numberOfLoadFlowsInParallel, MonitoringInput monitoringInput) {
+    public static RaoResult runAndUpdateRaoResult(String loadFlowProvider, LoadFlowParameters loadFlowParameters, int numberOfLoadFlowsInParallel, MonitoringInput<VoltageCnec> monitoringInput) {
         return new RaoResultWithVoltageMonitoring(monitoringInput.getRaoResult(), new VoltageMonitoring(loadFlowProvider, loadFlowParameters).runMonitoring(monitoringInput, numberOfLoadFlowsInParallel));
     }
 }
