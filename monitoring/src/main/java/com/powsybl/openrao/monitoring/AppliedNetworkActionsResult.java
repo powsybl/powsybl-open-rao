@@ -25,7 +25,7 @@ public class AppliedNetworkActionsResult {
         private Set<String> networkElementsToBeExcluded;
         private Map<Country, Double> powerToBeRedispatched;
 
-        AppliedNetworkActionsResultBuilder() {
+        public AppliedNetworkActionsResultBuilder() {
         }
 
         public AppliedNetworkActionsResult.AppliedNetworkActionsResultBuilder withAppliedNetworkActions(Set<RemedialAction<?>> appliedNetworkActions) {

@@ -42,11 +42,6 @@ public abstract class AbstractMonitoringResult<I extends Cnec<?>> implements Mon
     }
 
     @Override
-    public PhysicalParameter getPhysicalParameter() {
-        return physicalParameter;
-    }
-
-    @Override
     public Set<CnecResult<I>> getCnecResults() {
         return cnecResults;
     }

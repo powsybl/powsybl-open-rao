@@ -49,7 +49,6 @@ public class VoltageCnecHelper implements CnecHelper<VoltageCnec> {
 
     @Override
     public double computeMargin(VoltageCnec voltageCnec, Network network, Unit unit) {
-        unit.checkPhysicalParameter(voltageCnec.getPhysicalParameter());
         VoltageCnecValue voltageValue = computeValue(voltageCnec, network, unit);
         double marginLowerBound = voltageValue.minValue() - voltageCnec.getLowerBound(unit).orElse(Double.NEGATIVE_INFINITY);
         double marginUpperBound = voltageCnec.getUpperBound(unit).orElse(Double.POSITIVE_INFINITY) - voltageValue.maxValue();

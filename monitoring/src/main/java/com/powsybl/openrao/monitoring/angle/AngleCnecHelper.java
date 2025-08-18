@@ -31,7 +31,6 @@ public class AngleCnecHelper implements CnecHelper<AngleCnec> {
 
     @Override
     public double computeMargin(AngleCnec angleCnec, Network network, Unit unit) {
-        unit.checkPhysicalParameter(angleCnec.getPhysicalParameter()); // TODO: redundant
         AngleCnecValue actualAngleValue = computeValue(angleCnec, network, unit);
         double marginOnLowerBound = actualAngleValue.value() - angleCnec.getLowerBound(unit).orElse(Double.NEGATIVE_INFINITY);
         double marginOnUpperBound = angleCnec.getUpperBound(unit).orElse(Double.POSITIVE_INFINITY) - actualAngleValue.value();

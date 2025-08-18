@@ -19,7 +19,7 @@ import com.powsybl.openrao.data.crac.io.cim.craccreator.AngleCnecCreationContext
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.io.cne.swe.xsd.AdditionalConstraintSeries;
-import com.powsybl.openrao.monitoring.results.RaoResultWithAngleMonitoring;
+import com.powsybl.openrao.monitoring.angle.RaoResultWithAngleMonitoring;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -44,7 +44,7 @@ class SweAdditionalConstraintSeriesCreatorTest {
     private Instant curativeInstant;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         this.crac = Mockito.mock(Crac.class);
         this.raoResult = Mockito.mock(RaoResultWithAngleMonitoring.class);
         Mockito.when(raoResult.getComputationStatus()).thenReturn(ComputationStatus.DEFAULT);

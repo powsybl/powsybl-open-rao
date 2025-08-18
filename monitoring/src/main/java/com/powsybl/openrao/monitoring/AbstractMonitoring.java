@@ -4,9 +4,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 package com.powsybl.openrao.monitoring;
 
-import com.powsybl.action.*;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.glsk.commons.CountryEICode;
@@ -244,7 +244,7 @@ public abstract class AbstractMonitoring<I extends Cnec<?>> implements Monitorin
         return loadFlowResult.isFullyConverged();
     }
 
-    private Set<NetworkAction> getNetworkActionsAssociatedToCnec(State state, Crac crac, Cnec cnec, PhysicalParameter physicalParameter) {
+    private Set<NetworkAction> getNetworkActionsAssociatedToCnec(State state, Crac crac, I cnec, PhysicalParameter physicalParameter) {
         Set<RemedialAction<?>> availableRemedialActions =
             crac.getRemedialActions().stream()
                 .filter(remedialAction ->
@@ -271,120 +271,9 @@ public abstract class AbstractMonitoring<I extends Cnec<?>> implements Monitorin
         }).map(NetworkAction.class::cast).collect(Collectors.toSet());
     }
 
-    private AppliedNetworkActionsResult applyNetworkActions(Network network, Set<NetworkAction> availableNetworkActions, String cnecId, MonitoringInput monitoringInput) {
-        AppliedNetworkActionsResult appliedNetworkActionsResult;
-        Set<RemedialAction<?>> appliedNetworkActions = new TreeSet<>(Comparator.comparing(RemedialAction::getId));
-        // TODO: handle in implementations
-        if (getPhysicalParameter().equals(PhysicalParameter.VOLTAGE)) {
-            for (NetworkAction na : availableNetworkActions) {
-                na.apply(network);
-                appliedNetworkActions.add(na);
-            }
-            appliedNetworkActionsResult = new AppliedNetworkActionsResult.AppliedNetworkActionsResultBuilder().withAppliedNetworkActions(appliedNetworkActions)
-                .withNetworkElementsToBeExcluded(new HashSet<>()).withPowerToBeRedispatched(new EnumMap<>(Country.class)).build();
-        } else {
-            boolean networkActionOk = false;
-            EnumMap<Country, Double> powerToBeRedispatched = new EnumMap<>(Country.class);
-            Set<String> networkElementsToBeExcluded = new HashSet<>();
-            for (NetworkAction na : availableNetworkActions) {
-                EnumMap<Country, Double> tempPowerToBeRedispatched = new EnumMap<>(powerToBeRedispatched);
-                for (Action ea : na.getElementaryActions()) {
-                    networkActionOk = checkElementaryActionAndStoreInjection(ea, network, cnecId, na.getId(), networkElementsToBeExcluded, tempPowerToBeRedispatched, monitoringInput.getScalableZonalData());
-                    if (!networkActionOk) {
-                        break;
-                    }
-                }
-                if (networkActionOk) {
-                    na.apply(network);
-                    appliedNetworkActions.add(na);
-                    powerToBeRedispatched.putAll(tempPowerToBeRedispatched);
-                }
-            }
-            appliedNetworkActionsResult = new AppliedNetworkActionsResult.AppliedNetworkActionsResultBuilder().withAppliedNetworkActions(appliedNetworkActions)
-                .withNetworkElementsToBeExcluded(networkElementsToBeExcluded).withPowerToBeRedispatched(powerToBeRedispatched).build();
-        }
-        BUSINESS_LOGS.info("Applied the following remedial action(s) in order to reduce constraints on CNEC \"{}\": {}", cnecId, appliedNetworkActions.stream().map(com.powsybl.openrao.data.crac.api.Identifiable::getId).collect(Collectors.joining(", ")));
-        return appliedNetworkActionsResult;
-    }
+    protected abstract AppliedNetworkActionsResult applyNetworkActions(Network network, Set<NetworkAction> availableNetworkActions, String cnecId, MonitoringInput<I> monitoringInput);
 
-    /**
-     * 1) Checks a network action's elementary action : it must be a Generator or a Load injection setpoint,
-     * with a defined country.
-     * 2) Stores applied injections on network
-     * Returns false if network action must be filtered.
-     */
-    private boolean checkElementaryActionAndStoreInjection(Action ea, Network network, String angleCnecId, String naId, Set<String> networkElementsToBeExcluded, Map<Country, Double> powerToBeRedispatched, ZonalData<Scalable> scalableZonalData) {
-        if (!(ea instanceof LoadAction) && !(ea instanceof GeneratorAction)) {
-            BUSINESS_WARNS.warn("Remedial action {} of AngleCnec {} is ignored : it has an elementary action that's not an injection setpoint.", naId, angleCnecId);
-            return false;
-        }
-        Identifiable<?> ne = getInjectionSetpointIdentifiable(ea, network);
-
-        if (ne == null) {
-            BUSINESS_WARNS.warn("Remedial action {} of AngleCnec {} is ignored : it has no elementary actions.", naId, angleCnecId);
-            return false;
-        }
-
-        Optional<Substation> substation = ((Injection<?>) ne).getTerminal().getVoltageLevel().getSubstation();
-        if (substation.isEmpty()) {
-            BUSINESS_WARNS.warn("Remedial action {} of AngleCnec {} is ignored : it has an elementary action that doesn't have a substation.", naId, angleCnecId);
-            return false;
-        } else {
-            Optional<Country> country = substation.get().getCountry();
-            if (country.isEmpty()) {
-                BUSINESS_WARNS.warn("Remedial action {} of AngleCnec {} is ignored : it has an elementary action that doesn't have a country.", naId, angleCnecId);
-                return false;
-            } else {
-                checkGlsks(country.get(), naId, angleCnecId, scalableZonalData);
-                if (ne.getType().equals(IdentifiableType.GENERATOR)) {
-                    powerToBeRedispatched.merge(country.get(), ((Generator) ne).getTargetP() - ((GeneratorAction) ea).getActivePowerValue().getAsDouble(), Double::sum);
-                } else if (ne.getType().equals(IdentifiableType.LOAD)) {
-                    powerToBeRedispatched.merge(country.get(), -((Load) ne).getP0() + ((LoadAction) ea).getActivePowerValue().getAsDouble(), Double::sum);
-                } else {
-                    BUSINESS_WARNS.warn("Remedial action {} of AngleCnec {} is ignored : it has an injection setpoint that's neither a generator nor a load.", naId, angleCnecId);
-                    return false;
-                }
-                networkElementsToBeExcluded.add(ne.getId());
-            }
-        }
-        return true;
-    }
-
-    private Identifiable<?> getInjectionSetpointIdentifiable(Action ea, Network network) {
-        if (ea instanceof GeneratorAction generatorAction) {
-            return network.getIdentifiable(generatorAction.getGeneratorId());
-        }
-        if (ea instanceof LoadAction loadAction) {
-            return network.getIdentifiable(loadAction.getLoadId());
-        }
-        if (ea instanceof DanglingLineAction danglingLineAction) {
-            return network.getIdentifiable(danglingLineAction.getDanglingLineId());
-        }
-        if (ea instanceof ShuntCompensatorPositionAction shuntCompensatorPositionAction) {
-            return network.getIdentifiable(shuntCompensatorPositionAction.getShuntCompensatorId());
-        }
-        return null;
-    }
-
-    /**
-     * Checks glsks are correctly defined on country
-     */
-    private void checkGlsks(Country country, String naId, String angleCnecId, ZonalData<Scalable> scalableZonalData) {
-        Set<Country> glskCountries = new TreeSet<>(Comparator.comparing(Country::getName));
-        if (Objects.isNull(scalableZonalData)) {
-            String error = "ScalableZonalData undefined (no GLSK given)";
-            BUSINESS_LOGS.error(error);
-            throw new OpenRaoException(error);
-        }
-        for (String zone : scalableZonalData.getDataPerZone().keySet()) {
-            glskCountries.add(new CountryEICode(zone).getCountry());
-        }
-        if (!glskCountries.contains(country)) {
-            throw new OpenRaoException(String.format("INFEASIBLE Angle Monitoring : Glsks were not defined for country %s. Remedial action %s of AngleCnec %s is ignored.", country.getName(), naId, angleCnecId));
-        }
-    }
-
-    private MonitoringResult<I> makeFailedMonitoringResultForStateWithNaNCnecRsults(MonitoringInput monitoringInput, PhysicalParameter physicalParameter, State state, String failureReason) {
+    private MonitoringResult<I> makeFailedMonitoringResultForStateWithNaNCnecRsults(MonitoringInput<I> monitoringInput, PhysicalParameter physicalParameter, State state, String failureReason) {
         Set<CnecResult<I>> cnecResults = new HashSet<>();
         getCnecs(monitoringInput.getCrac(), state).forEach(cnec -> cnecResults.add(makeFailedCnecResult(cnec, parameterToUnitMap.get(physicalParameter))));
         return makeFailedMonitoringResultForState(state, failureReason, cnecResults);

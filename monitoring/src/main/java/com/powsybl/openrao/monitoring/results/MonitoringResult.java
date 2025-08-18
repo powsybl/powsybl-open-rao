@@ -7,7 +7,6 @@
 
 package com.powsybl.openrao.monitoring.results;
 
-import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
@@ -23,8 +22,6 @@ import java.util.Set;
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
 public interface MonitoringResult<I extends Cnec<?>> {
-    PhysicalParameter getPhysicalParameter();
-
     Set<CnecResult<I>> getCnecResults();
 
     Map<State, Set<RemedialAction<?>>> getAppliedRas();
