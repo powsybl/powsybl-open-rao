@@ -68,6 +68,11 @@ public class AngleMonitoring extends AbstractMonitoring<AngleCnec> {
     }
 
     @Override
+    protected Unit getUnit() {
+        return Unit.DEGREE;
+    }
+
+    @Override
     protected MonitoringResult<AngleCnec> makeEmptySecureResult() {
         return new AngleMonitoringResult(Set.of(), Map.of(), SecurityStatus.SECURE);
     }

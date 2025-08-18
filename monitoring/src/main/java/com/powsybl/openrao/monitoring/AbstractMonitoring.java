@@ -48,7 +48,6 @@ public abstract class AbstractMonitoring<I extends Cnec<?>> implements Monitorin
 
     private final String loadFlowProvider;
     private final LoadFlowParameters loadFlowParameters;
-    Map<PhysicalParameter, Unit> parameterToUnitMap = Map.of(PhysicalParameter.ANGLE, Unit.DEGREE, PhysicalParameter.VOLTAGE, Unit.KILOVOLT);
 
     protected AbstractMonitoring(String loadFlowProvider, LoadFlowParameters loadFlowParameters) {
         this.loadFlowProvider = loadFlowProvider;
@@ -95,7 +94,7 @@ public abstract class AbstractMonitoring<I extends Cnec<?>> implements Monitorin
 
                     Contingency contingency = state.getContingency().orElseThrow();
                     if (!contingency.isValid(networkClone)) {
-                        monitoringResult.combine(makeFailedMonitoringResultForStateWithNaNCnecRsults(monitoringInput, physicalParameter, state, "Unable to apply contingency " + contingency.getId()));
+                        monitoringResult.combine(makeFailedMonitoringResultForStateWithNaNCnecRsults(monitoringInput, state, "Unable to apply contingency " + contingency.getId()));
                         networkPool.releaseUsedNetwork(networkClone);
                         return null;
                     }
@@ -128,6 +127,7 @@ public abstract class AbstractMonitoring<I extends Cnec<?>> implements Monitorin
     }
 
     protected abstract PhysicalParameter getPhysicalParameter();
+    protected abstract Unit getUnit();
 
     protected abstract MonitoringResult<I> makeEmptySecureResult();
 
@@ -139,13 +139,13 @@ public abstract class AbstractMonitoring<I extends Cnec<?>> implements Monitorin
 
     private MonitoringResult<I> monitorCnecs(State state, Set<I> cnecs, Network network, MonitoringInput<I> monitoringInput) {
         PhysicalParameter physicalParameter = getPhysicalParameter();
-        Unit unit = parameterToUnitMap.get(physicalParameter);
+        Unit unit = getUnit();
         Set<CnecResult<I>> cnecResults = new HashSet<>();
         BUSINESS_LOGS.info("-- '{}' Monitoring at state '{}' [start]", physicalParameter, state);
         boolean lfSuccess = computeLoadFlow(network);
         if (!lfSuccess) {
             String failureReason = String.format("Load-flow computation failed at state %s. Skipping this state.", state);
-            return makeFailedMonitoringResultForStateWithNaNCnecRsults(monitoringInput, physicalParameter, state, failureReason);
+            return makeFailedMonitoringResultForStateWithNaNCnecRsults(monitoringInput, state, failureReason);
         }
         List<AppliedNetworkActionsResult> appliedNetworkActionsResultList = new ArrayList<>();
         cnecs.forEach(cnec -> {
@@ -273,9 +273,9 @@ public abstract class AbstractMonitoring<I extends Cnec<?>> implements Monitorin
 
     protected abstract AppliedNetworkActionsResult applyNetworkActions(Network network, Set<NetworkAction> availableNetworkActions, String cnecId, MonitoringInput<I> monitoringInput);
 
-    private MonitoringResult<I> makeFailedMonitoringResultForStateWithNaNCnecRsults(MonitoringInput<I> monitoringInput, PhysicalParameter physicalParameter, State state, String failureReason) {
+    private MonitoringResult<I> makeFailedMonitoringResultForStateWithNaNCnecRsults(MonitoringInput<I> monitoringInput, State state, String failureReason) {
         Set<CnecResult<I>> cnecResults = new HashSet<>();
-        getCnecs(monitoringInput.getCrac(), state).forEach(cnec -> cnecResults.add(makeFailedCnecResult(cnec, parameterToUnitMap.get(physicalParameter))));
+        getCnecs(monitoringInput.getCrac(), state).forEach(cnec -> cnecResults.add(makeFailedCnecResult(cnec, getUnit())));
         return makeFailedMonitoringResultForState(state, failureReason, cnecResults);
     }
 

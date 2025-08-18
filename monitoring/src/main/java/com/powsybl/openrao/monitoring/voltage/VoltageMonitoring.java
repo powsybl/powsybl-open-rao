@@ -51,6 +51,11 @@ public class VoltageMonitoring extends AbstractMonitoring<VoltageCnec> {
     }
 
     @Override
+    protected Unit getUnit() {
+        return Unit.KILOVOLT;
+    }
+
+    @Override
     protected MonitoringResult<VoltageCnec> makeEmptySecureResult() {
         return new VoltageMonitoringResult(Set.of(), Map.of(), SecurityStatus.SECURE);
     }
