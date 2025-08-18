@@ -4,6 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 package com.powsybl.openrao.monitoring.results;
 
 import com.powsybl.openrao.commons.MinOrMax;
@@ -13,13 +14,13 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.State;
-import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
-import com.powsybl.openrao.data.crac.impl.VoltageCnecValue;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.RaoResultClone;
+import com.powsybl.openrao.monitoring.api.SecurityStatus;
+import com.powsybl.openrao.monitoring.voltage.VoltageCnecValue;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -43,21 +44,21 @@ public class RaoResultWithVoltageMonitoring extends RaoResultClone {
 
     @Override
     public ComputationStatus getComputationStatus() {
-        if (!voltageMonitoringResult.getStatus().equals(Cnec.SecurityStatus.FAILURE)) {
+        if (!voltageMonitoringResult.getStatus().equals(SecurityStatus.FAILURE)) {
             return raoResult.getComputationStatus();
         } else {
             return ComputationStatus.FAILURE;
         }
     }
 
-    public Cnec.SecurityStatus getSecurityStatus() {
+    public SecurityStatus getSecurityStatus() {
         return voltageMonitoringResult.getStatus();
     }
 
     @Override
     public double getMinVoltage(Instant optimizationInstant, VoltageCnec voltageCnec, MinOrMax minOrMax, Unit unit) {
         unit.checkPhysicalParameter(PhysicalParameter.VOLTAGE);
-        Optional<CnecResult> voltageCnecResultOpt = getCnecResult(optimizationInstant, voltageCnec);
+        Optional<CnecResult<?>> voltageCnecResultOpt = getCnecResult(optimizationInstant, voltageCnec);
         if (voltageCnecResultOpt.isPresent()) {
             return ((VoltageCnecValue) voltageCnecResultOpt.get().getValue()).minValue();
         } else {
@@ -68,7 +69,7 @@ public class RaoResultWithVoltageMonitoring extends RaoResultClone {
     @Override
     public double getMaxVoltage(Instant optimizationInstant, VoltageCnec voltageCnec, MinOrMax minOrMax, Unit unit) {
         unit.checkPhysicalParameter(PhysicalParameter.VOLTAGE);
-        Optional<CnecResult> voltageCnecResultOpt = getCnecResult(optimizationInstant, voltageCnec);
+        Optional<CnecResult<?>> voltageCnecResultOpt = getCnecResult(optimizationInstant, voltageCnec);
         if (voltageCnecResultOpt.isPresent()) {
             return ((VoltageCnecValue) voltageCnecResultOpt.get().getValue()).maxValue();
         } else {
@@ -76,7 +77,7 @@ public class RaoResultWithVoltageMonitoring extends RaoResultClone {
         }
     }
 
-    private Optional<CnecResult> getCnecResult(Instant optimizationInstant, VoltageCnec voltageCnec) {
+    private Optional<CnecResult<?>> getCnecResult(Instant optimizationInstant, VoltageCnec voltageCnec) {
         if (optimizationInstant == null || !optimizationInstant.isCurative()) {
             throw new OpenRaoException("Unexpected optimization instant for voltage monitoring result (only curative instant is supported currently) : " + optimizationInstant);
         }
@@ -90,14 +91,14 @@ public class RaoResultWithVoltageMonitoring extends RaoResultClone {
             throw new OpenRaoException("Unexpected optimization instant for voltage monitoring result (only curative instant is supported currently): " + optimizationInstant);
         }
 
-        Optional<CnecResult> voltageCnecResultOpt = getCnecResult(optimizationInstant, voltageCnec);
+        Optional<CnecResult<?>> voltageCnecResultOpt = getCnecResult(optimizationInstant, voltageCnec);
         return voltageCnecResultOpt.map(CnecResult::getMargin).orElse(Double.NaN);
     }
 
     @Override
     public Set<NetworkAction> getActivatedNetworkActionsDuringState(State state) {
         Set<NetworkAction> concatenatedActions = new HashSet<>(raoResult.getActivatedNetworkActionsDuringState(state));
-        Set<RemedialAction> voltageMonitoringRas = voltageMonitoringResult.getAppliedRas(state);
+        Set<RemedialAction<?>> voltageMonitoringRas = voltageMonitoringResult.getAppliedRas(state);
         Set<NetworkAction> voltageMonitoringNetworkActions = voltageMonitoringRas.stream().filter(NetworkAction.class::isInstance).map(ra -> (NetworkAction) ra).collect(Collectors.toSet());
         concatenatedActions.addAll(voltageMonitoringNetworkActions);
         return concatenatedActions;
@@ -117,7 +118,7 @@ public class RaoResultWithVoltageMonitoring extends RaoResultClone {
     public boolean isSecure(Instant instant, PhysicalParameter... u) {
         List<PhysicalParameter> physicalParameters = new ArrayList<>(Stream.of(u).sorted().toList());
         if (physicalParameters.remove(PhysicalParameter.VOLTAGE)) {
-            return raoResult.isSecure(instant, physicalParameters.toArray(new PhysicalParameter[0])) && voltageMonitoringResult.getStatus().equals(Cnec.SecurityStatus.SECURE);
+            return raoResult.isSecure(instant, physicalParameters.toArray(new PhysicalParameter[0])) && voltageMonitoringResult.getStatus().equals(SecurityStatus.SECURE);
         } else {
             return raoResult.isSecure(instant, u);
         }
@@ -127,7 +128,7 @@ public class RaoResultWithVoltageMonitoring extends RaoResultClone {
     public boolean isSecure(PhysicalParameter... u) {
         List<PhysicalParameter> physicalParameters = new ArrayList<>(Stream.of(u).sorted().toList());
         if (physicalParameters.remove(PhysicalParameter.VOLTAGE)) {
-            return raoResult.isSecure(physicalParameters.toArray(new PhysicalParameter[0])) && voltageMonitoringResult.getStatus().equals(Cnec.SecurityStatus.SECURE);
+            return raoResult.isSecure(physicalParameters.toArray(new PhysicalParameter[0])) && voltageMonitoringResult.getStatus().equals(SecurityStatus.SECURE);
         } else {
             return raoResult.isSecure(u);
         }
@@ -135,6 +136,6 @@ public class RaoResultWithVoltageMonitoring extends RaoResultClone {
 
     @Override
     public boolean isSecure() {
-        return raoResult.isSecure() && voltageMonitoringResult.getStatus().equals(Cnec.SecurityStatus.SECURE);
+        return raoResult.isSecure() && voltageMonitoringResult.getStatus().equals(SecurityStatus.SECURE);
     }
 }

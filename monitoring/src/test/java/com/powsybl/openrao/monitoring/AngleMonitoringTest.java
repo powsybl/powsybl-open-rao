@@ -25,18 +25,18 @@ import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
-import com.powsybl.openrao.data.crac.api.cnec.Cnec;
-import com.powsybl.openrao.data.crac.api.cnec.CnecValue;
 import com.powsybl.openrao.data.crac.api.networkaction.ActionType;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
-import com.powsybl.openrao.data.crac.impl.AngleCnecValue;
 import com.powsybl.openrao.data.crac.io.cim.parameters.CimCracCreationParameters;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.crac.io.cim.craccreator.CimCracCreationContext;
 
+import com.powsybl.openrao.monitoring.angle.AngleCnecValue;
+import com.powsybl.openrao.monitoring.api.CnecValue;
+import com.powsybl.openrao.monitoring.api.SecurityStatus;
 import com.powsybl.openrao.monitoring.results.CnecResult;
 import com.powsybl.openrao.monitoring.results.MonitoringResult;
 import org.junit.jupiter.api.BeforeEach;
@@ -79,7 +79,7 @@ class AngleMonitoringTest {
     private Instant curativeInstant;
 
     @BeforeEach
-    public void generalSetUp() {
+    void generalSetUp() {
         loadFlowParameters = new LoadFlowParameters();
         loadFlowParameters.setDc(false);
         raoResult = Mockito.mock(RaoResult.class);
@@ -161,7 +161,7 @@ class AngleMonitoringTest {
         mockCurativeStates();
         ZonalData<Scalable> scalableZonalData = CimGlskDocument.importGlsk(getClass().getResourceAsStream("/GlskB45test.xml")).getZonalScalable(network);
         runAngleMonitoring(scalableZonalData);
-        assertEquals(Cnec.SecurityStatus.FAILURE, angleMonitoringResult.getStatus());
+        assertEquals(SecurityStatus.FAILURE, angleMonitoringResult.getStatus());
         angleMonitoringResult.getAppliedRas().forEach((state, networkActions) -> assertTrue(networkActions.isEmpty()));
         assertTrue(angleMonitoringResult.getCnecResults().stream().map(CnecResult::getValue).filter(AngleCnecValue.class::isInstance).allMatch(angleCnecValue -> ((AngleCnecValue) angleCnecValue).value().isNaN()));
         assertEquals(angleMonitoringResult.printConstraints(), List.of("ANGLE monitoring failed due to a load flow divergence or an inconsistency in the crac or in the parameters."));
@@ -173,7 +173,7 @@ class AngleMonitoringTest {
         ZonalData<Scalable> scalableZonalData = CimGlskDocument.importGlsk(getClass().getResourceAsStream("/GlskB45test.xml")).getZonalScalable(network);
 
         runAngleMonitoring(scalableZonalData);
-        assertEquals(Cnec.SecurityStatus.SECURE, angleMonitoringResult.getStatus());
+        assertEquals(SecurityStatus.SECURE, angleMonitoringResult.getStatus());
     }
 
     @Test
@@ -183,7 +183,7 @@ class AngleMonitoringTest {
         ZonalData<Scalable> scalableZonalData = CimGlskDocument.importGlsk(getClass().getResourceAsStream("/GlskB45test.xml")).getZonalScalable(network);
 
         runAngleMonitoring(scalableZonalData);
-        assertEquals(Cnec.SecurityStatus.LOW_CONSTRAINT, angleMonitoringResult.getStatus());
+        assertEquals(SecurityStatus.LOW_CONSTRAINT, angleMonitoringResult.getStatus());
         angleMonitoringResult.getAppliedRas().forEach((state, networkActions) -> assertTrue(networkActions.isEmpty()));
         assertEquals(List.of("Some ANGLE Cnecs are not secure:",
             "AngleCnec acPrev (with importing network element VL1 and exporting network element VL2) at state preventive has an angle of -3.68°."
@@ -200,7 +200,7 @@ class AngleMonitoringTest {
         ZonalData<Scalable> scalableZonalData = CimGlskDocument.importGlsk(getClass().getResourceAsStream("/GlskB45test.xml")).getZonalScalable(network);
 
         runAngleMonitoring(scalableZonalData);
-        assertEquals(Cnec.SecurityStatus.LOW_CONSTRAINT, angleMonitoringResult.getStatus());
+        assertEquals(SecurityStatus.LOW_CONSTRAINT, angleMonitoringResult.getStatus());
         angleMonitoringResult.getAppliedRas().forEach((state, networkActions) -> assertTrue(networkActions.isEmpty()));
         assertEquals(List.of("Some ANGLE Cnecs are not secure:",
                 "AngleCnec acCur1 (with importing network element VL1 and exporting network element VL2) at state coL1 - curative has an angle of -7.71°."),
@@ -219,7 +219,7 @@ class AngleMonitoringTest {
         ZonalData<Scalable> scalableZonalData = CimGlskDocument.importGlsk(getClass().getResourceAsStream("/GlskB45test.xml")).getZonalScalable(network);
 
         runAngleMonitoring(scalableZonalData);
-        assertEquals(Cnec.SecurityStatus.LOW_CONSTRAINT, angleMonitoringResult.getStatus());
+        assertEquals(SecurityStatus.LOW_CONSTRAINT, angleMonitoringResult.getStatus());
         angleMonitoringResult.getAppliedRas().forEach((state, networkActions) -> assertTrue(networkActions.isEmpty()));
         assertEquals(List.of("Some ANGLE Cnecs are not secure:",
                 "AngleCnec acCur1 (with importing network element VL1 and exporting network element VL2) at state coL1 - curative has an angle of -7.71°."),
@@ -238,7 +238,7 @@ class AngleMonitoringTest {
         ZonalData<Scalable> scalableZonalData = CimGlskDocument.importGlsk(getClass().getResourceAsStream("/GlskB45test.xml")).getZonalScalable(network);
 
         runAngleMonitoring(scalableZonalData);
-        assertEquals(Cnec.SecurityStatus.SECURE, angleMonitoringResult.getStatus());
+        assertEquals(SecurityStatus.SECURE, angleMonitoringResult.getStatus());
         assertEquals(Set.of(naL1Cur.getId()), angleMonitoringResult.getAppliedRas("coL1 - curative"));
         assertEquals(angleMonitoringResult.printConstraints(), List.of("All ANGLE Cnecs are secure."));
     }
@@ -253,7 +253,7 @@ class AngleMonitoringTest {
         runAngleMonitoring(scalableZonalData);
         assertEquals(1, angleMonitoringResult.getCnecResults().size());
         assertEquals("acCur1", angleMonitoringResult.getCnecResults().stream().findFirst().orElseThrow().getCnec().getId());
-        assertEquals(Cnec.SecurityStatus.SECURE, angleMonitoringResult.getStatus());
+        assertEquals(SecurityStatus.SECURE, angleMonitoringResult.getStatus());
     }
 
     @Test
@@ -265,7 +265,7 @@ class AngleMonitoringTest {
 
         runAngleMonitoring(scalableZonalData);
 
-        assertEquals(Cnec.SecurityStatus.HIGH_CONSTRAINT, angleMonitoringResult.getStatus());
+        assertEquals(SecurityStatus.HIGH_CONSTRAINT, angleMonitoringResult.getStatus());
 
         // Applied cras
         State state = crac.getState("Co-1", curativeInstant);
@@ -315,27 +315,27 @@ class AngleMonitoringTest {
         ZonalData<Scalable> scalableZonalData = CimGlskDocument.importGlsk(getClass().getResourceAsStream("/GlskB45test.xml")).getZonalScalable(network);
 
         runAngleMonitoring(scalableZonalData);
-        assertEquals(Cnec.SecurityStatus.FAILURE, angleMonitoringResult.getStatus());
+        assertEquals(SecurityStatus.FAILURE, angleMonitoringResult.getStatus());
         assertEquals(2, angleMonitoringResult.getCnecResults().size());
 
-        Optional<CnecResult> acCur1CnecOpt = angleMonitoringResult.getCnecResults().stream().filter(cr -> cr.getId().equals("acCur1")).findFirst();
-        CnecValue acCur1CnecValue = acCur1CnecOpt.get().getValue();
-        Cnec.SecurityStatus acCur1SecurityStatus = acCur1CnecOpt.get().getCnecSecurityStatus();
+        Optional<CnecResult<?>> acCur1CnecOpt = angleMonitoringResult.getCnecResults().stream().filter(cr -> cr.getId().equals("acCur1")).findFirst();
+        CnecValue<?> acCur1CnecValue = acCur1CnecOpt.get().getValue();
+        SecurityStatus acCur1SecurityStatus = acCur1CnecOpt.get().getCnecSecurityStatus();
         double acCur1Margin = acCur1CnecOpt.get().getMargin();
 
         assertTrue(acCur1CnecValue instanceof AngleCnecValue);
         assertEquals(-7.71, ((AngleCnecValue) acCur1CnecValue).value(), 0.01);
-        assertEquals(Cnec.SecurityStatus.SECURE, acCur1SecurityStatus);
+        assertEquals(SecurityStatus.SECURE, acCur1SecurityStatus);
         assertEquals(0.28, acCur1Margin, 0.01);
 
-        Optional<CnecResult> acCur2CnecOpt = angleMonitoringResult.getCnecResults().stream().filter(cr -> cr.getId().equals("acCur2")).findFirst();
-        CnecValue acCur2CnecValue = acCur2CnecOpt.get().getValue();
-        Cnec.SecurityStatus acCur2SecurityStatus = acCur2CnecOpt.get().getCnecSecurityStatus();
+        Optional<CnecResult<?>> acCur2CnecOpt = angleMonitoringResult.getCnecResults().stream().filter(cr -> cr.getId().equals("acCur2")).findFirst();
+        CnecValue<?> acCur2CnecValue = acCur2CnecOpt.get().getValue();
+        SecurityStatus acCur2SecurityStatus = acCur2CnecOpt.get().getCnecSecurityStatus();
         double acCur2Margin = acCur2CnecOpt.get().getMargin();
 
         assertTrue(acCur2CnecValue instanceof AngleCnecValue);
         assertEquals(Double.NaN, ((AngleCnecValue) acCur2CnecValue).value(), 0.01);
-        assertEquals(Cnec.SecurityStatus.FAILURE, acCur2SecurityStatus);
+        assertEquals(SecurityStatus.FAILURE, acCur2SecurityStatus);
         assertEquals(Double.NaN, acCur2Margin, 0.01);
     }
 
@@ -378,7 +378,7 @@ class AngleMonitoringTest {
             .add();
         MonitoringInput monitoringInput = new MonitoringInput.MonitoringInputBuilder().withCrac(crac).withNetwork(network).withRaoResult(raoResult).withPhysicalParameter(PhysicalParameter.ANGLE).build();
         angleMonitoringResult = new Monitoring("OpenLoadFlow", loadFlowParameters).runMonitoring(monitoringInput, 2);
-        assertEquals(Cnec.SecurityStatus.FAILURE, angleMonitoringResult.getStatus());
+        assertEquals(SecurityStatus.FAILURE, angleMonitoringResult.getStatus());
     }
 }
 

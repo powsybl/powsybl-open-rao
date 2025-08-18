@@ -146,21 +146,6 @@ public class FlowCnecImpl extends AbstractBranchCnec<FlowCnec> implements FlowCn
     }
 
     @Override
-    public FlowCnecValue computeValue(Network network, Unit unit) {
-        throw new OpenRaoException("Undefined method.");
-    }
-
-    @Override
-    public double computeMargin(Network network, Unit unit) {
-        throw new OpenRaoException("Undefined method.");
-    }
-
-    @Override
-    public SecurityStatus computeSecurityStatus(Network network, Unit unit) {
-        throw new OpenRaoException("Undefined method.");
-    }
-
-    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;

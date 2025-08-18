@@ -13,13 +13,13 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.CracCreationContext;
 import com.powsybl.openrao.data.crac.api.InstantKind;
-import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
-import com.powsybl.openrao.data.crac.impl.AngleCnecValue;
 import com.powsybl.openrao.data.crac.io.cim.parameters.CimCracCreationParameters;
 import com.powsybl.openrao.data.crac.io.cim.parameters.RangeActionSpeed;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
-import com.powsybl.openrao.monitoring.results.CnecResult;
+import com.powsybl.openrao.monitoring.angle.AngleCnecResult;
+import com.powsybl.openrao.monitoring.angle.AngleCnecValue;
+import com.powsybl.openrao.monitoring.api.SecurityStatus;
 import com.powsybl.openrao.monitoring.results.MonitoringResult;
 import com.powsybl.openrao.monitoring.results.RaoResultWithAngleMonitoring;
 import org.junit.jupiter.api.Assertions;
@@ -54,7 +54,7 @@ class SweCneTest {
     private Properties properties;
 
     @BeforeEach
-    public void setUp() throws IOException {
+    void setUp() throws IOException {
         network = Network.read(new File(SweCneTest.class.getResource("/TestCase16NodesWith2Hvdc.xiidm").getFile()).toString());
         InputStream is = getClass().getResourceAsStream("/CIM_CRAC.xml");
 
@@ -84,9 +84,9 @@ class SweCneTest {
         RaoResult raoResultWithFailure = RaoResult.read(inputStream3, crac);
 
         MonitoringResult monitoringResult = new MonitoringResult(PhysicalParameter.ANGLE,
-            Set.of(new CnecResult(crac.getCnec("ac1"), Unit.DEGREE, new AngleCnecValue(4.0), 2., Cnec.SecurityStatus.SECURE)),
+            Set.of(new AngleCnecResult(crac.getAngleCnec("ac1"), Unit.DEGREE, new AngleCnecValue(4.0), 2., SecurityStatus.SECURE)),
             Map.of(crac.getState("Co-1", crac.getInstant(InstantKind.CURATIVE)), Set.of(crac.getRemedialAction("na1"))),
-            Cnec.SecurityStatus.SECURE);
+            SecurityStatus.SECURE);
 
         raoResultWithAngle = new RaoResultWithAngleMonitoring(raoResult, monitoringResult);
         raoResultFailureWithAngle = new RaoResultWithAngleMonitoring(raoResultWithFailure, monitoringResult);

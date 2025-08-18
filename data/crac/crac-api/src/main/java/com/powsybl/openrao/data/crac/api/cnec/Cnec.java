@@ -8,7 +8,6 @@
 package com.powsybl.openrao.data.crac.api.cnec;
 
 import com.powsybl.openrao.commons.PhysicalParameter;
-import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Identifiable;
 import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.State;
@@ -57,30 +56,6 @@ public interface Cnec<I extends Cnec<I>> extends Identifiable<I> {
     PhysicalParameter getPhysicalParameter();
 
     /**
-     * TODO: move to monitoring
-     * @param network: the network object used to look for actual result of the Cnec
-     * @param unit: the unit object used to look for the kind of the {@link Cnec} and the kind of the {@link CnecValue}
-     * @return a CnecValue  as result of the {@link Cnec} depending on the cnec kind
-     */
-    CnecValue computeValue(Network network, Unit unit);
-
-    /**
-     * TODO: move to monitoring
-     * @param network: the network object used to look for actual result of the Cnec
-     * @param unit: the unit object used to look for the kind of the {@link Cnec}
-     * @return a double as the worst margin of a @{@link CnecValue} relatively to the @{@link Cnec} thresholds
-     */
-    double computeMargin(Network network, Unit unit);
-
-    /**
-     * TODO: move to monitoring
-     * @param network: the network object used to look for actual result of the Cnec
-     * @param unit: the unit object used to look for the kind of the {@link Cnec}
-     * Returns a {@link SecurityStatus} describing the {@link Cnec} result compared to the thresholds
-     */
-    SecurityStatus computeSecurityStatus(Network network, Unit unit);
-
-    /**
      * Returns a tag indicating whether or not the {@link PhysicalParameter} of the Cnec is optimized.
      *
      * For instance, in the search-tree-rao, the margin of such a Cnec will be "maximized" (optimized), in case
@@ -117,30 +92,4 @@ public interface Cnec<I extends Cnec<I>> extends Identifiable<I> {
         getNetworkElements().forEach(networkElement -> locations.addAll(networkElement.getLocation(network)));
         return locations;
     }
-
-    /**
-     * @deprecated
-     * use the method withMonitored() of the {@link CnecAdder} instead
-     */
-    @Deprecated (since = "3.0.0")
-    void setMonitored(boolean monitored);
-
-    /**
-     * @deprecated
-     * use the method withOptimized() of the {@link CnecAdder} instead
-     */
-    @Deprecated (since = "3.0.0")
-    void setOptimized(boolean optimized);
-
-    /**
-     * Possible statuses for a cnec result
-     */
-    enum SecurityStatus {
-        SECURE,
-        HIGH_CONSTRAINT,
-        LOW_CONSTRAINT,
-        HIGH_AND_LOW_CONSTRAINTS,
-        FAILURE,
-    }
-
 }

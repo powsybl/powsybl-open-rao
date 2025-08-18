@@ -12,13 +12,13 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.CracCreationContext;
 import com.powsybl.openrao.data.crac.api.InstantKind;
-import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
-import com.powsybl.openrao.data.crac.impl.AngleCnecValue;
 import com.powsybl.openrao.data.crac.io.cim.parameters.CimCracCreationParameters;
 import com.powsybl.openrao.data.crac.io.cim.parameters.RangeActionSpeed;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
-import com.powsybl.openrao.monitoring.results.CnecResult;
+import com.powsybl.openrao.monitoring.angle.AngleCnecResult;
+import com.powsybl.openrao.monitoring.angle.AngleCnecValue;
+import com.powsybl.openrao.monitoring.api.SecurityStatus;
 import com.powsybl.openrao.monitoring.results.MonitoringResult;
 import com.powsybl.openrao.monitoring.results.RaoResultWithAngleMonitoring;
 import com.powsybl.iidm.network.Network;
@@ -55,9 +55,9 @@ class SweCneDivergentAngleMonitoringTest {
         RaoResult raoResult = RaoResult.read(inputStream, crac);
 
         MonitoringResult monitoringResult = new MonitoringResult(PhysicalParameter.ANGLE,
-            Set.of(new CnecResult(crac.getCnec("ac1"), Unit.DEGREE, new AngleCnecValue(4.0), 2., Cnec.SecurityStatus.FAILURE)),
+            Set.of(new AngleCnecResult(crac.getAngleCnec("ac1"), Unit.DEGREE, new AngleCnecValue(4.0), 2., SecurityStatus.FAILURE)),
             Map.of(crac.getState("Co-1", crac.getInstant(InstantKind.CURATIVE)), Set.of(crac.getRemedialAction("na1"))),
-            Cnec.SecurityStatus.FAILURE);
+            SecurityStatus.FAILURE);
 
         RaoResultWithAngleMonitoring raoResultWithAngleMonitoring = new RaoResultWithAngleMonitoring(raoResult, monitoringResult);
 

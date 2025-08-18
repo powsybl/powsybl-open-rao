@@ -10,7 +10,7 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.State;
-import com.powsybl.openrao.data.crac.api.cnec.Cnec.SecurityStatus;
+import com.powsybl.openrao.monitoring.api.SecurityStatus;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -20,12 +20,12 @@ import java.util.stream.Collectors;
  */
 public class MonitoringResult {
 
-    private PhysicalParameter physicalParameter;
-    private Set<CnecResult> cnecResults;
-    private Map<State, Set<RemedialAction>> appliedRas;
+    private final PhysicalParameter physicalParameter;
+    private Set<CnecResult<?>> cnecResults;
+    private Map<State, Set<RemedialAction<?>>> appliedRas;
     private SecurityStatus status;
 
-    public MonitoringResult(PhysicalParameter physicalParameter, Set<CnecResult> cnecResults, Map<State, Set<RemedialAction>> appliedRas, SecurityStatus status) {
+    public MonitoringResult(PhysicalParameter physicalParameter, Set<CnecResult<?>> cnecResults, Map<State, Set<RemedialAction<?>>> appliedRas, SecurityStatus status) {
         this.physicalParameter = physicalParameter;
         this.cnecResults = cnecResults;
         this.appliedRas = appliedRas;
@@ -36,15 +36,15 @@ public class MonitoringResult {
         return physicalParameter;
     }
 
-    public Set<CnecResult> getCnecResults() {
+    public Set<CnecResult<?>> getCnecResults() {
         return cnecResults;
     }
 
-    public Map<State, Set<RemedialAction>> getAppliedRas() {
+    public Map<State, Set<RemedialAction<?>>> getAppliedRas() {
         return appliedRas;
     }
 
-    public Set<RemedialAction> getAppliedRas(State state) {
+    public Set<RemedialAction<?>> getAppliedRas(State state) {
         return appliedRas.getOrDefault(state, Collections.emptySet());
     }
 
@@ -84,13 +84,13 @@ public class MonitoringResult {
     // Add synchronized in the signature to make the function blocking
     // Necessary because in the function runMonitoring this function is called in parallel threads -> can cause overwriting conflict.
     public synchronized void combine(MonitoringResult monitoringResult) {
-        Set<CnecResult> thisCnecResults = new HashSet<>(this.getCnecResults());
-        Set<CnecResult> otherCnecResults = monitoringResult.getCnecResults();
+        Set<CnecResult<?>> thisCnecResults = new HashSet<>(this.getCnecResults());
+        Set<CnecResult<?>> otherCnecResults = monitoringResult.getCnecResults();
         thisCnecResults.addAll(otherCnecResults);
         this.cnecResults = thisCnecResults;
 
-        Map<State, Set<RemedialAction>> thisAppliedRas = new HashMap<>(this.getAppliedRas());
-        Map<State, Set<RemedialAction>> otherAppliedRas = monitoringResult.getAppliedRas();
+        Map<State, Set<RemedialAction<?>>> thisAppliedRas = new HashMap<>(this.getAppliedRas());
+        Map<State, Set<RemedialAction<?>>> otherAppliedRas = monitoringResult.getAppliedRas();
         thisAppliedRas.putAll(otherAppliedRas);
         this.appliedRas = thisAppliedRas;
 

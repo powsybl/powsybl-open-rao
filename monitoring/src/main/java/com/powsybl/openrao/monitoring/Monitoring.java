@@ -22,15 +22,21 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.State;
+import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
-import com.powsybl.openrao.data.crac.api.cnec.CnecValue;
+import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.usagerule.OnConstraint;
-import com.powsybl.openrao.data.crac.impl.AngleCnecValue;
-import com.powsybl.openrao.data.crac.impl.VoltageCnecValue;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.monitoring.angle.AngleCnecHelper;
+import com.powsybl.openrao.monitoring.angle.AngleCnecResult;
+import com.powsybl.openrao.monitoring.angle.AngleCnecValue;
+import com.powsybl.openrao.monitoring.api.SecurityStatus;
 import com.powsybl.openrao.monitoring.redispatching.RedispatchAction;
 import com.powsybl.openrao.monitoring.results.*;
+import com.powsybl.openrao.monitoring.voltage.VoltageCnecHelper;
+import com.powsybl.openrao.monitoring.voltage.VoltageCnecResult;
+import com.powsybl.openrao.monitoring.voltage.VoltageCnecValue;
 import com.powsybl.openrao.util.AbstractNetworkPool;
 
 import java.util.*;
@@ -51,13 +57,11 @@ public class Monitoring {
 
     private final String loadFlowProvider;
     private final LoadFlowParameters loadFlowParameters;
-    Map<PhysicalParameter, Unit> parameterToUnitMap = new HashMap<>();
+    Map<PhysicalParameter, Unit> parameterToUnitMap = Map.of(PhysicalParameter.ANGLE, Unit.DEGREE, PhysicalParameter.VOLTAGE, Unit.KILOVOLT);
 
     public Monitoring(String loadFlowProvider, LoadFlowParameters loadFlowParameters) {
         this.loadFlowProvider = loadFlowProvider;
         this.loadFlowParameters = loadFlowParameters;
-        parameterToUnitMap.put(PhysicalParameter.ANGLE, Unit.DEGREE);
-        parameterToUnitMap.put(PhysicalParameter.VOLTAGE, Unit.KILOVOLT);
     }
 
     /**
@@ -82,7 +86,7 @@ public class Monitoring {
         Crac crac = monitoringInput.getCrac();
         RaoResult raoResult = monitoringInput.getRaoResult();
 
-        MonitoringResult monitoringResult = new MonitoringResult(physicalParameter, Collections.emptySet(), Collections.emptyMap(), Cnec.SecurityStatus.SECURE);
+        MonitoringResult monitoringResult = new MonitoringResult(physicalParameter, Collections.emptySet(), Collections.emptyMap(), SecurityStatus.SECURE);
 
         BUSINESS_LOGS.info("----- {} monitoring [start]", physicalParameter);
         Set<Cnec> cnecs = crac.getCnecs(physicalParameter);
@@ -151,7 +155,7 @@ public class Monitoring {
     private MonitoringResult monitorCnecs(State state, Set<Cnec> cnecs, Network network, MonitoringInput monitoringInput) {
         PhysicalParameter physicalParameter = monitoringInput.getPhysicalParameter();
         Unit unit = parameterToUnitMap.get(physicalParameter);
-        Set<CnecResult> cnecResults = new HashSet<>();
+        Set<CnecResult<?>> cnecResults = new HashSet<>();
         BUSINESS_LOGS.info("-- '{}' Monitoring at state '{}' [start]", physicalParameter, state);
         boolean lfSuccess = computeLoadFlow(network);
         if (!lfSuccess) {
@@ -160,10 +164,11 @@ public class Monitoring {
         }
         List<AppliedNetworkActionsResult> appliedNetworkActionsResultList = new ArrayList<>();
         cnecs.forEach(cnec -> {
-            if (cnec.computeMargin(network, unit) < 0) {
-                // For Cnecs with overshoot, get associated remedial actions
+            CnecResult<?> cnecResult = computeCnecResult(cnec, network, unit);
+            if (cnecResult.getMargin() < 0) {
+                // For CNEC with violation, get associated remedial actions
                 Set<NetworkAction> availableNetworkActions = getNetworkActionsAssociatedToCnec(state, monitoringInput.getCrac(), cnec, physicalParameter);
-                // if there is any RA(s) available apply it/them
+                // if there are any available remedial actions, apply them
                 if (!availableNetworkActions.isEmpty()) {
                     AppliedNetworkActionsResult appliedNetworkActionsResult = applyNetworkActions(network, availableNetworkActions, cnec.getId(), monitoringInput);
                     if (!appliedNetworkActionsResult.getAppliedNetworkActions().isEmpty()) {
@@ -171,7 +176,6 @@ public class Monitoring {
                     }
                 }
             }
-            CnecResult cnecResult = new CnecResult(cnec, unit, cnec.computeValue(network, unit), cnec.computeMargin(network, unit), cnec.computeSecurityStatus(network, unit));
             cnecResults.add(cnecResult);
         });
 
@@ -186,22 +190,15 @@ public class Monitoring {
             }
             // Re-compute all voltage/angle values
             cnecResults.clear();
-            cnecs.forEach(cnec -> {
-                CnecResult cnecResult = new CnecResult(cnec,
-                    unit,
-                    cnec.computeValue(network, unit),
-                    cnec.computeMargin(network, unit),
-                    cnec.computeSecurityStatus(network, unit));
-                cnecResults.add(cnecResult);
-            });
+            cnecs.forEach(cnec -> cnecResults.add(computeCnecResult(cnec, network, unit)));
         }
 
-        Cnec.SecurityStatus monitoringResultStatus = Cnec.SecurityStatus.SECURE;
+        SecurityStatus monitoringResultStatus = SecurityStatus.SECURE;
         if (cnecResults.stream().anyMatch(cnecResult -> cnecResult.getMargin() < 0)) {
             monitoringResultStatus = MonitoringResult.combineStatuses(
                 cnecResults.stream()
                     .map(CnecResult::getCnecSecurityStatus)
-                    .toArray(Cnec.SecurityStatus[]::new));
+                    .toArray(SecurityStatus[]::new));
         }
 
         BUSINESS_LOGS.info("-- '{}' Monitoring at state '{}' [end]", physicalParameter, state);
@@ -294,7 +291,7 @@ public class Monitoring {
 
     private AppliedNetworkActionsResult applyNetworkActions(Network network, Set<NetworkAction> availableNetworkActions, String cnecId, MonitoringInput monitoringInput) {
         AppliedNetworkActionsResult appliedNetworkActionsResult;
-        Set<RemedialAction> appliedNetworkActions = new TreeSet<>(Comparator.comparing(RemedialAction::getId));
+        Set<RemedialAction<?>> appliedNetworkActions = new TreeSet<>(Comparator.comparing(RemedialAction::getId));
         if (monitoringInput.getPhysicalParameter().equals(PhysicalParameter.VOLTAGE)) {
             for (NetworkAction na : availableNetworkActions) {
                 na.apply(network);
@@ -405,14 +402,35 @@ public class Monitoring {
     }
 
     private MonitoringResult makeFailedMonitoringResultForStateWithNaNCnecRsults(MonitoringInput monitoringInput, PhysicalParameter physicalParameter, State state, String failureReason) {
-        Set<CnecResult> cnecResults = new HashSet<>();
-        CnecValue cnecValue = physicalParameter.equals(PhysicalParameter.ANGLE) ? new AngleCnecValue(Double.NaN) : new VoltageCnecValue(Double.NaN, Double.NaN);
-        monitoringInput.getCrac().getCnecs(state).forEach(cnec -> cnecResults.add(new CnecResult(cnec, parameterToUnitMap.get(physicalParameter), cnecValue, Double.NaN, Cnec.SecurityStatus.FAILURE)));
+        Set<CnecResult<?>> cnecResults = new HashSet<>();
+        monitoringInput.getCrac().getCnecs(state).forEach(cnec -> cnecResults.add(makeFailedCnecResult(cnec, parameterToUnitMap.get(physicalParameter))));
         return makeFailedMonitoringResultForState(physicalParameter, state, failureReason, cnecResults);
     }
 
-    private MonitoringResult makeFailedMonitoringResultForState(PhysicalParameter physicalParameter, State state, String failureReason, Set<CnecResult> cnecResults) {
+    private MonitoringResult makeFailedMonitoringResultForState(PhysicalParameter physicalParameter, State state, String failureReason, Set<CnecResult<?>> cnecResults) {
         BUSINESS_WARNS.warn(failureReason);
-        return new MonitoringResult(physicalParameter, cnecResults, Map.of(state, Collections.emptySet()), Cnec.SecurityStatus.FAILURE);
+        return new MonitoringResult(physicalParameter, cnecResults, Map.of(state, Collections.emptySet()), SecurityStatus.FAILURE);
+    }
+
+    private static CnecResult<?> computeCnecResult(Cnec<?> cnec, Network network, Unit unit) {
+        if (cnec instanceof AngleCnec angleCnec) {
+            AngleCnecHelper angleCnecHelper = new AngleCnecHelper();
+            return new AngleCnecResult(angleCnec, unit, angleCnecHelper.computeValue(angleCnec, network, unit), angleCnecHelper.computeMargin(angleCnec, network, unit), angleCnecHelper.computeSecurityStatus(angleCnec, network, unit));
+        } else if (cnec instanceof VoltageCnec voltageCnec) {
+            VoltageCnecHelper voltageCnecHelper = new VoltageCnecHelper();
+            return new VoltageCnecResult(voltageCnec, unit, voltageCnecHelper.computeValue(voltageCnec, network, unit), voltageCnecHelper.computeMargin(voltageCnec, network, unit), voltageCnecHelper.computeSecurityStatus(voltageCnec, network, unit));
+        } else {
+            throw new OpenRaoException("Unsupported CNEC type for monitoring.");
+        }
+    }
+
+    private static CnecResult<?> makeFailedCnecResult(Cnec<?> cnec, Unit unit) {
+        if (cnec instanceof AngleCnec angleCnec) {
+            return new AngleCnecResult(angleCnec, unit, new AngleCnecValue(Double.NaN), Double.NaN, SecurityStatus.FAILURE);
+        } else if (cnec instanceof VoltageCnec voltageCnec) {
+            return new VoltageCnecResult(voltageCnec, unit, new VoltageCnecValue(Double.NaN, Double.NaN), Double.NaN, SecurityStatus.FAILURE);
+        } else {
+            throw new OpenRaoException("Unsupported CNEC type for monitoring.");
+        }
     }
 }
