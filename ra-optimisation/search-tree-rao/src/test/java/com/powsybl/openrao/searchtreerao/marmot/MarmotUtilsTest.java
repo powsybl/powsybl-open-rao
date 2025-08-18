@@ -20,7 +20,6 @@ import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
-import com.powsybl.openrao.searchtreerao.marmot.results.GlobalLinearOptimizationResult;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
@@ -36,7 +35,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static com.powsybl.openrao.searchtreerao.marmot.MarmotUtils.getPostOptimizationResults;
 import static com.powsybl.openrao.searchtreerao.marmot.MarmotUtils.getPreventivePerimeterCnecs;
 import static com.powsybl.openrao.searchtreerao.marmot.MarmotUtils.getPreventiveOptimizationResults;
 import static com.powsybl.openrao.searchtreerao.marmot.MarmotUtils.runSensitivityAnalysis;
@@ -175,46 +173,5 @@ class MarmotUtilsTest {
         PreventiveOptimizationResult preventiveOptimizationResult3 = preventiveOptimizationResults.getData(timestamp3).get();
         assertEquals(crac3, preventiveOptimizationResult3.raoInput().getCrac());
         assertEquals(raoResult3, preventiveOptimizationResult3.preventiveOptimizationResult());
-    }
-
-    @Test
-    void testGetPostOptimizationResults() {
-        RaoResult raoResult1 = Mockito.mock(RaoResult.class);
-        RaoResult raoResult2 = Mockito.mock(RaoResult.class);
-        RaoResult raoResult3 = Mockito.mock(RaoResult.class);
-        TemporalData<RaoResult> raoResults = new TemporalDataImpl<>(Map.of(timestamp1, raoResult1, timestamp2, raoResult2, timestamp3, raoResult3));
-
-        PrePerimeterResult initialResult1 = Mockito.mock(PrePerimeterResult.class);
-        PrePerimeterResult initialResult2 = Mockito.mock(PrePerimeterResult.class);
-        PrePerimeterResult initialResult3 = Mockito.mock(PrePerimeterResult.class);
-        TemporalData<PrePerimeterResult> initialResults = new TemporalDataImpl<>(Map.of(timestamp1, initialResult1, timestamp2, initialResult2, timestamp3, initialResult3));
-
-        PrePerimeterResult prePerimeterResult1 = Mockito.mock(PrePerimeterResult.class);
-        PrePerimeterResult prePerimeterResult2 = Mockito.mock(PrePerimeterResult.class);
-        PrePerimeterResult prePerimeterResult3 = Mockito.mock(PrePerimeterResult.class);
-        TemporalData<PrePerimeterResult> prePerimeterResults = new TemporalDataImpl<>(Map.of(timestamp1, prePerimeterResult1, timestamp2, prePerimeterResult2, timestamp3, prePerimeterResult3));
-
-        GlobalLinearOptimizationResult globalLinearOptimizationResult = Mockito.mock(GlobalLinearOptimizationResult.class);
-
-        TemporalData<PostOptimizationResult> postOptimizationResults = getPostOptimizationResults(inputs, initialResults, globalLinearOptimizationResult, raoResults, parameters);
-        assertEquals(List.of(timestamp1, timestamp2, timestamp3), postOptimizationResults.getTimestamps());
-
-        PostOptimizationResult postOptimizationResult1 = postOptimizationResults.getData(timestamp1).get();
-        assertEquals(crac1, postOptimizationResult1.raoInput().getCrac());
-        assertEquals(initialResult1, postOptimizationResult1.initialResult());
-        assertEquals(initialResult1, postOptimizationResult1.prePerimeterFlowResult());
-        assertEquals(raoResult1, postOptimizationResult1.topologicalOptimizationResult());
-
-        PostOptimizationResult postOptimizationResult2 = postOptimizationResults.getData(timestamp2).get();
-        assertEquals(crac2, postOptimizationResult2.raoInput().getCrac());
-        assertEquals(initialResult2, postOptimizationResult2.initialResult());
-        assertEquals(initialResult2, postOptimizationResult2.prePerimeterFlowResult());
-        assertEquals(raoResult2, postOptimizationResult2.topologicalOptimizationResult());
-
-        PostOptimizationResult postOptimizationResult3 = postOptimizationResults.getData(timestamp3).get();
-        assertEquals(crac3, postOptimizationResult3.raoInput().getCrac());
-        assertEquals(initialResult3, postOptimizationResult3.initialResult());
-        assertEquals(initialResult3, postOptimizationResult3.prePerimeterFlowResult());
-        assertEquals(raoResult3, postOptimizationResult3.topologicalOptimizationResult());
     }
 }

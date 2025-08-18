@@ -57,6 +57,12 @@
     <dependencies>
         <!-- Compile dependencies -->
         <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.18.0</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
             <groupId>com.powsybl</groupId>
             <artifactId>open-rao-monitoring</artifactId>
             <version>${project.version}</version>

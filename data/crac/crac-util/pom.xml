@@ -20,6 +20,15 @@
             <artifactId>open-rao-crac-api</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-csv</artifactId>
+            <version>1.13.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.powsybl</groupId>
+            <artifactId>open-rao-generator-constraints</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>${project.groupId}</groupId>

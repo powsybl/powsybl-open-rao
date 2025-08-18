@@ -108,7 +108,7 @@ class PowerGradientConstraintFillerTest {
 
             RangeActionsOptimizationParameters rangeActionParameters = parameters.getRangeActionsOptimizationParameters();
             Map<RangeAction<?>, Double> map = new HashMap<>();
-            crac.getRangeActions(crac.getPreventiveState(), UsageMethod.AVAILABLE).forEach(action -> map.put(action, 0.0));
+            crac.getRangeActions(crac.getPreventiveState(), UsageMethod.AVAILABLE).forEach(action -> map.put(action, 200.0));
             RangeActionSetpointResult rangeActionSetpointResult = new RangeActionSetpointResultImpl(map);
             MarginCoreProblemFiller coreProblemFiller = new MarginCoreProblemFiller(
                 optimizationPerimeter,
@@ -125,13 +125,11 @@ class PowerGradientConstraintFillerTest {
     }
 
     private void createPowerGradientConstraintFiller() {
-        TemporalData<State> preventiveStates = input.getRaoInputs().map(RaoInput::getCrac).map(crac -> crac.getPreventiveState()).map(State.class::cast);
-        TemporalData<Network> networks = input.getRaoInputs().map(RaoInput::getNetwork).map(Network.class::cast);
+        TemporalData<State> preventiveStates = input.getRaoInputs().map(RaoInput::getCrac).map(Crac::getPreventiveState);
         TemporalData<Set<InjectionRangeAction>> injectionRangeActions = input.getRaoInputs().map(RaoInput::getCrac).map(crac -> crac.getRangeActions(crac.getPreventiveState(), UsageMethod.AVAILABLE).stream().filter(InjectionRangeAction.class::isInstance).map(InjectionRangeAction.class::cast).collect(Collectors.toSet()));
         Set<GeneratorConstraints> generatorConstraints = input.getGeneratorConstraints();
         PowerGradientConstraintFiller powerGradientConstraintFiller = new PowerGradientConstraintFiller(
             preventiveStates,
-            networks,
             injectionRangeActions,
             generatorConstraints);
         linearProblemBuilder.withProblemFiller(powerGradientConstraintFiller);
@@ -175,12 +173,12 @@ class PowerGradientConstraintFillerTest {
         assertThrows(OpenRaoException.class, () -> linearProblem.getGeneratorPowerConstraint("FFR4AA1 _load", timestamp1));
 
         // check bound
-        assertEquals(123.0, fr1Timestamp1PowerConstraint.ub());
-        assertEquals(123.0, fr1Timestamp1PowerConstraint.lb());
-        assertEquals(2000.0, fr2Timestamp1PowerConstraint.ub());
-        assertEquals(2000.0, fr2Timestamp1PowerConstraint.lb());
-        assertEquals(2000.0, fr3Timestamp1PowerConstraint.ub());
-        assertEquals(2000.0, fr3Timestamp1PowerConstraint.lb());
+        assertEquals(0., fr1Timestamp1PowerConstraint.ub());
+        assertEquals(0., fr1Timestamp1PowerConstraint.lb());
+        assertEquals(-1 * 200. + -0.5 * 200, fr2Timestamp1PowerConstraint.ub());
+        assertEquals(-1 * 200. + -0.5 * 200, fr2Timestamp1PowerConstraint.lb());
+        assertEquals(0.4 * 200. + 0.5 * 200, fr3Timestamp1PowerConstraint.ub());
+        assertEquals(0.4 * 200. + 0.5 * 200, fr3Timestamp1PowerConstraint.lb());
 
         Crac crac1 = input.getRaoInputs().getData(timestamp1).get().getCrac();
         // check coefficient for injection action variable

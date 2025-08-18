@@ -57,17 +57,29 @@ public class FastRaoResultImpl extends AbstractExtendable<RaoResult> implements 
     private static void removeFailingContingencies(PrePerimeterResult initialResult, PrePerimeterResult afterPraResult, PrePerimeterResult afterAraResult, PrePerimeterResult finalResult, Crac crac) {
         Set<String> failingContingencies = new HashSet<>();
         crac.getStates().stream().filter(state -> initialResult.getComputationStatus(state) == FAILURE && !state.isPreventive())
-                .forEach(state -> failingContingencies.add(state.getContingency().get().getId()));
+            .forEach(state -> failingContingencies.add(state.getContingency().get().getId()));
         crac.getStates().stream().filter(state -> afterPraResult.getComputationStatus(state) == FAILURE && !state.isPreventive())
-                .forEach(state -> failingContingencies.add(state.getContingency().get().getId()));
+            .forEach(state -> failingContingencies.add(state.getContingency().get().getId()));
         crac.getStates().stream().filter(state -> afterAraResult.getComputationStatus(state) == FAILURE && !state.isPreventive())
-                .forEach(state -> failingContingencies.add(state.getContingency().get().getId()));
+            .forEach(state -> failingContingencies.add(state.getContingency().get().getId()));
         crac.getStates().stream().filter(state -> finalResult.getComputationStatus(state) == FAILURE && !state.isPreventive())
-                .forEach(state -> failingContingencies.add(state.getContingency().get().getId()));
+            .forEach(state -> failingContingencies.add(state.getContingency().get().getId()));
         initialResult.excludeContingencies(failingContingencies);
         afterPraResult.excludeContingencies(failingContingencies);
         afterAraResult.excludeContingencies(failingContingencies);
         finalResult.excludeContingencies(failingContingencies);
+    }
+
+    public PrePerimeterResult getInitialResult() {
+        return initialResult;
+    }
+
+    public PrePerimeterResult getFinalResult() {
+        return finalResult;
+    }
+
+    public RaoResult getFilteredRaoResult() {
+        return filteredRaoResult;
     }
 
     @Override
@@ -77,9 +89,9 @@ public class FastRaoResultImpl extends AbstractExtendable<RaoResult> implements 
             return FAILURE;
         }
         if (initialResult.getSensitivityStatus() == PARTIAL_FAILURE ||
-                finalResult == null || finalResult.getSensitivityStatus() != DEFAULT ||
-                afterPraResult == null || afterPraResult.getSensitivityStatus() != DEFAULT ||
-                afterAraResult == null || afterAraResult.getSensitivityStatus() != DEFAULT
+            finalResult == null || finalResult.getSensitivityStatus() != DEFAULT ||
+            afterPraResult == null || afterPraResult.getSensitivityStatus() != DEFAULT ||
+            afterAraResult == null || afterAraResult.getSensitivityStatus() != DEFAULT
         ) {
             return PARTIAL_FAILURE;
         }
@@ -113,7 +125,7 @@ public class FastRaoResultImpl extends AbstractExtendable<RaoResult> implements 
             return initialResult;
         }
         Instant minInstant = optimizedInstant.comesBefore(flowCnec.getState().getInstant()) ?
-                optimizedInstant : flowCnec.getState().getInstant();
+            optimizedInstant : flowCnec.getState().getInstant();
         return getAppropriateResult(minInstant);
     }
 
