@@ -91,8 +91,8 @@ public class VoltageMonitoring extends AbstractMonitoring<VoltageCnec> {
 
     @Override
     protected CnecResult<VoltageCnec> computeCnecResult(VoltageCnec voltageCnec, Network network, Unit unit) {
-        VoltageCnecHelper voltageCnecHelper = new VoltageCnecHelper();
-        return new VoltageCnecResult(voltageCnec, unit, voltageCnecHelper.computeValue(voltageCnec, network, unit), voltageCnecHelper.computeMargin(voltageCnec, network, unit), voltageCnecHelper.computeSecurityStatus(voltageCnec, network, unit));
+        VoltageCnecDataCalculator voltageCnecDataCalculator = new VoltageCnecDataCalculator();
+        return new VoltageCnecResult(voltageCnec, unit, voltageCnecDataCalculator.computeValue(voltageCnec, network, unit), voltageCnecDataCalculator.computeMargin(voltageCnec, network, unit), voltageCnecDataCalculator.computeSecurityStatus(voltageCnec, network, unit));
     }
 
     @Override

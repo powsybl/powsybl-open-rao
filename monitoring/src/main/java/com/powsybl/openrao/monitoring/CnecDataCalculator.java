@@ -14,7 +14,7 @@ import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public interface CnecHelper<I extends Cnec<?>> {
+public interface CnecDataCalculator<I extends Cnec<?>> {
     /**
      * @param cnec: the cnec we seek to compute the value of
      * @param network: the network object used to look for actual result of the Cnec

@@ -14,7 +14,7 @@ import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
-import com.powsybl.openrao.monitoring.CnecHelper;
+import com.powsybl.openrao.monitoring.CnecDataCalculator;
 import com.powsybl.openrao.monitoring.SecurityStatus;
 
 import java.util.HashSet;
@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
  * @author Mohamed Ben Rejeb {@literal <mohamed.ben-rejeb at rte-france.com>}
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public class VoltageCnecHelper implements CnecHelper<VoltageCnec> {
+public class VoltageCnecDataCalculator implements CnecDataCalculator<VoltageCnec> {
     @Override
     public VoltageCnecValue computeValue(VoltageCnec voltageCnec, Network network, Unit unit) {
         unit.checkPhysicalParameter(voltageCnec.getPhysicalParameter());

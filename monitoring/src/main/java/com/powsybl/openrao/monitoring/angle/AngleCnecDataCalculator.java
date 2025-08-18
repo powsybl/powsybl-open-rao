@@ -12,14 +12,14 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
-import com.powsybl.openrao.monitoring.CnecHelper;
+import com.powsybl.openrao.monitoring.CnecDataCalculator;
 import com.powsybl.openrao.monitoring.SecurityStatus;
 
 /**
  * @author Mohamed Ben Rejeb {@literal <mohamed.ben-rejeb at rte-france.com>}
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public class AngleCnecHelper implements CnecHelper<AngleCnec> {
+public class AngleCnecDataCalculator implements CnecDataCalculator<AngleCnec> {
     @Override
     public AngleCnecValue computeValue(AngleCnec angleCnec, Network network, Unit unit) {
         unit.checkPhysicalParameter(angleCnec.getPhysicalParameter());
