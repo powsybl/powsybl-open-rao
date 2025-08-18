@@ -35,6 +35,7 @@ import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.crac.io.cim.craccreator.CimCracCreationContext;
 
 import com.powsybl.openrao.monitoring.angle.AngleCnecValue;
+import com.powsybl.openrao.monitoring.angle.AngleMonitoring;
 import com.powsybl.openrao.monitoring.api.CnecValue;
 import com.powsybl.openrao.monitoring.api.SecurityStatus;
 import com.powsybl.openrao.monitoring.results.CnecResult;
@@ -71,7 +72,7 @@ class AngleMonitoringTest {
     private Crac crac;
     private RaoResult raoResult;
     private LoadFlowParameters loadFlowParameters;
-    private MonitoringResult angleMonitoringResult;
+    private MonitoringResult<AngleCnec> angleMonitoringResult;
     // Crac Factory
     private AngleCnec acPrev;
     private AngleCnec acCur1;
@@ -146,12 +147,12 @@ class AngleMonitoringTest {
 
     private void runAngleMonitoring(ZonalData<Scalable> scalableZonalData) {
         MonitoringInput monitoringInput = new MonitoringInput.MonitoringInputBuilder().withCrac(crac).withNetwork(network).withRaoResult(raoResult).withPhysicalParameter(PhysicalParameter.ANGLE).withScalableZonalData(scalableZonalData).build();
-        angleMonitoringResult = new Monitoring("OpenLoadFlow", loadFlowParameters).runMonitoring(monitoringInput, 1);
+        angleMonitoringResult = new AngleMonitoring("OpenLoadFlow", loadFlowParameters).runMonitoring(monitoringInput, 1);
     }
 
     private RaoResult runAngleMonitoringAndUpdateRaoResult(ZonalData<Scalable> scalableZonalData) {
         MonitoringInput monitoringInput = new MonitoringInput.MonitoringInputBuilder().withCrac(crac).withNetwork(network).withRaoResult(raoResult).withPhysicalParameter(PhysicalParameter.ANGLE).withScalableZonalData(scalableZonalData).build();
-        return Monitoring.runAngleAndUpdateRaoResult("OpenLoadFlow", loadFlowParameters, 1, monitoringInput);
+        return AngleMonitoring.runAndUpdateRaoResult("OpenLoadFlow", loadFlowParameters, 1, monitoringInput);
     }
 
     @Test
@@ -318,7 +319,7 @@ class AngleMonitoringTest {
         assertEquals(SecurityStatus.FAILURE, angleMonitoringResult.getStatus());
         assertEquals(2, angleMonitoringResult.getCnecResults().size());
 
-        Optional<CnecResult<?>> acCur1CnecOpt = angleMonitoringResult.getCnecResults().stream().filter(cr -> cr.getId().equals("acCur1")).findFirst();
+        Optional<CnecResult<AngleCnec>> acCur1CnecOpt = angleMonitoringResult.getCnecResults().stream().filter(cr -> cr.getId().equals("acCur1")).findFirst();
         CnecValue<?> acCur1CnecValue = acCur1CnecOpt.get().getValue();
         SecurityStatus acCur1SecurityStatus = acCur1CnecOpt.get().getCnecSecurityStatus();
         double acCur1Margin = acCur1CnecOpt.get().getMargin();
@@ -328,7 +329,7 @@ class AngleMonitoringTest {
         assertEquals(SecurityStatus.SECURE, acCur1SecurityStatus);
         assertEquals(0.28, acCur1Margin, 0.01);
 
-        Optional<CnecResult<?>> acCur2CnecOpt = angleMonitoringResult.getCnecResults().stream().filter(cr -> cr.getId().equals("acCur2")).findFirst();
+        Optional<CnecResult<AngleCnec>> acCur2CnecOpt = angleMonitoringResult.getCnecResults().stream().filter(cr -> cr.getId().equals("acCur2")).findFirst();
         CnecValue<?> acCur2CnecValue = acCur2CnecOpt.get().getValue();
         SecurityStatus acCur2SecurityStatus = acCur2CnecOpt.get().getCnecSecurityStatus();
         double acCur2Margin = acCur2CnecOpt.get().getMargin();
@@ -355,7 +356,7 @@ class AngleMonitoringTest {
         when(raoResult.isSecure()).thenReturn(true);
 
         MonitoringInput monitoringInput = new MonitoringInput.MonitoringInputBuilder().withCrac(crac).withNetwork(network).withRaoResult(raoResult).withPhysicalParameter(PhysicalParameter.ANGLE).withScalableZonalData(scalableZonalData).build();
-        RaoResult raoResultWithAngleMonitoring = Monitoring.runAngleAndUpdateRaoResult("OpenLoadFlow", loadFlowParameters, 2, monitoringInput);
+        RaoResult raoResultWithAngleMonitoring = AngleMonitoring.runAndUpdateRaoResult("OpenLoadFlow", loadFlowParameters, 2, monitoringInput);
 
         assertThrows(OpenRaoException.class, () -> raoResultWithAngleMonitoring.getAngle(crac.getPreventiveState().getInstant(), acCur1, Unit.DEGREE));
         assertEquals(2.22, raoResultWithAngleMonitoring.getMargin(crac.getInstant(CURATIVE_INSTANT_ID), acCur1, Unit.DEGREE), 0.01);
@@ -377,7 +378,7 @@ class AngleMonitoringTest {
             .newOnConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withCnec(acCur1.getId()).withUsageMethod(UsageMethod.AVAILABLE).add()
             .add();
         MonitoringInput monitoringInput = new MonitoringInput.MonitoringInputBuilder().withCrac(crac).withNetwork(network).withRaoResult(raoResult).withPhysicalParameter(PhysicalParameter.ANGLE).build();
-        angleMonitoringResult = new Monitoring("OpenLoadFlow", loadFlowParameters).runMonitoring(monitoringInput, 2);
+        angleMonitoringResult = new AngleMonitoring("OpenLoadFlow", loadFlowParameters).runMonitoring(monitoringInput, 2);
         assertEquals(SecurityStatus.FAILURE, angleMonitoringResult.getStatus());
     }
 }

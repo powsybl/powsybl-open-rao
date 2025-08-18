@@ -15,9 +15,9 @@ import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
-import com.powsybl.openrao.monitoring.Monitoring;
 import com.powsybl.openrao.monitoring.MonitoringInput;
 import com.powsybl.openrao.monitoring.angle.AngleCnecValue;
+import com.powsybl.openrao.monitoring.angle.AngleMonitoring;
 import com.powsybl.openrao.monitoring.results.CnecResult;
 import com.powsybl.openrao.monitoring.results.MonitoringResult;
 import io.cucumber.datatable.DataTable;
@@ -56,7 +56,7 @@ public class AngleMonitoringSteps {
         Network network = CommonTestData.getNetwork();
         RaoResult raoResult = CommonTestData.getRaoResult();
         MonitoringInput angleMonitoringInput = MonitoringInput.buildWithAngle(network, CommonTestData.getCrac(), raoResult, CommonTestData.getMonitoringGlsks()).build();
-        MonitoringResult angleMonitoringResult = new Monitoring("OpenLoadFlow", loadFlowParameters).runMonitoring(angleMonitoringInput, numberOfLoadFlowsInParallel);
+        MonitoringResult<AngleCnec> angleMonitoringResult = new AngleMonitoring("OpenLoadFlow", loadFlowParameters).runMonitoring(angleMonitoringInput, numberOfLoadFlowsInParallel);
         CommonTestData.setMonitoringResult(angleMonitoringResult);
     }
 
@@ -104,7 +104,7 @@ public class AngleMonitoringSteps {
                 state = CommonTestData.getCrac().getState(contingency, instant);
             }
 
-            Set<CnecResult> angleResults = CommonTestData.getMonitoringResult().getCnecResults().stream().filter(angleResult -> angleResult.getCnec().getId().equals(cnecId)
+            Set<CnecResult<AngleCnec>> angleResults = CommonTestData.getMonitoringResult().getCnecResults().stream().filter(angleResult -> angleResult.getCnec().getId().equals(cnecId)
                     && angleResult.getCnec().getName().equals(cnecName)
                     && angleResult.getCnec().getState().equals(state))
                     .collect(Collectors.toSet());

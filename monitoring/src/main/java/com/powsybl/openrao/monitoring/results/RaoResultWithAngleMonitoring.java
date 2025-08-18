@@ -32,9 +32,9 @@ import java.util.stream.Stream;
 public class RaoResultWithAngleMonitoring extends RaoResultClone {
 
     private final RaoResult raoResult;
-    private final MonitoringResult angleMonitoringResult;
+    private final MonitoringResult<AngleCnec> angleMonitoringResult;
 
-    public RaoResultWithAngleMonitoring(RaoResult raoResult, MonitoringResult angleMonitoringResult) {
+    public RaoResultWithAngleMonitoring(RaoResult raoResult, MonitoringResult<AngleCnec> angleMonitoringResult) {
         super(raoResult);
         this.raoResult = raoResult;
         if (angleMonitoringResult == null) {
@@ -62,7 +62,7 @@ public class RaoResultWithAngleMonitoring extends RaoResultClone {
         if (optimizationInstant == null || !optimizationInstant.isCurative()) {
             throw new OpenRaoException("Unexpected optimization instant for angle monitoring result (only curative instant is supported currently) : " + optimizationInstant);
         }
-        Optional<CnecResult<?>> angleCnecResultOpt = angleMonitoringResult.getCnecResults().stream().filter(angleCnecRes -> angleCnecRes.getId().equals(angleCnec.getId())).findFirst();
+        Optional<CnecResult<AngleCnec>> angleCnecResultOpt = angleMonitoringResult.getCnecResults().stream().filter(angleCnecRes -> angleCnecRes.getId().equals(angleCnec.getId())).findFirst();
 
         if (angleCnecResultOpt.isPresent()) {
             return ((AngleCnecValue) angleCnecResultOpt.get().getValue()).value();
@@ -74,7 +74,7 @@ public class RaoResultWithAngleMonitoring extends RaoResultClone {
     @Override
     public double getMargin(Instant optimizationInstant, AngleCnec angleCnec, Unit unit) {
         unit.checkPhysicalParameter(PhysicalParameter.ANGLE);
-        Optional<CnecResult<?>> angleCnecResultOpt = angleMonitoringResult.getCnecResults().stream().filter(angleCnecRes -> angleCnecRes.getId().equals(angleCnec.getId())).findFirst();
+        Optional<CnecResult<AngleCnec>> angleCnecResultOpt = angleMonitoringResult.getCnecResults().stream().filter(angleCnecRes -> angleCnecRes.getId().equals(angleCnec.getId())).findFirst();
         return angleCnecResultOpt.map(CnecResult::getMargin).orElse(Double.NaN);
     }
 
