@@ -26,7 +26,8 @@ import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.usagerule.OnConstraint;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
-import com.powsybl.openrao.monitoring.redispatching.RedispatchAction;
+import com.powsybl.openrao.monitoring.remedialaction.AppliedNetworkActionsResult;
+import com.powsybl.openrao.monitoring.remedialaction.RedispatchAction;
 import com.powsybl.openrao.monitoring.results.*;
 import com.powsybl.openrao.util.AbstractNetworkPool;
 
@@ -94,7 +95,7 @@ public abstract class AbstractMonitoring<I extends Cnec<?>> implements Monitorin
 
                     Contingency contingency = state.getContingency().orElseThrow();
                     if (!contingency.isValid(networkClone)) {
-                        monitoringResult.combine(makeFailedMonitoringResultForStateWithNaNCnecRsults(monitoringInput, state, "Unable to apply contingency " + contingency.getId()));
+                        monitoringResult.combine(makeFailedMonitoringResultForStateWithNaNCnecResults(monitoringInput, state, "Unable to apply contingency " + contingency.getId()));
                         networkPool.releaseUsedNetwork(networkClone);
                         return null;
                     }
@@ -146,7 +147,7 @@ public abstract class AbstractMonitoring<I extends Cnec<?>> implements Monitorin
         boolean lfSuccess = computeLoadFlow(network);
         if (!lfSuccess) {
             String failureReason = String.format("Load-flow computation failed at state %s. Skipping this state.", state);
-            return makeFailedMonitoringResultForStateWithNaNCnecRsults(monitoringInput, state, failureReason);
+            return makeFailedMonitoringResultForStateWithNaNCnecResults(monitoringInput, state, failureReason);
         }
         List<AppliedNetworkActionsResult> appliedNetworkActionsResultList = new ArrayList<>();
         cnecs.forEach(cnec -> {
@@ -274,7 +275,7 @@ public abstract class AbstractMonitoring<I extends Cnec<?>> implements Monitorin
 
     protected abstract AppliedNetworkActionsResult applyNetworkActions(Network network, Set<NetworkAction> availableNetworkActions, String cnecId, MonitoringInput<I> monitoringInput);
 
-    private MonitoringResult<I> makeFailedMonitoringResultForStateWithNaNCnecRsults(MonitoringInput<I> monitoringInput, State state, String failureReason) {
+    private MonitoringResult<I> makeFailedMonitoringResultForStateWithNaNCnecResults(MonitoringInput<I> monitoringInput, State state, String failureReason) {
         Set<CnecResult<I>> cnecResults = new HashSet<>();
         getCnecs(monitoringInput.getCrac(), state).forEach(cnec -> cnecResults.add(makeFailedCnecResult(cnec, getUnit())));
         return makeFailedMonitoringResultForState(state, failureReason, cnecResults);

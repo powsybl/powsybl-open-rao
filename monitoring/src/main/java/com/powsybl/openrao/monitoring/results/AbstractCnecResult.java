@@ -9,7 +9,6 @@ package com.powsybl.openrao.monitoring.results;
 
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
-import com.powsybl.openrao.monitoring.CnecValue;
 import com.powsybl.openrao.monitoring.SecurityStatus;
 
 /**

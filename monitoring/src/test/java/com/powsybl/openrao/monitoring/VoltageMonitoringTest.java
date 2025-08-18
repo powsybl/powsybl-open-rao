@@ -23,6 +23,7 @@ import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.monitoring.results.CnecResult;
+import com.powsybl.openrao.monitoring.results.CnecValue;
 import com.powsybl.openrao.monitoring.results.MonitoringResult;
 import com.powsybl.openrao.monitoring.voltage.VoltageCnecValue;
 import com.powsybl.openrao.monitoring.voltage.VoltageMonitoring;

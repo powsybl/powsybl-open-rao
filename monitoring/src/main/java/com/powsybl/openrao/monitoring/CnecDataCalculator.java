@@ -10,6 +10,7 @@ package com.powsybl.openrao.monitoring;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
+import com.powsybl.openrao.monitoring.results.CnecValue;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}

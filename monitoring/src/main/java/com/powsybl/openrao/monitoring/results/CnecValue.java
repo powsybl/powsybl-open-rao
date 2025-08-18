@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.powsybl.openrao.monitoring;
+package com.powsybl.openrao.monitoring.results;
 
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 

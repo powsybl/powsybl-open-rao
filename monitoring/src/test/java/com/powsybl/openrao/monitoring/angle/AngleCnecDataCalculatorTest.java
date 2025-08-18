@@ -52,7 +52,6 @@ class AngleCnecDataCalculatorTest {
         AngleCnecDataCalculator angleCnecDataCalculator = new AngleCnecDataCalculator();
         assertEquals(-300., (angleCnecDataCalculator.computeValue(cnec, networkMock1, Unit.DEGREE)).value(), DOUBLE_TOLERANCE);
         assertEquals(800., (angleCnecDataCalculator.computeValue(cnec, networkMock2, Unit.DEGREE)).value(), DOUBLE_TOLERANCE);
-
     }
 
     @Test
@@ -106,7 +105,6 @@ class AngleCnecDataCalculatorTest {
 
         Network networkMock2 = mockBusAngleInNetwork("exportingNetworkElement", 300., "importingNetworkElement", 0.);
         assertEquals(200., angleCnecDataCalculator.computeMargin(cnec, networkMock2, Unit.DEGREE), DOUBLE_TOLERANCE);
-
     }
 
     @Test
@@ -129,7 +127,6 @@ class AngleCnecDataCalculatorTest {
 
         Network networkMock2 = mockBusAngleInNetwork("exportingNetworkElement", 0., "importingNetworkElement", 200.);
         assertEquals(-150., angleCnecDataCalculator.computeMargin(cnec, networkMock2, Unit.DEGREE), DOUBLE_TOLERANCE);
-
     }
 
     @Test

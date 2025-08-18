@@ -19,7 +19,7 @@ import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.monitoring.AbstractMonitoring;
-import com.powsybl.openrao.monitoring.AppliedNetworkActionsResult;
+import com.powsybl.openrao.monitoring.remedialaction.AppliedNetworkActionsResult;
 import com.powsybl.openrao.monitoring.MonitoringInput;
 import com.powsybl.openrao.monitoring.SecurityStatus;
 import com.powsybl.openrao.monitoring.results.CnecResult;

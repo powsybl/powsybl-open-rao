@@ -4,7 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.openrao.monitoring;
+package com.powsybl.openrao.monitoring.remedialaction;
 
 import com.powsybl.iidm.network.Country;
 import com.powsybl.openrao.data.crac.api.RemedialAction;
@@ -24,9 +24,6 @@ public class AppliedNetworkActionsResult {
         private Set<RemedialAction<?>> appliedNetworkActions;
         private Set<String> networkElementsToBeExcluded;
         private Map<Country, Double> powerToBeRedispatched;
-
-        public AppliedNetworkActionsResultBuilder() {
-        }
 
         public AppliedNetworkActionsResult.AppliedNetworkActionsResultBuilder withAppliedNetworkActions(Set<RemedialAction<?>> appliedNetworkActions) {
             this.appliedNetworkActions = appliedNetworkActions;
