@@ -21,26 +21,25 @@ You can easily call the monitoring module using the [JAVA API](https://github.co
 
 For angle monitoring :
 ~~~java
-MonitoringInput monitoringInput = new MonitoringInput.MonitoringInputBuilder().withCrac(crac).withNetwork(network).withRaoResult(raoResult).withPhysicalParameter(PhysicalParameter.ANGLE).withScalableZonalData(scalableZonalData).build();
+MonitoringInput<AngleCnec> monitoringInput = new AngleMonitoringInput(crac, network, raoResult, scalableZonalData);
 ~~~
 
 For voltage monitoring :
 ~~~java
-MonitoringInput monitoringInput = new MonitoringInput.MonitoringInputBuilder().withCrac(crac).withNetwork(network).withRaoResult(raoResult).withPhysicalParameter(PhysicalParameter.VOLTAGE).build();
+MonitoringInput<VoltageCnec> monitoringInput = new VoltageMonitoringInput(crac, network, raoResult);
 ~~~
 
 With:
-- PhysicalParameter.VOLTAGE to start voltage monitoring and PhysicalParameter.ANGLE to start angle monitoring
 - crac: the CRAC object used for the RAO, and containing [VoltageCnecs](../input-data/crac/json.md#voltage-cnecs)/ [AngleCnecs](../input-data/crac/json.md#angle-cnecs) to be monitored.
 - network: the network to be monitored.
 - raoResult: the [RaoResult](../output-data/rao-result.md) object containing selected remedial actions (that shall
   be applied on the network before monitoring angle/voltage values)
 - scalableZonalData for redispatching in case of angle monitoring
 
-2. Run the monitoring algorithm using the constructed object's following method:
+2. Run the monitoring algorithm using the constructed object's following method defined for both `AngleMonitoring` and `VoltageMonitoring`:
 
 ~~~java
-public RaoResult runAngleAndUpdateRaoResult(String loadFlowProvider, LoadFlowParameters loadFlowParameters, int numberOfLoadFlowsInParallel, monitoringInput)
+public RaoResult runAndUpdateRaoResult(String loadFlowProvider, LoadFlowParameters loadFlowParameters, int numberOfLoadFlowsInParallel, monitoringInput)
 
 ~~~
 With:
@@ -57,12 +56,12 @@ Crac crac = ...
 Network network = ...
 RaoResult raoResult = Rao.find(...).run(...)
 LoadFlowParameters loadFlowParameters = ..
-        
-MonitoringInput voltageMonitoringInput = new MonitoringInput.MonitoringInputBuilder().withCrac(crac).withNetwork(network).withRaoResult(raoResult).withPhysicalParameter(PhysicalParameter.VOLTAGE).build();
-RaoResult raoResultWithVoltageMonitoring = Monitoring.runVoltageAndUpdateRaoResult("OpenLoadFlow", loadFlowParameters, 2, voltageMonitoringInput);
+    
+MonitoringInput<VoltageCnec> monitoringInput = new VoltageMonitoringInput(crac, network, raoResult);
+RaoResult raoResultWithVoltageMonitoring = VoltageMonitoring.runAndUpdateRaoResult("OpenLoadFlow", loadFlowParameters, 2, voltageMonitoringInput);
 
-MonitoringInput angleMonitoringInput = new MonitoringInput.MonitoringInputBuilder().withCrac(crac).withNetwork(network).withRaoResult(raoResultWithVoltageMonitoring).withPhysicalParameter(PhysicalParameter.ANGLE).withScalableZonalData(scalableZonalData).build();
-RaoResult raoResultWithVoltageAndAngleMonitoring = Monitoring.runAngleAndUpdateRaoResult("OpenLoadFlow", loadFlowParameters, 2, angleMonitoringInput);
+MonitoringInput<AngleCnec> monitoringInput = new AngleMonitoringInput(crac, network, raoResult, scalableZonalData);
+RaoResult raoResultWithVoltageAndAngleMonitoring = AngleMonitoring.runAndUpdateRaoResult("OpenLoadFlow", loadFlowParameters, 2, angleMonitoringInput);
 ~~~
 
 ## The monitoring result
