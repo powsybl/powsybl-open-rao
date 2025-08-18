@@ -57,10 +57,10 @@ Network network = ...
 RaoResult raoResult = Rao.find(...).run(...)
 LoadFlowParameters loadFlowParameters = ..
     
-MonitoringInput<VoltageCnec> monitoringInput = new VoltageMonitoringInput(crac, network, raoResult);
+MonitoringInput voltageMonitoringInput = new MonitoringInput(crac, network, raoResult);
 RaoResult raoResultWithVoltageMonitoring = VoltageMonitoring.runAndUpdateRaoResult("OpenLoadFlow", loadFlowParameters, 2, voltageMonitoringInput);
 
-MonitoringInput<AngleCnec> monitoringInput = new AngleMonitoringInput(crac, network, raoResult, scalableZonalData);
+MonitoringInput angleMonitoringInput = new MonitoringInput(crac, network, raoResult, scalableZonalData);
 RaoResult raoResultWithVoltageAndAngleMonitoring = AngleMonitoring.runAndUpdateRaoResult("OpenLoadFlow", loadFlowParameters, 2, angleMonitoringInput);
 ~~~
 

@@ -63,6 +63,11 @@ public class AngleMonitoring extends AbstractMonitoring<AngleCnec> {
     }
 
     @Override
+    protected void checkInputs(MonitoringInput monitoringInput) {
+        // nothing to check
+    }
+
+    @Override
     protected PhysicalParameter getPhysicalParameter() {
         return PhysicalParameter.ANGLE;
     }
@@ -83,7 +88,7 @@ public class AngleMonitoring extends AbstractMonitoring<AngleCnec> {
     }
 
     @Override
-    protected AppliedNetworkActionsResult applyNetworkActions(Network network, Set<NetworkAction> availableNetworkActions, String cnecId, MonitoringInput<AngleCnec> monitoringInput) {
+    protected AppliedNetworkActionsResult applyNetworkActions(Network network, Set<NetworkAction> availableNetworkActions, String cnecId, MonitoringInput monitoringInput) {
         Set<RemedialAction<?>> appliedNetworkActions = new TreeSet<>(Comparator.comparing(RemedialAction::getId));
         boolean networkActionOk = false;
         EnumMap<Country, Double> powerToBeRedispatched = new EnumMap<>(Country.class);
@@ -91,7 +96,7 @@ public class AngleMonitoring extends AbstractMonitoring<AngleCnec> {
         for (NetworkAction na : availableNetworkActions) {
             EnumMap<Country, Double> tempPowerToBeRedispatched = new EnumMap<>(powerToBeRedispatched);
             for (Action ea : na.getElementaryActions()) {
-                networkActionOk = checkElementaryActionAndStoreInjection(ea, network, cnecId, na.getId(), networkElementsToBeExcluded, tempPowerToBeRedispatched, monitoringInput.getScalableZonalData());
+                networkActionOk = checkElementaryActionAndStoreInjection(ea, network, cnecId, na.getId(), networkElementsToBeExcluded, tempPowerToBeRedispatched, monitoringInput.scalableZonalData());
                 if (!networkActionOk) {
                     break;
                 }
@@ -211,7 +216,7 @@ public class AngleMonitoring extends AbstractMonitoring<AngleCnec> {
      * Main function : runs AngleMonitoring computation on all AngleCnecs defined in the CRAC.
      * Returns an RaoResult enhanced with AngleMonitoringResult
      */
-    public static RaoResult runAndUpdateRaoResult(String loadFlowProvider, LoadFlowParameters loadFlowParameters, int numberOfLoadFlowsInParallel, MonitoringInput<AngleCnec> monitoringInput) throws OpenRaoException {
-        return new RaoResultWithAngleMonitoring(monitoringInput.getRaoResult(), new AngleMonitoring(loadFlowProvider, loadFlowParameters).runMonitoring(monitoringInput, numberOfLoadFlowsInParallel));
+    public static RaoResult runAndUpdateRaoResult(String loadFlowProvider, LoadFlowParameters loadFlowParameters, int numberOfLoadFlowsInParallel, MonitoringInput monitoringInput) throws OpenRaoException {
+        return new RaoResultWithAngleMonitoring(monitoringInput.raoResult(), new AngleMonitoring(loadFlowProvider, loadFlowParameters).runMonitoring(monitoringInput, numberOfLoadFlowsInParallel));
     }
 }

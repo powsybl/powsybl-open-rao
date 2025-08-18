@@ -55,11 +55,11 @@ public abstract class AbstractMonitoring<I extends Cnec<?>> implements Monitorin
         this.loadFlowParameters = loadFlowParameters;
     }
 
-    public MonitoringResult<I> runMonitoring(MonitoringInput<I> monitoringInput, int numberOfLoadFlowsInParallel) {
+    public MonitoringResult<I> runMonitoring(MonitoringInput monitoringInput, int numberOfLoadFlowsInParallel) {
         PhysicalParameter physicalParameter = getPhysicalParameter();
-        Network inputNetwork = monitoringInput.getNetwork();
-        Crac crac = monitoringInput.getCrac();
-        RaoResult raoResult = monitoringInput.getRaoResult();
+        Network inputNetwork = monitoringInput.network();
+        Crac crac = monitoringInput.crac();
+        RaoResult raoResult = monitoringInput.raoResult();
 
         MonitoringResult<I> monitoringResult = makeEmptySecureResult();
 
@@ -127,6 +127,8 @@ public abstract class AbstractMonitoring<I extends Cnec<?>> implements Monitorin
         return monitoringResult;
     }
 
+    protected abstract void checkInputs(MonitoringInput monitoringInput);
+
     protected abstract PhysicalParameter getPhysicalParameter();
 
     protected abstract Unit getUnit();
@@ -139,7 +141,7 @@ public abstract class AbstractMonitoring<I extends Cnec<?>> implements Monitorin
         return getCnecs(crac).stream().filter(cnec -> state.equals(cnec.getState())).collect(Collectors.toSet());
     }
 
-    private MonitoringResult<I> monitorCnecs(State state, Set<I> cnecs, Network network, MonitoringInput<I> monitoringInput) {
+    private MonitoringResult<I> monitorCnecs(State state, Set<I> cnecs, Network network, MonitoringInput monitoringInput) {
         PhysicalParameter physicalParameter = getPhysicalParameter();
         Unit unit = getUnit();
         Set<CnecResult<I>> cnecResults = new HashSet<>();
@@ -154,7 +156,7 @@ public abstract class AbstractMonitoring<I extends Cnec<?>> implements Monitorin
             CnecResult<I> cnecResult = computeCnecResult(cnec, network, unit);
             if (cnecResult.getMargin() < 0) {
                 // For CNEC with violation, get associated remedial actions
-                Set<NetworkAction> availableNetworkActions = getNetworkActionsAssociatedToCnec(state, monitoringInput.getCrac(), cnec, physicalParameter);
+                Set<NetworkAction> availableNetworkActions = getNetworkActionsAssociatedToCnec(state, monitoringInput.crac(), cnec, physicalParameter);
                 // if there are any available remedial actions, apply them
                 if (!availableNetworkActions.isEmpty()) {
                     AppliedNetworkActionsResult appliedNetworkActionsResult = applyNetworkActions(network, availableNetworkActions, cnec.getId(), monitoringInput);
@@ -166,7 +168,7 @@ public abstract class AbstractMonitoring<I extends Cnec<?>> implements Monitorin
             cnecResults.add(cnecResult);
         });
 
-        redispatchNetworkActions(network, appliedNetworkActionsResultList, monitoringInput.getScalableZonalData());
+        redispatchNetworkActions(network, appliedNetworkActionsResultList, monitoringInput.scalableZonalData());
 
         // If some action were applied, recompute a loadflow
         if (appliedNetworkActionsResultList.stream().map(AppliedNetworkActionsResult::getAppliedNetworkActions).findAny().isPresent()) {
@@ -273,11 +275,11 @@ public abstract class AbstractMonitoring<I extends Cnec<?>> implements Monitorin
         }).map(NetworkAction.class::cast).collect(Collectors.toSet());
     }
 
-    protected abstract AppliedNetworkActionsResult applyNetworkActions(Network network, Set<NetworkAction> availableNetworkActions, String cnecId, MonitoringInput<I> monitoringInput);
+    protected abstract AppliedNetworkActionsResult applyNetworkActions(Network network, Set<NetworkAction> availableNetworkActions, String cnecId, MonitoringInput monitoringInput);
 
-    private MonitoringResult<I> makeFailedMonitoringResultForStateWithNaNCnecResults(MonitoringInput<I> monitoringInput, State state, String failureReason) {
+    private MonitoringResult<I> makeFailedMonitoringResultForStateWithNaNCnecResults(MonitoringInput monitoringInput, State state, String failureReason) {
         Set<CnecResult<I>> cnecResults = new HashSet<>();
-        getCnecs(monitoringInput.getCrac(), state).forEach(cnec -> cnecResults.add(makeFailedCnecResult(cnec, getUnit())));
+        getCnecs(monitoringInput.crac(), state).forEach(cnec -> cnecResults.add(makeFailedCnecResult(cnec, getUnit())));
         return makeFailedMonitoringResultForState(state, failureReason, cnecResults);
     }
 

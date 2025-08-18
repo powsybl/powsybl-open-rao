@@ -16,5 +16,5 @@ import com.powsybl.openrao.monitoring.results.MonitoringResult;
  * @author Mohamed Ben Rejeb {@literal <mohamed.ben-rejeb at rte-france.com>}
  */
 public interface Monitoring<I extends Cnec<?>> {
-    MonitoringResult<I> runMonitoring(MonitoringInput<I> monitoringInput, int numberOfLoadFlowsInParallel);
+    MonitoringResult<I> runMonitoring(MonitoringInput monitoringInput, int numberOfLoadFlowsInParallel);
 }

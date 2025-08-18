@@ -27,7 +27,6 @@ import com.powsybl.openrao.monitoring.results.CnecValue;
 import com.powsybl.openrao.monitoring.results.MonitoringResult;
 import com.powsybl.openrao.monitoring.voltage.VoltageCnecValue;
 import com.powsybl.openrao.monitoring.voltage.VoltageMonitoring;
-import com.powsybl.openrao.monitoring.voltage.VoltageMonitoringInput;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -123,7 +122,7 @@ class VoltageMonitoringTest {
     }
 
     private void runVoltageMonitoring() {
-        MonitoringInput<VoltageCnec> monitoringInput = new VoltageMonitoringInput(crac, network, raoResult);
+        MonitoringInput monitoringInput = new MonitoringInput(crac, network, raoResult);
         voltageMonitoringResult = new VoltageMonitoring("OpenLoadFlow", loadFlowParameters).runMonitoring(monitoringInput, 1);
     }
 
@@ -557,7 +556,7 @@ class VoltageMonitoringTest {
         when(raoResult.getComputationStatus()).thenReturn(ComputationStatus.DEFAULT);
         when(raoResult.isSecure()).thenReturn(true);
 
-        MonitoringInput<VoltageCnec> monitoringInput = new VoltageMonitoringInput(crac, network, raoResult);
+        MonitoringInput monitoringInput = new MonitoringInput(crac, network, raoResult);
         RaoResult raoResultWithVoltageMonitoring = VoltageMonitoring.runAndUpdateRaoResult("OpenLoadFlow", loadFlowParameters, 1, monitoringInput);
 
         assertFalse(raoResultWithVoltageMonitoring.isSecure(PhysicalParameter.VOLTAGE));

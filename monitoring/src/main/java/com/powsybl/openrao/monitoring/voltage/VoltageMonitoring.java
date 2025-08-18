@@ -10,6 +10,7 @@ package com.powsybl.openrao.monitoring.voltage;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlowParameters;
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
@@ -46,6 +47,13 @@ public class VoltageMonitoring extends AbstractMonitoring<VoltageCnec> {
     }
 
     @Override
+    protected void checkInputs(MonitoringInput monitoringInput) {
+        if (monitoringInput.scalableZonalData() != null) {
+            throw new OpenRaoException("Scalable Zonal Data is not supported as an input of Voltage Monitoring.");
+        }
+    }
+
+    @Override
     protected PhysicalParameter getPhysicalParameter() {
         return PhysicalParameter.VOLTAGE;
     }
@@ -66,7 +74,7 @@ public class VoltageMonitoring extends AbstractMonitoring<VoltageCnec> {
     }
 
     @Override
-    protected AppliedNetworkActionsResult applyNetworkActions(Network network, Set<NetworkAction> availableNetworkActions, String cnecId, MonitoringInput<VoltageCnec> monitoringInput) {
+    protected AppliedNetworkActionsResult applyNetworkActions(Network network, Set<NetworkAction> availableNetworkActions, String cnecId, MonitoringInput monitoringInput) {
         Set<RemedialAction<?>> appliedNetworkActions = new TreeSet<>(Comparator.comparing(RemedialAction::getId));
         for (NetworkAction na : availableNetworkActions) {
             na.apply(network);
@@ -104,7 +112,7 @@ public class VoltageMonitoring extends AbstractMonitoring<VoltageCnec> {
      * Main function : runs VoltageMonitoring computation on all VoltageCnecs defined in the CRAC.
      * Returns an RaoResult enhanced with VoltageMonitoringResult
      */
-    public static RaoResult runAndUpdateRaoResult(String loadFlowProvider, LoadFlowParameters loadFlowParameters, int numberOfLoadFlowsInParallel, MonitoringInput<VoltageCnec> monitoringInput) {
-        return new RaoResultWithVoltageMonitoring(monitoringInput.getRaoResult(), new VoltageMonitoring(loadFlowProvider, loadFlowParameters).runMonitoring(monitoringInput, numberOfLoadFlowsInParallel));
+    public static RaoResult runAndUpdateRaoResult(String loadFlowProvider, LoadFlowParameters loadFlowParameters, int numberOfLoadFlowsInParallel, MonitoringInput monitoringInput) {
+        return new RaoResultWithVoltageMonitoring(monitoringInput.raoResult(), new VoltageMonitoring(loadFlowProvider, loadFlowParameters).runMonitoring(monitoringInput, numberOfLoadFlowsInParallel));
     }
 }
