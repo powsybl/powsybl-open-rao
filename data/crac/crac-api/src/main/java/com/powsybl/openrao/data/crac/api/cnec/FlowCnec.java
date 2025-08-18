@@ -4,6 +4,8 @@ import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.iidm.network.Network;
 
+import java.util.Optional;
+
 /**
  * Specific type of {@link BranchCnec} whose monitored {@link PhysicalParameter} is implicitly
  * the flow on the branch.
@@ -16,7 +18,7 @@ public interface FlowCnec extends BranchCnec<FlowCnec> {
      * @param side: The {@link TwoSides} on which the Imax is queried.
      * @return The value of the iMax, given in Unit.AMPERE.
      */
-    Double getIMax(TwoSides side);
+    Optional<Double> getIMax(TwoSides side);
 
     /**
      * Says if a FlowCnec's NetworkElement is connected in a Network
