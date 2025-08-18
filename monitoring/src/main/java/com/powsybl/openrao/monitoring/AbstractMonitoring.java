@@ -127,6 +127,7 @@ public abstract class AbstractMonitoring<I extends Cnec<?>> implements Monitorin
     }
 
     protected abstract PhysicalParameter getPhysicalParameter();
+
     protected abstract Unit getUnit();
 
     protected abstract MonitoringResult<I> makeEmptySecureResult();
