@@ -364,8 +364,8 @@ class PreventiveAndCurativesRaoResultImplTest {
         assert cur4Map.isEmpty();
         assertThrows(OpenRaoException.class, () -> output.getOptimizedSetPointOnState(cur4state, pst));
         Map<PstRangeAction, Integer> optimizedTapscur4state = output.getOptimizedTapsOnState(cur4state);
-        assert optimizedTapscur4state.isEmpty();
-        assert output.getActivatedRangeActionsDuringState(cur4state).isEmpty();
+        assertTrue(optimizedTapscur4state.isEmpty());
+        assertTrue(output.getActivatedRangeActionsDuringState(cur4state).isEmpty());
     }
 
     private void checkFunctionalCosts() {
