@@ -69,7 +69,6 @@ class SearchTreeTest {
     private SearchTreeInput searchTreeInput;
 
     private Network network;
-    private final State optimizedState = Mockito.mock(State.class);
     private OptimizationPerimeter optimizationPerimeter;
     private NetworkAction networkAction;
     private List<NetworkActionCombination> availableNaCombinations = new ArrayList<>();
@@ -137,10 +136,6 @@ class SearchTreeTest {
         when(searchTreeInput.getPrePerimeterResult()).thenReturn(prePerimeterResult);
         ObjectiveFunction objectiveFunction = Mockito.mock(ObjectiveFunction.class);
         when(searchTreeInput.getObjectiveFunction()).thenReturn(objectiveFunction);
-        when(optimizedState.getContingency()).thenReturn(Optional.empty());
-        Instant preventiveInstant = Mockito.mock(Instant.class);
-        when(preventiveInstant.toString()).thenReturn("preventive");
-        when(optimizedState.getInstant()).thenReturn(preventiveInstant);
         rootLeaf = Mockito.mock(Leaf.class);
         when(searchTreeInput.getToolProvider()).thenReturn(Mockito.mock(ToolProvider.class));
         Instant outageInstant = Mockito.mock(Instant.class);
@@ -371,10 +366,10 @@ class SearchTreeTest {
         setMaxPstPerTso(tsoName, maxPstOfTso);
 
         mockRootLeafCost(5.);
-        when(rootLeaf.getOptimizedSetpoint(rangeAction2, optimizedState)).thenReturn(3.);
+        when(rootLeaf.getOptimizedSetpoint(rangeAction2, P_STATE)).thenReturn(3.);
 
         OptimizationResult result = searchTree.run().get();
-        assertEquals(3., result.getOptimizedSetpoint(rangeAction2, optimizedState), DOUBLE_TOLERANCE);
+        assertEquals(3., result.getOptimizedSetpoint(rangeAction2, P_STATE), DOUBLE_TOLERANCE);
     }
 
     private void raoWithRangeActionsForTso(String tsoName) {
@@ -632,8 +627,8 @@ class SearchTreeTest {
         rangeAction2 = Mockito.mock(PstRangeAction.class);
         when(rangeAction1.getName()).thenReturn("PST1");
         when(rangeAction2.getName()).thenReturn("PST2");
-        when(searchTreeInput.getOptimizationPerimeter().getRangeActionOptimizationStates()).thenReturn(Set.of(optimizedState));
-        when(rootLeaf.getActivatedRangeActions(optimizedState)).thenReturn(Set.of(rangeAction1, rangeAction2));
+        when(searchTreeInput.getOptimizationPerimeter().getRangeActionOptimizationStates()).thenReturn(Set.of(P_STATE));
+        when(rootLeaf.getActivatedRangeActions(P_STATE)).thenReturn(Set.of(rangeAction1, rangeAction2));
 
         logRangeActions(TECHNICAL_LOGS, rootLeaf, searchTreeInput.getOptimizationPerimeter(), "");
         // PST can be logged in any order
