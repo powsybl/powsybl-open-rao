@@ -7,9 +7,12 @@
 
 package com.powsybl.openrao.searchtreerao.commons;
 
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
+import com.powsybl.openrao.commons.logs.RaoBusinessWarns;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.InstantKind;
@@ -24,6 +27,7 @@ import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.api.usagerule.OnConstraint;
 import com.powsybl.openrao.data.crac.api.usagerule.OnInstant;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
+import com.powsybl.openrao.data.crac.impl.CracImplFactory;
 import com.powsybl.openrao.data.crac.impl.utils.CommonCracCreation;
 import com.powsybl.openrao.data.crac.impl.utils.NetworkImportsUtil;
 import com.powsybl.openrao.raoapi.RaoInput;
@@ -44,6 +48,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -412,5 +417,56 @@ class RaoUtilTest {
         Mockito.when(optimizationContext.getRangeActionsPerState()).thenReturn(Map.of(curativeState1, Set.of(rangeAction1)));
 
         assertEquals(Pair.of(rangeAction1, curativeState1), RaoUtil.getLastAvailableRangeActionOnSameNetworkElement(optimizationContext, rangeAction2, curativeState3));
+    }
+
+    @Test
+    void checkWarningThresholdInMwWithAc() {
+        ch.qos.logback.classic.Logger logger = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(RaoBusinessWarns.class);
+        ListAppender<ILoggingEvent> listAppender = new ListAppender<>();
+        listAppender.start();
+        logger.addAppender(listAppender);
+        List<ILoggingEvent> logsList = listAppender.list;
+
+        raoParameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters());
+        OpenRaoSearchTreeParameters searchTreeParameters = raoParameters.getExtension(OpenRaoSearchTreeParameters.class);
+        searchTreeParameters.getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters().setDc(false);
+
+        Crac crac = new CracImplFactory().create("SimpleCracId", "SimpleCracName")
+            .newInstant("prev", InstantKind.PREVENTIVE);
+
+        crac.newFlowCnec()
+            .withId("cnecOneMwThresholdOneAmpThreshold")
+            .withNetworkElement("anyNetworkElement")
+            .withInstant("prev")
+            .withNominalVoltage(200.)
+            .newThreshold().withUnit(Unit.MEGAWATT).withMax(1000.).withSide(TwoSides.ONE).add()
+            .newThreshold().withUnit(Unit.AMPERE).withMax(1000.).withSide(TwoSides.ONE).add()
+            .add();
+        crac.newFlowCnec()
+            .withId("cnecOneAmpThreshold")
+            .withNetworkElement("anyNetworkElement")
+            .withInstant("prev")
+            .withNominalVoltage(200.)
+            .newThreshold().withUnit(Unit.AMPERE).withMax(1000.).withSide(TwoSides.ONE).add()
+            .add();
+        crac.newFlowCnec()
+            .withId("cnecOneMwThreshold")
+            .withNetworkElement("anyNetworkElement")
+            .withInstant("prev")
+            .withNominalVoltage(200.)
+            .newThreshold().withUnit(Unit.MEGAWATT).withMax(1000.).withSide(TwoSides.ONE).add()
+            .add();
+
+        RaoInput raoInput = Mockito.mock(RaoInput.class);
+        when(raoInput.getCrac()).thenReturn(crac);
+        RaoUtil.checkCnecsThresholdsUnit(raoParameters, raoInput);
+
+        String expectedMsg1 = "A threshold for the flowCnec cnecOneMwThresholdOneAmpThreshold is defined in MW but the loadflow computation is in AC. It will be imprecisely converted by the RAO which could create uncoherent results due to side effects";
+        String expectedMsg2 = "A threshold for the flowCnec cnecOneMwThreshold is defined in MW but the loadflow computation is in AC. It will be imprecisely converted by the RAO which could create uncoherent results due to side effects";
+        String notExpectedMsg = "A threshold for the flowCnec cnecOneAmpThreshold is defined in MW but the loadflow computation is in AC. It will be imprecisely converted by the RAO which could create uncoherent results due to side effects";
+        assertEquals(2, logsList.size());
+        assertEquals(expectedMsg1, logsList.get(0).getMessage());
+        assertEquals(expectedMsg2, logsList.get(1).getMessage());
+        assertFalse(logsList.stream().anyMatch(e -> e.getMessage().contains(notExpectedMsg)));
     }
 }
