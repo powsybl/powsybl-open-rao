@@ -14,8 +14,8 @@ import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
-import com.powsybl.openrao.monitoring.CnecDataCalculator;
 import com.powsybl.openrao.monitoring.SecurityStatus;
+import com.powsybl.openrao.monitoring.VoltageCnecDataCalculator;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -25,9 +25,18 @@ import java.util.stream.Collectors;
  * @author Mohamed Ben Rejeb {@literal <mohamed.ben-rejeb at rte-france.com>}
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public class VoltageCnecDataCalculator implements CnecDataCalculator<VoltageCnec> {
+public class VoltageCnecDataCalculatorImpl implements VoltageCnecDataCalculator {
     @Override
-    public VoltageCnecValue computeValue(VoltageCnec voltageCnec, Network network, Unit unit) {
+    public Double computeMinVoltage(VoltageCnec voltageCnec, Network network, Unit unit) {
+        return getVoltages(voltageCnec, network, unit).stream().min(Double::compareTo).orElse(Double.NEGATIVE_INFINITY);
+    }
+
+    @Override
+    public Double computeMaxVoltage(VoltageCnec voltageCnec, Network network, Unit unit) {
+        return getVoltages(voltageCnec, network, unit).stream().max(Double::compareTo).orElse(Double.POSITIVE_INFINITY);
+    }
+
+    private static Set<Double> getVoltages(VoltageCnec voltageCnec, Network network, Unit unit) {
         unit.checkPhysicalParameter(voltageCnec.getPhysicalParameter());
         VoltageLevel voltageLevel = network.getVoltageLevel(voltageCnec.getNetworkElement().getId());
         if (voltageLevel == null) {
@@ -41,30 +50,29 @@ public class VoltageCnecDataCalculator implements CnecDataCalculator<VoltageCnec
         } else {
             voltages.addAll(voltageLevel.getBusView().getBusStream().map(Bus::getV).collect(Collectors.toSet()));
         }
-        Double minVoltage = voltages.stream().min(Double::compareTo).orElse(Double.NEGATIVE_INFINITY);
-        Double maxVoltage = voltages.stream().max(Double::compareTo).orElse(Double.POSITIVE_INFINITY);
-
-        return new VoltageCnecValue(minVoltage, maxVoltage);
+        return voltages;
     }
 
     @Override
     public double computeMargin(VoltageCnec voltageCnec, Network network, Unit unit) {
-        VoltageCnecValue voltageValue = computeValue(voltageCnec, network, unit);
-        double marginLowerBound = voltageValue.minValue() - voltageCnec.getLowerBound(unit).orElse(Double.NEGATIVE_INFINITY);
-        double marginUpperBound = voltageCnec.getUpperBound(unit).orElse(Double.POSITIVE_INFINITY) - voltageValue.maxValue();
+        Double minVoltage = computeMinVoltage(voltageCnec, network, unit);
+        Double maxVoltage = computeMaxVoltage(voltageCnec, network, unit);
+        double marginLowerBound = minVoltage - voltageCnec.getLowerBound(unit).orElse(Double.NEGATIVE_INFINITY);
+        double marginUpperBound = voltageCnec.getUpperBound(unit).orElse(Double.POSITIVE_INFINITY) - maxVoltage;
         return Math.min(marginLowerBound, marginUpperBound);
     }
 
     @Override
     public SecurityStatus computeSecurityStatus(VoltageCnec voltageCnec, Network network, Unit unit) {
-        VoltageCnecValue voltageValue = computeValue(voltageCnec, network, unit);
+        Double minVoltage = computeMinVoltage(voltageCnec, network, unit);
+        Double maxVoltage = computeMaxVoltage(voltageCnec, network, unit);
 
-        if (computeMargin(voltageCnec, voltageValue, unit) < 0) {
+        if (computeMargin(voltageCnec, network, unit) < 0) {
             boolean highVoltageConstraints = false;
             boolean lowVoltageConstraints = false;
 
-            double marginLowerBound = voltageValue.minValue() - voltageCnec.getLowerBound(unit).orElse(Double.NEGATIVE_INFINITY);
-            double marginUpperBound = voltageCnec.getUpperBound(unit).orElse(Double.POSITIVE_INFINITY) - voltageValue.maxValue();
+            double marginLowerBound = minVoltage - voltageCnec.getLowerBound(unit).orElse(Double.NEGATIVE_INFINITY);
+            double marginUpperBound = voltageCnec.getUpperBound(unit).orElse(Double.POSITIVE_INFINITY) - maxVoltage;
 
             if (marginUpperBound < 0) {
                 highVoltageConstraints = true;
@@ -83,11 +91,5 @@ public class VoltageCnecDataCalculator implements CnecDataCalculator<VoltageCnec
         } else {
             return SecurityStatus.SECURE;
         }
-    }
-
-    private static double computeMargin(VoltageCnec voltageCnec, VoltageCnecValue voltageValue, Unit unit) {
-        double marginLowerBound = voltageValue.minValue() - voltageCnec.getLowerBound(unit).orElse(Double.NEGATIVE_INFINITY);
-        double marginUpperBound = voltageCnec.getUpperBound(unit).orElse(Double.POSITIVE_INFINITY) - voltageValue.maxValue();
-        return Math.min(marginLowerBound, marginUpperBound);
     }
 }

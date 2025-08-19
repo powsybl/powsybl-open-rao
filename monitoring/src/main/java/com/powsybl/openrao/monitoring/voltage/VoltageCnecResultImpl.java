@@ -12,24 +12,39 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
 import com.powsybl.openrao.monitoring.SecurityStatus;
 import com.powsybl.openrao.monitoring.results.AbstractCnecResult;
+import com.powsybl.openrao.monitoring.results.VoltageCnecResult;
 
 /**
  * @author Mohamed Ben Rejeb {@literal <mohamed.ben-rejeb at rte-france.com>}
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public class VoltageCnecResult extends AbstractCnecResult<VoltageCnec> {
-    public VoltageCnecResult(VoltageCnec voltageCnec, Unit unit, VoltageCnecValue value, double margin, SecurityStatus securityStatus) {
-        super(voltageCnec, unit, value, margin, securityStatus);
+public class VoltageCnecResultImpl extends AbstractCnecResult<VoltageCnec> implements VoltageCnecResult {
+    private final Double minVoltage;
+    private final Double maxVoltage;
+
+    public VoltageCnecResultImpl(VoltageCnec voltageCnec, Unit unit, Double minVoltage, Double maxVoltage, double margin, SecurityStatus securityStatus) {
+        super(voltageCnec, unit, margin, securityStatus);
+        this.minVoltage = minVoltage;
+        this.maxVoltage = maxVoltage;
     }
 
     @Override
     public String print() {
-        VoltageCnecValue voltageValue = (VoltageCnecValue) value;
         return String.format("Network element %s at state %s has a min voltage of %s kV and a max voltage of %s kV.",
             cnec.getNetworkElement().getId(),
             cnec.getState().getId(),
-            MeasurementRounding.roundValueBasedOnMargin(voltageValue.minValue(), margin, 2).doubleValue(),
-            MeasurementRounding.roundValueBasedOnMargin(voltageValue.maxValue(), margin, 2).doubleValue());
+            MeasurementRounding.roundValueBasedOnMargin(minVoltage, margin, 2).doubleValue(),
+            MeasurementRounding.roundValueBasedOnMargin(maxVoltage, margin, 2).doubleValue());
 
+    }
+
+    @Override
+    public Double getMinVoltage() {
+        return minVoltage;
+    }
+
+    @Override
+    public Double getMaxVoltage() {
+        return maxVoltage;
     }
 }

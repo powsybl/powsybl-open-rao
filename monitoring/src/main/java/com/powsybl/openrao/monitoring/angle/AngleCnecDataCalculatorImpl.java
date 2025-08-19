@@ -12,34 +12,34 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
-import com.powsybl.openrao.monitoring.CnecDataCalculator;
+import com.powsybl.openrao.monitoring.AngleCnecDataCalculator;
 import com.powsybl.openrao.monitoring.SecurityStatus;
 
 /**
  * @author Mohamed Ben Rejeb {@literal <mohamed.ben-rejeb at rte-france.com>}
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public class AngleCnecDataCalculator implements CnecDataCalculator<AngleCnec> {
+public class AngleCnecDataCalculatorImpl implements AngleCnecDataCalculator {
     @Override
-    public AngleCnecValue computeValue(AngleCnec angleCnec, Network network, Unit unit) {
+    public Double computeAngle(AngleCnec angleCnec, Network network, Unit unit) {
         unit.checkPhysicalParameter(angleCnec.getPhysicalParameter());
         VoltageLevel exportingVoltageLevel = getVoltageLevelOfElement(angleCnec.getExportingNetworkElement().getId(), network);
         VoltageLevel importingVoltageLevel = getVoltageLevelOfElement(angleCnec.getImportingNetworkElement().getId(), network);
-        return new AngleCnecValue(exportingVoltageLevel.getBusView().getBusStream().mapToDouble(Bus::getAngle).max().getAsDouble()
-            - importingVoltageLevel.getBusView().getBusStream().mapToDouble(Bus::getAngle).min().getAsDouble());
+        return exportingVoltageLevel.getBusView().getBusStream().mapToDouble(Bus::getAngle).max().getAsDouble()
+            - importingVoltageLevel.getBusView().getBusStream().mapToDouble(Bus::getAngle).min().getAsDouble();
     }
 
     @Override
     public double computeMargin(AngleCnec angleCnec, Network network, Unit unit) {
-        AngleCnecValue actualAngleValue = computeValue(angleCnec, network, unit);
-        double marginOnLowerBound = actualAngleValue.value() - angleCnec.getLowerBound(unit).orElse(Double.NEGATIVE_INFINITY);
-        double marginOnUpperBound = angleCnec.getUpperBound(unit).orElse(Double.POSITIVE_INFINITY) - actualAngleValue.value();
+        Double angle = computeAngle(angleCnec, network, unit);
+        double marginOnLowerBound = angle - angleCnec.getLowerBound(unit).orElse(Double.NEGATIVE_INFINITY);
+        double marginOnUpperBound = angleCnec.getUpperBound(unit).orElse(Double.POSITIVE_INFINITY) - angle;
         return Math.min(marginOnLowerBound, marginOnUpperBound);
     }
 
     @Override
     public SecurityStatus computeSecurityStatus(AngleCnec angleCnec, Network network, Unit unit) {
-        double actualAngleValue = computeValue(angleCnec, network, unit).value();
+        double actualAngleValue = computeAngle(angleCnec, network, unit);
 
         if (computeMargin(angleCnec, actualAngleValue, unit) < 0) {
             boolean highVoltageConstraints = false;

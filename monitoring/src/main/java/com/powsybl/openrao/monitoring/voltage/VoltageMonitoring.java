@@ -99,13 +99,13 @@ public class VoltageMonitoring extends AbstractMonitoring<VoltageCnec> {
 
     @Override
     protected CnecResult<VoltageCnec> computeCnecResult(VoltageCnec voltageCnec, Network network, Unit unit) {
-        VoltageCnecDataCalculator voltageCnecDataCalculator = new VoltageCnecDataCalculator();
-        return new VoltageCnecResult(voltageCnec, unit, voltageCnecDataCalculator.computeValue(voltageCnec, network, unit), voltageCnecDataCalculator.computeMargin(voltageCnec, network, unit), voltageCnecDataCalculator.computeSecurityStatus(voltageCnec, network, unit));
+        VoltageCnecDataCalculatorImpl voltageCnecDataCalculator = new VoltageCnecDataCalculatorImpl();
+        return new VoltageCnecResultImpl(voltageCnec, unit, voltageCnecDataCalculator.computeMinVoltage(voltageCnec, network, unit), voltageCnecDataCalculator.computeMaxVoltage(voltageCnec, network, unit), voltageCnecDataCalculator.computeMargin(voltageCnec, network, unit), voltageCnecDataCalculator.computeSecurityStatus(voltageCnec, network, unit));
     }
 
     @Override
     protected CnecResult<VoltageCnec> makeFailedCnecResult(VoltageCnec voltageCnec, Unit unit) {
-        return new VoltageCnecResult(voltageCnec, unit, new VoltageCnecValue(Double.NaN, Double.NaN), Double.NaN, SecurityStatus.FAILURE);
+        return new VoltageCnecResultImpl(voltageCnec, unit, Double.NaN, Double.NaN, Double.NaN, SecurityStatus.FAILURE);
     }
 
     /**

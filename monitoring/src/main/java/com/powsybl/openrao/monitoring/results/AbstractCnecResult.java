@@ -17,21 +17,14 @@ import com.powsybl.openrao.monitoring.SecurityStatus;
 public abstract class AbstractCnecResult<I extends Cnec<?>> implements CnecResult<I> {
     protected final I cnec;
     protected final Unit unit;
-    protected final CnecValue<I> value;
     protected final double margin;
     protected final SecurityStatus securityStatus;
 
-    protected AbstractCnecResult(I cnec, Unit unit, CnecValue<I> value, double margin, SecurityStatus securityStatus) {
+    protected AbstractCnecResult(I cnec, Unit unit, double margin, SecurityStatus securityStatus) {
         this.cnec = cnec;
         this.unit = unit;
-        this.value = value;
         this.margin = margin;
         this.securityStatus = securityStatus;
-    }
-
-    @Override
-    public CnecValue<I> getValue() {
-        return value;
     }
 
     @Override

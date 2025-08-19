@@ -15,6 +15,7 @@ import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.monitoring.SecurityStatus;
 import com.powsybl.openrao.monitoring.results.AbstractRaoResultWithMonitoringResult;
+import com.powsybl.openrao.monitoring.results.AngleCnecResult;
 import com.powsybl.openrao.monitoring.results.CnecResult;
 import com.powsybl.openrao.monitoring.results.MonitoringResult;
 
@@ -37,10 +38,14 @@ public class RaoResultWithAngleMonitoring extends AbstractRaoResultWithMonitorin
         if (optimizationInstant == null || !optimizationInstant.isCurative()) {
             throw new OpenRaoException("Unexpected optimization instant for angle monitoring result (only curative instant is supported currently) : " + optimizationInstant);
         }
-        Optional<CnecResult<AngleCnec>> angleCnecResultOpt = monitoringResult.getCnecResults().stream().filter(angleCnecRes -> angleCnecRes.getId().equals(angleCnec.getId())).findFirst();
+        Optional<AngleCnecResult> angleCnecResultOpt = monitoringResult.getCnecResults().stream()
+            .filter(angleCnecRes -> angleCnecRes.getId().equals(angleCnec.getId()))
+            .filter(AngleCnecResult.class::isInstance)
+            .map(AngleCnecResult.class::cast)
+            .findFirst();
 
         if (angleCnecResultOpt.isPresent()) {
-            return ((AngleCnecValue) angleCnecResultOpt.get().getValue()).value();
+            return angleCnecResultOpt.get().getAngle();
         } else {
             return Double.NaN;
         }

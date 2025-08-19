@@ -5,14 +5,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.powsybl.openrao.monitoring.voltage;
+package com.powsybl.openrao.monitoring.results;
 
 import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
-import com.powsybl.openrao.monitoring.results.CnecValue;
 
 /**
- * @author Mohamed Ben Rejeb {@literal <mohamed.ben-rejeb at rte-france.com>}
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public record VoltageCnecValue(Double minValue, Double maxValue) implements CnecValue<VoltageCnec> {
+public interface VoltageCnecResult extends CnecResult<VoltageCnec> {
+    Double getMinVoltage();
+
+    Double getMaxVoltage();
 }

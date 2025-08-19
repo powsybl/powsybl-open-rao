@@ -22,10 +22,8 @@ import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
-import com.powsybl.openrao.monitoring.results.CnecResult;
-import com.powsybl.openrao.monitoring.results.CnecValue;
 import com.powsybl.openrao.monitoring.results.MonitoringResult;
-import com.powsybl.openrao.monitoring.voltage.VoltageCnecValue;
+import com.powsybl.openrao.monitoring.results.VoltageCnecResult;
 import com.powsybl.openrao.monitoring.voltage.VoltageMonitoring;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -130,9 +128,9 @@ class VoltageMonitoringTest {
     void testOneSecurePreventiveCnec() {
         addVoltageCnec("vc", PREVENTIVE_INSTANT_ID, null, "VL1", null, 500.);
         runVoltageMonitoring();
-        VoltageCnecValue voltageCnecValue = (VoltageCnecValue) voltageMonitoringResult.getCnecResults().stream().filter(cnec -> cnec.getId().equals("vc")).map(CnecResult::getValue).findFirst().get();
-        assertEquals(400., voltageCnecValue.minValue(), VOLTAGE_TOLERANCE);
-        assertEquals(400., voltageCnecValue.maxValue(), VOLTAGE_TOLERANCE);
+        VoltageCnecResult voltageCnecResult = voltageMonitoringResult.getCnecResults().stream().filter(cnec -> cnec.getId().equals("vc")).map(VoltageCnecResult.class::cast).findFirst().get();
+        assertEquals(400., voltageCnecResult.getMinVoltage(), VOLTAGE_TOLERANCE);
+        assertEquals(400., voltageCnecResult.getMaxVoltage(), VOLTAGE_TOLERANCE);
         assertEquals(SecurityStatus.SECURE, voltageMonitoringResult.getStatus());
         assertTrue(voltageMonitoringResult.getCnecResults().stream().noneMatch(cr -> cr.getMargin() < 0));
         assertEquals(List.of("All VOLTAGE Cnecs are secure."), voltageMonitoringResult.printConstraints());
@@ -515,25 +513,25 @@ class VoltageMonitoringTest {
         assertEquals(SecurityStatus.FAILURE, voltageMonitoringResult.getStatus());
         assertEquals(2, voltageMonitoringResult.getCnecResults().size());
 
-        Optional<CnecResult<VoltageCnec>> vcCnecOpt = voltageMonitoringResult.getCnecResults().stream().filter(cr -> cr.getId().equals("vc")).findFirst();
-        CnecValue<?> vcCnecOptCnecValue = vcCnecOpt.get().getValue();
+        Optional<VoltageCnecResult> vcCnecOpt = voltageMonitoringResult.getCnecResults().stream().filter(cr -> cr.getId().equals("vc")).map(VoltageCnecResult.class::cast).findFirst();
+        Double vcCnecOptCnecMinVoltage = vcCnecOpt.get().getMinVoltage();
+        Double vcCnecOptCnecMaxVoltage = vcCnecOpt.get().getMaxVoltage();
         SecurityStatus vcCnecOptSecurityStatus = vcCnecOpt.get().getCnecSecurityStatus();
         double vcMargin = vcCnecOpt.get().getMargin();
 
-        assertTrue(vcCnecOptCnecValue instanceof VoltageCnecValue);
-        assertEquals(Double.NaN, ((VoltageCnecValue) vcCnecOptCnecValue).minValue());
-        assertEquals(Double.NaN, ((VoltageCnecValue) vcCnecOptCnecValue).maxValue());
+        assertEquals(Double.NaN, vcCnecOptCnecMinVoltage);
+        assertEquals(Double.NaN, vcCnecOptCnecMaxVoltage);
         assertEquals(SecurityStatus.FAILURE, vcCnecOptSecurityStatus);
         assertEquals(Double.NaN, vcMargin);
 
-        Optional<CnecResult<VoltageCnec>> vcPrevCnecOpt = voltageMonitoringResult.getCnecResults().stream().filter(cr -> cr.getId().equals("vcPrev")).findFirst();
-        CnecValue<?> vcPrevCnecOptCnecValue = vcPrevCnecOpt.get().getValue();
+        Optional<VoltageCnecResult> vcPrevCnecOpt = voltageMonitoringResult.getCnecResults().stream().filter(cr -> cr.getId().equals("vcPrev")).map(VoltageCnecResult.class::cast).findFirst();
+        Double vcPrevCnecOptCnecMinVoltage = vcPrevCnecOpt.get().getMinVoltage();
+        Double vcPrevCnecOptCnecMaxVoltage = vcPrevCnecOpt.get().getMaxVoltage();
         SecurityStatus vcPrevCnecOptSecurityStatus = vcPrevCnecOpt.get().getCnecSecurityStatus();
         double vcPrevMargin = vcPrevCnecOpt.get().getMargin();
 
-        assertTrue(vcPrevCnecOptCnecValue instanceof VoltageCnecValue);
-        assertEquals(400., ((VoltageCnecValue) vcPrevCnecOptCnecValue).minValue(), 0.01);
-        assertEquals(400., ((VoltageCnecValue) vcPrevCnecOptCnecValue).maxValue(), 0.01);
+        assertEquals(400., vcPrevCnecOptCnecMinVoltage, 0.01);
+        assertEquals(400., vcPrevCnecOptCnecMaxVoltage, 0.01);
         assertEquals(SecurityStatus.HIGH_CONSTRAINT, vcPrevCnecOptSecurityStatus);
         assertEquals(-1.0, vcPrevMargin, 0.01);
 

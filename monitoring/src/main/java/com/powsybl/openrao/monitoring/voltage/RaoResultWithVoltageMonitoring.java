@@ -18,6 +18,7 @@ import com.powsybl.openrao.monitoring.SecurityStatus;
 import com.powsybl.openrao.monitoring.results.AbstractRaoResultWithMonitoringResult;
 import com.powsybl.openrao.monitoring.results.CnecResult;
 import com.powsybl.openrao.monitoring.results.MonitoringResult;
+import com.powsybl.openrao.monitoring.results.VoltageCnecResult;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,9 +36,9 @@ public class RaoResultWithVoltageMonitoring extends AbstractRaoResultWithMonitor
     @Override
     public double getMinVoltage(Instant optimizationInstant, VoltageCnec voltageCnec, MinOrMax minOrMax, Unit unit) {
         unit.checkPhysicalParameter(PhysicalParameter.VOLTAGE);
-        Optional<CnecResult<VoltageCnec>> voltageCnecResultOpt = getCnecResult(optimizationInstant, voltageCnec);
+        Optional<VoltageCnecResult> voltageCnecResultOpt = getCnecResult(optimizationInstant, voltageCnec);
         if (voltageCnecResultOpt.isPresent()) {
-            return ((VoltageCnecValue) voltageCnecResultOpt.get().getValue()).minValue();
+            return voltageCnecResultOpt.get().getMinVoltage();
         } else {
             return Double.NaN;
         }
@@ -46,19 +47,23 @@ public class RaoResultWithVoltageMonitoring extends AbstractRaoResultWithMonitor
     @Override
     public double getMaxVoltage(Instant optimizationInstant, VoltageCnec voltageCnec, MinOrMax minOrMax, Unit unit) {
         unit.checkPhysicalParameter(PhysicalParameter.VOLTAGE);
-        Optional<CnecResult<VoltageCnec>> voltageCnecResultOpt = getCnecResult(optimizationInstant, voltageCnec);
+        Optional<VoltageCnecResult> voltageCnecResultOpt = getCnecResult(optimizationInstant, voltageCnec);
         if (voltageCnecResultOpt.isPresent()) {
-            return ((VoltageCnecValue) voltageCnecResultOpt.get().getValue()).maxValue();
+            return voltageCnecResultOpt.get().getMaxVoltage();
         } else {
             return Double.NaN;
         }
     }
 
-    private Optional<CnecResult<VoltageCnec>> getCnecResult(Instant optimizationInstant, VoltageCnec voltageCnec) {
+    private Optional<VoltageCnecResult> getCnecResult(Instant optimizationInstant, VoltageCnec voltageCnec) {
         if (optimizationInstant == null || !optimizationInstant.isCurative()) {
             throw new OpenRaoException("Unexpected optimization instant for voltage monitoring result (only curative instant is supported currently) : " + optimizationInstant);
         }
-        return monitoringResult.getCnecResults().stream().filter(voltageCnecRes -> voltageCnecRes.getId().equals(voltageCnec.getId())).findFirst();
+        return monitoringResult.getCnecResults().stream()
+            .filter(voltageCnecRes -> voltageCnecRes.getId().equals(voltageCnec.getId()))
+            .filter(VoltageCnecResult.class::isInstance)
+            .map(VoltageCnecResult.class::cast)
+            .findFirst();
     }
 
     @Override
@@ -68,7 +73,7 @@ public class RaoResultWithVoltageMonitoring extends AbstractRaoResultWithMonitor
             throw new OpenRaoException("Unexpected optimization instant for voltage monitoring result (only curative instant is supported currently): " + optimizationInstant);
         }
 
-        Optional<CnecResult<VoltageCnec>> voltageCnecResultOpt = getCnecResult(optimizationInstant, voltageCnec);
+        Optional<VoltageCnecResult> voltageCnecResultOpt = getCnecResult(optimizationInstant, voltageCnec);
         return voltageCnecResultOpt.map(CnecResult::getMargin).orElse(Double.NaN);
     }
 

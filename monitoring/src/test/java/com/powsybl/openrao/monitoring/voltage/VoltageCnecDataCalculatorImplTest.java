@@ -28,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
  * @author Mohamed Ben Rejeb {@literal <mohamed.ben-rejeb at rte-france.com>}
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-class VoltageCnecDataCalculatorTest {
+class VoltageCnecDataCalculatorImplTest {
     private static final double DOUBLE_TOLERANCE = 1e-3;
     private static final String PREVENTIVE_INSTANT_ID = "preventive";
     private Crac crac;
@@ -46,9 +46,9 @@ class VoltageCnecDataCalculatorTest {
             .add();
         Network networkMock1 = mockBusVoltagesInNetwork("networkElement", 400.);
 
-        VoltageCnecDataCalculator voltageCnecDataCalculator = new VoltageCnecDataCalculator();
-        assertEquals(400., (voltageCnecDataCalculator.computeValue(cnec, networkMock1, Unit.KILOVOLT)).minValue(), DOUBLE_TOLERANCE);
-        assertEquals(400., (voltageCnecDataCalculator.computeValue(cnec, networkMock1, Unit.KILOVOLT)).maxValue(), DOUBLE_TOLERANCE);
+        VoltageCnecDataCalculatorImpl voltageCnecDataCalculator = new VoltageCnecDataCalculatorImpl();
+        assertEquals(400., voltageCnecDataCalculator.computeMinVoltage(cnec, networkMock1, Unit.KILOVOLT), DOUBLE_TOLERANCE);
+        assertEquals(400., voltageCnecDataCalculator.computeMaxVoltage(cnec, networkMock1, Unit.KILOVOLT), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -60,7 +60,7 @@ class VoltageCnecDataCalculatorTest {
         Network networkMock2 = mockBusVoltagesInNetwork("networkElement", 700.);
         Network networkMock3 = mockBusVoltagesInNetwork("networkElement", 100.);
 
-        VoltageCnecDataCalculator voltageCnecDataCalculator = new VoltageCnecDataCalculator();
+        VoltageCnecDataCalculatorImpl voltageCnecDataCalculator = new VoltageCnecDataCalculatorImpl();
         assertEquals(SecurityStatus.SECURE, voltageCnecDataCalculator.computeSecurityStatus(cnec, networkMock1, Unit.KILOVOLT));
         assertEquals(SecurityStatus.HIGH_CONSTRAINT, voltageCnecDataCalculator.computeSecurityStatus(cnec, networkMock2, Unit.KILOVOLT));
         assertEquals(SecurityStatus.LOW_CONSTRAINT, voltageCnecDataCalculator.computeSecurityStatus(cnec, networkMock3, Unit.KILOVOLT));
@@ -77,7 +77,7 @@ class VoltageCnecDataCalculatorTest {
         assertEquals(500., cnec.getUpperBound(Unit.KILOVOLT).orElseThrow(), DOUBLE_TOLERANCE);
         assertFalse(cnec.getLowerBound(Unit.KILOVOLT).isPresent());
 
-        VoltageCnecDataCalculator voltageCnecDataCalculator = new VoltageCnecDataCalculator();
+        VoltageCnecDataCalculatorImpl voltageCnecDataCalculator = new VoltageCnecDataCalculatorImpl();
 
         // margin
         Network networkMock1 = mockBusVoltagesInNetwork("networkElement", 400.);
@@ -100,7 +100,7 @@ class VoltageCnecDataCalculatorTest {
         assertEquals(100., cnec.getUpperBound(Unit.KILOVOLT).orElseThrow(), DOUBLE_TOLERANCE);
         assertEquals(-50., cnec.getLowerBound(Unit.KILOVOLT).orElseThrow(), DOUBLE_TOLERANCE);
 
-        VoltageCnecDataCalculator voltageCnecDataCalculator = new VoltageCnecDataCalculator();
+        VoltageCnecDataCalculatorImpl voltageCnecDataCalculator = new VoltageCnecDataCalculatorImpl();
 
         Network networkMock1 = mockBusVoltagesInNetwork("networkElement", 300.);
         assertEquals(-200., voltageCnecDataCalculator.computeMargin(cnec, networkMock1, Unit.KILOVOLT), DOUBLE_TOLERANCE);
@@ -116,7 +116,7 @@ class VoltageCnecDataCalculatorTest {
             .newThreshold().withUnit(Unit.KILOVOLT).withMin(-200.).withMax(500.).add()
             .add();
 
-        VoltageCnecDataCalculator voltageCnecDataCalculator = new VoltageCnecDataCalculator();
+        VoltageCnecDataCalculatorImpl voltageCnecDataCalculator = new VoltageCnecDataCalculatorImpl();
 
         Network networkMock1 = mockBusVoltagesInNetwork("networkElement", -300.);
         assertEquals(-100, voltageCnecDataCalculator.computeMargin(cnec, networkMock1, Unit.KILOVOLT), DOUBLE_TOLERANCE);

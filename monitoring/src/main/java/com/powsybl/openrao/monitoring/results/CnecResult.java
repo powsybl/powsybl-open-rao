@@ -16,8 +16,6 @@ import com.powsybl.openrao.monitoring.SecurityStatus;
  * @author Mohamed Ben Rejeb {@literal <mohamed.ben-rejeb at rte-france.com>}
  */
 public interface CnecResult<I extends Cnec<?>> {
-    CnecValue<I> getValue();
-
     I getCnec();
 
     default State getState() {

@@ -34,10 +34,8 @@ import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.crac.io.cim.craccreator.CimCracCreationContext;
 
-import com.powsybl.openrao.monitoring.angle.AngleCnecValue;
 import com.powsybl.openrao.monitoring.angle.AngleMonitoring;
-import com.powsybl.openrao.monitoring.results.CnecResult;
-import com.powsybl.openrao.monitoring.results.CnecValue;
+import com.powsybl.openrao.monitoring.results.AngleCnecResult;
 import com.powsybl.openrao.monitoring.results.MonitoringResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -163,7 +161,7 @@ class AngleMonitoringTest {
         runAngleMonitoring(scalableZonalData);
         assertEquals(SecurityStatus.FAILURE, angleMonitoringResult.getStatus());
         angleMonitoringResult.getAppliedRas().forEach((state, networkActions) -> assertTrue(networkActions.isEmpty()));
-        assertTrue(angleMonitoringResult.getCnecResults().stream().map(CnecResult::getValue).filter(AngleCnecValue.class::isInstance).allMatch(angleCnecValue -> ((AngleCnecValue) angleCnecValue).value().isNaN()));
+        assertTrue(angleMonitoringResult.getCnecResults().stream().filter(AngleCnecResult.class::isInstance).allMatch(angleCnecResult -> ((AngleCnecResult) angleCnecResult).getAngle().isNaN()));
         assertEquals(angleMonitoringResult.printConstraints(), List.of("ANGLE monitoring failed due to a load flow divergence or an inconsistency in the crac or in the parameters."));
     }
 
@@ -189,7 +187,7 @@ class AngleMonitoringTest {
             "AngleCnec acPrev (with importing network element VL1 and exporting network element VL2) at state preventive has an angle of -3.68°."
         ), angleMonitoringResult.printConstraints());
 
-        double angleValue = angleMonitoringResult.getCnecResults().stream().filter(cr -> cr.getCnec().equals(acPrev)).map(CnecResult::getValue).map(AngleCnecValue.class::cast).findFirst().get().value();
+        double angleValue = angleMonitoringResult.getCnecResults().stream().filter(cr -> cr.getCnec().equals(acPrev)).map(AngleCnecResult.class::cast).findFirst().get().getAngle();
         assertEquals(-3.67, angleValue, ANGLE_TOLERANCE);
     }
 
@@ -278,7 +276,7 @@ class AngleMonitoringTest {
         // AngleCnecsWithAngle
         assertEquals(2, angleMonitoringResult.getCnecResults().size());
 
-        double angleValue = angleMonitoringResult.getCnecResults().stream().filter(cr -> cr.getCnec().getId().equals("AngleCnec1")).map(CnecResult::getValue).map(AngleCnecValue.class::cast).findFirst().get().value();
+        double angleValue = angleMonitoringResult.getCnecResults().stream().filter(cr -> cr.getCnec().getId().equals("AngleCnec1")).map(AngleCnecResult.class::cast).findFirst().get().getAngle();
         assertEquals(5.22, angleValue, ANGLE_TOLERANCE);
         assertEquals(List.of("Some ANGLE Cnecs are not secure:",
                 "AngleCnec AngleCnec1 (with importing network element _d77b61ef-61aa-4b22-95f6-b56ca080788d and exporting network element _8d8a82ba-b5b0-4e94-861a-192af055f2b8) at state Co-1 - curative has an angle of 5.22°."),
@@ -318,23 +316,21 @@ class AngleMonitoringTest {
         assertEquals(SecurityStatus.FAILURE, angleMonitoringResult.getStatus());
         assertEquals(2, angleMonitoringResult.getCnecResults().size());
 
-        Optional<CnecResult<AngleCnec>> acCur1CnecOpt = angleMonitoringResult.getCnecResults().stream().filter(cr -> cr.getId().equals("acCur1")).findFirst();
-        CnecValue<?> acCur1CnecValue = acCur1CnecOpt.get().getValue();
+        Optional<AngleCnecResult> acCur1CnecOpt = angleMonitoringResult.getCnecResults().stream().filter(cr -> cr.getId().equals("acCur1")).filter(AngleCnecResult.class::isInstance).map(AngleCnecResult.class::cast).findFirst();
+        Double acCur1CnecAngle = acCur1CnecOpt.get().getAngle();
         SecurityStatus acCur1SecurityStatus = acCur1CnecOpt.get().getCnecSecurityStatus();
         double acCur1Margin = acCur1CnecOpt.get().getMargin();
 
-        assertTrue(acCur1CnecValue instanceof AngleCnecValue);
-        assertEquals(-7.71, ((AngleCnecValue) acCur1CnecValue).value(), 0.01);
+        assertEquals(-7.71, acCur1CnecAngle, 0.01);
         assertEquals(SecurityStatus.SECURE, acCur1SecurityStatus);
         assertEquals(0.28, acCur1Margin, 0.01);
 
-        Optional<CnecResult<AngleCnec>> acCur2CnecOpt = angleMonitoringResult.getCnecResults().stream().filter(cr -> cr.getId().equals("acCur2")).findFirst();
-        CnecValue<?> acCur2CnecValue = acCur2CnecOpt.get().getValue();
+        Optional<AngleCnecResult> acCur2CnecOpt = angleMonitoringResult.getCnecResults().stream().filter(cr -> cr.getId().equals("acCur2")).filter(AngleCnecResult.class::isInstance).map(AngleCnecResult.class::cast).findFirst();
+        Double acCur2CnecAngle = acCur2CnecOpt.get().getAngle();
         SecurityStatus acCur2SecurityStatus = acCur2CnecOpt.get().getCnecSecurityStatus();
         double acCur2Margin = acCur2CnecOpt.get().getMargin();
 
-        assertTrue(acCur2CnecValue instanceof AngleCnecValue);
-        assertEquals(Double.NaN, ((AngleCnecValue) acCur2CnecValue).value(), 0.01);
+        assertEquals(Double.NaN, acCur2CnecAngle, 0.01);
         assertEquals(SecurityStatus.FAILURE, acCur2SecurityStatus);
         assertEquals(Double.NaN, acCur2Margin, 0.01);
     }
