@@ -10,7 +10,6 @@ package com.powsybl.openrao.data.crac.api;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 
-import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -27,5 +26,5 @@ public interface NetworkElement extends Identifiable<NetworkElement> {
      * @return a set of optional countries containing the cnec location(s). Note that a Cnec on a interconnection can
      * belong to two countries.
      */
-    Set<Optional<Country>> getLocation(Network network);
+    Set<Country> getLocation(Network network);
 }

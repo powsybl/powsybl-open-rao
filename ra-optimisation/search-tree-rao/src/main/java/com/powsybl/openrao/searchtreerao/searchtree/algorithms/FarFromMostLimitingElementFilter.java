@@ -14,7 +14,6 @@ import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
 import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
 
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -46,7 +45,7 @@ public class FarFromMostLimitingElementFilter implements NetworkActionCombinatio
             return naCombinations;
         }
 
-        Set<Optional<Country>> worstCnecLocation = getOptimizedMostLimitingElementsLocation(optimizationResult);
+        Set<Country> worstCnecLocation = getOptimizedMostLimitingElementsLocation(optimizationResult);
 
         Set<NetworkActionCombination> filteredNaCombinations = naCombinations.stream()
             .filter(naCombination -> naCombination.getNetworkActionSet().stream().anyMatch(na -> isNetworkActionCloseToLocations(na, worstCnecLocation, countryGraph)))
@@ -58,8 +57,8 @@ public class FarFromMostLimitingElementFilter implements NetworkActionCombinatio
         return filteredNaCombinations;
     }
 
-    Set<Optional<Country>> getOptimizedMostLimitingElementsLocation(OptimizationResult optimizationResult) {
-        Set<Optional<Country>> locations = new HashSet<>();
+    Set<Country> getOptimizedMostLimitingElementsLocation(OptimizationResult optimizationResult) {
+        Set<Country> locations = new HashSet<>();
         optimizationResult.getMostLimitingElements(1).forEach(element -> locations.addAll(element.getLocation(network)));
         for (String virtualCost : optimizationResult.getVirtualCostNames()) {
             optimizationResult.getCostlyElements(virtualCost, Integer.MAX_VALUE).forEach(element -> locations.addAll(element.getLocation(network)));
@@ -70,18 +69,17 @@ public class FarFromMostLimitingElementFilter implements NetworkActionCombinatio
     /**
      * Says if a network action is close to a given set of countries, respecting the maximum number of boundaries
      */
-    boolean isNetworkActionCloseToLocations(NetworkAction networkAction, Set<Optional<Country>> locations, CountryGraph countryGraph) {
-        if (locations.stream().anyMatch(Optional::isEmpty)) {
+    boolean isNetworkActionCloseToLocations(NetworkAction networkAction, Set<Country> locations, CountryGraph countryGraph) {
+        if (locations.isEmpty()) {
             return true;
         }
-        Set<Optional<Country>> networkActionCountries = networkAction.getLocation(network);
-        if (networkActionCountries.stream().anyMatch(Optional::isEmpty)) {
+        Set<Country> networkActionCountries = networkAction.getLocation(network);
+        if (networkActionCountries.isEmpty()) {
             return true;
         }
-        for (Optional<Country> location : locations) {
-            for (Optional<Country> networkActionCountry : networkActionCountries) {
-                if (location.isPresent() && networkActionCountry.isPresent()
-                    && countryGraph.areNeighbors(location.get(), networkActionCountry.get(), maxNumberOfBoundariesForSkippingNetworkActions)) {
+        for (Country location : locations) {
+            for (Country networkActionCountry : networkActionCountries) {
+                if (countryGraph.areNeighbors(location, networkActionCountry, maxNumberOfBoundariesForSkippingNetworkActions)) {
                     return true;
                 }
             }
