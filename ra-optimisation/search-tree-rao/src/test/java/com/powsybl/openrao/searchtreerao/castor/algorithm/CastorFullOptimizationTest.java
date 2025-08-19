@@ -30,6 +30,7 @@ import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoTopoOptimizationParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SecondPreventiveRaoParameters;
@@ -479,7 +480,9 @@ class CastorFullOptimizationTest {
         RaoParameters raoParameters = new RaoParameters();
         OpenRaoSearchTreeParameters searchTreeParameters = Mockito.spy(new OpenRaoSearchTreeParameters());
         raoParameters.addExtension(OpenRaoSearchTreeParameters.class, searchTreeParameters);
-        when(searchTreeParameters.getLoadFlowAndSensitivityParameters()).thenThrow(new OpenRaoException("Testing exception handling"));
+        LoadFlowAndSensitivityParameters loadFlowAndSensitivityParameters = Mockito.spy(new LoadFlowAndSensitivityParameters());
+        when(searchTreeParameters.getLoadFlowAndSensitivityParameters()).thenReturn(loadFlowAndSensitivityParameters);
+        when(loadFlowAndSensitivityParameters.getSensitivityProvider()).thenThrow(new OpenRaoException("Testing exception handling"));
         RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
         assertInstanceOf(FailedRaoResultImpl.class, raoResult);
         assertEquals("RAO failed during initial sensitivity analysis : Testing exception handling", raoResult.getExecutionDetails());
