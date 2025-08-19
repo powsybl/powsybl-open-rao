@@ -103,7 +103,7 @@ public class CracDeserializer extends JsonDeserializer<Crac> {
 
                 case JsonSerializationConstants.FLOW_CNECS:
                     jsonParser.nextToken();
-                    FlowCnecArrayDeserializer.deserialize(jsonParser, deserializationContext, version, crac, deserializedNetworkElementsNamesPerId);
+                    FlowCnecArrayDeserializer.deserialize(jsonParser, deserializationContext, version, crac, deserializedNetworkElementsNamesPerId, network);
                     break;
 
                 case JsonSerializationConstants.ANGLE_CNECS:

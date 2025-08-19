@@ -29,7 +29,7 @@ public interface CnecElementHelper extends ElementHelper {
      * The side corresponds to the side of the branch in the network, which might be inverted
      * (see isInvertedInNetwork()).
      */
-    double getCurrentLimit(TwoSides side);
+    Double getCurrentLimit(TwoSides side);
 
     /**
      * If the CNEC element is valid, returns a boolean indicating whether or not the element is

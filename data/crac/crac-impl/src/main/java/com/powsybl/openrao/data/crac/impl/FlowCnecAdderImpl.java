@@ -28,8 +28,8 @@ import java.util.stream.Collectors;
 public class FlowCnecAdderImpl extends AbstractCnecAdderImpl<FlowCnecAdder> implements FlowCnecAdder {
 
     private final Set<BranchThresholdImpl> thresholds = new HashSet<>();
-    private Double iMaxLeft = Double.NaN;
-    private Double iMaxRight = Double.NaN;
+    private Double iMaxLeft = null;
+    private Double iMaxRight = null;
     private Double nominalVLeft = Double.NaN;
     private Double nominalVRight = Double.NaN;
 
