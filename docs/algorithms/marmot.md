@@ -59,11 +59,22 @@ constraints.
 
 ## Technical challenges
 
-<!-- TODO: properly write the ideas below -->
+### Memory
 
-- memory -> use path to files instead of networks
-- overflows
-- problem size
+Dealing with several timestamps at once comes with a greater amount of data to be processed by the RAO. Depending on the
+size of the CRACs and networks, there is a risk that all cannot be dealt with simultaneously without overflowing the
+computer's memory.
+
+To overcome this hurdle, the RAO inputs required by MARMOT are based on paths to network files instead of `Network`
+objects so that all networks are never being stored in memory at the same time. This is possible since there is no need
+for all of them to be used at the same time. Thus, networks are imported in memory only when operations have to be
+carried on them, and they are released right after.
+
+### Parallel computations
+
+Several computations steps in the MARMOT workflow are independent like the initial RAOs (for topological optimization)
+or the individual sensitivity computations. They can be handled in parallel thanks to multi-threading to improve the
+computation times.
 
 ## Limitations
 
