@@ -298,11 +298,11 @@ public final class RaoUtil {
     }
 
     private static boolean isUsageRuleAvailable(UsageRule usageRule, State state, Set<FlowCnec> overloadedCnecs, Map<Country, Set<FlowCnec>> overloadedCnecsPerCountry) {
-        if (usageRule.getUsageMethod() != UsageMethod.AVAILABLE) {
+        if (usageRule.getUsageMethod() != UsageMethod.AVAILABLE || !usageRule.getInstant().equals(state.getInstant())) {
             return false;
         }
-        if (usageRule instanceof OnInstant onInstant) {
-            return onInstant.getInstant().equals(state.getInstant());
+        if (usageRule instanceof OnInstant) {
+            return true;
         } else if (usageRule instanceof OnContingencyState onContingencyState) {
             return onContingencyState.getState().equals(state);
         } else if (usageRule instanceof OnConstraint<?> onConstraint) {
