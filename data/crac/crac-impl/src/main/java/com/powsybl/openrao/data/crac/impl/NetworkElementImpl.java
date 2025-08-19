@@ -50,10 +50,10 @@ public class NetworkElementImpl extends AbstractIdentifiable<NetworkElement> imp
     }
 
     /**
-     * Returns the location of the network element, as a set of optional countries
+     * Returns the location of the network element, as a set of countries
      *
      * @param network: the network object used to look for the network element
-     * @return a set of optional countries containing the network element
+     * @return a set of countries containing the network element
      */
     @Override
     public Set<Country> getLocation(Network network) {

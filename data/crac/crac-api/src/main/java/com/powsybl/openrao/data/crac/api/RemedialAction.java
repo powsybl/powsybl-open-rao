@@ -71,9 +71,9 @@ public interface RemedialAction<I extends RemedialAction<I>> extends Identifiabl
     Set<NetworkElement> getNetworkElements();
 
     /**
-     * Returns the location of the remedial action, as a set of optional countries
+     * Returns the location of the remedial action, as a set of countries
      * @param network: the network object used to look for the location of the network elements of the remedial action
-     * @return a set of optional countries containing the remedial action
+     * @return a set of countries containing the remedial action
      */
     default Set<Country> getLocation(Network network) {
         return getNetworkElements().stream().map(networkElement -> networkElement.getLocation(network))
