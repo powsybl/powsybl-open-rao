@@ -51,6 +51,8 @@ import java.util.*;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
 import static com.powsybl.openrao.searchtreerao.commons.RaoLogger.logRangeActions;
+import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.CRAC;
+import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.P_STATE;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
@@ -126,7 +128,7 @@ class SearchTreeTest {
         when(optimizationPerimeter.getNetworkActions()).thenReturn(availableNetworkActions);
         availableRangeActions = new HashSet<>();
         when(optimizationPerimeter.getRangeActions()).thenReturn(availableRangeActions);
-        when(optimizationPerimeter.getMainOptimizationState()).thenReturn(optimizedState);
+        when(optimizationPerimeter.getMainOptimizationState()).thenReturn(P_STATE);
         FlowCnec cnec = Mockito.mock(FlowCnec.class);
         when(cnec.isOptimized()).thenReturn(true);
         when(optimizationPerimeter.getFlowCnecs()).thenReturn(Set.of(cnec));
@@ -304,6 +306,7 @@ class SearchTreeTest {
         OnInstant onInstant = Mockito.mock(OnInstant.class);
         when(onInstant.getUsageMethod()).thenReturn(UsageMethod.AVAILABLE);
         when(onInstant.getUsageMethod(any())).thenReturn(UsageMethod.AVAILABLE);
+        when(onInstant.getInstant()).thenReturn(CRAC.getPreventiveInstant());
 
         NetworkAction networkAction1 = Mockito.mock(NetworkAction.class);
         NetworkAction networkAction2 = Mockito.mock(NetworkAction.class);

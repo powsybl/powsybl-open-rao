@@ -29,6 +29,7 @@ import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkAct
 import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.COMB_2_FR_NL;
 import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.COMB_3_BE;
 import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.COMB_3_FR_NL_BE;
+import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.CRAC;
 import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.IND_BE_1;
 import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.IND_FR_2;
 import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.IND_FR_DE;
@@ -50,6 +51,7 @@ class SearchTreeBloomerTest {
         OnInstant onInstant = Mockito.mock(OnInstant.class);
         Mockito.when(onInstant.getUsageMethod()).thenReturn(UsageMethod.AVAILABLE);
         Mockito.when(onInstant.getUsageMethod(Mockito.any())).thenReturn(UsageMethod.AVAILABLE);
+        Mockito.when(onInstant.getInstant()).thenReturn(CRAC.getPreventiveInstant());
 
         NetworkAction na1 = Mockito.mock(NetworkAction.class);
         NetworkAction na2 = Mockito.mock(NetworkAction.class);
@@ -72,6 +74,7 @@ class SearchTreeBloomerTest {
         OnInstant onInstant = Mockito.mock(OnInstant.class);
         Mockito.when(onInstant.getUsageMethod()).thenReturn(UsageMethod.AVAILABLE);
         Mockito.when(onInstant.getUsageMethod(Mockito.any())).thenReturn(UsageMethod.AVAILABLE);
+        Mockito.when(onInstant.getInstant()).thenReturn(CRAC.getPreventiveInstant());
 
         NetworkAction na1 = Mockito.mock(NetworkAction.class);
         NetworkAction na2 = Mockito.mock(NetworkAction.class);

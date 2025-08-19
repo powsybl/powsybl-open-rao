@@ -194,7 +194,11 @@ public class Leaf implements OptimizationResult {
         if (status.equals(Status.EVALUATED) || status.equals(Status.OPTIMIZED)) {
             TECHNICAL_LOGS.debug("Optimizing leaf...");
 
-            Map<State, Set<RangeAction<?>>> availableRangeActions = getAvailableRangeActions(searchTreeInput, parameters);
+            Map<State, Set<RangeAction<?>>> availableRangeActions = new HashMap<>(RaoUtil.getAvailableRangeActionsPerState(searchTreeInput.getOptimizationPerimeter().getRangeActionsPerState(), preOptimFlowResult, searchTreeInput.getOptimizationPerimeter().getFlowCnecs(), searchTreeInput.getNetwork(), parameters.getObjectiveFunctionUnit()));
+            // Add actions that were activated at the previous state so that they are not ignored by RAO for results reporting
+            raActivationResultFromParentLeaf.getActivatedRangeActionsPerState().forEach(
+                (state, rangeActions) -> availableRangeActions.computeIfAbsent(state, k -> new HashSet<>()).addAll(rangeActions)
+            );
 
             // build input
             IteratingLinearOptimizerInput linearOptimizerInput = IteratingLinearOptimizerInput.create()
@@ -241,20 +245,6 @@ public class Leaf implements OptimizationResult {
         } else if (status.equals(Status.CREATED)) {
             BUSINESS_WARNS.warn("Impossible to optimize leaf: {} because evaluation has not been performed", this);
         }
-    }
-
-    private Map<State, Set<RangeAction<?>>> getAvailableRangeActions(SearchTreeInput searchTreeInput, SearchTreeParameters parameters) {
-        // Filter out range actions with unsatisfied usage rules conditions
-        Map<State, Set<RangeAction<?>>> availableRangeActions = RaoUtil.getAvailableRangeActionsPerState(
-            searchTreeInput.getOptimizationPerimeter().getRangeActionsPerState(), preOptimFlowResult,
-            searchTreeInput.getOptimizationPerimeter().getFlowCnecs(), searchTreeInput.getNetwork(),
-            parameters.getObjectiveFunctionUnit()
-        );
-        // Add actions that were activated at the previous state so that they are not ignored by RAO for results reporting
-        raActivationResultFromParentLeaf.getActivatedRangeActionsPerState().forEach(
-            (state, rangeActions) -> availableRangeActions.computeIfAbsent(state, k -> new HashSet<>()).addAll(rangeActions)
-        );
-        return availableRangeActions;
     }
 
     private void resetPreOptimRangeActionsSetpoints(OptimizationPerimeter optimizationContext) {

@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.searchtree.algorithms;
 
+import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.State;
@@ -15,6 +16,7 @@ import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
 import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
 
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -37,10 +39,11 @@ public class OnFlowConstraintFilter extends AbstractNetworkActionCombinationFilt
 
     @Override
     public Set<NetworkActionCombination> filterOutCombinations(Set<NetworkActionCombination> naCombinations, OptimizationResult optimizationResult) {
-        Set<FlowCnec> overloadedCnecs = flowCnecs.stream().filter(flowCnec -> optimizationResult.getMargin(flowCnec, unit) < 0).collect(Collectors.toSet());
+        Set<FlowCnec> overloadedCnecs = RaoUtil.getOverloadedCnecs(flowCnecs, optimizationResult, unit);
+        Map<Country, Set<FlowCnec>> overloadedCnecsPerCountry = RaoUtil.getOverloadedCnecsPerCountry(overloadedCnecs, network);
         return naCombinations.stream()
             .filter(naCombination -> naCombination.getNetworkActionSet().stream()
-                .allMatch(networkAction -> RaoUtil.isRemedialActionAvailable(networkAction, state, optimizationResult, overloadedCnecs, network, unit)))
+                .allMatch(networkAction -> RaoUtil.isRemedialActionAvailable(networkAction, state, overloadedCnecs, overloadedCnecsPerCountry)))
             .collect(Collectors.toSet());
     }
 }

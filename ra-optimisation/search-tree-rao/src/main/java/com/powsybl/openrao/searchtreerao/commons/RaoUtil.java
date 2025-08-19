@@ -7,7 +7,13 @@
 
 package com.powsybl.openrao.searchtreerao.commons;
 
+import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.DanglingLine;
+import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.Substation;
+import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
@@ -34,6 +40,7 @@ import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -238,15 +245,83 @@ public final class RaoUtil {
 
     public static Set<String> getDuplicateCnecs(Set<FlowCnec> flowcnecs) {
         return flowcnecs.stream()
-            .filter(flowCnec -> flowCnec.getId().contains("OUTAGE DUPLICATE"))
             .map(FlowCnec::getId)
+            .filter(id -> id.contains("OUTAGE DUPLICATE"))
             .collect(Collectors.toSet());
     }
 
+    /**
+     * Evaluates the availability of RangeActions based on the conditions of their usage rules.
+     */
     public static Map<State, Set<RangeAction<?>>> getAvailableRangeActionsPerState(Map<State, Set<RangeAction<?>>> rangeActionsPerState, FlowResult prePerimeterFlowResult, Set<FlowCnec> flowCnecs, Network network, Unit unit) {
-        Set<FlowCnec> overloadedCnecs = flowCnecs.stream().filter(flowCnec -> prePerimeterFlowResult.getMargin(flowCnec, unit) < 0).collect(Collectors.toSet());
+        Set<FlowCnec> overloadedCnecs = getOverloadedCnecs(flowCnecs, prePerimeterFlowResult, unit);
+        Map<Country, Set<FlowCnec>> overloadedCnecsPerCountry = getOverloadedCnecsPerCountry(overloadedCnecs, network);
         Map<State, Set<RangeAction<?>>> availableRangeActions = new HashMap<>();
-        rangeActionsPerState.forEach((state, rangeActions) -> availableRangeActions.put(state, rangeActions.stream().filter(rangeAction -> isRemedialActionAvailable(rangeAction, state, prePerimeterFlowResult, overloadedCnecs, network, unit)).collect(Collectors.toSet())));
+        rangeActionsPerState.forEach(
+            (state, rangeActions) -> availableRangeActions.put(state, rangeActions.stream().filter(
+                rangeAction -> isRemedialActionAvailable(rangeAction, state, overloadedCnecs, overloadedCnecsPerCountry)).collect(Collectors.toSet())));
         return availableRangeActions;
+    }
+
+    public static Set<FlowCnec> getOverloadedCnecs(Set<FlowCnec> flowCnecs, FlowResult flowResult, Unit unit) {
+        return flowCnecs.stream().filter(flowCnec -> flowResult.getMargin(flowCnec, unit) < 0).collect(Collectors.toSet());
+    }
+
+    public static Map<Country, Set<FlowCnec>> getOverloadedCnecsPerCountry(Set<FlowCnec> overloadedCnecs, Network network) {
+        Map<Country, Set<FlowCnec>> overloadedCnecsPerCountry = new HashMap<>();
+        overloadedCnecs.forEach(flowCnec -> getCountries(flowCnec, network).forEach(country -> overloadedCnecsPerCountry.computeIfAbsent(country, k -> new HashSet<>()).add(flowCnec)));
+        return overloadedCnecsPerCountry;
+    }
+
+    private static Set<Country> getCountries(FlowCnec flowCnec, Network network) {
+        Identifiable<?> networkElement = network.getIdentifiable(flowCnec.getNetworkElement().getId());
+        Set<Country> countries = new HashSet<>();
+        if (networkElement instanceof Branch<?> branch) {
+            getCountry(branch.getTerminal1()).ifPresent(countries::add);
+            getCountry(branch.getTerminal2()).ifPresent(countries::add);
+        } else if (networkElement instanceof DanglingLine danglingLine) {
+            getCountry(danglingLine.getTerminal()).ifPresent(countries::add);
+        }
+        return countries;
+    }
+
+    private static Optional<Country> getCountry(Terminal terminal) {
+        Optional<Substation> substation = terminal.getVoltageLevel().getSubstation();
+        if (substation.isPresent()) {
+            return substation.get().getCountry();
+        }
+        return Optional.empty();
+    }
+
+    public static boolean isRemedialActionAvailable(RemedialAction<?> remedialAction, State state, Set<FlowCnec> overloadedCnecs, Map<Country, Set<FlowCnec>> overloadedCnecsPerCountry) {
+        return remedialAction.getUsageRules().stream().anyMatch(usageRule -> isUsageRuleAvailable(usageRule, state, overloadedCnecs, overloadedCnecsPerCountry));
+    }
+
+    private static boolean isUsageRuleAvailable(UsageRule usageRule, State state, Set<FlowCnec> overloadedCnecs, Map<Country, Set<FlowCnec>> overloadedCnecsPerCountry) {
+        if (usageRule.getUsageMethod() != UsageMethod.AVAILABLE) {
+            return false;
+        }
+        if (usageRule instanceof OnInstant onInstant) {
+            return onInstant.getInstant().equals(state.getInstant());
+        } else if (usageRule instanceof OnContingencyState onContingencyState) {
+            return onContingencyState.getState().equals(state);
+        } else if (usageRule instanceof OnConstraint<?> onConstraint) {
+            Cnec<?> cnec = onConstraint.getCnec();
+            if (cnec instanceof FlowCnec flowCnec) {
+                return (state.isPreventive() || !state.getInstant().comesAfter(flowCnec.getState().getInstant()) && state.getContingency().equals(flowCnec.getState().getContingency()))
+                    && overloadedCnecs.contains(flowCnec);
+            }
+            return false;
+        } else if (usageRule instanceof OnFlowConstraintInCountry onFlowConstraintInCountry) {
+            Set<FlowCnec> overloadedCnecsInCountry = overloadedCnecsPerCountry.getOrDefault(onFlowConstraintInCountry.getCountry(), Set.of())
+                .stream()
+                .filter(flowCnec -> !state.getInstant().comesAfter(flowCnec.getState().getInstant()))
+                .collect(Collectors.toSet());
+            if (onFlowConstraintInCountry.getContingency().isEmpty()) {
+                return !overloadedCnecsInCountry.isEmpty();
+            }
+            return overloadedCnecsInCountry.stream().anyMatch(flowCnec -> onFlowConstraintInCountry.getContingency().equals(flowCnec.getState().getContingency()));
+        }
+        return false;
     }
 }
