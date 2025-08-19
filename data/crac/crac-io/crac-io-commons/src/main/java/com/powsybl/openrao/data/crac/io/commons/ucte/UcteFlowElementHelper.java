@@ -101,7 +101,7 @@ public class UcteFlowElementHelper extends AbstractUcteConnectableHelper impleme
     }
 
     @Override
-    public double getCurrentLimit(TwoSides side) {
+    public Double getCurrentLimit(TwoSides side) {
         if (side.equals(TwoSides.ONE)) {
             return currentLimitLeft;
         } else {

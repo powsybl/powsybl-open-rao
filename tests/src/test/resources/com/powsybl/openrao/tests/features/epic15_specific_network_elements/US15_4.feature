@@ -7,19 +7,20 @@ Feature: US 15.4: Consider two margins on tie-lines for each half-line with rela
 
   @fast @crac @mock
   Scenario: US 15.4.0: Import different thresholds (absolute) on two half-lines of the same tie-line
+  No threshold with a PERCENT_IMAX unit is defined in the CRAC so no iMax was imported.
     Given network file is "crac7/TestCase12Nodes_with_Xnodes.uct"
     Given crac file is "epic15/ls-Xnodes-and-half-lines.json"
     When I import crac
     Then it should have the following flow CNECs:
       | Name            | NetworkElementId                          | Instant    | Contingency | Optimized | Monitored | ImaxLeft | ImaxRight | NominalVoltageLeft | NominalVoltageRight |
-      | Cnec BE-FR Left | BBE2AA1  X_BEFR1  1 + FFR3AA1  X_BEFR1  1 | preventive |             | yes       | no        | 5000.0   | 5000.0    | 400.0              | 400.0               |
-      | Cnec BE-FR Left | BBE2AA1  X_BEFR1  1 + FFR3AA1  X_BEFR1  1 | outage     | N-1 DE-NL   | yes       | no        | 5000.0   | 5000.0    | 400.0              | 400.0               |
+      | Cnec BE-FR Left | BBE2AA1  X_BEFR1  1 + FFR3AA1  X_BEFR1  1 | preventive |             | yes       | no        | NaN      | NaN       | 400.0              | 400.0               |
+      | Cnec BE-FR Left | BBE2AA1  X_BEFR1  1 + FFR3AA1  X_BEFR1  1 | outage     | N-1 DE-NL   | yes       | no        | NaN      | NaN       | 400.0              | 400.0               |
     And the flow cnecs should have the following thresholds:
-      | CnecId                                                         | Unit   | Min   | Max  | Side  |
+      | CnecId                                                         | Unit   | Min   | Max  | Side |
       | BBE2AA1  X_BEFR1  1 + FFR3AA1  X_BEFR1  1 - preventive         | AMPERE | -1500 | 1500 | ONE  |
-      | BBE2AA1  X_BEFR1  1 + FFR3AA1  X_BEFR1  1 - preventive         | AMPERE | -500  | 500  | TWO |
+      | BBE2AA1  X_BEFR1  1 + FFR3AA1  X_BEFR1  1 - preventive         | AMPERE | -500  | 500  | TWO  |
       | BBE2AA1  X_BEFR1  1 + FFR3AA1  X_BEFR1  1 - N-1 DE-NL - outage | AMPERE | -1500 | 1500 | ONE  |
-      | BBE2AA1  X_BEFR1  1 + FFR3AA1  X_BEFR1  1 - N-1 DE-NL - outage | AMPERE | -500  | 500  | TWO |
+      | BBE2AA1  X_BEFR1  1 + FFR3AA1  X_BEFR1  1 - N-1 DE-NL - outage | AMPERE | -500  | 500  | TWO  |
     And it should have the following PST range actions:
       | PstRangeActionId | PstRangeActionName | NetworkElementId    | InitialTap | MinTap | MaxTap | MinTapAngle | MaxTapAngle |
       | PST_BE           | PST_BE             | BBE2AA1  BBE3AA1  1 | 0          | -16    | 16     | -6.23       | 6.23        |

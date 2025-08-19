@@ -103,7 +103,7 @@ public class CracDeserializer extends JsonDeserializer<Crac> {
 
                 case JsonSerializationConstants.FLOW_CNECS:
                     jsonParser.nextToken();
-                    FlowCnecArrayDeserializer.deserialize(jsonParser, deserializationContext, version, crac, deserializedNetworkElementsNamesPerId);
+                    FlowCnecArrayDeserializer.deserialize(jsonParser, deserializationContext, version, crac, deserializedNetworkElementsNamesPerId, network);
                     break;
 
                 case JsonSerializationConstants.ANGLE_CNECS:
@@ -123,12 +123,12 @@ public class CracDeserializer extends JsonDeserializer<Crac> {
 
                 case JsonSerializationConstants.HVDC_RANGE_ACTIONS:
                     jsonParser.nextToken();
-                    HvdcRangeActionArrayDeserializer.deserialize(jsonParser, version, crac, deserializedNetworkElementsNamesPerId);
+                    HvdcRangeActionArrayDeserializer.deserialize(jsonParser, version, crac, deserializedNetworkElementsNamesPerId, network);
                     break;
 
                 case JsonSerializationConstants.INJECTION_RANGE_ACTIONS:
                     jsonParser.nextToken();
-                    InjectionRangeActionArrayDeserializer.deserialize(jsonParser, version, crac, deserializedNetworkElementsNamesPerId);
+                    InjectionRangeActionArrayDeserializer.deserialize(jsonParser, version, crac, deserializedNetworkElementsNamesPerId, network);
                     break;
 
                 case JsonSerializationConstants.COUNTER_TRADE_RANGE_ACTIONS:

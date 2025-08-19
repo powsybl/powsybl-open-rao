@@ -7,7 +7,10 @@
 
 package com.powsybl.openrao.data.crac.io.json.deserializers;
 
+import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.data.crac.io.commons.CnecElementHelper;
+import com.powsybl.openrao.data.crac.io.commons.iidm.IidmCnecElementHelper;
 import com.powsybl.openrao.data.crac.io.json.ExtensionsHandler;
 import com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants;
 import com.powsybl.openrao.data.crac.api.Crac;
@@ -24,6 +27,8 @@ import org.apache.commons.lang3.tuple.Pair;
 import java.io.IOException;
 import java.util.*;
 
+import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
+
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
@@ -32,14 +37,16 @@ public final class FlowCnecArrayDeserializer {
     private FlowCnecArrayDeserializer() {
     }
 
-    public static void deserialize(JsonParser jsonParser, DeserializationContext deserializationContext, String version, Crac crac, Map<String, String> networkElementsNamesPerId) throws IOException {
+    public static void deserialize(JsonParser jsonParser, DeserializationContext deserializationContext, String version, Crac crac, Map<String, String> networkElementsNamesPerId, Network network) throws IOException {
         if (networkElementsNamesPerId == null) {
             throw new OpenRaoException(String.format("Cannot deserialize %s before %s", JsonSerializationConstants.FLOW_CNECS, JsonSerializationConstants.NETWORK_ELEMENTS_NAME_PER_ID));
         }
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             FlowCnecAdder flowCnecAdder = crac.newFlowCnec();
+            String networkElementId = null;
             List<Extension<FlowCnec>> extensions = new ArrayList<>();
             Pair<Double, Double> nominalV = null;
+            boolean hasPercentIMaxThresholds = false;
             while (!jsonParser.nextToken().isStructEnd()) {
                 switch (jsonParser.getCurrentName()) {
                     case JsonSerializationConstants.ID:
@@ -49,7 +56,7 @@ public final class FlowCnecArrayDeserializer {
                         flowCnecAdder.withName(jsonParser.nextTextValue());
                         break;
                     case JsonSerializationConstants.NETWORK_ELEMENT_ID:
-                        readNetworkElementId(jsonParser, networkElementsNamesPerId, flowCnecAdder);
+                        networkElementId = readNetworkElementId(jsonParser, networkElementsNamesPerId, flowCnecAdder);
                         break;
                     case JsonSerializationConstants.OPERATOR:
                         flowCnecAdder.withOperator(jsonParser.nextTextValue());
@@ -76,14 +83,20 @@ public final class FlowCnecArrayDeserializer {
                         readReliabilityMargin(jsonParser, version, flowCnecAdder);
                         break;
                     case JsonSerializationConstants.I_MAX:
-                        readImax(jsonParser, flowCnecAdder);
-                        break;
+                        jsonParser.nextToken();
+                        if (JsonSerializationConstants.getPrimaryVersionNumber(version) == 1
+                            || JsonSerializationConstants.getPrimaryVersionNumber(version) == 2 && JsonSerializationConstants.getSubVersionNumber(version) <= 7) {
+                            jsonParser.readValueAs(Double[].class);
+                            BUSINESS_WARNS.warn("The iMax is now fetched in the network so the value in the CRAC will not be read.");
+                            break;
+                        }
+                        throw new OpenRaoException("From version 2.8 onwards, iMax is deprecated and is read from the network.");
                     case JsonSerializationConstants.NOMINAL_VOLTAGE:
                         nominalV = readNominalVoltage(jsonParser, flowCnecAdder);
                         break;
                     case JsonSerializationConstants.THRESHOLDS:
                         jsonParser.nextToken();
-                        BranchThresholdArrayDeserializer.deserialize(jsonParser, flowCnecAdder, nominalV, version);
+                        hasPercentIMaxThresholds = BranchThresholdArrayDeserializer.deserialize(jsonParser, flowCnecAdder, nominalV, version);
                         break;
                     case JsonSerializationConstants.EXTENSIONS:
                         jsonParser.nextToken();
@@ -92,6 +105,10 @@ public final class FlowCnecArrayDeserializer {
                     default:
                         throw new OpenRaoException("Unexpected field in FlowCnec: " + jsonParser.getCurrentName());
                 }
+            }
+            if (hasPercentIMaxThresholds) {
+                IidmCnecElementHelper cnecElementHelper = new IidmCnecElementHelper(networkElementId, network);
+                addIMax(cnecElementHelper, flowCnecAdder);
             }
             FlowCnec cnec = flowCnecAdder.add();
             if (!extensions.isEmpty()) {
@@ -116,19 +133,6 @@ public final class FlowCnecArrayDeserializer {
         return null;
     }
 
-    private static void readImax(JsonParser jsonParser, FlowCnecAdder flowCnecAdder) throws IOException {
-        jsonParser.nextToken();
-        Double[] iMax = jsonParser.readValueAs(Double[].class);
-        if (iMax.length == 1) {
-            flowCnecAdder.withIMax(iMax[0]);
-        } else if (iMax.length == 2) {
-            flowCnecAdder.withIMax(iMax[0], TwoSides.ONE);
-            flowCnecAdder.withIMax(iMax[1], TwoSides.TWO);
-        } else if (iMax.length > 2) {
-            throw new OpenRaoException("iMax array of a flowCnec cannot contain more than 2 values");
-        }
-    }
-
     private static void readReliabilityMargin(JsonParser jsonParser, String version, FlowCnecAdder flowCnecAdder) throws IOException {
         //"frm" renamed to "reliabilityMargin" in 1.4
         if (JsonSerializationConstants.getPrimaryVersionNumber(version) <= 1 && JsonSerializationConstants.getSubVersionNumber(version) <= 3) {
@@ -147,12 +151,29 @@ public final class FlowCnecArrayDeserializer {
         flowCnecAdder.withReliabilityMargin(jsonParser.getDoubleValue());
     }
 
-    private static void readNetworkElementId(JsonParser jsonParser, Map<String, String> networkElementsNamesPerId, FlowCnecAdder flowCnecAdder) throws IOException {
+    private static String readNetworkElementId(JsonParser jsonParser, Map<String, String> networkElementsNamesPerId, FlowCnecAdder flowCnecAdder) throws IOException {
         String networkElementId = jsonParser.nextTextValue();
         if (networkElementsNamesPerId.containsKey(networkElementId)) {
             flowCnecAdder.withNetworkElement(networkElementId, networkElementsNamesPerId.get(networkElementId));
         } else {
             flowCnecAdder.withNetworkElement(networkElementId);
+        }
+        return networkElementId;
+    }
+
+    private static void addIMax(CnecElementHelper cnecElementHelper, FlowCnecAdder flowCnecAdder) {
+        Double currentLimit1 = cnecElementHelper.getCurrentLimit(TwoSides.ONE);
+        Double currentLimit2 = cnecElementHelper.getCurrentLimit(TwoSides.TWO);
+        if (currentLimit1 == null && currentLimit2 == null) {
+            throw new OpenRaoException("Unable to retrieve current limits for branch %s.".formatted(cnecElementHelper.getIdInNetwork()));
+        }
+        if (currentLimit1 == null) {
+            flowCnecAdder.withIMax(currentLimit2);
+        } else if (currentLimit2 == null) {
+            flowCnecAdder.withIMax(currentLimit1);
+        } else {
+            flowCnecAdder.withIMax(currentLimit1, TwoSides.ONE);
+            flowCnecAdder.withIMax(currentLimit2, TwoSides.TWO);
         }
     }
 }
