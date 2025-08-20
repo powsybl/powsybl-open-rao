@@ -7,7 +7,6 @@
 
 package com.powsybl.openrao.monitoring.results;
 
-import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 import com.powsybl.openrao.monitoring.SecurityStatus;
 
@@ -16,20 +15,13 @@ import com.powsybl.openrao.monitoring.SecurityStatus;
  */
 public abstract class AbstractCnecResult<I extends Cnec<?>> implements CnecResult<I> {
     protected final I cnec;
-    protected final Unit unit;
     protected final double margin;
     protected final SecurityStatus securityStatus;
 
-    protected AbstractCnecResult(I cnec, Unit unit, double margin, SecurityStatus securityStatus) {
+    protected AbstractCnecResult(I cnec, double margin, SecurityStatus securityStatus) {
         this.cnec = cnec;
-        this.unit = unit;
         this.margin = margin;
         this.securityStatus = securityStatus;
-    }
-
-    @Override
-    public Unit getUnit() {
-        return unit;
     }
 
     @Override

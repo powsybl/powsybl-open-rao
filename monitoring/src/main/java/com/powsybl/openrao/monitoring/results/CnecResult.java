@@ -7,8 +7,6 @@
 
 package com.powsybl.openrao.monitoring.results;
 
-import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 import com.powsybl.openrao.monitoring.SecurityStatus;
 
@@ -18,15 +16,9 @@ import com.powsybl.openrao.monitoring.SecurityStatus;
 public interface CnecResult<I extends Cnec<?>> {
     I getCnec();
 
-    default State getState() {
-        return getCnec().getState();
-    }
-
     default String getId() {
         return getCnec().getId();
     }
-
-    Unit getUnit();
 
     SecurityStatus getCnecSecurityStatus();
 

@@ -8,7 +8,6 @@
 package com.powsybl.openrao.monitoring.voltage;
 
 import com.powsybl.openrao.commons.MeasurementRounding;
-import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
 import com.powsybl.openrao.monitoring.SecurityStatus;
 import com.powsybl.openrao.monitoring.results.AbstractCnecResult;
@@ -22,8 +21,8 @@ public class VoltageCnecResultImpl extends AbstractCnecResult<VoltageCnec> imple
     private final Double minVoltage;
     private final Double maxVoltage;
 
-    public VoltageCnecResultImpl(VoltageCnec voltageCnec, Unit unit, Double minVoltage, Double maxVoltage, double margin, SecurityStatus securityStatus) {
-        super(voltageCnec, unit, margin, securityStatus);
+    public VoltageCnecResultImpl(VoltageCnec voltageCnec, Double minVoltage, Double maxVoltage, double margin, SecurityStatus securityStatus) {
+        super(voltageCnec, margin, securityStatus);
         this.minVoltage = minVoltage;
         this.maxVoltage = maxVoltage;
     }

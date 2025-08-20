@@ -8,7 +8,6 @@
 package com.powsybl.openrao.data.raoresult.io.cne.swe;
 
 import com.powsybl.iidm.network.Network;
-import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.CracCreationContext;
 import com.powsybl.openrao.data.crac.api.InstantKind;
@@ -84,7 +83,7 @@ class SweCneTest {
         RaoResult raoResultWithFailure = RaoResult.read(inputStream3, crac);
 
         MonitoringResult<AngleCnec> monitoringResult = new AngleMonitoringResult(
-            Set.of(new AngleCnecResultImpl(crac.getAngleCnec("ac1"), Unit.DEGREE, 4.0, 2., SecurityStatus.SECURE)),
+            Set.of(new AngleCnecResultImpl(crac.getAngleCnec("ac1"), 4.0, 2., SecurityStatus.SECURE)),
             Map.of(crac.getState("Co-1", crac.getInstant(InstantKind.CURATIVE)), Set.of(crac.getRemedialAction("na1"))),
             SecurityStatus.SECURE);
 

@@ -8,7 +8,6 @@
 package com.powsybl.openrao.monitoring.angle;
 
 import com.powsybl.openrao.commons.MeasurementRounding;
-import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
 import com.powsybl.openrao.monitoring.SecurityStatus;
 import com.powsybl.openrao.monitoring.results.AbstractCnecResult;
@@ -21,8 +20,8 @@ import com.powsybl.openrao.monitoring.results.AngleCnecResult;
 public class AngleCnecResultImpl extends AbstractCnecResult<AngleCnec> implements AngleCnecResult {
     private final Double angle;
 
-    public AngleCnecResultImpl(AngleCnec angleCnec, Unit unit, Double angle, double margin, SecurityStatus securityStatus) {
-        super(angleCnec, unit, margin, securityStatus);
+    public AngleCnecResultImpl(AngleCnec angleCnec, Double angle, double margin, SecurityStatus securityStatus) {
+        super(angleCnec, margin, securityStatus);
         this.angle = angle;
     }
 
