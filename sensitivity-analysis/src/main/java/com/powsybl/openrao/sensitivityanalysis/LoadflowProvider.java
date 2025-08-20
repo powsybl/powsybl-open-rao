@@ -131,11 +131,11 @@ public class LoadflowProvider extends AbstractSimpleSensitivityProvider {
         Set<FlowCnec> flowCnecs;
         if (Objects.isNull(contingencyId)) {
             flowCnecs = cnecsPerContingencyId.getOrDefault(null, new ArrayList<>()).stream()
-                .filter(cnec -> cnec.isConnected(network))
+                .filter(cnec -> isConnected(cnec, network))
                 .collect(Collectors.toSet());
         } else {
             flowCnecs = cnecsPerContingencyId.getOrDefault(contingencyId, new ArrayList<>()).stream()
-                .filter(cnec -> cnec.isConnected(network))
+                .filter(cnec -> isConnected(cnec, network))
                 .collect(Collectors.toSet());
         }
 
