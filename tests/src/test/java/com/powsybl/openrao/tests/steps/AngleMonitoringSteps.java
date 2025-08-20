@@ -16,9 +16,8 @@ import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.monitoring.MonitoringInput;
-import com.powsybl.openrao.monitoring.angle.AngleCnecValue;
 import com.powsybl.openrao.monitoring.angle.AngleMonitoring;
-import com.powsybl.openrao.monitoring.results.CnecResult;
+import com.powsybl.openrao.monitoring.results.AngleCnecResult;
 import com.powsybl.openrao.monitoring.results.MonitoringResult;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.Then;
@@ -104,16 +103,17 @@ public class AngleMonitoringSteps {
                 state = CommonTestData.getCrac().getState(contingency, instant);
             }
 
-            Set<CnecResult<AngleCnec>> angleResults = CommonTestData.getMonitoringResult().getCnecResults().stream().filter(angleResult -> angleResult.getCnec().getId().equals(cnecId)
+            Set<AngleCnecResult> angleResults = CommonTestData.getMonitoringResult().getCnecResults().stream().filter(angleResult -> angleResult.getCnec().getId().equals(cnecId)
                     && angleResult.getCnec().getName().equals(cnecName)
                     && angleResult.getCnec().getState().equals(state))
-                    .collect(Collectors.toSet());
+                .map(AngleCnecResult.class::cast)
+                .collect(Collectors.toSet());
             assertNotNull(angleResults);
             assertEquals(1, angleResults.size());
-            AngleCnec angleCnec = (AngleCnec) angleResults.iterator().next().getCnec();
-            AngleCnecValue angleValue = (AngleCnecValue) angleResults.iterator().next().getValue();
+            AngleCnec angleCnec = angleResults.iterator().next().getCnec();
+            Double angleValue = angleResults.iterator().next().getAngle();
 
-            assertEquals(expectedAngle, angleValue.value(), DOUBLE_TOLERANCE);
+            assertEquals(expectedAngle, angleValue, DOUBLE_TOLERANCE);
 
             if (expectedCnec.get("LowerBound") != null) {
                 Optional<Double> lowerBound = angleCnec.getLowerBound(Unit.DEGREE);
