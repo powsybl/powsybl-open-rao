@@ -13,9 +13,9 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
+import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
 import com.powsybl.openrao.monitoring.SecurityStatus;
-import com.powsybl.openrao.monitoring.VoltageCnecDataCalculator;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -25,14 +25,27 @@ import java.util.stream.Collectors;
  * @author Mohamed Ben Rejeb {@literal <mohamed.ben-rejeb at rte-france.com>}
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public class VoltageCnecDataCalculatorImpl implements VoltageCnecDataCalculator {
-    @Override
-    public Double computeMinVoltage(VoltageCnec voltageCnec, Network network, Unit unit) {
+public final class VoltageCnecDataCalculator {
+    private VoltageCnecDataCalculator() {
+    }
+
+    /**
+     * @param voltageCnec: the voltage CNEC we seek to compute the min voltage of
+     * @param network: the network object used to look for actual result of the Cnec
+     * @param unit: the unit in which to compute the voltage value
+     * @return the angle of the CNEC in the network
+     */
+    public static Double computeMinVoltage(VoltageCnec voltageCnec, Network network, Unit unit) {
         return getVoltages(voltageCnec, network, unit).stream().min(Double::compareTo).orElse(Double.NEGATIVE_INFINITY);
     }
 
-    @Override
-    public Double computeMaxVoltage(VoltageCnec voltageCnec, Network network, Unit unit) {
+    /**
+     * @param voltageCnec: the voltage CNEC we seek to compute the max voltage of
+     * @param network: the network object used to look for actual result of the Cnec
+     * @param unit: the unit in which to compute the voltage value
+     * @return the angle of the CNEC in the network
+     */
+    public static Double computeMaxVoltage(VoltageCnec voltageCnec, Network network, Unit unit) {
         return getVoltages(voltageCnec, network, unit).stream().max(Double::compareTo).orElse(Double.POSITIVE_INFINITY);
     }
 
@@ -53,8 +66,13 @@ public class VoltageCnecDataCalculatorImpl implements VoltageCnecDataCalculator 
         return voltages;
     }
 
-    @Override
-    public double computeMargin(VoltageCnec voltageCnec, Network network, Unit unit) {
+    /**
+     * @param voltageCnec: the voltage CNEC we seek to compute the margin of
+     * @param network: the network object used to look for actual result of the Cnec
+     * @param unit: the unit in which to compute the margin
+     * @return a double as the worst margin of a CNEC relatively to the @{@link Cnec} thresholds
+     */
+    public static double computeMargin(VoltageCnec voltageCnec, Network network, Unit unit) {
         Double minVoltage = computeMinVoltage(voltageCnec, network, unit);
         Double maxVoltage = computeMaxVoltage(voltageCnec, network, unit);
         double marginLowerBound = minVoltage - voltageCnec.getLowerBound(unit).orElse(Double.NEGATIVE_INFINITY);
@@ -62,8 +80,13 @@ public class VoltageCnecDataCalculatorImpl implements VoltageCnecDataCalculator 
         return Math.min(marginLowerBound, marginUpperBound);
     }
 
-    @Override
-    public SecurityStatus computeSecurityStatus(VoltageCnec voltageCnec, Network network, Unit unit) {
+    /**
+     * @param voltageCnec: the voltage CNEC we seek to compute the security status of
+     * @param network: the network object used to look for actual result of the Cnec
+     * @param unit: the unit in whcih to compute the voltage values
+     * Returns a {@link SecurityStatus} describing the {@link Cnec} result compared to the thresholds
+     */
+    public static SecurityStatus computeSecurityStatus(VoltageCnec voltageCnec, Network network, Unit unit) {
         Double minVoltage = computeMinVoltage(voltageCnec, network, unit);
         Double maxVoltage = computeMaxVoltage(voltageCnec, network, unit);
 
