@@ -126,12 +126,12 @@ public class AngleMonitoring extends AbstractMonitoring<AngleCnec> {
 
     @Override
     protected CnecResult<AngleCnec> computeCnecResult(AngleCnec angleCnec, Network network, Unit unit) {
-        return new AngleCnecResultImpl(angleCnec, AngleCnecDataCalculator.computeAngle(angleCnec, network, unit), AngleCnecDataCalculator.computeMargin(angleCnec, network, unit), AngleCnecDataCalculator.computeSecurityStatus(angleCnec, network, unit));
+        return AngleCnecResultImpl.compute(angleCnec, network, unit);
     }
 
     @Override
-    protected CnecResult<AngleCnec> makeFailedCnecResult(AngleCnec angleCnec, Unit unit) {
-        return new AngleCnecResultImpl(angleCnec, Double.NaN, Double.NaN, SecurityStatus.FAILURE);
+    protected CnecResult<AngleCnec> makeFailedCnecResult(AngleCnec angleCnec) {
+        return AngleCnecResultImpl.failed(angleCnec);
     }
 
     /**

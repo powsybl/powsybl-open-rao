@@ -279,7 +279,7 @@ public abstract class AbstractMonitoring<I extends Cnec<?>> implements Monitorin
 
     private MonitoringResult<I> makeFailedMonitoringResultForStateWithNaNCnecResults(MonitoringInput monitoringInput, State state, String failureReason) {
         Set<CnecResult<I>> cnecResults = new HashSet<>();
-        getCnecs(monitoringInput.crac(), state).forEach(cnec -> cnecResults.add(makeFailedCnecResult(cnec, getUnit())));
+        getCnecs(monitoringInput.crac(), state).forEach(cnec -> cnecResults.add(makeFailedCnecResult(cnec)));
         return makeFailedMonitoringResultForState(state, failureReason, cnecResults);
     }
 
@@ -289,5 +289,5 @@ public abstract class AbstractMonitoring<I extends Cnec<?>> implements Monitorin
 
     protected abstract CnecResult<I> computeCnecResult(I cnec, Network network, Unit unit);
 
-    protected abstract CnecResult<I> makeFailedCnecResult(I cnec, Unit unit);
+    protected abstract CnecResult<I> makeFailedCnecResult(I cnec);
 }

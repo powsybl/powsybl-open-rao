@@ -7,7 +7,9 @@
 
 package com.powsybl.openrao.monitoring.voltage;
 
+import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.MeasurementRounding;
+import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
 import com.powsybl.openrao.monitoring.SecurityStatus;
 import com.powsybl.openrao.monitoring.results.AbstractCnecResult;
@@ -45,5 +47,13 @@ public class VoltageCnecResultImpl extends AbstractCnecResult<VoltageCnec> imple
     @Override
     public Double getMaxVoltage() {
         return maxVoltage;
+    }
+
+    public static VoltageCnecResult compute(VoltageCnec voltageCnec, Network network, Unit unit) {
+        return new VoltageCnecResultImpl(voltageCnec, VoltageCnecDataCalculator.computeMinVoltage(voltageCnec, network, unit), VoltageCnecDataCalculator.computeMaxVoltage(voltageCnec, network, unit), VoltageCnecDataCalculator.computeMargin(voltageCnec, network, unit), VoltageCnecDataCalculator.computeSecurityStatus(voltageCnec, network, unit));
+    }
+
+    public static VoltageCnecResult failed(VoltageCnec voltageCnec) {
+        return new VoltageCnecResultImpl(voltageCnec, Double.NaN, Double.NaN, Double.NaN, SecurityStatus.FAILURE);
     }
 }

@@ -7,7 +7,9 @@
 
 package com.powsybl.openrao.monitoring.angle;
 
+import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.MeasurementRounding;
+import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
 import com.powsybl.openrao.monitoring.SecurityStatus;
 import com.powsybl.openrao.monitoring.results.AbstractCnecResult;
@@ -38,5 +40,13 @@ public class AngleCnecResultImpl extends AbstractCnecResult<AngleCnec> implement
     @Override
     public Double getAngle() {
         return angle;
+    }
+
+    public static AngleCnecResult compute(AngleCnec angleCnec, Network network, Unit unit) {
+        return new AngleCnecResultImpl(angleCnec, AngleCnecDataCalculator.computeAngle(angleCnec, network, unit), AngleCnecDataCalculator.computeMargin(angleCnec, network, unit), AngleCnecDataCalculator.computeSecurityStatus(angleCnec, network, unit));
+    }
+
+    public static AngleCnecResult failed(AngleCnec angleCnec) {
+        return new AngleCnecResultImpl(angleCnec, Double.NaN, Double.NaN, SecurityStatus.FAILURE);
     }
 }
