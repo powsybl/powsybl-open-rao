@@ -200,7 +200,6 @@ class ObjectiveFunctionTest {
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MIN_COST);
         raoParameters.getObjectiveFunctionParameters().setUnit(Unit.MEGAWATT);
         assertTrue(raoParameters.getObjectiveFunctionParameters().getType().costOptimization());
-        assertTrue(raoParameters.getObjectiveFunctionParameters().getType().costOptimization());
         raoParameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters());
         raoParameters.getExtension(OpenRaoSearchTreeParameters.class).setMinMarginsParameters(new SearchTreeRaoCostlyMinMarginParameters());
 
