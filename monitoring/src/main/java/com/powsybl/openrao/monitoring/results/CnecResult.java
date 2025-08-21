@@ -7,9 +7,6 @@
 
 package com.powsybl.openrao.monitoring.results;
 
-/**
- * @author Mohamed Ben Rejeb {@literal <mohamed.ben-rejeb at rte-france.com>}
- */
 import com.powsybl.openrao.commons.MeasurementRounding;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.State;
@@ -20,6 +17,9 @@ import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
 import com.powsybl.openrao.data.crac.impl.AngleCnecValue;
 import com.powsybl.openrao.data.crac.impl.VoltageCnecValue;
 
+/**
+ * @author Mohamed Ben Rejeb {@literal <mohamed.ben-rejeb at rte-france.com>}
+ */
 public class CnecResult<T extends CnecValue> {
 
     private final Cnec cnec;
