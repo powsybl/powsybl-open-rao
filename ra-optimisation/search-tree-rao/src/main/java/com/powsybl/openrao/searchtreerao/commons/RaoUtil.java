@@ -124,18 +124,6 @@ public final class RaoUtil {
         if (!getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters().isDc()) {
             crac.getFlowCnecs().forEach(flowCnec -> {
                 if (flowCnec.getThresholds().stream().anyMatch(branchThreshold -> branchThreshold.getUnit().equals(Unit.MEGAWATT))) {
-                    String msg = format("A threshold for the flowCnec %s is defined in MW but the loadflow computation is in AC. It will be imprecisely converted by the RAO which could create uncoherent results due to side effects  ", flowCnec.getId());
-                    OpenRaoLoggerProvider.BUSINESS_WARNS.warn(msg);
-                }
-            });
-        }
-    }
-
-    public static void checkCnecsThresholdsUnit(RaoParameters raoParameters, RaoInput raoInput) {
-        Crac crac = raoInput.getCrac();
-        if (!getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters().isDc()) {
-            crac.getFlowCnecs().forEach(flowCnec -> {
-                if (flowCnec.getThresholds().stream().anyMatch(branchThreshold -> branchThreshold.getUnit().equals(Unit.MEGAWATT))) {
                     String msg = format("A threshold for the flowCnec %s is defined in MW but the loadflow computation is in AC. It will be imprecisely converted by the RAO which could create uncoherent results due to side effects", flowCnec.getId());
                     OpenRaoLoggerProvider.BUSINESS_WARNS.warn(msg);
                 }
