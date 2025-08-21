@@ -435,11 +435,6 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
         }
     }
 
-    public List<FlowCnec> getMostLimitingElements() {
-        //TODO : store values to be able to merge easily
-        return null;
-    }
-
     @Override
     public double getVirtualCost(Instant optimizedInstant) {
         AtomicReference<Double> s = new AtomicReference<>(0.);
@@ -538,18 +533,11 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
         }
     }
 
-    private void throwIfNotOptimized(State state) {
-        if (!postContingencyResults.containsKey(state)) {
-            throw new OpenRaoException(String.format("State %s was not optimized and does not have pre-optim values", state.getId()));
-        }
-    }
-
     @Override
     public int getPreOptimizationTapOnState(State state, PstRangeAction pstRangeAction) {
         if (state.getInstant().isPreventive()) {
             return initialResult.getTap(pstRangeAction);
         }
-        throwIfNotOptimized(state);
         State previousState = getStateOptimizedBefore(state);
         if (preventiveState.equals(previousState)) {
             return finalPreventivePerimeterResult.getOptimizationResult().getOptimizedTap(pstRangeAction, preventiveState);
@@ -572,7 +560,6 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
         if (state.getInstant().isPreventive()) {
             return initialResult.getSetpoint(rangeAction);
         }
-        throwIfNotOptimized(state);
         State previousState = getStateOptimizedBefore(state);
         if (preventiveState.equals(previousState)) {
             return finalPreventivePerimeterResult.getOptimizationResult().getOptimizedSetpoint(rangeAction, preventiveState);
