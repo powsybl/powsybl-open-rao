@@ -29,6 +29,9 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+/**
+ * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
+ */
 class FlowCnecInstantHelperTest {
     private LoadingLimits.TemporaryLimit tatl0;
     private LoadingLimits.TemporaryLimit tatl182;

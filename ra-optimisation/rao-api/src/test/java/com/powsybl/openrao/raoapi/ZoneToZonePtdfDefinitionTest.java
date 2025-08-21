@@ -17,6 +17,9 @@ import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
+ */
 class ZoneToZonePtdfDefinitionTest {
 
     private static final double DOUBLE_TOLERANCE = 0.01;

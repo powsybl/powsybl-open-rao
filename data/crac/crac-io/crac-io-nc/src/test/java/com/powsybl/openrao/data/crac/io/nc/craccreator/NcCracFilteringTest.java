@@ -19,6 +19,9 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+/**
+ * @author Martin Belthle {@literal <martin.belthle at rte-france.com>}
+ */
 class NcCracFilteringTest {
 
     @Test

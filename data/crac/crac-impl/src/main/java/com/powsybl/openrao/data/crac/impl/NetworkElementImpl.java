@@ -16,6 +16,9 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
+/**
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
+ */
 public class NetworkElementImpl extends AbstractIdentifiable<NetworkElement> implements NetworkElement {
 
     NetworkElementImpl(String id, String name) {

@@ -44,6 +44,9 @@ import java.util.Objects;
 import java.util.Properties;
 import java.util.zip.ZipInputStream;
 
+/**
+ * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
+ */
 public final class Helpers {
     private Helpers() {
         // must nor be used

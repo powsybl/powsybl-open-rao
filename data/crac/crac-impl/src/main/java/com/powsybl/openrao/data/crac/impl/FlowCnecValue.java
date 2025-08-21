@@ -9,5 +9,8 @@ package com.powsybl.openrao.data.crac.impl;
 
 import com.powsybl.openrao.data.crac.api.cnec.CnecValue;
 
+/**
+ * @author Mohamed Ben Rejeb {@literal <mohamed.ben-rejeb at rte-france.com>}
+ */
 public record FlowCnecValue(Double side1Value, Double side2Value) implements CnecValue {
 }

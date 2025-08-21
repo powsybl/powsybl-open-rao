@@ -19,6 +19,9 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+/**
+ * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
+ */
 class AngleCnecCreationTest {
 
     @Test

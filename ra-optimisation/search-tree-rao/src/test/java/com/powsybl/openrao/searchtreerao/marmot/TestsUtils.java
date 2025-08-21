@@ -25,6 +25,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+/**
+ * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
+ */
 public final class TestsUtils {
     public static final OffsetDateTime TIMESTAMP_1 = OffsetDateTime.of(2025, 2, 17, 13, 33, 0, 0, ZoneOffset.UTC);
     public static final OffsetDateTime TIMESTAMP_2 = OffsetDateTime.of(2025, 2, 18, 13, 33, 0, 0, ZoneOffset.UTC);

@@ -10,6 +10,9 @@ package com.powsybl.openrao.data.crac.io.nc.objects;
 import com.powsybl.openrao.data.crac.io.nc.craccreator.constants.NcConstants;
 import com.powsybl.triplestore.api.PropertyBag;
 
+/**
+ * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
+ */
 public record AssessedElementWithRemedialAction(String mrid, String assessedElement, String remedialAction, String combinationConstraintKind, boolean normalEnabled) implements Association {
     public static AssessedElementWithRemedialAction fromPropertyBag(PropertyBag propertyBag) {
         return new AssessedElementWithRemedialAction(

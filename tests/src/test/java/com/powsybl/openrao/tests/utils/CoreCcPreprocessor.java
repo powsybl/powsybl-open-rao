@@ -11,6 +11,9 @@ import com.powsybl.iidm.network.LoadType;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VoltageLevel;
 
+/**
+ * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
+ */
 public final class CoreCcPreprocessor {
     private CoreCcPreprocessor() {
         // must not be used

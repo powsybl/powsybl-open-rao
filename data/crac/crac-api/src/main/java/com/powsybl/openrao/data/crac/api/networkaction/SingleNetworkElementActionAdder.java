@@ -7,6 +7,9 @@
 
 package com.powsybl.openrao.data.crac.api.networkaction;
 
+/**
+ * @author Pauline JEAN-MARIE {@literal <pauline.jean-marie at artelys.com>}
+ */
 public interface SingleNetworkElementActionAdder<T extends SingleNetworkElementActionAdder<T>> {
     T withNetworkElement(String networkElementId);
 

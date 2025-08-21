@@ -22,7 +22,7 @@ import java.util.Properties;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Philippe Edwards{@literal <philippe.edwards at rte-france.com>}
+ * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
 class CgmesBranchHelperTest {
 

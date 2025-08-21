@@ -14,6 +14,9 @@ import org.junit.platform.suite.api.Suite;
 
 import static io.cucumber.core.options.Constants.*;
 
+/**
+ * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
+ */
 @Suite
 @IncludeEngines("cucumber")
 @SelectPackages("com.powsybl.openrao.tests")

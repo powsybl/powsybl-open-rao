@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * @author Gabriel Plante {@literal <gabriel.plante_externe at rte-france.com}
+ * @author Gabriel Plante {@literal <gabriel.plante_externe at rte-france.com>}
  */
 public class CounterTradeRangeActionImpl extends AbstractRangeAction<CounterTradeRangeAction> implements CounterTradeRangeAction {
 

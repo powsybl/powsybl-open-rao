@@ -9,6 +9,9 @@ package com.powsybl.openrao.data.crac.io.commons;
 
 import java.util.Map;
 
+/**
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
+ */
 public interface PstHelper extends ElementHelper {
 
     enum TapConvention {

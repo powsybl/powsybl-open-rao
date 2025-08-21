@@ -53,6 +53,9 @@ import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * @author Mohamed Ben Rejeb {@literal <mohamed.ben-rejeb at rte-france.com>}
+ */
 public final class NcCracCreationTestUtil {
 
     public static final String PREVENTIVE_INSTANT_ID = "preventive";

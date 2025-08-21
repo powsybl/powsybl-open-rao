@@ -11,6 +11,9 @@ import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
 
 import java.util.Set;
 
+/**
+ * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
+ */
 public final class PstRangeActionSeriesCreationContext extends RemedialActionSeriesCreationContext {
     private final String networkElementNativeMrid;
     private final String networkElementNativeName;

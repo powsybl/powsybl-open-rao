@@ -9,6 +9,9 @@ package com.powsybl.openrao.data.crac.io.commons;
 
 import com.powsybl.iidm.network.TwoSides;
 
+/**
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
+ */
 public interface CnecElementHelper extends ElementHelper {
 
     /**

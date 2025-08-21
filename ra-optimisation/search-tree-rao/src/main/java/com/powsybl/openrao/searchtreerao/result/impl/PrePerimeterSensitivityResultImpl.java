@@ -20,6 +20,9 @@ import com.powsybl.sensitivity.SensitivityVariableSet;
 
 import java.util.*;
 
+/**
+ * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
+ */
 public class PrePerimeterSensitivityResultImpl implements PrePerimeterResult {
 
     private final FlowResult flowResult;

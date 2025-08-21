@@ -21,6 +21,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
+ */
 class FlowCnecInstantHelper {
     private final NcCracCreationParameters ncCracCreationParameters;
     private final Crac crac;

@@ -20,6 +20,9 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * @author Gabriel Plante {@literal <gabriel.plante_externe at rte-france.com>}
+ */
 class CounterTradeRangeActionImplTest {
     private static final String PREVENTIVE_INSTANT_ID = "preventive";
 

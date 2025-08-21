@@ -25,6 +25,9 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
+/**
+ * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
+ */
 public abstract class AbstractMultiPerimeterSensitivityAnalysis {
 
     // actual input

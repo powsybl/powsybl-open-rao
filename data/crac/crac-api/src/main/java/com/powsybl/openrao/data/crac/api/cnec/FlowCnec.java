@@ -16,6 +16,8 @@ import java.util.Optional;
 /**
  * Specific type of {@link BranchCnec} whose monitored {@link PhysicalParameter} is implicitly
  * the flow on the branch.
+ *
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public interface FlowCnec extends BranchCnec<FlowCnec> {
 

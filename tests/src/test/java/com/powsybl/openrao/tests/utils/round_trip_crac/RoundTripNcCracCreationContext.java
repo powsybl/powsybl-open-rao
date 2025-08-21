@@ -10,6 +10,9 @@ package com.powsybl.openrao.tests.utils.round_trip_crac;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.io.nc.craccreator.NcCracCreationContext;
 
+/**
+ * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
+ */
 public class RoundTripNcCracCreationContext extends NcCracCreationContext {
     private Crac overridingCrac;
 

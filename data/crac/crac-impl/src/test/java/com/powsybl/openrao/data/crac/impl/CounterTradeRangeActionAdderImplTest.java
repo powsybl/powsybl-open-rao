@@ -22,6 +22,9 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * @author Gabriel Plante {@literal <gabriel.plante_externe at rte-france.com>}
+ */
 class CounterTradeRangeActionAdderImplTest {
     private static final String PREVENTIVE_INSTANT_ID = "preventive";
 

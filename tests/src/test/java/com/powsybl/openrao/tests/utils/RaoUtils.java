@@ -30,6 +30,9 @@ import java.util.Properties;
 
 import static java.lang.String.format;
 
+/**
+ * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
+ */
 public final class RaoUtils {
 
     private RaoUtils() {

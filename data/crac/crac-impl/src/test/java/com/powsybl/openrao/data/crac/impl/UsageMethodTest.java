@@ -15,6 +15,9 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+/**
+ * @author Martin Belthle {@literal <martin.belthle at rte-france.com>}
+ */
 class UsageMethodTest {
     @Test
     void testGetStrongestUsageMethod() {
