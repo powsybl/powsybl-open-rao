@@ -18,7 +18,6 @@ import java.util.Optional;
 
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.*;
 
-
 /**
  * @author Pauline JEAN-MARIE {@literal <pauline.jean-marie at artelys.com>}
  */
