@@ -1,4 +1,4 @@
-name: Java files check
+name: Lint
 
 on:
   push:
