@@ -381,4 +381,3 @@ class AngleMonitoringTest {
         assertEquals(Cnec.SecurityStatus.FAILURE, angleMonitoringResult.getStatus());
     }
 }
-

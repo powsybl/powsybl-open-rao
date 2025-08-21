@@ -574,4 +574,3 @@ class VoltageMonitoringTest {
     }
 
 }
-

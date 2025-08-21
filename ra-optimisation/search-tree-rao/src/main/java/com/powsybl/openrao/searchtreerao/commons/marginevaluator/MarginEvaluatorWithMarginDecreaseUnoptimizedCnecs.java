@@ -59,5 +59,3 @@ public class MarginEvaluatorWithMarginDecreaseUnoptimizedCnecs implements Margin
         return newMargin;
     }
 }
-
-

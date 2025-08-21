@@ -134,4 +134,3 @@ public record IteratingLinearOptimizerInput(Network network, OptimizationPerimet
         }
     }
 }
-

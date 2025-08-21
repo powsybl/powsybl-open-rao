@@ -74,4 +74,3 @@ class AssignedVirtualHubXmlSerializerTest {
         assertNull(avh2.getRelatedMa());
     }
 }
-

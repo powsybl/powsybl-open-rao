@@ -89,5 +89,3 @@ public class CnecResult<T extends CnecValue> {
     }
 
 }
-
-

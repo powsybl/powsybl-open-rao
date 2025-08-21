@@ -629,4 +629,3 @@ class FbConstraintCracCreatorTest {
         assertHasThresholds(crac.getFlowCnec("CBCO_2 - preventive"), Set.of(TwoSides.ONE), Unit.AMPERE, -100., null);
     }
 }
-

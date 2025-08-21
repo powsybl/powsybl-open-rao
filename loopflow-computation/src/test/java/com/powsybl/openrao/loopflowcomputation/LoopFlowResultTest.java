@@ -69,4 +69,3 @@ class LoopFlowResultTest {
         assertEquals(30., commercialFlowsMap.get(cnec2).get(TwoSides.ONE), DOUBLE_TOLERANCE);
     }
 }
-

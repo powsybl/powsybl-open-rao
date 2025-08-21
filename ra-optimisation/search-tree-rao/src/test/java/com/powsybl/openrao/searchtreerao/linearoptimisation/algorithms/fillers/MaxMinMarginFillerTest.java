@@ -208,4 +208,3 @@ class MaxMinMarginFillerTest extends AbstractFillerTest {
         }
     }
 }
-

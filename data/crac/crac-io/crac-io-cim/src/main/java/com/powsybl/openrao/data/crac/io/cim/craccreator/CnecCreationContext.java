@@ -47,4 +47,3 @@ public final class CnecCreationContext {
         return importStatusDetail;
     }
 }
-

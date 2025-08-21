@@ -141,4 +141,3 @@ public abstract class AbstractToolTest {
         assertEquals(hasArgument, option.hasArg());
     }
 }
-
