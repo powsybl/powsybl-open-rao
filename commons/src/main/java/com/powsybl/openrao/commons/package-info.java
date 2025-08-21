@@ -5,11 +5,4 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-/**
- * Common utilities for Open RAO
- *
- * This package include utilities that could serve in all Open RAO modules.
- *
- * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
- */
 package com.powsybl.openrao.commons;
