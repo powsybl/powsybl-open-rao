@@ -28,7 +28,6 @@ import static org.mockito.ArgumentMatchers.*;
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
-
 class RaoParametersConfigTest {
     private PlatformConfig mockedPlatformConfig;
     private InMemoryPlatformConfig platformCfg;

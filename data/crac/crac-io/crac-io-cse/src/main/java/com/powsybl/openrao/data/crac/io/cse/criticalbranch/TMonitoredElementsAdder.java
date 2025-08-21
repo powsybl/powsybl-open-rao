@@ -21,7 +21,6 @@ import java.util.*;
 /**
  * @author Martin Belthle {@literal <martin.belthle at rte-france.com>}
  */
-
 public class TMonitoredElementsAdder {
     private final TCRACSeries tcracSeries;
     private final Crac crac;

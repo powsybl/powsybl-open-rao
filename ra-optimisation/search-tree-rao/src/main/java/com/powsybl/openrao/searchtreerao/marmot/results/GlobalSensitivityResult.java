@@ -21,7 +21,8 @@ import com.powsybl.sensitivity.SensitivityVariableSet;
 import java.util.HashSet;
 import java.util.Set;
 
-/** This class aggregates SensitivityResult stored in TemporalData<SensitivityResult> in one big SensitivityResult.
+/**
+ * This class aggregates SensitivityResult stored in TemporalData<SensitivityResult> in one big SensitivityResult.
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */

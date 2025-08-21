@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
  * A utility class that reads the network and stores UCTE information in order
  * to easily map UCTE connectables (from/to/suffix) to elements in the network
  *
- * @author Baptiste Seguinot{@literal <baptiste.seguinot at rte-france.com>}
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 class UcteConnectableCollection {

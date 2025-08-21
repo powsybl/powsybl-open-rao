@@ -14,7 +14,7 @@ import static java.lang.String.format;
 /**
  * Common abstract class for all UcteConnectableHelper
  *
- * @author Baptiste Seguinot{@literal <baptiste.seguinot at rte-france.com>}
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public abstract class AbstractUcteConnectableHelper {
 

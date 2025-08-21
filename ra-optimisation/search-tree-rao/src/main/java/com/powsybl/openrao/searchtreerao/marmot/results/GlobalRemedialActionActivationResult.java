@@ -19,7 +19,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-/** This class aggregates RemedialActionActivationResult stored in TemporalData<RemedialActionActivationResult> in one big RemedialActionActivationResult.
+/**
+ * This class aggregates RemedialActionActivationResult stored in TemporalData<RemedialActionActivationResult> in one big RemedialActionActivationResult.
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */

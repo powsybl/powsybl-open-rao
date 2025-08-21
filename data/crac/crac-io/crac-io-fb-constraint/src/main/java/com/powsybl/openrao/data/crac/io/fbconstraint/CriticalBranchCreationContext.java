@@ -17,7 +17,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * @author Baptiste Seguinot{@literal <baptiste.seguinot at rte-france.com>}
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class CriticalBranchCreationContext extends StandardCriticalBranchCreationContext {
     CriticalBranchCreationContext(CriticalBranchReader criticalBranchReader, Crac crac) {

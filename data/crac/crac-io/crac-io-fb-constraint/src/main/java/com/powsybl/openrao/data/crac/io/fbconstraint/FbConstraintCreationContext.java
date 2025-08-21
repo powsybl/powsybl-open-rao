@@ -17,7 +17,7 @@ import java.time.OffsetDateTime;
 import java.util.*;
 
 /**
- * @author Baptiste Seguinot{@literal <baptiste.seguinot at rte-france.com>}
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class FbConstraintCreationContext implements UcteCracCreationContext {
 

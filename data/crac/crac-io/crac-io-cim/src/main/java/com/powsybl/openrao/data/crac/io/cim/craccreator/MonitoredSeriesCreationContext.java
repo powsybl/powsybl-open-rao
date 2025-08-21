@@ -17,7 +17,6 @@ import java.util.stream.Collectors;
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
-// TODO : make it implement ElementaryCreationContext if we can extend ElementaryCreationContext?
 public final class MonitoredSeriesCreationContext {
     private final String monitoredSeriesId;
     private final String monitoredSeriesName;
@@ -28,6 +27,7 @@ public final class MonitoredSeriesCreationContext {
     private final Set<MeasurementCreationContext> measurementCreationContexts;
     private final boolean isAltered;
 
+    // TODO : make it implement ElementaryCreationContext if we can extend ElementaryCreationContext?
     MonitoredSeriesCreationContext(
         String monitoredSeriesId,
         String monitoredSeriesName,

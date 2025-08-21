@@ -12,7 +12,6 @@ import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-// TODO : make it implement ElementaryCreationContext if we can extend ElementaryCreationContext?
 public final class VoltageCnecCreationContext {
     private final String nativeNetworkElementId;
     private final String instantId;
@@ -21,6 +20,7 @@ public final class VoltageCnecCreationContext {
     private final String importStatusDetail;
     private final String createdCnecId;
 
+    // TODO : make it implement ElementaryCreationContext if we can extend ElementaryCreationContext?
     private VoltageCnecCreationContext(String nativeNetworkElementId, String instantId, String nativeContingencyName, ImportStatus importStatus, String importStatusDetail, String createdCnecId) {
         this.nativeNetworkElementId = nativeNetworkElementId;
         this.instantId = instantId;

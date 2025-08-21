@@ -35,7 +35,7 @@ import static com.powsybl.openrao.data.crac.io.commons.ucte.UcteNetworkAnalyzerP
 
 /**
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
- * @author Baptiste Seguinot{@literal <baptiste.seguinot at rte-france.com>}
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 class FbConstraintCracCreator {
 

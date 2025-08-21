@@ -19,7 +19,6 @@ import java.io.IOException;
 /**
  * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
  */
-
 public final class InstantArrayDeserializer {
     private InstantArrayDeserializer() {
         // should not be used

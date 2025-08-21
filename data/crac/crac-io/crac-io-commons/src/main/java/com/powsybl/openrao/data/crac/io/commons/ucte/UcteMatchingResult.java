@@ -10,7 +10,7 @@ package com.powsybl.openrao.data.crac.io.commons.ucte;
 import com.powsybl.iidm.network.Identifiable;
 
 /**
- * @author Baptiste Seguinot{@literal <baptiste.seguinot at rte-france.com>}
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public final class UcteMatchingResult {
 

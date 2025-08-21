@@ -31,7 +31,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-/** This class stores an inter-temporal linear problem's outputs and implements getters for easy access.
+/**
+ * This class stores an inter-temporal linear problem's outputs and implements getters for easy access.
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */

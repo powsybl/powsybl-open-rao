@@ -22,7 +22,7 @@ import static java.lang.String.format;
  * information: a "from node", a "to node" and a suffix. Either identified in separate fields,
  * or in a common concatenated id such as "FROMNODE TO__NODE SUFFIX".
  *
- * @author Baptiste Seguinot{@literal <baptiste.seguinot at rte-france.com>}
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class UcteHvdcElementHelper extends AbstractUcteConnectableHelper implements HvdcElementHelper {
 

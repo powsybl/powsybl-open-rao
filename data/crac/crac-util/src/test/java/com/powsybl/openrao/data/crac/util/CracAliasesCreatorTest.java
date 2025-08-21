@@ -24,7 +24,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 /**
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-
 class CracAliasesCreatorTest {
 
     private final Network network = Network.read("case-for-aliases.uct", getClass().getResourceAsStream("/case-for-aliases.uct"));

@@ -20,7 +20,7 @@ import java.util.Objects;
  * Utility class to be used in Crac creators.
  * It exposes useful functions to import PST range actions.
  *
- * @author Baptiste Seguinot{@literal <baptiste.seguinot at rte-france.com>}
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class IidmPstHelper implements PstHelper {
 

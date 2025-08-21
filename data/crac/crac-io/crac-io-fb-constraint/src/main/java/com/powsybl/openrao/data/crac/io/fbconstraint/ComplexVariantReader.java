@@ -24,7 +24,7 @@ import java.util.*;
 import static com.powsybl.openrao.data.crac.api.usagerule.UsageMethod.AVAILABLE;
 
 /**
- * @author Baptiste Seguinot{@literal <baptiste.seguinot at rte-france.com>}
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 class ComplexVariantReader {
 

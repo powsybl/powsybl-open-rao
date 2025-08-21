@@ -37,7 +37,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Joris Mancini{@literal <joris.mancini at rte-france.com>}
- * @author Baptiste Seguinot{@literal <baptiste.seguinot at rte-france.com>}
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 class MaxMinMarginFillerTest extends AbstractFillerTest {
     private LinearProblem linearProblem;

@@ -12,7 +12,7 @@ import com.powsybl.openrao.data.crac.io.commons.api.StandardElementaryCreationCo
 import com.powsybl.openrao.data.crac.io.commons.api.stdcreationcontext.PstRangeActionCreationContext;
 
 /**
- * @author Baptiste Seguinot{@literal <baptiste.seguinot at rte-france.com>}
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public final class PstComplexVariantCreationContext extends StandardElementaryCreationContext implements PstRangeActionCreationContext {
     private final boolean isInverted;

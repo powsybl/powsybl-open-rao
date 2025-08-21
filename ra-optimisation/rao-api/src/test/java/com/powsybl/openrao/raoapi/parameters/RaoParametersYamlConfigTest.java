@@ -29,7 +29,6 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
-
 class RaoParametersYamlConfigTest extends AbstractSerDeTest {
     static final double DOUBLE_TOLERANCE = 1e-6;
 

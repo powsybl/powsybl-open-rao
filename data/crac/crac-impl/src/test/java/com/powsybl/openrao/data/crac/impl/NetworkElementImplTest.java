@@ -21,7 +21,6 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-
 class NetworkElementImplTest {
 
     @Test

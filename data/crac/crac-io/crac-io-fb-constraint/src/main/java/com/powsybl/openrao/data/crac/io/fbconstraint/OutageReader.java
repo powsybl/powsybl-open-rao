@@ -20,7 +20,7 @@ import com.powsybl.iidm.network.Network;
 import java.util.*;
 
 /**
- * @author Baptiste Seguinot{@literal <baptiste.seguinot at rte-france.com>}
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 class OutageReader {
 

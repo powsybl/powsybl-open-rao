@@ -38,7 +38,7 @@ import static java.lang.Integer.parseInt;
 
 /**
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
- * @author Baptiste Seguinot{@literal <baptiste.seguinot at rte-france.com>}
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 @AutoService(Importer.class)
 public class FbConstraintImporter implements Importer {
