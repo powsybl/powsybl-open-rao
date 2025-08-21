@@ -16,7 +16,7 @@ import com.powsybl.iidm.network.Injection;
 import java.util.Objects;
 
 /**
- * @author Baptiste Seguinot {@literal <baptiste.seguinot@rte-france.com>}
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 @AutoService(ExtensionSerDe.class)
 public class AssignedVirtualHubXmlSerializer<T extends Injection<T>> extends AbstractExtensionSerDe<T, AssignedVirtualHub<T>> {

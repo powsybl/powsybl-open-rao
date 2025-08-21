@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * @author Vincent Bochet {@literal <vincent.bochet@rte-france.com>}
+ * @author Vincent Bochet {@literal <vincent.bochet at rte-france.com>}
  */
 class BorderDirectionTest {
     @Test

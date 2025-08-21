@@ -11,7 +11,7 @@ import java.util.Objects;
 /**
  * Market area description POJO
  *
- * @author Sebastien Murgey {@literal <sebastien.murgey@rte-france.com>}
+ * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
 public record MarketArea(String code, String eic, boolean isMcParticipant, boolean isAhc) {
     public MarketArea(String code, String eic, boolean isMcParticipant, boolean isAhc) {

@@ -12,7 +12,7 @@ import java.io.InputStream;
 import java.util.Objects;
 
 /**
- * @author Sebastien Murgey {@literal <sebastien.murgey@rte-france.com>}
+ * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
 public final class XmlVirtualHubsConfiguration {
     private XmlVirtualHubsConfiguration() {

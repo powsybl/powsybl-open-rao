@@ -19,7 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * @author Sebastien Murgey {@literal <sebastien.murgey@rte-france.com>}
+ * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
 class VirtualHubsConfigurationDeserializer extends JsonDeserializer<VirtualHubsConfiguration> {
     @Override

@@ -10,7 +10,7 @@ import com.powsybl.commons.extensions.ExtensionAdder;
 import com.powsybl.iidm.network.Injection;
 
 /**
- * @author Baptiste Seguinot {@literal <baptiste.seguinot@rte-france.com>}
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public interface AssignedVirtualHubAdder<T extends Injection<T>> extends ExtensionAdder<T, AssignedVirtualHub<T>> {
 

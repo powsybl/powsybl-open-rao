@@ -16,7 +16,7 @@ import java.io.Writer;
 import java.util.Objects;
 
 /**
- * @author Sebastien Murgey {@literal <sebastien.murgey@rte-france.com>}
+ * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
 public final class JsonVirtualHubsConfiguration {
     private JsonVirtualHubsConfiguration() {

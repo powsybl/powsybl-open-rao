@@ -17,7 +17,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import java.io.IOException;
 
 /**
- * @author Sebastien Murgey {@literal <sebastien.murgey@rte-france.com>}
+ * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
 class VirtualHubsConfigurationSerializer extends JsonSerializer<VirtualHubsConfiguration> {
     @Override

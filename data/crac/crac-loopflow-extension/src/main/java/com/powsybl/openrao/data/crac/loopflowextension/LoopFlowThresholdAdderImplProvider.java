@@ -11,7 +11,7 @@ import com.google.auto.service.AutoService;
 import com.powsybl.commons.extensions.ExtensionAdderProvider;
 
 /**
- * @author Baptiste Seguinot {@literal <baptiste.seguinot@rte-france.com>}
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 @AutoService(ExtensionAdderProvider.class)
 public class LoopFlowThresholdAdderImplProvider implements ExtensionAdderProvider<FlowCnec, LoopFlowThreshold, LoopFlowThresholdAdderImpl> {

@@ -17,7 +17,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 /**
- * @author Baptiste Seguinot {@literal <baptiste.seguinot@rte-france.com>}
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class VirtualHubAssigner {
 

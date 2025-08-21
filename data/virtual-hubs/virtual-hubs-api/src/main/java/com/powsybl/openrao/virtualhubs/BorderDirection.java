@@ -11,7 +11,7 @@ import java.util.Objects;
 /**
  * Border direction description POJO
  *
- * @author Vincent Bochet {@literal <vincent.bochet@rte-france.com>}
+ * @author Vincent Bochet {@literal <vincent.bochet at rte-france.com>}
  */
 public record BorderDirection(String from, String to, boolean isAhc) {
     public BorderDirection(String from, String to, boolean isAhc) {

@@ -13,7 +13,7 @@ import java.util.Objects;
 /**
  * Virtual hubs configuration POJO
  *
- * @author Sebastien Murgey {@literal <sebastien.murgey@rte-france.com>}
+ * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
 public class VirtualHubsConfiguration {
     private final List<MarketArea> marketAreas = new ArrayList<>();

@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.Injection;
 import java.util.Objects;
 
 /**
- * @author Baptiste Seguinot {@literal <baptiste.seguinot@rte-france.com>}
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class AssignedVirtualHubImpl<T extends Injection<T>> extends AbstractExtension<T> implements AssignedVirtualHub<T> {
 

@@ -10,7 +10,7 @@ import com.powsybl.openrao.virtualhubs.VirtualHubsConfiguration;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
 /**
- * @author Sebastien Murgey {@literal <sebastien.murgey@rte-france.com>}
+ * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
 class VirtualHubsConfigurationJsonModule extends SimpleModule {
     public VirtualHubsConfigurationJsonModule() {

@@ -11,7 +11,7 @@ import java.util.Objects;
 /**
  * Virtual hub description POJO
  *
- * @author Sebastien Murgey {@literal <sebastien.murgey@rte-france.com>}
+ * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
 public record VirtualHub(String code, String eic, boolean isMcParticipant, boolean isAhc, String nodeName, MarketArea relatedMa, String oppositeHub) {
     public VirtualHub(String code, String eic, boolean isMcParticipant, boolean isAhc, String nodeName, MarketArea relatedMa, String oppositeHub) {
