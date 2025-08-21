@@ -186,6 +186,7 @@ public interface Crac extends Identifiable<Crac> {
      */
     Set<State> getStates(Instant instant);
 
+
     /**
      * Select a unique state after a contingency and at a specific instant.
      * Can return null if no matching state or contingency are found.
