@@ -103,7 +103,6 @@ public class PostPerimeterSensitivityAnalysis extends AbstractMultiPerimeterSens
         });
     }
 
-
     /**
      * <p>
      * Asynchronously runs a post-perimeter computation
@@ -138,9 +137,8 @@ public class PostPerimeterSensitivityAnalysis extends AbstractMultiPerimeterSens
                 sensitivityComputer.compute(network);
                 flowResult.set(sensitivityComputer.getBranchResult(network));
                 sensitivityResult.set(sensitivityComputer.getSensitivityResult());
-            }
-            // we wait for the previous results to be computed with Future::get
-            else {
+            } else {
+                // we wait for the previous results to be computed with Future::get
                 flowResult.set(previousResultsFuture.get().getPrePerimeterResultForAllFollowingStates());
                 sensitivityResult.set(previousResultsFuture.get().getPrePerimeterResultForAllFollowingStates());
             }

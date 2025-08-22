@@ -296,7 +296,6 @@ public class FastRao implements RaoProvider {
             postPraRemedialActionActivationResult,
             new AppliedRemedialActions());
 
-
         // 2) Post ARA
         Network networkCopyAra = networkPool.getAvailableNetwork();
         // Apply PRAs on networkCopyAra
@@ -377,12 +376,12 @@ public class FastRao implements RaoProvider {
         crac.getStates().stream()
             .filter(state -> state.getInstant().getKind().ordinal() <= instantKind.ordinal())
             .forEach(state -> {
-                    networkActionsActivated.put(state, raoResult.getActivatedNetworkActionsDuringState(state));
-                    if (!raoResult.getActivatedRangeActionsDuringState(state).isEmpty()) {
-                        raoResult.getOptimizedSetPointsOnState(state).entrySet().forEach(entry ->
-                            rangeActionActivationResult.putResult(entry.getKey(), state, entry.getValue())
-                        );
-                    }
+                networkActionsActivated.put(state, raoResult.getActivatedNetworkActionsDuringState(state));
+                if (!raoResult.getActivatedRangeActionsDuringState(state).isEmpty()) {
+                    raoResult.getOptimizedSetPointsOnState(state)
+                        .entrySet()
+                        .forEach(entry -> rangeActionActivationResult.putResult(entry.getKey(), state, entry.getValue()));
+                }
             });
         NetworkActionsResult networkActionsResult = new NetworkActionsResultImpl(networkActionsActivated);
         return new RemedialActionActivationResultImpl(rangeActionActivationResult, networkActionsResult);
