@@ -19,10 +19,10 @@ Feature: US 5.1: Maximum margin stop criterion
   Scenario: US 5.1.0.b: use relevant number of decimals for margin and cost logging
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic5/SL_ep5us1b.json"
-    Given configuration file is "common/RaoParameters_posMargin_ampere.json"
+    Given configuration file is "common/RaoParameters_posMargin_megawatt_dc.json"
     When I launch search_tree_rao
     Then its security status should be "UNSECURED"
-    Then the worst margin is -0.0001 A with a tolerance of 1E-8 A
+    Then the worst margin is -0.0001 MW with a tolerance of 1E-8 MW
     Then 0 remedial actions are used in preventive
 
   @fast @rao @mock @ac @preventive-only
