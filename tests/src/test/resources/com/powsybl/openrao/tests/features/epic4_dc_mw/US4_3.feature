@@ -7,7 +7,7 @@ Feature: US 4.3: manage AC/DC modes from configuration
 
   @fast @rao @mock @ac @preventive-only
   Scenario: US 4.3.1: secure with AC config
-    Given network file is "common/TestCase12Nodes.uct"
+    Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic4/SL_ep4us3.json"
     Given configuration file is "common/RaoParameters_posMargin_ampere.json"
     When I launch search_tree_rao
