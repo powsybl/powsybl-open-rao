@@ -10,6 +10,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
+import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.searchtreerao.commons.SensitivityComputer;
@@ -19,6 +20,7 @@ import com.powsybl.openrao.searchtreerao.result.api.*;
 import com.powsybl.openrao.searchtreerao.result.impl.*;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -64,7 +66,7 @@ public class PostPerimeterSensitivityAnalysis extends AbstractMultiPerimeterSens
 
         AtomicReference<FlowResult> flowResult = new AtomicReference<>();
         AtomicReference<SensitivityResult> sensitivityResult = new AtomicReference<>();
-        boolean actionWasTaken = actionWasTaken(optimizationResult);
+        boolean actionWasTaken = actionWasTaken(optimizationResult.getActivatedNetworkActions(), optimizationResult.getActivatedRangeActionsPerState());
         if (actionWasTaken) {
             SensitivityComputer sensitivityComputer = buildSensitivityComputer(initialFlowResult, appliedCurativeRemedialActions);
 
@@ -130,7 +132,7 @@ public class PostPerimeterSensitivityAnalysis extends AbstractMultiPerimeterSens
         return Executors.newSingleThreadExecutor().submit(() -> {
             AtomicReference<FlowResult> flowResult = new AtomicReference<>();
             AtomicReference<SensitivityResult> sensitivityResult = new AtomicReference<>();
-            boolean actionWasTaken = actionWasTaken(remedialActionActivationResult);
+            boolean actionWasTaken = actionWasTaken(remedialActionActivationResult.getActivatedNetworkActions(), remedialActionActivationResult.getActivatedRangeActionsPerState());
             if (actionWasTaken) {
                 SensitivityComputer sensitivityComputer = buildSensitivityComputer(initialFlowResult, appliedCurativeRemedialActions);
 
@@ -167,19 +169,11 @@ public class PostPerimeterSensitivityAnalysis extends AbstractMultiPerimeterSens
         });
     }
 
-    private boolean actionWasTaken(RemedialActionActivationResult remedialActionActivationResult) {
-        if (!remedialActionActivationResult.getActivatedNetworkActions().isEmpty()) {
+    private boolean actionWasTaken(Set<NetworkAction> activatedNetworkActions, Map<State, Set<RangeAction<?>>> activatedRangeActionsPerState) {
+        if (!activatedNetworkActions.isEmpty()) {
             return true;
         }
-        return remedialActionActivationResult.getActivatedRangeActionsPerState().values().stream()
-            .anyMatch(set -> !set.isEmpty());
-    }
-
-    private boolean actionWasTaken(OptimizationResult optimizationResult) {
-        if (!optimizationResult.getActivatedNetworkActions().isEmpty()) {
-            return true;
-        }
-        return optimizationResult.getActivatedRangeActionsPerState().values().stream()
+        return activatedRangeActionsPerState.values().stream()
             .anyMatch(set -> !set.isEmpty());
     }
 }
