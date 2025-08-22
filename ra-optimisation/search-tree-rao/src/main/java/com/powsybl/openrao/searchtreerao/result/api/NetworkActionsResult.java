@@ -21,7 +21,7 @@ public interface NetworkActionsResult {
     /**
      * It states if the {@link NetworkAction} is activated.
      *
-     * @param networkAction: The network action to be studied.
+     * @param networkAction The network action to be studied.
      * @return True if the network action is chosen by the optimizer.
      */
     boolean isActivated(NetworkAction networkAction);

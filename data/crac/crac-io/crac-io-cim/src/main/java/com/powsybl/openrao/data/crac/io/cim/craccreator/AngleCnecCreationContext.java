@@ -39,4 +39,3 @@ public final class AngleCnecCreationContext extends StandardElementaryCreationCo
         return serieId;
     }
 }
-

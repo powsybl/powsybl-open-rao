@@ -33,7 +33,7 @@ import java.util.stream.IntStream;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
- * @author Roxane Chen {@literal <roxane.chen at rte-france.com}
+ * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
  */
 public class PowerGradientConstraintFiller implements ProblemFiller {
     private final TemporalData<State> preventiveStates;

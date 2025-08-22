@@ -31,6 +31,7 @@ public class Perimeter {
 
     /**
      * Construct a perimeter
+     *
      * @param raOptimisationState the optimisation state for which remedial actions are available (required)
      * @param cnecStates the other states to optimize in the perimeter (can be empty or null)
      */

@@ -169,4 +169,3 @@ public class RaoResultDeserializer extends JsonDeserializer<RaoResult> {
         // otherwise, all is good !
     }
 }
-

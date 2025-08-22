@@ -23,7 +23,7 @@ public interface NetworkElement extends Identifiable<NetworkElement> {
     /**
      * Returns the location of the cnec, as a set of optional countries
      *
-     * @param network: the network object used to look for the location of the network element of the Cnec
+     * @param network the network object used to look for the location of the network element of the Cnec
      * @return a set of optional countries containing the cnec location(s). Note that a Cnec on a interconnection can
      * belong to two countries.
      */

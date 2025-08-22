@@ -20,7 +20,6 @@ import java.util.Set;
 /**
  * @author Jean-Pierre Arnould {@literal <jean-pierre.arnould at rte-france.com>}
  */
-// TODO : make all setters private package
 public class NcCracCreationContext implements CracCreationContext {
 
     private Crac crac;
@@ -39,6 +38,7 @@ public class NcCracCreationContext implements CracCreationContext {
 
     private final String networkName;
 
+    // TODO : make all setters private package
     NcCracCreationContext(Crac crac, OffsetDateTime timeStamp, String networkName) {
         this.crac = crac;
         this.creationReport = new CracCreationReport();

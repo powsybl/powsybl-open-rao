@@ -14,7 +14,6 @@ import java.util.Set;
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-
 public enum UsageMethod {
     AVAILABLE,
     FORCED,

@@ -87,8 +87,8 @@ public final class MarmotUtils {
 
     /**
      * This function combines computation statuses from a Temporal Data.
-     * If any <T> has ComputationStatus.FAILURE, return ComputationStatus.FAILURE
-     * Else, if any <T> has  ComputationStatus.PARTIAL_FAILURE, return ComputationStatus.PARTIAL_FAILURE
+     * If any &ltT&gt has ComputationStatus.FAILURE, return ComputationStatus.FAILURE
+     * Else, if any &ltT&gt has  ComputationStatus.PARTIAL_FAILURE, return ComputationStatus.PARTIAL_FAILURE
      * Else, return ComputationStatus.DEFAULT
      */
     // TODO : add synchronized for multithreading ?

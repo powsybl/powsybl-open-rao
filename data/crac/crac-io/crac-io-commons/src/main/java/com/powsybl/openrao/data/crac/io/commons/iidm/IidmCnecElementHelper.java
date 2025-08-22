@@ -19,7 +19,7 @@ import static java.lang.String.format;
  * Utility class to be used in Crac creators.
  * It exposes useful functions to synchronize the Crac with the Network.
  *
- * @author Baptiste Seguinot{@literal <baptiste.seguinot at rte-france.com>}
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public class IidmCnecElementHelper implements CnecElementHelper {

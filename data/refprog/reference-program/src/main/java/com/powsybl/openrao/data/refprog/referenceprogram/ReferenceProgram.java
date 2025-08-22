@@ -5,7 +5,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-
 package com.powsybl.openrao.data.refprog.referenceprogram;
 
 import com.powsybl.openrao.commons.EICode;

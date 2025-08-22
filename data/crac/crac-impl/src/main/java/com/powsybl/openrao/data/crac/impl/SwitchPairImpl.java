@@ -13,7 +13,7 @@ import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.networkaction.SwitchPair;
 import com.powsybl.iidm.modification.NetworkModificationList;
 
-/***
+/**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public class SwitchPairImpl implements SwitchPair {

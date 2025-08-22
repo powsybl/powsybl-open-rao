@@ -137,6 +137,7 @@ public final class CracValidator {
      * If no auto remedial action affects the CNEC and the CNEC does not trigger any auto remedial action, there is no
      * need to duplicate it because this means that no auto remedial action is available for this auto state at all.
      * In this case, the StateTree algorithm will automatically include all the CNECs from the state to the preventive perimeter.
+     *
      * @param remedialActions The set of remedial actions that may affect the CNEC
      * @param flowCnec The FlowCNEC to possibly duplicate
      * @param network The network

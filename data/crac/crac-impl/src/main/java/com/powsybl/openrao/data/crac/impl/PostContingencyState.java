@@ -59,7 +59,7 @@ public class PostContingencyState implements State {
      * Check if states are equals. States are considered equals when instant and contingency are equals if
      * contingency is present. Otherwise they are considered equals when instant are equals.
      *
-     * @param o: If it's null or another object than State it will return false.
+     * @param o If it's null or another object than State it will return false.
      * @return A boolean true if objects are equals, otherwise false.
      */
     @Override

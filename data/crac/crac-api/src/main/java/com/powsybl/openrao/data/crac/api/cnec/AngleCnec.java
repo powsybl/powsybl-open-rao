@@ -46,7 +46,7 @@ public interface AngleCnec extends Cnec<AngleCnec> {
      * because the {@code AngleCnec} is not necessarily bounded by a lower value. This value would take
      * {@code reliabilityMargin} into account.
      *
-     * @param unit: The unit in which the lower bound would be returned. The only accepted unit for now is DEGREE.
+     * @param unit The unit in which the lower bound would be returned. The only accepted unit for now is DEGREE.
      * @return The lower bound of the {@link PhysicalParameter} on this {@code AngleCnec}.
      */
     Optional<Double> getLowerBound(Unit unit);
@@ -57,7 +57,7 @@ public interface AngleCnec extends Cnec<AngleCnec> {
      * because the {@code AngleCnec} is not necessarily bounded by an upper value. This value would take
      * {@code reliabilityMargin} into account.
      *
-     * @param unit: The unit in which the upper bound would be returned. The only accepted unit for now is DEGREE.
+     * @param unit The unit in which the upper bound would be returned. The only accepted unit for now is DEGREE.
      * @return The upper bound of the {@link PhysicalParameter} on this {@code AngleCnec}.
      */
     Optional<Double> getUpperBound(Unit unit);
@@ -72,9 +72,9 @@ public interface AngleCnec extends Cnec<AngleCnec> {
      *
      * margin = min(maxThreshold - actualValue, actualValue - minThreshold)
      *
-     * @param actualValue: Value of the {@link PhysicalParameter} on the {@code side} of the {@code AngleCnec}
+     * @param actualValue Value of the {@link PhysicalParameter} on the {@code side} of the {@code AngleCnec}
      *                   on which to make the difference to compute the margin.
-     * @param unit: Unit of the {@code actualValue}. It will also be the one of the returned value. The only accepted
+     * @param unit Unit of the {@code actualValue}. It will also be the one of the returned value. The only accepted
      *            unit for now is DEGREE.
      * @return The margin of the {@code AngleCnec} on the given {@code side} with the given {@code unit} taking
      * {@code reliabilityMargin} into account.

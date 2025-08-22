@@ -49,7 +49,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 /**
- * @author Roxane Chen {@literal <roxane.chen at rte-france.com}
+ * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
  */
 class PowerGradientConstraintFillerTest {
     private LinearProblemBuilder linearProblemBuilder = new LinearProblemBuilder().withSolver(SearchTreeRaoRangeActionsOptimizationParameters.Solver.SCIP);

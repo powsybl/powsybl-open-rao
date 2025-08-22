@@ -4,6 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 package com.powsybl.openrao.data.crac.io.commons.api.stdcreationcontext;
 
 import com.powsybl.openrao.data.crac.api.CracCreationContext;
@@ -34,7 +35,8 @@ public interface UcteCracCreationContext extends CracCreationContext {
 
     /**
      * Get a specific branch CNEC creation context
-     * @param branchCnecId: the native branch CNEC ID (as it figures in the native CRAC)
+     *
+     * @param branchCnecId the native branch CNEC ID (as it figures in the native CRAC)
      */
     BranchCnecCreationContext getBranchCnecCreationContext(String branchCnecId);
 
@@ -45,7 +47,8 @@ public interface UcteCracCreationContext extends CracCreationContext {
 
     /**
      * Get a specific remedial-action creation context
-     * @param remedialActionId: the native remedial-action ID (as it figures in the native CRAC)
+     *
+     * @param remedialActionId the native remedial-action ID (as it figures in the native CRAC)
      */
     ElementaryCreationContext getRemedialActionCreationContext(String remedialActionId);
 }

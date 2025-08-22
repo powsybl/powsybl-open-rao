@@ -15,7 +15,6 @@ import com.powsybl.commons.extensions.Extendable;
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-
 public interface Identifiable<I extends Identifiable<I>> extends Extendable<I> {
 
     /**
