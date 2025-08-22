@@ -5,4 +5,5 @@
         "suppressions_1_1.dtd">
 <suppressions>
     <suppress checks=".*" files=".*/generated-sources/.*"/>
+    <suppress checks="RegexpMultiline" files="com/powsybl/openrao/commons/package-info.java"/>
 </suppressions>

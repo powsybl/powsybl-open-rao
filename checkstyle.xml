@@ -17,10 +17,17 @@
     </module>
 
     <module name="RegexpMultiline">
-        <property name="format" value="\*/\n\n+(public|protected|private)?\s*(class|interface|enum|abstract|record)"/>
+        <property name="format" value="\*\/\n\n+(@[A-Za-z]+\(?.*\)?)?(public|protected|private)?\s*(final)?\s*(class|interface|enum|abstract|record)"/>
         <property name="message" value="No blank line allowed between Javadoc and class definition."/>
         <property name="minimum" value="0"/>
         <property name="maximum" value="0"/>
+    </module>
+
+    <module name="RegexpMultiline">
+        <property name="format" value=" \* @author [A-Za-z._ -]+ \{@literal &lt;[A-Za-z._-]+ at [A-Za-z._-]+\.[a-z]+&gt;}\n \*\/\n+(@[A-Za-z]+\(?.*\)?)?(public|protected|private)?\s*(final)?\s*(class|interface|enum|abstract|record)"/>
+        <property name="message" value="Missing Javadoc with @author tag on top of class definition."/>
+        <property name="minimum" value="1"/>
+        <property name="maximum" value="1"/>
     </module>
 
     <module name="RegexpSingleline">
@@ -29,6 +36,8 @@
         <property name="maximum" value="0"/>
         <property name="message" value="Line has trailing spaces."/>
     </module>
+
+    <module name="SuppressWarningsFilter" />
 
     <module name="Translation"/>
 
@@ -63,9 +72,6 @@
         <module name="MemberName"/>
         <module name="MethodName"/>
         <module name="MethodParamPad"/>
-<!--        <module name="MissingJavadocType">-->
-<!--            <property name="scope" value="private"/>-->
-<!--        </module>-->
         <module name="MultipleVariableDeclarations"/>
         <module name="MutableException"/>
         <module name="NeedBraces"/>
