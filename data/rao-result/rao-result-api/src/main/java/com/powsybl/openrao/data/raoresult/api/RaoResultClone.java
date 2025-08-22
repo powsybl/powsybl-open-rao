@@ -22,7 +22,8 @@ import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import java.util.*;
 
 /**
- *  Clone that reproduces the results obtained by another RaoResult instance. It can be used to override some methods without rewriting all the implementations
+ * Clone that reproduces the results obtained by another RaoResult instance. It can be used to override some methods without rewriting all the implementations
+ *
  * @author Mohamed Ben Rejeb {@literal <mohamed.ben-rejeb at rte-france.com>}
  */
 public class RaoResultClone implements RaoResult {

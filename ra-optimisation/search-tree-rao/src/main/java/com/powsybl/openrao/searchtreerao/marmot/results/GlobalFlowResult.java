@@ -23,7 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * This class aggregates FlowResults stored in TemporalData<FlowResult> in one big FlowResult.
+ * This class aggregates FlowResults stored in TemporalData&lt;FlowResult&gt; in one big FlowResult.
  *
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}

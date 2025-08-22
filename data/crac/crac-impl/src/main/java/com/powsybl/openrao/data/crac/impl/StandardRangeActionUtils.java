@@ -14,6 +14,7 @@ import java.util.List;
 
 /**
  * Common code for StandradRangeAction implementations (adding another abstract class for standard range actions would be too much class depth)
+ *
  * @author Gabriel Plante {@literal <gabriel.plante_externe at rte-france.com>}
  */
 public final class StandardRangeActionUtils {

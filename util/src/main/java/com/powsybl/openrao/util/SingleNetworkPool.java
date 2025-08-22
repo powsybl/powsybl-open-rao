@@ -17,6 +17,7 @@ import java.util.concurrent.TimeUnit;
  * A {@code AbstractNetworkPool} implementation that is used when parallelism = 1
  * Instead of creating a (useless) copy of the network object, it uses the network object itself
  * while correctly handling setup and cleanup of variants
+ *
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public class SingleNetworkPool extends AbstractNetworkPool {

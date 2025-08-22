@@ -28,6 +28,7 @@ public final class StandardRangeActionDeserializer {
 
     /**
      * De-serializes common elements in StandardRangeAction implementations
+     *
      * @return true if the element was found
      * @throws IOException
      */

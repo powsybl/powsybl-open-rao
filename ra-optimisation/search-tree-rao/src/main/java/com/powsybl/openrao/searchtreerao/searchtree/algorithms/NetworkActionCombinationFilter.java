@@ -20,6 +20,7 @@ public interface NetworkActionCombinationFilter {
     /**
      * Remove network action combinations that cannot be applied for a given reason so the search tree bloomer does not
      * create pointless leaves.
+     *
      * @param naCombinations set of potentially applicable network action combinations
      * @param optimizationResult optimization result from the previous leaf
      * @return filtered set of applicable network action combinations from which the non-applicable ones where removed

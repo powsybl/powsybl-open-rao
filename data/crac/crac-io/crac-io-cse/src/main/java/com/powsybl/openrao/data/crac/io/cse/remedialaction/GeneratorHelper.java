@@ -19,6 +19,7 @@ import java.util.Set;
 
 /**
  * Utility to look for a generator using a bus name
+ *
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public class GeneratorHelper {

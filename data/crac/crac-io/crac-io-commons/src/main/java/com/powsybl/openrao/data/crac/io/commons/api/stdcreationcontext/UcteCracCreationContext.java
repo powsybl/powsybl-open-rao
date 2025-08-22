@@ -35,7 +35,8 @@ public interface UcteCracCreationContext extends CracCreationContext {
 
     /**
      * Get a specific branch CNEC creation context
-     * @param branchCnecId: the native branch CNEC ID (as it figures in the native CRAC)
+     *
+     * @param branchCnecId the native branch CNEC ID (as it figures in the native CRAC)
      */
     BranchCnecCreationContext getBranchCnecCreationContext(String branchCnecId);
 
@@ -46,7 +47,8 @@ public interface UcteCracCreationContext extends CracCreationContext {
 
     /**
      * Get a specific remedial-action creation context
-     * @param remedialActionId: the native remedial-action ID (as it figures in the native CRAC)
+     *
+     * @param remedialActionId the native remedial-action ID (as it figures in the native CRAC)
      */
     ElementaryCreationContext getRemedialActionCreationContext(String remedialActionId);
 }

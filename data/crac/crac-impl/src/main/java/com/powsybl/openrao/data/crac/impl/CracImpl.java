@@ -109,7 +109,8 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     /**
      * Removes NetworkElement objects from the Crac, if they are not used within other objects of the Crac.
      * Only NetworkElement objects that are not referenced are removed.
-     * @param networkElementIds: IDs of the network elements to remove
+     *
+     * @param networkElementIds IDs of the network elements to remove
      */
     void safeRemoveNetworkElements(Set<String> networkElementIds) {
         networkElementIds.stream()
@@ -119,7 +120,8 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
 
     /**
      * Check if a NetworkElement is referenced in the CRAC (ie in a Contingency, a Cnec or a RemedialAction)
-     * @param networkElementId: ID of the NetworkElement
+     *
+     * @param networkElementId ID of the NetworkElement
      * @return true if the NetworkElement is referenced in a Contingency, a Cnec or a RemedialAction
      */
     private boolean isNetworkElementUsedWithinCrac(String networkElementId) {
@@ -139,8 +141,8 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
      * otherwise it is created and then returned. An error is thrown when an element with an already
      * existing ID is added with a different name.
      *
-     * @param networkElementId: network element ID as in network files
-     * @param networkElementName: network element name for more human readable name
+     * @param networkElementId network element ID as in network files
+     * @param networkElementName network element name for more human readable name
      * @return a network element object that is already defined in the crac
      */
     NetworkElement addNetworkElement(String networkElementId, String networkElementName) {
@@ -301,7 +303,8 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
 
     /**
      * Check if a Contingency is referenced in the CRAC (ie in a Cnec or in a RemedialAction's UsageRule)
-     * @param contingencyId: ID of the Contingency
+     *
+     * @param contingencyId ID of the Contingency
      * @return true if the Contingency is referenced in a Cnec or in a RemedialAction's UsageRule
      */
     private boolean isContingencyUsedWithinCrac(String contingencyId) {
@@ -310,7 +313,8 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
 
     /**
      * Check if a Contingency is referenced in a Cnec
-     * @param contingencyId: ID of the Contingency
+     *
+     * @param contingencyId ID of the Contingency
      * @return true if the Contingency is referenced in a Cnec
      */
     private boolean isContingencyUsedForCnecs(String contingencyId) {
@@ -320,7 +324,8 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
 
     /**
      * Check if a Contingency is referenced in a RemedialAction's UsageRule
-     * @param contingencyId: ID of the Contingency
+     *
+     * @param contingencyId ID of the Contingency
      * @return true if the Contingency is referenced in a RemedialAction's UsageRule
      */
     private boolean isContingencyUsedForRemedialActions(String contingencyId) {
@@ -401,7 +406,8 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     /**
      * Removes State objects from the Crac, if they are not used within other objects of the Crac
      * Only State objects that are not referenced are removed.
-     * @param stateIds: IDs of the States to remove
+     *
+     * @param stateIds IDs of the States to remove
      */
     void safeRemoveStates(Set<String> stateIds) {
         stateIds.stream()
@@ -411,7 +417,8 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
 
     /**
      * Check if a State is referenced in the CRAC (ie in a Cnec or a RemedialAction's UsageRule)
-     * @param stateId: ID of the State
+     *
+     * @param stateId ID of the State
      * @return true if the State is referenced in a Cnec or a RemedialAction's UsageRule
      */
     private boolean isStateUsedWithinCrac(String stateId) {

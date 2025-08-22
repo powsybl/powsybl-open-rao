@@ -19,7 +19,8 @@ import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.s
 import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.serializeVariationCosts;
 
 /**
- * Serializes common elements in StandardRaneAction implementations
+ * Serializes common elements in StandardRangeAction implementations
+ *
  * @author Gabriel Plante {@literal <gabriel.plante_externe at rte-france.com>}
  */
 public final class StandardRangeActionSerializer {

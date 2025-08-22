@@ -49,6 +49,7 @@ public interface PstHelper extends ElementHelper {
     /**
      * Converts a tap position of the PST to the used convention (centered on zero).
      * Has no effect if the original convetion is already centered on zero.
+     *
      * @param originalTap the original tap position
      * @param originalTapConvention the convention used for the original tap position
      * @return the normalized (centered on zero) tap position

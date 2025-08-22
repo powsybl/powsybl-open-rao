@@ -24,7 +24,7 @@ public interface FlowCnec extends BranchCnec<FlowCnec> {
     /**
      * Getter of the Imax on each {@link TwoSides} of the {@code FlowCnec}.
      *
-     * @param side: The {@link TwoSides} on which the Imax is queried.
+     * @param side The {@link TwoSides} on which the Imax is queried.
      * @return The value of the iMax, given in Unit.AMPERE.
      */
     Optional<Double> getIMax(TwoSides side);
@@ -32,7 +32,7 @@ public interface FlowCnec extends BranchCnec<FlowCnec> {
     /**
      * Says if a FlowCnec's NetworkElement is connected in a Network
      *
-     * @param network: the network to look into
+     * @param network the network to look into
      * @return true if the CNEC is connected
      */
     boolean isConnected(Network network);

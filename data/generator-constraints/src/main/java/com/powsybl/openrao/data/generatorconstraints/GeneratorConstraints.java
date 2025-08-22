@@ -43,6 +43,7 @@ public final class GeneratorConstraints {
 
     /**
      * Get the id of the generator on which the constraints apply.
+     *
      * @return if of the generator
      */
     public String getGeneratorId() {
@@ -51,6 +52,7 @@ public final class GeneratorConstraints {
 
     /**
      * Get the minimal operational power of the generator in MW.
+     *
      * @return minimal operational power of the generator
      */
     public Optional<Double> getPMin() {
@@ -59,6 +61,7 @@ public final class GeneratorConstraints {
 
     /**
      * Get the maximal operational power of the generator in MW.
+     *
      * @return maximal operational power of the generator
      */
     public Optional<Double> getPMax() {
@@ -67,6 +70,7 @@ public final class GeneratorConstraints {
 
     /**
      * Get the lead time of the generator, i.e. the time required by the power to go from 0 to pMin, in hours.
+     *
      * @return lead time of the generator
      */
     public Optional<Double> getLeadTime() {
@@ -75,6 +79,7 @@ public final class GeneratorConstraints {
 
     /**
      * Get the lag time of the generator, i.e. the time required by the power to go from pMin to 0, in hours.
+     *
      * @return lag time of the generator
      */
     public Optional<Double> getLagTime() {
@@ -83,6 +88,7 @@ public final class GeneratorConstraints {
 
     /**
      * Get the minUp time the generator, i.e. the minimum time during which the generator must be operated with a power greater than pMin, in hours.
+     *
      * @return minUp time of the generator
      */
     public Optional<Double> getMinUpTime() {
@@ -91,6 +97,7 @@ public final class GeneratorConstraints {
 
     /**
      * Get the maxUp time the generator, i.e. the maximum time during which the generator can be operated with a power greater than pMin, in hours.
+     *
      * @return maxUp time of the generator
      */
     public Optional<Double> getMaxUpTime() {
@@ -99,6 +106,7 @@ public final class GeneratorConstraints {
 
     /**
      * Get the minOff time the generator, i.e. the minimum time during which the generator must be kept shutdown, in hours.
+     *
      * @return minOff time of the generator
      */
     public Optional<Double> getMinOffTime() {
@@ -109,6 +117,7 @@ public final class GeneratorConstraints {
      * Get the upward power gradient of the generator in MW/hours.
      * It only applies when the generator is on, i.e. when its power is greater than pMin.
      * Its value is always positive.
+     *
      * @return upward power gradient of the generator
      */
     public Optional<Double> getUpwardPowerGradient() {
@@ -119,6 +128,7 @@ public final class GeneratorConstraints {
      * Get the downward power gradient of the generator in MW/hours.
      * It only applies when the generator is on, i.e. when its power is greater than pMin.
      * Its value is always negative.
+     *
      * @return downward power gradient of the generator
      */
     public Optional<Double> getDownwardPowerGradient() {

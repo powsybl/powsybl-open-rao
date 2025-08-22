@@ -27,8 +27,8 @@ public class CgmesBranchHelper implements ElementHelper {
     /**
      * Constructor.
      *
-     * @param mrId,                 CGMES-id of the branch
-     * @param network,              powsybl iidm network object
+     * @param mrId                 CGMES-id of the branch
+     * @param network              powsybl iidm network object
      *
      */
     public CgmesBranchHelper(String mrId, Network network) {

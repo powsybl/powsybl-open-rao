@@ -32,7 +32,7 @@ public class NetworkElementImpl extends AbstractIdentifiable<NetworkElement> imp
     /**
      * Check if network elements are equals. Network elements are considered equals when IDs are equals.
      *
-     * @param o: If it's null or another object than NetworkElement it will return false.
+     * @param o If it's null or another object than NetworkElement it will return false.
      * @return A boolean true if objects are equals, otherwise false.
      */
     @Override
@@ -54,7 +54,8 @@ public class NetworkElementImpl extends AbstractIdentifiable<NetworkElement> imp
 
     /**
      * Returns the location of the network element, as a set of optional countries
-     * @param network: the network object used to look for the network element
+     *
+     * @param network the network object used to look for the network element
      * @return a set of optional countries containing the network element
      */
     @Override

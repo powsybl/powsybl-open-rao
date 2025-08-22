@@ -20,8 +20,8 @@ import java.util.concurrent.CompletableFuture;
 public interface RaoProvider extends Versionable {
 
     /**
-     * @param raoInput: Data to optimize. Contains a Crac, a Network, the ID of the current network variant, and more
-     * @param parameters: RAO parameters.
+     * @param raoInput Data to optimize. Contains a Crac, a Network, the ID of the current network variant, and more
+     * @param parameters RAO parameters.
      * @return A completable future of a RaoComputationResult it gathers all the optimization results.
      */
     CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters parameters);

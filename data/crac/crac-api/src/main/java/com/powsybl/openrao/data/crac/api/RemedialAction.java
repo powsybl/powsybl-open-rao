@@ -72,7 +72,8 @@ public interface RemedialAction<I extends RemedialAction<I>> extends Identifiabl
 
     /**
      * Returns the location of the remedial action, as a set of optional countries
-     * @param network: the network object used to look for the location of the network elements of the remedial action
+     *
+     * @param network the network object used to look for the location of the network elements of the remedial action
      * @return a set of optional countries containing the remedial action
      */
     default Set<Optional<Country>> getLocation(Network network) {

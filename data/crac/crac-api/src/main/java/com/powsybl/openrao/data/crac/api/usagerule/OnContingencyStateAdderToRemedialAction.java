@@ -12,6 +12,7 @@ import com.powsybl.openrao.data.crac.api.State;
 
 /**
  * Adds a OnContingencyState usage rule to a RemedialAction
+ *
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public interface OnContingencyStateAdderToRemedialAction<T extends RemedialAction<T>> {

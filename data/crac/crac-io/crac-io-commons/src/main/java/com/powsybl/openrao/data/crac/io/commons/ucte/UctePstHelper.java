@@ -38,10 +38,10 @@ public class UctePstHelper extends AbstractUcteConnectableHelper implements PstH
     /**
      * Constructor, based on a separate fields.
      *
-     * @param fromNode,            UCTE-id of the origin extremity of the branch
-     * @param toNode,              UCTE-id of the destination extremity of the branch
-     * @param suffix,              suffix of the branch, either an order code or an elementName
-     * @param ucteNetworkAnalyzer, UcteNetworkAnalyzer object built upon the network
+     * @param fromNode            UCTE-id of the origin extremity of the branch
+     * @param toNode              UCTE-id of the destination extremity of the branch
+     * @param suffix              suffix of the branch, either an order code or an elementName
+     * @param ucteNetworkAnalyzer UcteNetworkAnalyzer object built upon the network
      */
     public UctePstHelper(String fromNode, String toNode, String suffix, UcteNetworkAnalyzer ucteNetworkAnalyzer) {
         super(fromNode, toNode, suffix);
@@ -54,11 +54,11 @@ public class UctePstHelper extends AbstractUcteConnectableHelper implements PstH
      * Constructor, based on a separate fields. Either the order code, or the element name must be
      * non-null. If the two are defined, the suffix which will be used by default is the order code.
      *
-     * @param fromNode,             UCTE-id of the origin extremity of the branch
-     * @param toNode,               UCTE-id of the destination extremity of the branch
-     * @param orderCode,            order code of the branch
-     * @param elementName,          element name of the branch
-     * @param ucteNetworkAnalyzer,  UcteNetworkAnalyzer object built upon the network
+     * @param fromNode             UCTE-id of the origin extremity of the branch
+     * @param toNode               UCTE-id of the destination extremity of the branch
+     * @param orderCode            order code of the branch
+     * @param elementName          element name of the branch
+     * @param ucteNetworkAnalyzer  UcteNetworkAnalyzer object built upon the network
      */
     public UctePstHelper(String fromNode, String toNode, String orderCode, String elementName, UcteNetworkAnalyzer ucteNetworkAnalyzer) {
         super(fromNode, toNode, orderCode, elementName);
@@ -70,8 +70,8 @@ public class UctePstHelper extends AbstractUcteConnectableHelper implements PstH
     /**
      * Constructor, based on a concatenated id.
      *
-     * @param ucteBranchId,         concatenated UCTE branch id, of the form "FROMNODE TO__NODE SUFFIX"
-     * @param ucteNetworkAnalyzer,  UcteNetworkAnalyzer object built upon the network
+     * @param ucteBranchId         concatenated UCTE branch id, of the form "FROMNODE TO__NODE SUFFIX"
+     * @param ucteNetworkAnalyzer  UcteNetworkAnalyzer object built upon the network
      */
     public UctePstHelper(String ucteBranchId, UcteNetworkAnalyzer ucteNetworkAnalyzer) {
         super(ucteBranchId);

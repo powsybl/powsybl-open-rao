@@ -430,7 +430,7 @@ public class SearchTree {
     /**
      * This method evaluates stop criterion on the leaf.
      *
-     * @param leaf: Leaf to evaluate.
+     * @param leaf Leaf to evaluate.
      * @return True if the stop criterion has been reached on this leaf.
      */
     private boolean stopCriterionReached(Leaf leaf) {
@@ -463,7 +463,7 @@ public class SearchTree {
      * This method checks if the leaf's cost respects the minimum impact thresholds
      * (absolute and relative) compared to the previous depth's optimal leaf.
      *
-     * @param leaf: Leaf that has to be compared with the optimal leaf.
+     * @param leaf Leaf that has to be compared with the optimal leaf.
      * @return True if the leaf cost diminution is enough compared to optimal leaf.
      */
     private boolean improvedEnough(Leaf leaf) {
