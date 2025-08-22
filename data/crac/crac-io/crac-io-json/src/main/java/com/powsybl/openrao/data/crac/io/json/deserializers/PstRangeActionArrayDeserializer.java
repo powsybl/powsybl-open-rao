@@ -22,8 +22,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
 import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.deserializeVariationDirection;
+import static com.powsybl.openrao.data.crac.io.json.deserializers.CracDeserializer.LOGGER;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -93,7 +93,7 @@ public final class PstRangeActionArrayDeserializer {
                         jsonParser.nextToken();
                         if (JsonSerializationConstants.getPrimaryVersionNumber(version) <= 1 ||
                             JsonSerializationConstants.getPrimaryVersionNumber(version) == 2 && JsonSerializationConstants.getSubVersionNumber(version) <= 6) {
-                            BUSINESS_WARNS.warn("The initial tap is now read from the network so the value in the crac will not be read");
+                            LOGGER.warn("The initial tap is now read from the network so the value in the crac will not be read");
                         }
                         break;
                     case JsonSerializationConstants.TAP_TO_ANGLE_CONVERSION_MAP:
@@ -101,7 +101,7 @@ public final class PstRangeActionArrayDeserializer {
                         readIntToDoubleMap(jsonParser);
                         if (JsonSerializationConstants.getPrimaryVersionNumber(version) <= 1 ||
                             JsonSerializationConstants.getPrimaryVersionNumber(version) == 2 && JsonSerializationConstants.getSubVersionNumber(version) <= 6) {
-                            BUSINESS_WARNS.warn("The tap to angle conversion map is now read from the network so the value in the crac will not be read");
+                            LOGGER.warn("The tap to angle conversion map is now read from the network so the value in the crac will not be read");
                         }
                         break;
                     case JsonSerializationConstants.RANGES:
