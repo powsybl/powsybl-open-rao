@@ -75,6 +75,9 @@
         <module name="ParameterName"/>
         <module name="ParenPad"/>
         <module name="RedundantImport"/>
+        <module name="Regexp">
+            <property name="format" value="@author"/>
+        </module>
         <module name="RequireEmptyLineBeforeBlockTagGroup"/>
         <module name="RightCurly"/>
         <module name="SimplifyBooleanExpression"/>
