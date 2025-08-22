@@ -209,6 +209,10 @@ public class SystematicSensitivityResult {
             stateResult.getReferenceIntensities()
                 .computeIfAbsent(factor.getFunctionId(), k -> new EnumMap<>(TwoSides.class))
                 .putIfAbsent(side, reference);
+            stateResult.getIntensitySensitivities()
+                .computeIfAbsent(factor.getFunctionId(), k -> new HashMap<>())
+                .computeIfAbsent(factor.getVariableId(), k -> new EnumMap<>(TwoSides.class))
+                .putIfAbsent(side, sensitivity);
         }
     }
 
@@ -292,6 +296,21 @@ public class SystematicSensitivityResult {
 
     public double getSensitivityOnFlow(RangeAction<?> rangeAction, FlowCnec cnec, TwoSides side) {
         return RangeActionSensiHandler.get(rangeAction).getSensitivityOnFlow(cnec, side, this);
+    }
+
+    public double getSensitivityOnIntensity(RangeAction<?> rangeAction, FlowCnec cnec, TwoSides side) {
+        return RangeActionSensiHandler.get(rangeAction).getSensitivityOnIntensity(cnec, side, this);
+    }
+
+    public double getSensitivityOnIntensity(String variableId, FlowCnec cnec, TwoSides side) {
+        StateResult stateResult = getCnecStateResult(cnec);
+        if (stateResult == null ||
+            !stateResult.getIntensitySensitivities().containsKey(cnec.getNetworkElement().getId()) ||
+            !stateResult.getIntensitySensitivities().get(cnec.getNetworkElement().getId()).containsKey(variableId) ||
+            !stateResult.getIntensitySensitivities().get(cnec.getNetworkElement().getId()).get(variableId).containsKey(side)) {
+            return 0.0;
+        }
+        return stateResult.getIntensitySensitivities().get(cnec.getNetworkElement().getId()).get(variableId).get(side);
     }
 
     public double getSensitivityOnFlow(SensitivityVariableSet glsk, FlowCnec cnec, TwoSides side) {

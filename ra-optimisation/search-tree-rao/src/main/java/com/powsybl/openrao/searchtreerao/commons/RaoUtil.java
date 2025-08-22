@@ -38,8 +38,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getLoadFlowProvider;
-import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters;
+import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_LOGS;
+import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.*;
 import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.getPstModel;
 import static java.lang.String.format;
 
@@ -64,6 +64,13 @@ public final class RaoUtil {
         if (raoParameters.getObjectiveFunctionParameters().getUnit().equals(Unit.AMPERE)
             && getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters().isDc()) {
             throw new OpenRaoException(format("Objective function unit %s cannot be calculated with a DC default sensitivity engine", raoParameters.getObjectiveFunctionParameters().getUnit().toString()));
+        }
+
+        if (raoParameters.getObjectiveFunctionParameters().getUnit().equals(Unit.MEGAWATT)
+            && !getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters().isDc()) {
+            String msg = "Objective function unit MEGAWATT cannot be calculated with a AC default sensitivity engine";
+            BUSINESS_LOGS.error(msg);
+            throw new OpenRaoException(msg);
         }
 
         if (raoParameters.getObjectiveFunctionParameters().getType().relativePositiveMargins()) {
@@ -93,6 +100,20 @@ public final class RaoUtil {
         if (!PstModel.APPROXIMATED_INTEGERS.equals(getPstModel(raoParameters))
             && raoInput.getCrac().getRaUsageLimitsPerInstant().values().stream().anyMatch(raUsageLimits -> !raUsageLimits.getMaxElementaryActionsPerTso().isEmpty())) {
             String msg = "The PSTs must be approximated as integers to use the limitations of elementary actions as a constraint in the RAO.";
+            OpenRaoLoggerProvider.BUSINESS_LOGS.error(msg);
+            throw new OpenRaoException(msg);
+        }
+
+        if (raoParameters.getObjectiveFunctionParameters().getType().relativePositiveMargins()
+            && getObjectiveFunctionUnit(raoParameters).equals(Unit.AMPERE)) {
+            String msg = "The objective function unit must be MEGAWATT to use relative positive margins";
+            OpenRaoLoggerProvider.BUSINESS_LOGS.error(msg);
+            throw new OpenRaoException(msg);
+        }
+
+        if (raoParameters.getLoopFlowParameters().isPresent()
+            && getObjectiveFunctionUnit(raoParameters).equals(Unit.AMPERE)) {
+            String msg = "The objective function unit must be MEGAWATT to use loopflow computation";
             OpenRaoLoggerProvider.BUSINESS_LOGS.error(msg);
             throw new OpenRaoException(msg);
         }

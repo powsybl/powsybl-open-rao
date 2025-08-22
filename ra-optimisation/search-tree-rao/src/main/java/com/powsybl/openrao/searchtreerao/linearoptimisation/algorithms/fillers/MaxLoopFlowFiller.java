@@ -38,12 +38,14 @@ public class MaxLoopFlowFiller implements ProblemFiller {
     private final double loopFlowViolationCost;
     private final double loopFlowConstraintAdjustmentCoefficient;
     private final OffsetDateTime timestamp;
+    private final Unit unit;
     private FlowResult preOptimFlowResult; // = flow result used in the first "fill" iteration
 
     public MaxLoopFlowFiller(Set<FlowCnec> loopFlowCnecs,
                              FlowResult initialFlowResult,
                              LoopFlowParameters loopFlowParameters,
                              SearchTreeRaoLoopFlowParameters loopFlowParametersExtension,
+                             Unit unit,
                              OffsetDateTime timestamp) {
         this.loopFlowCnecs = new TreeSet<>(Comparator.comparing(Identifiable::getId));
         this.loopFlowCnecs.addAll(FillersUtil.getFlowCnecsNotNaNFlow(loopFlowCnecs, initialFlowResult));
@@ -52,6 +54,7 @@ public class MaxLoopFlowFiller implements ProblemFiller {
         this.loopFlowAcceptableAugmentation = loopFlowParameters.getAcceptableIncrease();
         this.loopFlowViolationCost = loopFlowParametersExtension.getViolationCost();
         this.loopFlowConstraintAdjustmentCoefficient = loopFlowParametersExtension.getConstraintAdjustmentCoefficient();
+        this.unit = unit;
         this.timestamp = timestamp;
     }
 
@@ -122,7 +125,7 @@ public class MaxLoopFlowFiller implements ProblemFiller {
                 // loopflowViolationVariable is divided by number of monitored sides to not increase its effect on the objective function
 
                 OpenRaoMPConstraint positiveLoopflowViolationConstraint = linearProblem.addMaxLoopFlowConstraint(
-                    -loopFlowUpperBound + flowResult.getCommercialFlow(cnec, side, Unit.MEGAWATT),
+                    -loopFlowUpperBound + flowResult.getCommercialFlow(cnec, side, unit),
                     linearProblem.infinity(),
                     cnec,
                     side,
@@ -134,7 +137,7 @@ public class MaxLoopFlowFiller implements ProblemFiller {
 
                 OpenRaoMPConstraint negativeLoopflowViolationConstraint = linearProblem.addMaxLoopFlowConstraint(
                     -linearProblem.infinity(),
-                    loopFlowUpperBound + flowResult.getCommercialFlow(cnec, side, Unit.MEGAWATT),
+                    loopFlowUpperBound + flowResult.getCommercialFlow(cnec, side, unit),
                     cnec,
                     side,
                     LinearProblem.BoundExtension.UPPER_BOUND,
@@ -150,8 +153,8 @@ public class MaxLoopFlowFiller implements ProblemFiller {
     }
 
     private double getLoopFlowUpperBound(FlowCnec loopFlowCnec, TwoSides side) {
-        double loopFlowThreshold = loopFlowCnec.getExtension(LoopFlowThreshold.class).getThresholdWithReliabilityMargin(Unit.MEGAWATT);
-        double initialLoopFlow = initialFlowResult.getLoopFlow(loopFlowCnec, side, Unit.MEGAWATT);
+        double loopFlowThreshold = loopFlowCnec.getExtension(LoopFlowThreshold.class).getThresholdWithReliabilityMargin(unit);
+        double initialLoopFlow = initialFlowResult.getLoopFlow(loopFlowCnec, side, unit);
         // The first term ensures that the initial situation is always feasible, whatever the configuration parameters.
         // A tiny bit of slack (0.01) has been added to the threshold to avoid the rounding causing infeasibility.
         return Math.max(Math.abs(initialLoopFlow),

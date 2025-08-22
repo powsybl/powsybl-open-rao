@@ -312,7 +312,8 @@ public class SearchTreeRaoSteps {
 
     @Then("the margin on cnec {string} after ARA should be {double} A")
     public void afterAraMarginInA(String cnecId, Double expectedMargin) {
-        assertEquals(expectedMargin, raoResult.getMargin(crac.getInstant(InstantKind.AUTO), crac.getFlowCnec(cnecId), Unit.AMPERE), flowAmpereTolerance(expectedMargin));
+        Instant instant = crac.hasAutoInstant() ? crac.getInstant(InstantKind.AUTO) : crac.getOutageInstant();
+        assertEquals(expectedMargin, raoResult.getMargin(instant, crac.getFlowCnec(cnecId), Unit.AMPERE), flowAmpereTolerance(expectedMargin));
     }
 
     @Then("the margin on cnec {string} after CRA should be {double} A")

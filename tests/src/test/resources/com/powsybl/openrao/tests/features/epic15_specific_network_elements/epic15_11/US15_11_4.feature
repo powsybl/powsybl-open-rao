@@ -19,10 +19,10 @@ Feature: US 15.11.4: ARAO with 2P
     And the tap of PstRangeAction "PRA_PST_BE" should be -6 in preventive
     And 1 remedial actions are used after "Contingency_FR1_FR3" at "auto"
     And 0 remedial actions are used after "Contingency_FR1_FR3" at "curative"
-    And the worst margin is -140 MW
-    And the value of the objective function after CRA should be 140
-    And the margin on cnec "FR2-FR3-O - preventive" after PRA should be -140 MW
-    And the margin on cnec "NL2-BE3-O - curative" after CRA should be 0 MW
+    And the worst margin is -206 A
+    And the value of the objective function after CRA should be 206.1
+    And the margin on cnec "FR2-FR3-O - preventive" after PRA should be -206.1 A
+    And the margin on cnec "NL2-BE3-O - curative" after CRA should be 2.6 A
     Then the execution details should be "Second preventive improved first preventive results"
 
   @fast @rao @mock @ac @second-preventive @mnec
@@ -38,7 +38,7 @@ Feature: US 15.11.4: ARAO with 2P
     And the tap of PstRangeAction "ARA_PST_DE" should be 4 after "Contingency_FR1_FR3" at "auto"
     And 0 remedial actions are used after "Contingency_FR1_FR3" at "curative"
     And the remedial action "PRA_CRA_PST_BE" is not used after "Contingency_FR1_FR3" at "curative"
-    And the worst margin is -141 MW
-    And the value of the objective function after CRA should be 141
-    And the margin on cnec "NL2-BE3-O - curative" after CRA should be 224 MW
+    And the worst margin is -206 A
+    And the value of the objective function after CRA should be 206
+    And the margin on cnec "NL2-BE3-O - curative" after CRA should be 321 A
     Then the execution details should be "Second preventive improved first preventive results"

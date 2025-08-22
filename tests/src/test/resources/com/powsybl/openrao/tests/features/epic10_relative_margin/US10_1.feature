@@ -5,7 +5,7 @@
 
 Feature: US 10.1: Linear RAO with relative margin
 
-  @fast @rao @mock @ac @preventive-only @relative
+  @fast @rao @mock @dc @preventive-only @relative
   Scenario: US 10.1.1: unsecured case
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic10/ls_relative_margin_unsecure.json"
@@ -13,13 +13,13 @@ Feature: US 10.1: Linear RAO with relative margin
     Given loopflow glsk file is "common/glsk_proportional_12nodes.xml"
     When I launch search_tree_rao
     Then its security status should be "UNSECURED"
-    And the value of the objective function after CRA should be 275.8
+    And the value of the objective function after CRA should be 281.02
     And the tap of PstRangeAction "PRA_PST_BE" should be -16 in preventive
-    And the worst margin is -275.8 MW on cnec "FFR1AA1  FFR2AA1  1 - preventive"
-    And the relative margin on cnec "NNL2AA1  BBE3AA1  1 - preventive" after PRA should be 2286.2 MW
-    And the relative margin on cnec "DDE2AA1  NNL3AA1  1 - preventive" after PRA should be 2474.7 MW
+    And the worst margin is -281.02 MW on cnec "FFR1AA1  FFR2AA1  1 - preventive"
+    And the relative margin on cnec "NNL2AA1  BBE3AA1  1 - preventive" after PRA should be 2297.1 MW
+    And the relative margin on cnec "DDE2AA1  NNL3AA1  1 - preventive" after PRA should be 2475.3 MW
 
-  @fast @rao @mock @ac @preventive-only @relative
+  @fast @rao @mock @dc @preventive-only @relative
   Scenario: US 10.1.2: secured case
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic10/ls_relative_margin.json"
@@ -34,7 +34,7 @@ Feature: US 10.1: Linear RAO with relative margin
     And the relative margin on cnec "FFR2AA1  DDE3AA1  1 - preventive" after PRA should be 2392.4 MW
     And the absolute PTDF sum on cnec "FFR2AA1  DDE3AA1  1 - preventive" initially should be 1.477
 
-  @fast @rao @mock @ac @preventive-only @relative
+  @fast @rao @mock @dc @preventive-only @relative
   Scenario: US 10.1.3: secured case with open monitored branch
     Given network file is "common/TestCase12NodesWithOpenBranch.uct"
     Given crac file is "epic10/ls_relative_margin_with_open_branch.json"
