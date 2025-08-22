@@ -100,29 +100,4 @@ class OpenRaoLoggerProviderTest {
         assertEquals("[DEBUG] debug", logsList.get(3).toString());
         assertEquals("[TRACE] trace", logsList.get(4).toString());
     }
-
-    @Test
-    void testCracImporterLogs() {
-        assertTrue(OpenRaoLoggerProvider.CRAC_IMPORTER_LOGS.isInfoEnabled());
-        assertTrue(OpenRaoLoggerProvider.CRAC_IMPORTER_LOGS.isTraceEnabled());
-
-        ListAppender<ILoggingEvent> listAppender = getLogs(CracImporterLogs.class);
-
-        assertTrue(OpenRaoLoggerProvider.CRAC_IMPORTER_LOGS instanceof CracImporterLogs);
-
-        OpenRaoLoggerProvider.CRAC_IMPORTER_LOGS.info("info");
-        OpenRaoLoggerProvider.CRAC_IMPORTER_LOGS.warn("warn");
-        OpenRaoLoggerProvider.CRAC_IMPORTER_LOGS.error("error");
-        OpenRaoLoggerProvider.CRAC_IMPORTER_LOGS.debug("debug");
-        OpenRaoLoggerProvider.CRAC_IMPORTER_LOGS.trace("trace");
-
-        List<ILoggingEvent> logsList = listAppender.list;
-
-        assertEquals(5, logsList.size());
-        assertEquals("[INFO] info", logsList.get(0).toString());
-        assertEquals("[WARN] warn", logsList.get(1).toString());
-        assertEquals("[ERROR] error", logsList.get(2).toString());
-        assertEquals("[DEBUG] debug", logsList.get(3).toString());
-        assertEquals("[TRACE] trace", logsList.get(4).toString());
-    }
 }

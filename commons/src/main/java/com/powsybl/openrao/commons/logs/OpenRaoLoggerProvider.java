@@ -14,7 +14,6 @@ public final class OpenRaoLoggerProvider {
     public static final OpenRaoLogger BUSINESS_LOGS = new RaoBusinessLogs();
     public static final OpenRaoLogger BUSINESS_WARNS = new RaoBusinessWarns();
     public static final OpenRaoLogger TECHNICAL_LOGS = new TechnicalLogs();
-    public static final CracImporterLogs CRAC_IMPORTER_LOGS = new CracImporterLogs();
 
     private OpenRaoLoggerProvider() {
         // utility class
