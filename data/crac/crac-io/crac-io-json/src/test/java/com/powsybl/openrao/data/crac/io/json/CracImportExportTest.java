@@ -39,6 +39,7 @@ import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.threshold.BranchThreshold;
 import com.powsybl.openrao.data.crac.impl.utils.ExhaustiveCracCreation;
 import com.powsybl.openrao.data.crac.impl.utils.NetworkImportsUtil;
+import com.powsybl.openrao.data.crac.io.json.deserializers.CracDeserializer;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.slf4j.LoggerFactory;
@@ -95,7 +96,7 @@ class CracImportExportTest {
 
     @Test
     void testTwoInjectionOnOneGenerator() {
-        Logger logger = (Logger) LoggerFactory.getLogger(TechnicalLogs.class);
+        Logger logger = (Logger) LoggerFactory.getLogger(CracDeserializer.class);
         ListAppender<ILoggingEvent> listAppender = new ListAppender<>();
         listAppender.start();
         logger.addAppender(listAppender);
@@ -108,8 +109,8 @@ class CracImportExportTest {
 
         logsList.sort(Comparator.comparing(ILoggingEvent::getMessage));
         assertEquals(2, logsList.size());
-        assertEquals("If the injection range action is used to represent a redispatching remedial action :two different injection actions in the crac can not be defined on the same network element : generator1Id", logsList.get(0).getFormattedMessage());
-        assertEquals("If the injection range action is used to represent a redispatching remedial action :two different injection actions in the crac can not be defined on the same network element : generator2Id", logsList.get(1).getFormattedMessage());
+        assertEquals("If the injection range action is used to represent a redispatching remedial action : two different injection actions in the crac can not be defined on the same network element : generator1Id", logsList.get(0).getFormattedMessage());
+        assertEquals("If the injection range action is used to represent a redispatching remedial action : two different injection actions in the crac can not be defined on the same network element : generator2Id", logsList.get(1).getFormattedMessage());
 
     }
 

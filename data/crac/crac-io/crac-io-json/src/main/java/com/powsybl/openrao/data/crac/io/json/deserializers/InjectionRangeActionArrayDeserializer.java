@@ -66,7 +66,7 @@ public final class InjectionRangeActionArrayDeserializer {
             String networkElementId = jsonParser.getCurrentName();
             // check if an another injection action was already defined on the same network element.
             if (networkElementsUsedList.contains(networkElementId)) {
-                LOGGER.warn("If the injection range action is used to represent a redispatching remedial action :" +
+                LOGGER.warn("If the injection range action is used to represent a redispatching remedial action : " +
                     "two different injection actions in the crac can not be defined on the same network element : " + networkElementId);
             }
             networkElementsUsedList.add(networkElementId);
