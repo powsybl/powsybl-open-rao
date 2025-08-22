@@ -167,10 +167,7 @@ public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extend
     }
 
     private static boolean isCnecInCountry(Cnec<?> cnec, Country country, Network network) {
-        return cnec.getLocation(network).stream()
-            .filter(Optional::isPresent)
-            .map(Optional::get)
-            .anyMatch(cnecCountry -> cnecCountry.equals(country));
+        return cnec.getLocation(network).stream().anyMatch(cnecCountry -> cnecCountry.equals(country));
     }
 
     @Override
