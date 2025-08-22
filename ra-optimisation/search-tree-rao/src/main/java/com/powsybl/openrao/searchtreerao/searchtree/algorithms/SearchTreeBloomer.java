@@ -41,7 +41,8 @@ public final class SearchTreeBloomer {
             new MaximumNumberOfTsosFilter(raUsageLimits.getMaxTso()),
             new FarFromMostLimitingElementFilter(input.getNetwork(), parameters.getNetworkActionParameters().skipNetworkActionFarFromMostLimitingElements(), parameters.getNetworkActionParameters().getMaxNumberOfBoundariesForSkippingNetworkActions()),
             new ElementaryActionsCompatibilityFilter(),
-            new MaximumNumberOfElementaryActionsFilter(raUsageLimits.getMaxElementaryActionsPerTso())
+            new MaximumNumberOfElementaryActionsFilter(raUsageLimits.getMaxElementaryActionsPerTso()),
+            new OnFlowConstraintFilter(input.getOptimizationPerimeter().getMainOptimizationState(), input.getOptimizationPerimeter().getFlowCnecs(), input.getNetwork(), parameters.getObjectiveFunctionUnit())
         );
         this.input = input;
         this.parameters = parameters;

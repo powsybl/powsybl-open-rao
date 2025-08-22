@@ -11,6 +11,8 @@ import com.powsybl.openrao.data.crac.api.RaUsageLimits;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
+import com.powsybl.openrao.data.crac.api.usagerule.OnInstant;
+import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.commons.parameters.NetworkActionParameters;
@@ -27,6 +29,7 @@ import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkAct
 import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.COMB_2_FR_NL;
 import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.COMB_3_BE;
 import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.COMB_3_FR_NL_BE;
+import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.CRAC;
 import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.IND_BE_1;
 import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.IND_FR_2;
 import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.IND_FR_DE;
@@ -45,10 +48,17 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class SearchTreeBloomerTest {
     @Test
     void testDoNotRemoveCombinationDetectedInRao() {
+        OnInstant onInstant = Mockito.mock(OnInstant.class);
+        Mockito.when(onInstant.getUsageMethod()).thenReturn(UsageMethod.AVAILABLE);
+        Mockito.when(onInstant.getUsageMethod(Mockito.any())).thenReturn(UsageMethod.AVAILABLE);
+        Mockito.when(onInstant.getInstant()).thenReturn(CRAC.getPreventiveInstant());
+
         NetworkAction na1 = Mockito.mock(NetworkAction.class);
         NetworkAction na2 = Mockito.mock(NetworkAction.class);
         Mockito.when(na1.getOperator()).thenReturn("fake_tso");
         Mockito.when(na2.getOperator()).thenReturn("fake_tso");
+        Mockito.when(na1.getUsageRules()).thenReturn(Set.of(onInstant));
+        Mockito.when(na2.getUsageRules()).thenReturn(Set.of(onInstant));
 
         SearchTreeBloomer bloomer = initBloomer(List.of(new NetworkActionCombination(Set.of(na2), true)), Map.of(P_STATE.getInstant(), new RaUsageLimits()));
         Leaf leaf = Mockito.mock(Leaf.class);
@@ -61,10 +71,17 @@ class SearchTreeBloomerTest {
 
     @Test
     void testFilterIdenticalCombinations() {
+        OnInstant onInstant = Mockito.mock(OnInstant.class);
+        Mockito.when(onInstant.getUsageMethod()).thenReturn(UsageMethod.AVAILABLE);
+        Mockito.when(onInstant.getUsageMethod(Mockito.any())).thenReturn(UsageMethod.AVAILABLE);
+        Mockito.when(onInstant.getInstant()).thenReturn(CRAC.getPreventiveInstant());
+
         NetworkAction na1 = Mockito.mock(NetworkAction.class);
         NetworkAction na2 = Mockito.mock(NetworkAction.class);
         Mockito.when(na1.getOperator()).thenReturn("fake_tso");
         Mockito.when(na2.getOperator()).thenReturn("fake_tso");
+        Mockito.when(na1.getUsageRules()).thenReturn(Set.of(onInstant));
+        Mockito.when(na2.getUsageRules()).thenReturn(Set.of(onInstant));
 
         SearchTreeBloomer bloomer = initBloomer(List.of(new NetworkActionCombination(Set.of(na1, na2), false), new NetworkActionCombination(Set.of(na1, na2), false), new NetworkActionCombination(Set.of(na1, na2), true)), Map.of(P_STATE.getInstant(), new RaUsageLimits()));
         Leaf leaf = Mockito.mock(Leaf.class);

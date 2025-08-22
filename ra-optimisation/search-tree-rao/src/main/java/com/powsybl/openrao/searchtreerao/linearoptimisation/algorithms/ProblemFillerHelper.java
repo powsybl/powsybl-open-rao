@@ -56,6 +56,7 @@ public final class ProblemFillerHelper {
             // TODO : mutualize arguments using only SearchTreeRaoRangeActionsOptimizationParameters extension
             CostCoreProblemFiller costCoreProblemFiller = new CostCoreProblemFiller(
                 input.optimizationPerimeter(),
+                input.rangeActionsPerState(),
                 input.prePerimeterSetpoints(),
                 parameters.getRangeActionParameters(),
                 parameters.getRangeActionParametersExtension(),
@@ -68,6 +69,7 @@ public final class ProblemFillerHelper {
         } else {
             MarginCoreProblemFiller marginCoreProblemFiller = new MarginCoreProblemFiller(
                 input.optimizationPerimeter(),
+                input.rangeActionsPerState(),
                 input.prePerimeterSetpoints(),
                 parameters.getRangeActionParameters(),
                 parameters.getRangeActionParametersExtension(),
@@ -143,27 +145,25 @@ public final class ProblemFillerHelper {
         // MIP optimization vs. CONTINUOUS optimization
         SearchTreeRaoRangeActionsOptimizationParameters.PstModel pstModel = getPstModel(parameters.getRangeActionParametersExtension());
         if (SearchTreeRaoRangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS.equals(pstModel)) {
-            Map<State, Set<PstRangeAction>> pstRangeActions = copyOnlyPstRangeActions(input.optimizationPerimeter().getRangeActionsPerState());
-            Map<State, Set<RangeAction<?>>> otherRa = copyWithoutPstRangeActions(input.optimizationPerimeter().getRangeActionsPerState());
+            Map<State, Set<PstRangeAction>> pstRangeActions = copyOnlyPstRangeActions(input.rangeActionsPerState());
+            Map<State, Set<RangeAction<?>>> otherRa = copyWithoutPstRangeActions(input.rangeActionsPerState());
             DiscretePstTapFiller discretePstTapFiller = new DiscretePstTapFiller(
                 input.optimizationPerimeter(),
                 pstRangeActions,
                 input.prePerimeterSetpoints(),
                 parameters.getRangeActionParameters(),
-                parameters.getObjectiveFunction().costOptimization(),
-                timestamp
+                parameters.getObjectiveFunction().costOptimization()
             );
             problemFillers.add(discretePstTapFiller);
             DiscretePstGroupFiller discretePstGroupFiller = new DiscretePstGroupFiller(
                 input.optimizationPerimeter().getMainOptimizationState(),
-                pstRangeActions,
-                timestamp
+                pstRangeActions
             );
             problemFillers.add(discretePstGroupFiller);
-            ContinuousRangeActionGroupFiller continuousRangeActionGroupFiller = new ContinuousRangeActionGroupFiller(otherRa, timestamp);
+            ContinuousRangeActionGroupFiller continuousRangeActionGroupFiller = new ContinuousRangeActionGroupFiller(otherRa);
             problemFillers.add(continuousRangeActionGroupFiller);
         } else if (SearchTreeRaoRangeActionsOptimizationParameters.PstModel.CONTINUOUS.equals(pstModel)) {
-            ContinuousRangeActionGroupFiller continuousRangeActionGroupFiller = new ContinuousRangeActionGroupFiller(input.optimizationPerimeter().getRangeActionsPerState(), timestamp);
+            ContinuousRangeActionGroupFiller continuousRangeActionGroupFiller = new ContinuousRangeActionGroupFiller(input.rangeActionsPerState());
             problemFillers.add(continuousRangeActionGroupFiller);
         }
 
@@ -172,13 +172,12 @@ public final class ProblemFillerHelper {
             && input.optimizationPerimeter().getRangeActionOptimizationStates().stream()
             .anyMatch(state -> parameters.getRaLimitationParameters().areRangeActionLimitedForState(state))) {
             RaUsageLimitsFiller raUsageLimitsFiller = new RaUsageLimitsFiller(
-                input.optimizationPerimeter().getRangeActionsPerState(),
+                input.rangeActionsPerState(),
                 input.prePerimeterSetpoints(),
                 parameters.getRaLimitationParameters(),
                 getPstModel(parameters.getRangeActionParametersExtension()) == SearchTreeRaoRangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS,
                 input.network(),
-                parameters.getObjectiveFunction().costOptimization(),
-                timestamp
+                parameters.getObjectiveFunction().costOptimization()
             );
             problemFillers.add(raUsageLimitsFiller);
         }

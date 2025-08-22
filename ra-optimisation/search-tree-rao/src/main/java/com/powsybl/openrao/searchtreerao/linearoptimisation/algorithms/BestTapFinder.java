@@ -49,17 +49,19 @@ public final class BestTapFinder {
     public static RangeActionActivationResultImpl round(RangeActionActivationResult linearProblemResult,
                                                     Network network,
                                                     OptimizationPerimeter optimizationContext,
+                                                    Map<State, Set<RangeAction<?>>> availableRangeActionsPerState,
                                                     RangeActionSetpointResult prePerimeterSetpoint,
                                                     LinearOptimizationResult linearOptimizationResult,
                                                     Unit unit) {
         RangeActionActivationResultImpl roundedResult = new RangeActionActivationResultImpl(prePerimeterSetpoint);
-        findBestTapOfPstRangeActions(linearProblemResult, network, optimizationContext, linearOptimizationResult, roundedResult, unit);
+        findBestTapOfPstRangeActions(linearProblemResult, network, optimizationContext, availableRangeActionsPerState, linearOptimizationResult, roundedResult, unit);
         return roundedResult;
     }
 
     private static void findBestTapOfPstRangeActions(RangeActionActivationResult linearProblemResult,
                                                      Network network,
                                                      OptimizationPerimeter optimizationContext,
+                                                     Map<State, Set<RangeAction<?>>> availableRangeActionsPerState,
                                                      LinearOptimizationResult linearOptimizationResult,
                                                      RangeActionActivationResultImpl roundedResult,
                                                      Unit unit) {
@@ -67,14 +69,14 @@ public final class BestTapFinder {
 
             Map<PstRangeAction, Map<Integer, Double>> minMarginPerTap = new HashMap<>();
 
-            optimizationContext.getRangeActionsPerState().get(state).stream()
+            availableRangeActionsPerState.get(state).stream()
                 .filter(PstRangeAction.class::isInstance)
                 .map(PstRangeAction.class::cast)
                 .forEach(pstRangeAction -> minMarginPerTap.put(pstRangeAction, computeMinMarginsForBestTaps(network, pstRangeAction, linearProblemResult.getOptimizedSetpoint(pstRangeAction, state), linearOptimizationResult, unit)));
 
             Map<String, Integer> bestTapPerPstGroup = computeBestTapPerPstGroup(minMarginPerTap);
 
-            for (RangeAction<?> rangeAction : optimizationContext.getRangeActionsPerState().get(state)) {
+            for (RangeAction<?> rangeAction : availableRangeActionsPerState.get(state)) {
                 if (rangeAction instanceof PstRangeAction pstRangeAction && linearProblemResult.getActivatedRangeActions(state).contains(rangeAction)) {
                     Optional<String> optGroupId = pstRangeAction.getGroupId();
                     if (optGroupId.isPresent()) {

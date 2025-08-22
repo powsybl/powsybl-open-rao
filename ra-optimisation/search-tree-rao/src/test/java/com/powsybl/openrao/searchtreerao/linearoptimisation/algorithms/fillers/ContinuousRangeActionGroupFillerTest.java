@@ -58,6 +58,7 @@ class ContinuousRangeActionGroupFillerTest extends AbstractFillerTest {
 
         MarginCoreProblemFiller coreProblemFiller = new MarginCoreProblemFiller(
             optimizationPerimeter,
+            optimizationPerimeter.getRangeActionsPerState(),
             initialRangeActionSetpointResult,
             (new RaoParameters()).getRangeActionsOptimizationParameters(),
             null,
@@ -67,7 +68,7 @@ class ContinuousRangeActionGroupFillerTest extends AbstractFillerTest {
             null);
 
         ContinuousRangeActionGroupFiller continuousRangeActionGroupFiller = new ContinuousRangeActionGroupFiller(
-            rangeActions, null);
+            rangeActions);
 
         LinearProblem linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)

@@ -20,6 +20,7 @@ import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.StandardRangeAction;
+import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
@@ -339,7 +340,7 @@ public class CastorSecondPreventive {
         if (getSecondPreventiveReOptimizeCurativeRangeActions(raoParameters)) {
             optPerimeter = GlobalOptimizationPerimeter.build(crac, network, raoParameters, prePerimeterResult);
         } else {
-            Set<RangeAction<?>> rangeActionsFor2p = new HashSet<>(crac.getRangeActions());
+            Set<RangeAction<?>> rangeActionsFor2p = new HashSet<>(crac.getRangeActions(preventiveState, UsageMethod.AVAILABLE));
             excludedRangeActions.forEach(rangeAction -> {
                 BUSINESS_WARNS.warn("Range action {} will not be considered in 2nd preventive RAO as it is also auto/curative (or its network element has an associated ARA/CRA)", rangeAction.getId());
                 rangeActionsFor2p.remove(rangeAction);

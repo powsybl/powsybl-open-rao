@@ -48,7 +48,7 @@ public final class NetworkActionCombinationsUtils {
     private static final NetworkAction NA_DE_1 = createNetworkActionWithOperator("DDE1AA1  DDE3AA1  1", "de");
     private static final NetworkAction NA_DE_2 = createNetworkActionWithOperator("DDE2AA1  DDE3AA1  1", "de");
     private static final NetworkAction NA_FR_DE = createNetworkActionWithOperator("FFR2AA1  DDE3AA1  1", "fr");
-    private static final NetworkAction NA_NL_BE = createNetworkActionWithOperator("NNL2AA1  BBE3AA1  1", "nl");
+    private static final NetworkAction NA_NL_BE = createNetworkActionWithOperatorAndOnFlowConstraintUsageRule("NNL2AA1  BBE3AA1  1", "nl");
     private static final NetworkAction NA_DE_NL = createNetworkActionWithOperator("DDE2AA1  NNL3AA1  1", "de");
 
     public static final NetworkActionCombination IND_FR_1 = new NetworkActionCombination(NA_FR_1);
@@ -89,7 +89,11 @@ public final class NetworkActionCombinationsUtils {
     }
 
     static NetworkAction createNetworkActionWithOperator(String networkElementId, String operator) {
-        return CRAC.newNetworkAction().withId("na - " + networkElementId).withOperator(operator).newTerminalsConnectionAction().withNetworkElement(networkElementId).withActionType(ActionType.OPEN).add().add();
+        return CRAC.newNetworkAction().withId("na - " + networkElementId).withOperator(operator).newTerminalsConnectionAction().withNetworkElement(networkElementId).withActionType(ActionType.OPEN).add().newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add().add();
+    }
+
+    static NetworkAction createNetworkActionWithOperatorAndOnFlowConstraintUsageRule(String networkElementId, String operator) {
+        return CRAC.newNetworkAction().withId("na - " + networkElementId).withOperator(operator).newTerminalsConnectionAction().withNetworkElement(networkElementId).withActionType(ActionType.OPEN).add().newOnConstraintUsageRule().withCnec("cnecBe").withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add().add();
     }
 
     static PstRangeAction createPstRangeActionWithOperator(String networkElementId, String operator) {

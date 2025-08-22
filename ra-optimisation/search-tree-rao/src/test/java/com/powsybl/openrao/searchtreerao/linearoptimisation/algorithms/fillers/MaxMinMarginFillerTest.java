@@ -64,6 +64,7 @@ class MaxMinMarginFillerTest extends AbstractFillerTest {
 
         coreProblemFiller = new MarginCoreProblemFiller(
             optimizationPerimeter,
+            optimizationPerimeter.getRangeActionsPerState(),
             initialRangeActionSetpointResult,
             raoParameters.getRangeActionsOptimizationParameters(),
             null,

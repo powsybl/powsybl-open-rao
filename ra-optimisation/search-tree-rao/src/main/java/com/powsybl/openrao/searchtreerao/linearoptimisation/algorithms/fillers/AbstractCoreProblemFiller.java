@@ -49,6 +49,7 @@ import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRang
 public abstract class AbstractCoreProblemFiller implements ProblemFiller {
     protected static final double RANGE_ACTION_SETPOINT_EPSILON = 1e-5;
     protected final OptimizationPerimeter optimizationContext;
+    protected final Map<State, Set<RangeAction<?>>> availableRangeActionsPerState;
     protected final RangeActionSetpointResult prePerimeterRangeActionSetpoints;
     protected final Set<FlowCnec> flowCnecs;
     protected final RangeActionsOptimizationParameters rangeActionParameters;
@@ -61,6 +62,7 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
     protected final OffsetDateTime timestamp;
 
     protected AbstractCoreProblemFiller(OptimizationPerimeter optimizationContext,
+                                        Map<State, Set<RangeAction<?>>> availableRangeActionsPerState,
                                         RangeActionSetpointResult prePerimeterRangeActionSetpoints,
                                         RangeActionsOptimizationParameters rangeActionParameters,
                                         SearchTreeRaoRangeActionsOptimizationParameters rangeActionParametersExtension,
@@ -69,6 +71,7 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
                                         PstModel pstModel,
                                         OffsetDateTime timestamp) {
         this.optimizationContext = optimizationContext;
+        this.availableRangeActionsPerState = availableRangeActionsPerState;
         this.prePerimeterRangeActionSetpoints = prePerimeterRangeActionSetpoints;
         this.flowCnecs = new TreeSet<>(Comparator.comparing(Identifiable::getId));
         this.flowCnecs.addAll(optimizationContext.getFlowCnecs());
@@ -127,7 +130,7 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
      * and its initial value. It is given in the same unit as S[r].
      */
     private void buildRangeActionVariables(LinearProblem linearProblem) {
-        optimizationContext.getRangeActionsPerState().forEach((state, rangeActions) ->
+        availableRangeActionsPerState.forEach((state, rangeActions) ->
             rangeActions.forEach(rangeAction -> addAllRangeActionVariables(linearProblem, rangeAction, state))
         );
     }
@@ -165,7 +168,7 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
     private void addImpactOfRangeActionOnCnec(LinearProblem linearProblem, SensitivityResult sensitivityResult, FlowCnec cnec, TwoSides side, RangeActionActivationResult rangeActionActivationResult) {
         OpenRaoMPConstraint flowConstraint = linearProblem.getFlowConstraint(cnec, side, Optional.ofNullable(timestamp));
 
-        List<State> statesBeforeCnec = FillersUtil.getPreviousStates(cnec.getState(), optimizationContext).stream()
+        List<State> statesBeforeCnec = FillersUtil.getPreviousStates(cnec.getState(), availableRangeActionsPerState).stream()
             .sorted((s1, s2) -> Integer.compare(s2.getInstant().getOrder(), s1.getInstant().getOrder())) // start with curative state
             .toList();
 
@@ -173,7 +176,7 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
 
         for (State state : statesBeforeCnec) {
             // Impact of range action on cnec is only added on the last instant on which rangeAction is available
-            for (RangeAction<?> rangeAction : optimizationContext.getRangeActionsPerState().get(state)) {
+            for (RangeAction<?> rangeAction : availableRangeActionsPerState.get(state)) {
                 // todo: make that cleaner, it is ugly
                 if (!alreadyConsideredAction.contains(rangeAction)) {
                     addImpactOfRangeActionOnCnec(linearProblem, sensitivityResult, rangeAction, state, cnec, side, flowConstraint, rangeActionActivationResult);
@@ -214,7 +217,7 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
     }
 
     private void buildRangeActionConstraints(LinearProblem linearProblem) {
-        optimizationContext.getRangeActionsPerState().entrySet().stream()
+        availableRangeActionsPerState.entrySet().stream()
             .sorted(Comparator.comparingInt(e -> e.getKey().getInstant().getOrder()))
             .forEach(entry -> {
                 addGlobalInjectionBalanceConstraint(linearProblem, entry.getKey());
@@ -223,7 +226,7 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
     }
 
     private void addGlobalInjectionBalanceConstraint(LinearProblem linearProblem, State state) {
-        if (optimizationContext.getRangeActionsPerState().get(state).stream().anyMatch(InjectionRangeAction.class::isInstance)) {
+        if (availableRangeActionsPerState.get(state).stream().anyMatch(InjectionRangeAction.class::isInstance)) {
             linearProblem.addInjectionBalanceConstraint(state);
         }
     }
@@ -234,7 +237,7 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
         }
         if (iteration > 0) {
             // don't shrink the range for the first iteration
-            optimizationContext.getRangeActionsPerState().forEach((state, rangeActionSet) -> rangeActionSet.forEach(rangeAction -> updateConstraintsForRangeAction(linearProblem, rangeAction, state, rangeActionActivationResult, iteration, timestamp)));
+            availableRangeActionsPerState.forEach((state, rangeActionSet) -> rangeActionSet.forEach(rangeAction -> updateConstraintsForRangeAction(linearProblem, rangeAction, state, rangeActionActivationResult, iteration, timestamp)));
         }
         iteration++;
     }
@@ -403,7 +406,7 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
 
     private Set<RangeAction<?>> getAvailableRangeActionsOnSameAction(RangeAction<?> rangeAction) {
         Set<RangeAction<?>> rangeActions = new HashSet<>();
-        optimizationContext.getRangeActionsPerState().forEach((state, raSet) ->
+        availableRangeActionsPerState.forEach((state, raSet) ->
             raSet.forEach(ra -> {
                 if (ra.getId().equals(rangeAction.getId()) || ra.getNetworkElements().equals(rangeAction.getNetworkElements())) {
                     rangeActions.add(ra);

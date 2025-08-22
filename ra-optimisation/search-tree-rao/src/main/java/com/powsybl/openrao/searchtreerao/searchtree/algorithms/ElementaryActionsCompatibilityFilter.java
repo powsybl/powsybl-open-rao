@@ -16,9 +16,13 @@ import java.util.stream.Collectors;
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public class ElementaryActionsCompatibilityFilter implements NetworkActionCombinationFilter {
+public class ElementaryActionsCompatibilityFilter extends AbstractNetworkActionCombinationFilter {
+    protected ElementaryActionsCompatibilityFilter() {
+        super("they are incompatible with some network actions that were already applied on the network");
+    }
+
     @Override
-    public Set<NetworkActionCombination> filter(Set<NetworkActionCombination> naCombinations, OptimizationResult optimizationResult) {
+    public Set<NetworkActionCombination> filterOutCombinations(Set<NetworkActionCombination> naCombinations, OptimizationResult optimizationResult) {
         return naCombinations.stream()
             .filter(naCombination -> naCombination.getNetworkActionSet().stream().allMatch(networkAction -> optimizationResult.getActivatedNetworkActions().stream().allMatch(networkAction::isCompatibleWith)))
             .collect(Collectors.toSet());

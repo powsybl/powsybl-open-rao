@@ -23,6 +23,7 @@ import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
+import com.powsybl.openrao.data.crac.api.usagerule.OnInstant;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
@@ -50,6 +51,8 @@ import java.util.*;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
 import static com.powsybl.openrao.searchtreerao.commons.RaoLogger.logRangeActions;
+import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.CRAC;
+import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.P_STATE;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
@@ -66,7 +69,6 @@ class SearchTreeTest {
     private SearchTreeInput searchTreeInput;
 
     private Network network;
-    private final State optimizedState = Mockito.mock(State.class);
     private OptimizationPerimeter optimizationPerimeter;
     private NetworkAction networkAction;
     private List<NetworkActionCombination> availableNaCombinations = new ArrayList<>();
@@ -125,7 +127,7 @@ class SearchTreeTest {
         when(optimizationPerimeter.getNetworkActions()).thenReturn(availableNetworkActions);
         availableRangeActions = new HashSet<>();
         when(optimizationPerimeter.getRangeActions()).thenReturn(availableRangeActions);
-        when(optimizationPerimeter.getMainOptimizationState()).thenReturn(optimizedState);
+        when(optimizationPerimeter.getMainOptimizationState()).thenReturn(P_STATE);
         FlowCnec cnec = Mockito.mock(FlowCnec.class);
         when(cnec.isOptimized()).thenReturn(true);
         when(optimizationPerimeter.getFlowCnecs()).thenReturn(Set.of(cnec));
@@ -134,10 +136,6 @@ class SearchTreeTest {
         when(searchTreeInput.getPrePerimeterResult()).thenReturn(prePerimeterResult);
         ObjectiveFunction objectiveFunction = Mockito.mock(ObjectiveFunction.class);
         when(searchTreeInput.getObjectiveFunction()).thenReturn(objectiveFunction);
-        when(optimizedState.getContingency()).thenReturn(Optional.empty());
-        Instant preventiveInstant = Mockito.mock(Instant.class);
-        when(preventiveInstant.toString()).thenReturn("preventive");
-        when(optimizedState.getInstant()).thenReturn(preventiveInstant);
         rootLeaf = Mockito.mock(Leaf.class);
         when(searchTreeInput.getToolProvider()).thenReturn(Mockito.mock(ToolProvider.class));
         Instant outageInstant = Mockito.mock(Instant.class);
@@ -300,10 +298,15 @@ class SearchTreeTest {
         raoWithoutLoopFlowLimitation();
         setStopCriterionAtTargetObjectiveValue(0.);
 
+        OnInstant onInstant = Mockito.mock(OnInstant.class);
+        when(onInstant.getUsageMethod()).thenReturn(UsageMethod.AVAILABLE);
+        when(onInstant.getUsageMethod(any())).thenReturn(UsageMethod.AVAILABLE);
+        when(onInstant.getInstant()).thenReturn(CRAC.getPreventiveInstant());
+
         NetworkAction networkAction1 = Mockito.mock(NetworkAction.class);
         NetworkAction networkAction2 = Mockito.mock(NetworkAction.class);
-        when(networkAction1.getUsageMethod(any())).thenReturn(UsageMethod.AVAILABLE);
-        when(networkAction2.getUsageMethod(any())).thenReturn(UsageMethod.AVAILABLE);
+        when(networkAction1.getUsageRules()).thenReturn(Set.of(onInstant));
+        when(networkAction2.getUsageRules()).thenReturn(Set.of(onInstant));
         when(networkAction1.getOperator()).thenReturn("operator1");
         when(networkAction2.getOperator()).thenReturn("operator2");
         when(networkAction1.getId()).thenReturn("na1");
@@ -363,10 +366,10 @@ class SearchTreeTest {
         setMaxPstPerTso(tsoName, maxPstOfTso);
 
         mockRootLeafCost(5.);
-        when(rootLeaf.getOptimizedSetpoint(rangeAction2, optimizedState)).thenReturn(3.);
+        when(rootLeaf.getOptimizedSetpoint(rangeAction2, P_STATE)).thenReturn(3.);
 
         OptimizationResult result = searchTree.run().get();
-        assertEquals(3., result.getOptimizedSetpoint(rangeAction2, optimizedState), DOUBLE_TOLERANCE);
+        assertEquals(3., result.getOptimizedSetpoint(rangeAction2, P_STATE), DOUBLE_TOLERANCE);
     }
 
     private void raoWithRangeActionsForTso(String tsoName) {
@@ -624,8 +627,8 @@ class SearchTreeTest {
         rangeAction2 = Mockito.mock(PstRangeAction.class);
         when(rangeAction1.getName()).thenReturn("PST1");
         when(rangeAction2.getName()).thenReturn("PST2");
-        when(searchTreeInput.getOptimizationPerimeter().getRangeActionOptimizationStates()).thenReturn(Set.of(optimizedState));
-        when(rootLeaf.getActivatedRangeActions(optimizedState)).thenReturn(Set.of(rangeAction1, rangeAction2));
+        when(searchTreeInput.getOptimizationPerimeter().getRangeActionOptimizationStates()).thenReturn(Set.of(P_STATE));
+        when(rootLeaf.getActivatedRangeActions(P_STATE)).thenReturn(Set.of(rangeAction1, rangeAction2));
 
         logRangeActions(TECHNICAL_LOGS, rootLeaf, searchTreeInput.getOptimizationPerimeter(), "");
         // PST can be logged in any order

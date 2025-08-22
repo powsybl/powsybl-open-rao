@@ -7,6 +7,8 @@
 package com.powsybl.openrao.searchtreerao.linearoptimisation.inputs;
 
 import com.powsybl.openrao.data.crac.api.Instant;
+import com.powsybl.openrao.data.crac.api.State;
+import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
@@ -18,10 +20,14 @@ import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 import com.powsybl.iidm.network.Network;
 
+import java.util.Map;
+import java.util.Set;
+
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public record IteratingLinearOptimizerInput(Network network, OptimizationPerimeter optimizationPerimeter,
+                                            Map<State, Set<RangeAction<?>>> rangeActionsPerState,
                                             FlowResult initialFlowResult, FlowResult prePerimeterFlowResult,
                                             RangeActionSetpointResult prePerimeterSetpoints,
                                             FlowResult preOptimizationFlowResult,
@@ -39,6 +45,7 @@ public record IteratingLinearOptimizerInput(Network network, OptimizationPerimet
     public static class IteratingLinearOptimizerInputBuilder {
         private Network network;
         private OptimizationPerimeter optimizationPerimeter;
+        Map<State, Set<RangeAction<?>>> rangeActionsPerState;
         private FlowResult initialFlowResult;
         private FlowResult prePerimeterFlowResult;
         private RangeActionSetpointResult prePerimeterSetpoints;
@@ -63,6 +70,11 @@ public record IteratingLinearOptimizerInput(Network network, OptimizationPerimet
 
         public IteratingLinearOptimizerInputBuilder withInitialFlowResult(FlowResult initialFlowResult) {
             this.initialFlowResult = initialFlowResult;
+            return this;
+        }
+
+        public IteratingLinearOptimizerInputBuilder withRangeActionsPerState(Map<State, Set<RangeAction<?>>> rangeActionsPerState) {
+            this.rangeActionsPerState = rangeActionsPerState;
             return this;
         }
 
@@ -119,6 +131,7 @@ public record IteratingLinearOptimizerInput(Network network, OptimizationPerimet
         public IteratingLinearOptimizerInput build() {
             return new IteratingLinearOptimizerInput(network,
                 optimizationPerimeter,
+                rangeActionsPerState,
                 initialFlowResult,
                 prePerimeterFlowResult,
                 prePerimeterSetpoints,
