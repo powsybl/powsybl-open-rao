@@ -20,7 +20,7 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.Optional;
 
-import static com.powsybl.openrao.searchtreerao.marmot.f711.CracUtil.importNativeCrac;
+import static com.powsybl.openrao.data.raoresult.io.idcc.core.CracUtil.importNativeCrac;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}

@@ -30,12 +30,12 @@ import java.util.stream.IntStream;
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com}
  */
-public class PowerGradientConstraintFiller implements ProblemFiller {
+public class GeneratorConstraintFiller implements ProblemFiller {
     private final TemporalData<State> preventiveStates;
     private final TemporalData<Set<InjectionRangeAction>> injectionRangeActionsPerTimestamp;
     private final Set<GeneratorConstraints> generatorConstraints;
 
-    public PowerGradientConstraintFiller(TemporalData<State> preventiveStates, TemporalData<Set<InjectionRangeAction>> injectionRangeActionsPerTimestamp, Set<GeneratorConstraints> generatorConstraints) {
+    public GeneratorConstraintFiller(TemporalData<State> preventiveStates, TemporalData<Set<InjectionRangeAction>> injectionRangeActionsPerTimestamp, Set<GeneratorConstraints> generatorConstraints) {
         this.preventiveStates = preventiveStates;
         this.injectionRangeActionsPerTimestamp = injectionRangeActionsPerTimestamp;
         this.generatorConstraints = generatorConstraints;
@@ -76,7 +76,7 @@ public class PowerGradientConstraintFiller implements ProblemFiller {
      * P(g,t) = p0(g,t) + sum_{i \in injectionAction_prev(g,t)} d_i(g) * [delta^{+}(r,s,t) - delta^{-}(r,s,t)]
      * */
     private void addPowerConstraint(LinearProblem linearProblem, String generatorId, OpenRaoMPVariable generatorPowerVariable, OffsetDateTime timestamp) {
-        // Initial power cannot be read from modified network. It is fetched from rangeActionSetPointVariationConstraint's upper bound
+        // Initial power cannot be read from modified network (because of multiple iterations without applying on network?). It is fetched from rangeActionSetPointVariationConstraint's upper bound
         OpenRaoMPConstraint generatorPowerConstraint = linearProblem.addGeneratorPowerConstraint(generatorId, 0., timestamp);
         generatorPowerConstraint.setCoefficient(generatorPowerVariable, 1.0);
         final double[] bound = {0};
@@ -94,7 +94,7 @@ public class PowerGradientConstraintFiller implements ProblemFiller {
                 OpenRaoMPConstraint setPointVariationConstraint = linearProblem.getRangeActionSetPointVariationConstraint(injectionRangeAction, preventiveStates.getData(timestamp).orElseThrow());
                 bound[0] = bound[0] + setPointVariationConstraint.ub() * injectionKey;
             });
-        generatorPowerConstraint.setBounds(bound[0], bound[0]);;
+        generatorPowerConstraint.setBounds(bound[0], bound[0]);
     }
 
     @Override

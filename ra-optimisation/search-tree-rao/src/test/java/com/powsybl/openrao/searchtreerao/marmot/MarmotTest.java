@@ -11,12 +11,9 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.data.crac.api.Crac;
-import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.generatorconstraints.GeneratorConstraints;
 import com.powsybl.openrao.data.raoresult.api.InterTemporalRaoResult;
-import com.powsybl.openrao.raoapi.InterTemporalRaoInput;
 import com.powsybl.openrao.raoapi.InterTemporalRaoInputWithNetworkPaths;
-import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.RaoInputWithNetworkPaths;
 import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
@@ -28,10 +25,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -179,25 +173,28 @@ class MarmotTest {
 
     @Test
     void testWithRedispatchingAndGradientOnImplicatedGenerators() throws IOException {
-        String networkFilePath = "/network/3Nodes.uct";
-        Network network1 = Network.read(networkFilePath, MarmotTest.class.getResourceAsStream(networkFilePath));
-        Network network2 = Network.read(networkFilePath, MarmotTest.class.getResourceAsStream(networkFilePath));
-        Network network3 = Network.read(networkFilePath, MarmotTest.class.getResourceAsStream(networkFilePath));
-        // Create postIcsNetwork:
-        String networkFilePathPostIcsImport = networkFilePath.split(".uct")[0].concat("_modified.jiidm");
-        network1.write("JIIDM", new Properties(), Path.of(getResourcesPath().concat(networkFilePathPostIcsImport)));
+        String networkRelativePath = "/network/3Nodes.uct";
+        String networkAbsolutePath = MarmotTest.class.getResource(networkRelativePath).getFile();
+        Network network = Network.read(networkRelativePath, MarmotTest.class.getResourceAsStream(networkRelativePath));
 
-        Crac crac1 = Crac.read("/crac/crac-redispatching-202502141040.json", MarmotTest.class.getResourceAsStream("/crac/crac-redispatching-202502141040.json"), network1);
-        Crac crac2 = Crac.read("/crac/crac-redispatching-202502141140.json", MarmotTest.class.getResourceAsStream("/crac/crac-redispatching-202502141140.json"), network2);
-        Crac crac3 = Crac.read("/crac/crac-redispatching-202502141240.json", MarmotTest.class.getResourceAsStream("/crac/crac-redispatching-202502141240.json"), network3);
+        // Create postIcsNetwork:
+        String networkFilePathPostIcsImport = networkRelativePath.split(".uct")[0].concat("_modified.jiidm");
+        network.write("JIIDM", new Properties(), Path.of(getResourcesPath().concat(networkFilePathPostIcsImport)));
+
+        Crac crac1 = Crac.read("/crac/crac-redispatching-202502141040.json", MarmotTest.class.getResourceAsStream("/crac/crac-redispatching-202502141040.json"), network);
+        Crac crac2 = Crac.read("/crac/crac-redispatching-202502141140.json", MarmotTest.class.getResourceAsStream("/crac/crac-redispatching-202502141140.json"), network);
+        Crac crac3 = Crac.read("/crac/crac-redispatching-202502141240.json", MarmotTest.class.getResourceAsStream("/crac/crac-redispatching-202502141240.json"), network);
         RaoParameters raoParameters = JsonRaoParameters.read(MarmotTest.class.getResourceAsStream("/parameters/RaoParameters_minCost_megawatt_dc.json"));
 
         OffsetDateTime timestamp1 = OffsetDateTime.of(2025, 2, 14, 10, 40, 0, 0, ZoneOffset.UTC);
         OffsetDateTime timestamp2 = OffsetDateTime.of(2025, 2, 14, 11, 40, 0, 0, ZoneOffset.UTC);
         OffsetDateTime timestamp3 = OffsetDateTime.of(2025, 2, 14, 12, 40, 0, 0, ZoneOffset.UTC);
 
-        InterTemporalRaoInput input = new InterTemporalRaoInput(
-            new TemporalDataImpl<>(Map.of(timestamp1, RaoInput.build(network1, crac1).build(), timestamp2, RaoInput.build(network2, crac2).build(), timestamp3, RaoInput.build(network3, crac3).build())),
+        InterTemporalRaoInputWithNetworkPaths input = new InterTemporalRaoInputWithNetworkPaths(
+            new TemporalDataImpl<>(Map.of(
+                timestamp1, RaoInputWithNetworkPaths.build(networkAbsolutePath, networkAbsolutePath, crac1).build(),
+                timestamp2, RaoInputWithNetworkPaths.build(networkAbsolutePath, networkAbsolutePath, crac2).build(),
+                timestamp3, RaoInputWithNetworkPaths.build(networkAbsolutePath, networkAbsolutePath, crac3).build())),
             Set.of(GeneratorConstraints.create().withGeneratorId("FFR3AA1 _generator").withLeadTime(0.0).withLagTime(0.0).withPMin(0.0).withPMax(1000.0).withUpwardPowerGradient(200.0).withDownwardPowerGradient(0.0).build())
         );
 
@@ -253,27 +250,19 @@ class MarmotTest {
 
     @Test
     void testWithTenTimestampsAndGeneratorConstraints() throws IOException {
-        Network network1 = Network.read("/network/4Nodes_1_PST.uct", MarmotTest.class.getResourceAsStream("/network/4Nodes_1_PST.uct"));
-        Network network2 = Network.read("/network/4Nodes_1_PST.uct", MarmotTest.class.getResourceAsStream("/network/4Nodes_1_PST.uct"));
-        Network network3 = Network.read("/network/4Nodes_1_PST.uct", MarmotTest.class.getResourceAsStream("/network/4Nodes_1_PST.uct"));
-        Network network4 = Network.read("/network/4Nodes_1_PST.uct", MarmotTest.class.getResourceAsStream("/network/4Nodes_1_PST.uct"));
-        Network network5 = Network.read("/network/4Nodes_1_PST.uct", MarmotTest.class.getResourceAsStream("/network/4Nodes_1_PST.uct"));
-        Network network6 = Network.read("/network/4Nodes_1_PST.uct", MarmotTest.class.getResourceAsStream("/network/4Nodes_1_PST.uct"));
-        Network network7 = Network.read("/network/4Nodes_1_PST.uct", MarmotTest.class.getResourceAsStream("/network/4Nodes_1_PST.uct"));
-        Network network8 = Network.read("/network/4Nodes_1_PST.uct", MarmotTest.class.getResourceAsStream("/network/4Nodes_1_PST.uct"));
-        Network network9 = Network.read("/network/4Nodes_1_PST.uct", MarmotTest.class.getResourceAsStream("/network/4Nodes_1_PST.uct"));
-        Network network10 = Network.read("/network/4Nodes_1_PST.uct", MarmotTest.class.getResourceAsStream("/network/4Nodes_1_PST.uct"));
+        String networkPath = Objects.requireNonNull(MarmotTest.class.getResource("/network/4Nodes_1_PST.uct")).getFile();
 
-        Crac crac1 = Crac.read("/crac/crac-202503251030.json", MarmotTest.class.getResourceAsStream("/crac/crac-202503251030.json"), network1);
-        Crac crac2 = Crac.read("/crac/crac-202503251130.json", MarmotTest.class.getResourceAsStream("/crac/crac-202503251130.json"), network2);
-        Crac crac3 = Crac.read("/crac/crac-202503251230.json", MarmotTest.class.getResourceAsStream("/crac/crac-202503251230.json"), network3);
-        Crac crac4 = Crac.read("/crac/crac-202503251330.json", MarmotTest.class.getResourceAsStream("/crac/crac-202503251330.json"), network4);
-        Crac crac5 = Crac.read("/crac/crac-202503251430.json", MarmotTest.class.getResourceAsStream("/crac/crac-202503251430.json"), network5);
-        Crac crac6 = Crac.read("/crac/crac-202503251530.json", MarmotTest.class.getResourceAsStream("/crac/crac-202503251530.json"), network6);
-        Crac crac7 = Crac.read("/crac/crac-202503251630.json", MarmotTest.class.getResourceAsStream("/crac/crac-202503251630.json"), network7);
-        Crac crac8 = Crac.read("/crac/crac-202503251730.json", MarmotTest.class.getResourceAsStream("/crac/crac-202503251730.json"), network8);
-        Crac crac9 = Crac.read("/crac/crac-202503251830.json", MarmotTest.class.getResourceAsStream("/crac/crac-202503251830.json"), network9);
-        Crac crac10 = Crac.read("/crac/crac-202503251930.json", MarmotTest.class.getResourceAsStream("/crac/crac-202503251930.json"), network10);
+        Network network = Network.read("/network/4Nodes_1_PST.uct", MarmotTest.class.getResourceAsStream("/network/4Nodes_1_PST.uct"));
+        Crac crac1 = Crac.read("/crac/crac-202503251030.json", MarmotTest.class.getResourceAsStream("/crac/crac-202503251030.json"), network);
+        Crac crac2 = Crac.read("/crac/crac-202503251130.json", MarmotTest.class.getResourceAsStream("/crac/crac-202503251130.json"), network);
+        Crac crac3 = Crac.read("/crac/crac-202503251230.json", MarmotTest.class.getResourceAsStream("/crac/crac-202503251230.json"), network);
+        Crac crac4 = Crac.read("/crac/crac-202503251330.json", MarmotTest.class.getResourceAsStream("/crac/crac-202503251330.json"), network);
+        Crac crac5 = Crac.read("/crac/crac-202503251430.json", MarmotTest.class.getResourceAsStream("/crac/crac-202503251430.json"), network);
+        Crac crac6 = Crac.read("/crac/crac-202503251530.json", MarmotTest.class.getResourceAsStream("/crac/crac-202503251530.json"), network);
+        Crac crac7 = Crac.read("/crac/crac-202503251630.json", MarmotTest.class.getResourceAsStream("/crac/crac-202503251630.json"), network);
+        Crac crac8 = Crac.read("/crac/crac-202503251730.json", MarmotTest.class.getResourceAsStream("/crac/crac-202503251730.json"), network);
+        Crac crac9 = Crac.read("/crac/crac-202503251830.json", MarmotTest.class.getResourceAsStream("/crac/crac-202503251830.json"), network);
+        Crac crac10 = Crac.read("/crac/crac-202503251930.json", MarmotTest.class.getResourceAsStream("/crac/crac-202503251930.json"), network);
 
         RaoParameters raoParameters = JsonRaoParameters.read(MarmotTest.class.getResourceAsStream("/parameters/RaoParameters_minCost_megawatt_dc_with_offset.json"));
 
@@ -288,19 +277,19 @@ class MarmotTest {
         OffsetDateTime timestamp9 = OffsetDateTime.of(2025, 3, 25, 18, 30, 0, 0, ZoneOffset.UTC);
         OffsetDateTime timestamp10 = OffsetDateTime.of(2025, 3, 25, 19, 30, 0, 0, ZoneOffset.UTC);
 
-        Map<OffsetDateTime, RaoInput> inputPerTimestamp = new HashMap<>();
-        inputPerTimestamp.put(timestamp1, RaoInput.build(network1, crac1).build());
-        inputPerTimestamp.put(timestamp2, RaoInput.build(network2, crac2).build());
-        inputPerTimestamp.put(timestamp3, RaoInput.build(network3, crac3).build());
-        inputPerTimestamp.put(timestamp4, RaoInput.build(network4, crac4).build());
-        inputPerTimestamp.put(timestamp5, RaoInput.build(network5, crac5).build());
-        inputPerTimestamp.put(timestamp6, RaoInput.build(network6, crac6).build());
-        inputPerTimestamp.put(timestamp7, RaoInput.build(network7, crac7).build());
-        inputPerTimestamp.put(timestamp8, RaoInput.build(network8, crac8).build());
-        inputPerTimestamp.put(timestamp9, RaoInput.build(network9, crac9).build());
-        inputPerTimestamp.put(timestamp10, RaoInput.build(network10, crac10).build());
+        Map<OffsetDateTime, RaoInputWithNetworkPaths> inputPerTimestamp = new HashMap<>();
+        inputPerTimestamp.put(timestamp1, RaoInputWithNetworkPaths.build(networkPath, networkPath, crac1).build());
+        inputPerTimestamp.put(timestamp2, RaoInputWithNetworkPaths.build(networkPath, networkPath, crac2).build());
+        inputPerTimestamp.put(timestamp3, RaoInputWithNetworkPaths.build(networkPath, networkPath, crac3).build());
+        inputPerTimestamp.put(timestamp4, RaoInputWithNetworkPaths.build(networkPath, networkPath, crac4).build());
+        inputPerTimestamp.put(timestamp5, RaoInputWithNetworkPaths.build(networkPath, networkPath, crac5).build());
+        inputPerTimestamp.put(timestamp6, RaoInputWithNetworkPaths.build(networkPath, networkPath, crac6).build());
+        inputPerTimestamp.put(timestamp7, RaoInputWithNetworkPaths.build(networkPath, networkPath, crac7).build());
+        inputPerTimestamp.put(timestamp8, RaoInputWithNetworkPaths.build(networkPath, networkPath, crac8).build());
+        inputPerTimestamp.put(timestamp9, RaoInputWithNetworkPaths.build(networkPath, networkPath, crac9).build());
+        inputPerTimestamp.put(timestamp10, RaoInputWithNetworkPaths.build(networkPath, networkPath, crac10).build());
 
-        InterTemporalRaoInput input = new InterTemporalRaoInput(
+        InterTemporalRaoInputWithNetworkPaths input = new InterTemporalRaoInputWithNetworkPaths(
             new TemporalDataImpl<>(inputPerTimestamp),
             Set.of(GeneratorConstraints.create().withGeneratorId("FFR1AA1 _generator").withLeadTime(0.0).withLagTime(0.0).withPMin(0.0).withPMax(5000.0).withUpwardPowerGradient(500.0).withDownwardPowerGradient(-500.0).build())
         );
@@ -323,27 +312,19 @@ class MarmotTest {
 
     @Test
     void testWithTenTimestampsAndNoGeneratorConstraints() throws IOException {
-        Network network1 = Network.read("/network/4Nodes_1_PST.uct", MarmotTest.class.getResourceAsStream("/network/4Nodes_1_PST.uct"));
-        Network network2 = Network.read("/network/4Nodes_1_PST.uct", MarmotTest.class.getResourceAsStream("/network/4Nodes_1_PST.uct"));
-        Network network3 = Network.read("/network/4Nodes_1_PST.uct", MarmotTest.class.getResourceAsStream("/network/4Nodes_1_PST.uct"));
-        Network network4 = Network.read("/network/4Nodes_1_PST.uct", MarmotTest.class.getResourceAsStream("/network/4Nodes_1_PST.uct"));
-        Network network5 = Network.read("/network/4Nodes_1_PST.uct", MarmotTest.class.getResourceAsStream("/network/4Nodes_1_PST.uct"));
-        Network network6 = Network.read("/network/4Nodes_1_PST.uct", MarmotTest.class.getResourceAsStream("/network/4Nodes_1_PST.uct"));
-        Network network7 = Network.read("/network/4Nodes_1_PST.uct", MarmotTest.class.getResourceAsStream("/network/4Nodes_1_PST.uct"));
-        Network network8 = Network.read("/network/4Nodes_1_PST.uct", MarmotTest.class.getResourceAsStream("/network/4Nodes_1_PST.uct"));
-        Network network9 = Network.read("/network/4Nodes_1_PST.uct", MarmotTest.class.getResourceAsStream("/network/4Nodes_1_PST.uct"));
-        Network network10 = Network.read("/network/4Nodes_1_PST.uct", MarmotTest.class.getResourceAsStream("/network/4Nodes_1_PST.uct"));
+        String networkPath = Objects.requireNonNull(MarmotTest.class.getResource("/network/4Nodes_1_PST.uct")).getFile();
 
-        Crac crac1 = Crac.read("/crac/crac-202503251030.json", MarmotTest.class.getResourceAsStream("/crac/crac-202503251030.json"), network1);
-        Crac crac2 = Crac.read("/crac/crac-202503251130.json", MarmotTest.class.getResourceAsStream("/crac/crac-202503251130.json"), network2);
-        Crac crac3 = Crac.read("/crac/crac-202503251230.json", MarmotTest.class.getResourceAsStream("/crac/crac-202503251230.json"), network3);
-        Crac crac4 = Crac.read("/crac/crac-202503251330.json", MarmotTest.class.getResourceAsStream("/crac/crac-202503251330.json"), network4);
-        Crac crac5 = Crac.read("/crac/crac-202503251430.json", MarmotTest.class.getResourceAsStream("/crac/crac-202503251430.json"), network5);
-        Crac crac6 = Crac.read("/crac/crac-202503251530.json", MarmotTest.class.getResourceAsStream("/crac/crac-202503251530.json"), network6);
-        Crac crac7 = Crac.read("/crac/crac-202503251630.json", MarmotTest.class.getResourceAsStream("/crac/crac-202503251630.json"), network7);
-        Crac crac8 = Crac.read("/crac/crac-202503251730.json", MarmotTest.class.getResourceAsStream("/crac/crac-202503251730.json"), network8);
-        Crac crac9 = Crac.read("/crac/crac-202503251830.json", MarmotTest.class.getResourceAsStream("/crac/crac-202503251830.json"), network9);
-        Crac crac10 = Crac.read("/crac/crac-202503251930.json", MarmotTest.class.getResourceAsStream("/crac/crac-202503251930.json"), network10);
+        Network network = Network.read("/network/4Nodes_1_PST.uct", MarmotTest.class.getResourceAsStream("/network/4Nodes_1_PST.uct"));
+        Crac crac1 = Crac.read("/crac/crac-202503251030.json", MarmotTest.class.getResourceAsStream("/crac/crac-202503251030.json"), network);
+        Crac crac2 = Crac.read("/crac/crac-202503251130.json", MarmotTest.class.getResourceAsStream("/crac/crac-202503251130.json"), network);
+        Crac crac3 = Crac.read("/crac/crac-202503251230.json", MarmotTest.class.getResourceAsStream("/crac/crac-202503251230.json"), network);
+        Crac crac4 = Crac.read("/crac/crac-202503251330.json", MarmotTest.class.getResourceAsStream("/crac/crac-202503251330.json"), network);
+        Crac crac5 = Crac.read("/crac/crac-202503251430.json", MarmotTest.class.getResourceAsStream("/crac/crac-202503251430.json"), network);
+        Crac crac6 = Crac.read("/crac/crac-202503251530.json", MarmotTest.class.getResourceAsStream("/crac/crac-202503251530.json"), network);
+        Crac crac7 = Crac.read("/crac/crac-202503251630.json", MarmotTest.class.getResourceAsStream("/crac/crac-202503251630.json"), network);
+        Crac crac8 = Crac.read("/crac/crac-202503251730.json", MarmotTest.class.getResourceAsStream("/crac/crac-202503251730.json"), network);
+        Crac crac9 = Crac.read("/crac/crac-202503251830.json", MarmotTest.class.getResourceAsStream("/crac/crac-202503251830.json"), network);
+        Crac crac10 = Crac.read("/crac/crac-202503251930.json", MarmotTest.class.getResourceAsStream("/crac/crac-202503251930.json"), network);
 
         RaoParameters raoParameters = JsonRaoParameters.read(MarmotTest.class.getResourceAsStream("/parameters/RaoParameters_minCost_megawatt_dc_with_offset.json"));
 
@@ -358,19 +339,19 @@ class MarmotTest {
         OffsetDateTime timestamp9 = OffsetDateTime.of(2025, 3, 25, 18, 30, 0, 0, ZoneOffset.UTC);
         OffsetDateTime timestamp10 = OffsetDateTime.of(2025, 3, 25, 19, 30, 0, 0, ZoneOffset.UTC);
 
-        Map<OffsetDateTime, RaoInput> inputPerTimestamp = new HashMap<>();
-        inputPerTimestamp.put(timestamp1, RaoInput.build(network1, crac1).build());
-        inputPerTimestamp.put(timestamp2, RaoInput.build(network2, crac2).build());
-        inputPerTimestamp.put(timestamp3, RaoInput.build(network3, crac3).build());
-        inputPerTimestamp.put(timestamp4, RaoInput.build(network4, crac4).build());
-        inputPerTimestamp.put(timestamp5, RaoInput.build(network5, crac5).build());
-        inputPerTimestamp.put(timestamp6, RaoInput.build(network6, crac6).build());
-        inputPerTimestamp.put(timestamp7, RaoInput.build(network7, crac7).build());
-        inputPerTimestamp.put(timestamp8, RaoInput.build(network8, crac8).build());
-        inputPerTimestamp.put(timestamp9, RaoInput.build(network9, crac9).build());
-        inputPerTimestamp.put(timestamp10, RaoInput.build(network10, crac10).build());
+        Map<OffsetDateTime, RaoInputWithNetworkPaths> inputPerTimestamp = new HashMap<>();
+        inputPerTimestamp.put(timestamp1, RaoInputWithNetworkPaths.build(networkPath, networkPath, crac1).build());
+        inputPerTimestamp.put(timestamp2, RaoInputWithNetworkPaths.build(networkPath, networkPath, crac2).build());
+        inputPerTimestamp.put(timestamp3, RaoInputWithNetworkPaths.build(networkPath, networkPath, crac3).build());
+        inputPerTimestamp.put(timestamp4, RaoInputWithNetworkPaths.build(networkPath, networkPath, crac4).build());
+        inputPerTimestamp.put(timestamp5, RaoInputWithNetworkPaths.build(networkPath, networkPath, crac5).build());
+        inputPerTimestamp.put(timestamp6, RaoInputWithNetworkPaths.build(networkPath, networkPath, crac6).build());
+        inputPerTimestamp.put(timestamp7, RaoInputWithNetworkPaths.build(networkPath, networkPath, crac7).build());
+        inputPerTimestamp.put(timestamp8, RaoInputWithNetworkPaths.build(networkPath, networkPath, crac8).build());
+        inputPerTimestamp.put(timestamp9, RaoInputWithNetworkPaths.build(networkPath, networkPath, crac9).build());
+        inputPerTimestamp.put(timestamp10, RaoInputWithNetworkPaths.build(networkPath, networkPath, crac10).build());
 
-        InterTemporalRaoInput input = new InterTemporalRaoInput(new TemporalDataImpl<>(inputPerTimestamp), Set.of());
+        InterTemporalRaoInputWithNetworkPaths input = new InterTemporalRaoInputWithNetworkPaths(new TemporalDataImpl<>(inputPerTimestamp), Set.of());
 
         InterTemporalRaoResultImpl interTemporalRaoResult = (InterTemporalRaoResultImpl) new Marmot().run(input, raoParameters).join();
 

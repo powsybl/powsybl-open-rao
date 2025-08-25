@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.raoapi;
 
+import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.data.crac.api.Crac;
 
 /**
@@ -71,6 +72,10 @@ public final class RaoInputWithNetworkPaths {
 
     public String getPostIcsImportNetworkPath() {
         return postIcsImportNetworkPath;
+    }
+
+    public RaoInput toRaoInputWithPostIcsImportNetworkPath() {
+        return RaoInput.build(Network.read(postIcsImportNetworkPath), crac).build();
     }
 
 }
