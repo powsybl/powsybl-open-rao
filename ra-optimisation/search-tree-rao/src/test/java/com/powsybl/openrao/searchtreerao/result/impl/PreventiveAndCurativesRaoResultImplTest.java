@@ -12,6 +12,8 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.*;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.range.RangeType;
+import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.openrao.data.crac.impl.CracImpl;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
@@ -30,8 +32,7 @@ import org.opentest4j.AssertionFailedError;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 import static com.powsybl.iidm.network.TwoSides.ONE;
 import static com.powsybl.openrao.commons.Unit.*;
@@ -263,6 +264,16 @@ class PreventiveAndCurativesRaoResultImplTest {
             Set<String> contingencies = Set.of(state.getContingency().get().getId());
             when(optimizationResult.getContingencies()).thenReturn(contingencies);
         }
+        PstRangeAction pst = crac.getPstRangeAction("pst");
+        when(optimizationResult.getActivatedRangeActions(state)).thenReturn(Set.of(pst));
+        when(optimizationResult.getOptimizedTapsOnState(state)).thenReturn(Map.of(pst, (int) (FLOW_PER_OPTIMIZED_INSTANT.get(instant.getKind()) / 100.)));
+        when(optimizationResult.getOptimizedTap(pst, state)).thenReturn((int) (FLOW_PER_OPTIMIZED_INSTANT.get(instant.getKind()) / 100.));
+
+        Map<RangeAction<?>, Double> optimizedSetpointsOnState = new HashMap<>();
+        optimizedSetpointsOnState.put(pst, FLOW_PER_OPTIMIZED_INSTANT.get(instant.getKind()));
+        when(optimizationResult.getOptimizedSetpointsOnState(state)).thenReturn(optimizedSetpointsOnState);
+        when(optimizationResult.getOptimizedSetpoint(pst, state)).thenReturn(FLOW_PER_OPTIMIZED_INSTANT.get(instant.getKind()));
+
     }
 
     private void addFlowAndMarginResults(FlowResult flowResult, FlowCnec cnec, double flow, Instant instant) {
@@ -320,6 +331,41 @@ class PreventiveAndCurativesRaoResultImplTest {
         checkVirtualCosts();
         checkFlows();
         checkOptimizationResults();
+        checkOptimizedPsts();
+    }
+
+    private void checkOptimizedPsts() {
+        PstRangeAction pst = crac.getPstRangeAction("pst");
+        Map<RangeAction<?>, Double> preventiveMap = output.getOptimizedSetPointsOnState(crac.getPreventiveState());
+        assertEquals(1, preventiveMap.size());
+        assertEquals(FLOW_PER_OPTIMIZED_INSTANT.get(InstantKind.PREVENTIVE), preventiveMap.get(pst));
+        assertEquals(FLOW_PER_OPTIMIZED_INSTANT.get(InstantKind.PREVENTIVE), output.getOptimizedSetPointOnState(crac.getPreventiveState(), pst));
+        assertEquals(1, output.getOptimizedTapOnState(crac.getPreventiveState(), pst));
+        Map<PstRangeAction, Integer> optimizedTapsPreventive = output.getOptimizedTapsOnState(crac.getPreventiveState());
+        assertEquals(1, optimizedTapsPreventive.size());
+        assertEquals(1, optimizedTapsPreventive.get(pst));
+        assertEquals(output.getActivatedRangeActionsDuringState(crac.getPreventiveState()), Set.of(pst));
+
+        // optimized state
+        State auto3state = crac.getState("contingency-3", crac.getInstant(InstantKind.AUTO));
+        Map<RangeAction<?>, Double> auto3Map = output.getOptimizedSetPointsOnState(auto3state);
+        assertEquals(1, auto3Map.size());
+        assertEquals(FLOW_PER_OPTIMIZED_INSTANT.get(InstantKind.AUTO), auto3Map.get(pst));
+        assertEquals(FLOW_PER_OPTIMIZED_INSTANT.get(InstantKind.AUTO), output.getOptimizedSetPointOnState(auto3state, pst));
+        assertEquals(1, output.getOptimizedTapOnState(crac.getPreventiveState(), pst));
+        Map<PstRangeAction, Integer> optimizedTapsauto3state = output.getOptimizedTapsOnState(auto3state);
+        assertEquals(1, optimizedTapsauto3state.size());
+        assertEquals(2, optimizedTapsauto3state.get(pst));
+        assertEquals(output.getActivatedRangeActionsDuringState(auto3state), Set.of(pst));
+
+        // not optimized state
+        State cur4state = crac.getState("contingency-4", crac.getInstant(InstantKind.CURATIVE));
+        Map<RangeAction<?>, Double> cur4Map = output.getOptimizedSetPointsOnState(cur4state);
+        assertTrue(cur4Map.isEmpty());
+        assertThrows(OpenRaoException.class, () -> output.getOptimizedSetPointOnState(cur4state, pst));
+        Map<PstRangeAction, Integer> optimizedTapscur4state = output.getOptimizedTapsOnState(cur4state);
+        assertTrue(optimizedTapscur4state.isEmpty());
+        assertTrue(output.getActivatedRangeActionsDuringState(cur4state).isEmpty());
     }
 
     private void checkFunctionalCosts() {

@@ -16,7 +16,14 @@ public final class RaoParametersCommons {
     private RaoParametersCommons() {
     }
 
-    public static final String RAO_PARAMETERS_VERSION = "3.1";
+    /*
+        CHANGELOG RAO Parameters v3
+        ---------------------------
+        3.1: remove max-auto-search-tree-depth
+        3.2: remove re-optimize-curative-range-actions
+    */
+
+    public static final String RAO_PARAMETERS_VERSION = "3.2";
 
     // header
     public static final String VERSION = "version";
@@ -73,7 +80,6 @@ public final class RaoParametersCommons {
     public static final String SECOND_PREVENTIVE_RAO = "second-preventive-rao";
     public static final String SECOND_PREVENTIVE_RAO_SECTION = "search-tree-second-preventive-rao";
     public static final String EXECUTION_CONDITION = "execution-condition";
-    public static final String RE_OPTIMIZE_CURATIVE_RANGE_ACTIONS = "re-optimize-curative-range-actions";
     public static final String HINT_FROM_FIRST_PREVENTIVE_RAO = "hint-from-first-preventive-rao";
 
     // Not optimized cnecs parameters

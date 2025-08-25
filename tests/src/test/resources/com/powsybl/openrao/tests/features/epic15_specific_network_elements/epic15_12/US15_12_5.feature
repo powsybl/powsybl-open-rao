@@ -21,7 +21,7 @@ Feature: US 15.12.5: Handle HVDC range actions in RAO
     Given crac file is "epic15/jsonCrac_ep15us12-5case2.json"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
     When I launch search_tree_rao
-    Then the setpoint of RangeAction "PRA_HVDC" should be 2008 MW in preventive
+    Then the setpoint of RangeAction "PRA_HVDC" should be 2007 MW in preventive
     And the worst margin is 191 MW
     And the margin on cnec "be1_be2_n - BBE1AA11->BBE2AA11 - preventive" after PRA should be 191 MW
     And the margin on cnec "be1_fr5_n - BBE1AA11->FFR5AA11 - preventive" after PRA should be 191 MW
@@ -73,7 +73,7 @@ Feature: US 15.12.5: Handle HVDC range actions in RAO
     Given crac file is "epic15/jsonCrac_ep15us12-5case6.json"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
     When I launch search_tree_rao
-    Then the setpoint of RangeAction "PRA_HVDC" should be 1652 MW in preventive
+    Then the setpoint of RangeAction "PRA_HVDC" should be 1651 MW in preventive
     And the tap of PstRangeAction "PST_PRA_PST_be_BBE2AA11 BBE3AA11 1" should be 3 in preventive
     And the setpoint of RangeAction "CRA_HVDC" should be 1409 MW after "co1_be1_fr5" at "curative"
     And the setpoint of RangeAction "CRA_HVDC" should be 2000 MW after "co2_be1fr5_be4fr5" at "curative"
