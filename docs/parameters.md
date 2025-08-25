@@ -36,7 +36,7 @@ Examples of rao parameters with business and implementation specific parameters
 :::{group-tab} JSON
 ~~~json
 {
-  "version" : "3.1",
+  "version" : "3.2",
   "objective-function" : {
     "type" : "SECURE_FLOW",
     "unit" : "A",
