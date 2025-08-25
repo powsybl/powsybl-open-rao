@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
+import static com.powsybl.openrao.data.crac.impl.utils.NetworkImportsUtil.addHvdcLine;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
@@ -32,6 +33,7 @@ class CracAliasesCreatorTest {
     @ValueSource(strings = {"deprecated-crac-for-aliases-1.json", "deprecated-crac-for-aliases-2.json", "deprecated-crac-for-aliases-3.json", "deprecated-crac-for-aliases-4.json"})
     void testDeprecatedCracExtensions(String fileName) throws IOException {
         // Extensions have been deprecated
+        addHvdcLine(network);
         InputStream inputStream = getClass().getResourceAsStream("/" + fileName);
         CracCreationContext cracCreationContext = Crac.readWithContext(fileName, inputStream, network);
         assertFalse(cracCreationContext.isCreationSuccessful());

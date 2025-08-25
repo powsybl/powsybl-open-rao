@@ -20,16 +20,13 @@ import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
+import com.powsybl.openrao.data.crac.impl.utils.NetworkImportsUtil;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import static com.powsybl.openrao.commons.Unit.*;
@@ -47,6 +44,7 @@ class ImporterRetrocompatibilityTest {
     private static final String OUTAGE_INSTANT_ID = "outage";
     private static final String AUTO_INSTANT_ID = "auto";
     private static final String CURATIVE_INSTANT_ID = "curative";
+    private static final Network NETWORK = NetworkImportsUtil.createNetworkForJsonRetrocompatibilityTest(1.5);
 
     /*
     The goal of this test class is to ensure that former JSON RaoResult files are
@@ -62,33 +60,6 @@ class ImporterRetrocompatibilityTest {
     Instead, we need to ensure that the JSON RaoResult files used in this class can
     still be imported as is. Using versioning of the importer if needed.
      */
-
-    private static Network getMockedNetwork() {
-        Network network = Mockito.mock(Network.class);
-        Identifiable ne = Mockito.mock(Identifiable.class);
-        Mockito.when(ne.getType()).thenReturn(IdentifiableType.SHUNT_COMPENSATOR);
-        Mockito.when(network.getIdentifiable("injection")).thenReturn(ne);
-        for (String lineId : List.of("ne1Id", "ne2Id", "ne3Id")) {
-            Branch l = Mockito.mock(Line.class);
-            Mockito.when(l.getId()).thenReturn(lineId);
-            Mockito.when(network.getIdentifiable(lineId)).thenReturn(l);
-        }
-        TwoWindingsTransformer twt = Mockito.mock(TwoWindingsTransformer.class);
-        PhaseTapChanger ptc = Mockito.mock(PhaseTapChanger.class);
-        Mockito.when(twt.getPhaseTapChanger()).thenReturn(ptc);
-        Map<Integer, PhaseTapChangerStep> steps = new HashMap<>();
-        for (int i = -5; i <= 5; i++) {
-            PhaseTapChangerStep step = Mockito.mock(PhaseTapChangerStep.class);
-            Mockito.when(step.getAlpha()).thenReturn(i * 0.5 + 1.5);
-            steps.put(i, step);
-        }
-        Mockito.when(ptc.getAllSteps()).thenReturn(steps);
-        Mockito.when(ptc.getTapPosition()).thenReturn(-3);
-        for (int i = 0; i <= 3; i++) {
-            Mockito.when(network.getTwoWindingsTransformer("pst" + (i == 0 ? "" : i))).thenReturn(twt);
-        }
-        return network;
-    }
 
     @Test
     void testFormat() {
@@ -106,7 +77,7 @@ class ImporterRetrocompatibilityTest {
         InputStream raoResultFile = getClass().getResourceAsStream("/retrocompatibility/v1.0/rao-result-v1.0.json");
         InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v1.0/crac-for-rao-result-v1.0.json");
 
-        Crac crac = Crac.read("crac-for-rao-result-v1.0.json", cracFile, getMockedNetwork());
+        Crac crac = Crac.read("crac-for-rao-result-v1.0.json", cracFile, NETWORK);
         RaoResult raoResult = new RaoResultJsonImporter().importData(raoResultFile, crac);
 
         testBaseContentOfV1RaoResult(raoResult, crac);
@@ -124,7 +95,7 @@ class ImporterRetrocompatibilityTest {
         InputStream raoResultFile = getClass().getResourceAsStream("/retrocompatibility/v1.1/rao-result-v1.1.json");
         InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v1.1/crac-for-rao-result-v1.1.json");
 
-        Crac crac = Crac.read("crac-for-rao-result-v1.1.json", cracFile, getMockedNetwork());
+        Crac crac = Crac.read("crac-for-rao-result-v1.1.json", cracFile, NETWORK);
         RaoResult raoResult = new RaoResultJsonImporter().importData(raoResultFile, crac);
 
         testBaseContentOfV1RaoResult(raoResult, crac);
@@ -139,7 +110,7 @@ class ImporterRetrocompatibilityTest {
         InputStream raoResultFile = getClass().getResourceAsStream("/retrocompatibility/v1.1/rao-result-v1.2-error.json");
         InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v1.1/crac-for-rao-result-v1.1.json");
 
-        Crac crac = Crac.read("crac-for-rao-result-v1.1.json", cracFile, getMockedNetwork());
+        Crac crac = Crac.read("crac-for-rao-result-v1.1.json", cracFile, NETWORK);
         RaoResultJsonImporter importer = new RaoResultJsonImporter();
         OpenRaoException exception = assertThrows(OpenRaoException.class, () -> importer.importData(raoResultFile, crac));
         assertEquals("Cannot deserialize RaoResult: field flow in flowCnecResults in not supported in file version 1.2 (last supported in version 1.1)", exception.getMessage());
@@ -150,7 +121,7 @@ class ImporterRetrocompatibilityTest {
         InputStream raoResultFile = getClass().getResourceAsStream("/retrocompatibility/v1.2/rao-result-v1.2.json");
         InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v1.2/crac-for-rao-result-v1.2.json");
 
-        Crac crac = Crac.read("crac-for-rao-result-v1.2.json", cracFile, getMockedNetwork());
+        Crac crac = Crac.read("crac-for-rao-result-v1.2.json", cracFile, NETWORK);
         RaoResult raoResult = new RaoResultJsonImporter().importData(raoResultFile, crac);
 
         testBaseContentOfV1Point2RaoResult(raoResult, crac);
@@ -164,7 +135,7 @@ class ImporterRetrocompatibilityTest {
         InputStream raoResultFile = getClass().getResourceAsStream("/retrocompatibility/v1.2/rao-result-v1.2-error.json");
         InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v1.2/crac-for-rao-result-v1.2.json");
 
-        Crac crac = Crac.read("crac-for-rao-result-v1.2.json", cracFile, getMockedNetwork());
+        Crac crac = Crac.read("crac-for-rao-result-v1.2.json", cracFile, NETWORK);
         RaoResultJsonImporter importer = new RaoResultJsonImporter();
         OpenRaoException exception = assertThrows(OpenRaoException.class, () -> importer.importData(raoResultFile, crac));
         assertEquals("Cannot deserialize RaoResult: field flow in flowCnecResults in not supported in file version 1.2 (last supported in version 1.1)", exception.getMessage());
@@ -175,7 +146,7 @@ class ImporterRetrocompatibilityTest {
         InputStream raoResultFile = getClass().getResourceAsStream("/retrocompatibility/v1.3/rao-result-v1.3.json");
         InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v1.3/crac-for-rao-result-v1.3.json");
 
-        Crac crac = Crac.read("crac-for-rao-result-v1.3.json", cracFile, getMockedNetwork());
+        Crac crac = Crac.read("crac-for-rao-result-v1.3.json", cracFile, NETWORK);
         RaoResult raoResult = new RaoResultJsonImporter().importData(raoResultFile, crac);
 
         testBaseContentOfV1Point3RaoResult(raoResult, crac);
@@ -186,7 +157,7 @@ class ImporterRetrocompatibilityTest {
         InputStream raoResultFile = getClass().getResourceAsStream("/retrocompatibility/v1.4/rao-result-v1.4.json");
         InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v1.4/crac-for-rao-result-v1.4.json");
 
-        Crac crac = Crac.read("crac-for-rao-result-v1.4.json", cracFile, getMockedNetwork());
+        Crac crac = Crac.read("crac-for-rao-result-v1.4.json", cracFile, NETWORK);
         RaoResult raoResult = new RaoResultJsonImporter().importData(raoResultFile, crac);
 
         testBaseContentOfV1Point3RaoResult(raoResult, crac);
@@ -197,7 +168,7 @@ class ImporterRetrocompatibilityTest {
         InputStream raoResultFile = getClass().getResourceAsStream("/retrocompatibility/v1.5/rao-result-v1.5.json");
         InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v1.5/crac-for-rao-result-v1.5.json");
 
-        Crac crac = Crac.read("crac-for-rao-result-v1.5.json", cracFile, getMockedNetwork());
+        Crac crac = Crac.read("crac-for-rao-result-v1.5.json", cracFile, NETWORK);
         RaoResult raoResult = new RaoResultJsonImporter().importData(raoResultFile, crac);
 
         testBaseContentOfV1Point3RaoResult(raoResult, crac);
@@ -208,7 +179,7 @@ class ImporterRetrocompatibilityTest {
         InputStream raoResultFile = getClass().getResourceAsStream("/retrocompatibility/v1.6/rao-result-v1.6.json");
         InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v1.6/crac-for-rao-result-v1.6.json");
 
-        Crac crac = Crac.read("crac-for-rao-result-v1.6.json", cracFile, getMockedNetwork());
+        Crac crac = Crac.read("crac-for-rao-result-v1.6.json", cracFile, NETWORK);
         RaoResult raoResult = new RaoResultJsonImporter().importData(raoResultFile, crac);
 
         testBaseContentOfV1Point6RaoResult(raoResult, crac);
@@ -219,7 +190,7 @@ class ImporterRetrocompatibilityTest {
         InputStream raoResultFile = getClass().getResourceAsStream("/retrocompatibility/v1.7/rao-result-v1.7.json");
         InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v1.7/crac-for-rao-result-v1.7.json");
 
-        Crac crac = Crac.read("crac-for-rao-result-v1.7.json", cracFile, getMockedNetwork());
+        Crac crac = Crac.read("crac-for-rao-result-v1.7.json", cracFile, NETWORK);
         RaoResult raoResult = new RaoResultJsonImporter().importData(raoResultFile, crac);
 
         testBaseContentOfV1Point7RaoResult(raoResult, crac);
@@ -230,7 +201,7 @@ class ImporterRetrocompatibilityTest {
         InputStream raoResultFile = getClass().getResourceAsStream("/retrocompatibility/v1.8/rao-result-v1.8.json");
         InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v1.8/crac-for-rao-result-v1.8.json");
 
-        Crac crac = Crac.read("crac-for-rao-result-v1.8.json", cracFile, getMockedNetwork());
+        Crac crac = Crac.read("crac-for-rao-result-v1.8.json", cracFile, NETWORK);
         RaoResult raoResult = new RaoResultJsonImporter().importData(raoResultFile, crac);
 
         testBaseContentOfV1Point7RaoResult(raoResult, crac);
@@ -239,7 +210,7 @@ class ImporterRetrocompatibilityTest {
     @Test
     void importV1Point3TestFieldDeprecationTest() throws IOException {
         InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v1.3/crac-for-rao-result-v1.3.json");
-        Crac crac = Crac.read("crac-for-rao-result-v1.3.json", cracFile, getMockedNetwork());
+        Crac crac = Crac.read("crac-for-rao-result-v1.3.json", cracFile, NETWORK);
         RaoResultJsonImporter importer = new RaoResultJsonImporter();
 
         InputStream raoResultFile = getClass().getResourceAsStream("/retrocompatibility/v1.3/rao-result-v1.3-error1.json");

@@ -25,6 +25,7 @@ import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
 import com.powsybl.openrao.data.crac.io.commons.cgmes.CgmesBranchHelper;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.data.crac.io.commons.iidm.IidmCnecElementHelper;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
@@ -247,7 +248,20 @@ public class MonitoredSeriesCreator {
         try {
             cnecId = addThreshold(flowCnecAdder, unit, branchHelper, cnecNativeId, direction, threshold);
             setNominalVoltage(flowCnecAdder, branchHelper);
-            setCurrentsLimit(flowCnecAdder, branchHelper);
+            if (Unit.PERCENT_IMAX.equals(unit)) {
+                IidmCnecElementHelper cnecElementHelper = new IidmCnecElementHelper(branchHelper.getBranch().getId(), network);
+                Double currentLimit1 = cnecElementHelper.getCurrentLimit(TwoSides.ONE);
+                Double currentLimit2 = cnecElementHelper.getCurrentLimit(TwoSides.TWO);
+                if (currentLimit1 != null && currentLimit2 != null) {
+                    flowCnecAdder.withIMax(currentLimit1, TwoSides.ONE);
+                    flowCnecAdder.withIMax(currentLimit2, TwoSides.TWO);
+                } else if (currentLimit1 == null) {
+                    flowCnecAdder.withIMax(currentLimit2);
+                } else {
+                    flowCnecAdder.withIMax(currentLimit1);
+                }
+            }
+
         } catch (OpenRaoException e) {
             if (instant.isPreventive()) {
                 measurementCreationContext.addCnecCreationContext(null, instant, CnecCreationContext.notImported(ImportStatus.OTHER, e.getMessage()));
@@ -354,35 +368,6 @@ public class MonitoredSeriesCreator {
         } else {
             throw new OpenRaoException(String.format("Voltage level for branch %s is 0 in network.", branchHelper.getBranch().getId()));
         }
-    }
-
-    private void setCurrentsLimit(FlowCnecAdder flowCnecAdder, CgmesBranchHelper branchHelper) {
-        Double currentLimitLeft = getCurrentLimit(branchHelper.getBranch(), TwoSides.ONE);
-        Double currentLimitRight = getCurrentLimit(branchHelper.getBranch(), TwoSides.TWO);
-        if (Objects.nonNull(currentLimitLeft) && Objects.nonNull(currentLimitRight)) {
-            flowCnecAdder.withIMax(currentLimitLeft, TwoSides.ONE);
-            flowCnecAdder.withIMax(currentLimitRight, TwoSides.TWO);
-        } else {
-            throw new OpenRaoException(String.format("Unable to get branch current limits from network for branch %s", branchHelper.getBranch().getId()));
-        }
-    }
-
-    // This uses the same logic as the UcteCnecElementHelper which is used for CBCO cnec import for instance
-    private Double getCurrentLimit(Branch<?> branch, TwoSides side) {
-
-        if (hasCurrentLimit(branch, side)) {
-            return branch.getCurrentLimits(side).orElseThrow().getPermanentLimit();
-        }
-
-        if (side == TwoSides.ONE && hasCurrentLimit(branch, TwoSides.TWO)) {
-            return branch.getCurrentLimits(TwoSides.TWO).orElseThrow().getPermanentLimit() * branch.getTerminal1().getVoltageLevel().getNominalV() / branch.getTerminal2().getVoltageLevel().getNominalV();
-        }
-
-        if (side == TwoSides.TWO && hasCurrentLimit(branch, TwoSides.ONE)) {
-            return branch.getCurrentLimits(TwoSides.ONE).orElseThrow().getPermanentLimit() * branch.getTerminal2().getVoltageLevel().getNominalV() / branch.getTerminal1().getVoltageLevel().getNominalV();
-        }
-
-        return null;
     }
 
     private boolean hasCurrentLimit(Branch<?> branch, TwoSides side) {

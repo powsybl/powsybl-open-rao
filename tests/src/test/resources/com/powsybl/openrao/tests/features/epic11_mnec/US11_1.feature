@@ -41,7 +41,7 @@ Feature: US 11.1: Handle mnecs in linear RAO
     And the tap of PstRangeAction "PRA_PST_BE" should be -7 in preventive
     And PST "BBE2AA1  BBE3AA1  1" in network file with PRA is on tap -7
     And the worst margin is 192.0 MW on cnec "FFR1AA1  FFR2AA1  1 - preventive"
-    And the flow on cnec "NNL2AA1  NNL3AA1  1 - preventive" after PRA should be 877.0 MW
+    And the flow on cnec "NNL2AA1  NNL3AA1  1 - preventive" after PRA should be 884.1 MW
     And the margin on cnec "NNL2AA1  NNL3AA1  1 - preventive" after PRA should be -84.0 MW
 
   Scenario: US 11.1.4: margin on MNEC should stay above initial value -50 MW [2] (50MW > initial margin > 0MW)
@@ -53,5 +53,5 @@ Feature: US 11.1: Handle mnecs in linear RAO
     And the tap of PstRangeAction "PRA_PST_BE" should be -7 in preventive
     And PST "BBE2AA1  BBE3AA1  1" in network file with PRA is on tap -7
     And the worst margin is 192.0 MW on cnec "FFR1AA1  FFR2AA1  1 - preventive"
-    And the flow on cnec "NNL2AA1  NNL3AA1  1 - preventive" after PRA should be 877.0 MW
+    And the flow on cnec "NNL2AA1  NNL3AA1  1 - preventive" after PRA should be 884.1 MW
     And the margin on cnec "NNL2AA1  NNL3AA1  1 - preventive" after PRA should be -34.0 MW

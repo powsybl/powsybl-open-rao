@@ -14,6 +14,7 @@ import com.fasterxml.jackson.core.JsonParser;
 
 import java.io.IOException;
 
+import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
 import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.deserializeVariationDirection;
 
 /**
@@ -88,9 +89,13 @@ public final class StandardRangeActionDeserializer {
                 standardRangeActionAdder.withGroupId(jsonParser.nextTextValue());
                 break;
             case JsonSerializationConstants.INITIAL_SETPOINT:
-                jsonParser.nextToken();
-                standardRangeActionAdder.withInitialSetpoint(jsonParser.getDoubleValue());
-                break;
+                if (JsonSerializationConstants.getPrimaryVersionNumber(version) > 2 || JsonSerializationConstants.getPrimaryVersionNumber(version) == 2 && JsonSerializationConstants.getSubVersionNumber(version) > 7) {
+                    throw new OpenRaoException("initialSetpoint field is no longer used since CRAC version 2.8, the value is now directly determined from the network");
+                } else {
+                    jsonParser.nextToken();
+                    BUSINESS_WARNS.warn("The initial setpoint is now read from the network so the value in the crac will not be read");
+                    break;
+                }
             case JsonSerializationConstants.RANGES:
                 jsonParser.nextToken();
                 StandardRangeArrayDeserializer.deserialize(jsonParser, standardRangeActionAdder);

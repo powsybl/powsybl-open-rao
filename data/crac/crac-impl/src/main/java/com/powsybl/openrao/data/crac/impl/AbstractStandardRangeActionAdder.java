@@ -24,7 +24,7 @@ import java.util.Objects;
 public abstract class AbstractStandardRangeActionAdder<T extends StandardRangeActionAdder<T>> extends AbstractRemedialActionAdder<T> implements StandardRangeActionAdder<T> {
 
     protected String groupId;
-    protected double initialSetpoint;
+    protected Double initialSetpoint;
     protected List<StandardRange> ranges;
     protected Map<VariationDirection, Double> variationCosts;
 
@@ -41,7 +41,7 @@ public abstract class AbstractStandardRangeActionAdder<T extends StandardRangeAc
     }
 
     @Override
-    public T withInitialSetpoint(double initialSetpoint) {
+    public T withInitialSetpoint(Double initialSetpoint) {
         this.initialSetpoint = initialSetpoint;
         return (T) this;
     }

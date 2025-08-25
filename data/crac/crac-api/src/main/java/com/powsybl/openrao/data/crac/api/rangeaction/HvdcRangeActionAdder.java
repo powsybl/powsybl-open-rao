@@ -19,9 +19,10 @@ public interface HvdcRangeActionAdder extends StandardRangeActionAdder<HvdcRange
 
     HvdcRangeActionAdder withNetworkElement(String networkElementId, String networkElementName);
 
-    HvdcRangeActionAdder withInitialSetpoint(double initialSetpoint);
+    HvdcRangeActionAdder withInitialSetpoint(Double initialSetpoint);
 
     StandardRangeAdder<HvdcRangeActionAdder> newRange();
 
     HvdcRangeAction add();
+
 }

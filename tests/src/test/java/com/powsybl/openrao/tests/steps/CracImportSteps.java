@@ -243,15 +243,15 @@ public class CracImportSteps {
                 .findFirst()
                 .orElseThrow(Exception::new);
 
-            if (expectedCnec.get("ImaxLeft") != null) {
-                assertEquals(Double.parseDouble(expectedCnec.get("ImaxLeft")), flowCnec.getIMax(TwoSides.ONE), DOUBLE_TOLERANCE);
+            if (expectedCnec.get("ImaxLeft") != null && !"NaN".equals(expectedCnec.get("ImaxLeft"))) {
+                assertEquals(Double.parseDouble(expectedCnec.get("ImaxLeft")), flowCnec.getIMax(TwoSides.ONE).get(), DOUBLE_TOLERANCE);
             } else {
-                assertNull(flowCnec.getIMax(TwoSides.ONE));
+                assertTrue(flowCnec.getIMax(TwoSides.ONE).isEmpty());
             }
-            if (expectedCnec.get("ImaxRight") != null) {
-                assertEquals(Double.parseDouble(expectedCnec.get("ImaxRight")), flowCnec.getIMax(TwoSides.TWO), DOUBLE_TOLERANCE);
+            if (expectedCnec.get("ImaxRight") != null && !"NaN".equals(expectedCnec.get("ImaxRight"))) {
+                assertEquals(Double.parseDouble(expectedCnec.get("ImaxRight")), flowCnec.getIMax(TwoSides.TWO).get(), DOUBLE_TOLERANCE);
             } else {
-                assertNull(flowCnec.getIMax(TwoSides.TWO));
+                assertTrue(flowCnec.getIMax(TwoSides.TWO).isEmpty());
             }
             if (expectedCnec.get("NominalVoltageLeft") != null) {
                 assertEquals(Double.parseDouble(expectedCnec.get("NominalVoltageLeft")), flowCnec.getNominalVoltage(TwoSides.ONE), DOUBLE_TOLERANCE);

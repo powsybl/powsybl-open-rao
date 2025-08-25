@@ -184,7 +184,7 @@ class SweMonitoredSeriesCreatorTest {
         Mockito.when(state.getContingency()).thenReturn(Objects.isNull(contingency) ? Optional.empty() : Optional.of(contingency));
         Mockito.when(cnec.getState()).thenReturn(state);
 
-        Mockito.when(cnec.getIMax(TwoSides.ONE)).thenReturn(1000.);
+        Mockito.when(cnec.getIMax(TwoSides.ONE)).thenReturn(Optional.of(1000.));
 
         NetworkElement networkElement = Mockito.mock(NetworkElement.class);
         Mockito.when(networkElement.getId()).thenReturn(resourceId);

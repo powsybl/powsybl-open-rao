@@ -20,5 +20,5 @@ public interface StandardRangeAction<T extends StandardRangeAction<T>> extends R
     /**
      * Get the setpoint of the remedial action before RAO.
      */
-    double getInitialSetpoint();
+    Double getInitialSetpoint();
 }

@@ -22,7 +22,6 @@ import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
 import com.powsybl.openrao.searchtreerao.commons.SensitivityComputer;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
-import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.GlobalOptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.commons.parameters.RangeActionLimitationParameters;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.IteratingLinearOptimizer;
@@ -244,62 +243,44 @@ public class Leaf implements OptimizationResult {
             rangeActions.forEach(ra -> ra.apply(network, raActivationResultFromParentLeaf.getOptimizedSetpoint(ra, state))));
     }
 
+    /**
+     *  This method computes remedial action limitation parameters. Already applied network actions must be taken into account.
+     *  In all steps except second preventive, context is main optimization state and appliedNetworkActionsInPrimaryState contain
+     *  the state's applied network actions. But during second preventive, primary state refers to preventive, and secondary states to other optimized states.
+     */
     RangeActionLimitationParameters getRaLimitationParameters(OptimizationPerimeter context, SearchTreeParameters parameters) {
-        if (!parameters.getRaLimitationParameters().containsKey(context.getMainOptimizationState().getInstant())) {
-            return null;
-        }
-        RaUsageLimits raUsageLimits = parameters.getRaLimitationParameters().get(context.getMainOptimizationState().getInstant());
         RangeActionLimitationParameters limitationParameters = new RangeActionLimitationParameters();
 
-        if (context instanceof GlobalOptimizationPerimeter) {
-            context.getRangeActionOptimizationStates().stream()
-                .filter(state -> state.getInstant().isCurative())
-                .forEach(state -> {
-                    int maxRa = raUsageLimits.getMaxRa() - appliedRemedialActionsInSecondaryStates.getAppliedNetworkActions(state).size();
-                    Set<String> tsoWithAlreadyActivatedRa = appliedRemedialActionsInSecondaryStates.getAppliedNetworkActions(state).stream().map(RemedialAction::getOperator).collect(Collectors.toSet());
-                    int maxTso = raUsageLimits.getMaxTso() - tsoWithAlreadyActivatedRa.size();
-                    Map<String, Integer> maxPstPerTso = raUsageLimits.getMaxPstPerTso();
-                    Map<String, Integer> maxRaPerTso = new HashMap<>(raUsageLimits.getMaxRaPerTso());
-                    maxRaPerTso.entrySet().forEach(entry -> {
-                        int alreadyActivatedNetworkActionsForTso = appliedRemedialActionsInSecondaryStates.getAppliedNetworkActions(state).stream().filter(na -> entry.getKey().equals(na.getOperator())).collect(Collectors.toSet()).size();
-                        entry.setValue(entry.getValue() - alreadyActivatedNetworkActionsForTso);
-                    });
-                    Map<String, Integer> maxElementaryActionsPerTso = new HashMap<>(raUsageLimits.getMaxElementaryActionsPerTso());
-                    maxElementaryActionsPerTso.entrySet().forEach(entry -> {
-                        int alreadyActivatedNetworkActionsForTso = appliedRemedialActionsInSecondaryStates.getAppliedNetworkActions(state).stream().filter(na -> entry.getKey().equals(na.getOperator())).mapToInt(na -> na.getElementaryActions().size()).sum();
-                        entry.setValue(Math.max(0, entry.getValue() - alreadyActivatedNetworkActionsForTso));
-                    });
-
-                    limitationParameters.setMaxRangeAction(state, maxRa);
-                    limitationParameters.setMaxTso(state, maxTso);
-                    limitationParameters.setMaxTsoExclusion(state, tsoWithAlreadyActivatedRa);
-                    limitationParameters.setMaxPstPerTso(state, maxPstPerTso);
-                    limitationParameters.setMaxRangeActionPerTso(state, maxRaPerTso);
-                    limitationParameters.setMaxElementaryActionsPerTso(state, maxElementaryActionsPerTso);
+        context.getRangeActionOptimizationStates().stream()
+            .filter(state -> {
+                return parameters.getRaLimitationParameters().containsKey(state.getInstant());
+            })
+            .forEach(state -> {
+                RaUsageLimits raUsageLimits = parameters.getRaLimitationParameters().get(state.getInstant());
+                Set<NetworkAction> appliedNetworkActions = state.equals(context.getMainOptimizationState()) ?
+                    appliedNetworkActionsInPrimaryState : appliedRemedialActionsInSecondaryStates.getAppliedNetworkActions(state);
+                int maxRa = raUsageLimits.getMaxRa() - appliedNetworkActions.size();
+                Set<String> tsoWithAlreadyActivatedRa = appliedNetworkActions.stream().map(RemedialAction::getOperator).collect(Collectors.toSet());
+                int maxTso = raUsageLimits.getMaxTso() - tsoWithAlreadyActivatedRa.size();
+                Map<String, Integer> maxPstPerTso = raUsageLimits.getMaxPstPerTso();
+                Map<String, Integer> maxRaPerTso = new HashMap<>(raUsageLimits.getMaxRaPerTso());
+                maxRaPerTso.entrySet().forEach(entry -> {
+                    int alreadyActivatedNetworkActionsForTso = appliedNetworkActions.stream().filter(na -> entry.getKey().equals(na.getOperator())).collect(Collectors.toSet()).size();
+                    entry.setValue(entry.getValue() - alreadyActivatedNetworkActionsForTso);
                 });
-        } else {
-            int maxRa = raUsageLimits.getMaxRa() - appliedNetworkActionsInPrimaryState.size();
-            Set<String> tsoWithAlreadyActivatedRa = appliedNetworkActionsInPrimaryState.stream().map(RemedialAction::getOperator).collect(Collectors.toSet());
-            int maxTso = raUsageLimits.getMaxTso() - tsoWithAlreadyActivatedRa.size();
-            Map<String, Integer> maxPstPerTso = raUsageLimits.getMaxPstPerTso();
-            Map<String, Integer> maxRaPerTso = new HashMap<>(raUsageLimits.getMaxRaPerTso());
-            maxRaPerTso.entrySet().forEach(entry -> {
-                int activatedNetworkActionsForTso = appliedNetworkActionsInPrimaryState.stream().filter(na -> entry.getKey().equals(na.getOperator())).collect(Collectors.toSet()).size();
-                entry.setValue(entry.getValue() - activatedNetworkActionsForTso);
-            });
-            Map<String, Integer> maxElementaryActionsPerTso = new HashMap<>(raUsageLimits.getMaxElementaryActionsPerTso());
-            maxElementaryActionsPerTso.entrySet().forEach(entry -> {
-                int alreadyActivatedNetworkActionsForTso = appliedNetworkActionsInPrimaryState.stream().filter(na -> entry.getKey().equals(na.getOperator())).mapToInt(na -> na.getElementaryActions().size()).sum();
-                entry.setValue(Math.max(0, entry.getValue() - alreadyActivatedNetworkActionsForTso));
-            });
+                Map<String, Integer> maxElementaryActionsPerTso = new HashMap<>(raUsageLimits.getMaxElementaryActionsPerTso());
+                maxElementaryActionsPerTso.entrySet().forEach(entry -> {
+                    int alreadyActivatedNetworkActionsForTso = appliedNetworkActions.stream().filter(na -> entry.getKey().equals(na.getOperator())).mapToInt(na -> na.getElementaryActions().size()).sum();
+                    entry.setValue(Math.max(0, entry.getValue() - alreadyActivatedNetworkActionsForTso));
+                });
 
-            limitationParameters.setMaxRangeAction(context.getMainOptimizationState(), maxRa);
-            limitationParameters.setMaxTso(context.getMainOptimizationState(), maxTso);
-            limitationParameters.setMaxTsoExclusion(context.getMainOptimizationState(), tsoWithAlreadyActivatedRa);
-            limitationParameters.setMaxPstPerTso(context.getMainOptimizationState(), maxPstPerTso);
-            limitationParameters.setMaxRangeActionPerTso(context.getMainOptimizationState(), maxRaPerTso);
-            limitationParameters.setMaxElementaryActionsPerTso(context.getMainOptimizationState(), maxElementaryActionsPerTso);
-        }
+                limitationParameters.setMaxRangeAction(state, maxRa);
+                limitationParameters.setMaxTso(state, maxTso);
+                limitationParameters.setMaxTsoExclusion(state, tsoWithAlreadyActivatedRa);
+                limitationParameters.setMaxPstPerTso(state, maxPstPerTso);
+                limitationParameters.setMaxRangeActionPerTso(state, maxRaPerTso);
+                limitationParameters.setMaxElementaryActionsPerTso(state, maxElementaryActionsPerTso);
+            });
         return limitationParameters;
     }
 

@@ -10,6 +10,7 @@ package com.powsybl.openrao.searchtreerao.searchtree.algorithms;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
+import com.powsybl.action.Action;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Instant;
@@ -25,7 +26,6 @@ import com.powsybl.openrao.data.crac.impl.utils.NetworkImportsUtil;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.searchtreerao.commons.SensitivityComputer;
-import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.GlobalOptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.commons.parameters.RangeActionLimitationParameters;
 import com.powsybl.openrao.searchtreerao.commons.parameters.TreeParameters;
@@ -36,6 +36,7 @@ import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearpro
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblemBuilder;
 import com.powsybl.openrao.searchtreerao.result.api.*;
 import com.powsybl.openrao.searchtreerao.result.impl.IteratingLinearOptimizationResultImpl;
+import com.powsybl.openrao.searchtreerao.result.impl.RangeActionActivationResultImpl;
 import com.powsybl.openrao.searchtreerao.searchtree.inputs.SearchTreeInput;
 import com.powsybl.openrao.searchtreerao.searchtree.parameters.SearchTreeParameters;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
@@ -66,6 +67,11 @@ class LeafTest {
 
     private NetworkAction na1;
     private NetworkAction na2;
+    private Action ea11;
+    private Action ea12;
+    private Action ea21;
+    private Action ea22;
+    private Action ea23;
 
     private Network network;
     private ObjectiveFunction costEvaluatorMock;
@@ -92,6 +98,15 @@ class LeafTest {
         na2 = Mockito.mock(NetworkAction.class);
         when(na1.apply(any())).thenReturn(true);
         when(na2.apply(any())).thenReturn(true);
+        when(na1.getOperator()).thenReturn("TSO1");
+        when(na2.getOperator()).thenReturn("TSO2");
+        ea11 = Mockito.mock(Action.class);
+        ea12 = Mockito.mock(Action.class);
+        ea21 = Mockito.mock(Action.class);
+        ea22 = Mockito.mock(Action.class);
+        ea23 = Mockito.mock(Action.class);
+        when(na1.getElementaryActions()).thenReturn(Set.of(ea11, ea12));
+        when(na2.getElementaryActions()).thenReturn(Set.of(ea21, ea22, ea23));
 
         sensitivityComputer = Mockito.mock(SensitivityComputer.class);
         costEvaluatorMock = Mockito.mock(ObjectiveFunction.class);
@@ -777,48 +792,129 @@ class LeafTest {
     }
 
     @Test
-    void testRaLimitations() {
-        Instant instant = Mockito.mock(Instant.class);
-        when(optimizedState.getInstant()).thenReturn(instant);
-        Leaf leaf = new Leaf(optimizationPerimeter, network, prePerimeterResult, appliedRemedialActions);
-        RaUsageLimits raUsageLimits = new RaUsageLimits();
-        raUsageLimits.setMaxRa(3);
+    void testRaLimitationsMaxRa() {
+        Instant primaryInstant = optimizedState.getInstant();
 
-        // test for instant not present in searchTreeParameters
-        Instant curativeInstant = Mockito.mock(Instant.class);
-        when(curativeInstant.getId()).thenReturn("curative");
-        Map<Instant, RaUsageLimits> raUsageLimitsMapForCurative = Map.of(curativeInstant, raUsageLimits);
-        when(searchTreeParameters.getRaLimitationParameters()).thenReturn(raUsageLimitsMapForCurative);
-        when(instant.getId()).thenReturn("preventive");
-        assertNull(leaf.getRaLimitationParameters(optimizationPerimeter, searchTreeParameters));
+        Instant secondaryInstant = Mockito.mock(Instant.class);
+        State secondaryStateWithActions = Mockito.mock(State.class);
+        when(secondaryStateWithActions.getInstant()).thenReturn(secondaryInstant);
+        State secondaryStateWithoutActions = Mockito.mock(State.class);
+        when(secondaryStateWithoutActions.getInstant()).thenReturn(secondaryInstant);
 
-        // test for preventive without topological actions
-        Map<Instant, RaUsageLimits> raUsageLimitsMap = Map.of(instant, raUsageLimits);
+        Instant secondaryInstantWithoutLimit = Mockito.mock(Instant.class);
+        State nonLimitedState = Mockito.mock(State.class);
+        when(nonLimitedState.getInstant()).thenReturn(secondaryInstantWithoutLimit);
+
+        when(optimizationPerimeter.getRangeActionOptimizationStates()).thenReturn(Set.of(optimizedState, secondaryStateWithoutActions, secondaryStateWithActions, nonLimitedState));
+
+        RaUsageLimits primaryInstantRaUsageLimits = new RaUsageLimits();
+        primaryInstantRaUsageLimits.setMaxRa(3);
+        RaUsageLimits secondaryInstantRaUsageLimits = new RaUsageLimits();
+        secondaryInstantRaUsageLimits.setMaxRa(8);
+        Map<Instant, RaUsageLimits> raUsageLimitsMap = Map.of(primaryInstant, primaryInstantRaUsageLimits,
+            secondaryInstant, secondaryInstantRaUsageLimits);
         when(searchTreeParameters.getRaLimitationParameters()).thenReturn(raUsageLimitsMap);
+
+        NetworkActionCombination networkActionCombination = new NetworkActionCombination(Set.of(na1));
+        when(appliedRemedialActions.getAppliedNetworkActions(secondaryStateWithActions)).thenReturn(Set.of(na1, na2));
+        Leaf leaf = new Leaf(optimizationPerimeter, network, new HashSet<>(), networkActionCombination,
+            Mockito.mock(RangeActionActivationResultImpl.class), prePerimeterResult, appliedRemedialActions);
+
         RangeActionLimitationParameters raLimitationParameters = leaf.getRaLimitationParameters(optimizationPerimeter, searchTreeParameters);
-        assertEquals(3, raLimitationParameters.getMaxRangeActions(optimizedState));
-
-        // test for preventive with 1 topological actions
-        Leaf rootLeaf = new Leaf(optimizationPerimeter, network, prePerimeterResult, appliedRemedialActions);
-        Leaf leaftWith1Topo = new Leaf(optimizationPerimeter, network, rootLeaf.getActivatedNetworkActions(), new NetworkActionCombination(na1), Mockito.mock(RangeActionActivationResult.class), prePerimeterResult, appliedRemedialActions);
-        raLimitationParameters = leaftWith1Topo.getRaLimitationParameters(optimizationPerimeter, searchTreeParameters);
+        assertEquals(null, raLimitationParameters.getMaxRangeActions(nonLimitedState));
+        //3 - 1 from na combination
         assertEquals(2, raLimitationParameters.getMaxRangeActions(optimizedState));
+        //8 - 2 from applied remedial actions
+        assertEquals(6, raLimitationParameters.getMaxRangeActions(secondaryStateWithActions));
+        //8
+        assertEquals(8, raLimitationParameters.getMaxRangeActions(secondaryStateWithoutActions));
+    }
 
-        // test for 2nd preventive
-        OptimizationPerimeter secondPreventivePerimeter = Mockito.mock(GlobalOptimizationPerimeter.class);
-        when(secondPreventivePerimeter.getRangeActionOptimizationStates()).thenReturn(Set.of(optimizedState));
-        when(secondPreventivePerimeter.getMainOptimizationState()).thenReturn(optimizedState);
-        when(instant.isCurative()).thenReturn(true);
-        when(appliedRemedialActions.getAppliedNetworkActions(optimizedState)).thenReturn(Set.of(na1, na2));
-        Leaf leaf2ndPreventive = new Leaf(secondPreventivePerimeter, network, prePerimeterResult, appliedRemedialActions);
-        raLimitationParameters = leaf2ndPreventive.getRaLimitationParameters(secondPreventivePerimeter, searchTreeParameters);
-        assertEquals(1, raLimitationParameters.getMaxRangeActions(optimizedState));
+    @Test
+    void testRaLimitationsMaxRaPerTso() {
+        Instant primaryInstant = optimizedState.getInstant();
 
-        // test for curative
-        raUsageLimitsMap = Map.of(curativeInstant, raUsageLimits);
+        Instant secondaryInstant = Mockito.mock(Instant.class);
+        State secondaryStateWithActions = Mockito.mock(State.class);
+        when(secondaryStateWithActions.getInstant()).thenReturn(secondaryInstant);
+        State secondaryStateWithoutActions = Mockito.mock(State.class);
+        when(secondaryStateWithoutActions.getInstant()).thenReturn(secondaryInstant);
+
+        Instant secondaryInstantWithoutLimit = Mockito.mock(Instant.class);
+        State nonLimitedState = Mockito.mock(State.class);
+        when(nonLimitedState.getInstant()).thenReturn(secondaryInstantWithoutLimit);
+
+        when(optimizationPerimeter.getRangeActionOptimizationStates()).thenReturn(Set.of(optimizedState, secondaryStateWithoutActions, secondaryStateWithActions, nonLimitedState));
+
+        RaUsageLimits primaryInstantRaUsageLimits = new RaUsageLimits();
+        primaryInstantRaUsageLimits.setMaxRaPerTso(Map.of("TSO1", 3, "TSO2", 45));
+        RaUsageLimits secondaryInstantRaUsageLimits = new RaUsageLimits();
+        secondaryInstantRaUsageLimits.setMaxRaPerTso(Map.of("TSO1", 23, "TSO2", 8));
+        Map<Instant, RaUsageLimits> raUsageLimitsMap = Map.of(primaryInstant, primaryInstantRaUsageLimits,
+            secondaryInstant, secondaryInstantRaUsageLimits);
         when(searchTreeParameters.getRaLimitationParameters()).thenReturn(raUsageLimitsMap);
-        when(optimizedState.getInstant()).thenReturn(curativeInstant);
-        raLimitationParameters = leaf.getRaLimitationParameters(optimizationPerimeter, searchTreeParameters);
-        assertEquals(3, raLimitationParameters.getMaxRangeActions(optimizedState));
+
+        NetworkActionCombination networkActionCombination = new NetworkActionCombination(Set.of(na1));
+        when(appliedRemedialActions.getAppliedNetworkActions(secondaryStateWithActions)).thenReturn(Set.of(na1, na2));
+        Leaf leaf = new Leaf(optimizationPerimeter, network, new HashSet<>(), networkActionCombination,
+            Mockito.mock(RangeActionActivationResultImpl.class), prePerimeterResult, appliedRemedialActions);
+
+        RangeActionLimitationParameters raLimitationParameters = leaf.getRaLimitationParameters(optimizationPerimeter, searchTreeParameters);
+        assertEquals(null, raLimitationParameters.getMaxRangeActionPerTso(nonLimitedState).get("TSO1"));
+        assertEquals(null, raLimitationParameters.getMaxRangeActionPerTso(nonLimitedState).get("TSO2"));
+        //3 - 1 from na combination
+        assertEquals(2, raLimitationParameters.getMaxRangeActionPerTso(optimizedState).get("TSO1"));
+        assertEquals(45, raLimitationParameters.getMaxRangeActionPerTso(optimizedState).get("TSO2"));
+        //23 - 1 from applied remedial actions
+        //8 - 1
+        assertEquals(22, raLimitationParameters.getMaxRangeActionPerTso(secondaryStateWithActions).get("TSO1"));
+        assertEquals(7, raLimitationParameters.getMaxRangeActionPerTso(secondaryStateWithActions).get("TSO2"));
+        //8
+        assertEquals(23, raLimitationParameters.getMaxRangeActionPerTso(secondaryStateWithoutActions).get("TSO1"));
+        assertEquals(8, raLimitationParameters.getMaxRangeActionPerTso(secondaryStateWithoutActions).get("TSO2"));
+    }
+
+    @Test
+    void testRaLimitationsMaxElementaryActionsPerTso() {
+        Instant primaryInstant = optimizedState.getInstant();
+
+        Instant secondaryInstant = Mockito.mock(Instant.class);
+        State secondaryStateWithActions = Mockito.mock(State.class);
+        when(secondaryStateWithActions.getInstant()).thenReturn(secondaryInstant);
+        State secondaryStateWithoutActions = Mockito.mock(State.class);
+        when(secondaryStateWithoutActions.getInstant()).thenReturn(secondaryInstant);
+
+        Instant secondaryInstantWithoutLimit = Mockito.mock(Instant.class);
+        State nonLimitedState = Mockito.mock(State.class);
+        when(nonLimitedState.getInstant()).thenReturn(secondaryInstantWithoutLimit);
+
+        when(optimizationPerimeter.getRangeActionOptimizationStates()).thenReturn(Set.of(optimizedState, secondaryStateWithoutActions, secondaryStateWithActions, nonLimitedState));
+
+        RaUsageLimits primaryInstantRaUsageLimits = new RaUsageLimits();
+        primaryInstantRaUsageLimits.setMaxElementaryActionsPerTso(Map.of("TSO1", 3, "TSO2", 45));
+        RaUsageLimits secondaryInstantRaUsageLimits = new RaUsageLimits();
+        secondaryInstantRaUsageLimits.setMaxElementaryActionsPerTso(Map.of("TSO1", 23, "TSO2", 8));
+        Map<Instant, RaUsageLimits> raUsageLimitsMap = Map.of(primaryInstant, primaryInstantRaUsageLimits,
+            secondaryInstant, secondaryInstantRaUsageLimits);
+        when(searchTreeParameters.getRaLimitationParameters()).thenReturn(raUsageLimitsMap);
+
+        NetworkActionCombination networkActionCombination = new NetworkActionCombination(Set.of(na1));
+        when(appliedRemedialActions.getAppliedNetworkActions(secondaryStateWithActions)).thenReturn(Set.of(na1, na2));
+        Leaf leaf = new Leaf(optimizationPerimeter, network, new HashSet<>(), networkActionCombination,
+            Mockito.mock(RangeActionActivationResultImpl.class), prePerimeterResult, appliedRemedialActions);
+
+        RangeActionLimitationParameters raLimitationParameters = leaf.getRaLimitationParameters(optimizationPerimeter, searchTreeParameters);
+        assertEquals(null, raLimitationParameters.getMaxElementaryActionsPerTso(nonLimitedState).get("TSO1"));
+        assertEquals(null, raLimitationParameters.getMaxElementaryActionsPerTso(nonLimitedState).get("TSO2"));
+        //3 - 2 elementary actions from na combination
+        assertEquals(1, raLimitationParameters.getMaxElementaryActionsPerTso(optimizedState).get("TSO1"));
+        assertEquals(45, raLimitationParameters.getMaxElementaryActionsPerTso(optimizedState).get("TSO2"));
+        //23 - 2 elementary actions from applied remedial actions
+        //8 - 3 elementary actions from applied remedial actions
+        assertEquals(21, raLimitationParameters.getMaxElementaryActionsPerTso(secondaryStateWithActions).get("TSO1"));
+        assertEquals(5, raLimitationParameters.getMaxElementaryActionsPerTso(secondaryStateWithActions).get("TSO2"));
+        //8
+        assertEquals(23, raLimitationParameters.getMaxElementaryActionsPerTso(secondaryStateWithoutActions).get("TSO1"));
+        assertEquals(8, raLimitationParameters.getMaxElementaryActionsPerTso(secondaryStateWithoutActions).get("TSO2"));
     }
 }
