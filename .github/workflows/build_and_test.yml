@@ -31,7 +31,7 @@ jobs:
         if: matrix.jvm == 'graalvm'
         uses: graalvm/setup-graalvm@v1
         with:
-          java-version: '21.0.1'
+          java-version: '21.0.8'
           distribution: 'graalvm'
           github-token: ${{ secrets.GITHUB_TOKEN }}
 

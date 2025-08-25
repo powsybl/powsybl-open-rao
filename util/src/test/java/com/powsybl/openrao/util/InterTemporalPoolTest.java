@@ -61,22 +61,7 @@ class InterTemporalPoolTest {
         List<ILoggingEvent> logsList = listAppender.list;
 
         InterTemporalPool pool = new InterTemporalPool(Set.of(timestamp1, timestamp2, timestamp3), 2);
-        pool.runTasks(timestamp -> {
-            Set<OffsetDateTime> newDates = new HashSet<>();
-            for (int i = 0; i < 10; i++) {
-                newDates.add(timestamp.plusYears(i));
-            }
-            InterTemporalPool childPool = new InterTemporalPool(newDates, 3);
-            try {
-                childPool.runTasks(newTimestamp -> {
-                    OpenRaoLoggerProvider.TECHNICAL_LOGS.info(newTimestamp.toString());
-                    return newTimestamp;
-                });
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-            return timestamp;
-        });
+        pool.runTasks(this::addYearOffsets);
 
         assertEquals(30, logsList.size());
 
@@ -97,5 +82,23 @@ class InterTemporalPoolTest {
             }
             finishedTasksPerDate.put(date, finishedTasksPerDate.get(date) + 1);
         }
+    }
+
+    private OffsetDateTime addYearOffsets(OffsetDateTime timestamp) {
+        Set<OffsetDateTime> newDates = new HashSet<>();
+        for (int i = 0; i < 10; i++) {
+            newDates.add(timestamp.plusYears(i));
+        }
+        try {
+            new InterTemporalPool(newDates, 3).runTasks(this::printTimestamp);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        return timestamp;
+    }
+
+    private OffsetDateTime printTimestamp(OffsetDateTime timestamp) {
+        OpenRaoLoggerProvider.TECHNICAL_LOGS.info(timestamp.toString());
+        return timestamp;
     }
 }
