@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -42,7 +43,7 @@ class InterTemporalPoolTest {
     }
 
     @Test
-    void testRunTemporalTasks() throws InterruptedException {
+    void testRunTemporalTasks() throws InterruptedException, ExecutionException {
         InterTemporalPool pool = new InterTemporalPool(Set.of(timestamp1, timestamp2, timestamp3));
         assertEquals(3, pool.getParallelism());
 
@@ -53,7 +54,7 @@ class InterTemporalPoolTest {
     }
 
     @Test
-    void testNestedPools() throws InterruptedException {
+    void testNestedPools() throws InterruptedException, ExecutionException {
         Logger logger = (Logger) LoggerFactory.getLogger(TechnicalLogs.class);
         ListAppender<ILoggingEvent> listAppender = new ListAppender<>();
         listAppender.start();
@@ -82,6 +83,8 @@ class InterTemporalPoolTest {
             }
             finishedTasksPerDate.put(date, finishedTasksPerDate.get(date) + 1);
         }
+
+        pool.shutdown();
     }
 
     private OffsetDateTime addYearOffsets(OffsetDateTime timestamp) {
@@ -89,10 +92,13 @@ class InterTemporalPoolTest {
         for (int i = 0; i < 10; i++) {
             newDates.add(timestamp.plusYears(i));
         }
+        InterTemporalPool pool = new InterTemporalPool(newDates, 3);
         try {
-            new InterTemporalPool(newDates, 3).runTasks(this::printTimestamp);
-        } catch (InterruptedException e) {
+            pool.runTasks(this::printTimestamp);
+        } catch (InterruptedException | ExecutionException e) {
             throw new RuntimeException(e);
+        } finally {
+            pool.shutdown();
         }
         return timestamp;
     }
