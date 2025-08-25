@@ -296,6 +296,7 @@ public class FastRao implements RaoProvider {
             postPraRemedialActionActivationResult,
             new AppliedRemedialActions());
 
+        // TODO : refactor with function to avoid duplicate code
         // 2) Post ARA
         Network networkCopyAra = networkPool.getAvailableNetwork();
         // Apply PRAs on networkCopyAra
