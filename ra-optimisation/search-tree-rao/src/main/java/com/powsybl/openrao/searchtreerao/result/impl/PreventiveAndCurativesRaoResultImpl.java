@@ -435,11 +435,6 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
         }
     }
 
-    public List<FlowCnec> getMostLimitingElements() {
-        //TODO : store values to be able to merge easily
-        return null;
-    }
-
     @Override
     public double getVirtualCost(Instant optimizedInstant) {
         AtomicReference<Double> s = new AtomicReference<>(0.);
@@ -544,18 +539,11 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
         }
     }
 
-    private void throwIfNotOptimized(State state) {
-        if (!postContingencyResults.containsKey(state)) {
-            throw new OpenRaoException(String.format("State %s was not optimized and does not have pre-optim values", state.getId()));
-        }
-    }
-
     @Override
     public int getPreOptimizationTapOnState(State state, PstRangeAction pstRangeAction) {
         if (state.getInstant().isPreventive()) {
             return initialResult.getTap(pstRangeAction);
         }
-        throwIfNotOptimized(state);
         State previousState = getStateOptimizedBefore(state);
         if (preventiveState.equals(previousState)) {
             return (remedialActionsExcludedFromSecondPreventive.contains(pstRangeAction) ? firstPreventivePerimeterResult : finalPreventivePerimeterResult)
@@ -567,7 +555,7 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
 
     @Override
     public int getOptimizedTapOnState(State state, PstRangeAction pstRangeAction) {
-        if (state.getInstant().isPreventive() || !postContingencyResults.containsKey(state)) {
+        if (state.getInstant().isPreventive()) {
             return (remedialActionsExcludedFromSecondPreventive.contains(pstRangeAction) ? firstPreventivePerimeterResult : finalPreventivePerimeterResult)
                 .getOptimizationResult().getOptimizedTap(pstRangeAction, state);
         } else {
@@ -580,7 +568,6 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
         if (state.getInstant().isPreventive()) {
             return initialResult.getSetpoint(rangeAction);
         }
-        throwIfNotOptimized(state);
         State previousState = getStateOptimizedBefore(state);
         if (preventiveState.equals(previousState)) {
             return (remedialActionsExcludedFromSecondPreventive.contains(rangeAction) ? firstPreventivePerimeterResult : finalPreventivePerimeterResult)
@@ -592,7 +579,7 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
 
     @Override
     public double getOptimizedSetPointOnState(State state, RangeAction<?> rangeAction) {
-        if (state.getInstant().isPreventive() || !postContingencyResults.containsKey(state)) {
+        if (state.getInstant().isPreventive()) {
             return (remedialActionsExcludedFromSecondPreventive.contains(rangeAction) ? firstPreventivePerimeterResult : finalPreventivePerimeterResult)
                 .getOptimizationResult().getOptimizedSetpoint(rangeAction, state);
         } else {
@@ -617,7 +604,7 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
 
     @Override
     public Map<PstRangeAction, Integer> getOptimizedTapsOnState(State state) {
-        if (state.getInstant().isPreventive() || !postContingencyResults.containsKey(state)) {
+        if (state.getInstant().isPreventive()) {
             Map<PstRangeAction, Integer> map = new HashMap<>(finalPreventivePerimeterResult.getOptimizationResult().getOptimizedTapsOnState(state));
             firstPreventivePerimeterResult.getOptimizationResult().getOptimizedTapsOnState(state).entrySet().stream()
                 .filter(entry -> remedialActionsExcludedFromSecondPreventive.contains(entry.getKey()))
@@ -630,7 +617,7 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
 
     @Override
     public Map<RangeAction<?>, Double> getOptimizedSetPointsOnState(State state) {
-        if (state.getInstant().isPreventive() || !postContingencyResults.containsKey(state)) {
+        if (state.getInstant().isPreventive()) {
             Map<RangeAction<?>, Double> map = new HashMap<>(finalPreventivePerimeterResult.getOptimizationResult().getOptimizedSetpointsOnState(state));
             firstPreventivePerimeterResult.getOptimizationResult().getOptimizedSetpointsOnState(state).entrySet().stream()
                 .filter(entry -> remedialActionsExcludedFromSecondPreventive.contains(entry.getKey()))
