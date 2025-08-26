@@ -1054,8 +1054,8 @@ class CimCracCreatorTest {
         assertEquals(flowCnec.isOptimized(), duplicate.isOptimized());
         assertEquals(flowCnec.isMonitored(), duplicate.isMonitored());
         assertEquals(flowCnec.getReliabilityMargin(), duplicate.getReliabilityMargin(), 1e-6);
-        assertEquals(flowCnec.getIMax(TwoSides.ONE), duplicate.getIMax(TwoSides.ONE), 1e-6);
-        assertEquals(flowCnec.getIMax(TwoSides.TWO), duplicate.getIMax(TwoSides.TWO), 1e-6);
+        assertEquals(flowCnec.getIMax(TwoSides.ONE).get(), duplicate.getIMax(TwoSides.ONE).get(), 1e-6);
+        assertEquals(flowCnec.getIMax(TwoSides.TWO).get(), duplicate.getIMax(TwoSides.TWO).get(), 1e-6);
         assertEquals(flowCnec.getNominalVoltage(TwoSides.ONE), duplicate.getNominalVoltage(TwoSides.ONE), 1e-6);
         assertEquals(flowCnec.getNominalVoltage(TwoSides.TWO), duplicate.getNominalVoltage(TwoSides.TWO), 1e-6);
         assertEquals(flowCnec.getThresholds(), duplicate.getThresholds());

@@ -54,7 +54,7 @@ public final class ExhaustiveCracCreation {
 
     public static Network createAssociatedNetwork() {
         // should be Line because of ContingencyElementType.LINE
-        return createNetworkForJsonRetrocompatibilityTest();
+        return createNetworkForJsonRetrocompatibilityTest(0.0);
     }
 
     public static Crac create(CracFactory cracFactory) {

@@ -527,7 +527,14 @@ class SearchTreeTest {
     void testCostSatisfiesStopCriterion() {
         setSearchTreeParameters();
 
+        // MIN_COST
+        when(searchTreeParameters.getObjectiveFunction()).thenReturn(ObjectiveFunctionParameters.ObjectiveFunctionType.MIN_COST);
+        assertTrue(searchTree.costSatisfiesStopCriterion(0));
+        assertFalse(searchTree.costSatisfiesStopCriterion(0.1));
+        assertFalse(searchTree.costSatisfiesStopCriterion(10));
+
         // MIN_OBJECTIVE
+        when(searchTreeParameters.getObjectiveFunction()).thenReturn(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN);
         when(treeParameters.stopCriterion()).thenReturn(TreeParameters.StopCriterion.MIN_OBJECTIVE);
         assertFalse(searchTree.costSatisfiesStopCriterion(-10));
         assertFalse(searchTree.costSatisfiesStopCriterion(-0.1));
