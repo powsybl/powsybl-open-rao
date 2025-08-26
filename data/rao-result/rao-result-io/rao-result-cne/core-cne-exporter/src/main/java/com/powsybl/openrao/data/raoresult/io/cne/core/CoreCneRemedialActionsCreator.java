@@ -20,7 +20,6 @@ import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.openrao.data.crac.io.commons.api.ElementaryCreationContext;
 import com.powsybl.openrao.data.crac.io.commons.api.stdcreationcontext.PstRangeActionCreationContext;
 import com.powsybl.openrao.data.crac.io.commons.api.stdcreationcontext.UcteCracCreationContext;
@@ -160,8 +159,7 @@ public final class CoreCneRemedialActionsCreator {
     }
 
     public void createPostOptimPstRangeActionSeries(PstRangeAction rangeAction, InstantKind optimizedInstantKind, State state, ConstraintSeries constraintSeriesB56) {
-        if (rangeAction.getUsageRules().stream().noneMatch(usageRule ->
-                usageRule.getUsageMethod(state).equals(UsageMethod.AVAILABLE) || usageRule.getUsageMethod(state).equals(UsageMethod.FORCED))) {
+        if (rangeAction.getUsageRules().stream().noneMatch(usageRule -> usageRule.isDefinedForState(state))) {
             return;
         }
         // using RaoResult.isActivatedDuringState may throw an exception
@@ -221,8 +219,7 @@ public final class CoreCneRemedialActionsCreator {
     }
 
     public void createPostOptimNetworkRemedialActionSeries(NetworkAction networkAction, InstantKind optimizedInstantKind, State state, ConstraintSeries constraintSeriesB56) {
-        if (networkAction.getUsageRules().stream().noneMatch(usageRule ->
-                usageRule.getUsageMethod(state).equals(UsageMethod.AVAILABLE) || usageRule.getUsageMethod(state).equals(UsageMethod.FORCED))) {
+        if (networkAction.getUsageRules().stream().noneMatch(usageRule -> usageRule.isDefinedForState(state))) {
             return;
         }
         // using RaoResult.isActivatedDuringState may throw an exception
@@ -237,7 +234,7 @@ public final class CoreCneRemedialActionsCreator {
     public void addRemedialActionsToOtherConstraintSeries(List<RemedialActionSeries> remedialActionSeriesList, List<ConstraintSeries> constraintSeriesList) {
         remedialActionSeriesList.forEach(remedialActionSeries -> {
             RemedialActionSeries shortPostOptimRemedialActionSeries = newRemedialActionSeries(remedialActionSeries.getMRID(), remedialActionSeries.getName(), remedialActionSeries.getApplicationModeMarketObjectStatusStatus());
-            constraintSeriesList.stream().forEach(constraintSeries -> constraintSeries.getRemedialActionSeries().add(shortPostOptimRemedialActionSeries));
+            constraintSeriesList.forEach(constraintSeries -> constraintSeries.getRemedialActionSeries().add(shortPostOptimRemedialActionSeries));
         });
     }
 }

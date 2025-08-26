@@ -11,7 +11,6 @@ import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.networkaction.ActionType;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.openrao.data.crac.impl.CracImplFactory;
 import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
 import org.junit.jupiter.api.Test;
@@ -42,7 +41,6 @@ class ElementaryActionsCompatibilityFilterTest {
             .add()
             .newOnInstantUsageRule()
             .withInstant("preventive")
-            .withUsageMethod(UsageMethod.AVAILABLE)
             .add()
             .add();
 
@@ -59,7 +57,6 @@ class ElementaryActionsCompatibilityFilterTest {
             .add()
             .newOnInstantUsageRule()
             .withInstant("preventive")
-            .withUsageMethod(UsageMethod.AVAILABLE)
             .add()
             .add();
 
@@ -76,7 +73,6 @@ class ElementaryActionsCompatibilityFilterTest {
             .add()
             .newOnInstantUsageRule()
             .withInstant("preventive")
-            .withUsageMethod(UsageMethod.AVAILABLE)
             .add()
             .add();
 
@@ -89,7 +85,6 @@ class ElementaryActionsCompatibilityFilterTest {
             .add()
             .newOnInstantUsageRule()
             .withInstant("preventive")
-            .withUsageMethod(UsageMethod.AVAILABLE)
             .add()
             .add();
 
@@ -106,7 +101,6 @@ class ElementaryActionsCompatibilityFilterTest {
             .add()
             .newOnInstantUsageRule()
             .withInstant("preventive")
-            .withUsageMethod(UsageMethod.AVAILABLE)
             .add()
             .add();
 
@@ -119,7 +113,6 @@ class ElementaryActionsCompatibilityFilterTest {
             .add()
             .newOnInstantUsageRule()
             .withInstant("preventive")
-            .withUsageMethod(UsageMethod.AVAILABLE)
             .add()
             .add();
 

@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.data.crac.api.usagerule;
 
+import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 
 /**
@@ -16,4 +17,11 @@ public interface OnConstraint<T extends Cnec<?>> extends UsageRule {
      * Get the Cnec that should be constrained
      */
     T getCnec();
+
+    default boolean isDefinedForState(State state) {
+        if (!state.getInstant().equals(getInstant())) {
+            return false;
+        }
+        return getInstant().isPreventive() || getCnec().getState().getContingency().equals(state.getContingency());
+    }
 }

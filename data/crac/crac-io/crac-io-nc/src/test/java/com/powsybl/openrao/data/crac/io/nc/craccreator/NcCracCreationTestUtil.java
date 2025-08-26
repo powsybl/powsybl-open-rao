@@ -29,7 +29,6 @@ import com.powsybl.openrao.data.crac.api.threshold.Threshold;
 import com.powsybl.openrao.data.crac.api.usagerule.OnConstraint;
 import com.powsybl.openrao.data.crac.api.usagerule.OnContingencyState;
 import com.powsybl.openrao.data.crac.api.usagerule.OnInstant;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.openrao.data.crac.io.commons.api.ElementaryCreationContext;
 import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
 import com.powsybl.openrao.data.crac.io.nc.parameters.Border;
@@ -150,40 +149,40 @@ public final class NcCracCreationTestUtil {
         assertEquals(expectedOperator, cracCreationContext.getCrac().getNetworkAction(id).getOperator());
     }
 
-    public static void assertHasOnInstantUsageRule(NcCracCreationContext cracCreationContext, String raId, Instant instant, UsageMethod usageMethod) {
+    public static void assertHasOnInstantUsageRule(NcCracCreationContext cracCreationContext, String raId, Instant instant) {
         assertTrue(
             cracCreationContext.getCrac().getRemedialAction(raId).getUsageRules().stream().filter(OnInstant.class::isInstance)
                 .map(OnInstant.class::cast)
-                .anyMatch(ur -> ur.getInstant().equals(instant) && ur.getUsageMethod().equals(usageMethod))
+                .anyMatch(ur -> ur.getInstant().equals(instant))
         );
     }
 
-    public static void assertHasOnInstantUsageRule(NcCracCreationContext cracCreationContext, String raId, String instant, UsageMethod usageMethod) {
-        assertHasOnInstantUsageRule(cracCreationContext, raId, cracCreationContext.getCrac().getInstant(instant), usageMethod);
+    public static void assertHasOnInstantUsageRule(NcCracCreationContext cracCreationContext, String raId, String instant) {
+        assertHasOnInstantUsageRule(cracCreationContext, raId, cracCreationContext.getCrac().getInstant(instant));
     }
 
-    public static void assertHasOnContingencyStateUsageRule(NcCracCreationContext cracCreationContext, String raId, String contingencyId, Instant instant, UsageMethod usageMethod) {
+    public static void assertHasOnContingencyStateUsageRule(NcCracCreationContext cracCreationContext, String raId, String contingencyId, Instant instant) {
         assertTrue(
             cracCreationContext.getCrac().getRemedialAction(raId).getUsageRules().stream().filter(OnContingencyState.class::isInstance)
                 .map(OnContingencyState.class::cast)
-                .anyMatch(ur -> ur.getContingency().getId().equals(contingencyId) && ur.getInstant().equals(instant) && ur.getUsageMethod().equals(usageMethod))
+                .anyMatch(ur -> ur.getContingency().getId().equals(contingencyId) && ur.getInstant().equals(instant))
         );
     }
 
-    public static void assertHasOnContingencyStateUsageRule(NcCracCreationContext cracCreationContext, String raId, String contingencyId, String instant, UsageMethod usageMethod) {
-        assertHasOnContingencyStateUsageRule(cracCreationContext, raId, contingencyId, cracCreationContext.getCrac().getInstant(instant), usageMethod);
+    public static void assertHasOnContingencyStateUsageRule(NcCracCreationContext cracCreationContext, String raId, String contingencyId, String instant) {
+        assertHasOnContingencyStateUsageRule(cracCreationContext, raId, contingencyId, cracCreationContext.getCrac().getInstant(instant));
     }
 
-    public static void assertHasOnConstraintUsageRule(NcCracCreationContext cracCreationContext, String raId, String cnecId, Instant instant, UsageMethod usageMethod, Class<? extends Cnec<?>> cnecType) {
+    public static void assertHasOnConstraintUsageRule(NcCracCreationContext cracCreationContext, String raId, String cnecId, Instant instant, Class<? extends Cnec<?>> cnecType) {
         assertTrue(
             cracCreationContext.getCrac().getRemedialAction(raId).getUsageRules().stream().filter(OnConstraint.class::isInstance)
                 .map(OnConstraint.class::cast)
-                .anyMatch(ur -> ur.getCnec().getId().equals(cnecId) && cnecType.isInstance(ur.getCnec()) && ur.getInstant().equals(instant) && ur.getUsageMethod().equals(usageMethod))
+                .anyMatch(ur -> ur.getCnec().getId().equals(cnecId) && cnecType.isInstance(ur.getCnec()) && ur.getInstant().equals(instant))
         );
     }
 
-    public static void assertHasOnConstraintUsageRule(NcCracCreationContext cracCreationContext, String raId, String flowCnecId, String instant, UsageMethod usageMethod, Class<? extends Cnec<?>> cnecType) {
-        assertHasOnConstraintUsageRule(cracCreationContext, raId, flowCnecId, cracCreationContext.getCrac().getInstant(instant), usageMethod, cnecType);
+    public static void assertHasOnConstraintUsageRule(NcCracCreationContext cracCreationContext, String raId, String flowCnecId, String instant, Class<? extends Cnec<?>> cnecType) {
+        assertHasOnConstraintUsageRule(cracCreationContext, raId, flowCnecId, cracCreationContext.getCrac().getInstant(instant), cnecType);
     }
 
     public static void assertRaNotImported(NcCracCreationContext cracCreationContext, String raId, ImportStatus importStatus, String importStatusDetail) {

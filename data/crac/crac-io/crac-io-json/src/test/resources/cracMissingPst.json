@@ -55,8 +55,7 @@
     "operator" : "RTE",
     "speed" : 10,
     "onInstantUsageRules" : [ {
-      "instant" : "preventive",
-      "usageMethod" : "available"
+      "instant" : "preventive"
     } ],
     "networkElementId" : "missing-pst",
     "ranges" : [ {

@@ -35,7 +35,6 @@ import com.powsybl.openrao.data.crac.api.networkaction.ActionType;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkActionAdder;
 import com.powsybl.openrao.data.crac.api.range.RangeType;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -291,12 +290,10 @@ class CracImplTest {
                 .newOnContingencyStateUsageRule()
                 .withContingency("co1")
                 .withInstant(AUTO_INSTANT_ID)
-                .withUsageMethod(UsageMethod.AVAILABLE)
                 .add()
                 .newOnContingencyStateUsageRule()
                 .withContingency("co2")
                 .withInstant(CURATIVE_INSTANT_ID)
-                .withUsageMethod(UsageMethod.FORCED)
                 .add()
                 .add();
 
@@ -373,7 +370,7 @@ class CracImplTest {
                 .withId("na")
                 .withOperator("operator")
                 .newTerminalsConnectionAction().withNetworkElement("anyNetworkElement").withActionType(ActionType.CLOSE).add()
-                .newOnContingencyStateUsageRule().withInstant(CURATIVE_INSTANT_ID).withContingency("co1").withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnContingencyStateUsageRule().withInstant(CURATIVE_INSTANT_ID).withContingency("co1").add()
                 .add();
 
         assertEquals(1, crac.getContingencies().size());
@@ -596,28 +593,28 @@ class CracImplTest {
         ra1 = crac.newPstRangeAction()
                 .withId("ra1")
                 .withNetworkElement("ne1")
-                .newOnContingencyStateUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withContingency("co1").withInstant(CURATIVE_INSTANT_ID).add()
+                .newOnContingencyStateUsageRule().withContingency("co1").withInstant(CURATIVE_INSTANT_ID).add()
                 .withInitialTap(0)
                 .withTapToAngleConversionMap(Map.of(-1, -1., 0, 0., 1, 1.))
                 .add();
         ra2 = crac.newPstRangeAction()
                 .withId("ra2")
                 .withNetworkElement("ne1")
-                .newOnContingencyStateUsageRule().withUsageMethod(UsageMethod.FORCED).withContingency("co2").withInstant(CURATIVE_INSTANT_ID).add()
+                .newOnContingencyStateUsageRule().withContingency("co2").withInstant(CURATIVE_INSTANT_ID).add()
                 .withInitialTap(0)
                 .withTapToAngleConversionMap(Map.of(-1, -1., 0, 0., 1, 1.))
                 .add();
         ra3 = crac.newPstRangeAction()
                 .withId("ra3")
                 .withNetworkElement("ne2")
-                .newOnContingencyStateUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withContingency("co1").withInstant(CURATIVE_INSTANT_ID).add()
+                .newOnContingencyStateUsageRule().withContingency("co1").withInstant(CURATIVE_INSTANT_ID).add()
                 .withInitialTap(0)
                 .withTapToAngleConversionMap(Map.of(-1, -1., 0, 0., 1, 1.))
                 .add();
         ra4 = crac.newPstRangeAction()
                 .withId("ra4")
                 .withNetworkElement("ne2")
-                .newOnContingencyStateUsageRule().withUsageMethod(UsageMethod.FORCED).withContingency("co2").withInstant(CURATIVE_INSTANT_ID).add()
+                .newOnContingencyStateUsageRule().withContingency("co2").withInstant(CURATIVE_INSTANT_ID).add()
                 .withInitialTap(0)
                 .withTapToAngleConversionMap(Map.of(-1, -1., 0, 0., 1, 1.))
                 .add();
@@ -625,11 +622,10 @@ class CracImplTest {
         state1 = crac.getState("co1", curativeInstant);
         state2 = crac.getState("co2", curativeInstant);
 
-        assertEquals(0, crac.getRangeActions(state1, UsageMethod.FORCED).size());
-        assertEquals(2, crac.getRangeActions(state1, UsageMethod.AVAILABLE).size());
-        assertTrue(crac.getRangeActions(state1, UsageMethod.AVAILABLE).containsAll(Set.of(ra1, ra3)));
-        assertEquals(2, crac.getRangeActions(state2, UsageMethod.FORCED).size());
-        assertTrue(crac.getRangeActions(state2, UsageMethod.FORCED).containsAll(Set.of(ra2, ra4)));
+        assertEquals(2, crac.getRangeActions(state1).size());
+        assertTrue(crac.getRangeActions(state1).containsAll(Set.of(ra1, ra3)));
+        assertEquals(2, crac.getRangeActions(state2).size());
+        assertTrue(crac.getRangeActions(state2).containsAll(Set.of(ra2, ra4)));
 
         assertEquals(4, crac.getPstRangeActions().size());
         assertEquals(4, crac.getRangeActions().size());
@@ -672,36 +668,35 @@ class CracImplTest {
         ra1 = crac.newHvdcRangeAction()
                 .withId("ra1")
                 .withNetworkElement("ne1")
-                .newOnContingencyStateUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withContingency("co1").withInstant(CURATIVE_INSTANT_ID).add()
+                .newOnContingencyStateUsageRule().withContingency("co1").withInstant(CURATIVE_INSTANT_ID).add()
                 .newRange().withMin(-5).withMax(10).add()
                 .add();
         ra2 = crac.newHvdcRangeAction()
                 .withId("ra2")
                 .withNetworkElement("ne1")
-                .newOnContingencyStateUsageRule().withUsageMethod(UsageMethod.FORCED).withContingency("co2").withInstant(CURATIVE_INSTANT_ID).add()
+                .newOnContingencyStateUsageRule().withContingency("co2").withInstant(CURATIVE_INSTANT_ID).add()
                 .newRange().withMin(-5).withMax(10).add()
                 .add();
         ra3 = crac.newHvdcRangeAction()
                 .withId("ra3")
                 .withNetworkElement("ne2")
-                .newOnContingencyStateUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withContingency("co1").withInstant(CURATIVE_INSTANT_ID).add()
+                .newOnContingencyStateUsageRule().withContingency("co1").withInstant(CURATIVE_INSTANT_ID).add()
                 .newRange().withMin(-5).withMax(10).add()
                 .add();
         ra4 = crac.newHvdcRangeAction()
                 .withId("ra4")
                 .withNetworkElement("ne2")
-                .newOnContingencyStateUsageRule().withUsageMethod(UsageMethod.FORCED).withContingency("co2").withInstant(CURATIVE_INSTANT_ID).add()
+                .newOnContingencyStateUsageRule().withContingency("co2").withInstant(CURATIVE_INSTANT_ID).add()
                 .newRange().withMin(-5).withMax(10).add()
                 .add();
 
         state1 = crac.getState("co1", curativeInstant);
         state2 = crac.getState("co2", curativeInstant);
 
-        assertEquals(0, crac.getRangeActions(state1, UsageMethod.FORCED).size());
-        assertEquals(2, crac.getRangeActions(state1, UsageMethod.AVAILABLE).size());
-        assertTrue(crac.getRangeActions(state1, UsageMethod.AVAILABLE).containsAll(Set.of(ra1, ra3)));
-        assertEquals(2, crac.getRangeActions(state2, UsageMethod.FORCED).size());
-        assertTrue(crac.getRangeActions(state2, UsageMethod.FORCED).containsAll(Set.of(ra2, ra4)));
+        assertEquals(2, crac.getRangeActions(state1).size());
+        assertTrue(crac.getRangeActions(state1).containsAll(Set.of(ra1, ra3)));
+        assertEquals(2, crac.getRangeActions(state2).size());
+        assertTrue(crac.getRangeActions(state2).containsAll(Set.of(ra2, ra4)));
 
         assertEquals(4, crac.getHvdcRangeActions().size());
         assertEquals(4, crac.getRangeActions().size());
@@ -743,28 +738,28 @@ class CracImplTest {
         ra1 = crac.newPstRangeAction()
                 .withId("ra1")
                 .withNetworkElement("ne1")
-                .newOnContingencyStateUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withContingency("co1").withInstant(CURATIVE_INSTANT_ID).add()
+                .newOnContingencyStateUsageRule().withContingency("co1").withInstant(CURATIVE_INSTANT_ID).add()
                 .withInitialTap(0)
                 .withTapToAngleConversionMap(Map.of(-1, -1., 0, 0., 1, 1.))
                 .add();
         ra2 = crac.newPstRangeAction()
                 .withId("ra2")
                 .withNetworkElement("ne1")
-                .newOnContingencyStateUsageRule().withUsageMethod(UsageMethod.FORCED).withContingency("co1").withInstant(CURATIVE_INSTANT_ID).add()
+                .newOnContingencyStateUsageRule().withContingency("co1").withInstant(CURATIVE_INSTANT_ID).add()
                 .withInitialTap(0)
                 .withTapToAngleConversionMap(Map.of(-1, -1., 0, 0., 1, 1.))
                 .add();
         ra3 = crac.newPstRangeAction()
                 .withId("ra3")
                 .withNetworkElement("ne2")
-                .newOnContingencyStateUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withContingency("co2").withInstant(CURATIVE_INSTANT_ID).add()
+                .newOnContingencyStateUsageRule().withContingency("co2").withInstant(CURATIVE_INSTANT_ID).add()
                 .withInitialTap(0)
                 .withTapToAngleConversionMap(Map.of(-1, -1., 0, 0., 1, 1.))
                 .add();
         ra4 = crac.newPstRangeAction()
                 .withId("ra4")
                 .withNetworkElement("ne2")
-                .newOnContingencyStateUsageRule().withUsageMethod(UsageMethod.FORCED).withContingency("co2").withInstant(CURATIVE_INSTANT_ID).add()
+                .newOnContingencyStateUsageRule().withContingency("co2").withInstant(CURATIVE_INSTANT_ID).add()
                 .withInitialTap(0)
                 .withTapToAngleConversionMap(Map.of(-1, -1., 0, 0., 1, 1.))
                 .add();
@@ -772,12 +767,8 @@ class CracImplTest {
         state1 = crac.getState("co1", curativeInstant);
         state2 = crac.getState("co2", curativeInstant);
 
-        assertEquals(Set.of(ra1), crac.getRangeActions(state1, UsageMethod.AVAILABLE));
-        assertEquals(Set.of(ra3), crac.getRangeActions(state2, UsageMethod.AVAILABLE));
-        assertEquals(Set.of(ra2), crac.getRangeActions(state1, UsageMethod.FORCED));
-        assertEquals(Set.of(ra4), crac.getRangeActions(state2, UsageMethod.FORCED));
-        assertEquals(Set.of(ra1, ra2), crac.getRangeActions(state1, UsageMethod.AVAILABLE, UsageMethod.FORCED));
-        assertEquals(Set.of(ra3, ra4), crac.getRangeActions(state2, UsageMethod.AVAILABLE, UsageMethod.FORCED));
+        assertEquals(Set.of(ra1, ra2), crac.getRangeActions(state1));
+        assertEquals(Set.of(ra3, ra4), crac.getRangeActions(state2));
     }
 
     @Test
@@ -788,37 +779,33 @@ class CracImplTest {
         ra1 = crac.newHvdcRangeAction()
                 .withId("ra1")
                 .withNetworkElement("ne1")
-                .newOnContingencyStateUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withContingency("co1").withInstant(CURATIVE_INSTANT_ID).add()
+                .newOnContingencyStateUsageRule().withContingency("co1").withInstant(CURATIVE_INSTANT_ID).add()
                 .newRange().withMin(-5).withMax(10).add()
                 .add();
         ra2 = crac.newHvdcRangeAction()
                 .withId("ra2")
                 .withNetworkElement("ne1")
-                .newOnContingencyStateUsageRule().withUsageMethod(UsageMethod.FORCED).withContingency("co1").withInstant(CURATIVE_INSTANT_ID).add()
+                .newOnContingencyStateUsageRule().withContingency("co1").withInstant(CURATIVE_INSTANT_ID).add()
                 .newRange().withMin(-5).withMax(10).add()
                 .add();
         ra3 = crac.newHvdcRangeAction()
                 .withId("ra3")
                 .withNetworkElement("ne2")
-                .newOnContingencyStateUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withContingency("co2").withInstant(CURATIVE_INSTANT_ID).add()
+                .newOnContingencyStateUsageRule().withContingency("co2").withInstant(CURATIVE_INSTANT_ID).add()
                 .newRange().withMin(-5).withMax(10).add()
                 .add();
         ra4 = crac.newHvdcRangeAction()
                 .withId("ra4")
                 .withNetworkElement("ne2")
-                .newOnContingencyStateUsageRule().withUsageMethod(UsageMethod.FORCED).withContingency("co2").withInstant(CURATIVE_INSTANT_ID).add()
+                .newOnContingencyStateUsageRule().withContingency("co2").withInstant(CURATIVE_INSTANT_ID).add()
                 .newRange().withMin(-5).withMax(10).add()
                 .add();
 
         state1 = crac.getState("co1", curativeInstant);
         state2 = crac.getState("co2", curativeInstant);
 
-        assertEquals(Set.of(ra1), crac.getRangeActions(state1, UsageMethod.AVAILABLE));
-        assertEquals(Set.of(ra3), crac.getRangeActions(state2, UsageMethod.AVAILABLE));
-        assertEquals(Set.of(ra2), crac.getRangeActions(state1, UsageMethod.FORCED));
-        assertEquals(Set.of(ra4), crac.getRangeActions(state2, UsageMethod.FORCED));
-        assertEquals(Set.of(ra1, ra2), crac.getRangeActions(state1, UsageMethod.AVAILABLE, UsageMethod.FORCED));
-        assertEquals(Set.of(ra3, ra4), crac.getRangeActions(state2, UsageMethod.AVAILABLE, UsageMethod.FORCED));
+        assertEquals(Set.of(ra1, ra2), crac.getRangeActions(state1));
+        assertEquals(Set.of(ra3, ra4), crac.getRangeActions(state2));
     }
 
     @Test
@@ -828,29 +815,27 @@ class CracImplTest {
         crac.addContingency(contingency1);
 
         NetworkActionAdder na1Adder = crac.newNetworkAction().withId("na1").withName("na1").withOperator("operator").withSpeed(10);
-        na1Adder.newOnContingencyStateUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withContingency("co1").withInstant(CURATIVE_INSTANT_ID).add();
+        na1Adder.newOnContingencyStateUsageRule().withContingency("co1").withInstant(CURATIVE_INSTANT_ID).add();
         na1Adder.newSwitchAction().withNetworkElement("ne1", "ne1").withActionType(ActionType.OPEN).add();
         NetworkAction na1 = na1Adder.add();
         NetworkActionAdder na2Adder = crac.newNetworkAction().withId("na2").withName("na2").withOperator("operator").withSpeed(10);
-        na2Adder.newOnContingencyStateUsageRule().withUsageMethod(UsageMethod.FORCED).withContingency("co1").withInstant(AUTO_INSTANT_ID).add();
+        na2Adder.newOnContingencyStateUsageRule().withContingency("co1").withInstant(AUTO_INSTANT_ID).add();
         na2Adder.newSwitchAction().withNetworkElement("ne1", "ne1").withActionType(ActionType.OPEN).add();
         NetworkAction na2 = na2Adder.add();
         NetworkActionAdder na3Adder = crac.newNetworkAction().withId("na3").withName("na3").withOperator("operator").withSpeed(10);
-        na3Adder.newOnContingencyStateUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withContingency("co1").withInstant(CURATIVE_INSTANT_ID).add();
+        na3Adder.newOnContingencyStateUsageRule().withContingency("co1").withInstant(CURATIVE_INSTANT_ID).add();
         na3Adder.newSwitchAction().withNetworkElement("ne2", "ne2").withActionType(ActionType.CLOSE).add();
         NetworkAction na3 = na3Adder.add();
         NetworkActionAdder na4Adder = crac.newNetworkAction().withId("na4").withName("na4").withOperator("operator").withSpeed(10);
-        na4Adder.newOnContingencyStateUsageRule().withUsageMethod(UsageMethod.FORCED).withContingency("co1").withInstant(AUTO_INSTANT_ID).add();
+        na4Adder.newOnContingencyStateUsageRule().withContingency("co1").withInstant(AUTO_INSTANT_ID).add();
         na4Adder.newSwitchAction().withNetworkElement("ne2", "ne2").withActionType(ActionType.CLOSE).add();
         NetworkAction na4 = na4Adder.add();
 
         state1 = crac.getState(contingency1, curativeInstant);
         state2 = crac.getState(contingency1, autoInstant);
 
-        assertTrue(crac.getNetworkActions(state1, UsageMethod.FORCED).isEmpty());
-        assertEquals(Set.of(na1, na3), crac.getNetworkActions(state1, UsageMethod.AVAILABLE));
-        assertEquals(Set.of(na2, na4), crac.getNetworkActions(state2, UsageMethod.FORCED));
-        assertEquals(Set.of(na2, na4), crac.getNetworkActions(state2, UsageMethod.FORCED, UsageMethod.AVAILABLE));
+        assertEquals(Set.of(na1, na3), crac.getNetworkActions(state1));
+        assertEquals(Set.of(na2, na4), crac.getNetworkActions(state2));
 
         assertEquals(4, crac.getNetworkActions().size());
         assertEquals(4, crac.getRemedialActions().size());
@@ -888,31 +873,27 @@ class CracImplTest {
         crac.addContingency(contingency1);
 
         NetworkActionAdder na1Adder = crac.newNetworkAction().withId("na1").withName("na1").withOperator("operator").withSpeed(10);
-        na1Adder.newOnContingencyStateUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withContingency("co1").withInstant(CURATIVE_INSTANT_ID).add();
+        na1Adder.newOnContingencyStateUsageRule().withContingency("co1").withInstant(CURATIVE_INSTANT_ID).add();
         na1Adder.newSwitchAction().withNetworkElement("ne1", "ne1").withActionType(ActionType.OPEN).add();
         NetworkAction na1 = na1Adder.add();
         NetworkActionAdder na2Adder = crac.newNetworkAction().withId("na2").withName("na2").withOperator("operator").withSpeed(10);
-        na2Adder.newOnContingencyStateUsageRule().withUsageMethod(UsageMethod.FORCED).withContingency("co1").withInstant(AUTO_INSTANT_ID).add();
+        na2Adder.newOnContingencyStateUsageRule().withContingency("co1").withInstant(AUTO_INSTANT_ID).add();
         na2Adder.newSwitchAction().withNetworkElement("ne1", "ne1").withActionType(ActionType.OPEN).add();
         NetworkAction na2 = na2Adder.add();
         NetworkActionAdder na3Adder = crac.newNetworkAction().withId("na3").withName("na3").withOperator("operator").withSpeed(10);
-        na3Adder.newOnContingencyStateUsageRule().withUsageMethod(UsageMethod.FORCED).withContingency("co1").withInstant(CURATIVE_INSTANT_ID).add();
+        na3Adder.newOnContingencyStateUsageRule().withContingency("co1").withInstant(CURATIVE_INSTANT_ID).add();
         na3Adder.newSwitchAction().withNetworkElement("ne2", "ne2").withActionType(ActionType.CLOSE).add();
         NetworkAction na3 = na3Adder.add();
         NetworkActionAdder na4Adder = crac.newNetworkAction().withId("na4").withName("na4").withOperator("operator").withSpeed(10);
-        na4Adder.newOnContingencyStateUsageRule().withUsageMethod(UsageMethod.FORCED).withContingency("co1").withInstant(AUTO_INSTANT_ID).add();
+        na4Adder.newOnContingencyStateUsageRule().withContingency("co1").withInstant(AUTO_INSTANT_ID).add();
         na4Adder.newSwitchAction().withNetworkElement("ne2", "ne2").withActionType(ActionType.CLOSE).add();
         NetworkAction na4 = na4Adder.add();
 
         state1 = crac.getState(contingency1, curativeInstant);
         state2 = crac.getState(contingency1, autoInstant);
 
-        assertEquals(Set.of(na1), crac.getNetworkActions(state1, UsageMethod.AVAILABLE));
-        assertEquals(Set.of(), crac.getNetworkActions(state2, UsageMethod.AVAILABLE));
-        assertEquals(Set.of(na3), crac.getNetworkActions(state1, UsageMethod.FORCED));
-        assertEquals(Set.of(na2, na4), crac.getNetworkActions(state2, UsageMethod.FORCED));
-        assertEquals(Set.of(na1, na3), crac.getNetworkActions(state1, UsageMethod.AVAILABLE, UsageMethod.FORCED));
-        assertEquals(Set.of(na2, na4), crac.getNetworkActions(state2, UsageMethod.AVAILABLE, UsageMethod.FORCED));
+        assertEquals(Set.of(na1, na3), crac.getNetworkActions(state1));
+        assertEquals(Set.of(na2, na4), crac.getNetworkActions(state2));
     }
 
     @Test
@@ -1088,25 +1069,25 @@ class CracImplTest {
         ra1 = crac.newPstRangeAction()
             .withId("ra1")
             .withNetworkElement("ra1-ne")
-            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
-            .newOnContingencyStateUsageRule().withContingency("contingency1").withInstant(CURATIVE_INSTANT_ID).withUsageMethod(UsageMethod.UNDEFINED).add()
+            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
+            .newOnContingencyStateUsageRule().withContingency("contingency1").withInstant(CURATIVE_INSTANT_ID).add()
             .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
             .add();
         // ra2 : preventive and curative
         ra2 = crac.newPstRangeAction()
             .withId("ra2")
             .withNetworkElement("ra2-ne")
-            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.UNAVAILABLE).add()
-            .newOnContingencyStateUsageRule().withContingency("contingency2").withInstant(CURATIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
+            .newOnContingencyStateUsageRule().withContingency("contingency2").withInstant(CURATIVE_INSTANT_ID).add()
             .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
             .add();
         // ra3 : preventive and curative
         ra3 = crac.newPstRangeAction()
             .withId("ra3")
             .withNetworkElement("ra3-ne")
-            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
             .newTapRange().withMaxTap(100).withMinTap(-100).withRangeType(RangeType.RELATIVE_TO_PREVIOUS_INSTANT).add()
-            .newOnContingencyStateUsageRule().withContingency("contingency1").withInstant(CURATIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnContingencyStateUsageRule().withContingency("contingency1").withInstant(CURATIVE_INSTANT_ID).add()
             .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
             .add();
         // ra4 : preventive only, but with same NetworkElement as ra5
@@ -1114,7 +1095,7 @@ class CracImplTest {
             .withId("ra4")
             .withNetworkElement("ra4-ne1")
             .withNetworkElement("ra4-ne2")
-            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
             .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
             .add();
         // ra5 : curative only, but with same NetworkElement as ra4
@@ -1122,7 +1103,7 @@ class CracImplTest {
             .withId("ra5")
             .withNetworkElement("ra4-ne1")
             .withNetworkElement("ra4-ne2")
-            .newOnContingencyStateUsageRule().withContingency("contingency2").withInstant(CURATIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnContingencyStateUsageRule().withContingency("contingency2").withInstant(CURATIVE_INSTANT_ID).add()
             .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
             .add();
         // ra6 : preventive and curative (onFlowConstraint)
@@ -1130,15 +1111,15 @@ class CracImplTest {
             .withId("ra6")
             .withNetworkElement("ra6-ne")
             .withOperator("FR")
-            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
-            .newOnConstraintUsageRule().withCnec("cnec").withInstant(CURATIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
+            .newOnConstraintUsageRule().withCnec("cnec").withInstant(CURATIVE_INSTANT_ID).add()
             .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
             .add();
         // ra7 : auto only
         ra7 = crac.newPstRangeAction()
             .withId("ra7")
             .withNetworkElement("ra7-ne")
-            .newOnContingencyStateUsageRule().withContingency("contingency2").withInstant(AUTO_INSTANT_ID).withUsageMethod(UsageMethod.FORCED).add()
+            .newOnContingencyStateUsageRule().withContingency("contingency2").withInstant(AUTO_INSTANT_ID).add()
             .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
             .withSpeed(1)
             .add();
@@ -1146,8 +1127,8 @@ class CracImplTest {
         ra8 = crac.newPstRangeAction()
             .withId("ra8")
             .withNetworkElement("ra8-ne")
-            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
-            .newOnContingencyStateUsageRule().withContingency("contingency1").withInstant(AUTO_INSTANT_ID).withUsageMethod(UsageMethod.FORCED).add()
+            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
+            .newOnContingencyStateUsageRule().withContingency("contingency1").withInstant(AUTO_INSTANT_ID).add()
             .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
             .withSpeed(2)
             .add();
@@ -1155,7 +1136,7 @@ class CracImplTest {
         ra9 = crac.newPstRangeAction()
             .withId("ra9")
             .withNetworkElement("ra8-ne")
-            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
             .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
             .add();
         // ra10 : preventive only, counter trade
@@ -1163,8 +1144,8 @@ class CracImplTest {
             .withId("ra10")
             .withExportingCountry(Country.FR)
             .withImportingCountry(Country.DE)
-            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
-            .newOnContingencyStateUsageRule().withContingency("contingency1").withInstant(CURATIVE_INSTANT_ID).withUsageMethod(UsageMethod.UNDEFINED).add()
+            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
+            .newOnContingencyStateUsageRule().withContingency("contingency1").withInstant(CURATIVE_INSTANT_ID).add()
             .newRange().withMin(-1000).withMax(1000).add()
             .add();
 
@@ -1172,8 +1153,8 @@ class CracImplTest {
         crac.newNetworkAction()
             .withId("na1")
             .newSwitchAction().withNetworkElement("na1-ne").withActionType(ActionType.OPEN).add()
-            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
-            .newOnContingencyStateUsageRule().withContingency("contingency1").withInstant(CURATIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
+            .newOnContingencyStateUsageRule().withContingency("contingency1").withInstant(CURATIVE_INSTANT_ID).add()
             .add();
 
         state1 = crac.getState(contingency1, curativeInstant);
@@ -1184,13 +1165,13 @@ class CracImplTest {
     void testIsRangeActionAvailableInState() {
         setUpCracWithRAs();
 
-        // ra1 is available in preventive only
+        // ra1 is available in preventive and in state1
         assertTrue(crac.isRangeActionAvailableInState(ra1, crac.getPreventiveState()));
-        assertFalse(crac.isRangeActionAvailableInState(ra1, state1));
+        assertTrue(crac.isRangeActionAvailableInState(ra1, state1));
         assertFalse(crac.isRangeActionAvailableInState(ra1, state2));
 
-        // ra2 is available in state2 only
-        assertFalse(crac.isRangeActionAvailableInState(ra2, crac.getPreventiveState()));
+        // ra2 is available in preventive and in state2
+        assertTrue(crac.isRangeActionAvailableInState(ra2, crac.getPreventiveState()));
         assertFalse(crac.isRangeActionAvailableInState(ra2, state1));
         assertTrue(crac.isRangeActionAvailableInState(ra2, state2));
 
@@ -1213,19 +1194,19 @@ class CracImplTest {
         assertTrue(crac.isRangeActionAvailableInState(ra6, state1));
         assertFalse(crac.isRangeActionAvailableInState(ra6, state2));
 
-        // ra10 is available in preventive only
+        // ra10 is available in preventive and in state1
         assertTrue(crac.isRangeActionAvailableInState(ra10, crac.getPreventiveState()));
-        assertFalse(crac.isRangeActionAvailableInState(ra10, state1));
+        assertTrue(crac.isRangeActionAvailableInState(ra10, state1));
         assertFalse(crac.isRangeActionAvailableInState(ra10, state2));
     }
 
     @Test
     void testIsRangeActionPreventive() {
         setUpCracWithRAs();
-        // ra1 is available in preventive only
+        // ra1 is available in preventive and in state1
         assertTrue(crac.isRangeActionPreventive(ra1));
-        // ra2 is available in state2 only
-        assertFalse(crac.isRangeActionPreventive(ra2));
+        // ra2 is available in preventive and in state2
+        assertTrue(crac.isRangeActionPreventive(ra2));
         // ra3 is available in preventive and in state1
         assertTrue(crac.isRangeActionPreventive(ra3));
         // ra4 is preventive, ra5 is available in state2, both have the same network element
@@ -1238,9 +1219,9 @@ class CracImplTest {
     @Test
     void testIsRangeActionCurative() {
         setUpCracWithRAs();
-        // ra1 is available in preventive only
-        assertFalse(crac.isRangeActionAutoOrCurative(ra1));
-        // ra2 is available in state2 only
+        // ra1 is available in preventive and in state1
+        assertTrue(crac.isRangeActionAutoOrCurative(ra1));
+        // ra2 is available in preventive and in state2
         assertTrue(crac.isRangeActionAutoOrCurative(ra2));
         // ra3 is available in preventive and in state1
         assertTrue(crac.isRangeActionAutoOrCurative(ra3));

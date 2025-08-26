@@ -16,7 +16,6 @@ import com.powsybl.openrao.data.crac.api.usagerule.OnConstraint;
 import com.powsybl.openrao.data.crac.api.usagerule.OnContingencyState;
 import com.powsybl.openrao.data.crac.api.usagerule.OnFlowConstraintInCountry;
 import com.powsybl.openrao.data.crac.api.usagerule.OnInstant;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnecAdder;
@@ -52,7 +51,7 @@ public final class CracValidator {
      */
     private static List<String> addOutageCnecsForAutoCnecsWithoutRas(Crac crac, Network network) {
         List<String> report = new ArrayList<>();
-        if (!crac.getInstants(InstantKind.AUTO).isEmpty()) {
+        if (crac.hasAutoInstant()) {
             crac.getStates(crac.getInstant(InstantKind.AUTO))
                 .forEach(state -> duplicateCnecsWithNoUsefulRaOnOutageInstant(crac, network, state, report));
         }
@@ -68,8 +67,8 @@ public final class CracValidator {
         }
         // Find CNECs with no useful RA and duplicate them on outage instant
         Set<RemedialAction<?>> remedialActions = new HashSet<>();
-        remedialActions.addAll(crac.getPotentiallyAvailableRangeActions(state));
-        remedialActions.addAll(crac.getPotentiallyAvailableNetworkActions(state));
+        remedialActions.addAll(crac.getRangeActions(state));
+        remedialActions.addAll(crac.getNetworkActions(state));
 
         crac.getFlowCnecs(state).stream()
             .filter(cnec -> shouldDuplicateAutoCnecInOutageState(remedialActions, cnec, network))
@@ -97,13 +96,12 @@ public final class CracValidator {
     }
 
     private static boolean hasNoRemedialAction(State state, Crac crac) {
-        return crac.getPotentiallyAvailableRangeActions(state).isEmpty()
-            && crac.getPotentiallyAvailableNetworkActions(state).isEmpty();
+        return crac.getRangeActions(state).isEmpty() && crac.getNetworkActions(state).isEmpty();
     }
 
     private static boolean hasGlobalRemedialActions(State state, Crac crac) {
-        return hasOnInstantOrOnStateUsageRules(crac.getRangeActions(state, UsageMethod.FORCED)) ||
-            hasOnInstantOrOnStateUsageRules(crac.getNetworkActions(state, UsageMethod.FORCED));
+        return hasOnInstantOrOnStateUsageRules(crac.getRangeActions(state)) ||
+            hasOnInstantOrOnStateUsageRules(crac.getNetworkActions(state));
     }
 
     private static <T extends RemedialAction<?>> boolean hasOnInstantOrOnStateUsageRules(Set<T> remedialActionSet) {

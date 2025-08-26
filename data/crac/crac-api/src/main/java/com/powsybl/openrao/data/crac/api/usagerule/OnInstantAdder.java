@@ -15,7 +15,5 @@ public interface OnInstantAdder<T extends RemedialActionAdder<T>> {
 
     OnInstantAdder<T> withInstant(String instantId);
 
-    OnInstantAdder<T> withUsageMethod(UsageMethod usageMethod);
-
     T add();
 }
