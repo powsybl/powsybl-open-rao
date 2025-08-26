@@ -33,7 +33,6 @@ import com.powsybl.openrao.searchtreerao.castor.algorithm.StateTree;
 import com.powsybl.openrao.searchtreerao.commons.RaoLogger;
 import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
-import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
 import com.powsybl.openrao.searchtreerao.result.api.*;
 import com.powsybl.openrao.searchtreerao.result.impl.*;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
@@ -272,26 +271,12 @@ public class FastRao implements RaoProvider {
         applyOptimalPreventiveRemedialActions(networkCopyPra, filteredCrac.getPreventiveState(), raoResult);
         // Get all the remedial action activated (for costly evaluation)
         RemedialActionActivationResult postPraRemedialActionActivationResult = createRemedialActionsActivationResults(InstantKind.PREVENTIVE, raoResult, filteredCrac, initialResult);
-        // Generate optimization result based on the initial result, needed to build a PostPerimeterResult
-        ObjectiveFunction objectiveFunction = ObjectiveFunction.build(crac.getFlowCnecs(),
-            toolProvider.getLoopFlowCnecs(crac.getFlowCnecs()),
-            initialResult,
-            initialResult,
-            new StateTree(crac).getOperatorsNotSharingCras(),
-            parameters,
-            crac.getStates().stream().filter(state -> state.getInstant().getKind().ordinal() <= InstantKind.PREVENTIVE.ordinal()).collect(Collectors.toSet())
-        );
-        ObjectiveFunctionResult objectiveFunctionResult = objectiveFunction.evaluate(
-            initialResult,
-            postPraRemedialActionActivationResult
-        );
-        OptimizationResult postPraOptimizationResult = new OptimizationResultImpl(objectiveFunctionResult, initialResult, initialResult, postPraRemedialActionActivationResult, postPraRemedialActionActivationResult);
         // Asynchronously start sensitivity analysis
         PostPerimeterSensitivityAnalysis postPraPerimeterSensiAnalysis = new PostPerimeterSensitivityAnalysis(crac, crac.getStates(), parameters, toolProvider);
-        Future<PostPerimeterResult> postPraSensi = postPraPerimeterSensiAnalysis.runAsyncBasedOnInitialPreviousAndActivatedRa(
+        CompletableFuture<PostPerimeterResult> postPraSensi = postPraPerimeterSensiAnalysis.runAsyncBasedOnInitialPreviousAndActivatedRa(
             networkCopyPra,
             initialResult,
-            CompletableFuture.completedFuture(new PostPerimeterResult(postPraOptimizationResult, initialResult)),
+            CompletableFuture.completedFuture(initialResult),
             stateTree.getOperatorsNotSharingCras(),
             postPraRemedialActionActivationResult,
             new AppliedRemedialActions());
@@ -303,14 +288,14 @@ public class FastRao implements RaoProvider {
         applyOptimalPreventiveRemedialActions(networkCopyAra, crac.getPreventiveState(), raoResult);
         // Get all the remedial action activated (for costly evaluation)
         RemedialActionActivationResult postAraRemedialActionActivationResult = createRemedialActionsActivationResults(InstantKind.AUTO, raoResult, crac, initialResult);
-        // Get all the remedial action applied AFTER preventive instant
+        // Get all the remedial action applied during AUTO. Will be applied on the network on top of the preventive ra
         AppliedRemedialActions appliedAutoRemedialActions = createAppliedRemedialActions(crac, raoResult, InstantKind.AUTO);
         // Run sensi with auto remedial actions asynchronously.
         PostPerimeterSensitivityAnalysis postAraPerimeterSensiAnalysis = new PostPerimeterSensitivityAnalysis(crac, crac.getStates(), parameters, toolProvider);
-        Future<PostPerimeterResult> postAraSensi = postAraPerimeterSensiAnalysis.runAsyncBasedOnInitialPreviousAndActivatedRa(
+        CompletableFuture<PostPerimeterResult> postAraSensi = postAraPerimeterSensiAnalysis.runAsyncBasedOnInitialPreviousAndActivatedRa(
             networkCopyAra,
             initialResult,
-            postPraSensi,
+            postPraSensi.thenApply(postPerimeterResult -> postPerimeterResult.getPrePerimeterResultForAllFollowingStates()),
             stateTree.getOperatorsNotSharingCras(),
             postAraRemedialActionActivationResult,
             appliedAutoRemedialActions);
@@ -321,14 +306,14 @@ public class FastRao implements RaoProvider {
         applyOptimalPreventiveRemedialActions(networkCopyCra, filteredCrac.getPreventiveState(), raoResult);
         // Get all the remedial action activated (for costly evaluation)
         RemedialActionActivationResult postCraRemedialActionActivationResult = createRemedialActionsActivationResults(InstantKind.CURATIVE, raoResult, crac, initialResult);
-        // Get all the remedial action applied AFTER preventive instant
+        // Get all the remedial action applied during AUTO and CURATIVE. Will be applied on the network on top of the preventive ra
         AppliedRemedialActions appliedRemedialActions = createAppliedRemedialActions(filteredCrac, raoResult, InstantKind.CURATIVE);
         // Run sensi with curative remedial actions asynchronously.
         PostPerimeterSensitivityAnalysis postCraPerimeterSensiAnalysis = new PostPerimeterSensitivityAnalysis(crac, crac.getStates(), parameters, toolProvider);
         Future<PostPerimeterResult> postCraSensi = postCraPerimeterSensiAnalysis.runAsyncBasedOnInitialPreviousAndActivatedRa(
             networkCopyCra,
             initialResult,
-            postAraSensi,
+            postAraSensi.thenApply(postPerimeterResult -> postPerimeterResult.getPrePerimeterResultForAllFollowingStates()),
             stateTree.getOperatorsNotSharingCras(),
             postCraRemedialActionActivationResult,
             appliedRemedialActions);

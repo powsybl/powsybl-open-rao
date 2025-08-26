@@ -22,6 +22,8 @@ import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicReference;
@@ -123,13 +125,13 @@ public class PostPerimeterSensitivityAnalysis extends AbstractMultiPerimeterSens
      * @return a {@code Future<PostPerimeterResult>}
      */
 
-    public Future<PostPerimeterResult> runAsyncBasedOnInitialPreviousAndActivatedRa(Network network,
-                                                                                    FlowResult initialFlowResult,
-                                                                                    Future<PostPerimeterResult> previousResultsFuture,
-                                                                                    Set<String> operatorsNotSharingCras,
-                                                                                    RemedialActionActivationResult remedialActionActivationResult,
-                                                                                    AppliedRemedialActions appliedCurativeRemedialActions) {
-        return Executors.newSingleThreadExecutor().submit(() -> {
+    public CompletableFuture<PostPerimeterResult> runAsyncBasedOnInitialPreviousAndActivatedRa(Network network,
+                                                                                               FlowResult initialFlowResult,
+                                                                                               CompletableFuture<PrePerimeterResult> previousResultsFuture,
+                                                                                               Set<String> operatorsNotSharingCras,
+                                                                                               RemedialActionActivationResult remedialActionActivationResult,
+                                                                                               AppliedRemedialActions appliedCurativeRemedialActions) {
+        return CompletableFuture.supplyAsync(() -> {
             AtomicReference<FlowResult> flowResult = new AtomicReference<>();
             AtomicReference<SensitivityResult> sensitivityResult = new AtomicReference<>();
             boolean actionWasTaken = actionWasTaken(remedialActionActivationResult.getActivatedNetworkActions(), remedialActionActivationResult.getActivatedRangeActionsPerState());
@@ -141,18 +143,31 @@ public class PostPerimeterSensitivityAnalysis extends AbstractMultiPerimeterSens
                 sensitivityResult.set(sensitivityComputer.getSensitivityResult());
             } else {
                 // we wait for the previous results to be computed with Future::get
-                flowResult.set(previousResultsFuture.get().getPrePerimeterResultForAllFollowingStates());
-                sensitivityResult.set(previousResultsFuture.get().getPrePerimeterResultForAllFollowingStates());
+                try {
+                    flowResult.set(previousResultsFuture.get());
+                    sensitivityResult.set(previousResultsFuture.get());
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                } catch (ExecutionException e) {
+                    throw new RuntimeException(e);
+                }
             }
-            ObjectiveFunction objectiveFunction = ObjectiveFunction.build(
-                flowCnecs,
-                toolProvider.getLoopFlowCnecs(flowCnecs),
-                initialFlowResult,
-                previousResultsFuture.get().getPrePerimeterResultForAllFollowingStates(),
-                operatorsNotSharingCras,
-                raoParameters,
-                remedialActionActivationResult.getActivatedRangeActionsPerState().keySet()
-            );
+            ObjectiveFunction objectiveFunction = null;
+            try {
+                objectiveFunction = ObjectiveFunction.build(
+                    flowCnecs,
+                    toolProvider.getLoopFlowCnecs(flowCnecs),
+                    initialFlowResult,
+                    previousResultsFuture.get(),
+                    operatorsNotSharingCras,
+                    raoParameters,
+                    remedialActionActivationResult.getActivatedRangeActionsPerState().keySet()
+                );
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            } catch (ExecutionException e) {
+                throw new RuntimeException(e);
+            }
 
             ObjectiveFunctionResult objectiveFunctionResult = objectiveFunction.evaluate(
                 flowResult.get(),
