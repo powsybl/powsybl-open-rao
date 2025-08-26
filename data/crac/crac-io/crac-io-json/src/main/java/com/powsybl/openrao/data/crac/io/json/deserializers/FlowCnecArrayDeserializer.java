@@ -97,7 +97,13 @@ public final class FlowCnecArrayDeserializer {
                         throw new OpenRaoException("From version 2.8 onwards, nominalV is deprecated and is read from the network.");
                     case JsonSerializationConstants.THRESHOLDS:
                         jsonParser.nextToken();
+                        if (networkElementId == null) {
+                            throw new OpenRaoException("Cannot deserialize %s before %s for FlowCNECs.".formatted(JsonSerializationConstants.THRESHOLDS, JsonSerializationConstants.NETWORK_ELEMENT_ID));
+                        }
                         IidmCnecElementHelper cnecElementHelper = new IidmCnecElementHelper(networkElementId, network);
+                        if (!cnecElementHelper.isValid()) {
+                            throw new OpenRaoException("Error occurred during FlowCNEC deserialization: %s".formatted(cnecElementHelper.getInvalidReason()));
+                        }
                         BranchThresholdArrayDeserializer.deserialize(jsonParser, flowCnecAdder, cnecElementHelper, version);
                         break;
                     case JsonSerializationConstants.EXTENSIONS:

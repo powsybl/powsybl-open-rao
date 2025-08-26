@@ -31,9 +31,7 @@ public final class BranchThresholdArrayDeserializer {
 
     public static void deserialize(JsonParser jsonParser, FlowCnecAdder ownerAdder, CnecElementHelper cnecElementHelper, String version) throws IOException {
         boolean iMaxFetched = false;
-        Pair<Double, Double> nominalV = readNominalV(cnecElementHelper);
-        ownerAdder.withNominalVoltage(nominalV.getLeft(), TwoSides.ONE);
-        ownerAdder.withNominalVoltage(nominalV.getRight(), TwoSides.TWO);
+        Pair<Double, Double> nominalV = readAndAddNominalV(cnecElementHelper, ownerAdder);
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             BranchThresholdAdder branchThresholdAdder = ownerAdder.newThreshold();
             while (!jsonParser.nextToken().isStructEnd()) {
@@ -85,22 +83,15 @@ public final class BranchThresholdArrayDeserializer {
     }
 
     private static void addIMax(CnecElementHelper cnecElementHelper, FlowCnecAdder flowCnecAdder) {
-        Double currentLimit1 = cnecElementHelper.getCurrentLimit(TwoSides.ONE);
-        Double currentLimit2 = cnecElementHelper.getCurrentLimit(TwoSides.TWO);
-        if (currentLimit1 == null && currentLimit2 == null) {
-            throw new OpenRaoException("Unable to retrieve current limits for branch %s.".formatted(cnecElementHelper.getIdInNetwork()));
-        }
-        if (currentLimit1 == null) {
-            flowCnecAdder.withIMax(currentLimit2);
-        } else if (currentLimit2 == null) {
-            flowCnecAdder.withIMax(currentLimit1);
-        } else {
-            flowCnecAdder.withIMax(currentLimit1, TwoSides.ONE);
-            flowCnecAdder.withIMax(currentLimit2, TwoSides.TWO);
-        }
+        flowCnecAdder.withIMax(cnecElementHelper.getCurrentLimit(TwoSides.ONE), TwoSides.ONE);
+        flowCnecAdder.withIMax(cnecElementHelper.getCurrentLimit(TwoSides.TWO), TwoSides.TWO);
     }
 
-    private static Pair<Double, Double> readNominalV(CnecElementHelper cnecElementHelper) {
-        return Pair.of(cnecElementHelper.getNominalVoltage(TwoSides.ONE), cnecElementHelper.getNominalVoltage(TwoSides.TWO));
+    private static Pair<Double, Double> readAndAddNominalV(CnecElementHelper cnecElementHelper, FlowCnecAdder flowCnecAdder) {
+        double nominalVoltage1 = cnecElementHelper.getNominalVoltage(TwoSides.ONE);
+        double nominalVoltage2 = cnecElementHelper.getNominalVoltage(TwoSides.TWO);
+        flowCnecAdder.withNominalVoltage(nominalVoltage1, TwoSides.ONE);
+        flowCnecAdder.withNominalVoltage(nominalVoltage2, TwoSides.TWO);
+        return Pair.of(nominalVoltage1, nominalVoltage2);
     }
 }

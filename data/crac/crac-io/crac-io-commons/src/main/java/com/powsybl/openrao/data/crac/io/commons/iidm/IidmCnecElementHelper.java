@@ -172,7 +172,7 @@ public class IidmCnecElementHelper implements CnecElementHelper {
         if (tieLine.getCurrentLimits(TwoSides.TWO).isPresent()) {
             this.currentLimitRight = tieLine.getCurrentLimits(TwoSides.TWO).orElseThrow().getPermanentLimit();
         }
-        if (Objects.isNull(tieLine.getCurrentLimits(TwoSides.ONE)) && Objects.isNull(tieLine.getCurrentLimits(TwoSides.TWO))) {
+        if (tieLine.getCurrentLimits(TwoSides.ONE).isEmpty() && tieLine.getCurrentLimits(TwoSides.TWO).isEmpty()) {
             invalidate(String.format("couldn't identify current limits of tie-line (%s, networkTieLineId: %s)", branchId, tieLine.getId()));
         }
     }
