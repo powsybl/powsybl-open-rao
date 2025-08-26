@@ -577,4 +577,12 @@ class CracImportExportTest {
             "/injectionRangeActions/0: property 'initialSetpoint' is not defined in the schema and the schema does not allow additional properties; " +
             "/counterTradeRangeActions/0: property 'initialSetpoint' is not defined in the schema and the schema does not allow additional properties", exception.getMessage());
     }
+
+    @Test
+    void testImportCracWithBadFieldsOrderForFlowCnec() {
+        // "networkElementId" must be declared before "thresholds"
+        CracCreationContext cracCreationContext = new JsonImport().importData(CracImportExportTest.class.getResourceAsStream("/crac2.8-with-wrong-order-for-flow-cnec.json"), new CracCreationParameters(), NetworkImportsUtil.createNetworkForJsonRetrocompatibilityTest(0.0));
+        assertEquals(1, cracCreationContext.getCreationReport().getReport().size());
+        assertEquals("[ERROR] Cannot deserialize thresholds before networkElementId for FlowCNECs.", cracCreationContext.getCreationReport().getReport().get(0));
+    }
 }
