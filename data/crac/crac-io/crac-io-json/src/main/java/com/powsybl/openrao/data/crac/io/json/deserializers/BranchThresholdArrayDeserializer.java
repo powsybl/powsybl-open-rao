@@ -101,17 +101,6 @@ public final class BranchThresholdArrayDeserializer {
     }
 
     private static Pair<Double, Double> readNominalV(CnecElementHelper cnecElementHelper) {
-        Double nominalVoltage1 = cnecElementHelper.getNominalVoltage(TwoSides.ONE);
-        Double nominalVoltage2 = cnecElementHelper.getNominalVoltage(TwoSides.TWO);
-        if (nominalVoltage1 == null && nominalVoltage2 == null) {
-            throw new OpenRaoException("Unable to retrieve nominal voltages for branch %s.".formatted(cnecElementHelper.getIdInNetwork()));
-        }
-        if (nominalVoltage1 == null) {
-            return Pair.of(nominalVoltage2, nominalVoltage2);
-        } else if (nominalVoltage2 == null) {
-            return Pair.of(nominalVoltage1, nominalVoltage1);
-        } else {
-            return Pair.of(nominalVoltage1, nominalVoltage2);
-        }
+        return Pair.of(cnecElementHelper.getNominalVoltage(TwoSides.ONE), cnecElementHelper.getNominalVoltage(TwoSides.TWO));
     }
 }
