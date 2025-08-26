@@ -8,7 +8,7 @@ Feature: US 15.4: Consider two margins on tie-lines for each half-line with rela
   @fast @crac @mock
   Scenario: US 15.4.0: Import different thresholds (absolute) on two half-lines of the same tie-line
   No threshold with a PERCENT_IMAX unit is defined in the CRAC so no iMax was imported.
-    Given network file is "crac7/TestCase12Nodes_with_Xnodes.uct"
+    Given network file is "crac7/TestCase12Nodes_with_Xnodes.uct" for CORE CC
     Given crac file is "epic15/ls-Xnodes-and-half-lines.json"
     When I import crac
     Then it should have the following flow CNECs:
