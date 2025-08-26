@@ -121,10 +121,7 @@ public class IidmCnecElementHelper implements CnecElementHelper {
         }
         this.branchIdInNetwork = cnecElement.getId();
 
-        if (cnecElement instanceof TieLine tieLine) {
-            checkBranchNominalVoltage(tieLine);
-            checkTieLineCurrentLimits(tieLine);
-        } else if (cnecElement instanceof Branch<?> branch) {
+        if (cnecElement instanceof Branch<?> branch) {
             checkBranchNominalVoltage(branch);
             checkBranchCurrentLimits(branch);
         } else if (cnecElement instanceof DanglingLine danglingLine) {
@@ -150,7 +147,7 @@ public class IidmCnecElementHelper implements CnecElementHelper {
         this.isHalfLine = true;
         this.halfLineSide = tieLine.get().getDanglingLine1().getId().equals(branchId) ? TwoSides.ONE : TwoSides.TWO;
         checkBranchNominalVoltage(tieLine.get());
-        checkTieLineCurrentLimits(tieLine.get());
+        checkBranchCurrentLimits(tieLine.get());
         // todo: check if halfLine can be inverted in CGMES format
         return true;
     }
@@ -163,18 +160,6 @@ public class IidmCnecElementHelper implements CnecElementHelper {
     private void checkDanglingLineNominalVoltage(DanglingLine danglingLine) {
         this.nominalVoltageLeft = danglingLine.getTerminal().getVoltageLevel().getNominalV();
         this.nominalVoltageRight = nominalVoltageLeft;
-    }
-
-    private void checkTieLineCurrentLimits(TieLine tieLine) {
-        if (tieLine.getCurrentLimits(TwoSides.ONE).isPresent()) {
-            this.currentLimitLeft = tieLine.getCurrentLimits(TwoSides.ONE).orElseThrow().getPermanentLimit();
-        }
-        if (tieLine.getCurrentLimits(TwoSides.TWO).isPresent()) {
-            this.currentLimitRight = tieLine.getCurrentLimits(TwoSides.TWO).orElseThrow().getPermanentLimit();
-        }
-        if (tieLine.getCurrentLimits(TwoSides.ONE).isEmpty() && tieLine.getCurrentLimits(TwoSides.TWO).isEmpty()) {
-            invalidate(String.format("couldn't identify current limits of tie-line (%s, networkTieLineId: %s)", branchId, tieLine.getId()));
-        }
     }
 
     private void checkBranchCurrentLimits(Branch<?> branch) {
