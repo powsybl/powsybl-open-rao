@@ -31,7 +31,7 @@ import java.util.stream.Stream;
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public abstract class AbstractRaoResultWithMonitoringResult<I extends Cnec<?>, J extends CnecResult<I>> extends RaoResultClone implements RaoResultWithMonitoringResult<I, J> {
+public abstract class AbstractRaoResultWithMonitoringResult<I extends Cnec<?>, J extends CnecResult<I>> extends RaoResultClone implements RaoResultWithMonitoringResult<I> {
     protected final RaoResult raoResult;
     protected final MonitoringResult<I> monitoringResult;
     protected final PhysicalParameter physicalParameter;

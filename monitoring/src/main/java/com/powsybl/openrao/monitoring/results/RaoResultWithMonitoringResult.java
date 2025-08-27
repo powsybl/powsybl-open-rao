@@ -14,6 +14,6 @@ import com.powsybl.openrao.monitoring.SecurityStatus;
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public interface RaoResultWithMonitoringResult<I extends Cnec<?>, J extends CnecResult<I>> extends RaoResult {
+public interface RaoResultWithMonitoringResult<I extends Cnec<?>> extends RaoResult {
     SecurityStatus getSecurityStatus();
 }

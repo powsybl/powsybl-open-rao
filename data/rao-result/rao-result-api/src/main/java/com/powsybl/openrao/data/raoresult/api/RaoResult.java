@@ -93,14 +93,19 @@ public interface RaoResult {
      * @return The min or max voltage on the cnec at the optimization state in the given unit.
      */
     default double getVoltage(Instant optimizedInstant, VoltageCnec voltageCnec, MinOrMax minOrMax, Unit unit) {
+        if (MinOrMax.MIN.equals(minOrMax)) {
+            return getMinVoltage(optimizedInstant, voltageCnec, unit);
+        } else if (MinOrMax.MAX.equals(minOrMax)) {
+            return getMaxVoltage(optimizedInstant, voltageCnec, unit);
+        }
+        throw new OpenRaoException("Unrecognized MinOrMax value: %s.".formatted(minOrMax));
+    }
+
+    default double getMinVoltage(Instant optimizedInstant, VoltageCnec voltageCnec, Unit unit) {
         throw new OpenRaoException("Voltage cnecs are not computed in the rao");
     }
 
-    default double getMinVoltage(Instant optimizedInstant, VoltageCnec voltageCnec, MinOrMax minOrMax, Unit unit) {
-        throw new OpenRaoException("Voltage cnecs are not computed in the rao");
-    }
-
-    default double getMaxVoltage(Instant optimizedInstant, VoltageCnec voltageCnec, MinOrMax minOrMax, Unit unit) {
+    default double getMaxVoltage(Instant optimizedInstant, VoltageCnec voltageCnec, Unit unit) {
         throw new OpenRaoException("Voltage cnecs are not computed in the rao");
     }
 

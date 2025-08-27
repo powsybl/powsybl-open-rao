@@ -7,7 +7,6 @@
 
 package com.powsybl.openrao.monitoring.voltage;
 
-import com.powsybl.openrao.commons.MinOrMax;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Instant;
@@ -27,12 +26,12 @@ public class RaoResultWithVoltageMonitoring extends AbstractRaoResultWithMonitor
     }
 
     @Override
-    public double getMinVoltage(Instant optimizationInstant, VoltageCnec voltageCnec, MinOrMax minOrMax, Unit unit) {
+    public double getMinVoltage(Instant optimizationInstant, VoltageCnec voltageCnec, Unit unit) {
         return getCnecResult(voltageCnec, optimizationInstant, unit).map(VoltageCnecResult::getMinVoltage).orElse(Double.NaN);
     }
 
     @Override
-    public double getMaxVoltage(Instant optimizationInstant, VoltageCnec voltageCnec, MinOrMax minOrMax, Unit unit) {
+    public double getMaxVoltage(Instant optimizationInstant, VoltageCnec voltageCnec, Unit unit) {
         return getCnecResult(voltageCnec, optimizationInstant, unit).map(VoltageCnecResult::getMaxVoltage).orElse(Double.NaN);
     }
 
