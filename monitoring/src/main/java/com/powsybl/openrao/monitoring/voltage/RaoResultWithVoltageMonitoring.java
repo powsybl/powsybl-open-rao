@@ -8,90 +8,36 @@
 package com.powsybl.openrao.monitoring.voltage;
 
 import com.powsybl.openrao.commons.MinOrMax;
-import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
-import com.powsybl.openrao.monitoring.SecurityStatus;
 import com.powsybl.openrao.monitoring.results.AbstractRaoResultWithMonitoringResult;
 import com.powsybl.openrao.monitoring.results.CnecResult;
 import com.powsybl.openrao.monitoring.results.MonitoringResult;
 import com.powsybl.openrao.monitoring.results.VoltageCnecResult;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Stream;
-
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public class RaoResultWithVoltageMonitoring extends AbstractRaoResultWithMonitoringResult<VoltageCnec> {
+public class RaoResultWithVoltageMonitoring extends AbstractRaoResultWithMonitoringResult<VoltageCnec, VoltageCnecResult> {
     public RaoResultWithVoltageMonitoring(RaoResult raoResult, MonitoringResult<VoltageCnec> monitoringResult) {
-        super(raoResult, monitoringResult);
+        super(raoResult, monitoringResult, PhysicalParameter.VOLTAGE);
     }
 
     @Override
     public double getMinVoltage(Instant optimizationInstant, VoltageCnec voltageCnec, MinOrMax minOrMax, Unit unit) {
-        unit.checkPhysicalParameter(PhysicalParameter.VOLTAGE);
-        Optional<VoltageCnecResult> voltageCnecResultOpt = getCnecResult(optimizationInstant, voltageCnec);
-        if (voltageCnecResultOpt.isPresent()) {
-            return voltageCnecResultOpt.get().getMinVoltage();
-        } else {
-            return Double.NaN;
-        }
+        return getCnecResult(voltageCnec, optimizationInstant, unit).map(VoltageCnecResult::getMinVoltage).orElse(Double.NaN);
     }
 
     @Override
     public double getMaxVoltage(Instant optimizationInstant, VoltageCnec voltageCnec, MinOrMax minOrMax, Unit unit) {
-        unit.checkPhysicalParameter(PhysicalParameter.VOLTAGE);
-        Optional<VoltageCnecResult> voltageCnecResultOpt = getCnecResult(optimizationInstant, voltageCnec);
-        if (voltageCnecResultOpt.isPresent()) {
-            return voltageCnecResultOpt.get().getMaxVoltage();
-        } else {
-            return Double.NaN;
-        }
-    }
-
-    private Optional<VoltageCnecResult> getCnecResult(Instant optimizationInstant, VoltageCnec voltageCnec) {
-        checkInstant(optimizationInstant, PhysicalParameter.VOLTAGE);
-        return monitoringResult.getCnecResults().stream()
-            .filter(voltageCnecRes -> voltageCnecRes.getId().equals(voltageCnec.getId()))
-            .filter(VoltageCnecResult.class::isInstance)
-            .map(VoltageCnecResult.class::cast)
-            .findFirst();
+        return getCnecResult(voltageCnec, optimizationInstant, unit).map(VoltageCnecResult::getMaxVoltage).orElse(Double.NaN);
     }
 
     @Override
     public double getMargin(Instant optimizationInstant, VoltageCnec voltageCnec, Unit unit) {
-        unit.checkPhysicalParameter(PhysicalParameter.VOLTAGE);
-        if (optimizationInstant == null || !optimizationInstant.isCurative()) {
-            throw new OpenRaoException("Unexpected optimization instant for voltage monitoring result (only curative instant is supported currently): " + optimizationInstant);
-        }
-
-        Optional<VoltageCnecResult> voltageCnecResultOpt = getCnecResult(optimizationInstant, voltageCnec);
-        return voltageCnecResultOpt.map(CnecResult::getMargin).orElse(Double.NaN);
-    }
-
-    @Override
-    public boolean isSecure(Instant instant, PhysicalParameter... u) {
-        List<PhysicalParameter> physicalParameters = new ArrayList<>(Stream.of(u).sorted().toList());
-        if (physicalParameters.remove(PhysicalParameter.VOLTAGE)) {
-            return raoResult.isSecure(instant, physicalParameters.toArray(new PhysicalParameter[0])) && monitoringResult.getStatus().equals(SecurityStatus.SECURE);
-        } else {
-            return raoResult.isSecure(instant, u);
-        }
-    }
-
-    @Override
-    public boolean isSecure(PhysicalParameter... u) {
-        List<PhysicalParameter> physicalParameters = new ArrayList<>(Stream.of(u).sorted().toList());
-        if (physicalParameters.remove(PhysicalParameter.VOLTAGE)) {
-            return raoResult.isSecure(physicalParameters.toArray(new PhysicalParameter[0])) && monitoringResult.getStatus().equals(SecurityStatus.SECURE);
-        } else {
-            return raoResult.isSecure(u);
-        }
+        return getCnecResult(voltageCnec, optimizationInstant, unit).map(CnecResult::getMargin).orElse(Double.NaN);
     }
 }
