@@ -49,15 +49,18 @@ public abstract class AbstractMonitoring<I extends Cnec<?>> implements Monitorin
 
     private final String loadFlowProvider;
     private final LoadFlowParameters loadFlowParameters;
+    private final PhysicalParameter physicalParameter;
+    private final Unit unit;
 
-    protected AbstractMonitoring(String loadFlowProvider, LoadFlowParameters loadFlowParameters) {
+    protected AbstractMonitoring(String loadFlowProvider, LoadFlowParameters loadFlowParameters, PhysicalParameter physicalParameter, Unit unit) {
         this.loadFlowProvider = loadFlowProvider;
         this.loadFlowParameters = loadFlowParameters;
+        this.physicalParameter = physicalParameter;
+        this.unit = unit;
     }
 
     public MonitoringResult<I> runMonitoring(MonitoringInput monitoringInput, int numberOfLoadFlowsInParallel) {
         checkInputs(monitoringInput);
-        PhysicalParameter physicalParameter = getPhysicalParameter();
         Network inputNetwork = monitoringInput.network();
         Crac crac = monitoringInput.crac();
         RaoResult raoResult = monitoringInput.raoResult();
@@ -130,10 +133,6 @@ public abstract class AbstractMonitoring<I extends Cnec<?>> implements Monitorin
 
     protected abstract void checkInputs(MonitoringInput monitoringInput);
 
-    protected abstract PhysicalParameter getPhysicalParameter();
-
-    protected abstract Unit getUnit();
-
     protected abstract MonitoringResult<I> makeEmptySecureResult();
 
     protected abstract Set<I> getCnecs(Crac crac);
@@ -143,8 +142,6 @@ public abstract class AbstractMonitoring<I extends Cnec<?>> implements Monitorin
     }
 
     private MonitoringResult<I> monitorCnecs(State state, Set<I> cnecs, Network network, MonitoringInput monitoringInput) {
-        PhysicalParameter physicalParameter = getPhysicalParameter();
-        Unit unit = getUnit();
         Set<CnecResult<I>> cnecResults = new HashSet<>();
         BUSINESS_LOGS.info("-- '{}' Monitoring at state '{}' [start]", physicalParameter, state);
         boolean lfSuccess = computeLoadFlow(network);

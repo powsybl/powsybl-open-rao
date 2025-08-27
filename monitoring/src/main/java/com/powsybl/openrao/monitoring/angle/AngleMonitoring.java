@@ -59,22 +59,12 @@ import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WA
  */
 public class AngleMonitoring extends AbstractMonitoring<AngleCnec> {
     public AngleMonitoring(String loadFlowProvider, LoadFlowParameters loadFlowParameters) {
-        super(loadFlowProvider, loadFlowParameters);
+        super(loadFlowProvider, loadFlowParameters, PhysicalParameter.ANGLE, Unit.DEGREE);
     }
 
     @Override
     protected void checkInputs(MonitoringInput monitoringInput) {
         // nothing to check
-    }
-
-    @Override
-    protected PhysicalParameter getPhysicalParameter() {
-        return PhysicalParameter.ANGLE;
-    }
-
-    @Override
-    protected Unit getUnit() {
-        return Unit.DEGREE;
     }
 
     @Override

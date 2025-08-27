@@ -43,7 +43,7 @@ import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WA
  */
 public class VoltageMonitoring extends AbstractMonitoring<VoltageCnec> {
     public VoltageMonitoring(String loadFlowProvider, LoadFlowParameters loadFlowParameters) {
-        super(loadFlowProvider, loadFlowParameters);
+        super(loadFlowProvider, loadFlowParameters, PhysicalParameter.VOLTAGE, Unit.KILOVOLT);
     }
 
     @Override
@@ -51,16 +51,6 @@ public class VoltageMonitoring extends AbstractMonitoring<VoltageCnec> {
         if (monitoringInput.scalableZonalData() != null) {
             throw new OpenRaoException("Scalable Zonal Data is not supported as an input of Voltage Monitoring.");
         }
-    }
-
-    @Override
-    protected PhysicalParameter getPhysicalParameter() {
-        return PhysicalParameter.VOLTAGE;
-    }
-
-    @Override
-    protected Unit getUnit() {
-        return Unit.KILOVOLT;
     }
 
     @Override
