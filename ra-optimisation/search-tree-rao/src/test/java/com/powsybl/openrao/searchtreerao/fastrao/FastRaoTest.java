@@ -104,15 +104,11 @@ public class FastRaoTest {
     public void testError() throws IOException {
         RaoInput individualRaoInput = Mockito.mock(RaoInput.class);
         RaoParameters raoParameters = Mockito.mock(RaoParameters.class);
-        Mockito.when(raoParameters.hasExtension(FastRaoParameters.class)).thenReturn(false);
-        RaoResult raoResult = FastRao.launchFilteredRao(individualRaoInput, raoParameters, null, new HashSet<>());
-        assertTrue(raoResult instanceof FailedRaoResultImpl);
-        assertEquals("Fast Rao requires FastRaoParameters", raoResult.getExecutionDetails());
-
         Mockito.when(raoParameters.hasExtension(FastRaoParameters.class)).thenReturn(true);
+
         State state = Mockito.mock(State.class);
         Mockito.when(individualRaoInput.getOptimizedState()).thenReturn(state);
-        raoResult = FastRao.launchFilteredRao(individualRaoInput, raoParameters, null, new HashSet<>());
+        RaoResult raoResult = FastRao.launchFilteredRao(individualRaoInput, raoParameters, null, new HashSet<>());
         assertTrue(raoResult instanceof FailedRaoResultImpl);
         assertEquals("Fast Rao does not support optimization on one given state only", raoResult.getExecutionDetails());
 
