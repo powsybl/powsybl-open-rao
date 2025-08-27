@@ -11,7 +11,6 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Instant;
-import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
@@ -25,13 +24,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public abstract class AbstractRaoResultWithMonitoringResult<I extends Cnec<?>, J extends CnecResult<I>> extends RaoResultClone implements RaoResultWithMonitoringResult<I> {
+public abstract class AbstractRaoResultWithMonitoringResult<I extends Cnec<?>, J extends CnecResult<I>> extends RaoResultClone {
     protected final RaoResult raoResult;
     protected final MonitoringResult<I> monitoringResult;
     protected final PhysicalParameter physicalParameter;
@@ -56,27 +54,15 @@ public abstract class AbstractRaoResultWithMonitoringResult<I extends Cnec<?>, J
     }
 
     @Override
-    public SecurityStatus getSecurityStatus() {
-        return monitoringResult.getStatus();
-    }
-
-    @Override
     public Set<NetworkAction> getActivatedNetworkActionsDuringState(State state) {
         Set<NetworkAction> concatenatedActions = new HashSet<>(raoResult.getActivatedNetworkActionsDuringState(state));
-        Set<RemedialAction<?>> angleMonitoringRas = monitoringResult.getAppliedRas(state);
-        Set<NetworkAction> angleMonitoringNetworkActions = angleMonitoringRas.stream().filter(NetworkAction.class::isInstance).map(ra -> (NetworkAction) ra).collect(Collectors.toSet());
-        concatenatedActions.addAll(angleMonitoringNetworkActions);
+        concatenatedActions.addAll(monitoringResult.getAppliedRas(state));
         return concatenatedActions;
     }
 
     @Override
-    public boolean isActivatedDuringState(State state, RemedialAction<?> remedialAction) {
-        return monitoringResult.getAppliedRas(state).contains(remedialAction) || raoResult.isActivatedDuringState(state, remedialAction);
-    }
-
-    @Override
     public boolean isActivatedDuringState(State state, NetworkAction networkAction) {
-        return isActivatedDuringState(state, (RemedialAction<?>) networkAction);
+        return monitoringResult.getAppliedRas(state).contains(networkAction) || raoResult.isActivatedDuringState(state, networkAction);
     }
 
     @Override

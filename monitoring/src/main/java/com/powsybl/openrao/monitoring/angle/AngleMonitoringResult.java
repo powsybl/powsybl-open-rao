@@ -8,9 +8,9 @@
 package com.powsybl.openrao.monitoring.angle;
 
 import com.powsybl.openrao.commons.PhysicalParameter;
-import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
+import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.monitoring.SecurityStatus;
 import com.powsybl.openrao.monitoring.results.AbstractMonitoringResult;
 import com.powsybl.openrao.monitoring.results.CnecResult;
@@ -22,7 +22,7 @@ import java.util.Set;
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
 public class AngleMonitoringResult extends AbstractMonitoringResult<AngleCnec> {
-    public AngleMonitoringResult(Set<CnecResult<AngleCnec>> angleCnecResults, Map<State, Set<RemedialAction<?>>> appliedRas, SecurityStatus status) {
+    public AngleMonitoringResult(Set<CnecResult<AngleCnec>> angleCnecResults, Map<State, Set<NetworkAction>> appliedRas, SecurityStatus status) {
         super(PhysicalParameter.ANGLE, angleCnecResults, appliedRas, status);
     }
 }

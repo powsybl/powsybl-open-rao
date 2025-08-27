@@ -20,7 +20,6 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
-import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
@@ -247,14 +246,16 @@ public abstract class AbstractMonitoring<I extends Cnec<?>> implements Monitorin
     }
 
     private Set<NetworkAction> getNetworkActionsAssociatedToCnec(State state, Crac crac, I cnec, PhysicalParameter physicalParameter) {
-        Set<RemedialAction<?>> availableRemedialActions =
-            crac.getRemedialActions().stream()
-                .filter(remedialAction ->
-                    remedialAction.getUsageRules().stream().filter(OnConstraint.class::isInstance)
-                        .map(OnConstraint.class::cast)
-                        .anyMatch(onConstraint -> onConstraint.getCnec().equals(cnec)))
-                .collect(Collectors.toSet());
-        if (availableRemedialActions.isEmpty()) {
+        Set<NetworkAction> availableNetworkActions = crac.getNetworkActions()
+            .stream()
+            .filter(networkAction -> networkAction.getUsageRules()
+                .stream()
+                .filter(OnConstraint.class::isInstance)
+                .map(OnConstraint.class::cast)
+                .anyMatch(onConstraint -> onConstraint.getCnec().equals(cnec))
+            )
+            .collect(Collectors.toSet());
+        if (availableNetworkActions.isEmpty()) {
             BUSINESS_WARNS.warn("{} Cnec {} in state {} has no associated RA. {} constraint cannot be secured.", physicalParameter, cnec.getId(), state.getId(), physicalParameter);
             return Collections.emptySet();
         }
@@ -262,15 +263,7 @@ public abstract class AbstractMonitoring<I extends Cnec<?>> implements Monitorin
             BUSINESS_WARNS.warn("{} Cnec {} is constrained in preventive state, it cannot be secured.", physicalParameter, cnec.getId());
             return Collections.emptySet();
         }
-        // Convert remedial actions to network actions
-        return availableRemedialActions.stream().filter(remedialAction -> {
-            if (remedialAction instanceof NetworkAction) {
-                return true;
-            } else {
-                BUSINESS_WARNS.warn("Remedial action {} of Cnec {} in state {} is ignored : it's not a network action.", remedialAction.getId(), cnec.getId(), state.getId());
-                return false;
-            }
-        }).map(NetworkAction.class::cast).collect(Collectors.toSet());
+        return availableNetworkActions;
     }
 
     protected abstract AppliedNetworkActionsResult applyNetworkActions(Network network, Set<NetworkAction> availableNetworkActions, String cnecId, MonitoringInput monitoringInput);
@@ -281,7 +274,7 @@ public abstract class AbstractMonitoring<I extends Cnec<?>> implements Monitorin
         return makeFailedMonitoringResultForState(state, failureReason, cnecResults);
     }
 
-    protected abstract MonitoringResult<I> makeMonitoringResult(Set<CnecResult<I>> cnecResults, Map<State, Set<RemedialAction<?>>> appliedRemedialActions, SecurityStatus monitoringResultStatus);
+    protected abstract MonitoringResult<I> makeMonitoringResult(Set<CnecResult<I>> cnecResults, Map<State, Set<NetworkAction>> appliedRemedialActions, SecurityStatus monitoringResultStatus);
 
     protected abstract MonitoringResult<I> makeFailedMonitoringResultForState(State state, String failureReason, Set<CnecResult<I>> cnecResults);
 

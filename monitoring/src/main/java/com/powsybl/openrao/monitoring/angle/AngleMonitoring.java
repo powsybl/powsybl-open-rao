@@ -79,7 +79,7 @@ public class AngleMonitoring extends AbstractMonitoring<AngleCnec> {
 
     @Override
     protected AppliedNetworkActionsResult applyNetworkActions(Network network, Set<NetworkAction> availableNetworkActions, String cnecId, MonitoringInput monitoringInput) {
-        Set<RemedialAction<?>> appliedNetworkActions = new TreeSet<>(Comparator.comparing(RemedialAction::getId));
+        Set<NetworkAction> appliedNetworkActions = new TreeSet<>(Comparator.comparing(RemedialAction::getId));
         boolean networkActionOk = false;
         EnumMap<Country, Double> powerToBeRedispatched = new EnumMap<>(Country.class);
         Set<String> networkElementsToBeExcluded = new HashSet<>();
@@ -104,7 +104,7 @@ public class AngleMonitoring extends AbstractMonitoring<AngleCnec> {
     }
 
     @Override
-    protected MonitoringResult<AngleCnec> makeMonitoringResult(Set<CnecResult<AngleCnec>> cnecResults, Map<State, Set<RemedialAction<?>>> appliedRemedialActions, SecurityStatus monitoringResultStatus) {
+    protected MonitoringResult<AngleCnec> makeMonitoringResult(Set<CnecResult<AngleCnec>> cnecResults, Map<State, Set<NetworkAction>> appliedRemedialActions, SecurityStatus monitoringResultStatus) {
         return new AngleMonitoringResult(cnecResults, appliedRemedialActions, monitoringResultStatus);
     }
 

@@ -7,9 +7,9 @@
 
 package com.powsybl.openrao.monitoring.results;
 
-import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
+import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.monitoring.SecurityStatus;
 
 import java.util.Arrays;
@@ -24,9 +24,9 @@ import java.util.Set;
 public interface MonitoringResult<I extends Cnec<?>> {
     Set<CnecResult<I>> getCnecResults();
 
-    Map<State, Set<RemedialAction<?>>> getAppliedRas();
+    Map<State, Set<NetworkAction>> getAppliedRas();
 
-    Set<RemedialAction<?>> getAppliedRas(State state);
+    Set<NetworkAction> getAppliedRas(State state);
 
     Set<String> getAppliedRas(String stateId);
 

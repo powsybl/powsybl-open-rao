@@ -12,6 +12,7 @@ import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
+import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.monitoring.SecurityStatus;
 
 import java.util.ArrayList;
@@ -31,10 +32,10 @@ import java.util.stream.Collectors;
 public abstract class AbstractMonitoringResult<I extends Cnec<?>> implements MonitoringResult<I> {
     protected final PhysicalParameter physicalParameter;
     protected Set<CnecResult<I>> cnecResults;
-    protected Map<State, Set<RemedialAction<?>>> appliedRas;
+    protected Map<State, Set<NetworkAction>> appliedRas;
     protected SecurityStatus status;
 
-    protected AbstractMonitoringResult(PhysicalParameter physicalParameter, Set<CnecResult<I>> cnecResults, Map<State, Set<RemedialAction<?>>> appliedRas, SecurityStatus status) {
+    protected AbstractMonitoringResult(PhysicalParameter physicalParameter, Set<CnecResult<I>> cnecResults, Map<State, Set<NetworkAction>> appliedRas, SecurityStatus status) {
         this.physicalParameter = physicalParameter;
         this.cnecResults = cnecResults;
         this.appliedRas = appliedRas;
@@ -47,12 +48,12 @@ public abstract class AbstractMonitoringResult<I extends Cnec<?>> implements Mon
     }
 
     @Override
-    public Map<State, Set<RemedialAction<?>>> getAppliedRas() {
+    public Map<State, Set<NetworkAction>> getAppliedRas() {
         return appliedRas;
     }
 
     @Override
-    public Set<RemedialAction<?>> getAppliedRas(State state) {
+    public Set<NetworkAction> getAppliedRas(State state) {
         return appliedRas.getOrDefault(state, Collections.emptySet());
     }
 
@@ -99,8 +100,8 @@ public abstract class AbstractMonitoringResult<I extends Cnec<?>> implements Mon
         thisCnecResults.addAll(otherCnecResults);
         this.cnecResults = thisCnecResults;
 
-        Map<State, Set<RemedialAction<?>>> thisAppliedRas = new HashMap<>(this.getAppliedRas());
-        Map<State, Set<RemedialAction<?>>> otherAppliedRas = monitoringResult.getAppliedRas();
+        Map<State, Set<NetworkAction>> thisAppliedRas = new HashMap<>(this.getAppliedRas());
+        Map<State, Set<NetworkAction>> otherAppliedRas = monitoringResult.getAppliedRas();
         thisAppliedRas.putAll(otherAppliedRas);
         this.appliedRas = thisAppliedRas;
 
