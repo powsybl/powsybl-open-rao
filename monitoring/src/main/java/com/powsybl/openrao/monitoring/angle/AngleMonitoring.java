@@ -8,17 +8,13 @@
 package com.powsybl.openrao.monitoring.angle;
 
 import com.powsybl.action.Action;
-import com.powsybl.action.DanglingLineAction;
 import com.powsybl.action.GeneratorAction;
 import com.powsybl.action.LoadAction;
-import com.powsybl.action.ShuntCompensatorPositionAction;
 import com.powsybl.glsk.commons.CountryEICode;
 import com.powsybl.glsk.commons.ZonalData;
 import com.powsybl.iidm.modification.scalable.Scalable;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
@@ -131,56 +127,69 @@ public class AngleMonitoring extends AbstractMonitoring<AngleCnec> {
      * Returns false if network action must be filtered.
      */
     private boolean checkElementaryActionAndStoreInjection(Action ea, Network network, String angleCnecId, String naId, Set<String> networkElementsToBeExcluded, Map<Country, Double> powerToBeRedispatched, ZonalData<Scalable> scalableZonalData) {
-        if (!(ea instanceof LoadAction) && !(ea instanceof GeneratorAction)) {
-            BUSINESS_WARNS.warn("Remedial action {} of AngleCnec {} is ignored : it has an elementary action that's not an injection setpoint.", naId, angleCnecId);
-            return false;
-        }
-        Identifiable<?> ne = getInjectionSetpointIdentifiable(ea, network);
-
-        if (ne == null) {
-            BUSINESS_WARNS.warn("Remedial action {} of AngleCnec {} is ignored : it has no elementary actions.", naId, angleCnecId);
+        if (!isInjectionAction(ea)) {
+            BUSINESS_WARNS.warn("Network action {} for AngleCnec {} ignored : it has an elementary action that is not an injection set-point.", naId, angleCnecId);
             return false;
         }
 
-        Optional<Substation> substation = ((Injection<?>) ne).getTerminal().getVoltageLevel().getSubstation();
+        Optional<Injection<?>> injection = getInjection(ea, network);
+        if (injection.isEmpty()) {
+            BUSINESS_WARNS.warn("Network action {} for AngleCnec {} ignored : it has a network element which is either missing from network or not an injection.", naId, angleCnecId);
+            return false;
+        }
+
+        Optional<Substation> substation = injection.get().getTerminal().getVoltageLevel().getSubstation();
         if (substation.isEmpty()) {
-            BUSINESS_WARNS.warn("Remedial action {} of AngleCnec {} is ignored : it has an elementary action that doesn't have a substation.", naId, angleCnecId);
+            BUSINESS_WARNS.warn("Network action {} for AngleCnec {} ignored : it has an elementary action that does not have a substation.", naId, angleCnecId);
             return false;
-        } else {
-            Optional<Country> country = substation.get().getCountry();
-            if (country.isEmpty()) {
-                BUSINESS_WARNS.warn("Remedial action {} of AngleCnec {} is ignored : it has an elementary action that doesn't have a country.", naId, angleCnecId);
-                return false;
+        }
+
+        Optional<Country> country = substation.get().getCountry();
+        if (country.isEmpty()) {
+            BUSINESS_WARNS.warn("Network action {} for AngleCnec {} ignored : it has an elementary action that does not have a country.", naId, angleCnecId);
+            return false;
+        }
+
+        checkGlsks(country.get(), naId, angleCnecId, scalableZonalData);
+        if (ea instanceof GeneratorAction generatorAction) {
+            if (injection.get() instanceof Generator generator) {
+                powerToBeRedispatched.merge(country.get(), generator.getTargetP() - generatorAction.getActivePowerValue().getAsDouble(), Double::sum);
             } else {
-                checkGlsks(country.get(), naId, angleCnecId, scalableZonalData);
-                if (ne.getType().equals(IdentifiableType.GENERATOR)) {
-                    powerToBeRedispatched.merge(country.get(), ((Generator) ne).getTargetP() - ((GeneratorAction) ea).getActivePowerValue().getAsDouble(), Double::sum);
-                } else if (ne.getType().equals(IdentifiableType.LOAD)) {
-                    powerToBeRedispatched.merge(country.get(), -((Load) ne).getP0() + ((LoadAction) ea).getActivePowerValue().getAsDouble(), Double::sum);
-                } else {
-                    BUSINESS_WARNS.warn("Remedial action {} of AngleCnec {} is ignored : it has an injection setpoint that's neither a generator nor a load.", naId, angleCnecId);
-                    return false;
-                }
-                networkElementsToBeExcluded.add(ne.getId());
+                BUSINESS_WARNS.warn("Network action {} for AngleCnec {} is ignored : it has generator action acting on a network element which is not a generator.", naId, angleCnecId);
+                return false;
+            }
+        } else if (ea instanceof LoadAction loadAction) {
+            if (injection.get() instanceof Load load) {
+                powerToBeRedispatched.merge(country.get(), -load.getP0() + loadAction.getActivePowerValue().getAsDouble(), Double::sum);
+            } else {
+                BUSINESS_WARNS.warn("Network action {} for AngleCnec {} is ignored : it has load action acting on a network element which is not a load.", naId, angleCnecId);
+                return false;
             }
         }
+
+        networkElementsToBeExcluded.add(injection.get().getId());
         return true;
     }
 
-    private Identifiable<?> getInjectionSetpointIdentifiable(Action ea, Network network) {
-        if (ea instanceof GeneratorAction generatorAction) {
-            return network.getIdentifiable(generatorAction.getGeneratorId());
+    private static boolean isInjectionAction(Action action) {
+        return action instanceof GeneratorAction || action instanceof LoadAction;
+    }
+
+    private static Optional<Injection<?>> getInjection(Action action, Network network) {
+        Optional<String> injectionId = getInjectionId(action);
+        if (injectionId.isPresent() && network.getIdentifiable(injectionId.get()) instanceof Injection<?> injection) {
+            return Optional.of(injection);
         }
-        if (ea instanceof LoadAction loadAction) {
-            return network.getIdentifiable(loadAction.getLoadId());
+        return Optional.empty();
+    }
+
+    private static Optional<String> getInjectionId(Action action) {
+        if (action instanceof GeneratorAction generatorAction) {
+            return Optional.ofNullable(generatorAction.getGeneratorId());
+        } else if (action instanceof LoadAction loadAction) {
+            return Optional.ofNullable(loadAction.getLoadId());
         }
-        if (ea instanceof DanglingLineAction danglingLineAction) {
-            return network.getIdentifiable(danglingLineAction.getDanglingLineId());
-        }
-        if (ea instanceof ShuntCompensatorPositionAction shuntCompensatorPositionAction) {
-            return network.getIdentifiable(shuntCompensatorPositionAction.getShuntCompensatorId());
-        }
-        return null;
+        return Optional.empty();
     }
 
     /**
