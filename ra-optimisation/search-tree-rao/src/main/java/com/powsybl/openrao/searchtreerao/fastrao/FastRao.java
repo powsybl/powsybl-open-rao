@@ -350,11 +350,7 @@ public class FastRao implements RaoProvider {
         if (raoResult instanceof OneStateOnlyRaoResultImpl) {
             State preventiveState = crac.getPreventiveState();
             networkActionsActivated.put(preventiveState, raoResult.getActivatedNetworkActionsDuringState(preventiveState));
-            if (!raoResult.getActivatedRangeActionsDuringState(preventiveState).isEmpty()) {
-                raoResult.getOptimizedSetPointsOnState(preventiveState).entrySet().forEach(entry ->
-                    rangeActionActivationResult.putResult(entry.getKey(), preventiveState, entry.getValue())
-                );
-            }
+            raoResult.getActivatedRangeActionsDuringState(preventiveState).forEach(rangeAction -> rangeActionActivationResult.putResult(rangeAction, preventiveState, raoResult.getOptimizedSetPointOnState(preventiveState, rangeAction)));
             return new RemedialActionActivationResultImpl(rangeActionActivationResult, new NetworkActionsResultImpl(networkActionsActivated));
         }
 
@@ -363,11 +359,7 @@ public class FastRao implements RaoProvider {
             .filter(state -> state.getInstant().getKind().ordinal() <= instantKind.ordinal())
             .forEach(state -> {
                 networkActionsActivated.put(state, raoResult.getActivatedNetworkActionsDuringState(state));
-                if (!raoResult.getActivatedRangeActionsDuringState(state).isEmpty()) {
-                    raoResult.getOptimizedSetPointsOnState(state)
-                        .entrySet()
-                        .forEach(entry -> rangeActionActivationResult.putResult(entry.getKey(), state, entry.getValue()));
-                }
+                raoResult.getActivatedRangeActionsDuringState(state).forEach(rangeAction -> rangeActionActivationResult.putResult(rangeAction, state, raoResult.getOptimizedSetPointOnState(state, rangeAction)));
             });
         NetworkActionsResult networkActionsResult = new NetworkActionsResultImpl(networkActionsActivated);
         return new RemedialActionActivationResultImpl(rangeActionActivationResult, networkActionsResult);
@@ -411,9 +403,8 @@ public class FastRao implements RaoProvider {
         AppliedRemedialActions appliedRemedialActions = new AppliedRemedialActions();
         crac.getStates().stream().filter(state -> state.getInstant().getKind().ordinal() > 1 && state.getInstant().getKind().ordinal() <= instantKind.ordinal()).forEach(state -> {
                 appliedRemedialActions.addAppliedNetworkActions(state, raoResult.getActivatedNetworkActionsDuringState(state));
-                if (!raoResult.getActivatedRangeActionsDuringState(state).isEmpty()) {
-                    appliedRemedialActions.addAppliedRangeActions(state, raoResult.getOptimizedSetPointsOnState(state));
-                }
+                raoResult.getActivatedRangeActionsDuringState(state)
+                    .forEach(rangeAction -> appliedRemedialActions.addAppliedRangeActions(state, Map.of(rangeAction, raoResult.getOptimizedSetPointOnState(state, rangeAction))));
             }
         );
         return appliedRemedialActions;
