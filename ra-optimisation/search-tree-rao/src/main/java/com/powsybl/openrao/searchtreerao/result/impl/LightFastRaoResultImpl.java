@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.result.impl;
 
+import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
@@ -29,7 +30,7 @@ import static com.powsybl.openrao.data.raoresult.api.ComputationStatus.*;
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
-public class LightFastRaoResultImpl implements RaoResult {
+public class LightFastRaoResultImpl extends AbstractExtendable<RaoResult> implements RaoResult {
     private final PrePerimeterResult initialResult;
     private final RaoResult filteredRaoResult;
     private String executionDetails;

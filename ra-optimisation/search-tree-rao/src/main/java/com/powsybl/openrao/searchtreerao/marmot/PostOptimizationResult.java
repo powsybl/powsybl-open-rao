@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.marmot;
 
+import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
@@ -42,7 +43,7 @@ import java.util.Set;
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
-public class PostOptimizationResult implements RaoResult {
+public class PostOptimizationResult extends AbstractExtendable<RaoResult> implements RaoResult {
 
     private final Crac crac;
     private final PrePerimeterResult initialResult;

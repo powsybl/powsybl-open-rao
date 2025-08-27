@@ -370,8 +370,7 @@ class MarmotTest {
     }
 
     private static void assertFunctionalCostAndRedispatchingSetPoint(Crac crac, InterTemporalRaoResult interTemporalRaoResult, double expectedFunctionalCost, double expectedRdSetPoint) {
-        //TODO: uncomment this after mergin fast rao changes
-        //assertEquals(expectedFunctionalCost, interTemporalRaoResult.getFunctionalCost(crac.getPreventiveInstant(), crac.getTimestamp().get()));
+        assertEquals(expectedFunctionalCost, interTemporalRaoResult.getFunctionalCost(crac.getPreventiveInstant(), crac.getTimestamp().orElseThrow()));
         assertEquals(expectedRdSetPoint, interTemporalRaoResult.getOptimizedSetPointOnState(crac.getPreventiveState(), crac.getRangeAction("redispatchingAction")));
     }
 

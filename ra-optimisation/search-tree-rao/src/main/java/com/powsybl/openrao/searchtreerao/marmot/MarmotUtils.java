@@ -38,7 +38,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -70,12 +69,6 @@ public final class MarmotUtils {
         ).runBasedOnInitialResults(network, initialResult, null, curativeRemedialActions);
     }
 
-    public static Set<FlowCnec> getFilteredCnecs(Crac crac, Set<String> consideredCnecs) {
-        return crac.getFlowCnecs().stream()
-            .filter(flowCnec -> consideredCnecs.contains(flowCnec.getId()))
-            .collect(Collectors.toSet());
-    }
-
     public static TemporalData<AppliedRemedialActions> getAppliedRemedialActionsInCurative(TemporalData<RaoInput> inputs, TemporalData<RaoResult> raoResults) {
         TemporalData<AppliedRemedialActions> curativeRemedialActions = new TemporalDataImpl<>();
         inputs.getTimestamps().forEach(timestamp -> {
@@ -97,16 +90,12 @@ public final class MarmotUtils {
         return curativeRemedialActions;
     }
 
-    public static PrePerimeterResult runSensitivityAnalysisBasedOnInitialResult(RaoInput raoInput, AppliedRemedialActions curativeRemedialActions, FlowResult initialFlowResult, RaoParameters raoParameters, Set<String> consideredCnecs) {
+    public static PrePerimeterResult runSensitivityAnalysisBasedOnInitialResult(RaoInput raoInput, AppliedRemedialActions curativeRemedialActions, FlowResult initialFlowResult, RaoParameters raoParameters, Set<FlowCnec> consideredCnecs) {
         Crac crac = raoInput.getCrac();
         Network network = raoInput.getNetwork();
         State preventiveState = crac.getPreventiveState();
         Set<RangeAction<?>> rangeActions = crac.getRangeActions(preventiveState, UsageMethod.AVAILABLE);
-        return new PrePerimeterSensitivityAnalysis(crac, getConsideredCnecsFromStrings(crac, consideredCnecs), rangeActions, raoParameters, ToolProvider.buildFromRaoInputAndParameters(raoInput, raoParameters)).runBasedOnInitialResults(network, initialFlowResult, Set.of(), curativeRemedialActions);
-    }
-
-    private static Set<FlowCnec> getConsideredCnecsFromStrings(Crac crac, Set<String> consideredCnecs) {
-        return crac.getFlowCnecs().stream().filter(cnec -> consideredCnecs.contains(cnec.getId())).collect(Collectors.toSet());
+        return new PrePerimeterSensitivityAnalysis(crac, consideredCnecs, rangeActions, raoParameters, ToolProvider.buildFromRaoInputAndParameters(raoInput, raoParameters)).runBasedOnInitialResults(network, initialFlowResult, Set.of(), curativeRemedialActions);
     }
 
     public static Set<FlowCnec> getPreventivePerimeterCnecs(Crac crac) {
