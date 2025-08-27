@@ -25,6 +25,7 @@ import com.powsybl.iidm.network.TwoSides;
 import java.util.*;
 
 import static com.powsybl.openrao.data.raoresult.api.ComputationStatus.*;
+import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.getDuplicateCnecs;
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
@@ -52,6 +53,17 @@ public class FastRaoResultImpl extends AbstractExtendable<RaoResult> implements 
         this.crac = crac;
         executionDetails = filteredRaoResult.getExecutionDetails();
         removeFailingContingencies(initialResult, afterPraResult, afterAraResult, finalResult, crac);
+        excludeDuplicateCnecs();
+    }
+
+    private void excludeDuplicateCnecs() {
+        Set<FlowCnec> flowCnecs = crac.getFlowCnecs();
+        Set<String> cnecsToExclude = getDuplicateCnecs(flowCnecs);
+        // exclude fictional cnec from the results
+        initialResult.excludeCnecs(cnecsToExclude);
+        afterPraResult.excludeCnecs(cnecsToExclude);
+        afterAraResult.excludeCnecs(cnecsToExclude);
+        finalResult.excludeCnecs(cnecsToExclude);
     }
 
     private static void removeFailingContingencies(PrePerimeterResult initialResult, PrePerimeterResult afterPraResult, PrePerimeterResult afterAraResult, PrePerimeterResult finalResult, Crac crac) {
