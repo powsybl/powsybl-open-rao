@@ -83,17 +83,17 @@ public class AngleMonitoring extends AbstractMonitoring<AngleCnec> {
         boolean networkActionOk = false;
         EnumMap<Country, Double> powerToBeRedispatched = new EnumMap<>(Country.class);
         Set<String> networkElementsToBeExcluded = new HashSet<>();
-        for (NetworkAction na : availableNetworkActions) {
+        for (NetworkAction networkAction : availableNetworkActions) {
             EnumMap<Country, Double> tempPowerToBeRedispatched = new EnumMap<>(powerToBeRedispatched);
-            for (Action ea : na.getElementaryActions()) {
-                networkActionOk = checkElementaryActionAndStoreInjection(ea, network, cnecId, na.getId(), networkElementsToBeExcluded, tempPowerToBeRedispatched, monitoringInput.scalableZonalData());
+            for (Action ea : networkAction.getElementaryActions()) {
+                networkActionOk = checkElementaryActionAndStoreInjection(ea, network, cnecId, networkAction.getId(), networkElementsToBeExcluded, tempPowerToBeRedispatched, monitoringInput.scalableZonalData());
                 if (!networkActionOk) {
                     break;
                 }
             }
             if (networkActionOk) {
-                na.apply(network);
-                appliedNetworkActions.add(na);
+                networkAction.apply(network);
+                appliedNetworkActions.add(networkAction);
                 powerToBeRedispatched.putAll(tempPowerToBeRedispatched);
             }
         }

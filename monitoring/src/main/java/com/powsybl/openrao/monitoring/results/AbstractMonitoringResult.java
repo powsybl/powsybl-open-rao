@@ -32,13 +32,13 @@ import java.util.stream.Collectors;
 public abstract class AbstractMonitoringResult<I extends Cnec<?>> implements MonitoringResult<I> {
     protected final PhysicalParameter physicalParameter;
     protected Set<CnecResult<I>> cnecResults;
-    protected Map<State, Set<NetworkAction>> appliedRas;
+    protected Map<State, Set<NetworkAction>> appliedNetworkActions;
     protected SecurityStatus status;
 
-    protected AbstractMonitoringResult(PhysicalParameter physicalParameter, Set<CnecResult<I>> cnecResults, Map<State, Set<NetworkAction>> appliedRas, SecurityStatus status) {
+    protected AbstractMonitoringResult(PhysicalParameter physicalParameter, Set<CnecResult<I>> cnecResults, Map<State, Set<NetworkAction>> appliedNetworkActions, SecurityStatus status) {
         this.physicalParameter = physicalParameter;
         this.cnecResults = cnecResults;
-        this.appliedRas = appliedRas;
+        this.appliedNetworkActions = appliedNetworkActions;
         this.status = status;
     }
 
@@ -48,24 +48,24 @@ public abstract class AbstractMonitoringResult<I extends Cnec<?>> implements Mon
     }
 
     @Override
-    public Map<State, Set<NetworkAction>> getAppliedRas() {
-        return appliedRas;
+    public Map<State, Set<NetworkAction>> getAppliedNetworkActions() {
+        return appliedNetworkActions;
     }
 
     @Override
-    public Set<NetworkAction> getAppliedRas(State state) {
-        return appliedRas.getOrDefault(state, Collections.emptySet());
+    public Set<NetworkAction> getAppliedNetworkActions(State state) {
+        return appliedNetworkActions.getOrDefault(state, Collections.emptySet());
     }
 
     @Override
-    public Set<String> getAppliedRas(String stateId) {
-        Set<State> states = appliedRas.keySet().stream().filter(s -> s.getId().equals(stateId)).collect(Collectors.toSet());
+    public Set<String> getAppliedNetworkActions(String stateId) {
+        Set<State> states = appliedNetworkActions.keySet().stream().filter(s -> s.getId().equals(stateId)).collect(Collectors.toSet());
         if (states.isEmpty()) {
             return Collections.emptySet();
         } else if (states.size() > 1) {
             throw new OpenRaoException(String.format("%s states share the same id : %s.", states.size(), stateId));
         } else {
-            return appliedRas.get(states.iterator().next()).stream().map(RemedialAction::getId).collect(Collectors.toSet());
+            return appliedNetworkActions.get(states.iterator().next()).stream().map(RemedialAction::getId).collect(Collectors.toSet());
         }
     }
 
@@ -100,10 +100,10 @@ public abstract class AbstractMonitoringResult<I extends Cnec<?>> implements Mon
         thisCnecResults.addAll(otherCnecResults);
         this.cnecResults = thisCnecResults;
 
-        Map<State, Set<NetworkAction>> thisAppliedRas = new HashMap<>(this.getAppliedRas());
-        Map<State, Set<NetworkAction>> otherAppliedRas = monitoringResult.getAppliedRas();
+        Map<State, Set<NetworkAction>> thisAppliedRas = new HashMap<>(this.getAppliedNetworkActions());
+        Map<State, Set<NetworkAction>> otherAppliedRas = monitoringResult.getAppliedNetworkActions();
         thisAppliedRas.putAll(otherAppliedRas);
-        this.appliedRas = thisAppliedRas;
+        this.appliedNetworkActions = thisAppliedRas;
 
         this.status = MonitoringResult.combineStatuses(this.status, monitoringResult.getStatus());
     }

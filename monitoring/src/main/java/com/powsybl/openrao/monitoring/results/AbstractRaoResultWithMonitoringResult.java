@@ -56,13 +56,13 @@ public abstract class AbstractRaoResultWithMonitoringResult<I extends Cnec<?>, J
     @Override
     public Set<NetworkAction> getActivatedNetworkActionsDuringState(State state) {
         Set<NetworkAction> concatenatedActions = new HashSet<>(raoResult.getActivatedNetworkActionsDuringState(state));
-        concatenatedActions.addAll(monitoringResult.getAppliedRas(state));
+        concatenatedActions.addAll(monitoringResult.getAppliedNetworkActions(state));
         return concatenatedActions;
     }
 
     @Override
     public boolean isActivatedDuringState(State state, NetworkAction networkAction) {
-        return monitoringResult.getAppliedRas(state).contains(networkAction) || raoResult.isActivatedDuringState(state, networkAction);
+        return monitoringResult.getAppliedNetworkActions(state).contains(networkAction) || raoResult.isActivatedDuringState(state, networkAction);
     }
 
     @Override

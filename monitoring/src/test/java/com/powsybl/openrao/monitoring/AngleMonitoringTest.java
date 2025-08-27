@@ -160,7 +160,7 @@ class AngleMonitoringTest {
         ZonalData<Scalable> scalableZonalData = CimGlskDocument.importGlsk(getClass().getResourceAsStream("/GlskB45test.xml")).getZonalScalable(network);
         runAngleMonitoring(scalableZonalData);
         assertEquals(SecurityStatus.FAILURE, angleMonitoringResult.getStatus());
-        angleMonitoringResult.getAppliedRas().forEach((state, networkActions) -> assertTrue(networkActions.isEmpty()));
+        angleMonitoringResult.getAppliedNetworkActions().forEach((state, networkActions) -> assertTrue(networkActions.isEmpty()));
         assertTrue(angleMonitoringResult.getCnecResults().stream().filter(AngleCnecResult.class::isInstance).allMatch(angleCnecResult -> ((AngleCnecResult) angleCnecResult).getAngle().isNaN()));
         assertEquals(angleMonitoringResult.printConstraints(), List.of("ANGLE monitoring failed due to a load flow divergence or an inconsistency in the crac or in the parameters."));
     }
@@ -182,7 +182,7 @@ class AngleMonitoringTest {
 
         runAngleMonitoring(scalableZonalData);
         assertEquals(SecurityStatus.LOW_CONSTRAINT, angleMonitoringResult.getStatus());
-        angleMonitoringResult.getAppliedRas().forEach((state, networkActions) -> assertTrue(networkActions.isEmpty()));
+        angleMonitoringResult.getAppliedNetworkActions().forEach((state, networkActions) -> assertTrue(networkActions.isEmpty()));
         assertEquals(List.of("Some ANGLE Cnecs are not secure:",
             "AngleCnec acPrev (with importing network element VL1 and exporting network element VL2) at state preventive has an angle of -3.68°."
         ), angleMonitoringResult.printConstraints());
@@ -199,7 +199,7 @@ class AngleMonitoringTest {
 
         runAngleMonitoring(scalableZonalData);
         assertEquals(SecurityStatus.LOW_CONSTRAINT, angleMonitoringResult.getStatus());
-        angleMonitoringResult.getAppliedRas().forEach((state, networkActions) -> assertTrue(networkActions.isEmpty()));
+        angleMonitoringResult.getAppliedNetworkActions().forEach((state, networkActions) -> assertTrue(networkActions.isEmpty()));
         assertEquals(List.of("Some ANGLE Cnecs are not secure:",
                 "AngleCnec acCur1 (with importing network element VL1 and exporting network element VL2) at state coL1 - curative has an angle of -7.71°."),
             angleMonitoringResult.printConstraints());
@@ -218,7 +218,7 @@ class AngleMonitoringTest {
 
         runAngleMonitoring(scalableZonalData);
         assertEquals(SecurityStatus.LOW_CONSTRAINT, angleMonitoringResult.getStatus());
-        angleMonitoringResult.getAppliedRas().forEach((state, networkActions) -> assertTrue(networkActions.isEmpty()));
+        angleMonitoringResult.getAppliedNetworkActions().forEach((state, networkActions) -> assertTrue(networkActions.isEmpty()));
         assertEquals(List.of("Some ANGLE Cnecs are not secure:",
                 "AngleCnec acCur1 (with importing network element VL1 and exporting network element VL2) at state coL1 - curative has an angle of -7.71°."),
             angleMonitoringResult.printConstraints());
@@ -237,7 +237,7 @@ class AngleMonitoringTest {
 
         runAngleMonitoring(scalableZonalData);
         assertEquals(SecurityStatus.SECURE, angleMonitoringResult.getStatus());
-        assertEquals(Set.of(naL1Cur.getId()), angleMonitoringResult.getAppliedRas("coL1 - curative"));
+        assertEquals(Set.of(naL1Cur.getId()), angleMonitoringResult.getAppliedNetworkActions("coL1 - curative"));
         assertEquals(angleMonitoringResult.printConstraints(), List.of("All ANGLE Cnecs are secure."));
     }
 
@@ -267,11 +267,11 @@ class AngleMonitoringTest {
 
         // Applied cras
         State state = crac.getState("Co-1", curativeInstant);
-        assertEquals(1, angleMonitoringResult.getAppliedRas(state).size());
-        assertTrue(angleMonitoringResult.getAppliedRas(state).contains(crac.getNetworkAction("RA-1")));
-        assertEquals(1, angleMonitoringResult.getAppliedRas("Co-1 - curative").size());
-        assertTrue(angleMonitoringResult.getAppliedRas("Co-1 - curative").contains("RA-1"));
-        assertEquals(2, angleMonitoringResult.getAppliedRas().size());
+        assertEquals(1, angleMonitoringResult.getAppliedNetworkActions(state).size());
+        assertTrue(angleMonitoringResult.getAppliedNetworkActions(state).contains(crac.getNetworkAction("RA-1")));
+        assertEquals(1, angleMonitoringResult.getAppliedNetworkActions("Co-1 - curative").size());
+        assertTrue(angleMonitoringResult.getAppliedNetworkActions("Co-1 - curative").contains("RA-1"));
+        assertEquals(2, angleMonitoringResult.getAppliedNetworkActions().size());
 
         // AngleCnecsWithAngle
         assertEquals(2, angleMonitoringResult.getCnecResults().size());

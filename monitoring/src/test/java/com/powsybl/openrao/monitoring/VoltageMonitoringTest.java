@@ -355,7 +355,7 @@ class VoltageMonitoringTest {
         runVoltageMonitoring();
 
         assertEquals(SecurityStatus.FAILURE, voltageMonitoringResult.getStatus());
-        assertEquals(0, voltageMonitoringResult.getAppliedRas().get(crac.getPreventiveState()).size());
+        assertEquals(0, voltageMonitoringResult.getAppliedNetworkActions().get(crac.getPreventiveState()).size());
     }
 
     @Test
@@ -375,7 +375,7 @@ class VoltageMonitoringTest {
         runVoltageMonitoring();
 
         assertEquals(SecurityStatus.FAILURE, voltageMonitoringResult.getStatus());
-        assertEquals(1, voltageMonitoringResult.getAppliedRas().size());
+        assertEquals(1, voltageMonitoringResult.getAppliedNetworkActions().size());
     }
 
     @Test
@@ -393,7 +393,7 @@ class VoltageMonitoringTest {
 
         runVoltageMonitoring();
         assertEquals(SecurityStatus.SECURE, voltageMonitoringResult.getStatus());
-        assertTrue(voltageMonitoringResult.getAppliedRas().values().stream().allMatch(appliedRasByState -> appliedRasByState.size() == 0));
+        assertTrue(voltageMonitoringResult.getAppliedNetworkActions().values().stream().allMatch(appliedRasByState -> appliedRasByState.size() == 0));
     }
 
     @Test
@@ -402,7 +402,7 @@ class VoltageMonitoringTest {
         vcPrev = addVoltageCnec("vcPrev", PREVENTIVE_INSTANT_ID, null, "VL1", 390., 399.);
 
         runVoltageMonitoring();
-        assertTrue(voltageMonitoringResult.getAppliedRas().values().stream().allMatch(appliedRasByState -> appliedRasByState.size() == 0));
+        assertTrue(voltageMonitoringResult.getAppliedNetworkActions().values().stream().allMatch(appliedRasByState -> appliedRasByState.size() == 0));
         assertEquals(SecurityStatus.HIGH_CONSTRAINT, voltageMonitoringResult.getStatus());
     }
 
@@ -427,8 +427,8 @@ class VoltageMonitoringTest {
 
         runVoltageMonitoring();
 
-        assertEquals(0, voltageMonitoringResult.getAppliedRas().get(crac.getPreventiveState()).size());
-        assertEquals(Set.of(networkAction), voltageMonitoringResult.getAppliedRas().get(crac.getState("co", curativeInstant)));
+        assertEquals(0, voltageMonitoringResult.getAppliedNetworkActions().get(crac.getPreventiveState()).size());
+        assertEquals(Set.of(networkAction), voltageMonitoringResult.getAppliedNetworkActions().get(crac.getState("co", curativeInstant)));
         assertEquals(SecurityStatus.HIGH_CONSTRAINT, voltageMonitoringResult.getStatus());
     }
 
@@ -453,8 +453,8 @@ class VoltageMonitoringTest {
 
         runVoltageMonitoring();
 
-        assertEquals(0, voltageMonitoringResult.getAppliedRas().get(crac.getPreventiveState()).size());
-        assertEquals(Set.of(networkAction), voltageMonitoringResult.getAppliedRas().get(crac.getState("co", curativeInstant)));
+        assertEquals(0, voltageMonitoringResult.getAppliedNetworkActions().get(crac.getPreventiveState()).size());
+        assertEquals(Set.of(networkAction), voltageMonitoringResult.getAppliedNetworkActions().get(crac.getState("co", curativeInstant)));
         assertEquals(SecurityStatus.LOW_CONSTRAINT, voltageMonitoringResult.getStatus());
     }
 
@@ -474,7 +474,7 @@ class VoltageMonitoringTest {
         runVoltageMonitoring();
 
         assertEquals(SecurityStatus.SECURE, voltageMonitoringResult.getStatus());
-        assertEquals(Set.of(networkAction), voltageMonitoringResult.getAppliedRas().get(crac.getState("co", curativeInstant)));
+        assertEquals(Set.of(networkAction), voltageMonitoringResult.getAppliedNetworkActions().get(crac.getState("co", curativeInstant)));
     }
 
     @Test
@@ -493,7 +493,7 @@ class VoltageMonitoringTest {
         runVoltageMonitoring();
 
         assertEquals(SecurityStatus.SECURE, voltageMonitoringResult.getStatus());
-        assertEquals(Set.of(networkAction), voltageMonitoringResult.getAppliedRas().get(crac.getState("co", curativeInstant)));
+        assertEquals(Set.of(networkAction), voltageMonitoringResult.getAppliedNetworkActions().get(crac.getState("co", curativeInstant)));
     }
 
     @Test

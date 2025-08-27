@@ -24,11 +24,11 @@ import java.util.Set;
 public interface MonitoringResult<I extends Cnec<?>> {
     Set<CnecResult<I>> getCnecResults();
 
-    Map<State, Set<NetworkAction>> getAppliedRas();
+    Map<State, Set<NetworkAction>> getAppliedNetworkActions();
 
-    Set<NetworkAction> getAppliedRas(State state);
+    Set<NetworkAction> getAppliedNetworkActions(State state);
 
-    Set<String> getAppliedRas(String stateId);
+    Set<String> getAppliedNetworkActions(String stateId);
 
     SecurityStatus getStatus();
 

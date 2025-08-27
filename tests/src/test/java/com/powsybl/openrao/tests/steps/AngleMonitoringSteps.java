@@ -79,9 +79,9 @@ public class AngleMonitoringSteps {
             } else {
                 state = CommonTestData.getCrac().getState(contingency, instant);
             }
-            assertTrue(CommonTestData.getMonitoringResult().getAppliedRas().containsKey(state));
-            assertEquals(numberOfCras, CommonTestData.getMonitoringResult().getAppliedRas(state).size());
-            assertTrue(CommonTestData.getMonitoringResult().getAppliedRas(state).stream().anyMatch(networkAction -> networkAction.getId().equals(craName)));
+            assertTrue(CommonTestData.getMonitoringResult().getAppliedNetworkActions().containsKey(state));
+            assertEquals(numberOfCras, CommonTestData.getMonitoringResult().getAppliedNetworkActions(state).size());
+            assertTrue(CommonTestData.getMonitoringResult().getAppliedNetworkActions(state).stream().anyMatch(networkAction -> networkAction.getId().equals(craName)));
         }
     }
 
