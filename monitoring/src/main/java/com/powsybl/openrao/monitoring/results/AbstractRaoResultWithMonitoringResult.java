@@ -8,6 +8,8 @@
 package com.powsybl.openrao.monitoring.results;
 
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.PhysicalParameter;
+import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
@@ -73,5 +75,11 @@ public abstract class AbstractRaoResultWithMonitoringResult<I extends Cnec<?>> e
     @Override
     public boolean isSecure() {
         return raoResult.isSecure() && monitoringResult.getStatus().equals(SecurityStatus.SECURE);
+    }
+
+    protected static void checkInstant(Instant instant, PhysicalParameter physicalParameter) {
+        if (instant == null || !instant.isCurative()) {
+            throw new OpenRaoException("Unexpected optimization instant for %s monitoring result (only curative instant is currently supported): %s.".formatted(physicalParameter.toString().toLowerCase(), instant));
+        }
     }
 }

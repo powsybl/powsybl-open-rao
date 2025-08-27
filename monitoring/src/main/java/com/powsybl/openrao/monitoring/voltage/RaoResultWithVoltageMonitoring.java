@@ -56,9 +56,7 @@ public class RaoResultWithVoltageMonitoring extends AbstractRaoResultWithMonitor
     }
 
     private Optional<VoltageCnecResult> getCnecResult(Instant optimizationInstant, VoltageCnec voltageCnec) {
-        if (optimizationInstant == null || !optimizationInstant.isCurative()) {
-            throw new OpenRaoException("Unexpected optimization instant for voltage monitoring result (only curative instant is supported currently) : " + optimizationInstant);
-        }
+        checkInstant(optimizationInstant, PhysicalParameter.VOLTAGE);
         return monitoringResult.getCnecResults().stream()
             .filter(voltageCnecRes -> voltageCnecRes.getId().equals(voltageCnec.getId()))
             .filter(VoltageCnecResult.class::isInstance)

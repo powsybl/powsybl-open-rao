@@ -7,7 +7,6 @@
 
 package com.powsybl.openrao.monitoring.angle;
 
-import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Instant;
@@ -35,9 +34,7 @@ public class RaoResultWithAngleMonitoring extends AbstractRaoResultWithMonitorin
     @Override
     public double getAngle(Instant optimizationInstant, AngleCnec angleCnec, Unit unit) {
         unit.checkPhysicalParameter(PhysicalParameter.ANGLE);
-        if (optimizationInstant == null || !optimizationInstant.isCurative()) {
-            throw new OpenRaoException("Unexpected optimization instant for angle monitoring result (only curative instant is supported currently) : " + optimizationInstant);
-        }
+        checkInstant(optimizationInstant, PhysicalParameter.ANGLE);
         Optional<AngleCnecResult> angleCnecResultOpt = monitoringResult.getCnecResults().stream()
             .filter(angleCnecRes -> angleCnecRes.getId().equals(angleCnec.getId()))
             .filter(AngleCnecResult.class::isInstance)

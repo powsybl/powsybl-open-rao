@@ -56,6 +56,7 @@ public abstract class AbstractMonitoring<I extends Cnec<?>> implements Monitorin
     }
 
     public MonitoringResult<I> runMonitoring(MonitoringInput monitoringInput, int numberOfLoadFlowsInParallel) {
+        checkInputs(monitoringInput);
         PhysicalParameter physicalParameter = getPhysicalParameter();
         Network inputNetwork = monitoringInput.network();
         Crac crac = monitoringInput.crac();
