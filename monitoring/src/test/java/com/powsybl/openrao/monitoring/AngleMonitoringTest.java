@@ -237,7 +237,7 @@ class AngleMonitoringTest {
 
         runAngleMonitoring(scalableZonalData);
         assertEquals(SecurityStatus.SECURE, angleMonitoringResult.getStatus());
-        assertEquals(Set.of(naL1Cur.getId()), angleMonitoringResult.getAppliedNetworkActions("coL1 - curative"));
+        assertEquals(Set.of(naL1Cur), angleMonitoringResult.getAppliedNetworkActions(crac.getState("coL1", curativeInstant)));
         assertEquals(angleMonitoringResult.printConstraints(), List.of("All ANGLE Cnecs are secure."));
     }
 
@@ -269,8 +269,6 @@ class AngleMonitoringTest {
         State state = crac.getState("Co-1", curativeInstant);
         assertEquals(1, angleMonitoringResult.getAppliedNetworkActions(state).size());
         assertTrue(angleMonitoringResult.getAppliedNetworkActions(state).contains(crac.getNetworkAction("RA-1")));
-        assertEquals(1, angleMonitoringResult.getAppliedNetworkActions("Co-1 - curative").size());
-        assertTrue(angleMonitoringResult.getAppliedNetworkActions("Co-1 - curative").contains("RA-1"));
         assertEquals(2, angleMonitoringResult.getAppliedNetworkActions().size());
 
         // AngleCnecsWithAngle

@@ -28,8 +28,6 @@ public interface MonitoringResult<I extends Cnec<?>> {
 
     Set<NetworkAction> getAppliedNetworkActions(State state);
 
-    Set<String> getAppliedNetworkActions(String stateId);
-
     SecurityStatus getStatus();
 
     List<String> printConstraints();

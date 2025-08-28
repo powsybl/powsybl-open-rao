@@ -66,9 +66,9 @@ public class VoltageMonitoring extends AbstractMonitoring<VoltageCnec> {
     @Override
     protected AppliedNetworkActionsResult applyNetworkActions(Network network, Set<NetworkAction> availableNetworkActions, String cnecId, MonitoringInput monitoringInput) {
         Set<NetworkAction> appliedNetworkActions = new TreeSet<>(Comparator.comparing(RemedialAction::getId));
-        for (NetworkAction na : availableNetworkActions) {
-            na.apply(network);
-            appliedNetworkActions.add(na);
+        for (NetworkAction networkAction : availableNetworkActions) {
+            networkAction.apply(network);
+            appliedNetworkActions.add(networkAction);
         }
         AppliedNetworkActionsResult appliedNetworkActionsResult = new AppliedNetworkActionsResult.AppliedNetworkActionsResultBuilder().withAppliedNetworkActions(appliedNetworkActions)
             .withNetworkElementsToBeExcluded(new HashSet<>()).withPowerToBeRedispatched(new EnumMap<>(Country.class)).build();
