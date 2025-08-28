@@ -134,7 +134,7 @@ Feature: US 13.5: dynamic of range actions available in several instants
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_ac.json"
     When I launch search_tree_rao at "2019-01-08 00:30"
     Then the worst margin is 1637 MW
-    And the margin on cnec "CnecPreventiveDir - preventive" after PRA should be 1637 MW
+    And the margin on cnec "CnecPreventiveDir - preventive" after PRA should be 1654 MW
     And the tap of PstRangeAction "SelectTapPSTPrev" should be 12 in preventive
     And the value of the objective function after CRA should be -1637
 

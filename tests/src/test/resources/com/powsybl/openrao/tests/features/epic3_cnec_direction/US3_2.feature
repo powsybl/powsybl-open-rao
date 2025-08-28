@@ -38,8 +38,8 @@ Feature: US 3.2: Handle cnec monitored in only one direction in the optimization
     And 1 remedial actions are used in preventive
     And the remedial action "PST1" is used in preventive
     And the tap of PstRangeAction "PST1" should be -16 in preventive
-    And the worst margin is -418.0 A
-    And the margin on cnec "FFR2AA1  DDE3AA1  1 - preventive" after PRA should be -418.0 A
+    And the worst margin is -416.1 A
+    And the margin on cnec "FFR2AA1  DDE3AA1  1 - preventive" after PRA should be -416.1 A
 
   @fast @rao @mock @ac @preventive-only
   Scenario: US 3.2.4: pst range action, opposite cnec

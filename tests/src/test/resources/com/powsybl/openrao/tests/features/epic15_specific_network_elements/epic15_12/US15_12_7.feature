@@ -75,7 +75,7 @@ Feature: US 15.12.7: Handle CSE's HVDCs with range actions on injections
     When I launch search_tree_rao
     Then the setpoint of RangeAction "PRA_HVDC" should be 1661 MW in preventive
     And the tap of PstRangeAction "PST_PRA_PST_be_BBE2AA11 BBE3AA11 1" should be 3 in preventive
-    And the setpoint of RangeAction "CRA_HVDC" should be 1397 MW after "co1_be1_fr5" at "curative"
+    And the setpoint of RangeAction "CRA_HVDC" should be 1396 MW after "co1_be1_fr5" at "curative"
     And the setpoint of RangeAction "CRA_HVDC" should be 2000 MW after "co2_be1fr5_be4fr5" at "curative"
     And the worst margin is 110 MW
     And the margin on cnec "be1_be2_n - BBE1AA11->BBE2AA11 - preventive" after PRA should be 127 MW

@@ -44,7 +44,6 @@ search-tree-topological-actions-optimization:
     max-number-of-boundaries-for-skipping-actions: 2
 
 search-tree-second-preventive-rao:
-    re-optimize-curative-range-actions: true
     hint-from-first-preventive-rao: true
 
 search-tree-load-flow-and-sensitivity-computation:
