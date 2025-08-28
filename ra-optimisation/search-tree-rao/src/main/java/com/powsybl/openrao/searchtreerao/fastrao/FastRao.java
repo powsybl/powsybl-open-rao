@@ -45,6 +45,8 @@ import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_LOGS;
+import static com.powsybl.openrao.data.raoresult.api.OptimizationStepsExecuted.FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION;
+import static com.powsybl.openrao.data.raoresult.api.OptimizationStepsExecuted.SECOND_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -156,7 +158,7 @@ public class FastRao implements RaoProvider {
 
                 worstCnec = stepResult.getMostLimitingElements(1).get(0);
                 counter++;
-            } while (!(consideredCnecs.contains(worstCnec) && consideredCnecs.containsAll(getCostlyVirtualCnecs(stepResult))));
+            } while (shouldContinue(consideredCnecs, worstCnec, stepResult, raoResult));
 
             networkPool.shutdownAndAwaitTermination(24, TimeUnit.HOURS);
 
@@ -175,6 +177,13 @@ public class FastRao implements RaoProvider {
             Thread.currentThread().interrupt();
             throw new OpenRaoException("Error while running full FAST RAO loop", e);
         }
+    }
+
+    private static boolean shouldContinue(Set<FlowCnec> consideredCnecs, FlowCnec worstCnec, PrePerimeterResult stepResult, RaoResult raoResult) {
+        String executionDetails = raoResult.getExecutionDetails();
+        boolean fellBackToInitial = executionDetails.equals(FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION) || executionDetails.equals(SECOND_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION);
+
+        return !(consideredCnecs.contains(worstCnec) && consideredCnecs.containsAll(getCostlyVirtualCnecs(stepResult))) || fellBackToInitial;
     }
 
     private static void addWorstCnecs(Set<FlowCnec> consideredCnecs, int numberOfCnecsToAdd, PrePerimeterResult ofResult) {
@@ -232,7 +241,7 @@ public class FastRao implements RaoProvider {
         Crac filteredCrac = copyCrac(crac, raoInput.getNetwork());
         removeFlowCnecsFromCrac(filteredCrac, flowCnecsToKeep);
 
-        BUSINESS_LOGS.info("[FAST RAO] Iteration {}: Run filtered RAO [start]", counter);
+        BUSINESS_LOGS.info("[FAST RAO] Iteration {}: Run filtered RAO with {} cnecs [start]", counter, flowCnecsToKeep.size());
 
         RaoInput filteredRaoInput = createFilteredRaoInput(raoInput, filteredCrac);
         RaoResult raoResult;
