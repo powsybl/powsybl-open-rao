@@ -11,6 +11,7 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Instant;
+import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
@@ -24,6 +25,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -61,8 +63,25 @@ public abstract class AbstractRaoResultWithMonitoringResult<I extends Cnec<?>, J
     }
 
     @Override
+    public boolean isActivatedDuringState(State state, RemedialAction<?> remedialAction) {
+        if (remedialAction instanceof NetworkAction networkAction) {
+            return isActivatedDuringState(state, networkAction);
+        }
+        return super.isActivatedDuringState(state, remedialAction);
+    }
+
+    @Override
     public boolean isActivatedDuringState(State state, NetworkAction networkAction) {
         return monitoringResult.getAppliedNetworkActions(state).contains(networkAction) || raoResult.isActivatedDuringState(state, networkAction);
+    }
+
+    @Override
+    public boolean wasActivatedBeforeState(State state, NetworkAction networkAction) {
+        Set<State> previousStates = monitoringResult.getAppliedNetworkActions().keySet()
+            .stream()
+            .filter(applicationState -> applicationState.isPreventive() || state.getContingency().equals(applicationState.getContingency()) && applicationState.getInstant().comesBefore(state.getInstant()))
+            .collect(Collectors.toSet());
+        return previousStates.stream().anyMatch(previousState -> isActivatedDuringState(previousState, networkAction)) || raoResult.wasActivatedBeforeState(state, networkAction);
     }
 
     @Override
