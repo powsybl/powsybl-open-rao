@@ -84,7 +84,7 @@ class SweCneTest {
 
         MonitoringResult<AngleCnec> monitoringResult = new AngleMonitoringResult(
             Set.of(new AngleCnecResultImpl(crac.getAngleCnec("ac1"), 4.0, 2., SecurityStatus.SECURE)),
-            Map.of(crac.getState("Co-1", crac.getInstant(InstantKind.CURATIVE)), Set.of(crac.getRemedialAction("na1"))),
+            Map.of(crac.getState("Co-1", crac.getInstant(InstantKind.CURATIVE)), Set.of(crac.getNetworkAction("na1"))),
             SecurityStatus.SECURE);
 
         raoResultWithAngle = new RaoResultWithAngleMonitoring(raoResult, monitoringResult);

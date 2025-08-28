@@ -57,7 +57,7 @@ public abstract class AbstractMonitoringResult<I extends Cnec<?>> implements Mon
         return appliedNetworkActions.getOrDefault(state, Collections.emptySet());
     }
 
-    @Override
+    @Override // TODO: how could two states have the same id?
     public Set<String> getAppliedNetworkActions(String stateId) {
         Set<State> states = appliedNetworkActions.keySet().stream().filter(s -> s.getId().equals(stateId)).collect(Collectors.toSet());
         if (states.isEmpty()) {
