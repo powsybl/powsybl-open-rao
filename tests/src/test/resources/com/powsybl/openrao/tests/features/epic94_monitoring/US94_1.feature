@@ -9,8 +9,7 @@ Feature: US 94.1: Angle Monitoring
   Scenario: US 94.1.1: Basic Angle Monitoring
   Simple angle monitoring case with two curative AngleCNECs defined for two different contingencies.
   The CRAC file does not contain any FlowCNEC but the computation is still performed.
-  "AngleCnec1" has a high angle constraint because redispatching cannot be performed.
-  "AngleCnec2" is secure.
+  "AngleCnec1" has a high angle constraint, "AngleCnec2" is secure.
     Given network file is "epic94/MicroGrid.zip"
     Given crac creation parameters file is "epic94/CimCracCreationParameters.json"
     Given crac file is "epic94/CIM_21_7_1_AngMon.xml"
@@ -23,4 +22,4 @@ Feature: US 94.1: Angle Monitoring
     And the angle margin of CNEC "AngleCnec1" should be -2.22 at "curative"
     And the angle of CNEC "AngleCnec2" should be -19.33 at "curative"
     And the angle margin of CNEC "AngleCnec2" should be 66.33 at "curative"
-    And 0 remedial actions are used after "Co-1" at "curative"
+    And the network action "RA-1" is used after "Co-1" at "curative" during monitoring
