@@ -132,4 +132,18 @@ public class AngleMonitoringSteps {
             }
         }
     }
+
+    @Then("the angle of CNEC {string} should be {double} at {string}")
+    public void assertAngleValue(String angleCnecId, double expectedAngleValue, String instantId) {
+        AngleCnec angleCnec = CommonTestData.getCrac().getAngleCnec(angleCnecId);
+        double actualAngleValue = CommonTestData.getRaoResult().getAngle(CommonTestData.getCrac().getInstant(instantId), angleCnec, Unit.DEGREE);
+        assertEquals(expectedAngleValue, actualAngleValue, 1e-2);
+    }
+
+    @Then("the angle margin of CNEC {string} should be {double} at {string}")
+    public void assertAngleMargin(String angleCnecId, double expectedAngleMargin, String instantId) {
+        AngleCnec angleCnec = CommonTestData.getCrac().getAngleCnec(angleCnecId);
+        double actualAngleMargin = CommonTestData.getRaoResult().getMargin(CommonTestData.getCrac().getInstant(instantId), angleCnec, Unit.DEGREE);
+        assertEquals(expectedAngleMargin, actualAngleMargin, 1e-2);
+    }
 }
