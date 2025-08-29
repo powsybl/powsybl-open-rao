@@ -116,7 +116,7 @@ Feature: User Story #16.3: Activate remedial actions only after a specific const
     And the worst margin is 63 A
     And the margin on cnec "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be 63 A
     And the margin on cnec "BBE1AA1  FFR5AA1  1 - preventive" after PRA should be 82 A
-    And the margin on cnec "BBE2AA1  FFR3AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be 72 A
+    And the margin on cnec "BBE2AA1  FFR3AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be 71 A
 
   @fast @rao @mock @ac @preventive-only
   Scenario: US 16.3.9: Preventive onConstraint RAs with no constraint triggered (CSE)

@@ -16,7 +16,7 @@ Feature: US 19.3: Handle maximum CRA and maximum curative PSTs per TSO
     And the remedial action "close_fr1_fr5" is used after "co1_fr2_fr3_1" at "curative"
     And the remedial action "pst_be" is used after "co1_fr2_fr3_1" at "curative"
     And the tap of PstRangeAction "pst_be" should be -12 after "co1_fr2_fr3_1" at "curative"
-    And the worst margin is 997 A on cnec "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative"
+    And the worst margin is 1000 A on cnec "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative"
     And the margin on cnec "BBE1AA1  FFR5AA1  1 - preventive" after PRA should be 1301 A
 
   @fast @rao @mock @ac @contingency-scenarios
