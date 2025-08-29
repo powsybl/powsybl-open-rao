@@ -61,20 +61,8 @@ public abstract class AbstractCnec<I extends Cnec<I>> extends AbstractIdentifiab
     }
 
     @Override
-    @Deprecated (since = "3.0.0")
-    public void setOptimized(boolean optimized) {
-        this.optimized = optimized;
-    }
-
-    @Override
     public boolean isMonitored() {
         return monitored;
-    }
-
-    @Override
-    @Deprecated (since = "3.0.0")
-    public void setMonitored(boolean monitored) {
-        this.monitored = monitored;
     }
 
     @Override

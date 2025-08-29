@@ -11,12 +11,10 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.impl.utils.NetworkImportsUtil;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.InstantKind;
-import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
 import com.powsybl.openrao.data.crac.api.cnec.VoltageCnecAdder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 import java.util.Optional;
 import java.util.Set;
@@ -76,89 +74,6 @@ class VoltageCnecImplTest {
         assertTrue(countries.contains(Optional.of(Country.DE)));
     }
 
-    @Test
-    void testComputeValue() {
-        VoltageCnec cnec = initPreventiveCnecAdder()
-            .newThreshold().withUnit(Unit.KILOVOLT).withMin(200.).withMax(500.).add()
-            .add();
-        Network networkMock1 = mockBusVoltagesInNetwork("networkElement", 400.);
-        assertEquals(400., ((VoltageCnecValue) cnec.computeValue(networkMock1, Unit.KILOVOLT)).minValue(), DOUBLE_TOLERANCE);
-        assertEquals(400., ((VoltageCnecValue) cnec.computeValue(networkMock1, Unit.KILOVOLT)).maxValue(), DOUBLE_TOLERANCE);
-    }
-
-    @Test
-    void testComputeSecurityStatus() {
-        VoltageCnec cnec = initPreventiveCnecAdder()
-            .newThreshold().withUnit(Unit.KILOVOLT).withMin(200.).withMax(500.).add()
-            .add();
-        Network networkMock1 = mockBusVoltagesInNetwork("networkElement", 400.);
-        Network networkMock2 = mockBusVoltagesInNetwork("networkElement", 700.);
-        Network networkMock3 = mockBusVoltagesInNetwork("networkElement", 100.);
-
-        assertEquals(Cnec.SecurityStatus.SECURE, cnec.computeSecurityStatus(networkMock1, Unit.KILOVOLT));
-        assertEquals(Cnec.SecurityStatus.HIGH_CONSTRAINT, cnec.computeSecurityStatus(networkMock2, Unit.KILOVOLT));
-        assertEquals(Cnec.SecurityStatus.LOW_CONSTRAINT, cnec.computeSecurityStatus(networkMock3, Unit.KILOVOLT));
-    }
-
-    @Test
-    void testVoltageCnecWithOneMaxThreshold() {
-
-        VoltageCnec cnec = initPreventiveCnecAdder()
-            .newThreshold().withUnit(Unit.KILOVOLT).withMax(500.).add()
-            .add();
-
-        // bounds
-        assertEquals(500., cnec.getUpperBound(Unit.KILOVOLT).orElseThrow(), DOUBLE_TOLERANCE);
-        assertFalse(cnec.getLowerBound(Unit.KILOVOLT).isPresent());
-
-        // margin
-        Network networkMock1 = mockBusVoltagesInNetwork("networkElement", 400.);
-        assertEquals(100., cnec.computeMargin(networkMock1, Unit.KILOVOLT), DOUBLE_TOLERANCE); // bound: 500 MW
-
-        Network networkMock2 = mockBusVoltagesInNetwork("networkElement", -300.);
-        assertEquals(800., cnec.computeMargin(networkMock2, Unit.KILOVOLT), DOUBLE_TOLERANCE); // bound: 760 A
-    }
-
-    @Test
-    void testVoltageCnecWithSeveralThresholds() {
-        VoltageCnec cnec = initPreventiveCnecAdder()
-            .newThreshold().withUnit(Unit.KILOVOLT).withMax(100.).add()
-            .newThreshold().withUnit(Unit.KILOVOLT).withMin(-200.).add()
-            .newThreshold().withUnit(Unit.KILOVOLT).withMax(500.).add()
-            .newThreshold().withUnit(Unit.KILOVOLT).withMin(-300.).add()
-            .newThreshold().withUnit(Unit.KILOVOLT).withMin(-50.).withMax(150.).add()
-            .add();
-
-        assertEquals(100., cnec.getUpperBound(Unit.KILOVOLT).orElseThrow(), DOUBLE_TOLERANCE);
-        assertEquals(-50., cnec.getLowerBound(Unit.KILOVOLT).orElseThrow(), DOUBLE_TOLERANCE);
-
-        Network networkMock1 = mockBusVoltagesInNetwork("networkElement", 300.);
-        assertEquals(-200., cnec.computeMargin(networkMock1, Unit.KILOVOLT), DOUBLE_TOLERANCE);
-
-        Network networkMock2 = mockBusVoltagesInNetwork("networkElement", -200.);
-        assertEquals(-150., cnec.computeMargin(networkMock2, Unit.KILOVOLT), DOUBLE_TOLERANCE);
-    }
-
-    @Test
-    void marginsWithNegativeAndPositiveLimits() {
-
-        VoltageCnec cnec = initPreventiveCnecAdder()
-            .newThreshold().withUnit(Unit.KILOVOLT).withMin(-200.).withMax(500.).add()
-            .add();
-
-        Network networkMock1 = mockBusVoltagesInNetwork("networkElement", -300.);
-        assertEquals(-100, cnec.computeMargin(networkMock1, Unit.KILOVOLT), DOUBLE_TOLERANCE);
-
-        Network networkMock2 = mockBusVoltagesInNetwork("networkElement", 0.);
-        assertEquals(200, cnec.computeMargin(networkMock2, Unit.KILOVOLT), DOUBLE_TOLERANCE);
-
-        Network networkMock3 = mockBusVoltagesInNetwork("networkElement", 400.);
-        assertEquals(100, cnec.computeMargin(networkMock3, Unit.KILOVOLT), DOUBLE_TOLERANCE);
-
-        Network networkMock4 = mockBusVoltagesInNetwork("networkElement", 800.);
-        assertEquals(-300, cnec.computeMargin(networkMock4, Unit.KILOVOLT), DOUBLE_TOLERANCE);
-    }
-
     // other
 
     @Test
@@ -173,15 +88,5 @@ class VoltageCnecImplTest {
 
         assertEquals(cnec1.hashCode(), cnec1.hashCode());
         assertNotEquals(cnec1.hashCode(), cnec2.hashCode());
-    }
-
-    private static Network mockBusVoltagesInNetwork(String elementId, double voltage) {
-        Network network = Mockito.mock(Network.class);
-        VoltageLevel voltageLevel = Mockito.mock(VoltageLevel.class);
-        Mockito.when(network.getVoltageLevel(elementId)).thenReturn(voltageLevel);
-        BusbarSection busbarSection = Mockito.mock(BusbarSection.class);
-        Mockito.when(network.getBusbarSection(elementId)).thenReturn(busbarSection);
-        Mockito.when(busbarSection.getV()).thenReturn(voltage);
-        return network;
     }
 }

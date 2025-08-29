@@ -8,20 +8,19 @@
 package com.powsybl.openrao.data.raoresult.io.cne.swe;
 
 import com.powsybl.iidm.network.Network;
-import com.powsybl.openrao.commons.PhysicalParameter;
-import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.CracCreationContext;
 import com.powsybl.openrao.data.crac.api.InstantKind;
-import com.powsybl.openrao.data.crac.api.cnec.Cnec;
+import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
 import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
-import com.powsybl.openrao.data.crac.impl.AngleCnecValue;
 import com.powsybl.openrao.data.crac.io.cim.parameters.CimCracCreationParameters;
 import com.powsybl.openrao.data.crac.io.cim.parameters.RangeActionSpeed;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
-import com.powsybl.openrao.monitoring.results.CnecResult;
+import com.powsybl.openrao.monitoring.angle.AngleCnecResultImpl;
+import com.powsybl.openrao.monitoring.angle.AngleMonitoringResult;
+import com.powsybl.openrao.monitoring.SecurityStatus;
+import com.powsybl.openrao.monitoring.angle.RaoResultWithAngleMonitoring;
 import com.powsybl.openrao.monitoring.results.MonitoringResult;
-import com.powsybl.openrao.monitoring.results.RaoResultWithAngleMonitoring;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -54,7 +53,7 @@ class SweCneTest {
     private Properties properties;
 
     @BeforeEach
-    public void setUp() throws IOException {
+    void setUp() throws IOException {
         network = Network.read(new File(SweCneTest.class.getResource("/TestCase16NodesWith2Hvdc.xiidm").getFile()).toString());
         InputStream is = getClass().getResourceAsStream("/CIM_CRAC.xml");
 
@@ -83,10 +82,10 @@ class SweCneTest {
         }
         RaoResult raoResultWithFailure = RaoResult.read(inputStream3, crac);
 
-        MonitoringResult monitoringResult = new MonitoringResult(PhysicalParameter.ANGLE,
-            Set.of(new CnecResult(crac.getCnec("ac1"), Unit.DEGREE, new AngleCnecValue(4.0), 2., Cnec.SecurityStatus.SECURE)),
-            Map.of(crac.getState("Co-1", crac.getInstant(InstantKind.CURATIVE)), Set.of(crac.getRemedialAction("na1"))),
-            Cnec.SecurityStatus.SECURE);
+        MonitoringResult<AngleCnec> monitoringResult = new AngleMonitoringResult(
+            Set.of(new AngleCnecResultImpl(crac.getAngleCnec("ac1"), 4.0, 2., SecurityStatus.SECURE)),
+            Map.of(crac.getState("Co-1", crac.getInstant(InstantKind.CURATIVE)), Set.of(crac.getNetworkAction("na1"))),
+            SecurityStatus.SECURE);
 
         raoResultWithAngle = new RaoResultWithAngleMonitoring(raoResult, monitoringResult);
         raoResultFailureWithAngle = new RaoResultWithAngleMonitoring(raoResultWithFailure, monitoringResult);

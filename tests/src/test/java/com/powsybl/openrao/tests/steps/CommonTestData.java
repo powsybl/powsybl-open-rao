@@ -13,6 +13,7 @@ import com.powsybl.iidm.serde.NetworkSerDe;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.CracCreationContext;
+import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
 import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.crac.api.parameters.JsonCracCreationParameters;
 import com.powsybl.openrao.data.crac.io.cim.parameters.CimCracCreationParameters;
@@ -21,8 +22,8 @@ import com.powsybl.openrao.data.crac.io.nc.parameters.NcCracCreationParameters;
 import com.powsybl.openrao.data.glsk.virtual.hubs.GlskVirtualHubs;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceProgram;
+import com.powsybl.openrao.monitoring.angle.RaoResultWithAngleMonitoring;
 import com.powsybl.openrao.monitoring.results.MonitoringResult;
-import com.powsybl.openrao.monitoring.results.RaoResultWithAngleMonitoring;
 import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
@@ -77,7 +78,7 @@ public final class CommonTestData {
 
     private static String virtualHubsConfigPath;
 
-    private static MonitoringResult monitoringResult;
+    private static MonitoringResult<AngleCnec> monitoringResult;
 
     private static String timestamp;
 
@@ -247,7 +248,7 @@ public final class CommonTestData {
         return raoResult;
     }
 
-    public static MonitoringResult getMonitoringResult() {
+    public static MonitoringResult<AngleCnec> getMonitoringResult() {
         return monitoringResult;
     }
 
