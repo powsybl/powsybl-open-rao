@@ -37,6 +37,8 @@ Feature: US 15.11.4: ARAO with 2P
     And 1 remedial actions are used after "Contingency_FR1_FR3" at "auto"
     And the tap of PstRangeAction "ARA_PST_DE" should be 4 after "Contingency_FR1_FR3" at "auto"
     And 0 remedial actions are used after "Contingency_FR1_FR3" at "curative"
+    # PST PRA_CRA_PST_BE was set to 16 during first curative. But during second preventive optimization,
+    # its value was not kept in order to be reoptimized, but wasn't.
     And the remedial action "PRA_CRA_PST_BE" is not used after "Contingency_FR1_FR3" at "curative"
     And the worst margin is -141 MW
     And the value of the objective function after CRA should be 141
