@@ -126,7 +126,7 @@ public class Marmot implements InterTemporalRaoProvider {
         return raoInputs.map(individualRaoInput -> {
             String logMessage = "[MARMOT] Running RAO for timestamp %s [{}]".formatted(individualRaoInput.getCrac().getTimestamp().orElseThrow());
             OpenRaoLoggerProvider.TECHNICAL_LOGS.info(logMessage, "start");
-            RaoResult raoResult = Rao.run(individualRaoInput, raoParameters);
+            RaoResult raoResult = Rao.find("SearchTreeRao").run(individualRaoInput, raoParameters);
             OpenRaoLoggerProvider.TECHNICAL_LOGS.info(logMessage, "end");
             return raoResult;
         });
