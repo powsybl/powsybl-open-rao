@@ -158,7 +158,8 @@ public class FastRao implements RaoProvider {
 
                 worstCnec = stepResult.getMostLimitingElements(1).get(0);
                 counter++;
-            } while (shouldContinue(consideredCnecs, worstCnec, stepResult, raoResult));
+
+            } while (shouldContinue(consideredCnecs, worstCnec, stepResult, raoResult, crac));
 
             networkPool.shutdownAndAwaitTermination(24, TimeUnit.HOURS);
 
@@ -179,11 +180,12 @@ public class FastRao implements RaoProvider {
         }
     }
 
-    private static boolean shouldContinue(Set<FlowCnec> consideredCnecs, FlowCnec worstCnec, PrePerimeterResult stepResult, RaoResult raoResult) {
+    private static boolean shouldContinue(Set<FlowCnec> consideredCnecs, FlowCnec worstCnec, PrePerimeterResult stepResult, RaoResult raoResult, Crac crac) {
         String executionDetails = raoResult.getExecutionDetails();
         boolean fellBackToInitial = executionDetails.equals(FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION) || executionDetails.equals(SECOND_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION);
 
-        return !(consideredCnecs.contains(worstCnec) && consideredCnecs.containsAll(getCostlyVirtualCnecs(stepResult))) || fellBackToInitial;
+        return (!(consideredCnecs.contains(worstCnec) && consideredCnecs.containsAll(getCostlyVirtualCnecs(stepResult))) || fellBackToInitial)
+            && consideredCnecs.size() != crac.getFlowCnecs().size();
     }
 
     private static void addWorstCnecs(Set<FlowCnec> consideredCnecs, int numberOfCnecsToAdd, PrePerimeterResult ofResult) {
@@ -241,7 +243,7 @@ public class FastRao implements RaoProvider {
         Crac filteredCrac = copyCrac(crac, raoInput.getNetwork());
         removeFlowCnecsFromCrac(filteredCrac, flowCnecsToKeep);
 
-        BUSINESS_LOGS.info("[FAST RAO] Iteration {}: Run filtered RAO with {} cnecs [start]", counter, flowCnecsToKeep.size());
+        BUSINESS_LOGS.info("[FAST RAO] Iteration {}: Run filtered RAO with {}/{} cnecs [start]", counter, flowCnecsToKeep.size(), crac.getFlowCnecs().size());
 
         RaoInput filteredRaoInput = createFilteredRaoInput(raoInput, filteredCrac);
         RaoResult raoResult;
