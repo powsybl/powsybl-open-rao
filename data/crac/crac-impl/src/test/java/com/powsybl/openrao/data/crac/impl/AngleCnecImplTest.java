@@ -18,7 +18,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -71,14 +70,11 @@ class AngleCnecImplTest {
             .newThreshold().withUnit(Unit.DEGREE).withMax(1000.).add()
             .add();
 
-        Set<Optional<Country>> countries = cnec1.getLocation(network);
-        assertEquals(1, countries.size());
-        assertTrue(countries.contains(Optional.of(Country.BE)));
+        Set<Country> countries = cnec1.getLocation(network);
+        assertEquals(Set.of(Country.BE), countries);
 
         countries = cnec2.getLocation(network);
-        assertEquals(2, countries.size());
-        assertTrue(countries.contains(Optional.of(Country.DE)));
-        assertTrue(countries.contains(Optional.of(Country.NL)));
+        assertEquals(Set.of(Country.DE, Country.NL), countries);
     }
 
     @Test

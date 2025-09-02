@@ -29,7 +29,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -44,7 +43,7 @@ class ToolProviderTest {
     private FlowCnec cnec2;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         network = NetworkImportsUtil.import12NodesNetwork();
         raoParameters = new RaoParameters();
         cnec1 = Mockito.mock(FlowCnec.class);
@@ -53,8 +52,8 @@ class ToolProviderTest {
         Mockito.when(preventiveState.isPreventive()).thenReturn(true);
         Mockito.when(cnec1.getState()).thenReturn(preventiveState);
         Mockito.when(cnec2.getState()).thenReturn(preventiveState);
-        Mockito.when(cnec1.getLocation(network)).thenReturn(Set.of(Optional.of(Country.FR), Optional.of(Country.BE)));
-        Mockito.when(cnec2.getLocation(network)).thenReturn(Set.of(Optional.empty()));
+        Mockito.when(cnec1.getLocation(network)).thenReturn(Set.of(Country.FR, Country.BE));
+        Mockito.when(cnec2.getLocation(network)).thenReturn(Set.of());
     }
 
     @Test
