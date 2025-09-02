@@ -75,8 +75,12 @@ public class CastorFullOptimization {
 
         try {
             RaoUtil.initData(raoInput, raoParameters);
-            StateTree stateTree = new StateTree(crac);
             ToolProvider toolProvider = ToolProvider.buildFromRaoInputAndParameters(raoInput, raoParameters);
+            if (crac.getFlowCnecs().isEmpty()) {
+                PrePerimeterResult initialResult = new PrePerimeterSensitivityAnalysis(crac, crac.getFlowCnecs(), crac.getRangeActions(), raoParameters, toolProvider).runInitialSensitivityAnalysis(network);
+                return CompletableFuture.completedFuture(new UnoptimizedRaoResultImpl(initialResult));
+            }
+            StateTree stateTree = new StateTree(crac);
 
             currentStep = "initial sensitivity analysis";
             // ----- INITIAL SENSI -----

@@ -542,4 +542,15 @@ class CastorFullOptimizationTest {
         assertEquals(10.0, raoResult.getFunctionalCost(crac.getInstant("preventive")), DOUBLE_TOLERANCE);
         assertEquals(0.0, raoResult.getVirtualCost(crac.getInstant("preventive")), DOUBLE_TOLERANCE);
     }
+
+    @Test
+    void testRaoWithEmptyCrac() throws IOException {
+        setup("4Nodes.uct", "empty-crac.json");
+        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"));
+
+        // Run RAO
+        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
+        assertNotNull(raoResult);
+        assertEquals(-Double.MAX_VALUE, raoResult.getCost(null));
+    }
 }
