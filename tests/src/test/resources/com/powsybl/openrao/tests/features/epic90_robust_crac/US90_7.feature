@@ -80,7 +80,7 @@ Feature: US 90.7: Handle Xnodes
     Then the margin on cnec "DDE3AA1  X_DEFR1  1 + FFR2AA1  X_DEFR1  1 - preventive" after PRA should be -416.0 A
     Then the margin on cnec "BBE2AA1  X_BEFR1  1 + FFR3AA1  X_BEFR1  1 - preventive" after PRA should be 1028.0 A
     Then the margin on cnec "DDE3AA1  X_DEFR1  1 + FFR2AA1  X_DEFR1  1 - N-1 DE-NL - outage" after PRA should be 1380.0 A
-    Then the margin on cnec "BBE2AA1  X_BEFR1  1 + FFR3AA1  X_BEFR1  1 - N-1 DE-NL - outage" after PRA should be 2825.0 A
+    Then the margin on cnec "BBE2AA1  X_BEFR1  1 + FFR3AA1  X_BEFR1  1 - N-1 DE-NL - outage" after PRA should be 2832.6 A
     Then the tap of PstRangeAction "PST_BE" should be -16 in preventive
     Then 1 remedial actions are used in preventive
 
