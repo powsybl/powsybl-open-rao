@@ -76,7 +76,7 @@ public final class ToolProvider {
     }
 
     static boolean cnecIsInCountryList(Cnec<?> cnec, Network network, Set<Country> loopflowCountries) {
-        return cnec.getLocation(network).stream().anyMatch(country -> country.isPresent() && loopflowCountries.contains(country.get()));
+        return cnec.getLocation(network).stream().anyMatch(loopflowCountries::contains);
     }
 
     public SystematicSensitivityInterface getSystematicSensitivityInterface(Set<FlowCnec> cnecs,

@@ -192,7 +192,7 @@ public final class NetworkActionUtils {
         }
 
         @Override
-        public Set<Optional<Country>> getLocation(Network network) {
+        public Set<Country> getLocation(Network network) {
             return null;
         }
 
