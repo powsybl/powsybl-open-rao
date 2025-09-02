@@ -41,12 +41,13 @@ class SystematicSensitivityInterfaceTest {
     private SystematicSensitivityResult systematicAnalysisResultOk;
     private SystematicSensitivityResult systematicAnalysisResultFailed;
     private SensitivityAnalysisParameters defaultParameters;
+    private CnecSensitivityProvider cnecSensitivityProvider;
 
     private MockedStatic<SystematicSensitivityAdapter> systematicSensitivityAdapterMockedStatic;
     private Instant outageInstant;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
 
         network = NetworkImportsUtil.import12NodesNetwork();
         crac = CommonCracCreation.create();
@@ -60,10 +61,13 @@ class SystematicSensitivityInterfaceTest {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        cnecSensitivityProvider = Mockito.mock(CnecSensitivityProvider.class);
+        Mockito.when(cnecSensitivityProvider.getFlowCnecs()).thenReturn(crac.getFlowCnecs());
     }
 
     @AfterEach
-    public void tearDown() {
+    void tearDown() {
         systematicSensitivityAdapterMockedStatic.close();
     }
 
@@ -77,7 +81,7 @@ class SystematicSensitivityInterfaceTest {
         SystematicSensitivityInterface systematicSensitivityInterface = SystematicSensitivityInterface.builder()
             .withSensitivityProviderName("default-impl-name")
             .withParameters(defaultParameters)
-            .withSensitivityProvider(Mockito.mock(CnecSensitivityProvider.class))
+            .withSensitivityProvider(cnecSensitivityProvider)
             .withOutageInstant(outageInstant)
             .build();
         SystematicSensitivityResult systematicSensitivityAnalysisResult = systematicSensitivityInterface.run(network);
@@ -108,7 +112,7 @@ class SystematicSensitivityInterfaceTest {
         SystematicSensitivityInterface systematicSensitivityInterface = SystematicSensitivityInterface.builder()
             .withSensitivityProviderName("default-impl-name")
             .withParameters(defaultParameters)
-            .withSensitivityProvider(Mockito.mock(CnecSensitivityProvider.class))
+            .withSensitivityProvider(cnecSensitivityProvider)
             .withOutageInstant(outageInstant)
             .build();
 
@@ -151,7 +155,7 @@ class SystematicSensitivityInterfaceTest {
             .withParameters(defaultParameters)
             .withSensitivityProvider(Mockito.mock(CnecSensitivityProvider.class));
 
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> systematicSensitivityInterfaceBuilder.build());
+        OpenRaoException exception = assertThrows(OpenRaoException.class, systematicSensitivityInterfaceBuilder::build);
         assertEquals("Outage instant has not been defined in the systematic sensitivity interface", exception.getMessage());
     }
 

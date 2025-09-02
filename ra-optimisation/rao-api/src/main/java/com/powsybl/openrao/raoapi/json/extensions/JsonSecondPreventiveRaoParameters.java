@@ -28,7 +28,6 @@ final class JsonSecondPreventiveRaoParameters {
     static void serialize(OpenRaoSearchTreeParameters parameters, JsonGenerator jsonGenerator) throws IOException {
         jsonGenerator.writeObjectFieldStart(SECOND_PREVENTIVE_RAO);
         jsonGenerator.writeObjectField(EXECUTION_CONDITION, parameters.getSecondPreventiveRaoParameters().getExecutionCondition());
-        jsonGenerator.writeBooleanField(RE_OPTIMIZE_CURATIVE_RANGE_ACTIONS, parameters.getSecondPreventiveRaoParameters().getReOptimizeCurativeRangeActions());
         jsonGenerator.writeBooleanField(HINT_FROM_FIRST_PREVENTIVE_RAO, parameters.getSecondPreventiveRaoParameters().getHintFromFirstPreventiveRao());
         jsonGenerator.writeEndObject();
     }
@@ -38,10 +37,6 @@ final class JsonSecondPreventiveRaoParameters {
             switch (jsonParser.getCurrentName()) {
                 case EXECUTION_CONDITION:
                     searchTreeParameters.getSecondPreventiveRaoParameters().setExecutionCondition(stringToExecutionCondition(jsonParser.nextTextValue()));
-                    break;
-                case RE_OPTIMIZE_CURATIVE_RANGE_ACTIONS:
-                    jsonParser.nextToken();
-                    searchTreeParameters.getSecondPreventiveRaoParameters().setReOptimizeCurativeRangeActions(jsonParser.getBooleanValue());
                     break;
                 case HINT_FROM_FIRST_PREVENTIVE_RAO:
                     jsonParser.nextToken();
