@@ -35,7 +35,7 @@ import java.util.Map;
  */
 public class CracDeserializer extends JsonDeserializer<Crac> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(CracDeserializer.class);
+    public static final Logger LOGGER = LoggerFactory.getLogger(CracDeserializer.class);
 
     private CracFactory cracFactory;
 
