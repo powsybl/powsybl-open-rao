@@ -159,6 +159,17 @@ public class FastRao implements RaoProvider {
                 worstCnec = stepResult.getMostLimitingElements(1).get(0);
                 counter++;
 
+                // export RaoResult
+                OutputStream outputStream = new FileOutputStream("/home/chenrox/raoResult_" + counter + ".json");
+                Properties properties = new Properties();
+                raoResult.addExtension(
+                    CriticalCnecsResult.class,
+                    new CriticalCnecsResult(consideredCnecs.stream().map(FlowCnec::getId).collect(Collectors.toSet()))
+                );
+                properties.setProperty("rao-result.export.json.flows-in-amperes", "true");
+                properties.setProperty("rao-result.export.json.flows-in-megawatts", "true");
+                raoResult.write("JSON", crac, properties, outputStream);
+
             } while (shouldContinue(consideredCnecs, worstCnec, stepResult, raoResult, crac));
 
             networkPool.shutdownAndAwaitTermination(24, TimeUnit.HOURS);
@@ -177,6 +188,8 @@ public class FastRao implements RaoProvider {
         } catch (InterruptedException | ExecutionException e) {
             Thread.currentThread().interrupt();
             throw new OpenRaoException("Error while running full FAST RAO loop", e);
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
         }
     }
 
