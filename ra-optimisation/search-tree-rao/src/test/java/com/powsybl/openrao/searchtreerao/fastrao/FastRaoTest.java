@@ -48,7 +48,7 @@ public class FastRaoTest {
         fastRaoParameters.setNumberOfCnecsToAdd(1);
         fastRaoParameters.setAddUnsecureCnecs(true);
         raoParameters.addExtension(FastRaoParameters.class, fastRaoParameters);
-        FastRaoResultImpl raoResult = (FastRaoResultImpl) FastRao.launchFilteredRao(individualRaoInput, raoParameters, null, new HashSet<>());
+        FastRaoResultImpl raoResult = (FastRaoResultImpl) FastRao.launchFastRaoOptimization(individualRaoInput, raoParameters, null, new HashSet<>());
         assertEquals(-37.7, raoResult.getFunctionalCost(crac.getLastInstant()), 1e-1);
         assertEquals(6, raoResult.getExtension(CriticalCnecsResult.class).getCriticalCnecIds().size());
     }
@@ -64,7 +64,7 @@ public class FastRaoTest {
         fastRaoParameters.setNumberOfCnecsToAdd(1);
         fastRaoParameters.setAddUnsecureCnecs(true);
         raoParameters.addExtension(FastRaoParameters.class, fastRaoParameters);
-        FastRaoResultImpl raoResult = (FastRaoResultImpl) FastRao.launchFilteredRao(individualRaoInput, raoParameters, null, new HashSet<>());
+        FastRaoResultImpl raoResult = (FastRaoResultImpl) FastRao.launchFastRaoOptimization(individualRaoInput, raoParameters, null, new HashSet<>());
         assertEquals(314.7, raoResult.getFunctionalCost(crac.getLastInstant()), 1e-1);
         assertEquals(2, raoResult.getExtension(CriticalCnecsResult.class).getCriticalCnecIds().size());
     }
@@ -78,7 +78,7 @@ public class FastRaoTest {
         RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_secure.json"));
         FastRaoParameters fastRaoParameters = new FastRaoParameters();
         raoParameters.addExtension(FastRaoParameters.class, fastRaoParameters);
-        FastRaoResultImpl raoResult = (FastRaoResultImpl) FastRao.launchFilteredRao(individualRaoInput, raoParameters, null, new HashSet<>());
+        FastRaoResultImpl raoResult = (FastRaoResultImpl) FastRao.launchFastRaoOptimization(individualRaoInput, raoParameters, null, new HashSet<>());
         assertEquals(-33.39, raoResult.getFunctionalCost(crac.getLastInstant()), 1e-1);
         assertEquals(List.of(List.of("Close FR2 FR3", "Close FR1 FR2")), raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getTopoOptimizationParameters().getPredefinedCombinations());
     }
@@ -95,7 +95,7 @@ public class FastRaoTest {
         FastRaoParameters fastRaoParameters = new FastRaoParameters();
         fastRaoParameters.setNumberOfCnecsToAdd(1);
         raoParameters.addExtension(FastRaoParameters.class, fastRaoParameters);
-        RaoResult raoResult = FastRao.launchFilteredRao(individualRaoInput, raoParameters, null, new HashSet<>());
+        RaoResult raoResult = FastRao.launchFastRaoOptimization(individualRaoInput, raoParameters, null, new HashSet<>());
         assertTrue(raoResult instanceof FailedRaoResultImpl);
         assertEquals("Initial sensitivity analysis failed", raoResult.getExecutionDetails());
     }
@@ -105,14 +105,14 @@ public class FastRaoTest {
         RaoInput individualRaoInput = Mockito.mock(RaoInput.class);
         RaoParameters raoParameters = Mockito.mock(RaoParameters.class);
         Mockito.when(raoParameters.hasExtension(FastRaoParameters.class)).thenReturn(false);
-        RaoResult raoResult = FastRao.launchFilteredRao(individualRaoInput, raoParameters, null, new HashSet<>());
+        RaoResult raoResult = FastRao.launchFastRaoOptimization(individualRaoInput, raoParameters, null, new HashSet<>());
         assertTrue(raoResult instanceof FailedRaoResultImpl);
         assertEquals("Fast Rao requires FastRaoParameters", raoResult.getExecutionDetails());
 
         Mockito.when(raoParameters.hasExtension(FastRaoParameters.class)).thenReturn(true);
         State state = Mockito.mock(State.class);
         Mockito.when(individualRaoInput.getOptimizedState()).thenReturn(state);
-        raoResult = FastRao.launchFilteredRao(individualRaoInput, raoParameters, null, new HashSet<>());
+        raoResult = FastRao.launchFastRaoOptimization(individualRaoInput, raoParameters, null, new HashSet<>());
         assertTrue(raoResult instanceof FailedRaoResultImpl);
         assertEquals("Fast Rao does not support optimization on one given state only", raoResult.getExecutionDetails());
 
@@ -127,7 +127,7 @@ public class FastRaoTest {
         curativeInstants.add(instant);
         curativeInstants.add(instant2);
         Mockito.when(crac.getInstants(InstantKind.CURATIVE)).thenReturn(curativeInstants);
-        raoResult = FastRao.launchFilteredRao(individualRaoInput, raoParameters, null, new HashSet<>());
+        raoResult = FastRao.launchFastRaoOptimization(individualRaoInput, raoParameters, null, new HashSet<>());
         assertTrue(raoResult instanceof FailedRaoResultImpl);
         assertEquals("Fast Rao does not support multi-curative optimization", raoResult.getExecutionDetails());
     }
