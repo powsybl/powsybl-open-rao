@@ -78,10 +78,10 @@ public class FastRao implements RaoProvider {
     @Override
     public CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters parameters, Instant targetEndInstant) {
         RaoUtil.initData(raoInput, parameters);
-        return CompletableFuture.completedFuture(launchFilteredRao(raoInput, parameters, targetEndInstant, new HashSet<>()));
+        return CompletableFuture.completedFuture(launchFastRaoOptimization(raoInput, parameters, targetEndInstant, new HashSet<>()));
     }
 
-    public static RaoResult launchFilteredRao(RaoInput raoInput, RaoParameters parameters, Instant targetEndInstant, Set<FlowCnec> consideredCnecs) {
+    public static RaoResult launchFastRaoOptimization(RaoInput raoInput, RaoParameters parameters, Instant targetEndInstant, Set<FlowCnec> consideredCnecs) {
 
         if (!parameters.hasExtension(FastRaoParameters.class)) {
             BUSINESS_LOGS.error("Fast Rao requires FastRaoParameters");
@@ -140,9 +140,8 @@ public class FastRao implements RaoProvider {
                     consideredCnecs.addAll(getUnsecureFunctionalCnecs(stepResult, parameters.getObjectiveFunctionParameters().getUnit(), parameters.getExtension(FastRaoParameters.class).getMarginLimit()));
                 }
                 consideredCnecs.addAll(getCostlyVirtualCnecs(stepResult));
-                // Add worst preventive cnec to considered cencs to ensure preventive state is defined
+                // Add worst preventive cnec to considered cneccs to ensure preventive state is defined
                 consideredCnecs.add(getWorstPreventiveCnec(stepResult, crac));
-                // TODO pourquoi clean variants, ne nettoie t on pas au fur et à mesure les variantes ?
                 cleanVariants(raoInput.getNetwork(), initialNetworkVariants, raoInput.getNetworkVariantId());
 
                 raoResult = runFilteredRao(raoInput, parameters, targetEndInstant, consideredCnecs, toolProvider, initialResult, networkPool, counter);
