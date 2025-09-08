@@ -104,7 +104,7 @@ public class CastorContingencyScenarios {
 
     private Object runScenario(PrePerimeterResult prePerimeterSensitivityOutput, boolean automatonsOnly, ContingencyScenario optimizedScenario, AbstractNetworkPool networkPool, AutomatonSimulator automatonSimulator, Map<State, PostPerimeterResult> contingencyScenarioResults, AtomicInteger remainingScenarios) throws InterruptedException {
         Network networkClone = networkPool.getAvailableNetwork(); //This is where the threads actually wait for available networks
-        TECHNICAL_LOGS.info("Optimizing scenario post-contingency {}.", optimizedScenario.getContingency().getId());
+        //TECHNICAL_LOGS.info("Optimizing scenario post-contingency {}.", optimizedScenario.getContingency().getId());
 
         // Init variables
         Optional<State> automatonState = optimizedScenario.getAutomatonState();
@@ -165,7 +165,7 @@ public class CastorContingencyScenarios {
                 }
             }
         }
-        TECHNICAL_LOGS.debug("Remaining post-contingency scenarios to optimize: {}", remainingScenarios.decrementAndGet());
+        //TECHNICAL_LOGS.debug("Remaining post-contingency scenarios to optimize: {}", remainingScenarios.decrementAndGet());
         boolean actionWasApplied = contingencyScenarioResults.entrySet().stream()
             .filter(stateAndResult -> stateAndResult.getKey().getContingency().orElseThrow().equals(optimizedScenario.getContingency()))
             .anyMatch(this::isAnyActionApplied);
@@ -229,7 +229,7 @@ public class CastorContingencyScenarios {
                                                          Map<State, OptimizationResult> resultsPerPerimeter,
                                                          Map<State, PrePerimeterResult> prePerimeterResultPerPerimeter) {
         State curativeState = curativePerimeter.getRaOptimisationState();
-        TECHNICAL_LOGS.info("Optimizing curative state {}.", curativeState.getId());
+        //TECHNICAL_LOGS.info("Optimizing curative state {}.", curativeState.getId());
 
         Set<State> filteredStates = curativePerimeter.getAllStates().stream()
             .filter(state -> !prePerimeterSensitivityOutput.getSensitivityStatus(state).equals(ComputationStatus.FAILURE))

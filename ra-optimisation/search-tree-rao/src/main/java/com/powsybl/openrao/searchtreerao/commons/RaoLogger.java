@@ -17,6 +17,7 @@ import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.VariationDirection;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
@@ -138,8 +139,9 @@ public final class RaoLogger {
                     leaf.getSetPointVariation(rangeAction, state);
                 double postOptimValue = rangeAction instanceof PstRangeAction pstRangeAction ? leaf.getOptimizedTap(pstRangeAction, state) :
                     leaf.getOptimizedSetpoint(rangeAction, state);
+                double cost = Math.abs(valueVariation) * rangeAction.getVariationCost(valueVariation > 0 ? VariationDirection.UP : VariationDirection.DOWN).orElse(0.0);
                 return globalPstOptimization ? format("%s@%s: %.0f (var: %.0f)", rangeAction.getName(), state.getId(), postOptimValue, valueVariation) :
-                    format("%s: %.0f (var: %.0f)", rangeAction.getName(), postOptimValue, valueVariation);
+                    format("%s: %.0f (var: %.0f, cost %.0f)", rangeAction.getName(), postOptimValue, valueVariation, cost);
             })).toList();
 
         boolean isRangeActionSetPointEmpty = rangeActionSetpoints.isEmpty();
