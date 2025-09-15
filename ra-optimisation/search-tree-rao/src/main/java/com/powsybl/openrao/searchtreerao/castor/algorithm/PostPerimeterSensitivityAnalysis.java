@@ -175,7 +175,6 @@ public class PostPerimeterSensitivityAnalysis extends AbstractMultiPerimeterSens
                 throw new OpenRaoException(e);
             }
 
-
             ObjectiveFunctionResult objectiveFunctionResult = objectiveFunction.evaluate(
                 flowResult.get(),
                 remedialActionActivationResult
