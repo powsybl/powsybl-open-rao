@@ -7,6 +7,7 @@
 package com.powsybl.openrao.searchtreerao.castor.algorithm;
 
 import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
@@ -146,13 +147,12 @@ public class PostPerimeterSensitivityAnalysis extends AbstractMultiPerimeterSens
                 try {
                     flowResult.set(previousResultsFuture.get());
                     sensitivityResult.set(previousResultsFuture.get());
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                } catch (ExecutionException e) {
-                    throw new RuntimeException(e);
+                } catch (Exception e) {
+                    throw new OpenRaoException(e);
                 }
             }
             ObjectiveFunction objectiveFunction = null;
+
             try {
                 objectiveFunction = ObjectiveFunction.build(
                     flowCnecs,
@@ -163,10 +163,8 @@ public class PostPerimeterSensitivityAnalysis extends AbstractMultiPerimeterSens
                     raoParameters,
                     remedialActionActivationResult.getActivatedRangeActionsPerState().keySet()
                 );
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            } catch (ExecutionException e) {
-                throw new RuntimeException(e);
+            } catch (Exception e) {
+                throw new OpenRaoException(e);
             }
 
             ObjectiveFunctionResult objectiveFunctionResult = objectiveFunction.evaluate(
