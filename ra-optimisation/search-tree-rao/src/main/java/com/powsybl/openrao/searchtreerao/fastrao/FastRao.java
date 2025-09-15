@@ -81,7 +81,6 @@ public class FastRao implements RaoProvider {
         return CompletableFuture.completedFuture(launchFastRaoOptimization(raoInput, parameters, targetEndInstant, new HashSet<>()));
     }
 
-
     public static RaoResult launchFastRaoOptimization(RaoInput raoInput, RaoParameters parameters, Instant targetEndInstant, Set<FlowCnec> consideredCnecs) {
 
         if (!parameters.hasExtension(FastRaoParameters.class)) {
