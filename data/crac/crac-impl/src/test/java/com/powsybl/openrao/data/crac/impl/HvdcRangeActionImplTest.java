@@ -22,7 +22,6 @@ import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.Optional;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -145,10 +144,8 @@ class HvdcRangeActionImplTest {
     void testGetLocation() {
         HvdcRangeAction hvdcRa = hvdcRangeActionAdder.newRange().withMin(-5).withMax(10).add()
                 .add();
-        Set<Optional<Country>> countries = hvdcRa.getLocation(network);
-        assertEquals(2, countries.size());
-        assertTrue(countries.contains(Optional.of(Country.BE)));
-        assertTrue(countries.contains(Optional.of(Country.FR)));
+        Set<Country> countries = hvdcRa.getLocation(network);
+        assertEquals(Set.of(Country.BE, Country.FR), countries);
     }
 
     @Test

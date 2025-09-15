@@ -83,48 +83,39 @@ class NetworkElementImplTest {
     void testGetLocation() {
         Network network = Network.read("TestCase12NodesWithSwitch.uct", getClass().getResourceAsStream("/TestCase12NodesWithSwitch.uct"));
 
-        Set<Optional<Country>> countries;
+        Set<Country> countries;
 
         // Branch
         countries = new NetworkElementImpl("FFR2AA1  DDE3AA1  1").getLocation(network);
-        assertEquals(2, countries.size());
-        assertTrue(countries.contains(Optional.of(Country.FR)));
-        assertTrue(countries.contains(Optional.of(Country.DE)));
+        assertEquals(Set.of(Country.FR, Country.DE), countries);
 
         // Branch
         countries = new NetworkElementImpl("BBE2AA1  BBE3AA1  1").getLocation(network);
-        assertEquals(1, countries.size());
-        assertTrue(countries.contains(Optional.of(Country.BE)));
+        assertEquals(Set.of(Country.BE), countries);
 
         // Switch
         countries = new NetworkElementImpl("NNL3AA11 NNL3AA12 1").getLocation(network);
-        assertEquals(1, countries.size());
-        assertTrue(countries.contains(Optional.of(Country.NL)));
+        assertEquals(Set.of(Country.NL), countries);
 
         // Generator
         countries = new NetworkElementImpl("FFR1AA1 _generator").getLocation(network);
-        assertEquals(1, countries.size());
-        assertTrue(countries.contains(Optional.of(Country.FR)));
+        assertEquals(Set.of(Country.FR), countries);
 
         // Load
         countries = new NetworkElementImpl("NNL1AA1 _load").getLocation(network);
-        assertEquals(1, countries.size());
-        assertTrue(countries.contains(Optional.of(Country.NL)));
+        assertEquals(Set.of(Country.NL), countries);
 
         // Bus
         countries = new NetworkElementImpl("NNL2AA1 ").getLocation(network);
-        assertEquals(1, countries.size());
-        assertTrue(countries.contains(Optional.of(Country.NL)));
+        assertEquals(Set.of(Country.NL), countries);
 
         // Voltage level
         countries = new NetworkElementImpl("BBE1AA1").getLocation(network);
-        assertEquals(1, countries.size());
-        assertTrue(countries.contains(Optional.of(Country.BE)));
+        assertEquals(Set.of(Country.BE), countries);
 
         // Substation
         countries = new NetworkElementImpl("DDE3AA").getLocation(network);
-        assertEquals(1, countries.size());
-        assertTrue(countries.contains(Optional.of(Country.DE)));
+        assertEquals(Set.of(Country.DE), countries);
     }
 
     @Test
@@ -148,10 +139,10 @@ class NetworkElementImplTest {
         VoltageLevel voltageLevel = Mockito.mock(VoltageLevel.class);
         Mockito.when(voltageLevel.getSubstation()).thenReturn(Optional.empty());
         Mockito.when(switchMock.getVoltageLevel()).thenReturn(voltageLevel);
-        Identifiable identifiable = (Identifiable) switchMock;
+        Identifiable identifiable = switchMock;
         Mockito.when(network.getIdentifiable("switch")).thenReturn(identifiable);
 
         NetworkElementImpl networkElement = new NetworkElementImpl("switch");
-        assertEquals(Set.of(Optional.empty()), networkElement.getLocation(network));
+        assertTrue(networkElement.getLocation(network).isEmpty());
     }
 }
