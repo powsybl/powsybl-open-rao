@@ -28,6 +28,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
+
 /**
  * This class aims at performing the sensitivity analysis after the optimization of a perimeter. The result can be used as a
  * starting point for the next perimeter, but it is also needed for the costs, margins and flows of elements after an optimization instant.
@@ -146,9 +148,13 @@ public class PostPerimeterSensitivityAnalysis extends AbstractMultiPerimeterSens
                 try {
                     flowResult.set(previousResultsFuture.get());
                     sensitivityResult.set(previousResultsFuture.get());
+                } catch (InterruptedException e) {
+                    TECHNICAL_LOGS.warn("A computation thread was interrupted");
+                    Thread.currentThread().interrupt();
                 } catch (Exception e) {
                     throw new OpenRaoException(e);
                 }
+
             }
             ObjectiveFunction objectiveFunction = null;
 
@@ -162,9 +168,13 @@ public class PostPerimeterSensitivityAnalysis extends AbstractMultiPerimeterSens
                     raoParameters,
                     remedialActionActivationResult.getActivatedRangeActionsPerState().keySet()
                 );
+            } catch (InterruptedException e) {
+                TECHNICAL_LOGS.warn("A computation thread was interrupted");
+                Thread.currentThread().interrupt();
             } catch (Exception e) {
                 throw new OpenRaoException(e);
             }
+
 
             ObjectiveFunctionResult objectiveFunctionResult = objectiveFunction.evaluate(
                 flowResult.get(),
