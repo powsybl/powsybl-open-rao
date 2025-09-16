@@ -220,7 +220,7 @@ class AngleMonitoringTest {
 
         runAngleMonitoring(scalableZonalData);
         assertEquals(Cnec.SecurityStatus.LOW_CONSTRAINT, angleMonitoringResult.getStatus());
-        angleMonitoringResult.getAppliedRas().forEach((state, networkActions) -> assertTrue(networkActions.isEmpty()));
+        assertEquals(Set.of(naL1Cur.getId()), angleMonitoringResult.getAppliedRas("coL1 - curative"));
         assertEquals(List.of("Some ANGLE Cnecs are not secure:",
                 "AngleCnec acCur1 (with importing network element VL1 and exporting network element VL2) at state coL1 - curative has an angle of -7.71°."),
             angleMonitoringResult.printConstraints());
