@@ -81,7 +81,6 @@ public abstract class AbstractMultiPerimeterSensitivityAnalysis {
             }
         }
         if (appliedCurativeRemedialActions != null) {
-            // for 2nd preventive initial sensi
             sensitivityComputerBuilder.withAppliedRemedialActions(appliedCurativeRemedialActions);
         }
         return sensitivityComputerBuilder.build();
