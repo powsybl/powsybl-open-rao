@@ -61,7 +61,7 @@ class ActionReader {
         PST
     }
 
-    private static class Range {
+    private static final class Range {
         private int minTap;
         private int maxTap;
         private com.powsybl.openrao.data.crac.api.range.RangeType relativeOrAbsolute;

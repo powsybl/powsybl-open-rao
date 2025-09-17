@@ -7,18 +7,16 @@
 
 package com.powsybl.openrao.util;
 
-import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
-import org.apache.commons.lang3.tuple.Pair;
 
 import java.time.OffsetDateTime;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.Future;
 import java.util.function.Function;
@@ -28,30 +26,36 @@ import java.util.function.Function;
  */
 public class InterTemporalPool extends ForkJoinPool {
     private final Set<OffsetDateTime> timestampsToRun;
+    private final ExecutorService executor;
 
     public InterTemporalPool(Set<OffsetDateTime> timestampsToRun, int numberOfThreads) {
-        super(Math.min(timestampsToRun.size(), numberOfThreads));
+        super(getParallelism(timestampsToRun, numberOfThreads));
         this.timestampsToRun = timestampsToRun;
+        this.executor = Executors.newFixedThreadPool(getParallelism(timestampsToRun, numberOfThreads));
     }
 
     public InterTemporalPool(Set<OffsetDateTime> timestampsToRun) {
         this(timestampsToRun, Integer.MAX_VALUE);
     }
 
-    public <T> TemporalData<T> runTasks(Function<OffsetDateTime, T> temporalFunction) throws InterruptedException {
-        Map<OffsetDateTime, T> taskResultPerTimestamp = new HashMap<>();
-        for (Future<Pair<OffsetDateTime, T>> result : invokeAll(getTimedTasks(temporalFunction))) {
-            try {
-                Pair<OffsetDateTime, T> taskResult = result.get();
-                taskResultPerTimestamp.put(taskResult.getLeft(), taskResult.getRight());
-            } catch (ExecutionException e) {
-                throw new OpenRaoException(e);
-            }
+    public <T> TemporalData<T> runTasks(Function<OffsetDateTime, T> temporalFunction) throws InterruptedException, ExecutionException {
+        Map<OffsetDateTime, Future<T>> futureMap = new HashMap<>();
+
+        // submit tasks
+        for (OffsetDateTime timestamp : timestampsToRun) {
+            futureMap.put(timestamp, executor.submit(() -> temporalFunction.apply(timestamp)));
         }
-        return new TemporalDataImpl<>(taskResultPerTimestamp);
+
+        // collect results
+        Map<OffsetDateTime, T> results = new HashMap<>();
+        for (Map.Entry<OffsetDateTime, Future<T>> entry : futureMap.entrySet()) {
+            results.put(entry.getKey(), entry.getValue().get()); // wait for completion
+        }
+
+        return new TemporalDataImpl<>(results);
     }
 
-    private <T> List<Callable<Pair<OffsetDateTime, T>>> getTimedTasks(Function<OffsetDateTime, T> temporalFunction) {
-        return timestampsToRun.stream().map(timestamp -> (Callable<Pair<OffsetDateTime, T>>) () -> Pair.of(timestamp, temporalFunction.apply(timestamp))).toList();
+    private static int getParallelism(Set<OffsetDateTime> timestampsToRun, int numberOfThreads) {
+        return Math.min(timestampsToRun.size(), numberOfThreads);
     }
 }
