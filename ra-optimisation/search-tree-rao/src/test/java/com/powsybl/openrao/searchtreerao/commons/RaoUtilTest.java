@@ -35,6 +35,7 @@ import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.RelativeMarginsParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoLoopFlowParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
@@ -75,7 +76,7 @@ class RaoUtilTest {
     private String variantId;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         network = NetworkImportsUtil.import12NodesNetwork();
         crac = CommonCracCreation.createWithPreventivePstRange();
         variantId = network.getVariantManager().getWorkingVariantId();
@@ -113,14 +114,6 @@ class RaoUtilTest {
     }
 
     @Test
-    void testExceptionForNullBoundariesOnRelativeMargin() {
-        addGlskProvider();
-        raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN);
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> RaoUtil.checkParameters(raoParameters, raoInput));
-        assertEquals("Objective function MAX_MIN_RELATIVE_MARGIN requires a config with a non empty boundary set", exception.getMessage());
-    }
-
-    @Test
     void testExceptionForEmptyBoundariesOnRelativeMargin() {
         addGlskProvider();
         RelativeMarginsParameters relativeMarginsParameters = new RelativeMarginsParameters();
@@ -139,6 +132,23 @@ class RaoUtilTest {
         raoParameters.getObjectiveFunctionParameters().setUnit(Unit.AMPERE);
         OpenRaoException exception = assertThrows(OpenRaoException.class, () -> RaoUtil.checkParameters(raoParameters, raoInput));
         assertEquals("Objective function unit A cannot be calculated with a DC default sensitivity engine", exception.getMessage());
+    }
+
+    @Test
+    void testCostlyModeWithoutMinMarginsParameters() {
+        // No search tree parameters exception
+        raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MIN_COST);
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> RaoUtil.checkParameters(raoParameters, raoInput));
+        assertEquals("Objective function type MIN_COST requires a config with costly min margin parameters", exception.getMessage());
+
+        // No costly min margin extension
+        raoParameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters());
+        OpenRaoSearchTreeParameters searchTreeParameters = raoParameters.getExtension(OpenRaoSearchTreeParameters.class);
+        searchTreeParameters.setLoopFlowParameters(new SearchTreeRaoLoopFlowParameters());
+        searchTreeParameters.getLoopFlowParameters().orElseThrow().setConstraintAdjustmentCoefficient(3.);
+        OpenRaoException exception2 = assertThrows(OpenRaoException.class, () -> RaoUtil.checkParameters(raoParameters, raoInput));
+        assertEquals("Objective function type MIN_COST requires a config with costly min margin parameters", exception2.getMessage());
+
     }
 
     @Test
@@ -431,10 +441,10 @@ class RaoUtilTest {
         OpenRaoSearchTreeParameters searchTreeParameters = raoParameters.getExtension(OpenRaoSearchTreeParameters.class);
         searchTreeParameters.getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters().setDc(false);
 
-        Crac crac = new CracImplFactory().create("SimpleCracId", "SimpleCracName")
+        Crac cracWIthTresholdInMwWithAc = new CracImplFactory().create("SimpleCracId", "SimpleCracName")
             .newInstant("prev", InstantKind.PREVENTIVE);
 
-        crac.newFlowCnec()
+        cracWIthTresholdInMwWithAc.newFlowCnec()
             .withId("cnecOneMwThresholdOneAmpThreshold")
             .withNetworkElement("anyNetworkElement")
             .withInstant("prev")
@@ -442,14 +452,14 @@ class RaoUtilTest {
             .newThreshold().withUnit(Unit.MEGAWATT).withMax(1000.).withSide(TwoSides.ONE).add()
             .newThreshold().withUnit(Unit.AMPERE).withMax(1000.).withSide(TwoSides.ONE).add()
             .add();
-        crac.newFlowCnec()
+        cracWIthTresholdInMwWithAc.newFlowCnec()
             .withId("cnecOneAmpThreshold")
             .withNetworkElement("anyNetworkElement")
             .withInstant("prev")
             .withNominalVoltage(200.)
             .newThreshold().withUnit(Unit.AMPERE).withMax(1000.).withSide(TwoSides.ONE).add()
             .add();
-        crac.newFlowCnec()
+        cracWIthTresholdInMwWithAc.newFlowCnec()
             .withId("cnecOneMwThreshold")
             .withNetworkElement("anyNetworkElement")
             .withInstant("prev")
@@ -457,9 +467,9 @@ class RaoUtilTest {
             .newThreshold().withUnit(Unit.MEGAWATT).withMax(1000.).withSide(TwoSides.ONE).add()
             .add();
 
-        RaoInput raoInput = Mockito.mock(RaoInput.class);
-        when(raoInput.getCrac()).thenReturn(crac);
-        RaoUtil.checkCnecsThresholdsUnit(raoParameters, raoInput);
+        RaoInput raoInputThresholdInMwWithAc = Mockito.mock(RaoInput.class);
+        when(raoInputThresholdInMwWithAc.getCrac()).thenReturn(cracWIthTresholdInMwWithAc);
+        RaoUtil.checkCnecsThresholdsUnit(raoParameters, raoInputThresholdInMwWithAc);
 
         String expectedMsg1 = "A threshold for the flowCnec cnecOneMwThresholdOneAmpThreshold is defined in MW but the loadflow computation is in AC. It will be imprecisely converted by the RAO which could create uncoherent results due to side effects";
         String expectedMsg2 = "A threshold for the flowCnec cnecOneMwThreshold is defined in MW but the loadflow computation is in AC. It will be imprecisely converted by the RAO which could create uncoherent results due to side effects";
