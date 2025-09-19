@@ -1348,10 +1348,10 @@ This means the set-point of "network-element-1" (key = 1) can be changed between
 #### Creating redispatching actions 
 
 The definition of redispatching actions in the CRAC must follow certain guidelines:
-- For a given node in the network, two network elements are automatically created: a generator with ID `nodeCode + " _generator"` and a load with ID `nodeCode + " _load"`.
-  So make sure that the active load and the generator active power are defined correctly in the network.
-  For example, if you use the network element "FFR2AA1 _generator" make sure that the power associated with it is defined in the 8th column in the ucte file (in the 6th column for loads). See the example below and [UCTE format definition](../../_static/pdf/UCTE-format.pdf).
 
+- Make sure that the active load and the generator active power are defined correctly in the network.
+  When using a UCTE network, for a given node in the network, two network elements are automatically created: a generator with ID `nodeCode + " _generator"` and a load with ID `nodeCode + " _load"`.
+  For example, if you use the network element "FFR2AA1 _generator" make sure that the power associated with the node FFR2AA1 is defined in the 8th column in the ucte file (in the 6th column for loads). See the example below and [UCTE format definition](../../_static/pdf/UCTE-format.pdf).
 
 - Two different redispatching actions cannot be defined on the same network element.
   For example, if redispatchingAction1 uses "FFR2AA1 _generator", redispatchingAction2 can't use "FFR2AA1 _generator".
