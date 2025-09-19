@@ -7,7 +7,7 @@
     <parent>
         <groupId>com.powsybl</groupId>
         <artifactId>powsybl-parent</artifactId>
-        <version>20.2</version>
+        <version>24</version>
         <relativePath/>
     </parent>
 
@@ -74,7 +74,7 @@
     <properties>
         <!-- Project properties -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <java.version>17</java.version>
+        <java.version>21</java.version>
 
         <!-- Sonar properties -->
         <sonar.coverage.jacoco.xmlReportPaths>

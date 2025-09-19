@@ -36,7 +36,7 @@ class RaoParametersBasicConfigTest {
         assertNull(parameters.getExtension(DummyExtension.class));
     }
 
-    private static class DummyExtension extends AbstractExtension<RaoParameters> {
+    private static final class DummyExtension extends AbstractExtension<RaoParameters> {
 
         @Override
         public String getName() {

@@ -429,7 +429,6 @@ public interface Crac extends Identifiable<Crac> {
      */
     InjectionRangeActionAdder newInjectionRangeAction();
 
-
     /**
      * Get a {@link CounterTradeRangeActionAdder}, to add an {@link CounterTradeRangeAction} to the crac
      */
@@ -528,7 +527,6 @@ public interface Crac extends Identifiable<Crac> {
      * Remove an InjectionRangeAction - identified by its id - from the Crac
      */
     void removeInjectionRangeAction(String id);
-
 
     // Network actions management
 
