@@ -137,7 +137,7 @@ public final class CastorPstRegulation {
     }
 
     private static void logContingencyScenariosToRegulate(Set<Contingency> contingencies) {
-        BUSINESS_LOGS.info("{} Contingency scenario(s) to regulate: {}", contingencies.size(), String.join(", ", contingencies.stream().map(contingency -> contingency.getName().orElse(contingency.getId())).sorted().toList()));
+        BUSINESS_LOGS.info("{} contingency scenario(s) to regulate: {}", contingencies.size(), String.join(", ", contingencies.stream().map(contingency -> contingency.getName().orElse(contingency.getId())).sorted().toList()));
     }
 
     private static void logPstsToRegulate(Set<PstRangeAction> rangeActionsToRegulate) {

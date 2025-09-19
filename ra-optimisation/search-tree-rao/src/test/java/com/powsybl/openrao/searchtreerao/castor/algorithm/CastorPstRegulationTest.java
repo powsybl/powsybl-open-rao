@@ -73,7 +73,7 @@ class CastorPstRegulationTest {
         List<String> logMessages = logsList.stream().map(ILoggingEvent::getFormattedMessage).sorted().toList();
 
         assertEquals("2 PST(s) to regulate: pstFr12, pstFr34", logMessages.get(0));
-        assertEquals("3 Contingency scenario(s) to regulate: Contingency FR 12, Contingency FR 23, Contingency FR 34", logMessages.get(1));
+        assertEquals("3 contingency scenario(s) to regulate: Contingency FR 12, Contingency FR 23, Contingency FR 34", logMessages.get(1));
 
         // PST FR2-FR3 is only preventive so it cannot be regulated
         assertEquals("PST FFR2AA1  FFR3AA1  2 cannot be regulated as no curative PST range action was defined for it.", logMessages.get(5));

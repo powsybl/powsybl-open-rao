@@ -114,7 +114,7 @@ Feature: US 91.13: PST Regulation
 
   @ac @fast @rao @pst-regulation
   Scenario: US 91.13.3.b: Duplicate of US 91.13.3.a with PST regulation
-  Regulation is perfomed on PSTs 12 and 34 because they can be moved in curative.
+  Regulation is performed on PSTs 12 and 34 because they can be moved in curative.
   The regulation tap is either -15 is the contingency was parallel to the PST or -5 otherwise.
     Given network file is "epic91/4NodesSeries.uct"
     Given crac file is "epic91/crac-91-13-3.json"
