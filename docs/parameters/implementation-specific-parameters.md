@@ -379,6 +379,14 @@ These parameters are meant to be used in costly optimization only.
 - **Default value**: 0.0
 - **Usage**: Shifts the security domain of the CNECs (only for costly optimization): each FlowCNEC with a margin below `shifted-violation-threshold` will be considered as in violation during the linear RAO. This is meant to prevent the RAO from choosing set-points that make the min margin exactly equal to 0 (which might create rounding issues).
 
+#### PST regulation parameters
+
+##### psts-to-regulate
+
+- **Expected value**: a map with string keys (each being the identifier of a PST in the network) and string values (each being the line secured by the regulated PST)
+- **Default value**: empty map
+- **Usage**: List of PSTs to regulate at the end of curative optimization if a FlowCNEC defined on any of their associated elements is overloaded and is the most limiting element.
+
 ## Examples
 > ⚠️  **NOTE**  
 > The following examples in json and yaml are not equivalent
@@ -489,6 +497,12 @@ These parameters are meant to be used in costly optimization only.
     "costly-min-margin-parameters" : {
       "shifted-violation-penalty": 1000.0,
       "shifted-violation-threshold": 0.0
+    },
+    "pst-regulation-parameters" : {
+      "psts-to-regulate": {
+        "pst-1": "line-1",
+        "pst-2": "line-2"
+      }
     }
   }
 }

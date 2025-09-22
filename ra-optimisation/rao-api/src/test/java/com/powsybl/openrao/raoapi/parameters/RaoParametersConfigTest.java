@@ -178,7 +178,6 @@ class RaoParametersConfigTest {
         assertEquals(PtdfApproximation.UPDATE_PTDF_WITH_TOPO, parameters.getPtdfApproximation());
         assertEquals(45, parameters.getConstraintAdjustmentCoefficient(), DOUBLE_TOLERANCE);
         assertEquals(43, parameters.getViolationCost(), DOUBLE_TOLERANCE);
-        Set<Country> expectedCountries = Set.of(Country.FR, Country.ES, Country.PT);
     }
 
     @Test
@@ -230,6 +229,16 @@ class RaoParametersConfigTest {
         OpenRaoSearchTreeParametersConfigLoader configLoader = new OpenRaoSearchTreeParametersConfigLoader();
         SearchTreeRaoRelativeMarginsParameters parameters = configLoader.load(mockedPlatformConfig).getRelativeMarginsParameters().get();
         assertEquals(32, parameters.getPtdfSumLowerBound(), DOUBLE_TOLERANCE);
+    }
+
+    @Test
+    void checkPstRegulationConfigExtension() {
+        ModuleConfig pstRegulationModuleConfig = Mockito.mock(ModuleConfig.class);
+        Mockito.when(pstRegulationModuleConfig.getStringListProperty(eq("psts-to-regulate"), anyList())).thenReturn(List.of("{pst-1}:{network-element-1}", "{pst-2}:{network-element-2}"));
+        Mockito.when(mockedPlatformConfig.getOptionalModuleConfig("search-tree-pst-regulation-parameters")).thenReturn(Optional.of(pstRegulationModuleConfig));
+        OpenRaoSearchTreeParametersConfigLoader configLoader = new OpenRaoSearchTreeParametersConfigLoader();
+        SearchTreeRaoPstRegulationParameters pstRegulationParameters = configLoader.load(mockedPlatformConfig).getPstRegulationParameters().get();
+        assertEquals(Map.of("pst-1", "network-element-1", "pst-2", "network-element-2"), pstRegulationParameters.getPstsToRegulate());
     }
 
     @Test
