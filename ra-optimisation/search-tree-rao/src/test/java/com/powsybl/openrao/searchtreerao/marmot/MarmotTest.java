@@ -13,6 +13,7 @@ import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.generatorconstraints.GeneratorConstraints;
 import com.powsybl.openrao.data.raoresult.api.InterTemporalRaoResult;
 import com.powsybl.openrao.raoapi.InterTemporalRaoInput;
+import com.powsybl.openrao.raoapi.Rao;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
@@ -338,5 +339,12 @@ class MarmotTest {
     private static void assertFunctionalCostAndRedispatchingSetPoint(Crac crac, InterTemporalRaoResult interTemporalRaoResult, double expectedFunctionalCost, double expectedRdSetPoint) {
         assertEquals(expectedFunctionalCost, interTemporalRaoResult.getFunctionalCost(crac.getPreventiveInstant(), crac.getTimestamp().get()));
         assertEquals(expectedRdSetPoint, interTemporalRaoResult.getOptimizedSetPointOnState(crac.getPreventiveState(), crac.getRangeAction("redispatchingAction")));
+    }
+
+    @Test
+    void testSensiWith3WindingTransfo() throws IOException {
+        Network network = Network.read("3WT_network_asfunction.xiidm", getClass().getResourceAsStream("/network/3WT_network_asfunction.xiidm"));
+        Crac crac = Crac.read("crac_with_3WT_load.json", getClass().getResourceAsStream("/crac/crac_with_3WT_load.json"), network);
+        Rao.find("SearchTreeRao").run(RaoInput.build(network, crac).build());
     }
 }
