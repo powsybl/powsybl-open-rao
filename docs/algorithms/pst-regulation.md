@@ -47,7 +47,7 @@ that the PST can be regulated.
 }
 ```
 
-We will consider that there is a contingency on `branch-1` and that when it occurs, there is no way so secure both
+We will consider that there is a contingency on `branch-1` and that when it occurs, there is no way to secure both
 `branch-2` and `branch-3` at the same time.
 
 As these two branches have the same impedance and the same permanent limit, the status quo found by the RAO during
