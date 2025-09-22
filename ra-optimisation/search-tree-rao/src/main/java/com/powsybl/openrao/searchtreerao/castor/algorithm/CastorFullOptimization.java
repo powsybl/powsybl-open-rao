@@ -204,7 +204,6 @@ public class CastorFullOptimization {
                         initialOutput,
                         postPreventiveResult,
                         secondPreventiveResult,
-                        globalSecondPreventiveResult.secondPreventiveRaoResult().remedialActionsExcluded(),
                         globalSecondPreventiveResult.postContingencyResults(),
                         crac,
                         raoParameters);
@@ -239,7 +238,6 @@ public class CastorFullOptimization {
                     initialOutput,
                     postPreventiveResult,
                     secondPreventiveResult,
-                    Set.of(), // will be removed anyway with non-global 2P deprecated
                     postContingencyResults,
                     crac,
                     raoParameters);
