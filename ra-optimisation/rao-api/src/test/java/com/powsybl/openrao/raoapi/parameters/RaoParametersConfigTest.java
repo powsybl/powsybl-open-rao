@@ -125,12 +125,10 @@ class RaoParametersConfigTest {
     void checkSecondPreventiveRaoConfig() {
         MapModuleConfig secondPreventiveRaoModuleConfig = platformCfg.createModuleConfig("search-tree-second-preventive-rao");
         secondPreventiveRaoModuleConfig.setStringProperty("execution-condition", "POSSIBLE_CURATIVE_IMPROVEMENT");
-        secondPreventiveRaoModuleConfig.setStringProperty("re-optimize-curative-range-actions", Objects.toString(false));
         secondPreventiveRaoModuleConfig.setStringProperty("hint-from-first-preventive-rao", Objects.toString(true));
         RaoParameters parameters = RaoParameters.load(platformCfg);
         SecondPreventiveRaoParameters params = parameters.getExtension(OpenRaoSearchTreeParameters.class).getSecondPreventiveRaoParameters();
         assertEquals(SecondPreventiveRaoParameters.ExecutionCondition.POSSIBLE_CURATIVE_IMPROVEMENT, params.getExecutionCondition());
-        assertFalse(params.getReOptimizeCurativeRangeActions());
         assertTrue(params.getHintFromFirstPreventiveRao());
     }
 
