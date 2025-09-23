@@ -9,6 +9,7 @@ package com.powsybl.openrao.searchtreerao.marmot;
 
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.TemporalDataImpl;
+import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.generatorconstraints.GeneratorConstraints;
 import com.powsybl.openrao.data.raoresult.api.InterTemporalRaoResult;
@@ -18,14 +19,16 @@ import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.searchtreerao.marmot.results.InterTemporalRaoResultImpl;
+import com.powsybl.openrao.sensitivityanalysis.LoadflowProvider;
+import com.powsybl.sensitivity.SensitivityFactor;
+import com.powsybl.sensitivity.SensitivityFunctionType;
+import com.powsybl.sensitivity.SensitivityVariableType;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -342,9 +345,22 @@ class MarmotTest {
     }
 
     @Test
-    void testSensiWith3WindingTransfo() throws IOException {
+    void testSensiWith3WindingTransfoAsFunction() throws IOException { // As a CNEC
         Network network = Network.read("3WT_network_asfunction.xiidm", getClass().getResourceAsStream("/network/3WT_network_asfunction.xiidm"));
         Crac crac = Crac.read("crac_with_3WT_load.json", getClass().getResourceAsStream("/crac/crac_with_3WT_load.json"), network);
+
         Rao.find("SearchTreeRao").run(RaoInput.build(network, crac).build());
+
+        LoadflowProvider provider = new LoadflowProvider(crac.getFlowCnecs(), Collections.singleton(Unit.MEGAWATT));
+        List<SensitivityFactor> factorList = provider.getBasecaseFactors(network);
+        // see LoadflowProvider::cnecToSensitivityFunctions()
+    }
+
+    @Test
+    void testSensiWith3WindingTransfoAsVariable() throws IOException { // As a RA
+        Network network = Network.read("network_with_3WindingTransfo.xiidm", getClass().getResourceAsStream("/network/network_with_3WindingTransfo.xiidm"));
+        Crac crac = Crac.read("crac_with_3WT.json", getClass().getResourceAsStream("/crac/crac_with_3WT.json"), network);
+        Rao.find("SearchTreeRao").run(RaoInput.build(network, crac).build());
+        // see PstRangeActionArrayDeserializer::getPhaseTapChanger()
     }
 }

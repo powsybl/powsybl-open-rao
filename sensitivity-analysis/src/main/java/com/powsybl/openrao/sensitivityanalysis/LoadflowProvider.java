@@ -36,7 +36,7 @@ public class LoadflowProvider extends AbstractSimpleSensitivityProvider {
 
     Pair<String, SensitivityVariableType> defaultSensitivityVariable;
 
-    LoadflowProvider(Set<FlowCnec> cnecs, Set<Unit> units) {
+    public LoadflowProvider(Set<FlowCnec> cnecs, Set<Unit> units) {
         super(cnecs, units);
     }
 
@@ -151,6 +151,7 @@ public class LoadflowProvider extends AbstractSimpleSensitivityProvider {
 
     private List<Pair<String, SensitivityFunctionType>> cnecToSensitivityFunctions(Network network, String networkElementId, Set<TwoSides> sides) {
         Identifiable<?> networkIdentifiable = network.getIdentifiable(networkElementId);
+        // Could add three winding transfo support here ?
         if (networkIdentifiable instanceof Branch || networkIdentifiable instanceof DanglingLine) {
             return getSensitivityFunctionTypes(sides).stream().map(functionType -> Pair.of(networkElementId, functionType)).toList();
         } else {

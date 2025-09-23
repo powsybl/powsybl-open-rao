@@ -9,6 +9,7 @@ package com.powsybl.openrao.data.crac.io.json.deserializers;
 
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.PhaseTapChanger;
+import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants;
@@ -145,6 +146,7 @@ public final class PstRangeActionArrayDeserializer {
     }
 
     private static PhaseTapChanger getPhaseTapChanger(Network network, String networkElementId) {
+        // here for three winding transfo as RA support ?
         TwoWindingsTransformer transformer = network.getTwoWindingsTransformer(networkElementId);
         if (transformer == null) {
             throw new OpenRaoException(String.format("PST %s does not exist in the current network", networkElementId));
