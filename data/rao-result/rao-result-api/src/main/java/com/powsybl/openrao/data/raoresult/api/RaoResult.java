@@ -96,11 +96,11 @@ public interface RaoResult {
         throw new OpenRaoException("Voltage cnecs are not computed in the rao");
     }
 
-    default double getMinVoltage(Instant optimizedInstant, VoltageCnec voltageCnec, MinOrMax minOrMax, Unit unit) {
+    default double getMinVoltage(Instant optimizedInstant, VoltageCnec voltageCnec, Unit unit) {
         throw new OpenRaoException("Voltage cnecs are not computed in the rao");
     }
 
-    default double getMaxVoltage(Instant optimizedInstant, VoltageCnec voltageCnec, MinOrMax minOrMax, Unit unit) {
+    default double getMaxVoltage(Instant optimizedInstant, VoltageCnec voltageCnec, Unit unit) {
         throw new OpenRaoException("Voltage cnecs are not computed in the rao");
     }
 
