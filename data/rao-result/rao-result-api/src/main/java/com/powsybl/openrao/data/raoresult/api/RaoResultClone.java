@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.raoresult.api;
 
+import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
@@ -25,7 +26,7 @@ import java.util.*;
  *  Clone that reproduces the results obtained by another RaoResult instance. It can be used to override some methods without rewriting all the implementations
  * @author Mohamed Ben Rejeb {@literal <mohamed.ben-rejeb at rte-france.com>}
  */
-public class RaoResultClone implements RaoResult {
+public class RaoResultClone extends AbstractExtendable<RaoResult> implements RaoResult {
 
     private final RaoResult raoResult;
 

@@ -548,7 +548,7 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
 
     @Override
     public int getOptimizedTapOnState(State state, PstRangeAction pstRangeAction) {
-        if (state.getInstant().isPreventive()) {
+        if (state.getInstant().isPreventive() || !postContingencyResults.containsKey(state)) {
             return finalPreventivePerimeterResult.getOptimizationResult().getOptimizedTap(pstRangeAction, state);
         } else {
             return postContingencyResults.get(state).getOptimizationResult().getOptimizedTap(pstRangeAction, state);
@@ -570,7 +570,7 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
 
     @Override
     public double getOptimizedSetPointOnState(State state, RangeAction<?> rangeAction) {
-        if (state.getInstant().isPreventive()) {
+        if (state.getInstant().isPreventive() || !postContingencyResults.containsKey(state)) {
             return finalPreventivePerimeterResult.getOptimizationResult().getOptimizedSetpoint(rangeAction, state);
         } else {
             return postContingencyResults.get(state).getOptimizationResult().getOptimizedSetpoint(rangeAction, state);
@@ -590,7 +590,7 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
 
     @Override
     public Map<PstRangeAction, Integer> getOptimizedTapsOnState(State state) {
-        if (state.getInstant().isPreventive()) {
+        if (state.getInstant().isPreventive() || !postContingencyResults.containsKey(state)) {
             return new HashMap<>(finalPreventivePerimeterResult.getOptimizationResult().getOptimizedTapsOnState(state));
         } else {
             return postContingencyResults.get(state).getOptimizationResult().getOptimizedTapsOnState(state);
@@ -599,7 +599,7 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
 
     @Override
     public Map<RangeAction<?>, Double> getOptimizedSetPointsOnState(State state) {
-        if (state.getInstant().isPreventive()) {
+        if (state.getInstant().isPreventive() || !postContingencyResults.containsKey(state)) {
             return new HashMap<>(finalPreventivePerimeterResult.getOptimizationResult().getOptimizedSetpointsOnState(state));
         } else {
             return postContingencyResults.get(state).getOptimizationResult().getOptimizedSetpointsOnState(state);
