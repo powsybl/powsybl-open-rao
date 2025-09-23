@@ -40,7 +40,7 @@ public class GlobalRemedialActionActivationResult extends GlobalRangeActionActiv
                     networkActions.forEach(networkAction -> {
                         networkActionsSetWithTimestamp.add(NetworkActionImpl.copyWithNewId(networkAction, networkAction.getId() + " - " + timestamp.format(DateTimeFormatter.ISO_DATE_TIME)));
                     });
-                    globalNetworkActionsResultPerState.put(state, networkActions);
+                    globalNetworkActionsResultPerState.put(state, networkActionsSetWithTimestamp);
                 })
             );
 

@@ -203,7 +203,7 @@ public class FastRao implements RaoProvider {
         List<FlowCnec> orderedCnecs = ofResult.getMostLimitingElements(Integer.MAX_VALUE);
         return orderedCnecs.stream().filter(cnec -> cnec.getState().isPreventive()).findFirst().orElse(
             // If only MNECs are present previous list will be empty
-            crac.getFlowCnecs(crac.getPreventiveState()).stream().findFirst().orElseThrow()
+            crac.getFlowCnecs(crac.getPreventiveState()).stream().findFirst().orElseThrow(() -> new OpenRaoException("No flow cnecs found in preventive state"))
         );
     }
 
@@ -287,7 +287,7 @@ public class FastRao implements RaoProvider {
             crac,
             raoResult,
             initialResult,
-            postPraSensi.thenApply(result -> result.getPrePerimeterResultForAllFollowingStates()),
+            postPraSensi.thenApply(PostPerimeterResult::getPrePerimeterResultForAllFollowingStates),
             stateTree,
             parameters,
             toolProvider,
@@ -300,7 +300,7 @@ public class FastRao implements RaoProvider {
             crac,
             raoResult,
             initialResult,
-            postAraSensi.thenApply(result -> result.getPrePerimeterResultForAllFollowingStates()),
+            postAraSensi.thenApply(PostPerimeterResult::getPrePerimeterResultForAllFollowingStates),
             stateTree,
             parameters,
             toolProvider,

@@ -321,7 +321,7 @@ RaoParameters raoParameters = new RaoParameters();
 
  ```java
  RaoInput.RaoInputBuilder raoInputBuilder = RaoInput.build(network, crac);
- RaoResult raoResult = Rao.find().run(raoInputBuilder.build(), raoParameters);
+ RaoResult raoResult = Rao.find("SearchTreeRao").run(raoInputBuilder.build(), raoParameters);
  
  
  // To use FastRAO instead of the regular CASTOR 
