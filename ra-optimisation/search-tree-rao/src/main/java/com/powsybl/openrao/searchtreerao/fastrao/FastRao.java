@@ -115,6 +115,10 @@ public class FastRao implements RaoProvider {
             // Run initial sensi (for initial values, and to know which cnecs to put in the first rao)
             PrePerimeterResult initialResult = prePerimeterSensitivityAnalysis.runInitialSensitivityAnalysis(raoInput.getNetwork());
 
+            if (crac.getFlowCnecs().isEmpty()) {
+                return new UnoptimizedRaoResultImpl(initialResult);
+            }
+
             if (initialResult.getSensitivityStatus() == ComputationStatus.FAILURE) {
                 BUSINESS_LOGS.error("Initial sensitivity analysis failed");
                 return new FailedRaoResultImpl("Initial sensitivity analysis failed");
