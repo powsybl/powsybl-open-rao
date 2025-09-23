@@ -361,11 +361,11 @@ class PreventiveAndCurativesRaoResultImplTest {
         // not optimized state
         State cur4state = crac.getState("contingency-4", crac.getInstant(InstantKind.CURATIVE));
         Map<RangeAction<?>, Double> cur4Map = output.getOptimizedSetPointsOnState(cur4state);
-        assertTrue(cur4Map.isEmpty());
+        assert cur4Map.isEmpty();
         assertThrows(OpenRaoException.class, () -> output.getOptimizedSetPointOnState(cur4state, pst));
         Map<PstRangeAction, Integer> optimizedTapscur4state = output.getOptimizedTapsOnState(cur4state);
-        assertTrue(optimizedTapscur4state.isEmpty());
-        assertTrue(output.getActivatedRangeActionsDuringState(cur4state).isEmpty());
+        assert optimizedTapscur4state.isEmpty();
+        assert output.getActivatedRangeActionsDuringState(cur4state).isEmpty();
     }
 
     private void checkFunctionalCosts() {
