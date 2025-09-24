@@ -25,6 +25,7 @@ import com.powsybl.iidm.network.TwoSides;
 import java.util.*;
 
 import static com.powsybl.openrao.data.raoresult.api.ComputationStatus.*;
+import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.getDuplicateCnecs;
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
@@ -52,18 +53,29 @@ public class FastRaoResultImpl extends AbstractExtendable<RaoResult> implements 
         this.crac = crac;
         executionDetails = filteredRaoResult.getExecutionDetails();
         removeFailingContingencies(initialResult, afterPraResult, afterAraResult, finalResult, crac);
+        excludeDuplicateCnecs();
+    }
+
+    private void excludeDuplicateCnecs() {
+        Set<FlowCnec> flowCnecs = crac.getFlowCnecs();
+        Set<String> cnecsToExclude = getDuplicateCnecs(flowCnecs);
+        // exclude fictional cnec from the results
+        initialResult.excludeCnecs(cnecsToExclude);
+        afterPraResult.excludeCnecs(cnecsToExclude);
+        afterAraResult.excludeCnecs(cnecsToExclude);
+        finalResult.excludeCnecs(cnecsToExclude);
     }
 
     private static void removeFailingContingencies(PrePerimeterResult initialResult, PrePerimeterResult afterPraResult, PrePerimeterResult afterAraResult, PrePerimeterResult finalResult, Crac crac) {
         Set<String> failingContingencies = new HashSet<>();
         crac.getStates().stream().filter(state -> initialResult.getComputationStatus(state) == FAILURE && !state.isPreventive())
-            .forEach(state -> failingContingencies.add(state.getContingency().get().getId()));
+                .forEach(state -> failingContingencies.add(state.getContingency().get().getId()));
         crac.getStates().stream().filter(state -> afterPraResult.getComputationStatus(state) == FAILURE && !state.isPreventive())
-            .forEach(state -> failingContingencies.add(state.getContingency().get().getId()));
+                .forEach(state -> failingContingencies.add(state.getContingency().get().getId()));
         crac.getStates().stream().filter(state -> afterAraResult.getComputationStatus(state) == FAILURE && !state.isPreventive())
-            .forEach(state -> failingContingencies.add(state.getContingency().get().getId()));
+                .forEach(state -> failingContingencies.add(state.getContingency().get().getId()));
         crac.getStates().stream().filter(state -> finalResult.getComputationStatus(state) == FAILURE && !state.isPreventive())
-            .forEach(state -> failingContingencies.add(state.getContingency().get().getId()));
+                .forEach(state -> failingContingencies.add(state.getContingency().get().getId()));
         initialResult.excludeContingencies(failingContingencies);
         afterPraResult.excludeContingencies(failingContingencies);
         afterAraResult.excludeContingencies(failingContingencies);
@@ -89,9 +101,9 @@ public class FastRaoResultImpl extends AbstractExtendable<RaoResult> implements 
             return FAILURE;
         }
         if (initialResult.getSensitivityStatus() == PARTIAL_FAILURE ||
-            finalResult == null || finalResult.getSensitivityStatus() != DEFAULT ||
-            afterPraResult == null || afterPraResult.getSensitivityStatus() != DEFAULT ||
-            afterAraResult == null || afterAraResult.getSensitivityStatus() != DEFAULT
+                finalResult == null || finalResult.getSensitivityStatus() != DEFAULT ||
+                afterPraResult == null || afterPraResult.getSensitivityStatus() != DEFAULT ||
+                afterAraResult == null || afterAraResult.getSensitivityStatus() != DEFAULT
         ) {
             return PARTIAL_FAILURE;
         }
@@ -125,7 +137,7 @@ public class FastRaoResultImpl extends AbstractExtendable<RaoResult> implements 
             return initialResult;
         }
         Instant minInstant = optimizedInstant.comesBefore(flowCnec.getState().getInstant()) ?
-            optimizedInstant : flowCnec.getState().getInstant();
+                optimizedInstant : flowCnec.getState().getInstant();
         return getAppropriateResult(minInstant);
     }
 

@@ -230,7 +230,7 @@ public class CurativeWithSecondPraoResult implements OptimizationResult {
     @Override
     public Map<PstRangeAction, Integer> getOptimizedTapsOnState(State state) {
         checkState(state);
-        return firstCraoResult.getRangeActions().stream()
+        return secondPraoResult.getRangeActions().stream()
             .filter(PstRangeAction.class::isInstance).map(PstRangeAction.class::cast)
             .collect(Collectors.toMap(pst -> pst, pst -> getOptimizedTap(pst, state)));
     }
