@@ -46,6 +46,60 @@
           "side": 2
         }
       ]
+    },
+    {
+      "id": "cnecFr1Fr3Preventive",
+      "name": "cnecFr1Fr3Preventive",
+      "networkElementId": "FFR1AA1  FFR3AA1  1",
+      "operator": "FR",
+      "instant": "preventive",
+      "contingencyId": null,
+      "optimized": true,
+      "monitored": false,
+      "nominalV": [
+        400.0
+      ],
+      "thresholds": [
+        {
+          "unit": "megawatt",
+          "min": -300.0,
+          "max": 300.0,
+          "side": 1
+        },
+        {
+          "unit": "megawatt",
+          "min": -300.0,
+          "max": 300.0,
+          "side": 2
+        }
+      ]
+    },
+    {
+      "id": "cnecFr2Fr3Preventive",
+      "name": "cnecFr2Fr3Preventive",
+      "networkElementId": "FFR2AA1  FFR3AA1  1",
+      "operator": "FR",
+      "instant": "preventive",
+      "contingencyId": null,
+      "optimized": true,
+      "monitored": false,
+      "nominalV": [
+        400.0
+      ],
+      "thresholds": [
+        {
+          "unit": "megawatt",
+          "min": -300.0,
+          "max": 300.0,
+          "side": 1
+        },
+        {
+          "unit": "megawatt",
+          "min": -300.0,
+          "max": 300.0,
+          "side": 2
+        }
+      ]
     }
   ],
   "injectionRangeActions": [
