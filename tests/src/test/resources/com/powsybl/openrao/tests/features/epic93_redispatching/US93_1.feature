@@ -98,28 +98,25 @@ Feature: US 93.1: Redispatching actions
 
   @fast @rao @dc @redispatching @preventive-only
   Scenario: US 93.1.6: Redispatching with disconnected generator
-  Same network as 93.1.5 but with the generator FFR3AA1 _generator disconnected
-    Initial situation: FFR3AA1 _generator does not inject in the network the 300 MW, so only 700MW are transited from FFR1 to FFR2.
-    One redispatching action that act on two generators (FFR1AA1 _generator and FFR2AA1 _generator) with keys 1 and -0.7 and one on one generator (FFR3AA1 _generator) with key 0.6.
-    - redispatchingActionFR1FR2: initial setpoint = 1000 = 1000/1 = -700/-0.7, final = 546 => delta- = 454
-    - redispatchingActionFR3: initial setpoint = -300/0.6 = -500, final = -273 => delta+ = −227
-    => 454*(1-0.7)-227*0.6 = 0
-    Objective function breakdown: 10+454*50+10+227*50 = 34070
-    The issue here is that by disconnecting the FFR3AA1 _generator the network become unbalanced and redispatching setpoint
-    does not match the prod and conso at each generator
+  A simple three node network where all the prod (1000 MW) is on FFR2AA1 and all the load is on FFR1AA1.
+  The generator FFR3AA1 is disconnected (whatever the production or the load that is defined in the network file on this generator it won't impact the loadflow)
+  Injection balance constraint is respected :
+    - redispatchingActionFR1: initial setpoint = 1000 = 1000/1, final = 0 delta- = 1000
+    - redispatchingActionFR3: initial setpoint = 0/1 = 0, final = 1000 => delta+ = 1000
+    => 1000*1-1000*1=0
+  Objective function breakdown: 10+1000*50+10+1000*50 = 100020
+  However although the optimizer correctly balances redispatching by decreasing 1000 MW on FFR1AA1
+  and increasing 1000 MW on FFR3AA1, the final network state does not reflect this injection since
+  FFR3AA1 is physically unavailable. As a result, all flows remain null after the PRA.
     Given network file is "epic93/3Nodes_FFR3AA1_disconnected.xiidm"
-    Given crac file is "epic93/crac-93-1-5.json"
+    Given crac file is "epic93/crac-93-1-6.json"
     Given configuration file is "epic93/RaoParameters_minCost_megawatt_dc.json"
     When I launch search_tree_rao
-    And the initial flow on cnec "cnecFr1Fr2Preventive" should be 549.0 MW
-    And the initial flow on cnec "cnecFr2Fr3Preventive" should be -274.0 MW
-    And the initial flow on cnec "cnecFr1Fr3Preventive" should be 274.0 MW
-    And the initial margin on cnec "cnecFr1Fr2Preventive" should be -249 MW
-    And the setpoint of RangeAction "redispatchingActionFR1FR2" should be 546.0 MW in preventive
-    And the setpoint of RangeAction "redispatchingActionFR3" should be -273.0 MW in preventive
-    And the flow on cnec "cnecFr1Fr2Preventive" after PRA should be 299.76 MW
-    And the flow on cnec "cnecFr2Fr3Preventive" after PRA should be -149.88 MW
-    And the flow on cnec "cnecFr1Fr3Preventive" after PRA should be 149.88 MW
-    And the value of the objective function after PRA should be 34070.0
+    And the setpoint of RangeAction "redispatchingActionFR1" should be 0.0 MW in preventive
+    And the setpoint of RangeAction "redispatchingActionFR3" should be 1000.0 MW in preventive
+    And the flow on cnec "cnecFr1Fr2Preventive" after PRA should be 0.0 MW
+    And the flow on cnec "cnecFr2Fr3Preventive" after PRA should be 0.0 MW
+    And the flow on cnec "cnecFr1Fr3Preventive" after PRA should be 0.0 MW
+    And the value of the objective function after PRA should be 100020.0
 
 

@@ -46,12 +46,66 @@
           "side": 2
         }
       ]
+    },
+    {
+      "id": "cnecFr1Fr3Preventive",
+      "name": "cnecFr1Fr3Preventive",
+      "networkElementId": "FFR1AA1  FFR3AA1  1",
+      "operator": "FR",
+      "instant": "preventive",
+      "contingencyId": null,
+      "optimized": true,
+      "monitored": false,
+      "nominalV": [
+        400.0
+      ],
+      "thresholds": [
+        {
+          "unit": "megawatt",
+          "min": -300.0,
+          "max": 300.0,
+          "side": 1
+        },
+        {
+          "unit": "megawatt",
+          "min": -300.0,
+          "max": 300.0,
+          "side": 2
+        }
+      ]
+    },
+    {
+      "id": "cnecFr2Fr3Preventive",
+      "name": "cnecFr2Fr3Preventive",
+      "networkElementId": "FFR2AA1  FFR3AA1  1",
+      "operator": "FR",
+      "instant": "preventive",
+      "contingencyId": null,
+      "optimized": true,
+      "monitored": false,
+      "nominalV": [
+        400.0
+      ],
+      "thresholds": [
+        {
+          "unit": "megawatt",
+          "min": -300.0,
+          "max": 300.0,
+          "side": 1
+        },
+        {
+          "unit": "megawatt",
+          "min": -300.0,
+          "max": 300.0,
+          "side": 2
+        }
+      ]
     }
   ],
   "injectionRangeActions": [
     {
-      "id": "redispatchingActionFR1FR2",
-      "name": "redispatchingActionFR1FR2",
+      "id": "redispatchingActionFR1",
+      "name": "redispatchingActionFR1",
       "operator": "FR",
       "activationCost": 10.0,
       "variationCosts": {
@@ -65,8 +119,7 @@
         }
       ],
       "networkElementIdsAndKeys": {
-        "FFR1AA1 _generator": 1.0,
-        "FFR2AA1 _generator": -0.7
+        "FFR1AA1 _generator": 1.0
       },
       "ranges": [
         {
@@ -91,7 +144,7 @@
         }
       ],
       "networkElementIdsAndKeys": {
-        "FFR3AA1 _generator": 0.6
+        "FFR3AA1 _generator": -1.0
       },
       "ranges": [
         {
