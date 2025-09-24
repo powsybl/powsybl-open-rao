@@ -13,8 +13,6 @@ import com.powsybl.iidm.network.TwoSides;
 
 import java.util.*;
 
-import static java.lang.String.format;
-
 /**
  * Object that stores bounds of a BranchCnec. It enables to avoid computing these values several times when they are
  * not supposed to change along the optimization.
@@ -28,64 +26,38 @@ public class BranchBoundsCache {
         UPPER
     }
 
-    private List<Boolean> boundsComputed = Arrays.asList(false, false, false, false, false, false, false, false);
-    private List<Double> boundValues = Arrays.asList(Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN);
-
-    private static int getIndex(TwoSides side, Unit unit, Bound bound) {
-        if (unit.equals(Unit.AMPERE)) {
-            return getAmpereIndex(side, bound);
-        } else if (unit.equals(Unit.MEGAWATT)) {
-            return getMegawattIndex(side, bound);
-        } else {
-            throw new UnsupportedOperationException(format("Unit %s not supported", unit));
-        }
+    private record BoundIndex(TwoSides twoSides, Bound bound, Unit unit) {
     }
 
-    private static int getMegawattIndex(TwoSides side, Bound bound) {
-        if (bound.equals(Bound.LOWER)) {
-            return side.equals(TwoSides.ONE) ? 0 : 1;
-        } else {
-            return side.equals(TwoSides.ONE) ? 2 : 3;
-        }
-    }
-
-    private static int getAmpereIndex(TwoSides side, Bound bound) {
-        if (bound.equals(Bound.LOWER)) {
-            return side.equals(TwoSides.ONE) ? 4 : 5;
-        } else {
-            return side.equals(TwoSides.ONE) ? 6 : 7;
-        }
-    }
+    private final Map<BoundIndex, Double> boundsCache = new HashMap<>();
 
     public boolean isLowerBoundComputed(TwoSides side, Unit unit) {
-        return boundsComputed.get(getIndex(side, unit, Bound.LOWER));
+        return boundsCache.containsKey(new BoundIndex(side, Bound.LOWER, unit));
     }
 
     public boolean isUpperBoundComputed(TwoSides side, Unit unit) {
-        return boundsComputed.get(getIndex(side, unit, Bound.UPPER));
+        return boundsCache.containsKey(new BoundIndex(side, Bound.UPPER, unit));
     }
 
     public Double getLowerBound(TwoSides side, Unit unit) {
         if (!isLowerBoundComputed(side, unit)) {
             throw new OpenRaoException("Trying to access not computed bound");
         }
-        return boundValues.get(getIndex(side, unit, Bound.LOWER));
+        return boundsCache.get(new BoundIndex(side, Bound.LOWER, unit));
     }
 
     public void setLowerBound(Double lowerBound, TwoSides side, Unit unit) {
-        boundValues.set(getIndex(side, unit, Bound.LOWER), lowerBound);
-        boundsComputed.set(getIndex(side, unit, Bound.LOWER), true);
+        boundsCache.put(new BoundIndex(side, Bound.LOWER, unit), lowerBound);
     }
 
     public Double getUpperBound(TwoSides side, Unit unit) {
         if (!isUpperBoundComputed(side, unit)) {
             throw new OpenRaoException("Trying to access not computed bound");
         }
-        return boundValues.get(getIndex(side, unit, Bound.UPPER));
+        return boundsCache.get(new BoundIndex(side, Bound.UPPER, unit));
     }
 
     public void setUpperBound(Double upperBound, TwoSides side, Unit unit) {
-        boundValues.set(getIndex(side, unit, Bound.UPPER), upperBound);
-        boundsComputed.set(getIndex(side, unit, Bound.UPPER), true);
+        boundsCache.put(new BoundIndex(side, Bound.UPPER, unit), upperBound);
     }
 }
