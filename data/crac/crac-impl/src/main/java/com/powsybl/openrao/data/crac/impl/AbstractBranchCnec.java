@@ -15,6 +15,8 @@ import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.threshold.BranchThreshold;
 
 import java.util.Collections;
+import java.util.EnumMap;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -25,7 +27,7 @@ import java.util.Set;
 public abstract class AbstractBranchCnec<T extends BranchCnec<T>> extends AbstractCnec<T> implements BranchCnec<T> {
 
     protected Set<BranchThreshold> thresholds;
-    protected final Double[] nominalVoltages = new Double[2];
+    protected final Map<TwoSides, Double> nominalVoltages = new EnumMap<>(TwoSides.class);
     protected BranchBoundsCache bounds = new BranchBoundsCache();
 
     AbstractBranchCnec(String id,
@@ -42,8 +44,8 @@ public abstract class AbstractBranchCnec<T extends BranchCnec<T>> extends Abstra
                         Double nominalVRight) {
         super(id, name, Collections.singleton(networkElement), operator, border, state, optimized, monitored, frm);
         this.thresholds = thresholds;
-        this.nominalVoltages[0] = nominalVLeft;
-        this.nominalVoltages[1] = nominalVRight;
+        this.nominalVoltages.put(TwoSides.ONE, nominalVLeft);
+        this.nominalVoltages.put(TwoSides.TWO, nominalVRight);
     }
 
     @Override
@@ -65,7 +67,7 @@ public abstract class AbstractBranchCnec<T extends BranchCnec<T>> extends Abstra
 
     @Override
     public Double getNominalVoltage(TwoSides side) {
-        return nominalVoltages[side.equals(TwoSides.ONE) ? 0 : 1];
+        return nominalVoltages.get(side);
     }
 
     @Override

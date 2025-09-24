@@ -17,6 +17,8 @@ import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.threshold.BranchThreshold;
 import com.powsybl.openrao.data.crac.api.threshold.Threshold;
 
+import java.util.EnumMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -26,7 +28,7 @@ import java.util.stream.Collectors;
  */
 public class FlowCnecImpl extends AbstractBranchCnec<FlowCnec> implements FlowCnec {
 
-    private final Double[] iMax = new Double[2];
+    private final Map<TwoSides, Double> iMax = new EnumMap<>(TwoSides.class);
 
     FlowCnecImpl(String id,
                  String name,
@@ -43,17 +45,13 @@ public class FlowCnecImpl extends AbstractBranchCnec<FlowCnec> implements FlowCn
                  Double iMaxLeft,
                  Double iMaxRight) {
         super(id, name, networkElement, operator, border, state, optimized, monitored, thresholds, frm, nominalVLeft, nominalVRight);
-        this.iMax[0] = iMaxLeft;
-        this.iMax[1] = iMaxRight;
+        this.iMax.put(TwoSides.ONE, iMaxLeft);
+        this.iMax.put(TwoSides.TWO, iMaxRight);
     }
 
     @Override
     public Optional<Double> getIMax(TwoSides side) {
-        if (side.equals(TwoSides.ONE)) {
-            return Optional.ofNullable(iMax[0]);
-        } else {
-            return Optional.ofNullable(iMax[1]);
-        }
+        return Optional.ofNullable(iMax.get(side));
     }
 
     @Override
