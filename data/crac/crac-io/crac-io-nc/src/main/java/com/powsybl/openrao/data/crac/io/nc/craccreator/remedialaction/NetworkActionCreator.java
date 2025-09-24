@@ -245,11 +245,11 @@ public class NetworkActionCreator {
         }
 
         if (!ValueOffsetKind.ABSOLUTE.toString().equals(nativeStaticPropertyRange.valueKind())) {
-            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Remedial action %s will not be imported because the ValueOffsetKind is %s but should be none", remedialActionId, nativeStaticPropertyRange.valueKind()));
+            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Remedial action %s will not be imported because the ValueOffsetKind is %s but should be absolute", remedialActionId, nativeStaticPropertyRange.valueKind()));
         }
 
         if (!RelativeDirectionKind.NONE.toString().equals(nativeStaticPropertyRange.direction())) {
-            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Remedial action %s will not be imported because the RelativeDirectionKind is %s but should be absolute", remedialActionId, nativeStaticPropertyRange.direction()));
+            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Remedial action %s will not be imported because the RelativeDirectionKind is %s but should be none", remedialActionId, nativeStaticPropertyRange.direction()));
         }
 
         if (nativeTopologyAction.normalEnabled()) {

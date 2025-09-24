@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.raoresult.api;
 
+import com.powsybl.commons.extensions.Extendable;
 import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
@@ -43,7 +44,7 @@ import java.util.Set;
  *
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public interface RaoResult {
+public interface RaoResult extends Extendable<RaoResult> {
     String INITIAL_INSTANT_ID = "initial";
 
     /**

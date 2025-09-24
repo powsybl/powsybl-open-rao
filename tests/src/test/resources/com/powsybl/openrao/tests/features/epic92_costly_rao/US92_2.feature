@@ -89,7 +89,7 @@ Feature: US 92.2: Costly range actions optimization - APPROXIMATED_INTEGERS PSTs
     And 0 remedial actions are used after "coBeFr2" at "curative"
     And the value of the objective function after CRA should be 87.5
 
-  @fast @costly @rao
+  @fast @costly @rao @multi-curative
   Scenario: US 92.2.6: Multi-curative costly optimization
   The same PST is moved in preventive optimization and at all curative states
     Given network file is "epic92/2Nodes3ParallelLinesPST.uct"
@@ -115,7 +115,7 @@ Feature: US 92.2: Costly range actions optimization - APPROXIMATED_INTEGERS PSTs
     # Activation of pstBeFr3 4 times (4 * 20) + 10 taps moved (10 * 5.0)
     And the value of the objective function after CRA should be 130.0
 
-  @fast @costly @rao @second-preventive
+  @fast @costly @rao @second-preventive @multi-curative
   Scenario: US 92.2.6: Multi-curative costly optimization with 2P
   Same case as US 92.2.6 but with second preventive optimization.
   The PST is moved to tap -10 straight from preventive optimization to cut activation expenses.
