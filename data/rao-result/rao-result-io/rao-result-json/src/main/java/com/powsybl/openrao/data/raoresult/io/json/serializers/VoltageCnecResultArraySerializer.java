@@ -6,7 +6,6 @@
  */
 package com.powsybl.openrao.data.raoresult.io.json.serializers;
 
-import com.powsybl.openrao.commons.MinOrMax;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
@@ -80,8 +79,8 @@ final class VoltageCnecResultArraySerializer {
 
     private static void serializeVoltageCnecResultForOptimizationStateAndUnit(Instant optInstant, Unit unit, VoltageCnec voltageCnec, RaoResult raoResult, JsonGenerator jsonGenerator) throws IOException {
 
-        double minVoltage = safeGetVoltage(raoResult, voltageCnec, optInstant, MinOrMax.MIN, unit);
-        double maxVoltage = safeGetVoltage(raoResult, voltageCnec, optInstant, MinOrMax.MAX, unit);
+        double minVoltage = safeGetMinVoltage(raoResult, voltageCnec, optInstant, unit);
+        double maxVoltage = safeGetMaxVoltage(raoResult, voltageCnec, optInstant, unit);
         double margin = safeGetMargin(raoResult, voltageCnec, optInstant, unit);
 
         if (Double.isNaN(minVoltage) && Double.isNaN(maxVoltage) && Double.isNaN(margin)) {
@@ -115,15 +114,24 @@ final class VoltageCnecResultArraySerializer {
     }
 
     private static boolean containsAnyResultForOptimizationState(RaoResult raoResult, VoltageCnec voltageCnec, Instant optInstant) {
-        return !Double.isNaN(safeGetVoltage(raoResult, voltageCnec, optInstant, MinOrMax.MIN, Unit.KILOVOLT)) ||
-            !Double.isNaN(safeGetVoltage(raoResult, voltageCnec, optInstant, MinOrMax.MAX, Unit.KILOVOLT)) ||
+        return !Double.isNaN(safeGetMaxVoltage(raoResult, voltageCnec, optInstant, Unit.KILOVOLT)) ||
+            !Double.isNaN(safeGetMinVoltage(raoResult, voltageCnec, optInstant, Unit.KILOVOLT)) ||
             !Double.isNaN(safeGetMargin(raoResult, voltageCnec, optInstant, Unit.KILOVOLT));
     }
 
-    private static double safeGetVoltage(RaoResult raoResult, VoltageCnec voltageCnec, Instant optInstant, MinOrMax minOrMax, Unit unit) {
+    private static double safeGetMinVoltage(RaoResult raoResult, VoltageCnec voltageCnec, Instant optInstant, Unit unit) {
         // methods getVoltage can return an exception if RAO is executed on one state only
         try {
-            return raoResult.getVoltage(optInstant, voltageCnec, minOrMax, unit);
+            return raoResult.getMinVoltage(optInstant, voltageCnec, unit);
+        } catch (OpenRaoException e) {
+            return Double.NaN;
+        }
+    }
+
+    private static double safeGetMaxVoltage(RaoResult raoResult, VoltageCnec voltageCnec, Instant optInstant, Unit unit) {
+        // methods getVoltage can return an exception if RAO is executed on one state only
+        try {
+            return raoResult.getMaxVoltage(optInstant, voltageCnec, unit);
         } catch (OpenRaoException e) {
             return Double.NaN;
         }
