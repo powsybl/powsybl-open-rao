@@ -85,7 +85,7 @@ Feature: US 93.1: Redispatching actions
       - redispatchingActionFR3: initial setpoint = -300/0.6 = -500, final = -265 => delta+ = −235
       => 471*(1-0.7)-235*0.6 = 0.3 ~ 0
   Objective function breakdown: 10+471*50+10+235*50 = 35320
-    Given network file is "epic93/3Nodes.uct"
+    Given network file is "epic93/3Nodes_connected.xiidm"
     Given crac file is "epic93/crac-93-1-5.json"
     Given configuration file is "epic93/RaoParameters_minCost_megawatt_dc.json"
     When I launch search_tree_rao
@@ -95,3 +95,13 @@ Feature: US 93.1: Redispatching actions
     And the setpoint of RangeAction "redispatchingActionFR3" should be -265.0 MW in preventive
     And the margin on cnec "cnecFr1Fr2Preventive" after PRA should be 0.0 MW
     And the value of the objective function after PRA should be 35320.0
+
+
+  @fast @rao @dc @redispatching @preventive-only
+  Scenario: US 93.1.6: Redispatching with disconnected generator
+    Same network as 93.1.5 but with the generator FFR1AA1 _generator disconnected
+    Given network file is "epic93/3Nodes_disconnected_gen.xiidm"
+    Given crac file is "epic93/crac-93-1-5.json"
+    Given configuration file is "epic93/RaoParameters_minCost_megawatt_dc.json"
+    When I launch search_tree_rao
+
