@@ -24,10 +24,6 @@ import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-<<<<<<< HEAD
-import java.util.concurrent.ExecutionException;
-=======
->>>>>>> main
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicReference;
@@ -153,14 +149,6 @@ public class PostPerimeterSensitivityAnalysis extends AbstractMultiPerimeterSens
                     flowResult.set(previousResultsFuture.get());
                     sensitivityResult.set(previousResultsFuture.get());
                 } catch (InterruptedException e) {
-<<<<<<< HEAD
-                    throw new RuntimeException(e);
-                } catch (ExecutionException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-            ObjectiveFunction objectiveFunction = null;
-=======
                     TECHNICAL_LOGS.warn("A computation thread was interrupted");
                     Thread.currentThread().interrupt();
                 } catch (Exception e) {
@@ -169,8 +157,6 @@ public class PostPerimeterSensitivityAnalysis extends AbstractMultiPerimeterSens
 
             }
             ObjectiveFunction objectiveFunction = null;
-
->>>>>>> main
             try {
                 objectiveFunction = ObjectiveFunction.build(
                     flowCnecs,
@@ -182,16 +168,10 @@ public class PostPerimeterSensitivityAnalysis extends AbstractMultiPerimeterSens
                     remedialActionActivationResult.getActivatedRangeActionsPerState().keySet()
                 );
             } catch (InterruptedException e) {
-<<<<<<< HEAD
-                throw new RuntimeException(e);
-            } catch (ExecutionException e) {
-                throw new RuntimeException(e);
-=======
                 TECHNICAL_LOGS.warn("A computation thread was interrupted");
                 Thread.currentThread().interrupt();
             } catch (Exception e) {
                 throw new OpenRaoException(e);
->>>>>>> main
             }
 
             ObjectiveFunctionResult objectiveFunctionResult = objectiveFunction.evaluate(
