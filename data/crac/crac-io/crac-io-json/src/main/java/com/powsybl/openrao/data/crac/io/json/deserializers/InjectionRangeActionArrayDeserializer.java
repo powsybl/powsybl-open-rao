@@ -7,6 +7,8 @@
 
 package com.powsybl.openrao.data.crac.io.json.deserializers;
 
+import com.powsybl.iidm.network.Generator;
+import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
@@ -63,15 +65,21 @@ public final class InjectionRangeActionArrayDeserializer {
             injectionRangeActionAdder.withInitialSetpoint(initialSetpoint);
             // add only if all the generators are connected
             Set<String> disconnectedGeneratorsSet = injectionDistributionKeys.keySet().stream()
-                .map(generatorId -> network.getGenerator(generatorId))
-                .filter(generator -> !generator.getTerminal().isConnected())
-                .map(generator -> generator.getId()).collect(Collectors.toSet());
+                .filter(generatorOrLoadId -> {
+                    Generator generator = network.getGenerator(generatorOrLoadId);
+                    if (generator != null) {
+                        return !generator.getTerminal().isConnected();
+                    } else {
+                        Load load = network.getLoad(generatorOrLoadId);
+                        return !load.getTerminal().isConnected();
+                    }
+                }).collect(Collectors.toSet());
 
             if (!disconnectedGeneratorsSet.isEmpty()) {
                 String disconnectedGenerators = String.join(",", disconnectedGeneratorsSet);
                 OpenRaoLoggerProvider.BUSINESS_WARNS.warn(
                     String.format(
-                        "The injection range action %s will be ignored in the optimization because it uses disconnected generator(s): %s.",
+                        "The injection range action %s will be ignored in the optimization because it uses disconnected generator(s)/load(s): %s.",
                         injectionRangeActionId,
                         disconnectedGenerators
                     )
