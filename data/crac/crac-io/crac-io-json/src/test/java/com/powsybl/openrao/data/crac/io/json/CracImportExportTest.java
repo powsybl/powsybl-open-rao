@@ -20,6 +20,7 @@ import com.powsybl.openrao.data.crac.api.CracCreationContext;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.RaUsageLimits;
+import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
 import com.powsybl.openrao.data.crac.api.usagerule.OnConstraint;
 import com.powsybl.openrao.data.crac.api.usagerule.OnContingencyState;
 import com.powsybl.openrao.data.crac.api.usagerule.OnFlowConstraintInCountry;
@@ -51,6 +52,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.data.crac.api.usagerule.UsageMethod.AVAILABLE;
 import static com.powsybl.openrao.data.crac.api.usagerule.UsageMethod.FORCED;
@@ -576,5 +578,18 @@ class CracImportExportTest {
             "/hvdcRangeActions/0: property 'initialSetpoint' is not defined in the schema and the schema does not allow additional properties; " +
             "/injectionRangeActions/0: property 'initialSetpoint' is not defined in the schema and the schema does not allow additional properties; " +
             "/counterTradeRangeActions/0: property 'initialSetpoint' is not defined in the schema and the schema does not allow additional properties", exception.getMessage());
+    }
+
+    @Test
+    void testImportInjectionRangeActionWithDisconnectedGenerator() throws IOException {
+        Network network = Network.read("3Nodes_FFR3AA1_disconnected.xiidm", getClass().getResourceAsStream("/3Nodes_FFR3AA1_disconnected.xiidm"));
+        Crac crac = Crac.read("crac-2-redispatching-actions.json", getClass().getResourceAsStream("/crac-2-redispatching-actions.json"), network);
+
+        assertEquals(1, crac.getInjectionRangeActions().size());
+
+        Set<String> ids = crac.getInjectionRangeActions().stream()
+            .map(InjectionRangeAction::getId)
+            .collect(Collectors.toSet());
+        assertTrue(ids.contains("redispatchingActionFR1"));
     }
 }

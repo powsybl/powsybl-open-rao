@@ -98,25 +98,15 @@ Feature: US 93.1: Redispatching actions
 
   @fast @rao @dc @redispatching @preventive-only
   Scenario: US 93.1.6: Redispatching with disconnected generator
-  A simple three node network where all the prod (1000 MW) is on FFR2AA1 and all the load is on FFR1AA1.
-  The generator FFR3AA1 is disconnected (whatever the production or the load that is defined in the network file on this generator it won't impact the loadflow)
-  Injection balance constraint is respected :
-    - redispatchingActionFR1: initial setpoint = 1000 = 1000/1, final = 0 delta- = 1000
-    - redispatchingActionFR3: initial setpoint = 0/1 = 0, final = 1000 => delta+ = 1000
-    => 1000*1-1000*1=0
-  Objective function breakdown: 10+1000*50+10+1000*50 = 100020
-  However although the optimizer correctly balances redispatching by decreasing 1000 MW on FFR1AA1
-  and increasing 1000 MW on FFR3AA1, the final network state does not reflect this injection since
-  FFR3AA1 is physically unavailable. As a result, all flows remain null after the PRA.
+  A simple three nodes network where all the prod is on FFR2AA1 and all the load is on FFR1AA1.
+  The generator FFR3AA1 is disconnected so the redispatchingActionFR3 won't be used so the RAO can't use redispatchingActionFR1 either
+  because it won't be able to satisfy the injection balancing constraint.
     Given network file is "epic93/3Nodes_FFR3AA1_disconnected.xiidm"
     Given crac file is "epic93/crac-93-1-6.json"
     Given configuration file is "epic93/RaoParameters_minCost_megawatt_dc.json"
     When I launch search_tree_rao
-    And the setpoint of RangeAction "redispatchingActionFR1" should be 0.0 MW in preventive
-    And the setpoint of RangeAction "redispatchingActionFR3" should be 1000.0 MW in preventive
-    And the flow on cnec "cnecFr1Fr2Preventive" after PRA should be 0.0 MW
-    And the flow on cnec "cnecFr2Fr3Preventive" after PRA should be 0.0 MW
-    And the flow on cnec "cnecFr1Fr3Preventive" after PRA should be 0.0 MW
-    And the value of the objective function after PRA should be 100020.0
+    And the initial setpoint of RangeAction "redispatchingActionFR1" should be -1000.0
+    And the setpoint of RangeAction "redispatchingActionFR1" should be -1000.0 MW in preventive
+    And 0 remedial actions are used in preventive
 
 

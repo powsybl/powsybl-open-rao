@@ -9,6 +9,7 @@ package com.powsybl.openrao.data.crac.io.json.deserializers;
 
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants;
 import com.powsybl.openrao.data.crac.io.commons.iidm.IidmInjectionHelper;
 import com.powsybl.openrao.data.crac.api.Crac;
@@ -20,6 +21,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.data.crac.io.json.deserializers.CracDeserializer.LOGGER;
 
@@ -39,10 +41,15 @@ public final class InjectionRangeActionArrayDeserializer {
         networkElementsUsedList = new HashSet<>();
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             InjectionRangeActionAdder injectionRangeActionAdder = crac.newInjectionRangeAction();
-
+            String injectionRangeActionId = null;
             Map<String, Double> injectionDistributionKeys = null;
             while (!jsonParser.nextToken().isStructEnd()) {
-                if (StandardRangeActionDeserializer.addCommonElement(injectionRangeActionAdder, jsonParser, version)) {
+                if (jsonParser.getCurrentName() == JsonSerializationConstants.ID) {
+                    injectionRangeActionId = jsonParser.nextTextValue();
+                    injectionRangeActionAdder.withId(injectionRangeActionId);
+                    continue;
+                }
+                else if (StandardRangeActionDeserializer.addCommonElement(injectionRangeActionAdder, jsonParser, version)) {
                     continue;
                 }
                 if (jsonParser.getCurrentName().equals(JsonSerializationConstants.NETWORK_ELEMENT_IDS_AND_KEYS)) {
@@ -55,7 +62,25 @@ public final class InjectionRangeActionArrayDeserializer {
 
             double initialSetpoint = IidmInjectionHelper.getCurrentSetpoint(network, injectionDistributionKeys);
             injectionRangeActionAdder.withInitialSetpoint(initialSetpoint);
-            injectionRangeActionAdder.add();
+            // add only if all the generators are connected
+            Set<String> disconnectedGeneratorsSet = injectionDistributionKeys.keySet().stream()
+                .map(generatorId -> network.getGenerator(generatorId))
+                .filter(generator -> !generator.getTerminal().isConnected())
+                .map(generator -> generator.getId()).collect(Collectors.toSet());
+
+            if (!disconnectedGeneratorsSet.isEmpty()) {
+                String disconnectedGenerators = String.join(",", disconnectedGeneratorsSet);
+                OpenRaoLoggerProvider.BUSINESS_WARNS.warn(
+                    String.format(
+                        "The injection range action %s will be ignored in the optimization because it uses disconnected generator(s): %s.",
+                        injectionRangeActionId,
+                        disconnectedGenerators
+                    )
+                );
+            } else {
+                injectionRangeActionAdder.add();
+            }
+
 
         }
     }
