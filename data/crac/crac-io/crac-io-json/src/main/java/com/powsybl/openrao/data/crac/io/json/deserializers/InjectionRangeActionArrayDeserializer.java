@@ -48,8 +48,7 @@ public final class InjectionRangeActionArrayDeserializer {
                     injectionRangeActionId = jsonParser.nextTextValue();
                     injectionRangeActionAdder.withId(injectionRangeActionId);
                     continue;
-                }
-                else if (StandardRangeActionDeserializer.addCommonElement(injectionRangeActionAdder, jsonParser, version)) {
+                } else if (StandardRangeActionDeserializer.addCommonElement(injectionRangeActionAdder, jsonParser, version)) {
                     continue;
                 }
                 if (jsonParser.getCurrentName().equals(JsonSerializationConstants.NETWORK_ELEMENT_IDS_AND_KEYS)) {
@@ -80,7 +79,6 @@ public final class InjectionRangeActionArrayDeserializer {
             } else {
                 injectionRangeActionAdder.add();
             }
-
 
         }
     }
