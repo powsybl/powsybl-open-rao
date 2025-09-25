@@ -174,7 +174,7 @@ class MarmotTest {
     @Test
     void testWithRedispatchingAndGradientOnImplicatedGenerators() throws IOException {
         String networkRelativePath = "/network/3Nodes.uct";
-        String networkAbsolutePath = MarmotTest.class.getResource(networkRelativePath).getFile();
+        String networkAbsolutePath = getResourcesPath().concat(networkRelativePath);
         Network network = Network.read(networkRelativePath, MarmotTest.class.getResourceAsStream(networkRelativePath));
 
         // Create postIcsNetwork:
@@ -250,7 +250,7 @@ class MarmotTest {
 
     @Test
     void testWithTenTimestampsAndGeneratorConstraints() throws IOException {
-        String networkPath = Objects.requireNonNull(MarmotTest.class.getResource("/network/4Nodes_1_PST.uct")).getFile();
+        String networkPath = getResourcesPath().concat("/network/4Nodes_1_PST.uct");
 
         Network network = Network.read("/network/4Nodes_1_PST.uct", MarmotTest.class.getResourceAsStream("/network/4Nodes_1_PST.uct"));
         Crac crac1 = Crac.read("/crac/crac-202503251030.json", MarmotTest.class.getResourceAsStream("/crac/crac-202503251030.json"), network);
@@ -312,7 +312,7 @@ class MarmotTest {
 
     @Test
     void testWithTenTimestampsAndNoGeneratorConstraints() throws IOException {
-        String networkPath = Objects.requireNonNull(MarmotTest.class.getResource("/network/4Nodes_1_PST.uct")).getFile();
+        String networkPath = getResourcesPath().concat("/network/4Nodes_1_PST.uct");
 
         Network network = Network.read("/network/4Nodes_1_PST.uct", MarmotTest.class.getResourceAsStream("/network/4Nodes_1_PST.uct"));
         Crac crac1 = Crac.read("/crac/crac-202503251030.json", MarmotTest.class.getResourceAsStream("/crac/crac-202503251030.json"), network);
