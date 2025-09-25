@@ -85,7 +85,7 @@ Feature: US 93.1: Redispatching actions
       - redispatchingActionFR3: initial setpoint = -300/0.6 = -500, final = -265 => delta+ = −235
       => 471*(1-0.7)-235*0.6 = 0.3 ~ 0
   Objective function breakdown: 10+471*50+10+235*50 = 35320
-    Given network file is "epic93/3Nodes_connected.xiidm"
+    Given network file is "epic93/3Nodes.uct"
     Given crac file is "epic93/crac-93-1-5.json"
     Given configuration file is "epic93/RaoParameters_minCost_megawatt_dc.json"
     When I launch search_tree_rao
