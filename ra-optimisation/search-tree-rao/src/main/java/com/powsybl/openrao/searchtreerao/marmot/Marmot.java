@@ -343,7 +343,7 @@ public class Marmot implements InterTemporalRaoProvider {
             Set<FlowCnec> cnecs = new HashSet<>();
             String logMessage = "[MARMOT] Running RAO for timestamp %s [{}]".formatted(individualRaoInput.getCrac().getTimestamp().orElseThrow());
             TECHNICAL_LOGS.info(logMessage, "start");
-            RaoResult raoResult = FastRao.launchFilteredRao(individualRaoInput, raoParameters, null, cnecs);
+            RaoResult raoResult = FastRao.launchFastRaoOptimization(individualRaoInput, raoParameters, null, cnecs);
             TECHNICAL_LOGS.info(logMessage, "end");
             consideredCnecs.put(datetime, cnecs);
             individualResults.put(datetime, raoResult);
