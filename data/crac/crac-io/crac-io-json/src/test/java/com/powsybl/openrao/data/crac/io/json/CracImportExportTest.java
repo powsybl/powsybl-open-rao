@@ -15,6 +15,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
+import com.powsybl.openrao.commons.logs.RaoBusinessWarns;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.CracCreationContext;
 import com.powsybl.openrao.data.crac.api.Instant;
@@ -40,6 +41,7 @@ import com.powsybl.openrao.data.crac.api.threshold.BranchThreshold;
 import com.powsybl.openrao.data.crac.impl.utils.ExhaustiveCracCreation;
 import com.powsybl.openrao.data.crac.impl.utils.NetworkImportsUtil;
 import com.powsybl.openrao.data.crac.io.json.deserializers.CracDeserializer;
+import com.powsybl.openrao.data.crac.io.json.deserializers.InjectionRangeActionArrayDeserializer;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.slf4j.LoggerFactory;
@@ -582,6 +584,13 @@ class CracImportExportTest {
 
     @Test
     void testImportInjectionRangeActionWithDisconnectedGenerator() throws IOException {
+        Logger logger = (Logger) LoggerFactory.getLogger(RaoBusinessWarns.class);
+        ListAppender<ILoggingEvent> listAppender = new ListAppender<>();
+        listAppender.start();
+        logger.addAppender(listAppender);
+
+        List<ILoggingEvent> logsList = listAppender.list;
+
         Network network = Network.read("3Nodes_FFR3AA1_disconnected.xiidm", getClass().getResourceAsStream("/3Nodes_FFR3AA1_disconnected.xiidm"));
         Crac crac = Crac.read("crac-2-redispatching-actions.json", getClass().getResourceAsStream("/crac-2-redispatching-actions.json"), network);
 
@@ -591,5 +600,9 @@ class CracImportExportTest {
             .map(InjectionRangeAction::getId)
             .collect(Collectors.toSet());
         assertTrue(ids.contains("redispatchingActionFR1"));
+
+        logsList.sort(Comparator.comparing(ILoggingEvent::getMessage));
+        assertEquals(1, logsList.size());
+        assertEquals("The injection range action redispatchingActionFR3 will be ignored in the optimization because it uses disconnected generator(s)/load(s): FFR3AA1 _generator.", logsList.get(0).getFormattedMessage());
     }
 }
