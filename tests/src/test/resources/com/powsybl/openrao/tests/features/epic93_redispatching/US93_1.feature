@@ -95,3 +95,18 @@ Feature: US 93.1: Redispatching actions
     And the setpoint of RangeAction "redispatchingActionFR3" should be -265.0 MW in preventive
     And the margin on cnec "cnecFr1Fr2Preventive" after PRA should be 0.0 MW
     And the value of the objective function after PRA should be 35320.0
+
+  @fast @rao @dc @redispatching @preventive-only
+  Scenario: US 93.1.6: Redispatching with disconnected generator
+  A simple three nodes network where all the prod is on FFR2AA1 and all the load is on FFR1AA1.
+  The generator FFR3AA1 is disconnected so the redispatchingActionFR3 won't be used so the RAO can't use redispatchingActionFR1 either
+  because it won't be able to satisfy the injection balancing constraint.
+    Given network file is "epic93/3Nodes_FFR3AA1_disconnected.xiidm"
+    Given crac file is "epic93/crac-93-1-6.json"
+    Given configuration file is "epic93/RaoParameters_minCost_megawatt_dc.json"
+    When I launch search_tree_rao
+    And the initial setpoint of RangeAction "redispatchingActionFR1" should be -1000.0
+    And the setpoint of RangeAction "redispatchingActionFR1" should be -1000.0 MW in preventive
+    And 0 remedial actions are used in preventive
+
+

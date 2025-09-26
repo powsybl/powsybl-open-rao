@@ -15,11 +15,13 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
+import com.powsybl.openrao.commons.logs.RaoBusinessWarns;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.CracCreationContext;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.RaUsageLimits;
+import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
 import com.powsybl.openrao.data.crac.api.usagerule.OnConstraint;
 import com.powsybl.openrao.data.crac.api.usagerule.OnContingencyState;
 import com.powsybl.openrao.data.crac.api.usagerule.OnFlowConstraintInCountry;
@@ -51,6 +53,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.data.crac.api.usagerule.UsageMethod.AVAILABLE;
 import static com.powsybl.openrao.data.crac.api.usagerule.UsageMethod.FORCED;
@@ -576,5 +579,29 @@ class CracImportExportTest {
             "/hvdcRangeActions/0: property 'initialSetpoint' is not defined in the schema and the schema does not allow additional properties; " +
             "/injectionRangeActions/0: property 'initialSetpoint' is not defined in the schema and the schema does not allow additional properties; " +
             "/counterTradeRangeActions/0: property 'initialSetpoint' is not defined in the schema and the schema does not allow additional properties", exception.getMessage());
+    }
+
+    @Test
+    void testImportInjectionRangeActionWithDisconnectedGenerator() throws IOException {
+        Logger logger = (Logger) LoggerFactory.getLogger(RaoBusinessWarns.class);
+        ListAppender<ILoggingEvent> listAppender = new ListAppender<>();
+        listAppender.start();
+        logger.addAppender(listAppender);
+
+        List<ILoggingEvent> logsList = listAppender.list;
+
+        Network network = Network.read("3Nodes_FFR3AA1_disconnected.xiidm", getClass().getResourceAsStream("/3Nodes_FFR3AA1_disconnected.xiidm"));
+        Crac crac = Crac.read("crac-2-redispatching-actions.json", getClass().getResourceAsStream("/crac-2-redispatching-actions.json"), network);
+
+        assertEquals(1, crac.getInjectionRangeActions().size());
+
+        Set<String> ids = crac.getInjectionRangeActions().stream()
+            .map(InjectionRangeAction::getId)
+            .collect(Collectors.toSet());
+        assertTrue(ids.contains("redispatchingActionFR1"));
+
+        logsList.sort(Comparator.comparing(ILoggingEvent::getMessage));
+        assertEquals(1, logsList.size());
+        assertEquals("The injection range action redispatchingActionFR3 will not be imported because it uses disconnected generator(s)/load(s): FFR3AA1 _generator.", logsList.get(0).getFormattedMessage());
     }
 }
