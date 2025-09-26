@@ -603,6 +603,6 @@ class CracImportExportTest {
 
         logsList.sort(Comparator.comparing(ILoggingEvent::getMessage));
         assertEquals(1, logsList.size());
-        assertEquals("The injection range action redispatchingActionFR3 will be ignored in the optimization because it uses disconnected generator(s)/load(s): FFR3AA1 _generator.", logsList.get(0).getFormattedMessage());
+        assertEquals("The injection range action redispatchingActionFR3 will not be imported because it uses disconnected generator(s)/load(s): FFR3AA1 _generator.", logsList.get(0).getFormattedMessage());
     }
 }
