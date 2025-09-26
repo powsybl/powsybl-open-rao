@@ -450,7 +450,7 @@ void printSomeResults(VoltageCnecCreationContext context, CracCreationContext cr
     System.out.println(String.format("The voltage CNEC created in the OpenRAO CRAC is called: %s", String.join(", ", context.getCreatedCnecId())));
     VoltageCnec voltageCnec = cracCreationContext.getCrac().getVoltageCnec(context.getCreatedCnecId());
     // Print its voltage value (note that this will not work with the default search-tree RAO implementation)
-    System.out.println(String.format("Its max voltage value after RAO is: %.2f", raoResult.getVoltage(OptimizationState.afterOptimizing(voltageCnec.getState()), voltageCnec, MinOrMax.MAX, Unit.KILOVOLT)));
+    System.out.println(String.format("Its max voltage value after RAO is: %.2f", raoResult.getMaxVoltage(OptimizationState.afterOptimizing(voltageCnec.getState()), voltageCnec, Unit.KILOVOLT)));
 }
 ```
 

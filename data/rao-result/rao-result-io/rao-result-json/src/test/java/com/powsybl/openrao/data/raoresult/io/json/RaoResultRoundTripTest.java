@@ -39,8 +39,6 @@ import java.util.Set;
 
 import static com.powsybl.iidm.network.TwoSides.ONE;
 import static com.powsybl.iidm.network.TwoSides.TWO;
-import static com.powsybl.openrao.commons.MinOrMax.MAX;
-import static com.powsybl.openrao.commons.MinOrMax.MIN;
 import static com.powsybl.openrao.commons.Unit.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -412,17 +410,17 @@ class RaoResultRoundTripTest {
         VoltageCnec
         */
         VoltageCnec voltageCnec = crac.getVoltageCnec("voltageCnecId");
-        assertEquals(4146., raoResult.getVoltage(null, voltageCnec, MIN, KILOVOLT), DOUBLE_TOLERANCE);
-        assertEquals(4156., raoResult.getVoltage(null, voltageCnec, MAX, KILOVOLT), DOUBLE_TOLERANCE);
+        assertEquals(4146., raoResult.getMinVoltage(null, voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
+        assertEquals(4156., raoResult.getMaxVoltage(null, voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
         assertEquals(4141., raoResult.getMargin(null, voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
-        assertEquals(4246., raoResult.getVoltage(preventiveInstant, voltageCnec, MIN, KILOVOLT), DOUBLE_TOLERANCE);
-        assertEquals(4256., raoResult.getVoltage(preventiveInstant, voltageCnec, MAX, KILOVOLT), DOUBLE_TOLERANCE);
+        assertEquals(4246., raoResult.getMinVoltage(preventiveInstant, voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
+        assertEquals(4256., raoResult.getMaxVoltage(preventiveInstant, voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
         assertEquals(4241., raoResult.getMargin(preventiveInstant, voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
-        assertEquals(4346., raoResult.getVoltage(autoInstant, voltageCnec, MIN, KILOVOLT), DOUBLE_TOLERANCE);
-        assertEquals(4356., raoResult.getVoltage(autoInstant, voltageCnec, MAX, KILOVOLT), DOUBLE_TOLERANCE);
+        assertEquals(4346., raoResult.getMinVoltage(autoInstant, voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
+        assertEquals(4356., raoResult.getMaxVoltage(autoInstant, voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
         assertEquals(4341., raoResult.getMargin(autoInstant, voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
-        assertEquals(4446., raoResult.getVoltage(curativeInstant, voltageCnec, MIN, KILOVOLT), DOUBLE_TOLERANCE);
-        assertEquals(4456., raoResult.getVoltage(curativeInstant, voltageCnec, MAX, KILOVOLT), DOUBLE_TOLERANCE);
+        assertEquals(4446., raoResult.getMinVoltage(curativeInstant, voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
+        assertEquals(4456., raoResult.getMaxVoltage(curativeInstant, voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
         assertEquals(4441., raoResult.getMargin(curativeInstant, voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
     }
 
