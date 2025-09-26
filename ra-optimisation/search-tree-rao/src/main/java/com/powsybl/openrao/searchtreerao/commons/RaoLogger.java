@@ -127,8 +127,8 @@ public final class RaoLogger {
 
     public static void logRangeActions(OpenRaoLogger logger,
                                        Leaf leaf,
-                                       OptimizationPerimeter
-                                           optimizationContext, String prefix) {
+                                       OptimizationPerimeter optimizationContext,
+                                       String prefix) {
 
         boolean globalPstOptimization = optimizationContext instanceof GlobalOptimizationPerimeter;
 

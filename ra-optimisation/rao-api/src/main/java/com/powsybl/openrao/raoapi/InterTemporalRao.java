@@ -46,7 +46,7 @@ public final class InterTemporalRao {
             this.provider = Objects.requireNonNull(provider);
         }
 
-        public InterTemporalRaoResult run(InterTemporalRaoInput raoInput, RaoParameters parameters) {
+        public InterTemporalRaoResult run(InterTemporalRaoInputWithNetworkPaths raoInput, RaoParameters parameters) {
             Objects.requireNonNull(raoInput, "RAO input should not be null");
             Objects.requireNonNull(parameters, "parameters should not be null");
 
@@ -59,7 +59,7 @@ public final class InterTemporalRao {
             return provider.run(raoInput, parameters).join();
         }
 
-        public InterTemporalRaoResult run(InterTemporalRaoInput raoInput) {
+        public InterTemporalRaoResult run(InterTemporalRaoInputWithNetworkPaths raoInput) {
             return run(raoInput, RaoParameters.load());
         }
 
@@ -140,11 +140,11 @@ public final class InterTemporalRao {
         return new InterTemporalRao.Runner(provider);
     }
 
-    public static InterTemporalRaoResult run(InterTemporalRaoInput raoInput, RaoParameters parameters) {
+    public static InterTemporalRaoResult run(InterTemporalRaoInputWithNetworkPaths raoInput, RaoParameters parameters) {
         return find().run(raoInput, parameters);
     }
 
-    public static InterTemporalRaoResult run(InterTemporalRaoInput raoInput) {
+    public static InterTemporalRaoResult run(InterTemporalRaoInputWithNetworkPaths raoInput) {
         return find().run(raoInput);
     }
 }
