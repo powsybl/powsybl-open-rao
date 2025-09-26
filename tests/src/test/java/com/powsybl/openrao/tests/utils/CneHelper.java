@@ -192,7 +192,7 @@ public final class CneHelper {
      * It tells XMLUnit how nodes are unique depending on their content, in order for it to be able to ignore the sequence in the XML file
      * It is only used in case of an 'only similarity' comparison
      */
-    private static class CneDocumentElementSelector implements ElementSelector {
+    private static final class CneDocumentElementSelector implements ElementSelector {
         ByNameAndTextRecSelector byNameAndTextRecSelector = new ByNameAndTextRecSelector();
 
         @Override
@@ -255,7 +255,7 @@ public final class CneHelper {
     /**
      * This class is helpful in order to tolerate some differences in double values (which are rounded and can easily change when the RAO changes slightly)
      */
-    private static class DoubleElementDifferenceEvaluator implements DifferenceEvaluator {
+    private static final class DoubleElementDifferenceEvaluator implements DifferenceEvaluator {
         private String elementName;
         private double defaultTolerance;
         private Map<String, Double> specificMeasurementTypeTolerance;
