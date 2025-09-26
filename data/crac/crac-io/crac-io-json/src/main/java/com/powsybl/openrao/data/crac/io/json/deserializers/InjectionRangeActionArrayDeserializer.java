@@ -46,7 +46,7 @@ public final class InjectionRangeActionArrayDeserializer {
             String injectionRangeActionId = null;
             Map<String, Double> injectionDistributionKeys = null;
             while (!jsonParser.nextToken().isStructEnd()) {
-                if (jsonParser.getCurrentName() == JsonSerializationConstants.ID) {
+                if (jsonParser.getCurrentName().equals(JsonSerializationConstants.ID)) {
                     injectionRangeActionId = jsonParser.nextTextValue();
                     injectionRangeActionAdder.withId(injectionRangeActionId);
                     continue;
