@@ -14,6 +14,7 @@ import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.fasterxml.jackson.core.JsonGenerator;
+import org.apache.commons.lang3.function.TriFunction;
 
 import java.io.IOException;
 import java.util.Comparator;
@@ -121,26 +122,22 @@ final class VoltageCnecResultArraySerializer {
 
     private static double safeGetMinVoltage(RaoResult raoResult, VoltageCnec voltageCnec, Instant optInstant, Unit unit) {
         // methods getVoltage can return an exception if RAO is executed on one state only
-        try {
-            return raoResult.getMinVoltage(optInstant, voltageCnec, unit);
-        } catch (OpenRaoException e) {
-            return Double.NaN;
-        }
+        return safeGetValue(raoResult::getMinVoltage, optInstant, voltageCnec, unit);
     }
 
     private static double safeGetMaxVoltage(RaoResult raoResult, VoltageCnec voltageCnec, Instant optInstant, Unit unit) {
         // methods getVoltage can return an exception if RAO is executed on one state only
-        try {
-            return raoResult.getMaxVoltage(optInstant, voltageCnec, unit);
-        } catch (OpenRaoException e) {
-            return Double.NaN;
-        }
+        return safeGetValue(raoResult::getMaxVoltage, optInstant, voltageCnec, unit);
     }
 
     private static double safeGetMargin(RaoResult raoResult, VoltageCnec voltageCnec, Instant optInstant, Unit unit) {
         // methods getMargin can return an exception if RAO is executed on one state only
+        return safeGetValue(raoResult::getMargin, optInstant, voltageCnec, unit);
+    }
+
+    private static double safeGetValue(TriFunction<Instant, VoltageCnec, Unit, Double> callable, Instant optInstant, VoltageCnec voltageCnec, Unit unit) {
         try {
-            return raoResult.getMargin(optInstant, voltageCnec, unit);
+            return callable.apply(optInstant, voltageCnec, unit);
         } catch (OpenRaoException e) {
             return Double.NaN;
         }
