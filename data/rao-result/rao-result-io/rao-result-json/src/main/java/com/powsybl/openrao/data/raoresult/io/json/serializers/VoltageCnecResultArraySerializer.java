@@ -84,10 +84,6 @@ final class VoltageCnecResultArraySerializer {
         double maxVoltage = safeGetMaxVoltage(raoResult, voltageCnec, optInstant, unit);
         double margin = safeGetMargin(raoResult, voltageCnec, optInstant, unit);
 
-        if (Double.isNaN(minVoltage) && Double.isNaN(maxVoltage) && Double.isNaN(margin)) {
-            return;
-        }
-
         jsonGenerator.writeObjectFieldStart(serializeUnit(unit));
         if (!Double.isNaN(margin)) {
             jsonGenerator.writeNumberField(MARGIN, roundValueBasedOnMargin(margin, margin, 2));
