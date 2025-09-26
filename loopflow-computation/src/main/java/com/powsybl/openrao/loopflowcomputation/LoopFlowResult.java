@@ -22,7 +22,7 @@ public class LoopFlowResult {
 
     private final Map<BranchCnec<?>, Map<TwoSides, LoopFlow>> loopFlowMap;
 
-    private static class LoopFlow {
+    private static final class LoopFlow {
         double loopFlowValue;
         double commercialFlowValue;
         double totalFlowValue;
