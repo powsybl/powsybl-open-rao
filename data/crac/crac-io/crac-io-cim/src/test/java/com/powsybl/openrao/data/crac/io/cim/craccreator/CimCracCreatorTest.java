@@ -1240,4 +1240,29 @@ class CimCracCreatorTest {
         assert cracCreationContext.getCreationReport().getReport().contains("[ALTERED] RemedialAction_Series \"HVDC-direction12\" was modified: HVDC line BBE2AA12 FFR3AA12 1 has terminals 1 and 2 disconnected; Contingencies Co-2 were not imported. ");
         assert cracCreationContext.getCreationReport().getReport().contains("[ALTERED] RemedialAction_Series \"HVDC-direction11\" was modified: HVDC line BBE2AA12 FFR3AA12 1 has terminals 1 and 2 disconnected; Contingencies Co-2 were not imported. ");
     }
+
+    @Test
+    void importCimCracWithPreventiveHvdcRa() throws IOException {
+        Network network = loadNetworkWithHvdc();
+        setUpWithSpeed("/cracs/CIM_with_preventive_HVDC.xml", network, OffsetDateTime.parse("2021-04-01T23:00Z"), Set.of(new RangeActionSpeed("BBE2AA11 FFR3AA11 1", 1), new RangeActionSpeed("BBE2AA12 FFR3AA12 1", 2)));
+        Crac crac = cracCreationContext.getCrac();
+
+        assertEquals(2, crac.getHvdcRangeActions().size());
+
+        HvdcRangeAction hvdcRangeAction1 = crac.getHvdcRangeAction("HVDC-direction11 + HVDC-direction12 - BBE2AA11 FFR3AA11 1");
+        assertEquals(1, hvdcRangeAction1.getRanges().size());
+        assertEquals(-4000, hvdcRangeAction1.getRanges().iterator().next().getMin());
+        assertEquals(5000, hvdcRangeAction1.getRanges().iterator().next().getMax());
+        assertEquals(Optional.of("BBE2AA11 FFR3AA11 1 + BBE2AA12 FFR3AA12 1"), hvdcRangeAction1.getGroupId());
+        assertEquals(1, hvdcRangeAction1.getUsageRules().size());
+        assertEquals("preventive", hvdcRangeAction1.getUsageRules().iterator().next().getInstant().getId());
+
+        HvdcRangeAction hvdcRangeAction2 = crac.getHvdcRangeAction("HVDC-direction11 + HVDC-direction12 - BBE2AA12 FFR3AA12 1");
+        assertEquals(1, hvdcRangeAction2.getRanges().size());
+        assertEquals(-3000, hvdcRangeAction2.getRanges().iterator().next().getMin());
+        assertEquals(3500, hvdcRangeAction2.getRanges().iterator().next().getMax());
+        assertEquals(Optional.of("BBE2AA11 FFR3AA11 1 + BBE2AA12 FFR3AA12 1"), hvdcRangeAction2.getGroupId());
+        assertEquals(1, hvdcRangeAction2.getUsageRules().size());
+        assertEquals("preventive", hvdcRangeAction2.getUsageRules().iterator().next().getInstant().getId());
+    }
 }
