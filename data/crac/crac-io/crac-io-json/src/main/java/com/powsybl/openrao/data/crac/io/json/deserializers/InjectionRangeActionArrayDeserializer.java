@@ -60,10 +60,10 @@ public final class InjectionRangeActionArrayDeserializer {
                     throw new OpenRaoException("Unexpected field in InjectionRangeAction: " + jsonParser.getCurrentName());
                 }
             }
-
+            // Check while getting current setpoint if all the network elements used in injection distribution keys definition exist else throw error
             double initialSetpoint = IidmInjectionHelper.getCurrentSetpoint(network, injectionDistributionKeys);
             injectionRangeActionAdder.withInitialSetpoint(initialSetpoint);
-            // add only if all the generators are connected
+            // add only if all the generators/loads are connected
             Set<String> disconnectedGeneratorsSet = injectionDistributionKeys.keySet().stream()
                 .filter(generatorOrLoadId -> {
                     Generator generator = network.getGenerator(generatorOrLoadId);
@@ -79,7 +79,7 @@ public final class InjectionRangeActionArrayDeserializer {
                 String disconnectedGenerators = String.join(",", disconnectedGeneratorsSet);
                 OpenRaoLoggerProvider.BUSINESS_WARNS.warn(
                     String.format(
-                        "The injection range action %s will be ignored in the optimization because it uses disconnected generator(s)/load(s): %s.",
+                        "The injection range action %s will not be imported because it uses disconnected generator(s)/load(s): %s.",
                         injectionRangeActionId,
                         disconnectedGenerators
                     )
