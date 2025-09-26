@@ -9,6 +9,8 @@ package com.powsybl.openrao.searchtreerao.castor.algorithm;
 
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyElementType;
+import com.powsybl.loadflow.LoadFlowParameters;
+import com.powsybl.openloadflow.OpenLoadFlowParameters;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
@@ -81,7 +83,7 @@ class AutomatonSimulatorTest {
     private static final String AUTO_INSTANT_ID = "auto";
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         network = Network.read("TestCase16NodesWith2Hvdc.xiidm", getClass().getResourceAsStream("/network/TestCase16NodesWith2Hvdc.xiidm"));
         // Add some lines otherwise HVDC2 is connected to nothing and load-flow produces NaN angles
         network.newLine()
@@ -238,6 +240,15 @@ class AutomatonSimulatorTest {
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN);
         raoParameters.getObjectiveFunctionParameters().setUnit(Unit.MEGAWATT);
         searchTreeParameters.getLoadFlowAndSensitivityParameters().setSensitivityProvider("OpenLoadFlow");
+
+        LoadFlowParameters loadFlowParameters = new LoadFlowParameters();
+        // add OLF extension to keep same behavior as before version 2.0.0 with default parameter (note that "transformerVoltageControlMode" could be set to "WITH_GENERATOR_VOLTAGE_CONTROL" but this has no impact)
+        OpenLoadFlowParameters openLoadFlowParameters = new OpenLoadFlowParameters();
+        openLoadFlowParameters.setSlackDistributionFailureBehavior(OpenLoadFlowParameters.SlackDistributionFailureBehavior.LEAVE_ON_SLACK_BUS);
+        openLoadFlowParameters.setPlausibleActivePowerLimit(5000.0);
+        loadFlowParameters.addExtension(OpenLoadFlowParameters.class, openLoadFlowParameters);
+
+        searchTreeParameters.getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().setLoadFlowParameters(loadFlowParameters);
 
         mockedPreAutoPerimeterSensitivityAnalysis = mock(PrePerimeterSensitivityAnalysis.class);
         mockedPrePerimeterResult = mock(PrePerimeterResult.class);
