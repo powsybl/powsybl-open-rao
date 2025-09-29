@@ -1288,6 +1288,9 @@ make sure their optimized set-points are always equal.
 If the InjectionRangeAction is an automaton, it has to have a speed assigned. This is an integer that defines the relative
 speed of this range action compared to other range-action automatons (smaller "speed" value = faster range action).
 No two range-action automatons can have the same speed value, unless they are aligned.
+
+If the InjectionRangeAction uses a disconnected generator, the action will be filtered out and won't be used by the RAO.
+
 ::::{tabs}
 :::{group-tab} JAVA creation API
 ~~~java
