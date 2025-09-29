@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.marmot.results;
 
+import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
@@ -38,7 +39,7 @@ import java.util.zip.ZipOutputStream;
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public class InterTemporalRaoResultImpl implements InterTemporalRaoResult {
+public class InterTemporalRaoResultImpl extends AbstractExtendable<RaoResult> implements InterTemporalRaoResult {
     private final ObjectiveFunctionResult initialGlobalObjectiveFunctionResult;
     private final ObjectiveFunctionResult postPrasGlobalObjectiveFunctionResult;
     private final TemporalData<RaoResult> raoResultPerTimestamp;

@@ -82,10 +82,6 @@ final class AngleCnecResultArraySerializer {
         double angle = safeGetAngle(raoResult, angleCnec, optInstant, unit);
         double margin = safeGetMargin(raoResult, angleCnec, optInstant, unit);
 
-        if (Double.isNaN(angle) && Double.isNaN(margin)) {
-            return;
-        }
-
         jsonGenerator.writeObjectFieldStart(RaoResultJsonConstants.serializeUnit(unit));
         if (!Double.isNaN(angle)) {
             jsonGenerator.writeNumberField(RaoResultJsonConstants.ANGLE, roundValueBasedOnMargin(angle, margin, 2));

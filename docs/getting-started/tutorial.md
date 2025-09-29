@@ -321,7 +321,18 @@ RaoParameters raoParameters = new RaoParameters();
 
  ```java
  RaoInput.RaoInputBuilder raoInputBuilder = RaoInput.build(network, crac);
- RaoResult raoResult = Rao.find().run(raoInputBuilder.build(), raoParameters);
+ RaoResult raoResult = Rao.find("SearchTreeRao").run(raoInputBuilder.build(), raoParameters);
+ 
+ 
+ // To use FastRAO instead of the regular CASTOR 
+ 
+// Make sure to add FastRaoParameters extension to your raoParameters
+FastRaoParameters fastRaoParameters = new FastRaoParameters();
+raoParameters.addExtension(FastRaoParameters.class, fastRaoParameters);
+
+// Run 
+RaoInput raoInput = RaoInput.build(network, crac).build();
+RaoResult raoResult = Rao.find("FastRao").run(raoInput, raoParameters);
 ```
 
 All the important information regarding the optimisation process (activated remedial actions and CNEC flow at each

@@ -26,7 +26,6 @@ import com.powsybl.iidm.network.Network;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -157,7 +156,7 @@ public final class CracValidator {
                 } else if (usageRule instanceof OnFlowConstraintInCountry onFlowConstraintInCountry
                     && onFlowConstraintInCountry.getInstant().equals(flowCnec.getState().getInstant()) // TODO: why not comesBefore?
                     && (onFlowConstraintInCountry.getContingency().isEmpty() || flowCnec.getState().getContingency().equals(onFlowConstraintInCountry.getContingency()))) {
-                    if (flowCnec.getLocation(network).contains(Optional.of(onFlowConstraintInCountry.getCountry()))) {
+                    if (flowCnec.getLocation(network).contains(onFlowConstraintInCountry.getCountry())) {
                         return false;
                     } else {
                         raForOtherCnecs = true;

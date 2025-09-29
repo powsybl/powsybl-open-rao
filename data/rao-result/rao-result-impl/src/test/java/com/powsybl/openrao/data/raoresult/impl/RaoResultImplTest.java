@@ -368,6 +368,27 @@ class RaoResultImplTest {
         assertFalse(raoResult.isSecure(preventiveInstant, PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
         assertTrue(raoResult.isSecure(preventiveInstant, PhysicalParameter.FLOW, PhysicalParameter.VOLTAGE));
 
+        assertEquals(50.0, raoResult.getAngle(preventiveInstant, crac.getAngleCnec("angleCnecPreventive"), DEGREE));
+        assertEquals(10.0, raoResult.getMargin(preventiveInstant, crac.getAngleCnec("angleCnecPreventive"), DEGREE));
+
+        assertEquals(90.0, raoResult.getAngle(preventiveInstant, crac.getAngleCnec("angleCnecStateOutageContingency1"), DEGREE));
+        assertEquals(30.0, raoResult.getMargin(preventiveInstant, crac.getAngleCnec("angleCnecStateOutageContingency1"), DEGREE));
+
+        assertEquals(35.0, raoResult.getAngle(preventiveInstant, crac.getAngleCnec("angleCnecStateCurativeContingency1"), DEGREE));
+        assertEquals(-.5, raoResult.getMargin(preventiveInstant, crac.getAngleCnec("angleCnecStateCurativeContingency1"), DEGREE));
+
+        assertEquals(400.0, raoResult.getMinVoltage(preventiveInstant, crac.getVoltageCnec("voltageCnecPreventive"), KILOVOLT));
+        assertEquals(420.0, raoResult.getMaxVoltage(preventiveInstant, crac.getVoltageCnec("voltageCnecPreventive"), KILOVOLT));
+        assertEquals(40.0, raoResult.getMargin(preventiveInstant, crac.getVoltageCnec("voltageCnecPreventive"), KILOVOLT));
+
+        assertEquals(415.0, raoResult.getMinVoltage(preventiveInstant, crac.getVoltageCnec("voltageCnecStateOutageContingency1"), KILOVOLT));
+        assertEquals(435.0, raoResult.getMaxVoltage(preventiveInstant, crac.getVoltageCnec("voltageCnecStateOutageContingency1"), KILOVOLT));
+        assertEquals(5.0, raoResult.getMargin(preventiveInstant, crac.getVoltageCnec("voltageCnecStateOutageContingency1"), KILOVOLT));
+
+        assertEquals(400.0, raoResult.getMinVoltage(preventiveInstant, crac.getVoltageCnec("voltageCnecStateCurativeContingency1"), KILOVOLT));
+        assertEquals(420.0, raoResult.getMaxVoltage(preventiveInstant, crac.getVoltageCnec("voltageCnecStateCurativeContingency1"), KILOVOLT));
+        assertEquals(40.0, raoResult.getMargin(preventiveInstant, crac.getVoltageCnec("voltageCnecStateCurativeContingency1"), KILOVOLT));
+
         assertEquals("RaoResult does not contain angle values for all AngleCNECs, security status for physical parameter ANGLE is unknown", assertThrows(OpenRaoException.class, () -> raoResult.isSecure(outageInstant, PhysicalParameter.FLOW, PhysicalParameter.ANGLE)).getMessage());
         assertEquals("RaoResult does not contain angle values for all AngleCNECs, security status for physical parameter ANGLE is unknown", assertThrows(OpenRaoException.class, () -> raoResult.isSecure(curativeInstant, PhysicalParameter.FLOW, PhysicalParameter.ANGLE)).getMessage());
         assertEquals("RaoResult does not contain voltage values for all VoltageCNECs, security status for physical parameter VOLTAGE is unknown", assertThrows(OpenRaoException.class, () -> raoResult.isSecure(outageInstant, PhysicalParameter.FLOW, PhysicalParameter.VOLTAGE)).getMessage());

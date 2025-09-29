@@ -215,9 +215,8 @@ class PstRangeActionImplTest {
     @Test
     void testGetLocation() {
         PstRangeAction pstRa = pstRangeActionAdder.add();
-        Set<Optional<Country>> countries = pstRa.getLocation(network);
-        assertEquals(1, countries.size());
-        assertTrue(countries.contains(Optional.of(Country.BE)));
+        Set<Country> countries = pstRa.getLocation(network);
+        assertEquals(Set.of(Country.BE), countries);
     }
 
     @Test

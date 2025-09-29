@@ -54,7 +54,7 @@ class CurativeWithSecondPraoResultTest {
         when(postCraPrePerimeterResult.getFlow(eq(cnec1), any(), any())).thenReturn(135.4);
         when(postCraPrePerimeterResult.getFlow(eq(cnec1), any(), any(), any())).thenReturn(135.4);
 
-        CurativeWithSecondPraoResult result = new CurativeWithSecondPraoResult(state1, null, null, null, postCraPrePerimeterResult, false);
+        CurativeWithSecondPraoResult result = new CurativeWithSecondPraoResult(state1, null, null, postCraPrePerimeterResult, false);
 
         assertEquals(135.4, result.getFlow(cnec1, TwoSides.TWO, Unit.MEGAWATT), DOUBLE_TOLERANCE);
         assertEquals(135.4, result.getFlow(cnec1, TwoSides.ONE, Unit.AMPERE, mock(Instant.class)), DOUBLE_TOLERANCE);

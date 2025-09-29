@@ -422,42 +422,6 @@ class CastorSecondPreventiveTest {
     }
 
     @Test
-    void testGetRangeActionsExcludedFromSecondPreventive() {
-        setUpCracWithRAs();
-        OptimizationResult firstPreventiveResult = Mockito.mock(OptimizationResult.class);
-        OptimizationResult optimizationResult = Mockito.mock(OptimizationResult.class);
-        PostPerimeterResult postOptimizationResult = Mockito.mock(PostPerimeterResult.class);
-        when(postOptimizationResult.getOptimizationResult()).thenReturn(optimizationResult);
-        State preventiveState = crac.getPreventiveState();
-        // ra9 has different taps than ra8.
-        when(firstPreventiveResult.getOptimizedSetpoint(ra9, preventiveState)).thenReturn(2.);
-        crac.newRaUsageLimits(autoInstant.getId()).withMaxRa(0).add();
-        crac.newRaUsageLimits(curativeInstant.getId()).withMaxRaPerTso(new HashMap<>(Map.of("FR", 0))).add();
-        Map<State, PostPerimeterResult> contingencyResult = new HashMap<>();
-        crac.getStates().forEach(state -> {
-            if (!state.isPreventive()) {
-                contingencyResult.put(state, postOptimizationResult);
-            }
-        });
-        CastorSecondPreventive castorSecondPreventive = new CastorSecondPreventive(crac, null, network, null, null, null);
-
-        Set<RangeAction<?>> rangeActionsExcludedFrom2P = castorSecondPreventive.getRangeActionsExcludedFromSecondPreventive(firstPreventiveResult, contingencyResult);
-
-        assertEquals(5, rangeActionsExcludedFrom2P.size());
-        assertFalse(rangeActionsExcludedFrom2P.contains(ra1)); // Should not be excluded as it's preventive only.
-        assertTrue(rangeActionsExcludedFrom2P.contains(ra5)); // Should be excluded as it's not preventive.
-        assertTrue(rangeActionsExcludedFrom2P.contains(ra7)); // Should be excluded as it's not preventive.
-        assertTrue(rangeActionsExcludedFrom2P.contains(ra3));  // Should be excluded as it has a range limitation RELATIVE_TO_PREVIOUS_INSTANT.
-
-        assertFalse(rangeActionsExcludedFrom2P.contains(ra9)); // It shares the same network elements as ra8 but their tap are different. It should not be excluded.
-
-        assertTrue(rangeActionsExcludedFrom2P.contains(ra6));  // It has the same taps in preventive and in curative. The RA belongs to french TSO and there are ra usage limuts on this TSO : It should be excluded.
-        assertTrue(rangeActionsExcludedFrom2P.contains(ra8));  // It has the same taps in preventive and auto. As there are RaUsageLimits for this instant, it should be excluded.
-        assertFalse(rangeActionsExcludedFrom2P.contains(ra4)); // It has the same network elements as ra5 and their taps are the same. As it doesn't belong to frenchTSO : it should not be excluded.
-
-    }
-
-    @Test
     void testGetAppliedRemedialActionsInCurative() {
         PrePerimeterResult prePerimeterResult = Mockito.mock(PrePerimeterResult.class);
 
@@ -510,26 +474,6 @@ class CastorSecondPreventiveTest {
         appliedRemedialActions.applyOnNetwork(state1, network);
         assertEquals(-4, network.getTwoWindingsTransformer(pstNeId).getPhaseTapChanger().getTapPosition());
         assertFalse(network.getLine(naNeId).getTerminal1().isConnected());
-    }
-
-    @Test
-    void testApplyPreventiveResultsForCurativeRangeActions() {
-        OptimizationResult optimizationResult = Mockito.mock(OptimizationResult.class);
-        String pstNeId = "BBE2AA1  BBE3AA1  1";
-
-        setUpCracWithRealRAs(false);
-        Mockito.doReturn(-1.5583491325378418).when(optimizationResult).getOptimizedSetpoint(eq(ra1), Mockito.any());
-        Mockito.doReturn(Set.of(ra1)).when(optimizationResult).getActivatedRangeActions(Mockito.any());
-        CastorSecondPreventive castorSecondPreventive = new CastorSecondPreventive(crac, null, network, null, null, null);
-        castorSecondPreventive.applyPreventiveResultsForAutoOrCurativeRangeActions(optimizationResult);
-        assertEquals(0, network.getTwoWindingsTransformer(pstNeId).getPhaseTapChanger().getTapPosition());
-
-        setUpCracWithRealRAs(true);
-        Mockito.doReturn(-1.5583491325378418).when(optimizationResult).getOptimizedSetpoint(eq(ra1), Mockito.any());
-        Mockito.doReturn(Set.of(ra1)).when(optimizationResult).getActivatedRangeActions(Mockito.any());
-        castorSecondPreventive = new CastorSecondPreventive(crac, null, network, null, null, null);
-        castorSecondPreventive.applyPreventiveResultsForAutoOrCurativeRangeActions(optimizationResult);
-        assertEquals(-4, network.getTwoWindingsTransformer(pstNeId).getPhaseTapChanger().getTapPosition());
     }
 
     @Test

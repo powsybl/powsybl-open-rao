@@ -25,6 +25,7 @@ import com.powsybl.openrao.data.crac.api.usagerule.OnInstant;
 import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceProgramBuilder;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.PstModel;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
@@ -59,20 +60,18 @@ public final class RaoUtil {
     }
 
     public static void checkParameters(RaoParameters raoParameters, RaoInput raoInput) {
-        if (raoParameters.getObjectiveFunctionParameters().getUnit().equals(Unit.AMPERE)
-            && getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters().isDc()) {
-            throw new OpenRaoException(format("Objective function unit %s cannot be calculated with a DC default sensitivity engine", raoParameters.getObjectiveFunctionParameters().getUnit().toString()));
-        }
+        checkObjectiveFunctionParameters(raoParameters, raoInput);
+        checkLoopFlowParameters(raoParameters, raoInput);
 
-        if (raoParameters.getObjectiveFunctionParameters().getType().relativePositiveMargins()) {
-            if (raoInput.getGlskProvider() == null) {
-                throw new OpenRaoException(format("Objective function %s requires glsks", raoParameters.getObjectiveFunctionParameters().getType()));
-            }
-            if (raoParameters.getRelativeMarginsParameters().map(relativeMarginsParameters -> relativeMarginsParameters.getPtdfBoundaries().isEmpty()).orElse(true)) {
-                throw new OpenRaoException(format("Objective function %s requires a config with a non empty boundary set", raoParameters.getObjectiveFunctionParameters().getType()));
-            }
+        if (!PstModel.APPROXIMATED_INTEGERS.equals(getPstModel(raoParameters))
+            && raoInput.getCrac().getRaUsageLimitsPerInstant().values().stream().anyMatch(raUsageLimits -> !raUsageLimits.getMaxElementaryActionsPerTso().isEmpty())) {
+            String msg = "The PSTs must be approximated as integers to use the limitations of elementary actions as a constraint in the RAO.";
+            OpenRaoLoggerProvider.BUSINESS_LOGS.error(msg);
+            throw new OpenRaoException(msg);
         }
+    }
 
+    private static void checkLoopFlowParameters(RaoParameters raoParameters, RaoInput raoInput) {
         if ((raoParameters.getLoopFlowParameters().isPresent()
             || raoParameters.getObjectiveFunctionParameters().getType().relativePositiveMargins())
             && (Objects.isNull(raoInput.getReferenceProgram()))) {
@@ -87,12 +86,27 @@ public final class RaoUtil {
             OpenRaoLoggerProvider.BUSINESS_LOGS.error(msg);
             throw new OpenRaoException(msg);
         }
+    }
 
-        if (!PstModel.APPROXIMATED_INTEGERS.equals(getPstModel(raoParameters))
-            && raoInput.getCrac().getRaUsageLimitsPerInstant().values().stream().anyMatch(raUsageLimits -> !raUsageLimits.getMaxElementaryActionsPerTso().isEmpty())) {
-            String msg = "The PSTs must be approximated as integers to use the limitations of elementary actions as a constraint in the RAO.";
-            OpenRaoLoggerProvider.BUSINESS_LOGS.error(msg);
-            throw new OpenRaoException(msg);
+    private static void checkObjectiveFunctionParameters(RaoParameters raoParameters, RaoInput raoInput) {
+        if (raoParameters.getObjectiveFunctionParameters().getUnit().equals(Unit.AMPERE)
+            && getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters().isDc()) {
+            throw new OpenRaoException(format("Objective function unit %s cannot be calculated with a DC default sensitivity engine", raoParameters.getObjectiveFunctionParameters().getUnit().toString()));
+        }
+
+        if (raoParameters.getObjectiveFunctionParameters().getType().relativePositiveMargins()) {
+            if (raoInput.getGlskProvider() == null) {
+                throw new OpenRaoException(format("Objective function %s requires glsks", raoParameters.getObjectiveFunctionParameters().getType()));
+            }
+            if (raoParameters.getRelativeMarginsParameters().map(relativeMarginsParameters -> relativeMarginsParameters.getPtdfBoundaries().isEmpty()).orElse(true)) {
+                throw new OpenRaoException(format("Objective function %s requires a config with a non empty boundary set", raoParameters.getObjectiveFunctionParameters().getType()));
+            }
+        }
+
+        if (raoParameters.getObjectiveFunctionParameters().getType().costOptimization() &&
+            (!raoParameters.hasExtension(OpenRaoSearchTreeParameters.class) ||
+                raoParameters.hasExtension(OpenRaoSearchTreeParameters.class) && raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getMinMarginsParameters().isEmpty())) {
+            throw new OpenRaoException(format("Objective function type %s requires a config with costly min margin parameters", raoParameters.getObjectiveFunctionParameters().getType()));
         }
     }
 

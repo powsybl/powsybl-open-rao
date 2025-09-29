@@ -193,7 +193,6 @@ The differences with the first preventive RAO are that, in this run:
 - **curative remedial actions** that were selected in the curative perimeter are supposed activated*, in order for
   the preventive RAO to focus on constraints that cannot be solved by curative actions.
 
-_* It is possible to re-optimise curative range actions (for all curative instants) during second preventive RAO
-using [this parameter](../../parameters/implementation-specific-parameters.md#re-optimize-curative-range-actions)._
+_* Curative range actions (for all curative instants) are re-optimized during second preventive RAO.
 
 ![PATL vs TATL](../../_static/img/rao_steps.png){.forced-white-background}

@@ -35,8 +35,8 @@ Feature: US 1.4: Generate a basic output file after RAO computation
     Then the remedial action "PST @1" is used in preventive
     Then the "upper" threshold on cnec "BBE2AA1  FFR3AA1  1 - preventive" should be 1500.0 A
     Then the initial flow on cnec "BBE2AA1  FFR3AA1  1 - preventive" should be 721.0 A
-    Then the flow on cnec "BBE2AA1  FFR3AA1  1 - preventive" after PRA should be 473.0 A
+    Then the flow on cnec "BBE2AA1  FFR3AA1  1 - preventive" after PRA should be 471.1 A
     Then the "upper" threshold on cnec "FFR2AA1  DDE3AA1  1 - Contingency FR1 FR3 - outage" should be 1500.0 A
     Then the initial flow on cnec "FFR2AA1  DDE3AA1  1 - Contingency FR1 FR3 - outage" should be 2098.0 A
-    Then the flow on cnec "FFR2AA1  DDE3AA1  1 - Contingency FR1 FR3 - outage" after PRA should be 1861.0 A
-    Then the flow on cnec "FFR2AA1  DDE3AA1  1 - Contingency FR1 FR3 - outage" after CRA should be 1861.0 A
+    Then the flow on cnec "FFR2AA1  DDE3AA1  1 - Contingency FR1 FR3 - outage" after PRA should be 1859.0 A
+    Then the flow on cnec "FFR2AA1  DDE3AA1  1 - Contingency FR1 FR3 - outage" after CRA should be 1859.0 A
