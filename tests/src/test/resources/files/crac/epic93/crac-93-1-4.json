@@ -55,8 +55,7 @@
       "operator": "FR",
       "onInstantUsageRules": [
         {
-          "instant": "preventive",
-          "usageMethod": "available"
+          "instant": "preventive"
         }
       ],
       "networkElementIdsAndKeys": {
@@ -76,8 +75,7 @@
       "operator": "FR",
       "onInstantUsageRules": [
         {
-          "instant": "preventive",
-          "usageMethod": "available"
+          "instant": "preventive"
         }
       ],
       "networkElementIdsAndKeys": {
