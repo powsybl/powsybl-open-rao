@@ -82,9 +82,9 @@ public abstract class AbstractRemedialActionAdder<T extends RemedialActionAdder<
     }
 
     static void checkOnConstraintUsageRules(Instant instant, Cnec<?> cnec) {
-        // Only allow PRAs with usage rule OnFlowConstraint/OnAngleConstraint/OnVoltageConstraint, for CNECs of instants PREVENTIVE & OUTAGE & CURATIVE
-        // Only allow ARAs with usage rule OnFlowConstraint/OnAngleConstraint/OnVoltageConstraint, for CNECs of instant AUTO
-        // Only allow CRAs with usage rule OnFlowConstraint/OnAngleConstraint/OnVoltageConstraint, for CNECs of instant CURATIVE
+        // Only allow PRAs with usage rule OnConstraint, for CNECs of instants PREVENTIVE & OUTAGE & CURATIVE
+        // Only allow ARAs with usage rule OnConstraint, for CNECs of instant AUTO
+        // Only allow CRAs with usage rule OnConstraint, for CNECs of instant CURATIVE
 
         if (cnec.getState().getInstant().comesBefore(instant)) {
             throw new OpenRaoException(String.format("Remedial actions available at instant '%s' on a CNEC constraint at instant '%s' are not allowed.", instant, cnec.getState().getInstant()));

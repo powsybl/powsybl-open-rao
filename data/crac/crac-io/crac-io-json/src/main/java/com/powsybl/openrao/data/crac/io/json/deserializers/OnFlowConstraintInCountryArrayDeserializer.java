@@ -40,7 +40,7 @@ public final class OnFlowConstraintInCountryArrayDeserializer {
                         break;
                     case USAGE_METHOD:
                         if (getPrimaryVersionNumber(version) < 2 || getPrimaryVersionNumber(version) == 2 && getSubVersionNumber(version) < 8) {
-                            BUSINESS_WARNS.warn("Usage methods are no longer read since they are redundant with the usage rule's instant.");
+                            BUSINESS_WARNS.warn("Usage methods are no longer used.");
                             break;
                         } else {
                             throw new OpenRaoException("Unexpected field in OnFlowConstraintInCountry: " + jsonParser.getCurrentName());

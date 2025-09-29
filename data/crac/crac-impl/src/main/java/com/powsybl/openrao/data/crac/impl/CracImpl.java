@@ -140,7 +140,7 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
      * otherwise it is created and then returned. An error is thrown when an element with an already
      * existing ID is added with a different name.
      *
-     * @param networkElementId:   network element ID as in network files
+     * @param networkElementId: network element ID as in network files
      * @param networkElementName: network element name for more human readable name
      * @return a network element object that is already defined in the crac
      */

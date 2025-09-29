@@ -14,10 +14,8 @@ import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.usagerule.OnConstraint;
-import com.powsybl.openrao.data.crac.api.usagerule.OnContingencyState;
 import com.powsybl.openrao.data.crac.api.usagerule.OnContingencyStateAdderToRemedialAction;
 import com.powsybl.openrao.data.crac.api.usagerule.OnFlowConstraintInCountry;
-import com.powsybl.openrao.data.crac.api.usagerule.OnInstant;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
@@ -73,29 +71,6 @@ public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extend
     @Override
     public Optional<Double> getActivationCost() {
         return Optional.ofNullable(activationCost);
-    }
-
-    private void computeDefinitionStatesAndInstants() {
-        definitionStates = new HashSet<>();
-        definitionInstants = new HashSet<>();
-
-        for (UsageRule usageRule : usageRules) {
-            if (usageRule.getInstant().isPreventive()) {
-                definitionInstants.add(usageRule.getInstant());
-            } else if (usageRule instanceof OnConstraint<?> oc) {
-                State state = oc.getCnec().getState();
-                if (usageRule.getInstant().equals(state.getInstant())) {
-                    definitionStates.add(state);
-                }
-            } else if (usageRule instanceof OnContingencyState ocs) {
-                State state = ocs.getState();
-                definitionStates.add(state);
-            } else if (usageRule instanceof OnFlowConstraintInCountry || usageRule instanceof OnInstant) {
-                definitionInstants.add(usageRule.getInstant());
-            } else {
-                throw new OpenRaoException(String.format("Usage rule of type %s is not implemented yet.", usageRule.getClass().getName()));
-            }
-        }
     }
 
     /**

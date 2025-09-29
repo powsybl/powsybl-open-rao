@@ -714,9 +714,9 @@ Two types of remedial action exist in OpenRAO:
 
 Both Network Actions and Range Actions have usage rules which define the conditions under which they can be activated.  
 OpenRAO has the following usage rules with their activation conditions:
-- the **FreeToUse** usage rule (defined for a specific [instant](#instants-and-states)): the remedial action can be
+- the **OnInstant** usage rule (defined for a specific [instant](#instants-and-states)): the remedial action can be
   activated in all the states of a given instant.
-- the **OnState** usage rule (defined for a specific [state](#instants-and-states)): the remedial action can be 
+- the **OnContingencyState** usage rule (defined for a specific [state](#instants-and-states)): the remedial action can be 
   activated in a given state.
 - the **OnFlowConstraintInCountry** usage rule (defined for a specific [Country](https://github.com/powsybl/powsybl-core/blob/main/iidm/iidm-api/src/main/java/com/powsybl/iidm/network/Country.java), a specific [instant](#instants-and-states)), 
   and an optional [contingency](#contingencies): the remedial action can be activated if any FlowCnec in the given country is
@@ -733,12 +733,12 @@ The examples below are given for a Network Action, but the same methods exists f
 Complete examples of Network and Range Action creation are given in the following paragraphs.
 ~~~java
 crac.newNetworkAction()
-    .newFreeToUseUsageRule()
+    .newOnInstantUsageRule()
         .withInstant("preventive")
         .add();
 
 crac.newNetworkAction()
-    .newOnStateUsageRule()
+    .newOnContingencyStateUsageRule()
         .withInstant("curative")
         .withContingency("contingency-id")
         .add();
@@ -797,9 +797,9 @@ Complete examples of Network and Range Action in Json format are given in the fo
 ~~~
 :::
 :::{group-tab} Object fields
-<ins>**For FreeToUse usage rules**</ins>  
+<ins>**For OnInstant usage rules**</ins>  
 🔴 **instant**  
-<ins>**For OnState usage rules**</ins>  
+<ins>**For OnContingencyState usage rules**</ins>  
 🔴 **instant**  
 🔴 **contingency**: must be the id of a contingency that exists in the CRAC  
 <ins>**For OnFlowConstraintInCountry usage rules**</ins>  
@@ -810,7 +810,7 @@ Complete examples of Network and Range Action in Json format are given in the fo
 🔴 **instant**  
 🔴 **cnecId**: must be the id of a [Cnec](#cnecs) that exists in the CRAC  
 
-*NB*: even though OnState usage rules on the preventive state is theoretically possible, it is forbidden by OpenRAO as the same purpose can be achieved with a FreeToUse usage rule on the preventive instant.  
+*NB*: even though OnContingencyState usage rules on the preventive state is theoretically possible, it is forbidden by OpenRAO as the same purpose can be achieved with a OnInstant usage rule on the preventive instant.  
 :::
 ::::
 
@@ -947,7 +947,7 @@ crac.newNetworkAction()
     "id" : "terminals-connection-na-id",
     "name" : "terminals-connection-na-name",
     "operator" : "operator",
-    "freeToUseUsageRules" : [ {
+    "onInstantUsageRules" : [ {
       "instant" : "preventive"
     } ],
     "terminalsConnectionActions" : [ {
@@ -985,7 +985,7 @@ crac.newNetworkAction()
     "name" : "load-action-na-id",
     "operator" : "operator",
     "activation-cost": 200.0,
-    "freeToUseUsageRules" : [ {
+    "onInstantUsageRules" : [ {
       "instant" : "preventive"
     } ],
     "loadActions" : [ {
@@ -996,7 +996,7 @@ crac.newNetworkAction()
     "id" : "dangling-line-action-na-id",
     "name" : "dangling-line-action-na-id",
     "operator" : "operator",
-    "freeToUseUsageRules" : [ {
+    "onInstantUsageRules" : [ {
       "instant" : "preventive"
     } ],
     "danglingLineActions" : [ {
@@ -1007,7 +1007,7 @@ crac.newNetworkAction()
     "id" : "shunt-compensator-na-id",
     "name" : "shunt-compensator-na-id",
     "operator" : "operator",
-    "freeToUseUsageRules" : [ {
+    "onInstantUsageRules" : [ {
       "instant" : "preventive"
     } ],
     "shuntCompensatorPositionActions" : [ {
@@ -1033,8 +1033,8 @@ crac.newNetworkAction()
 ⚪ **name**  
 ⚪ **operator**  
 ⚪ **activationCost**  
-⚪ **freeToUse usage rules**: list of 0 to N FreeToUse usage rules (see previous paragraph on [usage rules](#remedial-actions-and-usages-rules))  
-⚪ **onState usage rules**: list of 0 to N OnState usage rules (see previous paragraph on [usage rules](#remedial-actions-and-usages-rules))  
+⚪ **onInstant usage rules**: list of 0 to N OnInstant usage rules (see previous paragraph on [usage rules](#remedial-actions-and-usages-rules))  
+⚪ **onContingencyState usage rules**: list of 0 to N OnContingencyState usage rules (see previous paragraph on [usage rules](#remedial-actions-and-usages-rules))  
 ⚪ **onFlowConstraintInCountry usage rules**: list of 0 to N OnFlowConstraintInCountry usage rules (see previous paragraph on [usage rules](#remedial-actions-and-usages-rules))  
 ⚪ **onConstraint usage rules**: list of 0 to N OnConstraint usage rules (see previous paragraph on [usage rules](#remedial-actions-and-usages-rules))  
 🔵 **terminals connection actions**: list of 0 to N TerminalsConnectionAction
@@ -1170,7 +1170,7 @@ Note that the [PstHelper utility class](https://github.com/powsybl/powsybl-open-
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔵 **min tap**  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔵 **max tap**: at least one value must be defined  
 ⚪ **onInstant usage rules**: list of 0 to N OnInstant usage rules (see paragraph on [usage rules](#remedial-actions-and-usages-rules))  
-⚪ **onState usage rules**: list of 0 to N OnContingencyState usage rules (see paragraph on [usage rules](#remedial-actions-and-usages-rules))  
+⚪ **onContingencyState usage rules**: list of 0 to N OnContingencyState usage rules (see paragraph on [usage rules](#remedial-actions-and-usages-rules))  
 ⚪ **onFlowConstraintInCountry usage rules**: list of 0 to N OnFlowConstraintInCountry usage rules (see previous paragraph on [usage rules](#remedial-actions-and-usages-rules))  
 ⚪ **onConstraint usage rules**: list of 0 to N OnConstraint usage rules (see previous paragraph on [usage rules](#remedial-actions-and-usages-rules))  
 :::
