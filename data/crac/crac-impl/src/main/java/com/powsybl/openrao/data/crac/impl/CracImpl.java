@@ -768,27 +768,17 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
 
     @Override
     public Set<RangeAction<?>> getRangeActions(State state) {
-        Set<RangeAction<?>> pstRangeActionsSet = pstRangeActions.values().stream()
-            .filter(rangeAction -> isRemedialActionDefinedForState(rangeAction, state))
-            .collect(Collectors.toSet());
-        Set<RangeAction<?>> hvdcRangeActionsSet = hvdcRangeActions.values().stream()
-            .filter(rangeAction -> isRemedialActionDefinedForState(rangeAction, state))
-            .collect(Collectors.toSet());
-        Set<RangeAction<?>> injectionRangeActionSet = injectionRangeActions.values().stream()
-            .filter(rangeAction -> isRemedialActionDefinedForState(rangeAction, state))
-            .collect(Collectors.toSet());
-        Set<RangeAction<?>> counterTradeRangeActionSet = counterTradeRangeActions.values().stream()
-            .filter(rangeAction -> isRemedialActionDefinedForState(rangeAction, state))
-            .collect(Collectors.toSet());
-        Set<RangeAction<?>> rangeActionsSet = new HashSet<>(pstRangeActionsSet);
-        rangeActionsSet.addAll(hvdcRangeActionsSet);
-        rangeActionsSet.addAll(injectionRangeActionSet);
-        rangeActionsSet.addAll(counterTradeRangeActionSet);
+        Set<RangeAction<?>> rangeActionsSet = new HashSet<>(filterRangeActionsAvailableForState(pstRangeActions, state));
+        rangeActionsSet.addAll(filterRangeActionsAvailableForState(hvdcRangeActions, state));
+        rangeActionsSet.addAll(filterRangeActionsAvailableForState(injectionRangeActions, state));
+        rangeActionsSet.addAll(filterRangeActionsAvailableForState(counterTradeRangeActions, state));
         return rangeActionsSet;
     }
 
-    private static boolean isRemedialActionDefinedForState(RemedialAction<?> remedialAction, State state) {
-        return remedialAction.getUsageRules().stream().anyMatch(usageRule -> usageRule.isDefinedForState(state));
+    private static <T extends RangeAction<?>> Set<RangeAction<?>> filterRangeActionsAvailableForState(Map<String, T> rangeActions, State state) {
+        return rangeActions.values().stream()
+            .filter(rangeAction -> rangeAction.isAvailableForState(state))
+            .collect(Collectors.toSet());
     }
 
     @Override
@@ -892,7 +882,7 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     @Override
     public Set<NetworkAction> getNetworkActions(State state) {
         return networkActions.values().stream()
-            .filter(networkAction -> isRemedialActionDefinedForState(networkAction, state))
+            .filter(networkAction -> networkAction.isAvailableForState(state))
             .collect(Collectors.toSet());
     }
 

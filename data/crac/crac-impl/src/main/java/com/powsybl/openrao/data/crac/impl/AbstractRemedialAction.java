@@ -8,7 +8,6 @@
 package com.powsybl.openrao.data.crac.impl;
 
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
@@ -33,8 +32,6 @@ public abstract class AbstractRemedialAction<I extends RemedialAction<I>> extend
     protected Set<UsageRule> usageRules;
     protected Integer speed;
     protected Double activationCost;
-    private Set<State> definitionStates;
-    private Set<Instant> definitionInstants;
 
     protected AbstractRemedialAction(String id, String name, String operator, Set<UsageRule> usageRules, Integer speed, Double activationCost) {
         super(id, name);

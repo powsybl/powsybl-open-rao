@@ -75,5 +75,7 @@ public interface RemedialAction<I extends RemedialAction<I>> extends Identifiabl
 
     OnContingencyStateAdderToRemedialAction<I> newOnStateUsageRule();
 
-    // TODO: add a method isRemedialActionAvailable(State state)
+    default boolean isAvailableForState(State state) {
+        return getUsageRules().stream().anyMatch(usageRule -> usageRule.isDefinedForState(state));
+    }
 }
