@@ -14,7 +14,6 @@ import com.powsybl.openrao.data.crac.impl.utils.NetworkImportsUtil;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.networkaction.ActionType;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -41,7 +40,7 @@ class AbsRemedialActionTest {
     void testGetFlowCnecsConstrainingForOneUsageRule() {
         RemedialAction<?> na1 = crac.newNetworkAction().withId("na1")
             .newTerminalsConnectionAction().withNetworkElement("ne1").withActionType(ActionType.OPEN).add()
-            .newOnFlowConstraintInCountryUsageRule().withInstant(CURATIVE_INSTANT_ID).withCountry(Country.BE).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnFlowConstraintInCountryUsageRule().withInstant(CURATIVE_INSTANT_ID).withCountry(Country.BE).add()
             .add();
 
         assertEquals(Set.of(crac.getCnec("cnec1stateCurativeContingency1"), crac.getCnec("cnec1stateCurativeContingency2")),
@@ -49,7 +48,7 @@ class AbsRemedialActionTest {
 
         RemedialAction<?> na2 = crac.newNetworkAction().withId("na2")
             .newTerminalsConnectionAction().withNetworkElement("ne1").withActionType(ActionType.OPEN).add()
-            .newOnFlowConstraintInCountryUsageRule().withInstant(CURATIVE_INSTANT_ID).withContingency("Contingency FR1 FR3").withCountry(Country.FR).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnFlowConstraintInCountryUsageRule().withInstant(CURATIVE_INSTANT_ID).withContingency("Contingency FR1 FR3").withCountry(Country.FR).add()
             .add();
 
         assertEquals(Set.of(crac.getCnec("cnec1stateCurativeContingency1"), crac.getCnec("cnec2stateCurativeContingency1")),

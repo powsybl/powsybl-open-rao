@@ -62,8 +62,7 @@
     "name" : "redispatchingAction1600",
     "operator" : "FR",
     "onInstantUsageRules" : [ {
-      "instant" : "preventive",
-      "usageMethod" : "available"
+      "instant" : "preventive"
     } ],
     "networkElementIdsAndKeys" : {
       "FFR3AA1 _load" : 1.0,
@@ -83,8 +82,7 @@
     "operator" : "RTE",
     "speed" : 20,
     "onInstantUsageRules" : [ {
-      "instant" : "preventive",
-      "usageMethod" : "available"
+      "instant" : "preventive"
     } ],
     "initialSetpoint" : 0,
     "networkElementId" : "hvdc",
@@ -104,26 +102,21 @@
       "down": 18000.0
     },
     "onInstantUsageRules" : [ {
-      "instant" : "preventive",
-      "usageMethod" : "available"
+      "instant" : "preventive"
     } ],
     "onConstraintUsageRules" : [ {
       "instant" : "preventive",
-      "cnecId" : "cnec3curId",
-      "usageMethod" : "available"
+      "cnecId" : "cnec3curId"
     }, {
       "instant" : "curative",
-      "cnecId" : "voltageCnecId",
-      "usageMethod" : "available"
+      "cnecId" : "voltageCnecId"
     }, {
       "instant" : "curative",
-      "cnecId" : "angleCnecId",
-      "usageMethod" : "available"
+      "cnecId" : "angleCnecId"
     } ],
     "onContingencyStateUsageRules" : [ {
       "instant" : "curative",
-      "contingencyId" : "contingency1Id",
-      "usageMethod" : "available"
+      "contingencyId" : "contingency1Id"
     } ],
     "exportingCountry" : "FR",
     "importingCountry" : "DE",

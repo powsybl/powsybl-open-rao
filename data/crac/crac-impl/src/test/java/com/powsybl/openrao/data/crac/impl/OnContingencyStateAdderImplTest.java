@@ -17,7 +17,6 @@ import com.powsybl.openrao.data.crac.api.networkaction.ActionType;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkActionAdder;
 import com.powsybl.openrao.data.crac.api.usagerule.OnContingencyState;
 import com.powsybl.openrao.data.crac.api.usagerule.OnContingencyStateAdder;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -66,7 +65,6 @@ class OnContingencyStateAdderImplTest {
         RemedialAction<?> remedialAction = remedialActionAdder.newOnContingencyStateUsageRule()
             .withInstant(CURATIVE_INSTANT_ID)
             .withContingency("contingencyId")
-            .withUsageMethod(UsageMethod.AVAILABLE)
             .add()
             .add();
         UsageRule usageRule = remedialAction.getUsageRules().iterator().next();
@@ -75,7 +73,6 @@ class OnContingencyStateAdderImplTest {
         assertTrue(usageRule instanceof OnContingencyState);
         assertEquals(curativeInstant, ((OnContingencyState) usageRule).getState().getInstant());
         assertEquals(contingency, ((OnContingencyState) usageRule).getState().getContingency().orElse(null));
-        assertEquals(UsageMethod.AVAILABLE, usageRule.getUsageMethod());
         assertEquals(1, crac.getStates().size());
         assertNotNull(crac.getState("contingencyId", curativeInstant));
     }
@@ -83,8 +80,7 @@ class OnContingencyStateAdderImplTest {
     @Test
     void testNoInstant() {
         OnContingencyStateAdder<NetworkActionAdder> onContingencyStateAdder = remedialActionAdder.newOnContingencyStateUsageRule()
-            .withContingency("contingencyId")
-            .withUsageMethod(UsageMethod.AVAILABLE);
+            .withContingency("contingencyId");
         OpenRaoException exception = assertThrows(OpenRaoException.class, onContingencyStateAdder::add);
         assertEquals("Cannot add OnContingencyState without a instant. Please use withInstant() with a non null value", exception.getMessage());
     }
@@ -92,27 +88,16 @@ class OnContingencyStateAdderImplTest {
     @Test
     void testNoContingency() {
         OnContingencyStateAdder<NetworkActionAdder> onContingencyStateAdder = remedialActionAdder.newOnContingencyStateUsageRule()
-            .withInstant(CURATIVE_INSTANT_ID)
-            .withUsageMethod(UsageMethod.AVAILABLE);
+            .withInstant(CURATIVE_INSTANT_ID);
         OpenRaoException exception = assertThrows(OpenRaoException.class, onContingencyStateAdder::add);
         assertEquals("Cannot add OnContingencyState without a contingency. Please use withContingency() with a non null value", exception.getMessage());
-    }
-
-    @Test
-    void testNoUsageMethod() {
-        OnContingencyStateAdder<NetworkActionAdder> onContingencyStateAdder = remedialActionAdder.newOnContingencyStateUsageRule()
-            .withInstant(CURATIVE_INSTANT_ID)
-            .withContingency("contingencyId");
-        OpenRaoException exception = assertThrows(OpenRaoException.class, onContingencyStateAdder::add);
-        assertEquals("Cannot add OnContingencyState without a usage method. Please use withUsageMethod() with a non null value", exception.getMessage());
     }
 
     @Test
     void testUnknownContingency() {
         OnContingencyStateAdder<NetworkActionAdder> onContingencyStateAdder = remedialActionAdder.newOnContingencyStateUsageRule()
             .withInstant(CURATIVE_INSTANT_ID)
-            .withContingency("unknownContingencyId")
-            .withUsageMethod(UsageMethod.AVAILABLE);
+            .withContingency("unknownContingencyId");
         OpenRaoException exception = assertThrows(OpenRaoException.class, onContingencyStateAdder::add);
         assertEquals("Contingency unknownContingencyId of OnContingencyState usage rule does not exist in the crac. Use crac.newContingency() first.", exception.getMessage());
     }
@@ -121,8 +106,7 @@ class OnContingencyStateAdderImplTest {
     void testPreventiveInstant() {
         OnContingencyStateAdder<NetworkActionAdder> onContingencyStateAdder = remedialActionAdder.newOnContingencyStateUsageRule()
             .withInstant(PREVENTIVE_INSTANT_ID)
-            .withContingency("contingencyId")
-            .withUsageMethod(UsageMethod.AVAILABLE);
+            .withContingency("contingencyId");
         OpenRaoException exception = assertThrows(OpenRaoException.class, onContingencyStateAdder::add);
         assertEquals("OnContingencyState usage rules are not allowed for PREVENTIVE instant. Please use newOnInstantUsageRule() instead.", exception.getMessage());
     }
@@ -131,8 +115,7 @@ class OnContingencyStateAdderImplTest {
     void testOutageInstant() {
         OnContingencyStateAdder<NetworkActionAdder> onContingencyStateAdder = remedialActionAdder.newOnContingencyStateUsageRule()
             .withInstant(OUTAGE_INSTANT_ID)
-            .withContingency("contingencyId")
-            .withUsageMethod(UsageMethod.AVAILABLE);
+            .withContingency("contingencyId");
         OpenRaoException exception = assertThrows(OpenRaoException.class, onContingencyStateAdder::add);
         assertEquals("OnContingencyState usage rules are not allowed for OUTAGE instant.", exception.getMessage());
     }

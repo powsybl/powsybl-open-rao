@@ -37,7 +37,7 @@ public class AutoOptimizationPerimeter extends AbstractOptimizationPerimeter {
         Set<FlowCnec> loopFlowCnecs = AbstractOptimizationPerimeter.getLoopFlowCnecs(flowCnecs, raoParameters, network);
 
         Set<NetworkAction> availableNetworkActions = crac.getNetworkActions().stream()
-            .filter(ra -> RaoUtil.isRemedialActionAvailable(ra, automatonState, prePerimeterResult, flowCnecs, network, raoParameters))
+            .filter(ra -> RaoUtil.canRemedialActionBeUsed(ra, automatonState, prePerimeterResult, flowCnecs, network, raoParameters))
             .collect(Collectors.toSet());
 
         return new AutoOptimizationPerimeter(automatonState, flowCnecs, loopFlowCnecs, availableNetworkActions);
