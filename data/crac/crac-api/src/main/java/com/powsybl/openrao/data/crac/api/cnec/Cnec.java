@@ -16,7 +16,6 @@ import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -103,14 +102,14 @@ public interface Cnec<I extends Cnec<I>> extends Identifiable<I> {
     String getBorder();
 
     /**
-     * Returns the location of the cnec, as a set of optional countries
+     * Returns the location of the cnec, as a set of countries
      *
      * @param network: the network object used to look for the location of the network element of the Cnec
-     * @return a set of optional countries containing the cnec location(s). Note that a Cnec on a interconnection can
+     * @return a set of countries containing the cnec location(s). Note that a Cnec on a interconnection can
      * belong to two countries.
      */
-    default Set<Optional<Country>> getLocation(Network network) {
-        Set<Optional<Country>> locations = new HashSet<>();
+    default Set<Country> getLocation(Network network) {
+        Set<Country> locations = new HashSet<>();
         getNetworkElements().forEach(networkElement -> locations.addAll(networkElement.getLocation(network)));
         return locations;
     }

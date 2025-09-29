@@ -7,6 +7,7 @@
 package com.powsybl.openrao.searchtreerao.castor.algorithm;
 
 import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
@@ -23,10 +24,11 @@ import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicReference;
+
+import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
 
 /**
  * This class aims at performing the sensitivity analysis after the optimization of a perimeter. The result can be used as a
@@ -147,12 +149,15 @@ public class PostPerimeterSensitivityAnalysis extends AbstractMultiPerimeterSens
                     flowResult.set(previousResultsFuture.get());
                     sensitivityResult.set(previousResultsFuture.get());
                 } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                } catch (ExecutionException e) {
-                    throw new RuntimeException(e);
+                    TECHNICAL_LOGS.warn("A computation thread was interrupted");
+                    Thread.currentThread().interrupt();
+                } catch (Exception e) {
+                    throw new OpenRaoException(e);
                 }
+
             }
             ObjectiveFunction objectiveFunction = null;
+
             try {
                 objectiveFunction = ObjectiveFunction.build(
                     flowCnecs,
@@ -164,9 +169,10 @@ public class PostPerimeterSensitivityAnalysis extends AbstractMultiPerimeterSens
                     remedialActionActivationResult.getActivatedRangeActionsPerState().keySet()
                 );
             } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            } catch (ExecutionException e) {
-                throw new RuntimeException(e);
+                TECHNICAL_LOGS.warn("A computation thread was interrupted");
+                Thread.currentThread().interrupt();
+            } catch (Exception e) {
+                throw new OpenRaoException(e);
             }
 
             ObjectiveFunctionResult objectiveFunctionResult = objectiveFunction.evaluate(

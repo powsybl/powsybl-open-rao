@@ -101,7 +101,7 @@ public class FastRaoTest {
     }
 
     @Test
-    public void testError() throws IOException {
+    public void testError() {
         RaoInput individualRaoInput = Mockito.mock(RaoInput.class);
         RaoParameters raoParameters = Mockito.mock(RaoParameters.class);
         Mockito.when(raoParameters.hasExtension(FastRaoParameters.class)).thenReturn(false);

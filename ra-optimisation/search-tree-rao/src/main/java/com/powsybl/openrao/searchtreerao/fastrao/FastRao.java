@@ -115,6 +115,10 @@ public class FastRao implements RaoProvider {
             // Run initial sensi (for initial values, and to know which cnecs to put in the first rao)
             PrePerimeterResult initialResult = prePerimeterSensitivityAnalysis.runInitialSensitivityAnalysis(raoInput.getNetwork());
 
+            if (crac.getFlowCnecs().isEmpty()) {
+                return new UnoptimizedRaoResultImpl(initialResult);
+            }
+
             if (initialResult.getSensitivityStatus() == ComputationStatus.FAILURE) {
                 BUSINESS_LOGS.error("Initial sensitivity analysis failed");
                 return new FailedRaoResultImpl("Initial sensitivity analysis failed");
@@ -203,7 +207,7 @@ public class FastRao implements RaoProvider {
         List<FlowCnec> orderedCnecs = ofResult.getMostLimitingElements(Integer.MAX_VALUE);
         return orderedCnecs.stream().filter(cnec -> cnec.getState().isPreventive()).findFirst().orElse(
             // If only MNECs are present previous list will be empty
-            crac.getFlowCnecs(crac.getPreventiveState()).stream().findFirst().orElseThrow()
+            crac.getFlowCnecs(crac.getPreventiveState()).stream().findFirst().orElseThrow(() -> new OpenRaoException("No flow cnecs found in preventive state"))
         );
     }
 
@@ -287,7 +291,7 @@ public class FastRao implements RaoProvider {
             crac,
             raoResult,
             initialResult,
-            postPraSensi.thenApply(result -> result.getPrePerimeterResultForAllFollowingStates()),
+            postPraSensi.thenApply(PostPerimeterResult::getPrePerimeterResultForAllFollowingStates),
             stateTree,
             parameters,
             toolProvider,
@@ -300,7 +304,7 @@ public class FastRao implements RaoProvider {
             crac,
             raoResult,
             initialResult,
-            postAraSensi.thenApply(result -> result.getPrePerimeterResultForAllFollowingStates()),
+            postAraSensi.thenApply(PostPerimeterResult::getPrePerimeterResultForAllFollowingStates),
             stateTree,
             parameters,
             toolProvider,
@@ -314,8 +318,7 @@ public class FastRao implements RaoProvider {
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             } catch (ExecutionException e) {
-
-                e.printStackTrace();
+                throw new OpenRaoException(e);
             }
         }
 
