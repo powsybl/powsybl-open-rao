@@ -44,15 +44,13 @@ Feature: US 20.5: Advanced 2nd preventive run conditions
     Given crac file is "epic20/SL_ep20us5case2.json"
     Given configuration file is "epic20/RaoParameters_maxMargin_ampere_2p_if_cost_increase.json"
     When I launch search_tree_rao
-    Then 2 remedial actions are used in preventive
-    And the tap of PstRangeAction "pst_fr" should be -5 in preventive
-    And the remedial action "close_fr1_fr5" is used in preventive
-    And 2 remedial actions are used after "co1_fr2_fr3_1" at "curative"
+    Then 1 remedial actions are used in preventive
+    And the tap of PstRangeAction "pst_fr" should be 2 in preventive
+    And 1 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     And the remedial action "open_fr1_fr3" is used after "co1_fr2_fr3_1" at "curative"
-    And the tap of PstRangeAction "pst_be" should be -16 after "co1_fr2_fr3_1" at "curative"
-    And the worst margin is 638 A
-    And the margin on cnec "FFR4AA1  DDE1AA1  1 - preventive" after PRA should be 638 A
-    And the margin on cnec "FFR1AA1  FFR4AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be 645 A
+    And the worst margin is 795 A
+    And the margin on cnec "FFR1AA1  FFR4AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be 795 A
+    And the margin on cnec "FFR4AA1  DDE1AA1  1 - preventive" after CRA should be 800 A
     Then the execution details should be "Second preventive improved first preventive results"
 
   @fast @rao @mock @ac @second-preventive

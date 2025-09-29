@@ -27,13 +27,12 @@ import org.apache.commons.lang3.tuple.Pair;
 import java.io.IOException;
 import java.util.*;
 
-import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
+import static com.powsybl.openrao.data.crac.io.json.deserializers.CracDeserializer.LOGGER;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public final class FlowCnecArrayDeserializer {
-
     private FlowCnecArrayDeserializer() {
     }
 
@@ -87,7 +86,7 @@ public final class FlowCnecArrayDeserializer {
                         if (JsonSerializationConstants.getPrimaryVersionNumber(version) == 1
                             || JsonSerializationConstants.getPrimaryVersionNumber(version) == 2 && JsonSerializationConstants.getSubVersionNumber(version) <= 7) {
                             jsonParser.readValueAs(Double[].class);
-                            BUSINESS_WARNS.warn("The iMax is now fetched in the network so the value in the CRAC will not be read.");
+                            LOGGER.warn("The iMax is now fetched in the network so the value in the CRAC will not be read.");
                             break;
                         }
                         throw new OpenRaoException("From version 2.8 onwards, iMax is deprecated and is read from the network.");
