@@ -27,7 +27,6 @@ import com.powsybl.openrao.data.crac.api.usagerule.OnConstraint;
 import com.powsybl.openrao.data.crac.api.usagerule.OnContingencyState;
 import com.powsybl.openrao.data.crac.api.usagerule.OnFlowConstraintInCountry;
 import com.powsybl.openrao.data.crac.api.usagerule.OnInstant;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.openrao.data.crac.api.networkaction.ActionType;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.networkaction.SwitchPair;
@@ -660,12 +659,10 @@ public class CracImportSteps {
             int number = Integer.parseInt(expectedUsageRule.get("UsageRules"));
             assertEquals(number, remedialAction.getUsageRules().size());
             Instant instant = crac.getInstant(expectedUsageRule.get("Instant").toLowerCase());
-            UsageMethod usageMethod = UsageMethod.valueOf(expectedUsageRule.get("Method").toUpperCase());
             switch (expectedUsageRule.get("Rule")) {
                 case "OnInstant":
                     assertTrue(remedialAction.getUsageRules().stream().anyMatch(usageRule ->
                         usageRule instanceof OnInstant onInstant
-                            && onInstant.getUsageMethod().equals(usageMethod)
                             && onInstant.getInstant().equals(instant)
                     ));
                     break;
@@ -674,7 +671,6 @@ public class CracImportSteps {
                     assertNotNull(contingency);
                     assertTrue(remedialAction.getUsageRules().stream().anyMatch(usageRule ->
                         usageRule instanceof OnContingencyState onContingencyState
-                            && onContingencyState.getUsageMethod().equals(usageMethod)
                             && onContingencyState.getInstant().equals(instant)
                             && onContingencyState.getContingency().equals(contingency)
                     ));
@@ -684,7 +680,6 @@ public class CracImportSteps {
                     assertNotNull(flowCnec);
                     assertTrue(remedialAction.getUsageRules().stream().anyMatch(usageRule ->
                         usageRule instanceof OnConstraint<?> onFlowConstraint
-                            && onFlowConstraint.getUsageMethod().equals(usageMethod)
                             && onFlowConstraint.getInstant().equals(instant)
                             && onFlowConstraint.getCnec().equals(flowCnec)
                     ));
@@ -694,7 +689,6 @@ public class CracImportSteps {
                     Optional<Contingency> optionalContingency = Optional.ofNullable(crac.getContingency(expectedUsageRule.get("ContingencyId")));
                     assertTrue(remedialAction.getUsageRules().stream().anyMatch(usageRule ->
                         usageRule instanceof OnFlowConstraintInCountry onFlowConstraintInCountry
-                            && onFlowConstraintInCountry.getUsageMethod().equals(usageMethod)
                             && onFlowConstraintInCountry.getInstant().equals(instant)
                             && onFlowConstraintInCountry.getCountry().equals(country)
                             && onFlowConstraintInCountry.getContingency().equals(optionalContingency)
@@ -705,7 +699,6 @@ public class CracImportSteps {
                     assertNotNull(angleCnec);
                     assertTrue(remedialAction.getUsageRules().stream().anyMatch(usageRule ->
                         usageRule instanceof OnConstraint<?> onAngleConstraint
-                            && onAngleConstraint.getUsageMethod().equals(usageMethod)
                             && onAngleConstraint.getInstant().equals(instant)
                             && onAngleConstraint.getCnec().equals(angleCnec)
                     ));

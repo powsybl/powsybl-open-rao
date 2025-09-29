@@ -14,7 +14,6 @@ import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.range.RangeType;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.openrao.data.crac.impl.CracImpl;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
@@ -136,7 +135,6 @@ class PreventiveAndCurativesRaoResultImplTest {
             .add()
             .newOnInstantUsageRule()
             .withInstant("preventive")
-            .withUsageMethod(UsageMethod.AVAILABLE)
             .add()
             .add();
     }

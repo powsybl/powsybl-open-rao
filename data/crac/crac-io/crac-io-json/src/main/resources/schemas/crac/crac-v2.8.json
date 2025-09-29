@@ -98,7 +98,7 @@
     "networkActions": {
       "type": "array",
       "items": {
-        "$ref": "resource:/schemas/network-action/network-action-v2.6.json"
+        "$ref": "resource:/schemas/network-action/network-action-v2.8.json"
       }
     }
   },

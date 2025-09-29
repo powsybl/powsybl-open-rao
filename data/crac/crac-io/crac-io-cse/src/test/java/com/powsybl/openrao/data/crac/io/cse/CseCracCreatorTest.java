@@ -13,11 +13,9 @@ import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.RaUsageLimits;
 import com.powsybl.openrao.data.crac.api.RemedialAction;
-import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.usagerule.OnConstraint;
 import com.powsybl.openrao.data.crac.api.usagerule.OnFlowConstraintInCountry;
 import com.powsybl.openrao.data.crac.api.usagerule.OnInstant;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.iidm.network.TwoSides;
@@ -170,7 +168,6 @@ class CseCracCreatorTest {
         //range from network
         assertEquals(-500, importedCrac.getInjectionRangeAction("PRA_HVDC").getRanges().get(1).getMin(), 1e-1);
         assertEquals(800, importedCrac.getInjectionRangeAction("PRA_HVDC").getRanges().get(1).getMax(), 1e-1);
-        assertEquals("AVAILABLE", importedCrac.getInjectionRangeAction("PRA_HVDC").getUsageRules().iterator().next().getUsageMethod().toString());
         assertEquals(2, importedCrac.getInjectionRangeAction("PRA_HVDC").getInjectionDistributionKeys().size());
         assertEquals(-1., importedCrac.getInjectionRangeAction("PRA_HVDC").getInjectionDistributionKeys().entrySet().stream().filter(e -> e.getKey().getId().equals("BBE2AA12_generator")).findAny().orElseThrow().getValue(), 1e-3);
         assertEquals(1., importedCrac.getInjectionRangeAction("PRA_HVDC").getInjectionDistributionKeys().entrySet().stream().filter(e -> e.getKey().getId().equals("FFR3AA12_generator")).findAny().orElseThrow().getValue(), 1e-3);
@@ -187,7 +184,6 @@ class CseCracCreatorTest {
         assertEquals("FR", importedCrac.getInjectionRangeAction("PRA_HVDC").getOperator());
         assertEquals(2000, importedCrac.getInjectionRangeAction("PRA_HVDC").getRanges().get(0).getMax(), 1e-1);
         assertEquals(-100, importedCrac.getInjectionRangeAction("PRA_HVDC").getRanges().get(0).getMin(), 1e-1);
-        assertEquals("AVAILABLE", importedCrac.getInjectionRangeAction("PRA_HVDC").getUsageRules().iterator().next().getUsageMethod().toString());
     }
 
     @Test
@@ -322,10 +318,6 @@ class CseCracCreatorTest {
     void testRaOnConstraint() throws IOException {
         setUp("/cracs/cse_crac_onConstraint.xml");
 
-        State preventiveState = importedCrac.getPreventiveState();
-        State outageState = importedCrac.getState(importedCrac.getContingency("outage_1"), outageInstant);
-        State curativeState = importedCrac.getState(importedCrac.getContingency("outage_1"), curativeInstant);
-
         FlowCnec outageCnec = importedCrac.getFlowCnec("French line 1 - FFR1AA1 ->FFR2AA1   - outage_1 - outage");
         FlowCnec curativeCnec = importedCrac.getFlowCnec("French line 1 - FFR1AA1 ->FFR2AA1   - outage_1 - curative");
 
@@ -342,14 +334,6 @@ class CseCracCreatorTest {
         assertEquals(preventiveInstant, usageRule2.getInstant());
         assertTrue(((OnConstraint<?>) usageRule1).getCnec().equals(outageCnec) || ((OnConstraint<?>) usageRule2).getCnec().equals(outageCnec));
         assertTrue(((OnConstraint<?>) usageRule1).getCnec().equals(curativeCnec) || ((OnConstraint<?>) usageRule2).getCnec().equals(curativeCnec));
-        System.out.println(usageRule1.getUsageMethod(preventiveState));
-        System.out.println(usageRule2.getUsageMethod(preventiveState));
-        assertEquals(UsageMethod.AVAILABLE, usageRule1.getUsageMethod(preventiveState));
-        assertEquals(UsageMethod.AVAILABLE, usageRule2.getUsageMethod(preventiveState));
-        assertEquals(UsageMethod.UNDEFINED, usageRule1.getUsageMethod(outageState));
-        assertEquals(UsageMethod.UNDEFINED, usageRule2.getUsageMethod(outageState));
-        assertEquals(UsageMethod.UNDEFINED, usageRule1.getUsageMethod(curativeState));
-        assertEquals(UsageMethod.UNDEFINED, usageRule2.getUsageMethod(curativeState));
 
         // CRA
         ra = importedCrac.getNetworkAction("cra_1");
@@ -358,9 +342,6 @@ class CseCracCreatorTest {
         assertTrue(usageRule1 instanceof OnConstraint<?>);
         assertSame(curativeCnec, ((OnConstraint<?>) usageRule1).getCnec());
         assertEquals(curativeInstant, usageRule1.getInstant());
-        assertEquals(UsageMethod.UNDEFINED, usageRule1.getUsageMethod(preventiveState));
-        assertEquals(UsageMethod.UNDEFINED, usageRule1.getUsageMethod(outageState));
-        assertEquals(UsageMethod.AVAILABLE, usageRule1.getUsageMethod(curativeState));
     }
 
     @Test
