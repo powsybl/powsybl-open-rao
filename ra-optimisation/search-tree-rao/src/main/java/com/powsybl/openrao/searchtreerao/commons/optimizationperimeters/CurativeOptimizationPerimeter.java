@@ -45,11 +45,11 @@ public class CurativeOptimizationPerimeter extends AbstractOptimizationPerimeter
         Set<FlowCnec> flowCnecs = crac.getFlowCnecs(curativeState);
         Set<FlowCnec> loopFlowCnecs = AbstractOptimizationPerimeter.getLoopFlowCnecs(flowCnecs, raoParameters, network);
 
-        Set<NetworkAction> availableNetworkActions = crac.getNetworkActions().stream()
+        Set<NetworkAction> availableNetworkActions = crac.getNetworkActions(curativeState).stream()
             .filter(ra -> RaoUtil.canRemedialActionBeUsed(ra, curativeState, prePerimeterResult, flowCnecs, network, raoParameters))
             .collect(Collectors.toSet());
 
-        Set<RangeAction<?>> availableRangeActions = crac.getRangeActions().stream()
+        Set<RangeAction<?>> availableRangeActions = crac.getRangeActions(curativeState).stream()
             .filter(ra -> RaoUtil.canRemedialActionBeUsed(ra, curativeState, prePerimeterResult, flowCnecs, network, raoParameters))
             .filter(ra -> AbstractOptimizationPerimeter.doesPrePerimeterSetpointRespectRange(ra, prePerimeterResult))
             .collect(Collectors.toSet());
@@ -75,7 +75,7 @@ public class CurativeOptimizationPerimeter extends AbstractOptimizationPerimeter
 
         Set<FlowCnec> loopFlowCnecs = AbstractOptimizationPerimeter.getLoopFlowCnecs(flowCnecs, raoParameters, network);
 
-        Set<NetworkAction> availableNetworkActions = crac.getNetworkActions().stream()
+        Set<NetworkAction> availableNetworkActions = crac.getNetworkActions(curativeState).stream()
             .filter(ra -> RaoUtil.canRemedialActionBeUsed(ra, curativeState, prePerimeterResult, flowCnecs, network, raoParameters))
             .collect(Collectors.toSet());
 
