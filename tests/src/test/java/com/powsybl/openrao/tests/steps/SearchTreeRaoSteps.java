@@ -39,9 +39,11 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.util.Comparator;
 import java.util.Objects;
+import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -52,9 +54,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 public class SearchTreeRaoSteps {
-
     private static final String SEARCH_TREE_RAO = "SearchTreeRao";
-    private static final String FAST_RAO = "FastRao";
     private static final double TOLERANCE_FLOW_IN_AMPERE = 5.0;
     private static final double TOLERANCE_FLOW_IN_MEGAWATT = 5.0;
     private static final double TOLERANCE_FLOW_RELATIVE = 1.5 / 100;
@@ -66,6 +66,19 @@ public class SearchTreeRaoSteps {
     private LoopFlowResult loopFlowResult;
     private Network network;
     private State preventiveState;
+    private String raoImplementation;
+
+    {
+        try {
+            final Properties configProperties = new Properties();
+            final InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream("steps-config.properties");
+            configProperties.load(inputStream);
+            raoImplementation = (String) configProperties.get("rao-implementation");
+        } catch (final Exception e) {
+            System.out.println("Could not load configuration file");
+            e.printStackTrace();
+        }
+    }
 
     private static double flowAmpereTolerance(double expectedValue) {
         return Math.max(TOLERANCE_FLOW_IN_AMPERE, TOLERANCE_FLOW_RELATIVE * Math.abs(expectedValue));
@@ -87,12 +100,12 @@ public class SearchTreeRaoSteps {
 
     @When("I launch search_tree_rao at {string}")
     public void iLaunchSearchTreeRao(String timestamp) {
-        launchRao(null, null, timestamp, FAST_RAO);
+        launchRao(null, null, timestamp, raoImplementation);
     }
 
     @When("I launch search_tree_rao at {string} on {string}")
     public void iLaunchSearchTreeRaoAtTimestampOnContingency(String timestamp, String contingencyId) {
-        launchRao(contingencyId, null, timestamp, FAST_RAO);
+        launchRao(contingencyId, null, timestamp, raoImplementation);
     }
 
     @When("I launch search_tree_rao at {string} on preventive state")
@@ -117,12 +130,12 @@ public class SearchTreeRaoSteps {
 
     @When("I launch loopflow search_tree_rao with default loopflow limit as {double} percent of pmax")
     public void iLaunchSearchTreeRaoWithDefaultLoopflowLimit(double percentage) {
-        launchRao(null, null, null, percentage, FAST_RAO, null);
+        launchRao(null, null, null, percentage, raoImplementation, null);
     }
 
     @When("I launch loopflow search_tree_rao at {string} with default loopflow limit as {double} percent of pmax")
     public void iLaunchSearchTreeRaoWithDefaultLoopflowLimit(String timestamp, double percentage) {
-        launchRao(null, null, timestamp, percentage, FAST_RAO, null);
+        launchRao(null, null, timestamp, percentage, raoImplementation, null);
     }
 
     @When("I launch loopflow_computation with OpenLoadFlow")
@@ -622,7 +635,7 @@ public class SearchTreeRaoSteps {
     }
 
     private void launchRao(int timeLimit) {
-        launchRao(null, null, null, null, FAST_RAO, timeLimit);
+        launchRao(null, null, null, null, raoImplementation, timeLimit);
     }
 
     private void launchRao(String contingencyId, InstantKind instantKind, String timestamp, String raoType) {
