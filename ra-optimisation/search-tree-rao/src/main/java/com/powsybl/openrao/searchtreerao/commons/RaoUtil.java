@@ -162,6 +162,9 @@ public final class RaoUtil {
         } else if (usageRule instanceof OnContingencyState onContingencyState) {
             return onContingencyState.getState().equals(state);
         } else if (usageRule instanceof OnFlowConstraintInCountry onFlowConstraintInCountry) {
+            if (onFlowConstraintInCountry.getContingency().isPresent() && !onFlowConstraintInCountry.getContingency().equals(state.getContingency())) {
+                return false;
+            }
             return isAnyMarginNegative(flowResult, remedialAction.getFlowCnecsConstrainingForOneUsageRule(onFlowConstraintInCountry, flowCnecs, network), unit) && onFlowConstraintInCountry.getInstant().equals(state.getInstant());
         } else if (usageRule instanceof OnConstraint<?> onConstraint && onConstraint.getCnec() instanceof FlowCnec flowCnec) {
             if (!onConstraint.getInstant().isPreventive() && !flowCnec.getState().getContingency().equals(state.getContingency())) {
