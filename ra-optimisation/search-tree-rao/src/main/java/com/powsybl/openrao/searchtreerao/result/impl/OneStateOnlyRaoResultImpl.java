@@ -46,29 +46,29 @@ public class OneStateOnlyRaoResultImpl extends AbstractFlowRaoResult {
         excludeDuplicateCnec();
     }
 
-    private FlowResult getAppropriateResult(Instant optimizedInstant, FlowCnec flowCnec) {
+    private Optional<FlowResult> getAppropriateResult(Instant optimizedInstant, FlowCnec flowCnec) {
         if (!optimizedFlowCnecs.contains(flowCnec)) {
-            throw new OpenRaoException("Cnec not optimized in this perimeter.");
+            return Optional.empty();
         }
         State state = flowCnec.getState();
         if (optimizedInstant == null) {
-            return initialResult;
+            return Optional.of(initialResult);
         }
         if (optimizedState.isPreventive()) {
-            return postOptimizationResult;
+            return Optional.of(postOptimizationResult);
         }
         if (state.isPreventive()) {
-            return initialResult;
+            return Optional.of(initialResult);
         }
         if (!optimizedState.isPreventive()) {
             Contingency optimizedContingency = optimizedState.getContingency().orElseThrow(() -> new OpenRaoException("Should not happen"));
             Contingency contingency = state.getContingency().orElseThrow(() -> new OpenRaoException("Should not happen"));
             if (optimizedContingency.equals(contingency)
                 && state.compareTo(optimizedState) >= 0) {
-                return postOptimizationResult;
+                return Optional.of(postOptimizationResult);
             }
         }
-        return initialResult;
+        return Optional.of(initialResult);
     }
 
     public OptimizationResult getPostOptimizationResult() {
@@ -93,32 +93,32 @@ public class OneStateOnlyRaoResultImpl extends AbstractFlowRaoResult {
 
     @Override
     public double getMargin(Instant optimizedInstant, FlowCnec flowCnec, Unit unit) {
-        return getAppropriateResult(optimizedInstant, flowCnec).getMargin(flowCnec, unit);
+        return getAppropriateResult(optimizedInstant, flowCnec).map(flowResult -> flowResult.getMargin(flowCnec, unit)).orElse(Double.NaN);
     }
 
     @Override
     public double getRelativeMargin(Instant optimizedInstant, FlowCnec flowCnec, Unit unit) {
-        return getAppropriateResult(optimizedInstant, flowCnec).getRelativeMargin(flowCnec, unit);
+        return getAppropriateResult(optimizedInstant, flowCnec).map(flowResult -> flowResult.getRelativeMargin(flowCnec, unit)).orElse(Double.NaN);
     }
 
     @Override
     public double getFlow(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side, Unit unit) {
-        return getAppropriateResult(optimizedInstant, flowCnec).getFlow(flowCnec, side, unit);
+        return getAppropriateResult(optimizedInstant, flowCnec).map(flowResult -> flowResult.getFlow(flowCnec, side, unit)).orElse(Double.NaN);
     }
 
     @Override
     public double getCommercialFlow(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side, Unit unit) {
-        return getAppropriateResult(optimizedInstant, flowCnec).getCommercialFlow(flowCnec, side, unit);
+        return getAppropriateResult(optimizedInstant, flowCnec).map(flowResult -> flowResult.getCommercialFlow(flowCnec, side, unit)).orElse(Double.NaN);
     }
 
     @Override
     public double getLoopFlow(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side, Unit unit) {
-        return getAppropriateResult(optimizedInstant, flowCnec).getLoopFlow(flowCnec, side, unit);
+        return getAppropriateResult(optimizedInstant, flowCnec).map(flowResult -> flowResult.getLoopFlow(flowCnec, side, unit)).orElse(Double.NaN);
     }
 
     @Override
     public double getPtdfZonalSum(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side) {
-        return getAppropriateResult(optimizedInstant, flowCnec).getPtdfZonalSum(flowCnec, side);
+        return getAppropriateResult(optimizedInstant, flowCnec).map(flowResult -> flowResult.getPtdfZonalSum(flowCnec, side)).orElse(Double.NaN);
     }
 
     public OptimizationResult getOptimizationResult(State state) {
@@ -189,91 +189,57 @@ public class OneStateOnlyRaoResultImpl extends AbstractFlowRaoResult {
 
     @Override
     public boolean wasActivatedBeforeState(State state, NetworkAction networkAction) {
-        if (!state.equals(optimizedState)) {
-            throw new OpenRaoException(WRONG_STATE);
-        }
         return false;
     }
 
     @Override
     public boolean isActivatedDuringState(State state, NetworkAction networkAction) {
-        if (!state.equals(optimizedState)) {
-            throw new OpenRaoException(WRONG_STATE);
-        }
-        return postOptimizationResult.isActivated(networkAction);
+        return state.equals(optimizedState) && postOptimizationResult.isActivated(networkAction);
     }
 
     @Override
     public Set<NetworkAction> getActivatedNetworkActionsDuringState(State state) {
-        if (!state.equals(optimizedState)) {
-            throw new OpenRaoException(WRONG_STATE);
-        }
-        return postOptimizationResult.getActivatedNetworkActions();
+        return state.equals(optimizedState) ? postOptimizationResult.getActivatedNetworkActions() : Set.of();
     }
 
     @Override
     public boolean isActivatedDuringState(State state, RangeAction<?> rangeAction) {
-        if (!state.equals(optimizedState)) {
-            throw new OpenRaoException(WRONG_STATE);
-        }
-        return postOptimizationResult.getOptimizedSetpoint(rangeAction, state) != initialResult.getSetpoint(rangeAction);
+        return state.equals(optimizedState) && postOptimizationResult.getOptimizedSetpoint(rangeAction, state) != initialResult.getSetpoint(rangeAction);
     }
 
     @Override
     public int getPreOptimizationTapOnState(State state, PstRangeAction pstRangeAction) {
-        if (!state.equals(optimizedState)) {
-            throw new OpenRaoException(WRONG_STATE);
-        }
         return initialResult.getTap(pstRangeAction);
     }
 
     @Override
     public int getOptimizedTapOnState(State state, PstRangeAction pstRangeAction) {
-        if (!state.equals(optimizedState)) {
-            throw new OpenRaoException(WRONG_STATE);
-        }
-        return postOptimizationResult.getOptimizedTap(pstRangeAction, state);
+        return state.equals(optimizedState) ? postOptimizationResult.getOptimizedTap(pstRangeAction, state) : initialResult.getTap(pstRangeAction);
     }
 
     @Override
     public double getPreOptimizationSetPointOnState(State state, RangeAction<?> rangeAction) {
-        if (!state.equals(optimizedState)) {
-            throw new OpenRaoException(WRONG_STATE);
-        }
         return initialResult.getSetpoint(rangeAction);
     }
 
     @Override
     public double getOptimizedSetPointOnState(State state, RangeAction<?> rangeAction) {
-        if (!state.equals(optimizedState)) {
-            throw new OpenRaoException(WRONG_STATE);
-        }
-        return postOptimizationResult.getOptimizedSetpoint(rangeAction, state);
+        return state.equals(optimizedState) ? postOptimizationResult.getOptimizedSetpoint(rangeAction, state) : initialResult.getSetpoint(rangeAction);
     }
 
     @Override
     public Set<RangeAction<?>> getActivatedRangeActionsDuringState(State state) {
-        if (!state.equals(optimizedState)) {
-            throw new OpenRaoException(WRONG_STATE);
-        }
         return postOptimizationResult.getRangeActions().stream().filter(rangeAction -> isActivatedDuringState(state, rangeAction)).collect(Collectors.toSet());
     }
 
     @Override
     public Map<PstRangeAction, Integer> getOptimizedTapsOnState(State state) {
-        if (!state.equals(optimizedState)) {
-            throw new OpenRaoException(WRONG_STATE);
-        }
-        return postOptimizationResult.getOptimizedTapsOnState(state);
-
+        return state.equals(optimizedState) ? postOptimizationResult.getOptimizedTapsOnState(state) : Map.of();
     }
 
     @Override
     public Map<RangeAction<?>, Double> getOptimizedSetPointsOnState(State state) {
-        if (!state.equals(optimizedState)) {
-            throw new OpenRaoException(WRONG_STATE);
-        }
-        return postOptimizationResult.getOptimizedSetpointsOnState(state);
+        return state.equals(optimizedState) ? postOptimizationResult.getOptimizedSetpointsOnState(state) : Map.of();
     }
 
     @Override

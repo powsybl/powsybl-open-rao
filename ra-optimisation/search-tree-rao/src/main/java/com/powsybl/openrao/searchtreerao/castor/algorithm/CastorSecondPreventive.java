@@ -262,6 +262,7 @@ public class CastorSecondPreventive {
         String newVariant = RandomizedString.getRandomizedString("SecondPreventive", network.getVariantManager().getVariantIds(), 10);
         network.getVariantManager().cloneVariant(SECOND_PREVENTIVE_SCENARIO_BEFORE_OPT, newVariant, true);
         network.getVariantManager().setWorkingVariant(newVariant);
+        // TODO: why do we compute a RAO result if we only use an Optimization Result?
         OptimizationResult secondPreventiveResult = optimizeSecondPreventivePerimeter(initialOutput, sensiWithPostContingencyRemedialActions, firstPreventiveResult, appliedArasAndCras)
             .join().getOptimizationResult(crac.getPreventiveState());
         // Re-run sensitivity computation based on PRAs without CRAs, to access after PRA results
