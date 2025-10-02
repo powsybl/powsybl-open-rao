@@ -10,7 +10,6 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.usagerule.OnContingencyStateAdderToRemedialAction;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 
 import static com.powsybl.openrao.data.crac.impl.AdderUtils.assertAttributeNotNull;
 
@@ -23,7 +22,6 @@ import static com.powsybl.openrao.data.crac.impl.AdderUtils.assertAttributeNotNu
 public class OnStateAdderToRemedialActionImpl<T extends AbstractRemedialAction<T>> implements OnContingencyStateAdderToRemedialAction<T> {
 
     private T owner;
-    private UsageMethod usageMethod;
     private State state;
     private static final String CLASS_NAME = "OnState";
 
@@ -38,21 +36,14 @@ public class OnStateAdderToRemedialActionImpl<T extends AbstractRemedialAction<T
     }
 
     @Override
-    public OnStateAdderToRemedialActionImpl<T> withUsageMethod(UsageMethod usageMethod) {
-        this.usageMethod = usageMethod;
-        return this;
-    }
-
-    @Override
     public T add() {
         assertAttributeNotNull(state, CLASS_NAME, "state", "withState()");
-        assertAttributeNotNull(usageMethod, CLASS_NAME, "usage method", "withUsageMethod()");
-        if (state.isPreventive() && usageMethod != UsageMethod.FORCED) {
+        if (state.isPreventive()) {
             throw new OpenRaoException("OnContingencyState usage rules are not allowed for PREVENTIVE instant except when FORCED. Please use newOnInstantUsageRule() instead.");
         } else if (state.getInstant().isOutage()) {
             throw new OpenRaoException("OnContingencyState usage rules are not allowed for OUTAGE instant.");
         }
-        owner.addUsageRule(new OnContingencyStateImpl(usageMethod, state));
+        owner.addUsageRule(new OnContingencyStateImpl(state));
         return owner;
     }
 }

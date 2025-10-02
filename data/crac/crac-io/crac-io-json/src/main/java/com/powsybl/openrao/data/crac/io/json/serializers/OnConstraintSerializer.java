@@ -22,7 +22,6 @@ public class OnConstraintSerializer extends AbstractJsonSerializer<OnConstraint>
         gen.writeStartObject();
         gen.writeStringField(JsonSerializationConstants.INSTANT, value.getInstant().getId());
         gen.writeStringField(JsonSerializationConstants.CNEC_ID, value.getCnec().getId());
-        gen.writeStringField(JsonSerializationConstants.USAGE_METHOD, JsonSerializationConstants.serializeUsageMethod(value.getUsageMethod()));
         gen.writeEndObject();
     }
 }
