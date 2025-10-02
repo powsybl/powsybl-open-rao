@@ -14,7 +14,6 @@ import com.powsybl.openrao.data.crac.api.usagerule.OnConstraintAdder;
 
 import java.io.IOException;
 
-import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
 import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.ANGLE_CNEC_ID;
 import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.CNEC_ID;
 import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.FLOW_CNEC_ID;
@@ -42,7 +41,7 @@ public final class OnConstraintArrayDeserializer {
                         break;
                     case USAGE_METHOD:
                         if (getPrimaryVersionNumber(version) < 2 || getPrimaryVersionNumber(version) == 2 && getSubVersionNumber(version) < 8) {
-                            BUSINESS_WARNS.warn("Usage methods are no longer used.");
+                            CracDeserializer.LOGGER.warn("Usage methods are no longer used.");
                             break;
                         } else {
                             throw new OpenRaoException("Unexpected field in OnConstraint: " + jsonParser.getCurrentName());

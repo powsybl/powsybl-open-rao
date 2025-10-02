@@ -16,7 +16,6 @@ import com.fasterxml.jackson.core.JsonToken;
 
 import java.io.IOException;
 
-import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
 import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.USAGE_METHOD;
 import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.getPrimaryVersionNumber;
 import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.getSubVersionNumber;
@@ -38,7 +37,7 @@ public final class OnInstantArrayDeserializer {
                         break;
                     case USAGE_METHOD:
                         if (getPrimaryVersionNumber(version) < 2 || getPrimaryVersionNumber(version) == 2 && getSubVersionNumber(version) < 8) {
-                            BUSINESS_WARNS.warn("Usage methods are no longer used.");
+                            CracDeserializer.LOGGER.warn("Usage methods are no longer used.");
                             break;
                         } else {
                             throw new OpenRaoException("Unexpected field in OnInstant: " + jsonParser.getCurrentName());

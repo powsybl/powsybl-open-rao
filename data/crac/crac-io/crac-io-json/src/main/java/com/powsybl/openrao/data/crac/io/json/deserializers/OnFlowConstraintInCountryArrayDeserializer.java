@@ -16,7 +16,6 @@ import com.powsybl.iidm.network.Country;
 
 import java.io.IOException;
 
-import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
 import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.*;
 
 /**
@@ -40,7 +39,7 @@ public final class OnFlowConstraintInCountryArrayDeserializer {
                         break;
                     case USAGE_METHOD:
                         if (getPrimaryVersionNumber(version) < 2 || getPrimaryVersionNumber(version) == 2 && getSubVersionNumber(version) < 8) {
-                            BUSINESS_WARNS.warn("Usage methods are no longer used.");
+                            CracDeserializer.LOGGER.warn("Usage methods are no longer used.");
                             break;
                         } else {
                             throw new OpenRaoException("Unexpected field in OnFlowConstraintInCountry: " + jsonParser.getCurrentName());
