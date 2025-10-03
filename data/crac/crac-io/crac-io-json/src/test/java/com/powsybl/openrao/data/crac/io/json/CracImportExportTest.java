@@ -570,7 +570,7 @@ class CracImportExportTest {
         assertEquals(1, cracCreationContext.getCreationReport().getReport().size());
         assertEquals("[ERROR] Cannot deserialize thresholds before networkElementId for FlowCNECs.", cracCreationContext.getCreationReport().getReport().get(0));
     }
-  
+
     @Test
     void testImportInjectionRangeActionWithDisconnectedGenerator() throws IOException {
         Logger logger = (Logger) LoggerFactory.getLogger(RaoBusinessWarns.class);
