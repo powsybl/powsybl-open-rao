@@ -253,7 +253,7 @@ crac.newPstRangeAction()
       .add()
    .newOnInstantUsageRule()
       .withInstant("preventive")
-      .withUsageMethod(UsageMethod.AVAILABLE)
+      
       .add()
    .add();
 ```
@@ -277,7 +277,7 @@ crac.newNetworkAction()
       .newOnContingencyStateUsageRule()
          .withInstant("curative")
          .withContingency("contingency")
-         .withUsageMethod(UsageMethod.AVAILABLE)
+         
          .add()
       .add();
 ```
@@ -321,7 +321,18 @@ RaoParameters raoParameters = new RaoParameters();
 
  ```java
  RaoInput.RaoInputBuilder raoInputBuilder = RaoInput.build(network, crac);
- RaoResult raoResult = Rao.find().run(raoInputBuilder.build(), raoParameters);
+ RaoResult raoResult = Rao.find("SearchTreeRao").run(raoInputBuilder.build(), raoParameters);
+ 
+ 
+ // To use FastRAO instead of the regular CASTOR 
+ 
+// Make sure to add FastRaoParameters extension to your raoParameters
+FastRaoParameters fastRaoParameters = new FastRaoParameters();
+raoParameters.addExtension(FastRaoParameters.class, fastRaoParameters);
+
+// Run 
+RaoInput raoInput = RaoInput.build(network, crac).build();
+RaoResult raoResult = Rao.find("FastRao").run(raoInput, raoParameters);
 ```
 
 All the important information regarding the optimisation process (activated remedial actions and CNEC flow at each
@@ -461,7 +472,6 @@ import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.networkaction.ActionType;
 import com.powsybl.openrao.data.crac.api.range.RangeType;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.openrao.data.crac.io.commons.iidm.IidmPstHelper;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.raoapi.Rao;
@@ -550,7 +560,6 @@ import com.powsybl.sensitivity.SensitivityAnalysisParameters;
                  .add()
                  .newOnInstantUsageRule()
                  .withInstant("preventive")
-                 .withUsageMethod(UsageMethod.AVAILABLE)
                  .add()
                  .add();
 
@@ -568,7 +577,6 @@ import com.powsybl.sensitivity.SensitivityAnalysisParameters;
                  .newOnContingencyStateUsageRule()
                  .withInstant("curative")
                  .withContingency("contingency")
-                 .withUsageMethod(UsageMethod.AVAILABLE)
                  .add()
                  .add();
 

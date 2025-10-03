@@ -9,7 +9,6 @@ package com.powsybl.openrao.data.crac.impl;
 
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.InstantKind;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -26,38 +25,29 @@ class OnInstantImplTest {
 
     @Test
     void testGetterSetter() {
-        OnInstantImpl onInstant = new OnInstantImpl(UsageMethod.AVAILABLE, PREVENTIVE_INSTANT);
+        OnInstantImpl onInstant = new OnInstantImpl(PREVENTIVE_INSTANT);
         assertEquals(PREVENTIVE_INSTANT, onInstant.getInstant());
     }
 
     @Test
     void testEqualsSameObject() {
-        OnInstantImpl rule1 = new OnInstantImpl(UsageMethod.AVAILABLE, PREVENTIVE_INSTANT);
+        OnInstantImpl rule1 = new OnInstantImpl(PREVENTIVE_INSTANT);
         assertEquals(rule1, rule1);
     }
 
     @Test
     void testEqualsTrue() {
-        OnInstantImpl rule1 = new OnInstantImpl(UsageMethod.AVAILABLE, PREVENTIVE_INSTANT);
-        OnInstantImpl rule2 = new OnInstantImpl(UsageMethod.AVAILABLE, PREVENTIVE_INSTANT);
+        OnInstantImpl rule1 = new OnInstantImpl(PREVENTIVE_INSTANT);
+        OnInstantImpl rule2 = new OnInstantImpl(PREVENTIVE_INSTANT);
 
         assertEquals(rule1, rule2);
         assertEquals(rule1.hashCode(), rule2.hashCode());
     }
 
     @Test
-    void testEqualsFalseForUsageMethod() {
-        OnInstantImpl rule1 = new OnInstantImpl(UsageMethod.AVAILABLE, PREVENTIVE_INSTANT);
-        OnInstantImpl rule2 = new OnInstantImpl(UsageMethod.FORCED, PREVENTIVE_INSTANT);
-
-        assertNotEquals(rule1, rule2);
-        assertNotEquals(rule1.hashCode(), rule2.hashCode());
-    }
-
-    @Test
     void testEqualsFalseForInstant() {
-        OnInstantImpl rule1 = new OnInstantImpl(UsageMethod.AVAILABLE, PREVENTIVE_INSTANT);
-        OnInstantImpl rule2 = new OnInstantImpl(UsageMethod.AVAILABLE, CURATIVE_INSTANT);
+        OnInstantImpl rule1 = new OnInstantImpl(PREVENTIVE_INSTANT);
+        OnInstantImpl rule2 = new OnInstantImpl(CURATIVE_INSTANT);
 
         assertNotEquals(rule1, rule2);
         assertNotEquals(rule1.hashCode(), rule2.hashCode());

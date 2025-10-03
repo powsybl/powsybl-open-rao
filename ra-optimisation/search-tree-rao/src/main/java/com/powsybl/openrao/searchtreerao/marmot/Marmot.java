@@ -15,7 +15,6 @@ import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.openrao.data.raoresult.api.InterTemporalRaoResult;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.raoapi.InterTemporalRaoInput;
@@ -126,7 +125,7 @@ public class Marmot implements InterTemporalRaoProvider {
         return raoInputs.map(individualRaoInput -> {
             String logMessage = "[MARMOT] Running RAO for timestamp %s [{}]".formatted(individualRaoInput.getCrac().getTimestamp().orElseThrow());
             OpenRaoLoggerProvider.TECHNICAL_LOGS.info(logMessage, "start");
-            RaoResult raoResult = Rao.run(individualRaoInput, raoParameters);
+            RaoResult raoResult = Rao.find("SearchTreeRao").run(individualRaoInput, raoParameters);
             OpenRaoLoggerProvider.TECHNICAL_LOGS.info(logMessage, "end");
             return raoResult;
         });
@@ -205,7 +204,7 @@ public class Marmot implements InterTemporalRaoProvider {
                 MarmotUtils.getPreventivePerimeterCnecs(crac),
                 new HashSet<>(),
                 new HashSet<>(),
-                crac.getRangeActions(crac.getPreventiveState(), UsageMethod.AVAILABLE)
+                crac.getRangeActions(crac.getPreventiveState())
             )
         );
     }

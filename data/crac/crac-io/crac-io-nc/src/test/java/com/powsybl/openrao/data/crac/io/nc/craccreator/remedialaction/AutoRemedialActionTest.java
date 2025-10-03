@@ -15,7 +15,6 @@ import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
 import com.powsybl.openrao.data.crac.impl.OnContingencyStateImpl;
 import org.junit.jupiter.api.Test;
@@ -43,7 +42,6 @@ class AutoRemedialActionTest {
         assertEquals(7, pstSps.getRanges().get(0).getMaxTap());
         assertEquals("contingency", pstSpsUsageRule.getContingency().getId());
         assertEquals(InstantKind.AUTO, pstSpsUsageRule.getInstant().getKind());
-        assertEquals(UsageMethod.FORCED, pstSpsUsageRule.getUsageMethod());
 
         NetworkAction networkSps = cracCreationContext.getCrac().getNetworkAction("network-sps");
         OnContingencyStateImpl networkSpsUsageRule = (OnContingencyStateImpl) networkSps.getUsageRules().iterator().next();
@@ -58,7 +56,6 @@ class AutoRemedialActionTest {
         assertEquals(75.0, injectionSetpoint.getActivePowerValue().getAsDouble());
         assertEquals("contingency", networkSpsUsageRule.getContingency().getId());
         assertEquals(InstantKind.AUTO, networkSpsUsageRule.getInstant().getKind());
-        assertEquals(UsageMethod.FORCED, networkSpsUsageRule.getUsageMethod());
 
         assertEquals(3, cracCreationContext.getRemedialActionCreationContexts().stream().filter(ra -> !ra.isImported()).toList().size());
 

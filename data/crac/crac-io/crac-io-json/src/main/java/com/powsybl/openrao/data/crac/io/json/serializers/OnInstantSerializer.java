@@ -22,7 +22,6 @@ public class OnInstantSerializer extends AbstractJsonSerializer<OnInstant> {
     public void serialize(OnInstant value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
         gen.writeStartObject();
         gen.writeStringField(JsonSerializationConstants.INSTANT, value.getInstant().getId());
-        gen.writeStringField(JsonSerializationConstants.USAGE_METHOD, JsonSerializationConstants.serializeUsageMethod(value.getUsageMethod()));
         gen.writeEndObject();
     }
 }

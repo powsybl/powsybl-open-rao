@@ -14,7 +14,6 @@ import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.range.RangeType;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.openrao.data.crac.impl.CracImpl;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
@@ -136,7 +135,6 @@ class PreventiveAndCurativesRaoResultImplTest {
             .add()
             .newOnInstantUsageRule()
             .withInstant("preventive")
-            .withUsageMethod(UsageMethod.AVAILABLE)
             .add()
             .add();
     }
@@ -361,11 +359,11 @@ class PreventiveAndCurativesRaoResultImplTest {
         // not optimized state
         State cur4state = crac.getState("contingency-4", crac.getInstant(InstantKind.CURATIVE));
         Map<RangeAction<?>, Double> cur4Map = output.getOptimizedSetPointsOnState(cur4state);
-        assertTrue(cur4Map.isEmpty());
+        assert cur4Map.isEmpty();
         assertThrows(OpenRaoException.class, () -> output.getOptimizedSetPointOnState(cur4state, pst));
         Map<PstRangeAction, Integer> optimizedTapscur4state = output.getOptimizedTapsOnState(cur4state);
-        assertTrue(optimizedTapscur4state.isEmpty());
-        assertTrue(output.getActivatedRangeActionsDuringState(cur4state).isEmpty());
+        assert optimizedTapscur4state.isEmpty();
+        assert output.getActivatedRangeActionsDuringState(cur4state).isEmpty();
     }
 
     private void checkFunctionalCosts() {

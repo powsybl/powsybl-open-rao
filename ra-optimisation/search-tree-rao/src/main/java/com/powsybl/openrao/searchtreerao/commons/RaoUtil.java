@@ -22,7 +22,6 @@ import com.powsybl.openrao.data.crac.api.usagerule.OnConstraint;
 import com.powsybl.openrao.data.crac.api.usagerule.OnContingencyState;
 import com.powsybl.openrao.data.crac.api.usagerule.OnFlowConstraintInCountry;
 import com.powsybl.openrao.data.crac.api.usagerule.OnInstant;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
 import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceProgramBuilder;
 import com.powsybl.openrao.raoapi.RaoInput;
@@ -149,60 +148,32 @@ public final class RaoUtil {
 
     /**
      * Evaluates if a remedial action is available.
-     * 1) The remedial action has no usage rule:
-     * It will not be available.
-     * 2) It gathers all the remedial action usageMethods and filters out the OnFlowConstraint(InCountry) with no negative margins on their associated cnecs.
-     * 3) It computes the "strongest" usage method.
-     * The remedial action is available if and only if the usage method is "AVAILABLE".
+     * 1) The remedial action has no usage rule: it will not be available.
+     * 2) It gathers all the remedial action usage rules and filters out the OnFlowConstraint(InCountry) with no negative margins on their associated cnecs.
+     * If there are remaining usage rules, the remedial action is available.
      */
-    public static boolean isRemedialActionAvailable(RemedialAction<?> remedialAction, State state, FlowResult flowResult, Set<FlowCnec> flowCnecs, Network network, RaoParameters raoParameters) {
-        UsageMethod finalUsageMethod = getFinalUsageMethod(remedialAction, state, flowResult, flowCnecs, network, raoParameters);
-        return finalUsageMethod != null && finalUsageMethod.equals(UsageMethod.AVAILABLE);
+    public static boolean canRemedialActionBeUsed(RemedialAction<?> remedialAction, State state, FlowResult flowResult, Set<FlowCnec> flowCnecs, Network network, RaoParameters raoParameters) {
+        return remedialAction.getUsageRules().stream().anyMatch(ur -> isUsageRuleActivated(ur, remedialAction, state, flowResult, flowCnecs, network, raoParameters.getObjectiveFunctionParameters().getUnit()));
     }
 
-    /**
-     * Evaluates if a remedial action is forced.
-     * 1) The remedial action has no usage rule:
-     * It will not be forced.
-     * 2) It gathers all the remedial action usageMethods and filters out the OnFlowConstraint(InCountry) with no negative margins on their associated cnecs.
-     * 3) It computes the "strongest" usage method.
-     * For automatonState, the remedial action is forced if and only if the usage method is "FORCED".
-     * For non-automaton states, a forced remedial action is not supported and the remedial action is ignored.
-     */
-    public static boolean isRemedialActionForced(RemedialAction<?> remedialAction, State state, FlowResult flowResult, Set<FlowCnec> flowCnecs, Network network, RaoParameters raoParameters) {
-        UsageMethod finalUsageMethod = getFinalUsageMethod(remedialAction, state, flowResult, flowCnecs, network, raoParameters);
-        if (finalUsageMethod == null) {
+    private static boolean isUsageRuleActivated(UsageRule usageRule, RemedialAction<?> remedialAction, State state, FlowResult flowResult, Set<FlowCnec> flowCnecs, Network network, Unit unit) {
+        if (usageRule instanceof OnInstant onInstant) {
+            return onInstant.getInstant().equals(state.getInstant());
+        } else if (usageRule instanceof OnContingencyState onContingencyState) {
+            return onContingencyState.getState().equals(state);
+        } else if (usageRule instanceof OnFlowConstraintInCountry onFlowConstraintInCountry) {
+            if (onFlowConstraintInCountry.getContingency().isPresent() && !onFlowConstraintInCountry.getContingency().equals(state.getContingency())) {
+                return false;
+            }
+            return isAnyMarginNegative(flowResult, remedialAction.getFlowCnecsConstrainingForOneUsageRule(onFlowConstraintInCountry, flowCnecs, network), unit) && onFlowConstraintInCountry.getInstant().equals(state.getInstant());
+        } else if (usageRule instanceof OnConstraint<?> onConstraint && onConstraint.getCnec() instanceof FlowCnec flowCnec) {
+            if (!onConstraint.getInstant().isPreventive() && !flowCnec.getState().getContingency().equals(state.getContingency())) {
+                return false;
+            }
+            return isAnyMarginNegative(flowResult, remedialAction.getFlowCnecsConstrainingForOneUsageRule(onConstraint, flowCnecs, network), unit) && onConstraint.getInstant().equals(state.getInstant());
+        } else {
             return false;
         }
-        if (!state.getInstant().isAuto() && finalUsageMethod.equals(UsageMethod.FORCED)) {
-            OpenRaoLoggerProvider.BUSINESS_WARNS.warn(format("The 'forced' usage method is for automatons only. Therefore, %s will be ignored for this state: %s", remedialAction.getName(), state.getId()));
-            return false;
-        }
-        return finalUsageMethod.equals(UsageMethod.FORCED);
-    }
-
-    private static UsageMethod getFinalUsageMethod(RemedialAction<?> remedialAction, State state, FlowResult flowResult, Set<FlowCnec> flowCnecs, Network network, RaoParameters raoParameters) {
-        Set<UsageRule> usageRules = remedialAction.getUsageRules();
-        if (usageRules.isEmpty()) {
-            OpenRaoLoggerProvider.BUSINESS_WARNS.warn(format("The remedial action %s has no usage rule and therefore will not be available.", remedialAction.getName()));
-            return null;
-        }
-
-        Set<UsageMethod> usageMethods = getAllUsageMethods(usageRules, remedialAction, state, flowResult, flowCnecs, network, raoParameters);
-        return UsageMethod.getStrongestUsageMethod(usageMethods);
-    }
-
-    /**
-     * Returns a set of usageMethods corresponding to a remedialAction.
-     * It filters out every OnFlowConstraint(InCountry) that is not applicable due to positive margins.
-     */
-    private static Set<UsageMethod> getAllUsageMethods(Set<UsageRule> usageRules, RemedialAction<?> remedialAction, State state, FlowResult flowResult, Set<FlowCnec> flowCnecs, Network network, RaoParameters raoParameters) {
-        return usageRules.stream()
-            .filter(ur -> ur instanceof OnContingencyState || ur instanceof OnInstant
-                || (ur instanceof OnFlowConstraintInCountry || ur instanceof OnConstraint<?> onConstraint && onConstraint.getCnec() instanceof FlowCnec)
-                && isAnyMarginNegative(flowResult, remedialAction.getFlowCnecsConstrainingForOneUsageRule(ur, flowCnecs, network), raoParameters.getObjectiveFunctionParameters().getUnit()))
-            .map(ur -> ur.getUsageMethod(state))
-            .collect(Collectors.toSet());
     }
 
     /**
@@ -254,5 +225,4 @@ public final class RaoUtil {
             .map(FlowCnec::getId)
             .collect(Collectors.toSet());
     }
-
 }
