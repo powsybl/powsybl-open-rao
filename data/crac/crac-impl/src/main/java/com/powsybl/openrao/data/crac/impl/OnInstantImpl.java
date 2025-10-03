@@ -8,23 +8,20 @@
 package com.powsybl.openrao.data.crac.impl;
 
 import com.powsybl.openrao.data.crac.api.Instant;
-import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.usagerule.OnInstant;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 
 /**
- * The UsageMethod of the OnInstantImpl UsageRule is effective in all the States which
+ * The OnInstantImpl UsageRule is effective in all the States which
  * are at a given Instant.
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public final class OnInstantImpl extends AbstractUsageRule implements OnInstant {
+public final class OnInstantImpl implements OnInstant {
 
-    private Instant instant;
+    private final Instant instant;
 
-    OnInstantImpl(UsageMethod usageMethod, Instant instant) {
-        super(usageMethod);
+    OnInstantImpl(Instant instant) {
         this.instant = instant;
     }
 
@@ -37,17 +34,12 @@ public final class OnInstantImpl extends AbstractUsageRule implements OnInstant 
             return false;
         }
         OnInstantImpl rule = (OnInstantImpl) o;
-        return super.equals(o) && rule.getInstant().equals(instant);
+        return rule.getInstant().equals(instant);
     }
 
     @Override
     public int hashCode() {
-        return usageMethod.hashCode() * 19 + instant.hashCode() * 47;
-    }
-
-    @Override
-    public UsageMethod getUsageMethod(State state) {
-        return state.getInstant().equals(instant) ? usageMethod : UsageMethod.UNDEFINED;
+        return instant.hashCode() * 47;
     }
 
     @Override

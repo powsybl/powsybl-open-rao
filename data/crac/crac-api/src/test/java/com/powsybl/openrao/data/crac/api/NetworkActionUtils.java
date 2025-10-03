@@ -12,7 +12,6 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.data.crac.api.usagerule.OnContingencyStateAdderToRemedialAction;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.ActionType;
@@ -89,11 +88,6 @@ public final class NetworkActionUtils {
 
         @Override
         public Set<UsageRule> getUsageRules() {
-            return null;
-        }
-
-        @Override
-        public UsageMethod getUsageMethod(State state) {
             return null;
         }
 
@@ -192,7 +186,7 @@ public final class NetworkActionUtils {
         }
 
         @Override
-        public Set<Optional<Country>> getLocation(Network network) {
+        public Set<Country> getLocation(Network network) {
             return null;
         }
 

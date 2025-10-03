@@ -11,7 +11,6 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.usagerule.OnFlowConstraintInCountry;
 import com.powsybl.openrao.data.crac.api.usagerule.OnFlowConstraintInCountryAdder;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.iidm.network.Country;
 
 import java.util.Optional;
@@ -28,7 +27,6 @@ public class OnFlowConstraintInCountryAdderImpl<T extends AbstractRemedialAction
     private String instantId;
     private String contingencyId;
     private Country country;
-    private UsageMethod usageMethod;
 
     OnFlowConstraintInCountryAdderImpl(AbstractRemedialActionAdder<T> owner) {
         this.owner = (T) owner;
@@ -47,12 +45,6 @@ public class OnFlowConstraintInCountryAdderImpl<T extends AbstractRemedialAction
     }
 
     @Override
-    public OnFlowConstraintInCountryAdder<T> withUsageMethod(UsageMethod usageMethod) {
-        this.usageMethod = usageMethod;
-        return this;
-    }
-
-    @Override
     public OnFlowConstraintInCountryAdder<T> withCountry(Country country) {
         this.country = country;
         return this;
@@ -62,7 +54,6 @@ public class OnFlowConstraintInCountryAdderImpl<T extends AbstractRemedialAction
     public T add() {
         assertAttributeNotNull(instantId, ON_FLOW_CONSTRAINT_IN_COUNTRY, "instant", "withInstant()");
         assertAttributeNotNull(country, ON_FLOW_CONSTRAINT_IN_COUNTRY, "country", "withCountry()");
-        assertAttributeNotNull(usageMethod, ON_FLOW_CONSTRAINT_IN_COUNTRY, "usage method", "withUsageMethod()");
 
         Instant instant = owner.getCrac().getInstant(instantId);
         if (instant.isOutage()) {
@@ -81,7 +72,7 @@ public class OnFlowConstraintInCountryAdderImpl<T extends AbstractRemedialAction
             optionalContingency = Optional.of(contingency);
         }
 
-        OnFlowConstraintInCountry onFlowConstraint = new OnFlowConstraintInCountryImpl(usageMethod, instant, optionalContingency, country);
+        OnFlowConstraintInCountry onFlowConstraint = new OnFlowConstraintInCountryImpl(instant, optionalContingency, country);
         owner.addUsageRule(onFlowConstraint);
         return owner;
     }

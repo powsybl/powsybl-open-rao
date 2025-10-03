@@ -27,7 +27,7 @@ Feature: US 10.1: Linear RAO with relative margin
     Given loopflow glsk file is "common/glsk_proportional_12nodes.xml"
     When I launch search_tree_rao
     Then its security status should be "SECURED"
-    And the value of the objective function after CRA should be -2385.0
+    And the value of the objective function after CRA should be -2383.0
     And the tap of PstRangeAction "PRA_PST_BE" should be -3 in preventive
     And the worst relative margin is 2383.0 MW on cnec "NNL2AA1  BBE3AA1  1 - preventive"
     And the absolute PTDF sum on cnec "NNL2AA1  BBE3AA1  1 - preventive" initially should be 1.455

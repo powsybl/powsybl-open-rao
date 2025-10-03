@@ -929,7 +929,8 @@ by the RAO, but monitored by a [monitoring module](../algorithms/monitoring.md),
 
 ~~~java
 // get the min or max voltage value for a given voltage cnec, after optimisation of a given instant, in a given voltage unit
-double getVoltage(Instant optimizedInstant, VoltageCnec voltageCnec, MinOrMax minOrMax, Unit unit);
+double getMinVoltage(Instant optimizedInstant, VoltageCnec voltageCnec, Unit unit);
+double getMaxVoltage(Instant optimizedInstant, VoltageCnec voltageCnec, Unit unit);
 ~~~
 
 :::

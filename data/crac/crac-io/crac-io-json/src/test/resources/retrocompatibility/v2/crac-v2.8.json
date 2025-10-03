@@ -212,8 +212,7 @@
     "operator" : "RTE",
     "speed" : 10,
     "onInstantUsageRules" : [ {
-      "instant" : "preventive",
-      "usageMethod" : "available"
+      "instant" : "preventive"
     } ],
     "networkElementId" : "pst",
     "ranges" : [ {
@@ -231,8 +230,7 @@
     "operator" : "RTE",
     "onConstraintUsageRules" : [ {
       "instant" : "preventive",
-      "cnecId" : "cnec3prevId",
-      "usageMethod" : "available"
+      "cnecId" : "cnec3prevId"
     } ],
     "networkElementId" : "pst2",
     "groupId" : "group-1-pst",
@@ -251,8 +249,7 @@
     "operator" : "RTE",
     "onConstraintUsageRules" : [ {
       "instant" : "curative",
-      "cnecId" : "angleCnecId",
-      "usageMethod" : "available"
+      "cnecId" : "angleCnecId"
     } ],
     "networkElementId" : "pst3",
     "groupId" : "group-3-pst",
@@ -276,8 +273,7 @@
     "operator" : "RTE",
     "onConstraintUsageRules" : [ {
       "instant" : "curative",
-      "cnecId" : "voltageCnecId",
-      "usageMethod" : "available"
+      "cnecId" : "voltageCnecId"
     } ],
     "networkElementId" : "pst4",
     "groupId" : "group-3-pst",
@@ -297,8 +293,7 @@
     "operator" : "RTE",
     "speed" : 20,
     "onInstantUsageRules" : [ {
-      "instant" : "preventive",
-      "usageMethod" : "available"
+      "instant" : "preventive"
     } ],
     "networkElementId" : "hvdc",
     "ranges" : [ {
@@ -315,8 +310,7 @@
     },
     "onConstraintUsageRules" : [ {
       "instant" : "preventive",
-      "cnecId" : "cnec3curId",
-      "usageMethod" : "available"
+      "cnecId" : "cnec3curId"
     } ],
     "networkElementId" : "hvdc2",
     "groupId" : "group-1-hvdc",
@@ -336,8 +330,7 @@
     },
     "onContingencyStateUsageRules" : [ {
       "instant" : "curative",
-      "contingencyId" : "contingency1Id",
-      "usageMethod" : "available"
+      "contingencyId" : "contingency1Id"
     } ],
     "networkElementIdsAndKeys" : {
       "generator1Id" : 1.0,
@@ -362,26 +355,21 @@
       "down": 18000.0
     },
     "onInstantUsageRules" : [ {
-      "instant" : "preventive",
-      "usageMethod" : "available"
+      "instant" : "preventive"
     } ],
     "onConstraintUsageRules" : [ {
       "instant" : "preventive",
-      "cnecId" : "cnec3curId",
-      "usageMethod" : "available"
+      "cnecId" : "cnec3curId"
     }, {
       "instant" : "curative",
-      "cnecId" : "voltageCnecId",
-      "usageMethod" : "available"
+      "cnecId" : "voltageCnecId"
     }, {
       "instant" : "curative",
-      "cnecId" : "angleCnecId",
-      "usageMethod" : "available"
+      "cnecId" : "angleCnecId"
     } ],
     "onContingencyStateUsageRules" : [ {
       "instant" : "curative",
-      "contingencyId" : "contingency1Id",
-      "usageMethod" : "available"
+      "contingencyId" : "contingency1Id"
     } ],
     "exportingCountry" : "FR",
     "importingCountry" : "DE",
@@ -399,8 +387,7 @@
     "operator" : "RTE",
     "speed" : 40,
     "onInstantUsageRules" : [ {
-      "instant" : "preventive",
-      "usageMethod" : "available"
+      "instant" : "preventive"
     } ],
     "terminalsConnectionActions" : [ {
       "networkElementId" : "ne1Id",
@@ -416,8 +403,7 @@
     "operator" : "RTE",
     "onConstraintUsageRules" : [ {
       "instant" : "auto",
-      "cnecId" : "cnec3autoId",
-      "usageMethod" : "forced"
+      "cnecId" : "cnec3autoId"
     } ],
     "generatorActions" : [ {
       "networkElementId" : "injection",
@@ -430,8 +416,7 @@
     "onFlowConstraintInCountryUsageRules" : [ {
       "instant" : "curative",
       "contingencyId" : "contingency2Id",
-      "country" : "FR",
-      "usageMethod" : "available"
+      "country" : "FR"
     } ],
     "generatorActions" : [ {
       "networkElementId" : "injection",
@@ -443,8 +428,7 @@
     "operator" : "RTE",
     "onFlowConstraintInCountryUsageRules" : [ {
       "instant" : "curative",
-      "country" : "FR",
-      "usageMethod" : "available"
+      "country" : "FR"
     } ],
     "generatorActions" : [ {
       "networkElementId" : "injection",
@@ -458,8 +442,7 @@
     "onFlowConstraintInCountryUsageRules" : [ {
       "instant" : "curative",
       "contingencyId" : "contingency2Id",
-      "country" : "FR",
-      "usageMethod" : "available"
+      "country" : "FR"
     } ],
     "loadActions" : [ {
       "networkElementId" : "LD1",
@@ -482,13 +465,11 @@
     "name" : "pstSetpointRaName",
     "operator" : "RTE",
     "onInstantUsageRules" : [ {
-      "instant" : "preventive",
-      "usageMethod" : "available"
+      "instant" : "preventive"
     } ],
     "onContingencyStateUsageRules" : [ {
       "instant" : "curative",
-      "contingencyId" : "contingency1Id",
-      "usageMethod" : "forced"
+      "contingencyId" : "contingency1Id"
     } ],
     "phaseTapChangerTapPositionActions" : [ {
       "networkElementId" : "pst",
@@ -500,8 +481,7 @@
     "operator" : "RTE",
     "onContingencyStateUsageRules" : [ {
       "instant" : "curative",
-      "contingencyId" : "contingency2Id",
-      "usageMethod" : "available"
+      "contingencyId" : "contingency2Id"
     } ],
     "switchPairs" : [ {
       "open" : "to-open",

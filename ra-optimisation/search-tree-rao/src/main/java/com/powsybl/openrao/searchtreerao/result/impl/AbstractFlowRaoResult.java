@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.result.impl;
 
+import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.data.crac.api.Instant;
@@ -18,7 +19,7 @@ import java.util.Arrays;
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public abstract class AbstractFlowRaoResult implements RaoResult {
+public abstract class AbstractFlowRaoResult extends AbstractExtendable<RaoResult> implements RaoResult {
     @Override
     public boolean isSecure(Instant optimizedInstant, PhysicalParameter... u) {
         if (ComputationStatus.FAILURE.equals(getComputationStatus())) {

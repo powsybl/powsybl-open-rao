@@ -17,7 +17,6 @@ import com.powsybl.openrao.data.crac.api.cnec.FlowCnecAdder;
 import com.powsybl.openrao.data.crac.api.networkaction.ActionType;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.range.RangeType;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
@@ -250,7 +249,6 @@ public final class CommonCracCreation {
             .withOperator("operator1")
             .newOnInstantUsageRule()
             .withInstant(PREVENTIVE_INSTANT_ID)
-            .withUsageMethod(UsageMethod.AVAILABLE)
             .add()
             .newTapRange()
             .withRangeType(RangeType.ABSOLUTE)
@@ -276,7 +274,6 @@ public final class CommonCracCreation {
             .newOnContingencyStateUsageRule()
             .withInstant(CURATIVE_INSTANT_ID)
             .withContingency("Contingency FR1 FR3")
-            .withUsageMethod(UsageMethod.AVAILABLE)
             .add()
             .newTapRange()
             .withRangeType(RangeType.ABSOLUTE)
@@ -299,8 +296,8 @@ public final class CommonCracCreation {
             .withId("pst")
             .withNetworkElement("BBE2AA1  BBE3AA1  1", "BBE2AA1  BBE3AA1  1 name")
             .withOperator("operator1")
-            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
-            .newOnContingencyStateUsageRule().withInstant(CURATIVE_INSTANT_ID).withContingency("Contingency FR1 FR3").withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
+            .newOnContingencyStateUsageRule().withInstant(CURATIVE_INSTANT_ID).withContingency("Contingency FR1 FR3").add()
             .newTapRange()
             .withRangeType(RangeType.ABSOLUTE)
             .withMinTap(-16)
@@ -331,7 +328,6 @@ public final class CommonCracCreation {
             .add()
             .newOnInstantUsageRule()
             .withInstant(PREVENTIVE_INSTANT_ID)
-            .withUsageMethod(UsageMethod.AVAILABLE)
             .add()
             .add();
 
@@ -343,7 +339,6 @@ public final class CommonCracCreation {
             .add()
             .newOnInstantUsageRule()
             .withInstant(PREVENTIVE_INSTANT_ID)
-            .withUsageMethod(UsageMethod.AVAILABLE)
             .add()
             .add();
 
@@ -355,7 +350,6 @@ public final class CommonCracCreation {
             .add()
             .newOnInstantUsageRule()
             .withInstant(PREVENTIVE_INSTANT_ID)
-            .withUsageMethod(UsageMethod.AVAILABLE)
             .add()
             .add();
 
@@ -367,7 +361,6 @@ public final class CommonCracCreation {
             .add()
             .newOnInstantUsageRule()
             .withInstant(PREVENTIVE_INSTANT_ID)
-            .withUsageMethod(UsageMethod.AVAILABLE)
             .add()
             .add();
 
@@ -380,7 +373,6 @@ public final class CommonCracCreation {
             .add()
             .newOnInstantUsageRule()
             .withInstant(PREVENTIVE_INSTANT_ID)
-            .withUsageMethod(UsageMethod.AVAILABLE)
             .add()
             .add();
 
@@ -392,7 +384,6 @@ public final class CommonCracCreation {
             .add()
             .newOnInstantUsageRule()
             .withInstant(PREVENTIVE_INSTANT_ID)
-            .withUsageMethod(UsageMethod.AVAILABLE)
             .add()
             .add();
 
@@ -404,7 +395,6 @@ public final class CommonCracCreation {
             .add()
             .newOnInstantUsageRule()
             .withInstant(PREVENTIVE_INSTANT_ID)
-            .withUsageMethod(UsageMethod.AVAILABLE)
             .add()
             .add();
 
@@ -416,7 +406,6 @@ public final class CommonCracCreation {
             .add()
             .newOnInstantUsageRule()
             .withInstant(PREVENTIVE_INSTANT_ID)
-            .withUsageMethod(UsageMethod.AVAILABLE)
             .add()
             .add();
 
@@ -429,7 +418,6 @@ public final class CommonCracCreation {
             .add()
             .newOnInstantUsageRule()
             .withInstant(PREVENTIVE_INSTANT_ID)
-            .withUsageMethod(UsageMethod.AVAILABLE)
             .add()
             .add();
 
@@ -441,7 +429,6 @@ public final class CommonCracCreation {
             .add()
             .newOnInstantUsageRule()
             .withInstant(PREVENTIVE_INSTANT_ID)
-            .withUsageMethod(UsageMethod.AVAILABLE)
             .add()
             .add();
 
@@ -453,7 +440,6 @@ public final class CommonCracCreation {
             .add()
             .newOnInstantUsageRule()
             .withInstant(PREVENTIVE_INSTANT_ID)
-            .withUsageMethod(UsageMethod.AVAILABLE)
             .add()
             .add();
 
@@ -465,7 +451,6 @@ public final class CommonCracCreation {
             .add()
             .newOnInstantUsageRule()
             .withInstant(PREVENTIVE_INSTANT_ID)
-            .withUsageMethod(UsageMethod.AVAILABLE)
             .add()
             .add();
 
@@ -478,7 +463,6 @@ public final class CommonCracCreation {
             .add()
             .newOnInstantUsageRule()
             .withInstant(PREVENTIVE_INSTANT_ID)
-            .withUsageMethod(UsageMethod.AVAILABLE)
             .add()
             .add();
 
@@ -490,7 +474,6 @@ public final class CommonCracCreation {
             .add()
             .newOnInstantUsageRule()
             .withInstant(PREVENTIVE_INSTANT_ID)
-            .withUsageMethod(UsageMethod.AVAILABLE)
             .add()
             .add();
 
@@ -502,7 +485,6 @@ public final class CommonCracCreation {
             .add()
             .newOnInstantUsageRule()
             .withInstant(PREVENTIVE_INSTANT_ID)
-            .withUsageMethod(UsageMethod.AVAILABLE)
             .add()
             .add();
 
@@ -514,7 +496,6 @@ public final class CommonCracCreation {
             .add()
             .newOnInstantUsageRule()
             .withInstant(PREVENTIVE_INSTANT_ID)
-            .withUsageMethod(UsageMethod.AVAILABLE)
             .add()
             .add();
 
@@ -526,7 +507,6 @@ public final class CommonCracCreation {
             .add()
             .newOnInstantUsageRule()
             .withInstant(PREVENTIVE_INSTANT_ID)
-            .withUsageMethod(UsageMethod.AVAILABLE)
             .add()
             .add();
 
@@ -559,7 +539,6 @@ public final class CommonCracCreation {
             .add()
             .newOnInstantUsageRule()
             .withInstant(PREVENTIVE_INSTANT_ID)
-            .withUsageMethod(UsageMethod.AVAILABLE)
             .add()
             .add();
 
@@ -591,7 +570,6 @@ public final class CommonCracCreation {
             .add()
             .newOnInstantUsageRule()
             .withInstant(PREVENTIVE_INSTANT_ID)
-            .withUsageMethod(UsageMethod.AVAILABLE)
             .add()
             .add();
 
@@ -611,7 +589,6 @@ public final class CommonCracCreation {
             .add()
             .newOnInstantUsageRule()
             .withInstant(PREVENTIVE_INSTANT_ID)
-            .withUsageMethod(UsageMethod.AVAILABLE)
             .add()
             .add();
 
@@ -627,7 +604,6 @@ public final class CommonCracCreation {
             .add()
             .newOnInstantUsageRule()
             .withInstant(PREVENTIVE_INSTANT_ID)
-            .withUsageMethod(UsageMethod.AVAILABLE)
             .add()
             .add();
 
