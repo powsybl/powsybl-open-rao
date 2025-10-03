@@ -27,7 +27,7 @@ Feature: US 91.10: MIP test cases
     And the margin on cnec "FFR1AA1  FFR2AA1  1 - preventive" after PRA should be 198.0 MW
     And the tap of PstRangeAction "PRA_PST_BE" should be -9 in preventive
 
-  @fast @rao @mock @ac @preventive-only
+  @fast @rao @mock @ac @preventive-only @search-tree-rao
   Scenario: US 91.10.3: MIP with slightly different aligned PSTs
     Given network file is "epic91/TestCase16Nodes_alignedPsts.uct"
     Given crac file is "epic91/CBCORA_alignedPsts.xml"

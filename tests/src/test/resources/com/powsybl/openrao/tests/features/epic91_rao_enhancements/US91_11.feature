@@ -5,7 +5,7 @@
 
 Feature: US 91.11: optimize computations for SECURE stop criterion
 
-  @fast @rao @mock @dc @preventive-only
+  @fast @rao @mock @dc @preventive-only @search-tree-rao
   Scenario: US 91.11.1: Interrupt search tree depth early
     Given network file is "epic91/TestCase4Nodes.uct"
     Given crac file is "epic91/CBCORA_interrupt_search_tree.xml"
@@ -14,7 +14,7 @@ Feature: US 91.11: optimize computations for SECURE stop criterion
     Then 1 remedial actions are used in preventive
     And the margin on cnec "be1_fr1_N - preventive" after PRA should be 2340 A
 
-  @fast @rao @mock @dc @preventive-only
+  @fast @rao @mock @dc @preventive-only @search-tree-rao
   Scenario: US 91.11.2: Interrupt search tree depth early two threads
     Given network file is "epic91/TestCase4Nodes.uct"
     Given crac file is "epic91/CBCORA_interrupt_search_tree.xml"

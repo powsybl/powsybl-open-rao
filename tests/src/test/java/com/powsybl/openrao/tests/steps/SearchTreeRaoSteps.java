@@ -54,7 +54,6 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 public class SearchTreeRaoSteps {
-    private static final String SEARCH_TREE_RAO = "SearchTreeRao";
     private static final double TOLERANCE_FLOW_IN_AMPERE = 5.0;
     private static final double TOLERANCE_FLOW_IN_MEGAWATT = 5.0;
     private static final double TOLERANCE_FLOW_RELATIVE = 1.5 / 100;
@@ -110,22 +109,22 @@ public class SearchTreeRaoSteps {
 
     @When("I launch search_tree_rao at {string} on preventive state")
     public void iLaunchSearchTreeRaoOnPreventiveState(String timestamp) {
-        launchRao(null, InstantKind.PREVENTIVE, timestamp, SEARCH_TREE_RAO);
+        launchRao(null, InstantKind.PREVENTIVE, timestamp, raoImplementation);
     }
 
     @When("I launch search_tree_rao at {string} after {string} at {string}")
     public void iLaunchSearchTreeRao(String timestamp, String contingencyId, String instantKind) {
-        launchRao(contingencyId, InstantKind.valueOf(instantKind.toUpperCase()), timestamp, SEARCH_TREE_RAO);
+        launchRao(contingencyId, InstantKind.valueOf(instantKind.toUpperCase()), timestamp, raoImplementation);
     }
 
     @When("I launch search_tree_rao on preventive state")
     public void iLaunchSearchTreeRaoOnPreventiveState() {
-        launchRao(null, InstantKind.PREVENTIVE, null, SEARCH_TREE_RAO);
+        launchRao(null, InstantKind.PREVENTIVE, null, raoImplementation);
     }
 
     @When("I launch search_tree_rao after {string} at {string}")
     public void iLaunchSearchTreeRao(String contingencyId, String instantKind) {
-        launchRao(contingencyId, InstantKind.valueOf(instantKind.toUpperCase()), null, null, SEARCH_TREE_RAO, null);
+        launchRao(contingencyId, InstantKind.valueOf(instantKind.toUpperCase()), null, null, raoImplementation, null);
     }
 
     @When("I launch loopflow search_tree_rao with default loopflow limit as {double} percent of pmax")

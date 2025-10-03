@@ -71,7 +71,7 @@ Feature: US 19.3: Handle maximum CRA and maximum curative PSTs per TSO
     And the worst margin is 945 A on cnec "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative"
     And the margin on cnec "BBE1AA1  FFR5AA1  1 - preventive" after PRA should be 1301 A
 
-  @fast @rao @mock @ac @contingency-scenarios
+  @fast @rao @mock @ac @contingency-scenarios @search-tree-rao
   Scenario: US 19.3.6: One PST and one topo, one CRA, chose topo
     # <!> All RAs are hypothetically operated by "be"
     Given network file is "epic19/TestCase16Nodes_19_3_6.uct"
@@ -106,7 +106,7 @@ Feature: US 19.3: Handle maximum CRA and maximum curative PSTs per TSO
     And the remedial action "open_be1_be4" is used after "co1_fr2_fr3_1" at "curative"
     And the worst margin is 876 A on cnec "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative"
 
-  @fast @rao @mock @ac @preventive-only
+  @fast @rao @mock @ac @preventive-only @search-tree-rao
   Scenario: US 19.3.9: Test that the parameters are ignored in preventive
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic19/SL_ep19us3case9.json"

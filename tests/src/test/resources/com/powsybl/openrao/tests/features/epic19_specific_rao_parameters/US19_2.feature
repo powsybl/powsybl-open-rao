@@ -53,7 +53,7 @@ Feature: US 19.2: Handle maximum topological CRA per TSO
     And the worst margin is 254 A on cnec "BBE2AA1  FFR3AA1  1 - preventive"
     And the margin on cnec "FFR1AA1  FFR3AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be 437 A
 
-  @fast @rao @mock @ac @contingency-scenarios
+  @fast @rao @mock @ac @contingency-scenarios @search-tree-rao
   Scenario: US 19.2.4: Simple case, with 2 curative states
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic19/SL_ep19us2case4.json"
