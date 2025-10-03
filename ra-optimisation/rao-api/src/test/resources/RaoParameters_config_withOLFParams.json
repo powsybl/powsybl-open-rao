@@ -148,6 +148,7 @@
                 "forceTargetQInReactiveLimits" : false,
                 "disableInconsistentVoltageControls" : false,
                 "extrapolateReactiveLimits" : false,
+                "startWithFrozenACEmulation" : false,
                 "generatorsWithZeroMwTargetAreNotStarted" : true
               }
             }
@@ -158,7 +159,8 @@
           "angle-flow-sensitivity-value-threshold" : 0.0,
           "extensions" : {
             "open-sensitivity-parameters" : {
-              "debugDir" : null
+              "debugDir" : null,
+              "startWithFrozenACEmulation" : true
             }
           }
         }
