@@ -5,7 +5,7 @@
 
 Feature: US 15.16: Handle parallel PSTs with different initial setpoint
 
-  @fast @rao @mock @ac @preventive-only
+  @fast @rao @mock @ac @preventive-only @search-tree-rao
   Scenario: US 15.16.1: Preventive search tree RAO with two aligned PSTs with different initial taps
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic15/CBCORA_15_5_1.xml"
