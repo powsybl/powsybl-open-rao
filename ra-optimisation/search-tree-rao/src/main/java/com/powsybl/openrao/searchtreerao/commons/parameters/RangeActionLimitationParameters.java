@@ -20,7 +20,7 @@ public class RangeActionLimitationParameters {
 
     private final Map<State, RangeActionLimitation> rangeActionLimitationPerState;
 
-    private static class RangeActionLimitation {
+    private static final class RangeActionLimitation {
         private Integer maxRangeActions = null;
         private Integer maxTso = null;
         private Set<String> maxTsoExclusion = new HashSet<>();

@@ -21,17 +21,17 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@v1
 
-      - name: Set up Java 17
+      - name: Set up Java 21
         if: matrix.jvm == 'java'
         uses: actions/setup-java@v1
         with:
-          java-version: 17
+          java-version: 21
 
       - name: Setup GraalVM
         if: matrix.jvm == 'graalvm'
         uses: graalvm/setup-graalvm@v1
         with:
-          java-version: '17.0.12'
+          java-version: '21.0.8'
           distribution: 'graalvm'
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
