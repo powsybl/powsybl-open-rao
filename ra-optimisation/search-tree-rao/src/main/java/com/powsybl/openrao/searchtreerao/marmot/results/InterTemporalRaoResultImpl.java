@@ -247,10 +247,8 @@ public class InterTemporalRaoResultImpl extends AbstractExtendable<RaoResult> im
     private ObjectiveFunctionResult getRelevantResult(Instant instant) {
         if (instant == null) {
             return initialGlobalObjectiveFunctionResult;
-        } else if (instant.isPreventive()) {
-            return finalGlobalObjectiveFunctionResult;
         } else {
-            throw new OpenRaoException("Inter-temporal curative results are not yet handled by OpenRAO.");
+            return finalGlobalObjectiveFunctionResult;
         }
     }
 }
