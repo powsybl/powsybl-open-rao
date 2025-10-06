@@ -7,7 +7,7 @@ Feature: US 15.3: Handle transformers
 
   @fast @rao @mock @dc @preventive-only
   Scenario: US 15.3.1: Handle transformers on a small test case in DC
-    Given network file is "epic15/TestCase12Nodes_with_2_voltage_levels_1.uct"
+    Given network file is "epic15/TestCase12Nodes_with_2_voltage_levels_1.uct" for CORE CC
     Given crac file is "epic15/SL_ep15us3case1.json"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
     When I launch search_tree_rao
@@ -15,19 +15,19 @@ Feature: US 15.3: Handle transformers
     And the remedial action "open_be1_fr1" is used in preventive
     And the remedial action "open_be1_be2" is used in preventive
     And the tap of PstRangeAction "pst_be" should be -16 in preventive
-    And the worst margin is 73 MW
-    And the margin on cnec "BBE2AA2  BBE2AA1  2 - preventive" after PRA should be 73 MW
-    And the margin on cnec "BBE2AA2  BBE2AA1  2 - co_fr - outage" after PRA should be 129 MW
-    And the margin on cnec "BBE1AA1  BBE1AA2  1 - preventive" after PRA should be 192 MW
-    And the margin on cnec "FFR3AA1  FFR3AA2  1 - preventive" after PRA should be 198 MW
-    And the margin on cnec "FFR3AA1  FFR3AA2  1 - co_fr - outage" after PRA should be 207 MW
-    And the margin on cnec "FFR1AA2  FFR1AA1  5 - preventive" after PRA should be 297 MW
-    And the margin on cnec "BBE1AA1  BBE1AA2  1 - co_fr - outage" after PRA should be 296 MW
-    And the margin on cnec "FFR1AA2  FFR1AA1  5 - co_fr - outage" after PRA should be 550 MW
+    And the worst margin is 79.12 MW
+    And the margin on cnec "BBE2AA2  BBE2AA1  2 - preventive" after PRA should be 79.12 MW
+    And the margin on cnec "BBE2AA2  BBE2AA1  2 - co_fr - outage" after PRA should be 136.19 MW
+    And the margin on cnec "BBE1AA1  BBE1AA2  1 - preventive" after PRA should be 192.82 MW
+    And the margin on cnec "FFR3AA1  FFR3AA2  1 - preventive" after PRA should be 195.34 MW
+    And the margin on cnec "FFR3AA1  FFR3AA2  1 - co_fr - outage" after PRA should be 207.61 MW
+    And the margin on cnec "FFR1AA2  FFR1AA1  5 - preventive" after PRA should be 293.2 MW
+    And the margin on cnec "BBE1AA1  BBE1AA2  1 - co_fr - outage" after PRA should be 296.74 MW
+    And the margin on cnec "FFR1AA2  FFR1AA1  5 - co_fr - outage" after PRA should be 544 MW
 
   @fast @rao @mock @ac @preventive-only
   Scenario: US 15.3.2: Handle transformers on a small test case in AC - On side 1
-    Given network file is "epic15/TestCase12Nodes_with_2_voltage_levels_2_side_1.uct"
+    Given network file is "epic15/TestCase12Nodes_with_2_voltage_levels_2_side_1.uct" for CORE CC
     Given crac file is "epic15/SL_ep15us3case2.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch search_tree_rao
@@ -62,7 +62,7 @@ Feature: US 15.3: Handle transformers
     Then 3 remedial actions are used in preventive
     And the remedial action "open_be1_fr1" is used in preventive
     And the remedial action "open_be1_be2" is used in preventive
-    And the tap of PstRangeAction "pst_be" should be 7 in preventive
+    And the tap of PstRangeAction "pst_be" should be 8 in preventive
     And the worst margin is 137 A
     And the margin on cnec "BBE2AA2  BBE2AA1  2 - preventive" after PRA should be 139 A
     And the margin on cnec "FFR3AA1  FFR3AA2  1 - preventive" after PRA should be 137 A
