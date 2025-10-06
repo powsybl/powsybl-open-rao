@@ -43,9 +43,6 @@
       "contingencyId": null,
       "optimized": true,
       "monitored": false,
-      "nominalV": [
-        380.0
-      ],
       "thresholds": [
         {
           "unit": "percent_imax",
@@ -64,9 +61,6 @@
       "contingencyId": "co_fr1_fr2_1",
       "optimized": true,
       "monitored": false,
-      "nominalV": [
-        380.0
-      ],
       "thresholds": [
         {
           "unit": "percent_imax",
@@ -85,9 +79,6 @@
       "contingencyId": "co_fr1_fr2_2",
       "optimized": true,
       "monitored": false,
-      "nominalV": [
-        380.0
-      ],
       "thresholds": [
         {
           "unit": "percent_imax",

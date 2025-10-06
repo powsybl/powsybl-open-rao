@@ -225,12 +225,12 @@ class CracImportExportTest {
         // check iMax and nominal voltage
         assertEquals(2000., crac.getFlowCnec("cnec2prevId").getIMax(TwoSides.ONE).get(), 1e-3);
         assertEquals(2000., crac.getFlowCnec("cnec2prevId").getIMax(TwoSides.TWO).get(), 1e-3);
-        assertEquals(380., crac.getFlowCnec("cnec2prevId").getNominalVoltage(TwoSides.ONE), 1e-3);
-        assertEquals(220., crac.getFlowCnec("cnec2prevId").getNominalVoltage(TwoSides.TWO), 1e-3);
+        assertEquals(400., crac.getFlowCnec("cnec2prevId").getNominalVoltage(TwoSides.ONE), 1e-3);
+        assertEquals(400., crac.getFlowCnec("cnec2prevId").getNominalVoltage(TwoSides.TWO), 1e-3);
         assertTrue(crac.getFlowCnec("cnec1prevId").getIMax(TwoSides.ONE).isEmpty());
         assertTrue(crac.getFlowCnec("cnec1prevId").getIMax(TwoSides.TWO).isEmpty());
-        assertEquals(220., crac.getFlowCnec("cnec1prevId").getNominalVoltage(TwoSides.ONE), 1e-3);
-        assertEquals(220., crac.getFlowCnec("cnec1prevId").getNominalVoltage(TwoSides.TWO), 1e-3);
+        assertEquals(400., crac.getFlowCnec("cnec1prevId").getNominalVoltage(TwoSides.ONE), 1e-3);
+        assertEquals(400., crac.getFlowCnec("cnec1prevId").getNominalVoltage(TwoSides.TWO), 1e-3);
 
         // check threshold
         assertEquals(1, crac.getFlowCnec("cnec4prevId").getThresholds().size());
@@ -561,6 +561,14 @@ class CracImportExportTest {
             "/hvdcRangeActions/0: property 'initialSetpoint' is not defined in the schema and the schema does not allow additional properties; " +
             "/injectionRangeActions/0: property 'initialSetpoint' is not defined in the schema and the schema does not allow additional properties; " +
             "/counterTradeRangeActions/0: property 'initialSetpoint' is not defined in the schema and the schema does not allow additional properties", exception.getMessage());
+    }
+
+    @Test
+    void testImportCracWithBadFieldsOrderForFlowCnec() {
+        // "networkElementId" must be declared before "thresholds"
+        CracCreationContext cracCreationContext = new JsonImport().importData(CracImportExportTest.class.getResourceAsStream("/crac2.8-with-wrong-order-for-flow-cnec.json"), new CracCreationParameters(), NetworkImportsUtil.createNetworkForJsonRetrocompatibilityTest(0.0));
+        assertEquals(1, cracCreationContext.getCreationReport().getReport().size());
+        assertEquals("[ERROR] Cannot deserialize thresholds before networkElementId for FlowCNECs.", cracCreationContext.getCreationReport().getReport().get(0));
     }
 
     @Test

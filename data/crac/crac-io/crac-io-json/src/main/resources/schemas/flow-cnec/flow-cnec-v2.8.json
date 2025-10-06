@@ -45,14 +45,6 @@
     "reliabilityMargin": {
       "type": "number"
     },
-    "nominalV": {
-      "type": "array",
-      "items": {
-        "type": "number"
-      },
-      "minItems": 1,
-      "maxItems": 2
-    },
     "thresholds": {
       "type": "array",
       "items": {
