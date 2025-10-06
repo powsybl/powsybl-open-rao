@@ -10,7 +10,7 @@ Feature: US 15.3: Handle transformers
     Given network file is "epic15/TestCase12Nodes_with_2_voltage_levels_1.uct"
     Given crac file is "epic15/SL_ep15us3case1.json"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then 3 remedial actions are used in preventive
     And the remedial action "open_be1_fr1" is used in preventive
     And the remedial action "open_be1_be2" is used in preventive
@@ -30,7 +30,7 @@ Feature: US 15.3: Handle transformers
     Given network file is "epic15/TestCase12Nodes_with_2_voltage_levels_2_side_1.uct"
     Given crac file is "epic15/SL_ep15us3case2.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then 3 remedial actions are used in preventive
     And the remedial action "open_be1_fr1" is used in preventive
     And the remedial action "open_be1_be2" is used in preventive
@@ -58,7 +58,7 @@ Feature: US 15.3: Handle transformers
     Given network file is "epic15/TestCase12Nodes_with_2_voltage_levels_2_side_2.uct"
     Given crac file is "epic15/SL_ep15us3case2_RIGHT.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then 3 remedial actions are used in preventive
     And the remedial action "open_be1_fr1" is used in preventive
     And the remedial action "open_be1_be2" is used in preventive
@@ -83,7 +83,7 @@ Feature: US 15.3: Handle transformers
     Given network file is "epic15/TestCase12Nodes_with_2_voltage_levels_2_side_2.uct"
     Given crac file is "epic15/SL_ep15us3case3.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then 3 remedial actions are used in preventive
     And the remedial action "open_be1_fr1" is used in preventive
     And the remedial action "open_be1_be2" is used in preventive

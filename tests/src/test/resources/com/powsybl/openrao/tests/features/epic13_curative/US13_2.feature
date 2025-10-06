@@ -13,7 +13,7 @@ Feature: US 13.2: Solve a RAO for two consecutive states (preventive THEN curati
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic13/SL_ep13us2case1.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then 2 remedial actions are used in preventive
     And the remedial action "close_fr1_fr5" is used in preventive
     And the tap of PstRangeAction "pst_fr" should be 5 in preventive
@@ -30,7 +30,7 @@ Feature: US 13.2: Solve a RAO for two consecutive states (preventive THEN curati
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic19/SL_ep19us6basecase.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then 2 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     And the remedial action "close_fr1_fr5" is used after "co1_fr2_fr3_1" at "curative"
     And the tap of PstRangeAction "pst_be" should be -12 after "co1_fr2_fr3_1" at "curative"
@@ -44,7 +44,7 @@ Feature: US 13.2: Solve a RAO for two consecutive states (preventive THEN curati
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic13/SL_ep13us2case3.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
-    When I launch search_tree_rao
+    When I launch rao
     # In preventive exactly the same results as OSIRIS
     Then 2 remedial actions are used in preventive
     And the remedial action "open_be1_be4" is used in preventive
@@ -65,7 +65,7 @@ Feature: US 13.2: Solve a RAO for two consecutive states (preventive THEN curati
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic13/SL_ep13us2case4.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then 4 remedial actions are used in preventive
     And the remedial action "open_be1_be4" is used in preventive
     And the remedial action "open_fr1_fr3" is used in preventive
@@ -84,7 +84,7 @@ Feature: US 13.2: Solve a RAO for two consecutive states (preventive THEN curati
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic13/SL_ep13us2case5.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then 3 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     And the remedial action "open_fr1_fr3" is used after "co1_fr2_fr3_1" at "curative"
     And the tap of PstRangeAction "pst_fr" should be -5 after "co1_fr2_fr3_1" at "curative"
@@ -102,7 +102,7 @@ Feature: US 13.2: Solve a RAO for two consecutive states (preventive THEN curati
     Given network file is "common/TestCase16Nodes.uct" for CORE CC
     Given crac file is "epic13/SL_ep13us2case6.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then 3 remedial actions are used in preventive
     And the remedial action "open_be1_be4" is used in preventive
     And the remedial action "open_fr1_fr2" is used in preventive
@@ -124,7 +124,7 @@ Feature: US 13.2: Solve a RAO for two consecutive states (preventive THEN curati
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic13/SL_ep13us2case6.json"
     Given configuration file is "epic13/RaoParameters_maxMargin_ampere_absolute_threshold.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then 2 remedial actions are used in preventive
     And the remedial action "open_be1_be4" is used in preventive
     And the tap of PstRangeAction "pst_be" should be -15 in preventive
@@ -144,7 +144,7 @@ Feature: US 13.2: Solve a RAO for two consecutive states (preventive THEN curati
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic13/SL_ep13us2case7.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then 3 remedial actions are used in preventive
     And the remedial action "open_fr1_fr2" is used in preventive
     And the remedial action "close_fr1_fr5" is used in preventive

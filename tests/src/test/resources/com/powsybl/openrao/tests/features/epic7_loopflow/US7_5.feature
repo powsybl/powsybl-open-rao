@@ -12,7 +12,7 @@ Feature: US 7.5: Loopflow ptdf update parameter
     Given loopflow glsk file is "common/glsk_lots_of_lf_12nodes.xml"
     Given RefProg file is "epic7/refProg_12nodes_same_as_uct.xml"
     Given configuration file is "epic7/RaoParameters_maxMargin_mw_dc_lf_false_5_100.json"
-    When I launch loopflow search_tree_rao at "2019-01-08 21:30" with default loopflow limit as 0.0 percent of pmax
+    When I launch loopflow rao at "2019-01-08 21:30" with default loopflow limit as 0.0 percent of pmax
     Then its security status should be "UNSECURED"
     And 0 remedial actions are used in preventive
     And the worst margin is -500 MW on cnec "FFR2AA1  DDE3AA1  1 - preventive"
@@ -32,7 +32,7 @@ Feature: US 7.5: Loopflow ptdf update parameter
     Given loopflow glsk file is "common/glsk_lots_of_lf_12nodes.xml"
     Given RefProg file is "epic7/refProg_12nodes_same_as_uct.xml"
     Given configuration file is "epic7/RaoParameters_maxMargin_mw_dc_lf_accurate_5_100.json"
-    When I launch loopflow search_tree_rao at "2019-01-08 21:30" with default loopflow limit as 0.0 percent of pmax
+    When I launch loopflow rao at "2019-01-08 21:30" with default loopflow limit as 0.0 percent of pmax
     Then its security status should be "UNSECURED"
     And the remedial action "Open FR1 FR2" is used in preventive
     And the tap of PstRangeAction "PRA_PST_BE" should be 15 in preventive
@@ -57,7 +57,7 @@ Feature: US 7.5: Loopflow ptdf update parameter
     Given loopflow glsk file is "common/glsk_lots_of_lf_12nodes.xml"
     Given RefProg file is "epic7/refProg_12nodes_same_as_uct.xml"
     Given configuration file is "epic7/RaoParameters_maxMargin_mw_dc_lf_inBetween_5_100.json"
-    When I launch loopflow search_tree_rao at "2019-01-08 21:30" with default loopflow limit as 0.0 percent of pmax
+    When I launch loopflow rao at "2019-01-08 21:30" with default loopflow limit as 0.0 percent of pmax
     Then its security status should be "UNSECURED"
     And the remedial action "Open FR1 FR2" is used in preventive
     And the tap of PstRangeAction "PRA_PST_BE" should be 15 in preventive

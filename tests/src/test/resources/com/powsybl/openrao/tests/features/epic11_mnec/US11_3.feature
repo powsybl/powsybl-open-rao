@@ -10,7 +10,7 @@ Feature: US 11.3: Handle mnecs in search tree with only network actions
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic11/ls_mnec_networkAction_ref.json"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_ac.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then the remedial action "Open line FR1- FR2" is used in preventive
     And line "FFR1AA1  FFR2AA1  1" in network file with PRA has connection status to "false"
     And the remedial action "PST BE setpoint" is used in preventive
@@ -22,7 +22,7 @@ Feature: US 11.3: Handle mnecs in search tree with only network actions
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic11/ls_mnec_networkAction_3_2.json"
     Given configuration file is "epic11/RaoParameters_maxMargin_megawatt_ac_mnecDimin180.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then the remedial action "Open line FR1- FR2" is used in preventive
     And line "FFR1AA1  FFR2AA1  1" in network file with PRA has connection status to "false"
     And 1 remedial actions are used in preventive
@@ -35,7 +35,7 @@ Feature: US 11.3: Handle mnecs in search tree with only network actions
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic11/ls_mnec_networkAction_3_3.json"
     Given configuration file is "epic11/RaoParameters_maxMargin_megawatt_ac_mnecDimin180.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then the remedial action "PST BE setpoint" is used in preventive
     And PST "BBE2AA1  BBE3AA1  1" in network file with PRA is on tap -16
     And 1 remedial actions are used in preventive

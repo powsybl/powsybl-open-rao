@@ -10,7 +10,7 @@ Feature: US 4.2: Optimization in A/MW, thresholds in A/MW, computation in AC/DC
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic4/SL_ep4us2_4MR_MW.json"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then the worst margin is 22 MW
     And the value of the objective function after CRA should be -22.0
     And the tap of PstRangeAction "PRA_PST_BE" should be 5 in preventive
@@ -23,7 +23,7 @@ Feature: US 4.2: Optimization in A/MW, thresholds in A/MW, computation in AC/DC
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic4/SL_ep4us2_4MR_MW.json"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_ac.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then the worst margin is 18.0 MW
     And the value of the objective function after CRA should be -18.0
     And the tap of PstRangeAction "PRA_PST_BE" should be 4 in preventive
@@ -36,7 +36,7 @@ Feature: US 4.2: Optimization in A/MW, thresholds in A/MW, computation in AC/DC
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic4/SL_ep4us2_4MR_A.json"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then the worst margin is 18.1 MW
     Then the value of the objective function after CRA should be -18.0
     Then the tap of PstRangeAction "PRA_PST_BE" should be 5 in preventive
@@ -49,7 +49,7 @@ Feature: US 4.2: Optimization in A/MW, thresholds in A/MW, computation in AC/DC
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic4/SL_ep4us2_4MR_A.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then the worst margin is 19.0 A
     Then the value of the objective function after CRA should be -19.0
     Then the tap of PstRangeAction "PRA_PST_BE" should be 4 in preventive
@@ -63,7 +63,7 @@ Feature: US 4.2: Optimization in A/MW, thresholds in A/MW, computation in AC/DC
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic4/SL_ep4us2_4MR_mixed.json"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then the worst margin is 19.0 MW
     Then the value of the objective function after CRA should be -19.0
     Then the tap of PstRangeAction "PRA_PST_BE" should be 5 in preventive
@@ -75,7 +75,7 @@ Feature: US 4.2: Optimization in A/MW, thresholds in A/MW, computation in AC/DC
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic4/SL_ep4us2_4MR_mixed.json"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_ac.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then the worst margin is 19.0 MW
     Then the value of the objective function after CRA should be -19.0
     Then the tap of PstRangeAction "PRA_PST_BE" should be 4 in preventive

@@ -11,7 +11,7 @@ Feature: US 19.3: Handle maximum CRA and maximum curative PSTs per TSO
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic19/SL_ep19us3case1.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then 2 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     And the remedial action "close_fr1_fr5" is used after "co1_fr2_fr3_1" at "curative"
     And the remedial action "pst_be" is used after "co1_fr2_fr3_1" at "curative"
@@ -25,7 +25,7 @@ Feature: US 19.3: Handle maximum CRA and maximum curative PSTs per TSO
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic19/SL_ep19us3case2.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then 2 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     And the remedial action "pst_be" is used after "co1_fr2_fr3_1" at "curative"
     And the tap of PstRangeAction "pst_be" should be 16 after "co1_fr2_fr3_1" at "curative"
@@ -40,7 +40,7 @@ Feature: US 19.3: Handle maximum CRA and maximum curative PSTs per TSO
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic19/SL_ep19us10case1.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then 1 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     And the remedial action "pst_be" is used after "co1_fr2_fr3_1" at "curative"
     And the tap of PstRangeAction "pst_be" should be 16 after "co1_fr2_fr3_1" at "curative"
@@ -53,7 +53,7 @@ Feature: US 19.3: Handle maximum CRA and maximum curative PSTs per TSO
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic19/SL_ep19us10case2.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then 1 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     And the remedial action "close_fr1_fr5" is used after "co1_fr2_fr3_1" at "curative"
     And the worst margin is 840 A on cnec "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative"
@@ -64,7 +64,7 @@ Feature: US 19.3: Handle maximum CRA and maximum curative PSTs per TSO
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic19/SL_ep19us10case3.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then 1 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     And the remedial action "pst_be" is used after "co1_fr2_fr3_1" at "curative"
     And the tap of PstRangeAction "pst_be" should be 16 after "co1_fr2_fr3_1" at "curative"
@@ -77,7 +77,7 @@ Feature: US 19.3: Handle maximum CRA and maximum curative PSTs per TSO
     Given network file is "epic19/TestCase16Nodes_19_3_6.uct"
     Given crac file is "epic19/SL_ep19us3case6.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
-    When I launch search_tree_rao after "co1_fr2_fr3_1" at "curative"
+    When I launch rao after "co1_fr2_fr3_1" at "curative"
     Then 1 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     And the remedial action "open_fr1_fr2" is used after "co1_fr2_fr3_1" at "curative"
     And the worst margin is 986 A on cnec "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative"
@@ -88,7 +88,7 @@ Feature: US 19.3: Handle maximum CRA and maximum curative PSTs per TSO
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic19/SL_ep19us3case7.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then 2 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     And the remedial action "close_fr1_fr5" is used after "co1_fr2_fr3_1" at "curative"
     And the remedial action "open_fr1_fr2" is used after "co1_fr2_fr3_1" at "curative"
@@ -100,7 +100,7 @@ Feature: US 19.3: Handle maximum CRA and maximum curative PSTs per TSO
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic19/SL_ep19us3case8.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then 2 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     And the remedial action "close_fr1_fr5" is used after "co1_fr2_fr3_1" at "curative"
     And the remedial action "open_be1_be4" is used after "co1_fr2_fr3_1" at "curative"
@@ -111,7 +111,7 @@ Feature: US 19.3: Handle maximum CRA and maximum curative PSTs per TSO
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic19/SL_ep19us3case9.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
-    When I launch search_tree_rao on preventive state
+    When I launch rao on preventive state
     Then 3 remedial actions are used in preventive
     And the remedial action "open_be1_be4" is used in preventive
     And the remedial action "open_fr1_fr2" is used in preventive
@@ -123,7 +123,7 @@ Feature: US 19.3: Handle maximum CRA and maximum curative PSTs per TSO
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic19/SL_ep19us3case10.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then 3 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     And the remedial action "open_fr1_fr3" is used after "co1_fr2_fr3_1" at "curative"
     And the remedial action "open_fr1_fr2" is used after "co1_fr2_fr3_1" at "curative"
