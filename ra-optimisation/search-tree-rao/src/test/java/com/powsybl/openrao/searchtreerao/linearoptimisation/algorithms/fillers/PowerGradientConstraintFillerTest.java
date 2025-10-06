@@ -16,7 +16,6 @@ import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.openrao.data.generatorconstraints.GeneratorConstraints;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.raoapi.InterTemporalRaoInput;
@@ -51,7 +50,7 @@ import static org.mockito.Mockito.when;
 /**
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com}
  */
-class GeneratorConstraintFillerTest {
+class PowerGradientConstraintFillerTest {
     private LinearProblemBuilder linearProblemBuilder = new LinearProblemBuilder().withSolver(SearchTreeRaoRangeActionsOptimizationParameters.Solver.SCIP);
     private LinearProblem linearProblem;
     private final OffsetDateTime timestamp1 = OffsetDateTime.of(2025, 1, 9, 16, 21, 0, 0, ZoneOffset.UTC);
@@ -61,13 +60,13 @@ class GeneratorConstraintFillerTest {
     RaoParameters parameters;
 
     public void createThreeTSInput() throws IOException {
-        Network network1 = Network.read("4Nodes.uct", GeneratorConstraintFillerTest.class.getResourceAsStream("/network/4Nodes.uct"));
-        Network network2 = Network.read("4Nodes.uct", GeneratorConstraintFillerTest.class.getResourceAsStream("/network/4Nodes.uct"));
-        Network network3 = Network.read("4Nodes.uct", GeneratorConstraintFillerTest.class.getResourceAsStream("/network/4Nodes.uct"));
+        Network network1 = Network.read("4Nodes.uct", PowerGradientConstraintFillerTest.class.getResourceAsStream("/network/4Nodes.uct"));
+        Network network2 = Network.read("4Nodes.uct", PowerGradientConstraintFillerTest.class.getResourceAsStream("/network/4Nodes.uct"));
+        Network network3 = Network.read("4Nodes.uct", PowerGradientConstraintFillerTest.class.getResourceAsStream("/network/4Nodes.uct"));
 
-        Crac crac1 = Crac.read("crac-1600.json", GeneratorConstraintFillerTest.class.getResourceAsStream("/crac/crac-1600.json"), network1);
-        Crac crac2 = Crac.read("crac-1700.json", GeneratorConstraintFillerTest.class.getResourceAsStream("/crac/crac-1700.json"), network2);
-        Crac crac3 = Crac.read("crac-1900.json", GeneratorConstraintFillerTest.class.getResourceAsStream("/crac/crac-1900.json"), network3);
+        Crac crac1 = Crac.read("crac-1600.json", PowerGradientConstraintFillerTest.class.getResourceAsStream("/crac/crac-1600.json"), network1);
+        Crac crac2 = Crac.read("crac-1700.json", PowerGradientConstraintFillerTest.class.getResourceAsStream("/crac/crac-1700.json"), network2);
+        Crac crac3 = Crac.read("crac-1900.json", PowerGradientConstraintFillerTest.class.getResourceAsStream("/crac/crac-1900.json"), network3);
 
         RaoInput raoInput1 = RaoInput.build(network1, crac1).build();
         RaoInput raoInput2 = RaoInput.build(network2, crac2).build();
@@ -83,8 +82,8 @@ class GeneratorConstraintFillerTest {
     }
 
     private void createOneTSInput() throws IOException {
-        Network network1 = Network.read("4Nodes.uct", GeneratorConstraintFillerTest.class.getResourceAsStream("/network/4Nodes.uct"));
-        Crac crac1 = Crac.read("crac-1600.json", GeneratorConstraintFillerTest.class.getResourceAsStream("/crac/crac-1600.json"), network1);
+        Network network1 = Network.read("4Nodes.uct", PowerGradientConstraintFillerTest.class.getResourceAsStream("/network/4Nodes.uct"));
+        Crac crac1 = Crac.read("crac-1600.json", PowerGradientConstraintFillerTest.class.getResourceAsStream("/crac/crac-1600.json"), network1);
         RaoInput raoInput1 = RaoInput.build(network1, crac1).build();
 
         GeneratorConstraints generatorConstraintsFr1 = GeneratorConstraints.create().withGeneratorId("FFR1AA1 _load").withLeadTime(0.0).withLagTime(0.0).withPMin(0.0).withPMax(1000.0).withUpwardPowerGradient(500.0).withDownwardPowerGradient(-300.0).build();
@@ -103,12 +102,12 @@ class GeneratorConstraintFillerTest {
                 crac.getFlowCnecs(),
                 Set.of(),
                 crac.getNetworkActions(crac.getPreventiveState()),
-                crac.getRangeActions(crac.getPreventiveState(), UsageMethod.AVAILABLE)
+                crac.getRangeActions(crac.getPreventiveState())
             );
 
             RangeActionsOptimizationParameters rangeActionParameters = parameters.getRangeActionsOptimizationParameters();
             Map<RangeAction<?>, Double> map = new HashMap<>();
-            crac.getRangeActions(crac.getPreventiveState(), UsageMethod.AVAILABLE).forEach(action -> map.put(action, 200.0));
+            crac.getRangeActions(crac.getPreventiveState()).forEach(action -> map.put(action, 200.0));
             RangeActionSetpointResult rangeActionSetpointResult = new RangeActionSetpointResultImpl(map);
             MarginCoreProblemFiller coreProblemFiller = new MarginCoreProblemFiller(
                 optimizationPerimeter,
@@ -125,14 +124,15 @@ class GeneratorConstraintFillerTest {
     }
 
     private void createPowerGradientConstraintFiller() {
-        TemporalData<State> preventiveStates = input.getRaoInputs().map(RaoInput::getCrac).map(Crac::getPreventiveState);
-        TemporalData<Set<InjectionRangeAction>> injectionRangeActions = input.getRaoInputs().map(RaoInput::getCrac).map(crac -> crac.getRangeActions(crac.getPreventiveState(), UsageMethod.AVAILABLE).stream().filter(InjectionRangeAction.class::isInstance).map(InjectionRangeAction.class::cast).collect(Collectors.toSet()));
+        TemporalData<State> preventiveStates = input.getRaoInputs().map(RaoInput::getCrac).map(crac -> crac.getPreventiveState()).map(State.class::cast);
+        TemporalData<Network> networks = input.getRaoInputs().map(RaoInput::getNetwork).map(Network.class::cast);
+        TemporalData<Set<InjectionRangeAction>> injectionRangeActions = input.getRaoInputs().map(RaoInput::getCrac).map(crac -> crac.getRangeActions(crac.getPreventiveState()).stream().filter(InjectionRangeAction.class::isInstance).map(InjectionRangeAction.class::cast).collect(Collectors.toSet()));
         Set<GeneratorConstraints> generatorConstraints = input.getGeneratorConstraints();
-        GeneratorConstraintFiller generatorConstraintFiller = new GeneratorConstraintFiller(
+        PowerGradientConstraintFiller powerGradientConstraintFiller = new PowerGradientConstraintFiller(
             preventiveStates,
             injectionRangeActions,
             generatorConstraints);
-        linearProblemBuilder.withProblemFiller(generatorConstraintFiller);
+        linearProblemBuilder.withProblemFiller(powerGradientConstraintFiller);
     }
 
     private void buildAndFillLinearProblem() {

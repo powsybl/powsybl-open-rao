@@ -29,7 +29,6 @@ public class OnFlowConstraintInCountrySerializer extends AbstractJsonSerializer<
         if (optionalContingency.isPresent()) {
             gen.writeStringField(JsonSerializationConstants.CONTINGENCY_ID, optionalContingency.get().getId());
         }
-        gen.writeStringField(JsonSerializationConstants.USAGE_METHOD, JsonSerializationConstants.serializeUsageMethod(value.getUsageMethod()));
         gen.writeEndObject();
     }
 }

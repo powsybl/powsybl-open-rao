@@ -16,7 +16,6 @@ import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.openrao.data.raoresult.api.InterTemporalRaoResult;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.raoapi.*;
@@ -302,7 +301,7 @@ public class Marmot implements InterTemporalRaoProvider {
             raoInput.getNetwork().getVariantManager().cloneVariant(POST_TOPO_SCENARIO, "PostPreventiveScenario", true);
             raoInput.getNetwork().getVariantManager().setWorkingVariant("PostPreventiveScenario");
             State preventiveState = raoInput.getCrac().getPreventiveState();
-            raoInput.getCrac().getPotentiallyAvailableRangeActions(preventiveState).forEach(rangeAction ->
+            raoInput.getCrac().getRangeActions(preventiveState).forEach(rangeAction ->
                 rangeAction.apply(raoInput.getNetwork(), filteredResult.getOptimizedSetpoint(rangeAction, preventiveState))
             );
             prePerimeterResults.put(timestamp, runInitialPrePerimeterSensitivityAnalysisWithoutRangeActions(
@@ -442,7 +441,7 @@ public class Marmot implements InterTemporalRaoProvider {
                 consideredCnecs.getData(timestamp).orElseThrow(),
                 new HashSet<>(), // no loopflows for now
                 new HashSet<>(), // don't re-optimize topological actions in Marmot
-                crac.getRangeActions(crac.getPreventiveState(), UsageMethod.AVAILABLE)
+                crac.getRangeActions(crac.getPreventiveState())
             ));
         });
         return optimizationPerimeters;

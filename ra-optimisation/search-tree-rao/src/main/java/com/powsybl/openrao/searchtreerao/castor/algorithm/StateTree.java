@@ -205,8 +205,8 @@ public class StateTree {
     }
 
     private static boolean anyAvailableRemedialAction(Crac crac, State state) {
-        return !crac.getPotentiallyAvailableNetworkActions(state).isEmpty() ||
-            !crac.getPotentiallyAvailableRangeActions(state).isEmpty();
+        return !crac.getNetworkActions(state).isEmpty() ||
+            !crac.getRangeActions(state).isEmpty();
     }
 
     public static Set<String> findOperatorsNotSharingCras(Crac crac) {
@@ -219,8 +219,8 @@ public class StateTree {
     static boolean tsoHasCra(String tso, Crac crac) {
         Set<State> optimizedCurativeStates = crac.getCurativeStates();
         return optimizedCurativeStates.stream().anyMatch(state ->
-            crac.getPotentiallyAvailableNetworkActions(state).stream().map(RemedialAction::getOperator).anyMatch(tso::equals) ||
-                crac.getPotentiallyAvailableRangeActions(state).stream().map(RemedialAction::getOperator).anyMatch(tso::equals)
+            crac.getNetworkActions(state).stream().map(RemedialAction::getOperator).anyMatch(tso::equals) ||
+                crac.getRangeActions(state).stream().map(RemedialAction::getOperator).anyMatch(tso::equals)
         );
     }
 }

@@ -15,7 +15,6 @@ import com.powsybl.openrao.data.crac.api.networkaction.ActionType;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.range.RangeType;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.openrao.data.crac.impl.utils.CommonCracCreation;
 import com.powsybl.openrao.data.crac.impl.utils.NetworkImportsUtil;
 import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
@@ -96,7 +95,7 @@ public final class NetworkActionCombinationsUtils {
         Map<Integer, Double> conversionMap = new HashMap<>();
         conversionMap.put(0, 0.);
         conversionMap.put(1, 1.);
-        return CRAC.newPstRangeAction().withId("pst - " + networkElementId).withOperator(operator).withNetworkElement(networkElementId).newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add().newTapRange().withRangeType(RangeType.ABSOLUTE).withMinTap(-16).withMaxTap(16).add().withInitialTap(0).withTapToAngleConversionMap(conversionMap).add();
+        return CRAC.newPstRangeAction().withId("pst - " + networkElementId).withOperator(operator).withNetworkElement(networkElementId).newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add().newTapRange().withRangeType(RangeType.ABSOLUTE).withMinTap(-16).withMaxTap(16).add().withInitialTap(0).withTapToAngleConversionMap(conversionMap).add();
     }
 
     static PstRangeAction addPstRangeActionToCrac() {

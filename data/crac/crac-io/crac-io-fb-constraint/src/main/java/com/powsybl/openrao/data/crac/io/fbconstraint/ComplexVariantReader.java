@@ -20,8 +20,6 @@ import com.powsybl.openrao.data.crac.io.commons.ucte.UcteNetworkAnalyzer;
 
 import java.util.*;
 
-import static com.powsybl.openrao.data.crac.api.usagerule.UsageMethod.AVAILABLE;
-
 /**
  * @author Baptiste Seguinot{@literal <baptiste.seguinot at rte-france.com>}
  */
@@ -172,7 +170,6 @@ class ComplexVariantReader {
         if (actionsSetType.isPreventive()) {
             remedialActionAdder.newOnInstantUsageRule()
                 .withInstant(crac.getPreventiveInstant().getId())
-                .withUsageMethod(AVAILABLE)
                 .add();
         }
 
@@ -181,7 +178,6 @@ class ComplexVariantReader {
                 remedialActionAdder.newOnContingencyStateUsageRule()
                     .withContingency(co)
                     .withInstant(crac.getInstant(InstantKind.CURATIVE).getId())
-                    .withUsageMethod(AVAILABLE)
                     .add();
             }
         }

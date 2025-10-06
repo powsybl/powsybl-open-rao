@@ -50,8 +50,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.powsybl.openrao.data.crac.api.usagerule.UsageMethod.AVAILABLE;
-import static com.powsybl.openrao.data.crac.api.usagerule.UsageMethod.FORCED;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -503,7 +501,6 @@ class JsonRetrocompatibilityTest {
         assertTrue(complexNetworkActionUsageRule instanceof OnInstant);
         OnInstant onInstant = (OnInstant) complexNetworkActionUsageRule;
         assertEquals(preventiveInstant, onInstant.getInstant());
-        assertEquals(AVAILABLE, onInstant.getUsageMethod());
 
         // check several usage rules
         assertEquals(2, crac.getNetworkAction("pstSetpointRaId").getUsageRules().size());
@@ -516,7 +513,6 @@ class JsonRetrocompatibilityTest {
         assertNotNull(onContingencyState);
         assertEquals("contingency1Id", onContingencyState.getContingency().getId());
         assertEquals(curativeInstant, onContingencyState.getInstant());
-        assertEquals(FORCED, onContingencyState.getUsageMethod());
 
         // check automaton OnFlowConstraint usage rule
         assertEquals(1, crac.getNetworkAction("injectionSetpointRaId").getUsageRules().size());
@@ -745,10 +741,7 @@ class JsonRetrocompatibilityTest {
         assertEquals(Country.FR, crac.getCounterTradeRangeAction("counterTradeRange1Id").getExportingCountry());
         assertEquals(Country.DE, crac.getCounterTradeRangeAction("counterTradeRange1Id").getImportingCountry());
 
-        // test usage methods for voltage/angle/onflow constraint usage rules
         assertEquals(1, crac.getRemedialActions().stream().filter(ra -> ra.getUsageRules().stream().anyMatch(usageRule -> usageRule instanceof OnConstraint<?> && ((OnConstraint<?>) usageRule).getCnec() instanceof VoltageCnec)).count());
-        assertEquals(AVAILABLE, crac.getRangeAction("pstRange2Id").getUsageMethod(crac.getFlowCnec("cnec1prevId").getState()));
-        assertEquals(FORCED, crac.getNetworkAction("injectionSetpointRaId").getUsageMethod(crac.getFlowCnec("cnec3autoId").getState()));
     }
 
     private void testContentOfV2Point0Crac(Crac crac) {

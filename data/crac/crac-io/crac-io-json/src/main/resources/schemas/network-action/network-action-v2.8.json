@@ -1,0 +1,105 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema#",
+  "$id": "https://www.powsybl.org?open-rao-crac-schema=network-action-v2.8.json",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "name": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "operator": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "activationCost": "number",
+    "variationCosts": {
+      "$ref": "resource:/schemas/variation-costs/variation-costs-v2.6.json"
+    },
+    "speed": {
+      "type": "number"
+    },
+    "terminalsConnectionActions": {
+      "type": "array",
+      "items": {
+        "$ref": "resource:/schemas/terminals-connection-action/terminals-connection-action-v2.5.json"
+      }
+    },
+    "phaseTapChangerTapPositionActions": {
+      "type": "array",
+      "items": {
+        "$ref": "resource:/schemas/phase-tap-changer-position-action/phase-tap-changer-position-action-v2.5.json"
+      }
+    },
+    "generatorActions": {
+      "type": "array",
+      "items": {
+        "$ref": "resource:/schemas/generator-action/generator-action-v2.5.json"
+      }
+    },
+    "loadActions": {
+      "type": "array",
+      "items": {
+        "$ref": "resource:/schemas/load-action/load-action-v2.5.json"
+      }
+    },
+    "danglingLineActions": {
+      "type": "array",
+      "items": {
+        "$ref": "resource:/schemas/dangling-line-action/dangling-line-action-v2.5.json"
+      }
+    },
+    "shuntCompensatorPositionActions": {
+      "type": "array",
+      "items": {
+        "$ref": "resource:/schemas/shunt-compensator-position-action/shunt-compensator-position-action-v2.5.json"
+      }
+    },
+    "switchActions": {
+      "type": "array",
+      "items": {
+        "$ref": "resource:/schemas/switch-action/switch-action-v2.5.json"
+      }
+    },
+    "switchPairs": {
+      "type": "array",
+      "items": {
+        "$ref": "resource:/schemas/switch-pair/switch-pair-v1.1.json"
+      }
+    },
+    "onInstantUsageRules": {
+      "type": "array",
+      "items": {
+        "$ref": "resource:/schemas/on-instant-usage-rule/on-instant-usage-rule-v2.8.json"
+      }
+    },
+    "onContingencyStateUsageRules": {
+      "type": "array",
+      "items": {
+        "$ref": "resource:/schemas/on-contingency-state-usage-rule/on-contingency-state-usage-rule-v2.8.json"
+      }
+    },
+    "onConstraintUsageRules": {
+      "type": "array",
+      "items": {
+        "$ref": "resource:/schemas/on-constraint-usage-rule/on-constraint-usage-rule-v2.8.json"
+      }
+    },
+    "onFlowConstraintInCountryUsageRules": {
+      "type": "array",
+      "items": {
+        "$ref": "resource:/schemas/on-flow-constraint-in-country-usage-rule/on-flow-constraint-in-country-usage-rule-v2.8.json"
+      }
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "id"
+  ]
+}

@@ -18,7 +18,6 @@ import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.raoapi.RaoInput;
@@ -53,7 +52,7 @@ public final class MarmotUtils {
         Crac crac = raoInput.getCrac();
         Network network = raoInput.getNetwork();
         State preventiveState = crac.getPreventiveState();
-        Set<RangeAction<?>> rangeActions = crac.getRangeActions(preventiveState, UsageMethod.AVAILABLE);
+        Set<RangeAction<?>> rangeActions = crac.getRangeActions(preventiveState);
         return new PrePerimeterSensitivityAnalysis(crac, crac.getFlowCnecs(), rangeActions, raoParameters, ToolProvider.buildFromRaoInputAndParameters(raoInput, raoParameters)).runInitialSensitivityAnalysis(network);
     }
 
@@ -94,7 +93,7 @@ public final class MarmotUtils {
         Crac crac = raoInput.getCrac();
         Network network = raoInput.getNetwork();
         State preventiveState = crac.getPreventiveState();
-        Set<RangeAction<?>> rangeActions = crac.getRangeActions(preventiveState, UsageMethod.AVAILABLE);
+        Set<RangeAction<?>> rangeActions = crac.getRangeActions(preventiveState);
         return new PrePerimeterSensitivityAnalysis(crac, consideredCnecs, rangeActions, raoParameters, ToolProvider.buildFromRaoInputAndParameters(raoInput, raoParameters)).runBasedOnInitialResults(network, initialFlowResult, Set.of(), curativeRemedialActions);
     }
 

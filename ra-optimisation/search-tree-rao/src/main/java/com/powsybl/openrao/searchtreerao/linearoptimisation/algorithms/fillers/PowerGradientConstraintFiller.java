@@ -30,12 +30,12 @@ import java.util.stream.IntStream;
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com}
  */
-public class GeneratorConstraintFiller implements ProblemFiller {
+public class PowerGradientConstraintFiller implements ProblemFiller {
     private final TemporalData<State> preventiveStates;
     private final TemporalData<Set<InjectionRangeAction>> injectionRangeActionsPerTimestamp;
     private final Set<GeneratorConstraints> generatorConstraints;
 
-    public GeneratorConstraintFiller(TemporalData<State> preventiveStates, TemporalData<Set<InjectionRangeAction>> injectionRangeActionsPerTimestamp, Set<GeneratorConstraints> generatorConstraints) {
+    public PowerGradientConstraintFiller(TemporalData<State> preventiveStates, TemporalData<Set<InjectionRangeAction>> injectionRangeActionsPerTimestamp, Set<GeneratorConstraints> generatorConstraints) {
         this.preventiveStates = preventiveStates;
         this.injectionRangeActionsPerTimestamp = injectionRangeActionsPerTimestamp;
         this.generatorConstraints = generatorConstraints;
