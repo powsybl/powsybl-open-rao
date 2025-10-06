@@ -63,7 +63,6 @@
     "optimized" : true,
     "monitored" : false,
     "reliabilityMargin" : 0.0,
-    "nominalV" : [ 220.0 ],
     "thresholds" : [ {
       "unit" : "ampere",
       "min" : -800.0,
@@ -79,7 +78,6 @@
     "optimized" : true,
     "monitored" : false,
     "reliabilityMargin" : 0.0,
-    "nominalV" : [ 220.0 ],
     "thresholds" : [ {
       "unit" : "ampere",
       "min" : -500.0,
@@ -95,7 +93,6 @@
     "optimized" : true,
     "monitored" : false,
     "reliabilityMargin" : 0.0,
-    "nominalV" : [ 380.0, 220.0 ],
     "thresholds" : [ {
       "unit" : "ampere",
       "min" : -800.0,
@@ -124,7 +121,6 @@
     "optimized" : false,
     "monitored" : true,
     "reliabilityMargin" : 20.0,
-    "nominalV" : [ NaN ],
     "thresholds" : [ {
       "unit" : "megawatt",
       "max" : 500.0,
@@ -141,7 +137,6 @@
     "optimized" : false,
     "monitored" : true,
     "reliabilityMargin" : 20.0,
-    "nominalV" : [ NaN ],
     "thresholds" : [ {
       "unit" : "megawatt",
       "max" : 500.0,
@@ -157,7 +152,6 @@
     "optimized" : false,
     "monitored" : true,
     "reliabilityMargin" : 20.0,
-    "nominalV" : [ NaN ],
     "thresholds" : [ {
       "unit" : "megawatt",
       "max" : 500.0,
@@ -173,7 +167,6 @@
     "optimized" : true,
     "monitored" : true,
     "reliabilityMargin" : 0.0,
-    "nominalV" : [ NaN ],
     "thresholds" : [ {
       "unit" : "megawatt",
       "max" : 500.0,

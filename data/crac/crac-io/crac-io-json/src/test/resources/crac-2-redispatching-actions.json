@@ -29,9 +29,6 @@
       "contingencyId": null,
       "optimized": true,
       "monitored": false,
-      "nominalV": [
-        400.0
-      ],
       "thresholds": [
         {
           "unit": "megawatt",
@@ -56,9 +53,6 @@
       "contingencyId": null,
       "optimized": true,
       "monitored": false,
-      "nominalV": [
-        400.0
-      ],
       "thresholds": [
         {
           "unit": "megawatt",
@@ -83,9 +77,6 @@
       "contingencyId": null,
       "optimized": true,
       "monitored": false,
-      "nominalV": [
-        400.0
-      ],
       "thresholds": [
         {
           "unit": "megawatt",
