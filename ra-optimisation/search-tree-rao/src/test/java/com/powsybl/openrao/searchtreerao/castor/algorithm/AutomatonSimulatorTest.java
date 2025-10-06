@@ -243,7 +243,6 @@ class AutomatonSimulatorTest {
         // add OLF extension to keep same behavior as before version 2.0.0 with default parameter (note that "transformerVoltageControlMode" could be set to "WITH_GENERATOR_VOLTAGE_CONTROL" but this has no impact)
         OpenLoadFlowParameters openLoadFlowParameters = new OpenLoadFlowParameters();
         openLoadFlowParameters.setSlackDistributionFailureBehavior(OpenLoadFlowParameters.SlackDistributionFailureBehavior.LEAVE_ON_SLACK_BUS);
-        openLoadFlowParameters.setPlausibleActivePowerLimit(5000.0);
         loadFlowParameters.addExtension(OpenLoadFlowParameters.class, openLoadFlowParameters);
 
         searchTreeParameters.getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().setLoadFlowParameters(loadFlowParameters);
