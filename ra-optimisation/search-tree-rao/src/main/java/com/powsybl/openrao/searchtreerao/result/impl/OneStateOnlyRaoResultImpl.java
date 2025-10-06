@@ -31,7 +31,6 @@ import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.getDuplicateCnec
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public class OneStateOnlyRaoResultImpl extends AbstractFlowRaoResult {
-    public static final String WRONG_STATE = "Trying to access perimeter result for the wrong state.";
     private final State optimizedState;
     private final PrePerimeterResult initialResult;
     private final OptimizationResult postOptimizationResult;
@@ -119,13 +118,6 @@ public class OneStateOnlyRaoResultImpl extends AbstractFlowRaoResult {
     @Override
     public double getPtdfZonalSum(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side) {
         return getAppropriateResult(optimizedInstant, flowCnec).map(flowResult -> flowResult.getPtdfZonalSum(flowCnec, side)).orElse(Double.NaN);
-    }
-
-    public OptimizationResult getOptimizationResult(State state) {
-        if (!state.equals(optimizedState)) {
-            throw new OpenRaoException(WRONG_STATE);
-        }
-        return postOptimizationResult;
     }
 
     public PrePerimeterResult getInitialResult() {
