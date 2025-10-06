@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema#",
+  "$id": "https://www.powsybl.org?open-rao-crac-schema=on-instant-usage-rule-v2.8.json",
+  "type": "object",
+  "properties": {
+    "instant": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "instant"
+  ]
+}

@@ -31,7 +31,6 @@ import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeActionAdder;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeActionAdder;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkActionAdder;
 
@@ -442,14 +441,9 @@ public interface Crac extends Identifiable<Crac> {
     Set<RangeAction<?>> getRangeActions();
 
     /**
-     * Gather all the range actions of a specified state with one of the specified usage methods
+     * Gather all the range actions of a specified state
      */
-    Set<RangeAction<?>> getRangeActions(State state, UsageMethod... usageMethod);
-
-    /**
-     * Gather all the network actions of a specified state that are potentially available
-     */
-    Set<RangeAction<?>> getPotentiallyAvailableRangeActions(State state);
+    Set<RangeAction<?>> getRangeActions(State state);
 
     default boolean isRangeActionPreventive(RangeAction<?> rangeAction) {
         return isRangeActionAvailableInState(rangeAction, getPreventiveState());
@@ -462,7 +456,7 @@ public interface Crac extends Identifiable<Crac> {
     }
 
     default boolean isRangeActionAvailableInState(RangeAction<?> rangeAction, State state) {
-        return getPotentiallyAvailableRangeActions(state).contains(rangeAction);
+        return getRangeActions(state).contains(rangeAction);
     }
 
     /**
@@ -544,14 +538,9 @@ public interface Crac extends Identifiable<Crac> {
     Set<NetworkAction> getNetworkActions();
 
     /**
-     * Gather all the network actions of a specified state with one of the specified usage methods
+     * Gather all the network actions of a specified state
      */
-    Set<NetworkAction> getNetworkActions(State state, UsageMethod... usageMethod);
-
-    /**
-     * Gather all the network actions of a specified state that are potentially available
-     */
-    Set<NetworkAction> getPotentiallyAvailableNetworkActions(State state);
+    Set<NetworkAction> getNetworkActions(State state);
 
     /**
      * Find a NetworkAction by its id, returns null if the network action does not exists

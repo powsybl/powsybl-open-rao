@@ -39,7 +39,7 @@ An automaton perimeter can be defined for each defined contingency. Each automat
 Optimal preventive actions selected by the preventive RAO are applied in this perimeter.
 
 While preventive and curative remedial actions are always optimized to prevent overloads in their respective perimeters,
-auto remedial actions are actually forced in the automaton perimeter, depending on the usage method. Indeed, in real
+auto remedial actions are actually forced in the automaton perimeter. Indeed, in real
 life an "automated protection" is triggered when an outage takes place, even if its triggering causes another constraint
 somewhere else in the network.
 That's why, regardless of the impacts on CNECs, forced automatic remedial actions are activated if their specific
@@ -51,15 +51,14 @@ set-points, PST set-points, switch pairs.
 
 #### Automatic network actions simulation
 
-First, all automatic network actions with a FORCED usage method are applied on the network. FORCED means that no optimization is carried out and that as long as the triggering conditions are met, the remedial action is applied.
+First, all automatic network actions are applied on the network. No optimization is necessary as long as the triggering
+conditions of the automaton are met.
 
 #### Automatic range actions simulation
 
 Then, automatic range actions are applied one by one, as long as some of the perimeter's CNECs are overloaded. Range
 actions include PSTs and HVDCs. The remedial actions' speed determines the order in which they are applied: the fastest
 range actions are simulated first. Aligned range actions are simulated simultaneously.
-
-> Note that auto range actions must have a FORCED usage method too.  
 
 Automatic range actions' set-point is computed using the results of a sensitivity analysis computation, during which the
 sensitivity $\sigma$ of a range action on a CNEC is computed. By focusing on the worse overloaded CNEC, we can compute

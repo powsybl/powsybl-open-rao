@@ -7,7 +7,7 @@ Feature: US 15.11.4: ARAO with 2P
 
   @fast @rao @mock @ac @second-preventive @mnec
   Scenario: US 15.11.4.1: Check that PRAO2 ignores applied ARAs from ARAO1
-    Given network file is "common/TestCase12Nodes2PSTs.uct"
+    Given network file is "common/TestCase12Nodes2PSTs.uct" for CORE CC
     Given crac file is "epic15/jsonCrac_ep15us11-4case1.json"
     Given configuration file is "epic15/RaoParameters_ep15us11-4.json"
     When I launch rao
@@ -27,7 +27,7 @@ Feature: US 15.11.4: ARAO with 2P
 
   @fast @rao @mock @ac @second-preventive @mnec
   Scenario: US 15.11.4.2: ARAO2
-    Given network file is "common/TestCase12Nodes2PSTs.uct"
+    Given network file is "common/TestCase12Nodes2PSTs.uct" for CORE CC
     Given crac file is "epic15/jsonCrac_ep15us11-4case2.json"
     Given configuration file is "epic15/RaoParameters_ep15us11-4.json"
     When I launch rao at "2019-01-08 12:00"

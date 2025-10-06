@@ -13,7 +13,6 @@ import com.powsybl.openrao.data.crac.api.networkaction.ActionType;
 import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeActionAdder;
 import com.powsybl.openrao.data.crac.api.rangeaction.VariationDirection;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -54,7 +53,6 @@ class HvdcRangeActionAdderImplTest {
                 .newRange().withMin(-5).withMax(10).add()
                 .newOnInstantUsageRule()
                 .withInstant(PREVENTIVE_INSTANT_ID)
-                .withUsageMethod(UsageMethod.AVAILABLE)
                 .add()
                 .withInitialSetpoint(10.0)
                 .add();
@@ -85,7 +83,6 @@ class HvdcRangeActionAdderImplTest {
             .newRange().withMin(-5).withMax(10).add()
             .newOnInstantUsageRule()
             .withInstant(PREVENTIVE_INSTANT_ID)
-            .withUsageMethod(UsageMethod.AVAILABLE)
             .add()
             .add();
         assertNull(hvdcRangeAction.getInitialSetpoint());
@@ -103,7 +100,6 @@ class HvdcRangeActionAdderImplTest {
                 .newRange().withMin(-5).withMax(10).add()
                 .newOnInstantUsageRule()
                 .withInstant(AUTO_INSTANT_ID)
-                .withUsageMethod(UsageMethod.FORCED)
                 .add()
                 .add();
 
@@ -132,7 +128,6 @@ class HvdcRangeActionAdderImplTest {
             .newRange().withMin(-5).withMax(10).add()
             .newOnInstantUsageRule()
             .withInstant(AUTO_INSTANT_ID)
-            .withUsageMethod(UsageMethod.FORCED)
             .add();
         OpenRaoException exception = assertThrows(OpenRaoException.class, hvdcRangeActionAdder::add);
         assertEquals("Cannot create an AUTO standard range action without speed defined", exception.getMessage());
@@ -147,7 +142,6 @@ class HvdcRangeActionAdderImplTest {
                 .newRange().withMin(-5).withMax(10).add()
                 .newOnInstantUsageRule()
                 .withInstant(PREVENTIVE_INSTANT_ID)
-                .withUsageMethod(UsageMethod.AVAILABLE)
                 .add()
                 .add();
 
@@ -188,7 +182,6 @@ class HvdcRangeActionAdderImplTest {
                 .newRange().withMin(-5).withMax(10).add()
                 .newOnInstantUsageRule()
                 .withInstant(PREVENTIVE_INSTANT_ID)
-                .withUsageMethod(UsageMethod.AVAILABLE)
                 .add()
                 .add();
 

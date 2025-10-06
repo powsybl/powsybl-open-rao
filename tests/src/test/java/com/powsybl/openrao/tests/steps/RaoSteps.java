@@ -338,9 +338,9 @@ public class RaoSteps {
         assertEquals(expectedMargin, worstCnec.getValue(), flowAmpereTolerance(expectedMargin));
     }
 
-    @Then("the worst margin is {double} A with a tolerance of {double} A")
-    public void worstMarginInA(double expectedMargin, double delta) {
-        Pair<FlowCnec, Double> worstCnec = getWorstCnec(Unit.AMPERE, false);
+    @Then("the worst margin is {double} MW with a tolerance of {double} MW")
+    public void worstMarginInMW(double expectedMargin, double delta) {
+        Pair<FlowCnec, Double> worstCnec = getWorstCnec(Unit.MEGAWATT, false);
         assertEquals(expectedMargin, worstCnec.getValue(), delta);
     }
 

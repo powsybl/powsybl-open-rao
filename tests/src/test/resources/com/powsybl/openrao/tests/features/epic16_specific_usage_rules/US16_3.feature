@@ -203,3 +203,41 @@ Feature: User Story #16.3: Activate remedial actions only after a specific const
     And the worst margin is -5 A
     And the margin on cnec "BBE2AA1  FFR3AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be -5 A
     And the margin on cnec "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be 3 A
+
+  @fast @rao @ac @contingency-scenarios
+  Scenario: US 16.3.15: OnFlowConstraint with overload on other curative state
+  2 contingency scenarios but only 1 onConstraint usage rule defined.
+    Given network file is "epic16/2Nodes3ParallelLines.uct"
+    Given crac file is "epic16/crac_16_3_15.json"
+    Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
+    When I launch rao
+    Then 0 remedial actions are used in preventive
+    And 1 remedial actions are used after "co_fr1_fr2_1" at "curative"
+    And the remedial action "pst_fr" is used after "co_fr1_fr2_1" at "curative"
+    And the tap of PstRangeAction "pst_fr" should be -9 after "co_fr1_fr2_1" at "curative"
+    And 0 remedial actions are used after "co_fr1_fr2_2" at "curative"
+    And the tap of PstRangeAction "pst_fr" should be 0 after "co_fr1_fr2_2" at "curative"
+    And the worst margin is -221.78 A
+    And the margin on cnec "FFR1AA1  FFR2AA1  3 - co_fr1_fr2_1 - curative" after CRA should be 284.32 A
+    And the margin on cnec "FFR1AA1  FFR2AA1  3 - co_fr1_fr2_2 - curative" after CRA should be -221.78 A
+    And its security status should be "UNSECURED"
+
+  @fast @rao @ac @contingency-scenarios @second-preventive
+  Scenario: US 16.3.16: OnFlowConstraint with overload on other curative state
+  2 contingency scenarios but only 1 onConstraint usage rule defined.
+  Because of second preventive optimization, tap is limited at position -3
+  since it does not improve the objective function.
+    Given network file is "epic16/2Nodes3ParallelLines.uct"
+    Given crac file is "epic16/crac_16_3_15.json"
+    Given configuration file is "epic16/RaoParameters_maxMargin_ampere_2P.json"
+    When I launch rao
+    Then 0 remedial actions are used in preventive
+    And 1 remedial actions are used after "co_fr1_fr2_1" at "curative"
+    And the remedial action "pst_fr" is used after "co_fr1_fr2_1" at "curative"
+    And the tap of PstRangeAction "pst_fr" should be -3 after "co_fr1_fr2_1" at "curative"
+    And 0 remedial actions are used after "co_fr1_fr2_2" at "curative"
+    And the tap of PstRangeAction "pst_fr" should be 0 after "co_fr1_fr2_2" at "curative"
+    And the worst margin is -221.78 A
+    And the margin on cnec "FFR1AA1  FFR2AA1  3 - co_fr1_fr2_1 - curative" after CRA should be -186.28 A
+    And the margin on cnec "FFR1AA1  FFR2AA1  3 - co_fr1_fr2_2 - curative" after CRA should be -221.78 A
+    And its security status should be "UNSECURED"

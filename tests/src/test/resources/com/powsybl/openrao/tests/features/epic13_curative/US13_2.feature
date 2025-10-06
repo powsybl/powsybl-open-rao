@@ -141,7 +141,7 @@ Feature: US 13.2: Solve a RAO for two consecutive states (preventive THEN curati
 
   @fast @rao @mock @ac @contingency-scenarios
   Scenario: US 13.2.8: Complex case with a mix of preventive and curative remedial actions (3/3)
-    Given network file is "common/TestCase16Nodes.uct"
+    Given network file is "common/TestCase16Nodes.uct" for CORE CC
     Given crac file is "epic13/SL_ep13us2case7.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao

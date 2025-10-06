@@ -11,25 +11,17 @@ import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.usagerule.OnContingencyState;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 
 /**
- * The UsageMethod of the OnContingencyStateImpl UsageRule is only effective in a given State.
+ * The OnContingencyStateImpl UsageRule is only effective in a given State.
  *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-public final class OnContingencyStateImpl extends AbstractUsageRule implements OnContingencyState {
-
+public final class OnContingencyStateImpl implements OnContingencyState {
     private State state;
 
-    OnContingencyStateImpl(UsageMethod usageMethod, State state) {
-        super(usageMethod);
+    OnContingencyStateImpl(State state) {
         this.state = state;
-    }
-
-    @Override
-    public UsageMethod getUsageMethod(State state) {
-        return this.state.equals(state) ? usageMethod : UsageMethod.UNDEFINED;
     }
 
     @Override
@@ -41,12 +33,12 @@ public final class OnContingencyStateImpl extends AbstractUsageRule implements O
             return false;
         }
         OnContingencyStateImpl rule = (OnContingencyStateImpl) o;
-        return super.equals(o) && rule.getState().equals(state);
+        return rule.getState().equals(state);
     }
 
     @Override
     public int hashCode() {
-        return usageMethod.hashCode() * 19 + state.hashCode() * 47;
+        return state.hashCode() * 47;
     }
 
     public State getState() {

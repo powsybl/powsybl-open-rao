@@ -22,7 +22,7 @@ Feature: US 2.2: Optimize PST tap within given ranges
 
   @fast @rao @mock @ac @preventive-only
   Scenario: US 2.2.2: Trade-off between various constraints
-    Given network file is "common/TestCase12Nodes.uct"
+    Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic2/SL_ep2us2case2.json"
     Given configuration file is "common/RaoParameters_posMargin_ampere.json"
     When I launch rao

@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema#",
+  "$id": "https://www.powsybl.org?open-rao-crac-schema=on-flow-constraint-in-country-usage-rule-2.8.json",
+  "type": "object",
+  "properties": {
+    "instant": {
+      "type": "string"
+    },
+    "contingencyId": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "country": {
+      "$ref": "resource:/schemas/country/country-v1.3.json"
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "instant",
+    "country"
+  ]
+}

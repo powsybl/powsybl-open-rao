@@ -250,16 +250,8 @@ public class MonitoredSeriesCreator {
             setNominalVoltage(flowCnecAdder, branchHelper);
             if (Unit.PERCENT_IMAX.equals(unit)) {
                 IidmCnecElementHelper cnecElementHelper = new IidmCnecElementHelper(branchHelper.getBranch().getId(), network);
-                Double currentLimit1 = cnecElementHelper.getCurrentLimit(TwoSides.ONE);
-                Double currentLimit2 = cnecElementHelper.getCurrentLimit(TwoSides.TWO);
-                if (currentLimit1 != null && currentLimit2 != null) {
-                    flowCnecAdder.withIMax(currentLimit1, TwoSides.ONE);
-                    flowCnecAdder.withIMax(currentLimit2, TwoSides.TWO);
-                } else if (currentLimit1 == null) {
-                    flowCnecAdder.withIMax(currentLimit2);
-                } else {
-                    flowCnecAdder.withIMax(currentLimit1);
-                }
+                flowCnecAdder.withIMax(cnecElementHelper.getCurrentLimit(TwoSides.ONE), TwoSides.ONE);
+                flowCnecAdder.withIMax(cnecElementHelper.getCurrentLimit(TwoSides.TWO), TwoSides.TWO);
             }
 
         } catch (OpenRaoException e) {
