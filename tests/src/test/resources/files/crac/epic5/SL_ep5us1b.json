@@ -41,7 +41,7 @@
     "thresholds" : [ {
       "unit" : "megawatt",
       "min" : -2000.0,
-      "max" : 1501.433,
+      "max" : 1499.9999,
       "rule" : "onLeftSide"
     } ]
   } ],
