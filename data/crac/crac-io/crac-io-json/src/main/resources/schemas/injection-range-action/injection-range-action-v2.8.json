@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema#",
-  "$id": "https://www.powsybl.org?open-rao-crac-schema=injection-range-action-v2.8.json",
+  "$id": "resource:/schemas/injection-range-action-v2.8.json",
   "type": "object",
   "properties": {
     "id": {

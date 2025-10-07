@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema#",
-  "$id": "https://www.powsybl.orgopen-rao-crac-schema=minimum-viable-crac.schema",
+  "$id": "resource:/schemas/minimum-viable-crac.schema",
   "title": "Minimum Viable CRAC",
   "description": "Minimum Viable CRAC data for electric grid operation",
   "type": "object",

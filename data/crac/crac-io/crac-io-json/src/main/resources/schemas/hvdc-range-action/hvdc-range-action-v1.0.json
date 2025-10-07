@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema#",
-  "$id": "https://www.powsybl.org?open-rao-crac-schema=hvdc-range-action-v1.0.json",
+  "$id": "resource:/schemas/hvdc-range-action-v1.0.json",
   "type": "object",
   "properties": {
     "id": {

@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema#",
-  "$id": "https://www.powsybl.org?open-rao-crac-schema=country-v1.3.json",
+  "$id": "resource:/schemas/country-v1.3.json",
   "type": "string",
   "pattern": "^[A-Z]{2}$",
   "additionalProperties": false

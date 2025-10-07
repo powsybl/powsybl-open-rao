@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema#",
-  "$id": "https://www.powsybl.org?open-rao-crac-schema=flow-threshold-v1.6.json",
+  "$id": "resource:/schemas/flow-threshold-v1.6.json",
   "type": "object",
   "properties": {
     "unit": {
