@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema#",
-  "$id": "resource:/schemas/usage-method-v1.0.json",
+  "$id": "resource:/schemas/usage-method/usage-method-v1.0.json",
   "enum": [
     "available",
     "forced",

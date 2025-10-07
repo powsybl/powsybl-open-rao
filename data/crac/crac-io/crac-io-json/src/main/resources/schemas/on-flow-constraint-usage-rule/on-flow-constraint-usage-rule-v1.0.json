@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema#",
-  "$id": "resource:/schemas/on-flow-constraint-usage-rule-v1.0.json",
+  "$id": "resource:/schemas/on-flow-constraint-usage-rule/on-flow-constraint-usage-rule-v1.0.json",
   "type": "object",
   "properties": {
     "instant": {

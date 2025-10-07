@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema#",
-  "$id": "resource:/schemas/variation-costs-v2.6.json",
+  "$id": "resource:/schemas/variation-costs/variation-costs-v2.6.json",
   "type": "object",
   "properties": {
     "up": {

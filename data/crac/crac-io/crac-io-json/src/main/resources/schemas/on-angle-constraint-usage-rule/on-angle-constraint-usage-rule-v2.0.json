@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema#",
-  "$id": "resource:/schemas/on-angle-constraint-usage-rule-v2.0.json",
+  "$id": "resource:/schemas/on-angle-constraint-usage-rule/on-angle-constraint-usage-rule-v2.0.json",
   "type": "object",
   "properties": {
     "instant": {

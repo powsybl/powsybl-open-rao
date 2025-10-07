@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema#",
-  "$id": "resource:/schemas/on-contingency-state-usage-rule-v2.8.json",
+  "$id": "resource:/schemas/on-contingency-state-usage-rule/on-contingency-state-usage-rule-v2.8.json",
   "type": "object",
   "properties": {
     "instant": {

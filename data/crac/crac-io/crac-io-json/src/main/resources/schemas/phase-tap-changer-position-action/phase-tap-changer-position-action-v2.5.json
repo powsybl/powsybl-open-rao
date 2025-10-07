@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema#",
-  "$id": "resource:/schemas/phase-tap-changer-position-action-v2.5.json",
+  "$id": "resource:/schemas/phase-tap-changer-position-action/phase-tap-changer-position-action-v2.5.json",
   "type": "object",
   "properties": {
     "networkElementId": {

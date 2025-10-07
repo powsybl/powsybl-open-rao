@@ -1,7 +1,7 @@
 
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema#",
-  "$id": "resource:/schemas/network-action-v1.3.json",
+  "$id": "resource:/schemas/network-action/network-action-v1.3.json",
   "type": "object",
   "properties": {
     "id": {

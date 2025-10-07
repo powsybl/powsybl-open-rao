@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema#",
-  "$id": "resource:/schemas/rule-v1.0.json",
+  "$id": "resource:/schemas/rule/rule-v1.0.json",
   "enum": [
     "onLeftSide",
     "onRightSide"

@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema#",
-  "$id": "resource:/schemas/crac-v2.4.json",
+  "$id": "resource:/schemas/crac/crac-v2.4.json",
   "title": "CRAC",
   "description": "CRAC data for electric grid operation",
   "type": "object",
