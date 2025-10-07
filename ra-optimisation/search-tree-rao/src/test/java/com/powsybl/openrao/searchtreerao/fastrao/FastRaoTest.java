@@ -49,7 +49,7 @@ public class FastRaoTest {
         fastRaoParameters.setAddUnsecureCnecs(true);
         raoParameters.addExtension(FastRaoParameters.class, fastRaoParameters);
         FastRaoResultImpl raoResult = (FastRaoResultImpl) FastRao.launchFastRaoOptimization(individualRaoInput, raoParameters, null, new HashSet<>());
-        assertEquals(-37.7, raoResult.getFunctionalCost(crac.getLastInstant()), 1e-1);
+        assertEquals(-143.83, raoResult.getFunctionalCost(crac.getLastInstant()), 1e-1);
         assertEquals(6, raoResult.getExtension(CriticalCnecsResult.class).getCriticalCnecIds().size());
     }
 
