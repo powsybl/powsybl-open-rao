@@ -10,7 +10,7 @@
       "type": "number"
     },
     "unit": {
-      "$ref": "resource:/schemas/injection-unit/injection-unit-v1.8.json"
+      "$ref": "../injection-unit/injection-unit-v1.8.json"
     }
   },
   "additionalProperties": false,

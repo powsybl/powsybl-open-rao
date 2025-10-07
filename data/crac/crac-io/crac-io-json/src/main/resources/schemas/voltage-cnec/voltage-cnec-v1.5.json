@@ -48,7 +48,7 @@
     "thresholds": {
       "type": "array",
       "items": {
-        "$ref": "resource:/schemas/voltage-threshold/voltage-threshold-v1.5.json"
+        "$ref": "../voltage-threshold/voltage-threshold-v1.5.json"
       },
       "minItems": 1
     }

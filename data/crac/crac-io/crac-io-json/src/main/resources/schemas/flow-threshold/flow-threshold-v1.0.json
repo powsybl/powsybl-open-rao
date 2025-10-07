@@ -4,7 +4,7 @@
   "type": "object",
   "properties": {
     "unit": {
-      "$ref": "resource:/schemas/flow-unit/flow-unit-v1.0.json"
+      "$ref": "../flow-unit/flow-unit-v1.0.json"
     },
     "max": {
       "type": "number"
@@ -13,7 +13,7 @@
       "type": "number"
     },
     "rule": {
-      "$ref": "resource:/schemas/rule/rule-v1.0.json"
+      "$ref": "../rule/rule-v1.0.json"
     }
   },
   "additionalProperties": false,

@@ -64,7 +64,7 @@
     "thresholds": {
       "type": "array",
       "items": {
-        "$ref": "resource:/schemas/flow-threshold/flow-threshold-v2.4.json"
+        "$ref": "../flow-threshold/flow-threshold-v2.4.json"
       },
       "minItems": 1
     }

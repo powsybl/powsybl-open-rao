@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema#",
-  "$id": "resource:/schemas/on-flow-constraint-in-country-usage-rule-2.0.json",
+  "$id": "resource:/schemas/on-flow-constraint-in-country-usage-rule/on-flow-constraint-in-country-usage-rule-v2.0.json",
   "type": "object",
   "properties": {
     "instant": {
@@ -13,10 +13,10 @@
       ]
     },
     "country": {
-      "$ref": "resource:/schemas/country/country-v1.3.json"
+      "$ref": "../country/country-v1.3.json"
     },
     "usageMethod": {
-      "$ref": "resource:/schemas/usage-method/usage-method-v1.0.json"
+      "$ref": "../usage-method/usage-method-v1.0.json"
     }
   },
   "additionalProperties": false,

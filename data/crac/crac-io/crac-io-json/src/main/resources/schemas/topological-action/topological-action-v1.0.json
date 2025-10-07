@@ -7,7 +7,7 @@
       "type": "string"
     },
     "actionType": {
-      "$ref": "resource:/schemas/action-type/action-type-v1.0.json"
+      "$ref": "../action-type/action-type-v1.0.json"
     }
   },
   "additionalProperties": false,

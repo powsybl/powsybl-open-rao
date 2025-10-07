@@ -45,7 +45,7 @@
         "type": "object",
         "properties": {
           "rangeType": {
-            "$ref": "resource:/schemas/range-type/range-type-v1.0.json"
+            "$ref": "../range-type/range-type-v1.0.json"
           },
           "max": {
             "type": "number"
@@ -63,31 +63,31 @@
     "freeToUseUsageRules": {
       "type": "array",
       "items": {
-        "$ref": "resource:/schemas/free-to-use-usage-rule/free-to-use-usage-rule-v1.0.json"
+        "$ref": "../free-to-use-usage-rule/free-to-use-usage-rule-v1.0.json"
       }
     },
     "onStateUsageRules": {
       "type": "array",
       "items": {
-        "$ref": "resource:/schemas/on-state-usage-rule/on-state-usage-rule-v1.0.json"
+        "$ref": "../on-state-usage-rule/on-state-usage-rule-v1.0.json"
       }
     },
     "onFlowConstraintUsageRules": {
       "type": "array",
       "items": {
-        "$ref": "resource:/schemas/on-flow-constraint-usage-rule/on-flow-constraint-usage-rule-v1.0.json"
+        "$ref": "../on-flow-constraint-usage-rule/on-flow-constraint-usage-rule-v1.0.json"
       }
     },
     "onAngleConstraintUsageRules": {
       "type": "array",
       "items": {
-        "$ref": "resource:/schemas/on-angle-constraint-usage-rule/on-angle-constraint-usage-rule-v1.4.json"
+        "$ref": "../on-angle-constraint-usage-rule/on-angle-constraint-usage-rule-v1.4.json"
       }
     },
     "onFlowConstraintInCountryUsageRules": {
       "type": "array",
       "items": {
-        "$ref": "resource:/schemas/on-flow-constraint-in-country-usage-rule/on-flow-constraint-in-country-usage-rule-v1.3.json"
+        "$ref": "../on-flow-constraint-in-country-usage-rule/on-flow-constraint-in-country-usage-rule-v1.3.json"
       }
     },
     "extensions": {

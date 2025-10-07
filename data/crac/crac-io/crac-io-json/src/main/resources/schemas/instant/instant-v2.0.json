@@ -7,7 +7,7 @@
       "type": "string"
     },
     "kind": {
-      "$ref": "resource:/schemas/instant-kind/instant-kind-v2.0.json"
+      "$ref": "../instant-kind/instant-kind-v2.0.json"
     }
   },
   "additionalProperties": false,

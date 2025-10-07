@@ -48,19 +48,19 @@
     "freeToUseUsageRules": {
       "type": "array",
       "items": {
-        "$ref": "resource:/schemas/free-to-use-usage-rule/free-to-use-usage-rule-v1.0.json"
+        "$ref": "../free-to-use-usage-rule/free-to-use-usage-rule-v1.0.json"
       }
     },
     "onStateUsageRules": {
       "type": "array",
       "items": {
-        "$ref": "resource:/schemas/on-state-usage-rule/on-state-usage-rule-v1.0.json"
+        "$ref": "../on-state-usage-rule/on-state-usage-rule-v1.0.json"
       }
     },
     "onFlowConstraintUsageRules": {
       "type": "array",
       "items": {
-        "$ref": "resource:/schemas/on-flow-constraint-usage-rule/on-flow-constraint-usage-rule-v1.0.json"
+        "$ref": "../on-flow-constraint-usage-rule/on-flow-constraint-usage-rule-v1.0.json"
       }
     },
     "extensions": {

@@ -51,25 +51,25 @@
     "onInstantUsageRules": {
       "type": "array",
       "items": {
-        "$ref": "resource:/schemas/on-instant-usage-rule/on-instant-usage-rule-v2.0.json"
+        "$ref": "../on-instant-usage-rule/on-instant-usage-rule-v2.0.json"
       }
     },
     "onContingencyStateUsageRules": {
       "type": "array",
       "items": {
-        "$ref": "resource:/schemas/on-contingency-state-usage-rule/on-contingency-state-usage-rule-v2.0.json"
+        "$ref": "../on-contingency-state-usage-rule/on-contingency-state-usage-rule-v2.0.json"
       }
     },
     "onConstraintUsageRules": {
       "type": "array",
       "items": {
-        "$ref": "resource:/schemas/on-constraint-usage-rule/on-constraint-usage-rule-v2.4.json"
+        "$ref": "../on-constraint-usage-rule/on-constraint-usage-rule-v2.4.json"
       }
     },
     "onFlowConstraintInCountryUsageRules": {
       "type": "array",
       "items": {
-        "$ref": "resource:/schemas/on-flow-constraint-in-country-usage-rule/on-flow-constraint-in-country-usage-rule-v2.2.json"
+        "$ref": "../on-flow-constraint-in-country-usage-rule/on-flow-constraint-in-country-usage-rule-v2.2.json"
       }
     }
   },
