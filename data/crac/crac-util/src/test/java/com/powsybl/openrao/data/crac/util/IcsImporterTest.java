@@ -37,6 +37,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 class IcsImporterTest {
     private static final double DOUBLE_EPSILON = 1e-6;
+    private static final String TMP_DIR = System.getProperty("java.io.tmpdir") + File.separator;
     private String networkFilePathPostIcsImport1;
     private String networkFilePathPostIcsImport2;
     private InterTemporalRaoInputWithNetworkPaths interTemporalRaoInputWithNetworkPaths;
@@ -54,8 +55,8 @@ class IcsImporterTest {
         Network network2 = Network.read(networkFilePath2, IcsImporterTest.class.getResourceAsStream("/network/" + networkFilePath2));
 
         // Create postIcsNetwork:
-        networkFilePathPostIcsImport1 = "/tmp/" + networkFilePath1.split(".uct")[0].concat("_modified.jiidm");
-        networkFilePathPostIcsImport2 = "/tmp/" + networkFilePath2.split(".uct")[0].concat("_modified.jiidm");
+        networkFilePathPostIcsImport1 = TMP_DIR + networkFilePath1.split(".uct")[0].concat("_modified.jiidm");
+        networkFilePathPostIcsImport2 = TMP_DIR + networkFilePath2.split(".uct")[0].concat("_modified.jiidm");
 
         crac1 = Crac.read("/crac/crac-0030.json", IcsImporterTest.class.getResourceAsStream("/crac/crac-0030.json"), network1);
         crac2 = Crac.read("/crac/crac-0130.json", IcsImporterTest.class.getResourceAsStream("/crac/crac-0130.json"), network2);
