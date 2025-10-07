@@ -96,7 +96,6 @@ public class FastRaoResultImpl extends AbstractExtendable<RaoResult> implements 
 
     @Override
     public ComputationStatus getComputationStatus() {
-        //TODO: PreventivAndCurativesRaoResult has a postContingencyResults object that we go through to evaluate the PARTIAL_FAILURE status. Understand why this object is not defined here.
         if (initialResult.getSensitivityStatus() == FAILURE) {
             return FAILURE;
         }

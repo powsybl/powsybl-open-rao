@@ -35,11 +35,15 @@ public final class IcsImporter {
 
     private static double costUp;
     private static double costDown;
-    // TODO:QUALITY CHECK: do PO respect constraints?
-    // TODO:QUALITY CHECK: consistency between gsks defined in static file + gsk file
+
+    // Quality checks (or don't import the action at all):
+    //  - check that P0s respect the min/max gradients
+    // TODO in future versions:
+    //  - check other implemented constraints
+    //  - check consistency between ics files, particularly w.r.t gsk file
 
     // INFOS
-    // Gradient constraints are defined for gsks à la maille parade, et pas par générateur : on applique donc le shift key au Pmax/Pmin
+    // Gradient constraints are defined for gsks at the action level and not per group : we translate it to the groups using the shift keys
 
     private IcsImporter() {
         //should only be used statically

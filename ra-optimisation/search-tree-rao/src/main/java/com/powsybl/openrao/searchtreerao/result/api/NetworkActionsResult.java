@@ -29,7 +29,7 @@ public interface NetworkActionsResult {
     /**
      * It gathers the {@link NetworkAction} that are activated.
      *
-     * @return The map set of activated network actions.
+     * @return The set of activated network actions.
      */
     Set<NetworkAction> getActivatedNetworkActions();
 

@@ -70,15 +70,6 @@ public class Marmot implements InterTemporalRaoProvider {
 
     @Override
     public CompletableFuture<InterTemporalRaoResult> run(InterTemporalRaoInputWithNetworkPaths interTemporalRaoInputWithNetworkPaths, RaoParameters raoParameters) {
-        // MEMORY ISSUES
-        // Modifications done:
-        // - use network paths for runTopologicalOptimization
-        // - configure VM options with -Xmx16g
-        // - reduce topologicalOptimizationResults size via FastRao
-        // - continue reducing topologicalOptimizationResults by keeping only initial flows, applied RAs
-        // TODO :
-        // - reduce FastRaoResultImpl attributes to strictly necessary
-
         // 1. Run independent RAOs to compute optimal preventive topological remedial actions
         TECHNICAL_LOGS.info("[MARMOT] ----- Topological optimization [start]");
         TemporalData<Set<FlowCnec>> consideredCnecs = new TemporalDataImpl<>();
@@ -117,8 +108,6 @@ public class Marmot implements InterTemporalRaoProvider {
         // 6. Create and iteratively solve MIP to find optimal range actions' set-points
         // Get the curative ations applied in the individual results to be able to apply them during sensitivity computations
         TemporalData<AppliedRemedialActions> curativeRemedialActions = MarmotUtils.getAppliedRemedialActionsInCurative(interTemporalRaoInput.getRaoInputs(), topologicalOptimizationResults);
-        // TODO:
-        // need this? runAllSensitivityAnalysesBasedOnInitialResult(interTemporalRaoInput.getRaoInputs(), raoParameters, initialResults.map(PrePerimeterResult::getFlowResult));
 
         TECHNICAL_LOGS.info("[MARMOT] ----- Global range actions optimization [start]");
         // make fast rao result lighter by keeping only initial flow result and filtered rao result for actions

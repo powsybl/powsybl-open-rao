@@ -76,7 +76,7 @@ public class PowerGradientConstraintFiller implements ProblemFiller {
      * P(g,t) = p0(g,t) + sum_{i \in injectionAction_prev(g,t)} d_i(g) * [delta^{+}(r,s,t) - delta^{-}(r,s,t)]
      * */
     private void addPowerConstraint(LinearProblem linearProblem, String generatorId, OpenRaoMPVariable generatorPowerVariable, OffsetDateTime timestamp) {
-        // Initial power cannot be read from modified network (because of multiple iterations without applying on network?). It is fetched from rangeActionSetPointVariationConstraint's upper bound
+        // Initial power cannot be read from network because power may have been modified in network since the beginning of the RAO. That's why initial power is fetched from rangeActionSetPointVariationConstraint's upper bound
         OpenRaoMPConstraint generatorPowerConstraint = linearProblem.addGeneratorPowerConstraint(generatorId, 0., timestamp);
         generatorPowerConstraint.setCoefficient(generatorPowerVariable, 1.0);
         final double[] bound = {0};
