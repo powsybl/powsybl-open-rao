@@ -10,7 +10,7 @@ Feature: US 1.4: Generate a basic output file after RAO computation
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic1/SL_ep1us2_selectionTopoRA.json"
     Given configuration file is "common/RaoParameters_posMargin_ampere.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then its security status should be "SECURED"
     Then 1 remedial actions are used in preventive
     Then the remedial action "Open tie-line FR DE" is used in preventive
@@ -29,7 +29,7 @@ Feature: US 1.4: Generate a basic output file after RAO computation
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic1/SL_ep1us4_unsecure.json"
     Given configuration file is "common/RaoParameters_posMargin_ampere.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then its security status should be "UNSECURED"
     Then 1 remedial actions are used in preventive
     Then the remedial action "PST @1" is used in preventive

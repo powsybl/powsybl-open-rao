@@ -10,7 +10,7 @@ Feature: User Story #16.3: Activate remedial actions only after a specific const
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic16/SL_ep16us3case1.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then 1 remedial actions are used in preventive
     And the remedial action "open_fr1_fr3" is used in preventive
     And the worst margin is -135 A
@@ -25,7 +25,7 @@ Feature: User Story #16.3: Activate remedial actions only after a specific const
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic16/SL_ep16us3case2.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then 1 remedial actions are used in preventive
     And the remedial action "close_fr1_fr5" is used in preventive
     And the worst margin is -45 A
@@ -38,7 +38,7 @@ Feature: User Story #16.3: Activate remedial actions only after a specific const
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic16/SL_ep16us3case3.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then 1 remedial actions are used in preventive
     And the remedial action "close_fr1_fr5" is used in preventive
     And the worst margin is -45 A
@@ -51,7 +51,7 @@ Feature: User Story #16.3: Activate remedial actions only after a specific const
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic16/SL_ep16us3case4.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then 0 remedial actions are used in preventive
     And 1 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     And the remedial action "pst_be" is used after "co1_fr2_fr3_1" at "curative"
@@ -65,7 +65,7 @@ Feature: User Story #16.3: Activate remedial actions only after a specific const
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic16/SL_ep16us3case5.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then 0 remedial actions are used in preventive
     And 1 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     And the remedial action "pst_be" is used after "co1_fr2_fr3_1" at "curative"
@@ -79,7 +79,7 @@ Feature: User Story #16.3: Activate remedial actions only after a specific const
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic16/SL_ep16us3case6.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then 0 remedial actions are used in preventive
     And 0 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     And the worst margin is 43 A
@@ -91,7 +91,7 @@ Feature: User Story #16.3: Activate remedial actions only after a specific const
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic16/SL_ep16us3case7.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then 1 remedial actions are used in preventive
     And the remedial action "pst_be" is used in preventive
     And the tap of PstRangeAction "pst_be" should be 16 in preventive
@@ -106,7 +106,7 @@ Feature: User Story #16.3: Activate remedial actions only after a specific const
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic16/SL_ep16us3case8.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then 1 remedial actions are used in preventive
     And the remedial action "pst_be" is used in preventive
     And the tap of PstRangeAction "pst_be" should be 16 in preventive
@@ -123,7 +123,7 @@ Feature: User Story #16.3: Activate remedial actions only after a specific const
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic16/CseCrac_16_3_9.xml"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then 1 remedial actions are used in preventive
     And the remedial action "close_fr1_fr5" is used in preventive
     And the worst margin is -45 A
@@ -136,7 +136,7 @@ Feature: User Story #16.3: Activate remedial actions only after a specific const
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic16/CseCrac_16_3_10.xml"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then 1 remedial actions are used in preventive
     And the remedial action "PST_pst_be_pra_BBE2AA1  BBE3AA1  1" is used in preventive
     And the tap of PstRangeAction "PST_pst_be_pra_BBE2AA1  BBE3AA1  1" should be 16 in preventive
@@ -151,7 +151,7 @@ Feature: User Story #16.3: Activate remedial actions only after a specific const
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic16/CseCrac_16_3_11.xml"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then 1 remedial actions are used in preventive
     And the remedial action "PST_pst_be_pra_BBE2AA1  BBE3AA1  1" is used in preventive
     And the tap of PstRangeAction "PST_pst_be_pra_BBE2AA1  BBE3AA1  1" should be 16 in preventive
@@ -168,7 +168,7 @@ Feature: User Story #16.3: Activate remedial actions only after a specific const
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic16/CseCrac_16_3_12.xml"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then 1 remedial actions are used in preventive
     And the remedial action "close_fr1_fr5" is used in preventive
     And the worst margin is -45 A
@@ -181,7 +181,7 @@ Feature: User Story #16.3: Activate remedial actions only after a specific const
     Given network file is "epic16/TestCase16Nodes_3psts.uct"
     Given crac file is "epic16/SL_ep16us3case13.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then 0 remedial actions are used in preventive
     And 1 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     And the remedial action "pst_be" is used after "co1_fr2_fr3_1" at "curative"
@@ -195,7 +195,7 @@ Feature: User Story #16.3: Activate remedial actions only after a specific const
     Given network file is "epic16/TestCase16Nodes_3psts.uct"
     Given crac file is "epic16/SL_ep16us3case14.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then 0 remedial actions are used in preventive
     And 1 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     And the remedial action "pst_be" is used after "co1_fr2_fr3_1" at "curative"
@@ -210,7 +210,7 @@ Feature: User Story #16.3: Activate remedial actions only after a specific const
     Given network file is "epic16/2Nodes3ParallelLines.uct"
     Given crac file is "epic16/crac_16_3_15.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then 0 remedial actions are used in preventive
     And 1 remedial actions are used after "co_fr1_fr2_1" at "curative"
     And the remedial action "pst_fr" is used after "co_fr1_fr2_1" at "curative"
@@ -230,7 +230,7 @@ Feature: User Story #16.3: Activate remedial actions only after a specific const
     Given network file is "epic16/2Nodes3ParallelLines.uct"
     Given crac file is "epic16/crac_16_3_15.json"
     Given configuration file is "epic16/RaoParameters_maxMargin_ampere_2P.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then 0 remedial actions are used in preventive
     And 1 remedial actions are used after "co_fr1_fr2_1" at "curative"
     And the remedial action "pst_fr" is used after "co_fr1_fr2_1" at "curative"

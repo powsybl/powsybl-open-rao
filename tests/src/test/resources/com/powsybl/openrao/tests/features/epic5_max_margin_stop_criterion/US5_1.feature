@@ -10,7 +10,7 @@ Feature: US 5.1: Maximum margin stop criterion
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic5/SL_ep5us1.json"
     Given configuration file is "common/RaoParameters_posMargin_ampere.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then its security status should be "SECURED"
     Then the worst margin is 500.0 MW
     Then 0 remedial actions are used in preventive
@@ -20,7 +20,7 @@ Feature: US 5.1: Maximum margin stop criterion
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic5/SL_ep5us1b.json"
     Given configuration file is "common/RaoParameters_posMargin_megawatt_dc.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then its security status should be "UNSECURED"
     Then the worst margin is -0.0001 MW with a tolerance of 0.00000001 MW
     Then 0 remedial actions are used in preventive
@@ -30,7 +30,7 @@ Feature: US 5.1: Maximum margin stop criterion
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic5/SL_ep5us1.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then its security status should be "SECURED"
     Then the worst margin is 1000.0 MW
     Then 2 remedial actions are used in preventive
@@ -42,7 +42,7 @@ Feature: US 5.1: Maximum margin stop criterion
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic5/SL_ep5us1.json"
     Given configuration file is "epic5/RaoParameters_maxMargin_maxDepth.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then its security status should be "SECURED"
     Then the worst margin is 693.0 MW
     Then 1 remedial actions are used in preventive
@@ -53,7 +53,7 @@ Feature: US 5.1: Maximum margin stop criterion
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic5/SL_ep5us1.json"
     Given configuration file is "epic5/RaoParameters_maxMargin_relativeMinImpact.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then its security status should be "SECURED"
     Then the worst margin is 500.0 MW
     Then 0 remedial actions are used in preventive
@@ -63,7 +63,7 @@ Feature: US 5.1: Maximum margin stop criterion
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic5/SL_ep5us1.json"
     Given configuration file is "epic5/RaoParameters_maxMargin_absoluteMinImpact190.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then its security status should be "SECURED"
     Then the worst margin is 1000.0 MW
     Then 2 remedial actions are used in preventive
@@ -75,7 +75,7 @@ Feature: US 5.1: Maximum margin stop criterion
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic5/SL_ep5us1.json"
     Given configuration file is "epic5/RaoParameters_maxMargin_absoluteMinImpact195.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then its security status should be "SECURED"
     Then the worst margin is 500.0 MW
     Then 0 remedial actions are used in preventive

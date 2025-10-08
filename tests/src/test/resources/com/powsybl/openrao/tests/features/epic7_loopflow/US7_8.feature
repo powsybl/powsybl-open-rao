@@ -10,7 +10,7 @@ Feature: US 7.8: Loopflow computation (not within the RAO)
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic7/crac_lf_rao_2.json"
     Given configuration file is "common/RaoParameters_posMargin_megawatt_ac.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then its security status should be "SECURED"
     Then the worst margin is 92.0 MW
     Then 1 remedial actions are used in preventive

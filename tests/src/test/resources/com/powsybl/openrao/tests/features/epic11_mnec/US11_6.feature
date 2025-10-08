@@ -10,7 +10,7 @@ Feature: US 11.6: Handle mnecs in rao with a cse crac
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic11/CSE_CRAC_11_6_1.xml"
     Given configuration file is "epic11/RaoParameters_posMargin_ampere_mnecDiminMinusInf.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then the initial margin on cnec "critical_branch - NNL2AA1 ->NNL3AA1  - preventive" should be -203.35 A
     And the value of the objective function initially should be 203.35
     And the remedial action "topo_remedial_action" is used in preventive
@@ -22,7 +22,7 @@ Feature: US 11.6: Handle mnecs in rao with a cse crac
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic11/CSE_CRAC_11_6_2.xml"
     Given configuration file is "epic11/RaoParameters_posMargin_ampere_mnecDiminMinusInf.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then the initial margin on cnec "critical_branch - NNL2AA1 ->NNL3AA1  - preventive" should be -203.35 A
     And the initial margin on cnec "monitored_element - FFR2AA1 ->DDE3AA1  - preventive" should be 2832.87 A
     And the value of the objective function initially should be 203.35
@@ -36,7 +36,7 @@ Feature: US 11.6: Handle mnecs in rao with a cse crac
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic11/CSE_CRAC_11_6_3.xml"
     Given configuration file is "epic11/RaoParameters_posMargin_ampere_mnecDiminMinusInf.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then the initial margin on cnec "critical_branch - NNL2AA1 ->NNL3AA1  - preventive" should be -203.35 A
     And the initial margin on cnec "monitored_element - FFR2AA1 ->DDE3AA1  - preventive" should be 1432.87 A
     And the value of the objective function initially should be 203.35
@@ -50,7 +50,7 @@ Feature: US 11.6: Handle mnecs in rao with a cse crac
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic11/CSE_CRAC_11_6_4.xml"
     Given configuration file is "epic11/RaoParameters_posMargin_ampere_mnecDiminMinusInf.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then the initial margin on cnec "critical_branch - BBE2AA1 ->BBE3AA1  - preventive" should be -162.76 A
     And the value of the objective function initially should be 162.76
     And the remedial action "PST_pst_remedial_action_BBE2AA1  BBE3AA1  1" is used in preventive
@@ -63,7 +63,7 @@ Feature: US 11.6: Handle mnecs in rao with a cse crac
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic11/CSE_CRAC_11_6_5.xml"
     Given configuration file is "epic11/RaoParameters_posMargin_ampere_mnecDiminMinusInf.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then the initial margin on cnec "critical_branch - BBE2AA1 ->BBE3AA1  - preventive" should be -162.76 A
     Then the initial margin on cnec "monitored_element - BBE1AA1 ->BBE3AA1  - preventive" should be 840.55 A
     And the value of the objective function initially should be 162.76
@@ -78,7 +78,7 @@ Feature: US 11.6: Handle mnecs in rao with a cse crac
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic11/CSE_CRAC_11_6_6.xml"
     Given configuration file is "epic11/RaoParameters_posMargin_ampere_mnecDiminMinusInf.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then the initial margin on cnec "critical_branch - BBE2AA1 ->BBE3AA1  - preventive" should be -162.76 A
     Then the initial margin on cnec "monitored_element - BBE1AA1 ->BBE3AA1  - preventive" should be 640.55 A
     And the value of the objective function initially should be 162.76

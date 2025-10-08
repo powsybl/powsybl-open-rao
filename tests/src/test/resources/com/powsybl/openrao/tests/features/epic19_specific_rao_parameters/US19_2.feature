@@ -10,7 +10,7 @@ Feature: US 19.2: Handle maximum topological CRA per TSO
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic19/SL_ep19us2case1.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then 3 remedial actions are used in preventive
     And the remedial action "open_be1_be4" is used in preventive
     And the remedial action "open_fr1_fr2" is used in preventive
@@ -30,7 +30,7 @@ Feature: US 19.2: Handle maximum topological CRA per TSO
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic19/SL_ep19us2case2.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then 1 remedial actions are used in preventive
     And the tap of PstRangeAction "pst_be" should be -16 in preventive
     And 2 remedial actions are used after "co1_fr2_fr3_1" at "curative"
@@ -45,7 +45,7 @@ Feature: US 19.2: Handle maximum topological CRA per TSO
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic19/SL_ep19us2case3.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then 1 remedial actions are used in preventive
     And the tap of PstRangeAction "pst_be" should be -16 in preventive
     And 1 remedial actions are used after "co1_fr2_fr3_1" at "curative"
@@ -53,12 +53,12 @@ Feature: US 19.2: Handle maximum topological CRA per TSO
     And the worst margin is 254 A on cnec "BBE2AA1  FFR3AA1  1 - preventive"
     And the margin on cnec "FFR1AA1  FFR3AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be 437 A
 
-  @fast @rao @mock @ac @contingency-scenarios
+  @fast @rao @mock @ac @contingency-scenarios @search-tree-rao
   Scenario: US 19.2.4: Simple case, with 2 curative states
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic19/SL_ep19us2case4.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
-    When I launch search_tree_rao after "co2_be1_be3" at "curative"
+    When I launch rao after "co2_be1_be3" at "curative"
     Then 2 remedial actions are used after "co2_be1_be3" at "curative"
     And the tap of PstRangeAction "pst_be" should be -16 after "co2_be1_be3" at "curative"
     And the remedial action "open_fr1_fr2" is used after "co2_be1_be3" at "curative"
@@ -72,7 +72,7 @@ Feature: US 19.2: Handle maximum topological CRA per TSO
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic19/SL_ep19us2case5.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then 2 remedial actions are used in preventive
     And the remedial action "open_be1_be4" is used in preventive
     And the remedial action "open_fr1_fr2" is used in preventive
@@ -83,7 +83,7 @@ Feature: US 19.2: Handle maximum topological CRA per TSO
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic19/SL_ep19us2case6.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
-    When I launch search_tree_rao
+    When I launch rao
     # Without limitation it should use 3 french topological actions as it is limited at 2, il will choose belgian topo instead
     Then 3 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     And the remedial action "open_fr1_fr4" is used after "co1_fr2_fr3_1" at "curative"

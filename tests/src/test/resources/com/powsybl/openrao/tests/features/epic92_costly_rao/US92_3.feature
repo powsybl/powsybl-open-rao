@@ -14,7 +14,7 @@ Feature: US 92.3: Exhaustive costly optimization - APPROXIMATED_INTEGERS PSTs
     Given network file is "epic92/2Nodes3ParallelLinesPST2LinesClosed.uct"
     Given crac file is "epic92/crac-92-3-1.json"
     Given configuration file is "epic92/RaoParameters_dc_minObjective_discretePst.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then the worst margin is 32.13 MW
     And the value of the objective function initially should be 2000000.0
     And 2 remedial actions are used in preventive
@@ -32,7 +32,7 @@ Feature: US 92.3: Exhaustive costly optimization - APPROXIMATED_INTEGERS PSTs
     Given network file is "epic92/2Nodes4ParallelLinesPST3LinesClosed.uct"
     Given crac file is "epic92/crac-92-3-2.json"
     Given configuration file is "epic92/RaoParameters_dc_minObjective_discretePst.json"
-    When I launch search_tree_rao
+    When I launch rao
     # Worst margin on preventive CNEC
     Then the worst margin is 5.3 MW
     And the value of the objective function initially should be 3500000.0
@@ -54,7 +54,7 @@ Feature: US 92.3: Exhaustive costly optimization - APPROXIMATED_INTEGERS PSTs
     Given network file is "epic92/2Nodes4ParallelLinesPST3LinesClosed.uct"
     Given crac file is "epic92/crac-92-3-2.json"
     Given configuration file is "epic92/RaoParameters_dc_minObjective_discretePst_2P.json"
-    When I launch search_tree_rao
+    When I launch rao
     # Worst margin on curative CNEC
     Then the worst margin is 13.02 MW
     And the value of the objective function initially should be 3500000.0
@@ -73,7 +73,7 @@ Feature: US 92.3: Exhaustive costly optimization - APPROXIMATED_INTEGERS PSTs
     Given network file is "epic92/2Nodes5ParallelLinesPST4LinesClosed.uct"
     Given crac file is "epic92/crac-92-3-4.json"
     Given configuration file is "epic92/RaoParameters_dc_minObjective_discretePst.json"
-    When I launch search_tree_rao
+    When I launch rao
     # Worst margin on preventive CNEC
     Then the worst margin is 2.73 MW
     And the value of the objective function initially should be 2333333.33
@@ -99,7 +99,7 @@ Feature: US 92.3: Exhaustive costly optimization - APPROXIMATED_INTEGERS PSTs
     Given network file is "epic92/2Nodes5ParallelLinesPST4LinesClosed.uct"
     Given crac file is "epic92/crac-92-3-4.json"
     Given configuration file is "epic92/RaoParameters_dc_minObjective_discretePst_2P.json"
-    When I launch search_tree_rao
+    When I launch rao
     # Worst margin on curative CNEC
     Then the worst margin is 21.8 MW
     And the value of the objective function initially should be 2333333.33

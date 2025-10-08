@@ -11,7 +11,7 @@ Feature: US 20.2: Handle loopflows in second preventive optimization
     Given crac file is "epic20/CBCORA_ep20us2case1.xml"
     Given loopflow glsk file is "common/glsk_proportional_12nodes.xml"
     Given configuration file is "epic20/RaoParameters_maxMargin_MW_DC_withLF_with2P.json"
-    When I launch search_tree_rao at "2019-01-08 12:00"
+    When I launch rao at "2019-01-08 12:00"
     Then 0 remedial actions are used in preventive
     And 0 remedial actions are used after "CO1" at "curative"
     And the worst margin is 500 MW
@@ -28,7 +28,7 @@ Feature: US 20.2: Handle loopflows in second preventive optimization
     Given crac file is "epic20/CBCORA_ep20us2case2.xml"
     Given loopflow glsk file is "common/glsk_proportional_12nodes.xml"
     Given configuration file is "epic20/RaoParameters_maxMargin_MW_DC_withLF_with2P.json"
-    When I launch search_tree_rao at "2019-01-08 12:00"
+    When I launch rao at "2019-01-08 12:00"
     Then 0 remedial actions are used in preventive
     Then 1 remedial actions are used after "CO1" at "curative"
     And the worst margin is 543 MW
@@ -44,7 +44,7 @@ Feature: US 20.2: Handle loopflows in second preventive optimization
     Given crac file is "epic20/CBCORA_ep20us2case3.xml"
     Given loopflow glsk file is "common/glsk_proportional_12nodes.xml"
     Given configuration file is "epic20/RaoParameters_maxMargin_MW_DC_withLF_with2P.json"
-    When I launch search_tree_rao at "2019-01-08 12:00"
+    When I launch rao at "2019-01-08 12:00"
     Then 1 remedial actions are used in preventive
     And the remedial action "PRA_PST_BE" is used in preventive
     And 0 remedial actions are used after "CO1" at "curative"

@@ -10,7 +10,7 @@ Feature: US 2.3: Combine range PST and NetworkAction optimization
     Given network file is "epic2/US2-3-case1-standard.uct"
     Given crac file is "epic2/SL_ep2us3_pst_and_topological_remedial_actions.json"
     Given configuration file is "common/RaoParameters_posMargin_ampere.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then its security status should be "SECURED"
     Then 2 remedial actions are used in preventive
     Then the tap of PstRangeAction "SelectTapPST43" should be -16 in preventive
@@ -23,7 +23,7 @@ Feature: US 2.3: Combine range PST and NetworkAction optimization
     Given network file is "epic2/US2-3-case2.uct"
     Given crac file is "epic2/SL_ep2us3case2.json"
     Given configuration file is "common/RaoParameters_posMargin_ampere.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then its security status should be "SECURED"
     Then 1 remedial actions are used in preventive
     Then the tap of PstRangeAction "SelectTapPST43" should be -16 in preventive
@@ -35,7 +35,7 @@ Feature: US 2.3: Combine range PST and NetworkAction optimization
     Given network file is "epic2/US2-3-case3-networkBecomeDivergent.uct"
     Given crac file is "epic2/SL_ep2us3case3.json"
     Given configuration file is "common/RaoParameters_posMargin_ampere.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then its security status should be "UNSECURED"
     Then 1 remedial actions are used in preventive
     Then the tap of PstRangeAction "SelectTapPST43" should be 4 in preventive
@@ -50,6 +50,6 @@ Feature: US 2.3: Combine range PST and NetworkAction optimization
     Given network file is "epic2/US2-3-case4-networkDiverge.uct"
     Given crac file is "epic2/SL_ep2us3case4.json"
     Given configuration file is "common/RaoParameters_posMargin_ampere.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then the calculation fails
     And the execution details should be "Initial sensitivity analysis failed"
