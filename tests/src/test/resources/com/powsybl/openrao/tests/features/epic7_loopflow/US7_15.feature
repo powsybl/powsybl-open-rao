@@ -12,7 +12,7 @@ Feature: US 7.15: loop-flow acceptable augmentation parameter
     Given crac file is "epic7/crac_lf_rao_3_cbcora.xml"
     Given loopflow glsk file is "common/glsk_lots_of_lf_12nodes.xml"
     Given configuration file is "epic7/RaoParameters_maxMargin_mw_ac_lf_false_5_100_lfAugmentation.json"
-    When I launch loopflow search_tree_rao at "2019-01-08 12:00" with default loopflow limit as 0 percent of pmax
+    When I launch loopflow rao at "2019-01-08 12:00" with default loopflow limit as 0 percent of pmax
     Then its security status should be "UNSECURED"
     Then the worst margin is -421.0 MW
     Then the worst margin is -421.0 MW on cnec "FFR2AA1  DDE3AA1  1 - preventive"

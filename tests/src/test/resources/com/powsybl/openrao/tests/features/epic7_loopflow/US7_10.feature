@@ -10,7 +10,7 @@ Feature: US 7.10: Search-tree RAO with loopflow limitation
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic7/crac_lf_rao_3.json"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_ac.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then its security status should be "UNSECURED"
     Then the worst margin is -143.0 MW
     Then the worst margin is -143.0 MW on cnec "FFR2AA1  DDE3AA1  1 - preventive"
@@ -25,7 +25,7 @@ Feature: US 7.10: Search-tree RAO with loopflow limitation
     Given crac file is "epic7/crac_lf_rao_3.json"
     Given loopflow glsk file is "common/glsk_lots_of_lf_12nodes.xml"
     Given configuration file is "epic7/RaoParameters_maxMargin_mw_ac_lf_false_5_100.json"
-    When I launch loopflow search_tree_rao with default loopflow limit as 50.0 percent of pmax
+    When I launch loopflow rao with default loopflow limit as 50.0 percent of pmax
     Then its security status should be "UNSECURED"
     Then the worst margin is -349.0 MW
     Then the worst margin is -349.0 MW on cnec "FFR2AA1  DDE3AA1  1 - preventive"
@@ -51,7 +51,7 @@ Feature: US 7.10: Search-tree RAO with loopflow limitation
     Given crac file is "epic7/crac_lf_rao_3.json"
     Given loopflow glsk file is "common/glsk_lots_of_lf_12nodes.xml"
     Given configuration file is "epic7/RaoParameters_maxMargin_mw_ac_lf_false_5_100.json"
-    When I launch loopflow search_tree_rao with default loopflow limit as 25.0 percent of pmax
+    When I launch loopflow rao with default loopflow limit as 25.0 percent of pmax
     Then its security status should be "UNSECURED"
     Then the worst margin is -463.0 MW
     Then the worst margin is -463.0 MW on cnec "FFR2AA1  DDE3AA1  1 - preventive"
@@ -76,7 +76,7 @@ Feature: US 7.10: Search-tree RAO with loopflow limitation
     Given crac file is "epic7/crac_lf_rao_3.json"
     Given loopflow glsk file is "common/glsk_lots_of_lf_12nodes.xml"
     Given configuration file is "epic7/RaoParameters_maxMargin_mw_ac_lf_true_5_100.json"
-    When I launch loopflow search_tree_rao with default loopflow limit as 50.0 percent of pmax
+    When I launch loopflow rao with default loopflow limit as 50.0 percent of pmax
     Then its security status should be "UNSECURED"
     Then the worst margin is -391.0 MW
     Then the worst margin is -391.0 MW on cnec "FFR2AA1  DDE3AA1  1 - preventive"
@@ -98,7 +98,7 @@ Feature: US 7.10: Search-tree RAO with loopflow limitation
     Given network file is "common/TestCase12Nodes2PSTs.uct"
     Given crac file is "epic7/crac_lf_rao_4.json"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_ac.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then its security status should be "UNSECURED"
     Then the worst margin is -251.0 MW
     Then the worst margin is -251.0 MW on cnec "FFR1AA1  FFR2AA1  1 - preventive"
@@ -116,7 +116,7 @@ Feature: US 7.10: Search-tree RAO with loopflow limitation
     Given crac file is "epic7/crac_lf_rao_5.json"
     Given loopflow glsk file is "common/glsk_lots_of_lf_12nodes.xml"
     Given configuration file is "epic7/RaoParameters_maxMargin_mw_ac_lf_false_5_100.json"
-    When I launch loopflow search_tree_rao with default loopflow limit as 35.0 percent of pmax
+    When I launch loopflow rao with default loopflow limit as 35.0 percent of pmax
     Then its security status should be "UNSECURED"
     Then the worst margin is -290.0 MW
     Then the worst margin is -290.0 MW on cnec "FFR1AA1  FFR2AA1  1 - preventive"

@@ -5,21 +5,21 @@
 
 Feature: US 91.11: optimize computations for SECURE stop criterion
 
-  @fast @rao @mock @dc @preventive-only
+  @fast @rao @mock @dc @preventive-only @search-tree-rao
   Scenario: US 91.11.1: Interrupt search tree depth early
     Given network file is "epic91/TestCase4Nodes.uct"
     Given crac file is "epic91/CBCORA_interrupt_search_tree.xml"
     Given configuration file is "epic91/RaoParameters_interrupt_search_tree.json"
-    When I launch search_tree_rao at "2019-01-08 12:00" on preventive state
+    When I launch rao at "2019-01-08 12:00" on preventive state
     Then 1 remedial actions are used in preventive
     And the margin on cnec "be1_fr1_N - preventive" after PRA should be 2340 A
 
-  @fast @rao @mock @dc @preventive-only
+  @fast @rao @mock @dc @preventive-only @search-tree-rao
   Scenario: US 91.11.2: Interrupt search tree depth early two threads
     Given network file is "epic91/TestCase4Nodes.uct"
     Given crac file is "epic91/CBCORA_interrupt_search_tree.xml"
     Given configuration file is "epic91/RaoParameters_interrupt_search_tree_2_threads.json"
-    When I launch search_tree_rao at "2019-01-08 12:00" on preventive state
+    When I launch rao at "2019-01-08 12:00" on preventive state
     Then 1 remedial actions are used in preventive
     And the margin on cnec "be1_fr1_N - preventive" after PRA should be 2340 A
 
@@ -28,7 +28,7 @@ Feature: US 91.11: optimize computations for SECURE stop criterion
     Given network file is "epic13/TestCase12NodesForCurative.uct"
     Given crac file is "epic91/CBCORA_ep91us11case3.xml"
     Given configuration file is "common/RaoParameters_posMargin_megawatt_ac.json"
-    When I launch search_tree_rao at "2019-01-08 00:30"
+    When I launch rao at "2019-01-08 00:30"
     Then its security status should be "UNSECURED"
     And 0 remedial actions are used in preventive
     And 0 remedial actions are used after "Contingency" at "curative"
