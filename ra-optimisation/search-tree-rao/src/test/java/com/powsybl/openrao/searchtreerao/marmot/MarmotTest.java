@@ -67,7 +67,6 @@ class MarmotTest {
             Map.of(
                 timestamp1, RaoInputWithNetworkPaths.build(getResourcesPath().concat(networkFilePath), getResourcesPath().concat(networkFilePathPostIcsImport), crac1).build(),
                 timestamp2, RaoInputWithNetworkPaths.build(getResourcesPath().concat(networkFilePath), getResourcesPath().concat(networkFilePathPostIcsImport), crac2).build()
-
             ));
 
         InterTemporalRaoInputWithNetworkPaths input = new InterTemporalRaoInputWithNetworkPaths(
@@ -80,6 +79,10 @@ class MarmotTest {
         InterTemporalRaoResult results = new Marmot().run(input, raoParameters).join();
         assertEquals(-5, results.getOptimizedTapOnState(crac1.getPreventiveState(), crac1.getPstRangeAction("pstBeFr2")));
         assertEquals(-5, results.getOptimizedTapOnState(crac2.getPreventiveState(), crac2.getPstRangeAction("pstBeFr2")));
+
+        assertEquals(110., results.getGlobalCost(crac1.getLastInstant()));
+        assertEquals(55., results.getCost(crac1.getLastInstant(), timestamp1));
+        assertEquals(55., results.getCost(crac2.getLastInstant(), timestamp2));
 
         // Clean created networks
         cleanExistingNetwork(getResourcesPath().concat(networkFilePathPostIcsImport));
@@ -116,13 +119,18 @@ class MarmotTest {
         );
 
         // no redispatching required during the first timestamp
-        // redispatching of 500 MW in both timestamps 2 & 3 with a cost of 25010 each
-        // MARMOT should also activate redispatching at 500 MW for second and third timestamps
+        // redispatching of 500 MW in both timestamps 2 & 3 with a cost of 26510 each
+        // MARMOT should also activate redispatching at 530 MW for second and third timestamps
         InterTemporalRaoResult results = new Marmot().run(input, raoParameters).join();
 
         assertEquals(-0.0, results.getOptimizedSetPointOnState(crac1.getPreventiveState(), crac1.getRangeAction("redispatchingAction")));
         assertEquals(530.0, results.getOptimizedSetPointOnState(crac2.getPreventiveState(), crac2.getRangeAction("redispatchingAction")));
         assertEquals(530.0, results.getOptimizedSetPointOnState(crac3.getPreventiveState(), crac3.getRangeAction("redispatchingAction")));
+
+        assertEquals(53020., results.getGlobalCost(crac1.getLastInstant()));
+        assertEquals(0., results.getCost(crac1.getLastInstant(), timestamp1));
+        assertEquals(26510, results.getCost(crac2.getLastInstant(), timestamp2));
+        assertEquals(26510, results.getCost(crac3.getLastInstant(), timestamp3));
 
         // Clean created networks
         cleanExistingNetwork(getResourcesPath().concat(networkFilePathPostIcsImport));
@@ -159,13 +167,18 @@ class MarmotTest {
         );
 
         // no redispatching required during the first timestamp
-        // redispatching of 500 MW in both timestamps 2 & 3 with a cost of 25010 each
-        // MARMOT should also activate redispatching at 500 MW for second and third timestamps
+        // redispatching of 500 MW in both timestamps 2 & 3 with a cost of 26510 each
+        // MARMOT should also activate redispatching at 530 MW for second and third timestamps
         InterTemporalRaoResult results = new Marmot().run(input, raoParameters).join();
 
         assertEquals(-0.0, results.getOptimizedSetPointOnState(crac1.getPreventiveState(), crac1.getRangeAction("redispatchingAction")));
         assertEquals(530.0, results.getOptimizedSetPointOnState(crac2.getPreventiveState(), crac2.getRangeAction("redispatchingAction")));
         assertEquals(530.0, results.getOptimizedSetPointOnState(crac3.getPreventiveState(), crac3.getRangeAction("redispatchingAction")));
+
+        assertEquals(53020., results.getGlobalCost(crac1.getLastInstant()));
+        assertEquals(0., results.getCost(crac1.getLastInstant(), timestamp1));
+        assertEquals(26510, results.getCost(crac2.getLastInstant(), timestamp2));
+        assertEquals(26510, results.getCost(crac3.getLastInstant(), timestamp3));
 
         // Clean created networks
         cleanExistingNetwork(getResourcesPath().concat(networkFilePathPostIcsImport));
@@ -199,14 +212,19 @@ class MarmotTest {
         );
 
         // no redispatching required during the first timestamp
-        // MARMOT will activate 3000 MW however in timestamp 1 : it is the minimum necessary to be able to activate 500 MW in timestamp 2
-        // due to the max gradient of 200. Not activating 500 MW in timestamps 2 and 3 will create an overload and be very costly.
-        // redispatching of 500 MW in both timestamps 2 & 3 with a cost of 25010 each
-        // MARMOT should also activate redispatching at 500 MW for second and third timestamps
+        // MARMOT will activate 330 MW however in timestamp 1 : it is the minimum necessary to be able to activate 500 MW in timestamp 2
+        // due to the max gradient of 200. Not activating 530 MW in timestamps 2 and 3 will create an overload and be very costly.
+        // redispatching of 530 MW in both timestamps 2 & 3 with a cost of 26510 each
+        // MARMOT should also activate redispatching at 530 MW for second and third timestamps
         InterTemporalRaoResult results = new Marmot().run(input, raoParameters).join();
         assertEquals(330.0, results.getOptimizedSetPointOnState(crac1.getPreventiveState(), crac1.getRangeAction("redispatchingAction")));
         assertEquals(530.0, results.getOptimizedSetPointOnState(crac2.getPreventiveState(), crac2.getRangeAction("redispatchingAction")));
         assertEquals(530.0, results.getOptimizedSetPointOnState(crac3.getPreventiveState(), crac3.getRangeAction("redispatchingAction")));
+
+        assertEquals(69530., results.getGlobalCost(crac1.getLastInstant()));
+        assertEquals(16510., results.getCost(crac1.getLastInstant(), timestamp1));
+        assertEquals(26510, results.getCost(crac2.getLastInstant(), timestamp2));
+        assertEquals(26510, results.getCost(crac3.getLastInstant(), timestamp3));
 
         // Clean created networks
         cleanExistingNetwork(getResourcesPath().concat(networkFilePathPostIcsImport));
@@ -243,6 +261,10 @@ class MarmotTest {
         assertTrue(results.isActivated(crac1.getPreventiveState(), crac1.getNetworkAction("closeBeFr2")));
         assertTrue(results.isActivated(crac2.getPreventiveState(), crac2.getNetworkAction("closeBeFr2")));
         assertEquals(40.0, results.getGlobalCost(crac1.getPreventiveInstant()));
+
+        assertEquals(40., results.getGlobalCost(crac1.getLastInstant()));
+        assertEquals(20., results.getCost(crac1.getLastInstant(), timestamp1));
+        assertEquals(20., results.getCost(crac2.getLastInstant(), timestamp2));
 
         // Clean created networks
         cleanExistingNetwork(getResourcesPath().concat(networkFilePathPostIcsImport));
