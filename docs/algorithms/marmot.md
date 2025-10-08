@@ -15,8 +15,8 @@ that are at stake in power grids. Indeed, generators must be operated under cert
 that restrict the range of power they can deliver over a bounded period of time. Among these constraints are **power
 gradient constraints** (in MW/h for instance) that restrict the power variation of a generator over time.
 
-> For example, if a generator as an upward and downward power gradient of 50 MW/h, its power cannot increase or decrease
-> more than 50 MW between to consecutive timestamps of one hour each.
+> For example, if a generator has an upward and downward power gradient of 50 MW/h, its power cannot increase or decrease
+> more than 50 MW between two consecutive timestamps of one hour each.
 
 When aiming for a more realistic modelling of the power grid, such constraints must be taken in account and some RCCs
 have already expressed their need for including intertemporal constraints in RAO optimization.
