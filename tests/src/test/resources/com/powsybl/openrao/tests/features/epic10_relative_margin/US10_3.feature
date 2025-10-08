@@ -12,7 +12,7 @@ Feature: US 10.3: handle GLSK on Xnodes
     Given crac file is "epic10/cbcora_ep10us2case1.xml"
     Given configuration file is "epic10/conf_ep10us3case1.json"
     Given loopflow glsk file is "epic10/glsk_proportional_12nodes_hvdc.xml"
-    When I launch search_tree_rao at "2019-01-08 12:00"
+    When I launch rao at "2019-01-08 12:00"
     And the value of the objective function after CRA should be -300
     And the tap of PstRangeAction "PRA_PST_BE" should be -16 in preventive
     And the remedial action "Open FR1 FR2" is used in preventive
