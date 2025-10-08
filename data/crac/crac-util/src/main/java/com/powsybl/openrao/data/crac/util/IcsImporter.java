@@ -33,6 +33,8 @@ public final class IcsImporter {
     private static final int OFFSET = 2;
     private static final String MAX_GRADIENT = "1000";
 
+    // TODO : either parametrize this or set it to true. May have to change the way it works to import for all curative instants instead of only the last one
+    public static boolean importCurative = false;
     private static double costUp;
     private static double costDown;
 
@@ -154,14 +156,13 @@ public final class IcsImporter {
                     .withInstant(crac.getPreventiveInstant().getId())
                     .add();
             }
-        /*if (staticRecord.get("Curative").equalsIgnoreCase("TRUE")) {
-            injectionRangeActionAdder.newOnInstantUsageRule()
-                .withInstant(crac.getLastInstant().getId())
-                .withUsageMethod(UsageMethod.AVAILABLE)
-                .add();
-        }*/
-            injectionRangeActionAdder.add();
+            if (importCurative && staticRecord.get("Curative").equalsIgnoreCase("TRUE")) {
+                injectionRangeActionAdder.newOnInstantUsageRule()
+                    .withInstant(crac.getLastInstant().getId())
+                    .add();
+            }
 
+            injectionRangeActionAdder.add();
         });
 
         weightPerNode.forEach((nodeId, shiftKey) -> {
@@ -201,12 +202,12 @@ public final class IcsImporter {
                     .withInstant(crac.getPreventiveInstant().getId())
                     .add();
             }
-        /*if (staticRecord.get("Curative").equalsIgnoreCase("TRUE")) {
-            injectionRangeActionAdder.newOnInstantUsageRule()
-                .withInstant(crac.getLastInstant().getId())
-                .withUsageMethod(UsageMethod.AVAILABLE)
-                .add();
-        }*/
+            if (importCurative && staticRecord.get("Curative").equalsIgnoreCase("TRUE")) {
+                injectionRangeActionAdder.newOnInstantUsageRule()
+                    .withInstant(crac.getLastInstant().getId())
+                    .add();
+            }
+
             injectionRangeActionAdder.add();
 
         });
