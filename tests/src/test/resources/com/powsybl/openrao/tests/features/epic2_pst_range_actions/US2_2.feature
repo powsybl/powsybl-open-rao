@@ -10,7 +10,7 @@ Feature: US 2.2: Optimize PST tap within given ranges
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic2/SL_ep2us2case1.json"
     Given configuration file is "common/RaoParameters_posMargin_ampere.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then its security status should be "SECURED"
     # Osiris returns the same solution (same tap selected)
     # However, the margin calculated by Osiris is 678 A, while the one calculated
@@ -25,7 +25,7 @@ Feature: US 2.2: Optimize PST tap within given ranges
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic2/SL_ep2us2case2.json"
     Given configuration file is "common/RaoParameters_posMargin_ampere.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then its security status should be "SECURED"
     Then the worst margin is 39.0 A
     Then the margin on cnec "FFR2AA1  DDE3AA1  1 - N-1 NL1-NL3 - outage" after PRA should be 39.0 A
@@ -36,7 +36,7 @@ Feature: US 2.2: Optimize PST tap within given ranges
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic2/SL_ep2us2case3.json"
     Given configuration file is "common/RaoParameters_posMargin_ampere.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then its security status should be "UNSECURED"
     Then the worst margin is -37.0 A
     Then the margin on cnec "BBE2AA1  BBE3AA1  1 - preventive" after PRA should be -37.0 A
@@ -47,7 +47,7 @@ Feature: US 2.2: Optimize PST tap within given ranges
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic2/SL_ep2us2case4.json"
     Given configuration file is "common/RaoParameters_posMargin_ampere.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then its security status should be "SECURED"
     Then the worst margin is 26.0 A
     Then the margin on cnec "BBE2AA1  BBE3AA1  1 - preventive" after PRA should be 26.0 A
@@ -58,7 +58,7 @@ Feature: US 2.2: Optimize PST tap within given ranges
     Given network file is "common/TestCase12Nodes2PSTs.uct"
     Given crac file is "epic2/SL_ep2us2case5.json"
     Given configuration file is "common/RaoParameters_posMargin_ampere.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then its security status should be "SECURED"
 
     # Once again, OSIRIS returns a solution different from Farao. With selected taps

@@ -10,7 +10,7 @@ Feature: US 15.13: Handle combined RAs by configuration
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic15/CseCrac_ep15us13case1.xml"
     Given configuration file is "epic15/RaoParameters_ep15us13case1.json"
-    When I launch search_tree_rao at "2021-04-30 22:30"
+    When I launch rao at "2021-04-30 22:30"
     Then 3 remedial actions are used in preventive
     And the remedial action "open_fr1_fr3" is used in preventive
     And the remedial action "open_be1_be4" is used in preventive
@@ -27,7 +27,7 @@ Feature: US 15.13: Handle combined RAs by configuration
     Given network file is "epic15/TestCase16Nodes_ep15us13case2_3_4.uct"
     Given crac file is "epic15/CseCrac_ep15us13case2_3_4.xml"
     Given configuration file is "epic15/RaoParameters_ep15us13case2.json"
-    When I launch search_tree_rao at "2021-04-30 22:30"
+    When I launch rao at "2021-04-30 22:30"
     Then 3 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     And the remedial action "open_fr1_fr3" is used after "co1_fr2_fr3_1" at "curative"
     And the remedial action "open_be1_be4" is used after "co1_fr2_fr3_1" at "curative"
@@ -42,7 +42,7 @@ Feature: US 15.13: Handle combined RAs by configuration
     Given crac file is "epic15/CseCrac_ep15us13case2_3_4.xml"
     Given configuration file is "epic15/RaoParameters_ep15us13case2.json"
     Given crac creation parameters file is "epic15/us_15_13_3.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then 2 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     And the remedial action "open_fr1_fr3" is used after "co1_fr2_fr3_1" at "curative"
     And the remedial action "close_fr1_fr5" is used after "co1_fr2_fr3_1" at "curative"
@@ -56,7 +56,7 @@ Feature: US 15.13: Handle combined RAs by configuration
     Given crac file is "epic15/CseCrac_ep15us13case2_3_4.xml"
     Given configuration file is "epic15/RaoParameters_ep15us13case2.json"
     Given crac creation parameters file is "epic15/us15_13_4.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then 2 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     And the remedial action "open_fr1_fr3" is used after "co1_fr2_fr3_1" at "curative"
     And the remedial action "close_fr1_fr5" is used after "co1_fr2_fr3_1" at "curative"
@@ -69,7 +69,7 @@ Feature: US 15.13: Handle combined RAs by configuration
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic15/CseCrac_ep15us13case1.xml"
     Given configuration file is "epic15/RaoParameters_ep15us13case5.json"
-    When I launch search_tree_rao at "2021-04-30 22:30"
+    When I launch rao at "2021-04-30 22:30"
     Then 3 remedial actions are used in preventive
     And the remedial action "open_fr1_fr3" is used in preventive
     And the remedial action "open_be1_be4" is used in preventive
@@ -86,7 +86,7 @@ Feature: US 15.13: Handle combined RAs by configuration
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic15/CseCrac_ep15us13case1.xml"
     Given configuration file is "epic15/RaoParameters_ep15us13case6.json"
-    When I launch search_tree_rao at "2021-04-30 22:30"
+    When I launch rao at "2021-04-30 22:30"
     Then 3 remedial actions are used in preventive
     And the remedial action "open_fr1_fr3" is used in preventive
     And the remedial action "open_be1_be4" is used in preventive
@@ -103,7 +103,7 @@ Feature: US 15.13: Handle combined RAs by configuration
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic15/CseCrac_ep15us13case1.xml"
     Given configuration file is "epic15/RaoParameters_ep15us13case7.json"
-    When I launch search_tree_rao at "2021-04-30 22:30"
+    When I launch rao at "2021-04-30 22:30"
     Then 3 remedial actions are used in preventive
     And the remedial action "open_fr1_fr3" is used in preventive
     And the remedial action "open_be1_be4" is used in preventive
@@ -120,7 +120,7 @@ Feature: US 15.13: Handle combined RAs by configuration
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic15/CseCrac_ep15us13case8.xml"
     Given configuration file is "epic15/RaoParameters_ep15us13case8.json"
-    When I launch search_tree_rao at "2021-04-30 22:30"
+    When I launch rao at "2021-04-30 22:30"
     Then 2 remedial actions are used in preventive
     And the remedial action "open_fr1_fr3" is used in preventive
     And the remedial action "open_be1_be4" is used in preventive
@@ -135,7 +135,7 @@ Feature: US 15.13: Handle combined RAs by configuration
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic15/CseCrac_ep15us13case9.xml"
     Given configuration file is "epic15/RaoParameters_ep15us13case5.json"
-    When I launch search_tree_rao at "2021-04-30 22:30"
+    When I launch rao at "2021-04-30 22:30"
     Then 3 remedial actions are used in preventive
     And the remedial action "open_fr1_fr3" is used in preventive
     And the remedial action "open_be1_be4" is used in preventive
@@ -150,7 +150,7 @@ Feature: US 15.13: Handle combined RAs by configuration
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic15/CseCrac_ep15us13case10.xml"
     Given configuration file is "epic15/RaoParameters_ep15us13case10.json"
-    When I launch search_tree_rao at "2021-04-30 22:30"
+    When I launch rao at "2021-04-30 22:30"
     Then 1 remedial actions are used in preventive
     And the remedial action "close_fr1_fr5" is used in preventive
     And the worst margin is -44 A
