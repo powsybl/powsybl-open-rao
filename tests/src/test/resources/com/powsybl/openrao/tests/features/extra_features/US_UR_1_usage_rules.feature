@@ -13,7 +13,7 @@ Feature: Advanced usage rules tests
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "extra_features/Crac_UR_1_1.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then 1 remedial actions are used in preventive
     And the remedial action "pst_be" is used in preventive
     And the tap of PstRangeAction "pst_be" should be 16 in preventive
@@ -30,7 +30,7 @@ Feature: Advanced usage rules tests
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "extra_features/Crac_UR_1_2.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then 0 remedial actions are used in preventive
     And 0 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     And the worst margin is -49 A

@@ -23,7 +23,6 @@ import com.powsybl.openrao.data.crac.api.networkaction.SingleNetworkElementActio
 import com.powsybl.openrao.data.crac.api.range.RangeType;
 import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeActionAdder;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeActionAdder;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
 import com.powsybl.openrao.data.crac.io.commons.api.StandardElementaryCreationContext;
 import com.powsybl.openrao.data.crac.io.cse.CseCracCreationContext;
@@ -390,7 +389,6 @@ public class TRemedialActionAdder {
         // RA is available for specific UCTE country
         remedialActionAdder.newOnFlowConstraintInCountryUsageRule()
             .withInstant(raApplicationInstant.getId())
-            .withUsageMethod(UsageMethod.AVAILABLE)
             .withCountry(country)
             .add();
     }
@@ -399,7 +397,6 @@ public class TRemedialActionAdder {
         // RA is available for all countries
         remedialActionAdder.newOnInstantUsageRule()
             .withInstant(raApplicationInstant.getId())
-            .withUsageMethod(UsageMethod.AVAILABLE)
             .add();
     }
 
@@ -410,7 +407,6 @@ public class TRemedialActionAdder {
                 if (!crac.getFlowCnec(flowCnecId).getState().getInstant().comesBefore(raApplicationInstant)) {
                     remedialActionAdder.newOnConstraintUsageRule()
                         .withInstant(raApplicationInstant.getId())
-                        .withUsageMethod(UsageMethod.AVAILABLE)
                         .withCnec(flowCnecId)
                         .add();
                 }

@@ -10,7 +10,7 @@ Feature: US 11.4: Handle mnecs in search tree with range actions and network act
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic11/ls_mixed_ref.json"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_ac.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then the remedial action "Open line NL1-NL2" is used in preventive
     And line "NNL1AA1  NNL2AA1  1" in network file with PRA has connection status to "false"
     And the tap of PstRangeAction "PRA_PST_BE" should be -16 in preventive
@@ -26,7 +26,7 @@ Feature: US 11.4: Handle mnecs in search tree with range actions and network act
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic11/ls_mixed_4_2.json"
     Given configuration file is "epic11/RaoParameters_maxMargin_megawatt_ac_mnecDimin20.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then the remedial action "Open line NL1-NL2" is used in preventive
     And line "NNL1AA1  NNL2AA1  1" in network file with PRA has connection status to "false"
     And the tap of PstRangeAction "PRA_PST_BE" should be -12 in preventive
@@ -40,7 +40,7 @@ Feature: US 11.4: Handle mnecs in search tree with range actions and network act
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic11/ls_mixed_4_3.json"
     Given configuration file is "epic11/RaoParameters_maxMargin_megawatt_ac_mnecDimin20.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then the remedial action "Open line NL1-NL2" is used in preventive
     And line "NNL1AA1  NNL2AA1  1" in network file with PRA has connection status to "false"
     And the tap of PstRangeAction "PRA_PST_BE" should be -9 in preventive
@@ -55,7 +55,7 @@ Feature: US 11.4: Handle mnecs in search tree with range actions and network act
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic11/MergedCB_ref.xml"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_ac.json"
-    When I launch search_tree_rao at "2019-01-08 12:00"
+    When I launch rao at "2019-01-08 12:00"
     Then the remedial action "Open line NL1-NL2" is used in preventive
     And line "NNL1AA1  NNL2AA1  1" in network file with PRA has connection status to "false"
     And the tap of PstRangeAction "PRA_PST_BE" should be -16 in preventive
@@ -71,7 +71,7 @@ Feature: US 11.4: Handle mnecs in search tree with range actions and network act
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic11/MergedCB_4_4.xml"
     Given configuration file is "epic11/RaoParameters_maxMargin_megawatt_ac_mnecDimin20.json"
-    When I launch search_tree_rao at "2019-01-08 12:00"
+    When I launch rao at "2019-01-08 12:00"
     Then the remedial action "Open line NL1-NL2" is used in preventive
     And line "NNL1AA1  NNL2AA1  1" in network file with PRA has connection status to "false"
     And the tap of PstRangeAction "PRA_PST_BE" should be -11 in preventive

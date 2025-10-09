@@ -44,14 +44,14 @@ public final class NetworkActionArrayDeserializer {
                         break;
                     case JsonSerializationConstants.ON_INSTANT_USAGE_RULES:
                         jsonParser.nextToken();
-                        OnInstantArrayDeserializer.deserialize(jsonParser, networkActionAdder);
+                        OnInstantArrayDeserializer.deserialize(jsonParser, networkActionAdder, version);
                         break;
                     case JsonSerializationConstants.FREE_TO_USE_USAGE_RULES:
                         deserializeFreeToUseUsageRules(jsonParser, version, networkActionAdder);
                         break;
                     case JsonSerializationConstants.ON_CONTINGENCY_STATE_USAGE_RULES:
                         jsonParser.nextToken();
-                        OnStateArrayDeserializer.deserialize(jsonParser, networkActionAdder);
+                        OnStateArrayDeserializer.deserialize(jsonParser, networkActionAdder, version);
                         break;
                     case JsonSerializationConstants.ON_STATE_USAGE_RULES:
                         deserializeOnStateUsageRules(jsonParser, version, networkActionAdder);
@@ -155,7 +155,7 @@ public final class NetworkActionArrayDeserializer {
             throw new OpenRaoException("OnState has been renamed to OnContingencyState since CRAC version 1.6");
         } else {
             jsonParser.nextToken();
-            OnStateArrayDeserializer.deserialize(jsonParser, networkActionAdder);
+            OnStateArrayDeserializer.deserialize(jsonParser, networkActionAdder, version);
         }
     }
 
@@ -164,7 +164,7 @@ public final class NetworkActionArrayDeserializer {
             throw new OpenRaoException("FreeToUse has been renamed to OnInstant since CRAC version 1.6");
         } else {
             jsonParser.nextToken();
-            OnInstantArrayDeserializer.deserialize(jsonParser, networkActionAdder);
+            OnInstantArrayDeserializer.deserialize(jsonParser, networkActionAdder, version);
         }
     }
 

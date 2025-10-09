@@ -11,7 +11,7 @@ Feature: US 10.2: define ptdfBoundaries with EIcode instead of Country codes
     Given crac file is "epic10/cbcora_ep10us2case1.xml"
     Given configuration file is "epic10/conf_ep10us2case1.json"
     Given loopflow glsk file is "common/glsk_proportional_12nodes.xml"
-    When I launch search_tree_rao at "2019-01-08 12:00"
+    When I launch rao at "2019-01-08 12:00"
     Then its security status should be "SECURED"
     And the value of the objective function after CRA should be -164
     And the tap of PstRangeAction "PRA_PST_BE" should be -16 in preventive
@@ -31,7 +31,7 @@ Feature: US 10.2: define ptdfBoundaries with EIcode instead of Country codes
     Given crac file is "epic10/cbcora_ep10us2case1.xml"
     Given configuration file is "epic10/conf_ep10us2case2.json"
     Given loopflow glsk file is "epic10/glsk_ep10us2case2.xml"
-    When I launch search_tree_rao at "2019-01-08 12:00"
+    When I launch rao at "2019-01-08 12:00"
     Then its security status should be "SECURED"
     And the value of the objective function after CRA should be -164
     And the tap of PstRangeAction "PRA_PST_BE" should be -16 in preventive

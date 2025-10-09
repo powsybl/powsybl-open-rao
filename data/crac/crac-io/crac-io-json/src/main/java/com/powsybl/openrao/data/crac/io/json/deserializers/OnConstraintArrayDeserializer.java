@@ -9,10 +9,8 @@ package com.powsybl.openrao.data.crac.io.json.deserializers;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.RemedialActionAdder;
 import com.powsybl.openrao.data.crac.api.usagerule.OnConstraintAdder;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 
 import java.io.IOException;
 
@@ -22,8 +20,6 @@ import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.F
 import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.INSTANT;
 import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.USAGE_METHOD;
 import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.VOLTAGE_CNEC_ID;
-import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.deseralizeInstantKind;
-import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.deserializeUsageMethod;
 import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.getPrimaryVersionNumber;
 import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.getSubVersionNumber;
 
@@ -42,13 +38,14 @@ public final class OnConstraintArrayDeserializer {
                     case INSTANT:
                         String instantId = jsonParser.nextTextValue();
                         adder.withInstant(instantId);
-                        if (getPrimaryVersionNumber(version) < 2) {
-                            adder.withUsageMethod(deseralizeInstantKind(instantId).equals(InstantKind.AUTO) ? UsageMethod.FORCED : UsageMethod.AVAILABLE);
-                        }
                         break;
                     case USAGE_METHOD:
-                        adder.withUsageMethod(deserializeUsageMethod(jsonParser.nextTextValue()));
-                        break;
+                        if (getPrimaryVersionNumber(version) < 2 || getPrimaryVersionNumber(version) == 2 && getSubVersionNumber(version) < 8) {
+                            CracDeserializer.LOGGER.warn("Usage methods are no longer used.");
+                            break;
+                        } else {
+                            throw new OpenRaoException("Unexpected field in OnConstraint: " + jsonParser.getCurrentName());
+                        }
                     case CNEC_ID:
                         adder.withCnec(jsonParser.nextTextValue());
                         break;

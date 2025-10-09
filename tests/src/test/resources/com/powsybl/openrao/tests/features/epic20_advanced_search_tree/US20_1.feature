@@ -10,7 +10,7 @@ Feature: US 20.1: enable second optimization of the preventive perimeter
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic20/second_preventive_ls_1.json"
     Given configuration file is "epic20/RaoParameters_maxMargin_ampere_second_preventive.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then the worst margin is 321 A
     Then 3 remedial actions are used in preventive
     And the remedial action "open_fr1_fr3" is used in preventive
@@ -25,7 +25,7 @@ Feature: US 20.1: enable second optimization of the preventive perimeter
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic20/second_preventive_ls_1_2.json"
     Given configuration file is "epic20/RaoParameters_maxMargin_ampere_second_preventive.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then 2 remedial actions are used in preventive
     Then 0 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     And the remedial action "open_fr1_fr3" is used in preventive
@@ -38,7 +38,7 @@ Feature: US 20.1: enable second optimization of the preventive perimeter
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic20/second_preventive_ls_1_3.json"
     Given configuration file is "epic20/RaoParameters_maxMargin_ampere_second_preventive.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then 2 remedial actions are used in preventive
     And the remedial action "open_fr1_fr3" is used in preventive
     And the tap of PstRangeAction "pst_fr" should be 5 in preventive
@@ -52,7 +52,7 @@ Feature: US 20.1: enable second optimization of the preventive perimeter
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic20/second_preventive_ls_1_4.json"
     Given configuration file is "epic20/RaoParameters_maxMargin_ampere_second_preventive.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then 2 remedial actions are used in preventive
     And the remedial action "open_fr1_fr3" is used in preventive
     Then 1 remedial actions are used after "co1_fr2_fr3_1" at "curative"
@@ -67,7 +67,7 @@ Feature: US 20.1: enable second optimization of the preventive perimeter
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic13/SL_ep13us3case1.json"
     Given configuration file is "epic20/RaoParameters_maxMargin_ampere_second_preventive.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then 2 remedial actions are used in preventive
     And the tap of PstRangeAction "pst_fr" should be 4 in preventive
     And 2 remedial actions are used after "co1_fr2_fr3_1" at "curative"
@@ -84,7 +84,7 @@ Feature: US 20.1: enable second optimization of the preventive perimeter
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic13/SL_ep13us4case2.json"
     Given configuration file is "epic20/RaoParameters_maxMargin_ampere_second_preventive.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then 1 remedial actions are used in preventive
     And the tap of PstRangeAction "pst_be" should be -16 in preventive
     And 0 remedial actions are used after "co1_fr2_fr3_1" at "curative"
@@ -100,7 +100,7 @@ Feature: US 20.1: enable second optimization of the preventive perimeter
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic13/SL_ep13us4case4.json"
     Given configuration file is "epic20/RaoParameters_maxMargin_ampere_second_preventive.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then 1 remedial actions are used in preventive
     And the tap of PstRangeAction "pst_be" should be -16 in preventive
     And 0 remedial actions are used after "co1_fr2_fr3_1" at "curative"
@@ -116,7 +116,7 @@ Feature: US 20.1: enable second optimization of the preventive perimeter
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic20/crac_ep20us1case1_5.json"
     Given configuration file is "epic20/RaoParameters_maxMargin_ampere_second_preventive.json"
-    When I launch search_tree_rao
+    When I launch rao
     # Same: FARAO has better results than OSIRIS
     Then 1 remedial actions are used in preventive
     And the remedial action "pst_fr_pra" is used in preventive
@@ -136,7 +136,7 @@ Feature: US 20.1: enable second optimization of the preventive perimeter
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic20/crac_ep20us1case1_6.json"
     Given configuration file is "epic20/RaoParameters_maxMargin_ampere_second_preventive.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then 1 remedial actions are used in preventive
     And the remedial action "pst_fr_pra" is used in preventive
     And the tap of PstRangeAction "pst_fr_pra" should be -7 in preventive
@@ -156,7 +156,7 @@ Feature: US 20.1: enable second optimization of the preventive perimeter
     Given network file is "epic13/TestCase16Nodes_with_different_imax.uct"
     Given crac file is "epic13/CBCORA_ep13us3case10.xml"
     Given configuration file is "epic20/RaoParameters_maxMargin_ampere_second_preventive.json"
-    When I launch search_tree_rao at "2019-01-08 12:00"
+    When I launch rao at "2019-01-08 12:00"
     Then 2 remedial actions are used in preventive
     And the remedial action "close_de3_de4" is used in preventive
     And the tap of PstRangeAction "pst_fr" should be 4 in preventive

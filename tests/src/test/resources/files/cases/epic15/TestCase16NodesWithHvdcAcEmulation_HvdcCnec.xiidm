@@ -385,6 +385,6 @@
     </iidm:line>
     <iidm:hvdcLine id="BBE5AA11 FFR3AA11 1" r="0.25" nominalV="1000.0" convertersMode="SIDE_1_RECTIFIER_SIDE_2_INVERTER" activePowerSetpoint="0.0" maxP="2000.0" converterStation1="BBE5AA1_vsc" converterStation2="FFR3AA1_vsc"/>
     <iidm:extension id="BBE5AA11 FFR3AA11 1">
-        <hapc:hvdcAngleDroopActivePowerControl p0="0.0" droop="180.0" enabled="true"/>
+        <hapc:hvdcAngleDroopActivePowerControl p0="0.0" droop="180.0" enabled="false"/>
     </iidm:extension>
 </iidm:network>

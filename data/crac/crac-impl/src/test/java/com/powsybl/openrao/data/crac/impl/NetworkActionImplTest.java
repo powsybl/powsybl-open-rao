@@ -15,7 +15,6 @@ import com.powsybl.openrao.data.crac.api.Identifiable;
 import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkActionAdder;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -50,13 +49,13 @@ class NetworkActionImplTest {
         crac.newInstant("then", InstantKind.AUTO);
 
         NetworkActionAdder networkActionAdder1 = crac.newNetworkAction().withId("id1").withName("name").withOperator("operator").withSpeed(10);
-        networkActionAdder1.newOnInstantUsageRule().withInstant("now").withUsageMethod(UsageMethod.UNDEFINED).add();
+        networkActionAdder1.newOnInstantUsageRule().withInstant("now").add();
         networkActionAdder1.newGeneratorAction().withNetworkElement(generator.getId()).withActivePowerValue(0).add();
         networkAction1 = networkActionAdder1.add();
 
         NetworkActionAdder networkActionAdder2 = crac.newNetworkAction().withId("id2").withName("name").withOperator("operator").withSpeed(10);
-        networkActionAdder2.newOnInstantUsageRule().withInstant("now").withUsageMethod(UsageMethod.UNDEFINED).add();
-        networkActionAdder2.newOnInstantUsageRule().withInstant("then").withUsageMethod(UsageMethod.UNDEFINED).add();
+        networkActionAdder2.newOnInstantUsageRule().withInstant("now").add();
+        networkActionAdder2.newOnInstantUsageRule().withInstant("then").add();
         networkActionAdder2.newGeneratorAction().withNetworkElement(generator.getId()).withActivePowerValue(10.0).add();
         networkActionAdder2.newSwitchPair().withSwitchToOpen(switchToOpen.getId()).withSwitchToClose(switchToClose.getId()).add();
         networkAction2 = networkActionAdder2.add();

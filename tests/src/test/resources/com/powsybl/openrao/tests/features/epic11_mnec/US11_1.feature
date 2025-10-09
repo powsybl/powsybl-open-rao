@@ -10,7 +10,7 @@ Feature: US 11.1: Handle mnecs in linear RAO
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic11/ls_mnec_linearRao_ref.json"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then its security status should be "SECURED"
     And the tap of PstRangeAction "PRA_PST_BE" should be -16 in preventive
     And PST "BBE2AA1  BBE3AA1  1" in network file with PRA is on tap -16
@@ -23,7 +23,7 @@ Feature: US 11.1: Handle mnecs in linear RAO
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic11/ls_mnec_linearRao_1_2.json"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then its security status should be "SECURED"
     And the tap of PstRangeAction "PRA_PST_BE" should be -9 in preventive
     And PST "BBE2AA1  BBE3AA1  1" in network file with PRA is on tap -9
@@ -36,7 +36,7 @@ Feature: US 11.1: Handle mnecs in linear RAO
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic11/ls_mnec_linearRao_1_3.json"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then its security status should be "SECURED"
     And the tap of PstRangeAction "PRA_PST_BE" should be -7 in preventive
     And PST "BBE2AA1  BBE3AA1  1" in network file with PRA is on tap -7
@@ -48,7 +48,7 @@ Feature: US 11.1: Handle mnecs in linear RAO
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic11/ls_mnec_linearRao_1_4.json"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then its security status should be "SECURED"
     And the tap of PstRangeAction "PRA_PST_BE" should be -7 in preventive
     And PST "BBE2AA1  BBE3AA1  1" in network file with PRA is on tap -7

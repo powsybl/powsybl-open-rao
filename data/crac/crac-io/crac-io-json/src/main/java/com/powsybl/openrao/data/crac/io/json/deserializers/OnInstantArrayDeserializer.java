@@ -16,6 +16,10 @@ import com.fasterxml.jackson.core.JsonToken;
 
 import java.io.IOException;
 
+import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.USAGE_METHOD;
+import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.getPrimaryVersionNumber;
+import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.getSubVersionNumber;
+
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
@@ -23,7 +27,7 @@ public final class OnInstantArrayDeserializer {
     private OnInstantArrayDeserializer() {
     }
 
-    public static void deserialize(JsonParser jsonParser, RemedialActionAdder<?> ownerAdder) throws IOException {
+    public static void deserialize(JsonParser jsonParser, RemedialActionAdder<?> ownerAdder, String version) throws IOException {
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             OnInstantAdder<?> adder = ownerAdder.newOnInstantUsageRule();
             while (!jsonParser.nextToken().isStructEnd()) {
@@ -31,9 +35,13 @@ public final class OnInstantArrayDeserializer {
                     case JsonSerializationConstants.INSTANT:
                         adder.withInstant(jsonParser.nextTextValue());
                         break;
-                    case JsonSerializationConstants.USAGE_METHOD:
-                        adder.withUsageMethod(JsonSerializationConstants.deserializeUsageMethod(jsonParser.nextTextValue()));
-                        break;
+                    case USAGE_METHOD:
+                        if (getPrimaryVersionNumber(version) < 2 || getPrimaryVersionNumber(version) == 2 && getSubVersionNumber(version) < 8) {
+                            CracDeserializer.LOGGER.warn("Usage methods are no longer used.");
+                            break;
+                        } else {
+                            throw new OpenRaoException("Unexpected field in OnInstant: " + jsonParser.getCurrentName());
+                        }
                     default:
                         throw new OpenRaoException("Unexpected field in OnInstant: " + jsonParser.getCurrentName());
                 }

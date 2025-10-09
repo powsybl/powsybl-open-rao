@@ -11,7 +11,7 @@ Feature: US 13.7: Cross-validation Curative and Loop-flows
     Given crac file is "epic13/CBCORA_ep13us7case1.xml"
     Given loopflow glsk file is "common/glsk_lots_of_lf_12nodes.xml"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc_withLoopFlows.json"
-    When I launch search_tree_rao at "2019-01-08 12:00"
+    When I launch rao at "2019-01-08 12:00"
     Then the worst margin is -337.0 MW
     And the worst margin is -337.0 MW on cnec "001_FR-DE - preventive"
     And the tap of PstRangeAction "PRA_PST_BE" should be -15 in preventive
@@ -30,7 +30,7 @@ Feature: US 13.7: Cross-validation Curative and Loop-flows
     Given crac file is "epic13/CBCORA_ep13us7case2.xml"
     Given loopflow glsk file is "common/glsk_lots_of_lf_12nodes.xml"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc_withLoopFlows.json"
-    When I launch search_tree_rao at "2019-01-08 12:00"
+    When I launch rao at "2019-01-08 12:00"
     Then the worst margin is -530.0 MW
     And the worst margin is -530.0 MW on cnec "001_FR-DE - preventive"
     And the tap of PstRangeAction "PRA_PST_BE" should be -9 in preventive
@@ -67,7 +67,7 @@ Feature: US 13.7: Cross-validation Curative and Loop-flows
     Given crac file is "epic13/CBCORA_ep13us7case3.xml"
     Given loopflow glsk file is "common/glsk_proportional_12nodes.xml"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc_withLoopFlows.json"
-    When I launch search_tree_rao at "2019-01-08 12:00"
+    When I launch rao at "2019-01-08 12:00"
     Then the worst margin is 524.0 MW
     And the margin on cnec "001_FR-DE - preventive" after PRA should be 524.0 MW
     And the margin on cnec "003_FR-DE - outage" after PRA should be 921.0 MW
@@ -91,7 +91,7 @@ Feature: US 13.7: Cross-validation Curative and Loop-flows
     Given crac file is "epic13/CBCORA_ep13us7case4.xml"
     Given loopflow glsk file is "common/glsk_proportional_12nodes.xml"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc_withLoopFlows.json"
-    When I launch search_tree_rao at "2019-01-08 12:00"
+    When I launch rao at "2019-01-08 12:00"
     Then the worst margin is 524.0 MW
     And the margin on cnec "001_FR-DE - preventive" after PRA should be 524.0 MW
     And the margin on cnec "003_FR-DE - outage" after PRA should be 921.0 MW
@@ -115,7 +115,7 @@ Feature: US 13.7: Cross-validation Curative and Loop-flows
     Given crac file is "epic13/CBCORA_ep13us7case5.xml"
     Given loopflow glsk file is "common/glsk_proportional_12nodes.xml"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc_withLoopFlows.json"
-    When I launch search_tree_rao at "2019-01-08 12:00"
+    When I launch rao at "2019-01-08 12:00"
     Then the worst margin is 524.0 MW
     And the margin on cnec "001_FR-DE - preventive" after PRA should be 524.0 MW
     And the margin on cnec "003_FR-DE - curative" after CRA should be 855.0 MW
@@ -138,7 +138,7 @@ Feature: US 13.7: Cross-validation Curative and Loop-flows
     Given crac file is "epic13/CBCORA_ep13us7case4.xml"
     Given loopflow glsk file is "common/glsk_proportional_12nodes.xml"
     Given configuration file is "epic13/RaoParameters_ep13us7case6.json"
-    When I launch search_tree_rao at "2019-01-08 12:00"
+    When I launch rao at "2019-01-08 12:00"
     Then the worst margin is 524.0 MW
     And the margin on cnec "001_FR-DE - preventive" after PRA should be 524.0 MW
     And the margin on cnec "003_FR-DE - outage" after PRA should be 921.0 MW

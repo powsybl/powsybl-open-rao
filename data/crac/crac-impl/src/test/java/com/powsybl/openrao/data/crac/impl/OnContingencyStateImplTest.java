@@ -13,7 +13,6 @@ import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.State;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -55,7 +54,7 @@ class OnContingencyStateImplTest {
 
     @Test
     void testSetterGetter() {
-        OnContingencyStateImpl rule1 = new OnContingencyStateImpl(UsageMethod.AVAILABLE, curativeState1);
+        OnContingencyStateImpl rule1 = new OnContingencyStateImpl(curativeState1);
         assertEquals(curativeState1, rule1.getState());
         assertEquals("contingency1", rule1.getContingency().getId());
         assertEquals(curativeInstant, rule1.getInstant());
@@ -63,55 +62,41 @@ class OnContingencyStateImplTest {
 
     @Test
     void testEqualsSameObject() {
-        OnContingencyStateImpl rule1 = new OnContingencyStateImpl(UsageMethod.AVAILABLE, initialState);
+        OnContingencyStateImpl rule1 = new OnContingencyStateImpl(initialState);
         assertEquals(rule1, rule1);
     }
 
     @Test
     void testEqualsTrue() {
-        OnContingencyStateImpl rule1 = new OnContingencyStateImpl(UsageMethod.AVAILABLE, initialState);
-        OnContingencyStateImpl rule2 = new OnContingencyStateImpl(UsageMethod.AVAILABLE, initialState);
+        OnContingencyStateImpl rule1 = new OnContingencyStateImpl(initialState);
+        OnContingencyStateImpl rule2 = new OnContingencyStateImpl(initialState);
         assertEquals(rule1, rule2);
     }
 
     @Test
     void testEqualsFalseNotTheSameObject() {
-        OnContingencyStateImpl rule1 = new OnContingencyStateImpl(UsageMethod.AVAILABLE, initialState);
+        OnContingencyStateImpl rule1 = new OnContingencyStateImpl(initialState);
         assertNotEquals(preventiveInstant, rule1);
     }
 
     @Test
-    void testEqualsFalseForUsageMethod() {
-        OnContingencyStateImpl rule1 = new OnContingencyStateImpl(UsageMethod.AVAILABLE, initialState);
-        OnContingencyStateImpl rule2 = new OnContingencyStateImpl(UsageMethod.FORCED, initialState);
-        assertNotEquals(rule1, rule2);
-    }
-
-    @Test
     void testEqualsFalseForState() {
-        OnContingencyStateImpl rule1 = new OnContingencyStateImpl(UsageMethod.AVAILABLE, curativeState1);
-        OnContingencyStateImpl rule2 = new OnContingencyStateImpl(UsageMethod.AVAILABLE, curativeState2);
+        OnContingencyStateImpl rule1 = new OnContingencyStateImpl(curativeState1);
+        OnContingencyStateImpl rule2 = new OnContingencyStateImpl(curativeState2);
         assertNotEquals(rule1, rule2);
     }
 
     @Test
     void testHashCode() {
-        OnContingencyStateImpl rule1 = new OnContingencyStateImpl(UsageMethod.AVAILABLE, initialState);
-        OnContingencyStateImpl rule2 = new OnContingencyStateImpl(UsageMethod.AVAILABLE, initialState);
+        OnContingencyStateImpl rule1 = new OnContingencyStateImpl(initialState);
+        OnContingencyStateImpl rule2 = new OnContingencyStateImpl(initialState);
         assertEquals(rule1.hashCode(), rule2.hashCode());
     }
 
     @Test
-    void testHashCodeFalseForUsageMethod() {
-        OnContingencyStateImpl rule1 = new OnContingencyStateImpl(UsageMethod.AVAILABLE, initialState);
-        OnContingencyStateImpl rule2 = new OnContingencyStateImpl(UsageMethod.FORCED, initialState);
-        assertNotEquals(rule1.hashCode(), rule2.hashCode());
-    }
-
-    @Test
     void testHashCodeFalseForContingency() {
-        OnContingencyStateImpl rule1 = new OnContingencyStateImpl(UsageMethod.AVAILABLE, curativeState1);
-        OnContingencyStateImpl rule2 = new OnContingencyStateImpl(UsageMethod.AVAILABLE, curativeState2);
+        OnContingencyStateImpl rule1 = new OnContingencyStateImpl(curativeState1);
+        OnContingencyStateImpl rule2 = new OnContingencyStateImpl(curativeState2);
         assertNotEquals(rule1.hashCode(), rule2.hashCode());
     }
 

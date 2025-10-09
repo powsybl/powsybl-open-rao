@@ -29,9 +29,6 @@
       "contingencyId": null,
       "optimized": true,
       "monitored": false,
-      "nominalV": [
-        400.0
-      ],
       "thresholds": [
         {
           "unit": "megawatt",
@@ -60,8 +57,7 @@
       },
       "onInstantUsageRules": [
         {
-          "instant": "preventive",
-          "usageMethod": "available"
+          "instant": "preventive"
         }
       ],
       "networkElementIdsAndKeys": {

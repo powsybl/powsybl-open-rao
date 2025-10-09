@@ -10,7 +10,7 @@ Feature: US 13.4: Dynamic of topological remedial actions available in several i
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic13/SL_ep13us4case1.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then 0 remedial actions are used in preventive
     And 0 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     And the worst margin is -522 A
@@ -24,7 +24,7 @@ Feature: US 13.4: Dynamic of topological remedial actions available in several i
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic13/SL_ep13us4case2.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then 2 remedial actions are used in preventive
     And the remedial action "close_de3_de4" is used in preventive
     And the tap of PstRangeAction "pst_be" should be -16 in preventive
@@ -41,7 +41,7 @@ Feature: US 13.4: Dynamic of topological remedial actions available in several i
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic13/SL_ep13us4case3.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then 0 remedial actions are used in preventive
     And the tap of PstRangeAction "pst_fr" should be 5 in preventive
     And the tap of PstRangeAction "pst_be" should be 0 in preventive
@@ -60,7 +60,7 @@ Feature: US 13.4: Dynamic of topological remedial actions available in several i
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic13/SL_ep13us4case4.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then 2 remedial actions are used in preventive
     And the remedial action "close_de3_de4_pra" is used in preventive
     And the tap of PstRangeAction "pst_be" should be -16 in preventive
@@ -78,7 +78,7 @@ Feature: US 13.4: Dynamic of topological remedial actions available in several i
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic13/SL_ep13us4case5.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then 0 remedial actions are used in preventive
     And the tap of PstRangeAction "pst_fr" should be 5 in preventive
     And the tap of PstRangeAction "pst_be" should be 0 in preventive
@@ -97,7 +97,7 @@ Feature: US 13.4: Dynamic of topological remedial actions available in several i
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic13/SL_ep13us4case6.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then 0 remedial actions are used in preventive
     And 0 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     And the worst margin is -184 A
@@ -111,7 +111,7 @@ Feature: US 13.4: Dynamic of topological remedial actions available in several i
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic13/SL_ep13us4case7.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then 3 remedial actions are used in preventive
     And the remedial action "open_fr1_fr2_pra" is used in preventive
     And the tap of PstRangeAction "pst_fr" should be -5 in preventive

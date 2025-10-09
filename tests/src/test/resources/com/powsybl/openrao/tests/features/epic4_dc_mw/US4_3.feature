@@ -7,10 +7,10 @@ Feature: US 4.3: manage AC/DC modes from configuration
 
   @fast @rao @mock @ac @preventive-only
   Scenario: US 4.3.1: secure with AC config
-    Given network file is "common/TestCase12Nodes.uct"
+    Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic4/SL_ep4us3.json"
     Given configuration file is "common/RaoParameters_posMargin_ampere.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then its security status should be "SECURED"
     Then the worst margin is 38.0 A
     Then the remedial action "PRA_PST_BE" is used in preventive
@@ -21,7 +21,7 @@ Feature: US 4.3: manage AC/DC modes from configuration
     Given network file is "epic4/US4-3-TestCase12Nodes-diverging.uct"
     Given crac file is "epic4/SL_ep4us3.json"
     Given configuration file is "epic4/RaoParameters_posMargin_ampere_ac_divergence.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then the calculation fails
     And the execution details should be "Initial sensitivity analysis failed"
 
@@ -30,7 +30,7 @@ Feature: US 4.3: manage AC/DC modes from configuration
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic4/SL_ep4us3.json"
     Given configuration file is "common/RaoParameters_posMargin_megawatt_dc.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then its security status should be "SECURED"
     Then the worst margin is 32 MW
     Then the remedial action "PRA_PST_BE" is used in preventive

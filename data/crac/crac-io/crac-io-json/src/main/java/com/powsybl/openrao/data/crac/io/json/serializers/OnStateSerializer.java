@@ -25,7 +25,6 @@ public class OnStateSerializer extends AbstractJsonSerializer<OnContingencyState
         if (!value.getInstant().isPreventive()) {
             gen.writeStringField(JsonSerializationConstants.CONTINGENCY_ID, value.getContingency().getId());
         }
-        gen.writeStringField(JsonSerializationConstants.USAGE_METHOD, JsonSerializationConstants.serializeUsageMethod(value.getUsageMethod()));
         gen.writeEndObject();
     }
 }

@@ -10,7 +10,7 @@ Feature: US 13.5: dynamic of range actions available in several instants
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic13/SL_ep13us5case1.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then the worst margin is -582 A
     And the margin on cnec "FFR2AA1  FFR3AA1  2 - co1_fr2_fr3_1 - curative" after CRA should be -582 A
     And the margin on cnec "FFR2AA1  DDE3AA1  1 - preventive" after PRA should be -87 A
@@ -26,7 +26,7 @@ Feature: US 13.5: dynamic of range actions available in several instants
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic13/SL_ep13us5case2.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then the worst margin is 71 A
     And the margin on cnec "FFR2AA1  FFR3AA1  2 - co1_fr2_fr3_1 - curative" after CRA should be 71 A
     And the margin on cnec "FFR2AA1  DDE3AA1  1 - preventive" after PRA should be 370 A
@@ -47,7 +47,7 @@ Feature: US 13.5: dynamic of range actions available in several instants
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic13/SL_ep13us5case3.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then the worst margin is -99 A
     And the margin on cnec "FFR2AA1  FFR3AA1  2 - co1_fr2_fr3_1 - curative" after CRA should be -99 A
     And the margin on cnec "FFR2AA1  DDE3AA1  1 - preventive" after PRA should be 104 A
@@ -67,7 +67,7 @@ Feature: US 13.5: dynamic of range actions available in several instants
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic13/SL_ep13us5case4.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then the worst margin is -47 A
     And the margin on cnec "FFR2AA1  FFR3AA1  2 - co1_fr2_fr3_1 - curative" after CRA should be -47 A
     And the margin on cnec "FFR2AA1  DDE3AA1  1 - preventive" after PRA should be 149 A
@@ -87,7 +87,7 @@ Feature: US 13.5: dynamic of range actions available in several instants
     Given network file is "epic13/TestCase12NodesForCurative.uct"
     Given crac file is "epic13/12nodes_onePreventiveAndCurativePst_relativeLimit.xml"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_ac.json"
-    When I launch search_tree_rao at "2019-01-08 00:30"
+    When I launch rao at "2019-01-08 00:30"
     Then the worst margin is 1432 MW
     And the margin on cnec "CnecCurativeDir - curative" after CRA should be 1432 MW
     And the tap of PstRangeAction "SelectTapPSTPrev" should be 12 in preventive
@@ -99,7 +99,7 @@ Feature: US 13.5: dynamic of range actions available in several instants
     Given network file is "epic13/TestCase12NodesForCurative.uct"
     Given crac file is "epic13/12nodes_onePreventiveAndCurativePst_absoluteLimit.xml"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_ac.json"
-    When I launch search_tree_rao at "2019-01-08 00:30"
+    When I launch rao at "2019-01-08 00:30"
     Then the worst margin is 1432 MW
     And the margin on cnec "CnecCurativeDir - curative" after CRA should be 1432 MW
     And the tap of PstRangeAction "SelectTapPSTPrev" should be 12 in preventive
@@ -110,7 +110,7 @@ Feature: US 13.5: dynamic of range actions available in several instants
     Given network file is "epic13/TestCase12NodesForCurative.uct"
     Given crac file is "epic13/12nodes_onePreventiveAndCurativePst_absoluteLimitError.xml"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_ac.json"
-    When I launch search_tree_rao at "2019-01-08 00:30"
+    When I launch rao at "2019-01-08 00:30"
     Then the worst margin is 1422 MW
     And the margin on cnec "CnecCurativeDir - curative" after CRA should be 1422 MW
     And the tap of PstRangeAction "SelectTapPSTPrev" should be 12 in preventive
@@ -132,7 +132,7 @@ Feature: US 13.5: dynamic of range actions available in several instants
     Given network file is "epic13/TestCase12NodesForCurative.uct"
     Given crac file is "epic13/12nodes_oneCorrectPreventivePst.xml"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_ac.json"
-    When I launch search_tree_rao at "2019-01-08 00:30"
+    When I launch rao at "2019-01-08 00:30"
     Then the worst margin is 1637 MW
     And the margin on cnec "CnecPreventiveDir - preventive" after PRA should be 1654 MW
     And the tap of PstRangeAction "SelectTapPSTPrev" should be 12 in preventive
@@ -143,7 +143,7 @@ Feature: US 13.5: dynamic of range actions available in several instants
     Given network file is "epic13/TestCase16Nodes_with_different_imax.uct"
     Given crac file is "epic13/CBCORA_ep13us5case10.xml"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
-    When I launch search_tree_rao at "2019-01-08 12:00"
+    When I launch rao at "2019-01-08 12:00"
     Then 2 remedial actions are used in preventive
     And the tap of PstRangeAction "pra_pst_fr" should be -15 in preventive
     And the tap of PstRangeAction "pra_pst_be" should be 13 in preventive
@@ -166,7 +166,7 @@ Feature: US 13.5: dynamic of range actions available in several instants
     Given network file is "epic13/TestCase16Nodes_with_different_imax.uct"
     Given crac file is "epic13/CBCORA_ep13us5case10.xml"
     Given configuration file is "epic20/RaoParameters_maxMargin_ampere_second_preventive.json"
-    When I launch search_tree_rao at "2019-01-08 12:00"
+    When I launch rao at "2019-01-08 12:00"
     Then 2 remedial actions are used in preventive
     And the tap of PstRangeAction "pra_pst_fr" should be -14 in preventive
     And the tap of PstRangeAction "cra_pst_fr" should be -14 in preventive
@@ -187,7 +187,7 @@ Feature: US 13.5: dynamic of range actions available in several instants
     Given network file is "epic13/TestCase16Nodes_with_different_imax.uct"
     Given crac file is "epic13/CBCORA_ep13us5case10.xml"
     Given configuration file is "epic13/RaoParameters_maxMargin_ampere_2p_global.json"
-    When I launch search_tree_rao at "2019-01-08 12:00"
+    When I launch rao at "2019-01-08 12:00"
     Then 2 remedial actions are used in preventive
     And the tap of PstRangeAction "pra_pst_fr" should be -14 in preventive
     And the tap of PstRangeAction "pra_pst_be" should be 10 in preventive

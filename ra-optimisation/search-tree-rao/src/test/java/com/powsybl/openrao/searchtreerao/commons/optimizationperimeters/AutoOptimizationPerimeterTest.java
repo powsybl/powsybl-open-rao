@@ -17,7 +17,6 @@ import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.ActionType;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.openrao.data.crac.impl.CracImplFactory;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import org.junit.jupiter.api.Test;
@@ -55,7 +54,7 @@ class AutoOptimizationPerimeterTest {
         assertEquals(automatonState, autoOptimizationPerimeter.getMainOptimizationState());
         assertEquals(Set.of(automatonState), autoOptimizationPerimeter.getMonitoredStates());
         assertEquals(Set.of(crac.getFlowCnec("FlowCNEC - auto")), autoOptimizationPerimeter.getFlowCnecs());
-        assertEquals(Set.of(crac.getNetworkAction("available-topo")), autoOptimizationPerimeter.getNetworkActions());
+        assertEquals(Set.of(crac.getNetworkAction("available-topo"), crac.getNetworkAction("forced-topo")), autoOptimizationPerimeter.getNetworkActions());
         assertEquals(Set.of(), autoOptimizationPerimeter.getRangeActions());
     }
 
@@ -141,7 +140,6 @@ class AutoOptimizationPerimeterTest {
             .newOnContingencyStateUsageRule()
             .withContingency("contingency")
             .withInstant("auto")
-            .withUsageMethod(UsageMethod.FORCED)
             .add()
             .add();
 
@@ -155,7 +153,6 @@ class AutoOptimizationPerimeterTest {
             .newOnContingencyStateUsageRule()
             .withContingency("contingency")
             .withInstant("auto")
-            .withUsageMethod(UsageMethod.AVAILABLE)
             .add()
             .add();
 
@@ -169,7 +166,6 @@ class AutoOptimizationPerimeterTest {
             .newOnContingencyStateUsageRule()
             .withContingency("contingency")
             .withInstant("auto")
-            .withUsageMethod(UsageMethod.FORCED)
             .add()
             .add();
 
@@ -183,7 +179,6 @@ class AutoOptimizationPerimeterTest {
             .newOnContingencyStateUsageRule()
             .withContingency("contingency")
             .withInstant("auto")
-            .withUsageMethod(UsageMethod.AVAILABLE)
             .add()
             .add();
 

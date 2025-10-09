@@ -17,7 +17,5 @@ public interface OnConstraintAdder<T extends RemedialActionAdder<T>, S extends C
 
     OnConstraintAdder<T, S> withCnec(String cnecId);
 
-    OnConstraintAdder<T, S> withUsageMethod(UsageMethod usageMethod);
-
     T add();
 }
