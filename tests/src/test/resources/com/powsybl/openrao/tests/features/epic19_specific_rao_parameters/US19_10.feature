@@ -10,7 +10,7 @@ Feature: US 19.10: limit number of PSTs with a constraint directly in the optimi
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic19/SL_ep19us10case1.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere_mip.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then 1 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     And the remedial action "pst_be" is used after "co1_fr2_fr3_1" at "curative"
     And the tap of PstRangeAction "pst_be" should be 16 after "co1_fr2_fr3_1" at "curative"
@@ -22,7 +22,7 @@ Feature: US 19.10: limit number of PSTs with a constraint directly in the optimi
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic19/SL_ep19us10case2.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere_mip.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then 1 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     And the remedial action "close_fr1_fr5" is used after "co1_fr2_fr3_1" at "curative"
     And the worst margin is 840 A on cnec "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative"
@@ -32,7 +32,7 @@ Feature: US 19.10: limit number of PSTs with a constraint directly in the optimi
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic19/SL_ep19us10case3.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere_mip.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then 1 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     And the remedial action "pst_be" is used after "co1_fr2_fr3_1" at "curative"
     And the tap of PstRangeAction "pst_be" should be 16 after "co1_fr2_fr3_1" at "curative"
@@ -44,7 +44,7 @@ Feature: US 19.10: limit number of PSTs with a constraint directly in the optimi
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic19/SL_ep19us10case4.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere_mip.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then 2 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     And the remedial action "close_fr1_fr5" is used after "co1_fr2_fr3_1" at "curative"
     And the remedial action "pst_be" is used after "co1_fr2_fr3_1" at "curative"
@@ -57,7 +57,7 @@ Feature: US 19.10: limit number of PSTs with a constraint directly in the optimi
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic19/SL_ep19us5case3.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere_mip.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then 1 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     And the tap of PstRangeAction "pst_be" should be 16 after "co1_fr2_fr3_1" at "curative"
     And the worst margin is 945 A on cnec "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative"
@@ -67,7 +67,7 @@ Feature: US 19.10: limit number of PSTs with a constraint directly in the optimi
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic19/SL_ep19us10case6.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere_mip.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then 1 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     And the remedial action "close_fr1_fr5" is used after "co1_fr2_fr3_1" at "curative"
     And the tap of PstRangeAction "pst_be" should be 0 after "co1_fr2_fr3_1" at "curative"
@@ -79,7 +79,7 @@ Feature: US 19.10: limit number of PSTs with a constraint directly in the optimi
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic19/SL_ep19us10case7.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere_mip.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then 2 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     And the remedial action "close_fr1_fr5" is used after "co1_fr2_fr3_1" at "curative"
     And the remedial action "pst_be" is used after "co1_fr2_fr3_1" at "curative"
@@ -92,7 +92,7 @@ Feature: US 19.10: limit number of PSTs with a constraint directly in the optimi
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic19/SL_ep19us6case3.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere_mip.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then 1 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     And the tap of PstRangeAction "pst_be" should be 16 after "co1_fr2_fr3_1" at "curative"
     And the worst margin is 945 A on cnec "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative"
@@ -102,7 +102,7 @@ Feature: US 19.10: limit number of PSTs with a constraint directly in the optimi
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic19/SL_ep19us10case9.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere_mip.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then 3 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     And the remedial action "open_fr1_fr2" is used after "co1_fr2_fr3_1" at "curative"
     And the remedial action "close_fr1_fr5" is used after "co1_fr2_fr3_1" at "curative"
@@ -115,7 +115,7 @@ Feature: US 19.10: limit number of PSTs with a constraint directly in the optimi
     Given crac file is "epic15/cseCrac_ep15us12-5case8.xml"
     Given configuration file is "epic19/RaoParameters_19_10_10&11.json"
     Given crac creation parameters file is "epic19/us19_10_10&11.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then the setpoint of RangeAction "CRA_HVDC" should be 1406 MW after "co1_be1_fr5" at "curative"
     And the worst margin is 285 MW
     And the margin on cnec "be4_fr5_co1 - BBE4AA11->FFR5AA11  - co1_be1_fr5 - curative" after CRA should be 285 MW
@@ -126,7 +126,7 @@ Feature: US 19.10: limit number of PSTs with a constraint directly in the optimi
     Given crac file is "epic19/cseCrac_ep19us10case11.xml"
     Given configuration file is "epic19/RaoParameters_19_10_10&11.json"
     Given crac creation parameters file is "epic19/us19_10_10&11.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then 1 remedial actions are used after "co1_be1_fr5" at "curative"
     And the tap of PstRangeAction "PST_CRA_PST_be_BBE2AA11 BBE3AA11 1" should be -16 after "co1_be1_fr5" at "curative"
     And the setpoint of RangeAction "CRA_HVDC" should be 0 MW after "co1_be1_fr5" at "curative"
@@ -138,7 +138,7 @@ Feature: US 19.10: limit number of PSTs with a constraint directly in the optimi
     Given network file is "epic19/TestCase16Nodes_with_contingency.uct"
     Given crac file is "epic19/SL_ep19us10_ra_limits_ref.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere_mip.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then 3 remedial actions are used in preventive
     And the remedial action "close_fr1_fr5" is used in preventive
     And the tap of PstRangeAction "pst_be" should be -8 in preventive
@@ -150,7 +150,7 @@ Feature: US 19.10: limit number of PSTs with a constraint directly in the optimi
     Given network file is "epic19/TestCase16Nodes_with_contingency.uct"
     Given crac file is "epic19/SL_ep19us10_ra_limits_1.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere_mip.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then 2 remedial actions are used in preventive
     # Asserts that the RAO is able to choose a topological action even if it as reached its limit in rootLeaf
     And the remedial action "close_fr1_fr5" is used in preventive
@@ -162,7 +162,7 @@ Feature: US 19.10: limit number of PSTs with a constraint directly in the optimi
     Given network file is "epic19/TestCase16Nodes_with_contingency.uct"
     Given crac file is "epic19/SL_ep19us10_ra_limits_2.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere_mip.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then 1 remedial actions are used in preventive
     And the tap of PstRangeAction "pst_be" should be 16 in preventive
     And the worst margin is 945.38 A

@@ -10,7 +10,7 @@ Feature: US 91.3: pst initially out of range
     Given network file is "common/TestCase16Nodes.uct" for CORE CC
     Given crac file is "epic91/cbcora_ep91us3case1.xml"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
-    When I launch search_tree_rao at "2019-01-08 12:00"
+    When I launch rao at "2019-01-08 12:00"
     Then the worst margin is 496.0 MW
     # margin on Cnec is improved
     And the initial margin on cnec "be1_be2_opp - preventive" should be -53.0 MW
@@ -26,7 +26,7 @@ Feature: US 91.3: pst initially out of range
     Given network file is "common/TestCase16Nodes.uct" for CORE CC
     Given crac file is "epic91/cbcora_ep91us3case2.xml"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
-    When I launch search_tree_rao at "2019-01-08 12:00"
+    When I launch rao at "2019-01-08 12:00"
     Then the tap of PstRangeAction "pst_fr" should be 10 in preventive
     And the tap of PstRangeAction "pst_fr" should be 10 after "CO1" at "curative"
     And the margin on cnec "fr1_fr2_dir_cur - curative" after CRA should be -53 MW
