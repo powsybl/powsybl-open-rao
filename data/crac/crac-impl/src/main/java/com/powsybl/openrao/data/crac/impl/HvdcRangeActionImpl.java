@@ -9,6 +9,7 @@ package com.powsybl.openrao.data.crac.impl;
 
 import com.powsybl.action.HvdcActionBuilder;
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.range.StandardRange;
 import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
@@ -23,8 +24,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
 
 /**
  * Elementary HVDC range remedial action.
@@ -78,25 +77,27 @@ public class HvdcRangeActionImpl extends AbstractRangeAction<HvdcRangeAction> im
 
     @Override
     public void apply(Network network, double targetSetpoint) {
-        logDisableHvdcAngleDroopActivePowerControl(network);
-        HvdcActionBuilder actionBuilder = new HvdcActionBuilder()
-            .withId("")
-            .withHvdcId(networkElement.getId())
-            .withActivePowerSetpoint(Math.abs(targetSetpoint))
-            .withAcEmulationEnabled(false);
+        // Possible only if the network element associated is NOT in ac emulation mode (ie. fixed active power setpoint operation only)
+        HvdcActionBuilder actionBuilder = null;
+        if (!isAngleDroopActivePowerControlEnabled(network)) {
+            actionBuilder = new HvdcActionBuilder()
+                .withId("")
+                .withHvdcId(networkElement.getId())
+                .withActivePowerSetpoint(Math.abs(targetSetpoint));
+        } else {
+            throw new OpenRaoException(String.format(
+                "Unable to set an active power setpoint for HVDC line %s because it is operating in AC Emulation mode.",
+                networkElement.getId()
+            )
+            );
+        }
+
         if (targetSetpoint < 0) {
             actionBuilder.withConverterMode(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER);
         } else {
             actionBuilder.withConverterMode(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER);
         }
         actionBuilder.build().toModification().apply(network, true, ReportNode.NO_OP);
-    }
-
-    public void logDisableHvdcAngleDroopActivePowerControl(Network network) {
-        if (isAngleDroopActivePowerControlEnabled(network)) {
-            HvdcLine hvdcLine = IidmHvdcHelper.getHvdcLine(network, networkElement.getId());
-            TECHNICAL_LOGS.debug("Disabling HvdcAngleDroopActivePowerControl on HVDC line {}", hvdcLine.getId());
-        }
     }
 
     public boolean isAngleDroopActivePowerControlEnabled(Network network) {
