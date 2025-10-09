@@ -15,7 +15,7 @@ Feature: US 94.1: Angle Monitoring
     Given crac file is "epic94/CIM_21_7_1_AngMon.xml"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     Given monitoring glsk file is "epic94/GlskB45MicroGridTest.xml"
-    When I launch search_tree_rao at "2021-04-02 05:00"
+    When I launch rao at "2021-04-02 05:00"
     When I launch angle monitoring at "2021-04-02 05:00" on 1 threads
     Then the angle monitoring result is "HIGH_CONSTRAINT"
     And the angle of CNEC "AngleCnec1" should be 5.22 at "curative"

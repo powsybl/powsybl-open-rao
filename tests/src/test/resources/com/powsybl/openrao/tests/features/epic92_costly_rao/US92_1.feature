@@ -10,7 +10,7 @@ Feature: US 92.1: Costly network actions optimization
     Given network file is "epic92/2Nodes4ParallelLines.uct"
     Given crac file is "epic92/crac-92-1-1.json"
     Given configuration file is "epic92/RaoParameters_dc_minObjective.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then the worst margin is 250.0 MW
     And 1 remedial actions are used in preventive
     And the remedial action "closeBeFr4" is used in preventive
@@ -24,7 +24,7 @@ Feature: US 92.1: Costly network actions optimization
     Given network file is "epic92/2Nodes3ParallelLines.uct"
     Given crac file is "epic92/crac-92-1-2.json"
     Given configuration file is "epic92/RaoParameters_dc_minObjective.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then the worst margin is 83.0 MW
     And 1 remedial actions are used in preventive
     And the remedial action "closeBeFr3" is used in preventive
@@ -37,7 +37,7 @@ Feature: US 92.1: Costly network actions optimization
     Given network file is "epic92/2Nodes3ParallelLines.uct"
     Given crac file is "epic92/crac-92-1-2.json"
     Given configuration file is "epic92/RaoParameters_margin_dc_minObjective.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then the worst margin is 464.29 MW
     And 2 remedial actions are used in preventive
     And the remedial action "closeBeFr2" is used in preventive
@@ -49,7 +49,7 @@ Feature: US 92.1: Costly network actions optimization
     Given network file is "epic92/2Nodes4ParallelLines.uct"
     Given crac file is "epic92/crac-92-1-3.json"
     Given configuration file is "epic92/RaoParameters_dc_minObjective.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then the worst margin is 66.67 MW
     And 2 remedial actions are used in preventive
     And the remedial action "closeBeFr3" is used in preventive
@@ -64,7 +64,7 @@ Feature: US 92.1: Costly network actions optimization
     Given network file is "epic92/2Nodes4ParallelLines.uct"
     Given crac file is "epic92/crac-92-1-3.json"
     Given configuration file is "epic92/RaoParameters_dc_minObjective_maxDepth1.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then the worst margin is -100.0 MW
     And 1 remedial actions are used in preventive
     And the remedial action "closeBeFr4" is used in preventive
@@ -82,7 +82,7 @@ Feature: US 92.1: Costly network actions optimization
     Given network file is "epic92/2Nodes4ParallelLinesDifferentResistances.uct"
     Given crac file is "epic92/crac-92-1-5.json"
     Given configuration file is "epic92/RaoParameters_dc_minObjective.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then the worst margin is 66.67 MW
     And 1 remedial actions are used in preventive
     And the remedial action "closeBeFr2" is used in preventive
@@ -93,7 +93,7 @@ Feature: US 92.1: Costly network actions optimization
     Given network file is "epic92/2Nodes4ParallelLines2LinesClosed.uct"
     Given crac file is "epic92/crac-92-1-6.json"
     Given configuration file is "epic92/RaoParameters_dc_minObjective.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then the worst margin is 66.67 MW
     And the value of the objective function initially should be 600000.0
     And 1 remedial actions are used in preventive
@@ -110,7 +110,7 @@ Feature: US 92.1: Costly network actions optimization
     Given network file is "epic92/2Nodes4ParallelLines3LinesClosed.uct"
     Given crac file is "epic92/crac-92-1-7.json"
     Given configuration file is "epic92/RaoParameters_dc_minObjective.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then the worst margin is 66.67 MW
     And the value of the objective function initially should be 100000.0
     And 1 remedial actions are used after "coBeFr2" at "auto"
@@ -125,7 +125,7 @@ Feature: US 92.1: Costly network actions optimization
     Given network file is "epic92/2Nodes5ParallelLines3LinesClosed.uct"
     Given crac file is "epic92/crac-92-1-8.json"
     Given configuration file is "epic92/RaoParameters_dc_minObjective.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then the worst margin is 10.0 MW
     And the value of the objective function initially should be 240000.0
     And 1 remedial actions are used in preventive
@@ -144,7 +144,7 @@ Feature: US 92.1: Costly network actions optimization
     Given network file is "epic92/2Nodes4ParallelLines2LinesClosed.uct"
     Given crac file is "epic92/crac-92-1-9.json"
     Given configuration file is "epic92/RaoParameters_dc_minObjective.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then the worst margin is 66.67 MW
     And the value of the objective function initially should be 600000.0
     And 1 remedial actions are used in preventive
@@ -161,7 +161,7 @@ Feature: US 92.1: Costly network actions optimization
     Given network file is "epic92/2Nodes4ParallelLines2LinesClosed.uct"
     Given crac file is "epic92/crac-92-1-9-bis.json"
     Given configuration file is "epic92/RaoParameters_dc_minObjective.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then the worst margin is 66.67 MW
     And the value of the objective function initially should be 600000.0
     And 1 remedial actions are used in preventive
@@ -179,7 +179,7 @@ Feature: US 92.1: Costly network actions optimization
     Given network file is "epic92/2Nodes5ParallelLines2LinesClosed.uct"
     Given crac file is "epic92/crac-92-1-10.json"
     Given configuration file is "epic92/RaoParameters_dc_minObjective.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then the worst margin is 16.67 MW
     And the value of the objective function initially should be 700000.0
     And 1 remedial actions are used in preventive
@@ -205,7 +205,7 @@ Feature: US 92.1: Costly network actions optimization
     Given network file is "epic92/2Nodes8ParallelLines5LinesClosed.uct"
     Given crac file is "epic92/crac-92-1-11.json"
     Given configuration file is "epic92/RaoParameters_dc_minObjective.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then the worst margin is -50.00 MW
     And the value of the objective function initially should be 100000.0
     And 1 remedial actions are used in preventive
@@ -239,7 +239,7 @@ Feature: US 92.1: Costly network actions optimization
     Given network file is "epic92/2Nodes8ParallelLines5LinesClosed.uct"
     Given crac file is "epic92/crac-92-1-12.json"
     Given configuration file is "epic92/RaoParameters_dc_minObjective.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then the worst margin is -66.67 MW
     And the value of the objective function initially should be 150000.0
     And 1 remedial actions are used in preventive

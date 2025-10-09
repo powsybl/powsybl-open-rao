@@ -12,7 +12,7 @@ Feature: US 93.1: Redispatching actions
     Given network file is "epic93/2Nodes.uct"
     Given crac file is "epic93/crac-93-1-1.json"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
-    When I launch search_tree_rao
+    When I launch rao
     And the initial margin on cnec "cnecFr1Fr2Preventive" should be -700 MW
     Then 1 remedial actions are used in preventive
     And the remedial action "redispatchingAction" is used in preventive
@@ -25,7 +25,7 @@ Feature: US 93.1: Redispatching actions
     Given network file is "epic93/2Nodes_load.uct"
     Given crac file is "epic93/crac-93-1-1-load.json"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
-    When I launch search_tree_rao
+    When I launch rao
     And the initial margin on cnec "cnecFr1Fr2Preventive" should be -700 MW
     Then 1 remedial actions are used in preventive
     And the remedial action "redispatchingAction" is used in preventive
@@ -40,7 +40,7 @@ Feature: US 93.1: Redispatching actions
     Given network file is "epic93/2Nodes.uct"
     Given crac file is "epic93/crac-93-1-1.json"
     Given configuration file is "epic93/RaoParameters_minCost_megawatt_dc.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then 1 remedial actions are used in preventive
     And the remedial action "redispatchingAction" is used in preventive
     And the setpoint of RangeAction "redispatchingAction" should be 290.0 MW in preventive
@@ -55,7 +55,7 @@ Feature: US 93.1: Redispatching actions
     Given network file is "epic93/3Nodes.uct"
     Given crac file is "epic93/crac-93-1-3.json"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
-    When I launch search_tree_rao
+    When I launch rao
     And the initial margin on cnec "cnecFr1Fr2Preventive" should be -267 MW
     Then 0 remedial actions are used in preventive
     And the setpoint of RangeAction "redispatchingAction" should be 1000.0 MW in preventive
@@ -69,7 +69,7 @@ Feature: US 93.1: Redispatching actions
     Given network file is "epic93/4Nodes.uct"
     Given crac file is "epic93/crac-93-1-4.json"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then 2 remedial actions are used in preventive
     And the remedial action "redispatchingActionFR1FR3" is used in preventive
     And the remedial action "redispatchingActionFR2FR4" is used in preventive
@@ -88,7 +88,7 @@ Feature: US 93.1: Redispatching actions
     Given network file is "epic93/3Nodes.uct"
     Given crac file is "epic93/crac-93-1-5.json"
     Given configuration file is "epic93/RaoParameters_minCost_megawatt_dc.json"
-    When I launch search_tree_rao
+    When I launch rao
     And the initial margin on cnec "cnecFr1Fr2Preventive" should be -267 MW
     Then 2 remedial actions are used in preventive
     And the setpoint of RangeAction "redispatchingActionFR1FR2" should be 512.0 MW in preventive
@@ -104,7 +104,7 @@ Feature: US 93.1: Redispatching actions
     Given network file is "epic93/3Nodes_FFR3AA1_disconnected.xiidm"
     Given crac file is "epic93/crac-93-1-6.json"
     Given configuration file is "epic93/RaoParameters_minCost_megawatt_dc.json"
-    When I launch search_tree_rao
+    When I launch rao
     And the initial setpoint of RangeAction "redispatchingActionFR1" should be -1000.0
     And the setpoint of RangeAction "redispatchingActionFR1" should be -1000.0 MW in preventive
     And 0 remedial actions are used in preventive

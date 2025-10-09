@@ -10,6 +10,6 @@ Feature: US 2.4: Export the selected tap for a range RA in the basic output file
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic2/SL_ep2us2case1.json"
     Given configuration file is "common/RaoParameters_posMargin_ampere.json"
-    Then I launch search_tree_rao
+    Then I launch rao
     Then its security status should be "SECURED"
     Then the tap of PstRangeAction "PRA_PST_BE" should be 15 in preventive

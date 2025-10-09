@@ -12,7 +12,7 @@ Feature: US 92.2: Costly range actions optimization - APPROXIMATED_INTEGERS PSTs
     Given network file is "epic92/2Nodes2ParallelLinesPST.uct"
     Given crac file is "epic92/crac-92-2-1.json"
     Given configuration file is "epic92/RaoParameters_dc_minObjective_discretePst.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then the worst margin is 45.46 MW
     And the value of the objective function initially should be 200000.0
     And 1 remedial actions are used in preventive
@@ -28,7 +28,7 @@ Feature: US 92.2: Costly range actions optimization - APPROXIMATED_INTEGERS PSTs
     Given network file is "epic92/2Nodes3ParallelLines2PSTs.uct"
     Given crac file is "epic92/crac-92-2-2.json"
     Given configuration file is "epic92/RaoParameters_dc_minObjective_discretePst.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then the worst margin is 31.15 MW
     And the value of the objective function initially should be 263333.33
     And 1 remedial actions are used in preventive
@@ -42,7 +42,7 @@ Feature: US 92.2: Costly range actions optimization - APPROXIMATED_INTEGERS PSTs
     Given network file is "epic92/2Nodes3ParallelLinesPST.uct"
     Given crac file is "epic92/crac-92-2-3.json"
     Given configuration file is "epic92/RaoParameters_dc_minObjective_discretePst.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then the worst margin is 11.73 MW
     And the value of the objective function initially should be 430000.0
     And 1 remedial actions are used in preventive
@@ -60,7 +60,7 @@ Feature: US 92.2: Costly range actions optimization - APPROXIMATED_INTEGERS PSTs
     Given network file is "epic92/2Nodes3ParallelLinesPST.uct"
     Given crac file is "epic92/crac-92-2-4.json"
     Given configuration file is "epic92/RaoParameters_dc_minObjective_discretePst.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then the worst margin is 11.73 MW
     And the value of the objective function initially should be 430000.0
     And 1 remedial actions are used in preventive
@@ -78,7 +78,7 @@ Feature: US 92.2: Costly range actions optimization - APPROXIMATED_INTEGERS PSTs
     Given network file is "epic92/2Nodes3ParallelLinesPST.uct"
     Given crac file is "epic92/crac-92-2-3.json"
     Given configuration file is "epic92/RaoParameters_dc_minObjective_discretePst_2P.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then the worst margin is 11.73 MW
     And the value of the objective function initially should be 430000.0
     And 1 remedial actions are used in preventive
@@ -95,7 +95,7 @@ Feature: US 92.2: Costly range actions optimization - APPROXIMATED_INTEGERS PSTs
     Given network file is "epic92/2Nodes3ParallelLinesPST.uct"
     Given crac file is "epic92/crac-92-2-6.json"
     Given configuration file is "epic92/RaoParameters_dc_minObjective_discretePst.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then the worst margin is 32.13 MW
     And the value of the objective function initially should be 450000.0
     And 1 remedial actions are used in preventive
@@ -122,7 +122,7 @@ Feature: US 92.2: Costly range actions optimization - APPROXIMATED_INTEGERS PSTs
     Given network file is "epic92/2Nodes3ParallelLinesPST.uct"
     Given crac file is "epic92/crac-92-2-6.json"
     Given configuration file is "epic92/RaoParameters_dc_minObjective_discretePst_2P.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then the worst margin is 40.77 MW
     And the value of the objective function initially should be 450000.0
     And 1 remedial actions are used in preventive
