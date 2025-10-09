@@ -7,8 +7,6 @@
 package com.powsybl.openrao.sensitivityanalysis;
 
 import com.google.auto.service.AutoService;
-import com.powsybl.commons.report.ReportNode;
-import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyContextType;
 import com.powsybl.iidm.network.Network;
@@ -28,7 +26,7 @@ public final class MockSensiProvider implements SensitivityAnalysisProvider {
     int counter = 0;
 
     @Override
-    public CompletableFuture<Void> run(Network network, String s, SensitivityFactorReader sensitivityFactorReader, SensitivityResultWriter sensitivityResultWriter, List<Contingency> contingencies, List<SensitivityVariableSet> glsks, SensitivityAnalysisParameters sensitivityAnalysisParameters, ComputationManager computationManager, ReportNode reportNode) {
+    public CompletableFuture<Void> run(Network network, String s, SensitivityFactorReader sensitivityFactorReader, SensitivityResultWriter sensitivityResultWriter, SensitivityAnalysisRunParameters sensitivityAnalysisRunParameters) {
         return CompletableFuture.runAsync(() -> {
             if (network.getNameOrId().equals("Mock_Exception")) {
                 throw new OpenRaoException("Mocked exception");
@@ -42,12 +40,12 @@ public final class MockSensiProvider implements SensitivityAnalysisProvider {
             TwoWindingsTransformer pst = network.getTwoWindingsTransformer("BBE2AA1  BBE3AA1  1");
             if (pst == null || pst.getPhaseTapChanger().getTapPosition() == 0) {
                 // used for most of the tests
-                writeResultsIfPstIsAtNeutralTap(sensitivityFactorReader, sensitivityResultWriter, contingencies, network);
+                writeResultsIfPstIsAtNeutralTap(sensitivityFactorReader, sensitivityResultWriter, sensitivityAnalysisRunParameters.getContingencies(), network);
             } else {
                 // used for tests with already applied RangeActions in Curative states
-                writeResultsIfPstIsNotAtNeutralTap(sensitivityFactorReader, sensitivityResultWriter, contingencies);
+                writeResultsIfPstIsNotAtNeutralTap(sensitivityFactorReader, sensitivityResultWriter, sensitivityAnalysisRunParameters.getContingencies());
             }
-        }, computationManager.getExecutor());
+        }, sensitivityAnalysisRunParameters.getComputationManager().getExecutor());
     }
 
     private void writeResultsIfPstIsAtNeutralTap(SensitivityFactorReader factorReader, SensitivityResultWriter sensitivityResultWriter, List<Contingency> contingencies, Network network) {
