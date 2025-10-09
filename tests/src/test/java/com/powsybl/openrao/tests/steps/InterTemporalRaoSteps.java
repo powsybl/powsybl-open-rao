@@ -461,7 +461,7 @@ public final class InterTemporalRaoSteps {
         Instant afterCra = interTemporalRaoInput.getRaoInputs().getData(offsetDateTime).orElseThrow().getCrac().getLastInstant();
         assertEquals(margin,
             interTemporalRaoResult.getIndividualRaoResult(offsetDateTime).getMargin(afterCra, flowCnec, Unit.MEGAWATT),
-            SearchTreeRaoSteps.TOLERANCE_FLOW_IN_MEGAWATT);
+            RaoSteps.TOLERANCE_FLOW_IN_MEGAWATT);
     }
 
     @Then("the functional cost for timestamp {string} is {double}")
@@ -470,7 +470,7 @@ public final class InterTemporalRaoSteps {
         Instant afterCra = interTemporalRaoInput.getRaoInputs().getData(offsetDateTime).orElseThrow().getCrac().getLastInstant();
         assertEquals(functionalCost,
             interTemporalRaoResult.getFunctionalCost(afterCra, offsetDateTime),
-            SearchTreeRaoSteps.TOLERANCE_FLOW_IN_MEGAWATT);
+            RaoSteps.TOLERANCE_FLOW_IN_MEGAWATT);
     }
 
     @Then("the total cost for timestamp {string} is {double}")
@@ -479,21 +479,21 @@ public final class InterTemporalRaoSteps {
         Instant afterCra = interTemporalRaoInput.getRaoInputs().getData(offsetDateTime).orElseThrow().getCrac().getLastInstant();
         assertEquals(totalCost,
             interTemporalRaoResult.getCost(afterCra, offsetDateTime),
-            SearchTreeRaoSteps.TOLERANCE_FLOW_IN_MEGAWATT);
+            RaoSteps.TOLERANCE_FLOW_IN_MEGAWATT);
     }
 
     @Then("the functional cost for all timestamps is {double}")
     public static void theFunctionalCostForAllTimestampsIs(double functionalCost) {
         assertEquals(functionalCost,
             interTemporalRaoResult.getGlobalFunctionalCost(cracCreationContexts.values().iterator().next().getCrac().getLastInstant()),
-            SearchTreeRaoSteps.TOLERANCE_FLOW_IN_MEGAWATT);
+            RaoSteps.TOLERANCE_FLOW_IN_MEGAWATT);
     }
 
     @Then("the total cost for all timestamps is {double}")
     public static void theTotalCostForAllTimestampsIs(double totalCost) {
         assertEquals(totalCost,
             interTemporalRaoResult.getGlobalCost(cracCreationContexts.values().iterator().next().getCrac().getLastInstant()),
-            SearchTreeRaoSteps.TOLERANCE_FLOW_IN_MEGAWATT);
+            RaoSteps.TOLERANCE_FLOW_IN_MEGAWATT);
     }
 
     @When("I export F711 for business date {string}") // expected format yyyyMMdd
