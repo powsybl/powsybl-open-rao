@@ -26,6 +26,7 @@ import com.powsybl.openrao.monitoring.results.MonitoringResult;
 import com.powsybl.openrao.monitoring.results.RaoResultWithAngleMonitoring;
 import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.FastRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
 import com.powsybl.openrao.tests.utils.CoreCcPreprocessor;
@@ -60,13 +61,13 @@ public final class CommonTestData {
     private static Boolean coreCcNetworkPreprocessing = false;
     private static Network network;
 
-    private static String cracPath;
+    static String cracPath;
     private static String cracCreationParametersPath;
     private static CracCreationContext cracCreationContext;
     private static Crac crac;
 
-    private static String raoParametersPath;
-    private static RaoParameters raoParameters;
+    static String raoParametersPath;
+    static RaoParameters raoParameters;
 
     private static String loopflowGlskPath;
     private static String monitoringGlskPath;
@@ -315,6 +316,10 @@ public final class CommonTestData {
                 .setSolver(SearchTreeRaoRangeActionsOptimizationParameters.Solver.valueOf(overrideLinearSolver.toUpperCase()));
         }
 
+        if (!raoParameters.hasExtension(FastRaoParameters.class)) {
+            raoParameters.addExtension(FastRaoParameters.class, new FastRaoParameters());
+        }
+
         // Loopflow GLSK
         // only work with UCTE GLSK files
         if (loopflowGlskPath != null) {
@@ -386,7 +391,7 @@ public final class CommonTestData {
         }
     }
 
-    private static RaoParameters buildConfig(File configFile) {
+    static RaoParameters buildConfig(File configFile) {
         RaoParameters config = buildDefaultConfig();
         try (InputStream configStream = new FileInputStream(configFile)) {
             JsonRaoParameters.update(config, configStream);

@@ -72,7 +72,7 @@ public final class Helpers {
 
     public static Crac importCracFromInternalFormat(File cracFile, Network network) {
         try {
-            return roundTripOnCrac(Crac.read("crac.json", new FileInputStream(cracFile), network), network);
+            return roundTripOnCrac(Crac.read(cracFile.getName(), new FileInputStream(cracFile), network), network);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

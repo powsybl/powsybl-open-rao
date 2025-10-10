@@ -10,7 +10,7 @@ Feature: US 1.3: Security assessment with network actions
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic1/SL_ep1us2_selectionTopoRA.json"
     Given configuration file is "common/RaoParameters_posMargin_ampere.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then its security status should be "SECURED"
     Then the worst margin is 56.0 A
     Then the margin on cnec "BBE2AA1  FFR3AA1  1 - preventive" after PRA should be 56.0 A
@@ -24,7 +24,7 @@ Feature: US 1.3: Security assessment with network actions
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic1/SL_ep1us2_selectionTopoRA_variant1.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then its security status should be "SECURED"
     Then the worst margin is 83.0 A
     Then the margin on cnec "FFR2AA1  DDE3AA1  1 - preventive" after PRA should be 83.0 A
@@ -36,7 +36,7 @@ Feature: US 1.3: Security assessment with network actions
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic1/SL_ep1us2_selectionTopoRA_variant2.json"
     Given configuration file is "common/RaoParameters_posMargin_ampere.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then its security status should be "UNSECURED"
     Then the worst margin is -417.0 A
     Then the margin on cnec "FFR2AA1  DDE3AA1  1 - preventive" after PRA should be -417.0 A

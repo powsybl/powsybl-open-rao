@@ -10,7 +10,7 @@ Feature: US 20.4: Handle MNECs in second preventive optimization
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic20/CBCORA_ep20us4case1.xml"
     Given configuration file is "epic20/RaoParameters_20_4.json"
-    When I launch search_tree_rao at "2019-01-08 12:00"
+    When I launch rao at "2019-01-08 12:00"
     Then 2 remedial actions are used in preventive
     And the remedial action "Open line NL1-NL2" is used in preventive
     And the tap of PstRangeAction "PRA_PST_BE" should be -2 in preventive
@@ -26,7 +26,7 @@ Feature: US 20.4: Handle MNECs in second preventive optimization
     Given network file is "common/TestCase12Nodes2PSTs.uct" for CORE CC
     Given crac file is "epic20/CBCORA_ep20us4case2.xml"
     Given configuration file is "epic20/RaoParameters_20_4.json"
-    When I launch search_tree_rao at "2019-01-08 12:00"
+    When I launch rao at "2019-01-08 12:00"
     Then 2 remedial actions are used in preventive
     And the remedial action "Open line NL1-NL2" is used in preventive
     And the tap of PstRangeAction "PRA_PST_BE" should be -3 in preventive
@@ -43,7 +43,7 @@ Feature: US 20.4: Handle MNECs in second preventive optimization
     Given network file is "common/TestCase12Nodes2PSTs.uct" for CORE CC
     Given crac file is "epic20/CBCORA_ep20us4case3.xml"
     Given configuration file is "epic20/RaoParameters_20_4.json"
-    When I launch search_tree_rao at "2019-01-08 12:00"
+    When I launch rao at "2019-01-08 12:00"
     Then 0 remedial actions are used in preventive
     And 0 remedial actions are used after "Contingency_FR1_FR3" at "curative"
     And the worst margin is -182 MW

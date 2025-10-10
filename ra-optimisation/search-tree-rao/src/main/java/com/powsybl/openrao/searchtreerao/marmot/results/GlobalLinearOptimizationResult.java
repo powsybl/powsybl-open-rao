@@ -9,6 +9,7 @@ package com.powsybl.openrao.searchtreerao.marmot.results;
 
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.TemporalData;
+import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
@@ -44,12 +45,20 @@ public class GlobalLinearOptimizationResult implements LinearOptimizationResult 
     private final ObjectiveFunctionResult globalObjectiveFunctionResult;
     private LinearProblemStatus status;
 
-    public GlobalLinearOptimizationResult(TemporalData<FlowResult> flowResults, TemporalData<SensitivityResult> sensitivityResults, TemporalData<RangeActionActivationResult> rangeActionActivationResults, TemporalData<NetworkActionsResult> preventiveTopologicalActions, ObjectiveFunction objectiveFunction, LinearProblemStatus status) {
+    public GlobalLinearOptimizationResult(TemporalData<? extends FlowResult> flowResults, TemporalData<SensitivityResult> sensitivityResults, TemporalData<RangeActionActivationResult> rangeActionActivationResults, TemporalData<NetworkActionsResult> preventiveTopologicalActions, ObjectiveFunction objectiveFunction, LinearProblemStatus status) {
         this.globalFlowResult = new GlobalFlowResult(flowResults);
         this.globalSensitivityResult = new GlobalSensitivityResult(sensitivityResults);
         this.globalRangeActionActivationResult = new GlobalRangeActionActivationResult(rangeActionActivationResults);
         this.globalObjectiveFunctionResult = objectiveFunction.evaluate(globalFlowResult, new GlobalRemedialActionActivationResult(rangeActionActivationResults, preventiveTopologicalActions));
         this.status = status;
+    }
+
+    public TemporalData<RangeActionActivationResult> getRangeActionActivationResultTemporalData() {
+        TemporalData<RangeActionActivationResult> rangeActionActivationResults = new TemporalDataImpl<>();
+        globalRangeActionActivationResult.getTimestamps().forEach(timestamp ->
+            rangeActionActivationResults.put(timestamp, globalRangeActionActivationResult.getIndividualResult(timestamp))
+        );
+        return rangeActionActivationResults;
     }
 
     public FlowResult getFlowResult(OffsetDateTime timestamp) {

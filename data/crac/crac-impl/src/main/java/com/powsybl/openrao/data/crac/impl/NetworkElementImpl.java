@@ -12,6 +12,7 @@ import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.iidm.network.*;
 import org.apache.commons.lang3.NotImplementedException;
 
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -56,43 +57,45 @@ public class NetworkElementImpl extends AbstractIdentifiable<NetworkElement> imp
      * Returns the location of the network element, as a set of optional countries
      *
      * @param network the network object used to look for the network element
-     * @return a set of optional countries containing the network element
+     * @return a set of countries containing the network element
      */
     @Override
-    public Set<Optional<Country>> getLocation(Network network) {
+    public Set<Country> getLocation(Network network) {
         Identifiable<?> ne = network.getIdentifiable(this.getId());
+        Set<Country> countries = new HashSet<>();
         if (Objects.isNull(ne)) {
             throw new OpenRaoException("Network element " + this.getId() + " was not found in the network.");
         } else if (ne instanceof Branch<?> branch) {
-            Optional<Country> country1 = getSubstationCountry(branch.getTerminal1().getVoltageLevel().getSubstation());
-            Optional<Country> country2 = getSubstationCountry(branch.getTerminal2().getVoltageLevel().getSubstation());
-            if (country1.equals(country2)) {
-                return Set.of(country1);
-            } else {
-                return Set.of(country1, country2);
-            }
+            getTerminalCountry(branch.getTerminal1()).ifPresent(countries::add);
+            getTerminalCountry(branch.getTerminal2()).ifPresent(countries::add);
         } else if (ne instanceof Switch sw) {
-            return Set.of(getSubstationCountry(sw.getVoltageLevel().getSubstation()));
+            getVoltageLevelCountry(sw.getVoltageLevel()).ifPresent(countries::add);
         } else if (ne instanceof Injection<?> injection) {
-            return Set.of(getSubstationCountry(injection.getTerminal().getVoltageLevel().getSubstation()));
+            getTerminalCountry(injection.getTerminal()).ifPresent(countries::add);
         } else if (ne instanceof Bus bus) {
-            return Set.of(getSubstationCountry(bus.getVoltageLevel().getSubstation()));
+            getVoltageLevelCountry(bus.getVoltageLevel()).ifPresent(countries::add);
         } else if (ne instanceof VoltageLevel voltageLevel) {
-            return Set.of(getSubstationCountry(voltageLevel.getSubstation()));
+            getVoltageLevelCountry(voltageLevel).ifPresent(countries::add);
         } else if (ne instanceof Substation substation) {
-            return Set.of(substation.getCountry());
+            substation.getCountry().ifPresent(countries::add);
         } else if (ne instanceof HvdcLine hvdcLine) {
-            return Set.of(getSubstationCountry(hvdcLine.getConverterStation1().getTerminal().getVoltageLevel().getSubstation()), getSubstationCountry(hvdcLine.getConverterStation2().getTerminal().getVoltageLevel().getSubstation()));
+            getTerminalCountry(hvdcLine.getConverterStation1().getTerminal()).ifPresent(countries::add);
+            getTerminalCountry(hvdcLine.getConverterStation2().getTerminal()).ifPresent(countries::add);
         } else {
             throw new NotImplementedException("Don't know how to figure out the location of " + ne.getId() + " of type " + ne.getClass());
         }
+        return countries;
     }
 
-    private Optional<Country> getSubstationCountry(Optional<Substation> substation) {
-        if (substation.isPresent()) {
-            return substation.get().getCountry();
-        } else {
+    private static Optional<Country> getTerminalCountry(Terminal terminal) {
+        return getVoltageLevelCountry(terminal.getVoltageLevel());
+    }
+
+    private static Optional<Country> getVoltageLevelCountry(VoltageLevel voltageLevel) {
+        Optional<Substation> substation = voltageLevel.getSubstation();
+        if (substation.isEmpty()) {
             return Optional.empty();
         }
+        return substation.get().getCountry();
     }
 }

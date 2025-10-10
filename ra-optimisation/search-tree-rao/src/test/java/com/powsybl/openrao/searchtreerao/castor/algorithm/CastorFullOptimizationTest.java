@@ -23,7 +23,6 @@ import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.networkaction.ActionType;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.OptimizationStepsExecuted;
 import com.powsybl.openrao.raoapi.RaoInput;
@@ -119,7 +118,6 @@ class CastorFullOptimizationTest {
 
         // Activate global 2P
         searchTreeParameters.getSecondPreventiveRaoParameters().setExecutionCondition(SecondPreventiveRaoParameters.ExecutionCondition.POSSIBLE_CURATIVE_IMPROVEMENT);
-        searchTreeParameters.getSecondPreventiveRaoParameters().setReOptimizeCurativeRangeActions(true);
 
         // Run RAO
         RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
@@ -182,15 +180,15 @@ class CastorFullOptimizationTest {
 
         NetworkAction pstPrev = crac.newNetworkAction().withId("pst_fr@10-prev")
             .newPhaseTapChangerTapPositionAction().withNetworkElement("FFR2AA1  FFR4AA1  1").withTapPosition(10).add()
-            .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnInstantUsageRule().withInstant("preventive").add()
             .add();
         NetworkAction naCur1 = crac.newNetworkAction().withId("open_fr1_fr3-cur1")
             .newTerminalsConnectionAction().withActionType(ActionType.OPEN).withNetworkElement("FFR1AA1  FFR3AA1  1").add()
-            .newOnInstantUsageRule().withInstant("curative1").withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnInstantUsageRule().withInstant("curative1").add()
             .add();
         NetworkAction pstCur = crac.newNetworkAction().withId("pst_fr@-16-cur3")
             .newPhaseTapChangerTapPositionAction().withNetworkElement("FFR2AA1  FFR4AA1  1").withTapPosition(-16).add()
-            .newOnInstantUsageRule().withInstant("curative3").withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnInstantUsageRule().withInstant("curative3").add()
             .add();
 
         raoInput = RaoInput.build(network, crac).build();
@@ -273,19 +271,19 @@ class CastorFullOptimizationTest {
 
         NetworkAction pstPrev = crac.newNetworkAction().withId("pst_fr@10-prev")
             .newPhaseTapChangerTapPositionAction().withNetworkElement("FFR2AA1  FFR4AA1  1").withTapPosition(10).add()
-            .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnInstantUsageRule().withInstant("preventive").add()
             .add();
         NetworkAction naCur1 = crac.newNetworkAction().withId("open_fr1_fr3-cur1")
             .newTerminalsConnectionAction().withActionType(ActionType.OPEN).withNetworkElement("FFR1AA1  FFR3AA1  1").add()
-            .newOnInstantUsageRule().withInstant("curative1").withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnInstantUsageRule().withInstant("curative1").add()
             .add();
         NetworkAction pstCur2 = crac.newNetworkAction().withId("pst_fr@-3-cur2")
             .newPhaseTapChangerTapPositionAction().withNetworkElement("FFR2AA1  FFR4AA1  1").withTapPosition(-3).add()
-            .newOnInstantUsageRule().withInstant("curative2").withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnInstantUsageRule().withInstant("curative2").add()
             .add();
         NetworkAction pstCur = crac.newNetworkAction().withId("pst_fr@-16-cur3")
             .newPhaseTapChangerTapPositionAction().withNetworkElement("FFR2AA1  FFR4AA1  1").withTapPosition(-16).add()
-            .newOnInstantUsageRule().withInstant("curative3").withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnInstantUsageRule().withInstant("curative3").add()
             .add();
 
         raoInput = RaoInput.build(network, crac).build();
@@ -542,5 +540,16 @@ class CastorFullOptimizationTest {
         assertEquals(10.0, raoResult.getCost(crac.getInstant("preventive")), DOUBLE_TOLERANCE);
         assertEquals(10.0, raoResult.getFunctionalCost(crac.getInstant("preventive")), DOUBLE_TOLERANCE);
         assertEquals(0.0, raoResult.getVirtualCost(crac.getInstant("preventive")), DOUBLE_TOLERANCE);
+    }
+
+    @Test
+    void testRaoWithEmptyCrac() throws IOException {
+        setup("4Nodes.uct", "empty-crac.json");
+        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"));
+
+        // Run RAO
+        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
+        assertNotNull(raoResult);
+        assertEquals(-Double.MAX_VALUE, raoResult.getCost(null));
     }
 }

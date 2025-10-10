@@ -19,7 +19,5 @@ public interface OnContingencyStateAdderToRemedialAction<T extends RemedialActio
 
     OnContingencyStateAdderToRemedialAction<T> withState(State state);
 
-    OnContingencyStateAdderToRemedialAction<T> withUsageMethod(UsageMethod usageMethod);
-
     T add();
 }

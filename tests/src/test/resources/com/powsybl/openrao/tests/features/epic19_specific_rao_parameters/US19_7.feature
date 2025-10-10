@@ -10,7 +10,7 @@ Feature: US 19.7: handle CNECs belonging to TSOs that don't share CRAs
     Given network file is "epic19/TestCase16Nodes_with_different_imax.uct" for CORE CC
     Given crac file is "epic19/CBCORA_ep19us7case1.xml"
     Given configuration file is "epic19/RaoParameters_maxMargin_ampere_shareCra.json"
-    When I launch search_tree_rao at "2019-01-08 12:00"
+    When I launch rao at "2019-01-08 12:00"
     Then 1 remedial actions are used in preventive
     And the tap of PstRangeAction "pst_fr" should be 9 in preventive
     And 0 remedial actions are used after "CO1_fr2_fr3_1" at "curative"
@@ -25,7 +25,7 @@ Feature: US 19.7: handle CNECs belonging to TSOs that don't share CRAs
     Given network file is "epic19/TestCase16Nodes_with_different_imax.uct" for CORE CC
     Given crac file is "epic19/CBCORA_ep19us7case2.xml"
     Given configuration file is "epic19/RaoParameters_maxMargin_ampere_shareCra.json"
-    When I launch search_tree_rao at "2019-01-08 12:00"
+    When I launch rao at "2019-01-08 12:00"
     Then 1 remedial actions are used in preventive
     And the tap of PstRangeAction "pst_fr" should be 9 in preventive
     And 2 remedial actions are used after "CO1_fr2_fr3_1" at "curative"
@@ -42,7 +42,7 @@ Feature: US 19.7: handle CNECs belonging to TSOs that don't share CRAs
     Given network file is "epic19/TestCase16Nodes_with_different_imax.uct" for CORE CC
     Given crac file is "epic19/CBCORA_ep19us7case3.xml"
     Given configuration file is "epic19/RaoParameters_maxMargin_ampere_shareCra.json"
-    When I launch search_tree_rao at "2019-01-08 12:00"
+    When I launch rao at "2019-01-08 12:00"
     Then 1 remedial actions are used in preventive
     And the tap of PstRangeAction "pst_fr" should be 9 in preventive
     And 2 remedial actions are used after "CO1_fr2_fr3_1" at "curative"
@@ -59,7 +59,7 @@ Feature: US 19.7: handle CNECs belonging to TSOs that don't share CRAs
     Given network file is "epic19/TestCase16Nodes_with_different_imax.uct" for CORE CC
     Given crac file is "epic19/CBCORA_ep19us7case4.xml"
     Given configuration file is "epic19/RaoParameters_maxMargin_ampere_shareCra.json"
-    When I launch search_tree_rao at "2019-01-08 12:00"
+    When I launch rao at "2019-01-08 12:00"
     Then 1 remedial actions are used in preventive
     And the tap of PstRangeAction "pst_fr" should be 9 in preventive
     And 2 remedial actions are used after "CO1_fr2_fr3_1" at "curative"
@@ -76,7 +76,7 @@ Feature: US 19.7: handle CNECs belonging to TSOs that don't share CRAs
     Given network file is "epic19/TestCase16Nodes_with_different_imax.uct" for CORE CC
     Given crac file is "epic19/CBCORA_ep19us7case5.xml"
     Given configuration file is "epic19/RaoParameters_maxMargin_ampere_shareCra.json"
-    When I launch search_tree_rao at "2019-01-08 12:00"
+    When I launch rao at "2019-01-08 12:00"
     Then 1 remedial actions are used in preventive
     And the tap of PstRangeAction "pst_fr" should be 9 in preventive
     And 2 remedial actions are used after "CO1_fr2_fr3_1" at "curative"
@@ -94,7 +94,7 @@ Feature: US 19.7: handle CNECs belonging to TSOs that don't share CRAs
     Given network file is "epic19/TestCase16Nodes_with_different_imax.uct" for CORE CC
     Given crac file is "epic19/CBCORA_ep19us7case6.xml"
     Given configuration file is "epic19/RaoParameters_maxMargin_ampere_shareCra.json"
-    When I launch search_tree_rao at "2019-01-08 12:00"
+    When I launch rao at "2019-01-08 12:00"
     Then 1 remedial actions are used in preventive
     And the tap of PstRangeAction "pst_fr" should be 9 in preventive
     And 2 remedial actions are used after "CO1_fr2_fr3_1" at "curative"
@@ -107,12 +107,12 @@ Feature: US 19.7: handle CNECs belonging to TSOs that don't share CRAs
     And the margin on cnec "fr1_fr4_CO1 - curative" after CRA should be 719 A
     And the margin on cnec "fr3_fr5_CO1 - OPP - outage" after CRA should be 890 A
 
-  @fast @rao @mock @ac @contingency-scenarios
+  @fast @rao @mock @ac @contingency-scenarios @search-tree-rao
   Scenario: 19.7.7.A: Only PSTs - All CNECs belong to one operator sharing a CRA - AMP
     Given network file is "epic19/TestCase16Nodes_with_different_imax.uct" for CORE CC
     Given crac file is "epic19/CBCORA_ep19us7case7.xml"
     Given configuration file is "epic19/RaoParameters_maxMargin_ampere_shareCra.json"
-    When I launch search_tree_rao at "2019-01-08 12:00" after "CO1_fr2_fr3_1" at "curative"
+    When I launch rao at "2019-01-08 12:00" after "CO1_fr2_fr3_1" at "curative"
     Then 2 remedial actions are used after "CO1_fr2_fr3_1" at "curative"
     And the tap of PstRangeAction "pst_be" should be -3 after "CO1_fr2_fr3_1" at "curative"
     And the tap of PstRangeAction "pst_fr" should be -5 after "CO1_fr2_fr3_1" at "curative"
@@ -121,12 +121,12 @@ Feature: US 19.7: handle CNECs belonging to TSOs that don't share CRAs
     And the margin on cnec "fr3_fr5_CO1 - OPP - curative" after CRA should be 603 A
     And the margin on cnec "fr1_fr4_CO1 - curative" after CRA should be 610 A
 
-  @fast @rao @mock @ac @contingency-scenarios
+  @fast @rao @mock @ac @contingency-scenarios @search-tree-rao
   Scenario: 19.7.8.A: Only PSTs - Most limiting CNEC belongs to an operator not sharing CRAs - AMP
     Given network file is "epic19/TestCase16Nodes_with_different_imax.uct" for CORE CC
     Given crac file is "epic19/CBCORA_ep19us7case8.xml"
     Given configuration file is "epic19/RaoParameters_maxMargin_ampere_shareCra.json"
-    When I launch search_tree_rao at "2019-01-08 12:00" after "CO1_fr2_fr3_1" at "curative"
+    When I launch rao at "2019-01-08 12:00" after "CO1_fr2_fr3_1" at "curative"
     Then 2 remedial actions are used after "CO1_fr2_fr3_1" at "curative"
     And the tap of PstRangeAction "pst_be" should be 9 after "CO1_fr2_fr3_1" at "curative"
     And the tap of PstRangeAction "pst_fr" should be 4 after "CO1_fr2_fr3_1" at "curative"
@@ -136,12 +136,12 @@ Feature: US 19.7: handle CNECs belonging to TSOs that don't share CRAs
     And the margin on cnec "fr3_fr5_CO1 - OPP - curative" after CRA should be 827 A
     And the margin on cnec "fr1_fr4_CO1 - curative" after CRA should be 130 A
 
-  @fast @rao @mock @ac @contingency-scenarios
+  @fast @rao @mock @ac @contingency-scenarios @search-tree-rao
   Scenario: 19.7.9.A: Only PSTs - Second most limiting CNEC belongs to an operator not sharing CRAs - AMP
     Given network file is "epic19/TestCase16Nodes_with_different_imax.uct" for CORE CC
     Given crac file is "epic19/CBCORA_ep19us7case9.xml"
     Given configuration file is "epic19/RaoParameters_maxMargin_ampere_shareCra.json"
-    When I launch search_tree_rao at "2019-01-08 12:00" after "CO1_fr2_fr3_1" at "curative"
+    When I launch rao at "2019-01-08 12:00" after "CO1_fr2_fr3_1" at "curative"
     Then 2 remedial actions are used after "CO1_fr2_fr3_1" at "curative"
     And the tap of PstRangeAction "pst_be" should be -3 after "CO1_fr2_fr3_1" at "curative"
     And the tap of PstRangeAction "pst_fr" should be -5 after "CO1_fr2_fr3_1" at "curative"
@@ -155,7 +155,7 @@ Feature: US 19.7: handle CNECs belonging to TSOs that don't share CRAs
     Given network file is "epic19/TestCase16Nodes_with_different_imax.uct" for CORE CC
     Given crac file is "epic19/CBCORA_ep19us7case1.xml"
     Given configuration file is "epic19/RaoParameters_maxMargin_megawatt_shareCra.json"
-    When I launch search_tree_rao at "2019-01-08 12:00"
+    When I launch rao at "2019-01-08 12:00"
     Then 1 remedial actions are used in preventive
     And the tap of PstRangeAction "pst_fr" should be 9 in preventive
     And 0 remedial actions are used after "CO1_fr2_fr3_1" at "curative"
@@ -170,7 +170,7 @@ Feature: US 19.7: handle CNECs belonging to TSOs that don't share CRAs
     Given network file is "epic19/TestCase16Nodes_with_different_imax.uct" for CORE CC
     Given crac file is "epic19/CBCORA_ep19us7case2.xml"
     Given configuration file is "epic19/RaoParameters_maxMargin_megawatt_shareCra.json"
-    When I launch search_tree_rao at "2019-01-08 12:00"
+    When I launch rao at "2019-01-08 12:00"
     Then 1 remedial actions are used in preventive
     And the tap of PstRangeAction "pst_fr" should be 9 in preventive
     And 2 remedial actions are used after "CO1_fr2_fr3_1" at "curative"
@@ -187,7 +187,7 @@ Feature: US 19.7: handle CNECs belonging to TSOs that don't share CRAs
     Given network file is "epic19/TestCase16Nodes_with_different_imax.uct" for CORE CC
     Given crac file is "epic19/CBCORA_ep19us7case3.xml"
     Given configuration file is "epic19/RaoParameters_maxMargin_megawatt_shareCra.json"
-    When I launch search_tree_rao at "2019-01-08 12:00"
+    When I launch rao at "2019-01-08 12:00"
     Then 1 remedial actions are used in preventive
     And the tap of PstRangeAction "pst_fr" should be 9 in preventive
     And 2 remedial actions are used after "CO1_fr2_fr3_1" at "curative"
@@ -204,7 +204,7 @@ Feature: US 19.7: handle CNECs belonging to TSOs that don't share CRAs
     Given network file is "epic19/TestCase16Nodes_with_different_imax.uct" for CORE CC
     Given crac file is "epic19/CBCORA_ep19us7case4.xml"
     Given configuration file is "epic19/RaoParameters_maxMargin_megawatt_shareCra.json"
-    When I launch search_tree_rao at "2019-01-08 12:00"
+    When I launch rao at "2019-01-08 12:00"
     Then 1 remedial actions are used in preventive
     And the tap of PstRangeAction "pst_fr" should be 9 in preventive
     And 2 remedial actions are used after "CO1_fr2_fr3_1" at "curative"
@@ -221,7 +221,7 @@ Feature: US 19.7: handle CNECs belonging to TSOs that don't share CRAs
     Given network file is "epic19/TestCase16Nodes_with_different_imax.uct" for CORE CC
     Given crac file is "epic19/CBCORA_ep19us7case5.xml"
     Given configuration file is "epic19/RaoParameters_maxMargin_megawatt_shareCra.json"
-    When I launch search_tree_rao at "2019-01-08 12:00"
+    When I launch rao at "2019-01-08 12:00"
     Then 1 remedial actions are used in preventive
     And the tap of PstRangeAction "pst_fr" should be 9 in preventive
     And 2 remedial actions are used after "CO1_fr2_fr3_1" at "curative"
@@ -239,7 +239,7 @@ Feature: US 19.7: handle CNECs belonging to TSOs that don't share CRAs
     Given network file is "epic19/TestCase16Nodes_with_different_imax.uct" for CORE CC
     Given crac file is "epic19/CBCORA_ep19us7case6.xml"
     Given configuration file is "epic19/RaoParameters_maxMargin_megawatt_shareCra.json"
-    When I launch search_tree_rao at "2019-01-08 12:00"
+    When I launch rao at "2019-01-08 12:00"
     Then 1 remedial actions are used in preventive
     And the tap of PstRangeAction "pst_fr" should be 9 in preventive
     And 2 remedial actions are used after "CO1_fr2_fr3_1" at "curative"
@@ -252,12 +252,12 @@ Feature: US 19.7: handle CNECs belonging to TSOs that don't share CRAs
     And the margin on cnec "fr1_fr4_CO1 - curative" after CRA should be 499 MW
     And the margin on cnec "fr3_fr5_CO1 - OPP - outage" after CRA should be 617 MW
 
-  @fast @rao @mock @ac @contingency-scenarios
+  @fast @rao @mock @ac @contingency-scenarios @search-tree-rao
   Scenario: 19.7.7.MW: Only PSTs - All CNECs belong to one operator sharing a CRA - MW
     Given network file is "epic19/TestCase16Nodes_with_different_imax.uct" for CORE CC
     Given crac file is "epic19/CBCORA_ep19us7case7.xml"
     Given configuration file is "epic19/RaoParameters_maxMargin_megawatt_shareCra.json"
-    When I launch search_tree_rao at "2019-01-08 12:00" after "CO1_fr2_fr3_1" at "curative"
+    When I launch rao at "2019-01-08 12:00" after "CO1_fr2_fr3_1" at "curative"
     Then 2 remedial actions are used after "CO1_fr2_fr3_1" at "curative"
     And the tap of PstRangeAction "pst_be" should be -2 after "CO1_fr2_fr3_1" at "curative"
     And the tap of PstRangeAction "pst_fr" should be -5 after "CO1_fr2_fr3_1" at "curative"
@@ -266,12 +266,12 @@ Feature: US 19.7: handle CNECs belonging to TSOs that don't share CRAs
     And the margin on cnec "fr1_fr4_CO1 - curative" after CRA should be 420 MW
     And the margin on cnec "fr3_fr5_CO1 - OPP - curative" after CRA should be 430 MW
 
-  @fast @rao @mock @ac @contingency-scenarios
+  @fast @rao @mock @ac @contingency-scenarios @search-tree-rao
   Scenario: 19.7.8.MW: Only PSTs - Most limiting CNEC belongs to an operator not sharing CRAs - MW
     Given network file is "epic19/TestCase16Nodes_with_different_imax.uct" for CORE CC
     Given crac file is "epic19/CBCORA_ep19us7case8.xml"
     Given configuration file is "epic19/RaoParameters_maxMargin_megawatt_shareCra.json"
-    When I launch search_tree_rao at "2019-01-08 12:00" after "CO1_fr2_fr3_1" at "curative"
+    When I launch rao at "2019-01-08 12:00" after "CO1_fr2_fr3_1" at "curative"
     Then 2 remedial actions are used after "CO1_fr2_fr3_1" at "curative"
     And the tap of PstRangeAction "pst_be" should be 9 after "CO1_fr2_fr3_1" at "curative"
     And the tap of PstRangeAction "pst_fr" should be 4 after "CO1_fr2_fr3_1" at "curative"
@@ -281,12 +281,12 @@ Feature: US 19.7: handle CNECs belonging to TSOs that don't share CRAs
     And the margin on cnec "fr3_fr5_CO1 - OPP - curative" after CRA should be 572 MW
     And the margin on cnec "fr1_fr4_CO1 - curative" after CRA should be 91 MW
 
-  @fast @rao @mock @ac @contingency-scenarios
+  @fast @rao @mock @ac @contingency-scenarios @search-tree-rao
   Scenario: 19.7.9.MW: Only PSTs - Second most limiting CNEC belongs to an operator not sharing CRAs - MW
     Given network file is "epic19/TestCase16Nodes_with_different_imax.uct" for CORE CC
     Given crac file is "epic19/CBCORA_ep19us7case9.xml"
     Given configuration file is "epic19/RaoParameters_maxMargin_megawatt_shareCra.json"
-    When I launch search_tree_rao at "2019-01-08 12:00" after "CO1_fr2_fr3_1" at "curative"
+    When I launch rao at "2019-01-08 12:00" after "CO1_fr2_fr3_1" at "curative"
     Then 2 remedial actions are used after "CO1_fr2_fr3_1" at "curative"
     And the tap of PstRangeAction "pst_be" should be -2 after "CO1_fr2_fr3_1" at "curative"
     And the tap of PstRangeAction "pst_fr" should be -5 after "CO1_fr2_fr3_1" at "curative"
@@ -301,7 +301,7 @@ Feature: US 19.7: handle CNECs belonging to TSOs that don't share CRAs
     Given crac file is "epic19/CBCORA_ep19us7case1.xml"
     Given configuration file is "epic19/RaoParameters_maxRelMargin_ampere_shareCra.json"
     Given loopflow glsk file is "common/glsk_proportional_16nodes.xml"
-    When I launch search_tree_rao at "2019-01-08 12:00"
+    When I launch rao at "2019-01-08 12:00"
     Then 3 remedial actions are used in preventive
     And the remedial action "close_fr1_fr5" is used in preventive
     And the remedial action "close_de3_de4" is used in preventive
@@ -319,7 +319,7 @@ Feature: US 19.7: handle CNECs belonging to TSOs that don't share CRAs
     Given crac file is "epic19/CBCORA_ep19us7case2.xml"
     Given configuration file is "epic19/RaoParameters_maxRelMargin_ampere_shareCra.json"
     Given loopflow glsk file is "common/glsk_proportional_16nodes.xml"
-    When I launch search_tree_rao at "2019-01-08 12:00"
+    When I launch rao at "2019-01-08 12:00"
     Then 3 remedial actions are used in preventive
     And the remedial action "close_fr1_fr5" is used in preventive
     And the remedial action "close_de3_de4" is used in preventive
@@ -327,7 +327,7 @@ Feature: US 19.7: handle CNECs belonging to TSOs that don't share CRAs
     And 2 remedial actions are used after "CO1_fr2_fr3_1" at "curative"
     And the remedial action "open_fr1_fr3" is used after "CO1_fr2_fr3_1" at "curative"
     And the tap of PstRangeAction "pst_be" should be -16 after "CO1_fr2_fr3_1" at "curative"
-    And the worst margin is 328 A
+    And the worst margin is 326 A
     And the value of the objective function after CRA should be -458.0
     And the relative margin on cnec "fr1_fr4_CO1 - curative" after CRA should be 458 A
     And the relative margin on cnec "fr3_fr5_CO1 - OPP - curative" after CRA should be 1050 A
@@ -339,7 +339,7 @@ Feature: US 19.7: handle CNECs belonging to TSOs that don't share CRAs
     Given crac file is "epic19/CBCORA_ep19us7case3.xml"
     Given configuration file is "epic19/RaoParameters_maxRelMargin_ampere_shareCra.json"
     Given loopflow glsk file is "common/glsk_proportional_16nodes.xml"
-    When I launch search_tree_rao at "2019-01-08 12:00"
+    When I launch rao at "2019-01-08 12:00"
     Then 3 remedial actions are used in preventive
     And the remedial action "close_fr1_fr5" is used in preventive
     And the remedial action "close_de3_de4" is used in preventive
@@ -359,7 +359,7 @@ Feature: US 19.7: handle CNECs belonging to TSOs that don't share CRAs
     Given crac file is "epic19/CBCORA_ep19us7case4.xml"
     Given configuration file is "epic19/RaoParameters_maxRelMargin_ampere_shareCra.json"
     Given loopflow glsk file is "common/glsk_proportional_16nodes.xml"
-    When I launch search_tree_rao at "2019-01-08 12:00"
+    When I launch rao at "2019-01-08 12:00"
     Then 3 remedial actions are used in preventive
     And the remedial action "close_fr1_fr5" is used in preventive
     And the remedial action "close_de3_de4" is used in preventive
@@ -367,7 +367,7 @@ Feature: US 19.7: handle CNECs belonging to TSOs that don't share CRAs
     And 2 remedial actions are used after "CO1_fr2_fr3_1" at "curative"
     And the remedial action "open_fr1_fr3" is used after "CO1_fr2_fr3_1" at "curative"
     And the tap of PstRangeAction "pst_be" should be -16 after "CO1_fr2_fr3_1" at "curative"
-    And the worst margin is 328 A
+    And the worst margin is 326 A
     And the value of the objective function after CRA should be -458.0
     And the relative margin on cnec "fr1_fr4_CO1 - curative" after CRA should be 458 A
     And the relative margin on cnec "fr3_fr5_CO1 - OPP - curative" after CRA should be 1050 A
@@ -380,7 +380,7 @@ Feature: US 19.7: handle CNECs belonging to TSOs that don't share CRAs
     Given crac file is "epic19/CBCORA_ep19us7case5R.xml"
     Given configuration file is "epic19/RaoParameters_maxRelMargin_ampere_shareCra.json"
     Given loopflow glsk file is "common/glsk_proportional_16nodes.xml"
-    When I launch search_tree_rao at "2019-01-08 12:00"
+    When I launch rao at "2019-01-08 12:00"
     Then 3 remedial actions are used in preventive
     And the remedial action "close_fr1_fr5" is used in preventive
     And the remedial action "close_de3_de4" is used in preventive
@@ -389,7 +389,7 @@ Feature: US 19.7: handle CNECs belonging to TSOs that don't share CRAs
     And the remedial action "open_fr1_fr3" is used after "CO1_fr2_fr3_1" at "curative"
     And the tap of PstRangeAction "pst_be" should be -14 after "CO1_fr2_fr3_1" at "curative"
     And the tap of PstRangeAction "pst_fr_cur" should be 7 after "CO1_fr2_fr3_1" at "curative"
-    And the worst margin is 328 A
+    And the worst margin is 324 A
     And the value of the objective function after CRA should be -1076.0
     And the relative margin on cnec "fr3_fr5_CO1 - DIR - curative" after CRA should be 399 A
     And the relative margin on cnec "fr3_fr5_CO1 - OPP - curative" after CRA should be 1076 A
@@ -401,7 +401,7 @@ Feature: US 19.7: handle CNECs belonging to TSOs that don't share CRAs
     Given crac file is "epic19/CBCORA_ep19us7case6R.xml"
     Given configuration file is "epic19/RaoParameters_maxRelMargin_ampere_shareCra.json"
     Given loopflow glsk file is "common/glsk_proportional_16nodes.xml"
-    When I launch search_tree_rao at "2019-01-08 12:00"
+    When I launch rao at "2019-01-08 12:00"
     Then 3 remedial actions are used in preventive
     And the remedial action "close_fr1_fr5" is used in preventive
     And the remedial action "close_de3_de4" is used in preventive
@@ -415,13 +415,13 @@ Feature: US 19.7: handle CNECs belonging to TSOs that don't share CRAs
     And the relative margin on cnec "fr3_fr5_CO1 - OPP - curative" after CRA should be 784 A
 
 
-  @fast @rao @mock @ac @contingency-scenarios @relative
+  @fast @rao @mock @ac @contingency-scenarios @relative @search-tree-rao
   Scenario: 19.7.7.A.R: Only PSTs - All CNECs belong to one operator sharing a CRA - AMP - relative
     Given network file is "epic19/TestCase16Nodes_with_different_imax.uct" for CORE CC
     Given crac file is "epic19/CBCORA_ep19us7case7.xml"
     Given configuration file is "epic19/RaoParameters_maxRelMargin_ampere_shareCra_mip.json"
     Given loopflow glsk file is "common/glsk_proportional_16nodes.xml"
-    When I launch search_tree_rao at "2019-01-08 12:00" after "CO1_fr2_fr3_1" at "curative"
+    When I launch rao at "2019-01-08 12:00" after "CO1_fr2_fr3_1" at "curative"
     Then 2 remedial actions are used after "CO1_fr2_fr3_1" at "curative"
     And the tap of PstRangeAction "pst_be" should be 2 after "CO1_fr2_fr3_1" at "curative"
     And the tap of PstRangeAction "pst_fr" should be -5 after "CO1_fr2_fr3_1" at "curative"
@@ -430,29 +430,29 @@ Feature: US 19.7: handle CNECs belonging to TSOs that don't share CRAs
     And the relative margin on cnec "fr3_fr5_CO1 - OPP - curative" after CRA should be 843 A
     And the relative margin on cnec "fr1_fr4_CO1 - curative" after CRA should be 833 A
 
-  @fast @rao @mock @ac @contingency-scenarios @relative
+  @fast @rao @mock @ac @contingency-scenarios @relative @search-tree-rao
   Scenario: 19.7.8.A.R: Only PSTs - Most limiting CNEC belongs to an operator not sharing CRAs - AMP - relative
     Given network file is "epic19/TestCase16Nodes_with_different_imax.uct" for CORE CC
     Given crac file is "epic19/CBCORA_ep19us7case8.xml"
     Given configuration file is "epic19/RaoParameters_maxRelMargin_ampere_shareCra_mip.json"
     Given loopflow glsk file is "common/glsk_proportional_16nodes.xml"
-    When I launch search_tree_rao at "2019-01-08 12:00" after "CO1_fr2_fr3_1" at "curative"
+    When I launch rao at "2019-01-08 12:00" after "CO1_fr2_fr3_1" at "curative"
     Then 2 remedial actions are used after "CO1_fr2_fr3_1" at "curative"
     And the tap of PstRangeAction "pst_be" should be 13 after "CO1_fr2_fr3_1" at "curative"
     And the tap of PstRangeAction "pst_fr" should be 4 after "CO1_fr2_fr3_1" at "curative"
-    And the worst relative margin is 166 A
+    And the worst relative margin is 164 A
     And the value of the objective function after CRA should be -1084.0
     And the relative margin on cnec "fr4_de1_CO1 - curative" after CRA should be 1084 A
     And the relative margin on cnec "fr3_fr5_CO1 - OPP - curative" after CRA should be 1097 A
-    And the relative margin on cnec "fr1_fr4_CO1 - curative" after CRA should be 166 A
+    And the relative margin on cnec "fr1_fr4_CO1 - curative" after CRA should be 164 A
 
-  @fast @rao @mock @ac @contingency-scenarios @relative
+  @fast @rao @mock @ac @contingency-scenarios @relative @search-tree-rao
   Scenario: 19.7.9.A.R: Only PSTs - Second most limiting CNEC belongs to an operator not sharing CRAs - AMP - relative
     Given network file is "epic19/TestCase16Nodes_with_different_imax.uct" for CORE CC
     Given crac file is "epic19/CBCORA_ep19us7case9.xml"
     Given configuration file is "epic19/RaoParameters_maxRelMargin_ampere_shareCra_mip.json"
     Given loopflow glsk file is "common/glsk_proportional_16nodes.xml"
-    When I launch search_tree_rao at "2019-01-08 12:00" after "CO1_fr2_fr3_1" at "curative"
+    When I launch rao at "2019-01-08 12:00" after "CO1_fr2_fr3_1" at "curative"
     Then 2 remedial actions are used after "CO1_fr2_fr3_1" at "curative"
     And the tap of PstRangeAction "pst_be" should be 2 after "CO1_fr2_fr3_1" at "curative"
     And the tap of PstRangeAction "pst_fr" should be -5 after "CO1_fr2_fr3_1" at "curative"
@@ -467,7 +467,7 @@ Feature: US 19.7: handle CNECs belonging to TSOs that don't share CRAs
     Given crac file is "epic19/CBCORA_ep19us7case1.xml"
     Given configuration file is "epic19/RaoParameters_maxRelMargin_megawatt_shareCra.json"
     Given loopflow glsk file is "common/glsk_proportional_16nodes.xml"
-    When I launch search_tree_rao at "2019-01-08 12:00"
+    When I launch rao at "2019-01-08 12:00"
     Then 3 remedial actions are used in preventive
     And the remedial action "close_fr1_fr5" is used in preventive
     And the remedial action "close_de3_de4" is used in preventive
@@ -485,7 +485,7 @@ Feature: US 19.7: handle CNECs belonging to TSOs that don't share CRAs
     Given crac file is "epic19/CBCORA_ep19us7case2.xml"
     Given configuration file is "epic19/RaoParameters_maxRelMargin_megawatt_shareCra.json"
     Given loopflow glsk file is "common/glsk_proportional_16nodes.xml"
-    When I launch search_tree_rao at "2019-01-08 12:00"
+    When I launch rao at "2019-01-08 12:00"
     Then 3 remedial actions are used in preventive
     And the remedial action "close_fr1_fr5" is used in preventive
     And the remedial action "close_de3_de4" is used in preventive
@@ -505,7 +505,7 @@ Feature: US 19.7: handle CNECs belonging to TSOs that don't share CRAs
     Given crac file is "epic19/CBCORA_ep19us7case3.xml"
     Given configuration file is "epic19/RaoParameters_maxRelMargin_megawatt_shareCra.json"
     Given loopflow glsk file is "common/glsk_proportional_16nodes.xml"
-    When I launch search_tree_rao at "2019-01-08 12:00"
+    When I launch rao at "2019-01-08 12:00"
     Then 3 remedial actions are used in preventive
     And the remedial action "close_fr1_fr5" is used in preventive
     And the remedial action "close_de3_de4" is used in preventive
@@ -525,7 +525,7 @@ Feature: US 19.7: handle CNECs belonging to TSOs that don't share CRAs
     Given crac file is "epic19/CBCORA_ep19us7case4.xml"
     Given configuration file is "epic19/RaoParameters_maxRelMargin_megawatt_shareCra.json"
     Given loopflow glsk file is "common/glsk_proportional_16nodes.xml"
-    When I launch search_tree_rao at "2019-01-08 12:00"
+    When I launch rao at "2019-01-08 12:00"
     Then 3 remedial actions are used in preventive
     And the remedial action "close_fr1_fr5" is used in preventive
     And the remedial action "close_de3_de4" is used in preventive
@@ -545,7 +545,7 @@ Feature: US 19.7: handle CNECs belonging to TSOs that don't share CRAs
     Given crac file is "epic19/CBCORA_ep19us7case5R.xml"
     Given configuration file is "epic19/RaoParameters_maxRelMargin_megawatt_shareCra.json"
     Given loopflow glsk file is "common/glsk_proportional_16nodes.xml"
-    When I launch search_tree_rao at "2019-01-08 12:00"
+    When I launch rao at "2019-01-08 12:00"
     Then 3 remedial actions are used in preventive
     And the remedial action "close_fr1_fr5" is used in preventive
     And the remedial action "close_de3_de4" is used in preventive
@@ -566,7 +566,7 @@ Feature: US 19.7: handle CNECs belonging to TSOs that don't share CRAs
     Given crac file is "epic19/CBCORA_ep19us7case6R.xml"
     Given configuration file is "epic19/RaoParameters_maxRelMargin_megawatt_shareCra.json"
     Given loopflow glsk file is "common/glsk_proportional_16nodes.xml"
-    When I launch search_tree_rao at "2019-01-08 12:00"
+    When I launch rao at "2019-01-08 12:00"
     Then 3 remedial actions are used in preventive
     And the remedial action "close_fr1_fr5" is used in preventive
     And the remedial action "close_de3_de4" is used in preventive
@@ -579,13 +579,13 @@ Feature: US 19.7: handle CNECs belonging to TSOs that don't share CRAs
     And the relative margin on cnec "fr1_fr4_CO1 - curative" after CRA should be 466 MW
     And the relative margin on cnec "fr3_fr5_CO1 - OPP - curative" after CRA should be 543 MW
 
-  @fast @rao @mock @ac @contingency-scenarios @relative
+  @fast @rao @mock @ac @contingency-scenarios @relative @search-tree-rao
   Scenario: 19.7.7.MW.R: Only PSTs - All CNECs belong to one operator sharing a CRA - MW - relative
     Given network file is "epic19/TestCase16Nodes_with_different_imax.uct" for CORE CC
     Given crac file is "epic19/CBCORA_ep19us7case7.xml"
     Given configuration file is "epic19/RaoParameters_maxRelMargin_megawatt_shareCra_mip.json"
     Given loopflow glsk file is "common/glsk_proportional_16nodes.xml"
-    When I launch search_tree_rao at "2019-01-08 12:00" after "CO1_fr2_fr3_1" at "curative"
+    When I launch rao at "2019-01-08 12:00" after "CO1_fr2_fr3_1" at "curative"
     Then 2 remedial actions are used after "CO1_fr2_fr3_1" at "curative"
     And the tap of PstRangeAction "pst_be" should be 2 after "CO1_fr2_fr3_1" at "curative"
     And the tap of PstRangeAction "pst_fr" should be -5 after "CO1_fr2_fr3_1" at "curative"
@@ -594,13 +594,13 @@ Feature: US 19.7: handle CNECs belonging to TSOs that don't share CRAs
     And the relative margin on cnec "fr3_fr5_CO1 - OPP - curative" after CRA should be 585 MW
     And the relative margin on cnec "fr1_fr4_CO1 - curative" after CRA should be 578 MW
 
-  @fast @rao @mock @ac @contingency-scenarios @relative
+  @fast @rao @mock @ac @contingency-scenarios @relative @search-tree-rao
   Scenario: 19.7.8.MW.R: Only PSTs - Most limiting CNEC belongs to an operator not sharing CRAs - MW - relative
     Given network file is "epic19/TestCase16Nodes_with_different_imax.uct" for CORE CC
     Given crac file is "epic19/CBCORA_ep19us7case8.xml"
     Given configuration file is "epic19/RaoParameters_maxRelMargin_megawatt_shareCra_mip.json"
     Given loopflow glsk file is "common/glsk_proportional_16nodes.xml"
-    When I launch search_tree_rao at "2019-01-08 12:00" after "CO1_fr2_fr3_1" at "curative"
+    When I launch rao at "2019-01-08 12:00" after "CO1_fr2_fr3_1" at "curative"
     Then 2 remedial actions are used after "CO1_fr2_fr3_1" at "curative"
     And the tap of PstRangeAction "pst_be" should be 13 after "CO1_fr2_fr3_1" at "curative"
     And the tap of PstRangeAction "pst_fr" should be 4 after "CO1_fr2_fr3_1" at "curative"
@@ -610,13 +610,13 @@ Feature: US 19.7: handle CNECs belonging to TSOs that don't share CRAs
     And the relative margin on cnec "fr3_fr5_CO1 - OPP - curative" after CRA should be 760 MW
     And the relative margin on cnec "fr1_fr4_CO1 - curative" after CRA should be 115 MW
 
-  @fast @rao @mock @ac @contingency-scenarios @relative
+  @fast @rao @mock @ac @contingency-scenarios @relative @search-tree-rao
   Scenario: 19.7.9.MW.R: Only PSTs - Second most limiting CNEC belongs to an operator not sharing CRAs - MW - relative
     Given network file is "epic19/TestCase16Nodes_with_different_imax.uct" for CORE CC
     Given crac file is "epic19/CBCORA_ep19us7case9.xml"
     Given configuration file is "epic19/RaoParameters_maxRelMargin_megawatt_shareCra_mip.json"
     Given loopflow glsk file is "common/glsk_proportional_16nodes.xml"
-    When I launch search_tree_rao at "2019-01-08 12:00" after "CO1_fr2_fr3_1" at "curative"
+    When I launch rao at "2019-01-08 12:00" after "CO1_fr2_fr3_1" at "curative"
     Then 2 remedial actions are used after "CO1_fr2_fr3_1" at "curative"
     And the tap of PstRangeAction "pst_be" should be 2 after "CO1_fr2_fr3_1" at "curative"
     And the tap of PstRangeAction "pst_fr" should be -5 after "CO1_fr2_fr3_1" at "curative"

@@ -80,7 +80,6 @@ class JsonRaoParametersTest extends AbstractSerDeTest {
         searchTreeParameters.getMultithreadingParameters().setAvailableCPUs(21);
         // Second preventive RAO parameters
         searchTreeParameters.getSecondPreventiveRaoParameters().setExecutionCondition(SecondPreventiveRaoParameters.ExecutionCondition.POSSIBLE_CURATIVE_IMPROVEMENT);
-        searchTreeParameters.getSecondPreventiveRaoParameters().setReOptimizeCurativeRangeActions(true);
         searchTreeParameters.getSecondPreventiveRaoParameters().setHintFromFirstPreventiveRao(true);
         // Not optimized cnecs parameters
         parameters.getNotOptimizedCnecsParameters().setDoNotOptimizeCurativeCnecsForTsosWithoutCras(false);
@@ -117,12 +116,17 @@ class JsonRaoParametersTest extends AbstractSerDeTest {
         relativeMarginsParametersExtension.setPtdfSumLowerBound(0.05);
         parameters.setRelativeMarginsParameters(relativeMarginsParameters);
         searchTreeParameters.setRelativeMarginsParameters(relativeMarginsParametersExtension);
-
         // -- Min Margins parameters
         SearchTreeRaoCostlyMinMarginParameters minMarginsParameters = new SearchTreeRaoCostlyMinMarginParameters();
         minMarginsParameters.setShiftedViolationPenalty(800.0);
         minMarginsParameters.setShiftedViolationThreshold(3.0);
         searchTreeParameters.setMinMarginsParameters(minMarginsParameters);
+        // -- Fast Rao Parameters
+        parameters.addExtension(FastRaoParameters.class, new FastRaoParameters());
+        FastRaoParameters fastRaoParameters = parameters.getExtension(FastRaoParameters.class);
+        fastRaoParameters.setMarginLimit(5);
+        fastRaoParameters.setAddUnsecureCnecs(false);
+        fastRaoParameters.setNumberOfCnecsToAdd(20);
 
         roundTripTest(parameters, JsonRaoParameters::write, JsonRaoParameters::read, "/RaoParametersSet_v2.json");
     }
@@ -151,6 +155,7 @@ class JsonRaoParametersTest extends AbstractSerDeTest {
         assertEquals(4, searchTreeParameters.getMnecParameters().get().getConstraintAdjustmentCoefficient(), DOUBLE_TOLERANCE);
         assertEquals(0.06, searchTreeParameters.getRelativeMarginsParameters().get().getPtdfSumLowerBound(), DOUBLE_TOLERANCE);
         assertEquals(List.of("{FR}-{ES}"), parameters.getRelativeMarginsParameters().get().getPtdfBoundariesAsString());
+
     }
 
     @Test

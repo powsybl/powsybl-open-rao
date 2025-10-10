@@ -15,7 +15,7 @@ Feature: US 12.15: export different reason per perimeter in SWE CNE
     Given crac file is "epic12/CIM_12_15_1.xml"
     Given crac creation parameters file is "epic12/CimCracCreationParameters_MonitorLeftSide.json"
     Given configuration file is "epic12/raoParametersSweIDCC_minObjectiveDisabled2P.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then the calculation partially fails
     And 1 remedial actions are used in preventive
     And the remedial action "PRA_OPEN_N1013_N1014" is used in preventive
@@ -32,7 +32,7 @@ Feature: US 12.15: export different reason per perimeter in SWE CNE
     Given crac file is "epic12/CIM_12_15_1.xml"
     Given crac creation parameters file is "epic12/CimCracCreationParameters_MonitorLeftSide.json"
     Given configuration file is "epic12/raoParametersSweIDCC_minObjective.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then the calculation partially fails
     And 1 remedial actions are used in preventive
     And the remedial action "PRA_OPEN_N1013_N1014" is used in preventive
@@ -49,7 +49,7 @@ Feature: US 12.15: export different reason per perimeter in SWE CNE
     Given crac file is "epic12/CIM_12_15_1.xml"
     Given crac creation parameters file is "epic12/CimCracCreationParameters_MonitorLeftSide.json"
     Given configuration file is "epic12/raoParametersSweIDCC_minObjectiveWithGlobal2P.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then the calculation partially fails
     And 1 remedial actions are used in preventive
     And the remedial action "PRA_OPEN_N1013_N1014" is used in preventive
@@ -81,7 +81,7 @@ Feature: US 12.15: export different reason per perimeter in SWE CNE
     Given crac file is "epic12/CIM_12_15_2.xml"
     Given crac creation parameters file is "epic12/CimCracCreationParameters_MonitorLeftSide.json"
     Given configuration file is "epic12/raoParametersSweIDCC_minObjectiveDisabled2P.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then the execution details should be "First preventive fell back to initial situation"
     And 0 remedial actions are used in preventive
     And the worst margin is -1419.4 A
@@ -93,7 +93,7 @@ Feature: US 12.15: export different reason per perimeter in SWE CNE
     Given crac file is "epic12/CIM_12_15_2.xml"
     Given crac creation parameters file is "epic12/CimCracCreationParameters_MonitorLeftSide.json"
     Given configuration file is "epic12/raoParametersSweIDCC_minObjective.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then the execution details should be "Second preventive fell back to initial situation"
     And 0 remedial actions are used in preventive
     And the worst margin is -1419.4 A
@@ -105,7 +105,7 @@ Feature: US 12.15: export different reason per perimeter in SWE CNE
     Given crac file is "epic12/CIM_12_15_2.xml"
     Given crac creation parameters file is "epic12/CimCracCreationParameters_MonitorLeftSide.json"
     Given configuration file is "epic12/raoParametersSweIDCC_minObjectiveWithGlobal2P.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then the execution details should be "Second preventive fell back to initial situation"
     And 0 remedial actions are used in preventive
     And the worst margin is -1419.4 A
@@ -132,7 +132,7 @@ Feature: US 12.15: export different reason per perimeter in SWE CNE
     Given crac file is "epic12/CIM_12_15_3.xml"
     Given crac creation parameters file is "epic12/CimCracCreationParameters_MonitorLeftSide.json"
     Given configuration file is "epic12/raoParametersSweIDCC_minObjectiveDisabled2P.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then the execution details should be "First preventive fell back to initial situation"
     And 0 remedial actions are used in preventive
     And the worst margin is -1419.4 A on cnec "N1013_N1014 - CO_N1012_N4012 - curative"
@@ -146,7 +146,7 @@ Feature: US 12.15: export different reason per perimeter in SWE CNE
     Given crac file is "epic12/CIM_12_15_3.xml"
     Given crac creation parameters file is "epic12/CimCracCreationParameters_MonitorLeftSide.json"
     Given configuration file is "epic12/raoParametersSweIDCC_minObjective.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then the calculation succeeds
     And 0 remedial actions are used in preventive
     And 0 remedial actions are used after "CO_N1012_N4012" at "curative"
@@ -161,7 +161,7 @@ Feature: US 12.15: export different reason per perimeter in SWE CNE
     Given crac file is "epic12/CIM_12_15_3.xml"
     Given crac creation parameters file is "epic12/CimCracCreationParameters_MonitorLeftSide.json"
     Given configuration file is "epic12/raoParametersSweIDCC_minObjectiveWithGlobal2P.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then the calculation succeeds
     And 0 remedial actions are used in preventive
     And 0 remedial actions are used after "CO_N1012_N4012" at "curative"
@@ -203,7 +203,7 @@ Feature: US 12.15: export different reason per perimeter in SWE CNE
     Given crac file is "epic12/CIM_12_15_4.xml"
     Given crac creation parameters file is "epic12/CimCracCreationParameters_MonitorLeftSide.json"
     Given configuration file is "epic12/raoParametersSweIDCC_minObjectiveDisabled2P.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then the calculation succeeds
     And 0 remedial actions are used in preventive
     And 0 remedial actions are used after "CO_N1012_N4012" at "curative"
@@ -219,7 +219,7 @@ Feature: US 12.15: export different reason per perimeter in SWE CNE
     Given crac file is "epic12/CIM_12_15_4.xml"
     Given crac creation parameters file is "epic12/CimCracCreationParameters_MonitorLeftSide.json"
     Given configuration file is "epic12/raoParametersSweIDCC_minObjective.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then the calculation succeeds
     And 0 remedial actions are used in preventive
     And 0 remedial actions are used after "CO_N1012_N4012" at "curative"
@@ -235,7 +235,7 @@ Feature: US 12.15: export different reason per perimeter in SWE CNE
     Given crac file is "epic12/CIM_12_15_4.xml"
     Given crac creation parameters file is "epic12/CimCracCreationParameters_MonitorLeftSide.json"
     Given configuration file is "epic12/raoParametersSweIDCC_minObjectiveWithGlobal2P.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then the calculation succeeds
     And 0 remedial actions are used in preventive
     And 0 remedial actions are used after "CO_N1012_N4012" at "curative"

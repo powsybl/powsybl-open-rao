@@ -26,8 +26,13 @@ import java.util.Set;
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 public class GlobalRangeActionActivationResult extends AbstractGlobalResult<RangeActionActivationResult> implements RangeActionActivationResult {
+
     public GlobalRangeActionActivationResult(TemporalData<RangeActionActivationResult> rangeActionActivationPerTimestamp) {
         super(rangeActionActivationPerTimestamp);
+    }
+
+    public TemporalData<RangeActionActivationResult> getRangeActionActivationPerTimestamp() {
+        return resultPerTimestamp;
     }
 
     @Override

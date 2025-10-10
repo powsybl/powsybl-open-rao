@@ -1,5 +1,5 @@
 {
-  "version" : "3.1",
+  "version" : "3.2",
   "objective-function" : {
     "type" : "MIN_COST",
     "unit" : "MW"
@@ -43,7 +43,6 @@
       },
       "second-preventive-rao" : {
         "execution-condition" : "DISABLED",
-        "re-optimize-curative-range-actions" : true,
         "hint-from-first-preventive-rao" : false
       },
       "load-flow-and-sensitivity-computation" : {
@@ -136,7 +135,7 @@
       },
       "costly-min-margin-parameters" : {
         "shifted-violation-penalty" : 1000.0,
-        "shifted-violation-threshold": 0.0
+        "shifted-violation-threshold": 10.0
       }
     }
   }

@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.result.impl;
 
+import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
@@ -27,7 +28,7 @@ import java.util.Set;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class FailedRaoResultImpl implements RaoResult {
+public class FailedRaoResultImpl extends AbstractExtendable<RaoResult> implements RaoResult {
     private String failureReason;
     private final String exceptionMessage;
 

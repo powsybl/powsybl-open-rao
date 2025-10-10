@@ -8,14 +8,16 @@
 package com.powsybl.openrao.searchtreerao.marmot;
 
 import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
+import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
+import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.raoapi.RaoInput;
@@ -24,6 +26,7 @@ import com.powsybl.openrao.searchtreerao.castor.algorithm.PrePerimeterSensitivit
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
 import com.powsybl.openrao.searchtreerao.marmot.results.GlobalLinearOptimizationResult;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
+import com.powsybl.openrao.searchtreerao.result.api.NetworkActionsResult;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 
@@ -49,16 +52,49 @@ public final class MarmotUtils {
         Crac crac = raoInput.getCrac();
         Network network = raoInput.getNetwork();
         State preventiveState = crac.getPreventiveState();
-        Set<RangeAction<?>> rangeActions = crac.getRangeActions(preventiveState, UsageMethod.AVAILABLE);
-        return new PrePerimeterSensitivityAnalysis(crac, getPreventivePerimeterCnecs(crac), rangeActions, raoParameters, ToolProvider.buildFromRaoInputAndParameters(raoInput, raoParameters)).runInitialSensitivityAnalysis(network);
+        Set<RangeAction<?>> rangeActions = crac.getRangeActions(preventiveState);
+        return new PrePerimeterSensitivityAnalysis(crac, crac.getFlowCnecs(), rangeActions, raoParameters, ToolProvider.buildFromRaoInputAndParameters(raoInput, raoParameters)).runInitialSensitivityAnalysis(network);
     }
 
-    public static PrePerimeterResult runSensitivityAnalysisBasedOnInitialResult(RaoInput raoInput, RaoParameters raoParameters, FlowResult initialFlowResult) {
+    public static PrePerimeterResult runInitialPrePerimeterSensitivityAnalysisWithoutRangeActions(RaoInput raoInput, AppliedRemedialActions curativeRemedialActions, PrePerimeterResult initialResult, RaoParameters raoParameters) {
+        Crac crac = raoInput.getCrac();
+        Network network = raoInput.getNetwork();
+        return new PrePerimeterSensitivityAnalysis(
+            crac,
+            crac.getFlowCnecs(), // want results on all cnecs
+            new HashSet<>(), // with no range actions for faster computations, only flow values are required
+            raoParameters,
+            ToolProvider.buildFromRaoInputAndParameters(raoInput, raoParameters)
+        ).runBasedOnInitialResults(network, initialResult, null, curativeRemedialActions);
+    }
+
+    public static TemporalData<AppliedRemedialActions> getAppliedRemedialActionsInCurative(TemporalData<RaoInput> inputs, TemporalData<RaoResult> raoResults) {
+        TemporalData<AppliedRemedialActions> curativeRemedialActions = new TemporalDataImpl<>();
+        inputs.getTimestamps().forEach(timestamp -> {
+            Crac crac = inputs.getData(timestamp).orElseThrow().getCrac();
+            RaoResult raoResult = raoResults.getData(timestamp).orElseThrow();
+            AppliedRemedialActions appliedRemedialActions = new AppliedRemedialActions();
+            for (State state : crac.getStates(crac.getLastInstant())) {
+                try {
+                    appliedRemedialActions.addAppliedNetworkActions(state, raoResult.getActivatedNetworkActionsDuringState(state));
+                    raoResult.getActivatedRangeActionsDuringState(state).forEach(ra -> appliedRemedialActions.addAppliedRangeAction(state, ra, raoResult.getOptimizedSetPointOnState(state, ra)));
+                } catch (OpenRaoException e) {
+                    if (!e.getMessage().equals("Trying to access perimeter result for the wrong state.")) {
+                        throw e;
+                    }
+                }
+            }
+            curativeRemedialActions.put(timestamp, appliedRemedialActions);
+        });
+        return curativeRemedialActions;
+    }
+
+    public static PrePerimeterResult runSensitivityAnalysisBasedOnInitialResult(RaoInput raoInput, AppliedRemedialActions curativeRemedialActions, FlowResult initialFlowResult, RaoParameters raoParameters, Set<FlowCnec> consideredCnecs) {
         Crac crac = raoInput.getCrac();
         Network network = raoInput.getNetwork();
         State preventiveState = crac.getPreventiveState();
-        Set<RangeAction<?>> rangeActions = crac.getRangeActions(preventiveState, UsageMethod.AVAILABLE);
-        return new PrePerimeterSensitivityAnalysis(crac, getPreventivePerimeterCnecs(crac), rangeActions, raoParameters, ToolProvider.buildFromRaoInputAndParameters(raoInput, raoParameters)).runBasedOnInitialResults(network, initialFlowResult, Set.of(), new AppliedRemedialActions());
+        Set<RangeAction<?>> rangeActions = crac.getRangeActions(preventiveState);
+        return new PrePerimeterSensitivityAnalysis(crac, consideredCnecs, rangeActions, raoParameters, ToolProvider.buildFromRaoInputAndParameters(raoInput, raoParameters)).runBasedOnInitialResults(network, initialFlowResult, Set.of(), curativeRemedialActions);
     }
 
     public static Set<FlowCnec> getPreventivePerimeterCnecs(Crac crac) {
@@ -67,17 +103,10 @@ public final class MarmotUtils {
         return flowCnecs;
     }
 
-    public static TemporalData<PreventiveOptimizationResult> getPreventiveOptimizationResults(TemporalData<RaoInput> raoInputs, TemporalData<RaoResult> topologicalOptimizationResults) {
-        List<OffsetDateTime> timestamps = raoInputs.getTimestamps();
-        Map<OffsetDateTime, PreventiveOptimizationResult> preventiveOptimizationResultMap = new HashMap<>();
-        timestamps.forEach(timestamp -> preventiveOptimizationResultMap.put(timestamp, new PreventiveOptimizationResult(raoInputs.getData(timestamp).orElseThrow(), topologicalOptimizationResults.getData(timestamp).orElseThrow())));
-        return new TemporalDataImpl<>(preventiveOptimizationResultMap);
-    }
-
     public static TemporalData<PostOptimizationResult> getPostOptimizationResults(TemporalData<RaoInput> raoInputs, TemporalData<PrePerimeterResult> initialResults, GlobalLinearOptimizationResult globalLinearOptimizationResult, TemporalData<RaoResult> topologicalOptimizationResults, RaoParameters raoParameters) {
         List<OffsetDateTime> timestamps = raoInputs.getTimestamps();
         Map<OffsetDateTime, PostOptimizationResult> postOptimizationResults = new HashMap<>();
-        timestamps.forEach(timestamp -> postOptimizationResults.put(timestamp, new PostOptimizationResult(raoInputs.getData(timestamp).orElseThrow(), initialResults.getData(timestamp).orElseThrow(), initialResults.getData(timestamp).orElseThrow(), globalLinearOptimizationResult.getFlowResult(timestamp), globalLinearOptimizationResult.getSensitivityResult(timestamp), globalLinearOptimizationResult.getRangeActionActivationResult(timestamp), topologicalOptimizationResults.getData(timestamp).orElseThrow(), raoParameters)));
+        timestamps.forEach(timestamp -> postOptimizationResults.put(timestamp, new PostOptimizationResult(raoInputs.getData(timestamp).orElseThrow(), initialResults.getData(timestamp).orElseThrow(), globalLinearOptimizationResult, topologicalOptimizationResults.getData(timestamp).orElseThrow(), raoParameters)));
         return new TemporalDataImpl<>(postOptimizationResults);
     }
 
@@ -98,5 +127,21 @@ public final class MarmotUtils {
             return ComputationStatus.FAILURE;
         }
         return allStatuses.contains(ComputationStatus.PARTIAL_FAILURE) ? ComputationStatus.PARTIAL_FAILURE : ComputationStatus.DEFAULT;
+    }
+
+    public static void applyPreventiveRemedialActions(RaoInput raoInput, NetworkActionsResult networkActionsResult, String initialVariantId, String newVariantId) {
+        Network network = raoInput.getNetwork();
+        Crac crac = raoInput.getCrac();
+
+        State preventiveState = crac.getPreventiveState();
+        network.getVariantManager().setWorkingVariant(initialVariantId);
+        network.getVariantManager().cloneVariant(initialVariantId, newVariantId);
+        network.getVariantManager().setWorkingVariant(newVariantId);
+        Set<NetworkAction> networkActionsToBeApplied = networkActionsResult.getActivatedNetworkActionsPerState().get(preventiveState);
+        if (networkActionsToBeApplied.isEmpty()) {
+            OpenRaoLoggerProvider.TECHNICAL_LOGS.info("[MARMOT] No preventive topological actions applied for timestamp {}", crac.getTimestamp().orElseThrow());
+        } else {
+            networkActionsToBeApplied.forEach(networkAction -> networkAction.apply(network));
+        }
     }
 }

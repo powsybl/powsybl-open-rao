@@ -17,7 +17,6 @@ import com.powsybl.openrao.data.crac.io.nc.craccreator.NcCracCreationTestUtil;
 import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.usagerule.OnInstant;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
 import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
 import org.junit.jupiter.api.Test;
@@ -47,32 +46,31 @@ class GroupRemedialActionTest {
         UsageRule ur0 = cracCreationContext.getCrac().getNetworkAction("23ff9c5d-9501-4141-a4b3-f4468b2eb636").getUsageRules().iterator().next();
         assertTrue(ur0 instanceof OnInstant);
         assertEquals(InstantKind.PREVENTIVE, ur0.getInstant().getKind());
-        assertEquals(UsageMethod.AVAILABLE, ur0.getUsageMethod());
 
         NcCracCreationTestUtil.assertNetworkActionImported(cracCreationContext, "5569e363-59ab-497a-99b0-c4ae239cbe73", Set.of("DDE3AA1  DDE4AA1  1", "BBE1AA1  BBE4AA1  1"), true, 3, "RTE");
         assertEquals("Topo 1 + Topo 2 - CRA", cracCreationContext.getCrac().getRemedialAction("5569e363-59ab-497a-99b0-c4ae239cbe73").getName());
-        NcCracCreationTestUtil.assertHasOnInstantUsageRule(cracCreationContext, "5569e363-59ab-497a-99b0-c4ae239cbe73", NcCracCreationTestUtil.CURATIVE_1_INSTANT_ID, UsageMethod.AVAILABLE);
-        NcCracCreationTestUtil.assertHasOnInstantUsageRule(cracCreationContext, "5569e363-59ab-497a-99b0-c4ae239cbe73", NcCracCreationTestUtil.CURATIVE_2_INSTANT_ID, UsageMethod.AVAILABLE);
-        NcCracCreationTestUtil.assertHasOnInstantUsageRule(cracCreationContext, "5569e363-59ab-497a-99b0-c4ae239cbe73", NcCracCreationTestUtil.CURATIVE_3_INSTANT_ID, UsageMethod.AVAILABLE);
+        NcCracCreationTestUtil.assertHasOnInstantUsageRule(cracCreationContext, "5569e363-59ab-497a-99b0-c4ae239cbe73", NcCracCreationTestUtil.CURATIVE_1_INSTANT_ID);
+        NcCracCreationTestUtil.assertHasOnInstantUsageRule(cracCreationContext, "5569e363-59ab-497a-99b0-c4ae239cbe73", NcCracCreationTestUtil.CURATIVE_2_INSTANT_ID);
+        NcCracCreationTestUtil.assertHasOnInstantUsageRule(cracCreationContext, "5569e363-59ab-497a-99b0-c4ae239cbe73", NcCracCreationTestUtil.CURATIVE_3_INSTANT_ID);
 
         NcCracCreationTestUtil.assertNetworkActionImported(cracCreationContext, "f4e1e04c-0184-42ea-a3cb-75dfe70112f5", Set.of("DDE3AA1  DDE4AA1  1", "BBE1AA1  BBE4AA1  1"), true, 3, "RTE");
         assertEquals("Topo 1 + Topo 2 - CRA x CO1", cracCreationContext.getCrac().getRemedialAction("f4e1e04c-0184-42ea-a3cb-75dfe70112f5").getName());
-        NcCracCreationTestUtil.assertHasOnContingencyStateUsageRule(cracCreationContext, "f4e1e04c-0184-42ea-a3cb-75dfe70112f5", "co1_fr2_fr3_1", NcCracCreationTestUtil.CURATIVE_1_INSTANT_ID, UsageMethod.AVAILABLE);
-        NcCracCreationTestUtil.assertHasOnContingencyStateUsageRule(cracCreationContext, "f4e1e04c-0184-42ea-a3cb-75dfe70112f5", "co1_fr2_fr3_1", NcCracCreationTestUtil.CURATIVE_2_INSTANT_ID, UsageMethod.AVAILABLE);
-        NcCracCreationTestUtil.assertHasOnContingencyStateUsageRule(cracCreationContext, "f4e1e04c-0184-42ea-a3cb-75dfe70112f5", "co1_fr2_fr3_1", NcCracCreationTestUtil.CURATIVE_3_INSTANT_ID, UsageMethod.AVAILABLE);
+        NcCracCreationTestUtil.assertHasOnContingencyStateUsageRule(cracCreationContext, "f4e1e04c-0184-42ea-a3cb-75dfe70112f5", "co1_fr2_fr3_1", NcCracCreationTestUtil.CURATIVE_1_INSTANT_ID);
+        NcCracCreationTestUtil.assertHasOnContingencyStateUsageRule(cracCreationContext, "f4e1e04c-0184-42ea-a3cb-75dfe70112f5", "co1_fr2_fr3_1", NcCracCreationTestUtil.CURATIVE_2_INSTANT_ID);
+        NcCracCreationTestUtil.assertHasOnContingencyStateUsageRule(cracCreationContext, "f4e1e04c-0184-42ea-a3cb-75dfe70112f5", "co1_fr2_fr3_1", NcCracCreationTestUtil.CURATIVE_3_INSTANT_ID);
 
         NcCracCreationTestUtil.assertNetworkActionImported(cracCreationContext, "7d2833e4-c5a8-4d79-b936-c735a58f1774", Set.of("DDE3AA1  DDE4AA1  1", "BBE1AA1  BBE4AA1  1"), true, 6, "RTE");
         assertEquals("Topo 1 + Topo 2 - CRA x AE1", cracCreationContext.getCrac().getRemedialAction("7d2833e4-c5a8-4d79-b936-c735a58f1774").getName());
-        NcCracCreationTestUtil.assertHasOnConstraintUsageRule(cracCreationContext, "7d2833e4-c5a8-4d79-b936-c735a58f1774", "RTE_AE1 (f7708112-b880-4674-98a1-b005a01a61d5) - RTE_CO1 - curative 1 - PATL", cracCreationContext.getCrac().getInstant(NcCracCreationTestUtil.CURATIVE_1_INSTANT_ID), UsageMethod.AVAILABLE, FlowCnec.class);
-        NcCracCreationTestUtil.assertHasOnConstraintUsageRule(cracCreationContext, "7d2833e4-c5a8-4d79-b936-c735a58f1774", "RTE_AE1 (f7708112-b880-4674-98a1-b005a01a61d5) - RTE_CO1 - curative 2 - PATL", cracCreationContext.getCrac().getInstant(NcCracCreationTestUtil.CURATIVE_2_INSTANT_ID), UsageMethod.AVAILABLE, FlowCnec.class);
-        NcCracCreationTestUtil.assertHasOnConstraintUsageRule(cracCreationContext, "7d2833e4-c5a8-4d79-b936-c735a58f1774", "RTE_AE1 (f7708112-b880-4674-98a1-b005a01a61d5) - RTE_CO1 - curative 2 - PATL", cracCreationContext.getCrac().getInstant(NcCracCreationTestUtil.CURATIVE_2_INSTANT_ID), UsageMethod.AVAILABLE, FlowCnec.class);
-        NcCracCreationTestUtil.assertHasOnConstraintUsageRule(cracCreationContext, "7d2833e4-c5a8-4d79-b936-c735a58f1774", "RTE_AE1 (f7708112-b880-4674-98a1-b005a01a61d5) - RTE_CO1 - curative 3 - PATL", cracCreationContext.getCrac().getInstant(NcCracCreationTestUtil.CURATIVE_1_INSTANT_ID), UsageMethod.AVAILABLE, FlowCnec.class);
-        NcCracCreationTestUtil.assertHasOnConstraintUsageRule(cracCreationContext, "7d2833e4-c5a8-4d79-b936-c735a58f1774", "RTE_AE1 (f7708112-b880-4674-98a1-b005a01a61d5) - RTE_CO1 - curative 3 - PATL", cracCreationContext.getCrac().getInstant(NcCracCreationTestUtil.CURATIVE_2_INSTANT_ID), UsageMethod.AVAILABLE, FlowCnec.class);
-        NcCracCreationTestUtil.assertHasOnConstraintUsageRule(cracCreationContext, "7d2833e4-c5a8-4d79-b936-c735a58f1774", "RTE_AE1 (f7708112-b880-4674-98a1-b005a01a61d5) - RTE_CO1 - curative 3 - PATL", cracCreationContext.getCrac().getInstant(NcCracCreationTestUtil.CURATIVE_3_INSTANT_ID), UsageMethod.AVAILABLE, FlowCnec.class);
+        NcCracCreationTestUtil.assertHasOnConstraintUsageRule(cracCreationContext, "7d2833e4-c5a8-4d79-b936-c735a58f1774", "RTE_AE1 (f7708112-b880-4674-98a1-b005a01a61d5) - RTE_CO1 - curative 1 - PATL", cracCreationContext.getCrac().getInstant(NcCracCreationTestUtil.CURATIVE_1_INSTANT_ID), FlowCnec.class);
+        NcCracCreationTestUtil.assertHasOnConstraintUsageRule(cracCreationContext, "7d2833e4-c5a8-4d79-b936-c735a58f1774", "RTE_AE1 (f7708112-b880-4674-98a1-b005a01a61d5) - RTE_CO1 - curative 2 - PATL", cracCreationContext.getCrac().getInstant(NcCracCreationTestUtil.CURATIVE_2_INSTANT_ID), FlowCnec.class);
+        NcCracCreationTestUtil.assertHasOnConstraintUsageRule(cracCreationContext, "7d2833e4-c5a8-4d79-b936-c735a58f1774", "RTE_AE1 (f7708112-b880-4674-98a1-b005a01a61d5) - RTE_CO1 - curative 2 - PATL", cracCreationContext.getCrac().getInstant(NcCracCreationTestUtil.CURATIVE_2_INSTANT_ID), FlowCnec.class);
+        NcCracCreationTestUtil.assertHasOnConstraintUsageRule(cracCreationContext, "7d2833e4-c5a8-4d79-b936-c735a58f1774", "RTE_AE1 (f7708112-b880-4674-98a1-b005a01a61d5) - RTE_CO1 - curative 3 - PATL", cracCreationContext.getCrac().getInstant(NcCracCreationTestUtil.CURATIVE_1_INSTANT_ID), FlowCnec.class);
+        NcCracCreationTestUtil.assertHasOnConstraintUsageRule(cracCreationContext, "7d2833e4-c5a8-4d79-b936-c735a58f1774", "RTE_AE1 (f7708112-b880-4674-98a1-b005a01a61d5) - RTE_CO1 - curative 3 - PATL", cracCreationContext.getCrac().getInstant(NcCracCreationTestUtil.CURATIVE_2_INSTANT_ID), FlowCnec.class);
+        NcCracCreationTestUtil.assertHasOnConstraintUsageRule(cracCreationContext, "7d2833e4-c5a8-4d79-b936-c735a58f1774", "RTE_AE1 (f7708112-b880-4674-98a1-b005a01a61d5) - RTE_CO1 - curative 3 - PATL", cracCreationContext.getCrac().getInstant(NcCracCreationTestUtil.CURATIVE_3_INSTANT_ID), FlowCnec.class);
 
         NcCracCreationTestUtil.assertNetworkActionImported(cracCreationContext, "66979f64-3c52-486c-84f7-b5439cd71765", Set.of("BBE1AA1  BBE4AA1  1"), true, 1, "RTE");
         assertEquals("Topo 1 - PRA", cracCreationContext.getCrac().getRemedialAction("66979f64-3c52-486c-84f7-b5439cd71765").getName());
-        NcCracCreationTestUtil.assertHasOnInstantUsageRule(cracCreationContext, "66979f64-3c52-486c-84f7-b5439cd71765", NcCracCreationTestUtil.PREVENTIVE_INSTANT_ID, UsageMethod.AVAILABLE);
+        NcCracCreationTestUtil.assertHasOnInstantUsageRule(cracCreationContext, "66979f64-3c52-486c-84f7-b5439cd71765", NcCracCreationTestUtil.PREVENTIVE_INSTANT_ID);
     }
 
     @Test
@@ -88,9 +86,9 @@ class GroupRemedialActionTest {
         assertTrue(hasGeneratorAction(networkAction1.getElementaryActions(), "BBE2AA1 _generator", -200));
         assertTrue(hasGeneratorAction(networkAction1.getElementaryActions(), "DDE1AA1 _generator", 200));
         assertTrue(hasGeneratorAction(networkAction1.getElementaryActions(), "DDE2AA1 _generator", 200));
-        NcCracCreationTestUtil.assertHasOnInstantUsageRule(cracCreationContext, "hdvc-200-be-de", NcCracCreationTestUtil.CURATIVE_1_INSTANT_ID, UsageMethod.AVAILABLE);
-        NcCracCreationTestUtil.assertHasOnInstantUsageRule(cracCreationContext, "hdvc-200-be-de", NcCracCreationTestUtil.CURATIVE_2_INSTANT_ID, UsageMethod.AVAILABLE);
-        NcCracCreationTestUtil.assertHasOnInstantUsageRule(cracCreationContext, "hdvc-200-be-de", NcCracCreationTestUtil.CURATIVE_3_INSTANT_ID, UsageMethod.AVAILABLE);
+        NcCracCreationTestUtil.assertHasOnInstantUsageRule(cracCreationContext, "hdvc-200-be-de", NcCracCreationTestUtil.CURATIVE_1_INSTANT_ID);
+        NcCracCreationTestUtil.assertHasOnInstantUsageRule(cracCreationContext, "hdvc-200-be-de", NcCracCreationTestUtil.CURATIVE_2_INSTANT_ID);
+        NcCracCreationTestUtil.assertHasOnInstantUsageRule(cracCreationContext, "hdvc-200-be-de", NcCracCreationTestUtil.CURATIVE_3_INSTANT_ID);
 
         NcCracCreationTestUtil.assertNetworkActionImported(cracCreationContext, "hdvc-200-de-be", Set.of("BBE1AA1 _generator", "DDE2AA1 _generator", "BBE1AA1  BBE4AA1  1", "DDE1AA1 _generator", "BBE2AA1 _generator", "DDE3AA1  DDE4AA1  1"), true, 3, "RTE");
         NetworkAction networkAction2 = cracCreationContext.getCrac().getNetworkAction("hdvc-200-de-be");
@@ -102,9 +100,9 @@ class GroupRemedialActionTest {
         assertTrue(hasGeneratorAction(networkAction2.getElementaryActions(), "BBE2AA1 _generator", 200));
         assertTrue(hasGeneratorAction(networkAction2.getElementaryActions(), "DDE1AA1 _generator", -200));
         assertTrue(hasGeneratorAction(networkAction2.getElementaryActions(), "DDE2AA1 _generator", -200));
-        NcCracCreationTestUtil.assertHasOnInstantUsageRule(cracCreationContext, "hdvc-200-de-be", NcCracCreationTestUtil.CURATIVE_1_INSTANT_ID, UsageMethod.AVAILABLE);
-        NcCracCreationTestUtil.assertHasOnInstantUsageRule(cracCreationContext, "hdvc-200-de-be", NcCracCreationTestUtil.CURATIVE_2_INSTANT_ID, UsageMethod.AVAILABLE);
-        NcCracCreationTestUtil.assertHasOnInstantUsageRule(cracCreationContext, "hdvc-200-de-be", NcCracCreationTestUtil.CURATIVE_3_INSTANT_ID, UsageMethod.AVAILABLE);
+        NcCracCreationTestUtil.assertHasOnInstantUsageRule(cracCreationContext, "hdvc-200-de-be", NcCracCreationTestUtil.CURATIVE_1_INSTANT_ID);
+        NcCracCreationTestUtil.assertHasOnInstantUsageRule(cracCreationContext, "hdvc-200-de-be", NcCracCreationTestUtil.CURATIVE_2_INSTANT_ID);
+        NcCracCreationTestUtil.assertHasOnInstantUsageRule(cracCreationContext, "hdvc-200-de-be", NcCracCreationTestUtil.CURATIVE_3_INSTANT_ID);
 
         NcCracCreationTestUtil.assertNetworkActionImported(cracCreationContext, "hdvc-0", Set.of("BBE1AA1 _generator", "DDE2AA1 _generator", "BBE1AA1  BBE4AA1  1", "DDE1AA1 _generator", "BBE2AA1 _generator", "DDE3AA1  DDE4AA1  1"), true, 3, "RTE");
         NetworkAction networkAction3 = cracCreationContext.getCrac().getNetworkAction("hdvc-0");
@@ -116,9 +114,9 @@ class GroupRemedialActionTest {
         assertTrue(hasGeneratorAction(networkAction3.getElementaryActions(), "BBE2AA1 _generator", 0));
         assertTrue(hasGeneratorAction(networkAction3.getElementaryActions(), "DDE1AA1 _generator", 0));
         assertTrue(hasGeneratorAction(networkAction3.getElementaryActions(), "DDE2AA1 _generator", 0));
-        NcCracCreationTestUtil.assertHasOnInstantUsageRule(cracCreationContext, "hdvc-0", NcCracCreationTestUtil.CURATIVE_1_INSTANT_ID, UsageMethod.AVAILABLE);
-        NcCracCreationTestUtil.assertHasOnInstantUsageRule(cracCreationContext, "hdvc-0", NcCracCreationTestUtil.CURATIVE_2_INSTANT_ID, UsageMethod.AVAILABLE);
-        NcCracCreationTestUtil.assertHasOnInstantUsageRule(cracCreationContext, "hdvc-0", NcCracCreationTestUtil.CURATIVE_3_INSTANT_ID, UsageMethod.AVAILABLE);
+        NcCracCreationTestUtil.assertHasOnInstantUsageRule(cracCreationContext, "hdvc-0", NcCracCreationTestUtil.CURATIVE_1_INSTANT_ID);
+        NcCracCreationTestUtil.assertHasOnInstantUsageRule(cracCreationContext, "hdvc-0", NcCracCreationTestUtil.CURATIVE_2_INSTANT_ID);
+        NcCracCreationTestUtil.assertHasOnInstantUsageRule(cracCreationContext, "hdvc-0", NcCracCreationTestUtil.CURATIVE_3_INSTANT_ID);
     }
 
     private boolean hasGeneratorAction(Set<Action> elementaryActions, String elementId, double activePowerValue) {

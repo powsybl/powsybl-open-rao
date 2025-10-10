@@ -33,10 +33,5 @@ public interface NetworkActionsResult {
      */
     Set<NetworkAction> getActivatedNetworkActions();
 
-    /**
-     * It retrieves the {@link NetworkAction} instances activated, grouped by {@link State}.
-     *
-     * @return A map where each key ({@link State}) corresponds to a set of activated network actions during said state.
-     */
     Map<State, Set<NetworkAction>> getActivatedNetworkActionsPerState();
 }

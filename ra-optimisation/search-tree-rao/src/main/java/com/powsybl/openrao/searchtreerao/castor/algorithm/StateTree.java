@@ -207,11 +207,11 @@ public class StateTree {
     }
 
     private static boolean anyAvailableRemedialAction(Crac crac, State state) {
-        return !crac.getPotentiallyAvailableNetworkActions(state).isEmpty() ||
-            !crac.getPotentiallyAvailableRangeActions(state).isEmpty();
+        return !crac.getNetworkActions(state).isEmpty() ||
+            !crac.getRangeActions(state).isEmpty();
     }
 
-    static Set<String> findOperatorsNotSharingCras(Crac crac) {
+    private static Set<String> findOperatorsNotSharingCras(Crac crac) {
         Set<String> tsos = crac.getFlowCnecs().stream().map(Cnec::getOperator).collect(Collectors.toSet());
         tsos.addAll(crac.getRemedialActions().stream().map(RemedialAction::getOperator).collect(Collectors.toSet()));
         // <!> If a CNEC's operator is not null, filter it out of the list of operators not sharing CRAs
@@ -221,8 +221,8 @@ public class StateTree {
     static boolean tsoHasCra(String tso, Crac crac) {
         Set<State> optimizedCurativeStates = crac.getCurativeStates();
         return optimizedCurativeStates.stream().anyMatch(state ->
-            crac.getPotentiallyAvailableNetworkActions(state).stream().map(RemedialAction::getOperator).anyMatch(tso::equals) ||
-                crac.getPotentiallyAvailableRangeActions(state).stream().map(RemedialAction::getOperator).anyMatch(tso::equals)
+            crac.getNetworkActions(state).stream().map(RemedialAction::getOperator).anyMatch(tso::equals) ||
+                crac.getRangeActions(state).stream().map(RemedialAction::getOperator).anyMatch(tso::equals)
         );
     }
 }

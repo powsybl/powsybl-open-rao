@@ -7,7 +7,6 @@
 
 package com.powsybl.openrao.monitoring.results;
 
-import com.powsybl.openrao.commons.MinOrMax;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
@@ -56,7 +55,7 @@ public class RaoResultWithVoltageMonitoring extends RaoResultClone {
     }
 
     @Override
-    public double getMinVoltage(Instant optimizationInstant, VoltageCnec voltageCnec, MinOrMax minOrMax, Unit unit) {
+    public double getMinVoltage(Instant optimizationInstant, VoltageCnec voltageCnec, Unit unit) {
         unit.checkPhysicalParameter(PhysicalParameter.VOLTAGE);
         Optional<CnecResult> voltageCnecResultOpt = getCnecResult(optimizationInstant, voltageCnec);
         if (voltageCnecResultOpt.isPresent()) {
@@ -67,7 +66,7 @@ public class RaoResultWithVoltageMonitoring extends RaoResultClone {
     }
 
     @Override
-    public double getMaxVoltage(Instant optimizationInstant, VoltageCnec voltageCnec, MinOrMax minOrMax, Unit unit) {
+    public double getMaxVoltage(Instant optimizationInstant, VoltageCnec voltageCnec, Unit unit) {
         unit.checkPhysicalParameter(PhysicalParameter.VOLTAGE);
         Optional<CnecResult> voltageCnecResultOpt = getCnecResult(optimizationInstant, voltageCnec);
         if (voltageCnecResultOpt.isPresent()) {

@@ -7,6 +7,8 @@
 
 package com.powsybl.openrao.data.raoresult.io.json.deserializers;
 
+import com.powsybl.commons.extensions.Extension;
+import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
@@ -15,10 +17,13 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 
 import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.*;
 import static com.powsybl.openrao.data.raoresult.io.json.deserializers.Utils.*;
@@ -47,6 +52,7 @@ public class RaoResultDeserializer extends JsonDeserializer<RaoResult> {
     public RaoResult deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
 
         RaoResultImpl raoResult = new RaoResultImpl(crac);
+        List<Extension<RaoResult>> extensions = Collections.emptyList();
 
         String jsonFileVersion = isValid(jsonParser, raoResult);
         if (checkHeaderOnly) {
@@ -116,11 +122,15 @@ public class RaoResultDeserializer extends JsonDeserializer<RaoResult> {
                 case RANGEACTION_RESULTS:
                     importRangeAction(jsonParser, raoResult, jsonFileVersion);
                     break;
-
+                case "extensions":
+                    jsonParser.nextToken();
+                    extensions = JsonUtil.updateExtensions(jsonParser, deserializationContext, RaoResultJsonUtils.getExtensionSerializers(), raoResult);
+                    break;
                 default:
                     throw new OpenRaoException(String.format("Cannot deserialize RaoResult: unexpected field (%s)", jsonParser.getCurrentName()));
             }
         }
+        extensions.forEach(extension -> raoResult.addExtension((Class) extension.getClass(), extension));
         return raoResult;
     }
 

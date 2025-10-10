@@ -20,13 +20,18 @@ import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.networkaction.ActionType;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.openrao.data.crac.impl.utils.NetworkImportsUtil;
 import com.powsybl.openrao.data.crac.loopflowextension.LoopFlowThresholdAdder;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
+import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
@@ -123,25 +128,25 @@ abstract class AbstractOptimizationPerimeterTest {
         pRA = crac.newInjectionRangeAction().withId("preventive-ra")
             .withNetworkElementAndKey(1, "BBE2AA1 _generator")
             .newRange().withMin(-1000).withMax(1000).add()
-            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
             .add();
 
         cRA = crac.newInjectionRangeAction().withId("curative-ra")
             .withNetworkElementAndKey(1, "BBE2AA1 _generator")
             .newRange().withMin(-1000).withMax(1000).add()
-            .newOnContingencyStateUsageRule().withInstant(CURATIVE_INSTANT_ID).withContingency("outage-1").withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnContingencyStateUsageRule().withInstant(CURATIVE_INSTANT_ID).withContingency("outage-1").add()
             .add();
 
         // one preventive network action and one curative
         pNA = crac.newNetworkAction().withId("preventive-na")
-            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
             .newTerminalsConnectionAction().withActionType(ActionType.OPEN).withNetworkElement("BBE2AA1  FFR3AA1  1").add()
             .add();
 
         cNA = crac.newNetworkAction().withId("curative-na")
             .withName("complexNetworkActionName")
             .newTerminalsConnectionAction().withActionType(ActionType.OPEN).withNetworkElement("BBE2AA1  FFR3AA1  1").add()
-            .newOnContingencyStateUsageRule().withInstant(CURATIVE_INSTANT_ID).withContingency("outage-1").withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnContingencyStateUsageRule().withInstant(CURATIVE_INSTANT_ID).withContingency("outage-1").add()
             .add();
 
         pState = crac.getPreventiveState();
@@ -151,5 +156,23 @@ abstract class AbstractOptimizationPerimeterTest {
         cState2 = crac.getState("outage-2", curativeInstant);
 
         prePerimeterResult = Mockito.mock(PrePerimeterResult.class);
+    }
+
+    @Test
+    void testDoesPrePerimeterSetpointRespectRange() {
+        RangeAction<?> rangeAction = Mockito.mock(RangeAction.class);
+        RangeActionSetpointResult prePerimeterSetpoints = Mockito.mock(RangeActionSetpointResult.class);
+
+        //respect range with epsilon
+        when(prePerimeterSetpoints.getSetpoint(rangeAction)).thenReturn(100.0 + 0.5 * 1e-6);
+        when(rangeAction.getMinAdmissibleSetpoint(100.0 + 0.5 * 1e-6)).thenReturn(0.0);
+        when(rangeAction.getMaxAdmissibleSetpoint(100.0 + 0.5 * 1e-6)).thenReturn(100.0);
+        assertTrue(AbstractOptimizationPerimeter.doesPrePerimeterSetpointRespectRange(rangeAction, prePerimeterSetpoints));
+
+        // not in range slightly outside of bound +- EPSILON
+        when(prePerimeterSetpoints.getSetpoint(rangeAction)).thenReturn(100.0 + 2 * 1e-6);
+        when(rangeAction.getMinAdmissibleSetpoint(100.0 + 2 * 1e-6)).thenReturn(0.0);
+        when(rangeAction.getMaxAdmissibleSetpoint(100.0 + 2 * 1e-6)).thenReturn(100.0);
+        assertFalse(AbstractOptimizationPerimeter.doesPrePerimeterSetpointRespectRange(rangeAction, prePerimeterSetpoints));
     }
 }

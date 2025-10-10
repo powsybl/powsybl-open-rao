@@ -15,8 +15,6 @@ import com.google.common.base.Suppliers;
 import com.powsybl.commons.Versionable;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.util.ServiceLoaderCache;
-import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
-import com.powsybl.openrao.raoapi.parameters.extensions.SecondPreventiveRaoParameters;
 import com.powsybl.tools.Version;
 
 import java.time.Instant;
@@ -64,8 +62,6 @@ public final class Rao {
                 .findFirst().orElseThrow();
             BUSINESS_WARNS.warn("Running RAO using Open RAO version {} from git commit {}.", openRaoVersion.getMavenProjectVersion(), openRaoVersion.getGitVersion());
 
-            deprecateNonGlobalSecondPreventive(parameters);
-
             return provider.run(raoInput, parameters, targetEndInstant);
         }
 
@@ -91,18 +87,7 @@ public final class Rao {
                 .findFirst().orElseThrow();
             BUSINESS_WARNS.warn("Running RAO using Open RAO version {} from git commit {}.", openRaoVersion.getMavenProjectVersion(), openRaoVersion.getGitVersion());
 
-            deprecateNonGlobalSecondPreventive(parameters);
-
             return provider.run(raoInput, parameters, targetEndInstant).join();
-        }
-
-        public void deprecateNonGlobalSecondPreventive(RaoParameters parameters) {
-            if (parameters.hasExtension(OpenRaoSearchTreeParameters.class)) {
-                boolean reOptimizeCurativeRangeActions = SecondPreventiveRaoParameters.getSecondPreventiveReOptimizeCurativeRangeActions(parameters);
-                if (!reOptimizeCurativeRangeActions) {
-                    BUSINESS_WARNS.warn("Non re-optimizing curative range actions is deprecated. Curative range actions re-optimization will be mandatory in a future OpenRAO version.");
-                }
-            }
         }
 
         public RaoResult run(RaoInput raoInput, RaoParameters parameters) {
@@ -142,7 +127,7 @@ public final class Rao {
      * @return a runner for default RAO implementation
      */
     public static Runner find() {
-        return find(null);
+        return find("SearchTreeRao");
     }
 
     /**

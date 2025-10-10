@@ -12,7 +12,6 @@ import com.powsybl.openrao.data.crac.impl.utils.NetworkImportsUtil;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.rangeaction.CounterTradeRangeAction;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.BeforeEach;
@@ -41,7 +40,7 @@ class CounterTradeRangeActionImplTest {
         CounterTradeRangeAction counterTradeRangeAction = crac.newCounterTradeRangeAction()
                 .withId("counterTradeRangeAction")
                 .newRange().withMin(-1000).withMax(1000).add()
-                .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
                 .withExportingCountry(Country.FR)
                 .withImportingCountry(Country.DE)
                 .add();
@@ -57,7 +56,7 @@ class CounterTradeRangeActionImplTest {
                 .newRange().withMin(-1300).withMax(400).add()
                 .withExportingCountry(Country.FR)
                 .withImportingCountry(Country.DE)
-                .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
                 .add();
 
         assertEquals(-1000, counterTradeRangeAction.getMinAdmissibleSetpoint(0.0), 1e-3);
@@ -72,7 +71,7 @@ class CounterTradeRangeActionImplTest {
                 .newRange().withMin(-1300).withMax(400).add()
                 .withExportingCountry(Country.FR)
                 .withImportingCountry(Country.DE)
-                .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
                 .add();
         assertEquals(0, counterTradeRangeAction.getCurrentSetpoint(network));
 

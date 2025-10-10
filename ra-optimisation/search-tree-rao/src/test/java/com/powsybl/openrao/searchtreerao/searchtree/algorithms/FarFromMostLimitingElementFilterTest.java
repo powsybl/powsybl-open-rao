@@ -12,7 +12,6 @@ import com.powsybl.openrao.commons.CountryBoundary;
 import com.powsybl.openrao.commons.CountryGraph;
 import com.powsybl.openrao.data.crac.api.networkaction.ActionType;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -20,7 +19,6 @@ import org.mockito.Mockito;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkActionCombinationsUtils.PREVENTIVE_INSTANT_ID;
@@ -98,34 +96,34 @@ class FarFromMostLimitingElementFilterTest {
         Mockito.when(leaf.getMostLimitingElements(1)).thenReturn(List.of(NetworkActionCombinationsUtils.CRAC.getFlowCnec("cnec1basecase"))); // be fr
         Mockito.when(leaf.getCostlyElements(eq("mnec"), anyInt())).thenReturn(List.of(NetworkActionCombinationsUtils.CRAC.getFlowCnec("cnec2basecase"))); // de fr
         Mockito.when(leaf.getCostlyElements(eq("lf"), anyInt())).thenReturn(Collections.emptyList());
-        assertEquals(Set.of(Optional.of(Country.BE), Optional.of(Country.FR), Optional.of(Country.DE)), naFilter.getOptimizedMostLimitingElementsLocation(leaf));
+        assertEquals(Set.of(Country.BE, Country.FR, Country.DE), naFilter.getOptimizedMostLimitingElementsLocation(leaf));
 
         Mockito.when(leaf.getMostLimitingElements(1)).thenReturn(List.of(NetworkActionCombinationsUtils.CRAC.getFlowCnec("cnec1basecase"))); // be fr
         Mockito.when(leaf.getCostlyElements(eq("mnec"), anyInt())).thenReturn(Collections.emptyList());
         Mockito.when(leaf.getCostlyElements(eq("lf"), anyInt())).thenReturn(Collections.emptyList());
-        assertEquals(Set.of(Optional.of(Country.BE), Optional.of(Country.FR)), naFilter.getOptimizedMostLimitingElementsLocation(leaf));
+        assertEquals(Set.of(Country.BE, Country.FR), naFilter.getOptimizedMostLimitingElementsLocation(leaf));
 
         Mockito.when(leaf.getMostLimitingElements(1)).thenReturn(Collections.emptyList());
         Mockito.when(leaf.getCostlyElements(eq("mnec"), anyInt())).thenReturn(Collections.emptyList());
         Mockito.when(leaf.getCostlyElements(eq("lf"), anyInt())).thenReturn(List.of(NetworkActionCombinationsUtils.CRAC.getFlowCnec("cnec2basecase"))); // de fr
-        assertEquals(Set.of(Optional.of(Country.FR), Optional.of(Country.DE)), naFilter.getOptimizedMostLimitingElementsLocation(leaf));
+        assertEquals(Set.of(Country.FR, Country.DE), naFilter.getOptimizedMostLimitingElementsLocation(leaf));
 
         Mockito.when(leaf.getMostLimitingElements(1)).thenReturn(Collections.emptyList());
         Mockito.when(leaf.getCostlyElements(eq("mnec"), anyInt())).thenReturn(List.of(NetworkActionCombinationsUtils.CRAC.getFlowCnec("cnec1basecase"), NetworkActionCombinationsUtils.CRAC.getFlowCnec("cnec2basecase"))); // be de fr
         Mockito.when(leaf.getCostlyElements(eq("lf"), anyInt())).thenReturn(Collections.emptyList());
-        assertEquals(Set.of(Optional.of(Country.BE), Optional.of(Country.FR), Optional.of(Country.DE)), naFilter.getOptimizedMostLimitingElementsLocation(leaf));
+        assertEquals(Set.of(Country.BE, Country.FR, Country.DE), naFilter.getOptimizedMostLimitingElementsLocation(leaf));
 
         Mockito.when(leaf.getMostLimitingElements(1)).thenReturn(Collections.emptyList());
         Mockito.when(leaf.getCostlyElements(eq("mnec"), anyInt())).thenReturn(List.of(NetworkActionCombinationsUtils.CRAC.getFlowCnec("cnec2basecase")));
         Mockito.when(leaf.getCostlyElements(eq("lf"), anyInt())).thenReturn(List.of(NetworkActionCombinationsUtils.CRAC.getFlowCnec("cnec1basecase")));
-        assertEquals(Set.of(Optional.of(Country.BE), Optional.of(Country.FR), Optional.of(Country.DE)), naFilter.getOptimizedMostLimitingElementsLocation(leaf));
+        assertEquals(Set.of(Country.BE, Country.FR, Country.DE), naFilter.getOptimizedMostLimitingElementsLocation(leaf));
     }
 
     @Test
     void testIsNetworkActionCloseToLocations() {
-        NetworkAction na1 = NetworkActionCombinationsUtils.CRAC.newNetworkAction().withId("na").newTerminalsConnectionAction().withNetworkElement("BBE2AA1  FFR3AA1  1").withActionType(ActionType.OPEN).add().newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(PREVENTIVE_INSTANT_ID).add().add();
+        NetworkAction na1 = NetworkActionCombinationsUtils.CRAC.newNetworkAction().withId("na").newTerminalsConnectionAction().withNetworkElement("BBE2AA1  FFR3AA1  1").withActionType(ActionType.OPEN).add().newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add().add();
         NetworkAction na2 = mock(NetworkAction.class);
-        Mockito.when(na2.getLocation(NetworkActionCombinationsUtils.NETWORK)).thenReturn(Set.of(Optional.of(Country.FR), Optional.empty()));
+        Mockito.when(na2.getLocation(NetworkActionCombinationsUtils.NETWORK)).thenReturn(Set.of(Country.FR));
 
         HashSet<CountryBoundary> boundaries = new HashSet<>();
         boundaries.add(new CountryBoundary(Country.FR, Country.BE));
@@ -136,18 +134,20 @@ class FarFromMostLimitingElementFilterTest {
         FarFromMostLimitingElementFilter naFilter;
 
         naFilter = new FarFromMostLimitingElementFilter(NetworkActionCombinationsUtils.NETWORK, false, 0);
-        assertTrue(naFilter.isNetworkActionCloseToLocations(na1, Set.of(Optional.empty()), countryGraph));
-        assertTrue(naFilter.isNetworkActionCloseToLocations(na1, Set.of(Optional.of(Country.FR)), countryGraph));
-        assertTrue(naFilter.isNetworkActionCloseToLocations(na1, Set.of(Optional.of(Country.BE)), countryGraph));
-        assertFalse(naFilter.isNetworkActionCloseToLocations(na1, Set.of(Optional.of(Country.DE)), countryGraph));
-        assertFalse(naFilter.isNetworkActionCloseToLocations(na1, Set.of(Optional.of(Country.AT)), countryGraph));
-        assertTrue(naFilter.isNetworkActionCloseToLocations(na2, Set.of(Optional.of(Country.AT)), countryGraph));
+        assertTrue(naFilter.isNetworkActionCloseToLocations(na1, Set.of(), countryGraph));
+        assertTrue(naFilter.isNetworkActionCloseToLocations(na1, Set.of(Country.FR), countryGraph));
+        assertTrue(naFilter.isNetworkActionCloseToLocations(na1, Set.of(Country.BE), countryGraph));
+        assertFalse(naFilter.isNetworkActionCloseToLocations(na1, Set.of(Country.DE), countryGraph));
+        assertFalse(naFilter.isNetworkActionCloseToLocations(na1, Set.of(Country.AT), countryGraph));
+        assertFalse(naFilter.isNetworkActionCloseToLocations(na2, Set.of(Country.AT), countryGraph));
 
         naFilter = new FarFromMostLimitingElementFilter(NetworkActionCombinationsUtils.NETWORK, true, 1);
-        assertTrue(naFilter.isNetworkActionCloseToLocations(na1, Set.of(Optional.of(Country.DE)), countryGraph));
-        assertFalse(naFilter.isNetworkActionCloseToLocations(na1, Set.of(Optional.of(Country.AT)), countryGraph));
+        assertTrue(naFilter.isNetworkActionCloseToLocations(na1, Set.of(Country.DE), countryGraph));
+        assertFalse(naFilter.isNetworkActionCloseToLocations(na1, Set.of(Country.AT), countryGraph));
+        assertFalse(naFilter.isNetworkActionCloseToLocations(na2, Set.of(Country.AT), countryGraph));
 
         naFilter = new FarFromMostLimitingElementFilter(NetworkActionCombinationsUtils.NETWORK, true, 2);
-        assertTrue(naFilter.isNetworkActionCloseToLocations(na1, Set.of(Optional.of(Country.AT)), countryGraph));
+        assertTrue(naFilter.isNetworkActionCloseToLocations(na1, Set.of(Country.AT), countryGraph));
+        assertTrue(naFilter.isNetworkActionCloseToLocations(na2, Set.of(Country.AT), countryGraph));
     }
 }

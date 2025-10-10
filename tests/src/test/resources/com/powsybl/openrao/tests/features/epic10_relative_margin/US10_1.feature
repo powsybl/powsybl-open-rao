@@ -11,7 +11,7 @@ Feature: US 10.1: Linear RAO with relative margin
     Given crac file is "epic10/ls_relative_margin_unsecure.json"
     Given configuration file is "epic10/RaoParameters_relMargin_megawatt.json"
     Given loopflow glsk file is "common/glsk_proportional_12nodes.xml"
-    When I launch search_tree_rao
+    When I launch rao
     Then its security status should be "UNSECURED"
     And the value of the objective function after CRA should be 275.8
     And the tap of PstRangeAction "PRA_PST_BE" should be -16 in preventive
@@ -25,9 +25,9 @@ Feature: US 10.1: Linear RAO with relative margin
     Given crac file is "epic10/ls_relative_margin.json"
     Given configuration file is "epic10/RaoParameters_relMargin_megawatt.json"
     Given loopflow glsk file is "common/glsk_proportional_12nodes.xml"
-    When I launch search_tree_rao
+    When I launch rao
     Then its security status should be "SECURED"
-    And the value of the objective function after CRA should be -2385.0
+    And the value of the objective function after CRA should be -2383.0
     And the tap of PstRangeAction "PRA_PST_BE" should be -3 in preventive
     And the worst relative margin is 2383.0 MW on cnec "NNL2AA1  BBE3AA1  1 - preventive"
     And the absolute PTDF sum on cnec "NNL2AA1  BBE3AA1  1 - preventive" initially should be 1.455
@@ -40,7 +40,7 @@ Feature: US 10.1: Linear RAO with relative margin
     Given crac file is "epic10/ls_relative_margin_with_open_branch.json"
     Given configuration file is "epic10/RaoParameters_relMargin_megawatt.json"
     Given loopflow glsk file is "common/glsk_proportional_12nodes.xml"
-    When I launch search_tree_rao
+    When I launch rao
     Then its security status should be "SECURED"
     And the value of the objective function after CRA should be -2385.0
     And the tap of PstRangeAction "PRA_PST_BE" should be -3 in preventive

@@ -23,5 +23,5 @@ public interface InterTemporalRaoProvider extends Versionable {
      * @param parameters RAO parameters.
      * @return A completable future of a RaoComputationResult for each timestamp.
      */
-    CompletableFuture<InterTemporalRaoResult> run(InterTemporalRaoInput raoInput, RaoParameters parameters);
+    CompletableFuture<InterTemporalRaoResult> run(InterTemporalRaoInputWithNetworkPaths raoInput, RaoParameters parameters);
 }

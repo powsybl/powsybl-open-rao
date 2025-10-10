@@ -18,7 +18,6 @@ import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.networkaction.ActionType;
 import com.powsybl.openrao.data.crac.api.usagerule.OnContingencyState;
 import com.powsybl.openrao.data.crac.api.usagerule.OnContingencyStateAdderToRemedialAction;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -66,48 +65,25 @@ class OnContingencyStateAdderToRemedialActionImplTest {
 
     @Test
     void testOk() {
-        remedialAction.newOnStateUsageRule().withState(crac.getState(contingency, curativeInstant)).withUsageMethod(UsageMethod.FORCED).add();
+        remedialAction.newOnStateUsageRule().withState(crac.getState(contingency, curativeInstant)).add();
 
         UsageRule usageRule = remedialAction.getUsageRules().iterator().next();
         assertEquals(1, remedialAction.getUsageRules().size());
         assertTrue(usageRule instanceof OnContingencyState);
         assertEquals(curativeInstant, ((OnContingencyState) usageRule).getState().getInstant());
         assertEquals(contingency, ((OnContingencyState) usageRule).getState().getContingency().orElse(null));
-        assertEquals(UsageMethod.FORCED, usageRule.getUsageMethod());
-    }
-
-    @Test
-    void testOkPreventive() {
-        remedialAction.newOnStateUsageRule().withState(crac.getPreventiveState()).withUsageMethod(UsageMethod.FORCED).add();
-        UsageRule usageRule = remedialAction.getUsageRules().iterator().next();
-
-        assertEquals(1, remedialAction.getUsageRules().size());
-        assertTrue(usageRule instanceof OnContingencyState);
-        assertEquals(preventiveInstant, ((OnContingencyState) usageRule).getState().getInstant());
-        assertEquals(UsageMethod.FORCED, usageRule.getUsageMethod());
     }
 
     @Test
     void testNoState() {
-        OnContingencyStateAdderToRemedialAction<?> onStateAdderToRemedialAction = remedialAction.newOnStateUsageRule()
-            .withUsageMethod(UsageMethod.FORCED);
+        OnContingencyStateAdderToRemedialAction<?> onStateAdderToRemedialAction = remedialAction.newOnStateUsageRule();
         OpenRaoException exception = assertThrows(OpenRaoException.class, onStateAdderToRemedialAction::add);
         assertEquals("Cannot add OnState without a state. Please use withState() with a non null value", exception.getMessage());
     }
 
     @Test
-    void testNoUsageMethod() {
-        OnContingencyStateAdderToRemedialAction<?> onStateAdderToRemedialAction = remedialAction.newOnStateUsageRule()
-            .withState(crac.getState(contingency, curativeInstant));
-        OpenRaoException exception = assertThrows(OpenRaoException.class, onStateAdderToRemedialAction::add);
-        assertEquals("Cannot add OnState without a usage method. Please use withUsageMethod() with a non null value", exception.getMessage());
-    }
-
-    @Test
-    void testPreventiveInstantNotForced() {
-        OnContingencyStateAdderToRemedialAction<?> onStateAdderToRemedialAction = remedialAction.newOnStateUsageRule()
-            .withState(crac.getPreventiveState())
-            .withUsageMethod(UsageMethod.AVAILABLE);
+    void testPreventiveInstant() {
+        OnContingencyStateAdderToRemedialAction<?> onStateAdderToRemedialAction = remedialAction.newOnStateUsageRule().withState(crac.getPreventiveState());
         OpenRaoException exception = assertThrows(OpenRaoException.class, onStateAdderToRemedialAction::add);
         assertEquals("OnContingencyState usage rules are not allowed for PREVENTIVE instant except when FORCED. Please use newOnInstantUsageRule() instead.", exception.getMessage());
     }
@@ -116,8 +92,7 @@ class OnContingencyStateAdderToRemedialActionImplTest {
     void testOutageInstant() {
         State outageState = ((CracImpl) crac).addState(contingency, outageInstant);
         OnContingencyStateAdderToRemedialAction<?> onStateAdderToRemedialAction = remedialAction.newOnStateUsageRule()
-            .withState(outageState)
-            .withUsageMethod(UsageMethod.AVAILABLE);
+            .withState(outageState);
         OpenRaoException exception = assertThrows(OpenRaoException.class, onStateAdderToRemedialAction::add);
         assertEquals("OnContingencyState usage rules are not allowed for OUTAGE instant.", exception.getMessage());
     }

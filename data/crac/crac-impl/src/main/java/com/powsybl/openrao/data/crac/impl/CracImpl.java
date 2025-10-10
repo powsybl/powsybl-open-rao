@@ -40,7 +40,6 @@ import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkActionAdder;
 import com.powsybl.openrao.data.crac.api.usagerule.OnContingencyState;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 
 import java.time.OffsetDateTime;
 import java.util.*;
@@ -114,8 +113,8 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
      */
     void safeRemoveNetworkElements(Set<String> networkElementIds) {
         networkElementIds.stream()
-                .filter(networkElementId -> !isNetworkElementUsedWithinCrac(networkElementId))
-                .forEach(networkElements::remove);
+            .filter(networkElementId -> !isNetworkElementUsedWithinCrac(networkElementId))
+            .forEach(networkElements::remove);
     }
 
     /**
@@ -126,13 +125,13 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
      */
     private boolean isNetworkElementUsedWithinCrac(String networkElementId) {
         return getCnecs().stream()
-                .map(Cnec::getNetworkElements)
-                .flatMap(Set::stream)
-                .anyMatch(ne -> ((NetworkElement) ne).getId().equals(networkElementId))
+            .map(Cnec::getNetworkElements)
+            .flatMap(Set::stream)
+            .anyMatch(ne -> ((NetworkElement) ne).getId().equals(networkElementId))
             || getRemedialActions().stream()
-                .map(RemedialAction::getNetworkElements)
-                .flatMap(Set::stream)
-                .anyMatch(ne -> ne.getId().equals(networkElementId));
+            .map(RemedialAction::getNetworkElements)
+            .flatMap(Set::stream)
+            .anyMatch(ne -> ne.getId().equals(networkElementId));
     }
 
     /**
@@ -411,8 +410,8 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
      */
     void safeRemoveStates(Set<String> stateIds) {
         stateIds.stream()
-                .filter(stateId -> !isStateUsedWithinCrac(stateId))
-                .forEach(states::remove);
+            .filter(stateId -> !isStateUsedWithinCrac(stateId))
+            .forEach(states::remove);
     }
 
     /**
@@ -424,10 +423,10 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     private boolean isStateUsedWithinCrac(String stateId) {
         return getCnecs().stream()
             .anyMatch(cnec -> cnec.getState().getId().equals(stateId))
-                || getRemedialActions().stream()
-                .map(RemedialAction::getUsageRules)
-                .flatMap(Set::stream)
-                .anyMatch(ur -> ur instanceof OnContingencyState onContingencyState && onContingencyState.getState().getId().equals(stateId));
+            || getRemedialActions().stream()
+            .map(RemedialAction::getUsageRules)
+            .flatMap(Set::stream)
+            .anyMatch(ur -> ur instanceof OnContingencyState onContingencyState && onContingencyState.getState().getId().equals(stateId));
     }
 
     //endregion
@@ -504,7 +503,7 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
      * @deprecated consider using getCnec() or getFlowCnec() instead
      */
     @Override
-    @Deprecated (since = "3.0.0")
+    @Deprecated(since = "3.0.0")
     public BranchCnec getBranchCnec(String id) {
         return getFlowCnec(id);
     }
@@ -516,7 +515,7 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
      * @deprecated consider using getCnecs() or getFlowCnecs() instead
      */
     @Override
-    @Deprecated (since = "3.0.0")
+    @Deprecated(since = "3.0.0")
     public Set<BranchCnec> getBranchCnecs() {
         return new HashSet<>(flowCnecs.values());
     }
@@ -528,7 +527,7 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
      * @deprecated consider using getCnecs() or getFlowCnecs() instead
      */
     @Override
-    @Deprecated (since = "3.0.0")
+    @Deprecated(since = "3.0.0")
     public Set<BranchCnec> getBranchCnecs(State state) {
         return new HashSet<>(getFlowCnecs(state));
     }
@@ -546,8 +545,8 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     @Override
     public Set<FlowCnec> getFlowCnecs(State state) {
         return flowCnecs.values().stream()
-                .filter(cnec -> cnec.getState().equals(state))
-                .collect(Collectors.toSet());
+            .filter(cnec -> cnec.getState().equals(state))
+            .collect(Collectors.toSet());
     }
 
     @Override
@@ -688,9 +687,9 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
 
     private Set<State> getAssociatedStates(RemedialAction<?> remedialAction) {
         return remedialAction.getUsageRules().stream()
-                .filter(OnContingencyState.class::isInstance)
-                .map(ur -> ((OnContingencyState) ur).getState())
-                .collect(Collectors.toSet());
+            .filter(OnContingencyState.class::isInstance)
+            .map(ur -> ((OnContingencyState) ur).getState())
+            .collect(Collectors.toSet());
     }
 
     // endregion
@@ -768,29 +767,18 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     }
 
     @Override
-    public Set<RangeAction<?>> getRangeActions(State state, UsageMethod... usageMethods) {
-        Set<RangeAction<?>> pstRangeActionsSet = pstRangeActions.values().stream()
-                .filter(rangeAction -> Arrays.stream(usageMethods).anyMatch(usageMethod -> rangeAction.getUsageMethod(state).equals(usageMethod)))
-                .collect(Collectors.toSet());
-        Set<RangeAction<?>> hvdcRangeActionsSet = hvdcRangeActions.values().stream()
-                .filter(rangeAction -> Arrays.stream(usageMethods).anyMatch(usageMethod -> rangeAction.getUsageMethod(state).equals(usageMethod)))
-                .collect(Collectors.toSet());
-        Set<RangeAction<?>> injectionRangeActionSet = injectionRangeActions.values().stream()
-                .filter(rangeAction -> Arrays.stream(usageMethods).anyMatch(usageMethod -> rangeAction.getUsageMethod(state).equals(usageMethod)))
-                .collect(Collectors.toSet());
-        Set<RangeAction<?>> counterTradeRangeActionSet = counterTradeRangeActions.values().stream()
-            .filter(rangeAction -> Arrays.stream(usageMethods).anyMatch(usageMethod -> rangeAction.getUsageMethod(state).equals(usageMethod)))
-            .collect(Collectors.toSet());
-        Set<RangeAction<?>> rangeActionsSet = new HashSet<>(pstRangeActionsSet);
-        rangeActionsSet.addAll(hvdcRangeActionsSet);
-        rangeActionsSet.addAll(injectionRangeActionSet);
-        rangeActionsSet.addAll(counterTradeRangeActionSet);
+    public Set<RangeAction<?>> getRangeActions(State state) {
+        Set<RangeAction<?>> rangeActionsSet = new HashSet<>(filterRangeActionsAvailableForState(pstRangeActions, state));
+        rangeActionsSet.addAll(filterRangeActionsAvailableForState(hvdcRangeActions, state));
+        rangeActionsSet.addAll(filterRangeActionsAvailableForState(injectionRangeActions, state));
+        rangeActionsSet.addAll(filterRangeActionsAvailableForState(counterTradeRangeActions, state));
         return rangeActionsSet;
     }
 
-    @Override
-    public Set<RangeAction<?>> getPotentiallyAvailableRangeActions(State state) {
-        return getRangeActions(state, UsageMethod.AVAILABLE, UsageMethod.FORCED);
+    private static <T extends RangeAction<?>> Set<RangeAction<?>> filterRangeActionsAvailableForState(Map<String, T> rangeActions, State state) {
+        return rangeActions.values().stream()
+            .filter(rangeAction -> rangeAction.isAvailableForState(state))
+            .collect(Collectors.toSet());
     }
 
     @Override
@@ -892,15 +880,10 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     }
 
     @Override
-    public Set<NetworkAction> getNetworkActions(State state, UsageMethod... usageMethods) {
+    public Set<NetworkAction> getNetworkActions(State state) {
         return networkActions.values().stream()
-            .filter(networkAction -> Arrays.stream(usageMethods).anyMatch(usageMethod -> networkAction.getUsageMethod(state).equals(usageMethod)))
+            .filter(networkAction -> networkAction.isAvailableForState(state))
             .collect(Collectors.toSet());
-    }
-
-    @Override
-    public Set<NetworkAction> getPotentiallyAvailableNetworkActions(State state) {
-        return getNetworkActions(state, UsageMethod.AVAILABLE, UsageMethod.FORCED);
     }
 
     @Override

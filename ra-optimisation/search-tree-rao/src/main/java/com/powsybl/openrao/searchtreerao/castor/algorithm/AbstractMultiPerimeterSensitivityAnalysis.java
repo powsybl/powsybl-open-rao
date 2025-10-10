@@ -57,7 +57,7 @@ public abstract class AbstractMultiPerimeterSensitivityAnalysis {
         this.rangeActions = new HashSet<>();
         this.flowCnecs = new HashSet<>();
         for (State state : states) {
-            this.rangeActions.addAll(crac.getPotentiallyAvailableRangeActions(state));
+            this.rangeActions.addAll(crac.getRangeActions(state));
             this.flowCnecs.addAll(crac.getFlowCnecs(state));
         }
         this.raoParameters = raoParameters;
@@ -91,7 +91,6 @@ public abstract class AbstractMultiPerimeterSensitivityAnalysis {
             }
         }
         if (appliedCurativeRemedialActions != null) {
-            // for 2nd preventive initial sensi
             sensitivityComputerBuilder.withAppliedRemedialActions(appliedCurativeRemedialActions);
         }
         return sensitivityComputerBuilder.build();

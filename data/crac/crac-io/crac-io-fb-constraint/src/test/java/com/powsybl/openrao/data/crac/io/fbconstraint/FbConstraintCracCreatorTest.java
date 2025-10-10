@@ -22,7 +22,6 @@ import com.powsybl.openrao.data.crac.api.range.TapRange;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.usagerule.OnContingencyState;
 import com.powsybl.openrao.data.crac.api.usagerule.OnInstant;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.openrao.data.crac.io.commons.api.ElementaryCreationContext;
 import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
 import com.powsybl.openrao.data.crac.io.commons.api.stdcreationcontext.BranchCnecCreationContext;
@@ -177,7 +176,6 @@ class FbConstraintCracCreatorTest {
         assertEquals("PRA_PST_BE", rangeAction.getName());
         assertEquals("BE", rangeAction.getOperator());
         assertEquals(1, rangeAction.getUsageRules().size());
-        assertEquals(UsageMethod.AVAILABLE, rangeAction.getUsageRules().iterator().next().getUsageMethod());
         assertTrue(rangeAction.getUsageRules().iterator().next() instanceof OnInstant);
         assertEquals(crac.getPreventiveState().getInstant(), rangeAction.getUsageRules().iterator().next().getInstant());
         assertTrue(rangeAction.getGroupId().isPresent());
@@ -197,7 +195,6 @@ class FbConstraintCracCreatorTest {
         assertEquals("PRA_TOPO_FR", topoPra.getName());
         assertEquals("FR", topoPra.getOperator());
         assertEquals(1, topoPra.getUsageRules().size());
-        assertEquals(UsageMethod.AVAILABLE, topoPra.getUsageRules().iterator().next().getUsageMethod());
         assertTrue(topoPra.getUsageRules().iterator().next() instanceof OnInstant);
         assertEquals(crac.getPreventiveState().getInstant(), topoPra.getUsageRules().iterator().next().getInstant());
         assertEquals(NetworkActionImpl.class, topoPra.getClass());
@@ -209,7 +206,6 @@ class FbConstraintCracCreatorTest {
         assertEquals("CRA_TOPO_FR", topoCra.getName());
         assertEquals("FR", topoCra.getOperator());
         assertEquals(2, topoCra.getUsageRules().size());
-        assertEquals(UsageMethod.AVAILABLE, topoCra.getUsageRules().iterator().next().getUsageMethod());
         assertTrue(topoCra.getUsageRules().iterator().next() instanceof OnContingencyState);
         assertEquals(NetworkActionImpl.class, topoCra.getClass());
         assertEquals(1, topoCra.getElementaryActions().size());

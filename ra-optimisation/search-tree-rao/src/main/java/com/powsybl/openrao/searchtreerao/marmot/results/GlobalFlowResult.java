@@ -30,7 +30,7 @@ import java.util.Map;
  */
 public class GlobalFlowResult extends AbstractGlobalResult<FlowResult> implements FlowResult {
 
-    public GlobalFlowResult(TemporalData<FlowResult> flowResultPerTimestamp) {
+    public GlobalFlowResult(TemporalData<? extends FlowResult> flowResultPerTimestamp) {
         super(flowResultPerTimestamp);
     }
 

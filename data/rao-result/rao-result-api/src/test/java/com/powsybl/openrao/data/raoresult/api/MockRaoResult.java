@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.raoresult.api;
 
+import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
@@ -24,7 +25,7 @@ import java.util.Set;
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public class MockRaoResult implements RaoResult {
+public class MockRaoResult extends AbstractExtendable<RaoResult> implements RaoResult {
 
     private boolean wasExportSuccessful;
 

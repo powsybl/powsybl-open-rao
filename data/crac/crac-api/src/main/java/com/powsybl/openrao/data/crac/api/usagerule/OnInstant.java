@@ -7,13 +7,17 @@
 
 package com.powsybl.openrao.data.crac.api.usagerule;
 
+import com.powsybl.openrao.data.crac.api.State;
+
 /**
  * The OnInstant UsageRule is defined at a given Instant. For instance, if a RemedialAction
- * has an OnInstant UsageRule with Instant "curative" and UsageMethod AVAILABLE, this
- * RemedialAction will be available after all the contingencies at Instant "curative".
+ * has an OnInstant UsageRule with Instant "curative", this RemedialAction will be available
+ * after all the contingencies at Instant "curative". If the instant is "auto" it will be forced.
  *
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public interface OnInstant extends UsageRule {
-
+    default boolean isDefinedForState(State state) {
+        return state.getInstant().equals(getInstant());
+    }
 }

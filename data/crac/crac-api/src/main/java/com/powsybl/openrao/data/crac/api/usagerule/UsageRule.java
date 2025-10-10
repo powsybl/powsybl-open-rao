@@ -16,19 +16,10 @@ import com.powsybl.openrao.data.crac.api.State;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 public interface UsageRule {
-
-    /**
-     * Get the {@link UsageMethod} of the usage rule
-     */
-    UsageMethod getUsageMethod();
-
-    /**
-     * Get the {@link UsageMethod} of the usage rule on a given state
-     */
-    UsageMethod getUsageMethod(State state);
-
     /**
      * Get the Instant of the usage rule
      */
     Instant getInstant();
+
+    boolean isDefinedForState(State state);
 }
