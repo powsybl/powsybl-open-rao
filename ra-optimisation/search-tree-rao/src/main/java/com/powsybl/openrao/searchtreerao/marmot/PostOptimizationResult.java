@@ -34,8 +34,6 @@ import com.powsybl.openrao.searchtreerao.result.impl.RemedialActionActivationRes
 import java.util.Map;
 import java.util.Set;
 
-import static com.powsybl.openrao.searchtreerao.marmot.MarmotUtils.getPreventivePerimeterCnecs;
-
 /**
  * This class concatenates all data around one individual timestamp from running Marmot:
  * <ul>
