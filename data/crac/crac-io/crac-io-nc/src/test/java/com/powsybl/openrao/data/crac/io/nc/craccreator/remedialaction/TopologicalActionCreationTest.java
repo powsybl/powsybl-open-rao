@@ -20,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class TopologicalActionCreationTest {
 
+
     @Test
     void importTopologicalActions() {
         NcCracCreationContext cracCreationContext = NcCracCreationTestUtil.getNcCracCreationContext("/profiles/remedialactions/TopologicalActions.zip", NcCracCreationTestUtil.NETWORK);
