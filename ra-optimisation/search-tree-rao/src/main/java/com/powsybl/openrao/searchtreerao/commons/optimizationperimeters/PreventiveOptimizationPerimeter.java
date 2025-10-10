@@ -79,4 +79,14 @@ public class PreventiveOptimizationPerimeter extends AbstractOptimizationPerimet
             availableNetworkActions,
             availableRangeActions);
     }
+
+    @Override
+    public OptimizationPerimeter copyWithFilteredAvailableRangeAction(Network network){
+        return new PreventiveOptimizationPerimeter(
+            this.getMainOptimizationState(),
+            this.getFlowCnecs(),
+            this.getLoopFlowCnecs(),
+            this.getNetworkActions(),
+            this.getRangeActionsWithoutHvdcInAcEmulation(network));
+    }
 }

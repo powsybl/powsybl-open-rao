@@ -92,4 +92,14 @@ public class CurativeOptimizationPerimeter extends AbstractOptimizationPerimeter
             availableNetworkActions,
             availableRangeActions);
     }
+
+    @Override
+    public OptimizationPerimeter copyWithFilteredAvailableRangeAction(Network network){
+        return new CurativeOptimizationPerimeter(
+            this.getMainOptimizationState(),
+            this.getFlowCnecs(),
+            this.getLoopFlowCnecs(),
+            this.getNetworkActions(),
+            this.getRangeActionsWithoutHvdcInAcEmulation(network));
+    }
 }
