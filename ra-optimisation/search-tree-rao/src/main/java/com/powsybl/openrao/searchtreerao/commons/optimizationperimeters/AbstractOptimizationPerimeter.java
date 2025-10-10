@@ -6,12 +6,15 @@
  */
 package com.powsybl.openrao.searchtreerao.commons.optimizationperimeters;
 
+import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
 import com.powsybl.openrao.data.crac.api.Identifiable;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
+import com.powsybl.openrao.data.crac.io.commons.iidm.IidmHvdcHelper;
 import com.powsybl.openrao.data.crac.loopflowextension.LoopFlowThreshold;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
@@ -21,6 +24,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
+import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -119,6 +123,15 @@ public abstract class AbstractOptimizationPerimeter implements OptimizationPerim
         return availableRangeActions.values().stream().flatMap(Collection::stream).collect(Collectors.toSet());
     }
 
+    public Set<RangeAction<?>> getRangeActionsWithoutHvdcInAcEmulation(Network network) {
+        return removeHvdcInAcEmulation(network, availableRangeActions).values().stream().flatMap(Collection::stream).collect(Collectors.toSet());
+    }
+
+    public Map<State, Set<RangeAction<?>>> getRangeActionsWithoutHvdcInAcEmulationPerState(Network network) {
+        return removeHvdcInAcEmulation(network, availableRangeActions);
+    }
+
+
     public static Set<FlowCnec> getLoopFlowCnecs(Set<FlowCnec> flowCnecs, RaoParameters raoParameters, Network network) {
         Optional<com.powsybl.openrao.raoapi.parameters.LoopFlowParameters> loopFlowParametersOptional = raoParameters.getLoopFlowParameters();
         if (loopFlowParametersOptional.isPresent()) {
@@ -169,4 +182,30 @@ public abstract class AbstractOptimizationPerimeter implements OptimizationPerim
             }
         }
     }
+
+    private Map<State, Set<RangeAction<?>>> removeHvdcInAcEmulation(Network network, Map<State, Set<RangeAction<?>>> allAvailableRangeActionsPerState){
+        return allAvailableRangeActionsPerState.entrySet().stream()
+            .collect(Collectors.toMap(
+                Map.Entry::getKey,
+                entry -> entry.getValue().stream()
+                    .filter(ra -> {
+                        if (ra instanceof HvdcRangeAction) {
+                            HvdcRangeAction hvdcRa = (HvdcRangeAction) ra;
+                            HvdcAngleDroopActivePowerControl ext =
+                                IidmHvdcHelper
+                                    .getHvdcLine(network, hvdcRa.getNetworkElement().getId())
+                                    .getExtension(HvdcAngleDroopActivePowerControl.class);
+                            if (ext == null || !ext.isEnabled()) {
+                                TECHNICAL_LOGS.warn("Hvdc range action {} is filtered out of the linear problem because hvdc line associated {} is in ac emulation mode.", ra.getId(), hvdcRa.getNetworkElement().getId());
+                                return true;
+                            }
+                            return false;
+                        }
+                        return true;
+                    })
+                    .collect(Collectors.toSet())
+            ));
+
+    }
+
 }
