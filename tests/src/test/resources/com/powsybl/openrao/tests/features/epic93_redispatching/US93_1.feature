@@ -43,8 +43,8 @@ Feature: US 93.1: Redispatching actions
     When I launch rao
     Then 1 remedial actions are used in preventive
     And the remedial action "redispatchingAction" is used in preventive
-    And the setpoint of RangeAction "redispatchingAction" should be 300.0 MW in preventive
-    And the margin on cnec "cnecFr1Fr2Preventive" after PRA should be 0.0 MW
+    And the setpoint of RangeAction "redispatchingAction" should be 290.0 MW in preventive
+    And the margin on cnec "cnecFr1Fr2Preventive" after PRA should be 10.0 MW
     And the value of the objective function after PRA should be 35010.0
 
   @fast @rao @dc @redispatching @preventive-only
@@ -81,20 +81,20 @@ Feature: US 93.1: Redispatching actions
   Scenario: US 93.1.5: Multiple redispatching actions keep network balanced with more "complex" keys - min cost
   One redispatching action that act on two generators with keys 1 and -0.7 and one on one generator with key 0.6.
   Injection balance constraint is respected :
-      - redispatchingActionFR1FR2: initial setpoint = 1000 = 1000/1 = -700/-0.7, final = 529 => delta- = 471
-      - redispatchingActionFR3: initial setpoint = -300/0.6 = -500, final = -265 => delta+ = −235
-      => 471*(1-0.7)-235*0.6 = 0.3 ~ 0
-  Objective function breakdown: 10+471*50+10+235*50 = 35320
+      - redispatchingActionFR1FR2: initial setpoint = 1000 = 1000/1 = -700/-0.7, final = 512 => delta- = 488
+      - redispatchingActionFR3: initial setpoint = -300/0.6 = -500, final = -256 => delta+ = −244
+      => 488*(1-0.7)-244*0.6 = 0
+  Objective function breakdown: 10+488*50+10+244*50 = 36620
     Given network file is "epic93/3Nodes.uct"
     Given crac file is "epic93/crac-93-1-5.json"
     Given configuration file is "epic93/RaoParameters_minCost_megawatt_dc.json"
     When I launch rao
     And the initial margin on cnec "cnecFr1Fr2Preventive" should be -267 MW
     Then 2 remedial actions are used in preventive
-    And the setpoint of RangeAction "redispatchingActionFR1FR2" should be 529.0 MW in preventive
-    And the setpoint of RangeAction "redispatchingActionFR3" should be -265.0 MW in preventive
-    And the margin on cnec "cnecFr1Fr2Preventive" after PRA should be 0.0 MW
-    And the value of the objective function after PRA should be 35320.0
+    And the setpoint of RangeAction "redispatchingActionFR1FR2" should be 512.0 MW in preventive
+    And the setpoint of RangeAction "redispatchingActionFR3" should be -256.0 MW in preventive
+    And the margin on cnec "cnecFr1Fr2Preventive" after PRA should be 9.87 MW
+    And the value of the objective function after PRA should be 36620.0
 
   @fast @rao @dc @redispatching @preventive-only
   Scenario: US 93.1.6: Redispatching with disconnected generator

@@ -18,6 +18,7 @@
     <modules>
         <module>cne-exporter-commons</module>
         <module>core-cne-exporter</module>
+        <module>core-idcc-exporter</module>
         <module>swe-cne-exporter</module>
     </modules>
 </project>

@@ -157,7 +157,6 @@ public class PostPerimeterSensitivityAnalysis extends AbstractMultiPerimeterSens
 
             }
             ObjectiveFunction objectiveFunction = null;
-
             try {
                 objectiveFunction = ObjectiveFunction.build(
                     flowCnecs,
