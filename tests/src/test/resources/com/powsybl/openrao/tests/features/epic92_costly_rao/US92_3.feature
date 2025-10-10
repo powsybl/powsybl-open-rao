@@ -16,7 +16,7 @@ Feature: US 92.3: Exhaustive costly optimization - APPROXIMATED_INTEGERS PSTs
     Given configuration file is "epic92/RaoParameters_dc_minObjective_discretePst.json"
     When I launch rao
     Then the worst margin is 32.13 MW
-    And the value of the objective function initially should be 2000000.0
+    And the value of the objective function initially should be 200000.0
     And 2 remedial actions are used in preventive
     And the remedial action "pstBeFr3" is used in preventive
     And the tap of PstRangeAction "pstBeFr3" should be -2 in preventive
@@ -27,7 +27,7 @@ Feature: US 92.3: Exhaustive costly optimization - APPROXIMATED_INTEGERS PSTs
   Scenario: US 92.3.2: Preventive and curative PST + curative topological action
   The PST is moved to tap -5 to secure the preventive perimeter for a total cost of 95
   (20 for activation + 5 * 15 for variation). Then, there are two ways to secure the curative perimeter:
-  1. move PST to tap -7 => cost of 20 + 2 * 15 = 50
+  1. move PST to tap -8 => cost of 20 + 3 * 15 = 65
   2. (optimal) close line BE-FR 3 and move PST to tap -6 => cost of 10 + 20 + 1 * 15 = 45
     Given network file is "epic92/2Nodes4ParallelLinesPST3LinesClosed.uct"
     Given crac file is "epic92/crac-92-3-2.json"
@@ -35,18 +35,18 @@ Feature: US 92.3: Exhaustive costly optimization - APPROXIMATED_INTEGERS PSTs
     When I launch rao
     # Worst margin on preventive CNEC
     Then the worst margin is 5.3 MW
-    And the value of the objective function initially should be 3500000.0
+    And the value of the objective function initially should be 350000.0
     And 1 remedial actions are used in preventive
     And the remedial action "pstBeFr4" is used in preventive
     And the tap of PstRangeAction "pstBeFr4" should be -5 in preventive
-    # Activation of pstBeFr4 (20) + 5 taps moved (5 * 15) + overload penalty (282.71 * 10000)
-    And the value of the objective function after PRA should be 1045531.44
+    # Activation of pstBeFr4 (20) + 5 taps moved (5 * 15) + overload penalty (104.54 * 1000)
+    And the value of the objective function after PRA should be 104638.64
     And 2 remedial actions are used after "coBeFr2" at "curative"
     And the remedial action "pstBeFr4" is used after "coBeFr2" at "curative"
     And the tap of PstRangeAction "pstBeFr4" should be -6 after "coBeFr2" at "curative"
     And the remedial action "closeBeFr3" is used after "coBeFr2" at "curative"
-    # Activation of pstBeFr4 twice (2 * 20) + 6 taps moved in total (6 * 15) + activation of closeBeFr3 (10)
-    And the value of the objective function after CRA should be 140.0
+    # activation of closeBeFr3 (10)
+    And the value of the objective function after CRA should be 140
 
   @fast @costly @rao @second-preventive
   Scenario: US 92.3.3: Preventive and curative PST + curative topological action with 2nd preventive optimization
@@ -57,12 +57,12 @@ Feature: US 92.3: Exhaustive costly optimization - APPROXIMATED_INTEGERS PSTs
     When I launch rao
     # Worst margin on curative CNEC
     Then the worst margin is 13.02 MW
-    And the value of the objective function initially should be 3500000.0
+    And the value of the objective function initially should be 350000.0
     And 1 remedial actions are used in preventive
     And the remedial action "pstBeFr4" is used in preventive
     And the tap of PstRangeAction "pstBeFr4" should be -6 in preventive
     # Activation of pstBeFr4 (20) + 6 taps moved (6 * 15) + overload penalty (55.46 * 10000)
-    And the value of the objective function after PRA should be 554758.53
+    And the value of the objective function after PRA should be 55574.85
     And 1 remedial actions are used after "coBeFr2" at "curative"
     And the remedial action "closeBeFr3" is used after "coBeFr2" at "curative"
     # Activation of pstBeFr4 (20) + 6 taps moved in total (6 * 15) + activation of closeBeFr3 (10)
@@ -75,13 +75,13 @@ Feature: US 92.3: Exhaustive costly optimization - APPROXIMATED_INTEGERS PSTs
     Given configuration file is "epic92/RaoParameters_dc_minObjective_discretePst.json"
     When I launch rao
     # Worst margin on preventive CNEC
-    Then the worst margin is 2.73 MW
-    And the value of the objective function initially should be 2333333.33
+    Then the worst margin is 3.73 MW
+    And the value of the objective function initially should be 233333.33
     And 1 remedial actions are used in preventive
     And the remedial action "pstBeFr5" is used in preventive
     And the tap of PstRangeAction "pstBeFr5" should be -5 in preventive
-    # Activation of pstBeFr4 (20) + 5 taps moved (5 * 15) + overload penalty (69.7 * 10000)
-    And the value of the objective function after PRA should be 696982.63
+    # Activation of pstBeFr4 (20) + 5 taps moved (5 * 15) + overload penalty (69.7 * 1000)
+    And the value of the objective function after PRA should be 69790.76
     And 2 remedial actions are used after "coBeFr2" at "curative"
     And the remedial action "pstBeFr5" is used after "coBeFr2" at "curative"
     And the tap of PstRangeAction "pstBeFr5" should be -6 after "coBeFr2" at "curative"
@@ -102,12 +102,12 @@ Feature: US 92.3: Exhaustive costly optimization - APPROXIMATED_INTEGERS PSTs
     When I launch rao
     # Worst margin on curative CNEC
     Then the worst margin is 21.8 MW
-    And the value of the objective function initially should be 2333333.33
+    And the value of the objective function initially should be 233333.33
     And 1 remedial actions are used in preventive
     And the remedial action "pstBeFr5" is used in preventive
     And the tap of PstRangeAction "pstBeFr5" should be -7 in preventive
     # Activation of pstBeFr4 (20) + 5 taps moved (7 * 15) + overload penalty (4.26 * 10000)
-    And the value of the objective function after PRA should be 42744.12
+    And the value of the objective function after PRA should be 4386.91
     And 1 remedial actions are used after "coBeFr2" at "curative"
     And the remedial action "closeBeFr4" is used after "coBeFr2" at "curative"
     And 1 remedial actions are used after "coBeFr3" at "curative"

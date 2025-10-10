@@ -10,8 +10,6 @@ package com.powsybl.openrao.raoapi;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.VariantManager;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.data.crac.api.Crac;
@@ -42,18 +40,21 @@ class InterTemporalRaoTest {
 
     private FileSystem fileSystem;
     private InMemoryPlatformConfig platformConfig;
-    private InterTemporalRaoInput raoInput;
+    private InterTemporalRaoInputWithNetworkPaths raoInput;
 
     @BeforeEach
     public void setUp() {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
         platformConfig = new InMemoryPlatformConfig(fileSystem);
-        Network network = Mockito.mock(Network.class);
         Crac crac = Mockito.mock(Crac.class);
-        VariantManager variantManager = Mockito.mock(VariantManager.class);
-        Mockito.when(network.getVariantManager()).thenReturn(variantManager);
-        Mockito.when(variantManager.getWorkingVariantId()).thenReturn("v");
-        raoInput = new InterTemporalRaoInput(new TemporalDataImpl<>(Map.of(OffsetDateTime.of(2024, 12, 13, 16, 17, 0, 0, ZoneOffset.UTC), RaoInput.build(network, crac).build())), new HashSet<>());
+        raoInput = new InterTemporalRaoInputWithNetworkPaths(
+            new TemporalDataImpl<>(
+                Map.of(
+                    OffsetDateTime.of(2024, 12, 13, 16, 17, 0, 0, ZoneOffset.UTC),
+                    RaoInputWithNetworkPaths.build("network.uct", crac).build()
+                )),
+            new HashSet<>()
+        );
     }
 
     @AfterEach

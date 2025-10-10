@@ -59,7 +59,7 @@ public final class InterTemporalIteratingLinearOptimizer {
     public static GlobalLinearOptimizationResult optimize(InterTemporalIteratingLinearOptimizerInput input, IteratingLinearOptimizerParameters parameters) {
         // 1. Initialize best result using input data
         GlobalLinearOptimizationResult bestResult = createInitialResult(
-            input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::prePerimeterFlowResult),
+            input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::preOptimizationFlowResult),
             input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::preOptimizationSensitivityResult),
             input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::prePerimeterSetpoints).map(RangeActionActivationResultImpl::new),
             input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::appliedNetworkActionsInPrimaryState),
@@ -77,7 +77,7 @@ public final class InterTemporalIteratingLinearOptimizer {
             linearProblem,
             problemFillers,
             interTemporalProblemFillers,
-            input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::initialFlowResult),
+            input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::preOptimizationFlowResult),
             input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::preOptimizationSensitivityResult),
             input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::prePerimeterSetpoints));
 
@@ -166,9 +166,8 @@ public final class InterTemporalIteratingLinearOptimizer {
     private static List<ProblemFiller> getInterTemporalProblemFillers(InterTemporalIteratingLinearOptimizerInput input) {
         // TODO: add inter-temporal margin filler (min of all min margins)
         TemporalData<State> preventiveStates = input.iteratingLinearOptimizerInputs().map(linearOptimizerInput -> linearOptimizerInput.optimizationPerimeter().getMainOptimizationState());
-        TemporalData<Network> networks = input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::network);
         TemporalData<Set<InjectionRangeAction>> preventiveInjectionRangeActions = input.iteratingLinearOptimizerInputs().map(linearOptimizerInput -> filterPreventiveInjectionRangeAction(linearOptimizerInput.optimizationPerimeter().getRangeActions()));
-        return List.of(new PowerGradientConstraintFiller(preventiveStates, networks, preventiveInjectionRangeActions, input.generatorConstraints()));
+        return List.of(new PowerGradientConstraintFiller(preventiveStates, preventiveInjectionRangeActions, input.generatorConstraints()));
     }
 
     private static Set<InjectionRangeAction> filterPreventiveInjectionRangeAction(Set<RangeAction<?>> rangeActions) {
@@ -188,11 +187,11 @@ public final class InterTemporalIteratingLinearOptimizer {
         return linearProblemBuilder.build();
     }
 
-    private static void fillLinearProblem(LinearProblem linearProblem, TemporalData<List<ProblemFiller>> problemFillers, List<ProblemFiller> interTemporalProblemFillers, TemporalData<FlowResult> initialFlowResults, TemporalData<SensitivityResult> initialSensitivityResults, TemporalData<RangeActionSetpointResult> initialSetPoints) {
+    private static void fillLinearProblem(LinearProblem linearProblem, TemporalData<List<ProblemFiller>> problemFillers, List<ProblemFiller> interTemporalProblemFillers, TemporalData<FlowResult> flowResults, TemporalData<SensitivityResult> sensitivityResults, TemporalData<RangeActionSetpointResult> setPoints) {
         List<OffsetDateTime> timestamps = problemFillers.getTimestamps();
         timestamps.forEach(timestamp -> {
             List<ProblemFiller> problemFillersForTimestamp = problemFillers.getData(timestamp).orElseThrow();
-            problemFillersForTimestamp.forEach(problemFiller -> problemFiller.fill(linearProblem, initialFlowResults.getData(timestamp).orElseThrow(), initialSensitivityResults.getData(timestamp).orElseThrow(), new RangeActionActivationResultImpl(initialSetPoints.getData(timestamp).orElseThrow())));
+            problemFillersForTimestamp.forEach(problemFiller -> problemFiller.fill(linearProblem, flowResults.getData(timestamp).orElseThrow(), sensitivityResults.getData(timestamp).orElseThrow(), new RangeActionActivationResultImpl(setPoints.getData(timestamp).orElseThrow())));
         });
         // For now, the Power Gradient Constraint filler is the only inter-temporal filler and does not use any input but the linear problem
         // A global inter-temporal flow/sensitivity/set-point result does not exist anyway
@@ -319,6 +318,13 @@ public final class InterTemporalIteratingLinearOptimizer {
             iteration,
             formatDouble(result.getCost()),
             formatDouble(result.getFunctionalCost()));
+
+        result.getVirtualCostNames().forEach(vc -> {
+            double cost = result.getVirtualCost(vc);
+            if (cost > 1e-6) {
+                TECHNICAL_LOGS.info("{} cost of {}", vc, cost);
+            }
+        });
     }
 
     private static void logWorseResult(int iteration, LinearOptimizationResult bestResult, LinearOptimizationResult currentResult) {
@@ -329,6 +335,13 @@ public final class InterTemporalIteratingLinearOptimizer {
             formatDouble(currentResult.getCost()),
             formatDouble(bestResult.getFunctionalCost()),
             formatDouble(currentResult.getFunctionalCost()));
+
+        currentResult.getVirtualCostNames().forEach(vc -> {
+            double cost = currentResult.getVirtualCost(vc);
+            if (cost > 1e-6) {
+                TECHNICAL_LOGS.info("{} cost of {}", vc, cost);
+            }
+        });
     }
 
     private static String formatDouble(double value) {
