@@ -5,5 +5,5 @@
         "suppressions_1_1.dtd">
 <suppressions>
     <suppress checks=".*" files=".*/generated-sources/.*"/>
-    <suppress checks=".*" files="/tests/src/test/resources/steps-config.properties"/>
+    <suppress checks=".*" files=".*/.*\.properties"/>
 </suppressions>
