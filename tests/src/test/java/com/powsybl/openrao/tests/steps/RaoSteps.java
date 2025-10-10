@@ -55,7 +55,7 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 public class RaoSteps {
     private static final double TOLERANCE_FLOW_IN_AMPERE = 5.0;
-    private static final double TOLERANCE_FLOW_IN_MEGAWATT = 5.0;
+    static final double TOLERANCE_FLOW_IN_MEGAWATT = 5.0;
     private static final double TOLERANCE_FLOW_RELATIVE = 1.5 / 100;
     private static final double TOLERANCE_PTDF = 1e-3;
     private static final double TOLERANCE_RANGEACTION_SETPOINT = 5.0;

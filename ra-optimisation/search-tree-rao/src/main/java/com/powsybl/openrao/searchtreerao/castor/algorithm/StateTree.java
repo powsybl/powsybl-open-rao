@@ -209,7 +209,7 @@ public class StateTree {
             !crac.getRangeActions(state).isEmpty();
     }
 
-    static Set<String> findOperatorsNotSharingCras(Crac crac) {
+    private static Set<String> findOperatorsNotSharingCras(Crac crac) {
         Set<String> tsos = crac.getFlowCnecs().stream().map(Cnec::getOperator).collect(Collectors.toSet());
         tsos.addAll(crac.getRemedialActions().stream().map(RemedialAction::getOperator).collect(Collectors.toSet()));
         // <!> If a CNEC's operator is not null, filter it out of the list of operators not sharing CRAs

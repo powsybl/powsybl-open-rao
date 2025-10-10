@@ -57,13 +57,13 @@ public final class CommonTestData {
     private static Boolean coreCcNetworkPreprocessing = false;
     private static Network network;
 
-    private static String cracPath;
+    static String cracPath;
     private static String cracCreationParametersPath;
     private static CracCreationContext cracCreationContext;
     private static Crac crac;
 
-    private static String raoParametersPath;
-    private static RaoParameters raoParameters;
+    static String raoParametersPath;
+    static RaoParameters raoParameters;
 
     private static String loopflowGlskPath;
     private static String monitoringGlskPath;
@@ -387,7 +387,7 @@ public final class CommonTestData {
         }
     }
 
-    private static RaoParameters buildConfig(File configFile) {
+    static RaoParameters buildConfig(File configFile) {
         RaoParameters config = buildDefaultConfig();
         try (InputStream configStream = new FileInputStream(configFile)) {
             JsonRaoParameters.update(config, configStream);
