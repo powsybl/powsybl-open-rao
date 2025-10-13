@@ -6,6 +6,7 @@
  */
 package com.powsybl.openrao.searchtreerao.searchtree.algorithms;
 
+import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.commons.logs.OpenRaoLogger;
@@ -98,11 +99,15 @@ public class SearchTree {
     public CompletableFuture<OptimizationResult> run() {
         String preSearchTreeVariantId = input.getNetwork().getVariantManager().getWorkingVariantId();
         input.getNetwork().getVariantManager().cloneVariant(preSearchTreeVariantId, SEARCH_TREE_WORKING_VARIANT_ID, true);
-        input.getNetwork().getVariantManager().setWorkingVariant(SEARCH_TREE_WORKING_VARIANT_ID);
+        input.getNetwork().getVariantManager().setWorkingVariant(SEARCH_TREE_WORKING_VARIANT_ID); // the variant used for root leaf and all the child leaves
         try {
             initLeaves(input);
 
             TECHNICAL_LOGS.debug("Evaluating root leaf");
+
+            // load flow run here, update value in network that will be read when if we deactivate ac emulation for an hvdc line.
+            LoadFlow.find(parameters.getLoadFlowAndSensitivityParameters().getLoadFlowProvider()).run(input.getNetwork(), parameters.getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters());
+
             rootLeaf.evaluate(input.getObjectiveFunction(), getSensitivityComputerForEvaluation(true));
             if (rootLeaf.getStatus().equals(Leaf.Status.ERROR)) {
                 topLevelLogger.info("Could not evaluate leaf: {}", rootLeaf);
