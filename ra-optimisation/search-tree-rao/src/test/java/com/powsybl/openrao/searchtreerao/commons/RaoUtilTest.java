@@ -61,7 +61,6 @@ import static org.mockito.Mockito.when;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-
 class RaoUtilTest {
     private static final double DOUBLE_TOLERANCE = 0.1;
     private static final String PREVENTIVE_INSTANT_ID = "preventive";

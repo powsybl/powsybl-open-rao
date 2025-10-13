@@ -508,7 +508,7 @@ public final class AutomatonSimulator {
     /**
      * Get setpoint set by AngleDroopActivePowerControl
      *
-     * @param hvdcLine: HVDC line object
+     * @param hvdcLine HVDC line object
      * @return the setpoint computed by the HvdcAngleDroopActivePowerControl
      */
     private static double computeHvdcAngleDroopActivePowerControlValue(HvdcLine hvdcLine) {
@@ -522,9 +522,9 @@ public final class AutomatonSimulator {
     /**
      * Disables the HvdcAngleDroopActivePowerControl on an HVDC line and sets its active power set-point
      *
-     * @param hvdcLineId:          ID of the HVDC line
-     * @param network:             network to modify the HVDC line in
-     * @param activePowerSetpoint: active power set-point to set on the HVDC line
+     * @param hvdcLineId          ID of the HVDC line
+     * @param network             network to modify the HVDC line in
+     * @param activePowerSetpoint active power set-point to set on the HVDC line
      */
     private static void disableHvdcAngleDroopActivePowerControl(String hvdcLineId, Network network, double activePowerSetpoint) {
         HvdcLine hvdcLine = network.getHvdcLine(hvdcLineId);

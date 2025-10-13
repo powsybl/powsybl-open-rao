@@ -68,8 +68,8 @@ Feature: US 92.1: Costly network actions optimization
     Then the worst margin is -100.0 MW
     And 1 remedial actions are used in preventive
     And the remedial action "closeBeFr4" is used in preventive
-    And the value of the objective function initially should be 6000000.0
-    And the value of the objective function after PRA should be 1000220.0
+    And the value of the objective function initially should be 600000.0
+    And the value of the objective function after PRA should be 100220.0
 
   @fast @preventive-only @costly @rao
   Scenario: US 92.1.5: Sub-optimal case
@@ -95,11 +95,11 @@ Feature: US 92.1: Costly network actions optimization
     Given configuration file is "epic92/RaoParameters_dc_minObjective.json"
     When I launch rao
     Then the worst margin is 66.67 MW
-    And the value of the objective function initially should be 6000000.0
+    And the value of the objective function initially should be 600000.0
     And 1 remedial actions are used in preventive
     And the remedial action "closeBeFr3" is used in preventive
-    # Activation of closeBeFr3 (200) + overload penalty (100 * 10000)
-    And the value of the objective function after PRA should be 1000200.0
+    # Activation of closeBeFr3 (200) + overload penalty (100 * 1000)
+    And the value of the objective function after PRA should be 100200.0
     And 1 remedial actions are used after "coBeFr2" at "auto"
     And the remedial action "closeBeFr4" is used after "coBeFr2" at "auto"
     # Activation of closeBeFr3 (200) + activation of closeBeFr4 (850)
@@ -112,7 +112,7 @@ Feature: US 92.1: Costly network actions optimization
     Given configuration file is "epic92/RaoParameters_dc_minObjective.json"
     When I launch rao
     Then the worst margin is 66.67 MW
-    And the value of the objective function initially should be 1000000.0
+    And the value of the objective function initially should be 100000.0
     And 1 remedial actions are used after "coBeFr2" at "auto"
     And the remedial action "closeBeFr4" is used after "coBeFr2" at "auto"
     And 1 remedial actions are used after "coBeFr3" at "auto"
@@ -127,11 +127,11 @@ Feature: US 92.1: Costly network actions optimization
     Given configuration file is "epic92/RaoParameters_dc_minObjective.json"
     When I launch rao
     Then the worst margin is 10.0 MW
-    And the value of the objective function initially should be 2400000.0
+    And the value of the objective function initially should be 240000.0
     And 1 remedial actions are used in preventive
     And the remedial action "closeBeFr4" is used in preventive
-    # Activation of closeBeFr4 (325) + overload penalty (73.33 * 10000)
-    And the value of the objective function after PRA should be 733658.0
+    # Activation of closeBeFr4 (325) + overload penalty (73.33 * 1000)
+    And the value of the objective function after PRA should be 73658.0
     And 1 remedial actions are used after "coBeFr2" at "auto"
     And the remedial action "closeBeFr5" is used after "coBeFr2" at "auto"
     And 1 remedial actions are used after "coBeFr3" at "auto"
@@ -146,11 +146,11 @@ Feature: US 92.1: Costly network actions optimization
     Given configuration file is "epic92/RaoParameters_dc_minObjective.json"
     When I launch rao
     Then the worst margin is 66.67 MW
-    And the value of the objective function initially should be 6000000.0
+    And the value of the objective function initially should be 600000.0
     And 1 remedial actions are used in preventive
     And the remedial action "closeBeFr3" is used in preventive
-    # Activation of closeBeFr3 (200) + overload penalty (100 * 10000)
-    And the value of the objective function after PRA should be 1000200.0
+    # Activation of closeBeFr3 (200) + overload penalty (100 * 1000)
+    And the value of the objective function after PRA should be 100200.0
     And 1 remedial actions are used after "coBeFr2" at "curative"
     And the remedial action "closeBeFr4" is used after "coBeFr2" at "curative"
     # Activation of closeBeFr3 (200) + activation of closeBeFr4 (850)
@@ -163,12 +163,12 @@ Feature: US 92.1: Costly network actions optimization
     Given configuration file is "epic92/RaoParameters_dc_minObjective.json"
     When I launch rao
     Then the worst margin is 66.67 MW
-    And the value of the objective function initially should be 6000000.0
+    And the value of the objective function initially should be 600000.0
     And 1 remedial actions are used in preventive
     And the remedial action "closeBeFr3" is used in preventive
-    # Activation of closeBeFr3 (200) + overload penalty (100 * 10000)
-    And the value of the objective function after PRA should be 1000200.0
-    And the value of the objective function after ARA should be 1000200.0
+    # Activation of closeBeFr3 (200) + overload penalty (100 * 1000)
+    And the value of the objective function after PRA should be 100200.0
+    And the value of the objective function after ARA should be 100200.0
     And 1 remedial actions are used after "coBeFr2" at "curative"
     And the remedial action "closeBeFr4" is used after "coBeFr2" at "curative"
     # Activation of closeBeFr3 (200) + activation of closeBeFr4 (850)
@@ -181,15 +181,15 @@ Feature: US 92.1: Costly network actions optimization
     Given configuration file is "epic92/RaoParameters_dc_minObjective.json"
     When I launch rao
     Then the worst margin is 16.67 MW
-    And the value of the objective function initially should be 7000000.0
+    And the value of the objective function initially should be 700000.0
     And 1 remedial actions are used in preventive
     And the remedial action "closeBeFr3" is used in preventive
-    # Activation of closeBeFr2 (200) + overload penalty for curative cnec (200 * 10000)
-    And the value of the objective function after PRA should be 2000200.0
+    # Activation of closeBeFr2 (200) + overload penalty for curative cnec (200 * 1000)
+    And the value of the objective function after PRA should be 200200.0
     And 1 remedial actions are used after "coBeFr2" at "auto"
     And the remedial action "closeBeFr4" is used after "coBeFr2" at "auto"
-    # Activation of closeBeFr2 (200) + activation of closeBeFr3 (1350) + overload penalty for curative cnec (33.33 * 10000)
-    And the value of the objective function after ARA should be 334883.33
+    # Activation of closeBeFr2 (200) + activation of closeBeFr3 (1350) + overload penalty for curative cnec (33.33 * 1000)
+    And the value of the objective function after ARA should be 34883.33
     And 1 remedial actions are used after "coBeFr2" at "curative"
     And the remedial action "closeBeFr5" is used after "coBeFr2" at "curative"
     # Activation of closeBeFr2 (200) + activation of closeBeFr3 (1350) + activation of closeBeFr5 (850)
@@ -207,27 +207,27 @@ Feature: US 92.1: Costly network actions optimization
     Given configuration file is "epic92/RaoParameters_dc_minObjective.json"
     When I launch rao
     Then the worst margin is -50.00 MW
-    And the value of the objective function initially should be 1000000.0
+    And the value of the objective function initially should be 100000.0
     And 1 remedial actions are used in preventive
     And the remedial action "closeBeFr6" is used in preventive
-    # Activation of closeBeFr6 (2500) + overload penalty (50 * 10000)
-    And the value of the objective function after PRA should be 502500.0
+    # Activation of closeBeFr6 (2500) + overload penalty (50 * 1000)
+    And the value of the objective function after PRA should be 52500.0
     And 0 remedial actions are used after "coBeFr2" at "auto"
     And 1 remedial actions are used after "coBeFr3" at "auto"
     And the remedial action "closeBeFr7" is used after "coBeFr3" at "auto"
     And 0 remedial actions are used after "coBeFr4" at "auto"
     And 1 remedial actions are used after "coBeFr5" at "auto"
     And the remedial action "closeBeFr7" is used after "coBeFr5" at "auto"
-    # Activation of closeBeFr6 (2500) + activation of closeBeFr7 twice (2 * 60) + overload penalty (50 * 10000)
-    And the value of the objective function after ARA should be 502620.0
+    # Activation of closeBeFr6 (2500) + activation of closeBeFr7 twice (2 * 60) + overload penalty (50 * 1000)
+    And the value of the objective function after ARA should be 52620.0
     And 0 remedial actions are used after "coBeFr2" at "curative"
     And 0 remedial actions are used after "coBeFr3" at "curative"
     And 1 remedial actions are used after "coBeFr4" at "curative"
     And the remedial action "closeBeFr8" is used after "coBeFr4" at "curative"
     And 1 remedial actions are used after "coBeFr5" at "curative"
     And the remedial action "closeBeFr8" is used after "coBeFr5" at "curative"
-    # Activation of closeBeFr6 (2500) + activation of closeBeFr7 twice (2 * 60) + activation of closeBeFr8 twice (2 * 735) + overload penalty (50 * 10000)
-    And the value of the objective function after CRA should be 504090.0
+    # Activation of closeBeFr6 (2500) + activation of closeBeFr7 twice (2 * 60) + activation of closeBeFr8 twice (2 * 735) + overload penalty (50 * 1000)
+    And the value of the objective function after CRA should be 54090.0
 
   @fast @costly @rao
   Scenario: US 92.1.12: Preventive and auto optimization - curative overload
@@ -241,24 +241,24 @@ Feature: US 92.1: Costly network actions optimization
     Given configuration file is "epic92/RaoParameters_dc_minObjective.json"
     When I launch rao
     Then the worst margin is -66.67 MW
-    And the value of the objective function initially should be 1500000.0
+    And the value of the objective function initially should be 150000.0
     And 1 remedial actions are used in preventive
     And the remedial action "closeBeFr6" is used in preventive
-    # Activation of closeBeFr6 (2500) + overload penalty (100 * 10000) on cnecBeFrCurative - coBeFr3
-    And the value of the objective function after PRA should be 1002500.0
+    # Activation of closeBeFr6 (2500) + overload penalty (100 * 1000) on cnecBeFrCurative - coBeFr3
+    And the value of the objective function after PRA should be 102500.0
     And 0 remedial actions are used after "coBeFr2" at "auto"
     And 1 remedial actions are used after "coBeFr3" at "auto"
     And the remedial action "closeBeFr7" is used after "coBeFr3" at "auto"
     And 0 remedial actions are used after "coBeFr4" at "auto"
     And 1 remedial actions are used after "coBeFr5" at "auto"
     And the remedial action "closeBeFr7" is used after "coBeFr5" at "auto"
-    # Activation of closeBeFr6 (2500) + activation of closeBeFr7 twice (2 * 60) + overload penalty on cnecBeFrCurative - coBeFr4 (75 * 10000)
-    And the value of the objective function after ARA should be 752620.0
+    # Activation of closeBeFr6 (2500) + activation of closeBeFr7 twice (2 * 60) + overload penalty on cnecBeFrCurative - coBeFr4 (75 * 1000)
+    And the value of the objective function after ARA should be 77620.0
     And 0 remedial actions are used after "coBeFr2" at "curative"
     And 0 remedial actions are used after "coBeFr3" at "curative"
     And 1 remedial actions are used after "coBeFr4" at "curative"
     And the remedial action "closeBeFr8" is used after "coBeFr4" at "curative"
     And 1 remedial actions are used after "coBeFr5" at "curative"
     And the remedial action "closeBeFr8" is used after "coBeFr5" at "curative"
-    # Activation of closeBeFr6 (2500) + activation of closeBeFr7 twice (2 * 60) + activation of closeBeFr8 twice (2 * 735) + overload penalty on cnecBeFrCurative - coBeFr3 (66.67 * 10000)
-    And the value of the objective function after CRA should be 670756.67
+    # Activation of closeBeFr6 (2500) + activation of closeBeFr7 twice (2 * 60) + activation of closeBeFr8 twice (2 * 735) + overload penalty on cnecBeFrCurative - coBeFr3 (66.67 * 1000)
+    And the value of the objective function after CRA should be 70756.67

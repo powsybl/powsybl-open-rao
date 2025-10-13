@@ -11,4 +11,5 @@
     <logger name="com.powsybl.openloadflow" level="ERROR"/>
     <logger name="com.powsybl.math" level="ERROR"/>
     <logger name="com.powsybl.openrao" level="DEBUG"/>
+    <logger name="com.powsybl.ucte.network.UcteLogger" level="OFF"/>
 </configuration>

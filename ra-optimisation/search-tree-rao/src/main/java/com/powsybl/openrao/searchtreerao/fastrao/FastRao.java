@@ -45,6 +45,7 @@ import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_LOGS;
+import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -84,8 +85,8 @@ public class FastRao implements RaoProvider {
     public static RaoResult launchFastRaoOptimization(RaoInput raoInput, RaoParameters parameters, Instant targetEndInstant, Set<FlowCnec> consideredCnecs) {
 
         if (!parameters.hasExtension(FastRaoParameters.class)) {
-            BUSINESS_LOGS.error("Fast Rao requires FastRaoParameters");
-            return new FailedRaoResultImpl("Fast Rao requires FastRaoParameters");
+            BUSINESS_WARNS.warn("Parameters are missing FastRaoParameters extension. Default FastRaoParameters will be used");
+            parameters.addExtension(FastRaoParameters.class, new FastRaoParameters());
         }
 
         if (raoInput.getOptimizedState() != null) {
@@ -144,7 +145,7 @@ public class FastRao implements RaoProvider {
                     consideredCnecs.addAll(getUnsecureFunctionalCnecs(stepResult, parameters.getObjectiveFunctionParameters().getUnit(), parameters.getExtension(FastRaoParameters.class).getMarginLimit()));
                 }
                 consideredCnecs.addAll(getCostlyVirtualCnecs(stepResult));
-                // Add worst preventive cnec to considered cneccs to ensure preventive state is defined
+                // Add worst preventive cnec to considered cnecs to ensure preventive state is defined
                 consideredCnecs.add(getWorstPreventiveCnec(stepResult, crac));
                 cleanVariants(raoInput.getNetwork(), initialNetworkVariants, raoInput.getNetworkVariantId());
 

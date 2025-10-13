@@ -4,6 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 package com.powsybl.openrao.tests.utils;
 
 import com.powsybl.openrao.commons.OpenRaoException;
@@ -118,10 +119,10 @@ public final class CneHelper {
 
     /**
      * Function to compare CNE files
-     * @param expectedCneInputStream: input stream with the expected contents of the CNE file
-     * @param actualCneInputStream: input stream with the actual contents of the CNE file
-     * @param onlySimilarity: set to true to check only for similarity, ie ignore nodes' order in the document
-     * @param cneVersion: CNE version, to apply specific compare rules
+     * @param expectedCneInputStream input stream with the expected contents of the CNE file
+     * @param actualCneInputStream input stream with the actual contents of the CNE file
+     * @param onlySimilarity set to true to check only for similarity, ie ignore nodes' order in the document
+     * @param cneVersion CNE version, to apply specific compare rules
      * @throws AssertionError: if the files are not similar, with a list of the differences
      */
     public static void compareCneFiles(InputStream expectedCneInputStream, InputStream actualCneInputStream, boolean onlySimilarity, CneVersion cneVersion) throws AssertionError {

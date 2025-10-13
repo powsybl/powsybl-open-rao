@@ -82,6 +82,18 @@ public class FastRaoResultImpl extends AbstractExtendable<RaoResult> implements 
         finalResult.excludeContingencies(failingContingencies);
     }
 
+    public PrePerimeterResult getInitialResult() {
+        return initialResult;
+    }
+
+    public PrePerimeterResult getFinalResult() {
+        return finalResult;
+    }
+
+    public RaoResult getFilteredRaoResult() {
+        return filteredRaoResult;
+    }
+
     @Override
     public ComputationStatus getComputationStatus() {
         if (initialResult.getSensitivityStatus() == FAILURE) {

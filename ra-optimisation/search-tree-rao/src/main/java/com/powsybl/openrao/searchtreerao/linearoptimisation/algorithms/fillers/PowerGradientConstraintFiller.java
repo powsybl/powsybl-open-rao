@@ -7,11 +7,6 @@
 
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers;
 
-import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.Load;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.State;
@@ -33,17 +28,15 @@ import java.util.stream.IntStream;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
- * @author Roxane Chen {@literal <roxane.chen at rte-france.com}
+ * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
  */
 public class PowerGradientConstraintFiller implements ProblemFiller {
     private final TemporalData<State> preventiveStates;
-    private final TemporalData<Network> networkPerTimestamp;
     private final TemporalData<Set<InjectionRangeAction>> injectionRangeActionsPerTimestamp;
     private final Set<GeneratorConstraints> generatorConstraints;
 
-    public PowerGradientConstraintFiller(TemporalData<State> preventiveStates, TemporalData<Network> networkPerTimestamp, TemporalData<Set<InjectionRangeAction>> injectionRangeActionsPerTimestamp, Set<GeneratorConstraints> generatorConstraints) {
+    public PowerGradientConstraintFiller(TemporalData<State> preventiveStates, TemporalData<Set<InjectionRangeAction>> injectionRangeActionsPerTimestamp, Set<GeneratorConstraints> generatorConstraints) {
         this.preventiveStates = preventiveStates;
-        this.networkPerTimestamp = networkPerTimestamp;
         this.injectionRangeActionsPerTimestamp = injectionRangeActionsPerTimestamp;
         this.generatorConstraints = generatorConstraints;
     }
@@ -83,8 +76,10 @@ public class PowerGradientConstraintFiller implements ProblemFiller {
      * P(g,t) = p0(g,t) + sum_{i \in injectionAction_prev(g,t)} d_i(g) * [delta^{+}(r,s,t) - delta^{-}(r,s,t)]
      * */
     private void addPowerConstraint(LinearProblem linearProblem, String generatorId, OpenRaoMPVariable generatorPowerVariable, OffsetDateTime timestamp) {
-        OpenRaoMPConstraint generatorPowerConstraint = linearProblem.addGeneratorPowerConstraint(generatorId, getInitialPower(generatorId, networkPerTimestamp.getData(timestamp).orElseThrow()), timestamp);
+        // Initial power cannot be read from network because power may have been modified in network since the beginning of the RAO. That's why initial power is fetched from rangeActionSetPointVariationConstraint's upper bound
+        OpenRaoMPConstraint generatorPowerConstraint = linearProblem.addGeneratorPowerConstraint(generatorId, 0., timestamp);
         generatorPowerConstraint.setCoefficient(generatorPowerVariable, 1.0);
+        final double[] bound = {0};
 
         // Find injection range actions related to generators with power gradients
         injectionRangeActionsPerTimestamp.getData(timestamp).orElseThrow().stream()
@@ -95,18 +90,11 @@ public class PowerGradientConstraintFiller implements ProblemFiller {
                 OpenRaoMPVariable downwardVariationVariable = linearProblem.getRangeActionVariationVariable(injectionRangeAction, preventiveStates.getData(timestamp).orElseThrow(), LinearProblem.VariationDirectionExtension.DOWNWARD);
                 generatorPowerConstraint.setCoefficient(upwardVariationVariable, -injectionKey);
                 generatorPowerConstraint.setCoefficient(downwardVariationVariable, injectionKey);
-            });
-    }
 
-    private static double getInitialPower(String generatorId, Network network) {
-        Identifiable<?> networkElement = network.getIdentifiable(generatorId);
-        if (networkElement instanceof Generator generator) {
-            return generator.getTargetP();
-        } else if (networkElement instanceof Load load) {
-            return load.getP0();
-        } else {
-            throw new OpenRaoException("Network element `%s` is neither a generator nor a load.".formatted(generatorId));
-        }
+                OpenRaoMPConstraint setPointVariationConstraint = linearProblem.getRangeActionSetPointVariationConstraint(injectionRangeAction, preventiveStates.getData(timestamp).orElseThrow());
+                bound[0] = bound[0] + setPointVariationConstraint.ub() * injectionKey;
+            });
+        generatorPowerConstraint.setBounds(bound[0], bound[0]);
     }
 
     @Override
