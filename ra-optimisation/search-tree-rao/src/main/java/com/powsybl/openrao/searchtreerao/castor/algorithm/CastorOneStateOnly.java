@@ -13,6 +13,7 @@ import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
@@ -105,7 +106,8 @@ public class CastorOneStateOnly {
                     .withConstantParametersOverAllRao(raoParameters, raoInput.getCrac())
                     .withTreeParameters(treeParameters)
                     .withUnoptimizedCnecParameters(UnoptimizedCnecParameters.build(raoParameters.getNotOptimizedCnecsParameters(), stateTree.getOperatorsNotSharingCras()))
-                    .build();
+                .withLoadFlowAndSensitivityParameters(raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getLoadFlowAndSensitivityParameters())
+                .build();
             Set<State> statesToOptimize = new HashSet<>(optPerimeter.getMonitoredStates());
             statesToOptimize.add(optPerimeter.getMainOptimizationState());
             SearchTreeInput searchTreeInput = SearchTreeInput.create()
@@ -121,8 +123,8 @@ public class CastorOneStateOnly {
             optimizationResult = new SearchTree(searchTreeInput, searchTreeParameters, true).run().join();
 
             // apply RAs and return results
-            optimizationResult.getRangeActions().forEach(rangeAction -> rangeAction.apply(raoInput.getNetwork(), optimizationResult.getOptimizedSetpoint(rangeAction, raoInput.getOptimizedState())));
             optimizationResult.getActivatedNetworkActions().forEach(networkAction -> networkAction.apply(raoInput.getNetwork()));
+            optimizationResult.getRangeActions().forEach(rangeAction -> rangeAction.apply(raoInput.getNetwork(), optimizationResult.getOptimizedSetpoint(rangeAction, raoInput.getOptimizedState())));
         }
 
         return CompletableFuture.completedFuture(new OneStateOnlyRaoResultImpl(raoInput.getOptimizedState(), initialResults, optimizationResult, perimeterFlowCnecs));

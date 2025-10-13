@@ -16,6 +16,7 @@ import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.searchtreerao.commons.RaoLogger;
 import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
@@ -301,6 +302,7 @@ public class CastorFullOptimization {
             .withConstantParametersOverAllRao(raoParameters, crac)
             .withTreeParameters(TreeParameters.buildForPreventivePerimeter(raoParameters))
             .withUnoptimizedCnecParameters(UnoptimizedCnecParameters.build(raoParameters.getNotOptimizedCnecsParameters(), stateTree.getOperatorsNotSharingCras()))
+            .withLoadFlowAndSensitivityParameters(raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getLoadFlowAndSensitivityParameters())
             .build();
 
         Set<State> statesToOptimize = new HashSet<>(optPerimeter.getMonitoredStates());
