@@ -192,10 +192,19 @@ public class Leaf implements OptimizationResult {
         if (status.equals(Status.EVALUATED) || status.equals(Status.OPTIMIZED)) {
             TECHNICAL_LOGS.debug("Optimizing leaf...");
 
+            // make a deep copy and change availableRangeAction
+            OptimizationPerimeter optimizationPerimeterWithFilteredHvdcRangeAction = searchTreeInput.getOptimizationPerimeter().copyWithFilteredAvailableRangeAction(network);
+
+            // check if there are still range actions to optimize
+            if (optimizationPerimeterWithFilteredHvdcRangeAction.getRangeActions().isEmpty()) {
+                TECHNICAL_LOGS.info("No range actions to optimize after filtering HVDC range actions");
+                return;
+            }
+
             // build input
             IteratingLinearOptimizerInput linearOptimizerInput = IteratingLinearOptimizerInput.create()
                     .withNetwork(network)
-                    .withOptimizationPerimeter(searchTreeInput.getOptimizationPerimeter())
+                    .withOptimizationPerimeter(optimizationPerimeterWithFilteredHvdcRangeAction)
                     .withInitialFlowResult(searchTreeInput.getInitialFlowResult())
                     .withPrePerimeterFlowResult(searchTreeInput.getPrePerimeterResult())
                     .withPrePerimeterSetpoints(prePerimeterSetpoints)
