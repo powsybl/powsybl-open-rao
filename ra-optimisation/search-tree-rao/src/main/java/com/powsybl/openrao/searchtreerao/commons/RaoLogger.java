@@ -134,15 +134,9 @@ public final class RaoLogger {
         boolean globalPstOptimization = optimizationContext instanceof GlobalOptimizationPerimeter;
 
         List<String> rangeActionSetpoints = optimizationContext.getRangeActionOptimizationStates().stream().flatMap(state ->
-            leaf.getActivatedRangeActions(state).stream().map(rangeAction -> {
-                double valueVariation = rangeAction instanceof PstRangeAction pstRangeAction ? leaf.getTapVariation(pstRangeAction, state) :
-                    leaf.getSetPointVariation(rangeAction, state);
-                double postOptimValue = rangeAction instanceof PstRangeAction pstRangeAction ? leaf.getOptimizedTap(pstRangeAction, state) :
-                    leaf.getOptimizedSetpoint(rangeAction, state);
-                double cost = Math.abs(valueVariation) * rangeAction.getVariationCost(valueVariation > 0 ? VariationDirection.UP : VariationDirection.DOWN).orElse(0.0);
-                return globalPstOptimization ? format("%s@%s: %.0f (var: %.0f)", rangeAction.getName(), state.getId(), postOptimValue, valueVariation) :
-                    format("%s: %.0f (var: %.0f, cost %.0f)", rangeAction.getName(), postOptimValue, valueVariation, cost);
-            })).toList();
+            leaf.getActivatedRangeActions(state).stream().map(rangeAction ->
+                getIndividualStringForRangeActionAndState(leaf, state, rangeAction, globalPstOptimization)
+            )).toList();
 
         boolean isRangeActionSetPointEmpty = rangeActionSetpoints.isEmpty();
         if (isRangeActionSetPointEmpty) {
@@ -150,6 +144,16 @@ public final class RaoLogger {
         } else {
             logger.info("{}range action(s): {}", prefix == null ? "" : prefix, String.join(", ", rangeActionSetpoints));
         }
+    }
+
+    private static String getIndividualStringForRangeActionAndState(Leaf leaf, State state, RangeAction<?> rangeAction, boolean globalPstOptimization) {
+        double valueVariation = rangeAction instanceof PstRangeAction pstRangeAction ? leaf.getTapVariation(pstRangeAction, state) :
+            leaf.getSetPointVariation(rangeAction, state);
+        double postOptimValue = rangeAction instanceof PstRangeAction pstRangeAction ? leaf.getOptimizedTap(pstRangeAction, state) :
+            leaf.getOptimizedSetpoint(rangeAction, state);
+        double cost = Math.abs(valueVariation) * rangeAction.getVariationCost(valueVariation > 0 ? VariationDirection.UP : VariationDirection.DOWN).orElse(0.0);
+        return globalPstOptimization ? format("%s@%s: %.0f (var: %.0f)", rangeAction.getName(), state.getId(), postOptimValue, valueVariation) :
+            format("%s: %.0f (var: %.0f, cost %.0f)", rangeAction.getName(), postOptimValue, valueVariation, cost);
     }
 
     public static void logMostLimitingElementsResults(OpenRaoLogger logger, OptimizationResult optimizationResult, ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction, Unit unit, int numberOfLoggedElements) {

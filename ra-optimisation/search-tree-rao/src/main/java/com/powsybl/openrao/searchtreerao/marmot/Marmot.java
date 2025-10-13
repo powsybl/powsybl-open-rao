@@ -173,10 +173,10 @@ public class Marmot implements InterTemporalRaoProvider {
         TemporalData<RangeActionSetpointResult> initialSetpointResults = new TemporalDataImpl<>();
         raoInputs.getDataPerTimestamp().forEach((timestamp, raoInput) -> {
             Map<RangeAction<?>, Double> setPointMap = new HashMap<>();
-            raoInput.getCrac().getRangeActions().forEach(rangeAction -> {
+            raoInput.getCrac().getRangeActions().forEach(rangeAction ->
                 setPointMap.put(rangeAction, postTopologicalActionsResults.getData(timestamp).orElseThrow()
-                    .getPreOptimizationSetPointOnState(raoInput.getCrac().getPreventiveState(), rangeAction));
-            });
+                    .getPreOptimizationSetPointOnState(raoInput.getCrac().getPreventiveState(), rangeAction))
+            );
             RangeActionSetpointResult rangeActionSetpointResult = new RangeActionSetpointResultImpl(
                 setPointMap
             );
