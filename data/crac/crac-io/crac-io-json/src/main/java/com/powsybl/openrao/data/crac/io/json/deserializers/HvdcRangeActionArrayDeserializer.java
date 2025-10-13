@@ -8,7 +8,9 @@
 package com.powsybl.openrao.data.crac.io.json.deserializers;
 
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.data.crac.api.networkaction.ActionType;
 import com.powsybl.openrao.data.crac.io.commons.iidm.IidmHvdcHelper;
 import com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants;
 import com.powsybl.openrao.data.crac.api.Crac;
@@ -46,6 +48,18 @@ public final class HvdcRangeActionArrayDeserializer {
             double initialSetpoint = IidmHvdcHelper.getCurrentSetpoint(network, networkElementId);
             hvdcRangeActionAdder.withInitialSetpoint(initialSetpoint);
             hvdcRangeActionAdder.add();
+
+            // TODO add usage rule to network action
+            // TODO move the network creaion outside of range action deserialization
+            //add associated network action, only if the hvdc line has an AngleDroopActivePowerControl extension
+            HvdcAngleDroopActivePowerControl hvdcAngleDoopActivePowerControl = IidmHvdcHelper.getHvdcLine(network, networkElementId).getExtension(HvdcAngleDroopActivePowerControl.class);
+            if (hvdcAngleDoopActivePowerControl != null && hvdcAngleDoopActivePowerControl.isEnabled() ) {
+                crac.newNetworkAction()
+                    .newAcEmulationSwitchAction()
+                    .withNetworkElement(networkElementId)
+                    .withActionType(ActionType.DEACTIVATE)
+                    .add();
+            }
         }
     }
 
