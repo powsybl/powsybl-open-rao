@@ -4,6 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 package com.powsybl.openrao.tests.steps;
 
 import com.powsybl.glsk.commons.ZonalData;
@@ -44,6 +45,9 @@ import java.time.OffsetDateTime;
 import static com.powsybl.openrao.tests.utils.Helpers.*;
 import static com.powsybl.openrao.tests.utils.Helpers.getOffsetDateTimeFromBrusselsTimestamp;
 
+/**
+ * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
+ */
 public final class CommonTestData {
 
     private static final String DEFAULT_CRAC_CREATION_PARAMETERS_PATH = "cracCreationParameters/common/CracCreationParameters_default.json";

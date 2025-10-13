@@ -19,10 +19,8 @@ import static com.powsybl.openrao.raoapi.parameters.extensions.FastRaoParameters
 /**
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
  */
-
 @AutoService(RaoParameters.ConfigLoader.class)
 public class FastRaoConfigLoader implements RaoParameters.ConfigLoader<FastRaoParameters> {
-
     public FastRaoParameters load(PlatformConfig platformConfig) {
         Objects.requireNonNull(platformConfig);
         return platformConfig.getOptionalModuleConfig(FAST_RAO_PARAMETERS)
