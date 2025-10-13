@@ -109,7 +109,7 @@ public class FastRao implements RaoProvider {
             PrePerimeterSensitivityAnalysis prePerimeterSensitivityAnalysis = new PrePerimeterSensitivityAnalysis(
                 crac,
                 crac.getFlowCnecs(),
-                crac.getRangeActions(),
+                crac.getRangeActions().isEmpty() ? new HashSet<>() : Set.of(crac.getRangeActions().stream().findFirst().orElseThrow()),
                 parameters,
                 toolProvider);
 
@@ -347,11 +347,11 @@ public class FastRao implements RaoProvider {
         ToolProvider toolProvider,
         InstantKind instantKind) {
 
+        // Collect all activated remedial actions (for costly evaluation)
+        RemedialActionActivationResult remedialActionActivationResult = createRemedialActionsActivationResults(instantKind, raoResult, crac, networkCopy);
+
         // Apply Preventive Remedial Actions
         applyOptimalPreventiveRemedialActions(networkCopy, crac.getPreventiveState(), raoResult);
-
-        // Collect all activated remedial actions (for costly evaluation)
-        RemedialActionActivationResult remedialActionActivationResult = createRemedialActionsActivationResults(instantKind, raoResult, crac, initialResult);
 
         AppliedRemedialActions appliedRemedialActions;
         if (instantKind.equals(InstantKind.PREVENTIVE)) {
@@ -363,7 +363,12 @@ public class FastRao implements RaoProvider {
         }
 
         // Build sensitivity analysis
-        PostPerimeterSensitivityAnalysis perimeterSensiAnalysis = new PostPerimeterSensitivityAnalysis(crac, crac.getStates(), parameters, toolProvider);
+        PostPerimeterSensitivityAnalysis perimeterSensiAnalysis = new PostPerimeterSensitivityAnalysis(
+            crac,
+            crac.getFlowCnecs(),
+            crac.getRangeActions().isEmpty() ? new HashSet<>() : Set.of(crac.getRangeActions().stream().findFirst().orElseThrow()),
+            parameters,
+            toolProvider);
 
         // Run asynchronously
         return perimeterSensiAnalysis.runAsyncBasedOnInitialPreviousAndActivatedRa(
@@ -376,10 +381,12 @@ public class FastRao implements RaoProvider {
         );
     }
 
-    private static RemedialActionActivationResult createRemedialActionsActivationResults(InstantKind instantKind, RaoResult raoResult, Crac crac, PrePerimeterResult initialResult) {
+    private static RemedialActionActivationResult createRemedialActionsActivationResults(InstantKind instantKind, RaoResult raoResult, Crac crac, Network initialNetwork) {
         // Get all the remedial action activated during all instant <= instandKind
         Map<State, Set<NetworkAction>> networkActionsActivated = new HashMap<>();
-        RangeActionActivationResultImpl rangeActionActivationResult = new RangeActionActivationResultImpl(initialResult.getRangeActionSetpointResult());
+        RangeActionActivationResultImpl rangeActionActivationResult = new RangeActionActivationResultImpl(
+            RangeActionSetpointResultImpl.buildWithSetpointsFromNetwork(initialNetwork, crac.getRangeActions())
+        );
         if (raoResult instanceof OneStateOnlyRaoResultImpl) {
             State preventiveState = crac.getPreventiveState();
             networkActionsActivated.put(preventiveState, raoResult.getActivatedNetworkActionsDuringState(preventiveState));
