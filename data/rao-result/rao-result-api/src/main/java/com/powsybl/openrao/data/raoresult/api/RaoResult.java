@@ -61,10 +61,10 @@ public interface RaoResult extends Extendable<RaoResult> {
      * It gives the flow on a {@link FlowCnec} after a given {@link Instant} and in a
      * given {@link Unit}.
      *
-     * @param optimizedInstant: The optimized instant to be studied (set to null to access initial results)
-     * @param flowCnec:         The branch to be studied.
-     * @param side:             The side of the branch to be queried.
-     * @param unit:             The unit in which the flow is queried. Only accepted values are MEGAWATT or AMPERE.
+     * @param optimizedInstant The optimized instant to be studied (set to null to access initial results)
+     * @param flowCnec         The branch to be studied.
+     * @param side             The side of the branch to be queried.
+     * @param unit             The unit in which the flow is queried. Only accepted values are MEGAWATT or AMPERE.
      * @return The flow on the branch at the optimization state in the given unit.
      */
     double getFlow(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side, Unit unit);
@@ -73,9 +73,9 @@ public interface RaoResult extends Extendable<RaoResult> {
      * It gives the angle on an {@link AngleCnec} at a given {@link Instant} and in a
      * given {@link Unit}.
      *
-     * @param optimizedInstant: The optimized instant to be studied (set to null to access initial results)
-     * @param angleCnec:        The angle cnec to be studied.
-     * @param unit:             The unit in which the flow is queried. Only accepted value for now is DEGREE.
+     * @param optimizedInstant The optimized instant to be studied (set to null to access initial results)
+     * @param angleCnec        The angle cnec to be studied.
+     * @param unit             The unit in which the flow is queried. Only accepted value for now is DEGREE.
      * @return The angle on the cnec at the optimization state in the given unit.
      */
     default double getAngle(Instant optimizedInstant, AngleCnec angleCnec, Unit unit) {
@@ -113,9 +113,9 @@ public interface RaoResult extends Extendable<RaoResult> {
      * given {@link Unit}. It is basically the difference between the flow and the most constraining threshold in the
      * flow direction of the given branch. If it is negative the branch is under constraint.
      *
-     * @param optimizedInstant: The optimized instant to be studied (set to null to access initial results)
-     * @param flowCnec:         The branch to be studied.
-     * @param unit:             The unit in which the margin is queried. Only accepted values are MEGAWATT or AMPERE.
+     * @param optimizedInstant The optimized instant to be studied (set to null to access initial results)
+     * @param flowCnec         The branch to be studied.
+     * @param unit             The unit in which the margin is queried. Only accepted values are MEGAWATT or AMPERE.
      * @return The margin on the branch at the optimization state in the given unit.
      */
     double getMargin(Instant optimizedInstant, FlowCnec flowCnec, Unit unit);
@@ -125,9 +125,9 @@ public interface RaoResult extends Extendable<RaoResult> {
      * given {@link Unit}. It is basically the difference between the angle and the most constraining threshold in the
      * angle direction of the given branch. If it is negative the cnec is under constraint.
      *
-     * @param optimizedInstant: The optimized instant to be studied (set to null to access initial results)
-     * @param angleCnec:        The angle cnec to be studied.
-     * @param unit:             The unit in which the margin is queried. Only accepted for now is DEGREE.
+     * @param optimizedInstant The optimized instant to be studied (set to null to access initial results)
+     * @param angleCnec        The angle cnec to be studied.
+     * @param unit             The unit in which the margin is queried. Only accepted for now is DEGREE.
      * @return The margin on the angle cnec at the optimization state in the given unit.
      */
     default double getMargin(Instant optimizedInstant, AngleCnec angleCnec, Unit unit) {
@@ -139,9 +139,9 @@ public interface RaoResult extends Extendable<RaoResult> {
      * given {@link Unit}. It is basically the difference between the voltage and the most constraining threshold in the
      * of the given voltage level. If it is negative the cnec is under constraint.
      *
-     * @param optimizedInstant: The optimized instant to be studied (set to null to access initial results)
-     * @param voltageCnec:      The voltage cnec to be studied.
-     * @param unit:             The unit in which the margin is queried. Only accepted for now is KILOVOLT.
+     * @param optimizedInstant The optimized instant to be studied (set to null to access initial results)
+     * @param voltageCnec      The voltage cnec to be studied.
+     * @param unit             The unit in which the margin is queried. Only accepted for now is KILOVOLT.
      * @return The margin on the voltage cnec at the optimization state in the given unit.
      */
     default double getMargin(Instant optimizedInstant, VoltageCnec voltageCnec, Unit unit) {
@@ -156,9 +156,9 @@ public interface RaoResult extends Extendable<RaoResult> {
      * RAO. If it is negative the branch is under constraint. If the PTDFs are not defined in the
      * computation or the sum of them is null, this method could return {@code Double.NaN} values.
      *
-     * @param optimizedInstant: The optimized instant to be studied (set to null to access initial results)
-     * @param flowCnec:         The branch to be studied.
-     * @param unit:             The unit in which the relative margin is queried. Only accepted values are MEGAWATT or AMPERE.
+     * @param optimizedInstant The optimized instant to be studied (set to null to access initial results)
+     * @param flowCnec         The branch to be studied.
+     * @param unit             The unit in which the relative margin is queried. Only accepted values are MEGAWATT or AMPERE.
      * @return The relative margin on the branch at the optimization state in the given unit.
      */
     double getRelativeMargin(Instant optimizedInstant, FlowCnec flowCnec, Unit unit);
@@ -168,9 +168,9 @@ public interface RaoResult extends Extendable<RaoResult> {
      * {@link Instant} and in a given {@link Unit}. If the branch is not considered as a branch on which the
      * loop flows are monitored, this method could return {@code Double.NaN} values.
      *
-     * @param optimizedInstant: The optimized instant to be studied (set to null to access initial results)
-     * @param flowCnec:         The branch to be studied.
-     * @param unit:             The unit in which the commercial flow is queried. Only accepted values are MEGAWATT or AMPERE.
+     * @param optimizedInstant The optimized instant to be studied (set to null to access initial results)
+     * @param flowCnec         The branch to be studied.
+     * @param unit             The unit in which the commercial flow is queried. Only accepted values are MEGAWATT or AMPERE.
      * @return The commercial flow on the branch at the optimization state in the given unit.
      */
     double getCommercialFlow(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side, Unit unit);
@@ -180,9 +180,9 @@ public interface RaoResult extends Extendable<RaoResult> {
      * {@link Instant} and in a given {@link Unit}. If the branch is not considered as a branch on which the
      * loop flows are monitored, this method could return {@code Double.NaN} values.
      *
-     * @param optimizedInstant: The optimized instant to be studied (set to null to access initial results)
-     * @param flowCnec:         The branch to be studied.
-     * @param unit:             The unit in which the loop flow is queried. Only accepted values are MEGAWATT or AMPERE.
+     * @param optimizedInstant The optimized instant to be studied (set to null to access initial results)
+     * @param flowCnec         The branch to be studied.
+     * @param unit             The unit in which the loop flow is queried. Only accepted values are MEGAWATT or AMPERE.
      * @return The loop flow on the branch at the optimization state in the given unit.
      */
     double getLoopFlow(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side, Unit unit);
@@ -192,8 +192,8 @@ public interface RaoResult extends Extendable<RaoResult> {
      * {@link Instant}. If the computation does not consider PTDF values or if the RAO does
      * not define any list of considered areas, this method could return {@code Double.NaN} values.
      *
-     * @param optimizedInstant: The optimized instant to be studied (set to null to access initial results)
-     * @param flowCnec:         The branch to be studied.
+     * @param optimizedInstant The optimized instant to be studied (set to null to access initial results)
+     * @param flowCnec         The branch to be studied.
      * @return The sum of the computation areas' zonal PTDFs on the branch at the optimization state.
      */
     double getPtdfZonalSum(Instant optimizedInstant, FlowCnec flowCnec, TwoSides side);
@@ -202,7 +202,7 @@ public interface RaoResult extends Extendable<RaoResult> {
      * It gives the global cost of the situation at a given {@link Instant} according to the objective
      * function defined in the RAO.
      *
-     * @param optimizedInstant: The optimized instant to be studied (set to null to access initial results)
+     * @param optimizedInstant The optimized instant to be studied (set to null to access initial results)
      * @return The global cost of the situation state.
      */
     default double getCost(Instant optimizedInstant) {
@@ -213,7 +213,7 @@ public interface RaoResult extends Extendable<RaoResult> {
      * It gives the functional cost of the situation at a given {@link Instant} according to the objective
      * function defined in the RAO. It represents the main part of the objective function.
      *
-     * @param optimizedInstant: The optimized instant to be studied (set to null to access initial results)
+     * @param optimizedInstant The optimized instant to be studied (set to null to access initial results)
      * @return The functional cost of the situation state.
      */
     double getFunctionalCost(Instant optimizedInstant);
@@ -223,7 +223,7 @@ public interface RaoResult extends Extendable<RaoResult> {
      * objective function defined in the RAO. It represents the secondary parts of the objective
      * function.
      *
-     * @param optimizedInstant: The optimized instant to be studied (set to null to access initial results)
+     * @param optimizedInstant The optimized instant to be studied (set to null to access initial results)
      * @return The global virtual cost of the situation state.
      */
     double getVirtualCost(Instant optimizedInstant);
@@ -241,8 +241,8 @@ public interface RaoResult extends Extendable<RaoResult> {
      * secondary parts of the objective. If the specified name is not part of the virtual costs defined in the
      * objective function, this method could return {@code Double.NaN} values.
      *
-     * @param optimizedInstant: The optimized instant to be studied (set to null to access initial results)
-     * @param virtualCostName:  The name of the virtual cost.
+     * @param optimizedInstant The optimized instant to be studied (set to null to access initial results)
+     * @param virtualCostName  The name of the virtual cost.
      * @return The specific virtual cost of the situation state.
      */
     double getVirtualCost(Instant optimizedInstant, String virtualCostName);
@@ -250,8 +250,8 @@ public interface RaoResult extends Extendable<RaoResult> {
     /**
      * It states if the {@link RemedialAction} is activated on a specific {@link State}.
      *
-     * @param state:          The state of the state tree to be studied.
-     * @param remedialAction: The remedial action to be studied.
+     * @param state          The state of the state tree to be studied.
+     * @param remedialAction The remedial action to be studied.
      * @return True if the remedial action is chosen by the optimizer during the specified state.
      */
     default boolean isActivatedDuringState(State state, RemedialAction<?> remedialAction) {
@@ -269,8 +269,8 @@ public interface RaoResult extends Extendable<RaoResult> {
      * the network action has not been chosen by the optimizer on this state, but this action is already effective in
      * the network due to previous optimizations.
      *
-     * @param state:         The state of the state tree to be studied.
-     * @param networkAction: The network action to be studied.
+     * @param state         The state of the state tree to be studied.
+     * @param networkAction The network action to be studied.
      * @return True if the network action is already active but has not been activated during the specified state.
      */
     boolean wasActivatedBeforeState(State state, NetworkAction networkAction);
@@ -278,8 +278,8 @@ public interface RaoResult extends Extendable<RaoResult> {
     /**
      * It states if the {@link NetworkAction} is activated on a specific {@link State}.
      *
-     * @param state:         The state of the state tree to be studied.
-     * @param networkAction: The network action to be studied.
+     * @param state         The state of the state tree to be studied.
+     * @param networkAction The network action to be studied.
      * @return True if the network action is chosen by the optimizer during the specified state.
      */
     boolean isActivatedDuringState(State state, NetworkAction networkAction);
@@ -287,8 +287,8 @@ public interface RaoResult extends Extendable<RaoResult> {
     /**
      * It states if the {@link NetworkAction} is or was activated when a specific {@link State} is studied.
      *
-     * @param state:         The state of the state tree to be studied.
-     * @param networkAction: The network action to be studied.
+     * @param state         The state of the state tree to be studied.
+     * @param networkAction The network action to be studied.
      * @return True if the network action is active during the specified state.
      */
     default boolean isActivated(State state, NetworkAction networkAction) {
@@ -298,7 +298,7 @@ public interface RaoResult extends Extendable<RaoResult> {
     /**
      * It gathers the {@link NetworkAction} that are activated during the specified {@link State}.
      *
-     * @param state: The state of the state tree to be studied.
+     * @param state The state of the state tree to be studied.
      * @return The set of activated network action during the specified state.
      */
     Set<NetworkAction> getActivatedNetworkActionsDuringState(State state);
@@ -308,8 +308,8 @@ public interface RaoResult extends Extendable<RaoResult> {
      * point of the range action is different in the specified state compared to the previous state. The previous
      * "state" is the initial situation in the case of the preventive state.
      *
-     * @param state:       The state of the state tree to be studied.
-     * @param rangeAction: The range action to be studied.
+     * @param state       The state of the state tree to be studied.
+     * @param rangeAction The range action to be studied.
      * @return True if the set point of the range action has been changed during the specified state.
      */
     boolean isActivatedDuringState(State state, RangeAction<?> rangeAction);
@@ -330,8 +330,8 @@ public interface RaoResult extends Extendable<RaoResult> {
      * So we will still get 0 in preventive even if RA2 has not been activated during preventive optimization. And we
      * will still get 5 in curative even if RA1 has not been activated during curative optimization.
      *
-     * @param state:          The state of the state tree to be studied.
-     * @param pstRangeAction: The PST range action to be studied.
+     * @param state          The state of the state tree to be studied.
+     * @param pstRangeAction The PST range action to be studied.
      * @return The tap of the PST defined in the PST range action at the specified state before its optimization.
      */
     int getPreOptimizationTapOnState(State state, PstRangeAction pstRangeAction);
@@ -352,8 +352,8 @@ public interface RaoResult extends Extendable<RaoResult> {
      * So we will still get 5 in preventive even if RA2 has not been activated during preventive optimization. And we
      * will still get 10 in curative even if RA1 has not been activated during curative optimization.
      *
-     * @param state:          The state of the state tree to be studied.
-     * @param pstRangeAction: The PST range action to be studied.
+     * @param state          The state of the state tree to be studied.
+     * @param pstRangeAction The PST range action to be studied.
      * @return The tap of the PST defined in the PST range action at the specified state after its optimization.
      */
     int getOptimizedTapOnState(State state, PstRangeAction pstRangeAction);
@@ -375,8 +375,8 @@ public interface RaoResult extends Extendable<RaoResult> {
      * So we will still get 0. in preventive even if RA2 has not been activated during preventive optimization. And we
      * will still get 3.2 in curative even if RA1 has not been activated during curative optimization.
      *
-     * @param state:       The state of the state tree to be studied.
-     * @param rangeAction: The range action to be studied.
+     * @param state       The state of the state tree to be studied.
+     * @param rangeAction The range action to be studied.
      * @return The set point of the network element defined in the range action at the specified state before its
      * optimization.
      */
@@ -398,8 +398,8 @@ public interface RaoResult extends Extendable<RaoResult> {
      * So we will still get 3.2 in preventive even if RA2 has not been activated during preventive optimization. And we
      * will still get 5.6 in curative even if RA1 has not been activated during curative optimization.
      *
-     * @param state:       The state of the state tree to be studied.
-     * @param rangeAction: The range action to be studied.
+     * @param state       The state of the state tree to be studied.
+     * @param rangeAction The range action to be studied.
      * @return The set point of the network element defined in the range action at the specified state after its
      * optimization.
      */
@@ -408,7 +408,7 @@ public interface RaoResult extends Extendable<RaoResult> {
     /**
      * It gathers the {@link RangeAction} that are activated during the specified {@link State}.
      *
-     * @param state: The state of the state tree to be studied.
+     * @param state The state of the state tree to be studied.
      * @return The set of activated range action during the specified state.
      */
     Set<RangeAction<?>> getActivatedRangeActionsDuringState(State state);
@@ -417,7 +417,7 @@ public interface RaoResult extends Extendable<RaoResult> {
      * It gives a summary of all the optimized taps of the {@link PstRangeAction} present in the {@link Crac} for a
      * specific {@link State}.
      *
-     * @param state: The state of the state tree to be studied.
+     * @param state The state of the state tree to be studied.
      * @return The map of the PST range actions associated to their optimized tap of the specified state.
      */
     Map<PstRangeAction, Integer> getOptimizedTapsOnState(State state);
@@ -426,7 +426,7 @@ public interface RaoResult extends Extendable<RaoResult> {
      * It gives a summary of all the optimized set points of the {@link RangeAction} present in the {@link Crac} for a
      * specific {@link State}.
      *
-     * @param state: The state of the state tree to be studied.
+     * @param state The state of the state tree to be studied.
      * @return The map of the range actions associated to their optimized set points of the specified state.
      */
     Map<RangeAction<?>, Double> getOptimizedSetPointsOnState(State state);
@@ -441,8 +441,8 @@ public interface RaoResult extends Extendable<RaoResult> {
     /**
      * Indicates whether the all the CNECs of a given type at a given instant are secure.
      *
-     * @param optimizedInstant: The instant to assess
-     * @param u:                The types of CNECs to check (FLOW -> FlowCNECs, ANGLE -> AngleCNECs, VOLTAGE -> VoltageCNECs). 1 to 3 arguments can be provided.
+     * @param optimizedInstant The instant to assess
+     * @param u                The types of CNECs to check (FLOW -> FlowCNECs, ANGLE -> AngleCNECs, VOLTAGE -> VoltageCNECs). 1 to 3 arguments can be provided.
      * @return whether all the CNECs of the given type(s) are secure at the optimized instant.
      */
     boolean isSecure(Instant optimizedInstant, PhysicalParameter... u);
@@ -450,7 +450,7 @@ public interface RaoResult extends Extendable<RaoResult> {
     /**
      * Indicates whether all the CNECs of a given type are secure at last instant (i.e. after RAO)..
      *
-     * @param u: The types of CNECs to check (FLOW -> FlowCNECs, ANGLE -> AngleCNECs, VOLTAGE -> VoltageCNECs). 1 to 3 arguments can be provided.
+     * @param u The types of CNECs to check (FLOW -> FlowCNECs, ANGLE -> AngleCNECs, VOLTAGE -> VoltageCNECs). 1 to 3 arguments can be provided.
      * @return whether all the CNECs of the given type(s) are secure at last instant (i.e. after RAO)..
      */
     boolean isSecure(PhysicalParameter... u);

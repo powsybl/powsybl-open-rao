@@ -6,6 +6,7 @@
  */
 
 package com.powsybl.openrao.searchtreerao.searchtree.parameters;
+
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;

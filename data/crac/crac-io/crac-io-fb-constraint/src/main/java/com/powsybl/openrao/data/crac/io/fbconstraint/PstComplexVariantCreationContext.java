@@ -4,6 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 package com.powsybl.openrao.data.crac.io.fbconstraint;
 
 import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
@@ -11,7 +12,7 @@ import com.powsybl.openrao.data.crac.io.commons.api.StandardElementaryCreationCo
 import com.powsybl.openrao.data.crac.io.commons.api.stdcreationcontext.PstRangeActionCreationContext;
 
 /**
- * @author Baptiste Seguinot{@literal <baptiste.seguinot at rte-france.com>}
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public final class PstComplexVariantCreationContext extends StandardElementaryCreationContext implements PstRangeActionCreationContext {
     private final boolean isInverted;

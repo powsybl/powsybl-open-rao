@@ -47,6 +47,9 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
+/**
+ * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
+ */
 class CastorSecondPreventiveTest {
     private static final String PREVENTIVE_INSTANT_ID = "preventive";
     private static final String OUTAGE_INSTANT_ID = "outage";
