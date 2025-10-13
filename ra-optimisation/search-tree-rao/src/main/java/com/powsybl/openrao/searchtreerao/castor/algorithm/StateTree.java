@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, RTE (http://www.rte-france.com)
+ * Copyright (c) 2021, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -88,9 +88,10 @@ public class StateTree {
 
     /**
      * Returns the default perimeter to which all curative CNECs that have no associated CRAs must be added
-     * @param contingency: the scenario's contingency
-     * @param crac: the input CRAC
-     * @param automatonRemedialActionsExist: whether auto remedial actions were added to the CRAC or not
+     *
+     * @param contingency the scenario's contingency
+     * @param crac the input CRAC
+     * @param automatonRemedialActionsExist whether auto remedial actions were added to the CRAC or not
      * @return
      * <ul>
      *     <li>preventivePerimeter if no ARAs exist</li>
@@ -174,9 +175,10 @@ public class StateTree {
 
     /**
      * Get the nearest previous curative instant with CRAs for a given curative instant.
-     * @param contingency: the contingency of the scenario
-     * @param crac: the CRAC data
-     * @param instant: the curative instant
+     *
+     * @param contingency the contingency of the scenario
+     * @param crac the CRAC data
+     * @param instant the curative instant
      * @return nearest previous curative instant with CRAs (Optional.empty() is none)
      */
     private Optional<Instant> getLastCurativeInstantWithCraBeforeGivenInstant(Contingency contingency, Crac crac, Instant instant) {

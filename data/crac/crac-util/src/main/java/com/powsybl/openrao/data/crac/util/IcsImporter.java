@@ -29,6 +29,9 @@ import java.util.*;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
 
+/**
+ * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
+ */
 public final class IcsImporter {
     private static final int OFFSET = 2;
     private static final String MAX_GRADIENT = "1000";

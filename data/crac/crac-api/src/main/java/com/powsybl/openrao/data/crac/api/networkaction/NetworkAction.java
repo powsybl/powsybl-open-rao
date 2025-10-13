@@ -31,7 +31,7 @@ public interface NetworkAction extends RemedialAction<NetworkAction> {
     /**
      * States if the remedial action would change the current state of the network. It has no impact on the network.
      *
-     * @param network: Network that serves as reference for the impact.
+     * @param network Network that serves as reference for the impact.
      * @return True if the remedial action would have an impact on the network.
      */
     boolean hasImpactOnNetwork(final Network network);

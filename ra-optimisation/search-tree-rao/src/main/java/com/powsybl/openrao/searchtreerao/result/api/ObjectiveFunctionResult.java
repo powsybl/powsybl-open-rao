@@ -59,7 +59,7 @@ public interface ObjectiveFunctionResult {
      * specified name is not part of the virtual costs defined in the objective function, this method could
      * return {@code Double.NaN} values.
      *
-     * @param virtualCostName: The name of the virtual cost.
+     * @param virtualCostName The name of the virtual cost.
      * @return The specific virtual cost of the situation.
      */
     double getVirtualCost(String virtualCostName);
@@ -69,8 +69,8 @@ public interface ObjectiveFunctionResult {
      * virtual is null the list would be empty. If the specified virtual cost does not imply any branch in its
      * computation the list would be empty. Elements with a null virtual cost are not present in the list.
      *
-     * @param virtualCostName: The name of the virtual cost.
-     * @param number:          The size of the list to be studied, so the number of costly elements to be retrieved.
+     * @param virtualCostName The name of the virtual cost.
+     * @param number          The size of the list to be studied, so the number of costly elements to be retrieved.
      * @return The ordered list of the n first costly elements according to the given virtual cost.
      */
     List<FlowCnec> getCostlyElements(String virtualCostName, int number);

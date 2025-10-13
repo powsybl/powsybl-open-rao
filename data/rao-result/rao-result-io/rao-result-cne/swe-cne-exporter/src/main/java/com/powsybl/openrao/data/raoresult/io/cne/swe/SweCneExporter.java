@@ -88,6 +88,7 @@ import static com.powsybl.openrao.data.raoresult.io.cne.swe.SweCneUtil.SWE_CNE_E
  *         <i>time-interval</i>: string
  *     </li>
  * </ul>
+ *
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */

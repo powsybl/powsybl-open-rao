@@ -10,13 +10,11 @@ package com.powsybl.openrao.raoapi.parameters.extensions;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 
-
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.*;
 
 /**
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
  */
-
 public class FastRaoParameters extends AbstractExtension<RaoParameters> {
     @Override
     public String getName() {

@@ -38,8 +38,8 @@ public interface InterTemporalRaoResult extends RaoResult {
      * It gives the global cost of the situation at a given {@link Instant} according to the objective
      * function defined in the RAO.
      *
-     * @param optimizedInstant: The optimized instant to be studied (set to null to access initial results)
-     * @param timestamp:        The timestamp to be studied
+     * @param optimizedInstant The optimized instant to be studied (set to null to access initial results)
+     * @param timestamp        The timestamp to be studied
      * @return The global cost of the situation state.
      */
     default double getCost(Instant optimizedInstant, OffsetDateTime timestamp) {
@@ -50,8 +50,8 @@ public interface InterTemporalRaoResult extends RaoResult {
      * It gives the functional cost of the situation at a given {@link Instant} according to the objective
      * function defined in the RAO. It represents the main part of the objective function.
      *
-     * @param optimizedInstant: The optimized instant to be studied (set to null to access initial results)
-     * @param timestamp:        The timestamp to be studied
+     * @param optimizedInstant The optimized instant to be studied (set to null to access initial results)
+     * @param timestamp        The timestamp to be studied
      * @return The functional cost of the situation state.
      */
     double getFunctionalCost(Instant optimizedInstant, OffsetDateTime timestamp);
@@ -61,8 +61,8 @@ public interface InterTemporalRaoResult extends RaoResult {
      * objective function defined in the RAO. It represents the secondary parts of the objective
      * function.
      *
-     * @param optimizedInstant: The optimized instant to be studied (set to null to access initial results)
-     * @param timestamp:        The timestamp to be studied
+     * @param optimizedInstant The optimized instant to be studied (set to null to access initial results)
+     * @param timestamp        The timestamp to be studied
      * @return The global virtual cost of the situation state.
      */
     double getVirtualCost(Instant optimizedInstant, OffsetDateTime timestamp);
@@ -72,9 +72,9 @@ public interface InterTemporalRaoResult extends RaoResult {
      * secondary parts of the objective. If the specified name is not part of the virtual costs defined in the
      * objective function, this method could return {@code Double.NaN} values.
      *
-     * @param optimizedInstant: The optimized instant to be studied (set to null to access initial results)
-     * @param virtualCostName:  The name of the virtual cost.
-     * @param timestamp:        The timestamp to be studied
+     * @param optimizedInstant The optimized instant to be studied (set to null to access initial results)
+     * @param virtualCostName  The name of the virtual cost.
+     * @param timestamp        The timestamp to be studied
      * @return The specific virtual cost of the situation state.
      */
     double getVirtualCost(Instant optimizedInstant, String virtualCostName, OffsetDateTime timestamp);
@@ -82,9 +82,9 @@ public interface InterTemporalRaoResult extends RaoResult {
     /**
      * Indicates whether the all the CNECs of a given type at a given instant of a given timestamp are secure.
      *
-     * @param optimizedInstant: The instant to assess
-     * @param timestamp:        The timestamp to assess
-     * @param u:                The types of CNECs to check (FLOW -> FlowCNECs, ANGLE -> AngleCNECs, VOLTAGE -> VoltageCNECs). 1 to 3 arguments can be provided.
+     * @param optimizedInstant The instant to assess
+     * @param timestamp        The timestamp to assess
+     * @param u                The types of CNECs to check (FLOW -> FlowCNECs, ANGLE -> AngleCNECs, VOLTAGE -> VoltageCNECs). 1 to 3 arguments can be provided.
      * @return whether all the CNECs of the given type(s) are secure at the optimized instant.
      */
     boolean isSecure(Instant optimizedInstant, OffsetDateTime timestamp, PhysicalParameter... u);
