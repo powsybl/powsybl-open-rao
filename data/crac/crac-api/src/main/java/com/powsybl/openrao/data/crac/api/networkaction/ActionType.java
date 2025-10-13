@@ -14,5 +14,7 @@ package com.powsybl.openrao.data.crac.api.networkaction;
  */
 public enum ActionType {
     OPEN,
-    CLOSE
+    CLOSE,
+    ACTIVATE,
+    DEACTIVATE
 }
