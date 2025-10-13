@@ -41,11 +41,11 @@ public class AcEmulationSwitchActionAdderImpl extends AbstractSingleNetworkEleme
                 .build();
     }
 
-        protected void assertSpecificAttributes() {
-            assertAttributeNotNull(actionType, getActionName(), "actionType", "withActionType()");
-        }
+    protected void assertSpecificAttributes() {
+        assertAttributeNotNull(actionType, getActionName(), "actionType", "withActionType()");
+    }
 
-        protected String getActionName() {
+    protected String getActionName() {
             return "AcEmulationSwitchAction";
         }
 
