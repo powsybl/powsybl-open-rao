@@ -83,7 +83,7 @@ public class CastorFullOptimization {
             }
             StateTree stateTree = new StateTree(crac);
 
-            currentStep = "initial sensitivity analysis";
+            currentStep = "initial sensitivity analysis ----";
             // ----- INITIAL SENSI -----
             // compute initial sensitivity on all CNECs
             // (this is necessary to have initial flows for MNEC and loopflow constraints on CNECs, in preventive and curative perimeters)
