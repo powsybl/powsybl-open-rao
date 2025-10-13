@@ -188,21 +188,8 @@ public abstract class AbstractOptimizationPerimeter implements OptimizationPerim
             .collect(Collectors.toMap(
                 Map.Entry::getKey,
                 entry -> entry.getValue().stream()
-                    .filter(ra -> {
-                        if (ra instanceof HvdcRangeAction) {
-                            HvdcRangeAction hvdcRa = (HvdcRangeAction) ra;
-                            HvdcAngleDroopActivePowerControl ext =
-                                IidmHvdcHelper
-                                    .getHvdcLine(network, hvdcRa.getNetworkElement().getId())
-                                    .getExtension(HvdcAngleDroopActivePowerControl.class);
-                            if (ext == null || !ext.isEnabled()) {
-                                TECHNICAL_LOGS.warn("Hvdc range action {} is filtered out of the linear problem because hvdc line associated {} is in ac emulation mode.", ra.getId(), hvdcRa.getNetworkElement().getId());
-                                return true;
-                            }
-                            return false;
-                        }
-                        return true;
-                    })
+                    .filter(HvdcRangeAction.class::isInstance)
+                    .filter(ra -> !((HvdcRangeAction) ra).isAngleDroopActivePowerControlEnabled(network))
                     .collect(Collectors.toSet())
             ));
 
