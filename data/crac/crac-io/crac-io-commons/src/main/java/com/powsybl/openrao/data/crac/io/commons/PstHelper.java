@@ -4,10 +4,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 package com.powsybl.openrao.data.crac.io.commons;
 
 import java.util.Map;
 
+/**
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
+ */
 public interface PstHelper extends ElementHelper {
 
     enum TapConvention {
@@ -45,6 +49,7 @@ public interface PstHelper extends ElementHelper {
     /**
      * Converts a tap position of the PST to the used convention (centered on zero).
      * Has no effect if the original convetion is already centered on zero.
+     *
      * @param originalTap the original tap position
      * @param originalTapConvention the convention used for the original tap position
      * @return the normalized (centered on zero) tap position

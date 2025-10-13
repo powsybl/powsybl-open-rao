@@ -91,7 +91,7 @@ public final class BestTapFinder {
     /**
      * This function computes, for every group of PSTs, the common tap position that maximizes the minimum margin
      *
-     * @param minMarginPerTap: a map containing for each PstRangeAction, a map with tap positions and resulting minimum margin
+     * @param minMarginPerTap a map containing for each PstRangeAction, a map with tap positions and resulting minimum margin
      * @return a map containing for each group ID, the best common tap position for the PSTs
      */
     static Map<String, Integer> computeBestTapPerPstGroup(Map<PstRangeAction, Map<Integer, Double>> minMarginPerTap) {
@@ -132,10 +132,10 @@ public final class BestTapFinder {
      * - if the angle is not close enough to the limit between two tap positions, only the closest tap is returned
      * with a Double.MAX_VALUE margin
      *
-     * @param pstRangeAction:           the PstRangeAction for which we need the best taps and margins
-     * @param angle:                    the optimal angle computed by the linear problem
-     * @param linearOptimizationResult: allows to get flow & sensitivity values, as well as most limiting flow CNECs
-     * @param unit:                     the unit of the evaluators (MW or A)
+     * @param pstRangeAction           the PstRangeAction for which we need the best taps and margins
+     * @param angle                    the optimal angle computed by the linear problem
+     * @param linearOptimizationResult allows to get flow & sensitivity values, as well as most limiting flow CNECs
+     * @param unit                     the unit of the evaluators (MW or A)
      * @return a map containing the minimum margin for each best tap position (one or two taps)
      */
     static Map<Integer, Double> computeMinMarginsForBestTaps(Network network,
@@ -214,11 +214,11 @@ public final class BestTapFinder {
     /**
      * This method estimates the minimum margin upon a given set of cnecs, for two angles of a given PST
      *
-     * @param pstRangeAction:           the PstRangeAction that we should test on two angles
-     * @param angle1:                   the first angle for the PST
-     * @param angle2:                   the second angle for the PST
-     * @param linearOptimizationResult: allows to get flow & sensitivity values, as well as most limiting flow CNECs
-     * @param unit:                     the unit of the evalutors (MW or A)
+     * @param pstRangeAction           the PstRangeAction that we should test on two angles
+     * @param angle1                   the first angle for the PST
+     * @param angle2                   the second angle for the PST
+     * @param linearOptimizationResult allows to get flow & sensitivity values, as well as most limiting flow CNECs
+     * @param unit                     the unit of the evaluators (MW or A)
      * @return a pair of two minimum margins (margin for angle1, margin for angle2)
      */
     static Pair<Double, Double> computeMinMargins(Network network,
