@@ -33,26 +33,18 @@ public final class SearchTreeBloomer {
     public SearchTreeBloomer(SearchTreeInput input, SearchTreeParameters parameters) {
         RaUsageLimits raUsageLimits = parameters.getRaLimitationParameters().getOrDefault(input.getOptimizationPerimeter().getMainOptimizationState().getInstant(), new RaUsageLimits());
         this.preDefinedNaCombinations = parameters.getNetworkActionParameters().getNetworkActionCombinations();
+        this.networkActionCombinationFilters = new ArrayList<>(List.of(
+            new AlreadyAppliedNetworkActionsFilter(),
+            new AlreadyTestedCombinationsFilter(preDefinedNaCombinations),
+            new MaximumNumberOfRemedialActionsFilter(raUsageLimits.getMaxRa()),
+            new MaximumNumberOfRemedialActionPerTsoFilter(raUsageLimits.getMaxTopoPerTso(), raUsageLimits.getMaxRaPerTso()),
+            new MaximumNumberOfTsosFilter(raUsageLimits.getMaxTso()),
+            new ElementaryActionsCompatibilityFilter(),
+            new MaximumNumberOfElementaryActionsFilter(raUsageLimits.getMaxElementaryActionsPerTso()))
+        );
         if (parameters.getNetworkActionParameters().skipNetworkActionFarFromMostLimitingElements()) {
-            this.networkActionCombinationFilters = List.of(
-                new AlreadyAppliedNetworkActionsFilter(),
-                new AlreadyTestedCombinationsFilter(preDefinedNaCombinations),
-                new MaximumNumberOfRemedialActionsFilter(raUsageLimits.getMaxRa()),
-                new MaximumNumberOfRemedialActionPerTsoFilter(raUsageLimits.getMaxTopoPerTso(), raUsageLimits.getMaxRaPerTso()),
-                new MaximumNumberOfTsosFilter(raUsageLimits.getMaxTso()),
-                new FarFromMostLimitingElementFilter(input.getNetwork(), parameters.getNetworkActionParameters().skipNetworkActionFarFromMostLimitingElements(), parameters.getNetworkActionParameters().getMaxNumberOfBoundariesForSkippingNetworkActions()),
-                new ElementaryActionsCompatibilityFilter(),
-                new MaximumNumberOfElementaryActionsFilter(raUsageLimits.getMaxElementaryActionsPerTso())
-            );
-        } else {
-            this.networkActionCombinationFilters = List.of(
-                new AlreadyAppliedNetworkActionsFilter(),
-                new AlreadyTestedCombinationsFilter(preDefinedNaCombinations),
-                new MaximumNumberOfRemedialActionsFilter(raUsageLimits.getMaxRa()),
-                new MaximumNumberOfRemedialActionPerTsoFilter(raUsageLimits.getMaxTopoPerTso(), raUsageLimits.getMaxRaPerTso()),
-                new MaximumNumberOfTsosFilter(raUsageLimits.getMaxTso()),
-                new ElementaryActionsCompatibilityFilter(),
-                new MaximumNumberOfElementaryActionsFilter(raUsageLimits.getMaxElementaryActionsPerTso())
+            this.networkActionCombinationFilters.add(
+                new FarFromMostLimitingElementFilter(input.getNetwork(), parameters.getNetworkActionParameters().getMaxNumberOfBoundariesForSkippingNetworkActions())
             );
         }
         this.input = input;
