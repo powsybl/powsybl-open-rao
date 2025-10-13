@@ -4,6 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 package com.powsybl.openrao.data.crac.io.cse.criticalbranch;
 
 import com.powsybl.openrao.data.crac.io.cse.xsd.TMonitoredElements;
@@ -20,7 +21,6 @@ import java.util.*;
 /**
  * @author Martin Belthle {@literal <martin.belthle at rte-france.com>}
  */
-
 public class TMonitoredElementsAdder {
     private final TCRACSeries tcracSeries;
     private final Crac crac;

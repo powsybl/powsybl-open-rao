@@ -1,9 +1,10 @@
 /*
- * Copyright (c) 2019, RTE (http://www.rte-france.com)
+ * Copyright (c) 2018, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 package com.powsybl.openrao.raoapi.json;
 
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
@@ -107,6 +108,7 @@ public final class JsonRaoParameters {
 
     /**
      * Writes parameters as JSON to a file.
+     *
      * @param parameters RaoParameters containing the parameters that will be exported to a file
      * @param jsonFile Path containing the file where the parameters will be exported
      */
@@ -122,6 +124,7 @@ public final class JsonRaoParameters {
 
     /**
      * Writes parameters as JSON to an OutputStream
+     *
      * @param parameters RaoParameters containing the parameters that will be exported to an OutputStream
      * @param outputStream OutputStream where the parameters will be exported
      */
@@ -137,6 +140,7 @@ public final class JsonRaoParameters {
 
     /**
      * Low level deserialization method, to be used for instance for reading rao parameters nested in another object.
+     *
      * @param parser JsonParser of a file containing a representation of RaoParameters
      * @param context DeserializationContext used in the deserialization
      * @param parameters RaoParameters to be updated
@@ -149,6 +153,7 @@ public final class JsonRaoParameters {
 
     /**
      * Low level deserialization method, to be used for instance for updating rao parameters nested in another object.
+     *
      * @param parser JsonParser of a file containing a representation of RaoParameters
      * @param context DeserializationContext used in the deserialization
      * @return RaoParameters object representing the content of the JsonParser
@@ -160,6 +165,7 @@ public final class JsonRaoParameters {
 
     /**
      * Low level serialization method, to be used for instance for writing Rao Parameters nested in another object.
+     *
      * @param parameters RaoParameters containing what needs to be serialized
      * @param jsonGenerator JsonGenerator used for the serialization
      * @param serializerProvider SerializerProvider used for the serialization

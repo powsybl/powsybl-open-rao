@@ -34,11 +34,24 @@ import com.powsybl.openrao.searchtreerao.result.impl.RemedialActionActivationRes
 import java.util.Map;
 import java.util.Set;
 
-/** This class concatenates all data around one individual timestamp from running Marmot:
- * - input data (before Marmot): RaoInput
- * - output data (after Marmot):
- *      -- RaoResult: output from initial Rao run, containing activated topological actions
- *      -- LinearOptimizationResult: output from inter-temporal MIP, containing activated range actions
+/**
+ * This class concatenates all data around one individual timestamp from running Marmot:
+ * <ul>
+ *     <li>
+ *         input data (before Marmot): RaoInput
+ *     </li>
+ *     <li>
+ *         output data (after Marmot):
+ *         <ul>
+ *             <li>
+ *                 RaoResult: output from initial Rao run, containing activated topological actions
+ *             </li>
+ *             <li>
+ *                 LinearOptimizationResult: output from inter-temporal MIP, containing activated range actions
+ *             </li>
+ *         </ul>
+ *     </li>
+ * </ul>
  *
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}

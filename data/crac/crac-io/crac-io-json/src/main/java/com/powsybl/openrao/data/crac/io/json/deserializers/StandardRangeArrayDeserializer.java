@@ -17,7 +17,7 @@ import com.fasterxml.jackson.core.JsonToken;
 import java.io.IOException;
 
 /**
- *  @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
+ * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 public final class StandardRangeArrayDeserializer {
     private StandardRangeArrayDeserializer() {

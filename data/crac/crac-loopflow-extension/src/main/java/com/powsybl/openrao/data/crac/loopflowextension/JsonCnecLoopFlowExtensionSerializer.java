@@ -4,6 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 package com.powsybl.openrao.data.crac.loopflowextension;
 
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -24,7 +25,6 @@ import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.s
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-
 @AutoService(ExtensionsHandler.ExtensionSerializer.class)
 public class JsonCnecLoopFlowExtensionSerializer implements ExtensionsHandler.ExtensionSerializer<FlowCnec, LoopFlowThreshold> {
     private static final String THRESHOLD = "inputThreshold";

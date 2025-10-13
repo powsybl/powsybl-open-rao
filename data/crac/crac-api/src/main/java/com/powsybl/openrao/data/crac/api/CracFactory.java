@@ -27,9 +27,9 @@ public interface CracFactory {
     /**
      * Create a {@code Crac} object.
      *
-     * @param id: ID to assign to the created Crac.
-     * @param name: Name to assign to the created Crac.
-     * @param timestamp: Timestamp of validity of the Crac.
+     * @param id ID to assign to the created Crac.
+     * @param name Name to assign to the created Crac.
+     * @param timestamp Timestamp of validity of the Crac.
      * @return the created {@code Crac} instance.
      */
     Crac create(String id, String name, OffsetDateTime timestamp);
@@ -37,8 +37,8 @@ public interface CracFactory {
     /**
      * Create a {@code Crac} object.
      *
-     * @param id: ID to assign to the created Crac.
-     * @param name: Name to assign to the created Crac.
+     * @param id ID to assign to the created Crac.
+     * @param name Name to assign to the created Crac.
      * @return the created {@code Crac} instance.
      */
     default Crac create(String id, String name) {
@@ -48,7 +48,7 @@ public interface CracFactory {
     /**
      * Create a {@code Crac} object. Name will be equal to id.
      *
-     * @param id: ID to assign to the created Crac.
+     * @param id ID to assign to the created Crac.
      * @return the created {@code Crac} instance with given ID, name equal to ID.
      */
     default Crac create(String id) {
@@ -65,7 +65,7 @@ public interface CracFactory {
     /**
      * Find a {@code CracFactory} implementation by its name
      *
-     * @param factoryName: The name of the {@code CracFactory} implementation.
+     * @param factoryName The name of the {@code CracFactory} implementation.
      * @return An instance of the {@code CracFactory} implementation.
      * @throws OpenRaoException if the factory name is not recognized as an existent implementation.
      */

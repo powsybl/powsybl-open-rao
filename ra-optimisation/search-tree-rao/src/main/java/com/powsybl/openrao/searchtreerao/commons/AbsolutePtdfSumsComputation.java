@@ -4,6 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 package com.powsybl.openrao.searchtreerao.commons;
 
 import com.powsybl.openrao.commons.EICode;
@@ -17,11 +18,11 @@ import com.powsybl.sensitivity.SensitivityVariableSet;
 import java.util.*;
 
 /**
- *  This class computes the absolute PTDF sums on a given set of CNECs
- *  It requires that the sensitivity values be already computed
+ * This class computes the absolute PTDF sums on a given set of CNECs
+ * It requires that the sensitivity values be already computed
  *
- *  @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
- *  @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
+ * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class AbsolutePtdfSumsComputation {
     private final ZonalData<SensitivityVariableSet> glskProvider;
