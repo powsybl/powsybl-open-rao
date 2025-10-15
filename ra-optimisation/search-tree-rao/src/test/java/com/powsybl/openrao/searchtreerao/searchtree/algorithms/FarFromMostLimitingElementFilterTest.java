@@ -4,6 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 package com.powsybl.openrao.searchtreerao.searchtree.algorithms;
 
 import com.powsybl.iidm.network.Country;
@@ -11,7 +12,6 @@ import com.powsybl.openrao.commons.CountryBoundary;
 import com.powsybl.openrao.commons.CountryGraph;
 import com.powsybl.openrao.data.crac.api.networkaction.ActionType;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -121,7 +121,7 @@ class FarFromMostLimitingElementFilterTest {
 
     @Test
     void testIsNetworkActionCloseToLocations() {
-        NetworkAction na1 = NetworkActionCombinationsUtils.CRAC.newNetworkAction().withId("na").newTerminalsConnectionAction().withNetworkElement("BBE2AA1  FFR3AA1  1").withActionType(ActionType.OPEN).add().newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(PREVENTIVE_INSTANT_ID).add().add();
+        NetworkAction na1 = NetworkActionCombinationsUtils.CRAC.newNetworkAction().withId("na").newTerminalsConnectionAction().withNetworkElement("BBE2AA1  FFR3AA1  1").withActionType(ActionType.OPEN).add().newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add().add();
         NetworkAction na2 = mock(NetworkAction.class);
         Mockito.when(na2.getLocation(NetworkActionCombinationsUtils.NETWORK)).thenReturn(Set.of(Country.FR));
 

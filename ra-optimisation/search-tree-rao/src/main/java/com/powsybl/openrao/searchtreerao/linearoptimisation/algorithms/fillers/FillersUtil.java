@@ -40,8 +40,8 @@ public final class FillersUtil {
     /**
      * Filters out flow CNECs with a state that failed sensitivity computation
      *
-     * @param flowCnecs:         the flow CNECs to filter through
-     * @param sensitivityResult: the sensitivity result containing computation statuses for the flow CNECs' states
+     * @param flowCnecs         the flow CNECs to filter through
+     * @param sensitivityResult the sensitivity result containing computation statuses for the flow CNECs' states
      * @return a set of filtered CNECs, containing only flow CNECs with a state that succeeded sensitivity computation
      */
     static Set<FlowCnec> getFlowCnecsComputationStatusOk(Set<FlowCnec> flowCnecs, SensitivityResult sensitivityResult) {
@@ -54,8 +54,8 @@ public final class FillersUtil {
     /**
      * Filters out flow CNECs that failed flow computation
      *
-     * @param flowCnecs:  the flow CNECs to filter through
-     * @param flowResult: the flow result containing real or NaN values for CNEC flows
+     * @param flowCnecs  the flow CNECs to filter through
+     * @param flowResult the flow result containing real or NaN values for CNEC flows
      * @return a set of filtered CNECs, containing only flow CNECs with a non-NaN flow value
      */
     static Set<FlowCnec> getFlowCnecsNotNaNFlow(Set<FlowCnec> flowCnecs, FlowResult flowResult) {

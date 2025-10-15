@@ -4,6 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 package com.powsybl.openrao.data.crac.io.cim.craccreator;
 
 import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
@@ -11,7 +12,6 @@ import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-// TODO : make it implement ElementaryCreationContext if we can extend ElementaryCreationContext?
 public final class VoltageCnecCreationContext {
     private final String nativeNetworkElementId;
     private final String instantId;
@@ -20,6 +20,7 @@ public final class VoltageCnecCreationContext {
     private final String importStatusDetail;
     private final String createdCnecId;
 
+    // TODO : make it implement ElementaryCreationContext if we can extend ElementaryCreationContext?
     private VoltageCnecCreationContext(String nativeNetworkElementId, String instantId, String nativeContingencyName, ImportStatus importStatus, String importStatusDetail, String createdCnecId) {
         this.nativeNetworkElementId = nativeNetworkElementId;
         this.instantId = instantId;

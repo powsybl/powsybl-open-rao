@@ -273,20 +273,34 @@ public final class IteratingLinearOptimizer {
 
     private static void logBetterResult(int iteration, ObjectiveFunctionResult currentObjectiveFunctionResult) {
         TECHNICAL_LOGS.info(
-                "Iteration {}: better solution found with a cost of {} (functional: {})",
-                iteration,
-                formatDouble(currentObjectiveFunctionResult.getCost()),
-                formatDouble(currentObjectiveFunctionResult.getFunctionalCost()));
+            "Iteration {}: better solution found with a cost of {} (functional: {})",
+            iteration,
+            formatDouble(currentObjectiveFunctionResult.getCost()),
+            formatDouble(currentObjectiveFunctionResult.getFunctionalCost()));
+
+        currentObjectiveFunctionResult.getVirtualCostNames().forEach(vc -> {
+            double cost = currentObjectiveFunctionResult.getVirtualCost(vc);
+            if (cost > 1e-6) {
+                TECHNICAL_LOGS.info("{} cost of {}", vc, cost);
+            }
+        });
     }
 
     private static void logWorseResult(int iteration, ObjectiveFunctionResult bestResult, ObjectiveFunctionResult currentResult) {
         TECHNICAL_LOGS.info(
-                "Iteration {}: linear optimization found a worse result than best iteration, with a cost increasing from {} to {} (functional: from {} to {})",
-                iteration,
-                formatDouble(bestResult.getCost()),
-                formatDouble(currentResult.getCost()),
-                formatDouble(bestResult.getFunctionalCost()),
-                formatDouble(currentResult.getFunctionalCost()));
+            "Iteration {}: linear optimization found a worse result than best iteration, with a cost increasing from {} to {} (functional: from {} to {})",
+            iteration,
+            formatDouble(bestResult.getCost()),
+            formatDouble(currentResult.getCost()),
+            formatDouble(bestResult.getFunctionalCost()),
+            formatDouble(currentResult.getFunctionalCost()));
+
+        currentResult.getVirtualCostNames().forEach(vc -> {
+            double cost = currentResult.getVirtualCost(vc);
+            if (cost > 1e-6) {
+                TECHNICAL_LOGS.info("{} cost of {}", vc, cost);
+            }
+        });
     }
 
     private static String formatDouble(double value) {

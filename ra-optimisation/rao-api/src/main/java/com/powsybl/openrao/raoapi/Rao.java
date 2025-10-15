@@ -4,6 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 package com.powsybl.openrao.raoapi;
 
 import com.powsybl.openrao.commons.OpenRaoException;
@@ -126,7 +127,7 @@ public final class Rao {
      * @return a runner for default RAO implementation
      */
     public static Runner find() {
-        return find(null);
+        return find("SearchTreeRao");
     }
 
     /**

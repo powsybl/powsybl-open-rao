@@ -4,10 +4,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 package com.powsybl.openrao.data.raoresult.api;
 
 import com.powsybl.iidm.network.TwoSides;
-import com.powsybl.openrao.commons.MinOrMax;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
@@ -182,8 +182,8 @@ class RaoResultCloneTest {
         VoltageCnec voltageCnec = mock(VoltageCnec.class);
         when(crac.getVoltageCnec("voltageCnecId")).thenReturn(voltageCnec);
 
-        when(raoResult.getVoltage(eq(curativeInstant), eq(voltageCnec), eq(MinOrMax.MIN), any())).thenReturn(144.38);
-        when(raoResult.getVoltage(eq(curativeInstant), eq(voltageCnec), eq(MinOrMax.MAX), any())).thenReturn(154.38);
+        when(raoResult.getMinVoltage(eq(curativeInstant), eq(voltageCnec), any())).thenReturn(144.38);
+        when(raoResult.getMaxVoltage(eq(curativeInstant), eq(voltageCnec), any())).thenReturn(154.38);
         // Mock other methods for VoltageCnec as needed
 
         // Mocking computation status map

@@ -4,6 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 package com.powsybl.openrao.data.crac.io.commons.ucte;
 
 import com.powsybl.openrao.commons.OpenRaoException;
@@ -19,7 +20,7 @@ import java.util.stream.Collectors;
  * A utility class that reads the network and stores UCTE information in order
  * to easily map UCTE connectables (from/to/suffix) to elements in the network
  *
- * @author Baptiste Seguinot{@literal <baptiste.seguinot at rte-france.com>}
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 class UcteConnectableCollection {

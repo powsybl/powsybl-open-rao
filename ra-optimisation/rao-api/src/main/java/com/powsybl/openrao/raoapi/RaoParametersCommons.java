@@ -4,6 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 package com.powsybl.openrao.raoapi;
 
 import com.powsybl.openrao.commons.OpenRaoException;
@@ -122,6 +123,12 @@ public final class RaoParametersCommons {
     public static final String PTDF_BOUNDARIES = "ptdf-boundaries";
     public static final String PTDF_SUM_LOWER_BOUND = "ptdf-sum-lower-bound";
     public static final String SEARCH_TREE_PARAMETERS = "open-rao-search-tree-parameters";
+
+    // -- Fast Rao Parameters
+    public static final String FAST_RAO_PARAMETERS = "fast-rao-parameters";
+    public static final String NUMBER_OF_CNECS_TO_ADD = "number-of-cnecs-to-add";
+    public static final String ADD_UNSECURE_CNECS = "add-unsecure-cnecs";
+    public static final String MARGIN_LIMIT = "margin-limit";
 
     public static PtdfApproximation stringToPtdfApproximation(String string) {
         try {

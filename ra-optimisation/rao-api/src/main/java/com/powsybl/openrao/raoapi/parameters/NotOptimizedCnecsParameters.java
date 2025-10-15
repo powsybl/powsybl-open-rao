@@ -11,6 +11,7 @@ import com.powsybl.commons.config.PlatformConfig;
 
 import java.util.*;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.*;
+
 /**
  * Not optimized cnecs parameters for RAO
  *

@@ -1,15 +1,15 @@
 /*
- * Copyright (c) 2024, RTE (http://www.rte-france.com)
+ * Copyright (c) 2022, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 package com.powsybl.openrao.monitoring;
 
 import com.powsybl.contingency.ContingencyElementType;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlowParameters;
-import com.powsybl.openrao.commons.MinOrMax;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
@@ -21,7 +21,6 @@ import com.powsybl.openrao.data.crac.api.networkaction.ActionType;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.range.RangeType;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.openrao.data.crac.impl.VoltageCnecValue;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
@@ -73,29 +72,29 @@ class VoltageMonitoringTest {
         naOpenL1 = crac.newNetworkAction()
             .withId("Open L1")
             .newTerminalsConnectionAction().withNetworkElement("L1").withActionType(ActionType.OPEN).add()
-            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
             .add();
         naCloseL1 = crac.newNetworkAction()
             .withId("Close L1")
             .newTerminalsConnectionAction().withNetworkElement("L1").withActionType(ActionType.CLOSE).add()
-            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
             .add();
         naOpenL2 = crac.newNetworkAction()
             .withId("Open L2")
             .newTerminalsConnectionAction().withNetworkElement("L2").withActionType(ActionType.OPEN).add()
-            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
             .add();
         naCloseL2 = crac.newNetworkAction()
             .withId("Close L2")
             .newTerminalsConnectionAction().withNetworkElement("L2").withActionType(ActionType.CLOSE).add()
-            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
             .add();
         pst = crac.newPstRangeAction()
             .withId("pst")
             .withNetworkElement("PS1")
             .withInitialTap(2).withTapToAngleConversionMap(Map.of(1, -20., 2, 0., 3, 20.))
             .newTapRange().withMinTap(1).withMaxTap(3).withRangeType(RangeType.ABSOLUTE).add()
-            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
             .add();
 
         crac.newContingency().withId("coL1").withContingencyElement("L1", ContingencyElementType.LINE).add();
@@ -346,7 +345,7 @@ class VoltageMonitoringTest {
         crac.newNetworkAction()
             .withId("Open L1 - 1")
             .newTerminalsConnectionAction().withNetworkElement("L1").withActionType(ActionType.OPEN).add()
-            .newOnConstraintUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withCnec(vcPrev.getId()).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnConstraintUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withCnec(vcPrev.getId()).add()
             .add();
     }
 
@@ -372,7 +371,7 @@ class VoltageMonitoringTest {
         crac.newNetworkAction()
             .withId(networkActionName)
             .newTerminalsConnectionAction().withNetworkElement("L2").withActionType(ActionType.OPEN).add()
-            .newOnConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withCnec(vc.getId()).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withCnec(vc.getId()).add()
             .add();
 
         runVoltageMonitoring();
@@ -391,7 +390,7 @@ class VoltageMonitoringTest {
         crac.newNetworkAction()
             .withId("Open L1 - 2")
             .newTerminalsConnectionAction().withNetworkElement("L1").withActionType(ActionType.OPEN).add()
-            .newOnConstraintUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withCnec(vc.getId()).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnConstraintUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withCnec(vc.getId()).add()
             .add();
 
         runVoltageMonitoring();
@@ -416,7 +415,7 @@ class VoltageMonitoringTest {
         crac.newNetworkAction()
             .withId("Open L1 - 1")
             .newTerminalsConnectionAction().withNetworkElement("L1").withActionType(ActionType.OPEN).add()
-            .newOnConstraintUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withCnec(vcPrev.getId()).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnConstraintUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withCnec(vcPrev.getId()).add()
             .add();
 
         crac.newContingency().withId("co").withContingencyElement("L1", ContingencyElementType.LINE).add();
@@ -425,7 +424,7 @@ class VoltageMonitoringTest {
         RemedialAction<?> networkAction = crac.newNetworkAction()
             .withId(networkActionName)
             .newTerminalsConnectionAction().withNetworkElement("L1").withActionType(ActionType.OPEN).add()
-            .newOnConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withCnec(vc.getId()).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withCnec(vc.getId()).add()
             .add();
 
         runVoltageMonitoring();
@@ -442,7 +441,7 @@ class VoltageMonitoringTest {
         crac.newNetworkAction()
             .withId("Open L1 - 1")
             .newTerminalsConnectionAction().withNetworkElement("L1").withActionType(ActionType.OPEN).add()
-            .newOnConstraintUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withCnec(vcPrev.getId()).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnConstraintUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withCnec(vcPrev.getId()).add()
             .add();
 
         crac.newContingency().withId("co").withContingencyElement("L1", ContingencyElementType.LINE).add();
@@ -451,7 +450,7 @@ class VoltageMonitoringTest {
         RemedialAction<?> networkAction = crac.newNetworkAction()
             .withId(networkActionName)
             .newTerminalsConnectionAction().withNetworkElement("L1").withActionType(ActionType.OPEN).add()
-            .newOnConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withCnec(vc.getId()).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withCnec(vc.getId()).add()
             .add();
 
         runVoltageMonitoring();
@@ -471,7 +470,7 @@ class VoltageMonitoringTest {
         RemedialAction<?> networkAction = crac.newNetworkAction()
             .withId(networkActionName)
             .newTerminalsConnectionAction().withNetworkElement("L1").withActionType(ActionType.CLOSE).add()
-            .newOnConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withCnec(vc.getId()).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withCnec(vc.getId()).add()
             .add();
 
         runVoltageMonitoring();
@@ -490,7 +489,7 @@ class VoltageMonitoringTest {
         RemedialAction<?> networkAction = crac.newNetworkAction()
             .withId(networkActionName)
             .newTerminalsConnectionAction().withNetworkElement("L2").withActionType(ActionType.OPEN).add()
-            .newOnConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withCnec(vc.getId()).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withCnec(vc.getId()).add()
             .add();
 
         runVoltageMonitoring();
@@ -550,7 +549,7 @@ class VoltageMonitoringTest {
         NetworkAction networkAction = crac.newNetworkAction()
             .withId("Open L1 - 1")
             .newTerminalsConnectionAction().withNetworkElement("L1").withActionType(ActionType.OPEN).add()
-            .newOnConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withCnec(vcCur.getId()).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withCnec(vcCur.getId()).add()
             .add();
 
         when(raoResult.getComputationStatus()).thenReturn(ComputationStatus.DEFAULT);
@@ -560,9 +559,9 @@ class VoltageMonitoringTest {
         RaoResult raoResultWithVoltageMonitoring = Monitoring.runVoltageAndUpdateRaoResult("OpenLoadFlow", loadFlowParameters, 1, monitoringInput);
 
         assertFalse(raoResultWithVoltageMonitoring.isSecure(PhysicalParameter.VOLTAGE));
-        assertThrows(OpenRaoException.class, () -> raoResultWithVoltageMonitoring.getMinVoltage(crac.getPreventiveState().getInstant(), vcPrev, MinOrMax.MIN, Unit.KILOVOLT));
-        assertEquals(400., raoResultWithVoltageMonitoring.getMinVoltage(crac.getInstant(CURATIVE_INSTANT_ID), vcCur, MinOrMax.MIN, Unit.KILOVOLT));
-        assertEquals(400, raoResultWithVoltageMonitoring.getMaxVoltage(crac.getInstant(CURATIVE_INSTANT_ID), vcCur, MinOrMax.MAX, Unit.KILOVOLT));
+        assertThrows(OpenRaoException.class, () -> raoResultWithVoltageMonitoring.getMinVoltage(crac.getPreventiveState().getInstant(), vcPrev, Unit.KILOVOLT));
+        assertEquals(400., raoResultWithVoltageMonitoring.getMinVoltage(crac.getInstant(CURATIVE_INSTANT_ID), vcCur, Unit.KILOVOLT));
+        assertEquals(400, raoResultWithVoltageMonitoring.getMaxVoltage(crac.getInstant(CURATIVE_INSTANT_ID), vcCur, Unit.KILOVOLT));
         assertEquals(-1., raoResultWithVoltageMonitoring.getMargin(crac.getInstant(CURATIVE_INSTANT_ID), vcCur, Unit.KILOVOLT));
         assertEquals(Set.of(networkAction), raoResultWithVoltageMonitoring.getActivatedNetworkActionsDuringState(crac.getState("co", crac.getInstant(CURATIVE_INSTANT_ID))));
         assertTrue(raoResultWithVoltageMonitoring.isActivatedDuringState(crac.getState("co", crac.getInstant(CURATIVE_INSTANT_ID)), networkAction));
@@ -573,4 +572,3 @@ class VoltageMonitoringTest {
     }
 
 }
-

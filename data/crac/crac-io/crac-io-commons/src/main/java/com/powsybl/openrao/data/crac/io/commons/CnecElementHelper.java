@@ -4,10 +4,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 package com.powsybl.openrao.data.crac.io.commons;
 
 import com.powsybl.iidm.network.TwoSides;
 
+/**
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
+ */
 public interface CnecElementHelper extends ElementHelper {
 
     /**
@@ -29,7 +33,7 @@ public interface CnecElementHelper extends ElementHelper {
      * The side corresponds to the side of the branch in the network, which might be inverted
      * (see isInvertedInNetwork()).
      */
-    Double getCurrentLimit(TwoSides side);
+    double getCurrentLimit(TwoSides side);
 
     /**
      * If the CNEC element is valid, returns a boolean indicating whether or not the element is

@@ -4,6 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 package com.powsybl.openrao.data.crac.io.json.deserializers;
 
 import com.fasterxml.jackson.core.JsonToken;
@@ -27,6 +28,7 @@ public final class StandardRangeActionDeserializer {
 
     /**
      * De-serializes common elements in StandardRangeAction implementations
+     *
      * @return true if the element was found
      * @throws IOException
      */
@@ -43,26 +45,26 @@ public final class StandardRangeActionDeserializer {
                 break;
             case JsonSerializationConstants.ON_INSTANT_USAGE_RULES:
                 jsonParser.nextToken();
-                OnInstantArrayDeserializer.deserialize(jsonParser, standardRangeActionAdder);
+                OnInstantArrayDeserializer.deserialize(jsonParser, standardRangeActionAdder, version);
                 break;
             case JsonSerializationConstants.FREE_TO_USE_USAGE_RULES:
                 if (JsonSerializationConstants.getPrimaryVersionNumber(version) > 1 || JsonSerializationConstants.getSubVersionNumber(version) > 5) {
                     throw new OpenRaoException("FreeToUse has been renamed to OnInstant since CRAC version 1.6");
                 } else {
                     jsonParser.nextToken();
-                    OnInstantArrayDeserializer.deserialize(jsonParser, standardRangeActionAdder);
+                    OnInstantArrayDeserializer.deserialize(jsonParser, standardRangeActionAdder, version);
                 }
                 break;
             case JsonSerializationConstants.ON_CONTINGENCY_STATE_USAGE_RULES:
                 jsonParser.nextToken();
-                OnStateArrayDeserializer.deserialize(jsonParser, standardRangeActionAdder);
+                OnStateArrayDeserializer.deserialize(jsonParser, standardRangeActionAdder, version);
                 break;
             case JsonSerializationConstants.ON_STATE_USAGE_RULES:
                 if (JsonSerializationConstants.getPrimaryVersionNumber(version) > 1 || JsonSerializationConstants.getSubVersionNumber(version) > 5) {
                     throw new OpenRaoException("OnState has been renamed to OnContingencyState since CRAC version 1.6");
                 } else {
                     jsonParser.nextToken();
-                    OnStateArrayDeserializer.deserialize(jsonParser, standardRangeActionAdder);
+                    OnStateArrayDeserializer.deserialize(jsonParser, standardRangeActionAdder, version);
                 }
                 break;
             case JsonSerializationConstants.ON_CONSTRAINT_USAGE_RULES:

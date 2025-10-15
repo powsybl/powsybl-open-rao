@@ -4,6 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 package com.powsybl.openrao.data.crac.api;
 
 import com.powsybl.commons.util.ServiceLoaderCache;
@@ -31,7 +32,6 @@ import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeActionAdder;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeActionAdder;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkActionAdder;
 
@@ -169,7 +169,7 @@ public interface Crac extends Identifiable<Crac> {
      * instants objects. This is a set because states must not be duplicated and it is sorted
      * by chronology of instants. Can return null if no matching contingency is found.
      *
-     * @param contingency: The contingency after which we want to gather states.
+     * @param contingency The contingency after which we want to gather states.
      * @return Ordered set of states after the specified contingency.
      */
     SortedSet<State> getStates(Contingency contingency);
@@ -180,7 +180,7 @@ public interface Crac extends Identifiable<Crac> {
      * because states must not be duplicated and there is no defined order for states selected by
      * instants. Can return null if no matching instant is found.
      *
-     * @param instant: The instant at which we want to gather states.
+     * @param instant The instant at which we want to gather states.
      * @return Unordered set of states at the same specified instant.
      */
     Set<State> getStates(Instant instant);
@@ -189,8 +189,8 @@ public interface Crac extends Identifiable<Crac> {
      * Select a unique state after a contingency and at a specific instant.
      * Can return null if no matching state or contingency are found.
      *
-     * @param contingency: The contingency after which we want to select the state.
-     * @param instant:     The instant at which we want to select the state.
+     * @param contingency The contingency after which we want to select the state.
+     * @param instant     The instant at which we want to select the state.
      * @return State after a contingency and at a specific instant.
      */
     State getState(Contingency contingency, Instant instant);
@@ -201,7 +201,7 @@ public interface Crac extends Identifiable<Crac> {
      * because states must not be duplicated and there is no defined order for states selected by
      * instants. Can return null if no matching instant is found.
      *
-     * @param instant: The instant at which we want to gather states.
+     * @param instant The instant at which we want to gather states.
      * @return Unordered set of states at the same specified instant.
      */
     default Set<State> getStatesFromInstant(Instant instant) {
@@ -213,7 +213,7 @@ public interface Crac extends Identifiable<Crac> {
      * instants objects. This is a set because states must not be duplicated and it is sorted
      * by chronology of instants. Can return null if no matching contingency is found.
      *
-     * @param id: The contingency id after which we want to gather states.
+     * @param id The contingency id after which we want to gather states.
      * @return Ordered set of states after the specified contingency.
      */
     default SortedSet<State> getStatesFromContingency(String id) {
@@ -227,8 +227,8 @@ public interface Crac extends Identifiable<Crac> {
     /**
      * Select a unique state after a contingency and at a specific instant, specified by their ids.
      *
-     * @param contingencyId: The contingency id after which we want to select the state.
-     * @param instant:       The instant at which we want to select the state.
+     * @param contingencyId The contingency id after which we want to select the state.
+     * @param instant       The instant at which we want to select the state.
      * @return State after a contingency and at a specific instant. Can return null if no matching
      * state or contingency are found.
      */
@@ -429,7 +429,6 @@ public interface Crac extends Identifiable<Crac> {
      */
     InjectionRangeActionAdder newInjectionRangeAction();
 
-
     /**
      * Get a {@link CounterTradeRangeActionAdder}, to add an {@link CounterTradeRangeAction} to the crac
      */
@@ -442,14 +441,9 @@ public interface Crac extends Identifiable<Crac> {
     Set<RangeAction<?>> getRangeActions();
 
     /**
-     * Gather all the range actions of a specified state with one of the specified usage methods
+     * Gather all the range actions of a specified state
      */
-    Set<RangeAction<?>> getRangeActions(State state, UsageMethod... usageMethod);
-
-    /**
-     * Gather all the network actions of a specified state that are potentially available
-     */
-    Set<RangeAction<?>> getPotentiallyAvailableRangeActions(State state);
+    Set<RangeAction<?>> getRangeActions(State state);
 
     default boolean isRangeActionPreventive(RangeAction<?> rangeAction) {
         return isRangeActionAvailableInState(rangeAction, getPreventiveState());
@@ -462,7 +456,7 @@ public interface Crac extends Identifiable<Crac> {
     }
 
     default boolean isRangeActionAvailableInState(RangeAction<?> rangeAction, State state) {
-        return getPotentiallyAvailableRangeActions(state).contains(rangeAction);
+        return getRangeActions(state).contains(rangeAction);
     }
 
     /**
@@ -529,7 +523,6 @@ public interface Crac extends Identifiable<Crac> {
      */
     void removeInjectionRangeAction(String id);
 
-
     // Network actions management
 
     /**
@@ -544,14 +537,9 @@ public interface Crac extends Identifiable<Crac> {
     Set<NetworkAction> getNetworkActions();
 
     /**
-     * Gather all the network actions of a specified state with one of the specified usage methods
+     * Gather all the network actions of a specified state
      */
-    Set<NetworkAction> getNetworkActions(State state, UsageMethod... usageMethod);
-
-    /**
-     * Gather all the network actions of a specified state that are potentially available
-     */
-    Set<NetworkAction> getPotentiallyAvailableNetworkActions(State state);
+    Set<NetworkAction> getNetworkActions(State state);
 
     /**
      * Find a NetworkAction by its id, returns null if the network action does not exists

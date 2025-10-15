@@ -4,6 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 package com.powsybl.openrao.data.crac.io.json.serializers;
 
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -22,7 +23,6 @@ public class OnConstraintSerializer extends AbstractJsonSerializer<OnConstraint>
         gen.writeStartObject();
         gen.writeStringField(JsonSerializationConstants.INSTANT, value.getInstant().getId());
         gen.writeStringField(JsonSerializationConstants.CNEC_ID, value.getCnec().getId());
-        gen.writeStringField(JsonSerializationConstants.USAGE_METHOD, JsonSerializationConstants.serializeUsageMethod(value.getUsageMethod()));
         gen.writeEndObject();
     }
 }

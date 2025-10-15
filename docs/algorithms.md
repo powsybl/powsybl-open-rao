@@ -3,6 +3,7 @@
 ```{toctree}
 :hidden:
 algorithms/castor.md
+algorithms/marmot.md
 algorithms/monitoring.md
 algorithms/pst-regulation.md
 ```

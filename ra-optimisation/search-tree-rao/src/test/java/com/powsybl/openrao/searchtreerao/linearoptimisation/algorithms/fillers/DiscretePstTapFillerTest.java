@@ -4,6 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers;
 
 import com.powsybl.openrao.commons.Unit;
@@ -33,7 +34,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import static com.powsybl.openrao.data.crac.api.usagerule.UsageMethod.AVAILABLE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -51,7 +51,7 @@ class DiscretePstTapFillerTest extends AbstractFillerTest {
     private PstRangeAction pra;
     private PstRangeAction cra;
 
-    void setUpAndFill(boolean costOptimization) throws IOException {
+    void setUpAndFill() throws IOException {
         // prepare data
         init();
         preventiveState = crac.getPreventiveState();
@@ -61,7 +61,7 @@ class DiscretePstTapFillerTest extends AbstractFillerTest {
         cra = crac.newPstRangeAction()
             .withId("cra")
             .withNetworkElement("BBE2AA1  BBE3AA1  1")
-            .newOnContingencyStateUsageRule().withUsageMethod(AVAILABLE).withContingency("N-1 NL1-NL3").withInstant("curative").add()
+            .newOnContingencyStateUsageRule().withContingency("N-1 NL1-NL3").withInstant("curative").add()
             .withInitialTap(0)
             .withActivationCost(10.0)
             .withTapToAngleConversionMap(tapToAngle)
@@ -199,7 +199,7 @@ class DiscretePstTapFillerTest extends AbstractFillerTest {
     @ParameterizedTest
     @ValueSource(booleans = {true, false})
     void testFillAndUpdateMethods(boolean costOptimization) throws IOException {
-        setUpAndFill(costOptimization);
+        setUpAndFill();
         checkContent(pstRangeAction, preventiveState, 0, -15, 15, true);
         checkContent(cra, curativeState, 0, -16, 16, true);
         checkPstRelativeTapConstraint(-10, 7);
@@ -227,7 +227,7 @@ class DiscretePstTapFillerTest extends AbstractFillerTest {
 
     @Test
     void testUpdateBetweenMipIteration() throws IOException {
-        setUpAndFill(false);
+        setUpAndFill();
         RangeActionActivationResultImpl rangeActionActivationResult =
             new RangeActionActivationResultImpl(new RangeActionSetpointResultImpl(Map.of(pra, 0., cra, 0.)));
 

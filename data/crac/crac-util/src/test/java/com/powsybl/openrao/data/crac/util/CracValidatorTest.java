@@ -17,7 +17,6 @@ import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.networkaction.ActionType;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.BeforeEach;
@@ -128,7 +127,7 @@ class CracValidatorTest {
         crac.newNetworkAction()
             .withId("network-action-1")
             .newSwitchAction().withNetworkElement("FFR2AA1  FFR3AA1  1").withActionType(ActionType.OPEN).add()
-            .newOnFlowConstraintInCountryUsageRule().withCountry(Country.NL).withInstant(AUTO_INSTANT_ID).withUsageMethod(UsageMethod.FORCED).add()
+            .newOnFlowConstraintInCountryUsageRule().withCountry(Country.NL).withInstant(AUTO_INSTANT_ID).add()
             .add();
         List<String> report = CracValidator.validateCrac(crac, network);
 
@@ -150,8 +149,8 @@ class CracValidatorTest {
         crac.newNetworkAction()
             .withId("network-action-1")
             .newSwitchAction().withNetworkElement("FFR2AA1  FFR3AA1  1").withActionType(ActionType.OPEN).add()
-            .newOnConstraintUsageRule().withCnec("auto-cnec-1").withInstant(AUTO_INSTANT_ID).withUsageMethod(UsageMethod.FORCED).add()
-            .newOnFlowConstraintInCountryUsageRule().withCountry(Country.NL).withInstant(AUTO_INSTANT_ID).withUsageMethod(UsageMethod.FORCED).add()
+            .newOnConstraintUsageRule().withCnec("auto-cnec-1").withInstant(AUTO_INSTANT_ID).add()
+            .newOnFlowConstraintInCountryUsageRule().withCountry(Country.NL).withInstant(AUTO_INSTANT_ID).add()
             .add();
 
         List<String> report = CracValidator.validateCrac(crac, network);
@@ -172,13 +171,13 @@ class CracValidatorTest {
         crac.newNetworkAction()
             .withId("network-action-1")
             .newSwitchAction().withNetworkElement("FFR2AA1  FFR3AA1  1").withActionType(ActionType.OPEN).add()
-            .newOnConstraintUsageRule().withCnec("auto-cnec-1").withInstant(AUTO_INSTANT_ID).withUsageMethod(UsageMethod.FORCED).add()
+            .newOnConstraintUsageRule().withCnec("auto-cnec-1").withInstant(AUTO_INSTANT_ID).add()
             .add();
         crac.newNetworkAction()
             .withId("network-action-2")
             .newSwitchAction().withNetworkElement("FFR2AA1  FFR3AA1  1").withActionType(ActionType.OPEN).add()
-            .newOnFlowConstraintInCountryUsageRule().withCountry(Country.DE).withInstant(AUTO_INSTANT_ID).withUsageMethod(UsageMethod.FORCED).add()
-            .newOnFlowConstraintInCountryUsageRule().withCountry(Country.NL).withInstant(AUTO_INSTANT_ID).withUsageMethod(UsageMethod.FORCED).add()
+            .newOnFlowConstraintInCountryUsageRule().withCountry(Country.DE).withInstant(AUTO_INSTANT_ID).add()
+            .newOnFlowConstraintInCountryUsageRule().withCountry(Country.NL).withInstant(AUTO_INSTANT_ID).add()
             .add();
 
         List<String> report = CracValidator.validateCrac(crac, network);
@@ -197,12 +196,12 @@ class CracValidatorTest {
         crac.newNetworkAction()
             .withId("network-action-1")
             .newSwitchAction().withNetworkElement("FFR2AA1  FFR3AA1  1").withActionType(ActionType.OPEN).add()
-            .newOnFlowConstraintInCountryUsageRule().withCountry(Country.NL).withInstant(AUTO_INSTANT_ID).withUsageMethod(UsageMethod.FORCED).add()
+            .newOnFlowConstraintInCountryUsageRule().withCountry(Country.NL).withInstant(AUTO_INSTANT_ID).add()
             .add();
         crac.newNetworkAction()
             .withId("network-action-2")
             .newSwitchAction().withNetworkElement("FFR2AA1  FFR3AA1  1").withActionType(ActionType.OPEN).add()
-            .newOnContingencyStateUsageRule().withContingency("co-1").withUsageMethod(UsageMethod.FORCED).withInstant(AUTO_INSTANT_ID).add()
+            .newOnContingencyStateUsageRule().withContingency("co-1").withInstant(AUTO_INSTANT_ID).add()
             .add();
 
         List<String> report = CracValidator.validateCrac(crac, network);
@@ -221,8 +220,8 @@ class CracValidatorTest {
         crac.newNetworkAction()
             .withId("network-action-1")
             .newSwitchAction().withNetworkElement("FFR2AA1  FFR3AA1  1").withActionType(ActionType.OPEN).add()
-            .newOnContingencyStateUsageRule().withContingency("co-1").withUsageMethod(UsageMethod.FORCED).withInstant(AUTO_INSTANT_ID).add()
-            .newOnContingencyStateUsageRule().withContingency("co-2").withUsageMethod(UsageMethod.FORCED).withInstant(AUTO_INSTANT_ID).add()
+            .newOnContingencyStateUsageRule().withContingency("co-1").withInstant(AUTO_INSTANT_ID).add()
+            .newOnContingencyStateUsageRule().withContingency("co-2").withInstant(AUTO_INSTANT_ID).add()
             .add();
 
         CracValidator.validateCrac(crac, network);
@@ -234,7 +233,7 @@ class CracValidatorTest {
         crac.newNetworkAction()
             .withId("network-action-1")
             .newTerminalsConnectionAction().withNetworkElement("FFR2AA1  FFR3AA1  1").withActionType(ActionType.OPEN).add()
-            .newOnConstraintUsageRule().withCnec("auto-cnec-1").withInstant(AUTO_INSTANT_ID).withUsageMethod(UsageMethod.FORCED).add()
+            .newOnConstraintUsageRule().withCnec("auto-cnec-1").withInstant(AUTO_INSTANT_ID).add()
             .add();
 
         CracValidator.validateCrac(crac, network);
@@ -248,7 +247,7 @@ class CracValidatorTest {
         crac.newNetworkAction()
             .withId("network-action-1")
             .newTerminalsConnectionAction().withNetworkElement("FFR2AA1  FFR3AA1  1").withActionType(ActionType.OPEN).add()
-            .newOnFlowConstraintInCountryUsageRule().withCountry(Country.BE).withInstant(AUTO_INSTANT_ID).withUsageMethod(UsageMethod.FORCED).add()
+            .newOnFlowConstraintInCountryUsageRule().withCountry(Country.BE).withInstant(AUTO_INSTANT_ID).add()
             .add();
 
         CracValidator.validateCrac(crac, network);

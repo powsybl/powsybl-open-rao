@@ -4,6 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 package com.powsybl.openrao.raoapi.parameters;
 
 import com.powsybl.openrao.commons.Unit;
@@ -28,7 +29,6 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
-
 class RaoParametersYamlConfigTest extends AbstractSerDeTest {
     static final double DOUBLE_TOLERANCE = 1e-6;
 
@@ -89,7 +89,7 @@ class RaoParametersYamlConfigTest extends AbstractSerDeTest {
         assertEquals(2, loadFlowAndSensitivityParameters.getSensitivityFailureOvercost(), DOUBLE_TOLERANCE);
 
         // EXTENSIONS
-        assertEquals(1, parameters.getExtensions().size());
+        assertEquals(2, parameters.getExtensions().size());
 
         assertTrue(parameters.getLoopFlowParameters().isPresent());
         assertTrue(searchTreeParameters.getLoopFlowParameters().isPresent());

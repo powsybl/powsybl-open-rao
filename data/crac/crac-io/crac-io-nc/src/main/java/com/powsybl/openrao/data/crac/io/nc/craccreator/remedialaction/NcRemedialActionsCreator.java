@@ -4,12 +4,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 package com.powsybl.openrao.data.crac.io.nc.craccreator.remedialaction;
 
 import com.powsybl.openrao.data.crac.api.usagerule.OnConstraint;
 import com.powsybl.openrao.data.crac.api.usagerule.OnContingencyState;
 import com.powsybl.openrao.data.crac.api.usagerule.OnInstant;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
 import com.powsybl.openrao.data.crac.io.nc.NcCrac;
 import com.powsybl.openrao.data.crac.io.nc.craccreator.NcCracCreationContext;
@@ -175,7 +175,6 @@ public class NcRemedialActionsCreator {
                     remedialActionAdder.newOnConstraintUsageRule()
                         .withInstant(instant.getId())
                         .withCnec(cnecId)
-                        .withUsageMethod(getUsageMethod(instant))
                         .add();
                 }
             } else {
@@ -197,7 +196,6 @@ public class NcRemedialActionsCreator {
                 remedialActionAdder.newOnContingencyStateUsageRule()
                     .withInstant(instant.getId())
                     .withContingency(contingencyId)
-                    .withUsageMethod(getUsageMethod(instant))
                     .add();
             } else {
                 alterations.add(contingencyStatus.statusDetails());
@@ -210,7 +208,7 @@ public class NcRemedialActionsCreator {
         if (instant.isAuto()) {
             throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Remedial action %s will not be imported because no contingency or assessed element is linked to the remedial action and this is nor supported for ARAs".formatted(remedialActionId));
         }
-        remedialActionAdder.newOnInstantUsageRule().withInstant(instant.getId()).withUsageMethod(UsageMethod.AVAILABLE).add();
+        remedialActionAdder.newOnInstantUsageRule().withInstant(instant.getId()).add();
     }
 
     private static boolean isOnConstraintInstantCoherent(Instant cnecInstant, Instant remedialInstant) {
@@ -225,10 +223,6 @@ public class NcRemedialActionsCreator {
             return InstantKind.AUTO;
         }
         return InstantKind.CURATIVE;
-    }
-
-    private UsageMethod getUsageMethod(Instant instant) {
-        return instant.isAuto() ? UsageMethod.FORCED : UsageMethod.AVAILABLE;
     }
 
     private static void checkKind(GridStateAlterationRemedialAction nativeRemedialAction) {
@@ -352,7 +346,6 @@ public class NcRemedialActionsCreator {
             OnConstraint<?> onConstraintUsageRule = (OnConstraint<?>) ur;
             networkActionAdder.newOnConstraintUsageRule()
                 .withInstant(onConstraintUsageRule.getInstant().getId())
-                .withUsageMethod(onConstraintUsageRule.getUsageMethod())
                 .withCnec(onConstraintUsageRule.getCnec().getId())
                 .add();
         });
@@ -360,7 +353,6 @@ public class NcRemedialActionsCreator {
             OnContingencyState onContingencyStateUsageRule = (OnContingencyState) ur;
             networkActionAdder.newOnContingencyStateUsageRule()
                 .withInstant(onContingencyStateUsageRule.getInstant().getId())
-                .withUsageMethod(onContingencyStateUsageRule.getUsageMethod())
                 .withContingency(onContingencyStateUsageRule.getContingency().getId())
                 .add();
         });
@@ -368,7 +360,6 @@ public class NcRemedialActionsCreator {
             OnInstant onInstantUsageRule = (OnInstant) ur;
             networkActionAdder.newOnInstantUsageRule()
                 .withInstant(onInstantUsageRule.getInstant().getId())
-                .withUsageMethod(onInstantUsageRule.getUsageMethod())
                 .add();
         });
 

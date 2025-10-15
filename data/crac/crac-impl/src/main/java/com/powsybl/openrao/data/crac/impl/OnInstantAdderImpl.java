@@ -4,13 +4,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 package com.powsybl.openrao.data.crac.impl;
 
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.usagerule.OnInstant;
 import com.powsybl.openrao.data.crac.api.usagerule.OnInstantAdder;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 
 import static com.powsybl.openrao.data.crac.impl.AdderUtils.assertAttributeNotNull;
 
@@ -22,7 +22,6 @@ public class OnInstantAdderImpl<T extends AbstractRemedialActionAdder<T>> implem
 
     private T owner;
     private String instantId;
-    private UsageMethod usageMethod;
 
     OnInstantAdderImpl(AbstractRemedialActionAdder<T> owner) {
         this.owner = (T) owner;
@@ -35,15 +34,8 @@ public class OnInstantAdderImpl<T extends AbstractRemedialActionAdder<T>> implem
     }
 
     @Override
-    public OnInstantAdder<T> withUsageMethod(UsageMethod usageMethod) {
-        this.usageMethod = usageMethod;
-        return this;
-    }
-
-    @Override
     public T add() {
         assertAttributeNotNull(instantId, "OnInstant", "instant", "withInstant()");
-        assertAttributeNotNull(usageMethod, "OnInstant", "usage method", "withUsageMethod()");
 
         Instant instant = owner.getCrac().getInstant(instantId);
         if (instant.isOutage()) {
@@ -53,7 +45,7 @@ public class OnInstantAdderImpl<T extends AbstractRemedialActionAdder<T>> implem
             owner.getCrac().addPreventiveState();
         }
 
-        OnInstant onInstant = new OnInstantImpl(usageMethod, instant);
+        OnInstant onInstant = new OnInstantImpl(instant);
         owner.addUsageRule(onInstant);
         return owner;
     }

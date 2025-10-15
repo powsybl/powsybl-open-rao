@@ -1,13 +1,13 @@
 /*
- * Copyright (c) 2021, RTE (http://www.rte-france.com)
+ * Copyright (c) 2022, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 package com.powsybl.openrao.data.raoresult.io.json;
 
 import com.powsybl.iidm.network.*;
-import com.powsybl.openrao.commons.MinOrMax;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
@@ -501,15 +501,15 @@ class ImporterRetrocompatibilityTest {
 
         VoltageCnec voltageCnec = crac.getVoltageCnec("voltageCnecId");
         if (primaryVersionNumber >= 1 && subVersionNumber >= 6) {
-            assertEquals(4156., importedRaoResult.getVoltage(null, voltageCnec, MinOrMax.MAX, KILOVOLT), DOUBLE_TOLERANCE);
-            assertEquals(4256., importedRaoResult.getVoltage(preventiveInstant, voltageCnec, MinOrMax.MAX, KILOVOLT), DOUBLE_TOLERANCE);
-            assertEquals(4356., importedRaoResult.getVoltage(autoInstant, voltageCnec, MinOrMax.MAX, KILOVOLT), DOUBLE_TOLERANCE);
-            assertEquals(4456., importedRaoResult.getVoltage(curativeInstant, voltageCnec, MinOrMax.MAX, KILOVOLT), DOUBLE_TOLERANCE);
+            assertEquals(4156., importedRaoResult.getMaxVoltage(null, voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
+            assertEquals(4256., importedRaoResult.getMaxVoltage(preventiveInstant, voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
+            assertEquals(4356., importedRaoResult.getMaxVoltage(autoInstant, voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
+            assertEquals(4456., importedRaoResult.getMaxVoltage(curativeInstant, voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
         }
-        assertEquals(4146., importedRaoResult.getVoltage(null, voltageCnec, MinOrMax.MIN, KILOVOLT), DOUBLE_TOLERANCE);
-        assertEquals(4246., importedRaoResult.getVoltage(preventiveInstant, voltageCnec, MinOrMax.MIN, KILOVOLT), DOUBLE_TOLERANCE);
-        assertEquals(4346., importedRaoResult.getVoltage(autoInstant, voltageCnec, MinOrMax.MIN, KILOVOLT), DOUBLE_TOLERANCE);
-        assertEquals(4446., importedRaoResult.getVoltage(curativeInstant, voltageCnec, MinOrMax.MIN, KILOVOLT), DOUBLE_TOLERANCE);
+        assertEquals(4146., importedRaoResult.getMinVoltage(null, voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
+        assertEquals(4246., importedRaoResult.getMinVoltage(preventiveInstant, voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
+        assertEquals(4346., importedRaoResult.getMinVoltage(autoInstant, voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
+        assertEquals(4446., importedRaoResult.getMinVoltage(curativeInstant, voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
 
         assertEquals(4141., importedRaoResult.getMargin(null, voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);
         assertEquals(4241., importedRaoResult.getMargin(preventiveInstant, voltageCnec, KILOVOLT), DOUBLE_TOLERANCE);

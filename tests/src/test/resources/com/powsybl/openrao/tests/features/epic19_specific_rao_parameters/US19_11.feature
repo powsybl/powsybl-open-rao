@@ -10,7 +10,7 @@ Feature: US 19.11: Handle maximum number of elementary actions per TSO
     Given network file is "epic19/small-network-2P.uct"
     Given crac file is "epic19/small-crac-with-max-3-elementary-actions-pst.json"
     Given configuration file is "epic19/RaoParameters_dc_discrete.json"
-    When I launch search_tree_rao
+    When I launch rao
     # Best theoretical option is to move the PST to tap -16 (-33 MW)
     # With only three elementary actions, the best option is to move the PST to tap -3 (-462 MW)
     Then 1 remedial actions are used in preventive
@@ -25,7 +25,7 @@ Feature: US 19.11: Handle maximum number of elementary actions per TSO
     Given network file is "epic19/small-network-2P.uct"
     Given crac file is "epic19/small-crac-with-max-7-elementary-actions-pst.json"
     Given configuration file is "epic19/RaoParameters_dc_discrete.json"
-    When I launch search_tree_rao
+    When I launch rao
     # Best theoretical option is to move the PST to tap -16 (-33 MW)
     # With only three elementary actions, the best option is to move the PST to tap -7 (-329 MW)
     Then 1 remedial actions are used in preventive
@@ -40,7 +40,7 @@ Feature: US 19.11: Handle maximum number of elementary actions per TSO
     Given network file is "epic19/small-network-2P-open-twin-lines.uct"
     Given crac file is "epic19/small-crac-with-max-1-elementary-action-topo.json"
     Given configuration file is "epic19/RaoParameters_dc_discrete.json"
-    When I launch search_tree_rao
+    When I launch rao
     # Best theoretical option is to close both line BE1-BE3-1 and line BE1-BE3-2 (-561 MW)
     # With only three elementary actions, the best option is to simply close line BE1-BE3-1 (-572 MW)
     Then 1 remedial actions are used in preventive
@@ -49,12 +49,12 @@ Feature: US 19.11: Handle maximum number of elementary actions per TSO
     And the flow on cnec "BBE1AA1  BBE2AA1  1 - preventive" after PRA should be -572.0 MW
     And the worst margin is 3.0 MW
 
-  @fast @rao @preventive-only
+  @fast @rao @preventive-only @multi-curative
   Scenario: US 19.11.4: Limit elementary actions with PSTs and 3 curative instants
     Given network file is "epic19/small-network-2P-open-twin-lines.uct"
     Given crac file is "epic19/small-crac-with-max-elementary-actions-pst-3-curative-instants.json"
     Given configuration file is "epic19/RaoParameters_dc_discrete.json"
-    When I launch search_tree_rao
+    When I launch rao
     # At each curative instant, the PST could theoretically go down to tap -16
     # But the tap decreases more slowly over the 3 curative instants
     Then the initial flow on cnec "BBE1AA1  BBE2AA1  1 - preventive" should be -596.0 MW
@@ -73,7 +73,7 @@ Feature: US 19.11: Handle maximum number of elementary actions per TSO
     Given network file is "epic19/small-network-2P-open-twin-lines.uct"
     Given crac file is "epic19/small-crac-with-max-3-elementary-actions-topo-and-pst.json"
     Given configuration file is "epic19/RaoParameters_dc_discrete.json"
-    When I launch search_tree_rao
+    When I launch rao
     # Best theoretical option is to close both lines and move the PST to tap -16
     # With only three elementary actions, the best three possibilities are:
     # - move the PST to tap -3 (-520 MW)
@@ -92,7 +92,7 @@ Feature: US 19.11: Handle maximum number of elementary actions per TSO
     Given network file is "epic19/small-network-2P-open-twin-lines.uct"
     Given crac file is "epic19/small-crac-with-max-3-elementary-actions-pst-in-curative.json"
     Given configuration file is "epic19/RaoParameters_dc_discrete.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then 1 remedial actions are used in preventive
     And the remedial action "pst_be_prev" is used in preventive
     And the tap of PstRangeAction "pst_be_prev" should be -5 in preventive
@@ -103,12 +103,12 @@ Feature: US 19.11: Handle maximum number of elementary actions per TSO
     And the tap of PstRangeAction "pst_be_cur" should be -8 after "co1_fr1_fr3_1" at "curative"
     And the worst margin is 1.0 MW
 
-  @fast @rao @preventive-only
+  @fast @rao @preventive-only @multi-curative
   Scenario: US 19.11.7: Limit elementary actions with PST and topology actions in multi-curative situation
     Given network file is "epic19/small-network-2P-open-twin-lines.uct"
     Given crac file is "epic19/small-crac-with-max-elementary-actions-topo-and-pst-2-curative-instants.json"
     Given configuration file is "epic19/RaoParameters_dc_discrete.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then 1 remedial actions are used after "co1_fr1_fr3_1" at "curative1"
     And the remedial action "pst_be" is used after "co1_fr1_fr3_1" at "curative1"
     And the tap of PstRangeAction "pst_be" should be -1 after "co1_fr1_fr3_1" at "curative1"
@@ -122,7 +122,7 @@ Feature: US 19.11: Handle maximum number of elementary actions per TSO
     Given network file is "epic19/small-network-2P.uct"
     Given crac file is "epic19/small-crac-with-max-elementary-actions-multiple-tsos.json"
     Given configuration file is "epic19/RaoParameters_dc_discrete.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then 2 remedial actions are used in preventive
     And the remedial action "pst_be" is used in preventive
     And the tap of PstRangeAction "pst_be" should be -8 in preventive
@@ -135,7 +135,7 @@ Feature: US 19.11: Handle maximum number of elementary actions per TSO
     Given network file is "epic19/small-network-2P.uct"
     Given crac file is "epic19/SL_ep19us11case9.json"
     Given configuration file is "epic19/RaoParameters_19_11_9.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then 1 remedial actions are used in preventive
     # It doesn't really matter what's the preventive tap, as long as it's <= -6, in order for the tap -16
     # to be achievable in curative (the PST has a maximum variation of -10 taps from preventive to curative), allowing

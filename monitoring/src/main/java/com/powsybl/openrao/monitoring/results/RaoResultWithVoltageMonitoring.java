@@ -4,9 +4,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 package com.powsybl.openrao.monitoring.results;
 
-import com.powsybl.openrao.commons.MinOrMax;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
@@ -55,7 +55,7 @@ public class RaoResultWithVoltageMonitoring extends RaoResultClone {
     }
 
     @Override
-    public double getMinVoltage(Instant optimizationInstant, VoltageCnec voltageCnec, MinOrMax minOrMax, Unit unit) {
+    public double getMinVoltage(Instant optimizationInstant, VoltageCnec voltageCnec, Unit unit) {
         unit.checkPhysicalParameter(PhysicalParameter.VOLTAGE);
         Optional<CnecResult> voltageCnecResultOpt = getCnecResult(optimizationInstant, voltageCnec);
         if (voltageCnecResultOpt.isPresent()) {
@@ -66,7 +66,7 @@ public class RaoResultWithVoltageMonitoring extends RaoResultClone {
     }
 
     @Override
-    public double getMaxVoltage(Instant optimizationInstant, VoltageCnec voltageCnec, MinOrMax minOrMax, Unit unit) {
+    public double getMaxVoltage(Instant optimizationInstant, VoltageCnec voltageCnec, Unit unit) {
         unit.checkPhysicalParameter(PhysicalParameter.VOLTAGE);
         Optional<CnecResult> voltageCnecResultOpt = getCnecResult(optimizationInstant, voltageCnec);
         if (voltageCnecResultOpt.isPresent()) {

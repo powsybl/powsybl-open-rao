@@ -8,7 +8,6 @@
 package com.powsybl.openrao.data.crac.api;
 
 import com.powsybl.openrao.data.crac.api.usagerule.OnContingencyStateAdderToRemedialAction;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.iidm.network.Country;
@@ -45,12 +44,6 @@ public interface RemedialAction<I extends RemedialAction<I>> extends Identifiabl
     Set<UsageRule> getUsageRules();
 
     /**
-     * Get the {@link UsageMethod} of the Remedial Action in a given state, deduced from the
-     * usage rules of the remedial action
-     */
-    UsageMethod getUsageMethod(State state);
-
-    /**
      * Get the speed of the Remedial Action, i.e the time it takes to trigger.
      */
     Optional<Integer> getSpeed();
@@ -71,8 +64,9 @@ public interface RemedialAction<I extends RemedialAction<I>> extends Identifiabl
     Set<NetworkElement> getNetworkElements();
 
     /**
-     * Returns the location of the remedial action, as a set of countries
-     * @param network: the network object used to look for the location of the network elements of the remedial action
+     * Returns the location of the remedial action, as a set of optional countries
+     *
+     * @param network the network object used to look for the location of the network elements of the remedial action
      * @return a set of countries containing the remedial action
      */
     default Set<Country> getLocation(Network network) {
@@ -81,4 +75,8 @@ public interface RemedialAction<I extends RemedialAction<I>> extends Identifiabl
     }
 
     OnContingencyStateAdderToRemedialAction<I> newOnStateUsageRule();
+
+    default boolean isAvailableForState(State state) {
+        return getUsageRules().stream().anyMatch(usageRule -> usageRule.isDefinedForState(state));
+    }
 }

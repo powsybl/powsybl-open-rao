@@ -1,12 +1,12 @@
 /*
- *  Copyright (c) 2022, RTE (http://www.rte-france.com)
+ * Copyright (c) 2022, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
- *  License, v. 2.0. If a copy of the MPL was not distributed with this
- *  file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 package com.powsybl.openrao.data.raoresult.io.json.serializers;
 
-import com.powsybl.openrao.commons.MinOrMax;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
@@ -15,6 +15,7 @@ import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.fasterxml.jackson.core.JsonGenerator;
+import org.apache.commons.lang3.function.TriFunction;
 
 import java.io.IOException;
 import java.util.Comparator;
@@ -80,13 +81,9 @@ final class VoltageCnecResultArraySerializer {
 
     private static void serializeVoltageCnecResultForOptimizationStateAndUnit(Instant optInstant, Unit unit, VoltageCnec voltageCnec, RaoResult raoResult, JsonGenerator jsonGenerator) throws IOException {
 
-        double minVoltage = safeGetVoltage(raoResult, voltageCnec, optInstant, MinOrMax.MIN, unit);
-        double maxVoltage = safeGetVoltage(raoResult, voltageCnec, optInstant, MinOrMax.MAX, unit);
+        double minVoltage = safeGetMinVoltage(raoResult, voltageCnec, optInstant, unit);
+        double maxVoltage = safeGetMaxVoltage(raoResult, voltageCnec, optInstant, unit);
         double margin = safeGetMargin(raoResult, voltageCnec, optInstant, unit);
-
-        if (Double.isNaN(minVoltage) && Double.isNaN(maxVoltage) && Double.isNaN(margin)) {
-            return;
-        }
 
         jsonGenerator.writeObjectFieldStart(serializeUnit(unit));
         if (!Double.isNaN(margin)) {
@@ -115,24 +112,29 @@ final class VoltageCnecResultArraySerializer {
     }
 
     private static boolean containsAnyResultForOptimizationState(RaoResult raoResult, VoltageCnec voltageCnec, Instant optInstant) {
-        return !Double.isNaN(safeGetVoltage(raoResult, voltageCnec, optInstant, MinOrMax.MIN, Unit.KILOVOLT)) ||
-            !Double.isNaN(safeGetVoltage(raoResult, voltageCnec, optInstant, MinOrMax.MAX, Unit.KILOVOLT)) ||
+        return !Double.isNaN(safeGetMaxVoltage(raoResult, voltageCnec, optInstant, Unit.KILOVOLT)) ||
+            !Double.isNaN(safeGetMinVoltage(raoResult, voltageCnec, optInstant, Unit.KILOVOLT)) ||
             !Double.isNaN(safeGetMargin(raoResult, voltageCnec, optInstant, Unit.KILOVOLT));
     }
 
-    private static double safeGetVoltage(RaoResult raoResult, VoltageCnec voltageCnec, Instant optInstant, MinOrMax minOrMax, Unit unit) {
+    private static double safeGetMinVoltage(RaoResult raoResult, VoltageCnec voltageCnec, Instant optInstant, Unit unit) {
         // methods getVoltage can return an exception if RAO is executed on one state only
-        try {
-            return raoResult.getVoltage(optInstant, voltageCnec, minOrMax, unit);
-        } catch (OpenRaoException e) {
-            return Double.NaN;
-        }
+        return safeGetValue(raoResult::getMinVoltage, optInstant, voltageCnec, unit);
+    }
+
+    private static double safeGetMaxVoltage(RaoResult raoResult, VoltageCnec voltageCnec, Instant optInstant, Unit unit) {
+        // methods getVoltage can return an exception if RAO is executed on one state only
+        return safeGetValue(raoResult::getMaxVoltage, optInstant, voltageCnec, unit);
     }
 
     private static double safeGetMargin(RaoResult raoResult, VoltageCnec voltageCnec, Instant optInstant, Unit unit) {
         // methods getMargin can return an exception if RAO is executed on one state only
+        return safeGetValue(raoResult::getMargin, optInstant, voltageCnec, unit);
+    }
+
+    private static double safeGetValue(TriFunction<Instant, VoltageCnec, Unit, Double> callable, Instant optInstant, VoltageCnec voltageCnec, Unit unit) {
         try {
-            return raoResult.getMargin(optInstant, voltageCnec, unit);
+            return callable.apply(optInstant, voltageCnec, unit);
         } catch (OpenRaoException e) {
             return Double.NaN;
         }

@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2025, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
 package com.powsybl.openrao.searchtreerao.castor.algorithm;
 
 import com.powsybl.openrao.data.crac.api.Crac;
@@ -18,6 +25,9 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
+/**
+ * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
+ */
 public abstract class AbstractMultiPerimeterSensitivityAnalysis {
 
     // actual input
@@ -47,7 +57,7 @@ public abstract class AbstractMultiPerimeterSensitivityAnalysis {
         this.rangeActions = new HashSet<>();
         this.flowCnecs = new HashSet<>();
         for (State state : states) {
-            this.rangeActions.addAll(crac.getPotentiallyAvailableRangeActions(state));
+            this.rangeActions.addAll(crac.getRangeActions(state));
             this.flowCnecs.addAll(crac.getFlowCnecs(state));
         }
         this.raoParameters = raoParameters;
@@ -81,7 +91,6 @@ public abstract class AbstractMultiPerimeterSensitivityAnalysis {
             }
         }
         if (appliedCurativeRemedialActions != null) {
-            // for 2nd preventive initial sensi
             sensitivityComputerBuilder.withAppliedRemedialActions(appliedCurativeRemedialActions);
         }
         return sensitivityComputerBuilder.build();

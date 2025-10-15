@@ -17,7 +17,6 @@ import static com.powsybl.openrao.raoapi.RaoParametersCommons.*;
  * Range actions optimization parameters for RAO
  *
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
- *
  */
 public class RangeActionsOptimizationParameters {
 

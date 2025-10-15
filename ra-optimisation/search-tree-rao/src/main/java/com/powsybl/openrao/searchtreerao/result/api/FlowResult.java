@@ -25,9 +25,9 @@ public interface FlowResult {
     /**
      * It gives the flow on a {@link FlowCnec} and in a given {@link Unit}.
      *
-     * @param flowCnec: The branch to be studied.
-     * @param side: The side of the branch to be queried.
-     * @param unit: The unit in which the flow is queried. Only accepted values are MEGAWATT or AMPERE.
+     * @param flowCnec The branch to be studied.
+     * @param side The side of the branch to be queried.
+     * @param unit The unit in which the flow is queried. Only accepted values are MEGAWATT or AMPERE.
      * @return The flow on the branch in the given unit.
      */
     double getFlow(FlowCnec flowCnec, TwoSides side, Unit unit);
@@ -35,10 +35,10 @@ public interface FlowResult {
     /**
      * It gives the flow on a {@link FlowCnec}, at a given {@link Instant} and in a given {@link Unit}.
      *
-     * @param flowCnec: The branch to be studied.
-     * @param side: The side of the branch to be queried.
-     * @param unit: The unit in which the flow is queried. Only accepted values are MEGAWATT or AMPERE.
-     * @param optimizedInstant: The optimization instant for which the flow is queried.
+     * @param flowCnec The branch to be studied.
+     * @param side The side of the branch to be queried.
+     * @param unit The unit in which the flow is queried. Only accepted values are MEGAWATT or AMPERE.
+     * @param optimizedInstant The optimization instant for which the flow is queried.
      * @return The flow on the branch in the given unit.
      */
     double getFlow(FlowCnec flowCnec, TwoSides side, Unit unit, Instant optimizedInstant);
@@ -48,8 +48,8 @@ public interface FlowResult {
      * flow and the most constraining threshold in the flow direction of the given branch. If it is negative the branch
      * is under constraint. If the branch is monitored on both sides, the worst margin is returned.
      *
-     * @param flowCnec: The branch to be studied.
-     * @param unit: The unit in which the margin is queried. Only accepted values are MEGAWATT or AMPERE.
+     * @param flowCnec The branch to be studied.
+     * @param unit The unit in which the margin is queried. Only accepted values are MEGAWATT or AMPERE.
      * @return The margin on the branch in the given unit.
      */
     double getMargin(FlowCnec flowCnec, Unit unit);
@@ -59,9 +59,9 @@ public interface FlowResult {
      * between the flow and the most constraining threshold in the flow direction of the given branch.
      * If it is negative the branch is under constraint.
      *
-     * @param flowCnec: The branch to be studied.
-     * @param side: The side of the branch to be queried.
-     * @param unit: The unit in which the margin is queried. Only accepted values are MEGAWATT or AMPERE.
+     * @param flowCnec The branch to be studied.
+     * @param side The side of the branch to be queried.
+     * @param unit The unit in which the margin is queried. Only accepted values are MEGAWATT or AMPERE.
      * @return The margin on the branch in the given unit.
      */
     default double getMargin(FlowCnec flowCnec, TwoSides side, Unit unit) {
@@ -76,8 +76,8 @@ public interface FlowResult {
      * under constraint. If the PTDFs are not defined in the computation or the sum of them is null, this method could
      * return {@code Double.NaN} values. If the branch is monitored on both sides, the worst relative margin is returned.
      *
-     * @param flowCnec: The branch to be studied.
-     * @param unit: The unit in which the relative margin is queried. Only accepted values are MEGAWATT or AMPERE.
+     * @param flowCnec The branch to be studied.
+     * @param unit The unit in which the relative margin is queried. Only accepted values are MEGAWATT or AMPERE.
      * @return The relative margin on the branch in the given unit.
      */
     default double getRelativeMargin(FlowCnec flowCnec, Unit unit) {
@@ -101,9 +101,9 @@ public interface FlowResult {
      * {@link Unit}. If the branch is not considered as a branch on which the loop flows are monitored, this method
      * could return {@code Double.NaN} values.
      *
-     * @param flowCnec: The branch to be studied.
-     * @param side: The side of the branch to be queried.
-     * @param unit: The unit in which the commercial flow is queried. Only accepted values are MEGAWATT or AMPERE.
+     * @param flowCnec The branch to be studied.
+     * @param side The side of the branch to be queried.
+     * @param unit The unit in which the commercial flow is queried. Only accepted values are MEGAWATT or AMPERE.
      * @return The commercial flow on the branch in the given unit.
      */
     double getCommercialFlow(FlowCnec flowCnec, TwoSides side, Unit unit);
@@ -113,9 +113,9 @@ public interface FlowResult {
      * {@link Unit}. If the branch is not considered as a branch on which the loop flows are monitored, this method
      * could return {@code Double.NaN} values.
      *
-     * @param flowCnec: The branch to be studied.
-     * @param side: The side of the branch to be queried
-     * @param unit: The unit in which the loop flow is queried. Only accepted values are MEGAWATT or AMPERE.
+     * @param flowCnec The branch to be studied.
+     * @param side The side of the branch to be queried
+     * @param unit The unit in which the loop flow is queried. Only accepted values are MEGAWATT or AMPERE.
      * @return The loop flow on the branch in the given unit.
      */
     default double getLoopFlow(FlowCnec flowCnec, TwoSides side, Unit unit) {
@@ -127,8 +127,8 @@ public interface FlowResult {
      * consider PTDF values or if the {@link RaoParameters} does not define any list of considered areas, this method
      * could return {@code Double.NaN} values.
      *
-     * @param flowCnec: The branch to be studied.
-     * @param side: The side of the branch to be queried.
+     * @param flowCnec The branch to be studied.
+     * @param side The side of the branch to be queried.
      * @return The sum of the computation areas' zonal PTDFs on the branch.
      */
     double getPtdfZonalSum(FlowCnec flowCnec, TwoSides side);

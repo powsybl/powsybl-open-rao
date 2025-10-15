@@ -7,10 +7,10 @@ Feature: US 15.11.4: ARAO with 2P
 
   @fast @rao @mock @ac @second-preventive @mnec
   Scenario: US 15.11.4.1: Check that PRAO2 ignores applied ARAs from ARAO1
-    Given network file is "common/TestCase12Nodes2PSTs.uct"
+    Given network file is "common/TestCase12Nodes2PSTs.uct" for CORE CC
     Given crac file is "epic15/jsonCrac_ep15us11-4case1.json"
     Given configuration file is "epic15/RaoParameters_ep15us11-4.json"
-    When I launch search_tree_rao
+    When I launch rao
     # With the recent development, the RAO falls back to 1st PRAO result
     # because 2PRA increases the cost
     # Then the RAO falls back to 1st preventive RAO result
@@ -27,10 +27,10 @@ Feature: US 15.11.4: ARAO with 2P
 
   @fast @rao @mock @ac @second-preventive @mnec
   Scenario: US 15.11.4.2: ARAO2
-    Given network file is "common/TestCase12Nodes2PSTs.uct"
+    Given network file is "common/TestCase12Nodes2PSTs.uct" for CORE CC
     Given crac file is "epic15/jsonCrac_ep15us11-4case2.json"
     Given configuration file is "epic15/RaoParameters_ep15us11-4.json"
-    When I launch search_tree_rao at "2019-01-08 12:00"
+    When I launch rao at "2019-01-08 12:00"
     Then 2 remedial actions are used in preventive
     And the remedial action "Open line NL1-NL2" is used in preventive
     And the tap of PstRangeAction "PRA_CRA_PST_BE" should be -6 in preventive

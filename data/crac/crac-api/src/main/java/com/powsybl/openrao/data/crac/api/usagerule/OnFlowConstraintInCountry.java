@@ -1,14 +1,16 @@
 /*
- * Copyright (c) 2022, RTE (http://www.rte-france.com)
+ * Copyright (c) 2021, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 package com.powsybl.openrao.data.crac.api.usagerule;
 
 import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.iidm.network.Country;
+import com.powsybl.openrao.data.crac.api.State;
 
 import java.util.Optional;
 
@@ -37,4 +39,11 @@ public interface OnFlowConstraintInCountry extends UsageRule {
      * If empty, then there is no Contingency condition.
      */
     Optional<Contingency> getContingency();
+
+    default boolean isDefinedForState(State state) {
+        if (!state.getInstant().equals(getInstant())) {
+            return false;
+        }
+        return getContingency().isEmpty() || getContingency().equals(state.getContingency());
+    }
 }
