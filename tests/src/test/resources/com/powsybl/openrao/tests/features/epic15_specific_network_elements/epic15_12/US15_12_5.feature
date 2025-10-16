@@ -26,6 +26,8 @@ Feature: US 15.12.5: Handle HVDC range actions in RAO
     And the margin on cnec "be1_be2_n - BBE1AA11->BBE2AA11 - preventive" after PRA should be 191 MW
     And the margin on cnec "be1_fr5_n - BBE1AA11->FFR5AA11 - preventive" after PRA should be 191 MW
 
+    
+
   @fast @rao @mock @dc @preventive-only @hvdc
   Scenario: US 15.12.5.3: HVDC range action with PST range action and two preventive CNECs
     Given network file is "epic15/TestCase16NodesWithHvdc.xiidm" for CORE CC
