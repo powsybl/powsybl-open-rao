@@ -95,6 +95,7 @@ public class RangeActionSensitivityProvider extends LoadflowProvider {
                 createPositiveAndNegativeGlsks(injectionRangeAction, sensitivityVariables, glskIds);
             } else if (ra instanceof CounterTradeRangeAction counterTradeRangeAction) {
                 TECHNICAL_LOGS.warn("Unable to compute sensitivity for CounterTradeRangeAction. ({})", counterTradeRangeAction.getId());
+                // TODO: Here we filter out hvdc in ac emulation mode
             } else {
                 throw new OpenRaoException(String.format("Range action type of %s not implemented yet", ra.getId()));
             }
