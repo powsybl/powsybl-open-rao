@@ -55,7 +55,7 @@ public interface RangeAction<T extends RangeAction<T>> extends RemedialAction<T>
     Optional<String> getGroupId();
 
     /**
-     * Get the marginal cost to spend to increase or decrease the setpoint by one unit.
+     * Get the variation cost to increase or decrease the setpoint by one unit.
      */
     Optional<Double> getVariationCost(VariationDirection variationDirection);
 
