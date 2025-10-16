@@ -185,11 +185,14 @@ public abstract class AbstractOptimizationPerimeter implements OptimizationPerim
             .collect(Collectors.toMap(
                 Map.Entry::getKey,
                 entry -> entry.getValue().stream()
-                    .filter(HvdcRangeAction.class::isInstance)
-                    .filter(ra -> !((HvdcRangeAction) ra).isAngleDroopActivePowerControlEnabled(network))
-                    .collect(Collectors.toSet())
+                    // Remove only HvdcRangeAction with isAngleDroopActivePowerControlEnabled == true
+                    .filter(ra -> {
+                        if (ra instanceof HvdcRangeAction) {
+                            return !((HvdcRangeAction) ra).isAngleDroopActivePowerControlEnabled(network);
+                        }
+                        return true;
+                    }).collect(Collectors.toSet())
             ));
-
     }
 
 }
