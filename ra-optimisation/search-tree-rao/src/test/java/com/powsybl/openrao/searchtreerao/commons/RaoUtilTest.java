@@ -50,8 +50,10 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.*;
 
+import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.addNetworkActionAssociatedWithHvdcRangeAction;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -474,5 +476,28 @@ class RaoUtilTest {
         assertEquals(expectedMsg1, logsList.get(0).getMessage());
         assertEquals(expectedMsg2, logsList.get(1).getMessage());
         assertFalse(logsList.stream().anyMatch(e -> e.getMessage().contains(notExpectedMsg)));
+    }
+
+    @Test
+    void checkAddNetworkActionAssociatedWithHvdcRangeAction() throws IOException {
+        // Two hvdc range actions both using HVDC line "BBE2AA11 FFR3AA11 1" that is initially in ac emulation mode, so one
+        // ac emulation deactivation network action is created but with usage rule of both range actions.
+        Network network = Network.read("TestCase16NodesWithHvdc_AC_emulation.xiidm", getClass().getResourceAsStream("/network/TestCase16NodesWithHvdc_AC_emulation.xiidm"));
+        Crac crac = Crac.read("crac_hvdc_allinstants_allusagerules.json", getClass().getResourceAsStream("/crac/crac_hvdc_allinstants_allusagerules.json"), network);
+        addNetworkActionAssociatedWithHvdcRangeAction(crac, network);
+        assert 1 == crac.getNetworkActions().size();
+        assert 4 == crac.getNetworkAction("acEmulationDeactivation_BBE2AA11 FFR3AA11 1").getUsageRules().size();
+        assert crac.getNetworkAction("acEmulationDeactivation_BBE2AA11 FFR3AA11 1").getUsageRules().containsAll(crac.getHvdcRangeAction("ARA_HVDC").getUsageRules());
+        assert crac.getNetworkAction("acEmulationDeactivation_BBE2AA11 FFR3AA11 1").getUsageRules().containsAll(crac.getHvdcRangeAction("CRA_HVDC").getUsageRules());
+    }
+
+    @Test
+    void checkNoAcEmulationNetworkActions() throws IOException {
+        // Two hvdc range actions both using HVDC line "BBE2AA11 FFR3AA11 1" that is initially in fixed point mode
+        // So no ac emulation deaction network action is created
+        Network network = Network.read("TestCase16NodesWithHvdc_fixed_setpoint.xiidm", getClass().getResourceAsStream("/network/TestCase16NodesWithHvdc_fixed_setpoint.xiidm"));
+        Crac crac = Crac.read("crac_hvdc_allinstants_allusagerules.json", getClass().getResourceAsStream("/crac/crac_hvdc_allinstants_allusagerules.json"), network);
+        addNetworkActionAssociatedWithHvdcRangeAction(crac, network);
+        assert 0 == crac.getNetworkActions().size();
     }
 }

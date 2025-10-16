@@ -10,6 +10,7 @@ package com.powsybl.openrao.data.crac.api.networkaction;
 import com.powsybl.action.*;
 import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
 import org.apache.commons.lang3.NotImplementedException;
 
 import java.util.Set;
@@ -95,8 +96,12 @@ public interface NetworkAction extends RemedialAction<NetworkAction> {
             return terminalsConnectionAction.getElementId();
         } else if (elementaryAction instanceof SwitchAction switchAction) {
             return switchAction.getSwitchId();
+        } else if (elementaryAction instanceof HvdcAction hvdcAction) {
+            return hvdcAction.getHvdcId();
         } else {
             throw new NotImplementedException();
         }
     }
+
+    void addUsageRule(UsageRule usageRule);
 }
