@@ -74,7 +74,7 @@ public class GlobalOptimizationPerimeter extends AbstractOptimizationPerimeter {
     }
 
     @Override
-    public OptimizationPerimeter copyWithFilteredAvailableRangeAction(Network network){
+    public OptimizationPerimeter copyWithFilteredAvailableRangeAction(Network network) {
         return new GlobalOptimizationPerimeter(
             this.getMainOptimizationState(),
             this.getFlowCnecs(),

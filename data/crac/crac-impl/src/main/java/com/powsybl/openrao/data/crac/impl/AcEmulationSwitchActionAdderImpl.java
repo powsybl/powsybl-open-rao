@@ -18,7 +18,7 @@ import static com.powsybl.openrao.data.crac.impl.AdderUtils.assertAttributeNotNu
 /**
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
  */
-public class AcEmulationSwitchActionAdderImpl extends AbstractSingleNetworkElementActionAdderImpl<AcEmulationSwitchActionAdder> implements AcEmulationSwitchActionAdder  {
+public class AcEmulationSwitchActionAdderImpl extends AbstractSingleNetworkElementActionAdderImpl<AcEmulationSwitchActionAdder> implements AcEmulationSwitchActionAdder {
 
     private ActionType actionType;
 
@@ -45,7 +45,6 @@ public class AcEmulationSwitchActionAdderImpl extends AbstractSingleNetworkEleme
     }
 
     protected String getActionName() {
-            return "AcEmulationSwitchAction";
-        }
-
+        return "AcEmulationSwitchAction";
+    }
 }

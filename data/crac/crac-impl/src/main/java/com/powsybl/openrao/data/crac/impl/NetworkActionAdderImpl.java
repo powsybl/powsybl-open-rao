@@ -79,7 +79,8 @@ public class NetworkActionAdderImpl extends AbstractRemedialActionAdder<NetworkA
     }
 
     @Override
-    public AcEmulationSwitchActionAdder newAcEmulationSwitchAction() {return new AcEmulationSwitchActionAdderImpl(this); }
+    public AcEmulationSwitchActionAdder newAcEmulationSwitchAction() {
+        return new AcEmulationSwitchActionAdderImpl(this); }
 
     @Override
     public NetworkAction add() {

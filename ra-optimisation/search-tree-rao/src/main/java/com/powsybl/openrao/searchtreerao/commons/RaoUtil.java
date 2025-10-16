@@ -7,10 +7,11 @@
 
 package com.powsybl.openrao.searchtreerao.commons;
 
-import com.powsybl.action.HvdcAction;
+import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
+import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
@@ -19,7 +20,6 @@ import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
-import com.powsybl.openrao.data.crac.api.networkaction.AcEmulationSwitchActionAdder;
 import com.powsybl.openrao.data.crac.api.networkaction.ActionType;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkActionAdder;
@@ -30,10 +30,7 @@ import com.powsybl.openrao.data.crac.api.usagerule.OnContingencyState;
 import com.powsybl.openrao.data.crac.api.usagerule.OnFlowConstraintInCountry;
 import com.powsybl.openrao.data.crac.api.usagerule.OnInstant;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
-import com.powsybl.openrao.data.crac.impl.OnConstraintImpl;
-import com.powsybl.openrao.data.crac.impl.OnContingencyStateImpl;
-import com.powsybl.openrao.data.crac.impl.OnFlowConstraintInCountryImpl;
-import com.powsybl.openrao.data.crac.impl.OnInstantImpl;
+import com.powsybl.openrao.data.crac.impl.*;
 import com.powsybl.openrao.data.crac.io.commons.iidm.IidmHvdcHelper;
 import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceProgramBuilder;
 import com.powsybl.openrao.raoapi.RaoInput;
@@ -53,6 +50,7 @@ import java.util.stream.Collectors;
 import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getLoadFlowProvider;
 import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters;
 import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.getPstModel;
+import static com.powsybl.openrao.searchtreerao.castor.algorithm.AutomatonSimulator.computeHvdcAngleDroopActivePowerControlValue;
 import static java.lang.String.format;
 
 /**
@@ -66,6 +64,8 @@ public final class RaoUtil {
         checkParameters(raoParameters, raoInput);
         checkCnecsThresholdsUnit(raoParameters, raoInput);
         initNetwork(raoInput.getNetwork(), raoInput.getNetworkVariantId());
+        LoadFlow.find(raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getLoadFlowAndSensitivityParameters().getLoadFlowProvider()).run(raoInput.getNetwork(), raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters());
+        updateHvdcRangeActionInitialSetpoint(raoInput.getCrac(), raoInput.getNetwork(), raoParameters);
         addNetworkActionAssociatedWithHvdcRangeAction(raoInput.getCrac(), raoInput.getNetwork());
     }
 
@@ -242,16 +242,15 @@ public final class RaoUtil {
     /**
      * Add to the crac a network action that deactivate ac emulation for each hvdc line in ac emulation mode that has at least one hvdc range action associated
      */
-    public static void addNetworkActionAssociatedWithHvdcRangeAction(Crac crac, Network network){
+    public static void addNetworkActionAssociatedWithHvdcRangeAction(Crac crac, Network network) {
         crac.getHvdcRangeActions().forEach(hvdcRangeAction -> {
             HvdcAngleDroopActivePowerControl hvdcAngleDoopActivePowerControl = IidmHvdcHelper.getHvdcLine(network, hvdcRangeAction.getNetworkElement().getId()).getExtension(HvdcAngleDroopActivePowerControl.class);
-            if (hvdcAngleDoopActivePowerControl != null && hvdcAngleDoopActivePowerControl.isEnabled() ) {
-                Set<NetworkAction> acEmulationSwitchActions = crac.getNetworkActions().stream()
-                    .filter(HvdcAction.class::isInstance)
-                    .filter(hvdcAction -> ((HvdcAction) hvdcAction).getHvdcId() == hvdcRangeAction.getNetworkElement().getId()).collect(Collectors.toSet());
-                if (acEmulationSwitchActions.isEmpty()) {
+            if (hvdcAngleDoopActivePowerControl != null && hvdcAngleDoopActivePowerControl.isEnabled()) {
+                // TODO: clean up and check if a network action hvdcAction using same network element already exists.
+                String networkActionId = String.format("%s_%s", "acEmulationDeactivation", hvdcRangeAction.getNetworkElement().getId());
+                NetworkAction acEmulationSwitchAction = crac.getNetworkAction(networkActionId);
+                if (acEmulationSwitchAction == null) {
                     // create the network action using the adder
-                    String networkActionId = String.format("%s_%s", "acEmulationDeactivation", hvdcRangeAction.getNetworkElement().getId());
                     NetworkActionAdder acEmulationSwitchActionAdder = crac.newNetworkAction()
                         .withId(networkActionId)
                         .withOperator(hvdcRangeAction.getOperator())
@@ -262,7 +261,7 @@ public final class RaoUtil {
                     addAllUsageRule(hvdcRangeAction, acEmulationSwitchActionAdder);
                     acEmulationSwitchActionAdder.add();
                 } else {
-                    NetworkAction finalAcEmulationSwitchAction = acEmulationSwitchActions.iterator().next();
+                    NetworkAction finalAcEmulationSwitchAction = acEmulationSwitchAction;
                     hvdcRangeAction.getUsageRules().forEach(
                         usageRule -> finalAcEmulationSwitchAction.addUsageRule(usageRule)
                     );
@@ -301,5 +300,19 @@ public final class RaoUtil {
                 }
             }
         );
+    }
+
+    static void updateHvdcRangeActionInitialSetpoint(Crac crac, Network network, RaoParameters raoParameters) {
+        LoadFlow.find(raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getLoadFlowAndSensitivityParameters().getLoadFlowProvider()).run(network, raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters());
+        network.getHvdcLines().forEach(hvdcLine -> {
+            double activePowerSetpoint = computeHvdcAngleDroopActivePowerControlValue(hvdcLine);
+            hvdcLine.setConvertersMode(activePowerSetpoint > 0 ? HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER : HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER);
+            hvdcLine.setActivePowerSetpoint(Math.abs(activePowerSetpoint));
+        });
+
+        crac.getHvdcRangeActions().stream()
+            .map(HvdcRangeActionImpl.class::cast)
+            .filter(hvdcRangeAction -> hvdcRangeAction.isAngleDroopActivePowerControlEnabled(network))
+            .forEach(hvdcRangeAction -> hvdcRangeAction.setInitialSetpoint(IidmHvdcHelper.getCurrentSetpoint(network, hvdcRangeAction.getNetworkElement().getId())));
     }
 }

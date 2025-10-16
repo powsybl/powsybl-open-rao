@@ -45,7 +45,7 @@ public class AutoOptimizationPerimeter extends AbstractOptimizationPerimeter {
     }
 
     @Override
-    public OptimizationPerimeter copyWithFilteredAvailableRangeAction(Network network){
+    public OptimizationPerimeter copyWithFilteredAvailableRangeAction(Network network) {
         return this;
     }
 }
