@@ -9,6 +9,7 @@ package com.powsybl.openrao.searchtreerao.commons;
 
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
@@ -17,12 +18,21 @@ import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
+import com.powsybl.openrao.data.crac.api.networkaction.AcEmulationSwitchActionAdder;
+import com.powsybl.openrao.data.crac.api.networkaction.ActionType;
+import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
+import com.powsybl.openrao.data.crac.api.networkaction.NetworkActionAdder;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.api.usagerule.OnConstraint;
 import com.powsybl.openrao.data.crac.api.usagerule.OnContingencyState;
 import com.powsybl.openrao.data.crac.api.usagerule.OnFlowConstraintInCountry;
 import com.powsybl.openrao.data.crac.api.usagerule.OnInstant;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
+import com.powsybl.openrao.data.crac.impl.OnConstraintImpl;
+import com.powsybl.openrao.data.crac.impl.OnContingencyStateImpl;
+import com.powsybl.openrao.data.crac.impl.OnFlowConstraintInCountryImpl;
+import com.powsybl.openrao.data.crac.impl.OnInstantImpl;
+import com.powsybl.openrao.data.crac.io.commons.iidm.IidmHvdcHelper;
 import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceProgramBuilder;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
@@ -54,6 +64,7 @@ public final class RaoUtil {
         checkParameters(raoParameters, raoInput);
         checkCnecsThresholdsUnit(raoParameters, raoInput);
         initNetwork(raoInput.getNetwork(), raoInput.getNetworkVariantId());
+        addNetworkActionAssociatedWithHvdcRangeAction(raoInput.getCrac(), raoInput.getNetwork());
     }
 
     public static void initNetwork(Network network, String networkVariantId) {
@@ -224,5 +235,59 @@ public final class RaoUtil {
             .filter(flowCnec -> flowCnec.getId().contains("OUTAGE DUPLICATE"))
             .map(FlowCnec::getId)
             .collect(Collectors.toSet());
+    }
+
+    public static void addNetworkActionAssociatedWithHvdcRangeAction(Crac crac, Network network){
+        crac.getHvdcRangeActions().forEach(hvdcRangeAction -> {
+            HvdcAngleDroopActivePowerControl hvdcAngleDoopActivePowerControl = IidmHvdcHelper.getHvdcLine(network, hvdcRangeAction.getNetworkElement().getId()).getExtension(HvdcAngleDroopActivePowerControl.class);
+           // if ac emulation is on initially. Add the option to deactivate it.
+            if (hvdcAngleDoopActivePowerControl != null && hvdcAngleDoopActivePowerControl.isEnabled() ) {
+                String networkActionId = String.format("%s_%s", "acEmulationDeactivation", hvdcRangeAction.getNetworkElement().getId());
+                NetworkAction acEmulationSwitchAction = crac.getNetworkAction(networkActionId);
+                if (acEmulationSwitchAction == null) {
+                    acEmulationSwitchAction = crac.newNetworkAction()
+                        .withId(networkActionId)
+                        .withOperator(hvdcRangeAction.getOperator())
+                        .newAcEmulationSwitchAction()
+                        .withNetworkElement(hvdcRangeAction.getNetworkElement().getId())
+                        .withActionType(ActionType.DEACTIVATE)
+                        .add().add();
+                }
+
+                crac.getNetworkAction(networkActionId).addUsageRule(usageRule);
+
+                // add correct usage rules
+                hvdcRangeAction.getUsageRules().forEach(
+                    usageRule -> {
+                        if (usageRule.getClass().equals(OnInstantImpl.class)) {
+                            acEmulationSwitchActionAdder
+                                .newOnInstantUsageRule()
+                                .withInstant(usageRule.getInstant().getId())
+                                .add();
+                        } else if (usageRule.getClass().equals(OnConstraintImpl.class)) {
+                            OnConstraint<?> onConstraint = (OnConstraint<?>) usageRule;
+                            acEmulationSwitchActionAdder.newOnConstraintUsageRule()
+                                .withInstant(onConstraint.getInstant().getId())
+                                .withCnec(onConstraint.getCnec().getId())
+                                .add();
+                        } else if (usageRule.getClass().equals(OnContingencyStateImpl.class)) {
+                            OnContingencyState onContingencyState = (OnContingencyState) usageRule;
+                            acEmulationSwitchActionAdder.newOnContingencyStateUsageRule()
+                                .withContingency(onContingencyState.getContingency().getId())
+                                .withInstant(onContingencyState.getInstant().getId())
+                                .add();
+                        } else if (usageRule.getClass().equals(OnFlowConstraintInCountryImpl.class)) {
+                            OnFlowConstraintInCountry onFlowConstraintInCountry = (OnFlowConstraintInCountry) usageRule;
+                            acEmulationSwitchActionAdder.newOnFlowConstraintInCountryUsageRule()
+                                .withCountry(onFlowConstraintInCountry.getCountry())
+                                .withInstant(onFlowConstraintInCountry.getInstant().getId())
+                                .withContingency(onFlowConstraintInCountry.getContingency().get().getId())
+                                .add();
+                        }
+                    }
+                );
+                acEmulationSwitchActionAdder.add();
+            }
+        });
     }
 }
