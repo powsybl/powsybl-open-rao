@@ -9,7 +9,7 @@ package com.powsybl.openrao.data.crac.io.cse.parameters;
 
 import java.util.Objects;
 
-/***
+/**
  * A pair of switch IDs, one to open and one to close.
  * Used to build {@code SwitchPair} remedial actions
  *

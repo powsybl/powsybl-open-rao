@@ -4,6 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 package com.powsybl.openrao.data.crac.api;
 
 import com.powsybl.commons.util.ServiceLoaderCache;
@@ -168,7 +169,7 @@ public interface Crac extends Identifiable<Crac> {
      * instants objects. This is a set because states must not be duplicated and it is sorted
      * by chronology of instants. Can return null if no matching contingency is found.
      *
-     * @param contingency: The contingency after which we want to gather states.
+     * @param contingency The contingency after which we want to gather states.
      * @return Ordered set of states after the specified contingency.
      */
     SortedSet<State> getStates(Contingency contingency);
@@ -179,7 +180,7 @@ public interface Crac extends Identifiable<Crac> {
      * because states must not be duplicated and there is no defined order for states selected by
      * instants. Can return null if no matching instant is found.
      *
-     * @param instant: The instant at which we want to gather states.
+     * @param instant The instant at which we want to gather states.
      * @return Unordered set of states at the same specified instant.
      */
     Set<State> getStates(Instant instant);
@@ -188,8 +189,8 @@ public interface Crac extends Identifiable<Crac> {
      * Select a unique state after a contingency and at a specific instant.
      * Can return null if no matching state or contingency are found.
      *
-     * @param contingency: The contingency after which we want to select the state.
-     * @param instant:     The instant at which we want to select the state.
+     * @param contingency The contingency after which we want to select the state.
+     * @param instant     The instant at which we want to select the state.
      * @return State after a contingency and at a specific instant.
      */
     State getState(Contingency contingency, Instant instant);
@@ -200,7 +201,7 @@ public interface Crac extends Identifiable<Crac> {
      * because states must not be duplicated and there is no defined order for states selected by
      * instants. Can return null if no matching instant is found.
      *
-     * @param instant: The instant at which we want to gather states.
+     * @param instant The instant at which we want to gather states.
      * @return Unordered set of states at the same specified instant.
      */
     default Set<State> getStatesFromInstant(Instant instant) {
@@ -212,7 +213,7 @@ public interface Crac extends Identifiable<Crac> {
      * instants objects. This is a set because states must not be duplicated and it is sorted
      * by chronology of instants. Can return null if no matching contingency is found.
      *
-     * @param id: The contingency id after which we want to gather states.
+     * @param id The contingency id after which we want to gather states.
      * @return Ordered set of states after the specified contingency.
      */
     default SortedSet<State> getStatesFromContingency(String id) {
@@ -226,8 +227,8 @@ public interface Crac extends Identifiable<Crac> {
     /**
      * Select a unique state after a contingency and at a specific instant, specified by their ids.
      *
-     * @param contingencyId: The contingency id after which we want to select the state.
-     * @param instant:       The instant at which we want to select the state.
+     * @param contingencyId The contingency id after which we want to select the state.
+     * @param instant       The instant at which we want to select the state.
      * @return State after a contingency and at a specific instant. Can return null if no matching
      * state or contingency are found.
      */
@@ -428,7 +429,6 @@ public interface Crac extends Identifiable<Crac> {
      */
     InjectionRangeActionAdder newInjectionRangeAction();
 
-
     /**
      * Get a {@link CounterTradeRangeActionAdder}, to add an {@link CounterTradeRangeAction} to the crac
      */
@@ -522,7 +522,6 @@ public interface Crac extends Identifiable<Crac> {
      * Remove an InjectionRangeAction - identified by its id - from the Crac
      */
     void removeInjectionRangeAction(String id);
-
 
     // Network actions management
 

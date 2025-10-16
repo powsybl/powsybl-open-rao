@@ -4,6 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 package com.powsybl.openrao.commons;
 
 import com.google.common.jimfs.Configuration;
@@ -140,4 +141,3 @@ public abstract class AbstractToolTest {
         assertEquals(hasArgument, option.hasArg());
     }
 }
-

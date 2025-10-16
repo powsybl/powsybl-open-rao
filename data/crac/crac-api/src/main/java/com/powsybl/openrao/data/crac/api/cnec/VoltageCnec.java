@@ -39,7 +39,7 @@ public interface VoltageCnec extends Cnec<VoltageCnec> {
      * because the {@code VoltageCnec} is not necessarily bounded by a lower value. This value would take
      * {@code reliabilityMargin} into account.
      *
-     * @param unit: The unit in which the lower bound would be returned. The only accepted unit for now is KILOVOLT.
+     * @param unit The unit in which the lower bound would be returned. The only accepted unit for now is KILOVOLT.
      * @return The lower bound of the {@link PhysicalParameter} on this {@code VoltageCnec}.
      */
     Optional<Double> getLowerBound(Unit unit);
@@ -50,7 +50,7 @@ public interface VoltageCnec extends Cnec<VoltageCnec> {
      * because the {@code VoltageCnec} is not necessarily bounded by an upper value. This value would take
      * {@code reliabilityMargin} into account.
      *
-     * @param unit: The unit in which the upper bound would be returned. The only accepted unit for now is KILOVOLT.
+     * @param unit The unit in which the upper bound would be returned. The only accepted unit for now is KILOVOLT.
      * @return The upper bound of the {@link PhysicalParameter} on this {@code VoltageCnec}.
      */
     Optional<Double> getUpperBound(Unit unit);
@@ -65,8 +65,8 @@ public interface VoltageCnec extends Cnec<VoltageCnec> {
      *
      * margin = min(maxThreshold - actualValue, actualValue - minThreshold)
      *
-     * @param actualValue: Value of the {@link PhysicalParameter} of the {@code VoltageCnec}.
-     * @param unit: Unit of the {@code actualValue}. It will also be the one of the returned value. The only accepted
+     * @param actualValue Value of the {@link PhysicalParameter} of the {@code VoltageCnec}.
+     * @param unit Unit of the {@code actualValue}. It will also be the one of the returned value. The only accepted
      *      unit for now is KILOVOLT.
      * @return The margin of the {@code VoltageCnec} with the given {@code unit} taking {@code reliabilityMargin}
      *      into account.

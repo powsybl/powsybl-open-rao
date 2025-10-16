@@ -4,6 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 package com.powsybl.openrao.tests.utils;
 
 import com.google.common.base.Suppliers;
@@ -43,6 +44,9 @@ import java.util.Objects;
 import java.util.Properties;
 import java.util.zip.ZipInputStream;
 
+/**
+ * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
+ */
 public final class Helpers {
     private Helpers() {
         // must nor be used
@@ -68,7 +72,7 @@ public final class Helpers {
 
     public static Crac importCracFromInternalFormat(File cracFile, Network network) {
         try {
-            return roundTripOnCrac(Crac.read("crac.json", new FileInputStream(cracFile), network), network);
+            return roundTripOnCrac(Crac.read(cracFile.getName(), new FileInputStream(cracFile), network), network);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

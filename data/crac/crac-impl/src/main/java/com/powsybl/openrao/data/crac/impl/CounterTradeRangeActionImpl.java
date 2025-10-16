@@ -4,6 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 package com.powsybl.openrao.data.crac.impl;
 
 import com.powsybl.openrao.commons.OpenRaoException;
@@ -21,7 +22,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * @author Gabriel Plante {@literal <gabriel.plante_externe at rte-france.com}
+ * @author Gabriel Plante {@literal <gabriel.plante_externe at rte-france.com>}
  */
 public class CounterTradeRangeActionImpl extends AbstractRangeAction<CounterTradeRangeAction> implements CounterTradeRangeAction {
 

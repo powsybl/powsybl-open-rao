@@ -5,13 +5,13 @@
     "unit" : "MW"
   },
   "range-actions-optimization" : {
-    "pst-ra-min-impact-threshold" : 0.01,
-    "hvdc-ra-min-impact-threshold" : 0.001,
-    "injection-ra-min-impact-threshold" : 0.001
+    "pst-ra-min-impact-threshold" : 0.1,
+    "hvdc-ra-min-impact-threshold" : 0.1,
+    "injection-ra-min-impact-threshold" : 0.1
   },
   "topological-actions-optimization" : {
-    "relative-minimum-impact-threshold" : 0.0,
-    "absolute-minimum-impact-threshold" : 0.0
+    "relative-minimum-impact-threshold" : 0.01,
+    "absolute-minimum-impact-threshold" : 100
   },
   "not-optimized-cnecs" : {
     "do-not-optimize-curative-cnecs-for-tsos-without-cras" : false
@@ -19,14 +19,14 @@
   "extensions" : {
     "open-rao-search-tree-parameters" : {
       "objective-function" : {
-        "curative-min-obj-improvement" : 10000.0
+        "curative-min-obj-improvement" : 0.0
       },
       "range-actions-optimization" : {
-        "max-mip-iterations" : 5,
-        "pst-sensitivity-threshold" : 1.0E-6,
+        "max-mip-iterations" : 2,
+        "pst-sensitivity-threshold" : 0.001,
         "pst-model" : "APPROXIMATED_INTEGERS",
-        "hvdc-sensitivity-threshold" : 1.0E-6,
-        "injection-ra-sensitivity-threshold" : 1.0E-6,
+        "hvdc-sensitivity-threshold" : 0.001,
+        "injection-ra-sensitivity-threshold" : 0.001,
         "ra-range-shrinking" : "DISABLED",
         "linear-optimization-solver" : {
           "solver" : "CBC",
@@ -35,14 +35,14 @@
         }
       },
       "topological-actions-optimization" : {
-        "max-preventive-search-tree-depth" : 5,
-        "max-curative-search-tree-depth" : 5,
+        "max-preventive-search-tree-depth" : 2,
+        "max-curative-search-tree-depth" : 2,
         "predefined-combinations" : [ ],
         "skip-actions-far-from-most-limiting-element" : false,
         "max-number-of-boundaries-for-skipping-actions" : 0
       },
       "second-preventive-rao" : {
-        "execution-condition" : "DISABLED",
+        "execution-condition" : "POSSIBLE_CURATIVE_IMPROVEMENT",
         "hint-from-first-preventive-rao" : false
       },
       "load-flow-and-sensitivity-computation" : {
@@ -138,6 +138,7 @@
         "constraint-adjustment-coefficient" : 3.0
       },
       "costly-min-margin-parameters" : {
+        "shifted-violation-threshold" : 10,
         "shifted-violation-penalty" : 1000.0
       }
     }

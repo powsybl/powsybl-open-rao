@@ -48,7 +48,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 /**
- * @author Roxane Chen {@literal <roxane.chen at rte-france.com}
+ * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
  */
 class PowerGradientConstraintFillerTest {
     private LinearProblemBuilder linearProblemBuilder = new LinearProblemBuilder().withSolver(SearchTreeRaoRangeActionsOptimizationParameters.Solver.SCIP);
@@ -107,7 +107,7 @@ class PowerGradientConstraintFillerTest {
 
             RangeActionsOptimizationParameters rangeActionParameters = parameters.getRangeActionsOptimizationParameters();
             Map<RangeAction<?>, Double> map = new HashMap<>();
-            crac.getRangeActions(crac.getPreventiveState()).forEach(action -> map.put(action, 0.0));
+            crac.getRangeActions(crac.getPreventiveState()).forEach(action -> map.put(action, 200.0));
             RangeActionSetpointResult rangeActionSetpointResult = new RangeActionSetpointResultImpl(map);
             MarginCoreProblemFiller coreProblemFiller = new MarginCoreProblemFiller(
                 optimizationPerimeter,
@@ -130,7 +130,6 @@ class PowerGradientConstraintFillerTest {
         Set<GeneratorConstraints> generatorConstraints = input.getGeneratorConstraints();
         PowerGradientConstraintFiller powerGradientConstraintFiller = new PowerGradientConstraintFiller(
             preventiveStates,
-            networks,
             injectionRangeActions,
             generatorConstraints);
         linearProblemBuilder.withProblemFiller(powerGradientConstraintFiller);
@@ -173,13 +172,13 @@ class PowerGradientConstraintFillerTest {
         assertThrows(OpenRaoException.class, () -> linearProblem.getGeneratorPowerVariable("FFR4AA1 _load", timestamp1));
         assertThrows(OpenRaoException.class, () -> linearProblem.getGeneratorPowerConstraint("FFR4AA1 _load", timestamp1));
 
-        // check bound
-        assertEquals(123.0, fr1Timestamp1PowerConstraint.ub());
-        assertEquals(123.0, fr1Timestamp1PowerConstraint.lb());
-        assertEquals(2000.0, fr2Timestamp1PowerConstraint.ub());
-        assertEquals(2000.0, fr2Timestamp1PowerConstraint.lb());
-        assertEquals(2000.0, fr3Timestamp1PowerConstraint.ub());
-        assertEquals(2000.0, fr3Timestamp1PowerConstraint.lb());
+        // check bound : sum of (key times initial setpoint)
+        assertEquals(0., fr1Timestamp1PowerConstraint.ub());
+        assertEquals(0., fr1Timestamp1PowerConstraint.lb());
+        assertEquals(-1 * 200. + -0.5 * 200, fr2Timestamp1PowerConstraint.ub());
+        assertEquals(-1 * 200. + -0.5 * 200, fr2Timestamp1PowerConstraint.lb());
+        assertEquals(1.0 * 200. + 0.5 * 200, fr3Timestamp1PowerConstraint.ub());
+        assertEquals(1.0 * 200. + 0.5 * 200, fr3Timestamp1PowerConstraint.lb());
 
         Crac crac1 = input.getRaoInputs().getData(timestamp1).get().getCrac();
         // check coefficient for injection action variable

@@ -4,6 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 package com.powsybl.openrao.data.crac.io.cse.remedialaction;
 
 import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
@@ -18,6 +19,7 @@ import java.util.Set;
 
 /**
  * Utility to look for a generator using a bus name
+ *
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public class GeneratorHelper {

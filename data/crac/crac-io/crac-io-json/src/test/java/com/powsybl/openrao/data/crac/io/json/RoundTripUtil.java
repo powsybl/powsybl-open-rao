@@ -4,6 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 package com.powsybl.openrao.data.crac.io.json;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -35,7 +36,7 @@ public final class RoundTripUtil {
      * and then re-import this stream as the object. The purpose is to see if the whole export/import
      * process works fine.
      *
-     * @param object: object to export/import
+     * @param object object to export/import
      * @return the object exported and re-imported
      */
     static Crac implicitJsonRoundTrip(Crac object, Network network) {

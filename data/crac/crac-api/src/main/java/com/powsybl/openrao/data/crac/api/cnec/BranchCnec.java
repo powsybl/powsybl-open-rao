@@ -42,7 +42,7 @@ public interface BranchCnec<T extends BranchCnec<T>> extends Cnec<T> {
     /**
      * Getter of the nominal voltage on each {@link TwoSides} of the {@code BranchCnec}.
      *
-     * @param side: The {@link TwoSides} on which the nominal voltage is queried.
+     * @param side The {@link TwoSides} on which the nominal voltage is queried.
      * @return The value of nominal voltage.
      */
     Double getNominalVoltage(TwoSides side);
@@ -53,9 +53,9 @@ public interface BranchCnec<T extends BranchCnec<T>> extends Cnec<T> {
      * because the {@code BranchCnec} is not necessarily bounded by a lower value. This value would take
      * {@code reliabilityMargin} into account.
      *
-     * @param side: The side on which the lower bound is queried. It could require conversions if the thresholds are
+     * @param side The side on which the lower bound is queried. It could require conversions if the thresholds are
      *            defined on a different side that the one requested.
-     * @param unit: The unit in which the bound would be returned. It could require conversions if the thresholds are
+     * @param unit The unit in which the bound would be returned. It could require conversions if the thresholds are
      *            defined in a different unit that the one requested.
      * @return The lower bound of the {@link PhysicalParameter} on this {@code BranchCnec}.
      */
@@ -67,9 +67,9 @@ public interface BranchCnec<T extends BranchCnec<T>> extends Cnec<T> {
      * because the {@code BranchCnec} is not necessarily bounded by an upper value. This value would take
      * {@code reliabilityMargin} into account.
      *
-     * @param side: The side on which the upper bound is queried. It could require conversions if the thresholds are
+     * @param side The side on which the upper bound is queried. It could require conversions if the thresholds are
      *            defined on a different side that the one requested.
-     * @param unit: The unit in which the upper bound would be returned. It could require conversions if the thresholds are
+     * @param unit The unit in which the upper bound would be returned. It could require conversions if the thresholds are
      *            defined in a different unit that the one requested.
      * @return The upper bound of the {@link PhysicalParameter} on this {@code BranchCnec}.
      */
@@ -85,10 +85,10 @@ public interface BranchCnec<T extends BranchCnec<T>> extends Cnec<T> {
      *
      * margin = min(maxThreshold - actualValue, actualValue - minThreshold)
      *
-     * @param actualValue: Value of the {@link PhysicalParameter} on the {@code side} of the {@code BranchCnec}
+     * @param actualValue Value of the {@link PhysicalParameter} on the {@code side} of the {@code BranchCnec}
      *                   on which to make the difference to compute the margin.
-     * @param side: The side on which the {@code actualValue} is taken and on which the margin will be computed.
-     * @param unit: Unit of the {@code actualValue}. It will also be the one of the returned value.
+     * @param side The side on which the {@code actualValue} is taken and on which the margin will be computed.
+     * @param unit Unit of the {@code actualValue}. It will also be the one of the returned value.
      * @return The margin of the {@code BranchCnec} on the given {@code side} with the given {@code unit} taking
      * {@code reliabilityMargin} into account.
      */
