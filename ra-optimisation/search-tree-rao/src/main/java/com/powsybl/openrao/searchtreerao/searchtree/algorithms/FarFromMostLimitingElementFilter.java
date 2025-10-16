@@ -26,13 +26,11 @@ import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_L
 public class FarFromMostLimitingElementFilter implements NetworkActionCombinationFilter {
     private final Network network;
     private final CountryGraph countryGraph;
-    private final boolean filterFarElements;
     private final int maxNumberOfBoundariesForSkippingNetworkActions;
 
-    public FarFromMostLimitingElementFilter(Network network, boolean filterFarElements, int maxNumberOfBoundariesForSkippingNetworkActions) {
+    public FarFromMostLimitingElementFilter(Network network, int maxNumberOfBoundariesForSkippingNetworkActions) {
         this.network = network;
         countryGraph = new CountryGraph(network);
-        this.filterFarElements = filterFarElements;
         this.maxNumberOfBoundariesForSkippingNetworkActions = maxNumberOfBoundariesForSkippingNetworkActions;
     }
 
@@ -42,10 +40,6 @@ public class FarFromMostLimitingElementFilter implements NetworkActionCombinatio
      * The most limiting elements are the most limiting functional cost element, and all elements with a non-zero virtual cost.
      */
     public Set<NetworkActionCombination> filter(Set<NetworkActionCombination> naCombinations, OptimizationResult optimizationResult) {
-        if (!filterFarElements) {
-            return naCombinations;
-        }
-
         Set<Country> worstCnecLocation = getOptimizedMostLimitingElementsLocation(optimizationResult);
 
         Set<NetworkActionCombination> filteredNaCombinations = naCombinations.stream()
