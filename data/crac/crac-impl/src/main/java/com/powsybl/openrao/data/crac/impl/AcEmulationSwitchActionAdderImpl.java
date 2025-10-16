@@ -33,7 +33,6 @@ public class AcEmulationSwitchActionAdderImpl extends AbstractSingleNetworkEleme
     }
 
     protected Action buildAction() {
-        // update setpoint too
         return new HvdcActionBuilder()
                 .withId(String.format("%s_%s_%s", getActionName(), networkElementId, actionType))
                 .withHvdcId(networkElementId)
