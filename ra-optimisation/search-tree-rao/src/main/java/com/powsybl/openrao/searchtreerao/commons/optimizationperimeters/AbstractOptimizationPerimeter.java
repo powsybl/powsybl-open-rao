@@ -7,7 +7,6 @@
 
 package com.powsybl.openrao.searchtreerao.commons.optimizationperimeters;
 
-import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
 import com.powsybl.openrao.data.crac.api.Identifiable;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
@@ -15,7 +14,6 @@ import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
-import com.powsybl.openrao.data.crac.io.commons.iidm.IidmHvdcHelper;
 import com.powsybl.openrao.data.crac.loopflowextension.LoopFlowThreshold;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
@@ -25,7 +23,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
-import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -132,7 +129,6 @@ public abstract class AbstractOptimizationPerimeter implements OptimizationPerim
         return removeHvdcInAcEmulation(network, availableRangeActions);
     }
 
-
     public static Set<FlowCnec> getLoopFlowCnecs(Set<FlowCnec> flowCnecs, RaoParameters raoParameters, Network network) {
         Optional<com.powsybl.openrao.raoapi.parameters.LoopFlowParameters> loopFlowParametersOptional = raoParameters.getLoopFlowParameters();
         if (loopFlowParametersOptional.isPresent()) {
@@ -184,7 +180,7 @@ public abstract class AbstractOptimizationPerimeter implements OptimizationPerim
         }
     }
 
-    private Map<State, Set<RangeAction<?>>> removeHvdcInAcEmulation(Network network, Map<State, Set<RangeAction<?>>> allAvailableRangeActionsPerState){
+    private Map<State, Set<RangeAction<?>>> removeHvdcInAcEmulation(Network network, Map<State, Set<RangeAction<?>>> allAvailableRangeActionsPerState) {
         return allAvailableRangeActionsPerState.entrySet().stream()
             .collect(Collectors.toMap(
                 Map.Entry::getKey,

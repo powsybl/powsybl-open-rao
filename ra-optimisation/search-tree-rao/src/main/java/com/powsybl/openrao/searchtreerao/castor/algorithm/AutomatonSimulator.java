@@ -511,7 +511,7 @@ public final class AutomatonSimulator {
      * @param hvdcLine HVDC line object
      * @return the setpoint computed by the HvdcAngleDroopActivePowerControl
      */
-    private static double computeHvdcAngleDroopActivePowerControlValue(HvdcLine hvdcLine) {
+    public static double computeHvdcAngleDroopActivePowerControlValue(HvdcLine hvdcLine) {
         if (hvdcLine.getConvertersMode().equals(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER)) {
             return hvdcLine.getConverterStation2().getTerminal().getP();
         } else {

@@ -132,6 +132,7 @@ public class Leaf implements OptimizationResult {
                 throw new OpenRaoException(String.format("%s could not be applied on the network", na.getId()));
             }
         }
+
         this.status = Status.CREATED;
     }
 
