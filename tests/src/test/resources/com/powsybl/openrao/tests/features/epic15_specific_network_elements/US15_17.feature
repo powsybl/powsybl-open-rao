@@ -38,12 +38,12 @@ Feature: US 15.17: Optimize HVDC range actions initially in AC emulation mode
     Given crac file is "epic15/jsonCrac_ep15us12-5case3.json"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
     When I launch rao
-    Then 2 remedial actions are used in preventive
-    And the setpoint of RangeAction "PRA_HVDC" should be 810 MW in preventive
+    Then 1 remedial actions are used in preventive
+    And the setpoint of RangeAction "PRA_HVDC" should be 820 MW in preventive
     And the tap of PstRangeAction "PST_PRA_PST_be_BBE2AA11 BBE3AA11 1" should be 14 in preventive
-    And the worst margin is 187 MW
-    And the margin on cnec "be1_be2_n - BBE1AA11->BBE2AA11 - preventive" after PRA should be 187 MW
-    And the margin on cnec "be1_fr5_n - BBE1AA11->FFR5AA11 - preventive" after PRA should be 201 MW
+    And the worst margin is 181 MW
+    And the margin on cnec "be1_be2_n - BBE1AA11->BBE2AA11 - preventive" after PRA should be 181 MW
+    And the margin on cnec "be1_fr5_n - BBE1AA11->FFR5AA11 - preventive" after PRA should be 204 MW
 
   @fast @rao @mock @dc @contingency-scenarios @hvdc
   Scenario: US 15.17.10: HVDC useless in preventive but used in curative

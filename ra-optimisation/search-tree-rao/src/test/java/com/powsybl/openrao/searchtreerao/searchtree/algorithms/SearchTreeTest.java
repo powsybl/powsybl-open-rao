@@ -10,6 +10,8 @@ package com.powsybl.openrao.searchtreerao.searchtree.algorithms;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
+import com.powsybl.loadflow.LoadFlow;
+import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.commons.logs.RaoBusinessLogs;
@@ -25,6 +27,7 @@ import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters;
 import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
 import com.powsybl.openrao.searchtreerao.commons.SensitivityComputer;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
@@ -40,8 +43,11 @@ import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 import com.powsybl.openrao.util.AbstractNetworkPool;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManager;
+import com.powsybl.sensitivity.SensitivityAnalysisParameters;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.slf4j.LoggerFactory;
 
@@ -86,6 +92,8 @@ class SearchTreeTest {
 
     private NetworkActionCombination predefinedNaCombination;
 
+    MockedStatic<LoadFlow> loadFlowMockedStatic;
+
     @BeforeEach
     void setUp() {
         setSearchTreeInput();
@@ -95,6 +103,22 @@ class SearchTreeTest {
         when(searchTreeParameters.getObjectiveFunction()).thenReturn(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN);
         when(searchTreeParameters.getObjectiveFunctionUnit()).thenReturn(Unit.MEGAWATT);
         mockNetworkPool(network);
+        LoadFlow.Runner mockRunner = mock(LoadFlow.Runner.class);
+        // Used to mock static method LoadFlow.find(...)
+        loadFlowMockedStatic = mockStatic(LoadFlow.class);
+        loadFlowMockedStatic
+            .when(() -> LoadFlow.find(any()))
+            .thenReturn(mockRunner);
+        LoadFlowResult mockResult = mock(LoadFlowResult.class);
+        when(mockRunner.run(any(), any())).thenReturn(mockResult);
+
+    }
+
+    @AfterEach
+    void tearDown() {
+        if (loadFlowMockedStatic != null) {
+            loadFlowMockedStatic.close();
+        }
     }
 
     private void setSearchTreeParameters() {
@@ -111,6 +135,10 @@ class SearchTreeTest {
         predefinedNaCombination = Mockito.mock(NetworkActionCombination.class);
         when(predefinedNaCombination.getConcatenatedId()).thenReturn("predefinedNa");
         when(networkActionParameters.getNetworkActionCombinations()).thenReturn(List.of(predefinedNaCombination));
+        LoadFlowAndSensitivityParameters loadFlowAndSensitivityParameters = Mockito.mock(LoadFlowAndSensitivityParameters.class);
+        when(searchTreeParameters.getLoadFlowAndSensitivityParameters()).thenReturn(loadFlowAndSensitivityParameters);
+        SensitivityAnalysisParameters sensitivityAnalysisParameters = Mockito.mock(SensitivityAnalysisParameters.class);
+        when(loadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters()).thenReturn(sensitivityAnalysisParameters);
     }
 
     private void setSearchTreeInput() {
@@ -125,6 +153,7 @@ class SearchTreeTest {
         availableRangeActions = new HashSet<>();
         when(optimizationPerimeter.getRangeActions()).thenReturn(availableRangeActions);
         when(optimizationPerimeter.getMainOptimizationState()).thenReturn(optimizedState);
+        when(optimizationPerimeter.copyWithFilteredAvailableRangeAction(network)).thenReturn(optimizationPerimeter);
         FlowCnec cnec = Mockito.mock(FlowCnec.class);
         when(cnec.isOptimized()).thenReturn(true);
         when(optimizationPerimeter.getFlowCnecs()).thenReturn(Set.of(cnec));
