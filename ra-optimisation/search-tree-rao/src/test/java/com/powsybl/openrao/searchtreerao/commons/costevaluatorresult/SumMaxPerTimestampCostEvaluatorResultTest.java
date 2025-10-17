@@ -111,6 +111,15 @@ class SumMaxPerTimestampCostEvaluatorResultTest {
 
     }
 
+    void addNullTimestamp() {
+        Mockito.when(preventiveStateT1.getTimestamp()).thenReturn(Optional.empty());
+        Mockito.when(preventiveStateT2.getTimestamp()).thenReturn(Optional.empty());
+        Mockito.when(preventiveStateT3.getTimestamp()).thenReturn(Optional.empty());
+        Mockito.when(curativeStateT1.getTimestamp()).thenReturn(Optional.empty());
+        Mockito.when(curativeStateT2.getTimestamp()).thenReturn(Optional.empty());
+        Mockito.when(curativeStateT3.getTimestamp()).thenReturn(Optional.empty());
+    }
+
     @Test
     void testEvaluator() {
         addTimestamp();
@@ -149,6 +158,7 @@ class SumMaxPerTimestampCostEvaluatorResultTest {
 
     @Test
     void testWithoutAnyTimestampWithExclusion() {
+        addNullTimestamp();
         Map<FlowCnec, Double> marginPerCnec = Map.of(flowCnecPreventiveT1, -10.0, flowCnecCurative1T1, -50.0, flowCnecCurative12T1, -40.0, flowCnecCurativeT2, 20.0, flowCnecCurativeT3, -17.0);
         SumMaxPerTimestampCostEvaluatorResult evaluatorResult = new SumMaxPerTimestampCostEvaluatorResult(marginPerCnec, List.of(), Unit.MEGAWATT);
         assertEquals(50.0, evaluatorResult.getCost(Set.of(), Set.of()));
