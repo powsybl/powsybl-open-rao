@@ -72,6 +72,7 @@ class LeafTest {
     private Action ea21;
     private Action ea22;
     private Action ea23;
+    private RangeAction rangeAction;
 
     private Network network;
     private ObjectiveFunction costEvaluatorMock;
@@ -113,6 +114,9 @@ class LeafTest {
         optimizationPerimeter = Mockito.mock(OptimizationPerimeter.class);
         optimizedState = Mockito.mock(State.class);
         when(optimizationPerimeter.getMainOptimizationState()).thenReturn(optimizedState);
+        when(optimizationPerimeter.copyWithFilteredAvailableRangeAction(network)).thenReturn(optimizationPerimeter);
+        rangeAction = Mockito.mock(RangeAction.class);
+        when(optimizationPerimeter.getRangeActions()).thenReturn(Set.of(rangeAction));
         prePerimeterResult = Mockito.mock(PrePerimeterResult.class);
         appliedRemedialActions = Mockito.mock(AppliedRemedialActions.class);
         Instant instant = Mockito.mock(Instant.class);
@@ -621,7 +625,7 @@ class LeafTest {
     void getRangeActionsBeforeEvaluation() {
         Leaf leaf = buildNotEvaluatedRootLeaf();
         assertEquals(Leaf.Status.CREATED, leaf.getStatus());
-        assertEquals(rangeActions, leaf.getRangeActions());
+        assertEquals(Set.of(rangeAction), leaf.getRangeActions());
     }
 
     @Test
