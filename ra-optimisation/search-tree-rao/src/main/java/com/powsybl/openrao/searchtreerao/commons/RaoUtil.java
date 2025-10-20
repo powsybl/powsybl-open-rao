@@ -64,7 +64,6 @@ public final class RaoUtil {
         checkParameters(raoParameters, raoInput);
         checkCnecsThresholdsUnit(raoParameters, raoInput);
         initNetwork(raoInput.getNetwork(), raoInput.getNetworkVariantId());
-        LoadFlow.find(raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getLoadFlowAndSensitivityParameters().getLoadFlowProvider()).run(raoInput.getNetwork(), raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters());
         updateHvdcRangeActionInitialSetpoint(raoInput.getCrac(), raoInput.getNetwork(), raoParameters);
         addNetworkActionAssociatedWithHvdcRangeAction(raoInput.getCrac(), raoInput.getNetwork());
     }
@@ -303,16 +302,21 @@ public final class RaoUtil {
     }
 
     static void updateHvdcRangeActionInitialSetpoint(Crac crac, Network network, RaoParameters raoParameters) {
-        LoadFlow.find(raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getLoadFlowAndSensitivityParameters().getLoadFlowProvider()).run(network, raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters());
-        network.getHvdcLines().forEach(hvdcLine -> {
-            double activePowerSetpoint = computeHvdcAngleDroopActivePowerControlValue(hvdcLine);
-            hvdcLine.setConvertersMode(activePowerSetpoint > 0 ? HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER : HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER);
-            hvdcLine.setActivePowerSetpoint(Math.abs(activePowerSetpoint));
-        });
-
-        crac.getHvdcRangeActions().stream()
+        // get all the hvdc range action that uses hvdc line in ac emulation mode
+        Set<HvdcRangeActionImpl> hvdcRangeActionOnAcEmulationHvdcLinecrac = crac.getHvdcRangeActions().stream()
             .map(HvdcRangeActionImpl.class::cast)
             .filter(hvdcRangeAction -> hvdcRangeAction.isAngleDroopActivePowerControlEnabled(network))
-            .forEach(hvdcRangeAction -> hvdcRangeAction.setInitialSetpoint(IidmHvdcHelper.getCurrentSetpoint(network, hvdcRangeAction.getNetworkElement().getId())));
+            .collect(Collectors.toSet());
+
+        if (!hvdcRangeActionOnAcEmulationHvdcLinecrac.isEmpty()) {
+            // Run load flow to update flow on all the line of the network
+            LoadFlow.find(raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getLoadFlowAndSensitivityParameters().getLoadFlowProvider()).run(network, raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters());
+            // Update all the initial setpoint
+            hvdcRangeActionOnAcEmulationHvdcLinecrac
+                .forEach(hvdcRangeAction -> {
+                    double activePowerSetpoint = computeHvdcAngleDroopActivePowerControlValue(IidmHvdcHelper.getHvdcLine(network, hvdcRangeAction.getNetworkElement().getId()));
+                    hvdcRangeAction.setInitialSetpoint(activePowerSetpoint);
+                });
+        }
     }
 }
