@@ -47,10 +47,10 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.powsybl.openrao.data.crac.io.commons.iidm.IidmHvdcHelper.computeHvdcAngleDroopActivePowerControlValue;
 import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getLoadFlowProvider;
 import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters;
 import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.getPstModel;
-import static com.powsybl.openrao.searchtreerao.castor.algorithm.AutomatonSimulator.computeHvdcAngleDroopActivePowerControlValue;
 import static java.lang.String.format;
 
 /**
