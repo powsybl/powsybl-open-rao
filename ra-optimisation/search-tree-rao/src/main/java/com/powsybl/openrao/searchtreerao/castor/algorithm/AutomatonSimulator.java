@@ -29,6 +29,7 @@ import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.api.usagerule.OnContingencyState;
 import com.powsybl.openrao.data.crac.api.usagerule.OnInstant;
+import com.powsybl.openrao.data.crac.io.commons.iidm.IidmHvdcHelper;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.searchtreerao.commons.RaoLogger;
@@ -496,7 +497,7 @@ public final class AutomatonSimulator {
         // Compute HvdcAngleDroopActivePowerControl values of HVDC lines
         Map<String, Double> controls = network.getHvdcLineStream()
             .filter(hvdcLine -> hvdcLine.getExtension(HvdcAngleDroopActivePowerControl.class) != null)
-            .collect(Collectors.toMap(com.powsybl.iidm.network.Identifiable::getId, AutomatonSimulator::computeHvdcAngleDroopActivePowerControlValue));
+            .collect(Collectors.toMap(com.powsybl.iidm.network.Identifiable::getId, IidmHvdcHelper::computeHvdcAngleDroopActivePowerControlValue));
 
         // Reset working variant
         network.getVariantManager().setWorkingVariant(initialVariantId);
@@ -505,19 +506,6 @@ public final class AutomatonSimulator {
         return controls;
     }
 
-    /**
-     * Get setpoint set by AngleDroopActivePowerControl
-     *
-     * @param hvdcLine HVDC line object
-     * @return the setpoint computed by the HvdcAngleDroopActivePowerControl
-     */
-    public static double computeHvdcAngleDroopActivePowerControlValue(HvdcLine hvdcLine) {
-        if (hvdcLine.getConvertersMode().equals(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER)) {
-            return hvdcLine.getConverterStation2().getTerminal().getP();
-        } else {
-            return hvdcLine.getConverterStation1().getTerminal().getP();
-        }
-    }
 
     /**
      * Disables the HvdcAngleDroopActivePowerControl on an HVDC line and sets its active power set-point
