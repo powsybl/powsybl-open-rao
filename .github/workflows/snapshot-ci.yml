@@ -144,7 +144,7 @@ jobs:
 
       - name: Build with Maven
         if: matrix.os != 'ubuntu-latest'
-        run: mvn --batch-mode install -Dtest=SumMaxPerTimestampCostEvaluatorResultTest -DfailIfNoTests=false
+        run: mvn --batch-mode install -DskipCucumberTests=true
         working-directory: ./powsybl-openrao
 
       - name: Run SonarCloud analysis
