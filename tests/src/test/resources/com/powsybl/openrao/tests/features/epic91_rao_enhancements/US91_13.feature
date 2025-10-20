@@ -73,8 +73,9 @@ Feature: US 91.13: PST Regulation
 
   @ac @fast @rao
   Scenario: US 91.13.3.a: 3 contingency scenarios and 3 PSTs with different use cases
-  - Scenario 12: PST 34 has a negative margin of -444.08 A so even though PST 12 should go up to -16 to maximize its own
-  margin, the minimal margin does not improve below -10 (margin at -9 is about -462 A)
+  - Scenario 12: PST 34 has a negative margin of -444.08 A so even though PST 12 should go down to tap position -16 to
+  maximize its own margin because the flow decreases with the tap position, the minimal margin does not improve below
+  tap position -10 (margin at tap position -9 is about -462 A)
   - Scenario 23: trade-off tap between preventive CNEC and curative PST leading the preventive tap of PST 23 to be -6
   - Scenario 34: automaton secures PST 34 straight from auto instant at tap -15
   Each curative scenario is unsecure with some PSTs overloaded.
@@ -115,7 +116,7 @@ Feature: US 91.13: PST Regulation
   @ac @fast @rao @pst-regulation
   Scenario: US 91.13.3.b: Duplicate of US 91.13.3.a with PST regulation
   Regulation is performed on PSTs 12 and 34 because they can be moved in curative.
-  The regulation tap is either -15 is the contingency was parallel to the PST or -5 otherwise.
+  The regulation tap is either -15 if the contingency was parallel to the PST or -5 otherwise.
     Given network file is "epic91/4NodesSeries.uct"
     Given crac file is "epic91/crac-91-13-3.json"
     Given configuration file is "epic91/RaoParameters_ac_3pstsRegulation.json"

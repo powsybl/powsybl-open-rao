@@ -52,6 +52,10 @@ public final class PstRegulator {
     }
 
     private static int getRegulatedTap(Network network, PstRangeAction pstRangeAction) {
+        Integer tapPosition = getTwoWindingsTransformer(network, pstRangeAction).getPhaseTapChanger().getSolvedTapPosition();
+        if (tapPosition == null) {
+            throw new OpenRaoException("Could not retrieve regulated tap position for PST range action %s.".formatted(pstRangeAction.getName()));
+        }
         return getTwoWindingsTransformer(network, pstRangeAction).getPhaseTapChanger().getSolvedTapPosition();
     }
 }
