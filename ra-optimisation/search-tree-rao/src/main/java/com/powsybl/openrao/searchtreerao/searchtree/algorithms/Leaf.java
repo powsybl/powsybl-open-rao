@@ -47,7 +47,7 @@ import java.util.stream.Stream;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
-import static com.powsybl.openrao.searchtreerao.castor.algorithm.AutomatonSimulator.computeHvdcAngleDroopActivePowerControlValue;
+import static com.powsybl.openrao.data.crac.io.commons.iidm.IidmHvdcHelper.computeHvdcAngleDroopActivePowerControlValue;
 import static com.powsybl.openrao.searchtreerao.commons.RaoLogger.getVirtualCostDetailed;
 
 /**
