@@ -32,7 +32,6 @@ class HvdcRangeActionImplTest {
     private Network network;
     private Network networkWithAngleDroop;
     private HvdcLine hvdcLine;
-    private HvdcLine hvdcLineWithAngleDroop;
 
     @BeforeEach
     public void setUp() {
@@ -50,7 +49,6 @@ class HvdcRangeActionImplTest {
             .newOnInstantUsageRule().withInstant("preventive").add();
 
         hvdcLine = network.getHvdcLine(networkElementId);
-        hvdcLineWithAngleDroop = networkWithAngleDroop.getHvdcLine(networkElementId);
     }
 
     @Test
@@ -68,6 +66,7 @@ class HvdcRangeActionImplTest {
         hvdcRa.apply(network, 5);
         hvdcRa.apply(networkWithAngleDroop, 6);
         assertEquals(5, hvdcRa.getCurrentSetpoint(network), 1e-6);
+        // Not applied because the line is in ac emulation
         assertEquals(0, hvdcRa.getCurrentSetpoint(networkWithAngleDroop), 1e-6);
     }
 
@@ -78,6 +77,7 @@ class HvdcRangeActionImplTest {
         hvdcRa.apply(network, -3);
         hvdcRa.apply(networkWithAngleDroop, -4);
         assertEquals(-3, hvdcRa.getCurrentSetpoint(network), 1e-6);
+        // Not applied because the line is in ac emulation
         assertEquals(0, hvdcRa.getCurrentSetpoint(networkWithAngleDroop), 1e-6);
     }
 
