@@ -18,6 +18,7 @@ import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.LoopFlowParameters;
 import com.powsybl.openrao.raoapi.parameters.MnecParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRelativeMarginsParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
@@ -87,6 +88,7 @@ class SearchTreeParametersTest {
         LoopFlowParameters loopFlowParameters = Mockito.mock(LoopFlowParameters.class);
         UnoptimizedCnecParameters unoptimizedCnecParameters = Mockito.mock(UnoptimizedCnecParameters.class);
         SearchTreeRaoRangeActionsOptimizationParameters.LinearOptimizationSolver solverParameters = Mockito.mock(SearchTreeRaoRangeActionsOptimizationParameters.LinearOptimizationSolver.class);
+        LoadFlowAndSensitivityParameters loadFlowAndSensitivityParameters = Mockito.mock(LoadFlowAndSensitivityParameters.class);
         int maxNumberOfIterations = 3;
 
         SearchTreeParameters searchTreeParameters = builder
@@ -103,6 +105,7 @@ class SearchTreeParametersTest {
             .withUnoptimizedCnecParameters(unoptimizedCnecParameters)
             .withSolverParameters(solverParameters)
             .withMaxNumberOfIterations(maxNumberOfIterations)
+            .withLoadFlowAndSensitivityParameters(loadFlowAndSensitivityParameters)
             .build();
 
         assertEquals(objectiveFunction, searchTreeParameters.getObjectiveFunction());
@@ -116,6 +119,7 @@ class SearchTreeParametersTest {
         assertEquals(unoptimizedCnecParameters, searchTreeParameters.getUnoptimizedCnecParameters());
         assertEquals(solverParameters, searchTreeParameters.getSolverParameters());
         assertEquals(maxNumberOfIterations, searchTreeParameters.getMaxNumberOfIterations());
+        assertEquals(loadFlowAndSensitivityParameters, searchTreeParameters.getLoadFlowAndSensitivityParameters());
     }
 
     @Test
