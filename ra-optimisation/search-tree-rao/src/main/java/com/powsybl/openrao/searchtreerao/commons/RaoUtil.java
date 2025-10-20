@@ -311,11 +311,17 @@ public final class RaoUtil {
         if (!hvdcRangeActionOnAcEmulationHvdcLinecrac.isEmpty()) {
             // Run load flow to update flow on all the line of the network
             LoadFlow.find(raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getLoadFlowAndSensitivityParameters().getLoadFlowProvider()).run(network, raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters());
+
+            network.getHvdcLines().forEach(hvdcLine -> {
+                double activePowerSetpoint = computeHvdcAngleDroopActivePowerControlValue(hvdcLine);
+                hvdcLine.setConvertersMode(activePowerSetpoint > 0 ? HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER : HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER);
+                hvdcLine.setActivePowerSetpoint(Math.abs(activePowerSetpoint));
+            });
+
             // Update all the initial setpoint
             hvdcRangeActionOnAcEmulationHvdcLinecrac
                 .forEach(hvdcRangeAction -> {
-                    double activePowerSetpoint = computeHvdcAngleDroopActivePowerControlValue(IidmHvdcHelper.getHvdcLine(network, hvdcRangeAction.getNetworkElement().getId()));
-                    hvdcRangeAction.setInitialSetpoint(activePowerSetpoint);
+                    hvdcRangeAction.setInitialSetpoint(IidmHvdcHelper.getCurrentSetpoint(network, hvdcRangeAction.getNetworkElement().getId()));
                 });
         }
     }
