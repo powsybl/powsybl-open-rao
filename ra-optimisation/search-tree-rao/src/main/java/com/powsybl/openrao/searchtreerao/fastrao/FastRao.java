@@ -78,7 +78,14 @@ public class FastRao implements RaoProvider {
 
     @Override
     public CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters parameters, Instant targetEndInstant) {
-        RaoUtil.initData(raoInput, parameters);
+        try {
+            RaoUtil.initData(raoInput, parameters);
+        } catch (Exception e) {
+            String failure = String.format("Data initialisation failed: %s", e);
+            BUSINESS_LOGS.error(failure);
+            return CompletableFuture.completedFuture(new FailedRaoResultImpl(failure));
+        }
+
         return CompletableFuture.completedFuture(launchFastRaoOptimization(raoInput, parameters, targetEndInstant, new HashSet<>()));
     }
 
