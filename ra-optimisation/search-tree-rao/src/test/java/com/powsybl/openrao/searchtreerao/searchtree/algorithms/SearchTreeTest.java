@@ -215,6 +215,7 @@ class SearchTreeTest {
         OptimizationResult result = searchTree.run().get();
         assertEquals(rootLeaf, result);
         assertEquals(2., result.getCost(), DOUBLE_TOLERANCE);
+        loadFlowMockedStatic.verify(() -> LoadFlow.find(any()), times(1));
     }
 
     @Test
@@ -247,6 +248,8 @@ class SearchTreeTest {
         OptimizationResult result = searchTree.run().get();
         assertEquals(rootLeaf, result);
         assertEquals(4., result.getCost(), DOUBLE_TOLERANCE);
+        // Run load flow once at root leaf
+        loadFlowMockedStatic.verify(() -> LoadFlow.find(any()), times(1));
     }
 
     private void setLeafStatusToEvaluated(Leaf leaf) {
