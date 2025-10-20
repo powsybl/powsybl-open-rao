@@ -42,6 +42,7 @@ public class SumMaxPerTimestampCostEvaluatorResult implements CostEvaluatorResul
         Map<FlowCnec, Double> filteredCnecs = marginPerCnec.entrySet().stream()
             .filter(entry -> !cnecsToExclude.contains(entry.getKey().getId()))
             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        System.out.println("filtered cnecs: " + filteredCnecs.keySet());
         if (filteredCnecs.isEmpty()) {
             return -Double.MAX_VALUE;
         }
@@ -49,16 +50,21 @@ public class SumMaxPerTimestampCostEvaluatorResult implements CostEvaluatorResul
         // Compute state wise cost
         Map<State, Set<FlowCnec>> flowCnecsPerState = groupFlowCnecsPerState(filteredCnecs.keySet());
         Map<State, Double> costPerState = flowCnecsPerState.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, entry -> computeCostForState(entry.getValue())));
+        costPerState.forEach((state, cost) -> System.out.println(state.getId() + " " + cost));
 
         Map<OffsetDateTime, Set<State>> statesToEvaluatePerTimestamp = new HashMap<>();
         Set<State> statesToEvaluateWithoutTimestamp = new HashSet<>();
 
         costPerState.keySet().stream().forEach(state -> {
+            System.out.println("checking state: " + state.getId());
             if (statesContingencyMustBeKept(state, contingenciesToExclude)) {
+                System.out.println("state is to be kept: " + state.getId());
                 Optional<OffsetDateTime> timestamp = state.getTimestamp();
                 if (timestamp.isPresent()) {
+                    System.out.println("timestamp present: " + state.getId());
                     statesToEvaluatePerTimestamp.computeIfAbsent(timestamp.get(), s -> new HashSet<>()).add(state);
                 } else {
+                    System.out.println("timestamp missing: " + state.getId());
                     statesToEvaluateWithoutTimestamp.add(state);
                 }
             }
