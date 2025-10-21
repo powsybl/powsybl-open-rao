@@ -36,8 +36,6 @@ import static com.powsybl.openrao.searchtreerao.searchtree.algorithms.NetworkAct
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 
 /**
@@ -58,7 +56,7 @@ class FarFromMostLimitingElementFilterTest {
 
         // test - no border cross, most limiting element is in BE/FR
         Mockito.when(previousLeaf.getMostLimitingElements(1)).thenReturn(List.of(NetworkActionCombinationsUtils.CRAC.getFlowCnec("cnec1basecase"))); // be fr
-        naFilter = new FarFromMostLimitingElementFilter(NetworkActionCombinationsUtils.NETWORK, true, 0);
+        naFilter = new FarFromMostLimitingElementFilter(NetworkActionCombinationsUtils.NETWORK, 0);
         filteredNaCombination = naFilter.filter(naCombinations, previousLeaf);
 
         assertEquals(7, filteredNaCombination.size());
@@ -77,46 +75,13 @@ class FarFromMostLimitingElementFilterTest {
 
         // test - max 1 border cross, most limiting element is in BE
         Mockito.when(previousLeaf.getMostLimitingElements(1)).thenReturn(List.of(NetworkActionCombinationsUtils.CRAC.getFlowCnec("cnecBe"))); // be
-        naFilter = new FarFromMostLimitingElementFilter(NetworkActionCombinationsUtils.NETWORK, true, 1);
+        naFilter = new FarFromMostLimitingElementFilter(NetworkActionCombinationsUtils.NETWORK, 1);
         filteredNaCombination = naFilter.filter(naCombinations, previousLeaf);
 
         assertEquals(9, filteredNaCombination.size());
         List<NetworkActionCombination> list3 = List.of(IND_FR_2, IND_BE_1, IND_NL_1, IND_NL_BE, IND_FR_DE, IND_DE_NL, COMB_3_BE, COMB_2_FR_DE_BE, COMB_2_BE_NL);
         Set<NetworkActionCombination> finalFilteredNaCombination3 = filteredNaCombination;
         list3.forEach(na -> assertTrue(finalFilteredNaCombination3.contains(na)));
-    }
-
-    @Test
-    void testGetOptimizedMostLimitingElementsLocation() {
-        FarFromMostLimitingElementFilter naFilter = new FarFromMostLimitingElementFilter(NetworkActionCombinationsUtils.NETWORK, false, 0);
-
-        Leaf leaf = mock(Leaf.class);
-        Mockito.when(leaf.getVirtualCostNames()).thenReturn(Set.of("mnec", "lf"));
-
-        Mockito.when(leaf.getMostLimitingElements(1)).thenReturn(List.of(NetworkActionCombinationsUtils.CRAC.getFlowCnec("cnec1basecase"))); // be fr
-        Mockito.when(leaf.getCostlyElements(eq("mnec"), anyInt())).thenReturn(List.of(NetworkActionCombinationsUtils.CRAC.getFlowCnec("cnec2basecase"))); // de fr
-        Mockito.when(leaf.getCostlyElements(eq("lf"), anyInt())).thenReturn(Collections.emptyList());
-        assertEquals(Set.of(Country.BE, Country.FR, Country.DE), naFilter.getOptimizedMostLimitingElementsLocation(leaf));
-
-        Mockito.when(leaf.getMostLimitingElements(1)).thenReturn(List.of(NetworkActionCombinationsUtils.CRAC.getFlowCnec("cnec1basecase"))); // be fr
-        Mockito.when(leaf.getCostlyElements(eq("mnec"), anyInt())).thenReturn(Collections.emptyList());
-        Mockito.when(leaf.getCostlyElements(eq("lf"), anyInt())).thenReturn(Collections.emptyList());
-        assertEquals(Set.of(Country.BE, Country.FR), naFilter.getOptimizedMostLimitingElementsLocation(leaf));
-
-        Mockito.when(leaf.getMostLimitingElements(1)).thenReturn(Collections.emptyList());
-        Mockito.when(leaf.getCostlyElements(eq("mnec"), anyInt())).thenReturn(Collections.emptyList());
-        Mockito.when(leaf.getCostlyElements(eq("lf"), anyInt())).thenReturn(List.of(NetworkActionCombinationsUtils.CRAC.getFlowCnec("cnec2basecase"))); // de fr
-        assertEquals(Set.of(Country.FR, Country.DE), naFilter.getOptimizedMostLimitingElementsLocation(leaf));
-
-        Mockito.when(leaf.getMostLimitingElements(1)).thenReturn(Collections.emptyList());
-        Mockito.when(leaf.getCostlyElements(eq("mnec"), anyInt())).thenReturn(List.of(NetworkActionCombinationsUtils.CRAC.getFlowCnec("cnec1basecase"), NetworkActionCombinationsUtils.CRAC.getFlowCnec("cnec2basecase"))); // be de fr
-        Mockito.when(leaf.getCostlyElements(eq("lf"), anyInt())).thenReturn(Collections.emptyList());
-        assertEquals(Set.of(Country.BE, Country.FR, Country.DE), naFilter.getOptimizedMostLimitingElementsLocation(leaf));
-
-        Mockito.when(leaf.getMostLimitingElements(1)).thenReturn(Collections.emptyList());
-        Mockito.when(leaf.getCostlyElements(eq("mnec"), anyInt())).thenReturn(List.of(NetworkActionCombinationsUtils.CRAC.getFlowCnec("cnec2basecase")));
-        Mockito.when(leaf.getCostlyElements(eq("lf"), anyInt())).thenReturn(List.of(NetworkActionCombinationsUtils.CRAC.getFlowCnec("cnec1basecase")));
-        assertEquals(Set.of(Country.BE, Country.FR, Country.DE), naFilter.getOptimizedMostLimitingElementsLocation(leaf));
     }
 
     @Test
@@ -133,7 +98,7 @@ class FarFromMostLimitingElementFilterTest {
 
         FarFromMostLimitingElementFilter naFilter;
 
-        naFilter = new FarFromMostLimitingElementFilter(NetworkActionCombinationsUtils.NETWORK, false, 0);
+        naFilter = new FarFromMostLimitingElementFilter(NetworkActionCombinationsUtils.NETWORK, 0);
         assertTrue(naFilter.isNetworkActionCloseToLocations(na1, Set.of(), countryGraph));
         assertTrue(naFilter.isNetworkActionCloseToLocations(na1, Set.of(Country.FR), countryGraph));
         assertTrue(naFilter.isNetworkActionCloseToLocations(na1, Set.of(Country.BE), countryGraph));
@@ -141,12 +106,12 @@ class FarFromMostLimitingElementFilterTest {
         assertFalse(naFilter.isNetworkActionCloseToLocations(na1, Set.of(Country.AT), countryGraph));
         assertFalse(naFilter.isNetworkActionCloseToLocations(na2, Set.of(Country.AT), countryGraph));
 
-        naFilter = new FarFromMostLimitingElementFilter(NetworkActionCombinationsUtils.NETWORK, true, 1);
+        naFilter = new FarFromMostLimitingElementFilter(NetworkActionCombinationsUtils.NETWORK, 1);
         assertTrue(naFilter.isNetworkActionCloseToLocations(na1, Set.of(Country.DE), countryGraph));
         assertFalse(naFilter.isNetworkActionCloseToLocations(na1, Set.of(Country.AT), countryGraph));
         assertFalse(naFilter.isNetworkActionCloseToLocations(na2, Set.of(Country.AT), countryGraph));
 
-        naFilter = new FarFromMostLimitingElementFilter(NetworkActionCombinationsUtils.NETWORK, true, 2);
+        naFilter = new FarFromMostLimitingElementFilter(NetworkActionCombinationsUtils.NETWORK, 2);
         assertTrue(naFilter.isNetworkActionCloseToLocations(na1, Set.of(Country.AT), countryGraph));
         assertTrue(naFilter.isNetworkActionCloseToLocations(na2, Set.of(Country.AT), countryGraph));
     }

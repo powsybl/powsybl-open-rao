@@ -11,7 +11,6 @@ import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
-import com.powsybl.openrao.data.crac.api.rangeaction.VariationDirection;
 import com.powsybl.openrao.searchtreerao.commons.costevaluatorresult.AbsoluteCostEvaluatorResult;
 import com.powsybl.openrao.searchtreerao.commons.costevaluatorresult.CostEvaluatorResult;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
@@ -61,11 +60,9 @@ public class RemedialActionCostEvaluator implements CostEvaluator {
     private double computeRangeActionCost(RangeAction<?> rangeAction, State state, RemedialActionActivationResult remedialActionActivationResult) {
         double variation = rangeAction instanceof PstRangeAction pstRangeAction ? (double) remedialActionActivationResult.getTapVariation(pstRangeAction, state) : remedialActionActivationResult.getSetPointVariation(rangeAction, state);
         double after = rangeAction instanceof PstRangeAction pstRangeAction ? (double) remedialActionActivationResult.getOptimizedTap(pstRangeAction, state) : remedialActionActivationResult.getOptimizedSetpoint(rangeAction, state);
-        if (variation == 0.0) {
+        if (Math.abs(variation) < 1e-6) {
             return 0.0;
         }
-        double activationCost = rangeAction.getActivationCost().orElse(0.0);
-        VariationDirection variationDirection = variation > 0 ? VariationDirection.UP : VariationDirection.DOWN;
         if (!(rangeAction instanceof PstRangeAction)) {
             TECHNICAL_LOGS.debug("{} variation of {} MW at state {} ({} -> {})", rangeAction.getId(),
                 BigDecimal.valueOf(variation).setScale(2, RoundingMode.HALF_UP),
@@ -79,6 +76,6 @@ public class RemedialActionCostEvaluator implements CostEvaluator {
                 BigDecimal.valueOf(after - variation).setScale(2, RoundingMode.HALF_UP),
                 BigDecimal.valueOf(after).setScale(2, RoundingMode.HALF_UP));
         }
-        return activationCost + Math.abs(variation) * rangeAction.getVariationCost(variationDirection).orElse(0.0);
+        return rangeAction.getTotalCostForVariation(variation);
     }
 }

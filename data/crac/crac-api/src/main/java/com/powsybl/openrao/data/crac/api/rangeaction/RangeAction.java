@@ -54,5 +54,20 @@ public interface RangeAction<T extends RangeAction<T>> extends RemedialAction<T>
      */
     Optional<String> getGroupId();
 
+    /**
+     * Get the variation cost to increase or decrease the setpoint by one unit.
+     */
     Optional<Double> getVariationCost(VariationDirection variationDirection);
+
+    /**
+     * Get the total cost to spend to increase or decrease the setpoint by a given amount.
+     */
+    default double getTotalCostForVariation(Double variation) {
+        if (Math.abs(variation) < 1e-6) {
+            return 0.;
+        }
+        double activationCost = getActivationCost().orElse(0.);
+        double variationCost = getVariationCost(variation > 0 ? VariationDirection.UP : VariationDirection.DOWN).orElse(0.) * Math.abs(variation);
+        return activationCost + variationCost;
+    }
 }

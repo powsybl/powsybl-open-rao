@@ -12,7 +12,6 @@ import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
-import com.powsybl.openrao.data.crac.api.rangeaction.VariationDirection;
 import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.result.api.RemedialActionActivationResult;
@@ -42,34 +41,34 @@ class RemedialActionCostEvaluatorImplTest {
         rangeActionsOptimizationParameters.setHvdcRAMinImpactThreshold(0.5);
 
         PstRangeAction pstRangeAction1 = Mockito.mock(PstRangeAction.class);
-        Mockito.when(pstRangeAction1.getActivationCost()).thenReturn(Optional.empty());
-        Mockito.when(pstRangeAction1.getVariationCost(VariationDirection.UP)).thenReturn(Optional.of(1d));
-        Mockito.when(pstRangeAction1.getVariationCost(VariationDirection.DOWN)).thenReturn(Optional.empty());
+        double pst1ActivationCost = 0.;
+        double pst1CostUp = 1.;
+        double pst1CostDown = 0.;
 
         PstRangeAction pstRangeAction2 = Mockito.mock(PstRangeAction.class);
-        Mockito.when(pstRangeAction2.getActivationCost()).thenReturn(Optional.of(10d));
-        Mockito.when(pstRangeAction2.getVariationCost(VariationDirection.UP)).thenReturn(Optional.empty());
-        Mockito.when(pstRangeAction2.getVariationCost(VariationDirection.DOWN)).thenReturn(Optional.empty());
+        double pst2ActivationCost = 10.;
+        double pst2CostUp = 0.;
+        double pst2CostDown = 0.;
 
         InjectionRangeAction injectionRangeAction1 = Mockito.mock(InjectionRangeAction.class);
-        Mockito.when(injectionRangeAction1.getActivationCost()).thenReturn(Optional.of(5d));
-        Mockito.when(injectionRangeAction1.getVariationCost(VariationDirection.UP)).thenReturn(Optional.of(150d));
-        Mockito.when(injectionRangeAction1.getVariationCost(VariationDirection.DOWN)).thenReturn(Optional.of(200d));
+        double injection1ActivationCost = 5.;
+        double injection1CostUp = 150.;
+        double injection1CostDown = 200.;
 
         InjectionRangeAction injectionRangeAction2 = Mockito.mock(InjectionRangeAction.class);
-        Mockito.when(injectionRangeAction2.getActivationCost()).thenReturn(Optional.of(0.25));
-        Mockito.when(injectionRangeAction2.getVariationCost(VariationDirection.UP)).thenReturn(Optional.of(200d));
-        Mockito.when(injectionRangeAction2.getVariationCost(VariationDirection.DOWN)).thenReturn(Optional.empty());
+        double injection2ActivationCost = 0.25;
+        double injection2CostUp = 200.;
+        double injection2CostDown = 0.;
 
         HvdcRangeAction hvdcRangeAction1 = Mockito.mock(HvdcRangeAction.class);
-        Mockito.when(hvdcRangeAction1.getActivationCost()).thenReturn(Optional.of(100d));
-        Mockito.when(hvdcRangeAction1.getVariationCost(VariationDirection.UP)).thenReturn(Optional.of(10d));
-        Mockito.when(hvdcRangeAction1.getVariationCost(VariationDirection.DOWN)).thenReturn(Optional.of(15d));
+        double hvdc1ActivationCost = 100.;
+        double hvdc1CostUp = 10.;
+        double hvdc1CostDown = 15.;
 
         HvdcRangeAction hvdcRangeAction2 = Mockito.mock(HvdcRangeAction.class);
-        Mockito.when(hvdcRangeAction2.getActivationCost()).thenReturn(Optional.of(200d));
-        Mockito.when(hvdcRangeAction2.getVariationCost(VariationDirection.UP)).thenReturn(Optional.of(0.1));
-        Mockito.when(hvdcRangeAction2.getVariationCost(VariationDirection.DOWN)).thenReturn(Optional.empty());
+        double hvdc2ActivationCost = 200.;
+        double hvdc2CostUp = 0.1;
+        double hvdc2CostDown = 0.;
 
         NetworkAction topologyAction = Mockito.mock(NetworkAction.class);
         Mockito.when(topologyAction.getActivationCost()).thenReturn(Optional.of(20d));
@@ -85,11 +84,17 @@ class RemedialActionCostEvaluatorImplTest {
         Mockito.when(remedialActionActivationResult.getActivatedNetworkActionsPerState()).thenReturn(Map.of(state, Set.of(topologyAction)));
         Mockito.when(remedialActionActivationResult.getActivatedRangeActions(state)).thenReturn(Set.of(pstRangeAction1, pstRangeAction2, injectionRangeAction1, injectionRangeAction2, hvdcRangeAction1, hvdcRangeAction2));
         Mockito.when(remedialActionActivationResult.getTapVariation(pstRangeAction1, state)).thenReturn(2);
+        Mockito.when(pstRangeAction1.getTotalCostForVariation(2.)).thenReturn(pst1ActivationCost + 2 * pst1CostUp);
         Mockito.when(remedialActionActivationResult.getTapVariation(pstRangeAction2, state)).thenReturn(-5);
+        Mockito.when(pstRangeAction2.getTotalCostForVariation(-5.)).thenReturn(pst2ActivationCost + 5 * pst2CostDown);
         Mockito.when(remedialActionActivationResult.getSetPointVariation(injectionRangeAction1, state)).thenReturn(35d);
+        Mockito.when(injectionRangeAction1.getTotalCostForVariation(35.)).thenReturn(injection1ActivationCost + 35 * injection1CostUp);
         Mockito.when(remedialActionActivationResult.getSetPointVariation(injectionRangeAction2, state)).thenReturn(-75d);
+        Mockito.when(injectionRangeAction2.getTotalCostForVariation(-75.)).thenReturn(injection2ActivationCost + 75 * injection2CostDown);
         Mockito.when(remedialActionActivationResult.getSetPointVariation(hvdcRangeAction1, state)).thenReturn(600d);
+        Mockito.when(hvdcRangeAction1.getTotalCostForVariation(600.)).thenReturn(hvdc1ActivationCost + 600 * hvdc1CostUp);
         Mockito.when(remedialActionActivationResult.getSetPointVariation(hvdcRangeAction2, state)).thenReturn(-300d);
+        Mockito.when(hvdcRangeAction2.getTotalCostForVariation(-300.)).thenReturn(hvdc2ActivationCost + 300 * hvdc2CostDown);
     }
 
     @Test
