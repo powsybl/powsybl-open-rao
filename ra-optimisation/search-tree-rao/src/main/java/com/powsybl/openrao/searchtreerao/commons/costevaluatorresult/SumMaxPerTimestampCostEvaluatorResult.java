@@ -48,7 +48,12 @@ public class SumMaxPerTimestampCostEvaluatorResult implements CostEvaluatorResul
 
         // Compute state wise cost
         Map<State, Set<FlowCnec>> flowCnecsPerState = groupFlowCnecsPerState(filteredCnecs.keySet());
+        flowCnecsPerState.forEach((state, flowCnecs) -> {
+            state.getContingency().ifPresent(v -> System.out.printf("FlowCNECs for state with contingency %s%n", v.getId()));
+            flowCnecs.forEach(f -> System.out.printf("Cost per state %s%n", f.getId()));
+        });
         Map<State, Double> costPerState = flowCnecsPerState.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, entry -> computeCostForState(entry.getValue())));
+        System.out.printf("Cost per state %s%n", costPerState);
 
         Map<OffsetDateTime, Set<State>> statesToEvaluatePerTimestamp = new HashMap<>();
         Set<State> statesToEvaluateWithoutTimestamp = new HashSet<>();
@@ -125,8 +130,10 @@ public class SumMaxPerTimestampCostEvaluatorResult implements CostEvaluatorResul
 
     private static boolean statesContingencyMustBeKept(State state, Set<String> contingenciesToExclude) {
         Optional<Contingency> contingency = state.getContingency();
+        System.out.println("=== statesContingencyMustBeKept [start] ===");
+        System.out.println(contingency.isPresent());
         contingency.ifPresent(value -> System.out.println(value.getId()));
-        System.out.println(contingenciesToExclude);
+        System.out.println("=== statesContingencyMustBeKept [end] ===");
         return contingency.isEmpty() || !contingenciesToExclude.contains(contingency.get().getId());
     }
 

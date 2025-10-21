@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.time.OffsetDateTime;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -165,9 +166,9 @@ class SumMaxPerTimestampCostEvaluatorResultTest {
         System.out.println(flowCnecCurative1T1.getState().getContingency().get().getId());
         System.out.println(flowCnecCurativeT2.getState().getContingency().get().getId());
         System.out.println(flowCnecCurativeT3.getState().getContingency().get().getId());
-        assertEquals(50.0, evaluatorResult.getCost(Set.of(), Set.of()));
-        assertEquals(17.0, evaluatorResult.getCost(Set.of("contingency-1", "contingency-2"), Set.of()));
-        assertEquals(40.0, evaluatorResult.getCost(Set.of(), Set.of("cnec-curative1")));
+        assertEquals(50.0, evaluatorResult.getCost(new HashSet<>(), new HashSet<>()));
+        assertEquals(17.0, evaluatorResult.getCost(Set.of("contingency-1", "contingency-2"), new HashSet<>()));
+        assertEquals(40.0, evaluatorResult.getCost(new HashSet<>(), Set.of("cnec-curative1")));
         assertEquals(17.0, evaluatorResult.getCost(Set.of("contingency-1"), Set.of("cnec-curative1")));
     }
 
