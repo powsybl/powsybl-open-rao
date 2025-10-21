@@ -7,6 +7,10 @@
 
 package com.powsybl.openrao.searchtreerao.commons.optimizationperimeters;
 
+import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
+import com.powsybl.iidm.network.impl.extensions.HvdcAngleDroopActivePowerControlImpl;
+import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
+import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.raoapi.parameters.LoopFlowParameters;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,6 +18,7 @@ import org.mockito.Mockito;
 
 import java.util.Set;
 
+import static com.powsybl.openrao.data.crac.impl.utils.NetworkImportsUtil.addHvdcLine;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -52,5 +57,27 @@ class GlobalOptimizationPerimeterTest extends AbstractOptimizationPerimeterTest 
         assertTrue(optPerimeter.getRangeActionsPerState().containsKey(cState1));
         assertEquals(1, optPerimeter.getRangeActionsPerState().get(cState1).size());
         assertTrue(optPerimeter.getRangeActionsPerState().get(cState1).contains(cRA));
+    }
+
+    @Test
+    void testCopyWithoutHvdcRangeActionAcEmulation() {
+        // set up a network with HVDC  line in ac emulation
+        addHvdcLine(network);
+        // add ac emulation
+        network.getHvdcLine("hvdc").addExtension(HvdcAngleDroopActivePowerControl.class, new HvdcAngleDroopActivePowerControlImpl(network.getHvdcLine("hvdc"), 10, 10,true ));
+        // add hvdc range action to crac
+        HvdcRangeAction hvdcRangeAction = crac.newHvdcRangeAction()
+            .withId("hvdc-range-action-id")
+            .withName("hvdc-range-action-name")
+            .withNetworkElement("hvdc")
+            .withOperator("operator")
+            .newOnInstantUsageRule().withInstant("preventive").add()
+            .newRange().withMin(-5).withMax(10).add()
+            .add();
+        GlobalOptimizationPerimeter optPerimeter = GlobalOptimizationPerimeter.build(crac, network, raoParameters, prePerimeterResult);
+        assertTrue(optPerimeter.getRangeActions().contains(hvdcRangeAction));
+        // test copy the hvdc range action is filtered from the perimeter
+        GlobalOptimizationPerimeter copyPerimeter = (GlobalOptimizationPerimeter) optPerimeter.copyWithFilteredAvailableRangeAction(network);
+        assertFalse(copyPerimeter.getRangeActions().contains(hvdcRangeAction));
     }
 }

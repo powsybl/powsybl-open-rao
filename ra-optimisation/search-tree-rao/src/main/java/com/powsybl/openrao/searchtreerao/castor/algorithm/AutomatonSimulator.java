@@ -506,7 +506,6 @@ public final class AutomatonSimulator {
         return controls;
     }
 
-
     /**
      * Disables the HvdcAngleDroopActivePowerControl on an HVDC line and sets its active power set-point
      *
