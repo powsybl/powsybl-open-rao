@@ -113,8 +113,10 @@ Feature: US 15.17: Optimize HVDC range actions initially in AC emulation mode
     And the margin on cnec "be4_fr5_co1 - BBE4AA11->FFR5AA11  - co1_be1_fr5 - curative" after CRA should be 300 MW
     And the margin on cnec "be1_fr5_n - BBE1AA11->FFR5AA11 - preventive" after PRA should be 314 MW
 
+    #TODO: Add a test with another network action !
+
   @fast @rao @mock @dc @preventive-only @hvdc
-  Scenario: US 15.17.7: HVDC with a negative optimal setpoint - pas interessant to erase
+  Scenario: US 15.17.7: HVDC with a negative optimal setpoint
     # Copy of test case 15.12.5.7, except HVDC is initially in AC emulation mode
     # Same result except that the ac emulation is deactivated by the network action "acEmulationDeactivation_BBE2AA11 FFR3AA11 1".
     Given network file is "epic15/TestCase16NodesWithHvdc_AC_emulation.xiidm"
@@ -128,7 +130,7 @@ Feature: US 15.17: Optimize HVDC range actions initially in AC emulation mode
     And the margin on cnec "de2_de3_n - DDE2AA11->DDE3AA11 - preventive" after PRA should be 50 MW
 
   @fast @rao @mock @dc @contingency-scenarios @hvdc
-  Scenario: US 15.17.8: HVDC and PST filtering
+  Scenario: US 15.17.8: HVDC and PST filtering - case where not deactivating ac emulation is better
     # Copy of test case 15.12.5.8, except HVDC is initially in AC emulation mode
     # Deactivating ac emulation + reoptimizing CRA_HVDC yield worse result : cost = 94.4 vs 55 when using just PST_CRA
     Given network file is "epic15/TestCase16NodesWithHvdc_AC_emulation.xiidm"
@@ -148,15 +150,16 @@ Feature: US 15.17: Optimize HVDC range actions initially in AC emulation mode
     Given configuration file is "epic15/RaoParameters_ep15us17case10.json"
     When I launch rao
     Then 0 remedial actions are used in preventive
-    And 1 remedial actions are used after "co1_be1_fr5" at "curative"
+    And 2 remedial actions are used after "co1_be1_fr5" at "curative"
+    And the remedial action "acEmulationDeactivation_BBE5AA11 FFR3AA11 1" is used after "co1_be1_fr5" at "curative"
     And the setpoint of RangeAction "PRA_CRA_HVDC" should be 1364 MW after "co1_be1_fr5" at "curative"
     And the worst margin is 433 A
     And the margin on cnec "be4_fr5_co1 - BBE4AA11->FFR5AA11  - co1_be1_fr5 - curative" after CRA should be 433 A
-    And the initial flow on cnec "be2_be5_n - BBE2AA11->BBE5AA11 - preventive" should be 0 A
-    And the flow on cnec "be2_be5_n - BBE2AA11->BBE5AA11 - preventive" after PRA should be 0 A
-    And the flow on cnec "be2_be5_n - BBE2AA11->BBE5AA11 - preventive" after CRA should be 0 A
-    And the initial flow on cnec "be2_be5_co1 - BBE2AA11->BBE5AA11 - co1_be1_fr5 - curative" should be 0 A
-    And the flow on cnec "be2_be5_co1 - BBE2AA11->BBE5AA11 - co1_be1_fr5 - curative" after PRA should be 0 A
+    And the initial flow on cnec "be2_be5_n - BBE2AA11->BBE5AA11 - preventive" should be 878 A
+    And the flow on cnec "be2_be5_n - BBE2AA11->BBE5AA11 - preventive" after PRA should be 878 A
+    And the flow on cnec "be2_be5_n - BBE2AA11->BBE5AA11 - preventive" after CRA should be 878 A
+    And the initial flow on cnec "be2_be5_co1 - BBE2AA11->BBE5AA11 - co1_be1_fr5 - curative" should be 937 A
+    And the flow on cnec "be2_be5_co1 - BBE2AA11->BBE5AA11 - co1_be1_fr5 - curative" after PRA should be 937 A
     And the flow on cnec "be2_be5_co1 - BBE2AA11->BBE5AA11 - co1_be1_fr5 - curative" after CRA should be 1971 A
 
   @fast @rao @mock @dc @contingency-scenarios @hvdc
@@ -167,12 +170,12 @@ Feature: US 15.17: Optimize HVDC range actions initially in AC emulation mode
     When I launch rao
     Then 0 remedial actions are used in preventive
     And 0 remedial actions are used after "co1_be1_fr5" at "curative"
-    And the initial flow on cnec "be2_be5_n - BBE2AA11->BBE5AA11 - preventive" should be 0 A
-    And the flow on cnec "be2_be5_n - BBE2AA11->BBE5AA11 - preventive" after PRA should be 0 A
-    And the flow on cnec "be2_be5_n - BBE2AA11->BBE5AA11 - preventive" after CRA should be 0 A
-    And the initial flow on cnec "be2_be5_co1 - BBE2AA11->BBE5AA11 - co1_be1_fr5 - curative" should be 0 A
-    And the flow on cnec "be2_be5_co1 - BBE2AA11->BBE5AA11 - co1_be1_fr5 - curative" after PRA should be 0 A
-    And the flow on cnec "be2_be5_co1 - BBE2AA11->BBE5AA11 - co1_be1_fr5 - curative" after CRA should be 0 A
+    And the initial flow on cnec "be2_be5_n - BBE2AA11->BBE5AA11 - preventive" should be 878 A
+    And the flow on cnec "be2_be5_n - BBE2AA11->BBE5AA11 - preventive" after PRA should be 878 A
+    And the flow on cnec "be2_be5_n - BBE2AA11->BBE5AA11 - preventive" after CRA should be 878 A
+    And the initial flow on cnec "be2_be5_co1 - BBE2AA11->BBE5AA11 - co1_be1_fr5 - curative" should be 937 A
+    And the flow on cnec "be2_be5_co1 - BBE2AA11->BBE5AA11 - co1_be1_fr5 - curative" after PRA should be 937 A
+    And the flow on cnec "be2_be5_co1 - BBE2AA11->BBE5AA11 - co1_be1_fr5 - curative" after CRA should be 937 A
 
   @fast @rao @mock @dc @preventive-only @hvdc
   Scenario: US 15.17.12: HVDC range action with one preventive CNEC, no impact on worst CNEC
@@ -181,5 +184,5 @@ Feature: US 15.17: Optimize HVDC range actions initially in AC emulation mode
     Given configuration file is "epic15/RaoParameters_ep15us17case12.json"
     When I launch rao
     Then 0 remedial actions are used in preventive
-    And the initial flow on cnec "be2_be5_n - BBE2AA11->BBE5AA11 - preventive" should be 0 A
-    And the flow on cnec "be2_be5_n - BBE2AA11->BBE5AA11 - preventive" after PRA should be 0 A
+    And the initial flow on cnec "be2_be5_n - BBE2AA11->BBE5AA11 - preventive" should be 878 A
+    And the flow on cnec "be2_be5_n - BBE2AA11->BBE5AA11 - preventive" after PRA should be 878 A
