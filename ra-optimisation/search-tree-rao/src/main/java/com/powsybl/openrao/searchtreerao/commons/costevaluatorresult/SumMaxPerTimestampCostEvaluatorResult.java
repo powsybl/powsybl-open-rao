@@ -51,7 +51,7 @@ public class SumMaxPerTimestampCostEvaluatorResult implements CostEvaluatorResul
         Map<State, Double> costPerState = flowCnecsPerState.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, entry -> computeCostForState(entry.getValue())));
 
         flowCnecsPerState.forEach((state, flowCnecs) -> {
-            System.out.printf("FlowCNECs for state with contingency %s (Total Cost of %s)%n", getContingencyId(state.getContingency()), costPerState.get(state));
+            System.out.printf("FlowCNECs for state with contingency %s (Total Cost of %s)%n", getContingencyId(state), costPerState.get(state));
             flowCnecs.forEach(f -> System.out.printf("   >>> %s%n", f.getId()));
         });
 
@@ -59,7 +59,7 @@ public class SumMaxPerTimestampCostEvaluatorResult implements CostEvaluatorResul
         Set<State> statesToEvaluateWithoutTimestamp = new HashSet<>();
 
         costPerState.keySet().stream().forEach(state -> {
-            System.out.printf("Evaluating state with contigency %s%n", getContingencyId(state.getContingency()));
+            System.out.printf("Evaluating state with contingency %s%n", getContingencyId(state));
             if (statesContingencyMustBeKept(state, contingenciesToExclude)) {
                 Optional<OffsetDateTime> timestamp = state.getTimestamp();
                 if (timestamp.isPresent()) {
@@ -75,8 +75,9 @@ public class SumMaxPerTimestampCostEvaluatorResult implements CostEvaluatorResul
 
     }
 
-    private static String getContingencyId(Optional<Contingency> optContingency) {
-        return optContingency.isPresent() ? optContingency.get().getId() : "NO_CONTINGENCY";
+    private static String getContingencyId(State state) {
+        Optional<Contingency> optionalContingency = state.getContingency();
+        return optionalContingency.isPresent() ? optionalContingency.get().getId() : "NO_CONTINGENCY";
     }
 
     private double getHighestThresholdAmongFlowCnecs() {
@@ -133,7 +134,7 @@ public class SumMaxPerTimestampCostEvaluatorResult implements CostEvaluatorResul
     private static boolean statesContingencyMustBeKept(State state, Set<String> contingenciesToExclude) {
         Optional<Contingency> contingency = state.getContingency();
         System.out.println("=== statesContingencyMustBeKept [start] ===");
-        System.out.printf("Contingency: %s (isEmpty %s / isContained %s)%n", getContingencyId(state.getContingency()), contingency.isEmpty(), contingenciesToExclude.contains(getContingencyId(state.getContingency())));
+        System.out.printf("Contingency: %s (isEmpty %s / isContained %s)%n", getContingencyId(state), contingency.isEmpty(), contingenciesToExclude.contains(getContingencyId(state)));
         System.out.println("=== statesContingencyMustBeKept [end] ===");
         return contingency.isEmpty() || !contingenciesToExclude.contains(contingency.get().getId());
     }
