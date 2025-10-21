@@ -14,7 +14,6 @@ import com.powsybl.iidm.network.Terminal;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import static com.powsybl.openrao.data.crac.io.commons.iidm.IidmHvdcHelper.computeFlowOnHvdcLine;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
