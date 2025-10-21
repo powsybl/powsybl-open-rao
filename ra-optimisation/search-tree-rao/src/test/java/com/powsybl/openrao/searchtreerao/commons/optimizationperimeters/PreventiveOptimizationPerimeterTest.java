@@ -111,7 +111,7 @@ class PreventiveOptimizationPerimeterTest extends AbstractOptimizationPerimeterT
         // set up a network with HVDC  line in ac emulation
         addHvdcLine(network);
         // add ac emulation
-        network.getHvdcLine("hvdc").addExtension(HvdcAngleDroopActivePowerControl.class, new HvdcAngleDroopActivePowerControlImpl(network.getHvdcLine("hvdc"), 10, 10,true ));
+        network.getHvdcLine("hvdc").addExtension(HvdcAngleDroopActivePowerControl.class, new HvdcAngleDroopActivePowerControlImpl(network.getHvdcLine("hvdc"), 10, 10, true));
         // add hvdc range action to crac
         HvdcRangeAction hvdcRangeAction = crac.newHvdcRangeAction()
             .withId("hvdc-range-action-id")
