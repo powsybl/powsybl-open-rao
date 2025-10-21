@@ -35,10 +35,7 @@ public final class IidmHvdcHelper {
         }
     }
 
-    /**
-     * Get setpoint set by AngleDroopActivePowerControl
-     */
-    public static double computeHvdcAngleDroopActivePowerControlValue(HvdcLine hvdcLine) {
+    public static double computeFlowOnHvdcLine(HvdcLine hvdcLine) {
         if (hvdcLine.getConvertersMode().equals(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER)) {
             return hvdcLine.getConverterStation2().getTerminal().getP();
         } else {

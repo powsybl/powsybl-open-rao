@@ -497,7 +497,7 @@ public final class AutomatonSimulator {
         // Compute HvdcAngleDroopActivePowerControl values of HVDC lines
         Map<String, Double> controls = network.getHvdcLineStream()
             .filter(hvdcLine -> hvdcLine.getExtension(HvdcAngleDroopActivePowerControl.class) != null)
-            .collect(Collectors.toMap(com.powsybl.iidm.network.Identifiable::getId, IidmHvdcHelper::computeHvdcAngleDroopActivePowerControlValue));
+            .collect(Collectors.toMap(com.powsybl.iidm.network.Identifiable::getId, IidmHvdcHelper::computeFlowOnHvdcLine));
 
         // Reset working variant
         network.getVariantManager().setWorkingVariant(initialVariantId);
