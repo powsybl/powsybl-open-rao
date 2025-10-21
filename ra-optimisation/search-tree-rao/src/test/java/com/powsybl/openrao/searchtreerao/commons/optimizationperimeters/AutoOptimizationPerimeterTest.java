@@ -9,8 +9,6 @@ package com.powsybl.openrao.searchtreerao.commons.optimizationperimeters;
 
 import com.powsybl.contingency.ContingencyElementType;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
-import com.powsybl.iidm.network.impl.extensions.HvdcAngleDroopActivePowerControlImpl;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
@@ -21,7 +19,6 @@ import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.ActionType;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
-import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
 import com.powsybl.openrao.data.crac.impl.CracImplFactory;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import org.junit.jupiter.api.Test;
@@ -30,9 +27,7 @@ import org.mockito.Mockito;
 import java.util.Map;
 import java.util.Set;
 
-import static com.powsybl.openrao.data.crac.impl.utils.NetworkImportsUtil.addHvdcLine;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -192,7 +187,7 @@ class AutoOptimizationPerimeterTest {
     }
 
     @Test
-    void testCopyWithFilteredRangeAction(){
+    void testCopyWithFilteredRangeAction() {
         // add hvdc range action to crac
         Crac crac = initCrac();
         State automatonState = crac.getState("contingency", crac.getInstant("auto"));
