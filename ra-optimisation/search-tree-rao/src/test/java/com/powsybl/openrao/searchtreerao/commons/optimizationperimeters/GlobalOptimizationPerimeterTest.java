@@ -10,7 +10,6 @@ package com.powsybl.openrao.searchtreerao.commons.optimizationperimeters;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
 import com.powsybl.iidm.network.impl.extensions.HvdcAngleDroopActivePowerControlImpl;
 import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
-import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.raoapi.parameters.LoopFlowParameters;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -64,7 +63,7 @@ class GlobalOptimizationPerimeterTest extends AbstractOptimizationPerimeterTest 
         // set up a network with HVDC  line in ac emulation
         addHvdcLine(network);
         // add ac emulation
-        network.getHvdcLine("hvdc").addExtension(HvdcAngleDroopActivePowerControl.class, new HvdcAngleDroopActivePowerControlImpl(network.getHvdcLine("hvdc"), 10, 10,true ));
+        network.getHvdcLine("hvdc").addExtension(HvdcAngleDroopActivePowerControl.class, new HvdcAngleDroopActivePowerControlImpl(network.getHvdcLine("hvdc"), 10, 10, true));
         // add hvdc range action to crac
         HvdcRangeAction hvdcRangeAction = crac.newHvdcRangeAction()
             .withId("hvdc-range-action-id")

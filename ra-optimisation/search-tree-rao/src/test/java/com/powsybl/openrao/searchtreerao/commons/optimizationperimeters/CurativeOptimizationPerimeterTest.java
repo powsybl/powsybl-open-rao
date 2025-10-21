@@ -70,7 +70,7 @@ class CurativeOptimizationPerimeterTest extends AbstractOptimizationPerimeterTes
         // set up a network with HVDC  line in ac emulation
         addHvdcLine(network);
         // add ac emulation
-        network.getHvdcLine("hvdc").addExtension(HvdcAngleDroopActivePowerControl.class, new HvdcAngleDroopActivePowerControlImpl(network.getHvdcLine("hvdc"), 10, 10,true ));
+        network.getHvdcLine("hvdc").addExtension(HvdcAngleDroopActivePowerControl.class, new HvdcAngleDroopActivePowerControlImpl(network.getHvdcLine("hvdc"), 10, 10, true));
         // add hvdc range action to crac
         HvdcRangeAction hvdcRangeAction = crac.newHvdcRangeAction()
             .withId("hvdc-range-action-id")
@@ -87,6 +87,4 @@ class CurativeOptimizationPerimeterTest extends AbstractOptimizationPerimeterTes
         CurativeOptimizationPerimeter copyPerimeter = (CurativeOptimizationPerimeter) optPerimeter.copyWithFilteredAvailableRangeAction(network);
         assertFalse(copyPerimeter.getRangeActions().contains(hvdcRangeAction));
     }
-
-
 }
