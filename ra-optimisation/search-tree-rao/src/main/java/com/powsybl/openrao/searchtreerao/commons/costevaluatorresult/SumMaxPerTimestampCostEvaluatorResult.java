@@ -54,6 +54,9 @@ public class SumMaxPerTimestampCostEvaluatorResult implements CostEvaluatorResul
         Set<State> statesToEvaluateWithoutTimestamp = new HashSet<>();
 
         costPerState.keySet().stream().forEach(state -> {
+            if (state.getContingency().isPresent()) {
+                System.out.println(state.getContingency().get().getId());
+            }
             if (statesContingencyMustBeKept(state, contingenciesToExclude)) {
                 Optional<OffsetDateTime> timestamp = state.getTimestamp();
                 if (timestamp.isPresent()) {
@@ -122,6 +125,8 @@ public class SumMaxPerTimestampCostEvaluatorResult implements CostEvaluatorResul
 
     private static boolean statesContingencyMustBeKept(State state, Set<String> contingenciesToExclude) {
         Optional<Contingency> contingency = state.getContingency();
+        contingency.ifPresent(value -> System.out.println(value.getId()));
+        System.out.println(contingenciesToExclude);
         return contingency.isEmpty() || !contingenciesToExclude.contains(contingency.get().getId());
     }
 
