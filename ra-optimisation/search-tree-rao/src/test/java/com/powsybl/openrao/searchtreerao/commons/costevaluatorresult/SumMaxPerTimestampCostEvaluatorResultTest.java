@@ -161,7 +161,11 @@ class SumMaxPerTimestampCostEvaluatorResultTest {
         addNullTimestamp();
         Map<FlowCnec, Double> marginPerCnec = Map.of(flowCnecPreventiveT1, -10.0, flowCnecCurative1T1, -50.0, flowCnecCurative12T1, -40.0, flowCnecCurativeT2, 20.0, flowCnecCurativeT3, -17.0);
         SumMaxPerTimestampCostEvaluatorResult evaluatorResult = new SumMaxPerTimestampCostEvaluatorResult(marginPerCnec, List.of(), Unit.MEGAWATT);
-        // assertEquals(50.0, evaluatorResult.getCost(Set.of(), Set.of()));
+        System.out.println(flowCnecCurative1T1.getState().getContingency());
+        System.out.println(flowCnecCurative1T1.getState().getContingency().get().getId());
+        System.out.println(flowCnecCurativeT2.getState().getContingency().get().getId());
+        System.out.println(flowCnecCurativeT3.getState().getContingency().get().getId());
+        assertEquals(50.0, evaluatorResult.getCost(Set.of(), Set.of()));
         assertEquals(17.0, evaluatorResult.getCost(Set.of("contingency-1", "contingency-2"), Set.of()));
         assertEquals(40.0, evaluatorResult.getCost(Set.of(), Set.of("cnec-curative1")));
         assertEquals(17.0, evaluatorResult.getCost(Set.of("contingency-1"), Set.of("cnec-curative1")));
