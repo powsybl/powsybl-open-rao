@@ -44,7 +44,7 @@ public final class HvdcRangeActionArrayDeserializer {
                 }
             }
             double initialSetpoint = IidmHvdcHelper.getCurrentSetpoint(network, networkElementId);
-            // TODO: initialize setpoint if in fixed setpoint mode
+            // initial set point of hvdc range action pointing to a hvdc line in ac emulation will be updated after running an initial load flow before launching rao.
             hvdcRangeActionAdder.withInitialSetpoint(initialSetpoint);
             hvdcRangeActionAdder.add();
         }
