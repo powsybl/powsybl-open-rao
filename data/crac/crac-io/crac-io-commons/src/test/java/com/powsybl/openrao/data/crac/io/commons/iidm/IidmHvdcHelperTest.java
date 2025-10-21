@@ -37,7 +37,7 @@ public class IidmHvdcHelperTest {
     }
 
     @Test
-    void computeFlowOnHvdcLine_side1InverterMode_returnsStation2P() {
+    void computeFlowOnHvdcLine() {
         // Mocks
         HvdcLine hvdcLine = Mockito.mock(HvdcLine.class);
         HvdcConverterStation station2 = Mockito.mock(HvdcConverterStation.class);
@@ -48,15 +48,11 @@ public class IidmHvdcHelperTest {
         when(station2.getTerminal()).thenReturn(terminal2);
         when(terminal2.getP()).thenReturn(123.45);
 
-        double result = computeFlowOnHvdcLine(hvdcLine);
+        double result = IidmHvdcHelper.computeFlowOnHvdcLine(hvdcLine);
 
         assertEquals(123.45, result, 1e-6);
-    }
 
-    @Test
-    void computeFlowOnHvdcLine_otherMode_returnsStation1P() {
         // Mocks
-        HvdcLine hvdcLine = Mockito.mock(HvdcLine.class);
         HvdcConverterStation station1 = Mockito.mock(HvdcConverterStation.class);
         Terminal terminal1 = Mockito.mock(Terminal.class);
 
@@ -65,7 +61,7 @@ public class IidmHvdcHelperTest {
         when(station1.getTerminal()).thenReturn(terminal1);
         when(terminal1.getP()).thenReturn(-55.0);
 
-        double result = computeFlowOnHvdcLine(hvdcLine);
+        result = IidmHvdcHelper.computeFlowOnHvdcLine(hvdcLine);
 
         assertEquals(-55.0, result, 1e-6);
     }
