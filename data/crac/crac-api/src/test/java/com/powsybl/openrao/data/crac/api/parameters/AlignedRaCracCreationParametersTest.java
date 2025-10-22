@@ -35,7 +35,7 @@ class AlignedRaCracCreationParametersTest {
         assertEquals("hvdc2", raIds2.get(1));
     }
 
-    private class CracCreationParametersMock extends AbstractAlignedRaCracCreationParameters {
+    private final class CracCreationParametersMock extends AbstractAlignedRaCracCreationParameters {
 
         @Override
         public String getName() {
