@@ -30,6 +30,8 @@
                     <extension>true</extension>
                     <args>
                         <arg>-Xinheritance</arg>
+                        <arg>-no-header</arg>
+                        <arg>-npa</arg>
                     </args>
                     <plugins>
                         <plugin>
