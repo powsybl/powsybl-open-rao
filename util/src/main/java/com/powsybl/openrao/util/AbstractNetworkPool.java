@@ -51,7 +51,9 @@ public abstract class AbstractNetworkPool extends ForkJoinPool implements AutoCl
 
     public Network getAvailableNetwork() throws InterruptedException {
         Network networkClone = networksQueue.take();
-        networkClone.getVariantManager().cloneVariant(stateSaveVariant, workingVariant, true);
+        if (!networkClone.getVariantManager().getVariantIds().contains(workingVariant)) {
+            networkClone.getVariantManager().cloneVariant(stateSaveVariant, workingVariant, true);
+        }
         networkClone.getVariantManager().setWorkingVariant(workingVariant);
         return networkClone;
     }
@@ -68,14 +70,23 @@ public abstract class AbstractNetworkPool extends ForkJoinPool implements AutoCl
     }
 
     public void releaseUsedNetwork(Network networkToRelease) throws InterruptedException {
-        cleanVariants(networkToRelease);
+        releaseUsedNetwork(networkToRelease, true);
+    }
+
+    public void releaseUsedNetwork(Network networkToRelease, boolean deleteWorkingVariant) throws InterruptedException {
+        cleanVariants(networkToRelease, deleteWorkingVariant);
         networksQueue.put(networkToRelease);
     }
 
     protected void cleanVariants(Network networkClone) {
+        cleanVariants(networkClone, true);
+    }
+
+    protected void cleanVariants(Network networkClone, boolean deleteWorkingVariant) {
         List<String> variantsToBeRemoved = networkClone.getVariantManager().getVariantIds().stream()
                 .filter(variantId -> !baseNetworkVariantIds.contains(variantId))
                 .filter(variantId -> !variantId.equals(stateSaveVariant))
+                .filter(variantId -> deleteWorkingVariant || !variantId.equals(workingVariant))
                 .toList();
         variantsToBeRemoved.forEach(variantId -> networkClone.getVariantManager().removeVariant(variantId));
     }
