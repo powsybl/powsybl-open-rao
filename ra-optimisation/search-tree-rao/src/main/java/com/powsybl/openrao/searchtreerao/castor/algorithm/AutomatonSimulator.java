@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.castor.algorithm;
 
+import com.powsybl.action.HvdcAction;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.HvdcLine;
@@ -228,6 +229,7 @@ public final class AutomatonSimulator {
         crac.getNetworkActions(automatonState).stream()
             .filter(ra -> RaoUtil.canRemedialActionBeUsed(ra, automatonState, preAutomatonsPerimeterResult, flowCnecs, network, raoParameters))
             .filter(ra -> getSpeed(ra) == speed)
+            .filter(ra -> !ra.getElementaryActions().stream().anyMatch(action -> action instanceof HvdcAction))
             .forEach(networkAction -> {
                 if (networkAction.hasImpactOnNetwork(network)) {
                     appliedNetworkActions.add(networkAction);
