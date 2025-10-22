@@ -32,7 +32,7 @@ public class RangeActionActivationResultImpl implements RangeActionActivationRes
     private Map<String, Map<State, Double> > setpointPerStatePerPstId;
     private Map<State, Optional<State>> memoizedPreviousState = new HashMap<>();
 
-    private static class ElementaryResult {
+    private static final class ElementaryResult {
         private final double refSetpoint;
         private final Map<State, Double> setPointPerState;
 

@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
  */
 public class SystematicSensitivityResult {
 
-    private static class StateResult {
+    private static final class StateResult {
         private SensitivityComputationStatus status = SensitivityComputationStatus.SUCCESS;
         private final Map<String, Map<TwoSides, Double>> referenceFlows = new HashMap<>();
         private final Map<String, Map<TwoSides, Double>> referenceIntensities = new HashMap<>();

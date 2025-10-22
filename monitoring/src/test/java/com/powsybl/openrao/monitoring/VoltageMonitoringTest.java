@@ -10,6 +10,7 @@ package com.powsybl.openrao.monitoring;
 import com.powsybl.contingency.ContingencyElementType;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlowParameters;
+import com.powsybl.openloadflow.OpenLoadFlowParameters;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
@@ -60,7 +61,7 @@ class VoltageMonitoringTest {
     private Instant curativeInstant;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         network = Network.read("network.xiidm", getClass().getResourceAsStream("/network.xiidm"));
         crac = CracFactory.findDefault().create("test-crac")
             .newInstant(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE)
@@ -103,6 +104,11 @@ class VoltageMonitoringTest {
 
         loadFlowParameters = new LoadFlowParameters();
         loadFlowParameters.setDc(false);
+
+        // add OLF extension to keep same behavior as before version 2.0.0 with default parameter (note that "transformerVoltageControlMode" could be set to "WITH_GENERATOR_VOLTAGE_CONTROL" but this has no impact)
+        OpenLoadFlowParameters openLoadFlowParameters = new OpenLoadFlowParameters();
+        openLoadFlowParameters.setSlackDistributionFailureBehavior(OpenLoadFlowParameters.SlackDistributionFailureBehavior.LEAVE_ON_SLACK_BUS);
+        loadFlowParameters.addExtension(OpenLoadFlowParameters.class, openLoadFlowParameters);
 
         raoResult = Mockito.mock(RaoResult.class);
         when(raoResult.getActivatedNetworkActionsDuringState(any())).thenReturn(Collections.emptySet());
