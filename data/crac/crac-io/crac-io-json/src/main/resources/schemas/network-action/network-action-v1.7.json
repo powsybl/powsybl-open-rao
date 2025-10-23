@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema#",
-  "$id": "https://www.powsybl.org?open-rao-crac-schema=network-action-v1.7.json",
+  "$id": "resource:/schemas/network-action/network-action-v1.7.json",
   "type": "object",
   "properties": {
     "id": {
@@ -24,61 +24,61 @@
     "injectionSetpoints": {
       "type": "array",
       "items": {
-        "$ref": "resource:/schemas/injection-setpoint/injection-setpoint-v1.0.json"
+        "$ref": "../injection-setpoint/injection-setpoint-v1.0.json"
       }
     },
     "pstSetpoints": {
       "type": "array",
       "items": {
-        "$ref": "resource:/schemas/pst-setpoint/pst-setpoint-v1.0.json"
+        "$ref": "../pst-setpoint/pst-setpoint-v1.0.json"
       }
     },
     "topologicalActions": {
       "type": "array",
       "items": {
-        "$ref": "resource:/schemas/topological-action/topological-action-v1.0.json"
+        "$ref": "../topological-action/topological-action-v1.0.json"
       }
     },
     "switchPairs": {
       "type": "array",
       "items": {
-        "$ref": "resource:/schemas/switch-pair/switch-pair-v1.1.json"
+        "$ref": "../switch-pair/switch-pair-v1.1.json"
       }
     },
     "onInstantUsageRules": {
       "type": "array",
       "items": {
-        "$ref": "resource:/schemas/on-instant-usage-rule/on-instant-usage-rule-v1.6.json"
+        "$ref": "../on-instant-usage-rule/on-instant-usage-rule-v1.6.json"
       }
     },
     "onContingencyStateUsageRules": {
       "type": "array",
       "items": {
-        "$ref": "resource:/schemas/on-contingency-state-usage-rule/on-contingency-state-usage-rule-v1.6.json"
+        "$ref": "../on-contingency-state-usage-rule/on-contingency-state-usage-rule-v1.6.json"
       }
     },
     "onFlowConstraintUsageRules": {
       "type": "array",
       "items": {
-        "$ref": "resource:/schemas/on-flow-constraint-usage-rule/on-flow-constraint-usage-rule-v1.0.json"
+        "$ref": "../on-flow-constraint-usage-rule/on-flow-constraint-usage-rule-v1.0.json"
       }
     },
     "onAngleConstraintUsageRules": {
       "type": "array",
       "items": {
-        "$ref": "resource:/schemas/on-angle-constraint-usage-rule/on-angle-constraint-usage-rule-v1.4.json"
+        "$ref": "../on-angle-constraint-usage-rule/on-angle-constraint-usage-rule-v1.4.json"
       }
     },
     "onVoltageConstraintUsageRules": {
       "type": "array",
       "items": {
-        "$ref": "resource:/schemas/on-voltage-constraint-usage-rule/on-voltage-constraint-usage-rule-v1.7.json"
+        "$ref": "../on-voltage-constraint-usage-rule/on-voltage-constraint-usage-rule-v1.7.json"
       }
     },
     "onFlowConstraintInCountryUsageRules": {
       "type": "array",
       "items": {
-        "$ref": "resource:/schemas/on-flow-constraint-in-country-usage-rule/on-flow-constraint-in-country-usage-rule-v1.3.json"
+        "$ref": "../on-flow-constraint-in-country-usage-rule/on-flow-constraint-in-country-usage-rule-v1.3.json"
       }
     }
   },
