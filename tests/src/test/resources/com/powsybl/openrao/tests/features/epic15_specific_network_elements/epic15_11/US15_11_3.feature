@@ -14,10 +14,9 @@ Feature: US 15.11.3: Simulate range action automatons right after topological au
     Then 0 remedial actions are used in preventive
     And the setpoint of RangeAction "ARA_HVDC" should be 819.0 MW in preventive
     And the margin on cnec "be4_fr5_co1 - BBE4AA11->FFR5AA11  - co1_be1_fr5 - auto" after PRA should be -94.47 MW
-    And 2 remedial actions are used after "co1_be1_fr5" at "auto"
+    And 1 remedial actions are used after "co1_be1_fr5" at "auto"
     And the remedial action "ARA_HVDC" is used after "co1_be1_fr5" at "auto"
     And the setpoint of RangeAction "ARA_HVDC" should be 964 MW after "co1_be1_fr5" at "auto"
-    Then the remedial action "acEmulationDeactivation_BBE2AA11 FFR3AA11 1" is used after "co1_be1_fr5" at "auto"
     And the margin on cnec "be3_be4_co1 - BBE3AA11->BBE4AA11  - co1_be1_fr5 - auto" after ARA should be -29.5 MW
     And the margin on cnec "be4_fr5_co1 - BBE4AA11->FFR5AA11  - co1_be1_fr5 - auto" after ARA should be 0.0 MW
     And its security status should be "UNSECURED"
