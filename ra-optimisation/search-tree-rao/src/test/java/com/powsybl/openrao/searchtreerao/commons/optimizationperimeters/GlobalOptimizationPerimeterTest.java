@@ -4,6 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 package com.powsybl.openrao.searchtreerao.commons.optimizationperimeters;
 
 import com.powsybl.openrao.raoapi.parameters.LoopFlowParameters;
@@ -13,8 +14,7 @@ import org.mockito.Mockito;
 
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -30,7 +30,7 @@ class GlobalOptimizationPerimeterTest extends AbstractOptimizationPerimeterTest 
     @Test
     void globalOptimizationPerimeterTest() {
         raoParameters.setLoopFlowParameters(new LoopFlowParameters());
-        Mockito.when(prePerimeterResult.getSetpoint(pRA)).thenReturn(-500.);
+        Mockito.when(prePerimeterResult.getSetpoint(pRA)).thenReturn(1000. + 2 * 1e-6); // should be filtered out
         Mockito.when(prePerimeterResult.getSetpoint(cRA)).thenReturn(-500.);
         GlobalOptimizationPerimeter optPerimeter = GlobalOptimizationPerimeter.build(crac, network, raoParameters, prePerimeterResult);
 
@@ -47,8 +47,8 @@ class GlobalOptimizationPerimeterTest extends AbstractOptimizationPerimeterTest 
 
         assertEquals(2, optPerimeter.getRangeActionsPerState().size());
         assertTrue(optPerimeter.getRangeActionsPerState().containsKey(pState));
-        assertEquals(1, optPerimeter.getRangeActionsPerState().get(pState).size());
-        assertTrue(optPerimeter.getRangeActionsPerState().get(pState).contains(pRA));
+        assertEquals(0, optPerimeter.getRangeActionsPerState().get(pState).size());
+        assertFalse(optPerimeter.getRangeActionsPerState().get(pState).contains(pRA));
         assertTrue(optPerimeter.getRangeActionsPerState().containsKey(cState1));
         assertEquals(1, optPerimeter.getRangeActionsPerState().get(cState1).size());
         assertTrue(optPerimeter.getRangeActionsPerState().get(cState1).contains(cRA));

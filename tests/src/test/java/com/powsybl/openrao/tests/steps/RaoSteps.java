@@ -4,6 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 package com.powsybl.openrao.tests.steps;
 
 import com.powsybl.glsk.commons.ZonalData;
@@ -39,9 +40,11 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.util.Comparator;
 import java.util.Objects;
+import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -51,11 +54,9 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-public class SearchTreeRaoSteps {
-
-    private static final String SEARCH_TREE_RAO = "SearchTreeRao";
+public class RaoSteps {
     private static final double TOLERANCE_FLOW_IN_AMPERE = 5.0;
-    private static final double TOLERANCE_FLOW_IN_MEGAWATT = 5.0;
+    static final double TOLERANCE_FLOW_IN_MEGAWATT = 5.0;
     private static final double TOLERANCE_FLOW_RELATIVE = 1.5 / 100;
     private static final double TOLERANCE_PTDF = 1e-3;
     private static final double TOLERANCE_RANGEACTION_SETPOINT = 5.0;
@@ -65,6 +66,18 @@ public class SearchTreeRaoSteps {
     private LoopFlowResult loopFlowResult;
     private Network network;
     private State preventiveState;
+    private final String raoImplementation;
+
+    {
+        try {
+            final Properties configProperties = new Properties();
+            final InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream("steps-config.properties");
+            configProperties.load(inputStream);
+            raoImplementation = (String) configProperties.get("rao-implementation");
+        } catch (final Exception e) {
+            throw new OpenRaoException("Unable to load steps-config.properties", e);
+        }
+    }
 
     private static double flowAmpereTolerance(double expectedValue) {
         return Math.max(TOLERANCE_FLOW_IN_AMPERE, TOLERANCE_FLOW_RELATIVE * Math.abs(expectedValue));
@@ -74,54 +87,54 @@ public class SearchTreeRaoSteps {
         return Math.max(TOLERANCE_FLOW_IN_MEGAWATT, TOLERANCE_FLOW_RELATIVE * Math.abs(expectedValue));
     }
 
-    @When("I launch search_tree_rao")
-    public void iLaunchSearchTreeRao() {
-        iLaunchSearchTreeRao(null);
+    @When("I launch rao")
+    public void iLaunchRao() {
+        iLaunchRao(null);
     }
 
-    @When("I launch search_tree_rao with a time limit of {int} seconds")
-    public void iLaunchSearchTreeRaoWithTimeLimit(int timeLimit) {
+    @When("I launch rao with a time limit of {int} seconds")
+    public void iLaunchRaoWithTimeLimit(int timeLimit) {
         launchRao(timeLimit);
     }
 
-    @When("I launch search_tree_rao at {string}")
-    public void iLaunchSearchTreeRao(String timestamp) {
-        launchRao(null, null, timestamp, SEARCH_TREE_RAO);
+    @When("I launch rao at {string}")
+    public void iLaunchRao(String timestamp) {
+        launchRao(null, null, timestamp, raoImplementation);
     }
 
-    @When("I launch search_tree_rao at {string} on {string}")
-    public void iLaunchSearchTreeRaoAtTimestampOnContingency(String timestamp, String contingencyId) {
-        launchRao(contingencyId, null, timestamp, SEARCH_TREE_RAO);
+    @When("I launch rao at {string} on {string}")
+    public void iLaunchRaoAtTimestampOnContingency(String timestamp, String contingencyId) {
+        launchRao(contingencyId, null, timestamp, raoImplementation);
     }
 
-    @When("I launch search_tree_rao at {string} on preventive state")
-    public void iLaunchSearchTreeRaoOnPreventiveState(String timestamp) {
-        launchRao(null, InstantKind.PREVENTIVE, timestamp, SEARCH_TREE_RAO);
+    @When("I launch rao at {string} on preventive state")
+    public void iLaunchRaoOnPreventiveState(String timestamp) {
+        launchRao(null, InstantKind.PREVENTIVE, timestamp, raoImplementation);
     }
 
-    @When("I launch search_tree_rao at {string} after {string} at {string}")
-    public void iLaunchSearchTreeRao(String timestamp, String contingencyId, String instantKind) {
-        launchRao(contingencyId, InstantKind.valueOf(instantKind.toUpperCase()), timestamp, SEARCH_TREE_RAO);
+    @When("I launch rao at {string} after {string} at {string}")
+    public void iLaunchRao(String timestamp, String contingencyId, String instantKind) {
+        launchRao(contingencyId, InstantKind.valueOf(instantKind.toUpperCase()), timestamp, raoImplementation);
     }
 
-    @When("I launch search_tree_rao on preventive state")
-    public void iLaunchSearchTreeRaoOnPreventiveState() {
-        launchRao(null, InstantKind.PREVENTIVE, null, SEARCH_TREE_RAO);
+    @When("I launch rao on preventive state")
+    public void iLaunchRaoOnPreventiveState() {
+        launchRao(null, InstantKind.PREVENTIVE, null, raoImplementation);
     }
 
-    @When("I launch search_tree_rao after {string} at {string}")
-    public void iLaunchSearchTreeRao(String contingencyId, String instantKind) {
-        launchRao(contingencyId, InstantKind.valueOf(instantKind.toUpperCase()), null, null, SEARCH_TREE_RAO, null);
+    @When("I launch rao after {string} at {string}")
+    public void iLaunchRao(String contingencyId, String instantKind) {
+        launchRao(contingencyId, InstantKind.valueOf(instantKind.toUpperCase()), null, null, raoImplementation, null);
     }
 
-    @When("I launch loopflow search_tree_rao with default loopflow limit as {double} percent of pmax")
-    public void iLaunchSearchTreeRaoWithDefaultLoopflowLimit(double percentage) {
-        launchRao(null, null, null, percentage, SEARCH_TREE_RAO, null);
+    @When("I launch loopflow rao with default loopflow limit as {double} percent of pmax")
+    public void iLaunchRaoWithDefaultLoopflowLimit(double percentage) {
+        launchRao(null, null, null, percentage, raoImplementation, null);
     }
 
-    @When("I launch loopflow search_tree_rao at {string} with default loopflow limit as {double} percent of pmax")
-    public void iLaunchSearchTreeRaoWithDefaultLoopflowLimit(String timestamp, double percentage) {
-        launchRao(null, null, timestamp, percentage, SEARCH_TREE_RAO, null);
+    @When("I launch loopflow rao at {string} with default loopflow limit as {double} percent of pmax")
+    public void iLaunchRaoWithDefaultLoopflowLimit(String timestamp, double percentage) {
+        launchRao(null, null, timestamp, percentage, raoImplementation, null);
     }
 
     @When("I launch loopflow_computation with OpenLoadFlow")
@@ -621,7 +634,7 @@ public class SearchTreeRaoSteps {
     }
 
     private void launchRao(int timeLimit) {
-        launchRao(null, null, null, null, SEARCH_TREE_RAO, timeLimit);
+        launchRao(null, null, null, null, raoImplementation, timeLimit);
     }
 
     private void launchRao(String contingencyId, InstantKind instantKind, String timestamp, String raoType) {

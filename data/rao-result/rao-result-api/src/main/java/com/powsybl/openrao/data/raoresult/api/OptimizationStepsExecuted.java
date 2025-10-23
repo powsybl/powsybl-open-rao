@@ -12,7 +12,6 @@ package com.powsybl.openrao.data.raoresult.api;
  *
  * @author Martin Belthle {@literal <martin.belthle at rte-france.com>}
  */
-
 public final class OptimizationStepsExecuted {
     public static final String FIRST_PREVENTIVE_ONLY = "The RAO only went through first preventive";
     public static final String FIRST_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION = "First preventive fell back to initial situation";

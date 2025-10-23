@@ -15,7 +15,7 @@ Feature: US 15.11.6: Complex automaton simulator cases
     Given network file is "epic15/TestCase8Nodes_15_11_6_1.uct"
     Given crac file is "epic15/crac_15_11_6_1.json"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then 0 remedial actions are used in preventive
     And 4 remedial actions are used after "co_fr1_fr2_2" at "auto"
     And the remedial action "close_fr1_fr2_3" is used after "co_fr1_fr2_2" at "auto"

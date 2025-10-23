@@ -5,7 +5,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-
 package com.powsybl.openrao.searchtreerao.marmot.results;
 
 import com.fasterxml.jackson.core.JsonGenerator;

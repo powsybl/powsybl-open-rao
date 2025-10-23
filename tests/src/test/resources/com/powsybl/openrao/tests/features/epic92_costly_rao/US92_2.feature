@@ -12,9 +12,9 @@ Feature: US 92.2: Costly range actions optimization - APPROXIMATED_INTEGERS PSTs
     Given network file is "epic92/2Nodes2ParallelLinesPST.uct"
     Given crac file is "epic92/crac-92-2-1.json"
     Given configuration file is "epic92/RaoParameters_dc_minObjective_discretePst.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then the worst margin is 45.46 MW
-    And the value of the objective function initially should be 2000000.0
+    And the value of the objective function initially should be 200000.0
     And 1 remedial actions are used in preventive
     And the remedial action "pstBeFr2" is used in preventive
     And the tap of PstRangeAction "pstBeFr2" should be -5 in preventive
@@ -28,9 +28,9 @@ Feature: US 92.2: Costly range actions optimization - APPROXIMATED_INTEGERS PSTs
     Given network file is "epic92/2Nodes3ParallelLines2PSTs.uct"
     Given crac file is "epic92/crac-92-2-2.json"
     Given configuration file is "epic92/RaoParameters_dc_minObjective_discretePst.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then the worst margin is 31.15 MW
-    And the value of the objective function initially should be 2633333.33
+    And the value of the objective function initially should be 263333.33
     And 1 remedial actions are used in preventive
     And the remedial action "pstBeFr3" is used in preventive
     And the tap of PstRangeAction "pstBeFr2" should be 0 in preventive
@@ -42,14 +42,14 @@ Feature: US 92.2: Costly range actions optimization - APPROXIMATED_INTEGERS PSTs
     Given network file is "epic92/2Nodes3ParallelLinesPST.uct"
     Given crac file is "epic92/crac-92-2-3.json"
     Given configuration file is "epic92/RaoParameters_dc_minObjective_discretePst.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then the worst margin is 11.73 MW
-    And the value of the objective function initially should be 4300000.0
+    And the value of the objective function initially should be 430000.0
     And 1 remedial actions are used in preventive
     And the remedial action "pstBeFr3" is used in preventive
     And the tap of PstRangeAction "pstBeFr3" should be -3 in preventive
     # Activation of pstBeFr3 (20) + 3 taps moved (3 * 7.5) + overload penalty (282.71 * 10000)
-    And the value of the objective function after PRA should be 2827226.08
+    And the value of the objective function after PRA should be 282759.61
     And 1 remedial actions are used after "coBeFr2" at "curative"
     And the tap of PstRangeAction "pstBeFr3" should be -9 after "coBeFr2" at "curative"
     # Activation of pstBeFr3 twice (2 * 20) + 9 taps moved in total (3 * 7.5 + 6 * 7.5)
@@ -60,14 +60,14 @@ Feature: US 92.2: Costly range actions optimization - APPROXIMATED_INTEGERS PSTs
     Given network file is "epic92/2Nodes3ParallelLinesPST.uct"
     Given crac file is "epic92/crac-92-2-4.json"
     Given configuration file is "epic92/RaoParameters_dc_minObjective_discretePst.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then the worst margin is 11.73 MW
-    And the value of the objective function initially should be 4300000.0
+    And the value of the objective function initially should be 430000.0
     And 1 remedial actions are used in preventive
     And the remedial action "pstBeFr3" is used in preventive
     And the tap of PstRangeAction "pstBeFr3" should be -3 in preventive
     # Overload penalty (282.71 * 10000)
-    And the value of the objective function after PRA should be 2827171.08
+    And the value of the objective function after PRA should be 282717.11
     And 1 remedial actions are used after "coBeFr2" at "curative"
     And the tap of PstRangeAction "pstBeFr3" should be -9 after "coBeFr2" at "curative"
     And the value of the objective function after CRA should be 0
@@ -78,9 +78,9 @@ Feature: US 92.2: Costly range actions optimization - APPROXIMATED_INTEGERS PSTs
     Given network file is "epic92/2Nodes3ParallelLinesPST.uct"
     Given crac file is "epic92/crac-92-2-3.json"
     Given configuration file is "epic92/RaoParameters_dc_minObjective_discretePst_2P.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then the worst margin is 11.73 MW
-    And the value of the objective function initially should be 4300000.0
+    And the value of the objective function initially should be 430000.0
     And 1 remedial actions are used in preventive
     And the remedial action "pstBeFr3" is used in preventive
     And the tap of PstRangeAction "pstBeFr3" should be -9 in preventive
@@ -95,14 +95,14 @@ Feature: US 92.2: Costly range actions optimization - APPROXIMATED_INTEGERS PSTs
     Given network file is "epic92/2Nodes3ParallelLinesPST.uct"
     Given crac file is "epic92/crac-92-2-6.json"
     Given configuration file is "epic92/RaoParameters_dc_minObjective_discretePst.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then the worst margin is 32.13 MW
-    And the value of the objective function initially should be 4500000.0
+    And the value of the objective function initially should be 450000.0
     And 1 remedial actions are used in preventive
     And the remedial action "pstBeFr3" is used in preventive
     And the tap of PstRangeAction "pstBeFr3" should be -2 in preventive
     # Activation of pstBeFr3 (20) + 2 taps moved (2 * 5.0)
-    And the value of the objective function after PRA should be 3518125.13
+    And the value of the objective function after PRA should be 351839.51
     And 1 remedial actions are used after "coBeFr2" at "curative-1"
     And the remedial action "pstBeFr3" is used after "coBeFr2" at "curative-1"
     And the tap of PstRangeAction "pstBeFr3" should be -7 after "coBeFr2" at "curative-1"
@@ -122,9 +122,9 @@ Feature: US 92.2: Costly range actions optimization - APPROXIMATED_INTEGERS PSTs
     Given network file is "epic92/2Nodes3ParallelLinesPST.uct"
     Given crac file is "epic92/crac-92-2-6.json"
     Given configuration file is "epic92/RaoParameters_dc_minObjective_discretePst_2P.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then the worst margin is 40.77 MW
-    And the value of the objective function initially should be 4500000.0
+    And the value of the objective function initially should be 450000.0
     And 1 remedial actions are used in preventive
     And the remedial action "pstBeFr3" is used in preventive
     And the tap of PstRangeAction "pstBeFr3" should be -10 in preventive
