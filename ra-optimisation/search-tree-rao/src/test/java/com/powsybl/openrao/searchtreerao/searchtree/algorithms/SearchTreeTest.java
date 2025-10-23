@@ -11,6 +11,7 @@ import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
 import com.powsybl.loadflow.LoadFlow;
+import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
@@ -110,8 +111,10 @@ class SearchTreeTest {
             .when(() -> LoadFlow.find(any()))
             .thenReturn(mockRunner);
         LoadFlowResult mockResult = mock(LoadFlowResult.class);
-        when(mockRunner.run(any(), any())).thenReturn(mockResult);
-
+        when(mockRunner.run(
+            any(Network.class),
+            any(LoadFlowParameters.class)
+        )).thenReturn(mockResult);
     }
 
     @AfterEach
