@@ -299,7 +299,11 @@
             <artifactId>xmlunit-core</artifactId>
             <scope>test</scope>
         </dependency>
-
+        <dependency>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-console</artifactId>
+            <scope>test</scope>
+        </dependency>
         <!-- Runtime dependencies -->
         <dependency>
             <groupId>com.powsybl</groupId>
