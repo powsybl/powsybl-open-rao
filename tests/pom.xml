@@ -7,6 +7,9 @@
         <groupId>com.powsybl</groupId>
         <version>6.7.0-SNAPSHOT</version>
     </parent>
+    <properties>
+        <maven-assembly-plugin.version>3.3.0</maven-assembly-plugin.version>
+    </properties>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>open-rao-tests</artifactId>
@@ -27,6 +30,30 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>${maven-assembly-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>package-jar-with-dependencies</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <descriptors>
+                                <descriptor>jar-with-dependencies.xml</descriptor>
+                            </descriptors>
+                            <archive>
+                                <manifest>
+                                    <mainClass>io.cucumber.core.cli.Main</mainClass>
+                                </manifest>
+                            </archive>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
@@ -272,7 +299,11 @@
             <artifactId>xmlunit-core</artifactId>
             <scope>test</scope>
         </dependency>
-
+        <dependency>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-console</artifactId>
+            <scope>test</scope>
+        </dependency>
         <!-- Runtime dependencies -->
         <dependency>
             <groupId>com.powsybl</groupId>
