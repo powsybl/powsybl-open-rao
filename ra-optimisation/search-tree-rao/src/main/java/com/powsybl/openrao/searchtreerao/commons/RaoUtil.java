@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.commons;
 
+import com.powsybl.action.HvdcAction;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoSides;
@@ -243,59 +244,70 @@ public final class RaoUtil {
      */
     public static void addNetworkActionAssociatedWithHvdcRangeAction(Crac crac, Network network) {
         crac.getHvdcRangeActions().forEach(hvdcRangeAction -> {
-            HvdcAngleDroopActivePowerControl hvdcAngleDoopActivePowerControl = IidmHvdcHelper.getHvdcLine(network, hvdcRangeAction.getNetworkElement().getId()).getExtension(HvdcAngleDroopActivePowerControl.class);
+
+            String hvdcLineId = hvdcRangeAction.getNetworkElement().getId();
+
+            Set<NetworkAction> acEmulationSwitchActionOnHvdcLine = crac.getNetworkActions().stream()
+                .filter(ra -> ra.getElementaryActions().stream().allMatch(action -> action instanceof HvdcAction))
+                .filter(ra -> ra.getElementaryActions().stream().anyMatch(action ->
+                    ((HvdcAction) action).getHvdcId().equals(hvdcLineId)
+                )).collect(Collectors.toSet());
+
+            HvdcAngleDroopActivePowerControl hvdcAngleDoopActivePowerControl = IidmHvdcHelper.getHvdcLine(network, hvdcLineId).getExtension(HvdcAngleDroopActivePowerControl.class);
             if (hvdcAngleDoopActivePowerControl != null && hvdcAngleDoopActivePowerControl.isEnabled()) {
-                // TODO: clean up and check if a network action hvdcAction using same network element already exists.
-                String networkActionId = String.format("%s_%s", "acEmulationDeactivation", hvdcRangeAction.getNetworkElement().getId());
-                NetworkAction acEmulationSwitchAction = crac.getNetworkAction(networkActionId);
-                if (acEmulationSwitchAction == null) {
+                String networkActionId = String.format("%s_%s", "acEmulationDeactivation", hvdcLineId);
+                if (acEmulationSwitchActionOnHvdcLine.isEmpty()) {
                     // create the network action using the adder
                     NetworkActionAdder acEmulationSwitchActionAdder = crac.newNetworkAction()
                         .withId(networkActionId)
                         .withOperator(hvdcRangeAction.getOperator())
                         .newAcEmulationSwitchAction()
-                        .withNetworkElement(hvdcRangeAction.getNetworkElement().getId())
+                        .withNetworkElement(hvdcLineId)
                         .withActionType(ActionType.DEACTIVATE)
                         .add();
-                    addAllUsageRule(hvdcRangeAction, acEmulationSwitchActionAdder);
+                    addAllUsageRuleNotInAuto(hvdcRangeAction, acEmulationSwitchActionAdder);
                     acEmulationSwitchActionAdder.add();
                 } else {
-                    NetworkAction finalAcEmulationSwitchAction = acEmulationSwitchAction;
-                    hvdcRangeAction.getUsageRules().forEach(
-                        usageRule -> finalAcEmulationSwitchAction.addUsageRule(usageRule)
+                    NetworkAction acEmulationSwitchAction = acEmulationSwitchActionOnHvdcLine.iterator().next();
+                    hvdcRangeAction.getUsageRules().stream().filter(usageRule -> !usageRule.getInstant().isAuto()).forEach(
+                        usageRule -> acEmulationSwitchAction.addUsageRule(usageRule)
                     );
                 }
             }
         });
     }
 
-    static void addAllUsageRule(HvdcRangeAction hvdcRangeAction, NetworkActionAdder acEmulationSwitchActionAdder) {
+    // Add all the usage rule of the range action to the network action except if its in auto.
+    static void addAllUsageRuleNotInAuto(HvdcRangeAction hvdcRangeAction, NetworkActionAdder acEmulationSwitchActionAdder) {
         hvdcRangeAction.getUsageRules().forEach(
             usageRule -> {
-                if (usageRule.getClass().equals(OnInstantImpl.class)) {
-                    acEmulationSwitchActionAdder
-                        .newOnInstantUsageRule()
-                        .withInstant(usageRule.getInstant().getId())
-                        .add();
-                } else if (usageRule.getClass().equals(OnConstraintImpl.class)) {
-                    OnConstraint<?> onConstraint = (OnConstraint<?>) usageRule;
-                    acEmulationSwitchActionAdder.newOnConstraintUsageRule()
-                        .withInstant(onConstraint.getInstant().getId())
-                        .withCnec(onConstraint.getCnec().getId())
-                        .add();
-                } else if (usageRule.getClass().equals(OnContingencyStateImpl.class)) {
-                    OnContingencyState onContingencyState = (OnContingencyState) usageRule;
-                    acEmulationSwitchActionAdder.newOnContingencyStateUsageRule()
-                        .withContingency(onContingencyState.getContingency().getId())
-                        .withInstant(onContingencyState.getInstant().getId())
-                        .add();
-                } else if (usageRule.getClass().equals(OnFlowConstraintInCountryImpl.class)) {
-                    OnFlowConstraintInCountry onFlowConstraintInCountry = (OnFlowConstraintInCountry) usageRule;
-                    acEmulationSwitchActionAdder.newOnFlowConstraintInCountryUsageRule()
-                        .withCountry(onFlowConstraintInCountry.getCountry())
-                        .withInstant(onFlowConstraintInCountry.getInstant().getId())
-                        .withContingency(onFlowConstraintInCountry.getContingency().get().getId())
-                        .add();
+                if (!usageRule.getInstant().isAuto()) {
+                    if (usageRule.getClass().equals(OnInstantImpl.class)) {
+
+                        acEmulationSwitchActionAdder
+                            .newOnInstantUsageRule()
+                            .withInstant(usageRule.getInstant().getId())
+                            .add();
+                    } else if (usageRule.getClass().equals(OnConstraintImpl.class)) {
+                        OnConstraint<?> onConstraint = (OnConstraint<?>) usageRule;
+                        acEmulationSwitchActionAdder.newOnConstraintUsageRule()
+                            .withInstant(onConstraint.getInstant().getId())
+                            .withCnec(onConstraint.getCnec().getId())
+                            .add();
+                    } else if (usageRule.getClass().equals(OnContingencyStateImpl.class)) {
+                        OnContingencyState onContingencyState = (OnContingencyState) usageRule;
+                        acEmulationSwitchActionAdder.newOnContingencyStateUsageRule()
+                            .withContingency(onContingencyState.getContingency().getId())
+                            .withInstant(onContingencyState.getInstant().getId())
+                            .add();
+                    } else if (usageRule.getClass().equals(OnFlowConstraintInCountryImpl.class)) {
+                        OnFlowConstraintInCountry onFlowConstraintInCountry = (OnFlowConstraintInCountry) usageRule;
+                        acEmulationSwitchActionAdder.newOnFlowConstraintInCountryUsageRule()
+                            .withCountry(onFlowConstraintInCountry.getCountry())
+                            .withInstant(onFlowConstraintInCountry.getInstant().getId())
+                            .withContingency(onFlowConstraintInCountry.getContingency().get().getId())
+                            .add();
+                    }
                 }
             }
         );
