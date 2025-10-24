@@ -49,8 +49,6 @@ public class NetworkActionImpl extends AbstractRemedialAction<NetworkAction> imp
         return elementaryActions.stream().anyMatch(elementaryAction -> {
             if (elementaryAction instanceof SwitchPair switchPair) {
                 return !network.getSwitch(switchPair.getSwitchToOpen().getId()).isOpen() || network.getSwitch(switchPair.getSwitchToClose().getId()).isOpen();
-            } else if (elementaryAction instanceof HvdcAction hvdcAction) {
-                return !(network.getHvdcLine(hvdcAction.getHvdcId()).getExtension(HvdcAngleDroopActivePowerControl.class) != null && !network.getHvdcLine(hvdcAction.getHvdcId()).getExtension(HvdcAngleDroopActivePowerControl.class).isEnabled());
             } else {
                 return elementaryAction.toModification().hasImpactOnNetwork(network) == NetworkModificationImpact.HAS_IMPACT_ON_NETWORK;
             }
