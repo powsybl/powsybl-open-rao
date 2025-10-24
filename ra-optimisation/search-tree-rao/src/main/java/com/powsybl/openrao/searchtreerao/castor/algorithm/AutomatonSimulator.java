@@ -229,7 +229,6 @@ public final class AutomatonSimulator {
         crac.getNetworkActions(automatonState).stream()
             .filter(ra -> RaoUtil.canRemedialActionBeUsed(ra, automatonState, preAutomatonsPerimeterResult, flowCnecs, network, raoParameters))
             .filter(ra -> getSpeed(ra) == speed)
-            .filter(ra -> !ra.getElementaryActions().stream().anyMatch(action -> action instanceof HvdcAction))
             .forEach(networkAction -> {
                 if (networkAction.hasImpactOnNetwork(network)) {
                     appliedNetworkActions.add(networkAction);
@@ -242,11 +241,14 @@ public final class AutomatonSimulator {
             return new TopoAutomatonSimulationResult(preAutomatonsPerimeterResult, previouslyActivatedTopologicalAutomatons);
         }
 
-        // -- Apply
-        appliedNetworkActions.forEach(na -> {
-            TECHNICAL_LOGS.debug("Activating automaton {} - {}.", na.getId(), na.getName());
-            na.apply(network);
-        });
+        // -- Apply: except for ac emulation deactivation, it will be deactivated when the range action is optimized.
+        appliedNetworkActions
+            .stream()
+            .filter(ra -> !ra.getElementaryActions().stream().anyMatch(action -> action instanceof HvdcAction))
+            .forEach(na -> {
+                TECHNICAL_LOGS.debug("Activating automaton {} - {}.", na.getId(), na.getName());
+                na.apply(network);
+            });
 
         Set<NetworkAction> allAppliedAutomatons = new HashSet<>(previouslyActivatedTopologicalAutomatons);
         allAppliedAutomatons.addAll(appliedNetworkActions);

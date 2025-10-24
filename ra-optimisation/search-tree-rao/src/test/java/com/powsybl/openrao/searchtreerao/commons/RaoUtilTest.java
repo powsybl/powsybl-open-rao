@@ -52,7 +52,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.addNetworkActionAssociatedWithHvdcRangeAction;
 import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.updateHvdcRangeActionInitialSetpoint;
@@ -487,8 +486,8 @@ class RaoUtilTest {
         Crac crac = Crac.read("crac_hvdc_allinstants_allusagerules.json", getClass().getResourceAsStream("/crac/crac_hvdc_allinstants_allusagerules.json"), network);
         addNetworkActionAssociatedWithHvdcRangeAction(crac, network);
         assert 1 == crac.getNetworkActions().size();
-        assert 7 == crac.getNetworkAction("acEmulationDeactivation_BBE2AA11 FFR3AA11 1").getUsageRules().size();
-        assert crac.getNetworkAction("acEmulationDeactivation_BBE2AA11 FFR3AA11 1").getUsageRules().containsAll(crac.getHvdcRangeAction("ARA_HVDC").getUsageRules().stream().filter(usageRule -> !usageRule.getInstant().isAuto()).collect(Collectors.toSet()));
+        assert 8 == crac.getNetworkAction("acEmulationDeactivation_BBE2AA11 FFR3AA11 1").getUsageRules().size();
+        assert crac.getNetworkAction("acEmulationDeactivation_BBE2AA11 FFR3AA11 1").getUsageRules().containsAll(crac.getHvdcRangeAction("ARA_HVDC").getUsageRules());
         assert crac.getNetworkAction("acEmulationDeactivation_BBE2AA11 FFR3AA11 1").getUsageRules().containsAll(crac.getHvdcRangeAction("CRA_HVDC").getUsageRules());
     }
 
