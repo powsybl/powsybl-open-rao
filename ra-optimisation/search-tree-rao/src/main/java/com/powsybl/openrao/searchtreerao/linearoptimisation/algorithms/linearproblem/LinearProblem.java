@@ -496,8 +496,8 @@ public final class LinearProblem {
         return solver.getConstraint(tapConstraintId(pstRangeAction, state));
     }
 
-    public OpenRaoMPVariable addGeneratorPowerVariable(String generatorId, OffsetDateTime timestamp) {
-        return solver.makeNumVar(-solver.infinity(), solver.infinity(), generatorPowerVariableId(generatorId, timestamp));
+    public OpenRaoMPVariable addGeneratorPowerVariable(String generatorId, OffsetDateTime timestamp, double lb, double ub) {
+        return solver.makeNumVar(lb, ub, generatorPowerVariableId(generatorId, timestamp));
     }
 
     public OpenRaoMPVariable getGeneratorPowerVariable(String generatorId, OffsetDateTime timestamp) {

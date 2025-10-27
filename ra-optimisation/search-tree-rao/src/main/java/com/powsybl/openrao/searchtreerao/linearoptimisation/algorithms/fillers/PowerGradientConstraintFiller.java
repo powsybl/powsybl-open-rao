@@ -47,12 +47,12 @@ public class PowerGradientConstraintFiller implements ProblemFiller {
         List<OffsetDateTime> timestamps = preventiveStates.getTimestamps();
         IntStream.range(0, timestamps.size()).forEach(timestampIndex -> {
             OffsetDateTime timestamp = timestamps.get(timestampIndex);
-            generatorConstraints.forEach(powerGradient -> {
-                String generatorId = powerGradient.getGeneratorId();
-                OpenRaoMPVariable generatorPowerVariable = linearProblem.addGeneratorPowerVariable(generatorId, timestamp);
+            generatorConstraints.forEach(generatorConstraint -> {
+                String generatorId = generatorConstraint.getGeneratorId();
+                OpenRaoMPVariable generatorPowerVariable = linearProblem.addGeneratorPowerVariable(generatorId, timestamp, -linearProblem.infinity(), generatorConstraint.getPMax().orElse(linearProblem.infinity()));
                 addPowerConstraint(linearProblem, generatorId, generatorPowerVariable, timestamp);
                 if (timestampIndex > 0) {
-                    addPowerGradientConstraint(linearProblem, powerGradient, timestamp, timestamps.get(timestampIndex - 1), generatorPowerVariable);
+                    addPowerGradientConstraint(linearProblem, generatorConstraint, timestamp, timestamps.get(timestampIndex - 1), generatorPowerVariable);
                 }
             });
         });
