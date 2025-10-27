@@ -7,12 +7,12 @@
     <parent>
         <groupId>com.powsybl</groupId>
         <artifactId>powsybl-parent</artifactId>
-        <version>20.2</version>
+        <version>24</version>
         <relativePath/>
     </parent>
 
     <artifactId>powsybl-open-rao</artifactId>
-    <version>6.7.0-SNAPSHOT</version>
+    <version>7.1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Open RAO</name>
@@ -74,7 +74,7 @@
     <properties>
         <!-- Project properties -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <java.version>17</java.version>
+        <java.version>21</java.version>
 
         <!-- Sonar properties -->
         <sonar.coverage.jacoco.xmlReportPaths>
@@ -107,9 +107,9 @@
         <maven.jar.version>3.3.0</maven.jar.version>
         <maven.jvnet.jaxb.version>4.0.8</maven.jvnet.jaxb.version>
         <mockito.core.version>5.12.0</mockito.core.version>
-        <powsybl.core.version>6.8.0</powsybl.core.version>
-        <powsybl.entsoe.version>2.14.0</powsybl.entsoe.version>
-        <powsybl.openloadflow.version>1.16.0</powsybl.openloadflow.version>
+        <powsybl.core.version>7.0.1</powsybl.core.version>
+        <powsybl.entsoe.version>3.0.0</powsybl.entsoe.version>
+        <powsybl.openloadflow.version>2.0.0</powsybl.openloadflow.version>
         <slf4j.version>2.0.13</slf4j.version>
         <xmlunit.core.version>2.10.0</xmlunit.core.version>
         <com.networknt.version>1.5.3</com.networknt.version>

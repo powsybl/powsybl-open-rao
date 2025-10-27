@@ -53,7 +53,7 @@ public class SumMaxPerTimestampCostEvaluatorResult implements CostEvaluatorResul
         Map<OffsetDateTime, Set<State>> statesToEvaluatePerTimestamp = new HashMap<>();
         Set<State> statesToEvaluateWithoutTimestamp = new HashSet<>();
 
-        costPerState.keySet().stream().forEach(state -> {
+        costPerState.keySet().forEach(state -> {
             if (statesContingencyMustBeKept(state, contingenciesToExclude)) {
                 Optional<OffsetDateTime> timestamp = state.getTimestamp();
                 if (timestamp.isPresent()) {
@@ -64,8 +64,8 @@ public class SumMaxPerTimestampCostEvaluatorResult implements CostEvaluatorResul
             }
         });
 
-        return statesToEvaluatePerTimestamp.values().stream().mapToDouble(states -> states.stream().mapToDouble(state -> costPerState.get(state)).max().orElse(0)).sum()
-            + statesToEvaluateWithoutTimestamp.stream().mapToDouble(state -> costPerState.get(state)).max().orElse(0);
+        return statesToEvaluatePerTimestamp.values().stream().mapToDouble(states -> states.stream().mapToDouble(costPerState::get).max().orElse(0)).sum()
+            + statesToEvaluateWithoutTimestamp.stream().mapToDouble(costPerState::get).max().orElse(0);
 
     }
 
