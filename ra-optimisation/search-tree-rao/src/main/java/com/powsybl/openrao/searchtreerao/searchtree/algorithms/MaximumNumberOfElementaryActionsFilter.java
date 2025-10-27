@@ -28,6 +28,7 @@ public class MaximumNumberOfElementaryActionsFilter implements NetworkActionComb
         this.maxElementaryActionsPerTso = maxElementaryActionsPerTso;
     }
 
+    @Override
     public Set<NetworkActionCombination> filter(Set<NetworkActionCombination> naCombinations, OptimizationResult optimizationResult) {
         Set<NetworkActionCombination> filteredNaCombinations = new HashSet<>();
         naCombinations.stream().forEach(networkActionCombination -> {

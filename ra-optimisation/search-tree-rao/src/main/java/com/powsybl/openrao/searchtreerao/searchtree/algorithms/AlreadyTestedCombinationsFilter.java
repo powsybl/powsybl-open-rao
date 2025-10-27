@@ -33,6 +33,7 @@ public class AlreadyTestedCombinationsFilter implements NetworkActionCombination
      * no need to bloom on ra2. If the remedial action ra2 was relevant, the combination ra1+ra2 would have been
      * already selected in the previous depths.
      */
+    @Override
     public Set<NetworkActionCombination> filter(Set<NetworkActionCombination> naCombinations, OptimizationResult optimizationResult) {
         List<NetworkAction> alreadyTestedNetworkActions = new ArrayList<>();
 
