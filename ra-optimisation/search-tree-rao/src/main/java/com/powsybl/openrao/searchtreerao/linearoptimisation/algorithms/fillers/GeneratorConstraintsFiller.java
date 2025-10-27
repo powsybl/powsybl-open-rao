@@ -26,6 +26,7 @@ import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -92,10 +93,10 @@ public class GeneratorConstraintsFiller implements ProblemFiller {
     private static void addStateVariables(LinearProblem linearProblem, GeneratorConstraints generatorConstraints, OffsetDateTime timestamp, double timestampDuration) {
         linearProblem.addGeneratorStateVariable(generatorConstraints.getGeneratorId(), timestamp, LinearProblem.GeneratorState.ON);
         linearProblem.addGeneratorStateVariable(generatorConstraints.getGeneratorId(), timestamp, LinearProblem.GeneratorState.OFF);
-        if (generatorConstraints.getLeadTime().isPresent() && generatorConstraints.getLeadTime().get() > timestampDuration) {
+        if (leadTimeLongerThanTimestamp(generatorConstraints, timestampDuration)) {
             linearProblem.addGeneratorStateVariable(generatorConstraints.getGeneratorId(), timestamp, LinearProblem.GeneratorState.RAMP_UP);
         }
-        if (generatorConstraints.getLagTime().isPresent() && generatorConstraints.getLagTime().get() > timestampDuration) {
+        if (lagTimeLongerThanTimestamp(generatorConstraints, timestampDuration)) {
             linearProblem.addGeneratorStateVariable(generatorConstraints.getGeneratorId(), timestamp, LinearProblem.GeneratorState.RAMP_DOWN);
         }
     }
@@ -103,19 +104,19 @@ public class GeneratorConstraintsFiller implements ProblemFiller {
     private static void addStateTransitionVariables(LinearProblem linearProblem, GeneratorConstraints generatorConstraints, OffsetDateTime timestamp, double timestampDuration) {
         linearProblem.addGeneratorStateTransitionVariable(generatorConstraints.getGeneratorId(), timestamp, LinearProblem.GeneratorState.OFF, LinearProblem.GeneratorState.OFF);
         linearProblem.addGeneratorStateTransitionVariable(generatorConstraints.getGeneratorId(), timestamp, LinearProblem.GeneratorState.ON, LinearProblem.GeneratorState.ON);
-        if (generatorConstraints.getLeadTime().isPresent() && generatorConstraints.getLeadTime().get() <= timestampDuration) {
-            linearProblem.addGeneratorStateTransitionVariable(generatorConstraints.getGeneratorId(), timestamp, LinearProblem.GeneratorState.OFF, LinearProblem.GeneratorState.ON);
-        } else {
+        if (leadTimeLongerThanTimestamp(generatorConstraints, timestampDuration)) {
             linearProblem.addGeneratorStateTransitionVariable(generatorConstraints.getGeneratorId(), timestamp, LinearProblem.GeneratorState.OFF, LinearProblem.GeneratorState.RAMP_UP);
             linearProblem.addGeneratorStateTransitionVariable(generatorConstraints.getGeneratorId(), timestamp, LinearProblem.GeneratorState.RAMP_UP, LinearProblem.GeneratorState.RAMP_UP);
             linearProblem.addGeneratorStateTransitionVariable(generatorConstraints.getGeneratorId(), timestamp, LinearProblem.GeneratorState.RAMP_UP, LinearProblem.GeneratorState.ON);
-        }
-        if (generatorConstraints.getLagTime().isPresent() && generatorConstraints.getLeadTime().get() <= timestampDuration) {
-            linearProblem.addGeneratorStateTransitionVariable(generatorConstraints.getGeneratorId(), timestamp, LinearProblem.GeneratorState.ON, LinearProblem.GeneratorState.OFF);
         } else {
+            linearProblem.addGeneratorStateTransitionVariable(generatorConstraints.getGeneratorId(), timestamp, LinearProblem.GeneratorState.OFF, LinearProblem.GeneratorState.ON);
+        }
+        if (lagTimeLongerThanTimestamp(generatorConstraints, timestampDuration)) {
             linearProblem.addGeneratorStateTransitionVariable(generatorConstraints.getGeneratorId(), timestamp, LinearProblem.GeneratorState.ON, LinearProblem.GeneratorState.RAMP_DOWN);
             linearProblem.addGeneratorStateTransitionVariable(generatorConstraints.getGeneratorId(), timestamp, LinearProblem.GeneratorState.RAMP_DOWN, LinearProblem.GeneratorState.RAMP_DOWN);
             linearProblem.addGeneratorStateTransitionVariable(generatorConstraints.getGeneratorId(), timestamp, LinearProblem.GeneratorState.RAMP_DOWN, LinearProblem.GeneratorState.OFF);
+        } else {
+            linearProblem.addGeneratorStateTransitionVariable(generatorConstraints.getGeneratorId(), timestamp, LinearProblem.GeneratorState.ON, LinearProblem.GeneratorState.OFF);
         }
     }
 
@@ -130,10 +131,10 @@ public class GeneratorConstraintsFiller implements ProblemFiller {
         OpenRaoMPConstraint uniqueGeneratorStateConstraint = linearProblem.addUniqueGeneratorStateConstraint(generatorConstraints.getGeneratorId(), timestamp);
         uniqueGeneratorStateConstraint.setCoefficient(linearProblem.getGeneratorStateVariable(generatorConstraints.getGeneratorId(), timestamp, LinearProblem.GeneratorState.ON), 1);
         uniqueGeneratorStateConstraint.setCoefficient(linearProblem.getGeneratorStateVariable(generatorConstraints.getGeneratorId(), timestamp, LinearProblem.GeneratorState.OFF), 1);
-        if (generatorConstraints.getLeadTime().isPresent() && generatorConstraints.getLeadTime().get() > timestampDuration) {
+        if (leadTimeLongerThanTimestamp(generatorConstraints, timestampDuration)) {
             uniqueGeneratorStateConstraint.setCoefficient(linearProblem.getGeneratorStateVariable(generatorConstraints.getGeneratorId(), timestamp, LinearProblem.GeneratorState.RAMP_UP), 1);
         }
-        if (generatorConstraints.getLagTime().isPresent() && generatorConstraints.getLagTime().get() > timestampDuration) {
+        if (lagTimeLongerThanTimestamp(generatorConstraints, timestampDuration)) {
             uniqueGeneratorStateConstraint.setCoefficient(linearProblem.getGeneratorStateVariable(generatorConstraints.getGeneratorId(), timestamp, LinearProblem.GeneratorState.RAMP_DOWN), 1);
         }
     }
@@ -191,10 +192,10 @@ public class GeneratorConstraintsFiller implements ProblemFiller {
             }
         } else {
             initialStateFromConstraint.setCoefficient(linearProblem.getGeneratorStateTransitionVariable(generatorConstraints.getGeneratorId(), timestamp, LinearProblem.GeneratorState.OFF, LinearProblem.GeneratorState.OFF), 1);
-            if (generatorConstraints.getLagTime().isPresent() && generatorConstraints.getLagTime().get() <= timestampDuration) {
-                initialStateFromConstraint.setCoefficient(linearProblem.getGeneratorStateTransitionVariable(generatorConstraints.getGeneratorId(), timestamp, LinearProblem.GeneratorState.OFF, LinearProblem.GeneratorState.ON), 1);
-            } else {
+            if (lagTimeLongerThanTimestamp(generatorConstraints, timestampDuration)) {
                 initialStateFromConstraint.setCoefficient(linearProblem.getGeneratorStateTransitionVariable(generatorConstraints.getGeneratorId(), timestamp, LinearProblem.GeneratorState.OFF, LinearProblem.GeneratorState.RAMP_UP), 1);
+            } else {
+                initialStateFromConstraint.setCoefficient(linearProblem.getGeneratorStateTransitionVariable(generatorConstraints.getGeneratorId(), timestamp, LinearProblem.GeneratorState.OFF, LinearProblem.GeneratorState.ON), 1);
             }
         }
     }
@@ -217,21 +218,21 @@ public class GeneratorConstraintsFiller implements ProblemFiller {
         OpenRaoMPConstraint fromOffConstraint = linearProblem.addGeneratorStateFromTransitionConstraint(generatorConstraints.getGeneratorId(), timestamp, LinearProblem.GeneratorState.OFF);
         fromOffConstraint.setCoefficient(linearProblem.addGeneratorStateVariable(generatorConstraints.getGeneratorId(), previousTimestamp, LinearProblem.GeneratorState.OFF), 1);
         fromOffConstraint.setCoefficient(linearProblem.getGeneratorStateTransitionVariable(generatorConstraints.getGeneratorId(), timestamp, LinearProblem.GeneratorState.OFF, LinearProblem.GeneratorState.OFF), -1);
-        if (generatorConstraints.getLeadTime().isPresent() && generatorConstraints.getLeadTime().get() <= timestampDuration) {
-            fromOffConstraint.setCoefficient(linearProblem.getGeneratorStateTransitionVariable(generatorConstraints.getGeneratorId(), timestamp, LinearProblem.GeneratorState.OFF, LinearProblem.GeneratorState.ON), -1);
-        } else {
+        if (leadTimeLongerThanTimestamp(generatorConstraints, timestampDuration)) {
             fromOffConstraint.setCoefficient(linearProblem.getGeneratorStateTransitionVariable(generatorConstraints.getGeneratorId(), timestamp, LinearProblem.GeneratorState.OFF, LinearProblem.GeneratorState.RAMP_UP), -1);
             OpenRaoMPConstraint fromRampUpConstraint = linearProblem.addGeneratorStateFromTransitionConstraint(generatorConstraints.getGeneratorId(), timestamp, LinearProblem.GeneratorState.RAMP_UP);
             fromRampUpConstraint.setCoefficient(linearProblem.getGeneratorStateTransitionVariable(generatorConstraints.getGeneratorId(), timestamp, LinearProblem.GeneratorState.RAMP_UP, LinearProblem.GeneratorState.RAMP_UP), -1);
             fromRampUpConstraint.setCoefficient(linearProblem.getGeneratorStateTransitionVariable(generatorConstraints.getGeneratorId(), timestamp, LinearProblem.GeneratorState.RAMP_UP, LinearProblem.GeneratorState.ON), -1);
-        }
-        if (generatorConstraints.getLagTime().isPresent() && generatorConstraints.getLagTime().get() <= timestampDuration) {
-            fromOnConstraint.setCoefficient(linearProblem.getGeneratorStateTransitionVariable(generatorConstraints.getGeneratorId(), timestamp, LinearProblem.GeneratorState.ON, LinearProblem.GeneratorState.OFF), -1);
         } else {
+            fromOffConstraint.setCoefficient(linearProblem.getGeneratorStateTransitionVariable(generatorConstraints.getGeneratorId(), timestamp, LinearProblem.GeneratorState.OFF, LinearProblem.GeneratorState.ON), -1);
+        }
+        if (lagTimeLongerThanTimestamp(generatorConstraints, timestampDuration)) {
             fromOnConstraint.setCoefficient(linearProblem.getGeneratorStateTransitionVariable(generatorConstraints.getGeneratorId(), timestamp, LinearProblem.GeneratorState.ON, LinearProblem.GeneratorState.RAMP_DOWN), -1);
             OpenRaoMPConstraint fromRampDownConstraint = linearProblem.addGeneratorStateFromTransitionConstraint(generatorConstraints.getGeneratorId(), timestamp, LinearProblem.GeneratorState.RAMP_DOWN);
             fromRampDownConstraint.setCoefficient(linearProblem.getGeneratorStateTransitionVariable(generatorConstraints.getGeneratorId(), timestamp, LinearProblem.GeneratorState.RAMP_DOWN, LinearProblem.GeneratorState.RAMP_DOWN), -1);
             fromRampDownConstraint.setCoefficient(linearProblem.getGeneratorStateTransitionVariable(generatorConstraints.getGeneratorId(), timestamp, LinearProblem.GeneratorState.RAMP_DOWN, LinearProblem.GeneratorState.OFF), -1);
+        } else {
+            fromOnConstraint.setCoefficient(linearProblem.getGeneratorStateTransitionVariable(generatorConstraints.getGeneratorId(), timestamp, LinearProblem.GeneratorState.ON, LinearProblem.GeneratorState.OFF), -1);
         }
     }
 
@@ -253,26 +254,26 @@ public class GeneratorConstraintsFiller implements ProblemFiller {
         OpenRaoMPConstraint toOffConstraint = linearProblem.addGeneratorStateToTransitionConstraint(generatorConstraints.getGeneratorId(), timestamp, LinearProblem.GeneratorState.OFF);
         toOffConstraint.setCoefficient(linearProblem.addGeneratorStateVariable(generatorConstraints.getGeneratorId(), timestamp, LinearProblem.GeneratorState.OFF), 1);
         toOffConstraint.setCoefficient(linearProblem.getGeneratorStateTransitionVariable(generatorConstraints.getGeneratorId(), timestamp, LinearProblem.GeneratorState.OFF, LinearProblem.GeneratorState.OFF), -1);
-        if (generatorConstraints.getLeadTime().isPresent() && generatorConstraints.getLeadTime().get() <= timestampDuration) {
-            toOnConstraint.setCoefficient(linearProblem.getGeneratorStateTransitionVariable(generatorConstraints.getGeneratorId(), timestamp, LinearProblem.GeneratorState.OFF, LinearProblem.GeneratorState.ON), -1);
-        } else {
+        if (leadTimeLongerThanTimestamp(generatorConstraints, timestampDuration)) {
             toOnConstraint.setCoefficient(linearProblem.getGeneratorStateTransitionVariable(generatorConstraints.getGeneratorId(), timestamp, LinearProblem.GeneratorState.RAMP_DOWN, LinearProblem.GeneratorState.RAMP_UP), -1);
             OpenRaoMPConstraint toRampUpConstraint = linearProblem.addGeneratorStateToTransitionConstraint(generatorConstraints.getGeneratorId(), timestamp, LinearProblem.GeneratorState.RAMP_UP);
             toRampUpConstraint.setCoefficient(linearProblem.getGeneratorStateTransitionVariable(generatorConstraints.getGeneratorId(), timestamp, LinearProblem.GeneratorState.RAMP_UP, LinearProblem.GeneratorState.RAMP_UP), -1);
             toRampUpConstraint.setCoefficient(linearProblem.getGeneratorStateTransitionVariable(generatorConstraints.getGeneratorId(), timestamp, LinearProblem.GeneratorState.OFF, LinearProblem.GeneratorState.RAMP_UP), -1);
-        }
-        if (generatorConstraints.getLagTime().isPresent() && generatorConstraints.getLagTime().get() <= timestampDuration) {
-            toOffConstraint.setCoefficient(linearProblem.getGeneratorStateTransitionVariable(generatorConstraints.getGeneratorId(), timestamp, LinearProblem.GeneratorState.ON, LinearProblem.GeneratorState.OFF), -1);
         } else {
+            toOnConstraint.setCoefficient(linearProblem.getGeneratorStateTransitionVariable(generatorConstraints.getGeneratorId(), timestamp, LinearProblem.GeneratorState.OFF, LinearProblem.GeneratorState.ON), -1);
+        }
+        if (lagTimeLongerThanTimestamp(generatorConstraints, timestampDuration)) {
             toOffConstraint.setCoefficient(linearProblem.getGeneratorStateTransitionVariable(generatorConstraints.getGeneratorId(), timestamp, LinearProblem.GeneratorState.RAMP_DOWN, LinearProblem.GeneratorState.OFF), -1);
             OpenRaoMPConstraint toRampDownConstraint = linearProblem.addGeneratorStateToTransitionConstraint(generatorConstraints.getGeneratorId(), timestamp, LinearProblem.GeneratorState.RAMP_DOWN);
             toRampDownConstraint.setCoefficient(linearProblem.getGeneratorStateTransitionVariable(generatorConstraints.getGeneratorId(), timestamp, LinearProblem.GeneratorState.RAMP_DOWN, LinearProblem.GeneratorState.RAMP_DOWN), -1);
             toRampDownConstraint.setCoefficient(linearProblem.getGeneratorStateTransitionVariable(generatorConstraints.getGeneratorId(), timestamp, LinearProblem.GeneratorState.ON, LinearProblem.GeneratorState.RAMP_DOWN), -1);
+        } else {
+            toOffConstraint.setCoefficient(linearProblem.getGeneratorStateTransitionVariable(generatorConstraints.getGeneratorId(), timestamp, LinearProblem.GeneratorState.ON, LinearProblem.GeneratorState.OFF), -1);
         }
     }
 
     private static void addRampUpTimeConstraints(LinearProblem linearProblem, GeneratorConstraints generatorConstraints, List<OffsetDateTime> timestamps, double timestampDuration) {
-        if (generatorConstraints.getLeadTime().isPresent() && generatorConstraints.getLeadTime().get() > timestampDuration) {
+        if (leadTimeLongerThanTimestamp(generatorConstraints, timestampDuration)) {
             int consecutiveRampUpSteps = ((int) Math.floor(generatorConstraints.getLeadTime().get() / timestampDuration)) - 1;
             int numberOfTimestamps = timestamps.size();
             for (int timestampIndex = 0; timestampIndex <= numberOfTimestamps; timestampIndex++) {
@@ -287,7 +288,7 @@ public class GeneratorConstraintsFiller implements ProblemFiller {
     }
 
     private static void addRampDownTimeConstraints(LinearProblem linearProblem, GeneratorConstraints generatorConstraints, List<OffsetDateTime> timestamps, double timestampDuration) {
-        if (generatorConstraints.getLagTime().isPresent() && generatorConstraints.getLagTime().get() > timestampDuration) {
+        if (lagTimeLongerThanTimestamp(generatorConstraints, timestampDuration)) {
             int consecutiveRampDownSteps = ((int) Math.floor(generatorConstraints.getLagTime().get() / timestampDuration)) - 1;
             int numberOfTimestamps = timestamps.size();
             for (int timestampIndex = 0; timestampIndex <= numberOfTimestamps; timestampIndex++) {
@@ -322,11 +323,7 @@ public class GeneratorConstraintsFiller implements ProblemFiller {
             powerTransitionConstraintInf.setLb(initialGeneratorPower);
             powerTransitionConstraintSup.setUb(initialGeneratorPower);
         }
-        if (generatorConstraints.getLeadTime().isPresent() && generatorConstraints.getLeadTime().get() <= timestampDuration) {
-            OpenRaoMPVariable offOnTransitionVariable = linearProblem.getGeneratorStateTransitionVariable(generatorConstraints.getGeneratorId(), timestamp, LinearProblem.GeneratorState.OFF, LinearProblem.GeneratorState.ON);
-            powerTransitionConstraintInf.setCoefficient(offOnTransitionVariable, -generatorConstraints.getPMin().orElse(0.0));
-            powerTransitionConstraintSup.setCoefficient(offOnTransitionVariable, -generatorConstraints.getPMin().orElse(0.0) - (timestampDuration - reducedLeadTime) * upwardPowerGradient);
-        } else {
+        if (leadTimeLongerThanTimestamp(generatorConstraints, timestampDuration)) {
             OpenRaoMPVariable offRampUpTransitionVariable = linearProblem.getGeneratorStateTransitionVariable(generatorConstraints.getGeneratorId(), timestamp, LinearProblem.GeneratorState.OFF, LinearProblem.GeneratorState.RAMP_UP);
             OpenRaoMPVariable rampUpRampUpTransitionVariable = linearProblem.getGeneratorStateTransitionVariable(generatorConstraints.getGeneratorId(), timestamp, LinearProblem.GeneratorState.RAMP_UP, LinearProblem.GeneratorState.RAMP_UP);
             OpenRaoMPVariable rampUpOnTransitionVariable = linearProblem.getGeneratorStateTransitionVariable(generatorConstraints.getGeneratorId(), timestamp, LinearProblem.GeneratorState.RAMP_UP, LinearProblem.GeneratorState.ON);
@@ -336,13 +333,13 @@ public class GeneratorConstraintsFiller implements ProblemFiller {
             powerTransitionConstraintSup.setCoefficient(offRampUpTransitionVariable, -timestampDuration * generatorConstraints.getPMin().orElse(0.0) / generatorConstraints.getLeadTime().get());
             powerTransitionConstraintSup.setCoefficient(rampUpRampUpTransitionVariable, -timestampDuration * generatorConstraints.getPMin().orElse(0.0) / generatorConstraints.getLeadTime().get());
             powerTransitionConstraintSup.setCoefficient(rampUpOnTransitionVariable, -reducedLeadTime * generatorConstraints.getPMin().orElse(0.0) / generatorConstraints.getLeadTime().get() - (timestampDuration - reducedLeadTime) * upwardPowerGradient);
+        } else {
+            OpenRaoMPVariable offOnTransitionVariable = linearProblem.getGeneratorStateTransitionVariable(generatorConstraints.getGeneratorId(), timestamp, LinearProblem.GeneratorState.OFF, LinearProblem.GeneratorState.ON);
+            powerTransitionConstraintInf.setCoefficient(offOnTransitionVariable, -generatorConstraints.getPMin().orElse(0.0));
+            powerTransitionConstraintSup.setCoefficient(offOnTransitionVariable, -generatorConstraints.getPMin().orElse(0.0) - (timestampDuration - reducedLeadTime) * upwardPowerGradient);
         }
 
-        if (generatorConstraints.getLagTime().isPresent() && generatorConstraints.getLagTime().get() <= timestampDuration) {
-            OpenRaoMPVariable onOffTransitionVariable = linearProblem.getGeneratorStateTransitionVariable(generatorConstraints.getGeneratorId(), timestamp, LinearProblem.GeneratorState.ON, LinearProblem.GeneratorState.OFF);
-            powerTransitionConstraintInf.setCoefficient(onOffTransitionVariable, generatorConstraints.getPMin().orElse(0.0) - (timestampDuration - reducedLagTime) * downwardPowerGradient);
-            powerTransitionConstraintSup.setCoefficient(onOffTransitionVariable, generatorConstraints.getPMin().orElse(0.0));
-        } else {
+        if (lagTimeLongerThanTimestamp(generatorConstraints, timestampDuration)) {
             OpenRaoMPVariable onRampDownTransitionVariable = linearProblem.getGeneratorStateTransitionVariable(generatorConstraints.getGeneratorId(), timestamp, LinearProblem.GeneratorState.ON, LinearProblem.GeneratorState.RAMP_DOWN);
             OpenRaoMPVariable rampDownRampDownTransitionVariable = linearProblem.getGeneratorStateTransitionVariable(generatorConstraints.getGeneratorId(), timestamp, LinearProblem.GeneratorState.RAMP_DOWN, LinearProblem.GeneratorState.RAMP_DOWN);
             OpenRaoMPVariable rampDownOffTransitionVariable = linearProblem.getGeneratorStateTransitionVariable(generatorConstraints.getGeneratorId(), timestamp, LinearProblem.GeneratorState.RAMP_DOWN, LinearProblem.GeneratorState.OFF);
@@ -352,10 +349,24 @@ public class GeneratorConstraintsFiller implements ProblemFiller {
             powerTransitionConstraintSup.setCoefficient(onRampDownTransitionVariable, reducedLagTime * generatorConstraints.getPMin().orElse(0.0) / generatorConstraints.getLagTime().get());
             powerTransitionConstraintSup.setCoefficient(rampDownRampDownTransitionVariable, timestampDuration * generatorConstraints.getPMin().orElse(0.0) / generatorConstraints.getLagTime().get());
             powerTransitionConstraintSup.setCoefficient(rampDownOffTransitionVariable, timestampDuration * generatorConstraints.getPMin().orElse(0.0) / generatorConstraints.getLagTime().get());
+        } else {
+            OpenRaoMPVariable onOffTransitionVariable = linearProblem.getGeneratorStateTransitionVariable(generatorConstraints.getGeneratorId(), timestamp, LinearProblem.GeneratorState.ON, LinearProblem.GeneratorState.OFF);
+            powerTransitionConstraintInf.setCoefficient(onOffTransitionVariable, generatorConstraints.getPMin().orElse(0.0) - (timestampDuration - reducedLagTime) * downwardPowerGradient);
+            powerTransitionConstraintSup.setCoefficient(onOffTransitionVariable, generatorConstraints.getPMin().orElse(0.0));
         }
     }
 
     // utility methods
+
+    private static boolean leadTimeLongerThanTimestamp(GeneratorConstraints generatorConstraints, double timestampDuration) {
+        Optional<Double> leadTime = generatorConstraints.getLeadTime();
+        return leadTime.isPresent() && leadTime.get() > timestampDuration;
+    }
+
+    private static boolean lagTimeLongerThanTimestamp(GeneratorConstraints generatorConstraints, double timestampDuration) {
+        Optional<Double> lagTime = generatorConstraints.getLeadTime();
+        return lagTime.isPresent() && lagTime.get() > timestampDuration;
+    }
 
     private static double computeTimestampDuration(List<OffsetDateTime> timestamps) {
         if (timestamps.size() < 2) {
