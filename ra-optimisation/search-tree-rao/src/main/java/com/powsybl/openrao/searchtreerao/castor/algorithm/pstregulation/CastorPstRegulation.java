@@ -15,7 +15,6 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Identifiable;
-import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
@@ -31,7 +30,6 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
@@ -64,8 +62,9 @@ public final class CastorPstRegulation {
             return Set.of();
         }
 
-        logContingencyScenariosToRegulate(statesToRegulate.stream().map(PstRegulationInput::curativeState).map(State::getContingency).filter(Optional::isPresent).map(Optional::get).collect(Collectors.toSet()));
-        logPstsToRegulate(rangeActionsToRegulate);
+        Set<Contingency> contingencies = statesToRegulate.stream().map(PstRegulationInput::curativeState).map(State::getContingency).filter(Optional::isPresent).map(Optional::get).collect(Collectors.toSet());
+        BUSINESS_LOGS.info("{} contingency scenario(s) to regulate: {}", contingencies.size(), String.join(", ", contingencies.stream().map(contingency -> contingency.getName().orElse(contingency.getId())).sorted().toList()));
+        BUSINESS_LOGS.info("{} PST(s) to regulate: {}", rangeActionsToRegulate.size(), String.join(", ", rangeActionsToRegulate.stream().map(PstRangeAction::getName).sorted().toList()));
 
         // update loadflow parameters
         LoadFlowParameters loadFlowParameters = getLoadFlowParameters(raoParameters);
@@ -136,14 +135,6 @@ public final class CastorPstRegulation {
             .min(Comparator.comparing(Identifiable::getId));
     }
 
-    private static void logContingencyScenariosToRegulate(Set<Contingency> contingencies) {
-        BUSINESS_LOGS.info("{} contingency scenario(s) to regulate: {}", contingencies.size(), String.join(", ", contingencies.stream().map(contingency -> contingency.getName().orElse(contingency.getId())).sorted().toList()));
-    }
-
-    private static void logPstsToRegulate(Set<PstRangeAction> rangeActionsToRegulate) {
-        BUSINESS_LOGS.info("{} PST(s) to regulate: {}", rangeActionsToRegulate.size(), String.join(", ", rangeActionsToRegulate.stream().map(PstRangeAction::getName).sorted().toList()));
-    }
-
     private static LoadFlowParameters getLoadFlowParameters(RaoParameters raoParameters) {
         return raoParameters.hasExtension(OpenRaoSearchTreeParameters.class) ? raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters() : new LoadFlowParameters();
     }
@@ -201,18 +192,9 @@ public final class CastorPstRegulation {
         // simulate contingency
         contingency.toModification().apply(networkClone);
 
-        // apply automatons
-        if (crac.hasAutoInstant()) {
-            State autoState = crac.getState(contingency, crac.getInstant(InstantKind.AUTO));
-            if (autoState != null) {
-                applyOptimalRemedialActionsForState(networkClone, raoResult, autoState);
-            }
-        }
-
-        // apply optimal curative remedial actions
-        crac.getInstants(InstantKind.CURATIVE).stream()
-            .map(instant -> crac.getState(contingency, instant))
-            .filter(Objects::nonNull)
+        // apply optimal automatons and curative remedial actions
+        crac.getStates(contingency).stream()
+            .filter(state -> !state.getInstant().isOutage())
             .forEach(state -> applyOptimalRemedialActionsForState(networkClone, raoResult, state));
     }
 
