@@ -62,7 +62,7 @@ public class GeneratorConstraintsFiller implements ProblemFiller {
                 addVariablesAndBasicConstraints(linearProblem, individualGeneratorConstraints, timestamp, previousTimestamp, timestampDuration, initialGeneratorPower, reducedLeadTime, reducedLagTime);
                 previousTimestamp = timestamp;
             }
-            addInterTemporalConstraints(linearProblem, individualGeneratorConstraints, timestamps, timestampDuration, reducedLeadTime, reducedLagTime);
+            addInterTemporalConstraints(linearProblem, individualGeneratorConstraints, timestamps, timestampDuration);
         }
     }
 
@@ -79,7 +79,7 @@ public class GeneratorConstraintsFiller implements ProblemFiller {
         addPowerTransitionConstraints(linearProblem, generatorConstraints, initialGeneratorPower, timestamp, previousTimestamp, timestampDuration, reducedLeadTime, reducedLagTime);
     }
 
-    private static void addInterTemporalConstraints(LinearProblem linearProblem, GeneratorConstraints generatorConstraints, List<OffsetDateTime> timestamps, double timestampDuration, double reducedLeadTime, double reducedLagTime) {
+    private static void addInterTemporalConstraints(LinearProblem linearProblem, GeneratorConstraints generatorConstraints, List<OffsetDateTime> timestamps, double timestampDuration) {
         addRampUpTimeConstraints(linearProblem, generatorConstraints, timestamps, timestampDuration);
         addRampDownTimeConstraints(linearProblem, generatorConstraints, timestamps, timestampDuration);
     }
