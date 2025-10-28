@@ -175,7 +175,7 @@ public final class CastorPstRegulation {
     }
 
     private static Map<String, PstRangeAction> getRangeActionPerPst(Set<String> pstsToRegulate, Crac crac) {
-        // filter out preventive only range actions, as results reporting would be less relevant
+        // filter out crac's last instant range actions, as results reporting would be less relevant
         return crac.getPstRangeActions().stream()
             .filter(pstRangeAction -> pstRangeAction.getUsageRules().stream().anyMatch(usageRule -> usageRule.getInstant() == crac.getLastInstant()))
             .filter(pstRangeAction -> pstsToRegulate.contains(pstRangeAction.getNetworkElement().getId()))
