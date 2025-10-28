@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.powsybl.openrao.searchtreerao.castor.algorithm;
+package com.powsybl.openrao.searchtreerao.castor.algorithm.pstregulation;
 
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Network;

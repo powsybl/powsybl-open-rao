@@ -20,6 +20,8 @@ import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoPstRegulationParameters;
+import com.powsybl.openrao.searchtreerao.castor.algorithm.pstregulation.CastorPstRegulation;
+import com.powsybl.openrao.searchtreerao.castor.algorithm.pstregulation.PstRegulationResult;
 import com.powsybl.openrao.searchtreerao.commons.RaoLogger;
 import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
@@ -299,10 +301,8 @@ public class CastorFullOptimization {
         return true;
     }
 
-   /**
+    /**
      * Return initial result if RAO has increased cost and handleCostIncrease is set to true
-     */
-     * Return initial result if RAO has increased cost
      */
     private CompletableFuture<RaoResult> postCheckResults(RaoResult raoResult, PrePerimeterResult initialResult, ObjectiveFunctionParameters objectiveFunctionParameters, boolean handleCostIncrease) {
         RaoResult finalRaoResult = raoResult;
