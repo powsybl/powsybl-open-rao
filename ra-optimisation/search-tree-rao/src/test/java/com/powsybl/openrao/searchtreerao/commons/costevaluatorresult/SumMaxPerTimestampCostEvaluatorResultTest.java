@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.time.OffsetDateTime;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -31,90 +32,93 @@ class SumMaxPerTimestampCostEvaluatorResultTest {
 
     private FlowCnec flowCnecPreventiveT1;
     private FlowCnec flowCnecPreventiveT2;
-    private FlowCnec flowCnecPreventiveT3;
+    private FlowCnec flowCnecPreventiveNoTimestamp;
     private FlowCnec flowCnecCurative1T1;
-    private FlowCnec flowCnecCurative12T1;
-    private FlowCnec flowCnecCurativeT2;
-    private FlowCnec flowCnecCurativeT3;
+    private FlowCnec flowCnecCurative1T2;
+    private FlowCnec flowCnecCurative1NoTimestamp;
+    private FlowCnec flowCnecCurative2T1;
+    private FlowCnec flowCnecCurative2T2;
+    private FlowCnec flowCnecCurative2NoTimestamp;
+    private FlowCnec flowCnecCurative3T1;
+    private FlowCnec flowCnecCurative3T2;
+    private FlowCnec flowCnecCurative3NoTimestamp;
 
-    private State preventiveStateT1;
-    private State preventiveStateT2;
-    private State preventiveStateT3;
-    private State curativeStateT1;
-    private State curativeStateT2;
-    private State curativeStateT3;
-    private OffsetDateTime timestamp1 = OffsetDateTime.parse("2025-02-25T15:11Z");
-    private OffsetDateTime timestamp2 = OffsetDateTime.parse("2025-02-25T16:11Z");
+    private final OffsetDateTime timestamp1 = OffsetDateTime.parse("2025-02-25T15:11Z");
+    private final OffsetDateTime timestamp2 = OffsetDateTime.parse("2025-02-25T16:11Z");
 
     @BeforeEach
     void setUp() {
-        preventiveStateT1 = Mockito.mock(State.class);
-        Mockito.when(preventiveStateT1.getContingency()).thenReturn(Optional.empty());
-        flowCnecPreventiveT1 = Mockito.mock(FlowCnec.class);
-        Mockito.when(flowCnecPreventiveT1.getState()).thenReturn(preventiveStateT1);
-        Mockito.when(flowCnecPreventiveT1.getId()).thenReturn("cnec-preventive-t1");
-        Mockito.when(flowCnecPreventiveT1.isOptimized()).thenReturn(true);
+        Contingency contingency1 = mockContingency("contingency-1");
+        Contingency contingency2 = mockContingency("contingency-2");
+        Contingency contingency3 = mockContingency("contingency-3");
 
-        preventiveStateT2 = Mockito.mock(State.class);
-        Mockito.when(preventiveStateT2.getContingency()).thenReturn(Optional.empty());
-        flowCnecPreventiveT2 = Mockito.mock(FlowCnec.class);
-        Mockito.when(flowCnecPreventiveT2.getState()).thenReturn(preventiveStateT2);
-        Mockito.when(flowCnecPreventiveT2.getId()).thenReturn("cnec-preventive-t2");
-        Mockito.when(flowCnecPreventiveT2.isOptimized()).thenReturn(true);
+        State preventiveStateT1 = mockState(null, timestamp1);
+        State preventiveStateT2 = mockState(null, timestamp2);
+        State preventiveStateNoTimestamp = mockState(null, null);
 
-        preventiveStateT3 = Mockito.mock(State.class);
-        Mockito.when(preventiveStateT3.getContingency()).thenReturn(Optional.empty());
-        flowCnecPreventiveT3 = Mockito.mock(FlowCnec.class);
-        Mockito.when(flowCnecPreventiveT3.getState()).thenReturn(preventiveStateT3);
-        Mockito.when(flowCnecPreventiveT3.getId()).thenReturn("cnec-preventive-no-timestamp");
-        Mockito.when(flowCnecPreventiveT3.isOptimized()).thenReturn(true);
+        State curativeState1T1 = mockState(contingency1, timestamp1);
+        State curativeState1T2 = mockState(contingency1, timestamp2);
+        State curativeState1NoTimestamp = mockState(contingency1, null);
 
-        Contingency contingency1 = Mockito.mock(Contingency.class);
-        Mockito.when(contingency1.getId()).thenReturn("contingency-1");
-        curativeStateT1 = Mockito.mock(State.class);
-        Mockito.when(curativeStateT1.getContingency()).thenReturn(Optional.of(contingency1));
-        flowCnecCurative1T1 = Mockito.mock(FlowCnec.class);
-        Mockito.when(flowCnecCurative1T1.getState()).thenReturn(curativeStateT1);
-        Mockito.when(flowCnecCurative1T1.getId()).thenReturn("cnec-curative1");
-        Mockito.when(flowCnecCurative1T1.isOptimized()).thenReturn(true);
-        flowCnecCurative12T1 = Mockito.mock(FlowCnec.class);
-        Mockito.when(flowCnecCurative12T1.getState()).thenReturn(curativeStateT1);
-        Mockito.when(flowCnecCurative12T1.getId()).thenReturn("cnec-curative12");
-        Mockito.when(flowCnecCurative12T1.isOptimized()).thenReturn(true);
+        State curativeState2T1 = mockState(contingency2, timestamp1);
+        State curativeState2T2 = mockState(contingency2, timestamp2);
+        State curativeState2NoTimestamp = mockState(contingency2, null);
 
-        Contingency contingency2 = Mockito.mock(Contingency.class);
-        Mockito.when(contingency2.getId()).thenReturn("contingency-2");
-        curativeStateT2 = Mockito.mock(State.class);
-        Mockito.when(curativeStateT2.getContingency()).thenReturn(Optional.of(contingency2));
-        flowCnecCurativeT2 = Mockito.mock(FlowCnec.class);
-        Mockito.when(flowCnecCurativeT2.getState()).thenReturn(curativeStateT2);
-        Mockito.when(flowCnecCurativeT2.getId()).thenReturn("cnec-curative2");
-        Mockito.when(flowCnecCurativeT2.isOptimized()).thenReturn(true);
+        State curativeState3T1 = mockState(contingency3, timestamp1);
+        State curativeState3T2 = mockState(contingency3, timestamp2);
+        State curativeState3NoTimestamp = mockState(contingency3, null);
 
-        Contingency contingency3 = Mockito.mock(Contingency.class);
-        Mockito.when(contingency3.getId()).thenReturn("contingency-3");
-        curativeStateT3 = Mockito.mock(State.class);
-        Mockito.when(curativeStateT3.getContingency()).thenReturn(Optional.of(contingency3));
-        flowCnecCurativeT3 = Mockito.mock(FlowCnec.class);
-        Mockito.when(flowCnecCurativeT3.getState()).thenReturn(curativeStateT3);
-        Mockito.when(flowCnecCurativeT3.getId()).thenReturn("cnec-curative3");
-        Mockito.when(flowCnecCurativeT3.isOptimized()).thenReturn(true);
+        flowCnecPreventiveT1 = mockFlowCnec("cnec-preventive-t1", preventiveStateT1);
+        flowCnecPreventiveT2 = mockFlowCnec("cnec-preventive-t2", preventiveStateT2);
+        flowCnecPreventiveNoTimestamp = mockFlowCnec("cnec-preventive", preventiveStateNoTimestamp);
+
+        flowCnecCurative1T1 = mockFlowCnec("cnec-curative-1-t1", curativeState1T1);
+        flowCnecCurative1T2 = mockFlowCnec("cnec-curative-1-t2", curativeState1T2);
+        flowCnecCurative1NoTimestamp = mockFlowCnec("cnec-curative-1", curativeState1NoTimestamp);
+
+        flowCnecCurative2T1 = mockFlowCnec("cnec-curative-2-t1", curativeState2T1);
+        flowCnecCurative2T2 = mockFlowCnec("cnec-curative-2-t2", curativeState2T2);
+        flowCnecCurative2NoTimestamp = mockFlowCnec("cnec-curative-2", curativeState2NoTimestamp);
+
+        flowCnecCurative3T1 = mockFlowCnec("cnec-curative-3-t1", curativeState3T1);
+        flowCnecCurative3T2 = mockFlowCnec("cnec-curative-3-t2", curativeState3T2);
+        flowCnecCurative3NoTimestamp = mockFlowCnec("cnec-curative-3", curativeState3NoTimestamp);
     }
 
-    void addTimestamp() {
-        Mockito.when(preventiveStateT1.getTimestamp()).thenReturn(Optional.of(timestamp1));
-        Mockito.when(preventiveStateT2.getTimestamp()).thenReturn(Optional.of(timestamp2));
-        Mockito.when(preventiveStateT3.getTimestamp()).thenReturn(Optional.empty());
-        Mockito.when(curativeStateT1.getTimestamp()).thenReturn(Optional.of(timestamp1));
-        Mockito.when(curativeStateT2.getTimestamp()).thenReturn(Optional.of(timestamp2));
-        Mockito.when(curativeStateT3.getTimestamp()).thenReturn(Optional.empty());
+    private static Contingency mockContingency(String contingencyId) {
+        Contingency contingency = Mockito.mock(Contingency.class);
+        Mockito.when(contingency.getId()).thenReturn(contingencyId);
+        return contingency;
+    }
 
+    private static State mockState(Contingency contingency, OffsetDateTime timestamp) {
+        State state = Mockito.mock(State.class);
+        // mock contingency
+        if (contingency == null) {
+            Mockito.when(state.getContingency()).thenReturn(Optional.empty());
+        } else {
+            Mockito.when(state.getContingency()).thenReturn(Optional.of(contingency));
+        }
+        // mock timestamp
+        if (timestamp == null) {
+            Mockito.when(state.getTimestamp()).thenReturn(Optional.empty());
+        } else {
+            Mockito.when(state.getTimestamp()).thenReturn(Optional.of(timestamp));
+        }
+        return state;
+    }
+
+    private static FlowCnec mockFlowCnec(String flowCnecId, State state) {
+        FlowCnec flowCnec = Mockito.mock(FlowCnec.class);
+        Mockito.when(flowCnec.getId()).thenReturn(flowCnecId);
+        Mockito.when(flowCnec.getState()).thenReturn(state);
+        Mockito.when(flowCnec.isOptimized()).thenReturn(true);
+        return flowCnec;
     }
 
     @Test
     void testEvaluator() {
-        addTimestamp();
-        Map<FlowCnec, Double> marginPerCnec = Map.of(flowCnecPreventiveT1, -10.0, flowCnecCurative1T1, -50.0, flowCnecCurative12T1, -120.0, flowCnecPreventiveT2, -34.0, flowCnecCurativeT2, -546.0, flowCnecPreventiveT3, 43.0, flowCnecCurativeT3, -76.0);
+        Map<FlowCnec, Double> marginPerCnec = Map.of(flowCnecPreventiveT1, -10.0, flowCnecCurative1T1, -50.0, flowCnecCurative2T1, -120.0, flowCnecPreventiveT2, -34.0, flowCnecCurative1T2, -546.0, flowCnecPreventiveNoTimestamp, 43.0, flowCnecCurative1NoTimestamp, -76.0);
         SumMaxPerTimestampCostEvaluatorResult evaluatorResult = new SumMaxPerTimestampCostEvaluatorResult(
             marginPerCnec,
             List.of(),
@@ -123,15 +127,24 @@ class SumMaxPerTimestampCostEvaluatorResultTest {
 
         // timestamp 1: -120, -10, -50 -> minMargin = -120 -> cost = 120
         // timestamp 2: -34, -546 -> minMargin = -546 -> cost = 546
-        // timestamp 3: 43, -76 -> minMargin = -76 -> cost = 76
+        // no timestamp: 43, -76 -> minMargin = -76 -> cost = 76
         // the expected evaluation in the sum of maxes: 120 + 546 + 76 = 742
         assertEquals(742, evaluatorResult.getCost(Set.of(), Set.of()));
     }
 
     @Test
     void testEvaluatorWithExclusion() {
-        addTimestamp();
-        Map<FlowCnec, Double> marginPerCnec = Map.of(flowCnecPreventiveT1, -10.0, flowCnecCurative1T1, -50.0, flowCnecCurative12T1, -120.0, flowCnecPreventiveT2, -34.0, flowCnecCurativeT2, -546.0, flowCnecPreventiveT3, 43.0, flowCnecCurativeT3, -76.0);
+        Map<FlowCnec, Double> marginPerCnec = Map.of(
+            flowCnecPreventiveT1, -10.0,
+            flowCnecCurative1T1, -50.0,
+            flowCnecCurative2T1, -120.0,
+            flowCnecCurative3T1, -200.0,
+            flowCnecPreventiveT2, -34.0,
+            flowCnecCurative2T2, -546.0,
+            flowCnecCurative3T2, -211.0,
+            flowCnecPreventiveNoTimestamp, 43.0,
+            flowCnecCurative2NoTimestamp, -76.0
+        );
         SumMaxPerTimestampCostEvaluatorResult evaluatorResult = new SumMaxPerTimestampCostEvaluatorResult(
             marginPerCnec,
             List.of(),
@@ -142,19 +155,24 @@ class SumMaxPerTimestampCostEvaluatorResultTest {
         // Also exclude cnec-curative12
         // timestamp 1: -10, -50 -> minMargin = -50 ->  cost = 50
         // timestamp 2: 34      -> minMargin = -34 ->  cost = 34
-        // timestamp 3: -43     -> minMargin = 43 ->  cost = -43
+        // no timestamp: -43     -> minMargin = 43 ->  cost = -43
         // the expected evaluation in the sum of maxes: 50 + 34 - 43 = 41
         assertEquals(41, evaluatorResult.getCost(Set.of("contingency-3", "contingency-2"), Set.of("cnec-curative12")));
     }
 
     @Test
     void testWithoutAnyTimestampWithExclusion() {
-        Map<FlowCnec, Double> marginPerCnec = Map.of(flowCnecPreventiveT1, -10.0, flowCnecCurative1T1, -50.0, flowCnecCurative12T1, -40.0, flowCnecCurativeT2, 20.0, flowCnecCurativeT3, -17.0);
+        Map<FlowCnec, Double> marginPerCnec = Map.of(
+            flowCnecPreventiveNoTimestamp, -10.0,
+            flowCnecCurative1NoTimestamp, -50.0,
+            flowCnecCurative2NoTimestamp, -40.0,
+            flowCnecCurative3NoTimestamp, -17.0
+        );
         SumMaxPerTimestampCostEvaluatorResult evaluatorResult = new SumMaxPerTimestampCostEvaluatorResult(marginPerCnec, List.of(), Unit.MEGAWATT);
-        assertEquals(50.0, evaluatorResult.getCost(Set.of(), Set.of()));
-        assertEquals(17.0, evaluatorResult.getCost(Set.of("contingency-1", "contingency-2"), Set.of()));
-        assertEquals(40.0, evaluatorResult.getCost(Set.of(), Set.of("cnec-curative1")));
-        assertEquals(17.0, evaluatorResult.getCost(Set.of("contingency-1"), Set.of("cnec-curative1")));
+        assertEquals(50.0, evaluatorResult.getCost(new HashSet<>(), new HashSet<>()));
+        assertEquals(17.0, evaluatorResult.getCost(Set.of("contingency-1", "contingency-2"), new HashSet<>()));
+        assertEquals(40.0, evaluatorResult.getCost(new HashSet<>(), Set.of("cnec-curative-1")));
+        assertEquals(10.0, evaluatorResult.getCost(Set.of("contingency-3"), Set.of("cnec-curative-1", "cnec-curative-2")));
     }
 
     @Test
