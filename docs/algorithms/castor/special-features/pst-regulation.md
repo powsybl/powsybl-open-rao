@@ -3,10 +3,10 @@
 ## Presentation
 
 At the end of the curative optimization of the RAO, it is possible to perform a PST regulation in case there are still
-overloads and if the most limiting element is a FlowCNEC secured by one of the PSTs to be regulated. This set of PSTs to
-regulate can be provided in the
-[RAO parameters](../parameters/implementation-specific-parameters.md#pst-regulation-parameters). The, for each curative
-scenario, if the most limiting element is a FlowCNEC monitoring one of these monitored lines, they are all regulated.
+overloads and if the most limiting element is a FlowCNEC in series with one of the PSTs to be regulated, whose role is
+to secure said FlowCNEC. This set of PSTs to regulate can be provided in the
+[RAO parameters](../parameters/implementation-specific-parameters.md#pst-regulation-parameters). Then, for each curative
+scenario, if the most limiting element is a FlowCNEC in series with a PST, all the PSTs are regulated.
 
 Such monitored lines can be the PSTs themselves or lines connected in series.
 
@@ -16,9 +16,9 @@ Such monitored lines can be the PSTs themselves or lines connected in series.
 
 PST regulation is performed directly by the load flow engine provided
 by [PowSyBl Open Load Flow](https://powsybl.readthedocs.io/projects/powsybl-open-loadflow/en/stable/index.html). This
-basically consists in iterative load flow computations with the tap of one of the regulated PST moved in the resistive
-direction each time. As soon as the monitored line is secure, the tap does no longer need to be moved. When all taps are converged,
-the iterations stop and the regulation is over.
+basically consists in iterative load flow computations with the tap of one of the regulated PST moved in the direction
+that favors the security of the monitored line each time. As soon as the monitored line is secure, the tap does no
+longer need to be moved. When all taps have reached a fixed position, the iterations stop and the regulation is over.
 
 Regulation results are then merged with the RAO result to provide the final results. If a PST was moved during
 regulation, this will appear as a result from the curative optimization.
@@ -31,7 +31,7 @@ considered to have the same permanent limit (PATL) and the same impedance. The P
 neutral tap is 0.
 
 The first step is to fill the RAO parameters with
-[PST regulation parameters](../parameters/implementation-specific-parameters.md#pst-regulation-parameters) to indicate
+[PST regulation parameters](../../../parameters/implementation-specific-parameters.md#pst-regulation-parameters) to indicate
 that the PST can be regulated.
 
 ```json
