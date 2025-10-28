@@ -299,7 +299,9 @@ public class CastorFullOptimization {
         return true;
     }
 
-    /**
+   /**
+     * Return initial result if RAO has increased cost and handleCostIncrease is set to true
+     */
      * Return initial result if RAO has increased cost
      */
     private CompletableFuture<RaoResult> postCheckResults(RaoResult raoResult, PrePerimeterResult initialResult, ObjectiveFunctionParameters objectiveFunctionParameters, boolean handleCostIncrease) {
