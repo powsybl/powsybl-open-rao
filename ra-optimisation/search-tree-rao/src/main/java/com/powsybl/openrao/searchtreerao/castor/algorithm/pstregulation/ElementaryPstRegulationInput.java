@@ -18,6 +18,10 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
+ * Helper class to store all the data required for the regulation of a PST. It contains the PST range action with the
+ * most limiting threshold of the FlowCNEC monitored by the PST and its associated side. The record representation
+ * allows a more elegant and convenient manipulation of the data to configure the PST regulation for OpenLoadFlow.
+ *
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
 public record ElementaryPstRegulationInput(PstRangeAction pstRangeAction, TwoSides limitingSide, double limitingThreshold) {

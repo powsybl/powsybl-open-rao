@@ -15,6 +15,7 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Identifiable;
+import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
@@ -99,12 +100,15 @@ public final class CastorPstRegulation {
     }
 
     private static Set<PstRegulationInput> getStatesToRegulate(Crac crac, Map<State, PostPerimeterResult> postContingencyResults, Unit unit, Set<PstRangeAction> rangeActionsToRegulate, Map<String, String> linesInSeriesWithPst) {
-        return crac.getStates(crac.getLastInstant()).stream()
-            .filter(postContingencyResults::containsKey)
-            .map(curativeState -> getPstRegulationInput(curativeState, crac, postContingencyResults.get(curativeState), unit, rangeActionsToRegulate, linesInSeriesWithPst))
-            .filter(Optional::isPresent)
-            .map(Optional::get)
-            .collect(Collectors.toSet());
+        Instant lastInstant = crac.getLastInstant();
+        return lastInstant.isCurative() ?
+            crac.getStates(lastInstant).stream()
+                .filter(postContingencyResults::containsKey)
+                .map(curativeState -> getPstRegulationInput(curativeState, crac, postContingencyResults.get(curativeState), unit, rangeActionsToRegulate, linesInSeriesWithPst))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toSet())
+            : Set.of();
     }
 
     private static Optional<PstRegulationInput> getPstRegulationInput(State curativeState, Crac crac, PostPerimeterResult postPerimeterResult, Unit unit, Set<PstRangeAction> rangeActionsToRegulate, Map<String, String> linesInSeriesWithPst) {
