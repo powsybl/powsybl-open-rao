@@ -68,7 +68,7 @@ public final class LinearProblemIdGenerator {
     private static final String GENERATOR_STATE_TO = "generatorstateto";
     private static final String GENERATOR_POWER_OFF = "generatorpoweroff";
     private static final String GENERATOR_POWER_ON = "generatorpoweron";
-    private static final String GENERATOR_POWER_TRANSITION = "generatorpowertransition";
+    private static final String GENERATOR_POWER_VARIATION = "generatorpowervariation";
     private static final String GENERATOR_TIME = "generatortime";
     private static final DateTimeFormatter DATE_TIME_FORMATER = DateTimeFormatter.ofPattern("yyyyMMddHHmm");
 
@@ -327,7 +327,7 @@ public final class LinearProblemIdGenerator {
     }
 
     public static String generatorPowerTransitionConstraintId(String generatorId, OffsetDateTime timestamp, LinearProblem.AbsExtension positiveOrNegative) {
-        return formatName(Optional.of(timestamp), GENERATOR_POWER_TRANSITION, generatorId, CONSTRAINT_SUFFIX, positiveOrNegative.toString());
+        return formatName(Optional.of(timestamp), GENERATOR_POWER_VARIATION, generatorId, CONSTRAINT_SUFFIX, positiveOrNegative.toString());
     }
 
     public static String generatorStateTimeConstraintId(String generatorId, OffsetDateTime timestamp, LinearProblem.GeneratorState generatorState, LinearProblem.MinOrMax minOrMax) {

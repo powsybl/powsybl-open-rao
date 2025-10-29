@@ -208,7 +208,7 @@ class MarmotTest {
                 timestamp1, RaoInputWithNetworkPaths.build(networkAbsolutePath, networkAbsolutePath, crac1).build(),
                 timestamp2, RaoInputWithNetworkPaths.build(networkAbsolutePath, networkAbsolutePath, crac2).build(),
                 timestamp3, RaoInputWithNetworkPaths.build(networkAbsolutePath, networkAbsolutePath, crac3).build())),
-            Set.of(GeneratorConstraints.create().withGeneratorId("FFR3AA1 _generator").withLeadTime(0.0).withLagTime(0.0).withPMin(0.0).withPMax(1000.0).withUpwardPowerGradient(200.0).withDownwardPowerGradient(0.0).build())
+            Set.of(GeneratorConstraints.create().withGeneratorId("FFR3AA1 _generator").withUpwardPowerGradient(200.0).build())
         );
 
         // no redispatching required during the first timestamp
