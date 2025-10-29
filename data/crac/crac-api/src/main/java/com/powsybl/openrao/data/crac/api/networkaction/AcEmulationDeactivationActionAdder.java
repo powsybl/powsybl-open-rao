@@ -10,7 +10,5 @@ package com.powsybl.openrao.data.crac.api.networkaction;
 /**
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
  */
-public interface AcEmulationSwitchActionAdder extends SingleNetworkElementActionAdder<AcEmulationSwitchActionAdder> {
-
-    AcEmulationSwitchActionAdder withActionType(ActionType actionType);
+public interface AcEmulationDeactivationActionAdder extends SingleNetworkElementActionAdder<AcEmulationDeactivationActionAdder> {
 }

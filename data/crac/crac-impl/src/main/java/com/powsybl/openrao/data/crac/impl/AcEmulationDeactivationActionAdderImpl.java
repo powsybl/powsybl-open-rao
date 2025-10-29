@@ -9,42 +9,36 @@ package com.powsybl.openrao.data.crac.impl;
 
 import com.powsybl.action.Action;
 import com.powsybl.action.HvdcActionBuilder;
-import com.powsybl.openrao.data.crac.api.networkaction.AcEmulationSwitchActionAdder;
+import com.powsybl.openrao.data.crac.api.networkaction.AcEmulationDeactivationActionAdder;
 import com.powsybl.openrao.data.crac.api.networkaction.ActionType;
 
 import static com.powsybl.openrao.data.crac.api.networkaction.ActionType.ACTIVATE;
+import static com.powsybl.openrao.data.crac.api.networkaction.ActionType.DEACTIVATE;
 import static com.powsybl.openrao.data.crac.impl.AdderUtils.assertAttributeNotNull;
 
 /**
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
  */
-public class AcEmulationSwitchActionAdderImpl extends AbstractSingleNetworkElementActionAdderImpl<AcEmulationSwitchActionAdder> implements AcEmulationSwitchActionAdder {
+public class AcEmulationDeactivationActionAdderImpl extends AbstractSingleNetworkElementActionAdderImpl<AcEmulationDeactivationActionAdder> implements AcEmulationDeactivationActionAdder {
 
-    private ActionType actionType;
 
-    AcEmulationSwitchActionAdderImpl(NetworkActionAdderImpl ownerAdder) {
+    AcEmulationDeactivationActionAdderImpl(NetworkActionAdderImpl ownerAdder) {
         super(ownerAdder);
-    }
-
-    @Override
-    public AcEmulationSwitchActionAdder withActionType(ActionType actionType) {
-        this.actionType = actionType;
-        return this;
     }
 
     protected Action buildAction() {
         return new HvdcActionBuilder()
-                .withId(String.format("%s_%s_%s", getActionName(), networkElementId, actionType))
+                .withId(String.format("%s_%s_%s", getActionName(), networkElementId, DEACTIVATE))
                 .withHvdcId(networkElementId)
-                .withAcEmulationEnabled(actionType == ACTIVATE)
+                .withAcEmulationEnabled(false)
                 .build();
     }
 
     protected void assertSpecificAttributes() {
-        assertAttributeNotNull(actionType, getActionName(), "actionType", "withActionType()");
+        assertAttributeNotNull(DEACTIVATE, getActionName(), "actionType", "withActionType()");
     }
 
     protected String getActionName() {
-        return "AcEmulationSwitchAction";
+        return "AcEmulationDeactivationAction";
     }
 }

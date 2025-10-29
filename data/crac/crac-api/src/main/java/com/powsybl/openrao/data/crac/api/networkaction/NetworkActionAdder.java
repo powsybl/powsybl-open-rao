@@ -31,7 +31,7 @@ public interface NetworkActionAdder extends RemedialActionAdder<NetworkActionAdd
 
     SwitchPairAdder newSwitchPair();
 
-    AcEmulationSwitchActionAdder newAcEmulationSwitchAction();
+    AcEmulationDeactivationActionAdder newAcEmulationDeactivationAction();
 
     NetworkAction add();
 }
