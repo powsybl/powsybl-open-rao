@@ -206,8 +206,8 @@ class LeafTest {
     }
 
     @Test
-    void testLeafDefinitionWithAcEmulationSwitchNetworkAction() {
-        // An ac emulation switch action is activated.
+    void testLeafDefinitionWithAcEmulationDeactivationNetworkAction() {
+        // An ac emulation deactivation action is activated.
         Network networkWithAngleDroop = import16NodesNetworkWithAngleDroopHvdcs();
         Leaf rootLeaf = new Leaf(optimizationPerimeter, networkWithAngleDroop, prePerimeterResult, appliedRemedialActions);
         RangeActionActivationResult rangeActionActivationResult = Mockito.mock(RangeActionActivationResult.class);

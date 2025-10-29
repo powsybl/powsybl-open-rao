@@ -10,7 +10,7 @@ package com.powsybl.openrao.data.crac.impl;
 import com.powsybl.action.HvdcAction;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.Crac;
-import com.powsybl.openrao.data.crac.api.networkaction.AcEmulationSwitchActionAdder;
+import com.powsybl.openrao.data.crac.api.networkaction.AcEmulationDeactivationActionAdder;
 import com.powsybl.openrao.data.crac.api.networkaction.ActionType;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkActionAdder;
@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
  */
-public class AcEmulationSwitchActionAdderImplTest {
+public class AcEmulationDeactivationActionAdderImplTest {
     private Crac crac;
     private NetworkActionAdder networkActionAdder;
 
@@ -37,9 +37,8 @@ public class AcEmulationSwitchActionAdderImplTest {
 
     @Test
     void testOk() {
-        NetworkAction networkAction = networkActionAdder.newAcEmulationSwitchAction()
+        NetworkAction networkAction = networkActionAdder.newAcEmulationDeactivationAction()
             .withNetworkElement("hvdcLineElementId")
-            .withActionType(ActionType.DEACTIVATE)
             .add()
             .add();
 
@@ -54,15 +53,14 @@ public class AcEmulationSwitchActionAdderImplTest {
 
     @Test
     void testNoNetworkElement() {
-        AcEmulationSwitchActionAdder acEmulationSwitchActionAdder = networkActionAdder.newAcEmulationSwitchAction()
-            .withActionType(ActionType.DEACTIVATE);
-        assertThrows(OpenRaoException.class, acEmulationSwitchActionAdder::add);
+        AcEmulationDeactivationActionAdder acEmulationDeactivationActionAdder = networkActionAdder.newAcEmulationDeactivationAction();
+        assertThrows(OpenRaoException.class, acEmulationDeactivationActionAdder::add);
     }
 
     @Test
     void testNoActionType() {
-        AcEmulationSwitchActionAdder acEmulationSwitchActionAdder = networkActionAdder.newAcEmulationSwitchAction()
+        AcEmulationDeactivationActionAdder acEmulationDeactivationActionAdder = networkActionAdder.newAcEmulationDeactivationAction()
             .withNetworkElement("hvdcLineElementId");
-        assertThrows(OpenRaoException.class, acEmulationSwitchActionAdder::add);
+        assertThrows(OpenRaoException.class, acEmulationDeactivationActionAdder::add);
     }
 }

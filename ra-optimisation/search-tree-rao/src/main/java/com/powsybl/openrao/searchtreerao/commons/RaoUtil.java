@@ -247,30 +247,29 @@ public final class RaoUtil {
 
             String hvdcLineId = hvdcRangeAction.getNetworkElement().getId();
 
-            Set<NetworkAction> acEmulationSwitchActionOnHvdcLine = crac.getNetworkActions().stream()
+            Set<NetworkAction> acEmulationDeactivationActionOnHvdcLine = crac.getNetworkActions().stream()
                 .filter(ra -> ra.getElementaryActions().stream().allMatch(action -> action instanceof HvdcAction))
-                .filter(ra -> ra.getElementaryActions().stream().anyMatch(action ->
+                .filter(ra -> ra.getElementaryActions().stream().allMatch(action ->
                     ((HvdcAction) action).getHvdcId().equals(hvdcLineId)
                 )).collect(Collectors.toSet());
 
             HvdcAngleDroopActivePowerControl hvdcAngleDoopActivePowerControl = IidmHvdcHelper.getHvdcLine(network, hvdcLineId).getExtension(HvdcAngleDroopActivePowerControl.class);
             if (hvdcAngleDoopActivePowerControl != null && hvdcAngleDoopActivePowerControl.isEnabled()) {
                 String networkActionId = String.format("%s_%s", "acEmulationDeactivation", hvdcLineId);
-                if (acEmulationSwitchActionOnHvdcLine.isEmpty()) {
+                if (acEmulationDeactivationActionOnHvdcLine.isEmpty()) {
                     // create the network action using the adder
-                    NetworkActionAdder acEmulationSwitchActionAdder = crac.newNetworkAction()
+                    NetworkActionAdder acEmulationDeactivationActionAdder = crac.newNetworkAction()
                         .withId(networkActionId)
                         .withOperator(hvdcRangeAction.getOperator())
-                        .newAcEmulationSwitchAction()
+                        .newAcEmulationDeactivationAction()
                         .withNetworkElement(hvdcLineId)
-                        .withActionType(ActionType.DEACTIVATE)
                         .add();
-                    addAllUsageRuleNotInAuto(hvdcRangeAction, acEmulationSwitchActionAdder);
-                    acEmulationSwitchActionAdder.add();
+                    addAllUsageRuleNotInAuto(hvdcRangeAction, acEmulationDeactivationActionAdder);
+                    acEmulationDeactivationActionAdder.add();
                 } else {
-                    NetworkAction acEmulationSwitchAction = acEmulationSwitchActionOnHvdcLine.iterator().next();
+                    NetworkAction acEmulationDeactivationAction = acEmulationDeactivationActionOnHvdcLine.iterator().next();
                     hvdcRangeAction.getUsageRules().stream().forEach(
-                        usageRule -> acEmulationSwitchAction.addUsageRule(usageRule)
+                        usageRule -> acEmulationDeactivationAction.addUsageRule(usageRule)
                     );
                 }
             }
@@ -278,30 +277,29 @@ public final class RaoUtil {
     }
 
     // Add all the usage rule of the range action to the network action except if its in auto.
-    static void addAllUsageRuleNotInAuto(HvdcRangeAction hvdcRangeAction, NetworkActionAdder acEmulationSwitchActionAdder) {
+    static void addAllUsageRuleNotInAuto(HvdcRangeAction hvdcRangeAction, NetworkActionAdder acEmulationDeactivationActionAdder) {
         hvdcRangeAction.getUsageRules().forEach(
             usageRule -> {
                 if (usageRule.getClass().equals(OnInstantImpl.class)) {
-
-                    acEmulationSwitchActionAdder
+                    acEmulationDeactivationActionAdder
                         .newOnInstantUsageRule()
                         .withInstant(usageRule.getInstant().getId())
                         .add();
                 } else if (usageRule.getClass().equals(OnConstraintImpl.class)) {
                     OnConstraint<?> onConstraint = (OnConstraint<?>) usageRule;
-                    acEmulationSwitchActionAdder.newOnConstraintUsageRule()
+                    acEmulationDeactivationActionAdder.newOnConstraintUsageRule()
                         .withInstant(onConstraint.getInstant().getId())
                         .withCnec(onConstraint.getCnec().getId())
                         .add();
                 } else if (usageRule.getClass().equals(OnContingencyStateImpl.class)) {
                     OnContingencyState onContingencyState = (OnContingencyState) usageRule;
-                    acEmulationSwitchActionAdder.newOnContingencyStateUsageRule()
+                    acEmulationDeactivationActionAdder.newOnContingencyStateUsageRule()
                         .withContingency(onContingencyState.getContingency().getId())
                         .withInstant(onContingencyState.getInstant().getId())
                         .add();
                 } else if (usageRule.getClass().equals(OnFlowConstraintInCountryImpl.class)) {
                     OnFlowConstraintInCountry onFlowConstraintInCountry = (OnFlowConstraintInCountry) usageRule;
-                    acEmulationSwitchActionAdder.newOnFlowConstraintInCountryUsageRule()
+                    acEmulationDeactivationActionAdder.newOnFlowConstraintInCountryUsageRule()
                         .withCountry(onFlowConstraintInCountry.getCountry())
                         .withInstant(onFlowConstraintInCountry.getInstant().getId())
                         .withContingency(onFlowConstraintInCountry.getContingency().get().getId())
@@ -321,18 +319,18 @@ public final class RaoUtil {
         if (!hvdcRangeActionOnAcEmulationHvdcLinecrac.isEmpty()) {
             // Run load flow to update flow on all the line of the network
             LoadFlow.find(raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getLoadFlowAndSensitivityParameters().getLoadFlowProvider()).run(network, raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters());
-
-            network.getHvdcLines().forEach(hvdcLine -> {
+            hvdcRangeActionOnAcEmulationHvdcLinecrac.stream().forEach(hvdcRangeAction -> {
+                String hvdcLineId = hvdcRangeAction.getNetworkElement().getId();
+                HvdcLine hvdcLine = IidmHvdcHelper.getHvdcLine(network, hvdcLineId);
                 double activePowerSetpoint = computeFlowOnHvdcLine(hvdcLine);
-                hvdcLine.setConvertersMode(activePowerSetpoint > 0 ? HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER : HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER);
-                hvdcLine.setActivePowerSetpoint(Math.abs(activePowerSetpoint));
+                // is NaN if the line is disconnected
+                if (activePowerSetpoint != Double.NaN) {
+                    hvdcLine.setConvertersMode(activePowerSetpoint > 0 ? HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER : HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER);
+                    hvdcLine.setActivePowerSetpoint(Math.abs(activePowerSetpoint));
+                    hvdcRangeAction.setInitialSetpoint(activePowerSetpoint);
+                }
             });
 
-            // Update all the initial setpoint
-            hvdcRangeActionOnAcEmulationHvdcLinecrac
-                .forEach(hvdcRangeAction -> {
-                    hvdcRangeAction.setInitialSetpoint(IidmHvdcHelper.getCurrentSetpoint(network, hvdcRangeAction.getNetworkElement().getId()));
-                });
         }
     }
 }
