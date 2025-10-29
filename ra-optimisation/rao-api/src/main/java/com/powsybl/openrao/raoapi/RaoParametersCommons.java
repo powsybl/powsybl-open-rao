@@ -21,10 +21,11 @@ public final class RaoParametersCommons {
         CHANGELOG RAO Parameters v3
         ---------------------------
         3.1: remove max-auto-search-tree-depth
-        3.2: remove re-optimize-curative-range-actions, add pst-regulation-parameters
+        3.2: remove re-optimize-curative-range-actions
+        3.3: add pst-regulation-parameters
     */
 
-    public static final String RAO_PARAMETERS_VERSION = "3.2";
+    public static final String RAO_PARAMETERS_VERSION = "3.3";
 
     // header
     public static final String VERSION = "version";
