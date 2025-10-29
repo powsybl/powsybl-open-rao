@@ -11,7 +11,6 @@ import com.powsybl.action.HvdcAction;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.networkaction.AcEmulationDeactivationActionAdder;
-import com.powsybl.openrao.data.crac.api.networkaction.ActionType;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkActionAdder;
 import org.junit.jupiter.api.BeforeEach;
@@ -57,10 +56,4 @@ public class AcEmulationDeactivationActionAdderImplTest {
         assertThrows(OpenRaoException.class, acEmulationDeactivationActionAdder::add);
     }
 
-    @Test
-    void testNoActionType() {
-        AcEmulationDeactivationActionAdder acEmulationDeactivationActionAdder = networkActionAdder.newAcEmulationDeactivationAction()
-            .withNetworkElement("hvdcLineElementId");
-        assertThrows(OpenRaoException.class, acEmulationDeactivationActionAdder::add);
-    }
 }
