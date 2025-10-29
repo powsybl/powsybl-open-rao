@@ -7,6 +7,8 @@
 
 package com.powsybl.openrao.searchtreerao.searchtree.algorithms;
 
+import com.powsybl.action.Action;
+import com.powsybl.iidm.modification.NetworkModificationImpact;
 import com.powsybl.openrao.data.crac.api.RaUsageLimits;
 import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.State;
@@ -88,7 +90,36 @@ public final class SearchTreeBloomer {
             networkActionCombinations = networkActionCombinationFilter.filter(networkActionCombinations, fromLeaf);
         }
 
+        networkActionCombinations = removeEffectivelyIdenticalActions(networkActionCombinations);
+
         return networkActionCombinations;
+    }
+
+    private Set<NetworkActionCombination> removeEffectivelyIdenticalActions(Set<NetworkActionCombination> networkActionCombinations) {
+        Set<NetworkActionCombination> filteredNetworkActionCombinations = new HashSet<>();
+        Set<Set<Action>> elementaryActionSets = new HashSet<>();
+
+        networkActionCombinations.forEach(networkActionCombination -> {
+            Set<Action> elementaryActions = getElementaryActionsFromNetworkActionCombination(networkActionCombination);
+            if (!elementaryActionSets.contains(elementaryActions) && !elementaryActions.isEmpty()) {
+                filteredNetworkActionCombinations.add(networkActionCombination);
+                elementaryActionSets.add(elementaryActions);
+            } else {
+                System.out.println("Filtering out a combination");
+            }
+        });
+
+        return filteredNetworkActionCombinations;
+    }
+
+    private Set<Action> getElementaryActionsFromNetworkActionCombination(NetworkActionCombination networkActionCombination) {
+        Set<Action> elementaryActions = new HashSet<>();
+        networkActionCombination.getNetworkActionSet().forEach(networkAction ->
+            networkAction.getElementaryActions().stream()
+                .filter(action -> action.toModification().hasImpactOnNetwork(input.getNetwork()) == NetworkModificationImpact.HAS_IMPACT_ON_NETWORK)
+                .forEach(elementaryActions::add)
+        );
+        return elementaryActions;
     }
 
     /**
