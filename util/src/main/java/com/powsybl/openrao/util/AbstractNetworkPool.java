@@ -89,6 +89,7 @@ public abstract class AbstractNetworkPool extends ForkJoinPool implements AutoCl
                 .filter(variantId -> deleteWorkingVariant || !variantId.equals(workingVariant))
                 .toList();
         variantsToBeRemoved.forEach(variantId -> networkClone.getVariantManager().removeVariant(variantId));
+        networkClone.getVariantManager().setWorkingVariant(stateSaveVariant);
     }
 
     @Override
