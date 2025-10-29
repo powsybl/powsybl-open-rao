@@ -37,7 +37,6 @@ public final class LinearProblemIdGenerator {
     private static final String UP_OR_DOWN_VARIATION = "upordownvariation";
     private static final String VIRTUAL_SET_POINT = "virtualsetpoint";
     private static final String VIRTUAL_TAP = "virtualtap";
-    private static final String ABSOLUTE_VARIATION = "absolutevariation";
     private static final String MIN_MARGIN = "minmargin";
     private static final String MIN_RELATIVE_MARGIN = "minrelmargin";
     private static final String MIN_RELATIVE_MARGIN_SIGN_BINARY = "minrelmarginispositive";
@@ -64,13 +63,11 @@ public final class LinearProblemIdGenerator {
     private static final String GENERATOR_STATE = "generatorstate";
     private static final String UNIQUE_GENERATOR_STATE = "uniquegeneratorstate";
     private static final String GENERATOR_STATE_TRANSITION = "generatorstatetransition";
-    private static final String INITIAL_GENERATOR_STATE_FROM = "initialgeneratorstatefrom";
     private static final String GENERATOR_STATE_FROM = "generatorstatefrom";
     private static final String GENERATOR_STATE_TO = "generatorstateto";
     private static final String GENERATOR_POWER_OFF = "generatorpoweroff";
     private static final String GENERATOR_POWER_ON = "generatorpoweron";
     private static final String GENERATOR_POWER_VARIATION = "generatorpowervariation";
-    private static final String GENERATOR_TIME = "generatortime";
     private static final String GENERATOR_TO_INJECTION = "generatortoinjection";
     private static final DateTimeFormatter DATE_TIME_FORMATER = DateTimeFormatter.ofPattern("yyyyMMddHHmm");
 
@@ -150,10 +147,6 @@ public final class LinearProblemIdGenerator {
 
     public static String pstGroupTapConstraintId(RangeAction<?> rangeAction, State state) {
         return formatName(rangeAction.getId(), state.getId(), rangeAction.getGroupId().orElseThrow(), VIRTUAL_TAP, CONSTRAINT_SUFFIX);
-    }
-
-    public static String absoluteRangeActionVariationVariableId(RangeAction<?> rangeAction, State state) {
-        return formatName(rangeAction.getId(), state.getId(), ABSOLUTE_VARIATION, VARIABLE_SUFFIX);
     }
 
     public static String minimumMarginConstraintId(FlowCnec flowCnec, TwoSides side, LinearProblem.MarginExtension belowOrAboveThreshold, Optional<OffsetDateTime> timestamp) {
@@ -280,10 +273,6 @@ public final class LinearProblemIdGenerator {
         return formatName(Optional.ofNullable(timestamp), GENERATOR_POWER, generatorId, VARIABLE_SUFFIX);
     }
 
-    public static String generatorPowerConstraintId(String generatorId, OffsetDateTime timestamp) {
-        return formatName(Optional.ofNullable(timestamp), GENERATOR_POWER, generatorId, CONSTRAINT_SUFFIX);
-    }
-
     public static String generatorPowerGradientConstraintId(String generatorId, OffsetDateTime currentTimestamp, OffsetDateTime previousTimestamp) {
         return formatName(Optional.empty(), GENERATOR_POWER_GRADIENT_CONSTRAINT, generatorId, currentTimestamp.format(DATE_TIME_FORMATER), previousTimestamp.format(DATE_TIME_FORMATER), CONSTRAINT_SUFFIX);
     }
@@ -308,10 +297,6 @@ public final class LinearProblemIdGenerator {
         return formatName(Optional.of(timestamp), GENERATOR_STATE_TRANSITION, generatorId, generatorStateFrom.toString(), generatorStateTo.toString(), VARIABLE_SUFFIX);
     }
 
-    public static String generatorInitialStateFromTransitionConstraintId(String generatorId, OffsetDateTime timestamp) {
-        return formatName(Optional.of(timestamp), INITIAL_GENERATOR_STATE_FROM, generatorId, CONSTRAINT_SUFFIX);
-    }
-
     public static String generatorStateFromTransitionConstraintId(String generatorId, LinearProblem.GeneratorState generatorStateFrom, OffsetDateTime timestamp) {
         return formatName(Optional.of(timestamp), GENERATOR_STATE_FROM, generatorId, generatorStateFrom.toString(), CONSTRAINT_SUFFIX);
     }
@@ -330,10 +315,6 @@ public final class LinearProblemIdGenerator {
 
     public static String generatorPowerTransitionConstraintId(String generatorId, OffsetDateTime timestamp, LinearProblem.AbsExtension positiveOrNegative) {
         return formatName(Optional.of(timestamp), GENERATOR_POWER_VARIATION, generatorId, CONSTRAINT_SUFFIX, positiveOrNegative.toString());
-    }
-
-    public static String generatorStateTimeConstraintId(String generatorId, OffsetDateTime timestamp, LinearProblem.GeneratorState generatorState, LinearProblem.MinOrMax minOrMax) {
-        return formatName(Optional.of(timestamp), GENERATOR_TIME, generatorId, generatorState.toString(), minOrMax.toString(), CONSTRAINT_SUFFIX);
     }
 
     public static String generatorToInjectionConstraintId(String generatorId, InjectionRangeAction injectionRangeAction, OffsetDateTime timestamp) {

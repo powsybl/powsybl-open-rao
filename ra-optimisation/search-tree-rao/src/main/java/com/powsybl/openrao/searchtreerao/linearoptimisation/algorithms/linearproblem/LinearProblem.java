@@ -513,18 +513,6 @@ public final class LinearProblem {
         return solver.getVariable(generatorPowerVariableId(generatorId, timestamp));
     }
 
-    public OpenRaoMPConstraint addGeneratorPowerConstraint(String generatorId, double initialPower, OffsetDateTime timestamp) {
-        return solver.makeConstraint(initialPower, initialPower, generatorPowerConstraintId(generatorId, timestamp));
-    }
-
-    public OpenRaoMPConstraint getGeneratorPowerConstraint(String generatorId, OffsetDateTime timestamp) {
-        return solver.getConstraint(generatorPowerConstraintId(generatorId, timestamp));
-    }
-
-    public OpenRaoMPConstraint addGeneratorPowerGradientConstraint(String generatorId, OffsetDateTime currentTimestamp, OffsetDateTime previousTimestamp, double lb, double ub) {
-        return solver.makeConstraint(lb, ub, generatorPowerGradientConstraintId(generatorId, currentTimestamp, previousTimestamp));
-    }
-
     public OpenRaoMPConstraint getGeneratorPowerGradientConstraint(String generatorId, OffsetDateTime currentTimestamp, OffsetDateTime previousTimestamp) {
         return solver.getConstraint(generatorPowerGradientConstraintId(generatorId, currentTimestamp, previousTimestamp));
     }
@@ -561,10 +549,6 @@ public final class LinearProblem {
         return solver.makeConstraint(1, 1, uniqueGeneratorStateConstraintId(generatorId, timestamp));
     }
 
-    public OpenRaoMPConstraint addGeneratorInitialStateFromTransitionConstraint(String generatorId, OffsetDateTime timestamp) {
-        return solver.makeConstraint(1, 1, generatorInitialStateFromTransitionConstraintId(generatorId, timestamp));
-    }
-
     public OpenRaoMPConstraint addGeneratorStateFromTransitionConstraint(String generatorId, OffsetDateTime timestamp, LinearProblem.GeneratorState generatorStateFrom) {
         return solver.makeConstraint(0, 0, generatorStateFromTransitionConstraintId(generatorId, generatorStateFrom, timestamp));
     }
@@ -585,12 +569,12 @@ public final class LinearProblem {
         return solver.makeConstraint(lb, ub, generatorPowerTransitionConstraintId(generatorId, timestamp, positiveOrNegative));
     }
 
-    public OpenRaoMPConstraint addGeneratorStateTimeConstraint(String generatorId, double lb, double ub, OffsetDateTime timestamp, LinearProblem.GeneratorState generatorState, LinearProblem.MinOrMax minOrMax) {
-        return solver.makeConstraint(lb, ub, generatorStateTimeConstraintId(generatorId, timestamp, generatorState, minOrMax));
-    }
-
     public OpenRaoMPConstraint addGeneratorToInjectionConstraint(String generatorId, InjectionRangeAction injectionRangeAction, OffsetDateTime timestamp) {
         return solver.makeConstraint(0.0, 0.0, generatorToInjectionConstraintId(generatorId, injectionRangeAction, timestamp));
+    }
+
+    public OpenRaoMPConstraint getGeneratorToInjectionConstraint(String generatorId, InjectionRangeAction injectionRangeAction, OffsetDateTime timestamp) {
+        return solver.getConstraint(generatorToInjectionConstraintId(generatorId, injectionRangeAction, timestamp));
     }
 
     public double infinity() {
