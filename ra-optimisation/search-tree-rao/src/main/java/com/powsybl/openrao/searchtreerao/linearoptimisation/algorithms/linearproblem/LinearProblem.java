@@ -10,6 +10,7 @@ package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearpr
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
@@ -586,6 +587,10 @@ public final class LinearProblem {
 
     public OpenRaoMPConstraint addGeneratorStateTimeConstraint(String generatorId, double lb, double ub, OffsetDateTime timestamp, LinearProblem.GeneratorState generatorState, LinearProblem.MinOrMax minOrMax) {
         return solver.makeConstraint(lb, ub, generatorStateTimeConstraintId(generatorId, timestamp, generatorState, minOrMax));
+    }
+
+    public OpenRaoMPConstraint addGeneratorToInjectionConstraint(String generatorId, InjectionRangeAction injectionRangeAction, OffsetDateTime timestamp) {
+        return solver.makeConstraint(0.0, 0.0, generatorToInjectionConstraintId(generatorId, injectionRangeAction, timestamp));
     }
 
     public double infinity() {

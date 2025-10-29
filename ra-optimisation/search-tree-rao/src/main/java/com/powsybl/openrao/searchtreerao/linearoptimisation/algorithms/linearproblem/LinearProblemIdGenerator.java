@@ -9,6 +9,7 @@ package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearpr
 
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
+import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
@@ -70,6 +71,7 @@ public final class LinearProblemIdGenerator {
     private static final String GENERATOR_POWER_ON = "generatorpoweron";
     private static final String GENERATOR_POWER_VARIATION = "generatorpowervariation";
     private static final String GENERATOR_TIME = "generatortime";
+    private static final String GENERATOR_TO_INJECTION = "generatortoinjection";
     private static final DateTimeFormatter DATE_TIME_FORMATER = DateTimeFormatter.ofPattern("yyyyMMddHHmm");
 
     private LinearProblemIdGenerator() {
@@ -332,5 +334,9 @@ public final class LinearProblemIdGenerator {
 
     public static String generatorStateTimeConstraintId(String generatorId, OffsetDateTime timestamp, LinearProblem.GeneratorState generatorState, LinearProblem.MinOrMax minOrMax) {
         return formatName(Optional.of(timestamp), GENERATOR_TIME, generatorId, generatorState.toString(), minOrMax.toString(), CONSTRAINT_SUFFIX);
+    }
+
+    public static String generatorToInjectionConstraintId(String generatorId, InjectionRangeAction injectionRangeAction, OffsetDateTime timestamp) {
+        return formatName(Optional.of(timestamp), GENERATOR_TO_INJECTION, generatorId, injectionRangeAction.getId(), CONSTRAINT_SUFFIX);
     }
 }

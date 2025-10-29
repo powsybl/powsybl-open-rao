@@ -313,7 +313,7 @@ class MarmotTest {
 
         InterTemporalRaoInputWithNetworkPaths input = new InterTemporalRaoInputWithNetworkPaths(
             new TemporalDataImpl<>(inputPerTimestamp),
-            Set.of(GeneratorConstraints.create().withGeneratorId("FFR1AA1 _generator").withLeadTime(0.0).withLagTime(0.0).withPMin(0.0).withPMax(5000.0).withUpwardPowerGradient(500.0).withDownwardPowerGradient(-500.0).build())
+            Set.of(GeneratorConstraints.create().withGeneratorId("FFR1AA1 _generator").withPMax(5000.0).withUpwardPowerGradient(500.0).withDownwardPowerGradient(-500.0).build())
         );
 
         InterTemporalRaoResultImpl interTemporalRaoResult = (InterTemporalRaoResultImpl) new Marmot().run(input, raoParameters).join();
