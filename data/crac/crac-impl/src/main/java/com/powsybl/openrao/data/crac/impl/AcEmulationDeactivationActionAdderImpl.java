@@ -10,9 +10,7 @@ package com.powsybl.openrao.data.crac.impl;
 import com.powsybl.action.Action;
 import com.powsybl.action.HvdcActionBuilder;
 import com.powsybl.openrao.data.crac.api.networkaction.AcEmulationDeactivationActionAdder;
-import com.powsybl.openrao.data.crac.api.networkaction.ActionType;
 
-import static com.powsybl.openrao.data.crac.api.networkaction.ActionType.ACTIVATE;
 import static com.powsybl.openrao.data.crac.api.networkaction.ActionType.DEACTIVATE;
 import static com.powsybl.openrao.data.crac.impl.AdderUtils.assertAttributeNotNull;
 
@@ -20,7 +18,6 @@ import static com.powsybl.openrao.data.crac.impl.AdderUtils.assertAttributeNotNu
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
  */
 public class AcEmulationDeactivationActionAdderImpl extends AbstractSingleNetworkElementActionAdderImpl<AcEmulationDeactivationActionAdder> implements AcEmulationDeactivationActionAdder {
-
 
     AcEmulationDeactivationActionAdderImpl(NetworkActionAdderImpl ownerAdder) {
         super(ownerAdder);
