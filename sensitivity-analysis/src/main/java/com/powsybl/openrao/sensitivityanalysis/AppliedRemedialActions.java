@@ -93,8 +93,8 @@ public class AppliedRemedialActions {
                 && (stateBefore.getContingency().isEmpty() || stateBefore.getContingency().equals(state.getContingency())))
             .sorted(Comparator.comparingInt(stateBefore -> stateBefore.getInstant().getOrder()))
             .forEach(stateBefore -> {
-                appliedRa.get(stateBefore).rangeActions.forEach((rangeAction, setPoint) -> rangeAction.apply(network, setPoint));
                 appliedRa.get(stateBefore).networkActions.forEach(networkAction -> networkAction.apply(network));
+                appliedRa.get(stateBefore).rangeActions.forEach((rangeAction, setPoint) -> rangeAction.apply(network, setPoint));
             });
     }
 
