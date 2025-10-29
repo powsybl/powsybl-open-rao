@@ -45,6 +45,11 @@
             <groupId>com.google.ortools</groupId>
             <artifactId>ortools-java</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.powsybl</groupId>
+            <artifactId>powsybl-open-loadflow</artifactId>
+            <scope>compile</scope>
+        </dependency>
 
         <!-- test -->
         <dependency>
@@ -90,11 +95,6 @@
         <dependency>
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-iidm-impl</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.powsybl</groupId>
-            <artifactId>powsybl-open-loadflow</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
