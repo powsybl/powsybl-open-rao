@@ -12,7 +12,7 @@ Feature: US 91.13: PST Regulation
     Given network file is "epic91/2Nodes3ParallelLinesPST.uct"
     Given crac file is "epic91/crac-91-13-1.json"
     Given configuration file is "epic91/RaoParameters_ac.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then the tap of PstRangeAction "pstBeFr2" should be -16 in preventive
     And the margin on cnec "cnecBeFr1Preventive" after PRA should be 579.65 A
     And the tap of PstRangeAction "pstBeFr2" should be -2 after "Contingency BE1 FR1 3" at "curative"
@@ -29,7 +29,7 @@ Feature: US 91.13: PST Regulation
     Given network file is "epic91/2Nodes3ParallelLinesPST.uct"
     Given crac file is "epic91/crac-91-13-1.json"
     Given configuration file is "epic91/RaoParameters_ac_pstRegulation.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then the tap of PstRangeAction "pstBeFr2" should be -16 in preventive
     And the margin on cnec "cnecBeFr1Preventive" after PRA should be 579.65 A
     And the tap of PstRangeAction "pstBeFr2" should be 7 after "Contingency BE1 FR1 3" at "curative"
@@ -45,7 +45,7 @@ Feature: US 91.13: PST Regulation
     Given network file is "epic91/2Nodes3ParallelLinesPST.uct"
     Given crac file is "epic91/crac-91-13-2.json"
     Given configuration file is "epic91/RaoParameters_ac.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then the tap of PstRangeAction "pstBeFr2" should be -16 in preventive
     And the margin on cnec "cnecBeFr1Preventive" after PRA should be 1479.65 A
     And the tap of PstRangeAction "pstBeFr2" should be 4 after "Contingency BE1 FR1 3" at "curative"
@@ -62,7 +62,7 @@ Feature: US 91.13: PST Regulation
     Given network file is "epic91/2Nodes3ParallelLinesPST.uct"
     Given crac file is "epic91/crac-91-13-2.json"
     Given configuration file is "epic91/RaoParameters_ac_pstRegulation.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then the tap of PstRangeAction "pstBeFr2" should be -16 in preventive
     And the margin on cnec "cnecBeFr1Preventive" after PRA should be 1479.65 A
     And the tap of PstRangeAction "pstBeFr2" should be 4 after "Contingency BE1 FR1 3" at "curative"
@@ -82,7 +82,7 @@ Feature: US 91.13: PST Regulation
     Given network file is "epic91/4NodesSeries.uct"
     Given crac file is "epic91/crac-91-13-3.json"
     Given configuration file is "epic91/RaoParameters_ac.json"
-    When I launch search_tree_rao
+    When I launch rao
     # Preventive taps
     And the tap of PstRangeAction "pstFr12" should be 0 in preventive
     And the tap of PstRangeAction "pstFr23" should be -6 in preventive
@@ -120,7 +120,7 @@ Feature: US 91.13: PST Regulation
     Given network file is "epic91/4NodesSeries.uct"
     Given crac file is "epic91/crac-91-13-3.json"
     Given configuration file is "epic91/RaoParameters_ac_3pstsRegulation.json"
-    When I launch search_tree_rao
+    When I launch rao
     # Preventive taps
     And the tap of PstRangeAction "pstFr12" should be 0 in preventive
     And the tap of PstRangeAction "pstFr23" should be -6 in preventive
@@ -159,7 +159,7 @@ Feature: US 91.13: PST Regulation
     Given network file is "epic91/2Nodes3ParallelLines2PSTs.uct"
     Given crac file is "epic91/crac-91-13-4.json"
     Given configuration file is "epic91/RaoParameters_ac_2pstsRegulation.json"
-    When I launch search_tree_rao
+    When I launch rao
     And the tap of PstRangeAction "pstBeFr2" should be 16 after "Contingency BE1 FR1 1" at "curative"
     And the tap of PstRangeAction "pstBeFr3" should be 16 after "Contingency BE1 FR1 1" at "curative"
 
@@ -169,7 +169,7 @@ Feature: US 91.13: PST Regulation
     Given network file is "epic91/3NodesPSTSeries.uct"
     Given crac file is "epic91/crac-91-13-5.json"
     Given configuration file is "epic91/RaoParameters_ac.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then the tap of PstRangeAction "pstFr1Fr2" should be -16 in preventive
     And the margin on cnec "cnecFr1Fr3Preventive" after PRA should be 346.79 A
     And the tap of PstRangeAction "pstFr1Fr2" should be -7 after "Contingency FR1 FR3 3" at "curative"
@@ -184,7 +184,7 @@ Feature: US 91.13: PST Regulation
     Given network file is "epic91/3NodesPSTSeries.uct"
     Given crac file is "epic91/crac-91-13-5.json"
     Given configuration file is "epic91/RaoParameters_ac_pstRegulationSeries.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then the tap of PstRangeAction "pstFr1Fr2" should be -16 in preventive
     And the margin on cnec "cnecFr1Fr3Preventive" after PRA should be 346.79 A
     And the tap of PstRangeAction "pstFr1Fr2" should be 5 after "Contingency FR1 FR3 3" at "curative"
