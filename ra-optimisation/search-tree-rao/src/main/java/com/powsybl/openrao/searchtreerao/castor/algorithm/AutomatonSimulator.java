@@ -19,10 +19,7 @@ import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.RandomizedString;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.crac.api.Crac;
-import com.powsybl.openrao.data.crac.api.Identifiable;
-import com.powsybl.openrao.data.crac.api.RemedialAction;
-import com.powsybl.openrao.data.crac.api.State;
+import com.powsybl.openrao.data.crac.api.*;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
@@ -134,19 +131,19 @@ public final class AutomatonSimulator {
         for (int speed : getAllSortedSpeeds(automatonState)) {
             TECHNICAL_LOGS.info("Simulating automaton batch of speed {} for automaton state {}", speed, automatonState.getId());
             // I) Simulate FORCED topological automatons
-            topoSimulationResult = simulateTopologicalAutomatons(automatonState, network, preAutoPstOptimizationSensitivityAnalysis, speed, topoSimulationResult.activatedNetworkActions(), rangeAutomatonSimulationResult.perimeterResult());
+            topoSimulationResult = simulateTopologicalAutomatons(automatonState, network, preAutoPstOptimizationSensitivityAnalysis, speed, topoSimulationResult.getActivatedNetworkActions(), rangeAutomatonSimulationResult.perimeterResult());
 
             // Sensitivity analysis failed :
-            if (topoSimulationResult.perimeterResult().getSensitivityStatus(automatonState) == ComputationStatus.FAILURE) {
-                return createFailedAutomatonPerimeterResult(rangeAutomatonSimulationResult.perimeterResult(), topoSimulationResult.perimeterResult(), topoSimulationResult.activatedNetworkActions(), rangeAutomatonSimulationResult.activatedRangeActions(), rangeAutomatonSimulationResult.rangeActionsWithSetpoint(), automatonState, "after topological automatons simulation for speed %s.".formatted(speed));
+            if (topoSimulationResult.getPerimeterResult().getSensitivityStatus(automatonState) == ComputationStatus.FAILURE) {
+                return createFailedAutomatonPerimeterResult(rangeAutomatonSimulationResult.perimeterResult(), topoSimulationResult.getPerimeterResult(), topoSimulationResult.getActivatedNetworkActions(), rangeAutomatonSimulationResult.activatedRangeActions(), rangeAutomatonSimulationResult.rangeActionsWithSetpoint(), automatonState, "after topological automatons simulation for speed %s.".formatted(speed));
             }
 
             // II) Simulate range actions
-            rangeAutomatonSimulationResult = simulateRangeAutomatons(automatonState, curativeStates, network, preAutoPstOptimizationSensitivityAnalysis, topoSimulationResult.perimeterResult(), speed, rangeAutomatonSimulationResult.activatedRangeActions(), initialSetPoints, rangeAutomatonSimulationResult.rangeActionsWithSetpoint());
+            rangeAutomatonSimulationResult = simulateRangeAutomatons(automatonState, curativeStates, network, preAutoPstOptimizationSensitivityAnalysis, topoSimulationResult.getPerimeterResult(), speed, rangeAutomatonSimulationResult.activatedRangeActions(), initialSetPoints, rangeAutomatonSimulationResult.rangeActionsWithSetpoint(), topoSimulationResult);
 
             // Sensitivity analysis failed :
             if (rangeAutomatonSimulationResult.perimeterResult().getSensitivityStatus(automatonState) == ComputationStatus.FAILURE) {
-                return createFailedAutomatonPerimeterResult(topoSimulationResult.perimeterResult(), rangeAutomatonSimulationResult.perimeterResult(), topoSimulationResult.activatedNetworkActions(), rangeAutomatonSimulationResult.activatedRangeActions(), rangeAutomatonSimulationResult.rangeActionsWithSetpoint(), automatonState, "after range automatons simulation for speed %s.".formatted(speed));
+                return createFailedAutomatonPerimeterResult(topoSimulationResult.getPerimeterResult(), rangeAutomatonSimulationResult.perimeterResult(), topoSimulationResult.getActivatedNetworkActions(), rangeAutomatonSimulationResult.activatedRangeActions(), rangeAutomatonSimulationResult.rangeActionsWithSetpoint(), automatonState, "after range automatons simulation for speed %s.".formatted(speed));
             }
         }
 
@@ -156,9 +153,9 @@ public final class AutomatonSimulator {
         Map<RangeAction<?>, Double> rangeActionsWithSetpoint = rangeAutomatonSimulationResult.rangeActionsWithSetpoint();
         prePerimeterResultForOptimizedState.getRangeActionSetpointResult().getRangeActions().forEach(ra -> rangeActionsWithSetpoint.putIfAbsent(ra, prePerimeterResultForOptimizedState.getSetpoint(ra)));
         AutomatonPerimeterResultImpl automatonPerimeterResultImpl = new AutomatonPerimeterResultImpl(
-            topoSimulationResult.perimeterResult(),
+            topoSimulationResult.getPerimeterResult(),
             prePerimeterResultForOptimizedState,
-            topoSimulationResult.activatedNetworkActions(),
+            topoSimulationResult.getActivatedNetworkActions(),
             rangeAutomatonSimulationResult.activatedRangeActions(),
             rangeActionsWithSetpoint,
             automatonState);
@@ -211,8 +208,27 @@ public final class AutomatonSimulator {
     /**
      * Utility class to hold the results of topo actions simulation
      */
-    record TopoAutomatonSimulationResult(PrePerimeterResult perimeterResult,
-                                         Set<NetworkAction> activatedNetworkActions) {
+    public static class TopoAutomatonSimulationResult {
+        private PrePerimeterResult perimeterResult;
+        private Set<NetworkAction> activatedNetworkActions;
+
+        public TopoAutomatonSimulationResult(PrePerimeterResult perimeterResult,
+                                             Set<NetworkAction> activatedNetworkActions) {
+            this.perimeterResult = perimeterResult;
+            this.activatedNetworkActions = new HashSet<>(activatedNetworkActions);
+        }
+
+        public PrePerimeterResult getPerimeterResult() {
+            return perimeterResult;
+        }
+
+        public Set<NetworkAction> getActivatedNetworkActions() {
+            return activatedNetworkActions;
+        }
+
+        public void addActivatedNetworkActions(Set<NetworkAction> activatedNetworkActions) {
+            this.activatedNetworkActions.addAll(activatedNetworkActions);
+        }
     }
 
     /**
@@ -223,10 +239,11 @@ public final class AutomatonSimulator {
      */
     TopoAutomatonSimulationResult simulateTopologicalAutomatons(State automatonState, Network network, PrePerimeterSensitivityAnalysis preAutoPstOptimizationSensitivityAnalysis, int speed, Set<NetworkAction> previouslyActivatedTopologicalAutomatons, PrePerimeterResult preAutomatonsPerimeterResult) {
         // -- Apply network actions
-        // -- First get forced network actions
+        // -- First get forced network actions: except for ac emulation deactivation, it will be deactivated when the range action is optimized.
         Set<FlowCnec> flowCnecs = crac.getFlowCnecs(automatonState);
         Set<NetworkAction> appliedNetworkActions = new HashSet<>();
         crac.getNetworkActions(automatonState).stream()
+            .filter(ra -> !ra.getElementaryActions().stream().anyMatch(action -> action instanceof HvdcAction))
             .filter(ra -> RaoUtil.canRemedialActionBeUsed(ra, automatonState, preAutomatonsPerimeterResult, flowCnecs, network, raoParameters))
             .filter(ra -> getSpeed(ra) == speed)
             .forEach(networkAction -> {
@@ -241,10 +258,9 @@ public final class AutomatonSimulator {
             return new TopoAutomatonSimulationResult(preAutomatonsPerimeterResult, previouslyActivatedTopologicalAutomatons);
         }
 
-        // -- Apply: except for ac emulation deactivation, it will be deactivated when the range action is optimized.
+        // -- Apply
         appliedNetworkActions
             .stream()
-            .filter(ra -> !ra.getElementaryActions().stream().anyMatch(action -> action instanceof HvdcAction))
             .forEach(na -> {
                 TECHNICAL_LOGS.debug("Activating automaton {} - {}.", na.getId(), na.getName());
                 na.apply(network);
@@ -277,7 +293,7 @@ public final class AutomatonSimulator {
     ) {
     }
 
-    RangeAutomatonSimulationResult simulateRangeAutomatons(State automatonState, Set<State> curativeStates, Network network, PrePerimeterSensitivityAnalysis preAutoPerimeterSensitivityAnalysis, PrePerimeterResult postTopoResult, int speed, Set<RangeAction<?>> previouslyAppliedRangeAutomatons, Map<RangeAction<?>, Double> initialSetPoints, Map<RangeAction<?>, Double> setPoints) {
+    RangeAutomatonSimulationResult simulateRangeAutomatons(State automatonState, Set<State> curativeStates, Network network, PrePerimeterSensitivityAnalysis preAutoPerimeterSensitivityAnalysis, PrePerimeterResult postTopoResult, int speed, Set<RangeAction<?>> previouslyAppliedRangeAutomatons, Map<RangeAction<?>, Double> initialSetPoints, Map<RangeAction<?>, Double> setPoints, TopoAutomatonSimulationResult topoSimulationResult) {
         PrePerimeterResult finalPostAutoResult = postTopoResult;
         // -- Create groups of aligned range actions
         List<List<RangeAction<?>>> rangeActionsOnAutomatonState = buildRangeActionsGroupsForSpeed(finalPostAutoResult, automatonState, network, speed);
@@ -303,7 +319,8 @@ public final class AutomatonSimulator {
                 network,
                 preAutoPerimeterSensitivityAnalysis,
                 finalPostAutoResult,
-                automatonState);
+                automatonState,
+                topoSimulationResult);
             finalPostAutoResult = postShiftResult.perimeterResult();
             activatedRangeActions.addAll(postShiftResult.activatedRangeActions());
             allActivatedRangeAutomatons.addAll(postShiftResult.activatedRangeActions());
@@ -436,7 +453,8 @@ public final class AutomatonSimulator {
                                                                                                    Network network,
                                                                                                    PrePerimeterSensitivityAnalysis preAutoPerimeterSensitivityAnalysis,
                                                                                                    PrePerimeterResult prePerimeterSensitivityOutput,
-                                                                                                   State automatonState) {
+                                                                                                   State automatonState,
+                                                                                                   TopoAutomatonSimulationResult topoSimulationResult) {
         Set<HvdcRangeAction> hvdcRasWithControl = alignedRa.stream()
             .filter(HvdcRangeAction.class::isInstance)
             .map(HvdcRangeAction.class::cast)
@@ -461,7 +479,22 @@ public final class AutomatonSimulator {
                 && activePowerSetpoint <= hvdcRa.getMaxAdmissibleSetpoint(activePowerSetpoint)
             ) {
                 activePowerSetpoints.put(hvdcRa, activePowerSetpoint);
-                disableHvdcAngleDroopActivePowerControl(hvdcLineId, network, activePowerSetpoint);
+
+                HvdcLine hvdcLine = network.getHvdcLine(hvdcLineId);
+                TECHNICAL_LOGS.debug("Disabling HvdcAngleDroopActivePowerControl on HVDC line {} and setting its set-point to {}", hvdcLine.getId(), activePowerSetpoint);
+                // get ac emulation deactivation action that acts on hvdc line there should only be one
+                NetworkAction acEmulationDeactivationAction = crac.getNetworkActions().stream()
+                    .filter(ra -> ra.getNetworkElements().stream().map(NetworkElement::getId).collect(Collectors.toSet()).equals(Set.of(hvdcLineId)))
+                    .filter(ra -> ra.getElementaryActions().stream()
+                        .allMatch(ea -> "HVDC".equals(ea.getType())))
+                    .collect(Collectors.toList()).get(0);
+                // deactivate ac emulation
+                acEmulationDeactivationAction.apply(network);
+                // add network action to topoSimulationResult !
+                topoSimulationResult.addActivatedNetworkActions(Set.of(acEmulationDeactivationAction));
+                // update the hvdc Line in the network
+                hvdcLine.setConvertersMode(activePowerSetpoint > 0 ? HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER : HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER);
+                hvdcLine.setActivePowerSetpoint(Math.abs(activePowerSetpoint));
             } else {
                 BUSINESS_LOGS.info(String.format("HVDC range action %s could not be activated because its initial set-point (%.1f) does not fall within its allowed range (%.1f - %.1f)",
                     hvdcRa.getId(), activePowerSetpoint, hvdcRa.getMinAdmissibleSetpoint(activePowerSetpoint), hvdcRa.getMaxAdmissibleSetpoint(activePowerSetpoint)));
@@ -511,21 +544,6 @@ public final class AutomatonSimulator {
     }
 
     /**
-     * Disables the HvdcAngleDroopActivePowerControl on an HVDC line and sets its active power set-point
-     *
-     * @param hvdcLineId          ID of the HVDC line
-     * @param network             network to modify the HVDC line in
-     * @param activePowerSetpoint active power set-point to set on the HVDC line
-     */
-    private static void disableHvdcAngleDroopActivePowerControl(String hvdcLineId, Network network, double activePowerSetpoint) {
-        HvdcLine hvdcLine = network.getHvdcLine(hvdcLineId);
-        TECHNICAL_LOGS.debug("Disabling HvdcAngleDroopActivePowerControl on HVDC line {} and setting its set-point to {}", hvdcLine.getId(), activePowerSetpoint);
-        hvdcLine.getExtension(HvdcAngleDroopActivePowerControl.class).setEnabled(false);
-        hvdcLine.setConvertersMode(activePowerSetpoint > 0 ? HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER : HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER);
-        hvdcLine.setActivePowerSetpoint(Math.abs(activePowerSetpoint));
-    }
-
-    /**
      * This function shifts alignedRangeAction setpoints until :
      * -- no cnecs with a negative margin remain
      * -- OR setpoints have been shifted as far as possible in one direction
@@ -540,7 +558,8 @@ public final class AutomatonSimulator {
                                                                          Network network,
                                                                          PrePerimeterSensitivityAnalysis preAutoPerimeterSensitivityAnalysis,
                                                                          PrePerimeterResult prePerimeterSensitivityOutput,
-                                                                         State automatonState) {
+                                                                         State automatonState,
+                                                                         TopoAutomatonSimulationResult topoSimulationResult) {
 
         Set<Pair<FlowCnec, TwoSides>> flowCnecsToBeExcluded = new HashSet<>();
         PrePerimeterResult automatonRangeActionOptimizationSensitivityAnalysisOutput = prePerimeterSensitivityOutput;
@@ -551,7 +570,7 @@ public final class AutomatonSimulator {
 
         if (alignedRangeActions.stream().allMatch(HvdcRangeAction.class::isInstance) && !flowCnecsWithNegativeMargin.isEmpty()) {
             // Disable HvdcAngleDroopActivePowerControl for HVDC lines, fetch their set-point, re-run sensitivity analysis and fetch new negative margins
-            Pair<PrePerimeterResult, Map<HvdcRangeAction, Double>> result = disableHvdcAngleDroopActivePowerControl(alignedRangeActions, network, preAutoPerimeterSensitivityAnalysis, automatonRangeActionOptimizationSensitivityAnalysisOutput, automatonState);
+            Pair<PrePerimeterResult, Map<HvdcRangeAction, Double>> result = disableHvdcAngleDroopActivePowerControl(alignedRangeActions, network, preAutoPerimeterSensitivityAnalysis, automatonRangeActionOptimizationSensitivityAnalysisOutput, automatonState, topoSimulationResult);
             automatonRangeActionOptimizationSensitivityAnalysisOutput = result.getLeft();
             activatedRangeActionsWithSetpoint.putAll(result.getRight());
             // If sensitivity analysis failed :
@@ -748,7 +767,7 @@ public final class AutomatonSimulator {
     }
 
     private static RemedialActionActivationResult buildRemedialActionActivationResult(TopoAutomatonSimulationResult topoSimulationResult, RangeAutomatonSimulationResult rangeAutomatonSimulationResult, State automatonState) {
-        Set<NetworkAction> allAppliedNetworkActions = new HashSet<>(topoSimulationResult.activatedNetworkActions());
+        Set<NetworkAction> allAppliedNetworkActions = new HashSet<>(topoSimulationResult.getActivatedNetworkActions());
         return new RemedialActionActivationResultImpl(buildRangeActionActivationResult(rangeAutomatonSimulationResult, automatonState), new NetworkActionsResultImpl(Map.of(automatonState, allAppliedNetworkActions)));
     }
 
