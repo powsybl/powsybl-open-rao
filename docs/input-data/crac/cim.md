@@ -463,7 +463,9 @@ Each of these RemedialAction_Series can contain 4 RegisteredResources, allowing 
 In the end, two HVDC range actions with an absolute range of -XXX MW to XXX MW each are defined, on both HVDC lines. These HVDC range actions are aligned, i.e. they share the same group ID. That means that they must have the same set-point. 
 
 The RAO can optimize the HVDC set-point remedial actions that require the deactivation of [angle-droop active power control](inv:powsyblcore:*:*#hvdc-angle-droop-active-power-control-extension)
-(AC-emulation) by creating an [acEmulationDeactivationAction](json.md#network-actions) network action. For more information [see](../../algorithms/castor/special-features/hvdc.md).
+(AC-emulation) by creating an [acEmulationDeactivationAction](json.md#network-actions) network action.
+
+> For more information on how hvdc range action are handled in the RAO see [here](../../algorithms/castor/special-features/hvdc.md)
 
 See below an example of an HVDC RemedialAction_Series
 

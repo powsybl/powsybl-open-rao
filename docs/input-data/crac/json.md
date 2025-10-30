@@ -1192,8 +1192,9 @@ Note that the [PstHelper utility class](https://github.com/powsybl/powsybl-open-
 ::::
 
 ### HVDC Range Action
+
 An HvdcRangeAction contains a network element that must point towards an [HvdcLine of the iidm PowSyBl network model](inv:powsyblcore:*:*#hvdc-line).  
-The HvdcRangeAction will be able to modify its active power set-point.
+The HvdcRangeAction will be able to modify its active power set-point. 
 
 The domain in which the HvdcRangeAction can modify the HvdcSetpoint is delimited by 'HvdcRanges'.
 An HvdcRangeAction contains a list of HvdcRanges. A range must be defined with a min and a max.
@@ -1204,6 +1205,8 @@ make sure their optimized set-points are always equal.
 If the HvdcRangeAction is an automaton, it has to have a speed assigned. This is an integer that defines the relative
 speed of this range action compared to other range-action automatons (smaller "speed" value = faster range action).
 No two range-action automatons can have the same speed value, unless they are aligned.
+
+> For more information on how hvdc range action are handled in the RAO see [here](../../algorithms/castor/special-features/hvdc.md)
 
 ::::{tabs}
 :::{group-tab} JAVA creation API

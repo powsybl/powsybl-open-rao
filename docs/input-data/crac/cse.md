@@ -217,6 +217,8 @@ By doing this the HVDC line is always considered in fixed set point mode. For mo
 OpenRAO creates the opposite keys by itself, therefore there is no need to specify it. 
 ⚠️*There isn't any check performed to verify that an applied set-point is between the ranges' min and max.*
 
+> For more information on how hvdc range action are handled in the RAO see [here](../../algorithms/castor/special-features/hvdc.md)
+
 ### Network Actions
 
 #### generator action
