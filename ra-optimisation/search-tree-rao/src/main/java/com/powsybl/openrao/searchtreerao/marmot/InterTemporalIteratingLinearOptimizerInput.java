@@ -8,7 +8,7 @@
 package com.powsybl.openrao.searchtreerao.marmot;
 
 import com.powsybl.openrao.commons.TemporalData;
-import com.powsybl.openrao.data.generatorconstraints.GeneratorConstraints;
+import com.powsybl.openrao.data.intertemporalconstraints.GeneratorConstraints;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.inputs.IteratingLinearOptimizerInput;
 

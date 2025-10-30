@@ -17,7 +17,6 @@
 
     <modules>
         <module>crac</module>
-        <module>generator-constraints</module>
         <module>glsk</module>
         <module>intertemporal-constraints</module>
         <module>rao-result</module>
