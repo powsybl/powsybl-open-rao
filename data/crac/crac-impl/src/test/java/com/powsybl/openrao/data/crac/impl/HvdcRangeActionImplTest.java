@@ -17,7 +17,6 @@ import com.powsybl.openrao.data.crac.api.range.StandardRangeAdder;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -33,7 +32,6 @@ class HvdcRangeActionImplTest {
     private Network network;
     private Network networkWithAngleDroop;
     private HvdcLine hvdcLine;
-    private HvdcLine hvdcLineWithAngleDroop;
 
     @BeforeEach
     public void setUp() {
@@ -51,8 +49,6 @@ class HvdcRangeActionImplTest {
             .newOnInstantUsageRule().withInstant("preventive").add();
 
         hvdcLine = network.getHvdcLine(networkElementId);
-        hvdcLineWithAngleDroop = networkWithAngleDroop.getHvdcLine(networkElementId);
-        hvdcLineWithAngleDroop.getExtension(HvdcAngleDroopActivePowerControl.class).setEnabled(true);
     }
 
     @Test
@@ -60,6 +56,7 @@ class HvdcRangeActionImplTest {
         HvdcRangeAction hvdcRa = hvdcRangeActionAdder.newRange().withMin(-5).withMax(10).add()
                 .add();
         assertEquals(0, hvdcRa.getCurrentSetpoint(network), 1e-6);
+        assertEquals(0, hvdcRa.getCurrentSetpoint(networkWithAngleDroop), 1e-6);
     }
 
     @Test
@@ -69,8 +66,8 @@ class HvdcRangeActionImplTest {
         hvdcRa.apply(network, 5);
         hvdcRa.apply(networkWithAngleDroop, 6);
         assertEquals(5, hvdcRa.getCurrentSetpoint(network), 1e-6);
-        assertEquals(6, hvdcRa.getCurrentSetpoint(networkWithAngleDroop), 1e-6);
-        assertFalse(hvdcLineWithAngleDroop.getExtension(HvdcAngleDroopActivePowerControl.class).isEnabled());
+        // Not applied because the line is in ac emulation
+        assertEquals(0, hvdcRa.getCurrentSetpoint(networkWithAngleDroop), 1e-6);
     }
 
     @Test
@@ -80,8 +77,8 @@ class HvdcRangeActionImplTest {
         hvdcRa.apply(network, -3);
         hvdcRa.apply(networkWithAngleDroop, -4);
         assertEquals(-3, hvdcRa.getCurrentSetpoint(network), 1e-6);
-        assertEquals(-4, hvdcRa.getCurrentSetpoint(networkWithAngleDroop), 1e-6);
-        assertFalse(hvdcLineWithAngleDroop.getExtension(HvdcAngleDroopActivePowerControl.class).isEnabled());
+        // Not applied because the line is in ac emulation
+        assertEquals(0, hvdcRa.getCurrentSetpoint(networkWithAngleDroop), 1e-6);
     }
 
     @Test

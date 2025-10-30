@@ -7,6 +7,9 @@
 
 package com.powsybl.openrao.searchtreerao.searchtree.algorithms;
 
+import com.powsybl.action.Action;
+import com.powsybl.action.HvdcAction;
+import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.openrao.commons.MeasurementRounding;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
@@ -44,6 +47,7 @@ import java.util.stream.Stream;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
+import static com.powsybl.openrao.data.crac.io.commons.iidm.IidmHvdcHelper.computeFlowOnHvdcLine;
 import static com.powsybl.openrao.searchtreerao.commons.RaoLogger.getVirtualCostDetailed;
 
 /**
@@ -112,12 +116,23 @@ public class Leaf implements OptimizationResult {
         this.appliedRemedialActionsInSecondaryStates = appliedRemedialActionsInSecondaryStates;
 
         // apply Network Actions on initial network
+        // if an emulation ac deactivate update in the network the active setpoint so that the sensi computation can converged
         for (NetworkAction na : appliedNetworkActionsInPrimaryState) {
-            boolean applicationSuccess = na.apply(network);
+            boolean applicationSuccess = na.apply(network); // deactivate the ac emulation
+            for (Action action : na.getElementaryActions()) {
+                if (action instanceof HvdcAction) {
+                    HvdcAction hvdcAction = (HvdcAction) action;
+                    HvdcLine hvdcLine = network.getHvdcLine(hvdcAction.getHvdcId());
+                    double activePowerSetpoint = computeFlowOnHvdcLine(hvdcLine);
+                    hvdcLine.setConvertersMode(activePowerSetpoint > 0 ? HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER : HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER);
+                    hvdcLine.setActivePowerSetpoint(Math.abs(activePowerSetpoint));
+                }
+            }
             if (!applicationSuccess) {
                 throw new OpenRaoException(String.format("%s could not be applied on the network", na.getId()));
             }
         }
+
         this.status = Status.CREATED;
     }
 
@@ -193,10 +208,19 @@ public class Leaf implements OptimizationResult {
         if (status.equals(Status.EVALUATED) || status.equals(Status.OPTIMIZED)) {
             TECHNICAL_LOGS.debug("Optimizing leaf...");
 
+            // make a deep copy and change availableRangeAction
+            OptimizationPerimeter optimizationPerimeterWithFilteredHvdcRangeAction = searchTreeInput.getOptimizationPerimeter().copyWithFilteredAvailableRangeAction(network);
+
+            // check if there are still range actions to optimize
+            if (optimizationPerimeterWithFilteredHvdcRangeAction.getRangeActions().isEmpty()) {
+                TECHNICAL_LOGS.info("No range actions to optimize after filtering HVDC range actions");
+                return;
+            }
+
             // build input
             IteratingLinearOptimizerInput linearOptimizerInput = IteratingLinearOptimizerInput.create()
                     .withNetwork(network)
-                    .withOptimizationPerimeter(searchTreeInput.getOptimizationPerimeter())
+                    .withOptimizationPerimeter(optimizationPerimeterWithFilteredHvdcRangeAction)
                     .withInitialFlowResult(searchTreeInput.getInitialFlowResult())
                     .withPrePerimeterFlowResult(searchTreeInput.getPrePerimeterResult())
                     .withPrePerimeterSetpoints(prePerimeterSetpoints)

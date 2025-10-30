@@ -11,6 +11,8 @@ import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
 import com.powsybl.action.Action;
+import com.powsybl.action.HvdcAction;
+import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Instant;
@@ -25,6 +27,8 @@ import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.impl.utils.NetworkImportsUtil;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
+import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.searchtreerao.commons.SensitivityComputer;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.commons.parameters.RangeActionLimitationParameters;
@@ -52,6 +56,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
+import static com.powsybl.openrao.data.crac.impl.utils.NetworkImportsUtil.import16NodesNetworkWithAngleDroopHvdcs;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static com.powsybl.iidm.network.TwoSides.TWO;
@@ -72,6 +77,7 @@ class LeafTest {
     private Action ea21;
     private Action ea22;
     private Action ea23;
+    private RangeAction rangeAction;
 
     private Network network;
     private ObjectiveFunction costEvaluatorMock;
@@ -113,6 +119,9 @@ class LeafTest {
         optimizationPerimeter = Mockito.mock(OptimizationPerimeter.class);
         optimizedState = Mockito.mock(State.class);
         when(optimizationPerimeter.getMainOptimizationState()).thenReturn(optimizedState);
+        when(optimizationPerimeter.copyWithFilteredAvailableRangeAction(network)).thenReturn(optimizationPerimeter);
+        rangeAction = Mockito.mock(RangeAction.class);
+        when(optimizationPerimeter.getRangeActions()).thenReturn(Set.of(rangeAction));
         prePerimeterResult = Mockito.mock(PrePerimeterResult.class);
         appliedRemedialActions = Mockito.mock(AppliedRemedialActions.class);
         Instant instant = Mockito.mock(Instant.class);
@@ -156,7 +165,6 @@ class LeafTest {
     void testRootLeafDefinition() {
         Leaf rootLeaf = new Leaf(optimizationPerimeter, network, prePerimeterResult, appliedRemedialActions);
         assertTrue(rootLeaf.getActivatedNetworkActions().isEmpty());
-        assert rootLeaf.getActivatedNetworkActions().isEmpty();
         assertTrue(rootLeaf.isRoot());
         assertEquals(Leaf.Status.EVALUATED, rootLeaf.getStatus());
     }
@@ -195,6 +203,26 @@ class LeafTest {
         assertEquals(1, leaf2.getActivatedNetworkActions().size());
         assertTrue(leaf2.getActivatedNetworkActions().contains(na1));
         assertFalse(leaf2.isRoot());
+    }
+
+    @Test
+    void testLeafDefinitionWithAcEmulationDeactivationNetworkAction() {
+        // An ac emulation deactivation action is activated.
+        Network networkWithAngleDroop = import16NodesNetworkWithAngleDroopHvdcs();
+        Leaf rootLeaf = new Leaf(optimizationPerimeter, networkWithAngleDroop, prePerimeterResult, appliedRemedialActions);
+        RangeActionActivationResult rangeActionActivationResult = Mockito.mock(RangeActionActivationResult.class);
+        na1 = Mockito.mock(NetworkAction.class);
+        when(na1.apply(any())).thenReturn(true);
+        when(na1.getOperator()).thenReturn("TSO1");
+        HvdcAction hvdcAction = Mockito.mock(HvdcAction.class);
+        when(hvdcAction.getHvdcId()).thenReturn("BBE2AA11 FFR3AA11 1");
+        when(na1.getElementaryActions()).thenReturn(Set.of(hvdcAction));
+        RaoParameters raoParameters = new RaoParameters();
+        raoParameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters());
+        assertEquals(0.0, networkWithAngleDroop.getHvdcLine("BBE2AA11 FFR3AA11 1").getActivePowerSetpoint());
+        LoadFlow.find(raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getLoadFlowAndSensitivityParameters().getLoadFlowProvider()).run(networkWithAngleDroop, raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters());
+        Leaf leaf1 = new Leaf(optimizationPerimeter, networkWithAngleDroop, rootLeaf.getActivatedNetworkActions(), new NetworkActionCombination(na1), rangeActionActivationResult, prePerimeterResult, appliedRemedialActions);
+        assertEquals(812.28, networkWithAngleDroop.getHvdcLine("BBE2AA11 FFR3AA11 1").getActivePowerSetpoint(), 1e-2);
     }
 
     @Test
@@ -621,16 +649,7 @@ class LeafTest {
     void getRangeActionsBeforeEvaluation() {
         Leaf leaf = buildNotEvaluatedRootLeaf();
         assertEquals(Leaf.Status.CREATED, leaf.getStatus());
-        assertTrue(leaf.getRangeActions().isEmpty());
-
-        PstRangeAction pstRangeAction = Mockito.mock(PstRangeAction.class);
-        RangeAction<?> rangeAction = Mockito.mock(RangeAction.class);
-        Set<RangeAction<?>> rangeActions = new HashSet<>();
-        rangeActions.add(pstRangeAction);
-        rangeActions.add(rangeAction);
-        when(optimizationPerimeter.getRangeActions()).thenReturn(rangeActions);
-        assertEquals(Leaf.Status.CREATED, leaf.getStatus());
-        assertEquals(rangeActions, leaf.getRangeActions());
+        assertEquals(Set.of(rangeAction), leaf.getRangeActions());
     }
 
     @Test

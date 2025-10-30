@@ -63,6 +63,9 @@ public class SearchTreeParameters {
     private final SearchTreeRaoCostlyMinMarginParameters maxMinMarginsParameters;
     private final int maxNumberOfIterations;
 
+    // required for loadflowcomputation
+    private final LoadFlowAndSensitivityParameters loadFlowAndSensitivityParameters;
+
     public SearchTreeParameters(ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction,
                                 Unit objectiveFunctionUnit, TreeParameters treeParameters,
                                 NetworkActionParameters networkActionParameters,
@@ -77,7 +80,8 @@ public class SearchTreeParameters {
                                 UnoptimizedCnecParameters unoptimizedCnecParameters,
                                 LinearOptimizationSolver solverParameters,
                                 SearchTreeRaoCostlyMinMarginParameters maxMinMarginParameters,
-                                int maxNumberOfIterations) {
+                                int maxNumberOfIterations,
+                                LoadFlowAndSensitivityParameters loadFlowAndSensitivityParameters) {
         this.objectiveFunction = objectiveFunction;
         this.objectiveFunctionUnit = objectiveFunctionUnit;
         this.treeParameters = treeParameters;
@@ -94,6 +98,7 @@ public class SearchTreeParameters {
         this.solverParameters = solverParameters;
         this.maxMinMarginsParameters = maxMinMarginParameters;
         this.maxNumberOfIterations = maxNumberOfIterations;
+        this.loadFlowAndSensitivityParameters = loadFlowAndSensitivityParameters;
     }
 
     public ObjectiveFunctionParameters.ObjectiveFunctionType getObjectiveFunction() {
@@ -158,6 +163,10 @@ public class SearchTreeParameters {
 
     public int getMaxNumberOfIterations() {
         return maxNumberOfIterations;
+    }
+
+    public LoadFlowAndSensitivityParameters getLoadFlowAndSensitivityParameters() {
+        return loadFlowAndSensitivityParameters;
     }
 
     public void setRaLimitationsForSecondPreventive(RaUsageLimits raUsageLimits, Set<RangeAction<?>> rangeActionSet, Instant preventiveInstant) {
@@ -297,6 +306,8 @@ public class SearchTreeParameters {
         private SearchTreeRaoCostlyMinMarginParameters maxMinMarginsParameters;
         private int maxNumberOfIterations;
 
+        private LoadFlowAndSensitivityParameters loadFlowAndSensitivityParameters;
+
         public SearchTreeParametersBuilder withConstantParametersOverAllRao(RaoParameters raoParameters, Crac crac) {
             this.objectiveFunction = raoParameters.getObjectiveFunctionParameters().getType();
             this.objectiveFunctionUnit = raoParameters.getObjectiveFunctionParameters().getUnit();
@@ -322,6 +333,7 @@ public class SearchTreeParameters {
             }
             this.solverParameters = getLinearOptimizationSolver(raoParameters);
             this.maxNumberOfIterations = getMaxMipIterations(raoParameters);
+            this.loadFlowAndSensitivityParameters = raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getLoadFlowAndSensitivityParameters();
             return this;
         }
 
@@ -395,6 +407,11 @@ public class SearchTreeParameters {
             return this;
         }
 
+        public SearchTreeParametersBuilder withLoadFlowAndSensitivityParameters(LoadFlowAndSensitivityParameters loadFlowAndSensitivityParameters) {
+            this.loadFlowAndSensitivityParameters = loadFlowAndSensitivityParameters;
+            return this;
+        }
+
         public SearchTreeParameters build() {
             return new SearchTreeParameters(
                 objectiveFunction,
@@ -412,7 +429,8 @@ public class SearchTreeParameters {
                 unoptimizedCnecParameters,
                 solverParameters,
                 maxMinMarginsParameters,
-                maxNumberOfIterations);
+                maxNumberOfIterations,
+                loadFlowAndSensitivityParameters);
         }
     }
 }

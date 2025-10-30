@@ -34,4 +34,12 @@ public final class IidmHvdcHelper {
             return -getHvdcLine(network, networkElementId).getActivePowerSetpoint();
         }
     }
+
+    public static double computeFlowOnHvdcLine(HvdcLine hvdcLine) {
+        if (hvdcLine.getConvertersMode().equals(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER)) {
+            return hvdcLine.getConverterStation2().getTerminal().getP();
+        } else {
+            return hvdcLine.getConverterStation1().getTerminal().getP();
+        }
+    }
 }
