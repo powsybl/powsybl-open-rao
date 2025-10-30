@@ -13,6 +13,7 @@ import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.intertemporalconstraints.IntertemporalConstraints;
 import com.powsybl.openrao.data.raoresult.api.InterTemporalRaoResult;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.raomock.AnotherInterTemporalRaoProviderMock;
@@ -25,7 +26,6 @@ import org.mockito.Mockito;
 import java.nio.file.FileSystem;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -43,7 +43,7 @@ class InterTemporalRaoTest {
     private InterTemporalRaoInputWithNetworkPaths raoInput;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
         platformConfig = new InMemoryPlatformConfig(fileSystem);
         Crac crac = Mockito.mock(Crac.class);
@@ -53,7 +53,7 @@ class InterTemporalRaoTest {
                     OffsetDateTime.of(2024, 12, 13, 16, 17, 0, 0, ZoneOffset.UTC),
                     RaoInputWithNetworkPaths.build("network.uct", crac).build()
                 )),
-            new HashSet<>()
+            new IntertemporalConstraints()
         );
     }
 
