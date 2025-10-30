@@ -171,6 +171,11 @@ public class SkippedOptimizationResultImpl implements OptimizationResult {
     }
 
     @Override
+    public Map<State, Set<RangeAction<?>>> getActivatedRangeActionsPerState() {
+        return Map.of(state, activatedRangeActions);
+    }
+
+    @Override
     public double getOptimizedSetpoint(RangeAction<?> rangeAction, State state) {
         throw new OpenRaoException(SHOULD_NOT_BE_USED);
     }

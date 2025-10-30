@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2025, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
 package com.powsybl.openrao.searchtreerao.marmot;
 
 import com.powsybl.iidm.network.TwoSides;
@@ -18,6 +25,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+/**
+ * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
+ */
 public final class TestsUtils {
     public static final OffsetDateTime TIMESTAMP_1 = OffsetDateTime.of(2025, 2, 17, 13, 33, 0, 0, ZoneOffset.UTC);
     public static final OffsetDateTime TIMESTAMP_2 = OffsetDateTime.of(2025, 2, 18, 13, 33, 0, 0, ZoneOffset.UTC);
@@ -63,6 +73,7 @@ public final class TestsUtils {
         RangeActionActivationResult rangeActionActivationResult = Mockito.mock(RangeActionActivationResult.class);
         Mockito.when(rangeActionActivationResult.getRangeActions()).thenReturn(Set.of(pstRangeAction));
         Mockito.when(rangeActionActivationResult.getActivatedRangeActions(state)).thenReturn(Set.of(pstRangeAction));
+        Mockito.when(rangeActionActivationResult.getActivatedRangeActionsPerState()).thenReturn(Map.of(state, Set.of(pstRangeAction)));
         Mockito.when(rangeActionActivationResult.getOptimizedTap(pstRangeAction, state)).thenReturn(tap);
         Mockito.when(rangeActionActivationResult.getTapVariation(pstRangeAction, state)).thenReturn(tap);
         Mockito.when(rangeActionActivationResult.getOptimizedTapsOnState(state)).thenReturn(Map.of(pstRangeAction, tap));

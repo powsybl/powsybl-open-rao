@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2021, RTE (http://www.rte-france.com)
+ * Copyright (c) 2022, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
- *  License, v. 2.0. If a copy of the MPL was not distributed with this
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
@@ -12,7 +12,6 @@ import com.powsybl.openrao.data.crac.impl.utils.NetworkImportsUtil;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -42,7 +41,7 @@ class InjectionRangeActionImplTest {
                 .withNetworkElementAndKey(1., "BBE1AA1 _generator")
                 .withNetworkElementAndKey(-1., "DDE3AA1 _generator")
                 .newRange().withMin(-1000).withMax(1000).add()
-                .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
                 .add();
 
         // set to 100 MW
@@ -66,7 +65,7 @@ class InjectionRangeActionImplTest {
                 .withNetworkElementAndKey(0.3, "FFR2AA1 _generator")
                 .withNetworkElementAndKey(0.5, "NNL3AA1 _load")
                 .newRange().withMin(-1000).withMax(1000).add()
-                .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
                 .add();
 
         // set to 100 MW
@@ -90,7 +89,7 @@ class InjectionRangeActionImplTest {
                 .withId("injectionRangeActionId")
                 .withNetworkElementAndKey(1, "unknown _load")
                 .newRange().withMin(-1000).withMax(1000).add()
-                .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
                 .add();
 
         try {
@@ -114,7 +113,7 @@ class InjectionRangeActionImplTest {
                 .withId("injectionRangeActionId")
                 .withNetworkElementAndKey(1, "BBE1AA1  BBE2AA1  1")
                 .newRange().withMin(-1000).withMax(1000).add()
-                .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
                 .add();
 
         try {
@@ -139,7 +138,7 @@ class InjectionRangeActionImplTest {
                 .withNetworkElementAndKey(1., "BBE1AA1 _load")
                 .withNetworkElementAndKey(1., "DDE3AA1 _generator")
                 .newRange().withMin(-1000).withMax(1000).add()
-                .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
                 .add();
 
         network.getLoad("BBE1AA1 _load").setP0(-50);
@@ -168,7 +167,7 @@ class InjectionRangeActionImplTest {
                 .withNetworkElementAndKey(1., "BBE1AA1 _load")
                 .newRange().withMin(-1000).withMax(1000).add()
                 .newRange().withMin(-1300).withMax(400).add()
-                .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
                 .add();
 
         assertEquals(-1000, ira.getMinAdmissibleSetpoint(0.0), 1e-3);

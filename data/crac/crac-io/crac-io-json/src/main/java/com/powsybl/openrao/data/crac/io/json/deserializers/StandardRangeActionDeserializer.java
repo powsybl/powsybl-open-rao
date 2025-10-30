@@ -4,6 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 package com.powsybl.openrao.data.crac.io.json.deserializers;
 
 import com.fasterxml.jackson.core.JsonToken;
@@ -15,6 +16,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import java.io.IOException;
 
 import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.deserializeVariationDirection;
+import static com.powsybl.openrao.data.crac.io.json.deserializers.CracDeserializer.LOGGER;
 
 /**
  * @author Gabriel Plante {@literal <gabriel.plante_externe at rte-france.com>}
@@ -26,6 +28,7 @@ public final class StandardRangeActionDeserializer {
 
     /**
      * De-serializes common elements in StandardRangeAction implementations
+     *
      * @return true if the element was found
      * @throws IOException
      */
@@ -42,26 +45,26 @@ public final class StandardRangeActionDeserializer {
                 break;
             case JsonSerializationConstants.ON_INSTANT_USAGE_RULES:
                 jsonParser.nextToken();
-                OnInstantArrayDeserializer.deserialize(jsonParser, standardRangeActionAdder);
+                OnInstantArrayDeserializer.deserialize(jsonParser, standardRangeActionAdder, version);
                 break;
             case JsonSerializationConstants.FREE_TO_USE_USAGE_RULES:
                 if (JsonSerializationConstants.getPrimaryVersionNumber(version) > 1 || JsonSerializationConstants.getSubVersionNumber(version) > 5) {
                     throw new OpenRaoException("FreeToUse has been renamed to OnInstant since CRAC version 1.6");
                 } else {
                     jsonParser.nextToken();
-                    OnInstantArrayDeserializer.deserialize(jsonParser, standardRangeActionAdder);
+                    OnInstantArrayDeserializer.deserialize(jsonParser, standardRangeActionAdder, version);
                 }
                 break;
             case JsonSerializationConstants.ON_CONTINGENCY_STATE_USAGE_RULES:
                 jsonParser.nextToken();
-                OnStateArrayDeserializer.deserialize(jsonParser, standardRangeActionAdder);
+                OnStateArrayDeserializer.deserialize(jsonParser, standardRangeActionAdder, version);
                 break;
             case JsonSerializationConstants.ON_STATE_USAGE_RULES:
                 if (JsonSerializationConstants.getPrimaryVersionNumber(version) > 1 || JsonSerializationConstants.getSubVersionNumber(version) > 5) {
                     throw new OpenRaoException("OnState has been renamed to OnContingencyState since CRAC version 1.6");
                 } else {
                     jsonParser.nextToken();
-                    OnStateArrayDeserializer.deserialize(jsonParser, standardRangeActionAdder);
+                    OnStateArrayDeserializer.deserialize(jsonParser, standardRangeActionAdder, version);
                 }
                 break;
             case JsonSerializationConstants.ON_CONSTRAINT_USAGE_RULES:
@@ -88,9 +91,13 @@ public final class StandardRangeActionDeserializer {
                 standardRangeActionAdder.withGroupId(jsonParser.nextTextValue());
                 break;
             case JsonSerializationConstants.INITIAL_SETPOINT:
-                jsonParser.nextToken();
-                standardRangeActionAdder.withInitialSetpoint(jsonParser.getDoubleValue());
-                break;
+                if (JsonSerializationConstants.getPrimaryVersionNumber(version) > 2 || JsonSerializationConstants.getPrimaryVersionNumber(version) == 2 && JsonSerializationConstants.getSubVersionNumber(version) > 7) {
+                    throw new OpenRaoException("initialSetpoint field is no longer used since CRAC version 2.8, the value is now directly determined from the network");
+                } else {
+                    jsonParser.nextToken();
+                    LOGGER.warn("The initial setpoint is now read from the network so the value in the crac will not be read");
+                    break;
+                }
             case JsonSerializationConstants.RANGES:
                 jsonParser.nextToken();
                 StandardRangeArrayDeserializer.deserialize(jsonParser, standardRangeActionAdder);

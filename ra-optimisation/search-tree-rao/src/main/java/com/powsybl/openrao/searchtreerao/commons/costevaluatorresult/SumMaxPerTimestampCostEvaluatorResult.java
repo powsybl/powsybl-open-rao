@@ -42,6 +42,10 @@ public class SumMaxPerTimestampCostEvaluatorResult implements CostEvaluatorResul
         Map<FlowCnec, Double> filteredCnecs = marginPerCnec.entrySet().stream()
             .filter(entry -> !cnecsToExclude.contains(entry.getKey().getId()))
             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        if (filteredCnecs.isEmpty()) {
+            return -Double.MAX_VALUE;
+        }
+
         // Compute state wise cost
         Map<State, Set<FlowCnec>> flowCnecsPerState = groupFlowCnecsPerState(filteredCnecs.keySet());
         Map<State, Double> costPerState = flowCnecsPerState.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, entry -> computeCostForState(entry.getValue())));
@@ -49,7 +53,7 @@ public class SumMaxPerTimestampCostEvaluatorResult implements CostEvaluatorResul
         Map<OffsetDateTime, Set<State>> statesToEvaluatePerTimestamp = new HashMap<>();
         Set<State> statesToEvaluateWithoutTimestamp = new HashSet<>();
 
-        costPerState.keySet().stream().forEach(state -> {
+        costPerState.keySet().forEach(state -> {
             if (statesContingencyMustBeKept(state, contingenciesToExclude)) {
                 Optional<OffsetDateTime> timestamp = state.getTimestamp();
                 if (timestamp.isPresent()) {
@@ -60,8 +64,8 @@ public class SumMaxPerTimestampCostEvaluatorResult implements CostEvaluatorResul
             }
         });
 
-        return statesToEvaluatePerTimestamp.values().stream().mapToDouble(states -> states.stream().mapToDouble(state -> costPerState.get(state)).max().orElse(0)).sum()
-            + statesToEvaluateWithoutTimestamp.stream().mapToDouble(state -> costPerState.get(state)).max().orElse(0);
+        return statesToEvaluatePerTimestamp.values().stream().mapToDouble(states -> states.stream().mapToDouble(costPerState::get).max().orElse(0)).sum()
+            + statesToEvaluateWithoutTimestamp.stream().mapToDouble(costPerState::get).max().orElse(0);
 
     }
 

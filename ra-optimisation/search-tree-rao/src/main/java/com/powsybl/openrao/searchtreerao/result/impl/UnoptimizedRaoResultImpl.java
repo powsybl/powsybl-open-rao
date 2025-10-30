@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.result.impl;
 
+import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
@@ -32,7 +33,7 @@ import java.util.Set;
  *
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class UnoptimizedRaoResultImpl implements RaoResult {
+public class UnoptimizedRaoResultImpl extends AbstractExtendable<RaoResult> implements RaoResult {
     private final PrePerimeterResult initialResult;
     private String executionDetails = OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY;
 

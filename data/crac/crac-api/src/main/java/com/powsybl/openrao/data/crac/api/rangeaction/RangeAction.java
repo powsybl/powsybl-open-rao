@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, RTE (http://www.rte-france.com)
+ * Copyright (c) 2021, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -54,5 +54,20 @@ public interface RangeAction<T extends RangeAction<T>> extends RemedialAction<T>
      */
     Optional<String> getGroupId();
 
+    /**
+     * Get the variation cost to increase or decrease the setpoint by one unit.
+     */
     Optional<Double> getVariationCost(VariationDirection variationDirection);
+
+    /**
+     * Get the total cost to spend to increase or decrease the setpoint by a given amount.
+     */
+    default double getTotalCostForVariation(Double variation) {
+        if (Math.abs(variation) < 1e-6) {
+            return 0.;
+        }
+        double activationCost = getActivationCost().orElse(0.);
+        double variationCost = getVariationCost(variation > 0 ? VariationDirection.UP : VariationDirection.DOWN).orElse(0.) * Math.abs(variation);
+        return activationCost + variationCost;
+    }
 }

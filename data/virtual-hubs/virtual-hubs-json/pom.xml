@@ -7,10 +7,13 @@
     <parent>
         <groupId>com.powsybl</groupId>
         <artifactId>open-rao-virtual-hubs</artifactId>
-        <version>6.6.0-SNAPSHOT</version>
+        <version>7.1.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>open-rao-virtual-hubs-json</artifactId>
+    <packaging>jar</packaging>
+    <name>Virtual hubs JSON converter</name>
+    <description>Conversion between JSON data and virtual hubs</description>
 
     <dependencies>
         <dependency>

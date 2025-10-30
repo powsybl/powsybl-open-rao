@@ -10,7 +10,7 @@ Feature: US 1.1: Security assessment without any remedial action
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic1/SL_ep1us0_withoutRA.json"
     Given configuration file is "common/RaoParameters_posMargin_ampere.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then its security status should be "UNSECURED"
     Then the margin on cnec "FFR2AA1  DDE3AA1  1 - preventive" after PRA should be -667.0 A
     Then the margin on cnec "FFR2AA1  DDE3AA1  1 - Defaut FR1 FR3 - outage" after PRA should be -598.0 A

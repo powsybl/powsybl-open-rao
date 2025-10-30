@@ -7,7 +7,7 @@
 
 package com.powsybl.openrao.data.crac.api.networkaction;
 
-/***
+/**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public interface SwitchPairAdder {

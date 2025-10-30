@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, RTE (http://www.rte-france.com)
+ * Copyright (c) 2021, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -35,7 +35,7 @@ import java.util.Map;
  */
 public class CracDeserializer extends JsonDeserializer<Crac> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(CracDeserializer.class);
+    public static final Logger LOGGER = LoggerFactory.getLogger(CracDeserializer.class);
 
     private CracFactory cracFactory;
 
@@ -103,7 +103,7 @@ public class CracDeserializer extends JsonDeserializer<Crac> {
 
                 case JsonSerializationConstants.FLOW_CNECS:
                     jsonParser.nextToken();
-                    FlowCnecArrayDeserializer.deserialize(jsonParser, deserializationContext, version, crac, deserializedNetworkElementsNamesPerId);
+                    FlowCnecArrayDeserializer.deserialize(jsonParser, deserializationContext, version, crac, deserializedNetworkElementsNamesPerId, network);
                     break;
 
                 case JsonSerializationConstants.ANGLE_CNECS:
@@ -123,12 +123,12 @@ public class CracDeserializer extends JsonDeserializer<Crac> {
 
                 case JsonSerializationConstants.HVDC_RANGE_ACTIONS:
                     jsonParser.nextToken();
-                    HvdcRangeActionArrayDeserializer.deserialize(jsonParser, version, crac, deserializedNetworkElementsNamesPerId);
+                    HvdcRangeActionArrayDeserializer.deserialize(jsonParser, version, crac, deserializedNetworkElementsNamesPerId, network);
                     break;
 
                 case JsonSerializationConstants.INJECTION_RANGE_ACTIONS:
                     jsonParser.nextToken();
-                    InjectionRangeActionArrayDeserializer.deserialize(jsonParser, version, crac, deserializedNetworkElementsNamesPerId);
+                    InjectionRangeActionArrayDeserializer.deserialize(jsonParser, version, crac, deserializedNetworkElementsNamesPerId, network);
                     break;
 
                 case JsonSerializationConstants.COUNTER_TRADE_RANGE_ACTIONS:

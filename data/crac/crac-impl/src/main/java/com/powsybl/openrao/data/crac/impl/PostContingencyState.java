@@ -13,7 +13,6 @@ import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
 
 import java.time.OffsetDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
 /**
@@ -22,13 +21,12 @@ import java.util.Optional;
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
 public class PostContingencyState implements State {
-    private static DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMddHHmm");
     private String id;
     private Contingency contingency;
     private Instant instant;
     private OffsetDateTime timestamp;
 
-    PostContingencyState(Contingency contingency, Instant instant, OffsetDateTime timestamp) {
+    public PostContingencyState(Contingency contingency, Instant instant, OffsetDateTime timestamp) {
         if (instant.isPreventive()) {
             throw new OpenRaoException("Instant cannot be preventive");
         }
@@ -61,7 +59,7 @@ public class PostContingencyState implements State {
      * Check if states are equals. States are considered equals when instant and contingency are equals if
      * contingency is present. Otherwise they are considered equals when instant are equals.
      *
-     * @param o: If it's null or another object than State it will return false.
+     * @param o If it's null or another object than State it will return false.
      * @return A boolean true if objects are equals, otherwise false.
      */
     @Override

@@ -10,7 +10,7 @@ Feature: US 20.5: Advanced 2nd preventive run conditions
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic20/second_preventive_ls_1.json"
     Given configuration file is "epic20/RaoParameters_maxMargin_ampere_forbid_cost_increase.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then the worst margin is -144 A
     And the value of the objective function after CRA should be 144
     Then the execution details should be "The RAO only went through first preventive"
@@ -20,7 +20,7 @@ Feature: US 20.5: Advanced 2nd preventive run conditions
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic20/SL_ep20us5case2.json"
     Given configuration file is "epic20/RaoParameters_maxMargin_ampere_forbid_cost_increase.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then 0 remedial actions are used in preventive
     And 0 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     And the tap of PstRangeAction "pst_be" should be 0 after "co1_fr2_fr3_1" at "curative"
@@ -33,7 +33,7 @@ Feature: US 20.5: Advanced 2nd preventive run conditions
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic20/second_preventive_ls_1.json"
     Given configuration file is "epic20/RaoParameters_maxMargin_ampere_2p_if_cost_increase.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then the worst margin is -144 A
     And the value of the objective function after CRA should be 144
     Then the execution details should be "The RAO only went through first preventive"
@@ -43,16 +43,14 @@ Feature: US 20.5: Advanced 2nd preventive run conditions
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic20/SL_ep20us5case2.json"
     Given configuration file is "epic20/RaoParameters_maxMargin_ampere_2p_if_cost_increase.json"
-    When I launch search_tree_rao
-    Then 2 remedial actions are used in preventive
-    And the tap of PstRangeAction "pst_fr" should be -5 in preventive
-    And the remedial action "close_fr1_fr5" is used in preventive
-    And 2 remedial actions are used after "co1_fr2_fr3_1" at "curative"
+    When I launch rao
+    Then 1 remedial actions are used in preventive
+    And the tap of PstRangeAction "pst_fr" should be 2 in preventive
+    And 1 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     And the remedial action "open_fr1_fr3" is used after "co1_fr2_fr3_1" at "curative"
-    And the tap of PstRangeAction "pst_be" should be -16 after "co1_fr2_fr3_1" at "curative"
-    And the worst margin is 638 A
-    And the margin on cnec "FFR4AA1  DDE1AA1  1 - preventive" after PRA should be 638 A
-    And the margin on cnec "FFR1AA1  FFR4AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be 645 A
+    And the worst margin is 795 A
+    And the margin on cnec "FFR1AA1  FFR4AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be 795 A
+    And the margin on cnec "FFR4AA1  DDE1AA1  1 - preventive" after CRA should be 800 A
     Then the execution details should be "Second preventive improved first preventive results"
 
   @fast @rao @mock @ac @second-preventive
@@ -60,7 +58,7 @@ Feature: US 20.5: Advanced 2nd preventive run conditions
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic20/second_preventive_ls_1.json"
     Given configuration file is "epic20/RaoParameters_maxMargin_ampere_second_preventive.json"
-    When I launch search_tree_rao with a time limit of -1 seconds
+    When I launch rao with a time limit of -1 seconds
     Then the worst margin is -144 A
     And the value of the objective function after CRA should be 144
     Then the execution details should be "The RAO only went through first preventive"
@@ -70,7 +68,7 @@ Feature: US 20.5: Advanced 2nd preventive run conditions
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic20/second_preventive_ls_1.json"
     Given configuration file is "epic20/RaoParameters_maxMargin_ampere_second_preventive.json"
-    When I launch search_tree_rao with a time limit of 600 seconds
+    When I launch rao with a time limit of 600 seconds
     Then the worst margin is 321 A
     And the margin on cnec "FFR1AA1  FFR4AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be 321 A
     And the margin on cnec "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be 501 A

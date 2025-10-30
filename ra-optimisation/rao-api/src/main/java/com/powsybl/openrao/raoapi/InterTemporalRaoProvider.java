@@ -19,9 +19,9 @@ import java.util.concurrent.CompletableFuture;
 public interface InterTemporalRaoProvider extends Versionable {
 
     /**
-     * @param raoInput: Data to optimize. Contains Cracs and Networks for each timestamp and gradient constraints
-     * @param parameters: RAO parameters.
+     * @param raoInput Data to optimize. Contains Cracs and Networks for each timestamp and gradient constraints
+     * @param parameters RAO parameters.
      * @return A completable future of a RaoComputationResult for each timestamp.
      */
-    CompletableFuture<InterTemporalRaoResult> run(InterTemporalRaoInput raoInput, RaoParameters parameters);
+    CompletableFuture<InterTemporalRaoResult> run(InterTemporalRaoInputWithNetworkPaths raoInput, RaoParameters parameters);
 }

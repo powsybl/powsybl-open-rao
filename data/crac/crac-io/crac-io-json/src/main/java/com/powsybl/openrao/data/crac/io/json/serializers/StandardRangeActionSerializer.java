@@ -1,9 +1,10 @@
 /*
- * Copyright (c) 2023, RTE (http://www.rte-france.com)
+ * Copyright (c) 2021, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 package com.powsybl.openrao.data.crac.io.json.serializers;
 
 import com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants;
@@ -18,7 +19,8 @@ import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.s
 import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.serializeVariationCosts;
 
 /**
- * Serializes common elements in StandardRaneAction implementations
+ * Serializes common elements in StandardRangeAction implementations
+ *
  * @author Gabriel Plante {@literal <gabriel.plante_externe at rte-france.com>}
  */
 public final class StandardRangeActionSerializer {
@@ -34,7 +36,6 @@ public final class StandardRangeActionSerializer {
         serializeVariationCosts(value, gen);
         UsageRulesSerializer.serializeUsageRules(value, gen);
         serializeGroupId(value, gen);
-        gen.writeNumberField(JsonSerializationConstants.INITIAL_SETPOINT, value.getInitialSetpoint());
         serializeRanges(value, gen);
     }
 

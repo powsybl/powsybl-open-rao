@@ -24,7 +24,6 @@ import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.range.RangeType;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeActionAdder;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.openrao.data.crac.impl.utils.NetworkImportsUtil;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
@@ -33,6 +32,7 @@ import com.powsybl.openrao.raoapi.parameters.extensions.SecondPreventiveRaoParam
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
+import com.powsybl.openrao.searchtreerao.result.impl.PostPerimeterResult;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -47,6 +47,9 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
+/**
+ * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
+ */
 class CastorSecondPreventiveTest {
     private static final String PREVENTIVE_INSTANT_ID = "preventive";
     private static final String OUTAGE_INSTANT_ID = "outage";
@@ -118,25 +121,25 @@ class CastorSecondPreventiveTest {
         ra1 = crac.newPstRangeAction()
             .withId("ra1")
             .withNetworkElement("ra1-ne")
-            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
-            .newOnContingencyStateUsageRule().withContingency("contingency1").withInstant(CURATIVE_INSTANT_ID).withUsageMethod(UsageMethod.UNDEFINED).add()
+            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
+            .newOnContingencyStateUsageRule().withContingency("contingency1").withInstant(CURATIVE_INSTANT_ID).add()
             .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
             .add();
         // ra2 : preventive and curative
         ra2 = crac.newPstRangeAction()
             .withId("ra2")
             .withNetworkElement("ra2-ne")
-            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.UNAVAILABLE).add()
-            .newOnContingencyStateUsageRule().withContingency("contingency2").withInstant(CURATIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
+            .newOnContingencyStateUsageRule().withContingency("contingency2").withInstant(CURATIVE_INSTANT_ID).add()
             .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
             .add();
         // ra3 : preventive and curative
         ra3 = crac.newPstRangeAction()
             .withId("ra3")
             .withNetworkElement("ra3-ne")
-            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
             .newTapRange().withMaxTap(100).withMinTap(-100).withRangeType(RangeType.RELATIVE_TO_PREVIOUS_INSTANT).add()
-            .newOnContingencyStateUsageRule().withContingency("contingency1").withInstant(CURATIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnContingencyStateUsageRule().withContingency("contingency1").withInstant(CURATIVE_INSTANT_ID).add()
             .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
             .add();
         // ra4 : preventive only, but with same NetworkElement as ra5
@@ -144,7 +147,7 @@ class CastorSecondPreventiveTest {
             .withId("ra4")
             .withNetworkElement("ra4-ne1")
             .withNetworkElement("ra4-ne2")
-            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
             .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
             .add();
         // ra5 : curative only, but with same NetworkElement as ra4
@@ -152,7 +155,7 @@ class CastorSecondPreventiveTest {
             .withId("ra5")
             .withNetworkElement("ra4-ne1")
             .withNetworkElement("ra4-ne2")
-            .newOnContingencyStateUsageRule().withContingency("contingency2").withInstant(CURATIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnContingencyStateUsageRule().withContingency("contingency2").withInstant(CURATIVE_INSTANT_ID).add()
             .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
             .add();
         // ra6 : preventive and curative (onFlowConstraint)
@@ -160,15 +163,15 @@ class CastorSecondPreventiveTest {
             .withId("ra6")
             .withNetworkElement("ra6-ne")
             .withOperator("FR")
-            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
-            .newOnConstraintUsageRule().withCnec("cnec").withInstant(CURATIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
+            .newOnConstraintUsageRule().withCnec("cnec").withInstant(CURATIVE_INSTANT_ID).add()
             .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
             .add();
         // ra7 : auto only
         ra7 = crac.newPstRangeAction()
             .withId("ra7")
             .withNetworkElement("ra7-ne")
-            .newOnContingencyStateUsageRule().withContingency("contingency2").withInstant(AUTO_INSTANT_ID).withUsageMethod(UsageMethod.FORCED).add()
+            .newOnContingencyStateUsageRule().withContingency("contingency2").withInstant(AUTO_INSTANT_ID).add()
             .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
             .withSpeed(1)
             .add();
@@ -176,8 +179,8 @@ class CastorSecondPreventiveTest {
         ra8 = crac.newPstRangeAction()
             .withId("ra8")
             .withNetworkElement("ra8-ne")
-            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
-            .newOnContingencyStateUsageRule().withContingency("contingency1").withInstant(AUTO_INSTANT_ID).withUsageMethod(UsageMethod.FORCED).add()
+            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
+            .newOnContingencyStateUsageRule().withContingency("contingency1").withInstant(AUTO_INSTANT_ID).add()
             .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
             .withSpeed(2)
             .add();
@@ -185,7 +188,7 @@ class CastorSecondPreventiveTest {
         ra9 = crac.newPstRangeAction()
             .withId("ra9")
             .withNetworkElement("ra8-ne")
-            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
             .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
             .add();
         // ra10 : preventive only, counter trade
@@ -193,8 +196,8 @@ class CastorSecondPreventiveTest {
             .withId("ra10")
             .withExportingCountry(Country.FR)
             .withImportingCountry(Country.DE)
-            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
-            .newOnContingencyStateUsageRule().withContingency("contingency1").withInstant(CURATIVE_INSTANT_ID).withUsageMethod(UsageMethod.UNDEFINED).add()
+            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
+            .newOnContingencyStateUsageRule().withContingency("contingency1").withInstant(CURATIVE_INSTANT_ID).add()
             .newRange().withMin(-1000).withMax(1000).add()
             .add();
 
@@ -202,8 +205,8 @@ class CastorSecondPreventiveTest {
         na1 = crac.newNetworkAction()
             .withId("na1")
             .newSwitchAction().withNetworkElement("na1-ne").withActionType(ActionType.OPEN).add()
-            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
-            .newOnContingencyStateUsageRule().withContingency("contingency1").withInstant(CURATIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
+            .newOnContingencyStateUsageRule().withContingency("contingency1").withInstant(CURATIVE_INSTANT_ID).add()
             .add();
 
         state1 = crac.getState(contingency1, curativeInstant);
@@ -236,17 +239,17 @@ class CastorSecondPreventiveTest {
             .withId("ra1")
             .withNetworkElement("BBE2AA1  BBE3AA1  1")
             .withInitialTap(0).withTapToAngleConversionMap(tapToAngleConversionMap)
-            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add();
+            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add();
         if (curative) {
-            adder.newOnContingencyStateUsageRule().withContingency("contingency1").withInstant(CURATIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add();
+            adder.newOnContingencyStateUsageRule().withContingency("contingency1").withInstant(CURATIVE_INSTANT_ID).add();
         }
         ra1 = adder.add();
         // na1 : preventive + curative
         na1 = crac.newNetworkAction()
             .withId("na1")
             .newTerminalsConnectionAction().withNetworkElement("BBE1AA1  BBE2AA1  1").withActionType(ActionType.OPEN).add()
-            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
-            .newOnContingencyStateUsageRule().withContingency("contingency2").withInstant(CURATIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
+            .newOnContingencyStateUsageRule().withContingency("contingency2").withInstant(CURATIVE_INSTANT_ID).add()
             .add();
 
         state1 = crac.getState(contingency1, curativeInstant);
@@ -267,10 +270,18 @@ class CastorSecondPreventiveTest {
         RaoParameters parameters = new RaoParameters();
         parameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters());
         OpenRaoSearchTreeParameters searchTreeParameters = parameters.getExtension(OpenRaoSearchTreeParameters.class);
+
         OptimizationResult preventiveResult = Mockito.mock(OptimizationResult.class);
+        PostPerimeterResult postPreventiveResult = Mockito.mock(PostPerimeterResult.class);
+        when(postPreventiveResult.getOptimizationResult()).thenReturn(preventiveResult);
         OptimizationResult optimizationResult1 = Mockito.mock(OptimizationResult.class);
+        PostPerimeterResult postOptimizationResult1 = Mockito.mock(PostPerimeterResult.class);
+        when(postOptimizationResult1.getOptimizationResult()).thenReturn(optimizationResult1);
         OptimizationResult optimizationResult2 = Mockito.mock(OptimizationResult.class);
-        Collection<OptimizationResult> curativeResults = Set.of(optimizationResult1, optimizationResult2);
+        PostPerimeterResult postOptimizationResult2 = Mockito.mock(PostPerimeterResult.class);
+        when(postOptimizationResult2.getOptimizationResult()).thenReturn(optimizationResult2);
+
+        Collection<PostPerimeterResult> curativeResults = Set.of(postOptimizationResult1, postOptimizationResult2);
         CastorSecondPreventive castorSecondPreventive = new CastorSecondPreventive(crac, parameters, network, null, null, null);
 
         // No SearchTreeRaoParameters extension
@@ -311,11 +322,19 @@ class CastorSecondPreventiveTest {
         RaoParameters parameters = new RaoParameters();
         parameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters());
         OpenRaoSearchTreeParameters searchTreeParameters = parameters.getExtension(OpenRaoSearchTreeParameters.class);
-        OptimizationResult preventiveResult = Mockito.mock(OptimizationResult.class);
         RaoResult postFirstPreventiveRaoResult = Mockito.mock(RaoResult.class);
+
+        OptimizationResult preventiveResult = Mockito.mock(OptimizationResult.class);
+        PostPerimeterResult postPreventiveResult = Mockito.mock(PostPerimeterResult.class);
+        when(postPreventiveResult.getOptimizationResult()).thenReturn(preventiveResult);
         OptimizationResult optimizationResult1 = Mockito.mock(OptimizationResult.class);
+        PostPerimeterResult postOptimizationResult1 = Mockito.mock(PostPerimeterResult.class);
+        when(postOptimizationResult1.getOptimizationResult()).thenReturn(optimizationResult1);
         OptimizationResult optimizationResult2 = Mockito.mock(OptimizationResult.class);
-        Collection<OptimizationResult> curativeResults = Set.of(optimizationResult1, optimizationResult2);
+        PostPerimeterResult postOptimizationResult2 = Mockito.mock(PostPerimeterResult.class);
+        when(postOptimizationResult2.getOptimizationResult()).thenReturn(optimizationResult2);
+
+        Collection<PostPerimeterResult> curativeResults = Set.of(postOptimizationResult1, postOptimizationResult2);
 
         searchTreeParameters.getSecondPreventiveRaoParameters().setExecutionCondition(SecondPreventiveRaoParameters.ExecutionCondition.POSSIBLE_CURATIVE_IMPROVEMENT);
         searchTreeParameters.getObjectiveFunctionParameters().setCurativeMinObjImprovement(10.);
@@ -342,10 +361,18 @@ class CastorSecondPreventiveTest {
         RaoParameters parameters = new RaoParameters();
         parameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters());
         OpenRaoSearchTreeParameters searchTreeParameters = parameters.getExtension(OpenRaoSearchTreeParameters.class);
+
         OptimizationResult preventiveResult = Mockito.mock(OptimizationResult.class);
+        PostPerimeterResult postPreventiveResult = Mockito.mock(PostPerimeterResult.class);
+        when(postPreventiveResult.getOptimizationResult()).thenReturn(preventiveResult);
         OptimizationResult optimizationResult1 = Mockito.mock(OptimizationResult.class);
+        PostPerimeterResult postOptimizationResult1 = Mockito.mock(PostPerimeterResult.class);
+        when(postOptimizationResult1.getOptimizationResult()).thenReturn(optimizationResult1);
         OptimizationResult optimizationResult2 = Mockito.mock(OptimizationResult.class);
-        Collection<OptimizationResult> curativeResults = Set.of(optimizationResult1, optimizationResult2);
+        PostPerimeterResult postOptimizationResult2 = Mockito.mock(PostPerimeterResult.class);
+        when(postOptimizationResult2.getOptimizationResult()).thenReturn(optimizationResult2);
+
+        Collection<PostPerimeterResult> curativeResults = Set.of(postOptimizationResult1, postOptimizationResult2);
 
         searchTreeParameters.getSecondPreventiveRaoParameters().setExecutionCondition(SecondPreventiveRaoParameters.ExecutionCondition.POSSIBLE_CURATIVE_IMPROVEMENT);
         // Default objective function parameters are enough for SecondPreventiveRaoParameters to be true if there is enough time
@@ -365,10 +392,18 @@ class CastorSecondPreventiveTest {
         RaoParameters parameters = new RaoParameters();
         parameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters());
         OpenRaoSearchTreeParameters searchTreeParameters = parameters.getExtension(OpenRaoSearchTreeParameters.class);
+
         OptimizationResult preventiveResult = Mockito.mock(OptimizationResult.class);
+        PostPerimeterResult postPreventiveResult = Mockito.mock(PostPerimeterResult.class);
+        when(postPreventiveResult.getOptimizationResult()).thenReturn(preventiveResult);
         OptimizationResult optimizationResult1 = Mockito.mock(OptimizationResult.class);
+        PostPerimeterResult postOptimizationResult1 = Mockito.mock(PostPerimeterResult.class);
+        when(postOptimizationResult1.getOptimizationResult()).thenReturn(optimizationResult1);
         OptimizationResult optimizationResult2 = Mockito.mock(OptimizationResult.class);
-        Collection<OptimizationResult> curativeResults = Set.of(optimizationResult1, optimizationResult2);
+        PostPerimeterResult postOptimizationResult2 = Mockito.mock(PostPerimeterResult.class);
+        when(postOptimizationResult2.getOptimizationResult()).thenReturn(optimizationResult2);
+
+        Collection<PostPerimeterResult> curativeResults = Set.of(postOptimizationResult1, postOptimizationResult2);
 
         searchTreeParameters.getSecondPreventiveRaoParameters().setExecutionCondition(SecondPreventiveRaoParameters.ExecutionCondition.COST_INCREASE);
         // Default objective function parameters are enough for SecondPreventiveRaoParameters to be true if cost at curative allows it
@@ -390,41 +425,6 @@ class CastorSecondPreventiveTest {
     }
 
     @Test
-    void testGetRangeActionsExcludedFromSecondPreventive() {
-        setUpCracWithRAs();
-        OptimizationResult firstPreventiveResult = Mockito.mock(OptimizationResult.class);
-        OptimizationResult optimizationResult = Mockito.mock(OptimizationResult.class);
-        State preventiveState = crac.getPreventiveState();
-        // ra9 has different taps than ra8.
-        when(firstPreventiveResult.getOptimizedSetpoint(ra9, preventiveState)).thenReturn(2.);
-        crac.newRaUsageLimits(autoInstant.getId()).withMaxRa(0).add();
-        crac.newRaUsageLimits(curativeInstant.getId()).withMaxRaPerTso(new HashMap<>(Map.of("FR", 0))).add();
-        Map<State, OptimizationResult> contingencyResult = new HashMap<>();
-        crac.getStates().forEach(state -> {
-            if (!state.isPreventive()) {
-                contingencyResult.put(state, optimizationResult);
-            }
-        });
-        CastorSecondPreventive castorSecondPreventive = new CastorSecondPreventive(crac, null, network, null, null, null);
-
-        Set<RangeAction<?>> rangeActionsExcludedFrom2P = castorSecondPreventive.getRangeActionsExcludedFromSecondPreventive(firstPreventiveResult, contingencyResult);
-
-        assertEquals(6, rangeActionsExcludedFrom2P.size());
-        assertFalse(rangeActionsExcludedFrom2P.contains(ra1)); // Should not be excluded as it's preventive only.
-        assertTrue(rangeActionsExcludedFrom2P.contains(ra2)); // Should be excluded as it's UNAVAILABLE for preventive.
-        assertTrue(rangeActionsExcludedFrom2P.contains(ra5)); // Should be excluded as it's not preventive.
-        assertTrue(rangeActionsExcludedFrom2P.contains(ra7)); // Should be excluded as it's not preventive.
-        assertTrue(rangeActionsExcludedFrom2P.contains(ra3));  // Should be excluded as it has a range limitation RELATIVE_TO_PREVIOUS_INSTANT.
-
-        assertFalse(rangeActionsExcludedFrom2P.contains(ra9)); // It shares the same network elements as ra8 but their tap are different. It should not be excluded.
-
-        assertTrue(rangeActionsExcludedFrom2P.contains(ra6));  // It has the same taps in preventive and in curative. The RA belongs to french TSO and there are ra usage limuts on this TSO : It should be excluded.
-        assertTrue(rangeActionsExcludedFrom2P.contains(ra8));  // It has the same taps in preventive and auto. As there are RaUsageLimits for this instant, it should be excluded.
-        assertFalse(rangeActionsExcludedFrom2P.contains(ra4)); // It has the same network elements as ra5 and their taps are the same. As it doesn't belong to frenchTSO : it should not be excluded.
-
-    }
-
-    @Test
     void testGetAppliedRemedialActionsInCurative() {
         PrePerimeterResult prePerimeterResult = Mockito.mock(PrePerimeterResult.class);
 
@@ -438,13 +438,17 @@ class CastorSecondPreventiveTest {
         Mockito.doReturn(Set.of(ra1)).when(optimResult1).getActivatedRangeActions(Mockito.any());
         Mockito.doReturn(-1.5583491325378418).when(optimResult1).getOptimizedSetpoint(eq(ra1), Mockito.any());
         Mockito.doReturn(Set.of()).when(optimResult1).getActivatedNetworkActions();
+        PostPerimeterResult postOptimizationResult1 = Mockito.mock(PostPerimeterResult.class);
+        when(postOptimizationResult1.getOptimizationResult()).thenReturn(optimResult1);
 
         OptimizationResult optimResult2 = Mockito.mock(OptimizationResult.class);
         Mockito.doReturn(Set.of(ra1)).when(optimResult1).getActivatedRangeActions(Mockito.any());
         Mockito.doReturn(0.).when(optimResult2).getOptimizedSetpoint(eq(ra1), Mockito.any());
         Mockito.doReturn(Set.of(na1)).when(optimResult2).getActivatedNetworkActions();
+        PostPerimeterResult postOptimizationResult2 = Mockito.mock(PostPerimeterResult.class);
+        when(postOptimizationResult2.getOptimizationResult()).thenReturn(optimResult2);
 
-        Map<State, OptimizationResult> curativeResults = Map.of(state1, optimResult1, state2, optimResult2);
+        Map<State, PostPerimeterResult> curativeResults = Map.of(state1, postOptimizationResult1, state2, postOptimizationResult2);
         CastorSecondPreventive castorSecondPreventive = new CastorSecondPreventive(crac, null, network, null, null, null);
 
         AppliedRemedialActions appliedRemedialActions = new AppliedRemedialActions();
@@ -476,26 +480,6 @@ class CastorSecondPreventiveTest {
     }
 
     @Test
-    void testApplyPreventiveResultsForCurativeRangeActions() {
-        OptimizationResult optimizationResult = Mockito.mock(OptimizationResult.class);
-        String pstNeId = "BBE2AA1  BBE3AA1  1";
-
-        setUpCracWithRealRAs(false);
-        Mockito.doReturn(-1.5583491325378418).when(optimizationResult).getOptimizedSetpoint(eq(ra1), Mockito.any());
-        Mockito.doReturn(Set.of(ra1)).when(optimizationResult).getActivatedRangeActions(Mockito.any());
-        CastorSecondPreventive castorSecondPreventive = new CastorSecondPreventive(crac, null, network, null, null, null);
-        castorSecondPreventive.applyPreventiveResultsForAutoOrCurativeRangeActions(optimizationResult);
-        assertEquals(0, network.getTwoWindingsTransformer(pstNeId).getPhaseTapChanger().getTapPosition());
-
-        setUpCracWithRealRAs(true);
-        Mockito.doReturn(-1.5583491325378418).when(optimizationResult).getOptimizedSetpoint(eq(ra1), Mockito.any());
-        Mockito.doReturn(Set.of(ra1)).when(optimizationResult).getActivatedRangeActions(Mockito.any());
-        castorSecondPreventive = new CastorSecondPreventive(crac, null, network, null, null, null);
-        castorSecondPreventive.applyPreventiveResultsForAutoOrCurativeRangeActions(optimizationResult);
-        assertEquals(-4, network.getTwoWindingsTransformer(pstNeId).getPhaseTapChanger().getTapPosition());
-    }
-
-    @Test
     void testAddAppliedNetworkActionsPostContingency() {
         AppliedRemedialActions appliedRemedialActions = new AppliedRemedialActions();
         Instant instant1 = Mockito.mock(Instant.class);
@@ -520,8 +504,17 @@ class CastorSecondPreventiveTest {
         OptimizationResult optimizationResult21 = mockOptimizationResult(Set.of(na211));
         OptimizationResult optimizationResult22 = mockOptimizationResult(Set.of(na221, na222));
 
-        Map<State, OptimizationResult> postContingencyResults = Map.of(state11, optimizationResult11, state12, optimizationResult12,
-            state21, optimizationResult21, state22, optimizationResult22);
+        PostPerimeterResult postOptimizationResult11 = Mockito.mock(PostPerimeterResult.class);
+        when(postOptimizationResult11.getOptimizationResult()).thenReturn(optimizationResult11);
+        PostPerimeterResult postOptimizationResult12 = Mockito.mock(PostPerimeterResult.class);
+        when(postOptimizationResult12.getOptimizationResult()).thenReturn(optimizationResult12);
+        PostPerimeterResult postOptimizationResult21 = Mockito.mock(PostPerimeterResult.class);
+        when(postOptimizationResult21.getOptimizationResult()).thenReturn(optimizationResult21);
+        PostPerimeterResult postOptimizationResult22 = Mockito.mock(PostPerimeterResult.class);
+        when(postOptimizationResult22.getOptimizationResult()).thenReturn(optimizationResult22);
+
+        Map<State, PostPerimeterResult> postContingencyResults = Map.of(state11, postOptimizationResult11, state12, postOptimizationResult12,
+            state21, postOptimizationResult21, state22, postOptimizationResult22);
         CastorSecondPreventive castorSecondPreventive = new CastorSecondPreventive(crac, null, network, null, null, null);
 
         castorSecondPreventive.addAppliedNetworkActionsPostContingency(Set.of(), appliedRemedialActions, postContingencyResults);
@@ -569,8 +562,17 @@ class CastorSecondPreventiveTest {
         OptimizationResult optimizationResult21 = mockOptimizationResult(Set.of(ra211), state21);
         OptimizationResult optimizationResult22 = mockOptimizationResult(Set.of(ra221, ra222), state22);
 
-        Map<State, OptimizationResult> postContingencyResults = Map.of(state11, optimizationResult11, state12, optimizationResult12,
-            state21, optimizationResult21, state22, optimizationResult22);
+        PostPerimeterResult postOptimizationResult11 = Mockito.mock(PostPerimeterResult.class);
+        when(postOptimizationResult11.getOptimizationResult()).thenReturn(optimizationResult11);
+        PostPerimeterResult postOptimizationResult12 = Mockito.mock(PostPerimeterResult.class);
+        when(postOptimizationResult12.getOptimizationResult()).thenReturn(optimizationResult12);
+        PostPerimeterResult postOptimizationResult21 = Mockito.mock(PostPerimeterResult.class);
+        when(postOptimizationResult21.getOptimizationResult()).thenReturn(optimizationResult21);
+        PostPerimeterResult postOptimizationResult22 = Mockito.mock(PostPerimeterResult.class);
+        when(postOptimizationResult22.getOptimizationResult()).thenReturn(optimizationResult22);
+
+        Map<State, PostPerimeterResult> postContingencyResults = Map.of(state11, postOptimizationResult11, state12, postOptimizationResult12,
+            state21, postOptimizationResult21, state22, postOptimizationResult22);
         CastorSecondPreventive castorSecondPreventive = new CastorSecondPreventive(crac, null, network, null, null, null);
 
         castorSecondPreventive.addAppliedRangeActionsPostContingency(Set.of(), appliedRemedialActions, postContingencyResults);

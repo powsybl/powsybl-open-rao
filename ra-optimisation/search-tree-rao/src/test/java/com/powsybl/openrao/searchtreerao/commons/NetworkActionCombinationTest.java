@@ -4,6 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 package com.powsybl.openrao.searchtreerao.commons;
 
 import com.powsybl.openrao.data.crac.api.Crac;
@@ -11,7 +12,6 @@ import com.powsybl.openrao.data.crac.api.CracFactory;
 import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.networkaction.ActionType;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -41,27 +41,27 @@ class NetworkActionCombinationTest {
             .withId("topological-action-1")
             .withOperator("operator-1")
             .newSwitchAction().withActionType(ActionType.OPEN).withNetworkElement("any-network-element").add()
-            .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(PREVENTIVE_INSTANT_ID).add()
+            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
             .add();
 
         networkAction2 = crac.newNetworkAction()
             .withId("topological-action-2")
             .withOperator("operator-2")
             .newTerminalsConnectionAction().withActionType(ActionType.CLOSE).withNetworkElement("any-other-network-element").add()
-            .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(PREVENTIVE_INSTANT_ID).add()
+            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
             .add();
 
         networkAction3 = crac.newNetworkAction()
             .withId("pst-setpoint")
             .withOperator("operator-2")
             .newPhaseTapChangerTapPositionAction().withTapPosition(10).withNetworkElement("any-other-network-element").add()
-            .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(PREVENTIVE_INSTANT_ID).add()
+            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
             .add();
 
         networkAction4 = crac.newNetworkAction()
             .withId("no-operator")
             .newPhaseTapChangerTapPositionAction().withTapPosition(10).withNetworkElement("any-other-network-element").add()
-            .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(PREVENTIVE_INSTANT_ID).add()
+            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
             .add();
     }
 

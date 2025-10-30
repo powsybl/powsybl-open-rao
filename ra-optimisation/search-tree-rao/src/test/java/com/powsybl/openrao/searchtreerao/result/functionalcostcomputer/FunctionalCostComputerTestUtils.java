@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, RTE (http://www.rte-france.com)
+ * Copyright (c) 2025, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -13,6 +13,7 @@ import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.impl.FlowCnecImpl;
+import com.powsybl.openrao.searchtreerao.result.api.ObjectiveFunctionResult;
 import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
 import org.mockito.Mockito;
 
@@ -28,6 +29,7 @@ public class FunctionalCostComputerTestUtils {
     protected State autoStateCo2;
     protected State curativeStateCo1;
     protected State curativeStateCo2;
+    protected ObjectiveFunctionResult initialResult;
     protected OptimizationResult secondPreventivePerimeterResult;
     protected Map<State, OptimizationResult> postContingencyResults;
 
@@ -58,6 +60,9 @@ public class FunctionalCostComputerTestUtils {
         FlowCnec curativeFlowCnec = Mockito.mock(FlowCnecImpl.class);
 
         // mock optimization results
+
+        initialResult = Mockito.mock(ObjectiveFunctionResult.class);
+        Mockito.when(initialResult.getFunctionalCost()).thenReturn(50.0);
 
         secondPreventivePerimeterResult = Mockito.mock(OptimizationResult.class);
         Mockito.when(secondPreventivePerimeterResult.getFunctionalCost()).thenReturn(100.0);

@@ -4,6 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 package com.powsybl.openrao.searchtreerao.searchtree.algorithms;
 
 import com.powsybl.openrao.commons.OpenRaoException;
@@ -55,9 +56,11 @@ import static com.powsybl.openrao.searchtreerao.castor.algorithm.AutomatonSimula
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class SearchTree {
+    private static final double EPSILON = 1e-6;
     private static final int NUMBER_LOGGED_ELEMENTS_DURING_TREE = 2;
     private static final int NUMBER_LOGGED_ELEMENTS_END_TREE = 5;
     private static final int NUMBER_LOGGED_VIRTUAL_COSTLY_ELEMENTS = 10;
+    private static final String SEARCH_TREE_WORKING_VARIANT_ID = "SearchTreeWorkingVariantId";
 
     /**
      * attribute defined in constructor of the search tree class
@@ -94,52 +97,60 @@ public class SearchTree {
     }
 
     public CompletableFuture<OptimizationResult> run() {
+        String preSearchTreeVariantId = input.getNetwork().getVariantManager().getWorkingVariantId();
+        input.getNetwork().getVariantManager().cloneVariant(preSearchTreeVariantId, SEARCH_TREE_WORKING_VARIANT_ID, true);
+        input.getNetwork().getVariantManager().setWorkingVariant(SEARCH_TREE_WORKING_VARIANT_ID);
+        try {
+            initLeaves(input);
 
-        initLeaves(input);
+            TECHNICAL_LOGS.debug("Evaluating root leaf");
+            rootLeaf.evaluate(input.getObjectiveFunction(), getSensitivityComputerForEvaluation(true));
+            if (rootLeaf.getStatus().equals(Leaf.Status.ERROR)) {
+                topLevelLogger.info("Could not evaluate leaf: {}", rootLeaf);
+                logOptimizationSummary(rootLeaf);
+                rootLeaf.finalizeOptimization();
 
-        TECHNICAL_LOGS.debug("Evaluating root leaf");
-        rootLeaf.evaluate(input.getObjectiveFunction(), getSensitivityComputerForEvaluation(true));
-        if (rootLeaf.getStatus().equals(Leaf.Status.ERROR)) {
-            topLevelLogger.info("Could not evaluate leaf: {}", rootLeaf);
-            logOptimizationSummary(rootLeaf);
-            rootLeaf.finalizeOptimization();
-            return CompletableFuture.completedFuture(rootLeaf);
-        } else if (stopCriterionReached(rootLeaf)) {
-            topLevelLogger.info("Stop criterion reached on {}", rootLeaf);
-            RaoLogger.logMostLimitingElementsResults(topLevelLogger, rootLeaf, parameters.getObjectiveFunction(), parameters.getObjectiveFunctionUnit(), NUMBER_LOGGED_ELEMENTS_END_TREE);
-            logOptimizationSummary(rootLeaf);
-            rootLeaf.finalizeOptimization();
-            return CompletableFuture.completedFuture(rootLeaf);
+                return CompletableFuture.completedFuture(rootLeaf);
+            } else if (stopCriterionReached(rootLeaf)) {
+                topLevelLogger.info("Stop criterion reached on {}", rootLeaf);
+                RaoLogger.logMostLimitingElementsResults(topLevelLogger, rootLeaf, parameters.getObjectiveFunction(), parameters.getObjectiveFunctionUnit(), NUMBER_LOGGED_ELEMENTS_END_TREE);
+                logOptimizationSummary(rootLeaf);
+                rootLeaf.finalizeOptimization();
+                return CompletableFuture.completedFuture(rootLeaf);
+            }
+
+            TECHNICAL_LOGS.info("{}", rootLeaf);
+            RaoLogger.logMostLimitingElementsResults(TECHNICAL_LOGS, rootLeaf, parameters.getObjectiveFunction(), parameters.getObjectiveFunctionUnit(), NUMBER_LOGGED_ELEMENTS_DURING_TREE);
+
+            TECHNICAL_LOGS.info("Linear optimization on root leaf");
+            optimizeLeaf(rootLeaf);
+
+            topLevelLogger.info("{}", rootLeaf);
+            RaoLogger.logRangeActions(TECHNICAL_LOGS, optimalLeaf, input.getOptimizationPerimeter(), null);
+            RaoLogger.logMostLimitingElementsResults(topLevelLogger, optimalLeaf, parameters.getObjectiveFunction(), parameters.getObjectiveFunctionUnit(), NUMBER_LOGGED_ELEMENTS_DURING_TREE);
+            logVirtualCostInformation(rootLeaf, "");
+
+            if (stopCriterionReached(rootLeaf)) {
+                logOptimizationSummary(rootLeaf);
+                rootLeaf.finalizeOptimization();
+                return CompletableFuture.completedFuture(rootLeaf);
+            }
+
+            iterateOnTree();
+
+            TECHNICAL_LOGS.info("Search-tree RAO completed with status {}", optimalLeaf.getSensitivityStatus());
+
+            TECHNICAL_LOGS.info("Best leaf: {}", optimalLeaf);
+            RaoLogger.logRangeActions(TECHNICAL_LOGS, optimalLeaf, input.getOptimizationPerimeter(), "Best leaf: ");
+            RaoLogger.logMostLimitingElementsResults(TECHNICAL_LOGS, optimalLeaf, parameters.getObjectiveFunction(), parameters.getObjectiveFunctionUnit(), NUMBER_LOGGED_ELEMENTS_END_TREE);
+
+            logOptimizationSummary(optimalLeaf);
+            optimalLeaf.finalizeOptimization();
+            return CompletableFuture.completedFuture(optimalLeaf);
+        // Actions have been applied on root leaf, finally revert to initial network
+        } finally {
+            input.getNetwork().getVariantManager().setWorkingVariant(preSearchTreeVariantId);
         }
-
-        TECHNICAL_LOGS.info("{}", rootLeaf);
-        RaoLogger.logMostLimitingElementsResults(TECHNICAL_LOGS, rootLeaf, parameters.getObjectiveFunction(), parameters.getObjectiveFunctionUnit(), NUMBER_LOGGED_ELEMENTS_DURING_TREE);
-
-        TECHNICAL_LOGS.info("Linear optimization on root leaf");
-        optimizeLeaf(rootLeaf);
-
-        topLevelLogger.info("{}", rootLeaf);
-        RaoLogger.logRangeActions(TECHNICAL_LOGS, optimalLeaf, input.getOptimizationPerimeter(), null);
-        RaoLogger.logMostLimitingElementsResults(topLevelLogger, optimalLeaf, parameters.getObjectiveFunction(), parameters.getObjectiveFunctionUnit(), NUMBER_LOGGED_ELEMENTS_DURING_TREE);
-        logVirtualCostInformation(rootLeaf, "");
-
-        if (stopCriterionReached(rootLeaf)) {
-            logOptimizationSummary(rootLeaf);
-            rootLeaf.finalizeOptimization();
-            return CompletableFuture.completedFuture(rootLeaf);
-        }
-
-        iterateOnTree();
-
-        TECHNICAL_LOGS.info("Search-tree RAO completed with status {}", optimalLeaf.getSensitivityStatus());
-
-        TECHNICAL_LOGS.info("Best leaf: {}", optimalLeaf);
-        RaoLogger.logRangeActions(TECHNICAL_LOGS, optimalLeaf, input.getOptimizationPerimeter(), "Best leaf: ");
-        RaoLogger.logMostLimitingElementsResults(TECHNICAL_LOGS, optimalLeaf, parameters.getObjectiveFunction(), parameters.getObjectiveFunctionUnit(), NUMBER_LOGGED_ELEMENTS_END_TREE);
-
-        logOptimizationSummary(optimalLeaf);
-        optimalLeaf.finalizeOptimization();
-        return CompletableFuture.completedFuture(optimalLeaf);
     }
 
     void initLeaves(SearchTreeInput input) {
@@ -419,14 +430,14 @@ public class SearchTree {
     /**
      * This method evaluates stop criterion on the leaf.
      *
-     * @param leaf: Leaf to evaluate.
+     * @param leaf Leaf to evaluate.
      * @return True if the stop criterion has been reached on this leaf.
      */
     private boolean stopCriterionReached(Leaf leaf) {
-        if (leaf.getVirtualCost() > 1e-6) {
+        if (leaf.getVirtualCost() > EPSILON) {
             return false;
         }
-        if (purelyVirtual && leaf.getVirtualCost() < 1e-6) {
+        if (purelyVirtual && leaf.getVirtualCost() < EPSILON) {
             TECHNICAL_LOGS.debug("Perimeter is purely virtual and virtual cost is zero. Exiting search tree.");
             return true;
         }
@@ -437,7 +448,9 @@ public class SearchTree {
      * Returns true if a given cost value satisfies the stop criterion
      */
     boolean costSatisfiesStopCriterion(double cost) {
-        if (parameters.getTreeParameters().stopCriterion().equals(TreeParameters.StopCriterion.MIN_OBJECTIVE)) {
+        if (parameters.getObjectiveFunction().costOptimization()) {
+            return cost < EPSILON;
+        } else if (parameters.getTreeParameters().stopCriterion().equals(TreeParameters.StopCriterion.MIN_OBJECTIVE)) {
             return false;
         } else if (parameters.getTreeParameters().stopCriterion().equals(TreeParameters.StopCriterion.AT_TARGET_OBJECTIVE_VALUE)) {
             return cost < parameters.getTreeParameters().targetObjectiveValue();
@@ -450,7 +463,7 @@ public class SearchTree {
      * This method checks if the leaf's cost respects the minimum impact thresholds
      * (absolute and relative) compared to the previous depth's optimal leaf.
      *
-     * @param leaf: Leaf that has to be compared with the optimal leaf.
+     * @param leaf Leaf that has to be compared with the optimal leaf.
      * @return True if the leaf cost diminution is enough compared to optimal leaf.
      */
     private boolean improvedEnough(Leaf leaf) {
@@ -483,7 +496,7 @@ public class SearchTree {
      */
     private void logVirtualCostInformation(Leaf leaf, String prefix) {
         leaf.getVirtualCostNames().stream()
-                .filter(virtualCostName -> leaf.getVirtualCost(virtualCostName) > 1e-6)
+                .filter(virtualCostName -> leaf.getVirtualCost(virtualCostName) > EPSILON)
                 .forEach(virtualCostName -> logVirtualCostDetails(leaf, virtualCostName, prefix));
     }
 

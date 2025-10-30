@@ -4,6 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 package com.powsybl.openrao.searchtreerao.commons.optimizationperimeters;
 
 import com.powsybl.openrao.data.crac.api.Identifiable;
@@ -126,7 +127,7 @@ public abstract class AbstractOptimizationPerimeter implements OptimizationPerim
                 // loopFlow limited, and set of country for which loop-flow are monitored is defined
                 return flowCnecs.stream()
                     .filter(cnec -> !Objects.isNull(cnec.getExtension(LoopFlowThreshold.class)) &&
-                        cnec.getLocation(network).stream().anyMatch(country -> country.isPresent() && loopFlowParametersOptional.get().getCountries().contains(country.get())))
+                        cnec.getLocation(network).stream().anyMatch(country -> loopFlowParametersOptional.get().getCountries().contains(country)))
                     .collect(Collectors.toSet());
             } else {
                 // loopFlow limited, but no set of country defined

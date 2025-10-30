@@ -4,6 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 package com.powsybl.openrao.sensitivityanalysis.rasensihandler;
 
 import com.powsybl.openrao.commons.OpenRaoException;
@@ -12,7 +13,6 @@ import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.range.RangeType;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.openrao.data.crac.impl.utils.CommonCracCreation;
 import com.powsybl.openrao.data.crac.impl.utils.NetworkImportsUtil;
 import com.powsybl.openrao.sensitivityanalysis.SystematicSensitivityResult;
@@ -58,7 +58,7 @@ class PstRangeActionSensiHandlerTest {
         PstRangeAction pstRangeAction = crac.newPstRangeAction()
                 .withId("pstOnBranch")
                 .withNetworkElement("BBE1AA1  BB23AA1  1")
-                .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnInstantUsageRule().withInstant("preventive").add()
                 .newTapRange().withRangeType(RangeType.ABSOLUTE).withMinTap(-16).withMaxTap(16).add()
                 .withInitialTap(0)
                 .withTapToAngleConversionMap(crac.getPstRangeAction("pst").getTapToAngleConversionMap())
@@ -76,7 +76,7 @@ class PstRangeActionSensiHandlerTest {
         PstRangeAction pstRangeAction = crac.newPstRangeAction()
                 .withId("pstOnNonExistingElement")
                 .withNetworkElement("unknown")
-                .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnInstantUsageRule().withInstant("preventive").add()
                 .newTapRange().withRangeType(RangeType.ABSOLUTE).withMinTap(-16).withMaxTap(16).add()
                 .withInitialTap(0)
                 .withTapToAngleConversionMap(crac.getPstRangeAction("pst").getTapToAngleConversionMap())

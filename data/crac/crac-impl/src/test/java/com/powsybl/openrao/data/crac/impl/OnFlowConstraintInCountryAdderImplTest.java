@@ -1,9 +1,10 @@
 /*
- * Copyright (c) 2022, RTE (http://www.rte-france.com)
+ * Copyright (c) 2021, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 package com.powsybl.openrao.data.crac.impl;
 
 import com.powsybl.contingency.ContingencyElementType;
@@ -18,7 +19,6 @@ import com.powsybl.openrao.data.crac.api.networkaction.ActionType;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkActionAdder;
 import com.powsybl.openrao.data.crac.api.usagerule.OnFlowConstraintInCountry;
 import com.powsybl.openrao.data.crac.api.usagerule.OnFlowConstraintInCountryAdder;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.iidm.network.Country;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -90,7 +90,6 @@ class OnFlowConstraintInCountryAdderImplTest {
         RemedialAction<?> remedialAction = remedialActionAdder.newOnFlowConstraintInCountryUsageRule()
             .withInstant(PREVENTIVE_INSTANT_ID)
             .withCountry(Country.FR)
-            .withUsageMethod(UsageMethod.AVAILABLE)
             .add()
             .add();
 
@@ -98,10 +97,6 @@ class OnFlowConstraintInCountryAdderImplTest {
         assertTrue(remedialAction.getUsageRules().iterator().next() instanceof OnFlowConstraintInCountry);
         OnFlowConstraintInCountry onFlowConstraint = (OnFlowConstraintInCountry) remedialAction.getUsageRules().iterator().next();
         assertEquals(preventiveInstant, onFlowConstraint.getInstant());
-        // Default UsageMethod is AVAILABLE
-        assertEquals(UsageMethod.AVAILABLE, onFlowConstraint.getUsageMethod());
-        assertEquals(UsageMethod.AVAILABLE, onFlowConstraint.getUsageMethod(crac.getPreventiveState()));
-        assertEquals(UsageMethod.UNDEFINED, onFlowConstraint.getUsageMethod(crac.getState(crac.getContingency("Contingency FR1 FR3"), curativeInstant)));
         assertEquals(2, crac.getStates().size());
         assertNotNull(crac.getPreventiveState());
         assertEquals(Country.FR, onFlowConstraint.getCountry());
@@ -109,30 +104,23 @@ class OnFlowConstraintInCountryAdderImplTest {
 
     @Test
     void testOutageException() {
-        OnFlowConstraintInCountryAdder<NetworkActionAdder> adder = remedialActionAdder.newOnFlowConstraintInCountryUsageRule().withInstant(OUTAGE_INSTANT_ID).withCountry(Country.FR).withUsageMethod(UsageMethod.AVAILABLE);
+        OnFlowConstraintInCountryAdder<NetworkActionAdder> adder = remedialActionAdder.newOnFlowConstraintInCountryUsageRule().withInstant(OUTAGE_INSTANT_ID).withCountry(Country.FR);
         OpenRaoException exception = assertThrows(OpenRaoException.class, adder::add);
         assertEquals("OnFlowConstraintInCountry usage rules are not allowed for OUTAGE instant.", exception.getMessage());
     }
 
     @Test
     void testAbsentCountryException() {
-        OnFlowConstraintInCountryAdder<NetworkActionAdder> adder = remedialActionAdder.newOnFlowConstraintInCountryUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE);
+        OnFlowConstraintInCountryAdder<NetworkActionAdder> adder = remedialActionAdder.newOnFlowConstraintInCountryUsageRule().withInstant(PREVENTIVE_INSTANT_ID);
         OpenRaoException exception = assertThrows(OpenRaoException.class, adder::add);
         assertEquals("Cannot add OnFlowConstraintInCountry without a country. Please use withCountry() with a non null value", exception.getMessage());
     }
 
     @Test
     void testNoInstantException() {
-        OnFlowConstraintInCountryAdder<NetworkActionAdder> adder = remedialActionAdder.newOnFlowConstraintInCountryUsageRule().withCountry(Country.FR).withUsageMethod(UsageMethod.AVAILABLE);
+        OnFlowConstraintInCountryAdder<NetworkActionAdder> adder = remedialActionAdder.newOnFlowConstraintInCountryUsageRule().withCountry(Country.FR);
         Exception exception = assertThrows(OpenRaoException.class, adder::add);
         assertEquals("Cannot add OnFlowConstraintInCountry without a instant. Please use withInstant() with a non null value", exception.getMessage());
-    }
-
-    @Test
-    void testNoUsageMethodException() {
-        OnFlowConstraintInCountryAdder<NetworkActionAdder> adder = remedialActionAdder.newOnFlowConstraintInCountryUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withCountry(Country.FR);
-        OpenRaoException exception = assertThrows(OpenRaoException.class, adder::add);
-        assertEquals("Cannot add OnFlowConstraintInCountry without a usage method. Please use withUsageMethod() with a non null value", exception.getMessage());
     }
 
     @Test
@@ -141,7 +129,7 @@ class OnFlowConstraintInCountryAdderImplTest {
             .withInstant(CURATIVE_INSTANT_ID)
             .withCountry(Country.FR)
             .withContingency("Contingency FR1 FR3")
-            .withUsageMethod(UsageMethod.AVAILABLE)
+
             .add()
             .add();
         assertTrue(remedialAction.getUsageRules().iterator().next() instanceof OnFlowConstraintInCountry);
@@ -155,8 +143,7 @@ class OnFlowConstraintInCountryAdderImplTest {
         OnFlowConstraintInCountryAdder<NetworkActionAdder> adder = remedialActionAdder.newOnFlowConstraintInCountryUsageRule()
             .withInstant(CURATIVE_INSTANT_ID)
             .withCountry(Country.FR)
-            .withContingency("wrong_contingency")
-            .withUsageMethod(UsageMethod.AVAILABLE);
+            .withContingency("wrong_contingency");
         Exception e = assertThrows(OpenRaoException.class, adder::add);
         assertEquals("Contingency wrong_contingency of OnFlowConstraintInCountry usage rule does not exist in the crac. Use crac.newContingency() first.", e.getMessage());
     }

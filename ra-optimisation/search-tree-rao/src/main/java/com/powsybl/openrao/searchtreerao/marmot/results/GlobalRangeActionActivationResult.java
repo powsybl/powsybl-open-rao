@@ -14,17 +14,25 @@ import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.searchtreerao.marmot.MarmotUtils;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-/** This class aggregates RangeActionActivationResult stored in TemporalData<RangeActionActivationResult> in one big RangeActionActivationResult.
+/**
+ * This class aggregates RangeActionActivationResult stored in TemporalData&lt;RangeActionActivationResult&gt; in one big RangeActionActivationResult.
+ *
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 public class GlobalRangeActionActivationResult extends AbstractGlobalResult<RangeActionActivationResult> implements RangeActionActivationResult {
+
     public GlobalRangeActionActivationResult(TemporalData<RangeActionActivationResult> rangeActionActivationPerTimestamp) {
         super(rangeActionActivationPerTimestamp);
+    }
+
+    public TemporalData<RangeActionActivationResult> getRangeActionActivationPerTimestamp() {
+        return resultPerTimestamp;
     }
 
     @Override
@@ -37,6 +45,13 @@ public class GlobalRangeActionActivationResult extends AbstractGlobalResult<Rang
     @Override
     public Set<RangeAction<?>> getActivatedRangeActions(State state) {
         return MarmotUtils.getDataFromState(resultPerTimestamp, state).getActivatedRangeActions(state);
+    }
+
+    @Override
+    public Map<State, Set<RangeAction<?>>> getActivatedRangeActionsPerState() {
+        Map<State, Set<RangeAction<?>>> activatedRangeActionsPerState = new HashMap<>();
+        resultPerTimestamp.map(RangeActionActivationResult::getActivatedRangeActionsPerState).getDataPerTimestamp().values().forEach(activatedRangeActionsPerState::putAll);
+        return activatedRangeActionsPerState;
     }
 
     @Override

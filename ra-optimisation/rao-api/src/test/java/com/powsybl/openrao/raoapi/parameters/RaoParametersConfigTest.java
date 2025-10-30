@@ -4,6 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 package com.powsybl.openrao.raoapi.parameters;
 
 import com.powsybl.openrao.commons.OpenRaoException;
@@ -27,7 +28,6 @@ import static org.mockito.ArgumentMatchers.*;
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
-
 class RaoParametersConfigTest {
     private PlatformConfig mockedPlatformConfig;
     private InMemoryPlatformConfig platformCfg;
@@ -125,12 +125,10 @@ class RaoParametersConfigTest {
     void checkSecondPreventiveRaoConfig() {
         MapModuleConfig secondPreventiveRaoModuleConfig = platformCfg.createModuleConfig("search-tree-second-preventive-rao");
         secondPreventiveRaoModuleConfig.setStringProperty("execution-condition", "POSSIBLE_CURATIVE_IMPROVEMENT");
-        secondPreventiveRaoModuleConfig.setStringProperty("re-optimize-curative-range-actions", Objects.toString(false));
         secondPreventiveRaoModuleConfig.setStringProperty("hint-from-first-preventive-rao", Objects.toString(true));
         RaoParameters parameters = RaoParameters.load(platformCfg);
         SecondPreventiveRaoParameters params = parameters.getExtension(OpenRaoSearchTreeParameters.class).getSecondPreventiveRaoParameters();
         assertEquals(SecondPreventiveRaoParameters.ExecutionCondition.POSSIBLE_CURATIVE_IMPROVEMENT, params.getExecutionCondition());
-        assertFalse(params.getReOptimizeCurativeRangeActions());
         assertTrue(params.getHintFromFirstPreventiveRao());
     }
 
@@ -294,4 +292,22 @@ class RaoParametersConfigTest {
         Mockito.when(mockedPlatformConfig.getOptionalModuleConfig("rao-relative-margins-parameters")).thenReturn(Optional.of(relativeMarginsModuleConfig));
         assertThrows(OpenRaoException.class, () -> RaoParameters.load(mockedPlatformConfig));
     }
+
+    @Test
+    void checkFastRaoConfig() {
+        ModuleConfig fastRaoModuleConfig = Mockito.mock(ModuleConfig.class);
+        Mockito.when(fastRaoModuleConfig.getIntProperty(eq("number-of-cnecs-to-add"), anyInt())).thenReturn(20);
+        Mockito.when(fastRaoModuleConfig.getBooleanProperty(eq("add-unsecure-cnecs"), anyBoolean())).thenReturn(false);
+        Mockito.when(fastRaoModuleConfig.getDoubleProperty(eq("margin-limit"), anyDouble())).thenReturn(5.0);
+
+        Mockito.when(mockedPlatformConfig.getOptionalModuleConfig("fast-rao-parameters")).thenReturn(Optional.of(fastRaoModuleConfig));
+
+        FastRaoConfigLoader configLoader = new FastRaoConfigLoader();
+        FastRaoParameters parameters = configLoader.load(mockedPlatformConfig);
+
+        assertEquals(20, parameters.getNumberOfCnecsToAdd());
+        assertFalse(parameters.getAddUnsecureCnecs());
+        assertEquals(5.0, parameters.getMarginLimit(), DOUBLE_TOLERANCE);
+    }
+
 }

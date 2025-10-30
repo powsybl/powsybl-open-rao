@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, RTE (http://www.rte-france.com)
+ * Copyright (c) 2022, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -32,7 +32,7 @@ public class RangeActionActivationResultImpl implements RangeActionActivationRes
     private Map<String, Map<State, Double> > setpointPerStatePerPstId;
     private Map<State, Optional<State>> memoizedPreviousState = new HashMap<>();
 
-    private static class ElementaryResult {
+    private static final class ElementaryResult {
         private final double refSetpoint;
         private final Map<State, Double> setPointPerState;
 
@@ -124,6 +124,17 @@ public class RangeActionActivationResultImpl implements RangeActionActivationRes
             })
             .map(Map.Entry::getKey)
             .collect(Collectors.toSet());
+    }
+
+    @Override
+    public Map<State, Set<RangeAction<?>>> getActivatedRangeActionsPerState() {
+        Set<State> states = new HashSet<>();
+        elementaryResultMap.values().stream()
+            .map(ElementaryResult::getAllStatesWithActivation)
+            .forEach(states::addAll);
+        Map<State, Set<RangeAction<?>>> activatedRangeActionsPerState = new HashMap<>();
+        states.forEach(state -> activatedRangeActionsPerState.put(state, getActivatedRangeActions(state)));
+        return activatedRangeActionsPerState;
     }
 
     @Override

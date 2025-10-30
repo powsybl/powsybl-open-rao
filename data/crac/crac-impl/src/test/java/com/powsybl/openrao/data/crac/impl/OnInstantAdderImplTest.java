@@ -4,6 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 package com.powsybl.openrao.data.crac.impl;
 
 import com.powsybl.contingency.ContingencyElementType;
@@ -16,7 +17,6 @@ import com.powsybl.openrao.data.crac.api.networkaction.ActionType;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkActionAdder;
 import com.powsybl.openrao.data.crac.api.usagerule.OnInstant;
 import com.powsybl.openrao.data.crac.api.usagerule.OnInstantAdder;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -61,7 +61,6 @@ class OnInstantAdderImplTest {
     void testOkPreventive() {
         RemedialAction remedialAction = remedialActionAdder.newOnInstantUsageRule()
             .withInstant(PREVENTIVE_INSTANT_ID)
-            .withUsageMethod(UsageMethod.AVAILABLE)
             .add()
             .add();
         UsageRule usageRule = (UsageRule) remedialAction.getUsageRules().iterator().next();
@@ -69,7 +68,6 @@ class OnInstantAdderImplTest {
         assertEquals(1, remedialAction.getUsageRules().size());
         assertTrue(usageRule instanceof OnInstant);
         assertEquals(preventiveInstant, usageRule.getInstant());
-        assertEquals(UsageMethod.AVAILABLE, usageRule.getUsageMethod());
         assertEquals(1, crac.getStates().size());
         assertNotNull(crac.getPreventiveState());
     }
@@ -78,7 +76,6 @@ class OnInstantAdderImplTest {
     void testOkCurative() {
         RemedialAction remedialAction = remedialActionAdder.newOnInstantUsageRule()
                 .withInstant(CURATIVE_INSTANT_ID)
-                .withUsageMethod(UsageMethod.AVAILABLE)
                 .add()
                 .add();
 
@@ -87,30 +84,19 @@ class OnInstantAdderImplTest {
         assertEquals(1, remedialAction.getUsageRules().size());
         assertTrue(usageRule instanceof OnInstant);
         assertEquals(curativeInstant, usageRule.getInstant());
-        assertEquals(UsageMethod.AVAILABLE, usageRule.getUsageMethod());
     }
 
     @Test
     void testNoInstant() {
-        OnInstantAdder<NetworkActionAdder> onInstantAdder = remedialActionAdder.newOnInstantUsageRule()
-            .withUsageMethod(UsageMethod.AVAILABLE);
+        OnInstantAdder<NetworkActionAdder> onInstantAdder = remedialActionAdder.newOnInstantUsageRule();
         OpenRaoException exception = assertThrows(OpenRaoException.class, onInstantAdder::add);
         assertEquals("Cannot add OnInstant without a instant. Please use withInstant() with a non null value", exception.getMessage());
     }
 
     @Test
-    void testNoUsageMethod() {
-        OnInstantAdder<NetworkActionAdder> onInstantAdder = remedialActionAdder.newOnInstantUsageRule()
-            .withInstant(PREVENTIVE_INSTANT_ID);
-        OpenRaoException exception = assertThrows(OpenRaoException.class, onInstantAdder::add);
-        assertEquals("Cannot add OnInstant without a usage method. Please use withUsageMethod() with a non null value", exception.getMessage());
-    }
-
-    @Test
     void testOutageInstant() {
         OnInstantAdder<NetworkActionAdder> onInstantAdder = remedialActionAdder.newOnInstantUsageRule()
-            .withInstant(OUTAGE_INSTANT_ID)
-            .withUsageMethod(UsageMethod.AVAILABLE);
+            .withInstant(OUTAGE_INSTANT_ID);
         OpenRaoException exception = assertThrows(OpenRaoException.class, onInstantAdder::add);
         assertEquals("OnInstant usage rules are not allowed for OUTAGE instant.", exception.getMessage());
     }

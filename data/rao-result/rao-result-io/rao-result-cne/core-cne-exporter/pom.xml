@@ -12,7 +12,7 @@
     <parent>
         <artifactId>open-rao-rao-result-cne</artifactId>
         <groupId>com.powsybl</groupId>
-        <version>6.6.0-SNAPSHOT</version>
+        <version>7.1.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -30,6 +30,8 @@
                     <extension>true</extension>
                     <args>
                         <arg>-Xinheritance</arg>
+                        <arg>-no-header</arg>
+                        <arg>-npa</arg>
                     </args>
                     <plugins>
                         <plugin>

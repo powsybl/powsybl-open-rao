@@ -158,6 +158,11 @@ public class IteratingLinearOptimizationResultImpl implements LinearOptimization
     }
 
     @Override
+    public Map<State, Set<RangeAction<?>>> getActivatedRangeActionsPerState() {
+        return rangeActionActivationResult.getActivatedRangeActionsPerState();
+    }
+
+    @Override
     public double getOptimizedSetpoint(RangeAction<?> rangeAction, State state) {
         return rangeActionActivationResult.getOptimizedSetpoint(rangeAction, state);
     }

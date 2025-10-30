@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema#",
+  "$id": "https://www.powsybl.org?open-rao-crac-schema=flow-cnec-v2.8.json",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "name": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "networkElementId": {
+      "type": "string"
+    },
+    "operator": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "border": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "instant": {
+      "type": "string"
+    },
+    "contingencyId": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "optimized": {
+      "type": "boolean"
+    },
+    "monitored": {
+      "type": "boolean"
+    },
+    "reliabilityMargin": {
+      "type": "number"
+    },
+    "thresholds": {
+      "type": "array",
+      "items": {
+        "$ref": "resource:/schemas/flow-threshold/flow-threshold-v2.4.json"
+      },
+      "minItems": 1
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "networkElementId",
+    "instant",
+    "thresholds"
+  ]
+}

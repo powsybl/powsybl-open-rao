@@ -4,6 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 package com.powsybl.openrao.data.crac.io.fbconstraint;
 
 import com.powsybl.iidm.network.Branch;
@@ -29,7 +30,7 @@ import java.util.Objects;
 
 /**
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
- * @author Baptiste Seguinot{@literal <baptiste.seguinot at rte-france.com>}
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 class ActionReader {
 
@@ -61,7 +62,7 @@ class ActionReader {
         PST
     }
 
-    private static class Range {
+    private static final class Range {
         private int minTap;
         private int maxTap;
         private com.powsybl.openrao.data.crac.api.range.RangeType relativeOrAbsolute;

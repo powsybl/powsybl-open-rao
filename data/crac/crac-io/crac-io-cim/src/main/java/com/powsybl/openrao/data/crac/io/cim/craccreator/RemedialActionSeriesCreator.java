@@ -16,7 +16,6 @@ import com.powsybl.openrao.data.crac.io.cim.xsd.MonitoredSeries;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.usagerule.OnFlowConstraintInCountryAdder;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
 import com.powsybl.openrao.data.crac.io.cim.parameters.CimCracCreationParameters;
 import com.powsybl.openrao.data.crac.io.commons.OpenRaoImportException;
@@ -408,9 +407,8 @@ public class RemedialActionSeriesCreator {
             return;
         }
 
-        UsageMethod usageMethod = instant.isAuto() ? UsageMethod.FORCED : UsageMethod.AVAILABLE;
         if (!Objects.isNull(sharedDomain)) {
-            addOnFlowConstraintInCountryUsageRule(remedialActionAdder, contingencies, sharedDomain, instant, usageMethod);
+            addOnFlowConstraintInCountryUsageRule(remedialActionAdder, contingencies, sharedDomain, instant);
             return;
         }
 
@@ -420,7 +418,7 @@ public class RemedialActionSeriesCreator {
             instant.isCurative() && (contingencies == null || contingencies.isEmpty())) {
             addOnInstantUsageRules(remedialActionAdder, instant);
         } else {
-            RemedialActionSeriesCreator.addOnStateUsageRules(remedialActionAdder, instant, usageMethod, contingencies);
+            RemedialActionSeriesCreator.addOnStateUsageRules(remedialActionAdder, instant, contingencies);
         }
     }
 
@@ -453,40 +451,36 @@ public class RemedialActionSeriesCreator {
     private static void addOnInstantUsageRules(RemedialActionAdder<?> adder, Instant raApplicationInstant) {
         adder.newOnInstantUsageRule()
             .withInstant(raApplicationInstant.getId())
-            .withUsageMethod(UsageMethod.AVAILABLE)
             .add();
     }
 
-    private static void addOnStateUsageRules(RemedialActionAdder<?> adder, Instant raApplicationInstant, UsageMethod usageMethod, List<Contingency> contingencies) {
+    private static void addOnStateUsageRules(RemedialActionAdder<?> adder, Instant raApplicationInstant, List<Contingency> contingencies) {
         contingencies.forEach(contingency ->
             adder.newOnContingencyStateUsageRule()
                 .withInstant(raApplicationInstant.getId())
-                .withUsageMethod(usageMethod)
                 .withContingency(contingency.getId())
                 .add());
     }
 
     private static void addOnConstraintUsageRule(RemedialActionAdder<?> adder, Cnec<?> cnec, Instant instant) {
-        // Only allow PRAs with usage method OnFlowConstraint/OnAngleConstraint, for CNECs of instants PREVENTIVE & OUTAGE & CURATIVE
-        // Only allow ARAs with usage method OnFlowConstraint/OnAngleConstraint, for CNECs of instant AUTO
-        // Only allow CRAs with usage method OnFlowConstraint/OnAngleConstraint, for CNECs of instant CURATIVE
+        // Only allow PRAs with usage rule OnConstraint, for CNECs of instants PREVENTIVE & OUTAGE & CURATIVE
+        // Only allow ARAs with usage rule OnConstraint, for CNECs of instant AUTO
+        // Only allow CRAs with usage rule OnConstraint, for CNECs of instant CURATIVE
 
         if (cnec.getState().getInstant().comesBefore(instant)) {
             return;
         }
         adder.newOnConstraintUsageRule()
             .withCnec(cnec.getId())
-            .withUsageMethod(instant.isAuto() ? UsageMethod.FORCED : UsageMethod.AVAILABLE)
             .withInstant(instant.getId())
             .add();
     }
 
-    private static void addOnFlowConstraintInCountryUsageRule(RemedialActionAdder<?> remedialActionAdder, List<Contingency> contingencies, Country sharedDomain, Instant instant, UsageMethod usageMethod) {
+    private static void addOnFlowConstraintInCountryUsageRule(RemedialActionAdder<?> remedialActionAdder, List<Contingency> contingencies, Country sharedDomain, Instant instant) {
         OnFlowConstraintInCountryAdder<?> onFlowConstraintInCountryAdder = remedialActionAdder
             .newOnFlowConstraintInCountryUsageRule()
             .withInstant(instant.getId())
-            .withCountry(sharedDomain)
-            .withUsageMethod(usageMethod);
+            .withCountry(sharedDomain);
         if (!Objects.isNull(contingencies) && !contingencies.isEmpty()) {
             contingencies.forEach(
                 contingency -> onFlowConstraintInCountryAdder.withContingency(contingency.getId()).add());

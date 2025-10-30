@@ -4,9 +4,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 package com.powsybl.openrao.data.crac.io.fbconstraint;
 
-import com.powsybl.contingency.ContingencyElement;
+import com.powsybl.contingency.ContingencyElementFactory;
 import com.powsybl.contingency.ContingencyElementType;
 import com.powsybl.openrao.data.crac.api.ContingencyAdder;
 import com.powsybl.openrao.data.crac.api.Crac;
@@ -19,7 +20,7 @@ import com.powsybl.iidm.network.Network;
 import java.util.*;
 
 /**
- * @author Baptiste Seguinot{@literal <baptiste.seguinot at rte-france.com>}
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 class OutageReader {
 
@@ -91,8 +92,8 @@ class OutageReader {
                     this.isOutageValid = false;
                     this.invalidOutageReason = String.format("one of the two Xnodes of outage %s was not found in the network: %s, %s", outage.getId(), hvdcVH.getFrom(), hvdcVH.getTo());
                 } else {
-                    outageElementIdsAndContingencyType.put(dl1.getId(), ContingencyElement.of(dl1).getType());
-                    outageElementIdsAndContingencyType.put(dl2.getId(), ContingencyElement.of(dl2).getType());
+                    outageElementIdsAndContingencyType.put(dl1.getId(), ContingencyElementFactory.create(dl1).getType());
+                    outageElementIdsAndContingencyType.put(dl2.getId(), ContingencyElementFactory.create(dl2).getType());
                 }
             });
         }

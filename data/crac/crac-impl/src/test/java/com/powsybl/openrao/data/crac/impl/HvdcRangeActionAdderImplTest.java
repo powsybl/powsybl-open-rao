@@ -13,7 +13,6 @@ import com.powsybl.openrao.data.crac.api.networkaction.ActionType;
 import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeActionAdder;
 import com.powsybl.openrao.data.crac.api.rangeaction.VariationDirection;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -54,8 +53,8 @@ class HvdcRangeActionAdderImplTest {
                 .newRange().withMin(-5).withMax(10).add()
                 .newOnInstantUsageRule()
                 .withInstant(PREVENTIVE_INSTANT_ID)
-                .withUsageMethod(UsageMethod.AVAILABLE)
                 .add()
+                .withInitialSetpoint(10.0)
                 .add();
 
         assertEquals(1, crac.getRangeActions().size());
@@ -67,7 +66,26 @@ class HvdcRangeActionAdderImplTest {
         assertEquals(1, hvdcRangeAction.getRanges().size());
         assertEquals(1, hvdcRangeAction.getUsageRules().size());
         assertEquals(1, crac.getNetworkElements().size());
+        assertEquals(10., hvdcRangeAction.getInitialSetpoint());
         assertNotNull(crac.getNetworkElement(networkElementId));
+    }
+
+    @Test
+    void testAddWithoutInitialSetpoint() {
+        HvdcRangeAction hvdcRangeAction = crac.newHvdcRangeAction()
+            .withId("id1")
+            .withOperator("BE")
+            .withNetworkElement(networkElementId)
+            .withGroupId("groupId1")
+            .withActivationCost(100d)
+            .withVariationCost(500d, VariationDirection.UP)
+            .withVariationCost(800d, VariationDirection.DOWN)
+            .newRange().withMin(-5).withMax(10).add()
+            .newOnInstantUsageRule()
+            .withInstant(PREVENTIVE_INSTANT_ID)
+            .add()
+            .add();
+        assertNull(hvdcRangeAction.getInitialSetpoint());
     }
 
     @Test
@@ -78,11 +96,10 @@ class HvdcRangeActionAdderImplTest {
                 .withNetworkElement(networkElementId)
                 .withGroupId("groupId1")
                 .withSpeed(1)
-                .withInitialSetpoint(1)
+                .withInitialSetpoint(1.0)
                 .newRange().withMin(-5).withMax(10).add()
                 .newOnInstantUsageRule()
                 .withInstant(AUTO_INSTANT_ID)
-                .withUsageMethod(UsageMethod.FORCED)
                 .add()
                 .add();
 
@@ -107,11 +124,10 @@ class HvdcRangeActionAdderImplTest {
             .withOperator("BE")
             .withNetworkElement(networkElementId)
             .withGroupId("groupId1")
-            .withInitialSetpoint(1)
+            .withInitialSetpoint(1.0)
             .newRange().withMin(-5).withMax(10).add()
             .newOnInstantUsageRule()
             .withInstant(AUTO_INSTANT_ID)
-            .withUsageMethod(UsageMethod.FORCED)
             .add();
         OpenRaoException exception = assertThrows(OpenRaoException.class, hvdcRangeActionAdder::add);
         assertEquals("Cannot create an AUTO standard range action without speed defined", exception.getMessage());
@@ -126,7 +142,6 @@ class HvdcRangeActionAdderImplTest {
                 .newRange().withMin(-5).withMax(10).add()
                 .newOnInstantUsageRule()
                 .withInstant(PREVENTIVE_INSTANT_ID)
-                .withUsageMethod(UsageMethod.AVAILABLE)
                 .add()
                 .add();
 
@@ -167,7 +182,6 @@ class HvdcRangeActionAdderImplTest {
                 .newRange().withMin(-5).withMax(10).add()
                 .newOnInstantUsageRule()
                 .withInstant(PREVENTIVE_INSTANT_ID)
-                .withUsageMethod(UsageMethod.AVAILABLE)
                 .add()
                 .add();
 

@@ -30,7 +30,6 @@ import com.powsybl.openrao.data.crac.api.usagerule.OnConstraint;
 import com.powsybl.openrao.data.crac.api.usagerule.OnContingencyState;
 import com.powsybl.openrao.data.crac.api.usagerule.OnFlowConstraintInCountry;
 import com.powsybl.openrao.data.crac.api.usagerule.OnInstant;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.openrao.data.crac.io.cim.parameters.CimCracCreationParameters;
 import com.powsybl.openrao.data.crac.io.cim.parameters.RangeActionSpeed;
 import com.powsybl.openrao.data.crac.io.cim.parameters.VoltageCnecsCreationParameters;
@@ -314,7 +313,6 @@ class CimCracCreatorTest {
                     ur -> ur.getInstant().equals(instant)
                         && ur.getCnec() instanceof FlowCnec
                         && ur.getCnec().getId().equals(flowCnecId)
-                        && ur.getUsageMethod().equals(instant.isAuto() ? UsageMethod.FORCED : UsageMethod.AVAILABLE)
                 ));
     }
 
@@ -328,7 +326,6 @@ class CimCracCreatorTest {
                     ur -> ur.getInstant().isCurative()
                         && ur.getCnec() instanceof AngleCnec
                         && ur.getCnec().getId().equals(angleCnecId)
-                        && ur.getUsageMethod().equals(UsageMethod.AVAILABLE)
                 ));
     }
 
@@ -1057,8 +1054,8 @@ class CimCracCreatorTest {
         assertEquals(flowCnec.isOptimized(), duplicate.isOptimized());
         assertEquals(flowCnec.isMonitored(), duplicate.isMonitored());
         assertEquals(flowCnec.getReliabilityMargin(), duplicate.getReliabilityMargin(), 1e-6);
-        assertEquals(flowCnec.getIMax(TwoSides.ONE), duplicate.getIMax(TwoSides.ONE), 1e-6);
-        assertEquals(flowCnec.getIMax(TwoSides.TWO), duplicate.getIMax(TwoSides.TWO), 1e-6);
+        assertEquals(flowCnec.getIMax(TwoSides.ONE).get(), duplicate.getIMax(TwoSides.ONE).get(), 1e-6);
+        assertEquals(flowCnec.getIMax(TwoSides.TWO).get(), duplicate.getIMax(TwoSides.TWO).get(), 1e-6);
         assertEquals(flowCnec.getNominalVoltage(TwoSides.ONE), duplicate.getNominalVoltage(TwoSides.ONE), 1e-6);
         assertEquals(flowCnec.getNominalVoltage(TwoSides.TWO), duplicate.getNominalVoltage(TwoSides.TWO), 1e-6);
         assertEquals(flowCnec.getThresholds(), duplicate.getThresholds());

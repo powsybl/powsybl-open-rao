@@ -7,10 +7,13 @@
     <parent>
         <groupId>com.powsybl</groupId>
         <artifactId>open-rao-virtual-hubs</artifactId>
-        <version>6.6.0-SNAPSHOT</version>
+        <version>7.1.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>open-rao-virtual-hubs-network-extension</artifactId>
+    <packaging>jar</packaging>
+    <name>Virtual hubs network extension</name>
+    <description>Network extension for virtual hubs</description>
 
     <dependencies>
         <!-- Compile dependencies -->

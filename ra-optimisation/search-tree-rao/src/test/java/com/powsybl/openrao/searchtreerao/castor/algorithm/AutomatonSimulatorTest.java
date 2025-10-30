@@ -9,7 +9,8 @@ package com.powsybl.openrao.searchtreerao.castor.algorithm;
 
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyElementType;
-import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.loadflow.LoadFlowParameters;
+import com.powsybl.openloadflow.OpenLoadFlowParameters;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.CracFactory;
@@ -24,7 +25,6 @@ import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
@@ -81,7 +81,7 @@ class AutomatonSimulatorTest {
     private static final String AUTO_INSTANT_ID = "auto";
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         network = Network.read("TestCase16NodesWith2Hvdc.xiidm", getClass().getResourceAsStream("/network/TestCase16NodesWith2Hvdc.xiidm"));
         // Add some lines otherwise HVDC2 is connected to nothing and load-flow produces NaN angles
         network.newLine()
@@ -134,21 +134,21 @@ class AutomatonSimulatorTest {
             .withId("ra2")
             .withNetworkElement("ra2-ne")
             .withSpeed(2)
-            .newOnInstantUsageRule().withInstant(AUTO_INSTANT_ID).withUsageMethod(UsageMethod.FORCED).add()
+            .newOnInstantUsageRule().withInstant(AUTO_INSTANT_ID).add()
             .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
             .add();
         ra3 = crac.newPstRangeAction()
             .withId("ra3")
             .withNetworkElement("ra3-ne")
             .withSpeed(4)
-            .newOnConstraintUsageRule().withInstant(AUTO_INSTANT_ID).withCnec("cnec1").withUsageMethod(UsageMethod.FORCED).add()
+            .newOnConstraintUsageRule().withInstant(AUTO_INSTANT_ID).withCnec("cnec1").add()
             .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
             .add();
         ra4 = crac.newPstRangeAction()
             .withId("ra4")
             .withNetworkElement("ra4-ne")
             .withSpeed(4)
-            .newOnConstraintUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withCnec("cnec-prev").withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnConstraintUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withCnec("cnec-prev").add()
             .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
             .add();
 
@@ -158,7 +158,7 @@ class AutomatonSimulatorTest {
             .withGroupId("group1")
             .withNetworkElement("BBE2AA11 BBE3AA11 1")
             .withSpeed(3)
-            .newOnConstraintUsageRule().withInstant(AUTO_INSTANT_ID).withCnec("cnec1").withUsageMethod(UsageMethod.FORCED).add()
+            .newOnConstraintUsageRule().withInstant(AUTO_INSTANT_ID).withCnec("cnec1").add()
             .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, 0.1, 1, 1.1, 2, 2.1, 3, 3.1, -1, -1.1, -2, -2.1, -3, -3.1))
             .add();
         ara2 = crac.newPstRangeAction()
@@ -166,7 +166,7 @@ class AutomatonSimulatorTest {
             .withGroupId("group1")
             .withNetworkElement("FFR2AA11 FFR4AA11 1")
             .withSpeed(3)
-            .newOnConstraintUsageRule().withInstant(AUTO_INSTANT_ID).withCnec("cnec1").withUsageMethod(UsageMethod.FORCED).add()
+            .newOnConstraintUsageRule().withInstant(AUTO_INSTANT_ID).withCnec("cnec1").add()
             .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, 0.1, 1, 1.1, 2, 2.1, 3, 3.1, -1, -1.1, -2, -2.1, -3, -3.1))
             .add();
 
@@ -176,7 +176,7 @@ class AutomatonSimulatorTest {
             .withGroupId("group2")
             .withNetworkElement("ra2-ne")
             .withSpeed(5)
-            .newOnInstantUsageRule().withInstant(AUTO_INSTANT_ID).withUsageMethod(UsageMethod.FORCED).add()
+            .newOnInstantUsageRule().withInstant(AUTO_INSTANT_ID).add()
             .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
             .add();
         ara4 = crac.newHvdcRangeAction()
@@ -187,13 +187,13 @@ class AutomatonSimulatorTest {
             .newRange().withMax(1).withMin(-1).add()
             .add();
 
-        // Add 2 aligned range actions with different usage methods
+        // Add 2 aligned range actions
         ara5 = crac.newPstRangeAction()
             .withId("ara5")
             .withGroupId("group3")
             .withNetworkElement("ra2-ne")
             .withSpeed(6)
-            .newOnInstantUsageRule().withInstant(AUTO_INSTANT_ID).withUsageMethod(UsageMethod.FORCED).add()
+            .newOnInstantUsageRule().withInstant(AUTO_INSTANT_ID).add()
             .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
             .add();
         ara6 = crac.newPstRangeAction()
@@ -201,7 +201,7 @@ class AutomatonSimulatorTest {
             .withGroupId("group3")
             .withNetworkElement("ra3-ne")
             .withSpeed(6)
-            .newOnConstraintUsageRule().withInstant(AUTO_INSTANT_ID).withCnec("cnec1").withUsageMethod(UsageMethod.FORCED).add()
+            .newOnConstraintUsageRule().withInstant(AUTO_INSTANT_ID).withCnec("cnec1").add()
             .withInitialTap(0).withTapToAngleConversionMap(Map.of(0, -100., 1, 100.))
             .add();
 
@@ -209,7 +209,7 @@ class AutomatonSimulatorTest {
         na = crac.newNetworkAction()
             .withId("na")
             .newSwitchAction().withActionType(ActionType.CLOSE).withNetworkElement("DDE3AA11 DDE4AA11 1").add()
-            .newOnConstraintUsageRule().withInstant(AUTO_INSTANT_ID).withCnec("cnec2").withUsageMethod(UsageMethod.FORCED).add()
+            .newOnConstraintUsageRule().withInstant(AUTO_INSTANT_ID).withCnec("cnec2").add()
             .add();
 
         // Add HVDC range actions
@@ -219,7 +219,7 @@ class AutomatonSimulatorTest {
             .withNetworkElement("BBE2AA11 FFR3AA11 1")
             .withSpeed(1)
             .newRange().withMax(3000).withMin(-3000).add()
-            .newOnInstantUsageRule().withInstant(AUTO_INSTANT_ID).withUsageMethod(UsageMethod.FORCED).add()
+            .newOnInstantUsageRule().withInstant(AUTO_INSTANT_ID).add()
             .add();
         hvdcRa2 = crac.newHvdcRangeAction()
             .withId("hvdc-ra2")
@@ -227,7 +227,7 @@ class AutomatonSimulatorTest {
             .withNetworkElement("BBE2AA12 FFR3AA12 1")
             .withSpeed(1)
             .newRange().withMax(3000).withMin(-3000).add()
-            .newOnInstantUsageRule().withInstant(AUTO_INSTANT_ID).withUsageMethod(UsageMethod.FORCED).add()
+            .newOnInstantUsageRule().withInstant(AUTO_INSTANT_ID).add()
             .add();
 
         autoState = crac.getState(contingency1, autoInstant);
@@ -239,9 +239,17 @@ class AutomatonSimulatorTest {
         raoParameters.getObjectiveFunctionParameters().setUnit(Unit.MEGAWATT);
         searchTreeParameters.getLoadFlowAndSensitivityParameters().setSensitivityProvider("OpenLoadFlow");
 
+        LoadFlowParameters loadFlowParameters = new LoadFlowParameters();
+        // add OLF extension to keep same behavior as before version 2.0.0 with default parameter (note that "transformerVoltageControlMode" could be set to "WITH_GENERATOR_VOLTAGE_CONTROL" but this has no impact)
+        OpenLoadFlowParameters openLoadFlowParameters = new OpenLoadFlowParameters();
+        openLoadFlowParameters.setSlackDistributionFailureBehavior(OpenLoadFlowParameters.SlackDistributionFailureBehavior.LEAVE_ON_SLACK_BUS);
+        loadFlowParameters.addExtension(OpenLoadFlowParameters.class, openLoadFlowParameters);
+
+        searchTreeParameters.getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().setLoadFlowParameters(loadFlowParameters);
+
         mockedPreAutoPerimeterSensitivityAnalysis = mock(PrePerimeterSensitivityAnalysis.class);
         mockedPrePerimeterResult = mock(PrePerimeterResult.class);
-        when(mockedPreAutoPerimeterSensitivityAnalysis.runBasedOnInitialResults(any(), any(), any(), any(), any())).thenReturn(mockedPrePerimeterResult);
+        when(mockedPreAutoPerimeterSensitivityAnalysis.runBasedOnInitialResults(any(), any(), any(), any())).thenReturn(mockedPrePerimeterResult);
 
         FlowResult mockedFlowResult = mock(FlowResult.class);
         when(mockedPrePerimeterResult.getFlowResult()).thenReturn(mockedFlowResult);
@@ -255,15 +263,6 @@ class AutomatonSimulatorTest {
     void testGatherCnecs() {
         assertEquals(2, automatonSimulator.gatherFlowCnecsForAutoRangeAction(ra2, autoState, network).size());
         assertEquals(1, automatonSimulator.gatherFlowCnecsForAutoRangeAction(ra3, autoState, network).size());
-    }
-
-    @Test
-    void testGatherCnecsError() {
-        RangeAction<?> ra = Mockito.mock(RangeAction.class);
-        Mockito.when(ra.toString()).thenReturn("RangeAction");
-        Mockito.when(ra.getUsageMethod(autoState)).thenReturn(UsageMethod.AVAILABLE);
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> automatonSimulator.gatherFlowCnecsForAutoRangeAction(ra, autoState, network));
-        assertEquals("Range action RangeAction has usage method AVAILABLE although FORCED was expected.", exception.getMessage());
     }
 
     @Test
@@ -296,7 +295,7 @@ class AutomatonSimulatorTest {
     @Test
     void testDisableHvdcAngleDroopControl1() {
         PrePerimeterResult prePerimeterResult = mock(PrePerimeterResult.class);
-        when(mockedPreAutoPerimeterSensitivityAnalysis.runBasedOnInitialResults(any(), any(), any(), any(), any())).thenReturn(mockedPrePerimeterResult);
+        when(mockedPreAutoPerimeterSensitivityAnalysis.runBasedOnInitialResults(any(), any(), any(), any())).thenReturn(mockedPrePerimeterResult);
 
         Pair<PrePerimeterResult, Map<HvdcRangeAction, Double>> result = automatonSimulator.disableHvdcAngleDroopActivePowerControl(List.of(hvdcRa1), network, mockedPreAutoPerimeterSensitivityAnalysis, prePerimeterResult, autoState);
         // check that angle-droop control was disabled on HVDC
@@ -327,7 +326,7 @@ class AutomatonSimulatorTest {
     @Test
     void testDisableHvdcAngleDroopControl2() {
         PrePerimeterResult prePerimeterResult = mock(PrePerimeterResult.class);
-        when(mockedPreAutoPerimeterSensitivityAnalysis.runBasedOnInitialResults(any(), any(), any(), any(), any())).thenReturn(mockedPrePerimeterResult);
+        when(mockedPreAutoPerimeterSensitivityAnalysis.runBasedOnInitialResults(any(), any(), any(), any())).thenReturn(mockedPrePerimeterResult);
 
         // Test on 2 aligned HVDC RAs
         Pair<PrePerimeterResult, Map<HvdcRangeAction, Double>> result = automatonSimulator.disableHvdcAngleDroopActivePowerControl(List.of(hvdcRa1, hvdcRa2), network, mockedPreAutoPerimeterSensitivityAnalysis, prePerimeterResult, autoState);
@@ -346,7 +345,7 @@ class AutomatonSimulatorTest {
     @Test
     void testDisableHvdcAngleDroopControl3() {
         PrePerimeterResult prePerimeterResult = mock(PrePerimeterResult.class);
-        when(mockedPreAutoPerimeterSensitivityAnalysis.runBasedOnInitialResults(any(), any(), any(), any(), any())).thenReturn(mockedPrePerimeterResult);
+        when(mockedPreAutoPerimeterSensitivityAnalysis.runBasedOnInitialResults(any(), any(), any(), any())).thenReturn(mockedPrePerimeterResult);
 
         // Test on an HVDC with no HvdcAngleDroopActivePowerControl
         network.getHvdcLine("BBE2AA11 FFR3AA11 1").removeExtension(HvdcAngleDroopActivePowerControl.class);
@@ -358,7 +357,7 @@ class AutomatonSimulatorTest {
     @Test
     void testDisableHvdcAngleDroopControl4() {
         PrePerimeterResult prePerimeterResult = mock(PrePerimeterResult.class);
-        when(mockedPreAutoPerimeterSensitivityAnalysis.runBasedOnInitialResults(any(), any(), any(), any(), any())).thenReturn(mockedPrePerimeterResult);
+        when(mockedPreAutoPerimeterSensitivityAnalysis.runBasedOnInitialResults(any(), any(), any(), any())).thenReturn(mockedPrePerimeterResult);
 
         // Test on non-HVDC : nothing should happen
         Pair<PrePerimeterResult, Map<HvdcRangeAction, Double>> result = automatonSimulator.disableHvdcAngleDroopActivePowerControl(List.of(ra2), network, mockedPreAutoPerimeterSensitivityAnalysis, prePerimeterResult, autoState);
@@ -375,11 +374,11 @@ class AutomatonSimulatorTest {
             .withNetworkElement("BBE2AA11 FFR3AA11 1")
             .withSpeed(1)
             .newRange().withMax(1000).withMin(-1000).add()
-            .newOnInstantUsageRule().withInstant(AUTO_INSTANT_ID).withUsageMethod(UsageMethod.FORCED).add()
+            .newOnInstantUsageRule().withInstant(AUTO_INSTANT_ID).add()
             .add();
 
         PrePerimeterResult prePerimeterResult = mock(PrePerimeterResult.class);
-        when(mockedPreAutoPerimeterSensitivityAnalysis.runBasedOnInitialResults(any(), any(), any(), any(), any())).thenReturn(mockedPrePerimeterResult);
+        when(mockedPreAutoPerimeterSensitivityAnalysis.runBasedOnInitialResults(any(), any(), any(), any())).thenReturn(mockedPrePerimeterResult);
 
         Pair<PrePerimeterResult, Map<HvdcRangeAction, Double>> result = automatonSimulator.disableHvdcAngleDroopActivePowerControl(List.of(hvdcRa1), network, mockedPreAutoPerimeterSensitivityAnalysis, prePerimeterResult, autoState);
         assertTrue(network.getHvdcLine("BBE2AA11 FFR3AA11 1").getExtension(HvdcAngleDroopActivePowerControl.class).isEnabled());
@@ -429,7 +428,7 @@ class AutomatonSimulatorTest {
         FlowCnec cnec = mock(FlowCnec.class);
         when(cnec.getMonitoredSides()).thenReturn(Set.of(TwoSides.TWO));
 
-        when(mockedPreAutoPerimeterSensitivityAnalysis.runBasedOnInitialResults(any(), any(), any(), any(), any())).thenReturn(mockedPrePerimeterResult);
+        when(mockedPreAutoPerimeterSensitivityAnalysis.runBasedOnInitialResults(any(), any(), any(), any())).thenReturn(mockedPrePerimeterResult);
 
         // suppose threshold is -1000, flow is -1100 then -1010 then -1000
         // getFlow is called once in every iteration
@@ -454,7 +453,7 @@ class AutomatonSimulatorTest {
         FlowCnec cnec = mock(FlowCnec.class);
         when(cnec.getMonitoredSides()).thenReturn(Set.of(TwoSides.ONE, TwoSides.TWO));
 
-        when(mockedPreAutoPerimeterSensitivityAnalysis.runBasedOnInitialResults(any(), any(), any(), any(), any())).thenReturn(mockedPrePerimeterResult);
+        when(mockedPreAutoPerimeterSensitivityAnalysis.runBasedOnInitialResults(any(), any(), any(), any())).thenReturn(mockedPrePerimeterResult);
 
         // same as case 1 but flows & sensi are inverted -> setpoints should be the same
         // getFlow is called once in every iteration
@@ -481,7 +480,7 @@ class AutomatonSimulatorTest {
         FlowCnec cnec = mock(FlowCnec.class);
         when(cnec.getMonitoredSides()).thenReturn(Set.of(TwoSides.ONE));
 
-        when(mockedPreAutoPerimeterSensitivityAnalysis.runBasedOnInitialResults(any(), any(), any(), any(), any())).thenReturn(mockedPrePerimeterResult);
+        when(mockedPreAutoPerimeterSensitivityAnalysis.runBasedOnInitialResults(any(), any(), any(), any())).thenReturn(mockedPrePerimeterResult);
 
         // same as case 1 but flows are inverted -> setpoints should be inverted
         // getFlow is called once in every iteration
@@ -504,7 +503,7 @@ class AutomatonSimulatorTest {
         FlowCnec cnec = mock(FlowCnec.class);
         when(cnec.getMonitoredSides()).thenReturn(Set.of(TwoSides.TWO));
 
-        when(mockedPreAutoPerimeterSensitivityAnalysis.runBasedOnInitialResults(any(), any(), any(), any(), any())).thenReturn(mockedPrePerimeterResult);
+        when(mockedPreAutoPerimeterSensitivityAnalysis.runBasedOnInitialResults(any(), any(), any(), any())).thenReturn(mockedPrePerimeterResult);
 
         // same as case 1 but sensi are inverted -> setpoints should be inverted
         // + added a cnec with sensi = 0
@@ -537,7 +536,7 @@ class AutomatonSimulatorTest {
         State curativeState = mock(State.class);
         when(curativeState.getContingency()).thenReturn(Optional.of(crac.getContingency("contingency1")));
 
-        when(mockedPreAutoPerimeterSensitivityAnalysis.runBasedOnInitialResults(any(), any(), any(), any(), any())).thenReturn(mockedPrePerimeterResult);
+        when(mockedPreAutoPerimeterSensitivityAnalysis.runBasedOnInitialResults(any(), any(), any(), any())).thenReturn(mockedPrePerimeterResult);
 
         // only keep ara1 & ara2
         Set<String> toRemove = crac.getRangeActions().stream().map(Identifiable::getId).collect(Collectors.toSet());
@@ -622,7 +621,7 @@ class AutomatonSimulatorTest {
         when(curativeState.getInstant()).thenReturn(curativeInstant);
         when(curativeState.getContingency()).thenReturn(Optional.of(crac.getContingency("contingency1")));
 
-        when(mockedPreAutoPerimeterSensitivityAnalysis.runBasedOnInitialResults(any(), any(), any(), any(), any())).thenReturn(mockedPrePerimeterResult);
+        when(mockedPreAutoPerimeterSensitivityAnalysis.runBasedOnInitialResults(any(), any(), any(), any())).thenReturn(mockedPrePerimeterResult);
 
         // only keep ara1, ara2 & na
         Set<String> toRemove = crac.getRemedialActions().stream().map(Identifiable::getId).collect(Collectors.toSet());
@@ -671,7 +670,7 @@ class AutomatonSimulatorTest {
     @Test
     void testDisableHvdcAngleDroopControlBeforeShifting() {
         PrePerimeterResult prePerimeterResult = mock(PrePerimeterResult.class);
-        when(mockedPreAutoPerimeterSensitivityAnalysis.runBasedOnInitialResults(any(), any(), any(), any(), any())).thenReturn(mockedPrePerimeterResult);
+        when(mockedPreAutoPerimeterSensitivityAnalysis.runBasedOnInitialResults(any(), any(), any(), any())).thenReturn(mockedPrePerimeterResult);
 
         // check that angle-droop control was not disabled when margins are positive
         when(prePerimeterResult.getMargin(cnec1, TwoSides.TWO, Unit.MEGAWATT)).thenReturn(0.);

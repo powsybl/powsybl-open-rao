@@ -4,6 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 package com.powsybl.openrao.tests.steps;
 
 import com.powsybl.action.*;
@@ -27,7 +28,6 @@ import com.powsybl.openrao.data.crac.api.usagerule.OnConstraint;
 import com.powsybl.openrao.data.crac.api.usagerule.OnContingencyState;
 import com.powsybl.openrao.data.crac.api.usagerule.OnFlowConstraintInCountry;
 import com.powsybl.openrao.data.crac.api.usagerule.OnInstant;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.openrao.data.crac.api.networkaction.ActionType;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.networkaction.SwitchPair;
@@ -243,15 +243,15 @@ public class CracImportSteps {
                 .findFirst()
                 .orElseThrow(Exception::new);
 
-            if (expectedCnec.get("ImaxLeft") != null) {
-                assertEquals(Double.parseDouble(expectedCnec.get("ImaxLeft")), flowCnec.getIMax(TwoSides.ONE), DOUBLE_TOLERANCE);
+            if (expectedCnec.get("ImaxLeft") != null && !"NaN".equals(expectedCnec.get("ImaxLeft"))) {
+                assertEquals(Double.parseDouble(expectedCnec.get("ImaxLeft")), flowCnec.getIMax(TwoSides.ONE).get(), DOUBLE_TOLERANCE);
             } else {
-                assertNull(flowCnec.getIMax(TwoSides.ONE));
+                assertTrue(flowCnec.getIMax(TwoSides.ONE).isEmpty());
             }
-            if (expectedCnec.get("ImaxRight") != null) {
-                assertEquals(Double.parseDouble(expectedCnec.get("ImaxRight")), flowCnec.getIMax(TwoSides.TWO), DOUBLE_TOLERANCE);
+            if (expectedCnec.get("ImaxRight") != null && !"NaN".equals(expectedCnec.get("ImaxRight"))) {
+                assertEquals(Double.parseDouble(expectedCnec.get("ImaxRight")), flowCnec.getIMax(TwoSides.TWO).get(), DOUBLE_TOLERANCE);
             } else {
-                assertNull(flowCnec.getIMax(TwoSides.TWO));
+                assertTrue(flowCnec.getIMax(TwoSides.TWO).isEmpty());
             }
             if (expectedCnec.get("NominalVoltageLeft") != null) {
                 assertEquals(Double.parseDouble(expectedCnec.get("NominalVoltageLeft")), flowCnec.getNominalVoltage(TwoSides.ONE), DOUBLE_TOLERANCE);
@@ -660,12 +660,10 @@ public class CracImportSteps {
             int number = Integer.parseInt(expectedUsageRule.get("UsageRules"));
             assertEquals(number, remedialAction.getUsageRules().size());
             Instant instant = crac.getInstant(expectedUsageRule.get("Instant").toLowerCase());
-            UsageMethod usageMethod = UsageMethod.valueOf(expectedUsageRule.get("Method").toUpperCase());
             switch (expectedUsageRule.get("Rule")) {
                 case "OnInstant":
                     assertTrue(remedialAction.getUsageRules().stream().anyMatch(usageRule ->
                         usageRule instanceof OnInstant onInstant
-                            && onInstant.getUsageMethod().equals(usageMethod)
                             && onInstant.getInstant().equals(instant)
                     ));
                     break;
@@ -674,7 +672,6 @@ public class CracImportSteps {
                     assertNotNull(contingency);
                     assertTrue(remedialAction.getUsageRules().stream().anyMatch(usageRule ->
                         usageRule instanceof OnContingencyState onContingencyState
-                            && onContingencyState.getUsageMethod().equals(usageMethod)
                             && onContingencyState.getInstant().equals(instant)
                             && onContingencyState.getContingency().equals(contingency)
                     ));
@@ -684,7 +681,6 @@ public class CracImportSteps {
                     assertNotNull(flowCnec);
                     assertTrue(remedialAction.getUsageRules().stream().anyMatch(usageRule ->
                         usageRule instanceof OnConstraint<?> onFlowConstraint
-                            && onFlowConstraint.getUsageMethod().equals(usageMethod)
                             && onFlowConstraint.getInstant().equals(instant)
                             && onFlowConstraint.getCnec().equals(flowCnec)
                     ));
@@ -694,7 +690,6 @@ public class CracImportSteps {
                     Optional<Contingency> optionalContingency = Optional.ofNullable(crac.getContingency(expectedUsageRule.get("ContingencyId")));
                     assertTrue(remedialAction.getUsageRules().stream().anyMatch(usageRule ->
                         usageRule instanceof OnFlowConstraintInCountry onFlowConstraintInCountry
-                            && onFlowConstraintInCountry.getUsageMethod().equals(usageMethod)
                             && onFlowConstraintInCountry.getInstant().equals(instant)
                             && onFlowConstraintInCountry.getCountry().equals(country)
                             && onFlowConstraintInCountry.getContingency().equals(optionalContingency)
@@ -705,7 +700,6 @@ public class CracImportSteps {
                     assertNotNull(angleCnec);
                     assertTrue(remedialAction.getUsageRules().stream().anyMatch(usageRule ->
                         usageRule instanceof OnConstraint<?> onAngleConstraint
-                            && onAngleConstraint.getUsageMethod().equals(usageMethod)
                             && onAngleConstraint.getInstant().equals(instant)
                             && onAngleConstraint.getCnec().equals(angleCnec)
                     ));

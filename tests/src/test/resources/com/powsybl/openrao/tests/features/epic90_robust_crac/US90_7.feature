@@ -8,21 +8,22 @@ Feature: US 90.7: Handle Xnodes
 
   @fast @crac @mock
   Scenario: US 90.7.1: Handle CRAC import with half-line IDs
+  No threshold with a PERCENT_IMAX unit is defined in the CRAC so no iMax was imported.
     Given network file is "crac7/TestCase12Nodes_with_Xnodes.uct"
     Given crac file is "crac7/ls-Xnodes.json"
     When I import crac
     Then it should have the following flow CNECs:
       | Name       | NetworkElementId                          | Instant    | Contingency | Optimized | Monitored | ImaxLeft | ImaxRight | NominalVoltageLeft | NominalVoltageRight |
-      | Cnec BE-FR | BBE2AA1  X_BEFR1  1 + FFR3AA1  X_BEFR1  1 | preventive |             | yes       | no        | 5000     | 5000      | 400                | 400                 |
-      | Cnec BE-FR | BBE2AA1  X_BEFR1  1 + FFR3AA1  X_BEFR1  1 | outage     | N-1 DE-NL   | yes       | no        | 5000     | 5000      | 400                | 400                 |
-      | Cnec DE-FR | DDE3AA1  X_DEFR1  1 + FFR2AA1  X_DEFR1  1 | preventive |             | yes       | no        | 5000     | 5000      | 400                | 400                 |
-      | Cnec DE-FR | DDE3AA1  X_DEFR1  1 + FFR2AA1  X_DEFR1  1 | outage     | N-1 DE-NL   | yes       | no        | 5000     | 5000      | 400                | 400                 |
+      | Cnec BE-FR | BBE2AA1  X_BEFR1  1 + FFR3AA1  X_BEFR1  1 | preventive |             | yes       | no        | NaN      | NaN       | 380                | 380                 |
+      | Cnec BE-FR | BBE2AA1  X_BEFR1  1 + FFR3AA1  X_BEFR1  1 | outage     | N-1 DE-NL   | yes       | no        | NaN      | NaN       | 380                | 380                 |
+      | Cnec DE-FR | DDE3AA1  X_DEFR1  1 + FFR2AA1  X_DEFR1  1 | preventive |             | yes       | no        | NaN      | NaN       | 380                | 380                 |
+      | Cnec DE-FR | DDE3AA1  X_DEFR1  1 + FFR2AA1  X_DEFR1  1 | outage     | N-1 DE-NL   | yes       | no        | NaN      | NaN       | 380                | 380                 |
     And the flow cnecs should have the following thresholds:
-      | CnecId                                                         | Unit   | Min   | Max  | Side  |
+      | CnecId                                                         | Unit   | Min   | Max  | Side |
       | BBE2AA1  X_BEFR1  1 + FFR3AA1  X_BEFR1  1 - preventive         | AMPERE | -1500 | 1500 | ONE  |
       | BBE2AA1  X_BEFR1  1 + FFR3AA1  X_BEFR1  1 - N-1 DE-NL - outage | AMPERE | -5000 | 5000 | ONE  |
-      | DDE3AA1  X_DEFR1  1 + FFR2AA1  X_DEFR1  1 - preventive         | AMPERE | -1500 | 1500 | TWO |
-      | DDE3AA1  X_DEFR1  1 + FFR2AA1  X_DEFR1  1 - N-1 DE-NL - outage | AMPERE | -5000 | 5000 | TWO |
+      | DDE3AA1  X_DEFR1  1 + FFR2AA1  X_DEFR1  1 - preventive         | AMPERE | -1500 | 1500 | TWO  |
+      | DDE3AA1  X_DEFR1  1 + FFR2AA1  X_DEFR1  1 - N-1 DE-NL - outage | AMPERE | -5000 | 5000 | TWO  |
     And it should have 1 network actions
 
   @fast @rao @mock @ac @preventive-only
@@ -30,7 +31,7 @@ Feature: US 90.7: Handle Xnodes
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "crac7/ls-ref.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then its security status should be "UNSECURED"
     Then the worst margin is -416.0 A
     Then the margin on cnec "FFR2AA1  DDE3AA1  1 - preventive" after PRA should be -416.0 A
@@ -45,7 +46,7 @@ Feature: US 90.7: Handle Xnodes
     Given network file is "crac7/TestCase12Nodes_with_one_Xnode.uct"
     Given crac file is "crac7/ls-Xnode-ref.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then its security status should be "SECURED"
     Then the worst margin is 1028.0 A
     Then the margin on cnec "BBE2AA1  FFR3AA1  1 - preventive" after PRA should be 1028.0 A
@@ -58,7 +59,7 @@ Feature: US 90.7: Handle Xnodes
     Given network file is "crac7/TestCase12Nodes_with_one_Xnode.uct"
     Given crac file is "crac7/ls-Xnode.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then its security status should be "UNSECURED"
     Then the worst margin is -416.0 A
     Then the margin on cnec "DDE3AA1  X_DEFR1  1 + FFR2AA1  X_DEFR1  1 - preventive" after PRA should be -416.0 A
@@ -73,13 +74,13 @@ Feature: US 90.7: Handle Xnodes
     Given network file is "crac7/TestCase12Nodes_with_Xnodes.uct"
     Given crac file is "crac7/ls-Xnodes.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then its security status should be "UNSECURED"
     Then the worst margin is -416.0 A
     Then the margin on cnec "DDE3AA1  X_DEFR1  1 + FFR2AA1  X_DEFR1  1 - preventive" after PRA should be -416.0 A
     Then the margin on cnec "BBE2AA1  X_BEFR1  1 + FFR3AA1  X_BEFR1  1 - preventive" after PRA should be 1028.0 A
     Then the margin on cnec "DDE3AA1  X_DEFR1  1 + FFR2AA1  X_DEFR1  1 - N-1 DE-NL - outage" after PRA should be 1380.0 A
-    Then the margin on cnec "BBE2AA1  X_BEFR1  1 + FFR3AA1  X_BEFR1  1 - N-1 DE-NL - outage" after PRA should be 2825.0 A
+    Then the margin on cnec "BBE2AA1  X_BEFR1  1 + FFR3AA1  X_BEFR1  1 - N-1 DE-NL - outage" after PRA should be 2832.6 A
     Then the tap of PstRangeAction "PST_BE" should be -16 in preventive
     Then 1 remedial actions are used in preventive
 

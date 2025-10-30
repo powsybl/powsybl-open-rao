@@ -1,9 +1,10 @@
 /*
  * Copyright (c) 2020, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
- *  License, v. 2.0. If a copy of the MPL was not distributed with this
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 package com.powsybl.openrao.data.crac.impl;
 
 import com.powsybl.iidm.network.*;
@@ -18,7 +19,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import java.util.Optional;
 import java.util.Set;
 
 import static com.powsybl.openrao.commons.Unit.*;
@@ -52,14 +52,11 @@ class FlowCnecImplTest {
         FlowCnec cnec1 = crac.newFlowCnec().withId("cnec-1-id").withNetworkElement("BBE1AA1  BBE2AA1  1").withInstant(PREVENTIVE_INSTANT_ID).newThreshold().withUnit(MEGAWATT).withMax(1000.).withSide(TwoSides.ONE).add().add();
         FlowCnec cnec2 = crac.newFlowCnec().withId("cnec-2-id").withNetworkElement("DDE2AA1  NNL3AA1  1").withInstant(PREVENTIVE_INSTANT_ID).newThreshold().withUnit(MEGAWATT).withMax(1000.).withSide(TwoSides.ONE).add().add();
 
-        Set<Optional<Country>> countries = cnec1.getLocation(network);
-        assertEquals(1, countries.size());
-        assertTrue(countries.contains(Optional.of(Country.BE)));
+        Set<Country> countries = cnec1.getLocation(network);
+        assertEquals(Set.of(Country.BE), countries);
 
         countries = cnec2.getLocation(network);
-        assertEquals(2, countries.size());
-        assertTrue(countries.contains(Optional.of(Country.DE)));
-        assertTrue(countries.contains(Optional.of(Country.NL)));
+        assertEquals(Set.of(Country.DE, Country.NL), countries);
     }
 
     @Test

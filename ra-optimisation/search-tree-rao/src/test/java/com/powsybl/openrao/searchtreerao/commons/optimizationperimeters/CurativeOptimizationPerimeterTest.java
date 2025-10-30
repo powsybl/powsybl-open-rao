@@ -4,6 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 package com.powsybl.openrao.searchtreerao.commons.optimizationperimeters;
 
 import com.powsybl.openrao.commons.OpenRaoException;
@@ -46,6 +47,13 @@ class CurativeOptimizationPerimeterTest extends AbstractOptimizationPerimeterTes
         assertTrue(optPerimeter.getRangeActionsPerState().containsKey(cState1));
         assertEquals(1, optPerimeter.getRangeActionsPerState().get(cState1).size());
         assertTrue(optPerimeter.getRangeActionsPerState().get(cState1).contains(cRA));
+    }
+
+    @Test
+    void curativePerimeterTestRAFiltered() {
+        Mockito.when(prePerimeterResult.getSetpoint(cRA)).thenReturn(1000.0 + 2 * 1e-6);
+        OptimizationPerimeter optPerimeter = CurativeOptimizationPerimeter.build(cState1, crac, network, raoParameters, prePerimeterResult);
+        assertEquals(0, optPerimeter.getRangeActions().size());
     }
 
     @Test

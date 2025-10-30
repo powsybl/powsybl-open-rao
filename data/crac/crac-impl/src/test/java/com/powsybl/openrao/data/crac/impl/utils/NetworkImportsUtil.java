@@ -1,14 +1,13 @@
 /*
  * Copyright (c) 2020, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
- *  License, v. 2.0. If a copy of the MPL was not distributed with this
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 package com.powsybl.openrao.data.crac.impl.utils;
 
 import com.powsybl.iidm.network.*;
-
-import java.util.List;
 
 /**
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
@@ -96,6 +95,16 @@ public final class NetworkImportsUtil {
             .setConverterStationId1("C1")
             .setConverterStationId2("C2")
             .add();
+        network.newHvdcLine()
+            .setId("hvdc")
+            .setR(1.0)
+            .setConvertersMode(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER)
+            .setNominalV(400)
+            .setActivePowerSetpoint(500)
+            .setMaxP(700)
+            .setConverterStationId1("C1")
+            .setConverterStationId2("C2")
+            .add();
     }
 
     public static void addDanglingLine(Network network) {
@@ -135,7 +144,7 @@ public final class NetworkImportsUtil {
         shuntCompensator.getTerminal().setP(0.).setQ(0.);
     }
 
-    public static Network createNetworkForJsonRetrocompatibilityTest() {
+    public static Network createNetworkForJsonRetrocompatibilityTest(double tapOffset) {
         Network network = Network.create("test", "test");
         Substation s = network.newSubstation()
             .setId("S1")
@@ -200,21 +209,12 @@ public final class NetworkImportsUtil {
             .setTargetV(400.0)
             .setVoltageRegulatorOn(true)
             .add();
-        for (String lineId : List.of("ne1Id", "ne2Id", "ne3Id")) {
-            network.newLine()
-                .setId(lineId)
-                .setVoltageLevel1("VL1")
-                .setBus1("B1")
-                .setVoltageLevel2("VL2")
-                .setBus2("B21")
-                .setR(1.0)
-                .setX(1.0)
-                .setG1(0.0)
-                .setB1(0.0)
-                .setG2(0.0)
-                .setB2(0.0)
-                .add();
-        }
+
+        addLine(network, "ne1Id", null, 1000.0);
+        addLine(network, "ne2Id", 2000.0, 2000.0);
+        addLine(network, "ne3Id", 2000.0, 2000.0);
+        addLine(network, "ne4Id", null, 1000.0);
+        addLine(network, "ne5Id", 2000.0, 2000.0);
 
         for (int i = 0; i <= 4; i++) {
             TwoWindingsTransformer twt = s.newTwoWindingsTransformer()
@@ -231,7 +231,7 @@ public final class NetworkImportsUtil {
                 .setLowTapPosition(-5);
             for (int j = -5; j <= 5; j++) {
                 ptcAdder.beginStep()
-                    .setAlpha(j * 0.5)
+                    .setAlpha(j * 0.5 + tapOffset)
                     .endStep();
             }
             ptcAdder.add();
@@ -264,7 +264,108 @@ public final class NetworkImportsUtil {
         danglingLine.getTerminal()
             .setP(0.)
             .setQ(0.);
+
+        VscConverterStation cs1 = vl1.newVscConverterStation()
+            .setId("C1")
+            .setName("Converter1")
+            .setConnectableBus("B1")
+            .setBus("B1")
+            .setLossFactor(1.1f)
+            .setVoltageSetpoint(405.0)
+            .setVoltageRegulatorOn(true)
+            .add();
+        cs1.getTerminal()
+            .setP(100.0)
+            .setQ(50.0);
+        cs1.newReactiveCapabilityCurve()
+            .beginPoint()
+            .setP(5.0)
+            .setMinQ(0.0)
+            .setMaxQ(10.0)
+            .endPoint()
+            .beginPoint()
+            .setP(10.0)
+            .setMinQ(0.0)
+            .setMaxQ(10.0)
+            .endPoint()
+            .add();
+        VscConverterStation cs2 = vl2.newVscConverterStation()
+            .setId("C2")
+            .setName("Converter2")
+            .setConnectableBus("B21")
+            .setBus("B21")
+            .setLossFactor(1.1f)
+            .setReactivePowerSetpoint(123)
+            .setVoltageRegulatorOn(false)
+            .add();
+        cs2.newMinMaxReactiveLimits()
+            .setMinQ(0.0)
+            .setMaxQ(10.0)
+            .add();
+
+        network.newHvdcLine()
+            .setId("hvdc")
+            .setR(1.0)
+            .setConvertersMode(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER)
+            .setNominalV(400)
+            .setActivePowerSetpoint(100)
+            .setMaxP(700)
+            .setConverterStationId1("C1")
+            .setConverterStationId2("C2")
+            .add();
+
+        network.newHvdcLine()
+            .setId("hvdc2")
+            .setR(1.0)
+            .setConvertersMode(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER)
+            .setNominalV(400)
+            .setActivePowerSetpoint(100)
+            .setMaxP(700)
+            .setConverterStationId1("C1")
+            .setConverterStationId2("C2")
+            .add();
+
+        // add element necessary for injectionRangeAction
+        vl1.newGenerator()
+            .setId("generator2Id")
+            .setBus("B1")
+            .setMaxP(100.0)
+            .setMinP(50.0)
+            .setTargetP(-50.0)
+            .setTargetV(400.0)
+            .setVoltageRegulatorOn(true)
+            .add();
+        vl1.newGenerator()
+            .setId("generator1Id")
+            .setBus("B2")
+            .setMaxP(100.0)
+            .setMinP(50.0)
+            .setTargetP(50.0)
+            .setTargetV(400.0)
+            .setVoltageRegulatorOn(true)
+            .add();
         return network;
     }
 
+    private static void addLine(Network network, String lineId, Double permanentLimit1, Double permanentLimit2) {
+        Line line = network.newLine()
+            .setId(lineId)
+            .setVoltageLevel1("VL1")
+            .setBus1("B1")
+            .setVoltageLevel2("VL2")
+            .setBus2("B21")
+            .setR(1.0)
+            .setX(1.0)
+            .setG1(0.0)
+            .setB1(0.0)
+            .setG2(0.0)
+            .setB2(0.0)
+            .add();
+        if (permanentLimit1 != null) {
+            line.newCurrentLimits1().setPermanentLimit(permanentLimit1).add();
+        }
+        if (permanentLimit2 != null) {
+            line.newCurrentLimits2().setPermanentLimit(permanentLimit2).add();
+        }
+    }
 }

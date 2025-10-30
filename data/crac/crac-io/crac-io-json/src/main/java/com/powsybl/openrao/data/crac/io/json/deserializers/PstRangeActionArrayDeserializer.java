@@ -22,8 +22,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
 import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.deserializeVariationDirection;
+import static com.powsybl.openrao.data.crac.io.json.deserializers.CracDeserializer.LOGGER;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -51,14 +51,14 @@ public final class PstRangeActionArrayDeserializer {
                         break;
                     case JsonSerializationConstants.ON_INSTANT_USAGE_RULES:
                         jsonParser.nextToken();
-                        OnInstantArrayDeserializer.deserialize(jsonParser, pstRangeActionAdder);
+                        OnInstantArrayDeserializer.deserialize(jsonParser, pstRangeActionAdder, version);
                         break;
                     case JsonSerializationConstants.FREE_TO_USE_USAGE_RULES:
                         deserializeFreeToUseUsageRules(jsonParser, version, pstRangeActionAdder);
                         break;
                     case JsonSerializationConstants.ON_CONTINGENCY_STATE_USAGE_RULES:
                         jsonParser.nextToken();
-                        OnStateArrayDeserializer.deserialize(jsonParser, pstRangeActionAdder);
+                        OnStateArrayDeserializer.deserialize(jsonParser, pstRangeActionAdder, version);
                         break;
                     case JsonSerializationConstants.ON_STATE_USAGE_RULES:
                         deserializeOnStateUsageRules(jsonParser, version, pstRangeActionAdder);
@@ -93,7 +93,7 @@ public final class PstRangeActionArrayDeserializer {
                         jsonParser.nextToken();
                         if (JsonSerializationConstants.getPrimaryVersionNumber(version) <= 1 ||
                             JsonSerializationConstants.getPrimaryVersionNumber(version) == 2 && JsonSerializationConstants.getSubVersionNumber(version) <= 6) {
-                            BUSINESS_WARNS.warn("The initial tap is now read from the network so the value in the crac will not be read");
+                            LOGGER.warn("The initial tap is now read from the network so the value in the crac will not be read");
                         }
                         break;
                     case JsonSerializationConstants.TAP_TO_ANGLE_CONVERSION_MAP:
@@ -101,7 +101,7 @@ public final class PstRangeActionArrayDeserializer {
                         readIntToDoubleMap(jsonParser);
                         if (JsonSerializationConstants.getPrimaryVersionNumber(version) <= 1 ||
                             JsonSerializationConstants.getPrimaryVersionNumber(version) == 2 && JsonSerializationConstants.getSubVersionNumber(version) <= 6) {
-                            BUSINESS_WARNS.warn("The tap to angle conversion map is now read from the network so the value in the crac will not be read");
+                            LOGGER.warn("The tap to angle conversion map is now read from the network so the value in the crac will not be read");
                         }
                         break;
                     case JsonSerializationConstants.RANGES:
@@ -161,7 +161,7 @@ public final class PstRangeActionArrayDeserializer {
             throw new OpenRaoException("OnState has been renamed to OnContingencyState since CRAC version 1.6");
         } else {
             jsonParser.nextToken();
-            OnStateArrayDeserializer.deserialize(jsonParser, pstRangeActionAdder);
+            OnStateArrayDeserializer.deserialize(jsonParser, pstRangeActionAdder, version);
         }
     }
 
@@ -170,7 +170,7 @@ public final class PstRangeActionArrayDeserializer {
             throw new OpenRaoException("FreeToUse has been renamed to OnInstant since CRAC version 1.6");
         } else {
             jsonParser.nextToken();
-            OnInstantArrayDeserializer.deserialize(jsonParser, pstRangeActionAdder);
+            OnInstantArrayDeserializer.deserialize(jsonParser, pstRangeActionAdder, version);
         }
     }
 

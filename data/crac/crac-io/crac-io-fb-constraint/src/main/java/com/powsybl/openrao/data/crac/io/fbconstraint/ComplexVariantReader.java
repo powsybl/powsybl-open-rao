@@ -4,6 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 package com.powsybl.openrao.data.crac.io.fbconstraint;
 
 import com.powsybl.openrao.data.crac.api.Crac;
@@ -20,10 +21,8 @@ import com.powsybl.openrao.data.crac.io.commons.ucte.UcteNetworkAnalyzer;
 
 import java.util.*;
 
-import static com.powsybl.openrao.data.crac.api.usagerule.UsageMethod.AVAILABLE;
-
 /**
- * @author Baptiste Seguinot{@literal <baptiste.seguinot at rte-france.com>}
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 class ComplexVariantReader {
 
@@ -57,24 +56,24 @@ class ComplexVariantReader {
     void addRemedialAction(Crac crac) {
         if (type.equals(ActionReader.Type.PST)) {
             PstRangeActionAdder pstRangeActionAdder = crac.newPstRangeAction()
-                    .withId(complexVariant.getId())
-                    .withName(complexVariant.getName())
-                    .withOperator(complexVariant.getTsoOrigin());
+                .withId(complexVariant.getId())
+                .withName(complexVariant.getName())
+                .withOperator(complexVariant.getTsoOrigin());
             actionReaders.get(0).addAction(pstRangeActionAdder);
             addUsageRules(pstRangeActionAdder, crac);
             pstRangeActionAdder.add();
             complexVariantCreationContext = PstComplexVariantCreationContext.imported(
-                    complexVariant.getId(),
-                    actionReaders.get(0).getNativeNetworkElementId(),
-                    getCreatedRaId(),
-                    actionReaders.get(0).isInverted(),
-                    actionReaders.get(0).getInversionMessage()
+                complexVariant.getId(),
+                actionReaders.get(0).getNativeNetworkElementId(),
+                getCreatedRaId(),
+                actionReaders.get(0).isInverted(),
+                actionReaders.get(0).getInversionMessage()
             );
         } else {
             NetworkActionAdder networkActionAdder = crac.newNetworkAction()
-                    .withId(complexVariant.getId())
-                    .withName(complexVariant.getName())
-                    .withOperator(complexVariant.getTsoOrigin());
+                .withId(complexVariant.getId())
+                .withName(complexVariant.getName())
+                .withOperator(complexVariant.getTsoOrigin());
             actionReaders.forEach(action -> action.addAction(networkActionAdder, complexVariant.getId()));
             addUsageRules(networkActionAdder, crac);
             networkActionAdder.add();
@@ -112,8 +111,8 @@ class ComplexVariantReader {
 
         // interpret actions
         actionReaders = complexVariant.getActionsSet().get(0).getAction().stream()
-                .map(actionType -> new ActionReader(actionType, ucteNetworkAnalyzer))
-                .toList();
+            .map(actionType -> new ActionReader(actionType, ucteNetworkAnalyzer))
+            .toList();
 
         Optional<ActionReader> invalidAction = actionReaders.stream().filter(actionReader -> !actionReader.isActionValid()).findAny();
 
@@ -171,18 +170,16 @@ class ComplexVariantReader {
 
         if (actionsSetType.isPreventive()) {
             remedialActionAdder.newOnInstantUsageRule()
-                    .withInstant(crac.getPreventiveInstant().getId())
-                    .withUsageMethod(AVAILABLE)
-                    .add();
+                .withInstant(crac.getPreventiveInstant().getId())
+                .add();
         }
 
         if (actionsSetType.isCurative() && !Objects.isNull(afterCoList)) {
             for (String co : afterCoList) {
                 remedialActionAdder.newOnContingencyStateUsageRule()
-                        .withContingency(co)
-                        .withInstant(crac.getInstant(InstantKind.CURATIVE).getId())
-                        .withUsageMethod(AVAILABLE)
-                        .add();
+                    .withContingency(co)
+                    .withInstant(crac.getInstant(InstantKind.CURATIVE).getId())
+                    .add();
             }
         }
     }

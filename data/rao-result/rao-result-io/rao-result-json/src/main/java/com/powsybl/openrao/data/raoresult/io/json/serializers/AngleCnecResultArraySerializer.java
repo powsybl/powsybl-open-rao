@@ -1,9 +1,10 @@
 /*
- *  Copyright (c) 2022, RTE (http://www.rte-france.com)
+ * Copyright (c) 2022, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
- *  License, v. 2.0. If a copy of the MPL was not distributed with this
- *  file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 package com.powsybl.openrao.data.raoresult.io.json.serializers;
 
 import com.powsybl.openrao.commons.OpenRaoException;
@@ -81,10 +82,6 @@ final class AngleCnecResultArraySerializer {
 
         double angle = safeGetAngle(raoResult, angleCnec, optInstant, unit);
         double margin = safeGetMargin(raoResult, angleCnec, optInstant, unit);
-
-        if (Double.isNaN(angle) && Double.isNaN(margin)) {
-            return;
-        }
 
         jsonGenerator.writeObjectFieldStart(RaoResultJsonConstants.serializeUnit(unit));
         if (!Double.isNaN(angle)) {

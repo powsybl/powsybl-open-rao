@@ -10,7 +10,7 @@ Feature: US 91.1: geographic filter
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic1/SL_ep1us2_selectionTopoRA_variant1.json"
     Given configuration file is "epic91/RaoParameters_case_91_1_1.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then its security status should be "SECURED"
     Then the worst margin is 56.0 A
     Then the margin on cnec "BBE2AA1  FFR3AA1  1 - preventive" after PRA should be 56.0 A
@@ -28,7 +28,7 @@ Feature: US 91.1: geographic filter
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic1/SL_ep1us2_selectionTopoRA_variant1.json"
     Given configuration file is "epic91/RaoParameters_case_91_1_12.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then its security status should be "SECURED"
     Then the worst margin is 56.0 A
     Then the margin on cnec "BBE2AA1  FFR3AA1  1 - preventive" after PRA should be 56.0 A
@@ -40,7 +40,7 @@ Feature: US 91.1: geographic filter
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic1/SL_ep1us2_selectionTopoRA_variant1.json"
     Given configuration file is "epic91/RaoParameters_case_91_1_3.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then its security status should be "SECURED"
     Then the worst margin is 83.0 A
     Then the margin on cnec "FFR2AA1  DDE3AA1  1 - preventive" after PRA should be 83.0 A
@@ -52,7 +52,7 @@ Feature: US 91.1: geographic filter
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic1/SL_ep1us2_selectionTopoRA_variant1.json"
     Given configuration file is "epic91/RaoParameters_case_91_1_3.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then its security status should be "SECURED"
     Then the worst margin is 83.0 A
     Then the margin on cnec "FFR2AA1  DDE3AA1  1 - preventive" after PRA should be 83.0 A
@@ -64,7 +64,7 @@ Feature: US 91.1: geographic filter
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic91/sl_ep91us1case5.json"
     Given configuration file is "epic91/RaoParameters_case_91_1_1.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then the worst margin is -12.0 A
     And the margin on cnec "DDE1AA1  DDE3AA1  1 - preventive" after PRA should be -12.0 A
     And 0 remedial actions are used in preventive
@@ -74,7 +74,7 @@ Feature: US 91.1: geographic filter
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic91/sl_ep91us1case5.json"
     Given configuration file is "epic91/RaoParameters_case_91_1_6.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then the worst margin is 11.0 A
     And the margin on cnec "DDE1AA1  DDE3AA1  1 - preventive" after PRA should be 11.0 A
     And 1 remedial actions are used in preventive
@@ -85,7 +85,7 @@ Feature: US 91.1: geographic filter
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic91/sl_ep91us1case5.json"
     Given configuration file is "epic91/RaoParameters_case_91_1_7.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then the worst margin is 71.0 A
     And the margin on cnec "DDE1AA1  DDE3AA1  1 - preventive" after PRA should be 71.0 A
     And 1 remedial actions are used in preventive

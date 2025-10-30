@@ -12,6 +12,7 @@ import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
+import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
@@ -21,11 +22,11 @@ import com.powsybl.openrao.data.crac.api.usagerule.OnConstraint;
 import com.powsybl.openrao.data.crac.api.usagerule.OnContingencyState;
 import com.powsybl.openrao.data.crac.api.usagerule.OnFlowConstraintInCountry;
 import com.powsybl.openrao.data.crac.api.usagerule.OnInstant;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
 import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceProgramBuilder;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.PstModel;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
@@ -51,6 +52,7 @@ public final class RaoUtil {
 
     public static void initData(RaoInput raoInput, RaoParameters raoParameters) {
         checkParameters(raoParameters, raoInput);
+        checkCnecsThresholdsUnit(raoParameters, raoInput);
         initNetwork(raoInput.getNetwork(), raoInput.getNetworkVariantId());
     }
 
@@ -59,20 +61,18 @@ public final class RaoUtil {
     }
 
     public static void checkParameters(RaoParameters raoParameters, RaoInput raoInput) {
-        if (raoParameters.getObjectiveFunctionParameters().getUnit().equals(Unit.AMPERE)
-            && getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters().isDc()) {
-            throw new OpenRaoException(format("Objective function unit %s cannot be calculated with a DC default sensitivity engine", raoParameters.getObjectiveFunctionParameters().getUnit().toString()));
-        }
+        checkObjectiveFunctionParameters(raoParameters, raoInput);
+        checkLoopFlowParameters(raoParameters, raoInput);
 
-        if (raoParameters.getObjectiveFunctionParameters().getType().relativePositiveMargins()) {
-            if (raoInput.getGlskProvider() == null) {
-                throw new OpenRaoException(format("Objective function %s requires glsks", raoParameters.getObjectiveFunctionParameters().getType()));
-            }
-            if (raoParameters.getRelativeMarginsParameters().map(relativeMarginsParameters -> relativeMarginsParameters.getPtdfBoundaries().isEmpty()).orElse(true)) {
-                throw new OpenRaoException(format("Objective function %s requires a config with a non empty boundary set", raoParameters.getObjectiveFunctionParameters().getType()));
-            }
+        if (!PstModel.APPROXIMATED_INTEGERS.equals(getPstModel(raoParameters))
+            && raoInput.getCrac().getRaUsageLimitsPerInstant().values().stream().anyMatch(raUsageLimits -> !raUsageLimits.getMaxElementaryActionsPerTso().isEmpty())) {
+            String msg = "The PSTs must be approximated as integers to use the limitations of elementary actions as a constraint in the RAO.";
+            OpenRaoLoggerProvider.BUSINESS_LOGS.error(msg);
+            throw new OpenRaoException(msg);
         }
+    }
 
+    private static void checkLoopFlowParameters(RaoParameters raoParameters, RaoInput raoInput) {
         if ((raoParameters.getLoopFlowParameters().isPresent()
             || raoParameters.getObjectiveFunctionParameters().getType().relativePositiveMargins())
             && (Objects.isNull(raoInput.getReferenceProgram()))) {
@@ -87,12 +87,39 @@ public final class RaoUtil {
             OpenRaoLoggerProvider.BUSINESS_LOGS.error(msg);
             throw new OpenRaoException(msg);
         }
+    }
 
-        if (!PstModel.APPROXIMATED_INTEGERS.equals(getPstModel(raoParameters))
-            && raoInput.getCrac().getRaUsageLimitsPerInstant().values().stream().anyMatch(raUsageLimits -> !raUsageLimits.getMaxElementaryActionsPerTso().isEmpty())) {
-            String msg = "The PSTs must be approximated as integers to use the limitations of elementary actions as a constraint in the RAO.";
-            OpenRaoLoggerProvider.BUSINESS_LOGS.error(msg);
-            throw new OpenRaoException(msg);
+    private static void checkObjectiveFunctionParameters(RaoParameters raoParameters, RaoInput raoInput) {
+        if (raoParameters.getObjectiveFunctionParameters().getUnit().equals(Unit.AMPERE)
+            && getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters().isDc()) {
+            throw new OpenRaoException(format("Objective function unit %s cannot be calculated with a DC default sensitivity engine", raoParameters.getObjectiveFunctionParameters().getUnit().toString()));
+        }
+
+        if (raoParameters.getObjectiveFunctionParameters().getType().relativePositiveMargins()) {
+            if (raoInput.getGlskProvider() == null) {
+                throw new OpenRaoException(format("Objective function %s requires glsks", raoParameters.getObjectiveFunctionParameters().getType()));
+            }
+            if (raoParameters.getRelativeMarginsParameters().map(relativeMarginsParameters -> relativeMarginsParameters.getPtdfBoundaries().isEmpty()).orElse(true)) {
+                throw new OpenRaoException(format("Objective function %s requires a config with a non empty boundary set", raoParameters.getObjectiveFunctionParameters().getType()));
+            }
+        }
+
+        if (raoParameters.getObjectiveFunctionParameters().getType().costOptimization() &&
+            (!raoParameters.hasExtension(OpenRaoSearchTreeParameters.class) ||
+                raoParameters.hasExtension(OpenRaoSearchTreeParameters.class) && raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getMinMarginsParameters().isEmpty())) {
+            throw new OpenRaoException(format("Objective function type %s requires a config with costly min margin parameters", raoParameters.getObjectiveFunctionParameters().getType()));
+        }
+    }
+
+    public static void checkCnecsThresholdsUnit(RaoParameters raoParameters, RaoInput raoInput) {
+        Crac crac = raoInput.getCrac();
+        if (!getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters().isDc()) {
+            crac.getFlowCnecs().forEach(flowCnec -> {
+                if (flowCnec.getThresholds().stream().anyMatch(branchThreshold -> branchThreshold.getUnit().equals(Unit.MEGAWATT))) {
+                    String msg = format("A threshold for the flowCnec %s is defined in MW but the loadflow computation is in AC. It will be imprecisely converted by the RAO which could create uncoherent results due to side effects", flowCnec.getId());
+                    OpenRaoLoggerProvider.BUSINESS_WARNS.warn(msg);
+                }
+            });
         }
     }
 
@@ -121,60 +148,32 @@ public final class RaoUtil {
 
     /**
      * Evaluates if a remedial action is available.
-     * 1) The remedial action has no usage rule:
-     * It will not be available.
-     * 2) It gathers all the remedial action usageMethods and filters out the OnFlowConstraint(InCountry) with no negative margins on their associated cnecs.
-     * 3) It computes the "strongest" usage method.
-     * The remedial action is available if and only if the usage method is "AVAILABLE".
+     * 1) The remedial action has no usage rule: it will not be available.
+     * 2) It gathers all the remedial action usage rules and filters out the OnFlowConstraint(InCountry) with no negative margins on their associated cnecs.
+     * If there are remaining usage rules, the remedial action is available.
      */
-    public static boolean isRemedialActionAvailable(RemedialAction<?> remedialAction, State state, FlowResult flowResult, Set<FlowCnec> flowCnecs, Network network, RaoParameters raoParameters) {
-        UsageMethod finalUsageMethod = getFinalUsageMethod(remedialAction, state, flowResult, flowCnecs, network, raoParameters);
-        return finalUsageMethod != null && finalUsageMethod.equals(UsageMethod.AVAILABLE);
+    public static boolean canRemedialActionBeUsed(RemedialAction<?> remedialAction, State state, FlowResult flowResult, Set<FlowCnec> flowCnecs, Network network, RaoParameters raoParameters) {
+        return remedialAction.getUsageRules().stream().anyMatch(ur -> isUsageRuleActivated(ur, remedialAction, state, flowResult, flowCnecs, network, raoParameters.getObjectiveFunctionParameters().getUnit()));
     }
 
-    /**
-     * Evaluates if a remedial action is forced.
-     * 1) The remedial action has no usage rule:
-     * It will not be forced.
-     * 2) It gathers all the remedial action usageMethods and filters out the OnFlowConstraint(InCountry) with no negative margins on their associated cnecs.
-     * 3) It computes the "strongest" usage method.
-     * For automatonState, the remedial action is forced if and only if the usage method is "FORCED".
-     * For non-automaton states, a forced remedial action is not supported and the remedial action is ignored.
-     */
-    public static boolean isRemedialActionForced(RemedialAction<?> remedialAction, State state, FlowResult flowResult, Set<FlowCnec> flowCnecs, Network network, RaoParameters raoParameters) {
-        UsageMethod finalUsageMethod = getFinalUsageMethod(remedialAction, state, flowResult, flowCnecs, network, raoParameters);
-        if (finalUsageMethod == null) {
+    private static boolean isUsageRuleActivated(UsageRule usageRule, RemedialAction<?> remedialAction, State state, FlowResult flowResult, Set<FlowCnec> flowCnecs, Network network, Unit unit) {
+        if (usageRule instanceof OnInstant onInstant) {
+            return onInstant.getInstant().equals(state.getInstant());
+        } else if (usageRule instanceof OnContingencyState onContingencyState) {
+            return onContingencyState.getState().equals(state);
+        } else if (usageRule instanceof OnFlowConstraintInCountry onFlowConstraintInCountry) {
+            if (onFlowConstraintInCountry.getContingency().isPresent() && !onFlowConstraintInCountry.getContingency().equals(state.getContingency())) {
+                return false;
+            }
+            return isAnyMarginNegative(flowResult, remedialAction.getFlowCnecsConstrainingForOneUsageRule(onFlowConstraintInCountry, flowCnecs, network), unit) && onFlowConstraintInCountry.getInstant().equals(state.getInstant());
+        } else if (usageRule instanceof OnConstraint<?> onConstraint && onConstraint.getCnec() instanceof FlowCnec flowCnec) {
+            if (!onConstraint.getInstant().isPreventive() && !flowCnec.getState().getContingency().equals(state.getContingency())) {
+                return false;
+            }
+            return isAnyMarginNegative(flowResult, remedialAction.getFlowCnecsConstrainingForOneUsageRule(onConstraint, flowCnecs, network), unit) && onConstraint.getInstant().equals(state.getInstant());
+        } else {
             return false;
         }
-        if (!state.getInstant().isAuto() && finalUsageMethod.equals(UsageMethod.FORCED)) {
-            OpenRaoLoggerProvider.BUSINESS_WARNS.warn(format("The 'forced' usage method is for automatons only. Therefore, %s will be ignored for this state: %s", remedialAction.getName(), state.getId()));
-            return false;
-        }
-        return finalUsageMethod.equals(UsageMethod.FORCED);
-    }
-
-    private static UsageMethod getFinalUsageMethod(RemedialAction<?> remedialAction, State state, FlowResult flowResult, Set<FlowCnec> flowCnecs, Network network, RaoParameters raoParameters) {
-        Set<UsageRule> usageRules = remedialAction.getUsageRules();
-        if (usageRules.isEmpty()) {
-            OpenRaoLoggerProvider.BUSINESS_WARNS.warn(format("The remedial action %s has no usage rule and therefore will not be available.", remedialAction.getName()));
-            return null;
-        }
-
-        Set<UsageMethod> usageMethods = getAllUsageMethods(usageRules, remedialAction, state, flowResult, flowCnecs, network, raoParameters);
-        return UsageMethod.getStrongestUsageMethod(usageMethods);
-    }
-
-    /**
-     * Returns a set of usageMethods corresponding to a remedialAction.
-     * It filters out every OnFlowConstraint(InCountry) that is not applicable due to positive margins.
-     */
-    private static Set<UsageMethod> getAllUsageMethods(Set<UsageRule> usageRules, RemedialAction<?> remedialAction, State state, FlowResult flowResult, Set<FlowCnec> flowCnecs, Network network, RaoParameters raoParameters) {
-        return usageRules.stream()
-            .filter(ur -> ur instanceof OnContingencyState || ur instanceof OnInstant
-                || (ur instanceof OnFlowConstraintInCountry || ur instanceof OnConstraint<?> onConstraint && onConstraint.getCnec() instanceof FlowCnec)
-                && isAnyMarginNegative(flowResult, remedialAction.getFlowCnecsConstrainingForOneUsageRule(ur, flowCnecs, network), raoParameters.getObjectiveFunctionParameters().getUnit()))
-            .map(ur -> ur.getUsageMethod(state))
-            .collect(Collectors.toSet());
     }
 
     /**
@@ -226,5 +225,4 @@ public final class RaoUtil {
             .map(FlowCnec::getId)
             .collect(Collectors.toSet());
     }
-
 }

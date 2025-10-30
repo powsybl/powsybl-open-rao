@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, RTE (http://www.rte-france.com)
+ * Copyright (c) 2021, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -28,8 +28,8 @@ import java.util.stream.Collectors;
 public class FlowCnecAdderImpl extends AbstractCnecAdderImpl<FlowCnecAdder> implements FlowCnecAdder {
 
     private final Set<BranchThresholdImpl> thresholds = new HashSet<>();
-    private Double iMaxLeft = Double.NaN;
-    private Double iMaxRight = Double.NaN;
+    private Double iMaxLeft = null;
+    private Double iMaxRight = null;
     private Double nominalVLeft = Double.NaN;
     private Double nominalVRight = Double.NaN;
 

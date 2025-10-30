@@ -4,6 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 package com.powsybl.openrao.raoapi;
 
 import com.powsybl.openrao.commons.OpenRaoException;
@@ -16,7 +17,14 @@ public final class RaoParametersCommons {
     private RaoParametersCommons() {
     }
 
-    public static final String RAO_PARAMETERS_VERSION = "3.1";
+    /*
+        CHANGELOG RAO Parameters v3
+        ---------------------------
+        3.1: remove max-auto-search-tree-depth
+        3.2: remove re-optimize-curative-range-actions
+    */
+
+    public static final String RAO_PARAMETERS_VERSION = "3.2";
 
     // header
     public static final String VERSION = "version";
@@ -73,7 +81,6 @@ public final class RaoParametersCommons {
     public static final String SECOND_PREVENTIVE_RAO = "second-preventive-rao";
     public static final String SECOND_PREVENTIVE_RAO_SECTION = "search-tree-second-preventive-rao";
     public static final String EXECUTION_CONDITION = "execution-condition";
-    public static final String RE_OPTIMIZE_CURATIVE_RANGE_ACTIONS = "re-optimize-curative-range-actions";
     public static final String HINT_FROM_FIRST_PREVENTIVE_RAO = "hint-from-first-preventive-rao";
 
     // Not optimized cnecs parameters
@@ -116,6 +123,12 @@ public final class RaoParametersCommons {
     public static final String PTDF_BOUNDARIES = "ptdf-boundaries";
     public static final String PTDF_SUM_LOWER_BOUND = "ptdf-sum-lower-bound";
     public static final String SEARCH_TREE_PARAMETERS = "open-rao-search-tree-parameters";
+
+    // -- Fast Rao Parameters
+    public static final String FAST_RAO_PARAMETERS = "fast-rao-parameters";
+    public static final String NUMBER_OF_CNECS_TO_ADD = "number-of-cnecs-to-add";
+    public static final String ADD_UNSECURE_CNECS = "add-unsecure-cnecs";
+    public static final String MARGIN_LIMIT = "margin-limit";
 
     public static PtdfApproximation stringToPtdfApproximation(String string) {
         try {
