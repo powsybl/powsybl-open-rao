@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.openrao.data.intertemporalconstraints.GeneratorConstraints;
 
 import java.io.IOException;
+import java.util.Optional;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -27,33 +28,52 @@ public class GeneratorConstraintsSerializer extends StdSerializer<GeneratorConst
     public void serialize(GeneratorConstraints generatorConstraints, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
         jsonGenerator.writeStringField(JsonIntertemporalConstraints.GENERATOR_ID, generatorConstraints.getGeneratorId());
-        if (generatorConstraints.getPMin().isPresent()) {
-            jsonGenerator.writeNumberField(JsonIntertemporalConstraints.P_MIN, generatorConstraints.getPMin().get());
+
+        Optional<Double> pMin = generatorConstraints.getPMin();
+        if (pMin.isPresent()) {
+            jsonGenerator.writeNumberField(JsonIntertemporalConstraints.P_MIN, pMin.get());
         }
-        if (generatorConstraints.getPMax().isPresent()) {
-            jsonGenerator.writeNumberField(JsonIntertemporalConstraints.P_MAX, generatorConstraints.getPMax().get());
+
+        Optional<Double> pMax = generatorConstraints.getPMax();
+        if (pMax.isPresent()) {
+            jsonGenerator.writeNumberField(JsonIntertemporalConstraints.P_MAX, pMax.get());
         }
-        if (generatorConstraints.getLeadTime().isPresent()) {
-            jsonGenerator.writeNumberField(JsonIntertemporalConstraints.LEAD_TIME, generatorConstraints.getLeadTime().get());
+
+        Optional<Double> leadTime = generatorConstraints.getLeadTime();
+        if (leadTime.isPresent()) {
+            jsonGenerator.writeNumberField(JsonIntertemporalConstraints.LEAD_TIME, leadTime.get());
         }
-        if (generatorConstraints.getLagTime().isPresent()) {
-            jsonGenerator.writeNumberField(JsonIntertemporalConstraints.LAG_TIME, generatorConstraints.getLagTime().get());
+
+        Optional<Double> lagTime = generatorConstraints.getLagTime();
+        if (lagTime.isPresent()) {
+            jsonGenerator.writeNumberField(JsonIntertemporalConstraints.LAG_TIME, lagTime.get());
         }
-        if (generatorConstraints.getUpwardPowerGradient().isPresent()) {
-            jsonGenerator.writeNumberField(JsonIntertemporalConstraints.UPWARD_POWER_GRADIENT, generatorConstraints.getUpwardPowerGradient().get());
+
+        Optional<Double> upwardPowerGradient = generatorConstraints.getUpwardPowerGradient();
+        if (upwardPowerGradient.isPresent()) {
+            jsonGenerator.writeNumberField(JsonIntertemporalConstraints.UPWARD_POWER_GRADIENT, upwardPowerGradient.get());
         }
-        if (generatorConstraints.getDownwardPowerGradient().isPresent()) {
-            jsonGenerator.writeNumberField(JsonIntertemporalConstraints.DOWNWARD_POWER_GRADIENT, generatorConstraints.getDownwardPowerGradient().get());
+
+        Optional<Double> downwardPowerGradient = generatorConstraints.getDownwardPowerGradient();
+        if (downwardPowerGradient.isPresent()) {
+            jsonGenerator.writeNumberField(JsonIntertemporalConstraints.DOWNWARD_POWER_GRADIENT, downwardPowerGradient.get());
         }
-        if (generatorConstraints.getMinUpTime().isPresent()) {
-            jsonGenerator.writeNumberField(JsonIntertemporalConstraints.MIN_UP_TIME, generatorConstraints.getMinUpTime().get());
+
+        Optional<Double> minUpTime = generatorConstraints.getMinUpTime();
+        if (minUpTime.isPresent()) {
+            jsonGenerator.writeNumberField(JsonIntertemporalConstraints.MIN_UP_TIME, minUpTime.get());
         }
-        if (generatorConstraints.getMaxUpTime().isPresent()) {
-            jsonGenerator.writeNumberField(JsonIntertemporalConstraints.MAX_UP_TIME, generatorConstraints.getMaxUpTime().get());
+
+        Optional<Double> maxUpTime = generatorConstraints.getMaxUpTime();
+        if (maxUpTime.isPresent()) {
+            jsonGenerator.writeNumberField(JsonIntertemporalConstraints.MAX_UP_TIME, maxUpTime.get());
         }
-        if (generatorConstraints.getMinOffTime().isPresent()) {
-            jsonGenerator.writeNumberField(JsonIntertemporalConstraints.MIN_OFF_TIME, generatorConstraints.getMinOffTime().get());
+
+        Optional<Double> minOffTime = generatorConstraints.getMinOffTime();
+        if (minOffTime.isPresent()) {
+            jsonGenerator.writeNumberField(JsonIntertemporalConstraints.MIN_OFF_TIME, minOffTime.get());
         }
+
         jsonGenerator.writeEndObject();
     }
 }
