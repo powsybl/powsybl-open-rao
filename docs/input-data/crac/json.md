@@ -825,6 +825,7 @@ One network action is a combination of one or multiple "elementary actions", amo
 - Dangling line action: setting the active power of a [dangling line](inv:powsyblcore:*:*#dangling-line)) in the network to a specific value.
 - Shunt compensator position action: setting the number of sections of a shunt compensator to a specific value.
 - Switch pairs: opening a switch in the network and closing another (actually used to model [CSE bus-bar change remedial actions](cse.md#bus-bar-change)).
+- AC emulation deactivation action: deactivate ac emulation mode of an hvdc line (is automatically created if an hvdc range action using a hvdc line in ac emulation is imported)
 
 ::::{tabs}
 :::{group-tab} JAVA creation API
@@ -925,6 +926,16 @@ crac.newNetworkAction()
 		.add()
     .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT).add()
     .add();
+
+// Ac emulation deactivation action
+crac.newNetworkAction()
+  .withId("ac-emulation-deactivation-id")
+  .withOperator("operator")
+  .newAcEmulationDeactivationAction()
+    .withNetworkElement("hvdcLineElementId")
+    .add()
+  .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT).add()
+  .add();
 ~~~
 :::
 :::{group-tab} JSON file
@@ -1025,7 +1036,9 @@ crac.newNetworkAction()
       "open" : "switch-to-open-id",
       "close" : "switch-to-close-id"
     } ]
-  } ]
+  }
+  // ac emulation deactivation action can't be created from crac
+]
 ~~~
 :::
 :::{group-tab} Object fields
@@ -1061,6 +1074,8 @@ crac.newNetworkAction()
 🔵 **switch pairs**: list of 0 to N SwitchPair  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **switch to open (network element)**: id is mandatory, name is optional  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **switch to close (network element)**: id is mandatory, name is optional, must be different from switch to open  
+🔵 **ac emulation deactivation actions**: list of 0 to N AcEmulationDeactivationAction
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **network element**: id is mandatory, name is optional  
 <br>
 *NB*: A Network Action must contain at least on elementary action.
 :::
@@ -1317,67 +1332,6 @@ This means the set-point of "network-element-1" (key = 1) can be changed between
 ⚪ **onConstraint usage rules**: list of 0 to N OnConstraint usage rules (see paragraph on usage rules)  
 :::
 ::::
-
-#### Creating redispatching actions 
-
-The definition of redispatching actions in the CRAC must follow certain guidelines:
-
-- Make sure that the active load and the generator active power are defined correctly in the network.
-  When using a UCTE network, for a given node in the network, two network elements are automatically created: a generator with ID `nodeCode + " _generator"` and a load with ID `nodeCode + " _load"`.
-  For example, if you use the network element "FFR2AA1 _generator" make sure that the power associated with the node FFR2AA1 is defined in the 8th column in the ucte file (in the 6th column for loads). See the example below and [UCTE format definition](../../_static/pdf/UCTE-format.pdf).
-
-- Two different redispatching actions cannot be defined on the same network element.
-  For example, if redispatchingAction1 uses "FFR2AA1 _generator", redispatchingAction2 can't use "FFR2AA1 _generator".
-> A warning will be thrown but not an error, so be careful!
-
-
-- When an injection range action has several generators/loads, each generator/load's value defined in the initial network divided by its key
-  must be equal because an injection range action has a unique setpoint.
-
-You can find below a complete illustration:
-
-UCTE Network
-```
-##ZFR
-FFR1AA1  FR1          0 2 400.00 0.00000 0.00000 -1000.0 0.00000 9000.00 -9000.0 9000.00 -9000.0
-FFR2AA1  FR2          0 2 400.00 0.00000 0.00000 700.000 0.00000 9000.00 -9000.0 9000.00 -9000.0
-```
-
-CRAC Json
-
-```json
-"injectionRangeActions": [
-    {
-      "id": "redispatchingActionFR1FR2",
-      "name": "redispatchingActionFR1FR2",
-      "operator": "FR",
-      "activationCost": 10.0,
-      "variationCosts": {
-        "up": 50.0,
-        "down": 50.0
-      },
-      "onInstantUsageRules": [
-        {
-          "instant": "preventive",
-          "usageMethod": "available"
-        }
-      ],
-      "networkElementIdsAndKeys": {
-        "FFR1AA1 _generator": 1.0,
-        "FFR2AA1 _generator": -0.7
-      },
-      "ranges": [
-        {
-          "min": -1000.0,
-          "max": 1000.0
-        }
-      ]
-    }
-]
-```
-In this case the initial active power of `FFR1AA1 _generator` is 1000 MW and  `FFR2AA1 _generator` -700 MW so
-the initial setpoint of `redispatchingActionFR1FR2` is equal to $\frac{1000}{1}=\frac{-700}{-0.7}=1000$.
-
 
 
 ### Counter-Trade Range Action
