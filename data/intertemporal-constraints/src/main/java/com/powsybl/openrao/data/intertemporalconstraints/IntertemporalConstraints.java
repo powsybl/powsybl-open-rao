@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.intertemporalconstraints;
 
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -15,8 +16,12 @@ import java.util.Set;
 public class IntertemporalConstraints {
     private final Set<GeneratorConstraints> generatorConstraints;
 
-    public IntertemporalConstraints(Set<GeneratorConstraints> generatorConstraints) {
-        this.generatorConstraints = generatorConstraints;
+    public IntertemporalConstraints() {
+        this.generatorConstraints = new HashSet<>();
+    }
+
+    public void addGeneratorConstraints(GeneratorConstraints generatorConstraints) {
+        this.generatorConstraints.add(generatorConstraints);
     }
 
     public Set<GeneratorConstraints> getGeneratorConstraints() {

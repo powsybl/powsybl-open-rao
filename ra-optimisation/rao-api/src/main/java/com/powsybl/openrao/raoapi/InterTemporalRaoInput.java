@@ -9,7 +9,7 @@ package com.powsybl.openrao.raoapi;
 
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.TemporalData;
-import com.powsybl.openrao.data.intertemporalconstraints.GeneratorConstraints;
+import com.powsybl.openrao.data.intertemporalconstraints.IntertemporalConstraints;
 
 import java.time.OffsetDateTime;
 import java.util.HashSet;
@@ -23,17 +23,17 @@ import java.util.stream.Collectors;
 public class InterTemporalRaoInput {
     private final TemporalData<RaoInput> raoInputs;
     private final Set<OffsetDateTime> timestampsToRun;
-    private final Set<GeneratorConstraints> generatorConstraints;
+    private final IntertemporalConstraints intertemporalConstraints;
 
-    public InterTemporalRaoInput(TemporalData<RaoInput> raoInputs, Set<OffsetDateTime> timestampsToRun, Set<GeneratorConstraints> powerGradients) {
+    public InterTemporalRaoInput(TemporalData<RaoInput> raoInputs, Set<OffsetDateTime> timestampsToRun, IntertemporalConstraints intertemporalConstraints) {
         this.raoInputs = raoInputs;
         this.timestampsToRun = timestampsToRun;
-        this.generatorConstraints = powerGradients;
+        this.intertemporalConstraints = intertemporalConstraints;
         checkTimestampsToRun();
     }
 
-    public InterTemporalRaoInput(TemporalData<RaoInput> raoInputs, Set<GeneratorConstraints> generatorConstraints) {
-        this(raoInputs, new HashSet<>(raoInputs.getTimestamps()), generatorConstraints);
+    public InterTemporalRaoInput(TemporalData<RaoInput> raoInputs, IntertemporalConstraints intertemporalConstraints) {
+        this(raoInputs, new HashSet<>(raoInputs.getTimestamps()), intertemporalConstraints);
     }
 
     public TemporalData<RaoInput> getRaoInputs() {
@@ -44,8 +44,8 @@ public class InterTemporalRaoInput {
         return timestampsToRun;
     }
 
-    public Set<GeneratorConstraints> getGeneratorConstraints() {
-        return generatorConstraints;
+    public IntertemporalConstraints getIntertemporalConstraints() {
+        return intertemporalConstraints;
     }
 
     private void checkTimestampsToRun() {

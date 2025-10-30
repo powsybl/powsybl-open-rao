@@ -16,9 +16,7 @@ import com.powsybl.openrao.data.intertemporalconstraints.GeneratorConstraints;
 import com.powsybl.openrao.data.intertemporalconstraints.IntertemporalConstraints;
 
 import java.io.IOException;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -31,18 +29,18 @@ public class IntertemporalConstraintsDeserializer extends StdDeserializer<Intert
 
     @Override
     public IntertemporalConstraints deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
-        Set<GeneratorConstraints> generatorConstraints = new HashSet<>();
+        IntertemporalConstraints intertemporalConstraints = new IntertemporalConstraints();
         while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
             switch (jsonParser.currentName()) {
                 case JsonIntertemporalConstraints.TYPE, JsonIntertemporalConstraints.VERSION -> jsonParser.nextToken();
                 case JsonIntertemporalConstraints.GENERATOR_CONSTRAINTS -> {
                     jsonParser.nextToken();
-                    generatorConstraints.addAll(List.of(jsonParser.readValueAs(GeneratorConstraints[].class)));
+                    List.of(jsonParser.readValueAs(GeneratorConstraints[].class)).forEach(intertemporalConstraints::addGeneratorConstraints);
                 }
                 default ->
                     throw new OpenRaoException("Unexpected field '%s' in JSON intertemporal constraints.".formatted(jsonParser.currentName()));
             }
         }
-        return new IntertemporalConstraints(generatorConstraints);
+        return intertemporalConstraints;
     }
 }

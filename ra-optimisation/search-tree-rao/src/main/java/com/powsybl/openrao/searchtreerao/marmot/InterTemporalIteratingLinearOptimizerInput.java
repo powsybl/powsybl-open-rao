@@ -8,15 +8,13 @@
 package com.powsybl.openrao.searchtreerao.marmot;
 
 import com.powsybl.openrao.commons.TemporalData;
-import com.powsybl.openrao.data.intertemporalconstraints.GeneratorConstraints;
+import com.powsybl.openrao.data.intertemporalconstraints.IntertemporalConstraints;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.inputs.IteratingLinearOptimizerInput;
-
-import java.util.Set;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
-public record InterTemporalIteratingLinearOptimizerInput(TemporalData<IteratingLinearOptimizerInput> iteratingLinearOptimizerInputs, ObjectiveFunction objectiveFunction, Set<GeneratorConstraints> generatorConstraints) {
+public record InterTemporalIteratingLinearOptimizerInput(TemporalData<IteratingLinearOptimizerInput> iteratingLinearOptimizerInputs, ObjectiveFunction objectiveFunction, IntertemporalConstraints intertemporalConstraints) {
 }

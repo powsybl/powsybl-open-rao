@@ -21,7 +21,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -30,9 +29,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public class JsonIntertemporalConstraintsTest {
+class JsonIntertemporalConstraintsTest {
     @Test
     void testSerialization() throws IOException {
+        IntertemporalConstraints intertemporalConstraints = new IntertemporalConstraints();
+
         GeneratorConstraints generatorConstraints1 = GeneratorConstraints.create()
             .withGeneratorId("generator-1")
             .withPMin(0.0)
@@ -56,7 +57,10 @@ public class JsonIntertemporalConstraintsTest {
             .withLagTime(4.0)
             .withDownwardPowerGradient(-1000.0)
             .build();
-        IntertemporalConstraints intertemporalConstraints = new IntertemporalConstraints(Set.of(generatorConstraints1, generatorConstraints2, generatorConstraints3));
+
+        intertemporalConstraints.addGeneratorConstraints(generatorConstraints1);
+        intertemporalConstraints.addGeneratorConstraints(generatorConstraints2);
+        intertemporalConstraints.addGeneratorConstraints(generatorConstraints3);
 
         ByteArrayOutputStream expectedOutputStream = new ByteArrayOutputStream();
         Objects.requireNonNull(getClass().getResourceAsStream("/intertemporal-constraints.json")).transferTo(expectedOutputStream);
@@ -69,7 +73,7 @@ public class JsonIntertemporalConstraintsTest {
 
     @Test
     void testSerializationEmptyConstraints() throws IOException {
-        IntertemporalConstraints intertemporalConstraints = new IntertemporalConstraints(Set.of());
+        IntertemporalConstraints intertemporalConstraints = new IntertemporalConstraints();
 
         ByteArrayOutputStream expectedOutputStream = new ByteArrayOutputStream();
         Objects.requireNonNull(getClass().getResourceAsStream("/empty-intertemporal-constraints.json")).transferTo(expectedOutputStream);

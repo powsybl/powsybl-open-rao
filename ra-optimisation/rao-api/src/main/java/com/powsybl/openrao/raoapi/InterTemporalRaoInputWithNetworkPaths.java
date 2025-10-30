@@ -9,7 +9,7 @@ package com.powsybl.openrao.raoapi;
 
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.TemporalData;
-import com.powsybl.openrao.data.intertemporalconstraints.GeneratorConstraints;
+import com.powsybl.openrao.data.intertemporalconstraints.IntertemporalConstraints;
 
 import java.time.OffsetDateTime;
 import java.util.HashSet;
@@ -24,17 +24,17 @@ import java.util.stream.Collectors;
 public class InterTemporalRaoInputWithNetworkPaths {
     private final TemporalData<RaoInputWithNetworkPaths> raoInputs;
     private final Set<OffsetDateTime> timestampsToRun;
-    private final Set<GeneratorConstraints> generatorConstraints;
+    private final IntertemporalConstraints intertemporalConstraints;
 
-    public InterTemporalRaoInputWithNetworkPaths(TemporalData<RaoInputWithNetworkPaths> raoInputs, Set<OffsetDateTime> timestampsToRun, Set<GeneratorConstraints> generatorConstraints) {
+    public InterTemporalRaoInputWithNetworkPaths(TemporalData<RaoInputWithNetworkPaths> raoInputs, Set<OffsetDateTime> timestampsToRun, IntertemporalConstraints intertemporalConstraints) {
         this.raoInputs = raoInputs;
         this.timestampsToRun = new TreeSet<>(timestampsToRun);
-        this.generatorConstraints = generatorConstraints;
+        this.intertemporalConstraints = intertemporalConstraints;
         checkTimestampsToRun();
     }
 
-    public InterTemporalRaoInputWithNetworkPaths(TemporalData<RaoInputWithNetworkPaths> raoInputs, Set<GeneratorConstraints> generatorConstraints) {
-        this(raoInputs, new HashSet<>(raoInputs.getTimestamps()), generatorConstraints);
+    public InterTemporalRaoInputWithNetworkPaths(TemporalData<RaoInputWithNetworkPaths> raoInputs, IntertemporalConstraints intertemporalConstraints) {
+        this(raoInputs, new HashSet<>(raoInputs.getTimestamps()), intertemporalConstraints);
     }
 
     public TemporalData<RaoInputWithNetworkPaths> getRaoInputs() {
@@ -45,8 +45,8 @@ public class InterTemporalRaoInputWithNetworkPaths {
         return timestampsToRun;
     }
 
-    public Set<GeneratorConstraints> getGeneratorConstraints() {
-        return generatorConstraints;
+    public IntertemporalConstraints getIntertemporalConstraints() {
+        return intertemporalConstraints;
     }
 
     private void checkTimestampsToRun() {

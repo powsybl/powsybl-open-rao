@@ -176,7 +176,7 @@ public final class IcsImporter {
                 )).withDownwardPowerGradient(-shiftKey * parseDoubleWithPossibleCommas(
                     staticRecord.get("Maximum negative power gradient [MW/h]").isEmpty() ? MAX_GRADIENT : staticRecord.get("Maximum negative power gradient [MW/h]")
                 )).build();
-            interTemporalRaoInput.getGeneratorConstraints().add(generatorConstraints);
+            interTemporalRaoInput.getIntertemporalConstraints().addGeneratorConstraints(generatorConstraints);
         });
     }
 
@@ -222,7 +222,7 @@ public final class IcsImporter {
             )).withDownwardPowerGradient(-parseDoubleWithPossibleCommas(
                 staticRecord.get("Maximum negative power gradient [MW/h]").isEmpty() ? MAX_GRADIENT : staticRecord.get("Maximum negative power gradient [MW/h]")
             )).build();
-        interTemporalRaoInput.getGeneratorConstraints().add(generatorConstraints);
+        interTemporalRaoInput.getIntertemporalConstraints().addGeneratorConstraints(generatorConstraints);
     }
 
     private static String processNetworks(String nodeId, TemporalData<Network> initialNetworks, Map<String, CSVRecord> seriesPerType, double shiftKey) {
