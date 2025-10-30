@@ -51,7 +51,6 @@ public class GeneratorConstraintsFiller implements ProblemFiller {
     @Override
     public void fill(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
         List<OffsetDateTime> timestamps = preventiveStates.getTimestamps();
-        // TODO : only create generator variables when necessary (i.e. if impacted by RD or CT)
         for (GeneratorConstraints individualGeneratorConstraints : generatorConstraints) {
             Optional<TemporalData<InjectionRangeAction>> associatedInjections = getInjectionRangeActionOfGenerator(individualGeneratorConstraints.getGeneratorId());
             if (associatedInjections.isPresent()) {
