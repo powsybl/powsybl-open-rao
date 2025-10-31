@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers;
 
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Identifiable;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
@@ -124,27 +125,42 @@ public class MaxMinMarginFiller implements ProblemFiller {
     private void buildMinimumMarginConstraints(LinearProblem linearProblem, Set<FlowCnec> validFlowCnecs) {
         OpenRaoMPVariable minimumMarginVariable = linearProblem.getMinimumMarginVariable(Optional.ofNullable(timestamp));
 
-        validFlowCnecs.forEach(cnec -> cnec.getMonitoredSides().forEach(side -> {
-            OpenRaoMPVariable flowVariable = linearProblem.getFlowVariable(cnec, side, Optional.ofNullable(timestamp));
+        //validFlowCnecs.forEach(cnec -> cnec.getMonitoredSides().forEach(side -> {
+        int count = 0;
+        for (FlowCnec cnec : validFlowCnecs) {
+            for (TwoSides side : cnec.getMonitoredSides()) {
 
-            Optional<Double> minFlow;
-            Optional<Double> maxFlow;
-            minFlow = cnec.getLowerBound(side, MEGAWATT);
-            maxFlow = cnec.getUpperBound(side, MEGAWATT);
-            double unitConversionCoefficient = RaoUtil.getFlowUnitMultiplier(cnec, side, unit, MEGAWATT);
+                OpenRaoMPVariable flowVariable = linearProblem.getFlowVariable(cnec, side, Optional.ofNullable(timestamp));
 
-            if (minFlow.isPresent()) {
-                OpenRaoMPConstraint minimumMarginNegative = linearProblem.addMinimumMarginConstraint(-linearProblem.infinity(), -minFlow.get(), cnec, side, LinearProblem.MarginExtension.BELOW_THRESHOLD, Optional.ofNullable(timestamp));
-                minimumMarginNegative.setCoefficient(minimumMarginVariable, unitConversionCoefficient);
-                minimumMarginNegative.setCoefficient(flowVariable, -1);
+                Optional<Double> minFlow;
+                Optional<Double> maxFlow;
+                minFlow = cnec.getLowerBound(side, MEGAWATT);
+                maxFlow = cnec.getUpperBound(side, MEGAWATT);
+                double unitConversionCoefficient = RaoUtil.getFlowUnitMultiplier(cnec, side, unit, MEGAWATT);
+
+                if (minFlow.isPresent()) {
+                    OpenRaoMPConstraint minimumMarginNegative = linearProblem.addMinimumMarginConstraint(-linearProblem.infinity(), -minFlow.get(), cnec, side, LinearProblem.MarginExtension.BELOW_THRESHOLD, Optional.ofNullable(timestamp));
+                    minimumMarginNegative.setCoefficient(minimumMarginVariable, unitConversionCoefficient);
+                    minimumMarginNegative.setCoefficient(flowVariable, -1);
+                    if (count > 0) {
+                        minimumMarginNegative.setIsLazy(true);
+                    }
+                    count++;
+
+                }
+
+                if (maxFlow.isPresent()) {
+                    OpenRaoMPConstraint minimumMarginPositive = linearProblem.addMinimumMarginConstraint(-linearProblem.infinity(), maxFlow.get(), cnec, side, LinearProblem.MarginExtension.ABOVE_THRESHOLD, Optional.ofNullable(timestamp));
+                    minimumMarginPositive.setCoefficient(minimumMarginVariable, unitConversionCoefficient);
+                    minimumMarginPositive.setCoefficient(flowVariable, 1);
+                    if (count > 0) {
+                        minimumMarginPositive.setIsLazy(true);
+                    }
+                    count++;
+
+                }
             }
-
-            if (maxFlow.isPresent()) {
-                OpenRaoMPConstraint minimumMarginPositive = linearProblem.addMinimumMarginConstraint(-linearProblem.infinity(), maxFlow.get(), cnec, side, LinearProblem.MarginExtension.ABOVE_THRESHOLD, Optional.ofNullable(timestamp));
-                minimumMarginPositive.setCoefficient(minimumMarginVariable, unitConversionCoefficient);
-                minimumMarginPositive.setCoefficient(flowVariable, 1);
-            }
-        }));
+        }
     }
 
     /**

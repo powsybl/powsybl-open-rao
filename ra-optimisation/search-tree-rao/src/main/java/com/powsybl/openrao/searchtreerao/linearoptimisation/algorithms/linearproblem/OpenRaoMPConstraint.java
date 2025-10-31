@@ -50,4 +50,8 @@ public class OpenRaoMPConstraint {
     public void setBounds(double lb, double ub) {
         mpConstraint.setBounds(OpenRaoMPSolver.roundDouble(lb), OpenRaoMPSolver.roundDouble(ub));
     }
+
+    public void setIsLazy(boolean isLazy) {
+        mpConstraint.setIsLazy(isLazy);
+    }
 }
