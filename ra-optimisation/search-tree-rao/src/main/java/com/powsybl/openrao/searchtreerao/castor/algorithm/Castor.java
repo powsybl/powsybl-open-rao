@@ -39,8 +39,9 @@ public class Castor implements RaoProvider {
         }
     }
 
-    // This comment should not be here
+    // Hello I am a comment
     // Nor this one
+    // And not this one too...
 
     private static final String SEARCH_TREE_RAO = "SearchTreeRao";
 
