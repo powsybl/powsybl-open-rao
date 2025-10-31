@@ -40,6 +40,7 @@ public class Castor implements RaoProvider {
     }
 
     // This comment should not be here
+    // Nor this one
 
     private static final String SEARCH_TREE_RAO = "SearchTreeRao";
 
