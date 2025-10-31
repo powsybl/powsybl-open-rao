@@ -513,10 +513,6 @@ public final class LinearProblem {
         return solver.getVariable(generatorPowerVariableId(generatorId, timestamp));
     }
 
-    public OpenRaoMPConstraint getGeneratorPowerGradientConstraint(String generatorId, OffsetDateTime currentTimestamp, OffsetDateTime previousTimestamp) {
-        return solver.getConstraint(generatorPowerGradientConstraintId(generatorId, currentTimestamp, previousTimestamp));
-    }
-
     public OpenRaoMPVariable addMinMarginShiftedViolationVariable(Optional<OffsetDateTime> timestamp) {
         return solver.makeNumVar(0, infinity(), minMarginShiftedViolationVariableId(timestamp));
     }
