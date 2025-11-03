@@ -25,7 +25,7 @@ public final class RaoParametersCommons {
         3.3: add pst-regulation-parameters
     */
 
-    public static final String RAO_PARAMETERS_VERSION = "3.3";
+    public static final String RAO_PARAMETERS_VERSION = "3.2.1";
 
     // header
     public static final String VERSION = "version";
