@@ -11,7 +11,6 @@ import com.powsybl.action.Action;
 import com.powsybl.action.HvdcActionBuilder;
 import com.powsybl.openrao.data.crac.api.networkaction.AcEmulationDeactivationActionAdder;
 
-import static com.powsybl.openrao.data.crac.api.networkaction.ActionType.DEACTIVATE;
 import static com.powsybl.openrao.data.crac.impl.AdderUtils.assertAttributeNotNull;
 
 /**
@@ -25,14 +24,14 @@ public class AcEmulationDeactivationActionAdderImpl extends AbstractSingleNetwor
 
     protected Action buildAction() {
         return new HvdcActionBuilder()
-                .withId(String.format("%s_%s_%s", getActionName(), networkElementId, DEACTIVATE))
+                .withId(String.format("%s_%s_%s", getActionName(), networkElementId, "DEACTIVATE"))
                 .withHvdcId(networkElementId)
                 .withAcEmulationEnabled(false)
                 .build();
     }
 
     protected void assertSpecificAttributes() {
-        assertAttributeNotNull(DEACTIVATE, getActionName(), "actionType", "withActionType()");
+        assertAttributeNotNull("DEACTIVATE", getActionName(), "actionType", "withActionType()");
     }
 
     protected String getActionName() {
