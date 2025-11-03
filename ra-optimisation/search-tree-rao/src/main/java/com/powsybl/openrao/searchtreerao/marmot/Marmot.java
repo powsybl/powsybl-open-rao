@@ -406,11 +406,11 @@ public class Marmot implements InterTemporalRaoProvider {
         TemporalData<OptimizationPerimeter> optimizationPerimeterPerTimestamp = computeOptimizationPerimetersPerTimestamp(raoInput.getRaoInputs().map(RaoInput::getCrac), consideredCnecs);
         // no objective function defined in individual IteratingLinearOptimizerInputs as it is global
 
-        // TODO: Deep Copy and remove HVDC range action in ac emulation here too
         Map<OffsetDateTime, IteratingLinearOptimizerInput> linearOptimizerInputPerTimestamp = new HashMap<>();
-        raoInput.getRaoInputs().getTimestamps().forEach(timestamp -> linearOptimizerInputPerTimestamp.put(timestamp, IteratingLinearOptimizerInput.create()
+        raoInput.getRaoInputs().getTimestamps().forEach(timestamp -> linearOptimizerInputPerTimestamp.put(timestamp,
+            IteratingLinearOptimizerInput.create()
             .withNetwork(raoInput.getRaoInputs().getData(timestamp).orElseThrow().getNetwork())
-            .withOptimizationPerimeter(optimizationPerimeterPerTimestamp.getData(timestamp).orElseThrow())
+            .withOptimizationPerimeter(optimizationPerimeterPerTimestamp.getData(timestamp).orElseThrow().copyWithFilteredAvailableRangeAction(raoInput.getRaoInputs().getData(timestamp).get().getNetwork()))
             .withInitialFlowResult(initialResults.getData(timestamp).orElseThrow())
             .withPrePerimeterFlowResult(initialResults.getData(timestamp).orElseThrow())
             .withPreOptimizationFlowResult(postTopologicalActionsResults.getData(timestamp).orElseThrow())
