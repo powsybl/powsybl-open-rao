@@ -113,8 +113,6 @@ Feature: US 15.17: Optimize HVDC range actions initially in AC emulation mode
     And the margin on cnec "be4_fr5_co1 - BBE4AA11->FFR5AA11  - co1_be1_fr5 - curative" after CRA should be 300 MW
     And the margin on cnec "be1_fr5_n - BBE1AA11->FFR5AA11 - preventive" after PRA should be 314 MW
 
-    #TODO: Add a test with another network action !
-
   @fast @rao @mock @dc @preventive-only @hvdc
   Scenario: US 15.17.7: HVDC with a negative optimal setpoint
     # Copy of test case 15.12.5.7, except HVDC is initially in AC emulation mode
