@@ -15,6 +15,7 @@ import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
 import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowParameters;
+import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.RandomizedString;
 import com.powsybl.openrao.commons.Unit;
@@ -491,7 +492,11 @@ public final class AutomatonSimulator {
             }
             contingency.toModification().apply(network, (ComputationManager) null);
         }
-        LoadFlow.find(loadFlowProvider).run(network, loadFlowParameters);
+
+        LoadFlowResult loadFlowResult = LoadFlow.find(loadFlowProvider).run(network, loadFlowParameters);
+        if (loadFlowResult.isFailed()) {
+            throw new OpenRaoException("LoadFlow computation failed, couldn't compute HVDC angle droop active power control set-points.");
+        }
 
         // Compute HvdcAngleDroopActivePowerControl values of HVDC lines
         Map<String, Double> controls = network.getHvdcLineStream()
