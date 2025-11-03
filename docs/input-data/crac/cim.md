@@ -462,11 +462,72 @@ Each of these RemedialAction_Series can contain 4 RegisteredResources, allowing 
 
 In the end, two HVDC range actions with an absolute range of -XXX MW to XXX MW each are defined, on both HVDC lines. These HVDC range actions are aligned, i.e. they share the same group ID. That means that they must have the same set-point. 
 
+The RAO can optimize the HVDC set-point remedial actions that require the deactivation of [angle-droop active power control](inv:powsyblcore:*:*#hvdc-angle-droop-active-power-control-extension)
+(AC-emulation) by creating an [acEmulationDeactivationAction](json.md#network-actions) network action.
+
+> For more information on how hvdc range action are handled in the RAO see [here](../../algorithms/castor/special-features/hvdc.md)
+
+See below an example of an HVDC RemedialAction_Series
+
+```xml
+<RemedialAction_Series>
+  <mRID>HVDC_Range_Action_mRID</mRID>
+  <name>HVDC_Range_Action_name</name>
+  <businessType>B59</businessType>
+  <applicationMode_MarketObjectStatus.status>A20</applicationMode_MarketObjectStatus.status>
+  <availability_MarketObjectStatus.status>A39</availability_MarketObjectStatus.status>
+  <RegisteredResource>
+    <mRID codingScheme="A02">HVDC_1</mRID>
+    <name>PMODE1_HVDC-1</name>
+    <pSRType.psrType>B22</pSRType.psrType>
+    <in_Domain.mRID codingScheme="A01">10YFR-RTE------C</in_Domain.mRID>
+    <out_Domain.mRID codingScheme="A01">10YES-REE------0</out_Domain.mRID>
+    <marketObjectStatus.status>A43</marketObjectStatus.status>
+  </RegisteredResource>
+  <RegisteredResource>
+    <mRID codingScheme="A02">HVDC_1</mRID>
+    <name>HVDC_1_range</name>
+    <pSRType.psrType>B22</pSRType.psrType>
+    <in_Domain.mRID codingScheme="A01">10YFR-RTE------C</in_Domain.mRID>
+    <out_Domain.mRID codingScheme="A01">10YES-REE------0</out_Domain.mRID>
+    <in_AggregateNode.mRID codingScheme="A02">mRID</in_AggregateNode.mRID>
+    <out_AggregateNode.mRID codingScheme="A02">mRID</out_AggregateNode.mRID>
+    <marketObjectStatus.status>A26</marketObjectStatus.status>
+    <resourceCapacity.maximumCapacity>1000.0</resourceCapacity.maximumCapacity>
+    <resourceCapacity.minimumCapacity>0</resourceCapacity.minimumCapacity>
+    <resourceCapacity.defaultCapacity>200.0</resourceCapacity.defaultCapacity>
+    <resourceCapacity.unitSymbol>MAW</resourceCapacity.unitSymbol>
+  </RegisteredResource>
+  <RegisteredResource>
+    <mRID codingScheme="A02">HVDC_2</mRID>
+    <name>PMODE1_HVDC-2</name>
+    <pSRType.psrType>B22</pSRType.psrType>
+    <in_Domain.mRID codingScheme="A01">10YFR-RTE------C</in_Domain.mRID>
+    <out_Domain.mRID codingScheme="A01">10YES-REE------0</out_Domain.mRID>
+    <marketObjectStatus.status>A43</marketObjectStatus.status>
+  </RegisteredResource>
+  <RegisteredResource>
+    <mRID codingScheme="A02">HVDC_2</mRID>
+    <name>HVDC_2_range</name>
+    <pSRType.psrType>B22</pSRType.psrType>
+    <in_Domain.mRID codingScheme="A01">10YFR-RTE------C</in_Domain.mRID>
+    <out_Domain.mRID codingScheme="A01">10YES-REE------0</out_Domain.mRID>
+    <in_AggregateNode.mRID codingScheme="A02">mRID</in_AggregateNode.mRID>
+    <out_AggregateNode.mRID codingScheme="A02">mRID</out_AggregateNode.mRID>
+    <marketObjectStatus.status>A26</marketObjectStatus.status>
+    <resourceCapacity.maximumCapacity>1000.0</resourceCapacity.maximumCapacity>
+    <resourceCapacity.minimumCapacity>0</resourceCapacity.minimumCapacity>
+    <resourceCapacity.defaultCapacity>200.0</resourceCapacity.defaultCapacity>
+    <resourceCapacity.unitSymbol>MAW</resourceCapacity.unitSymbol>
+  </RegisteredResource>
+</RemedialAction_Series>
+```
+
+
+
 ## Extra rules
 
 In order to ensure the imported CRAC is usable in the RAO, OpenRAO implements the following special rules:
 - Hybrid (range-actions + network-actions) remedial actions are prohibited.
 - If AUTO CNECs exist without any automaton that can eventually secure them, these CNECs are duplicated in the 
   outage instant in order to be secured by the preventive RAO.
-- HVDC set-point remedial actions that require the deactivation of [angle-droop active power control](inv:powsyblcore:*:*#hvdc-angle-droop-active-power-control-extension)
-  (AC-emulation) are only supported at an auto instant.
