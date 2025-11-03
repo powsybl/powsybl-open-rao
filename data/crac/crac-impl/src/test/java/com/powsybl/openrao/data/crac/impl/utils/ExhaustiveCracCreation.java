@@ -228,6 +228,14 @@ public final class ExhaustiveCracCreation {
             .newOnContingencyStateUsageRule().withContingency(contingency2Id).withInstant(CURATIVE_INSTANT_ID).add()
             .add();
 
+        // network action with one ac emulation deactivation action
+        crac.newNetworkAction().withId("acEmulationDeactivationId")
+            .withName("acEmulationDeactivationName")
+            .withOperator("RTE")
+            .newAcEmulationDeactivationAction().withNetworkElement("hvdc").add()
+            .newOnContingencyStateUsageRule().withContingency(contingency2Id).withInstant(CURATIVE_INSTANT_ID).add()
+            .add();
+
         // range actions
         crac.newPstRangeAction().withId("pstRange1Id")
             .withName("pstRange1Name")
