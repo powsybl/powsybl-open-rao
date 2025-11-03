@@ -99,6 +99,14 @@ public final class CastorPstRegulation {
         }
     }
 
+    /**
+     * Determines the states for which PST regulation must be applied. There are two conditions:
+     * <ol>
+     *     <li>the state must be unsecure;</li>
+     *     <li>the limiting elements must be in series with a regulated PST.</li>
+     * </ol>
+     * For all such states, the associated PST regulation input is included in a set that is returned.
+     */
     private static Set<PstRegulationInput> getStatesToRegulate(Crac crac, Map<State, PostPerimeterResult> postContingencyResults, Unit unit, Set<PstRangeAction> rangeActionsToRegulate, Map<String, String> linesInSeriesWithPst) {
         Instant lastInstant = crac.getLastInstant();
         return lastInstant.isCurative() ?
@@ -123,6 +131,10 @@ public final class CastorPstRegulation {
         return Optional.empty();
     }
 
+    /**
+     * If the most limiting element of a curative state is overloaded and is in series with a PST, it is returned.
+     * If not, an empty optional value is returned instead.
+     */
     private static Optional<FlowCnec> getMostLimitingElementProtectedByPst(State curativeState, Crac crac, PostPerimeterResult postPerimeterResult, Unit unit, Set<String> linesInSeriesWithPst) {
         Map<FlowCnec, Double> marginPerCnec = crac.getFlowCnecs(curativeState).stream().collect(Collectors.toMap(Function.identity(), flowCnec -> postPerimeterResult.getOptimizationResult().getMargin(flowCnec, unit)));
         List<Map.Entry<FlowCnec, Double>> sortedNegativeMargins = marginPerCnec.entrySet().stream()
@@ -181,6 +193,9 @@ public final class CastorPstRegulation {
         return Math.min(getAvailableCPUs(raoParameters), crac.getContingencies().size());
     }
 
+    /**
+     * Performs PST regulation for a curative state. The taps are changed during the loadflow iterations.
+     */
     private static PstRegulationResult regulatePstsForContingencyScenario(PstRegulationInput pstRegulationInput, Crac crac, Set<PstRangeAction> rangeActionsToRegulate, RaoResult raoResult, LoadFlowParameters loadFlowParameters, AbstractNetworkPool networkPool) throws InterruptedException {
         Network networkClone = networkPool.getAvailableNetwork();
         Contingency contingency = pstRegulationInput.curativeState().getContingency().orElseThrow();

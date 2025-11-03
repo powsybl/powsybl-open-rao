@@ -13,6 +13,9 @@ with overloaded critical elements. The results must then be post-processed to ch
 of interest could help secure the critical element they monitor, even if this means increasing the flow in surrounding
 lines. This is called **PST regulation**.
 
+> Even if only one critical element is overloaded, all PSTs are regulated at once since they may have side effects on
+> other lines than the ones they protect.
+
 The set of PSTs to regulate can be provided in the
 [RAO parameters](../../../parameters/implementation-specific-parameters.md#pst-regulation-parameters). Then, for each curative
 scenario, if the most limiting element is a FlowCNEC in series with a PST, all the PSTs are regulated.
