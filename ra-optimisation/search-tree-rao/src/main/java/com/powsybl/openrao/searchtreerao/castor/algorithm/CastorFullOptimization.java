@@ -431,7 +431,15 @@ public class CastorFullOptimization {
         return postRegulationPostContingencyResults;
     }
 
+    /**
+     * Returns the PrePerimeterResult corresponding to the situation just before the optimization of the last instant of
+     * the CRAC. All the remedial actions from the previous states are thus applied.
+     *
+     * @param previousStates : sorted set containing all the post-outage optimized states that share a common contingency (the final element always is the last CRAC instant's state)
+     */
     private static PrePerimeterResult getPreLastCurativePerimeterResult(List<State> previousStates, PostPerimeterResult postPraResult, Map<State, PostPerimeterResult> postContingencyResults) {
+        // if previousStates is of size 1, then it only contains the final instant's state so the pre-perimeter result corresponds to the post-PRAs result
+        // otherwise, the penultimate pre-perimeter result must be retrieved
         return previousStates.size() == 1 ? postPraResult.getPrePerimeterResultForAllFollowingStates() : postContingencyResults.get(previousStates.get(previousStates.size() - 2)).getPrePerimeterResultForAllFollowingStates();
     }
 }
