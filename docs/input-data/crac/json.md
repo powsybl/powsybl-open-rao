@@ -1035,9 +1035,11 @@ crac.newNetworkAction()
     "switchPairs" : [ {
       "open" : "switch-to-open-id",
       "close" : "switch-to-close-id"
+    } ],
+    "acEmulationDeactivationAction" : [ {
+        "networkElementId": "hvdcLine"
     } ]
   }
-  // ac emulation deactivation action can't be created from crac
 ]
 ~~~
 :::
