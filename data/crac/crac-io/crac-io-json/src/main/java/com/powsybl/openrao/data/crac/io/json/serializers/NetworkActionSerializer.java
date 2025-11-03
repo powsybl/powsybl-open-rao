@@ -41,6 +41,7 @@ public class NetworkActionSerializer extends AbstractJsonSerializer<NetworkActio
         serializeElementaryActions(value, DanglingLineAction.class, JsonSerializationConstants.DANGLINGLINE_ACTIONS, gen);
         serializeElementaryActions(value, ShuntCompensatorPositionAction.class, JsonSerializationConstants.SHUNTCOMPENSATOR_POSITION_ACTIONS, gen);
         serializeElementaryActions(value, SwitchPair.class, JsonSerializationConstants.SWITCH_PAIRS, gen);
+        serializeElementaryActions(value, HvdcAction.class, JsonSerializationConstants.AC_EMULATION_DEACTIVATION_ACTIONS, gen);
         serializeRemedialActionSpeed(value, gen);
         gen.writeEndObject();
     }
