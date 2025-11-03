@@ -154,7 +154,7 @@ class CracImportExportTest {
         assertEquals(1, crac.getAngleCnecs().size());
         assertEquals(1, crac.getVoltageCnecs().size());
         assertEquals(9, crac.getRangeActions().size());
-        assertEquals(5, crac.getNetworkActions().size());
+        assertEquals(6, crac.getNetworkActions().size());
 
         // --------------------------
         // --- test Ra Usage Limits ---
@@ -280,6 +280,7 @@ class CracImportExportTest {
         assertNotNull(crac.getNetworkAction("complexNetworkActionId"));
         assertNotNull(crac.getNetworkAction("switchPairRaId"));
         assertNotNull(crac.getNetworkAction("complexNetworkAction2Id"));
+        assertNotNull(crac.getNetworkAction("acEmulationDeactivationId"));
 
         // check elementaryActions
         assertEquals(1, crac.getNetworkAction("pstSetpointRaId").getElementaryActions().size());
@@ -309,6 +310,11 @@ class CracImportExportTest {
         assertEquals("BR1", ((SwitchAction) raComplex2Actions.get(2)).getSwitchId());
         assertTrue(raComplex2Actions.get(3) instanceof ShuntCompensatorPositionAction);
         assertEquals("SC1", ((ShuntCompensatorPositionAction) raComplex2Actions.get(3)).getShuntCompensatorId());
+
+        assertEquals(1, crac.getNetworkAction("acEmulationDeactivationId").getElementaryActions().size());
+        Action hvdcAction = crac.getNetworkAction("acEmulationDeactivationId").getElementaryActions().iterator().next();
+        assertTrue(hvdcAction instanceof HvdcAction);
+        assertEquals("hvdc", ((HvdcAction) hvdcAction).getHvdcId());
 
         // check onInstant usage rule
         assertEquals(1, crac.getNetworkAction("complexNetworkActionId").getUsageRules().size());
