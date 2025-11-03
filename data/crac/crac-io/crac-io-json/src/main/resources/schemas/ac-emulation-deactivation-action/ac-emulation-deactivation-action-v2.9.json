@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema#",
+  "$id": "https://www.powsybl.org?open-rao-crac-schema=ac-emulation-deactivation-action-v2.9.json",
+  "type": "object",
+  "properties": {
+    "networkElementId": {
+      "type": "string"
+    },
+    "actionType": {
+      "$ref": "resource:/schemas/action-type/action-type-v1.0.json"
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "networkElementId"
+  ]
+}
