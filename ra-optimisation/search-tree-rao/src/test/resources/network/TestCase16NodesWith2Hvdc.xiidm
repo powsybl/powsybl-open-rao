@@ -14,7 +14,7 @@
                     <iidm:property name="currentLimit" value="2000"/>
                 </iidm:switch>
             </iidm:busBreakerTopology>
-            <iidm:generator id="BBE1AA11_generator" energySource="OTHER" minP="-11000.0" maxP="11000.0" voltageRegulatorOn="true" targetP="1500.0" targetV="400.0" targetQ="0.0" bus="BBE1AA11" connectableBus="BBE1AA11">
+            <iidm:generator id="BBE1AA11_generator" energySource="OTHER" minP="-11000.0" maxP="11000.0" voltageRegulatorOn="true" targetP="7951.0" targetV="400.0" targetQ="0.0" bus="BBE1AA11" connectableBus="BBE1AA11">
                 <iidm:minMaxReactiveLimits minQ="-11000.0" maxQ="11000.0"/>
             </iidm:generator>
             <iidm:generator id="BBE4AA11_generator" energySource="OTHER" minP="-11000.0" maxP="11000.0" voltageRegulatorOn="true" targetP="2500.0" targetV="400.0" targetQ="0.0" bus="BBE4AA11" connectableBus="BBE4AA11">

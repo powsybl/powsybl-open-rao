@@ -95,7 +95,7 @@
                 <iidm:switch id="VL44_Switch#1" kind="BREAKER" retained="false" open="false" node1="0" node2="3"/>
                 <iidm:switch id="VL44_Switch#2" kind="BREAKER" retained="false" open="false" node1="0" node2="4"/>
             </iidm:nodeBreakerTopology>
-            <iidm:generator id="sym_3_1" energySource="OTHER" minP="-15000.0" maxP="15000.0" voltageRegulatorOn="true" targetP="0.0" targetV="139.37999868392944" targetQ="0.0" node="4">
+            <iidm:generator id="sym_3_1" energySource="OTHER" minP="-15000.0" maxP="15000.0" voltageRegulatorOn="true" targetP="226.0" targetV="139.37999868392944" targetQ="0.0" node="4">
                 <iidm:minMaxReactiveLimits minQ="0.0" maxQ="40.00001907348633"/>
             </iidm:generator>
             <iidm:load id="lod_3_1" loadType="UNDEFINED" p0="94.19999694824219" q0="19.0" node="3"/>
