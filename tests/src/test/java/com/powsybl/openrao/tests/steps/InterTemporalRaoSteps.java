@@ -216,6 +216,7 @@ public final class InterTemporalRaoSteps {
         properties.put("inter-temporal-rao-result.export.filename-template", "'RAO_RESULT_'yyyy-MM-dd'T'HH:mm:ss'.json'");
         properties.put("inter-temporal-rao-result.export.summary-filename", "summary.json");
         interTemporalRaoResult.write(zipOutputStream, interTemporalRaoInput.getRaoInputs().map(RaoInputWithNetworkPaths::getCrac), properties);
+        zipOutputStream.close();
     }
 
     @When("I export RefProg after redispatching to {string} based on raoResults zip {string}")

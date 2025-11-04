@@ -17,7 +17,6 @@ import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
 import com.powsybl.openrao.searchtreerao.commons.SensitivityComputer;
-import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.GlobalOptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.BestTapFinder;
@@ -27,9 +26,11 @@ import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.P
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.ProblemFiller;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblemBuilder;
+import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblemIdGenerator;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.inputs.IteratingLinearOptimizerInput;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.parameters.IteratingLinearOptimizerParameters;
 import com.powsybl.openrao.searchtreerao.marmot.results.GlobalLinearOptimizationResult;
+import com.powsybl.openrao.searchtreerao.marmot.scenariobuilder.ScenarioRepo;
 import com.powsybl.openrao.searchtreerao.result.api.*;
 import com.powsybl.openrao.searchtreerao.result.impl.LinearProblemResult;
 import com.powsybl.openrao.searchtreerao.result.impl.RangeActionActivationResultImpl;
@@ -37,11 +38,7 @@ import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.time.OffsetDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.*;
@@ -51,16 +48,28 @@ import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRang
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
-public final class InterTemporalIteratingLinearOptimizer {
+public final class RobustInterTemporalIteratingLinearOptimizer {
 
-    private InterTemporalIteratingLinearOptimizer() {
+    private RobustInterTemporalIteratingLinearOptimizer() {
     }
 
-    public static GlobalLinearOptimizationResult optimize(InterTemporalIteratingLinearOptimizerInput input, IteratingLinearOptimizerParameters parameters) {
+    public static GlobalLinearOptimizationResult optimize(InterTemporalIteratingLinearOptimizerInput input, IteratingLinearOptimizerParameters parameters, ScenarioRepo scenarioRepo) {
         // 1. Initialize best result using input data
+        Map<String, TemporalData<FlowResult>> preOptimizationFlowResults = new HashMap<>();
+        Map<String, TemporalData<SensitivityResult>> preOptimizationSensiResults = new HashMap<>();
+        for (String scenario : scenarioRepo.getScenarios()) {
+            TemporalData<FlowResult> flowResults = new TemporalDataImpl<>();
+            TemporalData<SensitivityResult> sensiResults = new TemporalDataImpl<>();
+            for (OffsetDateTime ts : input.iteratingLinearOptimizerInputs().getTimestamps()) {
+                flowResults.put(ts, input.iteratingLinearOptimizerInputs().getData(ts).orElseThrow().preOptimizationFlowResultPerScenario().get(scenario));
+                sensiResults.put(ts, input.iteratingLinearOptimizerInputs().getData(ts).orElseThrow().preOptimizationSensitivityResultPerScenario().get(scenario));
+            }
+            preOptimizationFlowResults.put(scenario, flowResults);
+            preOptimizationSensiResults.put(scenario, sensiResults);
+        }
         GlobalLinearOptimizationResult bestResult = createInitialResult(
-            input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::preOptimizationFlowResult),
-            input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::preOptimizationSensitivityResult),
+            preOptimizationFlowResults,
+            preOptimizationSensiResults,
             input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::prePerimeterSetpoints).map(RangeActionActivationResultImpl::new),
             input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::appliedNetworkActionsInPrimaryState),
             input.objectiveFunction()
@@ -72,17 +81,43 @@ public final class InterTemporalIteratingLinearOptimizer {
         // 2. Initialize linear problem using input data
         TemporalData<List<ProblemFiller>> problemFillers = getProblemFillersPerTimestamp(input, parameters);
         List<ProblemFiller> interTemporalProblemFillers = getInterTemporalProblemFillers(input);
-        LinearProblem linearProblem = buildLinearProblem(problemFillers, interTemporalProblemFillers, parameters);
-        fillLinearProblem(
-            linearProblem,
-            problemFillers,
-            interTemporalProblemFillers,
-            input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::preOptimizationFlowResult),
-            input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::preOptimizationSensitivityResult),
-            input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::prePerimeterSetpoints));
+        LinearProblem linearProblem = buildLinearProblem(problemFillers, parameters);
+
+
+        //TemporalData<SensitivityResult> sensitivityResults = input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::preOptimizationSensitivityResult);
+        //TemporalData<Network> networks = input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::network);
+        for (String scenarioId : scenarioRepo.getScenarios()) {
+            TemporalData<FlowResult> preOptimizationFlowResult = new TemporalDataImpl<>();
+            /*TemporalData<FlowResult> initPreOptimizationFlowResult = input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::preOptimizationFlowResult);
+            Map<String, TemporalData<Double>> shifts = scenarioRepo.computeShifts(scenarioId, networks);
+            for (OffsetDateTime timestamp : initPreOptimizationFlowResult.getTimestamps()) {
+                Map<String, Double> shiftedInjections = new HashMap<>();
+                for (String injectionId : shifts.keySet()) {
+                    shiftedInjections.put(injectionId, shifts.get(injectionId).getData(timestamp).orElse(0.));
+                }
+                preOptimizationFlowResult.put(timestamp, new ShiftedFlowResult(initPreOptimizationFlowResult.getData(timestamp).orElseThrow(), shiftedInjections, sensitivityResults.getData(timestamp).orElseThrow()));
+            }*/
+
+            TemporalData<SensitivityResult> sensitivityResults = new TemporalDataImpl<>();
+            for (OffsetDateTime timestamp : input.iteratingLinearOptimizerInputs().getTimestamps()) {
+                sensitivityResults.put(timestamp, input.iteratingLinearOptimizerInputs().getData(timestamp).orElseThrow().preOptimizationSensitivityResultPerScenario().get(scenarioId));
+                preOptimizationFlowResult.put(timestamp, input.iteratingLinearOptimizerInputs().getData(timestamp).orElseThrow().preOptimizationFlowResultPerScenario().get(scenarioId));
+            }
+
+            LinearProblemIdGenerator.setPrefix("scenario(" + scenarioId + ")");
+            fillLinearProblem(
+                linearProblem,
+                problemFillers,
+                interTemporalProblemFillers,
+                preOptimizationFlowResult,
+                sensitivityResults,
+                input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::prePerimeterSetpoints));
+        }
 
         // 3. Iterate
-        for (int iteration = 1; iteration <= parameters.getMaxNumberOfIterations(); iteration++) {
+        // TODO support multiple iterations
+        // for now we can't update the MIP
+        for (int iteration = 1; iteration <= 1; iteration++) {
             // a. Solve linear problem
             LinearProblemStatus solveStatus = solveLinearProblem(linearProblem, iteration);
             // b. Check linear problem status and return best result if not FEASIBLE not OPTIMAL
@@ -123,7 +158,7 @@ public final class InterTemporalIteratingLinearOptimizer {
             // e.  Run sensitivity analyses with new set-points
             Map<OffsetDateTime, SensitivityComputer> newSensitivityComputers = new HashMap<>();
             for (OffsetDateTime timestamp : rangeActionActivationPerTimestamp.getTimestamps()) {
-                newSensitivityComputers.put(timestamp, runSensitivityAnalysis(sensitivityComputers.getData(timestamp).orElse(null), iteration, rangeActionActivationPerTimestamp.getData(timestamp).orElseThrow(), input.iteratingLinearOptimizerInputs().getData(timestamp).orElseThrow(), parameters));
+                newSensitivityComputers.put(timestamp, runSensitivityAnalysis(sensitivityComputers.getData(timestamp).orElse(null), iteration, rangeActionActivationPerTimestamp.getData(timestamp).orElseThrow(), input.iteratingLinearOptimizerInputs().getData(timestamp).orElseThrow(), parameters, scenarioRepo));
             }
 
             if (newSensitivityComputers.values().stream().anyMatch(sensitivityComputer -> sensitivityComputer.getSensitivityResult().getSensitivityStatus() == ComputationStatus.FAILURE)) {
@@ -174,7 +209,7 @@ public final class InterTemporalIteratingLinearOptimizer {
         return rangeActions.stream().filter(InjectionRangeAction.class::isInstance).map(InjectionRangeAction.class::cast).collect(Collectors.toSet());
     }
 
-    private static LinearProblem buildLinearProblem(TemporalData<List<ProblemFiller>> problemFillers, List<ProblemFiller> interTemporalProblemFillers, IteratingLinearOptimizerParameters parameters) {
+    private static LinearProblem buildLinearProblem(TemporalData<List<ProblemFiller>> problemFillers, IteratingLinearOptimizerParameters parameters) {
         LinearProblemBuilder linearProblemBuilder = LinearProblem.create()
             .withSolver(parameters.getSolverParameters().getSolver())
             .withRelativeMipGap(parameters.getSolverParameters().getRelativeMipGap())
@@ -182,7 +217,6 @@ public final class InterTemporalIteratingLinearOptimizer {
 
         // add problem fillers for each timestamp and inter-temporal timestamps
         problemFillers.getDataPerTimestamp().values().forEach(problemFillerOfTimestamp -> problemFillerOfTimestamp.forEach(linearProblemBuilder::withProblemFiller));
-        interTemporalProblemFillers.forEach(linearProblemBuilder::withProblemFiller);
 
         return linearProblemBuilder.build();
     }
@@ -207,6 +241,9 @@ public final class InterTemporalIteratingLinearOptimizer {
     }
 
     private static void updateLinearProblemBetweenSensiComputations(LinearProblem linearProblem, TemporalData<List<ProblemFiller>> problemFillers, List<ProblemFiller> interTemporalProblemFillers, LinearOptimizationResult optimizationResult) {
+        return;
+        // TODO
+        /*
         linearProblem.reset();
         List<OffsetDateTime> timestamps = problemFillers.getTimestamps();
         timestamps.forEach(timestamp -> {
@@ -214,6 +251,8 @@ public final class InterTemporalIteratingLinearOptimizer {
             problemFillersForTimestamp.forEach(problemFiller -> problemFiller.fill(linearProblem, optimizationResult, optimizationResult, optimizationResult));
         });
         interTemporalProblemFillers.forEach(problemFiller -> problemFiller.fill(linearProblem, null, null, null));
+
+         */
     }
 
     private static LinearProblemStatus solveLinearProblem(LinearProblem linearProblem, int iteration) {
@@ -225,30 +264,31 @@ public final class InterTemporalIteratingLinearOptimizer {
 
     // Sensitivity analysis
 
-    private static SensitivityComputer runSensitivityAnalysis(SensitivityComputer sensitivityComputer, int iteration, RangeActionActivationResult currentRangeActionActivationResult, IteratingLinearOptimizerInput input, IteratingLinearOptimizerParameters parameters) {
+    private static SensitivityComputer runSensitivityAnalysis(SensitivityComputer sensitivityComputer, int iteration, RangeActionActivationResult currentRangeActionActivationResult, IteratingLinearOptimizerInput input, IteratingLinearOptimizerParameters parameters, ScenarioRepo scenarioRepo) {
         SensitivityComputer tmpSensitivityComputer = sensitivityComputer;
         // TODO: if we want to force 2P, shoud always be global
         if (input.optimizationPerimeter() instanceof GlobalOptimizationPerimeter) {
             AppliedRemedialActions appliedRemedialActionsInSecondaryStates = IteratingLinearOptimizer.applyRangeActions(currentRangeActionActivationResult, input);
-            tmpSensitivityComputer = createSensitivityComputer(appliedRemedialActionsInSecondaryStates, input, parameters);
+            tmpSensitivityComputer = createSensitivityComputer(appliedRemedialActionsInSecondaryStates, input, parameters, scenarioRepo);
         } else {
             IteratingLinearOptimizer.applyRangeActions(currentRangeActionActivationResult, input);
             if (tmpSensitivityComputer == null) { // first iteration, do not need to be updated afterwards
-                tmpSensitivityComputer = createSensitivityComputer(input.preOptimizationAppliedRemedialActions(), input, parameters);
+                tmpSensitivityComputer = createSensitivityComputer(input.preOptimizationAppliedRemedialActions(), input, parameters, scenarioRepo);
             }
         }
         runSensitivityAnalysis(tmpSensitivityComputer, input.network(), iteration);
         return tmpSensitivityComputer;
     }
 
-    private static SensitivityComputer createSensitivityComputer(AppliedRemedialActions appliedRemedialActions, IteratingLinearOptimizerInput input, IteratingLinearOptimizerParameters parameters) {
+    private static SensitivityComputer createSensitivityComputer(AppliedRemedialActions appliedRemedialActions, IteratingLinearOptimizerInput input, IteratingLinearOptimizerParameters parameters, ScenarioRepo scenarioRepo) {
 
         SensitivityComputer.SensitivityComputerBuilder builder = SensitivityComputer.create()
             .withCnecs(input.optimizationPerimeter().getFlowCnecs())
             .withRangeActions(input.optimizationPerimeter().getRangeActions())
             .withAppliedRemedialActions(appliedRemedialActions)
             .withToolProvider(input.toolProvider())
-            .withOutageInstant(input.outageInstant());
+            .withOutageInstant(input.outageInstant())
+            .withExtraInjections(scenarioRepo.getInjectionIds());
 
         if (parameters.isRaoWithLoopFlowLimitation() && parameters.getLoopFlowParametersExtension().getPtdfApproximation().shouldUpdatePtdfWithPstChange()) {
             builder.withCommercialFlowsResults(input.toolProvider().getLoopFlowComputation(), input.optimizationPerimeter().getLoopFlowCnecs());
@@ -274,17 +314,23 @@ public final class InterTemporalIteratingLinearOptimizer {
     }
 
     // Result management
-    private static GlobalLinearOptimizationResult createInitialResult(TemporalData<FlowResult> flowResults, TemporalData<SensitivityResult> sensitivityResults, TemporalData<RangeActionActivationResult> rangeActionActivations, TemporalData<NetworkActionsResult> preventiveTopologicalActions, ObjectiveFunction objectiveFunction) {
+    private static GlobalLinearOptimizationResult createInitialResult(Map<String, TemporalData<FlowResult>> flowResults, Map<String, TemporalData<SensitivityResult>> sensitivityResults, TemporalData<RangeActionActivationResult> rangeActionActivations, TemporalData<NetworkActionsResult> preventiveTopologicalActions, RobustObjectiveFunction objectiveFunction) {
         return new GlobalLinearOptimizationResult(flowResults, sensitivityResults, rangeActionActivations, preventiveTopologicalActions, objectiveFunction, LinearProblemStatus.OPTIMAL);
     }
 
-    private static GlobalLinearOptimizationResult createResultFromData(TemporalData<SensitivityComputer> sensitivityComputers, TemporalData<Network> networks, TemporalData<RangeActionActivationResult> rangeActionActivation, TemporalData<NetworkActionsResult> preventiveTopologicalActions, ObjectiveFunction objectiveFunction) {
-        Map<OffsetDateTime, FlowResult> flowResults = new HashMap<>();
-        for (OffsetDateTime timestamp : sensitivityComputers.getTimestamps()) {
-            FlowResult flowResult = sensitivityComputers.getData(timestamp).orElseThrow().getBranchResult(networks.getData(timestamp).orElseThrow());
-            flowResults.put(timestamp, flowResult);
+    private static GlobalLinearOptimizationResult createResultFromData(TemporalData<SensitivityComputer> sensitivityComputers, TemporalData<Network> networks, TemporalData<RangeActionActivationResult> rangeActionActivation, TemporalData<NetworkActionsResult> preventiveTopologicalActions, RobustObjectiveFunction objectiveFunction) {
+        Map<String, TemporalData<FlowResult>> scenarizedFlowResults = new HashMap<>();
+        Map<String, TemporalData<SensitivityResult>> scenarizedSensitivityResults = new HashMap<>();
+        for (String scenario : Marmot.getScenarioRepo().getScenarios()) {
+            Map<OffsetDateTime, FlowResult> flowResults = new HashMap<>();
+            for (OffsetDateTime timestamp : sensitivityComputers.getTimestamps()) {
+                FlowResult flowResult = sensitivityComputers.getData(timestamp).orElseThrow().getBranchResult(networks.getData(timestamp).orElseThrow());
+                flowResults.put(timestamp, flowResult);
+            }
+            scenarizedFlowResults.put(scenario, new TemporalDataImpl<>(flowResults));
+            scenarizedSensitivityResults.put(scenario, sensitivityComputers.map(SensitivityComputer::getSensitivityResult));
         }
-        return new GlobalLinearOptimizationResult(new TemporalDataImpl<>(flowResults), sensitivityComputers.map(SensitivityComputer::getSensitivityResult), rangeActionActivation, preventiveTopologicalActions, objectiveFunction, LinearProblemStatus.OPTIMAL);
+        return new GlobalLinearOptimizationResult(scenarizedFlowResults, scenarizedSensitivityResults, rangeActionActivation, preventiveTopologicalActions, objectiveFunction, LinearProblemStatus.OPTIMAL);
     }
 
     // Set-point rounding

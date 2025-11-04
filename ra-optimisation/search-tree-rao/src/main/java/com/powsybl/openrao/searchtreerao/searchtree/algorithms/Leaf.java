@@ -663,6 +663,17 @@ public class Leaf implements OptimizationResult {
         }
     }
 
+    @Override
+    public double getSensitivityValue(FlowCnec flowCnec, TwoSides side, String variableId, Unit unit) {
+        if (status == Status.EVALUATED) {
+            return preOptimSensitivityResult.getSensitivityValue(flowCnec, side, variableId, unit);
+        } else if (status == Status.OPTIMIZED) {
+            return postOptimResult.getSensitivityValue(flowCnec, side, variableId, unit);
+        } else {
+            throw new OpenRaoException(NO_RESULTS_AVAILABLE);
+        }
+    }
+
     /**
      * Releases data used in optimization to make leaf lighter
      */

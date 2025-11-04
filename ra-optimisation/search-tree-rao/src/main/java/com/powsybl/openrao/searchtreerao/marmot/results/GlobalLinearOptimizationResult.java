@@ -17,17 +17,12 @@ import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
-import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
-import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
-import com.powsybl.openrao.searchtreerao.result.api.LinearOptimizationResult;
-import com.powsybl.openrao.searchtreerao.result.api.LinearProblemStatus;
-import com.powsybl.openrao.searchtreerao.result.api.NetworkActionsResult;
-import com.powsybl.openrao.searchtreerao.result.api.ObjectiveFunctionResult;
-import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
-import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
+import com.powsybl.openrao.searchtreerao.marmot.RobustObjectiveFunction;
+import com.powsybl.openrao.searchtreerao.result.api.*;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 
 import java.time.OffsetDateTime;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -39,15 +34,18 @@ import java.util.Set;
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 public class GlobalLinearOptimizationResult implements LinearOptimizationResult {
-    private final GlobalFlowResult globalFlowResult;
-    private final GlobalSensitivityResult globalSensitivityResult;
+    private final Map<String, FlowResult> globalFlowResult;
+    private final GlobalSensitivityResult globalSensitivityResult; // TODO make it a map ?
     private final GlobalRangeActionActivationResult globalRangeActionActivationResult;
     private final ObjectiveFunctionResult globalObjectiveFunctionResult;
     private LinearProblemStatus status;
 
-    public GlobalLinearOptimizationResult(TemporalData<? extends FlowResult> flowResults, TemporalData<SensitivityResult> sensitivityResults, TemporalData<RangeActionActivationResult> rangeActionActivationResults, TemporalData<NetworkActionsResult> preventiveTopologicalActions, ObjectiveFunction objectiveFunction, LinearProblemStatus status) {
-        this.globalFlowResult = new GlobalFlowResult(flowResults);
-        this.globalSensitivityResult = new GlobalSensitivityResult(sensitivityResults);
+    public GlobalLinearOptimizationResult(Map<String, TemporalData<FlowResult>> flowResults, Map<String, TemporalData<SensitivityResult>> sensitivityResults, TemporalData<RangeActionActivationResult> rangeActionActivationResults, TemporalData<NetworkActionsResult> preventiveTopologicalActions, RobustObjectiveFunction objectiveFunction, LinearProblemStatus status) {
+        this.globalFlowResult = new HashMap<>();
+        for (String scenario : flowResults.keySet()) {
+            this.globalFlowResult.put(scenario, new GlobalFlowResult(flowResults.get(scenario))); // TODO make this cleaner
+        }
+        this.globalSensitivityResult = new GlobalSensitivityResult(sensitivityResults.values().stream().findAny().orElseThrow()); // TODO ?
         this.globalRangeActionActivationResult = new GlobalRangeActionActivationResult(rangeActionActivationResults);
         this.globalObjectiveFunctionResult = objectiveFunction.evaluate(globalFlowResult, new GlobalRemedialActionActivationResult(rangeActionActivationResults, preventiveTopologicalActions));
         this.status = status;
@@ -62,7 +60,7 @@ public class GlobalLinearOptimizationResult implements LinearOptimizationResult 
     }
 
     public FlowResult getFlowResult(OffsetDateTime timestamp) {
-        return globalFlowResult.getIndividualResult(timestamp);
+        return ((GlobalFlowResult) globalFlowResult.values().stream().findAny().orElseThrow()).getIndividualResult(timestamp); // TODO
     }
 
     public SensitivityResult getSensitivityResult(OffsetDateTime timestamp) {
@@ -75,32 +73,32 @@ public class GlobalLinearOptimizationResult implements LinearOptimizationResult 
 
     @Override
     public double getFlow(FlowCnec flowCnec, TwoSides side, Unit unit) {
-        return globalFlowResult.getFlow(flowCnec, side, unit);
+        return globalFlowResult.values().stream().findAny().orElseThrow().getFlow(flowCnec, side, unit); // TODO
     }
 
     @Override
     public double getFlow(FlowCnec flowCnec, TwoSides side, Unit unit, Instant optimizedInstant) {
-        return globalFlowResult.getFlow(flowCnec, side, unit, optimizedInstant);
+        return globalFlowResult.values().stream().findAny().orElseThrow().getFlow(flowCnec, side, unit, optimizedInstant); // TODO
     }
 
     @Override
     public double getMargin(FlowCnec flowCnec, Unit unit) {
-        return globalFlowResult.getMargin(flowCnec, unit);
+        return globalFlowResult.values().stream().findAny().orElseThrow().getMargin(flowCnec, unit); // TODO
     }
 
     @Override
     public double getCommercialFlow(FlowCnec flowCnec, TwoSides side, Unit unit) {
-        return globalFlowResult.getCommercialFlow(flowCnec, side, unit);
+        return globalFlowResult.values().stream().findAny().orElseThrow().getCommercialFlow(flowCnec, side, unit); // TODO
     }
 
     @Override
     public double getPtdfZonalSum(FlowCnec flowCnec, TwoSides side) {
-        return globalFlowResult.getPtdfZonalSum(flowCnec, side);
+        return globalFlowResult.values().stream().findAny().orElseThrow().getPtdfZonalSum(flowCnec, side); // TODO
     }
 
     @Override
     public Map<FlowCnec, Map<TwoSides, Double>> getPtdfZonalSums() {
-        return globalFlowResult.getPtdfZonalSums();
+        return globalFlowResult.values().stream().findAny().orElseThrow().getPtdfZonalSums(); // TODO
     }
 
     public void setStatus(LinearProblemStatus status) {
@@ -225,5 +223,10 @@ public class GlobalLinearOptimizationResult implements LinearOptimizationResult 
     @Override
     public double getSensitivityValue(FlowCnec flowCnec, TwoSides side, SensitivityVariableSet linearGlsk, Unit unit) {
         return globalSensitivityResult.getSensitivityValue(flowCnec, side, linearGlsk, unit);
+    }
+
+    @Override
+    public double getSensitivityValue(FlowCnec flowCnec, TwoSides side, String variableId, Unit unit) {
+        return globalSensitivityResult.getSensitivityValue(flowCnec, side, variableId, unit);
     }
 }

@@ -63,6 +63,7 @@ public final class SensitivityComputer {
         private Set<FlowCnec> loopFlowCnecs;
         private AppliedRemedialActions appliedRemedialActions;
         private Instant outageInstant;
+        private Set<String> extraInjectionIds;
 
         public SensitivityComputerBuilder withToolProvider(ToolProvider toolProvider) {
             this.toolProvider = toolProvider;
@@ -114,6 +115,11 @@ public final class SensitivityComputer {
             return this;
         }
 
+        public SensitivityComputerBuilder withExtraInjections(Set<String> extraInjectionIds) {
+            this.extraInjectionIds = extraInjectionIds;
+            return this;
+        }
+
         public SensitivityComputer build() {
             Objects.requireNonNull(toolProvider);
             Objects.requireNonNull(flowCnecs);
@@ -128,7 +134,8 @@ public final class SensitivityComputer {
                     computePtdfs,
                     computeLoopFlows,
                     appliedRemedialActions,
-                    outageInstant);
+                    outageInstant,
+                    extraInjectionIds);
             BranchResultAdapterImpl.BranchResultAdpaterBuilder builder = BranchResultAdapterImpl.create();
             if (loopFlowComputation != null) {
                 builder.withCommercialFlowsResults(loopFlowComputation, loopFlowCnecs);

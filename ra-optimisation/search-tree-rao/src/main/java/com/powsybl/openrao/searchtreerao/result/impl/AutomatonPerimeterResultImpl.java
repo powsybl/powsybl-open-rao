@@ -215,6 +215,11 @@ public class AutomatonPerimeterResultImpl implements OptimizationResult {
         return postAutomatonSensitivityAnalysisOutput.getSensitivityValue(flowCnec, side, linearGlsk, unit);
     }
 
+    @Override
+    public double getSensitivityValue(FlowCnec flowCnec, TwoSides side, String variableId, Unit unit) {
+        return postAutomatonSensitivityAnalysisOutput.getSensitivityValue(flowCnec, side, variableId, unit);
+    }
+
     private void checkState(State state) {
         if (!state.equals(optimizedState)) {
             throw new OpenRaoException("State should be " + optimizedState.getId() + " but was " + state.getId());

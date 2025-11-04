@@ -39,13 +39,8 @@ import io.cucumber.java.en.When;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UncheckedIOException;
-import java.util.Comparator;
-import java.util.Objects;
-import java.util.Properties;
-import java.util.Set;
+import java.io.*;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters;
@@ -680,8 +675,8 @@ public class RaoSteps {
         double margin;
         //Filter flow cnecs from failed perimeters
         Set<State> failedStates = crac.getStates().stream()
-                .filter(state -> raoResult.getComputationStatus(state).equals(ComputationStatus.FAILURE))
-                        .collect(Collectors.toSet());
+            .filter(state -> raoResult.getComputationStatus(state).equals(ComputationStatus.FAILURE))
+            .collect(Collectors.toSet());
         for (FlowCnec flowCnec : flowCnecs) {
             if (failedStates.contains(flowCnec.getState())) {
                 continue;
@@ -720,5 +715,14 @@ public class RaoSteps {
     @Then("the execution details should be {string}")
     public void getOptimizationSteps(String string) {
         assertEquals(string, raoResult.getExecutionDetails());
+    }
+
+    @When("I export RAO result to {string}")
+    public void iExportRAOResultTo(String path) throws IOException {
+        OutputStream os = new FileOutputStream(path);
+        Properties properties = new Properties();
+        properties.setProperty("rao-result.export.json.flows-in-megawatts", "true");
+        raoResult.write("JSON", CommonTestData.getCracCreationContext(), properties, os);
+        os.close();
     }
 }

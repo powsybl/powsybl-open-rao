@@ -208,13 +208,18 @@ public class IteratingLinearOptimizationResultImpl implements LinearOptimization
     }
 
     @Override
-    public double getSensitivityValue(FlowCnec branchCnec, TwoSides side, RangeAction<?> rangeAction, Unit unit) {
-        return sensitivityResult.getSensitivityValue(branchCnec, side, rangeAction, unit);
+    public double getSensitivityValue(FlowCnec flowCnec, TwoSides side, RangeAction<?> rangeAction, Unit unit) {
+        return sensitivityResult.getSensitivityValue(flowCnec, side, rangeAction, unit);
     }
 
     @Override
-    public double getSensitivityValue(FlowCnec branchCnec, TwoSides side, SensitivityVariableSet linearGlsk, Unit unit) {
-        return sensitivityResult.getSensitivityValue(branchCnec, side, linearGlsk, unit);
+    public double getSensitivityValue(FlowCnec flowCnec, TwoSides side, SensitivityVariableSet linearGlsk, Unit unit) {
+        return sensitivityResult.getSensitivityValue(flowCnec, side, linearGlsk, unit);
+    }
+
+    @Override
+    public double getSensitivityValue(FlowCnec flowCnec, TwoSides side, String variableId, Unit unit) {
+        return sensitivityResult.getSensitivityValue(flowCnec, side, variableId, unit);
     }
 
     @Override

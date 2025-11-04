@@ -19,6 +19,8 @@ import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 import com.powsybl.iidm.network.Network;
 
+import java.util.Map;
+
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
@@ -31,7 +33,11 @@ public record IteratingLinearOptimizerInput(Network network, OptimizationPerimet
                                             RangeActionActivationResult raActivationFromParentLeaf,
                                             NetworkActionsResult appliedNetworkActionsInPrimaryState,
                                             ObjectiveFunction objectiveFunction, ToolProvider toolProvider,
-                                            Instant outageInstant) {
+                                            Instant outageInstant,
+                                            Map<String, FlowResult> initialFlowResultPerScenario,
+                                            Map<String, FlowResult> prePerimeterFlowResultPerScenario,
+                                            Map<String, FlowResult> preOptimizationFlowResultPerScenario,
+                                            Map<String, SensitivityResult> preOptimizationSensitivityResultPerScenario) {
 
     public static IteratingLinearOptimizerInputBuilder create() {
         return new IteratingLinearOptimizerInputBuilder();
@@ -42,9 +48,13 @@ public record IteratingLinearOptimizerInput(Network network, OptimizationPerimet
         private OptimizationPerimeter optimizationPerimeter;
         private FlowResult initialFlowResult;
         private FlowResult prePerimeterFlowResult;
+        private Map<String, FlowResult> initialFlowResultPerScenario;
+        private Map<String, FlowResult> prePerimeterFlowResultPerScenario;
+        private Map<String, FlowResult> preOptimizationFlowResultPerScenario;
         private RangeActionSetpointResult prePerimeterSetpoints;
         private FlowResult preOptimizationFlowResult;
         private SensitivityResult preOptimizationSensitivityResult;
+        private Map<String, SensitivityResult> preOptimizationSensitivityResultPerScenario;
         private AppliedRemedialActions preOptimizationAppliedRemedialActions;
         private RangeActionActivationResult raActivationFromParentLeaf;
         private NetworkActionsResult appliedNetworkActionsInPrimaryState;
@@ -72,6 +82,16 @@ public record IteratingLinearOptimizerInput(Network network, OptimizationPerimet
             return this;
         }
 
+        public IteratingLinearOptimizerInputBuilder withInitialFlowResultPerScenario(Map<String, FlowResult> initialFlowResult) {
+            this.initialFlowResultPerScenario = initialFlowResult;
+            return this;
+        }
+
+        public IteratingLinearOptimizerInputBuilder withPrePerimeterFlowResultPerScenario(Map<String, FlowResult> prePerimeterFlowResult) {
+            this.prePerimeterFlowResultPerScenario = prePerimeterFlowResult;
+            return this;
+        }
+
         public IteratingLinearOptimizerInputBuilder withPrePerimeterSetpoints(RangeActionSetpointResult prePerimeterSetpoints) {
             this.prePerimeterSetpoints = prePerimeterSetpoints;
             return this;
@@ -82,8 +102,18 @@ public record IteratingLinearOptimizerInput(Network network, OptimizationPerimet
             return this;
         }
 
+        public IteratingLinearOptimizerInputBuilder withPreOptimizationFlowResultPerScenario(Map<String, FlowResult> preOptimizationFlowResult) {
+            this.preOptimizationFlowResultPerScenario = preOptimizationFlowResult;
+            return this;
+        }
+
         public IteratingLinearOptimizerInputBuilder withPreOptimizationSensitivityResult(SensitivityResult preOptimizationSensitivityResult) {
             this.preOptimizationSensitivityResult = preOptimizationSensitivityResult;
+            return this;
+        }
+
+        public IteratingLinearOptimizerInputBuilder withPreOptimizationSensitivityResultPerScenario(Map<String, SensitivityResult> preOptimizationSensitivityResult) {
+            this.preOptimizationSensitivityResultPerScenario = preOptimizationSensitivityResult;
             return this;
         }
 
@@ -130,7 +160,11 @@ public record IteratingLinearOptimizerInput(Network network, OptimizationPerimet
                 appliedNetworkActionsInPrimaryState,
                 objectiveFunction,
                 toolProvider,
-                outageInstant);
+                outageInstant,
+                initialFlowResultPerScenario,
+                prePerimeterFlowResultPerScenario,
+                preOptimizationFlowResultPerScenario,
+                preOptimizationSensitivityResultPerScenario);
         }
     }
 }

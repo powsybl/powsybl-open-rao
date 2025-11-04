@@ -76,6 +76,11 @@ public class SkippedOptimizationResultImpl implements OptimizationResult {
     }
 
     @Override
+    public double getSensitivityValue(FlowCnec flowCnec, TwoSides side, String variableId, Unit unit) {
+        throw new OpenRaoException(SHOULD_NOT_BE_USED);
+    }
+
+    @Override
     public double getFlow(FlowCnec flowCnec, TwoSides side, Unit unit) {
         throw new OpenRaoException(SHOULD_NOT_BE_USED);
     }

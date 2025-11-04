@@ -21,7 +21,9 @@ import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.LoopFlowParameters;
 import com.powsybl.openrao.raoapi.parameters.RelativeMarginsParameters;
+import com.powsybl.openrao.searchtreerao.marmot.Marmot;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
+import com.powsybl.openrao.sensitivityanalysis.InjectionSensitivityProvider;
 import com.powsybl.openrao.sensitivityanalysis.SystematicSensitivityInterface;
 import com.powsybl.glsk.commons.ZonalData;
 import com.powsybl.glsk.commons.ZonalDataImpl;
@@ -83,7 +85,7 @@ public final class ToolProvider {
                                                                             Set<RangeAction<?>> rangeActions,
                                                                             boolean computePtdfs,
                                                                             boolean computeLoopFlows, Instant outageInstant) {
-        return getSystematicSensitivityInterface(cnecs, rangeActions, computePtdfs, computeLoopFlows, null, outageInstant);
+        return getSystematicSensitivityInterface(cnecs, rangeActions, computePtdfs, computeLoopFlows, null, outageInstant, null);
     }
 
     public SystematicSensitivityInterface getSystematicSensitivityInterface(Set<FlowCnec> cnecs,
@@ -91,7 +93,8 @@ public final class ToolProvider {
                                                                             boolean computePtdfs,
                                                                             boolean computeLoopFlows,
                                                                             AppliedRemedialActions appliedRemedialActions,
-                                                                            Instant outageInstant) {
+                                                                            Instant outageInstant,
+                                                                            Set<String> extraInjectionIds) {
 
         SystematicSensitivityInterface.SystematicSensitivityInterfaceBuilder builder = SystematicSensitivityInterface.builder()
             .withSensitivityProviderName(getSensitivityProvider(raoParameters))
@@ -99,6 +102,16 @@ public final class ToolProvider {
             .withRangeActionSensitivities(rangeActions, cnecs, Collections.singleton(Unit.MEGAWATT))
             .withAppliedRemedialActions(appliedRemedialActions)
             .withOutageInstant(outageInstant);
+
+        if (extraInjectionIds != null && !extraInjectionIds.isEmpty()) {
+            builder.withSensitivityProvider(new InjectionSensitivityProvider(cnecs, extraInjectionIds, Collections.singleton(Unit.MEGAWATT)));
+        } else if (Marmot.getScenarioRepo() != null) {
+            // TODO remove this and make it cleaner
+            Set<String> injectionIds = Marmot.getScenarioRepo().getInjectionIds();
+            if (!injectionIds.isEmpty()) {
+                builder.withSensitivityProvider(new InjectionSensitivityProvider(cnecs, injectionIds, Collections.singleton(Unit.MEGAWATT)));
+            }
+        }
 
         if (!getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters().isDc()) {
             builder.withLoadflow(cnecs, Collections.singleton(Unit.AMPERE));

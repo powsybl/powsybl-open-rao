@@ -7,13 +7,13 @@
 
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem;
 
+import com.google.ortools.Loader;
 import com.google.ortools.linearsolver.MPSolver;
 import com.google.ortools.linearsolver.MPSolverParameters;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
 import com.powsybl.openrao.searchtreerao.result.api.LinearProblemStatus;
-import com.powsybl.openrao.util.NativeLibraryLoader;
 
 import java.util.Map;
 import java.util.Objects;
@@ -28,8 +28,7 @@ import java.util.TreeMap;
 public class OpenRaoMPSolver {
     static {
         try {
-            //Loader.loadNativeLibraries();
-            NativeLibraryLoader.loadNativeLibrary("jniortools");
+            Loader.loadNativeLibraries();
         } catch (Exception e) {
             OpenRaoLoggerProvider.TECHNICAL_LOGS.error("Native library jniortools could not be loaded. You can ignore this message if it is not needed.");
         }
@@ -134,7 +133,7 @@ public class OpenRaoMPSolver {
 
     private OpenRaoMPVariable makeVar(double lb, double ub, boolean integer, String name) {
         if (hasVariable(name)) {
-            throw new OpenRaoException(String.format("Variable %s already exists", name));
+            return variables.get(name);
         }
         double roundedLb = roundDouble(lb);
         double roundedUb = roundDouble(ub);
@@ -145,7 +144,7 @@ public class OpenRaoMPSolver {
 
     public OpenRaoMPConstraint makeConstraint(double lb, double ub, String name) {
         if (hasConstraint(name)) {
-            throw new OpenRaoException(String.format("Constraint %s already exists", name));
+            return constraints.get(name);
         } else {
             double roundedLb = roundDouble(lb);
             double roundedUb = roundDouble(ub);
@@ -176,7 +175,6 @@ public class OpenRaoMPSolver {
         if (OpenRaoLoggerProvider.TECHNICAL_LOGS.isTraceEnabled()) {
             mpSolver.enableOutput();
         }
-        mpSolver.enableOutput();
         return convertResultStatus(mpSolver.solve(solveConfiguration));
     }
 

@@ -18,5 +18,5 @@ import java.util.Set;
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
-public record InterTemporalIteratingLinearOptimizerInput(TemporalData<IteratingLinearOptimizerInput> iteratingLinearOptimizerInputs, ObjectiveFunction objectiveFunction, Set<GeneratorConstraints> generatorConstraints) {
+public record InterTemporalIteratingLinearOptimizerInput(TemporalData<IteratingLinearOptimizerInput> iteratingLinearOptimizerInputs, RobustObjectiveFunction objectiveFunction, Set<GeneratorConstraints> generatorConstraints) {
 }

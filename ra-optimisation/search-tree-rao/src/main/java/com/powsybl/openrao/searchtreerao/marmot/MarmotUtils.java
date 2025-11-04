@@ -68,6 +68,18 @@ public final class MarmotUtils {
         ).runBasedOnInitialResults(network, initialResult, null, curativeRemedialActions);
     }
 
+    public static PrePerimeterResult runInitialPrePerimeterSensitivityAnalysisWithRangeActions(RaoInput raoInput, RaoParameters raoParameters, Set<RangeAction<?>> rangeActions) {
+        Crac crac = raoInput.getCrac();
+        Network network = raoInput.getNetwork();
+        return new PrePerimeterSensitivityAnalysis(
+            crac,
+            crac.getFlowCnecs(), // want results on all cnecs
+            rangeActions,
+            raoParameters,
+            ToolProvider.buildFromRaoInputAndParameters(raoInput, raoParameters)
+        ).runInitialSensitivityAnalysis(network);
+    }
+
     public static TemporalData<AppliedRemedialActions> getAppliedRemedialActionsInCurative(TemporalData<RaoInput> inputs, TemporalData<RaoResult> raoResults) {
         TemporalData<AppliedRemedialActions> curativeRemedialActions = new TemporalDataImpl<>();
         inputs.getTimestamps().forEach(timestamp -> {

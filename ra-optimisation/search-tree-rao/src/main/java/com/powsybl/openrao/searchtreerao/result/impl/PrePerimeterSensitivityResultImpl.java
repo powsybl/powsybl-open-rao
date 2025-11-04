@@ -81,6 +81,11 @@ public class PrePerimeterSensitivityResultImpl implements PrePerimeterResult {
     }
 
     @Override
+    public double getSensitivityValue(FlowCnec flowCnec, TwoSides side, String variableId, Unit unit) {
+        return sensitivityResult.getSensitivityValue(flowCnec, side, variableId, unit);
+    }
+
+    @Override
     public double getFlow(FlowCnec flowCnec, TwoSides side, Unit unit) {
         return flowResult.getFlow(flowCnec, side, unit);
     }

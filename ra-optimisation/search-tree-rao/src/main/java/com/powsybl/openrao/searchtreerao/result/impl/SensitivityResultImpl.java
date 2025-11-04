@@ -70,4 +70,13 @@ public class SensitivityResultImpl implements SensitivityResult {
             throw new OpenRaoException(format("Unknown unit for sensitivity value on linear GLSK : %s.", unit));
         }
     }
+
+    @Override
+    public double getSensitivityValue(FlowCnec flowCnec, TwoSides side, String variableId, Unit unit) {
+        if (unit == Unit.MEGAWATT) {
+            return systematicSensitivityResult.getSensitivityOnFlow(variableId, flowCnec, side);
+        } else {
+            throw new OpenRaoException(format("Unknown unit for sensitivity value : %s.", unit));
+        }
+    }
 }
