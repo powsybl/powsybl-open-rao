@@ -7,6 +7,8 @@
 
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers;
 
+import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
@@ -34,6 +36,7 @@ import java.util.Set;
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
  */
 public class GeneratorConstraintsFiller implements ProblemFiller {
+    private final TemporalData<Network> networks;
     private final TemporalData<State> preventiveStates;
     private final TemporalData<Set<InjectionRangeAction>> injectionRangeActionsPerTimestamp;
     private final Set<GeneratorConstraints> generatorConstraints;
@@ -42,7 +45,8 @@ public class GeneratorConstraintsFiller implements ProblemFiller {
     private static final double DEFAULT_P_MAX = 10000.0;
     private static final double TIME_EPSILON = 1e-8; // used to ensure that lead and lag times are not multiples of the timestamp duration (which would create side effects in some cases)
 
-    public GeneratorConstraintsFiller(TemporalData<State> preventiveStates, TemporalData<Set<InjectionRangeAction>> injectionRangeActionsPerTimestamp, Set<GeneratorConstraints> generatorConstraints) {
+    public GeneratorConstraintsFiller(TemporalData<Network> networks, TemporalData<State> preventiveStates, TemporalData<Set<InjectionRangeAction>> injectionRangeActionsPerTimestamp, Set<GeneratorConstraints> generatorConstraints) {
+        this.networks = networks;
         this.preventiveStates = preventiveStates;
         this.injectionRangeActionsPerTimestamp = injectionRangeActionsPerTimestamp;
         this.generatorConstraints = generatorConstraints;
@@ -80,7 +84,7 @@ public class GeneratorConstraintsFiller implements ProblemFiller {
         if (previousTimestamp != null) {
             addPowerVariationConstraints(linearProblem, generatorConstraints, timestamp, previousTimestamp, timestampDuration, reducedLeadTime, reducedLagTime);
         }
-        addPowerToInjectionConstraint(linearProblem, generatorConstraints, timestamp, injectionRangeAction, preventiveStates.getData(timestamp).orElseThrow());
+        addPowerToInjectionConstraint(linearProblem, generatorConstraints, timestamp, injectionRangeAction, preventiveStates.getData(timestamp).orElseThrow(), networks.getData(timestamp).orElseThrow());
     }
 
     // variables
@@ -332,10 +336,10 @@ public class GeneratorConstraintsFiller implements ProblemFiller {
         }
     }
 
-    private static void addPowerToInjectionConstraint(LinearProblem linearProblem, GeneratorConstraints generatorConstraints, OffsetDateTime timestamp, InjectionRangeAction injectionRangeAction, State state) {
+    private static void addPowerToInjectionConstraint(LinearProblem linearProblem, GeneratorConstraints generatorConstraints, OffsetDateTime timestamp, InjectionRangeAction injectionRangeAction, State state, Network network) {
         OpenRaoMPConstraint powerToInjectionConstraint = linearProblem.addGeneratorToInjectionConstraint(generatorConstraints.getGeneratorId(), injectionRangeAction, timestamp);
         powerToInjectionConstraint.setCoefficient(linearProblem.getGeneratorPowerVariable(generatorConstraints.getGeneratorId(), timestamp), 1.0);
-        powerToInjectionConstraint.setCoefficient(linearProblem.getRangeActionSetpointVariable(injectionRangeAction, state), -getDistributionKey(generatorConstraints.getGeneratorId(), injectionRangeAction));
+        powerToInjectionConstraint.setCoefficient(linearProblem.getRangeActionSetpointVariable(injectionRangeAction, state), -getDistributionKey(generatorConstraints.getGeneratorId(), injectionRangeAction, network));
     }
 
     // utility methods
@@ -373,8 +377,18 @@ public class GeneratorConstraintsFiller implements ProblemFiller {
             .findFirst();
     }
 
-    private static double getDistributionKey(String generatorId, InjectionRangeAction injectionRangeAction) {
-        return injectionRangeAction.getInjectionDistributionKeys().entrySet().stream().filter(entry -> entry.getKey().getId().equals(generatorId)).map(Map.Entry::getValue).findFirst().orElse(0.0);
+    private static double getDistributionKey(String generatorId, InjectionRangeAction injectionRangeAction, Network network) {
+        return getGeneratorTypeCoefficient(generatorId, network) * injectionRangeAction.getInjectionDistributionKeys().entrySet().stream().filter(entry -> entry.getKey().getId().equals(generatorId)).map(Map.Entry::getValue).findFirst().orElse(0.0);
+    }
+
+    private static double getGeneratorTypeCoefficient(String generatorId, Network network) {
+        if (network.getGenerator(generatorId) != null) {
+            return 1.0;
+        } else if (network.getLoad(generatorId) != null) {
+            return -1.0;
+        } else {
+            throw new OpenRaoException("Network element %s is neither a generator nor a load.".formatted(generatorId));
+        }
     }
 
     @Override

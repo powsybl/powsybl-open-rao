@@ -135,10 +135,12 @@ class GeneratorConstraintsFillerTest {
     }
 
     private void createPowerGradientConstraintFiller() {
+        TemporalData<Network> networks = input.getRaoInputs().map(RaoInput::getNetwork);
         TemporalData<State> preventiveStates = input.getRaoInputs().map(RaoInput::getCrac).map(Crac::getPreventiveState).map(State.class::cast);
         TemporalData<Set<InjectionRangeAction>> injectionRangeActions = input.getRaoInputs().map(RaoInput::getCrac).map(crac -> crac.getRangeActions(crac.getPreventiveState()).stream().filter(InjectionRangeAction.class::isInstance).map(InjectionRangeAction.class::cast).collect(Collectors.toSet()));
         Set<GeneratorConstraints> generatorConstraints = input.getIntertemporalConstraints().getGeneratorConstraints();
         GeneratorConstraintsFiller generatorConstraintsFiller = new GeneratorConstraintsFiller(
+            networks,
             preventiveStates,
             injectionRangeActions,
             generatorConstraints);
