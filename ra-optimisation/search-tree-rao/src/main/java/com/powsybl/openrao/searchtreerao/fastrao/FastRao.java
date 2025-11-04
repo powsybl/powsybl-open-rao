@@ -159,7 +159,7 @@ public class FastRao implements RaoProvider {
                     parameters,
                     NUMBER_LOGGED_ELEMENTS_DURING_RAO);
 
-                worstCnec = stepResult.getMostLimitingElements(1).get(0);
+                worstCnec = stepResult.getMostLimitingElements(1).getFirst();
                 counter++;
             } while (!(consideredCnecs.contains(worstCnec) && consideredCnecs.containsAll(getCostlyVirtualCnecs(stepResult))));
 

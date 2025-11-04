@@ -134,7 +134,7 @@ public class CastorContingencyScenarios {
         if (!automatonsOnly
             && automatonState.isEmpty()
             && !optimizedScenario.getCurativePerimeters().isEmpty()
-            && prePerimeterSensitivityOutput.getSensitivityStatus(optimizedScenario.getCurativePerimeters().get(0).getRaOptimisationState()) == ComputationStatus.FAILURE
+            && prePerimeterSensitivityOutput.getSensitivityStatus(optimizedScenario.getCurativePerimeters().getFirst().getRaOptimisationState()) == ComputationStatus.FAILURE
             || automatonState.isPresent()
             && autoStateSensiFailed
         ) {

@@ -67,13 +67,15 @@ class InterTemporalRaoInputTest {
 
     @Test
     void testInstantiateWithMissingTimestamp() {
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> new InterTemporalRaoInput(temporalData, Set.of(OffsetDateTime.of(2024, 12, 11, 14, 29, 0, 0, ZoneOffset.UTC)), new IntertemporalConstraints()));
+        final Set<OffsetDateTime> timestampsToRun = Set.of(OffsetDateTime.of(2024, 12, 11, 14, 29, 0, 0, ZoneOffset.UTC));
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> new InterTemporalRaoInput(temporalData, timestampsToRun, new IntertemporalConstraints()));
         assertEquals("Timestamp(s) '2024-12-11T14:29Z' are not defined in the inputs.", exception.getMessage());
     }
 
     @Test
     void testInstantiateWithMissingTimestamps() {
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> new InterTemporalRaoInput(temporalData, Set.of(OffsetDateTime.of(2024, 12, 11, 14, 29, 0, 0, ZoneOffset.UTC), OffsetDateTime.of(2024, 11, 11, 14, 29, 0, 0, ZoneOffset.UTC)), new IntertemporalConstraints()));
+        final Set<OffsetDateTime> timestampsToRun = Set.of(OffsetDateTime.of(2024, 12, 11, 14, 29, 0, 0, ZoneOffset.UTC), OffsetDateTime.of(2024, 11, 11, 14, 29, 0, 0, ZoneOffset.UTC));
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> new InterTemporalRaoInput(temporalData, timestampsToRun, new IntertemporalConstraints()));
         assertEquals("Timestamp(s) '2024-11-11T14:29Z', '2024-12-11T14:29Z' are not defined in the inputs.", exception.getMessage());
     }
 }
