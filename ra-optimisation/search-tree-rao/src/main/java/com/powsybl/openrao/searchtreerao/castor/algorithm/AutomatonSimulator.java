@@ -493,10 +493,7 @@ public final class AutomatonSimulator {
             contingency.toModification().apply(network, (ComputationManager) null);
         }
 
-        LoadFlowResult loadFlowResult = LoadFlow.find(loadFlowProvider).run(network, loadFlowParameters);
-        if (loadFlowResult.isFailed()) {
-            throw new OpenRaoException("LoadFlow computation failed, couldn't compute HVDC angle droop active power control set-points.");
-        }
+        LoadFlow.find(loadFlowProvider).run(network, loadFlowParameters);
 
         // Compute HvdcAngleDroopActivePowerControl values of HVDC lines
         Map<String, Double> controls = network.getHvdcLineStream()
