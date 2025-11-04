@@ -28,6 +28,7 @@ import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.io.idcc.core.F711Utils;
 import com.powsybl.openrao.data.refprog.refprogxmlimporter.InterTemporalRefProg;
 import com.powsybl.openrao.raoapi.*;
+import com.powsybl.openrao.searchtreerao.roda.Roda;
 import com.powsybl.openrao.tests.utils.CoreCcPreprocessor;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.After;
@@ -204,7 +205,7 @@ public final class InterTemporalRaoSteps {
 
     @When("I launch marmot")
     public static void iLaunchMarmot() {
-        interTemporalRaoResult = InterTemporalRao.run(interTemporalRaoInput, getRaoParameters());
+        interTemporalRaoResult = InterTemporalRao.find("Roda").run(interTemporalRaoInput, getRaoParameters());
     }
 
     @When("I export marmot results to {string}")
