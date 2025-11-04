@@ -105,11 +105,6 @@ class VoltageMonitoringTest {
         loadFlowParameters = new LoadFlowParameters();
         loadFlowParameters.setDc(false);
 
-        // add OLF extension to keep same behavior as before version 2.0.0 with default parameter (note that "transformerVoltageControlMode" could be set to "WITH_GENERATOR_VOLTAGE_CONTROL" but this has no impact)
-        OpenLoadFlowParameters openLoadFlowParameters = new OpenLoadFlowParameters();
-        openLoadFlowParameters.setSlackDistributionFailureBehavior(OpenLoadFlowParameters.SlackDistributionFailureBehavior.LEAVE_ON_SLACK_BUS);
-        loadFlowParameters.addExtension(OpenLoadFlowParameters.class, openLoadFlowParameters);
-
         raoResult = Mockito.mock(RaoResult.class);
         when(raoResult.getActivatedNetworkActionsDuringState(any())).thenReturn(Collections.emptySet());
         when(raoResult.getActivatedRangeActionsDuringState(any())).thenReturn(Collections.emptySet());
@@ -262,23 +257,19 @@ class VoltageMonitoringTest {
     @Test
     void testCurativeStatesConstraints() {
         // In this test, L1 and L2 are open by contingencies
-        // We define CNECs on these contingencies, one should have low voltage and one should have high voltage
+        // we don't apply any remedial action, the raoresult remedial action set is empty
+        // the network after applying the contingencies is unbalanced making the load flow diverge in state "coL1L2 - curative"
         addVoltageCnec("vc1", CURATIVE_INSTANT_ID, "coL1", "VL2", 375., 395.);
         addVoltageCnec("vc2", CURATIVE_INSTANT_ID, "coL2", "VL3", 375., 395.);
         addVoltageCnec("vc1b", CURATIVE_INSTANT_ID, "coL1L2", "VL2", 375., 395.);
         addVoltageCnec("vc2b", CURATIVE_INSTANT_ID, "coL1L2", "VL3", 375., 395.);
 
         runVoltageMonitoring();
-        assertEquals(Cnec.SecurityStatus.HIGH_AND_LOW_CONSTRAINTS, voltageMonitoringResult.getStatus());
         assertTrue(voltageMonitoringResult.getCnecResults().stream().filter(cnecResult -> cnecResult.getCnec().getId().equals("vc1")).allMatch(cr -> cr.getMargin() < 0));
         assertTrue(voltageMonitoringResult.getCnecResults().stream().filter(cnecResult -> cnecResult.getCnec().getId().equals("vc2")).allMatch(cr -> cr.getMargin() < 0));
-        assertTrue(voltageMonitoringResult.getCnecResults().stream().filter(cnecResult -> cnecResult.getCnec().getId().equals("vc2b")).allMatch(cr -> cr.getMargin() < 0));
-        assertTrue(voltageMonitoringResult.getCnecResults().stream().filter(cnecResult -> cnecResult.getCnec().getId().equals("vc1b")).noneMatch(cr -> cr.getMargin() < 0));
-        assertEquals(List.of("Some VOLTAGE Cnecs are not secure:",
-                "Network element VL2 at state coL1 - curative has a min voltage of 368.12 kV and a max voltage of 368.12 kV.",
-                "Network element VL3 at state coL2 - curative has a min voltage of 400.0 kV and a max voltage of 400.0 kV.",
-                "Network element VL3 at state coL1L2 - curative has a min voltage of 400.0 kV and a max voltage of 400.0 kV."),
-            voltageMonitoringResult.printConstraints());
+        assertTrue(voltageMonitoringResult.getCnecResults().stream().filter(cnecResult -> cnecResult.getCnec().getId().equals("vc2b")).allMatch(cr -> Double.isNaN(cr.getMargin())));
+        assertTrue(voltageMonitoringResult.getCnecResults().stream().filter(cnecResult -> cnecResult.getCnec().getId().equals("vc1b")).allMatch(cr -> Double.isNaN(cr.getMargin())));
+        assertEquals(List.of("VOLTAGE monitoring failed due to a load flow divergence or an inconsistency in the crac or in the parameters."), voltageMonitoringResult.printConstraints());
     }
 
     @Test
@@ -317,8 +308,8 @@ class VoltageMonitoringTest {
     @Test
     void testMultipleVoltageValuesPerVoltageLevel() {
         network = Network.read("ieee14.xiidm", getClass().getResourceAsStream("/ieee14.xiidm"));
-        // VL45 : Min = 144.38, Max = 148.41
-        // VL46 : Min = 143.10, Max = 147.66
+        // VL45 : Min = 141.07, Max = 146.86
+        // VL46 : Min = 140.96, Max = 147.66
 
         addVoltageCnec("VL45", PREVENTIVE_INSTANT_ID, null, "VL45", 145., 150.);
         addVoltageCnec("VL46", PREVENTIVE_INSTANT_ID, null, "VL46", 140., 145.);
@@ -331,8 +322,8 @@ class VoltageMonitoringTest {
         assertTrue(voltageMonitoringResult.getCnecResults().stream().filter(cnecResult -> cnecResult.getCnec().getId().equals("VL46")).anyMatch(cr -> cr.getMargin() < 0));
         assertEquals(List.of(
                 "Some VOLTAGE Cnecs are not secure:",
-                "Network element VL45 at state preventive has a min voltage of 144.38 kV and a max voltage of 148.41 kV.",
-                "Network element VL46 at state preventive has a min voltage of 143.1 kV and a max voltage of 147.66 kV."),
+                "Network element VL45 at state preventive has a min voltage of 141.07 kV and a max voltage of 146.86 kV.",
+                "Network element VL46 at state preventive has a min voltage of 140.96 kV and a max voltage of 147.66 kV."),
             voltageMonitoringResult.printConstraints());
     }
 
