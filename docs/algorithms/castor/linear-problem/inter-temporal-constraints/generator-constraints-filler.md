@@ -40,22 +40,18 @@ problem's timestamps.
 
 ## Used input data
 
-| Name                            | Symbol               | Details                                                                                                                                                                      |
-|---------------------------------|----------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Constrained generators set      | $\Gamma$             | Set of generators with constraints defined                                                                                                                                   |
-| PMin                            | $P_{\min}(g)$        | Minimum operating power of generator $g$. This value must be non-negative.                                                                                                   |
-| PMax                            | $P_{\max}(g)$        | Maximum operating power of generator $g$. This value must be non-negative.                                                                                                   |
-| Lead Time                       | $LEAD(g)$            | Maximum operating power of generator $g$. This value must be non-negative.                                                                                                   |
-| Lag Time                        | $LAG(g)$             | Maximum operating power of generator $g$. This value must be non-negative.                                                                                                   |
-| Upper power gradient constraint | $\nabla^{+}(g)$      | Maximum upward power variation between two consecutive timestamps for generator $g$. This value must be non-negative.                                                        |
-| Lower power gradient constraint | $\nabla^{-}(g)$      | Maximum downward power variation (in absolute value) between two consecutive timestamps for generator $g$. This value must be non-positive.                                  |
-| Initial generator power         | $p_{0}(g,s,t)$       | Initial power of generator $g$ at grid state $s$ of timestamp $t$, as defined in the network.                                                                                |
-| Timestamps                      | $\mathcal{T}$        | Set of all timestamps on which the optimization is performed.                                                                                                                |
-| Time gap                        | $\Delta_t(t, t + 1)$ | Time gap between consecutive timestamps $t$ and $t + 1$. For simplicity's sake, **the time gap is considered constant between all consecutive timestamps**.                  |
-| Initial state                   | $S_{0}(g,s,t)$       | Initial state of generator $g$ at grid state $s$ of timestamp $t$. It is deduced from the initial power. For simplicity's sake, **the initial state can only be ON or OFF**. |
-
-> We also introduce the **reduced lead and lag times**, respectively defined as
-> $\lambda_{t}^{\nearrow}(g) \equiv LEAD [\Delta t]$ and $\lambda_{t}^{\searrow}(g) \equiv LAG [\Delta t]$.
+| Name                            | Symbol                     | Details                                                                                                                                     |
+|---------------------------------|----------------------------|---------------------------------------------------------------------------------------------------------------------------------------------|
+| Constrained generators set      | $\Gamma$                   | Set of generators with constraints defined                                                                                                  |
+| PMin                            | $P_{\min}(g)$              | Minimum operating power of generator $g$. This value must be non-negative.                                                                  |
+| PMax                            | $P_{\max}(g)$              | Maximum operating power of generator $g$. This value must be non-negative.                                                                  |
+| Lead Time                       | $LEAD(g)$                  | Maximum operating power of generator $g$. This value must be non-negative.                                                                  |
+| Lag Time                        | $LAG(g)$                   | Maximum operating power of generator $g$. This value must be non-negative.                                                                  |
+| Upper power gradient constraint | $\nabla^{+}(g)$            | Maximum upward power variation between two consecutive timestamps for generator $g$. This value must be non-negative.                       |
+| Lower power gradient constraint | $\nabla^{-}(g)$            | Maximum downward power variation (in absolute value) between two consecutive timestamps for generator $g$. This value must be non-positive. |
+| Initial generator power         | $p_{0}(g,s,t)$             | Initial power of generator $g$ at grid state $s$ of timestamp $t$, as defined in the network.                                               |
+| Timestamps                      | $\mathcal{T}$              | Set of all timestamps on which the optimization is performed.                                                                               |
+| Time gap                        | $\Delta_{i \rightarrow j}$ | Time gap between timestamps $i$ and $j$ (with $i < j$).                                                                                     |
 
 ## Defined optimization variables
 
@@ -94,8 +90,6 @@ $$\forall g \in \Gamma, \forall t \in \mathcal{T}, \forall s, \; ON(g,s,t) + OFF
 
 ### State transition constraints
 
-#### Impossible transitions
-
 Some transitions are impossible which means that the value of the associated binary variables is always forced to 0.
 These impossible transitions are:
 
@@ -113,6 +107,15 @@ transitions to or from these states are straightforwardly impossible. All of the
 
 > 💡 Once again, in the code, and under such conditions, the binary variables associated to the ramping states and the
 > transitions in which they are involved are not created.
+
+The table belows gathers all the possible generator state transitions and their associated condition if any:
+
+| ↓ From / To → | $OFF$                                       | $RU$                                      | $ON$                                         | $RD$                                     |
+|---------------|---------------------------------------------|-------------------------------------------|----------------------------------------------|------------------------------------------|
+| $OFF$         | ✅                                           | ✳️ if $\Delta_{t-1 \rightarrow t} < LEAD$ | ✳️ if $\Delta_{t-1 \rightarrow t} \geq LEAD$ | ❌                                        |
+| $RU$          | ❌                                           | ✅                                         | ✅                                            | ❌                                        |
+| $ON$          | ✳️ if $\Delta_{t-1 \rightarrow t} \geq LAG$ | ❌                                         | ✅                                            | ✳️ if $\Delta_{t-1 \rightarrow t} > LAG$ |
+| $RD$          | ✅                                           | ❌                                         | ❌                                            | ✅                                        |
 
 #### Chaining
 
@@ -140,12 +143,21 @@ $$OFF(g,t-1,s) = T_{OFF \to ON}(g,s,t) + T_{OFF \to OFF}(g,s,t) + T_{OFF \to RD}
 $$RD(g,t-1,s) = T_{RD \to ON}(g,s,t) + T_{RD \to OFF}(g,s,t) + T_{RD \to RD}(g,s,t) + T_{RD \to RU}(g,s,t)$$
 $$RU(g,t-1,s) = T_{RU \to ON}(g,s,t) + T_{RU \to OFF}(g,s,t) + T_{RU \to RD}(g,s,t) + T_{RU \to RU}(g,s,t)$$
 
-> Note that for the first timestamp, the initial state $S_{0}(g,s,1)$ is used as the initial condition of the chain:
-> - if $S_{0}(g,s,1)$ is On: $T_{ON \to ON}(g,s,1) + T_{ON \to OFF}(g,s,1) + T_{ON \to RD}(g,s,1) + T_{ON \to RU}(
-    g,s,1) =
-    1$
-> - if $S_{0}(g,s,1)$ is Off: $T_{OFF \to ON}(g,s,1) + T_{OFF \to OFF}(g,s,1) + T_{OFF \to RD}(g,s,1) + T_{OFF \to RU}(
-    g,s,1) = 1$
+### Ramp constraints
+
+#### Ramp-Up state
+
+If the generator starts ramping up at a given timestamp, it is thus constrained to the Ramp-Up state for a duration that
+covers its lead time. Thus:
+
+$$\forall t' > t \text{ such that } \Delta_{t-1 \rightarrow t'} < LEAD(g), \; T_{OFF \to RU}(g,s,t) \leq RU(g,t',s)$$
+
+#### Ramp-Down state
+
+Similarly, if the generator stops ramping down at a given timestamp, it must have been constrained to the Ramp-Down
+state for a duration that covers its lag time. Thus:
+
+$$\forall t' < t \text{ such that } \Delta_{t' \rightarrow t} < LAG(g), \; T_{RD \to OFF}(g,s,t) \leq RD(g,t',s)$$
 
 ### Power constraints
 
@@ -170,18 +182,138 @@ on and off state. In between these are the ramping states which can be determine
 whether the power is increasing (ramp-up) or decreasing (ramp-down).
 
 More generally, the power variation and the state transitions are strongly entangled and constrain one another.
-The following table displays the bounds of the variation $P(g,s,t) - P(g,s,t-1)$ based on the state transition ("from"
-state are defined in the rows and "to" states in the columns):
+Depending on the state transition, the power variation $P(g,s,t) - P(g,s,t-1)$ is bounded differently.
 
-| ↓ From / To → | $OFF$                                                                                       | $RU$                                   | $ON$                                                                                                                                                                    | $RD$                                                                                                                                                                    |
-|---------------|---------------------------------------------------------------------------------------------|----------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| $OFF$         | 0                                                                                           | $\Delta t \frac{P_{\min}(g)}{LEAD(g)}$ | $P_{\min}(g) \leq . \leq P_{\min}(g) + (\Delta t - \lambda_{t}^{\nearrow}) \nabla^{+}(g)$                                                                               | $\times$                                                                                                                                                                |
-| $RU$          | $\times$                                                                                    | $\Delta t \frac{P_{\min}(g)}{LEAD(g)}$ | $\lambda_{t}^{\nearrow} \frac{P_{\min}(g)}{LEAD(g)} \leq . \leq \lambda_{t}^{\nearrow} \frac{P_{\min}(g)}{LEAD(g)} + (\Delta t - \lambda_{t}^{\nearrow}) \nabla^{+}(g)$ | $\times$                                                                                                                                                                |
-| $ON$          | $-P_{\min}(g) + (\Delta t - \lambda_{t}^{\searrow}) \nabla^{-}(g) \leq . \leq -P_{\min}(g)$ | $\times$                               | $\Delta t \nabla^{-}(g) \leq . \leq \Delta t \nabla^{+}(g)$                                                                                                             | $-\lambda_{t}^{\searrow} \frac{P_{\min}(g)}{LAG(g)} + (\Delta t - \lambda_{t}^{\searrow}) \nabla^{-}(g) \leq . \leq -\lambda_{t}^{\searrow} \frac{P_{\min}(g)}{LAG(g)}$ |
-| $RD$          | $- \Delta t \frac{P_{\min}(g)}{LAG(g)}$                                                     | $\times$                               | $\times$                                                                                                                                                                | $- \Delta t \frac{P_{\min}(g)}{LAG(g)}$                                                                                                                                 |
+##### Off to Off transition
 
-> - A single value in a cell means that said value is both a lower and an upper bound.
-> - A "$\times$" symbol denotes an [impossible transition](#impossible-transitions).
+The power remains constant and null between the two timestamp:
+
+$$P(g,s,t-1) = P(g,s,t) = 0$$
+
+##### Off to Ramp-Up transition
+
+> The following holds only if $\Delta_{t-1 \rightarrow t} < LEAD(g)$.
+
+The power increase is constrained by the upward power ramp:
+
+$$P(g,s,t) - P(g,s,t-1) = \frac{P_{\min}(g)}{LEAD(g)}$$
+
+> 💡 **Participation to the global constraint**
+>
+> When including this equation in the global constraint, both bounds must be multiplied by the binary variable
+> $T_{OFF \to RU}(g,s,t)$.
+
+##### Off to On transition
+
+> The following holds only if $\Delta_{t-1 \rightarrow t} \geq LEAD(g)$.
+
+The power jumps from 0 to $P_{\min}(g)$ at least. Then it is free to vary in a range that is bounded by $P_{\max}(g)$ or
+the upward power gradient (considered infinite if not defined). Note that the power gradient only holds for the time
+when the generator power is _free_, which happens at the end of the ramp and before the end of the timestamp, i.e. for a
+duration of $\Delta_{t-1 \rightarrow t} - LEAD(g)$.
+
+$$P_{\min}(g) \leq P(g,s,t) - P(g,s,t-1) \leq P_{\min}(g) + \min
+\left [ P_{\max}(g) - P_{\min}(g), \left ( \Delta_{t-1 \rightarrow t} - LEAD(g) \right ) \nabla^{+}(g) \right ]$$
+
+> 💡 **Participation to the global constraint**
+>
+> When including this equation in the global constraint, both bounds must be multiplied by the binary variable
+> $T_{OFF \to ON}(g,s,t)$.
+
+##### Ramp-Up to Ramp-Up transition
+
+The power increase is constrained by the upward power ramp:
+
+$$P(g,s,t) - P(g,s,t-1) = \frac{P_{\min}(g)}{LEAD(g)}$$
+
+> 💡 **Participation to the global constraint**
+>
+> When including this equation in the global constraint, both bounds must be multiplied by the binary variable
+> $T_{RU \to RU}(g,s,t)$.
+
+##### Ramp-Up to On transition
+
+This transition is decomposed into two parts: a first part corresponding to the end of the upward power ramp and a
+second one corresponding to the remaining time during which the power is _free_. However, if the different timestamps
+are not evenly distributed over time, it may not be possible to identify the precise timestamp at which the ramping-up
+began.
+
+<!-- TODO: prove this with a simple situation 46 / 30 / 60 and lead time of 1,75h -->
+
+For a given timestamp $t$, we define $\tau_{\infty}^{\nearrow}(t)$ as the timestamp during which the ramping up will
+finish (i.e. when the generator will transition to the On state). Mathematically:
+
+$$\tau_{\infty}^{\nearrow}(t) = \min \lbrace t' \geq t \; | \; \Delta_{t-1 \rightarrow t'} \geq LEAD(g) \rbrace$$
+
+Note that several timestamps can have the same value of $\tau_{\infty}^{\nearrow}$. Then, $\forall t' < t$ such that
+$\tau_{\infty}^{\nearrow}(t') = t$, considering that the ramping up started at $t'$, the power variation is constrained
+as:
+
+$$(LEAD(g) - \Delta_{t' \rightarrow t-1}) \frac{P_{\min}(g)}{LEAD(g)} \leq P(g,s,t) - P(g,s,t-1) \leq (LEAD(g) - \Delta_
+{t' \rightarrow t-1}) \frac{P_{\min}(g)}{LEAD(g)} + \min
+\left [ P_{\max}(g) - P_{\min}(g), (\Delta_{t' \rightarrow t} - LEAD(g)) \nabla^{+}(g) \right ]$$
+
+> 💡 **Participation to the global constraint**
+> 
+> When including this equation in the global constraint, both bounds must be multiplied by the binary variable
+> $T_{OFF \to RU}(g,s,t')$, for all $t'$ such that $\tau_{\infty}^{\nearrow}(t') = t$.
+
+##### On to Off transition
+
+> The following holds only if $\Delta_{t-1 \rightarrow t} \geq LAG(g)$.
+
+The power decreases from $P_{\min}(g)$ to 0 at least. Before the ramp, the power is free to vary in a range that is
+bounded by $P_{\max}(g)$ or the downward power gradient (considered negatively infinite if not defined). Note that the
+power gradient only holds for the time when the generator power is _free_, which happens before the ramp and after the
+beginning of the timestamp, i.e. for a duration of $\Delta_{t-1 \rightarrow t} - LAG(g)$.
+
+$$-P_{\min}(g) + \max
+\left [ P_{\min}(g) - P_{\max}(g), \left ( \Delta_{t-1 \rightarrow t} - LAG(g) \right ) \nabla^{-}(g) \right ] \leq P(
+g,s,t) - P(g,s,t-1) \leq -P_{\min}(g)$$
+
+> 💡 **Participation to the global constraint**
+>
+> When including this equation in the global constraint, both bounds must be multiplied by the binary variable
+> $T_{ON \to OFF}(g,s,t)$.
+
+##### On to On transition
+
+The power is simply bounded by the power gradients:
+
+$$\Delta_{t-1 \rightarrow t} \nabla^{-}(g) \leq P(g,s,t) - P(g,s,t-1) \leq \Delta_{t-1 \rightarrow t} \nabla^{+}(g)$$
+
+> 💡 **Participation to the global constraint**
+>
+> When including this equation in the global constraint, both bounds must be multiplied by the binary variable
+> $T_{ON \to ON}(g,s,t)$.
+
+##### On to Ramp-Down transition
+
+<-- TODO ->>
+
+##### Ramp-Ramp to Off transition
+
+The power decrease is constrained by the downward power ramp:
+
+$$P(g,s,t) - P(g,s,t-1) = - \frac{P_{\min}(g)}{LAG(g)}$$
+
+> 💡 **Participation to the global constraint**
+>
+> When including this equation in the global constraint, both bounds must be multiplied by the binary variable
+> $T_{RD \to OFF}(g,s,t)$.
+
+##### Ramp-Down to Ramp-Down transition
+
+The power decrease is constrained by the downward power ramp:
+
+$$P(g,s,t) - P(g,s,t-1) = - \frac{P_{\min}(g)}{LAG(g)}$$
+
+> 💡 **Participation to the global constraint**
+>
+> When including this equation in the global constraint, both bounds must be multiplied by the binary variable
+> $T_{RD \to RD}(g,s,t)$.
+
+##### Summary
 
 All these equations can then be grouped into two inequalities, simply by multiplying the bounds by the associated binary
 transition variable.
@@ -190,6 +322,3 @@ transition variable.
 > - The constant power rate of the ramping states is materialized through the same values being used for the lower and
     upper bounds of the power variation
 > - Note the use of power gradients whenever the On state is implicated
-> - The reduced lead and lag times are used for the power gradients when the generator transitions from/to the On state
-    to/from a ramping state. This denotes the actual time during which the power is "free" (or simply constrained by
-    gradients).
