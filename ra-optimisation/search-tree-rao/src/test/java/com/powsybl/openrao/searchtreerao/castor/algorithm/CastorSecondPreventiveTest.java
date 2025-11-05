@@ -273,13 +273,13 @@ class CastorSecondPreventiveTest {
 
         OptimizationResult preventiveResult = Mockito.mock(OptimizationResult.class);
         PostPerimeterResult postPreventiveResult = Mockito.mock(PostPerimeterResult.class);
-        when(postPreventiveResult.getOptimizationResult()).thenReturn(preventiveResult);
+        when(postPreventiveResult.optimizationResult()).thenReturn(preventiveResult);
         OptimizationResult optimizationResult1 = Mockito.mock(OptimizationResult.class);
         PostPerimeterResult postOptimizationResult1 = Mockito.mock(PostPerimeterResult.class);
-        when(postOptimizationResult1.getOptimizationResult()).thenReturn(optimizationResult1);
+        when(postOptimizationResult1.optimizationResult()).thenReturn(optimizationResult1);
         OptimizationResult optimizationResult2 = Mockito.mock(OptimizationResult.class);
         PostPerimeterResult postOptimizationResult2 = Mockito.mock(PostPerimeterResult.class);
-        when(postOptimizationResult2.getOptimizationResult()).thenReturn(optimizationResult2);
+        when(postOptimizationResult2.optimizationResult()).thenReturn(optimizationResult2);
 
         Collection<PostPerimeterResult> curativeResults = Set.of(postOptimizationResult1, postOptimizationResult2);
         CastorSecondPreventive castorSecondPreventive = new CastorSecondPreventive(crac, parameters, network, null, null, null);
@@ -326,13 +326,13 @@ class CastorSecondPreventiveTest {
 
         OptimizationResult preventiveResult = Mockito.mock(OptimizationResult.class);
         PostPerimeterResult postPreventiveResult = Mockito.mock(PostPerimeterResult.class);
-        when(postPreventiveResult.getOptimizationResult()).thenReturn(preventiveResult);
+        when(postPreventiveResult.optimizationResult()).thenReturn(preventiveResult);
         OptimizationResult optimizationResult1 = Mockito.mock(OptimizationResult.class);
         PostPerimeterResult postOptimizationResult1 = Mockito.mock(PostPerimeterResult.class);
-        when(postOptimizationResult1.getOptimizationResult()).thenReturn(optimizationResult1);
+        when(postOptimizationResult1.optimizationResult()).thenReturn(optimizationResult1);
         OptimizationResult optimizationResult2 = Mockito.mock(OptimizationResult.class);
         PostPerimeterResult postOptimizationResult2 = Mockito.mock(PostPerimeterResult.class);
-        when(postOptimizationResult2.getOptimizationResult()).thenReturn(optimizationResult2);
+        when(postOptimizationResult2.optimizationResult()).thenReturn(optimizationResult2);
 
         Collection<PostPerimeterResult> curativeResults = Set.of(postOptimizationResult1, postOptimizationResult2);
 
@@ -364,13 +364,13 @@ class CastorSecondPreventiveTest {
 
         OptimizationResult preventiveResult = Mockito.mock(OptimizationResult.class);
         PostPerimeterResult postPreventiveResult = Mockito.mock(PostPerimeterResult.class);
-        when(postPreventiveResult.getOptimizationResult()).thenReturn(preventiveResult);
+        when(postPreventiveResult.optimizationResult()).thenReturn(preventiveResult);
         OptimizationResult optimizationResult1 = Mockito.mock(OptimizationResult.class);
         PostPerimeterResult postOptimizationResult1 = Mockito.mock(PostPerimeterResult.class);
-        when(postOptimizationResult1.getOptimizationResult()).thenReturn(optimizationResult1);
+        when(postOptimizationResult1.optimizationResult()).thenReturn(optimizationResult1);
         OptimizationResult optimizationResult2 = Mockito.mock(OptimizationResult.class);
         PostPerimeterResult postOptimizationResult2 = Mockito.mock(PostPerimeterResult.class);
-        when(postOptimizationResult2.getOptimizationResult()).thenReturn(optimizationResult2);
+        when(postOptimizationResult2.optimizationResult()).thenReturn(optimizationResult2);
 
         Collection<PostPerimeterResult> curativeResults = Set.of(postOptimizationResult1, postOptimizationResult2);
 
@@ -395,13 +395,13 @@ class CastorSecondPreventiveTest {
 
         OptimizationResult preventiveResult = Mockito.mock(OptimizationResult.class);
         PostPerimeterResult postPreventiveResult = Mockito.mock(PostPerimeterResult.class);
-        when(postPreventiveResult.getOptimizationResult()).thenReturn(preventiveResult);
+        when(postPreventiveResult.optimizationResult()).thenReturn(preventiveResult);
         OptimizationResult optimizationResult1 = Mockito.mock(OptimizationResult.class);
         PostPerimeterResult postOptimizationResult1 = Mockito.mock(PostPerimeterResult.class);
-        when(postOptimizationResult1.getOptimizationResult()).thenReturn(optimizationResult1);
+        when(postOptimizationResult1.optimizationResult()).thenReturn(optimizationResult1);
         OptimizationResult optimizationResult2 = Mockito.mock(OptimizationResult.class);
         PostPerimeterResult postOptimizationResult2 = Mockito.mock(PostPerimeterResult.class);
-        when(postOptimizationResult2.getOptimizationResult()).thenReturn(optimizationResult2);
+        when(postOptimizationResult2.optimizationResult()).thenReturn(optimizationResult2);
 
         Collection<PostPerimeterResult> curativeResults = Set.of(postOptimizationResult1, postOptimizationResult2);
 
@@ -439,14 +439,14 @@ class CastorSecondPreventiveTest {
         Mockito.doReturn(-1.5583491325378418).when(optimResult1).getOptimizedSetpoint(eq(ra1), Mockito.any());
         Mockito.doReturn(Set.of()).when(optimResult1).getActivatedNetworkActions();
         PostPerimeterResult postOptimizationResult1 = Mockito.mock(PostPerimeterResult.class);
-        when(postOptimizationResult1.getOptimizationResult()).thenReturn(optimResult1);
+        when(postOptimizationResult1.optimizationResult()).thenReturn(optimResult1);
 
         OptimizationResult optimResult2 = Mockito.mock(OptimizationResult.class);
         Mockito.doReturn(Set.of(ra1)).when(optimResult1).getActivatedRangeActions(Mockito.any());
         Mockito.doReturn(0.).when(optimResult2).getOptimizedSetpoint(eq(ra1), Mockito.any());
         Mockito.doReturn(Set.of(na1)).when(optimResult2).getActivatedNetworkActions();
         PostPerimeterResult postOptimizationResult2 = Mockito.mock(PostPerimeterResult.class);
-        when(postOptimizationResult2.getOptimizationResult()).thenReturn(optimResult2);
+        when(postOptimizationResult2.optimizationResult()).thenReturn(optimResult2);
 
         Map<State, PostPerimeterResult> curativeResults = Map.of(state1, postOptimizationResult1, state2, postOptimizationResult2);
         CastorSecondPreventive castorSecondPreventive = new CastorSecondPreventive(crac, null, network, null, null, null);
@@ -505,13 +505,13 @@ class CastorSecondPreventiveTest {
         OptimizationResult optimizationResult22 = mockOptimizationResult(Set.of(na221, na222));
 
         PostPerimeterResult postOptimizationResult11 = Mockito.mock(PostPerimeterResult.class);
-        when(postOptimizationResult11.getOptimizationResult()).thenReturn(optimizationResult11);
+        when(postOptimizationResult11.optimizationResult()).thenReturn(optimizationResult11);
         PostPerimeterResult postOptimizationResult12 = Mockito.mock(PostPerimeterResult.class);
-        when(postOptimizationResult12.getOptimizationResult()).thenReturn(optimizationResult12);
+        when(postOptimizationResult12.optimizationResult()).thenReturn(optimizationResult12);
         PostPerimeterResult postOptimizationResult21 = Mockito.mock(PostPerimeterResult.class);
-        when(postOptimizationResult21.getOptimizationResult()).thenReturn(optimizationResult21);
+        when(postOptimizationResult21.optimizationResult()).thenReturn(optimizationResult21);
         PostPerimeterResult postOptimizationResult22 = Mockito.mock(PostPerimeterResult.class);
-        when(postOptimizationResult22.getOptimizationResult()).thenReturn(optimizationResult22);
+        when(postOptimizationResult22.optimizationResult()).thenReturn(optimizationResult22);
 
         Map<State, PostPerimeterResult> postContingencyResults = Map.of(state11, postOptimizationResult11, state12, postOptimizationResult12,
             state21, postOptimizationResult21, state22, postOptimizationResult22);
@@ -563,13 +563,13 @@ class CastorSecondPreventiveTest {
         OptimizationResult optimizationResult22 = mockOptimizationResult(Set.of(ra221, ra222), state22);
 
         PostPerimeterResult postOptimizationResult11 = Mockito.mock(PostPerimeterResult.class);
-        when(postOptimizationResult11.getOptimizationResult()).thenReturn(optimizationResult11);
+        when(postOptimizationResult11.optimizationResult()).thenReturn(optimizationResult11);
         PostPerimeterResult postOptimizationResult12 = Mockito.mock(PostPerimeterResult.class);
-        when(postOptimizationResult12.getOptimizationResult()).thenReturn(optimizationResult12);
+        when(postOptimizationResult12.optimizationResult()).thenReturn(optimizationResult12);
         PostPerimeterResult postOptimizationResult21 = Mockito.mock(PostPerimeterResult.class);
-        when(postOptimizationResult21.getOptimizationResult()).thenReturn(optimizationResult21);
+        when(postOptimizationResult21.optimizationResult()).thenReturn(optimizationResult21);
         PostPerimeterResult postOptimizationResult22 = Mockito.mock(PostPerimeterResult.class);
-        when(postOptimizationResult22.getOptimizationResult()).thenReturn(optimizationResult22);
+        when(postOptimizationResult22.optimizationResult()).thenReturn(optimizationResult22);
 
         Map<State, PostPerimeterResult> postContingencyResults = Map.of(state11, postOptimizationResult11, state12, postOptimizationResult12,
             state21, postOptimizationResult21, state22, postOptimizationResult22);

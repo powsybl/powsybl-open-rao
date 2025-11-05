@@ -256,12 +256,12 @@ public final class RaoLogger {
         contingencyScenarios.forEach(contingencyScenario -> {
             Optional<State> automatonState = contingencyScenario.getAutomatonState();
             automatonState.ifPresent(state -> mostLimitingElementsAndMargins.putAll(
-                getMostLimitingElementsAndMargins(contingencyOptimizationResults.get(state).getOptimizationResult(), Set.of(state), unit, relativePositiveMargins, numberOfLoggedElements)
+                getMostLimitingElementsAndMargins(contingencyOptimizationResults.get(state).optimizationResult(), Set.of(state), unit, relativePositiveMargins, numberOfLoggedElements)
             ));
             contingencyScenario.getCurativePerimeters()
                 .forEach(
                     curativePerimeter -> mostLimitingElementsAndMargins.putAll(
-                        getMostLimitingElementsAndMargins(contingencyOptimizationResults.get(curativePerimeter.getRaOptimisationState()).getOptimizationResult(), Set.of(curativePerimeter.getRaOptimisationState()), unit, relativePositiveMargins, numberOfLoggedElements)
+                        getMostLimitingElementsAndMargins(contingencyOptimizationResults.get(curativePerimeter.getRaOptimisationState()).optimizationResult(), Set.of(curativePerimeter.getRaOptimisationState()), unit, relativePositiveMargins, numberOfLoggedElements)
                     )
                 );
         });
@@ -416,12 +416,12 @@ public final class RaoLogger {
         contingencyScenarios.forEach(contingencyScenario -> {
             Optional<State> automatonState = contingencyScenario.getAutomatonState();
             automatonState.ifPresent(state -> mostLimitingElementsAndMargins.putAll(
-                getMostLimitingElementsAndMargins(contingencyOptimizationResults.get(state).getOptimizationResult(), Set.of(state), unit, relativePositiveMargins, 1)
+                getMostLimitingElementsAndMargins(contingencyOptimizationResults.get(state).optimizationResult(), Set.of(state), unit, relativePositiveMargins, 1)
             ));
             contingencyScenario.getCurativePerimeters()
                 .forEach(
                     curativePerimeter -> mostLimitingElementsAndMargins.putAll(
-                        getMostLimitingElementsAndMargins(contingencyOptimizationResults.get(curativePerimeter.getRaOptimisationState()).getOptimizationResult(), Set.of(curativePerimeter.getRaOptimisationState()), unit, relativePositiveMargins, 1)
+                        getMostLimitingElementsAndMargins(contingencyOptimizationResults.get(curativePerimeter.getRaOptimisationState()).optimizationResult(), Set.of(curativePerimeter.getRaOptimisationState()), unit, relativePositiveMargins, 1)
                     )
                 );
         });
