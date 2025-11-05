@@ -289,7 +289,12 @@ $$\Delta_{t-1 \rightarrow t} \nabla^{-}(g) \leq P(g,s,t) - P(g,s,t-1) \leq \Delt
 
 ##### On to Ramp-Down transition
 
-<-- TODO ->>
+$$\tau_{0}^{\searrow}(t) = \max \lbrace t' \leq t \; | \; \Delta_{t'-1 \rightarrow t} \geq LAG(g) \rbrace$$
+
+$\forall t' > t$ such that $\tau_{0}^{\searrow}(t) = t'$, considering that the ramping down started at $t$, the power
+variation is constrained as:
+
+$$- (LAG(g) - \Delta_{t \rightarrow t'}) \frac{P_{\min}(g)}{LAG(g)} \leq P(g,s,t) - P(g,s,t-1) \leq - (LAG(g) - \Delta_{t \rightarrow t'}) \frac{P_{\min}(g)}{LAG(g)} + \max \left [ P_{\min}(g) - P_{\max}(g), (\Delta_{t-1 \rightarrow t'} - LAG(g)) \nabla^{-}(g) \right ]$$
 
 ##### Ramp-Ramp to Off transition
 
