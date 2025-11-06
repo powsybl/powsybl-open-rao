@@ -196,7 +196,7 @@ $$P(g,s,t-1) = P(g,s,t) = 0$$
 
 The power increase is constrained by the upward power ramp:
 
-$$P(g,s,t) - P(g,s,t-1) = \frac{P_{\min}(g)}{LEAD(g)}$$
+$$P(g,s,t) - P(g,s,t-1) = \frac{P_{\min}(g)}{LEAD(g)}\Delta_{t-1 \rightarrow t}$$
 
 > 💡 **Participation to the global constraint**
 >
@@ -224,7 +224,7 @@ $$P_{\min}(g) \leq P(g,s,t) - P(g,s,t-1) \leq P_{\min}(g) + \min
 
 The power increase is constrained by the upward power ramp:
 
-$$P(g,s,t) - P(g,s,t-1) = \frac{P_{\min}(g)}{LEAD(g)}$$
+$$P(g,s,t) - P(g,s,t-1) = \frac{P_{\min}(g)}{LEAD(g)}\Delta_{t-1 \rightarrow t}$$
 
 > 💡 **Participation to the global constraint**
 >
@@ -289,18 +289,31 @@ $$\Delta_{t-1 \rightarrow t} \nabla^{-}(g) \leq P(g,s,t) - P(g,s,t-1) \leq \Delt
 
 ##### On to Ramp-Down transition
 
+This transition is decomposed into two parts: a first part corresponding to a time when the generator power is _free_
+and the beginning of the downward power ramp. However, if the different timestamps are not evenly distributed over time,
+it may not be possible to identify the precise timestamp at which the ramping-down will end.
+
+For a given timestamp $t$, we define $\tau_{0}^{\searrow}(t)$ as the unique timestamp at which the ramping down began
+given that it ends at $t$ (i.e. when the generator will transition to the Off state). Mathematically:
+
 $$\tau_{0}^{\searrow}(t) = \max \lbrace t' \leq t \; | \; \Delta_{t'-1 \rightarrow t} \geq LAG(g) \rbrace$$
 
-$\forall t' > t$ such that $\tau_{0}^{\searrow}(t) = t'$, considering that the ramping down started at $t$, the power
-variation is constrained as:
+Note that several timestamps can have the same value of $\tau_{0}^{\searrow}$. Then, $\forall t' > t$ such that
+$\tau_{0}^{\searrow}(t') = t$, considering that the ramping down started at $t$ and ends at $t'$, the power variation is
+constrained as:
 
-$$- (LAG(g) - \Delta_{t \rightarrow t'}) \frac{P_{\min}(g)}{LAG(g)} \leq P(g,s,t) - P(g,s,t-1) \leq - (LAG(g) - \Delta_{t \rightarrow t'}) \frac{P_{\min}(g)}{LAG(g)} + \max \left [ P_{\min}(g) - P_{\max}(g), (\Delta_{t-1 \rightarrow t'} - LAG(g)) \nabla^{-}(g) \right ]$$
+$$- (LAG(g) - \Delta_{t \rightarrow t'}) \frac{P_{\min}(g)}{LAG(g)} + \max \left [ P_{\min}(g) - P_{\max}(g), (\Delta_{t-1 \rightarrow t'} - LAG(g)) \nabla^{-}(g) \right ] \leq P(g,s,t) - P(g,s,t-1) \leq - (LAG(g) - \Delta_{t \rightarrow t'}) \frac{P_{\min}(g)}{LAG(g)}$$
 
-##### Ramp-Ramp to Off transition
+> 💡 **Participation to the global constraint**
+>
+> When including this equation in the global constraint, both bounds must be multiplied by the binary variable
+> $T_{RD \to OFF}(g,s,t')$, for all $t'$ such that $\tau_{0}^{\searrow}(t') = t$.
+
+##### Ramp-Down to Off transition
 
 The power decrease is constrained by the downward power ramp:
 
-$$P(g,s,t) - P(g,s,t-1) = - \frac{P_{\min}(g)}{LAG(g)}$$
+$$P(g,s,t) - P(g,s,t-1) = - \frac{P_{\min}(g)}{LAG(g)}\Delta_{t-1 \rightarrow t}$$
 
 > 💡 **Participation to the global constraint**
 >
@@ -311,7 +324,7 @@ $$P(g,s,t) - P(g,s,t-1) = - \frac{P_{\min}(g)}{LAG(g)}$$
 
 The power decrease is constrained by the downward power ramp:
 
-$$P(g,s,t) - P(g,s,t-1) = - \frac{P_{\min}(g)}{LAG(g)}$$
+$$P(g,s,t) - P(g,s,t-1) = - \frac{P_{\min}(g)}{LAG(g)}\Delta_{t-1 \rightarrow t}$$
 
 > 💡 **Participation to the global constraint**
 >
