@@ -39,6 +39,11 @@ public final class JsonIntertemporalConstraints {
     public static final String VERSION = "version";
     public static final String CURRENT_VERSION = "1.0";
 
+    /**
+     * CHANGELOG v1
+     * ------------
+     */
+
     // Generator constraints
 
     public static final String GENERATOR_CONSTRAINTS = "generatorConstraints";
