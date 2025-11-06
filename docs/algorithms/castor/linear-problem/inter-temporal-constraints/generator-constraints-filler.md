@@ -249,9 +249,9 @@ Note that several timestamps can have the same value of $\tau_{\infty}^{\nearrow
 $\tau_{\infty}^{\nearrow}(t') = t$, considering that the ramping up started at $t'$, the power variation is constrained
 as:
 
-$$(LEAD(g) - \Delta_{t' \rightarrow t-1}) \frac{P_{\min}(g)}{LEAD(g)} \leq P(g,s,t) - P(g,s,t-1) \leq (LEAD(g) - \Delta_
-{t' \rightarrow t-1}) \frac{P_{\min}(g)}{LEAD(g)} + \min
-\left [ P_{\max}(g) - P_{\min}(g), (\Delta_{t' \rightarrow t} - LEAD(g)) \nabla^{+}(g) \right ]$$
+$$(LEAD(g) - \Delta_{t'-1 \rightarrow t-1}) \frac{P_{\min}(g)}{LEAD(g)} \leq P(g,s,t) - P(g,s,t-1) \leq (LEAD(g) - \Delta_
+{t'-1 \rightarrow t-1}) \frac{P_{\min}(g)}{LEAD(g)} + \min
+\left [ P_{\max}(g) - P_{\min}(g), (\Delta_{t'-1 \rightarrow t} - LEAD(g)) \nabla^{+}(g) \right ]$$
 
 > 💡 **Participation to the global constraint**
 > 

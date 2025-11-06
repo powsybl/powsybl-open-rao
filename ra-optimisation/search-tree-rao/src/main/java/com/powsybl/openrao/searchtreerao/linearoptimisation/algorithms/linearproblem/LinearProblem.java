@@ -573,6 +573,10 @@ public final class LinearProblem {
         return solver.getConstraint(generatorToInjectionConstraintId(generatorId, injectionRangeAction, timestamp));
     }
 
+    public OpenRaoMPConstraint addGeneratorRampingConstraint(String generatorId, OffsetDateTime rampingStartTimestamp, OffsetDateTime otherRampingTimestamp, VariationDirectionExtension rampingDirection) {
+        return solver.makeConstraint(-infinity(), 0.0, generatorRampingConstraintId(generatorId, rampingStartTimestamp, otherRampingTimestamp, rampingDirection));
+    }
+
     public double infinity() {
         return solver.infinity();
     }

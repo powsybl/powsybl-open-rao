@@ -54,7 +54,6 @@ public final class LinearProblemIdGenerator {
     private static final String MAX_ELEMENTARY_ACTIONS_PER_TSO = "maxelementaryactionspertso";
     private static final String RANGE_ACTION_VARIATION = "rangeactionvariation";
     private static final String RANGE_ACTION_SET_POINT_VARIATION = "rangeactionsetpointvariation";
-    private static final String RANGE_ACTION_ABSOLUTE_VARIATION = "rangeactionabsolutevariation";
     private static final String INJECTION_BALANCE = "injectionbalance";
     private static final String TOTAL_PST_RANGE_ACTION_TAP_VARIATION = "totalpstrangeactiontapvariation";
     private static final String GENERATOR_POWER = "generatorpower";
@@ -68,6 +67,7 @@ public final class LinearProblemIdGenerator {
     private static final String GENERATOR_POWER_ON = "generatorpoweron";
     private static final String GENERATOR_POWER_VARIATION = "generatorpowervariation";
     private static final String GENERATOR_TO_INJECTION = "generatortoinjection";
+    private static final String GENERATOR_RAMPING = "generatorramping";
     private static final DateTimeFormatter DATE_TIME_FORMATER = DateTimeFormatter.ofPattern("yyyyMMddHHmm");
 
     private LinearProblemIdGenerator() {
@@ -244,10 +244,6 @@ public final class LinearProblemIdGenerator {
         return formatName(RANGE_ACTION_SET_POINT_VARIATION, rangeAction.getId(), state.getId(), CONSTRAINT_SUFFIX);
     }
 
-    public static String rangeActionAbsoluteVariationConstraintId(RangeAction<?> rangeAction, State state) {
-        return formatName(RANGE_ACTION_ABSOLUTE_VARIATION, rangeAction.getId(), state.getId(), CONSTRAINT_SUFFIX);
-    }
-
     public static String injectionBalanceConstraintId(State state) {
         return formatName(INJECTION_BALANCE, state.getId(), CONSTRAINT_SUFFIX);
     }
@@ -314,5 +310,9 @@ public final class LinearProblemIdGenerator {
 
     public static String generatorToInjectionConstraintId(String generatorId, InjectionRangeAction injectionRangeAction, OffsetDateTime timestamp) {
         return formatName(Optional.of(timestamp), GENERATOR_TO_INJECTION, generatorId, injectionRangeAction.getId(), CONSTRAINT_SUFFIX);
+    }
+
+    public static String generatorRampingConstraintId(String generatorId, OffsetDateTime rampingStartTimestamp, OffsetDateTime otherRampingTimestamp, LinearProblem.VariationDirectionExtension rampingDirection) {
+        return formatName(GENERATOR_RAMPING, generatorId, rampingStartTimestamp.format(DATE_TIME_FORMATER), otherRampingTimestamp.format(DATE_TIME_FORMATER), CONSTRAINT_SUFFIX, rampingDirection.toString());
     }
 }
