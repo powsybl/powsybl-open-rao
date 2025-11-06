@@ -19,8 +19,6 @@ import com.powsybl.openrao.data.intertemporalconstraints.IntertemporalConstraint
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static com.powsybl.commons.json.JsonUtil.createObjectMapper;
 
@@ -88,10 +86,11 @@ public final class JsonIntertemporalConstraints {
      * Remove the suffixes in automatic deserialization error messages.
      */
     private static String extractDeserializationErrorMessage(String originalErrorMessage) {
-        Pattern pattern = Pattern.compile("(?<errorMessage>.+) \\(through reference chain: java\\.lang\\.Object\\[]\\[\\d+]\\)");
-        Matcher matcher = pattern.matcher(originalErrorMessage);
-        boolean matchFound = matcher.find();
-        return matchFound ? matcher.group("errorMessage") : originalErrorMessage;
+        String nestedErrorToken = " (through reference chain";
+        if (originalErrorMessage.contains(nestedErrorToken)) {
+            return originalErrorMessage.substring(0, originalErrorMessage.indexOf(nestedErrorToken));
+        }
+        return originalErrorMessage;
     }
 
 }
