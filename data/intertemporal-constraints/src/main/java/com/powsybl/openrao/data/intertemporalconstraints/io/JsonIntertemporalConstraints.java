@@ -8,15 +8,19 @@
 package com.powsybl.openrao.data.intertemporalconstraints.io;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.intertemporalconstraints.GeneratorConstraints;
 import com.powsybl.openrao.data.intertemporalconstraints.IntertemporalConstraints;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static com.powsybl.commons.json.JsonUtil.createObjectMapper;
 
@@ -68,7 +72,21 @@ public final class JsonIntertemporalConstraints {
         module.addDeserializer(IntertemporalConstraints.class, new IntertemporalConstraintsDeserializer(IntertemporalConstraints.class));
         module.addDeserializer(GeneratorConstraints.class, new GeneratorConstraintsDeserializer(GeneratorConstraints.class));
         objectMapper.registerModule(module);
-        return objectMapper.readValue(inputStream, IntertemporalConstraints.class);
+        try {
+            return objectMapper.readValue(inputStream, IntertemporalConstraints.class);
+        } catch (JsonMappingException e) {
+            throw new OpenRaoException(extractDeserializationErrorMessage(e.getMessage()));
+        }
+    }
+
+    /**
+     * Remove the suffixes in automatic deserialization error messages.
+     */
+    private static String extractDeserializationErrorMessage(String originalErrorMessage) {
+        Pattern pattern = Pattern.compile("(?<errorMessage>.+) \\(through reference chain: java\\.lang\\.Object\\[]\\[\\d+]\\)");
+        Matcher matcher = pattern.matcher(originalErrorMessage);
+        boolean matchFound = matcher.find();
+        return matchFound ? matcher.group("errorMessage") : originalErrorMessage;
     }
 
 }
