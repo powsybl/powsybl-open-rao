@@ -293,31 +293,19 @@ class OneStateOnlyRaoResultImplTest {
 
         // using another state
         State otherState = mock(State.class);
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> output.wasActivatedBeforeState(otherState, networkAction));
-        assertEquals("Trying to access perimeter result for the wrong state.", exception.getMessage());
-        exception = assertThrows(OpenRaoException.class, () -> output.isActivatedDuringState(otherState, networkAction));
-        assertEquals("Trying to access perimeter result for the wrong state.", exception.getMessage());
-        exception = assertThrows(OpenRaoException.class, () -> output.getActivatedNetworkActionsDuringState(otherState));
-        assertEquals("Trying to access perimeter result for the wrong state.", exception.getMessage());
+        assertFalse(output.wasActivatedBeforeState(otherState, networkAction));
+        assertFalse(output.isActivatedDuringState(otherState, networkAction));
+        assertTrue(output.getActivatedNetworkActionsDuringState(otherState).isEmpty());
 
-        exception = assertThrows(OpenRaoException.class, () -> output.isActivatedDuringState(otherState, rangeAction));
-        assertEquals("Trying to access perimeter result for the wrong state.", exception.getMessage());
-        exception = assertThrows(OpenRaoException.class, () -> output.getPreOptimizationTapOnState(otherState, pstRangeAction));
-        assertEquals("Trying to access perimeter result for the wrong state.", exception.getMessage());
-        exception = assertThrows(OpenRaoException.class, () -> output.getOptimizedTapOnState(otherState, pstRangeAction));
-        assertEquals("Trying to access perimeter result for the wrong state.", exception.getMessage());
-        exception = assertThrows(OpenRaoException.class, () -> output.getPreOptimizationSetPointOnState(otherState, rangeAction));
-        assertEquals("Trying to access perimeter result for the wrong state.", exception.getMessage());
-        exception = assertThrows(OpenRaoException.class, () -> output.getOptimizedSetPointOnState(otherState, rangeAction));
-        assertEquals("Trying to access perimeter result for the wrong state.", exception.getMessage());
-        exception = assertThrows(OpenRaoException.class, () -> output.getActivatedRangeActionsDuringState(otherState));
-        assertEquals("Trying to access perimeter result for the wrong state.", exception.getMessage());
-        exception = assertThrows(OpenRaoException.class, () -> output.getOptimizedTapsOnState(otherState));
-        assertEquals("Trying to access perimeter result for the wrong state.", exception.getMessage());
-        exception = assertThrows(OpenRaoException.class, () -> output.getOptimizedSetPointsOnState(otherState));
-        assertEquals("Trying to access perimeter result for the wrong state.", exception.getMessage());
-        exception = assertThrows(OpenRaoException.class, () -> output.getMargin(curativeInstant, mock(FlowCnec.class), Unit.MEGAWATT));
-        assertEquals("Cnec not optimized in this perimeter.", exception.getMessage());
+        assertFalse(output.isActivatedDuringState(otherState, rangeAction));
+        assertEquals(1, output.getPreOptimizationTapOnState(otherState, pstRangeAction));
+        assertEquals(1, output.getOptimizedTapOnState(otherState, pstRangeAction));
+        assertEquals(5.6, output.getPreOptimizationSetPointOnState(otherState, rangeAction));
+        assertEquals(5.6, output.getOptimizedSetPointOnState(otherState, rangeAction));
+        assertTrue(output.getActivatedRangeActionsDuringState(otherState).isEmpty());
+        assertTrue(output.getOptimizedTapsOnState(otherState).isEmpty());
+        assertTrue(output.getOptimizedSetPointsOnState(otherState).isEmpty());
+        assertEquals(Double.NaN, output.getMargin(curativeInstant, mock(FlowCnec.class), Unit.MEGAWATT));
     }
 
     @Test
