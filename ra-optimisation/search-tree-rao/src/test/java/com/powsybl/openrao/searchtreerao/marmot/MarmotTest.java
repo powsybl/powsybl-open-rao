@@ -11,7 +11,8 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.data.crac.api.Crac;
-import com.powsybl.openrao.data.generatorconstraints.GeneratorConstraints;
+import com.powsybl.openrao.data.intertemporalconstraints.GeneratorConstraints;
+import com.powsybl.openrao.data.intertemporalconstraints.IntertemporalConstraints;
 import com.powsybl.openrao.data.raoresult.api.InterTemporalRaoResult;
 import com.powsybl.openrao.raoapi.InterTemporalRaoInputWithNetworkPaths;
 import com.powsybl.openrao.raoapi.RaoInputWithNetworkPaths;
@@ -69,10 +70,10 @@ class MarmotTest {
                 timestamp2, RaoInputWithNetworkPaths.build(getResourcesPath().concat(networkFilePath), getResourcesPath().concat(networkFilePathPostIcsImport), crac2).build()
             ));
 
-        InterTemporalRaoInputWithNetworkPaths input = new InterTemporalRaoInputWithNetworkPaths(
-            raoInputs,
-            Set.of(GeneratorConstraints.create().withGeneratorId("FFR1AA1 _generator").withLeadTime(0.0).withLagTime(0.0).withPMin(0.0).withPMax(1000.0).withUpwardPowerGradient(1000.0).withDownwardPowerGradient(-1000.0).build())
-        );
+        IntertemporalConstraints intertemporalConstraints = new IntertemporalConstraints();
+        intertemporalConstraints.addGeneratorConstraints(GeneratorConstraints.create().withGeneratorId("FFR1AA1 _generator").withLeadTime(0.0).withLagTime(0.0).withPMin(0.0).withPMax(1000.0).withUpwardPowerGradient(1000.0).withDownwardPowerGradient(-1000.0).build());
+
+        InterTemporalRaoInputWithNetworkPaths input = new InterTemporalRaoInputWithNetworkPaths(raoInputs, intertemporalConstraints);
 
         // first RAOs shift tap to -5 for a cost of 55 each
         // MARMOT should also move the tap to -5 for both timestamps with a total cost of 110
@@ -113,10 +114,11 @@ class MarmotTest {
                 timestamp2, RaoInputWithNetworkPaths.build(getResourcesPath().concat(networkFilePath), getResourcesPath().concat(networkFilePathPostIcsImport), crac2).build(),
                 timestamp3, RaoInputWithNetworkPaths.build(getResourcesPath().concat(networkFilePath), getResourcesPath().concat(networkFilePathPostIcsImport), crac3).build()
             ));
-        InterTemporalRaoInputWithNetworkPaths input = new InterTemporalRaoInputWithNetworkPaths(
-            raoInputs,
-            Set.of(GeneratorConstraints.create().withGeneratorId("FFR1AA1 _generator").withLeadTime(0.0).withLagTime(0.0).withPMin(0.0).withPMax(1000.0).withUpwardPowerGradient(250.0).withDownwardPowerGradient(-250.0).build())
-        );
+
+        IntertemporalConstraints intertemporalConstraints = new IntertemporalConstraints();
+        intertemporalConstraints.addGeneratorConstraints(GeneratorConstraints.create().withGeneratorId("FFR1AA1 _generator").withLeadTime(0.0).withLagTime(0.0).withPMin(0.0).withPMax(1000.0).withUpwardPowerGradient(250.0).withDownwardPowerGradient(-250.0).build());
+
+        InterTemporalRaoInputWithNetworkPaths input = new InterTemporalRaoInputWithNetworkPaths(raoInputs, intertemporalConstraints);
 
         // no redispatching required during the first timestamp
         // redispatching of 500 MW in both timestamps 2 & 3 with a cost of 26510 each
@@ -161,10 +163,7 @@ class MarmotTest {
                 timestamp2, RaoInputWithNetworkPaths.build(getResourcesPath().concat(networkFilePath), getResourcesPath().concat(networkFilePathPostIcsImport), crac2).build(),
                 timestamp3, RaoInputWithNetworkPaths.build(getResourcesPath().concat(networkFilePath), getResourcesPath().concat(networkFilePathPostIcsImport), crac3).build()
             ));
-        InterTemporalRaoInputWithNetworkPaths input = new InterTemporalRaoInputWithNetworkPaths(
-            raoInputs,
-            Set.of()
-        );
+        InterTemporalRaoInputWithNetworkPaths input = new InterTemporalRaoInputWithNetworkPaths(raoInputs, new IntertemporalConstraints());
 
         // no redispatching required during the first timestamp
         // redispatching of 500 MW in both timestamps 2 & 3 with a cost of 26510 each
@@ -203,12 +202,15 @@ class MarmotTest {
         OffsetDateTime timestamp2 = OffsetDateTime.of(2025, 2, 14, 11, 40, 0, 0, ZoneOffset.UTC);
         OffsetDateTime timestamp3 = OffsetDateTime.of(2025, 2, 14, 12, 40, 0, 0, ZoneOffset.UTC);
 
+        IntertemporalConstraints intertemporalConstraints = new IntertemporalConstraints();
+        intertemporalConstraints.addGeneratorConstraints(GeneratorConstraints.create().withGeneratorId("FFR3AA1 _generator").withLeadTime(0.0).withLagTime(0.0).withPMin(0.0).withPMax(1000.0).withUpwardPowerGradient(200.0).withDownwardPowerGradient(0.0).build());
+
         InterTemporalRaoInputWithNetworkPaths input = new InterTemporalRaoInputWithNetworkPaths(
             new TemporalDataImpl<>(Map.of(
                 timestamp1, RaoInputWithNetworkPaths.build(networkAbsolutePath, networkAbsolutePath, crac1).build(),
                 timestamp2, RaoInputWithNetworkPaths.build(networkAbsolutePath, networkAbsolutePath, crac2).build(),
                 timestamp3, RaoInputWithNetworkPaths.build(networkAbsolutePath, networkAbsolutePath, crac3).build())),
-            Set.of(GeneratorConstraints.create().withGeneratorId("FFR3AA1 _generator").withLeadTime(0.0).withLagTime(0.0).withPMin(0.0).withPMax(1000.0).withUpwardPowerGradient(200.0).withDownwardPowerGradient(0.0).build())
+            intertemporalConstraints
         );
 
         // no redispatching required during the first timestamp
@@ -252,10 +254,11 @@ class MarmotTest {
                 timestamp2, RaoInputWithNetworkPaths.build(getResourcesPath().concat(networkFilePath), getResourcesPath().concat(networkFilePathPostIcsImport), crac2).build()
 
             ));
-        InterTemporalRaoInputWithNetworkPaths input = new InterTemporalRaoInputWithNetworkPaths(
-            raoInputs,
-            Set.of(GeneratorConstraints.create().withGeneratorId("FFR1AA1 _generator").withLeadTime(0.0).withLagTime(0.0).withPMin(0.0).withPMax(1000.0).withUpwardPowerGradient(250.0).withDownwardPowerGradient(-250.0).build())
-        );
+
+        IntertemporalConstraints intertemporalConstraints = new IntertemporalConstraints();
+        intertemporalConstraints.addGeneratorConstraints(GeneratorConstraints.create().withGeneratorId("FFR1AA1 _generator").withLeadTime(0.0).withLagTime(0.0).withPMin(0.0).withPMax(1000.0).withUpwardPowerGradient(250.0).withDownwardPowerGradient(-250.0).build());
+
+        InterTemporalRaoInputWithNetworkPaths input = new InterTemporalRaoInputWithNetworkPaths(raoInputs, intertemporalConstraints);
 
         InterTemporalRaoResult results = new Marmot().run(input, raoParameters).join();
         assertTrue(results.isActivated(crac1.getPreventiveState(), crac1.getNetworkAction("closeBeFr2")));
@@ -311,10 +314,10 @@ class MarmotTest {
         inputPerTimestamp.put(timestamp9, RaoInputWithNetworkPaths.build(networkPath, networkPath, crac9).build());
         inputPerTimestamp.put(timestamp10, RaoInputWithNetworkPaths.build(networkPath, networkPath, crac10).build());
 
-        InterTemporalRaoInputWithNetworkPaths input = new InterTemporalRaoInputWithNetworkPaths(
-            new TemporalDataImpl<>(inputPerTimestamp),
-            Set.of(GeneratorConstraints.create().withGeneratorId("FFR1AA1 _generator").withLeadTime(0.0).withLagTime(0.0).withPMin(0.0).withPMax(5000.0).withUpwardPowerGradient(500.0).withDownwardPowerGradient(-500.0).build())
-        );
+        IntertemporalConstraints intertemporalConstraints = new IntertemporalConstraints();
+        intertemporalConstraints.addGeneratorConstraints(GeneratorConstraints.create().withGeneratorId("FFR1AA1 _generator").withLeadTime(0.0).withLagTime(0.0).withPMin(0.0).withPMax(5000.0).withUpwardPowerGradient(500.0).withDownwardPowerGradient(-500.0).build());
+
+        InterTemporalRaoInputWithNetworkPaths input = new InterTemporalRaoInputWithNetworkPaths(new TemporalDataImpl<>(inputPerTimestamp), intertemporalConstraints);
 
         InterTemporalRaoResultImpl interTemporalRaoResult = (InterTemporalRaoResultImpl) new Marmot().run(input, raoParameters).join();
 
@@ -373,7 +376,7 @@ class MarmotTest {
         inputPerTimestamp.put(timestamp9, RaoInputWithNetworkPaths.build(networkPath, networkPath, crac9).build());
         inputPerTimestamp.put(timestamp10, RaoInputWithNetworkPaths.build(networkPath, networkPath, crac10).build());
 
-        InterTemporalRaoInputWithNetworkPaths input = new InterTemporalRaoInputWithNetworkPaths(new TemporalDataImpl<>(inputPerTimestamp), Set.of());
+        InterTemporalRaoInputWithNetworkPaths input = new InterTemporalRaoInputWithNetworkPaths(new TemporalDataImpl<>(inputPerTimestamp), new IntertemporalConstraints());
 
         InterTemporalRaoResultImpl interTemporalRaoResult = (InterTemporalRaoResultImpl) new Marmot().run(input, raoParameters).join();
 

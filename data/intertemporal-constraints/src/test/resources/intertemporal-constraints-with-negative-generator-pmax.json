@@ -1,0 +1,10 @@
+{
+  "type": "OpenRAO Intertemporal Constraints",
+  "version": "1.0",
+  "generatorConstraints": [
+    {
+      "generatorId": "generator",
+      "pMax": -400.0
+    }
+  ]
+}
