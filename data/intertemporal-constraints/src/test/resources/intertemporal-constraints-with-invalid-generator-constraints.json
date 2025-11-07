@@ -1,0 +1,9 @@
+{
+  "type": "OpenRAO Intertemporal Constraints",
+  "version": "1.0",
+  "generatorConstraints": [
+    {
+      "unknownField": "Hello world!"
+    }
+  ]
+}
