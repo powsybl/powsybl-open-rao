@@ -263,8 +263,7 @@ public class CastorSecondPreventive {
         String newVariant = RandomizedString.getRandomizedString("SecondPreventive", network.getVariantManager().getVariantIds(), 10);
         network.getVariantManager().cloneVariant(SECOND_PREVENTIVE_SCENARIO_BEFORE_OPT, newVariant, true);
         network.getVariantManager().setWorkingVariant(newVariant);
-        OptimizationResult secondPreventiveResult = optimizeSecondPreventivePerimeter(initialOutput, sensiWithPostContingencyRemedialActions, firstPreventiveResult, appliedArasAndCras)
-            .join().getOptimizationResult(crac.getPreventiveState());
+        OptimizationResult secondPreventiveResult = optimizeSecondPreventivePerimeter(initialOutput, sensiWithPostContingencyRemedialActions, firstPreventiveResult, appliedArasAndCras).join();
         // Re-run sensitivity computation based on PRAs without CRAs, to access after PRA results
         PrePerimeterResult postPraSensitivityAnalysisOutput = prePerimeterSensitivityAnalysis.runBasedOnInitialResults(network, initialOutput, stateTree.getOperatorsNotSharingCras(), null);
         if (postPraSensitivityAnalysisOutput.getSensitivityStatus() == ComputationStatus.FAILURE) {
@@ -304,7 +303,7 @@ public class CastorSecondPreventive {
         return appliedNetworkActions;
     }
 
-    private CompletableFuture<OneStateOnlyRaoResultImpl> optimizeSecondPreventivePerimeter(PrePerimeterResult initialOutput,
+    private CompletableFuture<OptimizationResult> optimizeSecondPreventivePerimeter(PrePerimeterResult initialOutput,
                                                                                            PrePerimeterResult prePerimeterResult,
                                                                                            OptimizationResult firstPreventiveResult,
                                                                                            AppliedRemedialActions appliedCras) {
@@ -346,6 +345,6 @@ public class CastorSecondPreventive {
         result.getActivatedRangeActions(preventiveState).forEach(rangeAction -> rangeAction.apply(network, result.getOptimizedSetpoint(rangeAction, preventiveState)));
         result.getActivatedNetworkActions().forEach(networkAction -> networkAction.apply(network));
 
-        return CompletableFuture.completedFuture(new OneStateOnlyRaoResultImpl(preventiveState, prePerimeterResult, result, optPerimeter.getFlowCnecs()));
+        return CompletableFuture.completedFuture(result);
     }
 }
