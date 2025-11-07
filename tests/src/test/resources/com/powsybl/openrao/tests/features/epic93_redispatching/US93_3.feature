@@ -12,8 +12,8 @@ Feature: US 93.3: Intertemporal generator constraints
   24-timestamp day of one hour each.
 
   In an ideal situation, no redispatching is required between 0:00 and 3:59, nor between 20:00 and 23:59. However,
-  between 4:00 and 19:59, the redispatched power must be maximal. Depending on the generator constraints that hold, the
-  actual volumes of redispatching will drift further away from this ideal case.
+  between 4:00 and 19:59, the redispatched power must be maximal to secure an interconnection line. Depending on the
+  generator constraints that hold, the actual volumes of redispatching will drift further away from this ideal case.
 
   ----------------------
 
@@ -667,6 +667,133 @@ Feature: US 93.3: Intertemporal generator constraints
   its maximal power in the interval 4:00 to 19:59.
     Given configuration file is "epic93/RaoParameters_minCost_megawatt_dc_0_shift.json"
     Given intertemporal constraints are in file "epic93/intertemporal-constraints-with-lead-and-lag-times.json" and rao inputs are:
+      | Timestamp        | Network             | CRAC                                 |
+      | 2025-11-04 00:30 | epic93/6Nodes.xiidm | epic93/us93_3/crac_202511040030.json |
+      | 2025-11-04 01:30 | epic93/6Nodes.xiidm | epic93/us93_3/crac_202511040130.json |
+      | 2025-11-04 02:30 | epic93/6Nodes.xiidm | epic93/us93_3/crac_202511040230.json |
+      | 2025-11-04 03:30 | epic93/6Nodes.xiidm | epic93/us93_3/crac_202511040330.json |
+      | 2025-11-04 04:30 | epic93/6Nodes.xiidm | epic93/us93_3/crac_202511040430.json |
+      | 2025-11-04 05:30 | epic93/6Nodes.xiidm | epic93/us93_3/crac_202511040530.json |
+      | 2025-11-04 06:30 | epic93/6Nodes.xiidm | epic93/us93_3/crac_202511040630.json |
+      | 2025-11-04 07:30 | epic93/6Nodes.xiidm | epic93/us93_3/crac_202511040730.json |
+      | 2025-11-04 08:30 | epic93/6Nodes.xiidm | epic93/us93_3/crac_202511040830.json |
+      | 2025-11-04 09:30 | epic93/6Nodes.xiidm | epic93/us93_3/crac_202511040930.json |
+      | 2025-11-04 10:30 | epic93/6Nodes.xiidm | epic93/us93_3/crac_202511041030.json |
+      | 2025-11-04 11:30 | epic93/6Nodes.xiidm | epic93/us93_3/crac_202511041130.json |
+      | 2025-11-04 12:30 | epic93/6Nodes.xiidm | epic93/us93_3/crac_202511041230.json |
+      | 2025-11-04 13:30 | epic93/6Nodes.xiidm | epic93/us93_3/crac_202511041330.json |
+      | 2025-11-04 14:30 | epic93/6Nodes.xiidm | epic93/us93_3/crac_202511041430.json |
+      | 2025-11-04 15:30 | epic93/6Nodes.xiidm | epic93/us93_3/crac_202511041530.json |
+      | 2025-11-04 16:30 | epic93/6Nodes.xiidm | epic93/us93_3/crac_202511041630.json |
+      | 2025-11-04 17:30 | epic93/6Nodes.xiidm | epic93/us93_3/crac_202511041730.json |
+      | 2025-11-04 18:30 | epic93/6Nodes.xiidm | epic93/us93_3/crac_202511041830.json |
+      | 2025-11-04 19:30 | epic93/6Nodes.xiidm | epic93/us93_3/crac_202511041930.json |
+      | 2025-11-04 20:30 | epic93/6Nodes.xiidm | epic93/us93_3/crac_202511042030.json |
+      | 2025-11-04 21:30 | epic93/6Nodes.xiidm | epic93/us93_3/crac_202511042130.json |
+      | 2025-11-04 22:30 | epic93/6Nodes.xiidm | epic93/us93_3/crac_202511042230.json |
+      | 2025-11-04 23:30 | epic93/6Nodes.xiidm | epic93/us93_3/crac_202511042330.json |
+    When I launch marmot
+    # Timestamp 00:30
+    Then the total cost for timestamp "2025-11-04 00:30" is 0.0
+    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 00:30" is 0.0 MW
+    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 00:30" is 0.0 MW
+    # Timestamp 01:30
+    And the total cost for timestamp "2025-11-04 01:30" is 0.0
+    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 01:30" is 0.0 MW
+    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 01:30" is 0.0 MW
+    # Timestamp 02:30
+    And the total cost for timestamp "2025-11-04 02:30" is 0.0
+    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 02:30" is 0.0 MW
+    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 02:30" is 0.0 MW
+    # Timestamp 03:30
+    And the total cost for timestamp "2025-11-04 03:30" is 40010.0
+    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 03:30" is 800.0 MW
+    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 03:30" is 800.0 MW
+    # Timestamp 04:30
+    And the total cost for timestamp "2025-11-04 04:30" is 150010.0
+    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 04:30" is 3000.0 MW
+    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 04:30" is 3000.0 MW
+    # Timestamp 05:30
+    And the total cost for timestamp "2025-11-04 05:30" is 150010.0
+    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 05:30" is 3000.0 MW
+    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 05:30" is 3000.0 MW
+    # Timestamp 06:30
+    And the total cost for timestamp "2025-11-04 06:30" is 150010.0
+    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 06:30" is 3000.0 MW
+    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 06:30" is 3000.0 MW
+    # Timestamp 07:30
+    And the total cost for timestamp "2025-11-04 07:30" is 150010.0
+    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 07:30" is 3000.0 MW
+    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 07:30" is 3000.0 MW
+    # Timestamp 08:30
+    And the total cost for timestamp "2025-11-04 08:30" is 150010.0
+    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 08:30" is 3000.0 MW
+    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 08:30" is 3000.0 MW
+    # Timestamp 09:30
+    And the total cost for timestamp "2025-11-04 09:30" is 150010.0
+    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 09:30" is 3000.0 MW
+    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 09:30" is 3000.0 MW
+    # Timestamp 10:30
+    And the total cost for timestamp "2025-11-04 10:30" is 150010.0
+    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 10:30" is 3000.0 MW
+    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 10:30" is 3000.0 MW
+    # Timestamp 11:30
+    And the total cost for timestamp "2025-11-04 11:30" is 150010.0
+    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 11:30" is 3000.0 MW
+    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 11:30" is 3000.0 MW
+    # Timestamp 12:30
+    And the total cost for timestamp "2025-11-04 12:30" is 150010.0
+    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 12:30" is 3000.0 MW
+    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 12:30" is 3000.0 MW
+    # Timestamp 13:30
+    And the total cost for timestamp "2025-11-04 13:30" is 150010.0
+    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 13:30" is 3000.0 MW
+    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 13:30" is 3000.0 MW
+    # Timestamp 14:30
+    And the total cost for timestamp "2025-11-04 14:30" is 150010.0
+    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 14:30" is 3000.0 MW
+    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 14:30" is 3000.0 MW
+    # Timestamp 15:30
+    And the total cost for timestamp "2025-11-04 15:30" is 150010.0
+    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 15:30" is 3000.0 MW
+    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 15:30" is 3000.0 MW
+    # Timestamp 16:30
+    And the total cost for timestamp "2025-11-04 16:30" is 150010.0
+    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 16:30" is 3000.0 MW
+    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 16:30" is 3000.0 MW
+    # Timestamp 17:30
+    And the total cost for timestamp "2025-11-04 17:30" is 150010.0
+    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 17:30" is 3000.0 MW
+    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 17:30" is 3000.0 MW
+    # Timestamp 18:30
+    And the total cost for timestamp "2025-11-04 18:30" is 150010.0
+    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 18:30" is 3000.0 MW
+    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 18:30" is 3000.0 MW
+    # Timestamp 19:30
+    And the total cost for timestamp "2025-11-04 19:30" is 150010.0
+    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 19:30" is 3000.0 MW
+    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 19:30" is 3000.0 MW
+    # Timestamp 20:30
+    And the total cost for timestamp "2025-11-04 20:30" is 40010.0
+    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 20:30" is 800.0 MW
+    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 20:30" is 800.0 MW
+    # Timestamp 21:30
+    And the total cost for timestamp "2025-11-04 21:30" is 20010.0
+    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 21:30" is 400.0 MW
+    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 21:30" is 400.0 MW
+    # Timestamp 22:30
+    And the total cost for timestamp "2025-11-04 22:30" is 0.0
+    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 22:30" is 0.0 MW
+    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 22:30" is 0.0 MW
+    # Timestamp 23:30
+    And the total cost for timestamp "2025-11-04 23:30" is 0.0
+    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 23:30" is 0.0 MW
+    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 23:30" is 0.0 MW
+
+  Scenario: US 93.3.4.b: Long lead and lag times
+  Duplicate of US 93.3.4 but with the constrains on a load instead of a generator.
+    Given configuration file is "epic93/RaoParameters_minCost_megawatt_dc_0_shift.json"
+    Given intertemporal constraints are in file "epic93/intertemporal-constraints-with-load-lead-and-lag-times.json" and rao inputs are:
       | Timestamp        | Network             | CRAC                                 |
       | 2025-11-04 00:30 | epic93/6Nodes.xiidm | epic93/us93_3/crac_202511040030.json |
       | 2025-11-04 01:30 | epic93/6Nodes.xiidm | epic93/us93_3/crac_202511040130.json |
