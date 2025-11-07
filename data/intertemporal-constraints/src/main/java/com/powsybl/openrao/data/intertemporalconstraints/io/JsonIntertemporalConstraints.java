@@ -8,9 +8,11 @@
 package com.powsybl.openrao.data.intertemporalconstraints.io;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.intertemporalconstraints.GeneratorConstraints;
 import com.powsybl.openrao.data.intertemporalconstraints.IntertemporalConstraints;
 
@@ -34,6 +36,11 @@ public final class JsonIntertemporalConstraints {
     public static final String DESCRIPTION = "OpenRAO Intertemporal Constraints";
     public static final String VERSION = "version";
     public static final String CURRENT_VERSION = "1.0";
+
+    /**
+     * CHANGELOG v1
+     * ------------
+     */
 
     // Generator constraints
 
@@ -68,7 +75,22 @@ public final class JsonIntertemporalConstraints {
         module.addDeserializer(IntertemporalConstraints.class, new IntertemporalConstraintsDeserializer(IntertemporalConstraints.class));
         module.addDeserializer(GeneratorConstraints.class, new GeneratorConstraintsDeserializer(GeneratorConstraints.class));
         objectMapper.registerModule(module);
-        return objectMapper.readValue(inputStream, IntertemporalConstraints.class);
+        try {
+            return objectMapper.readValue(inputStream, IntertemporalConstraints.class);
+        } catch (JsonMappingException e) {
+            throw new OpenRaoException(extractDeserializationErrorMessage(e.getMessage()));
+        }
+    }
+
+    /**
+     * Remove the suffixes in automatic deserialization error messages.
+     */
+    private static String extractDeserializationErrorMessage(String originalErrorMessage) {
+        String nestedErrorToken = " (through reference chain";
+        if (originalErrorMessage.contains(nestedErrorToken)) {
+            return originalErrorMessage.substring(0, originalErrorMessage.indexOf(nestedErrorToken));
+        }
+        return originalErrorMessage;
     }
 
 }

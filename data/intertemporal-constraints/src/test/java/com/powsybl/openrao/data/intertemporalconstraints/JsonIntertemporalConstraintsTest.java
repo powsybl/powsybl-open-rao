@@ -8,7 +8,6 @@
 package com.powsybl.openrao.data.intertemporalconstraints;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.powsybl.openrao.commons.OpenRaoException;
@@ -137,15 +136,15 @@ class JsonIntertemporalConstraintsTest {
     @Test
     void testDeserializationWithIllegalFieldInGeneratorConstraints() {
         // error occurs during automatic deserialization of generator constraints and is reported as a JsonMappingException through a reference chain
-        JsonMappingException exception = assertThrows(JsonMappingException.class, () -> JsonIntertemporalConstraints.read(getClass().getResourceAsStream("/intertemporal-constraints-with-invalid-generator-constraints.json")));
-        assertEquals("Unexpected field 'unknownField' in JSON generator constraints. (through reference chain: java.lang.Object[][0])", exception.getMessage());
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> JsonIntertemporalConstraints.read(getClass().getResourceAsStream("/intertemporal-constraints-with-invalid-generator-constraints.json")));
+        assertEquals("Unexpected field 'unknownField' in JSON generator constraints.", exception.getMessage());
     }
 
     @Test
     void testDeserializationWithNegativePMaxGeneratorConstraints() {
         // error occurs during automatic deserialization of generator constraints and is reported as a JsonMappingException through a reference chain
-        JsonMappingException exception = assertThrows(JsonMappingException.class, () -> JsonIntertemporalConstraints.read(getClass().getResourceAsStream("/intertemporal-constraints-with-negative-generator-pmax.json")));
-        assertEquals("The maximal power of the generator must be positive. (through reference chain: java.lang.Object[][0])", exception.getMessage());
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> JsonIntertemporalConstraints.read(getClass().getResourceAsStream("/intertemporal-constraints-with-negative-generator-pmax.json")));
+        assertEquals("The maximal power of the generator must be positive.", exception.getMessage());
     }
 
     private static void assertJsonEquivalence(String expectedJson, String actualJson) throws JsonProcessingException {
