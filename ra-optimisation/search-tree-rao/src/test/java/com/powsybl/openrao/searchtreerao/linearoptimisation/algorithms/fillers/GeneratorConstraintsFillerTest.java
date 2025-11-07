@@ -189,7 +189,7 @@ class GeneratorConstraintsFillerTest {
         Crac crac1 = input.getRaoInputs().getData(timestamp1).get().getCrac();
         // check coefficient for injection action variable
         assertEquals(1.0, fr2Timestamp1PowerConstraint.getCoefficient(linearProblem.getRangeActionSetpointVariable(crac1.getInjectionRangeAction("redispatchingAction1600"), crac1.getPreventiveState())), 1e-5);
-        assertEquals(-1.0, fr3Timestamp1PowerConstraint.getCoefficient(linearProblem.getRangeActionSetpointVariable(crac1.getInjectionRangeAction("redispatchingAction1600"), crac1.getPreventiveState())), 1e-5);
+        assertEquals(1.0, fr3Timestamp1PowerConstraint.getCoefficient(linearProblem.getRangeActionSetpointVariable(crac1.getInjectionRangeAction("redispatchingAction1600"), crac1.getPreventiveState())), 1e-5);
     }
 
     /*

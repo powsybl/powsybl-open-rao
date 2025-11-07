@@ -63,15 +63,15 @@ public class GeneratorConstraintsFiller implements ProblemFiller {
                     addVariablesAndBasicConstraints(linearProblem, individualGeneratorConstraints, timestamp, previousTimestamp, associatedInjections.get().getData(timestamp).orElseThrow());
                     previousTimestamp = timestamp;
                 }
-            }
-            int numberOfTimestamps = timestamps.size();
-            for (int timestampIndex = 1; timestampIndex < numberOfTimestamps; timestampIndex++) {
-                for (int laterTimestampIndex = timestampIndex + 1; laterTimestampIndex < numberOfTimestamps; laterTimestampIndex++) {
-                    double rampingDuration = computeTimeGap(timestamps.get(timestampIndex - 1), timestamps.get(laterTimestampIndex));
-                    addRampUpConstraint(linearProblem, individualGeneratorConstraints, timestamps.get(timestampIndex), timestamps.get(laterTimestampIndex), rampingDuration);
-                    addRampDownConstraint(linearProblem, individualGeneratorConstraints, timestamps.get(timestampIndex), timestamps.get(laterTimestampIndex), rampingDuration);
+                int numberOfTimestamps = timestamps.size();
+                for (int timestampIndex = 1; timestampIndex < numberOfTimestamps; timestampIndex++) {
+                    for (int laterTimestampIndex = timestampIndex + 1; laterTimestampIndex < numberOfTimestamps; laterTimestampIndex++) {
+                        double rampingDuration = computeTimeGap(timestamps.get(timestampIndex - 1), timestamps.get(laterTimestampIndex));
+                        addRampUpConstraint(linearProblem, individualGeneratorConstraints, timestamps.get(timestampIndex), timestamps.get(laterTimestampIndex), rampingDuration);
+                        addRampDownConstraint(linearProblem, individualGeneratorConstraints, timestamps.get(timestampIndex), timestamps.get(laterTimestampIndex), rampingDuration);
+                    }
+                    addPowerVariationConstraints(linearProblem, individualGeneratorConstraints, timestampIndex, timestamps);
                 }
-                addPowerVariationConstraints(linearProblem, individualGeneratorConstraints, timestampIndex, timestamps);
             }
         }
     }

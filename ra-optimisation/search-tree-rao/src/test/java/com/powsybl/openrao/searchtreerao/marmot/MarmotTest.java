@@ -256,7 +256,7 @@ class MarmotTest {
             ));
 
         IntertemporalConstraints intertemporalConstraints = new IntertemporalConstraints();
-        intertemporalConstraints.addGeneratorConstraints(GeneratorConstraints.create().withGeneratorId("FFR1AA1 _generator").withLeadTime(0.0).withLagTime(0.0).withPMin(0.0).withPMax(1000.0).withUpwardPowerGradient(250.0).withDownwardPowerGradient(-250.0).build());
+        intertemporalConstraints.addGeneratorConstraints(GeneratorConstraints.create().withGeneratorId("FFR1AA1 _generator").withPMax(1000.0).withUpwardPowerGradient(250.0).withDownwardPowerGradient(-250.0).build());
 
         InterTemporalRaoInputWithNetworkPaths input = new InterTemporalRaoInputWithNetworkPaths(raoInputs, intertemporalConstraints);
 
@@ -275,9 +275,9 @@ class MarmotTest {
 
     @Test
     void testWithTenTimestampsAndGeneratorConstraints() throws IOException {
-        String networkPath = getResourcesPath().concat("/network/4Nodes_1_PST.uct");
+        String networkPath = getResourcesPath().concat("/network/4Nodes_1_PST.xiidm");
 
-        Network network = Network.read("/network/4Nodes_1_PST.uct", MarmotTest.class.getResourceAsStream("/network/4Nodes_1_PST.uct"));
+        Network network = Network.read("/network/4Nodes_1_PST.xiidm", MarmotTest.class.getResourceAsStream("/network/4Nodes_1_PST.xiidm"));
         Crac crac1 = Crac.read("/crac/crac-202503251030.json", MarmotTest.class.getResourceAsStream("/crac/crac-202503251030.json"), network);
         Crac crac2 = Crac.read("/crac/crac-202503251130.json", MarmotTest.class.getResourceAsStream("/crac/crac-202503251130.json"), network);
         Crac crac3 = Crac.read("/crac/crac-202503251230.json", MarmotTest.class.getResourceAsStream("/crac/crac-202503251230.json"), network);
@@ -315,7 +315,7 @@ class MarmotTest {
         inputPerTimestamp.put(timestamp10, RaoInputWithNetworkPaths.build(networkPath, networkPath, crac10).build());
 
         IntertemporalConstraints intertemporalConstraints = new IntertemporalConstraints();
-        intertemporalConstraints.addGeneratorConstraints(GeneratorConstraints.create().withGeneratorId("FFR1AA1 _generator").withPMax(5000.0).withUpwardPowerGradient(500.0).withDownwardPowerGradient(-500.0).build());
+        intertemporalConstraints.addGeneratorConstraints(GeneratorConstraints.create().withGeneratorId("FFR1AA1 _load").withPMax(5000.0).withUpwardPowerGradient(500.0).withDownwardPowerGradient(-500.0).build());
 
         InterTemporalRaoInputWithNetworkPaths input = new InterTemporalRaoInputWithNetworkPaths(new TemporalDataImpl<>(inputPerTimestamp), intertemporalConstraints);
 
@@ -337,9 +337,9 @@ class MarmotTest {
 
     @Test
     void testWithTenTimestampsAndNoGeneratorConstraints() throws IOException {
-        String networkPath = getResourcesPath().concat("/network/4Nodes_1_PST.uct");
+        String networkPath = getResourcesPath().concat("/network/4Nodes_1_PST.xiidm");
 
-        Network network = Network.read("/network/4Nodes_1_PST.uct", MarmotTest.class.getResourceAsStream("/network/4Nodes_1_PST.uct"));
+        Network network = Network.read("/network/4Nodes_1_PST.xiidm", MarmotTest.class.getResourceAsStream("/network/4Nodes_1_PST.xiidm"));
         Crac crac1 = Crac.read("/crac/crac-202503251030.json", MarmotTest.class.getResourceAsStream("/crac/crac-202503251030.json"), network);
         Crac crac2 = Crac.read("/crac/crac-202503251130.json", MarmotTest.class.getResourceAsStream("/crac/crac-202503251130.json"), network);
         Crac crac3 = Crac.read("/crac/crac-202503251230.json", MarmotTest.class.getResourceAsStream("/crac/crac-202503251230.json"), network);
