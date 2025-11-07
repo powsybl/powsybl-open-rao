@@ -164,7 +164,6 @@ public final class InterTemporalRaoSteps {
         List<Map<String, String>> inputs = arg1.asMaps(String.class, String.class);
         for (Map<String, String> tsInput : inputs) {
             OffsetDateTime offsetDateTime = getOffsetDateTimeFromBrusselsTimestamp(tsInput.get("Timestamp"));
-            TECHNICAL_LOGS.info("**** Loading data for TS {} ****", offsetDateTime);
             Network network = importNetwork(getFile(networkFolderPath.concat(tsInput.get("Network"))), false);
             Crac crac = importCrac(getFile(cracFolderPath.concat(tsInput.get("CRAC"))), network, null).getLeft();
             raoInputs.put(offsetDateTime, RaoInputWithNetworkPaths.build(networkFolderPath.concat(tsInput.get("Network")), networkFolderPath.concat(tsInput.get("Network")), crac).build());
