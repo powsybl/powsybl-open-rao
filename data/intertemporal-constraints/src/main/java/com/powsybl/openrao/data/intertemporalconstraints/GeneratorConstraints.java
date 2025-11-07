@@ -27,8 +27,9 @@ public final class GeneratorConstraints {
     private final Double minOffTime;
     private final Double upwardPowerGradient;
     private final Double downwardPowerGradient;
+    private final Integer maxChanges;
 
-    private GeneratorConstraints(String generatorId, Double pMin, Double pMax, Double leadTime, Double lagTime, Double minUpTime, Double maxUpTime, Double minOffTime, Double upwardPowerGradient, Double downwardPowerGradient) {
+    private GeneratorConstraints(String generatorId, Double pMin, Double pMax, Double leadTime, Double lagTime, Double minUpTime, Double maxUpTime, Double minOffTime, Double upwardPowerGradient, Double downwardPowerGradient, Integer maxChanges) {
         this.generatorId = generatorId;
         this.pMin = pMin;
         this.pMax = pMax;
@@ -39,6 +40,7 @@ public final class GeneratorConstraints {
         this.minOffTime = minOffTime;
         this.upwardPowerGradient = upwardPowerGradient;
         this.downwardPowerGradient = downwardPowerGradient;
+        this.maxChanges = maxChanges;
     }
 
     /**
@@ -135,6 +137,10 @@ public final class GeneratorConstraints {
         return Optional.ofNullable(downwardPowerGradient);
     }
 
+    public Optional<Integer> getMaxChanges() {
+        return Optional.ofNullable(maxChanges);
+    }
+
     public static GeneratorConstraintsBuilder create() {
         return new GeneratorConstraintsBuilder();
     }
@@ -150,6 +156,7 @@ public final class GeneratorConstraints {
         private Double minOffTime;
         private Double upwardPowerGradient;
         private Double downwardPowerGradient;
+        private int maxChanges;
 
         private GeneratorConstraintsBuilder() {
         }
@@ -204,6 +211,11 @@ public final class GeneratorConstraints {
             return this;
         }
 
+        public GeneratorConstraintsBuilder withMaxChanges(Integer maxChanges) {
+            this.maxChanges = maxChanges;
+            return this;
+        }
+
         public GeneratorConstraints build() {
             if (generatorId == null) {
                 throw new OpenRaoException("The id of the generator is mandatory.");
@@ -243,7 +255,7 @@ public final class GeneratorConstraints {
             if (downwardPowerGradient != null && downwardPowerGradient > 0) {
                 throw new OpenRaoException("The downward power gradient of the generator must be negative.");
             }
-            return new GeneratorConstraints(generatorId, pMin, pMax, leadTime, lagTime, minUpTime, maxUpTime, minOffTime, upwardPowerGradient, downwardPowerGradient);
+            return new GeneratorConstraints(generatorId, pMin, pMax, leadTime, lagTime, minUpTime, maxUpTime, minOffTime, upwardPowerGradient, downwardPowerGradient, maxChanges);
         }
     }
 }
