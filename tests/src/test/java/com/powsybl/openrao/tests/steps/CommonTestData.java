@@ -4,6 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 package com.powsybl.openrao.tests.steps;
 
 import com.powsybl.glsk.commons.ZonalData;
@@ -25,6 +26,7 @@ import com.powsybl.openrao.monitoring.results.MonitoringResult;
 import com.powsybl.openrao.monitoring.results.RaoResultWithAngleMonitoring;
 import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.FastRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
 import com.powsybl.openrao.tests.utils.CoreCcPreprocessor;
@@ -43,6 +45,9 @@ import java.time.OffsetDateTime;
 import static com.powsybl.openrao.tests.utils.Helpers.*;
 import static com.powsybl.openrao.tests.utils.Helpers.getOffsetDateTimeFromBrusselsTimestamp;
 
+/**
+ * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
+ */
 public final class CommonTestData {
 
     private static final String DEFAULT_CRAC_CREATION_PARAMETERS_PATH = "cracCreationParameters/common/CracCreationParameters_default.json";
@@ -56,13 +61,13 @@ public final class CommonTestData {
     private static Boolean coreCcNetworkPreprocessing = false;
     private static Network network;
 
-    private static String cracPath;
+    static String cracPath;
     private static String cracCreationParametersPath;
     private static CracCreationContext cracCreationContext;
     private static Crac crac;
 
-    private static String raoParametersPath;
-    private static RaoParameters raoParameters;
+    static String raoParametersPath;
+    static RaoParameters raoParameters;
 
     private static String loopflowGlskPath;
     private static String monitoringGlskPath;
@@ -311,6 +316,10 @@ public final class CommonTestData {
                 .setSolver(SearchTreeRaoRangeActionsOptimizationParameters.Solver.valueOf(overrideLinearSolver.toUpperCase()));
         }
 
+        if (!raoParameters.hasExtension(FastRaoParameters.class)) {
+            raoParameters.addExtension(FastRaoParameters.class, new FastRaoParameters());
+        }
+
         // Loopflow GLSK
         // only work with UCTE GLSK files
         if (loopflowGlskPath != null) {
@@ -382,7 +391,7 @@ public final class CommonTestData {
         }
     }
 
-    private static RaoParameters buildConfig(File configFile) {
+    static RaoParameters buildConfig(File configFile) {
         RaoParameters config = buildDefaultConfig();
         try (InputStream configStream = new FileInputStream(configFile)) {
             JsonRaoParameters.update(config, configStream);

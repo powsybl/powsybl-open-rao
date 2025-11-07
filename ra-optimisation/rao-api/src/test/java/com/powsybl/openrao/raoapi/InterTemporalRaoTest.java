@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, RTE (http://www.rte-france.com)
+ * Copyright (c) 2019, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -10,11 +10,10 @@ package com.powsybl.openrao.raoapi;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.VariantManager;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.intertemporalconstraints.IntertemporalConstraints;
 import com.powsybl.openrao.data.raoresult.api.InterTemporalRaoResult;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.raomock.AnotherInterTemporalRaoProviderMock;
@@ -27,7 +26,6 @@ import org.mockito.Mockito;
 import java.nio.file.FileSystem;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -42,18 +40,21 @@ class InterTemporalRaoTest {
 
     private FileSystem fileSystem;
     private InMemoryPlatformConfig platformConfig;
-    private InterTemporalRaoInput raoInput;
+    private InterTemporalRaoInputWithNetworkPaths raoInput;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
         platformConfig = new InMemoryPlatformConfig(fileSystem);
-        Network network = Mockito.mock(Network.class);
         Crac crac = Mockito.mock(Crac.class);
-        VariantManager variantManager = Mockito.mock(VariantManager.class);
-        Mockito.when(network.getVariantManager()).thenReturn(variantManager);
-        Mockito.when(variantManager.getWorkingVariantId()).thenReturn("v");
-        raoInput = new InterTemporalRaoInput(new TemporalDataImpl<>(Map.of(OffsetDateTime.of(2024, 12, 13, 16, 17, 0, 0, ZoneOffset.UTC), RaoInput.build(network, crac).build())), new HashSet<>());
+        raoInput = new InterTemporalRaoInputWithNetworkPaths(
+            new TemporalDataImpl<>(
+                Map.of(
+                    OffsetDateTime.of(2024, 12, 13, 16, 17, 0, 0, ZoneOffset.UTC),
+                    RaoInputWithNetworkPaths.build("network.uct", crac).build()
+                )),
+            new IntertemporalConstraints()
+        );
     }
 
     @AfterEach

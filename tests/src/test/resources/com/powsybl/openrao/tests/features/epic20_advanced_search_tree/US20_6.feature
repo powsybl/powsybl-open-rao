@@ -10,7 +10,7 @@ Feature: US 20.6: Second Preventive improvements
     Given network file is "epic20/TestCase12Nodes_20_6_1.uct"
     Given crac file is "epic20/crac_ep20us6case1.json"
     Given configuration file is "epic20/RaoParameters_20_6_1.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then the worst margin is -40.5 MW
     And the tap of PstRangeAction "CRA_PST_DE" should be 0 after "Contingency NL3 BE1 2" at "curative"
     Then the execution details should be "Second preventive improved first preventive results"
@@ -20,6 +20,6 @@ Feature: US 20.6: Second Preventive improvements
     Given network file is "epic20/TestCase12Nodes_20_6_2.uct"
     Given crac file is "epic20/crac_ep20us6case2.json"
     Given configuration file is "epic20/RaoParameters_20_6_2.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then the worst margin is 100.0 MW
     And the execution details should be "Second preventive fell back to first preventive results"

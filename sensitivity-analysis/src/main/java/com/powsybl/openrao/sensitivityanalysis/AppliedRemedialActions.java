@@ -4,6 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 package com.powsybl.openrao.sensitivityanalysis;
 
 import com.powsybl.openrao.commons.OpenRaoException;
@@ -22,7 +23,7 @@ public class AppliedRemedialActions {
 
     private final Map<State, AppliedRemedialActionsPerState> appliedRa = new HashMap<>();
 
-    private static class AppliedRemedialActionsPerState {
+    private static final class AppliedRemedialActionsPerState {
         private final Set<NetworkAction> networkActions = new HashSet<>();
         private final Map<RangeAction<?>, Double> rangeActions = new HashMap<>();
     }

@@ -4,6 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 package com.powsybl.openrao.searchtreerao.castor.algorithm;
 
 import com.powsybl.iidm.network.Network;
@@ -50,6 +51,7 @@ public class CastorContingencyScenarios {
 
     private static final String CONTINGENCY_SCENARIO = "ContingencyScenario";
     private static final int NUMBER_LOGGED_ELEMENTS_DURING_RAO = 2;
+    private static final double COST_EPSILON = 1e-6;
 
     private final Crac crac;
     private final RaoParameters raoParameters;
@@ -166,8 +168,20 @@ public class CastorContingencyScenarios {
             }
         }
         TECHNICAL_LOGS.debug("Remaining post-contingency scenarios to optimize: {}", remainingScenarios.decrementAndGet());
-        networkPool.releaseUsedNetwork(networkClone);
+        boolean actionWasApplied = contingencyScenarioResults.entrySet().stream()
+            .filter(stateAndResult -> stateAndResult.getKey().getContingency().orElseThrow().equals(optimizedScenario.getContingency()))
+            .anyMatch(this::isAnyActionApplied);
+        networkPool.releaseUsedNetwork(networkClone, actionWasApplied);
         return null;
+    }
+
+    private boolean isAnyActionApplied(Map.Entry<State, PostPerimeterResult> stateAndResult) {
+        State state = stateAndResult.getKey();
+        PostPerimeterResult postPerimeterResult = stateAndResult.getValue();
+        boolean anyRangeActionApplied = !postPerimeterResult.getOptimizationResult().getActivatedRangeActions(state).isEmpty();
+        boolean anyNetworkActionApplied = !postPerimeterResult.getOptimizationResult().getActivatedNetworkActions().isEmpty();
+        return anyRangeActionApplied || anyNetworkActionApplied;
+
     }
 
     private PostPerimeterResult generateSkippedPostPerimeterResult(State state, double sensitivityFailureOvercost) {
@@ -270,17 +284,17 @@ public class CastorContingencyScenarios {
     }
 
     static boolean isStopCriterionChecked(ObjectiveFunctionResult result, TreeParameters treeParameters) {
-        if (result.getVirtualCost() > 1e-6) {
+        if (result.getVirtualCost() > COST_EPSILON) {
             return false;
         }
-        if (result.getFunctionalCost() < -Double.MAX_VALUE / 2 && result.getVirtualCost() < 1e-6) {
+        if (result.getFunctionalCost() < -Double.MAX_VALUE / 2 && result.getVirtualCost() < COST_EPSILON) {
             return true;
         }
 
         if (treeParameters.stopCriterion().equals(TreeParameters.StopCriterion.MIN_OBJECTIVE)) {
             return false;
         } else if (treeParameters.stopCriterion().equals(TreeParameters.StopCriterion.AT_TARGET_OBJECTIVE_VALUE)) {
-            return result.getCost() < treeParameters.targetObjectiveValue();
+            return result.getCost() < treeParameters.targetObjectiveValue() + COST_EPSILON;
         } else {
             throw new OpenRaoException("Unexpected stop criterion: " + treeParameters.stopCriterion());
         }

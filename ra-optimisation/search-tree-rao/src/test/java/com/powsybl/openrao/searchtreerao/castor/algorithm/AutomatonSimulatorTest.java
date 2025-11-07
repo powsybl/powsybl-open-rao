@@ -79,7 +79,7 @@ class AutomatonSimulatorTest {
     private static final String AUTO_INSTANT_ID = "auto";
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         network = Network.read("TestCase16NodesWith2Hvdc.xiidm", getClass().getResourceAsStream("/network/TestCase16NodesWith2Hvdc.xiidm"));
         // Add some lines otherwise HVDC2 is connected to nothing and load-flow produces NaN angles
         network.newLine()

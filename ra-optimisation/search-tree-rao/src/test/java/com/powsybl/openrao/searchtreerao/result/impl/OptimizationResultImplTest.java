@@ -33,7 +33,6 @@ import static org.mockito.Mockito.when;
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
-
 class OptimizationResultImplTest {
 
     private OptimizationResultImpl optimizationResult;

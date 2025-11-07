@@ -1,9 +1,10 @@
 /*
- * Copyright (c) 2020, RTE (http://www.rte-france.com)
+ * Copyright (c) 2023, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 package com.powsybl.openrao.virtualhubs.networkextensionbuilder;
 
 import com.powsybl.openrao.virtualhubs.VirtualHub;
@@ -17,7 +18,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 /**
- * @author Baptiste Seguinot {@literal <baptiste.seguinot@rte-france.com>}
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class VirtualHubAssigner {
 

@@ -13,6 +13,7 @@ import com.powsybl.commons.config.PlatformConfig;
 import java.util.Objects;
 
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.*;
+
 /**
  * Objective function parameters for RAO
  *

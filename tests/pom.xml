@@ -5,7 +5,7 @@
     <parent>
         <artifactId>powsybl-open-rao</artifactId>
         <groupId>com.powsybl</groupId>
-        <version>6.7.0-SNAPSHOT</version>
+        <version>7.1.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -57,20 +57,20 @@
     <dependencies>
         <!-- Compile dependencies -->
         <dependency>
-            <groupId>com.powsybl</groupId>
-            <artifactId>open-rao-monitoring</artifactId>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>open-rao-cne-exporter-commons</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.powsybl</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>open-rao-core-cne-exporter</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.powsybl</groupId>
-            <artifactId>open-rao-cne-exporter-commons</artifactId>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>open-rao-core-idcc-exporter</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
@@ -81,7 +81,7 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.powsybl</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>open-rao-crac-io-commons</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
@@ -130,13 +130,13 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>open-rao-virtual-hubs-xml</artifactId>
+            <artifactId>open-rao-loopflow-computation</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>open-rao-loopflow-computation</artifactId>
+            <artifactId>open-rao-monitoring</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
@@ -172,6 +172,12 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>open-rao-virtual-hubs-xml</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>open-rao-search-tree-rao</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
@@ -186,6 +192,11 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>open-rao-util</artifactId>
             <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -237,8 +248,23 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
+            <groupId>io.cucumber</groupId>
+            <artifactId>cucumber-java</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.cucumber</groupId>
+            <artifactId>cucumber-junit-platform-engine</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-suite</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -266,27 +292,10 @@
             <version>${powsybl.core.version}</version>
             <scope>runtime</scope>
         </dependency>
-
-
         <dependency>
-            <groupId>io.cucumber</groupId>
-            <artifactId>cucumber-java</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.cucumber</groupId>
-            <artifactId>cucumber-junit-platform-engine</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.junit.platform</groupId>
-            <artifactId>junit-platform-suite</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter</artifactId>
-            <scope>test</scope>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <scope>runtime</scope>
         </dependency>
     </dependencies>
 

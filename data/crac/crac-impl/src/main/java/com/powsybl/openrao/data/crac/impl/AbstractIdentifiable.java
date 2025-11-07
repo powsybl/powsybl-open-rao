@@ -53,7 +53,7 @@ public abstract class AbstractIdentifiable<I extends Identifiable<I>> extends Ab
     /**
      * Check if abstract identifiables are equals. Abstract identifiables are considered equals when IDs are equals.
      *
-     * @param o: If it's null or another object than AbstractIdentifiable it will return false.
+     * @param o If it's null or another object than AbstractIdentifiable it will return false.
      * @return A boolean true if objects are equals, otherwise false.
      */
     @Override

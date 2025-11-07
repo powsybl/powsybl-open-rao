@@ -13,7 +13,7 @@ import com.powsybl.iidm.network.*;
 import java.util.Objects;
 
 /**
- * @author Philippe Edwards{@literal <philippe.edwards at rte-france.com>}
+ * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
 public class CgmesBranchHelper implements ElementHelper {
 
@@ -27,8 +27,8 @@ public class CgmesBranchHelper implements ElementHelper {
     /**
      * Constructor.
      *
-     * @param mrId,                 CGMES-id of the branch
-     * @param network,              powsybl iidm network object
+     * @param mrId                 CGMES-id of the branch
+     * @param network              powsybl iidm network object
      *
      */
     public CgmesBranchHelper(String mrId, Network network) {

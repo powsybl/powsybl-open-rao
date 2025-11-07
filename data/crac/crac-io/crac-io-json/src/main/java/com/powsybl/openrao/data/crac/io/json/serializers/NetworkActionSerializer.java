@@ -21,6 +21,9 @@ import java.util.List;
 
 import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.serializeActivationCost;
 
+/**
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
+ */
 public class NetworkActionSerializer extends AbstractJsonSerializer<NetworkAction> {
     @Override
     public void serialize(NetworkAction value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
