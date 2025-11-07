@@ -312,7 +312,7 @@ public final class LinearProblemIdGenerator {
         return formatName(Optional.of(timestamp), GENERATOR_TO_INJECTION, generatorId, injectionRangeAction.getId(), CONSTRAINT_SUFFIX);
     }
 
-    public static String generatorRampingConstraintId(String generatorId, OffsetDateTime rampingStartTimestamp, OffsetDateTime otherRampingTimestamp, LinearProblem.VariationDirectionExtension rampingDirection) {
-        return formatName(GENERATOR_RAMPING, generatorId, rampingStartTimestamp.format(DATE_TIME_FORMATER), otherRampingTimestamp.format(DATE_TIME_FORMATER), CONSTRAINT_SUFFIX, rampingDirection.toString());
+    public static String generatorRampingConstraintId(String generatorId, OffsetDateTime rampingExtremeTimestamp, OffsetDateTime otherRampingTimestamp, LinearProblem.VariationDirectionExtension rampingDirection) {
+        return formatName(GENERATOR_RAMPING, generatorId, rampingExtremeTimestamp.format(DATE_TIME_FORMATER), otherRampingTimestamp.format(DATE_TIME_FORMATER), CONSTRAINT_SUFFIX, rampingDirection.toString());
     }
 }
