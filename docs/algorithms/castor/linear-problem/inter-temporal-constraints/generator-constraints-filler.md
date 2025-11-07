@@ -49,7 +49,6 @@ problem's timestamps.
 | Lag Time                        | $LAG(g)$                   | Maximum operating power of generator $g$. This value must be non-negative.                                                                  |
 | Upper power gradient constraint | $\nabla^{+}(g)$            | Maximum upward power variation between two consecutive timestamps for generator $g$. This value must be non-negative.                       |
 | Lower power gradient constraint | $\nabla^{-}(g)$            | Maximum downward power variation (in absolute value) between two consecutive timestamps for generator $g$. This value must be non-positive. |
-| Initial generator power         | $p_{0}(g,s,t)$             | Initial power of generator $g$ at grid state $s$ of timestamp $t$, as defined in the network.                                               |
 | Timestamps                      | $\mathcal{T}$              | Set of all timestamps on which the optimization is performed.                                                                               |
 | Time gap                        | $\Delta_{i \rightarrow j}$ | Time gap between timestamps $i$ and $j$ (with $i < j$).                                                                                     |
 
@@ -78,6 +77,12 @@ problem's timestamps.
 | *Ramp-Up → Off* Transition         | $T_{RU \to OFF}(g,s,t)$  | whether generator $g$ has transitioned from a "ramp-up" state to an "off" state, at state  $s$ of timestamp $t$ or not            | Binary     | one per generator defined in $\Gamma$, per grid state and per timestamp of $\mathcal{T}$ | -    | 0           | 1           |
 | *Ramp-Up → Ramp-Down* Transition   | $T_{RU \to RD}(g,s,t)$   | whether generator $g$ has transitioned from a "ramp-up" state to a "ramp-down" state, at grid state $s$ of timestamp $t$ or not   | Binary     | one per generator defined in $\Gamma$, per grid state and per timestamp of $\mathcal{T}$ | -    | 0           | 1           |
 | *Ramp-Up → Ramp-Up* Transition     | $T_{RU \to RU}(g,s,t)$   | whether generator $g$ has transitioned from a "ramp-up" state to a "ramp-up" state, at grid state $s$ of timestamp $t$ or not     | Binary     | one per generator defined in $\Gamma$, per grid state and per timestamp of $\mathcal{T}$ | -    | 0           | 1           |
+
+## Used optimization variables
+
+| Name                   | Symbol     | Defined in                                                                    |
+|------------------------|------------|-------------------------------------------------------------------------------|
+| Range action set-point | $A(r,s,t)$ | [CoreProblemFiller](../core-problem-filler.md#defined-optimization-variables) |
 
 ## Defined constraints
 
@@ -249,12 +254,13 @@ Note that several timestamps can have the same value of $\tau_{\infty}^{\nearrow
 $\tau_{\infty}^{\nearrow}(t') = t$, considering that the ramping up started at $t'$, the power variation is constrained
 as:
 
-$$(LEAD(g) - \Delta_{t'-1 \rightarrow t-1}) \frac{P_{\min}(g)}{LEAD(g)} \leq P(g,s,t) - P(g,s,t-1) \leq (LEAD(g) - \Delta_
+$$(LEAD(g) - \Delta_{t'-1 \rightarrow t-1}) \frac{P_{\min}(g)}{LEAD(g)} \leq P(g,s,t) - P(g,s,t-1) \leq (LEAD(g) -
+\Delta_
 {t'-1 \rightarrow t-1}) \frac{P_{\min}(g)}{LEAD(g)} + \min
 \left [ P_{\max}(g) - P_{\min}(g), (\Delta_{t'-1 \rightarrow t} - LEAD(g)) \nabla^{+}(g) \right ]$$
 
 > 💡 **Participation to the global constraint**
-> 
+>
 > When including this equation in the global constraint, both bounds must be multiplied by the binary variable
 > $T_{OFF \to RU}(g,s,t')$, for all $t'$ such that $\tau_{\infty}^{\nearrow}(t') = t$.
 
@@ -302,7 +308,9 @@ Note that several timestamps can have the same value of $\tau_{0}^{\searrow}$. T
 $\tau_{0}^{\searrow}(t') = t$, considering that the ramping down started at $t$ and ends at $t'$, the power variation is
 constrained as:
 
-$$- (LAG(g) - \Delta_{t \rightarrow t'}) \frac{P_{\min}(g)}{LAG(g)} + \max \left [ P_{\min}(g) - P_{\max}(g), (\Delta_{t-1 \rightarrow t'} - LAG(g)) \nabla^{-}(g) \right ] \leq P(g,s,t) - P(g,s,t-1) \leq - (LAG(g) - \Delta_{t \rightarrow t'}) \frac{P_{\min}(g)}{LAG(g)}$$
+$$- (LAG(g) - \Delta_{t \rightarrow t'}) \frac{P_{\min}(g)}{LAG(g)} + \max
+\left [ P_{\min}(g) - P_{\max}(g), (\Delta_{t-1 \rightarrow t'} - LAG(g)) \nabla^{-}(g) \right ] \leq P(g,s,t) - P(
+g,s,t-1) \leq - (LAG(g) - \Delta_{t \rightarrow t'}) \frac{P_{\min}(g)}{LAG(g)}$$
 
 > 💡 **Participation to the global constraint**
 >
@@ -340,3 +348,11 @@ transition variable.
 > - The constant power rate of the ramping states is materialized through the same values being used for the lower and
     upper bounds of the power variation
 > - Note the use of power gradients whenever the On state is implicated
+
+### Injection to generator power constraint
+
+The power of the generator can be linked to the set-point of the injection range action $r$ it is involved in:
+
+$$P(g,s,t) = \frac{\sigma(g)}{k(g,r)} A(r,s,t)$$
+
+where $k(g,r)$ is the injection key of $g$ in $r$ and $\sigma(g) = 1$ if $g$ is a generator or $-1$ if it is a load.
