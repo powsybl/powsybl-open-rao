@@ -403,15 +403,16 @@ public class GeneratorConstraintsFiller implements ProblemFiller {
                 powerTransitionConstraintInf.setCoefficient(onOffTransitionVariable, pMin.orElse(0.0));
                 powerTransitionConstraintSup.setCoefficient(onOffTransitionVariable, pMin.orElse(0.0) - Math.max(-maximumPowerAmplitude, (mainTimestampDuration - lagTime.orElse(0.0)) * downwardPowerGradient));
             } else {
-                // RD -> OFF
                 double downwardPowerRampFactor = pMin.orElse(0.0) / lagTime.get();
-                OpenRaoMPVariable rampDownOffTransitionVariable = linearProblem.getGeneratorStateTransitionVariable(generatorConstraints.getGeneratorId(), allTimestamps.get(mainTimestampIndex), LinearProblem.GeneratorState.RAMP_DOWN, LinearProblem.GeneratorState.OFF);
-                powerTransitionConstraintInf.setCoefficient(rampDownOffTransitionVariable, downwardPowerRampFactor * mainTimestampDuration);
-                powerTransitionConstraintSup.setCoefficient(rampDownOffTransitionVariable, downwardPowerRampFactor * mainTimestampDuration);
                 // RD -> RD
                 OpenRaoMPVariable rampDownRampDownTransitionVariable = linearProblem.getGeneratorStateTransitionVariable(generatorConstraints.getGeneratorId(), allTimestamps.get(mainTimestampIndex), LinearProblem.GeneratorState.RAMP_DOWN, LinearProblem.GeneratorState.RAMP_DOWN);
                 powerTransitionConstraintInf.setCoefficient(rampDownRampDownTransitionVariable, downwardPowerRampFactor * mainTimestampDuration);
                 powerTransitionConstraintSup.setCoefficient(rampDownRampDownTransitionVariable, downwardPowerRampFactor * mainTimestampDuration);
+                // RD -> OFF
+                OpenRaoMPVariable rampDownOffTransitionVariable = linearProblem.getGeneratorStateTransitionVariable(generatorConstraints.getGeneratorId(), allTimestamps.get(mainTimestampIndex), LinearProblem.GeneratorState.RAMP_DOWN, LinearProblem.GeneratorState.OFF);
+                powerTransitionConstraintInf.setCoefficient(rampDownOffTransitionVariable, downwardPowerRampFactor * mainTimestampDuration);
+                powerTransitionConstraintSup.setCoefficient(rampDownOffTransitionVariable, downwardPowerRampFactor * mainTimestampDuration);
+
             }
         }
     }
