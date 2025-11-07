@@ -59,8 +59,12 @@ public final class LinearProblemIdGenerator {
     private static final String TOTAL_PST_RANGE_ACTION_TAP_VARIATION = "totalpstrangeactiontapvariation";
     private static final String GENERATOR_POWER = "generatorpower";
     private static final String GENERATOR_POWER_GRADIENT_CONSTRAINT = "generatorpowergradientconstraint";
+    private static final String GENERATOR_MAX_CHANGES_CONSTRAINT = "generatormaxchangesconstraint";
     private static final String MIN_MARGIN_SHIFTED_VIOLATION = "minmarginshiftedviolation";
     private static final DateTimeFormatter DATE_TIME_FORMATER = DateTimeFormatter.ofPattern("yyyyMMddHHmm");
+    private static final String GENERATOR_DIFF_TO_INITIAL = "generatordifftoinitial";
+    private static final String GENERATOR_DIFF_TO_PREVIOUS = "generatordifftoprevious";
+    private static final String GENERATOR_CHANGED = "generatorchanged";
 
     private LinearProblemIdGenerator() {
         // Should not be instantiated
@@ -276,11 +280,39 @@ public final class LinearProblemIdGenerator {
         return formatName(Optional.empty(), GENERATOR_POWER_GRADIENT_CONSTRAINT, generatorId, currentTimestamp.format(DATE_TIME_FORMATER), previousTimestamp.format(DATE_TIME_FORMATER), CONSTRAINT_SUFFIX);
     }
 
+    public static String generatorMaxChangesConstraintId(String generatorId) {
+        return formatName(Optional.empty(), GENERATOR_MAX_CHANGES_CONSTRAINT, generatorId, CONSTRAINT_SUFFIX);
+    }
+
     public static String minMarginShiftedViolationVariableId(Optional<OffsetDateTime> timestamp) {
         return formatName(timestamp, MIN_MARGIN_SHIFTED_VIOLATION, VARIABLE_SUFFIX);
     }
 
     public static String minMarginShiftedViolationConstraintId(Optional<OffsetDateTime> timestamp) {
         return formatName(timestamp, MIN_MARGIN_SHIFTED_VIOLATION, CONSTRAINT_SUFFIX);
+    }
+
+    public static String generatorDiffToInitialVariableId(String generatorId, OffsetDateTime timestamp) {
+        return formatName(Optional.ofNullable(timestamp), GENERATOR_DIFF_TO_INITIAL, generatorId, VARIABLE_SUFFIX);
+    }
+
+    public static String generatorDiffToInitialConstraintId(String generatorId, OffsetDateTime timestamp, LinearProblem.AbsExtension absExtension) {
+        return formatName(Optional.ofNullable(timestamp), GENERATOR_DIFF_TO_INITIAL, generatorId, CONSTRAINT_SUFFIX, absExtension.toString());
+    }
+
+    public static String generatorDiffToPreviousTsVariableId(String generatorId, OffsetDateTime timestamp) {
+        return formatName(Optional.ofNullable(timestamp), GENERATOR_DIFF_TO_PREVIOUS, generatorId, VARIABLE_SUFFIX);
+    }
+
+    public static String generatorDiffToPreviousTsConstraintId(String generatorId, OffsetDateTime timestamp, LinearProblem.AbsExtension absExtension) {
+        return formatName(Optional.ofNullable(timestamp), GENERATOR_DIFF_TO_PREVIOUS, generatorId, CONSTRAINT_SUFFIX, absExtension.toString());
+    }
+
+    public static String generatorChangedVariableId(String generatorId, OffsetDateTime timestamp) {
+        return formatName(Optional.ofNullable(timestamp), GENERATOR_CHANGED, generatorId, VARIABLE_SUFFIX);
+    }
+
+    public static String generatorChangedConstraintId(String generatorId, OffsetDateTime timestamp) {
+        return formatName(Optional.ofNullable(timestamp), GENERATOR_CHANGED, generatorId, CONSTRAINT_SUFFIX);
     }
 }

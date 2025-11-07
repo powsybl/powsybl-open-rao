@@ -23,6 +23,7 @@ import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.IntStream;
 
@@ -45,17 +46,84 @@ public class PowerGradientConstraintFiller implements ProblemFiller {
     @Override
     public void fill(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
         List<OffsetDateTime> timestamps = preventiveStates.getTimestamps();
+
         IntStream.range(0, timestamps.size()).forEach(timestampIndex -> {
             OffsetDateTime timestamp = timestamps.get(timestampIndex);
-            generatorConstraints.forEach(powerGradient -> {
-                String generatorId = powerGradient.getGeneratorId();
+            generatorConstraints.forEach(generatorConstraint -> {
+                String generatorId = generatorConstraint.getGeneratorId();
                 OpenRaoMPVariable generatorPowerVariable = linearProblem.addGeneratorPowerVariable(generatorId, timestamp);
                 addPowerConstraint(linearProblem, generatorId, generatorPowerVariable, timestamp);
                 if (timestampIndex > 0) {
-                    addPowerGradientConstraint(linearProblem, powerGradient, timestamp, timestamps.get(timestampIndex - 1), generatorPowerVariable);
+                    addPowerGradientConstraint(linearProblem, generatorConstraint, timestamp, timestamps.get(timestampIndex - 1), generatorPowerVariable);
                 }
             });
         });
+
+        generatorConstraints.stream()
+            .filter(generatorConstraint -> generatorConstraint.getMaxChanges().isPresent())
+            .forEach(generatorConstraint -> {
+                OpenRaoMPConstraint maxChangesConstraint = linearProblem.addGeneratorMaxChangesConstraint(generatorConstraint.getGeneratorId(), generatorConstraint.getMaxChanges().get());
+                IntStream.range(0, timestamps.size()).forEach(timestampIndex -> {
+                    OffsetDateTime timestamp = timestamps.get(timestampIndex);
+                    OffsetDateTime previousTimestamp = null;
+                    if (timestampIndex > 0) {
+                        previousTimestamp = timestamps.get(timestampIndex - 1);
+                    }
+                    addChangeOnTimestamp(linearProblem, generatorConstraint, timestamp, previousTimestamp, maxChangesConstraint);
+                });
+            });
+    }
+
+    /**
+     * diff_to_prec(g,t) >= (p(g,t) - p(g,t-1)) / 1000 (and -)
+     * diff_to_init(g,t) >= (p(g,t) - P0(g,t)) / 1000 (and -)
+     * changed(g,t) >= diff_to_init(g,t) + diff_to_prec - 1 (diff_to_init if first timestamp)
+     * sum(t) changed(g,t) <= max_changes(g)
+     */
+    private void addChangeOnTimestamp(LinearProblem linearProblem, GeneratorConstraints generatorConstraint, OffsetDateTime timestamp, OffsetDateTime previoustimestamp, OpenRaoMPConstraint maxChangesConstraint) {
+        double p0 = getInitialP(linearProblem, generatorConstraint.getGeneratorId(), timestamp);
+        OpenRaoMPVariable generatorPower = linearProblem.getGeneratorPowerVariable(generatorConstraint.getGeneratorId(), timestamp);
+        OpenRaoMPVariable generatorDiffToInitial = linearProblem.addGeneratorDiffToInitialVariable(generatorConstraint.getGeneratorId(), timestamp);
+        OpenRaoMPConstraint generatorDiffToInitialConstraintPos = linearProblem.addGeneratorDiffToInitialConstraint(generatorConstraint.getGeneratorId(), timestamp, LinearProblem.AbsExtension.POSITIVE);
+        //diff > p0 - p <=> diff + p > p0
+        generatorDiffToInitialConstraintPos.setLb(p0 * 0.0001);
+        generatorDiffToInitialConstraintPos.setCoefficient(generatorDiffToInitial, 1);
+        generatorDiffToInitialConstraintPos.setCoefficient(generatorPower, 0.0001);
+        OpenRaoMPConstraint generatorDiffToInitialConstraintNeg = linearProblem.addGeneratorDiffToInitialConstraint(generatorConstraint.getGeneratorId(), timestamp, LinearProblem.AbsExtension.NEGATIVE);
+        //diff > p - p0 <=> diff - p > -p0
+        generatorDiffToInitialConstraintNeg.setLb(-p0 * 0.0001);
+        generatorDiffToInitialConstraintNeg.setCoefficient(generatorDiffToInitial, 1);
+        generatorDiffToInitialConstraintNeg.setCoefficient(generatorPower, -0.0001);
+
+        OpenRaoMPVariable generatorChangedVariable = linearProblem.addGeneratorChangedVariable(generatorConstraint.getGeneratorId(), timestamp);
+        OpenRaoMPConstraint generatorChangedConstraint = linearProblem.addGeneratorChangedConstraint(generatorConstraint.getGeneratorId(), timestamp);
+        //changed > diff + diff - 1
+        generatorChangedConstraint.setLb(0.);
+        generatorChangedConstraint.setCoefficient(generatorChangedVariable, 1.);
+        generatorChangedConstraint.setCoefficient(generatorDiffToInitial, -1.);
+
+        if (Objects.nonNull(previoustimestamp)) {
+            OpenRaoMPVariable generatorPowerPrevious = linearProblem.getGeneratorPowerVariable(generatorConstraint.getGeneratorId(), previoustimestamp);
+            OpenRaoMPVariable generatorDiffToPreviousTs = linearProblem.addGeneratorDiffToPreviousTsVariable(generatorConstraint.getGeneratorId(), timestamp);
+            OpenRaoMPConstraint generatorDiffToPreviousConstraintPos = linearProblem.addGeneratorDiffToPreviousConstraint(generatorConstraint.getGeneratorId(), timestamp, LinearProblem.AbsExtension.POSITIVE);
+            generatorDiffToPreviousConstraintPos.setLb(0.);
+            //diff > p' - p <=> diff + p - p'> 0
+            generatorDiffToPreviousConstraintPos.setCoefficient(generatorDiffToPreviousTs, 1);
+            generatorDiffToPreviousConstraintPos.setCoefficient(generatorPower, 0.0001);
+            generatorDiffToPreviousConstraintPos.setCoefficient(generatorPowerPrevious, -0.0001);
+            OpenRaoMPConstraint generatorDiffToPreviousConstraintNeg = linearProblem.addGeneratorDiffToPreviousConstraint(generatorConstraint.getGeneratorId(), timestamp, LinearProblem.AbsExtension.NEGATIVE);
+            generatorDiffToPreviousConstraintNeg.setLb(0.);
+            //diff > p - p' <=> diff - p' + p> 0
+            generatorDiffToPreviousConstraintNeg.setCoefficient(generatorDiffToPreviousTs, 1);
+            generatorDiffToPreviousConstraintNeg.setCoefficient(generatorPower, -0.0001);
+            generatorDiffToPreviousConstraintNeg.setCoefficient(generatorPowerPrevious, 0.0001);
+
+            generatorChangedConstraint.setLb(-1.);
+            generatorChangedConstraint.setCoefficient(generatorDiffToPreviousTs, -1.);
+        }
+
+        maxChangesConstraint.setCoefficient(generatorChangedVariable, 1.);
+
     }
 
     /** Build a Generator Power Gradient Constraint for a generator g at timestamp t
@@ -79,13 +147,21 @@ public class PowerGradientConstraintFiller implements ProblemFiller {
         // Initial power cannot be read from network because power may have been modified in network since the beginning of the RAO. That's why initial power is fetched from rangeActionSetPointVariationConstraint's upper bound
         OpenRaoMPConstraint generatorPowerConstraint = linearProblem.addGeneratorPowerConstraint(generatorId, 0., timestamp);
         generatorPowerConstraint.setCoefficient(generatorPowerVariable, 1.0);
+        final double bound = getInitialP(linearProblem, generatorId, timestamp, generatorPowerConstraint);
+        generatorPowerConstraint.setBounds(bound, bound);
+    }
+
+    private double getInitialP(LinearProblem linearProblem, String generatorId, OffsetDateTime timestamp, OpenRaoMPConstraint generatorPowerConstraint) {
         final double[] bound = {0};
 
         // Find injection range actions related to generators with power gradients
         injectionRangeActionsPerTimestamp.getData(timestamp).orElseThrow().stream()
             .filter(injectionRangeAction -> injectionRangeAction.getInjectionDistributionKeys().keySet().stream().map(NetworkElement::getId).anyMatch(generatorId::equals))
             .forEach(injectionRangeAction -> {
-                double injectionKey = injectionRangeAction.getInjectionDistributionKeys().entrySet().stream().filter(entry -> generatorId.equals(entry.getKey().getId())).map(Map.Entry::getValue).findFirst().get();
+                double injectionKey = injectionRangeAction.getInjectionDistributionKeys().entrySet().stream()
+                    .filter(entry -> generatorId.equals(entry.getKey().getId()))
+                    .map(Map.Entry::getValue)
+                    .findFirst().get();
                 OpenRaoMPVariable upwardVariationVariable = linearProblem.getRangeActionVariationVariable(injectionRangeAction, preventiveStates.getData(timestamp).orElseThrow(), LinearProblem.VariationDirectionExtension.UPWARD);
                 OpenRaoMPVariable downwardVariationVariable = linearProblem.getRangeActionVariationVariable(injectionRangeAction, preventiveStates.getData(timestamp).orElseThrow(), LinearProblem.VariationDirectionExtension.DOWNWARD);
                 generatorPowerConstraint.setCoefficient(upwardVariationVariable, -injectionKey);
@@ -94,7 +170,25 @@ public class PowerGradientConstraintFiller implements ProblemFiller {
                 OpenRaoMPConstraint setPointVariationConstraint = linearProblem.getRangeActionSetPointVariationConstraint(injectionRangeAction, preventiveStates.getData(timestamp).orElseThrow());
                 bound[0] = bound[0] + setPointVariationConstraint.ub() * injectionKey;
             });
-        generatorPowerConstraint.setBounds(bound[0], bound[0]);
+        return bound[0];
+    }
+
+    private double getInitialP(LinearProblem linearProblem, String generatorId, OffsetDateTime timestamp) {
+        final double[] bound = {0};
+
+        // Find injection range actions related to generators with power gradients
+        injectionRangeActionsPerTimestamp.getData(timestamp).orElseThrow().stream()
+            .filter(injectionRangeAction -> injectionRangeAction.getInjectionDistributionKeys().keySet().stream().map(NetworkElement::getId).anyMatch(generatorId::equals))
+            .forEach(injectionRangeAction -> {
+                double injectionKey = injectionRangeAction.getInjectionDistributionKeys().entrySet().stream()
+                    .filter(entry -> generatorId.equals(entry.getKey().getId()))
+                    .map(Map.Entry::getValue)
+                    .findFirst().get();
+
+                OpenRaoMPConstraint setPointVariationConstraint = linearProblem.getRangeActionSetPointVariationConstraint(injectionRangeAction, preventiveStates.getData(timestamp).orElseThrow());
+                bound[0] = bound[0] + setPointVariationConstraint.ub() * injectionKey;
+            });
+        return bound[0];
     }
 
     @Override
