@@ -77,7 +77,7 @@ public class LoopFlowComputationImpl implements LoopFlowComputation {
                         .sum();
                 }
 
-                results.addCnecResult(flowCnec, side, refFlow - commercialFLow, commercialFLow, refFlow);
+                results.addCnecResult(flowCnec, side, refFlow - commercialFLow, commercialFLow, refFlow, objectiveFunctionUnit);
             });
         }
         return results;
