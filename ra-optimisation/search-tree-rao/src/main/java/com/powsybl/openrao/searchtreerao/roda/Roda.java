@@ -38,7 +38,7 @@ import java.util.stream.Collectors;
 @AutoService(InterTemporalRaoProvider.class)
 public class Roda implements InterTemporalRaoProvider {
 
-    private static final String RAODA = "Roda";
+    private static final String RODA = "Roda";
     private static final String VERSION = "0.0.1";
 
     private static final String INITIAL_SCENARIO = "InitialScenario";
@@ -122,7 +122,7 @@ public class Roda implements InterTemporalRaoProvider {
 
     @Override
     public String getName() {
-        return RAODA;
+        return RODA;
     }
 
     @Override
