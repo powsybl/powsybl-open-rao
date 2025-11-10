@@ -7,11 +7,13 @@
 
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms;
 
+import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.CurativeOptimizationPerimeter;
+import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.ContinuousRangeActionGroupFiller;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.CostCoreProblemFiller;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.DiscretePstGroupFiller;
@@ -26,6 +28,8 @@ import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.R
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.UnoptimizedCnecFiller;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.inputs.IteratingLinearOptimizerInput;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.parameters.IteratingLinearOptimizerParameters;
+import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
+import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
 
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
@@ -49,14 +53,25 @@ public final class ProblemFillerHelper {
     }
 
     public static List<ProblemFiller> getProblemFillers(IteratingLinearOptimizerInput input, IteratingLinearOptimizerParameters parameters, OffsetDateTime timestamp) {
+        return getProblemFillers(input.optimizationPerimeter(), input.network(), input.prePerimeterSetpoints(), input.initialFlowResult(), input.preOptimizationFlowResult(), input.prePerimeterFlowResult(), parameters, timestamp);
+    }
+
+    public static List<ProblemFiller> getProblemFillers(OptimizationPerimeter optimizationPerimeter,
+                                                        Network network,
+                                                        RangeActionSetpointResult prePerimeterRangeActionSetpoints,
+                                                        FlowResult initialFlowResult,
+                                                        FlowResult preOptimFlowResult,
+                                                        FlowResult prePerimeterFlowResult,
+                                                        IteratingLinearOptimizerParameters parameters,
+                                                        OffsetDateTime timestamp) {
         List<ProblemFiller> problemFillers = new ArrayList<>();
 
         // Core problem filler
         if (parameters.getObjectiveFunction().costOptimization()) {
             // TODO : mutualize arguments using only SearchTreeRaoRangeActionsOptimizationParameters extension
             CostCoreProblemFiller costCoreProblemFiller = new CostCoreProblemFiller(
-                input.optimizationPerimeter(),
-                input.prePerimeterSetpoints(),
+                optimizationPerimeter,
+                prePerimeterRangeActionSetpoints,
                 parameters.getRangeActionParameters(),
                 parameters.getRangeActionParametersExtension(),
                 parameters.getObjectiveFunctionUnit(),
@@ -67,8 +82,8 @@ public final class ProblemFillerHelper {
             problemFillers.add(costCoreProblemFiller);
         } else {
             MarginCoreProblemFiller marginCoreProblemFiller = new MarginCoreProblemFiller(
-                input.optimizationPerimeter(),
-                input.prePerimeterSetpoints(),
+                optimizationPerimeter,
+                prePerimeterRangeActionSetpoints,
                 parameters.getRangeActionParameters(),
                 parameters.getRangeActionParametersExtension(),
                 parameters.getObjectiveFunctionUnit(),
@@ -82,8 +97,8 @@ public final class ProblemFillerHelper {
         // max.min margin, or max.min relative margin
         if (parameters.getObjectiveFunction().relativePositiveMargins()) {
             MaxMinRelativeMarginFiller maxMinRelativeMarginFiller = new MaxMinRelativeMarginFiller(
-                input.optimizationPerimeter().getOptimizedFlowCnecs(),
-                input.preOptimizationFlowResult(),
+                optimizationPerimeter.getOptimizedFlowCnecs(),
+                preOptimFlowResult,
                 parameters.getObjectiveFunctionUnit(),
                 parameters.getMinMarginParameters(),
                 parameters.getMaxMinRelativeMarginParameters(),
@@ -92,7 +107,7 @@ public final class ProblemFillerHelper {
             problemFillers.add(maxMinRelativeMarginFiller);
         } else {
             MaxMinMarginFiller maxMinMarginFiller = new MaxMinMarginFiller(
-                input.optimizationPerimeter().getOptimizedFlowCnecs(),
+                optimizationPerimeter.getOptimizedFlowCnecs(),
                 parameters.getObjectiveFunctionUnit(),
                 parameters.getObjectiveFunction().costOptimization(),
                 parameters.getMinMarginParameters(),
@@ -104,8 +119,8 @@ public final class ProblemFillerHelper {
         // MNEC
         if (parameters.isRaoWithMnecLimitation()) {
             MnecFiller mnecFiller = new MnecFiller(
-                input.initialFlowResult(),
-                input.optimizationPerimeter().getMonitoredFlowCnecs(),
+                initialFlowResult,
+                optimizationPerimeter.getMonitoredFlowCnecs(),
                 parameters.getObjectiveFunctionUnit(),
                 parameters.getMnecParametersExtension().getViolationCost(),
                 parameters.getMnecParameters().getAcceptableMarginDecrease(),
@@ -118,8 +133,8 @@ public final class ProblemFillerHelper {
         // loop-flow limitation
         if (parameters.isRaoWithLoopFlowLimitation()) {
             MaxLoopFlowFiller maxLoopFlowFiller = new MaxLoopFlowFiller(
-                input.optimizationPerimeter().getLoopFlowCnecs(),
-                input.initialFlowResult(),
+                optimizationPerimeter.getLoopFlowCnecs(),
+                initialFlowResult,
                 parameters.getLoopFlowParameters(),
                 parameters.getLoopFlowParametersExtension(),
                 timestamp
@@ -130,10 +145,10 @@ public final class ProblemFillerHelper {
         // unoptimized CNECs for TSOs without curative RA
         if (!Objects.isNull(parameters.getUnoptimizedCnecParameters())
             && !Objects.isNull(parameters.getUnoptimizedCnecParameters().getOperatorsNotToOptimize())
-            && input.optimizationPerimeter() instanceof CurativeOptimizationPerimeter) {
+            && optimizationPerimeter instanceof CurativeOptimizationPerimeter) {
             UnoptimizedCnecFiller unoptimizedCnecFiller = new UnoptimizedCnecFiller(
-                input.optimizationPerimeter().getFlowCnecs(),
-                input.prePerimeterFlowResult(),
+                optimizationPerimeter.getFlowCnecs(),
+                prePerimeterFlowResult,
                 parameters.getUnoptimizedCnecParameters(),
                 timestamp
             );
@@ -143,19 +158,19 @@ public final class ProblemFillerHelper {
         // MIP optimization vs. CONTINUOUS optimization
         SearchTreeRaoRangeActionsOptimizationParameters.PstModel pstModel = getPstModel(parameters.getRangeActionParametersExtension());
         if (SearchTreeRaoRangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS.equals(pstModel)) {
-            Map<State, Set<PstRangeAction>> pstRangeActions = copyOnlyPstRangeActions(input.optimizationPerimeter().getRangeActionsPerState());
-            Map<State, Set<RangeAction<?>>> otherRa = copyWithoutPstRangeActions(input.optimizationPerimeter().getRangeActionsPerState());
+            Map<State, Set<PstRangeAction>> pstRangeActions = copyOnlyPstRangeActions(optimizationPerimeter.getRangeActionsPerState());
+            Map<State, Set<RangeAction<?>>> otherRa = copyWithoutPstRangeActions(optimizationPerimeter.getRangeActionsPerState());
             DiscretePstTapFiller discretePstTapFiller = new DiscretePstTapFiller(
-                input.optimizationPerimeter(),
+                optimizationPerimeter,
                 pstRangeActions,
-                input.prePerimeterSetpoints(),
+                prePerimeterRangeActionSetpoints,
                 parameters.getRangeActionParameters(),
                 parameters.getObjectiveFunction().costOptimization(),
                 timestamp
             );
             problemFillers.add(discretePstTapFiller);
             DiscretePstGroupFiller discretePstGroupFiller = new DiscretePstGroupFiller(
-                input.optimizationPerimeter().getMainOptimizationState(),
+                optimizationPerimeter.getMainOptimizationState(),
                 pstRangeActions,
                 timestamp
             );
@@ -163,20 +178,20 @@ public final class ProblemFillerHelper {
             ContinuousRangeActionGroupFiller continuousRangeActionGroupFiller = new ContinuousRangeActionGroupFiller(otherRa, timestamp);
             problemFillers.add(continuousRangeActionGroupFiller);
         } else if (SearchTreeRaoRangeActionsOptimizationParameters.PstModel.CONTINUOUS.equals(pstModel)) {
-            ContinuousRangeActionGroupFiller continuousRangeActionGroupFiller = new ContinuousRangeActionGroupFiller(input.optimizationPerimeter().getRangeActionsPerState(), timestamp);
+            ContinuousRangeActionGroupFiller continuousRangeActionGroupFiller = new ContinuousRangeActionGroupFiller(optimizationPerimeter.getRangeActionsPerState(), timestamp);
             problemFillers.add(continuousRangeActionGroupFiller);
         }
 
         // RA limitation
         if (parameters.getRaLimitationParameters() != null
-            && input.optimizationPerimeter().getRangeActionOptimizationStates().stream()
+            && optimizationPerimeter.getRangeActionOptimizationStates().stream()
             .anyMatch(state -> parameters.getRaLimitationParameters().areRangeActionLimitedForState(state))) {
             RaUsageLimitsFiller raUsageLimitsFiller = new RaUsageLimitsFiller(
-                input.optimizationPerimeter().getRangeActionsPerState(),
-                input.prePerimeterSetpoints(),
+                optimizationPerimeter.getRangeActionsPerState(),
+                prePerimeterRangeActionSetpoints,
                 parameters.getRaLimitationParameters(),
                 getPstModel(parameters.getRangeActionParametersExtension()) == SearchTreeRaoRangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS,
-                input.network(),
+                network,
                 parameters.getObjectiveFunction().costOptimization(),
                 timestamp
             );

@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.roda;
 
+import com.powsybl.iidm.network.EnergySource;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.TemporalData;
@@ -22,6 +23,7 @@ import java.util.stream.Collectors;
 /**
  * Mock class to create random simulation scenarios
  * TODO: replace this with new input files
+ *
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public final class ScenarioBuilderMock {
@@ -46,7 +48,6 @@ public final class ScenarioBuilderMock {
                 NetworkVariation randomVariation = networkVariations.get(genId).get(rand.nextInt(networkVariations.get(genId).size()));
                 scenarioVariations.add(randomVariation.getId());
             }
-            //String scenarioId = scenarioVariations.stream().sorted().collect(Collectors.joining(" + "));
             String scenarioId = "scn_" + scenarioRepo.getNumberOfScenarios();
             scenarioRepo.addScenario(scenarioId, scenarioVariations);
         }

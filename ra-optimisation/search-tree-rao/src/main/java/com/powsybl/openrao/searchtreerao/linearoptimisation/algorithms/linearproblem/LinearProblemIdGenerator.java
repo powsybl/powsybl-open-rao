@@ -61,14 +61,29 @@ public final class LinearProblemIdGenerator {
     private static final String GENERATOR_POWER_GRADIENT_CONSTRAINT = "generatorpowergradientconstraint";
     private static final String MIN_MARGIN_SHIFTED_VIOLATION = "minmarginshiftedviolation";
     private static final DateTimeFormatter DATE_TIME_FORMATER = DateTimeFormatter.ofPattern("yyyyMMddHHmm");
+    private static String PREFIX = null;
 
     private LinearProblemIdGenerator() {
         // Should not be instantiated
     }
 
+    public static void setPrefix(String prefix) {
+        PREFIX = prefix;
+    }
+
     private static String formatName(Optional<OffsetDateTime> timestamp, String... substrings) {
+        return LinearProblemIdGenerator.formatName(timestamp, false, substrings);
+    }
+
+    private static String formatName(Optional<OffsetDateTime> timestamp, boolean scenarioDependent, String... substrings) {
         String name = String.join(SEPARATOR, substrings).replace("__", "_"); // remove empty strings
-        return timestamp.map(time -> name + SEPARATOR + time.format(DATE_TIME_FORMATER)).orElse(name);
+        if (scenarioDependent && PREFIX != null) {
+            name = PREFIX + SEPARATOR + name;
+        }
+        if (timestamp.isPresent()) {
+            name = name + SEPARATOR + timestamp.get().format(DATE_TIME_FORMATER);
+        }
+        return name;
     }
 
     private static String formatName(String... substrings) {
@@ -76,11 +91,11 @@ public final class LinearProblemIdGenerator {
     }
 
     public static String flowVariableId(FlowCnec flowCnec, TwoSides side, Optional<OffsetDateTime> timestamp) {
-        return formatName(timestamp, flowCnec.getId(), side.toString().toLowerCase(), FLOW, VARIABLE_SUFFIX);
+        return formatName(timestamp, true, flowCnec.getId(), side.toString().toLowerCase(), FLOW, VARIABLE_SUFFIX);
     }
 
     public static String flowConstraintId(FlowCnec flowCnec, TwoSides side, Optional<OffsetDateTime> timestamp) {
-        return formatName(timestamp, flowCnec.getId(), side.toString().toLowerCase(), FLOW, CONSTRAINT_SUFFIX);
+        return formatName(timestamp, true, flowCnec.getId(), side.toString().toLowerCase(), FLOW, CONSTRAINT_SUFFIX);
     }
 
     public static String rangeActionSetpointVariableId(RangeAction<?> rangeAction, State state) {
@@ -140,12 +155,8 @@ public final class LinearProblemIdGenerator {
         return formatName(rangeAction.getId(), state.getId(), rangeAction.getGroupId().orElseThrow(), VIRTUAL_TAP, CONSTRAINT_SUFFIX);
     }
 
-    public static String absoluteRangeActionVariationVariableId(RangeAction<?> rangeAction, State state) {
-        return formatName(rangeAction.getId(), state.getId(), ABSOLUTE_VARIATION, VARIABLE_SUFFIX);
-    }
-
     public static String minimumMarginConstraintId(FlowCnec flowCnec, TwoSides side, LinearProblem.MarginExtension belowOrAboveThreshold, Optional<OffsetDateTime> timestamp) {
-        return formatName(timestamp, flowCnec.getId(), side.toString().toLowerCase(), MIN_MARGIN, belowOrAboveThreshold.toString().toLowerCase(), CONSTRAINT_SUFFIX);
+        return formatName(timestamp, true, flowCnec.getId(), side.toString().toLowerCase(), MIN_MARGIN, belowOrAboveThreshold.toString().toLowerCase(), CONSTRAINT_SUFFIX);
     }
 
     public static String minimumMarginVariableId(Optional<OffsetDateTime> timestamp) {
@@ -157,7 +168,7 @@ public final class LinearProblemIdGenerator {
     }
 
     public static String minimumRelativeMarginConstraintId(FlowCnec flowCnec, TwoSides side, LinearProblem.MarginExtension belowOrAboveThreshold, Optional<OffsetDateTime> timestamp) {
-        return formatName(timestamp, flowCnec.getId(), side.toString().toLowerCase(), MIN_RELATIVE_MARGIN, belowOrAboveThreshold.toString().toLowerCase(), CONSTRAINT_SUFFIX);
+        return formatName(timestamp, true, flowCnec.getId(), side.toString().toLowerCase(), MIN_RELATIVE_MARGIN, belowOrAboveThreshold.toString().toLowerCase(), CONSTRAINT_SUFFIX);
     }
 
     public static String minimumRelativeMarginSignBinaryVariableId(Optional<OffsetDateTime> timestamp) {
@@ -173,27 +184,27 @@ public final class LinearProblemIdGenerator {
     }
 
     public static String maxLoopFlowConstraintId(FlowCnec flowCnec, TwoSides side, LinearProblem.BoundExtension lbOrUb, Optional<OffsetDateTime> timestamp) {
-        return formatName(timestamp, flowCnec.getId(), side.toString().toLowerCase(), MAX_LOOPFLOW, lbOrUb.toString().toLowerCase(), CONSTRAINT_SUFFIX);
+        return formatName(timestamp, true, flowCnec.getId(), side.toString().toLowerCase(), MAX_LOOPFLOW, lbOrUb.toString().toLowerCase(), CONSTRAINT_SUFFIX);
     }
 
     public static String loopflowViolationVariableId(FlowCnec flowCnec, TwoSides side, Optional<OffsetDateTime> timestamp) {
-        return formatName(timestamp, flowCnec.getId(), side.toString().toLowerCase(), LOOPFLOWVIOLATION, VARIABLE_SUFFIX);
+        return formatName(timestamp, true, flowCnec.getId(), side.toString().toLowerCase(), LOOPFLOWVIOLATION, VARIABLE_SUFFIX);
     }
 
     public static String mnecViolationVariableId(FlowCnec mnec, TwoSides side, Optional<OffsetDateTime> timestamp) {
-        return formatName(timestamp, mnec.getId(), side.toString().toLowerCase(), MNEC_VIOLATION, VARIABLE_SUFFIX);
+        return formatName(timestamp, true, mnec.getId(), side.toString().toLowerCase(), MNEC_VIOLATION, VARIABLE_SUFFIX);
     }
 
     public static String mnecFlowConstraintId(FlowCnec mnec, TwoSides side, LinearProblem.MarginExtension belowOrAboveThreshold, Optional<OffsetDateTime> timestamp) {
-        return formatName(timestamp, mnec.getId(), side.toString().toLowerCase(), MNEC_FLOW, belowOrAboveThreshold.toString().toLowerCase(), CONSTRAINT_SUFFIX);
+        return formatName(timestamp, true, mnec.getId(), side.toString().toLowerCase(), MNEC_FLOW, belowOrAboveThreshold.toString().toLowerCase(), CONSTRAINT_SUFFIX);
     }
 
     public static String optimizeCnecBinaryVariableId(FlowCnec flowCnec, TwoSides side, Optional<OffsetDateTime> timestamp) {
-        return formatName(timestamp, flowCnec.getId(), side.toString().toLowerCase(), OPTIMIZE_CNEC, VARIABLE_SUFFIX);
+        return formatName(timestamp, true, flowCnec.getId(), side.toString().toLowerCase(), OPTIMIZE_CNEC, VARIABLE_SUFFIX);
     }
 
     public static String dontOptimizeCnecConstraintId(FlowCnec flowCnec, TwoSides side, LinearProblem.MarginExtension belowOrAboveThreshold, Optional<OffsetDateTime> timestamp) {
-        return formatName(timestamp, flowCnec.getId(), side.toString().toLowerCase(), OPTIMIZE_CNEC + belowOrAboveThreshold.toString().toLowerCase(), CONSTRAINT_SUFFIX);
+        return formatName(timestamp, true, flowCnec.getId(), side.toString().toLowerCase(), OPTIMIZE_CNEC + belowOrAboveThreshold.toString().toLowerCase(), CONSTRAINT_SUFFIX);
     }
 
     public static String maxRaConstraintId(State state) {

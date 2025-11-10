@@ -7,19 +7,13 @@
 
 package com.powsybl.openrao.searchtreerao.roda.sensitivity;
 
-import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.MultiScenarioTemporalData;
 import com.powsybl.openrao.commons.TemporalData;
-import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
-import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
-import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
+import com.powsybl.openrao.searchtreerao.roda.FlowAndSensitivityResult;
 import com.powsybl.openrao.searchtreerao.roda.scenariorepository.ScenarioRepository;
-import org.apache.commons.lang3.tuple.Pair;
-
-import java.util.Set;
 
 public interface MultiSensitivityComputer {
-    MultiScenarioTemporalData<Pair<FlowResult, SensitivityResult>> run(TemporalData<RaoInput> raoInputs, ScenarioRepository scenarioRepository, RaoParameters raoParameters) ;
+    MultiScenarioTemporalData<FlowAndSensitivityResult> run(TemporalData<RaoInput> raoInputs, ScenarioRepository scenarioRepository, RaoParameters raoParameters) ;
 }
