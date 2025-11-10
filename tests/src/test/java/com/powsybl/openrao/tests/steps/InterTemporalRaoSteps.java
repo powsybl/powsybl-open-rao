@@ -205,7 +205,7 @@ public final class InterTemporalRaoSteps {
 
     @When("I launch marmot")
     public static void iLaunchMarmot() {
-        interTemporalRaoResult = InterTemporalRao.run(interTemporalRaoInput, getRaoParameters());
+        interTemporalRaoResult = InterTemporalRao.find("InterTemporalRao").run(interTemporalRaoInput, getRaoParameters());
     }
 
     @When("I export marmot results to {string}")

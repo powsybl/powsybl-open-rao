@@ -56,9 +56,8 @@ class OpenRaoMPSolverTest {
         // Add variable
         OpenRaoMPVariable var1 = openRaoMPSolver.makeNumVar(-5, 3.6, varName);
 
-        // Check exception when re-adding
-        e = assertThrows(OpenRaoException.class, () -> openRaoMPSolver.makeNumVar(-5, 3.6, varName));
-        assertEquals("Variable var1 already exists", e.getMessage());
+        // Check that when re-adding we get the same
+        assertEquals(var1, openRaoMPSolver.makeNumVar(-5, 3.6, varName));
 
         // Check OpenRaoMPVariable
         assertEquals(varName, var1.name());
@@ -126,9 +125,8 @@ class OpenRaoMPSolverTest {
         OpenRaoMPConstraint const1 = openRaoMPSolver.makeConstraint(-121.6, 65.956, constName);
         const1.setCoefficient(var1, 648.9);
 
-        // Check exception when re-adding
-        e = assertThrows(OpenRaoException.class, () -> openRaoMPSolver.makeConstraint(-121.6, 65.956, constName));
-        assertEquals("Constraint const1 already exists", e.getMessage());
+        // Check that when re-adding we get the same
+        assertEquals(const1, openRaoMPSolver.makeConstraint(-121.6, 65.956, constName));
 
         // Check OpenRaoMPConstraint
         assertTrue(openRaoMPSolver.hasConstraint(constName));
