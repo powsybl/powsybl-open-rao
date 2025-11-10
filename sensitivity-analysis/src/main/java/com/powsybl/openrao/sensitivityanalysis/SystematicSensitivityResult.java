@@ -210,6 +210,10 @@ public class SystematicSensitivityResult {
             stateResult.getReferenceIntensities()
                 .computeIfAbsent(factor.getFunctionId(), k -> new EnumMap<>(TwoSides.class))
                 .putIfAbsent(side, reference);
+            stateResult.getIntensitySensitivities()
+                .computeIfAbsent(factor.getFunctionId(), k -> new HashMap<>())
+                .computeIfAbsent(factor.getVariableId(), k -> new EnumMap<>(TwoSides.class))
+                .putIfAbsent(side, sensitivity);
         }
     }
 

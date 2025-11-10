@@ -45,10 +45,15 @@ public class LoopFlowComputationImpl implements LoopFlowComputation {
 
     @Override
     public LoopFlowResult calculateLoopFlows(Network network, String sensitivityProvider, SensitivityAnalysisParameters sensitivityAnalysisParameters, Set<FlowCnec> flowCnecs, Instant outageInstant) {
+        Set<Unit> units =
+            (objectiveFunctionUnit == Unit.MEGAWATT) ?
+                Set.of(Unit.MEGAWATT) :
+                Set.of(Unit.AMPERE, Unit.MEGAWATT); // Still needs to compute sensi on MW flow for post processing sensi
+
         SystematicSensitivityInterface systematicSensitivityInterface = SystematicSensitivityInterface.builder()
                 .withSensitivityProviderName(sensitivityProvider)
                 .withParameters(sensitivityAnalysisParameters)
-                .withPtdfSensitivities(glsk, flowCnecs, Collections.singleton(objectiveFunctionUnit))
+                .withPtdfSensitivities(glsk, flowCnecs, units)
                 .withOutageInstant(outageInstant)
                 .build();
 

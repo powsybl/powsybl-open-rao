@@ -38,36 +38,29 @@ public class LoopFlowResult {
             this.unit = unit;
         }
 
-        double getLoopFlow(Unit unit) {
+        Double getLoopFlow(Unit unit) {
             if (unit == this.unit) {
                 return loopFlowValue;
             } else {
-                throw new OpenRaoException(
-                    String.format("Asked for unit %s but the loopflow was computed in %s", unit, this.unit)
-                );
+                return null;
             }
         }
 
-        double getCommercialFlow(Unit unit) {
+        Double getCommercialFlow(Unit unit) {
             if (unit == this.unit) {
                 return commercialFlowValue;
             } else {
-                throw new OpenRaoException(
-                    String.format("Asked for unit %s but the commercial flow was computed in %s", unit, this.unit)
-                );
+                return null;
             }
         }
 
-        double getTotalFlow(Unit unit) {
+        Double getTotalFlow(Unit unit) {
             if (unit == this.unit) {
                 return totalFlowValue;
             } else {
-                throw new OpenRaoException(
-                    String.format("Asked for unit %s but the total flow was computed in %s", unit, this.unit)
-                );
+                return null;
             }
         }
-
     }
 
     public LoopFlowResult() {
@@ -78,21 +71,21 @@ public class LoopFlowResult {
         loopFlowMap.computeIfAbsent(cnec, k -> new EnumMap<>(TwoSides.class)).put(side, new LoopFlow(loopFlowValue, commercialFlowValue, referenceFlowValue, unit));
     }
 
-    public double getLoopFlow(BranchCnec<?> cnec, TwoSides side, Unit unit) {
+    public Double getLoopFlow(BranchCnec<?> cnec, TwoSides side, Unit unit) {
         if (!loopFlowMap.containsKey(cnec) || !loopFlowMap.get(cnec).containsKey(side)) {
             throw new OpenRaoException(String.format("No loop-flow value found for cnec %s on side %s", cnec.getId(), side));
         }
         return loopFlowMap.get(cnec).get(side).getLoopFlow(unit);
     }
 
-    public double getCommercialFlow(BranchCnec<?> cnec, TwoSides side, Unit unit ) {
+    public Double getCommercialFlow(BranchCnec<?> cnec, TwoSides side, Unit unit ) {
         if (!loopFlowMap.containsKey(cnec) || !loopFlowMap.get(cnec).containsKey(side)) {
             throw new OpenRaoException(String.format("No commercial flow value found for cnec %s on side %s", cnec.getId(), side));
         }
         return loopFlowMap.get(cnec).get(side).getCommercialFlow(unit);
     }
 
-    public double getReferenceFlow(BranchCnec<?> cnec, TwoSides side, Unit unit) {
+    public Double getReferenceFlow(BranchCnec<?> cnec, TwoSides side, Unit unit) {
         if (!loopFlowMap.containsKey(cnec) || !loopFlowMap.get(cnec).containsKey(side)) {
             throw new OpenRaoException(String.format("No reference flow value found for cnec %s on side %s", cnec.getId(), side));
         }
@@ -109,7 +102,11 @@ public class LoopFlowResult {
                 loopFlowMap.get(cnec).keySet().forEach(side -> {
                     Map<Unit, Double> unitValues = new HashMap<>();
                     for (Unit unit : List.of(Unit.MEGAWATT, Unit.AMPERE)) {
-                        unitValues.put(unit, this.getCommercialFlow(cnec, side, unit));
+                        Double value = this.getCommercialFlow(cnec, side, unit);
+                        if (value != null) {
+                            unitValues.put(unit, value);
+                        }
+
                     }
                     sideMap.put(side, unitValues);
                 });
