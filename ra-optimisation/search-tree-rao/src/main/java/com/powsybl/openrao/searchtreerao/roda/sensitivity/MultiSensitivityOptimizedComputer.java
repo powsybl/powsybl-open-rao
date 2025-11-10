@@ -16,6 +16,8 @@ import com.powsybl.openrao.searchtreerao.roda.scenariorepository.ScenarioReposit
 
 /**
  * Runs load-flow & sensitivity computations on reference scenario only, then approximates the other scenarios using sensitivity values
+ *
+ * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public class MultiSensitivityOptimizedComputer implements MultiSensitivityComputer {
     @Override

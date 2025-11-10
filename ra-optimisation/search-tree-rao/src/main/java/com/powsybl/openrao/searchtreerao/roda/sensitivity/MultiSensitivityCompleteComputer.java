@@ -24,6 +24,8 @@ import java.time.OffsetDateTime;
 
 /**
  * Runs load-flow & sensitivity computations on all scenarios
+ *
+ * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public class MultiSensitivityCompleteComputer implements MultiSensitivityComputer {
     public MultiSensitivityCompleteComputer() {
