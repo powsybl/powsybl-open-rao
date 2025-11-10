@@ -7,7 +7,6 @@
 
 package com.powsybl.openrao.searchtreerao.roda;
 
-import com.powsybl.iidm.network.EnergySource;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.TemporalData;
@@ -27,25 +26,25 @@ import java.util.stream.Collectors;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public final class ScenarioBuilderMock {
+    private static final Random RANDOM = new Random();
+
     private ScenarioBuilderMock() {
         // should not be used
     }
 
-    public static ScenarioRepository createScenarios(TemporalData<Network> networks) {
+    public static ScenarioRepository createScenarios(TemporalData<Network> networks, int nScenarios) {
         Map<String, List<NetworkVariation>> networkVariations = new HashMap<>();
         Set<String> networkGenerators = networks.getData(networks.getTimestamps().get(0)).orElseThrow().getGeneratorStream().map(Identifiable::getId).filter(id -> !id.contains("_RA_")).collect(Collectors.toSet());
         for (String genId : networkGenerators) {
             networkVariations.put(genId, createNetworkVariationsForGenerator(genId, networks));
         }
         ScenarioRepository scenarioRepo = new ScenarioRepository(networkVariations.values().stream().flatMap(Collection::stream).collect(Collectors.toSet()));
-        int nScenarios = 10;
-        Random rand = new Random();
         // Add reference scenario
         scenarioRepo.addScenario("REFERENCE", Set.of());
         while (scenarioRepo.getNumberOfScenarios() < nScenarios) {
             Set<String> scenarioVariations = new HashSet<>();
             for (String genId : networkGenerators) {
-                NetworkVariation randomVariation = networkVariations.get(genId).get(rand.nextInt(networkVariations.get(genId).size()));
+                NetworkVariation randomVariation = networkVariations.get(genId).get(RANDOM.nextInt(networkVariations.get(genId).size()));
                 scenarioVariations.add(randomVariation.getId());
             }
             String scenarioId = "scn_" + scenarioRepo.getNumberOfScenarios();

@@ -10,6 +10,9 @@ package com.powsybl.openrao.commons;
 import java.time.OffsetDateTime;
 import java.util.Objects;
 
+/**
+ * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
+ */
 public class ScenarioAndTimestamp implements Comparable<ScenarioAndTimestamp> {
     private final String scenario;
     private final OffsetDateTime timestamp;
@@ -29,8 +32,12 @@ public class ScenarioAndTimestamp implements Comparable<ScenarioAndTimestamp> {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         return scenario.equals(((ScenarioAndTimestamp) o).scenario) &&
             timestamp.equals(((ScenarioAndTimestamp) o).timestamp);
     }

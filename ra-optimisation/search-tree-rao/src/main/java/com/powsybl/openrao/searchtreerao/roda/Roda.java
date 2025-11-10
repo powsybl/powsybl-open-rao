@@ -49,7 +49,7 @@ public class Roda implements InterTemporalRaoProvider {
         InterTemporalRaoInput interTemporalRaoInput = importNetworksFromInterTemporalRaoInputWithNetworkPaths(raoInput);
         TemporalData<Network> networks = interTemporalRaoInput.getRaoInputs().map(RaoInput::getNetwork);
         // Generate scenarios
-        ScenarioRepository scenarioRepository = ScenarioBuilderMock.createScenarios(networks);
+        ScenarioRepository scenarioRepository = ScenarioBuilderMock.createScenarios(networks, 100);
         // Run initial multi-scenario load-flow & sensitivity analysis
         MultiScenarioTemporalData<FlowAndSensitivityResult> initialResults = new MultiSensitivityCompleteComputer().run(interTemporalRaoInput.getRaoInputs(), scenarioRepository, parameters);
         // Build objective function evaluator
