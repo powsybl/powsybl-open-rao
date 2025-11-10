@@ -6,7 +6,7 @@
 Feature: US 7.14: Use a refProg file to calculate the loop-flows
 
   @fast @loopflow-computation @mock @ac @loopflow
-  Scenario: 7.14.1 : calculate loop-flows with a refProg file
+  Scenario: 7.14.1 : calculate loop-flows with a refProg file - Megawatt
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic7/crac_lf.json"
     Given loopflow glsk file is "common/glsk_lots_of_lf_12nodes.xml"
@@ -30,14 +30,30 @@ Feature: US 7.14: Use a refProg file to calculate the loop-flows
 
   @fast @loopflow-computation @mock @ac @loopflow
   Scenario: 7.14.1.bis : calculate loop-flows with a refProg file - Ampere
+  Perform exactly the same test as 7.14.1, but this time with the computation carried out in Ampere.
+  The expected result should match the Megawatt value converted to Ampere using the formula : flowInAmpere ~ flowInMw / (Unom × sqrt(3) / 1000).
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic7/crac_lf.json"
     Given loopflow glsk file is "common/glsk_lots_of_lf_12nodes.xml"
     Given RefProg file is "epic7/refProg_12nodes.xml"
     Given configuration file is "common/RaoParameters_default_ampere.json"
     When I launch loopflow_computation with OpenLoadFlow at "2019-01-08 21:30"
-    And the loopflow on cnec "DDE2AA1  NNL3AA1  1 - preventive" after loopflow computation should be -610.0 A
-    And the loopflow on cnec "NNL1AA1  NNL3AA1  1 - preventive" after loopflow computation should be 303.0 A
+    And the loopflow on cnec "DDE2AA1  NNL3AA1  1 - preventive" after loopflow computation should be -880.0 A
+    And the loopflow on cnec "NNL1AA1  NNL3AA1  1 - preventive" after loopflow computation should be 437.0 A
+    And the loopflow on cnec "NNL1AA1  NNL2AA1  1 - preventive" after loopflow computation should be 284.0 A
+    And the loopflow on cnec "FFR2AA1  FFR3AA1  1 - preventive" after loopflow computation should be -1722.0 A
+    And the loopflow on cnec "NNL2AA1  BBE3AA1  1 - preventive" after loopflow computation should be -591.0 A
+    And the loopflow on cnec "BBE1AA1  BBE3AA1  1 - preventive" after loopflow computation should be -1054.0 A
+    And the loopflow on cnec "BBE1AA1  BBE2AA1  1 - preventive" after loopflow computation should be -1255.0 A
+    And the loopflow on cnec "FFR1AA1  FFR3AA1  1 - preventive" after loopflow computation should be -139.0 A
+    And the loopflow on cnec "DDE2AA1  DDE3AA1  1 - preventive" after loopflow computation should be -856.0 A
+    And the loopflow on cnec "FFR1AA1  FFR2AA1  1 - preventive" after loopflow computation should be 1582.0 A
+    And the loopflow on cnec "FFR2AA1  DDE3AA1  1 - preventive" after loopflow computation should be -453.0 A
+    And the loopflow on cnec "DDE1AA1  DDE3AA1  1 - preventive" after loopflow computation should be -1149.0 A
+    And the loopflow on cnec "DDE1AA1  DDE2AA1  1 - preventive" after loopflow computation should be -293.0 A
+    And the loopflow on cnec "NNL2AA1  NNL3AA1  1 - preventive" after loopflow computation should be 153.0 A
+    And the loopflow on cnec "BBE2AA1  FFR3AA1  1 - preventive" after loopflow computation should be -302.0 A
+
 
   @fast @rao @mock @ac @preventive-only @loopflow
   Scenario: 7.14.2 : run a search tree RAO with a refProg file
