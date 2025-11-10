@@ -133,7 +133,7 @@ public class OpenRaoMPSolver {
 
     private OpenRaoMPVariable makeVar(double lb, double ub, boolean integer, String name) {
         if (hasVariable(name)) {
-            throw new OpenRaoException(String.format("Variable %s already exists", name));
+            return getVariable(name);
         }
         double roundedLb = roundDouble(lb);
         double roundedUb = roundDouble(ub);
@@ -144,7 +144,7 @@ public class OpenRaoMPSolver {
 
     public OpenRaoMPConstraint makeConstraint(double lb, double ub, String name) {
         if (hasConstraint(name)) {
-            throw new OpenRaoException(String.format("Constraint %s already exists", name));
+            return getConstraint(name);
         } else {
             double roundedLb = roundDouble(lb);
             double roundedUb = roundDouble(ub);

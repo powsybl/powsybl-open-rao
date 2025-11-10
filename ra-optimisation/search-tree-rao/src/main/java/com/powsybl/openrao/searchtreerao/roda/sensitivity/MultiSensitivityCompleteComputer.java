@@ -16,11 +16,9 @@ import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.PrePerimeterSensitivityAnalysis;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
-import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
-import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
+import com.powsybl.openrao.searchtreerao.roda.FlowAndSensitivityResult;
 import com.powsybl.openrao.searchtreerao.roda.scenariorepository.ScenarioRepository;
-import org.apache.commons.lang3.tuple.Pair;
 
 import java.time.OffsetDateTime;
 
@@ -33,8 +31,8 @@ public class MultiSensitivityCompleteComputer implements MultiSensitivityCompute
     }
 
     @Override
-    public MultiScenarioTemporalData<Pair<FlowResult, SensitivityResult>> run(TemporalData<RaoInput> raoInputs, ScenarioRepository scenarioRepository, RaoParameters raoParameters) {
-        MultiScenarioTemporalData<Pair<FlowResult, SensitivityResult>> results = new MultiScenarioTemporalData<>();
+    public MultiScenarioTemporalData<FlowAndSensitivityResult> run(TemporalData<RaoInput> raoInputs, ScenarioRepository scenarioRepository, RaoParameters raoParameters) {
+        MultiScenarioTemporalData<FlowAndSensitivityResult> results = new MultiScenarioTemporalData<>();
         for (String scenario : scenarioRepository.getScenarios()) {
             for (OffsetDateTime ts : raoInputs.getTimestamps()) {
                 RaoInput raoInput = raoInputs.getData(ts).orElseThrow();
@@ -47,7 +45,7 @@ public class MultiSensitivityCompleteComputer implements MultiSensitivityCompute
                 scenarioRepository.applyScenario(scenario, network, ts);
 
                 PrePerimeterResult result = runPrePerimeterSensitivityAnalysisWithRangeActions(raoInput, raoParameters);
-                results.put(scenario, ts, Pair.of(result, result));
+                results.put(scenario, ts, new FlowAndSensitivityResult(result, result));
 
                 network.getVariantManager().removeVariant(newVariant);
             }
