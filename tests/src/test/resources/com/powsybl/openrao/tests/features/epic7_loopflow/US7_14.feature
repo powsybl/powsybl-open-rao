@@ -28,6 +28,17 @@ Feature: US 7.14: Use a refProg file to calculate the loop-flows
     And the loopflow on cnec "NNL2AA1  NNL3AA1  1 - preventive" after loopflow computation should be 106.0 MW
     And the loopflow on cnec "BBE2AA1  FFR3AA1  1 - preventive" after loopflow computation should be -210.0 MW
 
+  @fast @loopflow-computation @mock @ac @loopflow
+  Scenario: 7.14.1.bis : calculate loop-flows with a refProg file - Ampere
+    Given network file is "common/TestCase12Nodes.uct" for CORE CC
+    Given crac file is "epic7/crac_lf.json"
+    Given loopflow glsk file is "common/glsk_lots_of_lf_12nodes.xml"
+    Given RefProg file is "epic7/refProg_12nodes.xml"
+    Given configuration file is "common/RaoParameters_default_ampere.json"
+    When I launch loopflow_computation with OpenLoadFlow at "2019-01-08 21:30"
+    And the loopflow on cnec "DDE2AA1  NNL3AA1  1 - preventive" after loopflow computation should be -610.0 A
+    And the loopflow on cnec "NNL1AA1  NNL3AA1  1 - preventive" after loopflow computation should be 303.0 A
+
   @fast @rao @mock @ac @preventive-only @loopflow
   Scenario: 7.14.2 : run a search tree RAO with a refProg file
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
