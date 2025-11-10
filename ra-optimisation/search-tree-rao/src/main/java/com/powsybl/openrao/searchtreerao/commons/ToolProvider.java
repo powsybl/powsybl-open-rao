@@ -215,7 +215,8 @@ public final class ToolProvider {
                 raoInput.getGlskProvider(),
                 new LoopFlowComputationImpl(
                     raoInput.getGlskProvider(),
-                    raoInput.getReferenceProgram()
+                    raoInput.getReferenceProgram(),
+                    raoParameters.getObjectiveFunctionParameters().getUnit()
                 )
             );
         }
