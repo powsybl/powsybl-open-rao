@@ -10,6 +10,7 @@ package com.powsybl.openrao.loopflowcomputation;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.glsk.commons.ZonalData;
+import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.loopflowextension.LoopFlowThresholdImpl;
 import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceProgram;
@@ -73,7 +74,7 @@ class LoopFlowComputationImplTest {
         Mockito.doReturn(mockInjection(true)).when(gen).getTerminal();
         Mockito.doReturn(mockInjection(true)).when(load).getTerminal();
 
-        LoopFlowComputation loopFlowComputation = new LoopFlowComputationImpl(glsk, referenceProgram);
+        LoopFlowComputation loopFlowComputation = new LoopFlowComputationImpl(glsk, referenceProgram, Unit.MEGAWATT);
         LoopFlowResult loopFlowResult = loopFlowComputation.buildLoopFlowsFromReferenceFlowAndPtdf(ptdfsAndFlows, crac.getFlowCnecs(), network);
 
         assertEquals(-50., loopFlowResult.getLoopFlow(crac.getFlowCnec("FR-BE1"), TwoSides.ONE), DOUBLE_TOLERANCE);
@@ -220,7 +221,7 @@ class LoopFlowComputationImplTest {
         Mockito.doReturn(mockInjection(false)).when(loadBe).getTerminal();
         Mockito.doReturn(mockInjection(false)).when(danglingLine).getTerminal();
 
-        LoopFlowComputation loopFlowComputation = new LoopFlowComputationImpl(glsk, referenceProgram);
+        LoopFlowComputation loopFlowComputation = new LoopFlowComputationImpl(glsk, referenceProgram, Unit.MEGAWATT);
         LoopFlowResult loopFlowResult = loopFlowComputation.buildLoopFlowsFromReferenceFlowAndPtdf(ptdfsAndFlows, crac.getFlowCnecs(), network);
 
         assertEquals(30., loopFlowResult.getLoopFlow(crac.getFlowCnec("FR-BE1"), TwoSides.ONE), DOUBLE_TOLERANCE);
@@ -249,7 +250,7 @@ class LoopFlowComputationImplTest {
         Network network = ExampleGenerator.network();
         SensitivityAnalysisParameters sensitivityAnalysisParameters = new SensitivityAnalysisParameters();
         sensitivityAnalysisParameters.getLoadFlowParameters().setDc(true);
-        LoopFlowResult loopFlowResult = new LoopFlowComputationImpl(glsk, referenceProgram).calculateLoopFlows(network, "OpenLoadFlow", sensitivityAnalysisParameters, crac.getFlowCnecs(), crac.getOutageInstant());
+        LoopFlowResult loopFlowResult = new LoopFlowComputationImpl(glsk, referenceProgram, Unit.MEGAWATT).calculateLoopFlows(network, "OpenLoadFlow", sensitivityAnalysisParameters, crac.getFlowCnecs(), crac.getOutageInstant());
 
         assertEquals(-20., loopFlowResult.getLoopFlow(crac.getFlowCnec("FR-BE1"), TwoSides.ONE), DOUBLE_TOLERANCE);
         assertEquals(80., loopFlowResult.getLoopFlow(crac.getFlowCnec("BE1-BE2"), TwoSides.ONE), DOUBLE_TOLERANCE);
