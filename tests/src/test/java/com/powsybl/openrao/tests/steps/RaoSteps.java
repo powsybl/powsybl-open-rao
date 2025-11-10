@@ -606,7 +606,7 @@ public class RaoSteps {
     public void loopflowComputationLoopflowInMW(String cnecId, Double expectedFlow) {
         assertEquals(expectedFlow,
             crac.getFlowCnec(cnecId).getMonitoredSides().stream()
-                .map(side -> loopFlowResult.getLoopFlow(crac.getFlowCnec(cnecId), side))
+                .map(side -> loopFlowResult.getLoopFlow(crac.getFlowCnec(cnecId), side, Unit.MEGAWATT))
                 .max(Double::compareTo).orElseThrow(),
             flowMegawattTolerance(expectedFlow));
     }
@@ -615,7 +615,7 @@ public class RaoSteps {
     public void loopflowComputationLoopflowInA(String cnecId, Double expectedFlow) {
         assertEquals(expectedFlow,
             crac.getFlowCnec(cnecId).getMonitoredSides().stream()
-                .map(side -> loopFlowResult.getLoopFlow(crac.getFlowCnec(cnecId), side))
+                .map(side -> loopFlowResult.getLoopFlow(crac.getFlowCnec(cnecId), side, Unit.AMPERE))
                 .max(Double::compareTo).orElseThrow(),
             flowMegawattTolerance(expectedFlow));
     }
