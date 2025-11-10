@@ -17,7 +17,6 @@ import com.powsybl.openrao.commons.TemporalDataImpl;
 
 import java.time.OffsetDateTime;
 
-
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */

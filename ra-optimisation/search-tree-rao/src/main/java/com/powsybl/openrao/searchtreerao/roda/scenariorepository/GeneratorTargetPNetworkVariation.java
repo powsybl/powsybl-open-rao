@@ -17,7 +17,6 @@ import com.powsybl.openrao.commons.TemporalDataImpl;
 
 import java.time.OffsetDateTime;
 
-
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
@@ -34,7 +33,7 @@ public class GeneratorTargetPNetworkVariation extends AbstractNetworkVariation i
 
     @Override
     public TemporalData<Double> apply(TemporalData<Network> networks) {
-       return inspect(networks, true);
+        return inspect(networks, true);
     }
 
     @Override
@@ -77,5 +76,10 @@ public class GeneratorTargetPNetworkVariation extends AbstractNetworkVariation i
             return false;
         }
         return this.id.equals(((GeneratorTargetPNetworkVariation) o).id);
+    }
+
+    @Override
+    public int hashCode() {
+        return this.id.hashCode();
     }
 }

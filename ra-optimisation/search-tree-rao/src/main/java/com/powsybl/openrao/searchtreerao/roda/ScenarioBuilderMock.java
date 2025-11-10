@@ -39,8 +39,6 @@ public final class ScenarioBuilderMock {
             networkVariations.put(genId, createNetworkVariationsForGenerator(genId, networks));
         }
         ScenarioRepository scenarioRepo = new ScenarioRepository(networkVariations.values().stream().flatMap(Collection::stream).collect(Collectors.toSet()));
-        // Add reference scenario
-        scenarioRepo.addScenario("REFERENCE", Set.of());
         while (scenarioRepo.getNumberOfScenarios() < nScenarios) {
             Set<String> scenarioVariations = new HashSet<>();
             for (String genId : networkGenerators) {

@@ -15,5 +15,5 @@ import com.powsybl.openrao.searchtreerao.roda.FlowAndSensitivityResult;
 import com.powsybl.openrao.searchtreerao.roda.scenariorepository.ScenarioRepository;
 
 public interface MultiSensitivityComputer {
-    MultiScenarioTemporalData<FlowAndSensitivityResult> run(TemporalData<RaoInput> raoInputs, ScenarioRepository scenarioRepository, RaoParameters raoParameters) ;
+    MultiScenarioTemporalData<FlowAndSensitivityResult> run(TemporalData<RaoInput> raoInputs, ScenarioRepository scenarioRepository, RaoParameters raoParameters);
 }

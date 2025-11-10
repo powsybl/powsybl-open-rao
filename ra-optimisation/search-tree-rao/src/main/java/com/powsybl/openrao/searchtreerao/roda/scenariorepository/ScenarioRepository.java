@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 public class ScenarioRepository {
     private Map<String, NetworkVariation> networkVariations;
     private Map<String, Set<NetworkVariation>> scenarios;
-    private final static String REFERENCE_SCENARIO = "_REFERENCE_";
+    private static final String REFERENCE_SCENARIO = "_REFERENCE_";
 
     public ScenarioRepository(Set<NetworkVariation> networkVariations) {
         this.networkVariations = new HashMap<>();
@@ -31,11 +31,11 @@ public class ScenarioRepository {
             this.networkVariations.put(networkVariation.getId(), networkVariation);
         }
         this.scenarios = new HashMap<>();
+        // Always create reference scenario without modifications
         this.addScenario(REFERENCE_SCENARIO, Set.of());
     }
 
-    public String getReferenceScenario()
-    {
+    public String getReferenceScenario() {
         return REFERENCE_SCENARIO;
     }
 

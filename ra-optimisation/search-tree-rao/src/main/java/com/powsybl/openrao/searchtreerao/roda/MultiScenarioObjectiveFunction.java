@@ -17,9 +17,6 @@ import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunc
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.ObjectiveFunctionResult;
 import com.powsybl.openrao.searchtreerao.result.api.RemedialActionActivationResult;
-import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
-import com.powsybl.openrao.searchtreerao.roda.scenariorepository.ScenarioRepository;
-import org.apache.commons.lang3.tuple.Pair;
 
 import java.time.OffsetDateTime;
 import java.util.HashMap;
@@ -29,7 +26,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
-
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -53,7 +49,7 @@ public class MultiScenarioObjectiveFunction {
             for (OffsetDateTime ts : objectiveFunctions.getTimestamps()) {
                 sumOnAllTimestamps = sum(sumOnAllTimestamps, objectiveFunctions.get(scenario, ts).orElseThrow().evaluate(flowResults.get(scenario, ts).orElseThrow(), remedialActionActivationResults == null ? new EmptyRemedialActionActivationResult() : remedialActionActivationResults.getData(ts).orElseThrow()));
             }
-            if ((worstResult == null) || (sumOnAllTimestamps.getCost() > worstResult.getCost())) {
+            if (worstResult == null || sumOnAllTimestamps.getCost() > worstResult.getCost()) {
                 worstResult = sumOnAllTimestamps;
                 worstScenario = scenario;
             }
@@ -93,13 +89,12 @@ public class MultiScenarioObjectiveFunction {
         if (result2 == null) {
             return result1;
         }
-        return new ObjectiveFunctionResultImpl
-            (
-                result1.getFunctionalCost() + result2.getFunctionalCost(),
-                sum(getVirtualCostMap(result1), getVirtualCostMap(result2)),
-                List.of(), // TODO ?
-                List.of() // TODO ?
-            );
+        return new ObjectiveFunctionResultImpl(
+            result1.getFunctionalCost() + result2.getFunctionalCost(),
+            sum(getVirtualCostMap(result1), getVirtualCostMap(result2)),
+            List.of(), // TODO ?
+            List.of() // TODO ?
+        );
     }
 
     private static Map<String, Double> getVirtualCostMap(ObjectiveFunctionResult result) {

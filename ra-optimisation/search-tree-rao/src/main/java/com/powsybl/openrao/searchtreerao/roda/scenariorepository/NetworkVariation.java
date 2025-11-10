@@ -17,8 +17,12 @@ import java.time.OffsetDateTime;
  */
 public interface NetworkVariation {
     String getId();
+
     String getNetworkElementId(); // TODO I don't like this very much, but it's needed to compute shifts
+
     TemporalData<Double> computeShifts(TemporalData<Network> networks);
+
     TemporalData<Double> apply(TemporalData<Network> networks);
+
     void apply(Network network, OffsetDateTime timestamp);
 }

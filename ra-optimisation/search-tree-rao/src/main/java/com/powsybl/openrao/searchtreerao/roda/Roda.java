@@ -65,7 +65,7 @@ public class Roda implements InterTemporalRaoProvider {
         // Update setpoints and rerun loadflow computations
         MultiScenarioTemporalData<FlowAndSensitivityResult> newResults = computeNewFlows(raoInput, parameters, newSetpoints, networks, interTemporalRaoInput, scenarioRepository);
         // Evaluate
-        ObjectiveFunctionResult finalObjectiveFunctionResult  = objectiveFunction.evaluate(newResults); // TODO use new setpoints in obj fn evaluation
+        ObjectiveFunctionResult finalObjectiveFunctionResult = objectiveFunction.evaluate(newResults); // TODO use new setpoints in obj fn evaluation
 
         return null;
     }
@@ -118,7 +118,6 @@ public class Roda implements InterTemporalRaoProvider {
             interTemporalRaoInputWithNetworkPaths.getGeneratorConstraints()
         );
     }
-
 
     @Override
     public String getName() {
