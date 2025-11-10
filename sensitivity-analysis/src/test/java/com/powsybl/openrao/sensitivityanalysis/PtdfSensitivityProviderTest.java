@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.sensitivityanalysis;
 
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.impl.utils.CommonCracCreation;
@@ -38,7 +39,7 @@ class PtdfSensitivityProviderTest {
     @BeforeEach
     public void setUp() {
         network = NetworkImportsUtil.import12NodesNetwork();
-        crac = CommonCracCreation.create();
+        crac = CommonCracCreation.create(Set.of(TwoSides.ONE, TwoSides.TWO));
         glskMock = glsk();
     }
 
@@ -55,13 +56,13 @@ class PtdfSensitivityProviderTest {
     void getFactorsOnCommonCracInMegawatt() {
         PtdfSensitivityProvider ptdfSensitivityProvider = new PtdfSensitivityProvider(glskMock, crac.getFlowCnecs(), Collections.singleton(Unit.MEGAWATT));
         List<SensitivityFactor> sensitivityFactors = ptdfSensitivityProvider.getBasecaseFactors(network);
-        assertEquals(8, sensitivityFactors.size());
+        assertEquals(16, sensitivityFactors.size());
         assertTrue(sensitivityFactors.stream().anyMatch(sensitivityFactor -> sensitivityFactor.getFunctionId().contains("FFR2AA1  DDE3AA1  1")
                                                                           && sensitivityFactor.getVariableId().contains("10YCB-GERMANY--8")));
-        assertTrue(sensitivityFactors.stream().allMatch(sensitivityFactor -> sensitivityFactor.getFunctionType().equals(SensitivityFunctionType.BRANCH_ACTIVE_POWER_1)));
+        assertTrue(sensitivityFactors.stream().allMatch(sensitivityFactor -> sensitivityFactor.getFunctionType().equals(SensitivityFunctionType.BRANCH_ACTIVE_POWER_1) || sensitivityFactor.getFunctionType().equals(SensitivityFunctionType.BRANCH_ACTIVE_POWER_2)));
 
         sensitivityFactors = ptdfSensitivityProvider.getContingencyFactors(network, List.of(new Contingency(crac.getContingencies().iterator().next().getId(), new ArrayList<>())));
-        assertEquals(8, sensitivityFactors.size());
+        assertEquals(12, sensitivityFactors.size()); //12 and not 16 because in contingency FR1 FR2, monitor just side one of network elemeent "FFR2AA1  DDE3AA1  1".
         assertTrue(sensitivityFactors.stream().anyMatch(sensitivityFactor -> sensitivityFactor.getFunctionId().contains("FFR2AA1  DDE3AA1  1")
             && sensitivityFactor.getVariableId().contains("10YCB-GERMANY--8")));
     }
@@ -70,13 +71,13 @@ class PtdfSensitivityProviderTest {
     void getFactorsOnCommonCracInAmpere() {
         PtdfSensitivityProvider ptdfSensitivityProvider = new PtdfSensitivityProvider(glskMock, crac.getFlowCnecs(), Collections.singleton(Unit.AMPERE));
         List<SensitivityFactor> sensitivityFactors = ptdfSensitivityProvider.getBasecaseFactors(network);
-        assertEquals(8, sensitivityFactors.size());
+        assertEquals(16, sensitivityFactors.size());
         assertTrue(sensitivityFactors.stream().anyMatch(sensitivityFactor -> sensitivityFactor.getFunctionId().contains("FFR2AA1  DDE3AA1  1")
             && sensitivityFactor.getVariableId().contains("10YCB-GERMANY--8")));
-        assertTrue(sensitivityFactors.stream().allMatch(sensitivityFactor -> sensitivityFactor.getFunctionType().equals(SensitivityFunctionType.BRANCH_CURRENT_1)));
+        assertTrue(sensitivityFactors.stream().allMatch(sensitivityFactor -> sensitivityFactor.getFunctionType().equals(SensitivityFunctionType.BRANCH_CURRENT_1) || sensitivityFactor.getFunctionType().equals(SensitivityFunctionType.BRANCH_CURRENT_2)));
 
         sensitivityFactors = ptdfSensitivityProvider.getContingencyFactors(network, List.of(new Contingency(crac.getContingencies().iterator().next().getId(), new ArrayList<>())));
-        assertEquals(8, sensitivityFactors.size());
+        assertEquals(12, sensitivityFactors.size()); //12 and not 16 because in contingency FR1 FR2, monitor just side one of network elemeent "FFR2AA1  DDE3AA1  1".
         assertTrue(sensitivityFactors.stream().anyMatch(sensitivityFactor -> sensitivityFactor.getFunctionId().contains("FFR2AA1  DDE3AA1  1")
             && sensitivityFactor.getVariableId().contains("10YCB-GERMANY--8")));
     }
@@ -86,14 +87,14 @@ class PtdfSensitivityProviderTest {
         PtdfSensitivityProvider ptdfSensitivityProvider = new PtdfSensitivityProvider(glskMock, crac.getFlowCnecs(), Collections.singleton(Unit.MEGAWATT));
 
         // factors with basecase and contingency
-        assertEquals(8, ptdfSensitivityProvider.getBasecaseFactors(network).size());
-        assertEquals(8, ptdfSensitivityProvider.getContingencyFactors(network, List.of(new Contingency("Contingency FR1 FR3", new ArrayList<>()))).size());
+        assertEquals(16, ptdfSensitivityProvider.getBasecaseFactors(network).size());
+        assertEquals(16, ptdfSensitivityProvider.getContingencyFactors(network, List.of(new Contingency("Contingency FR1 FR3", new ArrayList<>()))).size());
 
         ptdfSensitivityProvider.disableFactorsForBaseCaseSituation();
 
         // factors after disabling basecase
         assertEquals(0, ptdfSensitivityProvider.getBasecaseFactors(network).size());
-        assertEquals(8, ptdfSensitivityProvider.getContingencyFactors(network, List.of(new Contingency("Contingency FR1 FR3", new ArrayList<>()))).size());
+        assertEquals(16, ptdfSensitivityProvider.getContingencyFactors(network, List.of(new Contingency("Contingency FR1 FR3", new ArrayList<>()))).size());
     }
 
     @Test
