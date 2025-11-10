@@ -92,14 +92,9 @@ public final class ToolProvider {
                                                                             boolean computeLoopFlows,
                                                                             AppliedRemedialActions appliedRemedialActions,
                                                                             Instant outageInstant) {
-        // TODO: replace with a getUnit ? Move logic in raoParameters
-        // In AC, the objective function is in Ampere and in DC in MW
-        Unit objectiveFunctionUnit;
-        if (getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters().isDc()) {
-            objectiveFunctionUnit = Unit.MEGAWATT;
-        } else {
-            objectiveFunctionUnit = Unit.AMPERE;
-        }
+
+        //TODO: change logic later to A if AC and MW if DC
+        Unit objectiveFunctionUnit = raoParameters.getObjectiveFunctionParameters().getUnit();
 
         SystematicSensitivityInterface.SystematicSensitivityInterfaceBuilder builder = SystematicSensitivityInterface.builder()
             .withSensitivityProviderName(getSensitivityProvider(raoParameters))
