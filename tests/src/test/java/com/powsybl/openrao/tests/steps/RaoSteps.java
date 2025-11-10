@@ -611,6 +611,15 @@ public class RaoSteps {
             flowMegawattTolerance(expectedFlow));
     }
 
+    @Then("the loopflow on cnec {string} after loopflow computation should be {double} A")
+    public void loopflowComputationLoopflowInA(String cnecId, Double expectedFlow) {
+        assertEquals(expectedFlow,
+            crac.getFlowCnec(cnecId).getMonitoredSides().stream()
+                .map(side -> loopFlowResult.getLoopFlow(crac.getFlowCnec(cnecId), side))
+                .max(Double::compareTo).orElseThrow(),
+            flowMegawattTolerance(expectedFlow));
+    }
+
     @Then("the loopflow threshold on cnec {string} should be {double} MW")
     public void loopflowThresholdInMW(String cnecId, Double expectedFlow) {
         FlowCnec cnec = crac.getFlowCnec(cnecId);
@@ -664,14 +673,8 @@ public class RaoSteps {
             ReferenceProgram referenceProgram = CommonTestData.getReferenceProgram() != null ? CommonTestData.getReferenceProgram() : ReferenceProgramBuilder.buildReferenceProgram(network, loadFlowProvider, sensitivityAnalysisParameters.getLoadFlowParameters());
             ZonalData<SensitivityVariableSet> glsks = CommonTestData.getLoopflowGlsks();
 
-            Unit objectiveFunctionUnit;
-            if (getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters().isDc()) {
-                objectiveFunctionUnit = Unit.MEGAWATT;
-            } else {
-                objectiveFunctionUnit = Unit.AMPERE;
-            }
             // run loopFlowComputation
-            LoopFlowComputation loopFlowComputation = new LoopFlowComputationImpl(glsks, referenceProgram, objectiveFunctionUnit);
+            LoopFlowComputation loopFlowComputation = new LoopFlowComputationImpl(glsks, referenceProgram, raoParameters.getObjectiveFunctionParameters().getUnit());
 
             this.loopFlowResult = loopFlowComputation.calculateLoopFlows(network, sensitivityProvider, sensitivityAnalysisParameters, crac.getFlowCnecs(), crac.getOutageInstant());
 
