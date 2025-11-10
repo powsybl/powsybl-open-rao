@@ -295,6 +295,10 @@ public class SystematicSensitivityResult {
         return RangeActionSensiHandler.get(rangeAction).getSensitivityOnFlow(cnec, side, this);
     }
 
+    public double getSensitivityOnIntensity(SensitivityVariableSet glsk, FlowCnec cnec, TwoSides side) {
+        return getSensitivityOnIntensity(glsk.getId(), cnec, side);
+    }
+
     public double getSensitivityOnFlow(SensitivityVariableSet glsk, FlowCnec cnec, TwoSides side) {
         return getSensitivityOnFlow(glsk.getId(), cnec, side);
     }
