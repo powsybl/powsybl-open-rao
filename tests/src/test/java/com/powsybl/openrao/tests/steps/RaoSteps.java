@@ -664,8 +664,15 @@ public class RaoSteps {
             ReferenceProgram referenceProgram = CommonTestData.getReferenceProgram() != null ? CommonTestData.getReferenceProgram() : ReferenceProgramBuilder.buildReferenceProgram(network, loadFlowProvider, sensitivityAnalysisParameters.getLoadFlowParameters());
             ZonalData<SensitivityVariableSet> glsks = CommonTestData.getLoopflowGlsks();
 
+            Unit objectiveFunctionUnit;
+            if (getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters().isDc()) {
+                objectiveFunctionUnit = Unit.MEGAWATT;
+            } else {
+                objectiveFunctionUnit = Unit.AMPERE;
+            }
             // run loopFlowComputation
-            LoopFlowComputation loopFlowComputation = new LoopFlowComputationImpl(glsks, referenceProgram);
+            LoopFlowComputation loopFlowComputation = new LoopFlowComputationImpl(glsks, referenceProgram, objectiveFunctionUnit);
+
             this.loopFlowResult = loopFlowComputation.calculateLoopFlows(network, sensitivityProvider, sensitivityAnalysisParameters, crac.getFlowCnecs(), crac.getOutageInstant());
 
         } catch (IOException e) {
