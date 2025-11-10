@@ -465,9 +465,9 @@ In the end, two HVDC range actions with an absolute range of -XXX MW to XXX MW e
 The RAO can optimize the HVDC set-point remedial actions that require the deactivation of [angle-droop active power control](inv:powsyblcore:*:*#hvdc-angle-droop-active-power-control-extension)
 (AC-emulation) by creating an [acEmulationDeactivationAction](json.md#network-actions) network action.
 
-> For more information on how hvdc range action are handled in the RAO see [here](../../algorithms/castor/special-features/hvdc.md)
+> For more information on how hvdc range action are handled in the RAO see [here](../../algorithms/castor/special-features/hvdc.md).
 
-See below an example of an HVDC RemedialAction_Series
+See below an example of an HVDC RemedialAction_Series in one direction 
 
 ```xml
 <RemedialAction_Series>

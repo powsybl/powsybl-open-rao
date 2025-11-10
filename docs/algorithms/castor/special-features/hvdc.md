@@ -18,7 +18,7 @@ An HVDC line can operate in **two modes**:
 **Implication:**
 
 - An HVDC range action moves the active setpoint field of the HVDC line. When a line is in AC Emulation mode, applying an **HVDC range action** has no effect because the line cannot be directly controlled via its active power setpoint.  
-In order to use and optimize the setpoint of an HVDC range action, the HVDC line associated needs to be switched to fix setpoint mode before hand more info on that following sections.
+In order to use and optimize the setpoint of an HVDC range action, the HVDC line associated needs to be switched to fix setpoint mode before hand more info on that in the following sections.
 
 - For the same reason, attempting to define a sensitivity for an HVDC range action with a line still in AC emulation will result in an **OLF error**. See [Open Load Flow documentation](https://powsybl.readthedocs.io/projects/powsybl-open-loadflow/en/latest/sensitivity/getting_started.html).
 
