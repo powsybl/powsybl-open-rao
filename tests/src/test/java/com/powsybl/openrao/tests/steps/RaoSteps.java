@@ -49,6 +49,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters;
+import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.getFlowUnitMultiplier;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -618,6 +619,7 @@ public class RaoSteps {
                 .map(side -> loopFlowResult.getLoopFlow(crac.getFlowCnec(cnecId), side, Unit.AMPERE))
                 .max(Double::compareTo).orElseThrow(),
             flowMegawattTolerance(expectedFlow));
+    //* getFlowUnitMultiplier(crac.getFlowCnec(cnecId), side, Unit.AMPERE, Unit.MEGAWATT)
     }
 
     @Then("the loopflow threshold on cnec {string} should be {double} MW")
