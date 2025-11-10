@@ -16,6 +16,7 @@ import com.powsybl.glsk.commons.ZonalData;
 import com.powsybl.glsk.commons.ZonalDataImpl;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityFactor;
+import com.powsybl.sensitivity.SensitivityFunctionType;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 import com.powsybl.sensitivity.WeightedSensitivityVariable;
 import org.junit.jupiter.api.BeforeEach;
@@ -51,12 +52,28 @@ class PtdfSensitivityProviderTest {
     }
 
     @Test
-    void getFactorsOnCommonCrac() {
+    void getFactorsOnCommonCracInMegawatt() {
         PtdfSensitivityProvider ptdfSensitivityProvider = new PtdfSensitivityProvider(glskMock, crac.getFlowCnecs(), Collections.singleton(Unit.MEGAWATT));
         List<SensitivityFactor> sensitivityFactors = ptdfSensitivityProvider.getBasecaseFactors(network);
         assertEquals(8, sensitivityFactors.size());
         assertTrue(sensitivityFactors.stream().anyMatch(sensitivityFactor -> sensitivityFactor.getFunctionId().contains("FFR2AA1  DDE3AA1  1")
                                                                           && sensitivityFactor.getVariableId().contains("10YCB-GERMANY--8")));
+        assertTrue(sensitivityFactors.stream().allMatch(sensitivityFactor -> sensitivityFactor.getFunctionType().equals(SensitivityFunctionType.BRANCH_ACTIVE_POWER_1)));
+
+        sensitivityFactors = ptdfSensitivityProvider.getContingencyFactors(network, List.of(new Contingency(crac.getContingencies().iterator().next().getId(), new ArrayList<>())));
+        assertEquals(8, sensitivityFactors.size());
+        assertTrue(sensitivityFactors.stream().anyMatch(sensitivityFactor -> sensitivityFactor.getFunctionId().contains("FFR2AA1  DDE3AA1  1")
+            && sensitivityFactor.getVariableId().contains("10YCB-GERMANY--8")));
+    }
+
+    @Test
+    void getFactorsOnCommonCracInAmpere() {
+        PtdfSensitivityProvider ptdfSensitivityProvider = new PtdfSensitivityProvider(glskMock, crac.getFlowCnecs(), Collections.singleton(Unit.AMPERE));
+        List<SensitivityFactor> sensitivityFactors = ptdfSensitivityProvider.getBasecaseFactors(network);
+        assertEquals(8, sensitivityFactors.size());
+        assertTrue(sensitivityFactors.stream().anyMatch(sensitivityFactor -> sensitivityFactor.getFunctionId().contains("FFR2AA1  DDE3AA1  1")
+            && sensitivityFactor.getVariableId().contains("10YCB-GERMANY--8")));
+        assertTrue(sensitivityFactors.stream().allMatch(sensitivityFactor -> sensitivityFactor.getFunctionType().equals(SensitivityFunctionType.BRANCH_CURRENT_1)));
 
         sensitivityFactors = ptdfSensitivityProvider.getContingencyFactors(network, List.of(new Contingency(crac.getContingencies().iterator().next().getId(), new ArrayList<>())));
         assertEquals(8, sensitivityFactors.size());
@@ -80,9 +97,10 @@ class PtdfSensitivityProviderTest {
     }
 
     @Test
-    void testDoNotHandleAmpere() {
-        PtdfSensitivityProvider ptdfSensitivityProvider = new PtdfSensitivityProvider(glskMock, crac.getFlowCnecs(), Collections.singleton(Unit.AMPERE));
-        assertFalse(ptdfSensitivityProvider.factorsInAmpere);
+    void testDoHandleAmpere() {
+        // Simple test to check that we can handle PDTF Sensitivity in both Ampere and MW.
+        PtdfSensitivityProvider ptdfSensitivityProvider = new PtdfSensitivityProvider(glskMock, crac.getFlowCnecs(), Set.of(Unit.AMPERE, Unit.MEGAWATT));
+        assertTrue(ptdfSensitivityProvider.factorsInAmpere);
         assertTrue(ptdfSensitivityProvider.factorsInMegawatt);
     }
 }
