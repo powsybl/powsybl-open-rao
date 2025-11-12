@@ -21,7 +21,6 @@ import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
 import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
 
-import java.time.OffsetDateTime;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -46,21 +45,18 @@ public class RaUsageLimitsFiller implements ProblemFiller {
     private static final double RANGE_ACTION_SETPOINT_EPSILON = 1e-4;
     private final Network network;
     private final boolean costOptimization;
-    private final OffsetDateTime timestamp;
 
     public RaUsageLimitsFiller(Map<State, Set<RangeAction<?>>> rangeActions,
                                RangeActionSetpointResult prePerimeterRangeActionSetpoints,
                                RangeActionLimitationParameters rangeActionLimitationParameters,
                                boolean arePstSetpointsApproximated,
-                               Network network, boolean costOptimization,
-                               OffsetDateTime timestamp) {
+                               Network network, boolean costOptimization) {
         this.rangeActions = rangeActions;
         this.prePerimeterRangeActionSetpoints = prePerimeterRangeActionSetpoints;
         this.rangeActionLimitationParameters = rangeActionLimitationParameters;
         this.arePstSetpointsApproximated = arePstSetpointsApproximated;
         this.network = network;
         this.costOptimization = costOptimization;
-        this.timestamp = timestamp;
     }
 
     @Override

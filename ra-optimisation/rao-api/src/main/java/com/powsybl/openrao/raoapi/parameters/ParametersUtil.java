@@ -34,42 +34,6 @@ public final class ParametersUtil {
         return countryList;
     }
 
-    protected static Map<String, String> convertListToStringStringMap(List<String> stringList) {
-        Map<String, String> map = new HashMap<>();
-        stringList.forEach(listEntry -> {
-            String[] splitListEntry = listEntry.split(":");
-            if (splitListEntry.length != 2) {
-                throw new OpenRaoException(String.format("String pairs separated by \":\" must be defined, e.g {String1}:{String2} instead of %s", listEntry));
-            }
-            map.put(convertBracketIntoString(splitListEntry[0]), convertBracketIntoString(splitListEntry[1]));
-        });
-        return map;
-    }
-
-    protected static List<String> convertStringStringMapToList(Map<String, String> map) {
-        List<String> list = new ArrayList<>();
-        map.forEach((key, value) -> list.add("{" + key + "}:{" + value + "}"));
-        return list;
-    }
-
-    protected static Map<String, Integer> convertListToStringIntMap(List<String> stringList) {
-        Map<String, Integer> map = new HashMap<>();
-        stringList.forEach(listEntry -> {
-            String[] splitListEntry = listEntry.split(":");
-            if (splitListEntry.length != 2) {
-                throw new OpenRaoException(String.format("String-Integer pairs separated by \":\" must be defined, e.g {String1}:Integer instead of %s", listEntry));
-            }
-            map.put(convertBracketIntoString(splitListEntry[0]), Integer.parseInt(splitListEntry[1]));
-        });
-        return map;
-    }
-
-    protected static List<String> convertStringIntMapToList(Map<String, Integer> map) {
-        List<String> list = new ArrayList<>();
-        map.forEach((key, value) -> list.add("{" + key + "}:" + value.toString()));
-        return list;
-    }
-
     public static List<List<String>> convertListToListOfList(List<String> stringList) {
         List<List<String>> listOfList = new ArrayList<>();
         stringList.forEach(listEntry -> {
@@ -99,7 +63,7 @@ public final class ParametersUtil {
             throw new OpenRaoException(String.format("%s contains too few or too many occurences of \"{ or \"}", stringInBrackets));
         }
         String insideString = StringUtils.substringBetween(stringInBrackets, "{", "}");
-        if (insideString == null || insideString.length() == 0) {
+        if (StringUtils.isEmpty(insideString)) {
             throw new OpenRaoException(String.format("%s is not contained into brackets", stringInBrackets));
         }
         return insideString;

@@ -45,34 +45,29 @@ final class JsonRangeActionsOptimizationParameters {
     static void deserialize(JsonParser jsonParser, OpenRaoSearchTreeParameters searchTreeParameters) throws IOException {
         while (!jsonParser.nextToken().isStructEnd()) {
             switch (jsonParser.getCurrentName()) {
-                case MAX_MIP_ITERATIONS:
+                case MAX_MIP_ITERATIONS -> {
                     jsonParser.nextToken();
                     searchTreeParameters.getRangeActionsOptimizationParameters().setMaxMipIterations(jsonParser.getIntValue());
-                    break;
-                case PST_SENSITIVITY_THRESHOLD:
+                }
+                case PST_SENSITIVITY_THRESHOLD -> {
                     jsonParser.nextToken();
                     searchTreeParameters.getRangeActionsOptimizationParameters().setPstSensitivityThreshold(jsonParser.getDoubleValue());
-                    break;
-                case PST_MODEL:
-                    searchTreeParameters.getRangeActionsOptimizationParameters().setPstModel(stringToPstModel(jsonParser.nextTextValue()));
-                    break;
-                case HVDC_SENSITIVITY_THRESHOLD:
+                }
+                case PST_MODEL -> searchTreeParameters.getRangeActionsOptimizationParameters().setPstModel(stringToPstModel(jsonParser.nextTextValue()));
+                case HVDC_SENSITIVITY_THRESHOLD -> {
                     jsonParser.nextToken();
                     searchTreeParameters.getRangeActionsOptimizationParameters().setHvdcSensitivityThreshold(jsonParser.getDoubleValue());
-                    break;
-                case INJECTION_RA_SENSITIVITY_THRESHOLD:
+                }
+                case INJECTION_RA_SENSITIVITY_THRESHOLD -> {
                     jsonParser.nextToken();
                     searchTreeParameters.getRangeActionsOptimizationParameters().setInjectionRaSensitivityThreshold(jsonParser.getDoubleValue());
-                    break;
-                case LINEAR_OPTIMIZATION_SOLVER:
+                }
+                case LINEAR_OPTIMIZATION_SOLVER -> {
                     jsonParser.nextToken();
                     deserializeLinearOptimizationSolver(jsonParser, searchTreeParameters);
-                    break;
-                case RA_RANGE_SHRINKING:
-                    searchTreeParameters.getRangeActionsOptimizationParameters().setRaRangeShrinking(stringToRaRangeShrinking(jsonParser.nextTextValue()));
-                    break;
-                default:
-                    throw new OpenRaoException(String.format("Cannot deserialize range action optimization parameters: unexpected field in %s (%s)", RANGE_ACTIONS_OPTIMIZATION, jsonParser.getCurrentName()));
+                }
+                case RA_RANGE_SHRINKING -> searchTreeParameters.getRangeActionsOptimizationParameters().setRaRangeShrinking(stringToRaRangeShrinking(jsonParser.nextTextValue()));
+                default -> throw new OpenRaoException(String.format("Cannot deserialize range action optimization parameters: unexpected field in %s (%s)", RANGE_ACTIONS_OPTIMIZATION, jsonParser.getCurrentName()));
             }
         }
     }
@@ -80,19 +75,16 @@ final class JsonRangeActionsOptimizationParameters {
     private static void deserializeLinearOptimizationSolver(JsonParser jsonParser, OpenRaoSearchTreeParameters searchTreeParameters) throws IOException {
         while (!jsonParser.nextToken().isStructEnd()) {
             switch (jsonParser.getCurrentName()) {
-                case SOLVER:
-                    searchTreeParameters.getRangeActionsOptimizationParameters().getLinearOptimizationSolver().setSolver(stringToSolver(jsonParser.nextTextValue()));
-                    break;
-                case RELATIVE_MIP_GAP:
+                case SOLVER -> searchTreeParameters.getRangeActionsOptimizationParameters().getLinearOptimizationSolver().setSolver(stringToSolver(jsonParser.nextTextValue()));
+                case RELATIVE_MIP_GAP -> {
                     jsonParser.nextToken();
                     searchTreeParameters.getRangeActionsOptimizationParameters().getLinearOptimizationSolver().setRelativeMipGap(jsonParser.getDoubleValue());
-                    break;
-                case SOLVER_SPECIFIC_PARAMETERS:
+                }
+                case SOLVER_SPECIFIC_PARAMETERS -> {
                     jsonParser.nextToken();
                     searchTreeParameters.getRangeActionsOptimizationParameters().getLinearOptimizationSolver().setSolverSpecificParameters(jsonParser.getValueAsString());
-                    break;
-                default:
-                    throw new OpenRaoException(String.format("Cannot deserialize linear optimization solver in range action optimization parameters: unexpected field in %s (%s)", LINEAR_OPTIMIZATION_SOLVER, jsonParser.getCurrentName()));
+                }
+                default -> throw new OpenRaoException(String.format("Cannot deserialize linear optimization solver in range action optimization parameters: unexpected field in %s (%s)", LINEAR_OPTIMIZATION_SOLVER, jsonParser.getCurrentName()));
             }
         }
     }

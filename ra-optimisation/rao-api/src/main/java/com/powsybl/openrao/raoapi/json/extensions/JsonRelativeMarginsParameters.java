@@ -40,15 +40,12 @@ public final class JsonRelativeMarginsParameters {
         SearchTreeRaoRelativeMarginsParameters relativeMarginsParameters = new SearchTreeRaoRelativeMarginsParameters();
         while (!jsonParser.nextToken().isStructEnd()) {
             switch (jsonParser.getCurrentName()) {
-                case PTDF_APPROXIMATION:
-                    relativeMarginsParameters.setPtdfApproximation(stringToPtdfApproximation(jsonParser.nextTextValue()));
-                    break;
-                case PTDF_SUM_LOWER_BOUND:
+                case PTDF_APPROXIMATION -> relativeMarginsParameters.setPtdfApproximation(stringToPtdfApproximation(jsonParser.nextTextValue()));
+                case PTDF_SUM_LOWER_BOUND -> {
                     jsonParser.nextToken();
                     relativeMarginsParameters.setPtdfSumLowerBound(jsonParser.getDoubleValue());
-                    break;
-                default:
-                    throw new OpenRaoException(String.format("Cannot deserialize relative margins parameters: unexpected field in %s (%s)", RELATIVE_MARGINS, jsonParser.getCurrentName()));
+                }
+                default -> throw new OpenRaoException(String.format("Cannot deserialize relative margins parameters: unexpected field in %s (%s)", RELATIVE_MARGINS, jsonParser.getCurrentName()));
             }
             searchTreeParameters.setRelativeMarginsParameters(relativeMarginsParameters);
         }

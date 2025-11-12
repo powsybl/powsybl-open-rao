@@ -54,19 +54,18 @@ public final class JsonLoopFlowParameters {
         LoopFlowParameters loopFlowParameters = new LoopFlowParameters();
         while (!jsonParser.nextToken().isStructEnd()) {
             switch (jsonParser.getCurrentName()) {
-                case ACCEPTABLE_INCREASE:
+                case ACCEPTABLE_INCREASE -> {
                     jsonParser.nextToken();
                     loopFlowParameters.setAcceptableIncrease(jsonParser.getDoubleValue());
-                    break;
-                case COUNTRIES:
+                }
+                case COUNTRIES -> {
                     jsonParser.nextToken();
                     ObjectMapper objectMapper = new ObjectMapper();
                     JsonNode arrayNode = objectMapper.readTree(jsonParser);
                     List<String> countryStrings = objectMapper.readValue(arrayNode.traverse(), new TypeReference<ArrayList<String>>() { });
                     loopFlowParameters.setCountries(countryStrings);
-                    break;
-                default:
-                    throw new OpenRaoException(String.format("Cannot deserialize loop flow parameters: unexpected field in %s (%s)", LOOP_FLOW_PARAMETERS, jsonParser.getCurrentName()));
+                }
+                default -> throw new OpenRaoException(String.format("Cannot deserialize loop flow parameters: unexpected field in %s (%s)", LOOP_FLOW_PARAMETERS, jsonParser.getCurrentName()));
             }
         }
         raoParameters.setLoopFlowParameters(loopFlowParameters);
