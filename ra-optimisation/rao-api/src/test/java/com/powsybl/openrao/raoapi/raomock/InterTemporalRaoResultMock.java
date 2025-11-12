@@ -23,7 +23,6 @@ import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.InterTemporalRaoResult;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 
-import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
@@ -86,7 +85,7 @@ public class InterTemporalRaoResultMock extends AbstractExtendable<RaoResult> im
     }
 
     @Override
-    public void write(ZipOutputStream zipOutputStream, TemporalData<Crac> cracs, Properties properties) throws IOException {
+    public void write(ZipOutputStream zipOutputStream, TemporalData<Crac> cracs, Properties properties) {
 
     }
 

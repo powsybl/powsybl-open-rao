@@ -440,7 +440,7 @@ public final class RaoLogger {
                                                              Unit unit) {
 
         List<FlowCnec> sortedFlowCnecs = getSortedFlowCnecs(preventivePerimeter, basecaseOptimResult, contingencyScenarios, contingencyOptimizationResults, objectiveFunction, unit);
-        String mostLimitingCnecId = sortedFlowCnecs.get(0).getId();
+        String mostLimitingCnecId = sortedFlowCnecs.getFirst().getId();
         if (mostLimitingCnecId.contains(OUTAGE_DUPLICATE)) {
             logger.info(LOG_FICTIONAL_CNEC);
         }
@@ -449,7 +449,7 @@ public final class RaoLogger {
     public static void checkIfMostLimitingElementIsFictional(OpenRaoLogger logger,
                                                              ObjectiveFunctionResult objectiveFunctionResult) {
 
-        String mostLimitingCnecId = objectiveFunctionResult.getMostLimitingElements(1).get(0).getId();
+        String mostLimitingCnecId = objectiveFunctionResult.getMostLimitingElements(1).getFirst().getId();
         if (mostLimitingCnecId.contains(OUTAGE_DUPLICATE)) {
             logger.info(LOG_FICTIONAL_CNEC);
         }
