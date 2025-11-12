@@ -825,7 +825,7 @@ One network action is a combination of one or multiple "elementary actions", amo
 - Dangling line action: setting the active power of a [dangling line](inv:powsyblcore:*:*#dangling-line)) in the network to a specific value.
 - Shunt compensator position action: setting the number of sections of a shunt compensator to a specific value.
 - Switch pairs: opening a switch in the network and closing another (actually used to model [CSE bus-bar change remedial actions](cse.md#bus-bar-change)).
-- AC emulation deactivation action: deactivate AC emulation mode of an HVDC line (is automatically created if an HVDC range action using a hvdc line in ac emulation is imported)
+- AC emulation deactivation action: deactivate AC emulation mode of an HVDC line (is automatically created if an HVDC range action using a HVDC line in AC emulation is imported)
 
 ::::{tabs}
 :::{group-tab} JAVA creation API
