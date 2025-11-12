@@ -825,7 +825,7 @@ One network action is a combination of one or multiple "elementary actions", amo
 - Dangling line action: setting the active power of a [dangling line](inv:powsyblcore:*:*#dangling-line)) in the network to a specific value.
 - Shunt compensator position action: setting the number of sections of a shunt compensator to a specific value.
 - Switch pairs: opening a switch in the network and closing another (actually used to model [CSE bus-bar change remedial actions](cse.md#bus-bar-change)).
-- AC emulation deactivation action: deactivate ac emulation mode of an hvdc line (is automatically created if an hvdc range action using a hvdc line in ac emulation is imported)
+- AC emulation deactivation action: deactivate AC emulation mode of an HVDC line (is automatically created if an HVDC range action using a hvdc line in ac emulation is imported)
 
 ::::{tabs}
 :::{group-tab} JAVA creation API
@@ -1052,7 +1052,7 @@ crac.newNetworkAction()
 ⚪ **onContingencyState usage rules**: list of 0 to N OnContingencyState usage rules (see previous paragraph on [usage rules](#remedial-actions-and-usages-rules))  
 ⚪ **onFlowConstraintInCountry usage rules**: list of 0 to N OnFlowConstraintInCountry usage rules (see previous paragraph on [usage rules](#remedial-actions-and-usages-rules))  
 ⚪ **onConstraint usage rules**: list of 0 to N OnConstraint usage rules (see previous paragraph on [usage rules](#remedial-actions-and-usages-rules))  
-🔵 **terminals connection actions**: list of 0 to N TerminalsConnectionAction
+🔵 **terminals connection actions**: list of 0 to N TerminalsConnectionAction          
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **network element**: id is mandatory, name is optional  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **action type**  
 🔵 **switch actions**: list of 0 to N SwitchAction  
@@ -1076,7 +1076,7 @@ crac.newNetworkAction()
 🔵 **switch pairs**: list of 0 to N SwitchPair  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **switch to open (network element)**: id is mandatory, name is optional  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **switch to close (network element)**: id is mandatory, name is optional, must be different from switch to open  
-🔵 **ac emulation deactivation actions**: list of 0 to N AcEmulationDeactivationAction
+🔵 **ac emulation deactivation actions**: list of 0 to N AcEmulationDeactivationAction                                     
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **network element**: id is mandatory, name is optional  
 <br>
 *NB*: A Network Action must contain at least on elementary action.
@@ -1208,7 +1208,7 @@ If the HvdcRangeAction is an automaton, it has to have a speed assigned. This is
 speed of this range action compared to other range-action automatons (smaller "speed" value = faster range action).
 No two range-action automatons can have the same speed value, unless they are aligned.
 
-> For more information on how hvdc range action are handled in the RAO see [here](../../algorithms/castor/special-features/hvdc.md)
+> For more information on how HVDC range actions are handled in the RAO see [here](../../algorithms/castor/special-features/hvdc.md)
 
 ::::{tabs}
 :::{group-tab} JAVA creation API
