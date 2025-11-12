@@ -212,12 +212,15 @@ OpenRAO maximum tap = min(Network maximum tap, Crac maximum tap)
 ```
 
 For now the only VariationType handled by OpenRAO is "ABSOLUTE" : the min/max admissible set-points of the HVDC.   
-**An HVDC Range Action is modelled by two injection range action (one on each side of the line, with opposite keys of 1 and -1)**  because an HVDC line can't be modelled in a UCTE network, so we use this equivalent model. 
+
+**An HVDC Range Action is represented by two injection range actions**—one at each end of the line, with distribution keys of 1 and -1. 
+This modeling approach is used because an HVDC line cannot be directly represented in a UCTE network; thus, the two opposing injections serve as an equivalent model.
+
 By doing this the HVDC line is always considered in fixed set point mode. For more information on how the HVDC range action are handled see [Gridcapa IN Process](https://gridcapa.github.io/docs/process-documentation/in-cc/import-ec/process-description#pisa-hvdc-alignment)
 OpenRAO creates the opposite keys by itself, therefore there is no need to specify it. 
 ⚠️*There isn't any check performed to verify that an applied set-point is between the ranges' min and max.*
 
-> For more information on how hvdc range action are handled in the RAO see [here](../../algorithms/castor/special-features/hvdc.md)
+> For more information on how HVDC range actions are handled in the RAO see [here](../../algorithms/castor/special-features/hvdc.md)
 
 ### Network Actions
 
