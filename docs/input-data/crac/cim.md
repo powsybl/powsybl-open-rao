@@ -467,7 +467,7 @@ The RAO can optimize the HVDC set-point remedial actions that require the deacti
 
 > For more information on how HVDC range actions are handled in the RAO see [here](../../algorithms/castor/special-features/hvdc.md).
 
-See below an example of an HVDC RemedialAction_Series in one direction 
+See below an example of an HVDC RemedialAction_Series in one direction.
 
 ```xml
 <RemedialAction_Series>
