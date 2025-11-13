@@ -31,7 +31,7 @@ public class AcEmulationDeactivationActionAdderImpl extends AbstractSingleNetwor
     }
 
     protected void assertSpecificAttributes() {
-        assertAttributeNotNull("DEACTIVATE", getActionName(), "actionType", "withActionType()");
+        // Nothing to be done here attributes are always non null
     }
 
     protected String getActionName() {

@@ -228,12 +228,21 @@ public final class ExhaustiveCracCreation {
             .newOnContingencyStateUsageRule().withContingency(contingency2Id).withInstant(CURATIVE_INSTANT_ID).add()
             .add();
 
-        // network action with one ac emulation deactivation action
+        // network actions with one ac emulation deactivation action
         crac.newNetworkAction().withId("acEmulationDeactivationId")
             .withName("acEmulationDeactivationName")
             .withOperator("RTE")
             .newAcEmulationDeactivationAction().withNetworkElement("hvdc").add()
-            .newOnContingencyStateUsageRule().withContingency(contingency2Id).withInstant(CURATIVE_INSTANT_ID).add()
+            .newOnFlowConstraintInCountryUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withCountry(Country.FR).add()
+            .add();
+
+        crac.newNetworkAction().withId("acEmulationDeactivationId2")
+            .withName("acEmulationDeactivationName2")
+            .withOperator("RTE")
+            .newAcEmulationDeactivationAction().withNetworkElement("hvdc2").add()
+            .newOnContingencyStateUsageRule().withContingency("contingency1Id").withInstant(CURATIVE_INSTANT_ID).add()
+            .newOnContingencyStateUsageRule().withContingency("contingency2Id").withInstant(CURATIVE_INSTANT_ID).add()
+            .newOnConstraintUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withCnec("cnec3curId").add()
             .add();
 
         // range actions
