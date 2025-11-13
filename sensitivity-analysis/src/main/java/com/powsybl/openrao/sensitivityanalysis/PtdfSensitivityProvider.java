@@ -76,16 +76,17 @@ public class PtdfSensitivityProvider extends AbstractSimpleSensitivityProvider {
             .forEach((ne, sides) -> {
                 // we allow the computation of both function types (branch_active_power and branch_current) at the same time to match loadFlowProvider behavior
                 getSensitivityFunctionTypes(sides).forEach(functionType ->
-                        mapCountryLinearGlsk.values().stream()
-                            .map(linearGlsk -> new SensitivityFactor(
-                                functionType,
-                                ne.getId(),
-                                SensitivityVariableType.INJECTION_ACTIVE_POWER,
-                                linearGlsk.getId(),
-                                true,
-                                contingencyContext))
-                            .forEach(factors::add));
-                });
+                    mapCountryLinearGlsk.values().stream()
+                        .map(linearGlsk -> new SensitivityFactor(
+                            functionType,
+                            ne.getId(),
+                            SensitivityVariableType.INJECTION_ACTIVE_POWER,
+                            linearGlsk.getId(),
+                            true,
+                            contingencyContext))
+                        .forEach(factors::add)
+                );
+            });
         return factors;
     }
 
@@ -93,7 +94,6 @@ public class PtdfSensitivityProvider extends AbstractSimpleSensitivityProvider {
     public Map<String, HvdcRangeAction> getHvdcs() {
         return new HashMap<>();
     }
-
 
     @Override
     public List<SensitivityVariableSet> getVariableSets() {
