@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.crac.api;
 
+import com.powsybl.commons.extensions.Extendable;
 import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Network;
@@ -57,7 +58,7 @@ import static java.lang.String.format;
  *
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public interface Crac extends Identifiable<Crac> {
+public interface Crac extends Identifiable<Crac>, Extendable<Crac> {
 
     /**
      * Get the timestamp of the Crac.
