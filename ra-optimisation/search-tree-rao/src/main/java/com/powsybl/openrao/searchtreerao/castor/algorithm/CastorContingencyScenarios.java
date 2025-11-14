@@ -23,7 +23,7 @@ import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunc
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.*;
 import com.powsybl.openrao.searchtreerao.commons.parameters.TreeParameters;
 import com.powsybl.openrao.searchtreerao.commons.parameters.UnoptimizedCnecParameters;
-import com.powsybl.openrao.searchtreerao.pstregulation.PstRegulationExtension;
+import com.powsybl.openrao.data.crac.api.extensions.PstRegulation;
 import com.powsybl.openrao.searchtreerao.pstregulation.PstRegulator;
 import com.powsybl.openrao.searchtreerao.result.api.*;
 import com.powsybl.openrao.searchtreerao.result.impl.*;
@@ -90,9 +90,9 @@ public class CastorContingencyScenarios {
         AutomatonSimulator automatonSimulator = new AutomatonSimulator(crac, raoParameters, toolProvider, initialSensitivityOutput, prePerimeterSensitivityOutput, stateTree.getOperatorsNotSharingCras(), NUMBER_LOGGED_ELEMENTS_DURING_RAO);
 
         LoadFlowParameters loadFlowParameters = raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters();
-        PstRegulationExtension pstRegulationExtension = crac.getExtension(PstRegulationExtension.class);
-        if (pstRegulationExtension != null) {
-            PstRegulator.set(network, loadFlowParameters, pstRegulationExtension);
+        PstRegulation pstRegulation = crac.getExtension(PstRegulation.class);
+        if (pstRegulation != null) {
+            PstRegulator.set(network, loadFlowParameters, pstRegulation);
         }
 
         // Go through all contingency scenarios
@@ -113,8 +113,8 @@ public class CastorContingencyScenarios {
             Thread.currentThread().interrupt();
         }
 
-        if (pstRegulationExtension != null) {
-            PstRegulator.unset(network, loadFlowParameters, pstRegulationExtension);
+        if (pstRegulation != null) {
+            PstRegulator.unset(network, loadFlowParameters, pstRegulation);
         }
 
         return contingencyScenarioResults;

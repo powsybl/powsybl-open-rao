@@ -22,6 +22,8 @@ import com.powsybl.openrao.data.crac.api.CracCreationContext;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.RaUsageLimits;
+import com.powsybl.openrao.data.crac.api.extensions.PstRegulation;
+import com.powsybl.openrao.data.crac.api.extensions.PstRegulationInput;
 import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
 import com.powsybl.openrao.data.crac.api.usagerule.OnConstraint;
 import com.powsybl.openrao.data.crac.api.usagerule.OnContingencyState;
@@ -55,6 +57,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.powsybl.openrao.data.crac.io.json.RoundTripUtil.explicitJsonRoundTrip;
 import static com.powsybl.openrao.data.crac.io.json.RoundTripUtil.implicitJsonRoundTrip;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -594,5 +597,27 @@ class CracImportExportTest {
         logsList.sort(Comparator.comparing(ILoggingEvent::getMessage));
         assertEquals(1, logsList.size());
         assertEquals("The injection range action redispatchingActionFR3 will not be imported because it uses disconnected generator(s)/load(s): FFR3AA1 _generator.", logsList.get(0).getFormattedMessage());
+    }
+
+    @Test
+    void testRoundTripWithExtension() {
+        Crac crac = ExhaustiveCracCreation.create();
+
+        // PST regulation
+        PstRegulation pstRegulation = new PstRegulation();
+        pstRegulation.addPstRegulationInput(new PstRegulationInput("pst1", "ne1Id", 800.0));
+        pstRegulation.addPstRegulationInput(new PstRegulationInput("pst2", "ne2Id", 1000.0));
+        crac.addExtension(PstRegulation.class, pstRegulation);
+
+        Crac importedCrac = explicitJsonRoundTrip(crac, ExhaustiveCracCreation.createAssociatedNetwork());
+
+        assertEquals(1, importedCrac.getExtensions().size());
+
+        PstRegulation importedPstRegulation = importedCrac.getExtension(PstRegulation.class);
+        assertNotNull(importedPstRegulation);
+        assertEquals(2, pstRegulation.getRegulationInputs().size());
+        List<PstRegulationInput> pstRegulationInputs = pstRegulation.getRegulationInputs().stream().sorted(Comparator.comparing(PstRegulationInput::pstId)).toList();
+        assertEquals(new PstRegulationInput("pst1", "ne1Id", 800.0), pstRegulationInputs.getFirst());
+        assertEquals(new PstRegulationInput("pst2", "ne2Id", 1000.0), pstRegulationInputs.getLast());
     }
 }

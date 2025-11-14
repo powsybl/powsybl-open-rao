@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema#",
+  "$id": "https://www.powsybl.org?open-rao-crac-schema=extensions-v2.9.json",
+  "type": "object",
+  "properties": {
+    "pst-regulation": {
+      "type": "array",
+      "items": {
+        "$ref": "resource:/schemas/pst-regulation/pst-regulation-v2.9.json"
+      }
+    }
+  },
+  "additionalProperties": false
+}
