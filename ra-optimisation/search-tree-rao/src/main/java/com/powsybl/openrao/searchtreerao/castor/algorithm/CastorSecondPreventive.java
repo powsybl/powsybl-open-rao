@@ -127,21 +127,21 @@ public class CastorSecondPreventive {
         return postFirstRaoResult.getCost(curativeInstant) > preventiveResult.getCost() - curativeMinObjImprovement;
     }
 
-    RaoResult runSecondPreventiveAndAutoRao(CastorContingencyScenarios castorContingencyScenarios,
-                                            PrePerimeterSensitivityAnalysis prePerimeterSensitivityAnalysis,
-                                            PrePerimeterResult initialOutput,
-                                            PostPerimeterResult firstPreventiveResult,
-                                            Map<State, PostPerimeterResult> postContingencyResults) {
+    GlobalSecondPreventiveResult runSecondPreventiveAndAutoRao(CastorContingencyScenarios castorContingencyScenarios,
+                                                               PrePerimeterSensitivityAnalysis prePerimeterSensitivityAnalysis,
+                                                               PrePerimeterResult initialOutput,
+                                                               PostPerimeterResult firstPreventiveResult,
+                                                               Map<State, PostPerimeterResult> postContingencyResults) {
         // Run 2nd preventive RAO
         SecondPreventiveRaoResult secondPreventiveRaoResult;
         try {
             secondPreventiveRaoResult = runSecondPreventiveRao(prePerimeterSensitivityAnalysis, initialOutput, firstPreventiveResult.getOptimizationResult(), postContingencyResults);
             if (secondPreventiveRaoResult.postPraSensitivityAnalysisOutput.getSensitivityStatus() == ComputationStatus.FAILURE) {
-                return new FailedRaoResultImpl("Post-PRA sensitivity analysis failed during 2nd preventive RAO");
+                return GlobalSecondPreventiveResult.failed("Post-PRA sensitivity analysis failed during 2nd preventive RAO");
             }
         } catch (OpenRaoException e) {
             BUSINESS_LOGS.error(e.getMessage());
-            return new FailedRaoResultImpl(String.format("RAO failed during second preventive : %s", e.getMessage()));
+            return GlobalSecondPreventiveResult.failed(String.format("RAO failed during second preventive : %s", e.getMessage()));
         }
 
         // Run 2nd automaton simulation and update results
@@ -178,7 +178,7 @@ public class CastorSecondPreventive {
         PrePerimeterResult postCraSensitivityAnalysisOutput = prePerimeterSensitivityAnalysis.runBasedOnInitialResults(network, initialOutput, Collections.emptySet(), appliedArasAndCras);
         if (postCraSensitivityAnalysisOutput.getSensitivityStatus() == ComputationStatus.FAILURE) {
             BUSINESS_LOGS.error("Systematic sensitivity analysis after curative remedial actions after second preventive optimization failed");
-            return new FailedRaoResultImpl("Systematic sensitivity analysis after curative remedial actions after second preventive optimization failed");
+            return GlobalSecondPreventiveResult.failed("Systematic sensitivity analysis after curative remedial actions after second preventive optimization failed");
         }
         for (Map.Entry<State, PostPerimeterResult> entry : postContingencyResults.entrySet()) {
             State state = entry.getKey();
@@ -201,22 +201,10 @@ public class CastorSecondPreventive {
         RaoLogger.logMostLimitingElementsResults(BUSINESS_LOGS, postCraSensitivityAnalysisOutput, raoParameters.getObjectiveFunctionParameters().getType(), raoParameters.getObjectiveFunctionParameters().getUnit(), NUMBER_LOGGED_ELEMENTS_END_RAO);
         RaoLogger.checkIfMostLimitingElementIsFictional(BUSINESS_LOGS, postCraSensitivityAnalysisOutput);
 
-        PostPerimeterResult postPraResult = new PostPerimeterResult(
-            secondPreventiveRaoResult.perimeterResult,
-            secondPreventiveRaoResult.postPraSensitivityAnalysisOutput
-        );
-
-        return new PreventiveAndCurativesRaoResultImpl(
-            stateTree,
-            initialOutput,
-            firstPreventiveResult,
-            postPraResult,
-            newPostContingencyResults,
-            crac,
-            raoParameters);
+        return new GlobalSecondPreventiveResult(secondPreventiveRaoResult, newPostContingencyResults, null);
     }
 
-    private record SecondPreventiveRaoResult(OptimizationResult perimeterResult,
+    record SecondPreventiveRaoResult(OptimizationResult perimeterResult,
                                              PrePerimeterResult postPraSensitivityAnalysisOutput,
                                              AppliedRemedialActions appliedArasAndCras) {
     }
@@ -347,5 +335,18 @@ public class CastorSecondPreventive {
         result.getActivatedNetworkActions().forEach(networkAction -> networkAction.apply(network));
 
         return CompletableFuture.completedFuture(new OneStateOnlyRaoResultImpl(preventiveState, prePerimeterResult, result, optPerimeter.getFlowCnecs()));
+    }
+
+    public record GlobalSecondPreventiveResult(SecondPreventiveRaoResult secondPreventiveRaoResult,
+                                               Map<State, PostPerimeterResult> postContingencyResults,
+                                               String errorMessage) {
+        public boolean hasFailed() {
+            // TODO: this is quite ugly...
+            return errorMessage != null;
+        }
+
+        public static GlobalSecondPreventiveResult failed(String errorMessage) {
+            return new GlobalSecondPreventiveResult(null, null, errorMessage);
+        }
     }
 }
