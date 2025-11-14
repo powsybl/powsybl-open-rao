@@ -77,6 +77,11 @@ public class NetworkActionImpl extends AbstractRemedialAction<NetworkAction> imp
     }
 
     @Override
+    public void addUsageRule(UsageRule usageRule) {
+        this.usageRules.add(usageRule);
+    }
+
+    @Override
     public Set<NetworkElement> getNetworkElements() {
         return this.networkElements;
     }

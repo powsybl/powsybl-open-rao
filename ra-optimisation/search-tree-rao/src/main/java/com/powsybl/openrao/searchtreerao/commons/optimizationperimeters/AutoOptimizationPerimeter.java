@@ -43,4 +43,9 @@ public class AutoOptimizationPerimeter extends AbstractOptimizationPerimeter {
 
         return new AutoOptimizationPerimeter(automatonState, flowCnecs, loopFlowCnecs, availableNetworkActions);
     }
+
+    @Override
+    public OptimizationPerimeter copyWithFilteredAvailableRangeAction(Network network) {
+        return this;
+    }
 }

@@ -19,6 +19,7 @@ import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SecondPreventiveRaoParameters;
 import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
 import com.powsybl.openrao.searchtreerao.commons.RaoLogger;
@@ -318,6 +319,7 @@ public class CastorSecondPreventive {
             .withConstantParametersOverAllRao(raoParameters, crac)
             .withTreeParameters(TreeParameters.buildForSecondPreventivePerimeter(raoParameters))
             .withUnoptimizedCnecParameters(UnoptimizedCnecParameters.build(raoParameters.getNotOptimizedCnecsParameters(), stateTree.getOperatorsNotSharingCras()))
+            .withLoadFlowAndSensitivityParameters(raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getLoadFlowAndSensitivityParameters())
             .build();
 
         if (getSecondPreventiveHintFromFirstPreventiveRao(raoParameters)) {
