@@ -491,6 +491,7 @@ public final class AutomatonSimulator {
             }
             contingency.toModification().apply(network, (ComputationManager) null);
         }
+
         LoadFlow.find(loadFlowProvider).run(network, loadFlowParameters);
 
         // Compute HvdcAngleDroopActivePowerControl values of HVDC lines
