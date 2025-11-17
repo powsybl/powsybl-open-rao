@@ -46,9 +46,6 @@ class InterTemporalRaoResultImplTest {
     private FlowCnec flowCnecTimestamp3;
     private PstRangeAction pstRangeAction;
     private NetworkAction networkAction;
-    private RaoResult raoResultTimestamp1;
-    private RaoResult raoResultTimestamp2;
-    private RaoResult raoResultTimestamp3;
     private InterTemporalRaoResultImpl interTemporalRaoResult;
 
     @BeforeEach
@@ -79,9 +76,9 @@ class InterTemporalRaoResultImplTest {
         Mockito.when(objectiveFunctionResult.getVirtualCostNames()).thenReturn(Set.of("virtual"));
         Mockito.when(objectiveFunctionResult.getVirtualCost("virtual")).thenReturn(100.);
 
-        raoResultTimestamp1 = mockRaoResult(true, "RAO 1 succeeded.", 450., 0., flowCnecTimestamp1, 850., 10., stateTimestamp1, 0, 0, 0., 0., true);
-        raoResultTimestamp2 = mockRaoResult(true, "RAO 2 succeeded.", 250., 90., flowCnecTimestamp2, 510., 45., stateTimestamp2, 0, 5, 0., 10.2, false);
-        raoResultTimestamp3 = mockRaoResult(false, "RAO 3 failed.", 200., 10., flowCnecTimestamp3, 1000., -60., stateTimestamp3, 0, 16, 0., 35.32, true);
+        final RaoResult raoResultTimestamp1 = mockRaoResult(true, "RAO 1 succeeded.", 450., 0., flowCnecTimestamp1, 850., 10., stateTimestamp1, 0, 0, 0., 0., true);
+        final RaoResult raoResultTimestamp2 = mockRaoResult(true, "RAO 2 succeeded.", 250., 90., flowCnecTimestamp2, 510., 45., stateTimestamp2, 0, 5, 0., 10.2, false);
+        final RaoResult raoResultTimestamp3 = mockRaoResult(false, "RAO 3 failed.", 200., 10., flowCnecTimestamp3, 1000., -60., stateTimestamp3, 0, 16, 0., 35.32, true);
 
         interTemporalRaoResult = new InterTemporalRaoResultImpl(initialObjectiveFunctionResult, objectiveFunctionResult, new TemporalDataImpl<>(Map.of(TestsUtils.TIMESTAMP_1, raoResultTimestamp1, TestsUtils.TIMESTAMP_2, raoResultTimestamp2, TestsUtils.TIMESTAMP_3, raoResultTimestamp3)));
     }
