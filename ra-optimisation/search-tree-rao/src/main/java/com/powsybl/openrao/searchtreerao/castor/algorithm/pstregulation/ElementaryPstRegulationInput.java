@@ -38,6 +38,7 @@ public record ElementaryPstRegulationInput(PstRangeAction pstRangeAction, TwoSid
     }
 
     private static double getMostLimitingThreshold(Set<FlowCnec> curativeFlowCnecs, TwoSides twoSides) {
+        // TODO: check sign of threshold -> cnec in ampères so always >= 0
         return Math.min(
             Math.abs(curativeFlowCnecs.stream().map(flowCnec -> flowCnec.getUpperBound(twoSides, Unit.AMPERE).orElse(Double.MAX_VALUE)).min(Double::compareTo).orElse(Double.MAX_VALUE)),
             Math.abs(curativeFlowCnecs.stream().map(flowCnec -> flowCnec.getLowerBound(twoSides, Unit.AMPERE).orElse(-Double.MAX_VALUE)).max(Double::compareTo).orElse(Double.MAX_VALUE))

@@ -36,9 +36,10 @@ public final class PstRegulator {
         TwoWindingsTransformer twt = getTwoWindingsTransformer(network, elementaryPstRegulationInput.pstRangeAction());
         PhaseTapChanger phaseTapChanger = twt.getPhaseTapChanger();
         phaseTapChanger.setRegulationValue(elementaryPstRegulationInput.limitingThreshold());
+        // TODO: use proper terminal
         phaseTapChanger.setRegulationTerminal(twt.getTerminal(elementaryPstRegulationInput.limitingSide()));
         phaseTapChanger.setRegulationMode(PhaseTapChanger.RegulationMode.CURRENT_LIMITER);
-        phaseTapChanger.setTargetDeadband(Double.MAX_VALUE);
+        phaseTapChanger.setTargetDeadband(0.0);
         phaseTapChanger.setRegulating(true);
     }
 
