@@ -315,7 +315,7 @@ public class RemedialActionSeriesCreator {
         String applicationModeMarketObjectStatus = remedialActionSeries.getApplicationModeMarketObjectStatusStatus();
         for (RemedialActionRegisteredResource remedialActionRegisteredResource : remedialActionRegisteredResources) {
             if (remedialActionRegisteredResource.getPSRTypePsrType().equals(PsrType.HVDC.getStatus())) {
-                if (!applicationModeMarketObjectStatus.equals(ApplicationModeMarketObjectStatus.AUTO.getStatus())) {
+                if (!applicationModeMarketObjectStatus.equals(ApplicationModeMarketObjectStatus.AUTO.getStatus()) && !applicationModeMarketObjectStatus.equals(ApplicationModeMarketObjectStatus.PRA.getStatus())) {
                     remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(remedialActionSeries.getMRID(), ImportStatus.INCONSISTENCY_IN_DATA, String.format("HVDC cannot be imported at instant %s", applicationModeMarketObjectStatus)));
                     return true;
                 }
@@ -324,7 +324,7 @@ public class RemedialActionSeriesCreator {
                         crac, network,
                         contingencies, invalidContingencies, cnecs, sharedDomain, cimCracCreationParameters);
                 }
-                hvdcRangeActionCreator.addDirection(remedialActionSeries);
+                hvdcRangeActionCreator.addDirection(remedialActionSeries, applicationModeMarketObjectStatus);
                 return true;
             }
         }
