@@ -93,6 +93,7 @@ public class AppliedRemedialActions {
                 && (stateBefore.getContingency().isEmpty() || stateBefore.getContingency().equals(state.getContingency())))
             .sorted(Comparator.comparingInt(stateBefore -> stateBefore.getInstant().getOrder()))
             .forEach(stateBefore -> {
+                // network actions need to be applied BEFORE range actions because to apply HVDC range actions we need to apply AC emulation deactivation actions beforehand
                 appliedRa.get(stateBefore).networkActions.forEach(networkAction -> networkAction.apply(network));
                 appliedRa.get(stateBefore).rangeActions.forEach((rangeAction, setPoint) -> rangeAction.apply(network, setPoint));
             });

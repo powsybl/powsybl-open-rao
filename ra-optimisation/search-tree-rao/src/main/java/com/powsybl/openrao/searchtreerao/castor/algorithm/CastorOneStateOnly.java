@@ -132,6 +132,7 @@ public class CastorOneStateOnly {
             optimizationResult = new SearchTree(searchTreeInput, searchTreeParameters, true).run().join();
 
             // apply RAs and return results
+            // network actions need to be applied BEFORE range actions because to apply HVDC range actions we need to apply AC emulation deactivation actions beforehand
             optimizationResult.getActivatedNetworkActions().forEach(networkAction -> networkAction.apply(raoInput.getNetwork()));
             optimizationResult.getRangeActions().forEach(rangeAction -> rangeAction.apply(raoInput.getNetwork(), optimizationResult.getOptimizedSetpoint(rangeAction, raoInput.getOptimizedState())));
         }
