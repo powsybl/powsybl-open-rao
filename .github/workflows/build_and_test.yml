@@ -56,6 +56,3 @@ jobs:
 
       - name: Run cucumber tests
         run: mvn test -pl tests
-
-      - name: Compile Javadoc
-        run: mvn package
