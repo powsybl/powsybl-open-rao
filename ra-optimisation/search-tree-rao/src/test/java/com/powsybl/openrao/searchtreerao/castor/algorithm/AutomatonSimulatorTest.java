@@ -722,7 +722,7 @@ class AutomatonSimulatorTest {
         assertTrue(network.getHvdcLine("BBE2AA12 FFR3AA12 1").getExtension(HvdcAngleDroopActivePowerControl.class).isEnabled());
         assertTrue(topoAutomatonSimulationResult.getActivatedNetworkActions().isEmpty());
 
-        // check that angle-droop control is disabled when one margin is negative, also check that the network action ac emulation deactivation is added as a network action used
+        // check that angle-droop control is disabled when one margin is negative, also check that AcEmulationDeactivation network action is activated
         when(prePerimeterResult.getMargin(cnec1, TwoSides.TWO, Unit.MEGAWATT)).thenReturn(-1.);
         when(prePerimeterResult.getMargin(cnec2, TwoSides.TWO, Unit.MEGAWATT)).thenReturn(100.);
         automatonSimulator.shiftRangeActionsUntilFlowCnecsSecure(List.of(hvdcRa1, hvdcRa2), Set.of(cnec1, cnec2), network, mockedPreAutoPerimeterSensitivityAnalysis, prePerimeterResult, autoState, topoAutomatonSimulationResult);
