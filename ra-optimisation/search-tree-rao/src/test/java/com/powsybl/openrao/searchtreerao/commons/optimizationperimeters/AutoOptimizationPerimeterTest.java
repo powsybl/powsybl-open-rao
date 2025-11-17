@@ -193,6 +193,6 @@ class AutoOptimizationPerimeterTest {
         State automatonState = crac.getState("contingency", crac.getInstant("auto"));
         AutoOptimizationPerimeter autoOptimizationPerimeter = AutoOptimizationPerimeter.build(automatonState, crac, null, new RaoParameters(), null);
         Network network = Mockito.mock(Network.class);
-        assertEquals(autoOptimizationPerimeter, autoOptimizationPerimeter.copyWithFilteredAvailableRangeAction(network));
+        assertEquals(autoOptimizationPerimeter, autoOptimizationPerimeter.copyWithFilteredAvailableHvdcRangeAction(network));
     }
 }

@@ -84,7 +84,7 @@ class CurativeOptimizationPerimeterTest extends AbstractOptimizationPerimeterTes
         OptimizationPerimeter optPerimeter = CurativeOptimizationPerimeter.build(cState1, crac, network, raoParameters, prePerimeterResult);
         assertTrue(optPerimeter.getRangeActions().contains(hvdcRangeAction));
         // test copy the hvdc range action is filtered from the perimeter
-        CurativeOptimizationPerimeter copyPerimeter = (CurativeOptimizationPerimeter) optPerimeter.copyWithFilteredAvailableRangeAction(network);
+        CurativeOptimizationPerimeter copyPerimeter = (CurativeOptimizationPerimeter) optPerimeter.copyWithFilteredAvailableHvdcRangeAction(network);
         assertFalse(copyPerimeter.getRangeActions().contains(hvdcRangeAction));
     }
 }

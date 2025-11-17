@@ -82,7 +82,7 @@ public class PreventiveOptimizationPerimeter extends AbstractOptimizationPerimet
     }
 
     @Override
-    public OptimizationPerimeter copyWithFilteredAvailableRangeAction(Network network) {
+    public OptimizationPerimeter copyWithFilteredAvailableHvdcRangeAction(Network network) {
         return new PreventiveOptimizationPerimeter(
             this.getMainOptimizationState(),
             this.getFlowCnecs(),

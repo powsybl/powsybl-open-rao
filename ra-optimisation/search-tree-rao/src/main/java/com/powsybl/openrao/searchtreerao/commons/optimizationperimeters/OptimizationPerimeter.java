@@ -92,6 +92,6 @@ public interface OptimizationPerimeter {
     /**
      * Make a deep copy of an optimization perimeter but filter out HVDC range action pointing to an hvdc line in ac emulation mode in network
      */
-    OptimizationPerimeter copyWithFilteredAvailableRangeAction(Network network);
+    OptimizationPerimeter copyWithFilteredAvailableHvdcRangeAction(Network network);
 
 }

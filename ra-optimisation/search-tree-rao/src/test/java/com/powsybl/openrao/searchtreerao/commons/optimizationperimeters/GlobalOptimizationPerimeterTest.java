@@ -76,7 +76,7 @@ class GlobalOptimizationPerimeterTest extends AbstractOptimizationPerimeterTest 
         GlobalOptimizationPerimeter optPerimeter = GlobalOptimizationPerimeter.build(crac, network, raoParameters, prePerimeterResult);
         assertTrue(optPerimeter.getRangeActions().contains(hvdcRangeAction));
         // test copy the hvdc range action is filtered from the perimeter
-        GlobalOptimizationPerimeter copyPerimeter = (GlobalOptimizationPerimeter) optPerimeter.copyWithFilteredAvailableRangeAction(network);
+        GlobalOptimizationPerimeter copyPerimeter = (GlobalOptimizationPerimeter) optPerimeter.copyWithFilteredAvailableHvdcRangeAction(network);
         assertFalse(copyPerimeter.getRangeActions().contains(hvdcRangeAction));
     }
 }

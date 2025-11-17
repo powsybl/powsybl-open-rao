@@ -95,7 +95,7 @@ public class CurativeOptimizationPerimeter extends AbstractOptimizationPerimeter
     }
 
     @Override
-    public OptimizationPerimeter copyWithFilteredAvailableRangeAction(Network network) {
+    public OptimizationPerimeter copyWithFilteredAvailableHvdcRangeAction(Network network) {
         return new CurativeOptimizationPerimeter(
             this.getMainOptimizationState(),
             this.getFlowCnecs(),

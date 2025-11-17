@@ -119,7 +119,7 @@ class LeafTest {
         optimizationPerimeter = Mockito.mock(OptimizationPerimeter.class);
         optimizedState = Mockito.mock(State.class);
         when(optimizationPerimeter.getMainOptimizationState()).thenReturn(optimizedState);
-        when(optimizationPerimeter.copyWithFilteredAvailableRangeAction(network)).thenReturn(optimizationPerimeter);
+        when(optimizationPerimeter.copyWithFilteredAvailableHvdcRangeAction(network)).thenReturn(optimizationPerimeter);
         rangeAction = Mockito.mock(RangeAction.class);
         when(optimizationPerimeter.getRangeActions()).thenReturn(Set.of(rangeAction));
         prePerimeterResult = Mockito.mock(PrePerimeterResult.class);

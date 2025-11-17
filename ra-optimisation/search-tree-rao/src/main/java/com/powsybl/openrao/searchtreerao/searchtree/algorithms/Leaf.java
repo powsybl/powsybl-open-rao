@@ -209,7 +209,7 @@ public class Leaf implements OptimizationResult {
             TECHNICAL_LOGS.debug("Optimizing leaf...");
 
             // make a deep copy and change availableRangeAction
-            OptimizationPerimeter optimizationPerimeterWithFilteredHvdcRangeAction = searchTreeInput.getOptimizationPerimeter().copyWithFilteredAvailableRangeAction(network);
+            OptimizationPerimeter optimizationPerimeterWithFilteredHvdcRangeAction = searchTreeInput.getOptimizationPerimeter().copyWithFilteredAvailableHvdcRangeAction(network);
 
             // check if there are still range actions to optimize
             if (optimizationPerimeterWithFilteredHvdcRangeAction.getRangeActions().isEmpty()) {

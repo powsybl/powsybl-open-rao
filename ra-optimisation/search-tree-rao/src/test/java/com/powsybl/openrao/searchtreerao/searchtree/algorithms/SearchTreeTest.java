@@ -156,7 +156,7 @@ class SearchTreeTest {
         availableRangeActions = new HashSet<>();
         when(optimizationPerimeter.getRangeActions()).thenReturn(availableRangeActions);
         when(optimizationPerimeter.getMainOptimizationState()).thenReturn(optimizedState);
-        when(optimizationPerimeter.copyWithFilteredAvailableRangeAction(network)).thenReturn(optimizationPerimeter);
+        when(optimizationPerimeter.copyWithFilteredAvailableHvdcRangeAction(network)).thenReturn(optimizationPerimeter);
         FlowCnec cnec = Mockito.mock(FlowCnec.class);
         when(cnec.isOptimized()).thenReturn(true);
         when(optimizationPerimeter.getFlowCnecs()).thenReturn(Set.of(cnec));

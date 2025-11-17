@@ -125,7 +125,7 @@ class PreventiveOptimizationPerimeterTest extends AbstractOptimizationPerimeterT
         OptimizationPerimeter optPerimeter = PreventiveOptimizationPerimeter.buildWithPreventiveCnecsOnly(crac, network, raoParameters, prePerimeterResult);
         assertTrue(optPerimeter.getRangeActions().contains(hvdcRangeAction));
         // test copy the hvdc range action is filtered from the perimeter
-        PreventiveOptimizationPerimeter copyPerimeter = (PreventiveOptimizationPerimeter) optPerimeter.copyWithFilteredAvailableRangeAction(network);
+        PreventiveOptimizationPerimeter copyPerimeter = (PreventiveOptimizationPerimeter) optPerimeter.copyWithFilteredAvailableHvdcRangeAction(network);
         assertFalse(copyPerimeter.getRangeActions().contains(hvdcRangeAction));
     }
 }
