@@ -322,10 +322,9 @@ public class RemedialActionSeriesCreator {
                 if (Objects.isNull(hvdcRangeActionCreator)) {
                     hvdcRangeActionCreator = new HvdcRangeActionCreator(
                         crac, network,
-                        contingencies, invalidContingencies, cnecs, sharedDomain, cimCracCreationParameters,
-                        applicationModeMarketObjectStatus);
+                        contingencies, invalidContingencies, cnecs, sharedDomain, cimCracCreationParameters);
                 }
-                hvdcRangeActionCreator.addDirection(remedialActionSeries);
+                hvdcRangeActionCreator.addDirection(remedialActionSeries, applicationModeMarketObjectStatus);
                 return true;
             }
         }
