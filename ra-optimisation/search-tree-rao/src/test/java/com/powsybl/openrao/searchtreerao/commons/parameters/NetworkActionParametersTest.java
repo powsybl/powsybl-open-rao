@@ -50,9 +50,9 @@ class NetworkActionParametersTest {
         NetworkActionParameters nap = NetworkActionParameters.buildFromRaoParameters(raoParameters, crac);
 
         assertEquals(1, nap.getNetworkActionCombinations().size());
-        assertEquals(2, nap.getNetworkActionCombinations().get(0).getNetworkActionSet().size());
-        assertTrue(nap.getNetworkActionCombinations().get(0).getNetworkActionSet().contains(crac.getNetworkAction("complexNetworkActionId")));
-        assertTrue(nap.getNetworkActionCombinations().get(0).getNetworkActionSet().contains(crac.getNetworkAction("switchPairRaId")));
+        assertEquals(2, nap.getNetworkActionCombinations().getFirst().getNetworkActionSet().size());
+        assertTrue(nap.getNetworkActionCombinations().getFirst().getNetworkActionSet().contains(crac.getNetworkAction("complexNetworkActionId")));
+        assertTrue(nap.getNetworkActionCombinations().getFirst().getNetworkActionSet().contains(crac.getNetworkAction("switchPairRaId")));
 
         assertEquals(20., nap.getAbsoluteNetworkActionMinimumImpactThreshold(), 1e-6);
         assertEquals(0.01, nap.getRelativeNetworkActionMinimumImpactThreshold(), 1e-6);
@@ -116,7 +116,7 @@ class NetworkActionParametersTest {
 
         assertEquals(5, searchTreeParameters.getTopoOptimizationParameters().getPredefinedCombinations().size());
         assertEquals(2, naCombinations.size());
-        assertEquals(2, naCombinations.get(0).getNetworkActionSet().size());
+        assertEquals(2, naCombinations.getFirst().getNetworkActionSet().size());
         assertEquals(3, naCombinations.get(1).getNetworkActionSet().size());
     }
 }
