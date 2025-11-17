@@ -479,22 +479,7 @@ public final class AutomatonSimulator {
                 && activePowerSetpoint <= hvdcRa.getMaxAdmissibleSetpoint(activePowerSetpoint)
             ) {
                 activePowerSetpoints.put(hvdcRa, activePowerSetpoint);
-
-                HvdcLine hvdcLine = network.getHvdcLine(hvdcLineId);
-                TECHNICAL_LOGS.debug("Disabling HvdcAngleDroopActivePowerControl on HVDC line {} and setting its set-point to {}", hvdcLine.getId(), activePowerSetpoint);
-                // get ac emulation deactivation action that acts on hvdc line there should only be one
-                NetworkAction acEmulationDeactivationAction = crac.getNetworkActions().stream()
-                    .filter(ra -> ra.getNetworkElements().stream().map(NetworkElement::getId).collect(Collectors.toSet()).equals(Set.of(hvdcLineId)))
-                    .filter(ra -> ra.getElementaryActions().stream()
-                        .allMatch(ea -> "HVDC".equals(ea.getType())))
-                    .collect(Collectors.toList()).get(0);
-                // deactivate ac emulation
-                acEmulationDeactivationAction.apply(network);
-                // add network action to topoSimulationResult !
-                topoSimulationResult.addActivatedNetworkActions(Set.of(acEmulationDeactivationAction));
-                // update the hvdc Line in the network
-                hvdcLine.setConvertersMode(activePowerSetpoint > 0 ? HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER : HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER);
-                hvdcLine.setActivePowerSetpoint(Math.abs(activePowerSetpoint));
+                disableAcEmulationAndSetHvdcActivePowerSetpoint(network, crac, topoSimulationResult, hvdcLineId, activePowerSetpoint);
             } else {
                 BUSINESS_LOGS.info(String.format("HVDC range action %s could not be activated because its initial set-point (%.1f) does not fall within its allowed range (%.1f - %.1f)",
                     hvdcRa.getId(), activePowerSetpoint, hvdcRa.getMinAdmissibleSetpoint(activePowerSetpoint), hvdcRa.getMaxAdmissibleSetpoint(activePowerSetpoint)));
@@ -514,6 +499,55 @@ public final class AutomatonSimulator {
         return Pair.of(result, activePowerSetpoints);
     }
 
+    /**
+     * Retrieves the AC emulation deactivation {@link NetworkAction} associated with a specific HVDC line
+     * from the given {@link Crac} instance. The method works as follows:
+     * <ul>
+     *     <li>It filters the set of all network actions in the CRAC to find those whose associated network elements
+     *     match exactly the provided HVDC line ID.</li>
+     *     <li>It further restricts the selection to actions composed exclusively of {@link HvdcAction} elementary actions.</li>
+     *     <li>There should only be one acEmulationDeactivationAction per HVDC line; if not, it logs a warning.</li>
+     * </ul>d
+     */
+    private static NetworkAction getAcEmulationDeactivationActionOnHvdcLine(Crac crac, String hvdcLineId) {
+        Set<NetworkAction> acEmulationDeactivationActionsOnHvdcLine = crac.getNetworkActions().stream()
+            .filter(ra -> ra.getNetworkElements().stream().map(NetworkElement::getId).collect(Collectors.toSet()).equals(Set.of(hvdcLineId)))
+            .filter(ra -> ra.getElementaryActions().stream()
+                .allMatch(ea -> ea instanceof HvdcAction)).collect(Collectors.toSet());
+
+        if (acEmulationDeactivationActionsOnHvdcLine.size() != 1) {
+            TECHNICAL_LOGS.warn("Expected exactly one acEmulationDeactivationAction for HVDC line {}, but found {}.", hvdcLineId, acEmulationDeactivationActionsOnHvdcLine.size());
+        }
+
+        return acEmulationDeactivationActionsOnHvdcLine.iterator().next();
+    }
+
+    /**
+     * Disables AC emulation on a given HVDC line by applying the corresponding deactivation action,
+     * updates the topo simulation result by adding said network action, and sets the active power setpoint and converter mode on the HVDC line.
+     */
+    private static void disableAcEmulationAndSetHvdcActivePowerSetpoint(Network network, Crac crac, AutomatonSimulator.TopoAutomatonSimulationResult topoSimulationResult, String hvdcLineId, double activePowerSetpoint) {
+        HvdcLine hvdcLine = network.getHvdcLine(hvdcLineId);
+        TECHNICAL_LOGS.debug("Disabling HvdcAngleDroopActivePowerControl on HVDC line {} and setting its set-point to {}", hvdcLineId, activePowerSetpoint);
+        // get AC emulation deactivation action that acts on hvdc line
+        NetworkAction acEmulationDeactivationAction = getAcEmulationDeactivationActionOnHvdcLine(crac, hvdcLineId);
+        // deactivate AC emulation using the acEmulationDeactivationAction found above
+        acEmulationDeactivationAction.apply(network);
+        // add network action to topoSimulationResult !
+        topoSimulationResult.addActivatedNetworkActions(Set.of(acEmulationDeactivationAction));
+        // update the hvdc Line in the network
+        hvdcLine.setConvertersMode(activePowerSetpoint > 0 ? HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER : HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER);
+        hvdcLine.setActivePowerSetpoint(Math.abs(activePowerSetpoint));
+    }
+
+    /**
+     * Computes the active power setpoints for HVDC lines with {@code HvdcAngleDroopActivePowerControl} enabled,
+     * by creating a temporary network variant, applying the given contingency state, and running a load-flow calculation.
+     * Restores the original network state after computation.
+     *
+     * @return A map of HVDC line IDs to their computed active power setpoints
+     * @throws OpenRaoException If a required contingency is invalid or cannot be applied
+     */
     private static Map<String, Double> computeHvdcAngleDroopActivePowerControlValues(Network network, State state, String loadFlowProvider, LoadFlowParameters loadFlowParameters) {
         // Create a temporary variant to apply contingency and compute load-flow on
         String initialVariantId = network.getVariantManager().getWorkingVariantId();
