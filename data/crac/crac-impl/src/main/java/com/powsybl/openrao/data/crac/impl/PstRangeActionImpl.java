@@ -124,12 +124,12 @@ public final class PstRangeActionImpl extends AbstractRangeAction<PstRangeAction
 
     @Override
     public double getCurrentSetpoint(Network network) {
-        return convertTapToAngle(getPhaseTapChanger(network).getTapPosition());
+        return convertTapToAngle(getCurrentTapPosition(network));
     }
 
     @Override
     public int getCurrentTapPosition(Network network) {
-        return getPhaseTapChanger(network).getTapPosition();
+        return getPhaseTapChanger(network).getSolvedTapPosition() == null ? getPhaseTapChanger(network).getTapPosition() : getPhaseTapChanger(network).getSolvedTapPosition();
     }
 
     @Override
