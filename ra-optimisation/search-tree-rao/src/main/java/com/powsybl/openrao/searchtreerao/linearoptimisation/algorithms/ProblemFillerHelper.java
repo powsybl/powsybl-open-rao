@@ -150,20 +150,18 @@ public final class ProblemFillerHelper {
                 pstRangeActions,
                 input.prePerimeterSetpoints(),
                 parameters.getRangeActionParameters(),
-                parameters.getObjectiveFunction().costOptimization(),
-                timestamp
+                parameters.getObjectiveFunction().costOptimization()
             );
             problemFillers.add(discretePstTapFiller);
             DiscretePstGroupFiller discretePstGroupFiller = new DiscretePstGroupFiller(
                 input.optimizationPerimeter().getMainOptimizationState(),
-                pstRangeActions,
-                timestamp
+                pstRangeActions
             );
             problemFillers.add(discretePstGroupFiller);
-            ContinuousRangeActionGroupFiller continuousRangeActionGroupFiller = new ContinuousRangeActionGroupFiller(otherRa, timestamp);
+            ContinuousRangeActionGroupFiller continuousRangeActionGroupFiller = new ContinuousRangeActionGroupFiller(otherRa);
             problemFillers.add(continuousRangeActionGroupFiller);
         } else if (SearchTreeRaoRangeActionsOptimizationParameters.PstModel.CONTINUOUS.equals(pstModel)) {
-            ContinuousRangeActionGroupFiller continuousRangeActionGroupFiller = new ContinuousRangeActionGroupFiller(input.optimizationPerimeter().getRangeActionsPerState(), timestamp);
+            ContinuousRangeActionGroupFiller continuousRangeActionGroupFiller = new ContinuousRangeActionGroupFiller(input.optimizationPerimeter().getRangeActionsPerState());
             problemFillers.add(continuousRangeActionGroupFiller);
         }
 
@@ -177,8 +175,7 @@ public final class ProblemFillerHelper {
                 parameters.getRaLimitationParameters(),
                 getPstModel(parameters.getRangeActionParametersExtension()) == SearchTreeRaoRangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS,
                 input.network(),
-                parameters.getObjectiveFunction().costOptimization(),
-                timestamp
+                parameters.getObjectiveFunction().costOptimization()
             );
             problemFillers.add(raUsageLimitsFiller);
         }

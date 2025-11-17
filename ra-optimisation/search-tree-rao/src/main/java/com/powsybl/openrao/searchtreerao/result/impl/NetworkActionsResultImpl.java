@@ -18,13 +18,8 @@ import java.util.stream.Collectors;
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
-public class NetworkActionsResultImpl implements NetworkActionsResult {
-
-    private final Map<State, Set<NetworkAction>> activatedNetworkActionsPerState;
-
-    public NetworkActionsResultImpl(Map<State, Set<NetworkAction>> activatedNetworkActionsPerState) {
-        this.activatedNetworkActionsPerState = activatedNetworkActionsPerState;
-    }
+public record NetworkActionsResultImpl(
+    Map<State, Set<NetworkAction>> activatedNetworkActionsPerState) implements NetworkActionsResult {
 
     @Override
     public boolean isActivated(NetworkAction networkAction) {

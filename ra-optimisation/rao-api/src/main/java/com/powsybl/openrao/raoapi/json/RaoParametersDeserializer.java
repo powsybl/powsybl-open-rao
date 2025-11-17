@@ -42,47 +42,46 @@ public class RaoParametersDeserializer extends StdDeserializer<RaoParameters> {
         List<Extension<RaoParameters>> extensions = Collections.emptyList();
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
-                case VERSION:
+                case VERSION -> {
                     parser.nextToken();
                     String version = parser.getValueAsString();
                     if (!RAO_PARAMETERS_VERSION.equals(version)) {
                         throw new OpenRaoException(String.format("RaoParameters version '%s' cannot be deserialized. The only supported version currently is '%s'.", version, RAO_PARAMETERS_VERSION));
                     }
-                    break;
-                case OBJECTIVE_FUNCTION:
+                }
+                case OBJECTIVE_FUNCTION -> {
                     parser.nextToken();
                     JsonObjectiveFunctionParameters.deserialize(parser, parameters);
-                    break;
-                case RANGE_ACTIONS_OPTIMIZATION:
+                }
+                case RANGE_ACTIONS_OPTIMIZATION -> {
                     parser.nextToken();
                     JsonRangeActionsOptimizationParameters.deserialize(parser, parameters);
-                    break;
-                case TOPOLOGICAL_ACTIONS_OPTIMIZATION:
+                }
+                case TOPOLOGICAL_ACTIONS_OPTIMIZATION -> {
                     parser.nextToken();
                     JsonTopoOptimizationParameters.deserialize(parser, parameters);
-                    break;
-                case NOT_OPTIMIZED_CNECS:
+                }
+                case NOT_OPTIMIZED_CNECS -> {
                     parser.nextToken();
                     JsonNotOptimizedCnecsParameters.deserialize(parser, parameters);
-                    break;
-                case MNEC_PARAMETERS:
+                }
+                case MNEC_PARAMETERS -> {
                     parser.nextToken();
                     JsonMnecParameters.deserialize(parser, parameters);
-                    break;
-                case RELATIVE_MARGINS:
+                }
+                case RELATIVE_MARGINS -> {
                     parser.nextToken();
                     JsonRelativeMarginsParameters.deserialize(parser, parameters);
-                    break;
-                case LOOP_FLOW_PARAMETERS:
+                }
+                case LOOP_FLOW_PARAMETERS -> {
                     parser.nextToken();
                     JsonLoopFlowParameters.deserialize(parser, parameters);
-                    break;
-                case "extensions":
+                }
+                case "extensions" -> {
                     parser.nextToken();
                     extensions = JsonUtil.updateExtensions(parser, deserializationContext, JsonRaoParameters.getExtensionSerializers(), parameters);
-                    break;
-                default:
-                    throw new OpenRaoException("Unexpected field in rao parameters: " + parser.getCurrentName());
+                }
+                default -> throw new OpenRaoException("Unexpected field in rao parameters: " + parser.getCurrentName());
             }
         }
         extensions.forEach(extension -> parameters.addExtension((Class) extension.getClass(), extension));

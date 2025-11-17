@@ -68,18 +68,20 @@ public class FastRaoResultImpl extends AbstractExtendable<RaoResult> implements 
 
     private static void removeFailingContingencies(PrePerimeterResult initialResult, PrePerimeterResult afterPraResult, PrePerimeterResult afterAraResult, PrePerimeterResult finalResult, Crac crac) {
         Set<String> failingContingencies = new HashSet<>();
-        crac.getStates().stream().filter(state -> initialResult.getComputationStatus(state) == FAILURE && !state.isPreventive())
-                .forEach(state -> failingContingencies.add(state.getContingency().get().getId()));
-        crac.getStates().stream().filter(state -> afterPraResult.getComputationStatus(state) == FAILURE && !state.isPreventive())
-                .forEach(state -> failingContingencies.add(state.getContingency().get().getId()));
-        crac.getStates().stream().filter(state -> afterAraResult.getComputationStatus(state) == FAILURE && !state.isPreventive())
-                .forEach(state -> failingContingencies.add(state.getContingency().get().getId()));
-        crac.getStates().stream().filter(state -> finalResult.getComputationStatus(state) == FAILURE && !state.isPreventive())
-                .forEach(state -> failingContingencies.add(state.getContingency().get().getId()));
+        extractFailingContingenciesFromResult(initialResult, crac, failingContingencies);
+        extractFailingContingenciesFromResult(afterPraResult, crac, failingContingencies);
+        extractFailingContingenciesFromResult(afterAraResult, crac, failingContingencies);
+        extractFailingContingenciesFromResult(finalResult, crac, failingContingencies);
         initialResult.excludeContingencies(failingContingencies);
         afterPraResult.excludeContingencies(failingContingencies);
         afterAraResult.excludeContingencies(failingContingencies);
         finalResult.excludeContingencies(failingContingencies);
+    }
+
+    private static void extractFailingContingenciesFromResult(final PrePerimeterResult prePerimeterResult, final Crac crac, final Set<String> failingContingencies) {
+        crac.getStates().stream()
+            .filter(state -> prePerimeterResult.getComputationStatus(state) == FAILURE && !state.isPreventive())
+            .forEach(state -> failingContingencies.add(state.getContingency().get().getId()));
     }
 
     public PrePerimeterResult getInitialResult() {

@@ -23,9 +23,9 @@ import java.util.*;
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
 public class MinMarginEvaluator implements CostEvaluator {
-    protected Set<FlowCnec> flowCnecs;
-    protected Unit unit;
-    protected MarginEvaluator marginEvaluator;
+    protected final Set<FlowCnec> flowCnecs;
+    protected final Unit unit;
+    protected final MarginEvaluator marginEvaluator;
 
     public MinMarginEvaluator(Set<FlowCnec> flowCnecs, Unit unit, MarginEvaluator marginEvaluator) {
         this.flowCnecs = flowCnecs;

@@ -221,8 +221,8 @@ public final class RaoUtil {
 
     public static Set<String> getDuplicateCnecs(Set<FlowCnec> flowcnecs) {
         return flowcnecs.stream()
-            .filter(flowCnec -> flowCnec.getId().contains("OUTAGE DUPLICATE"))
             .map(FlowCnec::getId)
+            .filter(id -> id.contains("OUTAGE DUPLICATE"))
             .collect(Collectors.toSet());
     }
 }

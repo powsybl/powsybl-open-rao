@@ -35,20 +35,19 @@ final class JsonRangeActionsOptimizationParameters {
     static void deserialize(JsonParser jsonParser, RaoParameters raoParameters) throws IOException {
         while (!jsonParser.nextToken().isStructEnd()) {
             switch (jsonParser.getCurrentName()) {
-                case PST_RA_MIN_IMPACT_THRESHOLD:
+                case PST_RA_MIN_IMPACT_THRESHOLD -> {
                     jsonParser.nextToken();
                     raoParameters.getRangeActionsOptimizationParameters().setPstRAMinImpactThreshold(jsonParser.getDoubleValue());
-                    break;
-                case HVDC_RA_MIN_IMPACT_THRESHOLD:
+                }
+                case HVDC_RA_MIN_IMPACT_THRESHOLD -> {
                     jsonParser.nextToken();
                     raoParameters.getRangeActionsOptimizationParameters().setHvdcRAMinImpactThreshold(jsonParser.getDoubleValue());
-                    break;
-                case INJECTION_RA_MIN_IMPACT_THRESHOLD:
+                }
+                case INJECTION_RA_MIN_IMPACT_THRESHOLD -> {
                     jsonParser.nextToken();
                     raoParameters.getRangeActionsOptimizationParameters().setInjectionRAMinImpactThreshold(jsonParser.getDoubleValue());
-                    break;
-                default:
-                    throw new OpenRaoException(String.format("Cannot deserialize range action optimization parameters: unexpected field in %s (%s)", RANGE_ACTIONS_OPTIMIZATION, jsonParser.getCurrentName()));
+                }
+                default -> throw new OpenRaoException(String.format("Cannot deserialize range action optimization parameters: unexpected field in %s (%s)", RANGE_ACTIONS_OPTIMIZATION, jsonParser.getCurrentName()));
             }
         }
     }

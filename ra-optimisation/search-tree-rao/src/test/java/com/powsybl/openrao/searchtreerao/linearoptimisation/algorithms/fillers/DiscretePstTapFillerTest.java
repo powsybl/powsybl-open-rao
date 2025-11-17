@@ -45,8 +45,6 @@ class DiscretePstTapFillerTest extends AbstractFillerTest {
     private LinearProblem linearProblem;
     private State preventiveState;
     private State curativeState;
-    private DiscretePstTapFiller discretePstTapFiller;
-    private double initialAlpha;
     private Map<Integer, Double> tapToAngle;
     private PstRangeAction pra;
     private PstRangeAction cra;
@@ -72,7 +70,7 @@ class DiscretePstTapFillerTest extends AbstractFillerTest {
             .add()
             .add();
         PstRangeAction pstRangeAction = crac.getPstRangeAction(RANGE_ACTION_ID);
-        initialAlpha = network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getCurrentStep().getAlpha();
+        final double initialAlpha = network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getCurrentStep().getAlpha();
         RangeActionSetpointResult initialRangeActionSetpointResult = new RangeActionSetpointResultImpl(Map.of(pstRangeAction, initialAlpha, cra, initialAlpha));
         OptimizationPerimeter optimizationPerimeter = Mockito.mock(OptimizationPerimeter.class);
 
@@ -97,12 +95,12 @@ class DiscretePstTapFillerTest extends AbstractFillerTest {
         Map<State, Set<PstRangeAction>> pstRangeActions = new HashMap<>();
         pstRangeActions.put(preventiveState, Set.of(pstRangeAction));
         pstRangeActions.put(curativeState, Set.of(cra));
-        discretePstTapFiller = new DiscretePstTapFiller(
+        final DiscretePstTapFiller discretePstTapFiller = new DiscretePstTapFiller(
             optimizationPerimeter,
             pstRangeActions,
             initialRangeActionSetpointResult,
             rangeActionParameters,
-            true, null);
+            true);
 
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)

@@ -74,7 +74,7 @@ class FastRaoResultImplTest {
         when(finalResult.getSensitivityStatus()).thenReturn(DEFAULT);
 
         ComputationStatus status = result.getComputationStatus();
-        assertTrue(status == PARTIAL_FAILURE);
+        assertSame(PARTIAL_FAILURE, status);
 
         when(initialResult.getSensitivityStatus()).thenReturn(FAILURE);
         when(afterPraResult.getSensitivityStatus()).thenReturn(DEFAULT);
@@ -84,7 +84,7 @@ class FastRaoResultImplTest {
             initialResult, afterPraResult, afterAraResult, finalResult, filteredRaoResult, crac
         );
         status = result.getComputationStatus();
-        assertTrue(status == FAILURE);
+        assertSame(FAILURE, status);
         assertFalse(result.isSecure(PhysicalParameter.FLOW));
     }
 
@@ -174,13 +174,13 @@ class FastRaoResultImplTest {
         when(filteredRaoResult.isActivatedDuringState(state, networkAction)).thenReturn(true);
         when(filteredRaoResult.isActivatedDuringState(state, rangeAction)).thenReturn(false);
         when(filteredRaoResult.isActivatedDuringState(state, pstRangeAction)).thenReturn(true);
-        assertEquals(true, result.isActivatedDuringState(state, networkAction));
-        assertEquals(false, result.isActivatedDuringState(state, rangeAction));
+        assertTrue(result.isActivatedDuringState(state, networkAction));
+        assertFalse(result.isActivatedDuringState(state, rangeAction));
         assertThrows(OpenRaoException.class, () -> result.isActivatedDuringState(state, remedialAction));
-        assertEquals(true, result.isActivatedDuringState(state, pstRangeAction));
+        assertTrue(result.isActivatedDuringState(state, pstRangeAction));
 
         when(filteredRaoResult.wasActivatedBeforeState(state, networkAction)).thenReturn(true);
-        assertEquals(true, result.wasActivatedBeforeState(state, networkAction));
+        assertTrue(result.wasActivatedBeforeState(state, networkAction));
 
         when(filteredRaoResult.getActivatedNetworkActionsDuringState(state)).thenReturn(Set.of(networkAction));
         when(filteredRaoResult.getActivatedRangeActionsDuringState(state)).thenReturn(Set.of(rangeAction));
