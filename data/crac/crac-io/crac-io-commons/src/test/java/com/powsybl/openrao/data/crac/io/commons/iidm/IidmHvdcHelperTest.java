@@ -47,7 +47,7 @@ public class IidmHvdcHelperTest {
         when(station2.getTerminal()).thenReturn(terminal2);
         when(terminal2.getP()).thenReturn(123.45);
 
-        double result = IidmHvdcHelper.computeFlowOnHvdcLine(hvdcLine);
+        double result = IidmHvdcHelper.computeActivePowerSetpointOnHvdcLine(hvdcLine);
 
         assertEquals(123.45, result, 1e-6);
 
@@ -60,7 +60,7 @@ public class IidmHvdcHelperTest {
         when(station1.getTerminal()).thenReturn(terminal1);
         when(terminal1.getP()).thenReturn(-55.0);
 
-        result = IidmHvdcHelper.computeFlowOnHvdcLine(hvdcLine);
+        result = IidmHvdcHelper.computeActivePowerSetpointOnHvdcLine(hvdcLine);
 
         assertEquals(-55.0, result, 1e-6);
     }

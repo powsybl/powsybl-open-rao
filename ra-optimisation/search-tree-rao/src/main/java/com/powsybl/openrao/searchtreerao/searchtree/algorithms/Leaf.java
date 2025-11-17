@@ -47,7 +47,7 @@ import java.util.stream.Stream;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
-import static com.powsybl.openrao.data.crac.io.commons.iidm.IidmHvdcHelper.computeFlowOnHvdcLine;
+import static com.powsybl.openrao.data.crac.io.commons.iidm.IidmHvdcHelper.computeActivePowerSetpointOnHvdcLine;
 import static com.powsybl.openrao.searchtreerao.commons.RaoLogger.getVirtualCostDetailed;
 
 /**
@@ -123,7 +123,7 @@ public class Leaf implements OptimizationResult {
                 if (action instanceof HvdcAction) {
                     HvdcAction hvdcAction = (HvdcAction) action;
                     HvdcLine hvdcLine = network.getHvdcLine(hvdcAction.getHvdcId());
-                    double activePowerSetpoint = computeFlowOnHvdcLine(hvdcLine);
+                    double activePowerSetpoint = computeActivePowerSetpointOnHvdcLine(hvdcLine);
                     hvdcLine.setConvertersMode(activePowerSetpoint > 0 ? HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER : HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER);
                     hvdcLine.setActivePowerSetpoint(Math.abs(activePowerSetpoint));
                 }

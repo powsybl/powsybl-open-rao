@@ -47,7 +47,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.powsybl.openrao.data.crac.io.commons.iidm.IidmHvdcHelper.computeFlowOnHvdcLine;
+import static com.powsybl.openrao.data.crac.io.commons.iidm.IidmHvdcHelper.computeActivePowerSetpointOnHvdcLine;
 import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getLoadFlowProvider;
 import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters;
 import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.getPstModel;
@@ -321,7 +321,7 @@ public final class RaoUtil {
             hvdcRangeActionOnAcEmulationHvdcLinecrac.stream().forEach(hvdcRangeAction -> {
                 String hvdcLineId = hvdcRangeAction.getNetworkElement().getId();
                 HvdcLine hvdcLine = IidmHvdcHelper.getHvdcLine(network, hvdcLineId);
-                double activePowerSetpoint = computeFlowOnHvdcLine(hvdcLine);
+                double activePowerSetpoint = computeActivePowerSetpointOnHvdcLine(hvdcLine);
                 // is NaN if the line is disconnected
                 if (activePowerSetpoint != Double.NaN) {
                     hvdcLine.setConvertersMode(activePowerSetpoint > 0 ? HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER : HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER);

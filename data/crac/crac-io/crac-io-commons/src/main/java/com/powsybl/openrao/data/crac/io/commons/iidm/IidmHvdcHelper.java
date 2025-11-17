@@ -35,7 +35,7 @@ public final class IidmHvdcHelper {
         }
     }
 
-    public static double computeFlowOnHvdcLine(HvdcLine hvdcLine) {
+    public static double computeActivePowerSetpointOnHvdcLine(HvdcLine hvdcLine) {
         if (hvdcLine.getConvertersMode().equals(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER)) {
             return hvdcLine.getConverterStation2().getTerminal().getP();
         } else {
