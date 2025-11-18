@@ -38,7 +38,9 @@ Feature: US 15.17: Optimize HVDC range actions initially in AC emulation mode
   Scenario: US 15.17.3: HVDC range action with PST range action and two preventive CNECs
     # Copy of test case 15.12.5.3, except HVDC is initially in AC emulation mode
     # deactivating ac emulation + PST_PRA_PST_be_BBE2AA11 BBE3AA11 1 at 14 and PRA_HVDC at 807 => yield slightly better cost -186 vs -181.
-    # But the MIP didn't find the solution
+    # But the MIP didn't find the solution. Why ?
+    # Instead of starting with the HVDC's active setpoint = 0.0 here the MIP start with the active setpoint = 820.
+    # Find the same result in 15.12.5.3 if we set initial active setpoint to 820 too.
     Given network file is "epic15/TestCase16NodesWithHvdc_AC_emulation.xiidm"
     Given crac file is "epic15/jsonCrac_ep15us12-5case3.json"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
@@ -54,7 +56,7 @@ Feature: US 15.17: Optimize HVDC range actions initially in AC emulation mode
   @fast @rao @mock @dc @preventive-only @hvdc
   Scenario: US 15.17.4: HVDC range action with outage CNEC
     # Copy of test case 15.12.5.4, except HVDC is initially in AC emulation mode
-      # Same result except that ac emulation is deactivated in preventive by network action "acEmulationDeactivation_BBE2AA11 FFR3AA11 1"
+      # Same result except that AC emulation is deactivated in preventive by network action "acEmulationDeactivation_BBE2AA11 FFR3AA11 1"
     Given network file is "epic15/TestCase16NodesWithHvdc_AC_emulation.xiidm"
     Given crac file is "epic15/jsonCrac_ep15us12-5case4.json"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
@@ -72,7 +74,8 @@ Feature: US 15.17: Optimize HVDC range actions initially in AC emulation mode
   @fast @rao @mock @dc @contingency-scenarios @hvdc
   Scenario: US 15.17.5: HVDC range action with one curative perimeter
     # Copy of test case 15.12.5.5, except HVDC is initially in AC emulation mode
-    # Ac Emulation is deactivated in preventive making the CRAC_HVDC available to the MIP at curative
+    # We get the same results as 15.12.5.5 + the use of the network action "acEmulationDeactivation_BBE2AA11 FFR3AA11 1"
+    # Note: AC Emulation is deactivated in preventive making the CRAC_HVDC available to the MIP at curative
     Given network file is "epic15/TestCase16NodesWithHvdc_AC_emulation.xiidm"
     Given crac file is "epic15/jsonCrac_ep15us12-5case5.json"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
@@ -92,7 +95,7 @@ Feature: US 15.17: Optimize HVDC range actions initially in AC emulation mode
   @fast @rao @mock @dc @contingency-scenarios @hvdc
   Scenario: US 15.17.6: HVDC range action with two curative perimeters and negative initial flow
     # Copy of test case 15.12.5.6, except HVDC is initially in AC emulation mode
-    # Same result except that ac emulation is deactivated in preventive by network action "acEmulationDeactivation_BBE2AA11 FFR3AA11 1"
+    # Same result except that AC emulation is deactivated in preventive by network action "acEmulationDeactivation_BBE2AA11 FFR3AA11 1"
     Given network file is "epic15/TestCase16NodesWithHvdc_AC_emulation.xiidm"
     Given crac file is "epic15/jsonCrac_ep15us12-5case6.json"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
@@ -116,7 +119,7 @@ Feature: US 15.17: Optimize HVDC range actions initially in AC emulation mode
   @fast @rao @mock @dc @preventive-only @hvdc
   Scenario: US 15.17.7: HVDC with a negative optimal setpoint
     # Copy of test case 15.12.5.7, except HVDC is initially in AC emulation mode
-    # Same result except that the ac emulation is deactivated by the network action "acEmulationDeactivation_BBE2AA11 FFR3AA11 1".
+    # Same result except that the AC emulation is deactivated by the network action "acEmulationDeactivation_BBE2AA11 FFR3AA11 1".
     Given network file is "epic15/TestCase16NodesWithHvdc_AC_emulation.xiidm"
     Given crac file is "epic15/jsonCrac_ep15us12-5case7.json"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
@@ -130,16 +133,18 @@ Feature: US 15.17: Optimize HVDC range actions initially in AC emulation mode
   @fast @rao @mock @dc @contingency-scenarios @hvdc
   Scenario: US 15.17.8: HVDC and PST filtering - case where not deactivating ac emulation is better
     # Copy of test case 15.12.5.8, except HVDC is initially in AC emulation mode
-    # Deactivating ac emulation + reoptimizing CRA_HVDC yield worse result : cost = 94.4 vs 55 when using just PST_CRA
+    # Same result except that the AC emulation is deactivated by the network action "acEmulationDeactivation_BBE2AA11 FFR3AA11 1".
     Given network file is "epic15/TestCase16NodesWithHvdc_AC_emulation.xiidm"
     Given crac file is "epic15/jsonCrac_ep15us12-5case8.json"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
     When I launch rao
+    And the initial setpoint of RangeAction "CRA_HVDC" should be 820
     Then 0 remedial actions are used in preventive
-    And 1 remedial actions are used after "co1_be1_fr5" at "curative"
-    And the tap of PstRangeAction "PST_CRA_PST_be_BBE2AA11 BBE3AA11 1" should be 16 after "co1_be1_fr5" at "curative"
-    And the worst margin is -55 MW
-    And the margin on cnec "be4_fr5_co1 - BBE4AA11->FFR5AA11  - co1_be1_fr5 - curative" after CRA should be -55 MW
+    And 2 remedial actions are used after "co1_be1_fr5" at "curative"
+    Then the remedial action "acEmulationDeactivation_BBE2AA11 FFR3AA11 1" is used after "co1_be1_fr5" at "curative"
+    And the setpoint of RangeAction "CRA_HVDC" should be 1422 MW after "co1_be1_fr5" at "curative"
+    And the worst margin is 300 MW
+    And the margin on cnec "be4_fr5_co1 - BBE4AA11->FFR5AA11  - co1_be1_fr5 - curative" after CRA should be 300 MW
 
   @fast @rao @mock @dc @contingency-scenarios @hvdc
   Scenario: US 15.17.10: HVDC useless in preventive but used in curative
