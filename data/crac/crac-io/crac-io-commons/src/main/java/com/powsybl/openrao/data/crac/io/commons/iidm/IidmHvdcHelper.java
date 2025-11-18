@@ -42,4 +42,9 @@ public final class IidmHvdcHelper {
             return hvdcLine.getConverterStation1().getTerminal().getP();
         }
     }
+
+    public static void setActivePowerSetpointOnHvdcLine(HvdcLine hvdcLine, double activePowerSetpoint) {
+        hvdcLine.setConvertersMode(activePowerSetpoint > 0 ? HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER : HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER);
+        hvdcLine.setActivePowerSetpoint(Math.abs(activePowerSetpoint));
+    }
 }

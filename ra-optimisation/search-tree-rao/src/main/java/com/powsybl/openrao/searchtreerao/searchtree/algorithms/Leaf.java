@@ -119,15 +119,6 @@ public class Leaf implements OptimizationResult {
         // if an emulation ac deactivate update in the network the active setpoint so that the sensi computation can converged
         for (NetworkAction na : appliedNetworkActionsInPrimaryState) {
             boolean applicationSuccess = na.apply(network); // deactivate the ac emulation
-            for (Action action : na.getElementaryActions()) {
-                if (action instanceof HvdcAction) {
-                    HvdcAction hvdcAction = (HvdcAction) action;
-                    HvdcLine hvdcLine = network.getHvdcLine(hvdcAction.getHvdcId());
-                    double activePowerSetpoint = computeActivePowerSetpointOnHvdcLine(hvdcLine);
-                    hvdcLine.setConvertersMode(activePowerSetpoint > 0 ? HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER : HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER);
-                    hvdcLine.setActivePowerSetpoint(Math.abs(activePowerSetpoint));
-                }
-            }
             if (!applicationSuccess) {
                 throw new OpenRaoException(String.format("%s could not be applied on the network", na.getId()));
             }

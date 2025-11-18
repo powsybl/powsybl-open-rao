@@ -7,7 +7,6 @@
 
 package com.powsybl.openrao.searchtreerao.searchtree.algorithms;
 
-import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.commons.logs.OpenRaoLogger;
@@ -15,6 +14,10 @@ import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
+import com.powsybl.openrao.data.crac.impl.HvdcRangeActionImpl;
+import com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters;
+import com.powsybl.openrao.searchtreerao.commons.HvdcUtils;
 import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
 import com.powsybl.openrao.searchtreerao.commons.RaoLogger;
 import com.powsybl.openrao.searchtreerao.commons.SensitivityComputer;
@@ -40,7 +43,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.*;
-import static com.powsybl.openrao.searchtreerao.castor.algorithm.AutomatonSimulator.getRangeActionsAndTheirTapsAppliedOnState;
+import static com.powsybl.openrao.searchtreerao.castor.algorithm.AutomatonSimulator.*;
+import static com.powsybl.openrao.searchtreerao.commons.HvdcUtils.runLoadFlowAndUpdateHvdcActiveSetpoint;
 
 /**
  * The "tree" is one of the core object of the search-tree algorithm.
@@ -107,7 +111,24 @@ public class SearchTree {
             TECHNICAL_LOGS.debug("Evaluating root leaf");
 
             // load flow run here, update value in network that will be read when if we deactivate ac emulation for an hvdc line.
-            LoadFlow.find(parameters.getLoadFlowAndSensitivityParameters().getLoadFlowProvider()).run(input.getNetwork(), parameters.getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters());
+            Set<HvdcRangeAction> hvdcRangeActions = input.getOptimizationPerimeter()
+                .getRangeActions().stream()
+                .filter(HvdcRangeAction.class::isInstance)
+                .map(HvdcRangeAction.class::cast)
+                .collect(Collectors.toSet());
+
+            LoadFlowAndSensitivityParameters loadFlowAndSensitivityParameters = parameters.getLoadFlowAndSensitivityParameters().orElse(new LoadFlowAndSensitivityParameters());
+            Set<HvdcRangeActionImpl> hvdcRasOnHvdcLineInAcEmulation = HvdcUtils.getHvdcRangeActionsOnHvdcLineInAcEmulation(hvdcRangeActions, input.getNetwork());
+            if (!hvdcRasOnHvdcLineInAcEmulation.isEmpty()) {
+                runLoadFlowAndUpdateHvdcActiveSetpoint(
+                    input.getNetwork(),
+                    input.getOptimizationPerimeter().getMainOptimizationState(),
+                    loadFlowAndSensitivityParameters.getLoadFlowProvider(),
+                    loadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters().getLoadFlowParameters(),
+                    hvdcRasOnHvdcLineInAcEmulation
+                );
+            }
+
 
             rootLeaf.evaluate(input.getObjectiveFunction(), getSensitivityComputerForEvaluation(true));
             if (rootLeaf.getStatus().equals(Leaf.Status.ERROR)) {
