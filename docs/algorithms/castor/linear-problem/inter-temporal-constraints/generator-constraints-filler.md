@@ -168,7 +168,8 @@ $$\forall t' < t \text{ such that } \Delta_{t' \rightarrow t} < LAG(g), \; T_{RD
 
 #### Off state
 
-By definition, $OFF(g,s,t) = 1 \Rightarrow P(g,s,t) = 0$ which can be linearized as:
+By definition, $OFF(g,s,t) = 1 \Leftrightarrow P(g,s,t) = 0$. In practice, only the right-to-left implication is needed
+and can be linearized as:
 
 $$P(g,s,t) \leq P_{\max}(g) (1 - OFF(g,s,t))$$
 
@@ -178,7 +179,7 @@ By definition, $ON(g,s,t) = 1 \Leftrightarrow P(g,s,t) \geq P_{\min}(g)$ which c
 equations:
 
 $$P(g,s,t) \leq P_{min}(g) (1 - ON(g,s,t)) + P_{\max}(g) ON(g,s,t)$$
-$$P_{t} \geq P_{\min} ON_{t}$$
+$$P(g,s,t) \geq P_{\min} ON_{t}$$
 
 #### Power variation
 
