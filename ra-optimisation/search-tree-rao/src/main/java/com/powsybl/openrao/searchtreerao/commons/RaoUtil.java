@@ -35,6 +35,7 @@ import com.powsybl.openrao.data.crac.io.commons.iidm.IidmHvdcHelper;
 import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceProgramBuilder;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.PstModel;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
@@ -239,33 +240,44 @@ public final class RaoUtil {
     }
 
     /**
-     * Add to the crac a network action that deactivate ac emulation for each hvdc line in ac emulation mode that has at least one hvdc range action associated
+     * Add to the crac a network action that deactivate AC emulation for each HVDC line in AC emulation mode
+     * that has at least one hvdc range action associated
      */
     public static void addNetworkActionAssociatedWithHvdcRangeAction(Crac crac, Network network) {
+        // for each hvdc range action
         crac.getHvdcRangeActions().forEach(hvdcRangeAction -> {
-
+            // get associated hvdc line id
             String hvdcLineId = hvdcRangeAction.getNetworkElement().getId();
 
+            // Check if an AC emulation deactivation network action has already been created
             Set<NetworkAction> acEmulationDeactivationActionOnHvdcLine = crac.getNetworkActions().stream()
                 .filter(ra -> ra.getElementaryActions().stream().allMatch(action -> action instanceof HvdcAction))
                 .filter(ra -> ra.getElementaryActions().stream().allMatch(action ->
                     ((HvdcAction) action).getHvdcId().equals(hvdcLineId)
                 )).collect(Collectors.toSet());
 
+            // get HVDC line's HvdcAngleDroopActivePowerControl extension
             HvdcAngleDroopActivePowerControl hvdcAngleDoopActivePowerControl = IidmHvdcHelper.getHvdcLine(network, hvdcLineId).getExtension(HvdcAngleDroopActivePowerControl.class);
+
+            // if AC emulation is activated on HVDC line
             if (hvdcAngleDoopActivePowerControl != null && hvdcAngleDoopActivePowerControl.isEnabled()) {
+
                 String networkActionId = String.format("%s_%s", "acEmulationDeactivation", hvdcLineId);
                 if (acEmulationDeactivationActionOnHvdcLine.isEmpty()) {
-                    // create the network action using the adder
+                    // If the network action doesn't exist yet
+                    // create a network action hvdcLineId_acEmulationDeactivation
+                    // with one elementary action (an acEmulationDeactivationAction that uses under the hood powsybl's hvdcAction)
+                    // and the same usage rule as the HVDC range action
                     NetworkActionAdder acEmulationDeactivationActionAdder = crac.newNetworkAction()
                         .withId(networkActionId)
                         .withOperator(hvdcRangeAction.getOperator())
                         .newAcEmulationDeactivationAction()
                         .withNetworkElement(hvdcLineId)
                         .add();
-                    addAllUsageRuleNotInAuto(hvdcRangeAction, acEmulationDeactivationActionAdder);
+                    addAllUsageRules(hvdcRangeAction, acEmulationDeactivationActionAdder);
                     acEmulationDeactivationActionAdder.add();
                 } else {
+                    // If the network action already exists, just update the usage rules by adding hvdcRangeAction's ones.
                     NetworkAction acEmulationDeactivationAction = acEmulationDeactivationActionOnHvdcLine.iterator().next();
                     hvdcRangeAction.getUsageRules().stream().forEach(
                         usageRule -> acEmulationDeactivationAction.addUsageRule(usageRule)
@@ -275,8 +287,8 @@ public final class RaoUtil {
         });
     }
 
-    // Add all the usage rule of the range action to the network action except if its in auto.
-    static void addAllUsageRuleNotInAuto(HvdcRangeAction hvdcRangeAction, NetworkActionAdder acEmulationDeactivationActionAdder) {
+    // Add all the usage rules of the range action to the network action
+    static void addAllUsageRules(HvdcRangeAction hvdcRangeAction, NetworkActionAdder acEmulationDeactivationActionAdder) {
         hvdcRangeAction.getUsageRules().forEach(
             usageRule -> {
                 if (usageRule.getClass().equals(OnInstantImpl.class)) {
@@ -310,14 +322,19 @@ public final class RaoUtil {
 
     static void updateHvdcRangeActionInitialSetpoint(Crac crac, Network network, RaoParameters raoParameters) {
         // get all the hvdc range action that uses hvdc line in ac emulation mode
+        // TODO: put in common
         Set<HvdcRangeActionImpl> hvdcRangeActionOnAcEmulationHvdcLinecrac = crac.getHvdcRangeActions().stream()
             .map(HvdcRangeActionImpl.class::cast)
             .filter(hvdcRangeAction -> hvdcRangeAction.isAngleDroopActivePowerControlEnabled(network))
             .collect(Collectors.toSet());
 
         if (!hvdcRangeActionOnAcEmulationHvdcLinecrac.isEmpty()) {
-            // Run load flow to update flow on all the line of the network
-            LoadFlow.find(raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getLoadFlowAndSensitivityParameters().getLoadFlowProvider()).run(network, raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters());
+            // Run load flow to update flow on all the lines of the network
+            LoadFlowAndSensitivityParameters loadFlowAndSensitivityParameters = new LoadFlowAndSensitivityParameters();
+            if (raoParameters.hasExtension(OpenRaoSearchTreeParameters.class)){
+                loadFlowAndSensitivityParameters = raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getLoadFlowAndSensitivityParameters();
+            }
+            LoadFlow.find(loadFlowAndSensitivityParameters.getLoadFlowProvider()).run(network, loadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters().getLoadFlowParameters());
             hvdcRangeActionOnAcEmulationHvdcLinecrac.stream().forEach(hvdcRangeAction -> {
                 String hvdcLineId = hvdcRangeAction.getNetworkElement().getId();
                 HvdcLine hvdcLine = IidmHvdcHelper.getHvdcLine(network, hvdcLineId);
