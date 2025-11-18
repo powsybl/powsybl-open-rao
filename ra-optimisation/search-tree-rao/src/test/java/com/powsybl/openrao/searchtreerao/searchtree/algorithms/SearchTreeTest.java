@@ -139,7 +139,7 @@ class SearchTreeTest {
         when(predefinedNaCombination.getConcatenatedId()).thenReturn("predefinedNa");
         when(networkActionParameters.getNetworkActionCombinations()).thenReturn(List.of(predefinedNaCombination));
         LoadFlowAndSensitivityParameters loadFlowAndSensitivityParameters = Mockito.mock(LoadFlowAndSensitivityParameters.class);
-        when(searchTreeParameters.getLoadFlowAndSensitivityParameters()).thenReturn(loadFlowAndSensitivityParameters);
+        when(searchTreeParameters.getLoadFlowAndSensitivityParameters()).thenReturn(Optional.ofNullable(loadFlowAndSensitivityParameters));
         SensitivityAnalysisParameters sensitivityAnalysisParameters = Mockito.mock(SensitivityAnalysisParameters.class);
         when(loadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters()).thenReturn(sensitivityAnalysisParameters);
     }
