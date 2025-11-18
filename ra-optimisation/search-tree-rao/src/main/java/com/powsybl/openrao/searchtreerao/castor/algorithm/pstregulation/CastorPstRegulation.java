@@ -58,7 +58,7 @@ public final class CastorPstRegulation {
             return Set.of();
         }
 
-        Set<PstRegulationInput> statesToRegulate = getStatesToRegulate(crac, postContingencyResults, raoParameters.getObjectiveFunctionParameters().getUnit(), rangeActionsToRegulate, SearchTreeRaoPstRegulationParameters.getPstsToRegulate(raoParameters));
+        Set<PstRegulationInput> statesToRegulate = getStatesToRegulate(crac, postContingencyResults, raoParameters.getObjectiveFunctionParameters().getUnit(), rangeActionsToRegulate, SearchTreeRaoPstRegulationParameters.getPstsToRegulate(raoParameters), network);
         if (statesToRegulate.isEmpty()) {
             return Set.of();
         }
@@ -107,24 +107,24 @@ public final class CastorPstRegulation {
      * </ol>
      * For all such states, the associated PST regulation input is included in a set that is returned.
      */
-    private static Set<PstRegulationInput> getStatesToRegulate(Crac crac, Map<State, PostPerimeterResult> postContingencyResults, Unit unit, Set<PstRangeAction> rangeActionsToRegulate, Map<String, String> linesInSeriesWithPst) {
+    private static Set<PstRegulationInput> getStatesToRegulate(Crac crac, Map<State, PostPerimeterResult> postContingencyResults, Unit unit, Set<PstRangeAction> rangeActionsToRegulate, Map<String, String> linesInSeriesWithPst, Network network) {
         Instant lastInstant = crac.getLastInstant();
         return lastInstant.isCurative() ?
             crac.getStates(lastInstant).stream()
                 .filter(postContingencyResults::containsKey)
-                .map(curativeState -> getPstRegulationInput(curativeState, crac, postContingencyResults.get(curativeState), unit, rangeActionsToRegulate, linesInSeriesWithPst))
+                .map(curativeState -> getPstRegulationInput(curativeState, crac, postContingencyResults.get(curativeState), unit, rangeActionsToRegulate, linesInSeriesWithPst, network))
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .collect(Collectors.toSet())
             : Set.of();
     }
 
-    private static Optional<PstRegulationInput> getPstRegulationInput(State curativeState, Crac crac, PostPerimeterResult postPerimeterResult, Unit unit, Set<PstRangeAction> rangeActionsToRegulate, Map<String, String> linesInSeriesWithPst) {
+    private static Optional<PstRegulationInput> getPstRegulationInput(State curativeState, Crac crac, PostPerimeterResult postPerimeterResult, Unit unit, Set<PstRangeAction> rangeActionsToRegulate, Map<String, String> linesInSeriesWithPst, Network network) {
         Optional<FlowCnec> limitingElement = getMostLimitingElementProtectedByPst(curativeState, crac, postPerimeterResult, unit, new HashSet<>(linesInSeriesWithPst.values()));
         if (limitingElement.isPresent()) {
             Set<ElementaryPstRegulationInput> elementaryPstRegulationInputs = rangeActionsToRegulate.stream()
                 .filter(pstRangeAction -> linesInSeriesWithPst.containsKey(pstRangeAction.getNetworkElement().getId()))
-                .map(pstRangeAction -> ElementaryPstRegulationInput.of(pstRangeAction, linesInSeriesWithPst.get(pstRangeAction.getNetworkElement().getId()), curativeState, crac))
+                .map(pstRangeAction -> ElementaryPstRegulationInput.of(pstRangeAction, linesInSeriesWithPst.get(pstRangeAction.getNetworkElement().getId()), curativeState, crac, network))
                 .collect(Collectors.toSet());
             return Optional.of(new PstRegulationInput(curativeState, limitingElement.get(), elementaryPstRegulationInputs));
         }

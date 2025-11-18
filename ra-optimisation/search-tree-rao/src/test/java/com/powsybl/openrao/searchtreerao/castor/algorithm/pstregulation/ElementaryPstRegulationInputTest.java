@@ -33,20 +33,20 @@ class ElementaryPstRegulationInputTest {
 
         // thresholds are properly defined on both sides
         PstRangeAction pstBeFr2 = crac.getPstRangeAction("pstBeFr2");
-        ElementaryPstRegulationInput pst1RegulationInput = ElementaryPstRegulationInput.of(pstBeFr2, "BBE1AA1  FFR1AA1  2", state, crac);
+        ElementaryPstRegulationInput pst1RegulationInput = ElementaryPstRegulationInput.of(pstBeFr2, "BBE1AA1  FFR1AA1  2", state, crac, network);
         assertNotNull(pst1RegulationInput);
         assertEquals(TwoSides.TWO, pst1RegulationInput.limitingSide());
         assertEquals(500.0, pst1RegulationInput.limitingThreshold());
 
         // thresholds are defined only one side 1
         PstRangeAction pstBeFr3 = crac.getPstRangeAction("pstBeFr3");
-        ElementaryPstRegulationInput pst2RegulationInput = ElementaryPstRegulationInput.of(pstBeFr3, "BBE1AA1  FFR1AA1  3", state, crac);
+        ElementaryPstRegulationInput pst2RegulationInput = ElementaryPstRegulationInput.of(pstBeFr3, "BBE1AA1  FFR1AA1  3", state, crac, network);
         assertNotNull(pst2RegulationInput);
         assertEquals(TwoSides.ONE, pst2RegulationInput.limitingSide());
         assertEquals(250.0, pst2RegulationInput.limitingThreshold());
 
         // no FlowCNEC defined
         PstRangeAction pstBeFr4 = crac.getPstRangeAction("pstBeFr4");
-        assertNull(ElementaryPstRegulationInput.of(pstBeFr4, "BBE1AA1  FFR1AA1  4", state, crac));
+        assertNull(ElementaryPstRegulationInput.of(pstBeFr4, "BBE1AA1  FFR1AA1  4", state, crac, network));
     }
 }

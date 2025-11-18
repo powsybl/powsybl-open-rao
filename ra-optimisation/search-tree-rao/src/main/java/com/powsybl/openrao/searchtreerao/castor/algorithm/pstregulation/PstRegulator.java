@@ -13,6 +13,7 @@ import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 
 import java.util.Map;
@@ -36,10 +37,9 @@ public final class PstRegulator {
         TwoWindingsTransformer twt = getTwoWindingsTransformer(network, elementaryPstRegulationInput.pstRangeAction());
         PhaseTapChanger phaseTapChanger = twt.getPhaseTapChanger();
         phaseTapChanger.setRegulationValue(elementaryPstRegulationInput.limitingThreshold());
-        // TODO: use proper terminal
-        phaseTapChanger.setRegulationTerminal(twt.getTerminal(elementaryPstRegulationInput.limitingSide()));
+        setRegulationTerminal(twt, elementaryPstRegulationInput);
         phaseTapChanger.setRegulationMode(PhaseTapChanger.RegulationMode.CURRENT_LIMITER);
-        phaseTapChanger.setTargetDeadband(0.0);
+        setTargetDeadband(twt);
         phaseTapChanger.setRegulating(true);
     }
 
@@ -50,6 +50,22 @@ public final class PstRegulator {
             throw new OpenRaoException("No two-windings transformer with id %s found in network.".formatted(pstId));
         }
         return twt;
+    }
+
+    private static void setRegulationTerminal(TwoWindingsTransformer twt, ElementaryPstRegulationInput elementaryPstRegulationInput) {
+        PhaseTapChanger phaseTapChanger = twt.getPhaseTapChanger();
+        if (phaseTapChanger.getRegulationTerminal() == null) {
+            OpenRaoLoggerProvider.TECHNICAL_LOGS.info("No default regulation terminal defined for phase tap changer of two-windings transformer %s, terminal on side %s will be used.".formatted(twt.getId(), elementaryPstRegulationInput.limitingSide()));
+            phaseTapChanger.setRegulationTerminal(twt.getTerminal(elementaryPstRegulationInput.limitingSide()));
+        }
+    }
+
+    private static void setTargetDeadband(TwoWindingsTransformer twt) {
+        PhaseTapChanger phaseTapChanger = twt.getPhaseTapChanger();
+        if (Double.isNaN(phaseTapChanger.getTargetDeadband())) {
+            OpenRaoLoggerProvider.TECHNICAL_LOGS.info("No default target deadband defined for phase tap changer of two-windings transformer %s, a value of 0.0 will be used.".formatted(twt.getId()));
+            phaseTapChanger.setTargetDeadband(0.0);
+        }
     }
 
     private static int getRegulatedTap(Network network, PstRangeAction pstRangeAction) {

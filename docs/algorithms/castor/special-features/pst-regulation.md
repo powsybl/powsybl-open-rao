@@ -20,7 +20,8 @@ The set of PSTs to regulate can be provided in the
 [RAO parameters](../../../parameters/implementation-specific-parameters.md#pst-regulation-parameters). Then, for each curative
 scenario, if the most limiting element is a FlowCNEC in series with a PST, all the PSTs are regulated.
 
-Such monitored lines can be the PSTs themselves or lines connected in series.
+Such monitored lines can be the PSTs themselves or lines connected in series. In the second case, the threshold of the
+FlowCNEC defined on this line in series is used as the regulation value.
 
 > ⚠️ **Remark: Sub-optimality**
 >
