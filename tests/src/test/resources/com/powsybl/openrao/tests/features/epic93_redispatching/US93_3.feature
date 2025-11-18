@@ -664,3 +664,5 @@ Feature: US 93.3: Intertemporal generator constraints
     And the total cost for timestamp "2025-11-04 23:30" is 0.0
     And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 23:30" is 0.0 MW
     And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 23:30" is 0.0 MW
+
+    # TODO: test with lead time shorter than timestamp to ensure good behavior
