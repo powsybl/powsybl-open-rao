@@ -267,13 +267,35 @@ public class SearchTree {
                 boolean shouldRangeActionBeRemoved = bloomer.shouldRangeActionsBeRemovedToApplyNa(naCombination, optimalLeaf);
                 if (shouldRangeActionBeRemoved) {
                     // Remove parentLeaf range actions to respect every maxRa or maxOperator limitation
-                    input.getOptimizationPerimeter().getRangeActions().forEach(ra ->
-                        ra.apply(networkClone, input.getPrePerimeterResult().getRangeActionSetpointResult().getSetpoint(ra))
-                    );
+                    // If the HVDC line is in AC emulation the we won't be able to apply setpoint
+                    input.getOptimizationPerimeter()
+                        .getRangeActions()
+                        .stream()
+                        .filter(ra -> {
+                            if (ra instanceof HvdcRangeAction) {
+                                return !((HvdcRangeAction) ra).isAngleDroopActivePowerControlEnabled(networkClone);
+                            } else {
+                                return true;
+                            }
+                        })
+                        .forEach(ra ->
+                            ra.apply(networkClone, input.getPrePerimeterResult().getRangeActionSetpointResult().getSetpoint(ra))
+                        );
+
                 } else {
                     // Apply range actions that have been changed by the previous leaf on the network to start next depth leaves
                     // from previous optimal leaf starting point
+                    // Network actions are not applied here. If in previous leaf AC emulation was deactivated to optimize HVDC range action
+                    // we won't be able to apply the optimized setpoint because the HVDC line will still be in AC emulation
                     previousDepthOptimalLeaf.getRangeActions()
+                        .stream()
+                        .filter(ra -> {
+                            if (ra instanceof HvdcRangeAction) {
+                                return !((HvdcRangeAction) ra).isAngleDroopActivePowerControlEnabled(networkClone);
+                            } else {
+                                return true;
+                            }
+                        })
                         .forEach(ra ->
                             ra.apply(networkClone, previousDepthOptimalLeaf.getOptimizedSetpoint(ra, input.getOptimizationPerimeter().getMainOptimizationState()))
                         );
