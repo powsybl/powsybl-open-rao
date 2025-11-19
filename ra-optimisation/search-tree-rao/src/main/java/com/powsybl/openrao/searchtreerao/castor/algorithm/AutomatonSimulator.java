@@ -456,7 +456,7 @@ public final class AutomatonSimulator {
         Map<HvdcRangeAction, Double> activePowerSetpoints = new HashMap<>();
 
         if (!hvdcRasWithControl.isEmpty()) {
-            activePowerSetpoints =  runLoadFlowAndUpdateHvdcActivePowerSetpoint(
+            activePowerSetpoints = runLoadFlowAndUpdateHvdcActivePowerSetpoint(
                 network,
                 automatonState,
                 getLoadFlowProvider(raoParameters),
@@ -495,7 +495,6 @@ public final class AutomatonSimulator {
         // add network action to topoSimulationResult !
         topoSimulationResult.addActivatedNetworkActions(Set.of(acEmulationDeactivationAction));
     }
-
 
     /**
      * Retrieves the AC emulation deactivation {@link NetworkAction} associated with a specific HVDC line

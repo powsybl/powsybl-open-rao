@@ -7,9 +7,6 @@
 
 package com.powsybl.openrao.searchtreerao.searchtree.algorithms;
 
-import com.powsybl.action.Action;
-import com.powsybl.action.HvdcAction;
-import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.openrao.commons.MeasurementRounding;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
@@ -47,7 +44,6 @@ import java.util.stream.Stream;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
-import static com.powsybl.openrao.data.crac.io.commons.iidm.IidmHvdcHelper.computeActivePowerSetpointOnHvdcLine;
 import static com.powsybl.openrao.searchtreerao.commons.RaoLogger.getVirtualCostDetailed;
 
 /**

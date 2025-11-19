@@ -7,7 +7,6 @@
 
 package com.powsybl.openrao.searchtreerao.castor.algorithm;
 
-import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;

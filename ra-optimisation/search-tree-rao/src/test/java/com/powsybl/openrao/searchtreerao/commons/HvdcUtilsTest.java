@@ -91,7 +91,6 @@ public class HvdcUtilsTest {
         assertEquals(823.0, crac.getHvdcRangeAction("HVDC_RA2").getInitialSetpoint(), 1);
     }
 
-
     @Test
     void testRunLoadFlowAndUpdateHvdcActiveSetpointAfterContingency() throws IOException {
         // Test that check if the runLoadFlowAndUpdateHvdcActiveSetpoint, is able to apply contingency and update the setpoint after applying the contingency.
@@ -153,5 +152,4 @@ public class HvdcUtilsTest {
         assertTrue(hvdcRangeActionActivePowerSetpoint.isEmpty());
         assertEquals(0, crac.getHvdcRangeAction("HVDC_RA1").getCurrentSetpoint(network));
     }
-
 }

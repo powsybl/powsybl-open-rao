@@ -110,7 +110,7 @@ public class SearchTree {
 
             TECHNICAL_LOGS.debug("Evaluating root leaf");
 
-            // load flow run here, update value in network that will be read when if we deactivate ac emulation for an hvdc line.
+            // load flow run here, update value in network that will be read if we deactivate ac emulation for an hvdc line in one of the leaf.
             Set<HvdcRangeAction> hvdcRangeActions = input.getOptimizationPerimeter()
                 .getRangeActions().stream()
                 .filter(HvdcRangeAction.class::isInstance)
@@ -128,7 +128,6 @@ public class SearchTree {
                     hvdcRasOnHvdcLineInAcEmulation
                 );
             }
-
 
             rootLeaf.evaluate(input.getObjectiveFunction(), getSensitivityComputerForEvaluation(true));
             if (rootLeaf.getStatus().equals(Leaf.Status.ERROR)) {

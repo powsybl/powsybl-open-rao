@@ -42,7 +42,10 @@ import static com.powsybl.openrao.data.crac.io.commons.iidm.IidmHvdcHelper.setAc
 /**
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
  */
-public class HvdcUtils {
+public final class HvdcUtils {
+
+    private HvdcUtils() {
+    }
 
     /**
      * Add to the CRAC a network action that deactivate AC emulation for each HVDC line in AC emulation mode
@@ -91,7 +94,8 @@ public class HvdcUtils {
 
     /***
      * Add all the usage rules of the range action to the network action
-     * @param hvdcRangeAction: the range action for which the usage rules are added to the network action
+     *
+     * @param hvdcRangeAction the range action for which the usage rules are added to the network action
      * @param acEmulationDeactivationActionAdder the network action adder that will be used to add the usage rules
      */
     static void addAllUsageRules(HvdcRangeAction hvdcRangeAction, NetworkActionAdder acEmulationDeactivationActionAdder) {
@@ -132,7 +136,7 @@ public class HvdcUtils {
     static void updateHvdcRangeActionInitialSetpoint(Crac crac, Network network, RaoParameters raoParameters) {
         // Run load flow to update flow on all the lines of the network
         LoadFlowAndSensitivityParameters loadFlowAndSensitivityParameters = new LoadFlowAndSensitivityParameters();
-        if (raoParameters.hasExtension(OpenRaoSearchTreeParameters.class)){
+        if (raoParameters.hasExtension(OpenRaoSearchTreeParameters.class)) {
             loadFlowAndSensitivityParameters = raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getLoadFlowAndSensitivityParameters();
         }
 
@@ -155,8 +159,9 @@ public class HvdcUtils {
     }
 
     /**
-     * Get all the HVDC range actions in the input hvdcRangeActions set defined on HVDC line in AC emulation in the network
-     * @param hvdcRangeActions : set of HVDC range actions to filter
+     * Get all the HVDC range actions in the input hvdcRangeActions set defined on a HVDC line in AC emulation in the network
+     *
+     * @param hvdcRangeActions set of HVDC range actions to filter
      * @param network
      * @return
      */
@@ -169,7 +174,8 @@ public class HvdcUtils {
     }
 
     /**
-     * Run load flow and update the active power setpoints of the HVDC range actions associated to HVDC line in AC emulation mode
+     * Run load flow and update the active power setpoints of the HVDC range actions associated with HVDC lines in AC emulation mode
+     *
      * @param network
      * @param optimizationState used to get contingency to apply
      * @param loadFlowProvider
@@ -213,8 +219,8 @@ public class HvdcUtils {
                 TECHNICAL_LOGS.debug(String.format("" +
                     "HVDC line %s active power setpoint is set to (%.1f)", hvdcLineId, activePowerSetpoint));
 
-                    activePowerSetpoints.put(hvdcRa, activePowerSetpoint);
-                    setActivePowerSetpointOnHvdcLine(hvdcLine, activePowerSetpoint);
+                activePowerSetpoints.put(hvdcRa, activePowerSetpoint);
+                setActivePowerSetpointOnHvdcLine(hvdcLine, activePowerSetpoint);
             } else {
                 TECHNICAL_LOGS.info(String.format(
                     "HVDC line %s active setpoint could not be updated because its new set-point "
