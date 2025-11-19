@@ -120,8 +120,6 @@ class SearchTreeParametersTest {
 
         searchTreeParameters = builder.withLoadFlowAndSensitivityParameters(loadFlowAndSensitivityParameters).build();
         assertEquals(loadFlowAndSensitivityParameters, searchTreeParameters.getLoadFlowAndSensitivityParameters().get());
-
-
     }
 
     @Test

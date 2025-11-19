@@ -106,12 +106,12 @@ public class CastorOneStateOnly {
             }
             perimeterFlowCnecs = optPerimeter.getFlowCnecs();
 
-            SearchTreeParameters.SearchTreeParametersBuilder searchTreeParametersBuilder =  SearchTreeParameters.create()
+            SearchTreeParameters.SearchTreeParametersBuilder searchTreeParametersBuilder = SearchTreeParameters.create()
                 .withConstantParametersOverAllRao(raoParameters, raoInput.getCrac())
                 .withTreeParameters(treeParameters)
                 .withUnoptimizedCnecParameters(UnoptimizedCnecParameters.build(raoParameters.getNotOptimizedCnecsParameters(), stateTree.getOperatorsNotSharingCras()));
 
-            if (!getHvdcRangeActionsOnHvdcLineInAcEmulation(raoInput.getCrac().getHvdcRangeActions(),raoInput.getNetwork()).isEmpty()) {
+            if (!getHvdcRangeActionsOnHvdcLineInAcEmulation(raoInput.getCrac().getHvdcRangeActions(), raoInput.getNetwork()).isEmpty()) {
                 LoadFlowAndSensitivityParameters loadFlowAndSensitivityParameters =
                     raoParameters.hasExtension(OpenRaoSearchTreeParameters.class)
                         ? raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getLoadFlowAndSensitivityParameters()
