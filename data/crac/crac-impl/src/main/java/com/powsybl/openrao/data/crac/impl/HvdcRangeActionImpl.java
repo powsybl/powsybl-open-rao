@@ -9,7 +9,6 @@ package com.powsybl.openrao.data.crac.impl;
 
 import com.powsybl.action.HvdcActionBuilder;
 import com.powsybl.commons.report.ReportNode;
-import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.range.StandardRange;
 import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
@@ -24,6 +23,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
 
 /**
  * Elementary HVDC range remedial action.
@@ -91,7 +92,7 @@ public class HvdcRangeActionImpl extends AbstractRangeAction<HvdcRangeAction> im
             }
             actionBuilder.build().toModification().apply(network, true, ReportNode.NO_OP);
         } else {
-            throw new OpenRaoException(String.format(
+            TECHNICAL_LOGS.warn(String.format(
                 "Unable to set an active power setpoint for HVDC line %s because it is operating in AC Emulation mode.",
                 networkElement.getId()
                 )
