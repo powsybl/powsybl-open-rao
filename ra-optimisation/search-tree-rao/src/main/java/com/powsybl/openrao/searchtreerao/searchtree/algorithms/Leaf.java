@@ -112,7 +112,6 @@ public class Leaf implements OptimizationResult {
         this.appliedRemedialActionsInSecondaryStates = appliedRemedialActionsInSecondaryStates;
 
         // apply Network Actions on initial network
-        // if an emulation ac deactivate update in the network the active setpoint so that the sensi computation can converged
         for (NetworkAction na : appliedNetworkActionsInPrimaryState) {
             boolean applicationSuccess = na.apply(network); // deactivate the ac emulation
             if (!applicationSuccess) {
