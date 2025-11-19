@@ -24,11 +24,14 @@ import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
+import com.powsybl.openrao.data.crac.impl.HvdcRangeActionImpl;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters;
+import com.powsybl.openrao.searchtreerao.commons.HvdcUtils;
 import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
 import com.powsybl.openrao.searchtreerao.commons.SensitivityComputer;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
@@ -94,6 +97,7 @@ class SearchTreeTest {
     private NetworkActionCombination predefinedNaCombination;
 
     MockedStatic<LoadFlow> loadFlowMockedStatic;
+    MockedStatic<HvdcUtils> HvdcUtilsMock;
 
     @BeforeEach
     void setUp() {
@@ -104,23 +108,23 @@ class SearchTreeTest {
         when(searchTreeParameters.getObjectiveFunction()).thenReturn(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN);
         when(searchTreeParameters.getObjectiveFunctionUnit()).thenReturn(Unit.MEGAWATT);
         mockNetworkPool(network);
-        LoadFlow.Runner mockRunner = mock(LoadFlow.Runner.class);
-        // Used to mock static method LoadFlow.find(...)
-        loadFlowMockedStatic = mockStatic(LoadFlow.class);
-        loadFlowMockedStatic
-            .when(() -> LoadFlow.find(any()))
-            .thenReturn(mockRunner);
-        LoadFlowResult mockResult = mock(LoadFlowResult.class);
-        when(mockRunner.run(
-            any(Network.class),
-            any(LoadFlowParameters.class)
-        )).thenReturn(mockResult);
+
+        // Mock call to runLoadFlowAndUpdateHvdcActivePowerSetpoint(...)
+        HvdcUtilsMock = mockStatic(HvdcUtils.class);
+        HvdcUtilsMock
+            .when(() -> HvdcUtils.runLoadFlowAndUpdateHvdcActivePowerSetpoint(any(Network.class), any(State.class), any(String.class), any(LoadFlowParameters.class), any(Set.class)))
+            .thenReturn(Map.of());
+
+        HvdcUtilsMock
+            .when(() -> HvdcUtils.getHvdcRangeActionsOnHvdcLineInAcEmulation(any(), eq(network)))
+            .thenCallRealMethod();
+
     }
 
     @AfterEach
     void tearDown() {
-        if (loadFlowMockedStatic != null) {
-            loadFlowMockedStatic.close();
+        if (HvdcUtilsMock != null) {
+            HvdcUtilsMock.close();
         }
     }
 
@@ -218,7 +222,25 @@ class SearchTreeTest {
         OptimizationResult result = searchTree.run().get();
         assertEquals(rootLeaf, result);
         assertEquals(2., result.getCost(), DOUBLE_TOLERANCE);
-        loadFlowMockedStatic.verify(() -> LoadFlow.find(any()), times(1));
+
+        HvdcUtilsMock.verify(() -> HvdcUtils.runLoadFlowAndUpdateHvdcActivePowerSetpoint(any(), any(), any(), any(), any()), times(0));
+    }
+
+    @Test
+    void runAndOptimizeOnlyRootLeafWithLoadFlow() throws Exception {
+        raoWithoutLoopFlowLimitation();
+        setStopCriterionAtMinObjective();
+        when(rootLeaf.getCost()).thenReturn(2.);
+        when(rootLeaf.getStatus()).thenReturn(Leaf.Status.EVALUATED, Leaf.Status.OPTIMIZED);
+        Mockito.doReturn(rootLeaf).when(searchTree).makeLeaf(optimizationPerimeter, network, prePerimeterResult, appliedRemedialActions);
+        // add an hvdc range action on a HVDC lie in AC emulation
+        HvdcRangeAction hvdcRangeAction = Mockito.mock(HvdcRangeActionImpl.class);
+        when(hvdcRangeAction.isAngleDroopActivePowerControlEnabled(network)).thenReturn(true);
+        when(optimizationPerimeter.getRangeActions()).thenReturn(Set.of(hvdcRangeAction));
+        OptimizationResult result = searchTree.run().get();
+
+        HvdcUtilsMock.verify(() -> HvdcUtils.runLoadFlowAndUpdateHvdcActivePowerSetpoint(any(), any(), any(), any(), any()), times(1));
+
     }
 
     @Test
@@ -251,8 +273,6 @@ class SearchTreeTest {
         OptimizationResult result = searchTree.run().get();
         assertEquals(rootLeaf, result);
         assertEquals(4., result.getCost(), DOUBLE_TOLERANCE);
-        // Run load flow once at root leaf
-        loadFlowMockedStatic.verify(() -> LoadFlow.find(any()), times(1));
     }
 
     private void setLeafStatusToEvaluated(Leaf leaf) {
