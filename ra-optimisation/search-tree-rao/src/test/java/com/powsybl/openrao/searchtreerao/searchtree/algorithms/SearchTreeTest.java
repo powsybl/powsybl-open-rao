@@ -10,9 +10,7 @@ package com.powsybl.openrao.searchtreerao.searchtree.algorithms;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
-import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowParameters;
-import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.commons.logs.RaoBusinessLogs;
@@ -96,8 +94,7 @@ class SearchTreeTest {
 
     private NetworkActionCombination predefinedNaCombination;
 
-    MockedStatic<LoadFlow> loadFlowMockedStatic;
-    MockedStatic<HvdcUtils> HvdcUtilsMock;
+    MockedStatic<HvdcUtils> hvdcUtilsMock;
 
     @BeforeEach
     void setUp() {
@@ -110,12 +107,12 @@ class SearchTreeTest {
         mockNetworkPool(network);
 
         // Mock call to runLoadFlowAndUpdateHvdcActivePowerSetpoint(...)
-        HvdcUtilsMock = mockStatic(HvdcUtils.class);
-        HvdcUtilsMock
+        hvdcUtilsMock = mockStatic(HvdcUtils.class);
+        hvdcUtilsMock
             .when(() -> HvdcUtils.runLoadFlowAndUpdateHvdcActivePowerSetpoint(any(Network.class), any(State.class), any(String.class), any(LoadFlowParameters.class), any(Set.class)))
             .thenReturn(Map.of());
 
-        HvdcUtilsMock
+        hvdcUtilsMock
             .when(() -> HvdcUtils.getHvdcRangeActionsOnHvdcLineInAcEmulation(any(), eq(network)))
             .thenCallRealMethod();
 
@@ -123,8 +120,8 @@ class SearchTreeTest {
 
     @AfterEach
     void tearDown() {
-        if (HvdcUtilsMock != null) {
-            HvdcUtilsMock.close();
+        if (hvdcUtilsMock != null) {
+            hvdcUtilsMock.close();
         }
     }
 
@@ -223,7 +220,7 @@ class SearchTreeTest {
         assertEquals(rootLeaf, result);
         assertEquals(2., result.getCost(), DOUBLE_TOLERANCE);
 
-        HvdcUtilsMock.verify(() -> HvdcUtils.runLoadFlowAndUpdateHvdcActivePowerSetpoint(any(), any(), any(), any(), any()), times(0));
+        hvdcUtilsMock.verify(() -> HvdcUtils.runLoadFlowAndUpdateHvdcActivePowerSetpoint(any(), any(), any(), any(), any()), times(0));
     }
 
     @Test
@@ -239,7 +236,7 @@ class SearchTreeTest {
         when(optimizationPerimeter.getRangeActions()).thenReturn(Set.of(hvdcRangeAction));
         OptimizationResult result = searchTree.run().get();
 
-        HvdcUtilsMock.verify(() -> HvdcUtils.runLoadFlowAndUpdateHvdcActivePowerSetpoint(any(), any(), any(), any(), any()), times(1));
+        hvdcUtilsMock.verify(() -> HvdcUtils.runLoadFlowAndUpdateHvdcActivePowerSetpoint(any(), any(), any(), any(), any()), times(1));
 
     }
 
