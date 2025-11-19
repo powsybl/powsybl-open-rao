@@ -11,6 +11,8 @@ import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
 import com.powsybl.action.Action;
+import com.powsybl.action.HvdcActionBuilder;
+import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Instant;
@@ -22,6 +24,8 @@ import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
+import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
+import com.powsybl.openrao.data.crac.impl.NetworkActionImpl;
 import com.powsybl.openrao.data.crac.impl.utils.NetworkImportsUtil;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
@@ -52,6 +56,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
+import static com.powsybl.openrao.data.crac.impl.utils.NetworkImportsUtil.import16NodesNetworkWithAngleDroopHvdcs;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static com.powsybl.iidm.network.TwoSides.TWO;
@@ -72,6 +77,7 @@ class LeafTest {
     private Action ea21;
     private Action ea22;
     private Action ea23;
+    private RangeAction rangeAction;
 
     private Network network;
     private ObjectiveFunction costEvaluatorMock;
@@ -113,6 +119,9 @@ class LeafTest {
         optimizationPerimeter = Mockito.mock(OptimizationPerimeter.class);
         optimizedState = Mockito.mock(State.class);
         when(optimizationPerimeter.getMainOptimizationState()).thenReturn(optimizedState);
+        when(optimizationPerimeter.copyWithFilteredAvailableHvdcRangeAction(network)).thenReturn(optimizationPerimeter);
+        rangeAction = Mockito.mock(RangeAction.class);
+        when(optimizationPerimeter.getRangeActions()).thenReturn(Set.of(rangeAction));
         prePerimeterResult = Mockito.mock(PrePerimeterResult.class);
         appliedRemedialActions = Mockito.mock(AppliedRemedialActions.class);
         Instant instant = Mockito.mock(Instant.class);
@@ -156,7 +165,6 @@ class LeafTest {
     void testRootLeafDefinition() {
         Leaf rootLeaf = new Leaf(optimizationPerimeter, network, prePerimeterResult, appliedRemedialActions);
         assertTrue(rootLeaf.getActivatedNetworkActions().isEmpty());
-        assert rootLeaf.getActivatedNetworkActions().isEmpty();
         assertTrue(rootLeaf.isRoot());
         assertEquals(Leaf.Status.EVALUATED, rootLeaf.getStatus());
     }
@@ -195,6 +203,34 @@ class LeafTest {
         assertEquals(1, leaf2.getActivatedNetworkActions().size());
         assertTrue(leaf2.getActivatedNetworkActions().contains(na1));
         assertFalse(leaf2.isRoot());
+    }
+
+    @Test
+    void testLeafDefinitionWithAcEmulationDeactivationNetworkAction() {
+        // An ac emulation deactivation action is activated.
+        Network networkWithAngleDroop = import16NodesNetworkWithAngleDroopHvdcs();
+        Leaf rootLeaf = new Leaf(optimizationPerimeter, networkWithAngleDroop, prePerimeterResult, appliedRemedialActions);
+        RangeActionActivationResult rangeActionActivationResult = Mockito.mock(RangeActionActivationResult.class);
+        UsageRule usageRule = Mockito.mock(UsageRule.class);
+        NetworkElement networkElement = Mockito.mock(NetworkElement.class);
+        NetworkAction na1 = new NetworkActionImpl("na1", "na1", "TSO1", Set.of(usageRule),
+            Set.of(new HvdcActionBuilder()
+                .withId(String.format("%s_%s_%s", "acEmulation", "BBE2AA11 FFR3AA11 1", "DEACTIVATE"))
+                .withHvdcId("BBE2AA11 FFR3AA11 1")
+                .withAcEmulationEnabled(false)
+                .build()), 1, 1.0, Set.of(networkElement));
+
+        // before creation of the leaf, AC emulation is still enabled
+        assertEquals(0, networkWithAngleDroop.getHvdcLine("BBE2AA11 FFR3AA11 1").getActivePowerSetpoint(), 1e-2);
+        assertTrue(networkWithAngleDroop.getHvdcLine("BBE2AA11 FFR3AA11 1").getExtension(HvdcAngleDroopActivePowerControl.class).isEnabled());
+        // Set the active power setpoint before deactivating AC emulation. This is done in the root of the search tree.
+        networkWithAngleDroop.getHvdcLine("BBE2AA11 FFR3AA11 1").setActivePowerSetpoint(812.28);
+
+        new Leaf(optimizationPerimeter, networkWithAngleDroop, rootLeaf.getActivatedNetworkActions(), new NetworkActionCombination(na1), rangeActionActivationResult, prePerimeterResult, appliedRemedialActions);
+
+        // AC emumation is deactivated but the active power setpoint is the one we set before hand.
+        assertFalse(networkWithAngleDroop.getHvdcLine("BBE2AA11 FFR3AA11 1").getExtension(HvdcAngleDroopActivePowerControl.class).isEnabled());
+        assertEquals(812.28, networkWithAngleDroop.getHvdcLine("BBE2AA11 FFR3AA11 1").getActivePowerSetpoint(), 1e-2);
     }
 
     @Test
@@ -621,16 +657,7 @@ class LeafTest {
     void getRangeActionsBeforeEvaluation() {
         Leaf leaf = buildNotEvaluatedRootLeaf();
         assertEquals(Leaf.Status.CREATED, leaf.getStatus());
-        assertTrue(leaf.getRangeActions().isEmpty());
-
-        PstRangeAction pstRangeAction = Mockito.mock(PstRangeAction.class);
-        RangeAction<?> rangeAction = Mockito.mock(RangeAction.class);
-        Set<RangeAction<?>> rangeActions = new HashSet<>();
-        rangeActions.add(pstRangeAction);
-        rangeActions.add(rangeAction);
-        when(optimizationPerimeter.getRangeActions()).thenReturn(rangeActions);
-        assertEquals(Leaf.Status.CREATED, leaf.getStatus());
-        assertEquals(rangeActions, leaf.getRangeActions());
+        assertEquals(Set.of(rangeAction), leaf.getRangeActions());
     }
 
     @Test

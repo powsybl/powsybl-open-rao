@@ -12,6 +12,7 @@ import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.loopflowextension.LoopFlowThreshold;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
@@ -120,6 +121,14 @@ public abstract class AbstractOptimizationPerimeter implements OptimizationPerim
         return availableRangeActions.values().stream().flatMap(Collection::stream).collect(Collectors.toSet());
     }
 
+    public Set<RangeAction<?>> getRangeActionsWithoutHvdcInAcEmulation(Network network) {
+        return removeHvdcInAcEmulation(network, availableRangeActions).values().stream().flatMap(Collection::stream).collect(Collectors.toSet());
+    }
+
+    public Map<State, Set<RangeAction<?>>> getRangeActionsWithoutHvdcInAcEmulationPerState(Network network) {
+        return removeHvdcInAcEmulation(network, availableRangeActions);
+    }
+
     public static Set<FlowCnec> getLoopFlowCnecs(Set<FlowCnec> flowCnecs, RaoParameters raoParameters, Network network) {
         Optional<com.powsybl.openrao.raoapi.parameters.LoopFlowParameters> loopFlowParametersOptional = raoParameters.getLoopFlowParameters();
         if (loopFlowParametersOptional.isPresent()) {
@@ -170,4 +179,20 @@ public abstract class AbstractOptimizationPerimeter implements OptimizationPerim
             }
         }
     }
+
+    private Map<State, Set<RangeAction<?>>> removeHvdcInAcEmulation(Network network, Map<State, Set<RangeAction<?>>> allAvailableRangeActionsPerState) {
+        return allAvailableRangeActionsPerState.entrySet().stream()
+            .collect(Collectors.toMap(
+                Map.Entry::getKey,
+                entry -> entry.getValue().stream()
+                    // Remove only HvdcRangeAction with isAngleDroopActivePowerControlEnabled == true
+                    .filter(ra -> {
+                        if (ra instanceof HvdcRangeAction) {
+                            return !((HvdcRangeAction) ra).isAngleDroopActivePowerControlEnabled(network);
+                        }
+                        return true;
+                    }).collect(Collectors.toSet())
+            ));
+    }
+
 }
