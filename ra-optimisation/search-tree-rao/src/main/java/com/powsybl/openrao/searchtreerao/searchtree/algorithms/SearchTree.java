@@ -44,7 +44,7 @@ import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.*;
 import static com.powsybl.openrao.searchtreerao.castor.algorithm.AutomatonSimulator.*;
-import static com.powsybl.openrao.searchtreerao.commons.HvdcUtils.runLoadFlowAndUpdateHvdcActiveSetpoint;
+import static com.powsybl.openrao.searchtreerao.commons.HvdcUtils.runLoadFlowAndUpdateHvdcActivePowerSetpoint;
 
 /**
  * The "tree" is one of the core object of the search-tree algorithm.
@@ -120,7 +120,7 @@ public class SearchTree {
             LoadFlowAndSensitivityParameters loadFlowAndSensitivityParameters = parameters.getLoadFlowAndSensitivityParameters().orElse(new LoadFlowAndSensitivityParameters());
             Set<HvdcRangeActionImpl> hvdcRasOnHvdcLineInAcEmulation = HvdcUtils.getHvdcRangeActionsOnHvdcLineInAcEmulation(hvdcRangeActions, input.getNetwork());
             if (!hvdcRasOnHvdcLineInAcEmulation.isEmpty()) {
-                runLoadFlowAndUpdateHvdcActiveSetpoint(
+                runLoadFlowAndUpdateHvdcActivePowerSetpoint(
                     input.getNetwork(),
                     input.getOptimizationPerimeter().getMainOptimizationState(),
                     loadFlowAndSensitivityParameters.getLoadFlowProvider(),

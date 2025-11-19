@@ -18,7 +18,6 @@ import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.RandomizedString;
 import com.powsybl.openrao.data.crac.api.Crac;
-import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkActionAdder;
@@ -31,7 +30,6 @@ import com.powsybl.openrao.data.crac.io.commons.iidm.IidmHvdcHelper;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
-import com.powsybl.openrao.searchtreerao.castor.algorithm.AutomatonSimulator;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -40,7 +38,6 @@ import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
 import static com.powsybl.openrao.data.crac.io.commons.iidm.IidmHvdcHelper.setActivePowerSetpointOnHvdcLine;
-import static com.powsybl.openrao.searchtreerao.commons.HvdcUtils.getHvdcRangeActionsOnHvdcLineInAcEmulation;
 
 /**
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
@@ -48,13 +45,13 @@ import static com.powsybl.openrao.searchtreerao.commons.HvdcUtils.getHvdcRangeAc
 public class HvdcUtils {
 
     /**
-     * Add to the crac a network action that deactivate AC emulation for each HVDC line in AC emulation mode
-     * that has at least one hvdc range action associated
+     * Add to the CRAC a network action that deactivate AC emulation for each HVDC line in AC emulation mode
+     * that has at least one HVDC range action associated
      */
     public static void addNetworkActionAssociatedWithHvdcRangeAction(Crac crac, Network network) {
-        // for each hvdc range action
+        // for each HVDC range action
         crac.getHvdcRangeActions().forEach(hvdcRangeAction -> {
-            // get associated hvdc line id
+            // get associated HVDC line id
             String hvdcLineId = hvdcRangeAction.getNetworkElement().getId();
 
             // Check if an AC emulation deactivation network action has already been created
@@ -64,11 +61,8 @@ public class HvdcUtils {
                     ((HvdcAction) action).getHvdcId().equals(hvdcLineId)
                 )).collect(Collectors.toSet());
 
-            // get HVDC line's HvdcAngleDroopActivePowerControl extension
-            HvdcAngleDroopActivePowerControl hvdcAngleDoopActivePowerControl = IidmHvdcHelper.getHvdcLine(network, hvdcLineId).getExtension(HvdcAngleDroopActivePowerControl.class);
-
             // if AC emulation is activated on HVDC line
-            if (hvdcAngleDoopActivePowerControl != null && hvdcAngleDoopActivePowerControl.isEnabled()) {
+            if (hvdcRangeAction.isAngleDroopActivePowerControlEnabled(network)) {
 
                 String networkActionId = String.format("%s_%s", "acEmulationDeactivation", hvdcLineId);
                 if (acEmulationDeactivationActionOnHvdcLine.isEmpty()) {
@@ -95,7 +89,11 @@ public class HvdcUtils {
         });
     }
 
-    // Add all the usage rules of the range action to the network action
+    /***
+     * Add all the usage rules of the range action to the network action
+     * @param hvdcRangeAction: the range action for which the usage rules are added to the network action
+     * @param acEmulationDeactivationActionAdder the network action adder that will be used to add the usage rules
+     */
     static void addAllUsageRules(HvdcRangeAction hvdcRangeAction, NetworkActionAdder acEmulationDeactivationActionAdder) {
         hvdcRangeAction.getUsageRules().forEach(
             usageRule -> {
@@ -128,6 +126,9 @@ public class HvdcUtils {
         );
     }
 
+    /**
+     * Run a load flow to update the initial set-points of the HVDC range actions assiocated to HVDC line in AC emulation mode
+     */
     static void updateHvdcRangeActionInitialSetpoint(Crac crac, Network network, RaoParameters raoParameters) {
         // Run load flow to update flow on all the lines of the network
         LoadFlowAndSensitivityParameters loadFlowAndSensitivityParameters = new LoadFlowAndSensitivityParameters();
@@ -138,7 +139,7 @@ public class HvdcUtils {
         Set<HvdcRangeActionImpl> hvdcRasOnHvdcLinesInAcEmulation = getHvdcRangeActionsOnHvdcLineInAcEmulation(crac.getHvdcRangeActions(), network);
         Map<HvdcRangeAction, Double> activePowerSetpoints = new HashMap<>();
         if (!hvdcRasOnHvdcLinesInAcEmulation.isEmpty()) {
-            activePowerSetpoints = runLoadFlowAndUpdateHvdcActiveSetpoint(
+            activePowerSetpoints = runLoadFlowAndUpdateHvdcActivePowerSetpoint(
                 network,
                 crac.getPreventiveState(),
                 loadFlowAndSensitivityParameters.getLoadFlowProvider(),
@@ -151,20 +152,32 @@ public class HvdcUtils {
             HvdcRangeActionImpl hvdcRaImpl = (HvdcRangeActionImpl) hvdcRa;
             hvdcRaImpl.setInitialSetpoint(activePowerSetpoint);
         });
-
-
-
     }
 
+    /**
+     * Get all the HVDC range actions in the input hvdcRangeActions set defined on HVDC line in AC emulation in the network
+     * @param hvdcRangeActions : set of HVDC range actions to filter
+     * @param network
+     * @return
+     */
     public static Set<HvdcRangeActionImpl> getHvdcRangeActionsOnHvdcLineInAcEmulation(Set<HvdcRangeAction> hvdcRangeActions, Network network) {
-        // return all the HVDC range action in the CRAC defined on HVDC line in AC emulation in the network
+        // return all the HVDC range actions in the CRAC defined on HVDC line in AC emulation in the network
         return hvdcRangeActions.stream()
             .map(HvdcRangeActionImpl.class::cast)
             .filter(hvdcRangeAction -> hvdcRangeAction.isAngleDroopActivePowerControlEnabled(network))
             .collect(Collectors.toSet());
     }
 
-    public static Map<HvdcRangeAction, Double> runLoadFlowAndUpdateHvdcActiveSetpoint(
+    /**
+     * Run load flow and update the active power setpoints of the HVDC range actions associated to HVDC line in AC emulation mode
+     * @param network
+     * @param optimizationState used to get contingency to apply
+     * @param loadFlowProvider
+     * @param loadFlowParameters
+     * @param hvdcRangeActionsWithHvdcLineInAcEmulation
+     * @return A map of HVDC Range Action to their updated computed active power setpoints
+     */
+    public static Map<HvdcRangeAction, Double> runLoadFlowAndUpdateHvdcActivePowerSetpoint(
         Network network,
         State optimizationState,
         String loadFlowProvider,
@@ -185,25 +198,28 @@ public class HvdcUtils {
                 loadFlowParameters
         );
 
-            // Disable AngleDroopActivePowerControl on HVDCs and set active power set-points
+        // Set active power set-points
         hvdcRangeActionsWithHvdcLineInAcEmulation.forEach(hvdcRa -> {
             String hvdcLineId = hvdcRa.getNetworkElement().getId();
             HvdcLine hvdcLine = IidmHvdcHelper.getHvdcLine(network, hvdcLineId);
             double activePowerSetpoint = controls.get(hvdcLineId);
 
             // Valid only if not NaN and within admissible range
-            boolean isValid = !Double.isNaN(activePowerSetpoint)
+            boolean isValid = !Double.isNaN(activePowerSetpoint) // NaN if HVDC line is disconnected
                     && activePowerSetpoint >= hvdcRa.getMinAdmissibleSetpoint(activePowerSetpoint)
                     && activePowerSetpoint <= hvdcRa.getMaxAdmissibleSetpoint(activePowerSetpoint);
 
             if (isValid) {
+                TECHNICAL_LOGS.debug(String.format("" +
+                    "HVDC line %s active power setpoint is set to (%.1f)", hvdcLineId, activePowerSetpoint));
+
                     activePowerSetpoints.put(hvdcRa, activePowerSetpoint);
                     setActivePowerSetpointOnHvdcLine(hvdcLine, activePowerSetpoint);
             } else {
                 TECHNICAL_LOGS.info(String.format(
-                    "HVDC range action %s could not be activated because its initial set-point "
+                    "HVDC line %s active setpoint could not be updated because its new set-point "
                             + "(%.1f) does not fall within its allowed range (%.1f - %.1f)",
-                    hvdcRa.getId(),
+                    hvdcLineId,
                     activePowerSetpoint,
                     hvdcRa.getMinAdmissibleSetpoint(activePowerSetpoint),
                     hvdcRa.getMaxAdmissibleSetpoint(activePowerSetpoint)
@@ -249,45 +265,6 @@ public class HvdcUtils {
         network.getVariantManager().removeVariant(tmpVariant);
 
         return controls;
-    }
-
-
-    /**
-     * Disables AC emulation on a given HVDC line by applying the corresponding deactivation action,
-     * updates the topo simulation result by adding said network action
-     */
-    public static void disableAcEmulationAndSetHvdcActivePowerSetpoint(Network network, Crac crac, AutomatonSimulator.TopoAutomatonSimulationResult topoSimulationResult, String hvdcLineId, double activePowerSetpoint) {
-        TECHNICAL_LOGS.debug("Disabling HvdcAngleDroopActivePowerControl on HVDC line {}", hvdcLineId, activePowerSetpoint);
-        // get AC emulation deactivation action that acts on hvdc line
-        NetworkAction acEmulationDeactivationAction = getAcEmulationDeactivationActionOnHvdcLine(crac, hvdcLineId);
-        // deactivate AC emulation using the acEmulationDeactivationAction found above
-        acEmulationDeactivationAction.apply(network);
-        // add network action to topoSimulationResult !
-        topoSimulationResult.addActivatedNetworkActions(Set.of(acEmulationDeactivationAction));
-    }
-
-
-    /**
-     * Retrieves the AC emulation deactivation {@link NetworkAction} associated with a specific HVDC line
-     * from the given {@link Crac} instance. The method works as follows:
-     * <ul>
-     *     <li>It filters the set of all network actions in the CRAC to find those whose associated network elements
-     *     match exactly the provided HVDC line ID.</li>
-     *     <li>It further restricts the selection to actions composed exclusively of {@link HvdcAction} elementary actions.</li>
-     *     <li>There should only be one acEmulationDeactivationAction per HVDC line; if not, it logs a warning.</li>
-     * </ul>d
-     */
-    private static NetworkAction getAcEmulationDeactivationActionOnHvdcLine(Crac crac, String hvdcLineId) {
-        Set<NetworkAction> acEmulationDeactivationActionsOnHvdcLine = crac.getNetworkActions().stream()
-            .filter(ra -> ra.getNetworkElements().stream().map(NetworkElement::getId).collect(Collectors.toSet()).equals(Set.of(hvdcLineId)))
-            .filter(ra -> ra.getElementaryActions().stream()
-                .allMatch(ea -> ea instanceof HvdcAction)).collect(Collectors.toSet());
-
-        if (acEmulationDeactivationActionsOnHvdcLine.size() != 1) {
-            TECHNICAL_LOGS.warn("Expected exactly one acEmulationDeactivationAction for HVDC line {}, but found {}.", hvdcLineId, acEmulationDeactivationActionsOnHvdcLine.size());
-        }
-
-        return acEmulationDeactivationActionsOnHvdcLine.iterator().next();
     }
 
 }

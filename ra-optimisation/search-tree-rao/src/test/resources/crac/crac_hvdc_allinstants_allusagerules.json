@@ -113,8 +113,8 @@
   "voltageCnecs" : [ ],
   "pstRangeActions" : [ ],
   "hvdcRangeActions" : [ {
-    "id" : "ARA_HVDC",
-    "name" : "ARA_HVDC",
+    "id" : "HVDC_RA1",
+    "name" : "HVDC_RA1",
     "operator" : "RTE",
     "speed" : 1,
     "onFlowConstraintInCountryUsageRules" : [ {
@@ -140,8 +140,8 @@
       "max" : 2000.0
     } ]
   }, {
-    "id" : "CRA_HVDC",
-    "name" : "CRA_HVDC",
+    "id" : "HVDC_RA2",
+    "name" : "HVDC_RA2",
     "operator" : "RTE",
     "onFlowConstraintInCountryUsageRules" : [ {
       "instant" : "curative",
