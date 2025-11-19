@@ -40,6 +40,7 @@ import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.*;
 import static com.powsybl.openrao.data.raoresult.api.ComputationStatus.DEFAULT;
 import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getSensitivityFailureOvercost;
 import static com.powsybl.openrao.raoapi.parameters.extensions.MultithreadingParameters.getAvailableCPUs;
+import static com.powsybl.openrao.searchtreerao.commons.HvdcUtils.getHvdcRangeActionsOnHvdcLineInAcEmulation;
 import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.applyRemedialActions;
 
 /**
@@ -261,17 +262,21 @@ public class CastorContingencyScenarios {
 
         OptimizationPerimeter optPerimeter = CurativeOptimizationPerimeter.buildForStates(curativeState, curativePerimeter.getAllStates(), crac, network, raoParameters, prePerimeterSensitivityOutput);
 
-        LoadFlowAndSensitivityParameters loadFlowAndSensitivityParameters = new LoadFlowAndSensitivityParameters();
-        if (raoParameters.hasExtension(OpenRaoSearchTreeParameters.class)) {
-            loadFlowAndSensitivityParameters = raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getLoadFlowAndSensitivityParameters();
-        }
 
-        SearchTreeParameters searchTreeParameters = SearchTreeParameters.create()
+        SearchTreeParameters.SearchTreeParametersBuilder searchTreeParametersBuilder =  SearchTreeParameters.create()
             .withConstantParametersOverAllRao(raoParameters, crac)
             .withTreeParameters(curativeTreeParameters)
-            .withUnoptimizedCnecParameters(UnoptimizedCnecParameters.build(raoParameters.getNotOptimizedCnecsParameters(), stateTree.getOperatorsNotSharingCras()))
-            .withLoadFlowAndSensitivityParameters(loadFlowAndSensitivityParameters)
-            .build();
+            .withUnoptimizedCnecParameters(UnoptimizedCnecParameters.build(raoParameters.getNotOptimizedCnecsParameters(), stateTree.getOperatorsNotSharingCras()));
+
+        if (!getHvdcRangeActionsOnHvdcLineInAcEmulation(crac.getHvdcRangeActions(),network).isEmpty()) {
+            LoadFlowAndSensitivityParameters loadFlowAndSensitivityParameters =
+                raoParameters.hasExtension(OpenRaoSearchTreeParameters.class)
+                    ? raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getLoadFlowAndSensitivityParameters()
+                    : new LoadFlowAndSensitivityParameters();
+            searchTreeParametersBuilder.withLoadFlowAndSensitivityParameters(loadFlowAndSensitivityParameters);
+        }
+
+        SearchTreeParameters searchTreeParameters = searchTreeParametersBuilder.build();
 
         searchTreeParameters.decreaseRemedialActionUsageLimits(resultsPerPerimeter, prePerimeterResultPerPerimeter);
 
