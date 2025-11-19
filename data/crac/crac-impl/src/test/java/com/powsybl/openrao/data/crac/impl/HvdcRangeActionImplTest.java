@@ -64,12 +64,10 @@ class HvdcRangeActionImplTest {
         HvdcRangeAction hvdcRa = hvdcRangeActionAdder.newRange().withMin(-5).withMax(10).add()
                 .add();
         hvdcRa.apply(network, 5);
+        hvdcRa.apply(networkWithAngleDroop, 6);
         assertEquals(5, hvdcRa.getCurrentSetpoint(network), 1e-6);
-
-        // Not allowed to change HVDC line's active setpoint if the line is in AC emulation mode.
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> hvdcRa.apply(networkWithAngleDroop, 6));
-        assertEquals("Unable to set an active power setpoint for HVDC line BBE2AA11 FFR3AA11 1 because it is operating in AC Emulation mode.", exception.getMessage());
-
+        // Not applied because the line is in ac emulation
+        assertEquals(0, hvdcRa.getCurrentSetpoint(networkWithAngleDroop), 1e-6);
     }
 
     @Test
@@ -77,11 +75,10 @@ class HvdcRangeActionImplTest {
         HvdcRangeAction hvdcRa = hvdcRangeActionAdder.newRange().withMin(-5).withMax(10).add()
                 .add();
         hvdcRa.apply(network, -3);
+        hvdcRa.apply(networkWithAngleDroop, -4);
         assertEquals(-3, hvdcRa.getCurrentSetpoint(network), 1e-6);
-
-        // Not allowed to change HVDC line's active setpoint if the line is in AC emulation mode.
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> hvdcRa.apply(networkWithAngleDroop, -4));
-        assertEquals("Unable to set an active power setpoint for HVDC line BBE2AA11 FFR3AA11 1 because it is operating in AC Emulation mode.", exception.getMessage());
+        // Not applied because the line is in ac emulation
+        assertEquals(0, hvdcRa.getCurrentSetpoint(networkWithAngleDroop), 1e-6);
     }
 
     @Test
