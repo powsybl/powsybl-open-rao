@@ -1,0 +1,202 @@
+/*
+ * Copyright (c) 2025, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
+package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers;
+
+import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.TemporalData;
+import com.powsybl.openrao.commons.TemporalDataImpl;
+import com.powsybl.openrao.commons.Unit;
+import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.State;
+import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
+import com.powsybl.openrao.data.intertemporalconstraints.GeneratorConstraints;
+import com.powsybl.openrao.data.intertemporalconstraints.IntertemporalConstraints;
+import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
+import com.powsybl.openrao.raoapi.InterTemporalRaoInput;
+import com.powsybl.openrao.raoapi.RaoInput;
+import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
+import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
+import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
+import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.PreventiveOptimizationPerimeter;
+import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem;
+import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblemBuilder;
+import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPConstraint;
+import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
+import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
+import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
+import com.powsybl.openrao.searchtreerao.result.impl.RangeActionSetpointResultImpl;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+
+import java.io.IOException;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+
+/**
+ * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
+ */
+class GeneratorConstraintsFillerTest {
+    private final LinearProblemBuilder linearProblemBuilder = new LinearProblemBuilder().withSolver(SearchTreeRaoRangeActionsOptimizationParameters.Solver.SCIP);
+    private LinearProblem linearProblem;
+    private final OffsetDateTime timestamp1 = OffsetDateTime.of(2025, 1, 9, 16, 21, 0, 0, ZoneOffset.UTC);
+    private final OffsetDateTime timestamp2 = OffsetDateTime.of(2025, 1, 9, 17, 21, 0, 0, ZoneOffset.UTC);
+    private final OffsetDateTime timestamp3 = OffsetDateTime.of(2025, 1, 9, 19, 21, 0, 0, ZoneOffset.UTC);
+    InterTemporalRaoInput input;
+    RaoParameters parameters;
+
+    public void createThreeTSInput() throws IOException {
+        Network network1 = Network.read("4Nodes.uct", GeneratorConstraintsFillerTest.class.getResourceAsStream("/network/4Nodes.uct"));
+        Network network2 = Network.read("4Nodes.uct", GeneratorConstraintsFillerTest.class.getResourceAsStream("/network/4Nodes.uct"));
+        Network network3 = Network.read("4Nodes.uct", GeneratorConstraintsFillerTest.class.getResourceAsStream("/network/4Nodes.uct"));
+
+        Crac crac1 = Crac.read("crac-1600.json", GeneratorConstraintsFillerTest.class.getResourceAsStream("/crac/crac-1600.json"), network1);
+        Crac crac2 = Crac.read("crac-1700.json", GeneratorConstraintsFillerTest.class.getResourceAsStream("/crac/crac-1700.json"), network2);
+        Crac crac3 = Crac.read("crac-1900.json", GeneratorConstraintsFillerTest.class.getResourceAsStream("/crac/crac-1900.json"), network3);
+
+        RaoInput raoInput1 = RaoInput.build(network1, crac1).build();
+        RaoInput raoInput2 = RaoInput.build(network2, crac2).build();
+        RaoInput raoInput3 = RaoInput.build(network3, crac3).build();
+
+        GeneratorConstraints generatorConstraintsFr1 = GeneratorConstraints.create().withGeneratorId("FFR1AA1 _load").withPMax(1000.0).withUpwardPowerGradient(500.0).withDownwardPowerGradient(-300.0).build();
+        GeneratorConstraints generatorConstraintsFr2 = GeneratorConstraints.create().withGeneratorId("FFR2AA1 _generator").withPMax(1000.0).withUpwardPowerGradient(200.0).withDownwardPowerGradient(-100.0).build();
+        GeneratorConstraints generatorConstraintsFr3 = GeneratorConstraints.create().withGeneratorId("FFR3AA1 _load").withPMax(1000.0).withUpwardPowerGradient(40.0).withDownwardPowerGradient(-150.0).build();
+
+        IntertemporalConstraints intertemporalConstraints = new IntertemporalConstraints();
+        intertemporalConstraints.addGeneratorConstraints(generatorConstraintsFr1);
+        intertemporalConstraints.addGeneratorConstraints(generatorConstraintsFr2);
+        intertemporalConstraints.addGeneratorConstraints(generatorConstraintsFr3);
+
+        input = new InterTemporalRaoInput(new TemporalDataImpl<>(Map.of(timestamp1, raoInput1, timestamp2, raoInput2, timestamp3, raoInput3)), intertemporalConstraints);
+
+        parameters = new RaoParameters();
+    }
+
+    private void createOneTSInput() throws IOException {
+        Network network1 = Network.read("4Nodes.uct", GeneratorConstraintsFillerTest.class.getResourceAsStream("/network/4Nodes.uct"));
+        Crac crac1 = Crac.read("crac-1600.json", GeneratorConstraintsFillerTest.class.getResourceAsStream("/crac/crac-1600.json"), network1);
+        RaoInput raoInput1 = RaoInput.build(network1, crac1).build();
+
+        GeneratorConstraints generatorConstraintsFr1 = GeneratorConstraints.create().withGeneratorId("FFR1AA1 _load").withPMax(1000.0).withUpwardPowerGradient(500.0).withDownwardPowerGradient(-300.0).build();
+        GeneratorConstraints generatorConstraintsFr2 = GeneratorConstraints.create().withGeneratorId("FFR2AA1 _generator").withPMax(1000.0).withUpwardPowerGradient(200.0).withDownwardPowerGradient(-100.0).build();
+        GeneratorConstraints generatorConstraintsFr3 = GeneratorConstraints.create().withGeneratorId("FFR3AA1 _load").withPMax(1000.0).withUpwardPowerGradient(40.0).withDownwardPowerGradient(-150.0).build();
+
+        IntertemporalConstraints intertemporalConstraints = new IntertemporalConstraints();
+        intertemporalConstraints.addGeneratorConstraints(generatorConstraintsFr1);
+        intertemporalConstraints.addGeneratorConstraints(generatorConstraintsFr2);
+        intertemporalConstraints.addGeneratorConstraints(generatorConstraintsFr3);
+
+        input = new InterTemporalRaoInput(new TemporalDataImpl<>(Map.of(timestamp1, raoInput1)), intertemporalConstraints);
+        parameters = new RaoParameters();
+    }
+
+    private void createCoreProblemFillers() {
+        input.getRaoInputs().getDataPerTimestamp().entrySet().forEach(entry -> {
+            Crac crac = entry.getValue().getCrac();
+            OptimizationPerimeter optimizationPerimeter = new PreventiveOptimizationPerimeter(
+                crac.getPreventiveState(),
+                crac.getFlowCnecs(),
+                Set.of(),
+                crac.getNetworkActions(crac.getPreventiveState()),
+                crac.getRangeActions(crac.getPreventiveState())
+            );
+
+            RangeActionsOptimizationParameters rangeActionParameters = parameters.getRangeActionsOptimizationParameters();
+            Map<RangeAction<?>, Double> map = new HashMap<>();
+            crac.getRangeActions(crac.getPreventiveState()).forEach(action -> map.put(action, 200.0));
+            RangeActionSetpointResult rangeActionSetpointResult = new RangeActionSetpointResultImpl(map);
+            MarginCoreProblemFiller coreProblemFiller = new MarginCoreProblemFiller(
+                optimizationPerimeter,
+                rangeActionSetpointResult,
+                rangeActionParameters,
+                null,
+                Unit.MEGAWATT,
+                false,
+                SearchTreeRaoRangeActionsOptimizationParameters.PstModel.CONTINUOUS,
+                entry.getKey()
+            );
+            linearProblemBuilder.withProblemFiller(coreProblemFiller);
+        });
+    }
+
+    private void createPowerGradientConstraintFiller() {
+        TemporalData<Network> networks = input.getRaoInputs().map(RaoInput::getNetwork);
+        TemporalData<State> preventiveStates = input.getRaoInputs().map(RaoInput::getCrac).map(Crac::getPreventiveState).map(State.class::cast);
+        TemporalData<Set<InjectionRangeAction>> injectionRangeActions = input.getRaoInputs().map(RaoInput::getCrac).map(crac -> crac.getRangeActions(crac.getPreventiveState()).stream().filter(InjectionRangeAction.class::isInstance).map(InjectionRangeAction.class::cast).collect(Collectors.toSet()));
+        Set<GeneratorConstraints> generatorConstraints = input.getIntertemporalConstraints().getGeneratorConstraints();
+        GeneratorConstraintsFiller generatorConstraintsFiller = new GeneratorConstraintsFiller(
+            networks,
+            preventiveStates,
+            injectionRangeActions,
+            generatorConstraints);
+        linearProblemBuilder.withProblemFiller(generatorConstraintsFiller);
+    }
+
+    private void buildAndFillLinearProblem() {
+        FlowResult flowResult = Mockito.mock(FlowResult.class);
+        when(flowResult.getFlow(any(), any(), any())).thenReturn(10.0);
+        SensitivityResult sensitivityResult = Mockito.mock(SensitivityResult.class);
+        when(sensitivityResult.getSensitivityStatus(any())).thenReturn(ComputationStatus.DEFAULT);
+        linearProblem = linearProblemBuilder.build();
+        linearProblem.fill(flowResult, sensitivityResult);
+    }
+
+    private void setUpLinearProblem() {
+        createCoreProblemFillers();
+        createPowerGradientConstraintFiller();
+        buildAndFillLinearProblem();
+    }
+
+    @Test
+    void testGeneratorPowerConstraintFiller() throws IOException {
+        createOneTSInput();
+        setUpLinearProblem();
+
+        Crac crac = input.getRaoInputs().getData(timestamp1).orElseThrow().getCrac();
+        InjectionRangeAction injectionRangeAction = crac.getInjectionRangeAction("redispatchingAction1600");
+
+        // check generator power variable
+        assertNotNull(linearProblem.getGeneratorPowerVariable("FFR2AA1 _generator", timestamp1));
+        assertNotNull(linearProblem.getGeneratorPowerVariable("FFR3AA1 _load", timestamp1));
+
+        OpenRaoMPConstraint fr2Timestamp1PowerConstraint = linearProblem.getGeneratorToInjectionConstraint("FFR2AA1 _generator", injectionRangeAction, timestamp1);
+        OpenRaoMPConstraint fr3Timestamp1PowerConstraint = linearProblem.getGeneratorToInjectionConstraint("FFR3AA1 _load", injectionRangeAction, timestamp1);
+
+        assertNotNull(fr2Timestamp1PowerConstraint);
+        assertNotNull(fr3Timestamp1PowerConstraint);
+
+        // No power gradient constraint but injection range action defined on it -> No variable created for this generator
+        OpenRaoException missingVariableException = assertThrows(OpenRaoException.class, () -> linearProblem.getGeneratorPowerVariable("FFR1AA1 _load", timestamp1));
+        assertEquals("Variable generatorpower_FFR1AA1 _load_variable_202501091621 has not been created yet", missingVariableException.getMessage());
+        missingVariableException = assertThrows(OpenRaoException.class, () -> linearProblem.getGeneratorPowerVariable("FFR4AA1 _load", timestamp1));
+        assertEquals("Variable generatorpower_FFR4AA1 _load_variable_202501091621 has not been created yet", missingVariableException.getMessage());
+
+        Crac crac1 = input.getRaoInputs().getData(timestamp1).get().getCrac();
+        // check coefficient for injection action variable
+        assertEquals(1.0, fr2Timestamp1PowerConstraint.getCoefficient(linearProblem.getRangeActionSetpointVariable(crac1.getInjectionRangeAction("redispatchingAction1600"), crac1.getPreventiveState())), 1e-5);
+        assertEquals(1.0, fr3Timestamp1PowerConstraint.getCoefficient(linearProblem.getRangeActionSetpointVariable(crac1.getInjectionRangeAction("redispatchingAction1600"), crac1.getPreventiveState())), 1e-5);
+    }
+
+    /*
+        TODO: check the coefficients of the different variables
+        - with or without pMin
+        - with or without gradients
+        - with lead / lag time greater or lower than time step
+        Have fun! :)
+     */
+}
