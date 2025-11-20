@@ -191,27 +191,23 @@ public class CastorFullOptimization {
             boolean logFinalResultsOutsideOfSecondPreventive = true;
             // Run second preventive when necessary
             CastorSecondPreventive castorSecondPreventive = new CastorSecondPreventive(crac, raoParameters, network, stateTree, toolProvider, targetEndInstant);
-            PostPerimeterResult secondPreventiveResult = postPreventiveResult;
             if (castorSecondPreventive.shouldRunSecondPreventiveRao(preventiveResult, postContingencyResults.values(), mergedRaoResults, preventiveRaoTime)) {
-                CastorSecondPreventive.GlobalSecondPreventiveResult globalSecondPreventiveResult = castorSecondPreventive.runSecondPreventiveAndAutoRao(castorContingencyScenarios, prePerimeterSensitivityAnalysis, initialOutput, postPreventiveResult, postContingencyResults);
-                if (!globalSecondPreventiveResult.hasFailed()) {
-                    secondPreventiveResult = new PostPerimeterResult(
-                        globalSecondPreventiveResult.secondPreventiveRaoResult().perimeterResult(),
-                        globalSecondPreventiveResult.secondPreventiveRaoResult().postPraSensitivityAnalysisOutput()
-                    );
-                }
-                RaoResult secondPreventiveRaoResults = globalSecondPreventiveResult.hasFailed() ?
-                    new FailedRaoResultImpl(globalSecondPreventiveResult.errorMessage()) :
+                CastorSecondPreventive.SecondPreventiveRaoResultsHolder secondPreventiveRaoResultsHolder = castorSecondPreventive.runSecondPreventiveAndAutoRao(castorContingencyScenarios, prePerimeterSensitivityAnalysis, initialOutput, postPreventiveResult, postContingencyResults);
+                RaoResult secondPreventiveRaoResults = secondPreventiveRaoResultsHolder.hasFailed() ?
+                    new FailedRaoResultImpl(secondPreventiveRaoResultsHolder.errorMessage()) :
                     new PreventiveAndCurativesRaoResultImpl(
                         stateTree,
                         initialOutput,
                         postPreventiveResult,
-                        secondPreventiveResult,
-                        globalSecondPreventiveResult.postContingencyResults(),
+                        new PostPerimeterResult(
+                            secondPreventiveRaoResultsHolder.secondPreventiveRaoResult().perimeterResult(),
+                            secondPreventiveRaoResultsHolder.secondPreventiveRaoResult().postPraSensitivityAnalysisOutput()
+                        ),
+                        secondPreventiveRaoResultsHolder.postContingencyResults(),
                         crac,
                         raoParameters);
                 if (secondPreventiveImprovesResults(secondPreventiveRaoResults, mergedRaoResults)) {
-                    postContingencyResults = globalSecondPreventiveResult.postContingencyResults();
+                    postContingencyResults = secondPreventiveRaoResultsHolder.postContingencyResults();
                     mergedRaoResults = secondPreventiveRaoResults;
                     mergedRaoResults.setExecutionDetails(OptimizationStepsExecuted.SECOND_PREVENTIVE_IMPROVED_FIRST);
                     logFinalResultsOutsideOfSecondPreventive = false;
@@ -235,12 +231,12 @@ public class CastorFullOptimization {
                 network.getVariantManager().cloneVariant(INITIAL_SCENARIO, PST_REGULATION);
                 network.getVariantManager().setWorkingVariant(PST_REGULATION);
                 Set<PstRegulationResult> pstRegulationResults = CastorPstRegulation.regulatePsts(pstsToRegulate, postContingencyResults, network, crac, raoParameters, raoResult.join());
-                postContingencyResults = mergeRaoAndPstRegulationResults(pstRegulationResults, secondPreventiveResult, postContingencyResults, prePerimeterSensitivityAnalysis, initialOutput, toolProvider);
+                postContingencyResults = mergeRaoAndPstRegulationResults(pstRegulationResults, postPreventiveResult, postContingencyResults, prePerimeterSensitivityAnalysis, initialOutput, toolProvider);
                 RaoResult raoResultWithRegulation = new PreventiveAndCurativesRaoResultImpl(
                     stateTree,
                     initialOutput,
                     postPreventiveResult,
-                    secondPreventiveResult,
+                    postPreventiveResult,
                     postContingencyResults,
                     crac,
                     raoParameters);
