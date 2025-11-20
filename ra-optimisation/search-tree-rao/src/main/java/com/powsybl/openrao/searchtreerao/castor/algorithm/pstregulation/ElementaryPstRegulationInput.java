@@ -95,7 +95,7 @@ public record ElementaryPstRegulationInput(PstRangeAction pstRangeAction, TwoSid
 
         for (TwoSides twtSide : TwoSides.values()) {
             for (TwoSides branchSide : TwoSides.values()) {
-                if (twoWindingsTransformer.getTerminal(twtSide).getBusView().getBus().equals(branch.getTerminal(branchSide).getBusView().getBus())) {
+                if (twoWindingsTransformer.getTerminal(twtSide).getVoltageLevel().getId().equals(branch.getTerminal(branchSide).getVoltageLevel().getId())) {
                     return Pair.of(twtSide, branchSide);
                 }
             }
