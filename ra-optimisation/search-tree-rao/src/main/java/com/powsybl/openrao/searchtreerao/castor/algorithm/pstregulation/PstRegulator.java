@@ -64,7 +64,7 @@ public final class PstRegulator {
         PhaseTapChanger phaseTapChanger = twt.getPhaseTapChanger();
         if (Double.isNaN(phaseTapChanger.getTargetDeadband())) {
             OpenRaoLoggerProvider.TECHNICAL_LOGS.info("No default target deadband defined for phase tap changer of two-windings transformer %s, a value of 0.0 will be used.".formatted(twt.getId()));
-            phaseTapChanger.setTargetDeadband(0.0);
+            phaseTapChanger.setTargetDeadband(0.0); // value is not used by OpenLoadFlow in CURRENT_LIMITER mode
         }
     }
 
