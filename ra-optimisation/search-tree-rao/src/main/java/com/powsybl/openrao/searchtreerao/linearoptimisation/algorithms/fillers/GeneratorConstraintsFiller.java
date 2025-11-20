@@ -358,7 +358,6 @@ public class GeneratorConstraintsFiller implements ProblemFiller {
         Optional<Double> leadTime = generatorConstraints.getLeadTime();
         Optional<Double> lagTime = generatorConstraints.getLagTime();
 
-        double maximumPowerAmplitude = generatorConstraints.getPMax().orElse(DEFAULT_P_MAX) - generatorConstraints.getPMin().orElse(0.0);
         double mainTimestampDuration = computeTimeGap(allTimestamps.get(mainTimestampIndex), allTimestamps.get(mainTimestampIndex + 1));
 
         // ON -> ON
@@ -377,7 +376,7 @@ public class GeneratorConstraintsFiller implements ProblemFiller {
                 // OFF -> ON
                 OpenRaoMPVariable offOnTransitionVariable = linearProblem.getGeneratorStateTransitionVariable(generatorConstraints.getGeneratorId(), allTimestamps.get(mainTimestampIndex), LinearProblem.GeneratorState.OFF, LinearProblem.GeneratorState.ON);
                 powerTransitionConstraintInf.setCoefficient(offOnTransitionVariable, -pMin.orElse(0.0));
-                powerTransitionConstraintSup.setCoefficient(offOnTransitionVariable, -pMin.orElse(0.0) - Math.min(maximumPowerAmplitude, (mainTimestampDuration - leadTime.orElse(0.0)) * upwardPowerGradient));
+                powerTransitionConstraintSup.setCoefficient(offOnTransitionVariable, -pMin.orElse(0.0) - (mainTimestampDuration - leadTime.orElse(0.0)) * upwardPowerGradient);
             }
 
             if (leadTime.isPresent()) {
@@ -395,7 +394,7 @@ public class GeneratorConstraintsFiller implements ProblemFiller {
                         OpenRaoMPVariable offRampUpTransitionVariable = linearProblem.getGeneratorStateTransitionVariable(generatorConstraints.getGeneratorId(), allTimestamps.get(rampUpStartTimestampIndex), LinearProblem.GeneratorState.OFF, LinearProblem.GeneratorState.RAMP_UP);
                         double minimalPowerIncrease = (leadTime.get() - computeTimeGap(allTimestamps.get(rampUpStartTimestampIndex), allTimestamps.get(mainTimestampIndex))) * pMin.orElse(0.0) / leadTime.get();
                         powerTransitionConstraintInf.setCoefficient(offRampUpTransitionVariable, -minimalPowerIncrease);
-                        powerTransitionConstraintSup.setCoefficient(offRampUpTransitionVariable, -minimalPowerIncrease - Math.min(maximumPowerAmplitude, (computeTimeGap(allTimestamps.get(rampUpStartTimestampIndex), allTimestamps.get(mainTimestampIndex + 1)) - leadTime.get()) * upwardPowerGradient));
+                        powerTransitionConstraintSup.setCoefficient(offRampUpTransitionVariable, -minimalPowerIncrease - (computeTimeGap(allTimestamps.get(rampUpStartTimestampIndex), allTimestamps.get(mainTimestampIndex + 1)) - leadTime.get()) * upwardPowerGradient);
                     }
                 }
             }
@@ -407,7 +406,7 @@ public class GeneratorConstraintsFiller implements ProblemFiller {
                     if (projectedRampDownStart.isPresent() && projectedRampDownStart.get().equals(allTimestamps.get(mainTimestampIndex))) {
                         OpenRaoMPVariable onRampDownTransitionVariable = linearProblem.getGeneratorStateTransitionVariable(generatorConstraints.getGeneratorId(), allTimestamps.get(rampDownEndTimestampIndex - 1), LinearProblem.GeneratorState.RAMP_DOWN, LinearProblem.GeneratorState.OFF);
                         double minimalPowerDecrease = -(lagTime.get() - computeTimeGap(allTimestamps.get(mainTimestampIndex + 1), allTimestamps.get(rampDownEndTimestampIndex))) * pMin.orElse(0.0) / lagTime.get();
-                        powerTransitionConstraintInf.setCoefficient(onRampDownTransitionVariable, -minimalPowerDecrease - Math.max(-maximumPowerAmplitude, (computeTimeGap(allTimestamps.get(mainTimestampIndex), allTimestamps.get(rampDownEndTimestampIndex)) - lagTime.get()) * downwardPowerGradient));
+                        powerTransitionConstraintInf.setCoefficient(onRampDownTransitionVariable, -minimalPowerDecrease - (computeTimeGap(allTimestamps.get(mainTimestampIndex), allTimestamps.get(rampDownEndTimestampIndex)) - lagTime.get()) * downwardPowerGradient);
                         powerTransitionConstraintSup.setCoefficient(onRampDownTransitionVariable, -minimalPowerDecrease);
                     }
                 }
@@ -416,7 +415,7 @@ public class GeneratorConstraintsFiller implements ProblemFiller {
             if (lagTime.isEmpty() || mainTimestampDuration >= lagTime.get()) {
                 // ON -> OFF
                 OpenRaoMPVariable onOffTransitionVariable = linearProblem.getGeneratorStateTransitionVariable(generatorConstraints.getGeneratorId(), allTimestamps.get(mainTimestampIndex), LinearProblem.GeneratorState.ON, LinearProblem.GeneratorState.OFF);
-                powerTransitionConstraintInf.setCoefficient(onOffTransitionVariable, pMin.orElse(0.0) - Math.max(-maximumPowerAmplitude, (mainTimestampDuration - lagTime.orElse(0.0)) * downwardPowerGradient));
+                powerTransitionConstraintInf.setCoefficient(onOffTransitionVariable, pMin.orElse(0.0) - (mainTimestampDuration - lagTime.orElse(0.0)) * downwardPowerGradient);
                 powerTransitionConstraintSup.setCoefficient(onOffTransitionVariable, pMin.orElse(0.0));
             } else {
                 double downwardPowerRampFactor = pMin.orElse(0.0) / lagTime.get();

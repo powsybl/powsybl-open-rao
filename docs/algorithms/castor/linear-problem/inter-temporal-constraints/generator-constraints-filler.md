@@ -218,8 +218,8 @@ the upward power gradient (considered infinite if not defined). Note that the po
 when the generator power is _free_, which happens at the end of the ramp and before the end of the timestamp, i.e. for a
 duration of $\Delta_{t \rightarrow t+1} - LEAD(g)$.
 
-$$P_{\min}(g) \leq P(g,s,t+1) - P(g,s,t) \leq P_{\min}(g) + \min
-\left [ P_{\max}(g) - P_{\min}(g), \left ( \Delta_{t \rightarrow t+1} - LEAD(g) \right ) \nabla^{+}(g) \right ]$$
+$$P_{\min}(g) \leq P(g,s,t+1) - P(g,s,t) \leq P_{\min}(g) + \left ( \Delta_{t \rightarrow t+1} - LEAD(g) \right )
+\nabla^{+}(g)$$
 
 > 💡 **Participation to the global constraint**
 >
@@ -256,9 +256,7 @@ $\tau_{\infty}^{\nearrow}(t') = t$, considering that the ramping up started at $
 as:
 
 $$(LEAD(g) - \Delta_{t' \rightarrow t-1}) \frac{P_{\min}(g)}{LEAD(g)} \leq P(g,s,t+1) - P(g,s,t) \leq (LEAD(g) -
-\Delta_
-{t' \rightarrow t-1}) \frac{P_{\min}(g)}{LEAD(g)} + \min
-\left [ P_{\max}(g) - P_{\min}(g), (\Delta_{t' \rightarrow t} - LEAD(g)) \nabla^{+}(g) \right ]$$
+\Delta_{t' \rightarrow t-1}) \frac{P_{\min}(g)}{LEAD(g)} +(\Delta_{t' \rightarrow t} - LEAD(g)) \nabla^{+}(g)$$
 
 > 💡 **Participation to the global constraint**
 >
@@ -274,9 +272,8 @@ bounded by $P_{\max}(g)$ or the downward power gradient (considered negatively i
 power gradient only holds for the time when the generator power is _free_, which happens before the ramp and after the
 beginning of the timestamp, i.e. for a duration of $\Delta_{t \rightarrow t+1} - LAG(g)$.
 
-$$-P_{\min}(g) + \max
-\left [ P_{\min}(g) - P_{\max}(g), \left ( \Delta_{t \rightarrow t+1} - LAG(g) \right ) \nabla^{-}(g) \right ] \leq P(
-g,s,t) - P(g,s,t-1) \leq -P_{\min}(g)$$
+$$-P_{\min}(g) + \left ( \Delta_{t \rightarrow t+1} - LAG(g) \right ) \nabla^{-}(g) \leq P(g,s,t) - P(g,s,t-1) \leq
+-P_{\min}(g)$$
 
 > 💡 **Participation to the global constraint**
 >
@@ -309,9 +306,8 @@ Note that several timestamps can have the same value of $\tau_{0}^{\searrow}$. T
 $\tau_{0}^{\searrow}(t') = t$, considering that the ramping down started at $t$ and ends at $t'$, the power variation is
 constrained as:
 
-$$- (LAG(g) - \Delta_{t+1 \rightarrow t'}) \frac{P_{\min}(g)}{LAG(g)} + \max
-\left [ P_{\min}(g) - P_{\max}(g), (\Delta_{t \rightarrow t'} - LAG(g)) \nabla^{-}(g) \right ] \leq P(g,s,t+1) - P(
-g,s,t) \leq - (LAG(g) - \Delta_{t+1 \rightarrow t'}) \frac{P_{\min}(g)}{LAG(g)}$$
+$$- (LAG(g) - \Delta_{t+1 \rightarrow t'}) \frac{P_{\min}(g)}{LAG(g)} + (\Delta_{t \rightarrow t'} - LAG(g))
+\nabla^{-}(g) \leq P(g,s,t+1) - P(g,s,t) \leq - (LAG(g) - \Delta_{t+1 \rightarrow t'}) \frac{P_{\min}(g)}{LAG(g)}$$
 
 > 💡 **Participation to the global constraint**
 >
