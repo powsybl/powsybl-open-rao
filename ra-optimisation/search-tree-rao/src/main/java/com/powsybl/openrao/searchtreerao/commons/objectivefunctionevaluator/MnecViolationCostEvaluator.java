@@ -58,7 +58,7 @@ public class MnecViolationCostEvaluator implements CostEvaluator {
             .filter(entry -> entry.getValue() > 0)
             .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue() * mnecViolationCost));
 
-        if (costPerMnec.values().stream().anyMatch(mnecViolationCost -> mnecViolationCost > 0)) {
+        if (costPerMnec.values().stream().anyMatch(violationCost -> violationCost > 0)) {
             // will be logged even if the contingency is filtered out at some point
             OpenRaoLoggerProvider.TECHNICAL_LOGS.info("Some MNEC constraints are not respected.");
         }
