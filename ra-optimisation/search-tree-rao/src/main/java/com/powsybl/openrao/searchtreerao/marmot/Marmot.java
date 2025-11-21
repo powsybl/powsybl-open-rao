@@ -379,15 +379,14 @@ public class Marmot implements InterTemporalRaoProvider {
 
     private static TemporalData<PrePerimeterResult> runAllSensitivityAnalysesBasedOnInitialResult(TemporalData<RaoInput> raoInputs, TemporalData<AppliedRemedialActions> curativeRemedialActions, TemporalData<? extends FlowResult> initialFlowResults, RaoParameters raoParameters, TemporalData<Set<FlowCnec>> consideredCnecs) {
         TemporalData<PrePerimeterResult> prePerimeterResults = new TemporalDataImpl<>();
-        raoInputs.getTimestamps().forEach(timestamp -> {
+        raoInputs.getTimestamps().forEach(timestamp ->
             prePerimeterResults.put(timestamp, runSensitivityAnalysisBasedOnInitialResult(
                 raoInputs.getData(timestamp).orElseThrow(),
                 curativeRemedialActions.getData(timestamp).orElseThrow(),
                 initialFlowResults.getData(timestamp).orElseThrow(),
                 raoParameters,
                 consideredCnecs.getData(timestamp).orElseThrow()
-            ));
-        });
+        )));
         return prePerimeterResults;
     }
 

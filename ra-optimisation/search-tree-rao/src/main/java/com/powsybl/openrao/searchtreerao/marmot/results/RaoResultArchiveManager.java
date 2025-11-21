@@ -65,7 +65,7 @@ public final class RaoResultArchiveManager {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         try {
             ObjectMapper objectMapper = JsonUtil.createObjectMapper();
-            SimpleModule module = new JsonInterTemporalRaoResultSerializerModule(jsonFileNameTemplate, preventiveOnly ? List.of(instants.get(0)) : instants);
+            SimpleModule module = new JsonInterTemporalRaoResultSerializerModule(jsonFileNameTemplate, preventiveOnly ? List.of(instants.getFirst()) : instants);
             objectMapper.registerModule(module);
             ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
             writer.writeValue(byteArrayOutputStream, interTemporalRaoResult);
