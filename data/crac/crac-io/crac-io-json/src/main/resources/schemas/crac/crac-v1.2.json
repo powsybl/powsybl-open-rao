@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema#",
-  "$id": "https://www.powsybl.orgopen-rao-crac-schema=crac-v1.2.schema",
+  "$id": "resource:/schemas/crac/crac-v1.2.json",
   "title": "CRAC",
   "description": "CRAC data for electric grid operation",
   "type": "object",
@@ -29,39 +29,39 @@
     "contingencies": {
       "type": "array",
       "items": {
-        "$ref": "resource:/schemas/contingency/contingency-v1.0.json"
+        "$ref": "../contingency/contingency-v1.0.json"
       }
     },
     "flowCnecs": {
       "type": "array",
       "items": {
         "items": {
-          "$ref": "resource:/schemas/flow-cnec/flow-cnec-v1.0.json"
+          "$ref": "../flow-cnec/flow-cnec-v1.0.json"
         }
       }
     },
     "pstRangeActions": {
       "type": "array",
       "items": {
-        "$ref": "resource:/schemas/pst-range-action/pst-range-action-v1.0.json"
+        "$ref": "../pst-range-action/pst-range-action-v1.0.json"
       }
     },
     "hvdcRangeActions": {
       "type": "array",
       "items": {
-        "$ref": "resource:/schemas/hvdc-range-action/hvdc-range-action-v1.0.json"
+        "$ref": "../hvdc-range-action/hvdc-range-action-v1.0.json"
       }
     },
     "injectionRangeActions": {
       "type": "array",
       "items": {
-        "$ref": "resource:/schemas/injection-range-action/injection-range-action-v1.2.json"
+        "$ref": "../injection-range-action/injection-range-action-v1.2.json"
       }
     },
     "networkActions": {
       "type": "array",
       "items": {
-        "$ref": "resource:/schemas/network-action/network-action-v1.1.json"
+        "$ref": "../network-action/network-action-v1.1.json"
       }
     },
     "extensions": {

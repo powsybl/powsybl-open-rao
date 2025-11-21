@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema#",
-  "$id": "https://www.powsybl.org?open-rao-crac-schema=hvdc-range-action-v1.3.json",
+  "$id": "resource:/schemas/hvdc-range-action/hvdc-range-action-v1.3.json",
   "type": "object",
   "properties": {
     "id": {
@@ -51,25 +51,25 @@
     "freeToUseUsageRules": {
       "type": "array",
       "items": {
-        "$ref": "resource:/schemas/free-to-use-usage-rule/free-to-use-usage-rule-v1.0.json"
+        "$ref": "../free-to-use-usage-rule/free-to-use-usage-rule-v1.0.json"
       }
     },
     "onStateUsageRules": {
       "type": "array",
       "items": {
-        "$ref": "resource:/schemas/on-state-usage-rule/on-state-usage-rule-v1.0.json"
+        "$ref": "../on-state-usage-rule/on-state-usage-rule-v1.0.json"
       }
     },
     "onFlowConstraintUsageRules": {
       "type": "array",
       "items": {
-        "$ref": "resource:/schemas/on-flow-constraint-usage-rule/on-flow-constraint-usage-rule-v1.0.json"
+        "$ref": "../on-flow-constraint-usage-rule/on-flow-constraint-usage-rule-v1.0.json"
       }
     },
     "onFlowConstraintInCountryUsageRules": {
       "type": "array",
       "items": {
-        "$ref": "resource:/schemas/on-flow-constraint-in-country-usage-rule/on-flow-constraint-in-country-usage-rule-v1.3.json"
+        "$ref": "../on-flow-constraint-in-country-usage-rule/on-flow-constraint-in-country-usage-rule-v1.3.json"
       }
     },
     "extensions": {
