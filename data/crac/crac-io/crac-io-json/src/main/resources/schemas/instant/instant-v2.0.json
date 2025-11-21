@@ -1,13 +1,13 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema#",
-  "$id": "https://www.powsybl.org?open-rao-crac-schema=instant-v2.0.json",
+  "$id": "resource:/schemas/instant/instant-v2.0.json",
   "type": "object",
   "properties": {
     "id": {
       "type": "string"
     },
     "kind": {
-      "$ref": "resource:/schemas/instant-kind/instant-kind-v2.0.json"
+      "$ref": "../instant-kind/instant-kind-v2.0.json"
     }
   },
   "additionalProperties": false,
