@@ -236,7 +236,7 @@ public class CastorFullOptimization {
                 network.getVariantManager().cloneVariant(INITIAL_SCENARIO, PST_REGULATION);
                 network.getVariantManager().setWorkingVariant(PST_REGULATION);
                 Set<PstRegulationResult> pstRegulationResults = CastorPstRegulation.regulatePsts(pstsToRegulate, postContingencyResults, network, crac, raoParameters, raoResult.join());
-                postContingencyResults = mergeRaoAndPstRegulationResults(pstRegulationResults, postPreventiveResult, postContingencyResults, prePerimeterSensitivityAnalysis, initialOutput, toolProvider);
+                postContingencyResults = mergeRaoAndPstRegulationResults(pstRegulationResults, secondPreventiveResult, postContingencyResults, prePerimeterSensitivityAnalysis, initialOutput, toolProvider);
                 RaoResult raoResultWithRegulation = new PreventiveAndCurativesRaoResultImpl(
                     stateTree,
                     initialOutput,
