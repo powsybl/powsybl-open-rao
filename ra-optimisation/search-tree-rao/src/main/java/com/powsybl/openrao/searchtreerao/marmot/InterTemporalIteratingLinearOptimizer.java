@@ -167,7 +167,7 @@ public final class InterTemporalIteratingLinearOptimizer {
         // TODO: add inter-temporal margin filler (min of all min margins)
         TemporalData<State> preventiveStates = input.iteratingLinearOptimizerInputs().map(linearOptimizerInput -> linearOptimizerInput.optimizationPerimeter().getMainOptimizationState());
         TemporalData<Set<InjectionRangeAction>> preventiveInjectionRangeActions = input.iteratingLinearOptimizerInputs().map(linearOptimizerInput -> filterPreventiveInjectionRangeAction(linearOptimizerInput.optimizationPerimeter().getRangeActions()));
-        return List.of(new PowerGradientConstraintFiller(preventiveStates, preventiveInjectionRangeActions, input.generatorConstraints()));
+        return List.of(new PowerGradientConstraintFiller(preventiveStates, preventiveInjectionRangeActions, input.intertemporalConstraints().getGeneratorConstraints()));
     }
 
     private static Set<InjectionRangeAction> filterPreventiveInjectionRangeAction(Set<RangeAction<?>> rangeActions) {

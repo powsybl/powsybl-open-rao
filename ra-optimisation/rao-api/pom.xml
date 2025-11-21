@@ -108,7 +108,7 @@
         </dependency>
         <dependency>
             <groupId>com.powsybl</groupId>
-            <artifactId>open-rao-generator-constraints</artifactId>
+            <artifactId>open-rao-intertemporal-constraints</artifactId>
         </dependency>
     </dependencies>
 </project>
