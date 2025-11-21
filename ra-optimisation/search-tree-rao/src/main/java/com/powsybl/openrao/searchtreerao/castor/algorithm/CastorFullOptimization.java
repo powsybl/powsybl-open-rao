@@ -392,8 +392,8 @@ public class CastorFullOptimization {
                     State autoState = crac.getState(pstRegulationResult.contingency().getId(), crac.getInstant(InstantKind.AUTO));
                     if (autoState != null) {
                         previousStates.add(autoState);
-                        appliedArasAndCras.addAppliedNetworkActions(autoState, postContingencyResults.get(autoState).getOptimizationResult().getActivatedNetworkActions());
-                        appliedArasAndCras.addAppliedRangeActions(autoState, postContingencyResults.get(autoState).getOptimizationResult().getOptimizedSetpointsOnState(autoState));
+                        appliedArasAndCras.addAppliedNetworkActions(autoState, postContingencyResults.get(autoState).optimizationResult().getActivatedNetworkActions());
+                        appliedArasAndCras.addAppliedRangeActions(autoState, postContingencyResults.get(autoState).optimizationResult().getOptimizedSetpointsOnState(autoState));
                         appliedNetworkActions.put(autoState, appliedArasAndCras.getAppliedNetworkActions(autoState));
                     }
                 }
@@ -401,8 +401,8 @@ public class CastorFullOptimization {
                     .filter(Objects::nonNull)
                     .forEach(cState -> {
                         previousStates.add(cState);
-                        appliedArasAndCras.addAppliedNetworkActions(cState, postContingencyResults.get(cState).getOptimizationResult().getActivatedNetworkActions());
-                        appliedArasAndCras.addAppliedRangeActions(cState, postContingencyResults.get(cState).getOptimizationResult().getOptimizedSetpointsOnState(cState));
+                        appliedArasAndCras.addAppliedNetworkActions(cState, postContingencyResults.get(cState).optimizationResult().getActivatedNetworkActions());
+                        appliedArasAndCras.addAppliedRangeActions(cState, postContingencyResults.get(cState).optimizationResult().getOptimizedSetpointsOnState(cState));
                         appliedNetworkActions.put(cState, appliedArasAndCras.getAppliedNetworkActions(cState));
                     });
                 pstRegulationResult.regulatedTapPerPst().forEach((pstRangeAction, regulatedTap) -> appliedArasAndCras.addAppliedRangeAction(curativeState, pstRangeAction, pstRangeAction.convertTapToAngle(regulatedTap)));
@@ -441,6 +441,6 @@ public class CastorFullOptimization {
     private static PrePerimeterResult getPreLastCurativePerimeterResult(List<State> previousStates, PostPerimeterResult postPraResult, Map<State, PostPerimeterResult> postContingencyResults) {
         // if previousStates is of size 1, then it only contains the final instant's state so the pre-perimeter result corresponds to the post-PRAs result
         // otherwise, the penultimate pre-perimeter result must be retrieved
-        return previousStates.size() == 1 ? postPraResult.getPrePerimeterResultForAllFollowingStates() : postContingencyResults.get(previousStates.get(previousStates.size() - 2)).getPrePerimeterResultForAllFollowingStates();
+        return previousStates.size() == 1 ? postPraResult.prePerimeterResultForAllFollowingStates() : postContingencyResults.get(previousStates.get(previousStates.size() - 2)).prePerimeterResultForAllFollowingStates();
     }
 }

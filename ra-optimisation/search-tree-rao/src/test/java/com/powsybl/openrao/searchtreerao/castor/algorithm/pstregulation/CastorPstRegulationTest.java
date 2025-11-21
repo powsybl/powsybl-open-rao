@@ -59,7 +59,7 @@ class CastorPstRegulationTest {
                 );
 
                 PostPerimeterResult postPerimeterResult = Mockito.mock(PostPerimeterResult.class);
-                Mockito.when(postPerimeterResult.getOptimizationResult()).thenReturn(optimizationResult);
+                Mockito.when(postPerimeterResult.optimizationResult()).thenReturn(optimizationResult);
 
                 postContingencyResults.put(curativeState, postPerimeterResult);
             }

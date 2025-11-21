@@ -136,7 +136,7 @@ public final class CastorPstRegulation {
      * If not, an empty optional value is returned instead.
      */
     private static Optional<FlowCnec> getMostLimitingElementProtectedByPst(State curativeState, Crac crac, PostPerimeterResult postPerimeterResult, Unit unit, Set<String> linesInSeriesWithPst) {
-        Map<FlowCnec, Double> marginPerCnec = crac.getFlowCnecs(curativeState).stream().collect(Collectors.toMap(Function.identity(), flowCnec -> postPerimeterResult.getOptimizationResult().getMargin(flowCnec, unit)));
+        Map<FlowCnec, Double> marginPerCnec = crac.getFlowCnecs(curativeState).stream().collect(Collectors.toMap(Function.identity(), flowCnec -> postPerimeterResult.optimizationResult().getMargin(flowCnec, unit)));
         List<Map.Entry<FlowCnec, Double>> sortedNegativeMargins = marginPerCnec.entrySet().stream()
             .filter(entry -> entry.getValue() < 0)
             .sorted(Map.Entry.comparingByValue()).toList();
