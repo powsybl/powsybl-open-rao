@@ -52,7 +52,7 @@ public final class CastorPstRegulation {
 
     public static Set<PstRegulationResult> regulatePsts(Map<String, String> pstsToRegulate, Map<State, PostPerimeterResult> postContingencyResults, Network network, Crac crac, RaoParameters raoParameters, RaoResult raoResult) {
         // filter out non-curative PSTs
-        // TODO: [Question] Should we still regulate PSTs that do not have a usage rule for a given state?
+        // currently, only PSTs with a usage rule for a given state are regulated
         Set<PstRangeAction> rangeActionsToRegulate = getPstRangeActionsForRegulation(pstsToRegulate.keySet(), crac);
         if (rangeActionsToRegulate.isEmpty()) {
             return Set.of();

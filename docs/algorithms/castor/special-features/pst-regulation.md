@@ -3,15 +3,14 @@
 ## Presentation
 
 In some processes and/or regions, certain critical elements are operated in series with a PST such that when these
-elements are overloaded and there is still a possibility to change the tap position of the associated PST, the latter is
-used to secure the constrained elements.
+elements are overloaded and there is still a possibility to change the tap position of the associated PST and if is not
+in abutment, the latter is used to secure the constrained elements.
 
 At the end of the curative optimization of the RAO, such critical lines can still be unsecure because they are not
-necessarily representative of the global unsecure situation of the network. Indeed, some other lines can have a margin
-which is way more negative so the RAO cannot improve its objective function by changing the taps of the PSTs in series
-with overloaded critical elements. The results must then be post-processed to check if changing the taps of these PSTs
-of interest could help secure the critical element they monitor, even if this means increasing the flow in surrounding
-lines. This is called **PST regulation**.
+limiting elements. Indeed, some other lines can have a margin which is way more negative so the RAO cannot improve its
+objective function by changing the taps of the PSTs in series with overloaded critical elements. The results must then
+be post-processed to check if changing the taps of these PSTs of interest could help secure the critical element they
+monitor, even if this means increasing the flow in surrounding lines. This is called **PST regulation**.
 
 > Even if only one critical element is overloaded, all PSTs are regulated at once since they may have side effects on
 > other lines than the ones they protect.

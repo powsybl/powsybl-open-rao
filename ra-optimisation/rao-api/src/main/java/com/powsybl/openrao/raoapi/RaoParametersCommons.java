@@ -22,7 +22,7 @@ public final class RaoParametersCommons {
         ---------------------------
         3.1: remove max-auto-search-tree-depth
         3.2: remove re-optimize-curative-range-actions
-        3.3: add pst-regulation-parameters
+        3.2.1: add pst-regulation-parameters
     */
 
     public static final String RAO_PARAMETERS_VERSION = "3.2.1";

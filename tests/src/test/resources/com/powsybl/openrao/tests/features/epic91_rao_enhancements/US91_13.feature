@@ -6,7 +6,7 @@
 Feature: US 91.13: PST Regulation
 
   @ac @fast @rao
-  Scenario: US 91.13.1.a: Unsecure case with a trade-off tap position - PST is the limiting element
+  Scenario: US 91.13.1.a: Unsecure case with a globally optimized tap position - PST is the limiting element
   The curative scenario cannot be secured, the curative tap is chosen such that both curative CNECs are overloaded but
   with the lowest global overload reachable. The PST is the most limiting element at the end of curative.
     Given network file is "epic91/2Nodes3ParallelLinesPST.uct"
@@ -39,7 +39,7 @@ Feature: US 91.13: PST Regulation
     And the margin on cnec "cnecBeFr2Curative" after CRA should be 15.49 A
 
   @ac @fast @rao
-  Scenario: US 91.13.2.a: Unsecure case with a trade-off tap position - PST not is the limiting element
+  Scenario: US 91.13.2.a: Unsecure case with a globally optimized tap position - PST not is the limiting element
   The curative scenario cannot be secured, the curative tap is chosen such that both curative CNECs are overloaded but
   with the lowest global overload reachable. The PST is not the most limiting element at the end of curative.
     Given network file is "epic91/2Nodes3ParallelLinesPST.uct"
@@ -76,7 +76,8 @@ Feature: US 91.13: PST Regulation
   - Scenario 12: PST 34 has a negative margin of -444.08 A so even though PST 12 should go down to tap position -16 to
   maximize its own margin because the flow decreases with the tap position, the minimal margin does not improve below
   tap position -10 (margin at tap position -9 is about -462 A)
-  - Scenario 23: trade-off tap between preventive CNEC and curative PST leading the preventive tap of PST 23 to be -6
+  - Scenario 23: globally optimized tap between preventive CNEC and curative PST leading the preventive tap of PST 23 to
+  be -6
   - Scenario 34: automaton secures PST 34 straight from auto instant at tap -15
   Each curative scenario is unsecure with some PSTs overloaded.
     Given network file is "epic91/4NodesSeries.uct"
@@ -164,7 +165,7 @@ Feature: US 91.13: PST Regulation
     And the tap of PstRangeAction "pstBeFr3" should be 16 after "Contingency BE1 FR1 1" at "curative"
 
   @ac @fast @rao
-  Scenario: US 91.13.5.a: Unsecure case with a trade-off tap position - Monitored line in series with PST
+  Scenario: US 91.13.5.a: Unsecure case with a globally optimized tap position - Monitored line in series with PST
   The PST itself is not overloaded but the line connected in series is.
     Given network file is "epic91/3NodesPSTSeries.uct"
     Given crac file is "epic91/crac-91-13-5.json"
