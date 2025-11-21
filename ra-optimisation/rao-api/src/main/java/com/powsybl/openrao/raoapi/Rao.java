@@ -157,7 +157,7 @@ public final class Rao {
         if (providers.size() == 1 && raOptimizerName == null) {
             // no information to select the implementation but only one provider, so we can use it by default
             // (that is the most common use case)
-            provider = providers.get(0);
+            provider = providers.getFirst();
         } else {
             if (providers.size() > 1 && raOptimizerName == null) {
                 // several providers and no information to select which one to choose, we can only throw

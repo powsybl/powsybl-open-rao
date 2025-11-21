@@ -52,21 +52,9 @@ class PreventiveAndCurativesRaoResultImplTest {
 
     private PrePerimeterResult initialResult;
     private OptimizationResult prevResult;
-    private PrePerimeterResult postPrevPrePerimResult;
     private PostPerimeterResult postPrevResult;
-    private OptimizationResult autoResult3;
-    private PrePerimeterResult postAutoPrePerimResult3;
-    private PostPerimeterResult postAutoResult3;
     private OptimizationResult autoResult4;
-    private PrePerimeterResult postAutoPrePerimResult4;
-    private PostPerimeterResult postAutoResult4;
-    private OptimizationResult curativeResult2;
-    private PrePerimeterResult postCurativePrePerimResult2;
-    private PostPerimeterResult postCurativeResult2;
-    private OptimizationResult curativeResult3;
-    private PrePerimeterResult postCurativePrePerimResult3;
-    private PostPerimeterResult postCurativeResult3;
-    private Map<State, PostPerimeterResult> postContingencyResults = new HashMap<>();
+    private final Map<State, PostPerimeterResult> postContingencyResults = new HashMap<>();
 
     private PreventiveAndCurativesRaoResultImpl output;
 
@@ -191,39 +179,39 @@ class PreventiveAndCurativesRaoResultImplTest {
 
     private void preparePreventiveResult() {
         prevResult = Mockito.mock(OptimizationResult.class);
-        postPrevPrePerimResult = Mockito.mock(PrePerimeterResult.class);
+        PrePerimeterResult postPrevPrePerimResult = Mockito.mock(PrePerimeterResult.class);
         postPrevResult = new PostPerimeterResult(prevResult, postPrevPrePerimResult);
         prepareResultsForState(prevResult, postPrevPrePerimResult, crac.getPreventiveState());
     }
 
     private void prepareAutoResult3() {
-        autoResult3 = Mockito.mock(OptimizationResult.class);
-        postAutoPrePerimResult3 = Mockito.mock(PrePerimeterResult.class);
-        postAutoResult3 = new PostPerimeterResult(autoResult3, postAutoPrePerimResult3);
+        OptimizationResult autoResult3 = Mockito.mock(OptimizationResult.class);
+        PrePerimeterResult postAutoPrePerimResult3 = Mockito.mock(PrePerimeterResult.class);
+        PostPerimeterResult postAutoResult3 = new PostPerimeterResult(autoResult3, postAutoPrePerimResult3);
         prepareResultsForState(autoResult3, postAutoPrePerimResult3, crac.getState("contingency-3", autoInstant));
         postContingencyResults.put(crac.getState("contingency-3", autoInstant), postAutoResult3);
     }
 
     private void prepareAutoResult4() {
         autoResult4 = Mockito.mock(OptimizationResult.class);
-        postAutoPrePerimResult4 = Mockito.mock(PrePerimeterResult.class);
-        postAutoResult4 = new PostPerimeterResult(autoResult4, postAutoPrePerimResult4);
+        PrePerimeterResult postAutoPrePerimResult4 = Mockito.mock(PrePerimeterResult.class);
+        PostPerimeterResult postAutoResult4 = new PostPerimeterResult(autoResult4, postAutoPrePerimResult4);
         prepareResultsForState(autoResult4, postAutoPrePerimResult4, crac.getState("contingency-4", autoInstant));
         postContingencyResults.put(crac.getState("contingency-4", autoInstant), postAutoResult4);
     }
 
     private void prepareCurativeResult2() {
-        curativeResult2 = Mockito.mock(OptimizationResult.class);
-        postCurativePrePerimResult2 = Mockito.mock(PrePerimeterResult.class);
-        postCurativeResult2 = new PostPerimeterResult(curativeResult2, postCurativePrePerimResult2);
+        OptimizationResult curativeResult2 = Mockito.mock(OptimizationResult.class);
+        PrePerimeterResult postCurativePrePerimResult2 = Mockito.mock(PrePerimeterResult.class);
+        PostPerimeterResult postCurativeResult2 = new PostPerimeterResult(curativeResult2, postCurativePrePerimResult2);
         prepareResultsForState(curativeResult2, postCurativePrePerimResult2, crac.getState("contingency-2", curativeInstant));
         postContingencyResults.put(crac.getState("contingency-2", curativeInstant), postCurativeResult2);
     }
 
     private void prepareCurativeResult3() {
-        curativeResult3 = Mockito.mock(OptimizationResult.class);
-        postCurativePrePerimResult3 = Mockito.mock(PrePerimeterResult.class);
-        postCurativeResult3 = new PostPerimeterResult(curativeResult3, postCurativePrePerimResult3);
+        OptimizationResult curativeResult3 = Mockito.mock(OptimizationResult.class);
+        PrePerimeterResult postCurativePrePerimResult3 = Mockito.mock(PrePerimeterResult.class);
+        PostPerimeterResult postCurativeResult3 = new PostPerimeterResult(curativeResult3, postCurativePrePerimResult3);
         prepareResultsForState(curativeResult3, postCurativePrePerimResult3, crac.getState("contingency-3", curativeInstant));
         postContingencyResults.put(crac.getState("contingency-3", curativeInstant), postCurativeResult3);
     }
@@ -324,7 +312,7 @@ class PreventiveAndCurativesRaoResultImplTest {
     }
 
     @Test
-    public void testResult() {
+    void testResult() {
         checkFunctionalCosts();
         checkVirtualCosts();
         checkFlows();
@@ -407,19 +395,19 @@ class PreventiveAndCurativesRaoResultImplTest {
     }
 
     @Test
-    public void testGlobalComputationStatusWhenFinalPreventiveFails() {
+    void testGlobalComputationStatusWhenFinalPreventiveFails() {
         when(prevResult.getComputationStatus()).thenReturn(ComputationStatus.FAILURE);
         assertEquals(ComputationStatus.FAILURE, output.getComputationStatus());
     }
 
     @Test
-    public void testGlobalComputationStatusWhenFinalPreventivePartiallyFails() {
+    void testGlobalComputationStatusWhenFinalPreventivePartiallyFails() {
         when(prevResult.getComputationStatus()).thenReturn(ComputationStatus.PARTIAL_FAILURE);
         assertEquals(ComputationStatus.PARTIAL_FAILURE, output.getComputationStatus());
     }
 
     @Test
-    public void testGlobalComputationStatusWhenAContingencyFails() {
+    void testGlobalComputationStatusWhenAContingencyFails() {
         when(autoResult4.getComputationStatus()).thenReturn(ComputationStatus.FAILURE);
         assertEquals(ComputationStatus.PARTIAL_FAILURE, output.getComputationStatus());
     }

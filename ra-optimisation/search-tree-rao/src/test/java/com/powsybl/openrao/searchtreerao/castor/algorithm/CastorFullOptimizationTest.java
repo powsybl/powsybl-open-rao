@@ -152,7 +152,7 @@ class CastorFullOptimizationTest {
         // Test final log after RAO fallbacks
         listAppender.stop();
         List<ILoggingEvent> logsList = listAppender.list;
-        assert logsList.get(logsList.size() - 1).toString().equals("[INFO] Cost before RAO = 371.88 (functional: 371.88, virtual: 0.0), cost after RAO = 371.88 (functional: 371.88, virtual: 0.0)");
+        assert logsList.getLast().toString().equals("[INFO] Cost before RAO = 371.88 (functional: 371.88, virtual: 0.0), cost after RAO = 371.88 (functional: 371.88, virtual: 0.0)");
     }
 
     @Test
@@ -470,8 +470,7 @@ class CastorFullOptimizationTest {
     @Test
     void catchDuringDataInitialization() throws IOException {
         setup("small-network-2P.uct", "small-crac-2P.json");
-        RaoParameters raoParameters = null;
-        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
+        RaoResult raoResult = new CastorFullOptimization(raoInput, null, null).run().join();
         assertInstanceOf(FailedRaoResultImpl.class, raoResult);
         assertEquals("RAO failed during data initialization : Cannot invoke \"com.powsybl.openrao.raoapi.parameters.RaoParameters.getObjectiveFunctionParameters()\" because \"raoParameters\" is null", raoResult.getExecutionDetails());
     }
