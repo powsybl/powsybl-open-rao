@@ -8,7 +8,6 @@
 package com.powsybl.openrao.sensitivityanalysis;
 
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.iidm.network.TwoSides;
@@ -19,7 +18,6 @@ import com.powsybl.contingency.ContingencyContextType;
 import com.powsybl.glsk.commons.ZonalData;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityFactor;
-import com.powsybl.sensitivity.SensitivityFunctionType;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 import com.powsybl.sensitivity.SensitivityVariableType;
 
@@ -34,13 +32,6 @@ public class PtdfSensitivityProvider extends AbstractSimpleSensitivityProvider {
 
     PtdfSensitivityProvider(ZonalData<SensitivityVariableSet> glsk, Set<FlowCnec> cnecs, Set<Unit> units) {
         super(cnecs, units);
-
-        // todo : handle PTDFs in AMPERE
-        if (factorsInAmpere || !factorsInMegawatt) {
-            OpenRaoLoggerProvider.TECHNICAL_LOGS.warn("PtdfSensitivity provider currently only handle Megawatt unit");
-            factorsInMegawatt = true;
-            factorsInAmpere = false;
-        }
         this.glsk = Objects.requireNonNull(glsk);
     }
 
@@ -82,31 +73,26 @@ public class PtdfSensitivityProvider extends AbstractSimpleSensitivityProvider {
         Map<NetworkElement, Set<TwoSides>> networkElementsAndSides = new HashMap<>();
         flowCnecsStream.forEach(cnec -> networkElementsAndSides.computeIfAbsent(cnec.getNetworkElement(), k -> new HashSet<>()).addAll(cnec.getMonitoredSides()));
         networkElementsAndSides
-            .forEach((ne, sides) ->
-                sides.forEach(side ->
+            .forEach((ne, sides) -> {
+                // we allow the computation of both function types (branch_active_power and branch_current) at the same time to match loadFlowProvider behavior
+                getSensitivityFunctionTypes(sides).forEach(functionType ->
                     mapCountryLinearGlsk.values().stream()
                         .map(linearGlsk -> new SensitivityFactor(
-                            sideToActivePowerFunctionType(side),
+                            functionType,
                             ne.getId(),
                             SensitivityVariableType.INJECTION_ACTIVE_POWER,
                             linearGlsk.getId(),
                             true,
                             contingencyContext))
-                        .forEach(factors::add)));
+                        .forEach(factors::add)
+                );
+            });
         return factors;
     }
 
     @Override
     public Map<String, HvdcRangeAction> getHvdcs() {
         return new HashMap<>();
-    }
-
-    private SensitivityFunctionType sideToActivePowerFunctionType(TwoSides side) {
-        if (side.equals(TwoSides.ONE)) {
-            return SensitivityFunctionType.BRANCH_ACTIVE_POWER_1;
-        } else {
-            return SensitivityFunctionType.BRANCH_ACTIVE_POWER_2;
-        }
     }
 
     @Override
