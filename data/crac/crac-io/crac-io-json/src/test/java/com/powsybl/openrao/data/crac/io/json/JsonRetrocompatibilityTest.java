@@ -19,6 +19,8 @@ import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.RaUsageLimits;
 import com.powsybl.openrao.data.crac.api.RemedialAction;
+import com.powsybl.openrao.data.crac.api.extensions.PstRegulation;
+import com.powsybl.openrao.data.crac.api.extensions.PstRegulationInput;
 import com.powsybl.openrao.data.crac.api.rangeaction.VariationDirection;
 import com.powsybl.openrao.data.crac.api.usagerule.OnConstraint;
 import com.powsybl.openrao.data.crac.api.usagerule.OnContingencyState;
@@ -44,6 +46,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -394,6 +397,16 @@ class JsonRetrocompatibilityTest {
         Crac crac = Crac.read(cracFilePath, cracFile, network);
         assertEquals(7, crac.getNetworkActions().size());
         testContentOfV2Point8Crac(crac);
+    }
+
+    @Test
+    void importV2Point9Test() throws IOException {
+        String cracFilePath = "/retrocompatibility/v2/crac-v2.9.json";
+        InputStream cracFile = getClass().getResourceAsStream(cracFilePath);
+
+        Crac crac = Crac.read(cracFilePath, cracFile, network);
+        assertEquals(7, crac.getNetworkActions().size());
+        testContentOfV2Point9Crac(crac);
     }
 
     private void testContentOfV1Point0Crac(Crac crac) {
@@ -921,5 +934,18 @@ class JsonRetrocompatibilityTest {
         assertEquals(100, crac.getHvdcRangeAction("hvdcRange1Id").getInitialSetpoint(), 1e-3);
         assertEquals(-100, crac.getHvdcRangeAction("hvdcRange2Id").getInitialSetpoint(), 1e-3);
         assertEquals(50, crac.getInjectionRangeAction("injectionRange1Id").getInitialSetpoint(), 1e-3);
+    }
+
+    private void testContentOfV2Point9Crac(Crac crac) {
+        testContentOfV2Point8Crac(crac);
+
+        PstRegulation pstRegulation = crac.getExtension(PstRegulation.class);
+        assertNotNull(pstRegulation);
+
+        assertEquals(2, pstRegulation.getRegulationInputs().size());
+
+        List<PstRegulationInput> pstRegulationInputs = pstRegulation.getRegulationInputs().stream().sorted(Comparator.comparing(PstRegulationInput::pstId)).toList();
+        assertEquals(new PstRegulationInput("pst1", "ne1Id", 800.0), pstRegulationInputs.getFirst());
+        assertEquals(new PstRegulationInput("pst2", "ne2Id", 1000.0), pstRegulationInputs.getLast());
     }
 }

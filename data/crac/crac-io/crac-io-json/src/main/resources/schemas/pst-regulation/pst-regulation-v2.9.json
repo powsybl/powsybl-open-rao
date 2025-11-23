@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema#",
+  "$id": "https://www.powsybl.org?open-rao-crac-schema=pst-regulation-v2.9.json",
+  "type": "object",
+  "properties": {
+    "pstId": {
+      "type": "string"
+    },
+    "monitoredBranchId": {
+      "type": "string"
+    },
+    "threshold": {
+      "type": "number"
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "pstId",
+    "monitoredBranchId",
+    "threshold"
+  ]
+}
