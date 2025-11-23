@@ -207,6 +207,9 @@ class LeafTest {
 
     @Test
     void testLeafDefinitionWithAcEmulationDeactivationNetworkAction() {
+        // We test here that when an AC emulation deactivation network action is applied in a Leaf
+        // is able to read the HVDC line active power setpoint set beforehand in the network
+
         // An ac emulation deactivation action is activated.
         Network networkWithAngleDroop = import16NodesNetworkWithAngleDroopHvdcs();
         Leaf rootLeaf = new Leaf(optimizationPerimeter, networkWithAngleDroop, prePerimeterResult, appliedRemedialActions);

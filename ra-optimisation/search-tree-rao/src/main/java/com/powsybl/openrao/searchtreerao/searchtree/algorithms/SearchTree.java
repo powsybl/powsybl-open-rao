@@ -109,15 +109,20 @@ public class SearchTree {
 
             TECHNICAL_LOGS.debug("Evaluating root leaf");
 
-            // load flow run here, update value in network that will be read if we deactivate ac emulation for an hvdc line in one of the leaf.
-            Set<HvdcRangeAction> hvdcRangeActions = input.getOptimizationPerimeter()
+            // Run load flow here, update HVDC lines' active power setpoint in network that will be used
+            // if we deactivate AC emulation on a HVDC line in one of the leaf.
+
+            // Get all the range actions that are HVDC range actions and are not in AC emulation
+            Set<HvdcRangeAction> hvdcRasOnHvdcLineInAcEmulation = input.getOptimizationPerimeter()
                 .getRangeActions().stream()
                 .filter(HvdcRangeAction.class::isInstance)
                 .map(HvdcRangeAction.class::cast)
+                .filter(ra -> ra.isAngleDroopActivePowerControlEnabled(input.getNetwork()))
                 .collect(Collectors.toSet());
 
+            // Get Loadflow and sensitivity parameters
             LoadFlowAndSensitivityParameters loadFlowAndSensitivityParameters = parameters.getLoadFlowAndSensitivityParameters().orElse(new LoadFlowAndSensitivityParameters());
-            Set<HvdcRangeAction> hvdcRasOnHvdcLineInAcEmulation = HvdcUtils.getHvdcRangeActionsOnHvdcLineInAcEmulation(hvdcRangeActions, input.getNetwork());
+
             if (!hvdcRasOnHvdcLineInAcEmulation.isEmpty()) {
                 runLoadFlowAndUpdateHvdcActivePowerSetpoint(
                     input.getNetwork(),
