@@ -140,7 +140,7 @@ public final class HvdcUtils {
             loadFlowAndSensitivityParameters = raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getLoadFlowAndSensitivityParameters();
         }
 
-        Set<HvdcRangeActionImpl> hvdcRasOnHvdcLinesInAcEmulation = getHvdcRangeActionsOnHvdcLineInAcEmulation(crac.getHvdcRangeActions(), network);
+        Set<HvdcRangeAction> hvdcRasOnHvdcLinesInAcEmulation = getHvdcRangeActionsOnHvdcLineInAcEmulation(crac.getHvdcRangeActions(), network);
         Map<HvdcRangeAction, Double> activePowerSetpoints = new HashMap<>();
         if (!hvdcRasOnHvdcLinesInAcEmulation.isEmpty()) {
             activePowerSetpoints = runLoadFlowAndUpdateHvdcActivePowerSetpoint(
@@ -153,8 +153,7 @@ public final class HvdcUtils {
         }
 
         activePowerSetpoints.forEach((hvdcRa, activePowerSetpoint) -> {
-            HvdcRangeActionImpl hvdcRaImpl = (HvdcRangeActionImpl) hvdcRa;
-            hvdcRaImpl.setInitialSetpoint(activePowerSetpoint);
+            hvdcRa.setInitialSetpoint(activePowerSetpoint);
         });
     }
 
@@ -165,10 +164,9 @@ public final class HvdcUtils {
      * @param network
      * @return
      */
-    public static Set<HvdcRangeActionImpl> getHvdcRangeActionsOnHvdcLineInAcEmulation(Set<HvdcRangeAction> hvdcRangeActions, Network network) {
+    public static Set<HvdcRangeAction> getHvdcRangeActionsOnHvdcLineInAcEmulation(Set<HvdcRangeAction> hvdcRangeActions, Network network) {
         // return all the HVDC range actions in the CRAC defined on HVDC line in AC emulation in the network
         return hvdcRangeActions.stream()
-            .map(HvdcRangeActionImpl.class::cast)
             .filter(hvdcRangeAction -> hvdcRangeAction.isAngleDroopActivePowerControlEnabled(network))
             .collect(Collectors.toSet());
     }
@@ -188,7 +186,7 @@ public final class HvdcUtils {
         State optimizationState,
         String loadFlowProvider,
         LoadFlowParameters loadFlowParameters,
-        Set<HvdcRangeActionImpl> hvdcRangeActionsWithHvdcLineInAcEmulation
+        Set<HvdcRangeAction> hvdcRangeActionsWithHvdcLineInAcEmulation
     ) {
 
         Map<HvdcRangeAction, Double> activePowerSetpoints = new HashMap<>();

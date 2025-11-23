@@ -450,7 +450,7 @@ public final class AutomatonSimulator {
                                                                                                    TopoAutomatonSimulationResult topoSimulationResult) {
 
         // Get HVDC range actions affected by AC emulation
-        Set<HvdcRangeActionImpl> hvdcRasWithControl =
+        Set<HvdcRangeAction> hvdcRasWithControl =
             getHvdcRangeActionsOnHvdcLineInAcEmulation(alignedRa.stream().filter(HvdcRangeAction.class::isInstance).map(HvdcRangeAction.class::cast).collect(Collectors.toSet()), network);
 
         Map<HvdcRangeAction, Double> activePowerSetpoints = new HashMap<>();

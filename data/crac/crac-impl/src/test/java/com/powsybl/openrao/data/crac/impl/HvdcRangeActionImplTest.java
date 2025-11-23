@@ -60,6 +60,14 @@ class HvdcRangeActionImplTest {
     }
 
     @Test
+    void testSetInitialSetpoint(){
+        HvdcRangeAction hvdcRa = hvdcRangeActionAdder.newRange().withMin(-5).withMax(10).add()
+            .add();
+        hvdcRa.setInitialSetpoint(10.0);
+        assertEquals(10.0, hvdcRa.getInitialSetpoint(), 1e-6);
+    }
+
+    @Test
     void applyPositiveSetpoint() {
         HvdcRangeAction hvdcRa = hvdcRangeActionAdder.newRange().withMin(-5).withMax(10).add()
                 .add();

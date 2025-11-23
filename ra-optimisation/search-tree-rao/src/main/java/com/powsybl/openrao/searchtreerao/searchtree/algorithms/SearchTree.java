@@ -118,7 +118,7 @@ public class SearchTree {
                 .collect(Collectors.toSet());
 
             LoadFlowAndSensitivityParameters loadFlowAndSensitivityParameters = parameters.getLoadFlowAndSensitivityParameters().orElse(new LoadFlowAndSensitivityParameters());
-            Set<HvdcRangeActionImpl> hvdcRasOnHvdcLineInAcEmulation = HvdcUtils.getHvdcRangeActionsOnHvdcLineInAcEmulation(hvdcRangeActions, input.getNetwork());
+            Set<HvdcRangeAction> hvdcRasOnHvdcLineInAcEmulation = HvdcUtils.getHvdcRangeActionsOnHvdcLineInAcEmulation(hvdcRangeActions, input.getNetwork());
             if (!hvdcRasOnHvdcLineInAcEmulation.isEmpty()) {
                 runLoadFlowAndUpdateHvdcActivePowerSetpoint(
                     input.getNetwork(),

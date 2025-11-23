@@ -136,6 +136,7 @@ public class HvdcRangeActionImpl extends AbstractRangeAction<HvdcRangeAction> im
         return hashCode;
     }
 
+    @Override
     public void setInitialSetpoint(double initialSetpoint) {
         this.initialSetpoint = initialSetpoint;
     }
