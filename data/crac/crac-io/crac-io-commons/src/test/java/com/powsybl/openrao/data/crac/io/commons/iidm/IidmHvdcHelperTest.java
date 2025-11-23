@@ -36,7 +36,7 @@ public class IidmHvdcHelperTest {
     }
 
     @Test
-    void computeFlowOnHvdcLine() {
+    void computeActivePowerSetpointOnHvdcLine() {
         // Mocks
         HvdcLine hvdcLine = Mockito.mock(HvdcLine.class);
         HvdcConverterStation station2 = Mockito.mock(HvdcConverterStation.class);
@@ -65,4 +65,17 @@ public class IidmHvdcHelperTest {
         assertEquals(-55.0, result, 1e-6);
     }
 
+    @Test
+    void setActivePowerSetpointOnHvdcLine() {
+        Network network = Network.read("TestCase16NodesWithHvdc.xiidm", getClass().getResourceAsStream("/TestCase16NodesWithHvdc.xiidm"));
+        HvdcLine hvdcLine = network.getHvdcLine("BBE2AA11 FFR3AA11 1");
+        // Positive setpoint
+        IidmHvdcHelper.setActivePowerSetpointOnHvdcLine(hvdcLine, 60.0);
+        assertEquals(60.0, hvdcLine.getActivePowerSetpoint(), 60.0);
+        assertEquals(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER, hvdcLine.getConvertersMode());
+        // Negative setpoint
+        IidmHvdcHelper.setActivePowerSetpointOnHvdcLine(hvdcLine, -60.0);
+        assertEquals(60, hvdcLine.getActivePowerSetpoint());
+        assertEquals(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER, hvdcLine.getConvertersMode());
+    }
 }
