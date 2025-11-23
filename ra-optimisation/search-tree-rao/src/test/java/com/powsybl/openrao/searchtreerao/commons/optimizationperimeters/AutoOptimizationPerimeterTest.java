@@ -188,7 +188,6 @@ class AutoOptimizationPerimeterTest {
 
     @Test
     void testCopyWithFilteredRangeAction() {
-        // add hvdc range action to crac
         Crac crac = initCrac();
         State automatonState = crac.getState("contingency", crac.getInstant("auto"));
         AutoOptimizationPerimeter autoOptimizationPerimeter = AutoOptimizationPerimeter.build(automatonState, crac, null, new RaoParameters(), null);

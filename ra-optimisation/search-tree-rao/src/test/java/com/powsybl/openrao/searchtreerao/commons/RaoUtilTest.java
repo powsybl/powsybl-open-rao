@@ -474,5 +474,4 @@ class RaoUtilTest {
         assertEquals(expectedMsg2, logsList.get(1).getMessage());
         assertFalse(logsList.stream().anyMatch(e -> e.getMessage().contains(notExpectedMsg)));
     }
-
 }
