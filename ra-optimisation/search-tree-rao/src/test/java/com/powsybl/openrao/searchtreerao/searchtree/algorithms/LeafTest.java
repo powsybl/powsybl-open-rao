@@ -106,11 +106,11 @@ class LeafTest {
         when(na2.apply(any())).thenReturn(true);
         when(na1.getOperator()).thenReturn("TSO1");
         when(na2.getOperator()).thenReturn("TSO2");
-        ea11 = Mockito.mock(Action.class);
-        ea12 = Mockito.mock(Action.class);
-        ea21 = Mockito.mock(Action.class);
-        ea22 = Mockito.mock(Action.class);
-        ea23 = Mockito.mock(Action.class);
+        final Action ea11 = Mockito.mock(Action.class);
+        final Action ea12 = Mockito.mock(Action.class);
+        final Action ea21 = Mockito.mock(Action.class);
+        final Action ea22 = Mockito.mock(Action.class);
+        final Action ea23 = Mockito.mock(Action.class);
         when(na1.getElementaryActions()).thenReturn(Set.of(ea11, ea12));
         when(na2.getElementaryActions()).thenReturn(Set.of(ea21, ea22, ea23));
 
@@ -304,7 +304,7 @@ class LeafTest {
         leaf1.evaluate(costEvaluatorMock, sensitivityComputer);
         List<ILoggingEvent> logsList = listAppender.list;
         assertEquals(1, logsList.size());
-        assertEquals("[DEBUG] Leaf has already been evaluated", logsList.get(0).toString());
+        assertEquals("[DEBUG] Leaf has already been evaluated", logsList.getFirst().toString());
 
     }
 
@@ -345,7 +345,7 @@ class LeafTest {
         rootLeaf.optimize(searchTreeInput, searchTreeParameters);
         assertEquals(1, listAppender.list.size());
         String expectedLog = String.format("[WARN] Impossible to optimize leaf: %s because evaluation has not been performed", rootLeaf);
-        assertEquals(expectedLog, listAppender.list.get(0).toString());
+        assertEquals(expectedLog, listAppender.list.getFirst().toString());
     }
 
     @Test
@@ -360,7 +360,7 @@ class LeafTest {
         rootLeaf.optimize(searchTreeInput, searchTreeParameters);
         assertEquals(1, listAppender.list.size());
         String expectedLog = String.format("[WARN] Impossible to optimize leaf: %s because evaluation failed", rootLeaf);
-        assertEquals(expectedLog, listAppender.list.get(0).toString());
+        assertEquals(expectedLog, listAppender.list.getFirst().toString());
     }
 
     @Test
@@ -851,7 +851,7 @@ class LeafTest {
             Mockito.mock(RangeActionActivationResultImpl.class), prePerimeterResult, appliedRemedialActions);
 
         RangeActionLimitationParameters raLimitationParameters = leaf.getRaLimitationParameters(optimizationPerimeter, searchTreeParameters);
-        assertEquals(null, raLimitationParameters.getMaxRangeActions(nonLimitedState));
+        assertNull(raLimitationParameters.getMaxRangeActions(nonLimitedState));
         //3 - 1 from na combination
         assertEquals(2, raLimitationParameters.getMaxRangeActions(optimizedState));
         //8 - 2 from applied remedial actions
@@ -890,8 +890,8 @@ class LeafTest {
             Mockito.mock(RangeActionActivationResultImpl.class), prePerimeterResult, appliedRemedialActions);
 
         RangeActionLimitationParameters raLimitationParameters = leaf.getRaLimitationParameters(optimizationPerimeter, searchTreeParameters);
-        assertEquals(null, raLimitationParameters.getMaxRangeActionPerTso(nonLimitedState).get("TSO1"));
-        assertEquals(null, raLimitationParameters.getMaxRangeActionPerTso(nonLimitedState).get("TSO2"));
+        assertNull(raLimitationParameters.getMaxRangeActionPerTso(nonLimitedState).get("TSO1"));
+        assertNull(raLimitationParameters.getMaxRangeActionPerTso(nonLimitedState).get("TSO2"));
         //3 - 1 from na combination
         assertEquals(2, raLimitationParameters.getMaxRangeActionPerTso(optimizedState).get("TSO1"));
         assertEquals(45, raLimitationParameters.getMaxRangeActionPerTso(optimizedState).get("TSO2"));
@@ -934,8 +934,8 @@ class LeafTest {
             Mockito.mock(RangeActionActivationResultImpl.class), prePerimeterResult, appliedRemedialActions);
 
         RangeActionLimitationParameters raLimitationParameters = leaf.getRaLimitationParameters(optimizationPerimeter, searchTreeParameters);
-        assertEquals(null, raLimitationParameters.getMaxElementaryActionsPerTso(nonLimitedState).get("TSO1"));
-        assertEquals(null, raLimitationParameters.getMaxElementaryActionsPerTso(nonLimitedState).get("TSO2"));
+        assertNull(raLimitationParameters.getMaxElementaryActionsPerTso(nonLimitedState).get("TSO1"));
+        assertNull(raLimitationParameters.getMaxElementaryActionsPerTso(nonLimitedState).get("TSO2"));
         //3 - 2 elementary actions from na combination
         assertEquals(1, raLimitationParameters.getMaxElementaryActionsPerTso(optimizedState).get("TSO1"));
         assertEquals(45, raLimitationParameters.getMaxElementaryActionsPerTso(optimizedState).get("TSO2"));

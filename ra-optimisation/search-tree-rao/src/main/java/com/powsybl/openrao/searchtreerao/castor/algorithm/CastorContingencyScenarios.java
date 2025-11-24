@@ -137,7 +137,7 @@ public class CastorContingencyScenarios {
         if (!automatonsOnly
             && automatonState.isEmpty()
             && !optimizedScenario.getCurativePerimeters().isEmpty()
-            && prePerimeterSensitivityOutput.getSensitivityStatus(optimizedScenario.getCurativePerimeters().get(0).getRaOptimisationState()) == ComputationStatus.FAILURE
+            && prePerimeterSensitivityOutput.getSensitivityStatus(optimizedScenario.getCurativePerimeters().getFirst().getRaOptimisationState()) == ComputationStatus.FAILURE
             || automatonState.isPresent()
             && autoStateSensiFailed
         ) {
@@ -181,8 +181,8 @@ public class CastorContingencyScenarios {
     private boolean isAnyActionApplied(Map.Entry<State, PostPerimeterResult> stateAndResult) {
         State state = stateAndResult.getKey();
         PostPerimeterResult postPerimeterResult = stateAndResult.getValue();
-        boolean anyRangeActionApplied = !postPerimeterResult.getOptimizationResult().getActivatedRangeActions(state).isEmpty();
-        boolean anyNetworkActionApplied = !postPerimeterResult.getOptimizationResult().getActivatedNetworkActions().isEmpty();
+        boolean anyRangeActionApplied = !postPerimeterResult.optimizationResult().getActivatedRangeActions(state).isEmpty();
+        boolean anyNetworkActionApplied = !postPerimeterResult.optimizationResult().getActivatedNetworkActions().isEmpty();
         return anyRangeActionApplied || anyNetworkActionApplied;
 
     }

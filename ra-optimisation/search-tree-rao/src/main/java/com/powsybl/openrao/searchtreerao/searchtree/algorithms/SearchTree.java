@@ -32,7 +32,6 @@ import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 import com.powsybl.openrao.util.AbstractNetworkPool;
 import com.google.common.hash.Hashing;
 import com.powsybl.iidm.network.Network;
-import org.apache.commons.lang3.NotImplementedException;
 
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -318,23 +317,16 @@ public class SearchTree {
 
     int deterministicNetworkActionCombinationComparison(NetworkActionCombination ra1, NetworkActionCombination ra2) {
         // 1. First priority given to combinations detected during RAO
-        int comp1 = compareIsDetectedDuringRao(ra1, ra2);
-        if (comp1 != 0) {
-            return comp1;
-        }
         // 2. Second priority given to pre-defined combinations
-        int comp2 = compareIsPreDefined(ra1, ra2);
-        if (comp2 != 0) {
-            return comp2;
-        }
         // 3. Third priority given to large combinations
-        int comp3 = compareSize(ra1, ra2);
-        if (comp3 != 0) {
-            return comp3;
-        }
         // 4. Last priority is random but deterministic
-        return Integer.compare(Hashing.crc32().hashString(ra1.getConcatenatedId(), StandardCharsets.UTF_8).asInt(),
-                Hashing.crc32().hashString(ra2.getConcatenatedId(), StandardCharsets.UTF_8).asInt());
+        Comparator<NetworkActionCombination> networkActionCombinationComparator =
+            Comparator.<NetworkActionCombination, NetworkActionCombination>comparing(ra -> ra, this::compareIsDetectedDuringRao)
+                .thenComparing(ra -> ra, this::compareIsPreDefined)
+                .thenComparing(ra -> ra, this::compareSize)
+                .thenComparingInt(ra -> Hashing.crc32().hashString(ra.getConcatenatedId(), StandardCharsets.UTF_8).asInt());
+
+        return networkActionCombinationComparator.compare(ra1, ra2);
     }
 
     /**
@@ -376,8 +368,6 @@ public class SearchTree {
             networkActions.addAll(naCombination.getNetworkActionSet());
             topLevelLogger.info("Could not evaluate network action combination \"{}\": {}", printNetworkActions(networkActions), e.getMessage());
             return;
-        } catch (NotImplementedException e) {
-            throw e;
         }
         // We evaluate the leaf with taking the results of the previous optimal leaf if we do not want to update some results
         leaf.evaluate(input.getObjectiveFunction(), getSensitivityComputerForEvaluation(shouldRangeActionBeRemoved));

@@ -33,20 +33,18 @@ public class GlobalRemedialActionActivationResult extends GlobalRangeActionActiv
 
     public GlobalRemedialActionActivationResult(TemporalData<RangeActionActivationResult> rangeActionActivationPerTimestamp, TemporalData<NetworkActionsResult> preventiveTopologicalActions) {
         super(rangeActionActivationPerTimestamp);
-        Map<State, Set<NetworkAction>> globalNetworkActionsResultPerState = new HashMap<>();
+        Map<State, Set<NetworkAction>> globalNetworkActionsResultPerStateAccumulator = new HashMap<>();
         preventiveTopologicalActions.getDataPerTimestamp()
             .forEach((timestamp, networkActionsResult) ->
                 networkActionsResult.getActivatedNetworkActionsPerState()
                 .forEach((state, networkActions) -> {
                     Set<NetworkAction> networkActionsSetWithTimestamp = new HashSet<>();
-                    networkActions.forEach(networkAction -> {
-                        networkActionsSetWithTimestamp.add(NetworkActionImpl.copyWithNewId(networkAction, networkAction.getId() + " - " + timestamp.format(DateTimeFormatter.ISO_DATE_TIME)));
-                    });
-                    globalNetworkActionsResultPerState.put(state, networkActionsSetWithTimestamp);
+                    networkActions.forEach(networkAction -> networkActionsSetWithTimestamp.add(NetworkActionImpl.copyWithNewId(networkAction, networkAction.getId() + " - " + timestamp.format(DateTimeFormatter.ISO_DATE_TIME))));
+                    globalNetworkActionsResultPerStateAccumulator.put(state, networkActionsSetWithTimestamp);
                 })
             );
 
-        this.globalNetworkActionsResultPerState = globalNetworkActionsResultPerState;
+        this.globalNetworkActionsResultPerState = globalNetworkActionsResultPerStateAccumulator;
     }
 
     @Override

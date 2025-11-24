@@ -76,7 +76,7 @@ class SearchTreeTest {
     private final State optimizedState = Mockito.mock(State.class);
     private OptimizationPerimeter optimizationPerimeter;
     private NetworkAction networkAction;
-    private List<NetworkActionCombination> availableNaCombinations = new ArrayList<>();
+    private final List<NetworkActionCombination> availableNaCombinations = new ArrayList<>();
     private Set<NetworkAction> availableNetworkActions;
     private RangeAction<?> rangeAction1;
     private RangeAction<?> rangeAction2;
@@ -373,7 +373,7 @@ class SearchTreeTest {
 
         when(childLeaf1.getStatus()).thenReturn(Leaf.Status.EVALUATED, Leaf.Status.OPTIMIZED);
         when(childLeaf1.getCost()).thenReturn(childLeaf1CostAfterOptim);
-        Mockito.doReturn(childLeaf1).when(searchTree).createChildLeaf(any(), eq(availableNaCombinations.get(0)), eq(false));
+        Mockito.doReturn(childLeaf1).when(searchTree).createChildLeaf(any(), eq(availableNaCombinations.getFirst()), eq(false));
 
         when(childLeaf2.getStatus()).thenReturn(Leaf.Status.EVALUATED, Leaf.Status.OPTIMIZED);
         when(childLeaf2.getCost()).thenReturn(childLeaf2CostAfterOptim);
@@ -536,8 +536,8 @@ class SearchTreeTest {
         searchTree.run();
         assertEquals(1, technical.list.size());
         assertEquals(2, business.list.size());
-        assertEquals(expectedLog1, technical.list.get(0).toString());
-        assertEquals(expectedLog2, business.list.get(0).toString());
+        assertEquals(expectedLog1, technical.list.getFirst().toString());
+        assertEquals(expectedLog2, business.list.getFirst().toString());
         assertEquals(expectedLog3, business.list.get(1).toString());
     }
 
@@ -562,9 +562,9 @@ class SearchTreeTest {
         searchTree.run();
         assertEquals(2, technical.list.size());
         assertEquals(1, business.list.size());
-        assertEquals(expectedLog1, technical.list.get(0).toString());
+        assertEquals(expectedLog1, technical.list.getFirst().toString());
         assertEquals(expectedLog2, technical.list.get(1).toString());
-        assertEquals(expectedLog3, business.list.get(0).toString());
+        assertEquals(expectedLog3, business.list.getFirst().toString());
     }
 
     private ListAppender<ILoggingEvent> getLogs(Class clazz) {
@@ -633,7 +633,7 @@ class SearchTreeTest {
 
         List<String> logs = searchTree.getVirtualCostlyElementsLogs(rootLeaf, "loop-flow-cost", "Optimized ");
         assertEquals(1, logs.size());
-        assertEquals("Optimized leaf-id, limiting \"loop-flow-cost\" constraint #01: flow = 1135.00 MW, threshold = 1000.00 MW, margin = -135.00 MW, element ne-id at state state-id, CNEC ID = \"cnec-id\", CNEC name = \"cnec-name\"", logs.get(0));
+        assertEquals("Optimized leaf-id, limiting \"loop-flow-cost\" constraint #01: flow = 1135.00 MW, threshold = 1000.00 MW, margin = -135.00 MW, element ne-id at state state-id, CNEC ID = \"cnec-id\", CNEC name = \"cnec-name\"", logs.getFirst());
     }
 
     @Test
@@ -653,7 +653,7 @@ class SearchTreeTest {
         ListAppender<ILoggingEvent> business = getLogs(RaoBusinessLogs.class);
         searchTree.logVirtualCostDetails(rootLeaf, "loop-flow-cost", "Optimized ");
         assertEquals(2, business.list.size());
-        assertEquals("[INFO] Optimized leaf-id, stop criterion could have been reached without \"loop-flow-cost\" virtual cost", business.list.get(0).toString());
+        assertEquals("[INFO] Optimized leaf-id, stop criterion could have been reached without \"loop-flow-cost\" virtual cost", business.list.getFirst().toString());
         assertEquals("[INFO] Optimized leaf-id, limiting \"loop-flow-cost\" constraint #01: flow = 1135.00 MW, threshold = 1000.00 MW, margin = -135.00 MW, element ne-id at state state-id, CNEC ID = \"cnec-id\", CNEC name = \"cnec-name\"", business.list.get(1).toString());
     }
 
@@ -662,7 +662,7 @@ class SearchTreeTest {
         setUpForVirtualLogs();
         List<ILoggingEvent> logsList = getLogs(TechnicalLogs.class).list;
         logRangeActions(TECHNICAL_LOGS, rootLeaf, searchTreeInput.getOptimizationPerimeter(), "");
-        assertEquals("[INFO] No range actions activated", logsList.get(logsList.size() - 1).toString());
+        assertEquals("[INFO] No range actions activated", logsList.getLast().toString());
 
         // apply 2 range actions
         rangeAction1 = Mockito.mock(PstRangeAction.class);
@@ -674,9 +674,9 @@ class SearchTreeTest {
 
         logRangeActions(TECHNICAL_LOGS, rootLeaf, searchTreeInput.getOptimizationPerimeter(), "");
         // PST can be logged in any order
-        assert logsList.get(logsList.size() - 1).toString().contains("[INFO] range action(s):");
-        assert logsList.get(logsList.size() - 1).toString().contains("PST1: 0");
-        assert logsList.get(logsList.size() - 1).toString().contains("PST2: 0");
+        assert logsList.getLast().toString().contains("[INFO] range action(s):");
+        assert logsList.getLast().toString().contains("PST1: 0");
+        assert logsList.getLast().toString().contains("PST2: 0");
     }
 
     @Test

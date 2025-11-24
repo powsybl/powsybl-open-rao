@@ -11,7 +11,7 @@ import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
-import com.powsybl.openrao.data.generatorconstraints.GeneratorConstraints;
+import com.powsybl.openrao.data.intertemporalconstraints.GeneratorConstraints;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPConstraint;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPVariable;
