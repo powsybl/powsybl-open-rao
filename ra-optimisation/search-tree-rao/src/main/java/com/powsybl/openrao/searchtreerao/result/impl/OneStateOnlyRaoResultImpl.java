@@ -28,6 +28,9 @@ import java.util.stream.Collectors;
 import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.getDuplicateCnecs;
 
 /**
+ * Implementation of {@link com.powsybl.openrao.data.raoresult.api.RaoResult} used when only one state
+ * was optimized by the RAO. The methods are not expected to be called with other states.
+ *
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public class OneStateOnlyRaoResultImpl extends AbstractFlowRaoResult {
