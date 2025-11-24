@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.powsybl.openrao.data.generatorconstraints;
+package com.powsybl.openrao.data.intertemporalconstraints;
 
 import com.powsybl.openrao.commons.OpenRaoException;
 import org.junit.jupiter.api.Test;

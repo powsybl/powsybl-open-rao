@@ -159,7 +159,7 @@ public class FastRao implements RaoProvider {
                     parameters,
                     NUMBER_LOGGED_ELEMENTS_DURING_RAO);
 
-                worstCnec = stepResult.getMostLimitingElements(1).get(0);
+                worstCnec = stepResult.getMostLimitingElements(1).getFirst();
                 counter++;
             } while (!(consideredCnecs.contains(worstCnec) && consideredCnecs.containsAll(getCostlyVirtualCnecs(stepResult))));
 
@@ -295,7 +295,7 @@ public class FastRao implements RaoProvider {
             raoResult,
             initialResult,
             initialRangeActionSetpointResult,
-            postPraSensi.thenApply(PostPerimeterResult::getPrePerimeterResultForAllFollowingStates),
+            postPraSensi.thenApply(PostPerimeterResult::prePerimeterResultForAllFollowingStates),
             stateTree,
             parameters,
             toolProvider,
@@ -309,7 +309,7 @@ public class FastRao implements RaoProvider {
             raoResult,
             initialResult,
             initialRangeActionSetpointResult,
-            postAraSensi.thenApply(PostPerimeterResult::getPrePerimeterResultForAllFollowingStates),
+            postAraSensi.thenApply(PostPerimeterResult::prePerimeterResultForAllFollowingStates),
             stateTree,
             parameters,
             toolProvider,
@@ -336,7 +336,7 @@ public class FastRao implements RaoProvider {
 
         BUSINESS_LOGS.info("[FAST RAO] Iteration {}: Run full sensitivity analysis [end]", counter);
 
-        return new FastRaoResultImpl(initialResult, postPraSensi.get().getPrePerimeterResultForAllFollowingStates(), postAraSensi.get().getPrePerimeterResultForAllFollowingStates(), postCraSensi.get().getPrePerimeterResultForAllFollowingStates(), raoResult, raoInput.getCrac());
+        return new FastRaoResultImpl(initialResult, postPraSensi.get().prePerimeterResultForAllFollowingStates(), postAraSensi.get().prePerimeterResultForAllFollowingStates(), postCraSensi.get().prePerimeterResultForAllFollowingStates(), raoResult, raoInput.getCrac());
 
     }
 
