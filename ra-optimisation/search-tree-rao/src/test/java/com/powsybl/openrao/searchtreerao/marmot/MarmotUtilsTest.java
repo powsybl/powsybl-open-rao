@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.marmot;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.TemporalData;
@@ -67,8 +68,8 @@ class MarmotUtilsTest {
         RaoInput raoInput3 = RaoInput.build(network3, crac3).build();
 
         inputs = new TemporalDataImpl<>(Map.of(timestamp1, raoInput1, timestamp2, raoInput2, timestamp3, raoInput3));
-        parameters = new RaoParameters();
-        parameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters());
+        parameters = new RaoParameters(ReportNode.NO_OP);
+        parameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters(ReportNode.NO_OP));
         parameters.getExtension(OpenRaoSearchTreeParameters.class).getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters().setDc(true);
     }
 
@@ -94,7 +95,7 @@ class MarmotUtilsTest {
         RangeAction<?> pstDeTimestamp3 = crac3.getRangeAction("pstDe - 1800");
 
         // Timestamp 1
-        PrePerimeterResult prePerimeterResult1 = runSensitivityAnalysis(inputs.getData(timestamp1).get(), parameters);
+        PrePerimeterResult prePerimeterResult1 = runSensitivityAnalysis(inputs.getData(timestamp1).get(), parameters, ReportNode.NO_OP);
 
         FlowResult flowResultTimestamp1 = prePerimeterResult1.getFlowResult();
         assertFlowValueMw(flowResultTimestamp1, preventiveCnecTimestamp1, -382.0);
@@ -108,7 +109,7 @@ class MarmotUtilsTest {
         assertEquals(12, setPointResultTimestamp1.getTap((PstRangeAction) pstBeTimestamp1));
 
         // Timestamp 2
-        PrePerimeterResult prePerimeterResult2 = runSensitivityAnalysis(inputs.getData(timestamp2).get(), parameters);
+        PrePerimeterResult prePerimeterResult2 = runSensitivityAnalysis(inputs.getData(timestamp2).get(), parameters, ReportNode.NO_OP);
 
         FlowResult flowResultTimestamp2 = prePerimeterResult2.getFlowResult();
         assertFlowValueMw(flowResultTimestamp2, preventiveCnecTimestamp2, -382.0);
@@ -122,7 +123,7 @@ class MarmotUtilsTest {
         assertEquals(12, setPointResultTimestamp2.getTap((PstRangeAction) pstBeTimestamp2));
 
         // Timestamp 3
-        PrePerimeterResult prePerimeterResult3 = runSensitivityAnalysis(inputs.getData(timestamp3).get(), parameters);
+        PrePerimeterResult prePerimeterResult3 = runSensitivityAnalysis(inputs.getData(timestamp3).get(), parameters, ReportNode.NO_OP);
 
         FlowResult flowResultTimestamp3 = prePerimeterResult3.getFlowResult();
         assertFlowValueMw(flowResultTimestamp3, preventiveCnecTimestamp3, -382.0);

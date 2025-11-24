@@ -8,15 +8,15 @@
 package com.powsybl.openrao.searchtreerao.searchtree.algorithms;
 
 import com.powsybl.action.Action;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
+import com.powsybl.openrao.searchtreerao.reports.SearchTreeReports;
 import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
 
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-
-import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -28,7 +28,10 @@ public class MaximumNumberOfElementaryActionsFilter implements NetworkActionComb
         this.maxElementaryActionsPerTso = maxElementaryActionsPerTso;
     }
 
-    public Set<NetworkActionCombination> filter(Set<NetworkActionCombination> naCombinations, OptimizationResult optimizationResult) {
+    @Override
+    public Set<NetworkActionCombination> filter(final Set<NetworkActionCombination> naCombinations,
+                                                final OptimizationResult optimizationResult,
+                                                final ReportNode reportNode) {
         Set<NetworkActionCombination> filteredNaCombinations = new HashSet<>();
         naCombinations.stream().forEach(networkActionCombination -> {
             // TODO: do the same for removePsts
@@ -36,7 +39,7 @@ public class MaximumNumberOfElementaryActionsFilter implements NetworkActionComb
             Map<String, Set<Action>> elementaryActionsPerTso = new HashMap<>();
             networkActionCombination.getNetworkActionSet().forEach(networkAction -> elementaryActionsPerTso.computeIfAbsent(networkAction.getOperator(), e -> new HashSet<>()).addAll(networkAction.getElementaryActions()));
             if (networkActionCombination.getOperators().stream().anyMatch(operator -> elementaryActionsPerTso.getOrDefault(operator, Set.of()).size() > maxElementaryActionsPerTso.getOrDefault(operator, Integer.MAX_VALUE))) {
-                TECHNICAL_LOGS.info("{} network action combinations have been filtered out because the maximum number of elementary actions has been exceeded for one of its operators", naCombinations.size() - filteredNaCombinations.size());
+                SearchTreeReports.reportNetworkActionCombinationsFilteredOutMaxElementaryActionsExceeded(reportNode, naCombinations.size() - filteredNaCombinations.size());
             } else {
                 filteredNaCombinations.add(networkActionCombination);
             }

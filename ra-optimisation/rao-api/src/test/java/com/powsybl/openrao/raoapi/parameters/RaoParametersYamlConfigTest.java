@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.raoapi.parameters;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.*;
@@ -36,7 +37,7 @@ class RaoParametersYamlConfigTest extends AbstractSerDeTest {
         Path path = Paths.get(new File(getClass().getResource("/" + configFile + ".yml").getFile()).getAbsolutePath());
         Path subPath = path.getParent();
         PlatformConfig platformConfig = new PlatformConfig(PlatformConfig.loadModuleRepository(subPath, configFile), subPath);
-        return RaoParameters.load(platformConfig);
+        return RaoParameters.load(platformConfig, ReportNode.NO_OP);
     }
 
     @Test
@@ -120,7 +121,11 @@ class RaoParametersYamlConfigTest extends AbstractSerDeTest {
         assertEquals(Map.of("pst-1", "network-element-1", "pst-2", "network-element-2"), searchTreeParameters.getPstRegulationParameters().get().getPstsToRegulate());
 
         // Compare to json
-        roundTripTest(parameters, JsonRaoParameters::write, JsonRaoParameters::read, "/RaoParameters_config_withExtensions.json");
+        roundTripTest(
+                parameters,
+                (params, path) -> JsonRaoParameters.write(params, path, ReportNode.NO_OP),
+                path -> JsonRaoParameters.read(path, ReportNode.NO_OP),
+                "/RaoParameters_config_withExtensions.json");
     }
 
     @Test
@@ -151,7 +156,11 @@ class RaoParametersYamlConfigTest extends AbstractSerDeTest {
         assertNull(searchTreeParameters);
 
         // Compare to json
-        roundTripTest(parameters, JsonRaoParameters::write, JsonRaoParameters::read, "/RaoParameters_config_withoutExtensions.json");
+        roundTripTest(
+                parameters,
+                (params, path) -> JsonRaoParameters.write(params, path, ReportNode.NO_OP),
+                path -> JsonRaoParameters.read(path, ReportNode.NO_OP),
+                "/RaoParameters_config_withoutExtensions.json");
     }
 
     @Test
@@ -228,7 +237,11 @@ class RaoParametersYamlConfigTest extends AbstractSerDeTest {
         assertTrue(parameters.getRelativeMarginsParameters().isPresent());
 
         // Compare to json
-        roundTripTest(parameters, JsonRaoParameters::write, JsonRaoParameters::read, "/RaoParameters_config_withPartialExtensions.json");
+        roundTripTest(
+                parameters,
+                (params, path) -> JsonRaoParameters.write(params, path, ReportNode.NO_OP),
+                path -> JsonRaoParameters.read(path, ReportNode.NO_OP),
+                "/RaoParameters_config_withPartialExtensions.json");
     }
 
     @Test
@@ -245,6 +258,10 @@ class RaoParametersYamlConfigTest extends AbstractSerDeTest {
         assertEquals(111, olfParams.getMaxNewtonRaphsonIterations(), DOUBLE_TOLERANCE);
 
         // Compare to json
-        roundTripTest(parameters, JsonRaoParameters::write, JsonRaoParameters::read, "/RaoParameters_config_withOLFParams.json");
+        roundTripTest(
+                parameters,
+                (params, path) -> JsonRaoParameters.write(params, path, ReportNode.NO_OP),
+                path -> JsonRaoParameters.read(path, ReportNode.NO_OP),
+                "/RaoParameters_config_withOLFParams.json");
     }
 }

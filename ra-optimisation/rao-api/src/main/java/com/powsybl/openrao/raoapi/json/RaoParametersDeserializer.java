@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 
@@ -28,13 +29,16 @@ import static com.powsybl.openrao.raoapi.parameters.RaoParameters.addOptionalExt
  */
 public class RaoParametersDeserializer extends StdDeserializer<RaoParameters> {
 
-    public RaoParametersDeserializer() {
+    private final transient ReportNode reportNode;
+
+    public RaoParametersDeserializer(final ReportNode reportNode) {
         super(RaoParameters.class);
+        this.reportNode = reportNode;
     }
 
     @Override
     public RaoParameters deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
-        return deserialize(parser, deserializationContext, new RaoParameters());
+        return deserialize(parser, deserializationContext, new RaoParameters(reportNode));
     }
 
     @Override
@@ -85,7 +89,7 @@ public class RaoParametersDeserializer extends StdDeserializer<RaoParameters> {
             }
         }
         extensions.forEach(extension -> parameters.addExtension((Class) extension.getClass(), extension));
-        addOptionalExtensionsDefaultValuesIfExist(parameters);
+        addOptionalExtensionsDefaultValuesIfExist(parameters, reportNode);
         return parameters;
     }
 }

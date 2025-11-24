@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.fastrao;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
@@ -43,12 +44,12 @@ class FastRaoTest {
         Network network = Network.read("/network/TestCase12Nodes.uct", getClass().getResourceAsStream("/network/TestCase12Nodes.uct"));
         Crac crac = Crac.read("/crac/SL_ep4us3.json", getClass().getResourceAsStream("/crac/SL_ep4us3.json"), network);
         RaoInput individualRaoInput = RaoInput.build(network, crac).build();
-        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_posMargin_ampere.json"));
+        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_posMargin_ampere.json"), ReportNode.NO_OP);
         FastRaoParameters fastRaoParameters = new FastRaoParameters();
         fastRaoParameters.setNumberOfCnecsToAdd(1);
         fastRaoParameters.setAddUnsecureCnecs(true);
         raoParameters.addExtension(FastRaoParameters.class, fastRaoParameters);
-        FastRaoResultImpl raoResult = (FastRaoResultImpl) FastRao.launchFastRaoOptimization(individualRaoInput, raoParameters, null, new HashSet<>());
+        FastRaoResultImpl raoResult = (FastRaoResultImpl) FastRao.launchFastRaoOptimization(individualRaoInput, raoParameters, null, new HashSet<>(), ReportNode.NO_OP);
         assertEquals(-143.83, raoResult.getFunctionalCost(crac.getLastInstant()), 1e-1);
         assertEquals(6, raoResult.getExtension(CriticalCnecsResult.class).getCriticalCnecIds().size());
     }
@@ -59,12 +60,12 @@ class FastRaoTest {
         Network network = Network.read("/network/TestCase16Nodes.uct", getClass().getResourceAsStream("/network/TestCase16Nodes.uct"));
         Crac crac = Crac.read("/crac/SL_ep13us4case3.json", getClass().getResourceAsStream("/crac/SL_ep13us4case3.json"), network);
         RaoInput individualRaoInput = RaoInput.build(network, crac).build();
-        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_secure_ampere.json"));
+        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_secure_ampere.json"), ReportNode.NO_OP);
         FastRaoParameters fastRaoParameters = new FastRaoParameters();
         fastRaoParameters.setNumberOfCnecsToAdd(1);
         fastRaoParameters.setAddUnsecureCnecs(true);
         raoParameters.addExtension(FastRaoParameters.class, fastRaoParameters);
-        FastRaoResultImpl raoResult = (FastRaoResultImpl) FastRao.launchFastRaoOptimization(individualRaoInput, raoParameters, null, new HashSet<>());
+        FastRaoResultImpl raoResult = (FastRaoResultImpl) FastRao.launchFastRaoOptimization(individualRaoInput, raoParameters, null, new HashSet<>(), ReportNode.NO_OP);
         assertEquals(314.7, raoResult.getFunctionalCost(crac.getLastInstant()), 1e-1);
         assertEquals(2, raoResult.getExtension(CriticalCnecsResult.class).getCriticalCnecIds().size());
     }
@@ -75,10 +76,10 @@ class FastRaoTest {
         Network network = Network.read("/network/3Nodes1LineOpen.uct", getClass().getResourceAsStream("/network/3Nodes1LineOpen.uct"));
         Crac crac = Crac.read("/crac/fast-rao-UT-2prev-network-action.json", getClass().getResourceAsStream("/crac/fast-rao-UT-2prev-network-action.json"), network);
         RaoInput individualRaoInput = RaoInput.build(network, crac).build();
-        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_secure.json"));
+        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_secure.json"), ReportNode.NO_OP);
         FastRaoParameters fastRaoParameters = new FastRaoParameters();
         raoParameters.addExtension(FastRaoParameters.class, fastRaoParameters);
-        FastRaoResultImpl raoResult = (FastRaoResultImpl) FastRao.launchFastRaoOptimization(individualRaoInput, raoParameters, null, new HashSet<>());
+        FastRaoResultImpl raoResult = (FastRaoResultImpl) FastRao.launchFastRaoOptimization(individualRaoInput, raoParameters, null, new HashSet<>(), ReportNode.NO_OP);
         assertEquals(-33.39, raoResult.getFunctionalCost(crac.getLastInstant()), 1e-1);
         assertEquals(List.of(List.of("Close FR2 FR3", "Close FR1 FR2")), raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getTopoOptimizationParameters().getPredefinedCombinations());
     }
@@ -91,11 +92,11 @@ class FastRaoTest {
         Network network = Network.read("/network/US2-3-case4-networkDiverge.uct", getClass().getResourceAsStream("/network/US2-3-case4-networkDiverge.uct"));
         Crac crac = Crac.read("/crac/SL_ep2us3case4.json", getClass().getResourceAsStream("/crac/SL_ep2us3case4.json"), network);
         RaoInput individualRaoInput = RaoInput.build(network, crac).build();
-        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_posMargin_ampere.json"));
+        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_posMargin_ampere.json"), ReportNode.NO_OP);
         FastRaoParameters fastRaoParameters = new FastRaoParameters();
         fastRaoParameters.setNumberOfCnecsToAdd(1);
         raoParameters.addExtension(FastRaoParameters.class, fastRaoParameters);
-        RaoResult raoResult = FastRao.launchFastRaoOptimization(individualRaoInput, raoParameters, null, new HashSet<>());
+        RaoResult raoResult = FastRao.launchFastRaoOptimization(individualRaoInput, raoParameters, null, new HashSet<>(), ReportNode.NO_OP);
         assertInstanceOf(FailedRaoResultImpl.class, raoResult);
         assertEquals("Initial sensitivity analysis failed", raoResult.getExecutionDetails());
     }
@@ -108,7 +109,7 @@ class FastRaoTest {
 
         State state = Mockito.mock(State.class);
         Mockito.when(individualRaoInput.getOptimizedState()).thenReturn(state);
-        RaoResult raoResult = FastRao.launchFastRaoOptimization(individualRaoInput, raoParameters, null, new HashSet<>());
+        RaoResult raoResult = FastRao.launchFastRaoOptimization(individualRaoInput, raoParameters, null, new HashSet<>(), ReportNode.NO_OP);
         assertInstanceOf(FailedRaoResultImpl.class, raoResult);
         assertEquals("Fast Rao does not support optimization on one given state only", raoResult.getExecutionDetails());
 
@@ -123,7 +124,7 @@ class FastRaoTest {
         curativeInstants.add(instant);
         curativeInstants.add(instant2);
         Mockito.when(crac.getInstants(InstantKind.CURATIVE)).thenReturn(curativeInstants);
-        raoResult = FastRao.launchFastRaoOptimization(individualRaoInput, raoParameters, null, new HashSet<>());
+        raoResult = FastRao.launchFastRaoOptimization(individualRaoInput, raoParameters, null, new HashSet<>(), ReportNode.NO_OP);
         assertInstanceOf(FailedRaoResultImpl.class, raoResult);
         assertEquals("Fast Rao does not support multi-curative optimization", raoResult.getExecutionDetails());
     }

@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.commons.parameters;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
@@ -27,8 +28,8 @@ class TreeParametersTest {
 
     @BeforeEach
     public void setUp() {
-        raoParameters = new RaoParameters();
-        raoParameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters());
+        raoParameters = new RaoParameters(ReportNode.NO_OP);
+        raoParameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters(ReportNode.NO_OP));
         searchTreeParameters = raoParameters.getExtension(OpenRaoSearchTreeParameters.class);
         searchTreeParameters.getRangeActionsOptimizationParameters().setRaRangeShrinking(SearchTreeRaoRangeActionsOptimizationParameters.RaRangeShrinking.DISABLED);
         searchTreeParameters.getTopoOptimizationParameters().setMaxPreventiveSearchTreeDepth(6);
@@ -83,7 +84,7 @@ class TreeParametersTest {
     void testCurativePreventiveObjectiveStopCriterion() {
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN);
         raoParameters.getObjectiveFunctionParameters().setEnforceCurativeSecurity(false);
-        searchTreeParameters.getObjectiveFunctionParameters().setCurativeMinObjImprovement(35);
+        searchTreeParameters.getObjectiveFunctionParameters().setCurativeMinObjImprovement(35, ReportNode.NO_OP);
         searchTreeParameters.getTopoOptimizationParameters().setMaxPreventiveSearchTreeDepth(0);
         searchTreeParameters.getTopoOptimizationParameters().setMaxCurativeSearchTreeDepth(0);
         searchTreeParameters.getRangeActionsOptimizationParameters().setRaRangeShrinking(SearchTreeRaoRangeActionsOptimizationParameters.RaRangeShrinking.ENABLED);
@@ -100,7 +101,7 @@ class TreeParametersTest {
     void testCurativePreventiveObjectiveAndSecureStopCriterion() {
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN);
         raoParameters.getObjectiveFunctionParameters().setEnforceCurativeSecurity(true);
-        searchTreeParameters.getObjectiveFunctionParameters().setCurativeMinObjImprovement(35);
+        searchTreeParameters.getObjectiveFunctionParameters().setCurativeMinObjImprovement(35, ReportNode.NO_OP);
 
         // limited by secure
         TreeParameters treeParameters = TreeParameters.buildForCurativePerimeter(raoParameters, 100.0);
