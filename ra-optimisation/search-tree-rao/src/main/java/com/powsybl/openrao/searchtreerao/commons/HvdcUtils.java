@@ -8,6 +8,7 @@
 package com.powsybl.openrao.searchtreerao.commons;
 
 import com.powsybl.action.HvdcAction;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.HvdcLine;
@@ -134,9 +135,12 @@ public final class HvdcUtils {
     /**
      * Run a load flow to update the initial set-points of the HVDC range actions assiociated to HVDC line in AC emulation mode
      */
-    static void updateHvdcRangeActionInitialSetpoint(Crac crac, Network network, RaoParameters raoParameters) {
+    static void updateHvdcRangeActionInitialSetpoint(final Crac crac,
+                                                     final Network network,
+                                                     final RaoParameters raoParameters,
+                                                     final ReportNode reportNode) {
         // Run load flow to update flow on all the lines of the network
-        LoadFlowAndSensitivityParameters loadFlowAndSensitivityParameters = new LoadFlowAndSensitivityParameters();
+        LoadFlowAndSensitivityParameters loadFlowAndSensitivityParameters = new LoadFlowAndSensitivityParameters(reportNode);
         if (raoParameters.hasExtension(OpenRaoSearchTreeParameters.class)) {
             loadFlowAndSensitivityParameters = raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getLoadFlowAndSensitivityParameters();
         }

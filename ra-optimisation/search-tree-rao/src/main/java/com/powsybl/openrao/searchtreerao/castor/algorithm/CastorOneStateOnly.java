@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.castor.algorithm;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
@@ -24,6 +25,8 @@ import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.Optimiza
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.PreventiveOptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.commons.parameters.TreeParameters;
 import com.powsybl.openrao.searchtreerao.commons.parameters.UnoptimizedCnecParameters;
+import com.powsybl.openrao.searchtreerao.reports.CastorReports;
+import com.powsybl.openrao.searchtreerao.reports.CommonReports;
 import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
 import com.powsybl.openrao.searchtreerao.result.impl.FailedRaoResultImpl;
@@ -37,7 +40,6 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
-import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_LOGS;
 import static com.powsybl.openrao.searchtreerao.commons.HvdcUtils.getHvdcRangeActionsOnHvdcLineInAcEmulation;
 
 /**
@@ -54,16 +56,19 @@ public class CastorOneStateOnly {
 
     private final RaoInput raoInput;
     private final RaoParameters raoParameters;
+    private final ReportNode reportNode;
 
-    public CastorOneStateOnly(RaoInput raoInput, RaoParameters raoParameters) {
+    public CastorOneStateOnly(final RaoInput raoInput, final RaoParameters raoParameters, final ReportNode reportNode) {
         this.raoInput = raoInput;
         this.raoParameters = raoParameters;
+        this.reportNode = reportNode;
     }
 
     public CompletableFuture<RaoResult> run() {
+        final ReportNode optimizationReportNode = CastorReports.reportCastorOneStateOnly(reportNode);
 
-        RaoUtil.initData(raoInput, raoParameters);
-        StateTree stateTree = new StateTree(raoInput.getCrac());
+        RaoUtil.initData(raoInput, raoParameters, reportNode);
+        StateTree stateTree = new StateTree(raoInput.getCrac(), optimizationReportNode);
         ToolProvider toolProvider = ToolProvider.buildFromRaoInputAndParameters(raoInput, raoParameters);
 
         // compute initial sensitivity on CNECs of the only optimized state
@@ -75,9 +80,9 @@ public class CastorOneStateOnly {
             toolProvider);
 
         PrePerimeterResult initialResults;
-        initialResults = prePerimeterSensitivityAnalysis.runInitialSensitivityAnalysis(raoInput.getNetwork(), Set.of(raoInput.getOptimizedState()));
+        initialResults = prePerimeterSensitivityAnalysis.runInitialSensitivityAnalysis(raoInput.getNetwork(), Set.of(raoInput.getOptimizedState()), optimizationReportNode);
         if (initialResults.getSensitivityStatus() == ComputationStatus.FAILURE) {
-            BUSINESS_LOGS.error("Initial sensitivity analysis failed");
+            CommonReports.reportInitialSensitivityAnalysisFailed(optimizationReportNode);
             return CompletableFuture.completedFuture(new FailedRaoResultImpl("Initial sensitivity analysis failed"));
         }
 
@@ -93,20 +98,20 @@ public class CastorOneStateOnly {
             perimeterFlowCnecs = raoInput.getCrac().getFlowCnecs(raoInput.getOptimizedState());
             // TODO: see how to handle multiple curative instants here
             State curativeState = raoInput.getCrac().getState(raoInput.getOptimizedState().getContingency().orElseThrow(), raoInput.getCrac().getInstant(InstantKind.CURATIVE));
-            AutomatonSimulator automatonSimulator = new AutomatonSimulator(raoInput.getCrac(), raoParameters, toolProvider, initialResults, initialResults, stateTree.getOperatorsNotSharingCras(), 2);
+            AutomatonSimulator automatonSimulator = new AutomatonSimulator(raoInput.getCrac(), raoParameters, toolProvider, initialResults, initialResults, stateTree.getOperatorsNotSharingCras(), 2, optimizationReportNode);
             optimizationResult = automatonSimulator.simulateAutomatonState(raoInput.getOptimizedState(), Set.of(curativeState), raoInput.getNetwork());
         } else {
             if (raoInput.getOptimizedState().equals(raoInput.getCrac().getPreventiveState())) {
-                optPerimeter = PreventiveOptimizationPerimeter.buildWithPreventiveCnecsOnly(raoInput.getCrac(), raoInput.getNetwork(), raoParameters, initialResults);
+                optPerimeter = PreventiveOptimizationPerimeter.buildWithPreventiveCnecsOnly(raoInput.getCrac(), raoInput.getNetwork(), raoParameters, initialResults, optimizationReportNode);
                 treeParameters = TreeParameters.buildForPreventivePerimeter(raoParameters);
             } else {
-                optPerimeter = CurativeOptimizationPerimeter.build(raoInput.getOptimizedState(), raoInput.getCrac(), raoInput.getNetwork(), raoParameters, initialResults);
+                optPerimeter = CurativeOptimizationPerimeter.build(raoInput.getOptimizedState(), raoInput.getCrac(), raoInput.getNetwork(), raoParameters, initialResults, optimizationReportNode);
                 treeParameters = TreeParameters.buildForCurativePerimeter(raoParameters, -Double.MAX_VALUE);
                 operatorsNotToOptimize.addAll(stateTree.getOperatorsNotSharingCras());
             }
             perimeterFlowCnecs = optPerimeter.getFlowCnecs();
 
-            SearchTreeParameters.SearchTreeParametersBuilder searchTreeParametersBuilder = SearchTreeParameters.create()
+            SearchTreeParameters.SearchTreeParametersBuilder searchTreeParametersBuilder = SearchTreeParameters.create(reportNode)
                 .withConstantParametersOverAllRao(raoParameters, raoInput.getCrac())
                 .withTreeParameters(treeParameters)
                 .withUnoptimizedCnecParameters(UnoptimizedCnecParameters.build(raoParameters.getNotOptimizedCnecsParameters(), stateTree.getOperatorsNotSharingCras()));
@@ -115,7 +120,7 @@ public class CastorOneStateOnly {
                 LoadFlowAndSensitivityParameters loadFlowAndSensitivityParameters =
                     raoParameters.hasExtension(OpenRaoSearchTreeParameters.class)
                         ? raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getLoadFlowAndSensitivityParameters()
-                        : new LoadFlowAndSensitivityParameters();
+                        : new LoadFlowAndSensitivityParameters(reportNode);
                 searchTreeParametersBuilder.withLoadFlowAndSensitivityParameters(loadFlowAndSensitivityParameters);
             }
 
@@ -133,7 +138,7 @@ public class CastorOneStateOnly {
                     .withToolProvider(toolProvider)
                     .withOutageInstant(raoInput.getCrac().getOutageInstant())
                     .build();
-            optimizationResult = new SearchTree(searchTreeInput, searchTreeParameters, true).run().join();
+            optimizationResult = new SearchTree(searchTreeInput, searchTreeParameters, true, optimizationReportNode).run().join();
 
             // apply RAs and return results
             // network actions need to be applied BEFORE range actions because to apply HVDC range actions we need to apply AC emulation deactivation network actions beforehand

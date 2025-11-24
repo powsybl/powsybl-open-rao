@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.searchtree.parameters;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
@@ -281,11 +282,12 @@ public class SearchTreeParameters {
         return Math.abs(result.getOptimizedTap(pstRangeAction, optimizedState) - prePerimeterResult.getTap(pstRangeAction));
     }
 
-    public static SearchTreeParametersBuilder create() {
-        return new SearchTreeParametersBuilder();
+    public static SearchTreeParametersBuilder create(final ReportNode reportNode) {
+        return new SearchTreeParametersBuilder(reportNode);
     }
 
     public static class SearchTreeParametersBuilder {
+        private final ReportNode reportNode;
         private ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction;
         private Unit objectiveFunctionUnit;
         private TreeParameters treeParameters;
@@ -306,10 +308,14 @@ public class SearchTreeParameters {
 
         private Optional<LoadFlowAndSensitivityParameters> loadFlowAndSensitivityParameters;
 
+        public SearchTreeParametersBuilder(final ReportNode reportNode) {
+            this.reportNode = reportNode;
+        }
+
         public SearchTreeParametersBuilder withConstantParametersOverAllRao(RaoParameters raoParameters, Crac crac) {
             this.objectiveFunction = raoParameters.getObjectiveFunctionParameters().getType();
             this.objectiveFunctionUnit = raoParameters.getObjectiveFunctionParameters().getUnit();
-            this.networkActionParameters = NetworkActionParameters.buildFromRaoParameters(raoParameters, crac);
+            this.networkActionParameters = NetworkActionParameters.buildFromRaoParameters(raoParameters, crac, reportNode);
             this.raLimitationParameters = new HashMap<>(crac.getRaUsageLimitsPerInstant());
             this.rangeActionParameters = raoParameters.getRangeActionsOptimizationParameters();
             if (raoParameters.hasExtension(OpenRaoSearchTreeParameters.class)) {

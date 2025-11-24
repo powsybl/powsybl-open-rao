@@ -10,17 +10,17 @@ package com.powsybl.openrao.raoapi;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.raoresult.api.InterTemporalRaoResult;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.openrao.raoapi.reports.RaoApiReports;
 import com.powsybl.tools.Version;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.ServiceLoader;
-
-import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -40,9 +40,11 @@ public final class InterTemporalRao {
     public static class Runner {
 
         private final InterTemporalRaoProvider provider;
+        private final ReportNode reportNode;
 
-        public Runner(InterTemporalRaoProvider provider) {
+        public Runner(final InterTemporalRaoProvider provider, final ReportNode reportNode) {
             this.provider = Objects.requireNonNull(provider);
+            this.reportNode = reportNode;
         }
 
         public InterTemporalRaoResult run(InterTemporalRaoInputWithNetworkPaths raoInput, RaoParameters parameters) {
@@ -53,13 +55,13 @@ public final class InterTemporalRao {
                 .map(ServiceLoader.Provider::get)
                 .filter(version -> version.getRepositoryName().equals("open-rao"))
                 .findFirst().orElseThrow();
-            BUSINESS_WARNS.warn("Running RAO using Open RAO version {} from git commit {}.", openRaoVersion.getMavenProjectVersion(), openRaoVersion.getGitVersion());
+            RaoApiReports.reportRaoVersionAndGitCommit(reportNode, openRaoVersion.getMavenProjectVersion(), openRaoVersion.getGitVersion());
 
-            return provider.run(raoInput, parameters).join();
+            return provider.run(raoInput, parameters, reportNode).join();
         }
 
         public InterTemporalRaoResult run(InterTemporalRaoInputWithNetworkPaths raoInput) {
-            return run(raoInput, RaoParameters.load());
+            return run(raoInput, RaoParameters.load(reportNode));
         }
 
         public String getName() {
@@ -74,8 +76,8 @@ public final class InterTemporalRao {
      * @param name name of the RAO implementation, null if we want to use default one
      * @return a runner for RAO implementation named {@code name}
      */
-    public static InterTemporalRao.Runner find(String name) {
-        return find(name, RAO_PROVIDERS.get(), PlatformConfig.defaultConfig());
+    public static InterTemporalRao.Runner find(final String name, final ReportNode reportNode) {
+        return find(name, RAO_PROVIDERS.get(), PlatformConfig.defaultConfig(), reportNode);
     }
 
     /**
@@ -84,8 +86,8 @@ public final class InterTemporalRao {
      * @throws OpenRaoException in case we cannot find a default implementation
      * @return a runner for default RAO implementation
      */
-    public static InterTemporalRao.Runner find() {
-        return find(null);
+    public static InterTemporalRao.Runner find(final ReportNode reportNode) {
+        return find(null, reportNode);
     }
 
     /**
@@ -98,7 +100,10 @@ public final class InterTemporalRao {
      * @param platformConfig platform config to look for default flowbased implementation name
      * @return a runner for flowbased implementation named {@code name}
      */
-    public static InterTemporalRao.Runner find(String name, List<InterTemporalRaoProvider> providers, PlatformConfig platformConfig) {
+    public static InterTemporalRao.Runner find(final String name,
+                                               final List<InterTemporalRaoProvider> providers,
+                                               final PlatformConfig platformConfig,
+                                               final ReportNode reportNode) {
         Objects.requireNonNull(providers);
         Objects.requireNonNull(platformConfig);
 
@@ -130,14 +135,14 @@ public final class InterTemporalRao {
                 .orElseThrow(() -> new OpenRaoException("RA optimizer provider '" + raOptimizerName + "' not found"));
         }
 
-        return new InterTemporalRao.Runner(provider);
+        return new InterTemporalRao.Runner(provider, reportNode);
     }
 
-    public static InterTemporalRaoResult run(InterTemporalRaoInputWithNetworkPaths raoInput, RaoParameters parameters) {
-        return find().run(raoInput, parameters);
+    public static InterTemporalRaoResult run(final InterTemporalRaoInputWithNetworkPaths raoInput, final RaoParameters parameters, final ReportNode reportNode) {
+        return find(reportNode).run(raoInput, parameters);
     }
 
-    public static InterTemporalRaoResult run(InterTemporalRaoInputWithNetworkPaths raoInput) {
-        return find().run(raoInput);
+    public static InterTemporalRaoResult run(final InterTemporalRaoInputWithNetworkPaths raoInput, final ReportNode reportNode) {
+        return find(reportNode).run(raoInput);
     }
 }

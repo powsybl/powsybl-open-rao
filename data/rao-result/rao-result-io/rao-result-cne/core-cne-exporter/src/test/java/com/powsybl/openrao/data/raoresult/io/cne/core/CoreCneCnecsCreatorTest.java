@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.raoresult.io.cne.core;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyElementType;
 import com.powsybl.openrao.commons.OpenRaoException;
@@ -64,7 +65,7 @@ class CoreCneCnecsCreatorTest {
             .newInstant(CURATIVE_INSTANT_ID, InstantKind.CURATIVE);
         curativeInstant = crac.getInstant(CURATIVE_INSTANT_ID);
         raoResult = Mockito.mock(RaoResult.class);
-        raoParameters = new RaoParameters();
+        raoParameters = new RaoParameters(ReportNode.NO_OP);
 
         properties = new Properties();
         properties.setProperty("rao-result.export.core-cne.relative-positive-margins", "true");

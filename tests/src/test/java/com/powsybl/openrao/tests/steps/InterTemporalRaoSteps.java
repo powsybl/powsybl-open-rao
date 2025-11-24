@@ -7,6 +7,7 @@
  */
 package com.powsybl.openrao.tests.steps;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
@@ -205,7 +206,7 @@ public final class InterTemporalRaoSteps {
 
     @When("I launch marmot")
     public static void iLaunchMarmot() {
-        interTemporalRaoResult = InterTemporalRao.run(interTemporalRaoInput, getRaoParameters());
+        interTemporalRaoResult = InterTemporalRao.run(interTemporalRaoInput, getRaoParameters(), ReportNode.NO_OP);
     }
 
     @When("I export marmot results to {string}")

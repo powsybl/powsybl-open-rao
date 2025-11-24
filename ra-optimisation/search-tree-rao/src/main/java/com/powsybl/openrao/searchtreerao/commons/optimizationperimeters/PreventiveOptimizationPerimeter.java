@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.commons.optimizationperimeters;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.State;
@@ -41,19 +42,19 @@ public class PreventiveOptimizationPerimeter extends AbstractOptimizationPerimet
         }
     }
 
-    public static PreventiveOptimizationPerimeter buildFromBasecaseScenario(Perimeter preventivePerimeter, Crac crac, Network network, RaoParameters raoParameters, PrePerimeterResult prePerimeterResult) {
-        return buildForStates(preventivePerimeter.getRaOptimisationState(), preventivePerimeter.getAllStates(), crac, network, raoParameters, prePerimeterResult);
+    public static PreventiveOptimizationPerimeter buildFromBasecaseScenario(final Perimeter preventivePerimeter, final Crac crac, final Network network, final RaoParameters raoParameters, final PrePerimeterResult prePerimeterResult, final ReportNode reportNode) {
+        return buildForStates(preventivePerimeter.getRaOptimisationState(), preventivePerimeter.getAllStates(), crac, network, raoParameters, prePerimeterResult, reportNode);
     }
 
-    public static PreventiveOptimizationPerimeter buildWithPreventiveCnecsOnly(Crac crac, Network network, RaoParameters raoParameters, PrePerimeterResult prePerimeterResult) {
-        return buildForStates(crac.getPreventiveState(), Collections.singleton(crac.getPreventiveState()), crac, network, raoParameters, prePerimeterResult);
+    public static PreventiveOptimizationPerimeter buildWithPreventiveCnecsOnly(final Crac crac, final Network network, final RaoParameters raoParameters, final PrePerimeterResult prePerimeterResult, final ReportNode reportNode) {
+        return buildForStates(crac.getPreventiveState(), Collections.singleton(crac.getPreventiveState()), crac, network, raoParameters, prePerimeterResult, reportNode);
     }
 
-    public static PreventiveOptimizationPerimeter buildForStates(State preventiveState, Set<State> allMonitoredStates, Crac crac, Network network, RaoParameters raoParameters, PrePerimeterResult prePerimeterResult) {
-        return buildForStates(preventiveState, allMonitoredStates, crac, network, crac.getRangeActions(preventiveState), raoParameters, prePerimeterResult);
+    public static PreventiveOptimizationPerimeter buildForStates(final State preventiveState, final Set<State> allMonitoredStates, final Crac crac, final Network network, final RaoParameters raoParameters, final PrePerimeterResult prePerimeterResult, final ReportNode reportNode) {
+        return buildForStates(preventiveState, allMonitoredStates, crac, network, crac.getRangeActions(preventiveState), raoParameters, prePerimeterResult, reportNode);
     }
 
-    public static PreventiveOptimizationPerimeter buildForStates(State preventiveState, Set<State> allMonitoredStates, Crac crac, Network network, Set<RangeAction<?>> rangeActions, RaoParameters raoParameters, PrePerimeterResult prePerimeterResult) {
+    public static PreventiveOptimizationPerimeter buildForStates(final State preventiveState, final Set<State> allMonitoredStates, final Crac crac, final Network network, final Set<RangeAction<?>> rangeActions, final RaoParameters raoParameters, final PrePerimeterResult prePerimeterResult, final ReportNode reportNode) {
         Set<State> filteredStates = allMonitoredStates.stream()
             .filter(state -> !prePerimeterResult.getSensitivityStatus(state).equals(ComputationStatus.FAILURE))
             .collect(Collectors.toSet());
@@ -70,9 +71,9 @@ public class PreventiveOptimizationPerimeter extends AbstractOptimizationPerimet
 
         Set<RangeAction<?>> availableRangeActions = rangeActions.stream()
             .filter(ra -> RaoUtil.canRemedialActionBeUsed(ra, preventiveState, prePerimeterResult, flowCnecs, network, raoParameters))
-            .filter(ra -> AbstractOptimizationPerimeter.doesPrePerimeterSetpointRespectRange(ra, prePerimeterResult))
+            .filter(ra -> AbstractOptimizationPerimeter.doesPrePerimeterSetpointRespectRange(ra, prePerimeterResult, reportNode))
             .collect(Collectors.toSet());
-        removeAlignedRangeActionsWithDifferentInitialSetpoints(availableRangeActions, prePerimeterResult);
+        removeAlignedRangeActionsWithDifferentInitialSetpoints(availableRangeActions, prePerimeterResult, reportNode);
 
         return new PreventiveOptimizationPerimeter(preventiveState,
             flowCnecs,

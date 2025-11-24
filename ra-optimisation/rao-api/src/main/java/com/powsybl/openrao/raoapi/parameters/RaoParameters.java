@@ -14,6 +14,7 @@ import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionConfigLoader;
 import com.powsybl.commons.extensions.ExtensionProviders;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoLoopFlowParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoMnecParameters;
@@ -26,13 +27,23 @@ import java.util.Optional;
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 public class RaoParameters extends AbstractExtendable<RaoParameters> {
-    private ObjectiveFunctionParameters objectiveFunctionParameters = new ObjectiveFunctionParameters();
-    private RangeActionsOptimizationParameters rangeActionsOptimizationParameters = new RangeActionsOptimizationParameters();
-    private TopoOptimizationParameters topoOptimizationParameters = new TopoOptimizationParameters();
-    private NotOptimizedCnecsParameters notOptimizedCnecsParameters = new NotOptimizedCnecsParameters();
-    private Optional<MnecParameters> mnecParameters = Optional.empty();
-    private Optional<RelativeMarginsParameters> relativeMarginsParameters = Optional.empty();
-    private Optional<LoopFlowParameters> loopFlowParameters = Optional.empty();
+    private ObjectiveFunctionParameters objectiveFunctionParameters;
+    private RangeActionsOptimizationParameters rangeActionsOptimizationParameters;
+    private TopoOptimizationParameters topoOptimizationParameters;
+    private NotOptimizedCnecsParameters notOptimizedCnecsParameters;
+    private Optional<MnecParameters> mnecParameters;
+    private Optional<RelativeMarginsParameters> relativeMarginsParameters;
+    private Optional<LoopFlowParameters> loopFlowParameters;
+
+    public RaoParameters(final ReportNode reportNode) {
+        this.objectiveFunctionParameters = new ObjectiveFunctionParameters();
+        this.rangeActionsOptimizationParameters = new RangeActionsOptimizationParameters();
+        this.topoOptimizationParameters = new TopoOptimizationParameters(reportNode);
+        this.notOptimizedCnecsParameters = new NotOptimizedCnecsParameters();
+        this.mnecParameters = Optional.empty();
+        this.relativeMarginsParameters = Optional.empty();
+        this.loopFlowParameters = Optional.empty();
+    }
 
     // Getters and setters
     public void setObjectiveFunctionParameters(ObjectiveFunctionParameters objectiveFunctionParameters) {
@@ -111,29 +122,29 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
     /**
      * @return RaoParameters from platform default config.
      */
-    public static RaoParameters load() {
-        return load(PlatformConfig.defaultConfig());
+    public static RaoParameters load(final ReportNode reportNode) {
+        return load(PlatformConfig.defaultConfig(), reportNode);
     }
 
     /**
      * @param platformConfig PlatformConfig where the RaoParameters should be read from
      * @return RaoParameters from the provided platform config
      */
-    public static RaoParameters load(PlatformConfig platformConfig) {
+    public static RaoParameters load(final PlatformConfig platformConfig, final ReportNode reportNode) {
         Objects.requireNonNull(platformConfig);
-        RaoParameters parameters = new RaoParameters();
-        load(parameters, platformConfig);
+        RaoParameters parameters = new RaoParameters(reportNode);
+        load(parameters, platformConfig, reportNode);
         parameters.loadExtensions(platformConfig);
-        addOptionalExtensionsDefaultValuesIfExist(parameters);
+        addOptionalExtensionsDefaultValuesIfExist(parameters, reportNode);
         return parameters;
     }
 
-    public static void load(RaoParameters parameters, PlatformConfig platformConfig) {
+    public static void load(final RaoParameters parameters, final PlatformConfig platformConfig, final ReportNode reportNode) {
         Objects.requireNonNull(parameters);
         Objects.requireNonNull(platformConfig);
         parameters.setObjectiveFunctionParameters(ObjectiveFunctionParameters.load(platformConfig));
         parameters.setRangeActionsOptimizationParameters(RangeActionsOptimizationParameters.load(platformConfig));
-        parameters.setTopoOptimizationParameters(TopoOptimizationParameters.load(platformConfig));
+        parameters.setTopoOptimizationParameters(TopoOptimizationParameters.load(platformConfig, reportNode));
         parameters.setNotOptimizedCnecsParameters(NotOptimizedCnecsParameters.load(platformConfig));
         MnecParameters.load(platformConfig).ifPresent(parameters::setMnecParameters);
         RelativeMarginsParameters.load(platformConfig).ifPresent(parameters::setRelativeMarginsParameters);
@@ -149,11 +160,11 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
         }
     }
 
-    public static void addOptionalExtensionsDefaultValuesIfExist(RaoParameters parameters) {
+    public static void addOptionalExtensionsDefaultValuesIfExist(final RaoParameters parameters, final ReportNode reportNode) {
         OpenRaoSearchTreeParameters extension = parameters.getExtension(OpenRaoSearchTreeParameters.class);
         if (parameters.getMnecParameters().isPresent()) {
             if (Objects.isNull(extension)) {
-                parameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters());
+                parameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters(reportNode));
             }
             extension = parameters.getExtension(OpenRaoSearchTreeParameters.class);
             if (extension.getMnecParameters().isEmpty()) {
@@ -166,7 +177,7 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
         }
         if (parameters.getRelativeMarginsParameters().isPresent()) {
             if (Objects.isNull(extension)) {
-                parameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters());
+                parameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters(reportNode));
             }
             extension = parameters.getExtension(OpenRaoSearchTreeParameters.class);
             if (extension.getRelativeMarginsParameters().isEmpty()) {
@@ -179,7 +190,7 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
         }
         if (parameters.getLoopFlowParameters().isPresent()) {
             if (Objects.isNull(extension)) {
-                parameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters());
+                parameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters(reportNode));
             }
             extension = parameters.getExtension(OpenRaoSearchTreeParameters.class);
             if (extension.getLoopFlowParameters().isEmpty()) {

@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.searchtreerao.commons.FlowCnecSorting;
@@ -37,7 +38,9 @@ public class MinMarginViolationEvaluator extends MinMarginEvaluator implements C
     }
 
     @Override
-    public CostEvaluatorResult evaluate(FlowResult flowResult, RemedialActionActivationResult remedialActionActivationResult) {
+    public CostEvaluatorResult evaluate(final FlowResult flowResult,
+                                        final RemedialActionActivationResult remedialActionActivationResult,
+                                        final ReportNode reportNode) {
         Map<FlowCnec, Double> costPerCnec = getCostPerCnec(flowCnecs, flowResult, unit);
         return new SumMaxPerTimestampCostEvaluatorResult(costPerCnec, FlowCnecSorting.sortByNegativeMargin(flowCnecs, unit, marginEvaluator, flowResult), unit);
     }

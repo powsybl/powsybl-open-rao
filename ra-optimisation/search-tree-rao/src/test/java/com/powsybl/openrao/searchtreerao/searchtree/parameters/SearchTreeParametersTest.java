@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.searchtree.parameters;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
@@ -45,13 +46,13 @@ class SearchTreeParametersTest {
 
     @BeforeEach
     public void setup() {
-        builder = SearchTreeParameters.create();
+        builder = SearchTreeParameters.create(ReportNode.NO_OP);
     }
 
     @Test
     void testWithConstantParametersOverAllRao() {
-        RaoParameters raoParameters = new RaoParameters();
-        raoParameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters());
+        RaoParameters raoParameters = new RaoParameters(ReportNode.NO_OP);
+        raoParameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters(ReportNode.NO_OP));
         OpenRaoSearchTreeParameters raoParametersExtension = raoParameters.getExtension(OpenRaoSearchTreeParameters.class);
         Crac crac = Mockito.mock(Crac.class);
         builder.withConstantParametersOverAllRao(raoParameters, crac);
@@ -59,7 +60,7 @@ class SearchTreeParametersTest {
         assertNotNull(searchTreeParameters);
 
         assertEquals(raoParameters.getObjectiveFunctionParameters().getType(), searchTreeParameters.getObjectiveFunction());
-        assertEquals(NetworkActionParameters.buildFromRaoParameters(raoParameters, crac), searchTreeParameters.getNetworkActionParameters());
+        assertEquals(NetworkActionParameters.buildFromRaoParameters(raoParameters, crac, ReportNode.NO_OP), searchTreeParameters.getNetworkActionParameters());
         assertEquals(crac.getRaUsageLimitsPerInstant(), searchTreeParameters.getRaLimitationParameters());
         assertEquals(raoParameters.getRangeActionsOptimizationParameters(), searchTreeParameters.getRangeActionParameters());
         assertEquals(raoParameters.getMnecParameters().orElse(null), searchTreeParameters.getMnecParameters());
@@ -178,7 +179,7 @@ class SearchTreeParametersTest {
 
         // preventive
 
-        SearchTreeParameters preventiveParameters = SearchTreeParameters.create()
+        SearchTreeParameters preventiveParameters = SearchTreeParameters.create(ReportNode.NO_OP)
             .withGlobalRemedialActionLimitationParameters(new HashMap<>(crac.getRaUsageLimitsPerInstant()))
             .build();
 
@@ -226,7 +227,7 @@ class SearchTreeParametersTest {
 
         // curative 1
 
-        SearchTreeParameters curative1Parameters = SearchTreeParameters.create()
+        SearchTreeParameters curative1Parameters = SearchTreeParameters.create(ReportNode.NO_OP)
             .withGlobalRemedialActionLimitationParameters(new HashMap<>(crac.getRaUsageLimitsPerInstant()))
             .build();
 
@@ -267,7 +268,7 @@ class SearchTreeParametersTest {
 
         // curative 2
 
-        SearchTreeParameters curative2Parameters = SearchTreeParameters.create()
+        SearchTreeParameters curative2Parameters = SearchTreeParameters.create(ReportNode.NO_OP)
             .withGlobalRemedialActionLimitationParameters(new HashMap<>(crac.getRaUsageLimitsPerInstant()))
             .build();
 

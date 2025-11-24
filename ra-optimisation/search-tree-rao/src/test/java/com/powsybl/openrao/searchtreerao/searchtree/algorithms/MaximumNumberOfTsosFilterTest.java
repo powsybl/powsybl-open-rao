@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.searchtree.algorithms;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
@@ -40,20 +41,20 @@ class MaximumNumberOfTsosFilterTest {
 
         // max 3 TSOs
         naFilter = new MaximumNumberOfTsosFilter(3);
-        filteredNaCombination = naFilter.filter(naCombinations, previousLeaf);
+        filteredNaCombination = naFilter.filter(naCombinations, previousLeaf, ReportNode.NO_OP);
 
         assertEquals(9, filteredNaCombination.size()); // no combination filtered
 
         // max 2 TSOs
         naFilter = new MaximumNumberOfTsosFilter(2);
-        filteredNaCombination = naFilter.filter(naCombinations, previousLeaf);
+        filteredNaCombination = naFilter.filter(naCombinations, previousLeaf, ReportNode.NO_OP);
 
         assertEquals(7, filteredNaCombination.size());
         assertFalse(filteredNaCombination.contains(COMB_2_BE_NL)); // one combination filtered
 
         // max 1 TSO
         naFilter = new MaximumNumberOfTsosFilter(1);
-        filteredNaCombination = naFilter.filter(naCombinations, previousLeaf);
+        filteredNaCombination = naFilter.filter(naCombinations, previousLeaf, ReportNode.NO_OP);
 
         assertEquals(3, filteredNaCombination.size());
         assertTrue(filteredNaCombination.contains(IND_FR_2));
@@ -92,7 +93,7 @@ class MaximumNumberOfTsosFilterTest {
 
         // max 2 TSOs
         MaximumNumberOfTsosFilter naFilter = new MaximumNumberOfTsosFilter(2);
-        Set<NetworkActionCombination> filteredNaCombination = naFilter.filter(naCombinations, previousLeaf);
+        Set<NetworkActionCombination> filteredNaCombination = naFilter.filter(naCombinations, previousLeaf, ReportNode.NO_OP);
 
         assertEquals(1, filteredNaCombination.size()); // no combination filtered, because null operator should not count
     }

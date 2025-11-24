@@ -7,15 +7,15 @@
 
 package com.powsybl.openrao.searchtreerao.searchtree.algorithms;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
+import com.powsybl.openrao.searchtreerao.reports.SearchTreeReports;
 import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
 
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-
-import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -37,7 +37,10 @@ public class MaximumNumberOfRemedialActionPerTsoFilter implements NetworkActionC
      * </ol>
      * If the first condition is not met for at least one TSO, the combination is not kept. If the second condition is not met for at least one TSO, the combination is kept but the range actions will be unapplied for the next optimization.
      */
-    public Set<NetworkActionCombination> filter(Set<NetworkActionCombination> naCombinations, OptimizationResult optimizationResult) {
+    @Override
+    public Set<NetworkActionCombination> filter(final Set<NetworkActionCombination> naCombinations,
+                                                final OptimizationResult optimizationResult,
+                                                final ReportNode reportNode) {
         Set<NetworkActionCombination> filteredNaCombinations = new HashSet<>();
         Map<String, Integer> maxNaPerTso = getMaxNetworkActionPerTso(optimizationResult);
         for (NetworkActionCombination naCombination : naCombinations) {
@@ -57,7 +60,7 @@ public class MaximumNumberOfRemedialActionPerTsoFilter implements NetworkActionC
         }
 
         if (naCombinations.size() > filteredNaCombinations.size()) {
-            TECHNICAL_LOGS.info("{} network action combinations have been filtered out because the maximum number of network actions for their TSO has been reached", naCombinations.size() - filteredNaCombinations.size());
+            SearchTreeReports.reportNetworkActionCombinationsFilteredOutMaxNetworkActionsReached(reportNode, naCombinations.size() - filteredNaCombinations.size());
         }
 
         return filteredNaCombinations;

@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.tests.steps;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.glsk.commons.ZonalData;
 import com.powsybl.iidm.modification.scalable.Scalable;
 import com.powsybl.iidm.network.Network;
@@ -385,7 +386,7 @@ public final class CommonTestData {
 
     private static RaoParameters buildDefaultConfig() {
         try (InputStream configStream = new FileInputStream(getFile(getResourcesPath().concat(DEFAULT_RAO_PARAMETERS_PATH)))) {
-            return JsonRaoParameters.read(configStream);
+            return JsonRaoParameters.read(configStream, ReportNode.NO_OP);
         } catch (Exception e) {
             throw new IllegalArgumentException("Could not load default configuration file", e);
         }
@@ -394,7 +395,7 @@ public final class CommonTestData {
     static RaoParameters buildConfig(File configFile) {
         RaoParameters config = buildDefaultConfig();
         try (InputStream configStream = new FileInputStream(configFile)) {
-            JsonRaoParameters.update(config, configStream);
+            JsonRaoParameters.update(config, configStream, ReportNode.NO_OP);
         } catch (IOException | UncheckedIOException e) {
             throw new IllegalArgumentException("Configuration file is not in expected JSON format", e);
         } catch (AssertionError e) {

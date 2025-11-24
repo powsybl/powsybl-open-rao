@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.commons.objectivefunction;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
@@ -39,10 +40,12 @@ public final class ObjectiveFunction {
         this.marginEvaluator = marginEvaluator;
     }
 
-    public ObjectiveFunctionResult evaluate(FlowResult flowResult, RemedialActionActivationResult remedialActionActivationResult) {
+    public ObjectiveFunctionResult evaluate(final FlowResult flowResult,
+                                            final RemedialActionActivationResult remedialActionActivationResult,
+                                            final ReportNode reportNode) {
         return new ObjectiveFunctionResultImpl(
-            functionalCostEvaluator.evaluate(flowResult, remedialActionActivationResult),
-            virtualCostEvaluators.stream().collect(Collectors.toMap(CostEvaluator::getName, virtualCost -> virtualCost.evaluate(flowResult, remedialActionActivationResult))),
+            functionalCostEvaluator.evaluate(flowResult, remedialActionActivationResult, reportNode),
+            virtualCostEvaluators.stream().collect(Collectors.toMap(CostEvaluator::getName, virtualCost -> virtualCost.evaluate(flowResult, remedialActionActivationResult, reportNode))),
             FlowCnecSorting.sortByMargin(flowCnecs, unit, marginEvaluator, flowResult));
     }
 

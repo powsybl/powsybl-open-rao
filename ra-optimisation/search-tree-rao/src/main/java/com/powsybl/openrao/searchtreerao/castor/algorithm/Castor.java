@@ -7,19 +7,21 @@
 
 package com.powsybl.openrao.searchtreerao.castor.algorithm;
 
+import com.google.auto.service.AutoService;
 import com.google.ortools.Loader;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.RaoProvider;
-import com.powsybl.openrao.raoapi.parameters.*;
-import com.powsybl.openrao.searchtreerao.commons.*;
-import com.powsybl.openrao.searchtreerao.result.impl.*;
-import com.google.auto.service.AutoService;
+import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
+import com.powsybl.openrao.searchtreerao.reports.CastorReports;
+import com.powsybl.openrao.searchtreerao.reports.CommonReports;
+import com.powsybl.openrao.searchtreerao.result.impl.FailedRaoResultImpl;
+
 import java.time.Instant;
 import java.util.concurrent.CompletableFuture;
-
-import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.*;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -50,33 +52,32 @@ public class Castor implements RaoProvider {
     }
 
     @Override
-    public CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters parameters) {
-        return run(raoInput, parameters, null);
+    public CompletableFuture<RaoResult> run(final RaoInput raoInput, final RaoParameters parameters, final ReportNode reportNode) {
+        return run(raoInput, parameters, null, reportNode);
     }
 
     @Override
-    public CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters parameters, Instant targetEndInstant) {
+    public CompletableFuture<RaoResult> run(final RaoInput raoInput, final RaoParameters parameters, final Instant targetEndInstant, final ReportNode reportNode) {
         try {
-            RaoUtil.initData(raoInput, parameters);
+            RaoUtil.initData(raoInput, parameters, reportNode);
         } catch (Exception e) {
             String failure = String.format("Data initialisation failed: %s", e);
-            BUSINESS_LOGS.error(failure);
+            CommonReports.reportExceptionMessage(reportNode, failure);
             return CompletableFuture.completedFuture(new FailedRaoResultImpl(failure));
         }
 
         // optimization is made on one given state only
         if (raoInput.getOptimizedState() != null) {
             try {
-                return new CastorOneStateOnly(raoInput, parameters).run();
+                return new CastorOneStateOnly(raoInput, parameters, reportNode).run();
             } catch (Exception e) {
-                String failure = String.format("Optimizing state \"%s\" failed: %s", raoInput.getOptimizedState().getId(), e);
-                BUSINESS_LOGS.error(failure);
+                CastorReports.reportRaoFailure(reportNode, raoInput.getOptimizedState().getId(), e);
+                final String failure = String.format("Optimizing state \"%s\" failed: %s", raoInput.getOptimizedState().getId(), e);
                 return CompletableFuture.completedFuture(new FailedRaoResultImpl(failure));
             }
         } else {
-
             // else, optimization is made on all the states
-            return new CastorFullOptimization(raoInput, parameters, targetEndInstant).run();
+            return new CastorFullOptimization(raoInput, parameters, targetEndInstant, reportNode).run();
         }
     }
 }

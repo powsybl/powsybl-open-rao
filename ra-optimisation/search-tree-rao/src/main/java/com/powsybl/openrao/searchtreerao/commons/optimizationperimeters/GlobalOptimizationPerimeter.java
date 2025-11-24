@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.commons.optimizationperimeters;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
@@ -35,7 +36,11 @@ public class GlobalOptimizationPerimeter extends AbstractOptimizationPerimeter {
         super(mainOptimizationState, flowCnecs, loopFlowCnecs, availableNetworkActions, availableRangeActions);
     }
 
-    public static GlobalOptimizationPerimeter build(Crac crac, Network network, RaoParameters raoParameters, PrePerimeterResult prePerimeterResult) {
+    public static GlobalOptimizationPerimeter build(final Crac crac,
+                                                    final Network network,
+                                                    final RaoParameters raoParameters,
+                                                    final PrePerimeterResult prePerimeterResult,
+                                                    final ReportNode reportNode) {
         Set<FlowCnec> flowCnecs = crac.getFlowCnecs();
         Set<FlowCnec> loopFlowCnecs = AbstractOptimizationPerimeter.getLoopFlowCnecs(flowCnecs, raoParameters, network);
 
@@ -48,7 +53,7 @@ public class GlobalOptimizationPerimeter extends AbstractOptimizationPerimeter {
         // add preventive range actions
         availableRangeActions.put(crac.getPreventiveState(), crac.getRangeActions(crac.getPreventiveState()).stream()
             .filter(ra -> RaoUtil.canRemedialActionBeUsed(ra, crac.getPreventiveState(), prePerimeterResult, flowCnecs, network, raoParameters))
-            .filter(ra -> AbstractOptimizationPerimeter.doesPrePerimeterSetpointRespectRange(ra, prePerimeterResult))
+            .filter(ra -> AbstractOptimizationPerimeter.doesPrePerimeterSetpointRespectRange(ra, prePerimeterResult, reportNode))
             .collect(Collectors.toSet()));
 
         //add curative range actions
@@ -57,14 +62,14 @@ public class GlobalOptimizationPerimeter extends AbstractOptimizationPerimeter {
             .forEach(state -> {
                 Set<RangeAction<?>> availableRaForState = crac.getRangeActions(state).stream()
                     .filter(ra -> RaoUtil.canRemedialActionBeUsed(ra, state, prePerimeterResult, flowCnecs, network, raoParameters))
-                    .filter(ra -> AbstractOptimizationPerimeter.doesPrePerimeterSetpointRespectRange(ra, prePerimeterResult))
+                    .filter(ra -> AbstractOptimizationPerimeter.doesPrePerimeterSetpointRespectRange(ra, prePerimeterResult, reportNode))
                     .collect(Collectors.toSet());
                 if (!availableRaForState.isEmpty()) {
                     availableRangeActions.put(state, availableRaForState);
                 }
             });
 
-        availableRangeActions.values().forEach(rangeActions -> removeAlignedRangeActionsWithDifferentInitialSetpoints(rangeActions, prePerimeterResult));
+        availableRangeActions.values().forEach(rangeActions -> removeAlignedRangeActionsWithDifferentInitialSetpoints(rangeActions, prePerimeterResult, reportNode));
 
         return new GlobalOptimizationPerimeter(crac.getPreventiveState(),
             flowCnecs,

@@ -9,6 +9,7 @@ package com.powsybl.openrao.searchtreerao.commons;
 
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
@@ -81,7 +82,7 @@ class RaoUtilTest {
         raoInput = RaoInput.buildWithPreventiveState(network, crac)
             .withNetworkVariantId(variantId)
             .build();
-        raoParameters = new RaoParameters();
+        raoParameters = new RaoParameters(ReportNode.NO_OP);
     }
 
     private void addGlskProvider() {
@@ -124,7 +125,7 @@ class RaoUtilTest {
 
     @Test
     void testAmpereWithDc() {
-        raoParameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters());
+        raoParameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters(ReportNode.NO_OP));
         OpenRaoSearchTreeParameters searchTreeParameters = raoParameters.getExtension(OpenRaoSearchTreeParameters.class);
         searchTreeParameters.getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters().setDc(true);
         raoParameters.getObjectiveFunctionParameters().setUnit(Unit.AMPERE);
@@ -140,7 +141,7 @@ class RaoUtilTest {
         assertEquals("Objective function type MIN_COST requires a config with costly min margin parameters", exception.getMessage());
 
         // No costly min margin extension
-        raoParameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters());
+        raoParameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters(ReportNode.NO_OP));
         OpenRaoSearchTreeParameters searchTreeParameters = raoParameters.getExtension(OpenRaoSearchTreeParameters.class);
         searchTreeParameters.setLoopFlowParameters(new SearchTreeRaoLoopFlowParameters());
         searchTreeParameters.getLoopFlowParameters().orElseThrow().setConstraintAdjustmentCoefficient(3.);
@@ -367,7 +368,7 @@ class RaoUtilTest {
 
     @Test
     void testElementaryActionsLimitWithNonDiscretePsts() {
-        raoParameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters());
+        raoParameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters(ReportNode.NO_OP));
         raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getRangeActionsOptimizationParameters().setPstModel(SearchTreeRaoRangeActionsOptimizationParameters.PstModel.CONTINUOUS);
         raoInput.getCrac().newRaUsageLimits(PREVENTIVE_INSTANT_ID).withMaxElementaryActionPerTso(Map.of("TSO", 2)).add();
         OpenRaoException exception = assertThrows(OpenRaoException.class, () -> RaoUtil.checkParameters(raoParameters, raoInput));
@@ -432,7 +433,7 @@ class RaoUtilTest {
         logger.addAppender(listAppender);
         List<ILoggingEvent> logsList = listAppender.list;
 
-        raoParameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters());
+        raoParameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters(ReportNode.NO_OP));
         OpenRaoSearchTreeParameters searchTreeParameters = raoParameters.getExtension(OpenRaoSearchTreeParameters.class);
         searchTreeParameters.getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters().setDc(false);
 

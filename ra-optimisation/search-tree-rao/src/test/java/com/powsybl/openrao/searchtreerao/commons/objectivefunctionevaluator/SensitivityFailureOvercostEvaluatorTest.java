@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
@@ -62,6 +63,6 @@ class SensitivityFailureOvercostEvaluatorTest {
     @Test
     void testCostWithStateInFailure() {
         evaluator = new SensitivityFailureOvercostEvaluator(Set.of(cnec1, cnec2), 10000);
-        assertEquals(10000, evaluator.evaluate(flowResult, null).getCost(Set.of(), Set.of()), DOUBLE_TOLERANCE);
+        assertEquals(10000, evaluator.evaluate(flowResult, null, ReportNode.NO_OP).getCost(Set.of(), Set.of()), DOUBLE_TOLERANCE);
     }
 }

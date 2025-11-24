@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.TemporalData;
@@ -84,7 +85,7 @@ class PowerGradientConstraintFillerTest {
 
         input = new InterTemporalRaoInput(new TemporalDataImpl<>(Map.of(timestamp1, raoInput1, timestamp2, raoInput2, timestamp3, raoInput3)), intertemporalConstraints);
 
-        parameters = new RaoParameters();
+        parameters = new RaoParameters(ReportNode.NO_OP);
     }
 
     private void createOneTSInput() throws IOException {
@@ -102,7 +103,7 @@ class PowerGradientConstraintFillerTest {
         intertemporalConstraints.addGeneratorConstraints(generatorConstraintsFr3);
 
         input = new InterTemporalRaoInput(new TemporalDataImpl<>(Map.of(timestamp1, raoInput1)), intertemporalConstraints);
-        parameters = new RaoParameters();
+        parameters = new RaoParameters(ReportNode.NO_OP);
     }
 
     private void createCoreProblemFillers() {

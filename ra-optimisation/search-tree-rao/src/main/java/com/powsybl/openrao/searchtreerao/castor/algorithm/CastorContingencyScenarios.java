@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.castor.algorithm;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.RandomizedString;
@@ -23,6 +24,7 @@ import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunc
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.*;
 import com.powsybl.openrao.searchtreerao.commons.parameters.TreeParameters;
 import com.powsybl.openrao.searchtreerao.commons.parameters.UnoptimizedCnecParameters;
+import com.powsybl.openrao.searchtreerao.reports.CastorReports;
 import com.powsybl.openrao.searchtreerao.result.api.*;
 import com.powsybl.openrao.searchtreerao.result.impl.*;
 import com.powsybl.openrao.searchtreerao.searchtree.algorithms.SearchTree;
@@ -36,7 +38,6 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.*;
 import static com.powsybl.openrao.data.raoresult.api.ComputationStatus.DEFAULT;
 import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getSensitivityFailureOvercost;
 import static com.powsybl.openrao.raoapi.parameters.extensions.MultithreadingParameters.getAvailableCPUs;
@@ -77,21 +78,22 @@ public class CastorContingencyScenarios {
         this.initialSensitivityOutput = initialSensitivityOutput;
     }
 
-    public Map<State, PostPerimeterResult> optimizeContingencyScenarios(Network network,
-                                                                       PrePerimeterResult prePerimeterSensitivityOutput,
-                                                                       boolean automatonsOnly) {
+    public Map<State, PostPerimeterResult> optimizeContingencyScenarios(final Network network,
+                                                                        final PrePerimeterResult prePerimeterSensitivityOutput,
+                                                                        final boolean automatonsOnly,
+                                                                        final ReportNode reportNode) {
         Map<State, PostPerimeterResult> contingencyScenarioResults = new ConcurrentHashMap<>();
         // Create a new variant
         String newVariant = RandomizedString.getRandomizedString(CONTINGENCY_SCENARIO, network.getVariantManager().getVariantIds(), 10);
         network.getVariantManager().cloneVariant(network.getVariantManager().getWorkingVariantId(), newVariant);
         network.getVariantManager().setWorkingVariant(newVariant);
         // Create an automaton simulator
-        AutomatonSimulator automatonSimulator = new AutomatonSimulator(crac, raoParameters, toolProvider, initialSensitivityOutput, prePerimeterSensitivityOutput, stateTree.getOperatorsNotSharingCras(), NUMBER_LOGGED_ELEMENTS_DURING_RAO);
+        AutomatonSimulator automatonSimulator = new AutomatonSimulator(crac, raoParameters, toolProvider, initialSensitivityOutput, prePerimeterSensitivityOutput, stateTree.getOperatorsNotSharingCras(), NUMBER_LOGGED_ELEMENTS_DURING_RAO, reportNode);
         // Go through all contingency scenarios
         try (AbstractNetworkPool networkPool = AbstractNetworkPool.create(network, newVariant, getAvailableCPUs(raoParameters), true)) {
             AtomicInteger remainingScenarios = new AtomicInteger(stateTree.getContingencyScenarios().size());
             List<ForkJoinTask<Object>> tasks = stateTree.getContingencyScenarios().stream().map(optimizedScenario ->
-                networkPool.submit(() -> runScenario(prePerimeterSensitivityOutput, automatonsOnly, optimizedScenario, networkPool, automatonSimulator, contingencyScenarioResults, remainingScenarios))
+                networkPool.submit(() -> runScenario(prePerimeterSensitivityOutput, automatonsOnly, optimizedScenario, networkPool, automatonSimulator, contingencyScenarioResults, remainingScenarios, reportNode))
             ).toList();
             for (ForkJoinTask<Object> task : tasks) {
                 try {
@@ -107,9 +109,16 @@ public class CastorContingencyScenarios {
         return contingencyScenarioResults;
     }
 
-    private Object runScenario(PrePerimeterResult prePerimeterSensitivityOutput, boolean automatonsOnly, ContingencyScenario optimizedScenario, AbstractNetworkPool networkPool, AutomatonSimulator automatonSimulator, Map<State, PostPerimeterResult> contingencyScenarioResults, AtomicInteger remainingScenarios) throws InterruptedException {
+    private Object runScenario(final PrePerimeterResult prePerimeterSensitivityOutput,
+                               final boolean automatonsOnly,
+                               final ContingencyScenario optimizedScenario,
+                               final AbstractNetworkPool networkPool,
+                               final AutomatonSimulator automatonSimulator,
+                               final Map<State, PostPerimeterResult> contingencyScenarioResults,
+                               final AtomicInteger remainingScenarios,
+                               final ReportNode reportNode) throws InterruptedException {
         Network networkClone = networkPool.getAvailableNetwork(); //This is where the threads actually wait for available networks
-        TECHNICAL_LOGS.info("Optimizing scenario post-contingency {}.", optimizedScenario.getContingency().getId());
+        CastorReports.reportOptimizingScenarioPostContingency(reportNode, optimizedScenario.getContingency().getId());
 
         // Init variables
         Optional<State> automatonState = optimizedScenario.getAutomatonState();
@@ -123,7 +132,7 @@ public class CastorContingencyScenarios {
         if (automatonState.isPresent()) {
             AutomatonPerimeterResultImpl automatonResult = automatonSimulator.simulateAutomatonState(automatonState.get(), curativeStates, networkClone);
             //recompute sensi and objective function considering auto + all instants following auto
-            PostPerimeterResult postAutoResult = getResultPostState(automatonState.get(), networkClone, prePerimeterSensitivityOutput, automatonResult);
+            PostPerimeterResult postAutoResult = getResultPostState(automatonState.get(), networkClone, prePerimeterSensitivityOutput, automatonResult, reportNode);
             contingencyScenarioResults.put(automatonState.get(), postAutoResult);
             if (automatonResult.getComputationStatus() == ComputationStatus.FAILURE) {
                 autoStateSensiFailed = true;
@@ -151,15 +160,15 @@ public class CastorContingencyScenarios {
             for (Perimeter curativePerimeter : optimizedScenario.getCurativePerimeters()) {
                 State curativeState = curativePerimeter.getRaOptimisationState();
                 if (previousPerimeterResult == null) {
-                    previousPerimeterResult = getPreCurativePerimeterSensitivityAnalysis(curativePerimeter).runBasedOnInitialResults(networkClone, null, stateTree.getOperatorsNotSharingCras(), null);
+                    previousPerimeterResult = getPreCurativePerimeterSensitivityAnalysis(curativePerimeter).runBasedOnInitialResults(networkClone, null, stateTree.getOperatorsNotSharingCras(), null, reportNode);
                 }
                 prePerimeterResultPerPerimeter.put(curativePerimeter.getRaOptimisationState(), previousPerimeterResult);
                 if (allPreviousPerimetersSucceded) {
-                    OptimizationResult curativeResult = optimizeCurativePerimeter(curativePerimeter, networkClone, previousPerimeterResult, resultsPerPerimeter, prePerimeterResultPerPerimeter);
+                    OptimizationResult curativeResult = optimizeCurativePerimeter(curativePerimeter, networkClone, previousPerimeterResult, resultsPerPerimeter, prePerimeterResultPerPerimeter, reportNode);
                     allPreviousPerimetersSucceded = curativeResult.getSensitivityStatus() == DEFAULT;
                     applyRemedialActions(networkClone, curativeResult, curativeState);
                     //recompute sensi and objective function considering curative + all instants following curative (useful if multi curative)
-                    PostPerimeterResult postCurativeResult = getResultPostState(curativeState, networkClone, previousPerimeterResult, curativeResult);
+                    PostPerimeterResult postCurativeResult = getResultPostState(curativeState, networkClone, previousPerimeterResult, curativeResult, reportNode);
                     contingencyScenarioResults.put(curativeState, postCurativeResult);
                     previousPerimeterResult = null;
                     if (allPreviousPerimetersSucceded) {
@@ -170,7 +179,7 @@ public class CastorContingencyScenarios {
                 }
             }
         }
-        TECHNICAL_LOGS.debug("Remaining post-contingency scenarios to optimize: {}", remainingScenarios.decrementAndGet());
+        CastorReports.reportRemainingPostContingencyScenariosToOptimize(reportNode, remainingScenarios.decrementAndGet());
         boolean actionWasApplied = contingencyScenarioResults.entrySet().stream()
             .filter(stateAndResult -> stateAndResult.getKey().getContingency().orElseThrow().equals(optimizedScenario.getContingency()))
             .anyMatch(this::isAnyActionApplied);
@@ -193,7 +202,11 @@ public class CastorContingencyScenarios {
         return new PostPerimeterResult(skippedOptimizationResult, prePerimeterResult);
     }
 
-    private PostPerimeterResult getResultPostState(State state, Network networkClone, PrePerimeterResult prePerimeterSensitivityOutput, OptimizationResult optimizationResult) {
+    private PostPerimeterResult getResultPostState(final State state,
+                                                   final Network networkClone,
+                                                   final PrePerimeterResult prePerimeterSensitivityOutput,
+                                                   final OptimizationResult optimizationResult,
+                                                   final ReportNode reportNode) {
         // if it's the last instant, no need to recompute things because the optimization result already contains all following states. (none)
         if (state.getInstant().equals(crac.getLastInstant())) {
             return new PostPerimeterResult(optimizationResult,
@@ -212,7 +225,8 @@ public class CastorContingencyScenarios {
                 CompletableFuture.completedFuture(prePerimeterSensitivityOutput),
                 stateTree.getOperatorsNotSharingCras(),
                 optimizationResult,
-                new AppliedRemedialActions()).get();
+                new AppliedRemedialActions(),
+                reportNode).get();
         } catch (InterruptedException | ExecutionException e) {
             Thread.currentThread().interrupt();
             throw new OpenRaoException(String.format("Error while running sensi after state %s", state.getId()), e);
@@ -228,13 +242,14 @@ public class CastorContingencyScenarios {
         return new PrePerimeterSensitivityAnalysis(crac, flowCnecsInSensi, rangeActionsInSensi, raoParameters, toolProvider);
     }
 
-    private OptimizationResult optimizeCurativePerimeter(Perimeter curativePerimeter,
-                                                         Network network,
-                                                         PrePerimeterResult prePerimeterSensitivityOutput,
-                                                         Map<State, OptimizationResult> resultsPerPerimeter,
-                                                         Map<State, PrePerimeterResult> prePerimeterResultPerPerimeter) {
+    private OptimizationResult optimizeCurativePerimeter(final Perimeter curativePerimeter,
+                                                         final Network network,
+                                                         final PrePerimeterResult prePerimeterSensitivityOutput,
+                                                         final Map<State, OptimizationResult> resultsPerPerimeter,
+                                                         final Map<State, PrePerimeterResult> prePerimeterResultPerPerimeter,
+                                                         final ReportNode reportNode) {
         State curativeState = curativePerimeter.getRaOptimisationState();
-        TECHNICAL_LOGS.info("Optimizing curative state {}.", curativeState.getId());
+        CastorReports.reportOptimizingCurativeState(reportNode, curativeState.getId());
 
         Set<State> filteredStates = curativePerimeter.getAllStates().stream()
             .filter(state -> !prePerimeterSensitivityOutput.getSensitivityStatus(state).equals(ComputationStatus.FAILURE))
@@ -253,16 +268,16 @@ public class CastorContingencyScenarios {
         RemedialActionActivationResult remedialActionActivationResult = new RemedialActionActivationResultImpl(rangeActionsResult, new NetworkActionsResultImpl(Map.of()));
 
         ObjectiveFunction objectiveFunction = ObjectiveFunction.build(flowCnecs, loopFlowCnecs, initialSensitivityOutput, prePerimeterSensitivityOutput, stateTree.getOperatorsNotSharingCras(), raoParameters, curativePerimeter.getAllStates());
-        ObjectiveFunctionResult objectiveFunctionResult = objectiveFunction.evaluate(prePerimeterSensitivityOutput, remedialActionActivationResult);
+        ObjectiveFunctionResult objectiveFunctionResult = objectiveFunction.evaluate(prePerimeterSensitivityOutput, remedialActionActivationResult, reportNode);
         boolean stopCriterionReached = isStopCriterionChecked(objectiveFunctionResult, curativeTreeParameters);
         if (stopCriterionReached) {
             NetworkActionsResult networkActionsResult = new NetworkActionsResultImpl(Map.of());
             return new OptimizationResultImpl(objectiveFunctionResult, prePerimeterSensitivityOutput, prePerimeterSensitivityOutput, networkActionsResult, rangeActionsResult);
         }
 
-        OptimizationPerimeter optPerimeter = CurativeOptimizationPerimeter.buildForStates(curativeState, curativePerimeter.getAllStates(), crac, network, raoParameters, prePerimeterSensitivityOutput);
+        OptimizationPerimeter optPerimeter = CurativeOptimizationPerimeter.buildForStates(curativeState, curativePerimeter.getAllStates(), crac, network, raoParameters, prePerimeterSensitivityOutput, reportNode);
 
-        SearchTreeParameters.SearchTreeParametersBuilder searchTreeParametersBuilder = SearchTreeParameters.create()
+        SearchTreeParameters.SearchTreeParametersBuilder searchTreeParametersBuilder = SearchTreeParameters.create(reportNode)
             .withConstantParametersOverAllRao(raoParameters, crac)
             .withTreeParameters(curativeTreeParameters)
             .withUnoptimizedCnecParameters(UnoptimizedCnecParameters.build(raoParameters.getNotOptimizedCnecsParameters(), stateTree.getOperatorsNotSharingCras()));
@@ -271,7 +286,7 @@ public class CastorContingencyScenarios {
             LoadFlowAndSensitivityParameters loadFlowAndSensitivityParameters =
                 raoParameters.hasExtension(OpenRaoSearchTreeParameters.class)
                     ? raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getLoadFlowAndSensitivityParameters()
-                    : new LoadFlowAndSensitivityParameters();
+                    : new LoadFlowAndSensitivityParameters(reportNode);
             searchTreeParametersBuilder.withLoadFlowAndSensitivityParameters(loadFlowAndSensitivityParameters);
         }
 
@@ -290,8 +305,8 @@ public class CastorContingencyScenarios {
             .withOutageInstant(crac.getOutageInstant())
             .build();
 
-        OptimizationResult result = new SearchTree(searchTreeInput, searchTreeParameters, false).run().join();
-        TECHNICAL_LOGS.info("Curative state {} has been optimized.", curativeState.getId());
+        OptimizationResult result = new SearchTree(searchTreeInput, searchTreeParameters, false, reportNode).run().join();
+        CastorReports.reportCurativeStateOptimized(reportNode, curativeState.getId());
         return result;
     }
 

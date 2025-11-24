@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
@@ -101,6 +102,6 @@ class RemedialActionCostEvaluatorImplTest {
     void testTotalRemedialActionCost() {
         RemedialActionCostEvaluator evaluator = new RemedialActionCostEvaluator(Set.of(state));
         assertEquals("remedial-action-cost-evaluator", evaluator.getName());
-        assertEquals(11587.25, evaluator.evaluate(null, remedialActionActivationResult).getCost(Set.of(), Set.of()));
+        assertEquals(11587.25, evaluator.evaluate(null, remedialActionActivationResult, ReportNode.NO_OP).getCost(Set.of(), Set.of()));
     }
 }

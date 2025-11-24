@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.commons;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
@@ -50,11 +51,11 @@ public final class RaoUtil {
     private RaoUtil() {
     }
 
-    public static void initData(RaoInput raoInput, RaoParameters raoParameters) {
+    public static void initData(final RaoInput raoInput, final RaoParameters raoParameters, final ReportNode reportNode) {
         checkParameters(raoParameters, raoInput);
         checkCnecsThresholdsUnit(raoParameters, raoInput);
         initNetwork(raoInput.getNetwork(), raoInput.getNetworkVariantId());
-        updateHvdcRangeActionInitialSetpoint(raoInput.getCrac(), raoInput.getNetwork(), raoParameters);
+        updateHvdcRangeActionInitialSetpoint(raoInput.getCrac(), raoInput.getNetwork(), raoParameters, reportNode);
         addNetworkActionAssociatedWithHvdcRangeAction(raoInput.getCrac(), raoInput.getNetwork());
     }
 

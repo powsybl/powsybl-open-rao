@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.commons.parameters;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import org.junit.jupiter.api.Test;
 
@@ -21,7 +22,7 @@ class UnoptimizedCnecParametersTest {
 
     @Test
     void buildWithoutOptimizingOperatorsNotSharingCras() {
-        RaoParameters raoParameters = new RaoParameters();
+        RaoParameters raoParameters = new RaoParameters(ReportNode.NO_OP);
         raoParameters.getNotOptimizedCnecsParameters().setDoNotOptimizeCurativeCnecsForTsosWithoutCras(true);
 
         UnoptimizedCnecParameters ocp = UnoptimizedCnecParameters.build(raoParameters.getNotOptimizedCnecsParameters(), Set.of("BE"));
@@ -32,7 +33,7 @@ class UnoptimizedCnecParametersTest {
 
     @Test
     void buildWhileOptimizingOperatorsNotSharingCras() {
-        RaoParameters raoParameters = new RaoParameters();
+        RaoParameters raoParameters = new RaoParameters(ReportNode.NO_OP);
         raoParameters.getNotOptimizedCnecsParameters().setDoNotOptimizeCurativeCnecsForTsosWithoutCras(false);
 
         UnoptimizedCnecParameters ocp = UnoptimizedCnecParameters.build(raoParameters.getNotOptimizedCnecsParameters(), Set.of("BE"));

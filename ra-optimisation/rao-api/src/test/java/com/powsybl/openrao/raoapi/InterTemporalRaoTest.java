@@ -10,6 +10,7 @@ package com.powsybl.openrao.raoapi;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.data.crac.api.Crac;
@@ -66,11 +67,11 @@ class InterTemporalRaoTest {
     void testDefaultOneProvider() {
         // case with only one provider, no need for config
         // find rao
-        InterTemporalRao.Runner defaultRao = InterTemporalRao.find(null, List.of(new InterTemporalRaoProviderMock()), platformConfig);
+        InterTemporalRao.Runner defaultRao = InterTemporalRao.find(null, List.of(new InterTemporalRaoProviderMock()), platformConfig, ReportNode.NO_OP);
         assertEquals("RandomInterTemporalRAO", defaultRao.getName());
 
         // run rao
-        InterTemporalRaoResult result = defaultRao.run(raoInput, new RaoParameters());
+        InterTemporalRaoResult result = defaultRao.run(raoInput, new RaoParameters(ReportNode.NO_OP));
         assertNotNull(result);
     }
 
@@ -78,13 +79,13 @@ class InterTemporalRaoTest {
     void testDefaultTwoProviders() {
         // case with two providers : should throw as no config defines which provider must be selected
         List<InterTemporalRaoProvider> raoProviders = List.of(new InterTemporalRaoProviderMock(), new AnotherInterTemporalRaoProviderMock());
-        assertThrows(OpenRaoException.class, () -> InterTemporalRao.find(null, raoProviders, platformConfig));
+        assertThrows(OpenRaoException.class, () -> InterTemporalRao.find(null, raoProviders, platformConfig, ReportNode.NO_OP));
     }
 
     @Test
     void testDefinedAmongTwoProviders() {
         // case with two providers where one the two RAOs is specifically selected
-        InterTemporalRao.Runner definedRao = InterTemporalRao.find("GlobalRAOptimizer", List.of(new InterTemporalRaoProviderMock(), new AnotherInterTemporalRaoProviderMock()), platformConfig);
+        InterTemporalRao.Runner definedRao = InterTemporalRao.find("GlobalRAOptimizer", List.of(new InterTemporalRaoProviderMock(), new AnotherInterTemporalRaoProviderMock()), platformConfig, ReportNode.NO_OP);
         assertEquals("GlobalRAOptimizer", definedRao.getName());
     }
 
@@ -92,14 +93,14 @@ class InterTemporalRaoTest {
     void testDefaultNoProvider() {
         // case with no provider
         List<InterTemporalRaoProvider> raoProviders = List.of();
-        assertThrows(OpenRaoException.class, () -> InterTemporalRao.find(null, raoProviders, platformConfig));
+        assertThrows(OpenRaoException.class, () -> InterTemporalRao.find(null, raoProviders, platformConfig, ReportNode.NO_OP));
     }
 
     @Test
     void testDefaultTwoProvidersPlatformConfig() {
         // case with 2 providers without any config but specifying which one to use in platform config
         platformConfig.createModuleConfig("rao").setStringProperty("default", "GlobalRAOptimizer");
-        InterTemporalRao.Runner globalRaOptimizer = InterTemporalRao.find(null, List.of(new InterTemporalRaoProviderMock(), new AnotherInterTemporalRaoProviderMock()), platformConfig);
+        InterTemporalRao.Runner globalRaOptimizer = InterTemporalRao.find(null, List.of(new InterTemporalRaoProviderMock(), new AnotherInterTemporalRaoProviderMock()), platformConfig, ReportNode.NO_OP);
         assertEquals("GlobalRAOptimizer", globalRaOptimizer.getName());
     }
 
@@ -108,6 +109,6 @@ class InterTemporalRaoTest {
         // case with 1 provider with config but with a name that is not the one of provider.
         platformConfig.createModuleConfig("rao").setStringProperty("default", "UnknownRao");
         List<InterTemporalRaoProvider> raoProviders = List.of(new InterTemporalRaoProviderMock());
-        assertThrows(OpenRaoException.class, () -> InterTemporalRao.find(null, raoProviders, platformConfig));
+        assertThrows(OpenRaoException.class, () -> InterTemporalRao.find(null, raoProviders, platformConfig, ReportNode.NO_OP));
     }
 }

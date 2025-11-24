@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.marmot;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.Unit;
@@ -72,7 +73,7 @@ class PostOptimizationResultTest {
         Mockito.when(globalLinearOptimizationResult.getOptimizedSetpoint(rangeAction, preventiveState)).thenReturn(6.2276423729910535);
         Mockito.when(globalLinearOptimizationResult.getOptimizedSetpoint(rangeActionCur, preventiveState)).thenReturn(4.672743946063913);
 
-        PostOptimizationResult postOptimizationResult = new PostOptimizationResult(raoInput, initialResult, globalLinearOptimizationResult, raoResult, new RaoParameters());
+        PostOptimizationResult postOptimizationResult = new PostOptimizationResult(raoInput, initialResult, globalLinearOptimizationResult, raoResult, new RaoParameters(ReportNode.NO_OP), ReportNode.NO_OP);
 
         assertEquals(12.2, postOptimizationResult.getFlow(null, cnec, TwoSides.ONE, Unit.MEGAWATT));
         assertEquals(345.25, postOptimizationResult.getFlow(crac.getPreventiveInstant(), cnec, TwoSides.ONE, Unit.MEGAWATT));

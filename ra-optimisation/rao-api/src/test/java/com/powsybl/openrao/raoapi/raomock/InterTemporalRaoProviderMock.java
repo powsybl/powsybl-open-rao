@@ -8,6 +8,7 @@
 package com.powsybl.openrao.raoapi.raomock;
 
 import com.google.auto.service.AutoService;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.data.raoresult.api.InterTemporalRaoResult;
 import com.powsybl.openrao.raoapi.InterTemporalRaoInputWithNetworkPaths;
 import com.powsybl.openrao.raoapi.InterTemporalRaoProvider;
@@ -22,7 +23,7 @@ import java.util.concurrent.CompletableFuture;
 public class InterTemporalRaoProviderMock implements InterTemporalRaoProvider {
 
     @Override
-    public CompletableFuture<InterTemporalRaoResult> run(InterTemporalRaoInputWithNetworkPaths raoInput, RaoParameters parameters) {
+    public CompletableFuture<InterTemporalRaoResult> run(InterTemporalRaoInputWithNetworkPaths raoInput, RaoParameters parameters, ReportNode reportNode) {
         return CompletableFuture.completedFuture(new InterTemporalRaoResultMock());
     }
 

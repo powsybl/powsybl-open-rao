@@ -8,15 +8,21 @@
 package com.powsybl.openrao.raoapi.parameters.extensions;
 
 import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.raoapi.parameters.ParametersUtil;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.openrao.raoapi.reports.RaoApiReports;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
-import static com.powsybl.openrao.raoapi.RaoParametersCommons.*;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.MAX_CURATIVE_SEARCH_TREE_DEPTH;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.MAX_NUMBER_OF_BOUNDARIES_FOR_SKIPPING_ACTIONS;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.MAX_PREVENTIVE_SEARCH_TREE_DEPTH;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.PREDEFINED_COMBINATIONS;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.SKIP_ACTIONS_FAR_FROM_MOST_LIMITING_ELEMENT;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.ST_TOPOLOGICAL_ACTIONS_OPTIMIZATION_SECTION;
 
 /**
  * Topological actions optimization parameters for RAO
@@ -31,11 +37,21 @@ public class SearchTreeRaoTopoOptimizationParameters {
     private static final boolean DEFAULT_SKIP_ACTIONS_FAR_FROM_MOST_LIMITING_ELEMENT = false;
     private static final int DEFAULT_MAX_NUMBER_OF_BOUNDARIES_FOR_SKIPPING_ACTIONS = 2;
     // Attributes
-    private int maxPreventiveSearchTreeDepth = DEFAULT_MAX_SEARCH_TREE_DEPTH;
-    private int maxCurativeSearchTreeDepth = DEFAULT_MAX_SEARCH_TREE_DEPTH;
-    private List<List<String>> predefinedCombinations = DEFAULT_PREDEFINED_COMBINATIONS;
-    private boolean skipActionsFarFromMostLimitingElement = DEFAULT_SKIP_ACTIONS_FAR_FROM_MOST_LIMITING_ELEMENT;
-    private int maxNumberOfBoundariesForSkippingActions = DEFAULT_MAX_NUMBER_OF_BOUNDARIES_FOR_SKIPPING_ACTIONS;
+    private int maxPreventiveSearchTreeDepth;
+    private int maxCurativeSearchTreeDepth;
+    private List<List<String>> predefinedCombinations;
+    private boolean skipActionsFarFromMostLimitingElement;
+    private int maxNumberOfBoundariesForSkippingActions;
+    private final ReportNode reportNode;
+
+    public SearchTreeRaoTopoOptimizationParameters(final ReportNode reportNode) {
+        this.maxPreventiveSearchTreeDepth = DEFAULT_MAX_SEARCH_TREE_DEPTH;
+        this.maxCurativeSearchTreeDepth = DEFAULT_MAX_SEARCH_TREE_DEPTH;
+        this.predefinedCombinations = DEFAULT_PREDEFINED_COMBINATIONS;
+        this.skipActionsFarFromMostLimitingElement = DEFAULT_SKIP_ACTIONS_FAR_FROM_MOST_LIMITING_ELEMENT;
+        this.maxNumberOfBoundariesForSkippingActions = DEFAULT_MAX_NUMBER_OF_BOUNDARIES_FOR_SKIPPING_ACTIONS;
+        this.reportNode = reportNode;
+    }
 
     public void setMaxPreventiveSearchTreeDepth(int maxPreventiveSearchTreeDepth) {
         this.maxPreventiveSearchTreeDepth = maxPreventiveSearchTreeDepth;
@@ -55,7 +71,7 @@ public class SearchTreeRaoTopoOptimizationParameters {
 
     public void setMaxNumberOfBoundariesForSkippingActions(int maxNumberOfBoundariesForSkippingActions) {
         if (maxNumberOfBoundariesForSkippingActions < 0) {
-            BUSINESS_WARNS.warn("The value {} provided for max number of boundaries for skipping actions is smaller than 0. It will be set to 0.", maxNumberOfBoundariesForSkippingActions);
+            RaoApiReports.reportNegativeMaxNumberOfBoundariesForSkippingActions(reportNode, maxNumberOfBoundariesForSkippingActions);
             this.maxNumberOfBoundariesForSkippingActions = 0;
         } else {
             this.maxNumberOfBoundariesForSkippingActions = maxNumberOfBoundariesForSkippingActions;
@@ -82,9 +98,9 @@ public class SearchTreeRaoTopoOptimizationParameters {
         return predefinedCombinations;
     }
 
-    public static SearchTreeRaoTopoOptimizationParameters load(PlatformConfig platformConfig) {
+    public static SearchTreeRaoTopoOptimizationParameters load(final PlatformConfig platformConfig, final ReportNode reportNode) {
         Objects.requireNonNull(platformConfig);
-        SearchTreeRaoTopoOptimizationParameters parameters = new SearchTreeRaoTopoOptimizationParameters();
+        SearchTreeRaoTopoOptimizationParameters parameters = new SearchTreeRaoTopoOptimizationParameters(reportNode);
         platformConfig.getOptionalModuleConfig(ST_TOPOLOGICAL_ACTIONS_OPTIMIZATION_SECTION)
                 .ifPresent(config -> {
                     parameters.setMaxPreventiveSearchTreeDepth(config.getIntProperty(MAX_PREVENTIVE_SEARCH_TREE_DEPTH, DEFAULT_MAX_SEARCH_TREE_DEPTH));

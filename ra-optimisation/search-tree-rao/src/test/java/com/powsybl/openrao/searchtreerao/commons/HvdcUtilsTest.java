@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.commons;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.openloadflow.OpenLoadFlowParameters;
@@ -63,9 +64,9 @@ public class HvdcUtilsTest {
         assertEquals(0.0, crac.getHvdcRangeAction("HVDC_RA1").getInitialSetpoint());
         assertEquals(0.0, crac.getHvdcRangeAction("HVDC_RA2").getInitialSetpoint());
 
-        RaoParameters raoParameters = new RaoParameters();
-        raoParameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters());
-        updateHvdcRangeActionInitialSetpoint(crac, network, raoParameters);
+        RaoParameters raoParameters = new RaoParameters(ReportNode.NO_OP);
+        raoParameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters(ReportNode.NO_OP));
+        updateHvdcRangeActionInitialSetpoint(crac, network, raoParameters, ReportNode.NO_OP);
 
         assertEquals(823.0, crac.getHvdcRangeAction("HVDC_RA1").getInitialSetpoint(), 1);
         assertEquals(823.0, crac.getHvdcRangeAction("HVDC_RA2").getInitialSetpoint(), 1);
@@ -87,8 +88,8 @@ public class HvdcUtilsTest {
         assertEquals(0.0, crac.getHvdcRangeAction("HVDC_RA1").getCurrentSetpoint(network));
 
         // Preventive state, no contingency is applied
-        RaoParameters raoParameters = new RaoParameters();
-        raoParameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters());
+        RaoParameters raoParameters = new RaoParameters(ReportNode.NO_OP);
+        raoParameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters(ReportNode.NO_OP));
         Map<HvdcRangeAction, Double> hvdcRangeActionActivePowerSetpoint = runLoadFlowAndUpdateHvdcActivePowerSetpoint(
             network,
             crac.getPreventiveState(),

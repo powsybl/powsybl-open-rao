@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.commons.objectivefunction;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.State;
@@ -67,14 +68,14 @@ class ObjectiveFunctionTest {
 
     @Test
     void testWithFunctionalCostOnly() {
-        RaoParameters raoParameters = new RaoParameters();
-        OpenRaoSearchTreeParameters openRaoSearchTreeParameters = new OpenRaoSearchTreeParameters();
+        RaoParameters raoParameters = new RaoParameters(ReportNode.NO_OP);
+        OpenRaoSearchTreeParameters openRaoSearchTreeParameters = new OpenRaoSearchTreeParameters(ReportNode.NO_OP);
         openRaoSearchTreeParameters.getLoadFlowAndSensitivityParameters().setSensitivityFailureOvercost(0.0);
         raoParameters.addExtension(OpenRaoSearchTreeParameters.class, openRaoSearchTreeParameters);
         ObjectiveFunction objectiveFunction = ObjectiveFunction.build(Set.of(cnec1, cnec2), Set.of(), null, null, Set.of(), raoParameters, Set.of());
 
         // ObjectiveFunctionResult
-        ObjectiveFunctionResult result = objectiveFunction.evaluate(flowResult, null);
+        ObjectiveFunctionResult result = objectiveFunction.evaluate(flowResult, null, ReportNode.NO_OP);
         assertEquals(300., result.getFunctionalCost(), DOUBLE_TOLERANCE);
         assertEquals(0., result.getVirtualCost(), DOUBLE_TOLERANCE);
         assertEquals(300., result.getCost(), DOUBLE_TOLERANCE);
@@ -84,8 +85,8 @@ class ObjectiveFunctionTest {
 
     @Test
     void testWithFunctionalAndVirtualCost() {
-        RaoParameters raoParameters = new RaoParameters();
-        OpenRaoSearchTreeParameters openRaoSearchTreeParameters = new OpenRaoSearchTreeParameters();
+        RaoParameters raoParameters = new RaoParameters(ReportNode.NO_OP);
+        OpenRaoSearchTreeParameters openRaoSearchTreeParameters = new OpenRaoSearchTreeParameters(ReportNode.NO_OP);
         openRaoSearchTreeParameters.getLoadFlowAndSensitivityParameters().setSensitivityFailureOvercost(0.0);
         raoParameters.addExtension(OpenRaoSearchTreeParameters.class, openRaoSearchTreeParameters);
         MnecParameters mnecParameters = new MnecParameters();
@@ -114,14 +115,14 @@ class ObjectiveFunctionTest {
 
         ObjectiveFunction objectiveFunction = ObjectiveFunction.build(Set.of(cnec1, cnec2), Set.of(cnec2), initialFlowResult, prePerimeterFlowResult, Set.of(), raoParameters, Set.of());
 
-        assertEquals(3000.0, objectiveFunction.evaluate(flowResult, null).getVirtualCost("mnec-cost"));
-        assertEquals(List.of(cnec1), objectiveFunction.evaluate(flowResult, null).getCostlyElements("mnec-cost", 1));
+        assertEquals(3000.0, objectiveFunction.evaluate(flowResult, null, ReportNode.NO_OP).getVirtualCost("mnec-cost"));
+        assertEquals(List.of(cnec1), objectiveFunction.evaluate(flowResult, null, ReportNode.NO_OP).getCostlyElements("mnec-cost", 1));
 
-        assertEquals(100., objectiveFunction.evaluate(flowResult, null).getVirtualCost("loop-flow-cost"));
-        assertEquals(List.of(cnec2), objectiveFunction.evaluate(flowResult, null).getCostlyElements("loop-flow-cost", 1));
+        assertEquals(100., objectiveFunction.evaluate(flowResult, null, ReportNode.NO_OP).getVirtualCost("loop-flow-cost"));
+        assertEquals(List.of(cnec2), objectiveFunction.evaluate(flowResult, null, ReportNode.NO_OP).getCostlyElements("loop-flow-cost", 1));
 
         // ObjectiveFunctionResult
-        ObjectiveFunctionResult result = objectiveFunction.evaluate(flowResult, null);
+        ObjectiveFunctionResult result = objectiveFunction.evaluate(flowResult, null, ReportNode.NO_OP);
         assertEquals(300., result.getFunctionalCost(), DOUBLE_TOLERANCE);
         assertEquals(3100., result.getVirtualCost(), DOUBLE_TOLERANCE);
         assertEquals(3400., result.getCost(), DOUBLE_TOLERANCE);
@@ -136,74 +137,74 @@ class ObjectiveFunctionTest {
 
     @Test
     void testBuildForInitialSensitivityComputation() {
-        RaoParameters raoParameters = new RaoParameters();
+        RaoParameters raoParameters = new RaoParameters(ReportNode.NO_OP);
 
-        OpenRaoSearchTreeParameters openRaoSearchTreeParameters = new OpenRaoSearchTreeParameters();
+        OpenRaoSearchTreeParameters openRaoSearchTreeParameters = new OpenRaoSearchTreeParameters(ReportNode.NO_OP);
         openRaoSearchTreeParameters.getLoadFlowAndSensitivityParameters().setSensitivityFailureOvercost(1.0);
         raoParameters.addExtension(OpenRaoSearchTreeParameters.class, openRaoSearchTreeParameters);
         ObjectiveFunction objectiveFunction = ObjectiveFunction.buildForInitialSensitivityComputation(
             Set.of(cnec1, cnec2), raoParameters, Set.of()
         );
         assertNotNull(objectiveFunction);
-        assertEquals(Set.of("sensitivity-failure-cost"), objectiveFunction.evaluate(flowResult, null).getVirtualCostNames());
+        assertEquals(Set.of("sensitivity-failure-cost"), objectiveFunction.evaluate(flowResult, null, ReportNode.NO_OP).getVirtualCostNames());
     }
 
     @Test
     void testBuildForInitialSensitivityComputationCostlyOptimizationAmpere() {
-        RaoParameters raoParameters = new RaoParameters();
+        RaoParameters raoParameters = new RaoParameters(ReportNode.NO_OP);
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MIN_COST);
         raoParameters.getObjectiveFunctionParameters().setUnit(Unit.AMPERE);
         assertTrue(raoParameters.getObjectiveFunctionParameters().getType().costOptimization());
-        raoParameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters());
+        raoParameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters(ReportNode.NO_OP));
         raoParameters.getExtension(OpenRaoSearchTreeParameters.class).setMinMarginsParameters(new SearchTreeRaoCostlyMinMarginParameters());
 
         ObjectiveFunction objectiveFunction = ObjectiveFunction.buildForInitialSensitivityComputation(Set.of(), raoParameters, Set.of());
         assertNotNull(objectiveFunction);
-        assertTrue(objectiveFunction.evaluate(flowResult, RemedialActionActivationResultImpl.empty(new RangeActionSetpointResultImpl(Map.of()))).getVirtualCostNames().contains("min-margin-violation-evaluator"));
+        assertTrue(objectiveFunction.evaluate(flowResult, RemedialActionActivationResultImpl.empty(new RangeActionSetpointResultImpl(Map.of())), ReportNode.NO_OP).getVirtualCostNames().contains("min-margin-violation-evaluator"));
     }
 
     @Test
     void testBuildForInitialSensitivityComputationCostlyOptimizationMegawatt() {
-        RaoParameters raoParameters = new RaoParameters();
+        RaoParameters raoParameters = new RaoParameters(ReportNode.NO_OP);
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MIN_COST);
         raoParameters.getObjectiveFunctionParameters().setUnit(Unit.MEGAWATT);
         assertTrue(raoParameters.getObjectiveFunctionParameters().getType().costOptimization());
         assertTrue(raoParameters.getObjectiveFunctionParameters().getType().costOptimization());
-        raoParameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters());
+        raoParameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters(ReportNode.NO_OP));
         raoParameters.getExtension(OpenRaoSearchTreeParameters.class).setMinMarginsParameters(new SearchTreeRaoCostlyMinMarginParameters());
 
         ObjectiveFunction objectiveFunction = ObjectiveFunction.buildForInitialSensitivityComputation(Set.of(), raoParameters, Set.of());
         assertNotNull(objectiveFunction);
-        assertTrue(objectiveFunction.evaluate(flowResult, RemedialActionActivationResultImpl.empty(new RangeActionSetpointResultImpl(Map.of()))).getVirtualCostNames().contains("min-margin-violation-evaluator"));
+        assertTrue(objectiveFunction.evaluate(flowResult, RemedialActionActivationResultImpl.empty(new RangeActionSetpointResultImpl(Map.of())), ReportNode.NO_OP).getVirtualCostNames().contains("min-margin-violation-evaluator"));
     }
 
     @Test
     void testBuildCostlyOptimizationAmpere() {
-        RaoParameters raoParameters = new RaoParameters();
+        RaoParameters raoParameters = new RaoParameters(ReportNode.NO_OP);
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MIN_COST);
         raoParameters.getObjectiveFunctionParameters().setUnit(Unit.AMPERE);
         assertTrue(raoParameters.getObjectiveFunctionParameters().getType().costOptimization());
         assertTrue(raoParameters.getObjectiveFunctionParameters().getType().costOptimization());
-        raoParameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters());
+        raoParameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters(ReportNode.NO_OP));
         raoParameters.getExtension(OpenRaoSearchTreeParameters.class).setMinMarginsParameters(new SearchTreeRaoCostlyMinMarginParameters());
 
         ObjectiveFunction objectiveFunction = ObjectiveFunction.build(Set.of(), Set.of(), null, null, Set.of(), raoParameters, Set.of());
         assertNotNull(objectiveFunction);
-        assertTrue(objectiveFunction.evaluate(flowResult, RemedialActionActivationResultImpl.empty(new RangeActionSetpointResultImpl(Map.of()))).getVirtualCostNames().contains("min-margin-violation-evaluator"));
+        assertTrue(objectiveFunction.evaluate(flowResult, RemedialActionActivationResultImpl.empty(new RangeActionSetpointResultImpl(Map.of())), ReportNode.NO_OP).getVirtualCostNames().contains("min-margin-violation-evaluator"));
     }
 
     @Test
     void testBuildCostlyOptimizationMegawatt() {
-        RaoParameters raoParameters = new RaoParameters();
+        RaoParameters raoParameters = new RaoParameters(ReportNode.NO_OP);
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MIN_COST);
         raoParameters.getObjectiveFunctionParameters().setUnit(Unit.MEGAWATT);
         assertTrue(raoParameters.getObjectiveFunctionParameters().getType().costOptimization());
         assertTrue(raoParameters.getObjectiveFunctionParameters().getType().costOptimization());
-        raoParameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters());
+        raoParameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters(ReportNode.NO_OP));
         raoParameters.getExtension(OpenRaoSearchTreeParameters.class).setMinMarginsParameters(new SearchTreeRaoCostlyMinMarginParameters());
 
         ObjectiveFunction objectiveFunction = ObjectiveFunction.build(Set.of(), Set.of(), null, null, Set.of(), raoParameters, Set.of());
         assertNotNull(objectiveFunction);
-        assertTrue(objectiveFunction.evaluate(flowResult, RemedialActionActivationResultImpl.empty(new RangeActionSetpointResultImpl(Map.of()))).getVirtualCostNames().contains("min-margin-violation-evaluator"));
+        assertTrue(objectiveFunction.evaluate(flowResult, RemedialActionActivationResultImpl.empty(new RangeActionSetpointResultImpl(Map.of())), ReportNode.NO_OP).getVirtualCostNames().contains("min-margin-violation-evaluator"));
     }
 }

@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.raoapi.json;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
@@ -63,30 +64,33 @@ public final class JsonRaoParameters {
 
     /**
      * @param jsonFile Path where the RaoParameters should be read from
+     * @param reportNode Parent reportNode.
      * @return parameters from a JSON file (will NOT rely on platform config).
      */
-    public static RaoParameters read(Path jsonFile) {
-        return update(new RaoParameters(), jsonFile);
+    public static RaoParameters read(final Path jsonFile, final ReportNode reportNode) {
+        return update(new RaoParameters(reportNode), jsonFile, reportNode);
     }
 
     /**
      * @param jsonStream InputStream where the RaoParameters are
+     * @param reportNode Parent reportNode.
      * @return  parameters from a JSON file (will NOT rely on platform config).
      */
-    public static RaoParameters read(InputStream jsonStream) {
-        return update(new RaoParameters(), jsonStream);
+    public static RaoParameters read(final InputStream jsonStream, final ReportNode reportNode) {
+        return update(new RaoParameters(reportNode), jsonStream, reportNode);
     }
 
     /**
      * @param parameters RaoParameters containing original parameters
      * @param jsonFile Path containing parameters to update
+     * @param reportNode Parent reportNode.
      * @return parameters updated with the ones found by reading the content of jsonFile.
      */
-    public static RaoParameters update(RaoParameters parameters, Path jsonFile) {
+    public static RaoParameters update(final RaoParameters parameters, final Path jsonFile, final ReportNode reportNode) {
         Objects.requireNonNull(jsonFile);
 
         try (InputStream is = Files.newInputStream(jsonFile)) {
-            return update(parameters, is);
+            return update(parameters, is, reportNode);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -95,11 +99,12 @@ public final class JsonRaoParameters {
     /**
      * @param parameters RaoParameters containing original parameters
      * @param jsonStream InputStream containing parameters to update
+     * @param reportNode Parent reportNode.
      * @return parameters updated with the ones found by reading the content of jsonStream.
      */
-    public static RaoParameters update(RaoParameters parameters, InputStream jsonStream) {
+    public static RaoParameters update(final RaoParameters parameters, final InputStream jsonStream, final ReportNode reportNode) {
         try {
-            ObjectMapper objectMapper = createObjectMapper();
+            ObjectMapper objectMapper = createObjectMapper(reportNode);
             return objectMapper.readerForUpdating(parameters).readValue(jsonStream);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -111,12 +116,13 @@ public final class JsonRaoParameters {
      *
      * @param parameters RaoParameters containing the parameters that will be exported to a file
      * @param jsonFile Path containing the file where the parameters will be exported
+     * @param reportNode Parent reportNode.
      */
-    public static void write(RaoParameters parameters, Path jsonFile) {
+    public static void write(final RaoParameters parameters, final Path jsonFile, final ReportNode reportNode) {
         Objects.requireNonNull(jsonFile);
 
         try (OutputStream outputStream = Files.newOutputStream(jsonFile)) {
-            write(parameters, outputStream);
+            write(parameters, outputStream, reportNode);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -127,10 +133,11 @@ public final class JsonRaoParameters {
      *
      * @param parameters RaoParameters containing the parameters that will be exported to an OutputStream
      * @param outputStream OutputStream where the parameters will be exported
+     * @param reportNode Parent reportNode.
      */
-    public static void write(RaoParameters parameters, OutputStream outputStream) {
+    public static void write(final RaoParameters parameters, final OutputStream outputStream, final ReportNode reportNode) {
         try {
-            ObjectMapper objectMapper = createObjectMapper();
+            ObjectMapper objectMapper = createObjectMapper(reportNode);
             ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
             writer.writeValue(outputStream, parameters);
         } catch (IOException e) {
@@ -144,11 +151,12 @@ public final class JsonRaoParameters {
      * @param parser JsonParser of a file containing a representation of RaoParameters
      * @param context DeserializationContext used in the deserialization
      * @param parameters RaoParameters to be updated
+     * @param reportNode Parent reportNode.
      * @return RaoParameters object updated with the content of the JsonParser
      * @throws IOException when an unexpected field is found
      */
-    public static RaoParameters deserialize(JsonParser parser, DeserializationContext context, RaoParameters parameters) throws IOException {
-        return new RaoParametersDeserializer().deserialize(parser, context, parameters);
+    public static RaoParameters deserialize(final JsonParser parser, final DeserializationContext context, final RaoParameters parameters, final ReportNode reportNode) throws IOException {
+        return new RaoParametersDeserializer(reportNode).deserialize(parser, context, parameters);
     }
 
     /**
@@ -156,11 +164,12 @@ public final class JsonRaoParameters {
      *
      * @param parser JsonParser of a file containing a representation of RaoParameters
      * @param context DeserializationContext used in the deserialization
+     * @param reportNode Parent reportNode.
      * @return RaoParameters object representing the content of the JsonParser
      * @throws IOException when an unexpected field is found
      */
-    public static RaoParameters deserialize(JsonParser parser, DeserializationContext context) throws IOException {
-        return new RaoParametersDeserializer().deserialize(parser, context);
+    public static RaoParameters deserialize(final JsonParser parser, final DeserializationContext context, final ReportNode reportNode) throws IOException {
+        return new RaoParametersDeserializer(reportNode).deserialize(parser, context);
     }
 
     /**
@@ -175,9 +184,9 @@ public final class JsonRaoParameters {
         new RaoParametersSerializer().serialize(parameters, jsonGenerator, serializerProvider);
     }
 
-    private static ObjectMapper createObjectMapper() {
+    private static ObjectMapper createObjectMapper(final ReportNode reportNode) {
         return JsonUtil.createObjectMapper()
-                .registerModule(new RaoParametersJsonModule())
+                .registerModule(new RaoParametersJsonModule(reportNode))
                 .registerModule(new SensitivityJsonModule());
     }
 }

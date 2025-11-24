@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.raoapi;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.data.raoresult.api.InterTemporalRaoResult;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 
@@ -23,5 +24,5 @@ public interface InterTemporalRaoProvider {
      * @param parameters RAO parameters.
      * @return A completable future of a RaoComputationResult for each timestamp.
      */
-    CompletableFuture<InterTemporalRaoResult> run(InterTemporalRaoInputWithNetworkPaths raoInput, RaoParameters parameters);
+    CompletableFuture<InterTemporalRaoResult> run(InterTemporalRaoInputWithNetworkPaths raoInput, RaoParameters parameters, ReportNode reportNode);
 }

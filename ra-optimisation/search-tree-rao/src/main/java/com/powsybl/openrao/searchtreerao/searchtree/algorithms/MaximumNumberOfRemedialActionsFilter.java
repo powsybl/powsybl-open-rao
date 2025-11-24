@@ -7,13 +7,13 @@
 
 package com.powsybl.openrao.searchtreerao.searchtree.algorithms;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
+import com.powsybl.openrao.searchtreerao.reports.SearchTreeReports;
 import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
 
 import java.util.HashSet;
 import java.util.Set;
-
-import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -34,7 +34,10 @@ public class MaximumNumberOfRemedialActionsFilter implements NetworkActionCombin
      * </ol>
      * If the first condition is not met, the combination is not kept. If the second condition is not met, the combination is kept but the range actions will be unapplied for the next optimization.
      */
-    public Set<NetworkActionCombination> filter(Set<NetworkActionCombination> naCombinations, OptimizationResult optimizationResult) {
+    @Override
+    public Set<NetworkActionCombination> filter(final Set<NetworkActionCombination> naCombinations,
+                                                final OptimizationResult optimizationResult,
+                                                final ReportNode reportNode) {
         Set<NetworkActionCombination> filteredNaCombinations = new HashSet<>();
         for (NetworkActionCombination naCombination : naCombinations) {
             int naCombinationSize = naCombination.getNetworkActionSet().size();
@@ -45,7 +48,7 @@ public class MaximumNumberOfRemedialActionsFilter implements NetworkActionCombin
         }
 
         if (naCombinations.size() > filteredNaCombinations.size()) {
-            TECHNICAL_LOGS.info("{} network action combinations have been filtered out because the max number of usable RAs has been reached", naCombinations.size() - filteredNaCombinations.size());
+            SearchTreeReports.reportNetworkActionCombinationsFilteredOutMaxUsableRasReached(reportNode, naCombinations.size() - filteredNaCombinations.size());
         }
 
         return filteredNaCombinations;

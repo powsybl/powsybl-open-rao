@@ -7,20 +7,19 @@
 
 package com.powsybl.openrao.searchtreerao.searchtree.algorithms;
 
-import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
+import com.powsybl.commons.report.ReportNode;
+import com.powsybl.commons.report.TypedValue;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.VariantManager;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.commons.logs.RaoBusinessLogs;
-import com.powsybl.openrao.commons.logs.TechnicalLogs;
 import com.powsybl.openrao.data.crac.api.Instant;
-import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.RaUsageLimits;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
@@ -37,29 +36,44 @@ import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunc
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.commons.parameters.NetworkActionParameters;
 import com.powsybl.openrao.searchtreerao.commons.parameters.TreeParameters;
-import com.powsybl.openrao.searchtreerao.result.api.*;
+import com.powsybl.openrao.searchtreerao.reports.ReportsTestUtils;
+import com.powsybl.openrao.searchtreerao.result.api.ObjectiveFunctionResult;
+import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
+import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
+import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
 import com.powsybl.openrao.searchtreerao.result.impl.RangeActionActivationResultImpl;
 import com.powsybl.openrao.searchtreerao.searchtree.inputs.SearchTreeInput;
 import com.powsybl.openrao.searchtreerao.searchtree.parameters.SearchTreeParameters;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 import com.powsybl.openrao.util.AbstractNetworkPool;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.VariantManager;
 import com.powsybl.sensitivity.SensitivityAnalysisParameters;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
-import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
-import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
-import static com.powsybl.openrao.searchtreerao.commons.RaoLogger.logRangeActions;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyDouble;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -94,14 +108,17 @@ class SearchTreeTest {
 
     private NetworkActionCombination predefinedNaCombination;
 
+    private ReportNode reportNode;
+
     MockedStatic<HvdcUtils> hvdcUtilsMock;
 
     @BeforeEach
     void setUp() {
+        reportNode = ReportsTestUtils.getTestRootNode();
         setSearchTreeInput();
         searchTreeParameters = Mockito.mock(SearchTreeParameters.class);
         setSearchTreeParameters();
-        searchTree = Mockito.spy(new SearchTree(searchTreeInput, searchTreeParameters, true));
+        searchTree = Mockito.spy(new SearchTree(searchTreeInput, searchTreeParameters, true, reportNode));
         when(searchTreeParameters.getObjectiveFunction()).thenReturn(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN);
         when(searchTreeParameters.getObjectiveFunctionUnit()).thenReturn(Unit.MEGAWATT);
         mockNetworkPool(network);
@@ -280,8 +297,8 @@ class SearchTreeTest {
         when(sensitivityComputer.getBranchResult(network)).thenReturn(null);
         Mockito.doNothing().when(sensitivityComputer).compute(network);
         ObjectiveFunction objectiveFunction = Mockito.mock(ObjectiveFunction.class);
-        when(objectiveFunction.evaluate(any(), any())).thenReturn(null);
-        leaf.evaluate(objectiveFunction, sensitivityComputer);
+        when(objectiveFunction.evaluate(any(), any(), any())).thenReturn(null);
+        leaf.evaluate(objectiveFunction, sensitivityComputer, reportNode);
     }
 
     @Test
@@ -507,7 +524,7 @@ class SearchTreeTest {
         when(rootLeaf.getStatus()).thenReturn(Leaf.Status.EVALUATED);
         Mockito.doReturn(rootLeaf).when(searchTree).makeLeaf(optimizationPerimeter, network, prePerimeterResult, appliedRemedialActions);
         // rootLeaf should not be optimized : its virtual cost is zero so stop criterion is already reached
-        doThrow(OpenRaoException.class).when(rootLeaf).optimize(any(), any());
+        doThrow(OpenRaoException.class).when(rootLeaf).optimize(any(), any(), any());
 
         try {
             searchTree.run();
@@ -531,11 +548,18 @@ class SearchTreeTest {
         String expectedLog2 = "[INFO] Could not evaluate leaf: root leaf description";
         String expectedLog3 = "[INFO] Scenario \"preventive\": initial cost = 0.0 (functional: 0.0, virtual: 0.0), no remedial actions activated, cost after preventive optimization = 0.0 (functional: 0.0, virtual: 0.0)";
 
-        ListAppender<ILoggingEvent> technical = getLogs(TechnicalLogs.class);
-        ListAppender<ILoggingEvent> business = getLogs(RaoBusinessLogs.class);
+        ListAppender<ILoggingEvent> technical = ReportsTestUtils.getTechnicalLogs();
+        ListAppender<ILoggingEvent> business = ReportsTestUtils.getBusinessLogs();
         searchTree.run();
+        final List<ReportNode> traceReports = ReportsTestUtils.getReportsWithSeverity(reportNode, TypedValue.TRACE_SEVERITY);
+        final List<ReportNode> infoReports = ReportsTestUtils.getReportsWithSeverity(reportNode, TypedValue.INFO_SEVERITY);
+        assertEquals(1, traceReports.size());
+        assertEquals(2, infoReports.size());
         assertEquals(1, technical.list.size());
         assertEquals(2, business.list.size());
+        assertTrue(expectedLog1.endsWith(traceReports.getFirst().getMessage()));
+        assertTrue(expectedLog2.endsWith(infoReports.getFirst().getMessage()));
+        assertTrue(expectedLog3.endsWith(infoReports.get(1).getMessage()));
         assertEquals(expectedLog1, technical.list.getFirst().toString());
         assertEquals(expectedLog2, business.list.getFirst().toString());
         assertEquals(expectedLog3, business.list.get(1).toString());
@@ -543,7 +567,7 @@ class SearchTreeTest {
 
     @Test
     void testLogsDontVerbose() {
-        searchTree = Mockito.spy(new SearchTree(searchTreeInput, searchTreeParameters, false));
+        searchTree = Mockito.spy(new SearchTree(searchTreeInput, searchTreeParameters, false, reportNode));
         raoWithoutLoopFlowLimitation();
 
         when(rootLeaf.getStatus()).thenReturn(Leaf.Status.ERROR);
@@ -557,22 +581,21 @@ class SearchTreeTest {
         String expectedLog2 = "[INFO] Could not evaluate leaf: root leaf description";
         String expectedLog3 = "[INFO] Scenario \"preventive\": initial cost = 0.0 (functional: 0.0, virtual: 0.0), no remedial actions activated, cost after preventive optimization = 0.0 (functional: 0.0, virtual: 0.0)";
 
-        ListAppender<ILoggingEvent> technical = getLogs(TechnicalLogs.class);
-        ListAppender<ILoggingEvent> business = getLogs(RaoBusinessLogs.class);
+        ListAppender<ILoggingEvent> technical = ReportsTestUtils.getTechnicalLogs();
+        ListAppender<ILoggingEvent> business = ReportsTestUtils.getBusinessLogs();
         searchTree.run();
+        final List<ReportNode> traceReports = ReportsTestUtils.getReportsWithSeverity(reportNode, TypedValue.TRACE_SEVERITY);
+        final List<ReportNode> infoReports = ReportsTestUtils.getReportsWithSeverity(reportNode, TypedValue.INFO_SEVERITY);
+        assertEquals(2, traceReports.size());
+        assertEquals(1, infoReports.size());
         assertEquals(2, technical.list.size());
         assertEquals(1, business.list.size());
+        assertTrue(expectedLog1.endsWith(traceReports.getFirst().getMessage()));
+        assertTrue(expectedLog2.endsWith(traceReports.get(1).getMessage()));
+        assertTrue(expectedLog3.endsWith(infoReports.getFirst().getMessage()));
         assertEquals(expectedLog1, technical.list.getFirst().toString());
         assertEquals(expectedLog2, technical.list.get(1).toString());
         assertEquals(expectedLog3, business.list.getFirst().toString());
-    }
-
-    private ListAppender<ILoggingEvent> getLogs(Class clazz) {
-        Logger logger = (Logger) LoggerFactory.getLogger(clazz);
-        ListAppender<ILoggingEvent> listAppender = new ListAppender<>();
-        listAppender.start();
-        logger.addAppender(listAppender);
-        return listAppender;
     }
 
     @Test
@@ -581,102 +604,27 @@ class SearchTreeTest {
 
         // MIN_COST
         when(searchTreeParameters.getObjectiveFunction()).thenReturn(ObjectiveFunctionParameters.ObjectiveFunctionType.MIN_COST);
-        assertTrue(searchTree.costSatisfiesStopCriterion(0));
-        assertFalse(searchTree.costSatisfiesStopCriterion(0.1));
-        assertFalse(searchTree.costSatisfiesStopCriterion(10));
+        assertTrue(SearchTree.costSatisfiesStopCriterion(0, searchTreeParameters));
+        assertFalse(SearchTree.costSatisfiesStopCriterion(0.1, searchTreeParameters));
+        assertFalse(SearchTree.costSatisfiesStopCriterion(10, searchTreeParameters));
 
         // MIN_OBJECTIVE
         when(searchTreeParameters.getObjectiveFunction()).thenReturn(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN);
         when(treeParameters.stopCriterion()).thenReturn(TreeParameters.StopCriterion.MIN_OBJECTIVE);
-        assertFalse(searchTree.costSatisfiesStopCriterion(-10));
-        assertFalse(searchTree.costSatisfiesStopCriterion(-0.1));
-        assertFalse(searchTree.costSatisfiesStopCriterion(0));
-        assertFalse(searchTree.costSatisfiesStopCriterion(0.1));
-        assertFalse(searchTree.costSatisfiesStopCriterion(10));
+        assertFalse(SearchTree.costSatisfiesStopCriterion(-10, searchTreeParameters));
+        assertFalse(SearchTree.costSatisfiesStopCriterion(-0.1, searchTreeParameters));
+        assertFalse(SearchTree.costSatisfiesStopCriterion(0, searchTreeParameters));
+        assertFalse(SearchTree.costSatisfiesStopCriterion(0.1, searchTreeParameters));
+        assertFalse(SearchTree.costSatisfiesStopCriterion(10, searchTreeParameters));
 
         // AT_TARGET_OBJECTIVE_VALUE
         when(treeParameters.stopCriterion()).thenReturn(TreeParameters.StopCriterion.AT_TARGET_OBJECTIVE_VALUE);
         when(treeParameters.targetObjectiveValue()).thenReturn(0.);
-        assertTrue(searchTree.costSatisfiesStopCriterion(-10));
-        assertTrue(searchTree.costSatisfiesStopCriterion(-0.1));
-        assertFalse(searchTree.costSatisfiesStopCriterion(0));
-        assertFalse(searchTree.costSatisfiesStopCriterion(0.1));
-        assertFalse(searchTree.costSatisfiesStopCriterion(10));
-    }
-
-    private void setUpForVirtualLogs() {
-        setSearchTreeParameters();
-        setSearchTreeInput();
-        searchTree = Mockito.spy(new SearchTree(searchTreeInput, searchTreeParameters, false));
-
-        FlowCnec cnec = Mockito.mock(FlowCnec.class);
-        State state = Mockito.mock(State.class);
-        NetworkElement networkElement = Mockito.mock(NetworkElement.class);
-        when(cnec.getState()).thenReturn(state);
-        when(cnec.getNetworkElement()).thenReturn(networkElement);
-        when(cnec.getId()).thenReturn("cnec-id");
-        when(cnec.getName()).thenReturn("cnec-name");
-        when(cnec.getUpperBound(TwoSides.ONE, Unit.MEGAWATT)).thenReturn(Optional.of(1000.));
-        when(state.getId()).thenReturn("state-id");
-        when(networkElement.getId()).thenReturn("ne-id");
-
-        when(rootLeaf.getCostlyElements(eq("loop-flow-cost"), anyInt())).thenReturn(List.of(cnec));
-        when(rootLeaf.getIdentifier()).thenReturn("leaf-id");
-        when(rootLeaf.getMargin(cnec, TwoSides.ONE, Unit.MEGAWATT)).thenReturn(-135.);
-        when(rootLeaf.getMargin(cnec, TwoSides.TWO, Unit.MEGAWATT)).thenReturn(-134.);
-        when(rootLeaf.getFlow(cnec, TwoSides.ONE, Unit.MEGAWATT)).thenReturn(1135.);
-    }
-
-    @Test
-    void testGetCostlyElementsLogs() {
-        setUpForVirtualLogs();
-
-        List<String> logs = searchTree.getVirtualCostlyElementsLogs(rootLeaf, "loop-flow-cost", "Optimized ");
-        assertEquals(1, logs.size());
-        assertEquals("Optimized leaf-id, limiting \"loop-flow-cost\" constraint #01: flow = 1135.00 MW, threshold = 1000.00 MW, margin = -135.00 MW, element ne-id at state state-id, CNEC ID = \"cnec-id\", CNEC name = \"cnec-name\"", logs.getFirst());
-    }
-
-    @Test
-    void testLogVirtualCostDetails() {
-        setUpForVirtualLogs();
-
-        when(treeParameters.stopCriterion()).thenReturn(TreeParameters.StopCriterion.AT_TARGET_OBJECTIVE_VALUE);
-        when(treeParameters.targetObjectiveValue()).thenReturn(0.);
-        // functional cost = -100 (secure)
-        // virtual cost = 200
-        // overall cost = 100 (unsecure)
-        when(rootLeaf.isRoot()).thenReturn(true);
-        when(rootLeaf.getCost()).thenReturn(100.);
-        when(rootLeaf.getVirtualCost("loop-flow-cost")).thenReturn(200.);
-
-        // Functional cost does not satisfy stop criterion
-        ListAppender<ILoggingEvent> business = getLogs(RaoBusinessLogs.class);
-        searchTree.logVirtualCostDetails(rootLeaf, "loop-flow-cost", "Optimized ");
-        assertEquals(2, business.list.size());
-        assertEquals("[INFO] Optimized leaf-id, stop criterion could have been reached without \"loop-flow-cost\" virtual cost", business.list.getFirst().toString());
-        assertEquals("[INFO] Optimized leaf-id, limiting \"loop-flow-cost\" constraint #01: flow = 1135.00 MW, threshold = 1000.00 MW, margin = -135.00 MW, element ne-id at state state-id, CNEC ID = \"cnec-id\", CNEC name = \"cnec-name\"", business.list.get(1).toString());
-    }
-
-    @Test
-    void testLogRangeActions() {
-        setUpForVirtualLogs();
-        List<ILoggingEvent> logsList = getLogs(TechnicalLogs.class).list;
-        logRangeActions(TECHNICAL_LOGS, rootLeaf, searchTreeInput.getOptimizationPerimeter(), "");
-        assertEquals("[INFO] No range actions activated", logsList.getLast().toString());
-
-        // apply 2 range actions
-        rangeAction1 = Mockito.mock(PstRangeAction.class);
-        rangeAction2 = Mockito.mock(PstRangeAction.class);
-        when(rangeAction1.getName()).thenReturn("PST1");
-        when(rangeAction2.getName()).thenReturn("PST2");
-        when(searchTreeInput.getOptimizationPerimeter().getRangeActionOptimizationStates()).thenReturn(Set.of(optimizedState));
-        when(rootLeaf.getActivatedRangeActions(optimizedState)).thenReturn(Set.of(rangeAction1, rangeAction2));
-
-        logRangeActions(TECHNICAL_LOGS, rootLeaf, searchTreeInput.getOptimizationPerimeter(), "");
-        // PST can be logged in any order
-        assert logsList.getLast().toString().contains("[INFO] range action(s):");
-        assert logsList.getLast().toString().contains("PST1: 0");
-        assert logsList.getLast().toString().contains("PST2: 0");
+        assertTrue(SearchTree.costSatisfiesStopCriterion(-10, searchTreeParameters));
+        assertTrue(SearchTree.costSatisfiesStopCriterion(-0.1, searchTreeParameters));
+        assertFalse(SearchTree.costSatisfiesStopCriterion(0, searchTreeParameters));
+        assertFalse(SearchTree.costSatisfiesStopCriterion(0.1, searchTreeParameters));
+        assertFalse(SearchTree.costSatisfiesStopCriterion(10, searchTreeParameters));
     }
 
     @Test
