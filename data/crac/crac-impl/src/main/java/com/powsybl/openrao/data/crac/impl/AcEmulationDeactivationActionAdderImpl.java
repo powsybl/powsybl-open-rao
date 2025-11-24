@@ -11,8 +11,6 @@ import com.powsybl.action.Action;
 import com.powsybl.action.HvdcActionBuilder;
 import com.powsybl.openrao.data.crac.api.networkaction.AcEmulationDeactivationActionAdder;
 
-import static com.powsybl.openrao.data.crac.impl.AdderUtils.assertAttributeNotNull;
-
 /**
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
  */
@@ -31,7 +29,7 @@ public class AcEmulationDeactivationActionAdderImpl extends AbstractSingleNetwor
     }
 
     protected void assertSpecificAttributes() {
-        assertAttributeNotNull("DEACTIVATE", getActionName(), "actionType", "withActionType()");
+        // Nothing to be done here attributes are always non null
     }
 
     protected String getActionName() {
