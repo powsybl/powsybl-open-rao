@@ -58,10 +58,10 @@ public class HvdcUtilsTest {
         Network network = Network.read("TestCase16NodesWithHvdc_AC_emulation.xiidm", getClass().getResourceAsStream("/network/TestCase16NodesWithHvdc_AC_emulation.xiidm"));
         Crac crac = Crac.read("crac_hvdc_allinstants_allusagerules.json", getClass().getResourceAsStream("/crac/crac_hvdc_allinstants_allusagerules.json"), network);
         addNetworkActionAssociatedWithHvdcRangeAction(crac, network);
-        assert 1 == crac.getNetworkActions().size();
-        assert 8 == crac.getNetworkAction("acEmulationDeactivation_BBE2AA11 FFR3AA11 1").getUsageRules().size();
-        assert crac.getNetworkAction("acEmulationDeactivation_BBE2AA11 FFR3AA11 1").getUsageRules().containsAll(crac.getHvdcRangeAction("HVDC_RA1").getUsageRules());
-        assert crac.getNetworkAction("acEmulationDeactivation_BBE2AA11 FFR3AA11 1").getUsageRules().containsAll(crac.getHvdcRangeAction("HVDC_RA2").getUsageRules());
+        assertEquals(1, crac.getNetworkActions().size());
+        assertEquals(8, crac.getNetworkAction("acEmulationDeactivation_BBE2AA11 FFR3AA11 1").getUsageRules().size());
+        assertTrue(crac.getNetworkAction("acEmulationDeactivation_BBE2AA11 FFR3AA11 1").getUsageRules().containsAll(crac.getHvdcRangeAction("HVDC_RA1").getUsageRules()));
+        assertTrue(crac.getNetworkAction("acEmulationDeactivation_BBE2AA11 FFR3AA11 1").getUsageRules().containsAll(crac.getHvdcRangeAction("HVDC_RA2").getUsageRules()));
     }
 
     @Test
@@ -71,7 +71,7 @@ public class HvdcUtilsTest {
         Network network = Network.read("TestCase16NodesWithHvdc_fixed_setpoint.xiidm", getClass().getResourceAsStream("/network/TestCase16NodesWithHvdc_fixed_setpoint.xiidm"));
         Crac crac = Crac.read("crac_hvdc_allinstants_allusagerules.json", getClass().getResourceAsStream("/crac/crac_hvdc_allinstants_allusagerules.json"), network);
         addNetworkActionAssociatedWithHvdcRangeAction(crac, network);
-        assert 0 == crac.getNetworkActions().size();
+        assertEquals(0, crac.getNetworkActions().size());
     }
 
     @Test
