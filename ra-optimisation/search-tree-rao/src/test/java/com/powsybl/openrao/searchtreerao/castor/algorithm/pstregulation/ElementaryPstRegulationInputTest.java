@@ -49,4 +49,25 @@ class ElementaryPstRegulationInputTest {
         PstRangeAction pstBeFr4 = crac.getPstRangeAction("pstBeFr4");
         assertNull(ElementaryPstRegulationInput.of(pstBeFr4, "BBE1AA1  FFR1AA1  4", state, crac, network));
     }
+
+    @Test
+    void testRetrieveLimitingThresholdInCracForLineInSeries() throws IOException {
+        Network network = Network.read("2Nodes4ParallelLines3PSTs.uct", getClass().getResourceAsStream("/network/2Nodes4ParallelLines3PSTs.uct"));
+        Crac crac = Crac.read("crac-3-psts-monitored-line-in-series.json", getClass().getResourceAsStream("/crac/crac-3-psts-monitored-line-in-series.json"), network);
+        State state = crac.getState("Contingency BE1 FR1 2", crac.getInstant(InstantKind.CURATIVE));
+
+        // common terminal is on side 1 of both the line and the PST so only the thresholds on this side are used
+        PstRangeAction pstBeFr2 = crac.getPstRangeAction("pstBeFr2");
+        ElementaryPstRegulationInput pst1RegulationInput = ElementaryPstRegulationInput.of(pstBeFr2, "BBE1AA1  FFR1AA1  1", state, crac, network);
+        assertNotNull(pst1RegulationInput);
+        assertEquals(TwoSides.ONE, pst1RegulationInput.limitingSide());
+        assertEquals(800.0, pst1RegulationInput.limitingThreshold());
+
+        // common terminal is on side 1 of both the line and the PST so only the thresholds on this side are used
+        PstRangeAction pstBeFr3 = crac.getPstRangeAction("pstBeFr3");
+        ElementaryPstRegulationInput pst2RegulationInput = ElementaryPstRegulationInput.of(pstBeFr3, "BBE1AA1  FFR1AA1  1", state, crac, network);
+        assertNotNull(pst2RegulationInput);
+        assertEquals(TwoSides.ONE, pst2RegulationInput.limitingSide());
+        assertEquals(800.0, pst2RegulationInput.limitingThreshold());
+    }
 }
