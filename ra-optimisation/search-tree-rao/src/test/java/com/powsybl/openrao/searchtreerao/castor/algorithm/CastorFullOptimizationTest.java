@@ -551,4 +551,15 @@ class CastorFullOptimizationTest {
         assertNotNull(raoResult);
         assertEquals(-Double.MAX_VALUE, raoResult.getCost(null));
     }
+
+    @Test
+    void checkWithHvdc() throws IOException {
+        // same test as US 15.17.8
+        setup("TestCase16NodesWithHvdc_AC_emulation.xiidm", "jsonCrac_ep15us12-5case8.json");
+        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_DC.json"));
+
+        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
+        assertEquals(-299.88, raoResult.getCost(crac.getInstant("curative")), 1e-2);
+
+    }
 }
