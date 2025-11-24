@@ -15,6 +15,8 @@ import com.powsybl.action.HvdcActionBuilder;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
+import com.powsybl.openrao.commons.logs.RaoBusinessWarns;
+import com.powsybl.openrao.commons.logs.TechnicalLogs;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.RaUsageLimits;
@@ -29,6 +31,7 @@ import com.powsybl.openrao.data.crac.impl.NetworkActionImpl;
 import com.powsybl.openrao.data.crac.impl.utils.NetworkImportsUtil;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
+import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.searchtreerao.commons.SensitivityComputer;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.commons.parameters.RangeActionLimitationParameters;
@@ -72,11 +75,6 @@ class LeafTest {
 
     private NetworkAction na1;
     private NetworkAction na2;
-    private Action ea11;
-    private Action ea12;
-    private Action ea21;
-    private Action ea22;
-    private Action ea23;
     private RangeAction rangeAction;
 
     private Network network;
@@ -233,6 +231,26 @@ class LeafTest {
         // AC emulation is deactivated but the active power setpoint is the one we set before hand.
         assertFalse(networkWithAngleDroop.getHvdcLine("BBE2AA11 FFR3AA11 1").getExtension(HvdcAngleDroopActivePowerControl.class).isEnabled());
         assertEquals(812.28, networkWithAngleDroop.getHvdcLine("BBE2AA11 FFR3AA11 1").getActivePowerSetpoint(), 1e-2);
+    }
+
+
+    @Test
+    void testLeafNoRangeActionToOptimizeAfterFiltering() {
+        // We test here that after filtering all the HVDC range actions, there are no range actions left to optimize
+        // We return and the leaf's status doesn't change
+        Leaf rootLeaf = new Leaf(optimizationPerimeter, network, prePerimeterResult, appliedRemedialActions);
+        SearchTreeInput searchTreeInput = Mockito.mock(SearchTreeInput.class);
+        SearchTreeParameters searchTreeParameters = Mockito.mock(SearchTreeParameters.class);
+        when(searchTreeInput.getOptimizationPerimeter()).thenReturn(optimizationPerimeter);
+        when(optimizationPerimeter.getRangeActions()).thenReturn(Set.of());
+        ListAppender<ILoggingEvent> listAppender = getLogs(TechnicalLogs.class);
+        List<ILoggingEvent> logsList = listAppender.list;
+        assertEquals(Leaf.Status.EVALUATED, rootLeaf.getStatus());
+        rootLeaf.optimize(searchTreeInput, searchTreeParameters);
+        assertEquals(2, logsList.size());
+        assertEquals("Optimizing leaf...", logsList.get(0).getFormattedMessage());
+        assertEquals("No range actions to optimize after filtering HVDC range actions", logsList.get(1).getFormattedMessage());
+        assertEquals(Leaf.Status.EVALUATED, rootLeaf.getStatus());
     }
 
     @Test
