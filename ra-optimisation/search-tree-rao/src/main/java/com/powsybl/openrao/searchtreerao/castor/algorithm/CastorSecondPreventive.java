@@ -355,7 +355,7 @@ public class CastorSecondPreventive {
 
         // apply PRAs
         network.getVariantManager().setWorkingVariant(SECOND_PREVENTIVE_SCENARIO_BEFORE_OPT);
-        // network actions need to be applied BEFORE range actions because to apply HVDC range actions we need to apply AC emulation deactivation actions beforehand
+        // network actions need to be applied BEFORE range actions because to apply HVDC range actions we need to apply AC emulation deactivation network actions beforehand
         result.getActivatedNetworkActions().forEach(networkAction -> networkAction.apply(network));
         result.getActivatedRangeActions(preventiveState).forEach(rangeAction -> rangeAction.apply(network, result.getOptimizedSetpoint(rangeAction, preventiveState)));
 

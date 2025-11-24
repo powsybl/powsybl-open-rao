@@ -13,12 +13,8 @@ import com.powsybl.openloadflow.OpenLoadFlowParameters;
 import com.powsybl.openrao.data.crac.api.*;
 import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
 import com.powsybl.openrao.data.crac.impl.HvdcRangeActionImpl;
-import com.powsybl.openrao.data.crac.impl.utils.CommonCracCreation;
-import com.powsybl.openrao.data.crac.impl.utils.NetworkImportsUtil;
-import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -34,27 +30,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 public class HvdcUtilsTest {
 
-    private RaoParameters raoParameters;
-    private Network network;
-    private Crac crac;
-    private String variantId;
-    private RaoInput raoInput;
-
-    @BeforeEach
-    void setUp() {
-        network = NetworkImportsUtil.import12NodesNetwork();
-        crac = CommonCracCreation.createWithPreventivePstRange();
-        variantId = network.getVariantManager().getWorkingVariantId();
-        raoInput = RaoInput.buildWithPreventiveState(network, crac)
-            .withNetworkVariantId(variantId)
-            .build();
-        raoParameters = new RaoParameters();
-    }
-
     @Test
     void checkAddNetworkActionAssociatedWithHvdcRangeAction() throws IOException {
-        // Two hvdc range actions both using HVDC line "BBE2AA11 FFR3AA11 1" that is initially in ac emulation mode, so one
-        // ac emulation deactivation network action is created but with usage rule of both range actions.
+        // Two hvdc range actions both using HVDC line "BBE2AA11 FFR3AA11 1" that is initially in AC emulation mode, so one
+        // AC emulation deactivation network action is created but with usage rule of both range actions.
         Network network = Network.read("TestCase16NodesWithHvdc_AC_emulation.xiidm", getClass().getResourceAsStream("/network/TestCase16NodesWithHvdc_AC_emulation.xiidm"));
         Crac crac = Crac.read("crac_hvdc_allinstants_allusagerules.json", getClass().getResourceAsStream("/crac/crac_hvdc_allinstants_allusagerules.json"), network);
         addNetworkActionAssociatedWithHvdcRangeAction(crac, network);
@@ -66,8 +45,8 @@ public class HvdcUtilsTest {
 
     @Test
     void checkNoAcEmulationNetworkActions() throws IOException {
-        // Two hvdc range actions both using HVDC line "BBE2AA11 FFR3AA11 1" that is initially in fixed point mode
-        // So no ac emulation deaction network action is created
+        // Two HVDC range actions both using HVDC line "BBE2AA11 FFR3AA11 1" that is initially in fixed point mode
+        // So no AC emulation deactivation network action is created
         Network network = Network.read("TestCase16NodesWithHvdc_fixed_setpoint.xiidm", getClass().getResourceAsStream("/network/TestCase16NodesWithHvdc_fixed_setpoint.xiidm"));
         Crac crac = Crac.read("crac_hvdc_allinstants_allusagerules.json", getClass().getResourceAsStream("/crac/crac_hvdc_allinstants_allusagerules.json"), network);
         addNetworkActionAssociatedWithHvdcRangeAction(crac, network);
@@ -76,7 +55,7 @@ public class HvdcUtilsTest {
 
     @Test
     void testUpdateHvdcRangeActionInitialSetpoint() throws IOException {
-        // Two hvdc range actions both using HVDC line "BBE2AA11 FFR3AA11 1" that is initially in ac emulation mode
+        // Two HVDC range actions both using HVDC line "BBE2AA11 FFR3AA11 1" that is initially in AC emulation mode
         // the initial set point is set to the initial flow passing on the line.
         Network network = Network.read("TestCase16NodesWithHvdc_AC_emulation.xiidm", getClass().getResourceAsStream("/network/TestCase16NodesWithHvdc_AC_emulation.xiidm"));
         Crac crac = Crac.read("crac_hvdc_allinstants_allusagerules.json", getClass().getResourceAsStream("/crac/crac_hvdc_allinstants_allusagerules.json"), network);
@@ -84,6 +63,7 @@ public class HvdcUtilsTest {
         assertEquals(0.0, crac.getHvdcRangeAction("HVDC_RA1").getInitialSetpoint());
         assertEquals(0.0, crac.getHvdcRangeAction("HVDC_RA2").getInitialSetpoint());
 
+        RaoParameters raoParameters = new RaoParameters();
         raoParameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters());
         updateHvdcRangeActionInitialSetpoint(crac, network, raoParameters);
 
@@ -107,6 +87,7 @@ public class HvdcUtilsTest {
         assertEquals(0.0, crac.getHvdcRangeAction("HVDC_RA1").getCurrentSetpoint(network));
 
         // Preventive state, no contingency is applied
+        RaoParameters raoParameters = new RaoParameters();
         raoParameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters());
         Map<HvdcRangeAction, Double> hvdcRangeActionActivePowerSetpoint = runLoadFlowAndUpdateHvdcActivePowerSetpoint(
             network,

@@ -229,7 +229,7 @@ class AutomatonSimulatorTest {
             .newRange().withMax(3000).withMin(-3000).add()
             .newOnInstantUsageRule().withInstant(AUTO_INSTANT_ID).add()
             .add();
-        // Add associated ac emulation deactivation network action
+        // Add associated AC emulation deactivation network action
         acEmulationDeactivation1 = crac.newNetworkAction()
             .withId("ac-eumlation-deactivation-1")
             .withOperator(hvdcRa1.getOperator())

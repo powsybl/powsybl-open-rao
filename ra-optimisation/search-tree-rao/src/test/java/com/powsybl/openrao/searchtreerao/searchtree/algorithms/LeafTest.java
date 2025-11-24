@@ -210,7 +210,6 @@ class LeafTest {
         // We test here that when an AC emulation deactivation network action is applied in a Leaf
         // We are able to read the HVDC line active power setpoint set beforehand in the network.
 
-        // An ac emulation deactivation action is activated.
         Network networkWithAngleDroop = import16NodesNetworkWithAngleDroopHvdcs();
         Leaf rootLeaf = new Leaf(optimizationPerimeter, networkWithAngleDroop, prePerimeterResult, appliedRemedialActions);
         RangeActionActivationResult rangeActionActivationResult = Mockito.mock(RangeActionActivationResult.class);
@@ -231,7 +230,7 @@ class LeafTest {
 
         new Leaf(optimizationPerimeter, networkWithAngleDroop, rootLeaf.getActivatedNetworkActions(), new NetworkActionCombination(na1), rangeActionActivationResult, prePerimeterResult, appliedRemedialActions);
 
-        // AC emumation is deactivated but the active power setpoint is the one we set before hand.
+        // AC emulation is deactivated but the active power setpoint is the one we set before hand.
         assertFalse(networkWithAngleDroop.getHvdcLine("BBE2AA11 FFR3AA11 1").getExtension(HvdcAngleDroopActivePowerControl.class).isEnabled());
         assertEquals(812.28, networkWithAngleDroop.getHvdcLine("BBE2AA11 FFR3AA11 1").getActivePowerSetpoint(), 1e-2);
     }

@@ -228,7 +228,7 @@ public final class ExhaustiveCracCreation {
             .newOnContingencyStateUsageRule().withContingency(contingency2Id).withInstant(CURATIVE_INSTANT_ID).add()
             .add();
 
-        // network actions with one ac emulation deactivation action
+        // network actions with one ac emulation deactivation network action
         crac.newNetworkAction().withId("acEmulationDeactivationId")
             .withName("acEmulationDeactivationName")
             .withOperator("RTE")

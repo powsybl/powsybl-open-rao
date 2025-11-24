@@ -231,11 +231,11 @@ public final class AutomatonSimulator {
      */
     TopoAutomatonSimulationResult simulateTopologicalAutomatons(State automatonState, Network network, PrePerimeterSensitivityAnalysis preAutoPstOptimizationSensitivityAnalysis, int speed, Set<NetworkAction> previouslyActivatedTopologicalAutomatons, PrePerimeterResult preAutomatonsPerimeterResult) {
         // -- Apply network actions
-        // -- First get forced network actions: except for ac emulation deactivation, it will be deactivated when the range action is optimized.
+        // -- First get forced network actions: except for AC emulation deactivation network actions, it will be deactivated when the range action is optimized.
         Set<FlowCnec> flowCnecs = crac.getFlowCnecs(automatonState);
         Set<NetworkAction> appliedNetworkActions = new HashSet<>();
         crac.getNetworkActions(automatonState).stream()
-            .filter(ra -> !ra.getElementaryActions().stream().anyMatch(action -> action instanceof HvdcAction))
+            .filter(ra -> !ra.getElementaryActions().stream().allMatch(action -> action instanceof HvdcAction))
             .filter(ra -> RaoUtil.canRemedialActionBeUsed(ra, automatonState, preAutomatonsPerimeterResult, flowCnecs, network, raoParameters))
             .filter(ra -> getSpeed(ra) == speed)
             .forEach(networkAction -> {
@@ -487,16 +487,17 @@ public final class AutomatonSimulator {
      */
     public static void disableAcEmulationAndSetHvdcActivePowerSetpoint(Network network, Crac crac, AutomatonSimulator.TopoAutomatonSimulationResult topoSimulationResult, String hvdcLineId, double activePowerSetpoint) {
         TECHNICAL_LOGS.debug("Disabling HvdcAngleDroopActivePowerControl on HVDC line {}", hvdcLineId, activePowerSetpoint);
-        // get AC emulation deactivation action that acts on hvdc line
-        NetworkAction acEmulationDeactivationAction = getAcEmulationDeactivationActionOnHvdcLine(crac, hvdcLineId);
-        // deactivate AC emulation using the acEmulationDeactivationAction found above
+        // get AC emulation deactivation network action that acts on hvdc line
+        NetworkAction acEmulationDeactivationAction = getAcEmulationDeactivationNetworkActionOnHvdcLine(crac, hvdcLineId);
+        // deactivate AC emulation using the AC emulation deactivation network action found above
         acEmulationDeactivationAction.apply(network);
         // add network action to topoSimulationResult !
         topoSimulationResult.addActivatedNetworkActions(Set.of(acEmulationDeactivationAction));
     }
 
     /**
-     * Retrieves the AC emulation deactivation {@link NetworkAction} associated with a specific HVDC line
+     * Retrieves the AC emulation deactivation {@link NetworkAction} (An AC emulation network action is a network action with only AcEmulationDeactivationAction elementary action)
+     * associated with a specific HVDC line
      * from the given {@link Crac} instance. The method works as follows:
      * <ul>
      *     <li>It filters the set of all network actions in the CRAC to find those whose associated network elements
@@ -505,7 +506,7 @@ public final class AutomatonSimulator {
      *     <li>There should only be one acEmulationDeactivationAction per HVDC line; if not, it logs a warning.</li>
      * </ul>d
      */
-    private static NetworkAction getAcEmulationDeactivationActionOnHvdcLine(Crac crac, String hvdcLineId) {
+    private static NetworkAction getAcEmulationDeactivationNetworkActionOnHvdcLine(Crac crac, String hvdcLineId) {
         Set<NetworkAction> acEmulationDeactivationActionsOnHvdcLine = crac.getNetworkActions().stream()
             .filter(ra -> ra.getNetworkElements().stream().map(NetworkElement::getId).collect(Collectors.toSet()).equals(Set.of(hvdcLineId)))
             .filter(ra -> ra.getElementaryActions().stream()
