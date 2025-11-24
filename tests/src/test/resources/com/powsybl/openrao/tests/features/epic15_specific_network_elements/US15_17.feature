@@ -131,7 +131,7 @@ Feature: US 15.17: Optimize HVDC range actions initially in AC emulation mode
     And the margin on cnec "de2_de3_n - DDE2AA11->DDE3AA11 - preventive" after PRA should be 50 MW
 
   @fast @rao @mock @dc @contingency-scenarios @hvdc
-  Scenario: US 15.17.8: HVDC and PST filtering - case where not deactivating ac emulation is better
+  Scenario: US 15.17.8: HVDC and PST filtering
     # Copy of test case 15.12.5.8, except HVDC is initially in AC emulation mode
     # Same result except that the AC emulation is deactivated by the network action "acEmulationDeactivation_BBE2AA11 FFR3AA11 1".
     Given network file is "epic15/TestCase16NodesWithHvdc_AC_emulation.xiidm"
