@@ -24,6 +24,7 @@ import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoPstRegulationParameters;
 import com.powsybl.openrao.searchtreerao.result.impl.PostPerimeterResult;
+import com.powsybl.openrao.searchtreerao.result.impl.SkippedOptimizationResultImpl;
 import com.powsybl.openrao.util.AbstractNetworkPool;
 
 import java.util.ArrayList;
@@ -112,6 +113,7 @@ public final class CastorPstRegulation {
         return lastInstant.isCurative() ?
             crac.getStates(lastInstant).stream()
                 .filter(postContingencyResults::containsKey)
+                .filter(curativeState -> !(postContingencyResults.get(curativeState).optimizationResult() instanceof SkippedOptimizationResultImpl))
                 .map(curativeState -> getPstRegulationInput(curativeState, crac, postContingencyResults.get(curativeState), unit, rangeActionsToRegulate, linesInSeriesWithPst, network))
                 .filter(Optional::isPresent)
                 .map(Optional::get)
