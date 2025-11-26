@@ -173,19 +173,19 @@ public final class HvdcUtils {
 
     /**
      * Filter out from rangeActions set all the HVDC range actions that are associated with HVDC Line AC Emulation
-     * @param rangeActions
+     *
+     * @param rangeActions set of range actions to filter
      * @param network
      * @return
      */
     public static Set<RangeAction<?>> filterOutHvdcRangeActionsOnHvdcLineInAcEmulation(Set<RangeAction<?>> rangeActions, Network network) {
         return rangeActions.stream().filter(ra -> {
-                    if (ra instanceof HvdcRangeAction) {
-                        return !((HvdcRangeAction) ra).isAngleDroopActivePowerControlEnabled(network);
-                    }
-                    return true;
-                }).collect(Collectors.toSet());
+            if (ra instanceof HvdcRangeAction) {
+                return !((HvdcRangeAction) ra).isAngleDroopActivePowerControlEnabled(network);
+            }
+            return true;
+        }).collect(Collectors.toSet());
     }
-
 
     /**
      * Run load flow and update the active power setpoints of the HVDC range actions associated with HVDC lines in AC emulation mode
