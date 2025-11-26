@@ -62,8 +62,6 @@ import static com.powsybl.openrao.searchtreerao.marmot.MarmotUtils.*;
 public class Marmot implements InterTemporalRaoProvider {
 
     private static final String INTER_TEMPORAL_RAO = "InterTemporalRao";
-    private static final String VERSION = "1.0.0";
-
     private static final String INITIAL_SCENARIO = "InitialScenario";
     private static final String POST_TOPO_SCENARIO = "PostTopoScenario";
     private static final String MIP_SCENARIO = "MipScenario";
@@ -540,10 +538,5 @@ public class Marmot implements InterTemporalRaoProvider {
     @Override
     public String getName() {
         return INTER_TEMPORAL_RAO;
-    }
-
-    @Override
-    public String getVersion() {
-        return VERSION;
     }
 }

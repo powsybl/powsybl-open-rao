@@ -30,9 +30,4 @@ public class InterTemporalRaoProviderMock implements InterTemporalRaoProvider {
     public String getName() {
         return "RandomInterTemporalRAO";
     }
-
-    @Override
-    public String getVersion() {
-        return "1.0";
-    }
 }

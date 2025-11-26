@@ -40,9 +40,4 @@ public class RaoProviderMock implements RaoProvider {
     public String getName() {
         return "RandomRAO";
     }
-
-    @Override
-    public String getVersion() {
-        return "1.0";
-    }
 }
