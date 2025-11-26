@@ -8,6 +8,7 @@
 package com.powsybl.openrao.loopflowcomputation;
 
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.cnec.BranchCnec;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.iidm.network.TwoSides;
@@ -35,16 +36,16 @@ class LoopFlowResultTest {
     @Test
     void loopFlowResultTest() {
         LoopFlowResult loopFlowResult = new LoopFlowResult();
-        loopFlowResult.addCnecResult(cnec, TwoSides.TWO, 1., 2., 3.);
-        assertEquals(1., loopFlowResult.getLoopFlow(cnec, TwoSides.TWO), DOUBLE_TOLERANCE);
-        assertEquals(2., loopFlowResult.getCommercialFlow(cnec, TwoSides.TWO), DOUBLE_TOLERANCE);
-        assertEquals(3., loopFlowResult.getReferenceFlow(cnec, TwoSides.TWO), DOUBLE_TOLERANCE);
+        loopFlowResult.addCnecResult(cnec, TwoSides.TWO, 1., 2., 3., Unit.MEGAWATT);
+        assertEquals(1., loopFlowResult.getLoopFlow(cnec, TwoSides.TWO, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(2., loopFlowResult.getCommercialFlow(cnec, TwoSides.TWO, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(3., loopFlowResult.getReferenceFlow(cnec, TwoSides.TWO, Unit.MEGAWATT), DOUBLE_TOLERANCE);
     }
 
     @Test
     void loopFlowResultCnecNotFound() {
         LoopFlowResult loopFlowResult = new LoopFlowResult();
-        assertThrows(OpenRaoException.class, () -> loopFlowResult.getLoopFlow(cnec, TwoSides.TWO));
+        assertThrows(OpenRaoException.class, () -> loopFlowResult.getLoopFlow(cnec, TwoSides.TWO, Unit.MEGAWATT));
     }
 
     @Test
@@ -53,19 +54,19 @@ class LoopFlowResultTest {
         FlowCnec cnec2 = Mockito.mock(FlowCnec.class);
 
         LoopFlowResult loopFlowResult = new LoopFlowResult();
-        loopFlowResult.addCnecResult(cnec, TwoSides.TWO, 1., 2., 3.);
-        loopFlowResult.addCnecResult(cnec1, TwoSides.TWO, 1., 20., 3.);
-        loopFlowResult.addCnecResult(cnec1, TwoSides.ONE, 1., 22., 3.);
-        loopFlowResult.addCnecResult(cnec2, TwoSides.ONE, 1., 30., 3.);
+        loopFlowResult.addCnecResult(cnec, TwoSides.TWO, 1., 2., 3., Unit.MEGAWATT);
+        loopFlowResult.addCnecResult(cnec1, TwoSides.TWO, 1., 20., 3., Unit.MEGAWATT);
+        loopFlowResult.addCnecResult(cnec1, TwoSides.ONE, 1., 22., 3., Unit.MEGAWATT);
+        loopFlowResult.addCnecResult(cnec2, TwoSides.ONE, 1., 30., 3., Unit.MEGAWATT);
 
-        Map<FlowCnec, Map<TwoSides, Double>> commercialFlowsMap = loopFlowResult.getCommercialFlowsMap();
+        Map<FlowCnec, Map<TwoSides, Map<Unit, Double>>>commercialFlowsMap = loopFlowResult.getCommercialFlowsMap();
         assertEquals(2, commercialFlowsMap.size());
 
         assertEquals(2, commercialFlowsMap.get(cnec1).size());
-        assertEquals(20., commercialFlowsMap.get(cnec1).get(TwoSides.TWO), DOUBLE_TOLERANCE);
-        assertEquals(22., commercialFlowsMap.get(cnec1).get(TwoSides.ONE), DOUBLE_TOLERANCE);
+        assertEquals(20., commercialFlowsMap.get(cnec1).get(TwoSides.TWO).get(Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        assertEquals(22., commercialFlowsMap.get(cnec1).get(TwoSides.ONE).get(Unit.MEGAWATT), DOUBLE_TOLERANCE);
 
         assertEquals(1, commercialFlowsMap.get(cnec2).size());
-        assertEquals(30., commercialFlowsMap.get(cnec2).get(TwoSides.ONE), DOUBLE_TOLERANCE);
+        assertEquals(30., commercialFlowsMap.get(cnec2).get(TwoSides.ONE).get(Unit.MEGAWATT), DOUBLE_TOLERANCE);
     }
 }

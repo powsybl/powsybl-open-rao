@@ -10,6 +10,7 @@ package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
+import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.*;
 import com.powsybl.openrao.raoapi.parameters.LoopFlowParameters;
 import com.powsybl.openrao.raoapi.parameters.MnecParameters;
@@ -40,8 +41,6 @@ class LinearProblemBuilderTest {
     private LinearProblemBuilder linearProblemBuilder;
     private IteratingLinearOptimizerInput inputs;
     private IteratingLinearOptimizerParameters parameters;
-    private SearchTreeRaoRangeActionsOptimizationParameters.LinearOptimizationSolver solverParameters;
-    private com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters rangeActionParameters;
     private SearchTreeRaoRangeActionsOptimizationParameters rangeActionParametersExtension;
     private OptimizationPerimeter optimizationPerimeter;
 
@@ -51,10 +50,10 @@ class LinearProblemBuilderTest {
         inputs = Mockito.mock(IteratingLinearOptimizerInput.class);
         parameters = Mockito.mock(IteratingLinearOptimizerParameters.class);
 
-        solverParameters = Mockito.mock(SearchTreeRaoRangeActionsOptimizationParameters.LinearOptimizationSolver.class);
+        final SearchTreeRaoRangeActionsOptimizationParameters.LinearOptimizationSolver solverParameters = Mockito.mock(SearchTreeRaoRangeActionsOptimizationParameters.LinearOptimizationSolver.class);
         when(solverParameters.getSolver()).thenReturn(SearchTreeRaoRangeActionsOptimizationParameters.Solver.SCIP);
         when(parameters.getSolverParameters()).thenReturn(solverParameters);
-        rangeActionParameters = Mockito.mock(com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters.class);
+        final RangeActionsOptimizationParameters rangeActionParameters = Mockito.mock(RangeActionsOptimizationParameters.class);
         when(parameters.getRangeActionParameters()).thenReturn(rangeActionParameters);
         rangeActionParametersExtension = Mockito.mock(SearchTreeRaoRangeActionsOptimizationParameters.class);
         when(parameters.getRangeActionParametersExtension()).thenReturn(rangeActionParametersExtension);
@@ -88,7 +87,7 @@ class LinearProblemBuilderTest {
         assertNotNull(linearProblem);
         List<ProblemFiller> fillers = linearProblem.getFillers();
         assertEquals(3, fillers.size());
-        assertInstanceOf(MarginCoreProblemFiller.class, fillers.get(0));
+        assertInstanceOf(MarginCoreProblemFiller.class, fillers.getFirst());
         assertInstanceOf(MaxMinMarginFiller.class, fillers.get(1));
         assertInstanceOf(ContinuousRangeActionGroupFiller.class, fillers.get(2));
     }
@@ -103,7 +102,7 @@ class LinearProblemBuilderTest {
         assertNotNull(linearProblem);
         List<ProblemFiller> fillers = linearProblem.getFillers();
         assertEquals(5, fillers.size());
-        assertInstanceOf(MarginCoreProblemFiller.class, fillers.get(0));
+        assertInstanceOf(MarginCoreProblemFiller.class, fillers.getFirst());
         assertInstanceOf(MaxMinMarginFiller.class, fillers.get(1));
         assertInstanceOf(DiscretePstTapFiller.class, fillers.get(2));
         assertInstanceOf(DiscretePstGroupFiller.class, fillers.get(3));
@@ -120,7 +119,7 @@ class LinearProblemBuilderTest {
         assertNotNull(linearProblem);
         List<ProblemFiller> fillers = linearProblem.getFillers();
         assertEquals(3, fillers.size());
-        assertInstanceOf(MarginCoreProblemFiller.class, fillers.get(0));
+        assertInstanceOf(MarginCoreProblemFiller.class, fillers.getFirst());
         assertInstanceOf(MaxMinRelativeMarginFiller.class, fillers.get(1));
         assertInstanceOf(ContinuousRangeActionGroupFiller.class, fillers.get(2));
     }
@@ -140,7 +139,7 @@ class LinearProblemBuilderTest {
         assertNotNull(linearProblem);
         List<ProblemFiller> fillers = linearProblem.getFillers();
         assertEquals(6, fillers.size());
-        assertInstanceOf(MarginCoreProblemFiller.class, fillers.get(0));
+        assertInstanceOf(MarginCoreProblemFiller.class, fillers.getFirst());
         assertInstanceOf(MaxMinMarginFiller.class, fillers.get(1));
         assertInstanceOf(MnecFiller.class, fillers.get(2));
         assertInstanceOf(MaxLoopFlowFiller.class, fillers.get(3));
@@ -162,7 +161,7 @@ class LinearProblemBuilderTest {
         assertNotNull(linearProblem);
         List<ProblemFiller> fillers = linearProblem.getFillers();
         assertEquals(4, fillers.size());
-        assertInstanceOf(MarginCoreProblemFiller.class, fillers.get(0));
+        assertInstanceOf(MarginCoreProblemFiller.class, fillers.getFirst());
         assertInstanceOf(MaxMinMarginFiller.class, fillers.get(1));
         assertInstanceOf(ContinuousRangeActionGroupFiller.class, fillers.get(2));
         assertInstanceOf(RaUsageLimitsFiller.class, fillers.get(3));

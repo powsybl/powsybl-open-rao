@@ -52,7 +52,7 @@ import static org.mockito.Mockito.when;
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
  */
 class PowerGradientConstraintFillerTest {
-    private LinearProblemBuilder linearProblemBuilder = new LinearProblemBuilder().withSolver(SearchTreeRaoRangeActionsOptimizationParameters.Solver.SCIP);
+    private final LinearProblemBuilder linearProblemBuilder = new LinearProblemBuilder().withSolver(SearchTreeRaoRangeActionsOptimizationParameters.Solver.SCIP);
     private LinearProblem linearProblem;
     private final OffsetDateTime timestamp1 = OffsetDateTime.of(2025, 1, 9, 16, 21, 0, 0, ZoneOffset.UTC);
     private final OffsetDateTime timestamp2 = OffsetDateTime.of(2025, 1, 9, 17, 21, 0, 0, ZoneOffset.UTC);
@@ -106,8 +106,8 @@ class PowerGradientConstraintFillerTest {
     }
 
     private void createCoreProblemFillers() {
-        input.getRaoInputs().getDataPerTimestamp().entrySet().forEach(entry -> {
-            Crac crac = entry.getValue().getCrac();
+        input.getRaoInputs().getDataPerTimestamp().forEach((key, value) -> {
+            Crac crac = value.getCrac();
             OptimizationPerimeter optimizationPerimeter = new PreventiveOptimizationPerimeter(
                 crac.getPreventiveState(),
                 crac.getFlowCnecs(),
@@ -128,15 +128,14 @@ class PowerGradientConstraintFillerTest {
                 Unit.MEGAWATT,
                 false,
                 SearchTreeRaoRangeActionsOptimizationParameters.PstModel.CONTINUOUS,
-                entry.getKey()
+                key
             );
             linearProblemBuilder.withProblemFiller(coreProblemFiller);
         });
     }
 
     private void createPowerGradientConstraintFiller() {
-        TemporalData<State> preventiveStates = input.getRaoInputs().map(RaoInput::getCrac).map(crac -> crac.getPreventiveState()).map(State.class::cast);
-        TemporalData<Network> networks = input.getRaoInputs().map(RaoInput::getNetwork).map(Network.class::cast);
+        TemporalData<State> preventiveStates = input.getRaoInputs().map(RaoInput::getCrac).map(Crac::getPreventiveState);
         TemporalData<Set<InjectionRangeAction>> injectionRangeActions = input.getRaoInputs().map(RaoInput::getCrac).map(crac -> crac.getRangeActions(crac.getPreventiveState()).stream().filter(InjectionRangeAction.class::isInstance).map(InjectionRangeAction.class::cast).collect(Collectors.toSet()));
         Set<GeneratorConstraints> generatorConstraints = input.getIntertemporalConstraints().getGeneratorConstraints();
         PowerGradientConstraintFiller powerGradientConstraintFiller = new PowerGradientConstraintFiller(

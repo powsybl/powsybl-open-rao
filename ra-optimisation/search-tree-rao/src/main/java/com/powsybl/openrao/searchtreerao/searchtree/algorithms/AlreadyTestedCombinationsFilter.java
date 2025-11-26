@@ -49,7 +49,7 @@ public class AlreadyTestedCombinationsFilter implements NetworkActionCombination
             // if all the actions of the combinations have been selected but one, there is no need
             // to test that individual action anymore
             if (notTestedNaInCombination.size() == 1) {
-                alreadyTestedNetworkActions.add(notTestedNaInCombination.get(0));
+                alreadyTestedNetworkActions.add(notTestedNaInCombination.getFirst());
             }
         }
 

@@ -1,10 +1,10 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema#",
-  "$id": "https://www.powsybl.org?open-rao-crac-schema=flow-threshold-v1.0.json",
+  "$id": "resource:/schemas/flow-threshold/flow-threshold-v1.0.json",
   "type": "object",
   "properties": {
     "unit": {
-      "$ref": "resource:/schemas/flow-unit/flow-unit-v1.0.json"
+      "$ref": "../flow-unit/flow-unit-v1.0.json"
     },
     "max": {
       "type": "number"
@@ -13,7 +13,7 @@
       "type": "number"
     },
     "rule": {
-      "$ref": "resource:/schemas/rule/rule-v1.0.json"
+      "$ref": "../rule/rule-v1.0.json"
     }
   },
   "additionalProperties": false,

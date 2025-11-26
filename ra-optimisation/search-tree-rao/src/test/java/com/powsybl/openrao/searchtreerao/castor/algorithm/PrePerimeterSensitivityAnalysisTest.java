@@ -52,7 +52,6 @@ class PrePerimeterSensitivityAnalysisTest {
     private static final double DOUBLE_TOLERANCE = 0.01;
 
     private Network network;
-    private Crac crac;
     private FlowCnec cnec;
     private ToolProvider toolProvider;
     private RaoParameters raoParameters;
@@ -62,8 +61,8 @@ class PrePerimeterSensitivityAnalysisTest {
 
     @BeforeEach
     public void setUp() {
+        final Crac crac = CommonCracCreation.create();
         network = NetworkImportsUtil.import12NodesNetwork();
-        crac = CommonCracCreation.create();
         raoParameters = new RaoParameters();
         cnec = Mockito.mock(FlowCnec.class);
 

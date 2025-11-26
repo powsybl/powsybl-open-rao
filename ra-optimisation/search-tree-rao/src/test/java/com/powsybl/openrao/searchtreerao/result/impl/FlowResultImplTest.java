@@ -141,7 +141,7 @@ class FlowResultImplTest {
 
     @Test
     void testConstructorWrongCases() {
-        Map<FlowCnec, Map<TwoSides, Double>> commercialFlows = new HashMap<>();
+        Map<FlowCnec, Map<TwoSides, Map<Unit, Double>>> commercialFlows = new HashMap<>();
         FlowResult fixedCommercialFlows = Mockito.mock(FlowResult.class);
         Map<FlowCnec, Map<TwoSides, Double>> ptdfZonalSums = new HashMap<>();
         FlowResult fixedPtdfZonalSums = Mockito.mock(FlowResult.class);

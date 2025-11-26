@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema#",
-  "$id": "https://www.powsybl.org?open-rao-crac-schema=injection-setpoint-v1.8.json",
+  "$id": "resource:/schemas/injection-setpoint/injection-setpoint-v1.8.json",
   "type": "object",
   "properties": {
     "networkElementId": {
@@ -10,7 +10,7 @@
       "type": "number"
     },
     "unit": {
-      "$ref": "resource:/schemas/injection-unit/injection-unit-v1.8.json"
+      "$ref": "../injection-unit/injection-unit-v1.8.json"
     }
   },
   "additionalProperties": false,

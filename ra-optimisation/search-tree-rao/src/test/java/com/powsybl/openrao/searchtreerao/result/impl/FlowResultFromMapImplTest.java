@@ -8,6 +8,7 @@
 package com.powsybl.openrao.searchtreerao.result.impl;
 
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.sensitivityanalysis.SystematicSensitivityResult;
 import org.junit.jupiter.api.BeforeEach;
@@ -42,7 +43,7 @@ class FlowResultFromMapImplTest {
         optimizedCnec = Mockito.mock(FlowCnec.class);
         branchResultFromMap = new FlowResultImpl(
                 systematicSensitivityResult,
-                Map.of(loopFlowCnec, Map.of(ONE, 200., TWO, 250.)),
+                Map.of(loopFlowCnec, Map.of(ONE, Map.of(Unit.MEGAWATT, 200.), TWO, Map.of(Unit.MEGAWATT, 250.))),
                 Map.of(optimizedCnec, Map.of(ONE, 30., TWO, 35.))
         );
     }

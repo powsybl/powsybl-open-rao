@@ -95,7 +95,7 @@ public class SumMaxPerTimestampCostEvaluatorResult implements CostEvaluatorResul
         if (flowCnecsByMargin.isEmpty()) {
             limitingElement = null;
         } else {
-            limitingElement = flowCnecsByMargin.get(0);
+            limitingElement = flowCnecsByMargin.getFirst();
         }
         if (limitingElement == null) {
             // In case there is no limiting element (may happen in perimeters where only MNECs exist),
