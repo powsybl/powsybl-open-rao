@@ -22,6 +22,7 @@ import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkActionAdder;
 import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.api.usagerule.OnConstraint;
 import com.powsybl.openrao.data.crac.api.usagerule.OnContingencyState;
 import com.powsybl.openrao.data.crac.api.usagerule.OnFlowConstraintInCountry;
@@ -131,7 +132,7 @@ public final class HvdcUtils {
     }
 
     /**
-     * Run a load flow to update the initial set-points of the HVDC range actions assiocated to HVDC line in AC emulation mode
+     * Run a load flow to update the initial set-points of the HVDC range actions assiociated to HVDC line in AC emulation mode
      */
     static void updateHvdcRangeActionInitialSetpoint(Crac crac, Network network, RaoParameters raoParameters) {
         // Run load flow to update flow on all the lines of the network
@@ -165,11 +166,26 @@ public final class HvdcUtils {
      * @return
      */
     public static Set<HvdcRangeAction> getHvdcRangeActionsOnHvdcLineInAcEmulation(Set<HvdcRangeAction> hvdcRangeActions, Network network) {
-        // return all the HVDC range actions in the CRAC defined on HVDC line in AC emulation in the network
         return hvdcRangeActions.stream()
             .filter(hvdcRangeAction -> hvdcRangeAction.isAngleDroopActivePowerControlEnabled(network))
             .collect(Collectors.toSet());
     }
+
+    /**
+     * Filter out from rangeActions set all the HVDC range actions that are associated with HVDC Line AC Emulation
+     * @param rangeActions
+     * @param network
+     * @return
+     */
+    public static Set<RangeAction<?>> filterOutHvdcRangeActionsOnHvdcLineInAcEmulation(Set<RangeAction<?>> rangeActions, Network network) {
+        return rangeActions.stream().filter(ra -> {
+                    if (ra instanceof HvdcRangeAction) {
+                        return !((HvdcRangeAction) ra).isAngleDroopActivePowerControlEnabled(network);
+                    }
+                    return true;
+                }).collect(Collectors.toSet());
+    }
+
 
     /**
      * Run load flow and update the active power setpoints of the HVDC range actions associated with HVDC lines in AC emulation mode

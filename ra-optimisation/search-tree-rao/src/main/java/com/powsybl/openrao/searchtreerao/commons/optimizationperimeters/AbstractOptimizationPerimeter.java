@@ -12,10 +12,10 @@ import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
-import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.loopflowextension.LoopFlowThreshold;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.openrao.searchtreerao.commons.HvdcUtils;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
 import com.powsybl.iidm.network.Network;
 
@@ -184,14 +184,8 @@ public abstract class AbstractOptimizationPerimeter implements OptimizationPerim
         return allAvailableRangeActionsPerState.entrySet().stream()
             .collect(Collectors.toMap(
                 Map.Entry::getKey,
-                entry -> entry.getValue().stream()
-                    // Remove only HvdcRangeAction with isAngleDroopActivePowerControlEnabled == true
-                    .filter(ra -> {
-                        if (ra instanceof HvdcRangeAction) {
-                            return !((HvdcRangeAction) ra).isAngleDroopActivePowerControlEnabled(network);
-                        }
-                        return true;
-                    }).collect(Collectors.toSet())
+                entry ->
+                    HvdcUtils.filterOutHvdcRangeActionsOnHvdcLineInAcEmulation(entry.getValue(), network)
             ));
     }
 

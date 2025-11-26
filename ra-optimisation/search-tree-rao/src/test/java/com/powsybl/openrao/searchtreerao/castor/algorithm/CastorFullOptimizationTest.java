@@ -560,6 +560,7 @@ class CastorFullOptimizationTest {
 
         RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
         assertEquals(-299.88, raoResult.getCost(crac.getInstant("curative")), 1e-2);
-
+        assertEquals(1, raoResult.getActivatedRangeActionsDuringState(crac.getState("co1_be1_fr5", crac.getInstant(InstantKind.CURATIVE))).size());
+        assertEquals("CRA_HVDC", raoResult.getActivatedRangeActionsDuringState(crac.getState("co1_be1_fr5", crac.getInstant(InstantKind.CURATIVE))).iterator().next().getId());
     }
 }

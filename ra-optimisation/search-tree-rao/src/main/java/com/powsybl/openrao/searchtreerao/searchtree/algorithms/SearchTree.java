@@ -16,6 +16,7 @@ import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
 import com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters;
+import com.powsybl.openrao.searchtreerao.commons.HvdcUtils;
 import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
 import com.powsybl.openrao.searchtreerao.commons.RaoLogger;
 import com.powsybl.openrao.searchtreerao.commons.SensitivityComputer;
@@ -111,12 +112,13 @@ public class SearchTree {
             // if we deactivate AC emulation on a HVDC line in one of the leaf.
 
             // Get all the range actions that are HVDC range actions and are not in AC emulation
-            Set<HvdcRangeAction> hvdcRasOnHvdcLineInAcEmulation = input.getOptimizationPerimeter()
-                .getRangeActions().stream()
-                .filter(HvdcRangeAction.class::isInstance)
-                .map(HvdcRangeAction.class::cast)
-                .filter(ra -> ra.isAngleDroopActivePowerControlEnabled(input.getNetwork()))
-                .collect(Collectors.toSet());
+            Set<HvdcRangeAction> hvdcRasOnHvdcLineInAcEmulation = HvdcUtils.getHvdcRangeActionsOnHvdcLineInAcEmulation(
+                input.getOptimizationPerimeter()
+                    .getRangeActions()
+                    .stream()
+                    .filter(HvdcRangeAction.class::isInstance)
+                    .map(HvdcRangeAction.class::cast).collect(Collectors.toSet()),
+                input.getNetwork());
 
             // Get Loadflow and sensitivity parameters
             LoadFlowAndSensitivityParameters loadFlowAndSensitivityParameters = parameters.getLoadFlowAndSensitivityParameters().orElse(new LoadFlowAndSensitivityParameters());
@@ -270,16 +272,7 @@ public class SearchTree {
                 if (shouldRangeActionBeRemoved) {
                     // Remove parentLeaf range actions to respect every maxRa or maxOperator limitation
                     // If the HVDC line is in AC emulation the we won't be able to apply setpoint
-                    input.getOptimizationPerimeter()
-                        .getRangeActions()
-                        .stream()
-                        .filter(ra -> {
-                            if (ra instanceof HvdcRangeAction) {
-                                return !((HvdcRangeAction) ra).isAngleDroopActivePowerControlEnabled(networkClone);
-                            } else {
-                                return true;
-                            }
-                        })
+                    HvdcUtils.filterOutHvdcRangeActionsOnHvdcLineInAcEmulation(input.getOptimizationPerimeter().getRangeActions(), networkClone)
                         .forEach(ra ->
                             ra.apply(networkClone, input.getPrePerimeterResult().getRangeActionSetpointResult().getSetpoint(ra))
                         );
@@ -289,15 +282,7 @@ public class SearchTree {
                     // from previous optimal leaf starting point
                     // Network actions are not applied here. If in previous leaf AC emulation was deactivated to optimize HVDC range action
                     // we won't be able to apply the optimized setpoint because the HVDC line will still be in AC emulation
-                    previousDepthOptimalLeaf.getRangeActions()
-                        .stream()
-                        .filter(ra -> {
-                            if (ra instanceof HvdcRangeAction) {
-                                return !((HvdcRangeAction) ra).isAngleDroopActivePowerControlEnabled(networkClone);
-                            } else {
-                                return true;
-                            }
-                        })
+                    HvdcUtils.filterOutHvdcRangeActionsOnHvdcLineInAcEmulation(previousDepthOptimalLeaf.getRangeActions(), networkClone)
                         .forEach(ra ->
                             ra.apply(networkClone, previousDepthOptimalLeaf.getOptimizedSetpoint(ra, input.getOptimizationPerimeter().getMainOptimizationState()))
                         );
