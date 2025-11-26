@@ -18,11 +18,14 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.commons.logs.RaoBusinessLogs;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.CracFactory;
+import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.InstantKind;
+import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.networkaction.ActionType;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.OptimizationStepsExecuted;
 import com.powsybl.openrao.raoapi.RaoInput;
@@ -31,6 +34,7 @@ import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoPstRegulationParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoTopoOptimizationParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SecondPreventiveRaoParameters;
 import com.powsybl.openrao.searchtreerao.result.impl.FailedRaoResultImpl;
@@ -562,5 +566,42 @@ class CastorFullOptimizationTest {
         assertEquals(-299.88, raoResult.getCost(crac.getInstant("curative")), 1e-2);
         assertEquals(1, raoResult.getActivatedRangeActionsDuringState(crac.getState("co1_be1_fr5", crac.getInstant(InstantKind.CURATIVE))).size());
         assertEquals("CRA_HVDC", raoResult.getActivatedRangeActionsDuringState(crac.getState("co1_be1_fr5", crac.getInstant(InstantKind.CURATIVE))).iterator().next().getId());
+    }
+
+    @Test
+    void testPstRegulationAtTheEndOfRao() throws IOException {
+        network = Network.read("2Nodes3ParallelLinesPST.uct", getClass().getResourceAsStream("/network/2Nodes3ParallelLinesPST.uct"));
+        crac = Crac.read("crac-regulation-1-PST.json", getClass().getResourceAsStream("/crac/crac-regulation-1-PST.json"), network);
+        RaoInput raoInput = RaoInput.build(network, crac).build();
+        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_minMargin_ac.json"));
+
+        Instant curativeInstant = crac.getInstant(InstantKind.CURATIVE);
+        State curativeState = crac.getState("Contingency BE1 FR1 3", curativeInstant);
+
+        PstRangeAction pstRangeAction = crac.getPstRangeAction("pstBeFr2");
+        FlowCnec curativeCnecOnLine = crac.getFlowCnec("cnecBeFr1Curative");
+        FlowCnec curativeCnecOnPst = crac.getFlowCnec("cnecBeFr2Curative");
+
+        // first run without regulation: min margin is maximized by setting PST on tap -2 even though PSt is overloaded
+        // but not seen by the RAO because it has no associated FlowCNEC
+        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
+        assertEquals(690.23, raoResult.getCost(crac.getLastInstant()), 1e-2);
+        assertEquals(-2, raoResult.getOptimizedTapOnState(curativeState, pstRangeAction));
+        assertEquals(-676.38, raoResult.getMargin(curativeInstant, curativeCnecOnLine, Unit.AMPERE), 1e-2);
+        assertEquals(-690.23, raoResult.getMargin(curativeInstant, curativeCnecOnPst, Unit.AMPERE), 1e-2);
+
+        // second run with regulation: regulation shifts PST's tap to position 7 to remove the overload but worsens min margin
+        SearchTreeRaoPstRegulationParameters pstRegulationParameters = new SearchTreeRaoPstRegulationParameters();
+        pstRegulationParameters.setPstsToRegulate(Map.of("BBE1AA1  FFR1AA1  2", "BBE1AA1  FFR1AA1  2"));
+        raoParameters.getExtension(OpenRaoSearchTreeParameters.class).setPstRegulationParameters(pstRegulationParameters);
+
+        network = Network.read("2Nodes3ParallelLinesPST.uct", getClass().getResourceAsStream("/network/2Nodes3ParallelLinesPST.uct"));
+        raoInput = RaoInput.build(network, crac).build(); // reload RAO inputs to avoid issues on existing variants
+
+        RaoResult raoResultWithRegulation = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
+        assertEquals(1382.77, raoResultWithRegulation.getCost(crac.getLastInstant()), 1e-2);
+        assertEquals(7, raoResultWithRegulation.getOptimizedTapOnState(curativeState, pstRangeAction));
+        assertEquals(-1382.77, raoResultWithRegulation.getMargin(curativeInstant, curativeCnecOnLine, Unit.AMPERE), 1e-2);
+        assertEquals(15.49, raoResultWithRegulation.getMargin(curativeInstant, curativeCnecOnPst, Unit.AMPERE), 1e-2);
     }
 }

@@ -22,9 +22,10 @@ public final class RaoParametersCommons {
         ---------------------------
         3.1: remove max-auto-search-tree-depth
         3.2: remove re-optimize-curative-range-actions
+        3.2.1: add pst-regulation-parameters
     */
 
-    public static final String RAO_PARAMETERS_VERSION = "3.2";
+    public static final String RAO_PARAMETERS_VERSION = "3.2.1";
 
     // header
     public static final String VERSION = "version";
@@ -143,4 +144,9 @@ public final class RaoParametersCommons {
     public static final String ST_COSTLY_MIN_MARGIN_SECTION = "search-tree-costly-min-margin-parameters";
     public static final String SHIFTED_VIOLATION_PENALTY = "shifted-violation-penalty";
     public static final String SHIFTED_VIOLATION_THRESHOLD = "shifted-violation-threshold";
+
+    // -- PST regulation parameters
+    public static final String PST_REGULATION_PARAMETERS = "pst-regulation-parameters";
+    public static final String ST_PST_REGULATION_SECTION = "search-tree-pst-regulation-parameters";
+    public static final String PSTS_TO_REGULATE = "psts-to-regulate";
 }
