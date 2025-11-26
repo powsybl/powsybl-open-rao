@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema#",
-  "$id": "https://www.powsybl.org?open-rao-crac-schema=angle-cnec-v1.4.json",
+  "$id": "resource:/schemas/angle-cnec/angle-cnec-v1.4.json",
   "type": "object",
   "properties": {
     "id": {
@@ -51,7 +51,7 @@
     "thresholds": {
       "type": "array",
       "items": {
-        "$ref": "resource:/schemas/angle-threshold/angle-threshold-v1.4.json"
+        "$ref": "../angle-threshold/angle-threshold-v1.4.json"
       },
       "minItems": 1
     }

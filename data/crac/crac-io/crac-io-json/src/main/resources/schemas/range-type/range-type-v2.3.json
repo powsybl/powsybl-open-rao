@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema#",
-  "$id": "https://www.powsybl.org?open-rao-crac-schema=range-type-v2.3.json",
+  "$id": "resource:/schemas/range-type/range-type-v2.3.json",
   "enum": [
     "absolute",
     "relativeToPreviousInstant",
