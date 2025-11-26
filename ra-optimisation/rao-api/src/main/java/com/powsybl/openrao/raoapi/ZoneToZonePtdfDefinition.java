@@ -122,7 +122,7 @@ public class ZoneToZonePtdfDefinition {
 
     private EICode convertBracketIntoEiCode(String eiCodeInBrackets) {
         String eiCodeAsString = StringUtils.substringBetween(eiCodeInBrackets, "{", "}");
-        if (eiCodeAsString == null || eiCodeAsString.length() == 0) {
+        if (StringUtils.isEmpty(eiCodeAsString)) {
             throw new OpenRaoException(WRONG_SYNTAX_MSG);
         }
         if (eiCodeAsString.length() == 16) {

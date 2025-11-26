@@ -470,7 +470,7 @@ class RaoUtilTest {
         String expectedMsg2 = "A threshold for the flowCnec cnecOneMwThreshold is defined in MW but the loadflow computation is in AC. It will be imprecisely converted by the RAO which could create uncoherent results due to side effects";
         String notExpectedMsg = "A threshold for the flowCnec cnecOneAmpThreshold is defined in MW but the loadflow computation is in AC. It will be imprecisely converted by the RAO which could create uncoherent results due to side effects";
         assertEquals(2, logsList.size());
-        assertEquals(expectedMsg1, logsList.get(0).getMessage());
+        assertEquals(expectedMsg1, logsList.getFirst().getMessage());
         assertEquals(expectedMsg2, logsList.get(1).getMessage());
         assertFalse(logsList.stream().anyMatch(e -> e.getMessage().contains(notExpectedMsg)));
     }

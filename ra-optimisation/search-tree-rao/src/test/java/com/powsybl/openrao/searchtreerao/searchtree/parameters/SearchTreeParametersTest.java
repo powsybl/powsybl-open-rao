@@ -151,7 +151,7 @@ class SearchTreeParametersTest {
         // assertions
         searchTreeParameters.setRaLimitationsForSecondPreventive(searchTreeParameters.getRaLimitationParameters().get(preventiveInstant), Set.of(ra1, ra2), preventiveInstant);
         Map<Instant, RaUsageLimits> updatedMap = searchTreeParameters.getRaLimitationParameters();
-        assertEquals(2, updatedMap.keySet().size());
+        assertEquals(2, updatedMap.size());
         assertEquals(new RaUsageLimits(), updatedMap.get(curativeInstant));
         RaUsageLimits updatedRaUsageLimits = updatedMap.get(preventiveInstant);
         assertEquals(1, updatedRaUsageLimits.getMaxRa());
