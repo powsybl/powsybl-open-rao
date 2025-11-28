@@ -557,6 +557,18 @@ class CastorFullOptimizationTest {
     }
 
     @Test
+    void checkWithHvdc() throws IOException {
+        // same test as US 15.17.8
+        setup("TestCase16NodesWithHvdc_AC_emulation.xiidm", "jsonCrac_ep15us12-5case8.json");
+        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_DC.json"));
+
+        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
+        assertEquals(-299.88, raoResult.getCost(crac.getInstant("curative")), 1e-2);
+        assertEquals(1, raoResult.getActivatedRangeActionsDuringState(crac.getState("co1_be1_fr5", crac.getInstant(InstantKind.CURATIVE))).size());
+        assertEquals("CRA_HVDC", raoResult.getActivatedRangeActionsDuringState(crac.getState("co1_be1_fr5", crac.getInstant(InstantKind.CURATIVE))).iterator().next().getId());
+    }
+
+    @Test
     void testPstRegulationAtTheEndOfRao() throws IOException {
         network = Network.read("2Nodes3ParallelLinesPST.uct", getClass().getResourceAsStream("/network/2Nodes3ParallelLinesPST.uct"));
         crac = Crac.read("crac-regulation-1-PST.json", getClass().getResourceAsStream("/crac/crac-regulation-1-PST.json"), network);
