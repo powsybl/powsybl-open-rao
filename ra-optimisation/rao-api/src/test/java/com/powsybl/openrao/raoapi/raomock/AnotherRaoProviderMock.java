@@ -40,9 +40,4 @@ public class AnotherRaoProviderMock implements RaoProvider {
     public String getName() {
         return "GlobalRAOptimizer";
     }
-
-    @Override
-    public String getVersion() {
-        return "2.3";
-    }
 }
