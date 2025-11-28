@@ -8,6 +8,7 @@
 package com.powsybl.openrao.searchtreerao.fastrao;
 
 import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.InstantKind;
@@ -29,6 +30,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.concurrent.ExecutionException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -70,7 +72,7 @@ class FastRaoTest {
     }
 
     @Test
-    void testRunFilteredRao2() throws IOException {
+    void testRunFilteredRao2() throws IOException, ExecutionException, InterruptedException {
         // Test with 2 preventive network actions activated
         Network network = Network.read("/network/3Nodes1LineOpen.uct", getClass().getResourceAsStream("/network/3Nodes1LineOpen.uct"));
         Crac crac = Crac.read("/crac/fast-rao-UT-2prev-network-action.json", getClass().getResourceAsStream("/crac/fast-rao-UT-2prev-network-action.json"), network);
@@ -126,5 +128,17 @@ class FastRaoTest {
         raoResult = FastRao.launchFastRaoOptimization(individualRaoInput, raoParameters, null, new HashSet<>());
         assertInstanceOf(FailedRaoResultImpl.class, raoResult);
         assertEquals("Fast Rao does not support multi-curative optimization", raoResult.getExecutionDetails());
+    }
+
+    @Test
+    void testErrorInitData() throws ExecutionException, InterruptedException {
+        RaoInput raoInput = Mockito.mock(RaoInput.class);
+        RaoParameters raoParameters = new RaoParameters();
+        raoParameters.getObjectiveFunctionParameters().setUnit(Unit.AMPERE);
+        raoParameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters());
+        raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters().setDc(true);
+        // Run RAO
+        RaoResult raoResult = new FastRao().run(raoInput, raoParameters).get();
+        assertInstanceOf(FailedRaoResultImpl.class, raoResult);
     }
 }

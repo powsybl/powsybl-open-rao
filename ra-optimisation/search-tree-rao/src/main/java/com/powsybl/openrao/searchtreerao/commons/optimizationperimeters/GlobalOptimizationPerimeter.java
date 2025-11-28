@@ -72,4 +72,14 @@ public class GlobalOptimizationPerimeter extends AbstractOptimizationPerimeter {
             availableNetworkActions,
             availableRangeActions);
     }
+
+    @Override
+    public OptimizationPerimeter copyWithFilteredAvailableHvdcRangeAction(Network network) {
+        return new GlobalOptimizationPerimeter(
+            this.getMainOptimizationState(),
+            this.getFlowCnecs(),
+            this.getLoopFlowCnecs(),
+            this.getNetworkActions(),
+            this.getRangeActionsWithoutHvdcInAcEmulationPerState(network));
+    }
 }

@@ -8,6 +8,7 @@
 package com.powsybl.openrao.searchtreerao.commons.optimizationperimeters;
 
 import com.powsybl.contingency.ContingencyElementType;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
@@ -26,8 +27,7 @@ import org.mockito.Mockito;
 import java.util.Map;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -184,5 +184,14 @@ class AutoOptimizationPerimeterTest {
             .add();
 
         return crac;
+    }
+
+    @Test
+    void testCopyWithFilteredRangeAction() {
+        Crac crac = initCrac();
+        State automatonState = crac.getState("contingency", crac.getInstant("auto"));
+        AutoOptimizationPerimeter autoOptimizationPerimeter = AutoOptimizationPerimeter.build(automatonState, crac, null, new RaoParameters(), null);
+        Network network = Mockito.mock(Network.class);
+        assertEquals(autoOptimizationPerimeter, autoOptimizationPerimeter.copyWithFilteredAvailableHvdcRangeAction(network));
     }
 }
