@@ -33,14 +33,14 @@ import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
 import org.apache.commons.lang3.tuple.Pair;
 
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getLoadFlowProvider;
 import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters;
 import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.getPstModel;
+import static com.powsybl.openrao.searchtreerao.commons.HvdcUtils.addNetworkActionAssociatedWithHvdcRangeAction;
+import static com.powsybl.openrao.searchtreerao.commons.HvdcUtils.updateHvdcRangeActionInitialSetpoint;
 import static java.lang.String.format;
 
 /**
@@ -54,6 +54,8 @@ public final class RaoUtil {
         checkParameters(raoParameters, raoInput);
         checkCnecsThresholdsUnit(raoParameters, raoInput);
         initNetwork(raoInput.getNetwork(), raoInput.getNetworkVariantId());
+        updateHvdcRangeActionInitialSetpoint(raoInput.getCrac(), raoInput.getNetwork(), raoParameters);
+        addNetworkActionAssociatedWithHvdcRangeAction(raoInput.getCrac(), raoInput.getNetwork());
     }
 
     public static void initNetwork(Network network, String networkVariantId) {
@@ -221,8 +223,9 @@ public final class RaoUtil {
 
     public static Set<String> getDuplicateCnecs(Set<FlowCnec> flowcnecs) {
         return flowcnecs.stream()
-            .filter(flowCnec -> flowCnec.getId().contains("OUTAGE DUPLICATE"))
             .map(FlowCnec::getId)
+            .filter(id -> id.contains("OUTAGE DUPLICATE"))
             .collect(Collectors.toSet());
     }
+
 }

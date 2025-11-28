@@ -6,6 +6,7 @@ special-features/loop-flows.md
 special-features/mnecs.md
 special-features/do-not-optimize-specific-cnecs.md
 special-features/hvdc.md
+special-features/pst-regulation.md
 ```
 
 Several special features can be included in the RAO optimisation:

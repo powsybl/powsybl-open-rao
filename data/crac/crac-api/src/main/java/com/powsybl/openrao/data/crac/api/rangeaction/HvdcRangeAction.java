@@ -24,4 +24,6 @@ public interface HvdcRangeAction extends StandardRangeAction<HvdcRangeAction> {
     NetworkElement getNetworkElement();
 
     boolean isAngleDroopActivePowerControlEnabled(Network network);
+
+    void setInitialSetpoint(double initialSetpoint);
 }

@@ -78,7 +78,14 @@ public class FastRao implements RaoProvider {
 
     @Override
     public CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters parameters, Instant targetEndInstant) {
-        RaoUtil.initData(raoInput, parameters);
+        try {
+            RaoUtil.initData(raoInput, parameters);
+        } catch (Exception e) {
+            String failure = String.format("Data initialisation failed: %s", e);
+            BUSINESS_LOGS.error(failure);
+            return CompletableFuture.completedFuture(new FailedRaoResultImpl(failure));
+        }
+
         return CompletableFuture.completedFuture(launchFastRaoOptimization(raoInput, parameters, targetEndInstant, new HashSet<>()));
     }
 
@@ -159,7 +166,7 @@ public class FastRao implements RaoProvider {
                     parameters,
                     NUMBER_LOGGED_ELEMENTS_DURING_RAO);
 
-                worstCnec = stepResult.getMostLimitingElements(1).get(0);
+                worstCnec = stepResult.getMostLimitingElements(1).getFirst();
                 counter++;
             } while (!(consideredCnecs.contains(worstCnec) && consideredCnecs.containsAll(getCostlyVirtualCnecs(stepResult))));
 
@@ -295,7 +302,7 @@ public class FastRao implements RaoProvider {
             raoResult,
             initialResult,
             initialRangeActionSetpointResult,
-            postPraSensi.thenApply(PostPerimeterResult::getPrePerimeterResultForAllFollowingStates),
+            postPraSensi.thenApply(PostPerimeterResult::prePerimeterResultForAllFollowingStates),
             stateTree,
             parameters,
             toolProvider,
@@ -309,7 +316,7 @@ public class FastRao implements RaoProvider {
             raoResult,
             initialResult,
             initialRangeActionSetpointResult,
-            postAraSensi.thenApply(PostPerimeterResult::getPrePerimeterResultForAllFollowingStates),
+            postAraSensi.thenApply(PostPerimeterResult::prePerimeterResultForAllFollowingStates),
             stateTree,
             parameters,
             toolProvider,
@@ -336,7 +343,7 @@ public class FastRao implements RaoProvider {
 
         BUSINESS_LOGS.info("[FAST RAO] Iteration {}: Run full sensitivity analysis [end]", counter);
 
-        return new FastRaoResultImpl(initialResult, postPraSensi.get().getPrePerimeterResultForAllFollowingStates(), postAraSensi.get().getPrePerimeterResultForAllFollowingStates(), postCraSensi.get().getPrePerimeterResultForAllFollowingStates(), raoResult, raoInput.getCrac());
+        return new FastRaoResultImpl(initialResult, postPraSensi.get().prePerimeterResultForAllFollowingStates(), postAraSensi.get().prePerimeterResultForAllFollowingStates(), postCraSensi.get().prePerimeterResultForAllFollowingStates(), raoResult, raoInput.getCrac());
 
     }
 
@@ -434,8 +441,9 @@ public class FastRao implements RaoProvider {
     }
 
     private static void applyOptimalPreventiveRemedialActions(Network networkCopy, State state, RaoResult raoResult) {
-        raoResult.getActivatedRangeActionsDuringState(state).forEach(rangeAction -> rangeAction.apply(networkCopy, raoResult.getOptimizedSetPointOnState(state, rangeAction)));
+        // network actions need to be applied BEFORE range actions because to apply HVDC range actions we need to apply AC emulation deactivation network actions beforehand
         raoResult.getActivatedNetworkActionsDuringState(state).forEach(networkAction -> networkAction.apply(networkCopy));
+        raoResult.getActivatedRangeActionsDuringState(state).forEach(rangeAction -> rangeAction.apply(networkCopy, raoResult.getOptimizedSetPointOnState(state, rangeAction)));
     }
 
     private static AppliedRemedialActions createAppliedRemedialActions(Crac crac, RaoResult raoResult, InstantKind instantKind) {

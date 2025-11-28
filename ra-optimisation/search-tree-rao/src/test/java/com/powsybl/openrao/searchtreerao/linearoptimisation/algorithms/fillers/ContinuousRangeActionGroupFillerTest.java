@@ -67,8 +67,7 @@ class ContinuousRangeActionGroupFillerTest extends AbstractFillerTest {
             SearchTreeRaoRangeActionsOptimizationParameters.PstModel.CONTINUOUS,
             null);
 
-        ContinuousRangeActionGroupFiller continuousRangeActionGroupFiller = new ContinuousRangeActionGroupFiller(
-            rangeActions, null);
+        ContinuousRangeActionGroupFiller continuousRangeActionGroupFiller = new ContinuousRangeActionGroupFiller(rangeActions);
 
         LinearProblem linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
