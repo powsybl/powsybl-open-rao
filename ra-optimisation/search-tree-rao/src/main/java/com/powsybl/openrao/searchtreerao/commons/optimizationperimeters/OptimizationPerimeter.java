@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.commons.optimizationperimeters;
 
+import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
@@ -87,5 +88,10 @@ public interface OptimizationPerimeter {
      Returns a set of all the RangeActions that will be optimized on any state
      */
     Set<RangeAction<?>> getRangeActions();
+
+    /**
+     * Make a deep copy of an optimization perimeter but filter out HVDC range action pointing to an hvdc line in ac emulation mode in network
+     */
+    OptimizationPerimeter copyWithFilteredAvailableHvdcRangeAction(Network network);
 
 }
