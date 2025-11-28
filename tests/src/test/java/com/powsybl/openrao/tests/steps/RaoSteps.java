@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.tests.steps;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.glsk.commons.ZonalData;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
@@ -42,6 +43,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
+import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.Objects;
 import java.util.Properties;
@@ -49,6 +51,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters;
+import static com.powsybl.openrao.tests.steps.CommonTestData.getResourcesPath;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -66,6 +69,7 @@ public class RaoSteps {
     private LoopFlowResult loopFlowResult;
     private Network network;
     private State preventiveState;
+    private ReportNode reportNode;
     private final String raoImplementation;
 
     {
@@ -145,6 +149,11 @@ public class RaoSteps {
     @When("I launch loopflow_computation with OpenLoadFlow at {string}")
     public void iLaunchLoopflowComputation(String timestamp) {
         launchLoopflowComputation(timestamp, "OpenLoadFlow", "OpenLoadFlow");
+    }
+
+    @When("I export rao reports to {string}")
+    public void iExportRaoReports(String outputPath) throws IOException {
+        reportNode.print(Path.of(getResourcesPath().concat(outputPath)));
     }
 
     @Then("the calculation succeeds")
@@ -647,7 +656,11 @@ public class RaoSteps {
             network = CommonTestData.getNetwork();
             crac = CommonTestData.getCrac();
             preventiveState = crac.getPreventiveState();
-            raoResult = RaoUtils.runRao(contingencyId, instantKind, raoType, loopflowLimitAsPmaxPercentageInput, timeLimit);
+            reportNode = ReportNode.newRootReportNode()
+                .withAllResourceBundlesFromClasspath()
+                .withMessageTemplate("test.rootnode")
+                .build();
+            raoResult = RaoUtils.runRao(contingencyId, instantKind, raoType, loopflowLimitAsPmaxPercentageInput, timeLimit, reportNode);
             CommonTestData.setRaoResult(raoResult);
         } catch (IOException e) {
             throw new UncheckedIOException(e);

@@ -11,6 +11,7 @@ Feature: US 20.1: enable second optimization of the preventive perimeter
     Given crac file is "epic20/second_preventive_ls_1.json"
     Given configuration file is "epic20/RaoParameters_maxMargin_ampere_second_preventive.json"
     When I launch rao
+    Then I export rao reports to "reports/reports_20_1_1_1.txt"
     Then the worst margin is 321 A
     Then 3 remedial actions are used in preventive
     And the remedial action "open_fr1_fr3" is used in preventive
