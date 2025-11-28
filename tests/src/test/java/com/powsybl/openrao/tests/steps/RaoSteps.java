@@ -13,6 +13,7 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.Identifiable;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.State;
@@ -43,6 +44,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
@@ -676,7 +678,7 @@ public class RaoSteps {
     private Pair<FlowCnec, Double> getWorstCnec(Unit unit, boolean relative) {
         Set<FlowCnec> flowCnecs = crac.getFlowCnecs().stream().filter(Cnec::isOptimized).collect(Collectors.toSet());
         double worstMargin = Double.MAX_VALUE;
-        FlowCnec worstCnec = null;
+        Set<FlowCnec> worstCnecs = new HashSet<>();
         double margin;
         //Filter flow cnecs from failed perimeters
         Set<State> failedStates = crac.getStates().stream()
@@ -705,12 +707,17 @@ public class RaoSteps {
                 margin = Double.MAX_VALUE;
             }
 
-            if (margin < worstMargin) {
+            if (margin == worstMargin) {
+                worstCnecs.add(flowCnec);
+            } else if (margin < worstMargin) {
                 worstMargin = margin;
-                worstCnec = flowCnec;
+                worstCnecs = new HashSet<>();
+                worstCnecs.add(flowCnec);
             }
         }
-        return new ImmutablePair<>(worstCnec, worstMargin);
+
+        FlowCnec worstCnecAlphabetical = worstCnecs.stream().sorted(Comparator.comparing(Identifiable::getId)).toList().getFirst();
+        return new ImmutablePair<>(worstCnecAlphabetical, worstMargin);
     }
 
     /*
