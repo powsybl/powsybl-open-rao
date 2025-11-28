@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.tests.utils;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.glsk.commons.ZonalData;
 import com.powsybl.iidm.network.*;
 import com.powsybl.openrao.commons.Unit;
@@ -63,7 +64,7 @@ public final class RaoUtils {
     }
 
     public static RaoResult runRao(String contingencyId, InstantKind instantKind, String raoType, Double loopflowAsPmaxPercentage,
-                                   Integer timeLimitInSeconds) throws IOException {
+                                   Integer timeLimitInSeconds, final ReportNode reportNode) throws IOException {
         RaoParameters raoParameters = CommonTestData.getRaoParameters();
         ZonalData<SensitivityVariableSet> glsks = CommonTestData.getLoopflowGlsks();
         // Rao with loop-flows
@@ -72,12 +73,12 @@ public final class RaoUtils {
             buildLoopFlowExtensions(CommonTestData.getCrac(), CommonTestData.getNetwork(), effectiveLfPercentage);
         }
 
-        return runRaoInMemory(Rao.find(raoType), CommonTestData.getNetwork(), CommonTestData.getCrac(), contingencyId, instantKind, glsks, CommonTestData.getReferenceProgram(), raoParameters, timeLimitInSeconds);
+        return runRaoInMemory(Rao.find(raoType), CommonTestData.getNetwork(), CommonTestData.getCrac(), contingencyId, instantKind, glsks, CommonTestData.getReferenceProgram(), raoParameters, timeLimitInSeconds, reportNode);
     }
 
     private static RaoResult runRaoInMemory(Rao.Runner raoRunner, Network network, Crac crac, String contingencyId, InstantKind instantKind,
                                             ZonalData<SensitivityVariableSet> glsks, ReferenceProgram referenceProgram, RaoParameters config,
-                                            Integer timeLimitInSeconds) throws IOException {
+                                            Integer timeLimitInSeconds, final ReportNode reportNode) throws IOException {
 
         RaoInput.RaoInputBuilder raoInputBuilder;
         if (contingencyId == null) {
@@ -100,9 +101,9 @@ public final class RaoUtils {
 
         RaoResult raoResult;
         if (timeLimitInSeconds != null) {
-            raoResult = raoRunner.run(raoInputBuilder.build(), config, java.time.Instant.now().plusSeconds(timeLimitInSeconds.longValue()));
+            raoResult = raoRunner.run(raoInputBuilder.build(), config, java.time.Instant.now().plusSeconds(timeLimitInSeconds.longValue()), reportNode);
         } else {
-            raoResult = raoRunner.run(raoInputBuilder.build(), config);
+            raoResult = raoRunner.run(raoInputBuilder.build(), config, reportNode);
         }
 
         /*

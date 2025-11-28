@@ -74,6 +74,7 @@ public final class InterTemporalRaoSteps {
     private static String refProgPath;
     private static InterTemporalRaoInputWithNetworkPaths interTemporalRaoInput;
     private static InterTemporalRaoResult interTemporalRaoResult;
+    private static ReportNode reportNode;
     private static Map<OffsetDateTime, CracCreationContext> cracCreationContexts;
 
     private static final List<String> DE_TSOS = List.of("D2", "D4", "D7", "D8");
@@ -206,7 +207,11 @@ public final class InterTemporalRaoSteps {
 
     @When("I launch marmot")
     public static void iLaunchMarmot() {
-        interTemporalRaoResult = InterTemporalRao.run(interTemporalRaoInput, getRaoParameters(), ReportNode.NO_OP);
+        reportNode = ReportNode.newRootReportNode()
+            .withAllResourceBundlesFromClasspath()
+            .withMessageTemplate("test.rootnode")
+            .build();
+        interTemporalRaoResult = InterTemporalRao.run(interTemporalRaoInput, getRaoParameters(), reportNode);
     }
 
     @When("I export marmot results to {string}")
@@ -218,6 +223,11 @@ public final class InterTemporalRaoSteps {
         properties.put("inter-temporal-rao-result.export.filename-template", "'RAO_RESULT_'yyyy-MM-dd'T'HH:mm:ss'.json'");
         properties.put("inter-temporal-rao-result.export.summary-filename", "summary.json");
         interTemporalRaoResult.write(zipOutputStream, interTemporalRaoInput.getRaoInputs().map(RaoInputWithNetworkPaths::getCrac), properties);
+    }
+
+    @When("I export marmot reports to {string}")
+    public static void iExportMarmotReports(String outputPath) throws IOException {
+        reportNode.print(Path.of(getResourcesPath().concat(outputPath)));
     }
 
     @When("I export RefProg after redispatching to {string} based on raoResults zip {string}")
