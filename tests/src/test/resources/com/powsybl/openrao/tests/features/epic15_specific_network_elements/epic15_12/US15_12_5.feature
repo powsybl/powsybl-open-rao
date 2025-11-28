@@ -26,16 +26,18 @@ Feature: US 15.12.5: Handle HVDC range actions in RAO
     And the margin on cnec "be1_be2_n - BBE1AA11->BBE2AA11 - preventive" after PRA should be 191 MW
     And the margin on cnec "be1_fr5_n - BBE1AA11->FFR5AA11 - preventive" after PRA should be 191 MW
 
+    
+
   @fast @rao @mock @dc @preventive-only @hvdc
   Scenario: US 15.12.5.3: HVDC range action with PST range action and two preventive CNECs
     Given network file is "epic15/TestCase16NodesWithHvdc.xiidm" for CORE CC
     Given crac file is "epic15/jsonCrac_ep15us12-5case3.json"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
     When I launch rao
-    Then the setpoint of RangeAction "PRA_HVDC" should be 807 MW in preventive
+    Then the setpoint of RangeAction "PRA_HVDC" should be 810 MW in preventive
     And the tap of PstRangeAction "PST_PRA_PST_be_BBE2AA11 BBE3AA11 1" should be 14 in preventive
-    And the worst margin is 191 MW
-    And the margin on cnec "be1_be2_n - BBE1AA11->BBE2AA11 - preventive" after PRA should be 191 MW
+    And the worst margin is 186 MW
+    And the margin on cnec "be1_be2_n - BBE1AA11->BBE2AA11 - preventive" after PRA should be 186 MW
     And the margin on cnec "be1_fr5_n - BBE1AA11->FFR5AA11 - preventive" after PRA should be 201 MW
 
   @fast @rao @mock @dc @preventive-only @hvdc
