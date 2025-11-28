@@ -18,6 +18,7 @@ import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.LoopFlowParameters;
 import com.powsybl.openrao.raoapi.parameters.MnecParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRelativeMarginsParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
@@ -31,10 +32,7 @@ import org.mockito.Mockito;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
@@ -87,9 +85,10 @@ class SearchTreeParametersTest {
         LoopFlowParameters loopFlowParameters = Mockito.mock(LoopFlowParameters.class);
         UnoptimizedCnecParameters unoptimizedCnecParameters = Mockito.mock(UnoptimizedCnecParameters.class);
         SearchTreeRaoRangeActionsOptimizationParameters.LinearOptimizationSolver solverParameters = Mockito.mock(SearchTreeRaoRangeActionsOptimizationParameters.LinearOptimizationSolver.class);
+        LoadFlowAndSensitivityParameters loadFlowAndSensitivityParameters = Mockito.mock(LoadFlowAndSensitivityParameters.class);
         int maxNumberOfIterations = 3;
 
-        SearchTreeParameters searchTreeParameters = builder
+        builder = builder
             .with0bjectiveFunction(objectiveFunction)
             .with0bjectiveFunctionUnit(objectiveFunctionUnit)
             .withTreeParameters(treeParameters)
@@ -102,8 +101,9 @@ class SearchTreeParametersTest {
             .withLoopFlowParameters(loopFlowParameters)
             .withUnoptimizedCnecParameters(unoptimizedCnecParameters)
             .withSolverParameters(solverParameters)
-            .withMaxNumberOfIterations(maxNumberOfIterations)
-            .build();
+            .withMaxNumberOfIterations(maxNumberOfIterations);
+
+        SearchTreeParameters searchTreeParameters = builder.build();
 
         assertEquals(objectiveFunction, searchTreeParameters.getObjectiveFunction());
         assertEquals(treeParameters, searchTreeParameters.getTreeParameters());
@@ -116,6 +116,10 @@ class SearchTreeParametersTest {
         assertEquals(unoptimizedCnecParameters, searchTreeParameters.getUnoptimizedCnecParameters());
         assertEquals(solverParameters, searchTreeParameters.getSolverParameters());
         assertEquals(maxNumberOfIterations, searchTreeParameters.getMaxNumberOfIterations());
+        assertEquals(null, searchTreeParameters.getLoadFlowAndSensitivityParameters());
+
+        searchTreeParameters = builder.withLoadFlowAndSensitivityParameters(loadFlowAndSensitivityParameters).build();
+        assertEquals(loadFlowAndSensitivityParameters, searchTreeParameters.getLoadFlowAndSensitivityParameters().get());
     }
 
     @Test
