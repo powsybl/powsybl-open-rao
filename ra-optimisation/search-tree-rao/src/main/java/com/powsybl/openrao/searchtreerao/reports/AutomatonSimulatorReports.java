@@ -8,16 +8,12 @@
 package com.powsybl.openrao.searchtreerao.reports;
 
 import com.powsybl.commons.report.ReportNode;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.logs.OpenRaoLogger;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 
-import java.util.List;
-import java.util.Locale;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 
 import static com.powsybl.commons.report.TypedValue.INFO_SEVERITY;
@@ -121,17 +117,6 @@ public final class AutomatonSimulatorReports {
         TECHNICAL_LOGS.info("Automaton {} - {} has been skipped as it has no impact on network.", networkActionId, networkActionName);
     }
 
-    public static void reportAutomatonActivated(final ReportNode parentNode, final String networkActionId, final String networkActionName) {
-        parentNode.newReportNode()
-            .withMessageTemplate("openrao.searchtreerao.reportAutomatonActivated")
-            .withUntypedValue("networkActionId", networkActionId)
-            .withUntypedValue("networkActionName", networkActionName)
-            .withSeverity(TRACE_SEVERITY)
-            .add();
-
-        TECHNICAL_LOGS.debug("Activating automaton {} - {}.", networkActionId, networkActionName);
-    }
-
     public static void reportRunSensitivityAnalysisPostApplicationForStateAndSpeed(final ReportNode parentNode,
                                                                                    final String automatonStateId,
                                                                                    final int speed) {
@@ -178,15 +163,6 @@ public final class AutomatonSimulatorReports {
         TECHNICAL_LOGS.info("Running post range automatons sensitivity analysis after auto state {} for speed {}.", automatonStateId, speed);
     }
 
-    public static void reportRunLoadFlowForHvdcAngleDroopActivePowerControlSetPoint(final ReportNode parentNode) {
-        parentNode.newReportNode()
-            .withMessageTemplate("openrao.searchtreerao.reportRunLoadFlowForHvdcAngleDroopActivePowerControlSetPoint")
-            .withSeverity(TRACE_SEVERITY)
-            .add();
-
-        TECHNICAL_LOGS.debug("Running load-flow computation to access HvdcAngleDroopActivePowerControl set-point values.");
-    }
-
     public static void reportHvdcRangeActionNotActivatedOutsideRange(final ReportNode parentNode,
                                                                      final String hvdcRaId,
                                                                      final double activePowerSetpoint,
@@ -216,49 +192,5 @@ public final class AutomatonSimulatorReports {
             .add();
 
         TECHNICAL_LOGS.info("Running sensitivity analysis after disabling AngleDroopActivePowerControl on HVDC RAs.");
-    }
-
-    public static void reportDisablingAngleDroopActivePowerControl(final ReportNode parentNode,
-                                                                   final String hvdcLineId,
-                                                                   final double activePowerSetpoint) {
-        parentNode.newReportNode()
-            .withMessageTemplate("openrao.searchtreerao.reportDisablingAngleDroopActivePowerControl")
-            .withUntypedValue("hvdcLineId", hvdcLineId)
-            .withUntypedValue("activePowerSetpoint", activePowerSetpoint)
-            .withSeverity(TRACE_SEVERITY)
-            .add();
-
-        TECHNICAL_LOGS.debug("Disabling HvdcAngleDroopActivePowerControl on HVDC line {} and setting its set-point to {}", hvdcLineId, activePowerSetpoint);
-    }
-
-    public static void reportShiftSetPointOfRangeActionToSecureCnecOnSide(final ReportNode parentNode,
-                                                                          final double currentSetpoint,
-                                                                          final double optimalSetpoint,
-                                                                          final List<String> raIds,
-                                                                          final String cnecId,
-                                                                          final TwoSides side,
-                                                                          final double cnecMargin) {
-        final String formattedCurrentSetpoint = String.format(Locale.ENGLISH, "%.2f", currentSetpoint);
-        final String formattedOptimalSetpoint = String.format(Locale.ENGLISH, "%.2f", optimalSetpoint);
-        final String formattedRaIds = String.join(", ", raIds);
-        final String formattedCnecMargin = String.format(Locale.ENGLISH, "%.2f", cnecMargin);
-        parentNode.newReportNode()
-            .withMessageTemplate("openrao.searchtreerao.reportShiftSetPointOfRangeActionToSecureCnecOnSide")
-            .withUntypedValue("currentSetpoint", formattedCurrentSetpoint)
-            .withUntypedValue("optimalSetpoint", formattedOptimalSetpoint)
-            .withUntypedValue("raIds", formattedRaIds)
-            .withUntypedValue("cnecId", cnecId)
-            .withUntypedValue("side", Objects.toString(side))
-            .withUntypedValue("cnecMargin", formattedCnecMargin)
-            .withSeverity(TRACE_SEVERITY)
-            .add();
-
-        TECHNICAL_LOGS.debug("Shifting set-point from {} to {} on range action(s) {} to secure CNEC {} on side {} (current margin: {} MW).",
-            formattedCurrentSetpoint,
-            formattedOptimalSetpoint,
-            formattedRaIds,
-            cnecId,
-            side,
-            formattedCnecMargin);
     }
 }

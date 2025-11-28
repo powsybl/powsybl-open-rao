@@ -109,7 +109,7 @@ public class SearchTree {
         try {
             initLeaves(input);
 
-            SearchTreeReports.reportEvaluatingRootLeaf(reportNode);
+            TECHNICAL_LOGS.debug("Evaluating root leaf");
             rootLeaf.evaluate(input.getObjectiveFunction(), getSensitivityComputerForEvaluation(true, reportNode), reportNode);
             if (rootLeaf.getStatus().equals(Leaf.Status.ERROR)) {
                 SearchTreeReports.reportCouldNotEvaluateLeaf(reportNode, verbose, rootLeaf);
@@ -117,7 +117,7 @@ public class SearchTree {
                 rootLeaf.finalizeOptimization();
 
                 return CompletableFuture.completedFuture(rootLeaf);
-            } else if (stopCriterionReached(rootLeaf, reportNode)) {
+            } else if (stopCriterionReached(rootLeaf)) {
                 SearchTreeReports.reportStopCriterionReachedOnLeaf(reportNode, verbose, rootLeaf);
                 reportMostLimitingElementsWithVerbose(rootLeaf, NUMBER_LOGGED_ELEMENTS_END_TREE);
                 reportOptimizationSummary();
@@ -136,7 +136,7 @@ public class SearchTree {
             reportMostLimitingElementsWithVerbose(optimalLeaf, NUMBER_LOGGED_ELEMENTS_DURING_TREE);
             reportVirtualCostInformation(reportNode, rootLeaf, false);
 
-            if (stopCriterionReached(rootLeaf, reportNode)) {
+            if (stopCriterionReached(rootLeaf)) {
                 reportOptimizationSummary();
                 rootLeaf.finalizeOptimization();
                 return CompletableFuture.completedFuture(rootLeaf);
@@ -178,17 +178,16 @@ public class SearchTree {
         }
 
         int leavesInParallel = Math.min(input.getOptimizationPerimeter().getNetworkActions().size(), parameters.getTreeParameters().leavesInParallel());
-        SearchTreeReports.reportEvaluatingNbLeavesInParallel(reportNode, leavesInParallel);
+        TECHNICAL_LOGS.debug("Evaluating {} leaves in parallel", leavesInParallel);
         try (AbstractNetworkPool networkPool = makeOpenRaoNetworkPool(input.getNetwork(), leavesInParallel)) {
-            while (depth < parameters.getTreeParameters().maximumSearchDepth() && hasImproved && !stopCriterionReached(optimalLeaf, reportNode)) {
+            while (depth < parameters.getTreeParameters().maximumSearchDepth() && hasImproved && !stopCriterionReached(optimalLeaf)) {
                 final int depthForLogs = depth + 1;
                 final ReportNode searchDepthReportNode = SearchTreeReports.reportSearchDepth(reportNode, depthForLogs);
-                SearchTreeReports.reportSearchDepthStart(searchDepthReportNode, depthForLogs);
                 previousDepthOptimalLeaf = optimalLeaf;
                 updateOptimalLeafWithNextDepthBestLeaf(networkPool, searchDepthReportNode);
                 hasImproved = previousDepthOptimalLeaf != optimalLeaf; // It means this depth evaluation has improved the global cost
                 if (hasImproved) {
-                    SearchTreeReports.reportSearchDepthEnd(searchDepthReportNode, depthForLogs);
+                    SearchTreeReports.reportSearchDepthEnd(depthForLogs);
 
                     SearchTreeReports.reportSearchDepthBestLeaf(reportNode, verbose, depthForLogs, optimalLeaf);
                     SearchTreeReports.reportSearchDepthBestLeafRangeActions(reportNode, depthForLogs, optimalLeaf, input.getOptimizationPerimeter());
@@ -225,8 +224,10 @@ public class SearchTree {
             SearchTreeReports.reportLeavesToEvaluate(reportNode, numberOfCombinations);
         }
         AtomicInteger remainingLeaves = new AtomicInteger(numberOfCombinations);
-        List<ForkJoinTask<Object>> tasks = naCombinationsSorted.stream().map(naCombination ->
-            networkPool.submit(() -> optimizeOneLeaf(networkPool, naCombination, remainingLeaves, reportNode))
+        List<ForkJoinTask<Object>> tasks = naCombinationsSorted.stream().map(naCombination -> {
+                final ReportNode leafOptimizationReportNode = SearchTreeReports.reportLeafOptimization(reportNode, verbose, naCombination.getConcatenatedId());
+                return networkPool.submit(() -> optimizeOneLeaf(networkPool, naCombination, remainingLeaves, leafOptimizationReportNode));
+            }
         ).toList();
         for (ForkJoinTask<Object> task : tasks) {
             try {
@@ -329,7 +330,7 @@ public class SearchTree {
 
         SearchTreeReports.reportEvaluatedLeaf(reportNode, verbose, leaf);
         if (!leaf.getStatus().equals(Leaf.Status.ERROR)) {
-            if (!stopCriterionReached(leaf, reportNode)) {
+            if (!stopCriterionReached(leaf)) {
                 if (combinationFulfillingStopCriterion.isPresent() && deterministicNetworkActionCombinationComparison(naCombination, combinationFulfillingStopCriterion.get()) > 0) {
                     SearchTreeReports.reportSkippingOptimization(reportNode, verbose, naCombination.getConcatenatedId());
                 } else {
@@ -405,18 +406,18 @@ public class SearchTree {
     private synchronized void updateOptimalLeaf(final Leaf leaf,
                                                 final NetworkActionCombination networkActionCombination,
                                                 final ReportNode reportNode) {
-        if (improvedEnough(leaf, reportNode)) {
+        if (improvedEnough(leaf)) {
             // nominal case: stop criterion hasn't been reached yet
             if (combinationFulfillingStopCriterion.isEmpty() && leaf.getCost() < optimalLeaf.getCost()) {
                 optimalLeaf = leaf;
-                if (stopCriterionReached(leaf, reportNode)) {
+                if (stopCriterionReached(leaf)) {
                     SearchTreeReports.reportStopCriterionReached(reportNode);
                     combinationFulfillingStopCriterion = Optional.of(networkActionCombination);
                 }
             }
             // special case: stop criterion has been reached
             if (combinationFulfillingStopCriterion.isPresent()
-                && stopCriterionReached(leaf, reportNode)
+                && stopCriterionReached(leaf)
                 && deterministicNetworkActionCombinationComparison(networkActionCombination, combinationFulfillingStopCriterion.get()) < 0) {
                 optimalLeaf = leaf;
                 combinationFulfillingStopCriterion = Optional.of(networkActionCombination);
@@ -430,12 +431,12 @@ public class SearchTree {
      * @param leaf Leaf to evaluate.
      * @return True if the stop criterion has been reached on this leaf.
      */
-    private boolean stopCriterionReached(final Leaf leaf, final ReportNode reportNode) {
+    private boolean stopCriterionReached(final Leaf leaf) {
         if (leaf.getVirtualCost() > EPSILON) {
             return false;
         }
         if (purelyVirtual && leaf.getVirtualCost() < EPSILON) {
-            SearchTreeReports.reportPerimeterPurelyVirtual(reportNode);
+            TECHNICAL_LOGS.debug("Perimeter is purely virtual and virtual cost is zero. Exiting search tree.");
             return true;
         }
         return costSatisfiesStopCriterion(leaf.getCost(), parameters);
@@ -463,14 +464,14 @@ public class SearchTree {
      * @param leaf Leaf that has to be compared with the optimal leaf.
      * @return True if the leaf cost diminution is enough compared to optimal leaf.
      */
-    private boolean improvedEnough(final Leaf leaf, final ReportNode reportNode) {
+    private boolean improvedEnough(final Leaf leaf) {
         double relativeImpact = Math.max(parameters.getNetworkActionParameters().getRelativeNetworkActionMinimumImpactThreshold(), 0);
         double absoluteImpact = Math.max(parameters.getNetworkActionParameters().getAbsoluteNetworkActionMinimumImpactThreshold(), 0);
 
         double previousDepthBestCost = previousDepthOptimalLeaf.getCost();
         double newCost = leaf.getCost();
 
-        if (previousDepthBestCost > newCost && stopCriterionReached(leaf, reportNode)) {
+        if (previousDepthBestCost > newCost && stopCriterionReached(leaf)) {
             return true;
         }
 

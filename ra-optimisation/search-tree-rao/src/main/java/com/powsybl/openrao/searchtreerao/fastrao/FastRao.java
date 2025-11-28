@@ -147,6 +147,7 @@ public class FastRao implements RaoProvider {
             int counter = 1;
 
             do {
+                final ReportNode iterationReportNode = FastRaoReports.reportFastRaoIteration(reportNode, counter);
                 addWorstCnecs(consideredCnecs, parameters.getExtension(FastRaoParameters.class).getNumberOfCnecsToAdd(), stepResult);
                 if (parameters.getExtension(FastRaoParameters.class).getAddUnsecureCnecs()) {
                     consideredCnecs.addAll(getUnsecureFunctionalCnecs(stepResult, parameters.getObjectiveFunctionParameters().getUnit(), parameters.getExtension(FastRaoParameters.class).getMarginLimit()));
@@ -156,10 +157,10 @@ public class FastRao implements RaoProvider {
                 consideredCnecs.add(getWorstPreventiveCnec(stepResult, crac));
                 cleanVariants(raoInput.getNetwork(), initialNetworkVariants, raoInput.getNetworkVariantId());
 
-                raoResult = runFilteredRao(raoInput, parameters, targetEndInstant, consideredCnecs, toolProvider, initialResult, initialRangeActionSetpointResult, networkPool, counter, reportNode);
+                raoResult = runFilteredRao(raoInput, parameters, targetEndInstant, consideredCnecs, toolProvider, initialResult, initialRangeActionSetpointResult, networkPool, counter, iterationReportNode);
                 stepResult = raoResult.getAppropriateResult(lastInstant);
 
-                FastRaoReports.reportFastRaoIntermediateResult(reportNode, counter, stepResult, parameters, NUMBER_LOGGED_ELEMENTS_DURING_RAO);
+                FastRaoReports.reportFastRaoIterationIntermediateResult(iterationReportNode, counter, stepResult, parameters, NUMBER_LOGGED_ELEMENTS_DURING_RAO);
 
                 worstCnec = stepResult.getMostLimitingElements(1).getFirst();
                 counter++;
@@ -244,12 +245,12 @@ public class FastRao implements RaoProvider {
         Crac filteredCrac = copyCrac(crac, raoInput.getNetwork());
         removeFlowCnecsFromCrac(filteredCrac, flowCnecsToKeep);
 
-        FastRaoReports.reportFastRaoIterationRunFilteredRaoStart(reportNode, counter, flowCnecsToKeep.size(), crac.getFlowCnecs().size());
+        final ReportNode filteredRaoReportNode = FastRaoReports.reportFastRaoIterationRunFilteredRao(reportNode, counter, flowCnecsToKeep.size(), crac.getFlowCnecs().size());
 
         RaoInput filteredRaoInput = createFilteredRaoInput(raoInput, filteredCrac);
         RaoResult raoResult;
         try {
-            raoResult = new CastorFullOptimization(filteredRaoInput, parameters, targetEndInstant, reportNode).run().get();
+            raoResult = new CastorFullOptimization(filteredRaoInput, parameters, targetEndInstant, filteredRaoReportNode).run().get();
             List<String> preventiveNetworkActions = raoResult.getActivatedNetworkActionsDuringState(crac.getPreventiveState()).stream()
                 .map(Identifiable::getId)
                 .toList();
@@ -267,15 +268,15 @@ public class FastRao implements RaoProvider {
 
         }
 
-        FastRaoReports.reportFastRaoIterationRunFilteredRaoEnd(reportNode, counter);
+        FastRaoReports.reportFastRaoIterationRunFilteredRaoEnd(counter);
 
         String finalVariantId = raoInput.getNetwork().getVariantManager().getWorkingVariantId();
         raoInput.getNetwork().getVariantManager().setWorkingVariant(raoInput.getNetworkVariantId());
 
-        FastRaoReports.reportFastRaoIterationRunFullSensitivityAnalysisStart(reportNode, counter);
+        final ReportNode fullSensiAnalysisReportNode = FastRaoReports.reportFastRaoIterationRunFullSensitivityAnalysis(reportNode, counter);
 
         // Compute sensitivity analyses after PRA, after ARA, after CRA to build RaoResult
-        StateTree stateTree = new StateTree(crac, reportNode);
+        StateTree stateTree = new StateTree(crac, fullSensiAnalysisReportNode);
 
         Network networkCopyPra = networkPool.getAvailableNetwork();
         Network networkCopyAra = networkPool.getAvailableNetwork();
@@ -293,7 +294,7 @@ public class FastRao implements RaoProvider {
             parameters,
             toolProvider,
             InstantKind.PREVENTIVE,
-            reportNode
+            fullSensiAnalysisReportNode
         );
 
         // 2) Post ARA
@@ -308,7 +309,7 @@ public class FastRao implements RaoProvider {
             parameters,
             toolProvider,
             InstantKind.AUTO,
-            reportNode
+            fullSensiAnalysisReportNode
         );
 
         // 3) Post CRA
@@ -323,7 +324,7 @@ public class FastRao implements RaoProvider {
             parameters,
             toolProvider,
             InstantKind.CURATIVE,
-            reportNode
+            fullSensiAnalysisReportNode
         );
 
         // Wait for all futures to finish before releasing the network
@@ -344,7 +345,7 @@ public class FastRao implements RaoProvider {
 
         raoInput.getNetwork().getVariantManager().setWorkingVariant(finalVariantId);
 
-        FastRaoReports.reportFastRaoIterationRunFullSensitivityAnalysisEnd(reportNode, counter);
+        FastRaoReports.reportFastRaoIterationRunFullSensitivityAnalysisEnd(counter);
 
         return new FastRaoResultImpl(initialResult, postPraSensi.get().prePerimeterResultForAllFollowingStates(), postAraSensi.get().prePerimeterResultForAllFollowingStates(), postCraSensi.get().prePerimeterResultForAllFollowingStates(), raoResult, raoInput.getCrac());
 

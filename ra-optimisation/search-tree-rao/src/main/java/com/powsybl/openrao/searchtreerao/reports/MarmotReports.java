@@ -15,6 +15,7 @@ import com.powsybl.openrao.searchtreerao.result.api.LinearOptimizationResult;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -38,7 +39,7 @@ public final class MarmotReports {
                                                       final int numberLoggedElementsDuringRao) {
         final String messageTemplate = "openrao.searchtreerao.reportMarmotNextIterationOfMip";
         final String prefix = "[MARMOT] Next iteration of MIP: ";
-        CommonReports.reportObjectiveFunctionResult(parentNode, messageTemplate, prefix, null, sensitivityAnalysisResult, sensitivityAnalysisResult, sensitivityAnalysisResult, parameters, numberLoggedElementsDuringRao);
+        CommonReports.reportObjectiveFunctionResult(parentNode, messageTemplate, prefix, sensitivityAnalysisResult, sensitivityAnalysisResult, sensitivityAnalysisResult, parameters, numberLoggedElementsDuringRao);
     }
 
     public static void reportMarmotResultBeforeTopologicalOptimization(final ReportNode parentNode,
@@ -47,7 +48,7 @@ public final class MarmotReports {
                                                                        final int numberLoggedElementsDuringRao) {
         final String messageTemplate = "openrao.searchtreerao.reportMarmotResultBeforeTopologicalOptimization";
         final String prefix = "[MARMOT] Before topological optimizations: ";
-        CommonReports.reportObjectiveFunctionResult(parentNode, messageTemplate, prefix, null, sensitivityAnalysisResult, sensitivityAnalysisResult, sensitivityAnalysisResult, parameters, numberLoggedElementsDuringRao);
+        CommonReports.reportObjectiveFunctionResult(parentNode, messageTemplate, prefix, sensitivityAnalysisResult, sensitivityAnalysisResult, sensitivityAnalysisResult, parameters, numberLoggedElementsDuringRao);
     }
 
     public static void reportMarmotResultBeforeGlobalLinearOptimization(final ReportNode parentNode,
@@ -56,7 +57,7 @@ public final class MarmotReports {
                                                                         final int numberLoggedElementsDuringRao) {
         final String messageTemplate = "openrao.searchtreerao.reportMarmotResultBeforeGlobalLinearOptimization";
         final String prefix = "[MARMOT] Before global linear optimization: ";
-        CommonReports.reportObjectiveFunctionResult(parentNode, messageTemplate, prefix, null, sensitivityAnalysisResult, sensitivityAnalysisResult, sensitivityAnalysisResult, parameters, numberLoggedElementsDuringRao);
+        CommonReports.reportObjectiveFunctionResult(parentNode, messageTemplate, prefix, sensitivityAnalysisResult, sensitivityAnalysisResult, sensitivityAnalysisResult, parameters, numberLoggedElementsDuringRao);
     }
 
     public static void reportMarmotResultAfterGlobalLinearOptimization(final ReportNode parentNode,
@@ -65,31 +66,21 @@ public final class MarmotReports {
                                                                        final int numberLoggedElementsDuringRao) {
         final String messageTemplate = "openrao.searchtreerao.reportMarmotResultAfterGlobalLinearOptimization";
         final String prefix = "[MARMOT] After global linear optimization: ";
-        CommonReports.reportObjectiveFunctionResult(parentNode, messageTemplate, prefix, null, sensitivityAnalysisResult, sensitivityAnalysisResult, sensitivityAnalysisResult, parameters, numberLoggedElementsDuringRao);
+        CommonReports.reportObjectiveFunctionResult(parentNode, messageTemplate, prefix, sensitivityAnalysisResult, sensitivityAnalysisResult, sensitivityAnalysisResult, parameters, numberLoggedElementsDuringRao);
     }
 
     public static ReportNode reportMarmotTopologicalOptimization(final ReportNode parentNode) {
-        return parentNode.newReportNode()
+        final ReportNode addedNode = parentNode.newReportNode()
             .withMessageTemplate("openrao.searchtreerao.reportMarmotTopologicalOptimization")
             .withSeverity(INFO_SEVERITY)
             .add();
-    }
-
-    public static void reportMarmotTopologicalOptimizationStart(final ReportNode parentNode) {
-        parentNode.newReportNode()
-            .withMessageTemplate("openrao.searchtreerao.reportMarmotTopologicalOptimizationStart")
-            .withSeverity(TRACE_SEVERITY)
-            .add();
 
         TECHNICAL_LOGS.info("[MARMOT] ----- Topological optimization [start]");
+
+        return addedNode;
     }
 
-    public static void reportMarmotTopologicalOptimizationEnd(final ReportNode parentNode) {
-        parentNode.newReportNode()
-            .withMessageTemplate("openrao.searchtreerao.reportMarmotTopologicalOptimizationEnd")
-            .withSeverity(TRACE_SEVERITY)
-            .add();
-
+    public static void reportMarmotTopologicalOptimizationEnd() {
         TECHNICAL_LOGS.info("[MARMOT] ----- Topological optimization [end]");
     }
 
@@ -121,80 +112,48 @@ public final class MarmotReports {
     }
 
     public static ReportNode reportMarmotGlobalRangeActionsOptimization(final ReportNode parentNode) {
-        return parentNode.newReportNode()
+        final ReportNode addedNode = parentNode.newReportNode()
             .withMessageTemplate("openrao.searchtreerao.reportMarmotGlobalRangeActionsOptimization")
             .withSeverity(INFO_SEVERITY)
             .add();
-    }
-
-    public static void reportMarmotGlobalRangeActionsOptimizationStart(final ReportNode parentNode) {
-        parentNode.newReportNode()
-            .withMessageTemplate("openrao.searchtreerao.reportMarmotGlobalRangeActionsOptimizationStart")
-            .withSeverity(TRACE_SEVERITY)
-            .add();
 
         TECHNICAL_LOGS.info("[MARMOT] ----- Global range actions optimization [start]");
+
+        return addedNode;
     }
 
-    public static void reportMarmotGlobalRangeActionsOptimizationEnd(final ReportNode parentNode) {
-        parentNode.newReportNode()
-            .withMessageTemplate("openrao.searchtreerao.reportMarmotGlobalRangeActionsOptimizationEnd")
-            .withSeverity(TRACE_SEVERITY)
-            .add();
-
+    public static void reportMarmotGlobalRangeActionsOptimizationEnd() {
         TECHNICAL_LOGS.info("[MARMOT] ----- Global range actions optimization [end]");
     }
 
     public static ReportNode reportMarmotGlobalRangeActionsOptimizationForIteration(final ReportNode parentNode, final int iterationCounter) {
-        return parentNode.newReportNode()
+        final ReportNode addedNode = parentNode.newReportNode()
             .withMessageTemplate("openrao.searchtreerao.reportMarmotGlobalRangeActionsOptimizationForIteration")
             .withUntypedValue("iteration", iterationCounter)
             .withSeverity(INFO_SEVERITY)
             .add();
-    }
-
-    public static void reportMarmotGlobalRangeActionsOptimizationForIterationStart(final ReportNode parentNode, final int iterationCounter) {
-        parentNode.newReportNode()
-            .withMessageTemplate("openrao.searchtreerao.reportMarmotGlobalRangeActionsOptimizationForIterationStart")
-            .withUntypedValue("iteration", iterationCounter)
-            .withSeverity(TRACE_SEVERITY)
-            .add();
 
         TECHNICAL_LOGS.info("[MARMOT] ----- Global range actions optimization [start] for iteration {}", iterationCounter);
+
+        return addedNode;
     }
 
-    public static void reportMarmotGlobalRangeActionsOptimizationForIterationEnd(final ReportNode parentNode, final int iterationCounter) {
-        parentNode.newReportNode()
-            .withMessageTemplate("openrao.searchtreerao.reportMarmotGlobalRangeActionsOptimizationForIterationEnd")
-            .withUntypedValue("iteration", iterationCounter)
-            .withSeverity(TRACE_SEVERITY)
-            .add();
-
+    public static void reportMarmotGlobalRangeActionsOptimizationForIterationEnd(final int iterationCounter) {
         TECHNICAL_LOGS.info("[MARMOT] ----- Global range actions optimization [end] for iteration {}", iterationCounter);
     }
 
     public static ReportNode reportMarmotSystematicInterTemporalSensitivityAnalysis(final ReportNode parentNode) {
-        return parentNode.newReportNode()
+        final ReportNode addedNode = parentNode.newReportNode()
             .withMessageTemplate("openrao.searchtreerao.reportMarmotSystematicInterTemporalSensitivityAnalysis")
             .withSeverity(INFO_SEVERITY)
             .add();
-    }
-
-    public static void reportMarmotSystematicInterTemporalSensitivityAnalysisStart(final ReportNode parentNode) {
-        parentNode.newReportNode()
-            .withMessageTemplate("openrao.searchtreerao.reportMarmotSystematicInterTemporalSensitivityAnalysisStart")
-            .withSeverity(TRACE_SEVERITY)
-            .add();
 
         TECHNICAL_LOGS.info("[MARMOT] Systematic inter-temporal sensitivity analysis [start]");
+
+        return addedNode;
     }
 
-    public static void reportMarmotSystematicInterTemporalSensitivityAnalysisEnd(final ReportNode parentNode) {
-        parentNode.newReportNode()
-            .withMessageTemplate("openrao.searchtreerao.reportMarmotSystematicInterTemporalSensitivityAnalysisEnd")
-            .withSeverity(TRACE_SEVERITY)
-            .add();
-
+    public static void reportMarmotSystematicInterTemporalSensitivityAnalysisEnd() {
         TECHNICAL_LOGS.info("[MARMOT] Systematic inter-temporal sensitivity analysis [end]");
     }
 
@@ -211,6 +170,8 @@ public final class MarmotReports {
 
     public static void reportMarmotCnecs(final ReportNode parentNode, final List<Marmot.LoggingAddedCnecs> addedCnecsForLogging) {
         final StringBuilder logMessage = new StringBuilder();
+        final AtomicInteger nbAddedCnecs = new AtomicInteger();
+        final AtomicInteger nbTimestamps = new AtomicInteger();
 
         final ReportNode addedNode = parentNode.newReportNode()
             .withMessageTemplate("openrao.searchtreerao.reportMarmotCnecs")
@@ -219,10 +180,13 @@ public final class MarmotReports {
         logMessage.append("[MARMOT] Proceeding to next iteration by adding:");
 
         addedCnecsForLogging.stream()
+            .filter(loggingAddedCnecs -> !loggingAddedCnecs.addedCnecs().isEmpty())
             .map(loggingAddedCnecs -> {
+                nbTimestamps.incrementAndGet();
                 final String timestamp = loggingAddedCnecs.offsetDateTime().toString();
                 final String vcName = loggingAddedCnecs.vcName();
 
+                nbAddedCnecs.addAndGet(loggingAddedCnecs.addedCnecs().size());
                 Stream<String> addedCnecsStream = loggingAddedCnecs.addedCnecs().stream();
                 if (vcName.equals(MIN_MARGIN_VIOLATION_EVALUATOR)) {
                     addedCnecsStream = addedCnecsStream.map(cnec -> cnec + "(" + loggingAddedCnecs.margins().get(cnec) + ")");
@@ -240,34 +204,25 @@ public final class MarmotReports {
 
                 logMessage.append(" for timestamp ").append(addedCnecsElement.timestamp()).append(" and virtual cost ").append(addedCnecsElement.vcName()).append(" ").append(addedCnecsElement.addedCnecs()).append(",");
             });
+
+        addedNode.addUntypedValue("nbAddedCnecs", nbAddedCnecs.get());
+        addedNode.addUntypedValue("nbTimestamps", nbTimestamps.get());
         TECHNICAL_LOGS.info(logMessage.toString());
     }
 
     public static ReportNode reportMarmotRunRaoForTimestamp(final ReportNode parentNode, final OffsetDateTime timestamp) {
-        return parentNode.newReportNode()
+        final ReportNode addedNode = parentNode.newReportNode()
             .withMessageTemplate("openrao.searchtreerao.reportMarmotRunRaoForTimestamp")
             .withUntypedValue("timestamp", Objects.toString(timestamp))
             .withSeverity(INFO_SEVERITY)
             .add();
-    }
-
-    public static void reportMarmotRunRaoForTimestampStart(final ReportNode parentNode, final OffsetDateTime timestamp) {
-        parentNode.newReportNode()
-            .withMessageTemplate("openrao.searchtreerao.reportMarmotRunRaoForTimestampStart")
-            .withUntypedValue("timestamp", Objects.toString(timestamp))
-            .withSeverity(TRACE_SEVERITY)
-            .add();
 
         TECHNICAL_LOGS.info("[MARMOT] Running RAO for timestamp {} [start]", timestamp);
+
+        return addedNode;
     }
 
-    public static void reportMarmotRunRaoForTimestampEnd(final ReportNode parentNode, final OffsetDateTime timestamp) {
-        parentNode.newReportNode()
-            .withMessageTemplate("openrao.searchtreerao.reportMarmotRunRaoForTimestampEnd")
-            .withUntypedValue("timestamp", Objects.toString(timestamp))
-            .withSeverity(TRACE_SEVERITY)
-            .add();
-
+    public static void reportMarmotRunRaoForTimestampEnd(final OffsetDateTime timestamp) {
         TECHNICAL_LOGS.info("[MARMOT] Running RAO for timestamp {} [end]", timestamp);
     }
 

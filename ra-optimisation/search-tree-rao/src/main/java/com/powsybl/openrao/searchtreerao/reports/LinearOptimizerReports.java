@@ -130,24 +130,4 @@ public final class LinearOptimizerReports {
 
         TECHNICAL_LOGS.info("Iteration {}: same results as previous iterations, optimal solution found", iteration);
     }
-
-    public static void reportLinearOptimizationAtIterationStart(final ReportNode parentNode, final int iteration) {
-        parentNode.newReportNode()
-            .withMessageTemplate("openrao.searchtreerao.reportLinearOptimizationAtIterationStart")
-            .withUntypedValue("iteration", iteration)
-            .withSeverity(TRACE_SEVERITY)
-            .add();
-
-        TECHNICAL_LOGS.debug("Iteration {}: linear optimization [start]", iteration);
-    }
-
-    public static void reportLinearOptimizationAtIterationEnd(final ReportNode parentNode, final int iteration) {
-        parentNode.newReportNode()
-            .withMessageTemplate("openrao.searchtreerao.reportLinearOptimizationAtIterationEnd")
-            .withUntypedValue("iteration", iteration)
-            .withSeverity(TRACE_SEVERITY)
-            .add();
-
-        TECHNICAL_LOGS.debug("Iteration {}: linear optimization [end]", iteration);
-    }
 }

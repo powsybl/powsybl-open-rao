@@ -28,6 +28,7 @@ import com.powsybl.openrao.searchtreerao.result.impl.RemedialActionActivationRes
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 import org.apache.commons.lang3.tuple.Pair;
 
+import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
 import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.getPstModel;
 
 /**
@@ -165,9 +166,9 @@ public final class IteratingLinearOptimizer {
     private static LinearProblemStatus solveLinearProblem(final LinearProblem linearProblem,
                                                           final int iteration,
                                                           final ReportNode reportNode) {
-        LinearOptimizerReports.reportLinearOptimizationAtIterationStart(reportNode, iteration);
+        TECHNICAL_LOGS.debug("Iteration {}: linear optimization [start]", iteration);
         LinearProblemStatus status = linearProblem.solve();
-        LinearOptimizerReports.reportLinearOptimizationAtIterationEnd(reportNode, iteration);
+        TECHNICAL_LOGS.debug("Iteration {}: linear optimization [end]", iteration);
         return status;
     }
 

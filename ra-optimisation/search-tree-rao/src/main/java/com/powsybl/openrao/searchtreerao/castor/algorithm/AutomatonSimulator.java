@@ -60,12 +60,14 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.commons.Unit.MEGAWATT;
+import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
 import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getLoadFlowProvider;
 import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters;
 
@@ -242,7 +244,7 @@ public final class AutomatonSimulator {
 
         // -- Apply
         appliedNetworkActions.forEach(na -> {
-            AutomatonSimulatorReports.reportAutomatonActivated(simulationReportNode, na.getId(), na.getName());
+            TECHNICAL_LOGS.debug("Activating automaton {} - {}.", na.getId(), na.getName());
             na.apply(network);
         });
 
@@ -445,7 +447,7 @@ public final class AutomatonSimulator {
             return Pair.of(prePerimeterSensitivityOutput, new HashMap<>());
         }
 
-        AutomatonSimulatorReports.reportRunLoadFlowForHvdcAngleDroopActivePowerControlSetPoint(simulationReportNode);
+        TECHNICAL_LOGS.debug("Running load-flow computation to access HvdcAngleDroopActivePowerControl set-point values.");
         Map<String, Double> controls = computeHvdcAngleDroopActivePowerControlValues(network, automatonState, getLoadFlowProvider(raoParameters), getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters());
 
         // Next, disable AngleDroopActivePowerControl on HVDCs and set their active power set-points to the value
@@ -459,7 +461,7 @@ public final class AutomatonSimulator {
                 && activePowerSetpoint <= hvdcRa.getMaxAdmissibleSetpoint(activePowerSetpoint)
             ) {
                 activePowerSetpoints.put(hvdcRa, activePowerSetpoint);
-                disableHvdcAngleDroopActivePowerControl(hvdcLineId, network, activePowerSetpoint, simulationReportNode);
+                disableHvdcAngleDroopActivePowerControl(hvdcLineId, network, activePowerSetpoint);
             } else {
                 AutomatonSimulatorReports.reportHvdcRangeActionNotActivatedOutsideRange(simulationReportNode, hvdcRa.getId(), activePowerSetpoint, hvdcRa.getMinAdmissibleSetpoint(activePowerSetpoint), hvdcRa.getMaxAdmissibleSetpoint(activePowerSetpoint));
             }
@@ -531,10 +533,9 @@ public final class AutomatonSimulator {
      */
     private static void disableHvdcAngleDroopActivePowerControl(final String hvdcLineId,
                                                                 final Network network,
-                                                                final double activePowerSetpoint,
-                                                                final ReportNode simulationReportNode) {
+                                                                final double activePowerSetpoint) {
         HvdcLine hvdcLine = network.getHvdcLine(hvdcLineId);
-        AutomatonSimulatorReports.reportDisablingAngleDroopActivePowerControl(simulationReportNode, hvdcLine.getId(), activePowerSetpoint);
+        TECHNICAL_LOGS.debug("Disabling HvdcAngleDroopActivePowerControl on HVDC line {} and setting its set-point to {}", hvdcLine.getId(), activePowerSetpoint);
         hvdcLine.getExtension(HvdcAngleDroopActivePowerControl.class).setEnabled(false);
         hvdcLine.setConvertersMode(activePowerSetpoint > 0 ? HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER : HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER);
         hvdcLine.setActivePowerSetpoint(Math.abs(activePowerSetpoint));
@@ -619,7 +620,13 @@ public final class AutomatonSimulator {
                 return new RangeAutomatonSimulationResult(automatonRangeActionOptimizationSensitivityAnalysisOutput, activatedRangeActionsWithSetpoint.keySet(), activatedRangeActionsWithInitialSetpoint, activatedRangeActionsWithSetpoint);
             }
 
-            AutomatonSimulatorReports.reportShiftSetPointOfRangeActionToSecureCnecOnSide(simulationReportNode, alignedRangeActions.getFirst().getCurrentSetpoint(network), optimalSetpoint, alignedRangeActions.stream().map(Identifiable::getId).toList(), toBeShiftedCnec.getId(), side, cnecMargin);
+            TECHNICAL_LOGS.debug("Shifting set-point from {} to {} on range action(s) {} to secure CNEC {} on side {} (current margin: {} MW).",
+                String.format(Locale.ENGLISH, "%.2f", alignedRangeActions.getFirst().getCurrentSetpoint(network)),
+                String.format(Locale.ENGLISH, "%.2f", optimalSetpoint),
+                String.join(", ", alignedRangeActions.stream().map(Identifiable::getId).toList()),
+                toBeShiftedCnec.getId(),
+                side,
+                String.format(Locale.ENGLISH, "%.2f", cnecMargin));
 
             applyAllRangeActions(alignedRangeActions, network, optimalSetpoint, activatedRangeActionsWithSetpoint);
 
