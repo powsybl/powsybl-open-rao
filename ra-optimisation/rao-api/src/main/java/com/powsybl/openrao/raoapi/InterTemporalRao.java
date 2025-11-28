@@ -9,7 +9,6 @@ package com.powsybl.openrao.raoapi;
 
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
-import com.powsybl.commons.Versionable;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.openrao.commons.OpenRaoException;
@@ -38,7 +37,7 @@ public final class InterTemporalRao {
      * An inter-temporal RA optimisation runner is responsible for providing convenient methods on top of
      * {@link InterTemporalRaoProvider}: several variants of synchronous and asynchronous run with default parameters.
      */
-    public static class Runner implements Versionable {
+    public static class Runner {
 
         private final InterTemporalRaoProvider provider;
 
@@ -63,14 +62,8 @@ public final class InterTemporalRao {
             return run(raoInput, RaoParameters.load());
         }
 
-        @Override
         public String getName() {
             return provider.getName();
-        }
-
-        @Override
-        public String getVersion() {
-            return provider.getVersion();
         }
     }
 

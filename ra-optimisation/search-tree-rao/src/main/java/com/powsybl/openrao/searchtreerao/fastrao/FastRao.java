@@ -67,11 +67,6 @@ public class FastRao implements RaoProvider {
     }
 
     @Override
-    public String getVersion() {
-        return "1.0.0";
-    }
-
-    @Override
     public CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters parameters) {
         return run(raoInput, parameters, null);
     }

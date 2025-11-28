@@ -29,9 +29,4 @@ public class AnotherInterTemporalRaoProviderMock implements InterTemporalRaoProv
     public String getName() {
         return "GlobalRAOptimizer";
     }
-
-    @Override
-    public String getVersion() {
-        return "2.3";
-    }
 }

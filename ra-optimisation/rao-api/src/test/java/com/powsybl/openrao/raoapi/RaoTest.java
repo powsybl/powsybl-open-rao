@@ -61,7 +61,6 @@ class RaoTest {
         // find rao
         Rao.Runner defaultRao = Rao.find(null, List.of(new RaoProviderMock()), platformConfig);
         assertEquals("RandomRAO", defaultRao.getName());
-        assertEquals("1.0", defaultRao.getVersion());
 
         // run rao
         RaoResult result = defaultRao.run(raoInput, new RaoParameters());
@@ -84,7 +83,6 @@ class RaoTest {
         // case with two providers where one the two RAOs is specifically selected
         Rao.Runner definedRao = Rao.find("GlobalRAOptimizer", List.of(new RaoProviderMock(), new AnotherRaoProviderMock()), platformConfig);
         assertEquals("GlobalRAOptimizer", definedRao.getName());
-        assertEquals("2.3", definedRao.getVersion());
     }
 
     @Test
@@ -100,7 +98,6 @@ class RaoTest {
         platformConfig.createModuleConfig("rao").setStringProperty("default", "GlobalRAOptimizer");
         Rao.Runner globalRaOptimizer = Rao.find(null, List.of(new RaoProviderMock(), new AnotherRaoProviderMock()), platformConfig);
         assertEquals("GlobalRAOptimizer", globalRaOptimizer.getName());
-        assertEquals("2.3", globalRaOptimizer.getVersion());
     }
 
     @Test
