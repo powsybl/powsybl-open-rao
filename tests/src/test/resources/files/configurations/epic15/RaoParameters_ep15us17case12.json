@@ -1,5 +1,5 @@
 {
-  "version" : "3.2",
+  "version" : "3.2.1",
   "objective-function" : {
     "type" : "MAX_MIN_MARGIN",
     "unit" : "A",
@@ -70,7 +70,7 @@
             "dcUseTransformerRatio" : true,
             "countriesToBalance" : [ ],
             "connectedComponentMode" : "MAIN",
-            "hvdcAcEmulation" : false
+            "hvdcAcEmulation" : true
           }
         }
       },

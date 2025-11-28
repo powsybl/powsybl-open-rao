@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema#",
-  "$id": "https://www.powsybl.org?open-rao-crac-schema=load-action-v2.5.json",
+  "$id": "resource:/schemas/load-action/load-action-v2.5.json",
   "type": "object",
   "properties": {
     "networkElementId": {

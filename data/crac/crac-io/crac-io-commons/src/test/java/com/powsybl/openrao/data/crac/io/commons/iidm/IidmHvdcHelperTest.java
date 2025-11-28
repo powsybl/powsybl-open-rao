@@ -7,8 +7,10 @@
 
 package com.powsybl.openrao.data.crac.io.commons.iidm;
 
+import com.powsybl.iidm.network.HvdcConverterStation;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.Terminal;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -31,5 +33,49 @@ public class IidmHvdcHelperTest {
 
         when(hvdcLine.getConvertersMode()).thenReturn(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER);
         assertEquals(-50, IidmHvdcHelper.getCurrentSetpoint(network, "hvdc"));
+    }
+
+    @Test
+    void computeActivePowerSetpointOnHvdcLine() {
+        // Mocks
+        HvdcLine hvdcLine = Mockito.mock(HvdcLine.class);
+        HvdcConverterStation station2 = Mockito.mock(HvdcConverterStation.class);
+        Terminal terminal2 = Mockito.mock(Terminal.class);
+
+        when(hvdcLine.getConvertersMode()).thenReturn(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER);
+        when(hvdcLine.getConverterStation2()).thenReturn(station2);
+        when(station2.getTerminal()).thenReturn(terminal2);
+        when(terminal2.getP()).thenReturn(123.45);
+
+        double result = IidmHvdcHelper.computeActivePowerSetpointOnHvdcLine(hvdcLine);
+
+        assertEquals(123.45, result, 1e-6);
+
+        // Mocks
+        HvdcConverterStation station1 = Mockito.mock(HvdcConverterStation.class);
+        Terminal terminal1 = Mockito.mock(Terminal.class);
+
+        when(hvdcLine.getConvertersMode()).thenReturn(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER);
+        when(hvdcLine.getConverterStation1()).thenReturn(station1);
+        when(station1.getTerminal()).thenReturn(terminal1);
+        when(terminal1.getP()).thenReturn(-55.0);
+
+        result = IidmHvdcHelper.computeActivePowerSetpointOnHvdcLine(hvdcLine);
+
+        assertEquals(-55.0, result, 1e-6);
+    }
+
+    @Test
+    void setActivePowerSetpointOnHvdcLine() {
+        Network network = Network.read("TestCase16NodesWithHvdc.xiidm", getClass().getResourceAsStream("/TestCase16NodesWithHvdc.xiidm"));
+        HvdcLine hvdcLine = network.getHvdcLine("BBE2AA11 FFR3AA11 1");
+        // Positive setpoint
+        IidmHvdcHelper.setActivePowerSetpointOnHvdcLine(hvdcLine, 60.0);
+        assertEquals(60.0, hvdcLine.getActivePowerSetpoint(), 60.0);
+        assertEquals(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER, hvdcLine.getConvertersMode());
+        // Negative setpoint
+        IidmHvdcHelper.setActivePowerSetpointOnHvdcLine(hvdcLine, -60.0);
+        assertEquals(60, hvdcLine.getActivePowerSetpoint());
+        assertEquals(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER, hvdcLine.getConvertersMode());
     }
 }
