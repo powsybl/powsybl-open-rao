@@ -58,6 +58,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
 import static com.powsybl.openrao.searchtreerao.commons.RaoLogger.getVirtualCostDetailed;
 
 /**
@@ -171,11 +172,11 @@ public class Leaf implements OptimizationResult {
                   final ReportNode reportNode) {
         RemedialActionActivationResult remedialActionActivationResult = new RemedialActionActivationResultImpl(raActivationResultFromParentLeaf, new NetworkActionsResultImpl(Map.of(optimizationPerimeter.getMainOptimizationState(), appliedNetworkActionsInPrimaryState)));
         if (status.equals(Status.EVALUATED)) {
-            SearchTreeReports.reportLeafAlreadyEvaluated(reportNode);
+            TECHNICAL_LOGS.debug("Leaf has already been evaluated");
             preOptimObjectiveFunctionResult = objectiveFunction.evaluate(preOptimFlowResult, remedialActionActivationResult, reportNode);
             return;
         }
-        SearchTreeReports.reportEvaluatingLeaf(reportNode, this);
+        TECHNICAL_LOGS.debug("Evaluating {}", this);
         sensitivityComputer.compute(network);
         if (sensitivityComputer.getSensitivityResult().getSensitivityStatus() == ComputationStatus.FAILURE) {
             SearchTreeReports.reportFailedToEvaluateLeafSensiFailed(reportNode);
@@ -206,11 +207,11 @@ public class Leaf implements OptimizationResult {
         }
         if (status.equals(Status.OPTIMIZED)) {
             // If the leaf has already been optimized a first time, reset the setpoints to their pre-optim values
-            SearchTreeReports.reportResetRangeActionSetpoints(reportNode);
+            TECHNICAL_LOGS.debug("Resetting range action setpoints to their pre-optim values");
             resetPreOptimRangeActionsSetpoints(searchTreeInput.getOptimizationPerimeter());
         }
         if (status.equals(Status.EVALUATED) || status.equals(Status.OPTIMIZED)) {
-            SearchTreeReports.reportOptimizingLeaf(reportNode);
+            TECHNICAL_LOGS.debug("Optimizing leaf...");
 
             // make a deep copy and change availableRangeAction
             OptimizationPerimeter optimizationPerimeterWithFilteredHvdcRangeAction = searchTreeInput.getOptimizationPerimeter().copyWithFilteredAvailableHvdcRangeAction(network);

@@ -48,25 +48,6 @@ public final class SearchTreeReports {
         return verbose ? INFO_SEVERITY : TRACE_SEVERITY;
     }
 
-    public static void reportLeafAlreadyEvaluated(final ReportNode parentNode) {
-        parentNode.newReportNode()
-            .withMessageTemplate("openrao.searchtreerao.reportLeafAlreadyEvaluated")
-            .withSeverity(TRACE_SEVERITY)
-            .add();
-
-        TECHNICAL_LOGS.debug("Leaf has already been evaluated");
-    }
-
-    public static void reportEvaluatingLeaf(final ReportNode parentNode, final Leaf leaf) {
-        parentNode.newReportNode()
-            .withMessageTemplate("openrao.searchtreerao.reportEvaluatingLeaf")
-            .withUntypedValue("leaf", Objects.toString(leaf))
-            .withSeverity(TRACE_SEVERITY)
-            .add();
-
-        TECHNICAL_LOGS.debug("Evaluating {}", leaf);
-    }
-
     public static void reportEvaluatedLeaf(final ReportNode parentNode, final boolean verbose, final Leaf leaf) {
         parentNode.newReportNode()
             .withMessageTemplate("openrao.searchtreerao.reportEvaluatedLeaf")
@@ -75,15 +56,6 @@ public final class SearchTreeReports {
             .add();
 
         getLogger(verbose).info("Evaluated {}", leaf);
-    }
-
-    public static void reportEvaluatingRootLeaf(final ReportNode parentNode) {
-        parentNode.newReportNode()
-            .withMessageTemplate("openrao.searchtreerao.reportEvaluatingRootLeaf")
-            .withSeverity(TRACE_SEVERITY)
-            .add();
-
-        TECHNICAL_LOGS.debug("Evaluating root leaf");
     }
 
     public static void reportCouldNotEvaluateLeaf(final ReportNode parentNode, final boolean verbose, final Leaf leaf) {
@@ -122,6 +94,16 @@ public final class SearchTreeReports {
             .add();
 
         getLogger(verbose).info("{}", rootLeaf);
+    }
+
+    public static ReportNode reportLeafOptimization(final ReportNode parentNode,
+                                                    final boolean verbose,
+                                                    final String naCombinationIds) {
+        return parentNode.newReportNode()
+            .withMessageTemplate("openrao.searchtreerao.reportLeafOptimization")
+            .withUntypedValue("naCombinationIds", naCombinationIds)
+            .withSeverity(getSeverity(verbose))
+            .add();
     }
 
     public static void reportOptimizedLeaf(final ReportNode parentNode, final boolean verbose, final Leaf leaf) {
@@ -180,24 +162,6 @@ public final class SearchTreeReports {
             .add();
 
         BUSINESS_WARNS.warn("Failed to evaluate leaf: sensitivity analysis failed");
-    }
-
-    public static void reportResetRangeActionSetpoints(final ReportNode parentNode) {
-        parentNode.newReportNode()
-            .withMessageTemplate("openrao.searchtreerao.reportResetRangeActionSetpoints")
-            .withSeverity(TRACE_SEVERITY)
-            .add();
-
-        TECHNICAL_LOGS.debug("Resetting range action setpoints to their pre-optim values");
-    }
-
-    public static void reportOptimizingLeaf(final ReportNode parentNode) {
-        parentNode.newReportNode()
-            .withMessageTemplate("openrao.searchtreerao.reportOptimizingLeaf")
-            .withSeverity(TRACE_SEVERITY)
-            .add();
-
-        TECHNICAL_LOGS.debug("Optimizing leaf...");
     }
 
     public static void reportImpossibleToOptimizeLeafBecauseEvaluationFailed(final ReportNode parentNode, final Leaf leaf) {
@@ -279,41 +243,19 @@ public final class SearchTreeReports {
         getLogger(verbose).info("No network action available");
     }
 
-    public static void reportEvaluatingNbLeavesInParallel(final ReportNode parentNode, final int nbLeavesInParallel) {
-        parentNode.newReportNode()
-            .withMessageTemplate("openrao.searchtreerao.reportEvaluatingNbLeavesInParallel")
-            .withUntypedValue("nbLeaves", nbLeavesInParallel)
-            .withSeverity(TRACE_SEVERITY)
-            .add();
-
-        TECHNICAL_LOGS.debug("Evaluating {} leaves in parallel", nbLeavesInParallel);
-    }
-
     public static ReportNode reportSearchDepth(final ReportNode parentNode, final int depth) {
-        return parentNode.newReportNode()
+        final ReportNode addedNode = parentNode.newReportNode()
             .withMessageTemplate("openrao.searchtreerao.reportSearchDepth")
             .withUntypedValue("depth", depth)
             .withSeverity(TRACE_SEVERITY)
             .add();
-    }
-
-    public static void reportSearchDepthStart(final ReportNode parentNode, final int depth) {
-        parentNode.newReportNode()
-            .withMessageTemplate("openrao.searchtreerao.reportSearchDepthStart")
-            .withUntypedValue("depth", depth)
-            .withSeverity(INFO_SEVERITY)
-            .add();
 
         TECHNICAL_LOGS.info("Search depth {} [start]", depth);
+
+        return addedNode;
     }
 
-    public static void reportSearchDepthEnd(final ReportNode parentNode, final int depth) {
-        parentNode.newReportNode()
-            .withMessageTemplate("openrao.searchtreerao.reportSearchDepthEnd")
-            .withUntypedValue("depth", depth)
-            .withSeverity(INFO_SEVERITY)
-            .add();
-
+    public static void reportSearchDepthEnd(final int depth) {
         TECHNICAL_LOGS.info("Search depth {} [end]", depth);
     }
 
@@ -432,15 +374,6 @@ public final class SearchTreeReports {
             .add();
 
         TECHNICAL_LOGS.info("Stop criterion reached, other threads may skip optimization.");
-    }
-
-    public static void reportPerimeterPurelyVirtual(final ReportNode parentNode) {
-        parentNode.newReportNode()
-            .withMessageTemplate("openrao.searchtreerao.reportPerimeterPurelyVirtual")
-            .withSeverity(TRACE_SEVERITY)
-            .add();
-
-        TECHNICAL_LOGS.debug("Perimeter is purely virtual and virtual cost is zero. Exiting search tree.");
     }
 
     private static List<String> getRangeActionSetpoints(final Leaf leaf, final OptimizationPerimeter optimizationContext) {

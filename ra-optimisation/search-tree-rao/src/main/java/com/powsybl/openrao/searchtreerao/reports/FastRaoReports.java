@@ -38,14 +38,14 @@ public final class FastRaoReports {
         CommonReports.reportSensitivityAnalysisResults(parentNode, messageTemplate, prefix, objectiveFunction, remedialActionActivationResult, sensitivityAnalysisResult, raoParameters, numberOfLoggedLimitingElements);
     }
 
-    public static void reportFastRaoIntermediateResult(final ReportNode parentNode,
-                                                       final Integer iterationCounter,
-                                                       final PrePerimeterResult sensitivityAnalysisResult,
-                                                       final RaoParameters parameters,
-                                                       final int numberLoggedElementsDuringRao) {
-        final String messageTemplate = "openrao.searchtreerao.reportFastRaoIntermediateResult";
+    public static void reportFastRaoIterationIntermediateResult(final ReportNode parentNode,
+                                                                final Integer iterationCounter,
+                                                                final PrePerimeterResult sensitivityAnalysisResult,
+                                                                final RaoParameters parameters,
+                                                                final int numberLoggedElementsDuringRao) {
+        final String messageTemplate = "openrao.searchtreerao.reportFastRaoIterationIntermediateResult";
         final String prefix = String.format("[FAST RAO] Iteration %d: sensitivity analysis: ", iterationCounter);
-        CommonReports.reportObjectiveFunctionResult(parentNode, messageTemplate, prefix, iterationCounter, sensitivityAnalysisResult, sensitivityAnalysisResult, sensitivityAnalysisResult, parameters, numberLoggedElementsDuringRao);
+        CommonReports.reportObjectiveFunctionResult(parentNode, messageTemplate, prefix, sensitivityAnalysisResult, sensitivityAnalysisResult, sensitivityAnalysisResult, parameters, numberLoggedElementsDuringRao);
     }
 
     public static void reportFastRaoFinalResult(final ReportNode parentNode,
@@ -54,7 +54,7 @@ public final class FastRaoReports {
                                                 final int numberLoggedElementsDuringRao) {
         final String messageTemplate = "openrao.searchtreerao.reportFastRaoFinalResult";
         final String prefix = "[FAST RAO] Final Result: ";
-        CommonReports.reportObjectiveFunctionResult(parentNode, messageTemplate, prefix, null, sensitivityAnalysisResult, sensitivityAnalysisResult, sensitivityAnalysisResult, parameters, numberLoggedElementsDuringRao);
+        CommonReports.reportObjectiveFunctionResult(parentNode, messageTemplate, prefix, sensitivityAnalysisResult, sensitivityAnalysisResult, sensitivityAnalysisResult, parameters, numberLoggedElementsDuringRao);
     }
 
     public static void reportMissingFastRaoParametersExtension(final ReportNode parentNode) {
@@ -84,48 +84,46 @@ public final class FastRaoReports {
         BUSINESS_LOGS.error("Fast Rao does not support multi-curative optimization");
     }
 
-    public static void reportFastRaoIterationRunFilteredRaoStart(final ReportNode parentNode,
-                                                                 final int iterationCounter,
-                                                                 final int nbCnecsToKeep,
-                                                                 final int nbCnecsInCrac) {
-        parentNode.newReportNode()
-            .withMessageTemplate("openrao.searchtreerao.reportFastRaoIterationRunFilteredRaoStart")
+    public static ReportNode reportFastRaoIteration(final ReportNode parentNode, final int iterationCounter) {
+        return parentNode.newReportNode()
+            .withMessageTemplate("openrao.searchtreerao.reportFastRaoIteration")
             .withUntypedValue("iterationCounter", iterationCounter)
+            .withSeverity(INFO_SEVERITY)
+            .add();
+    }
+
+    public static ReportNode reportFastRaoIterationRunFilteredRao(final ReportNode parentNode,
+                                                                  final int iterationCounter,
+                                                                  final int nbCnecsToKeep,
+                                                                  final int nbCnecsInCrac) {
+        final ReportNode addedNode = parentNode.newReportNode()
+            .withMessageTemplate("openrao.searchtreerao.reportFastRaoIterationRunFilteredRao")
             .withUntypedValue("nbCnecsToKeep", nbCnecsToKeep)
             .withUntypedValue("nbCnecsInCrac", nbCnecsInCrac)
             .withSeverity(INFO_SEVERITY)
             .add();
 
         BUSINESS_LOGS.info("[FAST RAO] Iteration {}: Run filtered RAO with {}/{} cnecs [start]", iterationCounter, nbCnecsToKeep, nbCnecsInCrac);
+
+        return addedNode;
     }
 
-    public static void reportFastRaoIterationRunFilteredRaoEnd(final ReportNode parentNode, final int iterationCounter) {
-        parentNode.newReportNode()
-            .withMessageTemplate("openrao.searchtreerao.reportFastRaoIterationRunFilteredRaoEnd")
-            .withUntypedValue("iterationCounter", iterationCounter)
-            .withSeverity(INFO_SEVERITY)
-            .add();
-
+    public static void reportFastRaoIterationRunFilteredRaoEnd(final int iterationCounter) {
         BUSINESS_LOGS.info("[FAST RAO] Iteration {}: Run filtered RAO [end]", iterationCounter);
     }
 
-    public static void reportFastRaoIterationRunFullSensitivityAnalysisStart(final ReportNode parentNode, final int iterationCounter) {
-        parentNode.newReportNode()
-            .withMessageTemplate("openrao.searchtreerao.reportFastRaoIterationRunFullSensitivityAnalysisStart")
-            .withUntypedValue("iterationCounter", iterationCounter)
+    public static ReportNode reportFastRaoIterationRunFullSensitivityAnalysis(final ReportNode parentNode, final int iterationCounter) {
+        final ReportNode addedNode = parentNode.newReportNode()
+            .withMessageTemplate("openrao.searchtreerao.reportFastRaoIterationRunFullSensitivityAnalysis")
             .withSeverity(INFO_SEVERITY)
             .add();
 
         BUSINESS_LOGS.info("[FAST RAO] Iteration {}: Run full sensitivity analysis [start]", iterationCounter);
+
+        return addedNode;
     }
 
-    public static void reportFastRaoIterationRunFullSensitivityAnalysisEnd(final ReportNode parentNode, final int iterationCounter) {
-        parentNode.newReportNode()
-            .withMessageTemplate("openrao.searchtreerao.reportFastRaoIterationRunFullSensitivityAnalysisEnd")
-            .withUntypedValue("iterationCounter", iterationCounter)
-            .withSeverity(INFO_SEVERITY)
-            .add();
-
+    public static void reportFastRaoIterationRunFullSensitivityAnalysisEnd(final int iterationCounter) {
         BUSINESS_LOGS.info("[FAST RAO] Iteration {}: Run full sensitivity analysis [end]", iterationCounter);
     }
 }

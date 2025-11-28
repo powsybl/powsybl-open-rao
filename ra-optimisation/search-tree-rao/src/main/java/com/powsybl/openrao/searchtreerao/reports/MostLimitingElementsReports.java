@@ -95,16 +95,7 @@ public final class MostLimitingElementsReports {
                                                           final Unit objectiveFunctionUnit,
                                                           final int numberLoggedElementsDuringRao) {
         final List<MostLimitingElementRecord> mostLimitingElementRecords = getMostLimitingElementRecords(objectiveFunctionResult, flowResult, automatonStates, objectiveFunctionType, objectiveFunctionUnit, numberLoggedElementsDuringRao);
-        if (!mostLimitingElementRecords.isEmpty()) {
-            final ReportNode addedNode = parentNode.newReportNode()
-                .withMessageTemplate("openrao.searchtreerao.reportMostLimitingElements")
-                .withSeverity(reportSeverity)
-                .add();
-            logger.info("Most limiting elements:");
-
-            mostLimitingElementRecords
-                .forEach(element -> reportMostLimitingElementResult(addedNode, reportSeverity, logger, element));
-        }
+        reportMostLimitingElementsResults(parentNode, reportSeverity, logger, mostLimitingElementRecords);
     }
 
     private static void reportMostLimitingElementsResults(final ReportNode parentNode,
@@ -117,14 +108,27 @@ public final class MostLimitingElementsReports {
                                                           final ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunctionType,
                                                           final Unit unit,
                                                           final int numberOfLoggedElements) {
-        final ReportNode addedNode = parentNode.newReportNode()
-            .withMessageTemplate("openrao.searchtreerao.reportMostLimitingElements")
-            .withSeverity(reportSeverity)
-            .add();
-        logger.info("Most limiting elements:");
+        final List<MostLimitingElementRecord> mostLimitingElementRecords = getMostLimitingElementRecords(preventivePerimeter, basecaseOptimResult, contingencyScenarios, contingencyOptimizationResults, objectiveFunctionType, unit, numberOfLoggedElements);
+        reportMostLimitingElementsResults(parentNode, reportSeverity, logger, mostLimitingElementRecords);
+    }
 
-        getMostLimitingElementRecords(preventivePerimeter, basecaseOptimResult, contingencyScenarios, contingencyOptimizationResults, objectiveFunctionType, unit, numberOfLoggedElements)
-            .forEach(element -> reportMostLimitingElementResult(addedNode, reportSeverity, logger, element));
+    private static void reportMostLimitingElementsResults(final ReportNode parentNode,
+                                                          final TypedValue reportSeverity,
+                                                          final OpenRaoLogger logger,
+                                                          final List<MostLimitingElementRecord> mostLimitingElementRecords) {
+        if (!mostLimitingElementRecords.isEmpty()) {
+            final MostLimitingElementRecord firstMostLimitingElement = mostLimitingElementRecords.getFirst();
+            final ReportNode addedNode = parentNode.newReportNode()
+                .withMessageTemplate("openrao.searchtreerao.reportMostLimitingElements")
+                .withUntypedValue("roundedCnecMargin", firstMostLimitingElement.roundedCnecMargin())
+                .withUntypedValue("unit", Objects.toString(firstMostLimitingElement.unit()))
+                .withSeverity(reportSeverity)
+                .add();
+            logger.info("Most limiting elements:");
+
+            mostLimitingElementRecords
+                .forEach(element -> reportMostLimitingElementResult(addedNode, reportSeverity, logger, element));
+        }
     }
 
     private static void reportMostLimitingElementResult(final ReportNode parentNode,

@@ -72,11 +72,10 @@ public class Marmot implements InterTemporalRaoProvider {
                                                          final RaoParameters raoParameters,
                                                          final ReportNode reportNode) {
         // 1. Run independent RAOs to compute optimal preventive topological remedial actions
-        ReportNode topologicalOptimizationReportNode = MarmotReports.reportMarmotTopologicalOptimization(reportNode);
-        MarmotReports.reportMarmotTopologicalOptimizationStart(topologicalOptimizationReportNode);
+        final ReportNode topologicalOptimizationReportNode = MarmotReports.reportMarmotTopologicalOptimization(reportNode);
         TemporalData<Set<FlowCnec>> consideredCnecs = new TemporalDataImpl<>();
         TemporalData<RaoResult> topologicalOptimizationResults = runTopologicalOptimization(interTemporalRaoInputWithNetworkPaths.getRaoInputs(), consideredCnecs, raoParameters, topologicalOptimizationReportNode);
-        MarmotReports.reportMarmotTopologicalOptimizationEnd(topologicalOptimizationReportNode);
+        MarmotReports.reportMarmotTopologicalOptimizationEnd();
 
         // 2. Get the initial results from the various independent results to avoid recomputing them
         TemporalData<PrePerimeterResult> initialResults = buildInitialResults(topologicalOptimizationResults);
@@ -119,7 +118,6 @@ public class Marmot implements InterTemporalRaoProvider {
         TemporalData<AppliedRemedialActions> curativeRemedialActions = MarmotUtils.getAppliedRemedialActionsInCurative(interTemporalRaoInput.getRaoInputs(), topologicalOptimizationResults);
 
         final ReportNode globalRangeActionsOptimizationReportNode = MarmotReports.reportMarmotGlobalRangeActionsOptimization(reportNode);
-        MarmotReports.reportMarmotGlobalRangeActionsOptimizationStart(globalRangeActionsOptimizationReportNode);
         // make fast rao result lighter by keeping only initial flow result and filtered rao result for actions
         replaceFastRaoResultsWithLightVersions(topologicalOptimizationResults);
 
@@ -137,18 +135,16 @@ public class Marmot implements InterTemporalRaoProvider {
 
             // Run post topo sensitivity analysis on all timestamps ON CONSIDERED CNECS ONLY (which is why we do it every loop)
             final ReportNode systematicInterTemporalSensiAnalysisReportNode = MarmotReports.reportMarmotSystematicInterTemporalSensitivityAnalysis(reportNode);
-            MarmotReports.reportMarmotSystematicInterTemporalSensitivityAnalysisStart(systematicInterTemporalSensiAnalysisReportNode);
             TemporalData<PrePerimeterResult> postTopoResults = runAllSensitivityAnalysesBasedOnInitialResult(interTemporalRaoInput.getRaoInputs(), curativeRemedialActions, initialResults, raoParameters, consideredCnecs, systematicInterTemporalSensiAnalysisReportNode);
-            MarmotReports.reportMarmotSystematicInterTemporalSensitivityAnalysisEnd(systematicInterTemporalSensiAnalysisReportNode);
+            MarmotReports.reportMarmotSystematicInterTemporalSensitivityAnalysisEnd();
 
             // Build objective function with ONLY THE CONSIDERED CNECS
             ObjectiveFunction filteredObjectiveFunction = buildFilteredObjectiveFunction(interTemporalRaoInput.getRaoInputs().map(RaoInput::getCrac), new GlobalFlowResult(initialResults), raoParameters, consideredCnecs);
 
             // Create and iteratively solve MIP to find optimal range actions' set-points FOR THE CONSIDERED CNECS
             final ReportNode globalRaOptimForIterationReportNode = MarmotReports.reportMarmotGlobalRangeActionsOptimizationForIteration(reportNode, counter);
-            MarmotReports.reportMarmotGlobalRangeActionsOptimizationForIterationStart(globalRaOptimForIterationReportNode, counter);
             linearOptimizationResults = optimizeLinearRemedialActions(interTemporalRaoInput, initialResults, initialSetpointResults, postTopoResults, raoParameters, preventiveTopologicalActions, curativeRemedialActions, consideredCnecs, filteredObjectiveFunction, globalRaOptimForIterationReportNode);
-            MarmotReports.reportMarmotGlobalRangeActionsOptimizationForIterationEnd(globalRaOptimForIterationReportNode, counter);
+            MarmotReports.reportMarmotGlobalRangeActionsOptimizationForIterationEnd(counter);
 
             // Compute the flows on ALL the cnecs to check if the worst cnecs have changed and were considered in the MIP or not
             loadFlowResults = applyActionsAndRunFullLoadflow(interTemporalRaoInput.getRaoInputs(), curativeRemedialActions, linearOptimizationResults, initialResults, raoParameters, reportNode);
@@ -160,7 +156,7 @@ public class Marmot implements InterTemporalRaoProvider {
             MarmotReports.reportMarmotNextIterationOfMip(reportNode, fullResults, raoParameters, 10);
             counter++;
         } while (shouldContinueAndAddCnecs(loadFlowResults, consideredCnecs, globalRangeActionsOptimizationReportNode) && counter < 10); // Stop if the worst element of each TS has been considered during MIP
-        MarmotReports.reportMarmotGlobalRangeActionsOptimizationEnd(globalRangeActionsOptimizationReportNode);
+        MarmotReports.reportMarmotGlobalRangeActionsOptimizationEnd();
 
         // 7. Merge topological and linear result
         final ReportNode mergingTopoAndLinearRaReportNode = MarmotReports.reportMarmotMergingTopoAndLinearRemedialActionResults(reportNode);
@@ -358,9 +354,8 @@ public class Marmot implements InterTemporalRaoProvider {
             Set<FlowCnec> cnecs = new HashSet<>();
             final OffsetDateTime timestamp = individualRaoInput.getCrac().getTimestamp().orElseThrow();
             final ReportNode runRaoReportNode = MarmotReports.reportMarmotRunRaoForTimestamp(reportNode, timestamp);
-            MarmotReports.reportMarmotRunRaoForTimestampStart(runRaoReportNode, timestamp);
-            RaoResult raoResult = FastRao.launchFastRaoOptimization(individualRaoInput, raoParameters, null, cnecs, runRaoReportNode);
-            MarmotReports.reportMarmotRunRaoForTimestampEnd(runRaoReportNode, timestamp);
+            final RaoResult raoResult = FastRao.launchFastRaoOptimization(individualRaoInput, raoParameters, null, cnecs, runRaoReportNode);
+            MarmotReports.reportMarmotRunRaoForTimestampEnd(timestamp);
             consideredCnecs.put(datetime, cnecs);
             individualResults.put(datetime, raoResult);
         });

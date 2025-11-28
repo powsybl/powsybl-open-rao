@@ -553,11 +553,10 @@ class SearchTreeTest {
         searchTree.run();
         final List<ReportNode> traceReports = ReportsTestUtils.getReportsWithSeverity(reportNode, TypedValue.TRACE_SEVERITY);
         final List<ReportNode> infoReports = ReportsTestUtils.getReportsWithSeverity(reportNode, TypedValue.INFO_SEVERITY);
-        assertEquals(1, traceReports.size());
+        assertEquals(0, traceReports.size());
         assertEquals(2, infoReports.size());
         assertEquals(1, technical.list.size());
         assertEquals(2, business.list.size());
-        assertTrue(expectedLog1.endsWith(traceReports.getFirst().getMessage()));
         assertTrue(expectedLog2.endsWith(infoReports.getFirst().getMessage()));
         assertTrue(expectedLog3.endsWith(infoReports.get(1).getMessage()));
         assertEquals(expectedLog1, technical.list.getFirst().toString());
@@ -586,12 +585,11 @@ class SearchTreeTest {
         searchTree.run();
         final List<ReportNode> traceReports = ReportsTestUtils.getReportsWithSeverity(reportNode, TypedValue.TRACE_SEVERITY);
         final List<ReportNode> infoReports = ReportsTestUtils.getReportsWithSeverity(reportNode, TypedValue.INFO_SEVERITY);
-        assertEquals(2, traceReports.size());
+        assertEquals(1, traceReports.size());
         assertEquals(1, infoReports.size());
         assertEquals(2, technical.list.size());
         assertEquals(1, business.list.size());
-        assertTrue(expectedLog1.endsWith(traceReports.getFirst().getMessage()));
-        assertTrue(expectedLog2.endsWith(traceReports.get(1).getMessage()));
+        assertTrue(expectedLog2.endsWith(traceReports.getFirst().getMessage()));
         assertTrue(expectedLog3.endsWith(infoReports.getFirst().getMessage()));
         assertEquals(expectedLog1, technical.list.getFirst().toString());
         assertEquals(expectedLog2, technical.list.get(1).toString());

@@ -170,7 +170,6 @@ public class CastorSecondPreventive {
 
         // Run 2nd automaton simulation and update results
         final ReportNode secondAutomatonSimulationReportNode = CastorReports.reportSecondAutomatonSimulation(secondPreventiveReportNode);
-        CastorReports.reportSecondAutomatonSimulationStart(secondAutomatonSimulationReportNode);
         Map<State, PostPerimeterResult> newPostContingencyResults = castorContingencyScenarios.optimizeContingencyScenarios(network, secondPreventiveRaoResult.postPraSensitivityAnalysisOutput, true, secondAutomatonSimulationReportNode);
         CastorReports.reportSecondAutomatonSimulationEnd(secondAutomatonSimulationReportNode);
 

@@ -14,12 +14,15 @@ import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.searchtreerao.commons.costevaluatorresult.AbsoluteCostEvaluatorResult;
 import com.powsybl.openrao.searchtreerao.commons.costevaluatorresult.CostEvaluatorResult;
-import com.powsybl.openrao.searchtreerao.reports.CommonReports;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.RemedialActionActivationResult;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Map;
 import java.util.Set;
+
+import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -65,7 +68,13 @@ public class RemedialActionCostEvaluator implements CostEvaluator {
         if (Math.abs(variation) < 1e-6) {
             return 0.0;
         }
-        CommonReports.reportRangeActionVariation(reportNode, rangeAction, variation, state, after);
+        TECHNICAL_LOGS.debug("{} variation of {} {} at state {} ({} -> {})",
+            rangeAction.getId(),
+            BigDecimal.valueOf(variation).setScale(2, RoundingMode.HALF_UP).toString(),
+            (rangeAction instanceof PstRangeAction) ? "taps" : "MW",
+            state,
+            BigDecimal.valueOf(after - variation).setScale(2, RoundingMode.HALF_UP).toString(),
+            BigDecimal.valueOf(after).setScale(2, RoundingMode.HALF_UP).toString());
         return rangeAction.getTotalCostForVariation(variation);
     }
 }

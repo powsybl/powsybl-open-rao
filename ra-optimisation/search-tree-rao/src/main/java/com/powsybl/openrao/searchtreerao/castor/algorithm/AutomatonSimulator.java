@@ -50,6 +50,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -253,12 +254,10 @@ public final class AutomatonSimulator {
         }
 
         // -- Apply
-        appliedNetworkActions
-            .stream()
-            .forEach(na -> {
-                AutomatonSimulatorReports.reportAutomatonActivated(simulationReportNode, na.getId(), na.getName());
-                na.apply(network);
-            });
+        appliedNetworkActions.forEach(na -> {
+            TECHNICAL_LOGS.debug("Activating automaton {} - {}.", na.getId(), na.getName());
+            na.apply(network);
+        });
 
         Set<NetworkAction> allAppliedAutomatons = new HashSet<>(previouslyActivatedTopologicalAutomatons);
         allAppliedAutomatons.addAll(appliedNetworkActions);
@@ -607,7 +606,13 @@ public final class AutomatonSimulator {
                 return new RangeAutomatonSimulationResult(automatonRangeActionOptimizationSensitivityAnalysisOutput, activatedRangeActionsWithSetpoint.keySet(), activatedRangeActionsWithInitialSetpoint, activatedRangeActionsWithSetpoint);
             }
 
-            AutomatonSimulatorReports.reportShiftSetPointOfRangeActionToSecureCnecOnSide(simulationReportNode, alignedRangeActions.getFirst().getCurrentSetpoint(network), optimalSetpoint, alignedRangeActions.stream().map(Identifiable::getId).toList(), toBeShiftedCnec.getId(), side, cnecMargin);
+            TECHNICAL_LOGS.debug("Shifting set-point from {} to {} on range action(s) {} to secure CNEC {} on side {} (current margin: {} MW).",
+                String.format(Locale.ENGLISH, "%.2f", alignedRangeActions.getFirst().getCurrentSetpoint(network)),
+                String.format(Locale.ENGLISH, "%.2f", optimalSetpoint),
+                String.join(", ", alignedRangeActions.stream().map(Identifiable::getId).toList()),
+                toBeShiftedCnec.getId(),
+                side,
+                String.format(Locale.ENGLISH, "%.2f", cnecMargin));
 
             applyAllRangeActions(alignedRangeActions, network, optimalSetpoint, activatedRangeActionsWithSetpoint);
 

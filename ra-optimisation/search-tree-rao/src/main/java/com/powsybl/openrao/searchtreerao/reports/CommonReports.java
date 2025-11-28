@@ -8,10 +8,6 @@
 package com.powsybl.openrao.searchtreerao.reports;
 
 import com.powsybl.commons.report.ReportNode;
-import com.powsybl.commons.report.ReportNodeAdder;
-import com.powsybl.openrao.data.crac.api.State;
-import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
-import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.searchtreerao.commons.RaoLogger;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
@@ -20,10 +16,7 @@ import com.powsybl.openrao.searchtreerao.result.api.ObjectiveFunctionResult;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
 import com.powsybl.openrao.searchtreerao.result.api.RemedialActionActivationResult;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.Map;
-import java.util.Objects;
 
 import static com.powsybl.commons.report.TypedValue.ERROR_SEVERITY;
 import static com.powsybl.commons.report.TypedValue.INFO_SEVERITY;
@@ -60,13 +53,12 @@ public final class CommonReports {
                                                         final RaoParameters raoParameters,
                                                         final int numberOfLoggedLimitingElements) {
         final ObjectiveFunctionResult prePerimeterObjectiveFunctionResult = objectiveFunction.evaluate(sensitivityAnalysisResult, remedialActionActivationResult, parentNode);
-        reportObjectiveFunctionResult(parentNode, messageTemplate, prefix, null, prePerimeterObjectiveFunctionResult, sensitivityAnalysisResult, sensitivityAnalysisResult, raoParameters, numberOfLoggedLimitingElements);
+        reportObjectiveFunctionResult(parentNode, messageTemplate, prefix, prePerimeterObjectiveFunctionResult, sensitivityAnalysisResult, sensitivityAnalysisResult, raoParameters, numberOfLoggedLimitingElements);
     }
 
     public static void reportObjectiveFunctionResult(final ReportNode parentNode,
                                                      final String messageTemplate,
                                                      final String prefix,
-                                                     final Integer iterationCounter,
                                                      final ObjectiveFunctionResult objectiveFunctionResult,
                                                      final ObjectiveFunctionResult sensitivityAnalysisObjectiveFunctionResult,
                                                      final FlowResult sensitivityAnalysisFlowResult,
@@ -79,17 +71,14 @@ public final class CommonReports {
         final String virtualCost = ReportUtils.formatDoubleBasedOnMargin(objectiveFunctionResult.getVirtualCost(), -objectiveFunctionResult.getCost());
         final String virtualCostDetail = virtualCostDetailed.isEmpty() ? "" : " " + virtualCostDetailed;
 
-        final ReportNodeAdder reportNodeAdder = parentNode.newReportNode()
+        parentNode.newReportNode()
             .withMessageTemplate(messageTemplate)
             .withUntypedValue("cost", cost)
             .withUntypedValue("functionalCost", functionalCost)
             .withUntypedValue("virtualCost", virtualCost)
             .withUntypedValue("virtualCostDetail", virtualCostDetail)
-            .withSeverity(INFO_SEVERITY);
-        if (iterationCounter != null) {
-            reportNodeAdder.withUntypedValue("iterationCounter", iterationCounter);
-        }
-        reportNodeAdder.add();
+            .withSeverity(INFO_SEVERITY)
+            .add();
 
         BUSINESS_LOGS.info(prefix + "cost = {} (functional: {}, virtual: {}{})", cost, functionalCost, virtualCost, virtualCostDetail);
 
@@ -136,32 +125,6 @@ public final class CommonReports {
             .add();
 
         TECHNICAL_LOGS.info("Some MNEC constraints are not respected.");
-    }
-
-    public static void reportRangeActionVariation(final ReportNode parentNode,
-                                                  final RangeAction<?> rangeAction,
-                                                  final double variation,
-                                                  final State state,
-                                                  final double after) {
-        final String variationUnit = (rangeAction instanceof PstRangeAction) ? "taps" : "MW";
-        final String rangeActionId = rangeAction.getId();
-        final String variationAmount = BigDecimal.valueOf(variation).setScale(2, RoundingMode.HALF_UP).toString();
-        final String initialValue = BigDecimal.valueOf(after - variation).setScale(2, RoundingMode.HALF_UP).toString();
-        final String finalValue = BigDecimal.valueOf(after).setScale(2, RoundingMode.HALF_UP).toString();
-
-        parentNode.newReportNode()
-            .withMessageTemplate("openrao.searchtreerao.reportRangeActionVariation")
-            .withUntypedValue("rangeActionId", rangeActionId)
-            .withUntypedValue("variationAmount", variationAmount)
-            .withUntypedValue("variationUnit", variationUnit)
-            .withUntypedValue("state", Objects.toString(state))
-            .withUntypedValue("initialValue", initialValue)
-            .withUntypedValue("finalValue", finalValue)
-            .withSeverity(TRACE_SEVERITY)
-            .add();
-
-        TECHNICAL_LOGS.debug("{} variation of {} {} at state {} ({} -> {})",
-            rangeActionId, variationAmount, variationUnit, state, initialValue, finalValue);
     }
 
     public static void reportAssigningVirtualCostToSensitivityFailure(final ReportNode parentNode, final double sensitivityFailureOvercost) {
