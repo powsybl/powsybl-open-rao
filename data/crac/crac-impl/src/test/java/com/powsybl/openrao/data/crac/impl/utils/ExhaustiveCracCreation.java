@@ -228,6 +228,23 @@ public final class ExhaustiveCracCreation {
             .newOnContingencyStateUsageRule().withContingency(contingency2Id).withInstant(CURATIVE_INSTANT_ID).add()
             .add();
 
+        // network actions with one ac emulation deactivation action
+        crac.newNetworkAction().withId("acEmulationDeactivationId")
+            .withName("acEmulationDeactivationName")
+            .withOperator("RTE")
+            .newAcEmulationDeactivationAction().withNetworkElement("hvdc").add()
+            .newOnFlowConstraintInCountryUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withCountry(Country.FR).add()
+            .add();
+
+        crac.newNetworkAction().withId("acEmulationDeactivationId2")
+            .withName("acEmulationDeactivationName2")
+            .withOperator("RTE")
+            .newAcEmulationDeactivationAction().withNetworkElement("hvdc2").add()
+            .newOnContingencyStateUsageRule().withContingency("contingency1Id").withInstant(CURATIVE_INSTANT_ID).add()
+            .newOnContingencyStateUsageRule().withContingency("contingency2Id").withInstant(CURATIVE_INSTANT_ID).add()
+            .newOnConstraintUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withCnec("cnec3curId").add()
+            .add();
+
         // range actions
         crac.newPstRangeAction().withId("pstRange1Id")
             .withName("pstRange1Name")

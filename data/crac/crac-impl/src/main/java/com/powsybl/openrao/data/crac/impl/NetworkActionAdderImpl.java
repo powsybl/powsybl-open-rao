@@ -11,16 +11,7 @@ import com.powsybl.action.Action;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.data.crac.api.NetworkElement;
-import com.powsybl.openrao.data.crac.api.networkaction.DanglingLineActionAdder;
-import com.powsybl.openrao.data.crac.api.networkaction.GeneratorActionAdder;
-import com.powsybl.openrao.data.crac.api.networkaction.LoadActionAdder;
-import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
-import com.powsybl.openrao.data.crac.api.networkaction.NetworkActionAdder;
-import com.powsybl.openrao.data.crac.api.networkaction.PhaseTapChangerTapPositionActionAdder;
-import com.powsybl.openrao.data.crac.api.networkaction.ShuntCompensatorPositionActionAdder;
-import com.powsybl.openrao.data.crac.api.networkaction.SwitchActionAdder;
-import com.powsybl.openrao.data.crac.api.networkaction.SwitchPairAdder;
-import com.powsybl.openrao.data.crac.api.networkaction.TerminalsConnectionActionAdder;
+import com.powsybl.openrao.data.crac.api.networkaction.*;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -86,6 +77,10 @@ public class NetworkActionAdderImpl extends AbstractRemedialActionAdder<NetworkA
     public SwitchPairAdder newSwitchPair() {
         return new SwitchPairAdderImpl(this);
     }
+
+    @Override
+    public AcEmulationDeactivationActionAdder newAcEmulationDeactivationAction() {
+        return new AcEmulationDeactivationActionAdderImpl(this); }
 
     @Override
     public NetworkAction add() {
