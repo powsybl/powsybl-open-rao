@@ -112,7 +112,7 @@ public class NcRemedialActionsCreator {
     }
 
     private String createNameFromTapPositionAction(String tapPositionId, String operator) {
-        if (operator != null) {
+        if (operator != null && !operator.isEmpty()) {
             return NcCracUtils.getTsoNameFromUrl(operator) + "-" + tapPositionId;
         } else {
             return tapPositionId;
@@ -124,7 +124,7 @@ public class NcRemedialActionsCreator {
                                                           RemedialActionType remedialActionType, RemedialActionAdder<?> remedialActionAdder, String remedialActionName) {
 
         remedialActionAdder.withName(remedialActionName);
-        if (nativeRemedialAction.operator() != null) {
+        if (nativeRemedialAction.operator() != null && !nativeRemedialAction.operator().isEmpty()) {
             remedialActionAdder.withOperator(NcCracUtils.getTsoNameFromUrl(nativeRemedialAction.operator()));
         }
         if (nativeRemedialAction.getTimeToImplementInSeconds() != null) {
@@ -134,7 +134,7 @@ public class NcRemedialActionsCreator {
         }
 
         InstantKind instantKind = getInstantKind(nativeRemedialAction);
-        Set<Instant> instants = getInstants(instantKind, nativeRemedialAction.operator() == null ? null : NcCracUtils.getTsoNameFromUrl(nativeRemedialAction.operator()));
+        Set<Instant> instants = getInstants(instantKind, nativeRemedialAction.operator() == null || nativeRemedialAction.operator().isEmpty() ? null : NcCracUtils.getTsoNameFromUrl(nativeRemedialAction.operator()));
         instants.forEach(instant -> addUsageRules(nativeRemedialAction.mrid(), linkedAeWithRa.getOrDefault(nativeRemedialAction.mrid(), Set.of()), linkedCoWithRa.getOrDefault(nativeRemedialAction.mrid(), Set.of()), cnecCreationContexts, remedialActionAdder, alterations, instant));
         remedialActionAdder.add();
 

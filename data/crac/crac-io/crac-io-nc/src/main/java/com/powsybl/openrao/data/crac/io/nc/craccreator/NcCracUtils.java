@@ -40,7 +40,7 @@ public final class NcCracUtils {
 
     public static Optional<String> createElementName(String nativeElementName, String tsoNameUrl) {
         if (nativeElementName != null) {
-            if (tsoNameUrl != null) {
+            if (tsoNameUrl != null && !tsoNameUrl.isEmpty()) {
                 return Optional.of(getUniqueName(tsoNameUrl, nativeElementName));
             }
             return Optional.of(nativeElementName);
