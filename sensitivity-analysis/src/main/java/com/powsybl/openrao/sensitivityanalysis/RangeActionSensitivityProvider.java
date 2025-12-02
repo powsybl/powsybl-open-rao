@@ -93,7 +93,6 @@ public class RangeActionSensitivityProvider extends LoadflowProvider {
             } else if (ra instanceof HvdcRangeAction hvdcRangeAction) {
                 HvdcLine hvdcLine = network.getHvdcLine(hvdcRangeAction.getNetworkElement().getId());
                 if (hvdcLine.getExtension(HvdcAngleDroopActivePowerControl.class) != null && hvdcLine.getExtension(HvdcAngleDroopActivePowerControl.class).isEnabled()) {
-                    TECHNICAL_LOGS.debug("Unable to compute sensitivity for ({}) because it's in AC emulation", hvdcRangeAction.getId());
                     continue;
                 }
                 sensitivityVariables.put(hvdcRangeAction.getNetworkElement().getId(), SensitivityVariableType.HVDC_LINE_ACTIVE_POWER);
