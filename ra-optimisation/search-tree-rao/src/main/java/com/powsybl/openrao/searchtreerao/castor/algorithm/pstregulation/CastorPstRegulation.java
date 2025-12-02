@@ -164,6 +164,7 @@ public final class CastorPstRegulation {
     }
 
     private static void applyOptimalRemedialActionsForState(Network networkClone, RaoResult raoResult, State state) {
+        // network actions need to be applied BEFORE range actions because to apply HVDC range actions we need to apply AC emulation deactivation network actions beforehand
         raoResult.getActivatedNetworkActionsDuringState(state).forEach(networkAction -> networkAction.apply(networkClone));
         raoResult.getActivatedRangeActionsDuringState(state).forEach(rangeAction -> rangeAction.apply(networkClone, raoResult.getOptimizedSetPointOnState(state, rangeAction)));
     }
