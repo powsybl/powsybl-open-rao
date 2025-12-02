@@ -14,12 +14,15 @@ import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.OptimizationStepsExecuted;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoPstRegulationParameters;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.pstregulation.CastorPstRegulation;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.pstregulation.PstRegulationResult;
@@ -45,6 +48,7 @@ import java.util.*;
 import java.util.concurrent.*;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.*;
+import static com.powsybl.openrao.searchtreerao.commons.HvdcUtils.getHvdcRangeActionsOnHvdcLineInAcEmulation;
 import static com.powsybl.openrao.searchtreerao.commons.RaoLogger.formatDoubleBasedOnMargin;
 import static com.powsybl.openrao.searchtreerao.commons.RaoLogger.getVirtualCostDetailed;
 import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.applyRemedialActions;
@@ -355,11 +359,20 @@ public class CastorFullOptimization {
 
         PreventiveOptimizationPerimeter optPerimeter = PreventiveOptimizationPerimeter.buildFromBasecaseScenario(stateTree.getBasecaseScenario(), crac, network, raoParameters, initialResult);
 
-        SearchTreeParameters searchTreeParameters = SearchTreeParameters.create()
+        SearchTreeParameters.SearchTreeParametersBuilder searchTreeParametersBuilder = SearchTreeParameters.create()
             .withConstantParametersOverAllRao(raoParameters, crac)
             .withTreeParameters(TreeParameters.buildForPreventivePerimeter(raoParameters))
-            .withUnoptimizedCnecParameters(UnoptimizedCnecParameters.build(raoParameters.getNotOptimizedCnecsParameters(), stateTree.getOperatorsNotSharingCras()))
-            .build();
+            .withUnoptimizedCnecParameters(UnoptimizedCnecParameters.build(raoParameters.getNotOptimizedCnecsParameters(), stateTree.getOperatorsNotSharingCras()));
+
+        if (!getHvdcRangeActionsOnHvdcLineInAcEmulation(crac.getHvdcRangeActions(), network).isEmpty()) {
+            LoadFlowAndSensitivityParameters loadFlowAndSensitivityParameters =
+                raoParameters.hasExtension(OpenRaoSearchTreeParameters.class)
+                    ? raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getLoadFlowAndSensitivityParameters()
+                    : new LoadFlowAndSensitivityParameters();
+            searchTreeParametersBuilder.withLoadFlowAndSensitivityParameters(loadFlowAndSensitivityParameters);
+        }
+
+        SearchTreeParameters searchTreeParameters = searchTreeParametersBuilder.build();
 
         Set<State> statesToOptimize = new HashSet<>(optPerimeter.getMonitoredStates());
         statesToOptimize.add(optPerimeter.getMainOptimizationState());
@@ -398,7 +411,7 @@ public class CastorFullOptimization {
                     if (autoState != null) {
                         previousStates.add(autoState);
                         appliedArasAndCras.addAppliedNetworkActions(autoState, postContingencyResults.get(autoState).optimizationResult().getActivatedNetworkActions());
-                        appliedArasAndCras.addAppliedRangeActions(autoState, postContingencyResults.get(autoState).optimizationResult().getOptimizedSetpointsOnState(autoState));
+                        appliedArasAndCras.addAppliedRangeActions(autoState, getAppliedRangeActionsAndSetPoint(autoState, postContingencyResults.get(autoState).optimizationResult()));
                         appliedNetworkActions.put(autoState, appliedArasAndCras.getAppliedNetworkActions(autoState));
                     }
                 }
@@ -407,7 +420,7 @@ public class CastorFullOptimization {
                     .forEach(cState -> {
                         previousStates.add(cState);
                         appliedArasAndCras.addAppliedNetworkActions(cState, postContingencyResults.get(cState).optimizationResult().getActivatedNetworkActions());
-                        appliedArasAndCras.addAppliedRangeActions(cState, postContingencyResults.get(cState).optimizationResult().getOptimizedSetpointsOnState(cState));
+                        appliedArasAndCras.addAppliedRangeActions(cState, getAppliedRangeActionsAndSetPoint(cState, postContingencyResults.get(cState).optimizationResult()));
                         appliedNetworkActions.put(cState, appliedArasAndCras.getAppliedNetworkActions(cState));
                     });
                 pstRegulationResult.regulatedTapPerPst().forEach((pstRangeAction, regulatedTap) -> appliedArasAndCras.addAppliedRangeAction(curativeState, pstRangeAction, pstRangeAction.convertTapToAngle(regulatedTap)));
@@ -435,6 +448,12 @@ public class CastorFullOptimization {
             }
         }
         return postRegulationPostContingencyResults;
+    }
+
+    private static Map<RangeAction<?>, Double> getAppliedRangeActionsAndSetPoint(State state, OptimizationResult optimizationResult) {
+        Map<RangeAction<?>, Double> optimizedRangeActions = new HashMap<>();
+        optimizationResult.getActivatedRangeActions(state).forEach(rangeAction -> optimizedRangeActions.put(rangeAction, optimizationResult.getOptimizedSetpoint(rangeAction, state)));
+        return optimizedRangeActions;
     }
 
     /**

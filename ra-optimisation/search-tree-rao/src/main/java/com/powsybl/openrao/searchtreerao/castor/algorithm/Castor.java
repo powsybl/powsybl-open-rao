@@ -50,18 +50,19 @@ public class Castor implements RaoProvider {
     }
 
     @Override
-    public String getVersion() {
-        return "1.0.0";
-    }
-
-    @Override
     public CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters parameters) {
         return run(raoInput, parameters, null);
     }
 
     @Override
     public CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters parameters, Instant targetEndInstant) {
-        RaoUtil.initData(raoInput, parameters);
+        try {
+            RaoUtil.initData(raoInput, parameters);
+        } catch (Exception e) {
+            String failure = String.format("Data initialisation failed: %s", e);
+            BUSINESS_LOGS.error(failure);
+            return CompletableFuture.completedFuture(new FailedRaoResultImpl(failure));
+        }
 
         // optimization is made on one given state only
         if (raoInput.getOptimizedState() != null) {

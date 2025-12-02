@@ -113,11 +113,12 @@ public class Leaf implements OptimizationResult {
 
         // apply Network Actions on initial network
         for (NetworkAction na : appliedNetworkActionsInPrimaryState) {
-            boolean applicationSuccess = na.apply(network);
+            boolean applicationSuccess = na.apply(network); // deactivate the ac emulation
             if (!applicationSuccess) {
                 throw new OpenRaoException(String.format("%s could not be applied on the network", na.getId()));
             }
         }
+
         this.status = Status.CREATED;
     }
 
@@ -193,10 +194,19 @@ public class Leaf implements OptimizationResult {
         if (status.equals(Status.EVALUATED) || status.equals(Status.OPTIMIZED)) {
             TECHNICAL_LOGS.debug("Optimizing leaf...");
 
+            // make a deep copy and change availableRangeAction
+            OptimizationPerimeter optimizationPerimeterWithFilteredHvdcRangeAction = searchTreeInput.getOptimizationPerimeter().copyWithFilteredAvailableHvdcRangeAction(network);
+
+            // check if there are still range actions to optimize
+            if (optimizationPerimeterWithFilteredHvdcRangeAction.getRangeActions().isEmpty()) {
+                TECHNICAL_LOGS.info("No range actions to optimize after filtering HVDC range actions");
+                return;
+            }
+
             // build input
             IteratingLinearOptimizerInput linearOptimizerInput = IteratingLinearOptimizerInput.create()
                     .withNetwork(network)
-                    .withOptimizationPerimeter(searchTreeInput.getOptimizationPerimeter())
+                    .withOptimizationPerimeter(optimizationPerimeterWithFilteredHvdcRangeAction)
                     .withInitialFlowResult(searchTreeInput.getInitialFlowResult())
                     .withPrePerimeterFlowResult(searchTreeInput.getPrePerimeterResult())
                     .withPrePerimeterSetpoints(prePerimeterSetpoints)
