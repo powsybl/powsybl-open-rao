@@ -3,56 +3,15 @@
 In this tutorial, we will see how to run a simple RAO from a network file and a CRAC. The CRAC will be created from
 scratch using the Java API so there is no need to import a CRAC file.
 
+## Link to github tutorial repo
+
+See [the github tutorial repo](https://github.com/farao-community/rao-example). 
+The code in the Main class is explained in this page.
+
 ## Set-up
 
-For this tutorial, we'll need Java 17, and we'll create a new project called `org.example` and work on its `Main` class.
-For everything to work properly, you also need to install the latest versions
-of [PowSyBl core](https://github.com/powsybl/powsybl-core),
-[PowSyBl Open Rao](https://github.com/powsybl/powsybl-open-rao) and
-[PowSyBl Open Load Flow (OLF)](https://github.com/powsybl/powsybl-open-loadflow).
-
-Start by creating a Maven `pom.xml` file and add the following dependencies:
-
-```xml
-<dependency>
-    <groupId>com.powsybl</groupId>
-    <artifactId>powsybl-starter</artifactId>
-    <version>2025.0.2</version>
-</dependency>
-```
-
-```xml
-<dependency>
-    <groupId>com.powsybl</groupId>
-    <artifactId>powsybl-open-rao</artifactId>
-    <version>6.5.1</version>
-</dependency>
-```
-
-```xml
-<dependency>
-    <groupId>ch.qos.logback</groupId>
-    <artifactId>logback-classic</artifactId>
-    <version>1.5.6</version>
-</dependency>
-```
-
-```xml
-<dependency>
-    <groupId>com.powsybl</groupId>
-    <artifactId>powsybl-ucte-converter</artifactId>
-    <version>6.7.2</version>
-    <scope>runtime</scope>
-</dependency>
-```
-
-```xml
-<dependency>
-   <groupId>com.google.re2j</groupId>
-   <artifactId>re2j</artifactId>
-   <version>1.8</version>
-</dependency>
-```
+For this tutorial, we'll need Java 21, and we created a new project called `rao-example` and work on its `Main` class.
+The dependencies are defined in the [pom.xml file](https://github.com/farao-community/rao-example/blob/main/pom.xml).
 
 ## Import network file
 
@@ -62,8 +21,8 @@ Netherlands (node _NNL1AA1_) and the consumption (1000 MW) is in France (node _F
 
 ![Basecase network](../_static/img/tutorial/basecase.svg){.forced-white-background}
 
-We will create a UCTE file to model this network, so it can be processed and imported for the RAO. Copy and paste the
-network data in a file named `12Nodes.uct` that you shall store in the resources directory of the project.
+We will create a UCTE file to model this network, so it can be processed and imported for the RAO. The
+network data in a file named `12Nodes.uct` that is stored in the [resources directory of the project](https://github.com/farao-community/rao-example/tree/main/src/main/resources).
 
 ```
 ##C 2007.05.01
@@ -610,7 +569,7 @@ import com.powsybl.sensitivity.SensitivityAnalysisParameters;
 
          // Run RAO
          RaoInput.RaoInputBuilder raoInputBuilder = RaoInput.build(network, crac);
-         RaoResult raoResult = Rao.find().run(raoInputBuilder.build(), raoParameters);
+         RaoResult raoResult = Rao.find("SearchTreeRao").run(raoInputBuilder.build(), raoParameters);
       }
    }
 
