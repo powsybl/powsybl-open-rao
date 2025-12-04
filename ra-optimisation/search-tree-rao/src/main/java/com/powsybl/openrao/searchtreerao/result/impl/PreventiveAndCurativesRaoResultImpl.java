@@ -335,7 +335,7 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
             postContingencyResults.entrySet().stream()
                 .filter(stateAndResult -> stateAndResult.getKey().getInstant().equals(optimizedInstant))
                 .forEach(stateAndResult -> totalCost.set(operator.apply(totalCost.get(),
-                    //for costly use optim result; for max min margin usel prePerim result
+                    //for costly use optim result; for max min margin use prePerim result
                     raoParameters.getObjectiveFunctionParameters().getType().costOptimization() ?
                         stateAndResult.getValue().optimizationResult().getFunctionalCost() :
                         stateAndResult.getValue().prePerimeterResultForAllFollowingStates().getFunctionalCost()))
