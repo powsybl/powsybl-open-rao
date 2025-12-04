@@ -56,6 +56,7 @@ public class CracJsonSerializerModule extends SimpleModule {
         this.addSerializer(StandardRange.class, new StandardRangeSerializer());
         this.addSerializer(NetworkAction.class, new NetworkActionSerializer());
         this.addSerializer(TerminalsConnectionAction.class, new TerminalsConnectionActionSerializer());
+        this.addSerializer(HvdcAction.class, new AcEmulationDeactivationActionSerializer());
         this.addSerializer(SwitchAction.class, new SwitchActionSerializer());
         this.addSerializer(PhaseTapChangerTapPositionAction.class, new PhaseTapChangerTapPositionActionSerializer());
         this.addSerializer(GeneratorAction.class, new GeneratorActionSerializer());

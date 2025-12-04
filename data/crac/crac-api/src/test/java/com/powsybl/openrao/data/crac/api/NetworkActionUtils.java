@@ -142,6 +142,11 @@ public final class NetworkActionUtils {
         }
 
         @Override
+        public void addUsageRule(UsageRule usageRule) {
+            // not used
+        }
+
+        @Override
         public <E extends Extension<NetworkAction>> void addExtension(Class<? super E> aClass, E e) {
             //not used
         }
@@ -165,6 +170,7 @@ public final class NetworkActionUtils {
         public <E extends Extension<NetworkAction>> Collection<E> getExtensions() {
             return null;
         }
+
     }
 
     public static class NetworkElementImplTest implements NetworkElement {

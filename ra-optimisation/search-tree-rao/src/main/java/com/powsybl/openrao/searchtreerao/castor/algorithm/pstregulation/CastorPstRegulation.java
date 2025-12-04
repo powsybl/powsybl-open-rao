@@ -24,6 +24,7 @@ import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoPstRegulationParameters;
 import com.powsybl.openrao.searchtreerao.result.impl.PostPerimeterResult;
+import com.powsybl.openrao.searchtreerao.result.impl.SkippedOptimizationResultImpl;
 import com.powsybl.openrao.util.AbstractNetworkPool;
 
 import java.util.ArrayList;
@@ -112,6 +113,7 @@ public final class CastorPstRegulation {
         return lastInstant.isCurative() ?
             crac.getStates(lastInstant).stream()
                 .filter(postContingencyResults::containsKey)
+                .filter(curativeState -> !(postContingencyResults.get(curativeState).optimizationResult() instanceof SkippedOptimizationResultImpl))
                 .map(curativeState -> getPstRegulationInput(curativeState, crac, postContingencyResults.get(curativeState), unit, rangeActionsToRegulate, linesInSeriesWithPst, network))
                 .filter(Optional::isPresent)
                 .map(Optional::get)
@@ -164,6 +166,7 @@ public final class CastorPstRegulation {
     }
 
     private static void applyOptimalRemedialActionsForState(Network networkClone, RaoResult raoResult, State state) {
+        // network actions need to be applied BEFORE range actions because to apply HVDC range actions we need to apply AC emulation deactivation network actions beforehand
         raoResult.getActivatedNetworkActionsDuringState(state).forEach(networkAction -> networkAction.apply(networkClone));
         raoResult.getActivatedRangeActionsDuringState(state).forEach(rangeAction -> rangeAction.apply(networkClone, raoResult.getOptimizedSetPointOnState(state, rangeAction)));
     }
@@ -236,8 +239,9 @@ public final class CastorPstRegulation {
                 }
             }
         );
+        String allShiftedPstsDetails = shiftDetails.isEmpty() ? "no PST shifted" : String.join(", ", shiftDetails);
         if (!shiftDetails.isEmpty()) {
-            BUSINESS_LOGS.info("FlowCNEC '{}' of contingency scenario '{}' is overloaded and is the most limiting element, PST regulation has been triggered: {}", mostLimitingElement.getId(), contingency.getName().orElse(contingency.getId()), String.join(", ", shiftDetails));
+            BUSINESS_LOGS.info("FlowCNEC '{}' of contingency scenario '{}' is overloaded and is the most limiting element, PST regulation has been triggered: {}", mostLimitingElement.getId(), contingency.getName().orElse(contingency.getId()), allShiftedPstsDetails);
         }
     }
 }
