@@ -200,6 +200,8 @@ public class CastorFullOptimization {
             boolean logFinalResultsOutsideOfSecondPreventive = true;
             // Run second preventive when necessary
             CastorSecondPreventive castorSecondPreventive = new CastorSecondPreventive(crac, raoParameters, network, stateTree, toolProvider, targetEndInstant);
+
+            // define variables to set with second preventive results only if it improves first
             PostPerimeterResult finalSecondPreventiveResult = postPreventiveResult;
             PostPerimeterResult intermediateSecondPreventiveResult = postPreventiveResult;
             Map<State, PostPerimeterResult> finalPostContingencyResults = new HashMap<>(postContingencyResults);
