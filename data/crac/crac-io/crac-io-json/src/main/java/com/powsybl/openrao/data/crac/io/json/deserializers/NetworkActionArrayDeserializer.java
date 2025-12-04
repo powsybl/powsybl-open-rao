@@ -104,6 +104,10 @@ public final class NetworkActionArrayDeserializer {
                         jsonParser.nextToken();
                         TerminalsConnectionActionArrayDeserializer.deserialize(jsonParser, networkActionAdder, networkElementsNamesPerId);
                         break;
+                    case JsonSerializationConstants.AC_EMULATION_DEACTIVATION_ACTIONS:
+                        jsonParser.nextToken();
+                        AcEmulationDeactivationActionDeserializer.deserialize(jsonParser, networkActionAdder, networkElementsNamesPerId);
+                        break;
                     case JsonSerializationConstants.SWITCH_ACTIONS:
                         jsonParser.nextToken();
                         SwitchActionArrayDeserializer.deserialize(jsonParser, networkActionAdder, networkElementsNamesPerId);

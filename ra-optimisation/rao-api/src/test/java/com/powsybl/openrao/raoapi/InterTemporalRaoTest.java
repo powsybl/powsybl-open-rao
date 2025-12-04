@@ -68,7 +68,6 @@ class InterTemporalRaoTest {
         // find rao
         InterTemporalRao.Runner defaultRao = InterTemporalRao.find(null, List.of(new InterTemporalRaoProviderMock()), platformConfig);
         assertEquals("RandomInterTemporalRAO", defaultRao.getName());
-        assertEquals("1.0", defaultRao.getVersion());
 
         // run rao
         InterTemporalRaoResult result = defaultRao.run(raoInput, new RaoParameters());
@@ -87,7 +86,6 @@ class InterTemporalRaoTest {
         // case with two providers where one the two RAOs is specifically selected
         InterTemporalRao.Runner definedRao = InterTemporalRao.find("GlobalRAOptimizer", List.of(new InterTemporalRaoProviderMock(), new AnotherInterTemporalRaoProviderMock()), platformConfig);
         assertEquals("GlobalRAOptimizer", definedRao.getName());
-        assertEquals("2.3", definedRao.getVersion());
     }
 
     @Test
@@ -103,7 +101,6 @@ class InterTemporalRaoTest {
         platformConfig.createModuleConfig("rao").setStringProperty("default", "GlobalRAOptimizer");
         InterTemporalRao.Runner globalRaOptimizer = InterTemporalRao.find(null, List.of(new InterTemporalRaoProviderMock(), new AnotherInterTemporalRaoProviderMock()), platformConfig);
         assertEquals("GlobalRAOptimizer", globalRaOptimizer.getName());
-        assertEquals("2.3", globalRaOptimizer.getVersion());
     }
 
     @Test
