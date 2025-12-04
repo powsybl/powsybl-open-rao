@@ -30,6 +30,7 @@ import com.powsybl.openrao.data.crac.api.usagerule.OnConstraint;
 import com.powsybl.openrao.data.crac.api.usagerule.OnContingencyState;
 import com.powsybl.openrao.data.crac.api.usagerule.OnFlowConstraintInCountry;
 import com.powsybl.openrao.data.crac.api.usagerule.OnInstant;
+import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
 import com.powsybl.openrao.data.crac.io.cim.parameters.CimCracCreationParameters;
 import com.powsybl.openrao.data.crac.io.cim.parameters.RangeActionSpeed;
 import com.powsybl.openrao.data.crac.io.cim.parameters.VoltageCnecsCreationParameters;
@@ -1236,5 +1237,84 @@ class CimCracCreatorTest {
         assertEquals(4, cracCreationContext.getCreationReport().getReport().size());
         assert cracCreationContext.getCreationReport().getReport().contains("[ALTERED] RemedialAction_Series \"HVDC-direction12\" was modified: HVDC line BBE2AA12 FFR3AA12 1 has terminals 1 and 2 disconnected; Contingencies Co-2 were not imported. ");
         assert cracCreationContext.getCreationReport().getReport().contains("[ALTERED] RemedialAction_Series \"HVDC-direction11\" was modified: HVDC line BBE2AA12 FFR3AA12 1 has terminals 1 and 2 disconnected; Contingencies Co-2 were not imported. ");
+    }
+
+    @Test
+    void importCimCracWithPreventiveHvdcRa() throws IOException {
+        Network network = loadNetworkWithHvdc();
+        setUpWithSpeed("/cracs/CIM_with_preventive_HVDC.xml", network, OffsetDateTime.parse("2021-04-01T23:00Z"), Set.of(new RangeActionSpeed("BBE2AA11 FFR3AA11 1", 1), new RangeActionSpeed("BBE2AA12 FFR3AA12 1", 2)));
+        Crac crac = cracCreationContext.getCrac();
+
+        assertEquals(2, crac.getHvdcRangeActions().size());
+
+        HvdcRangeAction hvdcRangeAction1 = crac.getHvdcRangeAction("HVDC-direction11 + HVDC-direction12 - BBE2AA11 FFR3AA11 1");
+        assertEquals(1, hvdcRangeAction1.getRanges().size());
+        assertEquals(-4000, hvdcRangeAction1.getRanges().iterator().next().getMin());
+        assertEquals(5000, hvdcRangeAction1.getRanges().iterator().next().getMax());
+        assertEquals(Optional.of("BBE2AA11 FFR3AA11 1 + BBE2AA12 FFR3AA12 1"), hvdcRangeAction1.getGroupId());
+        assertEquals(1, hvdcRangeAction1.getUsageRules().size());
+        assertEquals("preventive", hvdcRangeAction1.getUsageRules().iterator().next().getInstant().getId());
+
+        HvdcRangeAction hvdcRangeAction2 = crac.getHvdcRangeAction("HVDC-direction11 + HVDC-direction12 - BBE2AA12 FFR3AA12 1");
+        assertEquals(1, hvdcRangeAction2.getRanges().size());
+        assertEquals(-3000, hvdcRangeAction2.getRanges().iterator().next().getMin());
+        assertEquals(3500, hvdcRangeAction2.getRanges().iterator().next().getMax());
+        assertEquals(Optional.of("BBE2AA11 FFR3AA11 1 + BBE2AA12 FFR3AA12 1"), hvdcRangeAction2.getGroupId());
+        assertEquals(1, hvdcRangeAction2.getUsageRules().size());
+        assertEquals("preventive", hvdcRangeAction2.getUsageRules().iterator().next().getInstant().getId());
+    }
+
+    @Test
+    void importCimCracWithCurativeHvdcRa() throws IOException {
+        Network network = loadNetworkWithHvdc();
+        setUpWithSpeed("/cracs/CIM_with_curative_HVDC.xml", network, OffsetDateTime.parse("2021-04-01T23:00Z"), Set.of(new RangeActionSpeed("BBE2AA11 FFR3AA11 1", 1), new RangeActionSpeed("BBE2AA12 FFR3AA12 1", 2)));
+        Crac crac = cracCreationContext.getCrac();
+
+        assertEquals(2, crac.getHvdcRangeActions().size());
+
+        HvdcRangeAction hvdcRangeAction1 = crac.getHvdcRangeAction("HVDC-direction11 + HVDC-direction12 - BBE2AA11 FFR3AA11 1");
+        assertEquals(1, hvdcRangeAction1.getRanges().size());
+        assertEquals(-4000, hvdcRangeAction1.getRanges().iterator().next().getMin());
+        assertEquals(5000, hvdcRangeAction1.getRanges().iterator().next().getMax());
+        assertEquals(Optional.of("BBE2AA11 FFR3AA11 1 + BBE2AA12 FFR3AA12 1"), hvdcRangeAction1.getGroupId());
+        assertEquals(1, hvdcRangeAction1.getUsageRules().size());
+        assertEquals("curative", hvdcRangeAction1.getUsageRules().iterator().next().getInstant().getId());
+
+        HvdcRangeAction hvdcRangeAction2 = crac.getHvdcRangeAction("HVDC-direction11 + HVDC-direction12 - BBE2AA12 FFR3AA12 1");
+        assertEquals(1, hvdcRangeAction2.getRanges().size());
+        assertEquals(-3000, hvdcRangeAction2.getRanges().iterator().next().getMin());
+        assertEquals(3500, hvdcRangeAction2.getRanges().iterator().next().getMax());
+        assertEquals(Optional.of("BBE2AA11 FFR3AA11 1 + BBE2AA12 FFR3AA12 1"), hvdcRangeAction2.getGroupId());
+        assertEquals(1, hvdcRangeAction2.getUsageRules().size());
+        assertEquals("curative", hvdcRangeAction2.getUsageRules().iterator().next().getInstant().getId());
+    }
+
+    @Test
+    void importCimCracWithPreventiveAndCurativeHvdcRa() throws IOException {
+        Network network = loadNetworkWithHvdc();
+        setUpWithSpeed("/cracs/CIM_with_preventive_and_curative_HVDC.xml", network, OffsetDateTime.parse("2021-04-01T23:00Z"), Set.of(new RangeActionSpeed("BBE2AA11 FFR3AA11 1", 1), new RangeActionSpeed("BBE2AA12 FFR3AA12 1", 2)));
+        Crac crac = cracCreationContext.getCrac();
+
+        assertEquals(2, crac.getHvdcRangeActions().size());
+
+        HvdcRangeAction hvdcRangeAction1 = crac.getHvdcRangeAction("HVDC-direction11 + HVDC-direction12 - BBE2AA11 FFR3AA11 1");
+        assertEquals(1, hvdcRangeAction1.getRanges().size());
+        assertEquals(-4000, hvdcRangeAction1.getRanges().iterator().next().getMin());
+        assertEquals(5000, hvdcRangeAction1.getRanges().iterator().next().getMax());
+        assertEquals(Optional.of("BBE2AA11 FFR3AA11 1 + BBE2AA12 FFR3AA12 1"), hvdcRangeAction1.getGroupId());
+        List<UsageRule> usageRules1 = hvdcRangeAction1.getUsageRules().stream().sorted(Comparator.comparing(ur -> ur.getInstant().getId())).toList();
+        assertEquals(2, usageRules1.size());
+        assertEquals("curative", usageRules1.getFirst().getInstant().getId());
+        assertEquals("preventive", usageRules1.getLast().getInstant().getId());
+
+        HvdcRangeAction hvdcRangeAction2 = crac.getHvdcRangeAction("HVDC-direction11 + HVDC-direction12 - BBE2AA12 FFR3AA12 1");
+        assertEquals(1, hvdcRangeAction2.getRanges().size());
+        assertEquals(-3000, hvdcRangeAction2.getRanges().iterator().next().getMin());
+        assertEquals(3500, hvdcRangeAction2.getRanges().iterator().next().getMax());
+        assertEquals(Optional.of("BBE2AA11 FFR3AA11 1 + BBE2AA12 FFR3AA12 1"), hvdcRangeAction2.getGroupId());
+        List<UsageRule> usageRules2 = hvdcRangeAction2.getUsageRules().stream().sorted(Comparator.comparing(ur -> ur.getInstant().getId())).toList();
+        assertEquals(2, usageRules2.size());
+        assertEquals("curative", usageRules2.getFirst().getInstant().getId());
+        assertEquals("preventive", usageRules2.getLast().getInstant().getId());
     }
 }
