@@ -62,7 +62,7 @@ class PtdfSensitivityProviderTest {
         assertTrue(sensitivityFactors.stream().allMatch(sensitivityFactor -> sensitivityFactor.getFunctionType().equals(SensitivityFunctionType.BRANCH_ACTIVE_POWER_1) || sensitivityFactor.getFunctionType().equals(SensitivityFunctionType.BRANCH_ACTIVE_POWER_2)));
 
         sensitivityFactors = ptdfSensitivityProvider.getContingencyFactors(network, List.of(new Contingency(crac.getContingencies().iterator().next().getId(), new ArrayList<>())));
-        assertEquals(12, sensitivityFactors.size()); //12 and not 16 because in contingency FR1 FR2, monitor just side one of network elemeent "FFR2AA1  DDE3AA1  1".
+        assertEquals(12, sensitivityFactors.size()); // 12 and not 16 because in contingency FR1 FR2, monitor just side one of network elemeent "FFR2AA1  DDE3AA1  1".
         assertTrue(sensitivityFactors.stream().anyMatch(sensitivityFactor -> sensitivityFactor.getFunctionId().contains("FFR2AA1  DDE3AA1  1")
             && sensitivityFactor.getVariableId().contains("10YCB-GERMANY--8")));
     }
@@ -77,7 +77,7 @@ class PtdfSensitivityProviderTest {
         assertTrue(sensitivityFactors.stream().allMatch(sensitivityFactor -> sensitivityFactor.getFunctionType().equals(SensitivityFunctionType.BRANCH_CURRENT_1) || sensitivityFactor.getFunctionType().equals(SensitivityFunctionType.BRANCH_CURRENT_2)));
 
         sensitivityFactors = ptdfSensitivityProvider.getContingencyFactors(network, List.of(new Contingency(crac.getContingencies().iterator().next().getId(), new ArrayList<>())));
-        assertEquals(12, sensitivityFactors.size()); //12 and not 16 because in contingency FR1 FR2, monitor just side one of network elemeent "FFR2AA1  DDE3AA1  1".
+        assertEquals(12, sensitivityFactors.size()); // 12 and not 16 because in contingency FR1 FR2, monitor just side one of network elemeent "FFR2AA1  DDE3AA1  1".
         assertTrue(sensitivityFactors.stream().anyMatch(sensitivityFactor -> sensitivityFactor.getFunctionId().contains("FFR2AA1  DDE3AA1  1")
             && sensitivityFactor.getVariableId().contains("10YCB-GERMANY--8")));
     }

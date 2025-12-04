@@ -98,7 +98,7 @@ public abstract class AbstractSimpleSensitivityProvider implements CnecSensitivi
         this.afterContingencyOnly = false;
     }
 
-    Set<SensitivityFunctionType> getSensitivityFunctionTypes(Set<TwoSides> sides) {
+    protected Set<SensitivityFunctionType> getSensitivityFunctionTypes(Set<TwoSides> sides) {
         Set<SensitivityFunctionType> sensitivityFunctionTypes = new HashSet<>();
         if (factorsInMegawatt && sides.contains(TwoSides.ONE)) {
             sensitivityFunctionTypes.add(SensitivityFunctionType.BRANCH_ACTIVE_POWER_1);
