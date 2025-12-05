@@ -109,7 +109,10 @@ public final class ToolProvider {
             .withAppliedRemedialActions(appliedRemedialActions)
             .withOutageInstant(outageInstant);
 
-        builder.withLoadflow(cnecs, computationUnits);
+        if (!getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters().isDc()) {
+            // TODO: why ? only if in AC ?
+            builder.withLoadflow(cnecs, Collections.singleton(Unit.AMPERE));
+        }
 
         if (computePtdfs && computeLoopFlows) {
             Set<String> eic = getEicForObjectiveFunction();
