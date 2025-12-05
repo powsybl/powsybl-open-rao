@@ -127,11 +127,13 @@ public class MaxMinMarginFiller implements ProblemFiller {
 
             if (minFlow.isPresent()) {
                 OpenRaoMPConstraint minimumMarginNegative = linearProblem.addMinimumMarginConstraint(-linearProblem.infinity(), -minFlow.get(), cnec, side, LinearProblem.MarginExtension.BELOW_THRESHOLD, Optional.ofNullable(timestamp));
+                minimumMarginNegative.setCoefficient(minimumMarginVariable, 1);
                 minimumMarginNegative.setCoefficient(flowVariable, -1);
             }
 
             if (maxFlow.isPresent()) {
                 OpenRaoMPConstraint minimumMarginPositive = linearProblem.addMinimumMarginConstraint(-linearProblem.infinity(), maxFlow.get(), cnec, side, LinearProblem.MarginExtension.ABOVE_THRESHOLD, Optional.ofNullable(timestamp));
+                minimumMarginPositive.setCoefficient(minimumMarginVariable, 1);
                 minimumMarginPositive.setCoefficient(flowVariable, 1);
             }
         }));
