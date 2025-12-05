@@ -51,7 +51,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters;
-import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.getFlowUnitMultiplier;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**

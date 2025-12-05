@@ -281,24 +281,24 @@ class LoopFlowComputationImplTest {
         SensitivityAnalysisParameters sensitivityAnalysisParameters = new SensitivityAnalysisParameters();
         sensitivityAnalysisParameters.getLoadFlowParameters().setDc(false);
         LoopFlowResult loopFlowResult = new LoopFlowComputationImpl(glsk, referenceProgram, Unit.AMPERE).calculateLoopFlows(network, "OpenLoadFlow", sensitivityAnalysisParameters, crac.getFlowCnecs(), crac.getOutageInstant());
-        double factor_MW_to_A = 1000./(Math.sqrt(3.)*400.); //all cnecs' nominal voltage is 400MW
-        assertEquals(-20.*factor_MW_to_A, loopFlowResult.getLoopFlow(crac.getFlowCnec("FR-BE1"), TwoSides.ONE, Unit.AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(80.*factor_MW_to_A, loopFlowResult.getLoopFlow(crac.getFlowCnec("BE1-BE2"), TwoSides.ONE, Unit.AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(-20.*factor_MW_to_A, loopFlowResult.getLoopFlow(crac.getFlowCnec("BE2-NL"), TwoSides.ONE, Unit.AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(20.*factor_MW_to_A, loopFlowResult.getLoopFlow(crac.getFlowCnec("FR-DE"), TwoSides.TWO, Unit.AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(20.*factor_MW_to_A, loopFlowResult.getLoopFlow(crac.getFlowCnec("DE-NL"), TwoSides.TWO, Unit.AMPERE), DOUBLE_TOLERANCE);
+        double factorMwToA = 1000. / (Math.sqrt(3.) * 400.); //all cnecs' nominal voltage is 400MW
+        assertEquals(-20. * factorMwToA, loopFlowResult.getLoopFlow(crac.getFlowCnec("FR-BE1"), TwoSides.ONE, Unit.AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(80. * factorMwToA, loopFlowResult.getLoopFlow(crac.getFlowCnec("BE1-BE2"), TwoSides.ONE, Unit.AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(-20. * factorMwToA, loopFlowResult.getLoopFlow(crac.getFlowCnec("BE2-NL"), TwoSides.ONE, Unit.AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(20. * factorMwToA, loopFlowResult.getLoopFlow(crac.getFlowCnec("FR-DE"), TwoSides.TWO, Unit.AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(20. * factorMwToA, loopFlowResult.getLoopFlow(crac.getFlowCnec("DE-NL"), TwoSides.TWO, Unit.AMPERE), DOUBLE_TOLERANCE);
 
-        assertEquals(40.*factor_MW_to_A, loopFlowResult.getCommercialFlow(crac.getFlowCnec("FR-BE1"), TwoSides.ONE, Unit.AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(40.*factor_MW_to_A, loopFlowResult.getCommercialFlow(crac.getFlowCnec("BE1-BE2"), TwoSides.ONE, Unit.AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(40.*factor_MW_to_A, loopFlowResult.getCommercialFlow(crac.getFlowCnec("BE2-NL"), TwoSides.ONE, Unit.AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(60.*factor_MW_to_A, loopFlowResult.getCommercialFlow(crac.getFlowCnec("FR-DE"), TwoSides.TWO, Unit.AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(60.*factor_MW_to_A, loopFlowResult.getCommercialFlow(crac.getFlowCnec("DE-NL"), TwoSides.TWO, Unit.AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(40. * factorMwToA, loopFlowResult.getCommercialFlow(crac.getFlowCnec("FR-BE1"), TwoSides.ONE, Unit.AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(40. * factorMwToA, loopFlowResult.getCommercialFlow(crac.getFlowCnec("BE1-BE2"), TwoSides.ONE, Unit.AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(40. * factorMwToA, loopFlowResult.getCommercialFlow(crac.getFlowCnec("BE2-NL"), TwoSides.ONE, Unit.AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(60. * factorMwToA, loopFlowResult.getCommercialFlow(crac.getFlowCnec("FR-DE"), TwoSides.TWO, Unit.AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(60. * factorMwToA, loopFlowResult.getCommercialFlow(crac.getFlowCnec("DE-NL"), TwoSides.TWO, Unit.AMPERE), DOUBLE_TOLERANCE);
 
-        assertEquals(20.*factor_MW_to_A, loopFlowResult.getReferenceFlow(crac.getFlowCnec("FR-BE1"), TwoSides.ONE, Unit.AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(120.*factor_MW_to_A, loopFlowResult.getReferenceFlow(crac.getFlowCnec("BE1-BE2"), TwoSides.ONE, Unit.AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(20.*factor_MW_to_A, loopFlowResult.getReferenceFlow(crac.getFlowCnec("BE2-NL"), TwoSides.ONE, Unit.AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(80.*factor_MW_to_A, loopFlowResult.getReferenceFlow(crac.getFlowCnec("FR-DE"), TwoSides.TWO, Unit.AMPERE), DOUBLE_TOLERANCE);
-        assertEquals(80.*factor_MW_to_A, loopFlowResult.getReferenceFlow(crac.getFlowCnec("DE-NL"), TwoSides.TWO, Unit.AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(20. * factorMwToA, loopFlowResult.getReferenceFlow(crac.getFlowCnec("FR-BE1"), TwoSides.ONE, Unit.AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(120. * factorMwToA, loopFlowResult.getReferenceFlow(crac.getFlowCnec("BE1-BE2"), TwoSides.ONE, Unit.AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(20. * factorMwToA, loopFlowResult.getReferenceFlow(crac.getFlowCnec("BE2-NL"), TwoSides.ONE, Unit.AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(80. * factorMwToA, loopFlowResult.getReferenceFlow(crac.getFlowCnec("FR-DE"), TwoSides.TWO, Unit.AMPERE), DOUBLE_TOLERANCE);
+        assertEquals(80. * factorMwToA, loopFlowResult.getReferenceFlow(crac.getFlowCnec("DE-NL"), TwoSides.TWO, Unit.AMPERE), DOUBLE_TOLERANCE);
 
         // if we try to get result in unit other than objective function unit => return null
         assertNull(loopFlowResult.getLoopFlow(crac.getFlowCnec("DE-NL"), TwoSides.TWO, Unit.MEGAWATT));

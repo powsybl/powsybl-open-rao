@@ -72,7 +72,7 @@ public class LoopFlowResult {
         return loopFlowMap.get(cnec).get(side).get(unit).getLoopFlow();
     }
 
-    public Double getCommercialFlow(BranchCnec<?> cnec, TwoSides side, Unit unit ) {
+    public Double getCommercialFlow(BranchCnec<?> cnec, TwoSides side, Unit unit) {
         if (!loopFlowMap.containsKey(cnec) || !loopFlowMap.get(cnec).containsKey(side) || !loopFlowMap.get(cnec).get(side).containsKey(unit)) {
             throw new OpenRaoException(String.format("No commercial flow value found for cnec %s on side %s in %s", cnec.getId(), side, unit));
         }
