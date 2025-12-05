@@ -99,6 +99,8 @@ class FlowResultAdapterImplTest {
 
         assertEquals(20., flowResult.getPtdfZonalSum(cnec1, ONE), DOUBLE_TOLERANCE);
         assertEquals(300., flowResult.getCommercialFlow(cnec2, TWO, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        Exception e = assertThrows(OpenRaoException.class, () -> flowResult.getCommercialFlow(cnec2, TWO, Unit.AMPERE));
+        assertEquals("No commercial flow on the CNEC null on side TWO in A", e.getMessage());
     }
 
     @Test
@@ -118,6 +120,8 @@ class FlowResultAdapterImplTest {
 
         assertEquals(20., flowResult.getPtdfZonalSum(cnec1, ONE), DOUBLE_TOLERANCE);
         assertEquals(300., flowResult.getCommercialFlow(cnec2, TWO, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        Exception e = assertThrows(OpenRaoException.class, () -> flowResult.getCommercialFlow(cnec2, TWO, Unit.AMPERE));
+        assertEquals("No commercial flow on the CNEC null on side TWO in A", e.getMessage());
     }
 
     @Test
