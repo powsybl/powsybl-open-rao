@@ -11,7 +11,6 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Identifiable;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoCostlyMinMarginParameters;
-import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPConstraint;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPVariable;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem;
@@ -24,8 +23,6 @@ import java.util.Comparator;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
-
-import static com.powsybl.openrao.commons.Unit.MEGAWATT;
 
 /**
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
@@ -93,7 +90,7 @@ public class MaxMinMarginFiller implements ProblemFiller {
     /**
      * Build the minimum margin variable MM.
      * MM represents the smallest margin of all Cnecs.
-     * It is given in MEGAWATT.
+     * It is given in the objective function unit.
      */
     private void buildMinimumMarginVariable(LinearProblem linearProblem, Set<FlowCnec> validFlowCnecs) {
         if (!validFlowCnecs.isEmpty()) {
@@ -108,18 +105,14 @@ public class MaxMinMarginFiller implements ProblemFiller {
     /**
      * Build two minimum margin constraints for each Cnec c.
      * The minimum margin constraints ensure that the minimum margin variable is below
-     * the margin of each Cnec. They consist in a linear equivalent of the definitilon
+     * the margin of each Cnec. They consist in a linear equivalent of the definition
      * of the min margin : MM = min{c in CNEC} margin[c].
      * <p>
-     * For each Cnec c, the constraints are (if the max margin is defined in MEGAWATT) :
+     * For each Cnec c, the constraints are (the max margin is defined in the objective function unit) :
      * <p>
      * MM <= fmax[c] - F[c]    (ABOVE_THRESHOLD)
      * MM <= F[c] - fmin[c]    (BELOW_THRESHOLD)
      * <p>
-     * For each Cnec c, the constraints are (if the max margin is defined in AMPERE) :
-     * <p>
-     * MM <= (fmax[c] - F[c]) * 1000 / (Unom * sqrt(3))     (ABOVE_THRESHOLD)
-     * MM <= (F[c] - fmin[c]) * 1000 / (Unom * sqrt(3))     (BELOW_THRESHOLD)
      */
     private void buildMinimumMarginConstraints(LinearProblem linearProblem, Set<FlowCnec> validFlowCnecs) {
         OpenRaoMPVariable minimumMarginVariable = linearProblem.getMinimumMarginVariable(Optional.ofNullable(timestamp));
@@ -129,19 +122,16 @@ public class MaxMinMarginFiller implements ProblemFiller {
 
             Optional<Double> minFlow;
             Optional<Double> maxFlow;
-            minFlow = cnec.getLowerBound(side, MEGAWATT);
-            maxFlow = cnec.getUpperBound(side, MEGAWATT);
-            double unitConversionCoefficient = RaoUtil.getFlowUnitMultiplier(cnec, side, unit, MEGAWATT);
+            minFlow = cnec.getLowerBound(side, unit);
+            maxFlow = cnec.getUpperBound(side, unit);
 
             if (minFlow.isPresent()) {
                 OpenRaoMPConstraint minimumMarginNegative = linearProblem.addMinimumMarginConstraint(-linearProblem.infinity(), -minFlow.get(), cnec, side, LinearProblem.MarginExtension.BELOW_THRESHOLD, Optional.ofNullable(timestamp));
-                minimumMarginNegative.setCoefficient(minimumMarginVariable, unitConversionCoefficient);
                 minimumMarginNegative.setCoefficient(flowVariable, -1);
             }
 
             if (maxFlow.isPresent()) {
                 OpenRaoMPConstraint minimumMarginPositive = linearProblem.addMinimumMarginConstraint(-linearProblem.infinity(), maxFlow.get(), cnec, side, LinearProblem.MarginExtension.ABOVE_THRESHOLD, Optional.ofNullable(timestamp));
-                minimumMarginPositive.setCoefficient(minimumMarginVariable, unitConversionCoefficient);
                 minimumMarginPositive.setCoefficient(flowVariable, 1);
             }
         }));
@@ -149,8 +139,10 @@ public class MaxMinMarginFiller implements ProblemFiller {
 
     /**
      * Add in the objective function of the linear problem the min Margin.
-     * <p>
-     * min(-MM)
+     * <ul>
+     *     <li> min(-MM) for max min margin optimization
+     *     <li> min(shiftedViolationPenalty * MMV) for costly optimization
+     * <ul>
      */
     private void fillObjectiveWithMinMargin(LinearProblem linearProblem) {
         if (costOptimization) {

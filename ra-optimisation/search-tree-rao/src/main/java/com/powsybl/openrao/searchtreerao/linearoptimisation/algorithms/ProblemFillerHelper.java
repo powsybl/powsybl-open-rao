@@ -122,7 +122,8 @@ public final class ProblemFillerHelper {
                 input.initialFlowResult(),
                 parameters.getLoopFlowParameters(),
                 parameters.getLoopFlowParametersExtension(),
-                timestamp
+                timestamp,
+                parameters.getObjectiveFunctionUnit()
             );
             problemFillers.add(maxLoopFlowFiller);
         }
@@ -135,7 +136,8 @@ public final class ProblemFillerHelper {
                 input.optimizationPerimeter().getFlowCnecs(),
                 input.prePerimeterFlowResult(),
                 parameters.getUnoptimizedCnecParameters(),
-                timestamp
+                timestamp,
+                parameters.getObjectiveFunctionUnit()
             );
             problemFillers.add(unoptimizedCnecFiller);
         }
