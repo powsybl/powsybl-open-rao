@@ -104,7 +104,7 @@ public class FlowResultImpl implements FlowResult {
         if (fixedCommercialFlows != null) {
             return fixedCommercialFlows.getCommercialFlow(flowCnec, side, unit);
         } else {
-            if (!commercialFlows.containsKey(flowCnec) || !commercialFlows.get(flowCnec).containsKey(side) || !commercialFlows.get(flowCnec).get(side).containsKey(unit) ) {
+            if (!commercialFlows.containsKey(flowCnec) || !commercialFlows.get(flowCnec).containsKey(side) || !commercialFlows.get(flowCnec).get(side).containsKey(unit)) {
                 throw new OpenRaoException(format("No commercial flow on the CNEC %s on side %s in %s", flowCnec.getName(), side, unit));
             }
             return commercialFlows.get(flowCnec).get(side).get(unit);
