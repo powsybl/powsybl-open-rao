@@ -35,7 +35,9 @@ public class LoopFlowViolationCostEvaluator implements CostEvaluator {
 
     public LoopFlowViolationCostEvaluator(Set<FlowCnec> loopflowCnecs,
                                           FlowResult initialLoopFlowResult,
-                                          double loopFlowAcceptableAugmentation, double loopFlowViolationCost) {
+                                          double loopFlowAcceptableAugmentation,
+                                          double loopFlowViolationCost
+                                          ) {
         this.loopflowCnecs = loopflowCnecs;
         this.initialLoopFlowResult = initialLoopFlowResult;
         this.loopFlowViolationCost = loopFlowViolationCost;
