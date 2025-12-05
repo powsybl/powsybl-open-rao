@@ -4,6 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers;
 
 import com.powsybl.openrao.commons.Unit;
@@ -33,7 +34,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import static com.powsybl.openrao.data.crac.api.usagerule.UsageMethod.AVAILABLE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -45,13 +45,11 @@ class DiscretePstTapFillerTest extends AbstractFillerTest {
     private LinearProblem linearProblem;
     private State preventiveState;
     private State curativeState;
-    private DiscretePstTapFiller discretePstTapFiller;
-    private double initialAlpha;
     private Map<Integer, Double> tapToAngle;
     private PstRangeAction pra;
     private PstRangeAction cra;
 
-    void setUpAndFill(boolean costOptimization) throws IOException {
+    void setUpAndFill() throws IOException {
         // prepare data
         init();
         preventiveState = crac.getPreventiveState();
@@ -61,7 +59,7 @@ class DiscretePstTapFillerTest extends AbstractFillerTest {
         cra = crac.newPstRangeAction()
             .withId("cra")
             .withNetworkElement("BBE2AA1  BBE3AA1  1")
-            .newOnContingencyStateUsageRule().withUsageMethod(AVAILABLE).withContingency("N-1 NL1-NL3").withInstant("curative").add()
+            .newOnContingencyStateUsageRule().withContingency("N-1 NL1-NL3").withInstant("curative").add()
             .withInitialTap(0)
             .withActivationCost(10.0)
             .withTapToAngleConversionMap(tapToAngle)
@@ -72,7 +70,7 @@ class DiscretePstTapFillerTest extends AbstractFillerTest {
             .add()
             .add();
         PstRangeAction pstRangeAction = crac.getPstRangeAction(RANGE_ACTION_ID);
-        initialAlpha = network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getCurrentStep().getAlpha();
+        final double initialAlpha = network.getTwoWindingsTransformer(RANGE_ACTION_ELEMENT_ID).getPhaseTapChanger().getCurrentStep().getAlpha();
         RangeActionSetpointResult initialRangeActionSetpointResult = new RangeActionSetpointResultImpl(Map.of(pstRangeAction, initialAlpha, cra, initialAlpha));
         OptimizationPerimeter optimizationPerimeter = Mockito.mock(OptimizationPerimeter.class);
 
@@ -97,12 +95,12 @@ class DiscretePstTapFillerTest extends AbstractFillerTest {
         Map<State, Set<PstRangeAction>> pstRangeActions = new HashMap<>();
         pstRangeActions.put(preventiveState, Set.of(pstRangeAction));
         pstRangeActions.put(curativeState, Set.of(cra));
-        discretePstTapFiller = new DiscretePstTapFiller(
+        final DiscretePstTapFiller discretePstTapFiller = new DiscretePstTapFiller(
             optimizationPerimeter,
             pstRangeActions,
             initialRangeActionSetpointResult,
             rangeActionParameters,
-            true, null);
+            true);
 
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
@@ -199,7 +197,7 @@ class DiscretePstTapFillerTest extends AbstractFillerTest {
     @ParameterizedTest
     @ValueSource(booleans = {true, false})
     void testFillAndUpdateMethods(boolean costOptimization) throws IOException {
-        setUpAndFill(costOptimization);
+        setUpAndFill();
         checkContent(pstRangeAction, preventiveState, 0, -15, 15, true);
         checkContent(cra, curativeState, 0, -16, 16, true);
         checkPstRelativeTapConstraint(-10, 7);
@@ -227,7 +225,7 @@ class DiscretePstTapFillerTest extends AbstractFillerTest {
 
     @Test
     void testUpdateBetweenMipIteration() throws IOException {
-        setUpAndFill(false);
+        setUpAndFill();
         RangeActionActivationResultImpl rangeActionActivationResult =
             new RangeActionActivationResultImpl(new RangeActionSetpointResultImpl(Map.of(pra, 0., cra, 0.)));
 

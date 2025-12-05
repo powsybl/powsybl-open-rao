@@ -126,13 +126,6 @@ public class LoadFlowAndSensitivityParameters {
         // we have to clean load flow parameters.
         // the slack bus must not be written because it could pollute the sensitivity analyses.
         loadFlowParameters.setWriteSlackBus(false);
-        // in DC, as emulation AC is supported for LF but not for sensitivity analyses, it could
-        // lead to incoherence.
-        if (loadFlowParameters.isDc() && loadFlowParameters.isHvdcAcEmulation()) {
-            BUSINESS_WARNS.warn("The runs are in DC but the HvdcAcEmulation parameter is on: this is not compatible." +
-                "HvdcAcEmulation parameter set to false.");
-            loadFlowParameters.setHvdcAcEmulation(false);
-        }
         return sensitivityAnalysisParameters;
     }
 }

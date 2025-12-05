@@ -4,6 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 package com.powsybl.openrao.sensitivityanalysis;
 
 import com.powsybl.openrao.commons.OpenRaoException;
@@ -22,7 +23,7 @@ public class AppliedRemedialActions {
 
     private final Map<State, AppliedRemedialActionsPerState> appliedRa = new HashMap<>();
 
-    private static class AppliedRemedialActionsPerState {
+    private static final class AppliedRemedialActionsPerState {
         private final Set<NetworkAction> networkActions = new HashSet<>();
         private final Map<RangeAction<?>, Double> rangeActions = new HashMap<>();
     }
@@ -92,8 +93,9 @@ public class AppliedRemedialActions {
                 && (stateBefore.getContingency().isEmpty() || stateBefore.getContingency().equals(state.getContingency())))
             .sorted(Comparator.comparingInt(stateBefore -> stateBefore.getInstant().getOrder()))
             .forEach(stateBefore -> {
-                appliedRa.get(stateBefore).rangeActions.forEach((rangeAction, setPoint) -> rangeAction.apply(network, setPoint));
+                // network actions need to be applied BEFORE range actions because to apply HVDC range actions we need to apply AC emulation deactivation network actions beforehand
                 appliedRa.get(stateBefore).networkActions.forEach(networkAction -> networkAction.apply(network));
+                appliedRa.get(stateBefore).rangeActions.forEach((rangeAction, setPoint) -> rangeAction.apply(network, setPoint));
             });
     }
 

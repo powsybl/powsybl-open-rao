@@ -158,6 +158,10 @@ public final class SystematicSensitivityInterface {
      * SensitivityComputationException is the computation fails.
      */
     private SystematicSensitivityResult runWithConfig(Network network) {
+        if (cnecSensitivityProvider.getFlowCnecs().isEmpty()) {
+            TECHNICAL_LOGS.error("Sensitivity analysis skipped: no FlowCNEC provided.");
+            return new SystematicSensitivityResult();
+        }
         SystematicSensitivityResult tempSystematicSensitivityAnalysisResult = SystematicSensitivityAdapter
                 .runSensitivity(network, cnecSensitivityProvider, appliedRemedialActions, parameters, sensitivityProvider, outageInstant);
 

@@ -4,8 +4,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 package com.powsybl.openrao.searchtreerao.commons.optimizationperimeters;
 
+import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
+import com.powsybl.iidm.network.impl.extensions.HvdcAngleDroopActivePowerControlImpl;
+import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
 import com.powsybl.openrao.raoapi.parameters.LoopFlowParameters;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,8 +17,8 @@ import org.mockito.Mockito;
 
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static com.powsybl.openrao.data.crac.impl.utils.NetworkImportsUtil.addHvdcLine;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -30,7 +34,7 @@ class GlobalOptimizationPerimeterTest extends AbstractOptimizationPerimeterTest 
     @Test
     void globalOptimizationPerimeterTest() {
         raoParameters.setLoopFlowParameters(new LoopFlowParameters());
-        Mockito.when(prePerimeterResult.getSetpoint(pRA)).thenReturn(-500.);
+        Mockito.when(prePerimeterResult.getSetpoint(pRA)).thenReturn(1000. + 2 * 1e-6); // should be filtered out
         Mockito.when(prePerimeterResult.getSetpoint(cRA)).thenReturn(-500.);
         GlobalOptimizationPerimeter optPerimeter = GlobalOptimizationPerimeter.build(crac, network, raoParameters, prePerimeterResult);
 
@@ -47,10 +51,32 @@ class GlobalOptimizationPerimeterTest extends AbstractOptimizationPerimeterTest 
 
         assertEquals(2, optPerimeter.getRangeActionsPerState().size());
         assertTrue(optPerimeter.getRangeActionsPerState().containsKey(pState));
-        assertEquals(1, optPerimeter.getRangeActionsPerState().get(pState).size());
-        assertTrue(optPerimeter.getRangeActionsPerState().get(pState).contains(pRA));
+        assertEquals(0, optPerimeter.getRangeActionsPerState().get(pState).size());
+        assertFalse(optPerimeter.getRangeActionsPerState().get(pState).contains(pRA));
         assertTrue(optPerimeter.getRangeActionsPerState().containsKey(cState1));
         assertEquals(1, optPerimeter.getRangeActionsPerState().get(cState1).size());
         assertTrue(optPerimeter.getRangeActionsPerState().get(cState1).contains(cRA));
+    }
+
+    @Test
+    void testCopyWithoutHvdcRangeActionAcEmulation() {
+        // set up a network with HVDC  line in ac emulation
+        addHvdcLine(network);
+        // add ac emulation
+        network.getHvdcLine("hvdc").addExtension(HvdcAngleDroopActivePowerControl.class, new HvdcAngleDroopActivePowerControlImpl(network.getHvdcLine("hvdc"), 10, 10, true));
+        // add hvdc range action to crac
+        HvdcRangeAction hvdcRangeAction = crac.newHvdcRangeAction()
+            .withId("hvdc-range-action-id")
+            .withName("hvdc-range-action-name")
+            .withNetworkElement("hvdc")
+            .withOperator("operator")
+            .newOnInstantUsageRule().withInstant("preventive").add()
+            .newRange().withMin(-5).withMax(10).add()
+            .add();
+        GlobalOptimizationPerimeter optPerimeter = GlobalOptimizationPerimeter.build(crac, network, raoParameters, prePerimeterResult);
+        assertTrue(optPerimeter.getRangeActions().contains(hvdcRangeAction));
+        // test copy the hvdc range action is filtered from the perimeter
+        GlobalOptimizationPerimeter copyPerimeter = (GlobalOptimizationPerimeter) optPerimeter.copyWithFilteredAvailableHvdcRangeAction(network);
+        assertFalse(copyPerimeter.getRangeActions().contains(hvdcRangeAction));
     }
 }

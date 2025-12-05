@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, RTE (http://www.rte-france.com)
+ * Copyright (c) 2022, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -12,7 +12,6 @@ import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeActionAdder;
 import com.powsybl.openrao.data.crac.api.rangeaction.VariationDirection;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -54,7 +53,7 @@ class InjectionRangeActionAdderImplTest {
                 .withNetworkElementAndKey(1., injectionId1)
                 .withNetworkElementAndKey(-1., injectionId2, injectionName2)
                 .newRange().withMin(-5).withMax(10).add()
-                .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
                 .withInitialSetpoint(10.0)
                 .add();
 
@@ -94,7 +93,7 @@ class InjectionRangeActionAdderImplTest {
             .withNetworkElementAndKey(1., injectionId1)
             .withNetworkElementAndKey(-2., injectionId2, injectionName2)
             .newRange().withMin(-5).withMax(10).add()
-            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
             .add();
         assertNull(injectionRangeAction.getInitialSetpoint());
     }
@@ -109,7 +108,7 @@ class InjectionRangeActionAdderImplTest {
                 .withNetworkElementAndKey(4., injectionId1)
                 .withNetworkElementAndKey(-1., injectionId2, injectionName2)
                 .newRange().withMin(-5).withMax(10).add()
-                .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
                 .add();
 
         assertEquals("id1", injectionRangeAction.getId());
@@ -143,7 +142,7 @@ class InjectionRangeActionAdderImplTest {
                 .withNetworkElementAndKey(1., injectionId1)
                 .withNetworkElementAndKey(-1., injectionId2, injectionName2)
                 .newRange().withMin(-5).withMax(10).add()
-                .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
                 .add();
 
         assertEquals("id1", injectionRangeAction.getId());
@@ -165,7 +164,7 @@ class InjectionRangeActionAdderImplTest {
             .withGroupId("groupId1")
             .withNetworkElement(injectionId1)
             .newRange().withMin(-5).withMax(10).add()
-            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
             .add();
 
         assertEquals("id1", injectionRangeAction1.getId());
@@ -184,7 +183,7 @@ class InjectionRangeActionAdderImplTest {
             .withGroupId("groupId2")
             .withNetworkElement(injectionId2, injectionName2)
             .newRange().withMin(-5).withMax(10).add()
-            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
+            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
             .add();
 
         assertEquals("id2", injectionRangeAction2.getId());
@@ -254,7 +253,7 @@ class InjectionRangeActionAdderImplTest {
                 .withNetworkElementAndKey(1., injectionId1)
                 .withNetworkElementAndKey(-1., injectionId2, injectionName2)
                 .newRange().withMin(-5).withMax(10).add()
-                .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
                 .add();
 
         assertEquals("id1", injectionRangeAction.getId());
@@ -275,7 +274,7 @@ class InjectionRangeActionAdderImplTest {
             .withNetworkElementAndKey(1., injectionId1)
             .withNetworkElementAndKey(-1., injectionId2, injectionName2)
             .newRange().withMin(-5).withMax(10).add()
-            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add();
+            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add();
         OpenRaoException exception = assertThrows(OpenRaoException.class, injectionRangeActionAdder::add);
         assertEquals("Cannot add a InjectionRangeAction object with no specified id. Please use withId()", exception.getMessage());
     }
@@ -287,7 +286,7 @@ class InjectionRangeActionAdderImplTest {
             .withOperator("BE")
             .withGroupId("groupId1")
             .newRange().withMin(-5).withMax(10).add()
-            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add();
+            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add();
         OpenRaoException exception = assertThrows(OpenRaoException.class, injectionRangeActionAdder::add);
         assertEquals("Cannot add InjectionRangeAction without a injection distribution key. Please use withNetworkElementAndKey()", exception.getMessage());
     }
@@ -299,7 +298,7 @@ class InjectionRangeActionAdderImplTest {
             .withOperator("BE")
             .withNetworkElementAndKey(1., injectionId1)
             .withNetworkElementAndKey(-1., injectionId2, injectionName2)
-            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add();
+            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add();
         OpenRaoException exception = assertThrows(OpenRaoException.class, injectionRangeActionAdder::add);
         assertEquals("Cannot add InjectionRangeAction without a range. Please use newRange()", exception.getMessage());
     }
@@ -310,13 +309,13 @@ class InjectionRangeActionAdderImplTest {
                 .withId("sameId")
                 .withNetworkElementAndKey(1., injectionId1)
                 .newRange().withMin(-5).withMax(10).add()
-                .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add()
+                .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
                 .add();
         InjectionRangeActionAdder injectionRangeActionAdder = crac.newInjectionRangeAction()
             .withId("sameId")
             .withNetworkElementAndKey(1., injectionId1)
             .newRange().withMin(-5).withMax(10).add()
-            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).withUsageMethod(UsageMethod.AVAILABLE).add();
+            .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add();
         OpenRaoException exception = assertThrows(OpenRaoException.class, injectionRangeActionAdder::add);
         assertEquals("A remedial action with id sameId already exists", exception.getMessage());
     }

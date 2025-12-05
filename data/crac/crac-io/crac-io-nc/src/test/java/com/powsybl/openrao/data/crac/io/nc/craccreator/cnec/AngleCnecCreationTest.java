@@ -1,9 +1,15 @@
+/*
+ * Copyright (c) 2025, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
 package com.powsybl.openrao.data.crac.io.nc.craccreator.cnec;
 
 import com.powsybl.openrao.data.crac.io.nc.craccreator.NcCracCreationContext;
 import com.powsybl.openrao.data.crac.io.nc.craccreator.NcCracCreationTestUtil;
 import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
 import org.junit.jupiter.api.Test;
 
@@ -12,6 +18,9 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+/**
+ * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
+ */
 class AngleCnecCreationTest {
 
     @Test
@@ -143,6 +152,6 @@ class AngleCnecCreationTest {
         NcCracCreationTestUtil.assertCnecNotImported(cracCreationContext, "assessed-element-12", ImportStatus.INCONSISTENCY_IN_DATA, "AssessedElement assessed-element-12 ignored because the network element FFR1AA1 _generator is neither a bus nor a bus bar section");
         NcCracCreationTestUtil.assertCnecNotImported(cracCreationContext, "assessed-element-13", ImportStatus.INCONSISTENCY_IN_DATA, "AssessedElement assessed-element-13 ignored because the network element FFR2AA1 _generator is neither a bus nor a bus bar section");
 
-        NcCracCreationTestUtil.assertHasOnConstraintUsageRule(cracCreationContext, "remedial-action-1", "RTE_AE1 (assessed-element-1) - RTE_CO1 - curative 3", cracCreationContext.getCrac().getInstant(NcCracCreationTestUtil.CURATIVE_3_INSTANT_ID), UsageMethod.AVAILABLE, AngleCnec.class);
+        NcCracCreationTestUtil.assertHasOnConstraintUsageRule(cracCreationContext, "remedial-action-1", "RTE_AE1 (assessed-element-1) - RTE_CO1 - curative 3", cracCreationContext.getCrac().getInstant(NcCracCreationTestUtil.CURATIVE_3_INSTANT_ID), AngleCnec.class);
     }
 }

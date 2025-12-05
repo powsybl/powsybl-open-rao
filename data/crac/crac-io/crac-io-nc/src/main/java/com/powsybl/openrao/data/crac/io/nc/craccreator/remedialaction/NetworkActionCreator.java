@@ -4,6 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 package com.powsybl.openrao.data.crac.io.nc.craccreator.remedialaction;
 
 import com.powsybl.iidm.network.*;
@@ -245,11 +246,11 @@ public class NetworkActionCreator {
         }
 
         if (!ValueOffsetKind.ABSOLUTE.toString().equals(nativeStaticPropertyRange.valueKind())) {
-            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Remedial action %s will not be imported because the ValueOffsetKind is %s but should be none", remedialActionId, nativeStaticPropertyRange.valueKind()));
+            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Remedial action %s will not be imported because the ValueOffsetKind is %s but should be absolute", remedialActionId, nativeStaticPropertyRange.valueKind()));
         }
 
         if (!RelativeDirectionKind.NONE.toString().equals(nativeStaticPropertyRange.direction())) {
-            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Remedial action %s will not be imported because the RelativeDirectionKind is %s but should be absolute", remedialActionId, nativeStaticPropertyRange.direction()));
+            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Remedial action %s will not be imported because the RelativeDirectionKind is %s but should be none", remedialActionId, nativeStaticPropertyRange.direction()));
         }
 
         if (nativeTopologyAction.normalEnabled()) {

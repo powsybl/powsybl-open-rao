@@ -4,6 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 package com.powsybl.openrao.searchtreerao.searchtree.parameters;
 
 import com.powsybl.openrao.commons.Unit;
@@ -25,10 +26,7 @@ import com.powsybl.openrao.searchtreerao.commons.parameters.*;
 import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.getLinearOptimizationSolver;
 import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.getMaxMipIterations;
@@ -62,6 +60,10 @@ public class SearchTreeParameters {
     private final SearchTreeRaoCostlyMinMarginParameters maxMinMarginsParameters;
     private final int maxNumberOfIterations;
 
+    // required for loadflowcomputation (only done if we have HVDC range actions that use HVDC lines in AC emulation)
+    // So let's keep it optional
+    private final Optional<LoadFlowAndSensitivityParameters> loadFlowAndSensitivityParameters;
+
     public SearchTreeParameters(ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction,
                                 Unit objectiveFunctionUnit, TreeParameters treeParameters,
                                 NetworkActionParameters networkActionParameters,
@@ -76,7 +78,8 @@ public class SearchTreeParameters {
                                 UnoptimizedCnecParameters unoptimizedCnecParameters,
                                 LinearOptimizationSolver solverParameters,
                                 SearchTreeRaoCostlyMinMarginParameters maxMinMarginParameters,
-                                int maxNumberOfIterations) {
+                                int maxNumberOfIterations,
+                                Optional<LoadFlowAndSensitivityParameters> loadFlowAndSensitivityParameters) {
         this.objectiveFunction = objectiveFunction;
         this.objectiveFunctionUnit = objectiveFunctionUnit;
         this.treeParameters = treeParameters;
@@ -93,6 +96,7 @@ public class SearchTreeParameters {
         this.solverParameters = solverParameters;
         this.maxMinMarginsParameters = maxMinMarginParameters;
         this.maxNumberOfIterations = maxNumberOfIterations;
+        this.loadFlowAndSensitivityParameters = loadFlowAndSensitivityParameters;
     }
 
     public ObjectiveFunctionParameters.ObjectiveFunctionType getObjectiveFunction() {
@@ -157,6 +161,10 @@ public class SearchTreeParameters {
 
     public int getMaxNumberOfIterations() {
         return maxNumberOfIterations;
+    }
+
+    public Optional<LoadFlowAndSensitivityParameters> getLoadFlowAndSensitivityParameters() {
+        return loadFlowAndSensitivityParameters;
     }
 
     public void setRaLimitationsForSecondPreventive(RaUsageLimits raUsageLimits, Set<RangeAction<?>> rangeActionSet, Instant preventiveInstant) {
@@ -296,6 +304,8 @@ public class SearchTreeParameters {
         private SearchTreeRaoCostlyMinMarginParameters maxMinMarginsParameters;
         private int maxNumberOfIterations;
 
+        private Optional<LoadFlowAndSensitivityParameters> loadFlowAndSensitivityParameters;
+
         public SearchTreeParametersBuilder withConstantParametersOverAllRao(RaoParameters raoParameters, Crac crac) {
             this.objectiveFunction = raoParameters.getObjectiveFunctionParameters().getType();
             this.objectiveFunctionUnit = raoParameters.getObjectiveFunctionParameters().getUnit();
@@ -321,6 +331,11 @@ public class SearchTreeParameters {
             }
             this.solverParameters = getLinearOptimizationSolver(raoParameters);
             this.maxNumberOfIterations = getMaxMipIterations(raoParameters);
+            if (raoParameters.hasExtension(OpenRaoSearchTreeParameters.class)) {
+                this.loadFlowAndSensitivityParameters = Optional.ofNullable(raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getLoadFlowAndSensitivityParameters());
+            } else {
+                this.loadFlowAndSensitivityParameters = Optional.empty();
+            }
             return this;
         }
 
@@ -394,6 +409,11 @@ public class SearchTreeParameters {
             return this;
         }
 
+        public SearchTreeParametersBuilder withLoadFlowAndSensitivityParameters(LoadFlowAndSensitivityParameters loadFlowAndSensitivityParameters) {
+            this.loadFlowAndSensitivityParameters = Optional.ofNullable(loadFlowAndSensitivityParameters);
+            return this;
+        }
+
         public SearchTreeParameters build() {
             return new SearchTreeParameters(
                 objectiveFunction,
@@ -411,7 +431,8 @@ public class SearchTreeParameters {
                 unoptimizedCnecParameters,
                 solverParameters,
                 maxMinMarginsParameters,
-                maxNumberOfIterations);
+                maxNumberOfIterations,
+                loadFlowAndSensitivityParameters);
         }
     }
 }

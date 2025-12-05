@@ -23,7 +23,7 @@ import static java.lang.String.format;
  * information: a "from node", a "to node" and a suffix. Either identified in separate fields,
  * or in a common concatenated id such as "FROMNODE TO__NODE SUFFIX".
  *
- * @author Baptiste Seguinot{@literal <baptiste.seguinot at rte-france.com>}
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class UcteFlowElementHelper extends AbstractUcteConnectableHelper implements CnecElementHelper {
 
@@ -39,10 +39,10 @@ public class UcteFlowElementHelper extends AbstractUcteConnectableHelper impleme
     /**
      * Constructor, based on a separate fields.
      *
-     * @param fromNode,             UCTE-id of the origin extremity of the branch
-     * @param toNode,               UCTE-id of the destination extremity of the branch
-     * @param suffix,               suffix of the branch, either an order code or an elementName
-     * @param ucteNetworkAnalyzer,  UcteNetworkAnalyzer object built upon the network
+     * @param fromNode             UCTE-id of the origin extremity of the branch
+     * @param toNode               UCTE-id of the destination extremity of the branch
+     * @param suffix               suffix of the branch, either an order code or an elementName
+     * @param ucteNetworkAnalyzer  UcteNetworkAnalyzer object built upon the network
      */
     public UcteFlowElementHelper(String fromNode, String toNode, String suffix, UcteNetworkAnalyzer ucteNetworkAnalyzer) {
         super(fromNode, toNode, suffix);
@@ -55,11 +55,11 @@ public class UcteFlowElementHelper extends AbstractUcteConnectableHelper impleme
      * Constructor, based on a separate fields. Either the order code, or the element name must be
      * non-null. If the two are defined, the suffix which will be used by default is the order code.
      *
-     * @param fromNode,             UCTE-id of the origin extremity of the branch
-     * @param toNode,               UCTE-id of the destination extremity of the branch
-     * @param orderCode,            order code of the branch
-     * @param elementName,          element name of the branch
-     * @param ucteNetworkAnalyzer,  UcteNetworkAnalyzer object built upon the network
+     * @param fromNode             UCTE-id of the origin extremity of the branch
+     * @param toNode               UCTE-id of the destination extremity of the branch
+     * @param orderCode            order code of the branch
+     * @param elementName          element name of the branch
+     * @param ucteNetworkAnalyzer  UcteNetworkAnalyzer object built upon the network
      */
     public UcteFlowElementHelper(String fromNode, String toNode, String orderCode, String elementName, UcteNetworkAnalyzer ucteNetworkAnalyzer) {
         super(fromNode, toNode, orderCode, elementName);
@@ -71,8 +71,8 @@ public class UcteFlowElementHelper extends AbstractUcteConnectableHelper impleme
     /**
      * Constructor, based on a concatenated id.
      *
-     * @param ucteBranchId,         concatenated UCTE branch id, of the form "FROMNODE TO__NODE SUFFIX"
-     * @param ucteNetworkAnalyzer,  UcteNetworkAnalyzer object built upon the network
+     * @param ucteBranchId         concatenated UCTE branch id, of the form "FROMNODE TO__NODE SUFFIX"
+     * @param ucteNetworkAnalyzer  UcteNetworkAnalyzer object built upon the network
      */
     public UcteFlowElementHelper(String ucteBranchId, UcteNetworkAnalyzer ucteNetworkAnalyzer) {
         super(ucteBranchId);
@@ -101,7 +101,7 @@ public class UcteFlowElementHelper extends AbstractUcteConnectableHelper impleme
     }
 
     @Override
-    public Double getCurrentLimit(TwoSides side) {
+    public double getCurrentLimit(TwoSides side) {
         if (side.equals(TwoSides.ONE)) {
             return currentLimitLeft;
         } else {

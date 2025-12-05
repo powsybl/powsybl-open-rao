@@ -4,18 +4,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers;
 
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
-import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPConstraint;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem;
+import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPConstraint;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
 import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
 
-import java.time.OffsetDateTime;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -27,11 +27,9 @@ import java.util.Set;
 public class ContinuousRangeActionGroupFiller implements ProblemFiller {
 
     private final Map<State, Set<RangeAction<?>>> rangeActionsPerState;
-    private final OffsetDateTime timestamp;
 
-    public ContinuousRangeActionGroupFiller(Map<State, Set<RangeAction<?>>> rangeActionsPerState, OffsetDateTime timestamp) {
+    public ContinuousRangeActionGroupFiller(Map<State, Set<RangeAction<?>>> rangeActionsPerState) {
         this.rangeActionsPerState = rangeActionsPerState;
-        this.timestamp = timestamp;
     }
 
     @Override

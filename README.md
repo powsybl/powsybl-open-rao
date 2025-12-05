@@ -30,7 +30,7 @@ for development and testing purposes.
 
 In order to build **powsybl-open-rao**, you need the following environment available:
 
-- Install JDK *(17 or greater)*,
+- Install JDK *(21 or greater)*,
 - Install Maven latest version.
 
 ### Installing

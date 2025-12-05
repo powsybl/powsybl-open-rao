@@ -1,5 +1,5 @@
 {
-  "version" : "3.1",
+  "version" : "3.2.1",
   "objective-function" : {
     "type" : "MAX_MIN_MARGIN",
     "unit" : "A",
@@ -51,7 +51,6 @@
       },
       "second-preventive-rao" : {
         "execution-condition" : "DISABLED",
-        "re-optimize-curative-range-actions" : true,
         "hint-from-first-preventive-rao" : true
       },
       "load-flow-and-sensitivity-computation" : {
@@ -82,12 +81,12 @@
               "open-load-flow-parameters" : {
                 "slackBusSelectionMode" : "MOST_MESHED",
                 "slackBusesIds" : [ ],
-                "slackDistributionFailureBehavior" : "LEAVE_ON_SLACK_BUS",
+                "slackDistributionFailureBehavior" : "FAIL",
                 "voltageRemoteControl" : true,
                 "voltageRemoteControlRobustMode" : true,
                 "lowImpedanceBranchMode" : "REPLACE_BY_ZERO_IMPEDANCE_LINE",
                 "loadPowerFactorConstant" : false,
-                "plausibleActivePowerLimit" : 5000.0,
+                "plausibleActivePowerLimit" : 10000.0,
                 "newtonRaphsonStoppingCriteriaType" : "UNIFORM_CRITERIA",
                 "maxActivePowerMismatch" : 0.01,
                 "maxReactivePowerMismatch" : 0.01,
@@ -103,7 +102,7 @@
                 "maxOuterLoopIterations" : 20,
                 "newtonRaphsonConvEpsPerEq" : 1.0E-4,
                 "voltageInitModeOverride" : "NONE",
-                "transformerVoltageControlMode" : "WITH_GENERATOR_VOLTAGE_CONTROL",
+                "transformerVoltageControlMode" : "INCREMENTAL_VOLTAGE_CONTROL",
                 "shuntVoltageControlMode" : "WITH_GENERATOR_VOLTAGE_CONTROL",
                 "minPlausibleTargetVoltage" : 0.8,
                 "maxPlausibleTargetVoltage" : 1.2,
@@ -155,7 +154,9 @@
                 "areaInterchangePMaxMismatch" : 2.0,
                 "forceTargetQInReactiveLimits" : false,
                 "disableInconsistentVoltageControls" : false,
-                "extrapolateReactiveLimits" : false
+                "extrapolateReactiveLimits" : false,
+                "startWithFrozenACEmulation" : false,
+                "generatorsWithZeroMwTargetAreNotStarted" : true
               }
             }
           },
@@ -165,7 +166,8 @@
           "angle-flow-sensitivity-value-threshold" : 0.0,
           "extensions" : {
             "open-sensitivity-parameters" : {
-              "debugDir" : null
+              "debugDir" : null,
+              "startWithFrozenACEmulation" : true
             }
           }
         }

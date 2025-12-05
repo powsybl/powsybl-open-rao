@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, RTE (http://www.rte-france.com)
+ * Copyright (c) 2021, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -8,7 +8,6 @@
 package com.powsybl.openrao.searchtreerao.result.impl;
 
 import com.powsybl.contingency.Contingency;
-import com.powsybl.openrao.commons.MinOrMax;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
@@ -181,7 +180,6 @@ class OneStateOnlyRaoResultImplTest {
         when(optimizedState.isPreventive()).thenReturn(true);
 
         assertSame(initialResult, output.getInitialResult());
-        assertNotNull(output.getOptimizationResult(optimizedState));
 
         assertEquals(1000., output.getFunctionalCost(null), DOUBLE_TOLERANCE);
         assertEquals(-1000., output.getFunctionalCost(preventiveInstant), DOUBLE_TOLERANCE);
@@ -295,33 +293,19 @@ class OneStateOnlyRaoResultImplTest {
 
         // using another state
         State otherState = mock(State.class);
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> output.getOptimizationResult(otherState));
-        assertEquals("Trying to access perimeter result for the wrong state.", exception.getMessage());
-        exception = assertThrows(OpenRaoException.class, () -> output.wasActivatedBeforeState(otherState, networkAction));
-        assertEquals("Trying to access perimeter result for the wrong state.", exception.getMessage());
-        exception = assertThrows(OpenRaoException.class, () -> output.isActivatedDuringState(otherState, networkAction));
-        assertEquals("Trying to access perimeter result for the wrong state.", exception.getMessage());
-        exception = assertThrows(OpenRaoException.class, () -> output.getActivatedNetworkActionsDuringState(otherState));
-        assertEquals("Trying to access perimeter result for the wrong state.", exception.getMessage());
+        assertFalse(output.wasActivatedBeforeState(otherState, networkAction));
+        assertFalse(output.isActivatedDuringState(otherState, networkAction));
+        assertTrue(output.getActivatedNetworkActionsDuringState(otherState).isEmpty());
 
-        exception = assertThrows(OpenRaoException.class, () -> output.isActivatedDuringState(otherState, rangeAction));
-        assertEquals("Trying to access perimeter result for the wrong state.", exception.getMessage());
-        exception = assertThrows(OpenRaoException.class, () -> output.getPreOptimizationTapOnState(otherState, pstRangeAction));
-        assertEquals("Trying to access perimeter result for the wrong state.", exception.getMessage());
-        exception = assertThrows(OpenRaoException.class, () -> output.getOptimizedTapOnState(otherState, pstRangeAction));
-        assertEquals("Trying to access perimeter result for the wrong state.", exception.getMessage());
-        exception = assertThrows(OpenRaoException.class, () -> output.getPreOptimizationSetPointOnState(otherState, rangeAction));
-        assertEquals("Trying to access perimeter result for the wrong state.", exception.getMessage());
-        exception = assertThrows(OpenRaoException.class, () -> output.getOptimizedSetPointOnState(otherState, rangeAction));
-        assertEquals("Trying to access perimeter result for the wrong state.", exception.getMessage());
-        exception = assertThrows(OpenRaoException.class, () -> output.getActivatedRangeActionsDuringState(otherState));
-        assertEquals("Trying to access perimeter result for the wrong state.", exception.getMessage());
-        exception = assertThrows(OpenRaoException.class, () -> output.getOptimizedTapsOnState(otherState));
-        assertEquals("Trying to access perimeter result for the wrong state.", exception.getMessage());
-        exception = assertThrows(OpenRaoException.class, () -> output.getOptimizedSetPointsOnState(otherState));
-        assertEquals("Trying to access perimeter result for the wrong state.", exception.getMessage());
-        exception = assertThrows(OpenRaoException.class, () -> output.getMargin(curativeInstant, mock(FlowCnec.class), Unit.MEGAWATT));
-        assertEquals("Cnec not optimized in this perimeter.", exception.getMessage());
+        assertFalse(output.isActivatedDuringState(otherState, rangeAction));
+        assertEquals(1, output.getPreOptimizationTapOnState(otherState, pstRangeAction));
+        assertEquals(1, output.getOptimizedTapOnState(otherState, pstRangeAction));
+        assertEquals(5.6, output.getPreOptimizationSetPointOnState(otherState, rangeAction));
+        assertEquals(5.6, output.getOptimizedSetPointOnState(otherState, rangeAction));
+        assertTrue(output.getActivatedRangeActionsDuringState(otherState).isEmpty());
+        assertTrue(output.getOptimizedTapsOnState(otherState).isEmpty());
+        assertTrue(output.getOptimizedSetPointsOnState(otherState).isEmpty());
+        assertEquals(Double.NaN, output.getMargin(curativeInstant, mock(FlowCnec.class), Unit.MEGAWATT));
     }
 
     @Test
@@ -448,9 +432,9 @@ class OneStateOnlyRaoResultImplTest {
         exception = assertThrows(OpenRaoException.class, () -> output.getMargin(optInstant, voltageCnec, AMPERE));
         assertEquals("Voltage cnecs are not computed in the rao", exception.getMessage());
 
-        exception = assertThrows(OpenRaoException.class, () -> output.getVoltage(optInstant, voltageCnec, MinOrMax.MIN, MEGAWATT));
+        exception = assertThrows(OpenRaoException.class, () -> output.getMinVoltage(optInstant, voltageCnec, MEGAWATT));
         assertEquals("Voltage cnecs are not computed in the rao", exception.getMessage());
-        exception = assertThrows(OpenRaoException.class, () -> output.getVoltage(optInstant, voltageCnec, MinOrMax.MAX, AMPERE));
+        exception = assertThrows(OpenRaoException.class, () -> output.getMaxVoltage(optInstant, voltageCnec, AMPERE));
         assertEquals("Voltage cnecs are not computed in the rao", exception.getMessage());
 
         exception = assertThrows(OpenRaoException.class, () -> output.getAngle(optInstant, angleCnec, MEGAWATT));

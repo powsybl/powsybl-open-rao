@@ -4,6 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 package com.powsybl.openrao.searchtreerao.commons.parameters;
 
 import com.powsybl.openrao.data.crac.api.State;
@@ -20,7 +21,7 @@ public class RangeActionLimitationParameters {
 
     private final Map<State, RangeActionLimitation> rangeActionLimitationPerState;
 
-    private static class RangeActionLimitation {
+    private static final class RangeActionLimitation {
         private Integer maxRangeActions = null;
         private Integer maxTso = null;
         private Set<String> maxTsoExclusion = new HashSet<>();

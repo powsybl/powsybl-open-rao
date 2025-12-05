@@ -1,9 +1,8 @@
 /*
- * Copyright (c) 2024, RTE (http://www.rte-france.com)
+ * Copyright (c) 2025, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
- * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.openrao.raoapi.json.extensions;
@@ -40,6 +39,7 @@ public class JsonOpenRaoSearchTreeParameters implements JsonRaoParameters.Extens
         JsonRelativeMarginsParameters.serialize(parameters, jsonGenerator);
         JsonLoopFlowParameters.serialize(parameters, jsonGenerator);
         JsonMinMarginsParameters.serialize(parameters, jsonGenerator);
+        JsonSearchTreeRaoPstRegulationParameters.serialize(parameters, jsonGenerator);
         jsonGenerator.writeEndObject();
     }
 
@@ -52,47 +52,51 @@ public class JsonOpenRaoSearchTreeParameters implements JsonRaoParameters.Extens
     public OpenRaoSearchTreeParameters deserializeAndUpdate(JsonParser parser, DeserializationContext deserializationContext, OpenRaoSearchTreeParameters parameters) throws IOException {
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
-                case OBJECTIVE_FUNCTION:
+                case OBJECTIVE_FUNCTION -> {
                     parser.nextToken();
                     JsonObjectiveFunctionParameters.deserialize(parser, parameters);
-                    break;
-                case RANGE_ACTIONS_OPTIMIZATION:
+                }
+                case RANGE_ACTIONS_OPTIMIZATION -> {
                     parser.nextToken();
                     JsonRangeActionsOptimizationParameters.deserialize(parser, parameters);
-                    break;
-                case TOPOLOGICAL_ACTIONS_OPTIMIZATION:
+                }
+                case TOPOLOGICAL_ACTIONS_OPTIMIZATION -> {
                     parser.nextToken();
                     JsonTopoOptimizationParameters.deserialize(parser, parameters);
-                    break;
-                case MULTI_THREADING:
+                }
+                case MULTI_THREADING -> {
                     parser.nextToken();
                     JsonMultiThreadingParameters.deserialize(parser, parameters);
-                    break;
-                case SECOND_PREVENTIVE_RAO:
+                }
+                case SECOND_PREVENTIVE_RAO -> {
                     parser.nextToken();
                     JsonSecondPreventiveRaoParameters.deserialize(parser, parameters);
-                    break;
-                case LOAD_FLOW_AND_SENSITIVITY_COMPUTATION:
+                }
+                case LOAD_FLOW_AND_SENSITIVITY_COMPUTATION -> {
                     parser.nextToken();
                     JsonLoadFlowAndSensitivityComputationParameters.deserialize(parser, parameters);
-                    break;
-                case MNEC_PARAMETERS:
+                }
+                case MNEC_PARAMETERS -> {
                     parser.nextToken();
                     JsonMnecParameters.deserialize(parser, parameters);
-                    break;
-                case RELATIVE_MARGINS:
+                }
+                case RELATIVE_MARGINS -> {
                     parser.nextToken();
                     JsonRelativeMarginsParameters.deserialize(parser, parameters);
-                    break;
-                case LOOP_FLOW_PARAMETERS:
+                }
+                case LOOP_FLOW_PARAMETERS -> {
                     parser.nextToken();
                     JsonLoopFlowParameters.deserialize(parser, parameters);
-                    break;
-                case COSTLY_MIN_MARGIN_PARAMETERS:
+                }
+                case COSTLY_MIN_MARGIN_PARAMETERS -> {
                     parser.nextToken();
                     JsonMinMarginsParameters.deserialize(parser, parameters);
-                    break;
-                default:
+                }
+                case PST_REGULATION_PARAMETERS -> {
+                    parser.nextToken();
+                    JsonSearchTreeRaoPstRegulationParameters.deserialize(parser, parameters);
+                }
+                default ->
                     throw new OpenRaoException("Unexpected field in open rao search tree parameters: " + parser.getCurrentName());
             }
         }

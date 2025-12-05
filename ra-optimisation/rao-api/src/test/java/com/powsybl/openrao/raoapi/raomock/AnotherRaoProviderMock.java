@@ -4,6 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 package com.powsybl.openrao.raoapi.raomock;
 
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
@@ -38,10 +39,5 @@ public class AnotherRaoProviderMock implements RaoProvider {
     @Override
     public String getName() {
         return "GlobalRAOptimizer";
-    }
-
-    @Override
-    public String getVersion() {
-        return "2.3";
     }
 }

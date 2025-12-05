@@ -4,6 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 package com.powsybl.openrao.tests.steps;
 
 import com.powsybl.iidm.network.Network;
@@ -13,6 +14,7 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
+import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.impl.AngleCnecValue;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.monitoring.Monitoring;
@@ -132,4 +134,27 @@ public class AngleMonitoringSteps {
             }
         }
     }
+
+    @Then("the angle of CNEC {string} should be {double} at {string}")
+    public void assertAngleValue(String angleCnecId, double expectedAngleValue, String instantId) {
+        AngleCnec angleCnec = CommonTestData.getCrac().getAngleCnec(angleCnecId);
+        double actualAngleValue = CommonTestData.getRaoResult().getAngle(CommonTestData.getCrac().getInstant(instantId), angleCnec, Unit.DEGREE);
+        assertEquals(expectedAngleValue, actualAngleValue, 1e-2);
+    }
+
+    @Then("the angle margin of CNEC {string} should be {double} at {string}")
+    public void assertAngleMargin(String angleCnecId, double expectedAngleMargin, String instantId) {
+        AngleCnec angleCnec = CommonTestData.getCrac().getAngleCnec(angleCnecId);
+        double actualAngleMargin = CommonTestData.getRaoResult().getMargin(CommonTestData.getCrac().getInstant(instantId), angleCnec, Unit.DEGREE);
+        assertEquals(expectedAngleMargin, actualAngleMargin, 1e-2);
+    }
+
+    @Then("the network action {string} is used after {string} at {string} during monitoring")
+    public void assertNetworkActionAppliedForMonitoring(String networkActionId, String contingencyId, String instantId) {
+        MonitoringResult monitoringResult = CommonTestData.getMonitoringResult();
+        State state = CommonTestData.getCrac().getState(contingencyId, CommonTestData.getCrac().getInstant(instantId));
+        NetworkAction networkAction = CommonTestData.getCrac().getNetworkAction(networkActionId);
+        assertTrue(monitoringResult.getAppliedRas(state).contains(networkAction));
+    }
 }
+

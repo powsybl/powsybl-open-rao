@@ -1,9 +1,8 @@
 /*
- * Copyright (c) 2024, RTE (http://www.rte-france.com)
+ * Copyright (c) 2025, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
- * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.openrao.raoapi.parameters.extensions;
@@ -29,6 +28,7 @@ public class OpenRaoSearchTreeParameters extends AbstractExtension<RaoParameters
     private Optional<SearchTreeRaoMnecParameters> mnecParameters = Optional.empty();
     private Optional<SearchTreeRaoRelativeMarginsParameters> relativeMarginsParameters = Optional.empty();
     private Optional<SearchTreeRaoLoopFlowParameters> loopFlowParameters = Optional.empty();
+    private Optional<SearchTreeRaoPstRegulationParameters> pstRegulationParameters = Optional.empty();
 
     // Getters and setters
     public void setObjectiveFunctionParameters(SearchTreeRaoObjectiveFunctionParameters objectiveFunctionParameters) {
@@ -71,6 +71,10 @@ public class OpenRaoSearchTreeParameters extends AbstractExtension<RaoParameters
         this.minMarginsParameters = Optional.of(minMarginsParameters);
     }
 
+    public void setPstRegulationParameters(SearchTreeRaoPstRegulationParameters pstRegulationParameters) {
+        this.pstRegulationParameters = Optional.of(pstRegulationParameters);
+    }
+
     public SearchTreeRaoObjectiveFunctionParameters getObjectiveFunctionParameters() {
         return objectiveFunctionParameters;
     }
@@ -109,6 +113,10 @@ public class OpenRaoSearchTreeParameters extends AbstractExtension<RaoParameters
 
     public Optional<SearchTreeRaoLoopFlowParameters> getLoopFlowParameters() {
         return loopFlowParameters;
+    }
+
+    public Optional<SearchTreeRaoPstRegulationParameters> getPstRegulationParameters() {
+        return pstRegulationParameters;
     }
 
     @Override

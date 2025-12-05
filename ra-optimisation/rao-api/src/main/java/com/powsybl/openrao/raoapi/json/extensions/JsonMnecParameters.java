@@ -1,9 +1,10 @@
 /*
- * Copyright (c) 2023, RTE (http://www.rte-france.com)
+ * Copyright (c) 2025, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 package com.powsybl.openrao.raoapi.json.extensions;
 
 import com.powsybl.openrao.commons.OpenRaoException;
@@ -39,16 +40,15 @@ public final class JsonMnecParameters {
         SearchTreeRaoMnecParameters mnecParameters = new SearchTreeRaoMnecParameters();
         while (!jsonParser.nextToken().isStructEnd()) {
             switch (jsonParser.getCurrentName()) {
-                case VIOLATION_COST:
+                case VIOLATION_COST -> {
                     jsonParser.nextToken();
                     mnecParameters.setViolationCost(jsonParser.getDoubleValue());
-                    break;
-                case CONSTRAINT_ADJUSTMENT_COEFFICIENT:
+                }
+                case CONSTRAINT_ADJUSTMENT_COEFFICIENT -> {
                     jsonParser.nextToken();
                     mnecParameters.setConstraintAdjustmentCoefficient(jsonParser.getDoubleValue());
-                    break;
-                default:
-                    throw new OpenRaoException(String.format("Cannot deserialize mnec parameters: unexpected field in %s (%s)", MNEC_PARAMETERS, jsonParser.getCurrentName()));
+                }
+                default -> throw new OpenRaoException(String.format("Cannot deserialize mnec parameters: unexpected field in %s (%s)", MNEC_PARAMETERS, jsonParser.getCurrentName()));
             }
         }
         searchTreeParameters.setMnecParameters(mnecParameters);

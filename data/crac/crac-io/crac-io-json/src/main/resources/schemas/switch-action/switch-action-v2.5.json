@@ -1,13 +1,13 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema#",
-  "$id": "https://www.powsybl.org?open-rao-crac-schema=switch-action-v2.5.json",
+  "$id": "resource:/schemas/switch-action/switch-action-v2.5.json",
   "type": "object",
   "properties": {
     "networkElementId": {
       "type": "string"
     },
     "actionType": {
-      "$ref": "resource:/schemas/action-type/action-type-v1.0.json"
+      "$ref": "../action-type/action-type-v1.0.json"
     }
   },
   "additionalProperties": false,

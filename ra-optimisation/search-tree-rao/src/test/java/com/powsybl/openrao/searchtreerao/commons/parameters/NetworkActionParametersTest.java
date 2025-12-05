@@ -4,6 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 package com.powsybl.openrao.searchtreerao.commons.parameters;
 
 import com.powsybl.openrao.data.crac.api.Crac;
@@ -11,7 +12,6 @@ import com.powsybl.openrao.data.crac.api.CracFactory;
 import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.networkaction.ActionType;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.openrao.data.crac.impl.utils.ExhaustiveCracCreation;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
@@ -50,9 +50,9 @@ class NetworkActionParametersTest {
         NetworkActionParameters nap = NetworkActionParameters.buildFromRaoParameters(raoParameters, crac);
 
         assertEquals(1, nap.getNetworkActionCombinations().size());
-        assertEquals(2, nap.getNetworkActionCombinations().get(0).getNetworkActionSet().size());
-        assertTrue(nap.getNetworkActionCombinations().get(0).getNetworkActionSet().contains(crac.getNetworkAction("complexNetworkActionId")));
-        assertTrue(nap.getNetworkActionCombinations().get(0).getNetworkActionSet().contains(crac.getNetworkAction("switchPairRaId")));
+        assertEquals(2, nap.getNetworkActionCombinations().getFirst().getNetworkActionSet().size());
+        assertTrue(nap.getNetworkActionCombinations().getFirst().getNetworkActionSet().contains(crac.getNetworkAction("complexNetworkActionId")));
+        assertTrue(nap.getNetworkActionCombinations().getFirst().getNetworkActionSet().contains(crac.getNetworkAction("switchPairRaId")));
 
         assertEquals(20., nap.getAbsoluteNetworkActionMinimumImpactThreshold(), 1e-6);
         assertEquals(0.01, nap.getRelativeNetworkActionMinimumImpactThreshold(), 1e-6);
@@ -83,21 +83,21 @@ class NetworkActionParametersTest {
                 .withId("topological-action-1")
                 .withOperator("operator-1")
                 .newSwitchAction().withActionType(ActionType.OPEN).withNetworkElement("any-network-element").add()
-                .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(PREVENTIVE_INSTANT_ID).add()
+                .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
                 .add();
 
         crac.newNetworkAction()
                 .withId("topological-action-2")
                 .withOperator("operator-2")
                 .newTerminalsConnectionAction().withActionType(ActionType.CLOSE).withNetworkElement("any-other-network-element").add()
-                .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(PREVENTIVE_INSTANT_ID).add()
+                .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
                 .add();
 
         crac.newNetworkAction()
                 .withId("pst-setpoint")
                 .withOperator("operator-2")
                 .newPhaseTapChangerTapPositionAction().withTapPosition(10).withNetworkElement("any-other-network-element").add()
-                .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(PREVENTIVE_INSTANT_ID).add()
+                .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT_ID).add()
                 .add();
 
         // test list
@@ -116,7 +116,7 @@ class NetworkActionParametersTest {
 
         assertEquals(5, searchTreeParameters.getTopoOptimizationParameters().getPredefinedCombinations().size());
         assertEquals(2, naCombinations.size());
-        assertEquals(2, naCombinations.get(0).getNetworkActionSet().size());
+        assertEquals(2, naCombinations.getFirst().getNetworkActionSet().size());
         assertEquals(3, naCombinations.get(1).getNetworkActionSet().size());
     }
 }

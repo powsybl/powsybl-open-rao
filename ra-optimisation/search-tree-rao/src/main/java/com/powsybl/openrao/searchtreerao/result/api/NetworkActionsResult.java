@@ -21,7 +21,7 @@ public interface NetworkActionsResult {
     /**
      * It states if the {@link NetworkAction} is activated.
      *
-     * @param networkAction: The network action to be studied.
+     * @param networkAction The network action to be studied.
      * @return True if the network action is chosen by the optimizer.
      */
     boolean isActivated(NetworkAction networkAction);
@@ -33,10 +33,5 @@ public interface NetworkActionsResult {
      */
     Set<NetworkAction> getActivatedNetworkActions();
 
-    /**
-     * It retrieves the {@link NetworkAction} instances activated, grouped by {@link State}.
-     *
-     * @return A map where each key ({@link State}) corresponds to a set of activated network actions during said state.
-     */
     Map<State, Set<NetworkAction>> getActivatedNetworkActionsPerState();
 }

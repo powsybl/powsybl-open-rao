@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, RTE (http://www.rte-france.com)
+ * Copyright (c) 2025, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -113,21 +113,20 @@ public class CostCoreProblemFiller extends AbstractCoreProblemFiller {
     @Override
     protected void fillObjective(LinearProblem linearProblem) {
         optimizationContext.getRangeActionsPerState().forEach((state, rangeActions) -> rangeActions.forEach(ra -> {
-                OpenRaoMPVariable upwardVariationVariable = linearProblem.getRangeActionVariationVariable(ra, state, LinearProblem.VariationDirectionExtension.UPWARD);
-                OpenRaoMPVariable downwardVariationVariable = linearProblem.getRangeActionVariationVariable(ra, state, LinearProblem.VariationDirectionExtension.DOWNWARD);
+            OpenRaoMPVariable upwardVariationVariable = linearProblem.getRangeActionVariationVariable(ra, state, LinearProblem.VariationDirectionExtension.UPWARD);
+            OpenRaoMPVariable downwardVariationVariable = linearProblem.getRangeActionVariationVariable(ra, state, LinearProblem.VariationDirectionExtension.DOWNWARD);
 
-                double defaultVariationCost = getRangeActionPenaltyCost(ra, rangeActionParameters);
-                // pst costs are considered in the discreteTapFiller
-                if (!(ra instanceof PstRangeAction)) {
-                    linearProblem.getObjective().setCoefficient(upwardVariationVariable, ra.getVariationCost(VariationDirection.UP).orElse(defaultVariationCost));
-                    linearProblem.getObjective().setCoefficient(downwardVariationVariable, ra.getVariationCost(VariationDirection.DOWN).orElse(defaultVariationCost));
-                }
-
-                if (ra.getActivationCost().isPresent() && ra.getActivationCost().get() > 0) {
-                    OpenRaoMPVariable activationVariable = linearProblem.getRangeActionVariationBinary(ra, state);
-                    linearProblem.getObjective().setCoefficient(activationVariable, ra.getActivationCost().get());
-                }
+            double defaultVariationCost = getRangeActionPenaltyCost(ra, rangeActionParameters);
+            // pst costs are considered in the discreteTapFiller
+            if (!(ra instanceof PstRangeAction)) {
+                linearProblem.getObjective().setCoefficient(upwardVariationVariable, ra.getVariationCost(VariationDirection.UP).orElse(defaultVariationCost));
+                linearProblem.getObjective().setCoefficient(downwardVariationVariable, ra.getVariationCost(VariationDirection.DOWN).orElse(defaultVariationCost));
             }
-        ));
+
+            if (ra.getActivationCost().isPresent() && ra.getActivationCost().get() > 0) {
+                OpenRaoMPVariable activationVariable = linearProblem.getRangeActionVariationBinary(ra, state);
+                linearProblem.getObjective().setCoefficient(activationVariable, ra.getActivationCost().get());
+            }
+        }));
     }
 }

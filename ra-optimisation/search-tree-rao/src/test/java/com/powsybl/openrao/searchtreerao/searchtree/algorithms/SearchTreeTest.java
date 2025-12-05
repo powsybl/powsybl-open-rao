@@ -10,6 +10,7 @@ package com.powsybl.openrao.searchtreerao.searchtree.algorithms;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
+import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.commons.logs.RaoBusinessLogs;
@@ -21,11 +22,14 @@ import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
+import com.powsybl.openrao.data.crac.impl.HvdcRangeActionImpl;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters;
+import com.powsybl.openrao.searchtreerao.commons.HvdcUtils;
 import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
 import com.powsybl.openrao.searchtreerao.commons.SensitivityComputer;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
@@ -41,8 +45,11 @@ import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 import com.powsybl.openrao.util.AbstractNetworkPool;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManager;
+import com.powsybl.sensitivity.SensitivityAnalysisParameters;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.slf4j.LoggerFactory;
 
@@ -69,7 +76,7 @@ class SearchTreeTest {
     private final State optimizedState = Mockito.mock(State.class);
     private OptimizationPerimeter optimizationPerimeter;
     private NetworkAction networkAction;
-    private List<NetworkActionCombination> availableNaCombinations = new ArrayList<>();
+    private final List<NetworkActionCombination> availableNaCombinations = new ArrayList<>();
     private Set<NetworkAction> availableNetworkActions;
     private RangeAction<?> rangeAction1;
     private RangeAction<?> rangeAction2;
@@ -87,6 +94,8 @@ class SearchTreeTest {
 
     private NetworkActionCombination predefinedNaCombination;
 
+    MockedStatic<HvdcUtils> hvdcUtilsMock;
+
     @BeforeEach
     void setUp() {
         setSearchTreeInput();
@@ -96,6 +105,24 @@ class SearchTreeTest {
         when(searchTreeParameters.getObjectiveFunction()).thenReturn(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN);
         when(searchTreeParameters.getObjectiveFunctionUnit()).thenReturn(Unit.MEGAWATT);
         mockNetworkPool(network);
+
+        // Mock call to runLoadFlowAndUpdateHvdcActivePowerSetpoint(...)
+        hvdcUtilsMock = mockStatic(HvdcUtils.class);
+        hvdcUtilsMock
+            .when(() -> HvdcUtils.runLoadFlowAndUpdateHvdcActivePowerSetpoint(any(Network.class), any(State.class), any(String.class), any(LoadFlowParameters.class), any(Set.class)))
+            .thenReturn(Map.of());
+
+        hvdcUtilsMock
+            .when(() -> HvdcUtils.getHvdcRangeActionsOnHvdcLineInAcEmulation(any(), eq(network)))
+            .thenCallRealMethod();
+
+    }
+
+    @AfterEach
+    void tearDown() {
+        if (hvdcUtilsMock != null) {
+            hvdcUtilsMock.close();
+        }
     }
 
     private void setSearchTreeParameters() {
@@ -112,6 +139,10 @@ class SearchTreeTest {
         predefinedNaCombination = Mockito.mock(NetworkActionCombination.class);
         when(predefinedNaCombination.getConcatenatedId()).thenReturn("predefinedNa");
         when(networkActionParameters.getNetworkActionCombinations()).thenReturn(List.of(predefinedNaCombination));
+        LoadFlowAndSensitivityParameters loadFlowAndSensitivityParameters = Mockito.mock(LoadFlowAndSensitivityParameters.class);
+        when(searchTreeParameters.getLoadFlowAndSensitivityParameters()).thenReturn(Optional.ofNullable(loadFlowAndSensitivityParameters));
+        SensitivityAnalysisParameters sensitivityAnalysisParameters = Mockito.mock(SensitivityAnalysisParameters.class);
+        when(loadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters()).thenReturn(sensitivityAnalysisParameters);
     }
 
     private void setSearchTreeInput() {
@@ -126,6 +157,7 @@ class SearchTreeTest {
         availableRangeActions = new HashSet<>();
         when(optimizationPerimeter.getRangeActions()).thenReturn(availableRangeActions);
         when(optimizationPerimeter.getMainOptimizationState()).thenReturn(optimizedState);
+        when(optimizationPerimeter.copyWithFilteredAvailableHvdcRangeAction(network)).thenReturn(optimizationPerimeter);
         FlowCnec cnec = Mockito.mock(FlowCnec.class);
         when(cnec.isOptimized()).thenReturn(true);
         when(optimizationPerimeter.getFlowCnecs()).thenReturn(Set.of(cnec));
@@ -187,6 +219,25 @@ class SearchTreeTest {
         OptimizationResult result = searchTree.run().get();
         assertEquals(rootLeaf, result);
         assertEquals(2., result.getCost(), DOUBLE_TOLERANCE);
+
+        hvdcUtilsMock.verify(() -> HvdcUtils.runLoadFlowAndUpdateHvdcActivePowerSetpoint(any(), any(), any(), any(), any()), times(0));
+    }
+
+    @Test
+    void runAndOptimizeOnlyRootLeafWithLoadFlow() throws Exception {
+        raoWithoutLoopFlowLimitation();
+        setStopCriterionAtMinObjective();
+        when(rootLeaf.getCost()).thenReturn(2.);
+        when(rootLeaf.getStatus()).thenReturn(Leaf.Status.EVALUATED, Leaf.Status.OPTIMIZED);
+        Mockito.doReturn(rootLeaf).when(searchTree).makeLeaf(optimizationPerimeter, network, prePerimeterResult, appliedRemedialActions);
+        // add an hvdc range action on a HVDC lie in AC emulation
+        HvdcRangeAction hvdcRangeAction = Mockito.mock(HvdcRangeActionImpl.class);
+        when(hvdcRangeAction.isAngleDroopActivePowerControlEnabled(network)).thenReturn(true);
+        when(optimizationPerimeter.getRangeActions()).thenReturn(Set.of(hvdcRangeAction));
+        OptimizationResult result = searchTree.run().get();
+
+        hvdcUtilsMock.verify(() -> HvdcUtils.runLoadFlowAndUpdateHvdcActivePowerSetpoint(any(), any(), any(), any(), any()), times(1));
+
     }
 
     @Test
@@ -302,8 +353,6 @@ class SearchTreeTest {
 
         NetworkAction networkAction1 = Mockito.mock(NetworkAction.class);
         NetworkAction networkAction2 = Mockito.mock(NetworkAction.class);
-        when(networkAction1.getUsageMethod(any())).thenReturn(UsageMethod.AVAILABLE);
-        when(networkAction2.getUsageMethod(any())).thenReturn(UsageMethod.AVAILABLE);
         when(networkAction1.getOperator()).thenReturn("operator1");
         when(networkAction2.getOperator()).thenReturn("operator2");
         when(networkAction1.getId()).thenReturn("na1");
@@ -324,7 +373,7 @@ class SearchTreeTest {
 
         when(childLeaf1.getStatus()).thenReturn(Leaf.Status.EVALUATED, Leaf.Status.OPTIMIZED);
         when(childLeaf1.getCost()).thenReturn(childLeaf1CostAfterOptim);
-        Mockito.doReturn(childLeaf1).when(searchTree).createChildLeaf(any(), eq(availableNaCombinations.get(0)), eq(false));
+        Mockito.doReturn(childLeaf1).when(searchTree).createChildLeaf(any(), eq(availableNaCombinations.getFirst()), eq(false));
 
         when(childLeaf2.getStatus()).thenReturn(Leaf.Status.EVALUATED, Leaf.Status.OPTIMIZED);
         when(childLeaf2.getCost()).thenReturn(childLeaf2CostAfterOptim);
@@ -375,13 +424,11 @@ class SearchTreeTest {
         when(rangeAction1.getOperator()).thenReturn(tsoName);
         when(rangeAction1.getName()).thenReturn("PST1");
         when(rangeAction1.getId()).thenReturn("PST1");
-        when(rangeAction1.getUsageMethod(any())).thenReturn(UsageMethod.AVAILABLE);
         when(rangeAction1.getMaxAdmissibleSetpoint(anyDouble())).thenReturn(5.);
         when(rangeAction1.getMinAdmissibleSetpoint(anyDouble())).thenReturn(-5.);
         when(rangeAction2.getOperator()).thenReturn(tsoName);
         when(rangeAction2.getName()).thenReturn("PST2");
         when(rangeAction2.getId()).thenReturn("PST2");
-        when(rangeAction2.getUsageMethod(any())).thenReturn(UsageMethod.AVAILABLE);
         when(rangeAction2.getMaxAdmissibleSetpoint(anyDouble())).thenReturn(5.);
         when(rangeAction2.getMinAdmissibleSetpoint(anyDouble())).thenReturn(-5.);
         availableRangeActions.add(rangeAction1);
@@ -428,7 +475,6 @@ class SearchTreeTest {
 
     private void searchTreeWithOneChildLeaf() {
         networkAction = Mockito.mock(NetworkAction.class);
-        when(networkAction.getUsageMethod(any())).thenReturn(UsageMethod.AVAILABLE);
         when(networkAction.getOperator()).thenReturn("operator");
         when(networkAction.getId()).thenReturn("na1");
         availableNetworkActions.add(networkAction);
@@ -453,7 +499,6 @@ class SearchTreeTest {
         when(optimizationPerimeter.getFlowCnecs()).thenReturn(Set.of(mnec));
 
         RangeAction<?> ra = Mockito.mock(RangeAction.class);
-        when(ra.getUsageMethod(any())).thenReturn(UsageMethod.AVAILABLE);
         when(optimizationPerimeter.getRangeActions()).thenReturn(Set.of(ra));
 
         double leafCost = 0.;
@@ -491,8 +536,8 @@ class SearchTreeTest {
         searchTree.run();
         assertEquals(1, technical.list.size());
         assertEquals(2, business.list.size());
-        assertEquals(expectedLog1, technical.list.get(0).toString());
-        assertEquals(expectedLog2, business.list.get(0).toString());
+        assertEquals(expectedLog1, technical.list.getFirst().toString());
+        assertEquals(expectedLog2, business.list.getFirst().toString());
         assertEquals(expectedLog3, business.list.get(1).toString());
     }
 
@@ -517,9 +562,9 @@ class SearchTreeTest {
         searchTree.run();
         assertEquals(2, technical.list.size());
         assertEquals(1, business.list.size());
-        assertEquals(expectedLog1, technical.list.get(0).toString());
+        assertEquals(expectedLog1, technical.list.getFirst().toString());
         assertEquals(expectedLog2, technical.list.get(1).toString());
-        assertEquals(expectedLog3, business.list.get(0).toString());
+        assertEquals(expectedLog3, business.list.getFirst().toString());
     }
 
     private ListAppender<ILoggingEvent> getLogs(Class clazz) {
@@ -588,7 +633,7 @@ class SearchTreeTest {
 
         List<String> logs = searchTree.getVirtualCostlyElementsLogs(rootLeaf, "loop-flow-cost", "Optimized ");
         assertEquals(1, logs.size());
-        assertEquals("Optimized leaf-id, limiting \"loop-flow-cost\" constraint #01: flow = 1135.00 MW, threshold = 1000.00 MW, margin = -135.00 MW, element ne-id at state state-id, CNEC ID = \"cnec-id\", CNEC name = \"cnec-name\"", logs.get(0));
+        assertEquals("Optimized leaf-id, limiting \"loop-flow-cost\" constraint #01: flow = 1135.00 MW, threshold = 1000.00 MW, margin = -135.00 MW, element ne-id at state state-id, CNEC ID = \"cnec-id\", CNEC name = \"cnec-name\"", logs.getFirst());
     }
 
     @Test
@@ -608,7 +653,7 @@ class SearchTreeTest {
         ListAppender<ILoggingEvent> business = getLogs(RaoBusinessLogs.class);
         searchTree.logVirtualCostDetails(rootLeaf, "loop-flow-cost", "Optimized ");
         assertEquals(2, business.list.size());
-        assertEquals("[INFO] Optimized leaf-id, stop criterion could have been reached without \"loop-flow-cost\" virtual cost", business.list.get(0).toString());
+        assertEquals("[INFO] Optimized leaf-id, stop criterion could have been reached without \"loop-flow-cost\" virtual cost", business.list.getFirst().toString());
         assertEquals("[INFO] Optimized leaf-id, limiting \"loop-flow-cost\" constraint #01: flow = 1135.00 MW, threshold = 1000.00 MW, margin = -135.00 MW, element ne-id at state state-id, CNEC ID = \"cnec-id\", CNEC name = \"cnec-name\"", business.list.get(1).toString());
     }
 
@@ -617,7 +662,7 @@ class SearchTreeTest {
         setUpForVirtualLogs();
         List<ILoggingEvent> logsList = getLogs(TechnicalLogs.class).list;
         logRangeActions(TECHNICAL_LOGS, rootLeaf, searchTreeInput.getOptimizationPerimeter(), "");
-        assertEquals("[INFO] No range actions activated", logsList.get(logsList.size() - 1).toString());
+        assertEquals("[INFO] No range actions activated", logsList.getLast().toString());
 
         // apply 2 range actions
         rangeAction1 = Mockito.mock(PstRangeAction.class);
@@ -629,9 +674,9 @@ class SearchTreeTest {
 
         logRangeActions(TECHNICAL_LOGS, rootLeaf, searchTreeInput.getOptimizationPerimeter(), "");
         // PST can be logged in any order
-        assert logsList.get(logsList.size() - 1).toString().contains("[INFO] range action(s):");
-        assert logsList.get(logsList.size() - 1).toString().contains("PST1: 0");
-        assert logsList.get(logsList.size() - 1).toString().contains("PST2: 0");
+        assert logsList.getLast().toString().contains("[INFO] range action(s):");
+        assert logsList.getLast().toString().contains("PST1: 0");
+        assert logsList.getLast().toString().contains("PST2: 0");
     }
 
     @Test

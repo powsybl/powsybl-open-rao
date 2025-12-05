@@ -4,6 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 package com.powsybl.openrao.data.crac.impl;
 
 import com.powsybl.openrao.commons.OpenRaoException;
@@ -11,7 +12,6 @@ import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 import com.powsybl.openrao.data.crac.api.usagerule.OnConstraint;
 import com.powsybl.openrao.data.crac.api.usagerule.OnConstraintAdder;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 
 import java.util.Objects;
 
@@ -25,7 +25,6 @@ public class OnConstraintAdderImpl<T extends AbstractRemedialActionAdder<T>, S e
     private final T owner;
     private String instantId;
     private String cnecId;
-    private UsageMethod usageMethod;
 
     OnConstraintAdderImpl(AbstractRemedialActionAdder<T> owner) {
         this.owner = (T) owner;
@@ -34,12 +33,6 @@ public class OnConstraintAdderImpl<T extends AbstractRemedialActionAdder<T>, S e
     @Override
     public OnConstraintAdderImpl<T, S> withInstant(String instantId) {
         this.instantId = instantId;
-        return this;
-    }
-
-    @Override
-    public OnConstraintAdderImpl<T, S> withUsageMethod(UsageMethod usageMethod) {
-        this.usageMethod = usageMethod;
         return this;
     }
 
@@ -53,7 +46,6 @@ public class OnConstraintAdderImpl<T extends AbstractRemedialActionAdder<T>, S e
     public T add() {
         assertAttributeNotNull(instantId, ON_CONSTRAINT, "instant", "withInstant()");
         assertAttributeNotNull(cnecId, ON_CONSTRAINT, "cnec", "withCnec()");
-        assertAttributeNotNull(usageMethod, ON_CONSTRAINT, "usage method", "withUsageMethod()");
 
         Instant instant = owner.getCrac().getInstant(instantId);
         if (instant.isOutage()) {
@@ -70,7 +62,7 @@ public class OnConstraintAdderImpl<T extends AbstractRemedialActionAdder<T>, S e
 
         AbstractRemedialActionAdder.checkOnConstraintUsageRules(instant, cnec);
 
-        OnConstraint<S> onConstraint = new OnConstraintImpl<>(usageMethod, instant, cnec);
+        OnConstraint<S> onConstraint = new OnConstraintImpl<>(instant, cnec);
         owner.addUsageRule(onConstraint);
         return owner;
     }

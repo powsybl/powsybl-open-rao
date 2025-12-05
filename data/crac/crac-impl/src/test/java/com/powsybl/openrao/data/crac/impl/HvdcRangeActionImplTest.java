@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2021, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
- *  License, v. 2.0. If a copy of the MPL was not distributed with this
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
@@ -14,15 +14,12 @@ import com.powsybl.openrao.data.crac.impl.utils.NetworkImportsUtil;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.range.StandardRangeAdder;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.Optional;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -35,7 +32,6 @@ class HvdcRangeActionImplTest {
     private Network network;
     private Network networkWithAngleDroop;
     private HvdcLine hvdcLine;
-    private HvdcLine hvdcLineWithAngleDroop;
 
     @BeforeEach
     public void setUp() {
@@ -50,11 +46,9 @@ class HvdcRangeActionImplTest {
             .withName("hvdc-range-action-name")
             .withNetworkElement("BBE2AA11 FFR3AA11 1")
             .withOperator("operator")
-            .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add();
+            .newOnInstantUsageRule().withInstant("preventive").add();
 
         hvdcLine = network.getHvdcLine(networkElementId);
-        hvdcLineWithAngleDroop = networkWithAngleDroop.getHvdcLine(networkElementId);
-        hvdcLineWithAngleDroop.getExtension(HvdcAngleDroopActivePowerControl.class).setEnabled(true);
     }
 
     @Test
@@ -62,6 +56,15 @@ class HvdcRangeActionImplTest {
         HvdcRangeAction hvdcRa = hvdcRangeActionAdder.newRange().withMin(-5).withMax(10).add()
                 .add();
         assertEquals(0, hvdcRa.getCurrentSetpoint(network), 1e-6);
+        assertEquals(0, hvdcRa.getCurrentSetpoint(networkWithAngleDroop), 1e-6);
+    }
+
+    @Test
+    void testSetInitialSetpoint() {
+        HvdcRangeAction hvdcRa = hvdcRangeActionAdder.newRange().withMin(-5).withMax(10).add()
+            .add();
+        hvdcRa.setInitialSetpoint(10.0);
+        assertEquals(10.0, hvdcRa.getInitialSetpoint(), 1e-6);
     }
 
     @Test
@@ -69,10 +72,12 @@ class HvdcRangeActionImplTest {
         HvdcRangeAction hvdcRa = hvdcRangeActionAdder.newRange().withMin(-5).withMax(10).add()
                 .add();
         hvdcRa.apply(network, 5);
-        hvdcRa.apply(networkWithAngleDroop, 6);
         assertEquals(5, hvdcRa.getCurrentSetpoint(network), 1e-6);
-        assertEquals(6, hvdcRa.getCurrentSetpoint(networkWithAngleDroop), 1e-6);
-        assertFalse(hvdcLineWithAngleDroop.getExtension(HvdcAngleDroopActivePowerControl.class).isEnabled());
+
+        // Not allowed to change HVDC line's active setpoint if the line is in AC emulation mode.
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> hvdcRa.apply(networkWithAngleDroop, 6));
+        assertEquals("Unable to set an active power setpoint for HVDC line BBE2AA11 FFR3AA11 1 because it is operating in AC Emulation mode.", exception.getMessage());
+
     }
 
     @Test
@@ -80,10 +85,11 @@ class HvdcRangeActionImplTest {
         HvdcRangeAction hvdcRa = hvdcRangeActionAdder.newRange().withMin(-5).withMax(10).add()
                 .add();
         hvdcRa.apply(network, -3);
-        hvdcRa.apply(networkWithAngleDroop, -4);
         assertEquals(-3, hvdcRa.getCurrentSetpoint(network), 1e-6);
-        assertEquals(-4, hvdcRa.getCurrentSetpoint(networkWithAngleDroop), 1e-6);
-        assertFalse(hvdcLineWithAngleDroop.getExtension(HvdcAngleDroopActivePowerControl.class).isEnabled());
+
+        // Not allowed to change HVDC line's active setpoint if the line is in AC emulation mode.
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> hvdcRa.apply(networkWithAngleDroop, -4));
+        assertEquals("Unable to set an active power setpoint for HVDC line BBE2AA11 FFR3AA11 1 because it is operating in AC Emulation mode.", exception.getMessage());
     }
 
     @Test
@@ -145,10 +151,8 @@ class HvdcRangeActionImplTest {
     void testGetLocation() {
         HvdcRangeAction hvdcRa = hvdcRangeActionAdder.newRange().withMin(-5).withMax(10).add()
                 .add();
-        Set<Optional<Country>> countries = hvdcRa.getLocation(network);
-        assertEquals(2, countries.size());
-        assertTrue(countries.contains(Optional.of(Country.BE)));
-        assertTrue(countries.contains(Optional.of(Country.FR)));
+        Set<Country> countries = hvdcRa.getLocation(network);
+        assertEquals(Set.of(Country.BE, Country.FR), countries);
     }
 
     @Test

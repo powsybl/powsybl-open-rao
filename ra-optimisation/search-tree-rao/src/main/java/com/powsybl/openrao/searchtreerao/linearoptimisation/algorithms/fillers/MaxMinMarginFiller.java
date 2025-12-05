@@ -154,4 +154,3 @@ public class MaxMinMarginFiller implements ProblemFiller {
     }
 
 }
-

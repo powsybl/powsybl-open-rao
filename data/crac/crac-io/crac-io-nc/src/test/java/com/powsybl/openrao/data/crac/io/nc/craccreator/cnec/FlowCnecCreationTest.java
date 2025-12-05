@@ -1,10 +1,16 @@
+/*
+ * Copyright (c) 2023, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
 package com.powsybl.openrao.data.crac.io.nc.craccreator.cnec;
 
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.io.nc.craccreator.NcCracCreationContext;
 import com.powsybl.openrao.data.crac.io.nc.craccreator.NcCracCreationTestUtil;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
 import org.junit.jupiter.api.Test;
 
@@ -12,6 +18,9 @@ import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
+ */
 class FlowCnecCreationTest {
 
     @Test
@@ -541,17 +550,17 @@ class FlowCnecCreationTest {
 
         assertEquals(5, cracCreationContext.getCrac().getRemedialAction("remedial-action-1").getUsageRules().size());
 
-        NcCracCreationTestUtil.assertHasOnConstraintUsageRule(cracCreationContext, "remedial-action-1", "RTE_AE1 (assessed-element-1) - RTE_CO1 - curative 2 - PATL", cracCreationContext.getCrac().getInstant(NcCracCreationTestUtil.CURATIVE_1_INSTANT_ID), UsageMethod.AVAILABLE, FlowCnec.class);
-        NcCracCreationTestUtil.assertHasOnConstraintUsageRule(cracCreationContext, "remedial-action-1", "RTE_AE1 (assessed-element-1) - RTE_CO1 - curative 3 - PATL", cracCreationContext.getCrac().getInstant(NcCracCreationTestUtil.CURATIVE_1_INSTANT_ID), UsageMethod.AVAILABLE, FlowCnec.class);
-        NcCracCreationTestUtil.assertHasOnConstraintUsageRule(cracCreationContext, "remedial-action-1", "RTE_AE1 (assessed-element-1) - RTE_CO1 - curative 2 - PATL", cracCreationContext.getCrac().getInstant(NcCracCreationTestUtil.CURATIVE_2_INSTANT_ID), UsageMethod.AVAILABLE, FlowCnec.class);
-        NcCracCreationTestUtil.assertHasOnConstraintUsageRule(cracCreationContext, "remedial-action-1", "RTE_AE1 (assessed-element-1) - RTE_CO1 - curative 3 - PATL", cracCreationContext.getCrac().getInstant(NcCracCreationTestUtil.CURATIVE_2_INSTANT_ID), UsageMethod.AVAILABLE, FlowCnec.class);
-        NcCracCreationTestUtil.assertHasOnConstraintUsageRule(cracCreationContext, "remedial-action-1", "RTE_AE1 (assessed-element-1) - RTE_CO1 - curative 3 - PATL", cracCreationContext.getCrac().getInstant(NcCracCreationTestUtil.CURATIVE_3_INSTANT_ID), UsageMethod.AVAILABLE, FlowCnec.class);
+        NcCracCreationTestUtil.assertHasOnConstraintUsageRule(cracCreationContext, "remedial-action-1", "RTE_AE1 (assessed-element-1) - RTE_CO1 - curative 2 - PATL", cracCreationContext.getCrac().getInstant(NcCracCreationTestUtil.CURATIVE_1_INSTANT_ID), FlowCnec.class);
+        NcCracCreationTestUtil.assertHasOnConstraintUsageRule(cracCreationContext, "remedial-action-1", "RTE_AE1 (assessed-element-1) - RTE_CO1 - curative 3 - PATL", cracCreationContext.getCrac().getInstant(NcCracCreationTestUtil.CURATIVE_1_INSTANT_ID), FlowCnec.class);
+        NcCracCreationTestUtil.assertHasOnConstraintUsageRule(cracCreationContext, "remedial-action-1", "RTE_AE1 (assessed-element-1) - RTE_CO1 - curative 2 - PATL", cracCreationContext.getCrac().getInstant(NcCracCreationTestUtil.CURATIVE_2_INSTANT_ID), FlowCnec.class);
+        NcCracCreationTestUtil.assertHasOnConstraintUsageRule(cracCreationContext, "remedial-action-1", "RTE_AE1 (assessed-element-1) - RTE_CO1 - curative 3 - PATL", cracCreationContext.getCrac().getInstant(NcCracCreationTestUtil.CURATIVE_2_INSTANT_ID), FlowCnec.class);
+        NcCracCreationTestUtil.assertHasOnConstraintUsageRule(cracCreationContext, "remedial-action-1", "RTE_AE1 (assessed-element-1) - RTE_CO1 - curative 3 - PATL", cracCreationContext.getCrac().getInstant(NcCracCreationTestUtil.CURATIVE_3_INSTANT_ID), FlowCnec.class);
 
         assertEquals(3, cracCreationContext.getCrac().getRemedialAction("remedial-action-2").getUsageRules().size());
 
-        NcCracCreationTestUtil.assertHasOnInstantUsageRule(cracCreationContext, "remedial-action-2", NcCracCreationTestUtil.CURATIVE_1_INSTANT_ID, UsageMethod.AVAILABLE);
-        NcCracCreationTestUtil.assertHasOnInstantUsageRule(cracCreationContext, "remedial-action-2", NcCracCreationTestUtil.CURATIVE_2_INSTANT_ID, UsageMethod.AVAILABLE);
-        NcCracCreationTestUtil.assertHasOnInstantUsageRule(cracCreationContext, "remedial-action-2", NcCracCreationTestUtil.CURATIVE_3_INSTANT_ID, UsageMethod.AVAILABLE);
+        NcCracCreationTestUtil.assertHasOnInstantUsageRule(cracCreationContext, "remedial-action-2", NcCracCreationTestUtil.CURATIVE_1_INSTANT_ID);
+        NcCracCreationTestUtil.assertHasOnInstantUsageRule(cracCreationContext, "remedial-action-2", NcCracCreationTestUtil.CURATIVE_2_INSTANT_ID);
+        NcCracCreationTestUtil.assertHasOnInstantUsageRule(cracCreationContext, "remedial-action-2", NcCracCreationTestUtil.CURATIVE_3_INSTANT_ID);
     }
 
     @Test

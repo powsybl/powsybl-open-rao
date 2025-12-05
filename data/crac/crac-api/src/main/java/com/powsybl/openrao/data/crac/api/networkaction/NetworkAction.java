@@ -10,6 +10,7 @@ package com.powsybl.openrao.data.crac.api.networkaction;
 import com.powsybl.action.*;
 import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
 import org.apache.commons.lang3.NotImplementedException;
 
 import java.util.Set;
@@ -30,7 +31,7 @@ public interface NetworkAction extends RemedialAction<NetworkAction> {
     /**
      * States if the remedial action would change the current state of the network. It has no impact on the network.
      *
-     * @param network: Network that serves as reference for the impact.
+     * @param network Network that serves as reference for the impact.
      * @return True if the remedial action would have an impact on the network.
      */
     boolean hasImpactOnNetwork(final Network network);
@@ -95,8 +96,12 @@ public interface NetworkAction extends RemedialAction<NetworkAction> {
             return terminalsConnectionAction.getElementId();
         } else if (elementaryAction instanceof SwitchAction switchAction) {
             return switchAction.getSwitchId();
+        } else if (elementaryAction instanceof HvdcAction hvdcAction) {
+            return hvdcAction.getHvdcId();
         } else {
             throw new NotImplementedException();
         }
     }
+
+    void addUsageRule(UsageRule usageRule);
 }

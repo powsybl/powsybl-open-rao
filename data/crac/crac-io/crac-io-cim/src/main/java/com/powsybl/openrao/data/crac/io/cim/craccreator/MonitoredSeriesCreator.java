@@ -248,9 +248,12 @@ public class MonitoredSeriesCreator {
         try {
             cnecId = addThreshold(flowCnecAdder, unit, branchHelper, cnecNativeId, direction, threshold);
             setNominalVoltage(flowCnecAdder, branchHelper);
-            IidmCnecElementHelper cnecElementHelper = new IidmCnecElementHelper(branchHelper.getBranch().getId(), network);
-            flowCnecAdder.withIMax(cnecElementHelper.getCurrentLimit(TwoSides.ONE), TwoSides.ONE);
-            flowCnecAdder.withIMax(cnecElementHelper.getCurrentLimit(TwoSides.TWO), TwoSides.TWO);
+            if (Unit.PERCENT_IMAX.equals(unit)) {
+                IidmCnecElementHelper cnecElementHelper = new IidmCnecElementHelper(branchHelper.getBranch().getId(), network);
+                flowCnecAdder.withIMax(cnecElementHelper.getCurrentLimit(TwoSides.ONE), TwoSides.ONE);
+                flowCnecAdder.withIMax(cnecElementHelper.getCurrentLimit(TwoSides.TWO), TwoSides.TWO);
+            }
+
         } catch (OpenRaoException e) {
             if (instant.isPreventive()) {
                 measurementCreationContext.addCnecCreationContext(null, instant, CnecCreationContext.notImported(ImportStatus.OTHER, e.getMessage()));

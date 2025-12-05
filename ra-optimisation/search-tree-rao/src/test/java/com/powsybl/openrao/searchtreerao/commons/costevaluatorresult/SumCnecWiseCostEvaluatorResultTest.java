@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, RTE (http://www.rte-france.com)
+ * Copyright (c) 2025, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -25,9 +25,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
 class SumCnecWiseCostEvaluatorResultTest {
-    private State preventiveState;
-    private State curativeState1;
-    private State curativeState2;
 
     private FlowCnec flowCnecPreventive;
     private FlowCnec flowCnecCurative1;
@@ -36,7 +33,7 @@ class SumCnecWiseCostEvaluatorResultTest {
 
     @BeforeEach
     void setUp() {
-        preventiveState = Mockito.mock(State.class);
+        State preventiveState = Mockito.mock(State.class);
         Mockito.when(preventiveState.getContingency()).thenReturn(Optional.empty());
         flowCnecPreventive = Mockito.mock(FlowCnec.class);
         Mockito.when(flowCnecPreventive.getState()).thenReturn(preventiveState);
@@ -45,7 +42,7 @@ class SumCnecWiseCostEvaluatorResultTest {
 
         Contingency contingency1 = Mockito.mock(Contingency.class);
         Mockito.when(contingency1.getId()).thenReturn("contingency-1");
-        curativeState1 = Mockito.mock(State.class);
+        State curativeState1 = Mockito.mock(State.class);
         Mockito.when(curativeState1.getContingency()).thenReturn(Optional.of(contingency1));
         flowCnecCurative1 = Mockito.mock(FlowCnec.class);
         Mockito.when(flowCnecCurative1.getState()).thenReturn(curativeState1);
@@ -58,7 +55,7 @@ class SumCnecWiseCostEvaluatorResultTest {
 
         Contingency contingency2 = Mockito.mock(Contingency.class);
         Mockito.when(contingency2.getId()).thenReturn("contingency-2");
-        curativeState2 = Mockito.mock(State.class);
+        State curativeState2 = Mockito.mock(State.class);
         Mockito.when(curativeState2.getContingency()).thenReturn(Optional.of(contingency2));
         flowCnecCurative2 = Mockito.mock(FlowCnec.class);
         Mockito.when(flowCnecCurative2.getState()).thenReturn(curativeState2);

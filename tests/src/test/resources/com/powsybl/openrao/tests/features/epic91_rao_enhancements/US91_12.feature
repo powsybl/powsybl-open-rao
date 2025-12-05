@@ -11,7 +11,7 @@ Feature: US 91.12: Multi-curative
     Given network file is "epic91/TestCase12Nodes_16ParallelLines.uct"
     Given crac file is "epic91/crac_12Nodes_16ParallelLines.json"
     Given configuration file is "epic91/RaoParameters_case_91_1_12.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then the flow on cnec "BBE1AA1  BBE2AA1  1 - Contingency NL2 BE3 5 - auto" after CRA should be -279.74 A
     Then the flow on cnec "BBE1AA1  BBE2AA1  1 - Contingency NL2 BE3 6 - auto" after CRA should be -279.74 A
     Then the flow on cnec "BBE1AA1  BBE2AA1  1 - Contingency NL2 BE3 7 - auto" after CRA should be -279.74 A
@@ -39,7 +39,7 @@ Feature: US 91.12: Multi-curative
     Given network file is "epic91/12Nodes3ParallelLines.uct"
     Given crac file is "epic91/crac_91_12_2.json"
     Given configuration file is "epic91/RaoParameters_case_91_12_secure.json"
-    When I launch search_tree_rao
+    When I launch rao
     # Basecase / After PRA
     Then 0 remedial actions are used in preventive
     Then the flow on cnec "NNL2AA1  BBE3AA1  1 - preventive" after PRA should be 500.0 MW
@@ -47,9 +47,9 @@ Feature: US 91.12: Multi-curative
     # After first curative
     Then 1 remedial actions are used after "Contingency DE2 DE3 1" at "curative1"
     Then the tap of PstRangeAction "CRA_PST_BE" should be -11 after "Contingency DE2 DE3 1" at "curative1"
-    Then the flow on cnec "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative1" after "curative1" instant remedial actions should be 500.0 MW
-    Then the flow on cnec "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative2" after "curative1" instant remedial actions should be 500.0 MW
-    Then the flow on cnec "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative3" after "curative1" instant remedial actions should be 500.0 MW
+    Then the flow on cnec "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative1" after "curative1" instant remedial actions should be 493.4 MW
+    Then the flow on cnec "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative2" after "curative1" instant remedial actions should be 493.4 MW
+    Then the flow on cnec "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative3" after "curative1" instant remedial actions should be 493.4 MW
     # After second curative
     Then 1 remedial actions are used after "Contingency DE2 DE3 1" at "curative2"
     Then the remedial action "CRA_CLOSE_NL2_BE3_2" is used after "Contingency DE2 DE3 1" at "curative2"
@@ -65,7 +65,7 @@ Feature: US 91.12: Multi-curative
     Given network file is "epic91/TestCase16Nodes_multi_curative.uct"
     Given crac file is "epic91/crac_91_12_auto_curative1_noCRA.json"
     Given configuration file is "epic91/RaoParameters_case_91_12_secure.json"
-    When I launch search_tree_rao
+    When I launch rao
     # Basecase / After PRA (PATL 500 MW)
     Then 0 remedial actions are used in preventive
     Then the flow on cnec "BBE1AA1  BBE3AA1  1 - preventive" after PRA should be -326.0 MW
@@ -102,7 +102,7 @@ Feature: US 91.12: Multi-curative
     Given network file is "epic91/12Nodes3ParallelLines.uct"
     Given crac file is "epic91/crac_91_12_2_with_ra_limits.json"
     Given configuration file is "epic91/RaoParameters_case_91_12_secure.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then 0 remedial actions are used after "Contingency DE2 DE3 1" at "curative1"
     Then 0 remedial actions are used after "Contingency DE2 DE3 1" at "curative2"
     Then 1 remedial actions are used after "Contingency DE2 DE3 1" at "curative3"
@@ -112,7 +112,7 @@ Feature: US 91.12: Multi-curative
     Given network file is "epic91/TestCase16Nodes_multi_curative.uct"
     Given crac file is "epic91/crac_91_12_auto_curative2_noCRA.json"
     Given configuration file is "epic91/RaoParameters_case_91_12_secure.json"
-    When I launch search_tree_rao
+    When I launch rao
     # Basecase / After PRA (PATL 500 MW)
     Then 0 remedial actions are used in preventive
     Then the flow on cnec "BBE1AA1  BBE3AA1  1 - preventive" after PRA should be -326.0 MW
@@ -149,7 +149,7 @@ Feature: US 91.12: Multi-curative
     Given network file is "epic91/TestCase16Nodes_multi_curative.uct"
     Given crac file is "epic91/crac_91_12_auto_curative3_noCRA.json"
     Given configuration file is "epic91/RaoParameters_case_91_12_secure.json"
-    When I launch search_tree_rao
+    When I launch rao
     # Basecase / After PRA (PATL 500 MW)
     Then 0 remedial actions are used in preventive
     Then the flow on cnec "BBE1AA1  BBE3AA1  1 - preventive" after PRA should be -326.0 MW
@@ -186,7 +186,7 @@ Feature: US 91.12: Multi-curative
     Given network file is "epic91/TestCase16Nodes_multi_curative.uct"
     Given crac file is "epic91/crac_91_12_curative1_noCRA.json"
     Given configuration file is "epic91/RaoParameters_case_91_12_secure.json"
-    When I launch search_tree_rao
+    When I launch rao
     # Basecase / After PRA (PATL 500 MW)
     Then the initial flow on cnec "BBE1AA1  BBE3AA1  1 - preventive" should be -326.0 MW
     Then 1 remedial actions are used in preventive
@@ -217,7 +217,7 @@ Feature: US 91.12: Multi-curative
     Given network file is "epic91/TestCase16Nodes_multi_curative.uct"
     Given crac file is "epic91/crac_91_12_curative2_noCRA.json"
     Given configuration file is "epic91/RaoParameters_case_91_12_search_tree.json"
-    When I launch search_tree_rao
+    When I launch rao
     # Basecase / After PRA (PATL 300 MW)
     Then the initial flow on cnec "BBE1AA1  BBE3AA1  1 - preventive" should be -326.0 MW
     Then 1 remedial actions are used in preventive
@@ -250,7 +250,7 @@ Feature: US 91.12: Multi-curative
     Given network file is "epic91/TestCase16Nodes_multi_curative.uct"
     Given crac file is "epic91/crac_91_12_curative3_noCRA.json"
     Given configuration file is "epic91/RaoParameters_case_91_12_secure.json"
-    When I launch search_tree_rao
+    When I launch rao
     # Basecase / After PRA (PATL 300 MW)
     Then the initial flow on cnec "BBE1AA1  BBE3AA1  1 - preventive" should be -326.0 MW
     Then 1 remedial actions are used in preventive
@@ -281,7 +281,7 @@ Feature: US 91.12: Multi-curative
     Given network file is "epic91/TestCase16Nodes_multi_curative.uct"
     Given crac file is "epic91/crac_91_12_ARA_noCRA.json"
     Given configuration file is "epic91/RaoParameters_case_91_12_secure.json"
-    When I launch search_tree_rao
+    When I launch rao
     # Basecase / After PRA (PATL 300 MW)
     Then the initial flow on cnec "BBE1AA1  BBE3AA1  1 - preventive" should be -326.0 MW
     Then 0 remedial actions are used in preventive
@@ -317,7 +317,7 @@ Feature: US 91.12: Multi-curative
     Given network file is "epic91/TestCase16Nodes_multi_curative.uct"
     Given crac file is "epic91/crac_91_12_noCRA.json"
     Given configuration file is "epic91/RaoParameters_case_91_12_secure.json"
-    When I launch search_tree_rao
+    When I launch rao
     # Basecase / After PRA (PATL 300 MW)
     Then the initial flow on cnec "BBE1AA1  BBE3AA1  1 - preventive" should be -326.0 MW
     Then 1 remedial actions are used in preventive
@@ -346,7 +346,7 @@ Feature: US 91.12: Multi-curative
     Given network file is "epic91/TestCase16Nodes_multi_curative.uct"
     Given crac file is "epic91/crac_91_12_auto_C1RA.json"
     Given configuration file is "epic91/RaoParameters_case_91_12_search_tree.json"
-    When I launch search_tree_rao
+    When I launch rao
     # Basecase / After PRA (PATL 500 MW)
     Then 0 remedial actions are used in preventive
     Then the flow on cnec "BBE1AA1  BBE3AA1  1 - preventive" after PRA should be -326.0 MW
@@ -383,7 +383,7 @@ Feature: US 91.12: Multi-curative
     Given network file is "epic91/TestCase16Nodes_multi_curative.uct"
     Given crac file is "epic91/crac_91_12_auto_C2RA.json"
     Given configuration file is "epic91/RaoParameters_case_91_12_search_tree.json"
-    When I launch search_tree_rao
+    When I launch rao
     # Basecase / After PRA (PATL 500 MW)
     Then 0 remedial actions are used in preventive
     Then the flow on cnec "BBE1AA1  BBE3AA1  1 - preventive" after PRA should be -326.0 MW
@@ -420,7 +420,7 @@ Feature: US 91.12: Multi-curative
     Given network file is "epic91/TestCase16Nodes_multi_curative.uct"
     Given crac file is "epic91/crac_91_12_auto_C3RA.json"
     Given configuration file is "epic91/RaoParameters_case_91_12_search_tree.json"
-    When I launch search_tree_rao
+    When I launch rao
     # Basecase / After PRA (PATL 400 MW)
     Then 0 remedial actions are used in preventive
     Then the flow on cnec "BBE1AA1  BBE3AA1  1 - preventive" after PRA should be -326.0 MW
@@ -457,7 +457,7 @@ Feature: US 91.12: Multi-curative
     Given network file is "epic91/TestCase16Nodes_multi_curative.uct"
     Given crac file is "epic91/crac_91_12_C1RA.json"
     Given configuration file is "epic91/RaoParameters_case_91_12_search_tree.json"
-    When I launch search_tree_rao
+    When I launch rao
     # Basecase / After PRA (PATL 500 MW)
     Then the initial flow on cnec "BBE1AA1  BBE3AA1  1 - preventive" should be -326.0 MW
     Then 1 remedial actions are used in preventive
@@ -488,7 +488,7 @@ Feature: US 91.12: Multi-curative
     Given network file is "epic91/TestCase16Nodes_multi_curative.uct"
     Given crac file is "epic91/crac_91_12_C2RA.json"
     Given configuration file is "epic91/RaoParameters_case_91_12_search_tree.json"
-    When I launch search_tree_rao
+    When I launch rao
     # Basecase / After PRA (PATL 500 MW)
     Then the initial flow on cnec "BBE1AA1  BBE3AA1  1 - preventive" should be -326.0 MW
     Then 1 remedial actions are used in preventive
@@ -519,7 +519,7 @@ Feature: US 91.12: Multi-curative
     Given network file is "epic91/TestCase16Nodes_multi_curative.uct"
     Given crac file is "epic91/crac_91_12_C3RA.json"
     Given configuration file is "epic91/RaoParameters_case_91_12_search_tree.json"
-    When I launch search_tree_rao
+    When I launch rao
     # Basecase / After PRA (PATL 500 MW)
     Then the initial flow on cnec "BBE1AA1  BBE3AA1  1 - preventive" should be -326.0 MW
     Then 1 remedial actions are used in preventive
@@ -553,7 +553,7 @@ Feature: US 91.12: Multi-curative
     Given network file is "epic91/12Nodes3ParallelLines.uct"
     Given crac file is "epic91/crac_91_12_16.json"
     Given configuration file is "epic91/RaoParameters_case_91_12_secure.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     And 3 remedial actions are used in preventive
     And the remedial action "PRA_PST_BE" is used in preventive
@@ -572,7 +572,7 @@ Feature: US 91.12: Multi-curative
     Given network file is "epic91/12Nodes3ParallelLines.uct"
     Given crac file is "epic91/crac_91_12_17.json"
     Given configuration file is "epic91/RaoParameters_case_91_12_secure_2PRAO.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then the execution details should be "Second preventive improved first preventive results"
     And 3 remedial actions are used in preventive
     And the remedial action "PRA_PST_BE" is used in preventive
@@ -592,7 +592,7 @@ Feature: US 91.12: Multi-curative
     Given network file is "epic91/12Nodes3ParallelLines.uct"
     Given crac file is "epic91/crac_91_12_18.json"
     Given configuration file is "epic91/RaoParameters_case_91_12_secure_2PRAO.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then the execution details should be "Second preventive improved first preventive results"
     # Initial
     And the initial flow on cnec "NNL2AA1  BBE3AA1  1 - preventive" should be 500.0 MW
@@ -632,7 +632,7 @@ Feature: US 91.12: Multi-curative
     Given network file is "epic91/12Nodes3ParallelLines.uct"
     Given crac file is "epic91/crac_91_12_19.json"
     Given configuration file is "epic91/RaoParameters_case_91_12_secure_2PRAO.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then the execution details should be "Second preventive improved first preventive results"
     # Preventive
     And 1 remedial actions are used in preventive
@@ -666,7 +666,7 @@ Feature: US 91.12: Multi-curative
     Given network file is "epic91/12Nodes3ParallelLines.uct"
     Given crac file is "epic91/crac_91_12_20.json"
     Given configuration file is "epic91/RaoParameters_case_91_12_secure_2PRAO.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then the execution details should be "Second preventive improved first preventive results"
     # Preventive
     And 1 remedial actions are used in preventive

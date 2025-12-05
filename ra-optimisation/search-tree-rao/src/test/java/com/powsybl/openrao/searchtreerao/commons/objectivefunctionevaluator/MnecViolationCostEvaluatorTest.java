@@ -4,6 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 package com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator;
 
 import com.powsybl.openrao.commons.Unit;
@@ -98,7 +99,7 @@ class MnecViolationCostEvaluatorTest {
 
         List<FlowCnec> costlyElements = evaluator.evaluate(currentFlowResult, null).getCostlyElements(Set.of(), Set.of());
         assertEquals(2, costlyElements.size());
-        assertSame(mnec2, costlyElements.get(0));
+        assertSame(mnec2, costlyElements.getFirst());
         assertSame(mnec1, costlyElements.get(1));
     }
 
@@ -141,7 +142,7 @@ class MnecViolationCostEvaluatorTest {
 
         List<FlowCnec> costlyElements = evaluator.evaluate(currentFlowResult, null).getCostlyElements(Set.of(), Set.of());
         assertEquals(2, costlyElements.size());
-        assertSame(mnec2, costlyElements.get(0));
+        assertSame(mnec2, costlyElements.getFirst());
         assertSame(mnec1, costlyElements.get(1));
     }
 }

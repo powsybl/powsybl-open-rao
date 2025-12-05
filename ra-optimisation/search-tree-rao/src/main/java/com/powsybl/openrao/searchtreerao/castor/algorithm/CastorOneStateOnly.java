@@ -4,16 +4,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 package com.powsybl.openrao.searchtreerao.castor.algorithm;
 
 import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
@@ -36,6 +38,7 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_LOGS;
+import static com.powsybl.openrao.searchtreerao.commons.HvdcUtils.getHvdcRangeActionsOnHvdcLineInAcEmulation;
 
 /**
  * Flow controller to compute a RAO taking into account only the cnecs and range actions
@@ -67,7 +70,7 @@ public class CastorOneStateOnly {
         PrePerimeterSensitivityAnalysis prePerimeterSensitivityAnalysis = new PrePerimeterSensitivityAnalysis(
             raoInput.getCrac(),
             raoInput.getCrac().getFlowCnecs(raoInput.getOptimizedState()),
-            raoInput.getCrac().getRangeActions(raoInput.getOptimizedState(), UsageMethod.AVAILABLE),
+            raoInput.getCrac().getRangeActions(raoInput.getOptimizedState()),
             raoParameters,
             toolProvider);
 
@@ -102,11 +105,22 @@ public class CastorOneStateOnly {
                 operatorsNotToOptimize.addAll(stateTree.getOperatorsNotSharingCras());
             }
             perimeterFlowCnecs = optPerimeter.getFlowCnecs();
-            SearchTreeParameters searchTreeParameters = SearchTreeParameters.create()
-                    .withConstantParametersOverAllRao(raoParameters, raoInput.getCrac())
-                    .withTreeParameters(treeParameters)
-                    .withUnoptimizedCnecParameters(UnoptimizedCnecParameters.build(raoParameters.getNotOptimizedCnecsParameters(), stateTree.getOperatorsNotSharingCras()))
-                    .build();
+
+            SearchTreeParameters.SearchTreeParametersBuilder searchTreeParametersBuilder = SearchTreeParameters.create()
+                .withConstantParametersOverAllRao(raoParameters, raoInput.getCrac())
+                .withTreeParameters(treeParameters)
+                .withUnoptimizedCnecParameters(UnoptimizedCnecParameters.build(raoParameters.getNotOptimizedCnecsParameters(), stateTree.getOperatorsNotSharingCras()));
+
+            if (!getHvdcRangeActionsOnHvdcLineInAcEmulation(raoInput.getCrac().getHvdcRangeActions(), raoInput.getNetwork()).isEmpty()) {
+                LoadFlowAndSensitivityParameters loadFlowAndSensitivityParameters =
+                    raoParameters.hasExtension(OpenRaoSearchTreeParameters.class)
+                        ? raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getLoadFlowAndSensitivityParameters()
+                        : new LoadFlowAndSensitivityParameters();
+                searchTreeParametersBuilder.withLoadFlowAndSensitivityParameters(loadFlowAndSensitivityParameters);
+            }
+
+            SearchTreeParameters searchTreeParameters = searchTreeParametersBuilder.build();
+
             Set<State> statesToOptimize = new HashSet<>(optPerimeter.getMonitoredStates());
             statesToOptimize.add(optPerimeter.getMainOptimizationState());
             SearchTreeInput searchTreeInput = SearchTreeInput.create()
@@ -122,8 +136,9 @@ public class CastorOneStateOnly {
             optimizationResult = new SearchTree(searchTreeInput, searchTreeParameters, true).run().join();
 
             // apply RAs and return results
-            optimizationResult.getRangeActions().forEach(rangeAction -> rangeAction.apply(raoInput.getNetwork(), optimizationResult.getOptimizedSetpoint(rangeAction, raoInput.getOptimizedState())));
+            // network actions need to be applied BEFORE range actions because to apply HVDC range actions we need to apply AC emulation deactivation network actions beforehand
             optimizationResult.getActivatedNetworkActions().forEach(networkAction -> networkAction.apply(raoInput.getNetwork()));
+            optimizationResult.getRangeActions().forEach(rangeAction -> rangeAction.apply(raoInput.getNetwork(), optimizationResult.getOptimizedSetpoint(rangeAction, raoInput.getOptimizedState())));
         }
 
         return CompletableFuture.completedFuture(new OneStateOnlyRaoResultImpl(raoInput.getOptimizedState(), initialResults, optimizationResult, perimeterFlowCnecs));

@@ -19,7 +19,7 @@ import static java.lang.String.format;
  * Utility class to be used in Crac creators.
  * It exposes useful functions to synchronize the Crac with the Network.
  *
- * @author Baptiste Seguinot{@literal <baptiste.seguinot at rte-france.com>}
+ * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public class IidmCnecElementHelper implements CnecElementHelper {
@@ -95,7 +95,7 @@ public class IidmCnecElementHelper implements CnecElementHelper {
      * The side corresponds to the side of the branch in the network, which might be inverted
      * compared from the from/to nodes of the UcteBranch (see isInvertedInNetwork()).
      */
-    public Double getCurrentLimit(TwoSides side) {
+    public double getCurrentLimit(TwoSides side) {
         if (side.equals(TwoSides.ONE)) {
             return currentLimitLeft;
         } else {
@@ -121,10 +121,7 @@ public class IidmCnecElementHelper implements CnecElementHelper {
         }
         this.branchIdInNetwork = cnecElement.getId();
 
-        if (cnecElement instanceof TieLine tieLine) {
-            checkBranchNominalVoltage(tieLine);
-            checkTieLineCurrentLimits(tieLine);
-        } else if (cnecElement instanceof Branch<?> branch) {
+        if (cnecElement instanceof Branch<?> branch) {
             checkBranchNominalVoltage(branch);
             checkBranchCurrentLimits(branch);
         } else if (cnecElement instanceof DanglingLine danglingLine) {
@@ -150,7 +147,7 @@ public class IidmCnecElementHelper implements CnecElementHelper {
         this.isHalfLine = true;
         this.halfLineSide = tieLine.get().getDanglingLine1().getId().equals(branchId) ? TwoSides.ONE : TwoSides.TWO;
         checkBranchNominalVoltage(tieLine.get());
-        checkTieLineCurrentLimits(tieLine.get());
+        checkBranchCurrentLimits(tieLine.get());
         // todo: check if halfLine can be inverted in CGMES format
         return true;
     }
@@ -163,18 +160,6 @@ public class IidmCnecElementHelper implements CnecElementHelper {
     private void checkDanglingLineNominalVoltage(DanglingLine danglingLine) {
         this.nominalVoltageLeft = danglingLine.getTerminal().getVoltageLevel().getNominalV();
         this.nominalVoltageRight = nominalVoltageLeft;
-    }
-
-    private void checkTieLineCurrentLimits(TieLine tieLine) {
-        if (tieLine.getCurrentLimits(TwoSides.ONE).isPresent()) {
-            this.currentLimitLeft = tieLine.getCurrentLimits(TwoSides.ONE).orElseThrow().getPermanentLimit();
-        }
-        if (tieLine.getCurrentLimits(TwoSides.TWO).isPresent()) {
-            this.currentLimitRight = tieLine.getCurrentLimits(TwoSides.TWO).orElseThrow().getPermanentLimit();
-        }
-        if (Objects.isNull(tieLine.getCurrentLimits(TwoSides.ONE)) && Objects.isNull(tieLine.getCurrentLimits(TwoSides.TWO))) {
-            invalidate(String.format("couldn't identify current limits of tie-line (%s, networkTieLineId: %s)", branchId, tieLine.getId()));
-        }
     }
 
     private void checkBranchCurrentLimits(Branch<?> branch) {

@@ -4,6 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 package com.powsybl.openrao.searchtreerao.searchtree.algorithms;
 
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
@@ -48,7 +49,7 @@ public class AlreadyTestedCombinationsFilter implements NetworkActionCombination
             // if all the actions of the combinations have been selected but one, there is no need
             // to test that individual action anymore
             if (notTestedNaInCombination.size() == 1) {
-                alreadyTestedNetworkActions.add(notTestedNaInCombination.get(0));
+                alreadyTestedNetworkActions.add(notTestedNaInCombination.getFirst());
             }
         }
 

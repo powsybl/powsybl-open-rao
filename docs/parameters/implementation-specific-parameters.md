@@ -197,15 +197,6 @@ These parameters (second-preventive-rao) tune the behaviour of the [second preve
     - **MAX_MIN_MARGIN** or **MAX_MIN_RELATIVE_MARGIN**: 2nd preventive RAO is run if one curative perimeter reached an objective function value
       after optimisation that is worse than the preventive perimeter's (decreased by [curative-min-obj-improvement](#curative-min-obj-improvement))
 
-##### re-optimize-curative-range-actions
-- **Expected value**: true/false
-- **Default value**: false
-- **Usage**:
-  - **false**: the 2nd preventive RAO will optimize only the preventive remedial actions, keeping **all** optimal
-    curative remedial actions selected during the curative RAO.
-  - **true**: the 2nd preventive RAO will optimize preventive remedial actions **and** curative range actions, keeping
-    only the optimal curative **topological** actions computed in the curative RAO.
-
 ##### hint-from-first-preventive-rao
 - **Expected value**: true/false
 - **Default value**: false
@@ -388,6 +379,31 @@ These parameters are meant to be used in costly optimization only.
 - **Default value**: 0.0
 - **Usage**: Shifts the security domain of the CNECs (only for costly optimization): each FlowCNEC with a margin below `shifted-violation-threshold` will be considered as in violation during the linear RAO. This is meant to prevent the RAO from choosing set-points that make the min margin exactly equal to 0 (which might create rounding issues).
 
+### FastRAO Parameters extension
+
+#### number-of-cnecs-to-add
+- **Expected value**: integer, no unit
+- **Default value**: 20 
+- **Usage**: This value corresponds to the number of worst CNECs (in terms of margin) to be added to the set of considered CNECs at each iteration of FastRAO.
+
+#### add-unsecure-cnecs
+- **Expected value**: boolean
+- **Default value**: false
+- **Usage**: Indicates whether all unsecure CNECs are added to the set of considered CNECs at each iteration of FastRAO.
+
+#### margin-limit
+- **Expected value**: numeric value, in MW unit
+- **Default value**: 5
+- **Usage**: If `add-unsecure-cnecs` is enabled, a CNEC will be considered unsecure if its margin is lower than `margin-limit`.
+
+#### PST regulation parameters
+
+##### psts-to-regulate
+
+- **Expected value**: a map with string keys (each being the identifier of a PST in the network) and string values (each being the line secured by the regulated PST)
+- **Default value**: empty map
+- **Usage**: List of PSTs to regulate at the end of curative optimization if a FlowCNEC defined on any of their associated elements is overloaded and is the most limiting element.
+
 ## Examples
 > ⚠️  **NOTE**  
 > The following examples in json and yaml are not equivalent
@@ -396,8 +412,13 @@ These parameters are meant to be used in costly optimization only.
 :::{group-tab} JSON
 ~~~json
 {
-  "version" : "3.1",
+  "version" : "3.2.1",
   "extensions" : {
+    "fast-rao-parameters" : {
+      "number-of-cnecs-to-add" : 20,
+      "add-unsecure-cnecs" : false,
+      "margin-limit" : 5.0
+    },
     "open-rao-search-tree-parameters": {
       "objective-function" : {
         "curative-min-obj-improvement" : 0.0
@@ -426,7 +447,6 @@ These parameters are meant to be used in costly optimization only.
       },
       "second-preventive-rao" : {
         "execution-condition" : "POSSIBLE_CURATIVE_IMPROVEMENT",
-        "re-optimize-curative-range-actions" : false,
         "hint-from-first-preventive-rao" : true
       },
       "load-flow-and-sensitivity-computation" : {
@@ -499,6 +519,12 @@ These parameters are meant to be used in costly optimization only.
     "costly-min-margin-parameters" : {
       "shifted-violation-penalty": 1000.0,
       "shifted-violation-threshold": 0.0
+    },
+    "pst-regulation-parameters" : {
+      "psts-to-regulate": {
+        "pst-1": "line-1",
+        "pst-2": "line-2"
+      }
     }
   }
 }
@@ -527,7 +553,6 @@ search-tree-multi-threading:
 
 search-tree-second-preventive-rao:
   execution-condition: POSSIBLE_CURATIVE_IMPROVEMENT
-  re-optimize-curative-range-actions: true
   hint-from-first-preventive-rao: true
 
 search-tree-load-flow-and-sensitivity-computation:
@@ -545,6 +570,12 @@ open-loadflow-default-parameters:
   maxPlausibleTargetVoltage: 1.5
   plausibleActivePowerLimit: 10000
   newtonRaphsonConvEpsPerEq : 1.0E-2
+
+
+fast-rao-parameters:
+  number-of-cnecs-to-add: 20
+  add-unsecure-cnecs: false
+  margin-limit: 5.0
 ~~~
 :::
 ::::

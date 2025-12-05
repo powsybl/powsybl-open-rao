@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, RTE (http://www.rte-france.com)
+ * Copyright (c) 2020, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -70,7 +70,7 @@ class FlowCnecSortingTest {
     void getMostLimitingElements() {
         List<FlowCnec> costlyElements = FlowCnecSorting.sortByMargin(Set.of(cnec1, cnec2, cnec3, pureMnec), MEGAWATT, marginEvaluator, flowResult);
         assertEquals(3, costlyElements.size());
-        assertSame(cnec3, costlyElements.get(0));
+        assertSame(cnec3, costlyElements.getFirst());
         assertSame(cnec1, costlyElements.get(1));
         assertSame(cnec2, costlyElements.get(2));
     }
