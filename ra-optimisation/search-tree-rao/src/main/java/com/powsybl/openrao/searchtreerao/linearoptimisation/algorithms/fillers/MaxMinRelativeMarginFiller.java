@@ -139,7 +139,7 @@ public class MaxMinRelativeMarginFiller extends MaxMinMarginFiller {
             } catch (OpenRaoException ignored) {
                 minimumMarginNegative = linearProblem.addMinimumRelativeMarginConstraint(-linearProblem.infinity(), linearProblem.infinity(), cnec, side, LinearProblem.MarginExtension.BELOW_THRESHOLD, Optional.ofNullable(timestamp));
             }
-            minimumMarginNegative.setUb(-minFlow.get() +  relMarginCoef * maxNegativeRelativeRam);
+            minimumMarginNegative.setUb(-minFlow.get() + relMarginCoef * maxNegativeRelativeRam);
             minimumMarginNegative.setCoefficient(minRelMarginVariable, relMarginCoef);
             minimumMarginNegative.setCoefficient(minRelMarginSignBinaryVariable, relMarginCoef * maxNegativeRelativeRam);
             minimumMarginNegative.setCoefficient(flowVariable, -1);

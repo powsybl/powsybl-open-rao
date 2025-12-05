@@ -140,9 +140,9 @@ public class MaxMinMarginFiller implements ProblemFiller {
     /**
      * Add in the objective function of the linear problem the min Margin.
      * <ul>
-     *     <li> min(-MM) for max min margin optimization
-     *     <li> min(shiftedViolationPenalty * MMV) for costly optimization
-     * <ul>
+     *     <li> min(-MM) for max min margin optimization</li>
+     *     <li> min(shiftedViolationPenalty * MMV) for costly optimization</li>
+     * </ul>
      */
     private void fillObjectiveWithMinMargin(LinearProblem linearProblem) {
         if (costOptimization) {
