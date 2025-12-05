@@ -157,7 +157,7 @@ class MaxMinMarginFillerTest extends AbstractFillerTest {
         assertNotNull(cnec1BelowThreshold);
         assertEquals(-linearProblem.infinity(), cnec1BelowThreshold.lb(), linearProblem.infinity() * 1e-3);
         // MIN_FLOW_1 given in MW !
-        assertEquals(-MIN_FLOW_1 / (380. * Math.sqrt(3) / 1000.) , cnec1BelowThreshold.ub(), DOUBLE_TOLERANCE);
+        assertEquals(-MIN_FLOW_1 / (380. * Math.sqrt(3) / 1000.), cnec1BelowThreshold.ub(), DOUBLE_TOLERANCE);
         assertEquals(-linearProblem.infinity(), cnec1AboveThreshold.lb(), linearProblem.infinity() * 1e-3);
         assertEquals(MAX_FLOW_1 / (380. * Math.sqrt(3) / 1000.), cnec1AboveThreshold.ub(), DOUBLE_TOLERANCE);
         assertEquals(-1, cnec1BelowThreshold.getCoefficient(flowCnec1), DOUBLE_TOLERANCE);
