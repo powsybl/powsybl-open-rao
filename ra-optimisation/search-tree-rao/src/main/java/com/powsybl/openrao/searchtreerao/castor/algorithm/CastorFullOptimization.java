@@ -435,10 +435,16 @@ public class CastorFullOptimization {
         OptimizationResult newOptimizationResult = new OptimizationResultImpl(postCraSensitivityAnalysisOutput, postCraSensitivityAnalysisOutput, postCraSensitivityAnalysisOutput, new NetworkActionsResultImpl(appliedNetworkActions), postRegulationRangeActionActivationResult);
 
         for (State state : postContingencyResults.keySet()) {
-            postRegulationPostContingencyResults.put(state, new PostPerimeterResult(
-                regulatedStates.contains(state) ? newOptimizationResult : postContingencyResults.get(state).optimizationResult(),
-                postCraSensitivityAnalysisOutput
-            ));
+            // For instants before pst regulation instant, keep previous results
+            if (state.getInstant().comesBefore(crac.getLastInstant())) {
+                postRegulationPostContingencyResults.put(state, postContingencyResults.get(state));
+            } else {
+                // For curative instant, update regulatedStates with newly computed sensi result
+                postRegulationPostContingencyResults.put(state, new PostPerimeterResult(
+                    regulatedStates.contains(state) ? newOptimizationResult : postContingencyResults.get(state).optimizationResult(),
+                    postCraSensitivityAnalysisOutput
+                ));
+            }
         }
 
         return postRegulationPostContingencyResults;
