@@ -425,6 +425,34 @@ class RaoUtilTest {
     }
 
     @Test
+    void testMegawattWithAc() {
+        raoParameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters());
+        OpenRaoSearchTreeParameters searchTreeParameters = raoParameters.getExtension(OpenRaoSearchTreeParameters.class);
+        searchTreeParameters.getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters().setDc(false);
+        raoParameters.getObjectiveFunctionParameters().setUnit(Unit.MEGAWATT);
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> RaoUtil.checkParameters(raoParameters, raoInput));
+        assertEquals("Objective function unit MEGAWATT cannot be calculated with a AC default sensitivity engine", exception.getMessage());
+    }
+
+    @Test
+    void testMegawattWithDc() {
+        raoParameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters());
+        OpenRaoSearchTreeParameters searchTreeParameters = raoParameters.getExtension(OpenRaoSearchTreeParameters.class);
+        searchTreeParameters.getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters().setDc(true);
+        raoParameters.getObjectiveFunctionParameters().setUnit(Unit.MEGAWATT);
+        assertDoesNotThrow(() -> RaoUtil.checkParameters(raoParameters, raoInput));
+    }
+
+    @Test
+    void testAmpereWithAc() {
+        raoParameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters());
+        OpenRaoSearchTreeParameters searchTreeParameters = raoParameters.getExtension(OpenRaoSearchTreeParameters.class);
+        searchTreeParameters.getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters().setDc(false);
+        raoParameters.getObjectiveFunctionParameters().setUnit(Unit.AMPERE);
+        assertDoesNotThrow(() -> RaoUtil.checkParameters(raoParameters, raoInput));
+    }
+
+    @Test
     void checkWarningThresholdInMwWithAc() {
         ch.qos.logback.classic.Logger logger = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(RaoBusinessWarns.class);
         ListAppender<ILoggingEvent> listAppender = new ListAppender<>();

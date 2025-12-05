@@ -36,8 +36,8 @@ import org.apache.commons.lang3.tuple.Pair;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getLoadFlowProvider;
-import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters;
+import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_LOGS;
+import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.*;
 import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.getPstModel;
 import static com.powsybl.openrao.searchtreerao.commons.HvdcUtils.addNetworkActionAssociatedWithHvdcRangeAction;
 import static com.powsybl.openrao.searchtreerao.commons.HvdcUtils.updateHvdcRangeActionInitialSetpoint;
@@ -73,6 +73,21 @@ public final class RaoUtil {
             throw new OpenRaoException(msg);
         }
     }
+        if (raoParameters.getObjectiveFunctionParameters().getUnit().equals(Unit.MEGAWATT)
+            && !getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters().isDc()) {
+            String msg = "Objective function unit MEGAWATT cannot be calculated with a AC default sensitivity engine";
+            BUSINESS_LOGS.error(msg);
+            throw new OpenRaoException(msg);
+        }
+
+        if (raoParameters.getObjectiveFunctionParameters().getType().relativePositiveMargins()) {
+            if (raoInput.getGlskProvider() == null) {
+                throw new OpenRaoException(format("Objective function %s requires glsks", raoParameters.getObjectiveFunctionParameters().getType()));
+            }
+            if (raoParameters.getRelativeMarginsParameters().map(relativeMarginsParameters -> relativeMarginsParameters.getPtdfBoundaries().isEmpty()).orElse(true)) {
+                throw new OpenRaoException(format("Objective function %s requires a config with a non empty boundary set", raoParameters.getObjectiveFunctionParameters().getType()));
+            }
+        }
 
     private static void checkLoopFlowParameters(RaoParameters raoParameters, RaoInput raoInput) {
         if ((raoParameters.getLoopFlowParameters().isPresent()
@@ -110,6 +125,20 @@ public final class RaoUtil {
             (!raoParameters.hasExtension(OpenRaoSearchTreeParameters.class) ||
                 raoParameters.hasExtension(OpenRaoSearchTreeParameters.class) && raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getMinMarginsParameters().isEmpty())) {
             throw new OpenRaoException(format("Objective function type %s requires a config with costly min margin parameters", raoParameters.getObjectiveFunctionParameters().getType()));
+        }
+
+        if (raoParameters.getObjectiveFunctionParameters().getType().relativePositiveMargins()
+            && getObjectiveFunctionUnit(raoParameters).equals(Unit.AMPERE)) {
+            String msg = "The objective function unit must be MEGAWATT to use relative positive margins";
+            OpenRaoLoggerProvider.BUSINESS_LOGS.error(msg);
+            throw new OpenRaoException(msg);
+        }
+
+        if (raoParameters.getLoopFlowParameters().isPresent()
+            && getObjectiveFunctionUnit(raoParameters).equals(Unit.AMPERE)) {
+            String msg = "The objective function unit must be MEGAWATT to use loopflow computation";
+            OpenRaoLoggerProvider.BUSINESS_LOGS.error(msg);
+            throw new OpenRaoException(msg);
         }
     }
 

@@ -1,7 +1,7 @@
 {
   "version" : "3.2.1",
   "objective-function" : {
-    "type" : "MAX_MIN_MARGIN",
+    "type" : "MAX_MIN_RELATIVE_MARGIN",
     "unit" : "MW",
     "enforce-curative-security" : false
   },
@@ -12,13 +12,16 @@
   },
   "topological-actions-optimization" : {
     "relative-minimum-impact-threshold" : 0.0,
-    "absolute-minimum-impact-threshold" : 195.0
+    "absolute-minimum-impact-threshold" : 1.0
   },
   "not-optimized-cnecs" : {
     "do-not-optimize-curative-cnecs-for-tsos-without-cras" : false
   },
   "mnec-parameters" : {
     "acceptable-margin-decrease" : 50.0
+  },
+  "relative-margins-parameters" : {
+    "ptdf-boundaries" : [ "{FR}-{DE}", "{FR}-{BE}", "{BE}-{NL}", "{BE}-{DE}", "{DE}-{NL}" ]
   },
   "extensions" : {
     "open-rao-search-tree-parameters" : {
@@ -64,13 +67,13 @@
             "shuntCompensatorVoltageControlOn" : false,
             "readSlackBus" : true,
             "writeSlackBus" : true,
-            "dc" : false,
+            "dc" : true,
             "distributedSlack" : true,
             "balanceType" : "PROPORTIONAL_TO_GENERATION_P",
             "dcUseTransformerRatio" : true,
             "countriesToBalance" : [ ],
             "connectedComponentMode" : "MAIN",
-            "hvdcAcEmulation" : true
+            "hvdcAcEmulation" : false
           }
         }
       },
@@ -80,6 +83,9 @@
       "mnec-parameters" : {
         "violation-cost" : 10.0,
         "constraint-adjustment-coefficient" : 0.0
+      },
+      "relative-margins-parameters" : {
+        "ptdf-sum-lower-bound" : 0.01
       }
     }
   }

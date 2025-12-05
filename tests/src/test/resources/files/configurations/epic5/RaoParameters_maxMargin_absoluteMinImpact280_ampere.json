@@ -1,8 +1,9 @@
 {
   "version" : "3.2.1",
   "objective-function" : {
-    "type" : "SECURE_FLOW",
-    "unit" : "MW"
+    "type" : "MAX_MIN_MARGIN",
+    "unit" : "A",
+    "enforce-curative-security" : false
   },
   "range-actions-optimization" : {
     "pst-ra-min-impact-threshold" : 0.01,
@@ -11,7 +12,7 @@
   },
   "topological-actions-optimization" : {
     "relative-minimum-impact-threshold" : 0.0,
-    "absolute-minimum-impact-threshold" : 1.0
+    "absolute-minimum-impact-threshold" : 280.0
   },
   "not-optimized-cnecs" : {
     "do-not-optimize-curative-cnecs-for-tsos-without-cras" : false
@@ -22,7 +23,7 @@
   "extensions" : {
     "open-rao-search-tree-parameters" : {
       "objective-function" : {
-        "curative-min-obj-improvement" : 0.0
+        "curative-min-obj-improvement" : 10000.0
       },
       "range-actions-optimization" : {
         "max-mip-iterations" : 10,

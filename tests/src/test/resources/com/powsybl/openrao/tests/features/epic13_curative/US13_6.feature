@@ -10,7 +10,7 @@ Feature: US 13.6: cross validation curative optimization and MNECs
     Given network file is "common/TestCase16Nodes.uct" for CORE CC
     Given crac file is "epic13/SL_ep13us2case5_with_mnec.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
-    When I launch rao
+    When I launch search_tree_rao
     Then 2 remedial actions are used in preventive
     And the remedial action "open_be1_be4" is used in preventive
     # Without MNEC pst_fr is set to -5
@@ -30,30 +30,29 @@ Feature: US 13.6: cross validation curative optimization and MNECs
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic13/MergedCB_ep13us6case2.xml"
     Given configuration file is "epic13/RaoParameters_13_6_2.json"
-    When I launch rao at "2019-01-08 12:00"
-    Then the margin on cnec "NL2-BE3-O - outage" after PRA should be 8.0 MW
+    When I launch search_tree_rao at "2019-01-08 12:00"
+    Then the margin on cnec "NL2-BE3-O - outage" after PRA should be 8 A
     And 2 remedial actions are used in preventive
     And the remedial action "Open line NL1-NL2" is used in preventive
     And the tap of PstRangeAction "PRA_PST_BE" should be -6 in preventive
-    And the margin on cnec "FR2-FR3-O - preventive" after PRA should be -140 MW
+    And the margin on cnec "FR2-FR3-O - preventive" after PRA should be -206.14 A
    # Note that he chosen CRA does not improve the functional cost (it only improves the virtual cost), so if in the future it changes,
     # it would be OK to change the test as long as the MNEC is properly treated in the curative RAO
-    Then the margin on cnec "NL2-BE3-O - curative" after CRA should be 15.0 MW
+    Then the margin on cnec "NL2-BE3-O - curative" after CRA should be 18.28 A
     And 1 remedial actions are used after "Contingency_FR1_FR3" at "curative"
     And the remedial action "Open line DE1-DE2" is used after "Contingency_FR1_FR3" at "curative"
-    And the margin on cnec "NL1-NL3-D - curative" after CRA should be 0.0 MW
-    And the value of the objective function after CRA should be 140
+    And the margin on cnec "NL1-NL3-D - curative" after CRA should be 0.22 A
+    And the value of the objective function after CRA should be 206.1
 
   @fast @rao @mock @ac @contingency-scenarios @mnec
   Scenario: US 13.6.3: CBCORA - Curative MNECs limited by their initial margin - CRAs only
     Given network file is "epic13/TestCase12NodesDifferentPstTap.uct" for CORE CC
     Given crac file is "epic13/MergedCB_ep13us6case3.xml"
-    Given configuration file is "epic11/RaoParameters_maxMargin_megawatt_ac_mnecDimin20.json"
-    When I launch rao at "2019-01-08 12:00"
+    Given configuration file is "epic11/RaoParameters_maxMargin_ampere_ac_mnecDimin30.json"
+    When I launch search_tree_rao at "2019-01-08 12:00"
     Then the margin on cnec "NL2-BE3-O - outage" after PRA should be -83.0 MW
     And the margin on cnec "NL2-BE3-O - curative" after CRA should be -103.0 MW
     And 2 remedial actions are used after "Contingency_FR1_FR3" at "curative"
-    And the remedial action "Open line DE1-DE2" is used after "Contingency_FR1_FR3" at "curative"
     And the tap of PstRangeAction "PRA_PST_BE" should be 10 after "Contingency_FR1_FR3" at "curative"
     And the margin on cnec "FR2-FR3-OO - curative" after CRA should be -98 MW
 
@@ -61,8 +60,8 @@ Feature: US 13.6: cross validation curative optimization and MNECs
   Scenario: US 13.6.4: CBCORA - Curative MNECs limited by their initial margin - PRAs and CRAs
     Given network file is "epic13/TestCase12NodesDifferentPstTap.uct" for CORE CC
     Given crac file is "epic13/MergedCB_ep13us6case4.xml"
-    Given configuration file is "epic11/RaoParameters_maxMargin_megawatt_ac_mnecDimin20.json"
-    When I launch rao at "2019-01-08 12:00"
+    Given configuration file is "epic11/RaoParameters_maxMargin_ampere_ac_mnecDimin30.json"
+    When I launch search_tree_rao at "2019-01-08 12:00"
     Then the margin on cnec "NL2-BE3-O - outage" after PRA should be -103.0 MW
     And 1 remedial actions are used in preventive
     And the tap of PstRangeAction "PRA_PST_BE" should be 14 in preventive
@@ -73,14 +72,14 @@ Feature: US 13.6: cross validation curative optimization and MNECs
     And 1 remedial actions are used after "Contingency_FR1_FR3" at "curative"
     And the remedial action "Open line DE1-DE2" is used after "Contingency_FR1_FR3" at "curative"
     And the margin on cnec "FR2-FR3-OO - curative" after CRA should be -137.0 MW
-    And the value of the objective function after CRA should be 273
+    And the value of the objective function after CRA should be 402
 
   @fast @rao @mock @ac @contingency-scenarios @mnec
   Scenario: US 13.6.5: Simple case with a mix of preventive and curative remedial actions and a MNEC in preventive limited by threshold
     Given network file is "common/TestCase16Nodes.uct" for CORE CC
     Given crac file is "epic13/SL_ep13us2case5_with_mnec.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
-    When I launch rao
+    When I launch search_tree_rao
     Then 2 remedial actions are used in preventive
     And the remedial action "open_be1_be4" is used in preventive
     # Without MNEC pst_fr is set to -5
@@ -99,7 +98,7 @@ Feature: US 13.6: cross validation curative optimization and MNECs
     Given network file is "common/TestCase16Nodes.uct" for CORE CC
     Given crac file is "epic13/SL_ep13us2case6_with_mnec_curative.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
-    When I launch rao
+    When I launch search_tree_rao
     Then 2 remedial actions are used in preventive
     And the remedial action "open_be1_be4" is used in preventive
     And the tap of PstRangeAction "pst_fr" should be 2 in preventive
@@ -120,7 +119,7 @@ Feature: US 13.6: cross validation curative optimization and MNECs
     Given network file is "common/TestCase16Nodes.uct" for CORE CC
     Given crac file is "epic13/SL_ep13us2case7_with_mnec_curative_initial.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere_mip.json"
-    When I launch rao
+    When I launch search_tree_rao
     Then 2 remedial actions are used in preventive
     And the remedial action "open_be1_be4" is used in preventive
     And the tap of PstRangeAction "pst_fr" should be 2 in preventive
@@ -144,7 +143,7 @@ Feature: US 13.6: cross validation curative optimization and MNECs
     Given network file is "common/TestCase16Nodes.uct" for CORE CC
     Given crac file is "epic13/MergedCB_ep13us6case8.xml"
     Given configuration file is "epic13/RaoParameters_ep13us6case8.json"
-    When I launch rao at "2019-01-08 12:00"
+    When I launch search_tree_rao at "2019-01-08 12:00"
     Then the worst margin is 390 MW
     # "NNL2AA1  BBE3AA1  1 - preventive" is the only MNEC.
     # With a temporary threshold in outage of 1385 MW, and a permanent threshold in curative of 1350 MW
@@ -167,7 +166,10 @@ Feature: US 13.6: cross validation curative optimization and MNECs
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic13/CBCORA_ep13us6case11.xml"
     Given configuration file is "epic13/RaoParameters_13_6_11.json"
-    When I launch rao at "2019-01-08 12:00"
+    When I launch search_tree_rao at "2019-01-08 12:00"
+    # The only curative element is a MNEC is NL2-BE3-0 - curative with a temporary threshold of 2298 A and a permanent one at 2237 A
+    # Margin after preventive perimeter optimization -> 1 A OK (2298 A-2297 A). But in curative the margin is -60 A (2237 A - 2297 A).
+    # "CRA_PST_BE" applied to remove MNEC violation.
     Then 1 remedial actions are used in preventive
     And the tap of PstRangeAction "PRA_PST_BE" should be -4 in preventive
     And 1 remedial actions are used after "Contingency_FR1_FR3" at "curative"

@@ -1,8 +1,8 @@
 {
   "version" : "3.2.1",
   "objective-function" : {
-    "type" : "MAX_MIN_RELATIVE_MARGIN",
-    "unit" : "A",
+    "type" : "MAX_MIN_MARGIN",
+    "unit" : "MW",
     "enforce-curative-security" : false
   },
   "range-actions-optimization" : {
@@ -20,8 +20,9 @@
   "mnec-parameters" : {
     "acceptable-margin-decrease" : 50.0
   },
-  "relative-margins-parameters" : {
-    "ptdf-boundaries" : [ "{FR}-{DE}", "{FR}-{BE}", "{BE}-{NL}", "{BE}-{DE}", "{DE}-{NL}" ]
+  "loop-flow-parameters" : {
+    "acceptable-increase" : 0.0,
+    "countries" : [ ]
   },
   "extensions" : {
     "open-rao-search-tree-parameters" : {
@@ -31,7 +32,7 @@
       "range-actions-optimization" : {
         "max-mip-iterations" : 10,
         "pst-sensitivity-threshold" : 1.0E-6,
-        "pst-model" : "CONTINUOUS",
+        "pst-model" : "APPROXIMATED_INTEGERS",
         "hvdc-sensitivity-threshold" : 1.0E-6,
         "injection-ra-sensitivity-threshold" : 1.0E-6,
         "linear-optimization-solver" : {
@@ -67,13 +68,13 @@
             "shuntCompensatorVoltageControlOn" : false,
             "readSlackBus" : true,
             "writeSlackBus" : true,
-            "dc" : false,
+            "dc" : true,
             "distributedSlack" : true,
             "balanceType" : "PROPORTIONAL_TO_GENERATION_P",
             "dcUseTransformerRatio" : true,
             "countriesToBalance" : [ ],
             "connectedComponentMode" : "MAIN",
-            "hvdcAcEmulation" : true
+            "hvdcAcEmulation" : false
           }
         }
       },
@@ -84,8 +85,10 @@
         "violation-cost" : 10.0,
         "constraint-adjustment-coefficient" : 0.0
       },
-      "relative-margins-parameters" : {
-        "ptdf-sum-lower-bound" : 0.01
+      "loop-flow-parameters" : {
+        "ptdf-approximation" : "UPDATE_PTDF_WITH_TOPO_AND_PST",
+        "constraint-adjustment-coefficient" : 3.0,
+        "violation-cost" : 100.0
       }
     }
   }

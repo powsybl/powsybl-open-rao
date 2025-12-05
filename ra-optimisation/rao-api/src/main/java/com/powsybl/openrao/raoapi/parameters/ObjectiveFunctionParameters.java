@@ -22,7 +22,7 @@ import static com.powsybl.openrao.raoapi.RaoParametersCommons.*;
 public class ObjectiveFunctionParameters {
     // Default values
     private static final ObjectiveFunctionType DEFAULT_OBJECTIVE_FUNCTION = ObjectiveFunctionType.SECURE_FLOW;
-    private static final Unit DEFAULT_UNIT = Unit.MEGAWATT;
+    private static final Unit DEFAULT_UNIT = Unit.AMPERE;
     private static final boolean DEFAULT_ENFORCE_CURATIVE_SECURITY = false;
     // Attributes
     private ObjectiveFunctionType type = DEFAULT_OBJECTIVE_FUNCTION;
