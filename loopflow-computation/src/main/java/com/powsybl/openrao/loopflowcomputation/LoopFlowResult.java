@@ -15,15 +15,15 @@ import com.powsybl.iidm.network.TwoSides;
 
 import java.util.EnumMap;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public class LoopFlowResult {
 
-    private final Map<BranchCnec<?>, Map<TwoSides, LoopFlow>> loopFlowMap;
+    private final Map<BranchCnec<?>, Map<TwoSides, Map<Unit, LoopFlow>>> loopFlowMap;
 
     private static final class LoopFlow {
         double loopFlowValue;
@@ -38,28 +38,20 @@ public class LoopFlowResult {
             this.unit = unit;
         }
 
-        Double getLoopFlow(Unit unit) {
-            if (unit == this.unit) {
-                return loopFlowValue;
-            } else {
-                return null;
-            }
+        Double getLoopFlow() {
+            return loopFlowValue;
         }
 
-        Double getCommercialFlow(Unit unit) {
-            if (unit == this.unit) {
-                return commercialFlowValue;
-            } else {
-                return null;
-            }
+        Double getCommercialFlow() {
+            return commercialFlowValue;
         }
 
-        Double getTotalFlow(Unit unit) {
-            if (unit == this.unit) {
-                return totalFlowValue;
-            } else {
-                return null;
-            }
+        Double getTotalFlow() {
+            return totalFlowValue;
+        }
+
+        Unit getUnit() {
+            return unit;
         }
     }
 
@@ -68,51 +60,49 @@ public class LoopFlowResult {
     }
 
     public void addCnecResult(BranchCnec<?> cnec, TwoSides side, double loopFlowValue, double commercialFlowValue, double referenceFlowValue, Unit unit) {
-        loopFlowMap.computeIfAbsent(cnec, k -> new EnumMap<>(TwoSides.class)).put(side, new LoopFlow(loopFlowValue, commercialFlowValue, referenceFlowValue, unit));
+        loopFlowMap.computeIfAbsent(cnec, k -> new EnumMap<>(TwoSides.class))
+            .computeIfAbsent(side, s -> new EnumMap<>(Unit.class))
+            .put(unit, new LoopFlow(loopFlowValue, commercialFlowValue, referenceFlowValue, unit));
     }
 
     public Double getLoopFlow(BranchCnec<?> cnec, TwoSides side, Unit unit) {
-        if (!loopFlowMap.containsKey(cnec) || !loopFlowMap.get(cnec).containsKey(side)) {
-            throw new OpenRaoException(String.format("No loop-flow value found for cnec %s on side %s", cnec.getId(), side));
+        if (!loopFlowMap.containsKey(cnec) || !loopFlowMap.get(cnec).containsKey(side) || !loopFlowMap.get(cnec).get(side).containsKey(unit)) {
+            throw new OpenRaoException(String.format("No loop-flow value found for cnec %s on side %s in %s", cnec.getId(), side, unit));
         }
-        return loopFlowMap.get(cnec).get(side).getLoopFlow(unit);
+        return loopFlowMap.get(cnec).get(side).get(unit).getLoopFlow();
     }
 
     public Double getCommercialFlow(BranchCnec<?> cnec, TwoSides side, Unit unit ) {
-        if (!loopFlowMap.containsKey(cnec) || !loopFlowMap.get(cnec).containsKey(side)) {
-            throw new OpenRaoException(String.format("No commercial flow value found for cnec %s on side %s", cnec.getId(), side));
+        if (!loopFlowMap.containsKey(cnec) || !loopFlowMap.get(cnec).containsKey(side) || !loopFlowMap.get(cnec).get(side).containsKey(unit)) {
+            throw new OpenRaoException(String.format("No commercial flow value found for cnec %s on side %s in %s", cnec.getId(), side, unit));
         }
-        return loopFlowMap.get(cnec).get(side).getCommercialFlow(unit);
+        return loopFlowMap.get(cnec).get(side).get(unit).getCommercialFlow();
     }
 
     public Double getReferenceFlow(BranchCnec<?> cnec, TwoSides side, Unit unit) {
-        if (!loopFlowMap.containsKey(cnec) || !loopFlowMap.get(cnec).containsKey(side)) {
-            throw new OpenRaoException(String.format("No reference flow value found for cnec %s on side %s", cnec.getId(), side));
+        if (!loopFlowMap.containsKey(cnec) || !loopFlowMap.get(cnec).containsKey(side) || !loopFlowMap.get(cnec).get(side).containsKey(unit)) {
+            throw new OpenRaoException(String.format("No reference flow value found for cnec %s on side %s in %s", cnec.getId(), side, unit));
         }
-        return loopFlowMap.get(cnec).get(side).getTotalFlow(unit);
+        return loopFlowMap.get(cnec).get(side).get(unit).getTotalFlow();
     }
 
     public Map<FlowCnec, Map<TwoSides, Map<Unit, Double>>> getCommercialFlowsMap() {
-        Map<FlowCnec, Map<TwoSides, Map<Unit, Double>>> result = new HashMap<>();
-        loopFlowMap.keySet().stream()
-            .filter(FlowCnec.class::isInstance)
-            .map(FlowCnec.class::cast)
-            .forEach(cnec -> {
-                Map<TwoSides, Map<Unit, Double>> sideMap = new EnumMap<>(TwoSides.class);
-                loopFlowMap.get(cnec).keySet().forEach(side -> {
-                    Map<Unit, Double> unitValues = new HashMap<>();
-                    for (Unit unit : List.of(Unit.MEGAWATT, Unit.AMPERE)) {
-                        Double value = this.getCommercialFlow(cnec, side, unit);
-                        if (value != null) {
-                            unitValues.put(unit, value);
-                        }
+        return loopFlowMap.entrySet().stream()
+            // only keep FlowCnec keys
+            .filter(e -> e.getKey() instanceof FlowCnec)
+            .collect(Collectors.toMap(
+                e -> (FlowCnec) e.getKey(),
+                e -> e.getValue().entrySet().stream()
+                    .collect(Collectors.toMap(
+                        Map.Entry::getKey, // TwoSides
+                        sideEntry -> sideEntry.getValue().entrySet().stream()
+                            .collect(Collectors.toMap(
+                                Map.Entry::getKey, // Unit
+                                unitEntry -> getCommercialFlow(e.getKey(), sideEntry.getKey(), unitEntry.getKey())
+                            ))
+                    ))
+            ));
 
-                    }
-                    sideMap.put(side, unitValues);
-                });
-                result.put(cnec, sideMap);
-            });
-        return result;
     }
 
 }
