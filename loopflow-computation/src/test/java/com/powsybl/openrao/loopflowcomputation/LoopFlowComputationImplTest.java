@@ -301,8 +301,11 @@ class LoopFlowComputationImplTest {
         assertEquals(80. * factorMwToA, loopFlowResult.getReferenceFlow(crac.getFlowCnec("DE-NL"), TwoSides.TWO, Unit.AMPERE), DOUBLE_TOLERANCE);
 
         // if we try to get result in unit other than objective function unit => return null
-        assertNull(loopFlowResult.getLoopFlow(crac.getFlowCnec("DE-NL"), TwoSides.TWO, Unit.MEGAWATT));
-        assertNull(loopFlowResult.getCommercialFlow(crac.getFlowCnec("DE-NL"), TwoSides.TWO, Unit.MEGAWATT));
-        assertNull(loopFlowResult.getReferenceFlow(crac.getFlowCnec("DE-NL"), TwoSides.TWO, Unit.MEGAWATT));
+        Exception e1 = assertThrows(OpenRaoException.class, () -> loopFlowResult.getLoopFlow(crac.getFlowCnec("DE-NL"), TwoSides.TWO, Unit.MEGAWATT));
+        assertEquals("No loop-flow value found for cnec DE-NL on side TWO in MW", e1.getMessage());
+        Exception e2 = assertThrows(OpenRaoException.class, () -> loopFlowResult.getCommercialFlow(crac.getFlowCnec("DE-NL"), TwoSides.TWO, Unit.MEGAWATT));
+        assertEquals("No commercial flow value found for cnec DE-NL on side TWO in MW", e2.getMessage());
+        Exception e3 = assertThrows(OpenRaoException.class, () -> loopFlowResult.getReferenceFlow(crac.getFlowCnec("DE-NL"), TwoSides.TWO, Unit.MEGAWATT));
+        assertEquals("No reference flow value found for cnec DE-NL on side TWO in MW", e3.getMessage());
     }
 }
