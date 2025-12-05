@@ -51,6 +51,7 @@ class FlowResultImplTest {
 
         FlowResult fixedCommercialFlows = Mockito.mock(FlowResult.class);
         when(fixedCommercialFlows.getCommercialFlow(loopFlowCnec, ONE, Unit.MEGAWATT)).thenReturn(200.);
+        when(fixedCommercialFlows.getCommercialFlow(eq(loopFlowCnec), eq(ONE), eq(Unit.AMPERE))).thenThrow(new OpenRaoException("a mock of what would happen if trying to access ampere value"));
         when(fixedCommercialFlows.getCommercialFlow(eq(optimizedCnec), eq(TWO), any())).thenThrow(new OpenRaoException("a mock of what would happen if trying to access LF"));
 
         FlowResult fixedPtdfs = Mockito.mock(FlowResult.class);
