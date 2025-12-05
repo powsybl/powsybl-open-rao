@@ -621,7 +621,6 @@ public class RaoSteps {
                 .map(side -> loopFlowResult.getLoopFlow(crac.getFlowCnec(cnecId), side, Unit.AMPERE))
                 .max(Double::compareTo).orElseThrow(),
             flowMegawattTolerance(expectedFlow));
-    //* getFlowUnitMultiplier(crac.getFlowCnec(cnecId), side, Unit.AMPERE, Unit.MEGAWATT)
     }
 
     @Then("the loopflow threshold on cnec {string} should be {double} MW")
