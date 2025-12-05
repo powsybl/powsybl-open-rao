@@ -101,14 +101,11 @@ public class FlowResultImpl implements FlowResult {
 
     @Override
     public double getCommercialFlow(FlowCnec flowCnec, TwoSides side, Unit unit) {
-        if (unit != Unit.MEGAWATT) {
-            throw new OpenRaoException("Commercial flows only in MW.");
-        }
         if (fixedCommercialFlows != null) {
             return fixedCommercialFlows.getCommercialFlow(flowCnec, side, unit);
         } else {
-            if (!commercialFlows.containsKey(flowCnec) || !commercialFlows.get(flowCnec).containsKey(side)) {
-                throw new OpenRaoException(format("No commercial flow on the CNEC %s on side %s", flowCnec.getName(), side));
+            if (!commercialFlows.containsKey(flowCnec) || !commercialFlows.get(flowCnec).containsKey(side) || !commercialFlows.get(flowCnec).get(side).containsKey(unit) ) {
+                throw new OpenRaoException(format("No commercial flow on the CNEC %s on side %s in %s", flowCnec.getName(), side, unit));
             }
             return commercialFlows.get(flowCnec).get(side).get(unit);
         }
