@@ -33,6 +33,8 @@
 
 ## Defined constraints
 
+> 💡 Mnec constraints are considered in the same unit as the objective function's unit in the MIP
+
 ### Keeping the MNEC margin positive or above its initial value
 
 $$
