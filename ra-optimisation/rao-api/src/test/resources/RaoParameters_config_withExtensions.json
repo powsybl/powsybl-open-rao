@@ -177,7 +177,8 @@
           "extensions" : {
             "open-sensitivity-parameters" : {
               "debugDir" : null,
-              "startWithFrozenACEmulation" : true
+              "startWithFrozenACEmulation" : true,
+              "threadCount" : 1
             }
           }
         }
