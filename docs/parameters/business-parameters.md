@@ -119,8 +119,8 @@ The following parameters tune some of these constraints, the one which are not i
 See also: [Modelling loop-flows and their virtual cost](../algorithms/castor/linear-problem/special-features/max-loop-flow-filler.md)
 
 #### acceptable-increase
-- **Expected value**: numeric values, in MEGAWATT unit
-- **Default value**: 0.0 MW
+- **Expected value**: numeric values, in objective function's unit
+- **Default value**: 0.0 MW / 0.0 A
 - **Usage**: the increase of the initial loop-flow that is allowed by the optimisation. That is to say, the optimisation
   bounds the loop-flow on CNECs by:  
   *LFcnec ≤ max(MaxLFcnec , InitLFcnec + acceptableAugmentation)*  

@@ -288,8 +288,8 @@ See also: [Modelling loop-flows and their virtual cost](../algorithms/castor/lin
 
 ##### constraint-adjustment-coefficient
 
-- **Expected value**: numeric values, in MEGAWATT unit
-- **Default value**: 0.0 MW
+- **Expected value**: numeric values, in objective function's unit
+- **Default value**: 0.0 MW / 0.0 A
 - **Usage**: this parameter acts as a margin which tightens, in the linear optimisation problem of RAO, the bounds of the
   loop-flow constraints. It conceptually behaves as the coefficient *cAdjustment* from the constraint below:  
   *abs(LoopFlow(cnec)) <= LoopFlowThreshold - cAdjustment*  
@@ -299,7 +299,8 @@ See also: [Modelling loop-flows and their virtual cost](../algorithms/castor/lin
   problem, remain respected once the loop-flows are re-computed without the linear approximations.
 
 ##### violation-cost
-- **Expected value**: numeric values, unit = unit of the objective function per MEGAWATT
+- **Expected value**: numeric values, no unit (it applies as a multiplier for the constraint violation inside the
+  objective function)
 - **Default value**: 10.0
 - **Usage**: this parameter is the cost of each excess of loop-flow. That is to say, if the loop-flows on one or several
   CNECs exceed the loop-flow threshold, a penalty will be added in the objective function of the RAO equal to:  
