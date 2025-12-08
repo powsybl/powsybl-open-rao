@@ -92,7 +92,7 @@ Examples of rao parameters with business and implementation specific parameters
         "sensitivity-parameters" : {
           "version" : "1.0",
           "load-flow-parameters" : {
-            "version" : "1.9",
+            "version" : "1.10",
             "voltageInitMode" : "DC_VALUES",
             "transformerVoltageControlOn" : false,
             "phaseShifterRegulationOn" : true,
@@ -106,7 +106,7 @@ Examples of rao parameters with business and implementation specific parameters
             "balanceType" : "PROPORTIONAL_TO_GENERATION_P",
             "dcUseTransformerRatio" : true,
             "countriesToBalance" : [ "TR", "BE", "SI", "CH", "AL", "ES", "SK", "BA", "RO", "PT", "DE", "AT", "FR", "CZ", "ME", "NL", "PL", "GR", "IT", "UA", "HU", "BG", "MK", "HR", "RS" ],
-            "connectedComponentMode" : "MAIN",
+            "componentMode" : "MAIN_CONNECTED",
             "hvdcAcEmulation" : true,
             "dcPowerFactor" : 1.0,
             "extensions" : {

@@ -60,7 +60,7 @@
         "sensitivity-parameters" : {
           "version" : "1.1",
           "load-flow-parameters" : {
-            "version" : "1.9",
+            "version" : "1.10",
             "voltageInitMode" : "UNIFORM_VALUES",
             "transformerVoltageControlOn" : false,
             "phaseShifterRegulationOn" : false,
@@ -74,7 +74,7 @@
             "balanceType" : "PROPORTIONAL_TO_GENERATION_P_MAX",
             "dcUseTransformerRatio" : true,
             "countriesToBalance" : [ ],
-            "connectedComponentMode" : "MAIN",
+            "componentMode" : "MAIN_CONNECTED",
             "hvdcAcEmulation" : true,
             "dcPowerFactor" : 1.0,
             "extensions" : {
@@ -156,7 +156,9 @@
                 "disableInconsistentVoltageControls" : false,
                 "extrapolateReactiveLimits" : false,
                 "startWithFrozenACEmulation" : false,
-                "generatorsWithZeroMwTargetAreNotStarted" : true
+                "generatorsWithZeroMwTargetAreNotStarted" : true,
+                "incrementalShuntControlOuterLoopMaxSectionShift" : 3,
+                "fixVoltageTargets" : false
               }
             }
           },
@@ -167,7 +169,8 @@
           "extensions" : {
             "open-sensitivity-parameters" : {
               "debugDir" : null,
-              "startWithFrozenACEmulation" : true
+              "startWithFrozenACEmulation" : true,
+              "threadCount" : 1
             }
           }
         }
