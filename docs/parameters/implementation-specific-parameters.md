@@ -51,7 +51,7 @@ These parameters (range-actions-optimization) tune the [linear optimiser](../alg
     See [Using integer variables for PST taps](../algorithms/castor/linear-problem/discrete-pst-tap-filler.md).
 
 ##### pst-sensitivity-threshold
-- **Expected value**: numeric value, unit: MW / ° (per degree)
+- **Expected value**: numeric value, unit: [objective function's unit](business-parameters.md#objective-function-parameters) / ° (per degree)
 - **Default value**: 0.0
 - **Usage**: the pst sensitivity coefficients which are below the pst-sensitivity-threshold will be considered equal to
   zero by the linear optimisation problem. Filtering some small sensitivity coefficients have the two following perks
@@ -60,7 +60,7 @@ These parameters (range-actions-optimization) tune the [linear optimiser](../alg
   - it can avoid changes of PST set-points when they only allow to earn a few MW on the margins of some CNECs.
 
 ##### hvdc-sensitivity-threshold
-- **Expected value**: numeric value, unit: MW / MW
+- **Expected value**: numeric value, unit: [objective function's unit](business-parameters.md#objective-function-parameters) / MW
 - **Default value**: 0.0
 - **Usage**: the hvdc sensitivity coefficients which are below the hvdc-sensitivity-threshold will be considered equal
   to zero by the linear optimisation problem. Filtering some of the small sensitivity coefficients have the two
@@ -69,7 +69,7 @@ These parameters (range-actions-optimization) tune the [linear optimiser](../alg
   - it can avoid changes of HVDC set-points when they only allow to earn a few MW on the margins of some CNECs.
 
 ##### injection-ra-sensitivity-threshold
-- **Expected value**: numeric value, unit: MW / MW
+- **Expected value**: numeric value, unit: [objective function's unit](business-parameters.md#objective-function-parameters) / MW
 - **Default value**: 0.0
 - **Usage**: the injection sensitivity coefficients which are below the injection-ra-sensitivity-threshold will be
   considered equal to zero by the linear optimisation problem.  
@@ -393,7 +393,7 @@ These parameters are meant to be used in costly optimization only.
 - **Usage**: Indicates whether all unsecure CNECs are added to the set of considered CNECs at each iteration of FastRAO.
 
 #### margin-limit
-- **Expected value**: numeric value, in MW unit
+- **Expected value**: numeric value, in MW or A unit (depending on [objective function's unit](business-parameters.md#objective-function-parameters))
 - **Default value**: 5
 - **Usage**: If `add-unsecure-cnecs` is enabled, a CNEC will be considered unsecure if its margin is lower than `margin-limit`.
 
