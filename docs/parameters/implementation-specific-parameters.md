@@ -326,7 +326,7 @@ The following parameters tune some of these constraints, the one which are imple
 <a id="mnec-violation-constraint-adjustment-coefficient"></a>
 ##### constraint-adjustment-coefficient
 
-- **Expected value**: numeric values, in MEGAWATT unit
+- **Expected value**: numeric values, in objective function's unit
 - **Default value**: 0.0
 - **Usage**: this coefficient is here to mitigate the approximation made by the linear optimisation (approximation = use
   of sensitivities to linearize the flows, rounding of the PST taps).  

@@ -147,8 +147,8 @@ The following parameters tune some of these constraints, the one which are not i
 
 #### acceptable-margin-decrease
 
-- **Expected value**: numeric values, in MEGAWATT unit
-- **Default value**: 50 MW (required by CORE CC methodology)
+- **Expected value**: numeric values, in objective function's unit
+- **Default value**: 50 MW (required by CORE CC methodology) / Ampere
 - **Usage**: the decrease of the initial margin that is allowed by the optimisation on MNECs.  
   In other words, it defines the bounds for the margins on the MNECs by  
   *Mcnec ≥ max(0, m0cnec − acceptableDiminution)*  
