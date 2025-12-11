@@ -13,7 +13,6 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.commons.logs.RaoBusinessWarns;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.InstantKind;
@@ -38,6 +37,7 @@ import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParamet
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoLoopFlowParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
+import com.powsybl.openrao.searchtreerao.reports.ReportsTestUtils;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
 import com.powsybl.glsk.commons.ZonalData;
@@ -49,7 +49,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -100,7 +99,7 @@ class RaoUtilTest {
         raoParameters.setRelativeMarginsParameters(relativeMarginsParameters);
         relativeMarginsParameters.setPtdfBoundariesFromString(new ArrayList<>(Arrays.asList("{FR}-{ES}", "{ES}-{PT}")));
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN);
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> RaoUtil.checkParameters(raoParameters, raoInput));
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> RaoUtil.checkParameters(raoParameters, raoInput, ReportNode.NO_OP));
         assertEquals("Objective function MAX_MIN_RELATIVE_MARGIN requires glsks", exception.getMessage());
     }
 
@@ -108,7 +107,7 @@ class RaoUtilTest {
     void testExceptionForNoRelativeMarginParametersOnRelativeMargin() {
         addGlskProvider();
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN);
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> RaoUtil.checkParameters(raoParameters, raoInput));
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> RaoUtil.checkParameters(raoParameters, raoInput, ReportNode.NO_OP));
         assertEquals("Objective function MAX_MIN_RELATIVE_MARGIN requires a config with a non empty boundary set", exception.getMessage());
     }
 
@@ -119,7 +118,7 @@ class RaoUtilTest {
         raoParameters.setRelativeMarginsParameters(relativeMarginsParameters);
         relativeMarginsParameters.setPtdfBoundariesFromString(new ArrayList<>());
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN);
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> RaoUtil.checkParameters(raoParameters, raoInput));
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> RaoUtil.checkParameters(raoParameters, raoInput, ReportNode.NO_OP));
         assertEquals("Objective function MAX_MIN_RELATIVE_MARGIN requires a config with a non empty boundary set", exception.getMessage());
     }
 
@@ -129,7 +128,7 @@ class RaoUtilTest {
         OpenRaoSearchTreeParameters searchTreeParameters = raoParameters.getExtension(OpenRaoSearchTreeParameters.class);
         searchTreeParameters.getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters().setDc(true);
         raoParameters.getObjectiveFunctionParameters().setUnit(Unit.AMPERE);
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> RaoUtil.checkParameters(raoParameters, raoInput));
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> RaoUtil.checkParameters(raoParameters, raoInput, ReportNode.NO_OP));
         assertEquals("Objective function unit A cannot be calculated with a DC default sensitivity engine", exception.getMessage());
     }
 
@@ -137,7 +136,7 @@ class RaoUtilTest {
     void testCostlyModeWithoutMinMarginsParameters() {
         // No search tree parameters exception
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MIN_COST);
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> RaoUtil.checkParameters(raoParameters, raoInput));
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> RaoUtil.checkParameters(raoParameters, raoInput, ReportNode.NO_OP));
         assertEquals("Objective function type MIN_COST requires a config with costly min margin parameters", exception.getMessage());
 
         // No costly min margin extension
@@ -145,7 +144,7 @@ class RaoUtilTest {
         OpenRaoSearchTreeParameters searchTreeParameters = raoParameters.getExtension(OpenRaoSearchTreeParameters.class);
         searchTreeParameters.setLoopFlowParameters(new SearchTreeRaoLoopFlowParameters());
         searchTreeParameters.getLoopFlowParameters().orElseThrow().setConstraintAdjustmentCoefficient(3.);
-        OpenRaoException exception2 = assertThrows(OpenRaoException.class, () -> RaoUtil.checkParameters(raoParameters, raoInput));
+        OpenRaoException exception2 = assertThrows(OpenRaoException.class, () -> RaoUtil.checkParameters(raoParameters, raoInput, ReportNode.NO_OP));
         assertEquals("Objective function type MIN_COST requires a config with costly min margin parameters", exception2.getMessage());
 
     }
@@ -371,7 +370,7 @@ class RaoUtilTest {
         raoParameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters(ReportNode.NO_OP));
         raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getRangeActionsOptimizationParameters().setPstModel(SearchTreeRaoRangeActionsOptimizationParameters.PstModel.CONTINUOUS);
         raoInput.getCrac().newRaUsageLimits(PREVENTIVE_INSTANT_ID).withMaxElementaryActionPerTso(Map.of("TSO", 2)).add();
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> RaoUtil.checkParameters(raoParameters, raoInput));
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> RaoUtil.checkParameters(raoParameters, raoInput, ReportNode.NO_OP));
         assertEquals("The PSTs must be approximated as integers to use the limitations of elementary actions as a constraint in the RAO.", exception.getMessage());
     }
 
@@ -427,10 +426,7 @@ class RaoUtilTest {
 
     @Test
     void checkWarningThresholdInMwWithAc() {
-        ch.qos.logback.classic.Logger logger = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(RaoBusinessWarns.class);
-        ListAppender<ILoggingEvent> listAppender = new ListAppender<>();
-        listAppender.start();
-        logger.addAppender(listAppender);
+        ListAppender<ILoggingEvent> listAppender = ReportsTestUtils.getBusinessWarns();
         List<ILoggingEvent> logsList = listAppender.list;
 
         raoParameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters(ReportNode.NO_OP));
@@ -465,14 +461,14 @@ class RaoUtilTest {
 
         RaoInput raoInputThresholdInMwWithAc = Mockito.mock(RaoInput.class);
         when(raoInputThresholdInMwWithAc.getCrac()).thenReturn(cracWIthTresholdInMwWithAc);
-        RaoUtil.checkCnecsThresholdsUnit(raoParameters, raoInputThresholdInMwWithAc);
+        RaoUtil.checkCnecsThresholdsUnit(raoParameters, raoInputThresholdInMwWithAc, ReportNode.NO_OP);
 
         String expectedMsg1 = "A threshold for the flowCnec cnecOneMwThresholdOneAmpThreshold is defined in MW but the loadflow computation is in AC. It will be imprecisely converted by the RAO which could create uncoherent results due to side effects";
         String expectedMsg2 = "A threshold for the flowCnec cnecOneMwThreshold is defined in MW but the loadflow computation is in AC. It will be imprecisely converted by the RAO which could create uncoherent results due to side effects";
         String notExpectedMsg = "A threshold for the flowCnec cnecOneAmpThreshold is defined in MW but the loadflow computation is in AC. It will be imprecisely converted by the RAO which could create uncoherent results due to side effects";
         assertEquals(2, logsList.size());
-        assertEquals(expectedMsg1, logsList.getFirst().getMessage());
-        assertEquals(expectedMsg2, logsList.get(1).getMessage());
+        assertEquals(expectedMsg1, logsList.getFirst().getFormattedMessage());
+        assertEquals(expectedMsg2, logsList.get(1).getFormattedMessage());
         assertFalse(logsList.stream().anyMatch(e -> e.getMessage().contains(notExpectedMsg)));
     }
 }

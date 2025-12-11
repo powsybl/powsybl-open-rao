@@ -171,7 +171,7 @@ public class CastorSecondPreventive {
         // Run 2nd automaton simulation and update results
         final ReportNode secondAutomatonSimulationReportNode = CastorReports.reportSecondAutomatonSimulation(secondPreventiveReportNode);
         Map<State, PostPerimeterResult> newPostContingencyResults = castorContingencyScenarios.optimizeContingencyScenarios(network, secondPreventiveRaoResult.postPraSensitivityAnalysisOutput, true, secondAutomatonSimulationReportNode);
-        CastorReports.reportSecondAutomatonSimulationEnd(secondAutomatonSimulationReportNode);
+        CastorReports.reportSecondAutomatonSimulationEnd();
 
         CastorReports.reportMergingFirstSecondPreventiveAndPostContingencyRaoResults(secondPreventiveReportNode);
         // Always re-run curative sensitivity analysis (re-run is necessary in several specific cases)

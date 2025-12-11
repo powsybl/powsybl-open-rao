@@ -138,7 +138,8 @@ public class SearchTree {
                     input.getOptimizationPerimeter().getMainOptimizationState(),
                     loadFlowAndSensitivityParameters.getLoadFlowProvider(),
                     loadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters().getLoadFlowParameters(),
-                    hvdcRasOnHvdcLineInAcEmulation
+                    hvdcRasOnHvdcLineInAcEmulation,
+                    reportNode
                 );
             }
 

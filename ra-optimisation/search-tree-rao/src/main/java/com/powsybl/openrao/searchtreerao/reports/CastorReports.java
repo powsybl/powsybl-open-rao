@@ -8,10 +8,13 @@
 package com.powsybl.openrao.searchtreerao.reports;
 
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.contingency.Contingency;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
+import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
@@ -38,7 +41,9 @@ import java.util.stream.Collectors;
 import static com.powsybl.commons.report.TypedValue.ERROR_SEVERITY;
 import static com.powsybl.commons.report.TypedValue.INFO_SEVERITY;
 import static com.powsybl.commons.report.TypedValue.TRACE_SEVERITY;
+import static com.powsybl.commons.report.TypedValue.WARN_SEVERITY;
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_LOGS;
+import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
 
 /**
@@ -224,11 +229,10 @@ public final class CastorReports {
     }
 
     public static ReportNode reportSecondPreventivePerimeterOptimization(final ReportNode parentNode) {
-        final ReportNode addedNode = parentNode.newReportNode()
+        return parentNode.newReportNode()
             .withMessageTemplate("openrao.searchtreerao.reportSecondPreventivePerimeterOptimization")
             .withSeverity(INFO_SEVERITY)
             .add();
-        return addedNode;
     }
 
     public static void reportSecondPreventivePerimeterOptimizationStart(final ReportNode parentNode) {
@@ -478,7 +482,7 @@ public final class CastorReports {
         return addedNode;
     }
 
-    public static void reportSecondAutomatonSimulationEnd(final ReportNode parentNode) {
+    public static void reportSecondAutomatonSimulationEnd() {
         BUSINESS_LOGS.info("----- Second automaton simulation [end]");
     }
 
@@ -535,11 +539,123 @@ public final class CastorReports {
         BUSINESS_LOGS.info("----- PST regulation [end]");
     }
 
+    public static void reportContingencyScenariosToRegulate(final ReportNode parentNode, final Set<Contingency> contingencies) {
+        final int nbContingencies = contingencies.size();
+        final String contingenciesList = String.join(", ", contingencies.stream().map(contingency -> contingency.getName().orElse(contingency.getId())).sorted().toList());
+
+        parentNode.newReportNode()
+            .withMessageTemplate("openrao.searchtreerao.reportContingencyScenariosToRegulate")
+            .withUntypedValue("nbContingencies", nbContingencies)
+            .withUntypedValue("contingenciesList", contingenciesList)
+            .withSeverity(INFO_SEVERITY)
+            .add();
+
+        BUSINESS_LOGS.info("{} contingency scenario(s) to regulate: {}", nbContingencies, contingenciesList);
+    }
+
+    public static void reportPstsToRegulate(final ReportNode parentNode, final Set<PstRangeAction> rangeActionsToRegulate) {
+        final int nbPsts = rangeActionsToRegulate.size();
+        final String pstsList = String.join(", ", rangeActionsToRegulate.stream().map(PstRangeAction::getName).sorted().toList());
+
+        parentNode.newReportNode()
+            .withMessageTemplate("openrao.searchtreerao.reportPstsToRegulate")
+            .withUntypedValue("nbPsts", nbPsts)
+            .withUntypedValue("pstsList", pstsList)
+            .withSeverity(INFO_SEVERITY)
+            .add();
+
+        BUSINESS_LOGS.info("{} PST(s) to regulate: {}", nbPsts, pstsList);
+    }
+
+    public static void reportErrorDuringPstRegulation(final ReportNode parentNode) {
+        parentNode.newReportNode()
+            .withMessageTemplate("openrao.searchtreerao.reportErrorDuringPstRegulation")
+            .withSeverity(WARN_SEVERITY)
+            .add();
+
+        BUSINESS_WARNS.warn("An error occurred during PST regulation, pre-regulation RAO result will be kept.");
+    }
+
+    public static void reportPstCannotBeRegulated(final ReportNode parentNode, final String pstId) {
+        parentNode.newReportNode()
+            .withMessageTemplate("openrao.searchtreerao.reportPstCannotBeRegulated")
+            .withUntypedValue("pstId", pstId)
+            .withSeverity(INFO_SEVERITY)
+            .add();
+
+        BUSINESS_LOGS.info("PST {} cannot be regulated as no curative PST range action was defined for it.", pstId);
+    }
+
+    public static void reportPstRegulationTriggeredDueToOverloadedFlowCnec(final ReportNode parentNode,
+                                                                           final String flowCnec,
+                                                                           final String contingency,
+                                                                           final String allShiftedPstsDetails) {
+        parentNode.newReportNode()
+            .withMessageTemplate("openrao.searchtreerao.reportPstRegulationTriggeredDueToOverloadedFlowCnec")
+            .withUntypedValue("flowCnec", flowCnec)
+            .withUntypedValue("contingency", contingency)
+            .withUntypedValue("allShiftedPstsDetails", allShiftedPstsDetails)
+            .withSeverity(INFO_SEVERITY)
+            .add();
+
+        BUSINESS_LOGS.info("FlowCNEC '{}' of contingency scenario '{}' is overloaded and is the most limiting element, PST regulation has been triggered: {}", flowCnec, contingency, allShiftedPstsDetails);
+    }
+
+    public static void reportNoDefaultRegulationTerminalDefined(final ReportNode parentNode,
+                                                                final String twtId,
+                                                                final TwoSides limitingSide) {
+        parentNode.newReportNode()
+            .withMessageTemplate("openrao.searchtreerao.reportNoDefaultRegulationTerminalDefined")
+            .withUntypedValue("twtId", twtId)
+            .withUntypedValue("limitingSide", limitingSide.toString())
+            .withSeverity(TRACE_SEVERITY)
+            .add();
+
+        TECHNICAL_LOGS.info("No default regulation terminal defined for phase tap changer of two-windings transformer {}, terminal on side {} will be used.", twtId, limitingSide);
+    }
+
+    public static void reportNoDefaultTargetDeadbandDefined(final ReportNode parentNode, final String twtId) {
+        parentNode.newReportNode()
+            .withMessageTemplate("openrao.searchtreerao.reportNoDefaultTargetDeadbandDefined")
+            .withUntypedValue("twtId", twtId)
+            .withSeverity(TRACE_SEVERITY)
+            .add();
+
+        TECHNICAL_LOGS.info("No default target deadband defined for phase tap changer of two-windings transformer {}, a value of 0.0 will be used.", twtId);
+    }
+
     public static ReportNode reportOptimizingScenarioForContingency(final ReportNode parentNode, final String contingencyId) {
         return parentNode.newReportNode()
             .withMessageTemplate("openrao.searchtreerao.reportOptimizingScenarioForContingency")
             .withUntypedValue("contingencyId", contingencyId)
             .withSeverity(TRACE_SEVERITY)
             .add();
+    }
+
+    public static void reportHvdcLineSetpointNotUpdated(final ReportNode parentNode,
+                                                        final String hvdcLineId,
+                                                        final double activePowerSetpoint,
+                                                        final double minAdmissibleSetpoint,
+                                                        final double maxAdmissibleSetpoint) {
+        final String activePowerSetpointFormatted = String.format("%.1f", activePowerSetpoint);
+        final String minAdmissibleSetpointFormatted = String.format("%.1f", minAdmissibleSetpoint);
+        final String maxAdmissibleSetpointFormatted = String.format("%.1f", maxAdmissibleSetpoint);
+
+        parentNode.newReportNode()
+            .withMessageTemplate("openrao.searchtreerao.reportHvdcLineSetpointNotUpdated")
+            .withUntypedValue("hvdcLineId", hvdcLineId)
+            .withUntypedValue("activePowerSetpoint", activePowerSetpointFormatted)
+            .withUntypedValue("minAdmissibleSetpoint", minAdmissibleSetpointFormatted)
+            .withUntypedValue("maxAdmissibleSetpoint", maxAdmissibleSetpointFormatted)
+            .withSeverity(TRACE_SEVERITY)
+            .add();
+
+        TECHNICAL_LOGS.info(
+            "HVDC line {} active setpoint could not be updated because its new set-point ({}) does not fall within its allowed range ({} - {})",
+            hvdcLineId,
+            activePowerSetpointFormatted,
+            minAdmissibleSetpointFormatted,
+            maxAdmissibleSetpointFormatted
+        );
     }
 }

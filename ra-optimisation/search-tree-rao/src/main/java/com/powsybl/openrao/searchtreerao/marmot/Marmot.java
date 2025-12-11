@@ -111,7 +111,7 @@ public class Marmot implements InterTemporalRaoProvider {
 
         // 5. Get and apply topological actions applied in independent optimizations
         TemporalData<NetworkActionsResult> preventiveTopologicalActions = getPreventiveTopologicalActions(interTemporalRaoInputWithNetworkPaths.getRaoInputs().map(RaoInputWithNetworkPaths::getCrac), topologicalOptimizationResults);
-        applyPreventiveTopologicalActionsOnNetworks(interTemporalRaoInput.getRaoInputs(), preventiveTopologicalActions);
+        applyPreventiveTopologicalActionsOnNetworks(interTemporalRaoInput.getRaoInputs(), preventiveTopologicalActions, reportNode);
 
         // 6. Create and iteratively solve MIP to find optimal range actions' set-points
         // Get the curative ations applied in the individual results to be able to apply them during sensitivity computations
@@ -362,11 +362,13 @@ public class Marmot implements InterTemporalRaoProvider {
         return individualResults;
     }
 
-    private static void applyPreventiveTopologicalActionsOnNetworks(TemporalData<RaoInput> raoInputs, TemporalData<NetworkActionsResult> preventiveTopologicalActionsResults) {
+    private static void applyPreventiveTopologicalActionsOnNetworks(final TemporalData<RaoInput> raoInputs,
+                                                                    final TemporalData<NetworkActionsResult> preventiveTopologicalActionsResults,
+                                                                    final ReportNode reportNode) {
         raoInputs.getTimestamps().forEach(timestamp -> {
             RaoInput raoInput = raoInputs.getData(timestamp).orElseThrow();
             NetworkActionsResult networkActionsResult = preventiveTopologicalActionsResults.getData(timestamp).orElseThrow();
-            MarmotUtils.applyPreventiveRemedialActions(raoInput, networkActionsResult, INITIAL_SCENARIO, POST_TOPO_SCENARIO);
+            MarmotUtils.applyPreventiveRemedialActions(raoInput, networkActionsResult, INITIAL_SCENARIO, POST_TOPO_SCENARIO, reportNode);
         });
     }
 

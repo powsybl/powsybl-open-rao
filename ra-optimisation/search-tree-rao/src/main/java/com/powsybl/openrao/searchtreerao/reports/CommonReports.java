@@ -205,4 +205,42 @@ public final class CommonReports {
 
         TECHNICAL_LOGS.warn("No GLSK found for CountryEICode {}", eiCode);
     }
+
+    public static void reportPstsMustBeApproximatedAsIntegers(final ReportNode parentNode) {
+        parentNode.newReportNode()
+            .withMessageTemplate("openrao.searchtreerao.reportPstsMustBeApproximatedAsIntegers")
+            .withSeverity(ERROR_SEVERITY)
+            .add();
+
+        BUSINESS_LOGS.error("The PSTs must be approximated as integers to use the limitations of elementary actions as a constraint in the RAO.");
+    }
+
+    public static void reportLoopflowComputationLacksReferenceProgramOrGlskProvider(final ReportNode parentNode, final String cracId) {
+        parentNode.newReportNode()
+            .withMessageTemplate("openrao.searchtreerao.reportLoopflowComputationLacksReferenceProgramOrGlskProvider")
+            .withUntypedValue("cracId", cracId)
+            .withSeverity(ERROR_SEVERITY)
+            .add();
+
+        BUSINESS_LOGS.error("Loopflow computation cannot be performed on CRAC {} because it lacks a ReferenceProgram or a GlskProvider", cracId);
+    }
+
+    public static void reportNoReferenceProgramProvided(final ReportNode parentNode) {
+        parentNode.newReportNode()
+            .withMessageTemplate("openrao.searchtreerao.reportNoReferenceProgramProvided")
+            .withSeverity(WARN_SEVERITY)
+            .add();
+
+        BUSINESS_WARNS.warn("No ReferenceProgram provided. A ReferenceProgram will be generated using information in the network file.");
+    }
+
+    public static void reportThresholdForFlowCnecDefinedInMwButLoadflowComputationIsInAc(final ReportNode parentNode, final String flowCnecId) {
+        parentNode.newReportNode()
+            .withMessageTemplate("openrao.searchtreerao.reportThresholdForFlowCnecDefinedInMwButLoadflowComputationIsInAc")
+            .withUntypedValue("flowCnecId", flowCnecId)
+            .withSeverity(WARN_SEVERITY)
+            .add();
+
+        BUSINESS_WARNS.warn("A threshold for the flowCnec {} is defined in MW but the loadflow computation is in AC. It will be imprecisely converted by the RAO which could create uncoherent results due to side effects", flowCnecId);
+    }
 }

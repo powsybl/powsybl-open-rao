@@ -12,7 +12,6 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.State;
@@ -30,11 +29,14 @@ import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.PstModel;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
+import com.powsybl.openrao.searchtreerao.reports.CommonReports;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
 import org.apache.commons.lang3.tuple.Pair;
 
-import java.util.*;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getLoadFlowProvider;
@@ -52,8 +54,8 @@ public final class RaoUtil {
     }
 
     public static void initData(final RaoInput raoInput, final RaoParameters raoParameters, final ReportNode reportNode) {
-        checkParameters(raoParameters, raoInput);
-        checkCnecsThresholdsUnit(raoParameters, raoInput);
+        checkParameters(raoParameters, raoInput, reportNode);
+        checkCnecsThresholdsUnit(raoParameters, raoInput, reportNode);
         initNetwork(raoInput.getNetwork(), raoInput.getNetworkVariantId());
         updateHvdcRangeActionInitialSetpoint(raoInput.getCrac(), raoInput.getNetwork(), raoParameters, reportNode);
         addNetworkActionAssociatedWithHvdcRangeAction(raoInput.getCrac(), raoInput.getNetwork());
@@ -63,32 +65,34 @@ public final class RaoUtil {
         network.getVariantManager().setWorkingVariant(networkVariantId);
     }
 
-    public static void checkParameters(RaoParameters raoParameters, RaoInput raoInput) {
+    public static void checkParameters(final RaoParameters raoParameters,
+                                       final RaoInput raoInput,
+                                       final ReportNode reportNode) {
         checkObjectiveFunctionParameters(raoParameters, raoInput);
-        checkLoopFlowParameters(raoParameters, raoInput);
+        checkLoopFlowParameters(raoParameters, raoInput, reportNode);
 
         if (!PstModel.APPROXIMATED_INTEGERS.equals(getPstModel(raoParameters))
             && raoInput.getCrac().getRaUsageLimitsPerInstant().values().stream().anyMatch(raUsageLimits -> !raUsageLimits.getMaxElementaryActionsPerTso().isEmpty())) {
-            String msg = "The PSTs must be approximated as integers to use the limitations of elementary actions as a constraint in the RAO.";
-            OpenRaoLoggerProvider.BUSINESS_LOGS.error(msg);
-            throw new OpenRaoException(msg);
+            CommonReports.reportPstsMustBeApproximatedAsIntegers(reportNode);
+            throw new OpenRaoException("The PSTs must be approximated as integers to use the limitations of elementary actions as a constraint in the RAO.");
         }
     }
 
-    private static void checkLoopFlowParameters(RaoParameters raoParameters, RaoInput raoInput) {
+    private static void checkLoopFlowParameters(final RaoParameters raoParameters,
+                                                final RaoInput raoInput,
+                                                final ReportNode reportNode) {
         if ((raoParameters.getLoopFlowParameters().isPresent()
             || raoParameters.getObjectiveFunctionParameters().getType().relativePositiveMargins())
             && (Objects.isNull(raoInput.getReferenceProgram()))) {
-            OpenRaoLoggerProvider.BUSINESS_WARNS.warn("No ReferenceProgram provided. A ReferenceProgram will be generated using information in the network file.");
+            CommonReports.reportNoReferenceProgramProvided(reportNode);
             raoInput.setReferenceProgram(ReferenceProgramBuilder.buildReferenceProgram(raoInput.getNetwork(), getLoadFlowProvider(raoParameters), getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters()));
         }
 
         if (raoParameters.getLoopFlowParameters().isPresent() && (Objects.isNull(raoInput.getReferenceProgram()) || Objects.isNull(raoInput.getGlskProvider()))) {
-            String msg = format(
+            CommonReports.reportLoopflowComputationLacksReferenceProgramOrGlskProvider(reportNode, raoInput.getCrac().getId());
+            throw new OpenRaoException(format(
                 "Loopflow computation cannot be performed on CRAC %s because it lacks a ReferenceProgram or a GlskProvider",
-                raoInput.getCrac().getId());
-            OpenRaoLoggerProvider.BUSINESS_LOGS.error(msg);
-            throw new OpenRaoException(msg);
+                raoInput.getCrac().getId()));
         }
     }
 
@@ -114,13 +118,14 @@ public final class RaoUtil {
         }
     }
 
-    public static void checkCnecsThresholdsUnit(RaoParameters raoParameters, RaoInput raoInput) {
+    public static void checkCnecsThresholdsUnit(final RaoParameters raoParameters,
+                                                final RaoInput raoInput,
+                                                final ReportNode reportNode) {
         Crac crac = raoInput.getCrac();
         if (!getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters().isDc()) {
             crac.getFlowCnecs().forEach(flowCnec -> {
                 if (flowCnec.getThresholds().stream().anyMatch(branchThreshold -> branchThreshold.getUnit().equals(Unit.MEGAWATT))) {
-                    String msg = format("A threshold for the flowCnec %s is defined in MW but the loadflow computation is in AC. It will be imprecisely converted by the RAO which could create uncoherent results due to side effects", flowCnec.getId());
-                    OpenRaoLoggerProvider.BUSINESS_WARNS.warn(msg);
+                    CommonReports.reportThresholdForFlowCnecDefinedInMwButLoadflowComputationIsInAc(reportNode, flowCnec.getId());
                 }
             });
         }

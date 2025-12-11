@@ -171,4 +171,15 @@ public final class AutomatonSimulatorReports {
 
         TECHNICAL_LOGS.info("Running sensitivity analysis after disabling AngleDroopActivePowerControl on HVDC RAs.");
     }
+
+    public static void reportFoundMoreAcEmulationDeactivationActionThanExpected(final ReportNode parentNode, final String hvdcLineId, final int nbActions) {
+        parentNode.newReportNode()
+            .withMessageTemplate("openrao.searchtreerao.reportFoundMoreAcEmulationDeactivationActionThanExpected")
+            .withUntypedValue("hvdcLineId", hvdcLineId)
+            .withUntypedValue("nbActions", nbActions)
+            .withSeverity(WARN_SEVERITY)
+            .add();
+
+        TECHNICAL_LOGS.warn("Expected exactly one acEmulationDeactivationAction for HVDC line {}, but found {}.", hvdcLineId, nbActions);
+    }
 }

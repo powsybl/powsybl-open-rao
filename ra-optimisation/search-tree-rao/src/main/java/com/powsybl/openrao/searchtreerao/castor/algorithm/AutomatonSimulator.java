@@ -463,12 +463,13 @@ public final class AutomatonSimulator {
                 automatonState,
                 getLoadFlowProvider(raoParameters),
                 getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters(),
-                hvdcRasWithControl
+                hvdcRasWithControl,
+                simulationReportNode
             );
         }
 
         activePowerSetpoints.forEach((ra, activePowerSetpoint) -> {
-            disableAcEmulationAndSetHvdcActivePowerSetpoint(network, crac, topoSimulationResult, ra.getNetworkElement().getId(), activePowerSetpoint);
+            disableAcEmulationAndSetHvdcActivePowerSetpoint(network, crac, topoSimulationResult, ra.getNetworkElement().getId(), activePowerSetpoint, simulationReportNode);
         });
 
         if (activePowerSetpoints.isEmpty()) {
@@ -492,10 +493,11 @@ public final class AutomatonSimulator {
                                                                        final Crac crac,
                                                                        final AutomatonSimulator.TopoAutomatonSimulationResult topoSimulationResult,
                                                                        final String hvdcLineId,
-                                                                       final double activePowerSetpoint) {
+                                                                       final double activePowerSetpoint,
+                                                                       final ReportNode reportNode) {
         TECHNICAL_LOGS.debug("Disabling HvdcAngleDroopActivePowerControl on HVDC line {}", hvdcLineId, activePowerSetpoint);
         // get AC emulation deactivation network action that acts on hvdc line
-        NetworkAction acEmulationDeactivationAction = getAcEmulationDeactivationNetworkActionOnHvdcLine(crac, hvdcLineId);
+        NetworkAction acEmulationDeactivationAction = getAcEmulationDeactivationNetworkActionOnHvdcLine(crac, hvdcLineId, reportNode);
         // deactivate AC emulation using the AC emulation deactivation network action found above
         acEmulationDeactivationAction.apply(network);
         // add network action to topoSimulationResult !
@@ -513,14 +515,14 @@ public final class AutomatonSimulator {
      *     <li>There should only be one acEmulationDeactivationAction per HVDC line; if not, it logs a warning.</li>
      * </ul>d
      */
-    private static NetworkAction getAcEmulationDeactivationNetworkActionOnHvdcLine(Crac crac, String hvdcLineId) {
+    private static NetworkAction getAcEmulationDeactivationNetworkActionOnHvdcLine(final Crac crac, final String hvdcLineId, final ReportNode reportNode) {
         Set<NetworkAction> acEmulationDeactivationActionsOnHvdcLine = crac.getNetworkActions().stream()
             .filter(ra -> ra.getNetworkElements().stream().map(NetworkElement::getId).collect(Collectors.toSet()).equals(Set.of(hvdcLineId)))
             .filter(ra -> ra.getElementaryActions().stream()
                 .allMatch(ea -> ea instanceof HvdcAction)).collect(Collectors.toSet());
 
         if (acEmulationDeactivationActionsOnHvdcLine.size() != 1) {
-            TECHNICAL_LOGS.warn("Expected exactly one acEmulationDeactivationAction for HVDC line {}, but found {}.", hvdcLineId, acEmulationDeactivationActionsOnHvdcLine.size());
+            AutomatonSimulatorReports.reportFoundMoreAcEmulationDeactivationActionThanExpected(reportNode, hvdcLineId, acEmulationDeactivationActionsOnHvdcLine.size());
         }
 
         return acEmulationDeactivationActionsOnHvdcLine.iterator().next();

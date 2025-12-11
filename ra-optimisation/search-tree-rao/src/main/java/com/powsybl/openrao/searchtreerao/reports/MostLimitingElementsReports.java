@@ -82,7 +82,8 @@ public final class MostLimitingElementsReports {
                                                           final ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunctionType,
                                                           final Unit unit,
                                                           final int numberOfLoggedElements) {
-        reportMostLimitingElementsResults(parentNode, INFO_SEVERITY, BUSINESS_LOGS, preventivePerimeter, basecaseOptimResult, contingencyScenarios, contingencyOptimizationResults, objectiveFunctionType, unit, numberOfLoggedElements);
+        final List<MostLimitingElementRecord> mostLimitingElementRecords = getMostLimitingElementRecords(preventivePerimeter, basecaseOptimResult, contingencyScenarios, contingencyOptimizationResults, objectiveFunctionType, unit, numberOfLoggedElements);
+        reportMostLimitingElementsResults(parentNode, INFO_SEVERITY, BUSINESS_LOGS, mostLimitingElementRecords);
     }
 
     private static void reportMostLimitingElementsResults(final ReportNode parentNode,
@@ -95,20 +96,6 @@ public final class MostLimitingElementsReports {
                                                           final Unit objectiveFunctionUnit,
                                                           final int numberLoggedElementsDuringRao) {
         final List<MostLimitingElementRecord> mostLimitingElementRecords = getMostLimitingElementRecords(objectiveFunctionResult, flowResult, automatonStates, objectiveFunctionType, objectiveFunctionUnit, numberLoggedElementsDuringRao);
-        reportMostLimitingElementsResults(parentNode, reportSeverity, logger, mostLimitingElementRecords);
-    }
-
-    private static void reportMostLimitingElementsResults(final ReportNode parentNode,
-                                                          final TypedValue reportSeverity,
-                                                          final OpenRaoLogger logger,
-                                                          final Perimeter preventivePerimeter,
-                                                          final OptimizationResult basecaseOptimResult,
-                                                          final Set<ContingencyScenario> contingencyScenarios,
-                                                          final Map<State, PostPerimeterResult> contingencyOptimizationResults,
-                                                          final ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunctionType,
-                                                          final Unit unit,
-                                                          final int numberOfLoggedElements) {
-        final List<MostLimitingElementRecord> mostLimitingElementRecords = getMostLimitingElementRecords(preventivePerimeter, basecaseOptimResult, contingencyScenarios, contingencyOptimizationResults, objectiveFunctionType, unit, numberOfLoggedElements);
         reportMostLimitingElementsResults(parentNode, reportSeverity, logger, mostLimitingElementRecords);
     }
 

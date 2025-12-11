@@ -226,6 +226,16 @@ public final class MarmotReports {
         TECHNICAL_LOGS.info("[MARMOT] Running RAO for timestamp {} [end]", timestamp);
     }
 
+    public static void reportMarmotNoPreventiveTopologicalActionsAppliedForTimestamp(final ReportNode parentNode, final OffsetDateTime timestamp) {
+        parentNode.newReportNode()
+            .withMessageTemplate("openrao.searchtreerao.reportMarmotNoPreventiveTopologicalActionsAppliedForTimestamp")
+            .withUntypedValue("timestamp", timestamp.toString())
+            .withSeverity(TRACE_SEVERITY)
+            .add();
+
+        TECHNICAL_LOGS.info("[MARMOT] No preventive topological actions applied for timestamp {}", timestamp);
+    }
+
     record MarmotAddedCnecsElement(String timestamp, String vcName, String addedCnecs) {
     }
 }

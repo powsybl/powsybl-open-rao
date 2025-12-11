@@ -126,7 +126,7 @@ class SearchTreeTest {
         // Mock call to runLoadFlowAndUpdateHvdcActivePowerSetpoint(...)
         hvdcUtilsMock = mockStatic(HvdcUtils.class);
         hvdcUtilsMock
-            .when(() -> HvdcUtils.runLoadFlowAndUpdateHvdcActivePowerSetpoint(any(Network.class), any(State.class), any(String.class), any(LoadFlowParameters.class), any(Set.class)))
+            .when(() -> HvdcUtils.runLoadFlowAndUpdateHvdcActivePowerSetpoint(any(Network.class), any(State.class), any(String.class), any(LoadFlowParameters.class), any(Set.class), any(ReportNode.class)))
             .thenReturn(Map.of());
 
         hvdcUtilsMock
@@ -237,7 +237,7 @@ class SearchTreeTest {
         assertEquals(rootLeaf, result);
         assertEquals(2., result.getCost(), DOUBLE_TOLERANCE);
 
-        hvdcUtilsMock.verify(() -> HvdcUtils.runLoadFlowAndUpdateHvdcActivePowerSetpoint(any(), any(), any(), any(), any()), times(0));
+        hvdcUtilsMock.verify(() -> HvdcUtils.runLoadFlowAndUpdateHvdcActivePowerSetpoint(any(), any(), any(), any(), any(), any()), times(0));
     }
 
     @Test
@@ -253,7 +253,7 @@ class SearchTreeTest {
         when(optimizationPerimeter.getRangeActions()).thenReturn(Set.of(hvdcRangeAction));
         OptimizationResult result = searchTree.run().get();
 
-        hvdcUtilsMock.verify(() -> HvdcUtils.runLoadFlowAndUpdateHvdcActivePowerSetpoint(any(), any(), any(), any(), any()), times(1));
+        hvdcUtilsMock.verify(() -> HvdcUtils.runLoadFlowAndUpdateHvdcActivePowerSetpoint(any(), any(), any(), any(), any(), any()), times(1));
 
     }
 

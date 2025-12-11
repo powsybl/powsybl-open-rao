@@ -12,7 +12,6 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
-import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.State;
@@ -26,6 +25,7 @@ import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.PrePerimeterSensitivityAnalysis;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
 import com.powsybl.openrao.searchtreerao.marmot.results.GlobalLinearOptimizationResult;
+import com.powsybl.openrao.searchtreerao.reports.MarmotReports;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.NetworkActionsResult;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
@@ -144,7 +144,11 @@ public final class MarmotUtils {
         return allStatuses.contains(ComputationStatus.PARTIAL_FAILURE) ? ComputationStatus.PARTIAL_FAILURE : ComputationStatus.DEFAULT;
     }
 
-    public static void applyPreventiveRemedialActions(RaoInput raoInput, NetworkActionsResult networkActionsResult, String initialVariantId, String newVariantId) {
+    public static void applyPreventiveRemedialActions(final RaoInput raoInput,
+                                                      final NetworkActionsResult networkActionsResult,
+                                                      final String initialVariantId,
+                                                      final String newVariantId,
+                                                      final ReportNode reportNode) {
         Network network = raoInput.getNetwork();
         Crac crac = raoInput.getCrac();
 
@@ -154,7 +158,7 @@ public final class MarmotUtils {
         network.getVariantManager().setWorkingVariant(newVariantId);
         Set<NetworkAction> networkActionsToBeApplied = networkActionsResult.getActivatedNetworkActionsPerState().get(preventiveState);
         if (networkActionsToBeApplied.isEmpty()) {
-            OpenRaoLoggerProvider.TECHNICAL_LOGS.info("[MARMOT] No preventive topological actions applied for timestamp {}", crac.getTimestamp().orElseThrow());
+            MarmotReports.reportMarmotNoPreventiveTopologicalActionsAppliedForTimestamp(reportNode, crac.getTimestamp().orElseThrow());
         } else {
             networkActionsToBeApplied.forEach(networkAction -> networkAction.apply(network));
         }

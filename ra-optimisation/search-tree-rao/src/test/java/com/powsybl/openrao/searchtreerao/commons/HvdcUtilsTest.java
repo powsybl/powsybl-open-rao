@@ -95,7 +95,8 @@ public class HvdcUtilsTest {
             crac.getPreventiveState(),
             "OpenLoadFlow",
             loadFlowParameters,
-            crac.getHvdcRangeActions().stream().map(HvdcRangeActionImpl.class::cast).collect(Collectors.toSet())
+            crac.getHvdcRangeActions().stream().map(HvdcRangeActionImpl.class::cast).collect(Collectors.toSet()),
+            ReportNode.NO_OP
         );
 
         assertEquals(hvdcRangeActionActivePowerSetpoint.get(crac.getHvdcRangeAction("HVDC_RA1")), crac.getHvdcRangeAction("HVDC_RA1").getCurrentSetpoint(network));
@@ -108,7 +109,8 @@ public class HvdcUtilsTest {
             autoState,
             "OpenLoadFlow",
             loadFlowParameters,
-            crac.getHvdcRangeActions().stream().map(HvdcRangeActionImpl.class::cast).collect(Collectors.toSet())
+            crac.getHvdcRangeActions().stream().map(HvdcRangeActionImpl.class::cast).collect(Collectors.toSet()),
+            ReportNode.NO_OP
         );
         assertEquals(hvdcRangeActionActivePowerSetpoint.get(crac.getHvdcRangeAction("HVDC_RA1")), crac.getHvdcRangeAction("HVDC_RA1").getCurrentSetpoint(network));
         assertEquals(864, hvdcRangeActionActivePowerSetpoint.get(crac.getHvdcRangeAction("HVDC_RA1")), 1);
@@ -129,7 +131,8 @@ public class HvdcUtilsTest {
             crac.getPreventiveState(),
             "OpenLoadFlow",
             loadFlowParameters,
-            crac.getHvdcRangeActions().stream().map(HvdcRangeActionImpl.class::cast).collect(Collectors.toSet())
+            crac.getHvdcRangeActions().stream().map(HvdcRangeActionImpl.class::cast).collect(Collectors.toSet()),
+            ReportNode.NO_OP
         );
         assertTrue(hvdcRangeActionActivePowerSetpoint.isEmpty());
         assertEquals(0, crac.getHvdcRangeAction("HVDC_RA1").getCurrentSetpoint(network));

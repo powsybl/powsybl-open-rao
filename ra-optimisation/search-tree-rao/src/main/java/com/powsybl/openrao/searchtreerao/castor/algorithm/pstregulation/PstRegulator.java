@@ -7,14 +7,15 @@
 
 package com.powsybl.openrao.searchtreerao.castor.algorithm.pstregulation;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
+import com.powsybl.openrao.searchtreerao.reports.CastorReports;
 
 import java.util.Map;
 import java.util.Set;
@@ -27,19 +28,22 @@ public final class PstRegulator {
     private PstRegulator() {
     }
 
-    public static Map<PstRangeAction, Integer> regulatePsts(Set<ElementaryPstRegulationInput> elementaryPstRegulationInputs, Network network, LoadFlowParameters loadFlowParameters) {
-        elementaryPstRegulationInputs.forEach(elementaryPstRegulationInput -> setRegulationForPst(network, elementaryPstRegulationInput));
+    public static Map<PstRangeAction, Integer> regulatePsts(final Set<ElementaryPstRegulationInput> elementaryPstRegulationInputs,
+                                                            final Network network,
+                                                            final LoadFlowParameters loadFlowParameters,
+                                                            final ReportNode reportNode) {
+        elementaryPstRegulationInputs.forEach(elementaryPstRegulationInput -> setRegulationForPst(network, elementaryPstRegulationInput, reportNode));
         LoadFlow.find("OpenLoadFlow").run(network, loadFlowParameters);
         return elementaryPstRegulationInputs.stream().collect(Collectors.toMap(ElementaryPstRegulationInput::pstRangeAction, pstRegulationInput -> getRegulatedTap(network, pstRegulationInput.pstRangeAction())));
     }
 
-    private static void setRegulationForPst(Network network, ElementaryPstRegulationInput elementaryPstRegulationInput) {
+    private static void setRegulationForPst(Network network, ElementaryPstRegulationInput elementaryPstRegulationInput, ReportNode reportNode) {
         TwoWindingsTransformer twt = getTwoWindingsTransformer(network, elementaryPstRegulationInput.pstRangeAction());
         PhaseTapChanger phaseTapChanger = twt.getPhaseTapChanger();
         phaseTapChanger.setRegulationValue(elementaryPstRegulationInput.limitingThreshold());
-        setRegulationTerminal(twt, elementaryPstRegulationInput);
+        setRegulationTerminal(twt, elementaryPstRegulationInput, reportNode);
         phaseTapChanger.setRegulationMode(PhaseTapChanger.RegulationMode.CURRENT_LIMITER);
-        setTargetDeadband(twt);
+        setTargetDeadband(twt, reportNode);
         phaseTapChanger.setRegulating(true);
     }
 
@@ -52,18 +56,20 @@ public final class PstRegulator {
         return twt;
     }
 
-    private static void setRegulationTerminal(TwoWindingsTransformer twt, ElementaryPstRegulationInput elementaryPstRegulationInput) {
+    private static void setRegulationTerminal(final TwoWindingsTransformer twt,
+                                              final ElementaryPstRegulationInput elementaryPstRegulationInput,
+                                              final ReportNode reportNode) {
         PhaseTapChanger phaseTapChanger = twt.getPhaseTapChanger();
         if (phaseTapChanger.getRegulationTerminal() == null) {
-            OpenRaoLoggerProvider.TECHNICAL_LOGS.info("No default regulation terminal defined for phase tap changer of two-windings transformer %s, terminal on side %s will be used.".formatted(twt.getId(), elementaryPstRegulationInput.limitingSide()));
+            CastorReports.reportNoDefaultRegulationTerminalDefined(reportNode, twt.getId(), elementaryPstRegulationInput.limitingSide());
             phaseTapChanger.setRegulationTerminal(twt.getTerminal(elementaryPstRegulationInput.limitingSide()));
         }
     }
 
-    private static void setTargetDeadband(TwoWindingsTransformer twt) {
+    private static void setTargetDeadband(final TwoWindingsTransformer twt, final ReportNode reportNode) {
         PhaseTapChanger phaseTapChanger = twt.getPhaseTapChanger();
         if (Double.isNaN(phaseTapChanger.getTargetDeadband())) {
-            OpenRaoLoggerProvider.TECHNICAL_LOGS.info("No default target deadband defined for phase tap changer of two-windings transformer %s, a value of 0.0 will be used.".formatted(twt.getId()));
+            CastorReports.reportNoDefaultTargetDeadbandDefined(reportNode, twt.getId());
             phaseTapChanger.setTargetDeadband(0.0); // value is not used by OpenLoadFlow in CURRENT_LIMITER mode
         }
     }
