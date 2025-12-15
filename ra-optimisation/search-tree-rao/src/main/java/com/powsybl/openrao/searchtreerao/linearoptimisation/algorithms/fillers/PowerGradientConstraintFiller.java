@@ -23,9 +23,10 @@ import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.IntStream;
+
+import static java.lang.Math.min;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -64,12 +65,7 @@ public class PowerGradientConstraintFiller implements ProblemFiller {
             .forEach(generatorConstraint -> {
                 OpenRaoMPConstraint maxChangesConstraint = linearProblem.addGeneratorMaxChangesConstraint(generatorConstraint.getGeneratorId(), generatorConstraint.getMaxChanges().get());
                 IntStream.range(0, timestamps.size()).forEach(timestampIndex -> {
-                    OffsetDateTime timestamp = timestamps.get(timestampIndex);
-                    OffsetDateTime previousTimestamp = null;
-                    if (timestampIndex > 0) {
-                        previousTimestamp = timestamps.get(timestampIndex - 1);
-                    }
-                    addChangeOnTimestamp(linearProblem, generatorConstraint, timestamp, previousTimestamp, maxChangesConstraint);
+                    addChangeOnTimestamp(linearProblem, generatorConstraint, timestampIndex, timestamps, maxChangesConstraint);
                 });
             });
     }
@@ -80,20 +76,21 @@ public class PowerGradientConstraintFiller implements ProblemFiller {
      * changed(g,t) >= diff_to_init(g,t) + diff_to_prec - 1 (diff_to_init if first timestamp)
      * sum(t) changed(g,t) <= max_changes(g)
      */
-    private void addChangeOnTimestamp(LinearProblem linearProblem, GeneratorConstraints generatorConstraint, OffsetDateTime timestamp, OffsetDateTime previoustimestamp, OpenRaoMPConstraint maxChangesConstraint) {
+    private void addChangeOnTimestamp(LinearProblem linearProblem, GeneratorConstraints generatorConstraint, int timestampIndex, List<OffsetDateTime> timestamps, OpenRaoMPConstraint maxChangesConstraint) {
+        OffsetDateTime timestamp = timestamps.get(timestampIndex);
         double p0 = getInitialP(linearProblem, generatorConstraint.getGeneratorId(), timestamp);
         OpenRaoMPVariable generatorPower = linearProblem.getGeneratorPowerVariable(generatorConstraint.getGeneratorId(), timestamp);
         OpenRaoMPVariable generatorDiffToInitial = linearProblem.addGeneratorDiffToInitialVariable(generatorConstraint.getGeneratorId(), timestamp);
         OpenRaoMPConstraint generatorDiffToInitialConstraintPos = linearProblem.addGeneratorDiffToInitialConstraint(generatorConstraint.getGeneratorId(), timestamp, LinearProblem.AbsExtension.POSITIVE);
         //diff > p0 - p <=> diff + p > p0
-        generatorDiffToInitialConstraintPos.setLb(p0 * 0.0001);
-        generatorDiffToInitialConstraintPos.setCoefficient(generatorDiffToInitial, 1);
-        generatorDiffToInitialConstraintPos.setCoefficient(generatorPower, 0.0001);
+        generatorDiffToInitialConstraintPos.setLb(p0);
+        generatorDiffToInitialConstraintPos.setCoefficient(generatorDiffToInitial, 1000);
+        generatorDiffToInitialConstraintPos.setCoefficient(generatorPower, 1);
         OpenRaoMPConstraint generatorDiffToInitialConstraintNeg = linearProblem.addGeneratorDiffToInitialConstraint(generatorConstraint.getGeneratorId(), timestamp, LinearProblem.AbsExtension.NEGATIVE);
         //diff > p - p0 <=> diff - p > -p0
-        generatorDiffToInitialConstraintNeg.setLb(-p0 * 0.0001);
-        generatorDiffToInitialConstraintNeg.setCoefficient(generatorDiffToInitial, 1);
-        generatorDiffToInitialConstraintNeg.setCoefficient(generatorPower, -0.0001);
+        generatorDiffToInitialConstraintNeg.setLb(-p0);
+        generatorDiffToInitialConstraintNeg.setCoefficient(generatorDiffToInitial, 1000);
+        generatorDiffToInitialConstraintNeg.setCoefficient(generatorPower, -1);
 
         OpenRaoMPVariable generatorChangedVariable = linearProblem.addGeneratorChangedVariable(generatorConstraint.getGeneratorId(), timestamp);
         OpenRaoMPConstraint generatorChangedConstraint = linearProblem.addGeneratorChangedConstraint(generatorConstraint.getGeneratorId(), timestamp);
@@ -102,35 +99,65 @@ public class PowerGradientConstraintFiller implements ProblemFiller {
         generatorChangedConstraint.setCoefficient(generatorChangedVariable, 1.);
         generatorChangedConstraint.setCoefficient(generatorDiffToInitial, -1.);
 
-        if (Objects.nonNull(previoustimestamp)) {
-            OpenRaoMPVariable generatorPowerPrevious = linearProblem.getGeneratorPowerVariable(generatorConstraint.getGeneratorId(), previoustimestamp);
-            OpenRaoMPVariable generatorDiffToPreviousTs = linearProblem.addGeneratorDiffToPreviousTsVariable(generatorConstraint.getGeneratorId(), timestamp);
+        if (timestampIndex > 0) {
+            OffsetDateTime previousTimestamp = timestamps.get(timestampIndex - 1);
+            OpenRaoMPVariable generatorPowerPrevious = linearProblem.getGeneratorPowerVariable(generatorConstraint.getGeneratorId(), previousTimestamp);
+            OpenRaoMPVariable generatorDiffToPreviousTs = linearProblem.getOrAddGeneratorDiffToPreviousTsVariable(generatorConstraint.getGeneratorId(), timestamp);
             OpenRaoMPConstraint generatorDiffToPreviousConstraintPos = linearProblem.addGeneratorDiffToPreviousConstraint(generatorConstraint.getGeneratorId(), timestamp, LinearProblem.AbsExtension.POSITIVE);
             generatorDiffToPreviousConstraintPos.setLb(0.);
             //diff > p' - p <=> diff + p - p'> 0
-            generatorDiffToPreviousConstraintPos.setCoefficient(generatorDiffToPreviousTs, 1);
-            generatorDiffToPreviousConstraintPos.setCoefficient(generatorPower, 0.0001);
-            generatorDiffToPreviousConstraintPos.setCoefficient(generatorPowerPrevious, -0.0001);
+            generatorDiffToPreviousConstraintPos.setCoefficient(generatorDiffToPreviousTs, 1000);
+            generatorDiffToPreviousConstraintPos.setCoefficient(generatorPower, 1);
+            generatorDiffToPreviousConstraintPos.setCoefficient(generatorPowerPrevious, -1);
             OpenRaoMPConstraint generatorDiffToPreviousConstraintNeg = linearProblem.addGeneratorDiffToPreviousConstraint(generatorConstraint.getGeneratorId(), timestamp, LinearProblem.AbsExtension.NEGATIVE);
             generatorDiffToPreviousConstraintNeg.setLb(0.);
             //diff > p - p' <=> diff - p' + p> 0
-            generatorDiffToPreviousConstraintNeg.setCoefficient(generatorDiffToPreviousTs, 1);
-            generatorDiffToPreviousConstraintNeg.setCoefficient(generatorPower, -0.0001);
-            generatorDiffToPreviousConstraintNeg.setCoefficient(generatorPowerPrevious, 0.0001);
+            generatorDiffToPreviousConstraintNeg.setCoefficient(generatorDiffToPreviousTs, 1000);
+            generatorDiffToPreviousConstraintNeg.setCoefficient(generatorPower, -1);
+            generatorDiffToPreviousConstraintNeg.setCoefficient(generatorPowerPrevious, 1);
 
             generatorChangedConstraint.setLb(-1.);
             generatorChangedConstraint.setCoefficient(generatorDiffToPreviousTs, -1.);
         }
 
+        if (generatorConstraint.getNoChangesForNTimestamps().isPresent() && generatorConstraint.getNoChangesForNTimestamps().get() > 0 && timestampIndex < timestamps.size() - 1) {
+            // dont change for an extra n ts
+            // diffToPrevious(t+1) + diffToPrevious(t+2) ... + diffToPrevious(t+n) + changed(t)  <= 1
+            // ^ doesn't work because if initial P is not constant then we have diffToPrevious = 1 for t+1, t+2 ... t+n so we're "forced" to use the action
+            // diffToPrevious(t+1) + diffToPrevious(t+2) ... + diffToPrevious(t+n) <= M * (1 - changed(t))
+            // we need multiple constraints : changed(t) + diffToPrevious(t+k) <= 1 for k from 1 to n
+            OpenRaoMPConstraint generatorConstantAfterChange = linearProblem.addGeneratorConstantAfterChangeConstraint(generatorConstraint.getGeneratorId(), timestamp);
+            generatorConstantAfterChange.setUb(timestamps.size());
+            for (int i = timestampIndex + 1; i < min(timestamps.size(), timestampIndex + 1 + generatorConstraint.getNoChangesForNTimestamps().orElseThrow()); i++) {
+                OffsetDateTime ts = timestamps.get(i);
+                generatorConstantAfterChange.setCoefficient(linearProblem.getOrAddGeneratorDiffToPreviousTsVariable(generatorConstraint.getGeneratorId(), ts), 1.);
+            }
+            generatorConstantAfterChange.setCoefficient(linearProblem.getGeneratorChangedVariable(generatorConstraint.getGeneratorId(), timestamp), timestamps.size());
+        }
+
         maxChangesConstraint.setCoefficient(generatorChangedVariable, 1.);
 
+        //min change is X MW
+        double minChange = 100;
+        OpenRaoMPVariable generatorChangeIsPositive = linearProblem.addGeneratorChangeIsPositiveVariable(generatorConstraint.getGeneratorId(), timestamp);
+        OpenRaoMPConstraint minGeneratorChangeUp = linearProblem.addMinGeneratorChangeConstraint(generatorConstraint.getGeneratorId(), timestamp, LinearProblem.AbsExtension.POSITIVE);
+        minGeneratorChangeUp.setCoefficient(generatorPower, 1);
+        minGeneratorChangeUp.setCoefficient(generatorDiffToInitial, -minChange);
+        minGeneratorChangeUp.setCoefficient(generatorChangeIsPositive, -1000);
+        minGeneratorChangeUp.setLb(p0 - 1000);
+
+        OpenRaoMPConstraint minGeneratorChangeDown = linearProblem.addMinGeneratorChangeConstraint(generatorConstraint.getGeneratorId(), timestamp, LinearProblem.AbsExtension.NEGATIVE);
+        minGeneratorChangeDown.setCoefficient(generatorPower, -1);
+        minGeneratorChangeDown.setCoefficient(generatorDiffToInitial, -minChange);
+        minGeneratorChangeDown.setCoefficient(generatorChangeIsPositive, 1000);
+        minGeneratorChangeDown.setLb(-p0);
     }
 
     /** Build a Generator Power Gradient Constraint for a generator g at timestamp t
      * p^{-}(g) * delta(t, t + 1) <= P(g, t + 1) - P(g, t) <= p^{+}(g) * delta_t(t, t + 1)
      * */
     private static void addPowerGradientConstraint(LinearProblem linearProblem, GeneratorConstraints generatorConstraints, OffsetDateTime currentTimestamp, OffsetDateTime previousTimestamp, OpenRaoMPVariable generatorPowerVariable) {
-        double timeGap = previousTimestamp.until(currentTimestamp, ChronoUnit.HOURS);
+        double timeGap = previousTimestamp.until(currentTimestamp, ChronoUnit.SECONDS) / 3600.;
         double lb = generatorConstraints.getDownwardPowerGradient().map(minValue -> minValue * timeGap).orElse(-linearProblem.infinity());
         double ub = generatorConstraints.getUpwardPowerGradient().map(maxValue -> maxValue * timeGap).orElse(linearProblem.infinity());
         String generatorId = generatorConstraints.getGeneratorId();

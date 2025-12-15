@@ -548,6 +548,18 @@ public final class LinearProblem {
         return solver.makeBoolVar(generatorDiffToPreviousTsVariableId(generatorId, timestamp));
     }
 
+    public OpenRaoMPVariable getGeneratorDiffToPreviousTsVariable(String generatorId, OffsetDateTime timestamp) {
+        return solver.getVariable(generatorDiffToPreviousTsVariableId(generatorId, timestamp));
+    }
+
+    public OpenRaoMPVariable getOrAddGeneratorDiffToPreviousTsVariable(String generatorId, OffsetDateTime timestamp) {
+        if (solver.hasVariable(generatorDiffToPreviousTsVariableId(generatorId, timestamp))) {
+            return getGeneratorDiffToPreviousTsVariable(generatorId, timestamp);
+        } else {
+            return addGeneratorDiffToPreviousTsVariable(generatorId, timestamp);
+        }
+    }
+
     public OpenRaoMPConstraint addGeneratorDiffToPreviousConstraint(String generatorId, OffsetDateTime timestamp, AbsExtension absExtension) {
         return solver.makeConstraint(generatorDiffToPreviousTsConstraintId(generatorId, timestamp, absExtension));
     }
@@ -556,8 +568,24 @@ public final class LinearProblem {
         return solver.makeBoolVar(generatorChangedVariableId(generatorId, timestamp));
     }
 
+    public OpenRaoMPVariable getGeneratorChangedVariable(String generatorId, OffsetDateTime timestamp) {
+        return solver.getVariable(generatorChangedVariableId(generatorId, timestamp));
+    }
+
     public OpenRaoMPConstraint addGeneratorChangedConstraint(String generatorId, OffsetDateTime timestamp) {
         return solver.makeConstraint(generatorChangedConstraintId(generatorId, timestamp));
+    }
+
+    public OpenRaoMPConstraint addGeneratorConstantAfterChangeConstraint(String generatorId, OffsetDateTime timestamp) {
+        return solver.makeConstraint(generatorConstantAfterChangeConstraintId(generatorId, timestamp));
+    }
+
+    public OpenRaoMPVariable addGeneratorChangeIsPositiveVariable(String generatorId, OffsetDateTime timestamp) {
+        return solver.makeBoolVar(generatorChangeIsPositiveVariableId(generatorId, timestamp));
+    }
+
+    public OpenRaoMPConstraint addMinGeneratorChangeConstraint(String generatorId, OffsetDateTime timestamp, AbsExtension absExtension) {
+        return solver.makeConstraint(minGeneratorChangeConstraintId(generatorId, timestamp, absExtension));
     }
 
     public double infinity() {

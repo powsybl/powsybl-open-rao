@@ -25,10 +25,10 @@ public class SearchTreeRaoRangeActionsOptimizationParameters {
 
     // Default values
     private static final int DEFAULT_MAX_MIP_ITERATIONS = 10;
-    private static final double DEFAULT_PST_SENSITIVITY_THRESHOLD = 1e-6;
+    private static final double DEFAULT_PST_SENSITIVITY_THRESHOLD = 1e-3;
     private static final PstModel DEFAULT_PST_MODEL = PstModel.CONTINUOUS;
-    private static final double DEFAULT_HVDC_SENSITIVITY_THRESHOLD = 1e-6;
-    private static final double DEFAULT_INJECTION_RA_SENSITIVITY_THRESHOLD = 1e-6;
+    private static final double DEFAULT_HVDC_SENSITIVITY_THRESHOLD = 1e-3;
+    private static final double DEFAULT_INJECTION_RA_SENSITIVITY_THRESHOLD = 1e-3;
     private static final RaRangeShrinking DEFAULT_RA_RANGE_SHRINKING = RaRangeShrinking.DISABLED;
     // Attributes
     private int maxMipIterations = DEFAULT_MAX_MIP_ITERATIONS;

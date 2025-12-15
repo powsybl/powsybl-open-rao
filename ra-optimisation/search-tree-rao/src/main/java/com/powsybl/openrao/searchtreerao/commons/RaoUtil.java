@@ -57,6 +57,7 @@ public final class RaoUtil {
     }
 
     public static void initNetwork(Network network, String networkVariantId) {
+        network.getVariantManager().cloneVariant(network.getVariantManager().getWorkingVariantId(), networkVariantId, true);
         network.getVariantManager().setWorkingVariant(networkVariantId);
     }
 

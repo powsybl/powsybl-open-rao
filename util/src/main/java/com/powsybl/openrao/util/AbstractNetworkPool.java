@@ -115,4 +115,8 @@ public abstract class AbstractNetworkPool extends ForkJoinPool implements AutoCl
 
     public abstract void initClones(int desiredNumberOfClones);
 
+    public String getStateSaveVariant() {
+        return stateSaveVariant;
+    }
+
 }
