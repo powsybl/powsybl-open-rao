@@ -104,7 +104,10 @@ public class FastRao implements RaoProvider {
         try {
             // Retrieve input data
             Crac crac = raoInput.getCrac();
+
+            AbstractNetworkPool networkPool = AbstractNetworkPool.create(raoInput.getNetwork(), raoInput.getNetworkVariantId(), 1, true);
             Collection<String> initialNetworkVariants = new HashSet<>(raoInput.getNetwork().getVariantManager().getVariantIds());
+            initialNetworkVariants.add(networkPool.getStateSaveVariant());
 
             ToolProvider toolProvider = ToolProvider.buildFromRaoInputAndParameters(raoInput, parameters);
 
@@ -139,7 +142,6 @@ public class FastRao implements RaoProvider {
             FlowCnec worstCnec;
             FastRaoResultImpl raoResult;
             com.powsybl.openrao.data.crac.api.Instant lastInstant = raoInput.getCrac().getLastInstant();
-            AbstractNetworkPool networkPool = AbstractNetworkPool.create(raoInput.getNetwork(), raoInput.getNetworkVariantId(), 3, true);
             int counter = 1;
 
             do {
@@ -272,9 +274,9 @@ public class FastRao implements RaoProvider {
         // Compute sensitivity analyses after PRA, after ARA, after CRA to build RaoResult
         StateTree stateTree = new StateTree(crac);
 
-        Network networkCopyPra = networkPool.getAvailableNetwork();
-        Network networkCopyAra = networkPool.getAvailableNetwork();
-        Network networkCopyCra = networkPool.getAvailableNetwork();
+        Network networkCopyPra = raoInput.getNetwork();
+        Network networkCopyAra = networkCopyPra;
+        Network networkCopyCra = networkCopyAra;
 
         // 1) Post PRA
         CompletableFuture<PostPerimeterResult> postPraSensi = runPostPerimeterAnalysis(
@@ -330,9 +332,9 @@ public class FastRao implements RaoProvider {
         }
 
         // Now it's safe to release the network copy
-        networkPool.releaseUsedNetwork(networkCopyPra);
-        networkPool.releaseUsedNetwork(networkCopyAra);
-        networkPool.releaseUsedNetwork(networkCopyCra);
+        //networkPool.releaseUsedNetwork(networkCopyPra);
+        //networkPool.releaseUsedNetwork(networkCopyAra);
+        //networkPool.releaseUsedNetwork(networkCopyCra);
 
         raoInput.getNetwork().getVariantManager().setWorkingVariant(finalVariantId);
 

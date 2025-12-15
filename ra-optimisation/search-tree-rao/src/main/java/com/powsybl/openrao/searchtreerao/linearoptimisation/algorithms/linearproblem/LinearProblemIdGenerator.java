@@ -65,6 +65,9 @@ public final class LinearProblemIdGenerator {
     private static final String GENERATOR_DIFF_TO_INITIAL = "generatordifftoinitial";
     private static final String GENERATOR_DIFF_TO_PREVIOUS = "generatordifftoprevious";
     private static final String GENERATOR_CHANGED = "generatorchanged";
+    private static final String GENERATOR_CONSTANT_AFTER_CHANGE = "generatorconstantafterchange";
+    private static final String GENERATOR_CHANGE_IS_POSITIVE = "generatorchangeispositive";
+    private static final String MIN_GENERATOR_CHANGE = "mingeneratorchange";
 
     private LinearProblemIdGenerator() {
         // Should not be instantiated
@@ -314,5 +317,17 @@ public final class LinearProblemIdGenerator {
 
     public static String generatorChangedConstraintId(String generatorId, OffsetDateTime timestamp) {
         return formatName(Optional.ofNullable(timestamp), GENERATOR_CHANGED, generatorId, CONSTRAINT_SUFFIX);
+    }
+
+    public static String generatorConstantAfterChangeConstraintId(String generatorId, OffsetDateTime timestamp) {
+        return formatName(Optional.ofNullable(timestamp), GENERATOR_CONSTANT_AFTER_CHANGE, generatorId, CONSTRAINT_SUFFIX);
+    }
+
+    public static String generatorChangeIsPositiveVariableId(String generatorId, OffsetDateTime timestamp) {
+        return formatName(Optional.ofNullable(timestamp), GENERATOR_CHANGE_IS_POSITIVE, generatorId, VARIABLE_SUFFIX);
+    }
+
+    public static String minGeneratorChangeConstraintId(String generatorId, OffsetDateTime timestamp, LinearProblem.AbsExtension absExtension) {
+        return formatName(Optional.ofNullable(timestamp), MIN_GENERATOR_CHANGE, generatorId, CONSTRAINT_SUFFIX, absExtension.toString());
     }
 }
