@@ -67,18 +67,20 @@ public class FastRao implements RaoProvider {
     }
 
     @Override
-    public String getVersion() {
-        return "1.0.0";
-    }
-
-    @Override
     public CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters parameters) {
         return run(raoInput, parameters, null);
     }
 
     @Override
     public CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters parameters, Instant targetEndInstant) {
-        RaoUtil.initData(raoInput, parameters);
+        try {
+            RaoUtil.initData(raoInput, parameters);
+        } catch (Exception e) {
+            String failure = String.format("Data initialisation failed: %s", e);
+            BUSINESS_LOGS.error(failure);
+            return CompletableFuture.completedFuture(new FailedRaoResultImpl(failure));
+        }
+
         return CompletableFuture.completedFuture(launchFastRaoOptimization(raoInput, parameters, targetEndInstant, new HashSet<>()));
     }
 
@@ -434,8 +436,9 @@ public class FastRao implements RaoProvider {
     }
 
     private static void applyOptimalPreventiveRemedialActions(Network networkCopy, State state, RaoResult raoResult) {
-        raoResult.getActivatedRangeActionsDuringState(state).forEach(rangeAction -> rangeAction.apply(networkCopy, raoResult.getOptimizedSetPointOnState(state, rangeAction)));
+        // network actions need to be applied BEFORE range actions because to apply HVDC range actions we need to apply AC emulation deactivation network actions beforehand
         raoResult.getActivatedNetworkActionsDuringState(state).forEach(networkAction -> networkAction.apply(networkCopy));
+        raoResult.getActivatedRangeActionsDuringState(state).forEach(rangeAction -> rangeAction.apply(networkCopy, raoResult.getOptimizedSetPointOnState(state, rangeAction)));
     }
 
     private static AppliedRemedialActions createAppliedRemedialActions(Crac crac, RaoResult raoResult, InstantKind instantKind) {
