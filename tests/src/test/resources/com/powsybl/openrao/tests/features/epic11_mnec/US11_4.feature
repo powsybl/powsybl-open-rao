@@ -78,5 +78,5 @@ Feature: US 11.4: Handle mnecs in search tree with range actions and network act
     And PST "BBE2AA1  BBE3AA1  1" in network file with PRA is on tap -11
     And 2 remedial actions are used in preventive
     And the worst margin is -106.0 MW on cnec "FR2-FR3-O - preventive"
-    And the flow on cnec "NL1-NL3-D - preventive" after PRA should be 500.0 MW
-    And the flow on cnec "NL2-BE3-D - preventive" after PRA should be -1590.0 MW
+    And the flow on cnec "NL1-NL3-D - preventive" after PRA should be 500.0 MW on side 1
+    And the flow on cnec "NL2-BE3-D - preventive" after PRA should be -1590.0 MW on side 1
