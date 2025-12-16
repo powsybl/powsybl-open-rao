@@ -474,65 +474,130 @@ public class RaoSteps {
     Flows in A
      */
 
-    // TODO : add steps to check flows on both sides
-    @Then("the initial flow on cnec {string} should be {double} A")
-    public void initialFlowInA(String cnecId, Double expectedFlow) {
-        TwoSides side = crac.getFlowCnec(cnecId).getMonitoredSides().iterator().next();
-        assertEquals(expectedFlow, raoResult.getFlow(null, crac.getFlowCnec(cnecId), side, Unit.AMPERE), flowAmpereTolerance(expectedFlow));
+    @Then("the initial flow on cnec {string} should be {double} A on side 1 and {double} A on side 2")
+    public void initialFlowInA(String cnecId, Double expectedFlow1, Double expectedFlow2) {
+        assertEquals(expectedFlow1, raoResult.getFlow(null, crac.getFlowCnec(cnecId), TwoSides.ONE, Unit.AMPERE), flowAmpereTolerance(expectedFlow1));
+        assertEquals(expectedFlow2, raoResult.getFlow(null, crac.getFlowCnec(cnecId), TwoSides.TWO, Unit.AMPERE), flowAmpereTolerance(expectedFlow2));
     }
 
-    @Then("the flow on cnec {string} after PRA should be {double} A")
-    public void afterPraFlowInA(String cnecId, Double expectedFlow) {
-        TwoSides side = crac.getFlowCnec(cnecId).getMonitoredSides().iterator().next();
-        assertEquals(expectedFlow, raoResult.getFlow(crac.getPreventiveInstant(), crac.getFlowCnec(cnecId), side, Unit.AMPERE), flowAmpereTolerance(expectedFlow));
+    @Then("the flow on cnec {string} after PRA should be {double} A on side 1 and {double} A on side 2")
+    public void afterPraFlowInA(String cnecId, Double expectedFlow1, Double expectedFlow2) {
+        assertEquals(expectedFlow1, raoResult.getFlow(crac.getPreventiveInstant(), crac.getFlowCnec(cnecId), TwoSides.ONE, Unit.AMPERE), flowAmpereTolerance(expectedFlow1));
+        assertEquals(expectedFlow2, raoResult.getFlow(crac.getPreventiveInstant(), crac.getFlowCnec(cnecId), TwoSides.TWO, Unit.AMPERE), flowAmpereTolerance(expectedFlow2));
     }
 
-    @Then("the flow on cnec {string} after ARA should be {double} A")
-    public void afterAraFlowInA(String cnecId, Double expectedFlow) {
-        TwoSides side = crac.getFlowCnec(cnecId).getMonitoredSides().iterator().next();
-        assertEquals(expectedFlow, raoResult.getFlow(crac.getInstant(InstantKind.AUTO), crac.getFlowCnec(cnecId), side, Unit.AMPERE), flowAmpereTolerance(expectedFlow));
+    @Then("the flow on cnec {string} after ARA should be {double} A on side 1 and {double} A on side 2")
+    public void afterAraFlowInA(String cnecId, Double expectedFlow1, Double expectedFlow2) {
+        assertEquals(expectedFlow1, raoResult.getFlow(crac.getInstant(InstantKind.AUTO), crac.getFlowCnec(cnecId), TwoSides.ONE, Unit.AMPERE), flowAmpereTolerance(expectedFlow1));
+        assertEquals(expectedFlow2, raoResult.getFlow(crac.getInstant(InstantKind.AUTO), crac.getFlowCnec(cnecId), TwoSides.TWO, Unit.AMPERE), flowAmpereTolerance(expectedFlow2));
     }
 
-    @Then("the flow on cnec {string} after CRA should be {double} A")
-    public void afterCraFlowInA(String cnecId, Double expectedFlow) {
-        TwoSides side = crac.getFlowCnec(cnecId).getMonitoredSides().iterator().next();
-        assertEquals(expectedFlow, raoResult.getFlow(crac.getInstant(InstantKind.CURATIVE), crac.getFlowCnec(cnecId), side, Unit.AMPERE), flowAmpereTolerance(expectedFlow));
+    @Then("the flow on cnec {string} after CRA should be {double} A on side 1 and {double} A on side 2")
+    public void afterCraFlowInA(String cnecId, Double expectedFlow1, Double expectedFlow2) {
+        assertEquals(expectedFlow1, raoResult.getFlow(crac.getInstant(InstantKind.CURATIVE), crac.getFlowCnec(cnecId), TwoSides.TWO, Unit.AMPERE), flowAmpereTolerance(expectedFlow1));
+        assertEquals(expectedFlow2, raoResult.getFlow(crac.getInstant(InstantKind.CURATIVE), crac.getFlowCnec(cnecId), TwoSides.ONE, Unit.AMPERE), flowAmpereTolerance(expectedFlow2));
+    }
+
+    @Then("the initial flow on cnec {string} should be {double} A on side {int}")
+    public void initialFlowInABothSides(String cnecId, Double expectedFlow, Integer side) {
+        assertEquals(expectedFlow, raoResult.getFlow(null, crac.getFlowCnec(cnecId), getTwoSideFromInteger(side), Unit.AMPERE), flowAmpereTolerance(expectedFlow));
+    }
+
+    @Then("the flow on cnec {string} after PRA should be {double} A on side {int}")
+    public void afterPraFlowInABothSides(String cnecId, Double expectedFlow, Integer side) {
+        assertEquals(expectedFlow, raoResult.getFlow(crac.getPreventiveInstant(), crac.getFlowCnec(cnecId), getTwoSideFromInteger(side), Unit.AMPERE), flowAmpereTolerance(expectedFlow));
+    }
+
+    @Then("the flow on cnec {string} after ARA should be {double} A on side {int}")
+    public void afterAraFlowInABothSides(String cnecId, Double expectedFlow, Integer side) {
+        assertEquals(expectedFlow, raoResult.getFlow(crac.getInstant(InstantKind.AUTO), crac.getFlowCnec(cnecId), getTwoSideFromInteger(side), Unit.AMPERE), flowAmpereTolerance(expectedFlow));
+    }
+
+    @Then("the flow on cnec {string} after CRA should be {double} A on side {int}")
+    public void afterCraFlowInABothSides(String cnecId, Double expectedFlow, Integer side) {
+        Instant lastCurativeInstant = crac.getInstants(InstantKind.CURATIVE).stream()
+            .sorted(Comparator.comparingInt(instant -> -instant.getOrder()))
+            .toList().get(0);
+        assertEquals(expectedFlow, raoResult.getFlow(lastCurativeInstant, crac.getFlowCnec(cnecId), getTwoSideFromInteger(side), Unit.AMPERE), flowAmpereTolerance(expectedFlow));
+    }
+
+    @Then("the flow on cnec {string} after {string} instant remedial actions should be {double} A on side {int}")
+    public void afterInstantFlowInABothSides(String cnecId, String instantId, Double expectedFlow, Integer side) {
+        Instant instant = crac.getInstant(instantId);
+        assertEquals(expectedFlow, raoResult.getFlow(instant, crac.getFlowCnec(cnecId), getTwoSideFromInteger(side), Unit.AMPERE), flowAmpereTolerance(expectedFlow));
     }
 
     /*
     Flows in MW
     */
 
-    @Then("the initial flow on cnec {string} should be {double} MW")
-    public void initialFlowInMW(String cnecId, Double expectedFlow) {
-        TwoSides side = crac.getFlowCnec(cnecId).getMonitoredSides().iterator().next();
-        assertEquals(expectedFlow, raoResult.getFlow(null, crac.getFlowCnec(cnecId), side, Unit.MEGAWATT), flowMegawattTolerance(expectedFlow));
+    @Then("the initial flow on cnec {string} should be {double} MW on side 1 and {double} MW on side 2")
+    public void initialFlowInMW(String cnecId, Double expectedFlow1, Double expectedFlow2) {
+        assertEquals(expectedFlow1, raoResult.getFlow(null, crac.getFlowCnec(cnecId), TwoSides.ONE, Unit.MEGAWATT), flowMegawattTolerance(expectedFlow1));
+        assertEquals(expectedFlow2, raoResult.getFlow(null, crac.getFlowCnec(cnecId), TwoSides.TWO, Unit.MEGAWATT), flowMegawattTolerance(expectedFlow2));
     }
 
-    @Then("the flow on cnec {string} after PRA should be {double} MW")
-    public void afterPraFlowInMW(String cnecId, Double expectedFlow) {
-        TwoSides side = crac.getFlowCnec(cnecId).getMonitoredSides().iterator().next();
-        assertEquals(expectedFlow, raoResult.getFlow(crac.getPreventiveInstant(), crac.getFlowCnec(cnecId), side, Unit.MEGAWATT), flowMegawattTolerance(expectedFlow));
+    @Then("the flow on cnec {string} after PRA should be {double} MW on side 1 and {double} MW on side 2")
+    public void afterPraFlowInMW(String cnecId, Double expectedFlow1, Double expectedFlow2) {
+        assertEquals(expectedFlow1, raoResult.getFlow(crac.getPreventiveInstant(), crac.getFlowCnec(cnecId), TwoSides.ONE, Unit.MEGAWATT), flowMegawattTolerance(expectedFlow1));
+        assertEquals(expectedFlow2, raoResult.getFlow(crac.getPreventiveInstant(), crac.getFlowCnec(cnecId), TwoSides.TWO, Unit.MEGAWATT), flowMegawattTolerance(expectedFlow2));
     }
 
-    @Then("the flow on cnec {string} after ARA should be {double} MW")
-    public void afterAraFlowInMW(String cnecId, Double expectedFlow) {
-        TwoSides side = crac.getFlowCnec(cnecId).getMonitoredSides().iterator().next();
-        assertEquals(expectedFlow, raoResult.getFlow(crac.getInstant(InstantKind.AUTO), crac.getFlowCnec(cnecId), side, Unit.MEGAWATT), flowMegawattTolerance(expectedFlow));
+    @Then("the flow on cnec {string} after ARA should be {double} MW on side 1 and {double} MW on side 2")
+    public void afterAraFlowInMW(String cnecId, Double expectedFlow1, Double expectedFlow2) {
+        assertEquals(expectedFlow1, raoResult.getFlow(crac.getInstant(InstantKind.AUTO), crac.getFlowCnec(cnecId), TwoSides.ONE, Unit.MEGAWATT), flowMegawattTolerance(expectedFlow1));
+        assertEquals(expectedFlow2, raoResult.getFlow(crac.getInstant(InstantKind.AUTO), crac.getFlowCnec(cnecId), TwoSides.TWO, Unit.MEGAWATT), flowMegawattTolerance(expectedFlow2));
     }
 
-    @Then("the flow on cnec {string} after CRA should be {double} MW")
-    public void afterCraFlowInMW(String cnecId, Double expectedFlow) {
-        TwoSides side = crac.getFlowCnec(cnecId).getMonitoredSides().iterator().next();
+    @Then("the flow on cnec {string} after CRA should be {double} MW on side 1 and {double} MW on side 2")
+    public void afterCraFlowInMW(String cnecId, Double expectedFlow1, Double expectedFlow2) {
         Instant lastCurativeInstant = crac.getInstants(InstantKind.CURATIVE).stream().sorted(Comparator.comparingInt(instant -> -instant.getOrder())).toList().get(0);
-        assertEquals(expectedFlow, raoResult.getFlow(lastCurativeInstant, crac.getFlowCnec(cnecId), side, Unit.MEGAWATT), flowMegawattTolerance(expectedFlow));
+        assertEquals(expectedFlow1, raoResult.getFlow(lastCurativeInstant, crac.getFlowCnec(cnecId), TwoSides.ONE, Unit.MEGAWATT), flowMegawattTolerance(expectedFlow1));
+        assertEquals(expectedFlow2, raoResult.getFlow(lastCurativeInstant, crac.getFlowCnec(cnecId), TwoSides.TWO, Unit.MEGAWATT), flowMegawattTolerance(expectedFlow2));
     }
 
-    @Then("the flow on cnec {string} after {string} instant remedial actions should be {double} MW")
-    public void afterInstantFlowInMW(String cnecId, String instantId, Double expectedFlow) {
-        TwoSides side = crac.getFlowCnec(cnecId).getMonitoredSides().iterator().next();
+    @Then("the flow on cnec {string} after {string} instant remedial actions should be {double} MW on side 1 and {double} MW on side 2")
+    public void afterInstantFlowInMW(String cnecId, String instantId, Double expectedFlow1, Double expectedFlow2) {
         Instant instant = crac.getInstant(instantId);
-        assertEquals(expectedFlow, raoResult.getFlow(instant, crac.getFlowCnec(cnecId), side, Unit.MEGAWATT), flowMegawattTolerance(expectedFlow));
+        assertEquals(expectedFlow1, raoResult.getFlow(instant, crac.getFlowCnec(cnecId), TwoSides.ONE, Unit.MEGAWATT), flowMegawattTolerance(expectedFlow1));
+        assertEquals(expectedFlow2, raoResult.getFlow(instant, crac.getFlowCnec(cnecId), TwoSides.TWO, Unit.MEGAWATT), flowMegawattTolerance(expectedFlow2));
+    }
+
+    public TwoSides getTwoSideFromInteger(Integer side) {
+        if (side.equals(1)) {
+            return TwoSides.ONE;
+        } else {
+            return TwoSides.TWO;
+        }
+    }
+
+    @Then("the initial flow on cnec {string} should be {double} MW on side {int}")
+    public void initialFlowInMWBothSides(String cnecId, Double expectedFlow, Integer side) {
+        assertEquals(expectedFlow, raoResult.getFlow(null, crac.getFlowCnec(cnecId), getTwoSideFromInteger(side), Unit.MEGAWATT), flowMegawattTolerance(expectedFlow));
+    }
+
+    @Then("the flow on cnec {string} after PRA should be {double} MW on side {int}")
+    public void afterPraFlowInMWBothSides(String cnecId, Double expectedFlow, Integer side) {
+        assertEquals(expectedFlow, raoResult.getFlow(crac.getPreventiveInstant(), crac.getFlowCnec(cnecId), getTwoSideFromInteger(side), Unit.MEGAWATT), flowMegawattTolerance(expectedFlow));
+    }
+
+    @Then("the flow on cnec {string} after ARA should be {double} MW on side {int}")
+    public void afterAraFlowInMWBothSides(String cnecId, Double expectedFlow, Integer side) {
+        assertEquals(expectedFlow, raoResult.getFlow(crac.getInstant(InstantKind.AUTO), crac.getFlowCnec(cnecId), getTwoSideFromInteger(side), Unit.MEGAWATT), flowMegawattTolerance(expectedFlow));
+    }
+
+    @Then("the flow on cnec {string} after CRA should be {double} MW on side {int}")
+    public void afterCraFlowInMWBothSides(String cnecId, Double expectedFlow, Integer side) {
+        Instant lastCurativeInstant = crac.getInstants(InstantKind.CURATIVE).stream()
+            .sorted(Comparator.comparingInt(instant -> -instant.getOrder()))
+            .toList().get(0);
+        assertEquals(expectedFlow, raoResult.getFlow(lastCurativeInstant, crac.getFlowCnec(cnecId), getTwoSideFromInteger(side), Unit.MEGAWATT), flowMegawattTolerance(expectedFlow));
+    }
+
+    @Then("the flow on cnec {string} after {string} instant remedial actions should be {double} MW on side {int}")
+    public void afterInstantFlowInMWBothSides(String cnecId, String instantId, Double expectedFlow, Integer side) {
+        Instant instant = crac.getInstant(instantId);
+        assertEquals(expectedFlow, raoResult.getFlow(instant, crac.getFlowCnec(cnecId), getTwoSideFromInteger(side), Unit.MEGAWATT), flowMegawattTolerance(expectedFlow));
     }
 
     /*
