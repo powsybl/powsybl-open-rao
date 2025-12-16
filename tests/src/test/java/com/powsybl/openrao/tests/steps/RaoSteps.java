@@ -89,6 +89,14 @@ public class RaoSteps {
         return Math.max(TOLERANCE_FLOW_IN_MEGAWATT, TOLERANCE_FLOW_RELATIVE * Math.abs(expectedValue));
     }
 
+    public TwoSides getTwoSideFromInteger(Integer side) {
+        if (side.equals(1)) {
+            return TwoSides.ONE;
+        } else {
+            return TwoSides.TWO;
+        }
+    }
+
     @When("I launch rao")
     public void iLaunchRao() {
         iLaunchRao(null);
@@ -561,14 +569,6 @@ public class RaoSteps {
         Instant instant = crac.getInstant(instantId);
         assertEquals(expectedFlow1, raoResult.getFlow(instant, crac.getFlowCnec(cnecId), TwoSides.ONE, Unit.MEGAWATT), flowMegawattTolerance(expectedFlow1));
         assertEquals(expectedFlow2, raoResult.getFlow(instant, crac.getFlowCnec(cnecId), TwoSides.TWO, Unit.MEGAWATT), flowMegawattTolerance(expectedFlow2));
-    }
-
-    public TwoSides getTwoSideFromInteger(Integer side) {
-        if (side.equals(1)) {
-            return TwoSides.ONE;
-        } else {
-            return TwoSides.TWO;
-        }
     }
 
     @Then("the initial flow on cnec {string} should be {double} MW on side {int}")
