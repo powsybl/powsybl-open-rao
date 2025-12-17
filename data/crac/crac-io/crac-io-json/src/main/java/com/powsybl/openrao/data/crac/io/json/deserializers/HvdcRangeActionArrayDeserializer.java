@@ -44,6 +44,7 @@ public final class HvdcRangeActionArrayDeserializer {
                 }
             }
             double initialSetpoint = IidmHvdcHelper.getCurrentSetpoint(network, networkElementId);
+            // initial set point of HVDC range action pointing to a HVDC line in AC emulation will be updated after running an initial load flow before launching rao.
             hvdcRangeActionAdder.withInitialSetpoint(initialSetpoint);
             hvdcRangeActionAdder.add();
         }

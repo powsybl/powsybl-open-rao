@@ -12,7 +12,6 @@ import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
-import com.powsybl.commons.Versionable;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.tools.Version;
@@ -44,7 +43,7 @@ public final class Rao {
      * A RA optimisation runner is responsible for providing convenient methods on top of {@link RaoProvider}:
      * several variants of synchronous and asynchronous run with default parameters.
      */
-    public static class Runner implements Versionable {
+    public static class Runner {
 
         private final RaoProvider provider;
 
@@ -98,14 +97,8 @@ public final class Rao {
             return run(raoInput, RaoParameters.load(), null);
         }
 
-        @Override
         public String getName() {
             return provider.getName();
-        }
-
-        @Override
-        public String getVersion() {
-            return provider.getVersion();
         }
     }
 
@@ -157,7 +150,7 @@ public final class Rao {
         if (providers.size() == 1 && raOptimizerName == null) {
             // no information to select the implementation but only one provider, so we can use it by default
             // (that is the most common use case)
-            provider = providers.get(0);
+            provider = providers.getFirst();
         } else {
             if (providers.size() > 1 && raOptimizerName == null) {
                 // several providers and no information to select which one to choose, we can only throw

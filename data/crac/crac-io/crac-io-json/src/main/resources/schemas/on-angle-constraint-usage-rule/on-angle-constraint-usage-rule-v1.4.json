@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema#",
-  "$id": "https://www.powsybl.org?open-rao-crac-schema=on-angle-constraint-usage-rule-v1.4.json",
+  "$id": "resource:/schemas/on-angle-constraint-usage-rule/on-angle-constraint-usage-rule-v1.4.json",
   "type": "object",
   "properties": {
     "instant": {
@@ -10,7 +10,7 @@
       "type": "string"
     },
     "usageMethod": {
-      "$ref": "resource:/schemas/usage-method/usage-method-v1.0.json"
+      "$ref": "../usage-method/usage-method-v1.0.json"
     }
   },
   "additionalProperties": false,

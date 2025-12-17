@@ -396,6 +396,14 @@ These parameters are meant to be used in costly optimization only.
 - **Default value**: 5
 - **Usage**: If `add-unsecure-cnecs` is enabled, a CNEC will be considered unsecure if its margin is lower than `margin-limit`.
 
+#### PST regulation parameters
+
+##### psts-to-regulate
+
+- **Expected value**: a map with string keys (each being the identifier of a PST in the network) and string values (each being the line secured by the regulated PST)
+- **Default value**: empty map
+- **Usage**: List of PSTs to regulate at the end of curative optimization if a FlowCNEC defined on any of their associated elements is overloaded and is the most limiting element.
+
 ## Examples
 > ⚠️  **NOTE**  
 > The following examples in json and yaml are not equivalent
@@ -404,7 +412,7 @@ These parameters are meant to be used in costly optimization only.
 :::{group-tab} JSON
 ~~~json
 {
-  "version" : "3.2",
+  "version" : "3.2.1",
   "extensions" : {
     "fast-rao-parameters" : {
       "number-of-cnecs-to-add" : 20,
@@ -448,7 +456,7 @@ These parameters are meant to be used in costly optimization only.
         "sensitivity-parameters" : {
           "version" : "1.0",
           "load-flow-parameters" : {
-            "version" : "1.9",
+            "version" : "1.10",
             "voltageInitMode" : "DC_VALUES",
             "transformerVoltageControlOn" : false,
             "phaseShifterRegulationOn" : true,
@@ -462,7 +470,7 @@ These parameters are meant to be used in costly optimization only.
             "balanceType" : "PROPORTIONAL_TO_GENERATION_P",
             "dcUseTransformerRatio" : true,
             "countriesToBalance" : [ "TR", "BE", "SI", "CH", "AL", "ES", "SK", "BA", "RO", "PT", "DE", "AT", "FR", "CZ", "ME", "NL", "PL", "GR", "IT", "UA", "HU", "BG", "MK", "HR", "RS" ],
-            "connectedComponentMode" : "MAIN",
+            "componentMode" : "MAIN_CONNECTED",
             "hvdcAcEmulation" : true,
             "dcPowerFactor" : 1.0,
             "extensions" : {
@@ -511,6 +519,12 @@ These parameters are meant to be used in costly optimization only.
     "costly-min-margin-parameters" : {
       "shifted-violation-penalty": 1000.0,
       "shifted-violation-threshold": 0.0
+    },
+    "pst-regulation-parameters" : {
+      "psts-to-regulate": {
+        "pst-1": "line-1",
+        "pst-2": "line-2"
+      }
     }
   }
 }
@@ -565,4 +579,3 @@ fast-rao-parameters:
 ~~~
 :::
 ::::
-

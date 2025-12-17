@@ -44,12 +44,11 @@ public class RemedialActionCostEvaluator implements CostEvaluator {
     }
 
     private double getTotalNetworkActionsCost(RemedialActionActivationResult remedialActionActivationResult) {
-        double totalNetworkActionsCost = 0;
         Map<State, Set<NetworkAction>> networkActionsPerState = remedialActionActivationResult.getActivatedNetworkActionsPerState();
-        for (State state : networkActionsPerState.keySet()) {
-            totalNetworkActionsCost += networkActionsPerState.get(state).stream().mapToDouble(networkAction -> networkAction.getActivationCost().orElse(0.0)).sum();
-        }
-        return totalNetworkActionsCost;
+        return networkActionsPerState.values().stream()
+                .flatMap(Set::stream)
+                .mapToDouble(networkAction -> networkAction.getActivationCost().orElse(0.0))
+                .sum();
     }
 
     private double getTotalRangeActionsCost(RemedialActionActivationResult remedialActionActivationResult) {

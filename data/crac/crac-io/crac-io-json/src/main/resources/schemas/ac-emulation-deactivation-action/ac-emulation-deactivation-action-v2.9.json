@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema#",
+  "$id": "resource:/schemas/ac-emulation-deactivation-action/ac-emulation-deactivation-action-v2.9.json",
+  "type": "object",
+  "properties": {
+    "networkElementId": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "networkElementId"
+  ]
+}

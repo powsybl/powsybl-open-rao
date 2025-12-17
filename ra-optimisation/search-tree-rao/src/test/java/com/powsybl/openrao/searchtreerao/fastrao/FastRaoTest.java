@@ -8,6 +8,7 @@
 package com.powsybl.openrao.searchtreerao.fastrao;
 
 import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.InstantKind;
@@ -29,16 +30,17 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.concurrent.ExecutionException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
  */
-public class FastRaoTest {
+class FastRaoTest {
 
     @Test
-    public void testRunFilteredRaoOnPreventiveOnlyCase() throws IOException {
+    void testRunFilteredRaoOnPreventiveOnlyCase() throws IOException {
         // US 4.3.1 as a UT to test OneStateOnly
         Network network = Network.read("/network/TestCase12Nodes.uct", getClass().getResourceAsStream("/network/TestCase12Nodes.uct"));
         Crac crac = Crac.read("/crac/SL_ep4us3.json", getClass().getResourceAsStream("/crac/SL_ep4us3.json"), network);
@@ -54,7 +56,7 @@ public class FastRaoTest {
     }
 
     @Test
-    public void testRunFilteredRaoOnComplexCase() throws IOException {
+    void testRunFilteredRaoOnComplexCase() throws IOException {
         // US 13.4.3 as a UT but with objective function SECURE_FLOW, case with prev and cur RA
         Network network = Network.read("/network/TestCase16Nodes.uct", getClass().getResourceAsStream("/network/TestCase16Nodes.uct"));
         Crac crac = Crac.read("/crac/SL_ep13us4case3.json", getClass().getResourceAsStream("/crac/SL_ep13us4case3.json"), network);
@@ -70,7 +72,7 @@ public class FastRaoTest {
     }
 
     @Test
-    public void testRunFilteredRao2() throws IOException {
+    void testRunFilteredRao2() throws IOException, ExecutionException, InterruptedException {
         // Test with 2 preventive network actions activated
         Network network = Network.read("/network/3Nodes1LineOpen.uct", getClass().getResourceAsStream("/network/3Nodes1LineOpen.uct"));
         Crac crac = Crac.read("/crac/fast-rao-UT-2prev-network-action.json", getClass().getResourceAsStream("/crac/fast-rao-UT-2prev-network-action.json"), network);
@@ -86,7 +88,7 @@ public class FastRaoTest {
     //TODO : add costly objec function exemple
 
     @Test
-    public void testInitialSensiFailed() throws IOException {
+    void testInitialSensiFailed() throws IOException {
         // US 2.3.4
         Network network = Network.read("/network/US2-3-case4-networkDiverge.uct", getClass().getResourceAsStream("/network/US2-3-case4-networkDiverge.uct"));
         Crac crac = Crac.read("/crac/SL_ep2us3case4.json", getClass().getResourceAsStream("/crac/SL_ep2us3case4.json"), network);
@@ -96,12 +98,12 @@ public class FastRaoTest {
         fastRaoParameters.setNumberOfCnecsToAdd(1);
         raoParameters.addExtension(FastRaoParameters.class, fastRaoParameters);
         RaoResult raoResult = FastRao.launchFastRaoOptimization(individualRaoInput, raoParameters, null, new HashSet<>());
-        assertTrue(raoResult instanceof FailedRaoResultImpl);
+        assertInstanceOf(FailedRaoResultImpl.class, raoResult);
         assertEquals("Initial sensitivity analysis failed", raoResult.getExecutionDetails());
     }
 
     @Test
-    public void testError() {
+    void testError() {
         RaoInput individualRaoInput = Mockito.mock(RaoInput.class);
         RaoParameters raoParameters = Mockito.mock(RaoParameters.class);
         Mockito.when(raoParameters.hasExtension(FastRaoParameters.class)).thenReturn(true);
@@ -109,7 +111,7 @@ public class FastRaoTest {
         State state = Mockito.mock(State.class);
         Mockito.when(individualRaoInput.getOptimizedState()).thenReturn(state);
         RaoResult raoResult = FastRao.launchFastRaoOptimization(individualRaoInput, raoParameters, null, new HashSet<>());
-        assertTrue(raoResult instanceof FailedRaoResultImpl);
+        assertInstanceOf(FailedRaoResultImpl.class, raoResult);
         assertEquals("Fast Rao does not support optimization on one given state only", raoResult.getExecutionDetails());
 
         Mockito.when(individualRaoInput.getOptimizedState()).thenReturn(null);
@@ -124,7 +126,19 @@ public class FastRaoTest {
         curativeInstants.add(instant2);
         Mockito.when(crac.getInstants(InstantKind.CURATIVE)).thenReturn(curativeInstants);
         raoResult = FastRao.launchFastRaoOptimization(individualRaoInput, raoParameters, null, new HashSet<>());
-        assertTrue(raoResult instanceof FailedRaoResultImpl);
+        assertInstanceOf(FailedRaoResultImpl.class, raoResult);
         assertEquals("Fast Rao does not support multi-curative optimization", raoResult.getExecutionDetails());
+    }
+
+    @Test
+    void testErrorInitData() throws ExecutionException, InterruptedException {
+        RaoInput raoInput = Mockito.mock(RaoInput.class);
+        RaoParameters raoParameters = new RaoParameters();
+        raoParameters.getObjectiveFunctionParameters().setUnit(Unit.AMPERE);
+        raoParameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters());
+        raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters().setDc(true);
+        // Run RAO
+        RaoResult raoResult = new FastRao().run(raoInput, raoParameters).get();
+        assertInstanceOf(FailedRaoResultImpl.class, raoResult);
     }
 }

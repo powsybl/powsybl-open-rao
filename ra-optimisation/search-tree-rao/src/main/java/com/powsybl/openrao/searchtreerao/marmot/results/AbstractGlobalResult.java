@@ -18,7 +18,7 @@ import java.util.List;
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
 public abstract class AbstractGlobalResult<T> implements GlobalResult<T> {
-    protected TemporalData<T> resultPerTimestamp;
+    protected final TemporalData<T> resultPerTimestamp;
 
     protected AbstractGlobalResult(TemporalData<? extends T> resultPerTimestamp) {
         this.resultPerTimestamp = new TemporalDataImpl<>(resultPerTimestamp.getDataPerTimestamp());

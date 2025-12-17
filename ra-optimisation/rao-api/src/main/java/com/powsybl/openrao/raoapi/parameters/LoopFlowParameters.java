@@ -10,10 +10,16 @@ package com.powsybl.openrao.raoapi.parameters;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.iidm.network.Country;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 
-import static com.powsybl.openrao.raoapi.RaoParametersCommons.*;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.ACCEPTABLE_INCREASE;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.COUNTRIES;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.LOOP_FLOW_PARAMETERS_SECTION;
 
 /**
  * Extension : loopFlow parameters for RAO

@@ -14,6 +14,9 @@ import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
+import com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters;
+import com.powsybl.openrao.searchtreerao.commons.HvdcUtils;
 import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
 import com.powsybl.openrao.searchtreerao.commons.RaoLogger;
 import com.powsybl.openrao.searchtreerao.commons.SensitivityComputer;
@@ -30,7 +33,6 @@ import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 import com.powsybl.openrao.util.AbstractNetworkPool;
 import com.google.common.hash.Hashing;
 import com.powsybl.iidm.network.Network;
-import org.apache.commons.lang3.NotImplementedException;
 
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -39,7 +41,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.*;
-import static com.powsybl.openrao.searchtreerao.castor.algorithm.AutomatonSimulator.getRangeActionsAndTheirTapsAppliedOnState;
+import static com.powsybl.openrao.searchtreerao.castor.algorithm.AutomatonSimulator.*;
+import static com.powsybl.openrao.searchtreerao.commons.HvdcUtils.runLoadFlowAndUpdateHvdcActivePowerSetpoint;
 
 /**
  * The "tree" is one of the core object of the search-tree algorithm.
@@ -99,11 +102,37 @@ public class SearchTree {
     public CompletableFuture<OptimizationResult> run() {
         String preSearchTreeVariantId = input.getNetwork().getVariantManager().getWorkingVariantId();
         input.getNetwork().getVariantManager().cloneVariant(preSearchTreeVariantId, SEARCH_TREE_WORKING_VARIANT_ID, true);
-        input.getNetwork().getVariantManager().setWorkingVariant(SEARCH_TREE_WORKING_VARIANT_ID);
+        input.getNetwork().getVariantManager().setWorkingVariant(SEARCH_TREE_WORKING_VARIANT_ID); // the variant used for root leaf and all the child leaves
         try {
             initLeaves(input);
 
             TECHNICAL_LOGS.debug("Evaluating root leaf");
+
+            // Run load flow here, update HVDC lines' active power setpoint in network that will be used
+            // if we deactivate AC emulation on a HVDC line in one of the leaf.
+
+            // Get all the range actions that are HVDC range actions and are not in AC emulation
+            Set<HvdcRangeAction> hvdcRasOnHvdcLineInAcEmulation = HvdcUtils.getHvdcRangeActionsOnHvdcLineInAcEmulation(
+                input.getOptimizationPerimeter()
+                    .getRangeActions()
+                    .stream()
+                    .filter(HvdcRangeAction.class::isInstance)
+                    .map(HvdcRangeAction.class::cast).collect(Collectors.toSet()),
+                input.getNetwork());
+
+            // Get Loadflow and sensitivity parameters
+            LoadFlowAndSensitivityParameters loadFlowAndSensitivityParameters = parameters.getLoadFlowAndSensitivityParameters().orElse(new LoadFlowAndSensitivityParameters());
+
+            if (!hvdcRasOnHvdcLineInAcEmulation.isEmpty()) {
+                runLoadFlowAndUpdateHvdcActivePowerSetpoint(
+                    input.getNetwork(),
+                    input.getOptimizationPerimeter().getMainOptimizationState(),
+                    loadFlowAndSensitivityParameters.getLoadFlowProvider(),
+                    loadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters().getLoadFlowParameters(),
+                    hvdcRasOnHvdcLineInAcEmulation
+                );
+            }
+
             rootLeaf.evaluate(input.getObjectiveFunction(), getSensitivityComputerForEvaluation(true));
             if (rootLeaf.getStatus().equals(Leaf.Status.ERROR)) {
                 topLevelLogger.info("Could not evaluate leaf: {}", rootLeaf);
@@ -242,13 +271,18 @@ public class SearchTree {
                 boolean shouldRangeActionBeRemoved = bloomer.shouldRangeActionsBeRemovedToApplyNa(naCombination, optimalLeaf);
                 if (shouldRangeActionBeRemoved) {
                     // Remove parentLeaf range actions to respect every maxRa or maxOperator limitation
-                    input.getOptimizationPerimeter().getRangeActions().forEach(ra ->
-                        ra.apply(networkClone, input.getPrePerimeterResult().getRangeActionSetpointResult().getSetpoint(ra))
-                    );
+                    // If the HVDC line is in AC emulation the we won't be able to apply setpoint
+                    HvdcUtils.filterOutHvdcRangeActionsOnHvdcLineInAcEmulation(input.getOptimizationPerimeter().getRangeActions(), networkClone)
+                        .forEach(ra ->
+                            ra.apply(networkClone, input.getPrePerimeterResult().getRangeActionSetpointResult().getSetpoint(ra))
+                        );
+
                 } else {
                     // Apply range actions that have been changed by the previous leaf on the network to start next depth leaves
                     // from previous optimal leaf starting point
-                    previousDepthOptimalLeaf.getRangeActions()
+                    // Network actions are not applied here. If in previous leaf AC emulation was deactivated to optimize HVDC range action
+                    // we won't be able to apply the optimized setpoint because the HVDC line will still be in AC emulation
+                    HvdcUtils.filterOutHvdcRangeActionsOnHvdcLineInAcEmulation(previousDepthOptimalLeaf.getRangeActions(), networkClone)
                         .forEach(ra ->
                             ra.apply(networkClone, previousDepthOptimalLeaf.getOptimizedSetpoint(ra, input.getOptimizationPerimeter().getMainOptimizationState()))
                         );
@@ -268,23 +302,16 @@ public class SearchTree {
 
     int deterministicNetworkActionCombinationComparison(NetworkActionCombination ra1, NetworkActionCombination ra2) {
         // 1. First priority given to combinations detected during RAO
-        int comp1 = compareIsDetectedDuringRao(ra1, ra2);
-        if (comp1 != 0) {
-            return comp1;
-        }
         // 2. Second priority given to pre-defined combinations
-        int comp2 = compareIsPreDefined(ra1, ra2);
-        if (comp2 != 0) {
-            return comp2;
-        }
         // 3. Third priority given to large combinations
-        int comp3 = compareSize(ra1, ra2);
-        if (comp3 != 0) {
-            return comp3;
-        }
         // 4. Last priority is random but deterministic
-        return Integer.compare(Hashing.crc32().hashString(ra1.getConcatenatedId(), StandardCharsets.UTF_8).asInt(),
-                Hashing.crc32().hashString(ra2.getConcatenatedId(), StandardCharsets.UTF_8).asInt());
+        Comparator<NetworkActionCombination> networkActionCombinationComparator =
+            Comparator.<NetworkActionCombination, NetworkActionCombination>comparing(ra -> ra, this::compareIsDetectedDuringRao)
+                .thenComparing(ra -> ra, this::compareIsPreDefined)
+                .thenComparing(ra -> ra, this::compareSize)
+                .thenComparingInt(ra -> Hashing.crc32().hashString(ra.getConcatenatedId(), StandardCharsets.UTF_8).asInt());
+
+        return networkActionCombinationComparator.compare(ra1, ra2);
     }
 
     /**
@@ -326,8 +353,6 @@ public class SearchTree {
             networkActions.addAll(naCombination.getNetworkActionSet());
             topLevelLogger.info("Could not evaluate network action combination \"{}\": {}", printNetworkActions(networkActions), e.getMessage());
             return;
-        } catch (NotImplementedException e) {
-            throw e;
         }
         // We evaluate the leaf with taking the results of the previous optimal leaf if we do not want to update some results
         leaf.evaluate(input.getObjectiveFunction(), getSensitivityComputerForEvaluation(shouldRangeActionBeRemoved));
