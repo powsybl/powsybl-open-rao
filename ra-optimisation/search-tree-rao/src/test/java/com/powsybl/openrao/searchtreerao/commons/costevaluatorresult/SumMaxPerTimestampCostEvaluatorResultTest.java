@@ -113,6 +113,8 @@ class SumMaxPerTimestampCostEvaluatorResultTest {
         Mockito.when(flowCnec.getId()).thenReturn(flowCnecId);
         Mockito.when(flowCnec.getState()).thenReturn(state);
         Mockito.when(flowCnec.isOptimized()).thenReturn(true);
+        Mockito.when(flowCnec.getUpperBound(Mockito.any(), Mockito.any())).thenReturn(Optional.of(1000.0));
+        Mockito.when(flowCnec.getLowerBound(Mockito.any(), Mockito.any())).thenReturn(Optional.of(1000.0));
         return flowCnec;
     }
 
@@ -122,7 +124,8 @@ class SumMaxPerTimestampCostEvaluatorResultTest {
         SumMaxPerTimestampCostEvaluatorResult evaluatorResult = new SumMaxPerTimestampCostEvaluatorResult(
             marginPerCnec,
             List.of(),
-            Unit.MEGAWATT
+            Unit.MEGAWATT,
+            false
         );
 
         // timestamp 1: -120, -10, -50 -> minMargin = -120 -> cost = 120
@@ -145,10 +148,12 @@ class SumMaxPerTimestampCostEvaluatorResultTest {
             flowCnecPreventiveNoTimestamp, 43.0,
             flowCnecCurative2NoTimestamp, -76.0
         );
+
         SumMaxPerTimestampCostEvaluatorResult evaluatorResult = new SumMaxPerTimestampCostEvaluatorResult(
             marginPerCnec,
             List.of(),
-            Unit.MEGAWATT
+            Unit.MEGAWATT,
+            false
         );
 
         // contingencies 2 and 3 are excluded so results associated to flowCnecCurativeT2 and flowCnecCurativeT3 are ignored
@@ -168,7 +173,7 @@ class SumMaxPerTimestampCostEvaluatorResultTest {
             flowCnecCurative2NoTimestamp, -40.0,
             flowCnecCurative3NoTimestamp, -17.0
         );
-        SumMaxPerTimestampCostEvaluatorResult evaluatorResult = new SumMaxPerTimestampCostEvaluatorResult(marginPerCnec, List.of(), Unit.MEGAWATT);
+        SumMaxPerTimestampCostEvaluatorResult evaluatorResult = new SumMaxPerTimestampCostEvaluatorResult(marginPerCnec, List.of(), Unit.MEGAWATT, false);
         assertEquals(50.0, evaluatorResult.getCost(new HashSet<>(), new HashSet<>()));
         assertEquals(17.0, evaluatorResult.getCost(Set.of("contingency-1", "contingency-2"), new HashSet<>()));
         assertEquals(40.0, evaluatorResult.getCost(new HashSet<>(), Set.of("cnec-curative-1")));
@@ -177,8 +182,8 @@ class SumMaxPerTimestampCostEvaluatorResultTest {
 
     @Test
     void testEmptyResult() {
-        SumMaxPerTimestampCostEvaluatorResult evaluatorResult = new SumMaxPerTimestampCostEvaluatorResult(Map.of(), List.of(), Unit.MEGAWATT);
-        assertEquals(-Double.MAX_VALUE, evaluatorResult.getCost(Set.of(), Set.of()));
+        SumMaxPerTimestampCostEvaluatorResult evaluatorResult = new SumMaxPerTimestampCostEvaluatorResult(Map.of(), List.of(), Unit.MEGAWATT, false);
+        assertEquals(-Double.MAX_VALUE / 2, evaluatorResult.getCost(Set.of(), Set.of()));
     }
 
 }

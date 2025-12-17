@@ -553,7 +553,7 @@ class CastorFullOptimizationTest {
         // Run RAO
         RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
         assertNotNull(raoResult);
-        assertEquals(-Double.MAX_VALUE, raoResult.getCost(null));
+        assertEquals(-Double.MAX_VALUE / 2, raoResult.getCost(null));
     }
 
     @Test
