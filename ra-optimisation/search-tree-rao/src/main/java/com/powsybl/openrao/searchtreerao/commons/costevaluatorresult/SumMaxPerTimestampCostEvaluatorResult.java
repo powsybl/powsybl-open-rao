@@ -28,6 +28,7 @@ public class SumMaxPerTimestampCostEvaluatorResult implements CostEvaluatorResul
     private final Unit unit;
     private double highestThreshold = Double.NaN;
     private final boolean capAtZero;
+    private static final double COST_LIMIT = 1e9;
 
     public SumMaxPerTimestampCostEvaluatorResult(Map<FlowCnec, Double> marginPerCnec, List<FlowCnec> costlyElements, Unit unit, boolean capAtZero) {
         this.marginPerCnec = marginPerCnec;
@@ -46,13 +47,13 @@ public class SumMaxPerTimestampCostEvaluatorResult implements CostEvaluatorResul
             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
         if (filteredCnecs.isEmpty()) {
-            return capAtZero ? 0. : -Double.MAX_VALUE / 2;
+            return capAtZero ? 0. : -COST_LIMIT;
         }
 
         // Compute cost per timestamp
         Map<OffsetDateTime, Double> maxCostPerTimestamp = new HashMap<>();
         AtomicBoolean stateWithoutTimestampIsPresent = new AtomicBoolean(false);
-        AtomicDouble maxCostWithoutTimestamp = new AtomicDouble(-Double.MAX_VALUE / 2);
+        AtomicDouble maxCostWithoutTimestamp = new AtomicDouble(-COST_LIMIT);
         filteredCnecs.forEach((flowCnec, margin) -> {
             if (flowCnec.getState().getTimestamp().isPresent()) {
                 maxCostPerTimestamp.merge(flowCnec.getState().getTimestamp().get(), -margin, Math::max);

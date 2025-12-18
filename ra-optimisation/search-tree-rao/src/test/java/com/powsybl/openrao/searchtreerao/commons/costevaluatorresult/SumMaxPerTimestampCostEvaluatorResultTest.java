@@ -183,7 +183,7 @@ class SumMaxPerTimestampCostEvaluatorResultTest {
     @Test
     void testEmptyResult() {
         SumMaxPerTimestampCostEvaluatorResult evaluatorResult = new SumMaxPerTimestampCostEvaluatorResult(Map.of(), List.of(), Unit.MEGAWATT, false);
-        assertEquals(-Double.MAX_VALUE / 2, evaluatorResult.getCost(Set.of(), Set.of()));
+        assertEquals(-1e9, evaluatorResult.getCost(Set.of(), Set.of()));
     }
 
 }
