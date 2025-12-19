@@ -17,6 +17,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.LoadFlowResult;
+import com.powsybl.loadflow.LoadFlowRunParameters;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
@@ -51,14 +52,23 @@ import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_L
 public class Monitoring {
 
     private final String loadFlowProvider;
-    private final LoadFlowParameters loadFlowParameters;
+    private final LoadFlowRunParameters loadFlowRunParameters;
     Map<PhysicalParameter, Unit> parameterToUnitMap = new HashMap<>();
 
     public Monitoring(String loadFlowProvider, LoadFlowParameters loadFlowParameters) {
         this.loadFlowProvider = loadFlowProvider;
-        this.loadFlowParameters = loadFlowParameters;
+        this.loadFlowRunParameters = new LoadFlowRunParameters().setParameters(loadFlowParameters);
         parameterToUnitMap.put(PhysicalParameter.ANGLE, Unit.DEGREE);
         parameterToUnitMap.put(PhysicalParameter.VOLTAGE, Unit.KILOVOLT);
+    }
+
+    /**
+     * The computation manager can be used by the caller to execute actions before and/or after running the loadflow.
+     * In particular, GridCapa relies on it to inject task-id in the MDC in order to bind logs with tasks.
+     */
+    public Monitoring(String loadFlowProvider, LoadFlowParameters loadFlowParameters, ComputationManager computationManager) {
+        this(loadFlowProvider, loadFlowParameters);
+        this.loadFlowRunParameters.setComputationManager(computationManager);
     }
 
     /**
@@ -66,7 +76,17 @@ public class Monitoring {
      * Returns an RaoResult enhanced with AngleMonitoringResult
      */
     public static RaoResult runAngleAndUpdateRaoResult(String loadFlowProvider, LoadFlowParameters loadFlowParameters, int numberOfLoadFlowsInParallel, MonitoringInput monitoringInput) throws OpenRaoException {
-        return new RaoResultWithAngleMonitoring(monitoringInput.getRaoResult(), new Monitoring(loadFlowProvider, loadFlowParameters).runMonitoring(monitoringInput, numberOfLoadFlowsInParallel));
+        final MonitoringResult angleMonitoringResult = new Monitoring(loadFlowProvider, loadFlowParameters).runMonitoring(monitoringInput, numberOfLoadFlowsInParallel);
+        return new RaoResultWithAngleMonitoring(monitoringInput.getRaoResult(), angleMonitoringResult);
+    }
+
+    /**
+     * The computation manager can be used by the caller to execute actions before and/or after running the loadflow.
+     * In particular, GridCapa relies on it to inject task-id in the MDC in order to bind logs with tasks.
+     */
+    public static RaoResult runAngleAndUpdateRaoResult(String loadFlowProvider, LoadFlowParameters loadFlowParameters, ComputationManager computationManager, int numberOfLoadFlowsInParallel, MonitoringInput monitoringInput) throws OpenRaoException {
+        final MonitoringResult angleMonitoringResult = new Monitoring(loadFlowProvider, loadFlowParameters, computationManager).runMonitoring(monitoringInput, numberOfLoadFlowsInParallel);
+        return new RaoResultWithAngleMonitoring(monitoringInput.getRaoResult(), angleMonitoringResult);
     }
 
     /**
@@ -74,7 +94,17 @@ public class Monitoring {
      * Returns an RaoResult enhanced with VoltageMonitoringResult
      */
     public static RaoResult runVoltageAndUpdateRaoResult(String loadFlowProvider, LoadFlowParameters loadFlowParameters, int numberOfLoadFlowsInParallel, MonitoringInput monitoringInput) {
-        return new RaoResultWithVoltageMonitoring(monitoringInput.getRaoResult(), new Monitoring(loadFlowProvider, loadFlowParameters).runMonitoring(monitoringInput, numberOfLoadFlowsInParallel));
+        final MonitoringResult voltageMonitoringResult = new Monitoring(loadFlowProvider, loadFlowParameters).runMonitoring(monitoringInput, numberOfLoadFlowsInParallel);
+        return new RaoResultWithVoltageMonitoring(monitoringInput.getRaoResult(), voltageMonitoringResult);
+    }
+
+    /**
+     * The computation manager can be used by the caller to execute actions before and/or after running the loadflow.
+     * In particular, GridCapa relies on it to inject task-id in the MDC in order to bind logs with tasks.
+     */
+    public static RaoResult runVoltageAndUpdateRaoResult(String loadFlowProvider, LoadFlowParameters loadFlowParameters, ComputationManager computationManager, int numberOfLoadFlowsInParallel, MonitoringInput monitoringInput) {
+        final MonitoringResult voltageMonitoringResult = new Monitoring(loadFlowProvider, loadFlowParameters, computationManager).runMonitoring(monitoringInput, numberOfLoadFlowsInParallel);
+        return new RaoResultWithVoltageMonitoring(monitoringInput.getRaoResult(), voltageMonitoringResult);
     }
 
     public MonitoringResult runMonitoring(MonitoringInput monitoringInput, int numberOfLoadFlowsInParallel) {
@@ -258,7 +288,7 @@ public class Monitoring {
     private boolean computeLoadFlow(Network network) {
         TECHNICAL_LOGS.info("Load-flow computation [start]");
         LoadFlowResult loadFlowResult = LoadFlow.find(loadFlowProvider)
-            .run(network, loadFlowParameters);
+            .run(network, loadFlowRunParameters);
         if (loadFlowResult.isFailed()) {
             BUSINESS_WARNS.warn("LoadFlow error.");
         }
