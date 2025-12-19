@@ -8,6 +8,7 @@
 package com.powsybl.openrao.monitoring;
 
 import com.google.common.base.Suppliers;
+import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.contingency.ContingencyElementType;
 import com.powsybl.glsk.cim.CimGlskDocument;
@@ -32,11 +33,10 @@ import com.powsybl.openrao.data.crac.api.networkaction.ActionType;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.crac.impl.AngleCnecValue;
+import com.powsybl.openrao.data.crac.io.cim.craccreator.CimCracCreationContext;
 import com.powsybl.openrao.data.crac.io.cim.parameters.CimCracCreationParameters;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
-import com.powsybl.openrao.data.crac.io.cim.craccreator.CimCracCreationContext;
-
 import com.powsybl.openrao.monitoring.results.CnecResult;
 import com.powsybl.openrao.monitoring.results.MonitoringResult;
 import org.junit.jupiter.api.BeforeEach;
@@ -48,10 +48,18 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Paths;
 import java.time.OffsetDateTime;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.Properties;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -363,6 +371,34 @@ class AngleMonitoringTest {
         assertEquals(ComputationStatus.DEFAULT, raoResultWithAngleMonitoring.getComputationStatus());
         assertFalse(raoResultWithAngleMonitoring.isSecure(crac.getInstant(CURATIVE_INSTANT_ID), PhysicalParameter.VOLTAGE));
         assertFalse(raoResultWithAngleMonitoring.isSecure(PhysicalParameter.ANGLE));
+        assertFalse(raoResultWithAngleMonitoring.isSecure());
+    }
+
+    @Test
+    void testWithComputationManager() throws IOException {
+        setUpCracFactory("network.xiidm");
+        mockPreventiveState();
+        mockCurativeStatesSecure();
+        naL1Cur = crac.newNetworkAction()
+            .withId("Injection L1 - 2")
+            .newLoadAction().withNetworkElement("LD2").withActivePowerValue(50.).add()
+            .newOnConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withCnec(acCur1.getId()).add()
+            .add();
+        final ZonalData<Scalable> scalableZonalData = CimGlskDocument.importGlsk(getClass().getResourceAsStream("/GlskB45test.xml")).getZonalScalable(network);
+
+        when(raoResult.getComputationStatus()).thenReturn(ComputationStatus.DEFAULT);
+        when(raoResult.isSecure()).thenReturn(true);
+
+        final MonitoringInput monitoringInput = new MonitoringInput.MonitoringInputBuilder().withCrac(crac).withNetwork(network).withRaoResult(raoResult).withPhysicalParameter(PhysicalParameter.ANGLE).withScalableZonalData(scalableZonalData).build();
+        final AtomicInteger firstReferenceValue = new AtomicInteger(2);
+        final AtomicInteger secondReferenceValue = new AtomicInteger(9);
+        final ComputationManager computationManager = MonitoringTestUtil.getComputationManager(firstReferenceValue, secondReferenceValue);
+
+        final RaoResult raoResultWithAngleMonitoring = Monitoring.runAngleAndUpdateRaoResult("OpenLoadFlow", loadFlowParameters, computationManager, 2, monitoringInput);
+
+        // Loadflow is expected to be run 3 times: 2+3=5 & 9-3=6
+        assertEquals(5, firstReferenceValue.get());
+        assertEquals(6, secondReferenceValue.get());
         assertFalse(raoResultWithAngleMonitoring.isSecure());
     }
 
