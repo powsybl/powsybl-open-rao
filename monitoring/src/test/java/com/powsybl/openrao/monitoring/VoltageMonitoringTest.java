@@ -582,7 +582,7 @@ class VoltageMonitoringTest {
     }
 
     @Test
-    void testWithComputationManager() throws IOException, InterruptedException {
+    void testWithComputationManager() throws IOException {
         setUpCracFactory("network.xiidm");
         addVoltageCnec("vcPrev", PREVENTIVE_INSTANT_ID, null, "VL1", 400., 450.);
 

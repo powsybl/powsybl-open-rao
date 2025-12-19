@@ -375,7 +375,7 @@ class AngleMonitoringTest {
     }
 
     @Test
-    void testWithComputationManager() throws IOException, InterruptedException {
+    void testWithComputationManager() throws IOException {
         setUpCracFactory("network.xiidm");
         mockPreventiveState();
         mockCurativeStatesSecure();
