@@ -599,14 +599,15 @@ class VoltageMonitoringTest {
         when(raoResult.isSecure()).thenReturn(true);
 
         final MonitoringInput monitoringInput = new MonitoringInput.MonitoringInputBuilder().withCrac(crac).withNetwork(network).withRaoResult(raoResult).withPhysicalParameter(PhysicalParameter.VOLTAGE).build();
-        final AtomicInteger firstReferenceValue = new AtomicInteger(0);
-        final AtomicInteger secondReferenceValue = new AtomicInteger(3); // Loadflow is expected to be run 3 times
+        final AtomicInteger firstReferenceValue = new AtomicInteger(2);
+        final AtomicInteger secondReferenceValue = new AtomicInteger(9);
         final ComputationManager computationManager = MonitoringTestUtil.getComputationManager(firstReferenceValue, secondReferenceValue);
 
         final RaoResult raoResultWithVoltageMonitoring = Monitoring.runVoltageAndUpdateRaoResult("OpenLoadFlow", loadFlowParameters, computationManager, 1, monitoringInput);
 
-        assertEquals(3, firstReferenceValue.get());
-        assertEquals(0, secondReferenceValue.get());
+        // Loadflow is expected to be run 3 times: 2+3=5 & 9-3=6
+        assertEquals(5, firstReferenceValue.get());
+        assertEquals(6, secondReferenceValue.get());
         assertFalse(raoResultWithVoltageMonitoring.isSecure());
     }
 }
