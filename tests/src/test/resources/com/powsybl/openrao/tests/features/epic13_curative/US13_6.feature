@@ -17,7 +17,7 @@ Feature: US 13.6: cross validation curative optimization and MNECs
     And the tap of PstRangeAction "pst_fr" should be 2 in preventive
     # Margin of the limiting CNEC is slightly lower than in the original test case without MNEC
     And the margin on cnec "BBE1AA1  FFR5AA1  1 - preventive" after PRA should be 1483 A
-    And the initial flow on cnec "FFR1AA1  FFR2AA1  1 - preventive" should be 430 MW
+    And the initial flow on cnec "FFR1AA1  FFR2AA1  1 - preventive" should be 430 MW on side 1
     And the initial margin on cnec "FFR1AA1  FFR2AA1  1 - preventive" should be 70 MW
     And the margin on cnec "FFR1AA1  FFR2AA1  1 - preventive" after PRA should be 5 MW
     And 2 remedial actions are used after "co1_fr2_fr3_1" at "curative"
@@ -148,9 +148,9 @@ Feature: US 13.6: cross validation curative optimization and MNECs
     Then the worst margin is 390 MW
     # "NNL2AA1  BBE3AA1  1 - preventive" is the only MNEC.
     # With a temporary threshold in outage of 1385 MW, and a permanent threshold in curative of 1350 MW
-    And the initial flow on cnec "NL2-BE3-D - outage" should be -1338 MW
-    And the flow on cnec "NL2-BE3-D - outage" after PRA should be -1382 MW
-    And the flow on cnec "NL2-BE3-O - curative" after CRA should be -1283 MW
+    And the initial flow on cnec "NL2-BE3-D - outage" should be -1338 MW on side 1
+    And the flow on cnec "NL2-BE3-D - outage" after PRA should be -1382 MW on side 1
+    And the flow on cnec "NL2-BE3-O - curative" after CRA should be -1283 MW on side 1
     # Remedial actions are used in preventive to increase the margin of the CNECs
     # Remedial actions are used in curative to respect the constraint on the MNEC (there are no optimized CNECs in curative)
     And 1 remedial actions are used in preventive
