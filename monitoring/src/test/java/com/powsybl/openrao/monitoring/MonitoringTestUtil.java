@@ -3,7 +3,6 @@ package com.powsybl.openrao.monitoring;
 import com.powsybl.computation.local.LocalComputationManager;
 
 import java.io.IOException;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -12,7 +11,7 @@ public final class MonitoringTestUtil {
         // Util class
     }
 
-    public static LocalComputationManager getComputationManager(final AtomicInteger referenceValue, final CountDownLatch latch) throws IOException {
+    public static LocalComputationManager getComputationManager(final AtomicInteger firstReferenceValue, final AtomicInteger secondReferenceValue) throws IOException {
         return new LocalComputationManager() {
             /**
              * The getExecutor method is called by OpenLoadFlow to run the loadflow with the executor.
@@ -24,9 +23,9 @@ public final class MonitoringTestUtil {
                 final Executor delegate = super.getExecutor();
                 return command ->
                     delegate.execute(() -> {
-                        referenceValue.incrementAndGet();
+                        firstReferenceValue.incrementAndGet();
                         command.run(); // Loadflow execution goes here
-                        latch.countDown();
+                        secondReferenceValue.decrementAndGet();
                     });
             }
         };

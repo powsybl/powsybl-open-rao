@@ -53,8 +53,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -392,14 +390,14 @@ class AngleMonitoringTest {
         when(raoResult.isSecure()).thenReturn(true);
 
         final MonitoringInput monitoringInput = new MonitoringInput.MonitoringInputBuilder().withCrac(crac).withNetwork(network).withRaoResult(raoResult).withPhysicalParameter(PhysicalParameter.ANGLE).withScalableZonalData(scalableZonalData).build();
-        final AtomicInteger referenceValue = new AtomicInteger(0);
-        final CountDownLatch latch = new CountDownLatch(3); // Loadflow is expected to be run 3 times
-        final ComputationManager computationManager = MonitoringTestUtil.getComputationManager(referenceValue, latch);
+        final AtomicInteger firstReferenceValue = new AtomicInteger(0);
+        final AtomicInteger secondReferenceValue = new AtomicInteger(3); // Loadflow is expected to be run 3 times
+        final ComputationManager computationManager = MonitoringTestUtil.getComputationManager(firstReferenceValue, secondReferenceValue);
 
         final RaoResult raoResultWithAngleMonitoring = Monitoring.runAngleAndUpdateRaoResult("OpenLoadFlow", loadFlowParameters, computationManager, 2, monitoringInput);
 
-        assertTrue(latch.await(10, TimeUnit.SECONDS)); // Wait for the latch count to be equal to zero, with a timeout of 10 seconds
-        assertEquals(3, referenceValue.get());
+        assertEquals(3, firstReferenceValue.get());
+        assertEquals(0, secondReferenceValue.get());
         assertFalse(raoResultWithAngleMonitoring.isSecure());
     }
 
