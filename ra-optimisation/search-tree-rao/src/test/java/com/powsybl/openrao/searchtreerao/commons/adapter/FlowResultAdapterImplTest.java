@@ -89,7 +89,7 @@ class FlowResultAdapterImplTest {
     @Test
     void testWithFixedPtdfsAndCommercialFlows() {
         FlowResult ptdfFlowResult = new FlowResultImpl(systematicSensitivityResult, new HashMap<>(), Map.of(cnec1, Map.of(ONE, 20.)));
-        FlowResult commercialFlowFlowResult = new FlowResultImpl(systematicSensitivityResult, Map.of(cnec2, Map.of(TWO, 300.)), new HashMap<>());
+        FlowResult commercialFlowFlowResult = new FlowResultImpl(systematicSensitivityResult, Map.of(cnec2, Map.of(TWO, Map.of(Unit.MEGAWATT, 300.))), new HashMap<>());
         BranchResultAdapter branchResultAdapter = branchResultAdpaterBuilder
                 .withPtdfsResults(ptdfFlowResult)
                 .withCommercialFlowsResults(commercialFlowFlowResult)
@@ -99,6 +99,8 @@ class FlowResultAdapterImplTest {
 
         assertEquals(20., flowResult.getPtdfZonalSum(cnec1, ONE), DOUBLE_TOLERANCE);
         assertEquals(300., flowResult.getCommercialFlow(cnec2, TWO, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        Exception e = assertThrows(OpenRaoException.class, () -> flowResult.getCommercialFlow(cnec2, TWO, Unit.AMPERE));
+        assertEquals("No commercial flow on the CNEC null on side TWO in A", e.getMessage());
     }
 
     @Test
@@ -112,12 +114,14 @@ class FlowResultAdapterImplTest {
         LoopFlowResult loopFlowResult = Mockito.mock(LoopFlowResult.class);
         when(loopFlowComputation.buildLoopFlowsFromReferenceFlowAndPtdf(systematicSensitivityResult, Set.of(cnec2), network))
                 .thenReturn(loopFlowResult);
-        when(loopFlowResult.getCommercialFlow(cnec2, TWO)).thenReturn(300.);
-        when(loopFlowResult.getCommercialFlowsMap()).thenReturn(Map.of(cnec2, Map.of(TWO, 300.)));
+        when(loopFlowResult.getCommercialFlow(cnec2, TWO, Unit.MEGAWATT)).thenReturn(300.);
+        when(loopFlowResult.getCommercialFlowsMap()).thenReturn(Map.of(cnec2, Map.of(TWO, Map.of(Unit.MEGAWATT, 300.))));
         FlowResult flowResult = branchResultAdapter.getResult(systematicSensitivityResult, network);
 
         assertEquals(20., flowResult.getPtdfZonalSum(cnec1, ONE), DOUBLE_TOLERANCE);
         assertEquals(300., flowResult.getCommercialFlow(cnec2, TWO, Unit.MEGAWATT), DOUBLE_TOLERANCE);
+        Exception e = assertThrows(OpenRaoException.class, () -> flowResult.getCommercialFlow(cnec2, TWO, Unit.AMPERE));
+        assertEquals("No commercial flow on the CNEC null on side TWO in A", e.getMessage());
     }
 
     @Test

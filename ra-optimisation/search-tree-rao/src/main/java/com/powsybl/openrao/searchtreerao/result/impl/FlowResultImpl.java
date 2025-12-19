@@ -28,7 +28,7 @@ import static java.lang.String.format;
  */
 public class FlowResultImpl implements FlowResult {
     protected final SystematicSensitivityResult systematicSensitivityResult;
-    private final Map<FlowCnec, Map<TwoSides, Double>> commercialFlows;
+    private final Map<FlowCnec, Map<TwoSides, Map<Unit, Double>>> commercialFlows;
     private final Map<FlowCnec, Map<TwoSides, Double>> ptdfZonalSums;
     private final FlowResult fixedCommercialFlows;
     private final FlowResult fixedPtdfZonalSums;
@@ -36,7 +36,7 @@ public class FlowResultImpl implements FlowResult {
     private final Map<FlowCnec, Double> marginMapA = new ConcurrentHashMap<>();
 
     public FlowResultImpl(SystematicSensitivityResult systematicSensitivityResult,
-                          Map<FlowCnec, Map<TwoSides, Double>> commercialFlows,
+                          Map<FlowCnec, Map<TwoSides, Map<Unit, Double>>> commercialFlows,
                           Map<FlowCnec, Map<TwoSides, Double>> ptdfZonalSums) {
         this(systematicSensitivityResult, commercialFlows, null, ptdfZonalSums, null);
     }
@@ -48,7 +48,7 @@ public class FlowResultImpl implements FlowResult {
     }
 
     public FlowResultImpl(SystematicSensitivityResult systematicSensitivityResult,
-                           Map<FlowCnec, Map<TwoSides, Double>> commercialFlows,
+                          Map<FlowCnec, Map<TwoSides, Map<Unit, Double>>> commercialFlows,
                            FlowResult fixedCommercialFlows,
                            Map<FlowCnec, Map<TwoSides, Double>> ptdfZonalSums,
                            FlowResult fixedPtdfZonalSums) {
@@ -101,16 +101,13 @@ public class FlowResultImpl implements FlowResult {
 
     @Override
     public double getCommercialFlow(FlowCnec flowCnec, TwoSides side, Unit unit) {
-        if (unit != Unit.MEGAWATT) {
-            throw new OpenRaoException("Commercial flows only in MW.");
-        }
         if (fixedCommercialFlows != null) {
             return fixedCommercialFlows.getCommercialFlow(flowCnec, side, unit);
         } else {
-            if (!commercialFlows.containsKey(flowCnec) || !commercialFlows.get(flowCnec).containsKey(side)) {
-                throw new OpenRaoException(format("No commercial flow on the CNEC %s on side %s", flowCnec.getName(), side));
+            if (!commercialFlows.containsKey(flowCnec) || !commercialFlows.get(flowCnec).containsKey(side) || !commercialFlows.get(flowCnec).get(side).containsKey(unit)) {
+                throw new OpenRaoException(format("No commercial flow on the CNEC %s on side %s in %s", flowCnec.getName(), side, unit));
             }
-            return commercialFlows.get(flowCnec).get(side);
+            return commercialFlows.get(flowCnec).get(side).get(unit);
         }
     }
 
