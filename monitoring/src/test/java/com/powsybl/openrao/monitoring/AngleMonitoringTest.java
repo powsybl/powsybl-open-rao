@@ -53,6 +53,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -375,7 +377,7 @@ class AngleMonitoringTest {
     }
 
     @Test
-    void testWithComputationManager() throws IOException {
+    void testWithComputationManager() throws IOException, InterruptedException {
         setUpCracFactory("network.xiidm");
         mockPreventiveState();
         mockCurativeStatesSecure();
@@ -390,15 +392,15 @@ class AngleMonitoringTest {
         when(raoResult.isSecure()).thenReturn(true);
 
         final MonitoringInput monitoringInput = new MonitoringInput.MonitoringInputBuilder().withCrac(crac).withNetwork(network).withRaoResult(raoResult).withPhysicalParameter(PhysicalParameter.ANGLE).withScalableZonalData(scalableZonalData).build();
-        final AtomicInteger firstReferenceValue = new AtomicInteger(2);
-        final AtomicInteger secondReferenceValue = new AtomicInteger(9);
-        final ComputationManager computationManager = MonitoringTestUtil.getComputationManager(firstReferenceValue, secondReferenceValue);
+        final AtomicInteger referenceValue = new AtomicInteger(2);
+        final CountDownLatch latch = new CountDownLatch(3);
+        final ComputationManager computationManager = MonitoringTestUtil.getComputationManager(referenceValue, latch);
 
         final RaoResult raoResultWithAngleMonitoring = Monitoring.runAngleAndUpdateRaoResult("OpenLoadFlow", loadFlowParameters, computationManager, 2, monitoringInput);
 
-        // Loadflow is expected to be run 3 times: 2+3=5 & 9-3=6
-        assertEquals(5, firstReferenceValue.get());
-        assertEquals(6, secondReferenceValue.get());
+        // Loadflow is expected to be run 3 times: 2+3=5
+        assertEquals(5, referenceValue.get());
+        assertTrue(latch.await(5, TimeUnit.SECONDS));
         assertFalse(raoResultWithAngleMonitoring.isSecure());
     }
 
