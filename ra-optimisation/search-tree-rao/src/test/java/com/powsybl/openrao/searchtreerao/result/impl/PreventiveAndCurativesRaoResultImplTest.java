@@ -82,6 +82,7 @@ class PreventiveAndCurativesRaoResultImplTest {
                 .withSide(ONE)
                 .withUnit(MEGAWATT)
                 .withMin(0d) // so margin = flow for simplicity
+                .withMax(1000d)
                 .add()
                 .add();
             crac.newFlowCnec()
@@ -95,6 +96,7 @@ class PreventiveAndCurativesRaoResultImplTest {
                 .withSide(ONE)
                 .withUnit(MEGAWATT)
                 .withMin(0d) // so margin = flow for simplicity
+                .withMax(1000d)
                 .add()
                 .add();
             crac.newFlowCnec()
@@ -108,6 +110,7 @@ class PreventiveAndCurativesRaoResultImplTest {
                 .withSide(ONE)
                 .withUnit(MEGAWATT)
                 .withMin(0d) // so margin = flow for simplicity
+                .withMax(1000d)
                 .add()
                 .add();
         }
