@@ -7,7 +7,7 @@
     <parent>
         <groupId>com.powsybl</groupId>
         <artifactId>powsybl-open-rao</artifactId>
-        <version>7.1.1-SNAPSHOT</version>
+        <version>7.1.1</version>
     </parent>
     <artifactId>open-rao-commons</artifactId>
     <packaging>jar</packaging>
