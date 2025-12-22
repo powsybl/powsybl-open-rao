@@ -28,6 +28,7 @@ public final class IidmHvdcHelper {
     }
 
     public static double getCurrentSetpoint(Network network, String networkElementId) {
+        // getActivePowerSetpoint should always be positive
         if (getHvdcLine(network, networkElementId).getConvertersMode() == HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER) {
             return getHvdcLine(network, networkElementId).getActivePowerSetpoint();
         } else {
@@ -35,16 +36,12 @@ public final class IidmHvdcHelper {
         }
     }
 
-    public static double computeActivePowerSetpointOnHvdcLine(HvdcLine hvdcLine) {
-        if (hvdcLine.getConvertersMode().equals(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER)) {
-            return hvdcLine.getConverterStation2().getTerminal().getP();
-        } else {
-            return hvdcLine.getConverterStation1().getTerminal().getP();
-        }
+    public static double computeHvdcAngleDroopActivePowerControlSetPoint(HvdcLine hvdcLine) {
+        return hvdcLine.getConverterStation1().getTerminal().getP();
     }
 
-    public static void setActivePowerSetpointOnHvdcLine(HvdcLine hvdcLine, double activePowerSetpoint) {
-        hvdcLine.setConvertersMode(activePowerSetpoint > 0 ? HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER : HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER);
-        hvdcLine.setActivePowerSetpoint(Math.abs(activePowerSetpoint));
+    public static void setActivePowerSetpointOnHvdcLine(HvdcLine hvdcLine, double setpoint) {
+        hvdcLine.setConvertersMode(setpoint > 0 ? HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER : HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER);
+        hvdcLine.setActivePowerSetpoint(Math.abs(setpoint));
     }
 }
