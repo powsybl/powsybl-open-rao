@@ -40,7 +40,6 @@ class RaoResultArchiveManagerTest {
     InterTemporalRaoResultImpl globalRaoResultToExport;
     TemporalDataImpl<Crac> cracTemporalData;
 
-
     @Test
     void testWriteArchiveWithBasicProperties() throws IOException {
         Properties properties = new Properties();
@@ -177,7 +176,7 @@ class RaoResultArchiveManagerTest {
             timestamp3, crac3
         ));
 
-        this.cracTemporalData=cracTemporalData;
-        this.globalRaoResultToExport=globalRaoResultToExport;
+        this.cracTemporalData = cracTemporalData;
+        this.globalRaoResultToExport = globalRaoResultToExport;
     }
 }
