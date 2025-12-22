@@ -17,6 +17,8 @@ import org.mockito.Mockito;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.HashSet;
@@ -34,6 +36,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
 class RaoResultArchiveManagerTest {
+
+    InterTemporalRaoResultImpl globalRaoResultToExport;
+    TemporalDataImpl<Crac> cracTemporalData;
+
+
     @Test
     void testWriteArchiveWithBasicProperties() throws IOException {
         Properties properties = new Properties();
@@ -68,7 +75,67 @@ class RaoResultArchiveManagerTest {
         assertTrue(archiveContent.contains("summary.json"));
     }
 
-    private static Set<String> exportArchiveAndGetContent(Properties properties) throws IOException {
+    @Test
+    void testWriteArchiveToFileAndUnzip() throws IOException {
+        Properties properties = new Properties();
+        properties.put("rao-result.export.json.flows-in-amperes", "true");
+        properties.put("rao-result.export.json.flows-in-megawatts", "true");
+        properties.put("inter-temporal-rao-result.export.preventive-only", "true");
+
+        Set<String> expectedEntries = Set.of(
+            "raoResult_202502141040.json",
+            "raoResult_202502141140.json",
+            "raoResult_202502141240.json",
+            "interTemporalRaoSummary.json"
+        );
+
+        prepareTestRaoExportSetup();
+
+        // Write to a temporary file
+        Path tempFile = Files.createTempFile("rao_archive", ".zip");
+        ZipOutputStream zos = new ZipOutputStream(Files.newOutputStream(tempFile));
+        this.globalRaoResultToExport.write(zos, this.cracTemporalData, properties);
+
+        Set<String> archiveContent = extractZipEntriesFromFile(tempFile);
+
+        Files.deleteIfExists(tempFile);
+
+        assertEquals(expectedEntries, archiveContent);
+    }
+
+    private Set<String> exportArchiveAndGetContent(Properties properties) throws IOException {
+        prepareTestRaoExportSetup();
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        try (ZipOutputStream zos = new ZipOutputStream(baos)) {
+            this.globalRaoResultToExport.write(zos, this.cracTemporalData, properties);
+        }
+        return extractZipEntriesFromBytes(baos.toByteArray());
+    }
+
+    private Set<String> extractZipEntriesFromBytes(byte[] zipBytes) throws IOException {
+        Set<String> archiveContent = new HashSet<>();
+        try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(zipBytes);
+             ZipInputStream zis = new ZipInputStream(byteArrayInputStream)) {
+            ZipEntry entry;
+            while ((entry = zis.getNextEntry()) != null) {
+                archiveContent.add(entry.getName());
+            }
+        }
+        return archiveContent;
+    }
+
+    private static Set<String> extractZipEntriesFromFile(Path zipFile) throws IOException {
+        Set<String> archiveContent = new HashSet<>();
+        try (ZipInputStream zis = new ZipInputStream(Files.newInputStream(zipFile))) {
+            ZipEntry entry;
+            while ((entry = zis.getNextEntry()) != null) {
+                archiveContent.add(entry.getName());
+            }
+        }
+        return archiveContent;
+    }
+
+    private void prepareTestRaoExportSetup() throws IOException {
         Network network1 = Network.read("/network/3Nodes.uct", InterTemporalRaoResultImplTest.class.getResourceAsStream("/network/3Nodes.uct"));
         Network network2 = Network.read("/network/3Nodes.uct", InterTemporalRaoResultImplTest.class.getResourceAsStream("/network/3Nodes.uct"));
         Network network3 = Network.read("/network/3Nodes.uct", InterTemporalRaoResultImplTest.class.getResourceAsStream("/network/3Nodes.uct"));
@@ -94,23 +161,23 @@ class RaoResultArchiveManagerTest {
         Mockito.when(globalLinearOptimizationResult.getVirtualCost("min-margin-violation-evaluator")).thenReturn(0.0);
         Mockito.when(globalLinearOptimizationResult.getVirtualCost("sensitivity-failure-cost")).thenReturn(0.0);
 
-        InterTemporalRaoResultImpl globalRaoResultToExport = new InterTemporalRaoResultImpl(initialLinearOptimizationResult, globalLinearOptimizationResult, new TemporalDataImpl<>(Map.of(timestamp1, raoResult1, timestamp2, raoResult2, timestamp3, raoResult3)));
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ZipOutputStream zos = new ZipOutputStream(baos);
+        InterTemporalRaoResultImpl globalRaoResultToExport = new InterTemporalRaoResultImpl(
+            initialLinearOptimizationResult,
+            globalLinearOptimizationResult,
+            new TemporalDataImpl<>(Map.of(
+                timestamp1, raoResult1,
+                timestamp2, raoResult2,
+                timestamp3, raoResult3
+            ))
+        );
 
-        globalRaoResultToExport.write(zos, new TemporalDataImpl<>(Map.of(timestamp1, crac1, timestamp2, crac2, timestamp3, crac3)), properties);
-        baos.close();
+        TemporalDataImpl<Crac> cracTemporalData = new TemporalDataImpl<>(Map.of(
+            timestamp1, crac1,
+            timestamp2, crac2,
+            timestamp3, crac3
+        ));
 
-        byte[] zipBytes = baos.toByteArray();
-        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(zipBytes);
-        ZipInputStream zis = new ZipInputStream(byteArrayInputStream);
-
-        Set<String> archiveContent = new HashSet<>();
-        ZipEntry entry;
-        while ((entry = zis.getNextEntry()) != null) {
-            archiveContent.add(entry.getName());
-        }
-
-        return archiveContent;
+        this.cracTemporalData=cracTemporalData;
+        this.globalRaoResultToExport=globalRaoResultToExport;
     }
 }
