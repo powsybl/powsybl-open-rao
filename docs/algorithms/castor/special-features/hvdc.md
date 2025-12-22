@@ -12,8 +12,8 @@ An HVDC line can operate in **two modes**:
 2. **AC Emulation Mode**  
    The HVDC line operates in AC Emulation mode when the extension [**angle-droop active power control**](inv:powsyblecore:*:*#hvdc-angle-droop-active-power-control-extension) is enabled. In this mode, the flow is determined by the **phase difference**:  
   
-  $$ P = P_0 \cdot k (\phi_1 - \phi_2)$$
-   and **ignores the active power setpoint**.
+  $$ P = P_0 + k (\phi_1 - \phi_2)$$
+   and **ignores the active power setpoint and converters mode**.
 
 **Implication:**
 
@@ -21,6 +21,24 @@ An HVDC line can operate in **two modes**:
 In order to use and optimize the setpoint of an HVDC range action, the HVDC line associated needs to be switched to fix setpoint mode before hand more info on that in the following sections.
 
 - For the same reason, attempting to define a sensitivity for an HVDC range action with a line still in AC emulation will result in an **OLF error**. See [Open Load Flow documentation](https://powsybl.readthedocs.io/projects/powsybl-open-loadflow/en/latest/sensitivity/getting_started.html).
+
+--- 
+
+## HVDC Range Action Sign Convention
+
+First carefully read [powsybl specification](https://powsybl.readthedocs.io/projects/powsybl-core/en/stable/grid_model/network_subnetwork.html#hvdc-line) on the flow sign convention for HVDC line. 
+
+> Two things to note, is that in **fixed setpoint** mode:
+>
+>- The active power setpoint field should always be positive 
+>- The flow direction is given by the converter mode
+
+### HVDC range action setpoint field vs HVDC line active power setpoint field 
+
+HVDC range action setpoint is not always positive. The setpoint follows the following convention:
+
+- If setpoint $>$ 0, side 1 is the rectifier $\rightarrow$ the flow goes from side 1 to side 2
+- If setpoint $\leq$ 0, side 1 is the inverter $\rightarrow$ the flow goes from side 2 to side 1
 
 ---
 
