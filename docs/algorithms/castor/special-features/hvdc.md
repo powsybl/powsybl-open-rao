@@ -24,18 +24,15 @@ In order to use and optimize the setpoint of an HVDC range action, the HVDC line
 
 --- 
 
-## HVDC Range Action Sign Convention
+## HVDC range action setpoint field vs HVDC line active power setpoint field
 
-First carefully read [powsybl specification](https://powsybl.readthedocs.io/projects/powsybl-core/en/stable/grid_model/network_subnetwork.html#hvdc-line) on the flow sign convention for HVDC line. 
+First read [powsybl specification](https://powsybl.readthedocs.io/projects/powsybl-core/en/stable/grid_model/network_subnetwork.html#hvdc-line) on the flow sign convention for HVDC line. 
 
-> Two things to note, is that in **fixed setpoint** mode:
->
->- The active power setpoint field should always be positive 
->- The flow direction is given by the converter mode
+For **HVDC line** the two things to note are that in **fixed setpoint** mode:
+- The active power setpoint field should always be positive 
+- The flow direction is given by the converter mode
 
-### HVDC range action setpoint field vs HVDC line active power setpoint field 
-
-HVDC range action setpoint is not always positive. The setpoint follows the following convention:
+Whereas **HVDC range action** setpoint is not always positive. The setpoint follows the following convention:
 
 - If setpoint $>$ 0, side 1 is the rectifier $\rightarrow$ the flow goes from side 1 to side 2
 - If setpoint $\leq$ 0, side 1 is the inverter $\rightarrow$ the flow goes from side 2 to side 1
