@@ -28,7 +28,7 @@ public final class IidmHvdcHelper {
     }
 
     public static double getCurrentSetpoint(Network network, String networkElementId) {
-        // getActivePowerSetpoint should always be positive
+        // getActivePowerSetpoint should always return something positive
         if (getHvdcLine(network, networkElementId).getConvertersMode() == HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER) {
             return getHvdcLine(network, networkElementId).getActivePowerSetpoint();
         } else {
