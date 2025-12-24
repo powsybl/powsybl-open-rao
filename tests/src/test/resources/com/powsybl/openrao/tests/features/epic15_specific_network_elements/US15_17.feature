@@ -181,6 +181,15 @@ Feature: US 15.17: Optimize HVDC range actions initially in AC emulation mode
     And the flow on cnec "be2_be5_co1 - BBE2AA11->BBE5AA11 - co1_be1_fr5 - curative" after CRA should be 937 A on side 1
 
   @fast @rao @mock @dc @preventive-only @hvdc
+  Scenario: US 15.17.13: Ac Emulation deactivation is enough to secure the situation
+  After deactivating ac emulation, the situation is exactly the same
+    Given network file is "epic15/TestCase16NodesWithHvdc_AC_emulation.xiidm"
+    Given crac file is "epic15/jsonCrac_ep15us15case13.json"
+    Given configuration file is "common/RaoParameters_posMargin_megawatt_dc.json"
+    When I launch rao
+    And the initial tap of PstRangeAction "PST_PRA_PST_be_BBE2AA11 BBE3AA11 1" should be 0
+
+  @fast @rao @mock @dc @preventive-only @hvdc
   Scenario: US 15.17.12: HVDC range action with one preventive CNEC, no impact on worst CNEC
     Given network file is "epic15/TestCase16NodesWithHvdcAcEmulation_HvdcCnec.xiidm"
     Given crac file is "epic15/jsonCrac_ep15us17case12.json"
