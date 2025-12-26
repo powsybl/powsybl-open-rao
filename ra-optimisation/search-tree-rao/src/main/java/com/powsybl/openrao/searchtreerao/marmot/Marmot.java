@@ -67,6 +67,8 @@ public class Marmot implements InterTemporalRaoProvider {
     private static final String MIP_SCENARIO = "MipScenario";
     private static final String MIN_MARGIN_VIOLATION_EVALUATOR = "min-margin-violation-evaluator";
 
+    //TODO: UNIT.Megawatt -> objective function unit
+
     @Override
     public CompletableFuture<InterTemporalRaoResult> run(InterTemporalRaoInputWithNetworkPaths interTemporalRaoInputWithNetworkPaths, RaoParameters raoParameters) {
         // 1. Run independent RAOs to compute optimal preventive topological remedial actions
