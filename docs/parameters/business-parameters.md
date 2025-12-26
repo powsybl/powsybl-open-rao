@@ -27,10 +27,10 @@ These parameters (objective-function) configure the remedial action optimisation
 - **Expected value**: one of the following:
   - "MEGAWATT"
   - "AMPERE"
-- **Default value**: "MEGAWATT"
+- **Default value**: "AMPERE"
 - **Usage**: this parameter sets the objective function unit of the RAO. For now, the existing objective function units are:
-  - **MEGAWATT**: the margins to maximize are considered in MW.
-    - **AMPERE**: the margins to maximize are considered in A.
+  - **MEGAWATT**: the margins to maximize are considered in MW only compatible with DC run.
+    - **AMPERE**: the margins to maximize are considered in A only compatible with AC run.
       Note that CNECs from different voltage levels will not have the same weight in the objective function depending on the unit
       considered (MW or A). Ampere unit only works in AC-load-flow mode (see [sensitivity-parameters](implementation-specific-parameters.md#sensitivity-parameters)).
 
