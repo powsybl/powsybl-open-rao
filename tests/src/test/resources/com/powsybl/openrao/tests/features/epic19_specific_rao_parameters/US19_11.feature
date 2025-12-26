@@ -14,10 +14,10 @@ Feature: US 19.11: Handle maximum number of elementary actions per TSO
     # Best theoretical option is to move the PST to tap -16 (-33 MW)
     # With only three elementary actions, the best option is to move the PST to tap -3 (-462 MW)
     Then 1 remedial actions are used in preventive
-    And the initial flow on cnec "BBE1AA1  BBE2AA1  1 - preventive" should be -561.0 MW
+    And the initial flow on cnec "BBE1AA1  BBE2AA1  1 - preventive" should be -561.0 MW on side 1
     And the remedial action "pst_be" is used in preventive
     And the tap of PstRangeAction "pst_be" should be -3 in preventive
-    And the flow on cnec "BBE1AA1  BBE2AA1  1 - preventive" after PRA should be -462.0 MW
+    And the flow on cnec "BBE1AA1  BBE2AA1  1 - preventive" after PRA should be -462.0 MW on side 1
     And the worst margin is 38 MW
 
   @fast @rao @preventive-only
@@ -29,10 +29,10 @@ Feature: US 19.11: Handle maximum number of elementary actions per TSO
     # Best theoretical option is to move the PST to tap -16 (-33 MW)
     # With only three elementary actions, the best option is to move the PST to tap -7 (-329 MW)
     Then 1 remedial actions are used in preventive
-    And the initial flow on cnec "BBE1AA1  BBE2AA1  1 - preventive" should be -561.0 MW
+    And the initial flow on cnec "BBE1AA1  BBE2AA1  1 - preventive" should be -561.0 MW on side 1
     And the remedial action "pst_be" is used in preventive
     And the tap of PstRangeAction "pst_be" should be -7 in preventive
-    And the flow on cnec "BBE1AA1  BBE2AA1  1 - preventive" after PRA should be -329.0 MW
+    And the flow on cnec "BBE1AA1  BBE2AA1  1 - preventive" after PRA should be -329.0 MW on side 1
     And the worst margin is 171.0 MW
 
   @fast @rao @preventive-only
@@ -44,9 +44,9 @@ Feature: US 19.11: Handle maximum number of elementary actions per TSO
     # Best theoretical option is to close both line BE1-BE3-1 and line BE1-BE3-2 (-561 MW)
     # With only three elementary actions, the best option is to simply close line BE1-BE3-1 (-572 MW)
     Then 1 remedial actions are used in preventive
-    And the initial flow on cnec "BBE1AA1  BBE2AA1  1 - preventive" should be -596.0 MW
+    And the initial flow on cnec "BBE1AA1  BBE2AA1  1 - preventive" should be -596.0 MW on side 1
     And the remedial action "close_be1_be3_1" is used in preventive
-    And the flow on cnec "BBE1AA1  BBE2AA1  1 - preventive" after PRA should be -572.0 MW
+    And the flow on cnec "BBE1AA1  BBE2AA1  1 - preventive" after PRA should be -572.0 MW on side 1
     And the worst margin is 3.0 MW
 
   @fast @rao @preventive-only @multi-curative
@@ -57,7 +57,7 @@ Feature: US 19.11: Handle maximum number of elementary actions per TSO
     When I launch rao
     # At each curative instant, the PST could theoretically go down to tap -16
     # But the tap decreases more slowly over the 3 curative instants
-    Then the initial flow on cnec "BBE1AA1  BBE2AA1  1 - preventive" should be -596.0 MW
+    Then the initial flow on cnec "BBE1AA1  BBE2AA1  1 - preventive" should be -596.0 MW on side 1
     And 1 remedial actions are used after "co1_fr1_fr3_1" at "curative1"
     And the remedial action "pst_be" is used after "co1_fr1_fr3_1" at "curative1"
     And the tap of PstRangeAction "pst_be" should be -1 after "co1_fr1_fr3_1" at "curative1"
@@ -80,11 +80,11 @@ Feature: US 19.11: Handle maximum number of elementary actions per TSO
     # - close line BE1-BE3-1 and move the PST to tap -2 (-511 MW -> best option)
     # - close both line BE1-BE3-1 and line BE1-BE3-2 and move the PST to tap -1 (-528 MW)
     Then 2 remedial actions are used in preventive
-    And the initial flow on cnec "BBE1AA1  BBE2AA1  1 - preventive" should be -596.0 MW
+    And the initial flow on cnec "BBE1AA1  BBE2AA1  1 - preventive" should be -596.0 MW on side 1
     And the remedial action "close_be1_be3_1" is used in preventive
     And the remedial action "pst_be" is used in preventive
     And the tap of PstRangeAction "pst_be" should be -2 in preventive
-    And the flow on cnec "BBE1AA1  BBE2AA1  1 - preventive" after PRA should be -511.0 MW
+    And the flow on cnec "BBE1AA1  BBE2AA1  1 - preventive" after PRA should be -511.0 MW on side 1
     And the worst margin is 39.0 MW
 
   @fast @rao @preventive-only
