@@ -7,13 +7,19 @@
 
 package com.powsybl.openrao.monitoring;
 
+import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.ContingencyElementType;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.crac.api.*;
+import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.CracFactory;
+import com.powsybl.openrao.data.crac.api.Instant;
+import com.powsybl.openrao.data.crac.api.InstantKind;
+import com.powsybl.openrao.data.crac.api.RemedialAction;
+import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 import com.powsybl.openrao.data.crac.api.cnec.CnecValue;
 import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
@@ -30,9 +36,20 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import java.util.*;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -531,7 +548,6 @@ class VoltageMonitoringTest {
         assertEquals(400., ((VoltageCnecValue) vcPrevCnecOptCnecValue).maxValue(), 0.01);
         assertEquals(Cnec.SecurityStatus.HIGH_CONSTRAINT, vcPrevCnecOptSecurityStatus);
         assertEquals(-1.0, vcPrevMargin, 0.01);
-
     }
 
     @Test
@@ -567,4 +583,33 @@ class VoltageMonitoringTest {
         assertFalse(raoResultWithVoltageMonitoring.isSecure());
     }
 
+    @Test
+    void testWithComputationManager() throws IOException, InterruptedException {
+        setUpCracFactory("network.xiidm");
+        addVoltageCnec("vcPrev", PREVENTIVE_INSTANT_ID, null, "VL1", 400., 450.);
+
+        crac.newContingency().withId("co").withContingencyElement("L1", ContingencyElementType.LINE).add();
+        final VoltageCnec vcCur = addVoltageCnec("vc", CURATIVE_INSTANT_ID, "co", "VL1", 390., 399.);
+
+        crac.newNetworkAction()
+            .withId("Open L1 - 1")
+            .newTerminalsConnectionAction().withNetworkElement("L1").withActionType(ActionType.OPEN).add()
+            .newOnConstraintUsageRule().withInstant(CURATIVE_INSTANT_ID).withCnec(vcCur.getId()).add()
+            .add();
+
+        when(raoResult.getComputationStatus()).thenReturn(ComputationStatus.DEFAULT);
+        when(raoResult.isSecure()).thenReturn(true);
+
+        final MonitoringInput monitoringInput = new MonitoringInput.MonitoringInputBuilder().withCrac(crac).withNetwork(network).withRaoResult(raoResult).withPhysicalParameter(PhysicalParameter.VOLTAGE).build();
+        final AtomicInteger referenceValue = new AtomicInteger(2);
+        final CountDownLatch latch = new CountDownLatch(3);
+        final ComputationManager computationManager = MonitoringTestUtil.getComputationManager(referenceValue, latch);
+
+        final RaoResult raoResultWithVoltageMonitoring = Monitoring.runVoltageAndUpdateRaoResult("OpenLoadFlow", loadFlowParameters, computationManager, 1, monitoringInput);
+
+        // Loadflow is expected to be run 3 times: 2+3=5
+        assertEquals(5, referenceValue.get());
+        assertTrue(latch.await(5, TimeUnit.SECONDS));
+        assertFalse(raoResultWithVoltageMonitoring.isSecure());
+    }
 }
