@@ -112,7 +112,8 @@ class UnoptimizedCnecFillerMarginDecreaseRuleTest extends AbstractFillerTest {
             Set.of(cnecNl, cnecFr),
             initialFlowResult,
             unoptimizedCnecParameters,
-            null);
+            null,
+            MEGAWATT);
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(maxMinMarginFiller)
@@ -146,7 +147,8 @@ class UnoptimizedCnecFillerMarginDecreaseRuleTest extends AbstractFillerTest {
             Set.of(cnecNl, cnecFr),
             initialFlowResult,
             unoptimizedCnecParameters,
-            null);
+            null,
+            MEGAWATT);
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(maxMinRelativeMarginFiller)

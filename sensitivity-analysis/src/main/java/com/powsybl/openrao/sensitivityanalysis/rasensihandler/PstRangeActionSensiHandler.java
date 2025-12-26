@@ -31,6 +31,11 @@ public class PstRangeActionSensiHandler implements RangeActionSensiHandler {
     }
 
     @Override
+    public double getSensitivityOnIntensity(FlowCnec cnec, TwoSides side, SystematicSensitivityResult sensitivityResult) {
+        return sensitivityResult.getSensitivityOnIntensity(pstRangeAction.getNetworkElement().getId(), cnec, side);
+    }
+
+    @Override
     public void checkConsistency(Network network) {
         Identifiable<?> identifiable = network.getIdentifiable(pstRangeAction.getNetworkElement().getId());
         if (!(identifiable instanceof TwoWindingsTransformer)) {

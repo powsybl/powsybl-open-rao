@@ -8,6 +8,7 @@
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers;
 
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Identifiable;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
@@ -22,8 +23,6 @@ import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
 import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static com.powsybl.openrao.commons.Unit.MEGAWATT;
 
 /**
  * This filler adds variables and constraints allowing the RAO to ignore some
@@ -40,16 +39,20 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
     private final Set<String> operatorsNotToOptimize;
     private final double highestThresholdValue;
     private final OffsetDateTime timestamp;
+    private final Unit unit;
 
     public UnoptimizedCnecFiller(Set<FlowCnec> flowCnecs,
                                  FlowResult prePerimeterFlowResult,
-                                 UnoptimizedCnecParameters unoptimizedCnecParameters, OffsetDateTime timestamp) {
+                                 UnoptimizedCnecParameters unoptimizedCnecParameters,
+                                 OffsetDateTime timestamp,
+                                 Unit unit) {
         this.flowCnecs = new TreeSet<>(Comparator.comparing(Identifiable::getId));
         this.flowCnecs.addAll(FillersUtil.getFlowCnecsNotNaNFlow(flowCnecs, prePerimeterFlowResult));
         this.prePerimeterFlowResult = prePerimeterFlowResult;
         this.operatorsNotToOptimize = unoptimizedCnecParameters.getOperatorsNotToOptimize();
-        this.highestThresholdValue = RaoUtil.getLargestCnecThreshold(flowCnecs, MEGAWATT);
+        this.highestThresholdValue = RaoUtil.getLargestCnecThreshold(flowCnecs, unit);
         this.timestamp = timestamp;
+        this.unit = unit;
     }
 
     @Override
@@ -112,15 +115,15 @@ public class UnoptimizedCnecFiller implements ProblemFiller {
         // the search tree rao is degrading the situation
         // So we can use this to estimate the worst decrease possible of the margins on cnecs
         validFlowCnecs.forEach(cnec -> cnec.getMonitoredSides().forEach(side -> {
-            double prePerimeterMargin = prePerimeterFlowResult.getMargin(cnec, side, MEGAWATT);
+            double prePerimeterMargin = prePerimeterFlowResult.getMargin(cnec, side, unit);
 
             OpenRaoMPVariable flowVariable = linearProblem.getFlowVariable(cnec, side, Optional.ofNullable(timestamp));
             OpenRaoMPVariable optimizeCnecBinaryVariable = linearProblem.getOptimizeCnecBinaryVariable(cnec, side, Optional.ofNullable(timestamp));
 
             Optional<Double> minFlow;
             Optional<Double> maxFlow;
-            minFlow = cnec.getLowerBound(side, MEGAWATT);
-            maxFlow = cnec.getUpperBound(side, MEGAWATT);
+            minFlow = cnec.getLowerBound(side, unit);
+            maxFlow = cnec.getUpperBound(side, unit);
 
             if (minFlow.isPresent()) {
                 OpenRaoMPConstraint decreaseMinmumThresholdMargin = linearProblem.addDontOptimizeCnecConstraint(
