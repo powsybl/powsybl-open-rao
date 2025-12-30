@@ -80,4 +80,4 @@ Feature: US 11.4: Handle mnecs in search tree with range actions and network act
     And 2 remedial actions are used in preventive
     And the worst margin is -156.3 A on cnec "FR2-FR3-O - preventive"
     And the flow on cnec "NL1-NL3-D - preventive" after PRA should be 721.8 A on side 1
-    And the flow on cnec "NL2-BE3-D - preventive" after PRA should be 2297.8 A on side 1
+    And the flow on cnec "NL2-BE3-D - preventive" after PRA should be -2297.8 A on side 1

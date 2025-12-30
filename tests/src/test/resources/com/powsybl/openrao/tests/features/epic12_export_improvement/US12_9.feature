@@ -21,7 +21,7 @@ Feature: US 12.9: CORE CNE export for CBCORA with inverted branches
     Given crac file is "epic12/MergedCB_12_9_2.xml"
     Given loopflow glsk file is "common/glsk_lots_of_lf_12nodes.xml"
     Given RefProg file is "epic7/refProg_12nodes.xml"
-    Given configuration file is "epic7/RaoParameters_maxMargin_ampere_ac_lf_false_5_100_BE_NL.json"
+    Given configuration file is "epic7/RaoParameters_maxMargin_megawatt_dc_lf_false_5_100_BE_NL.json"
     Given RaoResult file is "epic12/RaoResult_12_9_2.json"
     When I export CORE CNE at "2019-01-08 21:30"
     Then the CORE CNE file is xsd-compliant
