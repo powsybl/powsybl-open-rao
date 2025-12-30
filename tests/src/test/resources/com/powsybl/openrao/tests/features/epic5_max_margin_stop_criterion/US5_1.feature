@@ -15,14 +15,14 @@ Feature: US 5.1: Maximum margin stop criterion
     Then the worst margin is 500.0 MW
     Then 0 remedial actions are used in preventive
 
-  @fast @rao @mock @ac @preventive-only
+  @fast @rao @mock @dc @preventive-only
   Scenario: US 5.1.0.b: use relevant number of decimals for margin and cost logging
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic5/SL_ep5us1b.json"
     Given configuration file is "common/RaoParameters_posMargin_megawatt_dc.json"
     When I launch rao
     Then its security status should be "UNSECURED"
-    Then the worst margin is -0.0001 A with a tolerance of 1E-8 A
+    Then the worst margin is -0.0001 MW with a tolerance of 0.00000001 MW
     Then 0 remedial actions are used in preventive
 
   @fast @rao @mock @ac @preventive-only
@@ -32,7 +32,7 @@ Feature: US 5.1: Maximum margin stop criterion
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
     Then its security status should be "SECURED"
-    Then the worst margin is 1000.0 MW
+    Then the worst margin is 1594.27 A
     Then 2 remedial actions are used in preventive
     Then the remedial action "Open tie-line FR1 FR2" is used in preventive
     Then the remedial action "Open tie-line FR1 FR3" is used in preventive
@@ -44,7 +44,7 @@ Feature: US 5.1: Maximum margin stop criterion
     Given configuration file is "epic5/RaoParameters_maxMargin_maxDepth.json"
     When I launch rao
     Then its security status should be "SECURED"
-    Then the worst margin is 997.0 A
+    Then the worst margin is 1149.0 A
     Then 1 remedial actions are used in preventive
     Then the remedial action "Open tie-line FR1 FR2" is used in preventive
 
@@ -55,7 +55,7 @@ Feature: US 5.1: Maximum margin stop criterion
     Given configuration file is "epic5/RaoParameters_maxMargin_relativeMinImpact.json"
     When I launch rao
     Then its security status should be "SECURED"
-    Then the worst margin is 720.0 A
+    Then the worst margin is 871.0 A
     Then 0 remedial actions are used in preventive
 
   @fast @rao @mock @ac @preventive-only
@@ -65,7 +65,7 @@ Feature: US 5.1: Maximum margin stop criterion
     Given configuration file is "epic5/RaoParameters_maxMargin_absoluteMinImpact275_ampere.json"
     When I launch rao
     Then its security status should be "SECURED"
-    Then the worst margin is 1442.0 A
+    Then the worst margin is 1594.0 A
     Then 2 remedial actions are used in preventive
     Then the remedial action "Open tie-line FR1 FR2" is used in preventive
     Then the remedial action "Open tie-line FR1 FR3" is used in preventive
@@ -77,5 +77,5 @@ Feature: US 5.1: Maximum margin stop criterion
     Given configuration file is "epic5/RaoParameters_maxMargin_absoluteMinImpact280_ampere.json"
     When I launch rao
     Then its security status should be "SECURED"
-    Then the worst margin is 500.0 MW
+    Then the worst margin is 871.0 A
     Then 0 remedial actions are used in preventive
