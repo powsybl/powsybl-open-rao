@@ -12,7 +12,7 @@ Feature: US 13.1: solve a RAO for a single preventive or curative state
     Given configuration file is "common/RaoParameters_maxMargin_ampere_ac.json"
     When I launch rao at "2019-01-08 00:30" on preventive state
     Then the tap of PstRangeAction "SelectTapPSTPrev" should be 12 in preventive
-    Then the initial flow on cnec "CnecPreventiveDir - preventive" should be -577.0 A
+    Then the initial flow on cnec "CnecPreventiveDir - preventive" should be -577.0 A on side 1
     # Then the flow on cnec "DDE1AA1  DDE3AA1  1 - preventive" after PRA should be 121.0 MW
     # Previously there was a mistake it was optimizing with all cnecs and not only on preventive state
     Then the flow on cnec "CnecPreventiveDir - preventive" after PRA should be -12 A on side 1

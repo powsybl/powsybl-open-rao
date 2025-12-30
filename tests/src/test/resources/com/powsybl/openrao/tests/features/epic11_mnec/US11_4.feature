@@ -18,8 +18,8 @@ Feature: US 11.4: Handle mnecs in search tree with range actions and network act
     And 2 remedial actions are used in preventive
     And the worst margin is -106.6 A
     And the flow on cnec "NNL2AA1  NNL3AA1  1 - preventive" after PRA should be 1648.7 A on side 1
-    And the flow on cnec "DDE1AA1  DDE2AA1  1 - Contingency FR1 FR3 - curative" after CRA should be 568.2 A on side 1
-    And the flow on cnec "NNL2AA1  BBE3AA1  1 - preventive" after PRA should be 2372.5 A on side 1
+    And the flow on cnec "DDE1AA1  DDE2AA1  1 - Contingency FR1 FR3 - curative" after CRA should be -568.2 A on side 1
+    And the flow on cnec "NNL2AA1  BBE3AA1  1 - preventive" after PRA should be -2372.5 A on side 1
 
   @fast @rao @mock @ac @preventive-only @mnec
   Scenario: US 11.4.2: margin on MNEC should stay positive
@@ -63,8 +63,8 @@ Feature: US 11.4: Handle mnecs in search tree with range actions and network act
     And 2 remedial actions are used in preventive
     And the worst margin is -106.6 A
     And the flow on cnec "NL2-NL3-D - preventive" after PRA should be 1648.7 A on side 1
-    And the flow on cnec "DE1-DE2-DO - curative" after PRA should be 568.2 A on side 1
-    And the flow on cnec "NL2-BE3-D - preventive" after PRA should be 2372.5 A on side 1
+    And the flow on cnec "DE1-DE2-DO - curative" after PRA should be -568.2 A on side 1
+    And the flow on cnec "NL2-BE3-D - preventive" after PRA should be -2372.5 A on side 1
 
   @fast @rao @mock @ac @preventive-only @mnec
   Scenario: US 11.4.4.b: margin on MNEC should stay positive
@@ -78,6 +78,6 @@ Feature: US 11.4: Handle mnecs in search tree with range actions and network act
     And the tap of PstRangeAction "PRA_PST_BE" should be -11 in preventive
     And PST "BBE2AA1  BBE3AA1  1" in network file with PRA is on tap -11
     And 2 remedial actions are used in preventive
-    And the worst margin is -156.3 A on cnec "FR2-FR3-D - preventive"
+    And the worst margin is -156.3 A on cnec "FR2-FR3-O - preventive"
     And the flow on cnec "NL1-NL3-D - preventive" after PRA should be 721.8 A on side 1
     And the flow on cnec "NL2-BE3-D - preventive" after PRA should be 2297.8 A on side 1

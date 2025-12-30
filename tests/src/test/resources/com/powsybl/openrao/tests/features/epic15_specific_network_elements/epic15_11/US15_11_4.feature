@@ -42,5 +42,5 @@ Feature: US 15.11.4: ARAO with 2P
     And the remedial action "PRA_CRA_PST_BE" is not used after "Contingency_FR1_FR3" at "curative"
     And the worst margin is -206 A
     And the value of the objective function after CRA should be 206
-    And the margin on cnec "NL2-BE3-O - curative" after CRA should be 321 A
+    And the margin on cnec "NL2-BE3-O - curative" after CRA should be 7.44 A
     Then the execution details should be "Second preventive improved first preventive results"

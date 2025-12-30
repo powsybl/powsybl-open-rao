@@ -62,7 +62,7 @@ Feature: US 4.2: Optimization in A/MW, thresholds in A/MW, computation in AC/DC
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic4/SL_ep4us2_4MR_mixed.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere_ac.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then the tap of PstRangeAction "PRA_PST_BE" should be 4 in preventive
     Then the worst margin is 24.0 A
     Then the value of the objective function after CRA should be -24.0
