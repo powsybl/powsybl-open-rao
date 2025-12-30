@@ -55,7 +55,6 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.stream.Stream;
 
-import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.checkHvdcAcEmulationParameters;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
