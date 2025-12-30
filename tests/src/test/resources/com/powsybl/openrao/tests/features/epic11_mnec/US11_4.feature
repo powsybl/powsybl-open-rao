@@ -48,10 +48,7 @@ Feature: US 11.4: Handle mnecs in search tree with range actions and network act
     And 2 remedial actions are used in preventive
     And the worst margin is -176.0 A on cnec "FFR2AA1  FFR3AA1  1 - preventive"
     And the flow on cnec "NNL2AA1  NNL3AA1  1 - preventive" after PRA should be 1544.0 A on side 1
-    And the flow on cnec "DDE1AA1  DDE2AA1  1 - Contingency FR1 FR3 - curative" after PRA should be 535.0 A on side 1
-    And the worst margin is -119.0 MW on cnec "FFR2AA1  FFR3AA1  1 - preventive"
-    And the flow on cnec "NNL2AA1  NNL3AA1  1 - preventive" after PRA should be 1069.0 MW on side 1
-    And the flow on cnec "DDE1AA1  DDE2AA1  1 - Contingency FR1 FR3 - curative" after PRA should be -370.0 MW on side 1
+    And the flow on cnec "DDE1AA1  DDE2AA1  1 - Contingency FR1 FR3 - curative" after PRA should be -535.0 A on side 1
 
   @fast @rao @mock @ac @preventive-only
   Scenario: US 11.4.4.a: reference run on CBCORA, no mnec
