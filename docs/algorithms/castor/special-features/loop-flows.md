@@ -19,6 +19,8 @@ lines when no commercial exchanges are present. Loop-flows limit the capacity av
 
 ## Computation
 
+> 💡 Loop-flows computation is now available in MEGAWATT or in AMPERE
+
 It is possible to configure the RAO in order to make sure that, during RA optimisation, the loop-flow $F_{loop-flow}$
 on each cross zonal CNEC does not exceed the maximum between:
 
