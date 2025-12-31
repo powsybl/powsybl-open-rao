@@ -28,6 +28,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 
+import static com.powsybl.openrao.commons.Unit.MEGAWATT;
+
 /**
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  */
@@ -116,6 +118,7 @@ public class MaxLoopFlowFiller implements ProblemFiller {
                     side,
                     Optional.ofNullable(timestamp)
                 );
+                double referenceFlow = flowResult.getFlow(cnec, side, MEGAWATT);
 
                 // build constraint which defines the loopFlow :
                 // - MaxLoopFlow + commercialFlow <= flowVariable + loopflowViolationVariable <= POSITIVE_INF
@@ -132,6 +135,7 @@ public class MaxLoopFlowFiller implements ProblemFiller {
                 );
                 positiveLoopflowViolationConstraint.setCoefficient(flowVariable, 1);
                 positiveLoopflowViolationConstraint.setCoefficient(loopflowViolationVariable, 1.0);
+                positiveLoopflowViolationConstraint.setIsLazy(referenceFlow >= -loopFlowUpperBound + flowResult.getCommercialFlow(cnec, side, Unit.MEGAWATT));
 
                 OpenRaoMPConstraint negativeLoopflowViolationConstraint = linearProblem.addMaxLoopFlowConstraint(
                     -linearProblem.infinity(),
@@ -143,6 +147,7 @@ public class MaxLoopFlowFiller implements ProblemFiller {
                 );
                 negativeLoopflowViolationConstraint.setCoefficient(flowVariable, 1);
                 negativeLoopflowViolationConstraint.setCoefficient(loopflowViolationVariable, -1);
+                negativeLoopflowViolationConstraint.setIsLazy(referenceFlow <= loopFlowUpperBound + flowResult.getCommercialFlow(cnec, side, Unit.MEGAWATT));
 
                 //update objective function with loopflowViolationCost
                 linearProblem.getObjective().setCoefficient(loopflowViolationVariable, loopFlowViolationCost / cnec.getMonitoredSides().size());
