@@ -21,8 +21,8 @@
     "acceptable-margin-decrease" : 50.0
   },
   "loop-flow-parameters" : {
-    "acceptable-increase" : 40.0,
-    "countries" : [ ]
+    "acceptable-increase" : 0.0,
+    "countries" : [ "BE", "NL" ]
   },
   "extensions" : {
     "open-rao-search-tree-parameters" : {
@@ -68,7 +68,7 @@
             "shuntCompensatorVoltageControlOn" : false,
             "readSlackBus" : true,
             "writeSlackBus" : true,
-            "dc" : false,
+            "dc" : true,
             "distributedSlack" : true,
             "balanceType" : "PROPORTIONAL_TO_GENERATION_P",
             "dcUseTransformerRatio" : true,

@@ -5,13 +5,13 @@
 
 Feature: US 7.15: loop-flow acceptable augmentation parameter
 
-  @fast @rao @mock @ac @preventive-only @loopflow
+  @fast @rao @mock @dc @preventive-only @loopflow
   Scenario: 7.15.1 : Test case with a loop-flow acceptable augmentation parameter of 40 MW
     #same case as 7.11.1 but with the new parameter, giving a better margin
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic7/crac_lf_rao_3_cbcora.xml"
     Given loopflow glsk file is "common/glsk_lots_of_lf_12nodes.xml"
-    Given configuration file is "epic7/RaoParameters_maxMargin_mw_ac_lf_false_5_100_lfAugmentation.json"
+    Given configuration file is "epic7/RaoParameters_maxMargin_mw_dc_lf_false_5_100_lfAugmentation.json"
     When I launch loopflow rao at "2019-01-08 12:00" with default loopflow limit as 0 percent of pmax
     Then its security status should be "UNSECURED"
     Then the worst margin is -421.0 MW
