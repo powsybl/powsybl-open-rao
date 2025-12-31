@@ -32,7 +32,7 @@
       "range-actions-optimization" : {
         "max-mip-iterations" : 10,
         "pst-sensitivity-threshold" : 1.0E-6,
-        "pst-model" : "CONTINUOUS",
+        "pst-model" : "APPROXIMATED_INTEGERS",
         "hvdc-sensitivity-threshold" : 1.0E-6,
         "injection-ra-sensitivity-threshold" : 1.0E-6,
         "linear-optimization-solver" : {
@@ -59,7 +59,7 @@
         "sensitivity-parameters" : {
           "version" : "1.0",
           "load-flow-parameters" : {
-            "version" : "1.10",
+            "version" : "1.9",
             "voltageInitMode" : "UNIFORM_VALUES",
             "transformerVoltageControlOn" : false,
             "phaseShifterRegulationOn" : false,
@@ -68,13 +68,13 @@
             "shuntCompensatorVoltageControlOn" : false,
             "readSlackBus" : true,
             "writeSlackBus" : true,
-            "dc" : false,
+            "dc" : true,
             "distributedSlack" : true,
             "balanceType" : "PROPORTIONAL_TO_GENERATION_P",
             "dcUseTransformerRatio" : true,
             "countriesToBalance" : [ ],
-            "componentMode" : "MAIN_CONNECTED",
-            "hvdcAcEmulation" : true
+            "connectedComponentMode" : "MAIN",
+            "hvdcAcEmulation" : false
           }
         }
       },
@@ -87,8 +87,8 @@
       },
       "loop-flow-parameters" : {
         "ptdf-approximation" : "UPDATE_PTDF_WITH_TOPO_AND_PST",
-        "constraint-adjustment-coefficient" : 10.0,
-        "violation-cost" : 100.0
+        "constraint-adjustment-coefficient" : 0.5,
+        "violation-cost" : 1000.0
       }
     }
   }

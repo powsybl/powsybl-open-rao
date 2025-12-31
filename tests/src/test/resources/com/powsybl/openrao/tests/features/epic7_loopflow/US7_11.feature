@@ -5,12 +5,12 @@
 
 Feature: US 7.11: Additional tests with CBCORA input files and FRM
 
-  @fast @rao @mock @ac @preventive-only @loopflow
+  @fast @rao @mock @dc @preventive-only @loopflow
   Scenario: 7.11.1 : Replication of test case 7.10.3, using a CBCORA file as input instead of a SL
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic7/crac_lf_rao_3_cbcora.xml"
     Given loopflow glsk file is "common/glsk_lots_of_lf_12nodes.xml"
-    Given configuration file is "epic7/RaoParameters_maxMargin_mw_dc_lf_false_5_100.json"
+    Given configuration file is "epic7/RaoParameters_maxMargin_mw_dc_lf_false_5_100_update_ptdf.json"
 
     When I launch loopflow rao at "2019-01-08 00:00" with default loopflow limit as 0.0 percent of pmax
     # if the loopflow limit is defined equal to zero, josiris-server will not create LoopFlowExtensions
@@ -34,12 +34,12 @@ Feature: US 7.11: Additional tests with CBCORA input files and FRM
     And the initial loopflow on cnec "BBE2AA1  FFR3AA1  1 - preventive" should be -391.0 MW
     And the loopflow on cnec "BBE2AA1  FFR3AA1  1 - preventive" after PRA should be -384.0 MW
 
-  @fast @rao @mock @ac @preventive-only @loopflow
+  @fast @rao @mock @dc @preventive-only @loopflow
   Scenario: 7.11.2 : Loop-flow limitation with FRM
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic7/crac_lf_rao_3_with_frm_cbcora.xml"
     Given loopflow glsk file is "common/glsk_lots_of_lf_12nodes.xml"
-    Given configuration file is "epic7/RaoParameters_maxMargin_mw_dc_lf_false_5_100.json"
+    Given configuration file is "epic7/RaoParameters_maxMargin_mw_dc_lf_false_5_100_update_ptdf.json"
 
     When I launch loopflow rao at "2019-01-08 12:00" with default loopflow limit as 0.0 percent of pmax
       # if the loopflow limit is defined equal to zero, josiris-server will not create LoopFlowExtensions

@@ -24,7 +24,7 @@ Feature: US 7.10: Search-tree RAO with loopflow limitation
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic7/crac_lf_rao_3.json"
     Given loopflow glsk file is "common/glsk_lots_of_lf_12nodes.xml"
-    Given configuration file is "epic7/RaoParameters_maxMargin_mw_dc_lf_false_5_100.json"
+    Given configuration file is "epic7/RaoParameters_maxMargin_mw_dc_lf_false_5_100_update_ptdf.json"
     When I launch loopflow rao with default loopflow limit as 50.0 percent of pmax
     Then its security status should be "UNSECURED"
     Then the worst margin is -356.0 MW
@@ -50,7 +50,7 @@ Feature: US 7.10: Search-tree RAO with loopflow limitation
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic7/crac_lf_rao_3.json"
     Given loopflow glsk file is "common/glsk_lots_of_lf_12nodes.xml"
-    Given configuration file is "epic7/RaoParameters_maxMargin_mw_dc_lf_false_5_100.json"
+    Given configuration file is "epic7/RaoParameters_maxMargin_mw_dc_lf_false_5_100_update_ptdf.json"
     When I launch loopflow rao with default loopflow limit as 25.0 percent of pmax
     Then its security status should be "UNSECURED"
     Then the worst margin is -463.0 MW

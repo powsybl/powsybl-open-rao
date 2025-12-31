@@ -86,9 +86,9 @@
         "constraint-adjustment-coefficient" : 0.0
       },
       "loop-flow-parameters" : {
-        "ptdf-approximation" : "UPDATE_PTDF_WITH_TOPO_AND_PST",
-        "constraint-adjustment-coefficient" : 0.5,
-        "violation-cost" : 1000.0
+        "ptdf-approximation" : "FIXED_PTDF",
+        "constraint-adjustment-coefficient" : 5.0,
+        "violation-cost" : 100.0
       }
     }
   }
