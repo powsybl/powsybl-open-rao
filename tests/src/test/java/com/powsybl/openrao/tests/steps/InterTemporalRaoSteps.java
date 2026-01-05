@@ -211,12 +211,13 @@ public final class InterTemporalRaoSteps {
     @When("I export marmot results to {string}")
     public static void iExportMarmotResults(String outputPath) throws IOException {
         FileOutputStream fileOutputStream = new FileOutputStream(getFile(getResourcesPath().concat(outputPath)));
-        ZipOutputStream zipOutputStream = new ZipOutputStream(fileOutputStream);
         Properties properties = new Properties();
         properties.put("rao-result.export.json.flows-in-megawatts", "true");
         properties.put("inter-temporal-rao-result.export.filename-template", "'RAO_RESULT_'yyyy-MM-dd'T'HH:mm:ss'.json'");
         properties.put("inter-temporal-rao-result.export.summary-filename", "summary.json");
-        interTemporalRaoResult.write(zipOutputStream, interTemporalRaoInput.getRaoInputs().map(RaoInputWithNetworkPaths::getCrac), properties);
+        try (ZipOutputStream zipOutputStream = new ZipOutputStream(fileOutputStream)) {
+            interTemporalRaoResult.write(zipOutputStream, interTemporalRaoInput.getRaoInputs().map(RaoInputWithNetworkPaths::getCrac), properties);
+        }
     }
 
     @When("I export RefProg after redispatching to {string} based on raoResults zip {string}")
