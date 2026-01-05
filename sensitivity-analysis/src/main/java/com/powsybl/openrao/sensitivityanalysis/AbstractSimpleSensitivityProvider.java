@@ -100,17 +100,21 @@ public abstract class AbstractSimpleSensitivityProvider implements CnecSensitivi
 
     protected Set<SensitivityFunctionType> getSensitivityFunctionTypes(Set<TwoSides> sides) {
         Set<SensitivityFunctionType> sensitivityFunctionTypes = new HashSet<>();
-        if (factorsInMegawatt && sides.contains(TwoSides.ONE)) {
-            sensitivityFunctionTypes.add(SensitivityFunctionType.BRANCH_ACTIVE_POWER_1);
+        if (factorsInMegawatt) {
+            if (sides.contains(TwoSides.ONE)) {
+                sensitivityFunctionTypes.add(SensitivityFunctionType.BRANCH_ACTIVE_POWER_1);
+            }
+            if (sides.contains(TwoSides.TWO)) {
+                sensitivityFunctionTypes.add(SensitivityFunctionType.BRANCH_ACTIVE_POWER_2);
+            }
         }
-        if (factorsInMegawatt && sides.contains(TwoSides.TWO)) {
-            sensitivityFunctionTypes.add(SensitivityFunctionType.BRANCH_ACTIVE_POWER_2);
-        }
-        if (factorsInAmpere && sides.contains(TwoSides.ONE)) {
-            sensitivityFunctionTypes.add(SensitivityFunctionType.BRANCH_CURRENT_1);
-        }
-        if (factorsInAmpere && sides.contains(TwoSides.TWO)) {
-            sensitivityFunctionTypes.add(SensitivityFunctionType.BRANCH_CURRENT_2);
+        if (factorsInAmpere) {
+            if (sides.contains(TwoSides.ONE)) {
+                sensitivityFunctionTypes.add(SensitivityFunctionType.BRANCH_CURRENT_1);
+            }
+            if (sides.contains(TwoSides.TWO)) {
+                sensitivityFunctionTypes.add(SensitivityFunctionType.BRANCH_CURRENT_2);
+            }
         }
         return sensitivityFunctionTypes;
     }
