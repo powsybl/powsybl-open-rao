@@ -201,7 +201,7 @@ Feature: US 15.17: Optimize HVDC range actions initially in AC emulation mode
     Moving the HVDC setpoint would be too expensive compared to moving the PST so it stays the same
     Given network file is "epic15/TestCase16NodesWithHvdc_AC_emulation.xiidm"
     Given crac file is "epic15/jsonCrac_ep15us17case13.json"
-    Given configuration file is "common/RaoParameters_min_cost_ac.json"
+    Given configuration file is "common/RaoParameters_posMargin_ampere.json"
     When I launch rao
     # Initial situation
     Then the initial flow on cnec "be1_be2_n - BBE1AA11->BBE2AA11 - preventive" should be -919 A on side 1
