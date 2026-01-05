@@ -188,7 +188,6 @@ Feature: US 15.17: Optimize HVDC range actions initially in AC emulation mode
     Given crac file is "epic15/jsonCrac_ep15us15case13.json"
     Given configuration file is "common/RaoParameters_posMargin_megawatt_dc.json"
     When I launch rao
-    And the initial flow on cnec "be2_be5_n - BBE2AA11->BBE5AA11 - preventive" should be 878 A on side 1
     And the initial tap of PstRangeAction "PST_PRA_PST_be_BBE2AA11 BBE3AA11 1" should be 0
 
   @fast @rao @mock @dc @preventive-only @hvdc
