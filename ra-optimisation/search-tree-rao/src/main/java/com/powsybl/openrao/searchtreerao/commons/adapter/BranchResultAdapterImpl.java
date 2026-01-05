@@ -8,6 +8,7 @@
 package com.powsybl.openrao.searchtreerao.commons.adapter;
 
 import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.loopflowcomputation.LoopFlowComputation;
@@ -50,7 +51,7 @@ public final class BranchResultAdapterImpl implements BranchResultAdapter {
         }
 
         FlowResult commercialFlows = null;
-        Map<FlowCnec, Map<TwoSides, Double>> commercialFlowsMap = null;
+        Map<FlowCnec, Map<TwoSides, Map<Unit, Double>>> commercialFlowsMap = null;
         if (loopFlowComputation != null) {
             commercialFlowsMap = loopFlowComputation.buildLoopFlowsFromReferenceFlowAndPtdf(
                     systematicSensitivityResult,
