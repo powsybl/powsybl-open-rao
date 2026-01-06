@@ -7,13 +7,13 @@
 
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem;
 
-import com.google.ortools.Loader;
 import com.google.ortools.linearsolver.MPSolver;
 import com.google.ortools.linearsolver.MPSolverParameters;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
 import com.powsybl.openrao.searchtreerao.result.api.LinearProblemStatus;
+import com.powsybl.openrao.util.NativeLibraryLoader;
 
 import java.util.Map;
 import java.util.Objects;
@@ -28,7 +28,8 @@ import java.util.TreeMap;
 public class OpenRaoMPSolver {
     static {
         try {
-            Loader.loadNativeLibraries();
+            //Loader.loadNativeLibraries();
+            NativeLibraryLoader.loadNativeLibrary("jniortools");
         } catch (Exception e) {
             OpenRaoLoggerProvider.TECHNICAL_LOGS.error("Native library jniortools could not be loaded. You can ignore this message if it is not needed.");
         }
@@ -79,8 +80,8 @@ public class OpenRaoMPSolver {
     private MPSolver.OptimizationProblemType getOrToolsProblemType(SearchTreeRaoRangeActionsOptimizationParameters.Solver solver) {
         Objects.requireNonNull(solver);
         return switch (solver) {
-            case CBC -> MPSolver.OptimizationProblemType.CBC_MIXED_INTEGER_PROGRAMMING;
-            case SCIP -> MPSolver.OptimizationProblemType.SCIP_MIXED_INTEGER_PROGRAMMING;
+            case CBC -> MPSolver.OptimizationProblemType.XPRESS_MIXED_INTEGER_PROGRAMMING;
+            case SCIP -> MPSolver.OptimizationProblemType.XPRESS_MIXED_INTEGER_PROGRAMMING;
             case XPRESS -> MPSolver.OptimizationProblemType.XPRESS_MIXED_INTEGER_PROGRAMMING;
             default -> throw new OpenRaoException(String.format("unknown solver %s in RAO parameters", solver));
         };
@@ -175,6 +176,7 @@ public class OpenRaoMPSolver {
         if (OpenRaoLoggerProvider.TECHNICAL_LOGS.isTraceEnabled()) {
             mpSolver.enableOutput();
         }
+        mpSolver.enableOutput();
         return convertResultStatus(mpSolver.solve(solveConfiguration));
     }
 

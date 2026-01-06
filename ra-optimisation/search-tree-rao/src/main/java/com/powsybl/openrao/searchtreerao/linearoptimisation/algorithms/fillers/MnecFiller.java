@@ -59,7 +59,7 @@ public class MnecFiller implements ProblemFiller {
     public void fill(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
         Set<FlowCnec> validMonitoredCnecs = FillersUtil.getFlowCnecsComputationStatusOk(monitoredCnecs, sensitivityResult);
         buildMarginViolationVariable(linearProblem, validMonitoredCnecs);
-        buildMnecMarginConstraints(linearProblem, validMonitoredCnecs);
+        buildMnecMarginConstraints(linearProblem, validMonitoredCnecs, flowResult);
         fillObjectiveWithMnecPenaltyCost(linearProblem, validMonitoredCnecs);
     }
 
@@ -74,12 +74,13 @@ public class MnecFiller implements ProblemFiller {
         ));
     }
 
-    private void buildMnecMarginConstraints(LinearProblem linearProblem, Set<FlowCnec> validMonitoredCnecs) {
+    private void buildMnecMarginConstraints(LinearProblem linearProblem, Set<FlowCnec> validMonitoredCnecs, FlowResult flowResult) {
         validMonitoredCnecs.forEach(mnec -> mnec.getMonitoredSides().forEach(side -> {
                 double mnecInitialFlowInMW = initialFlowResult.getFlow(mnec, side, unit) * RaoUtil.getFlowUnitMultiplier(mnec, side, unit, MEGAWATT);
 
                 OpenRaoMPVariable flowVariable = linearProblem.getFlowVariable(mnec, side, Optional.ofNullable(timestamp));
                 OpenRaoMPVariable mnecViolationVariable = linearProblem.getMnecViolationVariable(mnec, side, Optional.ofNullable(timestamp));
+                double referenceFlow = flowResult.getFlow(mnec, side, unit) * RaoUtil.getFlowUnitMultiplier(mnec, side, unit, MEGAWATT);
 
                 Optional<Double> maxFlow = mnec.getUpperBound(side, MEGAWATT);
                 if (maxFlow.isPresent()) {
@@ -87,6 +88,7 @@ public class MnecFiller implements ProblemFiller {
                     OpenRaoMPConstraint maxConstraint = linearProblem.addMnecFlowConstraint(-linearProblem.infinity(), ub, mnec, side, LinearProblem.MarginExtension.BELOW_THRESHOLD, Optional.ofNullable(timestamp));
                     maxConstraint.setCoefficient(flowVariable, 1);
                     maxConstraint.setCoefficient(mnecViolationVariable, -1);
+                    maxConstraint.setIsLazy(referenceFlow <= ub);
                 }
 
                 Optional<Double> minFlow = mnec.getLowerBound(side, MEGAWATT);
@@ -95,6 +97,7 @@ public class MnecFiller implements ProblemFiller {
                     OpenRaoMPConstraint maxConstraint = linearProblem.addMnecFlowConstraint(lb, linearProblem.infinity(), mnec, side, LinearProblem.MarginExtension.ABOVE_THRESHOLD, Optional.ofNullable(timestamp));
                     maxConstraint.setCoefficient(flowVariable, 1);
                     maxConstraint.setCoefficient(mnecViolationVariable, 1);
+                    maxConstraint.setIsLazy(referenceFlow >= lb);
                 }
             }
         ));
