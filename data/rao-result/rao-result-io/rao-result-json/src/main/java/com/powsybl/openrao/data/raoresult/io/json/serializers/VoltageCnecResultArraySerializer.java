@@ -33,7 +33,6 @@ final class VoltageCnecResultArraySerializer {
     }
 
     static void serialize(RaoResult raoResult, Crac crac, JsonGenerator jsonGenerator) throws IOException {
-
         List<VoltageCnec> sortedListOfVoltageCnecs = crac.getVoltageCnecs().stream()
             .sorted(Comparator.comparing(VoltageCnec::getId))
             .toList();
@@ -46,12 +45,11 @@ final class VoltageCnecResultArraySerializer {
     }
 
     private static void serializeVoltageCnecResult(VoltageCnec voltageCnec, RaoResult raoResult, Crac crac, JsonGenerator jsonGenerator) throws IOException {
-
         if (containsAnyResultForVoltageCnec(raoResult, crac, voltageCnec)) {
             jsonGenerator.writeStartObject();
             jsonGenerator.writeStringField(VOLTAGECNEC_ID, voltageCnec.getId());
 
-            serializeVoltageCnecResultForOptimizationState(null, voltageCnec, raoResult, jsonGenerator);
+            // serializeVoltageCnecResultForOptimizationState(null, voltageCnec, raoResult, jsonGenerator);
             serializeVoltageCnecResultForOptimizationState(crac.getPreventiveInstant(), voltageCnec, raoResult, jsonGenerator);
 
             if (!voltageCnec.getState().isPreventive()) {
@@ -71,7 +69,6 @@ final class VoltageCnecResultArraySerializer {
     }
 
     private static void serializeVoltageCnecResultForOptimizationState(Instant optInstant, VoltageCnec voltageCnec, RaoResult raoResult, JsonGenerator jsonGenerator) throws IOException {
-
         if (containsAnyResultForOptimizationState(raoResult, voltageCnec, optInstant)) {
             jsonGenerator.writeObjectFieldStart(serializeInstantId(optInstant));
             serializeVoltageCnecResultForOptimizationStateAndUnit(optInstant, Unit.KILOVOLT, voltageCnec, raoResult, jsonGenerator);
@@ -80,10 +77,9 @@ final class VoltageCnecResultArraySerializer {
     }
 
     private static void serializeVoltageCnecResultForOptimizationStateAndUnit(Instant optInstant, Unit unit, VoltageCnec voltageCnec, RaoResult raoResult, JsonGenerator jsonGenerator) throws IOException {
-
-        double minVoltage = safeGetMinVoltage(raoResult, voltageCnec, optInstant, unit);
-        double maxVoltage = safeGetMaxVoltage(raoResult, voltageCnec, optInstant, unit);
-        double margin = safeGetMargin(raoResult, voltageCnec, optInstant, unit);
+        double minVoltage = raoResult.getMinVoltage(optInstant, voltageCnec, Unit.KILOVOLT);
+        double maxVoltage = raoResult.getMaxVoltage(optInstant, voltageCnec, Unit.KILOVOLT);
+        double margin = raoResult.getMargin(optInstant, voltageCnec, Unit.KILOVOLT);
 
         jsonGenerator.writeObjectFieldStart(serializeUnit(unit));
         if (!Double.isNaN(margin)) {
@@ -99,7 +95,6 @@ final class VoltageCnecResultArraySerializer {
     }
 
     private static boolean containsAnyResultForVoltageCnec(RaoResult raoResult, Crac crac, VoltageCnec voltageCnec) {
-
         if (voltageCnec.getState().isPreventive()) {
             return containsAnyResultForOptimizationState(raoResult, voltageCnec, null) ||
                 containsAnyResultForOptimizationState(raoResult, voltageCnec, voltageCnec.getState().getInstant());
@@ -112,31 +107,8 @@ final class VoltageCnecResultArraySerializer {
     }
 
     private static boolean containsAnyResultForOptimizationState(RaoResult raoResult, VoltageCnec voltageCnec, Instant optInstant) {
-        return !Double.isNaN(safeGetMaxVoltage(raoResult, voltageCnec, optInstant, Unit.KILOVOLT)) ||
-            !Double.isNaN(safeGetMinVoltage(raoResult, voltageCnec, optInstant, Unit.KILOVOLT)) ||
-            !Double.isNaN(safeGetMargin(raoResult, voltageCnec, optInstant, Unit.KILOVOLT));
-    }
-
-    private static double safeGetMinVoltage(RaoResult raoResult, VoltageCnec voltageCnec, Instant optInstant, Unit unit) {
-        // methods getVoltage can return an exception if RAO is executed on one state only
-        return safeGetValue(raoResult::getMinVoltage, optInstant, voltageCnec, unit);
-    }
-
-    private static double safeGetMaxVoltage(RaoResult raoResult, VoltageCnec voltageCnec, Instant optInstant, Unit unit) {
-        // methods getVoltage can return an exception if RAO is executed on one state only
-        return safeGetValue(raoResult::getMaxVoltage, optInstant, voltageCnec, unit);
-    }
-
-    private static double safeGetMargin(RaoResult raoResult, VoltageCnec voltageCnec, Instant optInstant, Unit unit) {
-        // methods getMargin can return an exception if RAO is executed on one state only
-        return safeGetValue(raoResult::getMargin, optInstant, voltageCnec, unit);
-    }
-
-    private static double safeGetValue(TriFunction<Instant, VoltageCnec, Unit, Double> callable, Instant optInstant, VoltageCnec voltageCnec, Unit unit) {
-        try {
-            return callable.apply(optInstant, voltageCnec, unit);
-        } catch (OpenRaoException e) {
-            return Double.NaN;
-        }
+        return !Double.isNaN(raoResult.getMargin(optInstant, voltageCnec, Unit.KILOVOLT)) ||
+            !Double.isNaN(raoResult.getMinVoltage(optInstant, voltageCnec, Unit.KILOVOLT)) ||
+            !Double.isNaN(raoResult.getMaxVoltage(optInstant, voltageCnec, Unit.KILOVOLT));
     }
 }

@@ -289,6 +289,7 @@ public class FastRaoResultImpl extends AbstractExtendable<RaoResult> implements 
         if (ComputationStatus.FAILURE.equals(getComputationStatus())) {
             return false;
         }
+        // FIXME: does not work for costly optimization
         return getFunctionalCost(optimizedInstant) < 0;
     }
 

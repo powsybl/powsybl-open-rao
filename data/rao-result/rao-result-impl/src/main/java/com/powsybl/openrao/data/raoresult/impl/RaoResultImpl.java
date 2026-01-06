@@ -410,6 +410,7 @@ public class RaoResultImpl extends AbstractExtendable<RaoResult> implements RaoR
 
     @Override
     public boolean isSecure(PhysicalParameter... u) {
+        // FIXME: if curative opt was enforced, this might not make sense because prev can be unsecure
         return isSecure(crac.getLastInstant(), u);
     }
 

@@ -50,6 +50,7 @@ public class RaoResultWithVoltageMonitoring extends RaoResultClone {
         }
     }
 
+    // TODO: remove if unused
     public Cnec.SecurityStatus getSecurityStatus() {
         return voltageMonitoringResult.getStatus();
     }
@@ -77,8 +78,8 @@ public class RaoResultWithVoltageMonitoring extends RaoResultClone {
     }
 
     private Optional<CnecResult> getCnecResult(Instant optimizationInstant, VoltageCnec voltageCnec) {
-        if (optimizationInstant == null || !optimizationInstant.isCurative()) {
-            throw new OpenRaoException("Unexpected optimization instant for voltage monitoring result (only curative instant is supported currently) : " + optimizationInstant);
+        if (!optimizationInstant.equals(voltageCnec.getState().getInstant())) {
+            throw new OpenRaoException("Optimization instant does not match VoltageCNEC's.");
         }
         return voltageMonitoringResult.getCnecResults().stream().filter(voltageCnecRes -> voltageCnecRes.getId().equals(voltageCnec.getId())).findFirst();
     }
@@ -86,12 +87,7 @@ public class RaoResultWithVoltageMonitoring extends RaoResultClone {
     @Override
     public double getMargin(Instant optimizationInstant, VoltageCnec voltageCnec, Unit unit) {
         unit.checkPhysicalParameter(PhysicalParameter.VOLTAGE);
-        if (optimizationInstant == null || !optimizationInstant.isCurative()) {
-            throw new OpenRaoException("Unexpected optimization instant for voltage monitoring result (only curative instant is supported currently): " + optimizationInstant);
-        }
-
-        Optional<CnecResult> voltageCnecResultOpt = getCnecResult(optimizationInstant, voltageCnec);
-        return voltageCnecResultOpt.map(CnecResult::getMargin).orElse(Double.NaN);
+        return getCnecResult(optimizationInstant, voltageCnec).map(CnecResult::getMargin).orElse(Double.NaN);
     }
 
     @Override
@@ -117,6 +113,7 @@ public class RaoResultWithVoltageMonitoring extends RaoResultClone {
     public boolean isSecure(Instant instant, PhysicalParameter... u) {
         List<PhysicalParameter> physicalParameters = new ArrayList<>(Stream.of(u).sorted().toList());
         if (physicalParameters.remove(PhysicalParameter.VOLTAGE)) {
+            // FIXME: inconsistent, raoResult.isSecure only checks a specific instant and voltageMonitoringResult.getStatus() checks all of them
             return raoResult.isSecure(instant, physicalParameters.toArray(new PhysicalParameter[0])) && voltageMonitoringResult.getStatus().equals(Cnec.SecurityStatus.SECURE);
         } else {
             return raoResult.isSecure(instant, u);
@@ -127,6 +124,7 @@ public class RaoResultWithVoltageMonitoring extends RaoResultClone {
     public boolean isSecure(PhysicalParameter... u) {
         List<PhysicalParameter> physicalParameters = new ArrayList<>(Stream.of(u).sorted().toList());
         if (physicalParameters.remove(PhysicalParameter.VOLTAGE)) {
+            // FIXME: inconsistent, raoResult.isSecure only checks last instant and voltageMonitoringResult.getStatus() checks all of them
             return raoResult.isSecure(physicalParameters.toArray(new PhysicalParameter[0])) && voltageMonitoringResult.getStatus().equals(Cnec.SecurityStatus.SECURE);
         } else {
             return raoResult.isSecure(u);
@@ -135,6 +133,7 @@ public class RaoResultWithVoltageMonitoring extends RaoResultClone {
 
     @Override
     public boolean isSecure() {
+        // FIXME: inconsistent, raoResult.isSecure only checks last instant and voltageMonitoringResult.getStatus() checks all of them
         return raoResult.isSecure() && voltageMonitoringResult.getStatus().equals(Cnec.SecurityStatus.SECURE);
     }
 }

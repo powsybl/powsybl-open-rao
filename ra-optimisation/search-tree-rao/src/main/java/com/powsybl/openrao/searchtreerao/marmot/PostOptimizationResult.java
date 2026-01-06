@@ -277,6 +277,7 @@ public class PostOptimizationResult extends AbstractExtendable<RaoResult> implem
 
     @Override
     public boolean isSecure(Instant optimizedInstant, PhysicalParameter... u) {
+        // FIXME: does not work for margin optimization
         if (optimizedInstant == null) {
             return initialResult.getVirtualCost() > 1e-6;
         } else {

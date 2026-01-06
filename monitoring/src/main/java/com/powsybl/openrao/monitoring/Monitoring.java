@@ -134,7 +134,7 @@ public class Monitoring {
         }
 
         // II) Curative states
-        Set<State> contingencyStates = crac.getCnecs(physicalParameter).stream().map(Cnec::getState).filter(state -> !state.isPreventive()).collect(Collectors.toSet());
+        Set<State> contingencyStates = crac.getCnecs(physicalParameter).stream().map(Cnec::getState).filter(state -> state.getInstant().equals(crac.getLastInstant())).collect(Collectors.toSet());
         if (contingencyStates.isEmpty()) {
             BUSINESS_LOGS.info("----- {} monitoring [end]", physicalParameter);
             return monitoringResult;
@@ -435,6 +435,7 @@ public class Monitoring {
         }
     }
 
+    // FIXME: typo makeFailedMonitoringResultForStateWithNaNCnecResults
     private MonitoringResult makeFailedMonitoringResultForStateWithNaNCnecRsults(MonitoringInput monitoringInput, PhysicalParameter physicalParameter, State state, String failureReason) {
         Set<CnecResult> cnecResults = new HashSet<>();
         CnecValue cnecValue = physicalParameter.equals(PhysicalParameter.ANGLE) ? new AngleCnecValue(Double.NaN) : new VoltageCnecValue(Double.NaN, Double.NaN);

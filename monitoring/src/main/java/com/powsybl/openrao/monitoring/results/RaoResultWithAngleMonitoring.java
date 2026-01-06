@@ -15,6 +15,7 @@ import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec.SecurityStatus;
+import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.impl.AngleCnecValue;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
@@ -53,6 +54,7 @@ public class RaoResultWithAngleMonitoring extends RaoResultClone {
         }
     }
 
+    // TODO: remove if unused
     public SecurityStatus getSecurityStatus() {
         return angleMonitoringResult.getStatus();
     }
@@ -60,11 +62,7 @@ public class RaoResultWithAngleMonitoring extends RaoResultClone {
     @Override
     public double getAngle(Instant optimizationInstant, AngleCnec angleCnec, Unit unit) {
         unit.checkPhysicalParameter(PhysicalParameter.ANGLE);
-        if (optimizationInstant == null || !optimizationInstant.isCurative()) {
-            throw new OpenRaoException("Unexpected optimization instant for angle monitoring result (only curative instant is supported currently) : " + optimizationInstant);
-        }
-        Optional<CnecResult> angleCnecResultOpt = angleMonitoringResult.getCnecResults().stream().filter(angleCnecRes -> angleCnecRes.getId().equals(angleCnec.getId())).findFirst();
-
+        Optional<CnecResult> angleCnecResultOpt = getCnecResult(optimizationInstant, angleCnec);
         if (angleCnecResultOpt.isPresent()) {
             return ((AngleCnecValue) angleCnecResultOpt.get().getValue()).value();
         } else {
@@ -75,8 +73,14 @@ public class RaoResultWithAngleMonitoring extends RaoResultClone {
     @Override
     public double getMargin(Instant optimizationInstant, AngleCnec angleCnec, Unit unit) {
         unit.checkPhysicalParameter(PhysicalParameter.ANGLE);
-        Optional<CnecResult> angleCnecResultOpt = angleMonitoringResult.getCnecResults().stream().filter(angleCnecRes -> angleCnecRes.getId().equals(angleCnec.getId())).findFirst();
-        return angleCnecResultOpt.map(CnecResult::getMargin).orElse(Double.NaN);
+        return getCnecResult(optimizationInstant, angleCnec).map(CnecResult::getMargin).orElse(Double.NaN);
+    }
+
+    private Optional<CnecResult> getCnecResult(Instant optimizationInstant, AngleCnec angleCnec) {
+        if (!optimizationInstant.equals(angleCnec.getState().getInstant())) {
+            throw new OpenRaoException("Optimization instant does not match AngleCNEC's.");
+        }
+        return angleMonitoringResult.getCnecResults().stream().filter(angleCnecRes -> angleCnecRes.getId().equals(angleCnec.getId())).findFirst();
     }
 
     @Override
@@ -102,6 +106,7 @@ public class RaoResultWithAngleMonitoring extends RaoResultClone {
     public boolean isSecure(Instant instant, PhysicalParameter... u) {
         List<PhysicalParameter> physicalParameters = new ArrayList<>(Stream.of(u).sorted().toList());
         if (physicalParameters.remove(PhysicalParameter.ANGLE)) {
+            // FIXME: inconsistent, raoResult.isSecure only checks a specific instant and angleMonitoringResult.getStatus() checks all of them
             return raoResult.isSecure(instant, physicalParameters.toArray(new PhysicalParameter[0])) && angleMonitoringResult.getStatus().equals(SecurityStatus.SECURE);
         } else {
             return raoResult.isSecure(instant, u);
@@ -112,6 +117,7 @@ public class RaoResultWithAngleMonitoring extends RaoResultClone {
     public boolean isSecure(PhysicalParameter... u) {
         List<PhysicalParameter> physicalParameters = new ArrayList<>(Stream.of(u).sorted().toList());
         if (physicalParameters.remove(PhysicalParameter.ANGLE)) {
+            // FIXME: inconsistent, raoResult.isSecure only checks last instant and angleMonitoringResult.getStatus() checks all of them
             return raoResult.isSecure(physicalParameters.toArray(new PhysicalParameter[0])) && angleMonitoringResult.getStatus().equals(SecurityStatus.SECURE);
         } else {
             return raoResult.isSecure(u);
@@ -120,6 +126,7 @@ public class RaoResultWithAngleMonitoring extends RaoResultClone {
 
     @Override
     public boolean isSecure() {
+        // FIXME: inconsistent, raoResult.isSecure only checks last instant and angleMonitoringResult.getStatus() checks all of them
         return raoResult.isSecure() && angleMonitoringResult.getStatus().equals(SecurityStatus.SECURE);
     }
 }

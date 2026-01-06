@@ -219,6 +219,7 @@ public class LightFastRaoResultImpl extends AbstractExtendable<RaoResult> implem
         if (ComputationStatus.FAILURE.equals(getComputationStatus())) {
             return false;
         }
+        // FIXME: does not work for costly optimization
         return getFunctionalCost(optimizedInstant) < 0;
     }
 

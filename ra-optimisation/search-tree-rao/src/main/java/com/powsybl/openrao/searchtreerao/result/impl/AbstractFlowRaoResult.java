@@ -29,6 +29,7 @@ public abstract class AbstractFlowRaoResult extends AbstractExtendable<RaoResult
             throw new OpenRaoException("This is a flow RaoResult, isSecure is available for FLOW physical parameter");
         }
         if (getFunctionalCost(optimizedInstant) >= 0) {
+            // FIXME: does not work for costly optimization
             return false;
         }
         if (Arrays.stream(u).anyMatch(physicalParameter -> !PhysicalParameter.FLOW.equals(physicalParameter))) {
