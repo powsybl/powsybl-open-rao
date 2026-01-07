@@ -106,7 +106,7 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
 
     /**
      * Build one flow variable F[c] for each Cnec c
-     * This variable describes the estimated flow on the given Cnec c, in MEGAWATT
+     * This variable describes the estimated flow on the given Cnec c, in the unit of the objective function
      */
     private void buildFlowVariables(LinearProblem linearProblem, Set<FlowCnec> validFlowCnecs) {
         validFlowCnecs.forEach(cnec ->
@@ -119,8 +119,8 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
      * This variable describes the setpoint of the given RangeAction r, given :
      * <ul>
      *     <li>in DEGREE for PST range actions</li>
-     *     <li>in MEGAWATT for HVDC range actions</li>
-     *     <li>in MEGAWATT for Injection range actions</li>
+     *     <li>in the unit of the objective function for HVDC range actions</li>
+     *     <li>in the unit of the objective function for Injection range actions</li>
      * </ul>
      * <p>
      * Build one absolute variation variable AV[r] for each RangeAction r
@@ -152,7 +152,7 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
     private void buildFlowConstraints(LinearProblem linearProblem, Set<FlowCnec> validFlowCnecs, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
         validFlowCnecs.forEach(cnec -> cnec.getMonitoredSides().forEach(side -> {
             // create constraint
-            double referenceFlow = flowResult.getFlow(cnec, side, unit) * RaoUtil.getFlowUnitMultiplier(cnec, side, unit, Unit.MEGAWATT);
+            double referenceFlow = flowResult.getFlow(cnec, side, unit); // get flow in the unit of the objective function
             OpenRaoMPConstraint flowConstraint = linearProblem.addFlowConstraint(referenceFlow, referenceFlow, cnec, side, Optional.ofNullable(timestamp));
 
             OpenRaoMPVariable flowVariable = linearProblem.getFlowVariable(cnec, side, Optional.ofNullable(timestamp));
@@ -186,7 +186,7 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
     }
 
     private void addImpactOfRangeActionOnCnec(LinearProblem linearProblem, SensitivityResult sensitivityResult, RangeAction<?> rangeAction, State state, FlowCnec cnec, TwoSides side, OpenRaoMPConstraint flowConstraint, RangeActionActivationResult rangeActionActivationResult) {
-        double sensitivity = sensitivityResult.getSensitivityValue(cnec, side, rangeAction, Unit.MEGAWATT);
+        double sensitivity = sensitivityResult.getSensitivityValue(cnec, side, rangeAction, unit);
 
         if (!isRangeActionSensitivityAboveThreshold(rangeAction, Math.abs(sensitivity))) {
             // don't consider this RA's impact on this CNEC

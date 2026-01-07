@@ -215,7 +215,8 @@ class MnecFillerTest extends AbstractFillerTest {
         fillProblemWithFiller(Unit.AMPERE);
         crac.getFlowCnecs().stream().filter(Cnec::isMonitored).forEach(cnec -> cnec.getMonitoredSides().forEach(side -> {
             OpenRaoMPVariable mnecViolationVariable = linearProblem.getMnecViolationVariable(cnec, side, Optional.empty());
-            assertEquals(10.0 / 0.658179 / cnec.getMonitoredSides().size(), linearProblem.getObjective().getCoefficient(mnecViolationVariable), DOUBLE_TOLERANCE);
+            // The expected value is mnecViolationCost / mnec.getMonitoredSides().size()
+            assertEquals(10.0 / cnec.getMonitoredSides().size(), linearProblem.getObjective().getCoefficient(mnecViolationVariable), DOUBLE_TOLERANCE);
         }));
     }
 

@@ -56,9 +56,10 @@ class SensitivityResultImplTest {
         SensitivityVariableSet linearGlsk = Mockito.mock(SensitivityVariableSet.class);
         FlowCnec cnec = Mockito.mock(FlowCnec.class);
         when(systematicSensitivityResult.getSensitivityOnFlow(linearGlsk, cnec, ONE)).thenReturn(8.);
+        when(systematicSensitivityResult.getSensitivityOnIntensity(linearGlsk, cnec, ONE)).thenReturn(10.);
 
         assertEquals(8, sensitivityResultImpl.getSensitivityValue(cnec, ONE, linearGlsk, MEGAWATT), DOUBLE_TOLERANCE);
-        assertThrows(OpenRaoException.class, () -> sensitivityResultImpl.getSensitivityValue(cnec, ONE, linearGlsk, AMPERE));
+        assertEquals(10, sensitivityResultImpl.getSensitivityValue(cnec, ONE, linearGlsk, AMPERE), DOUBLE_TOLERANCE);
     }
 
     @Test

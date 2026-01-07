@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
  */
 public class LoopFlowResult {
 
-    private final Map<BranchCnec<?>, Map<TwoSides, Map<Unit, LoopFlow>>> loopFlowMap;
+    private final Map<BranchCnecSideUnit, LoopFlow> loopFlowMap;
 
     private static final class LoopFlow {
         double loopFlowValue;
@@ -55,54 +55,57 @@ public class LoopFlowResult {
         }
     }
 
+    private record BranchCnecSideUnit(BranchCnec<?> cnec, TwoSides side, Unit unit) {
+    }
+
     public LoopFlowResult() {
         this.loopFlowMap = new HashMap<>();
     }
 
     public void addCnecResult(BranchCnec<?> cnec, TwoSides side, double loopFlowValue, double commercialFlowValue, double referenceFlowValue, Unit unit) {
-        loopFlowMap.computeIfAbsent(cnec, k -> new EnumMap<>(TwoSides.class))
-            .computeIfAbsent(side, s -> new EnumMap<>(Unit.class))
-            .put(unit, new LoopFlow(loopFlowValue, commercialFlowValue, referenceFlowValue, unit));
+        loopFlowMap.put(new BranchCnecSideUnit(cnec, side, unit), new LoopFlow(loopFlowValue, commercialFlowValue, referenceFlowValue, unit));
     }
 
     public Double getLoopFlow(BranchCnec<?> cnec, TwoSides side, Unit unit) {
-        if (!loopFlowMap.containsKey(cnec) || !loopFlowMap.get(cnec).containsKey(side) || !loopFlowMap.get(cnec).get(side).containsKey(unit)) {
+        BranchCnecSideUnit cnecSideUnit = new BranchCnecSideUnit(cnec, side, unit);
+        if (!loopFlowMap.containsKey(cnecSideUnit)) {
             throw new OpenRaoException(String.format("No loop-flow value found for cnec %s on side %s in %s", cnec.getId(), side, unit));
         }
-        return loopFlowMap.get(cnec).get(side).get(unit).getLoopFlow();
+        return loopFlowMap.get(cnecSideUnit).getLoopFlow();
     }
 
     public Double getCommercialFlow(BranchCnec<?> cnec, TwoSides side, Unit unit) {
-        if (!loopFlowMap.containsKey(cnec) || !loopFlowMap.get(cnec).containsKey(side) || !loopFlowMap.get(cnec).get(side).containsKey(unit)) {
+        BranchCnecSideUnit cnecSideUnit = new BranchCnecSideUnit(cnec, side, unit);
+        if (!loopFlowMap.containsKey(cnecSideUnit)) {
             throw new OpenRaoException(String.format("No commercial flow value found for cnec %s on side %s in %s", cnec.getId(), side, unit));
         }
-        return loopFlowMap.get(cnec).get(side).get(unit).getCommercialFlow();
+        return loopFlowMap.get(cnecSideUnit).getCommercialFlow();
     }
 
     public Double getReferenceFlow(BranchCnec<?> cnec, TwoSides side, Unit unit) {
-        if (!loopFlowMap.containsKey(cnec) || !loopFlowMap.get(cnec).containsKey(side) || !loopFlowMap.get(cnec).get(side).containsKey(unit)) {
+        BranchCnecSideUnit cnecSideUnit = new BranchCnecSideUnit(cnec, side, unit);
+        if (!loopFlowMap.containsKey(cnecSideUnit)) {
             throw new OpenRaoException(String.format("No reference flow value found for cnec %s on side %s in %s", cnec.getId(), side, unit));
         }
-        return loopFlowMap.get(cnec).get(side).get(unit).getTotalFlow();
+        return loopFlowMap.get(cnecSideUnit).getTotalFlow();
     }
 
     public Map<FlowCnec, Map<TwoSides, Map<Unit, Double>>> getCommercialFlowsMap() {
         return loopFlowMap.entrySet().stream()
-            // only keep FlowCnec keys
-            .filter(e -> e.getKey() instanceof FlowCnec)
-            .collect(Collectors.toMap(
-                e -> (FlowCnec) e.getKey(),
-                e -> e.getValue().entrySet().stream()
-                    .collect(Collectors.toMap(
-                        Map.Entry::getKey, // TwoSides
-                        sideEntry -> sideEntry.getValue().entrySet().stream()
-                            .collect(Collectors.toMap(
-                                Map.Entry::getKey, // Unit
-                                unitEntry -> getCommercialFlow(e.getKey(), sideEntry.getKey(), unitEntry.getKey())
-                            ))
-                    ))
+            .filter(e -> e.getKey().cnec() instanceof FlowCnec)
+            .collect(Collectors.groupingBy(
+                e -> (FlowCnec) e.getKey().cnec(),
+                Collectors.groupingBy(
+                    e -> e.getKey().side(),
+                    () -> new EnumMap<>(TwoSides.class),
+                    Collectors.toMap(
+                        e -> e.getKey().unit(),
+                        e -> e.getValue().getCommercialFlow(),
+                        (v1, v2) -> v1,
+                        () -> new EnumMap<>(Unit.class)
+                    )
+                )
             ));
-
     }
 
 }
