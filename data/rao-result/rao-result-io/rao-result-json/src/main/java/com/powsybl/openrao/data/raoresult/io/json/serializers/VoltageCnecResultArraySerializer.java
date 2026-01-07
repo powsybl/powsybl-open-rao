@@ -54,18 +54,16 @@ final class VoltageCnecResultArraySerializer {
             serializeVoltageCnecResultForOptimizationState(null, voltageCnec, raoResult, jsonGenerator);
             serializeVoltageCnecResultForOptimizationState(crac.getPreventiveInstant(), voltageCnec, raoResult, jsonGenerator);
 
-            if (!voltageCnec.getState().isPreventive()) {
-                serializeVoltageCnecResultForOptimizationState(crac.getInstant(InstantKind.AUTO), voltageCnec, raoResult, jsonGenerator);
-                crac.getInstants(InstantKind.CURATIVE).stream().sorted(Comparator.comparingInt(Instant::getOrder)).forEach(
-                    curativeInstant -> {
-                        try {
-                            serializeVoltageCnecResultForOptimizationState(curativeInstant, voltageCnec, raoResult, jsonGenerator);
-                        } catch (IOException e) {
-                            throw new OpenRaoException("An error occured when serializing Voltage Cnec results", e);
-                        }
+            serializeVoltageCnecResultForOptimizationState(crac.getInstant(InstantKind.AUTO), voltageCnec, raoResult, jsonGenerator);
+            crac.getInstants(InstantKind.CURATIVE).stream().sorted(Comparator.comparingInt(Instant::getOrder)).forEach(
+                curativeInstant -> {
+                    try {
+                        serializeVoltageCnecResultForOptimizationState(curativeInstant, voltageCnec, raoResult, jsonGenerator);
+                    } catch (IOException e) {
+                        throw new OpenRaoException("An error occured when serializing Voltage Cnec results", e);
                     }
-                );
-            }
+                }
+            );
             jsonGenerator.writeEndObject();
         }
     }
@@ -100,15 +98,10 @@ final class VoltageCnecResultArraySerializer {
 
     private static boolean containsAnyResultForVoltageCnec(RaoResult raoResult, Crac crac, VoltageCnec voltageCnec) {
 
-        if (voltageCnec.getState().isPreventive()) {
-            return containsAnyResultForOptimizationState(raoResult, voltageCnec, null) ||
-                containsAnyResultForOptimizationState(raoResult, voltageCnec, voltageCnec.getState().getInstant());
-        } else {
-            return containsAnyResultForOptimizationState(raoResult, voltageCnec, null) ||
+        return containsAnyResultForOptimizationState(raoResult, voltageCnec, null) ||
                 containsAnyResultForOptimizationState(raoResult, voltageCnec, crac.getPreventiveInstant()) ||
                 containsAnyResultForOptimizationState(raoResult, voltageCnec, crac.getInstant(InstantKind.AUTO)) ||
                 crac.getInstants(InstantKind.CURATIVE).stream().anyMatch(curativeInstant -> containsAnyResultForOptimizationState(raoResult, voltageCnec, curativeInstant));
-        }
     }
 
     private static boolean containsAnyResultForOptimizationState(RaoResult raoResult, VoltageCnec voltageCnec, Instant optInstant) {
