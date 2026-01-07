@@ -4,8 +4,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 package com.powsybl.openrao.sensitivityanalysis;
 
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
@@ -13,6 +15,7 @@ import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityFactor;
+import com.powsybl.sensitivity.SensitivityFunctionType;
 
 import java.util.*;
 
@@ -93,5 +96,26 @@ public abstract class AbstractSimpleSensitivityProvider implements CnecSensitivi
     @Override
     public void enableFactorsForBaseCaseSituation() {
         this.afterContingencyOnly = false;
+    }
+
+    protected Set<SensitivityFunctionType> getSensitivityFunctionTypes(Set<TwoSides> sides) {
+        Set<SensitivityFunctionType> sensitivityFunctionTypes = new HashSet<>();
+        if (factorsInMegawatt) {
+            if (sides.contains(TwoSides.ONE)) {
+                sensitivityFunctionTypes.add(SensitivityFunctionType.BRANCH_ACTIVE_POWER_1);
+            }
+            if (sides.contains(TwoSides.TWO)) {
+                sensitivityFunctionTypes.add(SensitivityFunctionType.BRANCH_ACTIVE_POWER_2);
+            }
+        }
+        if (factorsInAmpere) {
+            if (sides.contains(TwoSides.ONE)) {
+                sensitivityFunctionTypes.add(SensitivityFunctionType.BRANCH_CURRENT_1);
+            }
+            if (sides.contains(TwoSides.TWO)) {
+                sensitivityFunctionTypes.add(SensitivityFunctionType.BRANCH_CURRENT_2);
+            }
+        }
+        return sensitivityFunctionTypes;
     }
 }

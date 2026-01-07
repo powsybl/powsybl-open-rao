@@ -4,6 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 package com.powsybl.openrao.data.crac.impl;
 
 import com.powsybl.openrao.commons.OpenRaoException;
@@ -11,7 +12,6 @@ import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.usagerule.OnContingencyStateAdder;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 
 import static com.powsybl.openrao.data.crac.impl.AdderUtils.assertAttributeNotNull;
 
@@ -27,7 +27,6 @@ public class OnContingencyStateAdderImpl<T extends AbstractRemedialActionAdder<T
     private T owner;
     private String instantId;
     private String contingencyId;
-    private UsageMethod usageMethod;
     private static final String CLASS_NAME = "OnContingencyState";
 
     OnContingencyStateAdderImpl(AbstractRemedialActionAdder<T> owner) {
@@ -47,15 +46,8 @@ public class OnContingencyStateAdderImpl<T extends AbstractRemedialActionAdder<T
     }
 
     @Override
-    public OnContingencyStateAdder<T> withUsageMethod(UsageMethod usageMethod) {
-        this.usageMethod = usageMethod;
-        return this;
-    }
-
-    @Override
     public T add() {
         assertAttributeNotNull(instantId, CLASS_NAME, "instant", "withInstant()");
-        assertAttributeNotNull(usageMethod, CLASS_NAME, "usage method", "withUsageMethod()");
 
         State state;
         Instant instant = owner.getCrac().getInstant(instantId);
@@ -72,7 +64,7 @@ public class OnContingencyStateAdderImpl<T extends AbstractRemedialActionAdder<T
             state = owner.getCrac().addState(contingency, instant);
         }
 
-        owner.addUsageRule(new OnContingencyStateImpl(usageMethod, state));
+        owner.addUsageRule(new OnContingencyStateImpl(state));
         return owner;
     }
 }

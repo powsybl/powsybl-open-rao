@@ -1,9 +1,10 @@
 /*
- * Copyright (c) 2023, RTE (http://www.rte-france.com)
+ * Copyright (c) 2025, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 package com.powsybl.openrao.raoapi.json;
 
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -53,19 +54,18 @@ public final class JsonLoopFlowParameters {
         LoopFlowParameters loopFlowParameters = new LoopFlowParameters();
         while (!jsonParser.nextToken().isStructEnd()) {
             switch (jsonParser.getCurrentName()) {
-                case ACCEPTABLE_INCREASE:
+                case ACCEPTABLE_INCREASE -> {
                     jsonParser.nextToken();
                     loopFlowParameters.setAcceptableIncrease(jsonParser.getDoubleValue());
-                    break;
-                case COUNTRIES:
+                }
+                case COUNTRIES -> {
                     jsonParser.nextToken();
                     ObjectMapper objectMapper = new ObjectMapper();
                     JsonNode arrayNode = objectMapper.readTree(jsonParser);
                     List<String> countryStrings = objectMapper.readValue(arrayNode.traverse(), new TypeReference<ArrayList<String>>() { });
                     loopFlowParameters.setCountries(countryStrings);
-                    break;
-                default:
-                    throw new OpenRaoException(String.format("Cannot deserialize loop flow parameters: unexpected field in %s (%s)", LOOP_FLOW_PARAMETERS, jsonParser.getCurrentName()));
+                }
+                default -> throw new OpenRaoException(String.format("Cannot deserialize loop flow parameters: unexpected field in %s (%s)", LOOP_FLOW_PARAMETERS, jsonParser.getCurrentName()));
             }
         }
         raoParameters.setLoopFlowParameters(loopFlowParameters);

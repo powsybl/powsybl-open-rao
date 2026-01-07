@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, RTE (http://www.rte-france.com)
+ * Copyright (c) 2021, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.raoresult.api;
 
+import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
@@ -22,10 +23,11 @@ import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import java.util.*;
 
 /**
- *  Clone that reproduces the results obtained by another RaoResult instance. It can be used to override some methods without rewriting all the implementations
+ * Clone that reproduces the results obtained by another RaoResult instance. It can be used to override some methods without rewriting all the implementations
+ *
  * @author Mohamed Ben Rejeb {@literal <mohamed.ben-rejeb at rte-france.com>}
  */
-public class RaoResultClone implements RaoResult {
+public class RaoResultClone extends AbstractExtendable<RaoResult> implements RaoResult {
 
     private final RaoResult raoResult;
 

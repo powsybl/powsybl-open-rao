@@ -4,6 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 package com.powsybl.openrao.searchtreerao.searchtree.algorithms;
 
 import com.powsybl.iidm.network.Country;
@@ -14,7 +15,6 @@ import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
 import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
 
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -26,13 +26,11 @@ import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_L
 public class FarFromMostLimitingElementFilter implements NetworkActionCombinationFilter {
     private final Network network;
     private final CountryGraph countryGraph;
-    private final boolean filterFarElements;
     private final int maxNumberOfBoundariesForSkippingNetworkActions;
 
-    public FarFromMostLimitingElementFilter(Network network, boolean filterFarElements, int maxNumberOfBoundariesForSkippingNetworkActions) {
+    public FarFromMostLimitingElementFilter(Network network, int maxNumberOfBoundariesForSkippingNetworkActions) {
         this.network = network;
         countryGraph = new CountryGraph(network);
-        this.filterFarElements = filterFarElements;
         this.maxNumberOfBoundariesForSkippingNetworkActions = maxNumberOfBoundariesForSkippingNetworkActions;
     }
 
@@ -42,11 +40,7 @@ public class FarFromMostLimitingElementFilter implements NetworkActionCombinatio
      * The most limiting elements are the most limiting functional cost element, and all elements with a non-zero virtual cost.
      */
     public Set<NetworkActionCombination> filter(Set<NetworkActionCombination> naCombinations, OptimizationResult optimizationResult) {
-        if (!filterFarElements) {
-            return naCombinations;
-        }
-
-        Set<Optional<Country>> worstCnecLocation = getOptimizedMostLimitingElementsLocation(optimizationResult);
+        Set<Country> worstCnecLocation = getOptimizedMostLimitingElementsLocation(optimizationResult);
 
         Set<NetworkActionCombination> filteredNaCombinations = naCombinations.stream()
             .filter(naCombination -> naCombination.getNetworkActionSet().stream().anyMatch(na -> isNetworkActionCloseToLocations(na, worstCnecLocation, countryGraph)))
@@ -58,8 +52,8 @@ public class FarFromMostLimitingElementFilter implements NetworkActionCombinatio
         return filteredNaCombinations;
     }
 
-    Set<Optional<Country>> getOptimizedMostLimitingElementsLocation(OptimizationResult optimizationResult) {
-        Set<Optional<Country>> locations = new HashSet<>();
+    Set<Country> getOptimizedMostLimitingElementsLocation(OptimizationResult optimizationResult) {
+        Set<Country> locations = new HashSet<>();
         optimizationResult.getMostLimitingElements(1).forEach(element -> locations.addAll(element.getLocation(network)));
         for (String virtualCost : optimizationResult.getVirtualCostNames()) {
             optimizationResult.getCostlyElements(virtualCost, Integer.MAX_VALUE).forEach(element -> locations.addAll(element.getLocation(network)));
@@ -70,18 +64,17 @@ public class FarFromMostLimitingElementFilter implements NetworkActionCombinatio
     /**
      * Says if a network action is close to a given set of countries, respecting the maximum number of boundaries
      */
-    boolean isNetworkActionCloseToLocations(NetworkAction networkAction, Set<Optional<Country>> locations, CountryGraph countryGraph) {
-        if (locations.stream().anyMatch(Optional::isEmpty)) {
+    boolean isNetworkActionCloseToLocations(NetworkAction networkAction, Set<Country> locations, CountryGraph countryGraph) {
+        if (locations.isEmpty()) {
             return true;
         }
-        Set<Optional<Country>> networkActionCountries = networkAction.getLocation(network);
-        if (networkActionCountries.stream().anyMatch(Optional::isEmpty)) {
+        Set<Country> networkActionCountries = networkAction.getLocation(network);
+        if (networkActionCountries.isEmpty()) {
             return true;
         }
-        for (Optional<Country> location : locations) {
-            for (Optional<Country> networkActionCountry : networkActionCountries) {
-                if (location.isPresent() && networkActionCountry.isPresent()
-                    && countryGraph.areNeighbors(location.get(), networkActionCountry.get(), maxNumberOfBoundariesForSkippingNetworkActions)) {
+        for (Country location : locations) {
+            for (Country networkActionCountry : networkActionCountries) {
+                if (countryGraph.areNeighbors(location, networkActionCountry, maxNumberOfBoundariesForSkippingNetworkActions)) {
                     return true;
                 }
             }

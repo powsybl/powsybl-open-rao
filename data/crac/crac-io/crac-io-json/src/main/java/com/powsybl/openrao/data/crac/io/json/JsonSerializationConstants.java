@@ -1,8 +1,8 @@
 /*
- *  Copyright (c) 2020, RTE (http://www.rte-france.com)
- *  This Source Code Form is subject to the terms of the Mozilla Public
- *  License, v. 2.0. If a copy of the MPL was not distributed with this
- *  file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * Copyright (c) 2021, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
 package com.powsybl.openrao.data.crac.io.json;
@@ -24,7 +24,6 @@ import com.powsybl.openrao.data.crac.api.usagerule.OnConstraint;
 import com.powsybl.openrao.data.crac.api.usagerule.OnContingencyState;
 import com.powsybl.openrao.data.crac.api.usagerule.OnFlowConstraintInCountry;
 import com.powsybl.openrao.data.crac.api.usagerule.OnInstant;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -44,7 +43,7 @@ public final class JsonSerializationConstants {
     private JsonSerializationConstants() {
     }
 
-    public static final String CRAC_IO_VERSION = "2.7";
+    public static final String CRAC_IO_VERSION = "2.9";
     /*
     v1.1: addition of switchPairs
     v1.2: addition of injectionRangeAction
@@ -63,6 +62,8 @@ public final class JsonSerializationConstants {
     v2.5: elementary actions have new type coming from core remedial actions
     v2.6: addition of activation-cost and variation-costs for remedial actions
     v2.7: addition of timestamp
+    v2.8: removal of range actions' initial set-point and FlowCNECs' iMax, optional ranges for PST range actions, deletion of usage methods
+    v2.9: add acEmulationDeactivationAction
      */
 
     // headers
@@ -122,6 +123,7 @@ public final class JsonSerializationConstants {
     public static final String PST_SETPOINTS = "pstSetpoints";
     public static final String INJECTION_SETPOINTS = "injectionSetpoints";
     public static final String TERMINALS_CONNECTION_ACTIONS = "terminalsConnectionActions";
+    public static final String AC_EMULATION_DEACTIVATION_ACTIONS = "acEmulationDeactivationActions";
     public static final String SWITCH_ACTIONS = "switchActions";
     public static final String GENERATOR_ACTIONS = "generatorActions";
     public static final String LOAD_ACTIONS = "loadActions";
@@ -203,11 +205,6 @@ public final class JsonSerializationConstants {
     public static final String RIGHT_SIDE = "right";
     public static final int SIDE_ONE = 1;
     public static final int SIDE_TWO = 2;
-    // usage methods
-    public static final String UNAVAILABLE_USAGE_METHOD = "unavailable";
-    public static final String FORCED_USAGE_METHOD = "forced";
-    public static final String AVAILABLE_USAGE_METHOD = "available";
-    public static final String UNDEFINED_USAGE_METHOD = "undefined";
 
     // range types
     public static final String ABSOLUTE_RANGE = "absolute";
@@ -366,36 +363,6 @@ public final class JsonSerializationConstants {
         }
     }
 
-    public static String serializeUsageMethod(UsageMethod usageMethod) {
-        switch (usageMethod) {
-            case UNAVAILABLE:
-                return UNAVAILABLE_USAGE_METHOD;
-            case FORCED:
-                return FORCED_USAGE_METHOD;
-            case AVAILABLE:
-                return AVAILABLE_USAGE_METHOD;
-            case UNDEFINED:
-                return UNDEFINED_USAGE_METHOD;
-            default:
-                throw new OpenRaoException(String.format("Unsupported usage method %s", usageMethod));
-        }
-    }
-
-    public static UsageMethod deserializeUsageMethod(String stringValue) {
-        switch (stringValue) {
-            case UNAVAILABLE_USAGE_METHOD:
-                return UsageMethod.UNAVAILABLE;
-            case FORCED_USAGE_METHOD:
-                return UsageMethod.FORCED;
-            case AVAILABLE_USAGE_METHOD:
-                return UsageMethod.AVAILABLE;
-            case UNDEFINED_USAGE_METHOD:
-                return UsageMethod.UNDEFINED;
-            default:
-                throw new OpenRaoException(String.format("Unrecognized usage method %s", stringValue));
-        }
-    }
-
     public static String serializeRangeType(RangeType rangeType) {
         switch (rangeType) {
             case ABSOLUTE:
@@ -476,9 +443,6 @@ public final class JsonSerializationConstants {
             }
             if (!o1.getInstant().equals(o2.getInstant())) {
                 return o1.getInstant().comesBefore(o2.getInstant()) ? -1 : 1;
-            }
-            if (!o1.getUsageMethod().equals(o2.getUsageMethod())) {
-                return serializeUsageMethod(o1.getUsageMethod()).compareTo(serializeUsageMethod(o2.getUsageMethod()));
             }
             if (o1 instanceof OnInstant) {
                 return 0;

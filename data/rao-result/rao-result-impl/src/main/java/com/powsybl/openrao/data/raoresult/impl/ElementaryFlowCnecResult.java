@@ -4,6 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 package com.powsybl.openrao.data.raoresult.impl;
 
 import com.powsybl.openrao.commons.OpenRaoException;
@@ -24,7 +25,7 @@ public class ElementaryFlowCnecResult {
     private final Map<Unit, FlowCnecResultPerUnit> resultPerUnit;
     private final Map<TwoSides, Double> ptdfZonalSum;
 
-    private static class FlowCnecResultPerUnit {
+    private static final class FlowCnecResultPerUnit {
         private final Map<TwoSides, Double> flow = new EnumMap<>(Map.of(TwoSides.ONE, Double.NaN, TwoSides.TWO, Double.NaN));
         private double margin = Double.NaN;
         private double relativeMargin = Double.NaN;

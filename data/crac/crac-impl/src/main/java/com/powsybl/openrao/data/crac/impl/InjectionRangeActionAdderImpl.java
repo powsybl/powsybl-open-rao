@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, RTE (http://www.rte-france.com)
+ * Copyright (c) 2022, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -44,6 +44,9 @@ public class InjectionRangeActionAdderImpl extends AbstractStandardRangeActionAd
     @Override
     public InjectionRangeActionAdder withNetworkElementAndKey(double key, String networkElementId, String networkElementName) {
         distributionKeys.add(new DistributionKeyOnNetworkElement(key, networkElementId, networkElementName));
+        if (Math.abs(key) > 1e-3) {
+            this.getCrac().addNetworkElement(networkElementId, networkElementName);
+        }
         return this;
     }
 
@@ -67,6 +70,14 @@ public class InjectionRangeActionAdderImpl extends AbstractStandardRangeActionAd
 
     @Override
     public InjectionRangeAction add() {
+        runCheckBeforeAdding();
+        Map<NetworkElement, Double> neAndDk = getDistributionKeyMap();
+        InjectionRangeAction injectionRangeAction = new InjectionRangeActionImpl(this.id, this.name, this.operator, this.groupId, this.usageRules, this.ranges, this.initialSetpoint, neAndDk, speed, activationCost, variationCosts);
+        this.getCrac().addInjectionRangeAction(injectionRangeAction);
+        return injectionRangeAction;
+    }
+
+    public void runCheckBeforeAdding() {
         checkId();
         checkAutoUsageRules();
         if (!Objects.isNull(getCrac().getRemedialAction(id))) {
@@ -84,29 +95,24 @@ public class InjectionRangeActionAdderImpl extends AbstractStandardRangeActionAd
         if (usageRules.isEmpty()) {
             BUSINESS_WARNS.warn("InjectionRangeAction {} does not contain any usage rule, by default it will never be available", id);
         }
-
-        Map<NetworkElement, Double> neAndDk = addNetworkElements();
-        InjectionRangeAction injectionRangeAction = new InjectionRangeActionImpl(this.id, this.name, this.operator, this.groupId, this.usageRules, this.ranges, this.initialSetpoint, neAndDk, speed, activationCost, variationCosts);
-        this.getCrac().addInjectionRangeAction(injectionRangeAction);
-        return injectionRangeAction;
     }
 
     private void checkNetworkElements() {
         distributionKeys.forEach(dK -> assertAttributeNotNull(dK.networkElementId, INJECTION_RANGE_ACTION, "network element", "withNetworkElementAndKey()"));
     }
 
-    private Map<NetworkElement, Double> addNetworkElements() {
+    private Map<NetworkElement, Double> getDistributionKeyMap() {
         Map<NetworkElement, Double> distributionKeyMap = new HashMap<>();
         distributionKeys.forEach(sK -> {
             if (Math.abs(sK.distributionKey) > 1e-3) {
-                NetworkElement networkElement = this.getCrac().addNetworkElement(sK.networkElementId, sK.networkElementName);
+                NetworkElement networkElement = this.getCrac().getNetworkElement(sK.networkElementId);
                 distributionKeyMap.merge(networkElement, sK.distributionKey, Double::sum);
             }
         });
         return distributionKeyMap;
     }
 
-    private static class DistributionKeyOnNetworkElement {
+    private static final class DistributionKeyOnNetworkElement {
         String networkElementId;
         String networkElementName;
         double distributionKey;

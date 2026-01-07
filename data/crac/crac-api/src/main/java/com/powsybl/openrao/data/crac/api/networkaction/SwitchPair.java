@@ -10,7 +10,7 @@ package com.powsybl.openrao.data.crac.api.networkaction;
 import com.powsybl.action.Action;
 import com.powsybl.openrao.data.crac.api.NetworkElement;
 
-/***
+/**
  * A SwitchPair action is an Elementary Action which consists in changing
  * closing one switch and opening the other.
  *

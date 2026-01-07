@@ -1,9 +1,10 @@
 /*
- * Copyright (c) 2024, RTE (http://www.rte-france.com)
+ * Copyright (c) 2023, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 package com.powsybl.openrao.data.crac.io.nc.craccreator.cnec;
 
 import com.powsybl.openrao.commons.OpenRaoException;
@@ -167,34 +168,6 @@ public class FlowCnecCreator extends AbstractCnecCreator {
         }
     }
 
-    private void setCurrentLimitsFromBranch(FlowCnecAdder flowCnecAdder, Branch<?> branch) {
-        Double currentLimitLeft = getCurrentLimitFromBranch(branch, TwoSides.ONE);
-        Double currentLimitRight = getCurrentLimitFromBranch(branch, TwoSides.TWO);
-        if (Objects.nonNull(currentLimitLeft) && Objects.nonNull(currentLimitRight)) {
-            flowCnecAdder.withIMax(currentLimitLeft, TwoSides.ONE);
-            flowCnecAdder.withIMax(currentLimitRight, TwoSides.TWO);
-        } else {
-            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, writeAssessedElementIgnoredReasonMessage("RAO was unable to retrieve the current limits of branch %s from the network".formatted(branch.getId())));
-        }
-    }
-
-    private Double getCurrentLimitFromBranch(Branch<?> branch, TwoSides side) {
-
-        if (branch.getCurrentLimits(side).isPresent()) {
-            return branch.getCurrentLimits(side).orElseThrow().getPermanentLimit();
-        }
-
-        if (side == TwoSides.ONE && branch.getCurrentLimits(TwoSides.TWO).isPresent()) {
-            return branch.getCurrentLimits(TwoSides.TWO).orElseThrow().getPermanentLimit() * branch.getTerminal1().getVoltageLevel().getNominalV() / branch.getTerminal2().getVoltageLevel().getNominalV();
-        }
-
-        if (side == TwoSides.TWO && branch.getCurrentLimits(TwoSides.ONE).isPresent()) {
-            return branch.getCurrentLimits(TwoSides.ONE).orElseThrow().getPermanentLimit() * branch.getTerminal2().getVoltageLevel().getNominalV() / branch.getTerminal1().getVoltageLevel().getNominalV();
-        }
-
-        return null;
-    }
-
     private void addFlowCnec(Branch<?> networkElement, Contingency contingency, String instantId, Map<TwoSides, Double> thresholdPerSide, int limitDuration, boolean useMaxAndMinThresholds) {
         if (thresholdPerSide.isEmpty()) {
             return;
@@ -204,7 +177,6 @@ public class FlowCnecCreator extends AbstractCnecCreator {
         thresholdPerSide.forEach((twoSides, threshold) -> addFlowCnecThreshold(cnecAdder, twoSides, threshold, useMaxAndMinThresholds));
         cnecAdder.withNetworkElement(networkElement.getId());
         setNominalVoltage(cnecAdder, networkElement);
-        setCurrentLimitsFromBranch(cnecAdder, networkElement);
         cnecAdder.add();
     }
 

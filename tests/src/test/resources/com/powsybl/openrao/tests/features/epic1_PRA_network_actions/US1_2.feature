@@ -7,25 +7,26 @@ Feature: US 1.2: Import of simple network actions as preventive remedial action 
 
   @fast @crac @mock
   Scenario: US 1.2.1
+  No threshold with a PERCENT_IMAX unit is defined in the CRAC so no iMax was imported.
     Given crac file is "epic1/SL_ep1us2_selectionTopoRA.json"
     Given network file is "common/TestCase12Nodes.uct"
     When I import crac
     Then it should have the following flow CNECs:
       | Name           | NetworkElementId    | Instant    | Contingency         | Optimized | Monitored | ImaxLeft | ImaxRight | NominalVoltageLeft | NominalVoltageRight |
-      | Tie-line FR BE | BBE2AA1  FFR3AA1  1 | preventive |                     | yes       | no        | 5000.0   | 5000.0    | 400.0              | 400.0               |
-      | Tie-line FR BE | BBE2AA1  FFR3AA1  1 | curative   | Contingency FR1 FR3 | yes       | no        | 5000.0   | 5000.0    | 400.0              | 400.0               |
-      | Tie-line FR BE | BBE2AA1  FFR3AA1  1 | outage     | Contingency FR1 FR3 | yes       | no        | 5000.0   | 5000.0    | 400.0              | 400.0               |
-      | Tie-line FR DE | FFR2AA1  DDE3AA1  1 | preventive |                     | yes       | no        | 5000.0   | 5000.0    | 400.0              | 400.0               |
-      | Tie-line FR DE | FFR2AA1  DDE3AA1  1 | curative   | Contingency FR1 FR3 | yes       | no        | 5000.0   | 5000.0    | 400.0              | 400.0               |
-      | Tie-line FR DE | FFR2AA1  DDE3AA1  1 | outage     | Contingency FR1 FR3 | yes       | no        | 5000.0   | 5000.0    | 400.0              | 400.0               |
+      | Tie-line FR BE | BBE2AA1  FFR3AA1  1 | preventive |                     | yes       | no        | NaN      | NaN       | 380.0              | 380.0               |
+      | Tie-line FR BE | BBE2AA1  FFR3AA1  1 | curative   | Contingency FR1 FR3 | yes       | no        | NaN      | NaN       | 380.0              | 380.0               |
+      | Tie-line FR BE | BBE2AA1  FFR3AA1  1 | outage     | Contingency FR1 FR3 | yes       | no        | NaN      | NaN       | 380.0              | 380.0               |
+      | Tie-line FR DE | FFR2AA1  DDE3AA1  1 | preventive |                     | yes       | no        | NaN      | NaN       | 380.0              | 380.0               |
+      | Tie-line FR DE | FFR2AA1  DDE3AA1  1 | curative   | Contingency FR1 FR3 | yes       | no        | NaN      | NaN       | 380.0              | 380.0               |
+      | Tie-line FR DE | FFR2AA1  DDE3AA1  1 | outage     | Contingency FR1 FR3 | yes       | no        | NaN      | NaN       | 380.0              | 380.0               |
     Then the flow cnecs should have the following thresholds:
-      | CnecId                                               | Unit   | Min   | Max  | Side  |
-      | BBE2AA1  FFR3AA1  1 - preventive                     | AMPERE | -1500 | 1500 | TWO |
-      | BBE2AA1  FFR3AA1  1 - Contingency FR1 FR3 - outage   | AMPERE | -1500 | 1500 | TWO |
-      | BBE2AA1  FFR3AA1  1 - Contingency FR1 FR3 - curative | AMPERE | -1500 | 1500 | TWO |
-      | FFR2AA1  DDE3AA1  1 - preventive                     | AMPERE | -1500 | 1500 | TWO |
-      | FFR2AA1  DDE3AA1  1 - Contingency FR1 FR3 - outage   | AMPERE | -1500 | 1500 | TWO |
-      | FFR2AA1  DDE3AA1  1 - Contingency FR1 FR3 - curative | AMPERE | -1500 | 1500 | TWO |
+      | CnecId                                               | Unit   | Min   | Max  | Side |
+      | BBE2AA1  FFR3AA1  1 - preventive                     | AMPERE | -1500 | 1500 | TWO  |
+      | BBE2AA1  FFR3AA1  1 - Contingency FR1 FR3 - outage   | AMPERE | -1500 | 1500 | TWO  |
+      | BBE2AA1  FFR3AA1  1 - Contingency FR1 FR3 - curative | AMPERE | -1500 | 1500 | TWO  |
+      | FFR2AA1  DDE3AA1  1 - preventive                     | AMPERE | -1500 | 1500 | TWO  |
+      | FFR2AA1  DDE3AA1  1 - Contingency FR1 FR3 - outage   | AMPERE | -1500 | 1500 | TWO  |
+      | FFR2AA1  DDE3AA1  1 - Contingency FR1 FR3 - curative | AMPERE | -1500 | 1500 | TWO  |
     Then it should have the following network actions:
       | NetworkActionId      | NetworkActionName    | ElementaryActions | ElementaryActionType             | NetworkElementId    | Action/Setpoint |
       | Open tie-line FR DE  | Open tie-line FR DE  | 1                 | TerminalsConnectionAction        | FFR2AA1  DDE3AA1  1 | OPEN            |

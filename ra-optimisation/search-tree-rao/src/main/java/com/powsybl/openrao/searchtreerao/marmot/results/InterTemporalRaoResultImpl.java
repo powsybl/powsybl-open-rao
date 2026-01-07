@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.marmot.results;
 
+import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
@@ -38,16 +39,16 @@ import java.util.zip.ZipOutputStream;
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public class InterTemporalRaoResultImpl implements InterTemporalRaoResult {
+public class InterTemporalRaoResultImpl extends AbstractExtendable<RaoResult> implements InterTemporalRaoResult {
     private final ObjectiveFunctionResult initialGlobalObjectiveFunctionResult;
-    private final ObjectiveFunctionResult postPrasGlobalObjectiveFunctionResult;
-    private final TemporalData<RaoResult> raoResultPerTimestamp;
+    private final ObjectiveFunctionResult finalGlobalObjectiveFunctionResult;
+    private final TemporalData<? extends RaoResult> raoResultPerTimestamp;
 
     private static final String MISSING_RAO_RESULT_ERROR_MESSAGE = "No RAO Result data found for the provided timestamp.";
 
-    public InterTemporalRaoResultImpl(ObjectiveFunctionResult initialGlobalObjectiveFunctionResult, ObjectiveFunctionResult postPrasGlobalObjectiveFunctionResult, TemporalData<RaoResult> raoResultPerTimestamp) {
+    public InterTemporalRaoResultImpl(ObjectiveFunctionResult initialGlobalObjectiveFunctionResult, ObjectiveFunctionResult finalGlobalObjectiveFunctionResult, TemporalData<? extends RaoResult> raoResultPerTimestamp) {
         this.initialGlobalObjectiveFunctionResult = initialGlobalObjectiveFunctionResult;
-        this.postPrasGlobalObjectiveFunctionResult = postPrasGlobalObjectiveFunctionResult;
+        this.finalGlobalObjectiveFunctionResult = finalGlobalObjectiveFunctionResult;
         this.raoResultPerTimestamp = raoResultPerTimestamp;
     }
 
@@ -158,7 +159,7 @@ public class InterTemporalRaoResultImpl implements InterTemporalRaoResult {
 
     @Override
     public Set<String> getVirtualCostNames() {
-        return postPrasGlobalObjectiveFunctionResult.getVirtualCostNames();
+        return finalGlobalObjectiveFunctionResult.getVirtualCostNames();
     }
 
     @Override
@@ -246,10 +247,8 @@ public class InterTemporalRaoResultImpl implements InterTemporalRaoResult {
     private ObjectiveFunctionResult getRelevantResult(Instant instant) {
         if (instant == null) {
             return initialGlobalObjectiveFunctionResult;
-        } else if (instant.isPreventive()) {
-            return postPrasGlobalObjectiveFunctionResult;
         } else {
-            throw new OpenRaoException("Inter-temporal curative results are not yet handled by OpenRAO.");
+            return finalGlobalObjectiveFunctionResult;
         }
     }
 }

@@ -22,6 +22,7 @@ import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
+import com.powsybl.openrao.data.crac.io.commons.iidm.IidmHvdcHelper;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -61,7 +62,7 @@ public class HvdcRangeActionCreator {
         this.cimCracCreationParameters = cimCracCreationParameters;
     }
 
-    public void addDirection(RemedialActionSeries remedialActionSeries) {
+    public void addDirection(RemedialActionSeries remedialActionSeries, String applicationModeMarketObjectStatus) {
         raSeriesIds.add(remedialActionSeries.getMRID());
 
         try {
@@ -86,7 +87,7 @@ public class HvdcRangeActionCreator {
                 }
                 networkElementIds.add(networkElementId);
 
-                checkHvdcNetworkElementAndInitAdder(registeredResource, networkElementId);
+                checkHvdcNetworkElementAndInitAdder(registeredResource, networkElementId, applicationModeMarketObjectStatus);
                 isRemedialActionSeriesInverted = readRangeAndCheckIfInverted(isRemedialActionSeriesInverted, registeredResource, networkElementId);
             }
 
@@ -116,14 +117,14 @@ public class HvdcRangeActionCreator {
         }
     }
 
-    private void checkHvdcNetworkElementAndInitAdder(RemedialActionRegisteredResource registeredResource, String networkElementId) {
+    private void checkHvdcNetworkElementAndInitAdder(RemedialActionRegisteredResource registeredResource, String networkElementId, String applicationModeMarketObjectStatus) {
         checkHvdcNetworkElement(networkElementId);
         HvdcLine hvdcLine = network.getHvdcLine(networkElementId);
 
         boolean terminal1Connected = hvdcLine.getConverterStation1().getTerminal().isConnected();
         boolean terminal2Connected = hvdcLine.getConverterStation2().getTerminal().isConnected();
         if (terminal1Connected && terminal2Connected) {
-            hvdcRangeActionAdders.putIfAbsent(networkElementId, initHvdcRangeActionAdder(registeredResource));
+            hvdcRangeActionAdders.putIfAbsent(networkElementId, initHvdcRangeActionAdder(registeredResource, applicationModeMarketObjectStatus));
         } else {
             isAltered = true;
             importStatusDetailifIsAltered = String.format("HVDC line %s has ", hvdcLine.getId());
@@ -196,10 +197,13 @@ public class HvdcRangeActionCreator {
         return raSeriesIds.stream().map(id -> RemedialActionSeriesCreationContext.importedHvdcRa(id, createdRaIds, isAltered, isDirectionInverted.get(id), importStatusDetailifIsAltered)).collect(Collectors.toSet());
     }
 
-    private HvdcRangeActionAdder initHvdcRangeActionAdder(RemedialActionRegisteredResource registeredResource) {
+    private HvdcRangeActionAdder initHvdcRangeActionAdder(RemedialActionRegisteredResource registeredResource, String applicationModeMarketObjectStatus) {
         HvdcRangeActionAdder hvdcRangeActionAdder = crac.newHvdcRangeAction();
         String hvdcId = registeredResource.getMRID().getValue();
         hvdcRangeActionAdder.withNetworkElement(hvdcId);
+
+        double initialSetpoint = IidmHvdcHelper.getCurrentSetpoint(network, hvdcId);
+        hvdcRangeActionAdder.withInitialSetpoint(initialSetpoint);
 
         // Speed
         if (cimCracCreationParameters != null && cimCracCreationParameters.getRangeActionSpeedSet() != null) {
@@ -211,7 +215,7 @@ public class HvdcRangeActionCreator {
         }
 
         // Usage rules
-        RemedialActionSeriesCreator.addUsageRules(crac, CimConstants.ApplicationModeMarketObjectStatus.AUTO.getStatus(), hvdcRangeActionAdder, contingencies, invalidContingencies, cnecs, sharedDomain);
+        RemedialActionSeriesCreator.addUsageRules(crac, applicationModeMarketObjectStatus, hvdcRangeActionAdder, contingencies, invalidContingencies, cnecs, sharedDomain);
 
         return hvdcRangeActionAdder;
     }

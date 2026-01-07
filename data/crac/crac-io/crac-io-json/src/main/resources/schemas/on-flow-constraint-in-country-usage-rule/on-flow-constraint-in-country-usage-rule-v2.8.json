@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema#",
+  "$id": "resource:/schemas/on-flow-constraint-in-country-usage-rule/on-flow-constraint-in-country-usage-rule-v2.8.json",
+  "type": "object",
+  "properties": {
+    "instant": {
+      "type": "string"
+    },
+    "contingencyId": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "country": {
+      "$ref": "../country/country-v1.3.json"
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "instant",
+    "country"
+  ]
+}

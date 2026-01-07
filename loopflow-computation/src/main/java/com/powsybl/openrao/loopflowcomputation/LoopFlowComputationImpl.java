@@ -1,9 +1,10 @@
 /*
- * Copyright (c) 2021, RTE (http://www.rte-france.com)
+ * Copyright (c) 2020, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 package com.powsybl.openrao.loopflowcomputation;
 
 import com.powsybl.openrao.commons.EICode;
@@ -33,19 +34,26 @@ public class LoopFlowComputationImpl implements LoopFlowComputation {
     protected ZonalData<SensitivityVariableSet> glsk;
     protected ReferenceProgram referenceProgram;
     protected Map<EICode, SensitivityVariableSet> glskMap;
+    protected Unit objectiveFunctionUnit;
 
-    public LoopFlowComputationImpl(ZonalData<SensitivityVariableSet> glsk, ReferenceProgram referenceProgram) {
+    public LoopFlowComputationImpl(ZonalData<SensitivityVariableSet> glsk, ReferenceProgram referenceProgram, Unit objectiveFunctionUnit) {
         this.glsk = requireNonNull(glsk, "glskProvider should not be null");
         this.referenceProgram = requireNonNull(referenceProgram, "referenceProgram should not be null");
         this.glskMap = buildRefProgGlskMap();
+        this.objectiveFunctionUnit = objectiveFunctionUnit;
     }
 
     @Override
     public LoopFlowResult calculateLoopFlows(Network network, String sensitivityProvider, SensitivityAnalysisParameters sensitivityAnalysisParameters, Set<FlowCnec> flowCnecs, Instant outageInstant) {
+        Set<Unit> units =
+            (objectiveFunctionUnit == Unit.MEGAWATT) ?
+                Set.of(Unit.MEGAWATT) :
+                Set.of(Unit.AMPERE, Unit.MEGAWATT); // Still needs to compute sensi on MW flow for post processing sensi
+
         SystematicSensitivityInterface systematicSensitivityInterface = SystematicSensitivityInterface.builder()
                 .withSensitivityProviderName(sensitivityProvider)
                 .withParameters(sensitivityAnalysisParameters)
-                .withPtdfSensitivities(glsk, flowCnecs, Collections.singleton(Unit.MEGAWATT))
+                .withPtdfSensitivities(glsk, flowCnecs, units)
                 .withOutageInstant(outageInstant)
                 .build();
 
@@ -60,11 +68,21 @@ public class LoopFlowComputationImpl implements LoopFlowComputation {
         Map<SensitivityVariableSet, Boolean> isInMainComponentMap = computeIsInMainComponentMap(network);
         for (FlowCnec flowCnec : flowCnecs) {
             flowCnec.getMonitoredSides().forEach(side -> {
-                double refFlow = alreadyCalculatedPtdfAndFlows.getReferenceFlow(flowCnec, side);
-                double commercialFLow = getGlskStream().filter(entry -> isInMainComponentMap.get(entry.getValue()))
-                    .mapToDouble(entry -> alreadyCalculatedPtdfAndFlows.getSensitivityOnFlow(entry.getValue(), flowCnec, side) * referenceProgram.getGlobalNetPosition(entry.getKey()))
-                    .sum();
-                results.addCnecResult(flowCnec, side, refFlow - commercialFLow, commercialFLow, refFlow);
+                double refFlow = 0;
+                double commercialFLow = 0;
+                if (objectiveFunctionUnit == Unit.MEGAWATT) {
+                    refFlow = alreadyCalculatedPtdfAndFlows.getReferenceFlow(flowCnec, side);
+                    commercialFLow = getGlskStream().filter(entry -> isInMainComponentMap.get(entry.getValue()))
+                        .mapToDouble(entry -> alreadyCalculatedPtdfAndFlows.getSensitivityOnFlow(entry.getValue(), flowCnec, side) * referenceProgram.getGlobalNetPosition(entry.getKey()))
+                        .sum();
+                } else if (objectiveFunctionUnit == Unit.AMPERE) {
+                    refFlow = alreadyCalculatedPtdfAndFlows.getReferenceIntensity(flowCnec, side);
+                    commercialFLow = getGlskStream().filter(entry -> isInMainComponentMap.get(entry.getValue()))
+                        .mapToDouble(entry -> alreadyCalculatedPtdfAndFlows.getSensitivityOnIntensity(entry.getValue(), flowCnec, side) * referenceProgram.getGlobalNetPosition(entry.getKey()))
+                        .sum();
+                }
+
+                results.addCnecResult(flowCnec, side, refFlow - commercialFLow, commercialFLow, refFlow, objectiveFunctionUnit);
             });
         }
         return results;
@@ -91,6 +109,7 @@ public class LoopFlowComputationImpl implements LoopFlowComputation {
         return atLeastOneGlskConnected;
     }
 
+    // TODO: use injectionhelper
     static Injection<?> getInjection(String injectionId, Network network) {
         Generator generator = network.getGenerator(injectionId);
         if (generator != null) {

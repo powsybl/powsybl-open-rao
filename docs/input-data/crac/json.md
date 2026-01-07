@@ -153,7 +153,7 @@ crac.newContingency()
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **contingency element type**: type of element in the network. Currently, PowSyBl handles: 
 GENERATOR, STATIC_VAR_COMPENSATOR, SHUNT_COMPENSATOR, BRANCH, HVDC_LINE, BUSBAR_SECTION, DANGLING_LINE, LINE, TWO_WINDINGS_TRANSFORMER, 
 THREE_WINDINGS_TRANSFORMER, LOAD, SWITCH, BATTERY, BUS, TIE_LINE. The contingency elements type can be retrieved from the PowSyBl Network using the network element id, using: 
-`ContingencyElement.of(network.getIdentifiable(id)).getType()`.  
+`ContingencyElementFactory.create(network.getIdentifiable(id)).getType()`.  
 :::
 ::::
 
@@ -713,24 +713,17 @@ Two types of remedial action exist in OpenRAO:
   activated, it is activated at a given value of its set-point. PSTs are a typical example of Range Actions.
 
 Both Network Actions and Range Actions have usage rules which define the conditions under which they can be activated.  
-A usage rule contains a usage method which can be activated under certain conditions. The usage methods in OpenRAO are: 
-- **UNDEFINED**: this means that the usage rule cannot decide if the remedial action can be used.
-- **AVAILABLE**: when activated, this means that the remedial action is available for the RAO to assess. The RAO can 
-  choose to activate it if it finds that it is optimal. Takes precedence over the above usage method.
-- **FORCED**: when activated, this means that the remedial action must be applied by the RAO (usually used for automatons).
-  Takes precedence over the above usage methods.
-- **UNAVAILABLE**: when activated, this means that the remedial action cannot be used. Takes precedence over the above usage methods.  
-
 OpenRAO has the following usage rules with their activation conditions:
-- the **FreeToUse** usage rule (defined for a specific [instant](#instants-and-states)): the usage method is activated in all
-  the states of a given instant.
-- the **OnState** usage rule (defined for a specific [state](#instants-and-states)): the usage method is activated in a given state.
+- the **OnInstant** usage rule (defined for a specific [instant](#instants-and-states)): the remedial action can be
+  activated in all the states of a given instant.
+- the **OnContingencyState** usage rule (defined for a specific [state](#instants-and-states)): the remedial action can be 
+  activated in a given state.
 - the **OnFlowConstraintInCountry** usage rule (defined for a specific [Country](https://github.com/powsybl/powsybl-core/blob/main/iidm/iidm-api/src/main/java/com/powsybl/iidm/network/Country.java), a specific [instant](#instants-and-states)), 
-  and an optional [contingency](#contingencies): the usage method is activated if any FlowCnec in the given country is
+  and an optional [contingency](#contingencies): the remedial action can be activated if any FlowCnec in the given country is
   constrained (ie has a flow greater than one of its thresholds) at the given instant. If a contingency is defined, then 
   only constraints on FlowCnecs with the same contingency count.  
 - the **OnConstraint** usage rule (defined for a specific [instant](#instants-and-states) and a specific [Cnec](#cnecs)):
-  the usage method is activated if the given Cnec is constrained at the given instant.
+  the remedial action can be activated if the given Cnec is constrained at the given instant.
 
 A remedial action has an operator, which is the name of the TSO which operates the remedial action.
 
@@ -740,14 +733,12 @@ The examples below are given for a Network Action, but the same methods exists f
 Complete examples of Network and Range Action creation are given in the following paragraphs.
 ~~~java
 crac.newNetworkAction()
-    .newFreeToUseUsageRule()
-        .withUsageMethod(UsageMethod.AVAILABLE)
+    .newOnInstantUsageRule()
         .withInstant("preventive")
         .add();
 
 crac.newNetworkAction()
-    .newOnStateUsageRule()
-        .withUsageMethod(UsageMethod.AVAILABLE)
+    .newOnContingencyStateUsageRule()
         .withInstant("curative")
         .withContingency("contingency-id")
         .add();
@@ -782,13 +773,11 @@ crac.newNetworkAction()
 Complete examples of Network and Range Action in Json format are given in the following paragraphs
 ~~~json
 "onInstantUsageRules" : [ {
-  "instant" : "preventive",
-  "usageMethod" : "available"
+  "instant" : "preventive"
 } ],
 "onContingencyStateUsageRules" : [ {
   "instant" : "curative",
-  "contingencyId" : "contingency-id",
-  "usageMethod" : "available"
+  "contingencyId" : "contingency-id"
 } ],
 "onConstraintUsageRules" : [ {
     "instant" : "auto",
@@ -808,12 +797,10 @@ Complete examples of Network and Range Action in Json format are given in the fo
 ~~~
 :::
 :::{group-tab} Object fields
-<ins>**For FreeToUse usage rules**</ins>  
+<ins>**For OnInstant usage rules**</ins>  
 🔴 **instant**  
-🔴 **usageMethod**  
-<ins>**For OnState usage rules**</ins>  
+<ins>**For OnContingencyState usage rules**</ins>  
 🔴 **instant**  
-🔴 **usageMethod**  
 🔴 **contingency**: must be the id of a contingency that exists in the CRAC  
 <ins>**For OnFlowConstraintInCountry usage rules**</ins>  
 🔴 **instant**  
@@ -822,13 +809,8 @@ Complete examples of Network and Range Action in Json format are given in the fo
 <ins>**For OnConstraint usage rules**</ins>  
 🔴 **instant**  
 🔴 **cnecId**: must be the id of a [Cnec](#cnecs) that exists in the CRAC  
-<ins>**Usage methods**</ins>  
-OpenRAO handles three different types of usage methods sorted by priority:
-1- **UNAVAILABLE**: the remedial action can not be considered by the RAO.
-2 - **FORCED**: For automaton instant, the RAO must activate the remedial action under the condition described by the usage rule. For other instants, it will be ignored.
-3 - **AVAILABLE**: For automaton instant, the remedial action is ignored. Otherwise, it can be chosen by the RAO under the condition described by the usage rule.
 
-*NB*: even though OnState usage rules on the preventive state is theoretically possible, it is forbidden by OpenRAO as the same purpose can be achieved with a FreeToUse usage rule on the preventive instant.  
+*NB*: even though OnContingencyState usage rules on the preventive state is theoretically possible, it is forbidden by OpenRAO as the same purpose can be achieved with a OnInstant usage rule on the preventive instant.  
 :::
 ::::
 
@@ -843,6 +825,7 @@ One network action is a combination of one or multiple "elementary actions", amo
 - Dangling line action: setting the active power of a [dangling line](inv:powsyblcore:*:*#dangling-line)) in the network to a specific value.
 - Shunt compensator position action: setting the number of sections of a shunt compensator to a specific value.
 - Switch pairs: opening a switch in the network and closing another (actually used to model [CSE bus-bar change remedial actions](cse.md#bus-bar-change)).
+- AC emulation deactivation action: deactivate AC emulation mode of an HVDC line (is automatically created if an HVDC range action using a HVDC line in AC emulation is imported)
 
 ::::{tabs}
 :::{group-tab} JAVA creation API
@@ -860,7 +843,7 @@ crac.newNetworkAction()
 		.withNetworkElement("switch-id-2")
 		.withActionType(ActionType.OPEN)
 		.add()
-    .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(PREVENTIVE_INSTANT).add()
+    .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT).add()
     .add();
 
 // terminals connection action
@@ -872,7 +855,7 @@ crac.newNetworkAction()
 		.withNetworkElement("transformer-id")
 		.withActionType(ActionType.CLOSE)
 		.add()
-    .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(PREVENTIVE_INSTANT).add()
+    .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT).add()
     .add();
 
 // phase tap chnager tap position action
@@ -884,7 +867,7 @@ crac.newNetworkAction()
 		.withNormalizedSetpoint(15)
 		.withNetworkElement("pst-id")
 		.add()
-    .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(PREVENTIVE_INSTANT).add()
+    .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT).add()
     .add();
 
 // generator action with two usage rules
@@ -895,8 +878,8 @@ crac.newNetworkAction()
 		.withActivePowerValue(260.0)
 		.withNetworkElement("generator-id")
 		.add()
-    .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(PREVENTIVE_INSTANT).add()
-    .newOnContingencyStateUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withContingency("contingency-id").withInstant(Instant.CURATIVE).add()
+    .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT).add()
+    .newOnContingencyStateUsageRule().withContingency("contingency-id").withInstant(Instant.CURATIVE).add()
     .add();
 	
 // load action
@@ -908,7 +891,7 @@ crac.newNetworkAction()
 		.withActivePowerValue(260.0)
 		.withNetworkElement("load-id")
 		.add()
-    .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(PREVENTIVE_INSTANT).add()
+    .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT).add()
     .add();
 	
 // dangling line action
@@ -919,7 +902,7 @@ crac.newNetworkAction()
 		.withActivePowerValue(260.0)
 		.withNetworkElement("dangling-line-id")
 		.add()
-    .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(PREVENTIVE_INSTANT).add()
+    .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT).add()
     .add();
 
 // shunt compensator position action
@@ -930,7 +913,7 @@ crac.newNetworkAction()
         .withSetpoint(3)
         .withNetworkElement("shunt-compensator-id")
         .add()
-    .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(PREVENTIVE_INSTANT).add()
+    .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT).add()
     .add();
 
 // switch pair
@@ -941,8 +924,18 @@ crac.newNetworkAction()
 		.withSwitchToOpen("switch-to-open-id", "switch-to-open-name")
 		.withSwitchToClose("switch-to-close-id-and-name")
 		.add()
-    .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(PREVENTIVE_INSTANT).add()
+    .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT).add()
     .add();
+
+// Ac emulation deactivation action
+crac.newNetworkAction()
+  .withId("ac-emulation-deactivation-id")
+  .withOperator("operator")
+  .newAcEmulationDeactivationAction()
+    .withNetworkElement("hvdcLineElementId")
+    .add()
+  .newOnInstantUsageRule().withInstant(PREVENTIVE_INSTANT).add()
+  .add();
 ~~~
 :::
 :::{group-tab} JSON file
@@ -952,8 +945,7 @@ crac.newNetworkAction()
     "name" : "switch-na-name",
     "operator" : "operator",
     "onInstantUsageRules" : [ {
-      "instant" : "preventive",
-      "usageMethod" : "available"
+      "instant" : "preventive"
     } ],
     "switchActions" : [ {
       "networkElementId" : "switch-id-1",
@@ -966,9 +958,8 @@ crac.newNetworkAction()
     "id" : "terminals-connection-na-id",
     "name" : "terminals-connection-na-name",
     "operator" : "operator",
-    "freeToUseUsageRules" : [ {
-      "instant" : "preventive",
-      "usageMethod" : "available"
+    "onInstantUsageRules" : [ {
+      "instant" : "preventive"
     } ],
     "terminalsConnectionActions" : [ {
       "networkElementId" : "transformer-id",
@@ -979,8 +970,7 @@ crac.newNetworkAction()
     "name" : "phase-tap-postion-na-name",
     "operator" : "operator",
     "onInstantUsageRules" : [ {
-      "instant" : "preventive",
-      "usageMethod" : "available"
+      "instant" : "preventive"
     } ],
     "phaseTapChangerTapPositionActions" : [ {
       "networkElementId" : "pst-id",
@@ -991,13 +981,11 @@ crac.newNetworkAction()
     "name" : "generator-action-na-id",
     "operator" : "operator",
     "onInstantUsageRules" : [ {
-      "instant" : "preventive",
-      "usageMethod" : "available"
+      "instant" : "preventive"
     } ],
     "onContingencyStateUsageRules" : [ {
       "instant" : "curative",
-      "contingencyId" : "contingency-id",
-      "usageMethod" : "available"
+      "contingencyId" : "contingency-id"
     } ],
     "generatorActions" : [ {
       "networkElementId" : "generator-id",
@@ -1008,9 +996,8 @@ crac.newNetworkAction()
     "name" : "load-action-na-id",
     "operator" : "operator",
     "activation-cost": 200.0,
-    "freeToUseUsageRules" : [ {
-      "instant" : "preventive",
-      "usageMethod" : "available"
+    "onInstantUsageRules" : [ {
+      "instant" : "preventive"
     } ],
     "loadActions" : [ {
       "networkElementId" : "load-id",
@@ -1020,9 +1007,8 @@ crac.newNetworkAction()
     "id" : "dangling-line-action-na-id",
     "name" : "dangling-line-action-na-id",
     "operator" : "operator",
-    "freeToUseUsageRules" : [ {
-      "instant" : "preventive",
-      "usageMethod" : "available"
+    "onInstantUsageRules" : [ {
+      "instant" : "preventive"
     } ],
     "danglingLineActions" : [ {
       "networkElementId" : "dangling-line-id",
@@ -1032,9 +1018,8 @@ crac.newNetworkAction()
     "id" : "shunt-compensator-na-id",
     "name" : "shunt-compensator-na-id",
     "operator" : "operator",
-    "freeToUseUsageRules" : [ {
-      "instant" : "preventive",
-      "usageMethod" : "available"
+    "onInstantUsageRules" : [ {
+      "instant" : "preventive"
     } ],
     "shuntCompensatorPositionActions" : [ {
       "networkElementId" : "shunt-compensator-id",
@@ -1045,14 +1030,17 @@ crac.newNetworkAction()
     "name" : "switch-pair-na-id",
     "operator" : "operator",
     "onInstantUsageRules" : [ {
-      "instant" : "preventive",
-      "usageMethod" : "available"
+      "instant" : "preventive"
     } ],
     "switchPairs" : [ {
       "open" : "switch-to-open-id",
       "close" : "switch-to-close-id"
+    } ],
+    "acEmulationDeactivationAction" : [ {
+        "networkElementId": "hvdcLine"
     } ]
-  } ]
+  }
+]
 ~~~
 :::
 :::{group-tab} Object fields
@@ -1060,11 +1048,11 @@ crac.newNetworkAction()
 ⚪ **name**  
 ⚪ **operator**  
 ⚪ **activationCost**  
-⚪ **freeToUse usage rules**: list of 0 to N FreeToUse usage rules (see previous paragraph on [usage rules](#remedial-actions-and-usages-rules))  
-⚪ **onState usage rules**: list of 0 to N OnState usage rules (see previous paragraph on [usage rules](#remedial-actions-and-usages-rules))  
+⚪ **onInstant usage rules**: list of 0 to N OnInstant usage rules (see previous paragraph on [usage rules](#remedial-actions-and-usages-rules))  
+⚪ **onContingencyState usage rules**: list of 0 to N OnContingencyState usage rules (see previous paragraph on [usage rules](#remedial-actions-and-usages-rules))  
 ⚪ **onFlowConstraintInCountry usage rules**: list of 0 to N OnFlowConstraintInCountry usage rules (see previous paragraph on [usage rules](#remedial-actions-and-usages-rules))  
 ⚪ **onConstraint usage rules**: list of 0 to N OnConstraint usage rules (see previous paragraph on [usage rules](#remedial-actions-and-usages-rules))  
-🔵 **terminals connection actions**: list of 0 to N TerminalsConnectionAction
+🔵 **terminals connection actions**: list of 0 to N TerminalsConnectionAction          
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **network element**: id is mandatory, name is optional  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **action type**  
 🔵 **switch actions**: list of 0 to N SwitchAction  
@@ -1088,6 +1076,8 @@ crac.newNetworkAction()
 🔵 **switch pairs**: list of 0 to N SwitchPair  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **switch to open (network element)**: id is mandatory, name is optional  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **switch to close (network element)**: id is mandatory, name is optional, must be different from switch to open  
+🔵 **ac emulation deactivation actions**: list of 0 to N AcEmulationDeactivationAction                                     
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔴 **network element**: id is mandatory, name is optional  
 <br>
 *NB*: A Network Action must contain at least on elementary action.
 :::
@@ -1148,7 +1138,7 @@ crac.newPstRangeAction()
         .withMinTap(-2)
         .withMaxTap(2)
         .add()
-    .newOnInstantUsageRule().withUsageMethod(UsageMethod.AVAILABLE).withInstant(Instant.PREVENTIVE).add()
+    .newOnInstantUsageRule().withInstant(Instant.PREVENTIVE).add()
     .withSpeed(1)
     .add();
 ~~~
@@ -1162,8 +1152,7 @@ Note that the [PstHelper utility class](https://github.com/powsybl/powsybl-open-
     "name" : "pst-range-action-1-name",
     "operator" : "operator",
     "onInstantUsageRules" : [ {
-      "instant" : "preventive",
-      "usageMethod" : "available"
+      "instant" : "preventive"
     } ],
     "networkElementId" : "pst-network-element-id",
     "groupId" : "pst-range-action-1 is aligned with pst-range-action-2",
@@ -1198,15 +1187,16 @@ Note that the [PstHelper utility class](https://github.com/powsybl/powsybl-open-
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔵 **min tap**  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 🔵 **max tap**: at least one value must be defined  
 ⚪ **onInstant usage rules**: list of 0 to N OnInstant usage rules (see paragraph on [usage rules](#remedial-actions-and-usages-rules))  
-⚪ **onState usage rules**: list of 0 to N OnContingencyState usage rules (see paragraph on [usage rules](#remedial-actions-and-usages-rules))  
+⚪ **onContingencyState usage rules**: list of 0 to N OnContingencyState usage rules (see paragraph on [usage rules](#remedial-actions-and-usages-rules))  
 ⚪ **onFlowConstraintInCountry usage rules**: list of 0 to N OnFlowConstraintInCountry usage rules (see previous paragraph on [usage rules](#remedial-actions-and-usages-rules))  
 ⚪ **onConstraint usage rules**: list of 0 to N OnConstraint usage rules (see previous paragraph on [usage rules](#remedial-actions-and-usages-rules))  
 :::
 ::::
 
 ### HVDC Range Action
+
 An HvdcRangeAction contains a network element that must point towards an [HvdcLine of the iidm PowSyBl network model](inv:powsyblcore:*:*#hvdc-line).  
-The HvdcRangeAction will be able to modify its active power set-point.
+The HvdcRangeAction will be able to modify its active power set-point. 
 
 The domain in which the HvdcRangeAction can modify the HvdcSetpoint is delimited by 'HvdcRanges'.
 An HvdcRangeAction contains a list of HvdcRanges. A range must be defined with a min and a max.
@@ -1218,6 +1208,8 @@ If the HvdcRangeAction is an automaton, it has to have a speed assigned. This is
 speed of this range action compared to other range-action automatons (smaller "speed" value = faster range action).
 No two range-action automatons can have the same speed value, unless they are aligned.
 
+> For more information on how HVDC range actions are handled in the RAO see [here](../../algorithms/castor/special-features/hvdc.md)
+
 ::::{tabs}
 :::{group-tab} JAVA creation API
 ~~~java
@@ -1227,7 +1219,7 @@ No two range-action automatons can have the same speed value, unless they are al
    		.withOperator("operator")
         .withNetworkElement("hvec-id")
         .newHvdcRange().withMin(-5).withMax(10).add()
-        .newOnInstantUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+        .newOnInstantUsageRule().withInstant(Instant.PREVENTIVE).add()
         .add();  
 ~~~
 In that case, the validity domain of the HVDC is [-5; 10].
@@ -1239,8 +1231,7 @@ In that case, the validity domain of the HVDC is [-5; 10].
     "name" : "hvdc-range-action-name",
     "operator" : "operator",
     "onInstantUsageRules" : [ {
-      "instant" : "preventive",
-      "usageMethod" : "available"
+      "instant" : "preventive"
     } ],
     "networkElementId" : "hvdc-id",
     "ranges" : [ {
@@ -1275,10 +1266,11 @@ In that case, the validity domain of the HVDC is [-5; 10].
 An InjectionRangeAction modifies given generators' & loads' injection set-points inside a given range.  
 Each impacted generator or load has an associated "key", which is a coefficient of impact that is applied on its set-point.
 
-This range action is mainly used to represent an HVDC line in an AC equivalent model (where the line is disconnected and
-replaced by two injections, one on each side of the line, with opposite keys of 1 and -1).
+This range action has two main applications:
+* to represent redispatching remedial actions for [inter-temporal computations](../../algorithms/castor/linear-problem/inter-temporal-constraints.md)
+* to represent an HVDC line in an AC equivalent model (where the line is disconnected and
+replaced by two injections, one on each side of the line, with opposite keys of 1 and -1) see [here](../../algorithms/castor/special-features/hvdc.md#italy-nord-process-cse-crac)
 
-![HVDC AC model](../../_static/img/HVDC_AC_model.png){.forced-white-background}
 
 Two or more [aligned injection range actions](#range-actions) must have the same (random) group ID defined. The RAO will
 make sure their optimized set-points are always equal.
@@ -1286,6 +1278,9 @@ make sure their optimized set-points are always equal.
 If the InjectionRangeAction is an automaton, it has to have a speed assigned. This is an integer that defines the relative
 speed of this range action compared to other range-action automatons (smaller "speed" value = faster range action).
 No two range-action automatons can have the same speed value, unless they are aligned.
+
+If the InjectionRangeAction uses a disconnected generator, the action will be filtered out and won't be used by the RAO.
+
 ::::{tabs}
 :::{group-tab} JAVA creation API
 ~~~java
@@ -1296,7 +1291,7 @@ No two range-action automatons can have the same speed value, unless they are al
         .withNetworkElementAndKey(1, "network-element-1")
         .withNetworkElementAndKey(-0.5, "network-element-2")
         .newRange().withMin(-1200).withMax(500).add()
-        .newOnInstantUsageRule().withInstant(Instant.PREVENTIVE).withUsageMethod(UsageMethod.AVAILABLE).add()
+        .newOnInstantUsageRule().withInstant(Instant.PREVENTIVE).add()
         .add();     
 ~~~
 In that case, the validity domain of the injection range action's reference set-point is [-1200; 500].  
@@ -1309,8 +1304,7 @@ This means the set-point of "network-element-1" (key = 1) can be changed between
     "name" : "injection-range-action-name",
     "operator" : "operator",
     "onInstantUsageRules" : [ {
-      "instant" : "preventive",
-      "usageMethod" : "available"
+      "instant" : "preventive"
     } ],
     "networkElementIdsAndKeys" : {
 		"network-element-1" : 1.0,
@@ -1343,6 +1337,7 @@ This means the set-point of "network-element-1" (key = 1) can be changed between
 :::
 ::::
 
+
 ### Counter-Trade Range Action
 
 A CounterTradeRangeAction is an exchange between two countries. The exporting country send power to the importing
@@ -1364,7 +1359,7 @@ It is a costly remedial action which is currently not handled by the RAO.
         .withImportingCountry(Country.ES)
         .withInitialSetpoint(50)
         .newRange().withMin(0).withMax(1000).add()
-        .newOnInstantUsageRule().withInstant("preventive").withUsageMethod(UsageMethod.AVAILABLE).add()
+        .newOnInstantUsageRule().withInstant("preventive").add()
         .add();     
 ~~~
 In that case, the validity domain of the counter-trade range action's reference set-point is [0; 1000]. The power is
@@ -1383,8 +1378,7 @@ exported from France to Spain.
     }
     "speed" : 30,
     "onInstantUsageRules" : [ {
-        "instant" : "preventive",
-        "usageMethod" : "available"
+        "instant" : "preventive"
     } ],
     "exportingCountry" : "FR",
     "importingCountry" : "ES",

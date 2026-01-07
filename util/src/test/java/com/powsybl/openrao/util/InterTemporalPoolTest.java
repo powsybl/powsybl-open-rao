@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, RTE (http://www.rte-france.com)
+ * Copyright (c) 2025, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -42,7 +43,7 @@ class InterTemporalPoolTest {
     }
 
     @Test
-    void testRunTemporalTasks() throws InterruptedException {
+    void testRunTemporalTasks() throws InterruptedException, ExecutionException {
         InterTemporalPool pool = new InterTemporalPool(Set.of(timestamp1, timestamp2, timestamp3));
         assertEquals(3, pool.getParallelism());
 
@@ -53,7 +54,7 @@ class InterTemporalPoolTest {
     }
 
     @Test
-    void testNestedPools() throws InterruptedException {
+    void testNestedPools() throws InterruptedException, ExecutionException {
         Logger logger = (Logger) LoggerFactory.getLogger(TechnicalLogs.class);
         ListAppender<ILoggingEvent> listAppender = new ListAppender<>();
         listAppender.start();
@@ -61,22 +62,7 @@ class InterTemporalPoolTest {
         List<ILoggingEvent> logsList = listAppender.list;
 
         InterTemporalPool pool = new InterTemporalPool(Set.of(timestamp1, timestamp2, timestamp3), 2);
-        pool.runTasks(timestamp -> {
-            Set<OffsetDateTime> newDates = new HashSet<>();
-            for (int i = 0; i < 10; i++) {
-                newDates.add(timestamp.plusYears(i));
-            }
-            InterTemporalPool childPool = new InterTemporalPool(newDates, 3);
-            try {
-                childPool.runTasks(newTimestamp -> {
-                    OpenRaoLoggerProvider.TECHNICAL_LOGS.info(newTimestamp.toString());
-                    return newTimestamp;
-                });
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-            return timestamp;
-        });
+        pool.runTasks(this::addYearOffsets);
 
         assertEquals(30, logsList.size());
 
@@ -97,5 +83,28 @@ class InterTemporalPoolTest {
             }
             finishedTasksPerDate.put(date, finishedTasksPerDate.get(date) + 1);
         }
+
+        pool.shutdown();
+    }
+
+    private OffsetDateTime addYearOffsets(OffsetDateTime timestamp) {
+        Set<OffsetDateTime> newDates = new HashSet<>();
+        for (int i = 0; i < 10; i++) {
+            newDates.add(timestamp.plusYears(i));
+        }
+        InterTemporalPool pool = new InterTemporalPool(newDates, 3);
+        try {
+            pool.runTasks(this::printTimestamp);
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException(e);
+        } finally {
+            pool.shutdown();
+        }
+        return timestamp;
+    }
+
+    private OffsetDateTime printTimestamp(OffsetDateTime timestamp) {
+        OpenRaoLoggerProvider.TECHNICAL_LOGS.info(timestamp.toString());
+        return timestamp;
     }
 }

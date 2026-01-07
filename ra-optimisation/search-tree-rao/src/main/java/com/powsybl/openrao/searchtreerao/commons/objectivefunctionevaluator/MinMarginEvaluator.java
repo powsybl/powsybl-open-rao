@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, RTE (http://www.rte-france.com)
+ * Copyright (c) 2020, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -23,9 +23,9 @@ import java.util.*;
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
 public class MinMarginEvaluator implements CostEvaluator {
-    protected Set<FlowCnec> flowCnecs;
-    protected Unit unit;
-    protected MarginEvaluator marginEvaluator;
+    protected final Set<FlowCnec> flowCnecs;
+    protected final Unit unit;
+    protected final MarginEvaluator marginEvaluator;
 
     public MinMarginEvaluator(Set<FlowCnec> flowCnecs, Unit unit, MarginEvaluator marginEvaluator) {
         this.flowCnecs = flowCnecs;

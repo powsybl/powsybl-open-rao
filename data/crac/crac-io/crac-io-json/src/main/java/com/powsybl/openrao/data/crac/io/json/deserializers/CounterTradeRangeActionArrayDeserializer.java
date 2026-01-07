@@ -4,6 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 package com.powsybl.openrao.data.crac.io.json.deserializers;
 
 import com.powsybl.openrao.commons.OpenRaoException;
@@ -34,10 +35,7 @@ public final class CounterTradeRangeActionArrayDeserializer {
             while (!jsonParser.nextToken().isStructEnd()) {
                 addElement(counterTradeRangeActionAdder, jsonParser, version);
             }
-            if (JsonSerializationConstants.getPrimaryVersionNumber(version) <= 1 && JsonSerializationConstants.getSubVersionNumber(version) < 3) {
-                // initial setpoint was not exported then, set default value to 0 to avoid errors
-                counterTradeRangeActionAdder.withInitialSetpoint(0);
-            }
+            counterTradeRangeActionAdder.withInitialSetpoint(0.0);
             counterTradeRangeActionAdder.add();
         }
     }

@@ -18,13 +18,8 @@ import java.util.stream.Collectors;
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
-public class NetworkActionsResultImpl implements NetworkActionsResult {
-
-    private final Map<State, Set<NetworkAction>> activatedNetworkActionsPerState;
-
-    public NetworkActionsResultImpl(Map<State, Set<NetworkAction>> activatedNetworkActionsPerState) {
-        this.activatedNetworkActionsPerState = activatedNetworkActionsPerState;
-    }
+public record NetworkActionsResultImpl(
+    Map<State, Set<NetworkAction>> activatedNetworkActionsPerState) implements NetworkActionsResult {
 
     @Override
     public boolean isActivated(NetworkAction networkAction) {
@@ -34,8 +29,6 @@ public class NetworkActionsResultImpl implements NetworkActionsResult {
 
     @Override
     public Set<NetworkAction> getActivatedNetworkActions() {
-        // Caution: If the same action is used during two different states,
-        // it will appear only once in the resulting Set because sets do not allow duplicates.
         return activatedNetworkActionsPerState.values().stream().flatMap(Set::stream).collect(Collectors.toSet());
     }
 

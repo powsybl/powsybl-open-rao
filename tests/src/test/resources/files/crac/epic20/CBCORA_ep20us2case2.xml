@@ -123,25 +123,6 @@
     </criticalBranch>
   </criticalBranches>
   <complexVariants>
-    <complexVariant id="CRA_PST_BE" name="CRA_PST_BE">
-      <timeInterval v="2019-01-07T23:00Z/2019-01-08T23:00Z"/>
-      <tsoOrigin>BE</tsoOrigin>
-      <actionsSet name="CRA_PST_BE">
-        <preventive>false</preventive>
-        <curative>true</curative>
-        <enforced>false</enforced>
-        <afterCOList>
-          <afterCOId>CO1</afterCOId>
-        </afterCOList>
-        <action type="PSTTAP">
-          <branch order="1" from="BBE2AA1 " to="BBE3AA1 "/>
-          <range>
-            <min>-16</min>
-            <max>2</max>
-          </range>
-        </action>
-      </actionsSet>
-    </complexVariant>
     <complexVariant id="Open BE1 BE2" name="Open BE1 BE2">
       <timeInterval v="2019-01-07T23:00Z/2019-01-08T23:00Z"/>
       <tsoOrigin>FR</tsoOrigin>
@@ -164,6 +145,22 @@
         <enforced>false</enforced>
         <action type="STATUS">
           <branch from="BBE1AA1 " order="1" to="BBE3AA1 "/>
+          <value>OPEN</value>
+        </action>
+      </actionsSet>
+    </complexVariant>
+    <complexVariant id="Open BE2 BE3" name="Open BE2 BE3">
+      <timeInterval v="2019-01-07T23:00Z/2019-01-08T23:00Z"/>
+      <tsoOrigin>FR</tsoOrigin>
+      <actionsSet name="Open BE2 BE3">
+        <preventive>false</preventive>
+        <curative>true</curative>
+        <enforced>false</enforced>
+        <afterCOList>
+          <afterCOId>CO1</afterCOId>
+        </afterCOList>
+        <action type="STATUS">
+          <branch from="BBE2AA1 " order="1" to="BBE3AA1 "/>
           <value>OPEN</value>
         </action>
       </actionsSet>

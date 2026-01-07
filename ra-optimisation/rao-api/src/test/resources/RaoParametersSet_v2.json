@@ -1,5 +1,5 @@
 {
-  "version" : "3.1",
+  "version" : "3.2.1",
   "objective-function" : {
     "type" : "MAX_MIN_MARGIN",
     "unit" : "A",
@@ -28,6 +28,11 @@
     "countries" : [ "BE", "FR" ]
   },
   "extensions" : {
+    "fast-rao-parameters" : {
+      "number-of-cnecs-to-add" : 20,
+      "add-unsecure-cnecs" : false,
+      "margin-limit" : 5.0
+    },
     "open-rao-search-tree-parameters" : {
       "objective-function" : {
         "curative-min-obj-improvement" : 983.0
@@ -54,7 +59,6 @@
       },
       "second-preventive-rao" : {
         "execution-condition" : "POSSIBLE_CURATIVE_IMPROVEMENT",
-        "re-optimize-curative-range-actions" : true,
         "hint-from-first-preventive-rao" : true
       },
       "load-flow-and-sensitivity-computation" : {
@@ -64,7 +68,7 @@
         "sensitivity-parameters" : {
           "version" : "1.1",
           "load-flow-parameters" : {
-            "version" : "1.9",
+            "version" : "1.10",
             "voltageInitMode" : "UNIFORM_VALUES",
             "transformerVoltageControlOn" : false,
             "phaseShifterRegulationOn" : false,
@@ -78,7 +82,7 @@
             "balanceType" : "PROPORTIONAL_TO_GENERATION_P_MAX",
             "dcUseTransformerRatio" : true,
             "countriesToBalance" : [ ],
-            "connectedComponentMode" : "MAIN",
+            "componentMode" : "MAIN_CONNECTED",
             "hvdcAcEmulation" : true,
             "dcPowerFactor" : 1.0
           },
@@ -107,6 +111,12 @@
       "costly-min-margin-parameters" : {
         "shifted-violation-penalty" : 800.0,
         "shifted-violation-threshold" : 3.0
+      },
+      "pst-regulation-parameters" : {
+        "psts-to-regulate" : {
+          "pst-1" : "network-element-1",
+          "pst-2" : "network-element-2"
+        }
       }
     }
   }

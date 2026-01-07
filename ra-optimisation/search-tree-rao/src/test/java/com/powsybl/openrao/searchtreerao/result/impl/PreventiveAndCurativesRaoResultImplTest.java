@@ -12,7 +12,8 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.*;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.range.RangeType;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
+import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.impl.CracImpl;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
@@ -30,8 +31,7 @@ import org.opentest4j.AssertionFailedError;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 import static com.powsybl.iidm.network.TwoSides.ONE;
 import static com.powsybl.openrao.commons.Unit.*;
@@ -52,21 +52,9 @@ class PreventiveAndCurativesRaoResultImplTest {
 
     private PrePerimeterResult initialResult;
     private OptimizationResult prevResult;
-    private PrePerimeterResult postPrevPrePerimResult;
     private PostPerimeterResult postPrevResult;
-    private OptimizationResult autoResult3;
-    private PrePerimeterResult postAutoPrePerimResult3;
-    private PostPerimeterResult postAutoResult3;
     private OptimizationResult autoResult4;
-    private PrePerimeterResult postAutoPrePerimResult4;
-    private PostPerimeterResult postAutoResult4;
-    private OptimizationResult curativeResult2;
-    private PrePerimeterResult postCurativePrePerimResult2;
-    private PostPerimeterResult postCurativeResult2;
-    private OptimizationResult curativeResult3;
-    private PrePerimeterResult postCurativePrePerimResult3;
-    private PostPerimeterResult postCurativeResult3;
-    private Map<State, PostPerimeterResult> postContingencyResults = new HashMap<>();
+    private final Map<State, PostPerimeterResult> postContingencyResults = new HashMap<>();
 
     private PreventiveAndCurativesRaoResultImpl output;
 
@@ -135,7 +123,6 @@ class PreventiveAndCurativesRaoResultImplTest {
             .add()
             .newOnInstantUsageRule()
             .withInstant("preventive")
-            .withUsageMethod(UsageMethod.AVAILABLE)
             .add()
             .add();
     }
@@ -192,39 +179,39 @@ class PreventiveAndCurativesRaoResultImplTest {
 
     private void preparePreventiveResult() {
         prevResult = Mockito.mock(OptimizationResult.class);
-        postPrevPrePerimResult = Mockito.mock(PrePerimeterResult.class);
+        PrePerimeterResult postPrevPrePerimResult = Mockito.mock(PrePerimeterResult.class);
         postPrevResult = new PostPerimeterResult(prevResult, postPrevPrePerimResult);
         prepareResultsForState(prevResult, postPrevPrePerimResult, crac.getPreventiveState());
     }
 
     private void prepareAutoResult3() {
-        autoResult3 = Mockito.mock(OptimizationResult.class);
-        postAutoPrePerimResult3 = Mockito.mock(PrePerimeterResult.class);
-        postAutoResult3 = new PostPerimeterResult(autoResult3, postAutoPrePerimResult3);
+        OptimizationResult autoResult3 = Mockito.mock(OptimizationResult.class);
+        PrePerimeterResult postAutoPrePerimResult3 = Mockito.mock(PrePerimeterResult.class);
+        PostPerimeterResult postAutoResult3 = new PostPerimeterResult(autoResult3, postAutoPrePerimResult3);
         prepareResultsForState(autoResult3, postAutoPrePerimResult3, crac.getState("contingency-3", autoInstant));
         postContingencyResults.put(crac.getState("contingency-3", autoInstant), postAutoResult3);
     }
 
     private void prepareAutoResult4() {
         autoResult4 = Mockito.mock(OptimizationResult.class);
-        postAutoPrePerimResult4 = Mockito.mock(PrePerimeterResult.class);
-        postAutoResult4 = new PostPerimeterResult(autoResult4, postAutoPrePerimResult4);
+        PrePerimeterResult postAutoPrePerimResult4 = Mockito.mock(PrePerimeterResult.class);
+        PostPerimeterResult postAutoResult4 = new PostPerimeterResult(autoResult4, postAutoPrePerimResult4);
         prepareResultsForState(autoResult4, postAutoPrePerimResult4, crac.getState("contingency-4", autoInstant));
         postContingencyResults.put(crac.getState("contingency-4", autoInstant), postAutoResult4);
     }
 
     private void prepareCurativeResult2() {
-        curativeResult2 = Mockito.mock(OptimizationResult.class);
-        postCurativePrePerimResult2 = Mockito.mock(PrePerimeterResult.class);
-        postCurativeResult2 = new PostPerimeterResult(curativeResult2, postCurativePrePerimResult2);
+        OptimizationResult curativeResult2 = Mockito.mock(OptimizationResult.class);
+        PrePerimeterResult postCurativePrePerimResult2 = Mockito.mock(PrePerimeterResult.class);
+        PostPerimeterResult postCurativeResult2 = new PostPerimeterResult(curativeResult2, postCurativePrePerimResult2);
         prepareResultsForState(curativeResult2, postCurativePrePerimResult2, crac.getState("contingency-2", curativeInstant));
         postContingencyResults.put(crac.getState("contingency-2", curativeInstant), postCurativeResult2);
     }
 
     private void prepareCurativeResult3() {
-        curativeResult3 = Mockito.mock(OptimizationResult.class);
-        postCurativePrePerimResult3 = Mockito.mock(PrePerimeterResult.class);
-        postCurativeResult3 = new PostPerimeterResult(curativeResult3, postCurativePrePerimResult3);
+        OptimizationResult curativeResult3 = Mockito.mock(OptimizationResult.class);
+        PrePerimeterResult postCurativePrePerimResult3 = Mockito.mock(PrePerimeterResult.class);
+        PostPerimeterResult postCurativeResult3 = new PostPerimeterResult(curativeResult3, postCurativePrePerimResult3);
         prepareResultsForState(curativeResult3, postCurativePrePerimResult3, crac.getState("contingency-3", curativeInstant));
         postContingencyResults.put(crac.getState("contingency-3", curativeInstant), postCurativeResult3);
     }
@@ -263,6 +250,16 @@ class PreventiveAndCurativesRaoResultImplTest {
             Set<String> contingencies = Set.of(state.getContingency().get().getId());
             when(optimizationResult.getContingencies()).thenReturn(contingencies);
         }
+        PstRangeAction pst = crac.getPstRangeAction("pst");
+        when(optimizationResult.getActivatedRangeActions(state)).thenReturn(Set.of(pst));
+        when(optimizationResult.getOptimizedTapsOnState(state)).thenReturn(Map.of(pst, (int) (FLOW_PER_OPTIMIZED_INSTANT.get(instant.getKind()) / 100.)));
+        when(optimizationResult.getOptimizedTap(pst, state)).thenReturn((int) (FLOW_PER_OPTIMIZED_INSTANT.get(instant.getKind()) / 100.));
+
+        Map<RangeAction<?>, Double> optimizedSetpointsOnState = new HashMap<>();
+        optimizedSetpointsOnState.put(pst, FLOW_PER_OPTIMIZED_INSTANT.get(instant.getKind()));
+        when(optimizationResult.getOptimizedSetpointsOnState(state)).thenReturn(optimizedSetpointsOnState);
+        when(optimizationResult.getOptimizedSetpoint(pst, state)).thenReturn(FLOW_PER_OPTIMIZED_INSTANT.get(instant.getKind()));
+
     }
 
     private void addFlowAndMarginResults(FlowResult flowResult, FlowCnec cnec, double flow, Instant instant) {
@@ -315,11 +312,46 @@ class PreventiveAndCurativesRaoResultImplTest {
     }
 
     @Test
-    public void testResult() {
+    void testResult() {
         checkFunctionalCosts();
         checkVirtualCosts();
         checkFlows();
         checkOptimizationResults();
+        checkOptimizedPsts();
+    }
+
+    private void checkOptimizedPsts() {
+        PstRangeAction pst = crac.getPstRangeAction("pst");
+        Map<RangeAction<?>, Double> preventiveMap = output.getOptimizedSetPointsOnState(crac.getPreventiveState());
+        assertEquals(1, preventiveMap.size());
+        assertEquals(FLOW_PER_OPTIMIZED_INSTANT.get(InstantKind.PREVENTIVE), preventiveMap.get(pst));
+        assertEquals(FLOW_PER_OPTIMIZED_INSTANT.get(InstantKind.PREVENTIVE), output.getOptimizedSetPointOnState(crac.getPreventiveState(), pst));
+        assertEquals(1, output.getOptimizedTapOnState(crac.getPreventiveState(), pst));
+        Map<PstRangeAction, Integer> optimizedTapsPreventive = output.getOptimizedTapsOnState(crac.getPreventiveState());
+        assertEquals(1, optimizedTapsPreventive.size());
+        assertEquals(1, optimizedTapsPreventive.get(pst));
+        assertEquals(output.getActivatedRangeActionsDuringState(crac.getPreventiveState()), Set.of(pst));
+
+        // optimized state
+        State auto3state = crac.getState("contingency-3", crac.getInstant(InstantKind.AUTO));
+        Map<RangeAction<?>, Double> auto3Map = output.getOptimizedSetPointsOnState(auto3state);
+        assertEquals(1, auto3Map.size());
+        assertEquals(FLOW_PER_OPTIMIZED_INSTANT.get(InstantKind.AUTO), auto3Map.get(pst));
+        assertEquals(FLOW_PER_OPTIMIZED_INSTANT.get(InstantKind.AUTO), output.getOptimizedSetPointOnState(auto3state, pst));
+        assertEquals(1, output.getOptimizedTapOnState(crac.getPreventiveState(), pst));
+        Map<PstRangeAction, Integer> optimizedTapsauto3state = output.getOptimizedTapsOnState(auto3state);
+        assertEquals(1, optimizedTapsauto3state.size());
+        assertEquals(2, optimizedTapsauto3state.get(pst));
+        assertEquals(output.getActivatedRangeActionsDuringState(auto3state), Set.of(pst));
+
+        // not optimized state
+        State cur4state = crac.getState("contingency-4", crac.getInstant(InstantKind.CURATIVE));
+        Map<RangeAction<?>, Double> cur4Map = output.getOptimizedSetPointsOnState(cur4state);
+        assert cur4Map.isEmpty();
+        assertThrows(OpenRaoException.class, () -> output.getOptimizedSetPointOnState(cur4state, pst));
+        Map<PstRangeAction, Integer> optimizedTapscur4state = output.getOptimizedTapsOnState(cur4state);
+        assert optimizedTapscur4state.isEmpty();
+        assert output.getActivatedRangeActionsDuringState(cur4state).isEmpty();
     }
 
     private void checkFunctionalCosts() {
@@ -363,19 +395,19 @@ class PreventiveAndCurativesRaoResultImplTest {
     }
 
     @Test
-    public void testGlobalComputationStatusWhenFinalPreventiveFails() {
+    void testGlobalComputationStatusWhenFinalPreventiveFails() {
         when(prevResult.getComputationStatus()).thenReturn(ComputationStatus.FAILURE);
         assertEquals(ComputationStatus.FAILURE, output.getComputationStatus());
     }
 
     @Test
-    public void testGlobalComputationStatusWhenFinalPreventivePartiallyFails() {
+    void testGlobalComputationStatusWhenFinalPreventivePartiallyFails() {
         when(prevResult.getComputationStatus()).thenReturn(ComputationStatus.PARTIAL_FAILURE);
         assertEquals(ComputationStatus.PARTIAL_FAILURE, output.getComputationStatus());
     }
 
     @Test
-    public void testGlobalComputationStatusWhenAContingencyFails() {
+    void testGlobalComputationStatusWhenAContingencyFails() {
         when(autoResult4.getComputationStatus()).thenReturn(ComputationStatus.FAILURE);
         assertEquals(ComputationStatus.PARTIAL_FAILURE, output.getComputationStatus());
     }

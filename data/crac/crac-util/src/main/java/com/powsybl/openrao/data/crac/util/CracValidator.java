@@ -16,7 +16,6 @@ import com.powsybl.openrao.data.crac.api.usagerule.OnConstraint;
 import com.powsybl.openrao.data.crac.api.usagerule.OnContingencyState;
 import com.powsybl.openrao.data.crac.api.usagerule.OnFlowConstraintInCountry;
 import com.powsybl.openrao.data.crac.api.usagerule.OnInstant;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnecAdder;
@@ -27,7 +26,6 @@ import com.powsybl.iidm.network.Network;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -52,7 +50,7 @@ public final class CracValidator {
      */
     private static List<String> addOutageCnecsForAutoCnecsWithoutRas(Crac crac, Network network) {
         List<String> report = new ArrayList<>();
-        if (!crac.getInstants(InstantKind.AUTO).isEmpty()) {
+        if (crac.hasAutoInstant()) {
             crac.getStates(crac.getInstant(InstantKind.AUTO))
                 .forEach(state -> duplicateCnecsWithNoUsefulRaOnOutageInstant(crac, network, state, report));
         }
@@ -68,8 +66,8 @@ public final class CracValidator {
         }
         // Find CNECs with no useful RA and duplicate them on outage instant
         Set<RemedialAction<?>> remedialActions = new HashSet<>();
-        remedialActions.addAll(crac.getPotentiallyAvailableRangeActions(state));
-        remedialActions.addAll(crac.getPotentiallyAvailableNetworkActions(state));
+        remedialActions.addAll(crac.getRangeActions(state));
+        remedialActions.addAll(crac.getNetworkActions(state));
 
         crac.getFlowCnecs(state).stream()
             .filter(cnec -> shouldDuplicateAutoCnecInOutageState(remedialActions, cnec, network))
@@ -84,26 +82,25 @@ public final class CracValidator {
         FlowCnecAdder adder = crac.newFlowCnec()
             .withId(cnec.getId() + " - OUTAGE DUPLICATE")
             .withNetworkElement(cnec.getNetworkElement().getId())
-            .withIMax(cnec.getIMax(TwoSides.ONE), TwoSides.ONE)
-            .withIMax(cnec.getIMax(TwoSides.TWO), TwoSides.TWO)
             .withNominalVoltage(cnec.getNominalVoltage(TwoSides.ONE), TwoSides.ONE)
             .withNominalVoltage(cnec.getNominalVoltage(TwoSides.TWO), TwoSides.TWO)
             .withReliabilityMargin(cnec.getReliabilityMargin())
             .withInstant(outageInstant.getId()).withContingency(cnec.getState().getContingency().orElseThrow().getId())
             .withOptimized(cnec.isOptimized())
             .withMonitored(cnec.isMonitored());
+        cnec.getIMax(TwoSides.ONE).ifPresent(iMax -> adder.withIMax(iMax, TwoSides.ONE));
+        cnec.getIMax(TwoSides.TWO).ifPresent(iMax -> adder.withIMax(iMax, TwoSides.TWO));
         copyThresholds(cnec, adder);
         adder.add();
     }
 
     private static boolean hasNoRemedialAction(State state, Crac crac) {
-        return crac.getPotentiallyAvailableRangeActions(state).isEmpty()
-            && crac.getPotentiallyAvailableNetworkActions(state).isEmpty();
+        return crac.getRangeActions(state).isEmpty() && crac.getNetworkActions(state).isEmpty();
     }
 
     private static boolean hasGlobalRemedialActions(State state, Crac crac) {
-        return hasOnInstantOrOnStateUsageRules(crac.getRangeActions(state, UsageMethod.FORCED)) ||
-            hasOnInstantOrOnStateUsageRules(crac.getNetworkActions(state, UsageMethod.FORCED));
+        return hasOnInstantOrOnStateUsageRules(crac.getRangeActions(state)) ||
+            hasOnInstantOrOnStateUsageRules(crac.getNetworkActions(state));
     }
 
     private static <T extends RemedialAction<?>> boolean hasOnInstantOrOnStateUsageRules(Set<T> remedialActionSet) {
@@ -137,6 +134,7 @@ public final class CracValidator {
      * If no auto remedial action affects the CNEC and the CNEC does not trigger any auto remedial action, there is no
      * need to duplicate it because this means that no auto remedial action is available for this auto state at all.
      * In this case, the StateTree algorithm will automatically include all the CNECs from the state to the preventive perimeter.
+     *
      * @param remedialActions The set of remedial actions that may affect the CNEC
      * @param flowCnec The FlowCNEC to possibly duplicate
      * @param network The network
@@ -159,7 +157,7 @@ public final class CracValidator {
                 } else if (usageRule instanceof OnFlowConstraintInCountry onFlowConstraintInCountry
                     && onFlowConstraintInCountry.getInstant().equals(flowCnec.getState().getInstant()) // TODO: why not comesBefore?
                     && (onFlowConstraintInCountry.getContingency().isEmpty() || flowCnec.getState().getContingency().equals(onFlowConstraintInCountry.getContingency()))) {
-                    if (flowCnec.getLocation(network).contains(Optional.of(onFlowConstraintInCountry.getCountry()))) {
+                    if (flowCnec.getLocation(network).contains(onFlowConstraintInCountry.getCountry())) {
                         return false;
                     } else {
                         raForOtherCnecs = true;

@@ -9,6 +9,7 @@ package com.powsybl.openrao.searchtreerao.marmot.results;
 
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.TemporalData;
+import com.powsybl.openrao.commons.TemporalDataImpl;
 
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -17,10 +18,10 @@ import java.util.List;
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
 public abstract class AbstractGlobalResult<T> implements GlobalResult<T> {
-    protected TemporalData<T> resultPerTimestamp;
+    protected final TemporalData<T> resultPerTimestamp;
 
-    protected AbstractGlobalResult(TemporalData<T> resultPerTimestamp) {
-        this.resultPerTimestamp = resultPerTimestamp;
+    protected AbstractGlobalResult(TemporalData<? extends T> resultPerTimestamp) {
+        this.resultPerTimestamp = new TemporalDataImpl<>(resultPerTimestamp.getDataPerTimestamp());
     }
 
     @Override

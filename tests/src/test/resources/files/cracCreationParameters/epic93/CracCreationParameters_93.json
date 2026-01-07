@@ -1,0 +1,11 @@
+{
+  "crac-factory": "CracImplFactory",
+  "default-monitored-line-side" : "monitor-lines-on-side-one",
+  "ra-usage-limits-per-instant": [],
+  "extensions": {
+    "FbConstraintCracCreatorParameters": {
+      "ics-cost-up": 10,
+      "ics-cost-down": 10
+    }
+  }
+}

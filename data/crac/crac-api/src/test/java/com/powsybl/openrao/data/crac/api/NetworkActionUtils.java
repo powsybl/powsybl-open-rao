@@ -12,7 +12,6 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.data.crac.api.usagerule.OnContingencyStateAdderToRemedialAction;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.ActionType;
@@ -93,11 +92,6 @@ public final class NetworkActionUtils {
         }
 
         @Override
-        public UsageMethod getUsageMethod(State state) {
-            return null;
-        }
-
-        @Override
         public Optional<Integer> getSpeed() {
             return Optional.empty();
         }
@@ -148,6 +142,11 @@ public final class NetworkActionUtils {
         }
 
         @Override
+        public void addUsageRule(UsageRule usageRule) {
+            // not used
+        }
+
+        @Override
         public <E extends Extension<NetworkAction>> void addExtension(Class<? super E> aClass, E e) {
             //not used
         }
@@ -171,6 +170,7 @@ public final class NetworkActionUtils {
         public <E extends Extension<NetworkAction>> Collection<E> getExtensions() {
             return null;
         }
+
     }
 
     public static class NetworkElementImplTest implements NetworkElement {
@@ -192,7 +192,7 @@ public final class NetworkActionUtils {
         }
 
         @Override
-        public Set<Optional<Country>> getLocation(Network network) {
+        public Set<Country> getLocation(Network network) {
             return null;
         }
 

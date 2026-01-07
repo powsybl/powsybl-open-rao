@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, RTE (http://www.rte-france.com)
+ * Copyright (c) 2021, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -48,11 +48,11 @@ public class FlowCnecImpl extends AbstractBranchCnec<FlowCnec> implements FlowCn
     }
 
     @Override
-    public Double getIMax(TwoSides side) {
+    public Optional<Double> getIMax(TwoSides side) {
         if (side.equals(TwoSides.ONE)) {
-            return iMax[0];
+            return Optional.ofNullable(iMax[0]);
         } else {
-            return iMax[1];
+            return Optional.ofNullable(iMax[1]);
         }
     }
 
@@ -119,7 +119,9 @@ public class FlowCnecImpl extends AbstractBranchCnec<FlowCnec> implements FlowCn
 
     private double getRawBound(BranchThreshold threshold, double thresholdValue) {
         if (threshold.getUnit().equals(Unit.PERCENT_IMAX)) {
-            return getIMax(threshold.getSide()) * thresholdValue;
+            TwoSides side = threshold.getSide();
+            double iMax = getIMax(side).orElseThrow(() -> new OpenRaoException("Failed to retrieve iMax on side %s for FlowCNEC %s.".formatted(side, getId())));
+            return iMax * thresholdValue;
         } else {
             return thresholdValue;
         }

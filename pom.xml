@@ -7,12 +7,12 @@
     <parent>
         <groupId>com.powsybl</groupId>
         <artifactId>powsybl-parent</artifactId>
-        <version>20.2</version>
+        <version>24</version>
         <relativePath/>
     </parent>
 
     <artifactId>powsybl-open-rao</artifactId>
-    <version>6.6.0-SNAPSHOT</version>
+    <version>7.2.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Open RAO</name>
@@ -74,7 +74,7 @@
     <properties>
         <!-- Project properties -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <java.version>17</java.version>
+        <java.version>21</java.version>
 
         <!-- Sonar properties -->
         <sonar.coverage.jacoco.xmlReportPaths>
@@ -85,9 +85,9 @@
         </sonar.coverage.jacoco.xmlReportPaths>
 
         <!-- Dependencies versions -->
-        <apache.commons.lang3>3.13.0</apache.commons.lang3>
         <cucumber.bom.version>7.20.1</cucumber.bom.version>
-        <commonsio.version>2.16.1</commonsio.version>
+        <commons.csv.version>1.13.0</commons.csv.version>
+        <commonsio.version>2.18.0</commonsio.version>
         <google.autoservice.version>1.1.1</google.autoservice.version>
         <google.guava.version>33.2.1-jre</google.guava.version>
         <google.ortools.version>9.11.4210</google.ortools.version>
@@ -107,12 +107,13 @@
         <maven.jar.version>3.3.0</maven.jar.version>
         <maven.jvnet.jaxb.version>4.0.8</maven.jvnet.jaxb.version>
         <mockito.core.version>5.12.0</mockito.core.version>
-        <powsybl.core.version>6.7.2</powsybl.core.version>
-        <powsybl.entsoe.version>2.13.1</powsybl.entsoe.version>
-        <powsybl.openloadflow.version>1.15.2</powsybl.openloadflow.version>
+        <powsybl.core.version>7.1.0</powsybl.core.version>
+        <powsybl.entsoe.version>3.1.0</powsybl.entsoe.version>
+        <powsybl.openloadflow.version>2.1.0</powsybl.openloadflow.version>
         <slf4j.version>2.0.13</slf4j.version>
         <xmlunit.core.version>2.10.0</xmlunit.core.version>
         <com.networknt.version>1.5.3</com.networknt.version>
+        <assertj-core.version>3.27.6</assertj-core.version>
     </properties>
 
     <build>
@@ -195,6 +196,26 @@
                         <configuration>
                             <excludedGroups>dockerTests</excludedGroups>
                         </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-checkstyle-plugin</artifactId>
+                        <version>3.4.0</version>
+                        <configuration>
+                            <configLocation>checkstyle.xml</configLocation>
+                            <suppressionsLocation>checkstyle-suppressions.xml</suppressionsLocation>
+                            <failOnViolation>true</failOnViolation>
+                            <consoleOutput>true</consoleOutput>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>validate-checkstyle</id>
+                                <phase>validate</phase>
+                                <goals>
+                                    <goal>check</goal>
+                                </goals>
+                            </execution>
+                        </executions>
                     </plugin>
                 </plugins>
             </build>
@@ -286,7 +307,7 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>open-rao-generator-constraints</artifactId>
+                <artifactId>open-rao-intertemporal-constraints</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -447,11 +468,6 @@
 
             <!-- Compile dependencies -->
             <dependency>
-                <groupId>org.apache.commons</groupId>
-                <artifactId>commons-lang3</artifactId>
-                <version>${apache.commons.lang3}</version>
-            </dependency>
-            <dependency>
                 <groupId>commons-io</groupId>
                 <artifactId>commons-io</artifactId>
                 <version>${commonsio.version}</version>
@@ -470,6 +486,11 @@
                 <groupId>com.google.ortools</groupId>
                 <artifactId>ortools-java</artifactId>
                 <version>${google.ortools.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-core</artifactId>
+                <version>${jackson.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
@@ -547,6 +568,11 @@
                 <version>${javax.validation.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-csv</artifactId>
+                <version>${commons.csv.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
                 <version>${slf4j.version}</version>
@@ -599,6 +625,12 @@
                 <version>${junit.bom.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.assertj</groupId>
+                <artifactId>assertj-core</artifactId>
+                <version>${assertj-core.version}</version>
+                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>ch.qos.logback</groupId>

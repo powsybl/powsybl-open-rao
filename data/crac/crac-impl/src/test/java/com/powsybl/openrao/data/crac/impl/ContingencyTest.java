@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2019, RTE (http://www.rte-france.com)
+ * Copyright (c) 2024, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
- *  License, v. 2.0. If a copy of the MPL was not distributed with this
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
@@ -88,7 +88,7 @@ class ContingencyTest {
 
     @Test
     void testApplyOnGenerator() {
-        Contingency contingencyImpl = new Contingency("contingency", "contingency", Collections.singletonList(ContingencyElement.of(network.getIdentifiable("GENERATOR_FR_2"))));
+        Contingency contingencyImpl = new Contingency("contingency", "contingency", Collections.singletonList(ContingencyElementFactory.create(network.getIdentifiable("GENERATOR_FR_2"))));
         assertEquals(1, contingencyImpl.getElements().size());
         assertTrue(network.getGenerator("GENERATOR_FR_2").getTerminal().isConnected());
         contingencyImpl.isValid(network);
@@ -99,7 +99,7 @@ class ContingencyTest {
     @Test
     void testApplyOnDanglingLine() {
         network = Network.read("TestCase12NodesHvdc.uct", getClass().getResourceAsStream("/TestCase12NodesHvdc.uct"));
-        Contingency contingencyImpl = new Contingency("contingency", "contingency", Collections.singletonList(ContingencyElement.of(network.getIdentifiable("BBE2AA1  XLI_OB1B 1"))));
+        Contingency contingencyImpl = new Contingency("contingency", "contingency", Collections.singletonList(ContingencyElementFactory.create(network.getIdentifiable("BBE2AA1  XLI_OB1B 1"))));
         assertEquals(1, contingencyImpl.getElements().size());
         assertTrue(network.getDanglingLine("BBE2AA1  XLI_OB1B 1").getTerminal().isConnected());
         contingencyImpl.isValid(network);

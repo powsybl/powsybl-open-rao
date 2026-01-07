@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, RTE (http://www.rte-france.com)
+ * Copyright (c) 2021, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -44,14 +44,14 @@ public final class NetworkActionArrayDeserializer {
                         break;
                     case JsonSerializationConstants.ON_INSTANT_USAGE_RULES:
                         jsonParser.nextToken();
-                        OnInstantArrayDeserializer.deserialize(jsonParser, networkActionAdder);
+                        OnInstantArrayDeserializer.deserialize(jsonParser, networkActionAdder, version);
                         break;
                     case JsonSerializationConstants.FREE_TO_USE_USAGE_RULES:
                         deserializeFreeToUseUsageRules(jsonParser, version, networkActionAdder);
                         break;
                     case JsonSerializationConstants.ON_CONTINGENCY_STATE_USAGE_RULES:
                         jsonParser.nextToken();
-                        OnStateArrayDeserializer.deserialize(jsonParser, networkActionAdder);
+                        OnStateArrayDeserializer.deserialize(jsonParser, networkActionAdder, version);
                         break;
                     case JsonSerializationConstants.ON_STATE_USAGE_RULES:
                         deserializeOnStateUsageRules(jsonParser, version, networkActionAdder);
@@ -104,6 +104,10 @@ public final class NetworkActionArrayDeserializer {
                         jsonParser.nextToken();
                         TerminalsConnectionActionArrayDeserializer.deserialize(jsonParser, networkActionAdder, networkElementsNamesPerId);
                         break;
+                    case JsonSerializationConstants.AC_EMULATION_DEACTIVATION_ACTIONS:
+                        jsonParser.nextToken();
+                        AcEmulationDeactivationActionDeserializer.deserialize(jsonParser, networkActionAdder, networkElementsNamesPerId);
+                        break;
                     case JsonSerializationConstants.SWITCH_ACTIONS:
                         jsonParser.nextToken();
                         SwitchActionArrayDeserializer.deserialize(jsonParser, networkActionAdder, networkElementsNamesPerId);
@@ -155,7 +159,7 @@ public final class NetworkActionArrayDeserializer {
             throw new OpenRaoException("OnState has been renamed to OnContingencyState since CRAC version 1.6");
         } else {
             jsonParser.nextToken();
-            OnStateArrayDeserializer.deserialize(jsonParser, networkActionAdder);
+            OnStateArrayDeserializer.deserialize(jsonParser, networkActionAdder, version);
         }
     }
 
@@ -164,7 +168,7 @@ public final class NetworkActionArrayDeserializer {
             throw new OpenRaoException("FreeToUse has been renamed to OnInstant since CRAC version 1.6");
         } else {
             jsonParser.nextToken();
-            OnInstantArrayDeserializer.deserialize(jsonParser, networkActionAdder);
+            OnInstantArrayDeserializer.deserialize(jsonParser, networkActionAdder, version);
         }
     }
 

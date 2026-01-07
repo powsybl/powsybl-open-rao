@@ -4,6 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 package com.powsybl.openrao.data.crac.io.cse;
 
 import com.powsybl.iidm.network.Network;
@@ -111,8 +112,8 @@ class CseCracCreatorWithMneTest {
         assertEquals(name, flowCnec.getName());
         assertTrue(flowCnec.isMonitored());
         assertFalse(flowCnec.isOptimized());
-        assertEquals(expectedIMax, flowCnec.getIMax(TwoSides.ONE), 0.00001);
-        assertEquals(expectedIMax, flowCnec.getIMax(TwoSides.TWO), 0.00001);
+        assertEquals(expectedIMax, flowCnec.getIMax(TwoSides.ONE).get(), 0.00001);
+        assertEquals(expectedIMax, flowCnec.getIMax(TwoSides.TWO).get(), 0.00001);
         assertTrue(hasThreshold(nativeId, expectedThreshold, expectedThresholdUnit, flowCnec, direction, TwoSides.ONE));
         assertTrue(hasThreshold(nativeId, expectedThreshold, expectedThresholdUnit, flowCnec, direction, TwoSides.TWO));
         assertEquals(contingencyId, flowCnec.getState().getContingency().get().getId());
@@ -137,8 +138,8 @@ class CseCracCreatorWithMneTest {
         assertEquals(name, flowCnec.getName());
         assertTrue(flowCnec.isMonitored());
         assertFalse(flowCnec.isOptimized());
-        assertEquals(expectedIMax, flowCnec.getIMax(TwoSides.ONE), 0.00001);
-        assertEquals(expectedIMax, flowCnec.getIMax(TwoSides.TWO), 0.00001);
+        assertEquals(expectedIMax, flowCnec.getIMax(TwoSides.ONE).get(), 0.00001);
+        assertEquals(expectedIMax, flowCnec.getIMax(TwoSides.TWO).get(), 0.00001);
 
         assertTrue(hasThreshold(nativeId, expectedThreshold, expectedThresholdUnit, flowCnec, direction, TwoSides.ONE));
         assertTrue(hasThreshold(nativeId, expectedThreshold, expectedThresholdUnit, flowCnec, direction, TwoSides.TWO));

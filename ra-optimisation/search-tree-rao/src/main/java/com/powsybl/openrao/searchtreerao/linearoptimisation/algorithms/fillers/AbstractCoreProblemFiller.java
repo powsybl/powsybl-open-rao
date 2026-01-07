@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, RTE (http://www.rte-france.com)
+ * Copyright (c) 2020, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -59,6 +59,7 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
     protected final boolean raRangeShrinking;
     protected final PstModel pstModel;
     protected final OffsetDateTime timestamp;
+    private final Map<RangeAction<?>, Set<RangeAction<?>>> memoizedSameRangeActions = new HashMap<>();
 
     protected AbstractCoreProblemFiller(OptimizationPerimeter optimizationContext,
                                         RangeActionSetpointResult prePerimeterRangeActionSetpoints,
@@ -234,12 +235,12 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
         }
         if (iteration > 0) {
             // don't shrink the range for the first iteration
-            optimizationContext.getRangeActionsPerState().forEach((state, rangeActionSet) -> rangeActionSet.forEach(rangeAction -> updateConstraintsForRangeAction(linearProblem, rangeAction, state, rangeActionActivationResult, iteration, timestamp)));
+            optimizationContext.getRangeActionsPerState().forEach((state, rangeActionSet) -> rangeActionSet.forEach(rangeAction -> updateConstraintsForRangeAction(linearProblem, rangeAction, state, rangeActionActivationResult, iteration)));
         }
         iteration++;
     }
 
-    private static void updateConstraintsForRangeAction(LinearProblem linearProblem, RangeAction<?> rangeAction, State state, RangeActionActivationResult rangeActionActivationResult, int iteration, OffsetDateTime timestamp) {
+    private static void updateConstraintsForRangeAction(LinearProblem linearProblem, RangeAction<?> rangeAction, State state, RangeActionActivationResult rangeActionActivationResult, int iteration) {
         double previousSetPointValue = rangeActionActivationResult.getOptimizedSetpoint(rangeAction, state);
         List<Double> minAndMaxAbsoluteAndRelativeSetpoints = getMinAndMaxAbsoluteAndRelativeSetpoints(rangeAction, linearProblem.infinity());
         double minAbsoluteSetpoint = minAndMaxAbsoluteAndRelativeSetpoints.get(0);
@@ -348,20 +349,19 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
             for (TapRange range : ranges) {
                 RangeType rangeType = range.getRangeType();
                 switch (rangeType) {
-                    case ABSOLUTE:
+                    case ABSOLUTE -> {
                         minAbsoluteTap = Math.max(minAbsoluteTap, range.getMinTap());
                         maxAbsoluteTap = Math.min(maxAbsoluteTap, range.getMaxTap());
-                        break;
-                    case RELATIVE_TO_INITIAL_NETWORK:
+                    }
+                    case RELATIVE_TO_INITIAL_NETWORK -> {
                         minAbsoluteTap = Math.max(minAbsoluteTap, pstRangeAction.getInitialTap() + range.getMinTap());
                         maxAbsoluteTap = Math.min(maxAbsoluteTap, pstRangeAction.getInitialTap() + range.getMaxTap());
-                        break;
-                    case RELATIVE_TO_PREVIOUS_INSTANT:
+                    }
+                    case RELATIVE_TO_PREVIOUS_INSTANT -> {
                         minRelativeTap = Math.max(minRelativeTap, range.getMinTap());
                         maxRelativeTap = Math.min(maxRelativeTap, range.getMaxTap());
-                        break;
-                    default:
-                        throw new OpenRaoException(String.format("Unsupported range type %s", rangeType));
+                    }
+                    default -> throw new OpenRaoException(String.format("Unsupported range type %s", rangeType));
                 }
             }
             // The taps are not necessarily in order of increasing angle.
@@ -378,20 +378,19 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
             for (StandardRange range : ranges) {
                 RangeType rangeType = range.getRangeType();
                 switch (rangeType) {
-                    case ABSOLUTE:
+                    case ABSOLUTE -> {
                         minAbsoluteSetpoint = Math.max(minAbsoluteSetpoint, range.getMin());
                         maxAbsoluteSetpoint = Math.min(maxAbsoluteSetpoint, range.getMax());
-                        break;
-                    case RELATIVE_TO_INITIAL_NETWORK:
+                    }
+                    case RELATIVE_TO_INITIAL_NETWORK -> {
                         minAbsoluteSetpoint = Math.max(minAbsoluteSetpoint, standardRangeAction.getInitialSetpoint() + range.getMin());
                         maxAbsoluteSetpoint = Math.min(maxAbsoluteSetpoint, standardRangeAction.getInitialSetpoint() + range.getMax());
-                        break;
-                    case RELATIVE_TO_PREVIOUS_INSTANT:
+                    }
+                    case RELATIVE_TO_PREVIOUS_INSTANT -> {
                         minRelativeSetpoint = Math.max(minRelativeSetpoint, range.getMin());
                         maxRelativeSetpoint = Math.min(maxRelativeSetpoint, range.getMax());
-                        break;
-                    default:
-                        throw new OpenRaoException(String.format("Unsupported range type %s", rangeType));
+                    }
+                    default -> throw new OpenRaoException(String.format("Unsupported range type %s", rangeType));
                 }
             }
         } else {
@@ -402,6 +401,9 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
     }
 
     private Set<RangeAction<?>> getAvailableRangeActionsOnSameAction(RangeAction<?> rangeAction) {
+        if (memoizedSameRangeActions.containsKey(rangeAction)) {
+            return memoizedSameRangeActions.get(rangeAction);
+        }
         Set<RangeAction<?>> rangeActions = new HashSet<>();
         optimizationContext.getRangeActionsPerState().forEach((state, raSet) ->
             raSet.forEach(ra -> {
@@ -410,6 +412,7 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
                 }
             })
         );
+        memoizedSameRangeActions.put(rangeAction, rangeActions);
         return rangeActions;
     }
 

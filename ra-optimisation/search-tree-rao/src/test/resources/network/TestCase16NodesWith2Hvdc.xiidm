@@ -14,11 +14,11 @@
                     <iidm:property name="currentLimit" value="2000"/>
                 </iidm:switch>
             </iidm:busBreakerTopology>
-            <iidm:generator id="BBE1AA11_generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="1500.0" targetV="400.0" targetQ="0.0" bus="BBE1AA11" connectableBus="BBE1AA11">
-                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            <iidm:generator id="BBE1AA11_generator" energySource="OTHER" minP="-11000.0" maxP="11000.0" voltageRegulatorOn="true" targetP="7951.0" targetV="400.0" targetQ="0.0" bus="BBE1AA11" connectableBus="BBE1AA11">
+                <iidm:minMaxReactiveLimits minQ="-11000.0" maxQ="11000.0"/>
             </iidm:generator>
-            <iidm:generator id="BBE4AA11_generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="2500.0" targetV="400.0" targetQ="0.0" bus="BBE4AA11" connectableBus="BBE4AA11">
-                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            <iidm:generator id="BBE4AA11_generator" energySource="OTHER" minP="-11000.0" maxP="11000.0" voltageRegulatorOn="true" targetP="2500.0" targetV="400.0" targetQ="0.0" bus="BBE4AA11" connectableBus="BBE4AA11">
+                <iidm:minMaxReactiveLimits minQ="-11000.0" maxQ="11000.0"/>
             </iidm:generator>
             <iidm:load id="BBE1AA11_load" loadType="UNDEFINED" p0="2500.0" q0="0.0" bus="BBE1AA11" connectableBus="BBE1AA11"/>
             <iidm:load id="BBE4AA11_load" loadType="UNDEFINED" p0="2000.0" q0="0.0" bus="BBE4AA11" connectableBus="BBE4AA11"/>
@@ -35,11 +35,11 @@
                 </iidm:bus>
                 <iidm:bus id="BBE2AA12"/>
             </iidm:busBreakerTopology>
-            <iidm:generator id="BBE2AA11_generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="3000.0" targetV="400.0" targetQ="0.0" bus="BBE2AA11" connectableBus="BBE2AA11">
-                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            <iidm:generator id="BBE2AA11_generator" energySource="OTHER" minP="-11000.0" maxP="11000.0" voltageRegulatorOn="true" targetP="3000.0" targetV="400.0" targetQ="0.0" bus="BBE2AA11" connectableBus="BBE2AA11">
+                <iidm:minMaxReactiveLimits minQ="-11000.0" maxQ="11000.0"/>
             </iidm:generator>
-            <iidm:generator id="BBE3AA11_generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="2500.0" targetV="400.0" targetQ="0.0" bus="BBE3AA11" connectableBus="BBE3AA11">
-                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            <iidm:generator id="BBE3AA11_generator" energySource="OTHER" minP="-11000.0" maxP="11000.0" voltageRegulatorOn="true" targetP="2500.0" targetV="400.0" targetQ="0.0" bus="BBE3AA11" connectableBus="BBE3AA11">
+                <iidm:minMaxReactiveLimits minQ="-11000.0" maxQ="11000.0"/>
             </iidm:generator>
             <iidm:load id="BBE2AA11_load" loadType="UNDEFINED" p0="1000.0" q0="0.0" bus="BBE2AA11" connectableBus="BBE2AA11"/>
             <iidm:load id="BBE3AA11_load" loadType="UNDEFINED" p0="1500.0" q0="0.0" bus="BBE3AA11" connectableBus="BBE3AA11"/>
@@ -98,8 +98,8 @@
                     <iidm:property name="geographicalName" value="DE1"/>
                 </iidm:bus>
             </iidm:busBreakerTopology>
-            <iidm:generator id="DDE1AA11_generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="2500.0" targetV="400.0" targetQ="0.0" bus="DDE1AA11" connectableBus="DDE1AA11">
-                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            <iidm:generator id="DDE1AA11_generator" energySource="OTHER" minP="-11000.0" maxP="11000.0" voltageRegulatorOn="true" targetP="2500.0" targetV="400.0" targetQ="0.0" bus="DDE1AA11" connectableBus="DDE1AA11">
+                <iidm:minMaxReactiveLimits minQ="-11000.0" maxQ="11000.0"/>
             </iidm:generator>
             <iidm:load id="DDE1AA11_load" loadType="UNDEFINED" p0="3500.0" q0="0.0" bus="DDE1AA11" connectableBus="DDE1AA11"/>
         </iidm:voltageLevel>
@@ -111,8 +111,8 @@
                     <iidm:property name="geographicalName" value="DE2"/>
                 </iidm:bus>
             </iidm:busBreakerTopology>
-            <iidm:generator id="DDE2AA11_generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="2000.0" targetV="400.0" targetQ="0.0" bus="DDE2AA11" connectableBus="DDE2AA11">
-                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            <iidm:generator id="DDE2AA11_generator" energySource="OTHER" minP="-11000.0" maxP="11000.0" voltageRegulatorOn="true" targetP="2000.0" targetV="400.0" targetQ="0.0" bus="DDE2AA11" connectableBus="DDE2AA11">
+                <iidm:minMaxReactiveLimits minQ="-11000.0" maxQ="11000.0"/>
             </iidm:generator>
             <iidm:load id="DDE2AA11_load" loadType="UNDEFINED" p0="3000.0" q0="0.0" bus="DDE2AA11" connectableBus="DDE2AA11"/>
         </iidm:voltageLevel>
@@ -131,11 +131,11 @@
                     <iidm:property name="currentLimit" value="2000"/>
                 </iidm:switch>
             </iidm:busBreakerTopology>
-            <iidm:generator id="DDE3AA11_generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="1500.0" targetV="400.0" targetQ="0.0" bus="DDE3AA11" connectableBus="DDE3AA11">
-                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            <iidm:generator id="DDE3AA11_generator" energySource="OTHER" minP="-11000.0" maxP="11000.0" voltageRegulatorOn="true" targetP="1500.0" targetV="400.0" targetQ="0.0" bus="DDE3AA11" connectableBus="DDE3AA11">
+                <iidm:minMaxReactiveLimits minQ="-11000.0" maxQ="11000.0"/>
             </iidm:generator>
-            <iidm:generator id="DDE4AA11_generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="1500.0" targetV="400.0" targetQ="0.0" bus="DDE4AA11" connectableBus="DDE4AA11">
-                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            <iidm:generator id="DDE4AA11_generator" energySource="OTHER" minP="-11000.0" maxP="11000.0" voltageRegulatorOn="true" targetP="1500.0" targetV="400.0" targetQ="0.0" bus="DDE4AA11" connectableBus="DDE4AA11">
+                <iidm:minMaxReactiveLimits minQ="-11000.0" maxQ="11000.0"/>
             </iidm:generator>
             <iidm:load id="DDE3AA11_load" loadType="UNDEFINED" p0="2000.0" q0="0.0" bus="DDE3AA11" connectableBus="DDE3AA11"/>
             <iidm:load id="DDE4AA11_load" loadType="UNDEFINED" p0="1000.0" q0="0.0" bus="DDE4AA11" connectableBus="DDE4AA11"/>
@@ -148,8 +148,8 @@
                     <iidm:property name="geographicalName" value="FR1"/>
                 </iidm:bus>
             </iidm:busBreakerTopology>
-            <iidm:generator id="FFR1AA11_generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="2000.0" targetV="400.0" targetQ="0.0" bus="FFR1AA11" connectableBus="FFR1AA11">
-                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            <iidm:generator id="FFR1AA11_generator" energySource="OTHER" minP="-11000.0" maxP="11000.0" voltageRegulatorOn="true" targetP="2000.0" targetV="400.0" targetQ="0.0" bus="FFR1AA11" connectableBus="FFR1AA11">
+                <iidm:minMaxReactiveLimits minQ="-11000.0" maxQ="11000.0"/>
             </iidm:generator>
             <iidm:load id="FFR1AA11_load" loadType="UNDEFINED" p0="1000.0" q0="0.0" bus="FFR1AA11" connectableBus="FFR1AA11"/>
         </iidm:voltageLevel>
@@ -164,11 +164,11 @@
                     <iidm:property name="geographicalName" value="FR4"/>
                 </iidm:bus>
             </iidm:busBreakerTopology>
-            <iidm:generator id="FFR2AA11_generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="2000.0" targetV="400.0" targetQ="0.0" bus="FFR2AA11" connectableBus="FFR2AA11">
-                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            <iidm:generator id="FFR2AA11_generator" energySource="OTHER" minP="-11000.0" maxP="11000.0" voltageRegulatorOn="true" targetP="2000.0" targetV="400.0" targetQ="0.0" bus="FFR2AA11" connectableBus="FFR2AA11">
+                <iidm:minMaxReactiveLimits minQ="-11000.0" maxQ="11000.0"/>
             </iidm:generator>
-            <iidm:generator id="FFR4AA11_generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="1000.0" targetV="400.0" targetQ="0.0" bus="FFR4AA11" connectableBus="FFR4AA11">
-                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            <iidm:generator id="FFR4AA11_generator" energySource="OTHER" minP="-11000.0" maxP="11000.0" voltageRegulatorOn="true" targetP="1000.0" targetV="400.0" targetQ="0.0" bus="FFR4AA11" connectableBus="FFR4AA11">
+                <iidm:minMaxReactiveLimits minQ="-11000.0" maxQ="11000.0"/>
             </iidm:generator>
             <iidm:load id="FFR2AA11_load" loadType="UNDEFINED" p0="3500.0" q0="0.0" bus="FFR2AA11" connectableBus="FFR2AA11"/>
             <iidm:load id="FFR4AA11_load" loadType="UNDEFINED" p0="2000.0" q0="0.0" bus="FFR4AA11" connectableBus="FFR4AA11"/>
@@ -222,8 +222,8 @@
                 </iidm:bus>
                 <iidm:bus id="FFR3AA12"/>
             </iidm:busBreakerTopology>
-            <iidm:generator id="FFR3AA11_generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="3000.0" targetV="400.0" targetQ="0.0" bus="FFR3AA11" connectableBus="FFR3AA11">
-                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            <iidm:generator id="FFR3AA11_generator" energySource="OTHER" minP="-11000.0" maxP="11000.0" voltageRegulatorOn="true" targetP="3000.0" targetV="400.0" targetQ="0.0" bus="FFR3AA11" connectableBus="FFR3AA11">
+                <iidm:minMaxReactiveLimits minQ="-11000.0" maxQ="11000.0"/>
             </iidm:generator>
             <iidm:load id="FFR3AA11_load" loadType="UNDEFINED" p0="1500.0" q0="0.0" bus="FFR3AA11" connectableBus="FFR3AA11"/>
             <iidm:vscConverterStation id="FFR3AA1_vsc" voltageRegulatorOn="true" lossFactor="1.0" voltageSetpoint="400.0" reactivePowerSetpoint="-150.0" bus="FFR3AA11" connectableBus="FFR3AA11">
@@ -241,8 +241,8 @@
                     <iidm:property name="geographicalName" value="FR5"/>
                 </iidm:bus>
             </iidm:busBreakerTopology>
-            <iidm:generator id="FFR5AA11_generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="1500.0" targetV="400.0" targetQ="0.0" bus="FFR5AA11" connectableBus="FFR5AA11">
-                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            <iidm:generator id="FFR5AA11_generator" energySource="OTHER" minP="-11000.0" maxP="11000.0" voltageRegulatorOn="true" targetP="1500.0" targetV="400.0" targetQ="0.0" bus="FFR5AA11" connectableBus="FFR5AA11">
+                <iidm:minMaxReactiveLimits minQ="-11000.0" maxQ="11000.0"/>
             </iidm:generator>
             <iidm:load id="FFR5AA11_load" loadType="UNDEFINED" p0="1500.0" q0="0.0" bus="FFR5AA11" connectableBus="FFR5AA11"/>
         </iidm:voltageLevel>
@@ -254,8 +254,8 @@
                     <iidm:property name="geographicalName" value="NL1"/>
                 </iidm:bus>
             </iidm:busBreakerTopology>
-            <iidm:generator id="NNL1AA11_generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="1500.0" targetV="400.0" targetQ="0.0" bus="NNL1AA11" connectableBus="NNL1AA11">
-                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            <iidm:generator id="NNL1AA11_generator" energySource="OTHER" minP="-11000.0" maxP="11000.0" voltageRegulatorOn="true" targetP="1500.0" targetV="400.0" targetQ="0.0" bus="NNL1AA11" connectableBus="NNL1AA11">
+                <iidm:minMaxReactiveLimits minQ="-11000.0" maxQ="11000.0"/>
             </iidm:generator>
             <iidm:load id="NNL1AA11_load" loadType="UNDEFINED" p0="1000.0" q0="0.0" bus="NNL1AA11" connectableBus="NNL1AA11"/>
         </iidm:voltageLevel>
@@ -267,8 +267,8 @@
                     <iidm:property name="geographicalName" value="NL2"/>
                 </iidm:bus>
             </iidm:busBreakerTopology>
-            <iidm:generator id="NNL2AA11_generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="500.0" targetV="400.0" targetQ="0.0" bus="NNL2AA11" connectableBus="NNL2AA11">
-                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            <iidm:generator id="NNL2AA11_generator" energySource="OTHER" minP="-11000.0" maxP="11000.0" voltageRegulatorOn="true" targetP="500.0" targetV="400.0" targetQ="0.0" bus="NNL2AA11" connectableBus="NNL2AA11">
+                <iidm:minMaxReactiveLimits minQ="-11000.0" maxQ="11000.0"/>
             </iidm:generator>
             <iidm:load id="NNL2AA11_load" loadType="UNDEFINED" p0="1000.0" q0="0.0" bus="NNL2AA11" connectableBus="NNL2AA11"/>
         </iidm:voltageLevel>
@@ -280,8 +280,8 @@
                     <iidm:property name="geographicalName" value="NL3"/>
                 </iidm:bus>
             </iidm:busBreakerTopology>
-            <iidm:generator id="NNL3AA11_generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="2000.0" targetV="400.0" targetQ="0.0" bus="NNL3AA11" connectableBus="NNL3AA11">
-                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            <iidm:generator id="NNL3AA11_generator" energySource="OTHER" minP="-11000.0" maxP="11000.0" voltageRegulatorOn="true" targetP="2000.0" targetV="400.0" targetQ="0.0" bus="NNL3AA11" connectableBus="NNL3AA11">
+                <iidm:minMaxReactiveLimits minQ="-11000.0" maxQ="11000.0"/>
             </iidm:generator>
             <iidm:load id="NNL3AA11_load" loadType="UNDEFINED" p0="2500.0" q0="0.0" bus="NNL3AA11" connectableBus="NNL3AA11"/>
         </iidm:voltageLevel>

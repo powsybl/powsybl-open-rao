@@ -16,8 +16,8 @@ import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
-import com.powsybl.openrao.data.generatorconstraints.GeneratorConstraints;
+import com.powsybl.openrao.data.intertemporalconstraints.GeneratorConstraints;
+import com.powsybl.openrao.data.intertemporalconstraints.IntertemporalConstraints;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.raoapi.InterTemporalRaoInput;
 import com.powsybl.openrao.raoapi.RaoInput;
@@ -49,10 +49,10 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 /**
- * @author Roxane Chen {@literal <roxane.chen at rte-france.com}
+ * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
  */
 class PowerGradientConstraintFillerTest {
-    private LinearProblemBuilder linearProblemBuilder = new LinearProblemBuilder().withSolver(SearchTreeRaoRangeActionsOptimizationParameters.Solver.SCIP);
+    private final LinearProblemBuilder linearProblemBuilder = new LinearProblemBuilder().withSolver(SearchTreeRaoRangeActionsOptimizationParameters.Solver.SCIP);
     private LinearProblem linearProblem;
     private final OffsetDateTime timestamp1 = OffsetDateTime.of(2025, 1, 9, 16, 21, 0, 0, ZoneOffset.UTC);
     private final OffsetDateTime timestamp2 = OffsetDateTime.of(2025, 1, 9, 17, 21, 0, 0, ZoneOffset.UTC);
@@ -77,7 +77,12 @@ class PowerGradientConstraintFillerTest {
         GeneratorConstraints generatorConstraintsFr2 = GeneratorConstraints.create().withGeneratorId("FFR2AA1 _generator").withLeadTime(0.0).withLagTime(0.0).withPMin(0.0).withPMax(1000.0).withUpwardPowerGradient(200.0).withDownwardPowerGradient(-100.0).build();
         GeneratorConstraints generatorConstraintsFr3 = GeneratorConstraints.create().withGeneratorId("FFR3AA1 _load").withLeadTime(0.0).withLagTime(0.0).withPMin(0.0).withPMax(1000.0).withUpwardPowerGradient(40.0).withDownwardPowerGradient(-150.0).build();
 
-        input = new InterTemporalRaoInput(new TemporalDataImpl<>(Map.of(timestamp1, raoInput1, timestamp2, raoInput2, timestamp3, raoInput3)), Set.of(generatorConstraintsFr1, generatorConstraintsFr2, generatorConstraintsFr3));
+        IntertemporalConstraints intertemporalConstraints = new IntertemporalConstraints();
+        intertemporalConstraints.addGeneratorConstraints(generatorConstraintsFr1);
+        intertemporalConstraints.addGeneratorConstraints(generatorConstraintsFr2);
+        intertemporalConstraints.addGeneratorConstraints(generatorConstraintsFr3);
+
+        input = new InterTemporalRaoInput(new TemporalDataImpl<>(Map.of(timestamp1, raoInput1, timestamp2, raoInput2, timestamp3, raoInput3)), intertemporalConstraints);
 
         parameters = new RaoParameters();
     }
@@ -91,24 +96,29 @@ class PowerGradientConstraintFillerTest {
         GeneratorConstraints generatorConstraintsFr2 = GeneratorConstraints.create().withGeneratorId("FFR2AA1 _generator").withLeadTime(0.0).withLagTime(0.0).withPMin(0.0).withPMax(1000.0).withUpwardPowerGradient(200.0).withDownwardPowerGradient(-100.0).build();
         GeneratorConstraints generatorConstraintsFr3 = GeneratorConstraints.create().withGeneratorId("FFR3AA1 _load").withLeadTime(0.0).withLagTime(0.0).withPMin(0.0).withPMax(1000.0).withUpwardPowerGradient(40.0).withDownwardPowerGradient(-150.0).build();
 
-        input = new InterTemporalRaoInput(new TemporalDataImpl<>(Map.of(timestamp1, raoInput1)), Set.of(generatorConstraintsFr1, generatorConstraintsFr2, generatorConstraintsFr3));
+        IntertemporalConstraints intertemporalConstraints = new IntertemporalConstraints();
+        intertemporalConstraints.addGeneratorConstraints(generatorConstraintsFr1);
+        intertemporalConstraints.addGeneratorConstraints(generatorConstraintsFr2);
+        intertemporalConstraints.addGeneratorConstraints(generatorConstraintsFr3);
+
+        input = new InterTemporalRaoInput(new TemporalDataImpl<>(Map.of(timestamp1, raoInput1)), intertemporalConstraints);
         parameters = new RaoParameters();
     }
 
     private void createCoreProblemFillers() {
-        input.getRaoInputs().getDataPerTimestamp().entrySet().forEach(entry -> {
-            Crac crac = entry.getValue().getCrac();
+        input.getRaoInputs().getDataPerTimestamp().forEach((key, value) -> {
+            Crac crac = value.getCrac();
             OptimizationPerimeter optimizationPerimeter = new PreventiveOptimizationPerimeter(
                 crac.getPreventiveState(),
                 crac.getFlowCnecs(),
                 Set.of(),
                 crac.getNetworkActions(crac.getPreventiveState()),
-                crac.getRangeActions(crac.getPreventiveState(), UsageMethod.AVAILABLE)
+                crac.getRangeActions(crac.getPreventiveState())
             );
 
             RangeActionsOptimizationParameters rangeActionParameters = parameters.getRangeActionsOptimizationParameters();
             Map<RangeAction<?>, Double> map = new HashMap<>();
-            crac.getRangeActions(crac.getPreventiveState(), UsageMethod.AVAILABLE).forEach(action -> map.put(action, 0.0));
+            crac.getRangeActions(crac.getPreventiveState()).forEach(action -> map.put(action, 200.0));
             RangeActionSetpointResult rangeActionSetpointResult = new RangeActionSetpointResultImpl(map);
             MarginCoreProblemFiller coreProblemFiller = new MarginCoreProblemFiller(
                 optimizationPerimeter,
@@ -118,20 +128,18 @@ class PowerGradientConstraintFillerTest {
                 Unit.MEGAWATT,
                 false,
                 SearchTreeRaoRangeActionsOptimizationParameters.PstModel.CONTINUOUS,
-                entry.getKey()
+                key
             );
             linearProblemBuilder.withProblemFiller(coreProblemFiller);
         });
     }
 
     private void createPowerGradientConstraintFiller() {
-        TemporalData<State> preventiveStates = input.getRaoInputs().map(RaoInput::getCrac).map(crac -> crac.getPreventiveState()).map(State.class::cast);
-        TemporalData<Network> networks = input.getRaoInputs().map(RaoInput::getNetwork).map(Network.class::cast);
-        TemporalData<Set<InjectionRangeAction>> injectionRangeActions = input.getRaoInputs().map(RaoInput::getCrac).map(crac -> crac.getRangeActions(crac.getPreventiveState(), UsageMethod.AVAILABLE).stream().filter(InjectionRangeAction.class::isInstance).map(InjectionRangeAction.class::cast).collect(Collectors.toSet()));
-        Set<GeneratorConstraints> generatorConstraints = input.getGeneratorConstraints();
+        TemporalData<State> preventiveStates = input.getRaoInputs().map(RaoInput::getCrac).map(Crac::getPreventiveState);
+        TemporalData<Set<InjectionRangeAction>> injectionRangeActions = input.getRaoInputs().map(RaoInput::getCrac).map(crac -> crac.getRangeActions(crac.getPreventiveState()).stream().filter(InjectionRangeAction.class::isInstance).map(InjectionRangeAction.class::cast).collect(Collectors.toSet()));
+        Set<GeneratorConstraints> generatorConstraints = input.getIntertemporalConstraints().getGeneratorConstraints();
         PowerGradientConstraintFiller powerGradientConstraintFiller = new PowerGradientConstraintFiller(
             preventiveStates,
-            networks,
             injectionRangeActions,
             generatorConstraints);
         linearProblemBuilder.withProblemFiller(powerGradientConstraintFiller);
@@ -174,13 +182,13 @@ class PowerGradientConstraintFillerTest {
         assertThrows(OpenRaoException.class, () -> linearProblem.getGeneratorPowerVariable("FFR4AA1 _load", timestamp1));
         assertThrows(OpenRaoException.class, () -> linearProblem.getGeneratorPowerConstraint("FFR4AA1 _load", timestamp1));
 
-        // check bound
-        assertEquals(123.0, fr1Timestamp1PowerConstraint.ub());
-        assertEquals(123.0, fr1Timestamp1PowerConstraint.lb());
-        assertEquals(2000.0, fr2Timestamp1PowerConstraint.ub());
-        assertEquals(2000.0, fr2Timestamp1PowerConstraint.lb());
-        assertEquals(600.0, fr3Timestamp1PowerConstraint.ub());
-        assertEquals(600.0, fr3Timestamp1PowerConstraint.lb());
+        // check bound : sum of (key times initial setpoint)
+        assertEquals(0., fr1Timestamp1PowerConstraint.ub());
+        assertEquals(0., fr1Timestamp1PowerConstraint.lb());
+        assertEquals(-1 * 200. + -0.5 * 200, fr2Timestamp1PowerConstraint.ub());
+        assertEquals(-1 * 200. + -0.5 * 200, fr2Timestamp1PowerConstraint.lb());
+        assertEquals(1.0 * 200. + 0.5 * 200, fr3Timestamp1PowerConstraint.ub());
+        assertEquals(1.0 * 200. + 0.5 * 200, fr3Timestamp1PowerConstraint.lb());
 
         Crac crac1 = input.getRaoInputs().getData(timestamp1).get().getCrac();
         // check coefficient for injection action variable
@@ -188,8 +196,8 @@ class PowerGradientConstraintFillerTest {
         assertEquals(0, fr1Timestamp1PowerConstraint.getCoefficient(linearProblem.getRangeActionVariationVariable(crac1.getInjectionRangeAction("redispatchingAction1600"), crac1.getPreventiveState(), LinearProblem.VariationDirectionExtension.DOWNWARD)), 1e-5);
         assertEquals(1.0, fr2Timestamp1PowerConstraint.getCoefficient(linearProblem.getRangeActionVariationVariable(crac1.getInjectionRangeAction("redispatchingAction1600"), crac1.getPreventiveState(), LinearProblem.VariationDirectionExtension.UPWARD)), 1e-5);
         assertEquals(-1.0, fr2Timestamp1PowerConstraint.getCoefficient(linearProblem.getRangeActionVariationVariable(crac1.getInjectionRangeAction("redispatchingAction1600"), crac1.getPreventiveState(), LinearProblem.VariationDirectionExtension.DOWNWARD)), 1e-5);
-        assertEquals(-0.4, fr3Timestamp1PowerConstraint.getCoefficient(linearProblem.getRangeActionVariationVariable(crac1.getInjectionRangeAction("redispatchingAction1600"), crac1.getPreventiveState(), LinearProblem.VariationDirectionExtension.UPWARD)), 1e-5);
-        assertEquals(0.4, fr3Timestamp1PowerConstraint.getCoefficient(linearProblem.getRangeActionVariationVariable(crac1.getInjectionRangeAction("redispatchingAction1600"), crac1.getPreventiveState(), LinearProblem.VariationDirectionExtension.DOWNWARD)), 1e-5);
+        assertEquals(-1.0, fr3Timestamp1PowerConstraint.getCoefficient(linearProblem.getRangeActionVariationVariable(crac1.getInjectionRangeAction("redispatchingAction1600"), crac1.getPreventiveState(), LinearProblem.VariationDirectionExtension.UPWARD)), 1e-5);
+        assertEquals(1.0, fr3Timestamp1PowerConstraint.getCoefficient(linearProblem.getRangeActionVariationVariable(crac1.getInjectionRangeAction("redispatchingAction1600"), crac1.getPreventiveState(), LinearProblem.VariationDirectionExtension.DOWNWARD)), 1e-5);
     }
 
     @Test
@@ -240,7 +248,12 @@ class PowerGradientConstraintFillerTest {
         GeneratorConstraints generatorConstraintsFr2 = GeneratorConstraints.create().withGeneratorId("FFR2AA1 _generator").withLeadTime(0.0).withLagTime(0.0).withPMin(0.0).withPMax(1000.0).withDownwardPowerGradient(-100.0).build();
         GeneratorConstraints generatorConstraintsFr3 = GeneratorConstraints.create().withGeneratorId("FFR3AA1 _load").withLeadTime(0.0).withLagTime(0.0).withPMin(0.0).withPMax(1000.0).withUpwardPowerGradient(300.0).withDownwardPowerGradient(-200.0).build();
 
-        input = new InterTemporalRaoInput(new TemporalDataImpl<>(input.getRaoInputs().getDataPerTimestamp()), Set.of(generatorConstraintsFr1, generatorConstraintsFr2, generatorConstraintsFr3));
+        IntertemporalConstraints intertemporalConstraints = new IntertemporalConstraints();
+        intertemporalConstraints.addGeneratorConstraints(generatorConstraintsFr1);
+        intertemporalConstraints.addGeneratorConstraints(generatorConstraintsFr2);
+        intertemporalConstraints.addGeneratorConstraints(generatorConstraintsFr3);
+
+        input = new InterTemporalRaoInput(new TemporalDataImpl<>(input.getRaoInputs().getDataPerTimestamp()), intertemporalConstraints);
 
         setUpLinearProblem();
 

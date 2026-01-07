@@ -4,6 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 package com.powsybl.openrao.data.raoresult.io.json;
 
 import com.powsybl.openrao.commons.OpenRaoException;
@@ -127,6 +128,10 @@ public final class RaoResultJsonConstants {
     public static final String SECOND_PREVENTIVE_IMPROVED_FIRST = "Second preventive improved first preventive results";
     public static final String SECOND_PREVENTIVE_FELLBACK_TO_FIRST_PREVENTIVE_SITUATION = "Second preventive fellback to first preventive results";
     public static final String SECOND_PREVENTIVE_FELLBACK_TO_INITIAL_SITUATION = "Second preventive fellback to initial situation";
+
+    // fast rao specific field
+    public static final String FAST_RAO = "fast-rao";
+    public static final String CRITICAL_CNECS_SET = "critical-cnecs";
 
     // manipulate version
     public static int getPrimaryVersionNumber(String fullVersion) {

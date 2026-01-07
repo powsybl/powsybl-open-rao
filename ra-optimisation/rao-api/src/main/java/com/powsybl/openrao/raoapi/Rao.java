@@ -4,6 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 package com.powsybl.openrao.raoapi;
 
 import com.powsybl.openrao.commons.OpenRaoException;
@@ -11,11 +12,8 @@ import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
-import com.powsybl.commons.Versionable;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.util.ServiceLoaderCache;
-import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
-import com.powsybl.openrao.raoapi.parameters.extensions.SecondPreventiveRaoParameters;
 import com.powsybl.tools.Version;
 
 import java.time.Instant;
@@ -45,7 +43,7 @@ public final class Rao {
      * A RA optimisation runner is responsible for providing convenient methods on top of {@link RaoProvider}:
      * several variants of synchronous and asynchronous run with default parameters.
      */
-    public static class Runner implements Versionable {
+    public static class Runner {
 
         private final RaoProvider provider;
 
@@ -62,8 +60,6 @@ public final class Rao {
                 .filter(version -> version.getRepositoryName().equals("open-rao"))
                 .findFirst().orElseThrow();
             BUSINESS_WARNS.warn("Running RAO using Open RAO version {} from git commit {}.", openRaoVersion.getMavenProjectVersion(), openRaoVersion.getGitVersion());
-
-            deprecateNonGlobalSecondPreventive(parameters);
 
             return provider.run(raoInput, parameters, targetEndInstant);
         }
@@ -90,18 +86,7 @@ public final class Rao {
                 .findFirst().orElseThrow();
             BUSINESS_WARNS.warn("Running RAO using Open RAO version {} from git commit {}.", openRaoVersion.getMavenProjectVersion(), openRaoVersion.getGitVersion());
 
-            deprecateNonGlobalSecondPreventive(parameters);
-
             return provider.run(raoInput, parameters, targetEndInstant).join();
-        }
-
-        public void deprecateNonGlobalSecondPreventive(RaoParameters parameters) {
-            if (parameters.hasExtension(OpenRaoSearchTreeParameters.class)) {
-                boolean reOptimizeCurativeRangeActions = SecondPreventiveRaoParameters.getSecondPreventiveReOptimizeCurativeRangeActions(parameters);
-                if (!reOptimizeCurativeRangeActions) {
-                    BUSINESS_WARNS.warn("Non re-optimizing curative range actions is deprecated. Curative range actions re-optimization will be mandatory in a future OpenRAO version.");
-                }
-            }
         }
 
         public RaoResult run(RaoInput raoInput, RaoParameters parameters) {
@@ -112,14 +97,8 @@ public final class Rao {
             return run(raoInput, RaoParameters.load(), null);
         }
 
-        @Override
         public String getName() {
             return provider.getName();
-        }
-
-        @Override
-        public String getVersion() {
-            return provider.getVersion();
         }
     }
 
@@ -141,7 +120,7 @@ public final class Rao {
      * @return a runner for default RAO implementation
      */
     public static Runner find() {
-        return find(null);
+        return find("SearchTreeRao");
     }
 
     /**
@@ -171,7 +150,7 @@ public final class Rao {
         if (providers.size() == 1 && raOptimizerName == null) {
             // no information to select the implementation but only one provider, so we can use it by default
             // (that is the most common use case)
-            provider = providers.get(0);
+            provider = providers.getFirst();
         } else {
             if (providers.size() > 1 && raOptimizerName == null) {
                 // several providers and no information to select which one to choose, we can only throw

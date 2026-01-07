@@ -18,13 +18,12 @@ import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
+import com.powsybl.openrao.data.crac.io.commons.iidm.IidmHvdcHelper;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
 
 /**
  * Elementary HVDC range remedial action.
@@ -36,10 +35,10 @@ public class HvdcRangeActionImpl extends AbstractRangeAction<HvdcRangeAction> im
 
     private final NetworkElement networkElement;
     private final List<StandardRange> ranges;
-    private final double initialSetpoint;
+    private Double initialSetpoint;
 
     HvdcRangeActionImpl(String id, String name, String operator, Set<UsageRule> usageRules, List<StandardRange> ranges,
-                        double initialSetpoint, NetworkElement networkElement, String groupId, Integer speed, Double activationCost, Map<VariationDirection, Double> variationCosts) {
+                        Double initialSetpoint, NetworkElement networkElement, String groupId, Integer speed, Double activationCost, Map<VariationDirection, Double> variationCosts) {
         super(id, name, operator, usageRules, groupId, speed, activationCost, variationCosts);
         this.networkElement = networkElement;
         this.ranges = ranges;
@@ -72,53 +71,42 @@ public class HvdcRangeActionImpl extends AbstractRangeAction<HvdcRangeAction> im
     }
 
     @Override
-    public double getInitialSetpoint() {
+    public Double getInitialSetpoint() {
         return initialSetpoint;
     }
 
     @Override
     public void apply(Network network, double targetSetpoint) {
-        logDisableHvdcAngleDroopActivePowerControl(network);
-        HvdcActionBuilder actionBuilder = new HvdcActionBuilder()
-            .withId("")
-            .withHvdcId(networkElement.getId())
-            .withActivePowerSetpoint(Math.abs(targetSetpoint))
-            .withAcEmulationEnabled(false);
-        if (targetSetpoint < 0) {
-            actionBuilder.withConverterMode(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER);
+        // Possible only if the network element associated is NOT in ac emulation mode (ie. fixed active power setpoint operation only)
+        HvdcActionBuilder actionBuilder = null;
+        if (!isAngleDroopActivePowerControlEnabled(network)) {
+            actionBuilder = new HvdcActionBuilder()
+                .withId("")
+                .withHvdcId(networkElement.getId())
+                .withActivePowerSetpoint(Math.abs(targetSetpoint));
+            if (targetSetpoint < 0) {
+                actionBuilder.withConverterMode(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER);
+            } else {
+                actionBuilder.withConverterMode(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER);
+            }
+            actionBuilder.build().toModification().apply(network, true, ReportNode.NO_OP);
         } else {
-            actionBuilder.withConverterMode(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER);
-        }
-        actionBuilder.build().toModification().apply(network, true, ReportNode.NO_OP);
-    }
-
-    public void logDisableHvdcAngleDroopActivePowerControl(Network network) {
-        if (isAngleDroopActivePowerControlEnabled(network)) {
-            HvdcLine hvdcLine = getHvdcLine(network);
-            TECHNICAL_LOGS.debug("Disabling HvdcAngleDroopActivePowerControl on HVDC line {}", hvdcLine.getId());
+            throw new OpenRaoException(String.format(
+                "Unable to set an active power setpoint for HVDC line %s because it is operating in AC Emulation mode.",
+                networkElement.getId()
+                )
+            );
         }
     }
 
     public boolean isAngleDroopActivePowerControlEnabled(Network network) {
-        HvdcAngleDroopActivePowerControl hvdcAngleDroopActivePowerControl = getHvdcLine(network).getExtension(HvdcAngleDroopActivePowerControl.class);
+        HvdcAngleDroopActivePowerControl hvdcAngleDroopActivePowerControl = IidmHvdcHelper.getHvdcLine(network, networkElement.getId()).getExtension(HvdcAngleDroopActivePowerControl.class);
         return hvdcAngleDroopActivePowerControl != null && hvdcAngleDroopActivePowerControl.isEnabled();
-    }
-
-    private HvdcLine getHvdcLine(Network network) {
-        HvdcLine hvdcLine = network.getHvdcLine(networkElement.getId());
-        if (hvdcLine == null) {
-            throw new OpenRaoException(String.format("HvdcLine %s does not exist in the current network.", networkElement.getId()));
-        }
-        return hvdcLine;
     }
 
     @Override
     public double getCurrentSetpoint(Network network) {
-        if (getHvdcLine(network).getConvertersMode() == HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER) {
-            return getHvdcLine(network).getActivePowerSetpoint();
-        } else {
-            return -getHvdcLine(network).getActivePowerSetpoint();
-        }
+        return IidmHvdcHelper.getCurrentSetpoint(network, networkElement.getId());
     }
 
     @Override
@@ -146,5 +134,10 @@ public class HvdcRangeActionImpl extends AbstractRangeAction<HvdcRangeAction> im
         }
         hashCode += 31 * networkElement.hashCode();
         return hashCode;
+    }
+
+    @Override
+    public void setInitialSetpoint(double initialSetpoint) {
+        this.initialSetpoint = initialSetpoint;
     }
 }

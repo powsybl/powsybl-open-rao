@@ -4,6 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 package com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator;
 
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
@@ -34,7 +35,9 @@ public class LoopFlowViolationCostEvaluator implements CostEvaluator {
 
     public LoopFlowViolationCostEvaluator(Set<FlowCnec> loopflowCnecs,
                                           FlowResult initialLoopFlowResult,
-                                          double loopFlowAcceptableAugmentation, double loopFlowViolationCost) {
+                                          double loopFlowAcceptableAugmentation,
+                                          double loopFlowViolationCost
+                                          ) {
         this.loopflowCnecs = loopflowCnecs;
         this.initialLoopFlowResult = initialLoopFlowResult;
         this.loopFlowViolationCost = loopFlowViolationCost;

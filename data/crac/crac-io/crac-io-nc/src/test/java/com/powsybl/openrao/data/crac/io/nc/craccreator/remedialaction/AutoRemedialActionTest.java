@@ -1,9 +1,10 @@
 /*
- * Copyright (c) 2023, RTE (http://www.rte-france.com)
+ * Copyright (c) 2025, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 package com.powsybl.openrao.data.crac.io.nc.craccreator.remedialaction;
 
 import com.powsybl.action.Action;
@@ -15,7 +16,6 @@ import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageMethod;
 import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
 import com.powsybl.openrao.data.crac.impl.OnContingencyStateImpl;
 import org.junit.jupiter.api.Test;
@@ -26,6 +26,9 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+/**
+ * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
+ */
 class AutoRemedialActionTest {
 
     @Test
@@ -43,7 +46,6 @@ class AutoRemedialActionTest {
         assertEquals(7, pstSps.getRanges().get(0).getMaxTap());
         assertEquals("contingency", pstSpsUsageRule.getContingency().getId());
         assertEquals(InstantKind.AUTO, pstSpsUsageRule.getInstant().getKind());
-        assertEquals(UsageMethod.FORCED, pstSpsUsageRule.getUsageMethod());
 
         NetworkAction networkSps = cracCreationContext.getCrac().getNetworkAction("network-sps");
         OnContingencyStateImpl networkSpsUsageRule = (OnContingencyStateImpl) networkSps.getUsageRules().iterator().next();
@@ -58,7 +60,6 @@ class AutoRemedialActionTest {
         assertEquals(75.0, injectionSetpoint.getActivePowerValue().getAsDouble());
         assertEquals("contingency", networkSpsUsageRule.getContingency().getId());
         assertEquals(InstantKind.AUTO, networkSpsUsageRule.getInstant().getKind());
-        assertEquals(UsageMethod.FORCED, networkSpsUsageRule.getUsageMethod());
 
         assertEquals(3, cracCreationContext.getRemedialActionCreationContexts().stream().filter(ra -> !ra.isImported()).toList().size());
 

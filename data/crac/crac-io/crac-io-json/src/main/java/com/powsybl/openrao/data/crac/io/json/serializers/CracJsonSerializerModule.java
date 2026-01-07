@@ -1,9 +1,10 @@
 /*
- * Copyright (c) 2020, RTE (http://www.rte-france.com)
+ * Copyright (c) 2021, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 package com.powsybl.openrao.data.crac.io.json.serializers;
 
 import com.powsybl.action.*;
@@ -55,6 +56,7 @@ public class CracJsonSerializerModule extends SimpleModule {
         this.addSerializer(StandardRange.class, new StandardRangeSerializer());
         this.addSerializer(NetworkAction.class, new NetworkActionSerializer());
         this.addSerializer(TerminalsConnectionAction.class, new TerminalsConnectionActionSerializer());
+        this.addSerializer(HvdcAction.class, new AcEmulationDeactivationActionSerializer());
         this.addSerializer(SwitchAction.class, new SwitchActionSerializer());
         this.addSerializer(PhaseTapChangerTapPositionAction.class, new PhaseTapChangerTapPositionActionSerializer());
         this.addSerializer(GeneratorAction.class, new GeneratorActionSerializer());

@@ -10,15 +10,16 @@ Feature: US 15.11.3: Simulate range action automatons right after topological au
     Given network file is "epic15/TestCase16NodesWithHvdc_AC_emulation.xiidm"
     Given crac file is "epic15/jsonCrac_ep15us11-3case1.json"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then 0 remedial actions are used in preventive
-    And the setpoint of RangeAction "ARA_HVDC" should be 0.0 MW in preventive
-    And the margin on cnec "be4_fr5_co1 - BBE4AA11->FFR5AA11  - co1_be1_fr5 - auto" after PRA should be -631.83 MW
-    And 1 remedial actions are used after "co1_be1_fr5" at "auto"
+    And the setpoint of RangeAction "ARA_HVDC" should be 819.0 MW in preventive
+    And the margin on cnec "be4_fr5_co1 - BBE4AA11->FFR5AA11  - co1_be1_fr5 - auto" after PRA should be -94.47 MW
+    And 2 remedial actions are used after "co1_be1_fr5" at "auto"
+    Then the remedial action "acEmulationDeactivation_BBE2AA11 FFR3AA11 1" is used after "co1_be1_fr5" at "auto"
     And the remedial action "ARA_HVDC" is used after "co1_be1_fr5" at "auto"
-    And the setpoint of RangeAction "ARA_HVDC" should be 965.75 MW after "co1_be1_fr5" at "auto"
+    And the setpoint of RangeAction "ARA_HVDC" should be 964 MW after "co1_be1_fr5" at "auto"
     And the margin on cnec "be3_be4_co1 - BBE3AA11->BBE4AA11  - co1_be1_fr5 - auto" after ARA should be -29.5 MW
-    And the margin on cnec "be4_fr5_co1 - BBE4AA11->FFR5AA11  - co1_be1_fr5 - auto" after ARA should be 1.12 MW
+    And the margin on cnec "be4_fr5_co1 - BBE4AA11->FFR5AA11  - co1_be1_fr5 - auto" after ARA should be 0.0 MW
     And its security status should be "UNSECURED"
 
   @fast @rao @mock @ac @contingency-scenarios
@@ -26,7 +27,7 @@ Feature: US 15.11.3: Simulate range action automatons right after topological au
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic15/SL_ep15us11-3case2.json"
     Given configuration file is "epic13/RaoParameters_maxMargin_ampere_absolute_threshold.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then 0 remedial actions are used in preventive
     And the tap of PstRangeAction "pst_be" should be 0 in preventive
     And the initial margin on cnec "BBE2AA1  FFR3AA1  1 - co2_be1_be3 - auto" should be -107.6 A
@@ -43,7 +44,7 @@ Feature: US 15.11.3: Simulate range action automatons right after topological au
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic15/SL_ep15us11-3case3.json"
     Given configuration file is "epic13/RaoParameters_maxMargin_ampere_absolute_threshold.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then 0 remedial actions are used in preventive
     And the tap of PstRangeAction "pst_fr" should be 5 in preventive
     And the tap of PstRangeAction "pst_be" should be 0 in preventive
@@ -63,7 +64,7 @@ Feature: US 15.11.3: Simulate range action automatons right after topological au
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic15/SL_ep15us11-3case4.json"
     Given configuration file is "epic13/RaoParameters_maxMargin_ampere_absolute_threshold.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then 0 remedial actions are used in preventive
     And the tap of PstRangeAction "pst_fr" should be 5 in preventive
     And the tap of PstRangeAction "pst_be" should be 0 in preventive
@@ -89,7 +90,7 @@ Feature: US 15.11.3: Simulate range action automatons right after topological au
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic15/SL_ep15us11-3case2_withPstCra.json"
     Given configuration file is "epic13/RaoParameters_maxMargin_ampere_absolute_threshold.json"
-    When I launch search_tree_rao
+    When I launch rao
     Then 1 remedial actions are used in preventive
     And the tap of PstRangeAction "pst_be_pra" should be -2 in preventive
     And the tap of PstRangeAction "pst_be_ara" should be -2 in preventive

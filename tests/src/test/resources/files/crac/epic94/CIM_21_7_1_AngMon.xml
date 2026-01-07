@@ -1,0 +1,546 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CRAC_MarketDocument xmlns="urn:iec62325.351:tc57wg16:451-n:CRACdocument:2:3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:iec62325.351:tc57wg16:451-n:CRACdocument:2:3 iec62325-451-n-crac_v2_3.xsd">
+  <mRID>CIM_CRAC_DOCUMENT</mRID>
+  <revisionNumber>1</revisionNumber>
+  <type>B15</type>
+  <process.processType>A48</process.processType>
+  <sender_MarketParticipant.mRID codingScheme="A01">FAKE</sender_MarketParticipant.mRID>
+  <sender_MarketParticipant.marketRole.type>A36</sender_MarketParticipant.marketRole.type>
+  <receiver_MarketParticipant.mRID codingScheme="A01">FAKE</receiver_MarketParticipant.mRID>
+  <receiver_MarketParticipant.marketRole.type>A04</receiver_MarketParticipant.marketRole.type>
+  <createdDateTime>2021-03-31T15:02:00Z</createdDateTime>
+  <status>
+    <value>A42</value>
+  </status>
+  <time_Period.timeInterval>
+    <start>2021-04-01T22:00Z</start>
+    <end>2021-04-02T22:00Z</end>
+  </time_Period.timeInterval>
+  <domain.mRID codingScheme="A01">10YCB-FR-ES-PT-S</domain.mRID>
+  <TimeSeries>
+    <mRID>TimeSeries</mRID>
+    <businessType>B54</businessType>
+    <curveType>A03</curveType>
+    <in_Domain.mRID codingScheme="A01">1------0</in_Domain.mRID>
+    <out_Domain.mRID codingScheme="A01">1------0</out_Domain.mRID>
+    <Period>
+      <timeInterval>
+        <start>2021-04-01T22:00Z</start>
+        <end>2021-04-02T22:00Z</end>
+      </timeInterval>
+      <resolution>PT60M</resolution>
+      <Point>
+        <position>2</position>
+        <Series>
+          <mRID>ContingenciesSeries</mRID>
+          <businessType>B55</businessType>
+          <name>ContingenciesSeries</name>
+          <optimization_MarketObjectStatus.status>A52</optimization_MarketObjectStatus.status>
+          <Contingency_Series>
+            <mRID>Co-1</mRID>
+            <name>Co-1-name</name>
+            <RegisteredResource>
+              <mRID codingScheme="A02">_ffbabc27-1ccd-4fdc-b037-e341706c8d29</mRID>
+              <name>Co1NetworkElementName</name>
+              <in_Domain.mRID codingScheme="A01">1------0</in_Domain.mRID>
+              <out_Domain.mRID codingScheme="A01">1------0</out_Domain.mRID>
+            </RegisteredResource>
+          </Contingency_Series>
+          <Contingency_Series>
+            <mRID>Co-2</mRID>
+            <name>Co-2-name</name>
+            <RegisteredResource>
+              <mRID codingScheme="A02">_b18cd1aa-7808-49b9-a7cf-605eaf07b006</mRID>
+              <name>Co2NetworkElementName_HalfLine1</name>
+              <in_Domain.mRID codingScheme="A01">1------0</in_Domain.mRID>
+              <out_Domain.mRID codingScheme="A01">1------0</out_Domain.mRID>
+            </RegisteredResource>
+            <RegisteredResource>
+              <mRID codingScheme="A02">_e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc</mRID>
+              <name>Co2NetworkElementName_HalfLine2</name>
+              <in_Domain.mRID codingScheme="A01">1------0</in_Domain.mRID>
+              <out_Domain.mRID codingScheme="A01">1------0</out_Domain.mRID>
+            </RegisteredResource>
+          </Contingency_Series>
+        </Series>
+        <Series>
+          <mRID>AngleCnecSeries1_OK</mRID>
+          <businessType>B56</businessType>
+          <name>AngleCnecSeries1_OK</name>
+          <optimization_MarketObjectStatus.status>A52</optimization_MarketObjectStatus.status>
+          <AdditionalConstraint_Series>
+            <mRID>AngleCnec1</mRID>
+            <businessType>B87</businessType>
+            <name>AngleCnec1-name</name>
+            <measurement_Unit.name>DD</measurement_Unit.name>
+            <quantity.quantity>3</quantity.quantity>
+            <RegisteredResource>
+              <mRID codingScheme="A02">_8d8a82ba-b5b0-4e94-861a-192af055f2b8</mRID>
+              <name>VL1</name>
+              <marketObjectStatus.status>A47</marketObjectStatus.status>
+            </RegisteredResource>
+            <RegisteredResource>
+              <mRID codingScheme="A02">_d77b61ef-61aa-4b22-95f6-b56ca080788d</mRID>
+              <name>VL2</name>
+              <marketObjectStatus.status>A46</marketObjectStatus.status>
+            </RegisteredResource>
+          </AdditionalConstraint_Series>
+          <Contingency_Series>
+            <mRID>Co-1</mRID>
+            <name>Co-1-name</name>
+          </Contingency_Series>
+          <RemedialAction_Series>
+            <mRID>RA-1</mRID>
+            <name>Decrease Generation and open line</name>
+            <businessType>B59</businessType>
+            <applicationMode_MarketObjectStatus.status>A19</applicationMode_MarketObjectStatus.status>
+            <availability_MarketObjectStatus.status>A39</availability_MarketObjectStatus.status>
+            <RegisteredResource>
+              <mRID codingScheme="A02">_1dc9afba-23b5-41a0-8540-b479ed8baf4b</mRID>
+              <name>NL-G3</name>
+              <pSRType.psrType>A04</pSRType.psrType>
+              <in_Domain.mRID codingScheme="A01">10YPT-REN------W</in_Domain.mRID>
+              <out_Domain.mRID codingScheme="A01">10YPT-REN------W</out_Domain.mRID>
+              <marketObjectStatus.status>A26</marketObjectStatus.status>
+              <resourceCapacity.defaultCapacity>0</resourceCapacity.defaultCapacity>
+              <resourceCapacity.unitSymbol>MAW</resourceCapacity.unitSymbol>
+            </RegisteredResource>
+            <RegisteredResource>
+              <mRID codingScheme="A02">_550ebe0d-f2b2-48c1-991f-cebea43a21aa</mRID>
+              <name>BE-G2</name>
+              <pSRType.psrType>A04</pSRType.psrType>
+              <in_Domain.mRID codingScheme="A01">10YPT-REN------W</in_Domain.mRID>
+              <out_Domain.mRID codingScheme="A01">10YPT-REN------W</out_Domain.mRID>
+              <marketObjectStatus.status>A26</marketObjectStatus.status>
+              <resourceCapacity.defaultCapacity>10</resourceCapacity.defaultCapacity>
+              <resourceCapacity.unitSymbol>MAW</resourceCapacity.unitSymbol>
+            </RegisteredResource>
+            <Shared_Domain>
+              <mRID codingScheme="A01">10YPT-REN------W</mRID>
+            </Shared_Domain>
+          </RemedialAction_Series>
+        </Series>
+        <Series>
+          <mRID>AngleCnecSeries2_onlyCnecImported</mRID>
+          <businessType>B56</businessType>
+          <name>AngleCnecSeries2_onlyCnecImported</name>
+          <optimization_MarketObjectStatus.status>A52</optimization_MarketObjectStatus.status>
+          <AdditionalConstraint_Series>
+            <mRID>AngleCnec2</mRID>
+            <businessType>B87</businessType>
+            <name>AngleCnec2-name</name>
+            <measurement_Unit.name>DD</measurement_Unit.name>
+            <quantity.quantity>47</quantity.quantity>
+            <RegisteredResource>
+              <mRID codingScheme="A02">_8d8a82ba-b5b0-4e94-861a-192af055f2b8</mRID>
+              <name>VL1</name>
+              <marketObjectStatus.status>A46</marketObjectStatus.status>
+            </RegisteredResource>
+            <RegisteredResource>
+              <mRID codingScheme="A02">_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3</mRID>
+              <name>VL2</name>
+              <marketObjectStatus.status>A47</marketObjectStatus.status>
+            </RegisteredResource>
+          </AdditionalConstraint_Series>
+          <Contingency_Series>
+            <mRID>Co-2</mRID>
+            <name>Co-2-name</name>
+          </Contingency_Series>
+          <RemedialAction_Series>
+            <mRID>RA-2</mRID>
+            <name>Decrease Generation</name>
+            <businessType>B59</businessType>
+            <applicationMode_MarketObjectStatus.status>A19</applicationMode_MarketObjectStatus.status>
+            <availability_MarketObjectStatus.status>A39</availability_MarketObjectStatus.status>
+            <RegisteredResource>
+              <mRID codingScheme="A02">wrong_id</mRID>
+              <name>NL-G3</name>
+              <pSRType.psrType>A04</pSRType.psrType>
+              <in_Domain.mRID codingScheme="A01">10YPT-REN------W</in_Domain.mRID>
+              <out_Domain.mRID codingScheme="A01">10YPT-REN------W</out_Domain.mRID>
+              <marketObjectStatus.status>A26</marketObjectStatus.status>
+              <resourceCapacity.defaultCapacity>0</resourceCapacity.defaultCapacity>
+              <resourceCapacity.unitSymbol>MAW</resourceCapacity.unitSymbol>
+            </RegisteredResource>
+          </RemedialAction_Series>
+        </Series>
+        <Series>
+          <mRID>AngleCnecSeries3_KO</mRID>
+          <businessType>B56</businessType>
+          <name>AngleCnecSeries3_KO</name>
+          <optimization_MarketObjectStatus.status>A52</optimization_MarketObjectStatus.status>
+          <AdditionalConstraint_Series>
+            <mRID>AngleCnec3</mRID>
+            <businessType>B87</businessType>
+            <name>AngleCnec3</name>
+            <measurement_Unit.name>DD</measurement_Unit.name>
+            <quantity.quantity>30</quantity.quantity>
+            <RegisteredResource>
+              <mRID codingScheme="A02">_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3</mRID>
+              <name>VL1</name>
+              <marketObjectStatus.status>A47</marketObjectStatus.status>
+            </RegisteredResource>
+            <RegisteredResource>
+              <mRID codingScheme="A02">_d77b61ef-61aa-4b22-95f6-b56ca080788d_wrong</mRID>
+              <name>VL2</name>
+              <marketObjectStatus.status>A46</marketObjectStatus.status>
+            </RegisteredResource>
+          </AdditionalConstraint_Series>
+          <Contingency_Series>
+            <mRID>Co-1</mRID>
+            <name>Co-1-name</name>
+          </Contingency_Series>
+          <RemedialAction_Series>
+            <mRID>RA-3</mRID>
+            <name>Decrease Generation and open line</name>
+            <businessType>B59</businessType>
+            <applicationMode_MarketObjectStatus.status>A19</applicationMode_MarketObjectStatus.status>
+            <availability_MarketObjectStatus.status>A39</availability_MarketObjectStatus.status>
+            <RegisteredResource>
+              <mRID codingScheme="A02">_1dc9afba-23b5-41a0-8540-b479ed8baf4b</mRID>
+              <name>NL-G3</name>
+              <pSRType.psrType>A04</pSRType.psrType>
+              <in_Domain.mRID codingScheme="A01">10YPT-REN------W</in_Domain.mRID>
+              <out_Domain.mRID codingScheme="A01">10YPT-REN------W</out_Domain.mRID>
+              <marketObjectStatus.status>A26</marketObjectStatus.status>
+              <resourceCapacity.defaultCapacity>0</resourceCapacity.defaultCapacity>
+              <resourceCapacity.unitSymbol>MAW</resourceCapacity.unitSymbol>
+            </RegisteredResource>
+            <Shared_Domain>
+              <mRID codingScheme="A01">10YPT-REN------W</mRID>
+            </Shared_Domain>
+          </RemedialAction_Series>
+        </Series>
+        <Series>
+          <mRID>AngleCnecSeries4_KO</mRID>
+          <businessType>B56</businessType>
+          <name>AngleCnecSeries4_KO</name>
+          <optimization_MarketObjectStatus.status>A52</optimization_MarketObjectStatus.status>
+          <AdditionalConstraint_Series>
+            <mRID>AngleCnec4</mRID>
+            <businessType>B87</businessType>
+            <name>AngleCnec4</name>
+            <measurement_Unit.name>DD</measurement_Unit.name>
+            <quantity.quantity>30</quantity.quantity>
+            <RegisteredResource>
+              <mRID codingScheme="A02">_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3_wrong</mRID>
+              <name>VL1</name>
+              <marketObjectStatus.status>A47</marketObjectStatus.status>
+            </RegisteredResource>
+            <RegisteredResource>
+              <mRID codingScheme="A02">_d77b61ef-61aa-4b22-95f6-b56ca080788d</mRID>
+              <name>VL2</name>
+              <marketObjectStatus.status>A46</marketObjectStatus.status>
+            </RegisteredResource>
+          </AdditionalConstraint_Series>
+          <Contingency_Series>
+            <mRID>Co-1</mRID>
+            <name>Co-1-name</name>
+          </Contingency_Series>
+          <RemedialAction_Series>
+            <mRID>RA-4</mRID>
+            <name>Decrease Generation and open line</name>
+            <businessType>B59</businessType>
+            <applicationMode_MarketObjectStatus.status>A19</applicationMode_MarketObjectStatus.status>
+            <availability_MarketObjectStatus.status>A39</availability_MarketObjectStatus.status>
+            <RegisteredResource>
+              <mRID codingScheme="A02">_1dc9afba-23b5-41a0-8540-b479ed8baf4b</mRID>
+              <name>NL-G3</name>
+              <pSRType.psrType>A04</pSRType.psrType>
+              <in_Domain.mRID codingScheme="A01">10YPT-REN------W</in_Domain.mRID>
+              <out_Domain.mRID codingScheme="A01">10YPT-REN------W</out_Domain.mRID>
+              <marketObjectStatus.status>A26</marketObjectStatus.status>
+              <resourceCapacity.defaultCapacity>0</resourceCapacity.defaultCapacity>
+              <resourceCapacity.unitSymbol>MAW</resourceCapacity.unitSymbol>
+            </RegisteredResource>
+            <Shared_Domain>
+              <mRID codingScheme="A01">10YPT-REN------W</mRID>
+            </Shared_Domain>
+          </RemedialAction_Series>
+        </Series>
+        <Series>
+          <mRID>AngleCnecSeries5_KO</mRID>
+          <businessType>B56</businessType>
+          <name>AngleCnecSeries5_KO</name>
+          <optimization_MarketObjectStatus.status>A52</optimization_MarketObjectStatus.status>
+          <AdditionalConstraint_Series>
+            <mRID>AngleCnec5</mRID>
+            <businessType>B87</businessType>
+            <name>AngleCnec5</name>
+            <measurement_Unit.name>MAW</measurement_Unit.name>
+            <quantity.quantity>30</quantity.quantity>
+            <RegisteredResource>
+              <mRID codingScheme="A02">_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3</mRID>
+              <name>VL1</name>
+              <marketObjectStatus.status>A47</marketObjectStatus.status>
+            </RegisteredResource>
+            <RegisteredResource>
+              <mRID codingScheme="A02">_d77b61ef-61aa-4b22-95f6-b56ca080788d</mRID>
+              <name>VL2</name>
+              <marketObjectStatus.status>A46</marketObjectStatus.status>
+            </RegisteredResource>
+          </AdditionalConstraint_Series>
+          <Contingency_Series>
+            <mRID>Co-1</mRID>
+            <name>Co-1-name</name>
+          </Contingency_Series>
+          <RemedialAction_Series>
+            <mRID>RA-5</mRID>
+            <name>Decrease Generation and open line</name>
+            <businessType>B59</businessType>
+            <applicationMode_MarketObjectStatus.status>A19</applicationMode_MarketObjectStatus.status>
+            <availability_MarketObjectStatus.status>A39</availability_MarketObjectStatus.status>
+            <RegisteredResource>
+              <mRID codingScheme="A02">_1dc9afba-23b5-41a0-8540-b479ed8baf4b</mRID>
+              <name>NL-G3</name>
+              <pSRType.psrType>A04</pSRType.psrType>
+              <in_Domain.mRID codingScheme="A01">10YPT-REN------W</in_Domain.mRID>
+              <out_Domain.mRID codingScheme="A01">10YPT-REN------W</out_Domain.mRID>
+              <marketObjectStatus.status>A26</marketObjectStatus.status>
+              <resourceCapacity.defaultCapacity>0</resourceCapacity.defaultCapacity>
+              <resourceCapacity.unitSymbol>MAW</resourceCapacity.unitSymbol>
+            </RegisteredResource>
+            <Shared_Domain>
+              <mRID codingScheme="A01">10YPT-REN------W</mRID>
+            </Shared_Domain>
+          </RemedialAction_Series>
+        </Series>
+        <Series>
+          <mRID>AngleCnecSeries6_KO</mRID>
+          <businessType>B56</businessType>
+          <name>AngleCnecSeries6_KO</name>
+          <optimization_MarketObjectStatus.status>A52</optimization_MarketObjectStatus.status>
+          <AdditionalConstraint_Series>
+            <mRID>AngleCnec6</mRID>
+            <businessType>B59</businessType>
+            <name>AngleCnec6</name>
+            <measurement_Unit.name>DD</measurement_Unit.name>
+            <quantity.quantity>30</quantity.quantity>
+            <RegisteredResource>
+              <mRID codingScheme="A02">_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3</mRID>
+              <name>VL1</name>
+              <marketObjectStatus.status>A47</marketObjectStatus.status>
+            </RegisteredResource>
+            <RegisteredResource>
+              <mRID codingScheme="A02">_d77b61ef-61aa-4b22-95f6-b56ca080788d</mRID>
+              <name>VL2</name>
+              <marketObjectStatus.status>A46</marketObjectStatus.status>
+            </RegisteredResource>
+          </AdditionalConstraint_Series>
+          <Contingency_Series>
+            <mRID>Co-1</mRID>
+            <name>Co-1-name</name>
+          </Contingency_Series>
+          <RemedialAction_Series>
+            <mRID>RA-6</mRID>
+            <name>Decrease Generation and open line</name>
+            <businessType>B59</businessType>
+            <applicationMode_MarketObjectStatus.status>A19</applicationMode_MarketObjectStatus.status>
+            <availability_MarketObjectStatus.status>A39</availability_MarketObjectStatus.status>
+            <RegisteredResource>
+              <mRID codingScheme="A02">_1dc9afba-23b5-41a0-8540-b479ed8baf4b</mRID>
+              <name>NL-G3</name>
+              <pSRType.psrType>A04</pSRType.psrType>
+              <in_Domain.mRID codingScheme="A01">10YPT-REN------W</in_Domain.mRID>
+              <out_Domain.mRID codingScheme="A01">10YPT-REN------W</out_Domain.mRID>
+              <marketObjectStatus.status>A26</marketObjectStatus.status>
+              <resourceCapacity.defaultCapacity>0</resourceCapacity.defaultCapacity>
+              <resourceCapacity.unitSymbol>MAW</resourceCapacity.unitSymbol>
+            </RegisteredResource>
+            <Shared_Domain>
+              <mRID codingScheme="A01">10YPT-REN------W</mRID>
+            </Shared_Domain>
+          </RemedialAction_Series>
+        </Series>
+        <Series>
+          <mRID>AngleCnecSeries7_KO</mRID>
+          <businessType>B56</businessType>
+          <name>AngleCnecSeries7_KO</name>
+          <optimization_MarketObjectStatus.status>A52</optimization_MarketObjectStatus.status>
+          <AdditionalConstraint_Series>
+            <mRID>AngleCnec7</mRID>
+            <businessType>B87</businessType>
+            <name>AngleCnec7</name>
+            <measurement_Unit.name>DD</measurement_Unit.name>
+            <quantity.quantity>30</quantity.quantity>
+            <RegisteredResource>
+              <mRID codingScheme="A02">_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3</mRID>
+              <name>VL1</name>
+              <marketObjectStatus.status>A47</marketObjectStatus.status>
+            </RegisteredResource>
+            <RegisteredResource>
+              <mRID codingScheme="A02">_3a3b27be-b18b-4385-b557-6735d733baf0</mRID>
+              <name>GENERATOR</name>
+              <marketObjectStatus.status>A46</marketObjectStatus.status>
+            </RegisteredResource>
+          </AdditionalConstraint_Series>
+          <Contingency_Series>
+            <mRID>Co-1</mRID>
+            <name>Co-1-name</name>
+          </Contingency_Series>
+          <RemedialAction_Series>
+            <mRID>RA-7</mRID>
+            <name>Decrease Generation and open line</name>
+            <businessType>B59</businessType>
+            <applicationMode_MarketObjectStatus.status>A19</applicationMode_MarketObjectStatus.status>
+            <availability_MarketObjectStatus.status>A39</availability_MarketObjectStatus.status>
+            <RegisteredResource>
+              <mRID codingScheme="A02">_1dc9afba-23b5-41a0-8540-b479ed8baf4b</mRID>
+              <name>NL-G3</name>
+              <pSRType.psrType>A04</pSRType.psrType>
+              <in_Domain.mRID codingScheme="A01">10YPT-REN------W</in_Domain.mRID>
+              <out_Domain.mRID codingScheme="A01">10YPT-REN------W</out_Domain.mRID>
+              <marketObjectStatus.status>A26</marketObjectStatus.status>
+              <resourceCapacity.defaultCapacity>0</resourceCapacity.defaultCapacity>
+              <resourceCapacity.unitSymbol>MAW</resourceCapacity.unitSymbol>
+            </RegisteredResource>
+            <Shared_Domain>
+              <mRID codingScheme="A01">10YPT-REN------W</mRID>
+            </Shared_Domain>
+          </RemedialAction_Series>
+        </Series>
+        <Series>
+          <mRID>AngleCnecSeries8_KO</mRID>
+          <businessType>B56</businessType>
+          <name>AngleCnecSeries8_KO</name>
+          <optimization_MarketObjectStatus.status>A52</optimization_MarketObjectStatus.status>
+          <AdditionalConstraint_Series>
+            <mRID>AngleCnec8</mRID>
+            <businessType>B87</businessType>
+            <name>AngleCnec8</name>
+            <measurement_Unit.name>DD</measurement_Unit.name>
+            <quantity.quantity>30</quantity.quantity>
+            <RegisteredResource>
+              <mRID codingScheme="A02">_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3</mRID>
+              <name>VL1</name>
+              <marketObjectStatus.status>A47</marketObjectStatus.status>
+            </RegisteredResource>
+            <RegisteredResource>
+              <mRID codingScheme="A02">_d77b61ef-61aa-4b22-95f6-b56ca080788d</mRID>
+              <name>VL2</name>
+              <marketObjectStatus.status>A46</marketObjectStatus.status>
+            </RegisteredResource>
+          </AdditionalConstraint_Series>
+          <Contingency_Series>
+            <mRID>Co-9</mRID>
+            <name>Co-9-name</name>
+          </Contingency_Series>
+          <RemedialAction_Series>
+            <mRID>RA-8</mRID>
+            <name>Decrease Generation and open line</name>
+            <businessType>B59</businessType>
+            <applicationMode_MarketObjectStatus.status>A19</applicationMode_MarketObjectStatus.status>
+            <availability_MarketObjectStatus.status>A39</availability_MarketObjectStatus.status>
+            <RegisteredResource>
+              <mRID codingScheme="A02">_1dc9afba-23b5-41a0-8540-b479ed8baf4b</mRID>
+              <name>NL-G3</name>
+              <pSRType.psrType>A04</pSRType.psrType>
+              <in_Domain.mRID codingScheme="A01">10YPT-REN------W</in_Domain.mRID>
+              <out_Domain.mRID codingScheme="A01">10YPT-REN------W</out_Domain.mRID>
+              <marketObjectStatus.status>A26</marketObjectStatus.status>
+              <resourceCapacity.defaultCapacity>0</resourceCapacity.defaultCapacity>
+              <resourceCapacity.unitSymbol>MAW</resourceCapacity.unitSymbol>
+            </RegisteredResource>
+            <Shared_Domain>
+              <mRID codingScheme="A01">10YPT-REN------W</mRID>
+            </Shared_Domain>
+          </RemedialAction_Series>
+        </Series>
+        <Series>
+          <mRID>AngleCnecSeries9_KO</mRID>
+          <businessType>B56</businessType>
+          <name>AngleCnecSeries9_KO</name>
+          <optimization_MarketObjectStatus.status>A52</optimization_MarketObjectStatus.status>
+          <AdditionalConstraint_Series>
+            <mRID>AngleCnec9</mRID>
+            <businessType>B87</businessType>
+            <name>AngleCnec9</name>
+            <measurement_Unit.name>DD</measurement_Unit.name>
+            <quantity.quantity>30</quantity.quantity>
+            <RegisteredResource>
+              <mRID codingScheme="A02">_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3</mRID>
+              <name>VL1</name>
+              <marketObjectStatus.status>A47</marketObjectStatus.status>
+            </RegisteredResource>
+            <RegisteredResource>
+              <mRID codingScheme="A02">_d77b61ef-61aa-4b22-95f6-b56ca080788d</mRID>
+              <name>VL2</name>
+              <marketObjectStatus.status>A46</marketObjectStatus.status>
+            </RegisteredResource>
+          </AdditionalConstraint_Series>
+          <RemedialAction_Series>
+            <mRID>RA-9</mRID>
+            <name>Decrease Generation and open line</name>
+            <businessType>B59</businessType>
+            <applicationMode_MarketObjectStatus.status>A19</applicationMode_MarketObjectStatus.status>
+            <availability_MarketObjectStatus.status>A39</availability_MarketObjectStatus.status>
+            <RegisteredResource>
+              <mRID codingScheme="A02">_1dc9afba-23b5-41a0-8540-b479ed8baf4b</mRID>
+              <name>NL-G3</name>
+              <pSRType.psrType>A04</pSRType.psrType>
+              <in_Domain.mRID codingScheme="A01">10YPT-REN------W</in_Domain.mRID>
+              <out_Domain.mRID codingScheme="A01">10YPT-REN------W</out_Domain.mRID>
+              <marketObjectStatus.status>A26</marketObjectStatus.status>
+              <resourceCapacity.defaultCapacity>0</resourceCapacity.defaultCapacity>
+              <resourceCapacity.unitSymbol>MAW</resourceCapacity.unitSymbol>
+            </RegisteredResource>
+            <Shared_Domain>
+              <mRID codingScheme="A01">10YPT-REN------W</mRID>
+            </Shared_Domain>
+          </RemedialAction_Series>
+        </Series>
+        <Series>
+          <mRID>AngleCnecSeries10_KO</mRID>
+          <businessType>B56</businessType>
+          <name>AngleCnecSeries10_KO</name>
+          <optimization_MarketObjectStatus.status>A52</optimization_MarketObjectStatus.status>
+          <AdditionalConstraint_Series>
+            <mRID>AngleCnec10</mRID>
+            <businessType>B87</businessType>
+            <name>AngleCnec10</name>
+            <measurement_Unit.name>DD</measurement_Unit.name>
+            <quantity.quantity>30</quantity.quantity>
+            <RegisteredResource>
+              <mRID codingScheme="A02">_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3</mRID>
+              <name>VL1</name>
+              <marketObjectStatus.status>A47</marketObjectStatus.status>
+            </RegisteredResource>
+            <RegisteredResource>
+              <mRID codingScheme="A02">_d77b61ef-61aa-4b22-95f6-b56ca080788d</mRID>
+              <name>VL2</name>
+              <marketObjectStatus.status>A46</marketObjectStatus.status>
+            </RegisteredResource>
+          </AdditionalConstraint_Series>
+          <Contingency_Series>
+            <mRID>Co-1</mRID>
+            <name>Co-1-name</name>
+          </Contingency_Series>
+          <Contingency_Series>
+            <mRID>Co-2</mRID>
+            <name>Co-2-name</name>
+          </Contingency_Series>
+          <RemedialAction_Series>
+            <mRID>RA-10</mRID>
+            <name>Decrease Generation and open line</name>
+            <businessType>B59</businessType>
+            <applicationMode_MarketObjectStatus.status>A19</applicationMode_MarketObjectStatus.status>
+            <availability_MarketObjectStatus.status>A39</availability_MarketObjectStatus.status>
+            <RegisteredResource>
+              <mRID codingScheme="A02">_1dc9afba-23b5-41a0-8540-b479ed8baf4b</mRID>
+              <name>NL-G3</name>
+              <pSRType.psrType>A04</pSRType.psrType>
+              <in_Domain.mRID codingScheme="A01">10YPT-REN------W</in_Domain.mRID>
+              <out_Domain.mRID codingScheme="A01">10YPT-REN------W</out_Domain.mRID>
+              <marketObjectStatus.status>A26</marketObjectStatus.status>
+              <resourceCapacity.defaultCapacity>0</resourceCapacity.defaultCapacity>
+              <resourceCapacity.unitSymbol>MAW</resourceCapacity.unitSymbol>
+            </RegisteredResource>
+            <Shared_Domain>
+              <mRID codingScheme="A01">10YPT-REN------W</mRID>
+            </Shared_Domain>
+          </RemedialAction_Series>
+        </Series>
+      </Point>
+    </Period>
+  </TimeSeries>
+</CRAC_MarketDocument>

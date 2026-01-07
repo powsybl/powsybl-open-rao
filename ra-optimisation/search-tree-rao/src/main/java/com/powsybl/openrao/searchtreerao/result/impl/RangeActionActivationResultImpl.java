@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, RTE (http://www.rte-france.com)
+ * Copyright (c) 2022, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -12,6 +12,7 @@ import com.powsybl.openrao.data.crac.api.Identifiable;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.StandardRangeAction;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
 
@@ -32,7 +33,7 @@ public class RangeActionActivationResultImpl implements RangeActionActivationRes
     private Map<String, Map<State, Double> > setpointPerStatePerPstId;
     private Map<State, Optional<State>> memoizedPreviousState = new HashMap<>();
 
-    private static class ElementaryResult {
+    private static final class ElementaryResult {
         private final double refSetpoint;
         private final Map<State, Double> setPointPerState;
 
@@ -81,8 +82,18 @@ public class RangeActionActivationResultImpl implements RangeActionActivationRes
 
     public void putResult(RangeAction<?> rangeAction, State state, double setpoint) {
         shouldRecomputeSetpointsPerState = true;
-        elementaryResultMap.get(rangeAction).put(state, setpoint);
+        // missing key should only occur in PST regulation
+        elementaryResultMap.computeIfAbsent(rangeAction, k -> new ElementaryResult(getInitialSetPoint(rangeAction))).put(state, setpoint);
         memoizedPreviousState = new HashMap<>();
+    }
+
+    private static double getInitialSetPoint(RangeAction<?> rangeAction) {
+        if (rangeAction instanceof PstRangeAction pstRangeAction) {
+            return pstRangeAction.convertTapToAngle(pstRangeAction.getInitialTap());
+        } else if (rangeAction instanceof StandardRangeAction<?> standardRangeAction) {
+            return standardRangeAction.getInitialSetpoint();
+        }
+        throw new OpenRaoException("Unsupported range action type for range action %s.".formatted(rangeAction.getId()));
     }
 
     private synchronized void computeSetpointsPerStatePerPst() {

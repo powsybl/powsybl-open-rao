@@ -7,7 +7,7 @@
     <parent>
         <groupId>com.powsybl</groupId>
         <artifactId>powsybl-open-rao</artifactId>
-        <version>6.6.0-SNAPSHOT</version>
+        <version>7.2.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>open-rao-data</artifactId>
@@ -17,8 +17,8 @@
 
     <modules>
         <module>crac</module>
-        <module>generator-constraints</module>
         <module>glsk</module>
+        <module>intertemporal-constraints</module>
         <module>rao-result</module>
         <module>refprog</module>
         <module>virtual-hubs</module>

@@ -57,25 +57,45 @@
       ]
     }
   ],
-  "injectionRangeActions" : [ {
-    "id" : "redispatchingAction1600",
-    "name" : "redispatchingAction1600",
-    "operator" : "FR",
-    "onInstantUsageRules" : [ {
-      "instant" : "preventive",
-      "usageMethod" : "available"
-    } ],
-    "networkElementIdsAndKeys" : {
-      "FFR3AA1 _load" : 0.4,
-      "FFR2AA1 _generator" : -1.0,
-      "FFR4AA1 _load" : 0.6
+  "injectionRangeActions" : [
+    {
+      "id" : "redispatchingAction1600",
+      "name" : "redispatchingAction1600",
+      "operator" : "FR",
+      "onInstantUsageRules" : [ {
+        "instant" : "preventive",
+        "usageMethod" : "available"
+      } ],
+      "networkElementIdsAndKeys" : {
+        "FFR3AA1 _load" : 1.0,
+        "FFR2AA1 _generator" : -1.0,
+        "FFR4AA1 _load" : 0.6
+      },
+      "initialSetpoint" : 0,
+      "ranges" : [{
+        "min" : -1000.0,
+        "max" : 1000.0
+      } ]
     },
-    "initialSetpoint" : 0,
-    "ranges" : [{
-      "min" : -1000.0,
-      "max" : 1000.0
-    } ]
-  },
+
+    {
+      "id" : "redispatchingAction1600-2",
+      "name" : "redispatchingAction1600-2",
+      "operator" : "FR",
+      "onInstantUsageRules" : [ {
+        "instant" : "preventive",
+        "usageMethod" : "available"
+      } ],
+      "networkElementIdsAndKeys" : {
+        "FFR2AA1 _generator" : -0.5,
+        "FFR3AA1 _load" : 0.5
+      },
+      "initialSetpoint" : 0,
+      "ranges" : [{
+        "min" : -1000.0,
+        "max" : 1000.0
+      } ]
+    },
 
     {
       "id": "redispatchingAction-cur-1600",

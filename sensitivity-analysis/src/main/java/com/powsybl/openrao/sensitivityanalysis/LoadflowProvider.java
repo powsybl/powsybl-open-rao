@@ -4,6 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 package com.powsybl.openrao.sensitivityanalysis;
 
 import com.powsybl.openrao.commons.OpenRaoException;
@@ -156,23 +157,6 @@ public class LoadflowProvider extends AbstractSimpleSensitivityProvider {
         } else {
             throw new OpenRaoException("Unable to create sensitivity function for " + networkElementId);
         }
-    }
-
-    private Set<SensitivityFunctionType> getSensitivityFunctionTypes(Set<TwoSides> sides) {
-        Set<SensitivityFunctionType> sensitivityFunctionTypes = new HashSet<>();
-        if (factorsInMegawatt && sides.contains(TwoSides.ONE)) {
-            sensitivityFunctionTypes.add(SensitivityFunctionType.BRANCH_ACTIVE_POWER_1);
-        }
-        if (factorsInMegawatt && sides.contains(TwoSides.TWO)) {
-            sensitivityFunctionTypes.add(SensitivityFunctionType.BRANCH_ACTIVE_POWER_2);
-        }
-        if (factorsInAmpere && sides.contains(TwoSides.ONE)) {
-            sensitivityFunctionTypes.add(SensitivityFunctionType.BRANCH_CURRENT_1);
-        }
-        if (factorsInAmpere && sides.contains(TwoSides.TWO)) {
-            sensitivityFunctionTypes.add(SensitivityFunctionType.BRANCH_CURRENT_2);
-        }
-        return sensitivityFunctionTypes;
     }
 
 }
