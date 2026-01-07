@@ -109,7 +109,6 @@ public class LoopFlowComputationImpl implements LoopFlowComputation {
         return atLeastOneGlskConnected;
     }
 
-    // TODO: use injectionhelper
     static Injection<?> getInjection(String injectionId, Network network) {
         Generator generator = network.getGenerator(injectionId);
         if (generator != null) {
