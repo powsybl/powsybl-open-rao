@@ -28,7 +28,7 @@ Feature: US 7.14: Use a refProg file to calculate the loop-flows
     And the loopflow on cnec "NNL2AA1  NNL3AA1  1 - preventive" after loopflow computation should be 106.0 MW
     And the loopflow on cnec "BBE2AA1  FFR3AA1  1 - preventive" after loopflow computation should be -210.0 MW
 
-  @fast @loopflow-computation @mock @dc @loopflow
+  @fast @loopflow-computation @mock @ac @loopflow
   Scenario: 7.14.1.bis : calculate loop-flows with a refProg file - Ampere
   Perform exactly the same test as 7.14.1, but this time with the computation carried out in Ampere.
   The expected result should match the Megawatt value converted to Ampere using the formula : flowInAmpere ~ flowInMw / (Unom × sqrt(3) / 1000).
@@ -55,7 +55,7 @@ Feature: US 7.14: Use a refProg file to calculate the loop-flows
     And the loopflow on cnec "BBE2AA1  FFR3AA1  1 - preventive" after loopflow computation should be -302.0 A
 
 
-  @fast @rao @mock @dc @preventive-only @loopflow
+  @fast @rao @mock @ac @preventive-only @loopflow
   Scenario: 7.14.2 : run a search tree RAO with a refProg file
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic7/crac_lf_rao_3_cbcora.xml"

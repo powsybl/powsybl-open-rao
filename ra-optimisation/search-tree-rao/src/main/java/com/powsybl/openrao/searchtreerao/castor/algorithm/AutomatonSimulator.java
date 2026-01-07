@@ -596,12 +596,13 @@ public final class AutomatonSimulator {
                 return new RangeAutomatonSimulationResult(automatonRangeActionOptimizationSensitivityAnalysisOutput, activatedRangeActionsWithSetpoint.keySet(), activatedRangeActionsWithInitialSetpoint, activatedRangeActionsWithSetpoint);
             }
 
-            TECHNICAL_LOGS.debug("Shifting set-point from {} to {} on range action(s) {} to secure CNEC {} on side {} (current margin: {} MW).",
+            TECHNICAL_LOGS.debug("Shifting set-point from {} to {} on range action(s) {} to secure CNEC {} on side {} (current margin: {} {}).",
                 String.format(Locale.ENGLISH, "%.2f", alignedRangeActions.getFirst().getCurrentSetpoint(network)),
                 String.format(Locale.ENGLISH, "%.2f", optimalSetpoint),
                 alignedRangeActions.stream().map(Identifiable::getId).collect(Collectors.joining(", ")),
                 toBeShiftedCnec.getId(), side,
-                String.format(Locale.ENGLISH, "%.2f", cnecMargin));
+                String.format(Locale.ENGLISH, "%.2f", cnecMargin),
+                flowUnit.toString());
 
             applyAllRangeActions(alignedRangeActions, network, optimalSetpoint, activatedRangeActionsWithSetpoint);
 
