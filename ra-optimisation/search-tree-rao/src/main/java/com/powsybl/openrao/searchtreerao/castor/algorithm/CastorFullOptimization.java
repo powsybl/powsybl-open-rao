@@ -8,6 +8,7 @@
 package com.powsybl.openrao.searchtreerao.castor.algorithm;
 
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
@@ -52,6 +53,7 @@ import static com.powsybl.openrao.searchtreerao.commons.HvdcUtils.getHvdcRangeAc
 import static com.powsybl.openrao.searchtreerao.commons.RaoLogger.formatDoubleBasedOnMargin;
 import static com.powsybl.openrao.searchtreerao.commons.RaoLogger.getVirtualCostDetailed;
 import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.applyRemedialActions;
+import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.getFlowUnit;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -75,12 +77,14 @@ public class CastorFullOptimization {
     private final Network network;
     private final RaoParameters raoParameters;
     private final java.time.Instant targetEndInstant;
+    private final Unit flowUnit;
 
     public CastorFullOptimization(RaoInput raoInput, RaoParameters raoParameters, java.time.Instant targetEndInstant) {
         this.raoInput = raoInput;
         this.crac = raoInput.getCrac();
         this.network = raoInput.getNetwork();
         this.raoParameters = raoParameters;
+        this.flowUnit = getFlowUnit(raoParameters);
         this.targetEndInstant = targetEndInstant;
     }
 
@@ -137,7 +141,7 @@ public class CastorFullOptimization {
                 Set<FlowCnec> optimizedFlowCnecs = preventiveResultsAndOptimizedCnecs.getRight();
                 BUSINESS_LOGS.info("----- Preventive perimeter optimization [end]");
                 // log final result
-                RaoLogger.logMostLimitingElementsResults(TECHNICAL_LOGS, preventiveResult, raoParameters.getObjectiveFunctionParameters().getType(), raoParameters.getObjectiveFunctionParameters().getUnit(), 10);
+                RaoLogger.logMostLimitingElementsResults(TECHNICAL_LOGS, preventiveResult, raoParameters.getObjectiveFunctionParameters().getType(), this.flowUnit, 10);
                 RaoLogger.checkIfMostLimitingElementIsFictional(BUSINESS_LOGS, preventiveResult);
                 RaoResult raoResult = new OneStateOnlyRaoResultImpl(crac.getPreventiveState(), initialOutput, preventiveResult, optimizedFlowCnecs);
                 return postCheckResults(raoResult, initialOutput, raoParameters.getObjectiveFunctionParameters(), true);
@@ -183,7 +187,7 @@ public class CastorFullOptimization {
                 BUSINESS_LOGS.info("Preventive perimeter could not be secured; there is no point in optimizing post-contingency perimeters. The RAO will be interrupted here.");
                 mergedRaoResults = new PreventiveAndCurativesRaoResultImpl(stateTree, initialOutput, postPreventiveResult, crac, raoParameters);
                 // log results
-                RaoLogger.logMostLimitingElementsResults(BUSINESS_LOGS, preCurativeSensitivityAnalysisOutput, raoParameters.getObjectiveFunctionParameters().getType(), raoParameters.getObjectiveFunctionParameters().getUnit(), NUMBER_LOGGED_ELEMENTS_END_RAO);
+                RaoLogger.logMostLimitingElementsResults(BUSINESS_LOGS, preCurativeSensitivityAnalysisOutput, raoParameters.getObjectiveFunctionParameters().getType(), this.flowUnit, NUMBER_LOGGED_ELEMENTS_END_RAO);
                 RaoLogger.checkIfMostLimitingElementIsFictional(BUSINESS_LOGS, preCurativeSensitivityAnalysisOutput);
                 return postCheckResults(mergedRaoResults, initialOutput, raoParameters.getObjectiveFunctionParameters(), true);
             }
@@ -238,8 +242,8 @@ public class CastorFullOptimization {
             // Log final results
             if (logFinalResultsOutsideOfSecondPreventive) {
                 BUSINESS_LOGS.info("Merging preventive and post-contingency RAO results:");
-                RaoLogger.logMostLimitingElementsResults(BUSINESS_LOGS, stateTree.getBasecaseScenario(), finalSecondPreventiveResult.optimizationResult(), stateTree.getContingencyScenarios(), finalPostContingencyResults, raoParameters.getObjectiveFunctionParameters().getType(), raoParameters.getObjectiveFunctionParameters().getUnit(), NUMBER_LOGGED_ELEMENTS_END_RAO);
-                RaoLogger.checkIfMostLimitingElementIsFictional(BUSINESS_LOGS, stateTree.getBasecaseScenario(), finalSecondPreventiveResult.optimizationResult(), stateTree.getContingencyScenarios(), finalPostContingencyResults, raoParameters.getObjectiveFunctionParameters().getType(), raoParameters.getObjectiveFunctionParameters().getUnit());
+                RaoLogger.logMostLimitingElementsResults(BUSINESS_LOGS, stateTree.getBasecaseScenario(), finalSecondPreventiveResult.optimizationResult(), stateTree.getContingencyScenarios(), finalPostContingencyResults, raoParameters.getObjectiveFunctionParameters().getType(), this.flowUnit, NUMBER_LOGGED_ELEMENTS_END_RAO);
+                RaoLogger.checkIfMostLimitingElementIsFictional(BUSINESS_LOGS, stateTree.getBasecaseScenario(), finalSecondPreventiveResult.optimizationResult(), stateTree.getContingencyScenarios(), finalPostContingencyResults, raoParameters.getObjectiveFunctionParameters().getType(), this.flowUnit);
             }
 
             CompletableFuture<RaoResult> raoResult = postCheckResults(mergedRaoResults, initialOutput, raoParameters.getObjectiveFunctionParameters(), true);
@@ -263,8 +267,8 @@ public class CastorFullOptimization {
                 raoResultWithRegulation.setExecutionDetails(mergedRaoResults.getExecutionDetails());
                 BUSINESS_LOGS.info("----- PST regulation [end]");
                 BUSINESS_LOGS.info("Merging RAO and PST regulation results:");
-                RaoLogger.logMostLimitingElementsResults(BUSINESS_LOGS, stateTree.getBasecaseScenario(), finalSecondPreventiveResult.optimizationResult(), stateTree.getContingencyScenarios(), postRegulationResults, raoParameters.getObjectiveFunctionParameters().getType(), raoParameters.getObjectiveFunctionParameters().getUnit(), NUMBER_LOGGED_ELEMENTS_END_RAO);
-                RaoLogger.checkIfMostLimitingElementIsFictional(BUSINESS_LOGS, stateTree.getBasecaseScenario(), finalSecondPreventiveResult.optimizationResult(), stateTree.getContingencyScenarios(), postRegulationResults, raoParameters.getObjectiveFunctionParameters().getType(), raoParameters.getObjectiveFunctionParameters().getUnit());
+                RaoLogger.logMostLimitingElementsResults(BUSINESS_LOGS, stateTree.getBasecaseScenario(), finalSecondPreventiveResult.optimizationResult(), stateTree.getContingencyScenarios(), postRegulationResults, raoParameters.getObjectiveFunctionParameters().getType(), this.flowUnit, NUMBER_LOGGED_ELEMENTS_END_RAO);
+                RaoLogger.checkIfMostLimitingElementIsFictional(BUSINESS_LOGS, stateTree.getBasecaseScenario(), finalSecondPreventiveResult.optimizationResult(), stateTree.getContingencyScenarios(), postRegulationResults, raoParameters.getObjectiveFunctionParameters().getType(), this.flowUnit);
                 return postCheckResults(raoResultWithRegulation, initialOutput, raoParameters.getObjectiveFunctionParameters(), false);
             }
 
@@ -337,7 +341,7 @@ public class CastorFullOptimization {
                 formatDoubleBasedOnMargin(initialCost, -initialCost), formatDoubleBasedOnMargin(initialFunctionalCost, -initialCost), formatDoubleBasedOnMargin(initialVirtualCost, -initialCost),
                 formatDoubleBasedOnMargin(finalCost, -finalCost), formatDoubleBasedOnMargin(finalFunctionalCost, -finalCost), formatDoubleBasedOnMargin(finalVirtualCost, -finalCost));
             // log results
-            RaoLogger.logMostLimitingElementsResults(BUSINESS_LOGS, initialResult, objectiveFunctionParameters.getType(), objectiveFunctionParameters.getUnit(), NUMBER_LOGGED_ELEMENTS_END_RAO);
+            RaoLogger.logMostLimitingElementsResults(BUSINESS_LOGS, initialResult, objectiveFunctionParameters.getType(), this.flowUnit, NUMBER_LOGGED_ELEMENTS_END_RAO);
             finalRaoResult = new UnoptimizedRaoResultImpl(initialResult);
             finalCost = initialCost;
             finalFunctionalCost = initialFunctionalCost;

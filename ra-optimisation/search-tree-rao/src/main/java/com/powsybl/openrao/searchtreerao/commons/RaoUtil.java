@@ -92,16 +92,6 @@ public final class RaoUtil {
     }
 
     private static void checkObjectiveFunctionParameters(RaoParameters raoParameters, RaoInput raoInput) {
-        if (raoParameters.getObjectiveFunctionParameters().getUnit().equals(Unit.AMPERE)
-            && getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters().isDc()) {
-            throw new OpenRaoException("Objective function unit AMPERE cannot be calculated with a DC default sensitivity engine");
-        }
-
-        if (raoParameters.getObjectiveFunctionParameters().getUnit().equals(Unit.MEGAWATT)
-            && !getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters().isDc()) {
-            throw new OpenRaoException("Objective function unit MEGAWATT cannot be calculated with a AC default sensitivity engine");
-
-        }
 
         if (raoParameters.getObjectiveFunctionParameters().getType().relativePositiveMargins()) {
             if (raoInput.getGlskProvider() == null) {
@@ -161,7 +151,7 @@ public final class RaoUtil {
      * If there are remaining usage rules, the remedial action is available.
      */
     public static boolean canRemedialActionBeUsed(RemedialAction<?> remedialAction, State state, FlowResult flowResult, Set<FlowCnec> flowCnecs, Network network, RaoParameters raoParameters) {
-        return remedialAction.getUsageRules().stream().anyMatch(ur -> isUsageRuleActivated(ur, remedialAction, state, flowResult, flowCnecs, network, raoParameters.getObjectiveFunctionParameters().getUnit()));
+        return remedialAction.getUsageRules().stream().anyMatch(ur -> isUsageRuleActivated(ur, remedialAction, state, flowResult, flowCnecs, network, getFlowUnit(raoParameters)));
     }
 
     private static boolean isUsageRuleActivated(UsageRule usageRule, RemedialAction<?> remedialAction, State state, FlowResult flowResult, Set<FlowCnec> flowCnecs, Network network, Unit unit) {

@@ -51,6 +51,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
 import static com.powsybl.openrao.searchtreerao.commons.RaoLogger.logCost;
+import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.getFlowUnit;
 import static com.powsybl.openrao.searchtreerao.marmot.MarmotUtils.*;
 
 /**
@@ -152,7 +153,7 @@ public class Marmot implements InterTemporalRaoProvider {
 
             logCost("[MARMOT] next iteration of MIP: ", fullResults, raoParameters, 10);
             counter++;
-        } while (shouldContinueAndAddCnecs(loadFlowResults, consideredCnecs, raoParameters.getObjectiveFunctionParameters().getUnit()) && counter < 10); // Stop if the worst element of each TS has been considered during MIP
+        } while (shouldContinueAndAddCnecs(loadFlowResults, consideredCnecs, getFlowUnit(raoParameters)) && counter < 10); // Stop if the worst element of each TS has been considered during MIP
         TECHNICAL_LOGS.info("[MARMOT] ----- Global range actions optimization [end]");
 
         // 7. Merge topological and linear result
@@ -425,7 +426,7 @@ public class Marmot implements InterTemporalRaoProvider {
         // TODO: define static method to define Ra Limitation Parameters from crac and topos (mutualize with search tree) : SearchTreeParameters::decreaseRemedialActionsUsageLimits
         IteratingLinearOptimizerParameters.LinearOptimizerParametersBuilder linearOptimizerParametersBuilder = IteratingLinearOptimizerParameters.create()
             .withObjectiveFunction(parameters.getObjectiveFunctionParameters().getType())
-            .withObjectiveFunctionUnit(parameters.getObjectiveFunctionParameters().getUnit())
+            .withObjectiveFunctionUnit(getFlowUnit(parameters))
             .withRangeActionParameters(parameters.getRangeActionsOptimizationParameters())
             .withRangeActionParametersExtension(parameters.getExtension(OpenRaoSearchTreeParameters.class).getRangeActionsOptimizationParameters())
             .withMaxNumberOfIterations(parameters.getExtension(OpenRaoSearchTreeParameters.class).getRangeActionsOptimizationParameters().getMaxMipIterations())

@@ -30,6 +30,7 @@ import java.util.*;
 
 import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.getLinearOptimizationSolver;
 import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.getMaxMipIterations;
+import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.getFlowUnit;
 
 /**
  * @author Baptiste Seguinot {@literal <joris.mancini at rte-france.com>}
@@ -308,7 +309,7 @@ public class SearchTreeParameters {
 
         public SearchTreeParametersBuilder withConstantParametersOverAllRao(RaoParameters raoParameters, Crac crac) {
             this.objectiveFunction = raoParameters.getObjectiveFunctionParameters().getType();
-            this.objectiveFunctionUnit = raoParameters.getObjectiveFunctionParameters().getUnit();
+            this.objectiveFunctionUnit = getFlowUnit(raoParameters);
             this.networkActionParameters = NetworkActionParameters.buildFromRaoParameters(raoParameters, crac);
             this.raLimitationParameters = new HashMap<>(crac.getRaUsageLimitsPerInstant());
             this.rangeActionParameters = raoParameters.getRangeActionsOptimizationParameters();
