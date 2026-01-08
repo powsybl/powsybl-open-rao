@@ -192,11 +192,11 @@ Feature: US 15.17: Optimize HVDC range actions initially in AC emulation mode
 
   @fast @rao @mock @ac @preventive-only @hvdc @costly
   Scenario: US 15.17.13: AC Emulation is activated but not the HVDC range action
-    Same network as the first eight test. We have one CNEC and two range actions available: a PST and an HVDC range action.
+    Same network as tests 15.17.1 -> 15.17.8. We have one CNEC and two range actions available: a PST and an HVDC range action.
     The threshold of the CNEC is -450 A.
-    In root leaf, the optimal setpoint found for the PST is 9 => cost = 95.0
+    In root leaf, the optimal setpoint found for the PST is 9 => cost = 95.0 = 5+9*10
     In the leaf evaluating the AC Emulation deactivation action, the sensi of the PST on the CNEC is higher (120A/tap vs 98A/tap in root)
-    ie moving the pst by one tap impact the CNEC more so we only need to move it to tap 7 to secure the network => cost = 75.0 = 5+7*10
+    ie moving the pst by one tap has more impact on the CNEC so we only need to move it to tap 7 to secure the network => cost = 75.0 = 5+7*10
     Moving the HVDC setpoint would be too expensive compared to moving the PST so it stays the same
     Given network file is "epic15/TestCase16NodesWithHvdc_AC_emulation.xiidm"
     Given crac file is "epic15/jsonCrac_ep15us17case13.json"
