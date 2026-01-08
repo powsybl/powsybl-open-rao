@@ -121,7 +121,7 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
     private boolean initialResultContainsLoopFlowResult(FlowCnec flowCnec) {
         boolean loopflowPresent;
         try {
-            loopflowPresent = !Double.isNaN(initialResult.getLoopFlow(flowCnec, flowCnec.getMonitoredSides().iterator().next(), Unit.MEGAWATT));
+            loopflowPresent = !Double.isNaN(initialResult.getLoopFlow(flowCnec, flowCnec.getMonitoredSides().iterator().next(), raoParameters.getObjectiveFunctionParameters().getUnit()));
         } catch (OpenRaoException e) {
             if (e.getMessage().contains("No commercial flow")) {
                 loopflowPresent = false;
