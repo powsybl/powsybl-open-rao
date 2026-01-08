@@ -10,6 +10,7 @@ package com.powsybl.openrao.searchtreerao.commons;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
 import com.powsybl.contingency.Contingency;
+import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.commons.logs.RaoBusinessWarns;
@@ -33,6 +34,7 @@ import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.RelativeMarginsParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoLoopFlowParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
@@ -43,6 +45,7 @@ import com.powsybl.glsk.commons.ZonalData;
 import com.powsybl.glsk.ucte.UcteGlskDocument;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.sensitivity.SensitivityAnalysisParameters;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.BeforeEach;
@@ -501,5 +504,29 @@ class RaoUtilTest {
         assertEquals(expectedMsg1, logsList.getFirst().getMessage());
         assertEquals(expectedMsg2, logsList.get(1).getMessage());
         assertFalse(logsList.stream().anyMatch(e -> e.getMessage().contains(notExpectedMsg)));
+    }
+
+    @Test
+    void testGetFlowUnit() {
+        RaoParameters raoParameters = mock(RaoParameters.class);
+        OpenRaoSearchTreeParameters extension = mock(OpenRaoSearchTreeParameters.class);
+        LoadFlowAndSensitivityParameters lfSensParams = mock(LoadFlowAndSensitivityParameters.class);
+        SensitivityAnalysisParameters sensitivityParams = mock(SensitivityAnalysisParameters.class);
+        LoadFlowParameters loadFlowParameters = mock(LoadFlowParameters.class);
+
+        // Mock de la structure commune
+        when(raoParameters.hasExtension(OpenRaoSearchTreeParameters.class)).thenReturn(true);
+        when(raoParameters.getExtension(OpenRaoSearchTreeParameters.class)).thenReturn(extension);
+        when(extension.getLoadFlowAndSensitivityParameters()).thenReturn(lfSensParams);
+        when(lfSensParams.getSensitivityWithLoadFlowParameters()).thenReturn(sensitivityParams);
+        when(sensitivityParams.getLoadFlowParameters()).thenReturn(loadFlowParameters);
+
+        // Cas DC -> MEGAWATT
+        when(loadFlowParameters.isDc()).thenReturn(true);
+        assertEquals(Unit.MEGAWATT, RaoUtil.getFlowUnit(raoParameters));
+
+        // Cas AC -> AMPERE
+        when(loadFlowParameters.isDc()).thenReturn(false);
+        assertEquals(Unit.AMPERE, RaoUtil.getFlowUnit(raoParameters));
     }
 }
