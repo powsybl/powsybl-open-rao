@@ -189,3 +189,30 @@ Feature: US 15.17: Optimize HVDC range actions initially in AC emulation mode
     Then 0 remedial actions are used in preventive
     And the initial flow on cnec "be2_be5_n - BBE2AA11->BBE5AA11 - preventive" should be 878 A on side 1
     And the flow on cnec "be2_be5_n - BBE2AA11->BBE5AA11 - preventive" after PRA should be 878 A on side 1
+
+  @fast @rao @mock @ac @preventive-only @hvdc @costly
+  Scenario: US 15.17.13: AC Emulation is activated but not the HVDC range action
+    Same network as tests 15.17.1 -> 15.17.8. We have one CNEC and two range actions available: a PST and an HVDC range action.
+    The threshold of the CNEC is -450 A.
+    In root leaf, the optimal setpoint found for the PST is 9 => cost = 95.0 = 5+9*10
+    In the leaf evaluating the AC Emulation deactivation action, the sensi of the PST on the CNEC is higher (120A/tap vs 98A/tap in root)
+    ie moving the pst by one tap has more impact on the CNEC so we only need to move it to tap 7 to secure the network => cost = 75.0 = 5+7*10
+    Moving the HVDC setpoint would be too expensive compared to moving the PST so it stays the same
+    Given network file is "epic15/TestCase16NodesWithHvdc_AC_emulation.xiidm"
+    Given crac file is "epic15/jsonCrac_ep15us17case13.json"
+    Given configuration file is "common/RaoParameters_min_cost_ac.json"
+    When I launch rao
+    # Initial situation
+    Then the initial flow on cnec "be1_be2_n - BBE1AA11->BBE2AA11 - preventive" should be -919 A on side 1
+    Then the initial margin on cnec "be1_be2_n - BBE1AA11->BBE2AA11 - preventive" should be -469 A
+    Then the initial tap of PstRangeAction "PST_PRA_PST_be_BBE2AA11 BBE3AA11 1" should be 0
+    Then the initial setpoint of RangeAction "PRA_HVDC" should be 823
+    # After optimisation
+    Then 2 remedial actions are used in preventive
+    Then the remedial action "acEmulationDeactivation_BBE2AA11 FFR3AA11 1" is used in preventive
+    And the tap of PstRangeAction "PST_PRA_PST_be_BBE2AA11 BBE3AA11 1" should be 7 in preventive
+    Then the setpoint of RangeAction "PRA_HVDC" should be 823 MW in preventive
+    And the value of the objective function after PRA should be 75.0
+
+
+
