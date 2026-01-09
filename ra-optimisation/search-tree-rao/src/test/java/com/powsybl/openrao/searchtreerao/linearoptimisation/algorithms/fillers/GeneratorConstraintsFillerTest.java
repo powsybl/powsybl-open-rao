@@ -8,11 +8,13 @@
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers;
 
 import com.powsybl.iidm.network.Network;
-import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.CracFactory;
+import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
@@ -21,6 +23,7 @@ import com.powsybl.openrao.data.intertemporalconstraints.IntertemporalConstraint
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.raoapi.InterTemporalRaoInput;
 import com.powsybl.openrao.raoapi.RaoInput;
+import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
@@ -28,7 +31,6 @@ import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.Optimiza
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.PreventiveOptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblemBuilder;
-import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPConstraint;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
 import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
@@ -36,9 +38,9 @@ import com.powsybl.openrao.searchtreerao.result.impl.RangeActionSetpointResultIm
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -54,56 +56,8 @@ import static org.mockito.Mockito.when;
 class GeneratorConstraintsFillerTest {
     private final LinearProblemBuilder linearProblemBuilder = new LinearProblemBuilder().withSolver(SearchTreeRaoRangeActionsOptimizationParameters.Solver.SCIP);
     private LinearProblem linearProblem;
-    private final OffsetDateTime timestamp1 = OffsetDateTime.of(2025, 1, 9, 16, 21, 0, 0, ZoneOffset.UTC);
-    private final OffsetDateTime timestamp2 = OffsetDateTime.of(2025, 1, 9, 17, 21, 0, 0, ZoneOffset.UTC);
-    private final OffsetDateTime timestamp3 = OffsetDateTime.of(2025, 1, 9, 19, 21, 0, 0, ZoneOffset.UTC);
     InterTemporalRaoInput input;
     RaoParameters parameters;
-
-    public void createThreeTSInput() throws IOException {
-        Network network1 = Network.read("4Nodes.uct", GeneratorConstraintsFillerTest.class.getResourceAsStream("/network/4Nodes.uct"));
-        Network network2 = Network.read("4Nodes.uct", GeneratorConstraintsFillerTest.class.getResourceAsStream("/network/4Nodes.uct"));
-        Network network3 = Network.read("4Nodes.uct", GeneratorConstraintsFillerTest.class.getResourceAsStream("/network/4Nodes.uct"));
-
-        Crac crac1 = Crac.read("crac-1600.json", GeneratorConstraintsFillerTest.class.getResourceAsStream("/crac/crac-1600.json"), network1);
-        Crac crac2 = Crac.read("crac-1700.json", GeneratorConstraintsFillerTest.class.getResourceAsStream("/crac/crac-1700.json"), network2);
-        Crac crac3 = Crac.read("crac-1900.json", GeneratorConstraintsFillerTest.class.getResourceAsStream("/crac/crac-1900.json"), network3);
-
-        RaoInput raoInput1 = RaoInput.build(network1, crac1).build();
-        RaoInput raoInput2 = RaoInput.build(network2, crac2).build();
-        RaoInput raoInput3 = RaoInput.build(network3, crac3).build();
-
-        GeneratorConstraints generatorConstraintsFr1 = GeneratorConstraints.create().withGeneratorId("FFR1AA1 _load").withPMax(1000.0).withUpwardPowerGradient(500.0).withDownwardPowerGradient(-300.0).build();
-        GeneratorConstraints generatorConstraintsFr2 = GeneratorConstraints.create().withGeneratorId("FFR2AA1 _generator").withPMax(1000.0).withUpwardPowerGradient(200.0).withDownwardPowerGradient(-100.0).build();
-        GeneratorConstraints generatorConstraintsFr3 = GeneratorConstraints.create().withGeneratorId("FFR3AA1 _load").withPMax(1000.0).withUpwardPowerGradient(40.0).withDownwardPowerGradient(-150.0).build();
-
-        IntertemporalConstraints intertemporalConstraints = new IntertemporalConstraints();
-        intertemporalConstraints.addGeneratorConstraints(generatorConstraintsFr1);
-        intertemporalConstraints.addGeneratorConstraints(generatorConstraintsFr2);
-        intertemporalConstraints.addGeneratorConstraints(generatorConstraintsFr3);
-
-        input = new InterTemporalRaoInput(new TemporalDataImpl<>(Map.of(timestamp1, raoInput1, timestamp2, raoInput2, timestamp3, raoInput3)), intertemporalConstraints);
-
-        parameters = new RaoParameters();
-    }
-
-    private void createOneTSInput() throws IOException {
-        Network network1 = Network.read("4Nodes.uct", GeneratorConstraintsFillerTest.class.getResourceAsStream("/network/4Nodes.uct"));
-        Crac crac1 = Crac.read("crac-1600.json", GeneratorConstraintsFillerTest.class.getResourceAsStream("/crac/crac-1600.json"), network1);
-        RaoInput raoInput1 = RaoInput.build(network1, crac1).build();
-
-        GeneratorConstraints generatorConstraintsFr1 = GeneratorConstraints.create().withGeneratorId("FFR1AA1 _load").withPMax(1000.0).withUpwardPowerGradient(500.0).withDownwardPowerGradient(-300.0).build();
-        GeneratorConstraints generatorConstraintsFr2 = GeneratorConstraints.create().withGeneratorId("FFR2AA1 _generator").withPMax(1000.0).withUpwardPowerGradient(200.0).withDownwardPowerGradient(-100.0).build();
-        GeneratorConstraints generatorConstraintsFr3 = GeneratorConstraints.create().withGeneratorId("FFR3AA1 _load").withPMax(1000.0).withUpwardPowerGradient(40.0).withDownwardPowerGradient(-150.0).build();
-
-        IntertemporalConstraints intertemporalConstraints = new IntertemporalConstraints();
-        intertemporalConstraints.addGeneratorConstraints(generatorConstraintsFr1);
-        intertemporalConstraints.addGeneratorConstraints(generatorConstraintsFr2);
-        intertemporalConstraints.addGeneratorConstraints(generatorConstraintsFr3);
-
-        input = new InterTemporalRaoInput(new TemporalDataImpl<>(Map.of(timestamp1, raoInput1)), intertemporalConstraints);
-        parameters = new RaoParameters();
-    }
 
     private void createCoreProblemFillers() {
         input.getRaoInputs().getDataPerTimestamp().entrySet().forEach(entry -> {
@@ -118,16 +72,16 @@ class GeneratorConstraintsFillerTest {
 
             RangeActionsOptimizationParameters rangeActionParameters = parameters.getRangeActionsOptimizationParameters();
             Map<RangeAction<?>, Double> map = new HashMap<>();
-            crac.getRangeActions(crac.getPreventiveState()).forEach(action -> map.put(action, 200.0));
+            crac.getRangeActions(crac.getPreventiveState()).forEach(action -> map.put(action, 5000.0));
             RangeActionSetpointResult rangeActionSetpointResult = new RangeActionSetpointResultImpl(map);
-            MarginCoreProblemFiller coreProblemFiller = new MarginCoreProblemFiller(
+            CostCoreProblemFiller coreProblemFiller = new CostCoreProblemFiller(
                 optimizationPerimeter,
                 rangeActionSetpointResult,
                 rangeActionParameters,
                 null,
                 Unit.MEGAWATT,
                 false,
-                SearchTreeRaoRangeActionsOptimizationParameters.PstModel.CONTINUOUS,
+                SearchTreeRaoRangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS,
                 entry.getKey()
             );
             linearProblemBuilder.withProblemFiller(coreProblemFiller);
@@ -149,7 +103,7 @@ class GeneratorConstraintsFillerTest {
 
     private void buildAndFillLinearProblem() {
         FlowResult flowResult = Mockito.mock(FlowResult.class);
-        when(flowResult.getFlow(any(), any(), any())).thenReturn(10.0);
+        when(flowResult.getFlow(any(), any(), any())).thenReturn(5000.0);
         SensitivityResult sensitivityResult = Mockito.mock(SensitivityResult.class);
         when(sensitivityResult.getSensitivityStatus(any())).thenReturn(ComputationStatus.DEFAULT);
         linearProblem = linearProblemBuilder.build();
@@ -162,36 +116,6 @@ class GeneratorConstraintsFillerTest {
         buildAndFillLinearProblem();
     }
 
-    @Test
-    void testGeneratorPowerConstraintFiller() throws IOException {
-        createOneTSInput();
-        setUpLinearProblem();
-
-        Crac crac = input.getRaoInputs().getData(timestamp1).orElseThrow().getCrac();
-        InjectionRangeAction injectionRangeAction = crac.getInjectionRangeAction("redispatchingAction1600");
-
-        // check generator power variable
-        assertNotNull(linearProblem.getGeneratorPowerVariable("FFR2AA1 _generator", timestamp1));
-        assertNotNull(linearProblem.getGeneratorPowerVariable("FFR3AA1 _load", timestamp1));
-
-        OpenRaoMPConstraint fr2Timestamp1PowerConstraint = linearProblem.getGeneratorToInjectionConstraint("FFR2AA1 _generator", injectionRangeAction, timestamp1);
-        OpenRaoMPConstraint fr3Timestamp1PowerConstraint = linearProblem.getGeneratorToInjectionConstraint("FFR3AA1 _load", injectionRangeAction, timestamp1);
-
-        assertNotNull(fr2Timestamp1PowerConstraint);
-        assertNotNull(fr3Timestamp1PowerConstraint);
-
-        // No power gradient constraint but injection range action defined on it -> No variable created for this generator
-        OpenRaoException missingVariableException = assertThrows(OpenRaoException.class, () -> linearProblem.getGeneratorPowerVariable("FFR1AA1 _load", timestamp1));
-        assertEquals("Variable generatorpower_FFR1AA1 _load_variable_202501091621 has not been created yet", missingVariableException.getMessage());
-        missingVariableException = assertThrows(OpenRaoException.class, () -> linearProblem.getGeneratorPowerVariable("FFR4AA1 _load", timestamp1));
-        assertEquals("Variable generatorpower_FFR4AA1 _load_variable_202501091621 has not been created yet", missingVariableException.getMessage());
-
-        Crac crac1 = input.getRaoInputs().getData(timestamp1).get().getCrac();
-        // check coefficient for injection action variable
-        assertEquals(1.0, fr2Timestamp1PowerConstraint.getCoefficient(linearProblem.getRangeActionSetpointVariable(crac1.getInjectionRangeAction("redispatchingAction1600"), crac1.getPreventiveState())), 1e-5);
-        assertEquals(1.0, fr3Timestamp1PowerConstraint.getCoefficient(linearProblem.getRangeActionSetpointVariable(crac1.getInjectionRangeAction("redispatchingAction1600"), crac1.getPreventiveState())), 1e-5);
-    }
-
     /*
         TODO: check the coefficients of the different variables
         - with or without pMin
@@ -199,4 +123,355 @@ class GeneratorConstraintsFillerTest {
         - with lead / lag time greater or lower than time step
         Have fun! :)
      */
+
+    private static Crac createSimpleRedispatchingCrac(OffsetDateTime timestamp, double cnecThreshold) {
+        String cracId = "crac-" + timestamp.format(DateTimeFormatter.ISO_DATE_TIME);
+        Crac crac = CracFactory.findDefault().create(cracId, cracId, timestamp);
+        crac.newInstant("preventive", InstantKind.PREVENTIVE);
+        crac.newFlowCnec()
+            .withId("BE2 FR2 - preventive")
+            .withNetworkElement("BBE2AA1  FFR2AA1  1")
+            .withInstant("preventive")
+            .withOptimized()
+            .withNominalVoltage(380.0)
+            .newThreshold()
+            .withSide(TwoSides.ONE)
+            .withMax(cnecThreshold)
+            .withMin(-cnecThreshold)
+            .withUnit(Unit.MEGAWATT)
+            .add()
+            .add();
+        crac.newInjectionRangeAction()
+            .withId("Redispatching BE-FR")
+            .withName("Redispatching BE-FR")
+            .withNetworkElementAndKey(-1.0, "FFR1AA1 _load")
+            .withNetworkElementAndKey(1.0, "BBE1AA1 _generator")
+            .newRange()
+            .withMin(-3000.0)
+            .withMax(3000.0)
+            .add()
+            .newOnInstantUsageRule()
+            .withInstant("preventive")
+            .add()
+            .add();
+        return crac;
+    }
+
+    private void setUpLinearProblemWithIntertemporalConstraints(IntertemporalConstraints intertemporalConstraints) {
+        Network network = Network.read("6Nodes.xiidm", getClass().getResourceAsStream("/network/6Nodes.xiidm"));
+        Map<OffsetDateTime, RaoInput> raoInputPerTimestamp = new HashMap<>();
+        raoInputPerTimestamp.put(
+            OffsetDateTime.of(2026, 1, 9, 0, 0, 0, 0, ZoneOffset.UTC),
+            RaoInput.build(network, createSimpleRedispatchingCrac(OffsetDateTime.of(2026, 1, 9, 0, 0, 0, 0, ZoneOffset.UTC), 5000.0)).build()
+        );
+        raoInputPerTimestamp.put(
+            OffsetDateTime.of(2026, 1, 9, 1, 0, 0, 0, ZoneOffset.UTC),
+            RaoInput.build(network, createSimpleRedispatchingCrac(OffsetDateTime.of(2026, 1, 9, 1, 0, 0, 0, ZoneOffset.UTC), 5000.0)).build()
+        );
+        raoInputPerTimestamp.put(
+            OffsetDateTime.of(2026, 1, 9, 2, 0, 0, 0, ZoneOffset.UTC),
+            RaoInput.build(network, createSimpleRedispatchingCrac(OffsetDateTime.of(2026, 1, 9, 2, 0, 0, 0, ZoneOffset.UTC), 0.0)).build()
+        );
+        raoInputPerTimestamp.put(
+            OffsetDateTime.of(2026, 1, 9, 3, 0, 0, 0, ZoneOffset.UTC),
+            RaoInput.build(network, createSimpleRedispatchingCrac(OffsetDateTime.of(2026, 1, 9, 3, 0, 0, 0, ZoneOffset.UTC), 0.0)).build()
+        );
+        raoInputPerTimestamp.put(
+            OffsetDateTime.of(2026, 1, 9, 4, 0, 0, 0, ZoneOffset.UTC),
+            RaoInput.build(network, createSimpleRedispatchingCrac(OffsetDateTime.of(2026, 1, 9, 4, 0, 0, 0, ZoneOffset.UTC), 0.0)).build()
+        );
+
+        input = new InterTemporalRaoInput(new TemporalDataImpl<>(raoInputPerTimestamp), intertemporalConstraints);
+        parameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_minCost_megawatt_dc.json"));
+        setUpLinearProblem();
+    }
+
+    @Test
+    void testNoIntertemporalConstraints() {
+        setUpLinearProblemWithIntertemporalConstraints(new IntertemporalConstraints());
+
+        // For each timestamp:
+        // -> no power variables created because no intertemporal constraints
+
+        // - VARIABLES (20):
+        //   - flow
+        //   - redispatching set-point
+        //   - upward set-point variation
+        //   - downward set-point variation
+
+        // - CONSTRAINTS (15):
+        //   - flow
+        //   - set-point variation
+        //   - network balancing
+
+        assertEquals(20, linearProblem.numVariables());
+        assertEquals(15, linearProblem.numConstraints());
+    }
+
+    @Test
+    void testPMin() {
+        IntertemporalConstraints intertemporalConstraints = new IntertemporalConstraints();
+        intertemporalConstraints.addGeneratorConstraints(GeneratorConstraints.create().withGeneratorId("BBE1AA1 _generator").withPMin(1000.0).build());
+        setUpLinearProblemWithIntertemporalConstraints(intertemporalConstraints);
+
+        // For each timestamp:
+
+        // - VARIABLES (51):
+        //   - flow
+        //   - redispatching set-point
+        //   - upward set-point variation
+        //   - downward set-point variation
+        //   - generator power
+        //   - ON state
+        //   - OFF state
+        //   - ON -> ON transition (except for last timestamp)
+        //   - ON -> OFF transition (except for last timestamp)
+        //   - OFF -> OFF transition (except for last timestamp)
+        //   - OFF -> ON transition (except for last timestamp)
+
+        // - CONSTRAINTS (64):
+        //   - flow
+        //   - set-point variation
+        //   - network balancing
+        //   - generator power to redispatching
+        //   - ON power (lower bound)
+        //   - ON power (upper bound)
+        //   - OFF power
+        //   - only one state
+        //   - state from ON (except for last timestamp)
+        //   - state from OFF (except for last timestamp)
+        //   - state to ON (except for last timestamp)
+        //   - state to OFF (except for last timestamp)
+        //   - power transition (lower bound; except for last timestamp)
+        //   - power transition (upper bound; except for last timestamp)
+
+        assertEquals(51, linearProblem.numVariables());
+        assertEquals(64, linearProblem.numConstraints());
+
+        // TODO: check injection keys in RD set-point
+    }
+
+    @Test
+    void testPMax() {
+        IntertemporalConstraints intertemporalConstraints = new IntertemporalConstraints();
+        intertemporalConstraints.addGeneratorConstraints(GeneratorConstraints.create().withGeneratorId("BBE1AA1 _generator").withPMax(5000.0).build());
+        setUpLinearProblemWithIntertemporalConstraints(intertemporalConstraints);
+
+        // For each timestamp:
+
+        // - VARIABLES (51):
+        //   - flow
+        //   - redispatching set-point
+        //   - upward set-point variation
+        //   - downward set-point variation
+        //   - generator power
+        //   - ON state
+        //   - ON -> ON transition (except for last timestamp)
+
+        // - CONSTRAINTS (64):
+        //   - flow
+        //   - set-point variation
+        //   - network balancing
+        //   - generator power to redispatching
+        //   - ON power (lower bound)
+        //   - ON power (upper bound)
+        //   - only one state
+        //   - state from ON (except for last timestamp)
+        //   - state to ON (except for last timestamp)
+        //   - power transition (lower bound; except for last timestamp)
+        //   - power transition (upper bound; except for last timestamp)
+
+        assertEquals(34, linearProblem.numVariables());
+        assertEquals(51, linearProblem.numConstraints());
+
+        // TODO: check injection keys in RD set-point
+        // TODO: check PMax in power upper bound
+    }
+
+    @Test
+    void testPMinPMax() {
+        IntertemporalConstraints intertemporalConstraints = new IntertemporalConstraints();
+        intertemporalConstraints.addGeneratorConstraints(GeneratorConstraints.create().withGeneratorId("BBE1AA1 _generator").withPMin(1000.0).withPMax(5000.0).build());
+        setUpLinearProblemWithIntertemporalConstraints(intertemporalConstraints);
+
+        // For each timestamp:
+
+        // - VARIABLES (51):
+        //   - flow
+        //   - redispatching set-point
+        //   - upward set-point variation
+        //   - downward set-point variation
+        //   - generator power
+        //   - ON state
+        //   - OFF state
+        //   - ON -> ON transition (except for last timestamp)
+        //   - ON -> OFF transition (except for last timestamp)
+        //   - OFF -> OFF transition (except for last timestamp)
+        //   - OFF -> ON transition (except for last timestamp)
+
+        // - CONSTRAINTS (64):
+        //   - flow
+        //   - set-point variation
+        //   - network balancing
+        //   - generator power to redispatching
+        //   - ON power (lower bound)
+        //   - ON power (upper bound)
+        //   - OFF power
+        //   - only one state
+        //   - state from ON (except for last timestamp)
+        //   - state from OFF (except for last timestamp)
+        //   - state to ON (except for last timestamp)
+        //   - state to OFF (except for last timestamp)
+        //   - power transition (lower bound; except for last timestamp)
+        //   - power transition (upper bound; except for last timestamp)
+
+        assertEquals(51, linearProblem.numVariables());
+        assertEquals(64, linearProblem.numConstraints());
+
+        // TODO: check injection keys in RD set-point
+        // TODO: check PMax in power upper bound
+    }
+
+    @Test
+    void testPowerGradients() {
+        IntertemporalConstraints intertemporalConstraints = new IntertemporalConstraints();
+        intertemporalConstraints.addGeneratorConstraints(GeneratorConstraints.create().withGeneratorId("BBE1AA1 _generator").withPMin(1000.0).withPMax(5000.0).withUpwardPowerGradient(1500.0).withDownwardPowerGradient(-1000.0).build());
+        setUpLinearProblemWithIntertemporalConstraints(intertemporalConstraints);
+
+        // For each timestamp:
+
+        // - VARIABLES (51):
+        //   - flow
+        //   - redispatching set-point
+        //   - upward set-point variation
+        //   - downward set-point variation
+        //   - generator power
+        //   - ON state
+        //   - OFF state
+        //   - ON -> ON transition (except for last timestamp)
+        //   - ON -> OFF transition (except for last timestamp)
+        //   - OFF -> OFF transition (except for last timestamp)
+        //   - OFF -> ON transition (except for last timestamp)
+
+        // - CONSTRAINTS (64):
+        //   - flow
+        //   - set-point variation
+        //   - network balancing
+        //   - generator power to redispatching
+        //   - ON power (lower bound)
+        //   - ON power (upper bound)
+        //   - OFF power
+        //   - only one state
+        //   - state from ON (except for last timestamp)
+        //   - state from OFF (except for last timestamp)
+        //   - state to ON (except for last timestamp)
+        //   - state to OFF (except for last timestamp)
+        //   - power transition (lower bound; except for last timestamp)
+        //   - power transition (upper bound; except for last timestamp)
+
+        assertEquals(51, linearProblem.numVariables());
+        assertEquals(64, linearProblem.numConstraints());
+
+        // TODO: check injection keys in RD set-point
+        // TODO: check PMax in power upper bound
+        // TODO: check upward power gradient in transition bounds
+        // TODO: check downward power gradient in transition bounds
+    }
+
+    @Test
+    void testShortLeadTime() {
+        IntertemporalConstraints intertemporalConstraints = new IntertemporalConstraints();
+        intertemporalConstraints.addGeneratorConstraints(GeneratorConstraints.create().withGeneratorId("BBE1AA1 _generator").withPMin(1000.0).withPMax(5000.0).withLeadTime(0.2).build());
+        setUpLinearProblemWithIntertemporalConstraints(intertemporalConstraints);
+
+        // For each timestamp:
+
+        // - VARIABLES (60):
+        //   - flow
+        //   - redispatching set-point
+        //   - upward set-point variation
+        //   - downward set-point variation
+        //   - generator power
+        //   - ON state
+        //   - OFF state
+        //   - RAMP UP state
+        //   - ON -> ON transition (except for last timestamp)
+        //   - ON -> OFF transition (except for last timestamp)
+        //   - OFF -> OFF transition (except for last timestamp)
+        //   - RAMP UP -> ON transition (except for last timestamp)
+        //   - OFF -> ON transition (except for last timestamp)
+
+        // - CONSTRAINTS (68):
+        //   - flow
+        //   - set-point variation
+        //   - network balancing
+        //   - generator power to redispatching
+        //   - ON power (lower bound)
+        //   - ON power (upper bound)
+        //   - OFF power
+        //   - only one state
+        //   - state from ON (except for last timestamp)
+        //   - state from OFF (except for last timestamp)
+        //   - state from RAMP UP (except for last timestamp)
+        //   - state to ON (except for last timestamp)
+        //   - state to OFF (except for last timestamp)
+        //   - power transition (lower bound; except for last timestamp)
+        //   - power transition (upper bound; except for last timestamp)
+
+        assertEquals(60, linearProblem.numVariables());
+        assertEquals(68, linearProblem.numConstraints());
+
+        // TODO: check injection keys in RD set-point
+        // TODO: check PMax in power upper bound
+        // TODO: check that RAMP UP variables actually exist
+    }
+
+    @Test
+    void testShortLagTime() {
+        IntertemporalConstraints intertemporalConstraints = new IntertemporalConstraints();
+        intertemporalConstraints.addGeneratorConstraints(GeneratorConstraints.create().withGeneratorId("BBE1AA1 _generator").withPMin(1000.0).withPMax(5000.0).withLagTime(0.2).build());
+        setUpLinearProblemWithIntertemporalConstraints(intertemporalConstraints);
+
+        // For each timestamp:
+
+        // - VARIABLES (60):
+        //   - flow
+        //   - redispatching set-point
+        //   - upward set-point variation
+        //   - downward set-point variation
+        //   - generator power
+        //   - ON state
+        //   - OFF state
+        //   - RAMP DOWN state
+        //   - ON -> ON transition (except for last timestamp)
+        //   - ON -> OFF transition (except for last timestamp)
+        //   - ON -> DOWN transition (except for last timestamp)
+        //   - OFF -> OFF transition (except for last timestamp)
+        //   - OFF -> ON transition (except for last timestamp)
+
+        // - CONSTRAINTS (68):
+        //   - flow
+        //   - set-point variation
+        //   - network balancing
+        //   - generator power to redispatching
+        //   - ON power (lower bound)
+        //   - ON power (upper bound)
+        //   - OFF power
+        //   - only one state
+        //   - state from ON (except for last timestamp)
+        //   - state from OFF (except for last timestamp)
+        //   - state from RAMP DOWN (except for last timestamp)
+        //   - state to ON (except for last timestamp)
+        //   - state to OFF (except for last timestamp)
+        //   - state to RAMP DOWN (except for last timestamp)
+        //   - power transition (lower bound; except for last timestamp)
+        //   - power transition (upper bound; except for last timestamp)
+
+        assertEquals(60, linearProblem.numVariables());
+        assertEquals(72, linearProblem.numConstraints());
+
+        // TODO: check injection keys in RD set-point
+        // TODO: check PMax in power upper bound
+        // TODO: check that RAMP DOWN variables actually exist
+    }
 }
