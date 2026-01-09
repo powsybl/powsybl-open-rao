@@ -9,7 +9,6 @@ package com.powsybl.openrao.searchtreerao.commons.costevaluatorresult;
 
 import com.google.common.util.concurrent.AtomicDouble;
 import com.powsybl.contingency.Contingency;
-import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 
@@ -25,20 +24,17 @@ import java.util.stream.Collectors;
 public class SumMaxPerTimestampCostEvaluatorResult implements CostEvaluatorResult {
     private final List<FlowCnec> costlyElements;
     private final Map<FlowCnec, Double> marginPerCnec;
-    private final Unit unit;
-    private double highestThreshold = Double.NaN;
     private final boolean capAtZero;
     private static final double COST_LIMIT = 1e9;
 
-    public SumMaxPerTimestampCostEvaluatorResult(Map<FlowCnec, Double> marginPerCnec, List<FlowCnec> costlyElements, Unit unit, boolean capAtZero) {
+    public SumMaxPerTimestampCostEvaluatorResult(Map<FlowCnec, Double> marginPerCnec, List<FlowCnec> costlyElements, boolean capAtZero) {
         this.marginPerCnec = marginPerCnec;
         this.costlyElements = costlyElements;
-        this.unit = unit;
         this.capAtZero = capAtZero;
     }
 
     /*
-     * For virtual costs, capAtZero is set to true. This allows us to ensure that the virtual cost is always positive.
+     * For virtual costs, capAtZero is set to true. This allows us to ensure that the virtual cost is always positive for each timestamp.
      * When no "real" value can be returned (either because no cnecs are present or they have all been filtered out),
      *  we need to return a value that is smaller than other costs (in case we take the max of these costs for multiple states).
      *  However we can not return -inf because we need the other costs to still have an impact on the global objective function
@@ -47,7 +43,7 @@ public class SumMaxPerTimestampCostEvaluatorResult implements CostEvaluatorResul
      */
     @Override
     public double getCost(Set<String> contingenciesToExclude, Set<String> cnecsToExclude) {
-        // exclude cnecs
+        // Exclude cnecs and contingencies
         Map<FlowCnec, Double> filteredCnecs = marginPerCnec.entrySet().stream()
             .filter(entry -> !cnecsToExclude.contains(entry.getKey().getId()))
             .filter(entry -> statesContingencyMustBeKept(entry.getKey().getState(), contingenciesToExclude))
@@ -58,7 +54,7 @@ public class SumMaxPerTimestampCostEvaluatorResult implements CostEvaluatorResul
             return capAtZero ? 0. : -COST_LIMIT;
         }
 
-        // Compute cost per timestamp
+        // Compute max cost (= -margin) per timestamp
         Map<OffsetDateTime, Double> maxCostPerTimestamp = new HashMap<>();
         AtomicBoolean stateWithoutTimestampIsPresent = new AtomicBoolean(false);
         AtomicDouble maxCostWithoutTimestamp = new AtomicDouble(-COST_LIMIT);
@@ -75,9 +71,12 @@ public class SumMaxPerTimestampCostEvaluatorResult implements CostEvaluatorResul
             }
         });
 
-        return maxCostPerTimestamp.values().stream().mapToDouble(d -> capAtZero ? Math.max(0., d) : d).sum()
-            + (stateWithoutTimestampIsPresent.get() ? (capAtZero ? Math.max(0., maxCostWithoutTimestamp.get()) : maxCostWithoutTimestamp.get()) : 0);
-
+        // Compute total cost by summing over timestamps
+        double totalCost = maxCostPerTimestamp.values().stream().mapToDouble(d -> capAtZero ? Math.max(0., d) : d).sum();
+        if (stateWithoutTimestampIsPresent.get()) {
+            totalCost += capAtZero ? Math.max(0., maxCostWithoutTimestamp.get()) : maxCostWithoutTimestamp.get();
+        }
+        return totalCost;
     }
 
     @Override

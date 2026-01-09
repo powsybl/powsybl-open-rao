@@ -553,6 +553,7 @@ class CastorFullOptimizationTest {
         // Run RAO
         RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
         assertNotNull(raoResult);
+        // When no cnec is present, a default value of -1e9 is returned
         assertEquals(-1e9, raoResult.getCost(null));
     }
 

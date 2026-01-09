@@ -105,6 +105,7 @@ class MinMarginEvaluatorTest {
         when(marginEvaluator.getMargin(flowResult, mnec2, MEGAWATT)).thenReturn(200.);
 
         minMarginEvaluator = new MinMarginEvaluator(Set.of(mnec1, mnec2), MEGAWATT, marginEvaluator);
+        // no optimized cnec is present, the default value is returned
         assertEquals(-1e9, minMarginEvaluator.evaluate(flowResult, null).getCost(Set.of(), Set.of()), DOUBLE_TOLERANCE);
     }
 
@@ -120,6 +121,7 @@ class MinMarginEvaluatorTest {
         mockCnecThresholds(cnec2, 2000);
         mockCnecThresholds(cnec3, 3000);
         mockCnecThresholds(pureMnec, 4000);
+        // no optimized cnec is present, the default value is returned
         assertEquals(-1e9, minMarginEvaluator.evaluate(flowResult, null).getCost(Set.of(), Set.of()), DOUBLE_TOLERANCE);
     }
 
