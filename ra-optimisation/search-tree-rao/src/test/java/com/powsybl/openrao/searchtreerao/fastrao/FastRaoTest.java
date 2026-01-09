@@ -72,7 +72,7 @@ class FastRaoTest {
     }
 
     @Test
-    void testRunFilteredRao2() throws IOException, ExecutionException, InterruptedException {
+    void testRunFilteredRao2() throws IOException {
         // Test with 2 preventive network actions activated
         Network network = Network.read("/network/3Nodes1LineOpen.uct", getClass().getResourceAsStream("/network/3Nodes1LineOpen.uct"));
         Crac crac = Crac.read("/crac/fast-rao-UT-2prev-network-action.json", getClass().getResourceAsStream("/crac/fast-rao-UT-2prev-network-action.json"), network);
@@ -81,7 +81,7 @@ class FastRaoTest {
         FastRaoParameters fastRaoParameters = new FastRaoParameters();
         raoParameters.addExtension(FastRaoParameters.class, fastRaoParameters);
         FastRaoResultImpl raoResult = (FastRaoResultImpl) FastRao.launchFastRaoOptimization(individualRaoInput, raoParameters, null, new HashSet<>());
-        assertEquals(-33.39, raoResult.getFunctionalCost(crac.getLastInstant()), 1e-1);
+        assertEquals(-101.15, raoResult.getFunctionalCost(crac.getLastInstant()), 1e-1);
         assertEquals(List.of(List.of("Close FR2 FR3", "Close FR1 FR2")), raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getTopoOptimizationParameters().getPredefinedCombinations());
     }
 

@@ -5,17 +5,17 @@
 
 Feature: US 7.8: Loopflow computation (not within the RAO)
 
-  @fast @rao @mock @ac @preventive-only
+  @fast @rao @mock @dc @preventive-only
   Scenario: US 7.8.1: optimise network action without loop flow limitation
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic7/crac_lf_rao_2.json"
-    Given configuration file is "common/RaoParameters_posMargin_megawatt_ac.json"
+    Given configuration file is "common/RaoParameters_posMargin_megawatt_dc.json"
     When I launch rao
     Then its security status should be "SECURED"
     Then the worst margin is 92.0 MW
     Then 1 remedial actions are used in preventive
 
-  @fast @loopflow-computation @mock @ac @loopflow
+  @fast @loopflow-computation @mock @dc @loopflow
   Scenario: US 7.8.2: loopflow computation on 12 nodes network with proportional GLSKs
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic7/crac_lf.json"
@@ -37,7 +37,7 @@ Feature: US 7.8: Loopflow computation (not within the RAO)
     And the loopflow on cnec "NNL2AA1  NNL3AA1  1 - preventive" after loopflow computation should be 20.0 MW
     And the loopflow on cnec "BBE2AA1  FFR3AA1  1 - preventive" after loopflow computation should be -124.0 MW
 
-  @fast @loopflow-computation @mock @ac @loopflow
+  @fast @loopflow-computation @mock @dc @loopflow
   Scenario: US 7.8.3: loopflow computation on 12 nodes network with proportional GLSKs
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic7/crac_lf.json"

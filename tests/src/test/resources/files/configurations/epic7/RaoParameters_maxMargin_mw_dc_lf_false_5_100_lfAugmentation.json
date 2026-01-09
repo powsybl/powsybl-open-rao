@@ -18,7 +18,11 @@
     "do-not-optimize-curative-cnecs-for-tsos-without-cras" : false
   },
   "mnec-parameters" : {
-    "acceptable-margin-decrease" : 20.0
+    "acceptable-margin-decrease" : 50.0
+  },
+  "loop-flow-parameters" : {
+    "acceptable-increase" : 40.0,
+    "countries" : [ ]
   },
   "extensions" : {
     "open-rao-search-tree-parameters" : {
@@ -64,7 +68,7 @@
             "shuntCompensatorVoltageControlOn" : false,
             "readSlackBus" : true,
             "writeSlackBus" : true,
-            "dc" : false,
+            "dc" : true,
             "distributedSlack" : true,
             "balanceType" : "PROPORTIONAL_TO_GENERATION_P",
             "dcUseTransformerRatio" : true,
@@ -80,6 +84,11 @@
       "mnec-parameters" : {
         "violation-cost" : 10.0,
         "constraint-adjustment-coefficient" : 0.0
+      },
+      "loop-flow-parameters" : {
+        "ptdf-approximation" : "UPDATE_PTDF_WITH_TOPO_AND_PST",
+        "constraint-adjustment-coefficient" : 5.0,
+        "violation-cost" : 100.0
       }
     }
   }

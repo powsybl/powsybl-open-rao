@@ -19,7 +19,7 @@ Feature: US 12.1: handling of curative optimization in the CORE CNE export
   Scenario: 12.1.2: Curative case with MNECs (copy of scenario 13.6.4)
     Given network file is "epic13/TestCase12NodesDifferentPstTap.uct" for CORE CC
     Given crac file is "epic13/MergedCB_ep13us6case4.xml"
-    Given configuration file is "epic11/RaoParameters_maxMargin_megawatt_ac_mnecDimin20.json"
+    Given configuration file is "epic11/RaoParameters_maxMargin_ampere_ac_mnecDimin30.json"
     Given RaoResult file is "epic12/RaoResult_12_1_2.json"
     When I export CORE CNE at "2019-01-08 13:00"
     Then the CORE CNE file is xsd-compliant

@@ -32,7 +32,7 @@
       "range-actions-optimization" : {
         "max-mip-iterations" : 10,
         "pst-sensitivity-threshold" : 1.0E-6,
-        "pst-model" : "APPROXIMATED_INTEGERS",
+        "pst-model" : "CONTINUOUS",
         "hvdc-sensitivity-threshold" : 1.0E-6,
         "injection-ra-sensitivity-threshold" : 1.0E-6,
         "linear-optimization-solver" : {
@@ -68,7 +68,7 @@
             "shuntCompensatorVoltageControlOn" : false,
             "readSlackBus" : true,
             "writeSlackBus" : true,
-            "dc" : false,
+            "dc" : true,
             "distributedSlack" : true,
             "balanceType" : "PROPORTIONAL_TO_GENERATION_P",
             "dcUseTransformerRatio" : true,
@@ -86,8 +86,8 @@
         "constraint-adjustment-coefficient" : 0.0
       },
       "loop-flow-parameters" : {
-        "ptdf-approximation" : "UPDATE_PTDF_WITH_TOPO_AND_PST",
-        "constraint-adjustment-coefficient" : 3.0,
+        "ptdf-approximation" : "FIXED_PTDF",
+        "constraint-adjustment-coefficient" : 5.0,
         "violation-cost" : 100.0
       }
     }
