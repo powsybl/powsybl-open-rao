@@ -112,8 +112,6 @@ class SumMaxPerTimestampCostEvaluatorResultTest {
         Mockito.when(flowCnec.getId()).thenReturn(flowCnecId);
         Mockito.when(flowCnec.getState()).thenReturn(state);
         Mockito.when(flowCnec.isOptimized()).thenReturn(true);
-        Mockito.when(flowCnec.getUpperBound(Mockito.any(), Mockito.any())).thenReturn(Optional.of(1000.0));
-        Mockito.when(flowCnec.getLowerBound(Mockito.any(), Mockito.any())).thenReturn(Optional.of(1000.0));
         return flowCnec;
     }
 

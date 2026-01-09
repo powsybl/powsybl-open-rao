@@ -125,7 +125,7 @@ class MinMarginEvaluatorTest {
         assertEquals(-1e9, minMarginEvaluator.evaluate(flowResult, null).getCost(Set.of(), Set.of()), DOUBLE_TOLERANCE);
     }
 
-    //same test as in MinMargionViolationEvaluatorTest but capAtZero is false
+    // same test as in MinMarginViolationEvaluatorTest but capAtZero is false
     @Test
     void testNoCnecs() {
         MinMarginEvaluator emptyEvaluator = new MinMarginEvaluator(Collections.emptySet(), MEGAWATT, Mockito.mock(MarginEvaluator.class));
