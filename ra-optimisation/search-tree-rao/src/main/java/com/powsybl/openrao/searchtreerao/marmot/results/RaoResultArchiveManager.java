@@ -52,6 +52,7 @@ public final class RaoResultArchiveManager {
         }
         List<Instant> instants = cracs.getDataPerTimestamp().values().iterator().next().getSortedInstants();
         addSummaryToZipArchive(zipOutputStream, interTemporalRaoResult, summaryFilename, jsonFileNameTemplate, instants, exportOnlyPreventiveResults(properties));
+        zipOutputStream.close();
     }
 
     private static void addRaoResultToZipArchive(OffsetDateTime timestamp, ZipOutputStream zipOutputStream, RaoResult raoResult, Crac crac, Properties properties, String jsonFileNameTemplate) throws IOException {

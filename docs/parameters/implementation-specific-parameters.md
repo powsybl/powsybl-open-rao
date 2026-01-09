@@ -51,7 +51,7 @@ These parameters (range-actions-optimization) tune the [linear optimiser](../alg
     See [Using integer variables for PST taps](../algorithms/castor/linear-problem/discrete-pst-tap-filler.md).
 
 ##### pst-sensitivity-threshold
-- **Expected value**: numeric value, unit: MW / ° (per degree)
+- **Expected value**: numeric value, unit: [objective function's unit](business-parameters.md#objective-function-parameters) / ° (per degree)
 - **Default value**: 0.0
 - **Usage**: the pst sensitivity coefficients which are below the pst-sensitivity-threshold will be considered equal to
   zero by the linear optimisation problem. Filtering some small sensitivity coefficients have the two following perks
@@ -60,7 +60,7 @@ These parameters (range-actions-optimization) tune the [linear optimiser](../alg
   - it can avoid changes of PST set-points when they only allow to earn a few MW on the margins of some CNECs.
 
 ##### hvdc-sensitivity-threshold
-- **Expected value**: numeric value, unit: MW / MW
+- **Expected value**: numeric value, unit: [objective function's unit](business-parameters.md#objective-function-parameters) / MW
 - **Default value**: 0.0
 - **Usage**: the hvdc sensitivity coefficients which are below the hvdc-sensitivity-threshold will be considered equal
   to zero by the linear optimisation problem. Filtering some of the small sensitivity coefficients have the two
@@ -69,7 +69,7 @@ These parameters (range-actions-optimization) tune the [linear optimiser](../alg
   - it can avoid changes of HVDC set-points when they only allow to earn a few MW on the margins of some CNECs.
 
 ##### injection-ra-sensitivity-threshold
-- **Expected value**: numeric value, unit: MW / MW
+- **Expected value**: numeric value, unit: [objective function's unit](business-parameters.md#objective-function-parameters) / MW
 - **Default value**: 0.0
 - **Usage**: the injection sensitivity coefficients which are below the injection-ra-sensitivity-threshold will be
   considered equal to zero by the linear optimisation problem.  
@@ -288,8 +288,8 @@ See also: [Modelling loop-flows and their virtual cost](../algorithms/castor/lin
 
 ##### constraint-adjustment-coefficient
 
-- **Expected value**: numeric values, in MEGAWATT unit
-- **Default value**: 0.0 MW
+- **Expected value**: numeric values, in objective function's unit
+- **Default value**: 0.0 MW / 0.0 A
 - **Usage**: this parameter acts as a margin which tightens, in the linear optimisation problem of RAO, the bounds of the
   loop-flow constraints. It conceptually behaves as the coefficient *cAdjustment* from the constraint below:  
   *abs(LoopFlow(cnec)) <= LoopFlowThreshold - cAdjustment*  
@@ -299,7 +299,8 @@ See also: [Modelling loop-flows and their virtual cost](../algorithms/castor/lin
   problem, remain respected once the loop-flows are re-computed without the linear approximations.
 
 ##### violation-cost
-- **Expected value**: numeric values, unit = unit of the objective function per MEGAWATT
+- **Expected value**: numeric values, no unit (it applies as a multiplier for the constraint violation inside the
+  objective function)
 - **Default value**: 10.0
 - **Usage**: this parameter is the cost of each excess of loop-flow. That is to say, if the loop-flows on one or several
   CNECs exceed the loop-flow threshold, a penalty will be added in the objective function of the RAO equal to:  
@@ -326,7 +327,7 @@ The following parameters tune some of these constraints, the one which are imple
 <a id="mnec-violation-constraint-adjustment-coefficient"></a>
 ##### constraint-adjustment-coefficient
 
-- **Expected value**: numeric values, in MEGAWATT unit
+- **Expected value**: numeric values, in objective function's unit
 - **Default value**: 0.0
 - **Usage**: this coefficient is here to mitigate the approximation made by the linear optimisation (approximation = use
   of sensitivities to linearize the flows, rounding of the PST taps).  
@@ -392,7 +393,7 @@ These parameters are meant to be used in costly optimization only.
 - **Usage**: Indicates whether all unsecure CNECs are added to the set of considered CNECs at each iteration of FastRAO.
 
 #### margin-limit
-- **Expected value**: numeric value, in MW unit
+- **Expected value**: numeric value, in MW or A unit (depending on [objective function's unit](business-parameters.md#objective-function-parameters))
 - **Default value**: 5
 - **Usage**: If `add-unsecure-cnecs` is enabled, a CNEC will be considered unsecure if its margin is lower than `margin-limit`.
 

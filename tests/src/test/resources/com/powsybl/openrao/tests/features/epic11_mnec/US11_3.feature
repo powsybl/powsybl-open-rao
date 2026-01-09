@@ -15,7 +15,7 @@ Feature: US 11.3: Handle mnecs in search tree with only network actions
     And line "FFR1AA1  FFR2AA1  1" in network file with PRA has connection status to "false"
     And the remedial action "PST BE setpoint" is used in preventive
     And the worst margin is -143.0 MW on cnec "FFR2AA1  DDE3AA1  1 - preventive"
-    And the flow on cnec "NNL2AA1  BBE3AA1  1 - preventive" after PRA should be -1856.0 MW
+    And the flow on cnec "NNL2AA1  BBE3AA1  1 - preventive" after PRA should be -1856.0 MW on side 1
 
   @fast @rao @mock @ac @preventive-only @mnec
   Scenario: US 11.3.2: margin on MNEC should stay positive (initial margin > 180MW)
@@ -28,7 +28,7 @@ Feature: US 11.3: Handle mnecs in search tree with only network actions
     And 1 remedial actions are used in preventive
     And the worst margin is -307.0 MW on cnec "FFR2AA1  DDE3AA1  1 - preventive"
     And the margin on cnec "NNL2AA1  BBE3AA1  1 - preventive" after PRA should be 108.0 MW
-    And the flow on cnec "NNL2AA1  BBE3AA1  1 - preventive" after PRA should be -1692.0 MW
+    And the flow on cnec "NNL2AA1  BBE3AA1  1 - preventive" after PRA should be -1692.0 MW on side 1
 
   @fast @rao @mock @ac @preventive-only @mnec
   Scenario: US 11.3.3: margin on MNEC should stay above initial value - 180 MW
@@ -41,4 +41,4 @@ Feature: US 11.3: Handle mnecs in search tree with only network actions
     And 1 remedial actions are used in preventive
     And the worst margin is -326.0 MW on cnec "FFR2AA1  DDE3AA1  1 - preventive"
     And the margin on cnec "NNL2AA1  BBE3AA1  1 - preventive" after PRA should be -673.0 MW
-    And the flow on cnec "NNL2AA1  BBE3AA1  1 - preventive" after PRA should be -1673.0 MW
+    And the flow on cnec "NNL2AA1  BBE3AA1  1 - preventive" after PRA should be -1673.0 MW on side 1
