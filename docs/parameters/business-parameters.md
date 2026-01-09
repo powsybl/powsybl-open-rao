@@ -183,10 +183,9 @@ See also: [Modelling the maximum minimum relative margin objective function](../
 :::{group-tab} JSON
 ~~~json
 {
-  "version" : "3.2.1",
+  "version" : "3.3",
   "objective-function" : {
     "type" : "SECURE_FLOW",
-    "unit" : "A",
     "enforce-curative-security" : true
   },
   "range-actions-optimization" : {
