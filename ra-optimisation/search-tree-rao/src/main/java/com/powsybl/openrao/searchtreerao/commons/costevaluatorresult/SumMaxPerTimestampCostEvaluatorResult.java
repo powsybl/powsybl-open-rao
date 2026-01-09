@@ -37,6 +37,14 @@ public class SumMaxPerTimestampCostEvaluatorResult implements CostEvaluatorResul
         this.capAtZero = capAtZero;
     }
 
+    /*
+     * For virtual costs, capAtZero is set to true. This allows us to ensure that the virtual cost is always positive.
+     * When no "real" value can be returned (either because no cnecs are present or they have all been filtered out),
+     *  we need to return a value that is smaller than other costs (in case we take the max of these costs for multiple states).
+     *  However we can not return -inf because we need the other costs to still have an impact on the global objective function
+     *  when we are adding costs together (for instance a functional cost plus a virtual cost).
+     *  In such case we therefore return -1e9, which should be negative enough compared to realistic margins, but
+     */
     @Override
     public double getCost(Set<String> contingenciesToExclude, Set<String> cnecsToExclude) {
         // exclude cnecs
@@ -55,6 +63,7 @@ public class SumMaxPerTimestampCostEvaluatorResult implements CostEvaluatorResul
         AtomicBoolean stateWithoutTimestampIsPresent = new AtomicBoolean(false);
         AtomicDouble maxCostWithoutTimestamp = new AtomicDouble(-COST_LIMIT);
         filteredCnecs.forEach((flowCnec, margin) -> {
+            //FIXME: check why NaN values can be present
             if (Double.isNaN(margin)) {
                 return;
             }

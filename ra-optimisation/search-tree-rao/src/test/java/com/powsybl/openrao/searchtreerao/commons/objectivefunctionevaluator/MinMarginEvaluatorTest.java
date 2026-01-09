@@ -122,4 +122,11 @@ class MinMarginEvaluatorTest {
         mockCnecThresholds(pureMnec, 4000);
         assertEquals(-1e9, minMarginEvaluator.evaluate(flowResult, null).getCost(Set.of(), Set.of()), DOUBLE_TOLERANCE);
     }
+
+    //same test as in MinMargionViolationEvaluatorTest but capAtZero is false
+    @Test
+    void testNoCnecs() {
+        MinMarginEvaluator emptyEvaluator = new MinMarginEvaluator(Collections.emptySet(), MEGAWATT, Mockito.mock(MarginEvaluator.class));
+        assertEquals(-1e9, emptyEvaluator.evaluate(Mockito.mock(FlowResult.class), null).getCost(Set.of(), Set.of()), DOUBLE_TOLERANCE);
+    }
 }

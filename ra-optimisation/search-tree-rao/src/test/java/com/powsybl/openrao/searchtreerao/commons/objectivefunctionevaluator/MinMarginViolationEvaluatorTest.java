@@ -12,14 +12,17 @@ import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.searchtreerao.commons.costevaluatorresult.CostEvaluatorResult;
 import com.powsybl.openrao.searchtreerao.commons.marginevaluator.BasicMarginEvaluator;
+import com.powsybl.openrao.searchtreerao.commons.marginevaluator.MarginEvaluator;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import static com.powsybl.openrao.commons.Unit.MEGAWATT;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -27,6 +30,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
 class MinMarginViolationEvaluatorTest {
+    private static final double DOUBLE_TOLERANCE = 0.01;
+
     @Test
     void testWithOverload() {
         FlowResult flowResult = Mockito.mock(FlowResult.class);
@@ -39,7 +44,7 @@ class MinMarginViolationEvaluatorTest {
         Mockito.when(flowResult.getMargin(flowCnec, Unit.MEGAWATT)).thenReturn(-1d);
         MinMarginViolationEvaluator evaluator = new MinMarginViolationEvaluator(Set.of(flowCnec), Unit.MEGAWATT, new BasicMarginEvaluator(), 1000.0);
         CostEvaluatorResult result = evaluator.evaluate(flowResult, null);
-        assertEquals(1000.0, result.getCost(Set.of(), Set.of()));
+        assertEquals(1000.0, result.getCost(Set.of(), Set.of()), DOUBLE_TOLERANCE);
         assertEquals(List.of(flowCnec), result.getCostlyElements(Set.of(), Set.of()));
     }
 
@@ -56,7 +61,14 @@ class MinMarginViolationEvaluatorTest {
 
         MinMarginViolationEvaluator evaluator = new MinMarginViolationEvaluator(Set.of(flowCnec), Unit.MEGAWATT, new BasicMarginEvaluator(), 10000);
         CostEvaluatorResult result = evaluator.evaluate(flowResult, null);
-        assertEquals(0.0, result.getCost(Set.of(), Set.of()));
+        assertEquals(0.0, result.getCost(Set.of(), Set.of()), DOUBLE_TOLERANCE);
         assertTrue(result.getCostlyElements(Set.of(), Set.of()).isEmpty());
+    }
+
+    //same test as in MinMargionEvaluatorTest but capAtZero is true
+    @Test
+    void testNoCnecs() {
+        MinMarginViolationEvaluator emptyEvaluator = new MinMarginViolationEvaluator(Collections.emptySet(), MEGAWATT, Mockito.mock(MarginEvaluator.class), 10000.);
+        assertEquals(0., emptyEvaluator.evaluate(Mockito.mock(FlowResult.class), null).getCost(Set.of(), Set.of()), DOUBLE_TOLERANCE);
     }
 }
