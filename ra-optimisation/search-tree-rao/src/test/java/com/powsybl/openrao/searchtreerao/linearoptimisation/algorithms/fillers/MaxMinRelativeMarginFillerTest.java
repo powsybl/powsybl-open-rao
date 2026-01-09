@@ -35,6 +35,7 @@ import java.util.Set;
 
 import static com.powsybl.openrao.commons.Unit.AMPERE;
 import static com.powsybl.openrao.commons.Unit.MEGAWATT;
+import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -75,9 +76,9 @@ class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
         raoParameters.addExtension(OpenRaoSearchTreeParameters.class, searchTreeParameters);
         parameters = new SearchTreeRaoRelativeMarginsParameters();
         searchTreeParameters.setRelativeMarginsParameters(parameters);
+        getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters().setDc(true);
         parameters.setPtdfSumLowerBound(0.01);
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN);
-        raoParameters.getObjectiveFunctionParameters().setUnit(MEGAWATT);
 
         minMarginsParameters = new SearchTreeRaoCostlyMinMarginParameters();
         searchTreeParameters.setMinMarginsParameters(minMarginsParameters);
