@@ -29,7 +29,6 @@ final class JsonObjectiveFunctionParameters {
     static void serialize(RaoParameters parameters, JsonGenerator jsonGenerator) throws IOException {
         jsonGenerator.writeObjectFieldStart(OBJECTIVE_FUNCTION);
         jsonGenerator.writeObjectField(TYPE, parameters.getObjectiveFunctionParameters().getType());
-        jsonGenerator.writeObjectField(UNIT, parameters.getObjectiveFunctionParameters().getUnit());
         jsonGenerator.writeBooleanField(ENFORCE_CURATIVE_SECURITY, parameters.getObjectiveFunctionParameters().getEnforceCurativeSecurity());
         jsonGenerator.writeEndObject();
     }
@@ -38,7 +37,6 @@ final class JsonObjectiveFunctionParameters {
         while (!jsonParser.nextToken().isStructEnd()) {
             switch (jsonParser.getCurrentName()) {
                 case TYPE -> raoParameters.getObjectiveFunctionParameters().setType(stringToObjectiveFunction(jsonParser.nextTextValue()));
-                case UNIT -> raoParameters.getObjectiveFunctionParameters().setUnit(stringToObjectiveFunctionUnit(jsonParser.nextTextValue()));
                 case ENFORCE_CURATIVE_SECURITY -> {
                     jsonParser.nextToken();
                     raoParameters.getObjectiveFunctionParameters().setEnforceCurativeSecurity(jsonParser.getBooleanValue());
@@ -54,19 +52,6 @@ final class JsonObjectiveFunctionParameters {
         } catch (IllegalArgumentException e) {
             throw new OpenRaoException(String.format("Unknown objective function type value: %s", string));
         }
-    }
-
-    private static Unit stringToObjectiveFunctionUnit(String string) {
-        Unit unit;
-        try {
-            unit = Unit.getEnum(string);
-        } catch (IllegalArgumentException e) {
-            throw new OpenRaoException(String.format("Unknown objective function unit value: %s", string));
-        }
-        if (unit != Unit.MEGAWATT && unit != Unit.AMPERE) {
-            throw new OpenRaoException(String.format("Unknown objective function unit value: %s", string));
-        }
-        return unit;
     }
 
 }

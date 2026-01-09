@@ -8,7 +8,6 @@
 package com.powsybl.openrao.raoapi.parameters;
 
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.raoapi.parameters.extensions.*;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
@@ -44,14 +43,12 @@ class RaoParametersConfigTest {
     void checkObjectiveFunctionConfig() {
         MapModuleConfig objectiveFunctionModuleConfig = platformCfg.createModuleConfig("rao-objective-function");
         objectiveFunctionModuleConfig.setStringProperty("type", "MAX_MIN_RELATIVE_MARGIN");
-        objectiveFunctionModuleConfig.setStringProperty("unit", "AMPERE");
         objectiveFunctionModuleConfig.setStringProperty("enforce-curative-security", "false");
         MapModuleConfig objectiveFunctionModuleConfigExt = platformCfg.createModuleConfig("search-tree-objective-function");
         objectiveFunctionModuleConfigExt.setStringProperty("curative-min-obj-improvement", Objects.toString(123.0));
         RaoParameters parameters = RaoParameters.load(platformCfg);
         ObjectiveFunctionParameters objectiveFunctionParameters = parameters.getObjectiveFunctionParameters();
         assertEquals(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN, objectiveFunctionParameters.getType());
-        assertEquals(Unit.AMPERE, objectiveFunctionParameters.getUnit());
         assertEquals(123, getCurativeMinObjImprovement(parameters), DOUBLE_TOLERANCE);
         assertFalse(objectiveFunctionParameters.getEnforceCurativeSecurity());
     }
@@ -245,14 +242,12 @@ class RaoParametersConfigTest {
     void checkMultipleConfigs() {
         MapModuleConfig objectiveFunctionModuleConfig = platformCfg.createModuleConfig("rao-objective-function");
         objectiveFunctionModuleConfig.setStringProperty("type", "MAX_MIN_RELATIVE_MARGIN");
-        objectiveFunctionModuleConfig.setStringProperty("unit", "AMPERE");
         MapModuleConfig objectiveFunctionExtModuleConfig = platformCfg.createModuleConfig("search-tree-objective-function");
         objectiveFunctionExtModuleConfig.setStringProperty("curative-min-obj-improvement", Objects.toString(123.0));
         MapModuleConfig rangeActionsOptimizationExtModuleConfig = platformCfg.createModuleConfig("search-tree-range-actions-optimization");
         rangeActionsOptimizationExtModuleConfig.setStringProperty("max-mip-iterations", Objects.toString(32));
         RaoParameters parameters = RaoParameters.load(platformCfg);
         assertEquals(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN, parameters.getObjectiveFunctionParameters().getType());
-        assertEquals(Unit.AMPERE, parameters.getObjectiveFunctionParameters().getUnit());
         OpenRaoSearchTreeParameters searchTreeParameters = parameters.getExtension(OpenRaoSearchTreeParameters.class);
         assertEquals(123, searchTreeParameters.getObjectiveFunctionParameters().getCurativeMinObjImprovement(), 1e-6);
         assertEquals(32, searchTreeParameters.getRangeActionsOptimizationParameters().getMaxMipIterations(), 1e-6);

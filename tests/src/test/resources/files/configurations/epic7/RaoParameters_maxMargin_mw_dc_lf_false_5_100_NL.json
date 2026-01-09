@@ -1,8 +1,7 @@
 {
-  "version" : "3.2.1",
+  "version" : "3.3",
   "objective-function" : {
     "type" : "MAX_MIN_MARGIN",
-    "unit" : "MW",
     "enforce-curative-security" : false
   },
   "range-actions-optimization" : {
@@ -21,8 +20,8 @@
     "acceptable-margin-decrease" : 50.0
   },
   "loop-flow-parameters" : {
-    "acceptable-increase" : 40.0,
-    "countries" : [ ]
+    "acceptable-increase" : 0.0,
+    "countries" : [ "NL" ]
   },
   "extensions" : {
     "open-rao-search-tree-parameters" : {
@@ -32,7 +31,7 @@
       "range-actions-optimization" : {
         "max-mip-iterations" : 10,
         "pst-sensitivity-threshold" : 1.0E-6,
-        "pst-model" : "CONTINUOUS",
+        "pst-model" : "APPROXIMATED_INTEGERS",
         "hvdc-sensitivity-threshold" : 1.0E-6,
         "injection-ra-sensitivity-threshold" : 1.0E-6,
         "linear-optimization-solver" : {
@@ -68,7 +67,7 @@
             "shuntCompensatorVoltageControlOn" : false,
             "readSlackBus" : true,
             "writeSlackBus" : true,
-            "dc" : false,
+            "dc" : true,
             "distributedSlack" : true,
             "balanceType" : "PROPORTIONAL_TO_GENERATION_P",
             "dcUseTransformerRatio" : true,

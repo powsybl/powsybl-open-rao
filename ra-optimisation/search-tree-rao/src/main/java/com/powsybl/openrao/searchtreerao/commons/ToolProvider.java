@@ -34,6 +34,7 @@ import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getSensitivityProvider;
 import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters;
+import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.getFlowUnit;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -93,7 +94,7 @@ public final class ToolProvider {
                                                                             AppliedRemedialActions appliedRemedialActions,
                                                                             Instant outageInstant) {
 
-        Unit objectiveFunctionUnit = raoParameters.getObjectiveFunctionParameters().getUnit();
+        Unit objectiveFunctionUnit = getFlowUnit(raoParameters);
 
         Set<Unit> computationUnits;
         if (objectiveFunctionUnit == Unit.MEGAWATT) {
@@ -218,7 +219,7 @@ public final class ToolProvider {
                 new LoopFlowComputationImpl(
                     raoInput.getGlskProvider(),
                     raoInput.getReferenceProgram(),
-                    raoParameters.getObjectiveFunctionParameters().getUnit()
+                    getFlowUnit(raoParameters)
                 )
             );
         }

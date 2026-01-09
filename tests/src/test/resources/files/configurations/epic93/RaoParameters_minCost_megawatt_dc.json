@@ -1,8 +1,7 @@
 {
-  "version" : "3.2.1",
+  "version" : "3.3",
   "objective-function" : {
-    "type" : "MIN_COST",
-    "unit" : "MW"
+    "type" : "MIN_COST"
   },
   "range-actions-optimization" : {
     "pst-ra-min-impact-threshold" : 0.1,

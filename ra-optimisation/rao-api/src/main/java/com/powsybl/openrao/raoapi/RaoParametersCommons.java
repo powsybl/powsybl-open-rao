@@ -23,9 +23,10 @@ public final class RaoParametersCommons {
         3.1: remove max-auto-search-tree-depth
         3.2: remove re-optimize-curative-range-actions
         3.2.1: add pst-regulation-parameters
+        3.3: remove objective function unit field
     */
 
-    public static final String RAO_PARAMETERS_VERSION = "3.2.1";
+    public static final String RAO_PARAMETERS_VERSION = "3.3";
 
     // header
     public static final String VERSION = "version";
@@ -36,7 +37,6 @@ public final class RaoParametersCommons {
     public static final String ST_OBJECTIVE_FUNCTION_SECTION = "search-tree-objective-function";
 
     public static final String TYPE = "type";
-    public static final String UNIT = "unit";
     public static final String CURATIVE_MIN_OBJ_IMPROVEMENT = "curative-min-obj-improvement";
     public static final String ENFORCE_CURATIVE_SECURITY = "enforce-curative-security";
 

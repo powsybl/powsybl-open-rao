@@ -21,6 +21,8 @@ import com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator.Reme
 import java.util.List;
 import java.util.Set;
 
+import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.getFlowUnit;
+
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
@@ -34,7 +36,7 @@ public abstract class AbstractObjectiveFunctionCreator {
         this.flowCnecs = flowCnecs;
         this.optimizedStates = optimizedStates;
         this.raoParameters = raoParameters;
-        this.unit = raoParameters.getObjectiveFunctionParameters().getUnit();
+        this.unit = getFlowUnit(raoParameters);
     }
 
     protected MarginEvaluator getMarginEvaluator() {

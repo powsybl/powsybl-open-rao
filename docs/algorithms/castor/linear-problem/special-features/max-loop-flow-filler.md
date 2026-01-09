@@ -2,12 +2,12 @@
 
 ## Used input data
 
-| Name                      | Symbol                    | Details                                                                                                                                                                                                                                                 |
-|---------------------------|---------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Name                      | Symbol                    | Details                                                                                                                                                                                                                                                  |
+|---------------------------|---------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | LoopFlowCnecs             | $c \in \mathcal{C} ^{lf}$ | Set of FlowCnecs[^1] with a loop-flow threshold. (for example, in CORE CC, loop-flows are monitored on cross-border CNECs). LoopFlowCnecs is a subset of [FlowCnecs](../core-problem-filler.md#used-input-data): $\mathcal{C} ^{lf} \subset \mathcal{C}$ |
-| Reference commercial flow | $f^{commercial} (c)$      | Commercial flow[^2], of LoopFlowCnec $c$, at the beginning of the optimization, in objective function's unit.                                                                                                                                           |
-| initial loop-flow         | $f^{loop} _ {0} (c)$      | loop-flow before RAO of LoopFlowCnec $c$, in objective function's unit                                                                                                                                                                                                         |
-| loop-flow threshold       | $lf^{threshold} (c)$      | loop-flow threshold of the LoopFlowCnec $c$, in objective function's unit, as defined in the CRAC.                                                                                                                                                                             |
+| Reference commercial flow | $f^{commercial} (c)$      | Commercial flow[^2], of LoopFlowCnec $c$, at the beginning of the optimization, in [flow's unit](../../../../parameters/business-parameters.md#objective-function-parameters).                                                                           |
+| initial loop-flow         | $f^{loop} _ {0} (c)$      | loop-flow before RAO of LoopFlowCnec $c$, in [flow's unit](../../../../parameters/business-parameters.md#objective-function-parameters)                                                                                                                  |
+| loop-flow threshold       | $lf^{threshold} (c)$      | loop-flow threshold of the LoopFlowCnec $c$, in [flow's unit](../../../../parameters/business-parameters.md#objective-function-parameters), as defined in the CRAC.                                                                                      |
 
 [^1]: CNECs that belong to a state for which sensitivity computations failed are ignored in the MILP  
 [^2]: The commercial flow is computed oustide the MILP, see [loop-flow computation](../../special-features/loop-flows.md#computation)
@@ -22,9 +22,9 @@
 
 ## Defined optimization variables
 
-| Name             | Symbol       | Details                                                                                                                                                                                      | Type       | Index                                                  | Unit                      | Lower bound | Upper bound |
-|------------------|--------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|--------------------------------------------------------|---------------------------|-------------|-------------|
-| loop-flow excess | $S^{lf} (c)$ | Slack variable for loop-flow constraint of FlowCnec c. <br> Defines the amount of MW or A by which a loop-flow constraint has been violated. <br> This makes the loop-flow constraints soft. | Real value | One variable for every element of  $\mathcal{C} ^{lf}$ | objective function's unit | 0           | $+\infty$   |
+| Name             | Symbol       | Details                                                                                                                                                                                      | Type       | Index                                                  | Unit                                                                                        | Lower bound | Upper bound |
+|------------------|--------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|--------------------------------------------------------|---------------------------------------------------------------------------------------------|-------------|-------------|
+| loop-flow excess | $S^{lf} (c)$ | Slack variable for loop-flow constraint of FlowCnec c. <br> Defines the amount of MW or A by which a loop-flow constraint has been violated. <br> This makes the loop-flow constraints soft. | Real value | One variable for every element of  $\mathcal{C} ^{lf}$ | [flow's unit](../../../../parameters/business-parameters.md#objective-function-parameters)  | 0           | $+\infty$   |
 
 ## Used optimization variables
 
@@ -34,7 +34,7 @@
 
 ## Defined constraints
 
-> 💡 Loop-flows constraints are considered in the same unit as the objective function's unit in the MIP
+> 💡 Loop-flows constraints are considered in the same unit as the [flow's unit](../../../../parameters/business-parameters.md#objective-function-parameters) in the MIP
 
 ### Keeping the loop-flows within their bounds
 

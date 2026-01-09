@@ -9,20 +9,20 @@ Feature: US 13.1: solve a RAO for a single preventive or curative state
   Scenario: US 13.1.1: Solve preventive perimeter alone
     Given network file is "epic13/TestCase12NodesForCurative.uct"
     Given crac file is "epic13/12nodes_pst_topo_frm_cbcora_curative.xml"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_ac.json"
+    Given configuration file is "common/RaoParameters_maxMargin_ampere_ac.json"
     When I launch rao at "2019-01-08 00:30" on preventive state
     Then the tap of PstRangeAction "SelectTapPSTPrev" should be 12 in preventive
-    Then the initial flow on cnec "CnecPreventiveDir - preventive" should be -400.0 MW on side 1
+    Then the initial flow on cnec "CnecPreventiveDir - preventive" should be -577.0 A on side 1
     # Then the flow on cnec "DDE1AA1  DDE3AA1  1 - preventive" after PRA should be 121.0 MW
     # Previously there was a mistake it was optimizing with all cnecs and not only on preventive state
-    Then the flow on cnec "CnecPreventiveDir - preventive" after PRA should be -8 MW on side 1
+    Then the flow on cnec "CnecPreventiveDir - preventive" after PRA should be -12 A on side 1
 
   @fast @rao @mock @ac @contingency-scenarios @search-tree-rao
   Scenario: US 13.1.2: Solve curative perimeter alone at curative instant
     Given network file is "epic13/TestCase12NodesForCurative.uct"
     Given crac file is "epic13/12nodes_pst_topo_frm_cbcora_curative.xml"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_ac.json"
+    Given configuration file is "common/RaoParameters_maxMargin_ampere_ac.json"
     When I launch rao at "2019-01-08 00:30" after "Contingency" at "curative"
     Then the tap of PstRangeAction "SelectTapPSTCur" should be -9 after "Contingency" at "curative"
-    Then the initial flow on cnec "CnecCurativeDir - curative" should be 286.0 MW on side 1
-    Then the flow on cnec "CnecCurativeDir - curative" after CRA should be -9.0 MW on side 1
+    Then the initial flow on cnec "CnecCurativeDir - curative" should be 412.6 A on side 1
+    Then the flow on cnec "CnecCurativeDir - curative" after CRA should be -13.4 A on side 1
