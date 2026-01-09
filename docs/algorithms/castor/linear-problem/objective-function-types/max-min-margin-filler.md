@@ -2,26 +2,20 @@
 
 ## Used input data
 
-| Name               | Symbol                   | Details                                                                                                                                                                                                                                           |
-|--------------------|--------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| OptimisedFlowCnecs | $c \in \mathcal{C} ^{o}$ | Set of FlowCnecs[^1] which are ['optimised'](../../../../input-data/crac/json.md#optimised-and-monitored-cnecs). OptimisedFlowCnecs is a subset of [FlowCnecs](../core-problem-filler.md#used-input-data): $\mathcal{C} ^{o} \subset \mathcal{C}$ |
-| upper threshold    | $f^{+}_{threshold} (c)$  | Upper threshold of FlowCnec $c$, in objective function's unit, as defined in the CRAC                                                                                                                                                             |
-| lower threshold    | $f^{-}_{threshold} (c)$  | Lower threshold of FlowCnec $c$, in objective function's unit, defined in the CRAC                                                                                                                                                                |
-| nominal voltage    | $U_{nom}(c)$             | Nominal voltage of OptimizedFlowCnec $c$                                                                                                                                                                                                          |
+| Name               | Symbol                   | Details                                                                                                                                                                                                                                             |
+|--------------------|--------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| OptimisedFlowCnecs | $c \in \mathcal{C} ^{o}$ | Set of FlowCnecs[^1] which are ['optimised'](../../../../input-data/crac/json.md#optimised-and-monitored-cnecs). OptimisedFlowCnecs is a subset of [FlowCnecs](../core-problem-filler.md#used-input-data): $\mathcal{C} ^{o} \subset \mathcal{C}$   |
+| upper threshold    | $f^{+}_{threshold} (c)$  | Upper threshold of FlowCnec $c$, in [flow's unit](../../../../parameters/business-parameters.md#objective-function-parameters), as defined in the CRAC                                                                                              |
+| lower threshold    | $f^{-}_{threshold} (c)$  | Lower threshold of FlowCnec $c$, in [flow's unit](../../../../parameters/business-parameters.md#objective-function-parameters), defined in the CRAC                                                                                                 |
+| nominal voltage    | $U_{nom}(c)$             | Nominal voltage of OptimizedFlowCnec $c$                                                                                                                                                                                                            |
 
 [^1]: CNECs that belong to a state for which sensitivity computations failed are ignored in the MILP
 
-## Used parameters
-
-| Name                                                       | Details                                                    |
-|------------------------------------------------------------|------------------------------------------------------------|
-| [unit](../../../../parameters/business-parameters.md#unit) | Used to set the unit (AMPERE/MW) of the objective function |
-
 ## Defined optimization variables
 
-| Name           | Symbol | Details                                        | Type       | Index                                     | Unit                                                                                                                               | Lower bound | Upper bound |
-|----------------|--------|------------------------------------------------|------------|-------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------|-------------|-------------|
-| Minimum margin | $MM$   | the minimum margin over all OptimizedFlowCnecs | Real value | one scalar variable for the whole problem | MW or AMPERE (depending on [objective-function](../../../../parameters/business-parameters.md#objective-function-parameters) unit) | $-\infty$   | $+\infty$   |
+| Name           | Symbol | Details                                        | Type       | Index                                     | Unit                                                                                                                   | Lower bound | Upper bound |
+|----------------|--------|------------------------------------------------|------------|-------------------------------------------|------------------------------------------------------------------------------------------------------------------------|-------------|-------------|
+| Minimum margin | $MM$   | the minimum margin over all OptimizedFlowCnecs | Real value | one scalar variable for the whole problem | MW or AMPERE (depending on [flow's unit](../../../../parameters/business-parameters.md#objective-function-parameters ) | $-\infty$   | $+\infty$   |
 
 ## Used optimization variables
 
@@ -31,7 +25,7 @@
 
 ## Defined constraints
 
-> 💡 Max Min Margin constraints are considered in the same unit as the objective function's unit in the MIP. 
+> 💡 Max Min Margin constraints are considered in the [flow's unit](../../../../parameters/business-parameters.md#objective-function-parameters) in the MIP. 
 
 ### Define the minimum margin variable
 
