@@ -39,7 +39,7 @@ public class MinMarginViolationEvaluator extends MinMarginEvaluator implements C
     @Override
     public CostEvaluatorResult evaluate(FlowResult flowResult, RemedialActionActivationResult remedialActionActivationResult) {
         Map<FlowCnec, Double> costPerCnec = getCostPerCnec(flowCnecs, flowResult, unit);
-        return new SumMaxPerTimestampCostEvaluatorResult(costPerCnec, FlowCnecSorting.sortByNegativeMargin(flowCnecs, unit, marginEvaluator, flowResult), unit);
+        return new SumMaxPerTimestampCostEvaluatorResult(costPerCnec, FlowCnecSorting.sortByNegativeMargin(flowCnecs, unit, marginEvaluator, flowResult), true);
     }
 
     private Map<FlowCnec, Double> getCostPerCnec(Set<FlowCnec> flowCnecs, FlowResult flowResult, Unit unit) {
