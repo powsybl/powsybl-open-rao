@@ -60,8 +60,8 @@ class GeneratorConstraintsFillerTest {
     RaoParameters parameters;
 
     private void createCoreProblemFillers() {
-        input.getRaoInputs().getDataPerTimestamp().entrySet().forEach(entry -> {
-            Crac crac = entry.getValue().getCrac();
+        input.getRaoInputs().getDataPerTimestamp().forEach((timestamp, raoInput) -> {
+            Crac crac = raoInput.getCrac();
             OptimizationPerimeter optimizationPerimeter = new PreventiveOptimizationPerimeter(
                 crac.getPreventiveState(),
                 crac.getFlowCnecs(),
@@ -82,7 +82,7 @@ class GeneratorConstraintsFillerTest {
                 Unit.MEGAWATT,
                 false,
                 SearchTreeRaoRangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS,
-                entry.getKey()
+                timestamp
             );
             linearProblemBuilder.withProblemFiller(coreProblemFiller);
         });
@@ -115,14 +115,6 @@ class GeneratorConstraintsFillerTest {
         createPowerGradientConstraintFiller();
         buildAndFillLinearProblem();
     }
-
-    /*
-        TODO: check the coefficients of the different variables
-        - with or without pMin
-        - with or without gradients
-        - with lead / lag time greater or lower than time step
-        Have fun! :)
-     */
 
     private static Crac createSimpleRedispatchingCrac(OffsetDateTime timestamp, double cnecThreshold) {
         String cracId = "crac-" + timestamp.format(DateTimeFormatter.ISO_DATE_TIME);
@@ -248,7 +240,8 @@ class GeneratorConstraintsFillerTest {
         assertEquals(51, linearProblem.numVariables());
         assertEquals(64, linearProblem.numConstraints());
 
-        // TODO: check injection keys in RD set-point
+        checkInjectionKey();
+        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.ON);
     }
 
     @Test
@@ -284,8 +277,9 @@ class GeneratorConstraintsFillerTest {
         assertEquals(34, linearProblem.numVariables());
         assertEquals(51, linearProblem.numConstraints());
 
-        // TODO: check injection keys in RD set-point
-        // TODO: check PMax in power upper bound
+        checkInjectionKey();
+        checkPMax();
+        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.ON);
     }
 
     @Test
@@ -328,8 +322,10 @@ class GeneratorConstraintsFillerTest {
         assertEquals(51, linearProblem.numVariables());
         assertEquals(64, linearProblem.numConstraints());
 
-        // TODO: check injection keys in RD set-point
-        // TODO: check PMax in power upper bound
+        checkInjectionKey();
+        checkPMax();
+        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.ON);
+        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.OFF);
     }
 
     @Test
@@ -372,10 +368,12 @@ class GeneratorConstraintsFillerTest {
         assertEquals(51, linearProblem.numVariables());
         assertEquals(64, linearProblem.numConstraints());
 
-        // TODO: check injection keys in RD set-point
-        // TODO: check PMax in power upper bound
-        // TODO: check upward power gradient in transition bounds
-        // TODO: check downward power gradient in transition bounds
+        checkInjectionKey();
+        checkPMax();
+        checkUpwardGradient();
+        checkDownwardGradient();
+        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.ON);
+        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.OFF);
     }
 
     @Test
@@ -421,9 +419,11 @@ class GeneratorConstraintsFillerTest {
         assertEquals(60, linearProblem.numVariables());
         assertEquals(68, linearProblem.numConstraints());
 
-        // TODO: check injection keys in RD set-point
-        // TODO: check PMax in power upper bound
-        // TODO: check that RAMP UP variables actually exist
+        checkInjectionKey();
+        checkPMax();
+        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.ON);
+        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.OFF);
+        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.RAMP_UP);
     }
 
     @Test
@@ -470,9 +470,11 @@ class GeneratorConstraintsFillerTest {
         assertEquals(60, linearProblem.numVariables());
         assertEquals(72, linearProblem.numConstraints());
 
-        // TODO: check injection keys in RD set-point
-        // TODO: check PMax in power upper bound
-        // TODO: check that RAMP DOWN variables actually exist
+        checkInjectionKey();
+        checkPMax();
+        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.ON);
+        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.OFF);
+        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.RAMP_DOWN);
     }
 
     @Test
@@ -522,9 +524,12 @@ class GeneratorConstraintsFillerTest {
         assertEquals(69, linearProblem.numVariables());
         assertEquals(76, linearProblem.numConstraints());
 
-        // TODO: check injection keys in RD set-point
-        // TODO: check PMax in power upper bound
-        // TODO: check that RAMP UP&DOWN variables actually exist
+        checkInjectionKey();
+        checkPMax();
+        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.ON);
+        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.OFF);
+        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.RAMP_UP);
+        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.RAMP_DOWN);
     }
 
     @Test
@@ -574,10 +579,14 @@ class GeneratorConstraintsFillerTest {
         assertEquals(69, linearProblem.numVariables());
         assertEquals(76, linearProblem.numConstraints());
 
-        // TODO: check injection keys in RD set-point
-        // TODO: check PMax in power upper bound
-        // TODO: check that RAMP UP&DOWN variables actually exist
-        // TODO: check gradient values
+        checkInjectionKey();
+        checkPMax();
+        checkUpwardGradient();
+        checkDownwardGradient();
+        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.ON);
+        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.OFF);
+        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.RAMP_UP);
+        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.RAMP_DOWN);
     }
 
     @Test
@@ -626,9 +635,11 @@ class GeneratorConstraintsFillerTest {
         assertEquals(64, linearProblem.numVariables());
         assertEquals(76, linearProblem.numConstraints());
 
-        // TODO: check injection keys in RD set-point
-        // TODO: check PMax in power upper bound
-        // TODO: check that RAMP UP variables actually exist
+        checkInjectionKey();
+        checkPMax();
+        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.ON);
+        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.OFF);
+        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.RAMP_UP);
     }
 
     @Test
@@ -677,9 +688,11 @@ class GeneratorConstraintsFillerTest {
         assertEquals(64, linearProblem.numVariables());
         assertEquals(76, linearProblem.numConstraints());
 
-        // TODO: check injection keys in RD set-point
-        // TODO: check PMax in power upper bound
-        // TODO: check that RAMP DOWN variables actually exist
+        checkInjectionKey();
+        checkPMax();
+        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.ON);
+        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.OFF);
+        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.RAMP_DOWN);
     }
 
     @Test
@@ -734,9 +747,12 @@ class GeneratorConstraintsFillerTest {
         assertEquals(77, linearProblem.numVariables());
         assertEquals(88, linearProblem.numConstraints());
 
-        // TODO: check injection keys in RD set-point
-        // TODO: check PMax in power upper bound
-        // TODO: check that RAMP UP&DOWN variables actually exist
+        checkInjectionKey();
+        checkPMax();
+        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.ON);
+        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.OFF);
+        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.RAMP_UP);
+        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.RAMP_DOWN);
     }
 
     @Test
@@ -791,10 +807,14 @@ class GeneratorConstraintsFillerTest {
         assertEquals(77, linearProblem.numVariables());
         assertEquals(88, linearProblem.numConstraints());
 
-        // TODO: check injection keys in RD set-point
-        // TODO: check PMax in power upper bound
-        // TODO: check that RAMP UP&DOWN variables actually exist
-        // TODO: check gradients
+        checkInjectionKey();
+        checkPMax();
+        checkUpwardGradient();
+        checkDownwardGradient();
+        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.ON);
+        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.OFF);
+        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.RAMP_UP);
+        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.RAMP_DOWN);
     }
 
     @Test
@@ -847,10 +867,14 @@ class GeneratorConstraintsFillerTest {
         assertEquals(73, linearProblem.numVariables());
         assertEquals(84, linearProblem.numConstraints());
 
-        // TODO: check injection keys in RD set-point
-        // TODO: check PMax in power upper bound
-        // TODO: check that RAMP UP&DOWN variables actually exist
-        // TODO: check gradients
+        checkInjectionKey();
+        checkPMax();
+        checkUpwardGradient();
+        checkDownwardGradient();
+        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.ON);
+        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.OFF);
+        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.RAMP_UP);
+        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.RAMP_DOWN);
     }
 
     @Test
@@ -902,9 +926,45 @@ class GeneratorConstraintsFillerTest {
         assertEquals(73, linearProblem.numVariables());
         assertEquals(80, linearProblem.numConstraints());
 
-        // TODO: check injection keys in RD set-point
-        // TODO: check PMax in power upper bound
-        // TODO: check that RAMP UP&DOWN variables actually exist
-        // TODO: check gradients
+        checkInjectionKey();
+        checkPMax();
+        checkUpwardGradient();
+        checkDownwardGradient();
+        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.ON);
+        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.OFF);
+        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.RAMP_UP);
+        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.RAMP_DOWN);
+    }
+
+    private void checkInjectionKey() {
+        OffsetDateTime timestamp = OffsetDateTime.of(2026, 1, 9, 0, 0, 0, 0, ZoneOffset.UTC);
+        InjectionRangeAction injectionRangeAction = input.getRaoInputs().getData(timestamp).orElseThrow().getCrac().getInjectionRangeAction("Redispatching BE-FR");
+        assertEquals(1.0, linearProblem.getGeneratorToInjectionConstraint("BBE1AA1 _generator", injectionRangeAction, timestamp).getCoefficient(linearProblem.getGeneratorPowerVariable("BBE1AA1 _generator", timestamp)));
+    }
+
+    private void checkPMax() {
+        assertEquals(5000.0, linearProblem.getGeneratorPowerVariable("BBE1AA1 _generator", OffsetDateTime.of(2026, 1, 9, 0, 0, 0, 0, ZoneOffset.UTC)).ub());
+        assertEquals(5000.0, linearProblem.getGeneratorPowerVariable("BBE1AA1 _generator", OffsetDateTime.of(2026, 1, 9, 1, 0, 0, 0, ZoneOffset.UTC)).ub());
+        assertEquals(5000.0, linearProblem.getGeneratorPowerVariable("BBE1AA1 _generator", OffsetDateTime.of(2026, 1, 9, 2, 0, 0, 0, ZoneOffset.UTC)).ub());
+        assertEquals(5000.0, linearProblem.getGeneratorPowerVariable("BBE1AA1 _generator", OffsetDateTime.of(2026, 1, 9, 3, 0, 0, 0, ZoneOffset.UTC)).ub());
+        assertEquals(5000.0, linearProblem.getGeneratorPowerVariable("BBE1AA1 _generator", OffsetDateTime.of(2026, 1, 9, 4, 0, 0, 0, ZoneOffset.UTC)).ub());
+    }
+
+    private void checkUpwardGradient() {
+        OffsetDateTime timestamp = OffsetDateTime.of(2026, 1, 9, 0, 0, 0, 0, ZoneOffset.UTC);
+        assertEquals(1500.0, -linearProblem.getGeneratorPowerTransitionConstraint("BBE1AA1 _generator", timestamp, LinearProblem.AbsExtension.NEGATIVE).getCoefficient(linearProblem.getGeneratorStateTransitionVariable("BBE1AA1 _generator", timestamp, LinearProblem.GeneratorState.ON, LinearProblem.GeneratorState.ON)));
+    }
+
+    private void checkDownwardGradient() {
+        OffsetDateTime timestamp = OffsetDateTime.of(2026, 1, 9, 0, 0, 0, 0, ZoneOffset.UTC);
+        assertEquals(-1000.0, -linearProblem.getGeneratorPowerTransitionConstraint("BBE1AA1 _generator", timestamp, LinearProblem.AbsExtension.POSITIVE).getCoefficient(linearProblem.getGeneratorStateTransitionVariable("BBE1AA1 _generator", timestamp, LinearProblem.GeneratorState.ON, LinearProblem.GeneratorState.ON)));
+    }
+
+    private void checkGeneratorStateVariableExists(LinearProblem.GeneratorState generatorState) {
+        assertNotNull(linearProblem.getGeneratorStateVariable("BBE1AA1 _generator", OffsetDateTime.of(2026, 1, 9, 0, 0, 0, 0, ZoneOffset.UTC), generatorState));
+        assertNotNull(linearProblem.getGeneratorStateVariable("BBE1AA1 _generator", OffsetDateTime.of(2026, 1, 9, 1, 0, 0, 0, ZoneOffset.UTC), generatorState));
+        assertNotNull(linearProblem.getGeneratorStateVariable("BBE1AA1 _generator", OffsetDateTime.of(2026, 1, 9, 2, 0, 0, 0, ZoneOffset.UTC), generatorState));
+        assertNotNull(linearProblem.getGeneratorStateVariable("BBE1AA1 _generator", OffsetDateTime.of(2026, 1, 9, 3, 0, 0, 0, ZoneOffset.UTC), generatorState));
+        assertNotNull(linearProblem.getGeneratorStateVariable("BBE1AA1 _generator", OffsetDateTime.of(2026, 1, 9, 4, 0, 0, 0, ZoneOffset.UTC), generatorState));
     }
 }

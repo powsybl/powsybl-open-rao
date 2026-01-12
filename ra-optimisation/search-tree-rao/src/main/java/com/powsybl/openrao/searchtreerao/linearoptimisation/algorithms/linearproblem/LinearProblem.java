@@ -565,6 +565,10 @@ public final class LinearProblem {
         return solver.makeConstraint(lb, ub, generatorPowerTransitionConstraintId(generatorId, timestamp, positiveOrNegative));
     }
 
+    public OpenRaoMPConstraint getGeneratorPowerTransitionConstraint(String generatorId, OffsetDateTime timestamp, AbsExtension positiveOrNegative) {
+        return solver.getConstraint(generatorPowerTransitionConstraintId(generatorId, timestamp, positiveOrNegative));
+    }
+
     public OpenRaoMPConstraint addGeneratorToInjectionConstraint(String generatorId, InjectionRangeAction injectionRangeAction, OffsetDateTime timestamp) {
         return solver.makeConstraint(0.0, 0.0, generatorToInjectionConstraintId(generatorId, injectionRangeAction, timestamp));
     }
