@@ -5,21 +5,21 @@
 
 Feature: US 15.11.3: Simulate range action automatons right after topological automatons
 
-  @fast @rao @mock @dc @contingency-scenarios @hvdc
+  @fast @rao @mock @ac @contingency-scenarios @hvdc
   Scenario: US 15.11.3.1: 1 auto HVDC
     Given network file is "epic15/TestCase16NodesWithHvdc_AC_emulation.xiidm"
     Given crac file is "epic15/jsonCrac_ep15us11-3case1.json"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
+    Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
     Then 0 remedial actions are used in preventive
-    And the setpoint of RangeAction "ARA_HVDC" should be 819.0 MW in preventive
-    And the margin on cnec "be4_fr5_co1 - BBE4AA11->FFR5AA11  - co1_be1_fr5 - auto" after PRA should be -94.47 MW
+    And the setpoint of RangeAction "ARA_HVDC" should be 823.0 MW in preventive
+    And the margin on cnec "be4_fr5_co1 - BBE4AA11->FFR5AA11  - co1_be1_fr5 - auto" after PRA should be -94.32 A
     And 2 remedial actions are used after "co1_be1_fr5" at "auto"
     Then the remedial action "acEmulationDeactivation_BBE2AA11 FFR3AA11 1" is used after "co1_be1_fr5" at "auto"
     And the remedial action "ARA_HVDC" is used after "co1_be1_fr5" at "auto"
     And the setpoint of RangeAction "ARA_HVDC" should be 964 MW after "co1_be1_fr5" at "auto"
-    And the margin on cnec "be3_be4_co1 - BBE3AA11->BBE4AA11  - co1_be1_fr5 - auto" after ARA should be -29.5 MW
-    And the margin on cnec "be4_fr5_co1 - BBE4AA11->FFR5AA11  - co1_be1_fr5 - auto" after ARA should be 0.0 MW
+    And the margin on cnec "be3_be4_co1 - BBE3AA11->BBE4AA11  - co1_be1_fr5 - auto" after ARA should be -42.73 A
+    And the margin on cnec "be4_fr5_co1 - BBE4AA11->FFR5AA11  - co1_be1_fr5 - auto" after ARA should be 0.0 A
     And its security status should be "UNSECURED"
 
   @fast @rao @mock @ac @contingency-scenarios

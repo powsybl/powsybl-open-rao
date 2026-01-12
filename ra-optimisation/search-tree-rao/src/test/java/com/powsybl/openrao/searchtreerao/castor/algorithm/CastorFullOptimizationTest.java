@@ -553,17 +553,17 @@ class CastorFullOptimizationTest {
         // Run RAO
         RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
         assertNotNull(raoResult);
-        assertEquals(-Double.MAX_VALUE, raoResult.getCost(null));
+        // When no cnec is present, a default value of -1e9 is returned
+        assertEquals(-1e9, raoResult.getCost(null));
     }
 
     @Test
     void checkWithHvdc() throws IOException {
         // same test as US 15.17.8
         setup("TestCase16NodesWithHvdc_AC_emulation.xiidm", "jsonCrac_ep15us12-5case8.json");
-        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_DC.json"));
-
+        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_AC.json"));
         RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
-        assertEquals(-299.88, raoResult.getCost(crac.getInstant("curative")), 1e-2);
+        assertEquals(-432.82, raoResult.getCost(crac.getInstant("curative")), 1e-2);
         assertEquals(1, raoResult.getActivatedRangeActionsDuringState(crac.getState("co1_be1_fr5", crac.getInstant(InstantKind.CURATIVE))).size());
         assertEquals("CRA_HVDC", raoResult.getActivatedRangeActionsDuringState(crac.getState("co1_be1_fr5", crac.getInstant(InstantKind.CURATIVE))).iterator().next().getId());
     }
