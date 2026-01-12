@@ -7,7 +7,6 @@
 
 package com.powsybl.openrao.raoapi.parameters;
 
-import com.powsybl.openrao.commons.Unit;
 import com.powsybl.commons.config.PlatformConfig;
 
 import java.util.Objects;
