@@ -44,6 +44,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -937,34 +938,29 @@ class GeneratorConstraintsFillerTest {
     }
 
     private void checkInjectionKey() {
-        OffsetDateTime timestamp = OffsetDateTime.of(2026, 1, 9, 0, 0, 0, 0, ZoneOffset.UTC);
-        InjectionRangeAction injectionRangeAction = input.getRaoInputs().getData(timestamp).orElseThrow().getCrac().getInjectionRangeAction("Redispatching BE-FR");
-        assertEquals(1.0, linearProblem.getGeneratorToInjectionConstraint("BBE1AA1 _generator", injectionRangeAction, timestamp).getCoefficient(linearProblem.getGeneratorPowerVariable("BBE1AA1 _generator", timestamp)));
+        iterateOnTimestamps(timestamp -> assertEquals(1.0, linearProblem.getGeneratorToInjectionConstraint("BBE1AA1 _generator", input.getRaoInputs().getData(timestamp).orElseThrow().getCrac().getInjectionRangeAction("Redispatching BE-FR"), timestamp).getCoefficient(linearProblem.getGeneratorPowerVariable("BBE1AA1 _generator", timestamp))), 3);
     }
 
     private void checkPMax() {
-        assertEquals(5000.0, linearProblem.getGeneratorPowerVariable("BBE1AA1 _generator", OffsetDateTime.of(2026, 1, 9, 0, 0, 0, 0, ZoneOffset.UTC)).ub());
-        assertEquals(5000.0, linearProblem.getGeneratorPowerVariable("BBE1AA1 _generator", OffsetDateTime.of(2026, 1, 9, 1, 0, 0, 0, ZoneOffset.UTC)).ub());
-        assertEquals(5000.0, linearProblem.getGeneratorPowerVariable("BBE1AA1 _generator", OffsetDateTime.of(2026, 1, 9, 2, 0, 0, 0, ZoneOffset.UTC)).ub());
-        assertEquals(5000.0, linearProblem.getGeneratorPowerVariable("BBE1AA1 _generator", OffsetDateTime.of(2026, 1, 9, 3, 0, 0, 0, ZoneOffset.UTC)).ub());
-        assertEquals(5000.0, linearProblem.getGeneratorPowerVariable("BBE1AA1 _generator", OffsetDateTime.of(2026, 1, 9, 4, 0, 0, 0, ZoneOffset.UTC)).ub());
+        iterateOnTimestamps(timestamp -> assertEquals(5000.0, linearProblem.getGeneratorPowerVariable("BBE1AA1 _generator", timestamp).ub()), 4);
     }
 
     private void checkUpwardGradient() {
-        OffsetDateTime timestamp = OffsetDateTime.of(2026, 1, 9, 0, 0, 0, 0, ZoneOffset.UTC);
-        assertEquals(1500.0, -linearProblem.getGeneratorPowerTransitionConstraint("BBE1AA1 _generator", timestamp, LinearProblem.AbsExtension.NEGATIVE).getCoefficient(linearProblem.getGeneratorStateTransitionVariable("BBE1AA1 _generator", timestamp, LinearProblem.GeneratorState.ON, LinearProblem.GeneratorState.ON)));
+        iterateOnTimestamps(timestamp -> assertEquals(1500.0, -linearProblem.getGeneratorPowerTransitionConstraint("BBE1AA1 _generator", timestamp, LinearProblem.AbsExtension.NEGATIVE).getCoefficient(linearProblem.getGeneratorStateTransitionVariable("BBE1AA1 _generator", timestamp, LinearProblem.GeneratorState.ON, LinearProblem.GeneratorState.ON))), 3);
     }
 
     private void checkDownwardGradient() {
-        OffsetDateTime timestamp = OffsetDateTime.of(2026, 1, 9, 0, 0, 0, 0, ZoneOffset.UTC);
-        assertEquals(-1000.0, -linearProblem.getGeneratorPowerTransitionConstraint("BBE1AA1 _generator", timestamp, LinearProblem.AbsExtension.POSITIVE).getCoefficient(linearProblem.getGeneratorStateTransitionVariable("BBE1AA1 _generator", timestamp, LinearProblem.GeneratorState.ON, LinearProblem.GeneratorState.ON)));
+        iterateOnTimestamps(timestamp -> assertEquals(-1000.0, -linearProblem.getGeneratorPowerTransitionConstraint("BBE1AA1 _generator", timestamp, LinearProblem.AbsExtension.POSITIVE).getCoefficient(linearProblem.getGeneratorStateTransitionVariable("BBE1AA1 _generator", timestamp, LinearProblem.GeneratorState.ON, LinearProblem.GeneratorState.ON))), 3);
     }
 
     private void checkGeneratorStateVariableExists(LinearProblem.GeneratorState generatorState) {
-        assertNotNull(linearProblem.getGeneratorStateVariable("BBE1AA1 _generator", OffsetDateTime.of(2026, 1, 9, 0, 0, 0, 0, ZoneOffset.UTC), generatorState));
-        assertNotNull(linearProblem.getGeneratorStateVariable("BBE1AA1 _generator", OffsetDateTime.of(2026, 1, 9, 1, 0, 0, 0, ZoneOffset.UTC), generatorState));
-        assertNotNull(linearProblem.getGeneratorStateVariable("BBE1AA1 _generator", OffsetDateTime.of(2026, 1, 9, 2, 0, 0, 0, ZoneOffset.UTC), generatorState));
-        assertNotNull(linearProblem.getGeneratorStateVariable("BBE1AA1 _generator", OffsetDateTime.of(2026, 1, 9, 3, 0, 0, 0, ZoneOffset.UTC), generatorState));
-        assertNotNull(linearProblem.getGeneratorStateVariable("BBE1AA1 _generator", OffsetDateTime.of(2026, 1, 9, 4, 0, 0, 0, ZoneOffset.UTC), generatorState));
+        iterateOnTimestamps(timestamp -> assertNotNull(linearProblem.getGeneratorStateVariable("BBE1AA1 _generator", timestamp, generatorState)), 4);
+    }
+
+    private static void iterateOnTimestamps(Consumer<OffsetDateTime> consumer, int lastHour){
+        for (int hour = 0; hour <= lastHour; hour++) {
+            OffsetDateTime timestamp = OffsetDateTime.of(2026, 1, 9, hour, 0, 0, 0, ZoneOffset.UTC);
+            consumer.accept(timestamp);
+        }
     }
 }
