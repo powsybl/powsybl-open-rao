@@ -957,7 +957,7 @@ class GeneratorConstraintsFillerTest {
         iterateOnTimestamps(timestamp -> assertNotNull(linearProblem.getGeneratorStateVariable("BBE1AA1 _generator", timestamp, generatorState)), 4);
     }
 
-    private static void iterateOnTimestamps(Consumer<OffsetDateTime> consumer, int lastHour){
+    private static void iterateOnTimestamps(Consumer<OffsetDateTime> consumer, int lastHour) {
         for (int hour = 0; hour <= lastHour; hour++) {
             OffsetDateTime timestamp = OffsetDateTime.of(2026, 1, 9, hour, 0, 0, 0, ZoneOffset.UTC);
             consumer.accept(timestamp);
