@@ -6,14 +6,14 @@ RAO parameters to tune the RAO (not implementation specific).
 
 ### Objective function parameters
 
-These parameters (objective-function) configure the remedial action optimisation's objective function. 
+These parameters (objective-function) configure the remedial action optimization's objective function. 
 
 > Since the version 3.3 of the parameters, we no longer allow changing the objective function's unit.
-> The flow's unit and thus the objective function's unit (for SECURE_FLOW, MAX_MIN_MARGIN and MAX_MIN_RELATIVE_MARGIN) will be defined depending on 
+> The flow unit and thus the objective function's unit (for SECURE_FLOW, MAX_MIN_MARGIN and MAX_MIN_RELATIVE_MARGIN) will be defined depending on 
 > if the loadflow/sensitivity computation is done in AC or DC.
 >
-> - in AC the flow's unit will be AMPERE 
-> - in DC the flow's unit will be MEGAWATT
+> - in AC the flow unit will be AMPERE 
+> - in DC the flow unit will be MEGAWATT
 > 
 > See [sensitivity-parameter](implementation-specific-parameters.md#sensitivity-parameters)
 
@@ -117,7 +117,7 @@ The following parameters tune some of these constraints, the one which are not i
 See also: [Modelling loop-flows and their virtual cost](../algorithms/castor/linear-problem/special-features/max-loop-flow-filler.md)
 
 #### acceptable-increase
-- **Expected value**: numeric values, in flow's unit
+- **Expected value**: numeric values, in [flow unit](business-parameters.md#objective-function-parameters)
 - **Default value**: 0.0 MW / 0.0 A
 - **Usage**: the increase of the initial loop-flow that is allowed by the optimisation. That is to say, the optimisation
   bounds the loop-flow on CNECs by:  
@@ -145,7 +145,7 @@ The following parameters tune some of these constraints, the one which are not i
 
 #### acceptable-margin-decrease
 
-- **Expected value**: numeric values, in flow's unit
+- **Expected value**: numeric values, in [flow unit](business-parameters.md#objective-function-parameters)
 - **Default value**: 50 MW (required by CORE CC methodology) / Ampere
 - **Usage**: the decrease of the initial margin that is allowed by the optimisation on MNECs.  
   In other words, it defines the bounds for the margins on the MNECs by  
