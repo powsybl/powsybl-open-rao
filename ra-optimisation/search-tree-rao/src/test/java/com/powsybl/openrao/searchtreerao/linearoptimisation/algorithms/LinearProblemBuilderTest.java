@@ -81,7 +81,7 @@ class LinearProblemBuilderTest {
     void testBuildMaxMarginContinuous() {
         when(rangeActionParametersExtension.getPstModel()).thenReturn(SearchTreeRaoRangeActionsOptimizationParameters.PstModel.CONTINUOUS);
         when(parameters.getObjectiveFunction()).thenReturn(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN);
-        when(parameters.getObjectiveFunctionUnit()).thenReturn(Unit.MEGAWATT);
+        when(parameters.getFlowUnit()).thenReturn(Unit.MEGAWATT);
 
         LinearProblem linearProblem = linearProblemBuilder.buildFromInputsAndParameters(inputs, parameters);
         assertNotNull(linearProblem);
@@ -96,7 +96,7 @@ class LinearProblemBuilderTest {
     void testBuildMaxMarginDiscrete() {
         when(rangeActionParametersExtension.getPstModel()).thenReturn(SearchTreeRaoRangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS);
         when(parameters.getObjectiveFunction()).thenReturn(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN);
-        when(parameters.getObjectiveFunctionUnit()).thenReturn(Unit.MEGAWATT);
+        when(parameters.getFlowUnit()).thenReturn(Unit.MEGAWATT);
 
         LinearProblem linearProblem = linearProblemBuilder.buildFromInputsAndParameters(inputs, parameters);
         assertNotNull(linearProblem);
@@ -113,7 +113,7 @@ class LinearProblemBuilderTest {
     void testBuildMaxRelativeMarginContinuous() {
         when(rangeActionParametersExtension.getPstModel()).thenReturn(SearchTreeRaoRangeActionsOptimizationParameters.PstModel.CONTINUOUS);
         when(parameters.getObjectiveFunction()).thenReturn(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN);
-        when(parameters.getObjectiveFunctionUnit()).thenReturn(Unit.MEGAWATT);
+        when(parameters.getFlowUnit()).thenReturn(Unit.MEGAWATT);
 
         LinearProblem linearProblem = linearProblemBuilder.buildFromInputsAndParameters(inputs, parameters);
         assertNotNull(linearProblem);
@@ -128,8 +128,8 @@ class LinearProblemBuilderTest {
     void testBuildMaxMarginContinuousMnecLoopflowUnoptimized() {
         when(rangeActionParametersExtension.getPstModel()).thenReturn(SearchTreeRaoRangeActionsOptimizationParameters.PstModel.CONTINUOUS);
         when(parameters.getObjectiveFunction()).thenReturn(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN);
-        when(parameters.getObjectiveFunctionUnit()).thenReturn(Unit.MEGAWATT);
-        when(parameters.getObjectiveFunctionUnit()).thenReturn(Unit.MEGAWATT);
+        when(parameters.getFlowUnit()).thenReturn(Unit.MEGAWATT);
+        when(parameters.getFlowUnit()).thenReturn(Unit.MEGAWATT);
 
         when(parameters.isRaoWithMnecLimitation()).thenReturn(true);
         when(parameters.isRaoWithLoopFlowLimitation()).thenReturn(true);
@@ -151,7 +151,7 @@ class LinearProblemBuilderTest {
     void testBuildMaxMarginContinuousRaLimitation() {
         when(rangeActionParametersExtension.getPstModel()).thenReturn(SearchTreeRaoRangeActionsOptimizationParameters.PstModel.CONTINUOUS);
         when(parameters.getObjectiveFunction()).thenReturn(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN);
-        when(parameters.getObjectiveFunctionUnit()).thenReturn(Unit.MEGAWATT);
+        when(parameters.getFlowUnit()).thenReturn(Unit.MEGAWATT);
         RangeActionLimitationParameters raLimitationParameters = Mockito.mock(RangeActionLimitationParameters.class);
         when(parameters.getRaLimitationParameters()).thenReturn(raLimitationParameters);
         when(optimizationPerimeter.getRangeActionOptimizationStates()).thenReturn(Set.of(Mockito.mock(State.class)));

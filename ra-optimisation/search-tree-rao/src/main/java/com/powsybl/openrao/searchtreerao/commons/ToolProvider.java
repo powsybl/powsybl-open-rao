@@ -94,10 +94,10 @@ public final class ToolProvider {
                                                                             AppliedRemedialActions appliedRemedialActions,
                                                                             Instant outageInstant) {
 
-        Unit objectiveFunctionUnit = getFlowUnit(raoParameters);
+        Unit flowUnit = getFlowUnit(raoParameters);
 
         Set<Unit> computationUnits;
-        if (objectiveFunctionUnit == Unit.MEGAWATT) {
+        if (flowUnit == Unit.MEGAWATT) {
             computationUnits = Collections.singleton(Unit.MEGAWATT);
         } else {
             computationUnits = Set.of(Unit.AMPERE, Unit.MEGAWATT); // Still needs to compute sensi in MW for post processing intensity sensi
@@ -106,7 +106,7 @@ public final class ToolProvider {
         SystematicSensitivityInterface.SystematicSensitivityInterfaceBuilder builder = SystematicSensitivityInterface.builder()
             .withSensitivityProviderName(getSensitivityProvider(raoParameters))
             .withParameters(getSensitivityWithLoadFlowParameters(raoParameters))
-            .withRangeActionSensitivities(rangeActions, cnecs, Collections.singleton(objectiveFunctionUnit))
+            .withRangeActionSensitivities(rangeActions, cnecs, Collections.singleton(flowUnit))
             .withAppliedRemedialActions(appliedRemedialActions)
             .withOutageInstant(outageInstant);
 

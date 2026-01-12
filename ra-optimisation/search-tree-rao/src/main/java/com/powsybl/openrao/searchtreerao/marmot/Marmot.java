@@ -426,7 +426,7 @@ public class Marmot implements InterTemporalRaoProvider {
         // TODO: define static method to define Ra Limitation Parameters from crac and topos (mutualize with search tree) : SearchTreeParameters::decreaseRemedialActionsUsageLimits
         IteratingLinearOptimizerParameters.LinearOptimizerParametersBuilder linearOptimizerParametersBuilder = IteratingLinearOptimizerParameters.create()
             .withObjectiveFunction(parameters.getObjectiveFunctionParameters().getType())
-            .withObjectiveFunctionUnit(getFlowUnit(parameters))
+            .withFlowUnit(getFlowUnit(parameters))
             .withRangeActionParameters(parameters.getRangeActionsOptimizationParameters())
             .withRangeActionParametersExtension(parameters.getExtension(OpenRaoSearchTreeParameters.class).getRangeActionsOptimizationParameters())
             .withMaxNumberOfIterations(parameters.getExtension(OpenRaoSearchTreeParameters.class).getRangeActionsOptimizationParameters().getMaxMipIterations())
