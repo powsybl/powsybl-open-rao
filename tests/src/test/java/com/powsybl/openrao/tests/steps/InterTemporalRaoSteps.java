@@ -243,7 +243,7 @@ public final class InterTemporalRaoSteps {
         properties.put("inter-temporal-rao-result.export.filename-template", "'RAO_RESULT_'yyyy-MM-dd'T'HH:mm:ss'.json'");
         properties.put("inter-temporal-rao-result.export.summary-filename", "summary.json");
         try (ZipOutputStream zipOutputStream = new ZipOutputStream(fileOutputStream)) {
-            interTemporalRaoResult.write(zipOutputStream, interTemporalRaoInput.getRaoInputs().map(RaoInputWithNetworkPaths::getCrac), properties);
+            interTemporalRaoResult.write(zipOutputStream, interTemporalRaoInputWithNetworkPaths.getRaoInputs().map(RaoInputWithNetworkPaths::getCrac), properties);
         }
     }
 

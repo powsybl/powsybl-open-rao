@@ -445,11 +445,11 @@ class GeneratorConstraintsFillerTest {
         //   - RAMP DOWN state
         //   - ON -> ON transition (except for last timestamp)
         //   - ON -> OFF transition (except for last timestamp)
-        //   - ON -> DOWN transition (except for last timestamp)
+        //   - ON -> RAMP DOWN transition (except for last timestamp)
         //   - OFF -> OFF transition (except for last timestamp)
         //   - OFF -> ON transition (except for last timestamp)
 
-        // - CONSTRAINTS (68):
+        // - CONSTRAINTS (72):
         //   - flow
         //   - set-point variation
         //   - network balancing
@@ -473,5 +473,438 @@ class GeneratorConstraintsFillerTest {
         // TODO: check injection keys in RD set-point
         // TODO: check PMax in power upper bound
         // TODO: check that RAMP DOWN variables actually exist
+    }
+
+    @Test
+    void testShortLeadAndShortLagTimes() {
+        IntertemporalConstraints intertemporalConstraints = new IntertemporalConstraints();
+        intertemporalConstraints.addGeneratorConstraints(GeneratorConstraints.create().withGeneratorId("BBE1AA1 _generator").withPMin(1000.0).withPMax(5000.0).withLeadTime(0.2).withLagTime(0.2).build());
+        setUpLinearProblemWithIntertemporalConstraints(intertemporalConstraints);
+
+        // For each timestamp:
+
+        // - VARIABLES (69):
+        //   - flow
+        //   - redispatching set-point
+        //   - upward set-point variation
+        //   - downward set-point variation
+        //   - generator power
+        //   - ON state
+        //   - OFF state
+        //   - RAMP UP state
+        //   - RAMP DOWN state
+        //   - ON -> ON transition (except for last timestamp)
+        //   - ON -> OFF transition (except for last timestamp)
+        //   - ON -> RAMP DOWN transition (except for last timestamp)
+        //   - OFF -> OFF transition (except for last timestamp)
+        //   - RAMP UP -> ON transition (except for last timestamp)
+        //   - OFF -> ON transition (except for last timestamp)
+
+        // - CONSTRAINTS (76):
+        //   - flow
+        //   - set-point variation
+        //   - network balancing
+        //   - generator power to redispatching
+        //   - ON power (lower bound)
+        //   - ON power (upper bound)
+        //   - OFF power
+        //   - only one state
+        //   - state from ON (except for last timestamp)
+        //   - state from OFF (except for last timestamp)
+        //   - state from RAMP UP (except for last timestamp)
+        //   - state from RAMP DOWN (except for last timestamp)
+        //   - state to ON (except for last timestamp)
+        //   - state to OFF (except for last timestamp)
+        //   - state to RAMP DOWN (except for last timestamp)
+        //   - power transition (lower bound; except for last timestamp)
+        //   - power transition (upper bound; except for last timestamp)
+
+        assertEquals(69, linearProblem.numVariables());
+        assertEquals(76, linearProblem.numConstraints());
+
+        // TODO: check injection keys in RD set-point
+        // TODO: check PMax in power upper bound
+        // TODO: check that RAMP UP&DOWN variables actually exist
+    }
+
+    @Test
+    void testShortLeadAndShortLagTimesAndPowerGradients() {
+        IntertemporalConstraints intertemporalConstraints = new IntertemporalConstraints();
+        intertemporalConstraints.addGeneratorConstraints(GeneratorConstraints.create().withGeneratorId("BBE1AA1 _generator").withPMin(1000.0).withPMax(5000.0).withUpwardPowerGradient(1500.0).withDownwardPowerGradient(-1000.0).withLeadTime(0.2).withLagTime(0.2).build());
+        setUpLinearProblemWithIntertemporalConstraints(intertemporalConstraints);
+
+        // For each timestamp:
+
+        // - VARIABLES (69):
+        //   - flow
+        //   - redispatching set-point
+        //   - upward set-point variation
+        //   - downward set-point variation
+        //   - generator power
+        //   - ON state
+        //   - OFF state
+        //   - RAMP UP state
+        //   - RAMP DOWN state
+        //   - ON -> ON transition (except for last timestamp)
+        //   - ON -> OFF transition (except for last timestamp)
+        //   - ON -> RAMP DOWN transition (except for last timestamp)
+        //   - OFF -> OFF transition (except for last timestamp)
+        //   - RAMP UP -> ON transition (except for last timestamp)
+        //   - OFF -> ON transition (except for last timestamp)
+
+        // - CONSTRAINTS (76):
+        //   - flow
+        //   - set-point variation
+        //   - network balancing
+        //   - generator power to redispatching
+        //   - ON power (lower bound)
+        //   - ON power (upper bound)
+        //   - OFF power
+        //   - only one state
+        //   - state from ON (except for last timestamp)
+        //   - state from OFF (except for last timestamp)
+        //   - state from RAMP UP (except for last timestamp)
+        //   - state from RAMP DOWN (except for last timestamp)
+        //   - state to ON (except for last timestamp)
+        //   - state to OFF (except for last timestamp)
+        //   - state to RAMP DOWN (except for last timestamp)
+        //   - power transition (lower bound; except for last timestamp)
+        //   - power transition (upper bound; except for last timestamp)
+
+        assertEquals(69, linearProblem.numVariables());
+        assertEquals(76, linearProblem.numConstraints());
+
+        // TODO: check injection keys in RD set-point
+        // TODO: check PMax in power upper bound
+        // TODO: check that RAMP UP&DOWN variables actually exist
+        // TODO: check gradient values
+    }
+
+    @Test
+    void testLongLeadTime() {
+        IntertemporalConstraints intertemporalConstraints = new IntertemporalConstraints();
+        intertemporalConstraints.addGeneratorConstraints(GeneratorConstraints.create().withGeneratorId("BBE1AA1 _generator").withPMin(1000.0).withPMax(5000.0).withLeadTime(1.2).build());
+        setUpLinearProblemWithIntertemporalConstraints(intertemporalConstraints);
+
+        // For each timestamp:
+
+        // - VARIABLES (64):
+        //   - flow
+        //   - redispatching set-point
+        //   - upward set-point variation
+        //   - downward set-point variation
+        //   - generator power
+        //   - ON state
+        //   - OFF state
+        //   - RAMP UP state
+        //   - ON -> ON transition (except for last timestamp)
+        //   - ON -> OFF transition (except for last timestamp)
+        //   - OFF -> OFF transition (except for last timestamp)
+        //   - OFF -> RAMP UP transition (except for last timestamp)
+        //   - RAMP UP -> RAMP UP transition (except for last timestamp)
+        //   - RAMP UP -> ON transition (except for last timestamp)
+
+        // - CONSTRAINTS (72):
+        //   - flow
+        //   - set-point variation
+        //   - network balancing
+        //   - generator power to redispatching
+        //   - ON power (lower bound)
+        //   - ON power (upper bound)
+        //   - OFF power
+        //   - only one state
+        //   - state from ON (except for last timestamp)
+        //   - state from OFF (except for last timestamp)
+        //   - state from RAMP UP (except for last timestamp)
+        //   - state to ON (except for last timestamp)
+        //   - state to OFF (except for last timestamp)
+        //   - state to RAMP UP (except for last timestamp)
+        //   - power transition (lower bound; except for last timestamp)
+        //   - power transition (upper bound; except for last timestamp)
+        //   - upward ramp (upper bound; except for last timestamp)
+
+        assertEquals(64, linearProblem.numVariables());
+        assertEquals(76, linearProblem.numConstraints());
+
+        // TODO: check injection keys in RD set-point
+        // TODO: check PMax in power upper bound
+        // TODO: check that RAMP UP variables actually exist
+    }
+
+    @Test
+    void testLongLagTime() {
+        IntertemporalConstraints intertemporalConstraints = new IntertemporalConstraints();
+        intertemporalConstraints.addGeneratorConstraints(GeneratorConstraints.create().withGeneratorId("BBE1AA1 _generator").withPMin(1000.0).withPMax(5000.0).withLagTime(1.2).build());
+        setUpLinearProblemWithIntertemporalConstraints(intertemporalConstraints);
+
+        // For each timestamp:
+
+        // - VARIABLES (64):
+        //   - flow
+        //   - redispatching set-point
+        //   - upward set-point variation
+        //   - downward set-point variation
+        //   - generator power
+        //   - ON state
+        //   - OFF state
+        //   - RAMP DOWN state
+        //   - ON -> ON transition (except for last timestamp)
+        //   - ON -> RAMP DOWN transition (except for last timestamp)
+        //   - RAMP DOWN -> RAMP DOWN transition (except for last timestamp)
+        //   - RAMP DOWN -> OFF transition (except for last timestamp)
+        //   - OFF -> OFF transition (except for last timestamp)
+        //   - OFF -> ON transition (except for last timestamp)
+
+        // - CONSTRAINTS (76):
+        //   - flow
+        //   - set-point variation
+        //   - network balancing
+        //   - generator power to redispatching
+        //   - ON power (lower bound)
+        //   - ON power (upper bound)
+        //   - OFF power
+        //   - only one state
+        //   - state from ON (except for last timestamp)
+        //   - state from OFF (except for last timestamp)
+        //   - state from RAMP DOWN (except for last timestamp)
+        //   - state to ON (except for last timestamp)
+        //   - state to OFF (except for last timestamp)
+        //   - state to RAMP DOWN (except for last timestamp)
+        //   - power transition (lower bound; except for last timestamp)
+        //   - power transition (upper bound; except for last timestamp)
+        //   - downward ramp (upper bound; except for last timestamp)
+
+        assertEquals(64, linearProblem.numVariables());
+        assertEquals(76, linearProblem.numConstraints());
+
+        // TODO: check injection keys in RD set-point
+        // TODO: check PMax in power upper bound
+        // TODO: check that RAMP DOWN variables actually exist
+    }
+
+    @Test
+    void testLongLeadAndLongLagTimes() {
+        IntertemporalConstraints intertemporalConstraints = new IntertemporalConstraints();
+        intertemporalConstraints.addGeneratorConstraints(GeneratorConstraints.create().withGeneratorId("BBE1AA1 _generator").withPMin(1000.0).withPMax(5000.0).withLeadTime(1.2).withLagTime(1.2).build());
+        setUpLinearProblemWithIntertemporalConstraints(intertemporalConstraints);
+
+        // For each timestamp:
+
+        // - VARIABLES (77):
+        //   - flow
+        //   - redispatching set-point
+        //   - upward set-point variation
+        //   - downward set-point variation
+        //   - generator power
+        //   - ON state
+        //   - OFF state
+        //   - RAMP UP state
+        //   - RAMP DOWN state
+        //   - ON -> ON transition (except for last timestamp)
+        //   - ON -> RAMP DOWN transition (except for last timestamp)
+        //   - RAMP DOWN -> RAMP DOWN transition (except for last timestamp)
+        //   - RAMP DOWN -> OFF transition (except for last timestamp)
+        //   - OFF -> OFF transition (except for last timestamp)
+        //   - OFF -> RAMP UP transition (except for last timestamp)
+        //   - RAMP UP -> RAMP UP transition (except for last timestamp)
+        //   - RAMP UP -> ON transition (except for last timestamp)
+
+        // - CONSTRAINTS (88):
+        //   - flow
+        //   - set-point variation
+        //   - network balancing
+        //   - generator power to redispatching
+        //   - ON power (lower bound)
+        //   - ON power (upper bound)
+        //   - OFF power
+        //   - only one state
+        //   - state from ON (except for last timestamp)
+        //   - state from OFF (except for last timestamp)
+        //   - state from RAMP UP (except for last timestamp)
+        //   - state from RAMP DOWN (except for last timestamp)
+        //   - state to ON (except for last timestamp)
+        //   - state to OFF (except for last timestamp)
+        //   - state to RAMP UP (except for last timestamp)
+        //   - state to RAMP DOWN (except for last timestamp)
+        //   - power transition (lower bound; except for last timestamp)
+        //   - power transition (upper bound; except for last timestamp)
+        //   - upward ramp (upper bound; except for last timestamp)
+        //   - downward ramp (upper bound; except for last timestamp)
+
+        assertEquals(77, linearProblem.numVariables());
+        assertEquals(88, linearProblem.numConstraints());
+
+        // TODO: check injection keys in RD set-point
+        // TODO: check PMax in power upper bound
+        // TODO: check that RAMP UP&DOWN variables actually exist
+    }
+
+    @Test
+    void testLongLeadAndLongLagTimesAndPowerGradients() {
+        IntertemporalConstraints intertemporalConstraints = new IntertemporalConstraints();
+        intertemporalConstraints.addGeneratorConstraints(GeneratorConstraints.create().withGeneratorId("BBE1AA1 _generator").withPMin(1000.0).withPMax(5000.0).withUpwardPowerGradient(1500.0).withDownwardPowerGradient(-1000.0).withLeadTime(1.2).withLagTime(1.2).build());
+        setUpLinearProblemWithIntertemporalConstraints(intertemporalConstraints);
+
+        // For each timestamp:
+
+        // - VARIABLES (77):
+        //   - flow
+        //   - redispatching set-point
+        //   - upward set-point variation
+        //   - downward set-point variation
+        //   - generator power
+        //   - ON state
+        //   - OFF state
+        //   - RAMP UP state
+        //   - RAMP DOWN state
+        //   - ON -> ON transition (except for last timestamp)
+        //   - ON -> RAMP DOWN transition (except for last timestamp)
+        //   - RAMP DOWN -> RAMP DOWN transition (except for last timestamp)
+        //   - RAMP DOWN -> OFF transition (except for last timestamp)
+        //   - OFF -> OFF transition (except for last timestamp)
+        //   - OFF -> RAMP UP transition (except for last timestamp)
+        //   - RAMP UP -> RAMP UP transition (except for last timestamp)
+        //   - RAMP UP -> ON transition (except for last timestamp)
+
+        // - CONSTRAINTS (88):
+        //   - flow
+        //   - set-point variation
+        //   - network balancing
+        //   - generator power to redispatching
+        //   - ON power (lower bound)
+        //   - ON power (upper bound)
+        //   - OFF power
+        //   - only one state
+        //   - state from ON (except for last timestamp)
+        //   - state from OFF (except for last timestamp)
+        //   - state from RAMP UP (except for last timestamp)
+        //   - state from RAMP DOWN (except for last timestamp)
+        //   - state to ON (except for last timestamp)
+        //   - state to OFF (except for last timestamp)
+        //   - state to RAMP UP (except for last timestamp)
+        //   - state to RAMP DOWN (except for last timestamp)
+        //   - power transition (lower bound; except for last timestamp)
+        //   - power transition (upper bound; except for last timestamp)
+        //   - upward ramp (upper bound; except for last timestamp)
+        //   - downward ramp (upper bound; except for last timestamp)
+
+        assertEquals(77, linearProblem.numVariables());
+        assertEquals(88, linearProblem.numConstraints());
+
+        // TODO: check injection keys in RD set-point
+        // TODO: check PMax in power upper bound
+        // TODO: check that RAMP UP&DOWN variables actually exist
+        // TODO: check gradients
+    }
+
+    @Test
+    void testLongLeadAndShortLagTimesAndPowerGradients() {
+        IntertemporalConstraints intertemporalConstraints = new IntertemporalConstraints();
+        intertemporalConstraints.addGeneratorConstraints(GeneratorConstraints.create().withGeneratorId("BBE1AA1 _generator").withPMin(1000.0).withPMax(5000.0).withUpwardPowerGradient(1500.0).withDownwardPowerGradient(-1000.0).withLeadTime(1.2).withLagTime(0.2).build());
+        setUpLinearProblemWithIntertemporalConstraints(intertemporalConstraints);
+
+        // For each timestamp:
+
+        // - VARIABLES (73):
+        //   - flow
+        //   - redispatching set-point
+        //   - upward set-point variation
+        //   - downward set-point variation
+        //   - generator power
+        //   - ON state
+        //   - OFF state
+        //   - RAMP UP state
+        //   - RAMP DOWN state
+        //   - ON -> ON transition (except for last timestamp)
+        //   - ON -> OFF transition (except for last timestamp)
+        //   - RAMP DOWN -> OFF transition (except for last timestamp)
+        //   - OFF -> OFF transition (except for last timestamp)
+        //   - OFF -> RAMP UP transition (except for last timestamp)
+        //   - RAMP UP -> RAMP UP transition (except for last timestamp)
+        //   - RAMP UP -> ON transition (except for last timestamp)
+
+        // - CONSTRAINTS (84):
+        //   - flow
+        //   - set-point variation
+        //   - network balancing
+        //   - generator power to redispatching
+        //   - ON power (lower bound)
+        //   - ON power (upper bound)
+        //   - OFF power
+        //   - only one state
+        //   - state from ON (except for last timestamp)
+        //   - state from OFF (except for last timestamp)
+        //   - state from RAMP UP (except for last timestamp)
+        //   - state from RAMP DOWN (except for last timestamp)
+        //   - state to ON (except for last timestamp)
+        //   - state to OFF (except for last timestamp)
+        //   - state to RAMP UP (except for last timestamp)
+        //   - state to RAMP DOWN (except for last timestamp)
+        //   - power transition (lower bound; except for last timestamp)
+        //   - power transition (upper bound; except for last timestamp)
+        //   - upward ramp (upper bound; except for last timestamp)
+
+        assertEquals(73, linearProblem.numVariables());
+        assertEquals(84, linearProblem.numConstraints());
+
+        // TODO: check injection keys in RD set-point
+        // TODO: check PMax in power upper bound
+        // TODO: check that RAMP UP&DOWN variables actually exist
+        // TODO: check gradients
+    }
+
+    @Test
+    void testShortLeadAndLongLagTimesAndPowerGradients() {
+        IntertemporalConstraints intertemporalConstraints = new IntertemporalConstraints();
+        intertemporalConstraints.addGeneratorConstraints(GeneratorConstraints.create().withGeneratorId("BBE1AA1 _generator").withPMin(1000.0).withPMax(5000.0).withUpwardPowerGradient(1500.0).withDownwardPowerGradient(-1000.0).withLeadTime(0.2).withLagTime(1.2).build());
+        setUpLinearProblemWithIntertemporalConstraints(intertemporalConstraints);
+
+        // For each timestamp:
+
+        // - VARIABLES (73):
+        //   - flow
+        //   - redispatching set-point
+        //   - upward set-point variation
+        //   - downward set-point variation
+        //   - generator power
+        //   - ON state
+        //   - OFF state
+        //   - RAMP UP state
+        //   - RAMP DOWN state
+        //   - ON -> ON transition (except for last timestamp)
+        //   - ON -> RAMP DOWN transition (except for last timestamp)
+        //   - RAMP DOWN -> RAMP DOWN transition (except for last timestamp)
+        //   - RAMP DOWN -> OFF transition (except for last timestamp)
+        //   - OFF -> OFF transition (except for last timestamp)
+        //   - OFF -> ON transition (except for last timestamp)
+        //   - RAMP UP -> ON transition (except for last timestamp)
+
+        // - CONSTRAINTS (80):
+        //   - flow
+        //   - set-point variation
+        //   - network balancing
+        //   - generator power to redispatching
+        //   - ON power (lower bound)
+        //   - ON power (upper bound)
+        //   - OFF power
+        //   - only one state
+        //   - state from ON (except for last timestamp)
+        //   - state from OFF (except for last timestamp)
+        //   - state from RAMP UP (except for last timestamp)
+        //   - state from RAMP DOWN (except for last timestamp)
+        //   - state to ON (except for last timestamp)
+        //   - state to OFF (except for last timestamp)
+        //   - state to RAMP DOWN (except for last timestamp)
+        //   - power transition (lower bound; except for last timestamp)
+        //   - power transition (upper bound; except for last timestamp)
+        //   - downward ramp (upper bound; except for last timestamp)
+
+        assertEquals(73, linearProblem.numVariables());
+        assertEquals(80, linearProblem.numConstraints());
+
+        // TODO: check injection keys in RD set-point
+        // TODO: check PMax in power upper bound
+        // TODO: check that RAMP UP&DOWN variables actually exist
+        // TODO: check gradients
     }
 }
