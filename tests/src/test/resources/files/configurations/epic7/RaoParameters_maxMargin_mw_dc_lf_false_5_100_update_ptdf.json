@@ -72,7 +72,7 @@
             "balanceType" : "PROPORTIONAL_TO_GENERATION_P",
             "dcUseTransformerRatio" : true,
             "countriesToBalance" : [ ],
-            "hvdcAcEmulation" : false
+            "hvdcAcEmulation" : true
           }
         }
       },
