@@ -206,8 +206,7 @@ Based on PowSyBl's [configuration mechanism](inv:powsyblcore:std:doc#user/config
 ~~~yaml
 rao-objective-function:
   type: SECURE_FLOW
-  unit: AMPERE
-
+  
 rao-range-actions-optimization:
   pst-ra-min-impact-threshold: 0.01
 

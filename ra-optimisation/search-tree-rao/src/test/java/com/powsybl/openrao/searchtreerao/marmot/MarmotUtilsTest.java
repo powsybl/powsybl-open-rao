@@ -69,6 +69,7 @@ class MarmotUtilsTest {
 
         inputs = new TemporalDataImpl<>(Map.of(timestamp1, raoInput1, timestamp2, raoInput2, timestamp3, raoInput3));
         parameters = new RaoParameters();
+        parameters.getObjectiveFunctionParameters().setUnit(Unit.MEGAWATT);
         parameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters());
         getSensitivityWithLoadFlowParameters(parameters).getLoadFlowParameters().setDc(true);
 
