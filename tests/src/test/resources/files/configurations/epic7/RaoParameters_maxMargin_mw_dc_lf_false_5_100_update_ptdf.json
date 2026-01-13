@@ -58,7 +58,7 @@
         "sensitivity-parameters" : {
           "version" : "1.0",
           "load-flow-parameters" : {
-            "version" : "1.9",
+            "version" : "1.10",
             "voltageInitMode" : "UNIFORM_VALUES",
             "transformerVoltageControlOn" : false,
             "phaseShifterRegulationOn" : false,
@@ -72,7 +72,6 @@
             "balanceType" : "PROPORTIONAL_TO_GENERATION_P",
             "dcUseTransformerRatio" : true,
             "countriesToBalance" : [ ],
-            "connectedComponentMode" : "MAIN",
             "hvdcAcEmulation" : false
           }
         }

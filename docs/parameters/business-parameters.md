@@ -10,10 +10,10 @@ These parameters (objective-function) configure the remedial action optimization
 
 > Since the version 3.3 of the parameters, we no longer allow changing the objective function's unit.
 > The flow unit and thus the objective function's unit (for SECURE_FLOW, MAX_MIN_MARGIN and MAX_MIN_RELATIVE_MARGIN) will be defined depending on 
-> if the loadflow/sensitivity computation is done in AC or DC.
+> whether the loadflow/sensitivity computation is carried out in AC or DC.
 >
-> - in AC the flow unit will be AMPERE 
-> - in DC the flow unit will be MEGAWATT
+> - in AC, the flow unit is AMPERE 
+> - in DC the flow unit is MEGAWATT
 > 
 > See [sensitivity-parameter](implementation-specific-parameters.md#sensitivity-parameters)
 

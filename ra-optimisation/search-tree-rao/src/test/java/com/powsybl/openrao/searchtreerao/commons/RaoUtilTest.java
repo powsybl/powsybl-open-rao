@@ -58,6 +58,7 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.stream.Stream;
 
+import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -490,25 +491,15 @@ class RaoUtilTest {
 
     @Test
     void testGetFlowUnit() {
-        RaoParameters raoParameters = mock(RaoParameters.class);
-        OpenRaoSearchTreeParameters extension = mock(OpenRaoSearchTreeParameters.class);
-        LoadFlowAndSensitivityParameters lfSensParams = mock(LoadFlowAndSensitivityParameters.class);
-        SensitivityAnalysisParameters sensitivityParams = mock(SensitivityAnalysisParameters.class);
-        LoadFlowParameters loadFlowParameters = mock(LoadFlowParameters.class);
-
-        // Mock de la structure commune
-        when(raoParameters.hasExtension(OpenRaoSearchTreeParameters.class)).thenReturn(true);
-        when(raoParameters.getExtension(OpenRaoSearchTreeParameters.class)).thenReturn(extension);
-        when(extension.getLoadFlowAndSensitivityParameters()).thenReturn(lfSensParams);
-        when(lfSensParams.getSensitivityWithLoadFlowParameters()).thenReturn(sensitivityParams);
-        when(sensitivityParams.getLoadFlowParameters()).thenReturn(loadFlowParameters);
+        RaoParameters raoParameters = new RaoParameters();
+        raoParameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters());
 
         // Cas DC -> MEGAWATT
-        when(loadFlowParameters.isDc()).thenReturn(true);
+        getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters().setDc(true);
         assertEquals(Unit.MEGAWATT, RaoUtil.getFlowUnit(raoParameters));
 
         // Cas AC -> AMPERE
-        when(loadFlowParameters.isDc()).thenReturn(false);
+        getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters().setDc(false);
         assertEquals(Unit.AMPERE, RaoUtil.getFlowUnit(raoParameters));
     }
 }
