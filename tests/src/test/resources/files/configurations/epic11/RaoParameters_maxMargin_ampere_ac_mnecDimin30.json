@@ -2,7 +2,7 @@
   "version" : "3.2.1",
   "objective-function" : {
     "type" : "MAX_MIN_MARGIN",
-    "unit" : "MW",
+    "unit" : "A",
     "enforce-curative-security" : false
   },
   "range-actions-optimization" : {
@@ -18,11 +18,7 @@
     "do-not-optimize-curative-cnecs-for-tsos-without-cras" : false
   },
   "mnec-parameters" : {
-    "acceptable-margin-decrease" : 50.0
-  },
-  "loop-flow-parameters" : {
-    "acceptable-increase" : 0.0,
-    "countries" : [ ]
+    "acceptable-margin-decrease" : 29.0
   },
   "extensions" : {
     "open-rao-search-tree-parameters" : {
@@ -82,13 +78,8 @@
         "available-cpus" : 1
       },
       "mnec-parameters" : {
-        "violation-cost" : 10.0,
+        "violation-cost" : 15.0,
         "constraint-adjustment-coefficient" : 0.0
-      },
-      "loop-flow-parameters" : {
-        "ptdf-approximation" : "UPDATE_PTDF_WITH_TOPO_AND_PST",
-        "constraint-adjustment-coefficient" : 10.0,
-        "violation-cost" : 100.0
       }
     }
   }

@@ -46,7 +46,7 @@ class ObjectiveFunctionTest {
     private FlowCnec cnec2;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         flowResult = Mockito.mock(FlowResult.class);
         cnec1 = Mockito.mock(FlowCnec.class);
         cnec2 = Mockito.mock(FlowCnec.class);
@@ -69,6 +69,7 @@ class ObjectiveFunctionTest {
     void testWithFunctionalCostOnly() {
         RaoParameters raoParameters = new RaoParameters();
         OpenRaoSearchTreeParameters openRaoSearchTreeParameters = new OpenRaoSearchTreeParameters();
+        raoParameters.getObjectiveFunctionParameters().setUnit(Unit.MEGAWATT);
         openRaoSearchTreeParameters.getLoadFlowAndSensitivityParameters().setSensitivityFailureOvercost(0.0);
         raoParameters.addExtension(OpenRaoSearchTreeParameters.class, openRaoSearchTreeParameters);
         ObjectiveFunction objectiveFunction = ObjectiveFunction.build(Set.of(cnec1, cnec2), Set.of(), null, null, Set.of(), raoParameters, Set.of());
@@ -96,6 +97,7 @@ class ObjectiveFunctionTest {
         SearchTreeRaoLoopFlowParameters loopFlowParameters = new SearchTreeRaoLoopFlowParameters();
         loopFlowParameters.setViolationCost(10.);
         openRaoSearchTreeParameters.setLoopFlowParameters(loopFlowParameters);
+        raoParameters.getObjectiveFunctionParameters().setUnit(Unit.MEGAWATT);
 
         FlowResult initialFlowResult = Mockito.mock(FlowResult.class);
 
