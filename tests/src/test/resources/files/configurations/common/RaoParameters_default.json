@@ -61,7 +61,7 @@
             "shuntCompensatorVoltageControlOn" : false,
             "readSlackBus" : false,
             "writeSlackBus" : true,
-            "dc" : false,
+            "dc" : true,
             "distributedSlack" : true,
             "balanceType" : "PROPORTIONAL_TO_GENERATION_P",
             "dcUseTransformerRatio" : false,

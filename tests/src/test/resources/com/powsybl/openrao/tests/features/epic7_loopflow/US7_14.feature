@@ -5,7 +5,7 @@
 
 Feature: US 7.14: Use a refProg file to calculate the loop-flows
 
-  @fast @loopflow-computation @mock @ac @loopflow
+  @fast @loopflow-computation @mock @dc @loopflow
   Scenario: 7.14.1 : calculate loop-flows with a refProg file - Megawatt
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic7/crac_lf.json"
@@ -61,7 +61,7 @@ Feature: US 7.14: Use a refProg file to calculate the loop-flows
     Given crac file is "epic7/crac_lf_rao_3_cbcora.xml"
     Given loopflow glsk file is "common/glsk_lots_of_lf_12nodes.xml"
     Given RefProg file is "epic7/refProg_12nodes.xml"
-    Given configuration file is "epic7/RaoParameters_maxMargin_mw_ac_lf_false_5_100.json"
+    Given configuration file is "epic7/RaoParameters_maxMargin_mw_dc_lf_false_5_100_update_ptdf.json"
     When I launch loopflow rao at "2019-01-08 21:30" with default loopflow limit as 0.0 percent of pmax
 
     Then the worst margin is -473.0 MW
@@ -91,7 +91,7 @@ Feature: US 7.14: Use a refProg file to calculate the loop-flows
     Given crac file is "epic7/crac_lf_rao_3_with_frm_cbcora.xml"
     Given loopflow glsk file is "common/glsk_lots_of_lf_12nodes.xml"
     Given RefProg file is "epic7/refProg_12nodes.xml"
-    Given configuration file is "epic7/RaoParameters_maxMargin_mw_ac_lf_false_5_100.json"
+    Given configuration file is "epic7/RaoParameters_maxMargin_mw_dc_lf_false_5_100_update_ptdf.json"
     When I launch loopflow rao at "2019-01-08 21:30" with default loopflow limit as 0.0 percent of pmax
 
     Then the worst margin is -378.0 MW

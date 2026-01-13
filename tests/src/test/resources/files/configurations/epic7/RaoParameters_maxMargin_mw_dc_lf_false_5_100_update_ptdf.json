@@ -12,13 +12,17 @@
   },
   "topological-actions-optimization" : {
     "relative-minimum-impact-threshold" : 0.0,
-    "absolute-minimum-impact-threshold" : 195.0
+    "absolute-minimum-impact-threshold" : 1.0
   },
   "not-optimized-cnecs" : {
     "do-not-optimize-curative-cnecs-for-tsos-without-cras" : false
   },
   "mnec-parameters" : {
     "acceptable-margin-decrease" : 50.0
+  },
+  "loop-flow-parameters" : {
+    "acceptable-increase" : 0.0,
+    "countries" : [ ]
   },
   "extensions" : {
     "open-rao-search-tree-parameters" : {
@@ -28,7 +32,7 @@
       "range-actions-optimization" : {
         "max-mip-iterations" : 10,
         "pst-sensitivity-threshold" : 1.0E-6,
-        "pst-model" : "CONTINUOUS",
+        "pst-model" : "APPROXIMATED_INTEGERS",
         "hvdc-sensitivity-threshold" : 1.0E-6,
         "injection-ra-sensitivity-threshold" : 1.0E-6,
         "linear-optimization-solver" : {
@@ -64,12 +68,11 @@
             "shuntCompensatorVoltageControlOn" : false,
             "readSlackBus" : true,
             "writeSlackBus" : true,
-            "dc" : false,
+            "dc" : true,
             "distributedSlack" : true,
             "balanceType" : "PROPORTIONAL_TO_GENERATION_P",
             "dcUseTransformerRatio" : true,
             "countriesToBalance" : [ ],
-            "componentMode" : "MAIN_CONNECTED",
             "hvdcAcEmulation" : true
           }
         }
@@ -80,6 +83,11 @@
       "mnec-parameters" : {
         "violation-cost" : 10.0,
         "constraint-adjustment-coefficient" : 0.0
+      },
+      "loop-flow-parameters" : {
+        "ptdf-approximation" : "UPDATE_PTDF_WITH_TOPO_AND_PST",
+        "constraint-adjustment-coefficient" : 0.5,
+        "violation-cost" : 1000.0
       }
     }
   }

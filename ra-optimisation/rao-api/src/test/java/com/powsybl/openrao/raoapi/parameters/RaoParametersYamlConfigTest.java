@@ -161,7 +161,7 @@ class RaoParametersYamlConfigTest extends AbstractSerDeTest {
 
         ObjectiveFunctionParameters objectiveFunctionParameters = parameters.getObjectiveFunctionParameters();
         assertEquals(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN, objectiveFunctionParameters.getType());
-        assertEquals(Unit.MEGAWATT, objectiveFunctionParameters.getUnit());
+        assertEquals(Unit.AMPERE, objectiveFunctionParameters.getUnit());
         assertEquals(3, searchTreeParameters.getObjectiveFunctionParameters().getCurativeMinObjImprovement(), DOUBLE_TOLERANCE);
         assertFalse(objectiveFunctionParameters.getEnforceCurativeSecurity());
 
