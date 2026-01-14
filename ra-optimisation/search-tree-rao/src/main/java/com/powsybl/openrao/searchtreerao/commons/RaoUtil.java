@@ -14,16 +14,20 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.State;
+import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
+import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.api.usagerule.OnConstraint;
 import com.powsybl.openrao.data.crac.api.usagerule.OnContingencyState;
 import com.powsybl.openrao.data.crac.api.usagerule.OnFlowConstraintInCountry;
 import com.powsybl.openrao.data.crac.api.usagerule.OnInstant;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
+import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceProgramBuilder;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
@@ -243,6 +247,18 @@ public final class RaoUtil {
     // TODO: find a better place for this function
     public static Unit getFlowUnit(RaoParameters raoParameters) {
         return getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters().isDc() ? Unit.MEGAWATT : Unit.AMPERE;
+    }
+
+    public static boolean isSecureAngleWise(RaoResult raoResult, Instant lastInstant, Set<AngleCnec> angleCnecs) {
+        return angleCnecs.stream().allMatch(angleCnec -> raoResult.getMargin(lastInstant, angleCnec, Unit.DEGREE) >= 0);
+    }
+
+    public static boolean isSecureFlowWise(RaoResult raoResult, Instant lastInstant, Set<FlowCnec> flowCnecs, Unit flowUnit) {
+        return flowCnecs.stream().allMatch(flowCnec -> raoResult.getMargin(lastInstant, flowCnec, flowUnit) >= 0);
+    }
+
+    public static boolean isSecureVoltageWise(RaoResult raoResult, Instant lastInstant, Set<VoltageCnec> voltageCnecs) {
+        return voltageCnecs.stream().allMatch(voltageCnec -> raoResult.getMargin(lastInstant, voltageCnec, Unit.KILOVOLT) >= 0);
     }
 
 }
