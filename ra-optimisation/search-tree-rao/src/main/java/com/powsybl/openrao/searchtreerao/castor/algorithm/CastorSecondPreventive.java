@@ -62,7 +62,7 @@ public class CastorSecondPreventive {
     private final ToolProvider toolProvider;
     private final java.time.Instant targetEndInstant;
 
-    private static final String SECOND_PREVENTIVE_SCENARIO_BEFORE_OPT = "SecondPreventiveScenario";
+    static final String SECOND_PREVENTIVE_SCENARIO_BEFORE_OPT = "SecondPreventiveScenario";
     private static final int NUMBER_LOGGED_ELEMENTS_DURING_RAO = 2;
     private static final int NUMBER_LOGGED_ELEMENTS_END_RAO = 10;
 
@@ -294,7 +294,7 @@ public class CastorSecondPreventive {
         return appliedNetworkActions;
     }
 
-    private CompletableFuture<OptimizationResult> optimizeSecondPreventivePerimeter(PrePerimeterResult initialOutput,
+    CompletableFuture<OptimizationResult> optimizeSecondPreventivePerimeter(PrePerimeterResult initialOutput,
                                                                                            PrePerimeterResult prePerimeterResult,
                                                                                            OptimizationResult firstPreventiveResult,
                                                                                            AppliedRemedialActions appliedCras) {
