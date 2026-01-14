@@ -36,6 +36,7 @@ import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.commons.MeasurementRounding.roundValueBasedOnMargin;
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_LOGS;
+import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.getFlowUnit;
 import static java.lang.String.format;
 
 /**
@@ -72,7 +73,7 @@ public final class RaoLogger {
         RaoLogger.logMostLimitingElementsResults(BUSINESS_LOGS,
             sensitivityAnalysisResult,
             raoParameters.getObjectiveFunctionParameters().getType(),
-            raoParameters.getObjectiveFunctionParameters().getUnit(),
+            getFlowUnit(raoParameters),
             numberOfLoggedLimitingElements);
     }
 
@@ -96,7 +97,7 @@ public final class RaoLogger {
         RaoLogger.logMostLimitingElementsResults(BUSINESS_LOGS,
             linearOptimizationResult,
             raoParameters.getObjectiveFunctionParameters().getType(),
-            raoParameters.getObjectiveFunctionParameters().getUnit(),
+            getFlowUnit(raoParameters),
             numberOfLoggedLimitingElements);
     }
 
@@ -121,7 +122,7 @@ public final class RaoLogger {
         RaoLogger.logMostLimitingElementsResults(BUSINESS_LOGS,
             sensitivityAnalysisResult,
             raoParameters.getObjectiveFunctionParameters().getType(),
-            raoParameters.getObjectiveFunctionParameters().getUnit(),
+            getFlowUnit(raoParameters),
             numberOfLoggedLimitingElements);
     }
 
