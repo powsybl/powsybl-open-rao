@@ -319,8 +319,9 @@ public class CastorSecondPreventive {
 
         SearchTreeParameters searchTreeParameters = searchTreeParametersBuilder.build();
 
-        if (getSecondPreventiveHintFromFirstPreventiveRao(raoParameters)) {
+        if (getSecondPreventiveHintFromFirstPreventiveRao(raoParameters) && !firstPreventiveResult.getActivatedNetworkActions().isEmpty()) {
             // Set the optimal set of network actions decided in 1st preventive RAO as a hint for 2nd preventive RAO
+            TECHNICAL_LOGS.debug("Providing hint for 2nd preventive RAO from 1st preventive: {}", firstPreventiveResult.getActivatedNetworkActions());
             searchTreeParameters.getNetworkActionParameters().addNetworkActionCombination(new NetworkActionCombination(firstPreventiveResult.getActivatedNetworkActions(), true));
         }
 
