@@ -26,7 +26,6 @@ import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SecondPreventiveRaoParameters;
-import com.powsybl.openrao.searchtreerao.commons.NetworkActionCombination;
 import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
 import com.powsybl.openrao.searchtreerao.result.impl.PostPerimeterResult;
@@ -42,7 +41,6 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static com.powsybl.openrao.raoapi.parameters.extensions.SecondPreventiveRaoParameters.getSecondPreventiveHintFromFirstPreventiveRao;
 import static com.powsybl.openrao.searchtreerao.castor.algorithm.CastorSecondPreventive.SECOND_PREVENTIVE_SCENARIO_BEFORE_OPT;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -512,7 +510,7 @@ class CastorSecondPreventiveTest {
             // 1st preventive activated one network action
             when(firstPreventiveResult.getActivatedNetworkActions()).thenReturn(Set.of(na1));
             castorSecondPreventive.optimizeSecondPreventivePerimeter(initialOutput, prePerimeterResult, firstPreventiveResult, new AppliedRemedialActions());
-            assertEquals(1,capturedParameters.get().getNetworkActionParameters().getNetworkActionCombinations().size());
+            assertEquals(1, capturedParameters.get().getNetworkActionParameters().getNetworkActionCombinations().size());
             assertEquals(Set.of(na1), capturedParameters.get().getNetworkActionParameters().getNetworkActionCombinations().get(0).getNetworkActionSet());
 
             // 1st preventive activated no network action
