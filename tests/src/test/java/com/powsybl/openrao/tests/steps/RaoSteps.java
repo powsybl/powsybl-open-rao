@@ -51,6 +51,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters;
+import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.getFlowUnit;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -741,7 +742,7 @@ public class RaoSteps {
             ZonalData<SensitivityVariableSet> glsks = CommonTestData.getLoopflowGlsks();
 
             // run loopFlowComputation
-            LoopFlowComputation loopFlowComputation = new LoopFlowComputationImpl(glsks, referenceProgram, raoParameters.getObjectiveFunctionParameters().getUnit());
+            LoopFlowComputation loopFlowComputation = new LoopFlowComputationImpl(glsks, referenceProgram, getFlowUnit(raoParameters));
 
             this.loopFlowResult = loopFlowComputation.calculateLoopFlows(network, sensitivityProvider, sensitivityAnalysisParameters, crac.getFlowCnecs(), crac.getOutageInstant());
 
