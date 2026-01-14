@@ -32,6 +32,7 @@ import java.time.ZoneOffset;
 import java.util.Map;
 import java.util.Set;
 
+import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters;
 import static com.powsybl.openrao.searchtreerao.marmot.MarmotUtils.getPreventivePerimeterCnecs;
 import static com.powsybl.openrao.searchtreerao.marmot.MarmotUtils.runSensitivityAnalysis;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -68,8 +69,9 @@ class MarmotUtilsTest {
 
         inputs = new TemporalDataImpl<>(Map.of(timestamp1, raoInput1, timestamp2, raoInput2, timestamp3, raoInput3));
         parameters = new RaoParameters();
-        parameters.getObjectiveFunctionParameters().setUnit(Unit.MEGAWATT);
         parameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters());
+        getSensitivityWithLoadFlowParameters(parameters).getLoadFlowParameters().setDc(true);
+
         parameters.getExtension(OpenRaoSearchTreeParameters.class).getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters().setDc(true);
     }
 

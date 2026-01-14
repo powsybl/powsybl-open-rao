@@ -108,7 +108,7 @@ class IteratingLinearOptimizerTest {
         when(rangeActionParameters.getPstModel()).thenReturn(SearchTreeRaoRangeActionsOptimizationParameters.PstModel.CONTINUOUS);
         when(parameters.getRangeActionParametersExtension()).thenReturn(rangeActionParameters);
         when(parameters.getObjectiveFunction()).thenReturn(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN);
-        when(parameters.getObjectiveFunctionUnit()).thenReturn(Unit.MEGAWATT);
+        when(parameters.getFlowUnit()).thenReturn(Unit.MEGAWATT);
         when(parameters.getRaRangeShrinking()).thenReturn(false);
 
         linearProblem = Mockito.mock(LinearProblem.class);
