@@ -25,6 +25,8 @@ import com.powsybl.iidm.network.Country;
 import java.util.*;
 import java.util.regex.Pattern;
 
+import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
+
 /**
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -216,6 +218,7 @@ class CriticalBranchReader {
 
     private void addPermanentThresholds(FlowCnecAdder cnecAdder) {
         boolean permanentThresholdFound = false;
+        TECHNICAL_LOGS.info("good version");
 
         //First try to get explicitly permanent thresholds
         if (!Objects.isNull(criticalBranch.getPermanentImaxFactor()) && criticalBranch.getPermanentImaxFactor().doubleValue() > 1e-6) {
