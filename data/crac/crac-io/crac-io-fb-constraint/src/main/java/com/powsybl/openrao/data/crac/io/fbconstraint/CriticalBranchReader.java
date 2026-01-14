@@ -218,11 +218,11 @@ class CriticalBranchReader {
         boolean permanentThresholdFound = false;
 
         //First try to get explicitly permanent thresholds
-        if (!Objects.isNull(criticalBranch.getPermanentImaxFactor())) {
+        if (!Objects.isNull(criticalBranch.getPermanentImaxFactor()) && criticalBranch.getPermanentImaxFactor().doubleValue() > 1e-6) {
             addThreshold(cnecAdder, criticalBranch.getPermanentImaxFactor().doubleValue(), Unit.PERCENT_IMAX);
             permanentThresholdFound = true;
         }
-        if (!Objects.isNull(criticalBranch.getPermanentImaxA())) {
+        if (!Objects.isNull(criticalBranch.getPermanentImaxA()) && criticalBranch.getPermanentImaxA().doubleValue() > 1e-6) {
             addThreshold(cnecAdder, criticalBranch.getPermanentImaxA().doubleValue(), Unit.AMPERE);
             permanentThresholdFound = true;
         }
@@ -231,11 +231,11 @@ class CriticalBranchReader {
         }
 
         //Then fallback to default factors or values
-        if (!Objects.isNull(criticalBranch.getImaxFactor())) {
+        if (!Objects.isNull(criticalBranch.getImaxFactor()) && criticalBranch.getImaxFactor().doubleValue() > 1e-6) {
             addThreshold(cnecAdder, criticalBranch.getImaxFactor().doubleValue(), Unit.PERCENT_IMAX);
             permanentThresholdFound = true;
         }
-        if (!Objects.isNull(criticalBranch.getImaxA())) {
+        if (!Objects.isNull(criticalBranch.getImaxA()) && criticalBranch.getImaxA().doubleValue() > 1e-6) {
             addThreshold(cnecAdder, criticalBranch.getImaxA().doubleValue(), Unit.AMPERE);
             permanentThresholdFound = true;
         }
