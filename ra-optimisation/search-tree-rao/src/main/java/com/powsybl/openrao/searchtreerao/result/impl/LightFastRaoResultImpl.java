@@ -31,11 +31,13 @@ import static com.powsybl.openrao.data.raoresult.api.ComputationStatus.*;
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
 public class LightFastRaoResultImpl extends AbstractExtendable<RaoResult> implements RaoResult {
+    private final Instant lastInstant;
     private final PrePerimeterResult initialResult;
     private final RaoResult filteredRaoResult;
     private String executionDetails;
 
-    public LightFastRaoResultImpl(FastRaoResultImpl fastRaoResult) {
+    public LightFastRaoResultImpl(Instant lastInstant, FastRaoResultImpl fastRaoResult) {
+        this.lastInstant = lastInstant;
         this.initialResult = fastRaoResult.getInitialResult();
         this.filteredRaoResult = fastRaoResult.getFilteredRaoResult();
         executionDetails = filteredRaoResult.getExecutionDetails();
@@ -215,16 +217,11 @@ public class LightFastRaoResultImpl extends AbstractExtendable<RaoResult> implem
     }
 
     @Override
-    public boolean isSecure(Instant optimizedInstant, PhysicalParameter... u) {
+    public boolean isSecure(PhysicalParameter... u) {
         if (ComputationStatus.FAILURE.equals(getComputationStatus())) {
             return false;
         }
-        return getFunctionalCost(optimizedInstant) < 0;
-    }
-
-    @Override
-    public boolean isSecure(PhysicalParameter... u) {
-        return isSecure(null, u);
+        return getFunctionalCost(lastInstant) < 0;
     }
 
 }

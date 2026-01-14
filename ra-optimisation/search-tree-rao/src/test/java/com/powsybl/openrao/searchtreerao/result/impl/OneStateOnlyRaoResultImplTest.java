@@ -446,6 +446,7 @@ class OneStateOnlyRaoResultImplTest {
     @Test
     void testIsSecureOnSecureCase() {
         when(optimizedState.getInstant()).thenReturn(curativeInstant);
+        output = new OneStateOnlyRaoResultImpl(optimizedState, initialResult, postOptimizationResult, Set.of(cnec1, cnec2));
         when(output.getFunctionalCost(curativeInstant)).thenReturn(-10.);
         assertTrue(output.isSecure(PhysicalParameter.FLOW));
 
@@ -467,6 +468,6 @@ class OneStateOnlyRaoResultImplTest {
     void testIsSecureOnUnsecureCase() {
         when(optimizedState.getInstant()).thenReturn(curativeInstant);
         when(output.getFunctionalCost(curativeInstant)).thenReturn(10.);
-        assertFalse(output.isSecure());
+        assertFalse(output.isSecure(PhysicalParameter.FLOW));
     }
 }

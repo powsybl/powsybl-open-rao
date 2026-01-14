@@ -177,11 +177,6 @@ public class UnoptimizedRaoResultImpl extends AbstractExtendable<RaoResult> impl
     }
 
     @Override
-    public boolean isSecure(Instant optimizedInstant, PhysicalParameter... u) {
-        throw new OpenRaoException("Unavailable method for unoptimized RaoResult.");
-    }
-
-    @Override
     public boolean isSecure(PhysicalParameter... u) {
         throw new OpenRaoException("Unavailable method for unoptimized RaoResult.");
     }

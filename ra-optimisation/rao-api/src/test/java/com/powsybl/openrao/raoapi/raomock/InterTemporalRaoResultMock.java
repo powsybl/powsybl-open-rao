@@ -215,11 +215,6 @@ public class InterTemporalRaoResultMock extends AbstractExtendable<RaoResult> im
     }
 
     @Override
-    public boolean isSecure(Instant optimizedInstant, PhysicalParameter... u) {
-        return false;
-    }
-
-    @Override
     public boolean isSecure(PhysicalParameter... u) {
         return false;
     }

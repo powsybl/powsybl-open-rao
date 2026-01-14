@@ -9,7 +9,6 @@ package com.powsybl.openrao.searchtreerao.result.impl;
 
 import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
@@ -41,6 +40,7 @@ public class OneStateOnlyRaoResultImpl extends AbstractFlowRaoResult {
     private String executionDetails = OptimizationStepsExecuted.FIRST_PREVENTIVE_ONLY;
 
     public OneStateOnlyRaoResultImpl(State optimizedState, PrePerimeterResult initialResult, OptimizationResult postOptimizationResult, Set<FlowCnec> optimizedFlowCnecs) {
+        super(optimizedState.getInstant());
         this.optimizedState = optimizedState;
         this.initialResult = initialResult;
         this.postOptimizationResult = postOptimizationResult;
@@ -240,11 +240,6 @@ public class OneStateOnlyRaoResultImpl extends AbstractFlowRaoResult {
     @Override
     public void setExecutionDetails(String executionDetails) {
         this.executionDetails = executionDetails;
-    }
-
-    @Override
-    public boolean isSecure(PhysicalParameter... u) {
-        return isSecure(optimizedState.getInstant(), u);
     }
 
     @Override

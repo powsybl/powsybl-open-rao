@@ -285,15 +285,10 @@ public class FastRaoResultImpl extends AbstractExtendable<RaoResult> implements 
     }
 
     @Override
-    public boolean isSecure(Instant optimizedInstant, PhysicalParameter... u) {
+    public boolean isSecure(PhysicalParameter... u) {
         if (ComputationStatus.FAILURE.equals(getComputationStatus())) {
             return false;
         }
-        return getFunctionalCost(optimizedInstant) < 0;
-    }
-
-    @Override
-    public boolean isSecure(PhysicalParameter... u) {
-        return isSecure(crac.getLastInstant(), u);
+        return getFunctionalCost(crac.getLastInstant()) < 0;
     }
 }

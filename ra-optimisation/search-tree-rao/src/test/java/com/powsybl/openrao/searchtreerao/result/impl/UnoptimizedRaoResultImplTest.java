@@ -280,7 +280,6 @@ class UnoptimizedRaoResultImplTest {
 
     @Test
     void testIsSecureNotAvailableForUnoptimizedRaoResultImpls() {
-        assertThrows(OpenRaoException.class, () -> output.isSecure(autoInstant, PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
-        assertThrows(OpenRaoException.class, () -> output.isSecure());
+        assertThrows(OpenRaoException.class, () -> output.isSecure(PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
     }
 }

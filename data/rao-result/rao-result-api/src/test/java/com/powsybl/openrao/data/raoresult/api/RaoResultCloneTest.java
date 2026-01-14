@@ -198,7 +198,6 @@ class RaoResultCloneTest {
         when(raoResult.isSecure()).thenReturn(false);
         when(raoResult.isSecure(PhysicalParameter.FLOW, PhysicalParameter.ANGLE)).thenReturn(true);
         when(raoResult.isSecure(PhysicalParameter.VOLTAGE)).thenReturn(false);
-        when(raoResult.isSecure(any(Instant.class), eq(PhysicalParameter.VOLTAGE))).thenReturn(false);
 
         testRaoResultClone(new RaoResultClone(raoResult), crac);
 
@@ -419,6 +418,5 @@ class RaoResultCloneTest {
         assertFalse(raoResultClone.isSecure());
         assertTrue(raoResultClone.isSecure(PhysicalParameter.FLOW, PhysicalParameter.ANGLE));
         assertFalse(raoResultClone.isSecure(PhysicalParameter.VOLTAGE));
-        assertFalse(raoResultClone.isSecure(curativeInstant, PhysicalParameter.VOLTAGE));
     }
 }

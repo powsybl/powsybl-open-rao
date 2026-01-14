@@ -9,7 +9,6 @@ package com.powsybl.openrao.searchtreerao.result.impl;
 
 import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.*;
 import com.powsybl.openrao.data.crac.api.Crac;
@@ -92,6 +91,7 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
                                                Map<State, PostPerimeterResult> postContingencyPerimeterResults,
                                                Crac crac,
                                                RaoParameters raoParameters) {
+        super(crac.getLastInstant());
         this.preventiveState = crac.getPreventiveState();
         this.initialResult = initialResult;
         this.firstPreventivePerimeterResult = firstPreventivePerimeterResult;
@@ -627,11 +627,6 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
     @Override
     public void setExecutionDetails(String executionDetails) {
         this.executionDetails = executionDetails;
-    }
-
-    @Override
-    public boolean isSecure(PhysicalParameter... u) {
-        return isSecure(crac.getLastInstant(), u);
     }
 
     @Override

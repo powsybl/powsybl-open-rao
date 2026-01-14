@@ -13,6 +13,7 @@ import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
@@ -117,7 +118,7 @@ public class Marmot implements InterTemporalRaoProvider {
 
         TECHNICAL_LOGS.info("[MARMOT] ----- Global range actions optimization [start]");
         // make fast rao result lighter by keeping only initial flow result and filtered rao result for actions
-        replaceFastRaoResultsWithLightVersions(topologicalOptimizationResults);
+        replaceFastRaoResultsWithLightVersions(topologicalOptimizationResults, interTemporalRaoInput.getRaoInputs().map(input -> input.getCrac().getLastInstant()));
 
         //TODO: loop
         TemporalData<PrePerimeterResult> loadFlowResults;
@@ -326,8 +327,8 @@ public class Marmot implements InterTemporalRaoProvider {
         return prePerimeterResults;
     }
 
-    private void replaceFastRaoResultsWithLightVersions(TemporalData<RaoResult> topologicalOptimizationResults) {
-        topologicalOptimizationResults.getDataPerTimestamp().forEach((timestamp, raoResult) -> topologicalOptimizationResults.put(timestamp, new LightFastRaoResultImpl((FastRaoResultImpl) raoResult)));
+    private void replaceFastRaoResultsWithLightVersions(TemporalData<RaoResult> topologicalOptimizationResults, TemporalData<Instant> lastInstants) {
+        topologicalOptimizationResults.getDataPerTimestamp().forEach((timestamp, raoResult) -> topologicalOptimizationResults.put(timestamp, new LightFastRaoResultImpl(lastInstants.getData(timestamp).orElseThrow(), (FastRaoResultImpl) raoResult)));
     }
 
     private InterTemporalRaoInput importNetworksFromInterTemporalRaoInputWithNetworkPaths(InterTemporalRaoInputWithNetworkPaths interTemporalRaoInputWithNetworkPaths) {

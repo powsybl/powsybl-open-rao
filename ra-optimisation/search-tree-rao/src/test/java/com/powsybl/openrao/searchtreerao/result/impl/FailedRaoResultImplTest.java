@@ -62,7 +62,7 @@ class FailedRaoResultImplTest {
         assertThrows(OpenRaoException.class, () -> failedRaoResultImpl.getOptimizedTapsOnState(state));
         assertThrows(OpenRaoException.class, () -> failedRaoResultImpl.getOptimizedSetPointsOnState(state));
         assertThrows(OpenRaoException.class, failedRaoResultImpl::isSecure);
-        Exception e = assertThrows(OpenRaoException.class, () -> failedRaoResultImpl.isSecure(optInstant, PhysicalParameter.FLOW));
+        Exception e = assertThrows(OpenRaoException.class, () -> failedRaoResultImpl.isSecure(PhysicalParameter.FLOW));
         assertEquals("This method should not be used, because the RAO failed: mocked error message 1", e.getMessage());
         assertEquals("mocked error message 1", failedRaoResultImpl.getExecutionDetails());
     }

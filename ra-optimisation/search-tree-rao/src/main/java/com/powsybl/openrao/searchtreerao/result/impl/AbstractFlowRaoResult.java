@@ -20,15 +20,21 @@ import java.util.Arrays;
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
 public abstract class AbstractFlowRaoResult extends AbstractExtendable<RaoResult> implements RaoResult {
+    protected final Instant lastInstant;
+
+    protected AbstractFlowRaoResult(Instant lastInstant) {
+        this.lastInstant = lastInstant;
+    }
+
     @Override
-    public boolean isSecure(Instant optimizedInstant, PhysicalParameter... u) {
+    public boolean isSecure(PhysicalParameter... u) {
         if (ComputationStatus.FAILURE.equals(getComputationStatus())) {
             return false;
         }
         if (Arrays.stream(u).noneMatch(PhysicalParameter.FLOW::equals)) {
             throw new OpenRaoException("This is a flow RaoResult, isSecure is available for FLOW physical parameter");
         }
-        if (getFunctionalCost(optimizedInstant) >= 0) {
+        if (getFunctionalCost(lastInstant) >= 0) {
             return false;
         }
         if (Arrays.stream(u).anyMatch(physicalParameter -> !PhysicalParameter.FLOW.equals(physicalParameter))) {

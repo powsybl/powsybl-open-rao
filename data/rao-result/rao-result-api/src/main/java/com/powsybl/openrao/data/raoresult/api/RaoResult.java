@@ -439,30 +439,12 @@ public interface RaoResult extends Extendable<RaoResult> {
     void setExecutionDetails(String executionDetails);
 
     /**
-     * Indicates whether the all the CNECs of a given type at a given instant are secure.
-     *
-     * @param optimizedInstant The instant to assess
-     * @param u                The types of CNECs to check (FLOW -> FlowCNECs, ANGLE -> AngleCNECs, VOLTAGE -> VoltageCNECs). 1 to 3 arguments can be provided.
-     * @return whether all the CNECs of the given type(s) are secure at the optimized instant.
-     */
-    boolean isSecure(Instant optimizedInstant, PhysicalParameter... u);
-
-    /**
      * Indicates whether all the CNECs of a given type are secure at last instant (i.e. after RAO)..
      *
      * @param u The types of CNECs to check (FLOW -> FlowCNECs, ANGLE -> AngleCNECs, VOLTAGE -> VoltageCNECs). 1 to 3 arguments can be provided.
      * @return whether all the CNECs of the given type(s) are secure at last instant (i.e. after RAO)..
      */
     boolean isSecure(PhysicalParameter... u);
-
-    /**
-     * Indicates whether all the CNECs are secure at last instant (i.e. after RAO)..
-     *
-     * @return whether all the CNECs are secure at last instant (i.e. after RAO)..
-     */
-    default boolean isSecure() {
-        return isSecure(PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE);
-    }
 
     /**
      * Import RaoResult from a file

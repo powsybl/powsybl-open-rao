@@ -99,16 +99,6 @@ public class RaoResultWithAngleMonitoring extends RaoResultClone {
     }
 
     @Override
-    public boolean isSecure(Instant instant, PhysicalParameter... u) {
-        List<PhysicalParameter> physicalParameters = new ArrayList<>(Stream.of(u).sorted().toList());
-        if (physicalParameters.remove(PhysicalParameter.ANGLE)) {
-            return raoResult.isSecure(instant, physicalParameters.toArray(new PhysicalParameter[0])) && angleMonitoringResult.getStatus().equals(SecurityStatus.SECURE);
-        } else {
-            return raoResult.isSecure(instant, u);
-        }
-    }
-
-    @Override
     public boolean isSecure(PhysicalParameter... u) {
         List<PhysicalParameter> physicalParameters = new ArrayList<>(Stream.of(u).sorted().toList());
         if (physicalParameters.remove(PhysicalParameter.ANGLE)) {
@@ -116,10 +106,5 @@ public class RaoResultWithAngleMonitoring extends RaoResultClone {
         } else {
             return raoResult.isSecure(u);
         }
-    }
-
-    @Override
-    public boolean isSecure() {
-        return raoResult.isSecure() && angleMonitoringResult.getStatus().equals(SecurityStatus.SECURE);
     }
 }

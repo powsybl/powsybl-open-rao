@@ -142,9 +142,6 @@ class InterTemporalRaoResultImplTest {
         assertTrue(interTemporalRaoResult.isSecure(instant, TestsUtils.TIMESTAMP_1, PhysicalParameter.FLOW));
         assertTrue(interTemporalRaoResult.isSecure(instant, TestsUtils.TIMESTAMP_2, PhysicalParameter.FLOW));
         assertFalse(interTemporalRaoResult.isSecure(instant, TestsUtils.TIMESTAMP_3, PhysicalParameter.FLOW));
-
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> interTemporalRaoResult.isSecure(instant, PhysicalParameter.FLOW));
-        assertEquals("Calling isSecure with an instant and physical parameters alone is ambiguous. Please provide a timestamp.", exception.getMessage());
     }
 
     @Test
@@ -169,7 +166,7 @@ class InterTemporalRaoResultImplTest {
     private RaoResult mockRaoResult(boolean isSecure, String executionDetails, double functionalCost, double virtualCost, FlowCnec flowCnec, double flow, double margin, State state, int initialTap, int optimizedTap, double initialSetPoint, double optimizedSetPoint, boolean isNetworkActionActivated) {
         RaoResult raoResult = Mockito.mock(RaoResult.class);
         Mockito.when(raoResult.isSecure(PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE)).thenReturn(isSecure);
-        Mockito.when(raoResult.isSecure(instant, PhysicalParameter.FLOW)).thenReturn(isSecure);
+        Mockito.when(raoResult.isSecure(PhysicalParameter.FLOW)).thenReturn(isSecure);
         Mockito.when(raoResult.getExecutionDetails()).thenReturn(executionDetails);
         Mockito.when(raoResult.getFunctionalCost(instant)).thenReturn(functionalCost);
         Mockito.when(raoResult.getVirtualCost(instant)).thenReturn(virtualCost);

@@ -89,7 +89,7 @@ public class InterTemporalRaoResultImpl extends AbstractExtendable<RaoResult> im
 
     @Override
     public boolean isSecure(Instant optimizedInstant, OffsetDateTime timestamp, PhysicalParameter... u) {
-        return raoResultPerTimestamp.getData(timestamp).orElseThrow(() -> new OpenRaoException(MISSING_RAO_RESULT_ERROR_MESSAGE)).isSecure(optimizedInstant, u);
+        return raoResultPerTimestamp.getData(timestamp).orElseThrow(() -> new OpenRaoException(MISSING_RAO_RESULT_ERROR_MESSAGE)).isSecure(u);
     }
 
     @Override
@@ -232,11 +232,6 @@ public class InterTemporalRaoResultImpl extends AbstractExtendable<RaoResult> im
     @Override
     public void setExecutionDetails(String executionDetails) {
         // nothing to do
-    }
-
-    @Override
-    public boolean isSecure(Instant optimizedInstant, PhysicalParameter... u) {
-        throw new OpenRaoException("Calling isSecure with an instant and physical parameters alone is ambiguous. Please provide a timestamp.");
     }
 
     @Override
