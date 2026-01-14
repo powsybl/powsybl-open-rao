@@ -22,6 +22,7 @@ import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.LoopFlowParameters;
 import com.powsybl.openrao.raoapi.parameters.MnecParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRelativeMarginsParameters;
+import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.searchtreerao.commons.parameters.*;
 import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
@@ -37,7 +38,7 @@ import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRang
 public class SearchTreeParameters {
 
     private final ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction;
-    private final Unit objectiveFunctionUnit;
+    private final Unit flowUnit;
 
     // required for the search tree algorithm
     private final TreeParameters treeParameters;
@@ -65,7 +66,7 @@ public class SearchTreeParameters {
     private final Optional<LoadFlowAndSensitivityParameters> loadFlowAndSensitivityParameters;
 
     public SearchTreeParameters(ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction,
-                                Unit objectiveFunctionUnit, TreeParameters treeParameters,
+                                Unit flowUnit, TreeParameters treeParameters,
                                 NetworkActionParameters networkActionParameters,
                                 Map<Instant, RaUsageLimits> raLimitationParameters,
                                 RangeActionsOptimizationParameters rangeActionParameters,
@@ -81,7 +82,7 @@ public class SearchTreeParameters {
                                 int maxNumberOfIterations,
                                 Optional<LoadFlowAndSensitivityParameters> loadFlowAndSensitivityParameters) {
         this.objectiveFunction = objectiveFunction;
-        this.objectiveFunctionUnit = objectiveFunctionUnit;
+        this.flowUnit = flowUnit;
         this.treeParameters = treeParameters;
         this.networkActionParameters = networkActionParameters;
         this.raLimitationParameters = raLimitationParameters;
@@ -103,8 +104,8 @@ public class SearchTreeParameters {
         return objectiveFunction;
     }
 
-    public Unit getObjectiveFunctionUnit() {
-        return objectiveFunctionUnit;
+    public Unit getFlowUnit() {
+        return flowUnit;
     }
 
     public TreeParameters getTreeParameters() {
@@ -287,7 +288,7 @@ public class SearchTreeParameters {
 
     public static class SearchTreeParametersBuilder {
         private ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction;
-        private Unit objectiveFunctionUnit;
+        private Unit flowUnit;
         private TreeParameters treeParameters;
         private NetworkActionParameters networkActionParameters;
         private Map<Instant, RaUsageLimits> raLimitationParameters;
@@ -308,7 +309,7 @@ public class SearchTreeParameters {
 
         public SearchTreeParametersBuilder withConstantParametersOverAllRao(RaoParameters raoParameters, Crac crac) {
             this.objectiveFunction = raoParameters.getObjectiveFunctionParameters().getType();
-            this.objectiveFunctionUnit = raoParameters.getObjectiveFunctionParameters().getUnit();
+            this.flowUnit = RaoUtil.getFlowUnit(raoParameters);
             this.networkActionParameters = NetworkActionParameters.buildFromRaoParameters(raoParameters, crac);
             this.raLimitationParameters = new HashMap<>(crac.getRaUsageLimitsPerInstant());
             this.rangeActionParameters = raoParameters.getRangeActionsOptimizationParameters();
@@ -344,8 +345,8 @@ public class SearchTreeParameters {
             return this;
         }
 
-        public SearchTreeParametersBuilder with0bjectiveFunctionUnit(Unit objectiveFunctionUnit) {
-            this.objectiveFunctionUnit = objectiveFunctionUnit;
+        public SearchTreeParametersBuilder withFlowUnit(Unit flowUnit) {
+            this.flowUnit = flowUnit;
             return this;
         }
 
@@ -417,7 +418,7 @@ public class SearchTreeParameters {
         public SearchTreeParameters build() {
             return new SearchTreeParameters(
                 objectiveFunction,
-                objectiveFunctionUnit,
+                flowUnit,
                 treeParameters,
                 networkActionParameters,
                 raLimitationParameters,

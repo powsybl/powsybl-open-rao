@@ -8,7 +8,6 @@
 package com.powsybl.openrao.searchtreerao.fastrao;
 
 import com.powsybl.iidm.network.Network;
-import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.InstantKind;
@@ -134,7 +133,6 @@ class FastRaoTest {
     void testErrorInitData() throws ExecutionException, InterruptedException {
         RaoInput raoInput = Mockito.mock(RaoInput.class);
         RaoParameters raoParameters = new RaoParameters();
-        raoParameters.getObjectiveFunctionParameters().setUnit(Unit.AMPERE);
         raoParameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters());
         raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters().setDc(true);
         // Run RAO

@@ -2,12 +2,12 @@
 
 ## Used input data
 
-| Name               | Symbol                   | Details                                                                                                                                                                                                                                           |
-|--------------------|--------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Name               | Symbol                   | Details                                                                                                                                                                                                                                     |
+|--------------------|--------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | MonitoredFlowCnecs | $c \in \mathcal{C} ^{m}$ | Set of FlowCnecs[^1] which are ['monitored'](../../../../input-data/crac/json.md#optimised-and-monitored-cnecs). MonitoredFlowCnecs is a subset of [FlowCnecs](../core-problem-filler.md#used-input-data): $\mathcal{C} ^{o} \subset \mathcal{C}$ |
-| Initial flow       | $f_{0} (c)$              | flow before RAO of MonitoredFlowCnec $c$, in objective function's unit                                                                                                                                                                            |
-| Upper threshold    | $f^{+}_{threshold} (c)$  | Upper threshold of FlowCnec $c$, in objective function's unit, defined in the CRAC                                                                                                                                                                |
-| Lower threshold    | $f^{-}_{threshold} (c)$  | Lower threshold of FlowCnec $c$, in objective function's unit, defined in the CRAC                                                                                                                                                                |
+| Initial flow       | $f_{0} (c)$              | flow before RAO of MonitoredFlowCnec $c$, in [flow unit](../../../../parameters/business-parameters.md#objective-function-parameters)                                                                                                       |
+| Upper threshold    | $f^{+}_{threshold} (c)$  | Upper threshold of FlowCnec $c$, in [flow unit](../../../../parameters/business-parameters.md#objective-function-parameters), defined in the CRAC                                                                                           |
+| Lower threshold    | $f^{-}_{threshold} (c)$  | Lower threshold of FlowCnec $c$, in [flow unit](../../../../parameters/business-parameters.md#objective-function-parameters), defined in the CRAC                                                                                           |
 
 [^1]: CNECs that belong to a state for which sensitivity computations failed are ignored in the MILP
 
@@ -21,19 +21,19 @@
 
 ## Defined optimization variables
 
-| Name        | Symbol      | Details                                                                                                                                                                      | Type       | Index                                                  | Unit                      | Lower bound | Upper bound |
-|-------------|-------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|--------------------------------------------------------|---------------------------|-------------|-------------|
-| MNEC excess | $S^{m} (c)$ | Slack variable for the MNEC constraint of FlowCnec c. <br> Defines the amount of MW by which a MNEC constraint has been violated. <br> This makes the MNEC constraints soft. | Real value | One variable for every element of (MonitoredFlowCnecs) | objective function's unit | 0           | $+\infty$   |
+| Name        | Symbol      | Details                                                                                                                                                                      | Type       | Index                                                  | Unit                                                                                      | Lower bound | Upper bound |
+|-------------|-------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|--------------------------------------------------------|-------------------------------------------------------------------------------------------|-------------|-------------|
+| MNEC excess | $S^{m} (c)$ | Slack variable for the MNEC constraint of FlowCnec c. <br> Defines the amount of MW by which a MNEC constraint has been violated. <br> This makes the MNEC constraints soft. | Real value | One variable for every element of (MonitoredFlowCnecs) | [flow unit](../../../../parameters/business-parameters.md#objective-function-parameters   | 0           | $+\infty$   |
 
 ## Used optimization variables
 
-| Name | Symbol | Defined in                                                                 |
-|------|--------|----------------------------------------------------------------------------|
-| Flow | $F(c)$ | [CoreProblemFiller](../core-problem-filler.md#defined-optimization-variables) |
+| Name | Symbol | Defined in                                                                      |
+|------|--------|---------------------------------------------------------------------------------|
+| Flow | $F(c)$ | [CoreProblemFiller](../core-problem-filler.md#defined-optimization-variables)   |
 
 ## Defined constraints
 
-> 💡 Mnec constraints are considered in the same unit as the objective function's unit in the MIP
+> 💡 Mnec constraints are considered in the same unit as the [flow unit](../../../../parameters/business-parameters.md#objective-function-parameters) in the MIP
 
 ### Keeping the MNEC margin positive or above its initial value
 

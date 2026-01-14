@@ -90,7 +90,7 @@ public class MaxMinMarginFiller implements ProblemFiller {
     /**
      * Build the minimum margin variable MM.
      * MM represents the smallest margin of all Cnecs.
-     * It is given in the objective function unit.
+     * It is given in the flow unit.
      */
     private void buildMinimumMarginVariable(LinearProblem linearProblem, Set<FlowCnec> validFlowCnecs) {
         if (!validFlowCnecs.isEmpty()) {
@@ -108,7 +108,7 @@ public class MaxMinMarginFiller implements ProblemFiller {
      * the margin of each Cnec. They consist in a linear equivalent of the definition
      * of the min margin : MM = min{c in CNEC} margin[c].
      * <p>
-     * For each Cnec c, the constraints are (the max margin is defined in the objective function unit) :
+     * For each Cnec c, the constraints are (the max margin is defined in the flow unit) :
      * <p>
      * MM <= fmax[c] - F[c]    (ABOVE_THRESHOLD)
      * MM <= F[c] - fmin[c]    (BELOW_THRESHOLD)

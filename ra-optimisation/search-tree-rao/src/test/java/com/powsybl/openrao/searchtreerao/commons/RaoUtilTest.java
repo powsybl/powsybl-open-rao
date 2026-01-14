@@ -55,6 +55,7 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.stream.Stream;
 
+import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -123,44 +124,6 @@ class RaoUtilTest {
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN);
         OpenRaoException exception = assertThrows(OpenRaoException.class, () -> RaoUtil.checkParameters(raoParameters, raoInput));
         assertEquals("Objective function MAX_MIN_RELATIVE_MARGIN requires a config with a non empty boundary set", exception.getMessage());
-    }
-
-    @Test
-    void testAmpereWithDc() {
-        raoParameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters());
-        OpenRaoSearchTreeParameters searchTreeParameters = raoParameters.getExtension(OpenRaoSearchTreeParameters.class);
-        searchTreeParameters.getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters().setDc(true);
-        raoParameters.getObjectiveFunctionParameters().setUnit(Unit.AMPERE);
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> RaoUtil.checkParameters(raoParameters, raoInput));
-        assertEquals("Objective function unit AMPERE cannot be calculated with a DC default sensitivity engine", exception.getMessage());
-    }
-
-    @Test
-    void testMegawattWithAc() {
-        raoParameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters());
-        OpenRaoSearchTreeParameters searchTreeParameters = raoParameters.getExtension(OpenRaoSearchTreeParameters.class);
-        searchTreeParameters.getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters().setDc(false);
-        raoParameters.getObjectiveFunctionParameters().setUnit(Unit.MEGAWATT);
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> RaoUtil.checkParameters(raoParameters, raoInput));
-        assertEquals("Objective function unit MEGAWATT cannot be calculated with a AC default sensitivity engine", exception.getMessage());
-    }
-
-    @Test
-    void testMegawattWithDc() {
-        raoParameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters());
-        OpenRaoSearchTreeParameters searchTreeParameters = raoParameters.getExtension(OpenRaoSearchTreeParameters.class);
-        searchTreeParameters.getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters().setDc(true);
-        raoParameters.getObjectiveFunctionParameters().setUnit(Unit.MEGAWATT);
-        assertDoesNotThrow(() -> RaoUtil.checkParameters(raoParameters, raoInput));
-    }
-
-    @Test
-    void testAmpereWithAc() {
-        raoParameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters());
-        OpenRaoSearchTreeParameters searchTreeParameters = raoParameters.getExtension(OpenRaoSearchTreeParameters.class);
-        searchTreeParameters.getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters().setDc(false);
-        raoParameters.getObjectiveFunctionParameters().setUnit(Unit.AMPERE);
-        assertDoesNotThrow(() -> RaoUtil.checkParameters(raoParameters, raoInput));
     }
 
     @Test
@@ -521,5 +484,19 @@ class RaoUtilTest {
         OpenRaoException exception = assertThrows(OpenRaoException.class, () -> RaoUtil.checkHvdcAcEmulationParameters(raoParameters, raoInput));
         assertEquals("hvdcAcEmulation is not enabled but some HVDC lines are in AC emulation mode which will not be coherent.", exception.getMessage());
 
+    }
+
+    @Test
+    void testGetFlowUnit() {
+        RaoParameters raoParameters = new RaoParameters();
+        raoParameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters());
+
+        // Cas DC -> MEGAWATT
+        getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters().setDc(true);
+        assertEquals(Unit.MEGAWATT, RaoUtil.getFlowUnit(raoParameters));
+
+        // Cas AC -> AMPERE
+        getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters().setDc(false);
+        assertEquals(Unit.AMPERE, RaoUtil.getFlowUnit(raoParameters));
     }
 }

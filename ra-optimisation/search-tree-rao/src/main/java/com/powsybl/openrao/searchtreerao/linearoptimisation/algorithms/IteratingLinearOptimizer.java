@@ -252,7 +252,7 @@ public final class IteratingLinearOptimizer {
                 input.optimizationPerimeter(),
                 input.prePerimeterSetpoints(),
                 previousResult,
-                parameters.getObjectiveFunctionUnit()
+                parameters.getFlowUnit()
             );
         }
         RangeActionActivationResultImpl roundedResult = new RangeActionActivationResultImpl(input.prePerimeterSetpoints());
