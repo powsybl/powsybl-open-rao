@@ -7,7 +7,6 @@
 
 package com.powsybl.openrao.raoapi.parameters;
 
-import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.*;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.PstModel;
@@ -46,7 +45,6 @@ class RaoParametersYamlConfigTest extends AbstractSerDeTest {
 
         ObjectiveFunctionParameters objectiveFunctionParameters = parameters.getObjectiveFunctionParameters();
         assertEquals(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN, objectiveFunctionParameters.getType());
-        assertEquals(Unit.AMPERE, objectiveFunctionParameters.getUnit());
         assertEquals(3, searchTreeParameters.getObjectiveFunctionParameters().getCurativeMinObjImprovement(), DOUBLE_TOLERANCE);
         assertFalse(objectiveFunctionParameters.getEnforceCurativeSecurity());
 
@@ -129,7 +127,6 @@ class RaoParametersYamlConfigTest extends AbstractSerDeTest {
 
         ObjectiveFunctionParameters objectiveFunctionParameters = parameters.getObjectiveFunctionParameters();
         assertEquals(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN, objectiveFunctionParameters.getType());
-        assertEquals(Unit.AMPERE, objectiveFunctionParameters.getUnit());
         assertFalse(objectiveFunctionParameters.getEnforceCurativeSecurity());
 
         RangeActionsOptimizationParameters rangeActionsOptimizationParameters = parameters.getRangeActionsOptimizationParameters();
@@ -161,7 +158,6 @@ class RaoParametersYamlConfigTest extends AbstractSerDeTest {
 
         ObjectiveFunctionParameters objectiveFunctionParameters = parameters.getObjectiveFunctionParameters();
         assertEquals(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN, objectiveFunctionParameters.getType());
-        assertEquals(Unit.MEGAWATT, objectiveFunctionParameters.getUnit());
         assertEquals(3, searchTreeParameters.getObjectiveFunctionParameters().getCurativeMinObjImprovement(), DOUBLE_TOLERANCE);
         assertFalse(objectiveFunctionParameters.getEnforceCurativeSecurity());
 
