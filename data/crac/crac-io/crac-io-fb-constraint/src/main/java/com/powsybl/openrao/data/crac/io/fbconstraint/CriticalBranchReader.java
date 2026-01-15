@@ -252,6 +252,7 @@ class CriticalBranchReader {
 
     private void addTemporaryThresholds(FlowCnecAdder cnecAdder) {
         boolean temporaryThresholdFound = false;
+        TECHNICAL_LOGS.info("good version 2");
 
         //First try to get explicitly temporary thresholds
         if (!Objects.isNull(criticalBranch.getTemporaryImaxFactor()) && criticalBranch.getTemporaryImaxFactor().doubleValue() > 1e-6) {
