@@ -63,7 +63,7 @@ public class CastorSecondPreventive {
     private final ToolProvider toolProvider;
     private final java.time.Instant targetEndInstant;
 
-    static final String SECOND_PREVENTIVE_SCENARIO_BEFORE_OPT = "SecondPreventiveScenario";
+    private static final String SECOND_PREVENTIVE_SCENARIO_BEFORE_OPT = "SecondPreventiveScenario";
     private static final int NUMBER_LOGGED_ELEMENTS_DURING_RAO = 2;
     private static final int NUMBER_LOGGED_ELEMENTS_END_RAO = 10;
 

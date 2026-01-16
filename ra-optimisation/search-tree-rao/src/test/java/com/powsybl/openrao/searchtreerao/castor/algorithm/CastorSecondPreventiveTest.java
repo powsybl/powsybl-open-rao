@@ -41,7 +41,6 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static com.powsybl.openrao.searchtreerao.castor.algorithm.CastorSecondPreventive.SECOND_PREVENTIVE_SCENARIO_BEFORE_OPT;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -476,7 +475,7 @@ class CastorSecondPreventiveTest {
 
         // Setup context and data
         setUpCracWithRealRAs(false);
-        network.getVariantManager().cloneVariant(network.getVariantManager().getWorkingVariantId(), SECOND_PREVENTIVE_SCENARIO_BEFORE_OPT);
+        network.getVariantManager().cloneVariant(network.getVariantManager().getWorkingVariantId(), "SecondPreventiveScenario");
 
         RaoParameters raoParameters = new RaoParameters();
         OpenRaoSearchTreeParameters stExtension = new OpenRaoSearchTreeParameters();
