@@ -74,6 +74,7 @@ public final class MarmotUtils {
             Crac crac = inputs.getData(timestamp).orElseThrow().getCrac();
             RaoResult raoResult = raoResults.getData(timestamp).orElseThrow();
             AppliedRemedialActions appliedRemedialActions = new AppliedRemedialActions();
+            // TODO: maybe check it is indeed curative
             for (State state : crac.getStates(crac.getLastInstant())) {
                 try {
                     appliedRemedialActions.addAppliedNetworkActions(state, raoResult.getActivatedNetworkActionsDuringState(state));
