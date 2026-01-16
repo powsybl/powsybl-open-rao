@@ -32,15 +32,25 @@ import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.monitoring.results.CnecResult;
 import com.powsybl.openrao.monitoring.results.MonitoringResult;
+import com.powsybl.openrao.raoapi.Rao;
+import com.powsybl.openrao.raoapi.RaoInput;
+import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
+import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
+import com.powsybl.openrao.searchtreerao.castor.algorithm.Castor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -611,5 +621,31 @@ class VoltageMonitoringTest {
         assertEquals(5, referenceValue.get());
         assertTrue(latch.await(5, TimeUnit.SECONDS));
         assertFalse(raoResultWithVoltageMonitoring.isSecure());
+    }
+
+    @Test
+    void testVoltageMonitoringOfCnecsOnDifferentInstants() throws IOException {
+        network = Network.read("voltage_monitoring.xiidm", getClass().getResourceAsStream("/voltage_monitoring.xiidm"));
+        crac = Crac.read("voltage_monitoring_with_preventive_crac.json", getClass().getResourceAsStream("/voltage_monitoring_with_preventive_crac.json"), network);
+        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/monitoring_parameters.json"));
+
+        raoResult = new Castor().run(RaoInput.build(network, crac).build(), raoParameters).join();
+        assertTrue(raoResult.isSecure(PhysicalParameter.FLOW)); // FIXME: crashes if no physical parameter provided
+
+        MonitoringInput monitoringInput = MonitoringInput.buildWithVoltage(network, crac, raoResult).build();
+        RaoResult raoResultWithVoltageMonitoring = Monitoring.runVoltageAndUpdateRaoResult("OpenLoadFlow", raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters(), 1, monitoringInput);
+
+        assertTrue(raoResultWithVoltageMonitoring.isSecure(PhysicalParameter.FLOW, PhysicalParameter.VOLTAGE)); // FIXME: crashes if no physical parameter provided
+
+        // round trip on RAO Result
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        Properties properties = new Properties();
+        properties.setProperty("rao-result.export.json.flows-in-megawatts", "true");
+        raoResultWithVoltageMonitoring.write("JSON", crac, properties, outputStream);
+
+        ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
+        RaoResult importedRaoResult = RaoResult.read(inputStream, crac);
+
+        assertTrue(importedRaoResult.isSecure()); // FIXME: crashes because preventive CNECs were not serialized
     }
 }
