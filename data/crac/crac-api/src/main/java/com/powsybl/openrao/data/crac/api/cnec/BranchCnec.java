@@ -98,6 +98,7 @@ public interface BranchCnec<T extends BranchCnec<T>> extends Cnec<T> {
 
     /**
      * Getter of the one or two {@link TwoSides}s on which the {@code Cnec} is defined.
+     * Always return an ordered set.
      */
     default Set<TwoSides> getMonitoredSides() {
         return getThresholds().stream()
