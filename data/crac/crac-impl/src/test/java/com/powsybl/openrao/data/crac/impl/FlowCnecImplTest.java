@@ -596,4 +596,14 @@ class FlowCnecImplTest {
         network.getGenerator("BBE2AA1 _generator").getTerminal().disconnect();
         assertFalse(cnec3.isConnected(network));
     }
+
+    @Test
+    void tesGetMonitoredSides() {
+        // Ensures getMonitoredSides() returns sides in natural enum order (ONE, TWO),
+        // regardless of the addition order of thresholds, due to internal TreeSet usage.
+        FlowCnec cnec = initPreventiveCnecAdder()
+            .newThreshold().withUnit(MEGAWATT).withMax(1000.).withSide(TwoSides.TWO).add()
+            .newThreshold().withUnit(MEGAWATT).withMax(1000.).withSide(TwoSides.ONE).add().add();
+        assertIterableEquals(java.util.List.of(ONE, TWO), cnec.getMonitoredSides());
+    }
 }
