@@ -1,0 +1,178 @@
+
+List of third-party dependencies grouped by their license type.
+
+
+    Apache License, Version 2.0
+
+        * Apache Commons CLI (commons-cli:commons-cli:1.9.0 - https://commons.apache.org/proper/commons-cli/)
+        * Apache Commons Codec (commons-codec:commons-codec:1.17.1 - https://commons.apache.org/proper/commons-codec/)
+        * Apache Commons Codec (commons-codec:commons-codec:1.17.2 - https://commons.apache.org/proper/commons-codec/)
+        * Apache Commons Collections (org.apache.commons:commons-collections4:4.1 - http://commons.apache.org/proper/commons-collections/)
+        * Apache Commons Compress (org.apache.commons:commons-compress:1.27.1 - https://commons.apache.org/proper/commons-compress/)
+        * Apache Commons CSV (org.apache.commons:commons-csv:1.13.0 - https://commons.apache.org/proper/commons-csv/)
+        * Apache Commons IO (commons-io:commons-io:2.18.0 - https://commons.apache.org/proper/commons-io/)
+        * Apache Commons Lang (org.apache.commons:commons-lang3:3.18.0 - https://commons.apache.org/proper/commons-lang/)
+        * Apache Commons Math (org.apache.commons:commons-math3:3.6.1 - http://commons.apache.org/proper/commons-math/)
+        * Apache Commons Text (org.apache.commons:commons-text:1.13.1 - https://commons.apache.org/proper/commons-text)
+        * Apache HttpClient (org.apache.httpcomponents:httpclient:4.5.14 - http://hc.apache.org/httpcomponents-client-ga)
+        * Apache HttpCore (org.apache.httpcomponents:httpcore:4.4.16 - http://hc.apache.org/httpcomponents-core-ga)
+        * Apache Log4j API (org.apache.logging.log4j:log4j-api:2.24.3 - https://logging.apache.org/log4j/2.x/log4j/log4j-api/)
+        * Apache POI (org.apache.poi:poi-ooxml-lite:5.4.1 - https://poi.apache.org/)
+        * Apache POI - API based on OPC and OOXML schemas (org.apache.poi:poi-ooxml:5.4.1 - https://poi.apache.org/)
+        * Apache POI - Common (org.apache.poi:poi:5.4.1 - https://poi.apache.org/)
+        * Apache ServiceMix :: Bundles :: gdata (org.apache.servicemix.bundles:org.apache.servicemix.bundles.gdata:1.47.1_1 - http://servicemix.apache.org/bundles-pom/org.apache.servicemix.bundles.gdata/)
+        * ASCII and UTF Themes (de.vandermeer:ascii-utf-themes:0.0.1 - https://github.com/vdmeer/ascii-utf-themes)
+        * ASCII Table (de.vandermeer:asciitable:0.3.2 - https://github.com/vdmeer/asciitable)
+        * Auto Common Libraries (com.google.auto:auto-common:1.2.1 - https://github.com/google/auto/tree/master/common)
+        * AutoService (com.google.auto.service:auto-service-annotations:1.1.1 - https://github.com/google/auto/tree/main/service)
+        * AutoService Processor (com.google.auto.service:auto-service:1.1.1 - https://github.com/google/auto/tree/main/service)
+        * Character Translation (de.vandermeer:char-translation:0.0.2 - https://github.com/vdmeer/char-translation)
+        * com.google.ortools:ortools-darwin-aarch64 (com.google.ortools:ortools-darwin-aarch64:9.11.4210 - https://github.com/google/or-tools)
+        * com.google.ortools:ortools-darwin-x86-64 (com.google.ortools:ortools-darwin-x86-64:9.11.4210 - https://github.com/google/or-tools)
+        * com.google.ortools:ortools-java (com.google.ortools:ortools-java:9.11.4210 - https://github.com/google/or-tools)
+        * com.google.ortools:ortools-linux-aarch64 (com.google.ortools:ortools-linux-aarch64:9.11.4210 - https://github.com/google/or-tools)
+        * com.google.ortools:ortools-linux-x86-64 (com.google.ortools:ortools-linux-x86-64:9.11.4210 - https://github.com/google/or-tools)
+        * com.google.ortools:ortools-win32-x86-64 (com.google.ortools:ortools-win32-x86-64:9.11.4210 - https://github.com/google/or-tools)
+        * EJML (org.ejml:ejml-core:0.44.0 - http://ejml.org/)
+        * error-prone annotations (com.google.errorprone:error_prone_annotations:2.26.1 - https://errorprone.info/error_prone_annotations)
+        * FindBugs-jsr305 (com.google.code.findbugs:jsr305:3.0.2 - http://findbugs.sourceforge.net/)
+        * graphviz-builder (org.anarres.graphviz:graphviz-builder:1.0.12 - https://github.com/shevek/graphviz4j)
+        * Guava: Google Core Libraries for Java (com.google.guava:guava:33.2.1-jre - https://github.com/google/guava)
+        * Guava InternalFutureFailureAccess and InternalFutures (com.google.guava:failureaccess:1.0.2 - https://github.com/google/guava/failureaccess)
+        * Guava ListenableFuture only (com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava - https://github.com/google/guava/listenablefuture)
+        * HASMAC JSON-LD 1.1 (no.hasmac:hasmac-json-ld:0.9.0 - https://github.com/HASMAC-AS/hasmac-json-ld)
+        * Internet Time Utility (com.ethlo.time:itu:1.10.2 - https://github.com/ethlo/itu)
+        * J2ObjC Annotations (com.google.j2objc:j2objc-annotations:3.0.0 - https://github.com/google/j2objc/)
+        * Jackson-annotations (com.fasterxml.jackson.core:jackson-annotations:2.17.1 - https://github.com/FasterXML/jackson)
+        * Jackson-core (com.fasterxml.jackson.core:jackson-core:2.17.1 - https://github.com/FasterXML/jackson-core)
+        * jackson-databind (com.fasterxml.jackson.core:jackson-databind:2.17.1 - https://github.com/FasterXML/jackson)
+        * Jackson-dataformat-YAML (com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.18.1 - https://github.com/FasterXML/jackson-dataformats-text)
+        * Java Fast Math (net.jafama:jafama:2.3.2 - http://sourceforge.net/projects/jafama/)
+        * Java UUID Generator (com.fasterxml.uuid:java-uuid-generator:4.3.0 - https://github.com/cowtowncoder/java-uuid-generator)
+        * JCL 1.2 implemented over SLF4J (org.slf4j:jcl-over-slf4j:1.7.36 - http://www.slf4j.org)
+        * JHeaps (org.jheaps:jheaps:0.14 - http://www.jheaps.org)
+        * MAT File Library / Core (us.hebi.matlab.mat:mfl-core:0.5.15 - https://github.com/HebiRobotics/MFL/mfl-core)
+        * MAT File Library / EJML (us.hebi.matlab.mat:mfl-ejml:0.5.15 - https://github.com/HebiRobotics/MFL/mfl-ejml)
+        * org.apiguardian:apiguardian-api (org.apiguardian:apiguardian-api:1.1.2 - https://github.com/apiguardian-team/apiguardian)
+        * org.opentest4j:opentest4j (org.opentest4j:opentest4j:1.3.0 - https://github.com/ota4j-team/opentest4j)
+        * SIROCCO ::  Text Table Formatter (org.ow2.sirocco:sirocco-text-table-formatter:1.0 - http://www.ow2.org/sirocco-text-table-formatter)
+        * SKB Interfaces (de.vandermeer:skb-interfaces:0.0.1 - http://www.vandermeer.de/projects/skb/java/core/interfaces)
+        * slf4j-toys (org.usefultoys:slf4j-toys:1.6.3 - https://github.com/useful-toys/slf4j-toys)
+        * SnakeYAML (org.yaml:snakeyaml:2.4 - https://bitbucket.org/snakeyaml/snakeyaml)
+        * SparseBitSet (com.zaxxer:SparseBitSet:1.3 - https://github.com/brettwooldridge/SparseBitSet)
+        * univocity-parsers (com.univocity:univocity-parsers:2.9.0 - http://github.com/univocity/univocity-parsers)
+        * XmlBeans (org.apache.xmlbeans:xmlbeans:5.3.0 - https://xmlbeans.apache.org/)
+
+    Apache License, Version 2.0, GNU Lesser General Public License v2.1
+
+        * Java Native Access (net.java.dev.jna:jna:5.14.0 - https://github.com/java-native-access/jna)
+        * Java Native Access Platform (net.java.dev.jna:jna-platform:5.14.0 - https://github.com/java-native-access/jna)
+
+    Apache License Version 2.0
+
+        * JsonSchemaValidator (com.networknt:json-schema-validator:1.5.3 - https://github.com/networknt/json-schema-validator)
+
+    BSD 0-clause License
+
+        * XZ for Java (org.tukaani:xz:1.10 - https://tukaani.org/xz/java.html)
+
+    BSD 2-clause License
+
+        * Native Library Loader (org.scijava:native-lib-loader:2.5.0 - https://github.com/scijava/native-lib-loader)
+        * StAX Utilities Project (net.java.dev.stax-utils:stax-utils:20070216 - http://java.net/projects/stax-utils/)
+        * zstd-jni (com.github.luben:zstd-jni:1.5.7-3 - https://github.com/luben/zstd-jni)
+
+    BSD 3-clause License
+
+        * ANTLR 3 Runtime (org.antlr:antlr-runtime:3.5.3 - http://www.antlr.org)
+        * ANTLR 4 Tool (org.antlr:antlr4:4.5.1 - http://www.antlr.org/antlr4)
+        * curvesapi (com.github.virtuald:curvesapi:1.08 - https://github.com/virtuald/curvesapi)
+        * JSONLD Java :: Core (com.github.jsonld-java:jsonld-java:0.13.4 - http://github.com/jsonld-java/jsonld-java/jsonld-java/)
+        * Protocol Buffers [Core] (com.google.protobuf:protobuf-java:4.26.1 - https://developers.google.com/protocol-buffers/protobuf-java/)
+        * StringTemplate 4 (org.antlr:ST4:4.3.4 - http://nexus.sonatype.org/oss-repository-hosting.html/ST4)
+        * ThreeTen-Extra (org.threeten:threeten-extra:1.8.0 - https://www.threeten.org/threeten-extra)
+
+    BSD-Style License
+
+        * JAXB Tools :: JAXB Plugins :: Runtime (org.jvnet.jaxb:jaxb-plugins-runtime:4.0.8 - https://github.com/highsource/jaxb-tools/jaxb-plugins-project/jaxb-plugins-runtime)
+
+    Creative Commons Attribution 2.5 Generic License
+
+        * "Java Concurrency in Practice" book annotations (net.jcip:jcip-annotations:1.0 - http://jcip.net/)
+
+    Eclipse Distribution License - v 1.0
+
+        * Angus Activation Registries (org.eclipse.angus:angus-activation:2.0.2 - https://github.com/eclipse-ee4j/angus-activation/angus-activation)
+        * istack common utility code runtime (com.sun.istack:istack-commons-runtime:4.1.2 - https://projects.eclipse.org/projects/ee4j/istack-commons/istack-commons-runtime)
+        * Jakarta Activation API (jakarta.activation:jakarta.activation-api:2.1.3 - https://github.com/jakartaee/jaf-api)
+        * Jakarta XML Binding API (jakarta.xml.bind:jakarta.xml.bind-api:4.0.2 - https://github.com/jakartaee/jaxb-api/jakarta.xml.bind-api)
+        * JAXB Core (org.glassfish.jaxb:jaxb-core:4.0.5 - https://eclipse-ee4j.github.io/jaxb-ri/)
+        * JAXB Runtime (org.glassfish.jaxb:jaxb-runtime:4.0.5 - https://eclipse-ee4j.github.io/jaxb-ri/)
+        * RDF4J: Collection Factory - API (org.eclipse.rdf4j:rdf4j-collection-factory-api:5.1.3 - https://rdf4j.org/rdf4j-core/rdf4j-collection-factory/rdf4j-collection-factory-api/)
+        * RDF4J: common annotation (org.eclipse.rdf4j:rdf4j-common-annotation:5.1.3 - https://rdf4j.org/rdf4j-core/rdf4j-common/rdf4j-common-annotation/)
+        * RDF4J: common exception (org.eclipse.rdf4j:rdf4j-common-exception:5.1.3 - https://rdf4j.org/rdf4j-core/rdf4j-common/rdf4j-common-exception/)
+        * RDF4J: common IO (org.eclipse.rdf4j:rdf4j-common-io:5.1.3 - https://rdf4j.org/rdf4j-core/rdf4j-common/rdf4j-common-io/)
+        * RDF4J: common iterators (org.eclipse.rdf4j:rdf4j-common-iterator:5.1.3 - https://rdf4j.org/rdf4j-core/rdf4j-common/rdf4j-common-iterator/)
+        * RDF4J: common order (org.eclipse.rdf4j:rdf4j-common-order:5.1.3 - https://rdf4j.org/rdf4j-core/rdf4j-common/rdf4j-common-order/)
+        * RDF4J: common text (org.eclipse.rdf4j:rdf4j-common-text:5.1.3 - https://rdf4j.org/rdf4j-core/rdf4j-common/rdf4j-common-text/)
+        * RDF4J: common transaction (org.eclipse.rdf4j:rdf4j-common-transaction:5.1.3 - https://rdf4j.org/rdf4j-core/rdf4j-common/rdf4j-common-transaction/)
+        * RDF4J: common XML (org.eclipse.rdf4j:rdf4j-common-xml:5.1.3 - https://rdf4j.org/rdf4j-core/rdf4j-common/rdf4j-common-xml/)
+        * RDF4J: HTTP client (org.eclipse.rdf4j:rdf4j-http-client:5.1.3 - https://rdf4j.org/rdf4j-core/rdf4j-http/rdf4j-http-client/)
+        * RDF4J: HTTP protocol (org.eclipse.rdf4j:rdf4j-http-protocol:5.1.3 - https://rdf4j.org/rdf4j-core/rdf4j-http/rdf4j-http-protocol/)
+        * RDF4J: MemoryStore (org.eclipse.rdf4j:rdf4j-sail-memory:5.1.3 - https://rdf4j.org/rdf4j-core/rdf4j-sail/rdf4j-sail-memory/)
+        * RDF4J: Model (org.eclipse.rdf4j:rdf4j-model:5.1.3 - https://rdf4j.org/rdf4j-core/rdf4j-model/)
+        * RDF4J: Model API (org.eclipse.rdf4j:rdf4j-model-api:5.1.3 - https://rdf4j.org/rdf4j-core/rdf4j-model-api/)
+        * RDF4J: Query (org.eclipse.rdf4j:rdf4j-query:5.1.3 - https://rdf4j.org/rdf4j-core/rdf4j-query/)
+        * RDF4J: Query algebra - evaluation (org.eclipse.rdf4j:rdf4j-queryalgebra-evaluation:5.1.3 - https://rdf4j.org/rdf4j-core/rdf4j-queryalgebra/rdf4j-queryalgebra-evaluation/)
+        * RDF4J: Query algebra - model (org.eclipse.rdf4j:rdf4j-queryalgebra-model:5.1.3 - https://rdf4j.org/rdf4j-core/rdf4j-queryalgebra/rdf4j-queryalgebra-model/)
+        * RDF4J: Query parser - API (org.eclipse.rdf4j:rdf4j-queryparser-api:5.1.3 - https://rdf4j.org/rdf4j-core/rdf4j-queryparser/rdf4j-queryparser-api/)
+        * RDF4J: Query parser - SPARQL (org.eclipse.rdf4j:rdf4j-queryparser-sparql:5.1.3 - https://rdf4j.org/rdf4j-core/rdf4j-queryparser/rdf4j-queryparser-sparql/)
+        * RDF4J: Query result IO - API (org.eclipse.rdf4j:rdf4j-queryresultio-api:5.1.3 - https://rdf4j.org/rdf4j-core/rdf4j-queryresultio/rdf4j-queryresultio-api/)
+        * RDF4J: Query result IO - binary (org.eclipse.rdf4j:rdf4j-queryresultio-binary:5.1.3 - https://rdf4j.org/rdf4j-core/rdf4j-queryresultio/rdf4j-queryresultio-binary/)
+        * RDF4J: Query result IO - SPARQL/XML (org.eclipse.rdf4j:rdf4j-queryresultio-sparqlxml:5.1.3 - https://rdf4j.org/rdf4j-core/rdf4j-queryresultio/rdf4j-queryresultio-sparqlxml/)
+        * RDF4J: RDF Vocabularies (org.eclipse.rdf4j:rdf4j-model-vocabulary:5.1.3 - https://rdf4j.org/rdf4j-core/rdf4j-model-vocabulary/)
+        * RDF4J: Repository - API (org.eclipse.rdf4j:rdf4j-repository-api:5.1.3 - https://rdf4j.org/rdf4j-core/rdf4j-repository/rdf4j-repository-api/)
+        * RDF4J: Rio - API (org.eclipse.rdf4j:rdf4j-rio-api:5.1.3 - https://rdf4j.org/rdf4j-core/rdf4j-rio/rdf4j-rio-api/)
+        * RDF4J: Rio - Datatypes (org.eclipse.rdf4j:rdf4j-rio-datatypes:5.1.3 - https://rdf4j.org/rdf4j-core/rdf4j-rio/rdf4j-rio-datatypes/)
+        * RDF4J: Rio - Languages (org.eclipse.rdf4j:rdf4j-rio-languages:5.1.3 - https://rdf4j.org/rdf4j-core/rdf4j-rio/rdf4j-rio-languages/)
+        * RDF4J: Rio - N-Triples (org.eclipse.rdf4j:rdf4j-rio-ntriples:5.1.3 - https://rdf4j.org/rdf4j-core/rdf4j-rio/rdf4j-rio-ntriples/)
+        * RDF4J: Rio - RDF/XML (org.eclipse.rdf4j:rdf4j-rio-rdfxml:5.1.3 - https://rdf4j.org/rdf4j-core/rdf4j-rio/rdf4j-rio-rdfxml/)
+        * RDF4J: Rio - TriG (org.eclipse.rdf4j:rdf4j-rio-trig:5.1.3 - https://rdf4j.org/rdf4j-core/rdf4j-rio/rdf4j-rio-trig/)
+        * RDF4J: Rio - Turtle (org.eclipse.rdf4j:rdf4j-rio-turtle:5.1.3 - https://rdf4j.org/rdf4j-core/rdf4j-rio/rdf4j-rio-turtle/)
+        * RDF4J: Sail API (org.eclipse.rdf4j:rdf4j-sail-api:5.1.3 - https://rdf4j.org/rdf4j-core/rdf4j-sail/rdf4j-sail-api/)
+        * RDF4J: Sail base implementations (org.eclipse.rdf4j:rdf4j-sail-base:5.1.3 - https://rdf4j.org/rdf4j-core/rdf4j-sail/rdf4j-sail-base/)
+        * RDF4J: SailRepository (org.eclipse.rdf4j:rdf4j-repository-sail:5.1.3 - https://rdf4j.org/rdf4j-core/rdf4j-repository/rdf4j-repository-sail/)
+        * RDF4J: SPARQL Repository (org.eclipse.rdf4j:rdf4j-repository-sparql:5.1.3 - https://rdf4j.org/rdf4j-core/rdf4j-repository/rdf4j-repository-sparql/)
+        * TXW2 Runtime (org.glassfish.jaxb:txw2:4.0.5 - https://eclipse-ee4j.github.io/jaxb-ri/)
+
+    Eclipse Public License - v 2.0
+
+        * JUnit Jupiter (Aggregator) (org.junit.jupiter:junit-jupiter:5.11.3 - https://junit.org/junit5/)
+        * JUnit Jupiter API (org.junit.jupiter:junit-jupiter-api:5.11.3 - https://junit.org/junit5/)
+        * JUnit Jupiter Engine (org.junit.jupiter:junit-jupiter-engine:5.11.3 - https://junit.org/junit5/)
+        * JUnit Jupiter Params (org.junit.jupiter:junit-jupiter-params:5.11.3 - https://junit.org/junit5/)
+        * JUnit Platform Commons (org.junit.platform:junit-platform-commons:1.11.3 - https://junit.org/junit5/)
+        * JUnit Platform Engine API (org.junit.platform:junit-platform-engine:1.11.3 - https://junit.org/junit5/)
+
+    Eclipse Public License - v 2.0, GNU Lesser General Public License v2.1
+
+        * JGraphT - Core (org.jgrapht:jgrapht-core:1.5.2 - http://www.jgrapht.org/jgrapht-core)
+
+    GNU Lesser General Public License v2.1
+
+        * FindBugs-Annotations (com.google.code.findbugs:annotations:3.0.1 - http://findbugs.sourceforge.net/)
+        * GNU Trove (net.sf.trove4j:trove4j:3.0.3 - http://trove4j.sf.net)
+
+    Go License
+
+        * RE2/J (com.google.re2j:re2j:1.8 - http://github.com/google/re2j)
+
+    MIT License
+
+        * apfloat (org.apfloat:apfloat:1.10.1 - http://www.apfloat.org)
+        * Checker Qual (org.checkerframework:checker-qual:3.42.0 - https://checkerframework.org/)
+        * SLF4J API Module (org.slf4j:slf4j-api:2.0.13 - http://www.slf4j.org)
+
+    Public Domain
+
+        * JAMA (gov.nist.math:jama:1.0.3 - http://math.nist.gov/javanumerics/jama/)
