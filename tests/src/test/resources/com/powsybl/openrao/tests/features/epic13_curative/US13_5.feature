@@ -86,22 +86,22 @@ Feature: US 13.5: dynamic of range actions available in several instants
   Scenario: US 13.5.5: Preventive and curative optimization with absolute limit on curative PST
     Given network file is "epic13/TestCase12NodesForCurative.uct"
     Given crac file is "epic13/12nodes_onePreventiveAndCurativePst_relativeLimit.xml"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_ac.json"
+    Given configuration file is "common/RaoParameters_maxMargin_ampere_ac.json"
     When I launch rao at "2019-01-08 00:30"
-    Then the worst margin is 1432 MW
-    And the margin on cnec "CnecCurativeDir - curative" after CRA should be 1432 MW
+    Then the worst margin is 2192 A
+    And the margin on cnec "CnecCurativeDir - curative" after CRA should be 2192 A
     And the tap of PstRangeAction "SelectTapPSTPrev" should be 12 in preventive
     And the tap of PstRangeAction "SelectTapPSTCur" should be 14 after "Contingency" at "curative"
-    And the value of the objective function after CRA should be -1432
+    And the value of the objective function after CRA should be -2192
 
   @fast @rao @mock @ac @contingency-scenarios
   Scenario: US 13.5.6: Preventive and curative optimization with relative limit on curative PST
     Given network file is "epic13/TestCase12NodesForCurative.uct"
     Given crac file is "epic13/12nodes_onePreventiveAndCurativePst_absoluteLimit.xml"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_ac.json"
+    Given configuration file is "common/RaoParameters_maxMargin_ampere_ac.json"
     When I launch rao at "2019-01-08 00:30"
-    Then the worst margin is 1432 MW
-    And the margin on cnec "CnecCurativeDir - curative" after CRA should be 1432 MW
+    Then the worst margin is 2192 A
+    And the margin on cnec "CnecCurativeDir - curative" after CRA should be 2191 A
     And the tap of PstRangeAction "SelectTapPSTPrev" should be 12 in preventive
     And the tap of PstRangeAction "SelectTapPSTCur" should be 14 after "Contingency" at "curative"
 
@@ -109,19 +109,19 @@ Feature: US 13.5: dynamic of range actions available in several instants
   Scenario: US 13.5.7: Preventive and curative optimization with wrong absolute limit on curative PST
     Given network file is "epic13/TestCase12NodesForCurative.uct"
     Given crac file is "epic13/12nodes_onePreventiveAndCurativePst_absoluteLimitError.xml"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_ac.json"
+    Given configuration file is "common/RaoParameters_maxMargin_ampere_ac.json"
     When I launch rao at "2019-01-08 00:30"
-    Then the worst margin is 1422 MW
-    And the margin on cnec "CnecCurativeDir - curative" after CRA should be 1422 MW
+    Then the worst margin is 2177 A
+    And the margin on cnec "CnecCurativeDir - curative" after CRA should be 2177 A
     And the tap of PstRangeAction "SelectTapPSTPrev" should be 12 in preventive
     And the tap of PstRangeAction "SelectTapPSTCur" should be 12 after "Contingency" at "curative"
-    And the value of the objective function after CRA should be -1422
+    And the value of the objective function after CRA should be -2177
 
   @fast @crac @mock
   Scenario: US 13.5.8: PST filtering
     Given network file is "epic13/TestCase12NodesForCurative.uct"
     Given crac file is "epic13/12nodes_oneCorrectPreventivePst.xml"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_ac.json"
+    Given configuration file is "common/RaoParameters_maxMargin_ampere_ac.json"
     When I import crac at "2019-01-08 12:00"
     Then it should have 2 range actions
     And range action "SelectTapPSTPrev" should have 1 ranges
@@ -131,12 +131,12 @@ Feature: US 13.5: dynamic of range actions available in several instants
   Scenario: US 13.5.9: Preventive optimization after PST filtering
     Given network file is "epic13/TestCase12NodesForCurative.uct"
     Given crac file is "epic13/12nodes_oneCorrectPreventivePst.xml"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_ac.json"
+    Given configuration file is "common/RaoParameters_maxMargin_ampere_ac.json"
     When I launch rao at "2019-01-08 00:30"
-    Then the worst margin is 1637 MW
-    And the margin on cnec "CnecPreventiveDir - preventive" after PRA should be 1654 MW
+    Then the worst margin is 2487 A
+    And the margin on cnec "CnecPreventiveDir - preventive" after PRA should be 2487 A
     And the tap of PstRangeAction "SelectTapPSTPrev" should be 12 in preventive
-    And the value of the objective function after CRA should be -1637
+    And the value of the objective function after CRA should be -2487
 
   @fast @rao @mock @ac @contingency-scenarios
   Scenario: US 13.5.10: CBCORA, CRA and PRA on same PSTs (as done in CORE CC data)
