@@ -254,7 +254,7 @@ Feature: US 19.7: handle CNECs belonging to TSOs that don't share CRAs
     And the margin on cnec "fr1_fr4_CO1 - curative" after CRA should be 499 MW
     And the margin on cnec "fr3_fr5_CO1 - OPP - outage" after CRA should be 617 MW
 
-  @fast @rao @mock @dc @contingency-scenarios
+  @fast @rao @mock @dc @contingency-scenarios @search-tree-rao
   Scenario: 19.7.7.MW: Only PSTs - All CNECs belong to one operator sharing a CRA - MW
     Given network file is "epic19/TestCase16Nodes_with_different_imax.uct" for CORE CC
     Given crac file is "epic19/CBCORA_ep19us7case7.xml"
@@ -268,7 +268,7 @@ Feature: US 19.7: handle CNECs belonging to TSOs that don't share CRAs
     And the margin on cnec "fr1_fr4_CO1 - curative" after CRA should be 420 MW
     And the margin on cnec "fr3_fr5_CO1 - OPP - curative" after CRA should be 430 MW
 
-  @fast @rao @mock @dc @contingency-scenarios
+  @fast @rao @mock @dc @contingency-scenarios @search-tree-rao
   Scenario: 19.7.8.MW: Only PSTs - Most limiting CNEC belongs to an operator not sharing CRAs - MW
     Given network file is "epic19/TestCase16Nodes_with_different_imax.uct" for CORE CC
     Given crac file is "epic19/CBCORA_ep19us7case8.xml"
@@ -283,7 +283,7 @@ Feature: US 19.7: handle CNECs belonging to TSOs that don't share CRAs
     And the margin on cnec "fr3_fr5_CO1 - OPP - curative" after CRA should be 572 MW
     And the margin on cnec "fr1_fr4_CO1 - curative" after CRA should be 91 MW
 
-  @fast @rao @mock @dc @contingency-scenarios
+  @fast @rao @mock @dc @contingency-scenarios @search-tree-rao
   Scenario: 19.7.9.MW: Only PSTs - Second most limiting CNEC belongs to an operator not sharing CRAs - MW
     Given network file is "epic19/TestCase16Nodes_with_different_imax.uct" for CORE CC
     Given crac file is "epic19/CBCORA_ep19us7case9.xml"
@@ -415,7 +415,7 @@ Feature: US 19.7: handle CNECs belonging to TSOs that don't share CRAs
     And the relative margin on cnec "fr1_fr4_CO1 - curative" after CRA should be 466 MW
     And the relative margin on cnec "fr3_fr5_CO1 - OPP - curative" after CRA should be 543 MW
 
-  @fast @rao @mock @dc @contingency-scenarios @relative
+  @fast @rao @mock @dc @contingency-scenarios @relative @search-tree-rao
   Scenario: 19.7.7.MW.R: Only PSTs - All CNECs belong to one operator sharing a CRA - MW - relative
     Given network file is "epic19/TestCase16Nodes_with_different_imax.uct" for CORE CC
     Given crac file is "epic19/CBCORA_ep19us7case7.xml"
@@ -430,7 +430,7 @@ Feature: US 19.7: handle CNECs belonging to TSOs that don't share CRAs
     And the relative margin on cnec "fr3_fr5_CO1 - OPP - curative" after CRA should be 585 MW
     And the relative margin on cnec "fr1_fr4_CO1 - curative" after CRA should be 578 MW
 
-  @fast @rao @mock @dc @contingency-scenarios @relative
+  @fast @rao @mock @dc @contingency-scenarios @relative @search-tree-rao
   Scenario: 19.7.8.MW.R: Only PSTs - Most limiting CNEC belongs to an operator not sharing CRAs - MW - relative
     Given network file is "epic19/TestCase16Nodes_with_different_imax.uct" for CORE CC
     Given crac file is "epic19/CBCORA_ep19us7case8.xml"
@@ -446,7 +446,7 @@ Feature: US 19.7: handle CNECs belonging to TSOs that don't share CRAs
     And the relative margin on cnec "fr3_fr5_CO1 - OPP - curative" after CRA should be 760 MW
     And the relative margin on cnec "fr1_fr4_CO1 - curative" after CRA should be 115 MW
 
-  @fast @rao @mock @dc @contingency-scenarios @relative
+  @fast @rao @mock @dc @contingency-scenarios @relative @search-tree-rao
   Scenario: 19.7.9.MW.R: Only PSTs - Second most limiting CNEC belongs to an operator not sharing CRAs - MW - relative
     Given network file is "epic19/TestCase16Nodes_with_different_imax.uct" for CORE CC
     Given crac file is "epic19/CBCORA_ep19us7case9.xml"
