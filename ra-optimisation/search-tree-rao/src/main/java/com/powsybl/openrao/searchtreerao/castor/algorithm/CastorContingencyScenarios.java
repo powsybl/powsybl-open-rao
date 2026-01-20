@@ -205,18 +205,15 @@ public class CastorContingencyScenarios {
             .filter(s -> s.getInstant().comesAfter(state.getInstant()))
             .forEach(statesToConsider::add);
         PostPerimeterSensitivityAnalysis postPerimeterSensitivityAnalysis = new PostPerimeterSensitivityAnalysis(crac, statesToConsider, raoParameters, toolProvider);
-        try {
-            return postPerimeterSensitivityAnalysis.runBasedOnInitialPreviousAndOptimizationResults(
-                networkClone,
-                initialSensitivityOutput,
-                CompletableFuture.completedFuture(prePerimeterSensitivityOutput),
-                stateTree.getOperatorsNotSharingCras(),
-                optimizationResult,
-                new AppliedRemedialActions()).get();
-        } catch (InterruptedException | ExecutionException e) {
-            Thread.currentThread().interrupt();
-            throw new OpenRaoException(String.format("Error while running sensi after state %s", state.getId()), e);
-        }
+
+        return postPerimeterSensitivityAnalysis.runBasedOnInitialPreviousAndOptimizationResults(
+            networkClone,
+            initialSensitivityOutput,
+            prePerimeterSensitivityOutput,
+            stateTree.getOperatorsNotSharingCras(),
+            optimizationResult,
+            new AppliedRemedialActions());
+
     }
 
     private PrePerimeterSensitivityAnalysis getPreCurativePerimeterSensitivityAnalysis(Perimeter curativePerimeter) {
