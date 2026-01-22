@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
  */
 public class AlreadyAppliedNetworkActionsFilter implements NetworkActionCombinationFilter {
 
+    @Override
     public Set<NetworkActionCombination> filter(Set<NetworkActionCombination> naCombinations, OptimizationResult optimizationResult) {
         return naCombinations.stream()
             .filter(naCombination -> naCombination.getNetworkActionSet().stream().noneMatch(na -> optimizationResult.getActivatedNetworkActions().contains(na)))
