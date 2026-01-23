@@ -43,6 +43,7 @@ import java.util.stream.Collectors;
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_LOGS;
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
 import static com.powsybl.openrao.raoapi.parameters.extensions.MultithreadingParameters.getAvailableCPUs;
+import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.getFlowUnit;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -59,7 +60,7 @@ public final class CastorPstRegulation {
             return Set.of();
         }
 
-        Set<PstRegulationInput> statesToRegulate = getStatesToRegulate(crac, postContingencyResults, raoParameters.getObjectiveFunctionParameters().getUnit(), rangeActionsToRegulate, SearchTreeRaoPstRegulationParameters.getPstsToRegulate(raoParameters), network);
+        Set<PstRegulationInput> statesToRegulate = getStatesToRegulate(crac, postContingencyResults, getFlowUnit(raoParameters), rangeActionsToRegulate, SearchTreeRaoPstRegulationParameters.getPstsToRegulate(raoParameters), network);
         if (statesToRegulate.isEmpty()) {
             return Set.of();
         }

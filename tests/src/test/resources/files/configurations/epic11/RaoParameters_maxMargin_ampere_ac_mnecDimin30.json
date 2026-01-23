@@ -1,8 +1,7 @@
 {
-  "version" : "3.2.1",
+  "version" : "3.3",
   "objective-function" : {
     "type" : "MAX_MIN_MARGIN",
-    "unit" : "MW",
     "enforce-curative-security" : false
   },
   "range-actions-optimization" : {
@@ -12,13 +11,13 @@
   },
   "topological-actions-optimization" : {
     "relative-minimum-impact-threshold" : 0.0,
-    "absolute-minimum-impact-threshold" : 190.0
+    "absolute-minimum-impact-threshold" : 1.0
   },
   "not-optimized-cnecs" : {
     "do-not-optimize-curative-cnecs-for-tsos-without-cras" : false
   },
   "mnec-parameters" : {
-    "acceptable-margin-decrease" : 50.0
+    "acceptable-margin-decrease" : 29.0
   },
   "extensions" : {
     "open-rao-search-tree-parameters" : {
@@ -78,7 +77,7 @@
         "available-cpus" : 1
       },
       "mnec-parameters" : {
-        "violation-cost" : 10.0,
+        "violation-cost" : 15.0,
         "constraint-adjustment-coefficient" : 0.0
       }
     }

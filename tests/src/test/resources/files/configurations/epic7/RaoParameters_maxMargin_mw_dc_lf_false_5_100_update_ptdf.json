@@ -1,8 +1,7 @@
 {
-  "version" : "3.2.1",
+  "version" : "3.3",
   "objective-function" : {
     "type" : "MAX_MIN_MARGIN",
-    "unit" : "MW",
     "enforce-curative-security" : false
   },
   "range-actions-optimization" : {
@@ -68,12 +67,11 @@
             "shuntCompensatorVoltageControlOn" : false,
             "readSlackBus" : true,
             "writeSlackBus" : true,
-            "dc" : false,
+            "dc" : true,
             "distributedSlack" : true,
             "balanceType" : "PROPORTIONAL_TO_GENERATION_P",
             "dcUseTransformerRatio" : true,
             "countriesToBalance" : [ ],
-            "componentMode" : "MAIN_CONNECTED",
             "hvdcAcEmulation" : true
           }
         }
@@ -87,8 +85,8 @@
       },
       "loop-flow-parameters" : {
         "ptdf-approximation" : "UPDATE_PTDF_WITH_TOPO_AND_PST",
-        "constraint-adjustment-coefficient" : 3.0,
-        "violation-cost" : 100.0
+        "constraint-adjustment-coefficient" : 0.5,
+        "violation-cost" : 1000.0
       }
     }
   }

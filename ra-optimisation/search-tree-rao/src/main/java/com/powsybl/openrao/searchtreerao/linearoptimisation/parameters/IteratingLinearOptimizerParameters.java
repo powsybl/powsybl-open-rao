@@ -23,7 +23,7 @@ import com.powsybl.openrao.searchtreerao.commons.parameters.*;
 public final class IteratingLinearOptimizerParameters {
 
     private final ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction;
-    private final Unit objectiveFunctionUnit;
+    private final Unit flowUnit;
 
     private final RangeActionsOptimizationParameters rangeActionParameters;
     private final SearchTreeRaoRangeActionsOptimizationParameters rangeActionParametersExtension;
@@ -41,7 +41,7 @@ public final class IteratingLinearOptimizerParameters {
     private final boolean raRangeShrinking;
 
     private IteratingLinearOptimizerParameters(ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction,
-                                               Unit objectiveFunctionUnit,
+                                               Unit flowUnit,
                                                RangeActionsOptimizationParameters rangeActionParameters,
                                                SearchTreeRaoRangeActionsOptimizationParameters rangeActionParametersExtension,
                                                MnecParameters mnecParameters,
@@ -56,7 +56,7 @@ public final class IteratingLinearOptimizerParameters {
                                                int maxNumberOfIterations,
                                                boolean raRangeShrinking) {
         this.objectiveFunction = objectiveFunction;
-        this.objectiveFunctionUnit = objectiveFunctionUnit;
+        this.flowUnit = flowUnit;
         this.rangeActionParameters = rangeActionParameters;
         this.rangeActionParametersExtension = rangeActionParametersExtension;
         this.mnecParameters = mnecParameters;
@@ -76,8 +76,8 @@ public final class IteratingLinearOptimizerParameters {
         return objectiveFunction;
     }
 
-    public Unit getObjectiveFunctionUnit() {
-        return objectiveFunctionUnit;
+    public Unit getFlowUnit() {
+        return flowUnit;
     }
 
     public boolean hasRelativeMargins() {
@@ -156,7 +156,7 @@ public final class IteratingLinearOptimizerParameters {
     public static class LinearOptimizerParametersBuilder {
 
         private ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction;
-        private Unit objectiveFunctionUnit;
+        private Unit flowUnit;
         private RangeActionsOptimizationParameters rangeActionParameters;
         private SearchTreeRaoRangeActionsOptimizationParameters rangeActionParametersExtension;
 
@@ -177,8 +177,8 @@ public final class IteratingLinearOptimizerParameters {
             return this;
         }
 
-        public LinearOptimizerParametersBuilder withObjectiveFunctionUnit(Unit objectiveFunctionUnit) {
-            this.objectiveFunctionUnit = objectiveFunctionUnit;
+        public LinearOptimizerParametersBuilder withFlowUnit(Unit flowUnit) {
+            this.flowUnit = flowUnit;
             return this;
         }
 
@@ -254,7 +254,7 @@ public final class IteratingLinearOptimizerParameters {
 
             return new IteratingLinearOptimizerParameters(
                 objectiveFunction,
-                objectiveFunctionUnit,
+                flowUnit,
                 rangeActionParameters,
                 rangeActionParametersExtension,
                 mnecParameters,
