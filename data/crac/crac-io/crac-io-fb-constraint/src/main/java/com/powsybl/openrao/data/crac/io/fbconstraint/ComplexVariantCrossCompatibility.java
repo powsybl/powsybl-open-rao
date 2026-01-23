@@ -7,7 +7,6 @@
 
 package com.powsybl.openrao.data.crac.io.fbconstraint;
 
-import com.powsybl.openrao.data.crac.api.networkaction.ActionType;
 import com.powsybl.openrao.data.crac.io.fbconstraint.xsd.ActionsSetType;
 
 import java.util.*;
@@ -55,7 +54,7 @@ public final class ComplexVariantCrossCompatibility {
 
     private static boolean actionsOverlap(ComplexVariantReader cvr1, ComplexVariantReader cvr2) {
 
-        if (cvr1.getType() == ActionReader.Type.PST && cvr2.getType() == ActionReader.Type.PST) {
+        if (cvr1.getType() == ActionType.PST && cvr2.getType() == ActionType.PST) {
 
             // PST actions overlap each others if they both act on a same pst
             Set<String> pst1 = cvr1.getActionReaders().stream()
@@ -68,12 +67,12 @@ public final class ComplexVariantCrossCompatibility {
 
             return !Collections.disjoint(pst1, pst2);
 
-        } else if (cvr1.getType() == ActionReader.Type.TOPO && cvr2.getType() == ActionReader.Type.TOPO) {
+        } else if (cvr1.getType() == ActionType.TOPO && cvr2.getType() == ActionType.TOPO) {
 
             // TOPO actions overlap each others if they both act on the same network elements, with the same actions
 
-            Map<String, ActionType> actions1 = new HashMap<>();
-            Map<String, ActionType> actions2 = new HashMap<>();
+            Map<String, com.powsybl.openrao.data.crac.api.networkaction.ActionType> actions1 = new HashMap<>();
+            Map<String, com.powsybl.openrao.data.crac.api.networkaction.ActionType> actions2 = new HashMap<>();
 
             cvr1.getActionReaders().forEach(ar -> actions1.put(ar.getNetworkElementId(), ar.getActionType()));
             cvr2.getActionReaders().forEach(ar -> actions2.put(ar.getNetworkElementId(), ar.getActionType()));
@@ -88,8 +87,8 @@ public final class ComplexVariantCrossCompatibility {
 
         // usageRules overlap each others if they are available on a same state
 
-        ActionsSetType ast1 = cvr1.getComplexVariant().getActionsSet().get(0);
-        ActionsSetType ast2 = cvr2.getComplexVariant().getActionsSet().get(0);
+        ActionsSetType ast1 = cvr1.getComplexVariant().getActionsSet().getFirst();
+        ActionsSetType ast2 = cvr2.getComplexVariant().getActionsSet().getFirst();
 
         if (ast1.isPreventive() && ast2.isPreventive()) {
             return true;
@@ -112,8 +111,8 @@ public final class ComplexVariantCrossCompatibility {
 
     private static String getGroupId(ComplexVariantReader cvr) {
         return cvr.getActionReaders().stream()
-                .filter(ar -> ar.getGroupId() != null)
                 .map(ActionReader::getGroupId)
+                .filter(Objects::nonNull)
                 .findAny().orElse("ZZ");
     }
 }
