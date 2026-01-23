@@ -77,6 +77,7 @@ public class RaoResultWithVoltageMonitoring extends RaoResultClone {
     }
 
     private Optional<CnecResult> getCnecResult(Instant optimizationInstant, VoltageCnec voltageCnec) {
+        // TODO: allow preventive instant for preventive cnecs
         if (optimizationInstant == null || !optimizationInstant.isCurative()) {
             throw new OpenRaoException("Unexpected optimization instant for voltage monitoring result (only curative instant is supported currently) : " + optimizationInstant);
         }
