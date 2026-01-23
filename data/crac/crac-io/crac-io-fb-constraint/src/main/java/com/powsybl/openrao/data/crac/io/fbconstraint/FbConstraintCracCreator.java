@@ -21,11 +21,16 @@ import com.powsybl.openrao.data.crac.io.fbconstraint.xsd.IndependantComplexVaria
 import com.powsybl.openrao.data.crac.io.commons.RaUsageLimitsAdder;
 import com.powsybl.openrao.data.crac.io.commons.ucte.UcteNetworkAnalyzer;
 import com.powsybl.openrao.data.crac.io.commons.ucte.UcteNetworkAnalyzerProperties;
+import com.powsybl.openrao.virtualhubs.HvdcConverter;
+import com.powsybl.openrao.virtualhubs.HvdcLine;
+import com.powsybl.openrao.virtualhubs.InternalHvdc;
 
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -48,8 +53,10 @@ class FbConstraintCracCreator {
     FbConstraintCreationContext createCrac(FlowBasedConstraintDocument fbConstraintDocument, Network network, CracCreationParameters cracCreatorParameters) {
         FbConstraintCracCreationParameters fbConstraintCracCreationParameters = cracCreatorParameters.getExtension(FbConstraintCracCreationParameters.class);
         OffsetDateTime offsetDateTime = null;
+        List<InternalHvdc> internalHvdcs = new ArrayList<>();
         if (fbConstraintCracCreationParameters != null) {
             offsetDateTime = fbConstraintCracCreationParameters.getTimestamp();
+            internalHvdcs = fbConstraintCracCreationParameters.getInternalHvdcs();
         }
         FbConstraintCreationContext creationContext = new FbConstraintCreationContext(offsetDateTime, network.getNameOrId());
         Crac crac = cracCreatorParameters.getCracFactory().create(fbConstraintDocument.getDocumentIdentification().getV(), fbConstraintDocument.getDocumentIdentification().getV(), offsetDateTime);
@@ -76,7 +83,7 @@ class FbConstraintCracCreator {
         readCriticalBranches(fbConstraintDocument, offsetDateTime, crac, creationContext, ucteNetworkAnalyzer, outageReaders, cracCreatorParameters.getDefaultMonitoredSides());
 
         // read Complex Variants information
-        readComplexVariants(fbConstraintDocument, offsetDateTime, crac, creationContext, ucteNetworkAnalyzer, outageReaders);
+        readComplexVariants(fbConstraintDocument, offsetDateTime, crac, creationContext, ucteNetworkAnalyzer, outageReaders, internalHvdcs);
 
         // logs
         creationContext.buildCreationReport();
@@ -128,15 +135,21 @@ class FbConstraintCracCreator {
             ));
     }
 
-    private void readComplexVariants(FlowBasedConstraintDocument fbConstraintDocument, OffsetDateTime offsetDateTime, Crac crac, FbConstraintCreationContext creationContext, UcteNetworkAnalyzer ucteNetworkAnalyzer, List<OutageReader> outageReaders) {
+    private void readComplexVariants(final FlowBasedConstraintDocument fbConstraintDocument,
+                                     final OffsetDateTime offsetDateTime,
+                                     final Crac crac,
+                                     final FbConstraintCreationContext creationContext,
+                                     final UcteNetworkAnalyzer ucteNetworkAnalyzer,
+                                     final List<OutageReader> outageReaders,
+                                     final List<InternalHvdc> internalHvdcs) {
         if (Objects.isNull(fbConstraintDocument.getComplexVariants())
             || Objects.isNull(fbConstraintDocument.getComplexVariants().getComplexVariant())
             || fbConstraintDocument.getComplexVariants().getComplexVariant().isEmpty()) {
             creationContext.getCreationReport().warn("the flow-based constraint document does not contain any complex variant");
         } else {
-            List<IndependantComplexVariant> remedialActionForTimeStamp = selectRemedialActionsForTimeStamp(fbConstraintDocument, offsetDateTime);
-            if (!isEmpty(remedialActionForTimeStamp)) {
-                createRemedialAction(crac, ucteNetworkAnalyzer, remedialActionForTimeStamp, outageReaders, creationContext);
+            final List<IndependantComplexVariant> remedialActionsForTimestamp = selectRemedialActionsForTimestamp(fbConstraintDocument, offsetDateTime);
+            if (!isEmpty(remedialActionsForTimestamp)) {
+                createRemedialActions(crac, ucteNetworkAnalyzer, remedialActionsForTimestamp, outageReaders, creationContext, internalHvdcs);
             } else {
                 creationContext.getCreationReport().warn("the flow-based constraint document does not contain any complex variant for the requested timestamp");
             }
@@ -144,15 +157,39 @@ class FbConstraintCracCreator {
         }
     }
 
-    private void createRemedialAction(Crac crac, UcteNetworkAnalyzer ucteNetworkAnalyzer, List<IndependantComplexVariant> independantComplexVariants, List<OutageReader> outageReaders, FbConstraintCreationContext creationContext) {
+    private void createRemedialActions(final Crac crac,
+                                       final UcteNetworkAnalyzer ucteNetworkAnalyzer,
+                                       final List<IndependantComplexVariant> independantComplexVariants,
+                                       final List<OutageReader> outageReaders,
+                                       final FbConstraintCreationContext creationContext,
+                                       final List<InternalHvdc> internalHvdcs) {
+        final Set<String> coIds = outageReaders.stream()
+            .filter(OutageReader::isOutageValid)
+            .map(oR -> oR.getOutage().getId())
+            .collect(Collectors.toSet());
 
-        Set<String> coIds = outageReaders.stream().filter(OutageReader::isOutageValid).map(oR -> oR.getOutage().getId()).collect(Collectors.toSet());
-
-        List<ComplexVariantReader> complexVariantReaders = independantComplexVariants.stream()
+        final List<ComplexVariantReader> complexVariantReaders = independantComplexVariants.stream()
             .map(icv -> new ComplexVariantReader(icv, ucteNetworkAnalyzer, coIds))
             .toList();
 
         ComplexVariantCrossCompatibility.checkAndInvalidate(complexVariantReaders);
+
+        final Map<Optional<ActionType>, List<ComplexVariantReader>> complexVariantReadersGroupedByType = complexVariantReaders.stream()
+            .collect(Collectors.groupingBy(cvr -> Optional.ofNullable(cvr.getType())));
+
+        addPstAndTopoRemedialActionsToCrac(complexVariantReadersGroupedByType.get(Optional.<ActionType>empty()), crac, creationContext);
+        addPstAndTopoRemedialActionsToCrac(complexVariantReadersGroupedByType.get(Optional.of(ActionType.PST)), crac, creationContext);
+        addPstAndTopoRemedialActionsToCrac(complexVariantReadersGroupedByType.get(Optional.of(ActionType.TOPO)), crac, creationContext);
+        addHvdcRemedialActionsToCrac(internalHvdcs, complexVariantReadersGroupedByType.get(Optional.of(ActionType.HVDC)), crac, ucteNetworkAnalyzer, creationContext);
+    }
+
+    private static void addPstAndTopoRemedialActionsToCrac(final List<ComplexVariantReader> complexVariantReaders,
+                                                           final Crac crac,
+                                                           final FbConstraintCreationContext creationContext) {
+        if (null == complexVariantReaders) {
+            // complexVariantReaders can be null when there is no ComplexVariantReader matching the specified ActionType
+            return;
+        }
 
         complexVariantReaders.forEach(cvr -> {
             if (cvr.isComplexVariantValid()) {
@@ -162,9 +199,42 @@ class FbConstraintCracCreator {
         });
     }
 
+    private static void addHvdcRemedialActionsToCrac(final List<InternalHvdc> internalHvdcs,
+                                                     final List<ComplexVariantReader> complexVariantReaders,
+                                                     final Crac crac,
+                                                     final UcteNetworkAnalyzer ucteNetworkAnalyzer,
+                                                     final FbConstraintCreationContext creationContext) {
+        if (null == complexVariantReaders) {
+            // complexVariantReaders can be null when there is no ComplexVariantReader matching the specified ActionType
+            return;
+        }
+
+        final List<HvdcLine> hvdcLines = internalHvdcs.stream()
+            .map(InternalHvdc::lines)
+            .flatMap(List::stream)
+            .toList();
+
+        final Map<String, String> nodeToStationMap = internalHvdcs.stream()
+            .map(InternalHvdc::converters)
+            .flatMap(List::stream)
+            .collect(Collectors.toMap(HvdcConverter::node, HvdcConverter::station));
+
+        // TODO Alignements des stations fait automatiquement si on met le même groupId sur les deux parades ?
+
+        final Map<String, ComplexVariantReader> complexVariantReadersMappedByName = complexVariantReaders.stream()
+            .collect(Collectors.toMap(
+                cvr -> cvr.getActionReaders().getFirst().getNetworkElementId(),
+                cvr -> cvr));
+
+        for (final HvdcLine hvdcLine : hvdcLines) {
+            final HvdcLineRemedialActionAdder hvdcLineRemedialActionAdder = new HvdcLineRemedialActionAdder(hvdcLine, ucteNetworkAnalyzer, complexVariantReadersMappedByName, nodeToStationMap);
+            hvdcLineRemedialActionAdder.add(crac, creationContext);
+        }
+    }
+
     private void createRaTimestampFilteringInformation(FlowBasedConstraintDocument fbConstraintDocument, OffsetDateTime timestamp, FbConstraintCreationContext creationContext) {
         fbConstraintDocument.getComplexVariants().getComplexVariant().stream()
-             .filter(complexVariant -> !isInTimeInterval(timestamp, complexVariant.getTimeInterval().getV()))
+            .filter(complexVariant -> !isInTimeInterval(timestamp, complexVariant.getTimeInterval().getV()))
             .filter(complexVariant -> creationContext.getRemedialActionCreationContext(complexVariant.getId()) == null)
             .forEach(complexVariant -> creationContext.addComplexVariantCreationContext(
                 new StandardElementaryCreationContext(complexVariant.getId(), null, null, ImportStatus.NOT_FOR_REQUESTED_TIMESTAMP, "ComplexVariant is not valid for the requested timestamp", false)
@@ -172,37 +242,37 @@ class FbConstraintCracCreator {
     }
 
     private List<CriticalBranchType> selectCriticalBranchesForTimeStamp(FlowBasedConstraintDocument document, OffsetDateTime timestamp) {
-
         if (timestamp == null) {
             return document.getCriticalBranches().getCriticalBranch();
-        } else {
-            List<CriticalBranchType> selectedCriticalBranches = new ArrayList<>();
-
-            document.getCriticalBranches().getCriticalBranch().forEach(criticalBranch -> {
-                // Select valid critical branches
-                if (isInTimeInterval(timestamp, criticalBranch.getTimeInterval().getV())) {
-                    selectedCriticalBranches.add(criticalBranch);
-                }
-            });
-            return selectedCriticalBranches;
         }
+
+        List<CriticalBranchType> selectedCriticalBranches = new ArrayList<>();
+
+        document.getCriticalBranches().getCriticalBranch().forEach(criticalBranch -> {
+            // Select valid critical branches
+            if (isInTimeInterval(timestamp, criticalBranch.getTimeInterval().getV())) {
+                selectedCriticalBranches.add(criticalBranch);
+            }
+        });
+
+        return selectedCriticalBranches;
     }
 
-    private List<IndependantComplexVariant> selectRemedialActionsForTimeStamp(FlowBasedConstraintDocument document, OffsetDateTime timestamp) {
-
+    private List<IndependantComplexVariant> selectRemedialActionsForTimestamp(FlowBasedConstraintDocument document, OffsetDateTime timestamp) {
         if (timestamp == null) {
             return document.getComplexVariants().getComplexVariant();
-        } else {
-            List<IndependantComplexVariant> selectedRemedialActions = new ArrayList<>();
-
-            document.getComplexVariants().getComplexVariant().forEach(complexVariant -> {
-                // Select valid critical branches
-                if (isInTimeInterval(timestamp, complexVariant.getTimeInterval().getV())) {
-                    selectedRemedialActions.add(complexVariant);
-                }
-            });
-            return selectedRemedialActions;
         }
+
+        List<IndependantComplexVariant> selectedRemedialActions = new ArrayList<>();
+
+        document.getComplexVariants().getComplexVariant().forEach(complexVariant -> {
+            // Select valid critical branches
+            if (isInTimeInterval(timestamp, complexVariant.getTimeInterval().getV())) {
+                selectedRemedialActions.add(complexVariant);
+            }
+        });
+
+        return selectedRemedialActions;
     }
 
     private boolean checkTimeStamp(OffsetDateTime offsetDateTime, String fbConstraintDocumentTimeInterval, FbConstraintCreationContext creationContext) {
