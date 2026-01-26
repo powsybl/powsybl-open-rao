@@ -7,9 +7,8 @@
 
 package com.powsybl.openrao.virtualhubs;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
@@ -17,68 +16,56 @@ import static org.junit.jupiter.api.Assertions.*;
 class VirtualHubTest {
     @Test
     void checkThatVirtualHubIsCorrectlyCreated() {
-        MarketArea marketArea = new MarketArea("AreaCode", "AreaEic", true, false);
-        VirtualHub myVirtualHub = new VirtualHub("HubCode", "HubEic", true, false, "HubNodeName", marketArea, "OppositeHub");
-        assertEquals("HubCode", myVirtualHub.code());
-        assertEquals("HubEic", myVirtualHub.eic());
-        assertTrue(myVirtualHub.isMcParticipant());
-        assertFalse(myVirtualHub.isAhc());
-        assertEquals("HubNodeName", myVirtualHub.nodeName());
-        assertEquals(marketArea, myVirtualHub.relatedMa());
-        assertEquals("OppositeHub", myVirtualHub.oppositeHub());
+        final MarketArea marketArea = new MarketArea("AreaCode", "AreaEic", true, false);
+        final VirtualHub myVirtualHub = new VirtualHub("HubCode", "HubEic", true, false, "HubNodeName", marketArea, "OppositeHub");
+        Assertions.assertThat(myVirtualHub.code()).isEqualTo("HubCode");
+        Assertions.assertThat(myVirtualHub.eic()).isEqualTo("HubEic");
+        Assertions.assertThat(myVirtualHub.isMcParticipant()).isTrue();
+        Assertions.assertThat(myVirtualHub.isAhc()).isFalse();
+        Assertions.assertThat(myVirtualHub.nodeName()).isEqualTo("HubNodeName");
+        Assertions.assertThat(myVirtualHub.relatedMa()).isEqualTo(marketArea);
+        Assertions.assertThat(myVirtualHub.oppositeHub()).isEqualTo("OppositeHub");
 
-        MarketArea otherMarketArea = new MarketArea("OtherAreaCode", "OtherAreaEic", false, false);
-        VirtualHub myOtherVirtualHub = new VirtualHub("OtherHubCode", "OtherHubEic", false, true, "OtherHubNodeName", otherMarketArea, null);
-        assertEquals("OtherHubCode", myOtherVirtualHub.code());
-        assertEquals("OtherHubEic", myOtherVirtualHub.eic());
-        assertFalse(myOtherVirtualHub.isMcParticipant());
-        assertTrue(myOtherVirtualHub.isAhc());
-        assertEquals("OtherHubNodeName", myOtherVirtualHub.nodeName());
-        assertEquals(otherMarketArea, myOtherVirtualHub.relatedMa());
-        assertNull(myOtherVirtualHub.oppositeHub());
+        final MarketArea otherMarketArea = new MarketArea("OtherAreaCode", "OtherAreaEic", false, false);
+        final VirtualHub myOtherVirtualHub = new VirtualHub("OtherHubCode", "OtherHubEic", false, true, "OtherHubNodeName", otherMarketArea, null);
+        Assertions.assertThat(myOtherVirtualHub.code()).isEqualTo("OtherHubCode");
+        Assertions.assertThat(myOtherVirtualHub.eic()).isEqualTo("OtherHubEic");
+        Assertions.assertThat(myOtherVirtualHub.isMcParticipant()).isFalse();
+        Assertions.assertThat(myOtherVirtualHub.isAhc()).isTrue();
+        Assertions.assertThat(myOtherVirtualHub.nodeName()).isEqualTo("OtherHubNodeName");
+        Assertions.assertThat(myOtherVirtualHub.relatedMa()).isEqualTo(otherMarketArea);
+        Assertions.assertThat(myOtherVirtualHub.oppositeHub()).isNull();
     }
 
     @Test
     void checkThatVirtualHubCreationThrowsWhenCodeIsNull() {
-        MarketArea marketArea = new MarketArea("AreaCode", "AreaEic", true, false);
-        NullPointerException thrown = assertThrows(
-            NullPointerException.class,
-            () -> new VirtualHub(null, "HubEic", true, false, "HubNodeName", marketArea, "OppositeHub"),
-            "Null code in VirtualHub creation should throw but does not"
-        );
-        assertEquals("VirtualHub creation does not allow null code", thrown.getMessage());
+        final MarketArea marketArea = new MarketArea("AreaCode", "AreaEic", true, false);
+        Assertions.assertThatExceptionOfType(NullPointerException.class)
+            .isThrownBy(() -> new VirtualHub(null, "HubEic", true, false, "HubNodeName", marketArea, "OppositeHub"))
+            .withMessage("VirtualHub creation does not allow null code");
     }
 
     @Test
     void checkThatVirtualHubCreationThrowsWhenEicIsNull() {
-        MarketArea marketArea = new MarketArea("AreaCode", "AreaEic", true, false);
-        NullPointerException thrown = assertThrows(
-            NullPointerException.class,
-            () -> new VirtualHub("HubCode", null, true, false, "HubNodeName", marketArea, "OppositeHub"),
-            "Null code in VirtualHub creation should throw but does not"
-        );
-        assertEquals("VirtualHub creation does not allow null eic", thrown.getMessage());
+        final MarketArea marketArea = new MarketArea("AreaCode", "AreaEic", true, false);
+        Assertions.assertThatExceptionOfType(NullPointerException.class)
+            .isThrownBy(() -> new VirtualHub("HubCode", null, true, false, "HubNodeName", marketArea, "OppositeHub"))
+            .withMessage("VirtualHub creation does not allow null eic");
     }
 
     @Test
     void checkThatVirtualHubCreationThrowsWhenNodeNameIsNull() {
-        MarketArea marketArea = new MarketArea("AreaCode", "AreaEic", true, false);
-        NullPointerException thrown = assertThrows(
-            NullPointerException.class,
-            () -> new VirtualHub("HubCode", "HubEic", true, false, null, marketArea, "OppositeHub"),
-            "Null nodeName in VirtualHub creation should throw but does not"
-        );
-        assertEquals("VirtualHub creation does not allow null nodeName", thrown.getMessage());
+        final MarketArea marketArea = new MarketArea("AreaCode", "AreaEic", true, false);
+        Assertions.assertThatExceptionOfType(NullPointerException.class)
+            .isThrownBy(() -> new VirtualHub("HubCode", "HubEic", true, false, null, marketArea, "OppositeHub"))
+            .withMessage("VirtualHub creation does not allow null nodeName");
     }
 
     @Test
     void checkThatVirtualHubCreationThrowsWhenMarketAreaIsNull() {
-        NullPointerException thrown = assertThrows(
-            NullPointerException.class,
-            () -> new VirtualHub("HubCode", "HubEic", true, false, "HubNodeName", null, "OppositeHub"),
-            "Null relatedMa in VirtualHub creation should throw but does not"
-        );
-        assertEquals("VirtualHub creation does not allow null relatedMa", thrown.getMessage());
+        Assertions.assertThatExceptionOfType(NullPointerException.class)
+            .isThrownBy(() -> new VirtualHub("HubCode", "HubEic", true, false, "HubNodeName", null, "OppositeHub"))
+            .withMessage("VirtualHub creation does not allow null relatedMa");
     }
 
 }
