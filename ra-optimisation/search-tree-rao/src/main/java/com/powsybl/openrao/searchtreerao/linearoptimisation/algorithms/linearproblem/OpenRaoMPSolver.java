@@ -111,7 +111,7 @@ public class OpenRaoMPSolver {
         if (hasVariable(name)) {
             return variables.get(name);
         } else {
-            throw new OpenRaoException(String.format("Variable %s has not been created yet", name));
+            return null;
         }
     }
 
@@ -175,6 +175,7 @@ public class OpenRaoMPSolver {
         if (OpenRaoLoggerProvider.TECHNICAL_LOGS.isTraceEnabled()) {
             mpSolver.enableOutput();
         }
+        String lp = mpSolver.exportModelAsLpFormat();
         return convertResultStatus(mpSolver.solve(solveConfiguration));
     }
 

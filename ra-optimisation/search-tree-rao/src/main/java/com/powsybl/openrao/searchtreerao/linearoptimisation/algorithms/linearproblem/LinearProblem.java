@@ -40,6 +40,11 @@ public final class LinearProblem {
     private final double relativeMipGap;
     private final String solverSpecificParameters;
 
+    public OpenRaoMPSolver getSolver() {
+        // Tmp getter to allow quick prototyping of new variables & constraints
+        return solver;
+    }
+
     public enum AbsExtension {
         POSITIVE,
         NEGATIVE
@@ -82,7 +87,7 @@ public final class LinearProblem {
     }
 
     public enum GeneratorState {
-        ON, RAMP_UP, OFF, RAMP_DOWN
+        ON, RAMP_UP, OFF, RAMP_DOWN, UP, DOWN, FLAT
     }
 
     public enum MinOrMax {
