@@ -25,6 +25,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.getFlowUnit;
+
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
@@ -64,7 +66,7 @@ public class ObjectiveFunctionCreator extends AbstractObjectiveFunctionCreator {
             if (mnecParametersOptional.isPresent() && mnecParametersExtensionOptional.isPresent()) {
                 virtualCostEvaluators.add(new MnecViolationCostEvaluator(
                     flowCnecs.stream().filter(Cnec::isMonitored).collect(Collectors.toSet()),
-                    raoParameters.getObjectiveFunctionParameters().getUnit(),
+                    getFlowUnit(raoParameters),
                     initialFlowResult,
                     mnecParametersOptional.get().getAcceptableMarginDecrease(),
                     mnecParametersExtensionOptional.get().getViolationCost()
@@ -82,7 +84,7 @@ public class ObjectiveFunctionCreator extends AbstractObjectiveFunctionCreator {
                     initialFlowResult,
                     loopFlowParametersOptional.get().getAcceptableIncrease(),
                     loopFlowParametersExtensionOptional.get().getViolationCost(),
-                    raoParameters.getObjectiveFunctionParameters().getUnit()
+                    getFlowUnit(raoParameters)
                 ));
             }
         }

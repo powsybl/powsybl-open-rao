@@ -24,7 +24,7 @@
       "range-actions-optimization" : {
         "max-mip-iterations" : 5,
         "pst-sensitivity-threshold" : 1.0E-6,
-        "pst-model" : "APPROXIMATED_INTEGERS",
+        "pst-model" : "CONTINUOUS",
         "hvdc-sensitivity-threshold" : 1.0E-6,
         "injection-ra-sensitivity-threshold" : 1.0E-6,
         "linear-optimization-solver" : {
@@ -41,7 +41,7 @@
         "max-number-of-boundaries-for-skipping-actions" : 2
       },
       "second-preventive-rao" : {
-        "execution-condition" : "COST_INCREASE",
+        "execution-condition" : "DISABLED",
         "hint-from-first-preventive-rao" : false
       },
       "load-flow-and-sensitivity-computation" : {

@@ -36,6 +36,7 @@ import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.data.raoresult.api.ComputationStatus.*;
 import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.getDuplicateCnecs;
+import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.getFlowUnit;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -121,7 +122,7 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
     private boolean initialResultContainsLoopFlowResult(FlowCnec flowCnec) {
         boolean loopflowPresent;
         try {
-            loopflowPresent = !Double.isNaN(initialResult.getLoopFlow(flowCnec, flowCnec.getMonitoredSides().iterator().next(), raoParameters.getObjectiveFunctionParameters().getUnit()));
+            loopflowPresent = !Double.isNaN(initialResult.getLoopFlow(flowCnec, flowCnec.getMonitoredSides().iterator().next(), getFlowUnit(raoParameters)));
         } catch (OpenRaoException e) {
             if (e.getMessage().contains("No commercial flow")) {
                 loopflowPresent = false;
