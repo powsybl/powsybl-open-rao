@@ -1,6 +1,12 @@
+/*
+ * Copyright (c) 2026, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers;
 
-import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
@@ -21,6 +27,10 @@ import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 
+/**
+ * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
+ * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
+ */
 public class BalancingsCoreFiller implements ProblemFiller {
     private final TemporalData<State> preventiveStates;
     private final TemporalData<Set<InjectionRangeAction>> injectionRangeActionsPerTimestamp;
@@ -128,7 +138,7 @@ public class BalancingsCoreFiller implements ProblemFiller {
             OpenRaoMPConstraint fromOnConstraint = linearProblem.addGeneratorStateFromTransitionConstraint(generatorConstraints.getGeneratorId(), timestamp, stateFrom);
             fromOnConstraint.setCoefficient(linearProblem.getGeneratorStateVariable(generatorConstraints.getGeneratorId(), timestamp, stateFrom), 1);
             for (LinearProblem.GeneratorState stateTo : LinearProblem.GeneratorState.values()) {
-                OpenRaoMPVariable variable = linearProblem.getGeneratorStateVariable(generatorConstraints.getGeneratorId(), timestamp, stateTo);
+                OpenRaoMPVariable variable = linearProblem.getGeneratorStateTransitionVariable(generatorConstraints.getGeneratorId(), timestamp, stateFrom, stateTo);
                 if (variable == null) {
                     continue;
                 }
@@ -143,7 +153,7 @@ public class BalancingsCoreFiller implements ProblemFiller {
             OpenRaoMPConstraint toOnConstraint = linearProblem.addGeneratorStateToTransitionConstraint(generatorConstraints.getGeneratorId(), timestamp, stateTo);
             toOnConstraint.setCoefficient(linearProblem.getGeneratorStateVariable(generatorConstraints.getGeneratorId(), nextTimestamp, stateTo), 1);
             for (LinearProblem.GeneratorState stateFrom : LinearProblem.GeneratorState.values()) {
-                OpenRaoMPVariable variable = linearProblem.getGeneratorStateVariable(generatorConstraints.getGeneratorId(), timestamp, stateFrom);
+                OpenRaoMPVariable variable = linearProblem.getGeneratorStateTransitionVariable(generatorConstraints.getGeneratorId(), timestamp, stateFrom, stateTo);
                 if (variable == null) {
                     continue;
                 }
@@ -184,6 +194,5 @@ public class BalancingsCoreFiller implements ProblemFiller {
     private static Optional<InjectionRangeAction> getInjectionRangeActionOfGenerator(String generatorId, Set<InjectionRangeAction> allInjectionRangeActions) {
         return allInjectionRangeActions.stream().filter(injectionRangeAction -> injectionRangeAction.getNetworkElements().stream().map(NetworkElement::getId).anyMatch(generatorId::equals)).min(Comparator.comparing(Identifiable::getId));
     }
-
 
 }
