@@ -51,32 +51,15 @@ problem's timestamps.
 | Lower power gradient constraint | $\nabla^{-}(g)$            | Maximum downward power variation (in absolute value) between two consecutive timestamps for generator $g$. This value must be non-positive. |
 | Timestamps                      | $\mathcal{T}$              | Set of all timestamps on which the optimization is performed.                                                                               |
 | Time gap                        | $\Delta_{i \rightarrow j}$ | Time gap between timestamps $i$ and $j$ (with $i < j$).                                                                                     |
+| Generator states                | $\Omega_{generator}$       | Set of all possible states o generator can be in: $\lbrace \textcolor{green}{\text{ON}}, \textcolor{red}{\text{OFF}}, \textcolor{blue}{\text{START UP}}, \textcolor{orange}{\text{SHUT DOWN}} \rbrace$                |
 
 ## Defined optimization variables
 
-| Name                               | Symbol                   | Details                                                                                                                           | Type       | Index                                                                                    | Unit | Lower bound | Upper bound |
-|------------------------------------|--------------------------|-----------------------------------------------------------------------------------------------------------------------------------|------------|------------------------------------------------------------------------------------------|------|-------------|-------------|
-| Generator power                    | $P(g,s,t)$               | the power of generator $g$ at grid state $s$ of timestamp $t$                                                                     | Real value | one per generator defined in $\Gamma$, per grid state and per timestamp of $\mathcal{T}$ | MW   | $-\infty$   | $+\infty$   |
-| *On* State                         | $ON(g,s,t)$              | whether generator $g$ is on at grid state $s$ of timestamp $t$ or not                                                             | Binary     | one per generator defined in $\Gamma$, per grid state and per timestamp of $\mathcal{T}$ | -    | 0           | 1           |
-| *Off* State                        | $OFF(g,s,t)$             | whether generator $g$ is off at grid state $s$ of timestamp $t$ or not                                                            | Binary     | one per generator defined in $\Gamma$, per grid state and per timestamp of $\mathcal{T}$ | -    | 0           | 1           |
-| *Ramp-Up* State                    | $RU(g,s,t)$              | whether generator $g$ is ramping up at grid state $s$ of timestamp $t$ or not                                                     | Binary     | one per generator defined in $\Gamma$, per grid state and per timestamp of $\mathcal{T}$ | -    | 0           | 1           |
-| *Ramp-Down* State                  | $RD(g,s,t)$              | whether generator $g$ is ramping down at grid state $s$ of timestamp $t$ or not                                                   | Binary     | one per generator defined in $\Gamma$, per grid state and per timestamp of $\mathcal{T}$ | -    | 0           | 1           |
-| *On → On* Transition               | $T_{ON \to ON}(g,s,t)$   | whether generator $g$ has transitioned from an "on" state to an "on" state, at grid state $s$ of timestamp $t$ or not             | Binary     | one per generator defined in $\Gamma$, per grid state and per timestamp of $\mathcal{T}$ | -    | 0           | 1           |
-| *On → Off* Transition              | $T_{ON \to OFF}(g,s,t)$  | whether generator $g$ has transitioned from an "on" state to an "off" state, at grid state $s$ of timestamp $t$ or not            | Binary     | one per generator defined in $\Gamma$, per grid state and per timestamp of $\mathcal{T}$ | -    | 0           | 1           |
-| *On → Ramp-Down* Transition        | $T_{ON \to RD}(g,s,t)$   | whether generator $g$ has transitioned from an "on" state to a "ramp-up" state, at grid state $s$ of timestamp $t$ or not         | Binary     | one per generator defined in $\Gamma$, per grid state and per timestamp of $\mathcal{T}$ | -    | 0           | 1           |
-| *On → Ramp-Up* Transition          | $T_{ON \to RU}(g,s,t)$   | whether generator $g$ has transitioned from an "on" state to a "ramp-down" state, at grid state $s$ of timestamp $t$ or not       | Binary     | one per generator defined in $\Gamma$, per grid state and per timestamp of $\mathcal{T}$ | -    | 0           | 1           |
-| *Off → On* Transition              | $T_{OFF \to ON}(g,s,t)$  | whether generator $g$ has transitioned from an "off" state to an "on" state, at grid state $s$ of timestamp $t$ or not            | Binary     | one per generator defined in $\Gamma$, per grid state and per timestamp of $\mathcal{T}$ | -    | 0           | 1           |
-| *Off → Off* Transition             | $T_{OFF \to OFF}(g,s,t)$ | whether generator $g$ has transitioned from an "off" state to an "off" state, at grid state $s$ of timestamp $t$ or not           | Binary     | one per generator defined in $\Gamma$, per grid state and per timestamp of $\mathcal{T}$ | -    | 0           | 1           |
-| *Off → Ramp-Down* Transition       | $T_{OFF \to RD}(g,s,t)$  | whether generator $g$ has transitioned from an "off" state to a "ramp-down" state, at grid state $s$ of timestamp $t$ or not      | Binary     | one per generator defined in $\Gamma$, per grid state and per timestamp of $\mathcal{T}$ | -    | 0           | 1           |
-| *Off → Ramp-Up* Transition         | $T_{OFF \to RU}(g,s,t)$  | whether generator $g$ has transitioned from an "off" state to a "ramp-up" state, at grid state $s$ of timestamp $t$ or not        | Binary     | one per generator defined in $\Gamma$, per grid state and per timestamp of $\mathcal{T}$ | -    | 0           | 1           |
-| *Ramp-Down → On* Transition        | $T_{RD \to ON}(g,s,t)$   | whether generator $g$ has transitioned from a "ramp-down" state to an "on" state, at grid state $s$ of timestamp $t$ or not       | Binary     | one per generator defined in $\Gamma$, per grid state and per timestamp of $\mathcal{T}$ | -    | 0           | 1           |
-| *Ramp-Down → Off* Transition       | $T_{RD \to OFF}(g,s,t)$  | whether generator $g$ has transitioned from a "ramp-down" state to an "off" state, at grid state $s$ of timestamp $t$ or not      | Binary     | one per generator defined in $\Gamma$, per grid state and per timestamp of $\mathcal{T}$ | -    | 0           | 1           |
-| *Ramp-Down → Ramp-Down* Transition | $T_{RD \to RD}(g,s,t)$   | whether generator $g$ has transitioned from a "ramp-down" state to a "ramp-down" state, at grid state $s$ of timestamp $t$ or not | Binary     | one per generator defined in $\Gamma$, per grid state and per timestamp of $\mathcal{T}$ | -    | 0           | 1           |
-| *Ramp-Down → Ramp-Up* Transition   | $T_{RD \to RU}(g,s,t)$   | whether generator $g$ has transitioned from a "ramp-down" state to a "ramp-up" state, at grid state $s$ of timestamp $t$ or not   | Binary     | one per generator defined in $\Gamma$, per grid state and per timestamp of $\mathcal{T}$ | -    | 0           | 1           |
-| *Ramp-Up → On* Transition          | $T_{RU \to ON}(g,s,t)$   | whether generator $g$ has transitioned from a "ramp-up" state to an "on" state, at grid state $s$ of timestamp $t$ or not         | Binary     | one per generator defined in $\Gamma$, per grid state and per timestamp of $\mathcal{T}$ | -    | 0           | 1           |
-| *Ramp-Up → Off* Transition         | $T_{RU \to OFF}(g,s,t)$  | whether generator $g$ has transitioned from a "ramp-up" state to an "off" state, at state  $s$ of timestamp $t$ or not            | Binary     | one per generator defined in $\Gamma$, per grid state and per timestamp of $\mathcal{T}$ | -    | 0           | 1           |
-| *Ramp-Up → Ramp-Down* Transition   | $T_{RU \to RD}(g,s,t)$   | whether generator $g$ has transitioned from a "ramp-up" state to a "ramp-down" state, at grid state $s$ of timestamp $t$ or not   | Binary     | one per generator defined in $\Gamma$, per grid state and per timestamp of $\mathcal{T}$ | -    | 0           | 1           |
-| *Ramp-Up → Ramp-Up* Transition     | $T_{RU \to RU}(g,s,t)$   | whether generator $g$ has transitioned from a "ramp-up" state to a "ramp-up" state, at grid state $s$ of timestamp $t$ or not     | Binary     | one per generator defined in $\Gamma$, per grid state and per timestamp of $\mathcal{T}$ | -    | 0           | 1           |
+| Name                               | Symbol                          | Details                                                                                                                           | Type       | Index                                                                                                                                                                                              | Unit | Lower bound | Upper bound |
+|------------------------------------|---------------------------------|-----------------------------------------------------------------------------------------------------------------------------------|------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------|-------------|-------------|
+| Generator power                    | $P(g,s,t)$                      | the power of generator $g$ at grid state $s$ of timestamp $t$                                                                     | Real value | one per generator defined in $\Gamma$, per grid state and per timestamp of $\mathcal{T}$                                                                                                           | MW   | $-\infty$   | $+\infty$   |
+| Generator state                    | $\delta_{\omega}^{gen}(g,s,t)$  | whether generator $g$'s state is $\omega$ at grid state $s$ of timestamp $t$ or not                                               | Binary     | one per generator defined in $\Gamma$, per generator state $\omega \in \Omega_{generator}$, per grid state and per timestamp of $\mathcal{T}$                                                      | -    | 0           | 1           |
+| Generator state transition         | $T_{\omega \to \omega'}(g,s,t)$ | whether generator $g$'s state has transitioned from $\omega$ to $\omega'$ at grid state $s$ of timestamp $t$ or not               | Binary     | one per generator defined in $\Gamma$, per generator state $\omega \in \Omega_{generator}$, per generator state $\omega' \in \Omega_{generator}$ per grid state and per timestamp of $\mathcal{T}$ | -    | 0           | 1           |
 
 ## Used optimization variables
 
@@ -88,10 +71,10 @@ problem's timestamps.
 
 ### Only one state
 
-At each timestamp and for each grid state, each generator can only be in one of the four states among ON, OFF, RAMP-DOWN
-and RAMP-UP. Mathematically, this is written as:
+At each timestamp and for each grid state, each generator can only be in one of the four states among ON, OFF, SHUT DOWN
+and START UP. Mathematically, this is written as:
 
-$$\forall g \in \Gamma, \forall t \in \mathcal{T}, \forall s, \; ON(g,s,t) + OFF(g,s,t) + RD(g,s,t) + RU(g,s,t) = 1$$
+$$\forall g \in \Gamma, \forall t \in \mathcal{T}, \forall s, \; \sum_{\omega \in \Omega_{generator}} \delta_{\omega}^{gen}(g,s,t) = 1$$
 
 ### State transition constraints
 
@@ -128,25 +111,19 @@ To ensure a continuity in the cycle of generator states, a _chaining_ needs to b
 linking the state variables of two consecutive timestamps to the transition variables. Thus,
 $\forall g \in \Gamma, \forall t \in \mathcal{T}, \forall s$:
 
-##### *State-To* constraints
-
-The state at the end of the timestamp must be the final state of the transition that occurred during the timestamp, no
-matter the state of origin.
-
-$$ON(g,t+1,s) = T_{ON \to ON}(g,s,t) + T_{OFF \to ON}(g,s,t) + T_{RD \to ON}(g,s,t) + T_{RU \to ON}(g,s,t)$$
-$$OFF(g,t+1,s) = T_{ON \to OFF}(g,s,t) + T_{OFF \to OFF}(g,s,t) + T_{RD \to OFF}(g,s,t) + T_{RU \to OFF}(g,s,t)$$
-$$RD(g,t+1,s) = T_{ON \to RD}(g,s,t) + T_{OFF \to RD}(g,s,t) + T_{RD \to RD}(g,s,t) + T_{RU \to RD}(g,s,t)$$
-$$RU(g,t+1,s) = T_{ON \to RU}(g,s,t) + T_{OFF \to RU}(g,s,t) + T_{RD \to RU}(g,s,t) + T_{RU \to RU}(g,s,t)$$
-
 ##### *State-From* constraints
 
 The state at the end of the previous timestamp must be the starting state of the transition that occurred during the
 timestamp, no matter the final state.
 
-$$ON(g,t,s) = T_{ON \to ON}(g,s,t) + T_{ON \to OFF}(g,s,t) + T_{ON \to RD}(g,s,t) + T_{ON \to RU}(g,s,t)$$
-$$OFF(g,t,s) = T_{OFF \to ON}(g,s,t) + T_{OFF \to OFF}(g,s,t) + T_{OFF \to RD}(g,s,t) + T_{OFF \to RU}(g,s,t)$$
-$$RD(g,t,s) = T_{RD \to ON}(g,s,t) + T_{RD \to OFF}(g,s,t) + T_{RD \to RD}(g,s,t) + T_{RD \to RU}(g,s,t)$$
-$$RU(g,t,s) = T_{RU \to ON}(g,s,t) + T_{RU \to OFF}(g,s,t) + T_{RU \to RD}(g,s,t) + T_{RU \to RU}(g,s,t)$$
+$$\forall g \in \Gamma, \forall t \in \mathcal{T}, \forall s, \forall \omega \in \Omega_{generator}, \; \delta_{\omega}^{gen}(g,s,t) = \sum_{\omega' \in \Omega_{generator}} T_{\omega \to \omega'}(g,s,t)$$
+
+##### *State-To* constraints
+
+The state at the end of the timestamp must be the final state of the transition that occurred during the timestamp, no
+matter the state of origin.
+
+$$\forall g \in \Gamma, \forall t \in \mathcal{T}, \forall s, \forall \omega \in \Omega_{generator}, \; \delta_{\omega}^{gen}(g,s,t + 1) = \sum_{\omega' \in \Omega_{generator}} T_{\omega' \to \omega}(g,s,t)$$
 
 ### Ramp constraints
 
@@ -155,31 +132,32 @@ $$RU(g,t,s) = T_{RU \to ON}(g,s,t) + T_{RU \to OFF}(g,s,t) + T_{RU \to RD}(g,s,t
 If the generator starts ramping up at a given timestamp, it is thus constrained to the Ramp-Up state for a duration that
 covers its lead time. Thus:
 
-$$\forall t' > t \text{ such that } \Delta_{t \rightarrow t'} < LEAD(g), \; T_{OFF \to RU}(g,s,t) \leq RU(g,t',s)$$
+$$\forall t' > t \text{ such that } \Delta_{t \rightarrow t'} < LEAD(g), \; T_{\textcolor{red}{\text{OFF}} \to \textcolor{blue}{\text{START UP}}}(g,s,t) \leq \delta_{\textcolor{blue}{\text{START UP}}}^{gen}(g,s,t')$$
 
 #### Ramp-Down state
 
 Similarly, if the generator stops ramping down at a given timestamp, it must have been constrained to the Ramp-Down
 state for a duration that covers its lag time. Thus:
 
-$$\forall t' \leq t \text{ such that } \Delta_{t' \rightarrow t + 1} < LAG(g), \; T_{RD \to OFF}(g,s,t) \leq RD(g,t',s)$$
+$$\forall t' \leq t \text{ such that } \Delta_{t' \rightarrow t + 1} < LAG(g), \; T_{\textcolor{orange}{\text{SHUT DOWN}} \to \textcolor{red}{\text{OFF}}}(g,s,t) \leq \delta_{\textcolor{orange}{\text{SHUT DOWN}}}^{gen}(g,s,t')$$
 
 ### Power constraints
 
 #### Off state
 
-By definition, $OFF(g,s,t) = 1 \Leftrightarrow P(g,s,t) = 0$. In practice, only the right-to-left implication is needed
-and can be linearized as:
+By definition, $\delta_{\textcolor{red}{\text{OFF}}}^{gen}(g,s,t) = 1 \Leftrightarrow P(g,s,t) = 0$. However, to account
+for issues that can stem from number rounding, we define a **minimal power variation deadband** $\Delta P_{\min}$ such
+that if the power of the generator is lower that $\Delta P_{\min}$, the generator is considered as off. Thus,
+$\delta_{\textcolor{red}{\text{OFF}}}^{gen}(g,s,t) = 1 \Leftrightarrow P(g,s,t) \leq \Delta P_{\min}$.
 
-$$P(g,s,t) \leq P_{\max}(g) (1 - OFF(g,s,t))$$
+$$\Delta P_{\min} (1 - \delta_{\textcolor{red}{\text{OFF}}}^{gen}(g,s,t)) \leq P(g,s,t) \leq P_{\max}(g) (1 - \delta_{\textcolor{red}{\text{OFF}}}^{gen}(g,s,t)) + \Delta P_{\min} \delta_{\textcolor{red}{\text{OFF}}}^{gen}(g,s,t)$$
 
 #### On state
 
-By definition, $ON(g,s,t) = 1 \Leftrightarrow P(g,s,t) \geq P_{\min}(g)$ which can be linearized using the two following
+By definition, $\delta_{\textcolor{green}{\text{ON}}}^{gen}(g,s,t) = 1 \Leftrightarrow P(g,s,t) \geq P_{\min}(g)$ which can be linearized using the two following
 equations:
 
-$$P(g,s,t) \leq P_{min}(g) (1 - ON(g,s,t)) + P_{\max}(g) ON(g,s,t)$$
-$$P(g,s,t) \geq P_{\min} ON_{t}$$
+$$P_{\min} \delta_{\textcolor{green}{\text{ON}}}^{gen}(g,s,t) \leq P(g,s,t) \leq P_{\min}(g) (1 - \delta_{\textcolor{green}{\text{ON}}}^{gen}(g,s,t)) + P_{\max}(g) \delta_{\textcolor{green}{\text{ON}}}^{gen}(g,s,t)$$
 
 #### Power variation
 
@@ -345,6 +323,19 @@ transition variable.
 > - The constant power rate of the ramping states is materialized through the same values being used for the lower and
     upper bounds of the power variation
 > - Note the use of power gradients whenever the On state is implicated
+
+$$\begin{align*}
+0 \times T_{\textcolor{red}{\text{OFF}} \to \textcolor{red}{\text{OFF}}}(g,s,t) & & 0 \times T_{\textcolor{red}{\text{OFF}} \to \textcolor{red}{\text{OFF}}}(g,s,t) \\
++ \frac{P_{\min}}{LEAD(g)} \Delta_{t \to t + 1} T_{\textcolor{red}{\text{OFF}} \to \textcolor{blue}{\text{START UP}}}(g,s,t) & & + \frac{P_{\min}}{LEAD(g)} \Delta_{t \to t + 1} T_{\textcolor{red}{\text{OFF}} \to \textcolor{blue}{\text{START UP}}}(g,s,t) \\
++ P_{\min} T_{\textcolor{red}{\text{OFF}} \to \textcolor{green}{\text{ON}}}(g,s,t) & & + \left [ P_{\min} + (\Delta_{t \to t + 1} - LEAD(g)) \nabla^{+}(g) \right ] T_{\textcolor{red}{\text{OFF}} \to \textcolor{green}{\text{ON}}}(g,s,t) \\
++ \frac{P_{\min}}{LEAD(g)} \Delta_{t \to t + 1} T_{\textcolor{blue}{\text{START UP}} \to \textcolor{blue}{\text{START UP}}}(g,s,t) & & + \frac{P_{\min}}{LEAD(g)} \Delta_{t \to t + 1} T_{\textcolor{blue}{\text{START UP}} \to \textcolor{blue}{\text{START UP}}}(g,s,t) \\
++ T_{\textcolor{blue}{\text{START UP}} \to \textcolor{green}{\text{ON}}}(g,s,t) & & + T_{\textcolor{blue}{\text{START UP}} \to \textcolor{green}{\text{ON}}}(g,s,t) \\
++ \nabla^{-}(g) \Delta_{t \to t + 1} T_{\textcolor{green}{\text{ON}} \to \textcolor{green}{\text{ON}}}(g,s,t) & \leq P(g,s,t + 1) - P(g,s,t) \leq & + \nabla^{+}(g) \Delta_{t \to t + 1} T_{\textcolor{green}{\text{ON}} \to \textcolor{green}{\text{ON}}}(g,s,t) \\
+- T_{\textcolor{green}{\text{ON}} \to \textcolor{orange}{\text{SHUT DOWN}}}(g,s,t) & & + T_{\textcolor{green}{\text{ON}} \to \textcolor{orange}{\text{SHUT DOWN}}}(g,s,t) \\
+- \frac{P_{\min}}{LAG(g)} \Delta_{t \to t + 1} T_{\textcolor{orange}{\text{SHUT DOWN}} \to \textcolor{orange}{\text{SHUT DOWN}}}(g,s,t) & & - \frac{P_{\min}}{LAG(g)} \Delta_{t \to t + 1} T_{\textcolor{orange}{\text{SHUT DOWN}} \to \textcolor{orange}{\text{SHUT DOWN}}}(g,s,t) \\
+- \frac{P_{\min}}{LAG(g)} \Delta_{t \to t + 1} T_{\textcolor{orange}{\text{SHUT DOWN}} \to \textcolor{red}{\text{OFF}}}(g,s,t) & & - \frac{P_{\min}}{LAG(g)} \Delta_{t \to t + 1} T_{\textcolor{orange}{\text{SHUT DOWN}} \to \textcolor{red}{\text{OFF}}}(g,s,t) \\
+- \left [ P_{\min} - (\Delta_{t \to t + 1} - LAG(g)) \nabla^{-}(g) \right ] T_{\textcolor{green}{\text{ON}} \to \textcolor{red}{\text{OFF}}}(g,s,t) & & - P_{\min} T_{\textcolor{green}{\text{ON}} \to \textcolor{red}{\text{OFF}}}(g,s,t)
+\end{align*}$$
 
 ### Injection to generator power constraint
 
