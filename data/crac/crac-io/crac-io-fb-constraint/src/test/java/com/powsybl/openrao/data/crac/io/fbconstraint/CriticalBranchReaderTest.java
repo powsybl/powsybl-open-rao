@@ -10,6 +10,7 @@ package com.powsybl.openrao.data.crac.io.fbconstraint;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.CracCreationContext;
 import com.powsybl.openrao.data.crac.api.CracFactory;
 import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.crac.io.fbconstraint.parameters.FbConstraintCracCreationParameters;
@@ -72,7 +73,7 @@ class CriticalBranchReaderTest {
         Network network = Network.read("TestCase12Nodes_with_Xnodes.uct", getClass().getResourceAsStream("/network/TestCase12Nodes_with_Xnodes.uct"));
         OffsetDateTime timestamp = OffsetDateTime.parse("2019-01-08T10:30Z");
         parameters.getExtension(FbConstraintCracCreationParameters.class).setTimestamp(timestamp);
-        FbConstraintCreationContext creationContext = (FbConstraintCreationContext) Crac.readWithContext("with_zero_limits.xml", getClass().getResourceAsStream("/merged_cb/with_zero_limits.xml"), network, parameters);
+        CracCreationContext creationContext = Crac.readWithContext("with_zero_limits.xml", getClass().getResourceAsStream("/merged_cb/with_zero_limits.xml"), network, parameters);
         Crac crac = creationContext.getCrac();
 
         // Only have imaxFactor value equal to 10
