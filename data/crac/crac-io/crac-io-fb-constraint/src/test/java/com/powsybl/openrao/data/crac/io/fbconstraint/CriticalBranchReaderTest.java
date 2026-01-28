@@ -76,10 +76,9 @@ class CriticalBranchReaderTest {
         CracCreationContext creationContext = Crac.readWithContext("with_zero_limits.xml", getClass().getResourceAsStream("/merged_cb/with_zero_limits.xml"), network, parameters);
         Crac crac = creationContext.getCrac();
 
-        // PermanentImaxA = 0 => use ImaxA =10
+        // No ImaxFactor value, PermanentImaxA = 0 => use ImaxA = 10
         assertTrue(crac.getFlowCnec("BE_CBCO_000001 - preventive").getThresholds().stream().allMatch(branchThreshold -> branchThreshold.max().get() == 10.0));
         assertTrue(crac.getFlowCnec("BE_CBCO_000001 - preventive").getThresholds().stream().allMatch(branchThreshold -> branchThreshold.getUnit() == Unit.AMPERE));
-
 
         // permanentImaxFactor is 0, have no value for ImaxFactor, no value for PermanentImaxA => should use imaxA value = 20
         // Same temporaryImaxFactor is 0, have no value for ImaxFactor, no value for TemporaryImaxA => should use imaxA value = 20
