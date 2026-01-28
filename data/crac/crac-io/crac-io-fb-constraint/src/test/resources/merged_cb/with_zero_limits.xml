@@ -15,8 +15,9 @@
     <criticalBranch id="BE_CBCO_000001">
       <timeInterval v="2019-01-07T23:00Z/2019-01-08T23:00Z"/>
       <branch eic="1234567890123450" from="BBE1AA1 " name="[BE-BE] BBE1 - BBE2 [DIR]" order="1" to="BBE2AA1 "/>
-      <imaxFactor>10</imaxFactor>
+      <imaxA>10</imaxA>
       <imaxType>SEASONAL</imaxType>
+      <permanentImaxA>0</permanentImaxA>
       <frmMw>138</frmMw>
       <minRAMfactor>70</minRAMfactor>
       <CNEC>true</CNEC>
