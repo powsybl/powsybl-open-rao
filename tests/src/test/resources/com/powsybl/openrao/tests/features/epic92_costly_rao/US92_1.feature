@@ -7,13 +7,19 @@ Feature: US 92.1: Costly network actions optimization
 
   @fast @preventive-only @costly @rao
   Scenario: US 92.1.1: Selection of cheapest of 3 equivalent network actions
+  The network contains two nodes linked with 4 parallel lines: one of the lines is the overloaded CNEC,
+  and the three other are open. 3 remedial actions with different costs: close one of the three lines.
     Given network file is "epic92/2Nodes4ParallelLines.uct"
     Given crac file is "epic92/crac-92-1-1.json"
     Given configuration file is "epic92/RaoParameters_dc_minObjective.json"
     When I launch rao
     Then the worst margin is 250.0 MW
+    And the execution details should be "The RAO only went through first preventive"
     And 1 remedial actions are used in preventive
     And the remedial action "closeBeFr4" is used in preventive
+    # Overload penalty (250 * 1000)
+    And the value of the objective function initially should be 250000.0
+    # Activation of closeBeFr4 (10)
     And the value of the objective function after PRA should be 10.0
 
   @fast @preventive-only @costly @rao
@@ -26,8 +32,10 @@ Feature: US 92.1: Costly network actions optimization
     Given configuration file is "epic92/RaoParameters_dc_minObjective.json"
     When I launch rao
     Then the worst margin is 83.0 MW
+    And the execution details should be "The RAO only went through first preventive"
     And 1 remedial actions are used in preventive
     And the remedial action "closeBeFr3" is used in preventive
+    And the value of the objective function initially should be 250000.0
     And the value of the objective function after PRA should be 25.0
 
   @fast @preventive-only @costly @rao
@@ -39,21 +47,29 @@ Feature: US 92.1: Costly network actions optimization
     Given configuration file is "epic92/RaoParameters_margin_dc_minObjective.json"
     When I launch rao
     Then the worst margin is 464.29 MW
+    And the execution details should be "The RAO only went through first preventive"
     And 2 remedial actions are used in preventive
     And the remedial action "closeBeFr2" is used in preventive
     And the remedial action "closeBeFr3" is used in preventive
+    And the value of the objective function initially should be 250.0
+    # In MIN_MAX_MARGIN, the objective function is the opposite of the worst margin.
     And the value of the objective function after PRA should be -464.29
 
   @fast @preventive-only @costly @rao
   Scenario: US 92.1.3: Selection of the two cheapest network actions
+  Same as US 92.1.1, but two network actions are needed to secure the CNEC.
     Given network file is "epic92/2Nodes4ParallelLines.uct"
     Given crac file is "epic92/crac-92-1-3.json"
     Given configuration file is "epic92/RaoParameters_dc_minObjective.json"
     When I launch rao
     Then the worst margin is 66.67 MW
+    And the execution details should be "The RAO only went through first preventive"
     And 2 remedial actions are used in preventive
     And the remedial action "closeBeFr3" is used in preventive
     And the remedial action "closeBeFr4" is used in preventive
+    # Overload penalty (600 * 1000)
+    And the value of the objective function initially should be 600000.0
+    # Activation of closeBeFr3 (500) + activation of closeBeFr4 (220)
     And the value of the objective function after PRA should be 720.0
 
   @fast @preventive-only @costly @rao
@@ -66,6 +82,7 @@ Feature: US 92.1: Costly network actions optimization
     Given configuration file is "epic92/RaoParameters_dc_minObjective_maxDepth1.json"
     When I launch rao
     Then the worst margin is -100.0 MW
+    And the execution details should be "The RAO only went through first preventive"
     And 1 remedial actions are used in preventive
     And the remedial action "closeBeFr4" is used in preventive
     And the value of the objective function initially should be 600000.0
@@ -73,28 +90,33 @@ Feature: US 92.1: Costly network actions optimization
 
   @fast @preventive-only @costly @rao
   Scenario: US 92.1.5: Sub-optimal case
-  Closing line BE-FR-2 costs 1000 but solves the constraint immediately. The optimal case is to
-  close lines BE-FR-3 and BE-FR-4 successively (the order does not matter) for a total expense of 50.
-  Yet, because of the penalty cost for overloads, the RAO still counts an over-cost of 100000 because
-  closing BE-FR-3 or BE-FR-4 alone only reduce the minimum margin to -100 MW. As closing BE-FR-2 looks optimal
+  Closing line BE-FR-2 costs 1000 but solves the constraint immediately. As closing BE-FR-2 looks optimal
   at depth 1, the greedy search-tree keeps it at depth 2 but there is no need to apply additional remedial
   actions since the network is already secure.
+  However, the optimal case is to close lines BE-FR-3 and BE-FR-4 successively (the order does not matter)
+  for a total expense of 50. Yet, because of the penalty cost for overloads, the RAO still counts an over-cost
+  of 100000 because closing BE-FR-3 or BE-FR-4 alone only reduce the minimum margin to -100 MW.
+    #TODO: I reordered this text, but the last sentence above is still not clear to me
     Given network file is "epic92/2Nodes4ParallelLinesDifferentResistances.uct"
     Given crac file is "epic92/crac-92-1-5.json"
     Given configuration file is "epic92/RaoParameters_dc_minObjective.json"
     When I launch rao
     Then the worst margin is 66.67 MW
+    And the execution details should be "The RAO only went through first preventive"
     And 1 remedial actions are used in preventive
     And the remedial action "closeBeFr2" is used in preventive
+    And the value of the objective function initially should be 600000.0
     And the value of the objective function after PRA should be 1000.0
 
   @fast @costly @rao
   Scenario: US 92.1.6: Preventive and auto optimization - 1 scenario
+  Overload in preventive (activation of 1 RA), no overload in auto (activation of a 2nd RA)
     Given network file is "epic92/2Nodes4ParallelLines2LinesClosed.uct"
     Given crac file is "epic92/crac-92-1-6.json"
     Given configuration file is "epic92/RaoParameters_dc_minObjective.json"
     When I launch rao
     Then the worst margin is 66.67 MW
+    And the execution details should be "The RAO only went through first preventive"
     And the value of the objective function initially should be 600000.0
     And 1 remedial actions are used in preventive
     And the remedial action "closeBeFr3" is used in preventive
@@ -107,11 +129,13 @@ Feature: US 92.1: Costly network actions optimization
 
   @fast @costly @rao
   Scenario: US 92.1.7: Preventive and auto optimization - 2 scenarios
+  Each scenario secured by a different RA in auto.
     Given network file is "epic92/2Nodes4ParallelLines3LinesClosed.uct"
     Given crac file is "epic92/crac-92-1-7.json"
     Given configuration file is "epic92/RaoParameters_dc_minObjective.json"
     When I launch rao
     Then the worst margin is 66.67 MW
+    And the execution details should be "The RAO only went through first preventive"
     And the value of the objective function initially should be 100000.0
     And 1 remedial actions are used after "coBeFr2" at "auto"
     And the remedial action "closeBeFr4" is used after "coBeFr2" at "auto"
@@ -122,11 +146,13 @@ Feature: US 92.1: Costly network actions optimization
 
   @fast @costly @rao
   Scenario: US 92.1.8: Preventive and auto optimization - 2 scenarios with PRA
+  Each scenario secured by a different RA in auto, after one PRA.
     Given network file is "epic92/2Nodes5ParallelLines3LinesClosed.uct"
     Given crac file is "epic92/crac-92-1-8.json"
     Given configuration file is "epic92/RaoParameters_dc_minObjective.json"
     When I launch rao
     Then the worst margin is 10.0 MW
+    And the execution details should be "The RAO only went through first preventive"
     And the value of the objective function initially should be 240000.0
     And 1 remedial actions are used in preventive
     And the remedial action "closeBeFr4" is used in preventive
@@ -141,11 +167,13 @@ Feature: US 92.1: Costly network actions optimization
 
   @fast @costly @rao
   Scenario: US 92.1.9: Preventive and curative optimization - 1 scenario - no auto instant
+  The curative scenario is secured by one PRA and one CRA.
     Given network file is "epic92/2Nodes4ParallelLines2LinesClosed.uct"
     Given crac file is "epic92/crac-92-1-9.json"
     Given configuration file is "epic92/RaoParameters_dc_minObjective.json"
     When I launch rao
     Then the worst margin is 66.67 MW
+    And the execution details should be "The RAO only went through first preventive"
     And the value of the objective function initially should be 600000.0
     And 1 remedial actions are used in preventive
     And the remedial action "closeBeFr3" is used in preventive
@@ -158,11 +186,13 @@ Feature: US 92.1: Costly network actions optimization
 
   @fast @costly @rao
   Scenario: US 92.1.9.bis: Preventive and curative optimization - 1 scenario - with auto instant
+  The curative scenario is secured by one PRA and one CRA, but instants auto and preventive are unsecure.
     Given network file is "epic92/2Nodes4ParallelLines2LinesClosed.uct"
     Given crac file is "epic92/crac-92-1-9-bis.json"
     Given configuration file is "epic92/RaoParameters_dc_minObjective.json"
     When I launch rao
     Then the worst margin is 66.67 MW
+    And the execution details should be "The RAO only went through first preventive"
     And the value of the objective function initially should be 600000.0
     And 1 remedial actions are used in preventive
     And the remedial action "closeBeFr3" is used in preventive
@@ -176,11 +206,13 @@ Feature: US 92.1: Costly network actions optimization
 
   @fast @costly @rao
   Scenario: US 92.1.10: Preventive, auto and curative optimization - 1 scenario
+  One RA applied after each instant, only curative is secure.
     Given network file is "epic92/2Nodes5ParallelLines2LinesClosed.uct"
     Given crac file is "epic92/crac-92-1-10.json"
     Given configuration file is "epic92/RaoParameters_dc_minObjective.json"
     When I launch rao
     Then the worst margin is 16.67 MW
+    And the execution details should be "The RAO only went through first preventive"
     And the value of the objective function initially should be 700000.0
     And 1 remedial actions are used in preventive
     And the remedial action "closeBeFr3" is used in preventive
@@ -195,7 +227,7 @@ Feature: US 92.1: Costly network actions optimization
     # Activation of closeBeFr2 (200) + activation of closeBeFr3 (1350) + activation of closeBeFr5 (850)
     And the value of the objective function after CRA should be 2400.0
 
-  @fast @costly @rao
+  @fast @costly @rao @multi-curative
   Scenario: US 92.1.11: Preventive, auto and curative optimization - 4 comprehensive scenarios
   4 scenarios are optimized in parallel:
   - scenario 1: no ARA and no CRA -> 50 MW overload
@@ -207,6 +239,7 @@ Feature: US 92.1: Costly network actions optimization
     Given configuration file is "epic92/RaoParameters_dc_minObjective.json"
     When I launch rao
     Then the worst margin is -50.00 MW
+    And the execution details should be "The RAO only went through first preventive"
     And the value of the objective function initially should be 100000.0
     And 1 remedial actions are used in preventive
     And the remedial action "closeBeFr6" is used in preventive
@@ -229,7 +262,7 @@ Feature: US 92.1: Costly network actions optimization
     # Activation of closeBeFr6 (2500) + activation of closeBeFr7 twice (2 * 60) + activation of closeBeFr8 twice (2 * 735) + overload penalty (50 * 1000)
     And the value of the objective function after CRA should be 54090.0
 
-  @fast @costly @rao
+  @fast @costly @rao @multi-curative
   Scenario: US 92.1.12: Preventive and auto optimization - curative overload
   4 scenarios are optimized in parallel with a curative overload each time:
   - scenario 1: no ARA and no CRA -> 50 MW overload
@@ -241,6 +274,7 @@ Feature: US 92.1: Costly network actions optimization
     Given configuration file is "epic92/RaoParameters_dc_minObjective.json"
     When I launch rao
     Then the worst margin is -66.67 MW
+    And the execution details should be "The RAO only went through first preventive"
     And the value of the objective function initially should be 150000.0
     And 1 remedial actions are used in preventive
     And the remedial action "closeBeFr6" is used in preventive

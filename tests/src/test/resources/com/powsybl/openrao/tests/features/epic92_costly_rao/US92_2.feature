@@ -9,11 +9,13 @@ Feature: US 92.2: Costly range actions optimization - APPROXIMATED_INTEGERS PSTs
   Scenario: US 92.2.1: Change only necessary taps on preventive PST
   The RAO can increase the minimum margin by setting the tap of the PST on position -10
   but stops at position -5 because the network is secure and this saves expenses.
+    # TODO: should we create a 92.2.1_bis with another objective function, to show that the tap would be -10 without costly?
     Given network file is "epic92/2Nodes2ParallelLinesPST.uct"
     Given crac file is "epic92/crac-92-2-1.json"
     Given configuration file is "epic92/RaoParameters_dc_minObjective_discretePst.json"
     When I launch rao
     Then the worst margin is 45.46 MW
+    And the execution details should be "The RAO only went through first preventive"
     And the value of the objective function initially should be 200000.0
     And 1 remedial actions are used in preventive
     And the remedial action "pstBeFr2" is used in preventive
@@ -30,6 +32,7 @@ Feature: US 92.2: Costly range actions optimization - APPROXIMATED_INTEGERS PSTs
     Given configuration file is "epic92/RaoParameters_dc_minObjective_discretePst.json"
     When I launch rao
     Then the worst margin is 31.15 MW
+    And the execution details should be "The RAO only went through first preventive"
     And the value of the objective function initially should be 263333.33
     And 1 remedial actions are used in preventive
     And the remedial action "pstBeFr3" is used in preventive
@@ -39,11 +42,13 @@ Feature: US 92.2: Costly range actions optimization - APPROXIMATED_INTEGERS PSTs
 
   @fast @costly @rao
   Scenario: US 92.2.3: Costly PST in preventive and curative
+    A PRA and a CRA are activated on the same PST.
     Given network file is "epic92/2Nodes3ParallelLinesPST.uct"
     Given crac file is "epic92/crac-92-2-3.json"
     Given configuration file is "epic92/RaoParameters_dc_minObjective_discretePst.json"
     When I launch rao
     Then the worst margin is 11.73 MW
+    And the execution details should be "The RAO only went through first preventive"
     And the value of the objective function initially should be 430000.0
     And 1 remedial actions are used in preventive
     And the remedial action "pstBeFr3" is used in preventive
@@ -57,11 +62,13 @@ Feature: US 92.2: Costly range actions optimization - APPROXIMATED_INTEGERS PSTs
 
   @fast @costly @rao
   Scenario: US 92.2.4: Free PST in preventive and curative
+    The RA pstBeFr3 is not associated to activation or variation costs (contrarily to US 92.2.3).
     Given network file is "epic92/2Nodes3ParallelLinesPST.uct"
     Given crac file is "epic92/crac-92-2-4.json"
     Given configuration file is "epic92/RaoParameters_dc_minObjective_discretePst.json"
     When I launch rao
     Then the worst margin is 11.73 MW
+    And the execution details should be "The RAO only went through first preventive"
     And the value of the objective function initially should be 430000.0
     And 1 remedial actions are used in preventive
     And the remedial action "pstBeFr3" is used in preventive
@@ -75,11 +82,13 @@ Feature: US 92.2: Costly range actions optimization - APPROXIMATED_INTEGERS PSTs
   @fast @costly @rao @second-preventive
   Scenario: US 92.2.5: PST in 2nd preventive optimization
   PST is moved to tap -9 straight from preventive optimization to cut curative activation costs.
+  Same case as US 92.2.3 but with 2nd preventive optimization allowed.
     Given network file is "epic92/2Nodes3ParallelLinesPST.uct"
     Given crac file is "epic92/crac-92-2-3.json"
     Given configuration file is "epic92/RaoParameters_dc_minObjective_discretePst_2P.json"
     When I launch rao
     Then the worst margin is 11.73 MW
+    And the execution details should be "Second preventive improved first preventive results"
     And the value of the objective function initially should be 430000.0
     And 1 remedial actions are used in preventive
     And the remedial action "pstBeFr3" is used in preventive
@@ -91,12 +100,13 @@ Feature: US 92.2: Costly range actions optimization - APPROXIMATED_INTEGERS PSTs
 
   @fast @costly @rao @multi-curative
   Scenario: US 92.2.6: Multi-curative costly optimization
-  The same PST is moved in preventive optimization and at all curative states
+  The same PST is moved in preventive optimization and at all curative states.
     Given network file is "epic92/2Nodes3ParallelLinesPST.uct"
     Given crac file is "epic92/crac-92-2-6.json"
     Given configuration file is "epic92/RaoParameters_dc_minObjective_discretePst.json"
     When I launch rao
     Then the worst margin is 32.13 MW
+    And the execution details should be "The RAO only went through first preventive"
     And the value of the objective function initially should be 450000.0
     And 1 remedial actions are used in preventive
     And the remedial action "pstBeFr3" is used in preventive
@@ -116,7 +126,7 @@ Feature: US 92.2: Costly range actions optimization - APPROXIMATED_INTEGERS PSTs
     And the value of the objective function after CRA should be 130.0
 
   @fast @costly @rao @second-preventive @multi-curative
-  Scenario: US 92.2.6: Multi-curative costly optimization with 2P
+  Scenario: US 92.2.7: Multi-curative costly optimization with 2P
   Same case as US 92.2.6 but with second preventive optimization.
   The PST is moved to tap -10 straight from preventive optimization to cut activation expenses.
     Given network file is "epic92/2Nodes3ParallelLinesPST.uct"
@@ -124,6 +134,7 @@ Feature: US 92.2: Costly range actions optimization - APPROXIMATED_INTEGERS PSTs
     Given configuration file is "epic92/RaoParameters_dc_minObjective_discretePst_2P.json"
     When I launch rao
     Then the worst margin is 40.77 MW
+    And the execution details should be "Second preventive improved first preventive results"
     And the value of the objective function initially should be 450000.0
     And 1 remedial actions are used in preventive
     And the remedial action "pstBeFr3" is used in preventive

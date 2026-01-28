@@ -16,6 +16,7 @@ Feature: US 92.3: Exhaustive costly optimization - APPROXIMATED_INTEGERS PSTs
     Given configuration file is "epic92/RaoParameters_dc_minObjective_discretePst.json"
     When I launch rao
     Then the worst margin is 32.13 MW
+    And the execution details should be "The RAO only went through first preventive"
     And the value of the objective function initially should be 200000.0
     And 2 remedial actions are used in preventive
     And the remedial action "pstBeFr3" is used in preventive
@@ -35,6 +36,7 @@ Feature: US 92.3: Exhaustive costly optimization - APPROXIMATED_INTEGERS PSTs
     When I launch rao
     # Worst margin on preventive CNEC
     Then the worst margin is 5.3 MW
+    And the execution details should be "The RAO only went through first preventive"
     And the value of the objective function initially should be 350000.0
     And 1 remedial actions are used in preventive
     And the remedial action "pstBeFr4" is used in preventive
@@ -57,6 +59,7 @@ Feature: US 92.3: Exhaustive costly optimization - APPROXIMATED_INTEGERS PSTs
     When I launch rao
     # Worst margin on curative CNEC
     Then the worst margin is 13.02 MW
+    And the execution details should be "Second preventive improved first preventive results"
     And the value of the objective function initially should be 350000.0
     And 1 remedial actions are used in preventive
     And the remedial action "pstBeFr4" is used in preventive
@@ -70,12 +73,15 @@ Feature: US 92.3: Exhaustive costly optimization - APPROXIMATED_INTEGERS PSTs
 
   @fast @costly @rao
   Scenario: US 92.3.4: Preventive and curative PST + curative topological action - 2 scenarios
+  One preventive range action, then the same range action is used also in both curatives (along with a topological action),
+  but no second preventive to choose preventive tap among the taps chosen in curative.
     Given network file is "epic92/2Nodes5ParallelLinesPST4LinesClosed.uct"
     Given crac file is "epic92/crac-92-3-4.json"
     Given configuration file is "epic92/RaoParameters_dc_minObjective_discretePst.json"
     When I launch rao
     # Worst margin on preventive CNEC
     Then the worst margin is 3.73 MW
+    And the execution details should be "The RAO only went through first preventive"
     And the value of the objective function initially should be 233333.33
     And 1 remedial actions are used in preventive
     And the remedial action "pstBeFr5" is used in preventive
@@ -102,6 +108,7 @@ Feature: US 92.3: Exhaustive costly optimization - APPROXIMATED_INTEGERS PSTs
     When I launch rao
     # Worst margin on curative CNEC
     Then the worst margin is 21.8 MW
+    And the execution details should be "Second preventive improved first preventive results"
     And the value of the objective function initially should be 233333.33
     And 1 remedial actions are used in preventive
     And the remedial action "pstBeFr5" is used in preventive
