@@ -215,15 +215,15 @@ class CriticalBranchReader {
     }
 
     private void addPermanentThresholds(FlowCnecAdder cnecAdder) {
-        if (!Objects.isNull(criticalBranch.getPermanentImaxFactor())) {
+        if (!Objects.isNull(criticalBranch.getPermanentImaxFactor()) && criticalBranch.getPermanentImaxFactor().doubleValue() > 1e-6) {
             addThreshold(cnecAdder, criticalBranch.getPermanentImaxFactor().doubleValue(), Unit.PERCENT_IMAX);
-        } else if (!Objects.isNull(criticalBranch.getImaxFactor())) {
+        } else if (!Objects.isNull(criticalBranch.getImaxFactor()) && criticalBranch.getImaxFactor().doubleValue() > 1e-6) {
             addThreshold(cnecAdder, criticalBranch.getImaxFactor().doubleValue(), Unit.PERCENT_IMAX);
         }
 
-        if (!Objects.isNull(criticalBranch.getPermanentImaxA())) {
+        if (!Objects.isNull(criticalBranch.getPermanentImaxA()) && criticalBranch.getPermanentImaxA().doubleValue() > 1e-6) {
             addThreshold(cnecAdder, criticalBranch.getPermanentImaxA().doubleValue(), Unit.AMPERE);
-        } else if (!Objects.isNull(criticalBranch.getImaxA())) {
+        } else if (!Objects.isNull(criticalBranch.getImaxA()) && criticalBranch.getImaxA().doubleValue() > 1e-6) {
             addThreshold(cnecAdder, criticalBranch.getImaxA().doubleValue(), Unit.AMPERE);
         }
 
@@ -234,15 +234,15 @@ class CriticalBranchReader {
     }
 
     private void addTemporaryThresholds(FlowCnecAdder cnecAdder) {
-        if (!Objects.isNull(criticalBranch.getTemporaryImaxFactor())) {
+        if (!Objects.isNull(criticalBranch.getTemporaryImaxFactor()) && criticalBranch.getTemporaryImaxFactor().doubleValue() > 1e-6) {
             addThreshold(cnecAdder, criticalBranch.getTemporaryImaxFactor().doubleValue(), Unit.PERCENT_IMAX);
-        } else if (!Objects.isNull(criticalBranch.getImaxFactor())) {
+        } else if (!Objects.isNull(criticalBranch.getImaxFactor()) && criticalBranch.getImaxFactor().doubleValue() > 1e-6) {
             addThreshold(cnecAdder, criticalBranch.getImaxFactor().doubleValue(), Unit.PERCENT_IMAX);
         }
 
-        if (!Objects.isNull(criticalBranch.getTemporaryImaxA())) {
+        if (!Objects.isNull(criticalBranch.getTemporaryImaxA()) && criticalBranch.getTemporaryImaxA().doubleValue() > 1e-6) {
             addThreshold(cnecAdder, criticalBranch.getTemporaryImaxA().doubleValue(), Unit.AMPERE);
-        } else if (!Objects.isNull(criticalBranch.getImaxA())) {
+        } else if (!Objects.isNull(criticalBranch.getImaxA()) && criticalBranch.getImaxA().doubleValue() > 1e-6) {
             addThreshold(cnecAdder, criticalBranch.getImaxA().doubleValue(), Unit.AMPERE);
         }
 
