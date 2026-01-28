@@ -114,7 +114,8 @@ public class FastRao implements RaoProvider {
                 crac.getFlowCnecs(),
                 crac.getRangeActions().isEmpty() ? new HashSet<>() : Set.of(crac.getRangeActions().stream().findFirst().orElseThrow()),
                 parameters,
-                toolProvider);
+                toolProvider,
+                false);
 
             // Run initial sensi (for initial values, and to know which cnecs to put in the first rao)
             PrePerimeterResult initialResult = prePerimeterSensitivityAnalysis.runInitialSensitivityAnalysis(raoInput.getNetwork());
@@ -376,7 +377,8 @@ public class FastRao implements RaoProvider {
             crac.getFlowCnecs(),
             crac.getRangeActions().isEmpty() ? new HashSet<>() : Set.of(crac.getRangeActions().stream().findFirst().orElseThrow()),
             parameters,
-            toolProvider);
+            toolProvider,
+            false);
 
         // Run asynchronously
         return perimeterSensiAnalysis.runAsyncBasedOnInitialPreviousAndActivatedRa(

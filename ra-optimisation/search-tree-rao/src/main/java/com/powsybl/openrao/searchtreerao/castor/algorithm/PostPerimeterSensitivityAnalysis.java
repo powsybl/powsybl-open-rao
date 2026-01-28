@@ -43,15 +43,17 @@ public class PostPerimeterSensitivityAnalysis extends AbstractMultiPerimeterSens
                                             Set<FlowCnec> flowCnecs,
                                             Set<RangeAction<?>> rangeActions,
                                             RaoParameters raoParameters,
-                                            ToolProvider toolProvider) {
-        super(crac, flowCnecs, rangeActions, raoParameters, toolProvider);
+                                            ToolProvider toolProvider,
+                                            boolean multiThreadedSensitivities) {
+        super(crac, flowCnecs, rangeActions, raoParameters, toolProvider, multiThreadedSensitivities);
     }
 
     public PostPerimeterSensitivityAnalysis(Crac crac,
                                             Set<State> states,
                                             RaoParameters raoParameters,
-                                            ToolProvider toolProvider) {
-        super(crac, states, raoParameters, toolProvider);
+                                            ToolProvider toolProvider,
+                                            boolean multiThreadedSensitivities) {
+        super(crac, states, raoParameters, toolProvider, multiThreadedSensitivities);
     }
 
     /**
