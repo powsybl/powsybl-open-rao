@@ -168,173 +168,21 @@ whether the power is increasing (ramp-up) or decreasing (ramp-down).
 More generally, the power variation and the state transitions are strongly entangled and constrain one another.
 Depending on the state transition, the power variation $P(g,s,t+1) - P(g,s,t)$ is bounded differently.
 
-##### Off to Off transition
-
-The power remains constant and null between the two timestamp:
-
-$$P(g,s,t) = P(g,s,t+1) = 0$$
-
-##### Off to Ramp-Up transition
-
-> The following holds only if $\Delta_{t \rightarrow t+1} < LEAD(g)$.
-
-The power increase is constrained by the upward power ramp:
-
-$$P(g,s,t+1) - P(g,s,t) = \frac{P_{\min}(g)}{LEAD(g)}\Delta_{t \rightarrow t+1}$$
-
-> 💡 **Participation to the global constraint**
->
-> When including this equation in the global constraint, both bounds must be multiplied by the binary variable
-> $T_{OFF \to RU}(g,s,t)$.
-
-##### Off to On transition
-
-> The following holds only if $\Delta_{t \rightarrow t+1} \geq LEAD(g)$.
-
-The power jumps from 0 to $P_{\min}(g)$ at least. Then it is free to vary in a range that is bounded by $P_{\max}(g)$ or
-the upward power gradient (considered infinite if not defined). Note that the power gradient only holds for the time
-when the generator power is _free_, which happens at the end of the ramp and before the end of the timestamp, i.e. for a
-duration of $\Delta_{t \rightarrow t+1} - LEAD(g)$.
-
-$$P_{\min}(g) \leq P(g,s,t+1) - P(g,s,t) \leq P_{\min}(g) + \left ( \Delta_{t \rightarrow t+1} - LEAD(g) \right )
-\nabla^{+}(g)$$
-
-> 💡 **Participation to the global constraint**
->
-> When including this equation in the global constraint, both bounds must be multiplied by the binary variable
-> $T_{OFF \to ON}(g,s,t)$.
-
-##### Ramp-Up to Ramp-Up transition
-
-The power increase is constrained by the upward power ramp:
-
-$$P(g,s,t+1) - P(g,s,t) = \frac{P_{\min}(g)}{LEAD(g)}\Delta_{t \rightarrow t+1}$$
-
-> 💡 **Participation to the global constraint**
->
-> When including this equation in the global constraint, both bounds must be multiplied by the binary variable
-> $T_{RU \to RU}(g,s,t)$.
-
-##### Ramp-Up to On transition
-
-This transition is decomposed into two parts: a first part corresponding to the end of the upward power ramp and a
-second one corresponding to the remaining time during which the power is _free_. However, if the different timestamps
-are not evenly distributed over time, it may not be possible to identify the precise timestamp at which the ramping-up
-began.
-
-<!-- TODO: prove this with a simple situation 46 / 30 / 60 and lead time of 1,75h -->
-
-For a given timestamp $t$, we define $\tau_{\infty}^{\nearrow}(t)$ as the timestamp during which the ramping up will
-finish (i.e. when the generator will transition to the On state). Mathematically:
-
-$$\tau_{\infty}^{\nearrow}(t) = \min \lbrace t' \geq t \; | \; \Delta_{t \rightarrow t'} \geq LEAD(g) \rbrace$$
-
-Note that several timestamps can have the same value of $\tau_{\infty}^{\nearrow}$. Then, $\forall t' < t$ such that
-$\tau_{\infty}^{\nearrow}(t') = t$, considering that the ramping up started at $t'$, the power variation is constrained
-as:
-
-$$(LEAD(g) - \Delta_{t' \rightarrow t-1}) \frac{P_{\min}(g)}{LEAD(g)} \leq P(g,s,t+1) - P(g,s,t) \leq (LEAD(g) -
-\Delta_{t' \rightarrow t-1}) \frac{P_{\min}(g)}{LEAD(g)} +(\Delta_{t' \rightarrow t} - LEAD(g)) \nabla^{+}(g)$$
-
-> 💡 **Participation to the global constraint**
->
-> When including this equation in the global constraint, both bounds must be multiplied by the binary variable
-> $T_{OFF \to RU}(g,s,t')$, for all $t'$ such that $\tau_{\infty}^{\nearrow}(t') = t$.
-
-##### On to Off transition
-
-> The following holds only if $\Delta_{t \rightarrow t+1} \geq LAG(g)$.
-
-The power decreases from $P_{\min}(g)$ to 0 at least. Before the ramp, the power is free to vary in a range that is
-bounded by $P_{\max}(g)$ or the downward power gradient (considered negatively infinite if not defined). Note that the
-power gradient only holds for the time when the generator power is _free_, which happens before the ramp and after the
-beginning of the timestamp, i.e. for a duration of $\Delta_{t \rightarrow t+1} - LAG(g)$.
-
-$$-P_{\min}(g) + \left ( \Delta_{t \rightarrow t+1} - LAG(g) \right ) \nabla^{-}(g) \leq P(g,s,t) - P(g,s,t-1) \leq
--P_{\min}(g)$$
-
-> 💡 **Participation to the global constraint**
->
-> When including this equation in the global constraint, both bounds must be multiplied by the binary variable
-> $T_{ON \to OFF}(g,s,t)$.
-
-##### On to On transition
-
-The power is simply bounded by the power gradients:
-
-$$\Delta_{t \rightarrow t+1} \nabla^{-}(g) \leq P(g,s,t+1) - P(g,s,t) \leq \Delta_{t\rightarrow t+1} \nabla^{+}(g)$$
-
-> 💡 **Participation to the global constraint**
->
-> When including this equation in the global constraint, both bounds must be multiplied by the binary variable
-> $T_{ON \to ON}(g,s,t)$.
-
-##### On to Ramp-Down transition
-
-This transition is decomposed into two parts: a first part corresponding to a time when the generator power is _free_
-and the beginning of the downward power ramp. However, if the different timestamps are not evenly distributed over time,
-it may not be possible to identify the precise timestamp at which the ramping-down will end.
-
-For a given timestamp $t$, we define $\tau_{0}^{\searrow}(t)$ as the unique timestamp at which the ramping down began
-given that it ends at $t$ (i.e. when the generator will transition to the Off state). Mathematically:
-
-$$\tau_{0}^{\searrow}(t) = \max \lbrace t' \leq t \; | \; \Delta_{t' \rightarrow t} \geq LAG(g) \rbrace$$
-
-Note that several timestamps can have the same value of $\tau_{0}^{\searrow}$. Then, $\forall t' > t$ such that
-$\tau_{0}^{\searrow}(t') = t$, considering that the ramping down started at $t$ and ends at $t'$, the power variation is
-constrained as:
-
-$$- (LAG(g) - \Delta_{t+1 \rightarrow t'}) \frac{P_{\min}(g)}{LAG(g)} + (\Delta_{t \rightarrow t'} - LAG(g))
-\nabla^{-}(g) \leq P(g,s,t+1) - P(g,s,t) \leq - (LAG(g) - \Delta_{t+1 \rightarrow t'}) \frac{P_{\min}(g)}{LAG(g)}$$
-
-> 💡 **Participation to the global constraint**
->
-> When including this equation in the global constraint, both bounds must be multiplied by the binary variable
-> $T_{RD \to OFF}(g,s,t'-1)$, for all $t'$ such that $\tau_{0}^{\searrow}(t') = t$.
-
-##### Ramp-Down to Off transition
-
-The power decrease is constrained by the downward power ramp:
-
-$$P(g,s,t+1) - P(g,s,t) = - \frac{P_{\min}(g)}{LAG(g)}\Delta_{t \rightarrow t+1}$$
-
-> 💡 **Participation to the global constraint**
->
-> When including this equation in the global constraint, both bounds must be multiplied by the binary variable
-> $T_{RD \to OFF}(g,s,t)$.
-
-##### Ramp-Down to Ramp-Down transition
-
-The power decrease is constrained by the downward power ramp:
-
-$$P(g,s,t+1) - P(g,s,t) = - \frac{P_{\min}(g)}{LAG(g)}\Delta_{t \rightarrow t+1}$$
-
-> 💡 **Participation to the global constraint**
->
-> When including this equation in the global constraint, both bounds must be multiplied by the binary variable
-> $T_{RD \to RD}(g,s,t)$.
-
-##### Summary
-
-All these equations can then be grouped into two inequalities, simply by multiplying the bounds by the associated binary
-transition variable.
-
-> **Additional remarks**
-> - The constant power rate of the ramping states is materialized through the same values being used for the lower and
-    upper bounds of the power variation
-> - Note the use of power gradients whenever the On state is implicated
+> - **Constant time gap:** $\Delta_{\tau} = \Delta_{t \to t + 1}, \forall t$
+> - **Reduced lead time:** $\text{lead}(g) = LEAD(g) \text{ mod } \Delta_{\tau}$
+> - **Reduced lag time:** $\text{lag}(g) = LAG(g) \text{ mod } \Delta_{\tau}$
 
 $$\begin{align*}
-0 \times T_{\textcolor{red}{\text{OFF}} \to \textcolor{red}{\text{OFF}}}(g,s,t) & & 0 \times T_{\textcolor{red}{\text{OFF}} \to \textcolor{red}{\text{OFF}}}(g,s,t) \\
-+ \frac{P_{\min}}{LEAD(g)} \Delta_{t \to t + 1} T_{\textcolor{red}{\text{OFF}} \to \textcolor{blue}{\text{START UP}}}(g,s,t) & & + \frac{P_{\min}}{LEAD(g)} \Delta_{t \to t + 1} T_{\textcolor{red}{\text{OFF}} \to \textcolor{blue}{\text{START UP}}}(g,s,t) \\
-+ P_{\min} T_{\textcolor{red}{\text{OFF}} \to \textcolor{green}{\text{ON}}}(g,s,t) & & + \left [ P_{\min} + (\Delta_{t \to t + 1} - LEAD(g)) \nabla^{+}(g) \right ] T_{\textcolor{red}{\text{OFF}} \to \textcolor{green}{\text{ON}}}(g,s,t) \\
-+ \frac{P_{\min}}{LEAD(g)} \Delta_{t \to t + 1} T_{\textcolor{blue}{\text{START UP}} \to \textcolor{blue}{\text{START UP}}}(g,s,t) & & + \frac{P_{\min}}{LEAD(g)} \Delta_{t \to t + 1} T_{\textcolor{blue}{\text{START UP}} \to \textcolor{blue}{\text{START UP}}}(g,s,t) \\
-+ T_{\textcolor{blue}{\text{START UP}} \to \textcolor{green}{\text{ON}}}(g,s,t) & & + T_{\textcolor{blue}{\text{START UP}} \to \textcolor{green}{\text{ON}}}(g,s,t) \\
-+ \nabla^{-}(g) \Delta_{t \to t + 1} T_{\textcolor{green}{\text{ON}} \to \textcolor{green}{\text{ON}}}(g,s,t) & \leq P(g,s,t + 1) - P(g,s,t) \leq & + \nabla^{+}(g) \Delta_{t \to t + 1} T_{\textcolor{green}{\text{ON}} \to \textcolor{green}{\text{ON}}}(g,s,t) \\
-- T_{\textcolor{green}{\text{ON}} \to \textcolor{orange}{\text{SHUT DOWN}}}(g,s,t) & & + T_{\textcolor{green}{\text{ON}} \to \textcolor{orange}{\text{SHUT DOWN}}}(g,s,t) \\
-- \frac{P_{\min}}{LAG(g)} \Delta_{t \to t + 1} T_{\textcolor{orange}{\text{SHUT DOWN}} \to \textcolor{orange}{\text{SHUT DOWN}}}(g,s,t) & & - \frac{P_{\min}}{LAG(g)} \Delta_{t \to t + 1} T_{\textcolor{orange}{\text{SHUT DOWN}} \to \textcolor{orange}{\text{SHUT DOWN}}}(g,s,t) \\
-- \frac{P_{\min}}{LAG(g)} \Delta_{t \to t + 1} T_{\textcolor{orange}{\text{SHUT DOWN}} \to \textcolor{red}{\text{OFF}}}(g,s,t) & & - \frac{P_{\min}}{LAG(g)} \Delta_{t \to t + 1} T_{\textcolor{orange}{\text{SHUT DOWN}} \to \textcolor{red}{\text{OFF}}}(g,s,t) \\
-- \left [ P_{\min} - (\Delta_{t \to t + 1} - LAG(g)) \nabla^{-}(g) \right ] T_{\textcolor{green}{\text{ON}} \to \textcolor{red}{\text{OFF}}}(g,s,t) & & - P_{\min} T_{\textcolor{green}{\text{ON}} \to \textcolor{red}{\text{OFF}}}(g,s,t)
+- \Delta P_{\min} T_{\textcolor{red}{\text{OFF}} \to \textcolor{red}{\text{OFF}}}(g,s,t) & & \Delta P_{\min} T_{\textcolor{red}{\text{OFF}} \to \textcolor{red}{\text{OFF}}}(g,s,t) \\
++ \frac{P_{\min}}{LEAD(g)} \Delta_{\tau} T_{\textcolor{red}{\text{OFF}} \to \textcolor{blue}{\text{START UP}}}(g,s,t) & & + \frac{P_{\min}}{LEAD(g)} \Delta_{\tau} T_{\textcolor{red}{\text{OFF}} \to \textcolor{blue}{\text{START UP}}}(g,s,t) \\
++ P_{\min} T_{\textcolor{red}{\text{OFF}} \to \textcolor{green}{\text{ON}}}(g,s,t) & & + \left [ P_{\min} + (\Delta_{\tau} - \text{lead}(g)) \nabla^{+}(g) \right ] T_{\textcolor{red}{\text{OFF}} \to \textcolor{green}{\text{ON}}}(g,s,t) \\
++ \frac{P_{\min}}{LEAD(g)} \Delta_{\tau} T_{\textcolor{blue}{\text{START UP}} \to \textcolor{blue}{\text{START UP}}}(g,s,t) & & + \frac{P_{\min}}{LEAD(g)} \Delta_{\tau} T_{\textcolor{blue}{\text{START UP}} \to \textcolor{blue}{\text{START UP}}}(g,s,t) \\
++ \frac{P_{\min}}{LEAD(g)} \text{lead}(g) T_{\textcolor{blue}{\text{START UP}} \to \textcolor{green}{\text{ON}}}(g,s,t) & & + \left [ \frac{P_{\min}}{LEAD(g)} \text{lead}(g) + (\Delta_{\tau} - \text{lead}(g)) \nabla^{+}(g) \right ] T_{\textcolor{blue}{\text{START UP}} \to \textcolor{green}{\text{ON}}}(g,s,t) \\
++ \nabla^{-}(g) \Delta_{\tau} T_{\textcolor{green}{\text{ON}} \to \textcolor{green}{\text{ON}}}(g,s,t) & \leq P(g,s,t + 1) - P(g,s,t) \leq & + \nabla^{+}(g) \Delta_{\tau} T_{\textcolor{green}{\text{ON}} \to \textcolor{green}{\text{ON}}}(g,s,t) \\
+- \left [ \frac{P_{\min}}{LAG(g)} \text{lag}(g) - (\Delta_{\tau} - \text{lag}(g)) \nabla^{-}(g) \right ] T_{\textcolor{green}{\text{ON}} \to \textcolor{orange}{\text{SHUT DOWN}}}(g,s,t) & & - \frac{P_{\min}}{LAG(g)} \text{lag}(g) T_{\textcolor{green}{\text{ON}} \to \textcolor{orange}{\text{SHUT DOWN}}}(g,s,t) \\
+- \frac{P_{\min}}{LAG(g)} \Delta_{\tau} T_{\textcolor{orange}{\text{SHUT DOWN}} \to \textcolor{orange}{\text{SHUT DOWN}}}(g,s,t) & & - \frac{P_{\min}}{LAG(g)} \Delta_{\tau} T_{\textcolor{orange}{\text{SHUT DOWN}} \to \textcolor{orange}{\text{SHUT DOWN}}}(g,s,t) \\
+- \frac{P_{\min}}{LAG(g)} \Delta_{\tau} T_{\textcolor{orange}{\text{SHUT DOWN}} \to \textcolor{red}{\text{OFF}}}(g,s,t) & & - \frac{P_{\min}}{LAG(g)} \Delta_{\tau} T_{\textcolor{orange}{\text{SHUT DOWN}} \to \textcolor{red}{\text{OFF}}}(g,s,t) \\
+- \left [ P_{\min} - (\Delta_{\tau} - \text{lag}(g)) \nabla^{-}(g) \right ] T_{\textcolor{green}{\text{ON}} \to \textcolor{red}{\text{OFF}}}(g,s,t) & & - P_{\min} T_{\textcolor{green}{\text{ON}} \to \textcolor{red}{\text{OFF}}}(g,s,t)
 \end{align*}$$
 
 ### Injection to generator power constraint
