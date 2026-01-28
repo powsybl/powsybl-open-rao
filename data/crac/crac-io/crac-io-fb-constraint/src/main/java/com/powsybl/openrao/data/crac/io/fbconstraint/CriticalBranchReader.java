@@ -223,7 +223,7 @@ class CriticalBranchReader {
 
         if (!Objects.isNull(criticalBranch.getPermanentImaxA()) && criticalBranch.getPermanentImaxA().doubleValue() > 1e-6) {
             addThreshold(cnecAdder, criticalBranch.getPermanentImaxA().doubleValue(), Unit.AMPERE);
-        } else if (!Objects.isNull(criticalBranch.getImaxA())  && criticalBranch.getImaxA().doubleValue() > 1e-6) {
+        } else if (!Objects.isNull(criticalBranch.getImaxA()) && criticalBranch.getImaxA().doubleValue() > 1e-6) {
             addThreshold(cnecAdder, criticalBranch.getImaxA().doubleValue(), Unit.AMPERE);
         }
 
