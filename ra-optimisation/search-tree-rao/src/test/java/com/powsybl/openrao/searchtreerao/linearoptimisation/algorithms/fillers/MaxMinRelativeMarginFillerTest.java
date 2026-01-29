@@ -35,6 +35,7 @@ import java.util.Set;
 
 import static com.powsybl.openrao.commons.Unit.AMPERE;
 import static com.powsybl.openrao.commons.Unit.MEGAWATT;
+import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -75,9 +76,9 @@ class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
         raoParameters.addExtension(OpenRaoSearchTreeParameters.class, searchTreeParameters);
         parameters = new SearchTreeRaoRelativeMarginsParameters();
         searchTreeParameters.setRelativeMarginsParameters(parameters);
+        getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters().setDc(true);
         parameters.setPtdfSumLowerBound(0.01);
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN);
-        raoParameters.getObjectiveFunctionParameters().setUnit(MEGAWATT);
 
         minMarginsParameters = new SearchTreeRaoCostlyMinMarginParameters();
         searchTreeParameters.setMinMarginsParameters(minMarginsParameters);
@@ -146,18 +147,18 @@ class MaxMinRelativeMarginFillerTest extends AbstractFillerTest {
         assertNotNull(cnec1AboveThreshold);
         assertNotNull(cnec1BelowThreshold);
         assertEquals(-linearProblem.infinity(), cnec1BelowThreshold.lb(), linearProblem.infinity() * 1e-3);
-        assertEquals(-MIN_FLOW_1, cnec1BelowThreshold.ub(), DOUBLE_TOLERANCE);
+        assertEquals(-MIN_FLOW_1 / (380. * Math.sqrt(3) / 1000.), cnec1BelowThreshold.ub(), DOUBLE_TOLERANCE);
         assertEquals(-linearProblem.infinity(), cnec1AboveThreshold.lb(), linearProblem.infinity() * 1e-3);
-        assertEquals(MAX_FLOW_1, cnec1AboveThreshold.ub(), DOUBLE_TOLERANCE);
+        assertEquals(MAX_FLOW_1 / (380. * Math.sqrt(3) / 1000.), cnec1AboveThreshold.ub(), DOUBLE_TOLERANCE);
         assertEquals(-1, cnec1BelowThreshold.getCoefficient(flowCnec1), PRECISE_DOUBLE_TOLERANCE);
         assertEquals(1, cnec1AboveThreshold.getCoefficient(flowCnec1), PRECISE_DOUBLE_TOLERANCE);
         assertEquals(-1, cnec1BelowThresholdRelative.getCoefficient(flowCnec1), PRECISE_DOUBLE_TOLERANCE);
         assertEquals(1, cnec1AboveThresholdRelative.getCoefficient(flowCnec1), PRECISE_DOUBLE_TOLERANCE);
-        assertEquals(380.0 * Math.sqrt(3) / 1000 * 0.01, cnec1AboveThresholdRelative.getCoefficient(minimumRelativeMargin), PRECISE_DOUBLE_TOLERANCE);
-        assertEquals(380.0 * Math.sqrt(3) / 1000 * 0.01, cnec1BelowThresholdRelative.getCoefficient(minimumRelativeMargin), PRECISE_DOUBLE_TOLERANCE);
+        assertEquals(0.01, cnec1AboveThresholdRelative.getCoefficient(minimumRelativeMargin), PRECISE_DOUBLE_TOLERANCE);
+        assertEquals(0.01, cnec1BelowThresholdRelative.getCoefficient(minimumRelativeMargin), PRECISE_DOUBLE_TOLERANCE);
 
-        assertEquals(380.0 * Math.sqrt(3) / 1000, cnec1BelowThreshold.getCoefficient(minimumMargin), DOUBLE_TOLERANCE);
-        assertEquals(380.0 * Math.sqrt(3) / 1000, cnec1AboveThreshold.getCoefficient(minimumMargin), DOUBLE_TOLERANCE);
+        assertEquals(1, cnec1BelowThreshold.getCoefficient(minimumMargin), DOUBLE_TOLERANCE);
+        assertEquals(1, cnec1AboveThreshold.getCoefficient(minimumMargin), DOUBLE_TOLERANCE);
 
         // check objective
         assertEquals(0.01, linearProblem.getObjective().getCoefficient(upwardVariation), DOUBLE_TOLERANCE); // penalty cost

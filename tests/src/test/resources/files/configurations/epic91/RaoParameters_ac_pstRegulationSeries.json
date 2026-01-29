@@ -1,8 +1,7 @@
 {
-  "version" : "3.2.1",
+  "version" : "3.3",
   "objective-function" : {
-    "type" : "MAX_MIN_MARGIN",
-    "unit" : "A"
+    "type" : "MAX_MIN_MARGIN"
   },
   "range-actions-optimization" : {
     "pst-ra-min-impact-threshold" : 0.01,
@@ -133,12 +132,14 @@
       "multi-threading" : {
         "available-cpus" : 4
       },
-      "costly-min-margin-parameters": {
+      "costly-min-margin-parameters" : {
         "shifted-violation-penalty" : 10000.0,
-        "shifted-violation-threshold": 0.0
+        "shifted-violation-threshold" : 0.0
       },
       "pst-regulation-parameters" : {
-        "psts-to-regulate" : { "FFR1AA1  FFR2AA1  1" : "FFR2AA1  FFR3AA1  1" }
+        "psts-to-regulate" : {
+          "FFR1AA1  FFR2AA1  1" : "FFR2AA1  FFR3AA1  1"
+        }
       }
     }
   }

@@ -17,6 +17,7 @@ import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.impl.CracImpl;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.ContingencyScenario;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.Perimeter;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
@@ -31,6 +32,7 @@ import org.opentest4j.AssertionFailedError;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 import static com.powsybl.iidm.network.TwoSides.ONE;
@@ -128,7 +130,7 @@ class PreventiveAndCurativesRaoResultImplTest {
     }
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         initCrac();
         preventiveInstant = crac.getInstant("preventive");
         autoInstant = crac.getInstant("auto");
@@ -161,8 +163,11 @@ class PreventiveAndCurativesRaoResultImplTest {
         prepareCurativeResult3();
 
         StateTree stateTree = generateStateTree();
+        RaoParameters raoParameters = new RaoParameters();
+        raoParameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters());
+        getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters().setDc(true);
 
-        output = new PreventiveAndCurativesRaoResultImpl(stateTree, initialResult, postPrevResult, postContingencyResults, crac, new RaoParameters());
+        output = new PreventiveAndCurativesRaoResultImpl(stateTree, initialResult, postPrevResult, postContingencyResults, crac, raoParameters);
     }
 
     private void prepareInitialResult() {

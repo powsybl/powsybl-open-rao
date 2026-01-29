@@ -34,6 +34,7 @@ import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getSensitivityProvider;
 import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters;
+import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.getFlowUnit;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -93,26 +94,33 @@ public final class ToolProvider {
                                                                             AppliedRemedialActions appliedRemedialActions,
                                                                             Instant outageInstant) {
 
+        Unit flowUnit = getFlowUnit(raoParameters);
+
+        Set<Unit> computationUnits;
+        if (flowUnit == Unit.MEGAWATT) {
+            computationUnits = Collections.singleton(Unit.MEGAWATT);
+        } else {
+            computationUnits = Set.of(Unit.AMPERE, Unit.MEGAWATT); // Still needs to compute sensi in MW for post processing intensity sensi
+        }
+
         SystematicSensitivityInterface.SystematicSensitivityInterfaceBuilder builder = SystematicSensitivityInterface.builder()
             .withSensitivityProviderName(getSensitivityProvider(raoParameters))
             .withParameters(getSensitivityWithLoadFlowParameters(raoParameters))
-            .withRangeActionSensitivities(rangeActions, cnecs, Collections.singleton(Unit.MEGAWATT))
+            .withRangeActionSensitivities(rangeActions, cnecs, Collections.singleton(flowUnit))
             .withAppliedRemedialActions(appliedRemedialActions)
             .withOutageInstant(outageInstant);
 
-        if (!getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters().isDc()) {
-            builder.withLoadflow(cnecs, Collections.singleton(Unit.AMPERE));
-        }
+        builder.withLoadflow(cnecs, computationUnits);
 
         if (computePtdfs && computeLoopFlows) {
             Set<String> eic = getEicForObjectiveFunction();
             eic.addAll(getEicForLoopFlows());
-            builder.withPtdfSensitivities(getGlskForEic(eic), cnecs, Collections.singleton(Unit.MEGAWATT));
+            builder.withPtdfSensitivities(getGlskForEic(eic), cnecs, computationUnits);
         } else if (computeLoopFlows) {
             Set<FlowCnec> loopflowCnecs = getLoopFlowCnecs(cnecs);
-            builder.withPtdfSensitivities(getGlskForEic(getEicForLoopFlows()), loopflowCnecs, Collections.singleton(Unit.MEGAWATT));
+            builder.withPtdfSensitivities(getGlskForEic(getEicForLoopFlows()), loopflowCnecs, computationUnits);
         } else if (computePtdfs) {
-            builder.withPtdfSensitivities(getGlskForEic(getEicForObjectiveFunction()), cnecs, Collections.singleton(Unit.MEGAWATT));
+            builder.withPtdfSensitivities(getGlskForEic(getEicForObjectiveFunction()), cnecs, computationUnits);
         }
 
         return builder.build();
@@ -210,7 +218,8 @@ public final class ToolProvider {
                 raoInput.getGlskProvider(),
                 new LoopFlowComputationImpl(
                     raoInput.getGlskProvider(),
-                    raoInput.getReferenceProgram()
+                    raoInput.getReferenceProgram(),
+                    getFlowUnit(raoParameters)
                 )
             );
         }

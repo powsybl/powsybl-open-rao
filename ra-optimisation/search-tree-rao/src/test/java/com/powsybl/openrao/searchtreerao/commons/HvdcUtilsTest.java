@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.commons;
 
+import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.openloadflow.OpenLoadFlowParameters;
@@ -69,6 +70,33 @@ public class HvdcUtilsTest {
 
         assertEquals(823.0, crac.getHvdcRangeAction("HVDC_RA1").getInitialSetpoint(), 1);
         assertEquals(823.0, crac.getHvdcRangeAction("HVDC_RA2").getInitialSetpoint(), 1);
+    }
+
+    @Test
+    void testUpdateHvdcRangeActionInitialSetpointWithSide2RRectifier() throws IOException {
+        // Two HVDC range actions both using HVDC line "BBE2AA11 FFR3AA11 1" that is initially in AC emulation mode
+        // The difference with test testUpdateHvdcRangeActionInitialSetpoint is that the flow goes from converter station 2 to converter station 1 on the line
+        // We should :
+        // - read the power at station 1
+        // - see that it is negative
+        // - keep converter mode to SIDE_1_INVERTER_SIDE_2_RECTIFIER + active power setpoint to abs(setpoint)
+        Network network = Network.read("TestCase16NodesWithHvdc_AC_emulation_side1_inverter.xiidm", getClass().getResourceAsStream("/network/TestCase16NodesWithHvdc_AC_emulation_side1_inverter.xiidm"));
+        Crac crac = Crac.read("crac_hvdc_allinstants_allusagerules.json", getClass().getResourceAsStream("/crac/crac_hvdc_allinstants_allusagerules.json"), network);
+        // Before
+        assertEquals(-0.0, crac.getHvdcRangeAction("HVDC_RA1").getInitialSetpoint());
+        assertEquals(-0.0, crac.getHvdcRangeAction("HVDC_RA2").getInitialSetpoint());
+        assertEquals(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER, network.getHvdcLine("BBE2AA11 FFR3AA11 1").getConvertersMode());
+
+        RaoParameters raoParameters = new RaoParameters();
+        raoParameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters());
+        updateHvdcRangeActionInitialSetpoint(crac, network, raoParameters);
+
+        // the flow goes from converter station 2 to converter station 1 on the line => setpoint should be negative.
+        assertEquals(-806, crac.getHvdcRangeAction("HVDC_RA1").getInitialSetpoint(), 1);
+        assertEquals(-806, crac.getHvdcRangeAction("HVDC_RA2").getInitialSetpoint(), 1);
+        assertEquals(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER, network.getHvdcLine("BBE2AA11 FFR3AA11 1").getConvertersMode());
+        assertEquals(806, network.getHvdcLine("BBE2AA11 FFR3AA11 1").getActivePowerSetpoint(), 1);
+
     }
 
     @Test

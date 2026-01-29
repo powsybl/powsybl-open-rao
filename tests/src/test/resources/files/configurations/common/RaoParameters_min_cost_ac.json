@@ -1,9 +1,7 @@
 {
-  "version" : "3.2.1",
+  "version" : "3.3",
   "objective-function" : {
-    "type" : "MAX_MIN_MARGIN",
-    "unit" : "MW",
-    "enforce-curative-security" : false
+    "type" : "MIN_COST"
   },
   "range-actions-optimization" : {
     "pst-ra-min-impact-threshold" : 0.01,
@@ -12,7 +10,7 @@
   },
   "topological-actions-optimization" : {
     "relative-minimum-impact-threshold" : 0.0,
-    "absolute-minimum-impact-threshold" : 195.0
+    "absolute-minimum-impact-threshold" : 1.0
   },
   "not-optimized-cnecs" : {
     "do-not-optimize-curative-cnecs-for-tsos-without-cras" : false
@@ -23,12 +21,12 @@
   "extensions" : {
     "open-rao-search-tree-parameters" : {
       "objective-function" : {
-        "curative-min-obj-improvement" : 10000.0
+        "curative-min-obj-improvement" : 0.0
       },
       "range-actions-optimization" : {
         "max-mip-iterations" : 10,
         "pst-sensitivity-threshold" : 1.0E-6,
-        "pst-model" : "CONTINUOUS",
+        "pst-model" : "APPROXIMATED_INTEGERS",
         "hvdc-sensitivity-threshold" : 1.0E-6,
         "injection-ra-sensitivity-threshold" : 1.0E-6,
         "linear-optimization-solver" : {
@@ -70,7 +68,12 @@
             "dcUseTransformerRatio" : true,
             "countriesToBalance" : [ ],
             "componentMode" : "MAIN_CONNECTED",
-            "hvdcAcEmulation" : true
+            "hvdcAcEmulation" : true,
+            "extensions" : {
+              "open-load-flow-parameters" : {
+                "slackDistributionFailureBehavior" : "THROW"
+              }
+            }
           }
         }
       },
