@@ -25,8 +25,6 @@ import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
@@ -62,9 +60,9 @@ public class PostPerimeterSensitivityAnalysis extends AbstractMultiPerimeterSens
      *     <li> the optimizationResult of the given perimeter for action cost </li>
      * </ul>
      */
-    public Future<PostPerimeterResult> runBasedOnInitialPreviousAndOptimizationResults(Network network,
+    public PostPerimeterResult runBasedOnInitialPreviousAndOptimizationResults(Network network,
                                                                                        FlowResult initialFlowResult,
-                                                                                       Future<PrePerimeterResult> previousResultsFuture,
+                                                                                       PrePerimeterResult previousResultsFuture,
                                                                                        Set<String> operatorsNotSharingCras,
                                                                                        OptimizationResult optimizationResult,
                                                                                        AppliedRemedialActions appliedCurativeRemedialActions) {
@@ -78,36 +76,32 @@ public class PostPerimeterSensitivityAnalysis extends AbstractMultiPerimeterSens
             sensitivityComputer.compute(network);
             flowResult.set(sensitivityComputer.getBranchResult(network));
             sensitivityResult.set(sensitivityComputer.getSensitivityResult());
+        } else {
+            flowResult.set(previousResultsFuture);
+            sensitivityResult.set(previousResultsFuture);
         }
 
-        // Thread is executed once previousResultsFuture is fetched
-        return Executors.newSingleThreadExecutor().submit(() -> {
-            if (!actionWasTaken) {
-                flowResult.set(previousResultsFuture.get());
-                sensitivityResult.set(previousResultsFuture.get());
-            }
-            ObjectiveFunction objectiveFunction = ObjectiveFunction.build(
-                flowCnecs,
-                toolProvider.getLoopFlowCnecs(flowCnecs),
-                initialFlowResult,
-                previousResultsFuture.get(),
-                operatorsNotSharingCras,
-                raoParameters,
-                optimizationResult.getActivatedRangeActionsPerState().keySet()
-            );
+        ObjectiveFunction objectiveFunction = ObjectiveFunction.build(
+            flowCnecs,
+            toolProvider.getLoopFlowCnecs(flowCnecs),
+            initialFlowResult,
+            previousResultsFuture,
+            operatorsNotSharingCras,
+            raoParameters,
+            optimizationResult.getActivatedRangeActionsPerState().keySet()
+        );
 
-            ObjectiveFunctionResult objectiveFunctionResult = objectiveFunction.evaluate(
-                flowResult.get(),
-                new RemedialActionActivationResultImpl(optimizationResult, optimizationResult)
-            );
+        ObjectiveFunctionResult objectiveFunctionResult = objectiveFunction.evaluate(
+            flowResult.get(),
+            new RemedialActionActivationResultImpl(optimizationResult, optimizationResult)
+        );
 
-            return new PostPerimeterResult(optimizationResult, new PrePerimeterSensitivityResultImpl(
-                flowResult.get(),
-                sensitivityResult.get(),
-                RangeActionSetpointResultImpl.buildWithSetpointsFromNetwork(network, rangeActions),
-                objectiveFunctionResult
-            ));
-        });
+        return new PostPerimeterResult(optimizationResult, new PrePerimeterSensitivityResultImpl(
+            flowResult.get(),
+            sensitivityResult.get(),
+            RangeActionSetpointResultImpl.buildWithSetpointsFromNetwork(network, rangeActions),
+            objectiveFunctionResult
+        ));
     }
 
     /**
