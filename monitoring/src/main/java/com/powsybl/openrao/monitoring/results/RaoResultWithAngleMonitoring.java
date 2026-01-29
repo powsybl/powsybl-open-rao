@@ -60,7 +60,7 @@ public class RaoResultWithAngleMonitoring extends RaoResultClone {
     @Override
     public double getAngle(Instant optimizationInstant, AngleCnec angleCnec, Unit unit) {
         unit.checkPhysicalParameter(PhysicalParameter.ANGLE);
-        if (optimizationInstant == null || angleCnec.getState().getInstant() !=  optimizationInstant) {
+        if (optimizationInstant == null || angleCnec.getState().getInstant() != optimizationInstant) {
             throw new OpenRaoException("Unexpected optimization instant for voltage monitoring result (only optimization instant equal to angleCnec' state's instant is accepted) : " + optimizationInstant);
         }
         Optional<CnecResult> angleCnecResultOpt = angleMonitoringResult.getCnecResults().stream().filter(angleCnecRes -> angleCnecRes.getId().equals(angleCnec.getId())).findFirst();
