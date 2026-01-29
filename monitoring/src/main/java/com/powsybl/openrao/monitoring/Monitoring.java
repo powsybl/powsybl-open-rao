@@ -22,6 +22,7 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
@@ -144,8 +145,18 @@ public class Monitoring {
             List<ForkJoinTask<Object>> tasks = contingencyStates.stream().map(state ->
                 networkPool.submit(() -> {
                     Network networkClone = networkPool.getAvailableNetwork();
-
                     Contingency contingency = state.getContingency().orElseThrow();
+
+                    // For a given contingency, cnec state's intant == last curative instant optimized for contingency.
+                    Instant lastCurativeInstantOptimizedForContingency = crac.getStates(contingency).getLast().getInstant();
+
+                    if ( lastCurativeInstantOptimizedForContingency.getOrder() > state.getInstant().getOrder() ) {
+                        String msg = String.format("State %s is not valid. Monitoring is only allowed on states defined on the last curative instant %s for the contingency %s.", state.getId(), lastCurativeInstantOptimizedForContingency.getId(), contingency.getId());
+                        monitoringResult.combine(makeFailedMonitoringResultForStateWithNaNCnecRsults(monitoringInput, physicalParameter, state, msg));
+                        networkPool.releaseUsedNetwork(networkClone);
+                        return null;
+                    }
+
                     if (!contingency.isValid(networkClone)) {
                         monitoringResult.combine(makeFailedMonitoringResultForStateWithNaNCnecRsults(monitoringInput, physicalParameter, state, "Unable to apply contingency " + contingency.getId()));
                         networkPool.releaseUsedNetwork(networkClone);
@@ -438,7 +449,7 @@ public class Monitoring {
     private MonitoringResult makeFailedMonitoringResultForStateWithNaNCnecRsults(MonitoringInput monitoringInput, PhysicalParameter physicalParameter, State state, String failureReason) {
         Set<CnecResult> cnecResults = new HashSet<>();
         CnecValue cnecValue = physicalParameter.equals(PhysicalParameter.ANGLE) ? new AngleCnecValue(Double.NaN) : new VoltageCnecValue(Double.NaN, Double.NaN);
-        monitoringInput.getCrac().getCnecs(state).forEach(cnec -> cnecResults.add(new CnecResult(cnec, parameterToUnitMap.get(physicalParameter), cnecValue, Double.NaN, Cnec.SecurityStatus.FAILURE)));
+        monitoringInput.getCrac().getCnecs(state).stream().filter(cnec -> cnec.getPhysicalParameter() == physicalParameter).forEach(cnec -> cnecResults.add(new CnecResult(cnec, parameterToUnitMap.get(physicalParameter), cnecValue, Double.NaN, Cnec.SecurityStatus.FAILURE)));
         return makeFailedMonitoringResultForState(physicalParameter, state, failureReason, cnecResults);
     }
 
