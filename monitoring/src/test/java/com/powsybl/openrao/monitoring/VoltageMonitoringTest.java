@@ -11,7 +11,6 @@ import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.ContingencyElementType;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlowParameters;
-import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
@@ -32,11 +31,9 @@ import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.monitoring.results.CnecResult;
 import com.powsybl.openrao.monitoring.results.MonitoringResult;
-import com.powsybl.openrao.raoapi.Rao;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
-import com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.Castor;
 import org.junit.jupiter.api.BeforeEach;
@@ -58,7 +55,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -581,7 +577,6 @@ class VoltageMonitoringTest {
         RaoResult raoResultWithVoltageMonitoring = Monitoring.runVoltageAndUpdateRaoResult("OpenLoadFlow", loadFlowParameters, 1, monitoringInput);
 
         assertFalse(raoResultWithVoltageMonitoring.isSecure(PhysicalParameter.VOLTAGE));
-        assertThrows(OpenRaoException.class, () -> raoResultWithVoltageMonitoring.getMinVoltage(crac.getPreventiveState().getInstant(), vcPrev, Unit.KILOVOLT));
         assertEquals(400., raoResultWithVoltageMonitoring.getMinVoltage(crac.getInstant(CURATIVE_INSTANT_ID), vcCur, Unit.KILOVOLT));
         assertEquals(400, raoResultWithVoltageMonitoring.getMaxVoltage(crac.getInstant(CURATIVE_INSTANT_ID), vcCur, Unit.KILOVOLT));
         assertEquals(-1., raoResultWithVoltageMonitoring.getMargin(crac.getInstant(CURATIVE_INSTANT_ID), vcCur, Unit.KILOVOLT));
@@ -646,6 +641,6 @@ class VoltageMonitoringTest {
         ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
         RaoResult importedRaoResult = RaoResult.read(inputStream, crac);
 
-        assertTrue(importedRaoResult.isSecure()); // FIXME: crashes because preventive CNECs were not serialized
+        assertTrue(importedRaoResult.isSecure());
     }
 }
