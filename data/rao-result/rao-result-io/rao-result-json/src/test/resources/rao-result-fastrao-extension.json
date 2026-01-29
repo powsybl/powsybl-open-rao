@@ -414,24 +414,6 @@
   } ],
   "angleCnecResults" : [ {
     "angleCnecId" : "angleCnecId",
-    "initial" : {
-      "degree" : {
-        "angle" : 3135.00,
-        "margin" : 3131.00
-      }
-    },
-    "preventive" : {
-      "degree" : {
-        "angle" : 3235.00,
-        "margin" : 3231.00
-      }
-    },
-    "auto" : {
-      "degree" : {
-        "angle" : 3335.00,
-        "margin" : 3331.00
-      }
-    },
     "curative" : {
       "degree" : {
         "angle" : 3435.00,
@@ -441,27 +423,6 @@
   } ],
   "voltageCnecResults" : [ {
     "voltageCnecId" : "voltageCnecId",
-    "initial" : {
-      "kilovolt" : {
-        "margin" : 4141.00,
-        "minVoltage" : 4146.00,
-        "maxVoltage" : 4156.00
-      }
-    },
-    "preventive" : {
-      "kilovolt" : {
-        "margin" : 4241.00,
-        "minVoltage" : 4246.00,
-        "maxVoltage" : 4256.00
-      }
-    },
-    "auto" : {
-      "kilovolt" : {
-        "margin" : 4341.00,
-        "minVoltage" : 4346.00,
-        "maxVoltage" : 4356.00
-      }
-    },
     "curative" : {
       "kilovolt" : {
         "margin" : 4441.00,
