@@ -38,6 +38,7 @@ public abstract class AbstractMultiPerimeterSensitivityAnalysis {
     protected final Set<RangeAction<?>> rangeActions;
     protected final RaoParameters raoParameters;
     protected final ToolProvider toolProvider;
+    protected final boolean multiThreadedSensitivities;
 
     protected AbstractMultiPerimeterSensitivityAnalysis(Crac crac,
                                                         Set<FlowCnec> flowCnecs,
@@ -49,7 +50,8 @@ public abstract class AbstractMultiPerimeterSensitivityAnalysis {
         this.flowCnecs = flowCnecs;
         this.rangeActions = rangeActions;
         this.toolProvider = toolProvider;
-        this.raoParameters = createNewParametersWithOrWithoutMultiThreadedSensititivities(raoParameters, multiThreadedSensitivities);
+        this.raoParameters = raoParameters;
+        this.multiThreadedSensitivities = multiThreadedSensitivities;
     }
 
     protected AbstractMultiPerimeterSensitivityAnalysis(Crac crac,
@@ -65,7 +67,34 @@ public abstract class AbstractMultiPerimeterSensitivityAnalysis {
             this.flowCnecs.addAll(crac.getFlowCnecs(state));
         }
         this.toolProvider = toolProvider;
-        this.raoParameters = createNewParametersWithOrWithoutMultiThreadedSensititivities(raoParameters, multiThreadedSensitivities);
+        this.raoParameters = raoParameters;
+        this.multiThreadedSensitivities = multiThreadedSensitivities;
+    }
+
+    protected int setNewThreadCountAndGetOldValue() {
+        // get or create the OpenSensitivityAnalysisParameters extension
+        SensitivityAnalysisParameters sensitivityAnalysisParameters = LoadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters(raoParameters);
+        if (sensitivityAnalysisParameters.getExtension(OpenSensitivityAnalysisParameters.class) == null) {
+            sensitivityAnalysisParameters.addExtension(OpenSensitivityAnalysisParameters.class, new OpenSensitivityAnalysisParameters());
+        }
+        OpenSensitivityAnalysisParameters openSensitivityAnalysisParameters = sensitivityAnalysisParameters.getExtension(OpenSensitivityAnalysisParameters.class);
+
+        int oldThreadCount = openSensitivityAnalysisParameters.getThreadCount();
+        if (multiThreadedSensitivities) {
+            openSensitivityAnalysisParameters.setThreadCount(MultithreadingParameters.getAvailableCPUs(raoParameters));
+        }
+        return oldThreadCount;
+    }
+
+    protected void resetThreadCount(int oldThreadCount) {
+        // get or create the OpenSensitivityAnalysisParameters extension
+        SensitivityAnalysisParameters sensitivityAnalysisParameters = LoadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters(raoParameters);
+        if (sensitivityAnalysisParameters.getExtension(OpenSensitivityAnalysisParameters.class) == null) {
+            sensitivityAnalysisParameters.addExtension(OpenSensitivityAnalysisParameters.class, new OpenSensitivityAnalysisParameters());
+        }
+        OpenSensitivityAnalysisParameters openSensitivityAnalysisParameters = sensitivityAnalysisParameters.getExtension(OpenSensitivityAnalysisParameters.class);
+
+        openSensitivityAnalysisParameters.setThreadCount(oldThreadCount);
     }
 
     private RaoParameters createNewParametersWithOrWithoutMultiThreadedSensititivities(RaoParameters oldRaoParameters, boolean multiThreadedSensitivities) {
