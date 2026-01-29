@@ -89,7 +89,9 @@ public class PrePerimeterSensitivityAnalysis extends AbstractMultiPerimeterSensi
     }
 
     private PrePerimeterResult runAndGetResult(Network network, ObjectiveFunction objectiveFunction) {
+        int oldThreadCount = setNewThreadCountAndGetOldValue();
         sensitivityComputer.compute(network);
+        resetThreadCount(oldThreadCount);
         FlowResult flowResult = sensitivityComputer.getBranchResult(network);
         SensitivityResult sensitivityResult = sensitivityComputer.getSensitivityResult();
         RangeActionSetpointResult rangeActionSetpointResult = RangeActionSetpointResultImpl.buildWithSetpointsFromNetwork(network, rangeActions);

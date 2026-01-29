@@ -75,7 +75,9 @@ public class PostPerimeterSensitivityAnalysis extends AbstractMultiPerimeterSens
         if (actionWasTaken) {
             SensitivityComputer sensitivityComputer = buildSensitivityComputer(initialFlowResult, appliedCurativeRemedialActions);
 
+            int oldThreadCount = setNewThreadCountAndGetOldValue();
             sensitivityComputer.compute(network);
+            resetThreadCount(oldThreadCount);
             flowResult.set(sensitivityComputer.getBranchResult(network));
             sensitivityResult.set(sensitivityComputer.getSensitivityResult());
         } else {
@@ -137,7 +139,9 @@ public class PostPerimeterSensitivityAnalysis extends AbstractMultiPerimeterSens
             if (actionWasTaken) {
                 SensitivityComputer sensitivityComputer = buildSensitivityComputer(initialFlowResult, appliedCurativeRemedialActions);
 
+                int oldThreadCount = setNewThreadCountAndGetOldValue();
                 sensitivityComputer.compute(network);
+                resetThreadCount(oldThreadCount);
                 flowResult.set(sensitivityComputer.getBranchResult(network));
                 sensitivityResult.set(sensitivityComputer.getSensitivityResult());
             } else {
