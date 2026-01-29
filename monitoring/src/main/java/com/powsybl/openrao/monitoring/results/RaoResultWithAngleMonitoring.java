@@ -30,7 +30,6 @@ import java.util.stream.Stream;
  *
  * @author Mohamed Ben Rejeb {@literal <mohamed.ben-rejeb at rte-france.com>}
  */
-// TODO: Put in common with RaoResultWithVoltageMonitoring ?
 public class RaoResultWithAngleMonitoring extends RaoResultClone {
 
     private final RaoResult raoResult;
