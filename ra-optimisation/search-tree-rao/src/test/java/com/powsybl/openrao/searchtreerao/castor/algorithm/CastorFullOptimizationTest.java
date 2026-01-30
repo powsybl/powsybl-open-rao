@@ -39,16 +39,13 @@ import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoTopoOptimiz
 import com.powsybl.openrao.raoapi.parameters.extensions.SecondPreventiveRaoParameters;
 import com.powsybl.openrao.searchtreerao.result.impl.FailedRaoResultImpl;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 
 /**
@@ -486,13 +483,9 @@ class CastorFullOptimizationTest {
         when(searchTreeParameters.getLoadFlowAndSensitivityParameters()).thenReturn(loadFlowAndSensitivityParameters);
         when(loadFlowAndSensitivityParameters.getSensitivityProvider()).thenThrow(new OpenRaoException("Testing exception handling"));
 
-        try (MockedStatic<JsonRaoParameters> jsonRaoParametersMock = mockStatic(JsonRaoParameters.class)) {
-            jsonRaoParametersMock.when(() -> JsonRaoParameters.read(Mockito.any(InputStream.class))).thenReturn(raoParameters);
-
-            RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
-            assertInstanceOf(FailedRaoResultImpl.class, raoResult);
-            assertEquals("RAO failed during initial sensitivity analysis : Testing exception handling", raoResult.getExecutionDetails());
-        }
+        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
+        assertInstanceOf(FailedRaoResultImpl.class, raoResult);
+        assertEquals("RAO failed during initial sensitivity analysis : Testing exception handling", raoResult.getExecutionDetails());
     }
 
     @Test
@@ -501,12 +494,8 @@ class CastorFullOptimizationTest {
         RaoParameters raoParameters = Mockito.spy(JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json")));
         when(raoParameters.getTopoOptimizationParameters()).thenThrow(new OpenRaoException("Testing exception handling"));
 
-        try (MockedStatic<JsonRaoParameters> jsonRaoParametersMock = mockStatic(JsonRaoParameters.class)) {
-            jsonRaoParametersMock.when(() -> JsonRaoParameters.read(Mockito.any(InputStream.class))).thenReturn(raoParameters);
-
-            RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
-            assertEquals("RAO failed during first preventive : Testing exception handling", raoResult.getExecutionDetails());
-        }
+        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
+        assertEquals("RAO failed during first preventive : Testing exception handling", raoResult.getExecutionDetails());
     }
 
     @Test
@@ -518,12 +507,8 @@ class CastorFullOptimizationTest {
         when(topoOptimizationParameters.getMaxCurativeSearchTreeDepth()).thenThrow(new OpenRaoException("Testing exception handling"));
         raoParameters.getExtension(OpenRaoSearchTreeParameters.class).setTopoOptimizationParameters(topoOptimizationParameters);
 
-        try (MockedStatic<JsonRaoParameters> jsonRaoParametersMock = mockStatic(JsonRaoParameters.class)) {
-            jsonRaoParametersMock.when(() -> JsonRaoParameters.read(Mockito.any(InputStream.class))).thenReturn(raoParameters);
-
-            RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
-            assertEquals("RAO failed during contingency scenarios : Testing exception handling", raoResult.getExecutionDetails());
-        }
+        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
+        assertEquals("RAO failed during contingency scenarios : Testing exception handling", raoResult.getExecutionDetails());
     }
 
     @Test
@@ -536,12 +521,8 @@ class CastorFullOptimizationTest {
         raoParameters.addExtension(OpenRaoSearchTreeParameters.class, searchTreeParametersSpied);
         when(searchTreeParametersSpied.getSecondPreventiveRaoParameters()).thenThrow(new OpenRaoException("Testing exception handling"));
 
-        try (MockedStatic<JsonRaoParameters> jsonRaoParametersMock = mockStatic(JsonRaoParameters.class)) {
-            jsonRaoParametersMock.when(() -> JsonRaoParameters.read(Mockito.any(InputStream.class))).thenReturn(raoParameters);
-
-            RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
-            assertEquals("RAO failed during second preventive optimization : Testing exception handling", raoResult.getExecutionDetails());
-        }
+        RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
+        assertEquals("RAO failed during second preventive optimization : Testing exception handling", raoResult.getExecutionDetails());
     }
 
     // Costly optimization tests
