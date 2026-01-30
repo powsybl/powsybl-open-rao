@@ -108,7 +108,7 @@ class HvdcLineRemedialActionAdder {
             final String raName = fromComplexVariantReader.getComplexVariant().getName() + " + " + toComplexVariantReader.getComplexVariant().getName();
             final String raOperator = fromComplexVariantReader.getComplexVariant().getTsoOrigin() + " + " + toComplexVariantReader.getComplexVariant().getTsoOrigin();
             // groupId elements must be sorted for the generators alignment to work
-            final String raGroupId = Stream.of(fromNodeName, toNodeName).sorted().map(nodeToStationMap::get).collect(Collectors.joining(" + "));
+            final String raGroupId = Stream.of(fromNodeName, toNodeName).map(nodeToStationMap::get).sorted().collect(Collectors.joining(" + "));
 
             final InjectionRangeActionAdder injectionRangeActionAdder = crac.newInjectionRangeAction()
                 .withId(raId)
