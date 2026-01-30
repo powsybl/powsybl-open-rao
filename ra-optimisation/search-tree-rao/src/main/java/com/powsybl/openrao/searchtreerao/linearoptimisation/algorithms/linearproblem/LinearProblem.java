@@ -82,7 +82,7 @@ public final class LinearProblem {
     }
 
     public enum GeneratorState {
-        ON, RAMP_UP, OFF, RAMP_DOWN
+        ON, START_UP, OFF, SHUT_DOWN
     }
 
     public enum MinOrMax {
@@ -577,6 +577,7 @@ public final class LinearProblem {
         return solver.getConstraint(generatorToInjectionConstraintId(generatorId, injectionRangeAction, timestamp));
     }
 
+    // TODO : rename ?
     public OpenRaoMPConstraint addGeneratorRampingConstraint(String generatorId, OffsetDateTime rampingExtremeTimestamp, OffsetDateTime otherRampingTimestamp, VariationDirectionExtension rampingDirection) {
         return solver.makeConstraint(-infinity(), 0.0, generatorRampingConstraintId(generatorId, rampingExtremeTimestamp, otherRampingTimestamp, rampingDirection));
     }

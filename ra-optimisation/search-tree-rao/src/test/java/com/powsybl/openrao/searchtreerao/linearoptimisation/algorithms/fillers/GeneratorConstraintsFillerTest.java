@@ -424,7 +424,7 @@ class GeneratorConstraintsFillerTest {
         checkPMax();
         checkGeneratorStateVariableExists(LinearProblem.GeneratorState.ON);
         checkGeneratorStateVariableExists(LinearProblem.GeneratorState.OFF);
-        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.RAMP_UP);
+        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.START_UP);
     }
 
     @Test
@@ -475,7 +475,7 @@ class GeneratorConstraintsFillerTest {
         checkPMax();
         checkGeneratorStateVariableExists(LinearProblem.GeneratorState.ON);
         checkGeneratorStateVariableExists(LinearProblem.GeneratorState.OFF);
-        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.RAMP_DOWN);
+        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.SHUT_DOWN);
     }
 
     @Test
@@ -529,8 +529,8 @@ class GeneratorConstraintsFillerTest {
         checkPMax();
         checkGeneratorStateVariableExists(LinearProblem.GeneratorState.ON);
         checkGeneratorStateVariableExists(LinearProblem.GeneratorState.OFF);
-        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.RAMP_UP);
-        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.RAMP_DOWN);
+        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.START_UP);
+        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.SHUT_DOWN);
     }
 
     @Test
@@ -586,8 +586,8 @@ class GeneratorConstraintsFillerTest {
         checkDownwardGradient();
         checkGeneratorStateVariableExists(LinearProblem.GeneratorState.ON);
         checkGeneratorStateVariableExists(LinearProblem.GeneratorState.OFF);
-        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.RAMP_UP);
-        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.RAMP_DOWN);
+        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.START_UP);
+        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.SHUT_DOWN);
     }
 
     @Test
@@ -640,7 +640,7 @@ class GeneratorConstraintsFillerTest {
         checkPMax();
         checkGeneratorStateVariableExists(LinearProblem.GeneratorState.ON);
         checkGeneratorStateVariableExists(LinearProblem.GeneratorState.OFF);
-        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.RAMP_UP);
+        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.START_UP);
     }
 
     @Test
@@ -693,7 +693,7 @@ class GeneratorConstraintsFillerTest {
         checkPMax();
         checkGeneratorStateVariableExists(LinearProblem.GeneratorState.ON);
         checkGeneratorStateVariableExists(LinearProblem.GeneratorState.OFF);
-        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.RAMP_DOWN);
+        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.SHUT_DOWN);
     }
 
     @Test
@@ -752,8 +752,8 @@ class GeneratorConstraintsFillerTest {
         checkPMax();
         checkGeneratorStateVariableExists(LinearProblem.GeneratorState.ON);
         checkGeneratorStateVariableExists(LinearProblem.GeneratorState.OFF);
-        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.RAMP_UP);
-        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.RAMP_DOWN);
+        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.START_UP);
+        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.SHUT_DOWN);
     }
 
     @Test
@@ -814,8 +814,8 @@ class GeneratorConstraintsFillerTest {
         checkDownwardGradient();
         checkGeneratorStateVariableExists(LinearProblem.GeneratorState.ON);
         checkGeneratorStateVariableExists(LinearProblem.GeneratorState.OFF);
-        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.RAMP_UP);
-        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.RAMP_DOWN);
+        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.START_UP);
+        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.SHUT_DOWN);
     }
 
     @Test
@@ -874,8 +874,8 @@ class GeneratorConstraintsFillerTest {
         checkDownwardGradient();
         checkGeneratorStateVariableExists(LinearProblem.GeneratorState.ON);
         checkGeneratorStateVariableExists(LinearProblem.GeneratorState.OFF);
-        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.RAMP_UP);
-        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.RAMP_DOWN);
+        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.START_UP);
+        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.SHUT_DOWN);
     }
 
     @Test
@@ -933,8 +933,8 @@ class GeneratorConstraintsFillerTest {
         checkDownwardGradient();
         checkGeneratorStateVariableExists(LinearProblem.GeneratorState.ON);
         checkGeneratorStateVariableExists(LinearProblem.GeneratorState.OFF);
-        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.RAMP_UP);
-        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.RAMP_DOWN);
+        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.START_UP);
+        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.SHUT_DOWN);
     }
 
     private void checkInjectionKey() {
