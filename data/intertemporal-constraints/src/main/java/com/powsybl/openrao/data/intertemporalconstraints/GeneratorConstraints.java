@@ -55,8 +55,8 @@ public final class GeneratorConstraints {
      *
      * @return minimal operational power of the generator
      */
-    public Optional<Double> getPMin() {
-        return Optional.ofNullable(pMin);
+    public Double getPMin() {
+        return pMin;
     }
 
     /**
