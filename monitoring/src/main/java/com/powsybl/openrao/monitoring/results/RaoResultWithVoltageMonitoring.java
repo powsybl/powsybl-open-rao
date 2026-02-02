@@ -42,6 +42,12 @@ public class RaoResultWithVoltageMonitoring extends RaoResultClone {
     }
 
     @Override
+    public String getExecutionDetails() {
+        return raoResult.getExecutionDetails() + " The RAO went through voltage monitoring.";
+    }
+
+
+    @Override
     public ComputationStatus getComputationStatus() {
         if (!voltageMonitoringResult.getStatus().equals(Cnec.SecurityStatus.FAILURE)) {
             return raoResult.getComputationStatus();

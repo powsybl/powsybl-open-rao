@@ -45,6 +45,11 @@ public class RaoResultWithAngleMonitoring extends RaoResultClone {
     }
 
     @Override
+    public String getExecutionDetails() {
+        return raoResult.getExecutionDetails() + " The RAO went through angle monitoring.";
+    }
+
+    @Override
     public ComputationStatus getComputationStatus() {
         if (!angleMonitoringResult.getStatus().equals(SecurityStatus.FAILURE)) {
             return raoResult.getComputationStatus();
