@@ -15,6 +15,10 @@
     <name>Intertemporal Constraints</name>
     <description>Module for intertemporal constraints</description>
 
+    <properties>
+        <sonar.projectBaseDir>../../</sonar.projectBaseDir>
+    </properties>
+
     <dependencies>
         <!-- Compile dependencies -->
         <dependency>
