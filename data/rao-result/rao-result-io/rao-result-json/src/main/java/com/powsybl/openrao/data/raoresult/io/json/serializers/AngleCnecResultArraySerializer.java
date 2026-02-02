@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.raoresult.io.json.serializers;
 
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
@@ -63,8 +64,8 @@ final class AngleCnecResultArraySerializer {
 
     private static void serializeAngleCnecResultForOptimizationStateAndUnit(Instant optInstant, Unit unit, AngleCnec angleCnec, RaoResult raoResult, JsonGenerator jsonGenerator) throws IOException {
 
-        double angle = raoResult.getAngle(optInstant, angleCnec, Unit.DEGREE);
-        double margin = raoResult.getMargin(optInstant, angleCnec, Unit.DEGREE);
+        double angle = safeGetAngle(raoResult, angleCnec, optInstant, Unit.DEGREE);
+        double margin = safeGetMargin(raoResult, angleCnec, optInstant, Unit.DEGREE);
 
         jsonGenerator.writeObjectFieldStart(RaoResultJsonConstants.serializeUnit(unit));
         if (!Double.isNaN(angle)) {
@@ -81,7 +82,25 @@ final class AngleCnecResultArraySerializer {
     }
 
     private static boolean containsAnyResultForOptimizationState(RaoResult raoResult, AngleCnec angleCnec, Instant optInstant) {
-        return !Double.isNaN(raoResult.getAngle(optInstant, angleCnec, Unit.DEGREE)) ||
-            !Double.isNaN(raoResult.getMargin(optInstant, angleCnec, Unit.DEGREE));
+        return !Double.isNaN(safeGetAngle(raoResult, angleCnec, optInstant, Unit.DEGREE)) ||
+            !Double.isNaN(safeGetMargin(raoResult, angleCnec, optInstant, Unit.DEGREE));
+    }
+
+    private static double safeGetAngle(RaoResult raoResult, AngleCnec angleCnec, Instant optInstant, Unit unit) {
+        // methods getAngle can return an exception if RAO is executed on one state only
+        try {
+            return raoResult.getAngle(optInstant, angleCnec, unit);
+        } catch (OpenRaoException e) {
+            return Double.NaN;
+        }
+    }
+
+    private static double safeGetMargin(RaoResult raoResult, AngleCnec angleCnec, Instant optInstant, Unit unit) {
+        // methods getMargin can return an exception if RAO is executed on one state only
+        try {
+            return raoResult.getMargin(optInstant, angleCnec, unit);
+        } catch (OpenRaoException e) {
+            return Double.NaN;
+        }
     }
 }
