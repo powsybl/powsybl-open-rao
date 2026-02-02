@@ -127,6 +127,7 @@ public final class LinearProblem {
     public LinearProblemStatus solve() {
         solver.setRelativeMipGap(relativeMipGap);
         solver.setSolverSpecificParametersAsString(solverSpecificParameters);
+        LinearProblemStatus status = solver.solve();
         return solver.solve();
     }
 

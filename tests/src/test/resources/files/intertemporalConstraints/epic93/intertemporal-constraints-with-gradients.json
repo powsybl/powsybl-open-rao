@@ -5,12 +5,14 @@
     {
       "generatorId": "BBE1AA1 _generator",
       "upwardPowerGradient": 1000.0,
-      "downwardPowerGradient": -2000.0
+      "downwardPowerGradient": -2000.0,
+      "pMin": 0.0
     },
     {
       "generatorId": "FFR1AA1 _load",
       "upwardPowerGradient": 1000.0,
-      "downwardPowerGradient": -2000.0
+      "downwardPowerGradient": -2000.0,
+      "pMin": 0.0
     }
   ]
 }

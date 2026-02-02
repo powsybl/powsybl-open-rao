@@ -246,44 +246,6 @@ class GeneratorConstraintsFillerTest {
     }
 
     @Test
-    void testPMax() {
-        IntertemporalConstraints intertemporalConstraints = new IntertemporalConstraints();
-        intertemporalConstraints.addGeneratorConstraints(GeneratorConstraints.create().withGeneratorId("BBE1AA1 _generator").withPMax(5000.0).build());
-        setUpLinearProblemWithIntertemporalConstraints(intertemporalConstraints);
-
-        // For each timestamp:
-
-        // - VARIABLES (51):
-        //   - flow
-        //   - redispatching set-point
-        //   - upward set-point variation
-        //   - downward set-point variation
-        //   - generator power
-        //   - ON state
-        //   - ON -> ON transition (except for last timestamp)
-
-        // - CONSTRAINTS (64):
-        //   - flow
-        //   - set-point variation
-        //   - network balancing
-        //   - generator power to redispatching
-        //   - ON power (lower bound)
-        //   - ON power (upper bound)
-        //   - only one state
-        //   - state from ON (except for last timestamp)
-        //   - state to ON (except for last timestamp)
-        //   - power transition (lower bound; except for last timestamp)
-        //   - power transition (upper bound; except for last timestamp)
-
-        assertEquals(34, linearProblem.numVariables());
-        assertEquals(51, linearProblem.numConstraints());
-
-        checkInjectionKey();
-        checkPMax();
-        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.ON);
-    }
-
-    @Test
     void testPMinPMax() {
         IntertemporalConstraints intertemporalConstraints = new IntertemporalConstraints();
         intertemporalConstraints.addGeneratorConstraints(GeneratorConstraints.create().withGeneratorId("BBE1AA1 _generator").withPMin(1000.0).withPMax(5000.0).build());
@@ -385,7 +347,7 @@ class GeneratorConstraintsFillerTest {
 
         // For each timestamp:
 
-        // - VARIABLES (60):
+        // - VARIABLES (51):
         //   - flow
         //   - redispatching set-point
         //   - upward set-point variation
@@ -393,14 +355,11 @@ class GeneratorConstraintsFillerTest {
         //   - generator power
         //   - ON state
         //   - OFF state
-        //   - RAMP UP state
         //   - ON -> ON transition (except for last timestamp)
         //   - ON -> OFF transition (except for last timestamp)
         //   - OFF -> OFF transition (except for last timestamp)
-        //   - RAMP UP -> ON transition (except for last timestamp)
-        //   - OFF -> ON transition (except for last timestamp)
 
-        // - CONSTRAINTS (68):
+        // - CONSTRAINTS (64):
         //   - flow
         //   - set-point variation
         //   - network balancing
@@ -411,20 +370,18 @@ class GeneratorConstraintsFillerTest {
         //   - only one state
         //   - state from ON (except for last timestamp)
         //   - state from OFF (except for last timestamp)
-        //   - state from RAMP UP (except for last timestamp)
         //   - state to ON (except for last timestamp)
         //   - state to OFF (except for last timestamp)
         //   - power transition (lower bound; except for last timestamp)
         //   - power transition (upper bound; except for last timestamp)
 
-        assertEquals(60, linearProblem.numVariables());
-        assertEquals(68, linearProblem.numConstraints());
+        assertEquals(51, linearProblem.numVariables());
+        assertEquals(64, linearProblem.numConstraints());
 
         checkInjectionKey();
         checkPMax();
         checkGeneratorStateVariableExists(LinearProblem.GeneratorState.ON);
         checkGeneratorStateVariableExists(LinearProblem.GeneratorState.OFF);
-        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.START_UP);
     }
 
     @Test
@@ -435,7 +392,7 @@ class GeneratorConstraintsFillerTest {
 
         // For each timestamp:
 
-        // - VARIABLES (60):
+        // - VARIABLES (51):
         //   - flow
         //   - redispatching set-point
         //   - upward set-point variation
@@ -443,14 +400,12 @@ class GeneratorConstraintsFillerTest {
         //   - generator power
         //   - ON state
         //   - OFF state
-        //   - RAMP DOWN state
         //   - ON -> ON transition (except for last timestamp)
         //   - ON -> OFF transition (except for last timestamp)
-        //   - ON -> RAMP DOWN transition (except for last timestamp)
         //   - OFF -> OFF transition (except for last timestamp)
         //   - OFF -> ON transition (except for last timestamp)
 
-        // - CONSTRAINTS (72):
+        // - CONSTRAINTS (64):
         //   - flow
         //   - set-point variation
         //   - network balancing
@@ -461,21 +416,18 @@ class GeneratorConstraintsFillerTest {
         //   - only one state
         //   - state from ON (except for last timestamp)
         //   - state from OFF (except for last timestamp)
-        //   - state from RAMP DOWN (except for last timestamp)
         //   - state to ON (except for last timestamp)
         //   - state to OFF (except for last timestamp)
-        //   - state to RAMP DOWN (except for last timestamp)
         //   - power transition (lower bound; except for last timestamp)
         //   - power transition (upper bound; except for last timestamp)
 
-        assertEquals(60, linearProblem.numVariables());
-        assertEquals(72, linearProblem.numConstraints());
+        assertEquals(51, linearProblem.numVariables());
+        assertEquals(64, linearProblem.numConstraints());
 
         checkInjectionKey();
         checkPMax();
         checkGeneratorStateVariableExists(LinearProblem.GeneratorState.ON);
         checkGeneratorStateVariableExists(LinearProblem.GeneratorState.OFF);
-        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.SHUT_DOWN);
     }
 
     @Test
@@ -486,7 +438,7 @@ class GeneratorConstraintsFillerTest {
 
         // For each timestamp:
 
-        // - VARIABLES (69):
+        // - VARIABLES (51):
         //   - flow
         //   - redispatching set-point
         //   - upward set-point variation
@@ -494,16 +446,12 @@ class GeneratorConstraintsFillerTest {
         //   - generator power
         //   - ON state
         //   - OFF state
-        //   - RAMP UP state
-        //   - RAMP DOWN state
         //   - ON -> ON transition (except for last timestamp)
         //   - ON -> OFF transition (except for last timestamp)
-        //   - ON -> RAMP DOWN transition (except for last timestamp)
         //   - OFF -> OFF transition (except for last timestamp)
-        //   - RAMP UP -> ON transition (except for last timestamp)
         //   - OFF -> ON transition (except for last timestamp)
 
-        // - CONSTRAINTS (76):
+        // - CONSTRAINTS (64):
         //   - flow
         //   - set-point variation
         //   - network balancing
@@ -514,23 +462,18 @@ class GeneratorConstraintsFillerTest {
         //   - only one state
         //   - state from ON (except for last timestamp)
         //   - state from OFF (except for last timestamp)
-        //   - state from RAMP UP (except for last timestamp)
-        //   - state from RAMP DOWN (except for last timestamp)
         //   - state to ON (except for last timestamp)
         //   - state to OFF (except for last timestamp)
-        //   - state to RAMP DOWN (except for last timestamp)
         //   - power transition (lower bound; except for last timestamp)
         //   - power transition (upper bound; except for last timestamp)
 
-        assertEquals(69, linearProblem.numVariables());
-        assertEquals(76, linearProblem.numConstraints());
+        assertEquals(51, linearProblem.numVariables());
+        assertEquals(64, linearProblem.numConstraints());
 
         checkInjectionKey();
         checkPMax();
         checkGeneratorStateVariableExists(LinearProblem.GeneratorState.ON);
         checkGeneratorStateVariableExists(LinearProblem.GeneratorState.OFF);
-        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.START_UP);
-        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.SHUT_DOWN);
     }
 
     @Test
@@ -549,13 +492,9 @@ class GeneratorConstraintsFillerTest {
         //   - generator power
         //   - ON state
         //   - OFF state
-        //   - RAMP UP state
-        //   - RAMP DOWN state
         //   - ON -> ON transition (except for last timestamp)
         //   - ON -> OFF transition (except for last timestamp)
-        //   - ON -> RAMP DOWN transition (except for last timestamp)
         //   - OFF -> OFF transition (except for last timestamp)
-        //   - RAMP UP -> ON transition (except for last timestamp)
         //   - OFF -> ON transition (except for last timestamp)
 
         // - CONSTRAINTS (76):
@@ -569,16 +508,13 @@ class GeneratorConstraintsFillerTest {
         //   - only one state
         //   - state from ON (except for last timestamp)
         //   - state from OFF (except for last timestamp)
-        //   - state from RAMP UP (except for last timestamp)
-        //   - state from RAMP DOWN (except for last timestamp)
         //   - state to ON (except for last timestamp)
         //   - state to OFF (except for last timestamp)
-        //   - state to RAMP DOWN (except for last timestamp)
         //   - power transition (lower bound; except for last timestamp)
         //   - power transition (upper bound; except for last timestamp)
 
-        assertEquals(69, linearProblem.numVariables());
-        assertEquals(76, linearProblem.numConstraints());
+        assertEquals(51, linearProblem.numVariables());
+        assertEquals(64, linearProblem.numConstraints());
 
         checkInjectionKey();
         checkPMax();
@@ -586,8 +522,6 @@ class GeneratorConstraintsFillerTest {
         checkDownwardGradient();
         checkGeneratorStateVariableExists(LinearProblem.GeneratorState.ON);
         checkGeneratorStateVariableExists(LinearProblem.GeneratorState.OFF);
-        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.START_UP);
-        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.SHUT_DOWN);
     }
 
     @Test
@@ -826,7 +760,7 @@ class GeneratorConstraintsFillerTest {
 
         // For each timestamp:
 
-        // - VARIABLES (73):
+        // - VARIABLES (64):
         //   - flow
         //   - redispatching set-point
         //   - upward set-point variation
@@ -834,17 +768,15 @@ class GeneratorConstraintsFillerTest {
         //   - generator power
         //   - ON state
         //   - OFF state
-        //   - RAMP UP state
-        //   - RAMP DOWN state
+        //   - START UP state
         //   - ON -> ON transition (except for last timestamp)
         //   - ON -> OFF transition (except for last timestamp)
-        //   - RAMP DOWN -> OFF transition (except for last timestamp)
         //   - OFF -> OFF transition (except for last timestamp)
-        //   - OFF -> RAMP UP transition (except for last timestamp)
-        //   - RAMP UP -> RAMP UP transition (except for last timestamp)
-        //   - RAMP UP -> ON transition (except for last timestamp)
+        //   - OFF -> START UP transition (except for last timestamp)
+        //   - START UP -> START UP transition (except for last timestamp)
+        //   - START UP -> ON transition (except for last timestamp)
 
-        // - CONSTRAINTS (84):
+        // - CONSTRAINTS (76):
         //   - flow
         //   - set-point variation
         //   - network balancing
@@ -855,18 +787,16 @@ class GeneratorConstraintsFillerTest {
         //   - only one state
         //   - state from ON (except for last timestamp)
         //   - state from OFF (except for last timestamp)
-        //   - state from RAMP UP (except for last timestamp)
-        //   - state from RAMP DOWN (except for last timestamp)
+        //   - state from START UP (except for last timestamp)
         //   - state to ON (except for last timestamp)
         //   - state to OFF (except for last timestamp)
-        //   - state to RAMP UP (except for last timestamp)
-        //   - state to RAMP DOWN (except for last timestamp)
+        //   - state to START UP (except for last timestamp)
         //   - power transition (lower bound; except for last timestamp)
         //   - power transition (upper bound; except for last timestamp)
         //   - upward ramp (upper bound; except for last timestamp)
 
-        assertEquals(73, linearProblem.numVariables());
-        assertEquals(84, linearProblem.numConstraints());
+        assertEquals(64, linearProblem.numVariables());
+        assertEquals(76, linearProblem.numConstraints());
 
         checkInjectionKey();
         checkPMax();
@@ -875,7 +805,6 @@ class GeneratorConstraintsFillerTest {
         checkGeneratorStateVariableExists(LinearProblem.GeneratorState.ON);
         checkGeneratorStateVariableExists(LinearProblem.GeneratorState.OFF);
         checkGeneratorStateVariableExists(LinearProblem.GeneratorState.START_UP);
-        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.SHUT_DOWN);
     }
 
     @Test
@@ -886,7 +815,7 @@ class GeneratorConstraintsFillerTest {
 
         // For each timestamp:
 
-        // - VARIABLES (73):
+        // - VARIABLES (64):
         //   - flow
         //   - redispatching set-point
         //   - upward set-point variation
@@ -894,17 +823,15 @@ class GeneratorConstraintsFillerTest {
         //   - generator power
         //   - ON state
         //   - OFF state
-        //   - RAMP UP state
-        //   - RAMP DOWN state
+        //   - SHUT DOWN state
         //   - ON -> ON transition (except for last timestamp)
-        //   - ON -> RAMP DOWN transition (except for last timestamp)
-        //   - RAMP DOWN -> RAMP DOWN transition (except for last timestamp)
-        //   - RAMP DOWN -> OFF transition (except for last timestamp)
+        //   - ON -> SHUT DOWN transition (except for last timestamp)
+        //   - SHUT DOWN -> SHUT DOWN transition (except for last timestamp)
+        //   - SHUT DOWN -> OFF transition (except for last timestamp)
         //   - OFF -> OFF transition (except for last timestamp)
         //   - OFF -> ON transition (except for last timestamp)
-        //   - RAMP UP -> ON transition (except for last timestamp)
 
-        // - CONSTRAINTS (80):
+        // - CONSTRAINTS (76):
         //   - flow
         //   - set-point variation
         //   - network balancing
@@ -915,17 +842,16 @@ class GeneratorConstraintsFillerTest {
         //   - only one state
         //   - state from ON (except for last timestamp)
         //   - state from OFF (except for last timestamp)
-        //   - state from RAMP UP (except for last timestamp)
-        //   - state from RAMP DOWN (except for last timestamp)
+        //   - state from SHUT DOWN (except for last timestamp)
         //   - state to ON (except for last timestamp)
         //   - state to OFF (except for last timestamp)
-        //   - state to RAMP DOWN (except for last timestamp)
+        //   - state to SHUT DOWN (except for last timestamp)
         //   - power transition (lower bound; except for last timestamp)
         //   - power transition (upper bound; except for last timestamp)
         //   - downward ramp (upper bound; except for last timestamp)
 
-        assertEquals(73, linearProblem.numVariables());
-        assertEquals(80, linearProblem.numConstraints());
+        assertEquals(64, linearProblem.numVariables());
+        assertEquals(76, linearProblem.numConstraints());
 
         checkInjectionKey();
         checkPMax();
@@ -933,7 +859,6 @@ class GeneratorConstraintsFillerTest {
         checkDownwardGradient();
         checkGeneratorStateVariableExists(LinearProblem.GeneratorState.ON);
         checkGeneratorStateVariableExists(LinearProblem.GeneratorState.OFF);
-        checkGeneratorStateVariableExists(LinearProblem.GeneratorState.START_UP);
         checkGeneratorStateVariableExists(LinearProblem.GeneratorState.SHUT_DOWN);
     }
 
