@@ -83,6 +83,7 @@
             ../../../distribution/target/site/jacoco-aggregate/jacoco.xml
             ../../../../distribution/target/site/jacoco-aggregate/jacoco.xml
         </sonar.coverage.jacoco.xmlReportPaths>
+        <sonar.projectBaseDir>../</sonar.projectBaseDir>
 
         <!-- Dependencies versions -->
         <cucumber.bom.version>7.20.1</cucumber.bom.version>
