@@ -47,16 +47,17 @@ public class RaoResultWithAngleMonitoringTest {
 
         assertEquals(cnecResult, raoResultWithAngleMonitoring.getCnecResult(cnecInstant, angleCnec).get());
 
-        // if optimizationInstant == null, return optional.Empty
+        // if optimizationInstant == null, throw an error
         OpenRaoException exception = assertThrows(OpenRaoException.class, () -> raoResultWithAngleMonitoring.getCnecResult(null, angleCnec).get());
         assertEquals("Unexpected optimization instant for angle monitoring result (only optimization instant equal to angle cnec' state's instant is accepted) : null", exception.getMessage());
 
-        // if optimizationInstant != cnec's instant
+        // if optimizationInstant != cnec's instant, , throw an error
         Instant optimizationInstant = Mockito.mock(Instant.class);
         exception = assertThrows(OpenRaoException.class, () -> raoResultWithAngleMonitoring.getCnecResult(optimizationInstant, angleCnec).get());
         assertTrue(exception.getMessage().startsWith("Unexpected optimization instant for angle monitoring result (only optimization instant equal to angle cnec' state's instant is accepted) :"));
 
-        // If we give a angle cnec that was not monitored ex. an outage cnec => should return an empty optional.
+        // If we give an angle cnec that was not monitored ex. an outage cnec or if monitoring didn't return a result for the cnec for some reason
+        // => should return an empty optional (if optimizationInstant == CNEC instant)
         AngleCnec angleCnecNotMonitored = Mockito.mock(AngleCnec.class);
         when(angleCnecNotMonitored.getState()).thenReturn(state);
         when(angleCnecNotMonitored.getId()).thenReturn("angleCnecNotMonitored");
