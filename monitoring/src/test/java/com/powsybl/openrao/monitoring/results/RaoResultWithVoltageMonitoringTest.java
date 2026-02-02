@@ -58,7 +58,7 @@ public class RaoResultWithVoltageMonitoringTest {
         assertTrue(exception.getMessage().startsWith("Unexpected optimization instant for voltage monitoring result (only optimization instant equal to voltage cnec' state's instant is accepted) :"));
 
         // If we give a voltage cnec that was not monitored ex. an outage cnec or if monitoring didn't return a result for the cnec for some reason
-        // => should return an empty optional (if optimizationInstant == CNEC instant)
+        // => should return an optional.empty (if optimizationInstant == CNEC instant)
         VoltageCnec voltageCnecNotMonitored = Mockito.mock(VoltageCnec.class);
         when(voltageCnecNotMonitored.getState()).thenReturn(state);
         when(voltageCnecNotMonitored.getId()).thenReturn("voltageNotMonitored");
