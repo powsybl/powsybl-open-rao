@@ -152,12 +152,12 @@
       ]
     },
     {
-      "id": "vc - curative2",
-      "name": "vc - curative2",
+      "id": "vc - curative3",
+      "name": "vc - curative3",
       "networkElementId": "VL2",
       "operator": null,
       "border": "",
-      "instant": "curative2",
+      "instant": "curative3",
       "contingencyId": "coL1",
       "optimized": false,
       "monitored": true,
@@ -182,8 +182,8 @@
       "operator": null,
       "onConstraintUsageRules": [
         {
-          "instant": "curative2",
-          "cnecId": "vc - curative2",
+          "instant": "curative3",
+          "cnecId": "vc - curative3",
           "usageMethod": "available"
         }
       ],
