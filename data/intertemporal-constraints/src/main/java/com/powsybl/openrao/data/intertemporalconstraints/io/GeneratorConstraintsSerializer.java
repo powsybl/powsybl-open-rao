@@ -29,10 +29,8 @@ public class GeneratorConstraintsSerializer extends StdSerializer<GeneratorConst
         jsonGenerator.writeStartObject();
         jsonGenerator.writeStringField(JsonIntertemporalConstraints.GENERATOR_ID, generatorConstraints.getGeneratorId());
 
-        Optional<Double> pMin = generatorConstraints.getPMin();
-        if (pMin.isPresent()) {
-            jsonGenerator.writeNumberField(JsonIntertemporalConstraints.P_MIN, pMin.get());
-        }
+        Double pMin = generatorConstraints.getPMin();
+        jsonGenerator.writeNumberField(JsonIntertemporalConstraints.P_MIN, pMin);
 
         Optional<Double> pMax = generatorConstraints.getPMax();
         if (pMax.isPresent()) {

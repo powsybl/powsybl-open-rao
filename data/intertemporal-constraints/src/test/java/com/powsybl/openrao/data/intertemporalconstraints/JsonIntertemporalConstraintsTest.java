@@ -55,6 +55,7 @@ class JsonIntertemporalConstraintsTest {
             .withLeadTime(0.5)
             .withLagTime(4.0)
             .withDownwardPowerGradient(-1000.0)
+            .withPMin(10.0)
             .build();
 
         intertemporalConstraints.addGeneratorConstraints(generatorConstraints1);
@@ -92,7 +93,7 @@ class JsonIntertemporalConstraintsTest {
 
         GeneratorConstraints generatorConstraints1 = generatorConstraints.get(0);
         assertEquals("generator-1", generatorConstraints1.getGeneratorId());
-        assertEquals(Optional.of(0.0), generatorConstraints1.getPMin());
+        assertEquals(0.0, generatorConstraints1.getPMin());
         assertEquals(Optional.of(1000.0), generatorConstraints1.getPMax());
         assertEquals(Optional.of(1.15), generatorConstraints1.getLeadTime());
         assertEquals(Optional.of(2.0), generatorConstraints1.getLagTime());
@@ -104,7 +105,7 @@ class JsonIntertemporalConstraintsTest {
 
         GeneratorConstraints generatorConstraints2 = generatorConstraints.get(1);
         assertEquals("generator-2", generatorConstraints2.getGeneratorId());
-        assertEquals(Optional.of(200.0), generatorConstraints2.getPMin());
+        assertEquals(200.0, generatorConstraints2.getPMin());
         assertEquals(Optional.of(400.0), generatorConstraints2.getPMax());
         assertTrue(generatorConstraints2.getLeadTime().isEmpty());
         assertTrue(generatorConstraints2.getLagTime().isEmpty());
@@ -116,7 +117,7 @@ class JsonIntertemporalConstraintsTest {
 
         GeneratorConstraints generatorConstraints3 = generatorConstraints.get(2);
         assertEquals("generator-3", generatorConstraints3.getGeneratorId());
-        assertTrue(generatorConstraints3.getPMin().isEmpty());
+        assertEquals(10.0, generatorConstraints3.getPMin());
         assertTrue(generatorConstraints3.getPMax().isEmpty());
         assertEquals(Optional.of(0.5), generatorConstraints3.getLeadTime());
         assertEquals(Optional.of(4.0), generatorConstraints3.getLagTime());

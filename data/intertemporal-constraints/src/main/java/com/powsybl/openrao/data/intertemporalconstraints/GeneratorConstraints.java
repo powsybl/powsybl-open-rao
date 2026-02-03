@@ -55,8 +55,8 @@ public final class GeneratorConstraints {
      *
      * @return minimal operational power of the generator
      */
-    public Optional<Double> getPMin() {
-        return Optional.ofNullable(pMin);
+    public Double getPMin() {
+        return pMin;
     }
 
     /**
@@ -208,13 +208,16 @@ public final class GeneratorConstraints {
             if (generatorId == null) {
                 throw new OpenRaoException("The id of the generator is mandatory.");
             }
-            if (pMin != null && pMin < 0) {
+            if (pMin == null) {
+                throw new OpenRaoException("The minimal power of the generator is mandatory.");
+            }
+            if (pMin < 0) {
                 throw new OpenRaoException("The minimal power of the generator must be positive.");
             }
             if (pMax != null && pMax < 0) {
                 throw new OpenRaoException("The maximal power of the generator must be positive.");
             }
-            if (pMin != null && pMax != null && pMax < pMin) {
+            if (pMax != null && pMax < pMin) {
                 throw new OpenRaoException("The maximal power of the generator must greater than its minimal power.");
             }
             if (leadTime != null && leadTime < 0) {

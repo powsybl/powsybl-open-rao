@@ -23,7 +23,8 @@
       "generatorId": "generator-3",
       "leadTime": 0.5,
       "lagTime": 4.0,
-      "downwardPowerGradient": -1000.0
+      "downwardPowerGradient": -1000.0,
+      "pMin": 10.0
     }
   ]
 }
