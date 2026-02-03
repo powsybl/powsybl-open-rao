@@ -12,6 +12,7 @@ Feature: US 91.1.1: Read PST penalty cost from config
     Given crac file is "epic2/SL_ep2us2case5.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
+    Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
     Then the worst margin is 459.0 A
     Then the tap of PstRangeAction "PRA_PST_DE" should be -10 in preventive
@@ -28,6 +29,7 @@ Feature: US 91.1.1: Read PST penalty cost from config
     Given crac file is "epic2/SL_ep2us2case5.json"
     Given configuration file is "rao1/RaoParameters_maxMargin_ampere_highPSTcost.json"
     When I launch rao
+    Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
     Then the worst margin is 468.0 A
     Then the tap of PstRangeAction "PRA_PST_DE" should be -10 in preventive

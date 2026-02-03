@@ -3,7 +3,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-Feature: US 91.11: optimize computations for SECURE stop criterion
+Feature: US 91.11: Optimize computations for SECURE stop criterion
 
   @fast @rao @mock @dc @preventive-only @search-tree-rao
   Scenario: US 91.11.1: Interrupt search tree depth early
@@ -11,7 +11,9 @@ Feature: US 91.11: optimize computations for SECURE stop criterion
     Given crac file is "epic91/CBCORA_interrupt_search_tree.xml"
     Given configuration file is "epic91/RaoParameters_interrupt_search_tree.json"
     When I launch rao at "2019-01-08 12:00" on preventive state
-    Then 1 remedial actions are used in preventive
+    Then the execution details should be "The RAO only went through first preventive"
+    And the worst margin is 60.49 A
+    And 1 remedial actions are used in preventive
     And the margin on cnec "be1_fr1_N - preventive" after PRA should be 2340 A
 
   @fast @rao @mock @dc @preventive-only @search-tree-rao
@@ -20,7 +22,9 @@ Feature: US 91.11: optimize computations for SECURE stop criterion
     Given crac file is "epic91/CBCORA_interrupt_search_tree.xml"
     Given configuration file is "epic91/RaoParameters_interrupt_search_tree_2_threads.json"
     When I launch rao at "2019-01-08 12:00" on preventive state
-    Then 1 remedial actions are used in preventive
+    Then the execution details should be "The RAO only went through first preventive"
+    And the worst margin is 60.49 A
+    And 1 remedial actions are used in preventive
     And the margin on cnec "be1_fr1_N - preventive" after PRA should be 2340 A
 
   @fast @rao @mock @ac @contingency-scenarios
@@ -29,7 +33,8 @@ Feature: US 91.11: optimize computations for SECURE stop criterion
     Given crac file is "epic91/CBCORA_ep91us11case3.xml"
     Given configuration file is "common/RaoParameters_posMargin_megawatt_ac.json"
     When I launch rao at "2019-01-08 00:30"
-    Then its security status should be "UNSECURED"
+    Then the execution details should be "The RAO only went through first preventive"
+    And its security status should be "UNSECURED"
     And 0 remedial actions are used in preventive
     And 0 remedial actions are used after "Contingency" at "curative"
     And the worst margin is -70.9 MW

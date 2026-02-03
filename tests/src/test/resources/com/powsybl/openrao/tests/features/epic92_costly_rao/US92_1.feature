@@ -47,6 +47,7 @@ Feature: US 92.1: Costly network actions optimization
     Given configuration file is "epic92/RaoParameters_margin_dc_minObjective.json"
     When I launch rao
     Then the worst margin is 464.29 MW
+    And the margin on cnec "cnecBeFrPreventive" after PRA should be 464.29 MW
     And the execution details should be "The RAO only went through first preventive"
     And 2 remedial actions are used in preventive
     And the remedial action "closeBeFr2" is used in preventive
@@ -227,7 +228,7 @@ Feature: US 92.1: Costly network actions optimization
     # Activation of closeBeFr2 (200) + activation of closeBeFr3 (1350) + activation of closeBeFr5 (850)
     And the value of the objective function after CRA should be 2400.0
 
-  @fast @costly @rao @multi-curative
+  @fast @costly @rao
   Scenario: US 92.1.11: Preventive, auto and curative optimization - 4 comprehensive scenarios
   4 scenarios are optimized in parallel:
   - scenario 1: no ARA and no CRA -> 50 MW overload
@@ -262,7 +263,7 @@ Feature: US 92.1: Costly network actions optimization
     # Activation of closeBeFr6 (2500) + activation of closeBeFr7 twice (2 * 60) + activation of closeBeFr8 twice (2 * 735) + overload penalty (50 * 1000)
     And the value of the objective function after CRA should be 54090.0
 
-  @fast @costly @rao @multi-curative
+  @fast @costly @rao
   Scenario: US 92.1.12: Preventive and auto optimization - curative overload
   4 scenarios are optimized in parallel with a curative overload each time:
   - scenario 1: no ARA and no CRA -> 50 MW overload
