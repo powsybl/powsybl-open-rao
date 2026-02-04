@@ -3,11 +3,11 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-Feature: US 93.2: Intertemporal redispatching actions - power gradient constraints
+Feature: US 93.2: Intertemporal redispatching actions with MARMOT - power gradient constraints
 
-  @fast @rao @dc @redispatching @intertemporal
+  @fast @rao @dc @redispatching @marmot
   Scenario: US 93.2.1: Test simple gradient
-    # TODO: add description
+    # TODO: add description and steps when the other PR is merged
     Given network files are in folder "epic93/TestCases_93_2_1"
     Given crac file is "epic93/cbcora_93_2_1.xml"
     Given ics static file is "epic93/static_93_2_1.csv"
@@ -37,9 +37,9 @@ Feature: US 93.2: Intertemporal redispatching actions - power gradient constrain
     And the total cost for timestamp "2019-01-08 03:30" is 0
     And the total cost for all timestamps is 6240
 
-  @fast @rao @dc @redispatching @intertemporal
+  @fast @rao @dc @redispatching @marmot
   Scenario: US 93.2.2: Test simple gradient with limiting mnec and topological action
-        # TODO: add description
+    # TODO: add description and steps when the other PR is merged + count nb of FastRAO iterations
     Given network files are in folder "epic93/TestCases_93_2_2"
     Given crac file is "epic93/cbcora_93_2_2.xml"
     Given ics static file is "epic93/static_93_2_1.csv"
@@ -60,9 +60,9 @@ Feature: US 93.2: Intertemporal redispatching actions - power gradient constrain
     And the total cost for timestamp "2019-01-08 01:30" is 520
     And the total cost for all timestamps is 520
 
-  @fast @rao @dc @redispatching @intertemporal
+  @fast @rao @dc @redispatching @marmot
   Scenario: US 93.2.3: Test simple gradient, PST also available
-        # TODO: add description
+    # TODO: add description and steps when the other PR is merged
     Given network files are in folder "epic93/TestCases_93_2_1"
     Given crac file is "epic93/cbcora_93_2_3.xml"
     Given ics static file is "epic93/static_93_2_1.csv"
@@ -84,9 +84,9 @@ Feature: US 93.2: Intertemporal redispatching actions - power gradient constrain
     And the total cost for timestamp "2019-01-08 01:30" is 1900
     And the total cost for all timestamps is 1900
 
-  @fast @rao @dc @redispatching @intertemporal
+  @fast @rao @dc @redispatching @marmot
   Scenario: US 93.2.4: Test simple gradient, applied curative topo action
-        # TODO: add description
+    # TODO: add description and steps when the other PR is merged
     Given network files are in folder "epic93/TestCases_93_2_4"
     Given crac file is "epic93/cbcora_93_2_4.xml"
     Given ics static file is "epic93/static_93_2_1.csv"
@@ -110,9 +110,9 @@ Feature: US 93.2: Intertemporal redispatching actions - power gradient constrain
     And the total cost for all timestamps is 1780
 
 
-  @fast @rao @dc @redispatching @intertemporal
+  @fast @rao @dc @redispatching @marmot
   Scenario: US 93.2.4-b: Test simple gradient, applied curative range action
-        # TODO: add description
+    # TODO: add description and steps when the other PR is merged
     Given network files are in folder "epic93/TestCases_93_2_4"
     Given crac file is "epic93/cbcora_93_2_4-b.xml"
     Given ics static file is "epic93/static_93_2_1.csv"
@@ -135,9 +135,9 @@ Feature: US 93.2: Intertemporal redispatching actions - power gradient constrain
     And the total cost for timestamp "2019-01-08 01:30" is 1900
     And the total cost for all timestamps is 1900
 
-  @fast @rao @dc @redispatching @intertemporal
+  @fast @rao @dc @redispatching @marmot
   Scenario: US 93.2.5: Test simple gradient with topo action, mnec causes second mip optimization
-        # TODO: add description
+    # TODO: add description and steps when the other PR is merged + MARMOT 2 iterations - why MNECs are used
     Given network files are in folder "epic93/TestCases_93_2_5"
     Given crac file is "epic93/cbcora_93_2_5.xml"
     Given ics static file is "epic93/static_93_2_5.csv"
