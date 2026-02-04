@@ -36,6 +36,7 @@ public class ObjectiveFunctionParameters {
         MAX_MIN_RELATIVE_MARGIN,
         MIN_COST;
 
+        // TODO: positive margin is rather for SECURE_FLOW, isn't it?
         public boolean relativePositiveMargins() {
             return this.equals(MAX_MIN_RELATIVE_MARGIN);
         }
