@@ -99,7 +99,7 @@ public class MonitoringResult {
     }
 
     // Add synchronized in the signature to make the function blocking to avoid overwriting conflict.
-    public synchronized static SecurityStatus combineStatuses(SecurityStatus... statuses) {
+    public static synchronized SecurityStatus combineStatuses(SecurityStatus... statuses) {
         boolean atLeastOneFailed = Arrays.asList(statuses).contains(SecurityStatus.FAILURE);
         if (atLeastOneFailed) {
             return SecurityStatus.FAILURE;
