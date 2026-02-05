@@ -99,6 +99,7 @@ class RaoResultSerializerTest {
 
         assertEquals(inputString, outputString);
     }
+
     @Test
     void testSerializeWithIntermediateInstantVoltageCnec() throws IOException {
         // Add a voltage and angle cnec defined on auto state => The result should not be serialized
@@ -142,10 +143,5 @@ class RaoResultSerializerTest {
 
         assertEquals(inputString, outputString);
     }
-
-
-
-
-
 
 }
