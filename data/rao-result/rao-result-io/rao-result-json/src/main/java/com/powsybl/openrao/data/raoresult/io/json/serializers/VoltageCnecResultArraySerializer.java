@@ -31,7 +31,9 @@ final class VoltageCnecResultArraySerializer {
 
     static void serialize(RaoResult raoResult, Crac crac, JsonGenerator jsonGenerator) throws IOException {
 
+        // We serialize only voltage cnecs defined on preventive or last instant
         List<VoltageCnec> sortedListOfVoltageCnecs = crac.getVoltageCnecs().stream()
+            .filter(voltageCnec -> voltageCnec.getState().getInstant() == crac.getPreventiveInstant() || (voltageCnec.getState().getInstant() == crac.getLastInstant() & voltageCnec.getState().getInstant().isCurative()))
             .sorted(Comparator.comparing(VoltageCnec::getId))
             .toList();
 

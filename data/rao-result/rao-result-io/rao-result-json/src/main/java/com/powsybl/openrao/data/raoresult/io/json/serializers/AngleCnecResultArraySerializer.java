@@ -32,6 +32,7 @@ final class AngleCnecResultArraySerializer {
     static void serialize(RaoResult raoResult, Crac crac, JsonGenerator jsonGenerator) throws IOException {
 
         List<AngleCnec> sortedListOfAngleCnecs = crac.getAngleCnecs().stream()
+            .filter(angleCnec -> angleCnec.getState().getInstant() == crac.getPreventiveInstant() || (angleCnec.getState().getInstant() == crac.getLastInstant() & angleCnec.getState().getInstant().isCurative()))
             .sorted(Comparator.comparing(AngleCnec::getId))
             .toList();
 
