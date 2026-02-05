@@ -18,8 +18,6 @@ import java.util.Optional;
  */
 public final class GeneratorConstraints {
     private final String generatorId;
-    private final Double pMin;
-    private final Double pMax;
     private final Double leadTime;
     private final Double lagTime;
     private final Double minUpTime;
@@ -28,10 +26,8 @@ public final class GeneratorConstraints {
     private final Double upwardPowerGradient;
     private final Double downwardPowerGradient;
 
-    private GeneratorConstraints(String generatorId, Double pMin, Double pMax, Double leadTime, Double lagTime, Double minUpTime, Double maxUpTime, Double minOffTime, Double upwardPowerGradient, Double downwardPowerGradient) {
+    private GeneratorConstraints(String generatorId, Double leadTime, Double lagTime, Double minUpTime, Double maxUpTime, Double minOffTime, Double upwardPowerGradient, Double downwardPowerGradient) {
         this.generatorId = generatorId;
-        this.pMin = pMin;
-        this.pMax = pMax;
         this.leadTime = leadTime;
         this.lagTime = lagTime;
         this.minUpTime = minUpTime;
@@ -48,24 +44,6 @@ public final class GeneratorConstraints {
      */
     public String getGeneratorId() {
         return generatorId;
-    }
-
-    /**
-     * Get the minimal operational power of the generator in MW.
-     *
-     * @return minimal operational power of the generator
-     */
-    public Double getPMin() {
-        return pMin;
-    }
-
-    /**
-     * Get the maximal operational power of the generator in MW.
-     *
-     * @return maximal operational power of the generator
-     */
-    public Optional<Double> getPMax() {
-        return Optional.ofNullable(pMax);
     }
 
     /**
@@ -141,8 +119,6 @@ public final class GeneratorConstraints {
 
     public static final class GeneratorConstraintsBuilder {
         private String generatorId;
-        private Double pMin;
-        private Double pMax;
         private Double leadTime;
         private Double lagTime;
         private Double minUpTime;
@@ -156,16 +132,6 @@ public final class GeneratorConstraints {
 
         public GeneratorConstraintsBuilder withGeneratorId(String generatorId) {
             this.generatorId = generatorId;
-            return this;
-        }
-
-        public GeneratorConstraintsBuilder withPMin(Double pMin) {
-            this.pMin = pMin;
-            return this;
-        }
-
-        public GeneratorConstraintsBuilder withPMax(Double pMax) {
-            this.pMax = pMax;
             return this;
         }
 
@@ -208,18 +174,6 @@ public final class GeneratorConstraints {
             if (generatorId == null) {
                 throw new OpenRaoException("The id of the generator is mandatory.");
             }
-            if (pMin == null) {
-                throw new OpenRaoException("The minimal power of the generator is mandatory.");
-            }
-            if (pMin < 0) {
-                throw new OpenRaoException("The minimal power of the generator must be positive.");
-            }
-            if (pMax != null && pMax < 0) {
-                throw new OpenRaoException("The maximal power of the generator must be positive.");
-            }
-            if (pMax != null && pMax < pMin) {
-                throw new OpenRaoException("The maximal power of the generator must greater than its minimal power.");
-            }
             if (leadTime != null && leadTime < 0) {
                 throw new OpenRaoException("The lead time of the generator must be positive.");
             }
@@ -246,7 +200,7 @@ public final class GeneratorConstraints {
             if (downwardPowerGradient != null && downwardPowerGradient > 0) {
                 throw new OpenRaoException("The downward power gradient of the generator must be negative.");
             }
-            return new GeneratorConstraints(generatorId, pMin, pMax, leadTime, lagTime, minUpTime, maxUpTime, minOffTime, upwardPowerGradient, downwardPowerGradient);
+            return new GeneratorConstraints(generatorId, leadTime, lagTime, minUpTime, maxUpTime, minOffTime, upwardPowerGradient, downwardPowerGradient);
         }
     }
 }

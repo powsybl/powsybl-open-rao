@@ -45,8 +45,8 @@ class InterTemporalRaoInputTest {
         timestamp3 = OffsetDateTime.of(2024, 12, 10, 18, 21, 0, 0, ZoneOffset.UTC);
         temporalData = new TemporalDataImpl<>(Map.of(timestamp1, raoInput1, timestamp2, raoInput2, timestamp3, raoInput3));
         intertemporalConstraints = new IntertemporalConstraints();
-        intertemporalConstraints.addGeneratorConstraints(GeneratorConstraints.create().withGeneratorId("generator-1").withLeadTime(0.0).withLagTime(0.0).withPMin(400.0).withPMax(1000.0).withUpwardPowerGradient(200.0).build());
-        intertemporalConstraints.addGeneratorConstraints(GeneratorConstraints.create().withGeneratorId("generator-2").withLeadTime(0.0).withLagTime(0.0).withPMin(400.0).withPMax(1000.0).withDownwardPowerGradient(-50.0).build());
+        intertemporalConstraints.addGeneratorConstraints(GeneratorConstraints.create().withGeneratorId("generator-1").withLeadTime(0.0).withLagTime(0.0).withUpwardPowerGradient(200.0).build());
+        intertemporalConstraints.addGeneratorConstraints(GeneratorConstraints.create().withGeneratorId("generator-2").withLeadTime(0.0).withLagTime(0.0).withDownwardPowerGradient(-50.0).build());
     }
 
     @Test

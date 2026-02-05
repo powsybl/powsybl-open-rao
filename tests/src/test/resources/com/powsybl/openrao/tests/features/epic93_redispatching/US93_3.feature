@@ -149,32 +149,32 @@ Feature: US 93.3: Intertemporal generator constraints
   maximum expected power to fully secure the network. The RAO still applied as much redispatching as it can but gets
   overload penalty costs.
     Given configuration file is "epic93/RaoParameters_minCost_megawatt_dc_0_shift.json"
-    Given intertemporal constraints are in file "epic93/intertemporal-constraints-with-pmax.json" and rao inputs are:
-      | Timestamp        | Network             | CRAC                                 |
-      | 2025-11-04 00:30 | epic93/6Nodes.xiidm | epic93/us93_3/crac_202511040030.json |
-      | 2025-11-04 01:30 | epic93/6Nodes.xiidm | epic93/us93_3/crac_202511040130.json |
-      | 2025-11-04 02:30 | epic93/6Nodes.xiidm | epic93/us93_3/crac_202511040230.json |
-      | 2025-11-04 03:30 | epic93/6Nodes.xiidm | epic93/us93_3/crac_202511040330.json |
-      | 2025-11-04 04:30 | epic93/6Nodes.xiidm | epic93/us93_3/crac_202511040430.json |
-      | 2025-11-04 05:30 | epic93/6Nodes.xiidm | epic93/us93_3/crac_202511040530.json |
-      | 2025-11-04 06:30 | epic93/6Nodes.xiidm | epic93/us93_3/crac_202511040630.json |
-      | 2025-11-04 07:30 | epic93/6Nodes.xiidm | epic93/us93_3/crac_202511040730.json |
-      | 2025-11-04 08:30 | epic93/6Nodes.xiidm | epic93/us93_3/crac_202511040830.json |
-      | 2025-11-04 09:30 | epic93/6Nodes.xiidm | epic93/us93_3/crac_202511040930.json |
-      | 2025-11-04 10:30 | epic93/6Nodes.xiidm | epic93/us93_3/crac_202511041030.json |
-      | 2025-11-04 11:30 | epic93/6Nodes.xiidm | epic93/us93_3/crac_202511041130.json |
-      | 2025-11-04 12:30 | epic93/6Nodes.xiidm | epic93/us93_3/crac_202511041230.json |
-      | 2025-11-04 13:30 | epic93/6Nodes.xiidm | epic93/us93_3/crac_202511041330.json |
-      | 2025-11-04 14:30 | epic93/6Nodes.xiidm | epic93/us93_3/crac_202511041430.json |
-      | 2025-11-04 15:30 | epic93/6Nodes.xiidm | epic93/us93_3/crac_202511041530.json |
-      | 2025-11-04 16:30 | epic93/6Nodes.xiidm | epic93/us93_3/crac_202511041630.json |
-      | 2025-11-04 17:30 | epic93/6Nodes.xiidm | epic93/us93_3/crac_202511041730.json |
-      | 2025-11-04 18:30 | epic93/6Nodes.xiidm | epic93/us93_3/crac_202511041830.json |
-      | 2025-11-04 19:30 | epic93/6Nodes.xiidm | epic93/us93_3/crac_202511041930.json |
-      | 2025-11-04 20:30 | epic93/6Nodes.xiidm | epic93/us93_3/crac_202511042030.json |
-      | 2025-11-04 21:30 | epic93/6Nodes.xiidm | epic93/us93_3/crac_202511042130.json |
-      | 2025-11-04 22:30 | epic93/6Nodes.xiidm | epic93/us93_3/crac_202511042230.json |
-      | 2025-11-04 23:30 | epic93/6Nodes.xiidm | epic93/us93_3/crac_202511042330.json |
+    Given intertemporal constraints are in file "epic93/empty-intertemporal-constraints.json" and rao inputs are:
+      | Timestamp        | Network                      | CRAC                                 |
+      | 2025-11-04 00:30 | epic93/6Nodes_Pmax2500.xiidm | epic93/us93_3/crac_202511040030.json |
+      | 2025-11-04 01:30 | epic93/6Nodes_Pmax2500.xiidm | epic93/us93_3/crac_202511040130.json |
+      | 2025-11-04 02:30 | epic93/6Nodes_Pmax2500.xiidm | epic93/us93_3/crac_202511040230.json |
+      | 2025-11-04 03:30 | epic93/6Nodes_Pmax2500.xiidm | epic93/us93_3/crac_202511040330.json |
+      | 2025-11-04 04:30 | epic93/6Nodes_Pmax2500.xiidm | epic93/us93_3/crac_202511040430.json |
+      | 2025-11-04 05:30 | epic93/6Nodes_Pmax2500.xiidm | epic93/us93_3/crac_202511040530.json |
+      | 2025-11-04 06:30 | epic93/6Nodes_Pmax2500.xiidm | epic93/us93_3/crac_202511040630.json |
+      | 2025-11-04 07:30 | epic93/6Nodes_Pmax2500.xiidm | epic93/us93_3/crac_202511040730.json |
+      | 2025-11-04 10:30 | epic93/6Nodes_Pmax2500.xiidm | epic93/us93_3/crac_202511041030.json |
+      | 2025-11-04 09:30 | epic93/6Nodes_Pmax2500.xiidm | epic93/us93_3/crac_202511040930.json |
+      | 2025-11-04 11:30 | epic93/6Nodes_Pmax2500.xiidm | epic93/us93_3/crac_202511041130.json |
+      | 2025-11-04 08:30 | epic93/6Nodes_Pmax2500.xiidm | epic93/us93_3/crac_202511040830.json |
+      | 2025-11-04 12:30 | epic93/6Nodes_Pmax2500.xiidm | epic93/us93_3/crac_202511041230.json |
+      | 2025-11-04 13:30 | epic93/6Nodes_Pmax2500.xiidm | epic93/us93_3/crac_202511041330.json |
+      | 2025-11-04 14:30 | epic93/6Nodes_Pmax2500.xiidm | epic93/us93_3/crac_202511041430.json |
+      | 2025-11-04 15:30 | epic93/6Nodes_Pmax2500.xiidm | epic93/us93_3/crac_202511041530.json |
+      | 2025-11-04 16:30 | epic93/6Nodes_Pmax2500.xiidm | epic93/us93_3/crac_202511041630.json |
+      | 2025-11-04 17:30 | epic93/6Nodes_Pmax2500.xiidm | epic93/us93_3/crac_202511041730.json |
+      | 2025-11-04 18:30 | epic93/6Nodes_Pmax2500.xiidm | epic93/us93_3/crac_202511041830.json |
+      | 2025-11-04 19:30 | epic93/6Nodes_Pmax2500.xiidm | epic93/us93_3/crac_202511041930.json |
+      | 2025-11-04 20:30 | epic93/6Nodes_Pmax2500.xiidm | epic93/us93_3/crac_202511042030.json |
+      | 2025-11-04 21:30 | epic93/6Nodes_Pmax2500.xiidm | epic93/us93_3/crac_202511042130.json |
+      | 2025-11-04 22:30 | epic93/6Nodes_Pmax2500.xiidm | epic93/us93_3/crac_202511042230.json |
+      | 2025-11-04 23:30 | epic93/6Nodes_Pmax2500.xiidm | epic93/us93_3/crac_202511042330.json |
     When I launch marmot
     # Timestamp 00:30
     Then the total cost for timestamp "2025-11-04 00:30" is 0.0

@@ -71,7 +71,7 @@ class MarmotTest {
             ));
 
         IntertemporalConstraints intertemporalConstraints = new IntertemporalConstraints();
-        intertemporalConstraints.addGeneratorConstraints(GeneratorConstraints.create().withGeneratorId("FFR1AA1 _generator").withLeadTime(0.0).withLagTime(0.0).withPMin(0.0).withPMax(1000.0).withUpwardPowerGradient(1000.0).withDownwardPowerGradient(-1000.0).build());
+        intertemporalConstraints.addGeneratorConstraints(GeneratorConstraints.create().withGeneratorId("FFR1AA1 _generator").withLeadTime(0.0).withLagTime(0.0).withUpwardPowerGradient(1000.0).withDownwardPowerGradient(-1000.0).build());
 
         InterTemporalRaoInputWithNetworkPaths input = new InterTemporalRaoInputWithNetworkPaths(raoInputs, intertemporalConstraints);
 
@@ -116,7 +116,7 @@ class MarmotTest {
             ));
 
         IntertemporalConstraints intertemporalConstraints = new IntertemporalConstraints();
-        intertemporalConstraints.addGeneratorConstraints(GeneratorConstraints.create().withGeneratorId("FFR1AA1 _generator").withLeadTime(0.0).withLagTime(0.0).withPMin(0.0).withPMax(1000.0).withUpwardPowerGradient(250.0).withDownwardPowerGradient(-250.0).build());
+        intertemporalConstraints.addGeneratorConstraints(GeneratorConstraints.create().withGeneratorId("FFR1AA1 _generator").withLeadTime(0.0).withLagTime(0.0).withUpwardPowerGradient(250.0).withDownwardPowerGradient(-250.0).build());
 
         InterTemporalRaoInputWithNetworkPaths input = new InterTemporalRaoInputWithNetworkPaths(raoInputs, intertemporalConstraints);
 
@@ -256,7 +256,7 @@ class MarmotTest {
             ));
 
         IntertemporalConstraints intertemporalConstraints = new IntertemporalConstraints();
-        intertemporalConstraints.addGeneratorConstraints(GeneratorConstraints.create().withGeneratorId("FFR1AA1 _generator").withPMax(1000.0).withUpwardPowerGradient(250.0).withDownwardPowerGradient(-250.0).build());
+        intertemporalConstraints.addGeneratorConstraints(GeneratorConstraints.create().withGeneratorId("FFR1AA1 _generator").withUpwardPowerGradient(250.0).withDownwardPowerGradient(-250.0).build());
 
         InterTemporalRaoInputWithNetworkPaths input = new InterTemporalRaoInputWithNetworkPaths(raoInputs, intertemporalConstraints);
 
@@ -315,7 +315,7 @@ class MarmotTest {
         inputPerTimestamp.put(timestamp10, RaoInputWithNetworkPaths.build(networkPath, networkPath, crac10).build());
 
         IntertemporalConstraints intertemporalConstraints = new IntertemporalConstraints();
-        intertemporalConstraints.addGeneratorConstraints(GeneratorConstraints.create().withGeneratorId("FFR1AA1 _load").withPMax(5000.0).withUpwardPowerGradient(500.0).withDownwardPowerGradient(-500.0).build());
+        intertemporalConstraints.addGeneratorConstraints(GeneratorConstraints.create().withGeneratorId("FFR1AA1 _load").withUpwardPowerGradient(500.0).withDownwardPowerGradient(-500.0).build());
 
         InterTemporalRaoInputWithNetworkPaths input = new InterTemporalRaoInputWithNetworkPaths(new TemporalDataImpl<>(inputPerTimestamp), intertemporalConstraints);
 
