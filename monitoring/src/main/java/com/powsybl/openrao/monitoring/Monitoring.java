@@ -151,8 +151,7 @@ public class Monitoring {
                     Instant lastCurativeInstant = crac.getLastInstant();
 
                     if (lastCurativeInstant.getOrder() != state.getInstant().getOrder()) {
-                        String msg = String.format("State %s is not valid. Monitoring is only allowed on states defined on the last curative instant %s.", state.getId(), lastCurativeInstant);
-                        monitoringResult.combine(makeFailedMonitoringResultForStateWithNaNCnecRsults(monitoringInput, physicalParameter, state, msg));
+                        TECHNICAL_LOGS.warn(String.format("State %s is not valid. Monitoring is only allowed on preventive states or curative states defined on the last curative instant %s.", state.getId(), lastCurativeInstant));
                         networkPool.releaseUsedNetwork(networkClone);
                         return null;
                     }

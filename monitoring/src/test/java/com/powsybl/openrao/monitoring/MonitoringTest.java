@@ -21,6 +21,7 @@ import com.powsybl.openrao.searchtreerao.castor.algorithm.Castor;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -31,10 +32,9 @@ public class MonitoringTest {
 
     @Test
     void testRunMonitoringOnMultiCurative() throws IOException {
-        // Defined in the CRAC 3 curative instant, 1 contingency coL1
-        // => the last curative instant defined in the crac is curative 3
+        // The last curative instant defined in the crac is curative 3
         // 3 voltage CNECs are defined one in preventive, one in curative 1 and one in curative 3.
-        // preventive => ok, curative 3 => ok but curative 1 => fail. We only monitor final curative instant + preventive.
+        // preventive => ok, curative 3 => ok but curative 1 => ignored. We only monitor final curative instant + preventive.
 
         Monitoring monitoring = new Monitoring("OpenLoadFlow", new LoadFlowParameters());
 
@@ -52,11 +52,11 @@ public class MonitoringTest {
             .build();
 
         MonitoringResult monitoringResult = monitoring.runMonitoring(monitoringInput, 1);
-        assertEquals(3, monitoringResult.getCnecResults().size());
-        assertEquals(Cnec.SecurityStatus.FAILURE, monitoringResult.getStatus());
+        assertEquals(2, monitoringResult.getCnecResults().size());
+        assertEquals(Cnec.SecurityStatus.SECURE, monitoringResult.getStatus());
 
         assertEquals(4.30, monitoringResult.getCnecResults().stream().filter(cnecResult -> cnecResult.getCnec().getId().equals("vc - preventive")).findFirst().get().getMargin(), 1e-2);
         assertEquals(1.88, monitoringResult.getCnecResults().stream().filter(cnecResult -> cnecResult.getCnec().getId().equals("vc - curative3")).findFirst().get().getMargin(), 1e-2);
-        assertEquals(Double.NaN, monitoringResult.getCnecResults().stream().filter(cnecResult -> cnecResult.getCnec().getId().equals("vc - curative1")).findFirst().get().getMargin(), 1e-2);
+        assertTrue(monitoringResult.getCnecResults().stream().filter(cnecResult -> cnecResult.getCnec().getId().equals("vc - curative1")).collect(Collectors.toSet()).isEmpty());
     }
 }
