@@ -5,7 +5,11 @@
 
 Feature: US 1.2: Import of simple network actions as preventive remedial action free to use
 
-  @fast @crac @mock
+    ## TODO: the same with network actions?
+    ## TODO: add a PERCENT_IMAX unit somewhere?
+   ## TODO: add thresholds in MW?
+  ## TODO: tag @no-computation?
+  @fast @crac
   Scenario: US 1.2.1
   No threshold with a PERCENT_IMAX unit is defined in the CRAC so no iMax was imported.
     Given crac file is "epic1/SL_ep1us2_selectionTopoRA.json"
