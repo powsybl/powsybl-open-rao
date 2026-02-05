@@ -4,8 +4,6 @@
   "generatorConstraints": [
     {
       "generatorId": "BBE1AA1 _generator",
-      "pMax": 3000.0,
-      "pMin": 1000.0,
       "leadTime": 2.33,
       "lagTime": 0.75,
       "upwardPowerGradient": 1500.0,
@@ -13,8 +11,6 @@
     },
     {
       "generatorId": "FFR1AA1 _load",
-      "pMax": 3000.0,
-      "pMin": 1000.0,
       "leadTime": 2.33,
       "lagTime": 0.75,
       "upwardPowerGradient": 1500.0,
