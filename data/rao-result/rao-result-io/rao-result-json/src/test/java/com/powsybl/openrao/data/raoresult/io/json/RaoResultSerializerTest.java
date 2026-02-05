@@ -73,4 +73,30 @@ class RaoResultSerializerTest {
         assertEquals(inputString, outputString);
     }
 
+    @Test
+    void testSerializeWithoutMonitoringResult() throws IOException {
+        // get exhaustive CRAC and RaoResult
+        Crac crac = ExhaustiveCracCreation.create();
+        RaoResult raoResult = ExhaustiveRaoResultCreation.create(crac);
+
+        // Change the execution details
+        raoResult.setExecutionDetails("The RAO only went through first preventive");
+
+        // Did not go through the monitoring so no voltage or angle CNEC results should be serialized
+
+        // export RaoResult
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        Properties properties = new Properties();
+        properties.setProperty("rao-result.export.json.flows-in-amperes", "true");
+        properties.setProperty("rao-result.export.json.flows-in-megawatts", "true");
+        new RaoResultJsonExporter().exportData(raoResult, crac, properties, outputStream);
+        String outputString = outputStream.toString();
+
+        // import expected json to compare
+        InputStream inputStream = getClass().getResourceAsStream("/rao-result-no-monitoring.json");
+        String inputString = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
+
+        assertEquals(inputString, outputString);
+    }
+
 }
