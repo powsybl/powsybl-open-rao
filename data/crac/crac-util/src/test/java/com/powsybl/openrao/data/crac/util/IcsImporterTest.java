@@ -47,8 +47,6 @@ class IcsImporterTest {
     private Crac crac1;
     private Crac crac2;
 
-    // TODO: add tests for Lead, Lag and Pmin_RD
-
     @BeforeEach
     void setUp() throws IOException {
         // we need to import twice the network to avoid variant names conflicts on the same network object
@@ -108,6 +106,10 @@ class IcsImporterTest {
         assertEquals(-10., generatorConstraints.getDownwardPowerGradient().get(), DOUBLE_EPSILON);
         assertTrue(generatorConstraints.getUpwardPowerGradient().isPresent());
         assertEquals(10., generatorConstraints.getUpwardPowerGradient().get(), DOUBLE_EPSILON);
+        assertTrue(generatorConstraints.getLeadTime().isPresent());
+        assertEquals(1.0, generatorConstraints.getLeadTime().get(), DOUBLE_EPSILON);
+        assertTrue(generatorConstraints.getLagTime().isPresent());
+        assertEquals(1.0, generatorConstraints.getLagTime().get(), DOUBLE_EPSILON);
 
         assertEquals(1, crac1.getInjectionRangeActions().size());
         InjectionRangeAction ra1 = crac1.getInjectionRangeActions().iterator().next();
@@ -120,6 +122,7 @@ class IcsImporterTest {
         Network network1 = Network.read(networkFilePathPostIcsImport1);
         Generator generator1 = network1.getGenerator("Redispatching_RA_BBE1AA1_GENERATOR");
         assertEquals(116., generator1.getTargetP(), DOUBLE_EPSILON);
+        assertEquals(10.0, generator1.getMinP(), DOUBLE_EPSILON);
 
         assertEquals(1, crac2.getInjectionRangeActions().size());
         InjectionRangeAction ra2 = crac2.getInjectionRangeActions().iterator().next();
@@ -132,6 +135,7 @@ class IcsImporterTest {
         Network network2 = Network.read(networkFilePathPostIcsImport2);
         Generator generator2 = network2.getGenerator("Redispatching_RA_BBE1AA1_GENERATOR");
         assertEquals(120., generator2.getTargetP(), DOUBLE_EPSILON);
+        assertEquals(15.0, generator2.getMinP(), DOUBLE_EPSILON);
     }
 
     @Test
@@ -160,10 +164,18 @@ class IcsImporterTest {
         assertEquals("Redispatching_RA_BBE1AA1_GENERATOR", generatorConstraintsBE.getGeneratorId());
         assertEquals(-6., generatorConstraintsBE.getDownwardPowerGradient().orElseThrow(), DOUBLE_EPSILON);
         assertEquals(6., generatorConstraintsBE.getUpwardPowerGradient().orElseThrow(), DOUBLE_EPSILON);
+        assertTrue(generatorConstraintsBE.getLeadTime().isPresent());
+        assertEquals(1.0, generatorConstraintsBE.getLeadTime().get(), DOUBLE_EPSILON);
+        assertTrue(generatorConstraintsBE.getLagTime().isPresent());
+        assertEquals(1.0, generatorConstraintsBE.getLagTime().get(), DOUBLE_EPSILON);
         GeneratorConstraints generatorConstraintsFR = interTemporalRaoInputWithNetworkPaths.getIntertemporalConstraints().getGeneratorConstraints().stream().filter(gc -> gc.getGeneratorId().contains("FR")).findFirst().orElseThrow();
         assertEquals("Redispatching_RA_FFR1AA1_GENERATOR", generatorConstraintsFR.getGeneratorId());
         assertEquals(-4., generatorConstraintsFR.getDownwardPowerGradient().orElseThrow(), DOUBLE_EPSILON);
         assertEquals(4., generatorConstraintsFR.getUpwardPowerGradient().orElseThrow(), DOUBLE_EPSILON);
+        assertTrue(generatorConstraintsFR.getLeadTime().isPresent());
+        assertEquals(1.0, generatorConstraintsFR.getLeadTime().get(), DOUBLE_EPSILON);
+        assertTrue(generatorConstraintsFR.getLagTime().isPresent());
+        assertEquals(1.0, generatorConstraintsFR.getLagTime().get(), DOUBLE_EPSILON);
 
         assertEquals(1, crac1.getInjectionRangeActions().size());
         InjectionRangeAction ra1 = crac1.getInjectionRangeActions().iterator().next();
@@ -177,8 +189,10 @@ class IcsImporterTest {
         Network network1 = Network.read(networkFilePathPostIcsImport1);
         Generator generatorBE = network1.getGenerator("Redispatching_RA_BBE1AA1_GENERATOR");
         assertEquals(116. * 0.6, generatorBE.getTargetP(), DOUBLE_EPSILON);
+        assertEquals(10.0 * 0.6, generatorBE.getMinP(), DOUBLE_EPSILON);
         Generator generatorFR = network1.getGenerator("Redispatching_RA_FFR1AA1_GENERATOR");
         assertEquals(116. * 0.4, generatorFR.getTargetP(), DOUBLE_EPSILON);
+        assertEquals(10.0 * 0.4, generatorFR.getMinP(), DOUBLE_EPSILON);
     }
 
 }
