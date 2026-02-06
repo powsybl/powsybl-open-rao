@@ -15,6 +15,7 @@ import com.powsybl.openrao.data.crac.api.*;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
+import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
@@ -260,10 +261,14 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
             || finalPreventivePerimeterResult.optimizationResult().getComputationStatus() == FAILURE) {
             return FAILURE;
         }
+        Set<State> autoAndCurativeStatesWithFlowCnecs = crac.getFlowCnecs().stream()
+            .map(Cnec::getState)
+            .filter(state -> !state.isPreventive() && !state.getInstant().isOutage())
+            .collect(Collectors.toSet());
         if (initialResult.getComputationStatus() == PARTIAL_FAILURE ||
             finalPreventivePerimeterResult.optimizationResult().getComputationStatus() == PARTIAL_FAILURE ||
-            postContingencyResults.entrySet().stream().anyMatch(entry ->
-                entry.getValue() == null || entry.getValue().optimizationResult().getSensitivityStatus(entry.getKey()) != DEFAULT)) {
+            autoAndCurativeStatesWithFlowCnecs.stream().anyMatch(state ->
+                postContingencyResults.get(state) == null || postContingencyResults.get(state).optimizationResult().getSensitivityStatus(state) != DEFAULT)) {
             return PARTIAL_FAILURE;
         }
         return DEFAULT;
