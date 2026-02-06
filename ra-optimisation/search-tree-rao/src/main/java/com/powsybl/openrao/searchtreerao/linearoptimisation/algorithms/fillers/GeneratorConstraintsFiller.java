@@ -48,7 +48,7 @@ public class GeneratorConstraintsFiller implements ProblemFiller {
 
     private static final double DEFAULT_POWER_GRADIENT = 100000.0;
     private static final double DEFAULT_P_MAX = 10000.0;
-    private static final double OFF_POWER_THRESHOLD = 1.;
+    private static final double OFF_POWER_THRESHOLD = 1.0;
 
     // TODO gérer les checks des temporal Data bien remplis ?
     public GeneratorConstraintsFiller(TemporalData<Network> networks, TemporalData<State> preventiveStates, TemporalData<Set<InjectionRangeAction>> injectionRangeActionsPerTimestamp, Set<GeneratorConstraints> generatorConstraints) {
@@ -107,7 +107,7 @@ public class GeneratorConstraintsFiller implements ProblemFiller {
                         // link transition to next state
                         addStateToTransitionConstraints(linearProblem, generatorId, timestamp, nextTimestamp);
 
-                        //For t' between floor(t+1 - leadTime) and t, T(OFF->ON)(t) <= OFF(t')
+                        // For t' between ceil(t + 1 - leadTime) and t, T(OFF->ON)(t) <= OFF(t')
                         if (individualGeneratorConstraints.getLeadTime().isPresent() &&
                             individualGeneratorConstraints.getLeadTime().get() > timestampDuration) {
                             int firstTimestampIndex = Math.max(0, timestampIndex + 1 - (int) Math.ceil(individualGeneratorConstraints.getLeadTime().get() / timestampDuration));
@@ -144,7 +144,6 @@ public class GeneratorConstraintsFiller implements ProblemFiller {
     }
 
     private static void addStateTransitionVariables(LinearProblem linearProblem, String generatorId, OffsetDateTime timestamp) {
-        OpenRaoLoggerProvider.TECHNICAL_LOGS.warn("** Creating for timestamp {} ", timestamp);
         linearProblem.addGeneratorStateTransitionVariable(generatorId, timestamp, LinearProblem.GeneratorState.ON, LinearProblem.GeneratorState.ON);
         linearProblem.addGeneratorStateTransitionVariable(generatorId, timestamp, LinearProblem.GeneratorState.OFF, LinearProblem.GeneratorState.OFF);
         linearProblem.addGeneratorStateTransitionVariable(generatorId, timestamp, LinearProblem.GeneratorState.OFF, LinearProblem.GeneratorState.ON);
@@ -280,7 +279,7 @@ public class GeneratorConstraintsFiller implements ProblemFiller {
         powerTransitionConstraintInf.setCoefficient(onOnTransitionVariable, -downwardPowerGradient * timestampDuration);
         powerTransitionConstraintSup.setCoefficient(onOnTransitionVariable, -upwardPowerGradient * timestampDuration);
 
-        //OFF -> OFF
+        // OFF -> OFF
         OpenRaoMPVariable offOffTransitionVariable = linearProblem.getGeneratorStateTransitionVariable(generatorConstraints.getGeneratorId(), timestamp, LinearProblem.GeneratorState.OFF, LinearProblem.GeneratorState.OFF);
         powerTransitionConstraintInf.setCoefficient(offOffTransitionVariable, OFF_POWER_THRESHOLD);
         powerTransitionConstraintSup.setCoefficient(offOffTransitionVariable, -OFF_POWER_THRESHOLD);
@@ -288,11 +287,23 @@ public class GeneratorConstraintsFiller implements ProblemFiller {
         // OFF -> ON
         OpenRaoMPVariable offOnTransitionVariable = linearProblem.getGeneratorStateTransitionVariable(generatorConstraints.getGeneratorId(), timestamp, LinearProblem.GeneratorState.OFF, LinearProblem.GeneratorState.ON);
         powerTransitionConstraintInf.setCoefficient(offOnTransitionVariable, -(pMin - OFF_POWER_THRESHOLD));
-        powerTransitionConstraintSup.setCoefficient(offOnTransitionVariable, -pMin);
+        if (generatorConstraints.getLeadTime().isPresent()) {
+            // if the generator has a lead time, the ON state must pass by Pmin before increasing
+            powerTransitionConstraintSup.setCoefficient(offOnTransitionVariable, -pMin);
+        } else {
+            // otherwise the power is simply constrained by the power gradient
+            powerTransitionConstraintSup.setCoefficient(offOnTransitionVariable, -pMin - upwardPowerGradient * timestampDuration);
+        }
 
         // ON -> OFF
         OpenRaoMPVariable onOffTransitionVariable = linearProblem.getGeneratorStateTransitionVariable(generatorConstraints.getGeneratorId(), timestamp, LinearProblem.GeneratorState.ON, LinearProblem.GeneratorState.OFF);
-        powerTransitionConstraintInf.setCoefficient(onOffTransitionVariable, pMin);
+        if (generatorConstraints.getLagTime().isPresent()) {
+            // if the generator has a lag time, the ON state must pass by Pmin before decreasing
+            powerTransitionConstraintInf.setCoefficient(onOffTransitionVariable, pMin);
+        } else {
+            // otherwise the power is simply constrained by the power gradient
+            powerTransitionConstraintInf.setCoefficient(onOffTransitionVariable, pMin - downwardPowerGradient * timestampDuration);
+        }
         powerTransitionConstraintSup.setCoefficient(onOffTransitionVariable, pMin - OFF_POWER_THRESHOLD);
     }
 

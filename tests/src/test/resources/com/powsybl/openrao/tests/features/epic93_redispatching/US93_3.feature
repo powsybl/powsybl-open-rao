@@ -149,7 +149,7 @@ Feature: US 93.3: Intertemporal generator constraints
   maximum expected power to fully secure the network. The RAO still applied as much redispatching as it can but gets
   overload penalty costs.
     Given configuration file is "epic93/RaoParameters_minCost_megawatt_dc_0_shift.json"
-    Given intertemporal constraints are in file "epic93/empty-intertemporal-constraints.json" and rao inputs are:
+    Given intertemporal constraints are in file "epic93/intertemporal-constraints-without-constraints.json" and rao inputs are:
       | Timestamp        | Network                      | CRAC                                 |
       | 2025-11-04 00:30 | epic93/6Nodes_Pmax2500.xiidm | epic93/us93_3/crac_202511040030.json |
       | 2025-11-04 01:30 | epic93/6Nodes_Pmax2500.xiidm | epic93/us93_3/crac_202511040130.json |
