@@ -4,8 +4,6 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: US 2.5: Read PST min impact threshold from config
-  # RAO #1.1 in confluence
-  ## TODO: delete this comment?
 
   @fast @rao @ac @preventive-only
   Scenario: US 2.5.1: Run a linear RAO with default PST min impact threshold (Same as epic2 - US 2.2.5)

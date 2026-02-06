@@ -7,7 +7,6 @@ Feature: US 1.2: Import of simple network actions as preventive remedial action 
 
     ## TODO: the same with network actions?
     ## TODO: add a PERCENT_IMAX unit somewhere?
-   ## TODO: add thresholds in MW?
   ## TODO: tag @no-computation?
   @fast @crac
   Scenario: US 1.2.1
