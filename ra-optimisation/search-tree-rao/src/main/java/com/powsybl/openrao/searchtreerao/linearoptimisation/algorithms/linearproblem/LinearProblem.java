@@ -29,6 +29,8 @@ import static com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.li
 /**
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
+ * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
+ * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
 public final class LinearProblem {
 
@@ -82,7 +84,7 @@ public final class LinearProblem {
     }
 
     public enum GeneratorState {
-        ON, START_UP, OFF, SHUT_DOWN
+        ON, OFF
     }
 
     public enum MinOrMax {
@@ -578,9 +580,12 @@ public final class LinearProblem {
         return solver.getConstraint(generatorToInjectionConstraintId(generatorId, injectionRangeAction, timestamp));
     }
 
-    // TODO : rename ?
-    public OpenRaoMPConstraint addGeneratorRampingConstraint(String generatorId, OffsetDateTime rampingExtremeTimestamp, OffsetDateTime otherRampingTimestamp, VariationDirectionExtension rampingDirection) {
-        return solver.makeConstraint(-infinity(), 0.0, generatorRampingConstraintId(generatorId, rampingExtremeTimestamp, otherRampingTimestamp, rampingDirection));
+    public OpenRaoMPConstraint addGeneratorStartingUpConstraint(String generatorId, OffsetDateTime stateChangingTimestamp, OffsetDateTime otherTimestamp) {
+        return solver.makeConstraint(-infinity(), 0.0, generatorStartingUpConstraintId(generatorId, stateChangingTimestamp, otherTimestamp));
+    }
+
+    public OpenRaoMPConstraint addGeneratorShuttingDownConstraint(String generatorId, OffsetDateTime stateChangingTimestamp, OffsetDateTime otherTimestamp) {
+        return solver.makeConstraint(-infinity(), 0.0, generatorShuttingDownConstraintId(generatorId, stateChangingTimestamp, otherTimestamp));
     }
 
     public double infinity() {

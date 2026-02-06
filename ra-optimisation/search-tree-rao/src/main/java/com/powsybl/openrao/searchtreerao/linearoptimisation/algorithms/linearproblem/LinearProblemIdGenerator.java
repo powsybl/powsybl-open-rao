@@ -20,6 +20,8 @@ import java.util.Optional;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
+ * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
+ * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
 public final class LinearProblemIdGenerator {
     private static final String VARIABLE_SUFFIX = "variable";
@@ -67,7 +69,8 @@ public final class LinearProblemIdGenerator {
     private static final String GENERATOR_POWER_ON = "generatorpoweron";
     private static final String GENERATOR_POWER_VARIATION = "generatorpowervariation";
     private static final String GENERATOR_TO_INJECTION = "generatortoinjection";
-    private static final String GENERATOR_RAMPING = "generatorramping";
+    private static final String GENERATOR_STARTINGUP = "generatorstartingup";
+    private static final String GENERATOR_SHUTTINGDOWN = "generatorshuttingdown";
     private static final DateTimeFormatter DATE_TIME_FORMATER = DateTimeFormatter.ofPattern("yyyyMMddHHmm");
 
     private LinearProblemIdGenerator() {
@@ -312,7 +315,11 @@ public final class LinearProblemIdGenerator {
         return formatName(Optional.of(timestamp), GENERATOR_TO_INJECTION, generatorId, injectionRangeAction.getId(), CONSTRAINT_SUFFIX);
     }
 
-    public static String generatorRampingConstraintId(String generatorId, OffsetDateTime rampingExtremeTimestamp, OffsetDateTime otherRampingTimestamp, LinearProblem.VariationDirectionExtension rampingDirection) {
-        return formatName(GENERATOR_RAMPING, generatorId, rampingExtremeTimestamp.format(DATE_TIME_FORMATER), otherRampingTimestamp.format(DATE_TIME_FORMATER), CONSTRAINT_SUFFIX, rampingDirection.toString());
+    public static String generatorStartingUpConstraintId(String generatorId, OffsetDateTime rampingExtremeTimestamp, OffsetDateTime otherRampingTimestamp) {
+        return formatName(GENERATOR_STARTINGUP, generatorId, rampingExtremeTimestamp.format(DATE_TIME_FORMATER), otherRampingTimestamp.format(DATE_TIME_FORMATER), CONSTRAINT_SUFFIX);
+    }
+
+    public static String generatorShuttingDownConstraintId(String generatorId, OffsetDateTime rampingExtremeTimestamp, OffsetDateTime otherRampingTimestamp) {
+        return formatName(GENERATOR_SHUTTINGDOWN, generatorId, rampingExtremeTimestamp.format(DATE_TIME_FORMATER), otherRampingTimestamp.format(DATE_TIME_FORMATER), CONSTRAINT_SUFFIX);
     }
 }
