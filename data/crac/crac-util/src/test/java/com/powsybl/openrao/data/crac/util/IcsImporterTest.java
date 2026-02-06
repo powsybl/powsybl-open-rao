@@ -47,6 +47,8 @@ class IcsImporterTest {
     private Crac crac1;
     private Crac crac2;
 
+    // TODO: add tests for Lead, Lag and Pmin_RD
+
     @BeforeEach
     void setUp() throws IOException {
         // we need to import twice the network to avoid variant names conflicts on the same network object

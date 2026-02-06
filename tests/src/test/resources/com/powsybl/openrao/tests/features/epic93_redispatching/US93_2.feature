@@ -5,6 +5,8 @@
 
 Feature: US 93.2: power gradient constraints
 
+  # TODO: tests on Lead, Lag and Pmin_RD
+
   @fast @rao @dc @redispatching
   Scenario: US 93.2.1: Test simple gradient
     Given network files are in folder "epic93/TestCases_93_2_1"
