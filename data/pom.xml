@@ -22,5 +22,6 @@
         <module>rao-result</module>
         <module>refprog</module>
         <module>virtual-hubs</module>
+        <module>crac/crac-io/crac-io-network</module>
     </modules>
 </project>
