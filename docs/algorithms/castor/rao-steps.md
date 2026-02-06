@@ -68,10 +68,10 @@ $$\begin{equation}
 A_{optimal} = A_{current} + {sign}{(F(c)}) * \frac{\min(0, margin(c))}{\sigma}
 \end{equation}$$
 
-| Name        | Symbol | Details                 | Type       | Index                                            | Unit                                                      | Lower bound           | Upper bound           |
-|-------------|--------|-------------------------|------------|--------------------------------------------------|-----------------------------------------------------------|-----------------------|-----------------------|
-| Flow        | $F(c)$ | flow of FlowCnec $c$    | Real value | One variable for every element of (FlowCnecs)    | MW                                                        | $-\infty$             | $+\infty$             |
-| RA setpoint | $A$    | setpoint of RangeAction | Real value | One variable for every element of (RangeActions) | Degrees for PST range actions; MW for other range actions | Range lower bound[^1] | Range upper bound[^1] |
+| Name        | Symbol | Details                 | Type       | Index                                            | Unit                                                                                | Lower bound           | Upper bound           |
+|-------------|--------|-------------------------|------------|--------------------------------------------------|-------------------------------------------------------------------------------------|-----------------------|-----------------------|
+| Flow        | $F(c)$ | flow of FlowCnec $c$    | Real value | One variable for every element of (FlowCnecs)    | [Flow unit](../../parameters/business-parameters.md#objective-function-parameters)  | $-\infty$             | $+\infty$             |
+| RA setpoint | $A$    | setpoint of RangeAction | Real value | One variable for every element of (RangeActions) | Degrees for PST range actions; MW for other range actions                           | Range lower bound[^1] | Range upper bound[^1] |
 
 This formula is capped by the range actions' min and max setpoints: if the range action we're simulating doesn't achieve
 relieving the worst CNEC, we'll push it to its min or max tap and then continue the simulation with the next fastest

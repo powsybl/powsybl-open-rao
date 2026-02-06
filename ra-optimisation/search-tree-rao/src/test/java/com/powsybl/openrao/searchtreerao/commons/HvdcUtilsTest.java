@@ -75,7 +75,7 @@ public class HvdcUtilsTest {
     @Test
     void testUpdateHvdcRangeActionInitialSetpointWithSide2RRectifier() throws IOException {
         // Two HVDC range actions both using HVDC line "BBE2AA11 FFR3AA11 1" that is initially in AC emulation mode
-        // The difference with test testUpdateHvdcRangeActionInitialSetpoint is that the flow go from converter station 2 to converter station 1 on the line
+        // The difference with test testUpdateHvdcRangeActionInitialSetpoint is that the flow goes from converter station 2 to converter station 1 on the line
         // We should :
         // - read the power at station 1
         // - see that it is negative
@@ -91,7 +91,7 @@ public class HvdcUtilsTest {
         raoParameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters());
         updateHvdcRangeActionInitialSetpoint(crac, network, raoParameters);
 
-        // the flow go from converter station 2 to converter station 1 on the line => setpoint should be negative.
+        // the flow goes from converter station 2 to converter station 1 on the line => setpoint should be negative.
         assertEquals(-806, crac.getHvdcRangeAction("HVDC_RA1").getInitialSetpoint(), 1);
         assertEquals(-806, crac.getHvdcRangeAction("HVDC_RA2").getInitialSetpoint(), 1);
         assertEquals(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER, network.getHvdcLine("BBE2AA11 FFR3AA11 1").getConvertersMode());

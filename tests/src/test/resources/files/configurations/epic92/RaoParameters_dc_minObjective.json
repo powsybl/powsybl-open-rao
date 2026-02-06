@@ -1,8 +1,7 @@
 {
-  "version" : "3.2.1",
+  "version" : "3.3",
   "objective-function" : {
     "type" : "MIN_COST",
-    "unit" : "MW",
     "enforce-curative-security" : false
   },
   "range-actions-optimization" : {
@@ -107,9 +106,9 @@
       "multi-threading" : {
         "available-cpus" : 1
       },
-      "costly-min-margin-parameters": {
+      "costly-min-margin-parameters" : {
         "shifted-violation-penalty" : 1000.0,
-        "shifted-violation-threshold": 0.0
+        "shifted-violation-threshold" : 0.0
       }
     }
   }

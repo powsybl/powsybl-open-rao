@@ -215,41 +215,62 @@ class CriticalBranchReader {
     }
 
     private void addPermanentThresholds(FlowCnecAdder cnecAdder) {
-        if (!Objects.isNull(criticalBranch.getPermanentImaxFactor())) {
+        boolean permanentThresholdFound = false;
+
+        //First try to get explicitly permanent thresholds
+        if (!Objects.isNull(criticalBranch.getPermanentImaxFactor()) && criticalBranch.getPermanentImaxFactor().doubleValue() > 1e-6) {
             addThreshold(cnecAdder, criticalBranch.getPermanentImaxFactor().doubleValue(), Unit.PERCENT_IMAX);
-        } else if (!Objects.isNull(criticalBranch.getImaxFactor())) {
-            addThreshold(cnecAdder, criticalBranch.getImaxFactor().doubleValue(), Unit.PERCENT_IMAX);
+            permanentThresholdFound = true;
         }
-
-        if (!Objects.isNull(criticalBranch.getPermanentImaxA())) {
+        if (!Objects.isNull(criticalBranch.getPermanentImaxA()) && criticalBranch.getPermanentImaxA().doubleValue() > 1e-6) {
             addThreshold(cnecAdder, criticalBranch.getPermanentImaxA().doubleValue(), Unit.AMPERE);
-        } else if (!Objects.isNull(criticalBranch.getImaxA())) {
-            addThreshold(cnecAdder, criticalBranch.getImaxA().doubleValue(), Unit.AMPERE);
+            permanentThresholdFound = true;
+        }
+        if (permanentThresholdFound) {
+            return;
         }
 
-        if (Objects.isNull(criticalBranch.getPermanentImaxFactor()) && Objects.isNull(criticalBranch.getImaxFactor())
-            && Objects.isNull(criticalBranch.getPermanentImaxA()) && Objects.isNull(criticalBranch.getImaxA())) {
-            addThreshold(cnecAdder, 1., Unit.PERCENT_IMAX);
+        //Then fallback to default factors or values
+        fallbackToDefaultThresholds(cnecAdder);
+    }
+
+    private void fallbackToDefaultThresholds(FlowCnecAdder cnecAdder) {
+        boolean defaultThresholdFound = false;
+
+        if (!Objects.isNull(criticalBranch.getImaxFactor()) && criticalBranch.getImaxFactor().doubleValue() > 1e-6) {
+            addThreshold(cnecAdder, criticalBranch.getImaxFactor().doubleValue(), Unit.PERCENT_IMAX);
+            defaultThresholdFound = true;
         }
+        if (!Objects.isNull(criticalBranch.getImaxA()) && criticalBranch.getImaxA().doubleValue() > 1e-6) {
+            addThreshold(cnecAdder, criticalBranch.getImaxA().doubleValue(), Unit.AMPERE);
+            defaultThresholdFound = true;
+        }
+        if (defaultThresholdFound) {
+            return;
+        }
+
+        //If still no value found, create cnec with 100% Imax
+        addThreshold(cnecAdder, 1., Unit.PERCENT_IMAX);
     }
 
     private void addTemporaryThresholds(FlowCnecAdder cnecAdder) {
-        if (!Objects.isNull(criticalBranch.getTemporaryImaxFactor())) {
+        boolean temporaryThresholdFound = false;
+
+        //First try to get explicitly temporary thresholds
+        if (!Objects.isNull(criticalBranch.getTemporaryImaxFactor()) && criticalBranch.getTemporaryImaxFactor().doubleValue() > 1e-6) {
             addThreshold(cnecAdder, criticalBranch.getTemporaryImaxFactor().doubleValue(), Unit.PERCENT_IMAX);
-        } else if (!Objects.isNull(criticalBranch.getImaxFactor())) {
-            addThreshold(cnecAdder, criticalBranch.getImaxFactor().doubleValue(), Unit.PERCENT_IMAX);
+            temporaryThresholdFound = true;
         }
-
-        if (!Objects.isNull(criticalBranch.getTemporaryImaxA())) {
+        if (!Objects.isNull(criticalBranch.getTemporaryImaxA()) && criticalBranch.getTemporaryImaxA().doubleValue() > 1e-6) {
             addThreshold(cnecAdder, criticalBranch.getTemporaryImaxA().doubleValue(), Unit.AMPERE);
-        } else if (!Objects.isNull(criticalBranch.getImaxA())) {
-            addThreshold(cnecAdder, criticalBranch.getImaxA().doubleValue(), Unit.AMPERE);
+            temporaryThresholdFound = true;
+        }
+        if (temporaryThresholdFound) {
+            return;
         }
 
-        if (Objects.isNull(criticalBranch.getTemporaryImaxFactor()) && Objects.isNull(criticalBranch.getImaxFactor())
-            && Objects.isNull(criticalBranch.getTemporaryImaxA()) && Objects.isNull(criticalBranch.getImaxA())) {
-            addThreshold(cnecAdder, 1., Unit.PERCENT_IMAX);
-        }
+        //Then fallback to default factors or values
+        fallbackToDefaultThresholds(cnecAdder);
     }
 
     private void addThreshold(FlowCnecAdder cnecAdder, double threshold, Unit unit) {

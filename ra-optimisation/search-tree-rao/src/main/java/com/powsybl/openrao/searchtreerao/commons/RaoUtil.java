@@ -9,6 +9,7 @@ package com.powsybl.openrao.searchtreerao.commons;
 
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
@@ -65,10 +66,25 @@ public final class RaoUtil {
     public static void checkParameters(RaoParameters raoParameters, RaoInput raoInput) {
         checkObjectiveFunctionParameters(raoParameters, raoInput);
         checkLoopFlowParameters(raoParameters, raoInput);
+        checkHvdcAcEmulationParameters(raoParameters, raoInput);
 
         if (!PstModel.APPROXIMATED_INTEGERS.equals(getPstModel(raoParameters))
             && raoInput.getCrac().getRaUsageLimitsPerInstant().values().stream().anyMatch(raUsageLimits -> !raUsageLimits.getMaxElementaryActionsPerTso().isEmpty())) {
             String msg = "The PSTs must be approximated as integers to use the limitations of elementary actions as a constraint in the RAO.";
+            OpenRaoLoggerProvider.BUSINESS_LOGS.error(msg);
+            throw new OpenRaoException(msg);
+        }
+    }
+
+    public static void checkHvdcAcEmulationParameters(RaoParameters raoParameters, RaoInput raoInput) {
+        boolean isAnyHvdcInAcEmulation = raoInput.getNetwork().getHvdcLineStream()
+            .anyMatch(hvdcLine -> {
+                HvdcAngleDroopActivePowerControl extension = hvdcLine.getExtension(HvdcAngleDroopActivePowerControl.class);
+                return extension != null && extension.isEnabled();
+            });
+
+        if (!getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters().isHvdcAcEmulation() && isAnyHvdcInAcEmulation) {
+            String msg = "hvdcAcEmulation is not enabled but some HVDC lines are in AC emulation mode which will not be coherent.";
             OpenRaoLoggerProvider.BUSINESS_LOGS.error(msg);
             throw new OpenRaoException(msg);
         }
@@ -92,10 +108,6 @@ public final class RaoUtil {
     }
 
     private static void checkObjectiveFunctionParameters(RaoParameters raoParameters, RaoInput raoInput) {
-        if (raoParameters.getObjectiveFunctionParameters().getUnit().equals(Unit.AMPERE)
-            && getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters().isDc()) {
-            throw new OpenRaoException(format("Objective function unit %s cannot be calculated with a DC default sensitivity engine", raoParameters.getObjectiveFunctionParameters().getUnit().toString()));
-        }
 
         if (raoParameters.getObjectiveFunctionParameters().getType().relativePositiveMargins()) {
             if (raoInput.getGlskProvider() == null) {
@@ -155,7 +167,7 @@ public final class RaoUtil {
      * If there are remaining usage rules, the remedial action is available.
      */
     public static boolean canRemedialActionBeUsed(RemedialAction<?> remedialAction, State state, FlowResult flowResult, Set<FlowCnec> flowCnecs, Network network, RaoParameters raoParameters) {
-        return remedialAction.getUsageRules().stream().anyMatch(ur -> isUsageRuleActivated(ur, remedialAction, state, flowResult, flowCnecs, network, raoParameters.getObjectiveFunctionParameters().getUnit()));
+        return remedialAction.getUsageRules().stream().anyMatch(ur -> isUsageRuleActivated(ur, remedialAction, state, flowResult, flowCnecs, network, getFlowUnit(raoParameters)));
     }
 
     private static boolean isUsageRuleActivated(UsageRule usageRule, RemedialAction<?> remedialAction, State state, FlowResult flowResult, Set<FlowCnec> flowCnecs, Network network, Unit unit) {
@@ -226,6 +238,11 @@ public final class RaoUtil {
             .map(FlowCnec::getId)
             .filter(id -> id.contains("OUTAGE DUPLICATE"))
             .collect(Collectors.toSet());
+    }
+
+    // TODO: find a better place for this function
+    public static Unit getFlowUnit(RaoParameters raoParameters) {
+        return getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters().isDc() ? Unit.MEGAWATT : Unit.AMPERE;
     }
 
 }
