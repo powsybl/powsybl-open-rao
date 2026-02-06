@@ -17,6 +17,7 @@ Feature: US 93.3: Intertemporal generator constraints
 
   ----------------------
 
+  # TODO: update comments to remove occurrences of ramps
   Scenario: US 93.3.1: No generator constraints
   No generator constraints hold so the situation corresponds to the ideal case described in the introduction.
     Given configuration file is "epic93/RaoParameters_minCost_megawatt_dc_0_shift.json"
@@ -452,9 +453,9 @@ Feature: US 93.3: Intertemporal generator constraints
     And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 02:30" is 0.0 MW
     And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 02:30" is 0.0 MW
     # Timestamp 03:30
-    And the total cost for timestamp "2025-11-04 03:30" is 40010.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 03:30" is 800.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 03:30" is 800.0 MW
+    And the total cost for timestamp "2025-11-04 03:30" is 50010.0
+    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 03:30" is 1000.0 MW
+    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 03:30" is 1000.0 MW
     # Timestamp 04:30
     And the total cost for timestamp "2025-11-04 04:30" is 150010.0
     And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 04:30" is 3000.0 MW
@@ -520,13 +521,13 @@ Feature: US 93.3: Intertemporal generator constraints
     And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 19:30" is 3000.0 MW
     And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 19:30" is 3000.0 MW
     # Timestamp 20:30
-    And the total cost for timestamp "2025-11-04 20:30" is 40010.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 20:30" is 800.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 20:30" is 800.0 MW
+    And the total cost for timestamp "2025-11-04 20:30" is 50010.0
+    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 20:30" is 1000.0 MW
+    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 20:30" is 1000.0 MW
     # Timestamp 21:30
-    And the total cost for timestamp "2025-11-04 21:30" is 20010.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 21:30" is 400.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 21:30" is 400.0 MW
+    And the total cost for timestamp "2025-11-04 21:30" is 0.0
+    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 21:30" is 0.0 MW
+    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 21:30" is 0.0 MW
     # Timestamp 22:30
     And the total cost for timestamp "2025-11-04 22:30" is 0.0
     And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 22:30" is 0.0 MW
@@ -573,13 +574,13 @@ Feature: US 93.3: Intertemporal generator constraints
     And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 00:30" is 0.0 MW
     And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 00:30" is 0.0 MW
     # Timestamp 01:30
-    And the total cost for timestamp "2025-11-04 01:30" is 21460.00
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 01:30" is 429.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 01:30" is 429.0 MW
+    And the total cost for timestamp "2025-11-04 01:30" is 0.0
+    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 01:30" is 0.0 MW
+    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 01:30" is 0.0 MW
     # Timestamp 02:30
-    And the total cost for timestamp "2025-11-04 02:30" is 42910.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 02:30" is 858.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 02:30" is 858.0 MW
+    And the total cost for timestamp "2025-11-04 02:30" is 50010.0
+    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 02:30" is 1000.0 MW
+    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 02:30" is 1000.0 MW
     # Timestamp 03:30
     And the total cost for timestamp "2025-11-04 03:30" is 75010.0
     And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 03:30" is 1500.0 MW
@@ -664,5 +665,3 @@ Feature: US 93.3: Intertemporal generator constraints
     And the total cost for timestamp "2025-11-04 23:30" is 0.0
     And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 23:30" is 0.0 MW
     And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 23:30" is 0.0 MW
-
-    # TODO: test with lead time shorter than timestamp to ensure good behavior and lag of 1 hour exactly

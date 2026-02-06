@@ -8,13 +8,6 @@
       "lagTime": 0.75,
       "upwardPowerGradient": 1500.0,
       "downwardPowerGradient": -2000.0
-    },
-    {
-      "generatorId": "FFR1AA1 _load",
-      "leadTime": 2.33,
-      "lagTime": 0.75,
-      "upwardPowerGradient": 1500.0,
-      "downwardPowerGradient": -2000.0
     }
   ]
 }

@@ -60,6 +60,7 @@ public class GeneratorConstraintsFiller implements ProblemFiller {
         this.timestamps = networks.getTimestamps();
     }
 
+    // TODO: reflect upon how to deal with loads constraints-wise (i.e. does it make sense to define lead/lag times or p min/max?)
     // TODO à deporter dans un check d'entree ailleurs
     private static double computeTimestampDuration(List<OffsetDateTime> timestamps) {
         if (timestamps.size() < 2) {
