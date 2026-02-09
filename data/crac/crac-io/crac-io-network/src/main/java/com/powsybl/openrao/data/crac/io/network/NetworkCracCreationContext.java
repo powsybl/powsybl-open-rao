@@ -29,9 +29,13 @@ public class NetworkCracCreationContext implements CracCreationContext {
         this.creationReport = new CracCreationReport();
     }
 
+    public void setCreationSuccessful(boolean creationSuccessful) {
+        isCreationSuccessful = creationSuccessful;
+    }
+
     @Override
     public boolean isCreationSuccessful() {
-        return false;
+        return isCreationSuccessful;
     }
 
     @Override
@@ -41,12 +45,12 @@ public class NetworkCracCreationContext implements CracCreationContext {
 
     @Override
     public OffsetDateTime getTimeStamp() {
-        return null;
+        return crac.getTimestamp().orElseThrow();
     }
 
     @Override
     public String getNetworkName() {
-        return "";
+        return networkName;
     }
 
     @Override

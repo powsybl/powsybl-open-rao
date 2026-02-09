@@ -7,60 +7,44 @@
 
 package com.powsybl.openrao.data.crac.io.network.parameters;
 
-import com.powsybl.iidm.network.Country;
 import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.parameters.AbstractAlignedRaCracCreationParameters;
 
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public class NetworkCracCreationParameters extends AbstractAlignedRaCracCreationParameters {
-    public static class CriticalBranches {
-        Optional<Set<Country>> countries = Optional.empty();
-        Optional<Double> optimizedMinV = Optional.of(150.);
-        Optional<Double> optimizedMaxV = Optional.empty();
-        boolean monitorOtherBranches = true; // non-critical branches are declared as MNECs
-        Map<InstantKind, Double> operationalLimitReduction = Map.of(InstantKind.PREVENTIVE, 0.95);
 
-        public Optional<Set<Country>> countries() {
-            return countries;
-        }
-
-        public Optional<Double> optimizedMinV() {
-            return optimizedMinV;
-        }
-
-        public Optional<Double> optimizedMaxV() {
-            return optimizedMaxV;
-        }
-
-        public boolean monitorOtherBranches() {
-            return monitorOtherBranches;
-        }
-
-        public Map<Integer, Integer> outageInstantPerVoltageLevel() {
-            // key is VL in kV
-            // Value is duration under which there is no possibility of RA (fixes TATL to use)
-            return Map.of(400, 30, 200, 20, 150, 20);
-        }
-
-        public double operationalLimitReduction(InstantKind instantKind) {
-            return operationalLimitReduction.getOrDefault(instantKind, 1.0);
-        }
-    }
+    private SortedMap<InstantKind, List<String>> instants = new TreeMap<>(Map.of(
+        InstantKind.PREVENTIVE, List.of("preventive"),
+        InstantKind.OUTAGE, List.of("outage"),
+        InstantKind.CURATIVE, List.of("curative")
+    ));
+    CriticalElements criticalElements = new CriticalElements();
+    Contingencies contingencies = new Contingencies();
 
     @Override
     public String getName() {
         return "NetworkCracCreationParameters";
     }
 
-
-
-    public CriticalBranches criticalBranches() {
-        return new CriticalBranches();
+    public SortedMap<InstantKind, List<String>> getInstants() {
+        return instants;
     }
+
+    public void setInstants(SortedMap<InstantKind, List<String>> instants) {
+        // TODO verify 1 element for preventive, outage, etc. also that they are in correct order.
+        this.instants = instants;
+    }
+
+    public Contingencies getContingencies() {
+        return contingencies;
+    }
+
+    public CriticalElements getCriticalElements() {
+        return criticalElements;
+    }
+
 }
