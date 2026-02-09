@@ -2,7 +2,6 @@
 
 ```{toctree}
 :hidden:
-inter-temporal-constraints/power-gradient-constraint-filler.md
 inter-temporal-constraints/generator-constraints-filler.md
 ```
 
