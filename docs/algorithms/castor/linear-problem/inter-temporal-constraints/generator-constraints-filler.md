@@ -188,6 +188,6 @@ $$\begin{align*}
 
 The power of the generator can be linked to the set-point of the injection range action $r$ it is involved in:
 
-$$P(g,s,t) = \frac{\sigma(g)}{k(g,r)} A(r,s,t)$$
+$$P(g,s,t) = \sigma(g) k(g,r) A(r,s,t)$$
 
 where $k(g,r)$ is the injection key of $g$ in $r$ and $\sigma(g) = 1$ if $g$ is a generator or $-1$ if it is a load.
