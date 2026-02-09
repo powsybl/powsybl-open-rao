@@ -16,19 +16,30 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.InstantKind;
+import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnecAdder;
 import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
+import com.powsybl.openrao.data.crac.api.range.RangeType;
+import com.powsybl.openrao.data.crac.api.range.TapRangeAdder;
+import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeActionAdder;
 import com.powsybl.openrao.data.crac.io.commons.OpenRaoImportException;
+import com.powsybl.openrao.data.crac.io.commons.PstHelper;
 import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
+import com.powsybl.openrao.data.crac.io.commons.iidm.IidmPstHelper;
+import com.powsybl.openrao.data.crac.io.commons.ucte.UctePstHelper;
 import com.powsybl.openrao.data.crac.io.network.parameters.Contingencies;
 import com.powsybl.openrao.data.crac.io.network.parameters.CriticalElements;
 import com.powsybl.openrao.data.crac.io.network.parameters.NetworkCracCreationParameters;
+import com.powsybl.openrao.data.crac.io.network.parameters.PstRangeActions;
 import org.jgrapht.alg.util.Pair;
 
 import javax.annotation.Nullable;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
+ * Creates a CRAC from a network.
+ *
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public class NetworkCracCreator {
@@ -40,7 +51,7 @@ public class NetworkCracCreator {
     private final Map<Branch<?>, Contingency> contingencyPerBranch = new HashMap<>();
 
     NetworkCracCreationContext createCrac(Network network, CracCreationParameters cracCreationParameters) {
-        String cracId = "CRAC_" + network.getNameOrId();
+        String cracId = "CRAC_FROM_NETWORK_" + network.getNameOrId();
         this.network = network;
         crac = cracCreationParameters.getCracFactory().create(cracId, cracId, network.getCaseDate().toOffsetDateTime());
         creationContext = new NetworkCracCreationContext(crac, network.getNameOrId());
@@ -52,6 +63,7 @@ public class NetworkCracCreator {
         addInstants();
         addContingencies();
         addCnecsAndMnecs();
+        addPstRangeActions();
         creationContext.setCreationSuccessful(true);
         return creationContext;
     }
@@ -223,5 +235,47 @@ public class NetworkCracCreator {
             .withMin(-limit)
             .withUnit(unit)
             .add();
+    }
+
+    private void addPstRangeActions() {
+        PstRangeActions params = specificParameters.getPstRangeActions();
+        Set<Instant> instants = crac.getSortedInstants().stream().filter(instant -> !instant.isOutage())
+            .filter(params::arePstsAvailableForInstant).collect(Collectors.toSet());
+        network.getTwoWindingsTransformerStream()
+            .filter(twt -> twt.getPhaseTapChanger() != null)
+            .filter(twt -> Utils.branchIsInCountries(twt, params.getCountries()))
+            .forEach(twt -> instants.forEach(instant -> addPstRangeActionForInstant(twt, instant)));
+    }
+
+    private void addPstRangeActionForInstant(TwoWindingsTransformer twt, Instant instant) {
+        PstRangeActions params = specificParameters.getPstRangeActions();
+        PstHelper pstHelper = new IidmPstHelper(twt.getId(), network);
+        PstRangeActionAdder pstAdder = crac.newPstRangeAction()
+            .withId("PST_RA_" + twt.getId() + "_" + instant.getId())
+            .withNetworkElement(twt.getId())
+            .withInitialTap(pstHelper.getInitialTap())
+            .newTapRange().withRangeType(RangeType.ABSOLUTE).withMinTap(pstHelper.getLowTapPosition()).withMaxTap(pstHelper.getHighTapPosition()).add()
+            .withTapToAngleConversionMap(pstHelper.getTapToAngleConversionMap());
+        // TODO align RAs if needed
+
+        boolean availableForAllStates = crac.getStates(instant).stream().allMatch(state -> params.isAvailable(twt, state));
+        if (availableForAllStates) {
+            pstAdder.newOnInstantUsageRule().withInstant(instant.getId()).add();
+        } else {
+            crac.getStates().stream().filter(state -> params.isAvailable(twt, state))
+                .forEach(
+                    state -> pstAdder.newOnContingencyStateUsageRule()
+                        .withInstant(instant.getId())
+                        .withContingency(state.getContingency().orElseThrow().getId())
+                        .add()
+                );
+        }
+        if (params.getRangeMin(instant).isPresent() || params.getRangeMax(instant).isPresent()) {
+            TapRangeAdder rangeAdder = pstAdder.newTapRange().withRangeType(RangeType.RELATIVE_TO_PREVIOUS_INSTANT);
+            params.getRangeMin(instant).ifPresent(rangeAdder::withMinTap);
+            params.getRangeMax(instant).ifPresent(rangeAdder::withMaxTap);
+            rangeAdder.add();
+        }
+        pstAdder.add();
     }
 }

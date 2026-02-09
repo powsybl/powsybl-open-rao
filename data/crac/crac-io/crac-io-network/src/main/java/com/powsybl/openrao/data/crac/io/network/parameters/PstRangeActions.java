@@ -7,10 +7,11 @@
 
 package com.powsybl.openrao.data.crac.io.network.parameters;
 
-import com.powsybl.iidm.network.PhaseTapChanger;
+import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiPredicate;
@@ -21,8 +22,8 @@ import java.util.function.BiPredicate;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public class PstRangeActions extends AbstractCountriesFilter {
-    private Map<String, MinAndMax<Integer>> availableRelativeRangesAtInstants;
-    private BiPredicate<PhaseTapChanger, State> pstRaPredicate = (pst, state) -> true;
+    private Map<String, MinAndMax<Integer>> availableRelativeRangesAtInstants = new HashMap<>();
+    private BiPredicate<TwoWindingsTransformer, State> pstRaPredicate = (pst, state) -> true;
 
     /**
      * For every instant, set the relative tap range available for PSTs.
@@ -45,11 +46,15 @@ public class PstRangeActions extends AbstractCountriesFilter {
      * Set the function that says if the PST is available for optimization at a given {@code State}.
      * Defaults to true.
      */
-    public void setPstRaPredicate(BiPredicate<PhaseTapChanger, State> pstRaPredicate) {
+    public void setPstRaPredicate(BiPredicate<TwoWindingsTransformer, State> pstRaPredicate) {
         this.pstRaPredicate = pstRaPredicate;
     }
 
-    public boolean isAvailable(PhaseTapChanger pst, State state) {
+    public boolean arePstsAvailableForInstant(Instant instant) {
+        return availableRelativeRangesAtInstants.containsKey(instant.getId());
+    }
+
+    public boolean isAvailable(TwoWindingsTransformer pst, State state) {
         return availableRelativeRangesAtInstants.containsKey(state.getInstant().getId()) && pstRaPredicate.test(pst, state);
     }
 }

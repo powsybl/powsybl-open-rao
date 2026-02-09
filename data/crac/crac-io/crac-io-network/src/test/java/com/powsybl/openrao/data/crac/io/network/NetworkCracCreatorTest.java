@@ -15,9 +15,16 @@ import com.powsybl.openrao.data.crac.api.CracCreationContext;
 import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
+import com.powsybl.openrao.data.crac.api.range.RangeType;
+import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.threshold.BranchThreshold;
+import com.powsybl.openrao.data.crac.api.usagerule.OnInstant;
+import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
+import com.powsybl.openrao.data.crac.io.commons.iidm.IidmPstHelper;
 import com.powsybl.openrao.data.crac.io.network.parameters.CriticalElements;
+import com.powsybl.openrao.data.crac.io.network.parameters.MinAndMax;
 import com.powsybl.openrao.data.crac.io.network.parameters.NetworkCracCreationParameters;
+import com.powsybl.openrao.data.crac.io.network.parameters.PstRangeActions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -33,6 +40,7 @@ class NetworkCracCreatorTest {
     private NetworkCracCreationParameters parameters;
     private CracCreationContext creationContext;
     private Crac crac;
+    private Network network;
 
     @BeforeEach
     void setUp() {
@@ -40,7 +48,7 @@ class NetworkCracCreatorTest {
     }
 
     private void importCracFrom(String networkName) {
-        Network network = Network.read(networkName, getClass().getResourceAsStream("/" + networkName));
+        network = Network.read(networkName, getClass().getResourceAsStream("/" + networkName));
         creationContext = new NetworkCracCreator().createCrac(network, cracCreationParameters);
         creationContext.getCreationReport().printCreationReport();
         crac = creationContext.getCrac();
@@ -57,6 +65,11 @@ class NetworkCracCreatorTest {
             Map.of("preventive", 0.95, "outage", 1.3, "curative", 1.1)
         );
         parameters.getCriticalElements().setApplicableLimitDurationPerInstant(Map.of("outage", 60., "curative", Double.POSITIVE_INFINITY));
+
+        parameters.getPstRangeActions()
+            .setAvailableRelativeRangesAtInstants(
+                Map.of("preventive", new MinAndMax<>(-8, 8), "curative", new MinAndMax<>(-2, 2))
+            );
     }
 
     @Test
@@ -65,6 +78,7 @@ class NetworkCracCreatorTest {
         assertTrue(creationContext.isCreationSuccessful());
         assertNotNull(crac);
         assertEquals(496, crac.getFlowCnecs().size());
+        assertEquals(2, crac.getPstRangeActions().size());
     }
 
     private void checkCnec(String id, String neId, InstantKind instantKind, Unit thresholdUnit, double thresholdValue) {
@@ -100,6 +114,61 @@ class NetworkCracCreatorTest {
 
         // Filtered out by predicate
         assertNull(crac.getFlowCnec("BBE2AA1  FFR3AA1  1_CO_NNL1AA1  NNL2AA1  1_outage"));
+    }
+
+    @Test
+    void testUctePstsFiltered1() {
+        parameters.getPstRangeActions().setCountryFilter(Set.of(Country.FR));
+        importCracFrom("TestCase12Nodes.uct");
+        assertTrue(creationContext.isCreationSuccessful());
+        assertNotNull(crac);
+        assertTrue(crac.getPstRangeActions().isEmpty());
+    }
+
+    @Test
+    void testUctePstsFiltered2() {
+        parameters.getPstRangeActions().setCountryFilter(Set.of(Country.BE));
+        parameters.getPstRangeActions().setAvailableRelativeRangesAtInstants(Map.of("curative", new MinAndMax<>(-1, 5)));
+        importCracFrom("TestCase12Nodes.uct");
+        assertTrue(creationContext.isCreationSuccessful());
+        assertNotNull(crac);
+        assertEquals(1, crac.getPstRangeActions().size());
+        PstRangeAction pst = crac.getPstRangeAction("PST_RA_BBE2AA1  BBE3AA1  1_curative");
+        assertNotNull(pst);
+        assertEquals("BBE2AA1  BBE3AA1  1", pst.getNetworkElement().getId());
+        assertEquals(0, pst.getInitialTap());
+        assertEquals(new IidmPstHelper("BBE2AA1  BBE3AA1  1", network).getTapToAngleConversionMap(), pst.getTapToAngleConversionMap());
+        assertEquals(2, pst.getRanges().size());
+        assertEquals(RangeType.ABSOLUTE, pst.getRanges().get(0).getRangeType());
+        assertEquals(-16, pst.getRanges().get(0).getMinTap());
+        assertEquals(16, pst.getRanges().get(0).getMaxTap());
+        assertEquals(RangeType.RELATIVE_TO_PREVIOUS_INSTANT, pst.getRanges().get(1).getRangeType());
+        assertEquals(-1, pst.getRanges().get(1).getMinTap());
+        assertEquals(5, pst.getRanges().get(1).getMaxTap());
+        assertEquals(1, pst.getUsageRules().size());
+        UsageRule ur = pst.getUsageRules().iterator().next();
+        assertInstanceOf(OnInstant.class, ur);
+        assertEquals(crac.getInstant(InstantKind.CURATIVE), ur.getInstant());
+    }
+
+    @Test
+    void testUctePstsFiltered3() {
+        parameters.getPstRangeActions().setCountryFilter(Set.of(Country.BE));
+        parameters.getPstRangeActions().setAvailableRelativeRangesAtInstants(Map.of("curative", new MinAndMax<>(-1, 5)));
+        parameters.getPstRangeActions().setPstRaPredicate((twt, state) -> state.getContingency().isPresent() && state.getContingency().get().getId().contains("NNL3AA1"));
+        importCracFrom("TestCase12Nodes.uct");
+        assertTrue(creationContext.isCreationSuccessful());
+        assertNotNull(crac);
+        assertEquals(1, crac.getPstRangeActions().size());
+        PstRangeAction pst = crac.getPstRangeAction("PST_RA_BBE2AA1  BBE3AA1  1_curative");
+        assertNotNull(pst);
+        assertEquals(3, pst.getUsageRules().size());
+        crac.getStates(crac.getInstant(InstantKind.CURATIVE)).stream().filter(
+                state -> state.getContingency().isPresent() && state.getContingency().get().getId().contains("NNL3AA1")
+            )
+            .forEach(
+                state -> assertTrue(pst.isAvailableForState(state))
+            );
     }
 
     @Test
