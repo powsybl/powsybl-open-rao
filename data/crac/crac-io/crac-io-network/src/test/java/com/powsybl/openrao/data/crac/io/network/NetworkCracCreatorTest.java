@@ -7,49 +7,99 @@
 
 package com.powsybl.openrao.data.crac.io.network;
 
+import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.CracCreationContext;
+import com.powsybl.openrao.data.crac.api.InstantKind;
+import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
+import com.powsybl.openrao.data.crac.api.threshold.BranchThreshold;
 import com.powsybl.openrao.data.crac.io.network.parameters.CriticalElements;
 import com.powsybl.openrao.data.crac.io.network.parameters.NetworkCracCreationParameters;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class NetworkCracCreatorTest {
 
+    private CracCreationParameters cracCreationParameters;
+    private NetworkCracCreationParameters parameters;
     private CracCreationContext creationContext;
     private Crac crac;
 
-    private static CracCreationParameters getCracCreationParameters() {
-        CracCreationParameters genericParameters = new CracCreationParameters();
-        genericParameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_BOTH_SIDES);
-        NetworkCracCreationParameters parameters = new NetworkCracCreationParameters();
-        genericParameters.addExtension(NetworkCracCreationParameters.class, parameters);
-
-        parameters.getCriticalElements().setThresholdDefinition(CriticalElements.ThresholdDefinition.FROM_OPERATIONAL_LIMITS);
-        parameters.getCriticalElements().setLimitMultiplierPerInstant(
-            Map.of("preventive", 0.95, "outage", 1., "curative", 1.1)
-        );
-        parameters.getCriticalElements().setApplicableLimitDurationPerInstant(Map.of("outage", 60., "curative", Double.POSITIVE_INFINITY));
-        return genericParameters;
+    @BeforeEach
+    void setUp() {
+        createBasicParameters();
     }
 
     private void importCracFrom(String networkName) {
         Network network = Network.read(networkName, getClass().getResourceAsStream("/" + networkName));
-        creationContext = new NetworkCracCreator().createCrac(network, getCracCreationParameters());
+        creationContext = new NetworkCracCreator().createCrac(network, cracCreationParameters);
         creationContext.getCreationReport().printCreationReport();
         crac = creationContext.getCrac();
     }
 
+    private void createBasicParameters() {
+        cracCreationParameters = new CracCreationParameters();
+        cracCreationParameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_BOTH_SIDES);
+        parameters = new NetworkCracCreationParameters();
+        cracCreationParameters.addExtension(NetworkCracCreationParameters.class, parameters);
+
+        parameters.getCriticalElements().setThresholdDefinition(CriticalElements.ThresholdDefinition.PERM_LIMIT_MULTIPLIER);
+        parameters.getCriticalElements().setLimitMultiplierPerInstant(
+            Map.of("preventive", 0.95, "outage", 1.3, "curative", 1.1)
+        );
+        parameters.getCriticalElements().setApplicableLimitDurationPerInstant(Map.of("outage", 60., "curative", Double.POSITIVE_INFINITY));
+    }
+
     @Test
-    void testImportUcte() {
+    void testImportUcteFull() {
         importCracFrom("TestCase12Nodes.uct");
         assertTrue(creationContext.isCreationSuccessful());
         assertNotNull(crac);
+        assertEquals(496, crac.getFlowCnecs().size());
+    }
+
+    private void checkCnec(String id, String neId, InstantKind instantKind, Unit thresholdUnit, double thresholdValue) {
+        FlowCnec cnec = crac.getFlowCnec(id);
+        assertNotNull(cnec);
+        assertEquals(neId, cnec.getNetworkElement().getId());
+        assertEquals(instantKind, cnec.getState().getInstant().getKind());
+        for (BranchThreshold t : cnec.getThresholds()) {
+            assertEquals(thresholdUnit, t.getUnit());
+            assertEquals(-thresholdValue, t.min().orElseThrow());
+            assertEquals(thresholdValue, t.max().orElseThrow());
+        }
+    }
+
+    @Test
+    void testUcteCnecsFiltered() {
+        parameters.getCriticalElements().setCountryFilter(Set.of(Country.BE));
+        parameters.getContingencies().setCountryFilter(Set.of(Country.NL));
+        parameters.getCriticalElements().setCnecPredicate((b, c) -> !Utils.branchIsInCountries(b, Optional.of(Set.of(Country.FR))));
+        importCracFrom("TestCase12Nodes.uct");
+        assertTrue(creationContext.isCreationSuccessful());
+        assertNotNull(crac);
+        assertEquals(5, crac.getContingencies().size());
+        assertEquals(43, crac.getFlowCnecs().size());
+
+        checkCnec("BBE2AA1  BBE3AA1  1_preventive", "BBE2AA1  BBE3AA1  1", InstantKind.PREVENTIVE, Unit.AMPERE, 0.95 * 5000);
+        checkCnec("BBE2AA1  BBE3AA1  1_CO_NNL1AA1  NNL2AA1  1_outage", "BBE2AA1  BBE3AA1  1", InstantKind.OUTAGE, Unit.AMPERE, 1.3 * 5000);
+        checkCnec("BBE2AA1  BBE3AA1  1_CO_NNL1AA1  NNL2AA1  1_curative", "BBE2AA1  BBE3AA1  1", InstantKind.CURATIVE, Unit.AMPERE, 1.1 * 5000);
+
+        checkCnec("NNL2AA1  BBE3AA1  1_preventive", "NNL2AA1  BBE3AA1  1", InstantKind.PREVENTIVE, Unit.AMPERE, 0.95 * 5000);
+        checkCnec("NNL2AA1  BBE3AA1  1_CO_DDE2AA1  NNL3AA1  1_outage", "NNL2AA1  BBE3AA1  1", InstantKind.OUTAGE, Unit.AMPERE, 1.3 * 5000);
+        checkCnec("NNL2AA1  BBE3AA1  1_CO_DDE2AA1  NNL3AA1  1_curative", "NNL2AA1  BBE3AA1  1", InstantKind.CURATIVE, Unit.AMPERE, 1.1 * 5000);
+
+        // Filtered out by predicate
+        assertNull(crac.getFlowCnec("BBE2AA1  FFR3AA1  1_CO_NNL1AA1  NNL2AA1  1_outage"));
     }
 
     @Test
@@ -61,7 +111,10 @@ class NetworkCracCreatorTest {
 
     @Test
     void testImport2() {
+        parameters.getCriticalElements().setThresholdDefinition(CriticalElements.ThresholdDefinition.FROM_OPERATIONAL_LIMITS);
+
         importCracFrom("network_one_voltage_level.xiidm");
+
         assertTrue(creationContext.isCreationSuccessful());
         assertNotNull(crac);
     }
