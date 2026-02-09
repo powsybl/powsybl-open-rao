@@ -134,3 +134,25 @@ Feature: US 19.5: max number of CRAs
     And the margin on cnec "fr1_fr4_CO1 - curative" after CRA should be 751 A
     And the margin on cnec "fr3_fr5_CO1 - OPP - curative" after CRA should be 806 A
     Then the execution details should be "Second preventive improved first preventive results"
+
+  @fast @rao @ac @second-preventive @contingency-scenarios
+  Scenario: US 19.5.12: Max ra usage limit in curative with 2P - with 2 contingency scenario
+    Similar to 19.5.11, but in this test instead of one contingency scenario we have two: CO1_fr2_fr3_1 and CO2_fr1_fr2_1.
+    The RA Usage limit for curative instant is still 1.
+    For CO1_fr2_fr3_1, we use one network action => so no range action can be optimized in 2P
+    For CO2_fr1_fr2_1, no network action used => pst_be can be optimized after "CO2_fr1_fr2_1" at "curative".
+    The RAO is able to update the max RA usage limit for each curative state independently.
+    Given network file is "epic19/TestCase16Nodes_19_5_12.uct"
+    Given crac file is "epic19/CBCORA_ep19us5case12.xml"
+    Given configuration file is "epic20/RaoParameters_maxMargin_ampere_second_preventive.json"
+    Given crac creation parameters file is "epic19/CracCreationParameters_max_ra_usage_limit.json"
+    When I launch rao at "2019-01-08 12:00"
+    Then 1 remedial actions are used in preventive
+    And the tap of PstRangeAction "pst_fr" should be -5 in preventive
+    And 1 remedial actions are used after "CO1_fr2_fr3_1" at "curative"
+    And 1 remedial actions are used after "CO2_fr1_fr2_1" at "curative"
+    And the remedial action "open_fr1_fr3" is used after "CO1_fr2_fr3_1" at "curative"
+    And the tap of PstRangeAction "pst_be" should be -16 after "CO2_fr1_fr2_1" at "curative"
+    And the worst margin is 79 A
+    And the margin on cnec "fr1_fr4_CO2 - curative" after CRA should be 79 A
+    Then the execution details should be "Second preventive improved first preventive results"
