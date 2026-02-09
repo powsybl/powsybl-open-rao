@@ -50,7 +50,7 @@ public class GeneratorConstraintsFiller implements ProblemFiller {
     private static final double DEFAULT_P_MAX = 10000.0;
     private static final double OFF_POWER_THRESHOLD = 1.0;
 
-    // TODO gérer les checks des temporal Data bien remplis ?
+    // TODO: check that all temporal data are correctly filled with the same timestamps
     public GeneratorConstraintsFiller(TemporalData<Network> networks, TemporalData<State> preventiveStates, TemporalData<Set<InjectionRangeAction>> injectionRangeActionsPerTimestamp, Set<GeneratorConstraints> generatorConstraints) {
         this.networks = networks;
         this.preventiveStates = preventiveStates;
@@ -61,7 +61,7 @@ public class GeneratorConstraintsFiller implements ProblemFiller {
     }
 
     // TODO: reflect upon how to deal with loads constraints-wise (i.e. does it make sense to define lead/lag times or p min/max?)
-    // TODO à deporter dans un check d'entree ailleurs
+    // TODO: move this check at a prior moment
     private static double computeTimestampDuration(List<OffsetDateTime> timestamps) {
         if (timestamps.size() < 2) {
             throw new OpenRaoException("There must be at least two timestamps.");
@@ -97,8 +97,7 @@ public class GeneratorConstraintsFiller implements ProblemFiller {
                     OffsetDateTime timestamp = timestamps.get(timestampIndex);
                     // Constraints not involving state transition variables
                     addUniqueGeneratorStateConstraint(linearProblem, generatorId, timestamp);
-                    addOffPowerConstraint(linearProblem, generatorId, timestamp);
-                    addOnPowerConstraints(linearProblem, generatorId, timestamp);
+                    addOnOffPowerConstraints(linearProblem, generatorId, timestamp);
 
                     // Constraints involving state transition variables, defined on indexes [0, numberOfTimestamps - 2]
                     if (timestampIndex < numberOfTimestamps - 1) {
@@ -226,40 +225,32 @@ public class GeneratorConstraintsFiller implements ProblemFiller {
     }
 
     /**
-     * C6 - The generator is OFF if and only if its power is null.
-     * <br/>
-     * P <= P_max (1 - OFF) + OFF_POWER_THRESHOLD * OFF
-     */
-    private void addOffPowerConstraint(LinearProblem linearProblem, String generatorId, OffsetDateTime timestamp) {
-        double pMax = getMaxP(generatorId, networks.getData(timestamp).orElseThrow());
-        OpenRaoMPConstraint offPowerConstraint = linearProblem.addGeneratorPowerOffConstraint(generatorId, pMax, timestamp);
-        offPowerConstraint.setCoefficient(linearProblem.getGeneratorPowerVariable(generatorId, timestamp), 1);
-        offPowerConstraint.setCoefficient(linearProblem.getGeneratorStateVariable(generatorId, timestamp, LinearProblem.GeneratorState.OFF), pMax - OFF_POWER_THRESHOLD);
-
-    }
-
-    /**
-     * C7 - The generator is ON if and only if its power is in the range [P_min, P_max].
+     * C6 - The generator is ON if and only if its power is in the range [P_min, P_max]
+     * and OFF if and only if its power is in the range [0, OFF_POWER_THREHSOLD]
      * <br/>
      * P >= P_min ON
      * <br/>
-     * P <= P_min (1 - ON) + P_max ON
+     * P <= P_max ON + OFF_POWER_THREHSOLD OFF
      */
-    private void addOnPowerConstraints(LinearProblem linearProblem, String generatorId, OffsetDateTime timestamp) {
+    private void addOnOffPowerConstraints(LinearProblem linearProblem, String generatorId, OffsetDateTime timestamp) {
         double pMin = getMinP(generatorId, networks.getData(timestamp).orElseThrow());
         double pMax = getMaxP(generatorId, networks.getData(timestamp).orElseThrow());
         OpenRaoMPVariable generatorPowerVariable = linearProblem.getGeneratorPowerVariable(generatorId, timestamp);
         OpenRaoMPVariable generatorOnVariable = linearProblem.getGeneratorStateVariable(generatorId, timestamp, LinearProblem.GeneratorState.ON);
-        OpenRaoMPConstraint onPowerConstraintInf = linearProblem.addGeneratorPowerOnConstraint(generatorId, timestamp, 0, linearProblem.infinity(), LinearProblem.AbsExtension.POSITIVE);
-        onPowerConstraintInf.setCoefficient(generatorPowerVariable, 1);
-        onPowerConstraintInf.setCoefficient(generatorOnVariable, -pMin);
-        OpenRaoMPConstraint onPowerConstraintSup = linearProblem.addGeneratorPowerOnConstraint(generatorId, timestamp, -linearProblem.infinity(), pMin, LinearProblem.AbsExtension.NEGATIVE);
-        onPowerConstraintSup.setCoefficient(generatorPowerVariable, 1);
-        onPowerConstraintSup.setCoefficient(generatorOnVariable, pMin - pMax);
+        OpenRaoMPVariable generatorOffVariable = linearProblem.getGeneratorStateVariable(generatorId, timestamp, LinearProblem.GeneratorState.OFF);
+
+        OpenRaoMPConstraint onOffPowerConstraintInf = linearProblem.addGeneratorPowerOnOffConstraint(generatorId, timestamp, 0, linearProblem.infinity(), LinearProblem.AbsExtension.POSITIVE);
+        onOffPowerConstraintInf.setCoefficient(generatorPowerVariable, 1);
+        onOffPowerConstraintInf.setCoefficient(generatorOnVariable, -pMin);
+
+        OpenRaoMPConstraint onOffPowerConstraintSup = linearProblem.addGeneratorPowerOnOffConstraint(generatorId, timestamp, -linearProblem.infinity(), 0, LinearProblem.AbsExtension.NEGATIVE);
+        onOffPowerConstraintSup.setCoefficient(generatorPowerVariable, 1);
+        onOffPowerConstraintSup.setCoefficient(generatorOnVariable, -pMax);
+        onOffPowerConstraintSup.setCoefficient(generatorOffVariable, -OFF_POWER_THRESHOLD);
     }
 
     /**
-     * C8 - Constraints linking power variations to state transitions
+     * C7 - Constraints linking power variations to state transitions
      * <br/>
      */
     private void addPowerVariationConstraints(LinearProblem linearProblem, GeneratorConstraints generatorConstraints, OffsetDateTime timestamp, OffsetDateTime nextTimestamp) {

@@ -299,12 +299,8 @@ public final class LinearProblemIdGenerator {
         return formatName(Optional.of(timestamp), GENERATOR_STATE_TO, generatorId, generatorStateTo.toString(), CONSTRAINT_SUFFIX);
     }
 
-    public static String generatorPowerOffConstraintId(String generatorId, OffsetDateTime timestamp) {
-        return formatName(Optional.of(timestamp), GENERATOR_POWER_OFF, generatorId, CONSTRAINT_SUFFIX);
-    }
-
-    public static String generatorPowerOnConstraintId(String generatorId, OffsetDateTime timestamp, LinearProblem.AbsExtension positiveOrNegative) {
-        return formatName(Optional.of(timestamp), GENERATOR_POWER_ON, generatorId, CONSTRAINT_SUFFIX, positiveOrNegative.toString());
+    public static String generatorPowerOnOffConstraintId(String generatorId, OffsetDateTime timestamp, LinearProblem.AbsExtension positiveOrNegative) {
+        return formatName(Optional.of(timestamp), GENERATOR_POWER_OFF, generatorId, CONSTRAINT_SUFFIX, positiveOrNegative.toString());
     }
 
     public static String generatorPowerTransitionConstraintId(String generatorId, OffsetDateTime timestamp, LinearProblem.AbsExtension positiveOrNegative) {

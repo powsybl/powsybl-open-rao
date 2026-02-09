@@ -556,12 +556,8 @@ public final class LinearProblem {
         return solver.makeConstraint(0, 0, generatorStateToTransitionConstraintId(generatorId, generatorStateTo, timestamp));
     }
 
-    public OpenRaoMPConstraint addGeneratorPowerOffConstraint(String generatorId, double pMax, OffsetDateTime timestamp) {
-        return solver.makeConstraint(-infinity(), pMax, generatorPowerOffConstraintId(generatorId, timestamp));
-    }
-
-    public OpenRaoMPConstraint addGeneratorPowerOnConstraint(String generatorId, OffsetDateTime timestamp, double lb, double ub, AbsExtension positiveOrNegative) {
-        return solver.makeConstraint(lb, ub, generatorPowerOnConstraintId(generatorId, timestamp, positiveOrNegative));
+    public OpenRaoMPConstraint addGeneratorPowerOnOffConstraint(String generatorId, OffsetDateTime timestamp, double lb, double ub, AbsExtension positiveOrNegative) {
+        return solver.makeConstraint(lb, ub, generatorPowerOnOffConstraintId(generatorId, timestamp, positiveOrNegative));
     }
 
     public OpenRaoMPConstraint addGeneratorPowerTransitionConstraint(String generatorId, double lb, double ub, OffsetDateTime timestamp, AbsExtension positiveOrNegative) {
