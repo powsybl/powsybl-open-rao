@@ -12,16 +12,12 @@ are:
 - the **lag time**, which is the time required by the generator to constantly ramp down from $P_{\min}$ to a complete
   shutdown.
 
-The generator then operates in four distinct states depending on its current power, based on the aforementioned
+The generator then operates in two distinct states depending on its current power, based on the aforementioned
 characteristics:
 
 - it is **off** whenever its power is null;
 - it is **on** whenever its power is greater or equal than $P_{\min}$ (and lower or equal than $P_{\max}$). In that
   range, the power is somewhat free to change (with only possible power gradient constraints);
-- it is **starting up** if its power is increasing from zero to $P_{\min}$, at a fixed pace of $\frac{P_{\min}}{LEAD}$ (
-  in MW/h);
-- it is **shutting down** if its power is decreasing from $P_{\min}$ to zero, at a fixed pace of $\frac{P_{\min}}{LAG}$ (
-  in MW/h).
 
 ![Generator States](../../../../_static/img/generator-states.png){.forced-white-background}
 
@@ -113,16 +109,18 @@ $$\delta_{\textcolor{red}{\text{OFF}}}^{gen}(g,s,t + 1) = T_{\textcolor{red}{\te
 
 $$\delta_{\textcolor{green}{\text{ON}}}^{gen}(g,s,t + 1) = T_{\textcolor{green}{\text{ON}} \to \textcolor{green}{\text{ON}}}(g,s,t) + T_{\textcolor{red}{\text{OFF}} \to \textcolor{green}{\text{ON}}}(g,s,t)$$
 
-### Warm-Up
+### Start-Up
 
-When the generator is turned on, it has a warm-up time called _lead time_ during which the power remains null before to
+> In the following, we denote $\Delta_{t \rightarrow t'}$ the time elapsed between to timestamps $t$ and $t'$.
+
+When the generator is started up, it has a warm-up time called _lead time_ during which the power remains null before to
 step up to $P_{\min}$.
 
 $$\forall t' \leq t \text{ such that } \Delta_{t' \rightarrow t} < LEAD(g), \; T_{\textcolor{red}{\text{OFF}} \to \textcolor{green}{\text{ON}}}(g,s,t) \leq \delta_{\textcolor{red}{\text{OFF}}}^{gen}(g,s,t')$$
 
-### Cool-Down
+### Shut-Down
 
-Similarly, when the generator is turned off, it has a cool-down time called _lag time_ during which the power remains
+Similarly, when the generator is shut off, it has a cool-down time called _lag time_ during which the power remains
 null and the generator cannot be tuned on again.
 
 $$\forall t' \geq t \text{ such that } \Delta_{t \rightarrow t'} < LAG(g), \; T_{\textcolor{green}{\text{ON}} \to \textcolor{red}{\text{OFF}}}(g,s,t) \leq \delta_{\textcolor{red}{\text{OFF}}}^{gen}(g,s,t')$$
@@ -132,12 +130,54 @@ $$\forall t' \geq t \text{ such that } \Delta_{t \rightarrow t'} < LAG(g), \; T_
 The power variation and the state transitions are strongly entangled and constrain one another. Depending on the state
 transition, the power variation $P(g,s,t+1) - P(g,s,t)$ is bounded differently.
 
+::::{tabs}
+:::{group-tab} No lead, no lag
+With no lead time and no lag time, the power is free to move between $P_{\min}$ and $P_{\max}$ even when the generator
+is started up or shut down during the timestamp, as long as the power variation respects the power gradients.
+
+$$\begin{align*}
+- \epsilon_{P}^{\text{OFF}} T_{\textcolor{red}{\text{OFF}} \to \textcolor{red}{\text{OFF}}}(g,s,t) & & \epsilon_{P}^{\text{OFF}} T_{\textcolor{red}{\text{OFF}} \to \textcolor{red}{\text{OFF}}}(g,s,t) \\
++ \left ( P_{\min} - \epsilon_{P}^{\text{OFF}} \right ) T_{\textcolor{red}{\text{OFF}} \to \textcolor{green}{\text{ON}}}(g,s,t) & & \left ( P_{\min} + \nabla^{+}(g) \Delta_{\tau} \right ) T_{\textcolor{red}{\text{OFF}} \to \textcolor{green}{\text{ON}}}(g,s,t) \\
++ \nabla^{-}(g) \Delta_{\tau} T_{\textcolor{green}{\text{ON}} \to \textcolor{green}{\text{ON}}}(g,s,t) & \leq P(g,s,t + 1) - P(g,s,t) \leq & + \nabla^{+}(g) \Delta_{\tau} T_{\textcolor{green}{\text{ON}} \to \textcolor{green}{\text{ON}}}(g,s,t) \\
+- \left ( P_{\min} - \nabla^{-}(g) \Delta_{\tau} \right) T_{\textcolor{green}{\text{ON}} \to \textcolor{red}{\text{OFF}}}(g,s,t) & & - \left ( P_{\min} - \epsilon_{P}^{\text{OFF}} \right ) T_{\textcolor{green}{\text{ON}} \to \textcolor{red}{\text{OFF}}}(g,s,t)
+\end{align*}$$
+:::
+:::{group-tab} Lead, no lag
+With a lead time, the generator must first step up to $P_{\min}$ before to be operated between $P_{\min}$ and $P_{\max}$
+under the power gradient constraints. However, as it as no lag time, the same behavior does not apply when shutting it
+down.
+
+$$\begin{align*}
+- \epsilon_{P}^{\text{OFF}} T_{\textcolor{red}{\text{OFF}} \to \textcolor{red}{\text{OFF}}}(g,s,t) & & \epsilon_{P}^{\text{OFF}} T_{\textcolor{red}{\text{OFF}} \to \textcolor{red}{\text{OFF}}}(g,s,t) \\
++ \left ( P_{\min} - \epsilon_{P}^{\text{OFF}} \right ) T_{\textcolor{red}{\text{OFF}} \to \textcolor{green}{\text{ON}}}(g,s,t) & & P_{\min} T_{\textcolor{red}{\text{OFF}} \to \textcolor{green}{\text{ON}}}(g,s,t) \\
++ \nabla^{-}(g) \Delta_{\tau} T_{\textcolor{green}{\text{ON}} \to \textcolor{green}{\text{ON}}}(g,s,t) & \leq P(g,s,t + 1) - P(g,s,t) \leq & + \nabla^{+}(g) \Delta_{\tau} T_{\textcolor{green}{\text{ON}} \to \textcolor{green}{\text{ON}}}(g,s,t) \\
+- \left ( P_{\min} - \nabla^{-}(g) \Delta_{\tau} \right) T_{\textcolor{green}{\text{ON}} \to \textcolor{red}{\text{OFF}}}(g,s,t) & & - \left ( P_{\min} - \epsilon_{P}^{\text{OFF}} \right ) T_{\textcolor{green}{\text{ON}} \to \textcolor{red}{\text{OFF}}}(g,s,t)
+\end{align*}$$
+:::
+:::{group-tab} No lead, lag
+With a lag time, the generator must step down from $P_{\min}$ to 0 instead of being shut down from any power value above
+$P_{\min}$. However, as it as no lead time, no power stepping up to $P_{\min}$ is required when starting it up.
+
+$$\begin{align*}
+- \epsilon_{P}^{\text{OFF}} T_{\textcolor{red}{\text{OFF}} \to \textcolor{red}{\text{OFF}}}(g,s,t) & & \epsilon_{P}^{\text{OFF}} T_{\textcolor{red}{\text{OFF}} \to \textcolor{red}{\text{OFF}}}(g,s,t) \\
++ \left ( P_{\min} - \epsilon_{P}^{\text{OFF}} \right ) T_{\textcolor{red}{\text{OFF}} \to \textcolor{green}{\text{ON}}}(g,s,t) & & \left ( P_{\min} + \nabla^{+}(g) \Delta_{\tau} \right ) T_{\textcolor{red}{\text{OFF}} \to \textcolor{green}{\text{ON}}}(g,s,t) \\
++ \nabla^{-}(g) \Delta_{\tau} T_{\textcolor{green}{\text{ON}} \to \textcolor{green}{\text{ON}}}(g,s,t) & \leq P(g,s,t + 1) - P(g,s,t) \leq & + \nabla^{+}(g) \Delta_{\tau} T_{\textcolor{green}{\text{ON}} \to \textcolor{green}{\text{ON}}}(g,s,t) \\
+- P_{\min} T_{\textcolor{green}{\text{ON}} \to \textcolor{red}{\text{OFF}}}(g,s,t) & & - \left ( P_{\min} - \epsilon_{P}^{\text{OFF}} \right ) T_{\textcolor{green}{\text{ON}} \to \textcolor{red}{\text{OFF}}}(g,s,t)
+\end{align*}$$
+:::
+:::{group-tab} Lead and lag
+With a lead time, the generator must first step up to $P_{\min}$ before to be operated between $P_{\min}$ and $P_{\max}$
+under the power gradient constraints. Besides, with a lag time, the generator must step down from $P_{\min}$ to 0
+instead of being shut down from any power value above $P_{\min}$.
+
 $$\begin{align*}
 - \epsilon_{P}^{\text{OFF}} T_{\textcolor{red}{\text{OFF}} \to \textcolor{red}{\text{OFF}}}(g,s,t) & & \epsilon_{P}^{\text{OFF}} T_{\textcolor{red}{\text{OFF}} \to \textcolor{red}{\text{OFF}}}(g,s,t) \\
 + \left ( P_{\min} - \epsilon_{P}^{\text{OFF}} \right ) T_{\textcolor{red}{\text{OFF}} \to \textcolor{green}{\text{ON}}}(g,s,t) & & P_{\min} T_{\textcolor{red}{\text{OFF}} \to \textcolor{green}{\text{ON}}}(g,s,t) \\
 + \nabla^{-}(g) \Delta_{\tau} T_{\textcolor{green}{\text{ON}} \to \textcolor{green}{\text{ON}}}(g,s,t) & \leq P(g,s,t + 1) - P(g,s,t) \leq & + \nabla^{+}(g) \Delta_{\tau} T_{\textcolor{green}{\text{ON}} \to \textcolor{green}{\text{ON}}}(g,s,t) \\
 - P_{\min} T_{\textcolor{green}{\text{ON}} \to \textcolor{red}{\text{OFF}}}(g,s,t) & & - \left ( P_{\min} - \epsilon_{P}^{\text{OFF}} \right ) T_{\textcolor{green}{\text{ON}} \to \textcolor{red}{\text{OFF}}}(g,s,t)
 \end{align*}$$
+:::
+::::
 
 ### Injection to generator power constraint
 
