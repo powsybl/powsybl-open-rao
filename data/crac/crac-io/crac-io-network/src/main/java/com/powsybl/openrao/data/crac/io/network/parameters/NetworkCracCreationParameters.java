@@ -22,8 +22,12 @@ public class NetworkCracCreationParameters extends AbstractAlignedRaCracCreation
         InstantKind.OUTAGE, List.of("outage"),
         InstantKind.CURATIVE, List.of("curative")
     ));
-    CriticalElements criticalElements = new CriticalElements();
-    Contingencies contingencies = new Contingencies();
+    private CriticalElements criticalElements = new CriticalElements();
+    private Contingencies contingencies = new Contingencies();
+    private PstRangeActions pstRangeActions = new PstRangeActions();
+    private RedispatchingRangeActions redispatchingRangeActions = new RedispatchingRangeActions();
+    private CountertradingRangeActions countertradingRangeActions = new CountertradingRangeActions();
+    private BalancingRangeAction balancingRangeAction = new BalancingRangeAction();
 
     @Override
     public String getName() {
@@ -47,4 +51,19 @@ public class NetworkCracCreationParameters extends AbstractAlignedRaCracCreation
         return criticalElements;
     }
 
+    public PstRangeActions getPstRangeActions() {
+        return pstRangeActions;
+    }
+
+    public RedispatchingRangeActions getRedispatchingRangeActions() {
+        return redispatchingRangeActions;
+    }
+
+    public CountertradingRangeActions getCountertradingRangeActions() {
+        return countertradingRangeActions;
+    }
+
+    public BalancingRangeAction getBalancingRangeAction() {
+        return balancingRangeAction;
+    }
 }

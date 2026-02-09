@@ -73,7 +73,7 @@ public class NetworkCracCreator {
             ).forEach(branch -> {
                 if (Utils.branchIsInVRange(branch, params.getOptimizedMinV(), params.getOptimizedMaxV())) {
                     optimizedBranches.add(branch);
-                } else if (params.isMonitorOtherBranches()) {
+                } else if (params.getMinAndMaxMonitoredV().isPresent() && Utils.branchIsInVRange(branch, params.getMinAndMaxMonitoredV().get().getMin(), params.getMinAndMaxMonitoredV().get().getMax())) {
                     monitoredBranches.add(branch);
                 }
             });

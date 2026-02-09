@@ -7,28 +7,30 @@
 
 package com.powsybl.openrao.data.crac.io.network.parameters;
 
-import com.powsybl.iidm.network.Country;
-
+import javax.annotation.Nullable;
 import java.util.Optional;
-import java.util.Set;
 
 /**
+ * Indicates what elements to simulate as contingencies (N-1).
+ *
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class Contingencies {
-    Optional<Set<Country>> countries = Optional.empty();
-    Optional<Double> minV = Optional.empty();
-    Optional<Double> maxV = Optional.empty();
-
-    public Optional<Set<Country>> getCountries() {
-        return countries;
-    }
+public class Contingencies extends AbstractCountriesFilter {
+    private MinAndMax<Double> minAndMaxV;
 
     public Optional<Double> getMinV() {
-        return minV;
+        return minAndMaxV.getMin();
     }
 
     public Optional<Double> getMaxV() {
-        return maxV;
+        return minAndMaxV.getMax();
+    }
+
+    /**
+     * Set the voltage thresholds (in kV, included) to consider branches as critical contingencies (N-1).
+     * You can use {@code null} to disable min and/or max filter.
+     */
+    public void setMinAndMaxV(@Nullable Double minV, @Nullable Double maxV) {
+        this.minAndMaxV = new  MinAndMax<>(minV, maxV);
     }
 }
