@@ -24,7 +24,6 @@ import com.powsybl.openrao.data.crac.io.commons.iidm.IidmPstHelper;
 import com.powsybl.openrao.data.crac.io.network.parameters.CriticalElements;
 import com.powsybl.openrao.data.crac.io.network.parameters.MinAndMax;
 import com.powsybl.openrao.data.crac.io.network.parameters.NetworkCracCreationParameters;
-import com.powsybl.openrao.data.crac.io.network.parameters.PstRangeActions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -79,6 +78,7 @@ class NetworkCracCreatorTest {
         assertNotNull(crac);
         assertEquals(496, crac.getFlowCnecs().size());
         assertEquals(2, crac.getPstRangeActions().size());
+        assertEquals(24, crac.getInjectionRangeActions().size());
     }
 
     private void checkCnec(String id, String neId, InstantKind instantKind, Unit thresholdUnit, double thresholdValue) {
@@ -97,7 +97,7 @@ class NetworkCracCreatorTest {
     void testUcteCnecsFiltered() {
         parameters.getCriticalElements().setCountryFilter(Set.of(Country.BE));
         parameters.getContingencies().setCountryFilter(Set.of(Country.NL));
-        parameters.getCriticalElements().setCnecPredicate((b, c) -> !Utils.branchIsInCountries(b, Optional.of(Set.of(Country.FR))));
+        parameters.getCriticalElements().setCnecPredicate((b, c) -> !Utils.branchIsInCountries(b, Set.of(Country.FR)));
         importCracFrom("TestCase12Nodes.uct");
         assertTrue(creationContext.isCreationSuccessful());
         assertNotNull(crac);

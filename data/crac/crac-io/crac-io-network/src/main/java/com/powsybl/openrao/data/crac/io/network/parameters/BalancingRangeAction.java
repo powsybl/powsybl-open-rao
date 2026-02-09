@@ -21,7 +21,7 @@ import java.util.function.BiPredicate;
  */
 public class BalancingRangeAction extends  AbstractCountriesFilter {
     private BiPredicate<Injection<?>, Instant> injectionPredicate = (injection, instant) -> true;
-    private BiFunction<Country, Instant, InjectionRangeActionCosts> raCostsProvider = (country, instant) -> new InjectionRangeActionCosts(0, 0, 0, 0);
+    private BiFunction<Country, Instant, InjectionRangeActionCosts> raCostsProvider = (country, instant) -> new InjectionRangeActionCosts(0, 0, 0);
     private BiFunction<Country, Instant, MinAndMax<Double>> raRangeProvider = (country, instant) -> new MinAndMax<>(null, null);
 
     /**

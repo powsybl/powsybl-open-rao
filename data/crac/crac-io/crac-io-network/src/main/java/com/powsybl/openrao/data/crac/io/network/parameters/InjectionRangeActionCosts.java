@@ -10,8 +10,7 @@ package com.powsybl.openrao.data.crac.io.network.parameters;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public record InjectionRangeActionCosts(
-    double upActivationCost,
+    double activationCost,
     double upVariationCost,
-    double downActivationCost,
     double downVariationCost) {
 }

@@ -25,14 +25,14 @@ public class Utils {
             countries.contains(optionalSubstation.get().getCountry().get());
     }
 
-    public static boolean branchIsInCountries(Branch<?> branch, Optional<Set<Country>> countries) {
-        if (countries.isEmpty()) {
+    public static boolean branchIsInCountries(Branch<?> branch, Set<Country> countries) {
+        if (countries == null) {
             return true;
         }
-        return terminalIsInCountries(branch.getTerminal1(), countries.get()) || terminalIsInCountries(branch.getTerminal2(), countries.get());
+        return terminalIsInCountries(branch.getTerminal1(), countries) || terminalIsInCountries(branch.getTerminal2(), countries);
     }
 
-    public static boolean generatorIsInCountries(Generator generator, Set<Country> countries) {
+    public static boolean injectionIsInCountries(Injection<?> generator, Set<Country> countries) {
         if (countries == null) {
             return true;
         }

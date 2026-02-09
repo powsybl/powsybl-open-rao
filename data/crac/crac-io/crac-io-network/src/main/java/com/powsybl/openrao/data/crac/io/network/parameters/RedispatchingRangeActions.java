@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.crac.io.network.parameters;
 
+import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Injection;
 import com.powsybl.openrao.data.crac.api.Instant;
 
@@ -19,12 +20,13 @@ import java.util.function.BiPredicate;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public class RedispatchingRangeActions extends AbstractCountriesFilter {
-    private BiPredicate<Injection<?>, Instant> rdRaPredicate = (injection, instant) -> true;
-    private BiFunction<Injection<?>, Instant, InjectionRangeActionCosts> raCostsProvider = (injection, instant) -> new InjectionRangeActionCosts(0, 0, 0, 0);
+    private BiPredicate<Injection<?>, Instant> rdRaPredicate = (injection, instant) -> injection.getType() == IdentifiableType.GENERATOR;
+    private BiFunction<Injection<?>, Instant, InjectionRangeActionCosts> raCostsProvider = (injection, instant) -> new InjectionRangeActionCosts(0, 0, 0);
     private BiFunction<Injection<?>, Instant, MinAndMax<Double>> raRangeProvider = (injection, instant) -> new MinAndMax<>(null, null);
 
     /**
      * Set the function that says if a given injection is available for redispatching at a given instant.
+     * Defaults to true on generators, false for other injections.
      */
     public void setRdRaPredicate(BiPredicate<Injection<?>, Instant> rdRaPredicate) {
         this.rdRaPredicate = rdRaPredicate;
@@ -36,6 +38,7 @@ public class RedispatchingRangeActions extends AbstractCountriesFilter {
 
     /**
      * Set the function that provides the costs of redispatching on a given injection at a given instant.
+     * All costs default to 0.
      */
     public void setRaCostsProvider(BiFunction<Injection<?>, Instant, InjectionRangeActionCosts> raCostsProvider) {
         this.raCostsProvider = raCostsProvider;

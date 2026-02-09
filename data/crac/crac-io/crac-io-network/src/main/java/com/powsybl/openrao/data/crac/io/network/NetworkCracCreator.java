@@ -11,26 +11,23 @@ package com.powsybl.openrao.data.crac.io.network;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyElementType;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.util.SwitchPredicates;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.InstantKind;
-import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnecAdder;
 import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.crac.api.range.RangeType;
 import com.powsybl.openrao.data.crac.api.range.TapRangeAdder;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeActionAdder;
+import com.powsybl.openrao.data.crac.api.rangeaction.VariationDirection;
 import com.powsybl.openrao.data.crac.io.commons.OpenRaoImportException;
 import com.powsybl.openrao.data.crac.io.commons.PstHelper;
 import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
 import com.powsybl.openrao.data.crac.io.commons.iidm.IidmPstHelper;
-import com.powsybl.openrao.data.crac.io.commons.ucte.UctePstHelper;
-import com.powsybl.openrao.data.crac.io.network.parameters.Contingencies;
-import com.powsybl.openrao.data.crac.io.network.parameters.CriticalElements;
-import com.powsybl.openrao.data.crac.io.network.parameters.NetworkCracCreationParameters;
-import com.powsybl.openrao.data.crac.io.network.parameters.PstRangeActions;
+import com.powsybl.openrao.data.crac.io.network.parameters.*;
 import org.jgrapht.alg.util.Pair;
 
 import javax.annotation.Nullable;
@@ -64,6 +61,7 @@ public class NetworkCracCreator {
         addContingencies();
         addCnecsAndMnecs();
         addPstRangeActions();
+        addRedispatchRangeActions();
         creationContext.setCreationSuccessful(true);
         return creationContext;
     }
@@ -80,7 +78,7 @@ public class NetworkCracCreator {
         Set<Branch<?>> monitoredBranches = new HashSet<>();
         network.getBranchStream()
             .filter(b ->
-                Utils.branchIsInCountries(b, params.getCountries())
+                Utils.branchIsInCountries(b, params.getCountries().orElse(null))
                     && ((cracCreationParameters.getDefaultMonitoredSides().contains(TwoSides.ONE) && b.getSelectedOperationalLimitsGroup1().isPresent()) || (cracCreationParameters.getDefaultMonitoredSides().contains(TwoSides.TWO) && b.getSelectedOperationalLimitsGroup2().isPresent()))
             ).forEach(branch -> {
                 if (Utils.branchIsInVRange(branch, params.getOptimizedMinV(), params.getOptimizedMaxV())) {
@@ -101,7 +99,7 @@ public class NetworkCracCreator {
     private void addContingencies() {
         Contingencies params = specificParameters.getContingencies();
         network.getBranchStream().filter(b ->
-                Utils.branchIsInCountries(b, params.getCountries())
+                Utils.branchIsInCountries(b, params.getCountries().orElse(null))
                     && Utils.branchIsInVRange(b, params.getMinV(), params.getMaxV()))
             .forEach(
                 branch -> {
@@ -243,7 +241,7 @@ public class NetworkCracCreator {
             .filter(params::arePstsAvailableForInstant).collect(Collectors.toSet());
         network.getTwoWindingsTransformerStream()
             .filter(twt -> twt.getPhaseTapChanger() != null)
-            .filter(twt -> Utils.branchIsInCountries(twt, params.getCountries()))
+            .filter(twt -> Utils.branchIsInCountries(twt, params.getCountries().orElse(null)))
             .forEach(twt -> instants.forEach(instant -> addPstRangeActionForInstant(twt, instant)));
     }
 
@@ -278,4 +276,50 @@ public class NetworkCracCreator {
         }
         pstAdder.add();
     }
+
+    private void addRedispatchRangeActions() {
+        RedispatchingRangeActions params = specificParameters.getRedispatchingRangeActions();
+        Set<Instant> instants = crac.getSortedInstants().stream().filter(instant -> !instant.isOutage()).collect(Collectors.toSet());
+        network.getGeneratorStream()
+            .filter(generator -> Utils.injectionIsInCountries(generator, params.getCountries().orElse(null)))
+            .forEach(generator ->
+                instants.stream().filter(instant -> params.shouldCreateRedispatchingAction(generator, instant))
+                    .forEach(instant -> addGeneratorActionForInstant(generator, instant)));
+        // TODO add other injections (Loads, batteries...)
+    }
+
+    private void addGeneratorActionForInstant(Generator generator, Instant instant) {
+        // TODO merge preventive & curative RA if ranges are the same?
+        // advantage : simpler crac
+        // disadvantage : more complex code + we might not see bugs in "detailed" version
+        RedispatchingRangeActions params = specificParameters.getRedispatchingRangeActions();
+        double initialP = Math.round(generator.getTargetP());
+        // TODO round it in network too ?
+        double minP = Math.min(generator.getMinP(), generator.getTargetP());
+        if (params.getRaRange(generator, instant).getMin().isPresent()) {
+            minP = Math.min(minP, params.getRaRange(generator, instant).getMin().get());
+        }
+        double maxP = Math.max(generator.getMaxP(), generator.getTargetP());
+        if (params.getRaRange(generator, instant).getMax().isPresent()) {
+            maxP = Math.max(maxP, params.getRaRange(generator, instant).getMax().get());
+        }
+        InjectionRangeActionCosts costs = params.getRaCosts(generator, instant);
+        crac.newInjectionRangeAction()
+            .withId("RD_RA_" + generator.getId() + "_" + instant.getId())
+            .withNetworkElementAndKey(1.0, generator.getId())
+            .newRange()
+            .withMin(minP)
+            .withMax(maxP).add()
+            .newOnInstantUsageRule().withInstant(instant.getId()).add()
+            .withInitialSetpoint(initialP)
+            .withVariationCost(costs.downVariationCost(), VariationDirection.DOWN)
+            .withVariationCost(costs.upVariationCost(), VariationDirection.UP)
+            .withActivationCost(costs.activationCost())
+            .add();
+
+        // connect the generator
+        generator.connect(SwitchPredicates.IS_OPEN);
+    }
+
+
 }
