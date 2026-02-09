@@ -15,8 +15,8 @@ are:
 The generator then operates in two distinct states depending on its current power, based on the aforementioned
 characteristics:
 
-- it is **off** whenever its power is null;
-- it is **on** whenever its power is greater or equal than $P_{\min}$ (and lower or equal than $P_{\max}$). In that
+- it is **OFF** whenever its power is null;
+- it is **ON** whenever its power is greater or equal than $P_{\min}$ (and lower or equal than $P_{\max}$). In that
   range, the power is somewhat free to change (with only possible power gradient constraints);
 
 ![Generator States](../../../../_static/img/generator-states.png){.forced-white-background}
@@ -36,13 +36,18 @@ problem's timestamps.
 
 ## Used input data
 
+> In the following we define as _grid state_ a network situation for a given instant after a given contingency or the
+> basecase.
+
+<!-- TODO: Index PMin with timestamp -->
+
 | Name                            | Symbol               | Details                                                                                                                                     |
 |---------------------------------|----------------------|---------------------------------------------------------------------------------------------------------------------------------------------|
 | Constrained generators set      | $\Gamma$             | Set of generators with constraints defined                                                                                                  |
 | PMin                            | $P_{\min}(g)$        | Minimum operating power of generator $g$. This value must be non-negative.                                                                  |
 | PMax                            | $P_{\max}(g)$        | Maximum operating power of generator $g$. This value must be non-negative.                                                                  |
-| Lead Time                       | $LEAD(g)$            | Maximum operating power of generator $g$. This value must be non-negative.                                                                  |
-| Lag Time                        | $LAG(g)$             | Maximum operating power of generator $g$. This value must be non-negative.                                                                  |
+| Lead Time                       | $LEAD(g)$            | Time elapsed between the start-up order and the moment the generator power reaches $P_{\min}$.                                              |
+| Lag Time                        | $LAG(g)$             | Time elapsed between the shut-down-up order and the moment the generator power reaches 0.                                                   |
 | Upper power gradient constraint | $\nabla^{+}(g)$      | Maximum upward power variation between two consecutive timestamps for generator $g$. This value must be non-negative.                       |
 | Lower power gradient constraint | $\nabla^{-}(g)$      | Maximum downward power variation (in absolute value) between two consecutive timestamps for generator $g$. This value must be non-positive. |
 | Timestamps                      | $\mathcal{T}$        | Set of all timestamps on which the optimization is performed.                                                                               |
@@ -51,11 +56,11 @@ problem's timestamps.
 
 ## Defined optimization variables
 
-| Name                       | Symbol                          | Details                                                                                                             | Type       | Index                                                                                                                                                                                              | Unit | Lower bound | Upper bound |
-|----------------------------|---------------------------------|---------------------------------------------------------------------------------------------------------------------|------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------|-------------|-------------|
-| Generator power            | $P(g,s,t)$                      | the power of generator $g$ at grid state $s$ of timestamp $t$                                                       | Real value | one per generator defined in $\Gamma$, per grid state and per timestamp of $\mathcal{T}$                                                                                                           | MW   | $-\infty$   | $+\infty$   |
-| Generator state            | $\delta_{\omega}^{gen}(g,s,t)$  | whether generator $g$'s state is $\omega$ at grid state $s$ of timestamp $t$ or not                                 | Binary     | one per generator defined in $\Gamma$, per generator state $\omega \in \Omega_{generator}$, per grid state and per timestamp of $\mathcal{T}$                                                      | -    | 0           | 1           |
-| Generator state transition | $T_{\omega \to \omega'}(g,s,t)$ | whether generator $g$'s state has transitioned from $\omega$ to $\omega'$ at grid state $s$ of timestamp $t$ or not | Binary     | one per generator defined in $\Gamma$, per generator state $\omega \in \Omega_{generator}$, per generator state $\omega' \in \Omega_{generator}$ per grid state and per timestamp of $\mathcal{T}$ | -    | 0           | 1           |
+| Name                       | Symbol                          | Details                                                                                                             | Type       | Index                                                                                                                                                                                              | Unit    | Lower bound | Upper bound |
+|----------------------------|---------------------------------|---------------------------------------------------------------------------------------------------------------------|------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------|-------------|-------------|
+| Generator power            | $P(g,s,t)$                      | the power of generator $g$ at grid state $s$ of timestamp $t$                                                       | Real value | one per generator defined in $\Gamma$, per grid state and per timestamp of $\mathcal{T}$                                                                                                           | MW      | 0           | $P_{\max}$  |
+| Generator state            | $\delta_{\omega}^{gen}(g,s,t)$  | whether generator $g$'s state is $\omega$ at grid state $s$ of timestamp $t$ or not                                 | Binary     | one per generator defined in $\Gamma$, per generator state $\omega \in \Omega_{generator}$, per grid state and per timestamp of $\mathcal{T}$                                                      | No unit | 0           | 1           |
+| Generator state transition | $T_{\omega \to \omega'}(g,s,t)$ | whether generator $g$'s state has transitioned from $\omega$ to $\omega'$ at grid state $s$ of timestamp $t$ or not | Binary     | one per generator defined in $\Gamma$, per generator state $\omega \in \Omega_{generator}$, per generator state $\omega' \in \Omega_{generator}$ per grid state and per timestamp of $\mathcal{T}$ | No unit | 0           | 1           |
 
 ## Used optimization variables
 
@@ -93,8 +98,8 @@ $\forall g \in \Gamma, \forall t \in \mathcal{T}, \forall s$:
 
 #### *State-From* constraints
 
-The state at the end of the previous timestamp must be the starting state of the transition that occurred during the
-timestamp, no matter the final state. Thus, $\forall g \in \Gamma, \forall t \in \mathcal{T}, \forall s$:
+The timestamp's state must be the starting state of the transition that occurred during the timestamp, no matter the
+final state. Thus, $\forall g \in \Gamma, \forall t \in \mathcal{T}, \forall s$:
 
 $$\delta_{\textcolor{red}{\text{OFF}}}^{gen}(g,s,t) = T_{\textcolor{red}{\text{OFF}} \to \textcolor{red}{\text{OFF}}}(g,s,t) + T_{\textcolor{red}{\text{OFF}} \to \textcolor{green}{\text{ON}}}(g,s,t)$$
 
@@ -102,8 +107,8 @@ $$\delta_{\textcolor{green}{\text{ON}}}^{gen}(g,s,t) = T_{\textcolor{green}{\tex
 
 #### *State-To* constraints
 
-The state at the end of the timestamp must be the final state of the transition that occurred during the timestamp, no
-matter the state of origin. Thus, $\forall g \in \Gamma, \forall t \in \mathcal{T}, \forall s$:
+The next timestamp must be the final state of the transition that occurred during the timestamp, no matter the state of
+origin. Thus, $\forall g \in \Gamma, \forall t \in \mathcal{T}, \forall s$:
 
 $$\delta_{\textcolor{red}{\text{OFF}}}^{gen}(g,s,t + 1) = T_{\textcolor{red}{\text{OFF}} \to \textcolor{red}{\text{OFF}}}(g,s,t) + T_{\textcolor{green}{\text{ON}} \to \textcolor{red}{\text{OFF}}}(g,s,t)$$
 

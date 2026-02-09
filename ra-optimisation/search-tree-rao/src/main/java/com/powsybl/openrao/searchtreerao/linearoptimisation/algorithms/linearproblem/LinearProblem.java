@@ -87,10 +87,6 @@ public final class LinearProblem {
         ON, OFF
     }
 
-    public enum MinOrMax {
-        MIN, MAX
-    }
-
     public static LinearProblemBuilder create() {
         return new LinearProblemBuilder();
     }
