@@ -16,7 +16,7 @@ import java.util.Optional;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public class Contingencies extends AbstractCountriesFilter {
-    private MinAndMax<Double> minAndMaxV;
+    private MinAndMax<Double> minAndMaxV = new MinAndMax<>(null, null);
 
     public Optional<Double> getMinV() {
         return minAndMaxV.getMin();
@@ -29,6 +29,7 @@ public class Contingencies extends AbstractCountriesFilter {
     /**
      * Set the voltage thresholds (in kV, included) to consider branches as critical contingencies (N-1).
      * You can use {@code null} to disable min and/or max filter.
+     * By default, this filter is disabled.
      */
     public void setMinAndMaxV(@Nullable Double minV, @Nullable Double maxV) {
         this.minAndMaxV = new  MinAndMax<>(minV, maxV);
