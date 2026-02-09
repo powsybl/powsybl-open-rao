@@ -81,6 +81,8 @@ public class GeneratorConstraintsFiller implements ProblemFiller {
         int numberOfTimestamps = networks.getTimestamps().size();
         for (GeneratorConstraints individualGeneratorConstraints : generatorConstraints) {
             String generatorId = individualGeneratorConstraints.getGeneratorId();
+            Optional<Double> leadTime = individualGeneratorConstraints.getLeadTime();
+            Optional<Double> lagTime = individualGeneratorConstraints.getLagTime();
             Optional<TemporalData<InjectionRangeAction>> associatedInjections = getInjectionRangeActionOfGenerator(individualGeneratorConstraints.getGeneratorId());
             if (associatedInjections.isPresent()) {
                 // Add variables
@@ -108,18 +110,16 @@ public class GeneratorConstraintsFiller implements ProblemFiller {
                         addStateToTransitionConstraints(linearProblem, generatorId, timestamp, nextTimestamp);
 
                         // For t' between ceil(t + 1 - leadTime) and t, T(OFF->ON)(t) <= OFF(t')
-                        if (individualGeneratorConstraints.getLeadTime().isPresent() &&
-                            individualGeneratorConstraints.getLeadTime().get() > timestampDuration) {
-                            int firstTimestampIndex = Math.max(0, timestampIndex + 1 - (int) Math.ceil(individualGeneratorConstraints.getLeadTime().get() / timestampDuration));
+                        if (leadTime.isPresent() && leadTime.get() > timestampDuration) {
+                            int firstTimestampIndex = Math.max(0, timestampIndex + 1 - (int) Math.ceil(leadTime.get() / timestampDuration));
                             for (int earlierTimestampIndex = timestampIndex; earlierTimestampIndex >= firstTimestampIndex; earlierTimestampIndex--) {
                                 addLeadTimeConstraint(linearProblem, individualGeneratorConstraints.getGeneratorId(), timestamps.get(timestampIndex), timestamps.get(earlierTimestampIndex));
                             }
                         }
 
                         // For t' between t+1 and ceil(t + lagTime) and t, T(ON->OFF)(t) <= OFF(t')
-                        if (individualGeneratorConstraints.getLagTime().isPresent() &&
-                            individualGeneratorConstraints.getLagTime().get() > timestampDuration) {
-                            int lastTimestampIndex = Math.min(numberOfTimestamps - 1, timestampIndex + (int) Math.ceil(individualGeneratorConstraints.getLagTime().get() / timestampDuration));
+                        if (lagTime.isPresent() && lagTime.get() > timestampDuration) {
+                            int lastTimestampIndex = Math.min(numberOfTimestamps - 1, timestampIndex + (int) Math.ceil(lagTime.get() / timestampDuration));
                             for (int laterTimestampIndex = timestampIndex + 1; laterTimestampIndex <= lastTimestampIndex; laterTimestampIndex++) {
                                 addLagTimeConstraint(linearProblem, individualGeneratorConstraints.getGeneratorId(), timestamps.get(timestampIndex), timestamps.get(laterTimestampIndex));
                             }
