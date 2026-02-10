@@ -5,7 +5,7 @@
 
 Feature: US 91.13: PST Regulation
 
-  @ac @fast @rao
+  @ac @fast @rao @max-min-margin @ampere
   Scenario: US 91.13.1.a: Unsecure case with a globally optimized tap position - PST is the limiting element
   The curative scenario cannot be secured, the curative tap is chosen such that both curative CNECs are overloaded but
   with the lowest global overload reachable. The PST is the most limiting element at the end of curative.
@@ -24,7 +24,7 @@ Feature: US 91.13: PST Regulation
     And the margin on cnec "cnecBeFr2Curative" after CRA should be -690.23 A
     And the margin on cnec "cnecBeFr1Curative" after CRA should be -676.38 A
 
-  @ac @fast @rao @pst-regulation
+  @ac @fast @rao @pst-regulation @max-min-margin @ampere
   Scenario: US 91.13.1.b: Duplicate of US 91.13.1.a with PST regulation
   At the end of curative optimization, the PST is still unsecure but can be secured by moving the tap to position 7
   even if it worsens the minimum margin significantly. Regulation can be performed because the PST is the most
@@ -44,7 +44,7 @@ Feature: US 91.13: PST Regulation
     And the margin on cnec "cnecBeFr1Curative" after CRA should be -1382.77 A
     And the margin on cnec "cnecBeFr2Curative" after CRA should be 15.49 A
 
-  @ac @fast @rao
+  @ac @fast @rao @max-min-margin @ampere
   Scenario: US 91.13.2.a: Unsecure case with a globally optimized tap position - PST not is the limiting element
   The curative scenario cannot be secured, the curative tap is chosen such that both curative CNECs are overloaded but
   with the lowest global overload reachable. The PST is not the most limiting element at the end of curative.
@@ -63,7 +63,7 @@ Feature: US 91.13: PST Regulation
     And the margin on cnec "cnecBeFr1Curative" after CRA should be -247.23 A
     And the margin on cnec "cnecBeFr2Curative" after CRA should be -219.56 A
 
-  @ac @fast @rao @pst-regulation
+  @ac @fast @rao @pst-regulation @max-min-margin @ampere
   Scenario: US 91.13.2.b: Duplicate of US 91.13.2.a with PST regulation
   At the end of curative optimization, the PST is still unsecure but can be secured by moving the tap to position 7
   even if it worsens the minimum margin significantly. Regulation cannot be performed because the PST is not the most
@@ -83,7 +83,7 @@ Feature: US 91.13: PST Regulation
     And the margin on cnec "cnecBeFr1Curative" after CRA should be -247.23 A
     And the margin on cnec "cnecBeFr2Curative" after CRA should be -219.56 A
 
-  @ac @fast @rao
+  @ac @fast @rao @max-min-margin @ampere
   Scenario: US 91.13.3.a: 3 contingency scenarios and 3 PSTs with different use cases
   - Scenario 12: PST 34 has a negative margin of -444.08 A so even though PST 12 should go down to tap position -16 to
   maximize its own margin because the flow decreases with the tap position, the minimal margin does not improve below
@@ -128,7 +128,7 @@ Feature: US 91.13: PST Regulation
     And the value of the objective function after CRA should be 758.18
     And the worst margin is -758.18 A
 
-  @ac @fast @rao @pst-regulation
+  @ac @fast @rao @pst-regulation @max-min-margin @ampere
   Scenario: US 91.13.3.b: Duplicate of US 91.13.3.a with PST regulation
   Regulation is performed on PSTs 12 and 34 because they can be moved in curative.
   The regulation tap is either -15 if the contingency was parallel to the PST or -5 otherwise.
@@ -168,7 +168,7 @@ Feature: US 91.13: PST Regulation
     And the value of the objective function after CRA should be 758.18
     And the worst margin is -758.18 A
 
-  @ac @fast @rao @pst-regulation
+  @ac @fast @rao @pst-regulation @max-min-margin @ampere
   Scenario: US 91.13.4: Regulation with two equivalent parallel PSTs
   The two PSTs are identical. Status quo is not to move any tap leaving both overloaded at the end of curative
   optimization. PST regulation will put both in abutment at tap 16 since the loadflow regulates tap by only focusing on
@@ -182,7 +182,7 @@ Feature: US 91.13: PST Regulation
     And the tap of PstRangeAction "pstBeFr2" should be 16 after "Contingency BE1 FR1 1" at "curative"
     And the tap of PstRangeAction "pstBeFr3" should be 16 after "Contingency BE1 FR1 1" at "curative"
 
-  @ac @fast @rao
+  @ac @fast @rao @max-min-margin @ampere
   Scenario: US 91.13.5.a: Unsecure case with a globally optimized tap position - Monitored line in series with PST
   The PST itself is not overloaded but the line connected in series is.
     Given network file is "epic91/3NodesPSTSeries.uct"
@@ -200,7 +200,7 @@ Feature: US 91.13: PST Regulation
     And the margin on cnec "cnecFr2Fr3Curative" after CRA should be -579.06 A
     And the margin on cnec "cnecFr1Fr3Curative" after CRA should be -559.13 A
 
-  @ac @fast @rao @pst-regulation
+  @ac @fast @rao @pst-regulation @max-min-margin @ampere
   Scenario: US 91.13.5.b: Duplicate of US 91.13.5.a with PST regulation
   The line in series with the PST is overloaded, triggering PST regulation.
     Given network file is "epic91/3NodesPSTSeries.uct"

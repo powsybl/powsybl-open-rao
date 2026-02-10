@@ -6,7 +6,7 @@
 
 Feature: US 92.3: Exhaustive costly optimization - APPROXIMATED_INTEGERS PSTs
 
-  @fast @preventive-only @costly @rao
+  @fast @preventive-only @costly @rao @megawatt
   Scenario: US 92.3.1: Activate one topological action and one PST in preventive
   Two ways to secure the network:
   1. move PST to tap -5 => cost of 25
@@ -24,7 +24,7 @@ Feature: US 92.3: Exhaustive costly optimization - APPROXIMATED_INTEGERS PSTs
     And the remedial action "closeBeFr2" is used in preventive
     And the value of the objective function after PRA should be 20.0
 
-  @fast @costly @rao
+  @fast @costly @rao @megawatt
   Scenario: US 92.3.2: Preventive and curative PST + curative topological action
   The PST is moved to tap -5 to secure the preventive perimeter for a total cost of 95
   (20 for activation + 5 * 15 for variation). Then, there are two ways to secure the curative perimeter:
@@ -50,7 +50,7 @@ Feature: US 92.3: Exhaustive costly optimization - APPROXIMATED_INTEGERS PSTs
     # activation of closeBeFr3 (10)
     And the value of the objective function after CRA should be 140
 
-  @fast @costly @rao @second-preventive
+  @fast @costly @rao @second-preventive @megawatt
   Scenario: US 92.3.3: Preventive and curative PST + curative topological action with 2nd preventive optimization
   The PST is moved to tap -6 straight from preventive to only activate the remedial action once.
     Given network file is "epic92/2Nodes4ParallelLinesPST3LinesClosed.uct"
@@ -71,7 +71,7 @@ Feature: US 92.3: Exhaustive costly optimization - APPROXIMATED_INTEGERS PSTs
     # Activation of pstBeFr4 (20) + 6 taps moved in total (6 * 15) + activation of closeBeFr3 (10)
     And the value of the objective function after CRA should be 120.0
 
-  @fast @costly @rao
+  @fast @costly @rao @megawatt
   Scenario: US 92.3.4: Preventive and curative PST + curative topological action - 2 scenarios
   One preventive range action, then the same range action is used also in both curatives (along with a topological action),
   but no second preventive to choose preventive tap among the taps chosen in curative.
@@ -99,7 +99,7 @@ Feature: US 92.3: Exhaustive costly optimization - APPROXIMATED_INTEGERS PSTs
     # Activation of pstBeFr4 three times (3 * 20) + 8 taps moved in total (8 * 15) + activation of closeBeFr3 twice (2 * 10)
     And the value of the objective function after CRA should be 200.0
 
-  @fast @costly @rao @second-preventive
+  @fast @costly @rao @second-preventive @megawatt
   Scenario: US 92.3.5: Preventive and curative PST + curative topological action - 2 scenarios with 2nd preventive optimization
   To cut activation cost expenses, the PST is moved to tap -7 straight from preventive optimization.
     Given network file is "epic92/2Nodes5ParallelLinesPST4LinesClosed.uct"

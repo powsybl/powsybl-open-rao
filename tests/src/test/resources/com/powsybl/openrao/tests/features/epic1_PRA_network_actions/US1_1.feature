@@ -5,7 +5,7 @@
 
 Feature: US 1.1: Security assessment without any remedial action
 
-  @fast @rao @ac @preventive-only
+  @fast @rao @ac @preventive-only @secure-flow @ampere
   Scenario: US 1.1.1
   No remedial action, several unsecure CNECs.
     Given network file is "common/TestCase12Nodes.uct"

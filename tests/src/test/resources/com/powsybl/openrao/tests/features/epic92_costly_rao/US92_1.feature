@@ -5,7 +5,7 @@
 
 Feature: US 92.1: Costly network actions optimization
 
-  @fast @preventive-only @costly @rao
+  @fast @preventive-only @costly @rao @megawatt
   Scenario: US 92.1.1: Selection of cheapest of 3 equivalent network actions
   The network contains two nodes linked with 4 parallel lines: one of the lines is the overloaded CNEC,
   and the three other are open. 3 remedial actions with different costs: close one of the three lines.
@@ -22,7 +22,7 @@ Feature: US 92.1: Costly network actions optimization
     # Activation of closeBeFr4 (10)
     And the value of the objective function after PRA should be 10.0
 
-  @fast @preventive-only @costly @rao
+  @fast @preventive-only @costly @rao @megawatt
   Scenario: US 92.1.2: Selection of cheapest network action even if it does not maximize minimum margin
   Line BE-FR-3 has a higher resistance than line BE-FR-2 which means that closing the latter will lead
   to a higher margin on the optimized CNEC. However, closing line BE-FR-3 is cheaper and still secures
@@ -38,7 +38,7 @@ Feature: US 92.1: Costly network actions optimization
     And the value of the objective function initially should be 250000.0
     And the value of the objective function after PRA should be 25.0
 
-  @fast @preventive-only @costly @rao
+  @fast @preventive-only @max-min-margin @rao @megawatt
   Scenario: US 92.1.2.bis: Duplicate of 92.1.2 in MAX_MIN_MARGIN mode
   The situation is the same as in US 92.1.2 but the RAO maximizes the minimum margin.
   As activation costs are not taken in account, both lines will be closed.
@@ -56,7 +56,7 @@ Feature: US 92.1: Costly network actions optimization
     # In MIN_MAX_MARGIN, the objective function is the opposite of the worst margin.
     And the value of the objective function after PRA should be -464.29
 
-  @fast @preventive-only @costly @rao
+  @fast @preventive-only @costly @rao @megawatt
   Scenario: US 92.1.3: Selection of the two cheapest network actions
   Same as US 92.1.1, but two network actions are needed to secure the CNEC.
     Given network file is "epic92/2Nodes4ParallelLines.uct"
@@ -73,7 +73,7 @@ Feature: US 92.1: Costly network actions optimization
     # Activation of closeBeFr3 (500) + activation of closeBeFr4 (220)
     And the value of the objective function after PRA should be 720.0
 
-  @fast @preventive-only @costly @rao
+  @fast @preventive-only @costly @rao @megawatt
   Scenario: US 92.1.4: Selection of cheapest of 3 equivalent network actions but overload remains at the end of RAO
   Only one network action can be used (behavior set in the RAO parameters) so the RAO chooses the cheapest
   remedial action available to reduce the overload and thus the penalty cost. The total cost is:
@@ -89,7 +89,7 @@ Feature: US 92.1: Costly network actions optimization
     And the value of the objective function initially should be 600000.0
     And the value of the objective function after PRA should be 100220.0
 
-  @fast @preventive-only @costly @rao
+  @fast @preventive-only @costly @rao @megawatt
   Scenario: US 92.1.5: Sub-optimal case
   Closing line BE-FR-2 costs 1000 but solves the constraint immediately. As closing BE-FR-2 looks optimal
   at depth 1, the greedy search-tree keeps it at depth 2 but there is no need to apply additional remedial
@@ -109,7 +109,7 @@ Feature: US 92.1: Costly network actions optimization
     And the value of the objective function initially should be 600000.0
     And the value of the objective function after PRA should be 1000.0
 
-  @fast @costly @rao
+  @fast @costly @rao @megawatt
   Scenario: US 92.1.6: Preventive and auto optimization - 1 scenario
   Overload in preventive (activation of 1 RA), no overload in auto (activation of a 2nd RA)
     Given network file is "epic92/2Nodes4ParallelLines2LinesClosed.uct"
@@ -128,7 +128,7 @@ Feature: US 92.1: Costly network actions optimization
     # Activation of closeBeFr3 (200) + activation of closeBeFr4 (850)
     And the value of the objective function after ARA should be 1050.0
 
-  @fast @costly @rao
+  @fast @costly @rao @megawatt
   Scenario: US 92.1.7: Preventive and auto optimization - 2 scenarios
   Each scenario secured by a different RA in auto.
     Given network file is "epic92/2Nodes4ParallelLines3LinesClosed.uct"
@@ -145,7 +145,7 @@ Feature: US 92.1: Costly network actions optimization
     # Activation of closeBeFr4 after coBeFr2 (850) + activation of closeBeFr4 after coBeFr3 (850)
     And the value of the objective function after ARA should be 1700.0
 
-  @fast @costly @rao
+  @fast @costly @rao @megawatt
   Scenario: US 92.1.8: Preventive and auto optimization - 2 scenarios with PRA
   Each scenario secured by a different RA in auto, after one PRA.
     Given network file is "epic92/2Nodes5ParallelLines3LinesClosed.uct"
@@ -166,7 +166,7 @@ Feature: US 92.1: Costly network actions optimization
     # Preventive cost (325) + activation of closeBeFr4 after coBeFr2 (850) + activation of closeBeFr4 after coBeFr3 (850)
     And the value of the objective function after ARA should be 2025.0
 
-  @fast @costly @rao
+  @fast @costly @rao @megawatt
   Scenario: US 92.1.9: Preventive and curative optimization - 1 scenario - no auto instant
   The curative scenario is secured by one PRA and one CRA.
     Given network file is "epic92/2Nodes4ParallelLines2LinesClosed.uct"
@@ -185,7 +185,7 @@ Feature: US 92.1: Costly network actions optimization
     # Activation of closeBeFr3 (200) + activation of closeBeFr4 (850)
     And the value of the objective function after CRA should be 1050.0
 
-  @fast @costly @rao
+  @fast @costly @rao @megawatt
   Scenario: US 92.1.9.bis: Preventive and curative optimization - 1 scenario - with auto instant
   The curative scenario is secured by one PRA and one CRA, but instants auto and preventive are unsecure.
     Given network file is "epic92/2Nodes4ParallelLines2LinesClosed.uct"
@@ -205,7 +205,7 @@ Feature: US 92.1: Costly network actions optimization
     # Activation of closeBeFr3 (200) + activation of closeBeFr4 (850)
     And the value of the objective function after CRA should be 1050.0
 
-  @fast @costly @rao
+  @fast @costly @rao @megawatt
   Scenario: US 92.1.10: Preventive, auto and curative optimization - 1 scenario
   One RA applied after each instant, only curative is secure.
     Given network file is "epic92/2Nodes5ParallelLines2LinesClosed.uct"
@@ -228,7 +228,7 @@ Feature: US 92.1: Costly network actions optimization
     # Activation of closeBeFr2 (200) + activation of closeBeFr3 (1350) + activation of closeBeFr5 (850)
     And the value of the objective function after CRA should be 2400.0
 
-  @fast @costly @rao
+  @fast @costly @rao @megawatt
   Scenario: US 92.1.11: Preventive, auto and curative optimization - 4 comprehensive scenarios
   4 scenarios are optimized in parallel:
   - scenario 1: no ARA and no CRA -> 50 MW overload
@@ -263,7 +263,7 @@ Feature: US 92.1: Costly network actions optimization
     # Activation of closeBeFr6 (2500) + activation of closeBeFr7 twice (2 * 60) + activation of closeBeFr8 twice (2 * 735) + overload penalty (50 * 1000)
     And the value of the objective function after CRA should be 54090.0
 
-  @fast @costly @rao
+  @fast @costly @rao @megawatt
   Scenario: US 92.1.12: Preventive and auto optimization - curative overload
   4 scenarios are optimized in parallel with a curative overload each time:
   - scenario 1: no ARA and no CRA -> 50 MW overload

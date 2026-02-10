@@ -5,7 +5,7 @@
 
 Feature: US 3.2: Handle CNEC monitored in only one direction in the optimization
 
-  @fast @rao @ac @preventive-only
+  @fast @rao @ac @preventive-only @max-min-margin @ampere
   Scenario: US 3.2.1: topological RA, direct CNEC unsecure initially
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic3/SL_ep3us2_topo_direct.json"
@@ -18,7 +18,7 @@ Feature: US 3.2: Handle CNEC monitored in only one direction in the optimization
     And the worst margin is 56.0 A
     And the margin on cnec "BBE2AA1  FFR3AA1  1 - preventive" after PRA should be 56.0 A
 
-  @fast @rao @ac @preventive-only
+  @fast @rao @ac @preventive-only @max-min-margin @ampere
   Scenario: US 3.2.2: topological RA, opposite CNEC secure initially
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic3/SL_ep3us2_topo_opposite.json"
@@ -30,7 +30,7 @@ Feature: US 3.2: Handle CNEC monitored in only one direction in the optimization
     And the worst margin is 779.0 A
     And the margin on cnec "BBE2AA1  FFR3AA1  1 - preventive" after PRA should be 779.0 A
 
-  @fast @rao @ac @preventive-only
+  @fast @rao @ac @preventive-only @max-min-margin @ampere
   Scenario: US 3.2.3: PST range action, direct CNEC
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic3/SL_ep3us2_pst_direct.json"
@@ -44,7 +44,7 @@ Feature: US 3.2: Handle CNEC monitored in only one direction in the optimization
     And the worst margin is -416.1 A
     And the margin on cnec "FFR2AA1  DDE3AA1  1 - preventive" after PRA should be -416.1 A
 
-  @fast @rao @ac @preventive-only
+  @fast @rao @ac @preventive-only @max-min-margin @ampere
   Scenario: US 3.2.4: PST range action, opposite CNEC
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic3/SL_ep3us2_pst_opposite.json"

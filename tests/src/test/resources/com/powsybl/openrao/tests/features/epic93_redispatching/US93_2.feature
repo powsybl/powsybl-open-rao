@@ -5,7 +5,7 @@
 
 Feature: US 93.2: Intertemporal redispatching actions with MARMOT - power gradient constraints
 
-  @fast @rao @dc @redispatching @marmot
+  @fast @rao @dc @redispatching @marmot @costly @megawatt
   Scenario: US 93.2.1: Test simple gradient
     # TODO: add description and steps when the other PR is merged
     Given network files are in folder "epic93/TestCases_93_2_1"
@@ -37,7 +37,7 @@ Feature: US 93.2: Intertemporal redispatching actions with MARMOT - power gradie
     And the total cost for timestamp "2019-01-08 03:30" is 0
     And the total cost for all timestamps is 6240
 
-  @fast @rao @dc @redispatching @marmot
+  @fast @rao @dc @redispatching @marmot @costly @megawatt
   Scenario: US 93.2.2: Test simple gradient with limiting mnec and topological action
     # TODO: add description and steps when the other PR is merged + count nb of FastRAO iterations
     Given network files are in folder "epic93/TestCases_93_2_2"
@@ -60,7 +60,7 @@ Feature: US 93.2: Intertemporal redispatching actions with MARMOT - power gradie
     And the total cost for timestamp "2019-01-08 01:30" is 520
     And the total cost for all timestamps is 520
 
-  @fast @rao @dc @redispatching @marmot
+  @fast @rao @dc @redispatching @marmot @costly @megawatt
   Scenario: US 93.2.3: Test simple gradient, PST also available
     # TODO: add description and steps when the other PR is merged
     Given network files are in folder "epic93/TestCases_93_2_1"
@@ -84,7 +84,7 @@ Feature: US 93.2: Intertemporal redispatching actions with MARMOT - power gradie
     And the total cost for timestamp "2019-01-08 01:30" is 1900
     And the total cost for all timestamps is 1900
 
-  @fast @rao @dc @redispatching @marmot
+  @fast @rao @dc @redispatching @marmot @costly @megawatt
   Scenario: US 93.2.4: Test simple gradient, applied curative topo action
     # TODO: add description and steps when the other PR is merged
     Given network files are in folder "epic93/TestCases_93_2_4"
@@ -110,7 +110,7 @@ Feature: US 93.2: Intertemporal redispatching actions with MARMOT - power gradie
     And the total cost for all timestamps is 1780
 
 
-  @fast @rao @dc @redispatching @marmot
+  @fast @rao @dc @redispatching @marmot @costly @megawatt
   Scenario: US 93.2.4-b: Test simple gradient, applied curative range action
     # TODO: add description and steps when the other PR is merged
     Given network files are in folder "epic93/TestCases_93_2_4"
@@ -135,7 +135,7 @@ Feature: US 93.2: Intertemporal redispatching actions with MARMOT - power gradie
     And the total cost for timestamp "2019-01-08 01:30" is 1900
     And the total cost for all timestamps is 1900
 
-  @fast @rao @dc @redispatching @marmot
+  @fast @rao @dc @redispatching @marmot @costly @megawatt
   Scenario: US 93.2.5: Test simple gradient with topo action, mnec causes second mip optimization
     # TODO: add description and steps when the other PR is merged + MARMOT 2 iterations - why MNECs are used
     Given network files are in folder "epic93/TestCases_93_2_5"

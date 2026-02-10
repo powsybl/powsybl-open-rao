@@ -5,7 +5,7 @@
 
 Feature: US 1.3: Security assessment with network actions
 
-  @fast @rao @ac @preventive-only
+  @fast @rao @ac @preventive-only @secure-flow @ampere
   Scenario: US 1.3.1: selection of topological action
     Two network actions and one PST setpoint action available, only one network action is activated.
     Given network file is "common/TestCase12Nodes.uct"
@@ -30,7 +30,7 @@ Feature: US 1.3: Security assessment with network actions
     Then the flow on cnec "BBE2AA1  FFR3AA1  1 - Contingency FR1 FR3 - curative" after PRA should be -1444.0 A on side 2
     Then the flow on cnec "BBE2AA1  FFR3AA1  1 - Contingency FR1 FR3 - curative" after CRA should be -1444.0 A on side 2
 
-  @fast @rao @ac @preventive-only
+  @fast @rao @ac @preventive-only @secure-flow @ampere
   Scenario: US 1.3.2: selection of PST setpoint remedial action
   One network action and one PST setpoint action available, only the PST setpoint action is activated.
     Given network file is "common/TestCase12Nodes.uct"
@@ -44,7 +44,7 @@ Feature: US 1.3: Security assessment with network actions
     Then 1 remedial actions are used in preventive
     Then the remedial action "PST @1" is used in preventive
 
-  @fast @rao @ac @preventive-only
+  @fast @rao @ac @preventive-only @secure-flow @ampere
   Scenario: US 1.3.3: selection of PST setpoint remedial action but residual constraint
   One network action and one PST setpoint action available, only the PST setpoint action is activated but the situation
   remains unsecure.

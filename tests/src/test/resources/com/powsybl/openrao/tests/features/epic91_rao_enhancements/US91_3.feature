@@ -5,7 +5,7 @@
 
 Feature: US 91.3: PST initially out of range
 
-  @fast @rao @mock @dc @preventive-only
+  @fast @rao @dc @preventive-only @max-min-margin @megawatt
   Scenario: US 91.3.1: initial PST tap outside of Range
     Given network file is "common/TestCase16Nodes.uct" for CORE CC
     Given crac file is "epic91/cbcora_ep91us3case1.xml"
@@ -22,7 +22,7 @@ Feature: US 91.3: PST initially out of range
     # pst_be can be used and pst_fr is not forced within its range
     And the tap of PstRangeAction "pst_be" should be -15 in preventive
 
-  @fast @rao @mock @ac @contingency-scenarios
+  @fast @rao @ac @contingency-scenarios @max-min-margin @megawatt
   Scenario: US 91.3.2: PST tap outside of Range at the start of the curative RAO
     Given network file is "common/TestCase16Nodes.uct" for CORE CC
     Given crac file is "epic91/cbcora_ep91us3case2.xml"

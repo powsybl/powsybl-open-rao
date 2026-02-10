@@ -5,7 +5,7 @@
 
 Feature: US 94.1: Angle Monitoring
 
-  @fast @ac @rao @angle-monitoring
+  @fast @ac @rao @angle-monitoring @max-min-margin @ampere
   Scenario: US 94.1.1: Basic Angle Monitoring
   Simple angle monitoring case with two curative AngleCNECs defined for two different contingencies.
   The CRAC file does not contain any FlowCNEC but the computation is still performed.

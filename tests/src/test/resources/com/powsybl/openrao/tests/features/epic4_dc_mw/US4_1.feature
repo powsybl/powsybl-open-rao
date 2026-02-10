@@ -5,7 +5,7 @@
 
 Feature: US 4.1: Import of a CRAC with MW threshold
 
-  @fast @crac
+  @fast @crac @no-computation @megawatt @ampere
   Scenario: US 4.1.1: Import of a CRAC with MW threshold
   No threshold with a PERCENT_IMAX unit is defined in the CRAC so no iMax was imported.
     Given crac file is "epic4/SL_ep4us1_MW.json"

@@ -3,9 +3,9 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-Feature: US 91.11: Optimize computations for SECURE stop criterion
+Feature: US 91.11: Optimize computations for SECURE_FLOW objective function
 
-  @fast @rao @mock @dc @preventive-only @search-tree-rao
+  @fast @rao @dc @preventive-only @search-tree-rao @secure-flow @megawatt
   Scenario: US 91.11.1: Interrupt search tree depth early
     Given network file is "epic91/TestCase4Nodes.uct"
     Given crac file is "epic91/CBCORA_interrupt_search_tree.xml"
@@ -16,7 +16,7 @@ Feature: US 91.11: Optimize computations for SECURE stop criterion
     And 1 remedial actions are used in preventive
     And the margin on cnec "be1_fr1_N - preventive" after PRA should be 2340 A
 
-  @fast @rao @mock @dc @preventive-only @search-tree-rao
+  @fast @rao @dc @preventive-only @search-tree-rao @secure-flow @megawatt
   Scenario: US 91.11.2: Interrupt search tree depth early two threads
     Given network file is "epic91/TestCase4Nodes.uct"
     Given crac file is "epic91/CBCORA_interrupt_search_tree.xml"
@@ -27,7 +27,7 @@ Feature: US 91.11: Optimize computations for SECURE stop criterion
     And 1 remedial actions are used in preventive
     And the margin on cnec "be1_fr1_N - preventive" after PRA should be 2340 A
 
-  @fast @rao @mock @ac @contingency-scenarios
+  @fast @rao @ac @contingency-scenarios @secure-flow @megawatt
   Scenario: US 91.11.3: Skip curative optimization
     Given network file is "epic13/TestCase12NodesForCurative.uct"
     Given crac file is "epic91/CBCORA_ep91us11case3.xml"

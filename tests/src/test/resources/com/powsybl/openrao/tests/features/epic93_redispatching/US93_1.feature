@@ -5,7 +5,7 @@
 
 Feature: US 93.1: Basic redispatching actions (free and costly)
 
-  @fast @rao @dc @redispatching @preventive-only
+  @fast @rao @dc @redispatching @preventive-only @max-min-margin @megawatt
   Scenario: US 93.1.1.a: Extremely basic redispatching on 2 nodes network - maxMargin
   Two nodes containing one generator each, and linked by an overloaded line.
   One generator produces 1000, the other produces -1000.
@@ -23,7 +23,7 @@ Feature: US 93.1: Basic redispatching actions (free and costly)
     And the setpoint of RangeAction "redispatchingAction" should be 0.0 MW in preventive
     And the margin on cnec "cnecFr1Fr2Preventive" after PRA should be 300 MW
 
-  @fast @rao @dc @redispatching @preventive-only
+  @fast @rao @dc @redispatching @preventive-only @max-min-margin @megawatt
   Scenario: US 93.1.1.bis: Extremely basic redispatching on 2 nodes network - maxMargin - load
   Exact same situation but with loads instead of generators.
     Given network file is "epic93/2Nodes_load.uct"
@@ -38,7 +38,7 @@ Feature: US 93.1: Basic redispatching actions (free and costly)
     And the setpoint of RangeAction "redispatchingAction" should be 0.0 MW in preventive
     And the margin on cnec "cnecFr1Fr2Preventive" after PRA should be 300 MW
 
-  @fast @rao @dc @redispatching @preventive-only
+  @fast @rao @dc @redispatching @preventive-only @costly @megawatt
   Scenario: US 93.1.2: Extremely basic redispatching on 2 nodes network - minCost
   Network from US 93.1.1.a, but objective function minCost.
   The initial setpoint is 1000, it is then updated to 300.0 (because the threshold of the line FR1 FR2 is 300)
@@ -59,7 +59,7 @@ Feature: US 93.1: Basic redispatching actions (free and costly)
 
     # TODO: can I write a 93.1.3.bis with the same situation but correctly balanced?
   # No log to explain why the RA is not applied, should there be one?
-  @fast @rao @dc @redispatching @preventive-only
+  @fast @rao @dc @redispatching @preventive-only @max-min-margin @megawatt
   Scenario: US 93.1.3: Unbalanced redispatching
   Only one redispatching action available: with a key equal to 1 on FR1 and -0.7 on FR2.
   The sum of the key do not sum up to 1. It's impossible to respect injection balance constraint with a variation != 0.
@@ -75,7 +75,7 @@ Feature: US 93.1: Basic redispatching actions (free and costly)
     And the setpoint of RangeAction "redispatchingAction" should be 1000.0 MW in preventive
     And the margin on cnec "cnecFr1Fr2Preventive" after PRA should be -267.0 MW
 
-  @fast @rao @dc @redispatching @preventive-only
+  @fast @rao @dc @redispatching @preventive-only @max-min-margin @megawatt
   Scenario: US 93.1.4: Multiple redispatching actions keep network balanced - max min margin
   Both redispatching actions have distribution keys that do not sum to 0, the actions have to be activated together to
   compensate each other, and the result is optimal when all generators are shut down.
@@ -93,7 +93,7 @@ Feature: US 93.1: Basic redispatching actions (free and costly)
     And the setpoint of RangeAction "redispatchingActionFR2FR4" should be 0.0 MW in preventive
     And the margin on cnec "cnecFr1Fr2Preventive" after PRA should be 500.0 MW
 
-  @fast @rao @dc @redispatching @preventive-only
+  @fast @rao @dc @redispatching @preventive-only @costly @megawatt
   Scenario: US 93.1.5: Multiple redispatching actions keep network balanced with more "complex" keys - min cost
   One redispatching action that acts on two generators with keys 1 and -0.7 and one on one generator with key 0.6.
   Injection balance constraint is respected:
@@ -114,7 +114,7 @@ Feature: US 93.1: Basic redispatching actions (free and costly)
     And the margin on cnec "cnecFr1Fr2Preventive" after PRA should be 9.87 MW
     And the value of the objective function after PRA should be 36620.0
 
-  @fast @rao @dc @redispatching @preventive-only
+  @fast @rao @dc @redispatching @preventive-only @costly @megawatt
   Scenario: US 93.1.6: Redispatching with disconnected generator
   A simple three nodes network where all the prod is on FFR2AA1 and all the load is on FFR1AA1.
   The generator FFR3AA1 is disconnected so the redispatchingActionFR3 won't be used so the RAO can't use redispatchingActionFR1 either
