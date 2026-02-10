@@ -8,7 +8,7 @@ Feature: US 93.3: Intertemporal generator constraints
   Presentation of the US
   ----------------------
 
-  All the following scenarios rely on the same network situation. The intertemporal computations simulate a full
+  All the following scenarios rely on similar network situation. The intertemporal computations simulate a full
   24-timestamp day of one hour each.
 
   In an ideal situation, no redispatching is required between 0:00 and 3:59, nor between 20:00 and 23:59. However,
@@ -17,7 +17,6 @@ Feature: US 93.3: Intertemporal generator constraints
 
   ----------------------
 
-  # TODO: update comments to remove occurrences of ramps
   Scenario: US 93.3.1: No generator constraints
   No generator constraints hold so the situation corresponds to the ideal case described in the introduction.
     Given configuration file is "epic93/RaoParameters_minCost_megawatt_dc_0_shift.json"

@@ -1,34 +1,30 @@
-# Modelling the generator constraints
+# Modeling the generator constraints
 
 ## Preliminary notations
 
 A generator possesses mechanical characteristics that constrain the way it can be operated. Among these characteristics
 are:
 
-- the **minimum operating power** (or $P_{\min}$), which is the power threshold over which the generator can properly be
-  operated;
+- the **minimum operating power** (or $P_{\min}$), which is the lowest power value the generator can reach when turned
+  on operated;
 - the **maximum operating power** (or $P_{\max}$), which is the highest power value the generator can reach at any time;
-- the **lead time**, which is the time required by the generator to constantly ramp up from a null power to $P_{\min}$;
-- the **lag time**, which is the time required by the generator to constantly ramp down from $P_{\min}$ to a complete
-  shutdown.
+- the **lead time**, which is the time required by the generator to reach its $P_{\min}$ after it was ordered to start
+  up;
+- the **lag time**, which is the time required by the generator to reach complete shutdown from its $P_{\min}$.
 
 The generator then operates in two distinct states depending on its current power, based on the aforementioned
 characteristics:
 
 - it is **OFF** whenever its power is null;
-- it is **ON** whenever its power is greater or equal than $P_{\min}$ (and lower or equal than $P_{\max}$). In that
-  range, the power is somewhat free to change (with only possible power gradient constraints);
+- it is **ON** whenever its power is greater or equal than $P_{\min}$ (and lower or equal than $P_{\max}$).
 
 ![Generator States](../../../../_static/img/generator-states.png){.forced-white-background}
-
-The life of a generator thus cycles through these four states, always in the same order: OFF → START UP → ON → SHUT DOWN
-→ OFF ...
 
 ## Hypotheses
 
 To simplify the problem, we will consider that the orders to switch a generator on are given at the beginning of the
-timestamps, and not some time in between two timestamps. Thus, the upward ramps always start at times that coincide with
-the problem's timestamps.
+timestamps, and not some time in between two timestamps. Besides, if the generator has a lead time, its power must
+remain equal to $P_{\min}$
 
 Similarly, a symmetric hypothesis holds for downward ramps, with the constraint that the power of the generator must
 reach zero exactly at the beginning of a timestamp. Thus, the downward ramps always end at times that coincide with the
@@ -51,7 +47,7 @@ problem's timestamps.
 | Upper power gradient constraint | $\nabla^{+}(g)$      | Maximum upward power variation between two consecutive timestamps for generator $g$. This value must be non-negative.                       |
 | Lower power gradient constraint | $\nabla^{-}(g)$      | Maximum downward power variation (in absolute value) between two consecutive timestamps for generator $g$. This value must be non-positive. |
 | Timestamps                      | $\mathcal{T}$        | Set of all timestamps on which the optimization is performed.                                                                               |
-| Time gap                        | $\Delta_{\tau}$      | Time gap between two consecutive timestamps. It is assumed constant for all pairs of consecutive timestamps.                     |
+| Time gap                        | $\Delta_{\tau}$      | Time gap between two consecutive timestamps. It is assumed constant for all pairs of consecutive timestamps.                                |
 | Generator states                | $\Omega_{generator}$ | Set of all possible states a generator can be in: $\lbrace \textcolor{green}{\text{ON}}, \textcolor{red}{\text{OFF}} \rbrace$               |
 
 ## Defined optimization variables
@@ -76,11 +72,6 @@ At each timestamp and for each grid state, each generator can only be in one of 
 and START UP. Mathematically, this is written as:
 
 $$\forall g \in \Gamma, \forall t \in \mathcal{T}, \forall s, \; \delta_{\textcolor{green}{\text{ON}}}^{gen}(g,s,t) + \delta_{\textcolor{red}{\text{OFF}}}^{gen}(g,s,t) = 1$$
-
-> $\delta_{\textcolor{red}{\text{OFF}}}^{gen}(g,s,t)$ is defined in the documentation for readability's sake. In the
-> code, only $\delta_{\textcolor{green}{\text{ON}}}^{gen}(g,s,t)$ is being used not to create useless variables. Thus,
-> all occurrences of $\delta_{\textcolor{red}{\text{OFF}}}^{gen}(g,s,t)$ are simply replaced by
-> $1 - \delta_{\textcolor{green}{\text{ON}}}^{gen}(g,s,t)$.
 
 ### On or Off State
 
@@ -118,8 +109,8 @@ $$\delta_{\textcolor{green}{\text{ON}}}^{gen}(g,s,t + 1) = T_{\textcolor{green}{
 
 > In the following, we denote $\Delta_{t \rightarrow t'}$ the time elapsed between to timestamps $t$ and $t'$.
 
-When the generator is started up, it has a warm-up time called _lead time_ during which the power remains null before to
-step up to $P_{\min}$.
+When the generator is started up, it has a warm-up time called _lead time_ during which the power remains null before it
+steps up to $P_{\min}$.
 
 $$\forall t' \leq t \text{ such that } \Delta_{t' \rightarrow t} < LEAD(g), \; T_{\textcolor{red}{\text{OFF}} \to \textcolor{green}{\text{ON}}}(g,s,t) \leq \delta_{\textcolor{red}{\text{OFF}}}^{gen}(g,s,t')$$
 
