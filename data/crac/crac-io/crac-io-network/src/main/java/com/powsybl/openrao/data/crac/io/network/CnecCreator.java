@@ -34,15 +34,13 @@ class CnecCreator {
     private final CracCreationParameters cracCreationParameters;
     private final NetworkCracCreationParameters specificParameters;
     private final NetworkCracCreationContext creationContext;
-    private final Map<Branch<?>, Contingency> contingencyPerBranch;
 
-    CnecCreator(Crac crac, Network network, CracCreationParameters cracCreationParameters, NetworkCracCreationContext creationContext, Map<Branch<?>, Contingency> contingencyPerBranch) {
+    CnecCreator(Crac crac, Network network, CracCreationParameters cracCreationParameters, NetworkCracCreationContext creationContext) {
         this.crac = crac;
         this.network = network;
         this.cracCreationParameters = cracCreationParameters;
         this.specificParameters = cracCreationParameters.getExtension(NetworkCracCreationParameters.class);
         this.creationContext = creationContext;
-        this.contingencyPerBranch = contingencyPerBranch;
     }
 
     void addCnecsAndMnecs() {
@@ -76,9 +74,10 @@ class CnecCreator {
                 addPreventiveCnec(branch, optimized, !optimized);
                 for (Contingency contingency : crac.getContingencies()) {
                     if (!specificParameters.getCriticalElements().shouldCreateCnec(branch, contingency)
-                        || (contingencyPerBranch.containsKey(branch) && contingencyPerBranch.get(branch).equals(contingency))) {
+                        || contingency.getElements().stream().anyMatch(e -> e.getId().equals(branch.getId()))) {
                         continue;
                     }
+
                     addPostContingencyCnec(branch, contingency, optimized, !optimized, crac.getOutageInstant());
                     for (String curativeInstantId : specificParameters.getInstants().get(InstantKind.CURATIVE)) {
                         addPostContingencyCnec(branch, contingency, optimized, !optimized, crac.getInstant(curativeInstantId));
