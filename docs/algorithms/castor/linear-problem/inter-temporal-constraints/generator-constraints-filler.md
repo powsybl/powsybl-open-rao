@@ -51,7 +51,7 @@ problem's timestamps.
 | Upper power gradient constraint | $\nabla^{+}(g)$      | Maximum upward power variation between two consecutive timestamps for generator $g$. This value must be non-negative.                       |
 | Lower power gradient constraint | $\nabla^{-}(g)$      | Maximum downward power variation (in absolute value) between two consecutive timestamps for generator $g$. This value must be non-positive. |
 | Timestamps                      | $\mathcal{T}$        | Set of all timestamps on which the optimization is performed.                                                                               |
-| Time gap                        | $\Delta_{\tau}$      | Time gap between timestamps two consecutive timestamps. It is assumed constant for all pairs of consecutive timestamps.                     |
+| Time gap                        | $\Delta_{\tau}$      | Time gap between two consecutive timestamps. It is assumed constant for all pairs of consecutive timestamps.                     |
 | Generator states                | $\Omega_{generator}$ | Set of all possible states a generator can be in: $\lbrace \textcolor{green}{\text{ON}}, \textcolor{red}{\text{OFF}} \rbrace$               |
 
 ## Defined optimization variables
