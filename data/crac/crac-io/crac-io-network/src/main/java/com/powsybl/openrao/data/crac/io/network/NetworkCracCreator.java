@@ -285,7 +285,12 @@ public class NetworkCracCreator {
             .forEach(generator ->
                 instants.stream().filter(instant -> params.shouldCreateRedispatchingAction(generator, instant))
                     .forEach(instant -> addGeneratorActionForInstant(generator, instant)));
-        // TODO add other injections (Loads, batteries...)
+        network.getLoadStream()
+            .filter(load -> Utils.injectionIsInCountries(load, params.getCountries().orElse(null)))
+            .forEach(load ->
+                instants.stream().filter(instant -> params.shouldCreateRedispatchingAction(load, instant))
+                    .forEach(instant -> addLoadActionForInstant(load, instant)));
+        // TODO add other injections (batteries...)
     }
 
     private void addGeneratorActionForInstant(Generator generator, Instant instant) {
@@ -305,7 +310,7 @@ public class NetworkCracCreator {
         }
         InjectionRangeActionCosts costs = params.getRaCosts(generator, instant);
         crac.newInjectionRangeAction()
-            .withId("RD_RA_" + generator.getId() + "_" + instant.getId())
+            .withId("RD_GEN_" + generator.getId() + "_" + instant.getId())
             .withNetworkElementAndKey(1.0, generator.getId())
             .newRange()
             .withMin(minP)
@@ -319,6 +324,30 @@ public class NetworkCracCreator {
 
         // connect the generator
         generator.connect(SwitchPredicates.IS_OPEN);
+    }
+
+    private void addLoadActionForInstant(Load load, Instant instant) {
+        RedispatchingRangeActions params = specificParameters.getRedispatchingRangeActions();
+        double initialP = Math.round(load.getP0());
+        // TODO round it in network too ?
+        if (params.getRaRange(load, instant).getMin().isEmpty() || params.getRaRange(load, instant).getMax().isEmpty()) {
+            throw new OpenRaoImportException(ImportStatus.INCOMPLETE_DATA, String.format("Could not create range action for load %s at instant %s, because you did not define its min or max value in the parameters.", load.getId(), instant.getId()));
+        }
+        double minP = Math.min(initialP, params.getRaRange(load, instant).getMin().get());
+        double maxP = Math.max(initialP, params.getRaRange(load, instant).getMax().get());
+        InjectionRangeActionCosts costs = params.getRaCosts(load, instant);
+        crac.newInjectionRangeAction()
+            .withId("RD_LOAD_" + load.getId() + "_" + instant.getId())
+            .withNetworkElementAndKey(1.0, load.getId())
+            .newRange()
+            .withMin(minP)
+            .withMax(maxP).add()
+            .newOnInstantUsageRule().withInstant(instant.getId()).add()
+            .withInitialSetpoint(initialP)
+            .withVariationCost(costs.downVariationCost(), VariationDirection.DOWN)
+            .withVariationCost(costs.upVariationCost(), VariationDirection.UP)
+            .withActivationCost(costs.activationCost())
+            .add();
     }
 
 
