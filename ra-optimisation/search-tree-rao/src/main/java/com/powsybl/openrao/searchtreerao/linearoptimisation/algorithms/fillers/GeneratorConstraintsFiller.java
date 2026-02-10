@@ -280,7 +280,7 @@ public class GeneratorConstraintsFiller implements ProblemFiller {
         OpenRaoMPVariable offOnTransitionVariable = linearProblem.getGeneratorStateTransitionVariable(generatorConstraints.getGeneratorId(), timestamp, LinearProblem.GeneratorState.OFF, LinearProblem.GeneratorState.ON);
         powerTransitionConstraintInf.setCoefficient(offOnTransitionVariable, -(pMin - OFF_POWER_THRESHOLD));
         if (generatorConstraints.getLeadTime().isPresent()) {
-            // if the generator has a lead time, the ON state must pass by Pmin before increasing
+            // if the generator has a lead time, ON state starts at Pmin on a timestamp before power increases
             powerTransitionConstraintSup.setCoefficient(offOnTransitionVariable, -pMin);
         } else {
             // otherwise the power is simply constrained by the power gradient
