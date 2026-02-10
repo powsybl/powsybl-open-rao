@@ -3,9 +3,9 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-Feature: US 3.1: Import of a cnec monitored in a single direction
+Feature: US 3.1: Import of a CNEC optimized in a single direction
 
-  @fast @crac @mock
+  @fast @crac
   Scenario: US 3.1.1
   No threshold with a PERCENT_IMAX unit is defined in the CRAC so no iMax was imported.
     Given crac file is "epic3/SL_ep3us1_all_dir.json"

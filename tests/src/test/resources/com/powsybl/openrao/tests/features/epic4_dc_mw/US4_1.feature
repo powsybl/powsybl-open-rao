@@ -3,10 +3,10 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-Feature: US 4.1: Import of a crac with MW threshold
+Feature: US 4.1: Import of a CRAC with MW threshold
 
-  @fast @crac @mock
-  Scenario: US 4.1.1
+  @fast @crac
+  Scenario: US 4.1.1: Import of a CRAC with MW threshold
   No threshold with a PERCENT_IMAX unit is defined in the CRAC so no iMax was imported.
     Given crac file is "epic4/SL_ep4us1_MW.json"
     Given network file is "common/TestCase12Nodes.uct"
