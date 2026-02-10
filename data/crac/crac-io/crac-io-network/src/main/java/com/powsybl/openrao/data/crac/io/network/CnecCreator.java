@@ -1,7 +1,13 @@
+/*
+ * Copyright (c) 2026, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
 package com.powsybl.openrao.data.crac.io.network;
 
 import com.powsybl.contingency.Contingency;
-import com.powsybl.contingency.ContingencyElementType;
 import com.powsybl.iidm.network.*;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
@@ -12,7 +18,6 @@ import com.powsybl.openrao.data.crac.api.cnec.FlowCnecAdder;
 import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.crac.io.commons.OpenRaoImportException;
 import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
-import com.powsybl.openrao.data.crac.io.network.parameters.Contingencies;
 import com.powsybl.openrao.data.crac.io.network.parameters.CriticalElements;
 import com.powsybl.openrao.data.crac.io.network.parameters.NetworkCracCreationParameters;
 import org.jgrapht.alg.util.Pair;
@@ -20,8 +25,10 @@ import org.jgrapht.alg.util.Pair;
 import javax.annotation.Nullable;
 import java.util.*;
 
+/**
+ * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
+ */
 class CnecCreator {
-
     private final Crac crac;
     private final Network network;
     private final CracCreationParameters cracCreationParameters;
