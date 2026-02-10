@@ -73,9 +73,9 @@ class PowerGradientConstraintFillerTest {
         RaoInput raoInput2 = RaoInput.build(network2, crac2).build();
         RaoInput raoInput3 = RaoInput.build(network3, crac3).build();
 
-        GeneratorConstraints generatorConstraintsFr1 = GeneratorConstraints.create().withGeneratorId("FFR1AA1 _load").withLeadTime(0.0).withLagTime(0.0).withPMin(0.0).withPMax(1000.0).withUpwardPowerGradient(500.0).withDownwardPowerGradient(-300.0).build();
-        GeneratorConstraints generatorConstraintsFr2 = GeneratorConstraints.create().withGeneratorId("FFR2AA1 _generator").withLeadTime(0.0).withLagTime(0.0).withPMin(0.0).withPMax(1000.0).withUpwardPowerGradient(200.0).withDownwardPowerGradient(-100.0).build();
-        GeneratorConstraints generatorConstraintsFr3 = GeneratorConstraints.create().withGeneratorId("FFR3AA1 _load").withLeadTime(0.0).withLagTime(0.0).withPMin(0.0).withPMax(1000.0).withUpwardPowerGradient(40.0).withDownwardPowerGradient(-150.0).build();
+        GeneratorConstraints generatorConstraintsFr1 = GeneratorConstraints.create().withGeneratorId("FFR1AA1 _load").withLeadTime(0.0).withLagTime(0.0).withUpwardPowerGradient(500.0).withDownwardPowerGradient(-300.0).build();
+        GeneratorConstraints generatorConstraintsFr2 = GeneratorConstraints.create().withGeneratorId("FFR2AA1 _generator").withLeadTime(0.0).withLagTime(0.0).withUpwardPowerGradient(200.0).withDownwardPowerGradient(-100.0).build();
+        GeneratorConstraints generatorConstraintsFr3 = GeneratorConstraints.create().withGeneratorId("FFR3AA1 _load").withLeadTime(0.0).withLagTime(0.0).withUpwardPowerGradient(40.0).withDownwardPowerGradient(-150.0).build();
 
         IntertemporalConstraints intertemporalConstraints = new IntertemporalConstraints();
         intertemporalConstraints.addGeneratorConstraints(generatorConstraintsFr1);
@@ -92,9 +92,9 @@ class PowerGradientConstraintFillerTest {
         Crac crac1 = Crac.read("crac-1600.json", PowerGradientConstraintFillerTest.class.getResourceAsStream("/crac/crac-1600.json"), network1);
         RaoInput raoInput1 = RaoInput.build(network1, crac1).build();
 
-        GeneratorConstraints generatorConstraintsFr1 = GeneratorConstraints.create().withGeneratorId("FFR1AA1 _load").withLeadTime(0.0).withLagTime(0.0).withPMin(0.0).withPMax(1000.0).withUpwardPowerGradient(500.0).withDownwardPowerGradient(-300.0).build();
-        GeneratorConstraints generatorConstraintsFr2 = GeneratorConstraints.create().withGeneratorId("FFR2AA1 _generator").withLeadTime(0.0).withLagTime(0.0).withPMin(0.0).withPMax(1000.0).withUpwardPowerGradient(200.0).withDownwardPowerGradient(-100.0).build();
-        GeneratorConstraints generatorConstraintsFr3 = GeneratorConstraints.create().withGeneratorId("FFR3AA1 _load").withLeadTime(0.0).withLagTime(0.0).withPMin(0.0).withPMax(1000.0).withUpwardPowerGradient(40.0).withDownwardPowerGradient(-150.0).build();
+        GeneratorConstraints generatorConstraintsFr1 = GeneratorConstraints.create().withGeneratorId("FFR1AA1 _load").withLeadTime(0.0).withLagTime(0.0).withUpwardPowerGradient(500.0).withDownwardPowerGradient(-300.0).build();
+        GeneratorConstraints generatorConstraintsFr2 = GeneratorConstraints.create().withGeneratorId("FFR2AA1 _generator").withLeadTime(0.0).withLagTime(0.0).withUpwardPowerGradient(200.0).withDownwardPowerGradient(-100.0).build();
+        GeneratorConstraints generatorConstraintsFr3 = GeneratorConstraints.create().withGeneratorId("FFR3AA1 _load").withLeadTime(0.0).withLagTime(0.0).withUpwardPowerGradient(40.0).withDownwardPowerGradient(-150.0).build();
 
         IntertemporalConstraints intertemporalConstraints = new IntertemporalConstraints();
         intertemporalConstraints.addGeneratorConstraints(generatorConstraintsFr1);
@@ -244,9 +244,9 @@ class PowerGradientConstraintFillerTest {
     void testMissingGradientBound() throws IOException {
         createThreeTSInput();
 
-        GeneratorConstraints generatorConstraintsFr1 = GeneratorConstraints.create().withGeneratorId("FFR1AA1 _load").withLeadTime(0.0).withLagTime(0.0).withPMin(0.0).withPMax(1000.0).withUpwardPowerGradient(960.0).build();
-        GeneratorConstraints generatorConstraintsFr2 = GeneratorConstraints.create().withGeneratorId("FFR2AA1 _generator").withLeadTime(0.0).withLagTime(0.0).withPMin(0.0).withPMax(1000.0).withDownwardPowerGradient(-100.0).build();
-        GeneratorConstraints generatorConstraintsFr3 = GeneratorConstraints.create().withGeneratorId("FFR3AA1 _load").withLeadTime(0.0).withLagTime(0.0).withPMin(0.0).withPMax(1000.0).withUpwardPowerGradient(300.0).withDownwardPowerGradient(-200.0).build();
+        GeneratorConstraints generatorConstraintsFr1 = GeneratorConstraints.create().withGeneratorId("FFR1AA1 _load").withLeadTime(0.0).withLagTime(0.0).withUpwardPowerGradient(960.0).build();
+        GeneratorConstraints generatorConstraintsFr2 = GeneratorConstraints.create().withGeneratorId("FFR2AA1 _generator").withLeadTime(0.0).withLagTime(0.0).withDownwardPowerGradient(-100.0).build();
+        GeneratorConstraints generatorConstraintsFr3 = GeneratorConstraints.create().withGeneratorId("FFR3AA1 _load").withLeadTime(0.0).withLagTime(0.0).withUpwardPowerGradient(300.0).withDownwardPowerGradient(-200.0).build();
 
         IntertemporalConstraints intertemporalConstraints = new IntertemporalConstraints();
         intertemporalConstraints.addGeneratorConstraints(generatorConstraintsFr1);

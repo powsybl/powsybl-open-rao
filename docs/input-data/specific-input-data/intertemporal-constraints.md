@@ -20,21 +20,6 @@ moment it is completely off.
 When operated above its $P_{\min}$, a generator can be restricted by **power gradients** that limit the amount of MW its
 power can vary per hour. These gradients can be defined upward and/or downward.
 
-### Minimum up-time
-
-The **minimum up-time** is the minimum time the generator must be operated above its $P_{\min}$. As long as this
-duration is not reached, it cannot be shut down.
-
-### Maximum up-time
-
-The **maximum up-time** is the maximum time the generator can be operated above its $P_{\min}$. After such a duration,
-the generator must be shut down.
-
-### Minimum off-time
-
-The **minimum off-time** is the minimum time the generator must remain off when it is shut down before to be started up
-again.
-
 ## JSON API
 
 ### Generator constraints
@@ -46,9 +31,6 @@ again.
 | `lagTime`               | number | Optional  | hours | Lag time of the generator, in hours. Must be positive.                                  |
 | `upwardPowerGradient`   | number | Optional  | MW/h  | Upward power gradient for the generator's power variation, in MW/h. Must be positive.   |
 | `downwardPowerGradient` | number | Optional  | MW/h  | Downward power gradient for the generator's power variation, in MW/h. Must be negative. |
-| `minUpTime`             | number | Optional  | hours | Minimum up-time of the generator, in hours. Must be positive.                           |
-| `maxUpTime`             | number | Optional  | hours | Maximum up-time of the generator, in hours. Must be positive.                           |
-| `minOffTime`            | number | Optional  | hours | Minimum off-time of the generator, in hours. Must be positive.                          |
 
 ### Comprehensive example
 
@@ -62,10 +44,7 @@ again.
       "leadTime": 1.15,
       "lagTime": 2.0,
       "upwardPowerGradient": 100.0,
-      "downwardPowerGradient": -50.0,
-      "minUpTime": 5.0,
-      "maxUpTime": 15.0,
-      "minOffTime": 10.0
+      "downwardPowerGradient": -50.0
     },
     {
       "generatorId": "generator-2"

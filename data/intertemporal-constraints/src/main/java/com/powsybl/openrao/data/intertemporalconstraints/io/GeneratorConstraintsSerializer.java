@@ -29,16 +29,6 @@ public class GeneratorConstraintsSerializer extends StdSerializer<GeneratorConst
         jsonGenerator.writeStartObject();
         jsonGenerator.writeStringField(JsonIntertemporalConstraints.GENERATOR_ID, generatorConstraints.getGeneratorId());
 
-        Optional<Double> pMin = generatorConstraints.getPMin();
-        if (pMin.isPresent()) {
-            jsonGenerator.writeNumberField(JsonIntertemporalConstraints.P_MIN, pMin.get());
-        }
-
-        Optional<Double> pMax = generatorConstraints.getPMax();
-        if (pMax.isPresent()) {
-            jsonGenerator.writeNumberField(JsonIntertemporalConstraints.P_MAX, pMax.get());
-        }
-
         Optional<Double> leadTime = generatorConstraints.getLeadTime();
         if (leadTime.isPresent()) {
             jsonGenerator.writeNumberField(JsonIntertemporalConstraints.LEAD_TIME, leadTime.get());
@@ -57,21 +47,6 @@ public class GeneratorConstraintsSerializer extends StdSerializer<GeneratorConst
         Optional<Double> downwardPowerGradient = generatorConstraints.getDownwardPowerGradient();
         if (downwardPowerGradient.isPresent()) {
             jsonGenerator.writeNumberField(JsonIntertemporalConstraints.DOWNWARD_POWER_GRADIENT, downwardPowerGradient.get());
-        }
-
-        Optional<Double> minUpTime = generatorConstraints.getMinUpTime();
-        if (minUpTime.isPresent()) {
-            jsonGenerator.writeNumberField(JsonIntertemporalConstraints.MIN_UP_TIME, minUpTime.get());
-        }
-
-        Optional<Double> maxUpTime = generatorConstraints.getMaxUpTime();
-        if (maxUpTime.isPresent()) {
-            jsonGenerator.writeNumberField(JsonIntertemporalConstraints.MAX_UP_TIME, maxUpTime.get());
-        }
-
-        Optional<Double> minOffTime = generatorConstraints.getMinOffTime();
-        if (minOffTime.isPresent()) {
-            jsonGenerator.writeNumberField(JsonIntertemporalConstraints.MIN_OFF_TIME, minOffTime.get());
         }
 
         jsonGenerator.writeEndObject();
