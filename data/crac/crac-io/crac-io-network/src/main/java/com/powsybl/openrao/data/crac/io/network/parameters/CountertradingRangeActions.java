@@ -14,6 +14,7 @@ import com.powsybl.sensitivity.SensitivityVariableSet;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.BiPredicate;
 
@@ -25,8 +26,12 @@ import java.util.function.BiPredicate;
 public class CountertradingRangeActions extends AbstractCountriesFilter {
     private BiPredicate<Injection<?>, Instant> injectionPredicate = (injection, instant) -> true;
     private BiFunction<Country, Instant, InjectionRangeActionCosts> raCostsProvider = (country, instant) -> new InjectionRangeActionCosts(0, 0, 0);
-    private BiFunction<Country, Instant, MinAndMax<Double>> raRangeProvider = (country, instant) -> new MinAndMax<>(null, null);
+    private BiFunction<Country, Instant, MinAndMax<Double>> raRangeProvider = (country, instant) -> new MinAndMax<>(0., 0.);
     private Map<Country, ZonalData<SensitivityVariableSet>> glsks = null;
+
+    public CountertradingRangeActions() {
+        this.setCountryFilter(Set.of()); // no CT by default
+    }
 
     /**
      * Set the function that indicates if a given injection should be included in the RA.
@@ -67,6 +72,7 @@ public class CountertradingRangeActions extends AbstractCountriesFilter {
 
     /**
      * Set the function that indicates the MW range of counter-trading with given country.
+     * By default, range is reduced to zero.
      */
     public void setRaRangeProvider(BiFunction<Country, Instant, MinAndMax<Double>> raRangeProvider) {
         this.raRangeProvider = raRangeProvider;

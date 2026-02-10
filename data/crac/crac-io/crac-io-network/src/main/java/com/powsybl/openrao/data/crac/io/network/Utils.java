@@ -1,6 +1,8 @@
 package com.powsybl.openrao.data.crac.io.network;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.Instant;
 
 import java.util.Optional;
 import java.util.Set;
@@ -45,5 +47,11 @@ public class Utils {
             return false;
         }
         return countries.contains(substation.getCountry().get());
+    }
+
+    public static boolean injectionIsNotUsedInAnyInjectionRangeAction(Crac crac, Injection<?> injection, Instant instant) {
+        return crac.getInjectionRangeActions()
+            .stream().noneMatch(ra -> ra.getUsageRules().stream().anyMatch(ur -> ur.getInstant().equals(instant)) &&
+                ra.getNetworkElements().stream().anyMatch(ne -> ne.getId().equals(injection.getId())));
     }
 }

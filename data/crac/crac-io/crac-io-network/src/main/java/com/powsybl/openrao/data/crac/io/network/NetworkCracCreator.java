@@ -33,11 +33,15 @@ public class NetworkCracCreator {
             throw new OpenRaoException("Cannot create a CRAC from a network file unless a NetworkCracCreationParameters extension is defined in CracCreationParameters.");
         }
         NetworkCracCreationParameters specificParameters = cracCreationParameters.getExtension(NetworkCracCreationParameters.class);
+
         addInstants(crac, specificParameters.getInstants());
         addContingencies(crac, network, specificParameters.getContingencies());
         new CnecCreator(crac, network, cracCreationParameters, creationContext).addCnecsAndMnecs();
-        new PstCreator(crac, network, specificParameters.getPstRangeActions()).addPstRangeActions();
+        new PstRangeActionsCreator(crac, network, specificParameters.getPstRangeActions()).addPstRangeActions();
         new RedispatchingCreator(crac, network, specificParameters.getRedispatchingRangeActions()).addRedispatchRangeActions();
+        new CountertradingRangeActionsCreator(crac, network, specificParameters.getCountertradingRangeActions(), creationContext).addCountertradingActions();
+        new BalancingRangeActionsCreator(crac, network, specificParameters.getBalancingRangeAction()).addBalancingRangeActions();
+
         creationContext.setCreationSuccessful(true);
         return creationContext;
     }

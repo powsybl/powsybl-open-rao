@@ -24,12 +24,12 @@ import java.util.stream.Collectors;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-class PstCreator {
+class PstRangeActionsCreator {
     private final Crac crac;
     private final Network network;
     private final PstRangeActions parameters;
 
-    public PstCreator(Crac crac, Network network, PstRangeActions parameters) {
+    public PstRangeActionsCreator(Crac crac, Network network, PstRangeActions parameters) {
         this.crac = crac;
         this.network = network;
         this.parameters = parameters;

@@ -10,6 +10,7 @@ import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Injection;
 import com.powsybl.openrao.data.crac.api.Instant;
 
+import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.BiPredicate;
 
@@ -22,7 +23,11 @@ import java.util.function.BiPredicate;
 public class BalancingRangeAction extends  AbstractCountriesFilter {
     private BiPredicate<Injection<?>, Instant> injectionPredicate = (injection, instant) -> true;
     private BiFunction<Country, Instant, InjectionRangeActionCosts> raCostsProvider = (country, instant) -> new InjectionRangeActionCosts(0, 0, 0);
-    private BiFunction<Country, Instant, MinAndMax<Double>> raRangeProvider = (country, instant) -> new MinAndMax<>(null, null);
+    private BiFunction<Country, Instant, MinAndMax<Double>> raRangeProvider = (country, instant) -> new MinAndMax<>(0., 0.);
+
+    public BalancingRangeAction() {
+        this.setCountryFilter(Set.of()); // RA is disabled by default
+    }
 
     /**
      * Set the function that indicates if a given injection should be included in the RA.
@@ -49,12 +54,13 @@ public class BalancingRangeAction extends  AbstractCountriesFilter {
 
     /**
      * Set the function that indicates the MW range of the balancing RA in a given country.
+     * By default, range is reduced to zero.
      */
     public void setRaRangeProvider(BiFunction<Country, Instant, MinAndMax<Double>> raRangeProvider) {
         this.raRangeProvider = raRangeProvider;
     }
 
-    public MinAndMax<Double> getRaRangeProvider(Country country, Instant instant) {
+    public MinAndMax<Double> getRaRange(Country country, Instant instant) {
         return raRangeProvider.apply(country, instant);
     }
 }
