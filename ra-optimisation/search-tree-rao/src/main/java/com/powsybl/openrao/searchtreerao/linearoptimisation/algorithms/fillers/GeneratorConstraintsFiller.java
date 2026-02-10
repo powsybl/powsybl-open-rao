@@ -230,7 +230,7 @@ public class GeneratorConstraintsFiller implements ProblemFiller {
      * <br/>
      * P >= P_min ON
      * <br/>
-     * P <= P_max ON + OFF_POWER_THREHSOLD OFF
+     * P <= P_max ON + OFF_POWER_THRESHOLD OFF
      */
     private void addOnOffPowerConstraints(LinearProblem linearProblem, String generatorId, OffsetDateTime timestamp) {
         double pMin = getMinP(generatorId, networks.getData(timestamp).orElseThrow());
