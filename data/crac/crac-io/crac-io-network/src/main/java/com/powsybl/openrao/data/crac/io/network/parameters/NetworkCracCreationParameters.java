@@ -22,12 +22,12 @@ public class NetworkCracCreationParameters extends AbstractAlignedRaCracCreation
         InstantKind.OUTAGE, List.of("outage"),
         InstantKind.CURATIVE, List.of("curative")
     ));
-    private CriticalElements criticalElements = new CriticalElements();
-    private Contingencies contingencies = new Contingencies();
-    private PstRangeActions pstRangeActions = new PstRangeActions();
-    private RedispatchingRangeActions redispatchingRangeActions = new RedispatchingRangeActions();
-    private CountertradingRangeActions countertradingRangeActions = new CountertradingRangeActions();
-    private BalancingRangeAction balancingRangeAction = new BalancingRangeAction();
+    private final CriticalElements criticalElements = new CriticalElements();
+    private final Contingencies contingencies = new Contingencies();
+    private final PstRangeActions pstRangeActions = new PstRangeActions();
+    private final RedispatchingRangeActions redispatchingRangeActions = new RedispatchingRangeActions();
+    private final CountertradingRangeActions countertradingRangeActions = new CountertradingRangeActions();
+    private final BalancingRangeAction balancingRangeAction = new BalancingRangeAction();
 
     @Override
     public String getName() {
