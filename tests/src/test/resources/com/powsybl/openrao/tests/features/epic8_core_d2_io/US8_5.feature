@@ -5,18 +5,24 @@
 
 Feature: US 8.5: Management of FRM during computation
 
-  @fast @rao @mock @ac @preventive-only
+    ## TODO: add explicit config file?
+  @fast @rao @ac @preventive-only
   Scenario: US 8.5.1: case without FRM
     Given network file is "epic2/US2-3-case1-standard.uct" for CORE CC
     Given crac file is "epic8/12nodes_pst_topo_frm_cbcora_null_frm.xml"
     When I launch rao at "2019-01-08 12:00"
+    Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then the value of the objective function after PRA should be -25.6
     Then the margin on cnec "Cnec1 - preventive" after PRA should be 25.6 MW
 
-  @fast @rao @mock @ac @preventive-only
+  @fast @rao @ac @preventive-only
   Scenario: US 8.5.2: case with a FRM of 50 MW
+  Same as US 8.5.1, but the margin of the CNEC is decreased by the value of the FRM.
     Given network file is "epic2/US2-3-case1-standard.uct" for CORE CC
     Given crac file is "epic8/12nodes_pst_topo_frm_cbcora.xml"
     When I launch rao at "2019-01-08 12:00"
+    Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "UNSECURED"
     Then the value of the objective function after CRA should be 24.0
     Then the margin on cnec "Cnec1 - preventive" after PRA should be -24.0 MW
