@@ -38,6 +38,9 @@ public class NetworkCracCreationParameters extends AbstractAlignedRaCracCreation
         return instants;
     }
 
+    /**
+     * Set the instants to create (type & IDs). By default, one "preventive", one "outage" and one "curative" instants will be created.
+     */
     public void setInstants(SortedMap<InstantKind, List<String>> instants) {
         // TODO verify 1 element for preventive, outage, etc. also that they are in correct order.
         this.instants = instants;
