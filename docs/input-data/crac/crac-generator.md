@@ -3,7 +3,7 @@
 ## Introduction
 This algorithm, desguised as a CRAC importer, allows the user to create a CRAC object seamlessly, using a network file.  
 It supports all network formats supported by PowSyBl.  
-Note, however, that the user is expected to provide some specific CRAC creation parameters in order for the algorithm to work.  
+Note, however, that the user is expected to provide some extensive CRAC creation parameters in order for the algorithm to work.  
 
 ## Usage
 First, you must include it as a dependency in your maven module:
