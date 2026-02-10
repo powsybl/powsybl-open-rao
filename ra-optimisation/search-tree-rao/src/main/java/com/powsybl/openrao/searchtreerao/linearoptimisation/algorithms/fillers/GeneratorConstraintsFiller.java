@@ -226,7 +226,7 @@ public class GeneratorConstraintsFiller implements ProblemFiller {
 
     /**
      * C6 - The generator is ON if and only if its power is in the range [P_min, P_max]
-     * and OFF if and only if its power is in the range [0, OFF_POWER_THREHSOLD]
+     * and OFF if and only if its power is in the range [0, OFF_POWER_THRESHOLD]
      * <br/>
      * P >= P_min ON
      * <br/>
