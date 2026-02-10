@@ -84,7 +84,7 @@ $$\forall g \in \Gamma, \forall t \in \mathcal{T}, \forall s, \; \delta_{\textco
 
 ### On or Off State
 
-By definition, the generator is on if its power is greater than $P_{\min}$ and off if its power is null. To account for
+By definition, the generator is ON if its power is greater than $P_{\min}$ and OFF if its power is null. To account for
 issues that can stem from number rounding, we define a _minimal power variation deadband_ $\epsilon_{P}^{\text{OFF}}$
 such that if the power of the generator is lower that $\epsilon_{P}^{\text{OFF}}$, the generator is considered off.
 
