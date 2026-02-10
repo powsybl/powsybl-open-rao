@@ -22,8 +22,8 @@ import java.util.function.BiPredicate;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public class CriticalElements extends AbstractCountriesFilter {
-    private MinAndMax<Double> minAndMaxOptimizedV = new MinAndMax<>(null, null);
-    private MinAndMax<Double> minAndMaxMonitoredV; // non-critical branches are declared as MNECs
+    private MinAndMax<Double> optimizedMinMaxV = new MinAndMax<>(null, null);
+    private MinAndMax<Double> monitoredMinMaxV; // non-critical branches are declared as MNECs
     private BiPredicate<Branch<?>, Contingency> cnecPredicate = (branch, contingency) -> true;
     private ThresholdDefinition thresholdDefinition;
     private Map<String, Double> limitMultiplierPerInstant; // multiplies temp or perm limit, depending on thresholdDefinition
@@ -41,17 +41,17 @@ public class CriticalElements extends AbstractCountriesFilter {
      * You can use {@code null} to disable min and/or max filter.
      * By default, this filter is disabled.
      */
-    public void setOptimizedMinAndMaxV(@Nullable Double minV, @Nullable Double maxV) {
-        // TODO check that there is no overlap with minAndMaxMonitoredV
-        minAndMaxOptimizedV = new MinAndMax<>(minV, maxV);
+    public void setOptimizedMinMaxV(@Nullable Double minV, @Nullable Double maxV) {
+        // TODO check that there is no overlap with monitoredMinMaxV ?
+        optimizedMinMaxV = new MinAndMax<>(minV, maxV);
     }
 
     public Optional<Double> getOptimizedMinV() {
-        return minAndMaxOptimizedV.getMin();
+        return optimizedMinMaxV.getMin();
     }
 
     public Optional<Double> getOptimizedMaxV() {
-        return minAndMaxOptimizedV.getMax();
+        return optimizedMinMaxV.getMax();
     }
 
     /**
@@ -60,13 +60,13 @@ public class CriticalElements extends AbstractCountriesFilter {
      * Setting the MinAndMax object to {@code null} will disable the monitored network elements feature.
      * By default, the feature is disabled.
      */
-    public void setMinAndMaxMonitoredV(@Nullable MinAndMax<Double> minAndMax) {
-        // TODO check that there is no overlap with minAndMaxOptimizedV
-        minAndMaxMonitoredV = minAndMax;
+    public void setMonitoredMinMaxV(@Nullable MinAndMax<Double> minAndMax) {
+        // TODO check that there is no overlap with optimizedMinMaxV ?
+        monitoredMinMaxV = minAndMax;
     }
 
-    public Optional<MinAndMax<Double>> getMinAndMaxMonitoredV() {
-        return Optional.of(minAndMaxMonitoredV);
+    public Optional<MinAndMax<Double>> getMonitoredMinMaxV() {
+        return Optional.of(monitoredMinMaxV);
     }
 
     public boolean shouldCreateCnec(Branch<?> branch, Contingency contingency) {

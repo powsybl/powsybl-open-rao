@@ -16,7 +16,7 @@ import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeActionAdder;
 import com.powsybl.openrao.data.crac.api.rangeaction.VariationDirection;
 import com.powsybl.openrao.data.crac.io.commons.OpenRaoImportException;
 import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
-import com.powsybl.openrao.data.crac.io.network.parameters.BalancingRangeAction;
+import com.powsybl.openrao.data.crac.io.network.parameters.BalancingRangeActions;
 
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -27,9 +27,9 @@ import java.util.stream.Collectors;
 class BalancingRangeActionsCreator {
     private final Crac crac;
     private final Network network;
-    private final BalancingRangeAction parameters;
+    private final BalancingRangeActions parameters;
 
-    BalancingRangeActionsCreator(Crac crac, Network network, BalancingRangeAction parameters) {
+    BalancingRangeActionsCreator(Crac crac, Network network, BalancingRangeActions parameters) {
         this.crac = crac;
         this.network = network;
         this.parameters = parameters;

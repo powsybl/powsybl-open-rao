@@ -60,7 +60,7 @@ class CnecCreator {
             ).forEach(branch -> {
                 if (Utils.branchIsInVRange(branch, params.getOptimizedMinV(), params.getOptimizedMaxV())) {
                     optimizedBranches.add(branch);
-                } else if (params.getMinAndMaxMonitoredV().isPresent() && Utils.branchIsInVRange(branch, params.getMinAndMaxMonitoredV().get().getMin(), params.getMinAndMaxMonitoredV().get().getMax())) {
+                } else if (params.getMonitoredMinMaxV().isPresent() && Utils.branchIsInVRange(branch, params.getMonitoredMinMaxV().get().getMin(), params.getMonitoredMinMaxV().get().getMax())) {
                     monitoredBranches.add(branch);
                 }
             });

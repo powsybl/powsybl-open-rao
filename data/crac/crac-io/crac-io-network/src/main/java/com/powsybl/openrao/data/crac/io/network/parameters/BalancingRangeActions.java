@@ -20,12 +20,12 @@ import java.util.function.BiPredicate;
  *
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class BalancingRangeAction extends  AbstractCountriesFilter {
+public class BalancingRangeActions extends  AbstractCountriesFilter {
     private BiPredicate<Injection<?>, Instant> injectionPredicate = (injection, instant) -> true;
     private BiFunction<Country, Instant, InjectionRangeActionCosts> raCostsProvider = (country, instant) -> new InjectionRangeActionCosts(0, 0, 0);
     private BiFunction<Country, Instant, MinAndMax<Double>> raRangeProvider = (country, instant) -> new MinAndMax<>(0., 0.);
 
-    public BalancingRangeAction() {
+    public BalancingRangeActions() {
         this.setCountryFilter(Set.of()); // RA is disabled by default
     }
 
