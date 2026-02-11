@@ -102,7 +102,7 @@ You can set the following parameters:
 PstRangeActions params = networkCracCreationParameters.getPstRangeActions();
 params.setCountries(Set.of(Country.FR)); // only PSTs in France are considered as remedial actions
 params.setAvailableRelativeRangesAtInstants(Map.of(
-    "prev", new PstRangeActions.TapRange(-8, 8, RangeType.RELATIVE_TO_PREVIOUS_INSTANT), // can change up to 8 taps in preventive
+    "prev", new PstRangeActions.TapRange(-8, 8, RangeType.RELATIVE_TO_INITIAL_NETWORK), // can change up to 8 taps in preventive
     // not listing cur1 will make PSTs unavailable at that instant
     "cur2", new PstRangeActions.TapRange(-1, 1, RangeType.RELATIVE_TO_PREVIOUS_INSTANT), // 1 tap in curative2
     "cur3", new PstRangeActions.TapRange(-2, 2, RangeType.RELATIVE_TO_PREVIOUS_INSTANT) // 2 taps in curative3
