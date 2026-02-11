@@ -35,12 +35,12 @@ class CnecCreator {
     private final NetworkCracCreationParameters specificParameters;
     private final NetworkCracCreationContext creationContext;
 
-    CnecCreator(Crac crac, Network network, CracCreationParameters cracCreationParameters, NetworkCracCreationContext creationContext) {
-        this.crac = crac;
+    CnecCreator(NetworkCracCreationContext creationContext, Network network, CracCreationParameters cracCreationParameters) {
+        this.creationContext = creationContext;
+        this.crac = creationContext.getCrac();
         this.network = network;
         this.cracCreationParameters = cracCreationParameters;
         this.specificParameters = cracCreationParameters.getExtension(NetworkCracCreationParameters.class);
-        this.creationContext = creationContext;
     }
 
     void addCnecsAndMnecs() {

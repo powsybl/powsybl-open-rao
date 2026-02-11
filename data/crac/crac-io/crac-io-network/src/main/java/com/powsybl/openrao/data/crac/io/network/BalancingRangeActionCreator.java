@@ -29,17 +29,14 @@ class BalancingRangeActionCreator {
     private final BalancingRangeAction parameters;
     private final NetworkCracCreationContext creationContext;
 
-    BalancingRangeActionCreator(Crac crac, Network network, BalancingRangeAction parameters, NetworkCracCreationContext creationContext) {
-        this.crac = crac;
+    BalancingRangeActionCreator(NetworkCracCreationContext creationContext, Network network, BalancingRangeAction parameters) {
+        this.creationContext = creationContext;
+        this.crac = creationContext.getCrac();
         this.network = network;
         this.parameters = parameters;
-        this.creationContext = creationContext;
     }
 
     void addBalancingRangeAction() {
-        if (!parameters.isEnabled()) {
-            return;
-        }
         crac.getSortedInstants().stream().filter(instant -> !instant.isOutage())
             .forEach(instant -> {
                 try {
@@ -56,14 +53,23 @@ class BalancingRangeActionCreator {
             throw new OpenRaoImportException(ImportStatus.INCOMPLETE_DATA,
                 String.format("Cannot create a balancing action at instant %s without a defined min/max range.", instant));
         }
+        if (parameters.getRaRange(instant).getMin().orElseThrow() > -0.1 && parameters.getRaRange(instant).getMax().orElseThrow() < 0.1) {
+            // range is zero, no need to create the RA
+            return;
+        }
 
         Set<Generator> consideredGenerators = network.getGeneratorStream()
             .filter(generator -> parameters.shouldIncludeInjection(generator, instant))
             .filter(generator -> Utils.injectionIsNotUsedInAnyInjectionRangeAction(crac, generator, instant))
             .collect(Collectors.toSet());
 
-        double initialTotalP = Math.round(consideredGenerators.stream()
-            .mapToDouble(Generator::getTargetP).sum());
+        if (consideredGenerators.size() >= 100) {
+            creationContext.getCreationReport().warn(
+                String.format("More than 100 generators included in the balancing action at %s. Consider enforcing your filter, otherwise you may run into memory issues.", instant.getId())
+            );
+        }
+
+        double initialTotalP = Math.round(consideredGenerators.stream().mapToDouble(Generator::getTargetP).sum());
 
         if (initialTotalP < 1.) {
             throw new OpenRaoImportException(ImportStatus.INCOMPLETE_DATA,

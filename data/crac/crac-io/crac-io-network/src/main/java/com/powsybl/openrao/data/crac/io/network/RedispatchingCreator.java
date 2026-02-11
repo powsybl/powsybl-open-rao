@@ -29,9 +29,12 @@ class RedispatchingCreator {
     private final Crac crac;
     private final Network network;
     private final RedispatchingRangeActions parameters;
+    private final NetworkCracCreationContext creationContext;
+    private int nActions = 0;
 
-    RedispatchingCreator(Crac crac, Network network, RedispatchingRangeActions parameters) {
-        this.crac = crac;
+    RedispatchingCreator(NetworkCracCreationContext creationContext, Network network, RedispatchingRangeActions parameters) {
+        this.creationContext = creationContext;
+        this.crac = creationContext.getCrac();
         this.network = network;
         this.parameters = parameters;
     }
@@ -49,6 +52,13 @@ class RedispatchingCreator {
                 instants.stream().filter(instant -> parameters.shouldCreateRedispatchingAction(load, instant))
                     .forEach(instant -> addLoadActionForInstant(load, instant)));
         // TODO add other injections (batteries...)
+    }
+
+    private void checkNumberOfActions() {
+        nActions++;
+        if (nActions == 500) {
+            creationContext.getCreationReport().warn("More than 500 redispatching actions have been created. Consider enforcing your filter, otherwise you may run into memory issues.");
+        }
     }
 
     private void addGeneratorActionForInstant(Generator generator, Instant instant) {
@@ -81,6 +91,7 @@ class RedispatchingCreator {
 
         // connect the generator
         generator.connect(SwitchPredicates.IS_OPEN);
+        checkNumberOfActions();
     }
 
     private void addLoadActionForInstant(Load load, Instant instant) {
@@ -104,5 +115,6 @@ class RedispatchingCreator {
             .withVariationCost(costs.upVariationCost(), VariationDirection.UP)
             .withActivationCost(costs.activationCost())
             .add();
+        checkNumberOfActions();
     }
 }

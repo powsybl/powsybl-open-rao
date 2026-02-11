@@ -117,9 +117,9 @@ The NetworkCracCreationParameters' "Redispatching range actions" section allows 
 These will take the form of [injection range actions](json.md#injection-range-action) in the generated CRAC.
 By default, all generators and loads in the network are considered. You can set the following parameters:
 - countries: only generators and loads in these countries will be considered as redispatchable. Leave it empty for no filtering. Set to empty set to disable redispatching creation.
-- rdRaPredicate: a predicate that allows you to filter out some generators/loads that are not available at some instants (outage instants are filtered out in all cases). By default, only generators are allowed.
+- rdRaPredicate: a predicate that allows you to filter out some generators/loads that are not available at some instants (outage instants are filtered out in all cases). By default, only generators are allowed. Be careful to set a custom filter if you have a large network, otherwise you may un into memory issues.
 - raCostsProvider: a function that provides the activation & variation cost for every generation/load at every instant. Costs default to zero.
-- raRangeProvider: a function that provides the available absolute (active power) range for every generation/load at every instant. Mandatory if you allow redispatching on loads. For generators, uses limits from the network (minP and maxP) by default.
+- raRangeProvider: a function that provides the available absolute (active power) range for every generation/load at every instant. The range is absolute. Mandatory if you allow redispatching on loads. For generators, uses limits from the network (minP and maxP) by default.
 
 ::::{tabs}
 :::{group-tab} JAVA creation API
@@ -140,9 +140,9 @@ which all generators of that country are listed.
 Generators previously included in redispatching range actions are not considered in counter-trading.  
 You can set the following parameters:  
 - countries: mandatory field. List here all the countries for which you want to create counter-trading range actions. Set to empty set if you want to deactivate counter-trading.
-- injectionPredicate: function that allows you to filter out generators that are not available for counter-trading at a given instant. If not set, no filter will be applied.
+- injectionPredicate: function that allows you to filter out generators that are not available for counter-trading at a given instant. If not set, no filter will be applied. Be careful to set it if you have a large network, otherwise you may un into memory issues.
 - raCostsProvider: function that provides activation and variation cost of a counter-trading range action in a given country at a given instant.
-- raRangeProvider: function that provides the MW range of the counter-trading action for a given country at a given instant. Note that if you do not provide it, the range will be zero (rendering the remedial action useless).
+- raRangeProvider: function that provides the MW range of the counter-trading action for a given country at a given instant. The range is relative to the values in the initial network. Note that if you do not provide it, the range will be zero (rendering the remedial action useless).
 - glsks: optional field to set the GLSK of every country. It is currently not supported, propotional GLSK is supposed.
 
 ::::{tabs}
@@ -165,16 +165,14 @@ This action will take the form of a [injection range action](json.md#injection-r
 which all generators of the network are listed.  
 Generators previously included in redispatching & counter-trading range actions are not considered in balancing.  
 You can set the following parameters:  
-- enabled: boolean to enable the balancing remedial action (defaults to false).
-- injectionPredicate: function that allows you to filter out generators that are not available for balancing at a given instant. If not set, no filter will be applied.
+- raRangeProvider: function that provides the MW range of the balancing action at a given instant. The range is relative to the values in the initial network. Note that if you do not provide it, the range will be zero, rendering the remedial action useless (it will not be created).
+- injectionPredicate: function that allows you to filter out generators that are not available for balancing at a given instant. If not set, no filter will be applied. Be careful to set it if you have a large network, otherwise you may un into memory issues.
 - raCostsProvider: function that provides activation and variation cost of a balancing range action at a given instant. As this is supposed to be a slack remedial action, we advise you to set it costs higher than redispatching & counter-trading.
-- raRangeProvider: function that provides the MW range of the balancing action at a given instant. Note that if you do not provide it, absolute active power limits in the network will be used.
 
 ::::{tabs}
 :::{group-tab} JAVA creation API
 ~~~java
 BalancingRangeAction params = networkCracCreationParameters.getBalancingRangeAction();
-params.setEnabled(true);
 params.setInjectionPredicate((injection, instant) -> injection.getType() == IdentifiableType.GENERATOR && ((Generator) injection).maxP <= 100) // only generators with maxP <= 100 MW participate in balancing
 params.setRaCostsProvider(instant -> new InjectionRangeActionCosts(10000, 1000, 1000));
 ~~~

@@ -28,11 +28,11 @@ class CountertradingRangeActionsCreator {
     private final CountertradingRangeActions parameters;
     private final NetworkCracCreationContext creationContext;
 
-    CountertradingRangeActionsCreator(Crac crac, Network network, CountertradingRangeActions parameters, NetworkCracCreationContext creationContext) {
-        this.crac = crac;
+    CountertradingRangeActionsCreator(NetworkCracCreationContext creationContext, Network network, CountertradingRangeActions parameters) {
+        this.creationContext = creationContext;
+        this.crac = creationContext.getCrac();
         this.network = network;
         this.parameters = parameters;
-        this.creationContext = creationContext;
     }
 
     void addCountertradingActions() {
@@ -62,8 +62,13 @@ class CountertradingRangeActionsCreator {
             .filter(generator -> Utils.injectionIsNotUsedInAnyInjectionRangeAction(crac, generator, instant))
             .collect(Collectors.toSet());
 
-        double initialTotalP = Math.round(consideredGenerators.stream()
-            .mapToDouble(Generator::getTargetP).sum());
+        double initialTotalP = Math.round(consideredGenerators.stream().mapToDouble(Generator::getTargetP).sum());
+
+        if (consideredGenerators.size() >= 100) {
+            creationContext.getCreationReport().warn(
+                String.format("More than 100 generators included in the counter-trading action for %s at %s. Consider enforcing your filter, otherwise you may run into memory issues.", country, instant.getId())
+            );
+        }
 
         if (initialTotalP < 1.) {
             throw new OpenRaoImportException(ImportStatus.INCOMPLETE_DATA,

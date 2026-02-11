@@ -19,23 +19,11 @@ import java.util.function.Function;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public class BalancingRangeAction {
-    private boolean enabled = false;
     private BiPredicate<Injection<?>, Instant> injectionPredicate = (injection, instant) -> true;
     private Function<Instant, InjectionRangeActionCosts> raCostsProvider = instant -> new InjectionRangeActionCosts(0, 0, 0);
     private Function<Instant, MinAndMax<Double>> raRangeProvider = instant -> new MinAndMax<>(0., 0.);
 
     public BalancingRangeAction() {
-    }
-
-    public boolean isEnabled() {
-        return enabled;
-    }
-
-    /**
-     * Set this to true if you want to enable the balancing action (defaults to false)
-     */
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
     }
 
     /**
