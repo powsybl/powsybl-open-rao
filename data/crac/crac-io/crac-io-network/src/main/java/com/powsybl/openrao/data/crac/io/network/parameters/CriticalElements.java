@@ -24,7 +24,7 @@ import java.util.function.BiFunction;
 public class CriticalElements extends AbstractCountriesFilter {
     private MinAndMax<Double> optimizedMinMaxV = new MinAndMax<>(null, null);
     private MinAndMax<Double> monitoredMinMaxV; // non-critical branches are declared as MNECs
-    private BiFunction<Branch<?>, Contingency, OptimizedMonitored> optimizedMonitoredProvider = (branch, contingency) -> new OptimizedMonitored(true, false);
+    private BiFunction<Branch<?>, Contingency, OptimizedMonitored> optimizedMonitoredProvider = (branch, contingency) -> new OptimizedMonitored(true, true);
     private ThresholdDefinition thresholdDefinition;
     private Map<String, Double> limitMultiplierPerInstant; // multiplies temp or perm limit, depending on thresholdDefinition
     private Map<String, Map<Double, Double>> limitMultiplierPerInstantPerNominalV; // multiplies temp or perm limit, depending on thresholdDefinition and voltage level
@@ -69,16 +69,17 @@ public class CriticalElements extends AbstractCountriesFilter {
     }
 
     public Optional<MinAndMax<Double>> getMonitoredMinMaxV() {
-        return Optional.of(monitoredMinMaxV);
+        return Optional.ofNullable(monitoredMinMaxV);
     }
 
-    public OptimizedMonitored isOptimizedOrMonitored(Branch<?> branch, Contingency contingency) {
+    public OptimizedMonitored isOptimizedOrMonitored(Branch<?> branch, @Nullable Contingency contingency) {
         return optimizedMonitoredProvider.apply(branch, contingency);
     }
 
     /**
-     * Set the function that says if a branch and a contingency should be paired into a CNEC.
-     * Not setting this will default to true.
+     * Set the function that says if a branch and a contingency should be paired into an optimized and/or monitored CNEC.
+     * Basecase is represented by a null Contingency.
+     * Not setting this will default to all branches being optimized and monitored.
      */
     public void setOptimizedMonitoredProvider(BiFunction<Branch<?>, Contingency, OptimizedMonitored> optimizedMonitoredProvider) {
         // TODO consider replacing Contingency with Set<Branch> (set of contingency elements)
