@@ -14,7 +14,7 @@ import com.powsybl.openrao.data.crac.api.Instant;
 import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.BiPredicate;
+import java.util.function.BiFunction;
 
 /**
  * Configures how CNECs must be created.
@@ -24,12 +24,15 @@ import java.util.function.BiPredicate;
 public class CriticalElements extends AbstractCountriesFilter {
     private MinAndMax<Double> optimizedMinMaxV = new MinAndMax<>(null, null);
     private MinAndMax<Double> monitoredMinMaxV; // non-critical branches are declared as MNECs
-    private BiPredicate<Branch<?>, Contingency> cnecPredicate = (branch, contingency) -> true;
+    private BiFunction<Branch<?>, Contingency, OptimizedMonitored> optimizedMonitoredProvider = (branch, contingency) -> new OptimizedMonitored(true, false);
     private ThresholdDefinition thresholdDefinition;
     private Map<String, Double> limitMultiplierPerInstant; // multiplies temp or perm limit, depending on thresholdDefinition
     private Map<String, Map<Double, Double>> limitMultiplierPerInstantPerNominalV; // multiplies temp or perm limit, depending on thresholdDefinition and voltage level
     private Map<String, Double> applicableLimitDurationPerInstant; // mandatory if thresholdDefinition = FROM_OPERATIONAL_LIMITS
     private Map<String, Map<Double, Double>> applicableLimitDurationPerInstantPerNominalV; // mandatory if thresholdDefinition = FROM_OPERATIONAL_LIMITS
+
+    public record OptimizedMonitored(boolean optimized, boolean monitored) {
+    }
 
     public enum ThresholdDefinition {
         FROM_OPERATIONAL_LIMITS, // read perm & temp operational limits in network
@@ -69,17 +72,17 @@ public class CriticalElements extends AbstractCountriesFilter {
         return Optional.of(monitoredMinMaxV);
     }
 
-    public boolean shouldCreateCnec(Branch<?> branch, Contingency contingency) {
-        return cnecPredicate.test(branch, contingency);
+    public OptimizedMonitored isOptimizedOrMonitored(Branch<?> branch, Contingency contingency) {
+        return optimizedMonitoredProvider.apply(branch, contingency);
     }
 
     /**
      * Set the function that says if a branch and a contingency should be paired into a CNEC.
      * Not setting this will default to true.
      */
-    public void setCnecPredicate(BiPredicate<Branch<?>, Contingency> cnecPredicate) {
+    public void setOptimizedMonitoredProvider(BiFunction<Branch<?>, Contingency, OptimizedMonitored> optimizedMonitoredProvider) {
         // TODO consider replacing Contingency with Set<Branch> (set of contingency elements)
-        this.cnecPredicate = cnecPredicate;
+        this.optimizedMonitoredProvider = optimizedMonitoredProvider;
     }
 
     public ThresholdDefinition getThresholdDefinition() {

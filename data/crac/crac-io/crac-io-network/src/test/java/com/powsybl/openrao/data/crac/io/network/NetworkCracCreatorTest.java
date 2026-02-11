@@ -96,12 +96,12 @@ class NetworkCracCreatorTest {
     void testUcteCnecsFiltered() {
         parameters.getCriticalElements().setCountryFilter(Set.of(Country.BE));
         parameters.getContingencies().setCountryFilter(Set.of(Country.NL));
-        parameters.getCriticalElements().setCnecPredicate((b, c) -> !Utils.branchIsInCountries(b, Set.of(Country.FR)));
+        parameters.getCriticalElements().setOptimizedMonitoredProvider((b, c) -> new CriticalElements.OptimizedMonitored(!Utils.branchIsInCountries(b, Set.of(Country.FR)), false));
         importCracFrom("TestCase12Nodes.uct");
         assertTrue(creationContext.isCreationSuccessful());
         assertNotNull(crac);
         assertEquals(5, crac.getContingencies().size());
-        assertEquals(43, crac.getFlowCnecs().size());
+        assertEquals(42, crac.getFlowCnecs().size());
 
         checkCnec("BBE2AA1  BBE3AA1  1_preventive", "BBE2AA1  BBE3AA1  1", InstantKind.PREVENTIVE, Unit.AMPERE, 0.95 * 5000);
         checkCnec("BBE2AA1  BBE3AA1  1_CO_NNL1AA1  NNL2AA1  1_outage", "BBE2AA1  BBE3AA1  1", InstantKind.OUTAGE, Unit.AMPERE, 1.3 * 5000);

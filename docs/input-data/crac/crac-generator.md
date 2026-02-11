@@ -65,7 +65,7 @@ You can set the following parameters:
 - countries: an optional set of countries to choose the critical branches in. If left empty, all branches in the network are considered. If set to an empty set, no country will be considered.
 - optimizedMinMaxV: the voltage level range in which branches are considered as [optimised CNECs](json.md#optimised-and-monitored-cnecs)
 - monitoredMinMaxV: the voltage level range in which branches are considered as [monitored MNECs](json.md#optimised-and-monitored-cnecs). You can leave it empty if you don't want to create MNECs.
-- cnecPredicate: a predicate that allows you to filter out some (branch, contingency) pairs that don't interest you (can make computations much lighter)
+- optimizedMonitoredProvider: a function that allows you to indicate if a branch is optimized and/or monitored after a given Contingency or in basecase (contingency = null). The filter applies above the voltage filter. We advise you to use it to make the computations lighter.
 - thresholdDefinition: tells the generator where to find the CNEC [thresholds](json.md#flow-limits-on-a-flowcnec)
   - FROM_OPERATIONAL_LIMITS: operational limits (permanent & temporary) will be read in the network. It is expected you define applicableLimitDurationPerInstant or applicableLimitDurationPerInstantPerNominalV (see below). Limit multipliers (see below) apply. 
   - PERM_LIMIT_MULTIPLIER: only permanent limits will be read in the network. They will be multiplied as defined in limit multipliers (see below).
@@ -82,7 +82,7 @@ CriticalElements params = networkCracCreationParameters.getCriricalElements();
 params.setCountries(Set.of(Country.FR, Country.BE)); // only branches in France & Belgium are considered as critical network elements
 params.setOptimizedMinMaxV(150, null); // branches above 150kV are optimised
 params.setMonitoredMinMaxV(null); // no monitored branches
-params.setCnecPredicate((branch, contingency) -> areInSameCountry(branch, contingency)); // CNECs are only made up of elements and contingencies belonging to same country (just an example, given method areInSameCountry exists)
+params.setOptimizedMonitoredProvider((branch, contingency) -> return new OptimizedMonitored(areInSameCountry(branch, contingency), !areInSameCountry(branch, contingency))); // Optimized CNECs are only made up of elements and contingencies belonging to same country ; other branches are MNECs (just an example, given method areInSameCountry exists)
 params.thresholdDefinition = ThresholdDefinition.FROM_OPERATIONAL_LIMITS; // my network does not contain extensive operation limit information
 params.limitMultiplierPerInstant = Map.of("prev", 0.95, "out", 2.0, "cur1", 1.5, "cur2", 1.3, "cur3", 1.0); // these specify permanent limit multipliers for different instants, no matter the nominal voltage
 ~~~

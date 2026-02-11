@@ -24,6 +24,7 @@ import org.jgrapht.alg.util.Pair;
 
 import javax.annotation.Nullable;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -43,53 +44,44 @@ class CnecCreator {
         this.specificParameters = cracCreationParameters.getExtension(NetworkCracCreationParameters.class);
     }
 
-    void addCnecsAndMnecs() {
-        Pair<Set<Branch<?>>, Set<Branch<?>>> criticalBranches = initCriticalBranches();
-        addCnecs(criticalBranches.getFirst(), true);
-        addCnecs(criticalBranches.getSecond(), false);
-    }
-
-    private Pair<Set<Branch<?>>, Set<Branch<?>>> initCriticalBranches() {
-        CriticalElements params = specificParameters.getCriticalElements();
-        Set<Branch<?>> optimizedBranches = new HashSet<>();
-        Set<Branch<?>> monitoredBranches = new HashSet<>();
+    void addCnecs() {
         network.getBranchStream()
             .filter(b ->
-                Utils.branchIsInCountries(b, params.getCountries().orElse(null))
+                Utils.branchIsInCountries(b, specificParameters.getCriticalElements().getCountries().orElse(null))
                     && ((cracCreationParameters.getDefaultMonitoredSides().contains(TwoSides.ONE) && b.getSelectedOperationalLimitsGroup1().isPresent()) || (cracCreationParameters.getDefaultMonitoredSides().contains(TwoSides.TWO) && b.getSelectedOperationalLimitsGroup2().isPresent()))
             ).forEach(branch -> {
-                if (Utils.branchIsInVRange(branch, params.getOptimizedMinV(), params.getOptimizedMaxV())) {
-                    optimizedBranches.add(branch);
-                } else if (params.getMonitoredMinMaxV().isPresent() && Utils.branchIsInVRange(branch, params.getMonitoredMinMaxV().get().getMin(), params.getMonitoredMinMaxV().get().getMax())) {
-                    monitoredBranches.add(branch);
+                try {
+                    CriticalElements.OptimizedMonitored optimizedMonitoredInPreventive = isOptimizedMonitored(branch, null);
+                    addPreventiveCnec(branch, optimizedMonitoredInPreventive.optimized(), optimizedMonitoredInPreventive.monitored());
+                    for (Contingency contingency : crac.getContingencies()) {
+                        if (contingency.getElements().stream().anyMatch(e -> e.getId().equals(branch.getId()))) {
+                            continue;
+                        }
+                        CriticalElements.OptimizedMonitored optimizedMonitoredAfterContingency = isOptimizedMonitored(branch, contingency);
+                        addPostContingencyCnec(branch, contingency, optimizedMonitoredAfterContingency.optimized(), optimizedMonitoredAfterContingency.monitored(), crac.getOutageInstant());
+                        for (String curativeInstantId : specificParameters.getInstants().get(InstantKind.CURATIVE)) {
+                            addPostContingencyCnec(branch, contingency, optimizedMonitoredAfterContingency.optimized(), optimizedMonitoredAfterContingency.monitored(), crac.getInstant(curativeInstantId));
+                        }
+                    }
+                } catch (OpenRaoImportException e) {
+                    creationContext.getCreationReport().removed(e.getMessage());
                 }
             });
-        return Pair.of(optimizedBranches, monitoredBranches);
     }
 
-
-    private void addCnecs(Set<Branch<?>> branches, boolean optimized) {
-        branches.forEach(branch -> {
-            try {
-                addPreventiveCnec(branch, optimized, !optimized);
-                for (Contingency contingency : crac.getContingencies()) {
-                    if (!specificParameters.getCriticalElements().shouldCreateCnec(branch, contingency)
-                        || contingency.getElements().stream().anyMatch(e -> e.getId().equals(branch.getId()))) {
-                        continue;
-                    }
-
-                    addPostContingencyCnec(branch, contingency, optimized, !optimized, crac.getOutageInstant());
-                    for (String curativeInstantId : specificParameters.getInstants().get(InstantKind.CURATIVE)) {
-                        addPostContingencyCnec(branch, contingency, optimized, !optimized, crac.getInstant(curativeInstantId));
-                    }
-                }
-            } catch (OpenRaoImportException e) {
-                creationContext.getCreationReport().removed(e.getMessage());
-            }
-        });
+    private CriticalElements.OptimizedMonitored isOptimizedMonitored(Branch<?> branch, Contingency contingency) {
+        CriticalElements params = specificParameters.getCriticalElements();
+        CriticalElements.OptimizedMonitored base = params.isOptimizedOrMonitored(branch, contingency);
+        return new CriticalElements.OptimizedMonitored(
+            base.optimized() && Utils.branchIsInVRange(branch, params.getOptimizedMinV(), params.getOptimizedMaxV()),
+            base.monitored() && (params.getMonitoredMinMaxV().isPresent() && Utils.branchIsInVRange(branch, params.getMonitoredMinMaxV().get().getMin(), params.getMonitoredMinMaxV().get().getMax()))
+        );
     }
 
     private void addPreventiveCnec(Branch<?> branch, boolean optimized, boolean monitored) {
+        if (!optimized && !monitored) {
+            return;
+        }
         FlowCnecAdder adder = crac.newFlowCnec()
             .withNetworkElement(branch.getId())
             .withId(branch.getNameOrId() + "_" + crac.getPreventiveInstant().getId())
@@ -110,6 +102,9 @@ class CnecCreator {
     }
 
     private void addPostContingencyCnec(Branch<?> branch, Contingency contingency, boolean optimized, boolean monitored, Instant instant) {
+        if (!optimized && !monitored) {
+            return;
+        }
         FlowCnecAdder adder = crac.newFlowCnec()
             .withNetworkElement(branch.getId())
             .withContingency(contingency.getId())
