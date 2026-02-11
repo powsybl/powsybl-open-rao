@@ -2,14 +2,22 @@ package com.powsybl.openrao.data.crac.io.fbconstraint;
 
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.data.crac.api.CracCreationContext;
+import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
+import com.powsybl.openrao.data.crac.api.usagerule.OnContingencyState;
+import com.powsybl.openrao.data.crac.io.commons.api.ElementaryCreationContext;
+import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
 import com.powsybl.openrao.data.crac.io.fbconstraint.parameters.FbConstraintCracCreationParameters;
 import com.powsybl.openrao.virtualhubs.VirtualHubsConfiguration;
 import com.powsybl.openrao.virtualhubs.xml.XmlVirtualHubsConfiguration;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.SoftAssertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.time.OffsetDateTime;
 import java.util.Comparator;
@@ -20,6 +28,21 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 class FbConstraintImporterTest {
+
+    private FbConstraintCracCreationParameters fbConstraintCracCreationParameters;
+    private CracCreationParameters cracCreationParameters;
+    private Network network;
+
+    @BeforeEach
+    void setUp() {
+        final VirtualHubsConfiguration virtualHubsConfiguration = XmlVirtualHubsConfiguration.importConfiguration(getClass().getResourceAsStream("/fake-hvdc/virtualhubsconfiguration.xml"));
+        fbConstraintCracCreationParameters = new FbConstraintCracCreationParameters();
+        fbConstraintCracCreationParameters.setTimestamp(OffsetDateTime.parse("2026-01-27T17:00Z"));
+        fbConstraintCracCreationParameters.setInternalHvdcs(virtualHubsConfiguration.getInternalHvdcs());
+        cracCreationParameters = new CracCreationParameters();
+        cracCreationParameters.addExtension(FbConstraintCracCreationParameters.class, fbConstraintCracCreationParameters);
+        network = Network.read("network_mini2.uct", getClass().getResourceAsStream("/fake-hvdc/network_mini2.uct"));
+    }
 
     @Test
     void testExistsFileIsNotXml() {
@@ -49,15 +72,6 @@ class FbConstraintImporterTest {
 
     @Test
     void testImportHvdcNoComplexVariant() {
-        // Given
-        final VirtualHubsConfiguration virtualHubsConfiguration = XmlVirtualHubsConfiguration.importConfiguration(getClass().getResourceAsStream("/fake-hvdc/virtualhubsconfiguration.xml"));
-        final FbConstraintCracCreationParameters fbConstraintCracCreationParameters = new FbConstraintCracCreationParameters();
-        fbConstraintCracCreationParameters.setTimestamp(OffsetDateTime.parse("2026-01-27T17:00Z"));
-        fbConstraintCracCreationParameters.setInternalHvdcs(virtualHubsConfiguration.getInternalHvdcs());
-        final CracCreationParameters cracCreationParameters = new CracCreationParameters();
-        cracCreationParameters.addExtension(FbConstraintCracCreationParameters.class, fbConstraintCracCreationParameters);
-        final Network network = Network.read("network_mini2.uct", getClass().getResourceAsStream("/fake-hvdc/network_mini2.uct"));
-
         // When
         final CracCreationContext context = new FbConstraintImporter().importData(
             getClass().getResourceAsStream("/fake-hvdc/crac_without_complex_variant.xml"),
@@ -72,15 +86,9 @@ class FbConstraintImporterTest {
     }
 
     @Test
-    void testImportHvdcNoComplexVariantForTimestamp() {
+    void testImportHvdcHvdcNoComplexVariantForTimestamp() {
         // Given
-        final VirtualHubsConfiguration virtualHubsConfiguration = XmlVirtualHubsConfiguration.importConfiguration(getClass().getResourceAsStream("/fake-hvdc/virtualhubsconfiguration.xml"));
-        final FbConstraintCracCreationParameters fbConstraintCracCreationParameters = new FbConstraintCracCreationParameters();
         fbConstraintCracCreationParameters.setTimestamp(OffsetDateTime.parse("2026-01-27T00:00Z"));
-        fbConstraintCracCreationParameters.setInternalHvdcs(virtualHubsConfiguration.getInternalHvdcs());
-        final CracCreationParameters cracCreationParameters = new CracCreationParameters();
-        cracCreationParameters.addExtension(FbConstraintCracCreationParameters.class, fbConstraintCracCreationParameters);
-        final Network network = Network.read("network_mini2.uct", getClass().getResourceAsStream("/fake-hvdc/network_mini2.uct"));
 
         // When
         final CracCreationContext context = new FbConstraintImporter().importData(
@@ -96,18 +104,120 @@ class FbConstraintImporterTest {
     }
 
     @Test
+    void testImportHvdcInvalidActionsSet() {
+        // When
+        final FbConstraintCreationContext context = (FbConstraintCreationContext) new FbConstraintImporter().importData(
+            getClass().getResourceAsStream("/fake-hvdc/crac_with_invalid_actionsset.xml"),
+            cracCreationParameters,
+            network);
+
+        // Then
+        Assertions.assertThat(context.getCrac().getInjectionRangeActions()).isEmpty();
+        Assertions.assertThat(context.getRemedialActionCreationContexts()).hasSize(4);
+        final List<String> notImportedStatusDetails = context.getRemedialActionCreationContexts().stream()
+            .filter(e -> !e.isImported())
+            .map(ElementaryCreationContext::getImportStatusDetail)
+            .toList();
+        Assertions.assertThat(notImportedStatusDetails)
+            .hasSize(2)
+            .containsExactlyInAnyOrder(
+                "complex variant D4_RA_99991 was removed as it should contain one and only one actionSet",
+                "complex variant D4_RA_99992 was removed as it should contain one and only one actionSet"
+            );
+    }
+
+    @ParameterizedTest
+    @CsvSource(value = {
+        "crac_with_invalid_action_data.xml, action's elementCategory not recognized",
+        "crac_with_no_action_in_actionsset.xml, it must contain at least one action",
+        "crac_with_multiple_action_in_actionsset.xml, it contains several actions",
+        "crac_with_action_preventive_and_curative.xml, it cannot be preventive and curative"
+    })
+    void testImportHvdcInvalidActionData(final String inputFile, final String importStatusDetails) {
+        // When
+        final FbConstraintCreationContext context = (FbConstraintCreationContext) new FbConstraintImporter().importData(
+            getClass().getResourceAsStream("/fake-hvdc/" + inputFile),
+            cracCreationParameters,
+            network);
+
+        // Then
+        Assertions.assertThat(context.getCrac().getInjectionRangeActions()).isEmpty();
+        Assertions.assertThat(context.getRemedialActionCreationContexts()).hasSize(2);
+        final List<String> notImportedStatusDetails = context.getRemedialActionCreationContexts().stream()
+            .filter(e -> !e.isImported())
+            .map(ElementaryCreationContext::getImportStatusDetail)
+            .toList();
+        Assertions.assertThat(notImportedStatusDetails)
+            .hasSize(1)
+            .containsExactly("complex variant D4_RA_99991 was removed as " + importStatusDetails);
+    }
+
+    @Test
+    void testImportHvdcNoAfterCOForCurative() {
+        // When
+        final FbConstraintCreationContext context = (FbConstraintCreationContext) new FbConstraintImporter().importData(
+            getClass().getResourceAsStream("/fake-hvdc/crac_with_curative_action_but_no_after_co.xml"),
+            cracCreationParameters,
+            network);
+
+        // Then
+        Assertions.assertThat(context.getCrac().getInjectionRangeActions()).isEmpty();
+        Assertions.assertThat(context.getRemedialActionCreationContexts()).hasSize(2);
+        final List<String> notImportedStatusDetails = context.getRemedialActionCreationContexts().stream()
+            .filter(e -> !e.isImported())
+            .map(ElementaryCreationContext::getImportStatusDetail)
+            .toList();
+        Assertions.assertThat(notImportedStatusDetails)
+            .hasSize(2)
+            .containsExactlyInAnyOrder(
+                "complex variant D4_RA_99991 was removed as its 'afterCOList' is empty",
+                "complex variant D7_RA_99991 was removed as its 'afterCOList' is empty"
+            );
+    }
+
+    @Test
+    void testImportHvdcInvalidAfterCOIdForCurative() {
+        // When
+        final FbConstraintCreationContext context = (FbConstraintCreationContext) new FbConstraintImporter().importData(
+            getClass().getResourceAsStream("/fake-hvdc/crac_with_curative_action_but_invalid_after_co_ids.xml"),
+            cracCreationParameters,
+            network);
+
+        // Then
+        Assertions.assertThat(context.getCrac().getInjectionRangeActions()).isEmpty();
+        Assertions.assertThat(context.getRemedialActionCreationContexts()).hasSize(2);
+        final List<String> notImportedStatusDetails = context.getRemedialActionCreationContexts().stream()
+            .filter(e -> !e.isImported())
+            .map(ElementaryCreationContext::getImportStatusDetail)
+            .toList();
+        Assertions.assertThat(notImportedStatusDetails)
+            .hasSize(2)
+            .containsExactlyInAnyOrder(
+                "complex variant D4_RA_99991 was removed as all its 'afterCO' are invalid",
+                "complex variant D7_RA_99991 was removed as all its 'afterCO' are invalid"
+            );
+    }
+
+    @Test
+    void testImportHvdcWithSingleComplexVariant() {
+        // When
+        final FbConstraintCreationContext context = (FbConstraintCreationContext) new FbConstraintImporter().importData(
+            getClass().getResourceAsStream("/fake-hvdc/crac_with_single_complex_variant.xml"),
+            cracCreationParameters,
+            network);
+
+        // Then
+        Assertions.assertThat(context.getCrac().getInjectionRangeActions()).isEmpty();
+        Assertions.assertThat(context.getRemedialActionCreationContexts()).hasSize(1);
+    }
+
+    @Test
     void testImportHvdcDisconnectedFromMainComponent() {
         // Given
-        final VirtualHubsConfiguration virtualHubsConfiguration = XmlVirtualHubsConfiguration.importConfiguration(getClass().getResourceAsStream("/fake-hvdc/virtualhubsconfiguration.xml"));
-        final FbConstraintCracCreationParameters fbConstraintCracCreationParameters = new FbConstraintCracCreationParameters();
-        fbConstraintCracCreationParameters.setTimestamp(OffsetDateTime.parse("2026-01-27T17:00Z"));
-        fbConstraintCracCreationParameters.setInternalHvdcs(virtualHubsConfiguration.getInternalHvdcs());
-        final CracCreationParameters cracCreationParameters = new CracCreationParameters();
-        cracCreationParameters.addExtension(FbConstraintCracCreationParameters.class, fbConstraintCracCreationParameters);
         final Network network = Network.read("network_mini2_hvdc_disconnected_from_main_connected_component.uct", getClass().getResourceAsStream("/fake-hvdc/network_mini2_hvdc_disconnected_from_main_connected_component.uct"));
 
         // When
-        final CracCreationContext context = new FbConstraintImporter().importData(
+        final FbConstraintCreationContext context = (FbConstraintCreationContext) new FbConstraintImporter().importData(
             getClass().getResourceAsStream("/fake-hvdc/crac.xml"),
             cracCreationParameters,
             network);
@@ -115,19 +225,45 @@ class FbConstraintImporterTest {
         // Then
         final Set<InjectionRangeAction> injectionRangeActions = context.getCrac().getInjectionRangeActions();
         Assertions.assertThat(injectionRangeActions).isEmpty();
+        Assertions.assertThat(context.getRemedialActionCreationContexts())
+            .hasSize(4);
+        final SoftAssertions softly = new SoftAssertions();
+        for (int i = 0; i < 4; i++) {
+            final ElementaryCreationContext element = context.getRemedialActionCreationContexts().get(i);
+            softly.assertThat(element.getImportStatus()).isEqualTo(ImportStatus.INCONSISTENCY_IN_DATA);
+            softly.assertThat(element.getImportStatusDetail())
+                .startsWith("Buses matching ")
+                .endsWith(" in the network do not hold generators connected to the main grid");
+        }
+        softly.assertAll();
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"preventive", "curative"})
+    void testImportHvdcInvalidUsageRules(String state) {
+        // When
+        final FbConstraintCreationContext context = (FbConstraintCreationContext) new FbConstraintImporter().importData(
+            getClass().getResourceAsStream("/fake-hvdc/crac_with_invalid_" + state + ".xml"),
+            cracCreationParameters,
+            network);
+
+        // Then
+        final Set<InjectionRangeAction> injectionRangeActions = context.getCrac().getInjectionRangeActions();
+        Assertions.assertThat(injectionRangeActions).isEmpty();
+        Assertions.assertThat(context.getRemedialActionCreationContexts())
+            .hasSize(2);
+        final SoftAssertions softly = new SoftAssertions();
+        for (int i = 0; i < 2; i++) {
+            final ElementaryCreationContext element = context.getRemedialActionCreationContexts().get(i);
+            softly.assertThat(element.getImportStatus()).isEqualTo(ImportStatus.INCONSISTENCY_IN_DATA);
+            softly.assertThat(element.getImportStatusDetail())
+                .isEqualTo("Invalid because other ComplexVariant has opposite activation rule on " + state + " state");
+        }
+        softly.assertAll();
     }
 
     @Test
     void testImportHvdc() {
-        // Given
-        final VirtualHubsConfiguration virtualHubsConfiguration = XmlVirtualHubsConfiguration.importConfiguration(getClass().getResourceAsStream("/fake-hvdc/virtualhubsconfiguration.xml"));
-        final FbConstraintCracCreationParameters fbConstraintCracCreationParameters = new FbConstraintCracCreationParameters();
-        fbConstraintCracCreationParameters.setTimestamp(OffsetDateTime.parse("2026-01-27T17:00Z"));
-        fbConstraintCracCreationParameters.setInternalHvdcs(virtualHubsConfiguration.getInternalHvdcs());
-        final CracCreationParameters cracCreationParameters = new CracCreationParameters();
-        cracCreationParameters.addExtension(FbConstraintCracCreationParameters.class, fbConstraintCracCreationParameters);
-        final Network network = Network.read("network_mini2.uct", getClass().getResourceAsStream("/fake-hvdc/network_mini2.uct"));
-
         // When
         final CracCreationContext context = new FbConstraintImporter().importData(
             getClass().getResourceAsStream("/fake-hvdc/crac.xml"),
@@ -144,13 +280,11 @@ class FbConstraintImporterTest {
         final InjectionRangeAction secondRA = injectionRangeActions.get(1);
 
         SoftAssertions softAssertions = new SoftAssertions();
-        softAssertions.assertThat(firstRA).hasFieldOrPropertyWithValue("id", "D7_RA_99991 + D4_RA_99991");
-        softAssertions.assertThat(firstRA).hasFieldOrPropertyWithValue("name", "PRA_TEST_1A + PRA_TEST_1");
-        softAssertions.assertThat(firstRA).hasFieldOrPropertyWithValue("operator", "D7 + D4");
-        softAssertions.assertThat(firstRA).hasFieldOrPropertyWithValue("groupId", Optional.of("Esgaroth + Numenor"));
-        softAssertions.assertThat(firstRA).hasFieldOrPropertyWithValue("initialSetpoint", 1000.0);
+        assertRangeActionContent(softAssertions, firstRA, "D7_RA_99991_D4_RA_99991", "PRA_TEST_1A_PRA_TEST_1", "D7_D4", Optional.of("Esgaroth_Numenor"), 1000.0);
         softAssertions.assertThat(firstRA.getUsageRules()).hasSize(1);
-        softAssertions.assertThat(firstRA.getUsageRules().stream().findFirst().get().getInstant().isPreventive()).isTrue();
+        final Instant firstRAInstant = firstRA.getUsageRules().stream().findFirst().get().getInstant();
+        softAssertions.assertThat(firstRAInstant.isPreventive()).isTrue();
+        softAssertions.assertThat(firstRAInstant.isCurative()).isFalse();
         softAssertions.assertThat(firstRA.getRanges()).hasSize(1);
         softAssertions.assertThat(firstRA.getRanges().getFirst()).hasFieldOrPropertyWithValue("min", -1000.0);
         softAssertions.assertThat(firstRA.getRanges().getFirst()).hasFieldOrPropertyWithValue("max", 1000.0);
@@ -165,13 +299,12 @@ class FbConstraintImporterTest {
         softAssertions.assertAll();
 
         softAssertions = new SoftAssertions();
-        softAssertions.assertThat(secondRA).hasFieldOrPropertyWithValue("id", "D7_RA_99992 + D4_RA_99992");
-        softAssertions.assertThat(secondRA).hasFieldOrPropertyWithValue("name", "PRA_TEST_2A + PRA_TEST_2");
-        softAssertions.assertThat(secondRA).hasFieldOrPropertyWithValue("operator", "D7 + D4");
-        softAssertions.assertThat(secondRA).hasFieldOrPropertyWithValue("groupId", Optional.of("Esgaroth + Numenor"));
-        softAssertions.assertThat(secondRA).hasFieldOrPropertyWithValue("initialSetpoint", 1000.0);
+        assertRangeActionContent(softAssertions, secondRA, "D7_RA_99992_D4_RA_99992", "PRA_TEST_2A_PRA_TEST_2", "D7_D4", Optional.of("Esgaroth_Numenor"), 1000.0);
         softAssertions.assertThat(secondRA.getUsageRules()).hasSize(1);
-        softAssertions.assertThat(secondRA.getUsageRules().stream().findFirst().get().getInstant().isPreventive()).isTrue();
+        final OnContingencyState secondRAUsageRule = (OnContingencyState) secondRA.getUsageRules().stream().findFirst().get();
+        softAssertions.assertThat(secondRAUsageRule.getInstant().isPreventive()).isFalse();
+        softAssertions.assertThat(secondRAUsageRule.getInstant().isCurative()).isTrue();
+        softAssertions.assertThat(secondRAUsageRule.getContingency().getId()).isEqualTo("OUTAGE_1");
         softAssertions.assertThat(secondRA.getRanges()).hasSize(1);
         softAssertions.assertThat(secondRA.getRanges().getFirst()).hasFieldOrPropertyWithValue("min", -1000.0);
         softAssertions.assertThat(secondRA.getRanges().getFirst()).hasFieldOrPropertyWithValue("max", 1000.0);
@@ -184,5 +317,19 @@ class FbConstraintImporterTest {
             )
             .containsExactlyInAnyOrderEntriesOf(Map.of("D4AAA21B_generator", 1.0, "D7AAA21A_generator", -1.0));
         softAssertions.assertAll();
+    }
+
+    private static void assertRangeActionContent(final SoftAssertions softAssertions,
+                                                 final InjectionRangeAction firstRA,
+                                                 final String id,
+                                                 final String name,
+                                                 final String operator,
+                                                 final Optional<String> groupId,
+                                                 final double initialSetpoint) {
+        softAssertions.assertThat(firstRA).hasFieldOrPropertyWithValue("id", id);
+        softAssertions.assertThat(firstRA).hasFieldOrPropertyWithValue("name", name);
+        softAssertions.assertThat(firstRA).hasFieldOrPropertyWithValue("operator", operator);
+        softAssertions.assertThat(firstRA).hasFieldOrPropertyWithValue("groupId", groupId);
+        softAssertions.assertThat(firstRA).hasFieldOrPropertyWithValue("initialSetpoint", initialSetpoint);
     }
 }
