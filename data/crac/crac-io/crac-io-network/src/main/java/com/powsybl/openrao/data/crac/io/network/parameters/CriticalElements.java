@@ -28,8 +28,9 @@ public class CriticalElements extends AbstractCountriesFilter {
     private ThresholdDefinition thresholdDefinition;
     private Map<String, Double> limitMultiplierPerInstant; // multiplies temp or perm limit, depending on thresholdDefinition
     private Map<String, Map<Double, Double>> limitMultiplierPerInstantPerNominalV; // multiplies temp or perm limit, depending on thresholdDefinition and voltage level
-    private Map<String, Double> applicableLimitDurationPerInstant; // mandatory if thresholdDefinition = FROM_OPERATIONAL_LIMITS
-    private Map<String, Map<Double, Double>> applicableLimitDurationPerInstantPerNominalV; // mandatory if thresholdDefinition = FROM_OPERATIONAL_LIMITS
+    // at least one of the two following attributes is mandatory if thresholdDefinition = FROM_OPERATIONAL_LIMITS
+    private Map<String, Double> applicableLimitDurationPerInstant;
+    private Map<String, Map<Double, Double>> applicableLimitDurationPerInstantPerNominalV;
 
     public record OptimizedMonitored(boolean optimized, boolean monitored) {
     }
@@ -93,7 +94,7 @@ public class CriticalElements extends AbstractCountriesFilter {
     /**
      * Set this to define how the CRAC creator should map CNEC thresholds to operational limits in the network:
      * - FROM_OPERATIONAL_LIMITS: will read permanent & temporary limits in the network, and multiply them as defined in the multiplier map (see setLimitMultiplierPerInstant & setLimitMultiplierPerInstantPerNominalV).
-     * You must define how the acceptable duration for every threshold is mapped to a RAO instant (see setApplicableLimitDurationPerInstant)
+     * You must define how the acceptable duration for every threshold is mapped to a RAO instant (see setApplicableLimitDurationPerInstant and setApplicableLimitDurationPerInstantPerNominalV)
      * - PERM_LIMIT_MULTIPLIER: will only use permanent limits in the network, and multiply them as defined in the multiplier map (see setLimitMultiplierPerInstant & setLimitMultiplierPerInstantPerNominalV).
      */
     public void setThresholdDefinition(ThresholdDefinition thresholdDefinition) {
