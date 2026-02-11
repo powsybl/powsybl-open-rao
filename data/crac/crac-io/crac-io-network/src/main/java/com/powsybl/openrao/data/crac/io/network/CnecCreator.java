@@ -162,9 +162,13 @@ class CnecCreator {
         if (loadingLimits == null) {
             return;
         }
-        Optional<LoadingLimits.TemporaryLimit> lowestCurrentLimit = loadingLimits.getTemporaryLimits().stream().filter(tl -> tl.getAcceptableDuration() <= acceptableDuration)
-            .filter(tl -> !Double.isNaN(tl.getValue())).min(Comparator.comparingDouble(LoadingLimits.TemporaryLimit::getValue));
-        lowestCurrentLimit.ifPresent(tl -> addThresholdFromTempLimit(adder, side, tl, Unit.AMPERE, instant, branch.getTerminal(side).getVoltageLevel().getNominalV()));
+        Optional<LoadingLimits.TemporaryLimit> lowestCurrentLimit = loadingLimits.getTemporaryLimits().stream().filter(tl -> tl.getAcceptableDuration() >= acceptableDuration)
+            .filter(tl -> !Double.isNaN(tl.getValue())).max(Comparator.comparingDouble(LoadingLimits.TemporaryLimit::getValue));
+        if (lowestCurrentLimit.isPresent()) {
+            addThresholdFromTempLimit(adder, side, lowestCurrentLimit.get(), Unit.AMPERE, instant, branch.getTerminal(side).getVoltageLevel().getNominalV());
+        } else {
+            addThresholdFromPermLimit(adder, branch, side, instant);
+        }
     }
 
     private void addThresholdFromPermLimit(FlowCnecAdder adder, TwoSides side, @Nullable LoadingLimits loadingLimits, Unit unit, Double nominalV, Instant instant) {
