@@ -58,3 +58,9 @@ power can vary per hour. These gradients can be defined upward and/or downward.
   ]
 }
 ```
+
+### Import
+
+```java
+IntertemporalConstraints intertemporalConstraints = JsonIntertemporalConstraints.read(getClass().getResourceAsStream("/intertemporal-constraints.json"));
+```
