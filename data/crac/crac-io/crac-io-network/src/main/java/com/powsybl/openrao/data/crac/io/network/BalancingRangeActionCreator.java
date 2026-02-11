@@ -7,7 +7,6 @@
 
 package com.powsybl.openrao.data.crac.io.network;
 
-import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.data.crac.api.Crac;
@@ -16,7 +15,7 @@ import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeActionAdder;
 import com.powsybl.openrao.data.crac.api.rangeaction.VariationDirection;
 import com.powsybl.openrao.data.crac.io.commons.OpenRaoImportException;
 import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
-import com.powsybl.openrao.data.crac.io.network.parameters.BalancingRangeActions;
+import com.powsybl.openrao.data.crac.io.network.parameters.BalancingRangeAction;
 
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -24,34 +23,41 @@ import java.util.stream.Collectors;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-class BalancingRangeActionsCreator {
+class BalancingRangeActionCreator {
     private final Crac crac;
     private final Network network;
-    private final BalancingRangeActions parameters;
+    private final BalancingRangeAction parameters;
+    private final NetworkCracCreationContext creationContext;
 
-    BalancingRangeActionsCreator(Crac crac, Network network, BalancingRangeActions parameters) {
+    BalancingRangeActionCreator(Crac crac, Network network, BalancingRangeAction parameters, NetworkCracCreationContext creationContext) {
         this.crac = crac;
         this.network = network;
         this.parameters = parameters;
+        this.creationContext = creationContext;
     }
 
-    void addBalancingRangeActions() {
-        Set<Country> countries = parameters.getCountries().orElse(network.getCountries());
-        countries.forEach(country -> {
-            crac.getSortedInstants().stream().filter(instant -> !instant.isOutage())
-                .forEach(instant -> addBalancingRangeActionForInstant(country, instant));
-        });
+    void addBalancingRangeAction() {
+        if (!parameters.isEnabled()) {
+            return;
+        }
+        crac.getSortedInstants().stream().filter(instant -> !instant.isOutage())
+            .forEach(instant -> {
+                try {
+                    addBalancingRangeActionForInstant(instant);
+                } catch (OpenRaoImportException e) {
+                    creationContext.getCreationReport().removed(e.getMessage());
+                }
+            });
     }
 
-    private void addBalancingRangeActionForInstant(Country country, Instant instant) {
+    private void addBalancingRangeActionForInstant(Instant instant) {
         // TODO reduce code duplication with counter-trading creator
-        if (parameters.getRaRange(country, instant).getMin().isEmpty() || parameters.getRaRange(country, instant).getMax().isEmpty()) {
+        if (parameters.getRaRange(instant).getMin().isEmpty() || parameters.getRaRange(instant).getMax().isEmpty()) {
             throw new OpenRaoImportException(ImportStatus.INCOMPLETE_DATA,
-                String.format("Cannot create a balancing action for %s at instant %s without a defined min/max range.", country, instant));
+                String.format("Cannot create a balancing action at instant %s without a defined min/max range.", instant));
         }
 
         Set<Generator> consideredGenerators = network.getGeneratorStream()
-            .filter(generator -> Utils.injectionIsInCountries(generator, Set.of(country)))
             .filter(generator -> parameters.shouldIncludeInjection(generator, instant))
             .filter(generator -> Utils.injectionIsNotUsedInAnyInjectionRangeAction(crac, generator, instant))
             .collect(Collectors.toSet());
@@ -61,19 +67,19 @@ class BalancingRangeActionsCreator {
 
         if (initialTotalP < 1.) {
             throw new OpenRaoImportException(ImportStatus.INCOMPLETE_DATA,
-                String.format("Cannot create a balancing action for %s at instant %s because initial production is almost zero (proportional GLSK is assumed). Maybe all generators were filtered out.", country, instant));
+                String.format("Cannot create a balancing action at instant %s because initial production is almost zero (proportional GLSK is assumed). Maybe all generators were filtered out.", instant));
         }
 
         InjectionRangeActionAdder injectionRangeActionAdder = crac.newInjectionRangeAction()
-            .withId("BALANCING_" + country.getName())
+            .withId("BALANCING_" + instant.getId())
             .newRange()
-            .withMin(initialTotalP + parameters.getRaRange(country, instant).getMin().orElseThrow())
-            .withMax(initialTotalP + parameters.getRaRange(country, instant).getMax().orElseThrow())
+            .withMin(initialTotalP + parameters.getRaRange(instant).getMin().orElseThrow())
+            .withMax(initialTotalP + parameters.getRaRange(instant).getMax().orElseThrow())
             .add()
             .withInitialSetpoint(initialTotalP)
-            .withVariationCost(parameters.getRaCosts(country, instant).downVariationCost(), VariationDirection.DOWN)
-            .withVariationCost(parameters.getRaCosts(country, instant).upVariationCost(), VariationDirection.UP)
-            .withActivationCost(parameters.getRaCosts(country, instant).activationCost())
+            .withVariationCost(parameters.getRaCosts(instant).downVariationCost(), VariationDirection.DOWN)
+            .withVariationCost(parameters.getRaCosts(instant).upVariationCost(), VariationDirection.UP)
+            .withActivationCost(parameters.getRaCosts(instant).activationCost())
             .newOnInstantUsageRule().withInstant(instant.getId()).add();
 
         consideredGenerators.forEach(generator -> injectionRangeActionAdder.withNetworkElementAndKey(generator.getTargetP() / initialTotalP, generator.getId()));

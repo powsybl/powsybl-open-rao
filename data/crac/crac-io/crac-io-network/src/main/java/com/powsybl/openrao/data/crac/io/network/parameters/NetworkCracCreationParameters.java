@@ -27,7 +27,7 @@ public class NetworkCracCreationParameters extends AbstractAlignedRaCracCreation
     private final PstRangeActions pstRangeActions = new PstRangeActions();
     private final RedispatchingRangeActions redispatchingRangeActions = new RedispatchingRangeActions();
     private final CountertradingRangeActions countertradingRangeActions = new CountertradingRangeActions();
-    private final BalancingRangeActions balancingRangeActions = new BalancingRangeActions();
+    private final BalancingRangeAction balancingRangeAction = new BalancingRangeAction();
 
     @Override
     public String getName() {
@@ -66,7 +66,7 @@ public class NetworkCracCreationParameters extends AbstractAlignedRaCracCreation
         return countertradingRangeActions;
     }
 
-    public BalancingRangeActions getBalancingRangeActions() {
-        return balancingRangeActions;
+    public BalancingRangeAction getBalancingRangeAction() {
+        return balancingRangeAction;
     }
 }

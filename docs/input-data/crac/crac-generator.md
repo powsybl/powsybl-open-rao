@@ -157,27 +157,26 @@ params.setRaRangeProvider((country, instant) -> new MinAndMAx(-1500, 2000)); // 
 :::
 ::::
 
-## Balancing range actions
-The NetworkCracCreationParameters' "Balancing range actions" section allows you to set rules for the automatic generation of slack remedial actions representing balancing.  
+## Balancing range action
+The NetworkCracCreationParameters' "Balancing range action" section allows you to set rules for the automatic generation of one slack remedial action representing balancing.  
 In most cases, you shouldn't need this range action. But it can become handy when you do not have enough flexibility in the redispatching & counter-trading 
 range actions to ensure balance (P = D) at all times.  
-These will take the form of [injection range actions](json.md#injection-range-action) in the generated CRAC. Every country is represented by one injection range action, inside 
-which all generators of that country are listed.  
+This action will take the form of a [injection range action](json.md#injection-range-action) in the generated CRAC. Every instant has an associated injection range action, inside 
+which all generators of the network are listed.  
 Generators previously included in redispatching & counter-trading range actions are not considered in balancing.  
-The parameters for this range action are pretty much the same as for counter-trading.  
 You can set the following parameters:  
-- countries: List here all the countries for which you want to create balancing range actions. Set to empty set if you want to deactivate balancing. Leave empty to consider all countries.
+- enabled: boolean to enable the balancing remedial action (defaults to false).
 - injectionPredicate: function that allows you to filter out generators that are not available for balancing at a given instant. If not set, no filter will be applied.
-- raCostsProvider: function that provides activation and variation cost of a balancing range action in a given country at a given instant. As this is supposed to be a slack remedial action, we advise you to set it costs higher than redispatching & counter-trading.
-- raRangeProvider: function that provides the MW range of the balancing action for a given country at a given instant. Note that if you do not provide it, absolute active power limits in the network will be used.
+- raCostsProvider: function that provides activation and variation cost of a balancing range action at a given instant. As this is supposed to be a slack remedial action, we advise you to set it costs higher than redispatching & counter-trading.
+- raRangeProvider: function that provides the MW range of the balancing action at a given instant. Note that if you do not provide it, absolute active power limits in the network will be used.
 
 ::::{tabs}
 :::{group-tab} JAVA creation API
 ~~~java
-BalancingRangeActions params = networkCracCreationParameters.getBalancingRangeActions();
-params.setCountries(Set.of(Country.FR)); // Balancing in France
+BalancingRangeAction params = networkCracCreationParameters.getBalancingRangeAction();
+params.setEnabled(true);
 params.setInjectionPredicate((injection, instant) -> injection.getType() == IdentifiableType.GENERATOR && ((Generator) injection).maxP <= 100) // only generators with maxP <= 100 MW participate in balancing
-params.setRaCostsProvider((country, instant) -> new InjectionRangeActionCosts(10000, 1000, 1000));
+params.setRaCostsProvider(instant -> new InjectionRangeActionCosts(10000, 1000, 1000));
 ~~~
 :::
 ::::

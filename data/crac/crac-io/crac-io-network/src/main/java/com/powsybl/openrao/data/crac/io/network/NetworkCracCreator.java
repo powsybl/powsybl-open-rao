@@ -40,7 +40,7 @@ public class NetworkCracCreator {
         new PstRangeActionsCreator(crac, network, specificParameters.getPstRangeActions()).addPstRangeActions();
         new RedispatchingCreator(crac, network, specificParameters.getRedispatchingRangeActions()).addRedispatchRangeActions();
         new CountertradingRangeActionsCreator(crac, network, specificParameters.getCountertradingRangeActions(), creationContext).addCountertradingActions();
-        new BalancingRangeActionsCreator(crac, network, specificParameters.getBalancingRangeActions()).addBalancingRangeActions();
+        new BalancingRangeActionCreator(crac, network, specificParameters.getBalancingRangeAction(), creationContext).addBalancingRangeAction();
 
         creationContext.setCreationSuccessful(true);
         return creationContext;

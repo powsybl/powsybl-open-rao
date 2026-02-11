@@ -6,13 +6,11 @@
  */
 package com.powsybl.openrao.data.crac.io.network.parameters;
 
-import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Injection;
 import com.powsybl.openrao.data.crac.api.Instant;
 
-import java.util.Set;
-import java.util.function.BiFunction;
 import java.util.function.BiPredicate;
+import java.util.function.Function;
 
 /**
  * Adds balancing range actions to a given list of countries (one RA per country).
@@ -20,13 +18,24 @@ import java.util.function.BiPredicate;
  *
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class BalancingRangeActions extends  AbstractCountriesFilter {
+public class BalancingRangeAction {
+    private boolean enabled = false;
     private BiPredicate<Injection<?>, Instant> injectionPredicate = (injection, instant) -> true;
-    private BiFunction<Country, Instant, InjectionRangeActionCosts> raCostsProvider = (country, instant) -> new InjectionRangeActionCosts(0, 0, 0);
-    private BiFunction<Country, Instant, MinAndMax<Double>> raRangeProvider = (country, instant) -> new MinAndMax<>(0., 0.);
+    private Function<Instant, InjectionRangeActionCosts> raCostsProvider = instant -> new InjectionRangeActionCosts(0, 0, 0);
+    private Function<Instant, MinAndMax<Double>> raRangeProvider = instant -> new MinAndMax<>(0., 0.);
 
-    public BalancingRangeActions() {
-        this.setCountryFilter(Set.of()); // RA is disabled by default
+    public BalancingRangeAction() {
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    /**
+     * Set this to true if you want to enable the balancing action (defaults to false)
+     */
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
     }
 
     /**
@@ -44,23 +53,23 @@ public class BalancingRangeActions extends  AbstractCountriesFilter {
     /**
      * Set the function that indicates the costs of balancing in a given country.
      */
-    public void setRaCostsProvider(BiFunction<Country, Instant, InjectionRangeActionCosts> raCostsProvider) {
+    public void setRaCostsProvider(Function<Instant, InjectionRangeActionCosts> raCostsProvider) {
         this.raCostsProvider = raCostsProvider;
     }
 
-    public InjectionRangeActionCosts getRaCosts(Country country, Instant instant) {
-        return raCostsProvider.apply(country, instant);
+    public InjectionRangeActionCosts getRaCosts(Instant instant) {
+        return raCostsProvider.apply(instant);
     }
 
     /**
      * Set the function that indicates the MW range of the balancing RA in a given country.
      * By default, range is reduced to zero.
      */
-    public void setRaRangeProvider(BiFunction<Country, Instant, MinAndMax<Double>> raRangeProvider) {
+    public void setRaRangeProvider(Function<Instant, MinAndMax<Double>> raRangeProvider) {
         this.raRangeProvider = raRangeProvider;
     }
 
-    public MinAndMax<Double> getRaRange(Country country, Instant instant) {
-        return raRangeProvider.apply(country, instant);
+    public MinAndMax<Double> getRaRange(Instant instant) {
+        return raRangeProvider.apply(instant);
     }
 }
