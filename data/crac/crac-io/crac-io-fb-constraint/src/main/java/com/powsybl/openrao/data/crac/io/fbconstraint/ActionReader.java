@@ -169,8 +169,7 @@ class ActionReader {
 
         while (actionTypeIterator.hasNext()) {
             try {
-                final Serializable serializable = actionTypeIterator.next();
-                final JAXBElement<?> jaxbElement = (JAXBElement<?>) serializable;
+                final JAXBElement<?> jaxbElement = (JAXBElement<?>) actionTypeIterator.next();
                 final String elementCategory = jaxbElement.getName().getLocalPart();
                 switch (elementCategory) {
                     case NODE_CATEGORY -> {

@@ -27,6 +27,8 @@ import java.util.stream.Stream;
  * @author Vincent Bochet {@literal <vincent.bochet at rte-france.com>}
  */
 class HvdcLineRemedialActionAdder {
+    private static final String DELIMITER = "_";
+
     private final Map<String, String> nodeToStationMap;
 
     private final String fromNodeName;
@@ -102,13 +104,12 @@ class HvdcLineRemedialActionAdder {
     private void addRangeAction(final Crac crac) {
         // HVDC line must be ignored if data is invalid
         if (isValid) {
-            // TODO Vérifier auprès de Tobias le format de l'identifiant ("xxxxxxxx + yyyyyyyy - zzzzzzz1 zzzzzzz2" (cf. SWE) ?),
-            //  du nom, de l'opérateur, du groupId (Station1 + Station2 pour alignement automatique ?)
-            final String raId = fromComplexVariantReader.getComplexVariant().getId() + " + " + toComplexVariantReader.getComplexVariant().getId();
-            final String raName = fromComplexVariantReader.getComplexVariant().getName() + " + " + toComplexVariantReader.getComplexVariant().getName();
-            final String raOperator = fromComplexVariantReader.getComplexVariant().getTsoOrigin() + " + " + toComplexVariantReader.getComplexVariant().getTsoOrigin();
+            final String raId = fromComplexVariantReader.getComplexVariant().getId() + DELIMITER + toComplexVariantReader.getComplexVariant().getId();
+            final String raName = fromComplexVariantReader.getComplexVariant().getName() + DELIMITER + toComplexVariantReader.getComplexVariant().getName();
+            // TODO Tobias doit nous confirmer le format attendu pour l'opérateur
+            final String raOperator = fromComplexVariantReader.getComplexVariant().getTsoOrigin() + DELIMITER + toComplexVariantReader.getComplexVariant().getTsoOrigin();
             // groupId elements must be sorted for the generators alignment to work
-            final String raGroupId = Stream.of(fromNodeName, toNodeName).map(nodeToStationMap::get).sorted().collect(Collectors.joining(" + "));
+            final String raGroupId = Stream.of(fromNodeName, toNodeName).map(nodeToStationMap::get).sorted().collect(Collectors.joining(DELIMITER));
 
             final InjectionRangeActionAdder injectionRangeActionAdder = crac.newInjectionRangeAction()
                 .withId(raId)
@@ -127,30 +128,24 @@ class HvdcLineRemedialActionAdder {
     }
 
     private void addRangeToRangeAction(final InjectionRangeActionAdder injectionRangeActionAdder) {
+        // The range defined in the network should always be wider than the range defined in the CRAC, so we can only consider the range of the CRAC
         final ActionReader.HvdcRange fromHvdcRange = fromComplexVariantReader.getActionReaders().getFirst().getHvdcRange();
         final ActionReader.HvdcRange toHvdcRange = toComplexVariantReader.getActionReaders().getFirst().getHvdcRange();
+        // In case of inconsistent data, we use the most restrictive combination
+        // TODO Tobias doit nous préciser les conventions de signe
         if (fromHvdcRange.min() == toHvdcRange.min() && fromHvdcRange.max() == toHvdcRange.max()) {
             injectionRangeActionAdder
                 .newRange()
                 .withMin(fromHvdcRange.min())
                 .withMax(fromHvdcRange.max())
                 .add();
-        } else if (fromHvdcRange.min() == -toHvdcRange.max() && fromHvdcRange.max() == -toHvdcRange.min()) {
-            // TODO Voir quelle formule utiliser pour déterminer le min et le max dans ce cas
+        } else {
+            // TODO Adapter les min et max selon la convention de signe
             injectionRangeActionAdder
                 .newRange()
                 .withMin(Math.max(-fromHvdcRange.max(), toHvdcRange.min()))
                 .withMax(Math.min(-fromHvdcRange.min(), toHvdcRange.max()))
                 .add();
-//        } else {
-            // FIXME On ne sait pas quoi faire si les données sont incohérentes
-//            injectionRangeActionAdder
-//                .newRange()
-//                .withMin(Math.max(-fromHvdcRange.max(), toHvdcRange.min()))
-//                .withMax(Math.min(-fromHvdcRange.min(), toHvdcRange.max()))
-            //                .withMin(Math.max(-fromGeneratorHelper.getPmax(), toGeneratorHelper.getPmin()))
-            //                .withMax(Math.min(-fromGeneratorHelper.getPmin(), toGeneratorHelper.getPmax()))
-//                .add();
         }
     }
 

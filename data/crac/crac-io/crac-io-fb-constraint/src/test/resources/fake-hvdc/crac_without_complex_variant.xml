@@ -1,8 +1,8 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <FlowBasedConstraintDocument DtdRelease="4" DtdVersion="0" xmlns="flowbased" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="flowbasedconstraintdocument-25.xsd">
-  <DocumentIdentification v="fake-hvdc-crac"/>
-  <ConstraintTimeInterval v="2026-01-26T23:00Z/2026-01-27T23:00Z"/>
-  <Domain codingScheme="A01"/>
+  <DocumentIdentification v="fake-hvdc-crac" />
+  <ConstraintTimeInterval v="2026-01-26T23:00Z/2026-01-27T23:00Z" />
+  <Domain codingScheme="A01" />
     <criticalBranches>
         <!-- We don't need critical branches to test the import of HVDC CRAC -->
     </criticalBranches>
