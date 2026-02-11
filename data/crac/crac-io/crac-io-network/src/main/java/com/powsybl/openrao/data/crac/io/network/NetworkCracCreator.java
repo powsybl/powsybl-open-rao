@@ -26,14 +26,14 @@ import java.util.*;
 public class NetworkCracCreator {
 
     NetworkCracCreationContext createCrac(Network network, CracCreationParameters cracCreationParameters) {
-        String cracId = "CRAC_FROM_NETWORK_" + network.getNameOrId();
-        Crac crac = cracCreationParameters.getCracFactory().create(cracId, cracId, network.getCaseDate().toOffsetDateTime());
-        NetworkCracCreationContext creationContext = new NetworkCracCreationContext(crac, network.getNameOrId());
         if (cracCreationParameters.getExtension(NetworkCracCreationParameters.class) == null) {
             throw new OpenRaoException("Cannot create a CRAC from a network file unless a NetworkCracCreationParameters extension is defined in CracCreationParameters.");
         }
         NetworkCracCreationParameters specificParameters = cracCreationParameters.getExtension(NetworkCracCreationParameters.class);
 
+        String cracId = "CRAC_FROM_NETWORK_" + network.getNameOrId();
+        Crac crac = cracCreationParameters.getCracFactory().create(cracId, cracId, network.getCaseDate().toOffsetDateTime());
+        NetworkCracCreationContext creationContext = new NetworkCracCreationContext(crac, network.getNameOrId());
         addInstants(crac, specificParameters.getInstants());
         addContingencies(crac, network, specificParameters.getContingencies());
         new CnecCreator(creationContext, network, cracCreationParameters).addCnecs();

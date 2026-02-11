@@ -91,6 +91,7 @@ class RedispatchingCreator {
 
         // connect the generator
         generator.connect(SwitchPredicates.IS_OPEN);
+
         checkNumberOfActions();
     }
 
@@ -115,6 +116,10 @@ class RedispatchingCreator {
             .withVariationCost(costs.upVariationCost(), VariationDirection.UP)
             .withActivationCost(costs.activationCost())
             .add();
+
+        // connect the generator
+        load.connect(SwitchPredicates.IS_OPEN);
+
         checkNumberOfActions();
     }
 }
