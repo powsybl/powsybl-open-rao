@@ -32,6 +32,6 @@ public class Contingencies extends AbstractCountriesFilter {
      * By default, this filter is disabled.
      */
     public void setMinAndMaxV(@Nullable Double minV, @Nullable Double maxV) {
-        this.minAndMaxV = new  MinAndMax<>(minV, maxV);
+        this.minAndMaxV = new MinAndMax<>(minV, maxV);
     }
 }

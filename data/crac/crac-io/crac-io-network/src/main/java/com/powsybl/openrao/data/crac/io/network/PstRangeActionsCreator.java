@@ -62,8 +62,7 @@ class PstRangeActionsCreator {
                     state -> pstAdder.newOnContingencyStateUsageRule()
                         .withInstant(instant.getId())
                         .withContingency(state.getContingency().orElseThrow().getId())
-                        .add()
-                );
+                        .add());
         }
         if (parameters.getTapRange(instant).isPresent()) {
             PstRangeActions.TapRange tapRange = parameters.getTapRange(instant).get();

@@ -20,11 +20,9 @@ import com.powsybl.openrao.data.crac.io.commons.OpenRaoImportException;
 import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
 import com.powsybl.openrao.data.crac.io.network.parameters.CriticalElements;
 import com.powsybl.openrao.data.crac.io.network.parameters.NetworkCracCreationParameters;
-import org.jgrapht.alg.util.Pair;
 
 import javax.annotation.Nullable;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -48,7 +46,8 @@ class CnecCreator {
         network.getBranchStream()
             .filter(b ->
                 Utils.branchIsInCountries(b, specificParameters.getCriticalElements().getCountries().orElse(null))
-                    && ((cracCreationParameters.getDefaultMonitoredSides().contains(TwoSides.ONE) && b.getSelectedOperationalLimitsGroup1().isPresent()) || (cracCreationParameters.getDefaultMonitoredSides().contains(TwoSides.TWO) && b.getSelectedOperationalLimitsGroup2().isPresent()))
+                    && (cracCreationParameters.getDefaultMonitoredSides().contains(TwoSides.ONE) && b.getSelectedOperationalLimitsGroup1().isPresent()
+                    || cracCreationParameters.getDefaultMonitoredSides().contains(TwoSides.TWO) && b.getSelectedOperationalLimitsGroup2().isPresent())
             ).forEach(branch -> {
                 try {
                     CriticalElements.OptimizedMonitored optimizedMonitoredInPreventive = isOptimizedMonitored(branch, null);
@@ -74,7 +73,7 @@ class CnecCreator {
         CriticalElements.OptimizedMonitored base = params.isOptimizedOrMonitored(branch, contingency);
         return new CriticalElements.OptimizedMonitored(
             base.optimized() && Utils.branchIsInVRange(branch, params.getOptimizedMinV(), params.getOptimizedMaxV()),
-            base.monitored() && (params.getMonitoredMinMaxV().isPresent() && Utils.branchIsInVRange(branch, params.getMonitoredMinMaxV().get().getMin(), params.getMonitoredMinMaxV().get().getMax()))
+            base.monitored() && params.getMonitoredMinMaxV().isPresent() && Utils.branchIsInVRange(branch, params.getMonitoredMinMaxV().get().getMin(), params.getMonitoredMinMaxV().get().getMax())
         );
     }
 

@@ -38,7 +38,6 @@ public class PstRangeActions extends AbstractCountriesFilter {
         this.availableTapRangesAtInstants = availableRelativeRangesAtInstants;
     }
 
-
     public Optional<TapRange> getTapRange(Instant instant) {
         return Optional.ofNullable(availableTapRangesAtInstants.get(instant.getId()));
     }

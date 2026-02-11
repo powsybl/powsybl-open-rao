@@ -7,7 +7,6 @@
 
 package com.powsybl.openrao.data.crac.io.network;
 
-
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.CracCreationContext;
 import com.powsybl.openrao.data.crac.api.CracCreationReport;

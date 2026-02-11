@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2026, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
 package com.powsybl.openrao.data.crac.io.network;
 
 import com.powsybl.iidm.network.*;
@@ -10,15 +17,15 @@ import java.util.Set;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class Utils {
+public final class Utils {
 
     private Utils() {
         // should not be used
     }
 
     public static boolean branchIsInVRange(Branch<?> branch, Optional<Double> minV, Optional<Double> maxV) {
-        return (minV.isEmpty() || (branch.getTerminal1().getVoltageLevel().getNominalV() >= minV.get() && branch.getTerminal2().getVoltageLevel().getNominalV() >= minV.get()))
-            && (maxV.isEmpty() || (branch.getTerminal1().getVoltageLevel().getNominalV() <= maxV.get() && branch.getTerminal2().getVoltageLevel().getNominalV() <= maxV.get()));
+        return (minV.isEmpty() || branch.getTerminal1().getVoltageLevel().getNominalV() >= minV.get() && branch.getTerminal2().getVoltageLevel().getNominalV() >= minV.get())
+            && (maxV.isEmpty() || branch.getTerminal1().getVoltageLevel().getNominalV() <= maxV.get() && branch.getTerminal2().getVoltageLevel().getNominalV() <= maxV.get());
     }
 
     public static boolean terminalIsInCountries(Terminal terminal, Set<Country> countries) {

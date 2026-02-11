@@ -20,10 +20,8 @@ import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.threshold.BranchThreshold;
 import com.powsybl.openrao.data.crac.api.usagerule.OnInstant;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
-import com.powsybl.openrao.data.crac.impl.TapRangeImpl;
 import com.powsybl.openrao.data.crac.io.commons.iidm.IidmPstHelper;
 import com.powsybl.openrao.data.crac.io.network.parameters.CriticalElements;
-import com.powsybl.openrao.data.crac.io.network.parameters.MinAndMax;
 import com.powsybl.openrao.data.crac.io.network.parameters.NetworkCracCreationParameters;
 import com.powsybl.openrao.data.crac.io.network.parameters.PstRangeActions;
 import org.junit.jupiter.api.BeforeEach;
@@ -168,9 +166,7 @@ class NetworkCracCreatorTest {
         crac.getStates(crac.getInstant(InstantKind.CURATIVE)).stream().filter(
                 state -> state.getContingency().isPresent() && state.getContingency().get().getId().contains("NNL3AA1")
             )
-            .forEach(
-                state -> assertTrue(pst.isAvailableForState(state))
-            );
+            .forEach(state -> assertTrue(pst.isAvailableForState(state)));
     }
 
     @Test

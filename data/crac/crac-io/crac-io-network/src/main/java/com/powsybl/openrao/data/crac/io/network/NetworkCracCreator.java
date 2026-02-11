@@ -7,7 +7,6 @@
 
 package com.powsybl.openrao.data.crac.io.network;
 
-
 import com.powsybl.contingency.ContingencyElementType;
 import com.powsybl.iidm.network.*;
 import com.powsybl.openrao.commons.OpenRaoException;
@@ -59,7 +58,6 @@ public class NetworkCracCreator {
                 branch -> crac.newContingency()
                     .withId("CO_" + branch.getNameOrId())
                     .withContingencyElement(branch.getId(), ContingencyElementType.BRANCH)
-                    .add()
-            );
+                    .add());
     }
 }
