@@ -39,15 +39,11 @@ class CountertradingRangeActionsCreator {
         if (parameters.getCountries().isEmpty()) {
             throw new OpenRaoImportException(ImportStatus.INCOMPLETE_DATA, "Cannot create counter-trading remedial actions without an explicit list of countries.");
         }
-        parameters.getCountries().orElseThrow().forEach(country -> {
-
-            if (parameters.getZonalData(country).isPresent()) {
-                creationContext.getCreationReport().altered("Network CRAC importer does not yet support custom GLSKs for counter-trading actions. Proportional GLSK will be considered.");
-            }
-
-            crac.getSortedInstants().stream().filter(instant -> !instant.isOutage())
-                .forEach(instant -> addCountertradingActionForInstant(country, instant));
-        });
+        if (parameters.getZonalData().isPresent()) {
+            creationContext.getCreationReport().altered("Network CRAC importer does not yet support custom GLSKs for counter-trading actions. Proportional GLSK will be considered.");
+        }
+        parameters.getCountries().orElseThrow().forEach(country -> crac.getSortedInstants().stream().filter(instant -> !instant.isOutage())
+            .forEach(instant -> addCountertradingActionForInstant(country, instant)));
     }
 
     private void addCountertradingActionForInstant(Country country, Instant instant) {

@@ -27,7 +27,7 @@ public class CountertradingRangeActions extends AbstractCountriesFilter {
     private BiPredicate<Injection<?>, Instant> injectionPredicate = (injection, instant) -> true;
     private BiFunction<Country, Instant, InjectionRangeActionCosts> raCostsProvider = (country, instant) -> new InjectionRangeActionCosts(0, 0, 0);
     private BiFunction<Country, Instant, MinAndMax<Double>> raRangeProvider = (country, instant) -> new MinAndMax<>(0., 0.);
-    private Map<Country, ZonalData<SensitivityVariableSet>> glsks = null;
+    private ZonalData<SensitivityVariableSet> glsks = null;
 
     public CountertradingRangeActions() {
         this.setCountryFilter(Set.of()); // no CT by default
@@ -56,17 +56,14 @@ public class CountertradingRangeActions extends AbstractCountriesFilter {
         return raCostsProvider.apply(country, instant);
     }
 
-    public Optional<ZonalData<SensitivityVariableSet>> getZonalData(Country country) {
-        if (glsks != null) {
-            return Optional.ofNullable(glsks.get(country));
-        }
-        return Optional.empty();
+    public Optional<ZonalData<SensitivityVariableSet>> getZonalData() {
+        return Optional.ofNullable(glsks);
     }
 
     /**
      * Set GLSKs for simulating countertrading.
      */
-    public void setGlsks(Map<Country, ZonalData<SensitivityVariableSet>> glsks) {
+    public void setGlsks(ZonalData<SensitivityVariableSet> glsks) {
         this.glsks = glsks;
     }
 
