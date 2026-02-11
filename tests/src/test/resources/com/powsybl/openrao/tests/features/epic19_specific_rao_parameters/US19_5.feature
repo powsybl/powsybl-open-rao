@@ -140,7 +140,7 @@ Feature: US 19.5: max number of CRAs
     Similar to 19.5.11, but in this test instead of one contingency scenario we have two: CO1_fr2_fr3_1 and CO2_fr1_fr2_1.
     The RA Usage limit for curative instant is still 1.
     For CO1_fr2_fr3_1, we use one network action => so no range action can be optimized in 2P
-    For CO2_fr1_fr2_1, no network action used => pst_be can be optimized after "CO2_fr1_fr2_1" at "curative".
+    For CO2_fr1_fr2_1, no network action used => pst_be can be optimized after "CO2_fr1_fr2_1" at "curative"
     The RAO is able to update the max RA usage limit for each curative state independently.
     Given network file is "epic19/TestCase16Nodes_19_5_12.uct"
     Given crac file is "epic19/CBCORA_ep19us5case12.xml"
