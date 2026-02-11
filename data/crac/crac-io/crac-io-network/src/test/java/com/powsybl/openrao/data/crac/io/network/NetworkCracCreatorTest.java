@@ -20,10 +20,12 @@ import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.threshold.BranchThreshold;
 import com.powsybl.openrao.data.crac.api.usagerule.OnInstant;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
+import com.powsybl.openrao.data.crac.impl.TapRangeImpl;
 import com.powsybl.openrao.data.crac.io.commons.iidm.IidmPstHelper;
 import com.powsybl.openrao.data.crac.io.network.parameters.CriticalElements;
 import com.powsybl.openrao.data.crac.io.network.parameters.MinAndMax;
 import com.powsybl.openrao.data.crac.io.network.parameters.NetworkCracCreationParameters;
+import com.powsybl.openrao.data.crac.io.network.parameters.PstRangeActions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -65,8 +67,9 @@ class NetworkCracCreatorTest {
         parameters.getCriticalElements().setApplicableLimitDurationPerInstant(Map.of("outage", 60., "curative", Double.POSITIVE_INFINITY));
 
         parameters.getPstRangeActions()
-            .setAvailableRelativeRangesAtInstants(
-                Map.of("preventive", new MinAndMax<>(-8, 8), "curative", new MinAndMax<>(-2, 2))
+            .setAvailableTapRangesAtInstants(
+                Map.of("preventive", new PstRangeActions.TapRange(-8, 8, RangeType.RELATIVE_TO_PREVIOUS_INSTANT),
+                    "curative", new PstRangeActions.TapRange(-2, 2, RangeType.RELATIVE_TO_PREVIOUS_INSTANT))
             );
     }
 
@@ -127,7 +130,7 @@ class NetworkCracCreatorTest {
     @Test
     void testUctePstsFiltered2() {
         parameters.getPstRangeActions().setCountryFilter(Set.of(Country.BE));
-        parameters.getPstRangeActions().setAvailableRelativeRangesAtInstants(Map.of("curative", new MinAndMax<>(-1, 5)));
+        parameters.getPstRangeActions().setAvailableTapRangesAtInstants(Map.of("curative", new PstRangeActions.TapRange(-1, 5, RangeType.RELATIVE_TO_PREVIOUS_INSTANT)));
         importCracFrom("TestCase12Nodes.uct");
         assertTrue(creationContext.isCreationSuccessful());
         assertNotNull(crac);
@@ -153,7 +156,7 @@ class NetworkCracCreatorTest {
     @Test
     void testUctePstsFiltered3() {
         parameters.getPstRangeActions().setCountryFilter(Set.of(Country.BE));
-        parameters.getPstRangeActions().setAvailableRelativeRangesAtInstants(Map.of("curative", new MinAndMax<>(-1, 5)));
+        parameters.getPstRangeActions().setAvailableTapRangesAtInstants(Map.of("curative", new PstRangeActions.TapRange(-1, 5, RangeType.RELATIVE_TO_PREVIOUS_INSTANT)));
         parameters.getPstRangeActions().setPstRaPredicate((twt, state) -> state.getContingency().isPresent() && state.getContingency().get().getId().contains("NNL3AA1"));
         importCracFrom("TestCase12Nodes.uct");
         assertTrue(creationContext.isCreationSuccessful());

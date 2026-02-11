@@ -12,7 +12,6 @@ import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.range.RangeType;
-import com.powsybl.openrao.data.crac.api.range.TapRangeAdder;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeActionAdder;
 import com.powsybl.openrao.data.crac.io.commons.PstHelper;
 import com.powsybl.openrao.data.crac.io.commons.iidm.IidmPstHelper;
@@ -66,11 +65,11 @@ class PstRangeActionsCreator {
                         .add()
                 );
         }
-        if (parameters.getRangeMin(instant).isPresent() || parameters.getRangeMax(instant).isPresent()) {
-            TapRangeAdder rangeAdder = pstAdder.newTapRange().withRangeType(RangeType.RELATIVE_TO_PREVIOUS_INSTANT);
-            parameters.getRangeMin(instant).ifPresent(rangeAdder::withMinTap);
-            parameters.getRangeMax(instant).ifPresent(rangeAdder::withMaxTap);
-            rangeAdder.add();
+        if (parameters.getTapRange(instant).isPresent()) {
+            PstRangeActions.TapRange tapRange = parameters.getTapRange(instant).get();
+            pstAdder.newTapRange().withRangeType(tapRange.rangeType())
+                .withMinTap(tapRange.min()).withMaxTap(tapRange.max())
+                .add();
         }
         pstAdder.add();
     }

@@ -10,6 +10,7 @@ package com.powsybl.openrao.data.crac.io.network.parameters;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
+import com.powsybl.openrao.data.crac.api.range.RangeType;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -22,24 +23,24 @@ import java.util.function.BiPredicate;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public class PstRangeActions extends AbstractCountriesFilter {
-    private Map<String, MinAndMax<Integer>> availableRelativeRangesAtInstants = new HashMap<>();
+    private Map<String, TapRange> availableTapRangesAtInstants = new HashMap<>();
     private BiPredicate<TwoWindingsTransformer, State> pstRaPredicate = (pst, state) -> true;
+
+    public record TapRange(int min, int max, RangeType rangeType) {
+    }
 
     /**
      * For every instant, set the relative tap range available for PSTs.
      * Not listing an instant will result in PSTs not being available for optimization at that instant.
      * You can use {@code null} instead of min/max; the value will default to the physical one.
      */
-    public void setAvailableRelativeRangesAtInstants(Map<String, MinAndMax<Integer>> availableRelativeRangesAtInstants) {
-        this.availableRelativeRangesAtInstants = availableRelativeRangesAtInstants;
+    public void setAvailableTapRangesAtInstants(Map<String, TapRange> availableRelativeRangesAtInstants) {
+        this.availableTapRangesAtInstants = availableRelativeRangesAtInstants;
     }
 
-    public Optional<Integer> getRangeMin(Instant instant) {
-        return availableRelativeRangesAtInstants.get(instant.getId()).getMin();
-    }
 
-    public Optional<Integer> getRangeMax(Instant instant) {
-        return availableRelativeRangesAtInstants.get(instant.getId()).getMax();
+    public Optional<TapRange> getTapRange(Instant instant) {
+        return Optional.ofNullable(availableTapRangesAtInstants.get(instant.getId()));
     }
 
     /**
@@ -51,10 +52,10 @@ public class PstRangeActions extends AbstractCountriesFilter {
     }
 
     public boolean arePstsAvailableForInstant(Instant instant) {
-        return availableRelativeRangesAtInstants.containsKey(instant.getId());
+        return availableTapRangesAtInstants.containsKey(instant.getId());
     }
 
     public boolean isAvailable(TwoWindingsTransformer pst, State state) {
-        return availableRelativeRangesAtInstants.containsKey(state.getInstant().getId()) && pstRaPredicate.test(pst, state);
+        return availableTapRangesAtInstants.containsKey(state.getInstant().getId()) && pstRaPredicate.test(pst, state);
     }
 }

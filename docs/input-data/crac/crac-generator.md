@@ -93,7 +93,7 @@ params.limitMultiplierPerInstant = Map.of("prev", 0.95, "out", 2.0, "cur1", 1.5,
 The NetworkCracCreationParameters' "PST range actions" section allows you to set rules for [PST range actions](json.md#pst-range-action) creation.  
 You can set the following parameters:
 - countries: only PSTs in these countries will be considered as remedial actions. Leave it empty for no filtering. Set to empty set to disable PST creation.
-- availableRelativeRangesAtInstants: for every instant, the range (relative to previous instant) available for the PSTs. If not set, only physical limits in the network will be set as absolute limits. If an instant is not listed, PSTs will not be available for that instant.
+- availableTapRangesAtInstants: for every instant, the tap range available for the PSTs. If not set, only physical limits in the network will be set as absolute limits. If an instant is not listed, PSTs will not be available for that instant.
 - pstRaPredicate: a predicate that allows you to filter out some PSTs that are not available at some instants (outage instants are filtered out in all cases).
 
 ::::{tabs}
@@ -102,10 +102,10 @@ You can set the following parameters:
 PstRangeActions params = networkCracCreationParameters.getPstRangeActions();
 params.setCountries(Set.of(Country.FR)); // only PSTs in France are considered as remedial actions
 params.setAvailableRelativeRangesAtInstants(Map.of(
-    "prev", new MinAndMax(-8, 8), // can change up to 8 taps in preventive
+    "prev", new PstRangeActions.TapRange(-8, 8, RangeType.RELATIVE_TO_PREVIOUS_INSTANT), // can change up to 8 taps in preventive
     // not listing cur1 will make PSTs unavailable at that instant
-    "cur2", new MinAndMax(-1, 1), // 1 tap in curative2
-    "cur3", new MinAndMax(-2, 2) // 2 taps in curative3
+    "cur2", new PstRangeActions.TapRange(-1, 1, RangeType.RELATIVE_TO_PREVIOUS_INSTANT), // 1 tap in curative2
+    "cur3", new PstRangeActions.TapRange(-2, 2, RangeType.RELATIVE_TO_PREVIOUS_INSTANT) // 2 taps in curative3
 ));
 params.setPstRaPredicate((twoWindingsTransformer, instant) -> instant.isPreventive() || notInFrance(twoWindingsTransformer)); // French PSTs are not available in curative
 ~~~
