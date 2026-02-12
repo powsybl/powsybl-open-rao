@@ -109,7 +109,10 @@ class HvdcLineRemedialActionAdder {
             // TODO Tobias doit nous confirmer le format attendu pour l'opérateur
             final String raOperator = fromComplexVariantReader.getComplexVariant().getTsoOrigin() + DELIMITER + toComplexVariantReader.getComplexVariant().getTsoOrigin();
             // groupId elements must be sorted for the generators alignment to work
-            final String raGroupId = Stream.of(fromNodeName, toNodeName).map(nodeToStationMap::get).sorted().collect(Collectors.joining(DELIMITER));
+            final String raGroupId = Stream.of(fromNodeName, toNodeName)
+                .map(nodeToStationMap::get)
+                .sorted()
+                .collect(Collectors.joining(DELIMITER));
 
             final InjectionRangeActionAdder injectionRangeActionAdder = crac.newInjectionRangeAction()
                 .withId(raId)
@@ -131,22 +134,13 @@ class HvdcLineRemedialActionAdder {
         // The range defined in the network should always be wider than the range defined in the CRAC, so we can only consider the range of the CRAC
         final ActionReader.HvdcRange fromHvdcRange = fromComplexVariantReader.getActionReaders().getFirst().getHvdcRange();
         final ActionReader.HvdcRange toHvdcRange = toComplexVariantReader.getActionReaders().getFirst().getHvdcRange();
-        // In case of inconsistent data, we use the most restrictive combination
-        // TODO Tobias doit nous préciser les conventions de signe
-        if (fromHvdcRange.min() == toHvdcRange.min() && fromHvdcRange.max() == toHvdcRange.max()) {
-            injectionRangeActionAdder
-                .newRange()
-                .withMin(fromHvdcRange.min())
-                .withMax(fromHvdcRange.max())
-                .add();
-        } else {
-            // TODO Adapter les min et max selon la convention de signe
-            injectionRangeActionAdder
-                .newRange()
-                .withMin(Math.max(-fromHvdcRange.max(), toHvdcRange.min()))
-                .withMax(Math.min(-fromHvdcRange.min(), toHvdcRange.max()))
-                .add();
-        }
+        // Theoretically, if from-range is [a;b] and to-range is [c;d], then we should have a=-d and b=-c.
+        // As distribution key associated to "from" is -1 and "to" is +1, we use the to-range as remedial action range.
+        // In case of inconsistent data, we use the most restrictive combination.
+        injectionRangeActionAdder.newRange()
+            .withMin(Math.max(-fromHvdcRange.max(), toHvdcRange.min()))
+            .withMax(Math.min(-fromHvdcRange.min(), toHvdcRange.max()))
+            .add();
     }
 
     private void addUsageRules(final RemedialActionAdder<?> remedialActionAdder, final Crac crac) {
@@ -163,7 +157,6 @@ class HvdcLineRemedialActionAdder {
         final List<String> toAfterCoList = toComplexVariantReader.getAfterCoList();
 
         if (action.isCurative() && !Objects.isNull(fromAfterCoList)) {
-            // TODO Est-on d'accord pour prendre l'intersection des contingencies de from et to ?
             // We use the intersection of contingencies lists
             final List<String> afterContingencies = new ArrayList<>(fromAfterCoList);
             afterContingencies.retainAll(toAfterCoList);

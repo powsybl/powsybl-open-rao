@@ -53,7 +53,7 @@
                 <action type="HVDCSETPOINT">
                     <node code="D4AAA11B" />
                     <range>
-                        <min>-1000</min>
+                        <min>-800</min>
                         <max>1000</max>
                     </range>
                     <HVDCGroupId>test</HVDCGroupId>
@@ -74,7 +74,7 @@
                 <action type="HVDCSETPOINT">
                     <node code="D4AAA21B" />
                     <range>
-                        <min>-1000</min>
+                        <min>-700</min>
                         <max>1000</max>
                     </range>
                     <HVDCGroupId>test</HVDCGroupId>
@@ -93,7 +93,7 @@
                     <node code="D7AAA11A" />
                     <range>
                         <min>-1000</min>
-                        <max>1000</max>
+                        <max>800</max>
                     </range>
                     <HVDCGroupId>D4D7_test</HVDCGroupId>
                 </action>
@@ -113,8 +113,8 @@
                 <action type="HVDCSETPOINT">
                     <node code="D7AAA21A" />
                     <range>
-                        <min>-1000</min>
-                        <max>1000</max>
+                        <min>100</min>
+                        <max>900</max>
                     </range>
                     <HVDCGroupId>D4D7_test</HVDCGroupId>
                 </action>
