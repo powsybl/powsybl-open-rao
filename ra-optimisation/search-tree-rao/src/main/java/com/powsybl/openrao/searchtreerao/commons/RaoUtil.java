@@ -193,6 +193,7 @@ public final class RaoUtil {
     /**
      * Returns the range action from optimizationContext that is available on the latest state
      * strictly before the given state, and that acts on the same network element as rangeAction.
+     * ex. in 2P multi-curative, if a PST is available in curative2 and curative3, for state-curative3, the function will return Pair.of(state-curative2, PST)
      */
     public static Pair<RangeAction<?>, State> getLastAvailableRangeActionOnSameNetworkElement(OptimizationPerimeter optimizationContext, RangeAction<?> rangeAction, State state) {
 
@@ -201,18 +202,24 @@ public final class RaoUtil {
             return null;
         } else if (state.getInstant().isCurative()) {
 
-            // look if a preventive range action acts on the same network elements
-            State previousUsageState = optimizationContext.getMainOptimizationState();
+            // look if a previous instant (preventive or previous curative instant) range action acts on the same network elements
+            Optional<Map.Entry<State, Set<RangeAction<?>>>> previousUsageStateOptional = optimizationContext.getRangeActionsPerState()
+                .entrySet().stream()
+                .filter(entry -> entry.getKey().getInstant().comesBefore(state.getInstant()))
+                .filter(entry -> entry.getKey().getContingency().equals(state.getContingency()) || entry.getKey().getContingency().isEmpty())
+                .filter(entry -> entry.getValue().stream().anyMatch(ra -> ra.getId().equals(rangeAction.getId()) || ra.getNetworkElements().equals(rangeAction.getNetworkElements())))
+                .sorted(
+                    Comparator.comparing(
+                        (Map.Entry<State, Set<RangeAction<?>>> e) ->
+                            e.getKey().getInstant().getOrder()
+                    ).reversed()
+                )
+                .findFirst();
 
-            if (previousUsageState.getInstant().comesBefore(state.getInstant())) {
-                Optional<RangeAction<?>> correspondingRa = optimizationContext.getRangeActionsPerState().get(previousUsageState).stream()
-                    .filter(ra -> ra.getId().equals(rangeAction.getId()) || ra.getNetworkElements().equals(rangeAction.getNetworkElements()))
-                    .findAny();
-
-                if (correspondingRa.isPresent()) {
-                    return Pair.of(correspondingRa.get(), previousUsageState);
-                }
+            if (previousUsageStateOptional.isPresent()) {
+                return Pair.of(previousUsageStateOptional.get().getValue().stream().findFirst().get(), previousUsageStateOptional.get().getKey());
             }
+
             return null;
         } else {
             throw new OpenRaoException("Linear optimization does not handle range actions which are neither PREVENTIVE nor CURATIVE.");

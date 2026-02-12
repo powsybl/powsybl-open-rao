@@ -412,7 +412,6 @@ class RaoUtilTest {
         Mockito.when(rangeAction2.getId()).thenReturn("range-action-2");
 
         OptimizationPerimeter optimizationContext = Mockito.mock(OptimizationPerimeter.class);
-        Mockito.when(optimizationContext.getMainOptimizationState()).thenReturn(curativeState1);
         Mockito.when(optimizationContext.getRangeActionsPerState()).thenReturn(Map.of(curativeState1, Set.of(rangeAction1)));
 
         assertEquals(Pair.of(rangeAction1, curativeState1), RaoUtil.getLastAvailableRangeActionOnSameNetworkElement(optimizationContext, rangeAction2, curativeState3));
