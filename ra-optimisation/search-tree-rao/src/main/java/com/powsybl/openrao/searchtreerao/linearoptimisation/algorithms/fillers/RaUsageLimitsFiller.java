@@ -61,12 +61,22 @@ public class RaUsageLimitsFiller implements ProblemFiller {
 
     @Override
     public void fill(LinearProblem linearProblem, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
-        rangeActions.forEach((state, rangeActionSet) -> {
+
+        Map<State, Set<RangeAction<?>>> rangeActionsPerStateWithRaLimitations = rangeActions.entrySet().stream()
+            .filter(entry -> rangeActionLimitationParameters.areRangeActionLimitedForState(entry.getKey()))
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+        // We need to build all the variationVariable before adding the other constraint because the different state in multi curative are interdependent.
+        // ex. to build MaxRaConstraint for a state in curative2 we might need the variables defined for a state in curative1
+        rangeActionsPerStateWithRaLimitations.forEach((state, rangeActionSet) -> {
+            // if cost optimization, variation variables are already defined
+            rangeActionSet.forEach(ra -> buildIsVariationVariableAndConstraints(linearProblem, ra, state));
+        });
+
+        rangeActionsPerStateWithRaLimitations.forEach((state, rangeActionSet) -> {
             if (!rangeActionLimitationParameters.areRangeActionLimitedForState(state)) {
                 return;
             }
-            // if cost optimization, variation variables are already defined
-            rangeActionSet.forEach(ra -> buildIsVariationVariableAndConstraints(linearProblem, ra, state));
             if (rangeActionLimitationParameters.getMaxRangeActions(state) != null) {
                 addMaxRaConstraint(linearProblem, state);
             }
@@ -83,6 +93,26 @@ public class RaUsageLimitsFiller implements ProblemFiller {
                 addMaxElementaryActionsPerTsoConstraint(linearProblem, state);
             }
         });
+    }
+
+    /**
+     * @param state the reference state used to filter curative states by
+     *              contingency and temporal order
+     * @return a map of curative states mapped to their available range actions that:
+     *  - are marked as curative
+     *  - occur before instant as the given state
+     *  - belong to the same contingency as the given state
+     */
+    Map<State, Set<RangeAction<?>>> getAllRangeActionsAvailableForAllPreviousCurativeStates(State state) {
+
+        return rangeActions.entrySet().stream()
+            .filter(entry -> entry.getKey().getInstant().isCurative())
+            .filter(entry -> entry.getKey().getInstant().comesBefore(state.getInstant()))
+            .filter(entry -> entry.getKey().getContingency().equals(state.getContingency()))
+            .collect(Collectors.toMap(
+                Map.Entry::getKey,
+                Map.Entry::getValue
+            ));
     }
 
     @Override
@@ -151,16 +181,38 @@ public class RaUsageLimitsFiller implements ProblemFiller {
         }
     }
 
+    // TODO: add doc with equation here
     private void addMaxRaConstraint(LinearProblem linearProblem, State state) {
+
         Integer maxRa = rangeActionLimitationParameters.getMaxRangeActions(state);
-        if (maxRa == null || maxRa >= rangeActions.get(state).size()) {
+        Map<State, Set<RangeAction<?>>> rangeActionsPerPreviousCurativeState = getAllRangeActionsAvailableForAllPreviousCurativeStates(state);
+
+        int numberOfRas = rangeActionsPerPreviousCurativeState
+            .values()
+            .stream()
+            .mapToInt(ras -> ras.size())
+            .sum() + rangeActions.get(state).size();
+
+        if (maxRa == null || maxRa >= numberOfRas) {
             return;
         }
+
         OpenRaoMPConstraint maxRaConstraint = linearProblem.addMaxRaConstraint(0, maxRa, state);
+
         rangeActions.get(state).forEach(ra -> {
             OpenRaoMPVariable isVariationVariable = linearProblem.getRangeActionVariationBinary(ra, state);
             maxRaConstraint.setCoefficient(isVariationVariable, 1);
         });
+
+        // if the state is curative, we want to be able to handle cumulative effect of the max ra usage limit in 2P
+        if (state.getInstant().isCurative()) {
+            rangeActionsPerPreviousCurativeState.entrySet().forEach(entry -> {
+                entry.getValue().forEach(ra -> {
+                    OpenRaoMPVariable isVariationVariable = linearProblem.getRangeActionVariationBinary(ra, entry.getKey());
+                    maxRaConstraint.setCoefficient(isVariationVariable, 1);
+                });
+            });
+        }
     }
 
     private void addMaxTsoConstraint(LinearProblem linearProblem, State state) {
