@@ -203,21 +203,26 @@ public final class RaoUtil {
         } else if (state.getInstant().isCurative()) {
 
             // look if a previous instant (preventive or previous curative instant) range action acts on the same network elements
-            Optional<Map.Entry<State, Set<RangeAction<?>>>> previousUsageStateOptional = optimizationContext.getRangeActionsPerState()
-                .entrySet().stream()
-                .filter(entry -> entry.getKey().getInstant().comesBefore(state.getInstant()))
-                .filter(entry -> entry.getKey().getContingency().equals(state.getContingency()) || entry.getKey().getContingency().isEmpty())
-                .filter(entry -> entry.getValue().stream().anyMatch(ra -> ra.getId().equals(rangeAction.getId()) || ra.getNetworkElements().equals(rangeAction.getNetworkElements())))
+            Optional<State> previousUsageStateOptional = optimizationContext.getRangeActionsPerState()
+                .keySet().stream()
+                .filter(state1 -> state1.getInstant().comesBefore(state.getInstant()))
+                .filter(state1 -> state1.getContingency().equals(state.getContingency()) || state1.getContingency().isEmpty())
                 .sorted(
                     Comparator.comparing(
-                        (Map.Entry<State, Set<RangeAction<?>>> e) ->
-                            e.getKey().getInstant().getOrder()
+                        (State e) ->
+                            e.getInstant().getOrder()
                     ).reversed()
                 )
                 .findFirst();
 
             if (previousUsageStateOptional.isPresent()) {
-                return Pair.of(previousUsageStateOptional.get().getValue().stream().findFirst().get(), previousUsageStateOptional.get().getKey());
+                Optional<RangeAction<?>> correspondingRa = optimizationContext.getRangeActionsPerState().get(previousUsageStateOptional.get()).stream()
+                    .filter(ra -> ra.getId().equals(rangeAction.getId()) || ra.getNetworkElements().equals(rangeAction.getNetworkElements()))
+                    .findAny();
+
+                if (correspondingRa.isPresent()) {
+                    return Pair.of(correspondingRa.get(), previousUsageStateOptional.get());
+                }
             }
 
             return null;
