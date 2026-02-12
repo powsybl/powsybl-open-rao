@@ -35,13 +35,13 @@ class FbConstraintImporterTest {
 
     @BeforeEach
     void setUp() {
-        final VirtualHubsConfiguration virtualHubsConfiguration = XmlVirtualHubsConfiguration.importConfiguration(getClass().getResourceAsStream("/fake-hvdc/virtualhubsconfiguration.xml"));
+        final VirtualHubsConfiguration virtualHubsConfiguration = XmlVirtualHubsConfiguration.importConfiguration(getClass().getResourceAsStream("/hvdc/virtualhubsconfiguration.xml"));
         fbConstraintCracCreationParameters = new FbConstraintCracCreationParameters();
         fbConstraintCracCreationParameters.setTimestamp(OffsetDateTime.parse("2026-01-27T17:00Z"));
         fbConstraintCracCreationParameters.setInternalHvdcs(virtualHubsConfiguration.getInternalHvdcs());
         cracCreationParameters = new CracCreationParameters();
         cracCreationParameters.addExtension(FbConstraintCracCreationParameters.class, fbConstraintCracCreationParameters);
-        network = Network.read("network_mini2.uct", getClass().getResourceAsStream("/fake-hvdc/network_mini2.uct"));
+        network = Network.read("network_mini2.uct", getClass().getResourceAsStream("/hvdc/network.uct"));
     }
 
     @Test
@@ -74,7 +74,7 @@ class FbConstraintImporterTest {
     void testImportHvdcNoComplexVariant() {
         // When
         final CracCreationContext context = new FbConstraintImporter().importData(
-            getClass().getResourceAsStream("/fake-hvdc/crac_without_complex_variant.xml"),
+            getClass().getResourceAsStream("/hvdc/crac_without_complex_variant.xml"),
             cracCreationParameters,
             network);
 
@@ -92,7 +92,7 @@ class FbConstraintImporterTest {
 
         // When
         final CracCreationContext context = new FbConstraintImporter().importData(
-            getClass().getResourceAsStream("/fake-hvdc/crac.xml"),
+            getClass().getResourceAsStream("/hvdc/crac.xml"),
             cracCreationParameters,
             network);
 
@@ -107,7 +107,7 @@ class FbConstraintImporterTest {
     void testImportHvdcInvalidActionsSet() {
         // When
         final FbConstraintCreationContext context = (FbConstraintCreationContext) new FbConstraintImporter().importData(
-            getClass().getResourceAsStream("/fake-hvdc/crac_with_invalid_actionsset.xml"),
+            getClass().getResourceAsStream("/hvdc/crac_with_invalid_actionsset.xml"),
             cracCreationParameters,
             network);
 
@@ -136,7 +136,7 @@ class FbConstraintImporterTest {
     void testImportHvdcInvalidActionData(final String inputFile, final String importStatusDetails) {
         // When
         final FbConstraintCreationContext context = (FbConstraintCreationContext) new FbConstraintImporter().importData(
-            getClass().getResourceAsStream("/fake-hvdc/" + inputFile),
+            getClass().getResourceAsStream("/hvdc/" + inputFile),
             cracCreationParameters,
             network);
 
@@ -156,7 +156,7 @@ class FbConstraintImporterTest {
     void testImportHvdcNoAfterCOForCurative() {
         // When
         final FbConstraintCreationContext context = (FbConstraintCreationContext) new FbConstraintImporter().importData(
-            getClass().getResourceAsStream("/fake-hvdc/crac_with_curative_action_but_no_after_co.xml"),
+            getClass().getResourceAsStream("/hvdc/crac_with_curative_action_but_no_after_co.xml"),
             cracCreationParameters,
             network);
 
@@ -179,7 +179,7 @@ class FbConstraintImporterTest {
     void testImportHvdcInvalidAfterCOIdForCurative() {
         // When
         final FbConstraintCreationContext context = (FbConstraintCreationContext) new FbConstraintImporter().importData(
-            getClass().getResourceAsStream("/fake-hvdc/crac_with_curative_action_but_invalid_after_co_ids.xml"),
+            getClass().getResourceAsStream("/hvdc/crac_with_curative_action_but_invalid_after_co_ids.xml"),
             cracCreationParameters,
             network);
 
@@ -202,7 +202,7 @@ class FbConstraintImporterTest {
     void testImportHvdcWithSingleComplexVariant() {
         // When
         final FbConstraintCreationContext context = (FbConstraintCreationContext) new FbConstraintImporter().importData(
-            getClass().getResourceAsStream("/fake-hvdc/crac_with_single_complex_variant.xml"),
+            getClass().getResourceAsStream("/hvdc/crac_with_single_complex_variant.xml"),
             cracCreationParameters,
             network);
 
@@ -214,11 +214,11 @@ class FbConstraintImporterTest {
     @Test
     void testImportHvdcDisconnectedFromMainComponent() {
         // Given
-        final Network network = Network.read("network_mini2_hvdc_disconnected_from_main_connected_component.uct", getClass().getResourceAsStream("/fake-hvdc/network_mini2_hvdc_disconnected_from_main_connected_component.uct"));
+        final Network network = Network.read("network_mini2_hvdc_disconnected_from_main_connected_component.uct", getClass().getResourceAsStream("/hvdc/network_with_hvdc_disconnected_from_main_connected_component.uct"));
 
         // When
         final FbConstraintCreationContext context = (FbConstraintCreationContext) new FbConstraintImporter().importData(
-            getClass().getResourceAsStream("/fake-hvdc/crac.xml"),
+            getClass().getResourceAsStream("/hvdc/crac.xml"),
             cracCreationParameters,
             network);
 
@@ -243,7 +243,7 @@ class FbConstraintImporterTest {
     void testImportHvdcInvalidUsageRules(String state) {
         // When
         final FbConstraintCreationContext context = (FbConstraintCreationContext) new FbConstraintImporter().importData(
-            getClass().getResourceAsStream("/fake-hvdc/crac_with_invalid_" + state + ".xml"),
+            getClass().getResourceAsStream("/hvdc/crac_with_invalid_" + state + ".xml"),
             cracCreationParameters,
             network);
 
@@ -266,7 +266,7 @@ class FbConstraintImporterTest {
     void testImportHvdc() {
         // When
         final CracCreationContext context = new FbConstraintImporter().importData(
-            getClass().getResourceAsStream("/fake-hvdc/crac.xml"),
+            getClass().getResourceAsStream("/hvdc/crac.xml"),
             cracCreationParameters,
             network);
 
@@ -286,7 +286,7 @@ class FbConstraintImporterTest {
         softAssertions.assertThat(firstRAInstant.isPreventive()).isTrue();
         softAssertions.assertThat(firstRAInstant.isCurative()).isFalse();
         softAssertions.assertThat(firstRA.getRanges()).hasSize(1);
-        softAssertions.assertThat(firstRA.getRanges().getFirst()).hasFieldOrPropertyWithValue("min", -1000.0);
+        softAssertions.assertThat(firstRA.getRanges().getFirst()).hasFieldOrPropertyWithValue("min", -800.0);
         softAssertions.assertThat(firstRA.getRanges().getFirst()).hasFieldOrPropertyWithValue("max", 1000.0);
         softAssertions.assertThat(firstRA.getInjectionDistributionKeys()).hasSize(2);
         softAssertions.assertThat(
@@ -306,8 +306,8 @@ class FbConstraintImporterTest {
         softAssertions.assertThat(secondRAUsageRule.getInstant().isCurative()).isTrue();
         softAssertions.assertThat(secondRAUsageRule.getContingency().getId()).isEqualTo("OUTAGE_1");
         softAssertions.assertThat(secondRA.getRanges()).hasSize(1);
-        softAssertions.assertThat(secondRA.getRanges().getFirst()).hasFieldOrPropertyWithValue("min", -1000.0);
-        softAssertions.assertThat(secondRA.getRanges().getFirst()).hasFieldOrPropertyWithValue("max", 1000.0);
+        softAssertions.assertThat(secondRA.getRanges().getFirst()).hasFieldOrPropertyWithValue("min", -700.0);
+        softAssertions.assertThat(secondRA.getRanges().getFirst()).hasFieldOrPropertyWithValue("max", -100.0);
         softAssertions.assertThat(secondRA.getInjectionDistributionKeys()).hasSize(2);
         softAssertions.assertThat(
                 secondRA.getInjectionDistributionKeys().entrySet().stream()
