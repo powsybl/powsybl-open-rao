@@ -64,7 +64,6 @@ class BalancingRangeActionCreator {
             .collect(Collectors.toSet());
 
         if (consideredGenerators.size() >= 100) {
-            // TODO use logger instead, if CRAC import fails bc of memory issues, user will not see the report
             creationContext.getCreationReport().warn(
                 String.format("More than 100 generators included in the balancing action at %s. Consider enforcing your filter, otherwise you may run into memory issues.", instant.getId())
             );

@@ -51,6 +51,10 @@ class CountertradingRangeActionsCreator {
             throw new OpenRaoImportException(ImportStatus.INCOMPLETE_DATA,
                 String.format("Cannot create a counter-trading action for %s at instant %s without a defined min/max range.", country, instant));
         }
+        if (parameters.getRaRange(country, instant).getMin().orElseThrow() > -0.1 && parameters.getRaRange(country, instant).getMax().orElseThrow() < 0.1) {
+            // range is zero, no need to create the RA
+            return;
+        }
 
         Set<Generator> consideredGenerators = network.getGeneratorStream()
             .filter(generator -> Utils.injectionIsInCountries(generator, Set.of(country)))
@@ -72,7 +76,7 @@ class CountertradingRangeActionsCreator {
         }
 
         InjectionRangeActionAdder injectionRangeActionAdder = crac.newInjectionRangeAction()
-            .withId("CT_" + country.getName())
+            .withId("CT_" + country.getName() + "_" + instant.getId())
             .newRange()
             .withMin(initialTotalP + parameters.getRaRange(country, instant).getMin().orElseThrow())
             .withMax(initialTotalP + parameters.getRaRange(country, instant).getMax().orElseThrow())
