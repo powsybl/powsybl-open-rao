@@ -37,11 +37,7 @@ import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.time.OffsetDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.*;
@@ -289,6 +285,11 @@ public final class InterTemporalIteratingLinearOptimizer {
 
     // Set-point rounding
     private static TemporalData<RangeActionActivationResult> resolveIfApproximatedPstTaps(GlobalLinearOptimizationResult bestResult, LinearProblem linearProblem, int iteration, TemporalData<RangeActionActivationResult> currentRangeActionActivationResults, InterTemporalIteratingLinearOptimizerInput input, IteratingLinearOptimizerParameters parameters, TemporalData<List<ProblemFiller>> problemFillers) {
+        if (input.iteratingLinearOptimizerInputs().getDataPerTimestamp().values().stream()
+            .map(i -> i.prePerimeterSetpoints().getRangeActions()).flatMap(Collection::stream)
+            .noneMatch(PstRangeAction.class::isInstance)) {
+            return currentRangeActionActivationResults;
+        }
         LinearProblemStatus solveStatus;
         TemporalData<RangeActionActivationResult> rangeActionActivationResults = currentRangeActionActivationResults;
         if (getPstModel(parameters.getRangeActionParametersExtension()).equals(SearchTreeRaoRangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS)) {
