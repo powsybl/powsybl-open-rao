@@ -35,12 +35,10 @@ during a duration that covers its lag time.
 > In the following we define as _grid state_ a network situation for a given instant after a given contingency or the
 > basecase.
 
-<!-- TODO: Index PMin with timestamp -->
-
 | Name                            | Symbol                      | Details                                                                                                                                     |
 |---------------------------------|-----------------------------|---------------------------------------------------------------------------------------------------------------------------------------------|
 | Constrained generators set      | $\Gamma$                    | Set of generators with constraints defined                                                                                                  |
-| PMin                            | $P_{\min}(g)$               | Minimum operating power of generator $g$. This value must be non-negative.                                                                  |
+| PMin                            | $P_{\min}(g, t)$            | Minimum operating power of generator $g$ at timestamp $t$. This value must be non-negative.                                                 |
 | PMax                            | $P_{\max}(g)$               | Maximum operating power of generator $g$. This value must be non-negative.                                                                  |
 | Lead Time                       | $LEAD(g)$                   | Time elapsed between the start-up order and the moment the generator power reaches $P_{\min}$.                                              |
 | Lag Time                        | $LAG(g)$                    | Time elapsed between the shut-down-up order and the moment the generator power reaches 0.                                                   |
@@ -80,7 +78,7 @@ By definition, the generator is ON if its power is greater than $P_{\min}$ and O
 issues that can stem from number rounding, we define a _minimal power variation deadband_ $\epsilon_{P}^{\text{OFF}}$
 such that if the power of the generator is lower that $\epsilon_{P}^{\text{OFF}}$, the generator is considered off.
 
-$$P_{\min} \delta_{\textcolor{green}{\text{ON}}}^{gen}(g,s,t) \leq P(g,s,t) \leq P_{\max}(g) \delta_{\textcolor{green}{\text{ON}}}^{gen}(g,s,t) + \epsilon_{P}^{\text{OFF}} \delta_{\textcolor{red}{\text{OFF}}}^{gen}(g,s,t)$$
+$$P_{\min}(g, t) \delta_{\textcolor{green}{\text{ON}}}^{gen}(g,s,t) \leq P(g,s,t) \leq P_{\max}(g) \delta_{\textcolor{green}{\text{ON}}}^{gen}(g,s,t) + \epsilon_{P}^{\text{OFF}} \delta_{\textcolor{red}{\text{OFF}}}^{gen}(g,s,t)$$
 
 ### State transition constraints
 
@@ -138,11 +136,11 @@ $$- \epsilon_{P}^{\text{OFF}} T_{\textcolor{red}{\text{OFF}} \to \textcolor{red}
 With a lead time, the generator must first step up to $P_{\min}$ before to be operated between $P_{\min}$ and $P_{\max}$
 under the power gradient constraints.
 
-$$\left ( P_{\min} - \epsilon_{P}^{\text{OFF}} \right ) T_{\textcolor{red}{\text{OFF}} \to \textcolor{green}{\text{ON}}}(g,s,t) \leq P(g,s,t + 1) - P(g,s,t) \leq P_{\min} T_{\textcolor{red}{\text{OFF}} \to \textcolor{green}{\text{ON}}}(g,s,t)$$
+$$\left ( P_{\min}(g, t + 1) - \epsilon_{P}^{\text{OFF}} \right ) T_{\textcolor{red}{\text{OFF}} \to \textcolor{green}{\text{ON}}}(g,s,t) \leq P(g,s,t + 1) - P(g,s,t) \leq P_{\min}(g, t + 1) T_{\textcolor{red}{\text{OFF}} \to \textcolor{green}{\text{ON}}}(g,s,t)$$
 
 ##### Without lead time
 
-$$\left ( P_{\min} - \epsilon_{P}^{\text{OFF}} \right ) T_{\textcolor{red}{\text{OFF}} \to \textcolor{green}{\text{ON}}}(g,s,t) \leq P(g,s,t + 1) - P(g,s,t) \leq \left ( P_{\min} + \nabla^{+}(g) \Delta_{\tau} \right ) T_{\textcolor{red}{\text{OFF}} \to \textcolor{green}{\text{ON}}}(g,s,t)$$
+$$\left ( P_{\min}(g, t + 1) - \epsilon_{P}^{\text{OFF}} \right ) T_{\textcolor{red}{\text{OFF}} \to \textcolor{green}{\text{ON}}}(g,s,t) \leq P(g,s,t + 1) - P(g,s,t) \leq \left ( P_{\min}(g, t + 1) + \nabla^{+}(g) \Delta_{\tau} \right ) T_{\textcolor{red}{\text{OFF}} \to \textcolor{green}{\text{ON}}}(g,s,t)$$
 
 #### ON to ON transition
 
@@ -155,11 +153,11 @@ $$\nabla^{-}(g) \Delta_{\tau} T_{\textcolor{green}{\text{ON}} \to \textcolor{gre
 With a lag time, the generator must step down from $P_{\min}$ to 0 instead of being shut down from any power value above
 $P_{\min}$.
 
-$$- P_{\min} T_{\textcolor{green}{\text{ON}} \to \textcolor{red}{\text{OFF}}}(g,s,t) \leq P(g,s,t + 1) - P(g,s,t) \leq - \left ( P_{\min} - \epsilon_{P}^{\text{OFF}} \right ) T_{\textcolor{green}{\text{ON}} \to \textcolor{red}{\text{OFF}}}(g,s,t)$$
+$$- P_{\min}(g, t) T_{\textcolor{green}{\text{ON}} \to \textcolor{red}{\text{OFF}}}(g,s,t) \leq P(g,s,t + 1) - P(g,s,t) \leq - \left ( P_{\min}(g, t) - \epsilon_{P}^{\text{OFF}} \right ) T_{\textcolor{green}{\text{ON}} \to \textcolor{red}{\text{OFF}}}(g,s,t)$$
 
 ##### Without lag time
 
-$$- \left ( P_{\min} - \nabla^{-}(g) \Delta_{\tau} \right) T_{\textcolor{green}{\text{ON}} \to \textcolor{red}{\text{OFF}}}(g,s,t) \leq P(g,s,t + 1) - P(g,s,t) \leq - \left ( P_{\min} - \epsilon_{P}^{\text{OFF}} \right ) T_{\textcolor{green}{\text{ON}} \to \textcolor{red}{\text{OFF}}}(g,s,t)$$
+$$- \left ( P_{\min}(g, t) - \nabla^{-}(g) \Delta_{\tau} \right) T_{\textcolor{green}{\text{ON}} \to \textcolor{red}{\text{OFF}}}(g,s,t) \leq P(g,s,t + 1) - P(g,s,t) \leq - \left ( P_{\min}(g, t) - \epsilon_{P}^{\text{OFF}} \right ) T_{\textcolor{green}{\text{ON}} \to \textcolor{red}{\text{OFF}}}(g,s,t)$$
 
 ### Injection to generator power constraint
 

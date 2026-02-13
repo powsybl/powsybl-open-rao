@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers;
 
+import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.TemporalData;
@@ -151,6 +152,7 @@ public class GeneratorConstraintsFiller implements ProblemFiller {
     }
 
     // ---- Constraints
+
     /**
      * C1 - The generator must and can only be in one state.
      * <br/>
@@ -277,20 +279,21 @@ public class GeneratorConstraintsFiller implements ProblemFiller {
         powerTransitionConstraintSup.setCoefficient(offOffTransitionVariable, -OFF_POWER_THRESHOLD);
 
         // OFF -> ON
+        double nextPMin = getMinP(generatorConstraints.getGeneratorId(), networks.getData(nextTimestamp).orElseThrow());
         OpenRaoMPVariable offOnTransitionVariable = linearProblem.getGeneratorStateTransitionVariable(generatorConstraints.getGeneratorId(), timestamp, LinearProblem.GeneratorState.OFF, LinearProblem.GeneratorState.ON);
-        powerTransitionConstraintInf.setCoefficient(offOnTransitionVariable, -(pMin - OFF_POWER_THRESHOLD));
+        powerTransitionConstraintInf.setCoefficient(offOnTransitionVariable, -(nextPMin - OFF_POWER_THRESHOLD));
         if (generatorConstraints.getLeadTime().isPresent()) {
             // if the generator has a lead time, ON state starts at Pmin on a timestamp before power increases
-            powerTransitionConstraintSup.setCoefficient(offOnTransitionVariable, -pMin);
+            powerTransitionConstraintSup.setCoefficient(offOnTransitionVariable, -nextPMin);
         } else {
             // otherwise the power is simply constrained by the power gradient
-            powerTransitionConstraintSup.setCoefficient(offOnTransitionVariable, -pMin - upwardPowerGradient * timestampDuration);
+            powerTransitionConstraintSup.setCoefficient(offOnTransitionVariable, -nextPMin - upwardPowerGradient * timestampDuration);
         }
 
         // ON -> OFF
         OpenRaoMPVariable onOffTransitionVariable = linearProblem.getGeneratorStateTransitionVariable(generatorConstraints.getGeneratorId(), timestamp, LinearProblem.GeneratorState.ON, LinearProblem.GeneratorState.OFF);
         if (generatorConstraints.getLagTime().isPresent()) {
-            // if the generator has a lag time, ON state finishes at Pmin on a timestamp before power decreases 
+            // if the generator has a lag time, ON state finishes at Pmin on a timestamp before power decreases
             powerTransitionConstraintInf.setCoefficient(onOffTransitionVariable, pMin);
         } else {
             // otherwise the power is simply constrained by the power gradient
@@ -325,45 +328,28 @@ public class GeneratorConstraintsFiller implements ProblemFiller {
     private static void addPowerToInjectionConstraint(LinearProblem linearProblem, String generatorId, OffsetDateTime timestamp, InjectionRangeAction injectionRangeAction, State state, Network network) {
         OpenRaoMPConstraint powerToInjectionConstraint = linearProblem.addGeneratorToInjectionConstraint(generatorId, injectionRangeAction, timestamp);
         powerToInjectionConstraint.setCoefficient(linearProblem.getGeneratorPowerVariable(generatorId, timestamp), 1.0);
-        powerToInjectionConstraint.setCoefficient(linearProblem.getRangeActionSetpointVariable(injectionRangeAction, state), -getDistributionKey(generatorId, injectionRangeAction, network));
+        powerToInjectionConstraint.setCoefficient(linearProblem.getRangeActionSetpointVariable(injectionRangeAction, state), -1.0);
     }
 
     private static Optional<InjectionRangeAction> getInjectionRangeActionOfGenerator(String generatorId, Set<InjectionRangeAction> allInjectionRangeActions) {
         return allInjectionRangeActions.stream().filter(injectionRangeAction -> injectionRangeAction.getNetworkElements().stream().map(NetworkElement::getId).anyMatch(generatorId::equals)).min(Comparator.comparing(Identifiable::getId));
     }
 
-    private static double getDistributionKey(String generatorId, InjectionRangeAction injectionRangeAction, Network network) {
-        return getGeneratorTypeCoefficient(generatorId, network) * injectionRangeAction.getInjectionDistributionKeys().entrySet().stream().filter(entry -> entry.getKey().getId().equals(generatorId)).map(Map.Entry::getValue).findFirst().orElse(0.0);
-    }
-
-    private static double getGeneratorTypeCoefficient(String generatorId, Network network) {
-        if (network.getGenerator(generatorId) != null) {
-            return 1.0;
-        } else if (network.getLoad(generatorId) != null) {
-            return -1.0;
-        } else {
-            throw new OpenRaoException("Network element %s is neither a generator nor a load.".formatted(generatorId));
-        }
-    }
-
     private static double getMinP(String generatorId, Network network) {
-        if (network.getGenerator(generatorId) != null) {
-            return network.getGenerator(generatorId).getMinP();
-        } else if (network.getLoad(generatorId) != null) {
-            return OFF_POWER_THRESHOLD;
-        } else {
-            throw new OpenRaoException("Network element %s is not a generator, MinP cannot be fetched.".formatted(generatorId));
-        }
+        return getGenerator(generatorId, network).getMinP();
     }
 
     private static double getMaxP(String generatorId, Network network) {
-        if (network.getGenerator(generatorId) != null) {
-            return network.getGenerator(generatorId).getMaxP();
-        } else if (network.getLoad(generatorId) != null) {
-            return DEFAULT_P_MAX;
-        } else {
-            throw new OpenRaoException("Network element %s is not a generator, MaxP cannot be fetched.".formatted(generatorId));
+        return getGenerator(generatorId, network).getMaxP();
+    }
+
+    // TODO: import generator data in the GeneratorConstraint directly
+    private static Generator getGenerator(String generatorId, Network network) {
+        Generator generator = network.getGenerator(generatorId);
+        if (generator == null) {
+            throw new OpenRaoException("Network element %s is not a generator.".formatted(generatorId));
         }
+        return generator;
     }
 
     @Override
