@@ -9,12 +9,13 @@ package com.powsybl.openrao.data.crac.io.network.parameters;
 
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Branch;
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.Instant;
 
 import javax.annotation.Nullable;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.BiFunction;
+import java.util.stream.Collectors;
 
 /**
  * Configures how CNECs must be created.
@@ -22,6 +23,7 @@ import java.util.function.BiFunction;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public class CriticalElements extends AbstractCountriesFilter {
+    private final Set<String> instants;
     private MinAndMax<Double> optimizedMinMaxV = new MinAndMax<>(null, null);
     private MinAndMax<Double> monitoredMinMaxV; // non-critical branches are declared as MNECs
     private BiFunction<Branch<?>, Contingency, OptimizedMonitored> optimizedMonitoredProvider = (branch, contingency) -> new OptimizedMonitored(true, true);
@@ -40,7 +42,8 @@ public class CriticalElements extends AbstractCountriesFilter {
         PERM_LIMIT_MULTIPLIER // multiply perm limits by a given multiplier
     }
 
-    CriticalElements() {
+    CriticalElements(List<String> instants) {
+        this.instants = new HashSet<>(instants);
     }
 
     /**
@@ -49,7 +52,6 @@ public class CriticalElements extends AbstractCountriesFilter {
      * By default, this filter is disabled.
      */
     public void setOptimizedMinMaxV(@Nullable Double minV, @Nullable Double maxV) {
-        // TODO check that there is no overlap with monitoredMinMaxV ?
         optimizedMinMaxV = new MinAndMax<>(minV, maxV);
     }
 
@@ -68,7 +70,6 @@ public class CriticalElements extends AbstractCountriesFilter {
      * By default, the feature is disabled.
      */
     public void setMonitoredMinMaxV(@Nullable MinAndMax<Double> minAndMax) {
-        // TODO check that there is no overlap with optimizedMinMaxV ?
         monitoredMinMaxV = minAndMax;
     }
 
@@ -86,7 +87,6 @@ public class CriticalElements extends AbstractCountriesFilter {
      * Not setting this will default to all branches being optimized and monitored.
      */
     public void setOptimizedMonitoredProvider(BiFunction<Branch<?>, Contingency, OptimizedMonitored> optimizedMonitoredProvider) {
-        // TODO consider replacing Contingency with Set<Branch> (set of contingency elements)
         this.optimizedMonitoredProvider = optimizedMonitoredProvider;
     }
 
@@ -112,12 +112,24 @@ public class CriticalElements extends AbstractCountriesFilter {
         return limitMultiplierPerInstantPerNominalV.get(instant.getId()).getOrDefault(nominalV, defaultValue);
     }
 
+    private void checkAllInstantsListed(Map<String, ?> map) {
+        if (!this.instants.equals(map.keySet())) {
+            throw new OpenRaoException("You must define the value for every instant.");
+        }
+    }
+
+    private void checkAllPostcontingencyInstantsListed(Map<String, ?> map) {
+        if (!this.instants.stream().filter(i -> !i.equals(NetworkCracCreationParameters.PREVENTIVE_INSTANT_ID)).collect(Collectors.toSet()).equals(map.keySet())) {
+            throw new OpenRaoException("You must define the value for every instant except preventive.");
+        }
+    }
+
     /**
      * Set the operational limit multiplier for every instant.
      * This will be the default value if the multiplier is not specified for the branch's nominal V (see setLimitMultiplierPerInstantPerNominalV).
      */
     public void setLimitMultiplierPerInstant(Map<String, Double> limitMultiplierPerInstant) {
-        // todo check all instants are in keys
+        checkAllInstantsListed(limitMultiplierPerInstant);
         this.limitMultiplierPerInstant = limitMultiplierPerInstant;
     }
 
@@ -126,7 +138,7 @@ public class CriticalElements extends AbstractCountriesFilter {
      * You can use setLimitMultiplierPerInstant to set defaults for all nominal Vs.
      */
     public void setLimitMultiplierPerInstantPerNominalV(Map<String, Map<Double, Double>> limitMultiplierPerInstantPerNominalV) {
-        // todo check all instants are in keys
+        checkAllInstantsListed(limitMultiplierPerInstantPerNominalV);
         this.limitMultiplierPerInstantPerNominalV = limitMultiplierPerInstantPerNominalV;
     }
 
@@ -144,7 +156,7 @@ public class CriticalElements extends AbstractCountriesFilter {
      * This will be the default value if the duration is not specified for the branch's nominal V (see setApplicableLimitDurationPerInstantPerNominalV).
      */
     public void setApplicableLimitDurationPerInstant(Map<String, Double> applicableLimitDurationPerInstant) {
-        // todo check all instants are in keys
+        checkAllPostcontingencyInstantsListed(applicableLimitDurationPerInstant);
         this.applicableLimitDurationPerInstant = applicableLimitDurationPerInstant;
     }
 
@@ -154,7 +166,7 @@ public class CriticalElements extends AbstractCountriesFilter {
      * You can use setApplicableLimitDurationPerInstant to set defaults for all nominal Vs.
      */
     public void setApplicableLimitDurationPerInstantPerNominalV(Map<String, Map<Double, Double>> applicableLimitDurationPerInstantPerNominalV) {
-        // todo check all instants are in keys
+        checkAllPostcontingencyInstantsListed(applicableLimitDurationPerInstantPerNominalV);
         this.applicableLimitDurationPerInstantPerNominalV = applicableLimitDurationPerInstantPerNominalV;
     }
 }

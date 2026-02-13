@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class NetworkCracCreationParametersTest {
     @Test
     void testGeneratorCombination() {
-        RedispatchingRangeActions parameters = new NetworkCracCreationParameters().getRedispatchingRangeActions();
+        RedispatchingRangeActions parameters = new NetworkCracCreationParameters(null, null).getRedispatchingRangeActions();
         Map<String, Set<String>> combinations = Map.of("combi1", Set.of("gen1", "gen2"), "combi2", Set.of("gen1", "gen3"));
         OpenRaoException exception = assertThrows(OpenRaoException.class, () -> parameters.setGeneratorCombinations(combinations));
         assertEquals("A generator can only be used once in generator combinations.", exception.getMessage());

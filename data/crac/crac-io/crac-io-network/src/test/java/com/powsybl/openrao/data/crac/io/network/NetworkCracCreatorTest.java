@@ -27,6 +27,7 @@ import com.powsybl.openrao.data.crac.io.network.parameters.PstRangeActions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -58,7 +59,7 @@ class NetworkCracCreatorTest {
     private void createBasicParameters() {
         cracCreationParameters = new CracCreationParameters();
         cracCreationParameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_BOTH_SIDES);
-        parameters = new NetworkCracCreationParameters();
+        parameters = new NetworkCracCreationParameters(null, List.of("curative"));
         cracCreationParameters.addExtension(NetworkCracCreationParameters.class, parameters);
 
         parameters.getCriticalElements().setThresholdDefinition(CriticalElements.ThresholdDefinition.PERM_LIMIT_MULTIPLIER);

@@ -17,7 +17,7 @@ Then, the importer works like any other importer, only by replacing the CRAC inp
 ~~~java
 CracCreationParameters parameters = new CracCreationParameters();
 // The following extension is mandatory when using this importer, see details below
-parameters.addExtension(NetworkCracCreationParameters.class, new NetworkCracCreationParameters());
+parameters.addExtension(NetworkCracCreationParameters.class, new NetworkCracCreationParameters(null, null));
 CracCreationContext ccc = Crac.readWithContext(networkFileName, networkInputStream, networkObject, cracCreationParameters);
 Crac crac = ccc.getCrac();
 ~~~
@@ -26,19 +26,16 @@ programmatically.
 Read the following sections that explain how you can configure the importer.
 
 ## Instants
-The NetworkCracCreationParameters object allows you to configure the [instants](json.md#instants-and-states) to create.  
-By default, one "preventive", one "outage" and one "curative" instants are created.
+When creating the NetworkCracCreationParameters object, you can configure the [instants](json.md#instants-and-states) to create.  
+By default, only one "preventive" and one "outage" instants are created.  
+You only need to define the list of auto & curative instants to create by listing their unique names ("preventive" and "outage" are reserved).  
+If you don't need one of the two, use "null".
 
 ::::{tabs}
 :::{group-tab} JAVA creation API
 ~~~java
-networkCracCreationParameters.setInstants(
-    Map.of(
-        InstantKind.PREVENTIVE, List.of("prev"),
-        InstantKind.OUTAGE, List.of("out"),
-        InstantKind.CURATIVE, List.of("cur1", "cur2", "cur3")
-    )
-);
+networkCracCreationParameters = new NetworkCracCreationParameters(null, List.of("curative")); // only one curative instant
+networkCracCreationParameters = new NetworkCracCreationParameters(List.of("auto"), List.of("cur1", "cur2", "cur3")); // one auto & three curative instants
 ~~~
 :::
 ::::
