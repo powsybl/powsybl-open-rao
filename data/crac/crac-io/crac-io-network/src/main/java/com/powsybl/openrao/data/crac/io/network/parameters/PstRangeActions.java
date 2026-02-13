@@ -58,7 +58,6 @@ public class PstRangeActions extends AbstractCountriesFilter {
     }
 
     public boolean isAvailable(TwoWindingsTransformer pst, State state) {
-        // TODO remove first condition (user may want to not set any range at all)
-        return availableTapRangesAtInstants.containsKey(state.getInstant().getId()) && pstRaPredicate.test(pst, state);
+        return pstRaPredicate.test(pst, state);
     }
 }

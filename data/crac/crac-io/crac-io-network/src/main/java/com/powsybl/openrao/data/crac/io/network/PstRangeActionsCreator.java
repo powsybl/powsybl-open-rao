@@ -17,6 +17,7 @@ import com.powsybl.openrao.data.crac.io.commons.PstHelper;
 import com.powsybl.openrao.data.crac.io.commons.iidm.IidmPstHelper;
 import com.powsybl.openrao.data.crac.io.network.parameters.PstRangeActions;
 
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -27,11 +28,13 @@ class PstRangeActionsCreator {
     private final Crac crac;
     private final Network network;
     private final PstRangeActions parameters;
+    private final Map<String, String> raGroupPerNetworkElement;
 
-    public PstRangeActionsCreator(Crac crac, Network network, PstRangeActions parameters) {
+    public PstRangeActionsCreator(Crac crac, Network network, PstRangeActions parameters, Map<String, String> raGroupPerNetworkElement) {
         this.crac = crac;
         this.network = network;
         this.parameters = parameters;
+        this.raGroupPerNetworkElement = raGroupPerNetworkElement;
     }
 
     void addPstRangeActions() {
@@ -51,7 +54,9 @@ class PstRangeActionsCreator {
             .withInitialTap(pstHelper.getInitialTap())
             .newTapRange().withRangeType(RangeType.ABSOLUTE).withMinTap(pstHelper.getLowTapPosition()).withMaxTap(pstHelper.getHighTapPosition()).add()
             .withTapToAngleConversionMap(pstHelper.getTapToAngleConversionMap());
-        // TODO align RAs if needed
+        if (raGroupPerNetworkElement.containsKey(twt.getId())) {
+            pstAdder.withGroupId(raGroupPerNetworkElement.get(twt.getId()));
+        }
 
         boolean availableForAllStates = crac.getStates(instant).stream().allMatch(state -> parameters.isAvailable(twt, state));
         if (availableForAllStates) {
@@ -64,12 +69,11 @@ class PstRangeActionsCreator {
                         .withContingency(state.getContingency().orElseThrow().getId())
                         .add());
         }
-        if (parameters.getTapRange(instant).isPresent()) {
-            PstRangeActions.TapRange tapRange = parameters.getTapRange(instant).get();
-            pstAdder.newTapRange().withRangeType(tapRange.rangeType())
-                .withMinTap(tapRange.min()).withMaxTap(tapRange.max())
-                .add();
-        }
+        parameters.getTapRange(instant).ifPresent(
+            range -> pstAdder.newTapRange().withRangeType(range.rangeType())
+                .withMinTap(range.min()).withMaxTap(range.max())
+                .add());
+
         pstAdder.add();
     }
 

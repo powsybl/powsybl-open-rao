@@ -13,6 +13,7 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
+import com.powsybl.openrao.data.crac.api.parameters.RangeActionGroup;
 import com.powsybl.openrao.data.crac.io.network.parameters.*;
 
 import java.util.*;
@@ -35,14 +36,25 @@ public class NetworkCracCreator {
         NetworkCracCreationContext creationContext = new NetworkCracCreationContext(crac, network.getNameOrId());
         addInstants(crac, specificParameters.getInstants());
         addContingencies(crac, network, specificParameters.getContingencies());
+
         new CnecCreator(creationContext, network, cracCreationParameters).addCnecs();
-        new PstRangeActionsCreator(crac, network, specificParameters.getPstRangeActions()).addPstRangeActions();
+        new PstRangeActionsCreator(crac, network, specificParameters.getPstRangeActions(), computeRaGroupsMap(specificParameters)).addPstRangeActions();
         new RedispatchingCreator(creationContext, network, specificParameters.getRedispatchingRangeActions()).addRedispatchRangeActions();
         new CountertradingRangeActionsCreator(creationContext, network, specificParameters.getCountertradingRangeActions()).addCountertradingActions();
         new BalancingRangeActionCreator(creationContext, network, specificParameters.getBalancingRangeAction()).addBalancingRangeAction();
 
         creationContext.setCreationSuccessful(true);
         return creationContext;
+    }
+
+    private static Map<String, String> computeRaGroupsMap(NetworkCracCreationParameters specificParameters) {
+        Map<String, String> raGroupPerNetworkElement = new HashMap<>();
+        int i = 0;
+        for (RangeActionGroup group : specificParameters.getRangeActionGroups()) {
+            String groupId = "RA_GROUP_" + i++;
+            group.getRangeActionsIds().forEach(ne -> raGroupPerNetworkElement.put(ne, groupId));
+        }
+        return raGroupPerNetworkElement;
     }
 
     private static void addInstants(Crac crac, SortedMap<InstantKind, List<String>> instants) {

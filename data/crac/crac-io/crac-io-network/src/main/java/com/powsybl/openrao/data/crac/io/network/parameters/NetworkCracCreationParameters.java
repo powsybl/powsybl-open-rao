@@ -21,8 +21,8 @@ public class NetworkCracCreationParameters extends AbstractAlignedRaCracCreation
     static final String PREVENTIVE_INSTANT_ID = "preventive";
     private static final String OUTAGE_INSTANT_ID = "outage";
     private final SortedMap<InstantKind, List<String>> instants;
-    private final CriticalElements criticalElements;
     private final Contingencies contingencies = new Contingencies();
+    private final CriticalElements criticalElements;
     private final PstRangeActions pstRangeActions = new PstRangeActions();
     private final RedispatchingRangeActions redispatchingRangeActions = new RedispatchingRangeActions();
     private final CountertradingRangeActions countertradingRangeActions = new CountertradingRangeActions();

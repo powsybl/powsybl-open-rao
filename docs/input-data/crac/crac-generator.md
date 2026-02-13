@@ -177,3 +177,17 @@ params.setRaCostsProvider(instant -> new InjectionRangeActionCosts(10000, 1000, 
 ~~~
 :::
 ::::
+
+## Aligning range actions
+You can align the range actions in the NetworkCracCreationParameters using IDs of the network elements seperated by " + ".  
+Note that this is currently only supported for PST range actions (use the ID of the TwoWindingsTransformer in the PowSyBl network).  
+
+::::{tabs}
+:::{group-tab} JAVA creation API
+~~~java
+// fist group aligns PST1 and PST2
+// second group aligns PST5, PST94 and PST345
+networkCracCreationParameters.setRangeActionGroupsAsString(List.of("PST1 + PST2", "PST5 + PST94 + PST345"));
+~~~
+:::
+::::
