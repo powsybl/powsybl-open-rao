@@ -29,7 +29,7 @@ public class CountertradingRangeActions extends AbstractCountriesFilter {
     private BiFunction<Country, Instant, MinAndMax<Double>> raRangeProvider = (country, instant) -> new MinAndMax<>(0., 0.);
     private ZonalData<SensitivityVariableSet> glsks = null;
 
-    public CountertradingRangeActions() {
+    CountertradingRangeActions() {
         this.setCountryFilter(Set.of()); // no CT by default
     }
 

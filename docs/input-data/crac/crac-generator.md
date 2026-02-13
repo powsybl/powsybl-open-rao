@@ -116,10 +116,12 @@ params.setPstRaPredicate((twoWindingsTransformer, instant) -> instant.isPreventi
 The NetworkCracCreationParameters' "Redispatching range actions" section allows you to set rules for the automatic generation of remedial actions representing redispatching. 
 These will take the form of [injection range actions](json.md#injection-range-action) in the generated CRAC.
 By default, all generators and loads in the network are considered. You can set the following parameters:
+- includeAllInjections: a boolean that allows you to configure if you want to consider all injections by default as unitary redispatching units. If set to false, only combinations in generatorCombinations (see below) will be considered. If set to true, unitary generators and combinations will be considered. Defaults to true. 
 - countries: only generators and loads in these countries will be considered as redispatchable. Leave it empty for no filtering. Set to empty set to disable redispatching creation.
 - rdRaPredicate: a predicate that allows you to filter out some generators/loads that are not available at some instants (outage instants are filtered out in all cases). By default, only generators are allowed. Be careful to set a custom filter if you have a large network, otherwise you may un into memory issues.
 - raCostsProvider: a function that provides the activation & variation cost for every generation/load at every instant. Costs default to zero.
 - raRangeProvider: a function that provides the available absolute (active power) range for every generation/load at every instant. The range is absolute. Mandatory if you allow redispatching on loads. For generators, uses limits from the network (minP and maxP) by default.
+- generatorCombinations: a map of string to of generator ID sets. Every set of generators will be associated in one injection range action. Can be useful to represent aggregated redispatching actions. Only rdRaPredicate filter applies. The key is useful to easily find the combination, since it will be used in the RA ID. Note that the individual generator keys will be computed as the proportion of the initial active power setpoint. For sake of simplicity, the ranges are fetched from raRangeProvider, and the costs are automatically computed as the average given by raCostsProvider. 
 
 ::::{tabs}
 :::{group-tab} JAVA creation API

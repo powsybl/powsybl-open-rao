@@ -9,8 +9,12 @@ package com.powsybl.openrao.data.crac.io.network.parameters;
 
 import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Injection;
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.Instant;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.BiPredicate;
 
@@ -20,9 +24,26 @@ import java.util.function.BiPredicate;
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public class RedispatchingRangeActions extends AbstractCountriesFilter {
+    private boolean includeAllInjections = true;
     private BiPredicate<Injection<?>, Instant> rdRaPredicate = (injection, instant) -> injection.getType() == IdentifiableType.GENERATOR;
     private BiFunction<Injection<?>, Instant, InjectionRangeActionCosts> raCostsProvider = (injection, instant) -> new InjectionRangeActionCosts(0, 0, 0);
     private BiFunction<Injection<?>, Instant, MinAndMax<Double>> raRangeProvider = (injection, instant) -> new MinAndMax<>(null, null);
+    private Map<String, Set<String>> generatorCombinations = new HashMap<>();
+    // TODO add raCostsProvider & raRangeProvider for combinations?
+
+    RedispatchingRangeActions() {
+    }
+
+    public boolean includeAllInjections() {
+        return includeAllInjections;
+    }
+
+    /**
+     * This parameter allows you to configure if you want to consider all injections by default as unitary redispatching units
+     */
+    public void setIncludeAllInjections(boolean includeAllInjections) {
+        this.includeAllInjections = includeAllInjections;
+    }
 
     /**
      * Set the function that says if a given injection is available for redispatching at a given instant.
@@ -59,5 +80,21 @@ public class RedispatchingRangeActions extends AbstractCountriesFilter {
 
     public MinAndMax<Double> getRaRange(Injection<?> injection, Instant instant) {
         return raRangeProvider.apply(injection, instant);
+    }
+
+    public Map<String, Set<String>> getGeneratorCombinations() {
+        return generatorCombinations;
+    }
+
+    /**
+     * Extra generator combinations to include. Every element of this set (combination of generators) will create one injection range action,
+     * with a set of keys that is proportional to the initial distribution of active power production.
+     */
+    public void setGeneratorCombinations(Map<String, Set<String>> generatorCombinations) {
+        if (generatorCombinations.values().stream().flatMap(Set::stream).distinct().count() !=
+            generatorCombinations.values().stream().map(Set::size).mapToDouble(Integer::doubleValue).sum()) {
+            throw new OpenRaoException("A generator can only be used once in generator combinations.");
+        }
+        this.generatorCombinations = generatorCombinations;
     }
 }

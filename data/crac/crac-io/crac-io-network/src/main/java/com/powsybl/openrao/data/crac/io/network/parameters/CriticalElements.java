@@ -40,6 +40,9 @@ public class CriticalElements extends AbstractCountriesFilter {
         PERM_LIMIT_MULTIPLIER // multiply perm limits by a given multiplier
     }
 
+    CriticalElements() {
+    }
+
     /**
      * Set the voltage thresholds (in kV, included) to consider branches as optimized critical elements.
      * You can use {@code null} to disable min and/or max filter.

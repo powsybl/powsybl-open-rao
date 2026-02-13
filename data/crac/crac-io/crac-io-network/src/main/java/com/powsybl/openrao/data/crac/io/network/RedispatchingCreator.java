@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.crac.io.network;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
@@ -17,8 +18,11 @@ import com.powsybl.openrao.data.crac.api.rangeaction.VariationDirection;
 import com.powsybl.openrao.data.crac.io.commons.OpenRaoImportException;
 import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
 import com.powsybl.openrao.data.crac.io.network.parameters.InjectionRangeActionCosts;
+import com.powsybl.openrao.data.crac.io.network.parameters.MinAndMax;
 import com.powsybl.openrao.data.crac.io.network.parameters.RedispatchingRangeActions;
 
+import java.util.Collection;
+import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -41,8 +45,15 @@ class RedispatchingCreator {
 
     void addRedispatchRangeActions() {
         Set<Instant> instants = crac.getSortedInstants().stream().filter(instant -> !instant.isOutage()).collect(Collectors.toSet());
+        instants.forEach(instant -> parameters.getGeneratorCombinations().forEach((id, generators) -> addGeneratorCombinationActionForInstant(id, generators, instant)));
+        if (!parameters.includeAllInjections()) {
+            return;
+        }
+        Set<String> generatorsInCombinations = // should be excluded from individual redispatching
+            parameters.getGeneratorCombinations().values().stream().flatMap(Collection::stream).collect(Collectors.toSet());
         network.getGeneratorStream()
             .filter(generator -> Utils.injectionIsInCountries(generator, parameters.getCountries().orElse(null)))
+            .filter(generator -> !generatorsInCombinations.contains(generator.getId()))
             .forEach(generator ->
                 instants.stream().filter(instant -> parameters.shouldCreateRedispatchingAction(generator, instant))
                     .forEach(instant -> addGeneratorActionForInstant(generator, instant)));
@@ -61,33 +72,72 @@ class RedispatchingCreator {
         }
     }
 
+    private void addGeneratorCombinationActionForInstant(String combinationId, Set<String> generatorIds, Instant instant) {
+        Set<Generator> consideredGenerators;
+        try {
+            consideredGenerators = generatorIds.stream().map(network::getGenerator).filter(g -> parameters.shouldCreateRedispatchingAction(g, instant)).collect(Collectors.toSet());
+        } catch (PowsyblException e) {
+            throw new OpenRaoImportException(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, e.getMessage());
+        }
+
+        if (consideredGenerators.isEmpty()) {
+            return;
+        }
+
+        if (consideredGenerators.stream().anyMatch(g -> parameters.getRaRange(g, instant).getMin().isPresent()) && consideredGenerators.stream().anyMatch(g -> parameters.getRaRange(g, instant).getMin().isEmpty())
+            || consideredGenerators.stream().anyMatch(g -> parameters.getRaRange(g, instant).getMax().isPresent()) && consideredGenerators.stream().anyMatch(g -> parameters.getRaRange(g, instant).getMax().isEmpty())) {
+            throw new OpenRaoImportException(ImportStatus.NOT_YET_HANDLED_BY_OPEN_RAO, String.format(
+                "Cannot create generator combination %s: if you define range min (resp. max) for one generator, you have to define it for all the others too.", combinationId));
+        }
+
+        Double min = null;
+        if (consideredGenerators.stream().anyMatch(g -> parameters.getRaRange(g, instant).getMin().isPresent())) {
+            // Then all min values are present because of previous check
+            min = consideredGenerators.stream().map(g -> parameters.getRaRange(g, instant).getMin().orElseThrow()).mapToDouble(Double::doubleValue).sum();
+        }
+        Double max = null;
+        if (consideredGenerators.stream().anyMatch(g -> parameters.getRaRange(g, instant).getMax().isPresent())) {
+            // Then all max values are present because of previous check
+            max = consideredGenerators.stream().map(g -> parameters.getRaRange(g, instant).getMax().orElseThrow()).mapToDouble(Double::doubleValue).sum();
+        }
+
+        InjectionRangeActionCosts averageCosts;
+        try {
+            averageCosts = new InjectionRangeActionCosts(
+                consideredGenerators.stream().map(g -> parameters.getRaCosts(g, instant).activationCost()).mapToDouble(Double::doubleValue).average().orElseThrow(),
+                consideredGenerators.stream().map(g -> parameters.getRaCosts(g, instant).upVariationCost()).mapToDouble(Double::doubleValue).average().orElseThrow(),
+                consideredGenerators.stream().map(g -> parameters.getRaCosts(g, instant).downVariationCost()).mapToDouble(Double::doubleValue).average().orElseThrow()
+            );
+        } catch (NoSuchElementException e) {
+            throw new OpenRaoImportException(ImportStatus.INCOMPLETE_DATA, String.format("Cannot create generator combination %s: you have to define the costs for at least one generator.", combinationId));
+        }
+
+        Utils.addInjectionRangeAction(
+            creationContext,
+            consideredGenerators,
+            "RD_COMBI_" + combinationId,
+            instant,
+            new MinAndMax<>(min, max),
+            false,
+            averageCosts);
+
+        consideredGenerators.forEach(generator -> generator.connect(SwitchPredicates.IS_OPEN));
+
+        checkNumberOfActions();
+    }
+
     private void addGeneratorActionForInstant(Generator generator, Instant instant) {
         // TODO merge preventive & curative RA if ranges are the same?
         // advantage : simpler crac
         // disadvantage : more complex code + we might not see bugs in "detailed" version
-        double initialP = Math.round(generator.getTargetP());
-        // TODO round it in network too ?
-        double minP = Math.min(generator.getMinP(), generator.getTargetP());
-        if (parameters.getRaRange(generator, instant).getMin().isPresent()) {
-            minP = Math.min(minP, parameters.getRaRange(generator, instant).getMin().get());
-        }
-        double maxP = Math.max(generator.getMaxP(), generator.getTargetP());
-        if (parameters.getRaRange(generator, instant).getMax().isPresent()) {
-            maxP = Math.max(maxP, parameters.getRaRange(generator, instant).getMax().get());
-        }
-        InjectionRangeActionCosts costs = parameters.getRaCosts(generator, instant);
-        crac.newInjectionRangeAction()
-            .withId("RD_GEN_" + generator.getId() + "_" + instant.getId())
-            .withNetworkElementAndKey(1.0, generator.getId())
-            .newRange()
-            .withMin(minP)
-            .withMax(maxP).add()
-            .newOnInstantUsageRule().withInstant(instant.getId()).add()
-            .withInitialSetpoint(initialP)
-            .withVariationCost(costs.downVariationCost(), VariationDirection.DOWN)
-            .withVariationCost(costs.upVariationCost(), VariationDirection.UP)
-            .withActivationCost(costs.activationCost())
-            .add();
+        Utils.addInjectionRangeAction(
+            creationContext,
+            Set.of(generator),
+            "RD_GEN_" + generator.getId(),
+            instant,
+            parameters.getRaRange(generator, instant),
+            false,
+            parameters.getRaCosts(generator, instant));
 
         // connect the generator
         generator.connect(SwitchPredicates.IS_OPEN);

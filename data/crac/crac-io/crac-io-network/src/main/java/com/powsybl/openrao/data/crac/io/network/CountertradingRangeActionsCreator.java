@@ -10,8 +10,6 @@ package com.powsybl.openrao.data.crac.io.network;
 import com.powsybl.iidm.network.*;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
-import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeActionAdder;
-import com.powsybl.openrao.data.crac.api.rangeaction.VariationDirection;
 import com.powsybl.openrao.data.crac.io.commons.OpenRaoImportException;
 import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
 import com.powsybl.openrao.data.crac.io.network.parameters.CountertradingRangeActions;
@@ -59,37 +57,19 @@ class CountertradingRangeActionsCreator {
         Set<Generator> consideredGenerators = network.getGeneratorStream()
             .filter(generator -> Utils.injectionIsInCountries(generator, Set.of(country)))
             .filter(generator -> parameters.shouldIncludeInjection(generator, instant))
-            .filter(generator -> Utils.injectionIsNotUsedInAnyInjectionRangeAction(crac, generator, instant))
+            //.filter(generator -> Utils.injectionIsNotUsedInAnyInjectionRangeAction(crac, generator, instant))
             .collect(Collectors.toSet());
+        // TODO ensure no CT on a generator that is considered in redispatching, by checking that country filters have no intersection
 
-        double initialTotalP = Math.round(consideredGenerators.stream().mapToDouble(Generator::getTargetP).sum());
+        Utils.addInjectionRangeAction(
+            creationContext,
+            consideredGenerators,
+            "CT_" + country.getName(),
+            instant,
+            parameters.getRaRange(country, instant),
+            true,
+            parameters.getRaCosts(country, instant));
 
-        if (consideredGenerators.size() >= 100) {
-            creationContext.getCreationReport().warn(
-                String.format("More than 100 generators included in the counter-trading action for %s at %s. Consider enforcing your filter, otherwise you may run into memory issues.", country, instant.getId())
-            );
-        }
-
-        if (initialTotalP < 1.) {
-            throw new OpenRaoImportException(ImportStatus.INCOMPLETE_DATA,
-                String.format("Cannot create a counter-trading action for %s at instant %s because initial production is almost zero (proportional GLSK is assumed). Maybe all generators were filtered out.", country, instant));
-        }
-
-        InjectionRangeActionAdder injectionRangeActionAdder = crac.newInjectionRangeAction()
-            .withId("CT_" + country.getName() + "_" + instant.getId())
-            .newRange()
-            .withMin(initialTotalP + parameters.getRaRange(country, instant).getMin().orElseThrow())
-            .withMax(initialTotalP + parameters.getRaRange(country, instant).getMax().orElseThrow())
-            .add()
-            .withInitialSetpoint(initialTotalP)
-            .withVariationCost(parameters.getRaCosts(country, instant).downVariationCost(), VariationDirection.DOWN)
-            .withVariationCost(parameters.getRaCosts(country, instant).upVariationCost(), VariationDirection.UP)
-            .withActivationCost(parameters.getRaCosts(country, instant).activationCost())
-            .newOnInstantUsageRule().withInstant(instant.getId()).add();
-
-        consideredGenerators.forEach(generator -> injectionRangeActionAdder.withNetworkElementAndKey(generator.getTargetP() / initialTotalP, generator.getId()));
-
-        injectionRangeActionAdder.add();
         //  crac.getInjectionRangeAction("CT_" + country.getName()).apply(network, initialTotalP);
         // TODO is the above line necessary ?
     }

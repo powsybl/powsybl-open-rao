@@ -11,8 +11,6 @@ import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
-import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeActionAdder;
-import com.powsybl.openrao.data.crac.api.rangeaction.VariationDirection;
 import com.powsybl.openrao.data.crac.io.commons.OpenRaoImportException;
 import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
 import com.powsybl.openrao.data.crac.io.network.parameters.BalancingRangeAction;
@@ -63,33 +61,13 @@ class BalancingRangeActionCreator {
             .filter(generator -> Utils.injectionIsNotUsedInAnyInjectionRangeAction(crac, generator, instant))
             .collect(Collectors.toSet());
 
-        if (consideredGenerators.size() >= 100) {
-            creationContext.getCreationReport().warn(
-                String.format("More than 100 generators included in the balancing action at %s. Consider enforcing your filter, otherwise you may run into memory issues.", instant.getId())
-            );
-        }
-
-        double initialTotalP = Math.round(consideredGenerators.stream().mapToDouble(Generator::getTargetP).sum());
-
-        if (initialTotalP < 1.) {
-            throw new OpenRaoImportException(ImportStatus.INCOMPLETE_DATA,
-                String.format("Cannot create a balancing action at instant %s because initial production is almost zero (proportional GLSK is assumed). Maybe all generators were filtered out.", instant));
-        }
-
-        InjectionRangeActionAdder injectionRangeActionAdder = crac.newInjectionRangeAction()
-            .withId("BALANCING_" + instant.getId())
-            .newRange()
-            .withMin(initialTotalP + parameters.getRaRange(instant).getMin().orElseThrow())
-            .withMax(initialTotalP + parameters.getRaRange(instant).getMax().orElseThrow())
-            .add()
-            .withInitialSetpoint(initialTotalP)
-            .withVariationCost(parameters.getRaCosts(instant).downVariationCost(), VariationDirection.DOWN)
-            .withVariationCost(parameters.getRaCosts(instant).upVariationCost(), VariationDirection.UP)
-            .withActivationCost(parameters.getRaCosts(instant).activationCost())
-            .newOnInstantUsageRule().withInstant(instant.getId()).add();
-
-        consideredGenerators.forEach(generator -> injectionRangeActionAdder.withNetworkElementAndKey(generator.getTargetP() / initialTotalP, generator.getId()));
-
-        injectionRangeActionAdder.add();
+        Utils.addInjectionRangeAction(
+            creationContext,
+            consideredGenerators,
+            "BALANCING",
+            instant,
+            parameters.getRaRange(instant),
+            true,
+            parameters.getRaCosts(instant));
     }
 }

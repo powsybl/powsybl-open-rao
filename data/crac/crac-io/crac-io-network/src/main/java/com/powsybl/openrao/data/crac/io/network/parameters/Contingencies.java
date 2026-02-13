@@ -18,6 +18,9 @@ import java.util.Optional;
 public class Contingencies extends AbstractCountriesFilter {
     private MinAndMax<Double> minAndMaxV = new MinAndMax<>(null, null);
 
+    Contingencies() {
+    }
+
     public Optional<Double> getMinV() {
         return minAndMaxV.getMin();
     }

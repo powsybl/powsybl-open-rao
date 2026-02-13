@@ -24,7 +24,7 @@ public class BalancingRangeAction {
     private Function<Instant, InjectionRangeActionCosts> raCostsProvider = instant -> new InjectionRangeActionCosts(0, 0, 0);
     private Function<Instant, MinAndMax<Double>> raRangeProvider = instant -> new MinAndMax<>(0., 0.);
 
-    public BalancingRangeAction() {
+    BalancingRangeAction() {
     }
 
     /**

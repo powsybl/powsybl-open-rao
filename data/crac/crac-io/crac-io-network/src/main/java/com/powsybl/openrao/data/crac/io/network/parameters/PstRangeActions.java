@@ -29,6 +29,9 @@ public class PstRangeActions extends AbstractCountriesFilter {
     public record TapRange(int min, int max, RangeType rangeType) {
     }
 
+    PstRangeActions() {
+    }
+
     /**
      * For every instant, set the relative tap range available for PSTs.
      * Not listing an instant will result in PSTs not being available for optimization at that instant.
