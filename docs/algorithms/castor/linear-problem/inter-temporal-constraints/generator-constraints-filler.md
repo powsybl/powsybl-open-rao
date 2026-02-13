@@ -109,14 +109,14 @@ $$\delta_{\textcolor{green}{\text{ON}}}^{gen}(g,s,t + \Delta_{\tau}) = T_{\textc
 When the generator is turned on, it has a warm-up time called _lead time_ during which the power remains null before it
 steps up to $P_{\min}$.
 
-$$\forall t' \in \left [ t + \Delta_{\tau} - \Delta_{\tau} \left \lceil \frac{LEAD(g)}{\Delta_{\tau}} \right \rceil, t \right ], \; T_{\textcolor{red}{\text{OFF}} \to \textcolor{green}{\text{ON}}}(g,s,t) \leq \delta_{\textcolor{red}{\text{OFF}}}^{gen}(g,s,t')$$
+$$\forall t' \in \left [ t + \Delta_{\tau} - \Delta_{\tau} \left \lceil \frac{LEAD(g)}{\Delta_{\tau}} \right \rceil, t \right ] \cap \mathcal{T}, \; T_{\textcolor{red}{\text{OFF}} \to \textcolor{green}{\text{ON}}}(g,s,t) \leq \delta_{\textcolor{red}{\text{OFF}}}^{gen}(g,s,t')$$
 
 ### Shut-Down
 
 Similarly, when the generator is shut off, it has a cool-down time called _lag time_ during which the power remains
 null and the generator cannot be turned on again.
 
-$$\forall t' \in \left [ t + \Delta_{\tau}, t + \Delta_{\tau} \left \lceil \frac{LAG(g)}{\Delta_{\tau}} \right \rceil \right ], \; T_{\textcolor{green}{\text{ON}} \to \textcolor{red}{\text{OFF}}}(g,s,t) \leq \delta_{\textcolor{red}{\text{OFF}}}^{gen}(g,s,t')$$
+$$\forall t' \in \left [ t + \Delta_{\tau}, t + \Delta_{\tau} \left \lceil \frac{LAG(g)}{\Delta_{\tau}} \right \rceil \right ] \cap \mathcal{T}, \; T_{\textcolor{green}{\text{ON}} \to \textcolor{red}{\text{OFF}}}(g,s,t) \leq \delta_{\textcolor{red}{\text{OFF}}}^{gen}(g,s,t')$$
 
 ### Power variation constraint
 
