@@ -24,11 +24,11 @@ characteristics:
 
 To simplify the problem, we will consider that the orders to switch a generator on are given at the beginning of the
 timestamps, and not some time in between two timestamps. Besides, if the generator has a lead time, its power must
-remain equal to $P_{\min}$
+remain constant and equal to $P_{\min}$ until the end of the current timestamp before to be operated between $P_{\min}$
+and $P_{\max}$.
 
-Similarly, a symmetric hypothesis holds for downward ramps, with the constraint that the power of the generator must
-reach zero exactly at the beginning of a timestamp. Thus, the downward ramps always end at times that coincide with the
-problem's timestamps.
+Similarly, when a generator is shut down, its power must step down from $P_{\min}$ to 0 and remain to a null power
+during a duration that covers its lag time.
 
 ## Used input data
 
@@ -37,26 +37,27 @@ problem's timestamps.
 
 <!-- TODO: Index PMin with timestamp -->
 
-| Name                            | Symbol               | Details                                                                                                                                     |
-|---------------------------------|----------------------|---------------------------------------------------------------------------------------------------------------------------------------------|
-| Constrained generators set      | $\Gamma$             | Set of generators with constraints defined                                                                                                  |
-| PMin                            | $P_{\min}(g)$        | Minimum operating power of generator $g$. This value must be non-negative.                                                                  |
-| PMax                            | $P_{\max}(g)$        | Maximum operating power of generator $g$. This value must be non-negative.                                                                  |
-| Lead Time                       | $LEAD(g)$            | Time elapsed between the start-up order and the moment the generator power reaches $P_{\min}$.                                              |
-| Lag Time                        | $LAG(g)$             | Time elapsed between the shut-down-up order and the moment the generator power reaches 0.                                                   |
-| Upper power gradient constraint | $\nabla^{+}(g)$      | Maximum upward power variation between two consecutive timestamps for generator $g$. This value must be non-negative.                       |
-| Lower power gradient constraint | $\nabla^{-}(g)$      | Maximum downward power variation (in absolute value) between two consecutive timestamps for generator $g$. This value must be non-positive. |
-| Timestamps                      | $\mathcal{T}$        | Set of all timestamps on which the optimization is performed.                                                                               |
-| Time gap                        | $\Delta_{\tau}$      | Time gap between two consecutive timestamps. It is assumed constant for all pairs of consecutive timestamps.                                |
-| Generator states                | $\Omega_{generator}$ | Set of all possible states a generator can be in: $\lbrace \textcolor{green}{\text{ON}}, \textcolor{red}{\text{OFF}} \rbrace$               |
+| Name                            | Symbol                      | Details                                                                                                                                     |
+|---------------------------------|-----------------------------|---------------------------------------------------------------------------------------------------------------------------------------------|
+| Constrained generators set      | $\Gamma$                    | Set of generators with constraints defined                                                                                                  |
+| PMin                            | $P_{\min}(g)$               | Minimum operating power of generator $g$. This value must be non-negative.                                                                  |
+| PMax                            | $P_{\max}(g)$               | Maximum operating power of generator $g$. This value must be non-negative.                                                                  |
+| Lead Time                       | $LEAD(g)$                   | Time elapsed between the start-up order and the moment the generator power reaches $P_{\min}$.                                              |
+| Lag Time                        | $LAG(g)$                    | Time elapsed between the shut-down-up order and the moment the generator power reaches 0.                                                   |
+| Upper power gradient constraint | $\nabla^{+}(g)$             | Maximum upward power variation between two consecutive timestamps for generator $g$. This value must be non-negative.                       |
+| Lower power gradient constraint | $\nabla^{-}(g)$             | Maximum downward power variation (in absolute value) between two consecutive timestamps for generator $g$. This value must be non-positive. |
+| Off-power deadband              | $\epsilon_{P}^{\text{OFF}}$ | Power deadband used to define the OFF state and account for rounding issues. This value must be non-negative.                               |
+| Timestamps                      | $\mathcal{T}$               | Set of all timestamps on which the optimization is performed.                                                                               |
+| Time gap                        | $\Delta_{\tau}$             | Time gap between two consecutive timestamps. It is assumed constant for all pairs of consecutive timestamps.                                |
+| Generator states                | $\Omega_{generator}$        | Set of all possible states a generator can be in: $\lbrace \textcolor{green}{\text{ON}}, \textcolor{red}{\text{OFF}} \rbrace$               |
 
 ## Defined optimization variables
 
-| Name                       | Symbol                          | Details                                                                                                             | Type       | Index                                                                                                                                                                                              | Unit    | Lower bound | Upper bound |
-|----------------------------|---------------------------------|---------------------------------------------------------------------------------------------------------------------|------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------|-------------|-------------|
-| Generator power            | $P(g,s,t)$                      | the power of generator $g$ at grid state $s$ of timestamp $t$                                                       | Real value | one per generator defined in $\Gamma$, per grid state and per timestamp of $\mathcal{T}$                                                                                                           | MW      | 0           | $P_{\max}$  |
-| Generator state            | $\delta_{\omega}^{gen}(g,s,t)$  | whether generator $g$'s state is $\omega$ at grid state $s$ of timestamp $t$ or not                                 | Binary     | one per generator defined in $\Gamma$, per generator state $\omega \in \Omega_{generator}$, per grid state and per timestamp of $\mathcal{T}$                                                      | No unit | 0           | 1           |
-| Generator state transition | $T_{\omega \to \omega'}(g,s,t)$ | whether generator $g$'s state has transitioned from $\omega$ to $\omega'$ at grid state $s$ of timestamp $t$ or not | Binary     | one per generator defined in $\Gamma$, per generator state $\omega \in \Omega_{generator}$, per generator state $\omega' \in \Omega_{generator}$ per grid state and per timestamp of $\mathcal{T}$ | No unit | 0           | 1           |
+| Name                       | Symbol                          | Details                                                                                                                                   | Type       | Index                                                                                                                                                                                              | Unit    | Lower bound | Upper bound |
+|----------------------------|---------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------|------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------|-------------|-------------|
+| Generator power            | $P(g,s,t)$                      | the power of generator $g$ at grid state $s$ of timestamp $t$                                                                             | Real value | one per generator defined in $\Gamma$, per grid state and per timestamp of $\mathcal{T}$                                                                                                           | MW      | 0           | $P_{\max}$  |
+| Generator state            | $\delta_{\omega}^{gen}(g,s,t)$  | whether generator $g$'s state is $\omega$ at grid state $s$ of timestamp $t$ or not                                                       | Binary     | one per generator defined in $\Gamma$, per generator state $\omega \in \Omega_{generator}$, per grid state and per timestamp of $\mathcal{T}$                                                      | No unit | 0           | 1           |
+| Generator state transition | $T_{\omega \to \omega'}(g,s,t)$ | whether generator $g$'s state has transitioned from $\omega$ at timestamp $t$ to $\omega'$ at timestamp $t + 1$, at grid state $s$ or not | Binary     | one per generator defined in $\Gamma$, per generator state $\omega \in \Omega_{generator}$, per generator state $\omega' \in \Omega_{generator}$ per grid state and per timestamp of $\mathcal{T}$ | No unit | 0           | 1           |
 
 ## Used optimization variables
 
@@ -68,8 +69,8 @@ problem's timestamps.
 
 ### Only one state
 
-At each timestamp and for each grid state, each generator can only be in one of the four states among ON, OFF, SHUT DOWN
-and START UP. Mathematically, this is written as:
+At each timestamp and for each grid state, each generator can only be in one of the two states between ON and OFF.
+Mathematically, this is written as:
 
 $$\forall g \in \Gamma, \forall t \in \mathcal{T}, \forall s, \; \delta_{\textcolor{green}{\text{ON}}}^{gen}(g,s,t) + \delta_{\textcolor{red}{\text{OFF}}}^{gen}(g,s,t) = 1$$
 
@@ -126,59 +127,44 @@ $$\forall t' \geq t \text{ such that } \Delta_{t \rightarrow t'} < LAG(g), \; T_
 The power variation and the state transitions are strongly entangled and constrain one another. Depending on the state
 transition, the power variation $P(g,s,t+1) - P(g,s,t)$ is bounded differently.
 
-::::{tabs}
-:::{group-tab} No lead, no lag
-With no lead time and no lag time, the power is free to move between $P_{\min}$ and $P_{\max}$ even when the generator
-is started up or shut down during the timestamp, as long as the power variation respects the power gradients.
+#### OFF to OFF transition
 
-$$\begin{align*}
-- \epsilon_{P}^{\text{OFF}} T_{\textcolor{red}{\text{OFF}} \to \textcolor{red}{\text{OFF}}}(g,s,t) & & \epsilon_{P}^{\text{OFF}} T_{\textcolor{red}{\text{OFF}} \to \textcolor{red}{\text{OFF}}}(g,s,t) \\
-+ \left ( P_{\min} - \epsilon_{P}^{\text{OFF}} \right ) T_{\textcolor{red}{\text{OFF}} \to \textcolor{green}{\text{ON}}}(g,s,t) & & \left ( P_{\min} + \nabla^{+}(g) \Delta_{\tau} \right ) T_{\textcolor{red}{\text{OFF}} \to \textcolor{green}{\text{ON}}}(g,s,t) \\
-+ \nabla^{-}(g) \Delta_{\tau} T_{\textcolor{green}{\text{ON}} \to \textcolor{green}{\text{ON}}}(g,s,t) & \leq P(g,s,t + 1) - P(g,s,t) \leq & + \nabla^{+}(g) \Delta_{\tau} T_{\textcolor{green}{\text{ON}} \to \textcolor{green}{\text{ON}}}(g,s,t) \\
-- \left ( P_{\min} - \nabla^{-}(g) \Delta_{\tau} \right) T_{\textcolor{green}{\text{ON}} \to \textcolor{red}{\text{OFF}}}(g,s,t) & & - \left ( P_{\min} - \epsilon_{P}^{\text{OFF}} \right ) T_{\textcolor{green}{\text{ON}} \to \textcolor{red}{\text{OFF}}}(g,s,t)
-\end{align*}$$
-:::
-:::{group-tab} Lead, no lag
+$$- \epsilon_{P}^{\text{OFF}} T_{\textcolor{red}{\text{OFF}} \to \textcolor{red}{\text{OFF}}}(g,s,t) \leq P(g,s,t + 1) - P(g,s,t) \leq \epsilon_{P}^{\text{OFF}} T_{\textcolor{red}{\text{OFF}} \to \textcolor{red}{\text{OFF}}}(g,s,t)$$
+
+#### OFF to ON transition
+
+##### With lead time
+
 With a lead time, the generator must first step up to $P_{\min}$ before to be operated between $P_{\min}$ and $P_{\max}$
-under the power gradient constraints. However, as it as no lag time, the same behavior does not apply when shutting it
-down.
+under the power gradient constraints.
 
-$$\begin{align*}
-- \epsilon_{P}^{\text{OFF}} T_{\textcolor{red}{\text{OFF}} \to \textcolor{red}{\text{OFF}}}(g,s,t) & & \epsilon_{P}^{\text{OFF}} T_{\textcolor{red}{\text{OFF}} \to \textcolor{red}{\text{OFF}}}(g,s,t) \\
-+ \left ( P_{\min} - \epsilon_{P}^{\text{OFF}} \right ) T_{\textcolor{red}{\text{OFF}} \to \textcolor{green}{\text{ON}}}(g,s,t) & & P_{\min} T_{\textcolor{red}{\text{OFF}} \to \textcolor{green}{\text{ON}}}(g,s,t) \\
-+ \nabla^{-}(g) \Delta_{\tau} T_{\textcolor{green}{\text{ON}} \to \textcolor{green}{\text{ON}}}(g,s,t) & \leq P(g,s,t + 1) - P(g,s,t) \leq & + \nabla^{+}(g) \Delta_{\tau} T_{\textcolor{green}{\text{ON}} \to \textcolor{green}{\text{ON}}}(g,s,t) \\
-- \left ( P_{\min} - \nabla^{-}(g) \Delta_{\tau} \right) T_{\textcolor{green}{\text{ON}} \to \textcolor{red}{\text{OFF}}}(g,s,t) & & - \left ( P_{\min} - \epsilon_{P}^{\text{OFF}} \right ) T_{\textcolor{green}{\text{ON}} \to \textcolor{red}{\text{OFF}}}(g,s,t)
-\end{align*}$$
-:::
-:::{group-tab} No lead, lag
+$$\left ( P_{\min} - \epsilon_{P}^{\text{OFF}} \right ) T_{\textcolor{red}{\text{OFF}} \to \textcolor{green}{\text{ON}}}(g,s,t) \leq P(g,s,t + 1) - P(g,s,t) \leq P_{\min} T_{\textcolor{red}{\text{OFF}} \to \textcolor{green}{\text{ON}}}(g,s,t)$$
+
+##### Without lead time
+
+$$\left ( P_{\min} - \epsilon_{P}^{\text{OFF}} \right ) T_{\textcolor{red}{\text{OFF}} \to \textcolor{green}{\text{ON}}}(g,s,t) \leq P(g,s,t + 1) - P(g,s,t) \leq \left ( P_{\min} + \nabla^{+}(g) \Delta_{\tau} \right ) T_{\textcolor{red}{\text{OFF}} \to \textcolor{green}{\text{ON}}}(g,s,t)$$
+
+#### ON to ON transition
+
+$$\nabla^{-}(g) \Delta_{\tau} T_{\textcolor{green}{\text{ON}} \to \textcolor{green}{\text{ON}}}(g,s,t) \leq P(g,s,t + 1) - P(g,s,t) \leq \nabla^{+}(g) \Delta_{\tau} T_{\textcolor{green}{\text{ON}} \to \textcolor{green}{\text{ON}}}(g,s,t)$$
+
+#### ON to OFF transition
+
+##### With lag time
+
 With a lag time, the generator must step down from $P_{\min}$ to 0 instead of being shut down from any power value above
-$P_{\min}$. However, as it as no lead time, no power stepping up to $P_{\min}$ is required when starting it up.
+$P_{\min}$.
 
-$$\begin{align*}
-- \epsilon_{P}^{\text{OFF}} T_{\textcolor{red}{\text{OFF}} \to \textcolor{red}{\text{OFF}}}(g,s,t) & & \epsilon_{P}^{\text{OFF}} T_{\textcolor{red}{\text{OFF}} \to \textcolor{red}{\text{OFF}}}(g,s,t) \\
-+ \left ( P_{\min} - \epsilon_{P}^{\text{OFF}} \right ) T_{\textcolor{red}{\text{OFF}} \to \textcolor{green}{\text{ON}}}(g,s,t) & & \left ( P_{\min} + \nabla^{+}(g) \Delta_{\tau} \right ) T_{\textcolor{red}{\text{OFF}} \to \textcolor{green}{\text{ON}}}(g,s,t) \\
-+ \nabla^{-}(g) \Delta_{\tau} T_{\textcolor{green}{\text{ON}} \to \textcolor{green}{\text{ON}}}(g,s,t) & \leq P(g,s,t + 1) - P(g,s,t) \leq & + \nabla^{+}(g) \Delta_{\tau} T_{\textcolor{green}{\text{ON}} \to \textcolor{green}{\text{ON}}}(g,s,t) \\
-- P_{\min} T_{\textcolor{green}{\text{ON}} \to \textcolor{red}{\text{OFF}}}(g,s,t) & & - \left ( P_{\min} - \epsilon_{P}^{\text{OFF}} \right ) T_{\textcolor{green}{\text{ON}} \to \textcolor{red}{\text{OFF}}}(g,s,t)
-\end{align*}$$
-:::
-:::{group-tab} Lead and lag
-With a lead time, the generator must first step up to $P_{\min}$ before to be operated between $P_{\min}$ and $P_{\max}$
-under the power gradient constraints. Besides, with a lag time, the generator must step down from $P_{\min}$ to 0
-instead of being shut down from any power value above $P_{\min}$.
+$$- P_{\min} T_{\textcolor{green}{\text{ON}} \to \textcolor{red}{\text{OFF}}}(g,s,t) \leq P(g,s,t + 1) - P(g,s,t) \leq - \left ( P_{\min} - \epsilon_{P}^{\text{OFF}} \right ) T_{\textcolor{green}{\text{ON}} \to \textcolor{red}{\text{OFF}}}(g,s,t)$$
 
-$$\begin{align*}
-- \epsilon_{P}^{\text{OFF}} T_{\textcolor{red}{\text{OFF}} \to \textcolor{red}{\text{OFF}}}(g,s,t) & & \epsilon_{P}^{\text{OFF}} T_{\textcolor{red}{\text{OFF}} \to \textcolor{red}{\text{OFF}}}(g,s,t) \\
-+ \left ( P_{\min} - \epsilon_{P}^{\text{OFF}} \right ) T_{\textcolor{red}{\text{OFF}} \to \textcolor{green}{\text{ON}}}(g,s,t) & & P_{\min} T_{\textcolor{red}{\text{OFF}} \to \textcolor{green}{\text{ON}}}(g,s,t) \\
-+ \nabla^{-}(g) \Delta_{\tau} T_{\textcolor{green}{\text{ON}} \to \textcolor{green}{\text{ON}}}(g,s,t) & \leq P(g,s,t + 1) - P(g,s,t) \leq & + \nabla^{+}(g) \Delta_{\tau} T_{\textcolor{green}{\text{ON}} \to \textcolor{green}{\text{ON}}}(g,s,t) \\
-- P_{\min} T_{\textcolor{green}{\text{ON}} \to \textcolor{red}{\text{OFF}}}(g,s,t) & & - \left ( P_{\min} - \epsilon_{P}^{\text{OFF}} \right ) T_{\textcolor{green}{\text{ON}} \to \textcolor{red}{\text{OFF}}}(g,s,t)
-\end{align*}$$
-:::
-::::
+##### Without lag time
+
+$$- \left ( P_{\min} - \nabla^{-}(g) \Delta_{\tau} \right) T_{\textcolor{green}{\text{ON}} \to \textcolor{red}{\text{OFF}}}(g,s,t) \leq P(g,s,t + 1) - P(g,s,t) \leq - \left ( P_{\min} - \epsilon_{P}^{\text{OFF}} \right ) T_{\textcolor{green}{\text{ON}} \to \textcolor{red}{\text{OFF}}}(g,s,t)$$
 
 ### Injection to generator power constraint
 
 The power of the generator can be linked to the set-point of the injection range action $r$ it is involved in:
 
-$$P(g,s,t) = \sigma(g) k(g,r) A(r,s,t)$$
+$$P(g,s,t) = k(g,r) A(r,s,t)$$
 
-where $k(g,r)$ is the injection key of $g$ in $r$ and $\sigma(g) = 1$ if $g$ is a generator or $-1$ if it is a load.
+where $k(g,r)$ is the injection key of $g$ in $r$.
