@@ -38,12 +38,13 @@ class PstRangeActionsCreator {
     }
 
     void addPstRangeActions() {
-        Set<Instant> instants = crac.getSortedInstants().stream().filter(instant -> !instant.isOutage())
-            .filter(parameters::arePstsAvailableForInstant).collect(Collectors.toSet());
+        Set<Instant> instants = crac.getSortedInstants().stream().filter(instant -> !instant.isOutage()).collect(Collectors.toSet());
         network.getTwoWindingsTransformerStream()
             .filter(twt -> twt.getPhaseTapChanger() != null)
             .filter(twt -> Utils.branchIsInCountries(twt, parameters.getCountries().orElse(null)))
-            .forEach(twt -> instants.forEach(instant -> addPstRangeActionForInstant(twt, instant)));
+            .forEach(twt -> instants
+                .stream().filter(instant -> crac.getStates(instant).stream().anyMatch(state -> parameters.isAvailable(twt, state)))
+                .forEach(instant -> addPstRangeActionForInstant(twt, instant)));
     }
 
     private void addPstRangeActionForInstant(TwoWindingsTransformer twt, Instant instant) {

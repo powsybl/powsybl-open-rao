@@ -18,11 +18,9 @@ import com.powsybl.openrao.data.crac.api.rangeaction.VariationDirection;
 import com.powsybl.openrao.data.crac.io.commons.OpenRaoImportException;
 import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
 import com.powsybl.openrao.data.crac.io.network.parameters.InjectionRangeActionCosts;
-import com.powsybl.openrao.data.crac.io.network.parameters.MinAndMax;
 import com.powsybl.openrao.data.crac.io.network.parameters.RedispatchingRangeActions;
 
 import java.util.Collection;
-import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -84,42 +82,14 @@ class RedispatchingCreator {
             return;
         }
 
-        if (consideredGenerators.stream().anyMatch(g -> parameters.getRaRange(g, instant).getMin().isPresent()) && consideredGenerators.stream().anyMatch(g -> parameters.getRaRange(g, instant).getMin().isEmpty())
-            || consideredGenerators.stream().anyMatch(g -> parameters.getRaRange(g, instant).getMax().isPresent()) && consideredGenerators.stream().anyMatch(g -> parameters.getRaRange(g, instant).getMax().isEmpty())) {
-            throw new OpenRaoImportException(ImportStatus.NOT_YET_HANDLED_BY_OPEN_RAO, String.format(
-                "Cannot create generator combination %s: if you define range min (resp. max) for one generator, you have to define it for all the others too.", combinationId));
-        }
-
-        Double min = null;
-        if (consideredGenerators.stream().anyMatch(g -> parameters.getRaRange(g, instant).getMin().isPresent())) {
-            // Then all min values are present because of previous check
-            min = consideredGenerators.stream().map(g -> parameters.getRaRange(g, instant).getMin().orElseThrow()).mapToDouble(Double::doubleValue).sum();
-        }
-        Double max = null;
-        if (consideredGenerators.stream().anyMatch(g -> parameters.getRaRange(g, instant).getMax().isPresent())) {
-            // Then all max values are present because of previous check
-            max = consideredGenerators.stream().map(g -> parameters.getRaRange(g, instant).getMax().orElseThrow()).mapToDouble(Double::doubleValue).sum();
-        }
-
-        InjectionRangeActionCosts averageCosts;
-        try {
-            averageCosts = new InjectionRangeActionCosts(
-                consideredGenerators.stream().map(g -> parameters.getRaCosts(g, instant).activationCost()).mapToDouble(Double::doubleValue).average().orElseThrow(),
-                consideredGenerators.stream().map(g -> parameters.getRaCosts(g, instant).upVariationCost()).mapToDouble(Double::doubleValue).average().orElseThrow(),
-                consideredGenerators.stream().map(g -> parameters.getRaCosts(g, instant).downVariationCost()).mapToDouble(Double::doubleValue).average().orElseThrow()
-            );
-        } catch (NoSuchElementException e) {
-            throw new OpenRaoImportException(ImportStatus.INCOMPLETE_DATA, String.format("Cannot create generator combination %s: you have to define the costs for at least one generator.", combinationId));
-        }
-
         Utils.addInjectionRangeAction(
             creationContext,
             consideredGenerators,
             "RD_COMBI_" + combinationId,
             instant,
-            new MinAndMax<>(min, max),
+            parameters.getCombinationRange(combinationId, instant),
             false,
-            averageCosts);
+            parameters.getCombinationCosts(combinationId, instant));
 
         consideredGenerators.forEach(generator -> generator.connect(SwitchPredicates.IS_OPEN));
 

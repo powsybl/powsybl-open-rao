@@ -29,7 +29,8 @@ public class RedispatchingRangeActions extends AbstractCountriesFilter {
     private BiFunction<Injection<?>, Instant, InjectionRangeActionCosts> raCostsProvider = (injection, instant) -> new InjectionRangeActionCosts(0, 0, 0);
     private BiFunction<Injection<?>, Instant, MinAndMax<Double>> raRangeProvider = (injection, instant) -> new MinAndMax<>(null, null);
     private Map<String, Set<String>> generatorCombinations = new HashMap<>();
-    // TODO add raCostsProvider & raRangeProvider for combinations?
+    private BiFunction<String, Instant, MinAndMax<Double>> combinationRangeProvider = (cominationId, instant) -> new MinAndMax<>(null, null);
+    private BiFunction<String, Instant, InjectionRangeActionCosts> combinationCostsProvider = (combinationId, instant) -> new InjectionRangeActionCosts(0, 0, 0);
 
     RedispatchingRangeActions() {
     }
@@ -70,7 +71,7 @@ public class RedispatchingRangeActions extends AbstractCountriesFilter {
     }
 
     /**
-     * Set the function that provides the MW range for redispatching on  given injection at a given instant.
+     * Set the function that provides the MW range for redispatching on given injection at a given instant.
      * Not setting this (or using null min/max) will use the physical minP - maxP in the network for Generators.
      * If you plan on including Loads, however, you must define the bounds.
      */
@@ -96,5 +97,29 @@ public class RedispatchingRangeActions extends AbstractCountriesFilter {
             throw new OpenRaoException("A generator can only be used once in generator combinations.");
         }
         this.generatorCombinations = generatorCombinations;
+    }
+
+    public MinAndMax<Double> getCombinationRange(String combinationId, Instant instant) {
+        return combinationRangeProvider.apply(combinationId, instant);
+    }
+
+    /**
+     * Set the function that provides the MW range for redispatching on a generator combination at a given instant.
+     * Not setting this (or using null min/max) will use the physical minP - maxP in the network are used.
+     */
+    public void setCombinationRangeProvider(BiFunction<String, Instant, MinAndMax<Double>> combinationRangeProvider) {
+        this.combinationRangeProvider = combinationRangeProvider;
+    }
+
+    public InjectionRangeActionCosts getCombinationCosts(String combinationId, Instant instant) {
+        return combinationCostsProvider.apply(combinationId, instant);
+    }
+
+    /**
+     * Set the function that provides the costs of redispatching on a given generator combination at a given instant.
+     * All costs default to 0.
+     */
+    public void setCombinationCostsProvider(BiFunction<String, Instant, InjectionRangeActionCosts> combinationCostsProvider) {
+        this.combinationCostsProvider = combinationCostsProvider;
     }
 }

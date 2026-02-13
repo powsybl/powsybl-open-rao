@@ -53,10 +53,6 @@ public class PstRangeActions extends AbstractCountriesFilter {
         this.pstRaPredicate = pstRaPredicate;
     }
 
-    public boolean arePstsAvailableForInstant(Instant instant) {
-        return availableTapRangesAtInstants.containsKey(instant.getId());
-    }
-
     public boolean isAvailable(TwoWindingsTransformer pst, State state) {
         return pstRaPredicate.test(pst, state);
     }
