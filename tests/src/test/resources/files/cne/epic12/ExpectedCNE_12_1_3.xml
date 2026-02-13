@@ -8,7 +8,7 @@
     <sender_MarketParticipant.marketRole.type>A44</sender_MarketParticipant.marketRole.type>
     <receiver_MarketParticipant.mRID codingScheme="A01">17XTSO-CS------W</receiver_MarketParticipant.mRID>
     <receiver_MarketParticipant.marketRole.type>A36</receiver_MarketParticipant.marketRole.type>
-    <createdDateTime>2021-12-30T14:45:20Z</createdDateTime>
+    <createdDateTime>2025-03-20T14:25:48Z</createdDateTime>
     <time_Period.timeInterval>
         <start>2021-10-30T22:00Z</start>
         <end>2021-10-31T23:00Z</end>
@@ -3227,7 +3227,7 @@
                     </RemedialAction_Series>
                 </Constraint_Series>
                 <Constraint_Series>
-                    <mRID>RAseries_cd836</mRID>
+                    <mRID>RAseries_32f3d</mRID>
                     <businessType>B56</businessType>
                     <RemedialAction_Series>
                         <mRID>PRA_PST_BE</mRID>
@@ -3246,7 +3246,7 @@
                     </RemedialAction_Series>
                 </Constraint_Series>
                 <Constraint_Series>
-                    <mRID>RAseries_d1d53</mRID>
+                    <mRID>RAseries_e7e62</mRID>
                     <businessType>B56</businessType>
                     <RemedialAction_Series>
                         <mRID>Open BE1 BE3</mRID>
@@ -3258,7 +3258,7 @@
                     </RemedialAction_Series>
                 </Constraint_Series>
                 <Constraint_Series>
-                    <mRID>RAseries_b3916</mRID>
+                    <mRID>RAseries_40307</mRID>
                     <businessType>B56</businessType>
                     <Contingency_Series>
                         <mRID>CO1</mRID>
