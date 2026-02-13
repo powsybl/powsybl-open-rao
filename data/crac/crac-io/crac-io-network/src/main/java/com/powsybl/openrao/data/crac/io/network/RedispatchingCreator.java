@@ -146,13 +146,13 @@ class RedispatchingCreator {
     }
 
     private void addLoadActionForInstant(Load load, Instant instant) {
-        double initialP = Math.round(load.getP0());
-        // TODO round it in network too ?
+        load.setP0(Math.round(load.getP0()));
+        double initialP = load.getP0();
         if (parameters.getRaRange(load, instant).getMin().isEmpty() || parameters.getRaRange(load, instant).getMax().isEmpty()) {
             throw new OpenRaoImportException(ImportStatus.INCOMPLETE_DATA, String.format("Could not create range action for load %s at instant %s, because you did not define its min or max value in the parameters.", load.getId(), instant.getId()));
         }
-        double minP = Math.min(initialP, parameters.getRaRange(load, instant).getMin().get());
-        double maxP = Math.max(initialP, parameters.getRaRange(load, instant).getMax().get());
+        double minP = Math.min(initialP, parameters.getRaRange(load, instant).getMin().orElseThrow());
+        double maxP = Math.max(initialP, parameters.getRaRange(load, instant).getMax().orElseThrow());
         InjectionRangeActionCosts costs = parameters.getRaCosts(load, instant);
         crac.newInjectionRangeAction()
             .withId("RD_LOAD_" + load.getId() + "_" + instant.getId())

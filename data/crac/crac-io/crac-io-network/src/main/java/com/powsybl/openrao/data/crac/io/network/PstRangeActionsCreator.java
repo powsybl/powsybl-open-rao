@@ -57,6 +57,7 @@ class PstRangeActionsCreator {
         if (raGroupPerNetworkElement.containsKey(twt.getId())) {
             pstAdder.withGroupId(raGroupPerNetworkElement.get(twt.getId()));
         }
+        // TODO fail if one PST listed in a group is not added as a RA? (to prevent having unrealistic cases)
 
         boolean availableForAllStates = crac.getStates(instant).stream().allMatch(state -> parameters.isAvailable(twt, state));
         if (availableForAllStates) {
