@@ -62,13 +62,6 @@ public class NetworkCracCreationParameters extends AbstractAlignedRaCracCreation
         }
     }
 
-    private void checkInstants(SortedMap<InstantKind, List<String>> instants) {
-        // TODO verify 1 element for preventive, outage, etc. also that they are in correct order.
-        if (!instants.containsKey(InstantKind.PREVENTIVE) || instants.get(InstantKind.PREVENTIVE).size() != 1) {
-            throw new OpenRaoException("Exactly one preventive instant is expected");
-        }
-    }
-
     @Override
     public String getName() {
         return "NetworkCracCreationParameters";

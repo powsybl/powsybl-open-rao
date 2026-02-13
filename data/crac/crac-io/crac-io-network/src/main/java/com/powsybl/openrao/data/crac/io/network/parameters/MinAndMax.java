@@ -10,6 +10,7 @@ package com.powsybl.openrao.data.crac.io.network.parameters;
 import com.powsybl.openrao.commons.OpenRaoException;
 
 import javax.annotation.Nullable;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -33,6 +34,22 @@ public class MinAndMax<T extends Comparable<T>> {
 
     public Optional<T> getMax() {
         return Optional.ofNullable(max);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        return Objects.equals(min, ((MinAndMax<?>) o).min) && Objects.equals(max, ((MinAndMax<?>) o).max);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(min, max);
     }
 
 }

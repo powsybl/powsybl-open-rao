@@ -80,6 +80,7 @@ class NetworkCracCreatorTest {
         importCracFrom("TestCase12Nodes.uct");
         assertTrue(creationContext.isCreationSuccessful());
         assertNotNull(crac);
+        assertEquals(16, crac.getContingencies().size());
         assertEquals(496, crac.getFlowCnecs().size());
         assertEquals(2, crac.getPstRangeActions().size());
         assertEquals(24, crac.getInjectionRangeActions().size());
@@ -136,7 +137,7 @@ class NetworkCracCreatorTest {
         importCracFrom("TestCase12Nodes.uct");
         assertTrue(creationContext.isCreationSuccessful());
         assertNotNull(crac);
-        assertEquals(1, crac.getPstRangeActions().size());
+        assertEquals(2, crac.getPstRangeActions().size());
         PstRangeAction pst = crac.getPstRangeAction("PST_RA_BBE2AA1  BBE3AA1  1_curative");
         assertNotNull(pst);
         assertEquals("BBE2AA1  BBE3AA1  1", pst.getNetworkElement().getId());

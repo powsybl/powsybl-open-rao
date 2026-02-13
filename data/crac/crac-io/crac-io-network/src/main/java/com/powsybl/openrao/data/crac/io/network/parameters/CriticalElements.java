@@ -27,7 +27,7 @@ public class CriticalElements extends AbstractCountriesFilter {
     private MinAndMax<Double> optimizedMinMaxV = new MinAndMax<>(null, null);
     private MinAndMax<Double> monitoredMinMaxV; // non-critical branches are declared as MNECs
     private BiFunction<Branch<?>, Contingency, OptimizedMonitored> optimizedMonitoredProvider = (branch, contingency) -> new OptimizedMonitored(true, true);
-    private ThresholdDefinition thresholdDefinition;
+    private ThresholdDefinition thresholdDefinition = ThresholdDefinition.FROM_OPERATIONAL_LIMITS;
     private Map<String, Double> limitMultiplierPerInstant; // multiplies temp or perm limit, depending on thresholdDefinition
     private Map<String, Map<Double, Double>> limitMultiplierPerInstantPerNominalV; // multiplies temp or perm limit, depending on thresholdDefinition and voltage level
     // at least one of the two following attributes is mandatory if thresholdDefinition = FROM_OPERATIONAL_LIMITS
@@ -105,21 +105,24 @@ public class CriticalElements extends AbstractCountriesFilter {
     }
 
     public Double getLimitMultiplierPerInstant(Instant instant, Double nominalV) {
+        if (limitMultiplierPerInstant == null) {
+            throw new OpenRaoException("Limit multiplier per instant is null. Please set it using getLimitMultiplierPerInstant.");
+        }
         double defaultValue = limitMultiplierPerInstant.get(instant.getId());
-        if (limitMultiplierPerInstantPerNominalV == null || !limitMultiplierPerInstantPerNominalV.containsKey(instant.getId())) {
+        if (limitMultiplierPerInstantPerNominalV == null) {
             return defaultValue;
         }
         return limitMultiplierPerInstantPerNominalV.get(instant.getId()).getOrDefault(nominalV, defaultValue);
     }
 
     private void checkAllInstantsListed(Map<String, ?> map) {
-        if (!this.instants.equals(map.keySet())) {
+        if (map == null || !this.instants.equals(map.keySet())) {
             throw new OpenRaoException("You must define the value for every instant.");
         }
     }
 
     private void checkAllPostcontingencyInstantsListed(Map<String, ?> map) {
-        if (!this.instants.stream().filter(i -> !i.equals(NetworkCracCreationParameters.PREVENTIVE_INSTANT_ID)).collect(Collectors.toSet()).equals(map.keySet())) {
+        if (map == null || !this.instants.stream().filter(i -> !i.equals(NetworkCracCreationParameters.PREVENTIVE_INSTANT_ID)).collect(Collectors.toSet()).equals(map.keySet())) {
             throw new OpenRaoException("You must define the value for every instant except preventive.");
         }
     }
@@ -143,8 +146,14 @@ public class CriticalElements extends AbstractCountriesFilter {
     }
 
     public Double getApplicableLimitDuration(Instant instant, Double nominalV) {
+        if (applicableLimitDurationPerInstant == null) {
+            throw new OpenRaoException("Acceptable duration per instant is null. Please set it using setApplicableLimitDurationPerInstant.");
+        }
+        if (instant.isPreventive()) {
+            return Double.MAX_VALUE;
+        }
         double defaultValue = applicableLimitDurationPerInstant.get(instant.getId());
-        if (applicableLimitDurationPerInstantPerNominalV == null || !applicableLimitDurationPerInstantPerNominalV.containsKey(instant.getId())) {
+        if (applicableLimitDurationPerInstantPerNominalV == null) {
             return defaultValue;
         }
         return applicableLimitDurationPerInstantPerNominalV.get(instant.getId()).getOrDefault(nominalV, defaultValue);

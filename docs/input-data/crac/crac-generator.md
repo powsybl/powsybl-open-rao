@@ -64,7 +64,7 @@ You can set the following parameters:
 - monitoredMinMaxV: the voltage level range in which branches are considered as [monitored MNECs](json.md#optimised-and-monitored-cnecs). You can leave it empty if you don't want to create MNECs.
 - optimizedMonitoredProvider: a function that allows you to indicate if a branch is optimized and/or monitored after a given Contingency or in basecase (contingency = null). The filter applies above the voltage filter. We advise you to use it to make the computations lighter (by default, all branches are optimized and monitored).
 - thresholdDefinition: tells the generator where to find the CNEC [thresholds](json.md#flow-limits-on-a-flowcnec)
-  - FROM_OPERATIONAL_LIMITS: operational limits (permanent & temporary) will be read in the network. It is expected you define applicableLimitDurationPerInstant or applicableLimitDurationPerInstantPerNominalV (see below). Limit multipliers (see below) apply. 
+  - FROM_OPERATIONAL_LIMITS (default): operational limits (permanent & temporary) will be read in the network. It is expected you define applicableLimitDurationPerInstant or applicableLimitDurationPerInstantPerNominalV (see below). Limit multipliers (see below) apply. 
   - PERM_LIMIT_MULTIPLIER: only permanent limits will be read in the network. They will be multiplied as defined in limit multipliers (see below).
 - limitMultiplierPerInstantPerNominalV: for every instant and every nominal voltage, you can define a limit multiplier to apply to the operational limit read in the network.
 - limitMultiplierPerInstant: this will be the default value if you don't want to define the multipliers on a nominal voltage basis.
