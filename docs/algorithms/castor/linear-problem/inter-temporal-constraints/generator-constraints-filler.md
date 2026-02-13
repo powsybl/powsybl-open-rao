@@ -41,7 +41,7 @@ during a duration that covers its lag time.
 | PMin                            | $P_{\min}(g, t)$            | Minimum operating power of generator $g$ at timestamp $t$. This value must be non-negative.                                                 |
 | PMax                            | $P_{\max}(g)$               | Maximum operating power of generator $g$. This value must be non-negative.                                                                  |
 | Lead Time                       | $LEAD(g)$                   | Time elapsed between the start-up order and the moment the generator power reaches $P_{\min}$.                                              |
-| Lag Time                        | $LAG(g)$                    | Time elapsed between the shut-down-up order and the moment the generator power reaches 0.                                                   |
+| Lag Time                        | $LAG(g)$                    | Time elapsed between the shut-down order and the moment the generator power reaches 0.                                                   |
 | Upper power gradient constraint | $\nabla^{+}(g)$             | Maximum upward power variation between two consecutive timestamps for generator $g$. This value must be non-negative.                       |
 | Lower power gradient constraint | $\nabla^{-}(g)$             | Maximum downward power variation (in absolute value) between two consecutive timestamps for generator $g$. This value must be non-positive. |
 | Off-power deadband              | $\epsilon_{P}^{\text{OFF}}$ | Power deadband used to define the OFF state and account for rounding issues. This value must be non-negative.                               |
