@@ -44,16 +44,16 @@ public class NetworkCracImporter implements Importer {
         }
         try {
             Files.copy(inputStream, tempFile, StandardCopyOption.REPLACE_EXISTING);
-            // com.powsybl.iidm.network.Importer networkImporter = com.powsybl.iidm.network.Importer.find(new ReadOnlyMemDataSource(tempFile.toString()));
-            // return networkImporter != null;
-            // TODO avoid reading the network
             Network network = Network.read(tempFile);
             return network != null;
         } catch (IOException | PowsyblException e) {
             return false;
         } finally {
-            tempFile.toFile().delete();
-
+            try {
+                Files.delete(tempFile);
+            } catch (IOException e) {
+                // nothing to do ; it is only a temp file
+            }
         }
     }
 

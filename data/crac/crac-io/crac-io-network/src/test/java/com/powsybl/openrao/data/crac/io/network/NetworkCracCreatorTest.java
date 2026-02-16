@@ -31,6 +31,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import java.io.IOException;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -53,7 +54,11 @@ class NetworkCracCreatorTest {
 
     private void importCracFrom(String networkName) {
         network = Network.read(networkName, getClass().getResourceAsStream("/" + networkName));
-        creationContext = new NetworkCracCreator().createCrac(network, cracCreationParameters);
+        try {
+            creationContext = Crac.readWithContext(networkName, getClass().getResourceAsStream("/" + networkName), network, cracCreationParameters);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         creationContext.getCreationReport().printCreationReport();
         crac = creationContext.getCrac();
     }
