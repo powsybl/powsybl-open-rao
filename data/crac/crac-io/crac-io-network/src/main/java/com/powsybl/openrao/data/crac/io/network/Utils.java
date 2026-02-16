@@ -8,8 +8,6 @@
 package com.powsybl.openrao.data.crac.io.network;
 
 import com.powsybl.iidm.network.*;
-import com.powsybl.openrao.data.crac.api.Crac;
-import com.powsybl.openrao.data.crac.api.CracCreationContext;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeActionAdder;
 import com.powsybl.openrao.data.crac.api.rangeaction.VariationDirection;
@@ -38,7 +36,7 @@ public final class Utils {
     public static boolean terminalIsInCountries(Terminal terminal, Set<Country> countries) {
         Optional<Substation> optionalSubstation = terminal.getVoltageLevel().getSubstation();
         return optionalSubstation.isPresent() && optionalSubstation.get().getCountry().isPresent() &&
-            countries.contains(optionalSubstation.get().getCountry().get());
+            countries.contains(optionalSubstation.get().getCountry().orElseThrow());
     }
 
     public static boolean branchIsInCountries(Branch<?> branch, Set<Country> countries) {
@@ -60,16 +58,10 @@ public final class Utils {
         if (substation.getCountry().isEmpty()) {
             return false;
         }
-        return countries.contains(substation.getCountry().get());
+        return countries.contains(substation.getCountry().orElseThrow());
     }
 
-    public static boolean injectionIsNotUsedInAnyInjectionRangeAction(Crac crac, Injection<?> injection, Instant instant) {
-        return crac.getInjectionRangeActions()
-            .stream().noneMatch(ra -> ra.getUsageRules().stream().anyMatch(ur -> ur.getInstant().equals(instant)) &&
-                ra.getNetworkElements().stream().anyMatch(ne -> ne.getId().equals(injection.getId())));
-    }
-
-    public static void addInjectionRangeAction(CracCreationContext creationContext, Set<Generator> consideredGenerators, String raIdPrefix, Instant instant, MinAndMax<Double> range, boolean relativeRange, InjectionRangeActionCosts costs) {
+    public static void addInjectionRangeAction(NetworkCracCreationContext creationContext, Set<Generator> consideredGenerators, String raIdPrefix, Instant instant, MinAndMax<Double> range, boolean relativeRange, InjectionRangeActionCosts costs) {
         if (consideredGenerators.isEmpty()) {
             return;
         }
@@ -110,7 +102,10 @@ public final class Utils {
                 throw new OpenRaoImportException(ImportStatus.INCOMPLETE_DATA,
                     String.format("Cannot create injection range (with multiple generators) actions %s at instant %s because initial production is almost zero. Maybe all generators were filtered out.", raIdPrefix, instant));
             }
-            consideredGenerators.forEach(generator -> injectionRangeActionAdder.withNetworkElementAndKey(generator.getTargetP() / initialTotalP, generator.getId()));
+            consideredGenerators.forEach(generator -> {
+                injectionRangeActionAdder.withNetworkElementAndKey(generator.getTargetP() / initialTotalP, generator.getId());
+                creationContext.addInjectionUsedInAction(instant, generator.getId());
+            });
         } else {
             injectionRangeActionAdder.withNetworkElementAndKey(1., consideredGenerators.iterator().next().getId());
         }

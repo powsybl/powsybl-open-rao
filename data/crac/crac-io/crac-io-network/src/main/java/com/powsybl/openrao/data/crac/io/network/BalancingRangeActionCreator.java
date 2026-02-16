@@ -46,7 +46,6 @@ class BalancingRangeActionCreator {
     }
 
     private void addBalancingRangeActionForInstant(Instant instant) {
-        // TODO reduce code duplication with counter-trading creator
         if (parameters.getRaRange(instant).getMin().isEmpty() || parameters.getRaRange(instant).getMax().isEmpty()) {
             throw new OpenRaoImportException(ImportStatus.INCOMPLETE_DATA,
                 String.format("Cannot create a balancing action at instant %s without a defined min/max range.", instant));
@@ -58,7 +57,7 @@ class BalancingRangeActionCreator {
 
         Set<Generator> consideredGenerators = network.getGeneratorStream()
             .filter(generator -> parameters.shouldIncludeInjection(generator, instant))
-            .filter(generator -> Utils.injectionIsNotUsedInAnyInjectionRangeAction(crac, generator, instant))
+            .filter(generator -> !creationContext.isInjectionUsedInAction(instant, generator.getId()))
             .collect(Collectors.toSet());
 
         Utils.addInjectionRangeAction(

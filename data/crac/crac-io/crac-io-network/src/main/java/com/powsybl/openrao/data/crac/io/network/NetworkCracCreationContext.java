@@ -10,17 +10,23 @@ package com.powsybl.openrao.data.crac.io.network;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.CracCreationContext;
 import com.powsybl.openrao.data.crac.api.CracCreationReport;
+import com.powsybl.openrao.data.crac.api.Instant;
 
 import java.time.OffsetDateTime;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public class NetworkCracCreationContext implements CracCreationContext {
-    private Crac crac;
+    private final Crac crac;
     private boolean isCreationSuccessful;
-    private CracCreationReport creationReport;
+    private final CracCreationReport creationReport;
     private final String networkName;
+    private final Map<Instant, Set<String>> injectionsUsedInActions = new HashMap<>();
 
     public NetworkCracCreationContext(Crac crac, String networkName) {
         this.crac = crac;
@@ -30,6 +36,14 @@ public class NetworkCracCreationContext implements CracCreationContext {
 
     public void setCreationSuccessful(boolean creationSuccessful) {
         isCreationSuccessful = creationSuccessful;
+    }
+
+    void addInjectionUsedInAction(Instant instant, String injectionId) {
+        injectionsUsedInActions.computeIfAbsent(instant, k -> new HashSet<>()).add(injectionId);
+    }
+
+    boolean isInjectionUsedInAction(Instant instant, String injectionId) {
+        return injectionsUsedInActions.containsKey(instant) && injectionsUsedInActions.get(instant).contains(injectionId);
     }
 
     @Override

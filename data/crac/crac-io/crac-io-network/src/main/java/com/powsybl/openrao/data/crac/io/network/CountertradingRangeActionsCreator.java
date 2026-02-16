@@ -64,9 +64,8 @@ class CountertradingRangeActionsCreator {
         Set<Generator> consideredGenerators = network.getGeneratorStream()
             .filter(generator -> Utils.injectionIsInCountries(generator, Set.of(country)))
             .filter(generator -> parameters.shouldIncludeInjection(generator, instant))
-            //.filter(generator -> Utils.injectionIsNotUsedInAnyInjectionRangeAction(crac, generator, instant))
+            .filter(generator -> !creationContext.isInjectionUsedInAction(instant, generator.getId()))
             .collect(Collectors.toSet());
-        // TODO ensure no CT on a generator that is considered in redispatching, by checking that country filters have no intersection
 
         Utils.addInjectionRangeAction(
             creationContext,

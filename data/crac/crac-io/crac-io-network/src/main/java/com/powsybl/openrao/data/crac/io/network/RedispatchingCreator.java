@@ -153,6 +153,7 @@ class RedispatchingCreator {
             .withVariationCost(costs.upVariationCost(), VariationDirection.UP)
             .withActivationCost(costs.activationCost())
             .add();
+        creationContext.addInjectionUsedInAction(instant, load.getId());
 
         // connect the generator
         load.connect(SwitchPredicates.IS_OPEN);
