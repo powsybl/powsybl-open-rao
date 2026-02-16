@@ -315,7 +315,7 @@ class MarmotTest {
         inputPerTimestamp.put(timestamp10, RaoInputWithNetworkPaths.build(networkPath, networkPath, crac10).build());
 
         IntertemporalConstraints intertemporalConstraints = new IntertemporalConstraints();
-        intertemporalConstraints.addGeneratorConstraints(GeneratorConstraints.create().withGeneratorId("FFR1AA1 _generator").withUpwardPowerGradient(500.0).withDownwardPowerGradient(-500.0).build());
+        intertemporalConstraints.addGeneratorConstraints(GeneratorConstraints.create().withGeneratorId("FFR3AA1 _generator").withUpwardPowerGradient(500.0).withDownwardPowerGradient(-500.0).build());
 
         InterTemporalRaoInputWithNetworkPaths input = new InterTemporalRaoInputWithNetworkPaths(new TemporalDataImpl<>(inputPerTimestamp), intertemporalConstraints);
 
