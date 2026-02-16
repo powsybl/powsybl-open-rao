@@ -35,7 +35,7 @@ coupled by _causality_ in the sense that preventive choices affect the following
 
 This model can be enhanced with a new temporal dimension to account for the different timestamps that are being
 optimized at once. Here, what couple the states are the
-[intertemporal power gradient constraints](castor/linear-problem/inter-temporal-constraints/power-gradient-constraint-filler.md)
+[intertemporal generator constraints](castor/linear-problem/inter-temporal-constraints/generator-constraints-filler.md)
 that restrict the variation of generators' set-points over time based on the duration of the timestamps.
 
 A significant part of the complexity of the intertemporal optimization hides in the handling of topological actions,

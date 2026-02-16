@@ -23,7 +23,7 @@ import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.Optimiza
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.BestTapFinder;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.IteratingLinearOptimizer;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.ProblemFillerHelper;
-import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.PowerGradientConstraintFiller;
+import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.GeneratorConstraintsFiller;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers.ProblemFiller;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblemBuilder;
@@ -163,7 +163,7 @@ public final class InterTemporalIteratingLinearOptimizer {
         // TODO: add inter-temporal margin filler (min of all min margins)
         TemporalData<State> preventiveStates = input.iteratingLinearOptimizerInputs().map(linearOptimizerInput -> linearOptimizerInput.optimizationPerimeter().getMainOptimizationState());
         TemporalData<Set<InjectionRangeAction>> preventiveInjectionRangeActions = input.iteratingLinearOptimizerInputs().map(linearOptimizerInput -> filterPreventiveInjectionRangeAction(linearOptimizerInput.optimizationPerimeter().getRangeActions()));
-        return List.of(new PowerGradientConstraintFiller(preventiveStates, preventiveInjectionRangeActions, input.intertemporalConstraints().getGeneratorConstraints()));
+        return List.of(new GeneratorConstraintsFiller(input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::network), preventiveStates, preventiveInjectionRangeActions, input.intertemporalConstraints().getGeneratorConstraints()));
     }
 
     private static Set<InjectionRangeAction> filterPreventiveInjectionRangeAction(Set<RangeAction<?>> rangeActions) {
