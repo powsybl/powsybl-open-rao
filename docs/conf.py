@@ -12,6 +12,7 @@
 #
 import os
 import sys
+from datetime import datetime
 
 # Path to python sources, for doc generation on readthedocs
 source_path = os.path.abspath('..')
@@ -22,7 +23,7 @@ print(f'appended {source_path}')
 # -- Project information -----------------------------------------------------
 
 project = 'PowSyBl Open RAO'
-copyright = '2024, RTE (http://www.rte-france.com)'
+copyright = f'2024-{datetime.now().year}, RTE (http://www.rte-france.com)'
 
 
 # -- General configuration ---------------------------------------------------

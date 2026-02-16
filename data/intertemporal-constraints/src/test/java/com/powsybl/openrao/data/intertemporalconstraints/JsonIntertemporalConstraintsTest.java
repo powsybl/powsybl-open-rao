@@ -35,8 +35,6 @@ class JsonIntertemporalConstraintsTest {
 
         GeneratorConstraints generatorConstraints1 = GeneratorConstraints.create()
             .withGeneratorId("generator-1")
-            .withPMin(0.0)
-            .withPMax(1000.0)
             .withLeadTime(1.15)
             .withLagTime(2.0)
             .withUpwardPowerGradient(100.0)
@@ -47,8 +45,6 @@ class JsonIntertemporalConstraintsTest {
             .build();
         GeneratorConstraints generatorConstraints2 = GeneratorConstraints.create()
             .withGeneratorId("generator-2")
-            .withPMin(200.0)
-            .withPMax(400.0)
             .build();
         GeneratorConstraints generatorConstraints3 = GeneratorConstraints.create()
             .withGeneratorId("generator-3")
@@ -92,8 +88,6 @@ class JsonIntertemporalConstraintsTest {
 
         GeneratorConstraints generatorConstraints1 = generatorConstraints.get(0);
         assertEquals("generator-1", generatorConstraints1.getGeneratorId());
-        assertEquals(Optional.of(0.0), generatorConstraints1.getPMin());
-        assertEquals(Optional.of(1000.0), generatorConstraints1.getPMax());
         assertEquals(Optional.of(1.15), generatorConstraints1.getLeadTime());
         assertEquals(Optional.of(2.0), generatorConstraints1.getLagTime());
         assertEquals(Optional.of(100.0), generatorConstraints1.getUpwardPowerGradient());
@@ -104,8 +98,6 @@ class JsonIntertemporalConstraintsTest {
 
         GeneratorConstraints generatorConstraints2 = generatorConstraints.get(1);
         assertEquals("generator-2", generatorConstraints2.getGeneratorId());
-        assertEquals(Optional.of(200.0), generatorConstraints2.getPMin());
-        assertEquals(Optional.of(400.0), generatorConstraints2.getPMax());
         assertTrue(generatorConstraints2.getLeadTime().isEmpty());
         assertTrue(generatorConstraints2.getLagTime().isEmpty());
         assertTrue(generatorConstraints2.getUpwardPowerGradient().isEmpty());
@@ -116,8 +108,6 @@ class JsonIntertemporalConstraintsTest {
 
         GeneratorConstraints generatorConstraints3 = generatorConstraints.get(2);
         assertEquals("generator-3", generatorConstraints3.getGeneratorId());
-        assertTrue(generatorConstraints3.getPMin().isEmpty());
-        assertTrue(generatorConstraints3.getPMax().isEmpty());
         assertEquals(Optional.of(0.5), generatorConstraints3.getLeadTime());
         assertEquals(Optional.of(4.0), generatorConstraints3.getLagTime());
         assertTrue(generatorConstraints3.getUpwardPowerGradient().isEmpty());
@@ -138,13 +128,6 @@ class JsonIntertemporalConstraintsTest {
         // error occurs during automatic deserialization of generator constraints and is reported as a JsonMappingException through a reference chain
         OpenRaoException exception = assertThrows(OpenRaoException.class, () -> JsonIntertemporalConstraints.read(getClass().getResourceAsStream("/intertemporal-constraints-with-invalid-generator-constraints.json")));
         assertEquals("Unexpected field 'unknownField' in JSON generator constraints.", exception.getMessage());
-    }
-
-    @Test
-    void testDeserializationWithNegativePMaxGeneratorConstraints() {
-        // error occurs during automatic deserialization of generator constraints and is reported as a JsonMappingException through a reference chain
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> JsonIntertemporalConstraints.read(getClass().getResourceAsStream("/intertemporal-constraints-with-negative-generator-pmax.json")));
-        assertEquals("The maximal power of the generator must be positive.", exception.getMessage());
     }
 
     private static void assertJsonEquivalence(String expectedJson, String actualJson) throws JsonProcessingException {

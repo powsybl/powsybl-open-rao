@@ -3,8 +3,9 @@
   "version": "1.0",
   "generatorConstraints": [
     {
-      "generatorId": "generator",
-      "pMax": -400.0
+      "generatorId": "BBE1AA1 _generator",
+      "leadTime": 1.25,
+      "lagTime": 2.5
     }
   ]
 }
