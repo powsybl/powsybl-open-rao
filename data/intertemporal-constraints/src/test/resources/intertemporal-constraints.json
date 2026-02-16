@@ -4,8 +4,6 @@
   "generatorConstraints": [
     {
       "generatorId": "generator-1",
-      "pMin": 0.0,
-      "pMax": 1000.0,
       "leadTime": 1.15,
       "lagTime": 2.0,
       "upwardPowerGradient": 100.0,
@@ -15,9 +13,7 @@
       "minOffTime": 10.0
     },
     {
-      "generatorId": "generator-2",
-      "pMin": 200.0,
-      "pMax": 400.0
+      "generatorId": "generator-2"
     },
     {
       "generatorId": "generator-3",
