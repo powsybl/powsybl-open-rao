@@ -14,6 +14,7 @@ Feature: US 13.2: Solve a RAO for two consecutive states (preventive THEN curati
     Given crac file is "epic13/SL_ep13us2case1.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
+    Then the execution details should be "The RAO only went through first preventive"
     Then 2 remedial actions are used in preventive
     Then the remedial action "close_fr1_fr5" is used in preventive
     Then the tap of PstRangeAction "pst_fr" should be 5 in preventive
@@ -66,6 +67,7 @@ Feature: US 13.2: Solve a RAO for two consecutive states (preventive THEN curati
     Given crac file is "epic13/SL_ep13us2case4.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
+    Then the execution details should be "The RAO only went through first preventive"
     Then 4 remedial actions are used in preventive
     Then the remedial action "open_be1_be4" is used in preventive
     Then the remedial action "open_fr1_fr3" is used in preventive

@@ -13,6 +13,8 @@ Feature: US 7.11: Additional tests with CBCORA input files and FRM
     Given configuration file is "epic7/RaoParameters_maxMargin_mw_ac_lf_false_5_100.json"
 
     When I launch loopflow rao at "2019-01-08 00:00" with default loopflow limit as 0.0 percent of pmax
+
+    Then the execution details should be "The RAO only went through first preventive"
     # if the loopflow limit is defined equal to zero, josiris-server will not create LoopFlowExtensions
     # and the limits given in the CBCORA file will be used instead
 
@@ -42,6 +44,8 @@ Feature: US 7.11: Additional tests with CBCORA input files and FRM
     Given configuration file is "epic7/RaoParameters_maxMargin_mw_ac_lf_false_5_100.json"
 
     When I launch loopflow rao at "2019-01-08 12:00" with default loopflow limit as 0.0 percent of pmax
+
+    Then the execution details should be "The RAO only went through first preventive"
       # if the loopflow limit is defined equal to zero, josiris-server will not create LoopFlowExtensions
       # and the limits given in the CBCORA file will be used instead
 

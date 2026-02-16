@@ -112,6 +112,7 @@ Feature: US 19.3: Handle maximum CRA and maximum curative PSTs per TSO
     Given crac file is "epic19/SL_ep19us3case9.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao on preventive state
+    Then the execution details should be "The RAO only went through first preventive"
     Then 3 remedial actions are used in preventive
     Then the remedial action "open_be1_be4" is used in preventive
     Then the remedial action "open_fr1_fr2" is used in preventive

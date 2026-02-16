@@ -11,6 +11,7 @@ Feature: US 15.16: Handle parallel PSTs with different initial setpoint
     Given crac file is "epic15/CBCORA_15_5_1.xml"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao at "2019-01-08 12:00" on preventive state
+    Then the execution details should be "The RAO only went through first preventive"
     Then 0 remedial actions are used in preventive
     Then the tap of PstRangeAction "pst_be" should be 0 in preventive
     Then the tap of PstRangeAction "pst_fr" should be 5 in preventive

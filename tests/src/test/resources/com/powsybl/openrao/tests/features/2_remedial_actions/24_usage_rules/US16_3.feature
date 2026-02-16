@@ -11,6 +11,7 @@ Feature: User Story #16.3: Activate remedial actions only after a specific const
     Given crac file is "epic16/SL_ep16us3case1.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
+    Then the execution details should be "The RAO only went through first preventive"
     Then 1 remedial actions are used in preventive
     Then the remedial action "open_fr1_fr3" is used in preventive
     Then the worst margin is -135 A
@@ -26,6 +27,7 @@ Feature: User Story #16.3: Activate remedial actions only after a specific const
     Given crac file is "epic16/SL_ep16us3case2.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
+    Then the execution details should be "The RAO only went through first preventive"
     Then 1 remedial actions are used in preventive
     Then the remedial action "close_fr1_fr5" is used in preventive
     Then the worst margin is -45 A
@@ -39,6 +41,7 @@ Feature: User Story #16.3: Activate remedial actions only after a specific const
     Given crac file is "epic16/SL_ep16us3case3.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
+    Then the execution details should be "The RAO only went through first preventive"
     Then 1 remedial actions are used in preventive
     Then the remedial action "close_fr1_fr5" is used in preventive
     Then the worst margin is -45 A
@@ -124,6 +127,7 @@ Feature: User Story #16.3: Activate remedial actions only after a specific const
     Given crac file is "epic16/CseCrac_16_3_9.xml"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
+    Then the execution details should be "The RAO only went through first preventive"
     Then 1 remedial actions are used in preventive
     Then the remedial action "close_fr1_fr5" is used in preventive
     Then the worst margin is -45 A
@@ -169,6 +173,7 @@ Feature: User Story #16.3: Activate remedial actions only after a specific const
     Given crac file is "epic16/CseCrac_16_3_12.xml"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
+    Then the execution details should be "The RAO only went through first preventive"
     Then 1 remedial actions are used in preventive
     Then the remedial action "close_fr1_fr5" is used in preventive
     Then the worst margin is -45 A

@@ -67,6 +67,7 @@ Feature: US 11.1: Handle MNECs in linear RAO
     Given crac file is "epic11/ls_mnec_linearRao_1_4.json"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
     When I launch rao
+    Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
     Then the tap of PstRangeAction "PRA_PST_BE" should be -7 in preventive
     Then PST "BBE2AA1  BBE3AA1  1" in network file with PRA is on tap -7

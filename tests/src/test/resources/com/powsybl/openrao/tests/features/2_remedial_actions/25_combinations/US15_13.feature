@@ -11,6 +11,7 @@ Feature: US 15.13: Handle combined RAs by configuration
     Given crac file is "epic15/CseCrac_ep15us13case1.xml"
     Given configuration file is "epic15/RaoParameters_ep15us13case1.json"
     When I launch rao at "2021-04-30 22:30"
+    Then the execution details should be "The RAO only went through first preventive"
     Then 3 remedial actions are used in preventive
     Then the remedial action "open_fr1_fr3" is used in preventive
     Then the remedial action "open_be1_be4" is used in preventive
@@ -70,6 +71,7 @@ Feature: US 15.13: Handle combined RAs by configuration
     Given crac file is "epic15/CseCrac_ep15us13case1.xml"
     Given configuration file is "epic15/RaoParameters_ep15us13case5.json"
     When I launch rao at "2021-04-30 22:30"
+    Then the execution details should be "The RAO only went through first preventive"
     Then 3 remedial actions are used in preventive
     Then the remedial action "open_fr1_fr3" is used in preventive
     Then the remedial action "open_be1_be4" is used in preventive
@@ -87,6 +89,7 @@ Feature: US 15.13: Handle combined RAs by configuration
     Given crac file is "epic15/CseCrac_ep15us13case1.xml"
     Given configuration file is "epic15/RaoParameters_ep15us13case6.json"
     When I launch rao at "2021-04-30 22:30"
+    Then the execution details should be "The RAO only went through first preventive"
     Then 3 remedial actions are used in preventive
     Then the remedial action "open_fr1_fr3" is used in preventive
     Then the remedial action "open_be1_be4" is used in preventive
@@ -104,6 +107,7 @@ Feature: US 15.13: Handle combined RAs by configuration
     Given crac file is "epic15/CseCrac_ep15us13case1.xml"
     Given configuration file is "epic15/RaoParameters_ep15us13case7.json"
     When I launch rao at "2021-04-30 22:30"
+    Then the execution details should be "The RAO only went through first preventive"
     Then 3 remedial actions are used in preventive
     Then the remedial action "open_fr1_fr3" is used in preventive
     Then the remedial action "open_be1_be4" is used in preventive
@@ -121,6 +125,7 @@ Feature: US 15.13: Handle combined RAs by configuration
     Given crac file is "epic15/CseCrac_ep15us13case8.xml"
     Given configuration file is "epic15/RaoParameters_ep15us13case8.json"
     When I launch rao at "2021-04-30 22:30"
+    Then the execution details should be "The RAO only went through first preventive"
     Then 2 remedial actions are used in preventive
     Then the remedial action "open_fr1_fr3" is used in preventive
     Then the remedial action "open_be1_be4" is used in preventive
@@ -136,6 +141,7 @@ Feature: US 15.13: Handle combined RAs by configuration
     Given crac file is "epic15/CseCrac_ep15us13case9.xml"
     Given configuration file is "epic15/RaoParameters_ep15us13case5.json"
     When I launch rao at "2021-04-30 22:30"
+    Then the execution details should be "The RAO only went through first preventive"
     Then 3 remedial actions are used in preventive
     Then the remedial action "open_fr1_fr3" is used in preventive
     Then the remedial action "open_be1_be4" is used in preventive
@@ -151,6 +157,7 @@ Feature: US 15.13: Handle combined RAs by configuration
     Given crac file is "epic15/CseCrac_ep15us13case10.xml"
     Given configuration file is "epic15/RaoParameters_ep15us13case10.json"
     When I launch rao at "2021-04-30 22:30"
+    Then the execution details should be "The RAO only went through first preventive"
     Then 1 remedial actions are used in preventive
     Then the remedial action "close_fr1_fr5" is used in preventive
     Then the worst margin is -44 A

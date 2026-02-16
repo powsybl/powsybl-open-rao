@@ -133,6 +133,7 @@ Feature: US 13.5: dynamic of range actions available in several instants
     Given crac file is "epic13/12nodes_oneCorrectPreventivePst.xml"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_ac.json"
     When I launch rao at "2019-01-08 00:30"
+    Then the execution details should be "The RAO only went through first preventive"
     Then the worst margin is 1637 MW
     Then the margin on cnec "CnecPreventiveDir - preventive" after PRA should be 1654 MW
     Then the tap of PstRangeAction "SelectTapPSTPrev" should be 12 in preventive

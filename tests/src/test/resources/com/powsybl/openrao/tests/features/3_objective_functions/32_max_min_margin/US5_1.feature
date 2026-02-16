@@ -38,6 +38,7 @@ Feature: US 5.1: MAX_MIN_MARGIN objective function
     Given crac file is "epic5/SL_ep5us1.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
+    Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
     Then the worst margin is 1000.0 MW
     Then the margin on cnec "FFR2AA1  DDE3AA1  1 - preventive" after PRA should be 1000.0 MW

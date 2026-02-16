@@ -11,6 +11,7 @@ Feature: US 15.12.7: Handle CSE's HVDCs with range actions on injections
     Given crac file is "epic15/cseCrac_ep15us12-5case1.xml"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
     When I launch rao
+    Then the execution details should be "The RAO only went through first preventive"
     Then the setpoint of RangeAction "PRA_HVDC" should be 1406 MW in preventive
     Then the worst margin is 380 MW
     Then the margin on cnec "be1_fr5_n - BBE1AA11->FFR5AA11 - preventive" after PRA should be 380 MW
@@ -21,6 +22,7 @@ Feature: US 15.12.7: Handle CSE's HVDCs with range actions on injections
     Given crac file is "epic15/cseCrac_ep15us12-5case2.xml"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
     When I launch rao
+    Then the execution details should be "The RAO only went through first preventive"
     Then the setpoint of RangeAction "PRA_HVDC" should be 1985 MW in preventive
     Then the worst margin is 172 MW
     Then the margin on cnec "be1_fr5_n - BBE1AA11->FFR5AA11 - preventive" after PRA should be 172 MW
@@ -32,6 +34,7 @@ Feature: US 15.12.7: Handle CSE's HVDCs with range actions on injections
     Given crac file is "epic15/cseCrac_ep15us12-5case3.xml"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
     When I launch rao
+    Then the execution details should be "The RAO only went through first preventive"
     Then the setpoint of RangeAction "PRA_HVDC" should be 828 MW in preventive
     Then the tap of PstRangeAction "PST_PRA_PST_be_BBE2AA11 BBE3AA11 1" should be 15 in preventive
     Then the worst margin is 187 MW
@@ -44,6 +47,7 @@ Feature: US 15.12.7: Handle CSE's HVDCs with range actions on injections
     Given crac file is "epic15/cseCrac_ep15us12-5case4.xml"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
     When I launch rao
+    Then the execution details should be "The RAO only went through first preventive"
     Then the setpoint of RangeAction "PRA_HVDC" should be 929 MW in preventive
     Then the tap of PstRangeAction "PST_PRA_PST_be_BBE2AA11 BBE3AA11 1" should be 14 in preventive
     Then the worst margin is 176 MW
@@ -91,6 +95,7 @@ Feature: US 15.12.7: Handle CSE's HVDCs with range actions on injections
     Given crac file is "epic15/cseCrac_ep15us12-5case7.xml"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
     When I launch rao
+    Then the execution details should be "The RAO only went through first preventive"
     Then the setpoint of RangeAction "PRA_HVDC" should be -353 MW in preventive
     Then the worst margin is 47 MW
     Then the margin on cnec "de2_de3_n - DDE2AA11->DDE3AA11 - preventive" after PRA should be 47 MW

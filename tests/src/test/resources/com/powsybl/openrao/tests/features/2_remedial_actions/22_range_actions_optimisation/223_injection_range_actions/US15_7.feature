@@ -11,6 +11,7 @@ Feature: US 15.7: Injection setpoint with absolute and relative target
     Given crac file is "epic15/cse_crac_1_preventive_ra.xml"
     Given configuration file is "epic15/RaoParameters_ep15us7-2.json"
     When I launch rao at "2021-04-30 22:30"
+    Then the execution details should be "The RAO only went through first preventive"
     Then the remedial action "cra_2" is used in preventive
     Then the worst margin is 545.8 MW
 

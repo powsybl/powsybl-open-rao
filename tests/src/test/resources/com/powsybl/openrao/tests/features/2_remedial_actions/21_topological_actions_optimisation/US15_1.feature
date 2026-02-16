@@ -11,6 +11,7 @@ Feature: US 15.1: Handle the opening/closing of switches as topological actions
     Given crac file is "epic15/SL_ep15us1_withSwitchRA.json"
     Given configuration file is "common/RaoParameters_posMargin_ampere.json"
     When I launch rao
+    Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
     Then 1 remedial actions are used in preventive
     Then the remedial action "PRA 1N poste DE3" is used in preventive

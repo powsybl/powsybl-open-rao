@@ -11,6 +11,7 @@ Feature: US 7.8: Loopflow computation (not within the RAO)
     Given crac file is "epic7/crac_lf_rao_2.json"
     Given configuration file is "common/RaoParameters_posMargin_megawatt_ac.json"
     When I launch rao
+    Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
     Then the worst margin is 92.0 MW
     Then 1 remedial actions are used in preventive

@@ -12,6 +12,7 @@ Feature: US 7.7: Handle optimisation unfeasibility with loopflow constraints
     Given loopflow glsk file is "common/glsk_lots_of_lf_12nodes.xml"
     Given configuration file is "epic7/RaoParameters_maxMargin_mw_ac_lf_false_5_100.json"
     When I launch loopflow rao with default loopflow limit as 50.0 percent of pmax
+    Then the execution details should be "The RAO only went through first preventive"
     Then the worst margin is -402.0 MW
     Then the margin on cnec "FFR2AA1  DDE3AA1  1 - preventive" after PRA should be -402.0 MW
     Then the tap of PstRangeAction "PRA_PST_BE" should be -9 in preventive
