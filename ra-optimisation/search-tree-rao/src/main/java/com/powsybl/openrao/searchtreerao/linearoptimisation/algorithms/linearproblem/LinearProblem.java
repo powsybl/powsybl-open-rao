@@ -39,10 +39,6 @@ public final class LinearProblem {
     private final double relativeMipGap;
     private final String solverSpecificParameters;
 
-    public OpenRaoMPSolver getSolver() {
-        return solver;
-    }
-
     public enum AbsExtension {
         POSITIVE,
         NEGATIVE

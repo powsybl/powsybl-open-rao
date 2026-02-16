@@ -18,7 +18,6 @@ import com.powsybl.openrao.searchtreerao.result.api.RemedialActionActivationResu
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.Comparator;
 import java.util.Map;
 import java.util.Set;
 
@@ -54,7 +53,7 @@ public class RemedialActionCostEvaluator implements CostEvaluator {
 
     private double getTotalRangeActionsCost(RemedialActionActivationResult remedialActionActivationResult) {
         // TODO: shall we filter out states with contingencies in 'contingenciesToExclude' from evaluate?
-        return optimizedStates.stream().mapToDouble(state -> remedialActionActivationResult.getActivatedRangeActions(state).stream().sorted(Comparator.comparing(RangeAction::getId)).mapToDouble(rangeAction -> computeRangeActionCost(rangeAction, state, remedialActionActivationResult)).sum()).sum();
+        return optimizedStates.stream().mapToDouble(state -> remedialActionActivationResult.getActivatedRangeActions(state).stream().mapToDouble(rangeAction -> computeRangeActionCost(rangeAction, state, remedialActionActivationResult)).sum()).sum();
     }
 
     private double computeRangeActionCost(RangeAction<?> rangeAction, State state, RemedialActionActivationResult remedialActionActivationResult) {

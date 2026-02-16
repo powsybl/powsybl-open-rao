@@ -62,7 +62,7 @@ public class PowerGradientConstraintFiller implements ProblemFiller {
      * p^{-}(g) * delta(t, t + 1) <= P(g, t + 1) - P(g, t) <= p^{+}(g) * delta_t(t, t + 1)
      * */
     private static void addPowerGradientConstraint(LinearProblem linearProblem, GeneratorConstraints generatorConstraints, OffsetDateTime currentTimestamp, OffsetDateTime previousTimestamp, OpenRaoMPVariable generatorPowerVariable) {
-        double timeGap = previousTimestamp.until(currentTimestamp, ChronoUnit.SECONDS) / 3600.;
+        double timeGap = previousTimestamp.until(currentTimestamp, ChronoUnit.HOURS);
         double lb = generatorConstraints.getDownwardPowerGradient().map(minValue -> minValue * timeGap).orElse(-linearProblem.infinity());
         double ub = generatorConstraints.getUpwardPowerGradient().map(maxValue -> maxValue * timeGap).orElse(linearProblem.infinity());
         String generatorId = generatorConstraints.getGeneratorId();
