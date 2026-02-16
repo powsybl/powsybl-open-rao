@@ -11,6 +11,7 @@ Feature: US 13.3 : Solve a RAO for N compounds states
     Given crac file is "epic13/SL_ep13us3case1.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
+    Then the execution details should be "The RAO only went through first preventive"
     Then 3 remedial actions are used in preventive
     Then the remedial action "close_de3_de4" is used in preventive
     Then the remedial action "open_fr1_fr2" is used in preventive
@@ -34,6 +35,7 @@ Feature: US 13.3 : Solve a RAO for N compounds states
     Given crac file is "epic13/SL_ep13us3case2.json"
     Given configuration file is "epic13/RaoParameters_maxMargin_ampere_absolute_threshold.json"
     When I launch rao
+    Then the execution details should be "The RAO only went through first preventive"
     Then 2 remedial actions are used in preventive
     Then the remedial action "open_fr1_fr3" is used in preventive
     Then the tap of PstRangeAction "pst_fr" should be 15 in preventive
@@ -60,6 +62,7 @@ Feature: US 13.3 : Solve a RAO for N compounds states
     Given crac file is "epic13/SL_ep13us3case3.json"
     Given configuration file is "epic13/RaoParameters_maxMargin_ampere_absolute_threshold.json"
     When I launch rao
+    Then the execution details should be "The RAO only went through first preventive"
     Then 2 remedial actions are used in preventive
     Then the remedial action "open_fr1_fr3" is used in preventive
     Then the tap of PstRangeAction "pst_fr" should be 15 in preventive
@@ -85,6 +88,7 @@ Feature: US 13.3 : Solve a RAO for N compounds states
     Given crac file is "epic13/SL_ep13us3case4.json"
     Given configuration file is "epic13/RaoParameters_maxMargin_ampere_absolute_threshold.json"
     When I launch rao
+    Then the execution details should be "The RAO only went through first preventive"
     Then 1 remedial actions are used in preventive
     Then the tap of PstRangeAction "pst_fr" should be 15 in preventive
     Then 1 remedial actions are used after "co1_fr2_fr3_1" at "curative"
@@ -105,6 +109,7 @@ Feature: US 13.3 : Solve a RAO for N compounds states
     Given crac file is "epic13/SL_ep13us3case5.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
+    Then the execution details should be "The RAO only went through first preventive"
     Then 4 remedial actions are used in preventive
     Then the tap of PstRangeAction "pst_fr" should be 15 in preventive
     Then the remedial action "close_fr1_fr5" is used in preventive
@@ -128,6 +133,7 @@ Feature: US 13.3 : Solve a RAO for N compounds states
     Given crac file is "epic13/SL_ep13us3case6.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
+    Then the execution details should be "The RAO only went through first preventive"
     Then 1 remedial actions are used in preventive
     Then the tap of PstRangeAction "pst_fr" should be 15 in preventive
     Then 2 remedial actions are used after "co2_be1_be3" at "curative"
@@ -151,6 +157,7 @@ Feature: US 13.3 : Solve a RAO for N compounds states
     Given crac file is "epic13/SL_ep13us3case7.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
+    Then the execution details should be "The RAO only went through first preventive"
     Then 1 remedial actions are used in preventive
     Then the remedial action "close_fr1_fr5" is used in preventive
     Then 2 remedial actions are used after "co1_fr2_fr3_1" at "curative"
@@ -168,6 +175,7 @@ Feature: US 13.3 : Solve a RAO for N compounds states
     Given crac file is "epic13/SL_ep13us3case8.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
+    Then the execution details should be "The RAO only went through first preventive"
     Then 2 remedial actions are used in preventive
     Then the tap of PstRangeAction "pst_fr" should be 15 in preventive
     Then the tap of PstRangeAction "pst_be" should be -16 in preventive
@@ -194,6 +202,7 @@ Feature: US 13.3 : Solve a RAO for N compounds states
     Given crac file is "epic13/SL_ep13us3case9.json"
     Given configuration file is "epic13/RaoParameters_maxMargin_ampere_absolute_threshold_12.json"
     When I launch rao
+    Then the execution details should be "The RAO only went through first preventive"
     Then 2 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     Then the tap of PstRangeAction "pst_be" should be -8 after "co1_fr2_fr3_1" at "curative"
     Then the remedial action "open_fr1_fr3" is used after "co1_fr2_fr3_1" at "curative"
@@ -209,6 +218,7 @@ Feature: US 13.3 : Solve a RAO for N compounds states
     Given crac file is "epic13/CBCORA_ep13us3case10.xml"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao at "2019-01-08 12:00"
+    Then the execution details should be "The RAO only went through first preventive"
     Then 3 remedial actions are used in preventive
     Then the remedial action "close_de3_de4" is used in preventive
     Then the remedial action "open_fr1_fr2" is used in preventive

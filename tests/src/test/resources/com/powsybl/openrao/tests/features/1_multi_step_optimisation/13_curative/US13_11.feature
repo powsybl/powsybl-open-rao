@@ -11,6 +11,7 @@ Feature: US 13.11: curative RAO stop criterion
     Given crac file is "epic13/SL_ep13us11case1.json"
     Given configuration file is "epic13/RaoParameters_stop_curative_at_preventive.json"
     When I launch rao
+    Then the execution details should be "The RAO only went through first preventive"
     Then 0 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     Then the margin on cnec "BBE1AA1  FFR5AA1  1 - preventive" after PRA should be 301 A
     Then the margin on cnec "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be 680 A
@@ -22,6 +23,7 @@ Feature: US 13.11: curative RAO stop criterion
     Given crac file is "epic13/SL_ep13us11case1.json"
     Given configuration file is "epic13/RaoParameters_best_preventive_by_500.json"
     When I launch rao
+    Then the execution details should be "The RAO only went through first preventive"
     Then 2 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     Then the tap of PstRangeAction "pst_fr" should be 15 after "co1_fr2_fr3_1" at "curative"
     Then the tap of PstRangeAction "pst_be" should be 16 after "co1_fr2_fr3_1" at "curative"
@@ -35,6 +37,7 @@ Feature: US 13.11: curative RAO stop criterion
     Given crac file is "epic13/SL_ep13us11case3.json"
     Given configuration file is "epic13/RaoParameters_best_preventive_by_628.json"
     When I launch rao
+    Then the execution details should be "The RAO only went through first preventive"
     Then 2 remedial actions are used in preventive
     Then the remedial action "open_fr1_fr3" is used in preventive
     Then the tap of PstRangeAction "pst_fr" should be 15 in preventive
@@ -54,6 +57,7 @@ Feature: US 13.11: curative RAO stop criterion
     Given crac file is "epic13/SL_ep13us11case4.json"
     Given configuration file is "epic13/RaoParameters_best_preventive_by_300_secure.json"
     When I launch rao
+    Then the execution details should be "The RAO only went through first preventive"
     Then 2 remedial actions are used in preventive
     Then the remedial action "open_fr1_fr3" is used in preventive
     Then the tap of PstRangeAction "pst_fr" should be 15 in preventive

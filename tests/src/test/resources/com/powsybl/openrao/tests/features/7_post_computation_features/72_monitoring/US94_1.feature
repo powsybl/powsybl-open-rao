@@ -16,6 +16,7 @@ Feature: US 94.1: Angle Monitoring
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     Given monitoring glsk file is "epic94/GlskB45MicroGridTest.xml"
     When I launch rao at "2021-04-02 05:00"
+    Then the execution details should be "The RAO only went through first preventive"
     When I launch angle monitoring at "2021-04-02 05:00" on 1 threads
     Then the angle monitoring result is "HIGH_CONSTRAINT"
     Then the angle of CNEC "AngleCnec1" should be 5.22 at "curative"

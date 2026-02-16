@@ -16,6 +16,7 @@ Feature: US 13.8: cross-validation curative and relative margin
     Given configuration file is "epic13/RaoParameters_relMargin_ampere.json"
     Given loopflow glsk file is "common/glsk_proportional_16nodes.xml"
     When I launch rao
+    Then the execution details should be "The RAO only went through first preventive"
     Then 3 remedial actions are used in preventive
     Then the remedial action "open_be1_be4" is used in preventive
     Then the remedial action "open_fr1_fr2" is used in preventive
@@ -41,6 +42,7 @@ Feature: US 13.8: cross-validation curative and relative margin
     Given crac file is "epic13/SL_ep13us8case2.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
+    Then the execution details should be "The RAO only went through first preventive"
     Then 3 remedial actions are used in preventive
     Then the remedial action "open_be1_be4" is used in preventive
     Then the remedial action "open_fr1_fr2" is used in preventive
@@ -65,6 +67,7 @@ Feature: US 13.8: cross-validation curative and relative margin
     Given configuration file is "epic13/RaoParameters_relMargin_ampere.json"
     Given loopflow glsk file is "common/glsk_proportional_16nodes.xml"
     When I launch rao
+    Then the execution details should be "The RAO only went through first preventive"
     Then 3 remedial actions are used in preventive
     Then the remedial action "open_be1_be4" is used in preventive
     Then the remedial action "open_fr1_fr2" is used in preventive

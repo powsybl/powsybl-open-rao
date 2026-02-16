@@ -55,6 +55,7 @@ Feature: User Story #16.3: Activate remedial actions only after a specific const
     Given crac file is "epic16/SL_ep16us3case4.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
+    Then the execution details should be "The RAO only went through first preventive"
     Then 0 remedial actions are used in preventive
     Then 1 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     Then the remedial action "pst_be" is used after "co1_fr2_fr3_1" at "curative"
@@ -69,6 +70,7 @@ Feature: User Story #16.3: Activate remedial actions only after a specific const
     Given crac file is "epic16/SL_ep16us3case5.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
+    Then the execution details should be "The RAO only went through first preventive"
     Then 0 remedial actions are used in preventive
     Then 1 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     Then the remedial action "pst_be" is used after "co1_fr2_fr3_1" at "curative"
@@ -83,6 +85,7 @@ Feature: User Story #16.3: Activate remedial actions only after a specific const
     Given crac file is "epic16/SL_ep16us3case6.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
+    Then the execution details should be "The RAO only went through first preventive"
     Then 0 remedial actions are used in preventive
     Then 0 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     Then the worst margin is 43 A
@@ -95,6 +98,7 @@ Feature: User Story #16.3: Activate remedial actions only after a specific const
     Given crac file is "epic16/SL_ep16us3case7.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
+    Then the execution details should be "The RAO only went through first preventive"
     Then 1 remedial actions are used in preventive
     Then the remedial action "pst_be" is used in preventive
     Then the tap of PstRangeAction "pst_be" should be 16 in preventive
@@ -110,6 +114,7 @@ Feature: User Story #16.3: Activate remedial actions only after a specific const
     Given crac file is "epic16/SL_ep16us3case8.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
+    Then the execution details should be "The RAO only went through first preventive"
     Then 1 remedial actions are used in preventive
     Then the remedial action "pst_be" is used in preventive
     Then the tap of PstRangeAction "pst_be" should be 16 in preventive
@@ -141,6 +146,7 @@ Feature: User Story #16.3: Activate remedial actions only after a specific const
     Given crac file is "epic16/CseCrac_16_3_10.xml"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
+    Then the execution details should be "The RAO only went through first preventive"
     Then 1 remedial actions are used in preventive
     Then the remedial action "PST_pst_be_pra_BBE2AA1  BBE3AA1  1" is used in preventive
     Then the tap of PstRangeAction "PST_pst_be_pra_BBE2AA1  BBE3AA1  1" should be 16 in preventive
@@ -156,6 +162,7 @@ Feature: User Story #16.3: Activate remedial actions only after a specific const
     Given crac file is "epic16/CseCrac_16_3_11.xml"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
+    Then the execution details should be "The RAO only went through first preventive"
     Then 1 remedial actions are used in preventive
     Then the remedial action "PST_pst_be_pra_BBE2AA1  BBE3AA1  1" is used in preventive
     Then the tap of PstRangeAction "PST_pst_be_pra_BBE2AA1  BBE3AA1  1" should be 16 in preventive
@@ -187,6 +194,7 @@ Feature: User Story #16.3: Activate remedial actions only after a specific const
     Given crac file is "epic16/SL_ep16us3case13.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
+    Then the execution details should be "The RAO only went through first preventive"
     Then 0 remedial actions are used in preventive
     Then 1 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     Then the remedial action "pst_be" is used after "co1_fr2_fr3_1" at "curative"
@@ -201,6 +209,7 @@ Feature: User Story #16.3: Activate remedial actions only after a specific const
     Given crac file is "epic16/SL_ep16us3case14.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
+    Then the execution details should be "The RAO only went through first preventive"
     Then 0 remedial actions are used in preventive
     Then 1 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     Then the remedial action "pst_be" is used after "co1_fr2_fr3_1" at "curative"
@@ -216,6 +225,7 @@ Feature: User Story #16.3: Activate remedial actions only after a specific const
     Given crac file is "epic16/crac_16_3_15.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
+    Then the execution details should be "The RAO only went through first preventive"
     Then 0 remedial actions are used in preventive
     Then 1 remedial actions are used after "co_fr1_fr2_1" at "curative"
     Then the remedial action "pst_fr" is used after "co_fr1_fr2_1" at "curative"

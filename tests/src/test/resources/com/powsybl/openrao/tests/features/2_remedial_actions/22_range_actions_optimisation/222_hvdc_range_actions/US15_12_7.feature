@@ -62,6 +62,7 @@ Feature: US 15.12.7: Handle CSE's HVDCs with range actions on injections
     Given crac file is "epic15/cseCrac_ep15us12-5case5.xml"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
     When I launch rao
+    Then the execution details should be "The RAO only went through first preventive"
     Then the setpoint of RangeAction "PRA_HVDC" should be 1230 MW in preventive
     Then the tap of PstRangeAction "PST_PRA_PST_be_BBE2AA11 BBE3AA11 1" should be 10 in preventive
     Then the setpoint of RangeAction "CRA_HVDC" should be 1372 MW after "co1_be1_fr5" at "curative"
@@ -77,6 +78,7 @@ Feature: US 15.12.7: Handle CSE's HVDCs with range actions on injections
     Given crac file is "epic15/cseCrac_ep15us12-5case6.xml"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
     When I launch rao
+    Then the execution details should be "The RAO only went through first preventive"
     Then the setpoint of RangeAction "PRA_HVDC" should be 1661 MW in preventive
     Then the tap of PstRangeAction "PST_PRA_PST_be_BBE2AA11 BBE3AA11 1" should be 3 in preventive
     Then the setpoint of RangeAction "CRA_HVDC" should be 1396 MW after "co1_be1_fr5" at "curative"
@@ -107,6 +109,7 @@ Feature: US 15.12.7: Handle CSE's HVDCs with range actions on injections
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
     Given crac creation parameters file is "epic15/us_15_2_7.json"
     When I launch rao
+    Then the execution details should be "The RAO only went through first preventive"
     Then the setpoint of RangeAction "CRA_HVDC" should be 1406 MW after "co1_be1_fr5" at "curative"
     Then the worst margin is 285 MW
     Then the margin on cnec "be4_fr5_co1 - BBE4AA11->FFR5AA11  - co1_be1_fr5 - curative" after CRA should be 285 MW

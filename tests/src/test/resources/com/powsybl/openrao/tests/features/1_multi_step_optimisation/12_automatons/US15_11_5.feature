@@ -31,6 +31,7 @@ Feature: US 15.11.5: Additional tests to check various fixes concerning automato
     Given crac file is "epic15/crac_15_11_5_3_1.json"
     Given configuration file is "epic15/RaoParameters_ep15us11-5-3-3.json"
     When I launch rao
+    Then the execution details should be "The RAO only went through first preventive"
     Then the worst margin is -773.0 MW on cnec "be1_be3_co2 - BBE1AA11->BBE3AA11  - co2_de1_de3 - curative"
 
   @fast @rao @dc @contingency-scenarios @max-min-margin @megawatt
@@ -39,6 +40,7 @@ Feature: US 15.11.5: Additional tests to check various fixes concerning automato
     Given crac file is "epic15/crac_15_11_5_3_2.json"
     Given configuration file is "epic15/RaoParameters_ep15us11-5-3-3.json"
     When I launch rao
+    Then the execution details should be "The RAO only went through first preventive"
     Then the worst margin is -1945.45 MW on cnec "de2_nl3_co1 - DDE2AA11->NNL3AA11  - co1_de1_de2 - auto"
 
   @fast @rao @dc @contingency-scenarios @max-min-margin @megawatt
@@ -47,6 +49,7 @@ Feature: US 15.11.5: Additional tests to check various fixes concerning automato
     Given crac file is "epic15/crac_15_11_5_3_3.json"
     Given configuration file is "epic15/RaoParameters_ep15us11-5-3-3.json"
     When I launch rao
+    Then the execution details should be "The RAO only went through first preventive"
     Then the worst margin is -543.5 MW on cnec "be1_be3_co1 - BBE1AA11->BBE3AA11  - co1_de1_de2 - curative"
     
   @fast @rao @dc @second-preventive @max-min-margin @megawatt

@@ -12,6 +12,7 @@ Feature: US 19.8: handle aligned PSTs when filtering range actions
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     Given crac creation parameters file is "epic19/us19_8_1.json"
     When I launch rao
+    Then the execution details should be "The RAO only went through first preventive"
     Then 2 remedial actions are used after "CO1_fr2_fr3_1" at "curative"
     Then the tap of PstRangeAction "pst_be" should be 16 after "CO1_fr2_fr3_1" at "curative"
     Then the tap of PstRangeAction "pst_de" should be 16 after "CO1_fr2_fr3_1" at "curative"
@@ -24,6 +25,7 @@ Feature: US 19.8: handle aligned PSTs when filtering range actions
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     Given crac creation parameters file is "epic19/us19_8_1.json"
     When I launch rao
+    Then the execution details should be "The RAO only went through first preventive"
     Then 1 remedial actions are used after "CO1_fr2_fr3_1" at "curative"
     Then the tap of PstRangeAction "pst_de" should be 16 after "CO1_fr2_fr3_1" at "curative"
     Then the margin on cnec "fr1_fr4_CO1_DIR - curative" after CRA should be 1626 A
@@ -35,6 +37,7 @@ Feature: US 19.8: handle aligned PSTs when filtering range actions
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     Given crac creation parameters file is "epic19/us19_8_3&4.json"
     When I launch rao
+    Then the execution details should be "The RAO only went through first preventive"
     Then 1 remedial actions are used after "CO1_fr2_fr3_1" at "curative"
     Then the tap of PstRangeAction "pst_be" should be 16 after "CO1_fr2_fr3_1" at "curative"
     Then the margin on cnec "fr1_fr4_CO1_DIR - curative" after CRA should be 1328 A
@@ -46,6 +49,7 @@ Feature: US 19.8: handle aligned PSTs when filtering range actions
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     Given crac creation parameters file is "epic19/us19_8_3&4.json"
     When I launch rao
+    Then the execution details should be "The RAO only went through first preventive"
     Then 1 remedial actions are used after "CO1_fr2_fr3_1" at "curative"
     Then the tap of PstRangeAction "pst_fr" should be 16 after "CO1_fr2_fr3_1" at "curative"
     Then the margin on cnec "fr1_fr4_CO1_DIR - curative" after CRA should be 1414 A
@@ -57,6 +61,7 @@ Feature: US 19.8: handle aligned PSTs when filtering range actions
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     Given crac creation parameters file is "epic19/us19_8_5.json"
     When I launch rao
+    Then the execution details should be "The RAO only went through first preventive"
     Then 2 remedial actions are used after "CO1_fr2_fr3_1" at "curative"
     Then the tap of PstRangeAction "pst_be" should be 16 after "CO1_fr2_fr3_1" at "curative"
     Then the tap of PstRangeAction "pst_de" should be 16 after "CO1_fr2_fr3_1" at "curative"
@@ -69,6 +74,7 @@ Feature: US 19.8: handle aligned PSTs when filtering range actions
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     Given crac creation parameters file is "epic19/us19_8_5.json"
     When I launch rao
+    Then the execution details should be "The RAO only went through first preventive"
     Then 1 remedial actions are used after "CO1_fr2_fr3_1" at "curative"
     Then the tap of PstRangeAction "pst_de" should be 16 after "CO1_fr2_fr3_1" at "curative"
     Then the margin on cnec "fr1_fr4_CO1_DIR - curative" after CRA should be 1626 A
@@ -80,6 +86,7 @@ Feature: US 19.8: handle aligned PSTs when filtering range actions
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     Given crac creation parameters file is "epic19/us19_8_7.json"
     When I launch rao
+    Then the execution details should be "The RAO only went through first preventive"
     Then 1 remedial actions are used after "CO1_fr2_fr3_1" at "curative"
     Then the tap of PstRangeAction "pst_be" should be 16 after "CO1_fr2_fr3_1" at "curative"
     Then the margin on cnec "fr1_fr4_CO1_DIR - curative" after CRA should be 1328 A
@@ -91,6 +98,7 @@ Feature: US 19.8: handle aligned PSTs when filtering range actions
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     Given crac creation parameters file is "epic19/us19_8_7.json"
     When I launch rao
+    Then the execution details should be "The RAO only went through first preventive"
     Then 1 remedial actions are used after "CO1_fr2_fr3_1" at "curative"
     Then the tap of PstRangeAction "pst_fr" should be 16 after "CO1_fr2_fr3_1" at "curative"
     Then the margin on cnec "fr1_fr4_CO1_DIR - curative" after CRA should be 1414 A
@@ -102,6 +110,7 @@ Feature: US 19.8: handle aligned PSTs when filtering range actions
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     Given crac creation parameters file is "epic19/us19_8_9.json"
     When I launch rao
+    Then the execution details should be "The RAO only went through first preventive"
     Then 2 remedial actions are used after "CO1_fr2_fr3_1" at "curative"
     Then the tap of PstRangeAction "pst_be1" should be 16 after "CO1_fr2_fr3_1" at "curative"
     Then the tap of PstRangeAction "pst_be3" should be 16 after "CO1_fr2_fr3_1" at "curative"
@@ -114,6 +123,7 @@ Feature: US 19.8: handle aligned PSTs when filtering range actions
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     Given crac creation parameters file is "epic19/us19_8_9.json"
     When I launch rao
+    Then the execution details should be "The RAO only went through first preventive"
     Then 1 remedial actions are used after "CO1_fr2_fr3_1" at "curative"
     Then the tap of PstRangeAction "pst_be3" should be 16 after "CO1_fr2_fr3_1" at "curative"
     Then the margin on cnec "fr1_fr4_CO1_DIR - curative" after CRA should be 1626 A
@@ -125,6 +135,7 @@ Feature: US 19.8: handle aligned PSTs when filtering range actions
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     Given crac creation parameters file is "epic19/us19_8_11.json"
     When I launch rao
+    Then the execution details should be "The RAO only went through first preventive"
     Then 1 remedial actions are used after "CO1_fr2_fr3_1" at "curative"
     Then the tap of PstRangeAction "pst_be1" should be 16 after "CO1_fr2_fr3_1" at "curative"
     Then the margin on cnec "fr1_fr4_CO1_DIR - curative" after CRA should be 1328 A
@@ -136,6 +147,7 @@ Feature: US 19.8: handle aligned PSTs when filtering range actions
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     Given crac creation parameters file is "epic19/us19_8_11.json"
     When I launch rao
+    Then the execution details should be "The RAO only went through first preventive"
     Then 1 remedial actions are used after "CO1_fr2_fr3_1" at "curative"
     Then the tap of PstRangeAction "pst_be2" should be 16 after "CO1_fr2_fr3_1" at "curative"
     Then the margin on cnec "fr1_fr4_CO1_DIR - curative" after CRA should be 1414 A

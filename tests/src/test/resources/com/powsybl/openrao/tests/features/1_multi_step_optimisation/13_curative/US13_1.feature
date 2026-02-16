@@ -24,6 +24,7 @@ Feature: US 13.1: solve a RAO for a single preventive or curative state
     Given crac file is "epic13/12nodes_pst_topo_frm_cbcora_curative.xml"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_ac.json"
     When I launch rao at "2019-01-08 00:30" after "Contingency" at "curative"
+    Then the execution details should be "The RAO only went through first preventive"
     Then the tap of PstRangeAction "SelectTapPSTCur" should be -9 after "Contingency" at "curative"
     Then the initial flow on cnec "CnecCurativeDir - curative" should be 286.0 MW on side 1
     Then the flow on cnec "CnecCurativeDir - curative" after CRA should be -9.0 MW on side 1

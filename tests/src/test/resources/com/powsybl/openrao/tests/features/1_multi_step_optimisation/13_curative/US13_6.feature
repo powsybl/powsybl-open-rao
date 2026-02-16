@@ -11,6 +11,7 @@ Feature: US 13.6: cross validation curative optimization and MNECs
     Given crac file is "epic13/SL_ep13us2case5_with_mnec.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
+    Then the execution details should be "The RAO only went through first preventive"
     Then 2 remedial actions are used in preventive
     Then the remedial action "open_be1_be4" is used in preventive
     # Without MNEC pst_fr is set to -5
@@ -31,6 +32,7 @@ Feature: US 13.6: cross validation curative optimization and MNECs
     Given crac file is "epic13/MergedCB_ep13us6case2.xml"
     Given configuration file is "epic13/RaoParameters_13_6_2.json"
     When I launch rao at "2019-01-08 12:00"
+    Then the execution details should be "The RAO only went through first preventive"
     Then the margin on cnec "NL2-BE3-O - outage" after PRA should be 8.0 MW
     Then 2 remedial actions are used in preventive
     Then the remedial action "Open line NL1-NL2" is used in preventive
@@ -50,6 +52,7 @@ Feature: US 13.6: cross validation curative optimization and MNECs
     Given crac file is "epic13/MergedCB_ep13us6case3.xml"
     Given configuration file is "epic11/RaoParameters_maxMargin_megawatt_ac_mnecDimin20.json"
     When I launch rao at "2019-01-08 12:00"
+    Then the execution details should be "The RAO only went through first preventive"
     Then the margin on cnec "NL2-BE3-O - outage" after PRA should be -83.0 MW
     Then the margin on cnec "NL2-BE3-O - curative" after CRA should be -103.0 MW
     Then 2 remedial actions are used after "Contingency_FR1_FR3" at "curative"
@@ -63,6 +66,7 @@ Feature: US 13.6: cross validation curative optimization and MNECs
     Given crac file is "epic13/MergedCB_ep13us6case4.xml"
     Given configuration file is "epic11/RaoParameters_maxMargin_megawatt_ac_mnecDimin20.json"
     When I launch rao at "2019-01-08 12:00"
+    Then the execution details should be "The RAO only went through first preventive"
     Then the margin on cnec "NL2-BE3-O - outage" after PRA should be -103.0 MW
     Then 1 remedial actions are used in preventive
     Then the tap of PstRangeAction "PRA_PST_BE" should be 14 in preventive
@@ -81,6 +85,7 @@ Feature: US 13.6: cross validation curative optimization and MNECs
     Given crac file is "epic13/SL_ep13us2case5_with_mnec.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
+    Then the execution details should be "The RAO only went through first preventive"
     Then 2 remedial actions are used in preventive
     Then the remedial action "open_be1_be4" is used in preventive
     # Without MNEC pst_fr is set to -5
@@ -100,6 +105,7 @@ Feature: US 13.6: cross validation curative optimization and MNECs
     Given crac file is "epic13/SL_ep13us2case6_with_mnec_curative.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
+    Then the execution details should be "The RAO only went through first preventive"
     Then 2 remedial actions are used in preventive
     Then the remedial action "open_be1_be4" is used in preventive
     Then the tap of PstRangeAction "pst_fr" should be 2 in preventive
@@ -121,6 +127,7 @@ Feature: US 13.6: cross validation curative optimization and MNECs
     Given crac file is "epic13/SL_ep13us2case7_with_mnec_curative_initial.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere_mip.json"
     When I launch rao
+    Then the execution details should be "The RAO only went through first preventive"
     Then 2 remedial actions are used in preventive
     Then the remedial action "open_be1_be4" is used in preventive
     Then the tap of PstRangeAction "pst_fr" should be 2 in preventive
@@ -145,6 +152,7 @@ Feature: US 13.6: cross validation curative optimization and MNECs
     Given crac file is "epic13/MergedCB_ep13us6case8.xml"
     Given configuration file is "epic13/RaoParameters_ep13us6case8.json"
     When I launch rao at "2019-01-08 12:00"
+    Then the execution details should be "The RAO only went through first preventive"
     Then the worst margin is 390 MW
     # "NNL2AA1  BBE3AA1  1 - preventive" is the only MNEC.
     # With a temporary threshold in outage of 1385 MW, and a permanent threshold in curative of 1350 MW
@@ -168,6 +176,7 @@ Feature: US 13.6: cross validation curative optimization and MNECs
     Given crac file is "epic13/CBCORA_ep13us6case11.xml"
     Given configuration file is "epic13/RaoParameters_13_6_11.json"
     When I launch rao at "2019-01-08 12:00"
+    Then the execution details should be "The RAO only went through first preventive"
     Then 1 remedial actions are used in preventive
     Then the tap of PstRangeAction "PRA_PST_BE" should be -4 in preventive
     Then 1 remedial actions are used after "Contingency_FR1_FR3" at "curative"

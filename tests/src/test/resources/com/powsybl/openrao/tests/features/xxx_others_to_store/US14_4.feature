@@ -11,6 +11,7 @@ Feature: US 14.4: HVDC
     Given crac file is "epic14/cbcora_ep14us4case1.xml"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
     When I launch rao at "2019-01-08 12:00"
+    Then the execution details should be "The RAO only went through first preventive"
     Then the initial margin on cnec "004_FR-DE - outage" should be 501.0 MW
     Then the initial margin on cnec "003_FR-DE - curative" should be 501.0 MW
     Then the initial margin on cnec "002_FR-DE - preventive" should be 932.0 MW
@@ -25,6 +26,7 @@ Feature: US 14.4: HVDC
     Given crac file is "epic14/cbcora_ep14us4case2.xml"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
     When I launch rao at "2019-01-08 12:00"
+    Then the execution details should be "The RAO only went through first preventive"
     Then the initial margin on cnec "004_FR-DE - outage" should be 501.0 MW
     Then the initial margin on cnec "003_FR-DE - curative" should be 501.0 MW
     Then the initial margin on cnec "002_FR-DE - preventive" should be 932.0 MW

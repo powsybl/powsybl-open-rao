@@ -12,6 +12,7 @@ Feature: US 19.3: Handle maximum CRA and maximum curative PSTs per TSO
     Given crac file is "epic19/SL_ep19us3case1.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
+    Then the execution details should be "The RAO only went through first preventive"
     Then 2 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     Then the remedial action "close_fr1_fr5" is used after "co1_fr2_fr3_1" at "curative"
     Then the remedial action "pst_be" is used after "co1_fr2_fr3_1" at "curative"
@@ -26,6 +27,7 @@ Feature: US 19.3: Handle maximum CRA and maximum curative PSTs per TSO
     Given crac file is "epic19/SL_ep19us3case2.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
+    Then the execution details should be "The RAO only went through first preventive"
     Then 2 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     Then the remedial action "pst_be" is used after "co1_fr2_fr3_1" at "curative"
     Then the tap of PstRangeAction "pst_be" should be 16 after "co1_fr2_fr3_1" at "curative"
@@ -41,6 +43,7 @@ Feature: US 19.3: Handle maximum CRA and maximum curative PSTs per TSO
     Given crac file is "epic19/SL_ep19us10case1.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
+    Then the execution details should be "The RAO only went through first preventive"
     Then 1 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     Then the remedial action "pst_be" is used after "co1_fr2_fr3_1" at "curative"
     Then the tap of PstRangeAction "pst_be" should be 16 after "co1_fr2_fr3_1" at "curative"
@@ -54,6 +57,7 @@ Feature: US 19.3: Handle maximum CRA and maximum curative PSTs per TSO
     Given crac file is "epic19/SL_ep19us10case2.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
+    Then the execution details should be "The RAO only went through first preventive"
     Then 1 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     Then the remedial action "close_fr1_fr5" is used after "co1_fr2_fr3_1" at "curative"
     Then the worst margin is 840 A on cnec "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative"
@@ -65,6 +69,7 @@ Feature: US 19.3: Handle maximum CRA and maximum curative PSTs per TSO
     Given crac file is "epic19/SL_ep19us10case3.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
+    Then the execution details should be "The RAO only went through first preventive"
     Then 1 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     Then the remedial action "pst_be" is used after "co1_fr2_fr3_1" at "curative"
     Then the tap of PstRangeAction "pst_be" should be 16 after "co1_fr2_fr3_1" at "curative"
@@ -78,6 +83,7 @@ Feature: US 19.3: Handle maximum CRA and maximum curative PSTs per TSO
     Given crac file is "epic19/SL_ep19us3case6.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao after "co1_fr2_fr3_1" at "curative"
+    Then the execution details should be "The RAO only went through first preventive"
     Then 1 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     Then the remedial action "open_fr1_fr2" is used after "co1_fr2_fr3_1" at "curative"
     Then the worst margin is 986 A on cnec "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative"
@@ -89,6 +95,7 @@ Feature: US 19.3: Handle maximum CRA and maximum curative PSTs per TSO
     Given crac file is "epic19/SL_ep19us3case7.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
+    Then the execution details should be "The RAO only went through first preventive"
     Then 2 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     Then the remedial action "close_fr1_fr5" is used after "co1_fr2_fr3_1" at "curative"
     Then the remedial action "open_fr1_fr2" is used after "co1_fr2_fr3_1" at "curative"
@@ -101,6 +108,7 @@ Feature: US 19.3: Handle maximum CRA and maximum curative PSTs per TSO
     Given crac file is "epic19/SL_ep19us3case8.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
+    Then the execution details should be "The RAO only went through first preventive"
     Then 2 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     Then the remedial action "close_fr1_fr5" is used after "co1_fr2_fr3_1" at "curative"
     Then the remedial action "open_be1_be4" is used after "co1_fr2_fr3_1" at "curative"
@@ -125,6 +133,7 @@ Feature: US 19.3: Handle maximum CRA and maximum curative PSTs per TSO
     Given crac file is "epic19/SL_ep19us3case10.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
+    Then the execution details should be "The RAO only went through first preventive"
     Then 3 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     Then the remedial action "open_fr1_fr3" is used after "co1_fr2_fr3_1" at "curative"
     Then the remedial action "open_fr1_fr2" is used after "co1_fr2_fr3_1" at "curative"

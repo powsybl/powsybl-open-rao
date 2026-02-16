@@ -11,6 +11,7 @@ Feature: US 15.11.2: Simulate topological automatons right after preventive opti
     Given crac file is "epic15/SL_ep15us11-2case1.json"
     Given configuration file is "epic15/RaoParameters_ep15us11-2.json"
     When I launch rao
+    Then the execution details should be "The RAO only went through first preventive"
     Then 0 remedial actions are used in preventive
     Then the margin on cnec "FFR4AA1  DDE1AA1  1 - preventive" after PRA should be 852.4 A
     Then the margin on cnec "NNL2AA1  BBE3AA1  1 - preventive" after PRA should be 3184.3 A
@@ -28,6 +29,7 @@ Feature: US 15.11.2: Simulate topological automatons right after preventive opti
     Given crac file is "epic15/SL_ep15us11-2case2.json"
     Given configuration file is "epic15/RaoParameters_ep15us11-2.json"
     When I launch rao
+    Then the execution details should be "The RAO only went through first preventive"
     Then 0 remedial actions are used in preventive
     Then the margin on cnec "FFR4AA1  DDE1AA1  1 - preventive" after PRA should be 852.4 A
     Then the margin on cnec "NNL2AA1  BBE3AA1  1 - preventive" after PRA should be 3184.3 A
@@ -46,6 +48,7 @@ Feature: US 15.11.2: Simulate topological automatons right after preventive opti
     Given crac file is "epic15/SL_ep15us11-2case3.json"
     Given configuration file is "epic15/RaoParameters_ep15us11-2.json"
     When I launch rao
+    Then the execution details should be "The RAO only went through first preventive"
     Then 0 remedial actions are used in preventive
     Then the margin on cnec "FFR4AA1  DDE1AA1  1 - preventive" after PRA should be 852.4 A
     Then the margin on cnec "NNL2AA1  BBE3AA1  1 - preventive" after PRA should be 3184.3 A
