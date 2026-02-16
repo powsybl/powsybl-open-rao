@@ -23,9 +23,13 @@ import java.util.*;
  *
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class NetworkCracCreator {
+public final class NetworkCracCreator {
 
-    NetworkCracCreationContext createCrac(Network network, CracCreationParameters cracCreationParameters) {
+    private NetworkCracCreator() {
+        // should not be used
+    }
+
+    static NetworkCracCreationContext createCrac(Network network, CracCreationParameters cracCreationParameters) {
         if (cracCreationParameters.getExtension(NetworkCracCreationParameters.class) == null) {
             throw new OpenRaoException("Cannot create a CRAC from a network file unless a NetworkCracCreationParameters extension is defined in CracCreationParameters.");
         }

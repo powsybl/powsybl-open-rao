@@ -59,6 +59,6 @@ public class NetworkCracImporter implements Importer {
 
     @Override
     public CracCreationContext importData(InputStream inputStream, CracCreationParameters cracCreationParameters, Network network) {
-        return new NetworkCracCreator().createCrac(network, cracCreationParameters);
+        return NetworkCracCreator.createCrac(network, cracCreationParameters);
     }
 }
