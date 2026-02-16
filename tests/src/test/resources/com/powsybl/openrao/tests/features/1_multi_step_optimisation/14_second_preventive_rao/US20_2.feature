@@ -19,6 +19,7 @@ Feature: US 20.2: Handle loopflows in second preventive optimization
     Then the loopflow threshold on cnec "003_FR-DE - curative" should be 250 MW
     Then the initial loopflow on cnec "003_FR-DE - curative" should be -341 MW
     Then the execution details should be "Second preventive improved first preventive results"
+    Then its security status should be "SECURED"
 
   @fast @rao @dc @second-preventive @loopflow @max-min-margin @megawatt
   Scenario: US 20.2.2: LF constraint in curative is solved by curative network action + 2P
@@ -37,6 +38,7 @@ Feature: US 20.2: Handle loopflows in second preventive optimization
     Then the initial loopflow on cnec "003_FR-DE - curative" should be -368 MW
     Then the loopflow on cnec "003_FR-DE - curative" after CRA should be -341 MW
     Then the execution details should be "Second preventive improved first preventive results"
+    Then its security status should be "SECURED"
 
   @fast @rao @dc @second-preventive @loopflow @max-min-margin @megawatt
   Scenario: US 20.2.3: LF constraint avoided on preventive CNEC in 2P
@@ -56,3 +58,4 @@ Feature: US 20.2: Handle loopflows in second preventive optimization
     Then the loopflow on cnec "001_FR-DE - preventive" after PRA should be -297 MW
     # Doesn't run 2P because LF constraint is already seen in 1P as the CNEC is preventive
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"

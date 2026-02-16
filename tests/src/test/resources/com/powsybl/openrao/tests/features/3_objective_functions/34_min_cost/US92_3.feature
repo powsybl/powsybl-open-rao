@@ -17,6 +17,7 @@ Feature: US 92.3: Exhaustive costly optimization - APPROXIMATED_INTEGERS PSTs
     When I launch rao
     Then the worst margin is 32.13 MW
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then the value of the objective function initially should be 200000.0
     Then 2 remedial actions are used in preventive
     Then the remedial action "pstBeFr3" is used in preventive
@@ -37,6 +38,7 @@ Feature: US 92.3: Exhaustive costly optimization - APPROXIMATED_INTEGERS PSTs
     # Worst margin on preventive CNEC
     Then the worst margin is 5.3 MW
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then the value of the objective function initially should be 350000.0
     Then 1 remedial actions are used in preventive
     Then the remedial action "pstBeFr4" is used in preventive
@@ -60,6 +62,7 @@ Feature: US 92.3: Exhaustive costly optimization - APPROXIMATED_INTEGERS PSTs
     # Worst margin on curative CNEC
     Then the worst margin is 13.02 MW
     Then the execution details should be "Second preventive improved first preventive results"
+    Then its security status should be "SECURED"
     Then the value of the objective function initially should be 350000.0
     Then 1 remedial actions are used in preventive
     Then the remedial action "pstBeFr4" is used in preventive
@@ -82,6 +85,7 @@ Feature: US 92.3: Exhaustive costly optimization - APPROXIMATED_INTEGERS PSTs
     # Worst margin on preventive CNEC
     Then the worst margin is 3.73 MW
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then the value of the objective function initially should be 233333.33
     Then 1 remedial actions are used in preventive
     Then the remedial action "pstBeFr5" is used in preventive
@@ -109,6 +113,7 @@ Feature: US 92.3: Exhaustive costly optimization - APPROXIMATED_INTEGERS PSTs
     # Worst margin on curative CNEC
     Then the worst margin is 21.8 MW
     Then the execution details should be "Second preventive improved first preventive results"
+    Then its security status should be "SECURED"
     Then the value of the objective function initially should be 233333.33
     Then 1 remedial actions are used in preventive
     Then the remedial action "pstBeFr5" is used in preventive

@@ -30,6 +30,7 @@ Feature: US 15.11.3: Simulate range action automatons right after topological au
     Given configuration file is "epic13/RaoParameters_maxMargin_ampere_absolute_threshold.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "UNSECURED"
     Then 0 remedial actions are used in preventive
     Then the tap of PstRangeAction "pst_be" should be 0 in preventive
     Then the initial margin on cnec "BBE2AA1  FFR3AA1  1 - co2_be1_be3 - auto" should be -107.6 A
@@ -48,6 +49,7 @@ Feature: US 15.11.3: Simulate range action automatons right after topological au
     Given configuration file is "epic13/RaoParameters_maxMargin_ampere_absolute_threshold.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "UNSECURED"
     Then 0 remedial actions are used in preventive
     Then the tap of PstRangeAction "pst_fr" should be 5 in preventive
     Then the tap of PstRangeAction "pst_be" should be 0 in preventive
@@ -69,6 +71,7 @@ Feature: US 15.11.3: Simulate range action automatons right after topological au
     Given configuration file is "epic13/RaoParameters_maxMargin_ampere_absolute_threshold.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "UNSECURED"
     Then 0 remedial actions are used in preventive
     Then the tap of PstRangeAction "pst_fr" should be 5 in preventive
     Then the tap of PstRangeAction "pst_be" should be 0 in preventive
@@ -96,6 +99,7 @@ Feature: US 15.11.3: Simulate range action automatons right after topological au
     Given configuration file is "epic13/RaoParameters_maxMargin_ampere_absolute_threshold.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "UNSECURED"
     Then 1 remedial actions are used in preventive
     Then the tap of PstRangeAction "pst_be_pra" should be -2 in preventive
     Then the tap of PstRangeAction "pst_be_ara" should be -2 in preventive

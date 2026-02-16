@@ -65,3 +65,4 @@ Feature: US 2.3: Combine range PST and NetworkAction optimization
     When I launch rao
     Then the calculation fails
     Then the execution details should be "Initial sensitivity analysis failed"
+    Then its security status should be "UNSECURED"

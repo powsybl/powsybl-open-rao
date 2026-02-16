@@ -15,6 +15,7 @@ Feature: Advanced usage rules tests
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then 1 remedial actions are used in preventive
     Then the remedial action "pst_be" is used in preventive
     Then the tap of PstRangeAction "pst_be" should be 16 in preventive
@@ -33,6 +34,7 @@ Feature: Advanced usage rules tests
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "UNSECURED"
     Then 0 remedial actions are used in preventive
     Then 0 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     Then the worst margin is -49 A

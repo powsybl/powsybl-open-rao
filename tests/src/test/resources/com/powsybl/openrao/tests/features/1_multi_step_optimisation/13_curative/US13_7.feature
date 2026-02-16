@@ -13,6 +13,7 @@ Feature: US 13.7: Cross-validation Curative and Loop-flows
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc_withLoopFlows.json"
     When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "UNSECURED"
     Then the worst margin is -337.0 MW
     Then the worst margin is -337.0 MW on cnec "001_FR-DE - preventive"
     Then the tap of PstRangeAction "PRA_PST_BE" should be -15 in preventive
@@ -33,6 +34,7 @@ Feature: US 13.7: Cross-validation Curative and Loop-flows
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc_withLoopFlows.json"
     When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "UNSECURED"
     Then the worst margin is -530.0 MW
     Then the worst margin is -530.0 MW on cnec "001_FR-DE - preventive"
     Then the tap of PstRangeAction "PRA_PST_BE" should be -9 in preventive
@@ -71,6 +73,7 @@ Feature: US 13.7: Cross-validation Curative and Loop-flows
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc_withLoopFlows.json"
     When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then the worst margin is 524.0 MW
     Then the margin on cnec "001_FR-DE - preventive" after PRA should be 524.0 MW
     Then the margin on cnec "003_FR-DE - outage" after PRA should be 921.0 MW
@@ -96,6 +99,7 @@ Feature: US 13.7: Cross-validation Curative and Loop-flows
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc_withLoopFlows.json"
     When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then the worst margin is 524.0 MW
     Then the margin on cnec "001_FR-DE - preventive" after PRA should be 524.0 MW
     Then the margin on cnec "003_FR-DE - outage" after PRA should be 921.0 MW
@@ -121,6 +125,7 @@ Feature: US 13.7: Cross-validation Curative and Loop-flows
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc_withLoopFlows.json"
     When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then the worst margin is 524.0 MW
     Then the margin on cnec "001_FR-DE - preventive" after PRA should be 524.0 MW
     Then the margin on cnec "003_FR-DE - curative" after CRA should be 855.0 MW
@@ -145,6 +150,7 @@ Feature: US 13.7: Cross-validation Curative and Loop-flows
     Given configuration file is "epic13/RaoParameters_ep13us7case6.json"
     When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then the worst margin is 524.0 MW
     Then the margin on cnec "001_FR-DE - preventive" after PRA should be 524.0 MW
     Then the margin on cnec "003_FR-DE - outage" after PRA should be 921.0 MW

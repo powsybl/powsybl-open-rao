@@ -12,6 +12,7 @@ Feature: US 13.4: Dynamic of topological remedial actions available in several i
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "UNSECURED"
     Then 0 remedial actions are used in preventive
     Then 0 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     Then the worst margin is -522 A
@@ -27,6 +28,7 @@ Feature: US 13.4: Dynamic of topological remedial actions available in several i
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "UNSECURED"
     Then 2 remedial actions are used in preventive
     Then the remedial action "close_de3_de4" is used in preventive
     Then the tap of PstRangeAction "pst_be" should be -16 in preventive
@@ -45,6 +47,7 @@ Feature: US 13.4: Dynamic of topological remedial actions available in several i
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "UNSECURED"
     Then 0 remedial actions are used in preventive
     Then the tap of PstRangeAction "pst_fr" should be 5 in preventive
     Then the tap of PstRangeAction "pst_be" should be 0 in preventive
@@ -65,6 +68,7 @@ Feature: US 13.4: Dynamic of topological remedial actions available in several i
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "UNSECURED"
     Then 2 remedial actions are used in preventive
     Then the remedial action "close_de3_de4_pra" is used in preventive
     Then the tap of PstRangeAction "pst_be" should be -16 in preventive
@@ -84,6 +88,7 @@ Feature: US 13.4: Dynamic of topological remedial actions available in several i
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "UNSECURED"
     Then 0 remedial actions are used in preventive
     Then the tap of PstRangeAction "pst_fr" should be 5 in preventive
     Then the tap of PstRangeAction "pst_be" should be 0 in preventive
@@ -104,6 +109,7 @@ Feature: US 13.4: Dynamic of topological remedial actions available in several i
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "UNSECURED"
     Then 0 remedial actions are used in preventive
     Then 0 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     Then the worst margin is -184 A
@@ -119,6 +125,7 @@ Feature: US 13.4: Dynamic of topological remedial actions available in several i
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then 3 remedial actions are used in preventive
     Then the remedial action "open_fr1_fr2_pra" is used in preventive
     Then the tap of PstRangeAction "pst_fr" should be -5 in preventive

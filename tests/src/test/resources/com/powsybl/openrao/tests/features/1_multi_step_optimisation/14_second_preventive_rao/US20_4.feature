@@ -20,6 +20,7 @@ Feature: US 20.4: Handle MNECs in second preventive optimization
     Then the margin on cnec "FR2-FR3-O - preventive" after PRA should be -168 MW
     Then the margin on cnec "NL2-BE3-O - curative" after CRA should be 7 MW
     Then the execution details should be "Second preventive improved first preventive results"
+    Then its security status should be "UNSECURED"
 
   @fast @rao @ac @second-preventive @mnec @max-min-margin @megawatt
   Scenario: US 20.4.2: MNEC constraint in curative is solved by CRA + 2P
@@ -37,6 +38,7 @@ Feature: US 20.4: Handle MNECs in second preventive optimization
     Then the margin on cnec "FR2-FR3-O - preventive" after PRA should be -161 MW
     Then the margin on cnec "NL2-BE3-O - curative" after CRA should be 7 MW
     Then the execution details should be "Second preventive improved first preventive results"
+    Then its security status should be "UNSECURED"
 
   @fast @rao @ac @second-preventive @mnec @max-min-margin @megawatt
   Scenario: US 20.4.3: MNEC constraint avoided on preventive MNEC in 2P
@@ -52,3 +54,4 @@ Feature: US 20.4: Handle MNECs in second preventive optimization
     Then the margin on cnec "NL2-BE3-O - curative" after CRA should be -145 MW
     Then the margin on cnec "FR2-FR3-O - preventive" after PRA should be -96 MW
     Then the execution details should be "Second preventive improved first preventive results"
+    Then its security status should be "UNSECURED"

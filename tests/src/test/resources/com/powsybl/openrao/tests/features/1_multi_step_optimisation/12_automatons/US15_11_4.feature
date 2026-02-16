@@ -24,6 +24,7 @@ Feature: US 15.11.4: ARAO with 2P
     Then the margin on cnec "FR2-FR3-O - preventive" after PRA should be -140 MW
     Then the margin on cnec "NL2-BE3-O - curative" after CRA should be 3.7 MW
     Then the execution details should be "Second preventive improved first preventive results"
+    Then its security status should be "UNSECURED"
 
   @fast @rao @ac @second-preventive @mnec @max-min-margin @megawatt
   Scenario: US 15.11.4.2: ARAO2
@@ -44,3 +45,4 @@ Feature: US 15.11.4: ARAO with 2P
     Then the value of the objective function after CRA should be 141
     Then the margin on cnec "NL2-BE3-O - curative" after CRA should be 7 MW
     Then the execution details should be "Second preventive improved first preventive results"
+    Then its security status should be "UNSECURED"

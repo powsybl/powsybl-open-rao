@@ -13,6 +13,7 @@ Feature: US 10.5: GLSK on disconnected Xnode
     Given loopflow glsk file is "epic10/glsk_proportional_12nodes_hvdc.xml"
     When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then the value of the objective function after CRA should be -122
     Then the tap of PstRangeAction "PRA_PST_BE" should be -16 in preventive
     Then the remedial action "Open FR1 FR2" is used in preventive
@@ -33,6 +34,7 @@ Feature: US 10.5: GLSK on disconnected Xnode
     Given loopflow glsk file is "epic10/glsk_proportional_12nodes_hvdc.xml"
     When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then the value of the objective function after CRA should be -122
     Then the tap of PstRangeAction "PRA_PST_BE" should be -16 in preventive
     Then the remedial action "Open FR1 FR2" is used in preventive

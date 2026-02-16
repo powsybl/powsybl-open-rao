@@ -12,6 +12,7 @@ Feature: US 13.5: dynamic of range actions available in several instants
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "UNSECURED"
     Then the worst margin is -582 A
     Then the margin on cnec "FFR2AA1  FFR3AA1  2 - co1_fr2_fr3_1 - curative" after CRA should be -582 A
     Then the margin on cnec "FFR2AA1  DDE3AA1  1 - preventive" after PRA should be -87 A
@@ -29,6 +30,7 @@ Feature: US 13.5: dynamic of range actions available in several instants
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then the worst margin is 71 A
     Then the margin on cnec "FFR2AA1  FFR3AA1  2 - co1_fr2_fr3_1 - curative" after CRA should be 71 A
     Then the margin on cnec "FFR2AA1  DDE3AA1  1 - preventive" after PRA should be 370 A
@@ -51,6 +53,7 @@ Feature: US 13.5: dynamic of range actions available in several instants
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "UNSECURED"
     Then the worst margin is -99 A
     Then the margin on cnec "FFR2AA1  FFR3AA1  2 - co1_fr2_fr3_1 - curative" after CRA should be -99 A
     Then the margin on cnec "FFR2AA1  DDE3AA1  1 - preventive" after PRA should be 104 A
@@ -72,6 +75,7 @@ Feature: US 13.5: dynamic of range actions available in several instants
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "UNSECURED"
     Then the worst margin is -47 A
     Then the margin on cnec "FFR2AA1  FFR3AA1  2 - co1_fr2_fr3_1 - curative" after CRA should be -47 A
     Then the margin on cnec "FFR2AA1  DDE3AA1  1 - preventive" after PRA should be 149 A
@@ -93,6 +97,7 @@ Feature: US 13.5: dynamic of range actions available in several instants
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_ac.json"
     When I launch rao at "2019-01-08 00:30"
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then the worst margin is 1432 MW
     Then the margin on cnec "CnecCurativeDir - curative" after CRA should be 1432 MW
     Then the tap of PstRangeAction "SelectTapPSTPrev" should be 12 in preventive
@@ -106,6 +111,7 @@ Feature: US 13.5: dynamic of range actions available in several instants
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_ac.json"
     When I launch rao at "2019-01-08 00:30"
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then the worst margin is 1432 MW
     Then the margin on cnec "CnecCurativeDir - curative" after CRA should be 1432 MW
     Then the tap of PstRangeAction "SelectTapPSTPrev" should be 12 in preventive
@@ -118,6 +124,7 @@ Feature: US 13.5: dynamic of range actions available in several instants
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_ac.json"
     When I launch rao at "2019-01-08 00:30"
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then the worst margin is 1422 MW
     Then the margin on cnec "CnecCurativeDir - curative" after CRA should be 1422 MW
     Then the tap of PstRangeAction "SelectTapPSTPrev" should be 12 in preventive
@@ -141,6 +148,7 @@ Feature: US 13.5: dynamic of range actions available in several instants
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_ac.json"
     When I launch rao at "2019-01-08 00:30"
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then the worst margin is 1637 MW
     Then the margin on cnec "CnecPreventiveDir - preventive" after PRA should be 1654 MW
     Then the tap of PstRangeAction "SelectTapPSTPrev" should be 12 in preventive
@@ -153,6 +161,7 @@ Feature: US 13.5: dynamic of range actions available in several instants
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then 2 remedial actions are used in preventive
     Then the tap of PstRangeAction "pra_pst_fr" should be -15 in preventive
     Then the tap of PstRangeAction "pra_pst_be" should be 13 in preventive
@@ -189,6 +198,7 @@ Feature: US 13.5: dynamic of range actions available in several instants
     Then the remedial action "cra_pst_be" is used after "CO1_fr2_fr3_1" at "curative"
     Then the worst margin is 996 A
     Then the execution details should be "Second preventive improved first preventive results"
+    Then its security status should be "SECURED"
 
   @fast @rao @ac @second-preventive @max-min-margin @ampere
   Scenario: US 13.5.11.bis: CBCORA, CRA and PRA on same PSTs, with global 2P optimisation
@@ -212,3 +222,4 @@ Feature: US 13.5: dynamic of range actions available in several instants
     # does not work currently: expected behaviour not clear yet in that case
     Then the worst margin is 995 A
     Then the execution details should be "Second preventive improved first preventive results"
+    Then its security status should be "SECURED"

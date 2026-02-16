@@ -14,6 +14,7 @@ Feature: US 15.17: Optimize HVDC range actions initially in AC emulation mode
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then 2 remedial actions are used in preventive
     Then the remedial action "acEmulationDeactivation_BBE2AA11 FFR3AA11 1" is used in preventive
     Then the setpoint of RangeAction "PRA_HVDC" should be 1422 MW in preventive
@@ -30,6 +31,7 @@ Feature: US 15.17: Optimize HVDC range actions initially in AC emulation mode
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then 2 remedial actions are used in preventive
     Then the remedial action "acEmulationDeactivation_BBE2AA11 FFR3AA11 1" is used in preventive
     Then the setpoint of RangeAction "PRA_HVDC" should be 2008 MW in preventive
@@ -49,6 +51,7 @@ Feature: US 15.17: Optimize HVDC range actions initially in AC emulation mode
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then the initial setpoint of RangeAction "PRA_HVDC" should be 820
     Then 2 remedial actions are used in preventive
     Then the remedial action "acEmulationDeactivation_BBE2AA11 FFR3AA11 1" is used in preventive
@@ -67,6 +70,7 @@ Feature: US 15.17: Optimize HVDC range actions initially in AC emulation mode
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then 3 remedial actions are used in preventive
     Then the setpoint of RangeAction "PRA_HVDC" should be 917 MW in preventive
     Then the remedial action "acEmulationDeactivation_BBE2AA11 FFR3AA11 1" is used in preventive
@@ -87,6 +91,7 @@ Feature: US 15.17: Optimize HVDC range actions initially in AC emulation mode
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then 3 remedial actions are used in preventive
     Then the setpoint of RangeAction "PRA_HVDC" should be 1236 MW in preventive
     Then the remedial action "acEmulationDeactivation_BBE2AA11 FFR3AA11 1" is used in preventive
@@ -108,6 +113,7 @@ Feature: US 15.17: Optimize HVDC range actions initially in AC emulation mode
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then 3 remedial actions are used in preventive
     Then the setpoint of RangeAction "PRA_HVDC" should be 1652 MW in preventive
     Then the tap of PstRangeAction "PST_PRA_PST_be_BBE2AA11 BBE3AA11 1" should be 3 in preventive
@@ -133,6 +139,7 @@ Feature: US 15.17: Optimize HVDC range actions initially in AC emulation mode
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then 2 remedial actions are used in preventive
     Then the remedial action "acEmulationDeactivation_BBE2AA11 FFR3AA11 1" is used in preventive
     Then the setpoint of RangeAction "PRA_HVDC" should be -309 MW in preventive
@@ -148,6 +155,7 @@ Feature: US 15.17: Optimize HVDC range actions initially in AC emulation mode
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then the initial setpoint of RangeAction "CRA_HVDC" should be 820
     Then 0 remedial actions are used in preventive
     Then 2 remedial actions are used after "co1_be1_fr5" at "curative"
@@ -163,6 +171,7 @@ Feature: US 15.17: Optimize HVDC range actions initially in AC emulation mode
     Given configuration file is "epic15/RaoParameters_ep15us17case10.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then 0 remedial actions are used in preventive
     Then 2 remedial actions are used after "co1_be1_fr5" at "curative"
     Then the remedial action "acEmulationDeactivation_BBE5AA11 FFR3AA11 1" is used after "co1_be1_fr5" at "curative"
@@ -183,6 +192,7 @@ Feature: US 15.17: Optimize HVDC range actions initially in AC emulation mode
     Given configuration file is "epic15/RaoParameters_ep15us17case11.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then 0 remedial actions are used in preventive
     Then 0 remedial actions are used after "co1_be1_fr5" at "curative"
     Then the initial flow on cnec "be2_be5_n - BBE2AA11->BBE5AA11 - preventive" should be 878 A on side 1
@@ -199,6 +209,7 @@ Feature: US 15.17: Optimize HVDC range actions initially in AC emulation mode
     Given configuration file is "epic15/RaoParameters_ep15us17case12.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "UNSECURED"
     Then 0 remedial actions are used in preventive
     Then the initial flow on cnec "be2_be5_n - BBE2AA11->BBE5AA11 - preventive" should be 878 A on side 1
     Then the flow on cnec "be2_be5_n - BBE2AA11->BBE5AA11 - preventive" after PRA should be 878 A on side 1
@@ -216,6 +227,7 @@ Feature: US 15.17: Optimize HVDC range actions initially in AC emulation mode
     Given configuration file is "common/RaoParameters_min_cost_ac.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     # Initial situation
     Then the initial flow on cnec "be1_be2_n - BBE1AA11->BBE2AA11 - preventive" should be -919 A on side 1
     Then the initial margin on cnec "be1_be2_n - BBE1AA11->BBE2AA11 - preventive" should be -469 A

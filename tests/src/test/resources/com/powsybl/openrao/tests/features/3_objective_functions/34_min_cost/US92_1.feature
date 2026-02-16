@@ -15,6 +15,7 @@ Feature: US 92.1: Costly network actions optimization
     When I launch rao
     Then the worst margin is 250.0 MW
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then 1 remedial actions are used in preventive
     Then the remedial action "closeBeFr4" is used in preventive
     # Overload penalty (250 * 1000)
@@ -33,6 +34,7 @@ Feature: US 92.1: Costly network actions optimization
     When I launch rao
     Then the worst margin is 83.0 MW
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then 1 remedial actions are used in preventive
     Then the remedial action "closeBeFr3" is used in preventive
     Then the value of the objective function initially should be 250000.0
@@ -49,6 +51,7 @@ Feature: US 92.1: Costly network actions optimization
     Then the worst margin is 464.29 MW
     Then the margin on cnec "cnecBeFrPreventive" after PRA should be 464.29 MW
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then 2 remedial actions are used in preventive
     Then the remedial action "closeBeFr2" is used in preventive
     Then the remedial action "closeBeFr3" is used in preventive
@@ -65,6 +68,7 @@ Feature: US 92.1: Costly network actions optimization
     When I launch rao
     Then the worst margin is 66.67 MW
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then 2 remedial actions are used in preventive
     Then the remedial action "closeBeFr3" is used in preventive
     Then the remedial action "closeBeFr4" is used in preventive
@@ -84,6 +88,7 @@ Feature: US 92.1: Costly network actions optimization
     When I launch rao
     Then the worst margin is -100.0 MW
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "UNSECURED"
     Then 1 remedial actions are used in preventive
     Then the remedial action "closeBeFr4" is used in preventive
     Then the value of the objective function initially should be 600000.0
@@ -104,6 +109,7 @@ Feature: US 92.1: Costly network actions optimization
     When I launch rao
     Then the worst margin is 66.67 MW
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then 1 remedial actions are used in preventive
     Then the remedial action "closeBeFr2" is used in preventive
     Then the value of the objective function initially should be 600000.0
@@ -118,6 +124,7 @@ Feature: US 92.1: Costly network actions optimization
     When I launch rao
     Then the worst margin is 66.67 MW
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then the value of the objective function initially should be 600000.0
     Then 1 remedial actions are used in preventive
     Then the remedial action "closeBeFr3" is used in preventive
@@ -137,6 +144,7 @@ Feature: US 92.1: Costly network actions optimization
     When I launch rao
     Then the worst margin is 66.67 MW
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then the value of the objective function initially should be 100000.0
     Then 1 remedial actions are used after "coBeFr2" at "auto"
     Then the remedial action "closeBeFr4" is used after "coBeFr2" at "auto"
@@ -154,6 +162,7 @@ Feature: US 92.1: Costly network actions optimization
     When I launch rao
     Then the worst margin is 10.0 MW
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then the value of the objective function initially should be 240000.0
     Then 1 remedial actions are used in preventive
     Then the remedial action "closeBeFr4" is used in preventive
@@ -175,6 +184,7 @@ Feature: US 92.1: Costly network actions optimization
     When I launch rao
     Then the worst margin is 66.67 MW
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then the value of the objective function initially should be 600000.0
     Then 1 remedial actions are used in preventive
     Then the remedial action "closeBeFr3" is used in preventive
@@ -194,6 +204,7 @@ Feature: US 92.1: Costly network actions optimization
     When I launch rao
     Then the worst margin is 66.67 MW
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then the value of the objective function initially should be 600000.0
     Then 1 remedial actions are used in preventive
     Then the remedial action "closeBeFr3" is used in preventive
@@ -214,6 +225,7 @@ Feature: US 92.1: Costly network actions optimization
     When I launch rao
     Then the worst margin is 16.67 MW
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then the value of the objective function initially should be 700000.0
     Then 1 remedial actions are used in preventive
     Then the remedial action "closeBeFr3" is used in preventive
@@ -241,6 +253,7 @@ Feature: US 92.1: Costly network actions optimization
     When I launch rao
     Then the worst margin is -50.00 MW
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "UNSECURED"
     Then the value of the objective function initially should be 100000.0
     Then 1 remedial actions are used in preventive
     Then the remedial action "closeBeFr6" is used in preventive
@@ -276,6 +289,7 @@ Feature: US 92.1: Costly network actions optimization
     When I launch rao
     Then the worst margin is -66.67 MW
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "UNSECURED"
     Then the value of the objective function initially should be 150000.0
     Then 1 remedial actions are used in preventive
     Then the remedial action "closeBeFr6" is used in preventive

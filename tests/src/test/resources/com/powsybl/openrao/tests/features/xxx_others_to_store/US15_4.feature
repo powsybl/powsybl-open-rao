@@ -32,6 +32,7 @@ Feature: US 15.4: Consider two margins on tie-lines for each half-line with rela
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "UNSECURED"
     Then the flow on cnec "BBE2AA1  X_BEFR1  1 + FFR3AA1  X_BEFR1  1 - preventive" after PRA should be 721 A on side 1 and 721 A on side 2
     Then the margin on cnec "BBE2AA1  X_BEFR1  1 + FFR3AA1  X_BEFR1  1 - preventive" after PRA should be -221.0 A
     Then the flow on cnec "BBE2AA1  X_BEFR1  1 + FFR3AA1  X_BEFR1  1 - N-1 DE-NL - outage" after PRA should be 2167 A on side 1 and 2167 A on side 2
@@ -44,6 +45,7 @@ Feature: US 15.4: Consider two margins on tie-lines for each half-line with rela
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "UNSECURED"
     Then the flow on cnec "BBE2AA1  X_BEFR1  1 + FFR3AA1  X_BEFR1  1 - preventive" after PRA should be 721 A on side 1 and 721 A on side 2
     Then the margin on cnec "BBE2AA1  X_BEFR1  1 + FFR3AA1  X_BEFR1  1 - preventive" after PRA should be -221.0 A
     Then the flow on cnec "BBE2AA1  X_BEFR1  1 + FFR3AA1  X_BEFR1  1 - N-1 DE-NL - outage" after PRA should be 2167 A on side 1 and 2167 A on side 2

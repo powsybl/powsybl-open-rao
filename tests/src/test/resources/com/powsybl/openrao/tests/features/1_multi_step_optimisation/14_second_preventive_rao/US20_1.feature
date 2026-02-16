@@ -19,6 +19,7 @@ Feature: US 20.1: enable second optimization of the preventive perimeter
     Then the margin on cnec "FFR1AA1  FFR4AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be 321 A
     Then the margin on cnec "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be 501 A
     Then the execution details should be "Second preventive improved first preventive results"
+    Then its security status should be "SECURED"
 
   @fast @rao @ac @second-preventive @max-min-margin @ampere
   Scenario: US 20.1.1.2: Same case as US 20.1.1 with a limitation of 2 RAs in preventive
@@ -27,6 +28,7 @@ Feature: US 20.1: enable second optimization of the preventive perimeter
     Given configuration file is "epic20/RaoParameters_maxMargin_ampere_second_preventive.json"
     When I launch rao
     Then the execution details should be "Second preventive improved first preventive results"
+    Then its security status should be "SECURED"
     Then 2 remedial actions are used in preventive
     Then 0 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     Then the remedial action "open_fr1_fr3" is used in preventive
@@ -41,6 +43,7 @@ Feature: US 20.1: enable second optimization of the preventive perimeter
     Given configuration file is "epic20/RaoParameters_maxMargin_ampere_second_preventive.json"
     When I launch rao
     Then the execution details should be "Second preventive improved first preventive results"
+    Then its security status should be "SECURED"
     Then 2 remedial actions are used in preventive
     Then the remedial action "open_fr1_fr3" is used in preventive
     Then the tap of PstRangeAction "pst_fr" should be 5 in preventive
@@ -56,6 +59,7 @@ Feature: US 20.1: enable second optimization of the preventive perimeter
     Given configuration file is "epic20/RaoParameters_maxMargin_ampere_second_preventive.json"
     When I launch rao
     Then the execution details should be "Second preventive improved first preventive results"
+    Then its security status should be "SECURED"
     Then 2 remedial actions are used in preventive
     Then the remedial action "open_fr1_fr3" is used in preventive
     Then 1 remedial actions are used after "co1_fr2_fr3_1" at "curative"
@@ -81,6 +85,7 @@ Feature: US 20.1: enable second optimization of the preventive perimeter
     Then the margin on cnec "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be 725 A
     Then the margin on cnec "FFR4AA1  DDE1AA1  1 - preventive" after PRA should be 731 A
     Then the execution details should be "Second preventive improved first preventive results"
+    Then its security status should be "SECURED"
 
   @fast @rao @ac @second-preventive @max-min-margin @ampere
   Scenario: US 20.1.3: Preventive and curative network actions 2/3
@@ -97,6 +102,7 @@ Feature: US 20.1: enable second optimization of the preventive perimeter
     Then the margin on cnec "FFR2AA1  DDE3AA1  1 - preventive" after PRA should be -87 A
     Then the margin on cnec "FFR2AA1  DDE3AA1  1 - co1_fr2_fr3_1 - outage" after PRA should be 236 A
     Then the execution details should be "Second preventive improved first preventive results"
+    Then its security status should be "UNSECURED"
 
   @fast @rao @ac @second-preventive @max-min-margin @ampere
   Scenario: US 20.1.4: Preventive and curative network actions 3/3
@@ -113,6 +119,7 @@ Feature: US 20.1: enable second optimization of the preventive perimeter
     Then the margin on cnec "FFR2AA1  DDE3AA1  1 - preventive" after PRA should be -87 A
     Then the margin on cnec "FFR2AA1  DDE3AA1  1 - co1_fr2_fr3_1 - outage" after PRA should be 236 A
     Then the execution details should be "Second preventive improved first preventive results"
+    Then its security status should be "UNSECURED"
 
   @fast @rao @ac @second-preventive @max-min-margin @ampere
   Scenario: US 20.1.5: Duplicated RA on the same PST, one being a PRA and the other one being a CRA
@@ -133,6 +140,7 @@ Feature: US 20.1: enable second optimization of the preventive perimeter
     Then the margin on cnec "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be 910 A
     Then the margin on cnec "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - outage" after PRA should be 1148 A
     Then the execution details should be "Second preventive improved first preventive results"
+    Then its security status should be "SECURED"
 
   @fast @rao @ac @second-preventive @max-min-margin @ampere
   Scenario: US 20.1.6: Same test as 20.1.5. The CRA has a non relevant relative to previous instant range
@@ -153,6 +161,7 @@ Feature: US 20.1: enable second optimization of the preventive perimeter
     Then the margin on cnec "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be 910 A
     Then the margin on cnec "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - outage" after PRA should be 1148 A
     Then the execution details should be "Second preventive improved first preventive results"
+    Then its security status should be "SECURED"
 
   @fast @rao @ac @second-preventive @max-min-margin @ampere
   Scenario: US 20.1.7: Test case with a CBCORA file
@@ -171,3 +180,4 @@ Feature: US 20.1: enable second optimization of the preventive perimeter
     Then the margin on cnec "fr3_fr5_CO1 - OPP - curative" after CRA should be 725 A
     Then the margin on cnec "fr4_de1_N - preventive" after PRA should be 731 A
     Then the execution details should be "Second preventive improved first preventive results"
+    Then its security status should be "SECURED"

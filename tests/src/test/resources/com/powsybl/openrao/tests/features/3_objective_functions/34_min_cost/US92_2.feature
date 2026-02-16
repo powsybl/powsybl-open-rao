@@ -16,6 +16,7 @@ Feature: US 92.2: Costly range actions optimization - APPROXIMATED_INTEGERS PSTs
     When I launch rao
     Then the worst margin is 45.46 MW
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then the value of the objective function initially should be 200000.0
     Then 1 remedial actions are used in preventive
     Then the remedial action "pstBeFr2" is used in preventive
@@ -33,6 +34,7 @@ Feature: US 92.2: Costly range actions optimization - APPROXIMATED_INTEGERS PSTs
     When I launch rao
     Then the worst margin is 31.15 MW
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then the value of the objective function initially should be 263333.33
     Then 1 remedial actions are used in preventive
     Then the remedial action "pstBeFr3" is used in preventive
@@ -49,6 +51,7 @@ Feature: US 92.2: Costly range actions optimization - APPROXIMATED_INTEGERS PSTs
     When I launch rao
     Then the worst margin is 11.73 MW
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then the value of the objective function initially should be 430000.0
     Then 1 remedial actions are used in preventive
     Then the remedial action "pstBeFr3" is used in preventive
@@ -69,6 +72,7 @@ Feature: US 92.2: Costly range actions optimization - APPROXIMATED_INTEGERS PSTs
     When I launch rao
     Then the worst margin is 11.73 MW
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then the value of the objective function initially should be 430000.0
     Then 1 remedial actions are used in preventive
     Then the remedial action "pstBeFr3" is used in preventive
@@ -89,6 +93,7 @@ Feature: US 92.2: Costly range actions optimization - APPROXIMATED_INTEGERS PSTs
     When I launch rao
     Then the worst margin is 11.73 MW
     Then the execution details should be "Second preventive improved first preventive results"
+    Then its security status should be "SECURED"
     Then the value of the objective function initially should be 430000.0
     Then 1 remedial actions are used in preventive
     Then the remedial action "pstBeFr3" is used in preventive
@@ -107,6 +112,7 @@ Feature: US 92.2: Costly range actions optimization - APPROXIMATED_INTEGERS PSTs
     When I launch rao
     Then the worst margin is 32.13 MW
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then the value of the objective function initially should be 450000.0
     Then 1 remedial actions are used in preventive
     Then the remedial action "pstBeFr3" is used in preventive
@@ -135,6 +141,7 @@ Feature: US 92.2: Costly range actions optimization - APPROXIMATED_INTEGERS PSTs
     When I launch rao
     Then the worst margin is 40.77 MW
     Then the execution details should be "Second preventive improved first preventive results"
+    Then its security status should be "SECURED"
     Then the value of the objective function initially should be 450000.0
     Then 1 remedial actions are used in preventive
     Then the remedial action "pstBeFr3" is used in preventive

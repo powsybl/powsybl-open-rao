@@ -14,6 +14,7 @@ Feature: US 10.6: Add minimum relative margin binary variable
     Given loopflow glsk file is "common/glsk_proportional_12nodes.xml"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "UNSECURED"
     Then the worst margin is -1188.90 MW
     Then the value of the objective function after CRA should be 1188.90
     #Then the relative margin on cnec "CB_FR-DE_2 - outage" after PRA should be 122.3 MW

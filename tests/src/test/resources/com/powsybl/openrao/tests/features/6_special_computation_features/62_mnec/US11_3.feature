@@ -12,6 +12,7 @@ Feature: US 11.3: Handle MNECs in search tree with only network actions
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_ac.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "UNSECURED"
     Then the remedial action "Open line FR1- FR2" is used in preventive
     Then line "FFR1AA1  FFR2AA1  1" in network file with PRA has connection status to "false"
     Then the remedial action "PST BE setpoint" is used in preventive
@@ -25,6 +26,7 @@ Feature: US 11.3: Handle MNECs in search tree with only network actions
     Given configuration file is "epic11/RaoParameters_maxMargin_megawatt_ac_mnecDimin180.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "UNSECURED"
     Then the remedial action "Open line FR1- FR2" is used in preventive
     Then line "FFR1AA1  FFR2AA1  1" in network file with PRA has connection status to "false"
     Then 1 remedial actions are used in preventive
@@ -39,6 +41,7 @@ Feature: US 11.3: Handle MNECs in search tree with only network actions
     Given configuration file is "epic11/RaoParameters_maxMargin_megawatt_ac_mnecDimin180.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "UNSECURED"
     Then the remedial action "PST BE setpoint" is used in preventive
     Then PST "BBE2AA1  BBE3AA1  1" in network file with PRA is on tap -16
     Then 1 remedial actions are used in preventive

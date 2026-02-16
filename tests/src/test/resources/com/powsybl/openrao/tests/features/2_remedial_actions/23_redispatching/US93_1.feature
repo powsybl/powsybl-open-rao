@@ -17,6 +17,7 @@ Feature: US 93.1: Basic redispatching actions (free and costly)
     When I launch rao
     Then the worst margin is 300 MW
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then the initial margin on cnec "cnecFr1Fr2Preventive" should be -700 MW
     Then 1 remedial actions are used in preventive
     Then the remedial action "redispatchingAction" is used in preventive
@@ -32,6 +33,7 @@ Feature: US 93.1: Basic redispatching actions (free and costly)
     When I launch rao
     Then the worst margin is 300 MW
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then the initial margin on cnec "cnecFr1Fr2Preventive" should be -700 MW
     Then 1 remedial actions are used in preventive
     Then the remedial action "redispatchingAction" is used in preventive
@@ -50,6 +52,7 @@ Feature: US 93.1: Basic redispatching actions (free and costly)
     When I launch rao
     Then the worst margin is 0 MW
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then 1 remedial actions are used in preventive
     Then the remedial action "redispatchingAction" is used in preventive
     Then the setpoint of RangeAction "redispatchingAction" should be 300.0 MW in preventive
@@ -70,6 +73,7 @@ Feature: US 93.1: Basic redispatching actions (free and costly)
     When I launch rao
     Then the worst margin is -267 MW
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "UNSECURED"
     Then the initial margin on cnec "cnecFr1Fr2Preventive" should be -267 MW
     Then 0 remedial actions are used in preventive
     Then the setpoint of RangeAction "redispatchingAction" should be 1000.0 MW in preventive
@@ -86,6 +90,7 @@ Feature: US 93.1: Basic redispatching actions (free and costly)
     When I launch rao
     Then the worst margin is 500 MW
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then 2 remedial actions are used in preventive
     Then the remedial action "redispatchingActionFR1FR3" is used in preventive
     Then the remedial action "redispatchingActionFR2FR4" is used in preventive
@@ -107,6 +112,7 @@ Feature: US 93.1: Basic redispatching actions (free and costly)
     When I launch rao
     Then the worst margin is 9.87 MW
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then the initial margin on cnec "cnecFr1Fr2Preventive" should be -267 MW
     Then 2 remedial actions are used in preventive
     Then the setpoint of RangeAction "redispatchingActionFR1FR2" should be 512.0 MW in preventive
@@ -125,6 +131,7 @@ Feature: US 93.1: Basic redispatching actions (free and costly)
     When I launch rao
     Then the worst margin is -366.67 MW
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "UNSECURED"
     Then the initial setpoint of RangeAction "redispatchingActionFR1" should be -1000.0
     Then the setpoint of RangeAction "redispatchingActionFR1" should be -1000.0 MW in preventive
     Then 0 remedial actions are used in preventive

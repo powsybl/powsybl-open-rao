@@ -117,6 +117,7 @@ Feature: US 7.18: Virtual hubs in loopflow computation
     Given configuration file is "epic7/RaoParameters_maxMargin_mw_dc_lf_false_10_100.json"
     When I launch loopflow rao at "2019-01-08 21:30" with default loopflow limit as 0.0 percent of pmax
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
 
     Then the worst margin is 498.0 MW on cnec "DDE3AA1  X_DEFR1  1 - preventive"
     Then the tap of PstRangeAction "PRA_PST_BE" should be -10 in preventive

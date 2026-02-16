@@ -12,6 +12,7 @@ Feature: US 19.10: limit number of PSTs with a constraint directly in the optimi
     Given configuration file is "common/RaoParameters_maxMargin_ampere_mip.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then 1 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     Then the remedial action "pst_be" is used after "co1_fr2_fr3_1" at "curative"
     Then the tap of PstRangeAction "pst_be" should be 16 after "co1_fr2_fr3_1" at "curative"
@@ -25,6 +26,7 @@ Feature: US 19.10: limit number of PSTs with a constraint directly in the optimi
     Given configuration file is "common/RaoParameters_maxMargin_ampere_mip.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then 1 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     Then the remedial action "close_fr1_fr5" is used after "co1_fr2_fr3_1" at "curative"
     Then the worst margin is 840 A on cnec "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative"
@@ -36,6 +38,7 @@ Feature: US 19.10: limit number of PSTs with a constraint directly in the optimi
     Given configuration file is "common/RaoParameters_maxMargin_ampere_mip.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then 1 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     Then the remedial action "pst_be" is used after "co1_fr2_fr3_1" at "curative"
     Then the tap of PstRangeAction "pst_be" should be 16 after "co1_fr2_fr3_1" at "curative"
@@ -49,6 +52,7 @@ Feature: US 19.10: limit number of PSTs with a constraint directly in the optimi
     Given configuration file is "common/RaoParameters_maxMargin_ampere_mip.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then 2 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     Then the remedial action "close_fr1_fr5" is used after "co1_fr2_fr3_1" at "curative"
     Then the remedial action "pst_be" is used after "co1_fr2_fr3_1" at "curative"
@@ -63,6 +67,7 @@ Feature: US 19.10: limit number of PSTs with a constraint directly in the optimi
     Given configuration file is "common/RaoParameters_maxMargin_ampere_mip.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then 1 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     Then the tap of PstRangeAction "pst_be" should be 16 after "co1_fr2_fr3_1" at "curative"
     Then the worst margin is 945 A on cnec "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative"
@@ -74,6 +79,7 @@ Feature: US 19.10: limit number of PSTs with a constraint directly in the optimi
     Given configuration file is "common/RaoParameters_maxMargin_ampere_mip.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then 1 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     Then the remedial action "close_fr1_fr5" is used after "co1_fr2_fr3_1" at "curative"
     Then the tap of PstRangeAction "pst_be" should be 0 after "co1_fr2_fr3_1" at "curative"
@@ -87,6 +93,7 @@ Feature: US 19.10: limit number of PSTs with a constraint directly in the optimi
     Given configuration file is "common/RaoParameters_maxMargin_ampere_mip.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then 2 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     Then the remedial action "close_fr1_fr5" is used after "co1_fr2_fr3_1" at "curative"
     Then the remedial action "pst_be" is used after "co1_fr2_fr3_1" at "curative"
@@ -101,6 +108,7 @@ Feature: US 19.10: limit number of PSTs with a constraint directly in the optimi
     Given configuration file is "common/RaoParameters_maxMargin_ampere_mip.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then 1 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     Then the tap of PstRangeAction "pst_be" should be 16 after "co1_fr2_fr3_1" at "curative"
     Then the worst margin is 945 A on cnec "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative"
@@ -112,6 +120,7 @@ Feature: US 19.10: limit number of PSTs with a constraint directly in the optimi
     Given configuration file is "common/RaoParameters_maxMargin_ampere_mip.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then 3 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     Then the remedial action "open_fr1_fr2" is used after "co1_fr2_fr3_1" at "curative"
     Then the remedial action "close_fr1_fr5" is used after "co1_fr2_fr3_1" at "curative"
@@ -126,6 +135,7 @@ Feature: US 19.10: limit number of PSTs with a constraint directly in the optimi
     Given crac creation parameters file is "epic19/us19_10_10&11.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then the setpoint of RangeAction "CRA_HVDC" should be 1406 MW after "co1_be1_fr5" at "curative"
     Then the worst margin is 285 MW
     Then the margin on cnec "be4_fr5_co1 - BBE4AA11->FFR5AA11  - co1_be1_fr5 - curative" after CRA should be 285 MW
@@ -138,6 +148,7 @@ Feature: US 19.10: limit number of PSTs with a constraint directly in the optimi
     Given crac creation parameters file is "epic19/us19_10_10&11.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then 1 remedial actions are used after "co1_be1_fr5" at "curative"
     Then the tap of PstRangeAction "PST_CRA_PST_be_BBE2AA11 BBE3AA11 1" should be -16 after "co1_be1_fr5" at "curative"
     Then the setpoint of RangeAction "CRA_HVDC" should be 0 MW after "co1_be1_fr5" at "curative"
@@ -151,6 +162,7 @@ Feature: US 19.10: limit number of PSTs with a constraint directly in the optimi
     Given configuration file is "common/RaoParameters_maxMargin_ampere_mip.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then 3 remedial actions are used in preventive
     Then the remedial action "close_fr1_fr5" is used in preventive
     Then the tap of PstRangeAction "pst_be" should be -8 in preventive
@@ -164,6 +176,7 @@ Feature: US 19.10: limit number of PSTs with a constraint directly in the optimi
     Given configuration file is "common/RaoParameters_maxMargin_ampere_mip.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then 2 remedial actions are used in preventive
     # Asserts that the RAO is able to choose a topological action even if it as reached its limit in rootLeaf
     Then the remedial action "close_fr1_fr5" is used in preventive
@@ -177,6 +190,7 @@ Feature: US 19.10: limit number of PSTs with a constraint directly in the optimi
     Given configuration file is "common/RaoParameters_maxMargin_ampere_mip.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then 1 remedial actions are used in preventive
     Then the tap of PstRangeAction "pst_be" should be 16 in preventive
     Then the worst margin is 945.38 A

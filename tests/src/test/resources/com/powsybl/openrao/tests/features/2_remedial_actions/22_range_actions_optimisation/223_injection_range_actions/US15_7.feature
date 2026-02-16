@@ -12,6 +12,7 @@ Feature: US 15.7: Injection setpoint with absolute and relative target
     Given configuration file is "epic15/RaoParameters_ep15us7-2.json"
     When I launch rao at "2021-04-30 22:30"
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then the remedial action "cra_2" is used in preventive
     Then the worst margin is 545.8 MW
 
@@ -22,6 +23,7 @@ Feature: US 15.7: Injection setpoint with absolute and relative target
     Given configuration file is "epic15/RaoParameters_ep15us7-2.json"
     When I launch rao at "2021-04-30 22:30"
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then 0 remedial actions are used in preventive
     Then the remedial action "cra_1" is used after "outage_1" at "curative"
     Then the remedial action "cra_2bis" is used after "outage_1" at "curative"

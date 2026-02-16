@@ -13,6 +13,7 @@ Feature: US 15.10.2: Modify voltage level topology as remedial action (3 nodes c
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "UNSECURED"
     Then 0 remedial actions are used in preventive
     Then 0 remedial actions are used after "co1_fr2_fr3" at "curative"
 
@@ -24,6 +25,7 @@ Feature: US 15.10.2: Modify voltage level topology as remedial action (3 nodes c
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "UNSECURED"
     Then 0 remedial actions are used in preventive
     Then 1 remedial actions are used after "co1_fr2_fr3" at "curative"
     Then the remedial action "RA3" is used after "co1_fr2_fr3" at "curative"
@@ -36,6 +38,7 @@ Feature: US 15.10.2: Modify voltage level topology as remedial action (3 nodes c
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "UNSECURED"
     Then 1 remedial actions are used in preventive
     Then the remedial action "RA1" is used in preventive
     Then 1 remedial actions are used after "co1_fr2_fr3" at "curative"
@@ -49,6 +52,7 @@ Feature: US 15.10.2: Modify voltage level topology as remedial action (3 nodes c
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "UNSECURED"
     Then 1 remedial actions are used in preventive
     Then the remedial action "RA1" is used in preventive
     Then 1 remedial actions are used after "co1_fr2_fr3" at "curative"

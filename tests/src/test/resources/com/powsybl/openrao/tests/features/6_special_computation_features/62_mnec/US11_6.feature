@@ -12,6 +12,7 @@ Feature: US 11.6: Handle MNECs in rao with a CSE CRAC
     Given configuration file is "epic11/RaoParameters_posMargin_ampere_mnecDiminMinusInf.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then the initial margin on cnec "critical_branch - NNL2AA1 ->NNL3AA1  - preventive" should be -203.35 A
     Then the value of the objective function initially should be 203.35
     Then the remedial action "topo_remedial_action" is used in preventive
@@ -25,6 +26,7 @@ Feature: US 11.6: Handle MNECs in rao with a CSE CRAC
     Given configuration file is "epic11/RaoParameters_posMargin_ampere_mnecDiminMinusInf.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then the initial margin on cnec "critical_branch - NNL2AA1 ->NNL3AA1  - preventive" should be -203.35 A
     Then the initial margin on cnec "monitored_element - FFR2AA1 ->DDE3AA1  - preventive" should be 2832.87 A
     Then the value of the objective function initially should be 203.35
@@ -40,6 +42,7 @@ Feature: US 11.6: Handle MNECs in rao with a CSE CRAC
     Given configuration file is "epic11/RaoParameters_posMargin_ampere_mnecDiminMinusInf.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "UNSECURED"
     Then the initial margin on cnec "critical_branch - NNL2AA1 ->NNL3AA1  - preventive" should be -203.35 A
     Then the initial margin on cnec "monitored_element - FFR2AA1 ->DDE3AA1  - preventive" should be 1432.87 A
     Then the value of the objective function initially should be 203.35
@@ -55,6 +58,7 @@ Feature: US 11.6: Handle MNECs in rao with a CSE CRAC
     Given configuration file is "epic11/RaoParameters_posMargin_ampere_mnecDiminMinusInf.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then the initial margin on cnec "critical_branch - BBE2AA1 ->BBE3AA1  - preventive" should be -162.76 A
     Then the value of the objective function initially should be 162.76
     Then the remedial action "PST_pst_remedial_action_BBE2AA1  BBE3AA1  1" is used in preventive
@@ -69,6 +73,7 @@ Feature: US 11.6: Handle MNECs in rao with a CSE CRAC
     Given configuration file is "epic11/RaoParameters_posMargin_ampere_mnecDiminMinusInf.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then the initial margin on cnec "critical_branch - BBE2AA1 ->BBE3AA1  - preventive" should be -162.76 A
     Then the initial margin on cnec "monitored_element - BBE1AA1 ->BBE3AA1  - preventive" should be 840.55 A
     Then the value of the objective function initially should be 162.76
@@ -85,6 +90,7 @@ Feature: US 11.6: Handle MNECs in rao with a CSE CRAC
     Given configuration file is "epic11/RaoParameters_posMargin_ampere_mnecDiminMinusInf.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then the initial margin on cnec "critical_branch - BBE2AA1 ->BBE3AA1  - preventive" should be -162.76 A
     Then the initial margin on cnec "monitored_element - BBE1AA1 ->BBE3AA1  - preventive" should be 640.55 A
     Then the value of the objective function initially should be 162.76

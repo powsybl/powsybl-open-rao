@@ -197,6 +197,7 @@ Feature: US 91.13: PST Regulation
     Given configuration file is "epic91/RaoParameters_ac.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "UNSECURED"
     Then the worst margin is -579.06 A
     Then the tap of PstRangeAction "pstFr1Fr2" should be -16 in preventive
     Then the margin on cnec "cnecFr1Fr3Preventive" after PRA should be 346.79 A

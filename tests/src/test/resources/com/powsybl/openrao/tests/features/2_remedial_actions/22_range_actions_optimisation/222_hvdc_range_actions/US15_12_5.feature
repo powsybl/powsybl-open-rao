@@ -12,6 +12,7 @@ Feature: US 15.12.5: Handle HVDC range actions in RAO
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then the setpoint of RangeAction "PRA_HVDC" should be 1419 MW in preventive
     Then the worst margin is 400 MW
     Then the margin on cnec "be1_fr5_n - BBE1AA11->FFR5AA11 - preventive" after PRA should be 400 MW
@@ -23,6 +24,7 @@ Feature: US 15.12.5: Handle HVDC range actions in RAO
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then the setpoint of RangeAction "PRA_HVDC" should be 2007 MW in preventive
     Then the worst margin is 191 MW
     Then the margin on cnec "be1_be2_n - BBE1AA11->BBE2AA11 - preventive" after PRA should be 191 MW
@@ -37,6 +39,7 @@ Feature: US 15.12.5: Handle HVDC range actions in RAO
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then the setpoint of RangeAction "PRA_HVDC" should be 810 MW in preventive
     Then the tap of PstRangeAction "PST_PRA_PST_be_BBE2AA11 BBE3AA11 1" should be 14 in preventive
     Then the worst margin is 186 MW
@@ -50,6 +53,7 @@ Feature: US 15.12.5: Handle HVDC range actions in RAO
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then the setpoint of RangeAction "PRA_HVDC" should be 914 MW in preventive
     Then the tap of PstRangeAction "PST_PRA_PST_be_BBE2AA11 BBE3AA11 1" should be 13 in preventive
     Then the worst margin is 176.82 MW
@@ -65,6 +69,7 @@ Feature: US 15.12.5: Handle HVDC range actions in RAO
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then the setpoint of RangeAction "PRA_HVDC" should be 1233 MW in preventive
     Then the tap of PstRangeAction "PST_PRA_PST_be_BBE2AA11 BBE3AA11 1" should be 9 in preventive
     Then the setpoint of RangeAction "CRA_HVDC" should be 1385 MW after "co1_be1_fr5" at "curative"
@@ -81,6 +86,7 @@ Feature: US 15.12.5: Handle HVDC range actions in RAO
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then the setpoint of RangeAction "PRA_HVDC" should be 1651 MW in preventive
     Then the tap of PstRangeAction "PST_PRA_PST_be_BBE2AA11 BBE3AA11 1" should be 3 in preventive
     Then the setpoint of RangeAction "CRA_HVDC" should be 1409 MW after "co1_be1_fr5" at "curative"
@@ -100,6 +106,7 @@ Feature: US 15.12.5: Handle HVDC range actions in RAO
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then the setpoint of RangeAction "PRA_HVDC" should be -309 MW in preventive
     Then the worst margin is 50 MW
     Then the margin on cnec "de2_de3_n - DDE2AA11->DDE3AA11 - preventive" after PRA should be 50 MW
@@ -111,6 +118,7 @@ Feature: US 15.12.5: Handle HVDC range actions in RAO
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then the setpoint of RangeAction "CRA_HVDC" should be 1419 MW after "co1_be1_fr5" at "curative"
     Then the worst margin is 300 MW
     Then the margin on cnec "be4_fr5_co1 - BBE4AA11->FFR5AA11  - co1_be1_fr5 - curative" after CRA should be 300 MW
@@ -122,6 +130,7 @@ Feature: US 15.12.5: Handle HVDC range actions in RAO
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then the setpoint of RangeAction "PRA_HVDC" should be -309 MW in preventive
     Then the worst margin is 50 MW
     Then the margin on cnec "de2_de3_n - DDE2AA11->DDE3AA11 - preventive" after PRA should be 50 MW

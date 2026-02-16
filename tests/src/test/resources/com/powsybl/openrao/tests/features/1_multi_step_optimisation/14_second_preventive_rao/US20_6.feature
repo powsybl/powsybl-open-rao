@@ -14,6 +14,7 @@ Feature: US 20.6: Second Preventive improvements
     Then the worst margin is -40.5 MW
     Then the tap of PstRangeAction "CRA_PST_DE" should be 0 after "Contingency NL3 BE1 2" at "curative"
     Then the execution details should be "Second preventive improved first preventive results"
+    Then its security status should be "UNSECURED"
 
   @fast @rao @dc @second-preventive @max-min-margin @megawatt
   Scenario: US 20.6.2: Fallback to first preventive after 2nd preventive
@@ -23,3 +24,4 @@ Feature: US 20.6: Second Preventive improvements
     When I launch rao
     Then the worst margin is 100.0 MW
     Then the execution details should be "Second preventive fell back to first preventive results"
+    Then its security status should be "SECURED"

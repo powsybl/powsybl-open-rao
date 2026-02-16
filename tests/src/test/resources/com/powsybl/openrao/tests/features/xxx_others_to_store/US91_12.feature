@@ -73,6 +73,7 @@ Feature: US 91.12: Multi-curative
     Given configuration file is "epic91/RaoParameters_case_91_12_secure.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then the worst margin is 0 A
     # Basecase / After PRA (PATL 500 MW)
     Then 0 remedial actions are used in preventive
@@ -125,6 +126,7 @@ Feature: US 91.12: Multi-curative
     Given configuration file is "epic91/RaoParameters_case_91_12_secure.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then the worst margin is 0 A
     # Basecase / After PRA (PATL 500 MW)
     Then 0 remedial actions are used in preventive
@@ -164,6 +166,7 @@ Feature: US 91.12: Multi-curative
     Given configuration file is "epic91/RaoParameters_case_91_12_secure.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then the worst margin is 0 A
     # Basecase / After PRA (PATL 500 MW)
     Then 0 remedial actions are used in preventive
@@ -307,6 +310,7 @@ Feature: US 91.12: Multi-curative
     Given configuration file is "epic91/RaoParameters_case_91_12_secure.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then the worst margin is 0 A
     # Basecase / After PRA (PATL 300 MW)
     Then the initial flow on cnec "BBE1AA1  BBE3AA1  1 - preventive" should be -326.0 MW on side 1
@@ -377,6 +381,7 @@ Feature: US 91.12: Multi-curative
     Given configuration file is "epic91/RaoParameters_case_91_12_search_tree.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then the worst margin is 0 A
     # Basecase / After PRA (PATL 500 MW)
     Then 0 remedial actions are used in preventive
@@ -416,6 +421,7 @@ Feature: US 91.12: Multi-curative
     Given configuration file is "epic91/RaoParameters_case_91_12_search_tree.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then the worst margin is 0 A
     # Basecase / After PRA (PATL 500 MW)
     Then 0 remedial actions are used in preventive
@@ -455,6 +461,7 @@ Feature: US 91.12: Multi-curative
     Given configuration file is "epic91/RaoParameters_case_91_12_search_tree.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then the worst margin is 0 A
     # Basecase / After PRA (PATL 400 MW)
     Then 0 remedial actions are used in preventive

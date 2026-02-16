@@ -12,6 +12,7 @@ Feature: US 15.3: Handle transformers
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then 3 remedial actions are used in preventive
     Then the remedial action "open_be1_fr1" is used in preventive
     Then the remedial action "open_be1_be2" is used in preventive
@@ -33,6 +34,7 @@ Feature: US 15.3: Handle transformers
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then 3 remedial actions are used in preventive
     Then the remedial action "open_be1_fr1" is used in preventive
     Then the remedial action "open_be1_be2" is used in preventive
@@ -62,6 +64,7 @@ Feature: US 15.3: Handle transformers
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then 3 remedial actions are used in preventive
     Then the remedial action "open_be1_fr1" is used in preventive
     Then the remedial action "open_be1_be2" is used in preventive
@@ -88,6 +91,7 @@ Feature: US 15.3: Handle transformers
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "UNSECURED"
     Then 3 remedial actions are used in preventive
     Then the remedial action "open_be1_fr1" is used in preventive
     Then the remedial action "open_be1_be2" is used in preventive

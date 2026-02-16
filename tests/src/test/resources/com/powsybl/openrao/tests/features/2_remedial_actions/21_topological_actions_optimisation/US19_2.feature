@@ -12,6 +12,7 @@ Feature: US 19.2: Handle maximum topological CRA per TSO
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "UNSECURED"
     Then 3 remedial actions are used in preventive
     Then the remedial action "open_be1_be4" is used in preventive
     Then the remedial action "open_fr1_fr2" is used in preventive
@@ -33,6 +34,7 @@ Feature: US 19.2: Handle maximum topological CRA per TSO
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then 1 remedial actions are used in preventive
     Then the tap of PstRangeAction "pst_be" should be -16 in preventive
     Then 2 remedial actions are used after "co1_fr2_fr3_1" at "curative"
@@ -49,6 +51,7 @@ Feature: US 19.2: Handle maximum topological CRA per TSO
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then 1 remedial actions are used in preventive
     Then the tap of PstRangeAction "pst_be" should be -16 in preventive
     Then 1 remedial actions are used after "co1_fr2_fr3_1" at "curative"
@@ -63,6 +66,7 @@ Feature: US 19.2: Handle maximum topological CRA per TSO
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao after "co2_be1_be3" at "curative"
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "UNSECURED"
     Then 2 remedial actions are used after "co2_be1_be3" at "curative"
     Then the tap of PstRangeAction "pst_be" should be -16 after "co2_be1_be3" at "curative"
     Then the remedial action "open_fr1_fr2" is used after "co2_be1_be3" at "curative"
@@ -78,6 +82,7 @@ Feature: US 19.2: Handle maximum topological CRA per TSO
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "UNSECURED"
     Then 2 remedial actions are used in preventive
     Then the remedial action "open_be1_be4" is used in preventive
     Then the remedial action "open_fr1_fr2" is used in preventive
@@ -90,6 +95,7 @@ Feature: US 19.2: Handle maximum topological CRA per TSO
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "UNSECURED"
     # Without limitation it should use 3 french topological actions as it is limited at 2, il will choose belgian topo instead
     Then 3 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     Then the remedial action "open_fr1_fr4" is used after "co1_fr2_fr3_1" at "curative"

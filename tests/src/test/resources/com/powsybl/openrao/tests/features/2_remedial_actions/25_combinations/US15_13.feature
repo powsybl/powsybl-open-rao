@@ -12,6 +12,7 @@ Feature: US 15.13: Handle combined RAs by configuration
     Given configuration file is "epic15/RaoParameters_ep15us13case1.json"
     When I launch rao at "2021-04-30 22:30"
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then 3 remedial actions are used in preventive
     Then the remedial action "open_fr1_fr3" is used in preventive
     Then the remedial action "open_be1_be4" is used in preventive
@@ -30,6 +31,7 @@ Feature: US 15.13: Handle combined RAs by configuration
     Given configuration file is "epic15/RaoParameters_ep15us13case2.json"
     When I launch rao at "2021-04-30 22:30"
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "UNSECURED"
     Then 3 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     Then the remedial action "open_fr1_fr3" is used after "co1_fr2_fr3_1" at "curative"
     Then the remedial action "open_be1_be4" is used after "co1_fr2_fr3_1" at "curative"
@@ -46,6 +48,7 @@ Feature: US 15.13: Handle combined RAs by configuration
     Given crac creation parameters file is "epic15/us_15_13_3.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "UNSECURED"
     Then 2 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     Then the remedial action "open_fr1_fr3" is used after "co1_fr2_fr3_1" at "curative"
     Then the remedial action "close_fr1_fr5" is used after "co1_fr2_fr3_1" at "curative"
@@ -61,6 +64,7 @@ Feature: US 15.13: Handle combined RAs by configuration
     Given crac creation parameters file is "epic15/us15_13_4.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "UNSECURED"
     Then 2 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     Then the remedial action "open_fr1_fr3" is used after "co1_fr2_fr3_1" at "curative"
     Then the remedial action "close_fr1_fr5" is used after "co1_fr2_fr3_1" at "curative"
@@ -75,6 +79,7 @@ Feature: US 15.13: Handle combined RAs by configuration
     Given configuration file is "epic15/RaoParameters_ep15us13case5.json"
     When I launch rao at "2021-04-30 22:30"
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then 3 remedial actions are used in preventive
     Then the remedial action "open_fr1_fr3" is used in preventive
     Then the remedial action "open_be1_be4" is used in preventive
@@ -93,6 +98,7 @@ Feature: US 15.13: Handle combined RAs by configuration
     Given configuration file is "epic15/RaoParameters_ep15us13case6.json"
     When I launch rao at "2021-04-30 22:30"
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then 3 remedial actions are used in preventive
     Then the remedial action "open_fr1_fr3" is used in preventive
     Then the remedial action "open_be1_be4" is used in preventive
@@ -111,6 +117,7 @@ Feature: US 15.13: Handle combined RAs by configuration
     Given configuration file is "epic15/RaoParameters_ep15us13case7.json"
     When I launch rao at "2021-04-30 22:30"
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then 3 remedial actions are used in preventive
     Then the remedial action "open_fr1_fr3" is used in preventive
     Then the remedial action "open_be1_be4" is used in preventive
@@ -129,6 +136,7 @@ Feature: US 15.13: Handle combined RAs by configuration
     Given configuration file is "epic15/RaoParameters_ep15us13case8.json"
     When I launch rao at "2021-04-30 22:30"
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "UNSECURED"
     Then 2 remedial actions are used in preventive
     Then the remedial action "open_fr1_fr3" is used in preventive
     Then the remedial action "open_be1_be4" is used in preventive
@@ -145,6 +153,7 @@ Feature: US 15.13: Handle combined RAs by configuration
     Given configuration file is "epic15/RaoParameters_ep15us13case5.json"
     When I launch rao at "2021-04-30 22:30"
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then 3 remedial actions are used in preventive
     Then the remedial action "open_fr1_fr3" is used in preventive
     Then the remedial action "open_be1_be4" is used in preventive
@@ -161,6 +170,7 @@ Feature: US 15.13: Handle combined RAs by configuration
     Given configuration file is "epic15/RaoParameters_ep15us13case10.json"
     When I launch rao at "2021-04-30 22:30"
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "UNSECURED"
     Then 1 remedial actions are used in preventive
     Then the remedial action "close_fr1_fr5" is used in preventive
     Then the worst margin is -44 A

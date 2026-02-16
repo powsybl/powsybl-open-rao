@@ -12,6 +12,7 @@ Feature: US 19.11: Handle maximum number of elementary actions per TSO
     Given configuration file is "epic19/RaoParameters_dc_discrete.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     # Best theoretical option is to move the PST to tap -16 (-33 MW)
     # With only three elementary actions, the best option is to move the PST to tap -3 (-462 MW)
     Then 1 remedial actions are used in preventive
@@ -28,6 +29,7 @@ Feature: US 19.11: Handle maximum number of elementary actions per TSO
     Given configuration file is "epic19/RaoParameters_dc_discrete.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     # Best theoretical option is to move the PST to tap -16 (-33 MW)
     # With only three elementary actions, the best option is to move the PST to tap -7 (-329 MW)
     Then 1 remedial actions are used in preventive
@@ -44,6 +46,7 @@ Feature: US 19.11: Handle maximum number of elementary actions per TSO
     Given configuration file is "epic19/RaoParameters_dc_discrete.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     # Best theoretical option is to close both line BE1-BE3-1 and line BE1-BE3-2 (-561 MW)
     # With only three elementary actions, the best option is to simply close line BE1-BE3-1 (-572 MW)
     Then 1 remedial actions are used in preventive
@@ -59,6 +62,7 @@ Feature: US 19.11: Handle maximum number of elementary actions per TSO
     Given configuration file is "epic19/RaoParameters_dc_discrete.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     # At each curative instant, the PST could theoretically go down to tap -16
     # But the tap decreases more slowly over the 3 curative instants
     Then the initial flow on cnec "BBE1AA1  BBE2AA1  1 - preventive" should be -596.0 MW on side 1
@@ -79,6 +83,7 @@ Feature: US 19.11: Handle maximum number of elementary actions per TSO
     Given configuration file is "epic19/RaoParameters_dc_discrete.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     # Best theoretical option is to close both lines and move the PST to tap -16
     # With only three elementary actions, the best three possibilities are:
     # - move the PST to tap -3 (-520 MW)
@@ -99,6 +104,7 @@ Feature: US 19.11: Handle maximum number of elementary actions per TSO
     Given configuration file is "epic19/RaoParameters_dc_discrete.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then 1 remedial actions are used in preventive
     Then the remedial action "pst_be_prev" is used in preventive
     Then the tap of PstRangeAction "pst_be_prev" should be -5 in preventive
@@ -116,6 +122,7 @@ Feature: US 19.11: Handle maximum number of elementary actions per TSO
     Given configuration file is "epic19/RaoParameters_dc_discrete.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then 1 remedial actions are used after "co1_fr1_fr3_1" at "curative1"
     Then the remedial action "pst_be" is used after "co1_fr1_fr3_1" at "curative1"
     Then the tap of PstRangeAction "pst_be" should be -1 after "co1_fr1_fr3_1" at "curative1"
@@ -131,6 +138,7 @@ Feature: US 19.11: Handle maximum number of elementary actions per TSO
     Given configuration file is "epic19/RaoParameters_dc_discrete.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then 2 remedial actions are used in preventive
     Then the remedial action "pst_be" is used in preventive
     Then the tap of PstRangeAction "pst_be" should be -8 in preventive
@@ -145,6 +153,7 @@ Feature: US 19.11: Handle maximum number of elementary actions per TSO
     Given configuration file is "epic19/RaoParameters_19_11_9.json"
     When I launch rao
     Then the execution details should be "Second preventive improved first preventive results"
+    Then its security status should be "UNSECURED"
     Then 1 remedial actions are used in preventive
     # It doesn't really matter what's the preventive tap, as long as it's <= -6, in order for the tap -16
     # to be achievable in curative (the PST has a maximum variation of -10 taps from preventive to curative), allowing

@@ -25,6 +25,7 @@ Feature: US 7.9: Linear RAO with loopflow limitation
     Given configuration file is "epic7/RaoParameters_maxMargin_mw_ac_lf_false_10_100.json"
     When I launch loopflow rao with default loopflow limit as 10.0 percent of pmax
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then the worst margin is 198.0 MW
     Then the margin on cnec "FFR1AA1  FFR2AA1  1 - preventive" after PRA should be 198.0 MW
     Then the tap of PstRangeAction "PRA_PST_BE" should be -9 in preventive
@@ -49,6 +50,7 @@ Feature: US 7.9: Linear RAO with loopflow limitation
     Given configuration file is "epic7/RaoParameters_maxMargin_mw_ac_lf_false_10_100.json"
     When I launch loopflow rao with default loopflow limit as 5.0 percent of pmax
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then the worst margin is 166.0 MW
     Then the margin on cnec "FFR1AA1  FFR2AA1  1 - preventive" after PRA should be 166.0 MW
     #Then the tap of PstRangeAction "PRA_PST_BE" should be 0 in preventive

@@ -40,6 +40,7 @@ Feature: US 4.3: Computation with SECURE_FLOW objective function: manage AC/DC m
     When I launch rao
     Then the calculation fails
     Then the execution details should be "Initial sensitivity analysis failed"
+    Then its security status should be "UNSECURED"
 
   @fast @rao @dc @preventive-only @secure-flow @megawatt
   Scenario: US 4.3.2.2: no failure with DC config

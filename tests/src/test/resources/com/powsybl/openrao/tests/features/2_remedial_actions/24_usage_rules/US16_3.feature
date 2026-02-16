@@ -12,6 +12,7 @@ Feature: User Story #16.3: Activate remedial actions only after a specific const
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "UNSECURED"
     Then 1 remedial actions are used in preventive
     Then the remedial action "open_fr1_fr3" is used in preventive
     Then the worst margin is -135 A
@@ -28,6 +29,7 @@ Feature: User Story #16.3: Activate remedial actions only after a specific const
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "UNSECURED"
     Then 1 remedial actions are used in preventive
     Then the remedial action "close_fr1_fr5" is used in preventive
     Then the worst margin is -45 A
@@ -42,6 +44,7 @@ Feature: User Story #16.3: Activate remedial actions only after a specific const
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "UNSECURED"
     Then 1 remedial actions are used in preventive
     Then the remedial action "close_fr1_fr5" is used in preventive
     Then the worst margin is -45 A
@@ -56,6 +59,7 @@ Feature: User Story #16.3: Activate remedial actions only after a specific const
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "UNSECURED"
     Then 0 remedial actions are used in preventive
     Then 1 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     Then the remedial action "pst_be" is used after "co1_fr2_fr3_1" at "curative"
@@ -71,6 +75,7 @@ Feature: User Story #16.3: Activate remedial actions only after a specific const
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "UNSECURED"
     Then 0 remedial actions are used in preventive
     Then 1 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     Then the remedial action "pst_be" is used after "co1_fr2_fr3_1" at "curative"
@@ -86,6 +91,7 @@ Feature: User Story #16.3: Activate remedial actions only after a specific const
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then 0 remedial actions are used in preventive
     Then 0 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     Then the worst margin is 43 A
@@ -99,6 +105,7 @@ Feature: User Story #16.3: Activate remedial actions only after a specific const
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then 1 remedial actions are used in preventive
     Then the remedial action "pst_be" is used in preventive
     Then the tap of PstRangeAction "pst_be" should be 16 in preventive
@@ -115,6 +122,7 @@ Feature: User Story #16.3: Activate remedial actions only after a specific const
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then 1 remedial actions are used in preventive
     Then the remedial action "pst_be" is used in preventive
     Then the tap of PstRangeAction "pst_be" should be 16 in preventive
@@ -133,6 +141,7 @@ Feature: User Story #16.3: Activate remedial actions only after a specific const
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "UNSECURED"
     Then 1 remedial actions are used in preventive
     Then the remedial action "close_fr1_fr5" is used in preventive
     Then the worst margin is -45 A
@@ -147,6 +156,7 @@ Feature: User Story #16.3: Activate remedial actions only after a specific const
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then 1 remedial actions are used in preventive
     Then the remedial action "PST_pst_be_pra_BBE2AA1  BBE3AA1  1" is used in preventive
     Then the tap of PstRangeAction "PST_pst_be_pra_BBE2AA1  BBE3AA1  1" should be 16 in preventive
@@ -163,6 +173,7 @@ Feature: User Story #16.3: Activate remedial actions only after a specific const
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
     Then 1 remedial actions are used in preventive
     Then the remedial action "PST_pst_be_pra_BBE2AA1  BBE3AA1  1" is used in preventive
     Then the tap of PstRangeAction "PST_pst_be_pra_BBE2AA1  BBE3AA1  1" should be 16 in preventive
@@ -181,6 +192,7 @@ Feature: User Story #16.3: Activate remedial actions only after a specific const
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "UNSECURED"
     Then 1 remedial actions are used in preventive
     Then the remedial action "close_fr1_fr5" is used in preventive
     Then the worst margin is -45 A
@@ -195,6 +207,7 @@ Feature: User Story #16.3: Activate remedial actions only after a specific const
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "UNSECURED"
     Then 0 remedial actions are used in preventive
     Then 1 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     Then the remedial action "pst_be" is used after "co1_fr2_fr3_1" at "curative"
@@ -210,6 +223,7 @@ Feature: User Story #16.3: Activate remedial actions only after a specific const
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "UNSECURED"
     Then 0 remedial actions are used in preventive
     Then 1 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     Then the remedial action "pst_be" is used after "co1_fr2_fr3_1" at "curative"
