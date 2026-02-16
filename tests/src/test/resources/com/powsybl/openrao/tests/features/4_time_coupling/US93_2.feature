@@ -7,7 +7,6 @@ Feature: US 93.2: Intertemporal redispatching actions with MARMOT - power gradie
 
   @fast @rao @dc @redispatching @marmot @costly @megawatt
   Scenario: US 93.2.1: Test simple gradient
-    # TODO: add description and steps when the other PR is merged
     Given network files are in folder "epic93/TestCases_93_2_1"
     Given crac file is "epic93/cbcora_93_2_1.xml"
     Given ics static file is "epic93/static_93_2_1.csv"
@@ -39,7 +38,6 @@ Feature: US 93.2: Intertemporal redispatching actions with MARMOT - power gradie
 
   @fast @rao @dc @redispatching @marmot @costly @megawatt
   Scenario: US 93.2.2: Test simple gradient with limiting mnec and topological action
-    # TODO: add description and steps when the other PR is merged + count nb of FastRAO iterations
     Given network files are in folder "epic93/TestCases_93_2_2"
     Given crac file is "epic93/cbcora_93_2_2.xml"
     Given ics static file is "epic93/static_93_2_1.csv"
@@ -62,7 +60,6 @@ Feature: US 93.2: Intertemporal redispatching actions with MARMOT - power gradie
 
   @fast @rao @dc @redispatching @marmot @costly @megawatt
   Scenario: US 93.2.3: Test simple gradient, PST also available
-    # TODO: add description and steps when the other PR is merged
     Given network files are in folder "epic93/TestCases_93_2_1"
     Given crac file is "epic93/cbcora_93_2_3.xml"
     Given ics static file is "epic93/static_93_2_1.csv"
@@ -86,7 +83,6 @@ Feature: US 93.2: Intertemporal redispatching actions with MARMOT - power gradie
 
   @fast @rao @dc @redispatching @marmot @costly @megawatt
   Scenario: US 93.2.4: Test simple gradient, applied curative topo action
-    # TODO: add description and steps when the other PR is merged
     Given network files are in folder "epic93/TestCases_93_2_4"
     Given crac file is "epic93/cbcora_93_2_4.xml"
     Given ics static file is "epic93/static_93_2_1.csv"
@@ -112,7 +108,6 @@ Feature: US 93.2: Intertemporal redispatching actions with MARMOT - power gradie
 
   @fast @rao @dc @redispatching @marmot @costly @megawatt
   Scenario: US 93.2.4-b: Test simple gradient, applied curative range action
-    # TODO: add description and steps when the other PR is merged
     Given network files are in folder "epic93/TestCases_93_2_4"
     Given crac file is "epic93/cbcora_93_2_4-b.xml"
     Given ics static file is "epic93/static_93_2_1.csv"
@@ -137,7 +132,6 @@ Feature: US 93.2: Intertemporal redispatching actions with MARMOT - power gradie
 
   @fast @rao @dc @redispatching @marmot @costly @megawatt
   Scenario: US 93.2.5: Test simple gradient with topo action, mnec causes second mip optimization
-    # TODO: add description and steps when the other PR is merged + MARMOT 2 iterations - why MNECs are used
     Given network files are in folder "epic93/TestCases_93_2_5"
     Given crac file is "epic93/cbcora_93_2_5.xml"
     Given ics static file is "epic93/static_93_2_5.csv"
