@@ -5,12 +5,12 @@
 
 Feature: US 15.10.2: Modify voltage level topology as remedial action (3 nodes case)
 
-  @fast @rao @ac @contingency-scenarios
+  @fast @rao @ac @contingency-scenarios @max-min-margin @megawatt
   Scenario: US 15.10.2.1: PRA RA1 and CRA RA3 inapplicable (1/2)
     Given network file is "epic15/TestCase12Nodes_forCSE_3nodes_uselessSwitches.uct"
     Given crac file is "epic15/cseCrac_ep15us10-1case6.xml"
     Given crac creation parameters file is "epic15/CseCracCreationParameters_15_10_2.json"
-    # Add configuration file
+    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
     When I launch rao
     Then 0 remedial actions are used in preventive
     Then 0 remedial actions are used after "co1_fr2_fr3" at "curative"
