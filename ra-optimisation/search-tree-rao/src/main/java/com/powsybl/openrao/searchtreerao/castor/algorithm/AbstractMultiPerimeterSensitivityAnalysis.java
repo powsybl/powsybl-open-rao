@@ -20,7 +20,6 @@ import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 import com.powsybl.sensitivity.SensitivityAnalysisParameters;
 
-import java.io.*;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Optional;
