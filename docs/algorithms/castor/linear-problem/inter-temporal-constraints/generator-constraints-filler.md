@@ -30,19 +30,19 @@ the timestamps, and not some time in between two timestamps.
 > In the following we define as _grid state_ a network situation for a given instant after a given contingency or the
 > basecase.
 
-| Name                            | Symbol                      | Details                                                                                                                                 |
-|---------------------------------|-----------------------------|-----------------------------------------------------------------------------------------------------------------------------------------|
-| Constrained generators set      | $\Gamma$                    | Set of generators with constraints defined                                                                                              |
-| PMin                            | $P_{\min}(g, t)$            | Minimum operating power of generator $g$ at timestamp $t$. This value must be positive.                                                 |
-| PMax                            | $P_{\max}(g)$               | Maximum operating power of generator $g$. This value must be positive.                                                                  |
-| Lead Time                       | $LEAD(g)$                   | Time elapsed between the start-up order and the moment the generator power reaches $P_{\min}$.                                          |
-| Lag Time                        | $LAG(g)$                    | Time elapsed between the shut-down order and the moment the generator power reaches 0.                                                  |
-| Upper power gradient constraint | $\nabla^{+}(g)$             | Maximum upward power variation between two consecutive timestamps for generator $g$. This value must be positive.                       |
-| Lower power gradient constraint | $\nabla^{-}(g)$             | Maximum downward power variation (in absolute value) between two consecutive timestamps for generator $g$. This value must be negative. |
-| Off-power deadband              | $\epsilon_{P}^{\text{OFF}}$ | Power deadband used to define the OFF state and account for rounding issues. This value must be positive.                               |
-| Timestamps                      | $\mathcal{T}$               | Set of all timestamps on which the optimization is performed.                                                                           |
-| Time gap                        | $\Delta_{\tau}$             | Time gap between two consecutive timestamps. It is assumed constant for all pairs of consecutive timestamps.                            |
-| Generator states                | $\Omega_{generator}$        | Set of all possible states a generator can be in: $\lbrace \textcolor{green}{\text{ON}}, \textcolor{red}{\text{OFF}} \rbrace$           |
+| Name                               | Symbol                      | Details                                                                                                                       |
+|------------------------------------|-----------------------------|-------------------------------------------------------------------------------------------------------------------------------|
+| Constrained generators set         | $\Gamma$                    | Set of generators with constraints defined                                                                                    |
+| PMin                               | $P_{\min}(g, t)$            | Minimum operating power of generator $g$ at timestamp $t$. This value must be positive.                                       |
+| PMax                               | $P_{\max}(g)$               | Maximum operating power of generator $g$. This value must be positive.                                                        |
+| Lead Time                          | $LEAD(g)$                   | Time elapsed between the start-up order and the moment the generator power reaches $P_{\min}$.                                |
+| Lag Time                           | $LAG(g)$                    | Time elapsed between the shut-down order and the moment the generator power reaches 0.                                        |
+| Upward power gradient constraint   | $\nabla^{+}(g)$             | Maximum upward power variation between two consecutive timestamps for generator $g$. This value must be positive.             |
+| Downward power gradient constraint | $\nabla^{-}(g)$             | Maximum downward power variation between two consecutive timestamps for generator $g$. This value must be negative.           |
+| Off-power deadband                 | $\epsilon_{P}^{\text{OFF}}$ | Power deadband used to define the OFF state and account for rounding issues. This value must be positive.                     |
+| Timestamps                         | $\mathcal{T}$               | Set of all timestamps on which the optimization is performed.                                                                 |
+| Time gap                           | $\Delta_{\tau}$             | Time gap between two consecutive timestamps. It is assumed constant for all pairs of consecutive timestamps.                  |
+| Generator states                   | $\Omega_{generator}$        | Set of all possible states a generator can be in: $\lbrace \textcolor{green}{\text{ON}}, \textcolor{red}{\text{OFF}} \rbrace$ |
 
 ## Defined optimization variables
 
@@ -116,7 +116,7 @@ $$\forall t' \in \left [ t + \Delta_{\tau}, t + \Delta_{\tau} \left \lceil \frac
 ### Power variation constraint
 
 The power variation and the state transitions are strongly entangled and constrain one another. Depending on the state
-transition, the power variation $P(g,s,t + \Delta_{\tau}) - P(g,s,t)$ is bounded differently.
+transition, the power variation $P(g,s,t + \Delta_{\tau}  ) - P(g,s,t)$ is bounded differently.
 
 #### OFF to OFF transition
 
