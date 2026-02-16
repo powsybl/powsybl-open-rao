@@ -99,27 +99,27 @@ public class FailedRaoResultImpl extends AbstractExtendable<RaoResult> implement
 
     @Override
     public boolean isActivatedDuringState(State state, RemedialAction<?> remedialAction) {
-        throw new OpenRaoException(exceptionMessage);
+        return false;
     }
 
     @Override
     public boolean wasActivatedBeforeState(State state, NetworkAction networkAction) {
-        throw new OpenRaoException(exceptionMessage);
+        return false;
     }
 
     @Override
     public boolean isActivatedDuringState(State state, NetworkAction networkAction) {
-        throw new OpenRaoException(exceptionMessage);
+        return false;
     }
 
     @Override
     public Set<NetworkAction> getActivatedNetworkActionsDuringState(State state) {
-        throw new OpenRaoException(exceptionMessage);
+        return Set.of();
     }
 
     @Override
     public boolean isActivatedDuringState(State state, RangeAction<?> rangeAction) {
-        throw new OpenRaoException(exceptionMessage);
+        return false;
     }
 
     @Override

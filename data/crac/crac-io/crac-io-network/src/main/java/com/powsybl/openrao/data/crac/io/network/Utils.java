@@ -70,6 +70,10 @@ public final class Utils {
     }
 
     public static void addInjectionRangeAction(CracCreationContext creationContext, Set<Generator> consideredGenerators, String raIdPrefix, Instant instant, MinAndMax<Double> range, boolean relativeRange, InjectionRangeActionCosts costs) {
+        if (consideredGenerators.isEmpty()) {
+            return;
+        }
+
         consideredGenerators.forEach(g -> g.setTargetP(Math.round(g.getTargetP())));
         double initialTotalP = consideredGenerators.stream().mapToDouble(Generator::getTargetP).sum();
         double minP = Math.round(consideredGenerators.stream().mapToDouble(Generator::getMinP).sum());

@@ -7,7 +7,6 @@
 
 package com.powsybl.openrao.data.crac.io.network;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
@@ -43,7 +42,13 @@ class RedispatchingCreator {
 
     void addRedispatchRangeActions() {
         Set<Instant> instants = crac.getSortedInstants().stream().filter(instant -> !instant.isOutage()).collect(Collectors.toSet());
-        instants.forEach(instant -> parameters.getGeneratorCombinations().forEach((id, generators) -> addGeneratorCombinationActionForInstant(id, generators, instant)));
+        instants.forEach(instant -> parameters.getGeneratorCombinations().forEach((id, generators) -> {
+            try {
+                addGeneratorCombinationActionForInstant(id, generators, instant);
+            } catch (OpenRaoImportException e) {
+                creationContext.getCreationReport().removed(e.getMessage());
+            }
+        }));
         if (!parameters.includeAllInjections()) {
             return;
         }
@@ -54,12 +59,25 @@ class RedispatchingCreator {
             .filter(generator -> !generatorsInCombinations.contains(generator.getId()))
             .forEach(generator ->
                 instants.stream().filter(instant -> parameters.shouldCreateRedispatchingAction(generator, instant))
-                    .forEach(instant -> addGeneratorActionForInstant(generator, instant)));
+                    .forEach(instant -> {
+                        try {
+                            addGeneratorActionForInstant(generator, instant);
+                        } catch (OpenRaoImportException e) {
+                            creationContext.getCreationReport().removed(e.getMessage());
+                        }
+                    }));
         network.getLoadStream()
             .filter(load -> Utils.injectionIsInCountries(load, parameters.getCountries().orElse(null)))
             .forEach(load ->
                 instants.stream().filter(instant -> parameters.shouldCreateRedispatchingAction(load, instant))
-                    .forEach(instant -> addLoadActionForInstant(load, instant)));
+                    .forEach(instant -> {
+                            try {
+                                addLoadActionForInstant(load, instant);
+                            } catch (OpenRaoImportException e) {
+                                creationContext.getCreationReport().removed(e.getMessage());
+                            }
+                        }
+                    ));
         // TODO add other injections (batteries...)
     }
 
@@ -71,11 +89,10 @@ class RedispatchingCreator {
     }
 
     private void addGeneratorCombinationActionForInstant(String combinationId, Set<String> generatorIds, Instant instant) {
-        Set<Generator> consideredGenerators;
-        try {
-            consideredGenerators = generatorIds.stream().map(network::getGenerator).filter(g -> parameters.shouldCreateRedispatchingAction(g, instant)).collect(Collectors.toSet());
-        } catch (PowsyblException e) {
-            throw new OpenRaoImportException(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, e.getMessage());
+        Set<Generator> consideredGenerators = generatorIds.stream().map(network::getGenerator).filter(g -> parameters.shouldCreateRedispatchingAction(g, instant)).collect(Collectors.toSet());
+        if (consideredGenerators.contains(null)) {
+            throw new OpenRaoImportException(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK,
+                String.format("Combination '%s' could not be considered because at least one generator could not be found in the network.", combinationId));
         }
 
         if (consideredGenerators.isEmpty()) {

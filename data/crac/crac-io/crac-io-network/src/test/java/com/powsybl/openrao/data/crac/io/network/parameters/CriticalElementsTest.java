@@ -9,16 +9,13 @@ package com.powsybl.openrao.data.crac.io.network.parameters;
 
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.data.crac.api.Instant;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -26,26 +23,12 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-class CriticalElementsTest {
-    private static Network network;
+class CriticalElementsTest extends AbstractTest {
     private CriticalElements parameters;
-    private Instant prevInstant = mockInstant("preventive");
-    private Instant outInstant = mockInstant("outage");
-    private Instant cur1Instant = mockInstant("cur1");
-    private Instant cur2Instant = mockInstant("cur2");
 
     @BeforeEach
     void setUp() {
         parameters = new NetworkCracCreationParameters(null, List.of("cur1", "cur2")).getCriticalElements();
-    }
-
-    private Instant mockInstant(String id) {
-        Instant instant = Mockito.mock(Instant.class);
-        Mockito.when(instant.getId()).thenReturn(id);
-        if (Objects.equals(id, "preventive")) {
-            Mockito.when(instant.isPreventive()).thenReturn(true);
-        }
-        return instant;
     }
 
     @Test

@@ -9,6 +9,7 @@ package com.powsybl.openrao.data.crac.io.network.parameters;
 
 import com.powsybl.iidm.network.Country;
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.data.crac.api.InstantKind;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
@@ -20,8 +21,14 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class NetworkCracCreationParametersTest {
     @Test
-    void testGetName() {
+    void testGetNameAndInstants() {
         assertEquals("NetworkCracCreationParameters", new NetworkCracCreationParameters(null, null).getName());
+
+        Map<InstantKind, List<String>> expectedInstants = Map.of(InstantKind.PREVENTIVE, List.of("preventive"),
+            InstantKind.OUTAGE, List.of("outage"),
+            InstantKind.AUTO, List.of("auto"),
+            InstantKind.CURATIVE, List.of("cur1", "cur2"));
+        assertEquals(expectedInstants, new NetworkCracCreationParameters(List.of("auto"), List.of("cur1", "cur2")).getInstants());
     }
 
     @Test

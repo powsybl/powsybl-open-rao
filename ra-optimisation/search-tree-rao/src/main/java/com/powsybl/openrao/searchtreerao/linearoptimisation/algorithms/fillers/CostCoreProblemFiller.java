@@ -49,10 +49,13 @@ public class CostCoreProblemFiller extends AbstractCoreProblemFiller {
     @Override
     protected void addAllRangeActionVariables(LinearProblem linearProblem, RangeAction<?> rangeAction, State state) {
         super.addAllRangeActionVariables(linearProblem, rangeAction, state);
-        Optional<Double> activationCost = rangeAction.getActivationCost();
-        if (activationCost.isPresent() && activationCost.get() > 0) {
-            linearProblem.addRangeActionVariationBinary(rangeAction, state);
-        }
+        OpenRaoMPVariable variable = linearProblem.addRangeActionVariationBinary(rangeAction, state);
+        //        if (false && !rangeAction.getId().contains("BALANCING")) {
+        //            OpenRaoMPConstraint ct = linearProblem.getSolver().makeConstraint(0, 0, String.format("minChange_%s_%s", rangeAction.getId(), state.getId()));
+        //            ct.setCoefficient(variable, -50);
+        //            ct.setCoefficient(linearProblem.getRangeActionVariationVariable(rangeAction, state, LinearProblem.VariationDirectionExtension.UPWARD), 1);
+        //            ct.setCoefficient(linearProblem.getRangeActionVariationVariable(rangeAction, state, LinearProblem.VariationDirectionExtension.DOWNWARD), 1);
+        //        }
     }
 
     @Override

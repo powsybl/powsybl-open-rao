@@ -175,6 +175,7 @@ public class OpenRaoMPSolver {
         if (OpenRaoLoggerProvider.TECHNICAL_LOGS.isTraceEnabled()) {
             mpSolver.enableOutput();
         }
+        //mpSolver.write("/home/mitripet/accelr.lp");
         return convertResultStatus(mpSolver.solve(solveConfiguration));
     }
 

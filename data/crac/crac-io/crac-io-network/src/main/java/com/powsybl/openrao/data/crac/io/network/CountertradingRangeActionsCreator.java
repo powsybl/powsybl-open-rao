@@ -35,13 +35,20 @@ class CountertradingRangeActionsCreator {
 
     void addCountertradingActions() {
         if (parameters.getCountries().isEmpty()) {
-            throw new OpenRaoImportException(ImportStatus.INCOMPLETE_DATA, "Cannot create counter-trading remedial actions without an explicit list of countries.");
+            creationContext.getCreationReport().removed("Cannot create counter-trading remedial actions without an explicit list of countries.");
+            return;
         }
         if (parameters.getZonalData().isPresent()) {
             creationContext.getCreationReport().altered("Network CRAC importer does not yet support custom GLSKs for counter-trading actions. Proportional GLSK will be considered.");
         }
         parameters.getCountries().orElseThrow().forEach(country -> crac.getSortedInstants().stream().filter(instant -> !instant.isOutage())
-            .forEach(instant -> addCountertradingActionForInstant(country, instant)));
+            .forEach(instant -> {
+                try {
+                    addCountertradingActionForInstant(country, instant);
+                } catch (OpenRaoImportException e) {
+                    creationContext.getCreationReport().removed(e.getMessage());
+                }
+            }));
     }
 
     private void addCountertradingActionForInstant(Country country, Instant instant) {
@@ -69,8 +76,5 @@ class CountertradingRangeActionsCreator {
             parameters.getRaRange(country, instant),
             true,
             parameters.getRaCosts(country, instant));
-
-        //  crac.getInjectionRangeAction("CT_" + country.getName()).apply(network, initialTotalP);
-        // TODO is the above line necessary ?
     }
 }
