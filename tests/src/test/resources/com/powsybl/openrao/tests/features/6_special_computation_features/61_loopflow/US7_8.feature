@@ -5,7 +5,7 @@
 
 Feature: US 7.8: Loopflow computation (not within the RAO)
 
-  @fast @rao @ac @preventive-only @secure-flow
+  @fast @rao @ac @preventive-only @secure-flow @megawatt
   Scenario: US 7.8.1: optimise network action without loop flow limitation
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic7/crac_lf_rao_2.json"

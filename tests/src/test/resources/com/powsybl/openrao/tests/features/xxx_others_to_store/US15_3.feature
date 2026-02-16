@@ -5,7 +5,7 @@
 
 Feature: US 15.3: Handle transformers
 
-  @fast @rao @dc @preventive-only
+  @fast @rao @dc @preventive-only @max-min-margin @megawatt
   Scenario: US 15.3.1: Handle transformers on a small test case in DC
     Given network file is "epic15/TestCase12Nodes_with_2_voltage_levels_1.uct" for CORE CC
     Given crac file is "epic15/SL_ep15us3case1.json"
@@ -25,7 +25,7 @@ Feature: US 15.3: Handle transformers
     Then the margin on cnec "BBE1AA1  BBE1AA2  1 - co_fr - outage" after PRA should be 296.74 MW
     Then the margin on cnec "FFR1AA2  FFR1AA1  5 - co_fr - outage" after PRA should be 544 MW
 
-  @fast @rao @ac @preventive-only
+  @fast @rao @ac @preventive-only @max-min-margin @ampere
   Scenario: US 15.3.2: Handle transformers on a small test case in AC - On side 1
     Given network file is "epic15/TestCase12Nodes_with_2_voltage_levels_2_side_1.uct" for CORE CC
     Given crac file is "epic15/SL_ep15us3case2.json"
@@ -53,7 +53,7 @@ Feature: US 15.3: Handle transformers
     Then the "upper" threshold on cnec "FFR1AA2  FFR1AA1  5 - preventive" should be 844 A
     Then the "upper" threshold on cnec "FFR1AA2  FFR1AA1  5 - co_fr - outage" should be 970 A
 
-  @fast @rao @ac @preventive-only
+  @fast @rao @ac @preventive-only @max-min-margin @ampere
   Scenario: US 15.3.2: Handle transformers on a small test case in AC - On side 2
     Given network file is "epic15/TestCase12Nodes_with_2_voltage_levels_2_side_2.uct"
     Given crac file is "epic15/SL_ep15us3case2_RIGHT.json"
@@ -78,7 +78,7 @@ Feature: US 15.3: Handle transformers
     Then the "upper" threshold on cnec "FFR1AA2  FFR1AA1  5 - preventive" should be 1500 A
     Then the "upper" threshold on cnec "FFR1AA2  FFR1AA1  5 - co_fr - outage" should be 1725 A
 
-  @fast @rao @ac @preventive-only
+  @fast @rao @ac @preventive-only @max-min-margin @ampere
   Scenario: US 15.3.3: Handle transformers with threshold in Ampere
     Given network file is "epic15/TestCase12Nodes_with_2_voltage_levels_2_side_2.uct"
     Given crac file is "epic15/SL_ep15us3case3.json"

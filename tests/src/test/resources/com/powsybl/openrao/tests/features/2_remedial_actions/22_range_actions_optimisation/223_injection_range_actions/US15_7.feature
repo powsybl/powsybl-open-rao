@@ -13,7 +13,7 @@ Feature: US 15.7: Injection setpoint with absolute and relative target
     Then the remedial action "cra_2" is used in preventive
     Then the worst margin is 545.8 MW
 
-  @fast @rao @ac @contingency-scenarios
+  @fast @rao @ac @contingency-scenarios @max-min-margin
   Scenario: US 15.7.2: Curative search tree RAO with absolute injectionSetpoint curative ra
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic15/cse_crac_1_curative_ra.xml"

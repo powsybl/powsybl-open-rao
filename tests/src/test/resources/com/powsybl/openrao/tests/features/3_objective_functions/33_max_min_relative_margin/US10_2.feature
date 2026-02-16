@@ -5,7 +5,7 @@
 
 Feature: US 10.2: define ptdfBoundaries with EIcode instead of Country codes
 
-  @fast @rao @dc @preventive-only @relative
+  @fast @rao @dc @preventive-only @max-min-relative-margin @megawatt
   Scenario: US 10.2.1: Compute relative margins with PTDFs on bidding-zones which are countries
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic10/cbcora_ep10us2case1.xml"
@@ -26,7 +26,7 @@ Feature: US 10.2: define ptdfBoundaries with EIcode instead of Country codes
     Then the absolute PTDF sum on cnec "DDE2AA1  NNL3AA1  1 - preventive" initially should be 1.546
     Then the absolute PTDF sum on cnec "NNL2AA1  BBE3AA1  1 - preventive" initially should be 1.455
 
-  @fast @rao @dc @preventive-only @relative
+  @fast @rao @dc @preventive-only @max-min-relative-margin @megawatt
   Scenario: US 10.2.2: Compute relative margins with PTDFs on bidding-zones which are NOT countries
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic10/cbcora_ep10us2case1.xml"

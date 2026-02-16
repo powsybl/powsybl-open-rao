@@ -6,7 +6,7 @@
 Feature: US 15.17: Optimize HVDC range actions initially in AC emulation mode
   These tests are mostly the same as the tests in 15.12.5. But the HVDC in the network are in AC emulation mode and the rao is ran in AC instead of DC.
 
-  @fast @rao @ac @preventive-only @hvdc
+  @fast @rao @ac @preventive-only @hvdc @max-min-margin @ampere
   Scenario: US 15.17.1: HVDC range action with one preventive CNEC
     # Copy of test case 15.12.5.1, except HVDC is initially in AC emulation mode
     Given network file is "epic15/TestCase16NodesWithHvdc_AC_emulation.xiidm"
@@ -19,7 +19,7 @@ Feature: US 15.17: Optimize HVDC range actions initially in AC emulation mode
     Then the worst margin is 576 A
     Then the margin on cnec "be1_fr5_n - BBE1AA11->FFR5AA11 - preventive" after PRA should be 576 A
 
-  @fast @rao @ac @preventive-only @hvdc
+  @fast @rao @ac @preventive-only @hvdc @max-min-margin @ampere
   Scenario: US 15.17.2: HVDC range action with two preventive CNECs
     # Copy of test case 15.12.5.2, except HVDC is initially in AC emulation mode
     # The result is exactly the same except that the network action acEmulationDeactivation_BBE2AA11 is used to deactivate
@@ -35,7 +35,7 @@ Feature: US 15.17: Optimize HVDC range actions initially in AC emulation mode
     Then the margin on cnec "be1_be2_n - BBE1AA11->BBE2AA11 - preventive" after PRA should be 275 A
     Then the margin on cnec "be1_fr5_n - BBE1AA11->FFR5AA11 - preventive" after PRA should be 275 A
 
-  @fast @rao @ac @preventive-only @hvdc
+  @fast @rao @ac @preventive-only @hvdc @max-min-margin @ampere
   Scenario: US 15.17.3: HVDC range action with PST range action and two preventive CNECs
     # Copy of test case 15.12.5.3, except HVDC is initially in AC emulation mode
     # deactivating ac emulation + PST_PRA_PST_be_BBE2AA11 BBE3AA11 1 at 14 and PRA_HVDC at 807 => yield slightly better cost -273 vs -259.
@@ -55,7 +55,7 @@ Feature: US 15.17: Optimize HVDC range actions initially in AC emulation mode
     Then the margin on cnec "be1_fr5_n - BBE1AA11->FFR5AA11 - preventive" after PRA should be 296 A
 
 
-  @fast @rao @ac @preventive-only @hvdc
+  @fast @rao @ac @preventive-only @hvdc @max-min-margin @ampere
   Scenario: US 15.17.4: HVDC range action with outage CNEC
     # Copy of test case 15.12.5.4, except HVDC is initially in AC emulation mode
       # Same result except that AC emulation is deactivated in preventive by network action "acEmulationDeactivation_BBE2AA11 FFR3AA11 1"
@@ -73,7 +73,7 @@ Feature: US 15.17: Optimize HVDC range actions initially in AC emulation mode
     Then the margin on cnec "be4_fr5_co1 - BBE4AA11->FFR5AA11  - co1_be1_fr5 - curative" after CRA should be 290 A
     Then the margin on cnec "be1_fr5_n - BBE1AA11->FFR5AA11 - preventive" after PRA should be 342 A
 
-  @fast @rao @ac @contingency-scenarios @hvdc
+  @fast @rao @ac @contingency-scenarios @hvdc @max-min-margin @ampere
   Scenario: US 15.17.5: HVDC range action with one curative perimeter
     # Copy of test case 15.12.5.5, except HVDC is initially in AC emulation mode
     # We get the same results as 15.12.5.5 + the use of the network action "acEmulationDeactivation_BBE2AA11 FFR3AA11 1"
@@ -94,7 +94,7 @@ Feature: US 15.17: Optimize HVDC range actions initially in AC emulation mode
     Then the margin on cnec "be4_fr5_co1 - BBE4AA11->FFR5AA11  - co1_be1_fr5 - curative" after CRA should be 432 A
     Then the margin on cnec "be1_fr5_n - BBE1AA11->FFR5AA11 - preventive" after PRA should be 498 A
 
-  @fast @rao @ac @contingency-scenarios @hvdc
+  @fast @rao @ac @contingency-scenarios @hvdc @max-min-margin @ampere
   Scenario: US 15.17.6: HVDC range action with two curative perimeters and negative initial flow
     # Copy of test case 15.12.5.6, except HVDC is initially in AC emulation mode
     # Same result except that AC emulation is deactivated in preventive by network action "acEmulationDeactivation_BBE2AA11 FFR3AA11 1"
@@ -118,7 +118,7 @@ Feature: US 15.17: Optimize HVDC range actions initially in AC emulation mode
     Then the margin on cnec "be4_fr5_co1 - BBE4AA11->FFR5AA11  - co1_be1_fr5 - curative" after CRA should be 432 A
     Then the margin on cnec "be1_fr5_n - BBE1AA11->FFR5AA11 - preventive" after PRA should be 452 A
 
-  @fast @rao @dc @preventive-only @hvdc
+  @fast @rao @dc @preventive-only @hvdc @max-min-margin @ampere
   Scenario: US 15.17.7: HVDC with a negative optimal setpoint
     # Copy of test case 15.12.5.7, except HVDC is initially in AC emulation mode
     # Same result except that the AC emulation is deactivated by the network action "acEmulationDeactivation_BBE2AA11 FFR3AA11 1".
@@ -132,7 +132,7 @@ Feature: US 15.17: Optimize HVDC range actions initially in AC emulation mode
     Then the worst margin is 71 A
     Then the margin on cnec "de2_de3_n - DDE2AA11->DDE3AA11 - preventive" after PRA should be 71 A
 
-  @fast @rao @dc @contingency-scenarios @hvdc
+  @fast @rao @dc @contingency-scenarios @hvdc @max-min-margin @ampere
   Scenario: US 15.17.8: HVDC and PST filtering
     # Copy of test case 15.12.5.8, except HVDC is initially in AC emulation mode
     # Same result except that the AC emulation is deactivated by the network action "acEmulationDeactivation_BBE2AA11 FFR3AA11 1".
@@ -148,7 +148,7 @@ Feature: US 15.17: Optimize HVDC range actions initially in AC emulation mode
     Then the worst margin is 432 A
     Then the margin on cnec "be4_fr5_co1 - BBE4AA11->FFR5AA11  - co1_be1_fr5 - curative" after CRA should be 432 A
 
-  @fast @rao @dc @contingency-scenarios @hvdc
+  @fast @rao @dc @contingency-scenarios @hvdc @secure-flow @ampere
   Scenario: US 15.17.10: HVDC useless in preventive but used in curative
     Given network file is "epic15/TestCase16NodesWithHvdcAcEmulation_HvdcCnec.xiidm"
     Given crac file is "epic15/jsonCrac_ep15us17case10.json"
@@ -167,7 +167,7 @@ Feature: US 15.17: Optimize HVDC range actions initially in AC emulation mode
     Then the flow on cnec "be2_be5_co1 - BBE2AA11->BBE5AA11 - co1_be1_fr5 - curative" after PRA should be 937 A on side 1
     Then the flow on cnec "be2_be5_co1 - BBE2AA11->BBE5AA11 - co1_be1_fr5 - curative" after CRA should be 1971 A on side 1
 
-  @fast @rao @dc @contingency-scenarios @hvdc
+  @fast @rao @dc @contingency-scenarios @hvdc @secure-flow @ampere
   Scenario: US 15.17.11: HVDC useless in preventive and in curative
     Given network file is "epic15/TestCase16NodesWithHvdcAcEmulation_HvdcCnec.xiidm"
     Given crac file is "epic15/jsonCrac_ep15us17case11.json"
@@ -182,7 +182,7 @@ Feature: US 15.17: Optimize HVDC range actions initially in AC emulation mode
     Then the flow on cnec "be2_be5_co1 - BBE2AA11->BBE5AA11 - co1_be1_fr5 - curative" after PRA should be 937 A on side 1
     Then the flow on cnec "be2_be5_co1 - BBE2AA11->BBE5AA11 - co1_be1_fr5 - curative" after CRA should be 937 A on side 1
 
-  @fast @rao @dc @preventive-only @hvdc
+  @fast @rao @dc @preventive-only @hvdc @max-min-margin @ampere
   Scenario: US 15.17.12: HVDC range action with one preventive CNEC, no impact on worst CNEC
     Given network file is "epic15/TestCase16NodesWithHvdcAcEmulation_HvdcCnec.xiidm"
     Given crac file is "epic15/jsonCrac_ep15us17case12.json"
@@ -192,7 +192,7 @@ Feature: US 15.17: Optimize HVDC range actions initially in AC emulation mode
     Then the initial flow on cnec "be2_be5_n - BBE2AA11->BBE5AA11 - preventive" should be 878 A on side 1
     Then the flow on cnec "be2_be5_n - BBE2AA11->BBE5AA11 - preventive" after PRA should be 878 A on side 1
 
-  @fast @rao @ac @preventive-only @hvdc @costly
+  @fast @rao @ac @preventive-only @hvdc @costly @ampere
   Scenario: US 15.17.13: AC Emulation is activated but not the HVDC range action
     Same network as tests 15.17.1 -> 15.17.8. We have one CNEC and two range actions available: a PST and an HVDC range action.
     The threshold of the CNEC is -450 A.

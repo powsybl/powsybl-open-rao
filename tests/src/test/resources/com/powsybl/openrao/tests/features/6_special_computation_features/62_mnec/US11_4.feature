@@ -5,7 +5,7 @@
 
 Feature: US 11.4: Handle mnecs in search tree with range actions and network actions
 
-  @fast @rao @ac @preventive-only @max-min-margin
+  @fast @rao @ac @preventive-only @max-min-margin @megawatt
   Scenario: US 11.4.1: reference run, no mnec
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic11/ls_mixed_ref.json"
@@ -22,7 +22,7 @@ Feature: US 11.4: Handle mnecs in search tree with range actions and network act
     Then the flow on cnec "DDE1AA1  DDE2AA1  1 - Contingency FR1 FR3 - curative" after CRA should be -394.0 MW on side 1
     Then the flow on cnec "NNL2AA1  BBE3AA1  1 - preventive" after PRA should be -1642.0 MW on side 1
 
-  @fast @rao @ac @preventive-only @mnec @max-min-margin
+  @fast @rao @ac @preventive-only @mnec @max-min-margin @megawatt
   Scenario: US 11.4.2: margin on MNEC should stay positive
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic11/ls_mixed_4_2.json"
@@ -37,7 +37,7 @@ Feature: US 11.4: Handle mnecs in search tree with range actions and network act
     Then the worst margin is -99.0 MW on cnec "FFR2AA1  FFR3AA1  1 - preventive"
     Then the flow on cnec "NNL2AA1  NNL3AA1  1 - preventive" after PRA should be 1100.0 MW on side 1
 
-  @fast @rao @ac @preventive-only @mnec @max-min-margin
+  @fast @rao @ac @preventive-only @mnec @max-min-margin @megawatt
   Scenario: US 11.4.3: Search Tree RAO - 2 MNECs with one curative
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic11/ls_mixed_4_3.json"
@@ -53,7 +53,7 @@ Feature: US 11.4: Handle mnecs in search tree with range actions and network act
     Then the flow on cnec "NNL2AA1  NNL3AA1  1 - preventive" after PRA should be 1069.0 MW on side 1
     Then the flow on cnec "DDE1AA1  DDE2AA1  1 - Contingency FR1 FR3 - curative" after PRA should be -370.0 MW on side 1
 
-  @fast @rao @ac @preventive-only @max-min-margin
+  @fast @rao @ac @preventive-only @max-min-margin @megawatt
   Scenario: US 11.4.4.a: reference run on CBCORA, no mnec
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic11/MergedCB_ref.xml"
@@ -70,7 +70,7 @@ Feature: US 11.4: Handle mnecs in search tree with range actions and network act
     Then the flow on cnec "DE1-DE2-DO - curative" after PRA should be -394.0 MW on side 1
     Then the flow on cnec "NL2-BE3-D - preventive" after PRA should be -1642.0 MW on side 1
 
-  @fast @rao @ac @preventive-only @mnec @max-min-margin
+  @fast @rao @ac @preventive-only @mnec @max-min-margin @megawatt
   Scenario: US 11.4.4.b: margin on MNEC should stay positive
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic11/MergedCB_4_4.xml"

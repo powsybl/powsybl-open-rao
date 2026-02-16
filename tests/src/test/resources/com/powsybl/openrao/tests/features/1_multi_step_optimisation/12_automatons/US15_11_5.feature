@@ -16,7 +16,7 @@ Feature: US 15.11.5: Additional tests to check various fixes concerning automato
     Then the tap of PstRangeAction "pst_be" should be -16 after "co1_fr2_de3" at "curative"
     Then the margin on cnec "be1_be3_co1 - BBE1AA11->BBE3AA11  - co1_fr2_de3 - curative" after CRA should be 327.73 MW
 
-  @fast @rao @dc @second-preventive @max-min-margin @megawatt
+  @fast @rao @dc @second-preventive @secure-flow @megawatt
   Scenario: US 15.11.5.2: test fix condition 2P
     Given network file is "epic15/TestCase12Nodes_15_11_5_3_2.uct"
     Given crac file is "epic15/crac_15_11_5_2bis.json"

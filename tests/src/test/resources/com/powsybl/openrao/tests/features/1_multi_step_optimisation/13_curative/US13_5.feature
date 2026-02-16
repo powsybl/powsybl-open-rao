@@ -5,7 +5,7 @@
 
 Feature: US 13.5: dynamic of range actions available in several instants
 
-  @fast @rao @ac @contingency-scenarios
+  @fast @rao @ac @contingency-scenarios @max-min-margin @ampere
   Scenario: US 13.5.1: Preventive and curative PST RA, with same taps in both states
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic13/SL_ep13us5case1.json"
@@ -21,7 +21,7 @@ Feature: US 13.5: dynamic of range actions available in several instants
     Then the tap of PstRangeAction "pst_be" should be -16 after "co1_fr2_fr3_1" at "curative"
     Then the value of the objective function after CRA should be 582
 
-  @fast @rao @ac @contingency-scenarios
+  @fast @rao @ac @contingency-scenarios @max-min-margin @ampere
   Scenario: US 13.5.2: Preventive and curative PST RA, with different taps in each state
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic13/SL_ep13us5case2.json"
@@ -42,7 +42,7 @@ Feature: US 13.5: dynamic of range actions available in several instants
     Then the tap of PstRangeAction "pst_be" should be -16 after "co1_fr2_fr3_1" at "curative"
     Then the value of the objective function after CRA should be -71
 
-  @fast @rao @ac @contingency-scenarios
+  @fast @rao @ac @contingency-scenarios @max-min-margin @ampere
   Scenario: US 13.5.3: Preventive and curative PST RA, with an activation in the curative state limited by a RELATIVE_DYNAMIC range
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic13/SL_ep13us5case3.json"
@@ -62,7 +62,7 @@ Feature: US 13.5: dynamic of range actions available in several instants
     Then the tap of PstRangeAction "pst_be" should be -16 after "co1_fr2_fr3_1" at "curative"
     Then the value of the objective function after CRA should be 99
 
-  @fast @rao @ac @contingency-scenarios
+  @fast @rao @ac @contingency-scenarios @max-min-margin @ampere
   Scenario: US 13.5.4: Duplicated RA on the same PST, one being a PRA and the other one being a CRA
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic13/SL_ep13us5case4.json"
@@ -82,7 +82,7 @@ Feature: US 13.5: dynamic of range actions available in several instants
     Then the tap of PstRangeAction "pst_be" should be -16 after "co1_fr2_fr3_1" at "curative"
     Then the value of the objective function after CRA should be 47
 
-  @fast @rao @ac @contingency-scenarios
+  @fast @rao @ac @contingency-scenarios @max-min-margin @megawatt
   Scenario: US 13.5.5: Preventive and curative optimization with absolute limit on curative PST
     Given network file is "epic13/TestCase12NodesForCurative.uct"
     Given crac file is "epic13/12nodes_onePreventiveAndCurativePst_relativeLimit.xml"
@@ -94,7 +94,7 @@ Feature: US 13.5: dynamic of range actions available in several instants
     Then the tap of PstRangeAction "SelectTapPSTCur" should be 14 after "Contingency" at "curative"
     Then the value of the objective function after CRA should be -1432
 
-  @fast @rao @ac @contingency-scenarios
+  @fast @rao @ac @contingency-scenarios @max-min-margin @megawatt
   Scenario: US 13.5.6: Preventive and curative optimization with relative limit on curative PST
     Given network file is "epic13/TestCase12NodesForCurative.uct"
     Given crac file is "epic13/12nodes_onePreventiveAndCurativePst_absoluteLimit.xml"
@@ -105,7 +105,7 @@ Feature: US 13.5: dynamic of range actions available in several instants
     Then the tap of PstRangeAction "SelectTapPSTPrev" should be 12 in preventive
     Then the tap of PstRangeAction "SelectTapPSTCur" should be 14 after "Contingency" at "curative"
 
-  @fast @rao @ac @contingency-scenarios
+  @fast @rao @ac @contingency-scenarios @max-min-margin @megawatt
   Scenario: US 13.5.7: Preventive and curative optimization with wrong absolute limit on curative PST
     Given network file is "epic13/TestCase12NodesForCurative.uct"
     Given crac file is "epic13/12nodes_onePreventiveAndCurativePst_absoluteLimitError.xml"
@@ -127,7 +127,7 @@ Feature: US 13.5: dynamic of range actions available in several instants
     Then range action "SelectTapPSTPrev" should have 1 ranges
     Then range action "SelectTapPSTPrevWrongRange" should have 0 ranges
 
-  @fast @rao @ac @preventive-only
+  @fast @rao @ac @preventive-only @max-min-margin @megawatt
   Scenario: US 13.5.9: Preventive optimization after PST filtering
     Given network file is "epic13/TestCase12NodesForCurative.uct"
     Given crac file is "epic13/12nodes_oneCorrectPreventivePst.xml"
@@ -138,7 +138,7 @@ Feature: US 13.5: dynamic of range actions available in several instants
     Then the tap of PstRangeAction "SelectTapPSTPrev" should be 12 in preventive
     Then the value of the objective function after CRA should be -1637
 
-  @fast @rao @ac @contingency-scenarios
+  @fast @rao @ac @contingency-scenarios @max-min-margin @ampere
   Scenario: US 13.5.10: CBCORA, CRA and PRA on same PSTs (as done in CORE CC data)
     Given network file is "epic13/TestCase16Nodes_with_different_imax.uct"
     Given crac file is "epic13/CBCORA_ep13us5case10.xml"
@@ -159,7 +159,7 @@ Feature: US 13.5: dynamic of range actions available in several instants
     # does not work currently: expected behaviour not clear yet in that case
     Then the worst margin is 992 A
 
-  @fast @rao @ac @second-preventive
+  @fast @rao @ac @second-preventive @max-min-margin @ampere
   Scenario: US 13.5.11: CBCORA, CRA and PRA on same PSTs, with 2P optimisation
     # same results as previous test case, but important to test as RaoResult implementation
     # is not the same with 2d preventive optimisation
@@ -181,7 +181,7 @@ Feature: US 13.5: dynamic of range actions available in several instants
     Then the worst margin is 996 A
     Then the execution details should be "Second preventive improved first preventive results"
 
-  @fast @rao @ac @second-preventive
+  @fast @rao @ac @second-preventive @max-min-margin @ampere
   Scenario: US 13.5.11.bis: CBCORA, CRA and PRA on same PSTs, with global 2P optimisation
     # slightly better results thanks to the global 2P optimization
     Given network file is "epic13/TestCase16Nodes_with_different_imax.uct"

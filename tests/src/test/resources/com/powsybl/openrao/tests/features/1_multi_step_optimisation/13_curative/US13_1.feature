@@ -5,7 +5,7 @@
 
 Feature: US 13.1: solve a RAO for a single preventive or curative state
 
-  @fast @rao @ac @preventive-only @search-tree-rao
+  @fast @rao @ac @preventive-only @search-tree-rao @max-min-margin @megawatt
   Scenario: US 13.1.1: Solve preventive perimeter alone
     Given network file is "epic13/TestCase12NodesForCurative.uct"
     Given crac file is "epic13/12nodes_pst_topo_frm_cbcora_curative.xml"
@@ -17,7 +17,7 @@ Feature: US 13.1: solve a RAO for a single preventive or curative state
     # Previously there was a mistake it was optimizing with all cnecs and not only on preventive state
     Then the flow on cnec "CnecPreventiveDir - preventive" after PRA should be -8 MW on side 1
 
-  @fast @rao @ac @contingency-scenarios @search-tree-rao
+  @fast @rao @ac @contingency-scenarios @search-tree-rao @max-min-margin @megawatt
   Scenario: US 13.1.2: Solve curative perimeter alone at curative instant
     Given network file is "epic13/TestCase12NodesForCurative.uct"
     Given crac file is "epic13/12nodes_pst_topo_frm_cbcora_curative.xml"

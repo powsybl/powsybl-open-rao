@@ -5,7 +5,7 @@
 
 Feature: US 10.4: PTDF boundaries with more than two zones
 
-  @fast @rao @dc @preventive-only @relative
+  @fast @rao @dc @preventive-only @max-min-relative-margin @megawatt
   Scenario: US 10.4.1: Boundary BE-DE with Alegro
     Given network file is "common/TestCase12NodesHvdc.uct" for CORE CC
     Given crac file is "epic10/cbcora_ep10us2case1.xml"

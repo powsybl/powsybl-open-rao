@@ -5,7 +5,7 @@
 
 Feature: US 7.10: Search-tree RAO with loopflow limitation
 
-  @fast @rao @ac @preventive-only @max-min-margin
+  @fast @rao @ac @preventive-only @max-min-margin @megawatt
   Scenario: US 7.10.1: Simple search tree RAO without LF limitation
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic7/crac_lf_rao_3.json"
@@ -19,7 +19,7 @@ Feature: US 7.10: Search-tree RAO with loopflow limitation
     Then the remedial action "Open FR1 FR2" is used in preventive
     Then the remedial action "PRA_PST_BE" is used in preventive
 
-  @fast @rao @ac @preventive-only @loopflow @max-min-margin
+  @fast @rao @ac @preventive-only @loopflow @max-min-margin @megawatt
   Scenario: US 7.10.2: Simple search tree RAO with LF limited by a predefined threshold
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic7/crac_lf_rao_3.json"
@@ -45,7 +45,7 @@ Feature: US 7.10: Search-tree RAO with loopflow limitation
     Then the loopflow on cnec "FFR2AA1  DDE3AA1  1 - preventive" after PRA should be -498.0 MW
     Then the loopflow on cnec "BBE2AA1  FFR3AA1  1 - preventive" after PRA should be -498.0 MW
 
-  @fast @rao @ac @preventive-only @loopflow @max-min-margin
+  @fast @rao @ac @preventive-only @loopflow @max-min-margin @megawatt
   Scenario: US 7.10.3: Simple search tree RAO with LF limited by their initial value
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic7/crac_lf_rao_3.json"
@@ -70,7 +70,7 @@ Feature: US 7.10: Search-tree RAO with loopflow limitation
     Then the loopflow on cnec "FFR2AA1  DDE3AA1  1 - preventive" after PRA should be -384.0 MW
     Then the loopflow on cnec "BBE2AA1  FFR3AA1  1 - preventive" after PRA should be -384.0 MW
 
-  @fast @rao @ac @preventive-only @loopflow @max-min-margin
+  @fast @rao @ac @preventive-only @loopflow @max-min-margin @megawatt
   Scenario: US 7.10.4: Simple search tree RAO with loop-approximation ON
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic7/crac_lf_rao_3.json"
@@ -93,7 +93,7 @@ Feature: US 7.10: Search-tree RAO with loopflow limitation
     Then the loopflow on cnec "NNL2AA1  BBE3AA1  1 - preventive" after PRA should be -499.0 MW
     Then the loopflow on cnec "FFR2AA1  DDE3AA1  1 - preventive" after PRA should be -499.0 MW
 
-  @fast @rao @ac @preventive-only @max-min-margin
+  @fast @rao @ac @preventive-only @max-min-margin @megawatt
   Scenario: US 7.10.5: Complex search tree RAO without LF limitation
     Given network file is "common/TestCase12Nodes2PSTs.uct"
     Given crac file is "epic7/crac_lf_rao_4.json"
@@ -110,7 +110,7 @@ Feature: US 7.10: Search-tree RAO with loopflow limitation
     Then the remedial action "Open_BE1_BE3" is used in preventive
     Then the remedial action "Open_NL1_NL2" is used in preventive
 
-  @fast @rao @ac @preventive-only @loopflow @max-min-margin
+  @fast @rao @ac @preventive-only @loopflow @max-min-margin @megawatt
   Scenario: US 7.10.6: Complex search tree RAO with LF limitation
     Given network file is "common/TestCase12Nodes2PSTs.uct"
     Given crac file is "epic7/crac_lf_rao_5.json"

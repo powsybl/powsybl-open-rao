@@ -5,7 +5,7 @@
 
 Feature: US 13.3 : Solve a RAO for N compounds states
 
-  @fast @rao @ac @contingency-scenarios
+  @fast @rao @ac @contingency-scenarios @max-min-margin @ampere
   Scenario: US 13.3.1: Simple case with preventive, outage and curative states
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic13/SL_ep13us3case1.json"
@@ -25,7 +25,7 @@ Feature: US 13.3 : Solve a RAO for N compounds states
     Then the margin on cnec "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - outage" after PRA should be 921 A
     Then the value of the objective function after CRA should be -556
 
-  @fast @rao @ac @contingency-scenarios
+  @fast @rao @ac @contingency-scenarios @max-min-margin @ampere
   Scenario: US 13.3.2: Simple case, with 2 curative states
     # In order to have the same topological RAs used as in Osiris, we have to increase
     # the usage threshold here (absolute-network-action-minimum-impact-threshold)
@@ -51,7 +51,7 @@ Feature: US 13.3 : Solve a RAO for N compounds states
     Then the margin on cnec "FFR4AA1  DDE1AA1  1 - co2_be1_be3 - curative" after CRA should be 1281 A
     Then the value of the objective function after CRA should be -766
 
-  @fast @rao @ac @contingency-scenarios
+  @fast @rao @ac @contingency-scenarios @max-min-margin @ampere
   Scenario: US 13.3.3: Simple case, with 2 curative states and on-contingency remedial actions
     # In order to have the same topological RAs used as in Osiris, we have to increase
     # the usage threshold here (absolute-network-action-minimum-impact-threshold)
@@ -76,7 +76,7 @@ Feature: US 13.3 : Solve a RAO for N compounds states
     Then the margin on cnec "FFR4AA1  DDE1AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be 1279 A
     Then the value of the objective function after CRA should be -753
 
-  @fast @rao @ac @contingency-scenarios
+  @fast @rao @ac @contingency-scenarios @max-min-margin @ampere
   Scenario: US 13.3.4: Complex case, with several outage/curative states, and on-contingency remedial actions
     # In order to have the same topological RAs used as in Osiris, we have to increase
     # the usage threshold here (absolute-network-action-minimum-impact-threshold)
@@ -99,7 +99,7 @@ Feature: US 13.3 : Solve a RAO for N compounds states
     Then the margin on cnec "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be 782 A
     Then the value of the objective function after CRA should be 184
 
-  @fast @rao @ac @contingency-scenarios
+  @fast @rao @ac @contingency-scenarios @max-min-margin @ampere
   Scenario: US 13.3.5: Simple case, with two curative states, including one without CRA
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic13/SL_ep13us3case5.json"
@@ -122,7 +122,7 @@ Feature: US 13.3 : Solve a RAO for N compounds states
     Then the margin on cnec "FFR4AA1  DDE1AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be 1049 A
     Then the value of the objective function after CRA should be -469
 
-  @fast @rao @ac @contingency-scenarios
+  @fast @rao @ac @contingency-scenarios @max-min-margin @ampere
   Scenario: US 13.3.6: Simple case, with two outage + curative states, including one without CRA
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic13/SL_ep13us3case6.json"
@@ -145,7 +145,7 @@ Feature: US 13.3 : Solve a RAO for N compounds states
     Then the margin on cnec "FFR4AA1  DDE1AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be 549 A
     Then the value of the objective function after CRA should be 484
 
-  @fast @rao @ac @contingency-scenarios
+  @fast @rao @ac @contingency-scenarios @max-min-margin @ampere
   Scenario: US 13.3.7: Simple case, with one outage and one curative state, but on two different contingencies
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic13/SL_ep13us3case7.json"
@@ -162,7 +162,7 @@ Feature: US 13.3 : Solve a RAO for N compounds states
     Then the margin on cnec "BBE2AA1  FFR3AA1  1 - co2_be1_be3 - outage" after PRA should be 332 A
     Then the value of the objective function after CRA should be 115
 
-  @fast @rao @ac @contingency-scenarios
+  @fast @rao @ac @contingency-scenarios @max-min-margin @ampere
   Scenario: US 13.3.8: Complex case, with several curative / outage states, and some curative states without CRA
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic13/SL_ep13us3case8.json"
@@ -185,7 +185,7 @@ Feature: US 13.3 : Solve a RAO for N compounds states
     Then the margin on cnec "BBE1AA1  FFR5AA1  1 - preventive" after PRA should be 886 A
     Then the value of the objective function after CRA should be -418
 
-  @fast @rao @ac @contingency-scenarios
+  @fast @rao @ac @contingency-scenarios @max-min-margin @ampere
   Scenario: US 13.3.9: Test case with no RA in the preventive perimeter
     # In order to have the same topological RAs used as in Osiris, we have to increase
     # the usage threshold here (absolute-network-action-minimum-impact-threshold)
@@ -203,7 +203,7 @@ Feature: US 13.3 : Solve a RAO for N compounds states
     Then the margin on cnec "FFR4AA1  DDE1AA1  1 - preventive" after PRA should be 852 A
     Then the value of the objective function after CRA should be -677
 
-  @fast @rao @ac @contingency-scenarios
+  @fast @rao @ac @contingency-scenarios @max-min-margin @ampere
   Scenario: US 13.3.10: Test case with a CBCORA file
     Given network file is "epic13/TestCase16Nodes_with_different_imax.uct"
     Given crac file is "epic13/CBCORA_ep13us3case10.xml"

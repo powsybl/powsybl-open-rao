@@ -5,7 +5,7 @@
 
 Feature: US 15.5: Handle parallel PSTs
 
-  @fast @rao @ac @preventive-only @search-tree-rao
+  @fast @rao @ac @preventive-only @search-tree-rao @max-min-margin @ampere
   Scenario: US 15.5.1: Preventive search tree RAO with two aligned PSTs
     Given network file is "epic15/TestCase16Nodes_alignedPsts.uct"
     Given crac file is "epic15/CBCORA_15_5_1.xml"

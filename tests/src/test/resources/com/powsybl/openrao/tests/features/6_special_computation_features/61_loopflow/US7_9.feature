@@ -5,7 +5,7 @@
 
 Feature: US 7.9: Linear RAO with loopflow limitation
 
-  @fast @rao @ac @preventive-only @max-min-margin
+  @fast @rao @ac @preventive-only @max-min-margin @megawatt
   Scenario: US 7.9.1: linear RAO without LF limitation
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic7/crac_lf_rao_1.json"
@@ -16,7 +16,7 @@ Feature: US 7.9: Linear RAO with loopflow limitation
     Then the margin on cnec "FFR1AA1  FFR2AA1  1 - preventive" after PRA should be 224.0 MW
     Then the tap of PstRangeAction "PRA_PST_BE" should be -16 in preventive
 
-  @fast @rao @ac @preventive-only @loopflow @max-min-margin
+  @fast @rao @ac @preventive-only @loopflow @max-min-margin @megawatt
   Scenario: US 7.9.2: linear RAO with LF limited by predefined threshold (10% of Fmax)
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic7/crac_lf_rao_1.json"
@@ -39,7 +39,7 @@ Feature: US 7.9: Linear RAO with loopflow limitation
     Then the loopflow on cnec "FFR2AA1  DDE3AA1  1 - preventive" after PRA should be -489.0 MW
     Then the loopflow on cnec "BBE2AA1  FFR3AA1  1 - preventive" after PRA should be -489.0 MW
 
-  @fast @rao @ac @preventive-only @loopflow @max-min-margin
+  @fast @rao @ac @preventive-only @loopflow @max-min-margin @megawatt
   Scenario: US 7.9.3: linear RAO with LF limited by initial value
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic7/crac_lf_rao_1.json"

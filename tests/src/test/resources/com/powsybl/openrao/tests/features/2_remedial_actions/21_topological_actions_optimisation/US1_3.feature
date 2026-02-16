@@ -30,7 +30,7 @@ Feature: US 1.3: Security assessment with network actions
     Then the flow on cnec "BBE2AA1  FFR3AA1  1 - Contingency FR1 FR3 - curative" after PRA should be -1444.0 A on side 2
     Then the flow on cnec "BBE2AA1  FFR3AA1  1 - Contingency FR1 FR3 - curative" after CRA should be -1444.0 A on side 2
 
-  @fast @rao @ac @preventive-only @secure-flow @ampere
+  @fast @rao @ac @preventive-only @max-min-margin @ampere
   Scenario: US 1.3.2: selection of PST setpoint remedial action
   One network action and one PST setpoint action available, only the PST setpoint action is activated.
     Given network file is "common/TestCase12Nodes.uct"

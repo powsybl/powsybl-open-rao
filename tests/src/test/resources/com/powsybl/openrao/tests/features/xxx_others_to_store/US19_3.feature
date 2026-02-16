@@ -5,7 +5,7 @@
 
 Feature: US 19.3: Handle maximum CRA and maximum curative PSTs per TSO
 
-  @fast @rao @ac @contingency-scenarios
+  @fast @rao @ac @contingency-scenarios @max-min-margin @ampere
   Scenario: US 19.3.1: One PST and one topo, two CRAs
     # <!> All RAs are hypothetically operated by "be"
     Given network file is "common/TestCase16Nodes.uct"
@@ -19,7 +19,7 @@ Feature: US 19.3: Handle maximum CRA and maximum curative PSTs per TSO
     Then the worst margin is 1000 A on cnec "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative"
     Then the margin on cnec "BBE1AA1  FFR5AA1  1 - preventive" after PRA should be 1301 A
 
-  @fast @rao @ac @contingency-scenarios
+  @fast @rao @ac @contingency-scenarios @max-min-margin @ampere
   Scenario: US 19.3.2: Two PSTs and no topo
     # <!> All RAs are hypothetically operated by "be"
     Given network file is "common/TestCase16Nodes.uct"
@@ -34,7 +34,7 @@ Feature: US 19.3: Handle maximum CRA and maximum curative PSTs per TSO
     Then the worst margin is 972 A on cnec "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative"
     Then the margin on cnec "BBE1AA1  FFR5AA1  1 - preventive" after PRA should be 1301 A
 
-  @fast @rao @ac @contingency-scenarios
+  @fast @rao @ac @contingency-scenarios @max-min-margin @ampere
   Scenario: US 19.3.3: One PST and no topo
     # <!> All RAs are hypothetically operated by "be"
     Given network file is "common/TestCase16Nodes.uct"
@@ -47,7 +47,7 @@ Feature: US 19.3: Handle maximum CRA and maximum curative PSTs per TSO
     Then the worst margin is 945 A on cnec "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative"
     Then the margin on cnec "BBE1AA1  FFR5AA1  1 - preventive" after PRA should be 1301 A
 
-  @fast @rao @ac @contingency-scenarios
+  @fast @rao @ac @contingency-scenarios @max-min-margin @ampere
   Scenario: US 19.3.4: No PST and one topo
     # <!> All RAs are hypothetically operated by "be"
     Given network file is "common/TestCase16Nodes.uct"
@@ -58,7 +58,7 @@ Feature: US 19.3: Handle maximum CRA and maximum curative PSTs per TSO
     Then the remedial action "close_fr1_fr5" is used after "co1_fr2_fr3_1" at "curative"
     Then the worst margin is 840 A on cnec "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative"
 
-  @fast @rao @ac @contingency-scenarios
+  @fast @rao @ac @contingency-scenarios @max-min-margin @ampere
   Scenario: US 19.3.5: One PST and one topo, one CRA, chose PST
     # <!> All RAs are hypothetically operated by "be"
     Given network file is "common/TestCase16Nodes.uct"
@@ -71,7 +71,7 @@ Feature: US 19.3: Handle maximum CRA and maximum curative PSTs per TSO
     Then the worst margin is 945 A on cnec "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative"
     Then the margin on cnec "BBE1AA1  FFR5AA1  1 - preventive" after PRA should be 1301 A
 
-  @fast @rao @ac @contingency-scenarios @search-tree-rao
+  @fast @rao @ac @contingency-scenarios @search-tree-rao @max-min-margin @ampere
   Scenario: US 19.3.6: One PST and one topo, one CRA, chose topo
     # <!> All RAs are hypothetically operated by "be"
     Given network file is "epic19/TestCase16Nodes_19_3_6.uct"
@@ -82,7 +82,7 @@ Feature: US 19.3: Handle maximum CRA and maximum curative PSTs per TSO
     Then the remedial action "open_fr1_fr2" is used after "co1_fr2_fr3_1" at "curative"
     Then the worst margin is 986 A on cnec "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative"
 
-  @fast @rao @ac @contingency-scenarios
+  @fast @rao @ac @contingency-scenarios @max-min-margin @ampere
   Scenario: US 19.3.7: Two topo
     # <!> All RAs are hypothetically operated by "be"
     Given network file is "common/TestCase16Nodes.uct"
@@ -94,7 +94,7 @@ Feature: US 19.3: Handle maximum CRA and maximum curative PSTs per TSO
     Then the remedial action "open_fr1_fr2" is used after "co1_fr2_fr3_1" at "curative"
     Then the worst margin is 973 A on cnec "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative"
 
-  @fast @rao @ac @contingency-scenarios
+  @fast @rao @ac @contingency-scenarios @max-min-margin @ampere
   Scenario: US 19.3.8: Two operators, no PST and one topo per operator
     # <!> All RAs are hypothetically operated by "be", except for "open_be1_be4" operated by "fr"
     Given network file is "common/TestCase16Nodes.uct"
@@ -106,7 +106,7 @@ Feature: US 19.3: Handle maximum CRA and maximum curative PSTs per TSO
     Then the remedial action "open_be1_be4" is used after "co1_fr2_fr3_1" at "curative"
     Then the worst margin is 876 A on cnec "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative"
 
-  @fast @rao @ac @preventive-only @search-tree-rao
+  @fast @rao @ac @preventive-only @search-tree-rao @max-min-margin @ampere
   Scenario: US 19.3.9: Test that the parameters are ignored in preventive
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic19/SL_ep19us3case9.json"
@@ -117,7 +117,7 @@ Feature: US 19.3: Handle maximum CRA and maximum curative PSTs per TSO
     Then the remedial action "open_fr1_fr2" is used in preventive
     Then the tap of PstRangeAction "pst_be" should be -15 in preventive
 
-  @fast @rao @ac @contingency-scenarios
+  @fast @rao @ac @contingency-scenarios @max-min-margin @ampere
   Scenario: US 19.3.10: One PST, limiting element changes
     # <!> All RAs are hypothetically operated by "be"
     Given network file is "common/TestCase16Nodes.uct"

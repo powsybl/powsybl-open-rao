@@ -5,7 +5,7 @@
 
 Feature: US 13.8: cross-validation curative and relative margin
 
-  @fast @rao @ac @contingency-scenarios @relative
+  @fast @rao @ac @contingency-scenarios @max-min-relative-margin @ampere
   Scenario: US 13.8.1: Full optimization in relative margin with negative margin in curative
     # Same case as 13.2.6 but with relative margin. No impact with relative margins, same optimization except one PST tap
     # in preventive, this can be explained by the fact that BE2-FR3 becomes the most limiting element due to relative margins
@@ -33,7 +33,7 @@ Feature: US 13.8: cross-validation curative and relative margin
     Then the relative margin on cnec "BBE4AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be 693 A
     Then the value of the objective function after CRA should be 244
 
-  @fast @rao @ac @contingency-scenarios
+  @fast @rao @ac @contingency-scenarios @max-min-margin @ampere
   Scenario: US 13.8.2: Full optimization in absolute margin with positive margin in curative
     # Curative limiting element of previous case has been removed so that limiting element in curative has a positive
     # absolute margin. This case is a reference for the following one.
@@ -56,7 +56,7 @@ Feature: US 13.8: cross-validation curative and relative margin
     Then the margin on cnec "FFR2AA1  DDE3AA1  1 - preventive" after PRA should be 470 A
     Then the value of the objective function after CRA should be -300
 
-  @fast @rao @ac @contingency-scenarios @relative @relative
+  @fast @rao @ac @contingency-scenarios @max-min-relative-margin @ampere
   Scenario: US 13.8.3: Full optimization in relative margin with positive margin in curative
     # Optimizations in both preventive and curative are slightly different since due to PTDF factor limiting elements
     # are not the same in both situations.

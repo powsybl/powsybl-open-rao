@@ -5,7 +5,7 @@
 
 Feature: US 13.2: Solve a RAO for two consecutive states (preventive THEN curative)
 
-  @fast @rao @ac @preventive-only
+  @fast @rao @ac @preventive-only @max-min-margin @ampere
   Scenario: US 13.2.1: Simple case with preventive remedial actions only
     # Osiris does not find the global optimal solution, thus the test cas has been modified
     # If left alone, it would decide to use open_fr1_fr2, close_de3_de4, pst_fr, and pst_be to generate a minimum margin of 988 A
@@ -22,7 +22,7 @@ Feature: US 13.2: Solve a RAO for two consecutive states (preventive THEN curati
     Then the margin on cnec "BBE1AA1  FFR5AA1  1 - preventive" after PRA should be 1064 A
     Then the value of the objective function after CRA should be -999
 
-  @fast @rao @ac @contingency-scenarios
+  @fast @rao @ac @contingency-scenarios @max-min-margin @ampere
   Scenario: US 13.2.2: Simple case with curative remedial actions only
     # FARAO finds a better solution than OSIRIS
     # OSIRIS has worst margin 986 A with "open_fr1_fr2" and pst_be at 16 and pst_fr at 15
@@ -39,7 +39,7 @@ Feature: US 13.2: Solve a RAO for two consecutive states (preventive THEN curati
     Then the margin on cnec "BBE1AA1  FFR5AA1  1 - preventive" after PRA should be 1301 A
     Then the value of the objective function after CRA should be -1000
 
-  @fast @rao @ac @contingency-scenarios
+  @fast @rao @ac @contingency-scenarios @max-min-margin @ampere
   Scenario: US 13.2.3: Simple case with a mix of preventive and curative remedial actions
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic13/SL_ep13us2case3.json"
@@ -60,7 +60,7 @@ Feature: US 13.2: Solve a RAO for two consecutive states (preventive THEN curati
     Then the margin on cnec "BBE1AA1  FFR5AA1  1 - preventive" after PRA should be 1495 A
     Then the value of the objective function after CRA should be -992
 
-  @fast @rao @ac @preventive-only
+  @fast @rao @ac @preventive-only @max-min-margin @ampere
   Scenario: US 13.2.4: Complex case with preventive remedial actions only
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic13/SL_ep13us2case4.json"
@@ -79,7 +79,7 @@ Feature: US 13.2: Solve a RAO for two consecutive states (preventive THEN curati
     Then the margin on cnec "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be 437 A
     Then the value of the objective function after CRA should be -302
 
-  @fast @rao @ac @contingency-scenarios
+  @fast @rao @ac @contingency-scenarios @max-min-margin @ampere
   Scenario: US 13.2.5: Complex case with curative remedial actions only
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic13/SL_ep13us2case5.json"
@@ -97,7 +97,7 @@ Feature: US 13.2: Solve a RAO for two consecutive states (preventive THEN curati
     Then the margin on cnec "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be 501 A
     Then the value of the objective function after CRA should be 196
 
-  @fast @rao @ac @contingency-scenarios
+  @fast @rao @ac @contingency-scenarios @max-min-margin @ampere
   Scenario: US 13.2.6: Complex case with a mix of preventive and curative remedial actions (1/3)
     Given network file is "common/TestCase16Nodes.uct" for CORE CC
     Given crac file is "epic13/SL_ep13us2case6.json"
@@ -119,7 +119,7 @@ Feature: US 13.2: Solve a RAO for two consecutive states (preventive THEN curati
     Then the margin on cnec "BBE2AA1  FFR3AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be 469 A
     Then the value of the objective function after CRA should be 244
 
-  @fast @rao @ac @contingency-scenarios
+  @fast @rao @ac @contingency-scenarios @max-min-margin @ampere
   Scenario: US 13.2.7: Complex case with a mix of preventive and curative remedial actions (2/3)
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic13/SL_ep13us2case6.json"
@@ -139,7 +139,7 @@ Feature: US 13.2: Solve a RAO for two consecutive states (preventive THEN curati
     Then the margin on cnec "BBE4AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be 376 A
     Then the value of the objective function after CRA should be -298
 
-  @fast @rao @ac @contingency-scenarios
+  @fast @rao @ac @contingency-scenarios @max-min-margin @ampere
   Scenario: US 13.2.8: Complex case with a mix of preventive and curative remedial actions (3/3)
     Given network file is "common/TestCase16Nodes.uct" for CORE CC
     Given crac file is "epic13/SL_ep13us2case7.json"

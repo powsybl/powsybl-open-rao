@@ -5,7 +5,7 @@
 
 Feature: US 13.6: cross validation curative optimization and MNECs
 
-  @fast @rao @ac @contingency-scenarios @mnec
+  @fast @rao @ac @contingency-scenarios @mnec @max-min-margin @ampere
   Scenario: US 13.6.1: Simple case with a mix of preventive and curative remedial actions and a MNEC in preventive limited by threshold
     Given network file is "common/TestCase16Nodes.uct" for CORE CC
     Given crac file is "epic13/SL_ep13us2case5_with_mnec.json"
@@ -25,7 +25,7 @@ Feature: US 13.6: cross validation curative optimization and MNECs
     Then the tap of PstRangeAction "pst_be" should be 14 after "co1_fr2_fr3_1" at "curative"
     Then the value of the objective function after CRA should be -999
 
-  @fast @rao @ac @contingency-scenarios @mnec
+  @fast @rao @ac @contingency-scenarios @mnec @max-min-margin @megawatt
   Scenario: US 13.6.2: CBCORA - Curative MNECs should have a positive margin
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic13/MergedCB_ep13us6case2.xml"
@@ -44,7 +44,7 @@ Feature: US 13.6: cross validation curative optimization and MNECs
     Then the margin on cnec "NL1-NL3-D - curative" after CRA should be 0.0 MW
     Then the value of the objective function after CRA should be 140
 
-  @fast @rao @ac @contingency-scenarios @mnec
+  @fast @rao @ac @contingency-scenarios @mnec @max-min-margin @megawatt
   Scenario: US 13.6.3: CBCORA - Curative MNECs limited by their initial margin - CRAs only
     Given network file is "epic13/TestCase12NodesDifferentPstTap.uct" for CORE CC
     Given crac file is "epic13/MergedCB_ep13us6case3.xml"
@@ -57,7 +57,7 @@ Feature: US 13.6: cross validation curative optimization and MNECs
     Then the tap of PstRangeAction "PRA_PST_BE" should be 10 after "Contingency_FR1_FR3" at "curative"
     Then the margin on cnec "FR2-FR3-OO - curative" after CRA should be -98 MW
 
-  @fast @rao @ac @contingency-scenarios @mnec
+  @fast @rao @ac @contingency-scenarios @mnec @max-min-margin @megawatt
   Scenario: US 13.6.4: CBCORA - Curative MNECs limited by their initial margin - PRAs and CRAs
     Given network file is "epic13/TestCase12NodesDifferentPstTap.uct" for CORE CC
     Given crac file is "epic13/MergedCB_ep13us6case4.xml"
@@ -75,7 +75,7 @@ Feature: US 13.6: cross validation curative optimization and MNECs
     Then the margin on cnec "FR2-FR3-OO - curative" after CRA should be -137.0 MW
     Then the value of the objective function after CRA should be 273
 
-  @fast @rao @ac @contingency-scenarios @mnec
+  @fast @rao @ac @contingency-scenarios @mnec @max-min-margin @ampere
   Scenario: US 13.6.5: Simple case with a mix of preventive and curative remedial actions and a MNEC in preventive limited by threshold
     Given network file is "common/TestCase16Nodes.uct" for CORE CC
     Given crac file is "epic13/SL_ep13us2case5_with_mnec.json"
@@ -94,7 +94,7 @@ Feature: US 13.6: cross validation curative optimization and MNECs
     Then the tap of PstRangeAction "pst_be" should be 14 after "co1_fr2_fr3_1" at "curative"
     Then the value of the objective function after CRA should be -999
 
-  @fast @rao @ac @contingency-scenarios @mnec
+  @fast @rao @ac @contingency-scenarios @mnec @max-min-margin @ampere
   Scenario: US 13.6.6: Simple case with a mix of preventive and curative remedial actions and MNECs in preventive and curative limited by threshold
     Given network file is "common/TestCase16Nodes.uct" for CORE CC
     Given crac file is "epic13/SL_ep13us2case6_with_mnec_curative.json"
@@ -115,7 +115,7 @@ Feature: US 13.6: cross validation curative optimization and MNECs
     Then the worst margin is 612 A on cnec "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative"
     Then the value of the objective function after CRA should be -612
 
-  @fast @rao @ac @contingency-scenarios @mnec
+  @fast @rao @ac @contingency-scenarios @mnec @max-min-margin @ampere
   Scenario: US 13.6.7: Simple case with a mix of preventive and curative remedial actions and MNECs in preventive and curative limited by initial value
     Given network file is "common/TestCase16Nodes.uct" for CORE CC
     Given crac file is "epic13/SL_ep13us2case7_with_mnec_curative_initial.json"
@@ -139,7 +139,7 @@ Feature: US 13.6: cross validation curative optimization and MNECs
     Then the worst margin is 705 A on cnec "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative"
     Then the value of the objective function after CRA should be -705
 
-  @fast @rao @ac @contingency-scenarios @mnec
+  @fast @rao @ac @contingency-scenarios @mnec @max-min-margin @megawatt
   Scenario: US 13.6.8: Curative perimeter with pure MNECs only
     Given network file is "common/TestCase16Nodes.uct" for CORE CC
     Given crac file is "epic13/MergedCB_ep13us6case8.xml"
@@ -162,7 +162,7 @@ Feature: US 13.6: cross validation curative optimization and MNECs
     Then the value of the objective function after ARA should be -71
     Then the value of the objective function after CRA should be -390
 
-  @fast @rao @ac @contingency-scenarios @mnec
+  @fast @rao @ac @contingency-scenarios @mnec @max-min-margin @megawatt
   Scenario: US 13.6.11: Curative with pure MNECs only - PST CRA should remove MNEC constraint
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic13/CBCORA_ep13us6case11.xml"

@@ -107,7 +107,7 @@ Feature: US 7.18: Virtual hubs in loopflow computation
     Then the loopflow on cnec "BBE3AA1  X_NLBE1  1 + NNL2AA1  X_NLBE1  1 - preventive" after loopflow computation should be 617.0 A
     Then the loopflow on cnec "BBE2AA1  X_BEFR1  1 + FFR3AA1  X_BEFR1  1 - preventive" after loopflow computation should be -906.0 A
 
-  @fast @rao @dc @preventive-only @loopflow @max-min-margin
+  @fast @rao @dc @preventive-only @loopflow @max-min-margin @megawatt
   Scenario: 7.18.3 RAO with one virtual hub on a external Xnode border - MEGAWATT
     Given network file is "epic7/TestCase12Nodes_with_Xnodes_dangling.uct" for CORE CC
     Given crac file is "epic7/crac_lf_rao_3_cbcora_xnodes.xml"

@@ -5,7 +5,7 @@
 
 Feature: Advanced usage rules tests
 
-  @fast @rao @ac @contingency-scenarios
+  @fast @rao @ac @contingency-scenarios @max-min-margin @ampere
   Scenario: US UR.1.1: Flow constraint in country with no contingency
     # This is a copy of test case 16.5.7
     # pst_be is available after a flow constraint in BE, no contingency defined
@@ -23,7 +23,7 @@ Feature: Advanced usage rules tests
     Then the margin on cnec "BBE2AA1  FFR3AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be 245 A
     Then the margin on cnec "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be 345 A
 
-  @fast @rao @ac @contingency-scenarios
+  @fast @rao @ac @contingency-scenarios @max-min-margin @ampere
   Scenario: US UR.1.1: Flow constraint in country only after a given contingency
     # This is a copy of previous case but pst_be is available after a flow constraint in BE, only after contingency co1_fr2_fr3_1
     # Since only the preventive CNEC is constrained initially, the PST shall not be available

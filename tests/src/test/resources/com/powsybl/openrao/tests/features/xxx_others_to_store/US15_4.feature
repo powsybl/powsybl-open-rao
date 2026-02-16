@@ -25,7 +25,7 @@ Feature: US 15.4: Consider two margins on tie-lines for each half-line with rela
       | PstRangeActionId | PstRangeActionName | NetworkElementId    | InitialTap | MinTap | MaxTap | MinTapAngle | MaxTapAngle |
       | PST_BE           | PST_BE             | BBE2AA1  BBE3AA1  1 | 0          | -16    | 16     | -6.23       | 6.23        |
 
-  @fast @rao @ac @preventive-only
+  @fast @rao @ac @preventive-only @max-min-margin @ampere
   Scenario: US 15.4.1: Run a rao with different thresholds (absolute) on two half-lines of the same tie-line
     Given network file is "crac7/TestCase12Nodes_with_Xnodes.uct"
     Given crac file is "epic15/ls-Xnodes-and-half-lines.json"
@@ -36,7 +36,7 @@ Feature: US 15.4: Consider two margins on tie-lines for each half-line with rela
     Then the flow on cnec "BBE2AA1  X_BEFR1  1 + FFR3AA1  X_BEFR1  1 - N-1 DE-NL - outage" after PRA should be 2167 A on side 1 and 2167 A on side 2
     Then the margin on cnec "BBE2AA1  X_BEFR1  1 + FFR3AA1  X_BEFR1  1 - N-1 DE-NL - outage" after PRA should be -1667 A
 
-  @fast @rao @ac @preventive-only
+  @fast @rao @ac @preventive-only @max-min-margin @ampere
   Scenario: US 15.4.2: Run a rao with different thresholds (relative) on two half-lines of the same tie-line
     Given network file is "epic15/TestCase12Nodes_with_Xnodes_different_imax.uct"
     Given crac file is "epic15/ls-Xnodes-and-half-lines-relative.json"

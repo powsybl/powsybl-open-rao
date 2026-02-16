@@ -55,7 +55,7 @@ Feature: US 7.14: Use a refProg file to calculate the loop-flows
     Then the loopflow on cnec "BBE2AA1  FFR3AA1  1 - preventive" after loopflow computation should be -302.0 A
 
 
-  @fast @rao @ac @preventive-only @loopflow @max-min-margin
+  @fast @rao @ac @preventive-only @loopflow @max-min-margin @megawatt
   Scenario: 7.14.2 : run a search tree RAO with a refProg file
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic7/crac_lf_rao_3_cbcora.xml"
@@ -85,7 +85,7 @@ Feature: US 7.14: Use a refProg file to calculate the loop-flows
     Then the initial loopflow on cnec "BBE2AA1  FFR3AA1  1 - preventive" should be -210.0 MW
     Then the loopflow on cnec "BBE2AA1  FFR3AA1  1 - preventive" after PRA should be -201.0 MW
 
-  @fast @rao @ac @preventive-only @loopflow @max-min-margin
+  @fast @rao @ac @preventive-only @loopflow @max-min-margin @megawatt
   Scenario: 7.14.3 : run another search tree RAO with a refProg file
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic7/crac_lf_rao_3_with_frm_cbcora.xml"

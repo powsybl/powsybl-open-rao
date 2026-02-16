@@ -5,7 +5,7 @@
 
 Feature: US 5.1: MAX_MIN_MARGIN objective function
 
-  @fast @rao @ac @preventive-only @secure-flow @megawatt
+  @fast @rao @ac @preventive-only @secure-flow @ampere
   Scenario: US 5.1.0.a: SECURE_FLOW objective function: secure initially, no RA applied
   This test is used as a reference for positive margin objective function,for comparison with the tests with MAX_MIN_MARGIN objective function.
     Given network file is "common/TestCase12Nodes.uct"

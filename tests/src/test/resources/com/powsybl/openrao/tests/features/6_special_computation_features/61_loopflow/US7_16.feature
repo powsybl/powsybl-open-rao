@@ -5,7 +5,7 @@
 
 Feature: US 7.16: monitor loopflows on specific countries
 
-  @fast @rao @ac @preventive-only @loopflow @max-min-margin
+  @fast @rao @ac @preventive-only @loopflow @max-min-margin @megawatt
   Scenario: 7.16.1 : loopflows monitored on the borders of BE and of NL
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic7/crac_lf_rao_3_cbcora.xml"
@@ -31,7 +31,7 @@ Feature: US 7.16: monitor loopflows on specific countries
     Then the initial loopflow on cnec "BBE2AA1  FFR3AA1  1 - preventive" should be -210.0 MW
     Then the loopflow on cnec "BBE2AA1  FFR3AA1  1 - preventive" after PRA should be -533.0 MW
 
-  @fast @rao @ac @preventive-only @loopflow @max-min-margin
+  @fast @rao @ac @preventive-only @loopflow @max-min-margin @megawatt
   Scenario: 7.16.2 : loopflows monitored on the borders of NL
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic7/crac_lf_rao_3_with_frm_cbcora.xml"

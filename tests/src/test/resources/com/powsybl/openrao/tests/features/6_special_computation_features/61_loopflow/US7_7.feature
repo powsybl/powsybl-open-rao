@@ -5,7 +5,7 @@
 
 Feature: US 7.7: Handle optimisation unfeasibility with loopflow constraints
 
-  @fast @rao @ac @preventive-only @loopflow @max-min-margin
+  @fast @rao @ac @preventive-only @loopflow @max-min-margin @megawatt
   Scenario: US 7.7.1: Simple search tree RAO with LF limitation and infeasible linear problem
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic7/crac_lf_rao_3bis.json"

@@ -5,7 +5,7 @@
 
 Feature: US 19.11: Handle maximum number of elementary actions per TSO
 
-  @fast @rao @preventive-only
+  @fast @rao @preventive-only @max-min-margin @megawatt
   Scenario: US 19.11.1: Limit taps on PST with a maximum number of 3 elementary actions
     Given network file is "epic19/small-network-2P.uct"
     Given crac file is "epic19/small-crac-with-max-3-elementary-actions-pst.json"
@@ -20,7 +20,7 @@ Feature: US 19.11: Handle maximum number of elementary actions per TSO
     Then the flow on cnec "BBE1AA1  BBE2AA1  1 - preventive" after PRA should be -462.0 MW on side 1
     Then the worst margin is 38 MW
 
-  @fast @rao @preventive-only
+  @fast @rao @preventive-only @max-min-margin @megawatt
   Scenario: US 19.11.2: Limit taps on PST with a maximum number of 7 elementary actions
     Given network file is "epic19/small-network-2P.uct"
     Given crac file is "epic19/small-crac-with-max-7-elementary-actions-pst.json"
@@ -35,7 +35,7 @@ Feature: US 19.11: Handle maximum number of elementary actions per TSO
     Then the flow on cnec "BBE1AA1  BBE2AA1  1 - preventive" after PRA should be -329.0 MW on side 1
     Then the worst margin is 171.0 MW
 
-  @fast @rao @preventive-only
+  @fast @rao @preventive-only @max-min-margin @megawatt
   Scenario: US 19.11.3: Select less efficient network action because it has less elementary actions
     Given network file is "epic19/small-network-2P-open-twin-lines.uct"
     Given crac file is "epic19/small-crac-with-max-1-elementary-action-topo.json"
@@ -49,7 +49,7 @@ Feature: US 19.11: Handle maximum number of elementary actions per TSO
     Then the flow on cnec "BBE1AA1  BBE2AA1  1 - preventive" after PRA should be -572.0 MW on side 1
     Then the worst margin is 3.0 MW
 
-  @fast @rao @preventive-only @multi-curative
+  @fast @rao @preventive-only @multi-curative @max-min-margin @megawatt
   Scenario: US 19.11.4: Limit elementary actions with PSTs and 3 curative instants
     Given network file is "epic19/small-network-2P-open-twin-lines.uct"
     Given crac file is "epic19/small-crac-with-max-elementary-actions-pst-3-curative-instants.json"
@@ -68,7 +68,7 @@ Feature: US 19.11: Handle maximum number of elementary actions per TSO
     Then the remedial action "pst_be" is used after "co1_fr1_fr3_1" at "curative3"
     Then the tap of PstRangeAction "pst_be" should be -7 after "co1_fr1_fr3_1" at "curative3"
 
-  @fast @rao @preventive-only
+  @fast @rao @preventive-only @max-min-margin @megawatt
   Scenario: US 19.11.5: Limit elementary actions with topos and PSTs
     Given network file is "epic19/small-network-2P-open-twin-lines.uct"
     Given crac file is "epic19/small-crac-with-max-3-elementary-actions-topo-and-pst.json"
@@ -87,7 +87,7 @@ Feature: US 19.11: Handle maximum number of elementary actions per TSO
     Then the flow on cnec "BBE1AA1  BBE2AA1  1 - preventive" after PRA should be -511.0 MW on side 1
     Then the worst margin is 39.0 MW
 
-  @fast @rao @preventive-only
+  @fast @rao @preventive-only @max-min-margin @megawatt
   Scenario: US 19.11.6: Limit elementary actions with PST also used in preventive
     Given network file is "epic19/small-network-2P-open-twin-lines.uct"
     Given crac file is "epic19/small-crac-with-max-3-elementary-actions-pst-in-curative.json"
@@ -103,7 +103,7 @@ Feature: US 19.11: Handle maximum number of elementary actions per TSO
     Then the tap of PstRangeAction "pst_be_cur" should be -8 after "co1_fr1_fr3_1" at "curative"
     Then the worst margin is 1.0 MW
 
-  @fast @rao @preventive-only @multi-curative
+  @fast @rao @preventive-only @multi-curative @max-min-margin @megawatt
   Scenario: US 19.11.7: Limit elementary actions with PST and topology actions in multi-curative situation
     Given network file is "epic19/small-network-2P-open-twin-lines.uct"
     Given crac file is "epic19/small-crac-with-max-elementary-actions-topo-and-pst-2-curative-instants.json"
@@ -117,7 +117,7 @@ Feature: US 19.11: Handle maximum number of elementary actions per TSO
     Then the remedial action "pst_be" is used after "co1_fr1_fr3_1" at "curative2"
     Then the tap of PstRangeAction "pst_be" should be -2 after "co1_fr1_fr3_1" at "curative2"
 
-  @fast @rao @preventive-only
+  @fast @rao @preventive-only @max-min-margin @megawatt
   Scenario: US 19.11.8: Limit elementary actions for multiple TSOs
     Given network file is "epic19/small-network-2P.uct"
     Given crac file is "epic19/small-crac-with-max-elementary-actions-multiple-tsos.json"
@@ -130,7 +130,7 @@ Feature: US 19.11: Handle maximum number of elementary actions per TSO
     Then the tap of PstRangeAction "pst_fr" should be 10 in preventive
     Then the worst margin is 7.0 MW
 
-  @fast @rao @second-preventive
+  @fast @rao @second-preventive @max-min-margin @ampere
   Scenario: US.19.11.9: Same case with global optimization: should have the same results
     Given network file is "epic19/small-network-2P.uct"
     Given crac file is "epic19/SL_ep19us11case9.json"

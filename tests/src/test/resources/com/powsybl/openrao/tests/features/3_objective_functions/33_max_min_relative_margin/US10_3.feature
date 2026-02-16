@@ -5,7 +5,7 @@
 
 Feature: US 10.3: handle GLSK on Xnodes
 
-  @fast @rao @dc @preventive-only @relative
+  @fast @rao @dc @preventive-only @max-min-relative-margin @megawatt
   Scenario: US 10.3.1: GLSK on Xnodes
     # same test case as 10.2.1 but with two bidding zones on xnodes, giving different results
     Given network file is "common/TestCase12NodesHvdc.uct" for CORE CC
