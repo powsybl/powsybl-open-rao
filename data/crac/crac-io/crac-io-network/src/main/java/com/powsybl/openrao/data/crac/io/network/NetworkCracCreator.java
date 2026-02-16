@@ -29,7 +29,7 @@ public final class NetworkCracCreator {
         // should not be used
     }
 
-    static NetworkCracCreationContext createCrac(Network network, CracCreationParameters cracCreationParameters) {
+    public static NetworkCracCreationContext createCrac(Network network, CracCreationParameters cracCreationParameters) {
         if (cracCreationParameters.getExtension(NetworkCracCreationParameters.class) == null) {
             throw new OpenRaoException("Cannot create a CRAC from a network file unless a NetworkCracCreationParameters extension is defined in CracCreationParameters.");
         }
