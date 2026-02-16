@@ -34,14 +34,6 @@ public class GeneratorConstraintsDeserializer extends StdDeserializer<GeneratorC
                     jsonParser.nextToken();
                     builder.withGeneratorId(jsonParser.getValueAsString());
                 }
-                case JsonIntertemporalConstraints.P_MIN -> {
-                    jsonParser.nextToken();
-                    builder.withPMin(jsonParser.getValueAsDouble());
-                }
-                case JsonIntertemporalConstraints.P_MAX -> {
-                    jsonParser.nextToken();
-                    builder.withPMax(jsonParser.getValueAsDouble());
-                }
                 case JsonIntertemporalConstraints.LEAD_TIME -> {
                     jsonParser.nextToken();
                     builder.withLeadTime(jsonParser.getValueAsDouble());
