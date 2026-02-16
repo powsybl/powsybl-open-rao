@@ -246,6 +246,7 @@ Feature: User Story #16.3: Activate remedial actions only after a specific const
     Given crac file is "epic16/crac_16_3_15.json"
     Given configuration file is "epic16/RaoParameters_maxMargin_ampere_2P.json"
     When I launch rao
+    Then the execution details should be "Second preventive improved first preventive results"
     Then 0 remedial actions are used in preventive
     Then 1 remedial actions are used after "co_fr1_fr2_1" at "curative"
     Then the remedial action "pst_fr" is used after "co_fr1_fr2_1" at "curative"

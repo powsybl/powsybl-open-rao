@@ -144,6 +144,7 @@ Feature: US 19.11: Handle maximum number of elementary actions per TSO
     Given crac file is "epic19/SL_ep19us11case9.json"
     Given configuration file is "epic19/RaoParameters_19_11_9.json"
     When I launch rao
+    Then the execution details should be "Second preventive improved first preventive results"
     Then 1 remedial actions are used in preventive
     # It doesn't really matter what's the preventive tap, as long as it's <= -6, in order for the tap -16
     # to be achievable in curative (the PST has a maximum variation of -10 taps from preventive to curative), allowing

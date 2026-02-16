@@ -162,6 +162,7 @@ Feature: US 12.15: Export different reason per perimeter in SWE CNE
     Given crac creation parameters file is "epic12/CimCracCreationParameters_MonitorLeftSide.json"
     Given configuration file is "epic12/raoParametersSweIDCC_minObjectiveWithGlobal2P.json"
     When I launch rao
+    Then the execution details should be "Second preventive fell back to initial situation"
     Then the calculation succeeds
     Then 0 remedial actions are used in preventive
     Then 0 remedial actions are used after "CO_N1012_N4012" at "curative"

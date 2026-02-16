@@ -11,6 +11,7 @@ Feature: US 15.11.5: Additional tests to check various fixes concerning automato
     Given crac file is "epic15/crac_15_11_5_1bis.json"
     Given configuration file is "epic15/RaoParameters_ep15us11-5-1.json"
     When I launch rao
+    Then the execution details should be "Second preventive improved first preventive results"
     Then the remedial action "open_de1_de2_open_nl2_be3 - prev" is used in preventive
     Then the remedial action "open_de2_nl3 - co1 - auto" is used after "co1_fr2_de3" at "auto"
     Then the tap of PstRangeAction "pst_be" should be -16 after "co1_fr2_de3" at "curative"

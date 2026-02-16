@@ -26,6 +26,7 @@ Feature: US 20.1: enable second optimization of the preventive perimeter
     Given crac file is "epic20/second_preventive_ls_1_2.json"
     Given configuration file is "epic20/RaoParameters_maxMargin_ampere_second_preventive.json"
     When I launch rao
+    Then the execution details should be "Second preventive improved first preventive results"
     Then 2 remedial actions are used in preventive
     Then 0 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     Then the remedial action "open_fr1_fr3" is used in preventive
@@ -39,6 +40,7 @@ Feature: US 20.1: enable second optimization of the preventive perimeter
     Given crac file is "epic20/second_preventive_ls_1_3.json"
     Given configuration file is "epic20/RaoParameters_maxMargin_ampere_second_preventive.json"
     When I launch rao
+    Then the execution details should be "Second preventive improved first preventive results"
     Then 2 remedial actions are used in preventive
     Then the remedial action "open_fr1_fr3" is used in preventive
     Then the tap of PstRangeAction "pst_fr" should be 5 in preventive
@@ -53,6 +55,7 @@ Feature: US 20.1: enable second optimization of the preventive perimeter
     Given crac file is "epic20/second_preventive_ls_1_4.json"
     Given configuration file is "epic20/RaoParameters_maxMargin_ampere_second_preventive.json"
     When I launch rao
+    Then the execution details should be "Second preventive improved first preventive results"
     Then 2 remedial actions are used in preventive
     Then the remedial action "open_fr1_fr3" is used in preventive
     Then 1 remedial actions are used after "co1_fr2_fr3_1" at "curative"
