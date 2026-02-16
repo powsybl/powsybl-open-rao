@@ -7,7 +7,7 @@ Feature: US 14.4: HVDC
 
   @fast @rao @dc @contingency-scenarios @hvdc @max-min-margin @megawatt
   Scenario: US 14.4.1 : Outage HVDC modelling 1 (CORE's Cobra)
-    Given network file is "epic14/TestCase12NodesHvdc.uct" for CORE CC
+    Given network file is "common/TestCase12NodesHvdc.uct" for CORE CC
     Given crac file is "epic14/cbcora_ep14us4case1.xml"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
     When I launch rao at "2019-01-08 12:00"
@@ -21,7 +21,7 @@ Feature: US 14.4: HVDC
 
   @fast @rao @dc @contingency-scenarios @hvdc @max-min-margin @megawatt
   Scenario: US 14.4.2 : Outage HVDC modelling 2 (CORE's Alegro)
-    Given network file is "epic14/TestCase12NodesHvdc.uct" for CORE CC
+    Given network file is "common/TestCase12NodesHvdc.uct" for CORE CC
     Given crac file is "epic14/cbcora_ep14us4case2.xml"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
     When I launch rao at "2019-01-08 12:00"

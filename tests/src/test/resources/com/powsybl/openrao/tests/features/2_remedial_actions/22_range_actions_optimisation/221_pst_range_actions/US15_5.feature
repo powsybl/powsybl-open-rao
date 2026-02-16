@@ -7,11 +7,11 @@ Feature: US 15.5: Handle parallel PSTs
 
   @fast @rao @ac @preventive-only @search-tree-rao @max-min-margin @ampere
   Scenario: US 15.5.1: Preventive search tree RAO with two aligned PSTs
-    Given network file is "epic15/TestCase16Nodes_alignedPsts.uct"
+    Given network file is "epic91/TestCase16Nodes_alignedPsts.uct"
     Given crac file is "epic15/CBCORA_15_5_1.xml"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
     When I launch rao at "2019-01-08 12:00" on preventive state
     Then 2 remedial actions are used in preventive
-    Then the tap of PstRangeAction "pst_be" should be 16 in preventive
-    Then the tap of PstRangeAction "pst_fr" should be 16 in preventive
-    Then the margin on cnec "fr4_de1_N - preventive" after PRA should be 1481 A
+    Then the tap of PstRangeAction "pst_be" should be 13 in preventive
+    Then the tap of PstRangeAction "pst_fr" should be 13 in preventive
+    Then the margin on cnec "fr4_de1_N - preventive" after PRA should be 2644 A

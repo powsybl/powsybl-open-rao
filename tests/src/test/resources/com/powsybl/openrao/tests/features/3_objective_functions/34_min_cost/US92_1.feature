@@ -27,7 +27,7 @@ Feature: US 92.1: Costly network actions optimization
   Line BE-FR-3 has a higher resistance than line BE-FR-2 which means that closing the latter will lead
   to a higher margin on the optimized CNEC. However, closing line BE-FR-3 is cheaper and still secures
   the CNEC so it will be chosen by the RAO.
-    Given network file is "epic92/2Nodes3ParallelLines.uct"
+    Given network file is "epic92/2Nodes3ParallelLines_disconnected.uct"
     Given crac file is "epic92/crac-92-1-2.json"
     Given configuration file is "epic92/RaoParameters_dc_minObjective.json"
     When I launch rao
@@ -42,7 +42,7 @@ Feature: US 92.1: Costly network actions optimization
   Scenario: US 92.1.2.bis: Duplicate of 92.1.2 in MAX_MIN_MARGIN mode
   The situation is the same as in US 92.1.2 but the RAO maximizes the minimum margin.
   As activation costs are not taken in account, both lines will be closed.
-    Given network file is "epic92/2Nodes3ParallelLines.uct"
+    Given network file is "epic92/2Nodes3ParallelLines_disconnected.uct"
     Given crac file is "epic92/crac-92-1-2.json"
     Given configuration file is "epic92/RaoParameters_margin_dc_minObjective.json"
     When I launch rao
