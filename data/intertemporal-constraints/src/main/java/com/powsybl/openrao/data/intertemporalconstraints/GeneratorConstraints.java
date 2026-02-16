@@ -15,6 +15,7 @@ import java.util.Optional;
  * Set of physical and operational constraints that apply on a generator.
  *
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
+ * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 public final class GeneratorConstraints {
     private final String generatorId;

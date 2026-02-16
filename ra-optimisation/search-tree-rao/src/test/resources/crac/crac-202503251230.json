@@ -107,7 +107,7 @@
         }
       ],
       "networkElementIdsAndKeys": {
-        "FFR1AA1 _generator": -1.0,
+        "FFR1AA1 _load": -1.0,
         "FFR3AA1 _generator": 1.0
       },
       "initialSetpoint": 5000.0,
