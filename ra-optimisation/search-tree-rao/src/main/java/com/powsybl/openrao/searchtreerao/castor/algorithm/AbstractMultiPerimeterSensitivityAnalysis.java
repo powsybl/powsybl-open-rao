@@ -71,6 +71,13 @@ public abstract class AbstractMultiPerimeterSensitivityAnalysis {
         this.multiThreadedSensitivities = multiThreadedSensitivities;
     }
 
+    /*
+    These two methods below will be called only for sensitivities for rao steps that run on a single thread.
+    For instance in Castor, the initial sensitivity and the sensitivity post PRA optimization.
+    When multiple sensitivities are being run at once (for different leaves in the search tree or for different contingencies),
+        we don't need to run the sensitivities multithreaded. This is why we reset the thread count after running the multithreaded
+        sensitivities.
+     */
     protected int setNewThreadCountAndGetOldValue() {
         // get or create the OpenSensitivityAnalysisParameters extension
         SensitivityAnalysisParameters sensitivityAnalysisParameters = LoadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters(raoParameters);
@@ -95,30 +102,6 @@ public abstract class AbstractMultiPerimeterSensitivityAnalysis {
         OpenSensitivityAnalysisParameters openSensitivityAnalysisParameters = sensitivityAnalysisParameters.getExtension(OpenSensitivityAnalysisParameters.class);
 
         openSensitivityAnalysisParameters.setThreadCount(oldThreadCount);
-    }
-
-    private RaoParameters createNewParametersWithOrWithoutMultiThreadedSensititivities(RaoParameters oldRaoParameters, boolean multiThreadedSensitivities) {
-        if (!multiThreadedSensitivities) {
-            return oldRaoParameters;
-        }
-
-        // create a copy of the parameters to avoid modifying the original values
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        JsonRaoParameters.write(oldRaoParameters, outputStream);
-        InputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
-        RaoParameters newRaoParameters = JsonRaoParameters.read(inputStream);
-
-        // get or create the OpenSensitivityAnalysisParameters extension
-        SensitivityAnalysisParameters sensitivityAnalysisParameters = LoadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters(newRaoParameters);
-        if (sensitivityAnalysisParameters.getExtension(OpenSensitivityAnalysisParameters.class) == null) {
-            sensitivityAnalysisParameters.addExtension(OpenSensitivityAnalysisParameters.class, new OpenSensitivityAnalysisParameters());
-        }
-        OpenSensitivityAnalysisParameters openSensitivityAnalysisParameters = sensitivityAnalysisParameters.getExtension(OpenSensitivityAnalysisParameters.class);
-
-        // set the right value for thread count
-        openSensitivityAnalysisParameters.setThreadCount(MultithreadingParameters.getAvailableCPUs(newRaoParameters));
-
-        return newRaoParameters;
     }
 
     protected SensitivityComputer buildSensitivityComputer(FlowResult initialFlowResult, AppliedRemedialActions appliedCurativeRemedialActions) {
