@@ -5,6 +5,9 @@
 Generators have physical and mechanical constraints that can be taken in account by the RAO to ensure a more realistic
 behavior.
 
+> To see the mathematical formulation of these constraints, please refer to the dedicated linear problem
+> [page](../../algorithms/castor/linear-problem/inter-temporal-constraints/generator-constraints-filler.md).
+
 ### Lead time
 
 The **lead time** corresponds to the time elapsed between the moment when the generator gets a start-up order and the
