@@ -394,6 +394,69 @@ class MarmotTest {
         assertFunctionalCostAndRedispatchingSetPoint(crac10, interTemporalRaoResult, 125010.0, 2500.0);
     }
 
+    @Test
+    void testWithTenTimestampsAndGeneratorConstraintsInjectionKeyGreaterThan1() throws IOException {
+        String networkPath = getResourcesPath().concat("/network/4Nodes_1_PST.xiidm");
+
+        Network network = Network.read("/network/4Nodes_1_PST.xiidm", MarmotTest.class.getResourceAsStream("/network/4Nodes_1_PST.xiidm"));
+        Crac crac1 = Crac.read("/crac/crac-202503251030.json", MarmotTest.class.getResourceAsStream("/crac/crac-202503251030.json"), network);
+        Crac crac2 = Crac.read("/crac/crac-202503251130.json", MarmotTest.class.getResourceAsStream("/crac/crac-202503251130.json"), network);
+        Crac crac3 = Crac.read("/crac/crac-202503251230.json", MarmotTest.class.getResourceAsStream("/crac/crac-202503251230.json"), network);
+        Crac crac4 = Crac.read("/crac/crac-202503251330.json", MarmotTest.class.getResourceAsStream("/crac/crac-202503251330.json"), network);
+        Crac crac5 = Crac.read("/crac/crac-202503251430.json", MarmotTest.class.getResourceAsStream("/crac/crac-202503251430.json"), network);
+        Crac crac6 = Crac.read("/crac/crac-202503251530.json", MarmotTest.class.getResourceAsStream("/crac/crac-202503251530.json"), network);
+        Crac crac7 = Crac.read("/crac/crac-202503251630.json", MarmotTest.class.getResourceAsStream("/crac/crac-202503251630.json"), network);
+        Crac crac8 = Crac.read("/crac/crac-202503251730.json", MarmotTest.class.getResourceAsStream("/crac/crac-202503251730.json"), network);
+        Crac crac9 = Crac.read("/crac/crac-202503251830.json", MarmotTest.class.getResourceAsStream("/crac/crac-202503251830.json"), network);
+        // injection keys are doubled for last timestamp
+        Crac crac10 = Crac.read("/crac/crac-202503251930-key-2.json", MarmotTest.class.getResourceAsStream("/crac/crac-202503251930-key-2.json"), network);
+
+        RaoParameters raoParameters = JsonRaoParameters.read(MarmotTest.class.getResourceAsStream("/parameters/RaoParameters_minCost_megawatt_dc_with_offset.json"));
+
+        OffsetDateTime timestamp1 = OffsetDateTime.of(2025, 3, 25, 10, 30, 0, 0, ZoneOffset.UTC);
+        OffsetDateTime timestamp2 = OffsetDateTime.of(2025, 3, 25, 11, 30, 0, 0, ZoneOffset.UTC);
+        OffsetDateTime timestamp3 = OffsetDateTime.of(2025, 3, 25, 12, 30, 0, 0, ZoneOffset.UTC);
+        OffsetDateTime timestamp4 = OffsetDateTime.of(2025, 3, 25, 13, 30, 0, 0, ZoneOffset.UTC);
+        OffsetDateTime timestamp5 = OffsetDateTime.of(2025, 3, 25, 14, 30, 0, 0, ZoneOffset.UTC);
+        OffsetDateTime timestamp6 = OffsetDateTime.of(2025, 3, 25, 15, 30, 0, 0, ZoneOffset.UTC);
+        OffsetDateTime timestamp7 = OffsetDateTime.of(2025, 3, 25, 16, 30, 0, 0, ZoneOffset.UTC);
+        OffsetDateTime timestamp8 = OffsetDateTime.of(2025, 3, 25, 17, 30, 0, 0, ZoneOffset.UTC);
+        OffsetDateTime timestamp9 = OffsetDateTime.of(2025, 3, 25, 18, 30, 0, 0, ZoneOffset.UTC);
+        OffsetDateTime timestamp10 = OffsetDateTime.of(2025, 3, 25, 19, 30, 0, 0, ZoneOffset.UTC);
+
+        Map<OffsetDateTime, RaoInputWithNetworkPaths> inputPerTimestamp = new HashMap<>();
+        inputPerTimestamp.put(timestamp1, RaoInputWithNetworkPaths.build(networkPath, networkPath, crac1).build());
+        inputPerTimestamp.put(timestamp2, RaoInputWithNetworkPaths.build(networkPath, networkPath, crac2).build());
+        inputPerTimestamp.put(timestamp3, RaoInputWithNetworkPaths.build(networkPath, networkPath, crac3).build());
+        inputPerTimestamp.put(timestamp4, RaoInputWithNetworkPaths.build(networkPath, networkPath, crac4).build());
+        inputPerTimestamp.put(timestamp5, RaoInputWithNetworkPaths.build(networkPath, networkPath, crac5).build());
+        inputPerTimestamp.put(timestamp6, RaoInputWithNetworkPaths.build(networkPath, networkPath, crac6).build());
+        inputPerTimestamp.put(timestamp7, RaoInputWithNetworkPaths.build(networkPath, networkPath, crac7).build());
+        inputPerTimestamp.put(timestamp8, RaoInputWithNetworkPaths.build(networkPath, networkPath, crac8).build());
+        inputPerTimestamp.put(timestamp9, RaoInputWithNetworkPaths.build(networkPath, networkPath, crac9).build());
+        inputPerTimestamp.put(timestamp10, RaoInputWithNetworkPaths.build(networkPath, networkPath, crac10).build());
+
+        IntertemporalConstraints intertemporalConstraints = new IntertemporalConstraints();
+        intertemporalConstraints.addGeneratorConstraints(GeneratorConstraints.create().withGeneratorId("FFR3AA1 _generator").withUpwardPowerGradient(500.0).withDownwardPowerGradient(-500.0).build());
+
+        InterTemporalRaoInputWithNetworkPaths input = new InterTemporalRaoInputWithNetworkPaths(new TemporalDataImpl<>(inputPerTimestamp), intertemporalConstraints);
+
+        InterTemporalRaoResultImpl interTemporalRaoResult = (InterTemporalRaoResultImpl) new Marmot().run(input, raoParameters).join();
+
+        assertEquals(625070.0, interTemporalRaoResult.getGlobalFunctionalCost(crac1.getPreventiveInstant()));
+
+        assertFunctionalCostAndRedispatchingSetPoint(crac1, interTemporalRaoResult, 0.0, 5000.0);
+        assertFunctionalCostAndRedispatchingSetPoint(crac2, interTemporalRaoResult, 0.0, 5000.0);
+        assertFunctionalCostAndRedispatchingSetPoint(crac3, interTemporalRaoResult, 0.0, 5000.0);
+        assertFunctionalCostAndRedispatchingSetPoint(crac4, interTemporalRaoResult, 25010.0, 4500.0);
+        assertFunctionalCostAndRedispatchingSetPoint(crac5, interTemporalRaoResult, 50010.0, 4000.0);
+        assertFunctionalCostAndRedispatchingSetPoint(crac6, interTemporalRaoResult, 75010.0, 3500.0);
+        assertFunctionalCostAndRedispatchingSetPoint(crac7, interTemporalRaoResult, 100010.0, 3000.0);
+        assertFunctionalCostAndRedispatchingSetPoint(crac8, interTemporalRaoResult, 125010.0, 2500.0);
+        assertFunctionalCostAndRedispatchingSetPoint(crac9, interTemporalRaoResult, 125010.0, 2500.0);
+        assertFunctionalCostAndRedispatchingSetPoint(crac10, interTemporalRaoResult, 125010.0, 1250.0);
+    }
+
     private static void assertFunctionalCostAndRedispatchingSetPoint(Crac crac, InterTemporalRaoResult interTemporalRaoResult, double expectedFunctionalCost, double expectedRdSetPoint) {
         assertEquals(expectedFunctionalCost, interTemporalRaoResult.getFunctionalCost(crac.getPreventiveInstant(), crac.getTimestamp().orElseThrow()));
         assertEquals(expectedRdSetPoint, interTemporalRaoResult.getOptimizedSetPointOnState(crac.getPreventiveState(), crac.getRangeAction("redispatchingAction")));
