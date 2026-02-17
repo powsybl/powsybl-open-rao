@@ -22,7 +22,8 @@ import static io.cucumber.core.options.Constants.*;
 @SelectPackages("com.powsybl.openrao.tests")
 @ConfigurationParameter(key = PLUGIN_PROPERTY_NAME, value = "pretty")
 @ConfigurationParameter(key = GLUE_PROPERTY_NAME, value = "com.powsybl.openrao.tests")
-@ConfigurationParameter(key = FILTER_TAGS_PROPERTY_NAME, value = "not @flaky and not @fast-rao") // For SearchTreeRao testing
+@ConfigurationParameter(key = FILTER_TAGS_PROPERTY_NAME, value = "@test-me") // TODO Remove when Cucumber tests have been added for german HVDC
+//@ConfigurationParameter(key = FILTER_TAGS_PROPERTY_NAME, value = "not @flaky and not @fast-rao") // For SearchTreeRao testing
 //@ConfigurationParameter(key = FILTER_TAGS_PROPERTY_NAME, value = "not @flaky and not @multi-curative and not @search-tree-rao") // For FastRao testing
 public class RunCucumberTest {
 }
