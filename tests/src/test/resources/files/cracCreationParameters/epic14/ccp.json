@@ -1,0 +1,37 @@
+{
+  "crac-factory" : "CracImplFactory",
+  "default-monitored-line-side" : "monitor-lines-on-both-sides",
+  "ra-usage-limits-per-instant" : [ ],
+  "extensions" : {
+    "FbConstraintCracCreatorParameters" : {
+      "timestamp" : "2026-01-27T17:00:00Z",
+      "ics-cost-up" : 10.0,
+      "ics-cost-down" : 10.0,
+      "internal-hvdcs" : [ {
+        "converters" : [ {
+          "node" : "D7AAA11A",
+          "station" : "Esgaroth"
+        }, {
+          "node" : "D4AAA11B",
+          "station" : "Numenor"
+        } ],
+        "lines" : [ {
+          "from" : "D7AAA11A",
+          "to" : "D4AAA11B"
+        } ]
+      }, {
+        "converters" : [ {
+          "node" : "D7AAA21A",
+          "station" : "Esgaroth"
+        }, {
+          "node" : "D4AAA21B",
+          "station" : "Numenor"
+        } ],
+        "lines" : [ {
+          "from" : "D7AAA21A",
+          "to" : "D4AAA21B"
+        } ]
+      } ]
+    }
+  }
+}
