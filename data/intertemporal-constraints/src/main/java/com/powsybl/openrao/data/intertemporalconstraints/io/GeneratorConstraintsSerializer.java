@@ -49,21 +49,6 @@ public class GeneratorConstraintsSerializer extends StdSerializer<GeneratorConst
             jsonGenerator.writeNumberField(JsonIntertemporalConstraints.DOWNWARD_POWER_GRADIENT, downwardPowerGradient.get());
         }
 
-        Optional<Double> minUpTime = generatorConstraints.getMinUpTime();
-        if (minUpTime.isPresent()) {
-            jsonGenerator.writeNumberField(JsonIntertemporalConstraints.MIN_UP_TIME, minUpTime.get());
-        }
-
-        Optional<Double> maxUpTime = generatorConstraints.getMaxUpTime();
-        if (maxUpTime.isPresent()) {
-            jsonGenerator.writeNumberField(JsonIntertemporalConstraints.MAX_UP_TIME, maxUpTime.get());
-        }
-
-        Optional<Double> minOffTime = generatorConstraints.getMinOffTime();
-        if (minOffTime.isPresent()) {
-            jsonGenerator.writeNumberField(JsonIntertemporalConstraints.MIN_OFF_TIME, minOffTime.get());
-        }
-
         jsonGenerator.writeEndObject();
     }
 }

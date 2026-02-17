@@ -30,9 +30,6 @@ class GeneratorConstraintsTest {
         assertEquals("generator", generatorConstraints.getGeneratorId());
         assertEquals(Optional.of(1.), generatorConstraints.getLeadTime());
         assertEquals(Optional.of(2.), generatorConstraints.getLagTime());
-        assertTrue(generatorConstraints.getMinUpTime().isEmpty());
-        assertTrue(generatorConstraints.getMaxUpTime().isEmpty());
-        assertTrue(generatorConstraints.getMinOffTime().isEmpty());
         assertTrue(generatorConstraints.getUpwardPowerGradient().isEmpty());
         assertTrue(generatorConstraints.getDownwardPowerGradient().isEmpty());
     }
@@ -43,18 +40,12 @@ class GeneratorConstraintsTest {
             .withGeneratorId("generator")
             .withLeadTime(1.)
             .withLagTime(2.)
-            .withMinUpTime(4.)
-            .withMaxUpTime(6.5)
-            .withMinOffTime(3.)
             .withUpwardPowerGradient(50.)
             .withDownwardPowerGradient(-100.)
             .build();
         assertEquals("generator", generatorConstraints.getGeneratorId());
         assertEquals(Optional.of(1.), generatorConstraints.getLeadTime());
         assertEquals(Optional.of(2.), generatorConstraints.getLagTime());
-        assertEquals(Optional.of(4.), generatorConstraints.getMinUpTime());
-        assertEquals(Optional.of(6.5), generatorConstraints.getMaxUpTime());
-        assertEquals(Optional.of(3.), generatorConstraints.getMinOffTime());
         assertEquals(Optional.of(50.), generatorConstraints.getUpwardPowerGradient());
         assertEquals(Optional.of(-100.), generatorConstraints.getDownwardPowerGradient());
     }
@@ -75,30 +66,6 @@ class GeneratorConstraintsTest {
     void testNegativeLagTime() {
         OpenRaoException exception = assertThrows(OpenRaoException.class, () -> GeneratorConstraints.create().withGeneratorId("generator").withLeadTime(1.).withLagTime(-1.).build());
         assertEquals("The lag time of the generator must be positive.", exception.getMessage());
-    }
-
-    @Test
-    void testNegativeMinUpTime() {
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> GeneratorConstraints.create().withGeneratorId("generator").withLeadTime(1.).withLagTime(1.).withMinUpTime(-1.).build());
-        assertEquals("The minUp time of the generator must be positive.", exception.getMessage());
-    }
-
-    @Test
-    void testNegativeMaxUpTime() {
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> GeneratorConstraints.create().withGeneratorId("generator").withLeadTime(1.).withLagTime(1.).withMaxUpTime(-1.).build());
-        assertEquals("The maxUp time of the generator must be positive.", exception.getMessage());
-    }
-
-    @Test
-    void testMaxUpTimeLowerThanMinUpTime() {
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> GeneratorConstraints.create().withGeneratorId("generator").withLeadTime(1.).withLagTime(1.).withMinUpTime(1.).withMaxUpTime(.5).build());
-        assertEquals("The maxUp time of the generator must be greater than its minUp time.", exception.getMessage());
-    }
-
-    @Test
-    void testNegativeMinOffTime() {
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> GeneratorConstraints.create().withGeneratorId("generator").withLeadTime(1.).withLagTime(1.).withMinOffTime(-1.).build());
-        assertEquals("The minOff time of the generator must be positive.", exception.getMessage());
     }
 
     @Test

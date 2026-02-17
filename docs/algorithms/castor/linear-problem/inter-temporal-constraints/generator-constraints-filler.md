@@ -8,9 +8,10 @@ are:
 - the **minimum operating power** (or $P_{\min}$), which is the lowest power value the generator can reach when turned
   on operated;
 - the **maximum operating power** (or $P_{\max}$), which is the highest power value the generator can reach at any time;
-- the **lead time**, which is the time required by the generator to reach its $P_{\min}$ after it was ordered to start
-  up;
-- the **lag time**, which is the time required by the generator to reach complete shutdown from its $P_{\min}$.
+- the [**lead time**](../../../../input-data/specific-input-data/intertemporal-constraints.md#lead-time), which is the 
+  time required by the generator to reach its $P_{\min}$ after it was ordered to start up;
+- the [**lag time**](../../../../input-data/specific-input-data/intertemporal-constraints.md#lag-time), which is the
+  time required by the generator to reach complete shutdown from its $P_{\min}$.
 
 The generator then operates in two distinct states depending on its current power, based on the aforementioned
 characteristics:

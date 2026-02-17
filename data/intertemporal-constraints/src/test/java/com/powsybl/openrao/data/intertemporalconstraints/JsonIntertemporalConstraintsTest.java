@@ -39,9 +39,6 @@ class JsonIntertemporalConstraintsTest {
             .withLagTime(2.0)
             .withUpwardPowerGradient(100.0)
             .withDownwardPowerGradient(-50.0)
-            .withMinUpTime(5.0)
-            .withMaxUpTime(15.0)
-            .withMinOffTime(10.0)
             .build();
         GeneratorConstraints generatorConstraints2 = GeneratorConstraints.create()
             .withGeneratorId("generator-2")
@@ -92,9 +89,6 @@ class JsonIntertemporalConstraintsTest {
         assertEquals(Optional.of(2.0), generatorConstraints1.getLagTime());
         assertEquals(Optional.of(100.0), generatorConstraints1.getUpwardPowerGradient());
         assertEquals(Optional.of(-50.0), generatorConstraints1.getDownwardPowerGradient());
-        assertEquals(Optional.of(5.0), generatorConstraints1.getMinUpTime());
-        assertEquals(Optional.of(15.0), generatorConstraints1.getMaxUpTime());
-        assertEquals(Optional.of(10.0), generatorConstraints1.getMinOffTime());
 
         GeneratorConstraints generatorConstraints2 = generatorConstraints.get(1);
         assertEquals("generator-2", generatorConstraints2.getGeneratorId());
@@ -102,9 +96,6 @@ class JsonIntertemporalConstraintsTest {
         assertTrue(generatorConstraints2.getLagTime().isEmpty());
         assertTrue(generatorConstraints2.getUpwardPowerGradient().isEmpty());
         assertTrue(generatorConstraints2.getDownwardPowerGradient().isEmpty());
-        assertTrue(generatorConstraints2.getMinUpTime().isEmpty());
-        assertTrue(generatorConstraints2.getMaxUpTime().isEmpty());
-        assertTrue(generatorConstraints2.getMinOffTime().isEmpty());
 
         GeneratorConstraints generatorConstraints3 = generatorConstraints.get(2);
         assertEquals("generator-3", generatorConstraints3.getGeneratorId());
@@ -112,9 +103,6 @@ class JsonIntertemporalConstraintsTest {
         assertEquals(Optional.of(4.0), generatorConstraints3.getLagTime());
         assertTrue(generatorConstraints3.getUpwardPowerGradient().isEmpty());
         assertEquals(Optional.of(-1000.0), generatorConstraints3.getDownwardPowerGradient());
-        assertTrue(generatorConstraints3.getMinUpTime().isEmpty());
-        assertTrue(generatorConstraints3.getMaxUpTime().isEmpty());
-        assertTrue(generatorConstraints3.getMinOffTime().isEmpty());
     }
 
     @Test
