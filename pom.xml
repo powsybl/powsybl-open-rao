@@ -288,6 +288,11 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
+                <artifactId>open-rao-crac-io-network</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>open-rao-crac-loopflow-extension</artifactId>
                 <version>${project.version}</version>
             </dependency>
