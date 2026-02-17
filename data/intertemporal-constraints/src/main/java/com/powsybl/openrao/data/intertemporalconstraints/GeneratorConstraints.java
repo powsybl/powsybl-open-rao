@@ -21,19 +21,13 @@ public final class GeneratorConstraints {
     private final String generatorId;
     private final Double leadTime;
     private final Double lagTime;
-    private final Double minUpTime;
-    private final Double maxUpTime;
-    private final Double minOffTime;
     private final Double upwardPowerGradient;
     private final Double downwardPowerGradient;
 
-    private GeneratorConstraints(String generatorId, Double leadTime, Double lagTime, Double minUpTime, Double maxUpTime, Double minOffTime, Double upwardPowerGradient, Double downwardPowerGradient) {
+    private GeneratorConstraints(String generatorId, Double leadTime, Double lagTime, Double upwardPowerGradient, Double downwardPowerGradient) {
         this.generatorId = generatorId;
         this.leadTime = leadTime;
         this.lagTime = lagTime;
-        this.minUpTime = minUpTime;
-        this.maxUpTime = maxUpTime;
-        this.minOffTime = minOffTime;
         this.upwardPowerGradient = upwardPowerGradient;
         this.downwardPowerGradient = downwardPowerGradient;
     }
@@ -66,33 +60,6 @@ public final class GeneratorConstraints {
     }
 
     /**
-     * Get the minUp time the generator, i.e. the minimum time during which the generator must be operated with a power greater than pMin, in hours.
-     *
-     * @return minUp time of the generator
-     */
-    public Optional<Double> getMinUpTime() {
-        return Optional.ofNullable(minUpTime);
-    }
-
-    /**
-     * Get the maxUp time the generator, i.e. the maximum time during which the generator can be operated with a power greater than pMin, in hours.
-     *
-     * @return maxUp time of the generator
-     */
-    public Optional<Double> getMaxUpTime() {
-        return Optional.ofNullable(maxUpTime);
-    }
-
-    /**
-     * Get the minOff time the generator, i.e. the minimum time during which the generator must be kept shutdown, in hours.
-     *
-     * @return minOff time of the generator
-     */
-    public Optional<Double> getMinOffTime() {
-        return Optional.ofNullable(minOffTime);
-    }
-
-    /**
      * Get the upward power gradient of the generator in MW/hours.
      * It only applies when the generator is on, i.e. when its power is greater than pMin.
      * Its value is always positive.
@@ -122,9 +89,6 @@ public final class GeneratorConstraints {
         private String generatorId;
         private Double leadTime;
         private Double lagTime;
-        private Double minUpTime;
-        private Double maxUpTime;
-        private Double minOffTime;
         private Double upwardPowerGradient;
         private Double downwardPowerGradient;
 
@@ -143,21 +107,6 @@ public final class GeneratorConstraints {
 
         public GeneratorConstraintsBuilder withLagTime(Double lagTime) {
             this.lagTime = lagTime;
-            return this;
-        }
-
-        public GeneratorConstraintsBuilder withMinUpTime(Double minUpTime) {
-            this.minUpTime = minUpTime;
-            return this;
-        }
-
-        public GeneratorConstraintsBuilder withMaxUpTime(Double maxUpTime) {
-            this.maxUpTime = maxUpTime;
-            return this;
-        }
-
-        public GeneratorConstraintsBuilder withMinOffTime(Double minOffTime) {
-            this.minOffTime = minOffTime;
             return this;
         }
 
@@ -181,27 +130,13 @@ public final class GeneratorConstraints {
             if (lagTime != null && lagTime < 0) {
                 throw new OpenRaoException("The lag time of the generator must be positive.");
             }
-            if (minUpTime != null && minUpTime < 0) {
-                throw new OpenRaoException("The minUp time of the generator must be positive.");
-            }
-            if (maxUpTime != null) {
-                if (minUpTime != null && maxUpTime < minUpTime) {
-                    throw new OpenRaoException("The maxUp time of the generator must be greater than its minUp time.");
-                }
-                if (maxUpTime < 0) {
-                    throw new OpenRaoException("The maxUp time of the generator must be positive.");
-                }
-            }
-            if (minOffTime != null && minOffTime < 0) {
-                throw new OpenRaoException("The minOff time of the generator must be positive.");
-            }
             if (upwardPowerGradient != null && upwardPowerGradient < 0) {
                 throw new OpenRaoException("The upward power gradient of the generator must be positive.");
             }
             if (downwardPowerGradient != null && downwardPowerGradient > 0) {
                 throw new OpenRaoException("The downward power gradient of the generator must be negative.");
             }
-            return new GeneratorConstraints(generatorId, leadTime, lagTime, minUpTime, maxUpTime, minOffTime, upwardPowerGradient, downwardPowerGradient);
+            return new GeneratorConstraints(generatorId, leadTime, lagTime, upwardPowerGradient, downwardPowerGradient);
         }
     }
 }

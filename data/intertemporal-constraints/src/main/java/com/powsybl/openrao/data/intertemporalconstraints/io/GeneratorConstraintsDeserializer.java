@@ -50,18 +50,6 @@ public class GeneratorConstraintsDeserializer extends StdDeserializer<GeneratorC
                     jsonParser.nextToken();
                     builder.withDownwardPowerGradient(jsonParser.getValueAsDouble());
                 }
-                case JsonIntertemporalConstraints.MIN_UP_TIME -> {
-                    jsonParser.nextToken();
-                    builder.withMinUpTime(jsonParser.getValueAsDouble());
-                }
-                case JsonIntertemporalConstraints.MAX_UP_TIME -> {
-                    jsonParser.nextToken();
-                    builder.withMaxUpTime(jsonParser.getValueAsDouble());
-                }
-                case JsonIntertemporalConstraints.MIN_OFF_TIME -> {
-                    jsonParser.nextToken();
-                    builder.withMinOffTime(jsonParser.getValueAsDouble());
-                }
                 default ->
                     throw new OpenRaoException("Unexpected field '%s' in JSON generator constraints.".formatted(jsonParser.currentName()));
             }
