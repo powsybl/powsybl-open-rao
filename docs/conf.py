@@ -40,7 +40,8 @@ extensions = ['sphinx.ext.autodoc',
               'sphinx.ext.intersphinx',
               'sphinx_tabs.tabs',
               'myst_parser',
-              'sphinxcontrib.plantuml']
+              'sphinxcontrib.plantuml',
+              'sphinx_copybutton']
 myst_enable_extensions = [
     "amsmath",
     "colon_fence",
@@ -99,3 +100,11 @@ intersphinx_disabled_reftypes = ["*"]
 
 # Generate one file per method
 autosummary_generate = True
+
+# Copy-button configuration
+copybutton_remove_prompts = True
+copybutton_prompt_text = r">>> |\.\.\. |\$ "
+copybutton_prompt_is_regexp = True
+
+copybutton_copy_text = "Copy"
+copybutton_success_text = "Copied!"
