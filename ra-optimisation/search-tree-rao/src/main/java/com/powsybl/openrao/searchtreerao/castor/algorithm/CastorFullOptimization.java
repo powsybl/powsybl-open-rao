@@ -91,7 +91,7 @@ public class CastorFullOptimization {
             RaoUtil.initData(raoInput, raoParameters);
             ToolProvider toolProvider = ToolProvider.buildFromRaoInputAndParameters(raoInput, raoParameters);
             if (crac.getFlowCnecs().isEmpty()) {
-                PrePerimeterResult initialResult = new PrePerimeterSensitivityAnalysis(crac, crac.getFlowCnecs(), crac.getRangeActions(), raoParameters, toolProvider).runInitialSensitivityAnalysis(network);
+                PrePerimeterResult initialResult = new PrePerimeterSensitivityAnalysis(crac, crac.getFlowCnecs(), crac.getRangeActions(), raoParameters, toolProvider, true).runInitialSensitivityAnalysis(network);
                 return CompletableFuture.completedFuture(new UnoptimizedRaoResultImpl(initialResult));
             }
             StateTree stateTree = new StateTree(crac);
@@ -105,7 +105,8 @@ public class CastorFullOptimization {
                 crac.getFlowCnecs(),
                 crac.getRangeActions(),
                 raoParameters,
-                toolProvider);
+                toolProvider,
+                true);
 
             PrePerimeterResult initialOutput;
             initialOutput = prePerimeterSensitivityAnalysis.runInitialSensitivityAnalysis(network);
@@ -277,7 +278,7 @@ public class CastorFullOptimization {
 
     private PostPerimeterResult computePostPreventiveResult(ToolProvider toolProvider, PrePerimeterResult initialOutput, OptimizationResult preventiveResult) {
         PostPerimeterResult postPreventiveResult;
-        postPreventiveResult = new PostPerimeterSensitivityAnalysis(crac, crac.getFlowCnecs(), crac.getRangeActions(), raoParameters, toolProvider)
+        postPreventiveResult = new PostPerimeterSensitivityAnalysis(crac, crac.getFlowCnecs(), crac.getRangeActions(), raoParameters, toolProvider, true)
             .runBasedOnInitialPreviousAndOptimizationResults(network, initialOutput, initialOutput, Collections.emptySet(), preventiveResult, null);
         return postPreventiveResult;
     }
