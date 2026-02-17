@@ -51,11 +51,11 @@ public final class IcsImporter {
     // INFOS
     // Gradient constraints are defined for gsks at the action level and not per group : we translate it to the groups using the shift keys
 
-    public final static String MAXIMUM_POSITIVE_POWER_GRADIENT = "Maximum positive power gradient [MW/h]";
-    public final static String MAXIMUM_NEGATIVE_POWER_GRADIENT = "Maximum negative power gradient [MW/h]";
-    public final static String LEAD_TIME = "Lead time [h]";
-    public final static String LAG_TIME = "Lag time [h]";
-    public final static String P_MIN_RD = "Pmin_RD";
+    public static final String MAXIMUM_POSITIVE_POWER_GRADIENT = "Maximum positive power gradient [MW/h]";
+    public static final String MAXIMUM_NEGATIVE_POWER_GRADIENT = "Maximum negative power gradient [MW/h]";
+    public static final String LEAD_TIME = "Lead time [h]";
+    public static final String LAG_TIME = "Lag time [h]";
+    public static final String P_MIN_RD = "Pmin_RD";
     public static final String RA_RD_ID = "RA RD ID";
     public static final String RDP_UP = "RDP+";
     public static final String RDP_DOWN = "RDP-";
