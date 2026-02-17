@@ -15,13 +15,12 @@ moment its power reaches it minimal operational power ($P_{\min}$).
 
 ### Lag time
 
-The **lag time** corresponds to the time elapsed between the moment when the generator gets a shut-down order and the
-moment it is completely off.
+The **lag time** corresponds to the time required by the generator to reach complete shutdown from its $P_{\min}$
 
 ### Power gradients
 
 When operated above its $P_{\min}$, a generator can be restricted by **power gradients** that limit the amount of MW its
-power can vary per hour. These gradients can be defined upward and/or downward.
+power can vary between two consecutive timestamps. These gradients can be defined upward and/or downward.
 
 ## JSON API
 
