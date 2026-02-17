@@ -482,6 +482,7 @@ class CastorFullOptimizationTest {
         LoadFlowAndSensitivityParameters loadFlowAndSensitivityParameters = Mockito.spy(new LoadFlowAndSensitivityParameters());
         when(searchTreeParameters.getLoadFlowAndSensitivityParameters()).thenReturn(loadFlowAndSensitivityParameters);
         when(loadFlowAndSensitivityParameters.getSensitivityProvider()).thenThrow(new OpenRaoException("Testing exception handling"));
+
         RaoResult raoResult = new CastorFullOptimization(raoInput, raoParameters, null).run().join();
         assertInstanceOf(FailedRaoResultImpl.class, raoResult);
         assertEquals("RAO failed during initial sensitivity analysis : Testing exception handling", raoResult.getExecutionDetails());
@@ -501,6 +502,7 @@ class CastorFullOptimizationTest {
     void catchDuringContingencyScenarios() throws IOException {
         setup("small-network-2P.uct", "small-crac-2P.json");
         RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_2P_v2.json"));
+
         SearchTreeRaoTopoOptimizationParameters topoOptimizationParameters = Mockito.spy(raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getTopoOptimizationParameters());
         when(topoOptimizationParameters.getMaxCurativeSearchTreeDepth()).thenThrow(new OpenRaoException("Testing exception handling"));
         raoParameters.getExtension(OpenRaoSearchTreeParameters.class).setTopoOptimizationParameters(topoOptimizationParameters);
