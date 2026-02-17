@@ -460,7 +460,7 @@ RaoInputWithNetworkPaths input0130 = RaoInputWithNetworkPaths.build("2-nodes.xii
 inputPerTimestamp.put(OffsetDateTime.of(2026, 2, 16, 1, 30, 0, 0, ZoneOffset.UTC), input0130);
 ```
 
-> **Note:** currently, the intertemporal RAO provider API requires to pass network as paths to avoid memory issues on
+> **Note:** currently, the intertemporal RAO provider API requires to pass networks as paths to avoid memory issues on
 > large cases with too many timestamps, leading to this cumbersome writing. This will be fixed soon.
 
 We can then use this `TemporalData` to create proper intertemporal RAO inputs. We will create two versions: one with
