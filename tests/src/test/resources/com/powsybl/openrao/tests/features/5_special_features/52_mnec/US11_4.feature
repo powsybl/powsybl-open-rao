@@ -3,10 +3,11 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-Feature: US 11.4: Handle mnecs in search tree with range actions and network actions
+Feature: US 11.4: Handle MNECs in search tree with range actions and network actions
+  # TODO: This feature tests
 
   @fast @rao @ac @preventive-only @max-min-margin @megawatt
-  Scenario: US 11.4.1: reference run, no mnec
+  Scenario: US 11.4.1: reference run, no MNEC
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic11/ls_mixed_ref.json"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_ac.json"
@@ -57,7 +58,7 @@ Feature: US 11.4: Handle mnecs in search tree with range actions and network act
     Then the flow on cnec "DDE1AA1  DDE2AA1  1 - Contingency FR1 FR3 - curative" after PRA should be -370.0 MW on side 1
 
   @fast @rao @ac @preventive-only @max-min-margin @megawatt
-  Scenario: US 11.4.4.a: reference run on CBCORA, no mnec
+  Scenario: US 11.4.4.a: reference run on CBCORA, no MNEC
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic11/MergedCB_ref.xml"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_ac.json"

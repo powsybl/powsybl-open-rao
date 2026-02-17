@@ -4,6 +4,8 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: US 3.2: Handle CNEC monitored in only one direction in the optimization
+  This feature tests the behaviour of the algorithm when only either the "min" or the "max" threshold is defined
+  on the CNEC (but not both) in the json CRAC.
 
   @fast @rao @ac @preventive-only @max-min-margin @ampere
   Scenario: US 3.2.1: topological RA, direct CNEC unsecure initially

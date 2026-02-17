@@ -4,6 +4,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: US 4.2: Computation in MAX_MIN_MARGIN: optimization in A/MW, thresholds in A/MW, computation in AC/DC
+  This feature tests the parameter load-flow-parameters/dc.
 
   @fast @rao @dc @preventive-only @max-min-margin @megawatt
   Scenario: US 4.2.1.1: MW thresholds in DC mode and min margin in MW

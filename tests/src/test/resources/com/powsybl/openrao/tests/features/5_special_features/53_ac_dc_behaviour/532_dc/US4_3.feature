@@ -4,6 +4,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: US 4.3: Computation with SECURE_FLOW objective function: manage AC/DC modes from configuration
+  This feature tests the parameter load-flow-parameters/dc.
 
   @fast @rao @ac @preventive-only @secure-flow @ampere
   Scenario: US 4.3.1.1: secure with AC config

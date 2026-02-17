@@ -13,8 +13,8 @@ Feature: US 90.3: Inversion of PSTs in remedial actions
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
-    Then the margin on cnec "BBE2AA1  BBE3AA1  1 - preventive" after PRA should be 26.0 A
     Then the worst margin is 26.0 A
+    Then the margin on cnec "BBE2AA1  BBE3AA1  1 - preventive" after PRA should be 26.0 A
     Then the tap of PstRangeAction "PRA_PST_BE" should be 3 in preventive
 
   @fast @rao @ac @preventive-only @max-min-margin @ampere

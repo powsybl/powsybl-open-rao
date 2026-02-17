@@ -4,6 +4,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: US 94.1: Angle Monitoring
+  This feature tests angle monitoring, which is parametrised in the CRAC file.
 
   @fast @ac @rao @angle-monitoring @max-min-margin @ampere
   Scenario: US 94.1.1: Basic Angle Monitoring

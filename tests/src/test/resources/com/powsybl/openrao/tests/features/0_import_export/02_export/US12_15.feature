@@ -17,10 +17,10 @@ Feature: US 12.15: Export different reason per perimeter in SWE CNE
     Given configuration file is "epic12/raoParametersSweIDCC_minObjectiveDisabled2P.json"
     When I launch rao
     Then the calculation partially fails
+    Then the worst margin is 6.2 A on cnec "N1011_N1013 - preventive"
     Then 1 remedial actions are used in preventive
     Then the remedial action "PRA_OPEN_N1013_N1014" is used in preventive
     Then 0 remedial actions are used after "CO_N4011_N4021" at "curative"
-    Then the worst margin is 6.2 A on cnec "N1011_N1013 - preventive"
     Then the value of the objective function initially should be 10075.6
     Then the value of the objective function after PRA should be 9993.8
     Then the value of the objective function after CRA should be 9993.8
@@ -34,10 +34,10 @@ Feature: US 12.15: Export different reason per perimeter in SWE CNE
     Given configuration file is "epic12/raoParametersSweIDCC_minObjective.json"
     When I launch rao
     Then the calculation partially fails
+    Then the worst margin is 6.2 A on cnec "N1011_N1013 - preventive"
     Then 1 remedial actions are used in preventive
     Then the remedial action "PRA_OPEN_N1013_N1014" is used in preventive
     Then 0 remedial actions are used after "CO_N4011_N4021" at "curative"
-    Then the worst margin is 6.2 A on cnec "N1011_N1013 - preventive"
     Then the value of the objective function initially should be 10075.6
     Then the value of the objective function after PRA should be 9993.8
     Then the value of the objective function after CRA should be 9993.8
@@ -50,11 +50,11 @@ Feature: US 12.15: Export different reason per perimeter in SWE CNE
     Given crac creation parameters file is "epic12/CimCracCreationParameters_MonitorLeftSide.json"
     Given configuration file is "epic12/raoParametersSweIDCC_minObjectiveWithGlobal2P.json"
     When I launch rao
+    Then the worst margin is 6.2 A on cnec "N1011_N1013 - preventive"
     Then the calculation partially fails
     Then 1 remedial actions are used in preventive
     Then the remedial action "PRA_OPEN_N1013_N1014" is used in preventive
     Then 0 remedial actions are used after "CO_N4011_N4021" at "curative"
-    Then the worst margin is 6.2 A on cnec "N1011_N1013 - preventive"
     Then the value of the objective function initially should be 10075.6
     Then the value of the objective function after PRA should be 9993.8
     Then the value of the objective function after CRA should be 9993.8
@@ -83,8 +83,10 @@ Feature: US 12.15: Export different reason per perimeter in SWE CNE
     Given configuration file is "epic12/raoParametersSweIDCC_minObjectiveDisabled2P.json"
     When I launch rao
     Then the execution details should be "First preventive fell back to initial situation"
-    Then 0 remedial actions are used in preventive
+    Then its security status should be "UNSECURED"
     Then the worst margin is -1419.4 A
+    Then the margin on cnec "N1013_N1014 - CO_N1012_N4012 - auto" after ARA should be -1419.4 A
+    Then 0 remedial actions are used in preventive
 
   @fast @rao @ac @contingency-scenarios @second-preventive @max-min-margin @ampere
   # sensi pre 2P partially fails
@@ -95,8 +97,10 @@ Feature: US 12.15: Export different reason per perimeter in SWE CNE
     Given configuration file is "epic12/raoParametersSweIDCC_minObjective.json"
     When I launch rao
     Then the execution details should be "Second preventive fell back to initial situation"
-    Then 0 remedial actions are used in preventive
+    Then its security status should be "UNSECURED"
     Then the worst margin is -1419.4 A
+    Then the margin on cnec "N1013_N1014 - CO_N1012_N4012 - auto" after ARA should be -1419.4 A
+    Then 0 remedial actions are used in preventive
 
   @fast @rao @ac @contingency-scenarios @second-preventive @max-min-margin @ampere
   # sensi pre 2P partially fails
@@ -107,8 +111,10 @@ Feature: US 12.15: Export different reason per perimeter in SWE CNE
     Given configuration file is "epic12/raoParametersSweIDCC_minObjectiveWithGlobal2P.json"
     When I launch rao
     Then the execution details should be "Second preventive fell back to initial situation"
-    Then 0 remedial actions are used in preventive
+    Then its security status should be "UNSECURED"
     Then the worst margin is -1419.4 A
+    Then the margin on cnec "N1013_N1014 - CO_N1012_N4012 - auto" after ARA should be -1419.4 A
+    Then 0 remedial actions are used in preventive
 
   @fast @cne-export
   # CNE export
@@ -134,8 +140,9 @@ Feature: US 12.15: Export different reason per perimeter in SWE CNE
     Given configuration file is "epic12/raoParametersSweIDCC_minObjectiveDisabled2P.json"
     When I launch rao
     Then the execution details should be "First preventive fell back to initial situation"
-    Then 0 remedial actions are used in preventive
+    Then its security status should be "UNSECURED"
     Then the worst margin is -1419.4 A on cnec "N1013_N1014 - CO_N1012_N4012 - curative"
+    Then 0 remedial actions are used in preventive
 
   @fast @rao @ac @contingency-scenarios @second-preventive @max-min-margin @ampere
   # 2P does not apply the same PRA as previously since it leads to a sensi divergence on a curative perimeter : no PRA is applied
@@ -147,10 +154,12 @@ Feature: US 12.15: Export different reason per perimeter in SWE CNE
     Given crac creation parameters file is "epic12/CimCracCreationParameters_MonitorLeftSide.json"
     Given configuration file is "epic12/raoParametersSweIDCC_minObjective.json"
     When I launch rao
+    Then the execution details should be "Second preventive fell back to initial situation"
     Then the calculation succeeds
+    Then its security status should be "UNSECURED"
+    Then the worst margin is -1419.4 A on cnec "N1013_N1014 - CO_N1012_N4012 - curative"
     Then 0 remedial actions are used in preventive
     Then 0 remedial actions are used after "CO_N1012_N4012" at "curative"
-    Then the worst margin is -1419.4 A on cnec "N1013_N1014 - CO_N1012_N4012 - curative"
     Then the value of the objective function initially should be 1419.4
     Then the value of the objective function after PRA should be 1419.4
     Then the value of the objective function after CRA should be 1419.4
@@ -165,9 +174,9 @@ Feature: US 12.15: Export different reason per perimeter in SWE CNE
     Then the execution details should be "Second preventive fell back to initial situation"
     Then its security status should be "UNSECURED"
     Then the calculation succeeds
+    Then the worst margin is -1419.4 A on cnec "N1013_N1014 - CO_N1012_N4012 - curative"
     Then 0 remedial actions are used in preventive
     Then 0 remedial actions are used after "CO_N1012_N4012" at "curative"
-    Then the worst margin is -1419.4 A on cnec "N1013_N1014 - CO_N1012_N4012 - curative"
     Then the value of the objective function initially should be 1419.4
     Then the value of the objective function after PRA should be 1419.4
     Then the value of the objective function after CRA should be 1419.4
@@ -206,10 +215,12 @@ Feature: US 12.15: Export different reason per perimeter in SWE CNE
     Given crac creation parameters file is "epic12/CimCracCreationParameters_MonitorLeftSide.json"
     Given configuration file is "epic12/raoParametersSweIDCC_minObjectiveDisabled2P.json"
     When I launch rao
+    Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "UNSECURED"
     Then the calculation succeeds
+    Then the worst margin is -1419.4 A on cnec "N1013_N1014 - CO_N1012_N4012 - curative"
     Then 0 remedial actions are used in preventive
     Then 0 remedial actions are used after "CO_N1012_N4012" at "curative"
-    Then the worst margin is -1419.4 A on cnec "N1013_N1014 - CO_N1012_N4012 - curative"
     Then the value of the objective function initially should be 1419.4
     Then the value of the objective function after PRA should be 1419.4
     Then the value of the objective function after CRA should be 1419.4
@@ -222,10 +233,12 @@ Feature: US 12.15: Export different reason per perimeter in SWE CNE
     Given crac creation parameters file is "epic12/CimCracCreationParameters_MonitorLeftSide.json"
     Given configuration file is "epic12/raoParametersSweIDCC_minObjective.json"
     When I launch rao
+    Then the execution details should be "Second preventive improved first preventive results"
+    Then its security status should be "UNSECURED"
     Then the calculation succeeds
+    Then the worst margin is -1419.4 A on cnec "N1013_N1014 - CO_N1012_N4012 - curative"
     Then 0 remedial actions are used in preventive
     Then 0 remedial actions are used after "CO_N1012_N4012" at "curative"
-    Then the worst margin is -1419.4 A on cnec "N1013_N1014 - CO_N1012_N4012 - curative"
     Then the value of the objective function initially should be 1419.4
     Then the value of the objective function after PRA should be 1419.4
     Then the value of the objective function after CRA should be 1419.4
@@ -238,10 +251,12 @@ Feature: US 12.15: Export different reason per perimeter in SWE CNE
     Given crac creation parameters file is "epic12/CimCracCreationParameters_MonitorLeftSide.json"
     Given configuration file is "epic12/raoParametersSweIDCC_minObjectiveWithGlobal2P.json"
     When I launch rao
+    Then the execution details should be "Second preventive improved first preventive results"
+    Then its security status should be "UNSECURED"
     Then the calculation succeeds
+    Then the worst margin is -1419.4 A on cnec "N1013_N1014 - CO_N1012_N4012 - curative"
     Then 0 remedial actions are used in preventive
     Then 0 remedial actions are used after "CO_N1012_N4012" at "curative"
-    Then the worst margin is -1419.4 A on cnec "N1013_N1014 - CO_N1012_N4012 - curative"
     Then the value of the objective function initially should be 1419.4
     Then the value of the objective function after PRA should be 1419.4
     Then the value of the objective function after CRA should be 1419.4

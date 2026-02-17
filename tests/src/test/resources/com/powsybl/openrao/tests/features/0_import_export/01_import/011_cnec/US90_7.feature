@@ -3,7 +3,8 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-Feature: US 90.7: Handle Xnodes
+Feature: US 90.7: Handle X-nodes
+  This feature tests CRAC import and RAO computation on a network containing an X-node.
 
   @fast @crac
   Scenario: US 90.7.1: Handle CRAC import with half-line IDs

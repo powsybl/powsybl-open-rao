@@ -4,6 +4,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: US 14.4: HVDC
+  This feature tests the behaviour of a computation with specific HVDC equivalent models.
 
   @fast @rao @dc @contingency-scenarios @hvdc @max-min-margin @megawatt
   Scenario: US 14.4.1 : Outage HVDC modelling 1 (CORE's Cobra)

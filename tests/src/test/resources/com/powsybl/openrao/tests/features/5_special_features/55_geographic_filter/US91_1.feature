@@ -4,8 +4,8 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: US 91.1: Geographic filter
-  When the RAO parameter skip-actions-far-from-most-limiting-element is true, the value of
-  max-number-of-boundaries-for-skipping-actions allows to filter remedial actions that are too far from the
+  This feature tests the RAO parameter "skip-actions-far-from-most-limiting-element". If it is true, the value of
+  "max-number-of-boundaries-for-skipping-actions" allows to filter remedial actions that are too far from the
   limiting element.
 
   @fast @rao @ac @preventive-only @secure-flow @ampere

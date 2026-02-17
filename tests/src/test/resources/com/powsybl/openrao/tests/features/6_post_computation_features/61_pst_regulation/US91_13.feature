@@ -4,6 +4,8 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: US 91.13: PST Regulation
+  This feature tests the behaviour of PST regulation in different configurations. The feature is activated through
+  the parameter "pst-regulation-parameters"/"psts-to-regulate".
 
   @ac @fast @rao @max-min-margin @ampere
   Scenario: US 91.13.1.a: Unsecure case with a globally optimized tap position - PST is the limiting element
@@ -102,7 +104,6 @@ Feature: US 91.13: PST Regulation
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "UNSECURED"
-    Then the worst margin is -758.18 A
     # Preventive taps
     Then the tap of PstRangeAction "pstFr12" should be 0 in preventive
     Then the tap of PstRangeAction "pstFr23" should be -6 in preventive
@@ -132,6 +133,7 @@ Feature: US 91.13: PST Regulation
     # Overall
     Then the value of the objective function after CRA should be 758.18
     Then the worst margin is -758.18 A
+    Then the margin on cnec "cnecFr23Preventive" after ARA should be -758.18 A
 
   @ac @fast @rao @pst-regulation @max-min-margin @ampere
   Scenario: US 91.13.3.b: Duplicate of US 91.13.3.a with PST regulation
@@ -143,7 +145,6 @@ Feature: US 91.13: PST Regulation
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "UNSECURED"
-    Then the worst margin is -758.18 A
     # Preventive taps
     Then the tap of PstRangeAction "pstFr12" should be 0 in preventive
     Then the tap of PstRangeAction "pstFr23" should be -6 in preventive
@@ -173,6 +174,7 @@ Feature: US 91.13: PST Regulation
     # Overall
     Then the value of the objective function after CRA should be 758.18
     Then the worst margin is -758.18 A
+    Then the margin on cnec "cnecFr23Preventive" after ARA should be -758.18 A
 
   @ac @fast @rao @pst-regulation @max-min-margin @ampere
   Scenario: US 91.13.4: Regulation with two equivalent parallel PSTs
@@ -186,6 +188,7 @@ Feature: US 91.13: PST Regulation
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "UNSECURED"
     Then the worst margin is -733.27 A
+    Then the margin on cnec "cnecPst2Curative" after CRA should be -733.27 A
     Then the tap of PstRangeAction "pstBeFr2" should be 16 after "Contingency BE1 FR1 1" at "curative"
     Then the tap of PstRangeAction "pstBeFr3" should be 16 after "Contingency BE1 FR1 1" at "curative"
 
@@ -203,7 +206,6 @@ Feature: US 91.13: PST Regulation
     Then the margin on cnec "cnecFr1Fr3Preventive" after PRA should be 346.79 A
     Then the tap of PstRangeAction "pstFr1Fr2" should be -7 after "Contingency FR1 FR3 3" at "curative"
     Then the value of the objective function after CRA should be 579.06
-    Then the worst margin is -579.06 A
     Then the value of the objective function after CRA should be 579.06
     Then the margin on cnec "cnecFr2Fr3Curative" after CRA should be -579.06 A
     Then the margin on cnec "cnecFr1Fr3Curative" after CRA should be -559.13 A
@@ -222,7 +224,6 @@ Feature: US 91.13: PST Regulation
     Then the margin on cnec "cnecFr1Fr3Preventive" after PRA should be 346.79 A
     Then the tap of PstRangeAction "pstFr1Fr2" should be 5 after "Contingency FR1 FR3 3" at "curative"
     Then the value of the objective function after CRA should be 1187.64
-    Then the worst margin is -1187.64 A
     Then the value of the objective function after CRA should be 1187.64
     Then the margin on cnec "cnecFr1Fr3Curative" after CRA should be -1187.64 A
     Then the margin on cnec "cnecFr2Fr3Curative" after CRA should be 48.36 A
