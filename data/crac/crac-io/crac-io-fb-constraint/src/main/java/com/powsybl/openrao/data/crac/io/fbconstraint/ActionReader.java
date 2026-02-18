@@ -15,6 +15,7 @@ import com.powsybl.openrao.data.crac.api.networkaction.NetworkActionAdder;
 import com.powsybl.openrao.data.crac.api.networkaction.SingleNetworkElementActionAdder;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeActionAdder;
 import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
+import com.powsybl.openrao.data.crac.io.fbconstraint.xsd.ActionType;
 import com.powsybl.openrao.data.crac.io.fbconstraint.xsd.RangeType;
 import com.powsybl.openrao.data.crac.io.commons.OpenRaoImportException;
 import com.powsybl.openrao.data.crac.io.commons.ucte.UcteNetworkAnalyzer;
@@ -45,12 +46,12 @@ class ActionReader {
     private static final String HVDCGROUPID_CATEGORY = "HVDCGroupId";
     private static final String PSTGROUPID_CATEGORY = "PSTGroupId";
 
-    private final com.powsybl.openrao.data.crac.io.fbconstraint.xsd.ActionType action;
+    private final ActionType action;
 
     private boolean isActionValid = true;
     private String invalidActionReason = "";
 
-    private ActionType type;
+    private ActionTypeEnum type;
     private String networkElementId;
     private String nativeNetworkElementId;
     private String groupId;
@@ -74,7 +75,7 @@ class ActionReader {
     record HvdcRange(int min, int max) {
     }
 
-    ActionType getType() {
+    ActionTypeEnum getType() {
         return type;
     }
 
@@ -86,7 +87,7 @@ class ActionReader {
         return invalidActionReason;
     }
 
-    ActionReader(final com.powsybl.openrao.data.crac.io.fbconstraint.xsd.ActionType action, final UcteNetworkAnalyzer ucteNetworkAnalyzer) {
+    ActionReader(final ActionType action, final UcteNetworkAnalyzer ucteNetworkAnalyzer) {
         this.action = action;
 
         if (HVDC_TYPE.equals(action.getType())) {
@@ -97,7 +98,7 @@ class ActionReader {
     }
 
     void addAction(PstRangeActionAdder pstRangeActionAdder) {
-        if (!type.equals(ActionType.PST)) {
+        if (!type.equals(ActionTypeEnum.PST)) {
             throw new OpenRaoException(String.format("This method is only applicable for Action of type %s", PST_TYPE));
         }
 
@@ -119,7 +120,7 @@ class ActionReader {
     }
 
     void addAction(NetworkActionAdder networkActionAdder, String remedialActionId) {
-        if (!type.equals(ActionType.TOPO)) {
+        if (!type.equals(ActionTypeEnum.TOPO)) {
             throw new OpenRaoException(String.format("This method is only applicable for Action of type %s", TOPO_TYPE));
         }
 
@@ -173,7 +174,7 @@ class ActionReader {
                 final String elementCategory = jaxbElement.getName().getLocalPart();
                 switch (elementCategory) {
                     case NODE_CATEGORY -> {
-                        final com.powsybl.openrao.data.crac.io.fbconstraint.xsd.ActionType.Node node = (com.powsybl.openrao.data.crac.io.fbconstraint.xsd.ActionType.Node) jaxbElement.getValue();
+                        final ActionType.Node node = (ActionType.Node) jaxbElement.getValue();
                         networkElementId = node.getCode();
                     }
                     case RANGE_CATEGORY -> {
@@ -189,13 +190,13 @@ class ActionReader {
             }
         }
 
-        this.type = ActionType.HVDC;
+        this.type = ActionTypeEnum.HVDC;
     }
 
     private void interpretWithNetwork(UcteNetworkAnalyzer ucteNetworkAnalyzer) {
         // check first element of the action, which is assumed to be a branch
         Iterator<?> actionTypeIterator = action.getContent().stream().filter(serializable -> serializable.getClass() != String.class).iterator();
-        com.powsybl.openrao.data.crac.io.fbconstraint.xsd.ActionType.Branch branch = (com.powsybl.openrao.data.crac.io.fbconstraint.xsd.ActionType.Branch) ((JAXBElement<?>) actionTypeIterator.next()).getValue();
+        ActionType.Branch branch = (ActionType.Branch) ((JAXBElement<?>) actionTypeIterator.next()).getValue();
 
         this.nativeNetworkElementId = String.format("%1$-8s %2$-8s %3$s", branch.getFrom(), branch.getTo(), branch.getOrder() != null ? branch.getOrder() : branch.getElementName());
 
@@ -206,8 +207,8 @@ class ActionReader {
         }
     }
 
-    private void interpretAsPstRangeAction(com.powsybl.openrao.data.crac.io.fbconstraint.xsd.ActionType.Branch branch, Iterator<?> actionTypeIterator, UcteNetworkAnalyzer ucteNetworkAnalyzer) {
-        this.type = ActionType.PST;
+    private void interpretAsPstRangeAction(ActionType.Branch branch, Iterator<?> actionTypeIterator, UcteNetworkAnalyzer ucteNetworkAnalyzer) {
+        this.type = ActionTypeEnum.PST;
         this.uctePstHelper = new UctePstHelper(branch.getFrom(), branch.getTo(), branch.getOrder(), branch.getElementName(), ucteNetworkAnalyzer);
 
         if (!uctePstHelper.isValid()) {
@@ -223,8 +224,8 @@ class ActionReader {
         getPstRangesAndGroupId(actionTypeIterator, isInverted);
     }
 
-    private void interpretAsTopologicalAction(com.powsybl.openrao.data.crac.io.fbconstraint.xsd.ActionType.Branch branch, Iterator<?> actionTypeIterator, UcteNetworkAnalyzer ucteNetworkAnalyzer) {
-        this.type = ActionType.TOPO;
+    private void interpretAsTopologicalAction(ActionType.Branch branch, Iterator<?> actionTypeIterator, UcteNetworkAnalyzer ucteNetworkAnalyzer) {
+        this.type = ActionTypeEnum.TOPO;
         UcteTopologicalElementHelper ucteElementHelper = new UcteTopologicalElementHelper(branch.getFrom(), branch.getTo(), branch.getOrder(), branch.getElementName(), ucteNetworkAnalyzer);
 
         if (!ucteElementHelper.isValid()) {

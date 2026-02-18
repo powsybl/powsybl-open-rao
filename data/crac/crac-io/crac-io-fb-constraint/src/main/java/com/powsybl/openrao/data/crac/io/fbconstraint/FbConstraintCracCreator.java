@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.InstantKind;
+import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
 import com.powsybl.openrao.data.crac.io.commons.RaUsageLimitsAdder;
@@ -66,7 +67,7 @@ class FbConstraintCracCreator {
         RaUsageLimitsAdder.addRaUsageLimits(crac, cracCreatorParameters);
 
         // check timestamp
-        if (!checkTimeStamp(offsetDateTime, fbConstraintDocument.getConstraintTimeInterval().getV(), creationContext)) {
+        if (!checkTimestamp(offsetDateTime, fbConstraintDocument.getConstraintTimeInterval().getV(), creationContext)) {
             return creationContext.creationFailure();
         }
 
@@ -97,10 +98,10 @@ class FbConstraintCracCreator {
     }
 
     private void readCriticalBranches(FlowBasedConstraintDocument fbConstraintDocument, OffsetDateTime offsetDateTime, Crac crac, FbConstraintCreationContext creationContext, UcteNetworkAnalyzer ucteNetworkAnalyzer, List<OutageReader> outageReaders, Set<TwoSides> defaultMonitoredSides) {
-        List<CriticalBranchType> criticalBranchForTimeStamp = selectCriticalBranchesForTimeStamp(fbConstraintDocument, offsetDateTime);
+        List<CriticalBranchType> criticalBranchForTimestamp = selectCriticalBranchesForTimestamp(fbConstraintDocument, offsetDateTime);
 
-        if (!isEmpty(criticalBranchForTimeStamp)) {
-            List<CriticalBranchReader> criticalBranchReaders = criticalBranchForTimeStamp.stream()
+        if (!isEmpty(criticalBranchForTimestamp)) {
+            List<CriticalBranchReader> criticalBranchReaders = criticalBranchForTimestamp.stream()
                 .map(cb -> new CriticalBranchReader(cb, ucteNetworkAnalyzer, defaultMonitoredSides))
                 .toList();
 
@@ -167,7 +168,7 @@ class FbConstraintCracCreator {
                                        final List<InternalHvdc> internalHvdcs) {
         final Set<String> coIds = outageReaders.stream()
             .filter(OutageReader::isOutageValid)
-            .map(oR -> oR.getOutage().getId())
+            .map(reader -> reader.getOutage().getId())
             .collect(Collectors.toSet());
 
         final List<ComplexVariantReader> complexVariantReaders = independantComplexVariants.stream()
@@ -176,13 +177,13 @@ class FbConstraintCracCreator {
 
         ComplexVariantCrossCompatibility.checkAndInvalidate(complexVariantReaders);
 
-        final Map<Optional<ActionType>, List<ComplexVariantReader>> complexVariantReadersGroupedByType = complexVariantReaders.stream()
+        final Map<Optional<ActionTypeEnum>, List<ComplexVariantReader>> complexVariantReadersGroupedByType = complexVariantReaders.stream()
             .collect(Collectors.groupingBy(cvr -> Optional.ofNullable(cvr.getType())));
 
-        addPstAndTopoRemedialActionsToCrac(complexVariantReadersGroupedByType.get(Optional.<ActionType>empty()), crac, creationContext);
-        addPstAndTopoRemedialActionsToCrac(complexVariantReadersGroupedByType.get(Optional.of(ActionType.PST)), crac, creationContext);
-        addPstAndTopoRemedialActionsToCrac(complexVariantReadersGroupedByType.get(Optional.of(ActionType.TOPO)), crac, creationContext);
-        addHvdcRemedialActionsToCrac(internalHvdcs, complexVariantReadersGroupedByType.get(Optional.of(ActionType.HVDC)), crac, ucteNetworkAnalyzer, creationContext);
+        addPstAndTopoRemedialActionsToCrac(complexVariantReadersGroupedByType.get(Optional.<ActionTypeEnum>empty()), crac, creationContext);
+        addPstAndTopoRemedialActionsToCrac(complexVariantReadersGroupedByType.get(Optional.of(ActionTypeEnum.PST)), crac, creationContext);
+        addPstAndTopoRemedialActionsToCrac(complexVariantReadersGroupedByType.get(Optional.of(ActionTypeEnum.TOPO)), crac, creationContext);
+        addHvdcRemedialActionsToCrac(internalHvdcs, complexVariantReadersGroupedByType.get(Optional.of(ActionTypeEnum.HVDC)), crac, ucteNetworkAnalyzer, creationContext);
     }
 
     private static void addPstAndTopoRemedialActionsToCrac(final List<ComplexVariantReader> complexVariantReaders,
@@ -221,64 +222,63 @@ class FbConstraintCracCreator {
             .flatMap(List::stream)
             .collect(Collectors.toMap(HvdcConverter::node, HvdcConverter::station));
 
-        final Map<String, ComplexVariantReader> complexVariantReadersMappedByName = complexVariantReaders.stream()
+        final Map<String, ComplexVariantReader> complexVariantReadersByElementId = complexVariantReaders.stream()
             .collect(Collectors.toMap(
                 cvr -> cvr.getActionReaders().getFirst().getNetworkElementId(),
                 cvr -> cvr));
 
         for (final HvdcLine hvdcLine : hvdcLines) {
-            final HvdcLineRemedialActionAdder hvdcLineRemedialActionAdder = new HvdcLineRemedialActionAdder(hvdcLine, ucteNetworkAnalyzer, complexVariantReadersMappedByName, nodeToStationMap);
+            final HvdcLineRemedialActionAdder hvdcLineRemedialActionAdder = new HvdcLineRemedialActionAdder(hvdcLine, ucteNetworkAnalyzer, complexVariantReadersByElementId, nodeToStationMap);
             hvdcLineRemedialActionAdder.add(crac, creationContext);
         }
-        checkInvalidInjectionRangeActionsFromCrac(crac, creationContext);
+        checkInconsistentInjectionRangeActionsFromCrac(crac, creationContext);
     }
 
-    private static void checkInvalidInjectionRangeActionsFromCrac(final Crac crac, final FbConstraintCreationContext creationContext) {
+    private static void checkInconsistentInjectionRangeActionsFromCrac(final Crac crac, final FbConstraintCreationContext creationContext) {
         final Map<Optional<String>, List<InjectionRangeAction>> injectionRangeActionsByGroupId = crac.getInjectionRangeActions().stream()
             .collect(Collectors.groupingBy(InjectionRangeAction::getGroupId));
 
         injectionRangeActionsByGroupId.values().stream()
-            .filter(raList -> raList.size() > 1) // On n'a besoin de regarder que les parades qui ont le même groupId, donc les raList qui contiennent plus d'un élément dans la value
-            .filter(raList -> injectionRangeActionsHaveInconsistentUsageRules(raList, creationContext))
+            .filter(raList -> raList.size() > 1) // We only want remedial actions that share the same groupId, which means the raList that contain more than one element
+            .filter(raList -> remedialActionsHaveInconsistentUsageRules(raList, creationContext))
             .forEach(raList -> {
                 // TODO To remove invalid range actions, use crac.removeInjectionRangeAction for each range action in raList
             });
     }
 
-    private static boolean injectionRangeActionHasPreventiveUsageRule(final InjectionRangeAction injectionRangeAction) {
-        return injectionRangeAction.getUsageRules().stream()
-            .anyMatch(usageRule -> usageRule.getInstant().isPreventive());
-    }
-
-    private static boolean injectionRangeActionHasCurativeUsageRule(final InjectionRangeAction injectionRangeAction) {
-        return injectionRangeAction.getUsageRules().stream()
-            .anyMatch(usageRule -> usageRule.getInstant().isCurative());
-    }
-
-    private static boolean injectionRangeActionsHaveInconsistentUsageRules(final List<InjectionRangeAction> injectionRangeActions,
-                                                                           final FbConstraintCreationContext creationContext) {
-
-        return injectionRangeActionsHaveInconsistentUsageRulesForInstant(injectionRangeActions,
+    private static boolean remedialActionsHaveInconsistentUsageRules(final List<? extends RemedialAction<?>> remedialActions,
+                                                                     final FbConstraintCreationContext creationContext) {
+        return remedialActionsHaveInconsistentUsageRulesForInstant(remedialActions,
                 creationContext,
-                FbConstraintCracCreator::injectionRangeActionHasPreventiveUsageRule,
+                FbConstraintCracCreator::remedialActionHasPreventiveUsageRule,
                 "preventive")
-            && injectionRangeActionsHaveInconsistentUsageRulesForInstant(injectionRangeActions,
+            && remedialActionsHaveInconsistentUsageRulesForInstant(remedialActions,
                 creationContext,
-                FbConstraintCracCreator::injectionRangeActionHasCurativeUsageRule,
+                FbConstraintCracCreator::remedialActionHasCurativeUsageRule,
                 "curative");
         // TODO Should we add a check on afterCoList for curative instant?
     }
 
-    private static boolean injectionRangeActionsHaveInconsistentUsageRulesForInstant(final List<InjectionRangeAction> injectionRangeActions,
-                                                                                     final FbConstraintCreationContext creationContext,
-                                                                                     final Predicate<InjectionRangeAction> usageRulesPredicate,
-                                                                                     final String instant) {
-        final boolean allInjectionRangeActionsHaveSameUsageRuleForInstant = injectionRangeActions.stream()
-            .allMatch(ira -> usageRulesPredicate.test(ira) == usageRulesPredicate.test(injectionRangeActions.getFirst()));
+    private static boolean remedialActionHasPreventiveUsageRule(final RemedialAction<?> remedialAction) {
+        return remedialAction.getUsageRules().stream()
+            .anyMatch(usageRule -> usageRule.getInstant().isPreventive());
+    }
 
-        if (!allInjectionRangeActionsHaveSameUsageRuleForInstant) {
-            final String injectionRangeActionIds = injectionRangeActions.stream().map(InjectionRangeAction::getId).collect(Collectors.joining(", "));
-            creationContext.getCreationReport().warn("inconsistent " + instant + " usage rules for injection range actions " + injectionRangeActionIds);
+    private static boolean remedialActionHasCurativeUsageRule(final RemedialAction<?> remedialAction) {
+        return remedialAction.getUsageRules().stream()
+            .anyMatch(usageRule -> usageRule.getInstant().isCurative());
+    }
+
+    private static boolean remedialActionsHaveInconsistentUsageRulesForInstant(final List<? extends RemedialAction<?>> remedialActions,
+                                                                               final FbConstraintCreationContext creationContext,
+                                                                               final Predicate<RemedialAction<?>> usageRulesPredicate,
+                                                                               final String instant) {
+        final boolean allRemedialActionsHaveSameUsageRuleForInstant = remedialActions.stream()
+            .allMatch(ra -> usageRulesPredicate.test(ra) == usageRulesPredicate.test(remedialActions.getFirst()));
+
+        if (!allRemedialActionsHaveSameUsageRuleForInstant) {
+            final String remedialActionIds = remedialActions.stream().map(RemedialAction::getId).collect(Collectors.joining(", "));
+            creationContext.getCreationReport().warn("inconsistent " + instant + " usage rules for remedial actions " + remedialActionIds);
             return true;
         }
         return false;
@@ -293,7 +293,7 @@ class FbConstraintCracCreator {
             ));
     }
 
-    private List<CriticalBranchType> selectCriticalBranchesForTimeStamp(FlowBasedConstraintDocument document, OffsetDateTime timestamp) {
+    private List<CriticalBranchType> selectCriticalBranchesForTimestamp(FlowBasedConstraintDocument document, OffsetDateTime timestamp) {
         if (timestamp == null) {
             return document.getCriticalBranches().getCriticalBranch();
         }
@@ -327,7 +327,7 @@ class FbConstraintCracCreator {
         return selectedRemedialActions;
     }
 
-    private boolean checkTimeStamp(OffsetDateTime offsetDateTime, String fbConstraintDocumentTimeInterval, FbConstraintCreationContext creationContext) {
+    private boolean checkTimestamp(OffsetDateTime offsetDateTime, String fbConstraintDocumentTimeInterval, FbConstraintCreationContext creationContext) {
         if (Objects.isNull(offsetDateTime)) {
             creationContext.getCreationReport().error("when creating a CRAC from a flow-based constraint, timestamp must be non-null");
             return false;

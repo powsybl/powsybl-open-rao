@@ -54,7 +54,7 @@ public final class ComplexVariantCrossCompatibility {
 
     private static boolean actionsOverlap(ComplexVariantReader cvr1, ComplexVariantReader cvr2) {
 
-        if (cvr1.getType() == ActionType.PST && cvr2.getType() == ActionType.PST) {
+        if (cvr1.getType() == ActionTypeEnum.PST && cvr2.getType() == ActionTypeEnum.PST) {
 
             // PST actions overlap each others if they both act on a same pst
             Set<String> pst1 = cvr1.getActionReaders().stream()
@@ -67,7 +67,7 @@ public final class ComplexVariantCrossCompatibility {
 
             return !Collections.disjoint(pst1, pst2);
 
-        } else if (cvr1.getType() == ActionType.TOPO && cvr2.getType() == ActionType.TOPO) {
+        } else if (cvr1.getType() == ActionTypeEnum.TOPO && cvr2.getType() == ActionTypeEnum.TOPO) {
 
             // TOPO actions overlap each others if they both act on the same network elements, with the same actions
 

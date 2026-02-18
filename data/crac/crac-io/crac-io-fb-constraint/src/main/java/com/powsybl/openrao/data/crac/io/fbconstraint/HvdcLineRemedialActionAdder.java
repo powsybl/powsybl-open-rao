@@ -40,13 +40,13 @@ class HvdcLineRemedialActionAdder {
 
     private boolean isValid;
 
-    HvdcLineRemedialActionAdder(final HvdcLine hvdcLine, final UcteNetworkAnalyzer ucteNetworkAnalyzer, final Map<String, ComplexVariantReader> complexVariantReadersMappedByName, final Map<String, String> nodeToStationMap) {
+    HvdcLineRemedialActionAdder(final HvdcLine hvdcLine, final UcteNetworkAnalyzer ucteNetworkAnalyzer, final Map<String, ComplexVariantReader> complexVariantReadersByElementId, final Map<String, String> nodeToStationMap) {
         this.nodeToStationMap = nodeToStationMap;
 
         this.fromNodeName = hvdcLine.from();
         this.toNodeName = hvdcLine.to();
-        this.fromComplexVariantReader = complexVariantReadersMappedByName.get(fromNodeName);
-        this.toComplexVariantReader = complexVariantReadersMappedByName.get(toNodeName);
+        this.fromComplexVariantReader = complexVariantReadersByElementId.get(fromNodeName);
+        this.toComplexVariantReader = complexVariantReadersByElementId.get(toNodeName);
         this.fromGeneratorHelper = new UcteGeneratorHelper(fromNodeName, ucteNetworkAnalyzer);
         this.toGeneratorHelper = new UcteGeneratorHelper(toNodeName, ucteNetworkAnalyzer);
 
@@ -106,7 +106,7 @@ class HvdcLineRemedialActionAdder {
         if (isValid) {
             final String raId = fromComplexVariantReader.getComplexVariant().getId() + DELIMITER + toComplexVariantReader.getComplexVariant().getId();
             final String raName = fromComplexVariantReader.getComplexVariant().getName() + DELIMITER + toComplexVariantReader.getComplexVariant().getName();
-            // TODO Tobias doit nous confirmer le format attendu pour l'opérateur
+            // TODO Waiting for confirmation of the concatenated-operator format
             final String raOperator = fromComplexVariantReader.getComplexVariant().getTsoOrigin() + DELIMITER + toComplexVariantReader.getComplexVariant().getTsoOrigin();
             // groupId elements must be sorted for the generators alignment to work
             final String raGroupId = Stream.of(fromNodeName, toNodeName)
