@@ -20,9 +20,15 @@
 | reference tap position                       | $t_{n}(r)$                       | tap of PstRangeAction $r$ at the beginning of the current iteration of the MILP                                                                                                                                                                          |
 | pre-perimeter tap position                   | $t_{0}(r)$                       | tap of PstRangeAction $r$ at the end of the previous optimization perimeter (or initial tap if preventive perimeter)                                                                                                                                     |
 
-*Note that this filler uses crac-creation-parameters
-defined [here](../../../input-data/crac/creation-parameters.md#ra-usage-limits-per-instant). Nonetheless, they are modified to
-take into account applied topological actions first.*
+> 💡 Note
+> 
+> This filler uses:
+> - crac-creation-parameters defined [here](../../../input-data/crac/creation-parameters.md#ra-usage-limits-per-instant) 
+> - or CRAC JSON's ra-usage-limits-per-instant field defined [here](../../../input-data/crac/json.md#ras-usage-limitations). 
+> 
+> Nonetheless, they are modified to take into account :
+> - applied topological actions at each leaf of a search tree 
+> - the cumulative effect of the limits in multi-curative at the beginning of each contingency scenario
 
 ## Defined optimization variables
 
