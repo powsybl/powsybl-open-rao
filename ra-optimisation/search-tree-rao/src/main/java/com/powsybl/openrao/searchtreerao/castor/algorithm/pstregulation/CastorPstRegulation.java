@@ -7,12 +7,18 @@
 
 package com.powsybl.openrao.searchtreerao.castor.algorithm.pstregulation;
 
+import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_LOGS;
+import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
+import static com.powsybl.openrao.raoapi.parameters.extensions.MultithreadingParameters.getAvailableCPUs;
+import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.getFlowUnit;
+
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.openloadflow.OpenLoadFlowParameters;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
+import com.powsybl.openrao.commons.opentelemetry.OpenTelemetryReporter;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Identifiable;
 import com.powsybl.openrao.data.crac.api.Instant;
@@ -26,7 +32,6 @@ import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoPstRegulati
 import com.powsybl.openrao.searchtreerao.result.impl.PostPerimeterResult;
 import com.powsybl.openrao.searchtreerao.result.impl.SkippedOptimizationResultImpl;
 import com.powsybl.openrao.util.AbstractNetworkPool;
-
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -40,11 +45,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_LOGS;
-import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
-import static com.powsybl.openrao.raoapi.parameters.extensions.MultithreadingParameters.getAvailableCPUs;
-import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.getFlowUnit;
-
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
@@ -55,19 +55,29 @@ public final class CastorPstRegulation {
     public static Set<PstRegulationResult> regulatePsts(Map<String, String> pstsToRegulate, Map<State, PostPerimeterResult> postContingencyResults, Network network, Crac crac, RaoParameters raoParameters, RaoResult raoResult) {
         // filter out non-curative PSTs
         // currently, only PSTs with a usage rule for a given state are regulated
-        Set<PstRangeAction> rangeActionsToRegulate = getPstRangeActionsForRegulation(pstsToRegulate.keySet(), crac);
+        Set<PstRangeAction> rangeActionsToRegulate = getPstRangeActionsForRegulation(
+            pstsToRegulate.keySet(), crac);
         if (rangeActionsToRegulate.isEmpty()) {
             return Set.of();
         }
 
-        Set<PstRegulationInput> statesToRegulate = getStatesToRegulate(crac, postContingencyResults, getFlowUnit(raoParameters), rangeActionsToRegulate, SearchTreeRaoPstRegulationParameters.getPstsToRegulate(raoParameters), network);
+        Set<PstRegulationInput> statesToRegulate = getStatesToRegulate(crac, postContingencyResults,
+            getFlowUnit(raoParameters), rangeActionsToRegulate,
+            SearchTreeRaoPstRegulationParameters.getPstsToRegulate(raoParameters), network);
         if (statesToRegulate.isEmpty()) {
             return Set.of();
         }
 
-        Set<Contingency> contingencies = statesToRegulate.stream().map(PstRegulationInput::curativeState).map(State::getContingency).filter(Optional::isPresent).map(Optional::get).collect(Collectors.toSet());
-        BUSINESS_LOGS.info("{} contingency scenario(s) to regulate: {}", contingencies.size(), String.join(", ", contingencies.stream().map(contingency -> contingency.getName().orElse(contingency.getId())).sorted().toList()));
-        BUSINESS_LOGS.info("{} PST(s) to regulate: {}", rangeActionsToRegulate.size(), String.join(", ", rangeActionsToRegulate.stream().map(PstRangeAction::getName).sorted().toList()));
+        Set<Contingency> contingencies = statesToRegulate.stream()
+            .map(PstRegulationInput::curativeState).map(State::getContingency)
+            .filter(Optional::isPresent).map(Optional::get).collect(Collectors.toSet());
+        BUSINESS_LOGS.info("{} contingency scenario(s) to regulate: {}", contingencies.size(),
+            String.join(", ", contingencies.stream()
+                .map(contingency -> contingency.getName().orElse(contingency.getId())).sorted()
+                .toList()));
+        BUSINESS_LOGS.info("{} PST(s) to regulate: {}", rangeActionsToRegulate.size(),
+            String.join(", ",
+                rangeActionsToRegulate.stream().map(PstRangeAction::getName).sorted().toList()));
 
         // update loadflow parameters
         LoadFlowParameters loadFlowParameters = getLoadFlowParameters(raoParameters);
@@ -78,10 +88,16 @@ public final class CastorPstRegulation {
         applyOptimalRemedialActionsForState(network, raoResult, crac.getPreventiveState());
 
         // regulate PSTs for each curative scenario in parallel
-        try (AbstractNetworkPool networkPool = AbstractNetworkPool.create(network, network.getVariantManager().getWorkingVariantId(), getNumberOfThreads(crac, raoParameters), true)) {
-            List<ForkJoinTask<PstRegulationResult>> tasks = statesToRegulate.stream().map(pstRegulationInput ->
-                networkPool.submit(() -> regulatePstsForContingencyScenario(pstRegulationInput, crac, rangeActionsToRegulate, raoResult, loadFlowParameters, networkPool))
-            ).toList();
+        return OpenTelemetryReporter.withSpan("rao.regulatePstsParallel", cx -> {
+        try (AbstractNetworkPool networkPool = AbstractNetworkPool.create(network,
+            network.getVariantManager().getWorkingVariantId(),
+            getNumberOfThreads(crac, raoParameters), true)) {
+            List<ForkJoinTask<PstRegulationResult>> tasks = statesToRegulate.stream()
+                .map(pstRegulationInput ->
+                    networkPool.submit(
+                        () -> regulatePstsForContingencyScenario(pstRegulationInput, crac,
+                            rangeActionsToRegulate, raoResult, loadFlowParameters, networkPool))
+                ).toList();
             Set<PstRegulationResult> pstRegulationResults = new HashSet<>();
             for (ForkJoinTask<PstRegulationResult> task : tasks) {
                 try {
@@ -94,11 +110,13 @@ public final class CastorPstRegulation {
             return pstRegulationResults;
         } catch (Exception e) {
             Thread.currentThread().interrupt();
-            BUSINESS_WARNS.warn("An error occurred during PST regulation, pre-regulation RAO result will be kept.");
+            BUSINESS_WARNS.warn(
+                "An error occurred during PST regulation, pre-regulation RAO result will be kept.");
             return Set.of();
         } finally {
             loadFlowParameters.setPhaseShifterRegulationOn(initialPhaseShifterRegulationOnValue);
         }
+        });
     }
 
     /**

@@ -7,21 +7,25 @@
 
 package com.powsybl.openrao.util;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
 import com.powsybl.iidm.network.Network;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.slf4j.LoggerFactory;
-import org.slf4j.MDC;
-
+import com.powsybl.openrao.commons.opentelemetry.OpenTelemetryReporter;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
@@ -88,6 +92,7 @@ class NetworkPoolTest {
         listAppender.start();
         logger.addAppender(listAppender);
 
+        OpenTelemetryReporter.withSpan("checkMDCIsCopied", cx -> {
         MDC.put("extrafield", "value from caller");
         AbstractNetworkPool pool = AbstractNetworkPool.create(network, otherVariant, 20, true);
         for (int i = 0; i < 20; i++) {
@@ -96,6 +101,7 @@ class NetworkPoolTest {
             });
         }
         pool.shutdownAndAwaitTermination(1, TimeUnit.SECONDS);
+        });
 
         List<ILoggingEvent> logsList = listAppender.list;
         for (int i = 0; i < 20; i++) {
