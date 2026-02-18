@@ -5,13 +5,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.powsybl.openrao.data.intertemporalconstraints.io;
+package com.powsybl.openrao.data.timecouplingconstraints.io;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import com.powsybl.openrao.data.intertemporalconstraints.GeneratorConstraints;
-import com.powsybl.openrao.data.intertemporalconstraints.TimeCouplingConstraints;
+import com.powsybl.openrao.data.timecouplingconstraints.GeneratorConstraints;
+import com.powsybl.openrao.data.timecouplingconstraints.TimeCouplingConstraints;
 
 import java.io.IOException;
 import java.util.Comparator;

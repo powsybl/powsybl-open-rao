@@ -9,7 +9,7 @@ package com.powsybl.openrao.raoapi;
 
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.TemporalData;
-import com.powsybl.openrao.data.intertemporalconstraints.TimeCouplingConstraints;
+import com.powsybl.openrao.data.timecouplingconstraints.TimeCouplingConstraints;
 
 import java.time.OffsetDateTime;
 import java.util.HashSet;

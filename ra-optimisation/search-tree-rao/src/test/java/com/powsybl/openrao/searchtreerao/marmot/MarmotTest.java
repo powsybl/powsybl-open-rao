@@ -11,8 +11,8 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.data.crac.api.Crac;
-import com.powsybl.openrao.data.intertemporalconstraints.GeneratorConstraints;
-import com.powsybl.openrao.data.intertemporalconstraints.TimeCouplingConstraints;
+import com.powsybl.openrao.data.timecouplingconstraints.GeneratorConstraints;
+import com.powsybl.openrao.data.timecouplingconstraints.TimeCouplingConstraints;
 import com.powsybl.openrao.data.raoresult.api.TimeCoupledRaoResult;
 import com.powsybl.openrao.raoapi.TimeCoupledRaoInputWithNetworkPaths;
 import com.powsybl.openrao.raoapi.RaoInputWithNetworkPaths;
@@ -319,20 +319,20 @@ class MarmotTest {
 
         TimeCoupledRaoInputWithNetworkPaths input = new TimeCoupledRaoInputWithNetworkPaths(new TemporalDataImpl<>(inputPerTimestamp), timeCouplingConstraints);
 
-        TimeCoupledRaoResultImpl interTemporalRaoResult = (TimeCoupledRaoResultImpl) new Marmot().run(input, raoParameters).join();
+        TimeCoupledRaoResultImpl timeCoupledRaoResult = (TimeCoupledRaoResultImpl) new Marmot().run(input, raoParameters).join();
 
-        assertEquals(625070.0, interTemporalRaoResult.getGlobalFunctionalCost(crac1.getPreventiveInstant()));
+        assertEquals(625070.0, timeCoupledRaoResult.getGlobalFunctionalCost(crac1.getPreventiveInstant()));
 
-        assertFunctionalCostAndRedispatchingSetPoint(crac1, interTemporalRaoResult, 0.0, 5000.0);
-        assertFunctionalCostAndRedispatchingSetPoint(crac2, interTemporalRaoResult, 0.0, 5000.0);
-        assertFunctionalCostAndRedispatchingSetPoint(crac3, interTemporalRaoResult, 0.0, 5000.0);
-        assertFunctionalCostAndRedispatchingSetPoint(crac4, interTemporalRaoResult, 25010.0, 4500.0);
-        assertFunctionalCostAndRedispatchingSetPoint(crac5, interTemporalRaoResult, 50010.0, 4000.0);
-        assertFunctionalCostAndRedispatchingSetPoint(crac6, interTemporalRaoResult, 75010.0, 3500.0);
-        assertFunctionalCostAndRedispatchingSetPoint(crac7, interTemporalRaoResult, 100010.0, 3000.0);
-        assertFunctionalCostAndRedispatchingSetPoint(crac8, interTemporalRaoResult, 125010.0, 2500.0);
-        assertFunctionalCostAndRedispatchingSetPoint(crac9, interTemporalRaoResult, 125010.0, 2500.0);
-        assertFunctionalCostAndRedispatchingSetPoint(crac10, interTemporalRaoResult, 125010.0, 2500.0);
+        assertFunctionalCostAndRedispatchingSetPoint(crac1, timeCoupledRaoResult, 0.0, 5000.0);
+        assertFunctionalCostAndRedispatchingSetPoint(crac2, timeCoupledRaoResult, 0.0, 5000.0);
+        assertFunctionalCostAndRedispatchingSetPoint(crac3, timeCoupledRaoResult, 0.0, 5000.0);
+        assertFunctionalCostAndRedispatchingSetPoint(crac4, timeCoupledRaoResult, 25010.0, 4500.0);
+        assertFunctionalCostAndRedispatchingSetPoint(crac5, timeCoupledRaoResult, 50010.0, 4000.0);
+        assertFunctionalCostAndRedispatchingSetPoint(crac6, timeCoupledRaoResult, 75010.0, 3500.0);
+        assertFunctionalCostAndRedispatchingSetPoint(crac7, timeCoupledRaoResult, 100010.0, 3000.0);
+        assertFunctionalCostAndRedispatchingSetPoint(crac8, timeCoupledRaoResult, 125010.0, 2500.0);
+        assertFunctionalCostAndRedispatchingSetPoint(crac9, timeCoupledRaoResult, 125010.0, 2500.0);
+        assertFunctionalCostAndRedispatchingSetPoint(crac10, timeCoupledRaoResult, 125010.0, 2500.0);
     }
 
     @Test
@@ -378,20 +378,20 @@ class MarmotTest {
 
         TimeCoupledRaoInputWithNetworkPaths input = new TimeCoupledRaoInputWithNetworkPaths(new TemporalDataImpl<>(inputPerTimestamp), new TimeCouplingConstraints());
 
-        TimeCoupledRaoResultImpl interTemporalRaoResult = (TimeCoupledRaoResultImpl) new Marmot().run(input, raoParameters).join();
+        TimeCoupledRaoResultImpl timeCoupledRaoResult = (TimeCoupledRaoResultImpl) new Marmot().run(input, raoParameters).join();
 
-        assertEquals(375030.0, interTemporalRaoResult.getGlobalFunctionalCost(crac1.getPreventiveInstant()));
+        assertEquals(375030.0, timeCoupledRaoResult.getGlobalFunctionalCost(crac1.getPreventiveInstant()));
 
-        assertFunctionalCostAndRedispatchingSetPoint(crac1, interTemporalRaoResult, 0.0, 5000.0);
-        assertFunctionalCostAndRedispatchingSetPoint(crac2, interTemporalRaoResult, 0.0, 5000.0);
-        assertFunctionalCostAndRedispatchingSetPoint(crac3, interTemporalRaoResult, 0.0, 5000.0);
-        assertFunctionalCostAndRedispatchingSetPoint(crac4, interTemporalRaoResult, 0.0, 5000.0);
-        assertFunctionalCostAndRedispatchingSetPoint(crac5, interTemporalRaoResult, 0.0, 5000.0);
-        assertFunctionalCostAndRedispatchingSetPoint(crac6, interTemporalRaoResult, 0.0, 5000.0);
-        assertFunctionalCostAndRedispatchingSetPoint(crac7, interTemporalRaoResult, 0.0, 5000.0);
-        assertFunctionalCostAndRedispatchingSetPoint(crac8, interTemporalRaoResult, 125010.0, 2500.0);
-        assertFunctionalCostAndRedispatchingSetPoint(crac9, interTemporalRaoResult, 125010.0, 2500.0);
-        assertFunctionalCostAndRedispatchingSetPoint(crac10, interTemporalRaoResult, 125010.0, 2500.0);
+        assertFunctionalCostAndRedispatchingSetPoint(crac1, timeCoupledRaoResult, 0.0, 5000.0);
+        assertFunctionalCostAndRedispatchingSetPoint(crac2, timeCoupledRaoResult, 0.0, 5000.0);
+        assertFunctionalCostAndRedispatchingSetPoint(crac3, timeCoupledRaoResult, 0.0, 5000.0);
+        assertFunctionalCostAndRedispatchingSetPoint(crac4, timeCoupledRaoResult, 0.0, 5000.0);
+        assertFunctionalCostAndRedispatchingSetPoint(crac5, timeCoupledRaoResult, 0.0, 5000.0);
+        assertFunctionalCostAndRedispatchingSetPoint(crac6, timeCoupledRaoResult, 0.0, 5000.0);
+        assertFunctionalCostAndRedispatchingSetPoint(crac7, timeCoupledRaoResult, 0.0, 5000.0);
+        assertFunctionalCostAndRedispatchingSetPoint(crac8, timeCoupledRaoResult, 125010.0, 2500.0);
+        assertFunctionalCostAndRedispatchingSetPoint(crac9, timeCoupledRaoResult, 125010.0, 2500.0);
+        assertFunctionalCostAndRedispatchingSetPoint(crac10, timeCoupledRaoResult, 125010.0, 2500.0);
     }
 
     @Test
@@ -441,20 +441,20 @@ class MarmotTest {
 
         TimeCoupledRaoInputWithNetworkPaths input = new TimeCoupledRaoInputWithNetworkPaths(new TemporalDataImpl<>(inputPerTimestamp), timeCouplingConstraints);
 
-        TimeCoupledRaoResultImpl interTemporalRaoResult = (TimeCoupledRaoResultImpl) new Marmot().run(input, raoParameters).join();
+        TimeCoupledRaoResultImpl timeCoupledRaoResult = (TimeCoupledRaoResultImpl) new Marmot().run(input, raoParameters).join();
 
-        assertEquals(625070.0, interTemporalRaoResult.getGlobalFunctionalCost(crac1.getPreventiveInstant()));
+        assertEquals(625070.0, timeCoupledRaoResult.getGlobalFunctionalCost(crac1.getPreventiveInstant()));
 
-        assertFunctionalCostAndRedispatchingSetPoint(crac1, interTemporalRaoResult, 0.0, 5000.0);
-        assertFunctionalCostAndRedispatchingSetPoint(crac2, interTemporalRaoResult, 0.0, 5000.0);
-        assertFunctionalCostAndRedispatchingSetPoint(crac3, interTemporalRaoResult, 0.0, 5000.0);
-        assertFunctionalCostAndRedispatchingSetPoint(crac4, interTemporalRaoResult, 25010.0, 4500.0);
-        assertFunctionalCostAndRedispatchingSetPoint(crac5, interTemporalRaoResult, 50010.0, 4000.0);
-        assertFunctionalCostAndRedispatchingSetPoint(crac6, interTemporalRaoResult, 75010.0, 3500.0);
-        assertFunctionalCostAndRedispatchingSetPoint(crac7, interTemporalRaoResult, 100010.0, 3000.0);
-        assertFunctionalCostAndRedispatchingSetPoint(crac8, interTemporalRaoResult, 125010.0, 2500.0);
-        assertFunctionalCostAndRedispatchingSetPoint(crac9, interTemporalRaoResult, 125010.0, 2500.0);
-        assertFunctionalCostAndRedispatchingSetPoint(crac10, interTemporalRaoResult, 125010.0, 1250.0);
+        assertFunctionalCostAndRedispatchingSetPoint(crac1, timeCoupledRaoResult, 0.0, 5000.0);
+        assertFunctionalCostAndRedispatchingSetPoint(crac2, timeCoupledRaoResult, 0.0, 5000.0);
+        assertFunctionalCostAndRedispatchingSetPoint(crac3, timeCoupledRaoResult, 0.0, 5000.0);
+        assertFunctionalCostAndRedispatchingSetPoint(crac4, timeCoupledRaoResult, 25010.0, 4500.0);
+        assertFunctionalCostAndRedispatchingSetPoint(crac5, timeCoupledRaoResult, 50010.0, 4000.0);
+        assertFunctionalCostAndRedispatchingSetPoint(crac6, timeCoupledRaoResult, 75010.0, 3500.0);
+        assertFunctionalCostAndRedispatchingSetPoint(crac7, timeCoupledRaoResult, 100010.0, 3000.0);
+        assertFunctionalCostAndRedispatchingSetPoint(crac8, timeCoupledRaoResult, 125010.0, 2500.0);
+        assertFunctionalCostAndRedispatchingSetPoint(crac9, timeCoupledRaoResult, 125010.0, 2500.0);
+        assertFunctionalCostAndRedispatchingSetPoint(crac10, timeCoupledRaoResult, 125010.0, 1250.0);
     }
 
     private static void assertFunctionalCostAndRedispatchingSetPoint(Crac crac, TimeCoupledRaoResult timeCoupledRaoResult, double expectedFunctionalCost, double expectedRdSetPoint) {

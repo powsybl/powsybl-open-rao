@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.powsybl.openrao.data.intertemporalconstraints;
+package com.powsybl.openrao.data.timecouplingconstraints;
 
 import com.powsybl.openrao.commons.OpenRaoException;
 
