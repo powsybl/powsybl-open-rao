@@ -156,6 +156,9 @@ Feature: US 93.2: power gradient constraints
 
   @fast @rao @dc @redispatching
   Scenario: US 93.2.6: Test simple lead time with Pmin
+  The generator involved in the redispaching action has a 15 min lead time and must be operated at 1000 MW at 2:30.
+  Because of its lead time, it must be switched on at 1:30 and operated at its Pmin (100 MW), leading to a supplementary
+  expense of 1000 in remedial actions.
     Given network files are in folder "epic93/TestCases_93_2_6"
     Given crac file is "epic93/cbcora_93_2_6.xml"
     Given ics static file is "epic93/static_93_2_6.csv"
@@ -163,9 +166,13 @@ Feature: US 93.2: power gradient constraints
     Given ics gsk file is "epic93/gsk_93_2_6.csv"
     Given configuration file is "epic93/RaoParameters_minCost_megawatt_dc.json"
     Given intertemporal rao inputs for CORE are:
-      | Timestamp        | Network          |
+      | Timestamp        | Network         |
       | 2019-01-08 00:30 | 2Nodes_0030.uct |
       | 2019-01-08 01:30 | 2Nodes_0130.uct |
       | 2019-01-08 02:30 | 2Nodes_0230.uct |
     When I launch marmot
+    And the functional cost for timestamp "2019-01-08 00:30" is 0.0
+    And the functional cost for timestamp "2019-01-08 01:30" is 1000.0
+    And the functional cost for timestamp "2019-01-08 02:30" is 10000.0
+    And the functional cost for all timestamps is 11000.0
 

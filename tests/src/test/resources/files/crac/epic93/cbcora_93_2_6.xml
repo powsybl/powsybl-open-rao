@@ -22,7 +22,7 @@
             <minRAMfactor>75</minRAMfactor>
             <CNEC>true</CNEC>
             <MNEC>false</MNEC>
-            <direction>DIRECT</direction>
+            <direction>OPPOSITE</direction>
             <tsoOrigin>FR</tsoOrigin>
         </criticalBranch>
         <criticalBranch id="BBE2AA1  FFR2AA1  1">
@@ -35,20 +35,20 @@
             <minRAMfactor>75</minRAMfactor>
             <CNEC>true</CNEC>
             <MNEC>false</MNEC>
-            <direction>DIRECT</direction>
+            <direction>OPPOSITE</direction>
             <tsoOrigin>FR</tsoOrigin>
         </criticalBranch>
         <criticalBranch id="BBE2AA1  FFR2AA1  1">
             <timeInterval v="2019-01-08T01:00Z/2019-01-08T02:00Z"/>
             <branch eic="1234567890123450" from="BBE2AA1 " name="BBE2AA1  FFR2AA1  1" order="1" to="FFR2AA1 "/>
             <imaxType>SEASONAL</imaxType>
-            <permanentImaxA>0</permanentImaxA>
-            <temporaryImaxA>0</temporaryImaxA>
+            <permanentImaxA>0.1</permanentImaxA>
+            <temporaryImaxA>0.1</temporaryImaxA>
             <frmMw>0</frmMw>
             <minRAMfactor>75</minRAMfactor>
             <CNEC>true</CNEC>
             <MNEC>false</MNEC>
-            <direction>DIRECT</direction>
+            <direction>OPPOSITE</direction>
             <tsoOrigin>FR</tsoOrigin>
         </criticalBranch>
     </criticalBranches>
