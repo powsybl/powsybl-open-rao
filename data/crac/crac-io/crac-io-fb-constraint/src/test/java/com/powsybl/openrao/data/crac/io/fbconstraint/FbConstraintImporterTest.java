@@ -1,5 +1,6 @@
 package com.powsybl.openrao.data.crac.io.fbconstraint;
 
+import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.data.crac.api.CracCreationContext;
 import com.powsybl.openrao.data.crac.api.Instant;
@@ -263,10 +264,10 @@ class FbConstraintImporterTest {
     }
 
     @Test
-    void testImportHvdc() {
+    void testImportHvdcPreventiveOnly() {
         // When
         final CracCreationContext context = new FbConstraintImporter().importData(
-            getClass().getResourceAsStream("/hvdc/crac.xml"),
+            getClass().getResourceAsStream("/hvdc/crac_with_preventive_complex_variants_only.xml"),
             cracCreationParameters,
             network);
 
@@ -275,6 +276,123 @@ class FbConstraintImporterTest {
             .sorted(Comparator.comparing(InjectionRangeAction::getId))
             .toList();
         Assertions.assertThat(injectionRangeActions).hasSize(2);
+
+        final InjectionRangeAction firstRA = injectionRangeActions.get(0);
+        final InjectionRangeAction secondRA = injectionRangeActions.get(1);
+
+        SoftAssertions softAssertions = new SoftAssertions();
+        assertRangeActionContent(softAssertions, firstRA, "D7_RA_99991_D4_RA_99991", "PRA_TEST_1A_PRA_TEST_1", "D7_D4", Optional.of("Esgaroth_Numenor"), 1000.0);
+        softAssertions.assertThat(firstRA.getUsageRules()).hasSize(1);
+        final Instant firstRAInstant = firstRA.getUsageRules().stream().findFirst().get().getInstant();
+        softAssertions.assertThat(firstRAInstant.isPreventive()).isTrue();
+        softAssertions.assertThat(firstRAInstant.isCurative()).isFalse();
+        softAssertions.assertThat(firstRA.getRanges()).hasSize(1);
+        softAssertions.assertThat(firstRA.getRanges().getFirst()).hasFieldOrPropertyWithValue("min", -800.0);
+        softAssertions.assertThat(firstRA.getRanges().getFirst()).hasFieldOrPropertyWithValue("max", 1000.0);
+        softAssertions.assertThat(firstRA.getInjectionDistributionKeys()).hasSize(2);
+        softAssertions.assertThat(
+                firstRA.getInjectionDistributionKeys().entrySet().stream()
+                    .collect(
+                        Collectors.toMap(entry -> entry.getKey().getId(),
+                            Map.Entry::getValue))
+            )
+            .containsExactlyInAnyOrderEntriesOf(Map.of("D4AAA11B_generator", 1.0, "D7AAA11A_generator", -1.0));
+        softAssertions.assertAll();
+
+        softAssertions = new SoftAssertions();
+        assertRangeActionContent(softAssertions, secondRA, "D7_RA_99992_D4_RA_99992", "PRA_TEST_2A_PRA_TEST_2", "D7_D4", Optional.of("Esgaroth_Numenor"), 1000.0);
+        softAssertions.assertThat(secondRA.getUsageRules()).hasSize(1);
+        final Instant secondRAInstant = secondRA.getUsageRules().stream().findFirst().get().getInstant();
+        softAssertions.assertThat(secondRAInstant.isPreventive()).isTrue();
+        softAssertions.assertThat(secondRAInstant.isCurative()).isFalse();
+        softAssertions.assertThat(secondRA.getRanges()).hasSize(1);
+        softAssertions.assertThat(secondRA.getRanges().getFirst()).hasFieldOrPropertyWithValue("min", -700.0);
+        softAssertions.assertThat(secondRA.getRanges().getFirst()).hasFieldOrPropertyWithValue("max", -100.0);
+        softAssertions.assertThat(secondRA.getInjectionDistributionKeys()).hasSize(2);
+        softAssertions.assertThat(
+                secondRA.getInjectionDistributionKeys().entrySet().stream()
+                    .collect(
+                        Collectors.toMap(entry -> entry.getKey().getId(),
+                            Map.Entry::getValue))
+            )
+            .containsExactlyInAnyOrderEntriesOf(Map.of("D4AAA21B_generator", 1.0, "D7AAA21A_generator", -1.0));
+        softAssertions.assertAll();
+    }
+
+    @Test
+    void testImportHvdcCurativeOnly() {
+        // When
+        final CracCreationContext context = new FbConstraintImporter().importData(
+            getClass().getResourceAsStream("/hvdc/crac_with_curative_complex_variants_only.xml"),
+            cracCreationParameters,
+            network);
+
+        // Then
+        final List<InjectionRangeAction> injectionRangeActions = context.getCrac().getInjectionRangeActions().stream()
+            .sorted(Comparator.comparing(InjectionRangeAction::getId))
+            .toList();
+        Assertions.assertThat(injectionRangeActions).hasSize(2);
+
+        final InjectionRangeAction firstRA = injectionRangeActions.get(0);
+        final InjectionRangeAction secondRA = injectionRangeActions.get(1);
+
+        SoftAssertions softAssertions = new SoftAssertions();
+        assertRangeActionContent(softAssertions, firstRA, "D7_RA_99991_D4_RA_99991", "PRA_TEST_1A_PRA_TEST_1", "D7_D4", Optional.of("Esgaroth_Numenor"), 1000.0);
+        softAssertions.assertThat(firstRA.getUsageRules()).hasSize(2);
+        final List<OnContingencyState> firstRAUsageRules = firstRA.getUsageRules().stream().map(ur -> (OnContingencyState) ur).toList();
+        softAssertions.assertThat(firstRAUsageRules.stream().map(OnContingencyState::getInstant).map(Instant::isPreventive))
+            .containsExactly(false, false);
+        softAssertions.assertThat(firstRAUsageRules.stream().map(OnContingencyState::getInstant).map(Instant::isCurative))
+            .containsExactly(true, true);
+        softAssertions.assertThat(firstRAUsageRules.stream().map(OnContingencyState::getContingency).map(Contingency::getId))
+            .containsExactlyInAnyOrder("OUTAGE_1", "OUTAGE_2");
+        softAssertions.assertThat(firstRA.getRanges()).hasSize(1);
+        softAssertions.assertThat(firstRA.getRanges().getFirst()).hasFieldOrPropertyWithValue("min", -800.0);
+        softAssertions.assertThat(firstRA.getRanges().getFirst()).hasFieldOrPropertyWithValue("max", 1000.0);
+        softAssertions.assertThat(firstRA.getInjectionDistributionKeys()).hasSize(2);
+        softAssertions.assertThat(
+                firstRA.getInjectionDistributionKeys().entrySet().stream()
+                    .collect(
+                        Collectors.toMap(entry -> entry.getKey().getId(),
+                            Map.Entry::getValue))
+            )
+            .containsExactlyInAnyOrderEntriesOf(Map.of("D4AAA11B_generator", 1.0, "D7AAA11A_generator", -1.0));
+        softAssertions.assertAll();
+
+        softAssertions = new SoftAssertions();
+        assertRangeActionContent(softAssertions, secondRA, "D7_RA_99992_D4_RA_99992", "PRA_TEST_2A_PRA_TEST_2", "D7_D4", Optional.of("Esgaroth_Numenor"), 1000.0);
+        softAssertions.assertThat(secondRA.getUsageRules()).hasSize(1);
+        final OnContingencyState secondRAUsageRule = (OnContingencyState) secondRA.getUsageRules().stream().findFirst().get();
+        softAssertions.assertThat(secondRAUsageRule.getInstant().isPreventive()).isFalse();
+        softAssertions.assertThat(secondRAUsageRule.getInstant().isCurative()).isTrue();
+        softAssertions.assertThat(secondRAUsageRule.getContingency().getId()).isEqualTo("OUTAGE_1");
+        softAssertions.assertThat(secondRA.getRanges()).hasSize(1);
+        softAssertions.assertThat(secondRA.getRanges().getFirst()).hasFieldOrPropertyWithValue("min", -700.0);
+        softAssertions.assertThat(secondRA.getRanges().getFirst()).hasFieldOrPropertyWithValue("max", -100.0);
+        softAssertions.assertThat(secondRA.getInjectionDistributionKeys()).hasSize(2);
+        softAssertions.assertThat(
+                secondRA.getInjectionDistributionKeys().entrySet().stream()
+                    .collect(
+                        Collectors.toMap(entry -> entry.getKey().getId(),
+                            Map.Entry::getValue))
+            )
+            .containsExactlyInAnyOrderEntriesOf(Map.of("D4AAA21B_generator", 1.0, "D7AAA21A_generator", -1.0));
+        softAssertions.assertAll();
+    }
+
+    @Test
+    void testImportHvdcMixedPreventiveCurative() {
+        // When
+        final CracCreationContext context = new FbConstraintImporter().importData(
+            getClass().getResourceAsStream("/hvdc/crac_with_mixed_preventive_curative_complex_variants.xml"),
+            cracCreationParameters,
+            network);
+
+        // Then
+        final List<InjectionRangeAction> injectionRangeActions = context.getCrac().getInjectionRangeActions().stream()
+            .sorted(Comparator.comparing(InjectionRangeAction::getId))
+            .toList();
+        Assertions.assertThat(injectionRangeActions).hasSize(2); // TODO If we implement removal of inconsistent InjectionRangeActions, the size will be 0
 
         final InjectionRangeAction firstRA = injectionRangeActions.get(0);
         final InjectionRangeAction secondRA = injectionRangeActions.get(1);
