@@ -1,4 +1,4 @@
-# Intertemporal constraints
+# Time-coupling constraints
 
 ## Generator constraints
 
@@ -6,7 +6,7 @@ Generators have physical and mechanical constraints that can be taken in account
 behavior.
 
 > To see the mathematical formulation of these constraints, please refer to the dedicated linear problem
-> [page](../../algorithms/castor/linear-problem/inter-temporal-constraints/generator-constraints-filler.md).
+> [page](../../algorithms/castor/linear-problem/time-coupling-constraints/generator-constraints-filler.md).
 
 ### Lead time
 
@@ -38,7 +38,7 @@ power can vary between two consecutive timestamps. These gradients can be define
 
 ```json
 {
-  "type": "OpenRAO Intertemporal Constraints",
+  "type": "OpenRAO Time-Coupling Constraints",
   "version": "1.0",
   "generatorConstraints": [
     {
@@ -64,5 +64,5 @@ power can vary between two consecutive timestamps. These gradients can be define
 ### Import
 
 ```java
-IntertemporalConstraints timeCouplingConstraints = JsonIntertemporalConstraints.read(getClass().getResourceAsStream("/intertemporal-constraints.json"));
+TimeCouplingConstraints timeCouplingConstraints = JsonTimeCouplingConstraints.read(getClass().getResourceAsStream("/time-coupling-constraints.json"));
 ```

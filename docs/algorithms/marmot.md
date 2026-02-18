@@ -1,7 +1,7 @@
-# MARMOT, the intertemporal RAO
+# MARMOT, the time-coupled RAO
 
 MARMOT is another RAO implementation provided by PowSyBl OpenRAO that was specifically tailored to handle
-**[intertemporal constraints](castor/linear-problem/inter-temporal-constraints.md)**.
+**[time-coupling constraints](castor/linear-problem/time-coupling-constraints.md)**.
 
 ## General presentation
 
@@ -19,9 +19,9 @@ gradient constraints** (in MW/h for instance) that restrict the power variation 
 > more than 50 MW between two consecutive timestamps of one hour each.
 
 When aiming for a more realistic modelling of the power grid, such constraints must be taken in account and some RCCs
-have already expressed their need for including intertemporal constraints in RAO optimization.
+have already expressed their need for including time-coupling constraints in RAO optimization.
 
-By coupling the optimization timestamps with one another, these intertemporal constraints increase significantly the
+By coupling the optimization timestamps with one another, these time-coupling constraints increase significantly the
 combinatorics' complexity behind the mathematical problem tackled by the RAO. New technical solutions and new resolution
 paradigms must be developed to address this _enhanced_ problem formulation, and this is why MARMOT was implemented.
 
@@ -35,10 +35,10 @@ coupled by _causality_ in the sense that preventive choices affect the following
 
 This model can be enhanced with a new temporal dimension to account for the different timestamps that are being
 optimized at once. Here, what couple the states are the
-[intertemporal generator constraints](castor/linear-problem/inter-temporal-constraints/generator-constraints-filler.md)
+[time-coupling generator constraints](castor/linear-problem/time-coupling-constraints/generator-constraints-filler.md)
 that restrict the variation of generators' set-points over time based on the duration of the timestamps.
 
-A significant part of the complexity of the intertemporal optimization hides in the handling of topological actions,
+A significant part of the complexity of the time-coupled optimization hides in the handling of topological actions,
 since their non-linear behavior prevents them from being optimized at the same time and _as easily_ as range actions.
 Besides, the [search-tree algorithm](castor.md#search-tree-algorithm) used in CASTOR does not fit well to this problem
 because the topological actions combinations it must assess now span over several timestamps, making their number
@@ -51,8 +51,8 @@ to deal with. The idea is thus to first run RAOs in parallel to optimize all the
 This allows MARMOT to find first combinations of preventive and curative topological actions for all timestamps.
 
 When the topological actions for all timestamps are retrieved, they are applied on their respective network and a
-**global intertemporal linear optimization** is carried out to ensure that the
-[intertemporal constraints](castor/linear-problem/inter-temporal-constraints.md) are respected. For instance, set-points
+**global time-coupled linear optimization** is carried out to ensure that the
+[time-coupling constraints](castor/linear-problem/time-coupling-constraints.md) are respected. For instance, set-points
 of all linear actions (PSTs, injections, redispatching, ...) get fine-tuned and and smoothed out over time to respect
 the power gradients.
 
@@ -81,5 +81,5 @@ computation times.
 ## Limitations
 
 Currently, MARMOT only supports power gradient constraints but new
-[intertemporal constraints](castor/linear-problem/inter-temporal-constraints.md) like minimum/maximum up/off times will
+[time-coupling constraints](castor/linear-problem/time-coupling-constraints.md) like minimum/maximum up/off times will
 be added in the future.
