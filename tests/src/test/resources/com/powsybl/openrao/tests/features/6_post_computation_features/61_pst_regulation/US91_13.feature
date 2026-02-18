@@ -4,7 +4,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: US 91.13: PST Regulation
-  This feature tests the behaviour of PST regulation in different configurations. The feature is activated through
+  This feature covers the behaviour of PST regulation in different configurations. The feature is activated through
   the parameter "pst-regulation-parameters"/"psts-to-regulate".
 
   @ac @fast @rao @max-min-margin @ampere

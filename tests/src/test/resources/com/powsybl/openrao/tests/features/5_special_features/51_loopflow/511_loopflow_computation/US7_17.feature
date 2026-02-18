@@ -4,6 +4,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: US 7.17: Handle LSKs for PTDF computation
+  This feature covers loopflow_computation with OpenLoadFlow with LSKs in input files.
 
   @fast @loopflow-computation @ac @loopflow
   Scenario: 7.17.1 : LoopFLow computation with LSKs

@@ -4,6 +4,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: US 15.12.5: Handle HVDC range actions in RAO
+  # TODO: This feature covers
 
   @fast @rao @dc @preventive-only @hvdc @max-min-margin @megawatt
   Scenario: US 15.12.5.1: HVDC range action with one preventive CNEC

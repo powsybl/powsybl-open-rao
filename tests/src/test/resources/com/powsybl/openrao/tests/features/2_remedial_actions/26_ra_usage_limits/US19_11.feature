@@ -4,7 +4,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: US 19.11: Handle maximum number of elementary actions per TSO
-  This feature tests the parameter "max-elementary-actions-per-tso" defined in the json CRAC.
+  This feature covers the parameter "ra-usage-limits-per-instant"/"max-elementary-actions-per-tso" defined in the CRAC.
   ## TODO: test also when defined in CracCreationParameters
 
   @fast @rao @preventive-only @max-min-margin @megawatt

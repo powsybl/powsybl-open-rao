@@ -3,7 +3,9 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-Feature: US 13.11: curative RAO stop criterion
+Feature: US 13.11: Curative RAO stop criterion
+  This feature covers the parameter "open-rao-search-tree-parameters"/"objective-function"/"curative-min-obj-improvement",
+  from the RaoParameters.
 
   @fast @rao @ac @contingency-scenarios @max-min-margin @ampere
   Scenario: US 13.11.1: Skip curative RAO

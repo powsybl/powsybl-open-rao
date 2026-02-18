@@ -4,6 +4,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: US 7.5: Loopflow PTDF update parameter
+  This feature covers the different versions of the parameter "loop-flow-parameters"/"ptdf-approximation" from the RaoParameters.
 
   @fast @rao @dc @preventive-only @loopflow @max-min-margin @megawatt
   Scenario: US 7.5.0: RAO with loop-flow in DC with FIXED_PTDF

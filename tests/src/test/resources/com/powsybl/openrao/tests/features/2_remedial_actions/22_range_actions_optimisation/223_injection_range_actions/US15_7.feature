@@ -4,6 +4,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: US 15.7: Injection setpoint with absolute and relative target
+  # TODO: This feature covers
 
   @fast @rao @ac @preventive-only @max-min-margin
   Scenario: US 15.7.1: Preventive search tree RAO with absolute injectionSetpoint preventive RA

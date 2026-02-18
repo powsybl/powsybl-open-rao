@@ -4,6 +4,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: US 15.10.1: Modify voltage level topology as remedial action (2 nodes case)
+  This feature covers network actions on voltage level topology modifications.
 
   @fast @crac
   Scenario: US 15.10.1.1: Import succeeds on basic well defined case

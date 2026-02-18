@@ -4,7 +4,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: US 11.1: Handle MNECs in linear RAO
-  # TODO: This feature tests
+  # TODO: This feature covers
 
   @fast @rao @dc @preventive-only @max-min-margin @megawatt
   Scenario: US 11.1.1: reference run, no MNEC

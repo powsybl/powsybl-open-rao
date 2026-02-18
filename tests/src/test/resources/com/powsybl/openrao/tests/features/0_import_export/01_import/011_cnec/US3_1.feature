@@ -4,6 +4,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: US 3.1: Import of a CNEC optimized in a single direction
+  This feature covers the import of CNECs defined with a "thresholds" containing only either "min" or "max" but not both in the CRAC.
 
   @fast @crac @no-computation
   Scenario: US 3.1.1

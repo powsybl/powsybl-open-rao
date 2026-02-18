@@ -4,6 +4,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: US 2.3: Combine range PST and NetworkAction optimization
+  This feature covers the computation of margins in a basic RAO with network and range actions.
 
   @fast @rao @ac @preventive-only @secure-flow @ampere
   Scenario: US 2.3.1: standard optimization

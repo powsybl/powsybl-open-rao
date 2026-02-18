@@ -4,6 +4,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: US 10.6: Add minimum relative margin binary variable
+  #TODO: This feature covers
 
   @fast @rao @ac @contingency-scenarios @max-min-relative-margin @megawatt
   Scenario: US 10.6.1: Simple case, with 2 curative states and very low cnec thresholds
@@ -17,4 +18,5 @@ Feature: US 10.6: Add minimum relative margin binary variable
     Then its security status should be "UNSECURED"
     Then the worst margin is -1188.90 MW
     Then the value of the objective function after CRA should be 1188.90
+    Then the margin on cnec "NNL2AA1  BBE3AA1  1 - preventive" after PRA should be -1188.90 MW
     #Then the relative margin on cnec "CB_FR-DE_2 - outage" after PRA should be 122.3 MW

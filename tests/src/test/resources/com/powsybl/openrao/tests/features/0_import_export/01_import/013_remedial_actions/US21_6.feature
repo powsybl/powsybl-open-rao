@@ -4,6 +4,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: US 21.6 : Import HVDC Range Actions
+  This feature covers the import of HVDC range actions from the CRAC file.
 
   @fast @crac
   Scenario: US 21.6.1: Import HVDC automaton from CIM CRAC

@@ -4,6 +4,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: US 15.11.6: Complex automaton simulator cases
+  ##TODO: This feature covers
 
   @fast @rao @dc @contingency-scenarios @max-min-margin @megawatt
   Scenario: US 15.11.6.1: Automatons simulated by batches, speed-wise

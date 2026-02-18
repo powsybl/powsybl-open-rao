@@ -4,7 +4,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: US 15.3: Handle transformers
-    #TODO: This feature tests
+    #TODO: This feature covers
 
   @fast @rao @dc @preventive-only @max-min-margin @megawatt
   Scenario: US 15.3.1: Handle transformers on a small test case in DC

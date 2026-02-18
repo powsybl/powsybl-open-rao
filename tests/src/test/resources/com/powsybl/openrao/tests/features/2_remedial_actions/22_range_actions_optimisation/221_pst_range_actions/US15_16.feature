@@ -3,7 +3,8 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-Feature: US 15.16: Handle parallel PSTs with different initial setpoint
+Feature: US 15.16: Handle parallel PSTs with different initial
+    # TODO: This feature covers
 
   @fast @rao @ac @preventive-only @search-tree-rao @max-min-margin @ampere
   Scenario: US 15.16.1: Preventive search tree RAO with two aligned PSTs with different initial taps

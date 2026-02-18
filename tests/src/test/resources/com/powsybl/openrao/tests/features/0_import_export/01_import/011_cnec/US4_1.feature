@@ -4,6 +4,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: US 4.1: Import of a CRAC with MW threshold
+  This feature covers the import of CNECs with "thresholds"/"unit" : "megawatt" in the CRAC.
 
   @fast @crac @no-computation @megawatt @ampere
   Scenario: US 4.1.1: Import of a CRAC with MW threshold

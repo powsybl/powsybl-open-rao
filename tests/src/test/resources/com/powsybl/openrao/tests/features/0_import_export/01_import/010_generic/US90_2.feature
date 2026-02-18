@@ -4,6 +4,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: US 90.2: Asterisks* as wildcards in UCTE CRACs importers
+  This feature covers the import of network elements with asterisks as wildcard in UCTE file format.
 
   @fast @crac
   Scenario: US 90.2.1: Import of a valid CSE CRAC with asterisks

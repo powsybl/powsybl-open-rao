@@ -4,6 +4,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: US 2.2: Optimize PST tap within given ranges
+  This feature covers the computation of margins in a basic RAO with range actions.
 
   @fast @rao @ac @preventive-only @secure-flow @ampere
   Scenario: US 2.2.1: Optimization monitoring only the PST

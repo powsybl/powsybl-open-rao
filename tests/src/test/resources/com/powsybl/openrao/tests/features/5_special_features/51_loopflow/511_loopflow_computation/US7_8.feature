@@ -4,6 +4,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: US 7.8: Loopflow computation (not within the RAO)
+  This feature covers loopflow_computation with OpenLoadFlow.
 
   @fast @rao @ac @preventive-only @secure-flow @megawatt
   Scenario: US 7.8.1: optimise network action without loop flow limitation

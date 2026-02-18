@@ -4,6 +4,8 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: US 7.11: Additional tests with CBCORA input files and FRM
+  This feature covers "loop-flow-parameters"/"constraint-adjustment-coefficient" from the RaoParameters within
+  search-tree RAO and with specific inputs (CBCoRA file, FRM).
 
   @fast @rao @ac @preventive-only @loopflow @max-min-margin @megawatt
   Scenario: 7.11.1 : Replication of test case 7.10.3, using a CBCORA file as input instead of a SL

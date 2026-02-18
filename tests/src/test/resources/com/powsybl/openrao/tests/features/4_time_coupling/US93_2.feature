@@ -4,6 +4,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: US 93.2: Intertemporal redispatching actions with MARMOT - power gradient constraints
+  # TODO: This feature covers
 
   @fast @rao @dc @redispatching @marmot @costly @megawatt
   Scenario: US 93.2.1: Test simple gradient

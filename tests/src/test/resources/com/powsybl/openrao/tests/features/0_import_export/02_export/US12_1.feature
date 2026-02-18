@@ -3,7 +3,8 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-Feature: US 12.1: Handling of curative optimization in the CORE CNE export
+Feature: US 12.1: Handling of curative optimization in the Core CNE export
+  This feature covers the export of optimization results Core CNE.
 
   @fast @cne-export
   Scenario: 12.1.1: Simple curative case (copy of scenario 13.3.10)

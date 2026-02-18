@@ -4,6 +4,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: US 15.11.3: Simulate range action automatons right after topological automatons
+    ##TODO: This feature covers
 
   @fast @rao @ac @contingency-scenarios @hvdc @max-min-margin @ampere
   Scenario: US 15.11.3.1: 1 auto HVDC

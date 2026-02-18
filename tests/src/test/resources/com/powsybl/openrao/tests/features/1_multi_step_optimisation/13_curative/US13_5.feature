@@ -3,7 +3,8 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-Feature: US 13.5: dynamic of range actions available in several instants
+Feature: US 13.5: Dynamic of range actions available in several instants
+  This feature covers RAO computation with multiple range actions defined for several instants in the CRAC.
 
   @fast @rao @ac @contingency-scenarios @max-min-margin @ampere
   Scenario: US 13.5.1: Preventive and curative PST RA, with same taps in both states

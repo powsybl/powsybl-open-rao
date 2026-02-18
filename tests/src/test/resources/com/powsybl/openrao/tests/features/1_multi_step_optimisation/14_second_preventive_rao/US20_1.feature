@@ -4,6 +4,8 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: US 20.1: enable second optimization of the preventive perimeter
+  This feature covers the parameters of "second-preventive-rao" ("execution-condition" : "POSSIBLE_CURATIVE_IMPROVEMENT"),
+  from the RaoParameters.
 
   @fast @rao @ac @second-preventive @max-min-margin @ampere
   Scenario: US 20.1.1.1: Preventive network actions only

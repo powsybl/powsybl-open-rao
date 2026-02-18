@@ -4,6 +4,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: US 15.12.7: Handle CSE's HVDCs with range actions on injections
+  # TODO: This feature covers
 
   @fast @rao @dc @preventive-only @hvdc @max-min-margin @megawatt
   Scenario: US 15.12.7.1: UCTE HVDC as InjectionRangeAction with one preventive CNEC

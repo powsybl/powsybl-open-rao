@@ -4,6 +4,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: US 92.1: Costly network actions optimization
+  This feature covers the objective-function type MIN_COST with network actions.
 
   @fast @preventive-only @costly @rao @megawatt
   Scenario: US 92.1.1: Selection of cheapest of 3 equivalent network actions

@@ -3,7 +3,8 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-Feature: US 13.6: cross validation curative optimization and MNECs
+Feature: US 13.6: Cross validation curative optimization and MNECs
+  This feature covers RAO computation with a curative instant and MNECs defined in the CRAC.
 
   @fast @rao @ac @contingency-scenarios @mnec @max-min-margin @ampere
   Scenario: US 13.6.1: Simple case with a mix of preventive and curative remedial actions and a MNEC in preventive limited by threshold

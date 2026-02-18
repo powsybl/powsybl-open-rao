@@ -4,7 +4,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: US 90.7: Handle X-nodes
-  This feature tests CRAC import and RAO computation on a network containing an X-node.
+  This feature covers CRAC import and RAO computation on a network containing an X-node.
 
   @fast @crac
   Scenario: US 90.7.1: Handle CRAC import with half-line IDs

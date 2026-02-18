@@ -4,6 +4,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: US 5.1: MAX_MIN_MARGIN objective function
+  This feature covers the objective-function/type MAX_MIN_MARGIN.
 
   @fast @rao @ac @preventive-only @secure-flow @ampere
   Scenario: US 5.1.0.a: SECURE_FLOW objective function: secure initially, no RA applied

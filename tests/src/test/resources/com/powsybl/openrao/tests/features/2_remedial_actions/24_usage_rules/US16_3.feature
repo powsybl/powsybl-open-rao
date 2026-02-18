@@ -4,6 +4,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: User Story #16.3: Activate remedial actions only after a specific constraint
+  # TODO: This feature covers
 
   @fast @rao @ac @preventive-only @max-min-margin @ampere
   Scenario: US 16.3.1: Preventive onConstraint RA with a constraint on the base network

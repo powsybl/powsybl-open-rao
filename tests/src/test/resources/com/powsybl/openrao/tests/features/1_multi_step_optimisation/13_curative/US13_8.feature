@@ -3,14 +3,17 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-Feature: US 13.8: cross-validation curative and relative margin
+Feature: US 13.8: Cross-validation curative and relative margin
+  This feature covers RAO computation with a curative instant defined in the CRAC the objective function
+  MAX_MIN_RELATIVE_MARGIN in the parameters.
 
   @fast @rao @ac @contingency-scenarios @max-min-relative-margin @ampere
   Scenario: US 13.8.1: Full optimization in relative margin with negative margin in curative
-    # Same case as 13.2.6 but with relative margin. No impact with relative margins, same optimization except one PST tap
-    # in preventive, this can be explained by the fact that BE2-FR3 becomes the most limiting element due to relative margins
-    # compared to initial case. In curative, remedial actions are the same because the most limiting element has negative margin
-    # So it remains the same between the two cases.
+    Same case as 13.2.6 but with relative margin. No impact with relative margins, same optimization except one PST tap
+    in preventive, this can be explained by the fact that BE2-FR3 becomes the most limiting element due to relative margins
+    compared to initial case. In curative, remedial actions are the same because the most limiting element has negative margin
+    So it remains the same between the two cases.
+    #
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic13/SL_ep13us2case6.json"
     Given configuration file is "epic13/RaoParameters_relMargin_ampere.json"

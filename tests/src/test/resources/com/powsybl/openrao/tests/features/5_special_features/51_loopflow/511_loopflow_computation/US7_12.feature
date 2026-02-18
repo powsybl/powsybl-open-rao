@@ -4,6 +4,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: US 7.12: Compute loop-flows for N-1 Cnecs
+  This feature coversloop flow_computation with OpenLoadFlow in N-1.
 
   @fast @loopflow-computation @ac @loopflow
   Scenario: 7.12.1 : loop-flow computation on 12 nodes network on N and N-1 states

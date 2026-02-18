@@ -4,6 +4,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: US 7.14: Use a refProg file to calculate the loop-flows
+  This feature covers loopflow_computation with OpenLoadFlow with a RefProg input file.
 
   @fast @loopflow-computation @ac @loopflow
   Scenario: 7.14.1 : calculate loop-flows with a refProg file - Megawatt

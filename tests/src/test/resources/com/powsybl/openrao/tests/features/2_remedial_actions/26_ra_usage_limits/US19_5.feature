@@ -3,7 +3,9 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-Feature: US 19.5: max number of CRAs
+Feature: US 19.5: Max number of CRAs
+  This feature covers the  parameter of "ra-usage-limits-per-instant"/"max-ra" defined in the CRAC.
+  ## TODO: test also when defined in CracCreationParameters
 
   @fast @rao @ac @contingency-scenarios @max-min-margin @ampere
   Scenario: 19.5.1: Three allowed CRAs

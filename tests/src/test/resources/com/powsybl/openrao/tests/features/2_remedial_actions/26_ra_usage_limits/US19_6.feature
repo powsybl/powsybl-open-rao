@@ -3,7 +3,9 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-Feature: US 19.6: handle maximum number of TSOs using RAs in curative optimization
+Feature: US 19.6: Handle maximum number of TSOs using RAs in curative optimization
+  This feature covers the parameter "ra-usage-limits-per-instant"/"max-tso", defined in the CRAC.
+    ## TODO: test also when defined in CracCreationParameters
 
   @fast @rao @ac @contingency-scenarios @max-min-margin @ampere
   Scenario: US 19.6.1: Two allowed TSOs - 2 TSOs in crac

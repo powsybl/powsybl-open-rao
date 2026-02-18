@@ -4,6 +4,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: US 7.18: Virtual hubs in loopflow computation
+  This feature covers loopflow_computation with OpenLoadFlow with virtual hubs in input files.
 
   @fast @loopflow-computation @ac @loopflow
   Scenario: 7.18.1 : Loop flow computation with one virtual hub on a classic UCTE node - MEGAWATT

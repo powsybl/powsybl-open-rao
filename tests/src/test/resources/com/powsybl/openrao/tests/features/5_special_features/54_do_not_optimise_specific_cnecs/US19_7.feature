@@ -3,7 +3,9 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-Feature: US 19.7: handle CNECs belonging to TSOs that don't share CRAs
+Feature: US 19.7: Handle CNECs belonging to TSOs that don't share CRAs
+  This feature covers the parameter "not-optimized-cnecs"/"do-not-optimize-curative-cnecs-for-tsos-without-cras",
+  from the RaoParameters.
 
   @fast @rao @ac @contingency-scenarios @max-min-margin @ampere
   Scenario: 19.7.1.A: All CNECs belong to one operator not sharing CRAs - AMP

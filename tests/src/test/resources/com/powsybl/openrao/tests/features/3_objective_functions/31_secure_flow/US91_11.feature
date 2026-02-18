@@ -4,6 +4,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: US 91.11: Optimize computations for SECURE_FLOW objective function
+  This feature covers the objective-function/type SECURE_FLOW.
 
   @fast @rao @dc @preventive-only @search-tree-rao @secure-flow @megawatt
   Scenario: US 91.11.1: Interrupt search tree depth early

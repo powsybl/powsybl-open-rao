@@ -4,6 +4,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: US 15.11.2: Simulate topological automatons right after preventive optimization
+##TODO: This feature covers
 
   @fast @rao @ac @contingency-scenarios @secure-flow @ampere
   Scenario: US 15.11.2.1: onConstraint automaton not applied

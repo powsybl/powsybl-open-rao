@@ -4,6 +4,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: US 13.4: Dynamic of topological remedial actions available in several instants
+  This feature covers RAO computation with multiple network actions defined for several instants in the CRAC.
 
   @fast @rao @ac @contingency-scenarios @max-min-margin @ampere
   Scenario: US 13.4.1: Topological RA already applied in initial network : not available for optimization

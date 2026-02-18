@@ -4,6 +4,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: US 15.12.3: Import HVDC range action from CSE CRAC
+  This feature covers the import of the HVDC range actions defined as injections from the CSE CRAC.
 
   @fast @crac
   Scenario: US 15.12.3.1: Import simple HVDC range actions

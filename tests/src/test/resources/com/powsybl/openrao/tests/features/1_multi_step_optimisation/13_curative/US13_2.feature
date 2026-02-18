@@ -4,12 +4,13 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: US 13.2: Solve a RAO for two consecutive states (preventive THEN curative)
+  This feature covers RAO computation with two consecutive states defined in the CRAC.
 
   @fast @rao @ac @preventive-only @max-min-margin @ampere
   Scenario: US 13.2.1: Simple case with preventive remedial actions only
-    # Osiris does not find the global optimal solution, thus the test cas has been modified
-    # If left alone, it would decide to use open_fr1_fr2, close_de3_de4, pst_fr, and pst_be to generate a minimum margin of 988 A
-    # If we impose the usage of close_fr1_fr5, it would then only add pst_be and generate a minimum margin of 999 A
+    If left alone, it would decide to use open_fr1_fr2, close_de3_de4, pst_fr, and pst_be to generate a minimum margin of 988 A
+    If we impose the usage of close_fr1_fr5, it would then only add pst_be and generate a minimum margin of 999 A
+    #
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic13/SL_ep13us2case1.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
@@ -26,9 +27,6 @@ Feature: US 13.2: Solve a RAO for two consecutive states (preventive THEN curati
 
   @fast @rao @ac @contingency-scenarios @max-min-margin @ampere
   Scenario: US 13.2.2: Simple case with curative remedial actions only
-    # FARAO finds a better solution than OSIRIS
-    # OSIRIS has worst margin 986 A with "open_fr1_fr2" and pst_be at 16 and pst_fr at 15
-    # This solution exists in FARAO (we can see it in the logs) but a better solution is found
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic19/SL_ep19us6basecase.json"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
@@ -55,9 +53,7 @@ Feature: US 13.2: Solve a RAO for two consecutive states (preventive THEN curati
     Then 2 remedial actions are used in preventive
     Then the remedial action "open_be1_be4" is used in preventive
     Then the tap of PstRangeAction "pst_fr" should be -5 in preventive
-    # FARAO PST tap is 15 whereas OSIRIS is 16, not a big difference
-    # OSIRIS worst margin is 989 A and FARAO is actually 992 A, slightly better
-    # I put the same values as in OSIRIS that are accepted due to acceptance margin in Cucumber
+
     Then 2 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     Then the remedial action "open_fr1_fr3" is used after "co1_fr2_fr3_1" at "curative"
     Then the tap of PstRangeAction "pst_be" should be 15 after "co1_fr2_fr3_1" at "curative"
@@ -167,19 +163,13 @@ Feature: US 13.2: Solve a RAO for two consecutive states (preventive THEN curati
     Then the tap of PstRangeAction "pst_fr" should be -5 in preventive
     Then 2 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     Then the remedial action "open_fr1_fr3" is used after "co1_fr2_fr3_1" at "curative"
-    # Difference with OSIRIS on PST tap explained below
+
     Then the tap of PstRangeAction "pst_be" should be 16 after "co1_fr2_fr3_1" at "curative"
     Then the worst margin is 433 A on cnec "BBE2AA1  FFR3AA1  1 - co1_fr2_fr3_1 - curative"
     Then the margin on cnec "FFR4AA1  DDE1AA1  1 - preventive" after PRA should be 597 A
     Then the margin on cnec "FFR2AA1  DDE3AA1  1 - preventive" after PRA should be 601 A
     Then the margin on cnec "BBE2AA1  FFR3AA1  1 - preventive" after PRA should be 643 A
-    # Results after curative optimization are dramatically different between FARAO and OSIRIS because they are
-    # not on the same cneces but the worst margin are similar (slightly better for FARAO +14 A)
-    # After a comparing study between OSIRIS and FARAO logs, remedial actions are taken the same way and for
-    # identical remedial actions results are the same (so flows are well computed and RAs are well applied even
-    # taking preventive RAs into account). For a reason I ignore when OSIRIS make the linear optimization after applying
-    # "open_fr1_fr3" it doesn't find the FARAO solution which is better (and verified through simple loadflow computation
-    # in Convergence)
+
     Then the margin on cnec "BBE2AA1  FFR3AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be 433 A
     Then the margin on cnec "FFR1AA1  FFR4AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be 440 A
     Then the margin on cnec "FFR4AA1  DDE1AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be 571 A

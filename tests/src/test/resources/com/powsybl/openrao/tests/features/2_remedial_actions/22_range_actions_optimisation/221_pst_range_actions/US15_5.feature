@@ -4,6 +4,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: US 15.5: Handle parallel PSTs
+  # TODO: This feature covers
 
   @fast @rao @ac @preventive-only @search-tree-rao @max-min-margin @ampere
   Scenario: US 15.5.1: Preventive search tree RAO with two aligned PSTs

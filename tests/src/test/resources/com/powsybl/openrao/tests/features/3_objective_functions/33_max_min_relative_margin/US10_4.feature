@@ -3,7 +3,9 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-Feature: US 10.4: PTDF boundaries with more than two zones
+Feature: US 10.4: ptdfBoundaries with more than two zones
+  This feature covers the parameter definition relative-margins-parameters/ptdf-boundaries when using the
+  objective-function/type MAX_MIN_RELATIVE_MARGIN, from the RaoParameters.
 
   @fast @rao @dc @preventive-only @max-min-relative-margin @megawatt
   Scenario: US 10.4.1: Boundary BE-DE with Alegro

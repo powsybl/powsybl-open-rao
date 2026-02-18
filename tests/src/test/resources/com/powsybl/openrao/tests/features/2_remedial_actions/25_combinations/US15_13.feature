@@ -4,6 +4,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: US 15.13: Handle combined RAs by configuration
+  # TODO: This feature covers
 
   @fast @rao @ac @preventive-only @max-min-margin @ampere
   Scenario: US 15.13.1: Optimal combination in preventive, at first depth

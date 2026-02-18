@@ -3,11 +3,12 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-Feature: US 7.15: loop-flow acceptable augmentation parameter
+Feature: US 7.15: Loop-flow acceptable augmentation parameter
+  This feature covers the parameter "loop-flow-parameters"/"acceptable-increase" from the RaoParameters.
 
   @fast @rao @ac @preventive-only @loopflow @max-min-margin @megawatt
   Scenario: 7.15.1 : Test case with a loop-flow acceptable augmentation parameter of 40 MW
-    #same case as 7.11.1 but with the new parameter, giving a better margin
+  Same case as 7.11.1 but with the new parameter, giving a better margin.
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic7/crac_lf_rao_3_cbcora.xml"
     Given loopflow glsk file is "common/glsk_lots_of_lf_12nodes.xml"

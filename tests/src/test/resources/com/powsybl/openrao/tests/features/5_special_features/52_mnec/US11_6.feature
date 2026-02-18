@@ -4,7 +4,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: US 11.6: Handle MNECs in rao with a CSE CRAC
-  This feature tests the CRAC import and the behaviour of the RAO with a CSE CRAC containing the fields starting with IlimitMNE.
+  This feature covers the CRAC import and the behaviour of the RAO with a CSE CRAC containing the fields starting with IlimitMNE.
 
   @fast @rao @ac @preventive-only @secure-flow @ampere
   Scenario: US 11.6.1: only network actions - ref run, no MNEC

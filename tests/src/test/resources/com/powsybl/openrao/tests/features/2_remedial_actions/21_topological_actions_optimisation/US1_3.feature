@@ -4,6 +4,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: US 1.3: Security assessment with network actions
+  This feature covers the computation of margins in a basic RAO with network actions.
 
   @fast @rao @ac @preventive-only @secure-flow @ampere
   Scenario: US 1.3.1: selection of topological action

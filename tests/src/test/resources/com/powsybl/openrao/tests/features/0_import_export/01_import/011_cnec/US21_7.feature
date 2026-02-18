@@ -4,6 +4,8 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: US 21.7 : Import angle CNECs
+  This feature covers the import of CNECs defined for angle monitoring in the CRAC file.
+  ## TODO: do this test for json CRACs? (and voltages)
 
   @fast @crac
   Scenario: US 21.7.1: Import angle CNECs

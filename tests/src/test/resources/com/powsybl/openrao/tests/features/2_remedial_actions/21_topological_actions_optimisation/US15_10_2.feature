@@ -4,6 +4,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: US 15.10.2: Modify voltage level topology as remedial action (3 nodes case)
+  This feature covers network actions on voltage level topology modifications.
 
   @fast @rao @ac @contingency-scenarios @max-min-margin @megawatt
   Scenario: US 15.10.2.1: PRA RA1 and CRA RA3 inapplicable (1/2)

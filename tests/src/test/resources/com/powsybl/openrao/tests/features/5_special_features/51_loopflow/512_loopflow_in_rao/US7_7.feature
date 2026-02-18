@@ -4,6 +4,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: US 7.7: Handle optimisation unfeasibility with loopflow constraints
+  This feature covers the parameters "loop-flow-parameters" from the RaoParameters within the RAO computation.
 
   @fast @rao @ac @preventive-only @loopflow @max-min-margin @megawatt
   Scenario: US 7.7.1: Simple search tree RAO with LF limitation and infeasible linear problem

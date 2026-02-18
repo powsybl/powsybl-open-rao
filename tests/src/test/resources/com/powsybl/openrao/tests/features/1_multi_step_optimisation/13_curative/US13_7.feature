@@ -4,6 +4,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: US 13.7: Cross-validation Curative and Loop-flows
+  This feature covers RAO computation with a curative instant defined in the CRAC and loop-flows in the parameters.
 
   @fast @rao @dc @preventive-only @loopflow @max-min-margin @megawatt
   Scenario: US 13.7.1 : RAO with loop-flows in preventive perimeter limited by their threshold

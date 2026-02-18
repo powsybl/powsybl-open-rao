@@ -4,31 +4,33 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: US 20.5: Advanced 2nd preventive run conditions
+  This feature covers several scenarios of "execution-condition" : "COST_INCREASE" or "POSSIBLE_CURATIVE_IMPROVEMENT",
+  in "second-preventive-rao" parameters.
 
-  @fast @rao @ac @second-preventive @max-min-margin @ampere
+  @fast @rao @ac @max-min-margin @ampere
   Scenario: US 20.5.1: Cost has not increased during RAO, do not fall back to initial solution (copy of 20.1.1)
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic20/second_preventive_ls_1.json"
     Given configuration file is "epic20/RaoParameters_maxMargin_ampere_forbid_cost_increase.json"
     When I launch rao
-    Then the worst margin is -144 A
-    Then the value of the objective function after CRA should be 144
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "UNSECURED"
+    Then the worst margin is -144 A
+    Then the value of the objective function after CRA should be 144
 
-  @fast @rao @ac @second-preventive @max-min-margin @ampere
+  @fast @rao @ac @max-min-margin @ampere
   Scenario: US 20.5.2: Cost has increased during RAO, fall back to initial solution (copy of 20.1.2)
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic20/SL_ep20us5case2.json"
     Given configuration file is "epic20/RaoParameters_maxMargin_ampere_forbid_cost_increase.json"
     When I launch rao
+    Then the execution details should be "First preventive fell back to initial situation"
+    Then its security status should be "SECURED"
     Then 0 remedial actions are used in preventive
     Then 0 remedial actions are used after "co1_fr2_fr3_1" at "curative"
     Then the tap of PstRangeAction "pst_be" should be 0 after "co1_fr2_fr3_1" at "curative"
     Then the worst margin is 113 A
     Then the value of the objective function after CRA should be -113
-    Then the execution details should be "First preventive fell back to initial situation"
-    Then its security status should be "SECURED"
 
   @fast @rao @ac @second-preventive @max-min-margin @ampere
   Scenario: US 20.5.3: Cost has not increased during RAO, do not run 2P (copy of 20.1.1)
@@ -36,10 +38,10 @@ Feature: US 20.5: Advanced 2nd preventive run conditions
     Given crac file is "epic20/second_preventive_ls_1.json"
     Given configuration file is "epic20/RaoParameters_maxMargin_ampere_2p_if_cost_increase.json"
     When I launch rao
-    Then the worst margin is -144 A
-    Then the value of the objective function after CRA should be 144
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "UNSECURED"
+    Then the worst margin is -144 A
+    Then the value of the objective function after CRA should be 144
 
   @fast @rao @ac @second-preventive @max-min-margin @ampere
   Scenario: US 20.5.4: Cost has increased during RAO, run 2P (copy of 20.1.2)

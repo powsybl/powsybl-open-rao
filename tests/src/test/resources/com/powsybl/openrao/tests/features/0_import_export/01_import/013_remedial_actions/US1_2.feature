@@ -4,6 +4,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: US 1.2: Import of simple network actions as preventive remedial action free to use
+  This feature covers the import of basic network actions defined in the CRAC.
 
   @fast @crac @ampere
   Scenario: US 1.2.1

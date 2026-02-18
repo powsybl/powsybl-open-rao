@@ -3,7 +3,9 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-Feature: US 10.3: handle GLSK on Xnodes
+Feature: US 10.3: Handle GLSK on Xnodes
+  This feature covers when GLSKs are defined on Xnoeds in RAO computation with
+  objective-function/type MAX_MIN_RELATIVE_MARGIN.
 
   @fast @rao @dc @preventive-only @max-min-relative-margin @megawatt
   Scenario: US 10.3.1: GLSK on Xnodes

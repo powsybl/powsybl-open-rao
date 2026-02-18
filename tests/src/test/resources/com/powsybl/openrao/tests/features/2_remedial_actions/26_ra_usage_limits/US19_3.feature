@@ -4,7 +4,8 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: US 19.3: Handle maximum CRA and maximum curative PSTs per TSO
-  This feature tests the parameter "ra-usage-limits-per-instant" defined in the json CRAC.
+  This feature covers the parameters "ra-usage-limits-per-instant"/"max-topo-per-tso", "max-pst-per-tso" and
+  "max-ra-per-tso" defined in the json CRAC.
   ## TODO: test also when defined in CracCreationParameters
 
   @fast @rao @ac @contingency-scenarios @max-min-margin @ampere

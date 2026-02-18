@@ -4,6 +4,8 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: US 10.2: define ptdfBoundaries with EIcode instead of Country codes
+  This feature covers the parameter definition relative-margins-parameters/ptdf-boundaries when using the
+  objective-function/type MAX_MIN_RELATIVE_MARGIN, from the RaoParameters.
 
   @fast @rao @dc @preventive-only @max-min-relative-margin @megawatt
   Scenario: US 10.2.1: Compute relative margins with PTDFs on bidding-zones which are countries

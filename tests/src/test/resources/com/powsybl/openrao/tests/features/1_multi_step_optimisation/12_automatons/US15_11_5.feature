@@ -4,6 +4,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: US 15.11.5: Additional tests to check various fixes concerning automaton state
+  ##TODO: This feature covers
 
   @fast @rao @dc @second-preventive @max-min-margin @megawatt
   Scenario: US 15.11.5.1: test fix apply auto for curative cnecs post 2P

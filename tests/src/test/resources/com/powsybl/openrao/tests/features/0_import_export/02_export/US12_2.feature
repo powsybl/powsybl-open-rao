@@ -3,7 +3,8 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-Feature: US 12.2: Export of PTDF factors and relative margins in CORE CNE
+Feature: US 12.2: Export of PTDF factors and relative margins in Core CNE
+  This feature covers the export of PTDF factors and relative margins in the Core CNE.
 
   @fast @cne-export
   Scenario: US 12.2.1

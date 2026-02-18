@@ -4,6 +4,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: US 1.1: Security assessment without any remedial action
+  This feature covers the computation of margins.
 
   @fast @rao @ac @preventive-only @secure-flow @ampere
   Scenario: US 1.1.1

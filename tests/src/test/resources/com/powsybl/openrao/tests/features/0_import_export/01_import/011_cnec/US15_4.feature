@@ -4,7 +4,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: US 15.4: Consider two margins on tie-lines for each half-line with relative thresholds
-  #TODO: This feature tests
+  #TODO: This feature covers
 
   @fast @crac
   Scenario: US 15.4.0: Import different thresholds (absolute) on two half-lines of the same tie-line

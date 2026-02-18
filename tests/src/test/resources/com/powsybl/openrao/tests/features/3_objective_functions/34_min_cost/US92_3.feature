@@ -5,6 +5,7 @@
 
 
 Feature: US 92.3: Exhaustive costly optimization - APPROXIMATED_INTEGERS PSTs
+  This feature covers the objective-function type MIN_COST with various remedial actions.
 
   @fast @preventive-only @costly @rao @megawatt
   Scenario: US 92.3.1: Activate one topological action and one PST in preventive

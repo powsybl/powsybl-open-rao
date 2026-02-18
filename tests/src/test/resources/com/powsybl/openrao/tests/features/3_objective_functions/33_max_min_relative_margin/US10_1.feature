@@ -4,9 +4,10 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: US 10.1: Linear RAO with relative margin
+  This feature covers the objective-function/type MAX_MIN_RELATIVE_MARGIN.
 
   @fast @rao @ac @preventive-only @relative @max-min-relative-margin @megawatt
-  Scenario: US 10.1.1: unsecured case
+  Scenario: US 10.1.1: Unsecured case
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic10/ls_relative_margin_unsecure.json"
     Given configuration file is "epic10/RaoParameters_relMargin_megawatt.json"
@@ -21,7 +22,7 @@ Feature: US 10.1: Linear RAO with relative margin
     Then the relative margin on cnec "DDE2AA1  NNL3AA1  1 - preventive" after PRA should be 2474.7 MW
 
   @fast @rao @ac @preventive-only @max-min-relative-margin @megawatt
-  Scenario: US 10.1.2: secured case
+  Scenario: US 10.1.2: Secured case
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic10/ls_relative_margin.json"
     Given configuration file is "epic10/RaoParameters_relMargin_megawatt.json"
@@ -37,7 +38,7 @@ Feature: US 10.1: Linear RAO with relative margin
     Then the absolute PTDF sum on cnec "FFR2AA1  DDE3AA1  1 - preventive" initially should be 1.477
 
   @fast @rao @ac @preventive-only @max-min-relative-margin @megawatt
-  Scenario: US 10.1.3: secured case with open monitored branch
+  Scenario: US 10.1.3: Secured case with open monitored branch
     Given network file is "common/TestCase12NodesWithOpenBranch.uct"
     Given crac file is "epic10/ls_relative_margin_with_open_branch.json"
     Given configuration file is "epic10/RaoParameters_relMargin_megawatt.json"

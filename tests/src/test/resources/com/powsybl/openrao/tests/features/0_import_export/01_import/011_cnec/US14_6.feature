@@ -4,7 +4,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: US 14.6: Dangling lines
-  #TODO: This feature tests
+  #TODO: This feature covers
 
   @fast @rao @dc @preventive-only @max-min-margin @megawatt
   Scenario: 14.6.1 : Dangling line with no generation, RAO in MW

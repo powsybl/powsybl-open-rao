@@ -4,6 +4,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: US 13.3 : Solve a RAO for N compounds states
+  This feature covers RAO computation with N states defined in the CRAC.
 
   @fast @rao @ac @contingency-scenarios @max-min-margin @ampere
   Scenario: US 13.3.1: Simple case with preventive, outage and curative states
@@ -29,9 +30,6 @@ Feature: US 13.3 : Solve a RAO for N compounds states
 
   @fast @rao @ac @contingency-scenarios @max-min-margin @ampere
   Scenario: US 13.3.2: Simple case, with 2 curative states
-    # In order to have the same topological RAs used as in Osiris, we have to increase
-    # the usage threshold here (absolute-network-action-minimum-impact-threshold)
-    # But the minimum margin would have been the same without the increase
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic13/SL_ep13us3case2.json"
     Given configuration file is "epic13/RaoParameters_maxMargin_ampere_absolute_threshold.json"
@@ -57,9 +55,6 @@ Feature: US 13.3 : Solve a RAO for N compounds states
 
   @fast @rao @ac @contingency-scenarios @max-min-margin @ampere
   Scenario: US 13.3.3: Simple case, with 2 curative states and on-contingency remedial actions
-    # In order to have the same topological RAs used as in Osiris, we have to increase
-    # the usage threshold here (absolute-network-action-minimum-impact-threshold)
-    # But the minimum margin would have been slightly better than Osiris without the increase
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic13/SL_ep13us3case3.json"
     Given configuration file is "epic13/RaoParameters_maxMargin_ampere_absolute_threshold.json"
@@ -84,9 +79,6 @@ Feature: US 13.3 : Solve a RAO for N compounds states
 
   @fast @rao @ac @contingency-scenarios @max-min-margin @ampere
   Scenario: US 13.3.4: Complex case, with several outage/curative states, and on-contingency remedial actions
-    # In order to have the same topological RAs used as in Osiris, we have to increase
-    # the usage threshold here (absolute-network-action-minimum-impact-threshold)
-    # But the minimum margin would have been the same without the increase
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic13/SL_ep13us3case4.json"
     Given configuration file is "epic13/RaoParameters_maxMargin_ampere_absolute_threshold.json"
@@ -147,12 +139,9 @@ Feature: US 13.3 : Solve a RAO for N compounds states
     Then the tap of PstRangeAction "pst_be" should be -16 after "co2_be1_be3" at "curative"
     Then the worst margin is -484 A
     Then the margin on cnec "FFR2AA1  FFR3AA1  2 - co1_fr2_fr3_1 - curative" after CRA should be -484 A
-    # For contingency co1_fr2_fr3_1 that has no CRA, Osiris automatically decreases the threshold in outage to match the treshold in curative state
-    # Farao improves this by keeping the threshold from the crac. That is why the margin in Farao is larger by 300A than the one in Osiris.
     Then the margin on cnec "FFR2AA1  FFR3AA1  2 - co1_fr2_fr3_1 - outage" after PRA should be -184 A
     Then the margin on cnec "BBE2AA1  FFR3AA1  1 - co2_be1_be3 - outage" after PRA should be 232 A
     Then the margin on cnec "FFR4AA1  DDE1AA1  1 - preventive" after PRA should be 525 A
-    # For the same reason explained above, the margin in Farao is larger by 100A than the one in Osiris.
     Then the margin on cnec "FFR4AA1  DDE1AA1  1 - co1_fr2_fr3_1 - outage" after PRA should be 649 A
     Then the margin on cnec "FFR4AA1  DDE1AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be 549 A
     Then the value of the objective function after CRA should be 484
@@ -195,7 +184,6 @@ Feature: US 13.3 : Solve a RAO for N compounds states
     Then the margin on cnec "FFR2AA1  FFR3AA1  2 - co1_fr2_fr3_1 - outage" after PRA should be 418 A
     Then the margin on cnec "FFR2AA1  FFR3AA1  2 - co1_fr2_fr3_1 - curative" after CRA should be 485 A
     Then the margin on cnec "BBE2AA1  FFR3AA1  1 - co2_be1_be3 - curative" after CRA should be 544 A
-    # For the same reason explained in 13.3.6, the margin in Farao is larger by 200A than the one in Osiris.
     Then the margin on cnec "BBE2AA1  FFR3AA1  1 - co2_be1_be3 - outage" after PRA should be 744 A
     Then the margin on cnec "FFR1AA1  FFR2AA1  1 - co3_fr1_fr3 - outage" after PRA should be 857 A
     Then the margin on cnec "BBE1AA1  FFR5AA1  1 - preventive" after PRA should be 886 A
@@ -203,9 +191,6 @@ Feature: US 13.3 : Solve a RAO for N compounds states
 
   @fast @rao @ac @contingency-scenarios @max-min-margin @ampere
   Scenario: US 13.3.9: Test case with no RA in the preventive perimeter
-    # In order to have the same topological RAs used as in Osiris, we have to increase
-    # the usage threshold here (absolute-network-action-minimum-impact-threshold)
-    # But the minimum margin would have been better by 10A without the increase
     Given network file is "common/TestCase16Nodes.uct"
     Given crac file is "epic13/SL_ep13us3case9.json"
     Given configuration file is "epic13/RaoParameters_maxMargin_ampere_absolute_threshold_12.json"

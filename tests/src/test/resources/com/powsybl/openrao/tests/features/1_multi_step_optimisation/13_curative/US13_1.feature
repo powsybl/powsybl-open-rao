@@ -3,7 +3,8 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-Feature: US 13.1: solve a RAO for a single preventive or curative state
+Feature: US 13.1: Solve a RAO for a single preventive or curative state
+  This feature covers basic RAO computation on a single state defined in the CRAC.
 
   @fast @rao @ac @preventive-only @search-tree-rao @max-min-margin @megawatt
   Scenario: US 13.1.1: Solve preventive perimeter alone
@@ -12,7 +13,9 @@ Feature: US 13.1: solve a RAO for a single preventive or curative state
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_ac.json"
     When I launch rao at "2019-01-08 00:30" on preventive state
     Then the execution details should be "The RAO only went through first preventive"
-    Then its security status should be "unSECURED"
+    Then its security status should be "UNSECURED"
+    Then the worst margin is 1636 MW
+    Then the margin on cnec "CnecPreventiveOppo - preventive" after PRA should be 1636 MW
     Then the tap of PstRangeAction "SelectTapPSTPrev" should be 12 in preventive
     Then the initial flow on cnec "CnecPreventiveDir - preventive" should be -400.0 MW on side 1
     # Then the flow on cnec "DDE1AA1  DDE3AA1  1 - preventive" after PRA should be 121.0 MW

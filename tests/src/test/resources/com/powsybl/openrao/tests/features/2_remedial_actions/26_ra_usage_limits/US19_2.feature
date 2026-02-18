@@ -4,6 +4,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: US 19.2: Handle maximum topological CRA per TSO
+  This feature covers the parameters "ra-usage-limits-per-instant"/"max-topo-per-tso" defined in the json CRAC.
 
   @fast @rao @ac @contingency-scenarios @max-min-margin @ampere
   Scenario: US 19.2.1: Check that the maximum number of network actions per TSO is ignored in preventive 1

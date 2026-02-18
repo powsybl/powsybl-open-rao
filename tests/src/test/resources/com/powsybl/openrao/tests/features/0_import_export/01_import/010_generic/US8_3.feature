@@ -4,7 +4,8 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: US 8.3: Handle elementName tag
-  # In UCTE file format, a line is defined by the name of two substations and either an order code or an elementName.
+  This feature covers the import of a branch defined in UCTE file format as the name of two substations and an
+  elementName (and not OrderCode).
 
   @fast @rao @ac @preventive-only @secure-flow @megawatt
   Scenario: US 8.3.1.1: line defined with order code

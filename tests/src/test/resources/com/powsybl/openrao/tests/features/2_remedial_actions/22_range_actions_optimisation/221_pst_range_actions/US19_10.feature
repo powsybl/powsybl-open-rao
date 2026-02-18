@@ -3,7 +3,8 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-Feature: US 19.10: limit number of PSTs with a constraint directly in the optimisation
+Feature: US 19.10: Limit number of PSTs with a constraint directly in the optimisation
+  # TODO: This feature covers
 
   @fast @rao @ac @contingency-scenarios @max-min-margin @ampere
   Scenario: US 19.10.1: One PST and no topo (copy of US 19.3.3 with MIP for PSTs)

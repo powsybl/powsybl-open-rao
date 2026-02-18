@@ -3,7 +3,8 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-Feature: US 12.6: CORE CNE export for preventive case
+Feature: US 12.6: Core CNE export for preventive case
+  This feature covers the export of Core CNE for preventive computation.
 
   @fast @cne-export
   Scenario: 12.6.2.CBCORA: Preventive only case 1

@@ -3,7 +3,8 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-Feature: US 12.9: CORE CNE export for CBCORA with inverted branches
+Feature: US 12.9: Core CNE export for CBCORA with inverted branches
+  This feature covers the export of particular CNECs in Core CNE.
 
   @fast @cne-export
   Scenario: 12.9.1: CBCORA with inverted branches

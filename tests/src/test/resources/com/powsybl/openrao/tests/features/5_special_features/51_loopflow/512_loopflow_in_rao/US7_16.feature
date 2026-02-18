@@ -3,7 +3,8 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-Feature: US 7.16: monitor loopflows on specific countries
+Feature: US 7.16: Monitor loopflows on specific countries
+  This feature covers the parameter "loop-flow-parameters"/"countries" from the RaoParameters.
 
   @fast @rao @ac @preventive-only @loopflow @max-min-margin @megawatt
   Scenario: 7.16.1 : loopflows monitored on the borders of BE and of NL

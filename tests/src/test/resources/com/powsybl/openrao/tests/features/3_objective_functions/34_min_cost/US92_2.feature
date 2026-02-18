@@ -4,6 +4,8 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: US 92.2: Costly range actions optimization - APPROXIMATED_INTEGERS PSTs
+  This feature covers the objective-function type MIN_COST with range actions, using the parameter:
+  "pst-model" : "APPROXIMATED_INTEGERS".
 
   @fast @preventive-only @costly @rao @megawatt
   Scenario: US 92.2.1: Change only necessary taps on preventive PST

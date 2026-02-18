@@ -4,6 +4,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: US 15.1: Handle the opening/closing of switches as topological actions
+  This feature covers the use of network actions on switches.
 
   @fast @rao @ac @preventive-only @secure-flow @ampere
   Scenario: US 15.1: Enable the use of switches as network actions

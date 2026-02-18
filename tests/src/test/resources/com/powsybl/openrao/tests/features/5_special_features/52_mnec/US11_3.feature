@@ -4,7 +4,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: US 11.3: Handle MNECs in search tree with only network actions
-  # TODO: This feature tests
+  # TODO: This feature covers
 
   @fast @rao @ac @preventive-only @max-min-margin @megawatt
   Scenario: US 11.3.1: reference run, no MNEC

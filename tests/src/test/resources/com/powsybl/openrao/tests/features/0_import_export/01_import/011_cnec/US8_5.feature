@@ -4,7 +4,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: US 8.5: Management of FRM during computation
-  This feature tests the behaviour of the RAO depending on the value of the tag frmMw in the CORE CC CRAC file.
+  This feature covers the behaviour of the RAO depending on the value of the tag frmMw in the CORE CC CRAC file.
 
   @fast @rao @ac @preventive-only @secure-flow @megawatt
   Scenario: US 8.5.1: case without FRM

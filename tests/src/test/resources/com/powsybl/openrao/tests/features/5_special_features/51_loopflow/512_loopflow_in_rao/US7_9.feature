@@ -4,6 +4,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: US 7.9: Linear RAO with loopflow limitation
+  This feature covers "loop-flow-parameters"/"constraint-adjustment-coefficient" from the RaoParameters within linear RAO.
 
   @fast @rao @ac @preventive-only @max-min-margin @megawatt
   Scenario: US 7.9.1: linear RAO without LF limitation

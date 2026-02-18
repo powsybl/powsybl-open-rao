@@ -4,6 +4,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: US 90.3: Inversion of PSTs in remedial actions
+  # This feature covers
 
   @fast @rao @ac @preventive-only @max-min-margin @ampere
   Scenario: US 90.3.1: Inverted PstRangeAction in Security Limit
@@ -17,6 +18,7 @@ Feature: US 90.3: Inversion of PSTs in remedial actions
     Then the margin on cnec "BBE2AA1  BBE3AA1  1 - preventive" after PRA should be 26.0 A
     Then the tap of PstRangeAction "PRA_PST_BE" should be 3 in preventive
 
+    ## TODO: is this relevant as security limits are not used anymore?
   @fast @rao @ac @preventive-only @max-min-margin @ampere
   Scenario: US 90.3.2: Inverted PstSetpoint in Security Limit
     Given network file is "common/TestCase12Nodes.uct"
@@ -55,7 +57,7 @@ Feature: US 90.3: Inversion of PSTs in remedial actions
     Then the exported CNE file is similar to "epic90/ExpectedCNE_90_3_3.xml"
 
   @fast @rao @ac @preventive-only @max-min-margin @ampere
-  Scenario: US 90.3.4: Inverted PstRangeAction in CSE Crac
+  Scenario: US 90.3.4: Inverted PstRangeAction in CSE CRAC
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic90/cseCrac_ep90us3case4.xml"
     Given configuration file is "common/RaoParameters_maxMargin_ampere.json"

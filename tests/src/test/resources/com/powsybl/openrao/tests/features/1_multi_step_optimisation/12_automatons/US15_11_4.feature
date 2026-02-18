@@ -4,6 +4,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: US 15.11.4: ARAO with 2P
+  This feature covers automatons with second-preventive activated in the RaoParameters.
 
   @fast @rao @ac @second-preventive @mnec @max-min-margin @megawatt
   Scenario: US 15.11.4.1: Check that PRAO2 ignores applied ARAs from ARAO1

@@ -4,6 +4,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: US 93.1: Basic redispatching actions (free and costly)
+  # TODO: This feature covers
 
   @fast @rao @dc @redispatching @preventive-only @max-min-margin @megawatt
   Scenario: US 93.1.1.a: Extremely basic redispatching on 2 nodes network - maxMargin

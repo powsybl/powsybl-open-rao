@@ -4,6 +4,8 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: US 10.5: GLSK on disconnected Xnode
+  This feature covers when GLSKs are defined on Xnoeds in RAO computation with
+  objective-function/type MAX_MIN_RELATIVE_MARGIN.
 
   @fast @rao @dc @preventive-only @max-min-relative-margin @megawatt
   Scenario: US 10.5.1: XNode disconnected in initial network

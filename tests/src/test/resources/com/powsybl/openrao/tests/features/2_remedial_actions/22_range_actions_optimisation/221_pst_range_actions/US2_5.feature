@@ -4,6 +4,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: US 2.5: Read PST min impact threshold from config
+  This feature covers the parameter "range-actions-optimization"/"pst-ra-min-impact-threshold" from the json CRAC.
 
   @fast @rao @ac @preventive-only @max-min-margin @ampere
   Scenario: US 2.5.1: Run a linear RAO with default PST min impact threshold (Same as epic2 - US 2.2.5)
