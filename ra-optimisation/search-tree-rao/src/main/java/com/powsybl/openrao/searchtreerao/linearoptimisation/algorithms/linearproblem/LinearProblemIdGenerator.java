@@ -50,6 +50,7 @@ public final class LinearProblemIdGenerator {
     private static final String MAX_RA_PER_TSO = "maxrapertso";
     private static final String MAX_PST_PER_TSO = "maxpstpertso";
     private static final String TSO_RA_USED = "tsoraused";
+    private static final String TSO_RA_USED_CUMULATIVE = "tsorausedcumulative";
     private static final String PST_ABSOLUTE_VARIATION_FROM_INITIAL_TAP = "pstabsolutevariationfrominitialtap";
     private static final String MAX_ELEMENTARY_ACTIONS_PER_TSO = "maxelementaryactionspertso";
     private static final String RANGE_ACTION_VARIATION = "rangeactionvariation";
@@ -214,6 +215,10 @@ public final class LinearProblemIdGenerator {
 
     public static String tsoRaUsedVariableId(String operator, State state) {
         return formatName(TSO_RA_USED, operator, state.getId(), VARIABLE_SUFFIX);
+    }
+
+    public static String tsoRaUsedCumulativeVariableId(String operator, State state) {
+        return formatName(TSO_RA_USED_CUMULATIVE, operator, state.getId(), VARIABLE_SUFFIX);
     }
 
     public static String tsoRaUsedConstraintId(String operator, RangeAction<?> rangeAction, State state) {

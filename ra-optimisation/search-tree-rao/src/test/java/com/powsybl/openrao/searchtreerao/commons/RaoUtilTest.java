@@ -381,6 +381,7 @@ class RaoUtilTest {
 
     @Test
     void testGetLastAvailableRangeActionOnSameNetworkElementMultiCurative() {
+        // TODO: add a case where Set.of(samePST, another one)
         Contingency contingency = crac.getContingency("Contingency FR1 FR3");
 
         Instant curative1Instant = Mockito.mock(Instant.class);

@@ -169,7 +169,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
 
         // add multi-curative states
         OptimizationPerimeter optimizationPerimeter = Mockito.mock(OptimizationPerimeter.class);
-        rangeActionsPerStateMultiCurative = Map.of(co1Curative1, Set.of(pst1, hvdc), co1Curative2, Set.of(pst1, pst2), co2Curative2, Set.of(pst2, pst3), preventiveState, Set.of(injection));
+        rangeActionsPerStateMultiCurative = Map.of(co1Curative1, Set.of(pst1, hvdc, injection), co1Curative2, Set.of(pst1, pst2), co2Curative2, Set.of(pst2, pst3), preventiveState, Set.of(injection));
         Mockito.when(optimizationPerimeter.getRangeActionsPerState()).thenReturn(rangeActionsPerStateMultiCurative);
         RangeActionsOptimizationParameters rangeActionParameters = (new RaoParameters()).getRangeActionsOptimizationParameters();
 
@@ -770,6 +770,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
         assertEquals(1, constraint.ub(), DOUBLE_TOLERANCE);
         assertEquals(1, constraint.getCoefficient(linearProblem.getRangeActionVariationBinary(pst1, co1Curative1)), DOUBLE_TOLERANCE);
         assertEquals(1, constraint.getCoefficient(linearProblem.getRangeActionVariationBinary(hvdc, co1Curative1)), DOUBLE_TOLERANCE);
+        assertEquals(1, constraint.getCoefficient(linearProblem.getRangeActionVariationBinary(injection, co1Curative1)), DOUBLE_TOLERANCE);
         // co1Curative2 should take into account co1Curative1's range action
         constraint = linearProblem.getMaxRaConstraint(co1Curative2);
         assertNotNull(constraint);
@@ -777,6 +778,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
         assertEquals(2, constraint.ub(), DOUBLE_TOLERANCE);
         assertEquals(1, constraint.getCoefficient(linearProblem.getRangeActionVariationBinary(pst1, co1Curative1)), DOUBLE_TOLERANCE);
         assertEquals(1, constraint.getCoefficient(linearProblem.getRangeActionVariationBinary(hvdc, co1Curative1)), DOUBLE_TOLERANCE);
+        assertEquals(1, constraint.getCoefficient(linearProblem.getRangeActionVariationBinary(injection, co1Curative1)), DOUBLE_TOLERANCE);
         assertEquals(1, constraint.getCoefficient(linearProblem.getRangeActionVariationBinary(pst1, co1Curative2)), DOUBLE_TOLERANCE);
         assertEquals(1, constraint.getCoefficient(linearProblem.getRangeActionVariationBinary(pst2, co1Curative2)), DOUBLE_TOLERANCE);
         // co2Curative2

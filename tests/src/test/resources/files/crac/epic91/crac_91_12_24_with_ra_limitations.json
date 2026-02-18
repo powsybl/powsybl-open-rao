@@ -239,12 +239,6 @@
       "id": "PRA_CLOSE_NL2_BE3_3",
       "name": "PRA_CLOSE_NL2_BE3_3",
       "operator": "BE",
-      "onInstantUsageRules": [
-        {
-          "instant": "preventive",
-          "usageMethod": "available"
-        }
-      ],
       "topologicalActions": [
         {
           "networkElementId": "NNL2AA1  BBE3AA1  3",

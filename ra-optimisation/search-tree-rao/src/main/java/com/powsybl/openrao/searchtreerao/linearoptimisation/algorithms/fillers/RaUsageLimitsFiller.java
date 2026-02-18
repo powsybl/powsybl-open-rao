@@ -187,11 +187,7 @@ public class RaUsageLimitsFiller implements ProblemFiller {
         Integer maxRa = rangeActionLimitationParameters.getMaxRangeActions(state);
         Map<State, Set<RangeAction<?>>> rangeActionsPerPreviousCurativeState = getAllRangeActionsAvailableForAllPreviousCurativeStates(state);
 
-        int numberOfRas = rangeActionsPerPreviousCurativeState
-            .values()
-            .stream()
-            .mapToInt(ras -> ras.size())
-            .sum() + rangeActions.get(state).size();
+        int numberOfRas = rangeActionsPerPreviousCurativeState.values().stream().mapToInt(ras -> ras.size()).sum() + rangeActions.get(state).size();
 
         if (maxRa == null || maxRa >= numberOfRas) {
             return;
@@ -217,20 +213,33 @@ public class RaUsageLimitsFiller implements ProblemFiller {
 
     private void addMaxTsoConstraint(LinearProblem linearProblem, State state) {
         Integer maxTso = rangeActionLimitationParameters.getMaxTso(state);
+        Map<State, Set<RangeAction<?>>> rangeActionsPerPreviousCurativeState = getAllRangeActionsAvailableForAllPreviousCurativeStates(state);
         if (maxTso == null) {
             return;
         }
+
         Set<String> maxTsoExclusions = rangeActionLimitationParameters.getMaxTsoExclusion(state);
+        // For multi-curative add all the TSOs to exclude from previous curative states sharing same contingency as state
+        rangeActionsPerPreviousCurativeState.forEach(((state1, rangeActionsSet) -> maxTsoExclusions.addAll(rangeActionLimitationParameters.getMaxTsoExclusion(state))));
+
         Set<String> constraintTsos = rangeActions.get(state).stream()
             .map(RemedialAction::getOperator)
             .filter(Objects::nonNull)
             .filter(tso -> !maxTsoExclusions.contains(tso))
             .collect(Collectors.toSet());
+
         if (maxTso >= constraintTsos.size()) {
             return;
         }
         OpenRaoMPConstraint maxTsoConstraint = linearProblem.addMaxTsoConstraint(0, maxTso, state);
         constraintTsos.forEach(tso -> {
+            // Create a cumulative binary variable
+            // -> indicate if the TSO activated one its remedial action during state or in a previous curative state (sharing same contingency as state)
+            OpenRaoMPVariable tsoRaUsedCumulativeVariable = linearProblem.addTsoRaUsedCumulativeVariable(0, 1, tso, state);
+            // add constraint tsoRaUsed<=tsoRaUsedCumulativeVariable
+            //OpenRaoMPConstraint tsoRaUsedCumulativeConstraint = linearProblem.addTsoRaUsedConstraint(0, linearProblem.infinity(), tso, ra, state);
+
+
             // Create "is at least one RA for TSO used" binary variable ...
             OpenRaoMPVariable tsoRaUsedVariable = linearProblem.addTsoRaUsedVariable(0, 1, tso, state);
             maxTsoConstraint.setCoefficient(tsoRaUsedVariable, 1);

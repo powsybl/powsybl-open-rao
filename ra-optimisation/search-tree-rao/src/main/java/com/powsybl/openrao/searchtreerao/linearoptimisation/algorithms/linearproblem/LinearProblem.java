@@ -410,6 +410,14 @@ public final class LinearProblem {
         return solver.getVariable(tsoRaUsedVariableId(operator, state));
     }
 
+    public OpenRaoMPVariable addTsoRaUsedCumulativeVariable(double lb, double ub, String operator, State state) {
+        return solver.makeNumVar(lb, ub, tsoRaUsedCumulativeVariableId(operator, state));
+    }
+
+    public OpenRaoMPVariable getTsoRaUsedCumulativeVariable(String operator, State state) {
+        return solver.getVariable(tsoRaUsedCumulativeVariableId(operator, state));
+    }
+
     public OpenRaoMPConstraint addTsoRaUsedConstraint(double lb, double ub, String operator, RangeAction<?> rangeAction, State state) {
         return solver.makeConstraint(lb, ub, tsoRaUsedConstraintId(operator, rangeAction, state));
     }
