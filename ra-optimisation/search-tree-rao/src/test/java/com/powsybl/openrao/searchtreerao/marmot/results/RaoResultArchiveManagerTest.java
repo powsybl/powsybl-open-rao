@@ -45,7 +45,7 @@ class RaoResultArchiveManagerTest {
         Properties properties = new Properties();
         properties.put("rao-result.export.json.flows-in-amperes", "true");
         properties.put("rao-result.export.json.flows-in-megawatts", "true");
-        properties.put("inter-temporal-rao-result.export.preventive-only", "true");
+        properties.put("time-coupled-rao-result.export.preventive-only", "true");
 
         Set<String> archiveContent = exportArchiveAndGetContent(properties);
 
@@ -61,9 +61,9 @@ class RaoResultArchiveManagerTest {
         Properties properties = new Properties();
         properties.put("rao-result.export.json.flows-in-amperes", "true");
         properties.put("rao-result.export.json.flows-in-megawatts", "true");
-        properties.put("inter-temporal-rao-result.export.filename-template", "'RAO_RESULT_'yyyy-MM-dd'T'HH:mm:ss'.json'");
-        properties.put("inter-temporal-rao-result.export.summary-filename", "summary.json");
-        properties.put("inter-temporal-rao-result.export.preventive-only", "true");
+        properties.put("time-coupled-rao-result.export.filename-template", "'RAO_RESULT_'yyyy-MM-dd'T'HH:mm:ss'.json'");
+        properties.put("time-coupled-rao-result.export.summary-filename", "summary.json");
+        properties.put("time-coupled-rao-result.export.preventive-only", "true");
 
         Set<String> archiveContent = exportArchiveAndGetContent(properties);
 
@@ -79,7 +79,7 @@ class RaoResultArchiveManagerTest {
         Properties properties = new Properties();
         properties.put("rao-result.export.json.flows-in-amperes", "true");
         properties.put("rao-result.export.json.flows-in-megawatts", "true");
-        properties.put("inter-temporal-rao-result.export.preventive-only", "true");
+        properties.put("time-coupled-rao-result.export.preventive-only", "true");
 
         Set<String> expectedEntries = Set.of(
             "raoResult_202502141040.json",

@@ -34,11 +34,11 @@ import java.util.zip.ZipOutputStream;
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
  */
 public final class RaoResultArchiveManager {
-    private static final String INDIVIDUAL_RAO_RESULT_NAME_TEMPLATE_PROPERTY = "inter-temporal-rao-result.export.filename-template";
-    private static final String INTER_TEMPORAL_RAO_RESULT_SUMMARY_FILENAME_PROPERTY = "inter-temporal-rao-result.export.summary-filename";
-    private static final String INTER_TEMPORAL_RAO_RESULT_PREVENTIVE_ONLY = "inter-temporal-rao-result.export.preventive-only";
+    private static final String INDIVIDUAL_RAO_RESULT_NAME_TEMPLATE_PROPERTY = "time-coupled-rao-result.export.filename-template";
+    private static final String TIME_COUPLED_RAO_RESULT_SUMMARY_FILENAME_PROPERTY = "time-coupled-rao-result.export.summary-filename";
+    private static final String TIME_COUPLED_RAO_RESULT_PREVENTIVE_ONLY = "time-coupled-rao-result.export.preventive-only";
     private static final String DEFAULT_INDIVIDUAL_RAO_RESULT_NAME_TEMPLATE = "'raoResult_'yyyyMMddHHmm'.json'";
-    private static final String DEFAULT_INTER_TEMPORAL_RAO_RESULT_SUMMARY_FILENAME = "interTemporalRaoSummary.json";
+    private static final String DEFAULT_TIME_COUPLED_RAO_RESULT_SUMMARY_FILENAME = "interTemporalRaoSummary.json";
 
     private RaoResultArchiveManager() {
     }
@@ -96,7 +96,7 @@ public final class RaoResultArchiveManager {
     }
 
     private static String getSummaryFilename(Properties properties) {
-        return properties.getProperty(INTER_TEMPORAL_RAO_RESULT_SUMMARY_FILENAME_PROPERTY, DEFAULT_INTER_TEMPORAL_RAO_RESULT_SUMMARY_FILENAME);
+        return properties.getProperty(TIME_COUPLED_RAO_RESULT_SUMMARY_FILENAME_PROPERTY, DEFAULT_TIME_COUPLED_RAO_RESULT_SUMMARY_FILENAME);
     }
 
     private static String getIndividualRaoResultFilenameTemplate(Properties properties) {
@@ -104,6 +104,6 @@ public final class RaoResultArchiveManager {
     }
 
     private static boolean exportOnlyPreventiveResults(Properties properties) {
-        return Boolean.parseBoolean(properties.getProperty(INTER_TEMPORAL_RAO_RESULT_PREVENTIVE_ONLY));
+        return Boolean.parseBoolean(properties.getProperty(TIME_COUPLED_RAO_RESULT_PREVENTIVE_ONLY));
     }
 }
