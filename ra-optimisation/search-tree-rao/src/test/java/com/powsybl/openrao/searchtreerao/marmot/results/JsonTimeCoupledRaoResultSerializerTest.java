@@ -79,7 +79,7 @@ class JsonTimeCoupledRaoResultSerializerTest {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         try {
             ObjectMapper objectMapper = JsonUtil.createObjectMapper();
-            SimpleModule module = new JsonInterTemporalRaoResultSerializerModule("'raoResult_'yyyyMMddHHmm'.json'", List.of(preventiveInstant));
+            SimpleModule module = new JsonTimeCoupledRaoResultSerializerModule("'raoResult_'yyyyMMddHHmm'.json'", List.of(preventiveInstant));
             objectMapper.registerModule(module);
             ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
             writer.writeValue(byteArrayOutputStream, timeCoupledRaoResult);
@@ -90,7 +90,7 @@ class JsonTimeCoupledRaoResultSerializerTest {
         String outputStreamString = byteArrayOutputStream.toString();
 
         // import expected json to compare
-        InputStream inputStream = getClass().getResourceAsStream("/raoResult/interTemporalRaoSummary.json");
+        InputStream inputStream = getClass().getResourceAsStream("/raoResult/timeCoupledRaoSummary.json");
         String inputString = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
         assertEquals(inputString, outputStreamString);
     }

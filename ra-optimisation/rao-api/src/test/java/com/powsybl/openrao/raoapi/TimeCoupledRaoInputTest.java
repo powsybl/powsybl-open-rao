@@ -50,7 +50,7 @@ class TimeCoupledRaoInputTest {
     }
 
     @Test
-    void testInstantiateInterTemporalRaoInput() {
+    void testInstantiateTimeCoupledRaoInput() {
         TimeCoupledRaoInput input = new TimeCoupledRaoInput(temporalData, Set.of(timestamp1, timestamp3), timeCouplingConstraints);
         assertEquals(temporalData, input.getRaoInputs());
         assertEquals(Set.of(timestamp1, timestamp3), input.getTimestampsToRun());
@@ -58,7 +58,7 @@ class TimeCoupledRaoInputTest {
     }
 
     @Test
-    void testInstantiateInterTemporalRaoInputAllTimestamps() {
+    void testInstantiateTimeCoupledRaoInputAllTimestamps() {
         TimeCoupledRaoInput input = new TimeCoupledRaoInput(temporalData, timeCouplingConstraints);
         assertEquals(temporalData, input.getRaoInputs());
         assertEquals(Set.of(timestamp1, timestamp2, timestamp3), input.getTimestampsToRun());

@@ -67,7 +67,7 @@ class TimeCoupledRaoTest {
         // case with only one provider, no need for config
         // find rao
         TimeCoupledRao.Runner defaultRao = TimeCoupledRao.find(null, List.of(new TimeCoupledRaoProviderMock()), platformConfig);
-        assertEquals("RandomInterTemporalRAO", defaultRao.getName());
+        assertEquals("RandomTimeCoupledRAO", defaultRao.getName());
 
         // run rao
         TimeCoupledRaoResult result = defaultRao.run(raoInput, new RaoParameters());

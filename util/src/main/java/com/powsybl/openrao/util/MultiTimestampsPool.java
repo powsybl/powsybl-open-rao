@@ -24,17 +24,17 @@ import java.util.function.Function;
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public class InterTemporalPool extends ForkJoinPool {
+public class MultiTimestampsPool extends ForkJoinPool {
     private final Set<OffsetDateTime> timestampsToRun;
     private final ExecutorService executor;
 
-    public InterTemporalPool(Set<OffsetDateTime> timestampsToRun, int numberOfThreads) {
+    public MultiTimestampsPool(Set<OffsetDateTime> timestampsToRun, int numberOfThreads) {
         super(getParallelism(timestampsToRun, numberOfThreads));
         this.timestampsToRun = timestampsToRun;
         this.executor = Executors.newFixedThreadPool(getParallelism(timestampsToRun, numberOfThreads));
     }
 
-    public InterTemporalPool(Set<OffsetDateTime> timestampsToRun) {
+    public MultiTimestampsPool(Set<OffsetDateTime> timestampsToRun) {
         this(timestampsToRun, Integer.MAX_VALUE);
     }
 

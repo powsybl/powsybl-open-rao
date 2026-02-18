@@ -45,7 +45,7 @@ public class TimeCoupledRaoInputWithNetworkPaths {
         return timestampsToRun;
     }
 
-    public TimeCouplingConstraints getIntertemporalConstraints() {
+    public TimeCouplingConstraints getTimeCouplingConstraints() {
         return timeCouplingConstraints;
     }
 

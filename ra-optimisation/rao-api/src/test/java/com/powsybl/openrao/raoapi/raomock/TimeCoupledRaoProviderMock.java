@@ -28,6 +28,6 @@ public class TimeCoupledRaoProviderMock implements TimeCoupledRaoProvider {
 
     @Override
     public String getName() {
-        return "RandomInterTemporalRAO";
+        return "RandomTimeCoupledRAO";
     }
 }

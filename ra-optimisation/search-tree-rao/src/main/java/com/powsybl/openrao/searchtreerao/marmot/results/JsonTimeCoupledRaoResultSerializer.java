@@ -31,7 +31,7 @@ import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
  */
-public class JsonInterTemporalRaoResultSerializer extends JsonSerializer<TimeCoupledRaoResult> {
+public class JsonTimeCoupledRaoResultSerializer extends JsonSerializer<TimeCoupledRaoResult> {
     private static final String GLOBAL_RAO_SUMMARY = "INTER_TEMPORAL_RAO_SUMMARY";
     private static final String VERSION = "1.0";
     private static final String RESULT_PER_TIMESTAMP = "resultPerTimestamp";
@@ -42,7 +42,7 @@ public class JsonInterTemporalRaoResultSerializer extends JsonSerializer<TimeCou
     private final String individualRaoResultFilenameTemplate;
     private final List<Instant> instants;
 
-    public JsonInterTemporalRaoResultSerializer(String individualRaoResultFilenameTemplate, List<Instant> instants) {
+    public JsonTimeCoupledRaoResultSerializer(String individualRaoResultFilenameTemplate, List<Instant> instants) {
         this.individualRaoResultFilenameTemplate = individualRaoResultFilenameTemplate;
         this.instants = instants;
     }

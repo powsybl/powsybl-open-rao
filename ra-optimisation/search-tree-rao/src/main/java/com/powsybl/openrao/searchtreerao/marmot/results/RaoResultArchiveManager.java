@@ -38,7 +38,7 @@ public final class RaoResultArchiveManager {
     private static final String TIME_COUPLED_RAO_RESULT_SUMMARY_FILENAME_PROPERTY = "time-coupled-rao-result.export.summary-filename";
     private static final String TIME_COUPLED_RAO_RESULT_PREVENTIVE_ONLY = "time-coupled-rao-result.export.preventive-only";
     private static final String DEFAULT_INDIVIDUAL_RAO_RESULT_NAME_TEMPLATE = "'raoResult_'yyyyMMddHHmm'.json'";
-    private static final String DEFAULT_TIME_COUPLED_RAO_RESULT_SUMMARY_FILENAME = "interTemporalRaoSummary.json";
+    private static final String DEFAULT_TIME_COUPLED_RAO_RESULT_SUMMARY_FILENAME = "timeCoupledRaoSummary.json";
 
     private RaoResultArchiveManager() {
     }
@@ -66,7 +66,7 @@ public final class RaoResultArchiveManager {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         try {
             ObjectMapper objectMapper = JsonUtil.createObjectMapper();
-            SimpleModule module = new JsonInterTemporalRaoResultSerializerModule(jsonFileNameTemplate, preventiveOnly ? List.of(instants.getFirst()) : instants);
+            SimpleModule module = new JsonTimeCoupledRaoResultSerializerModule(jsonFileNameTemplate, preventiveOnly ? List.of(instants.getFirst()) : instants);
             objectMapper.registerModule(module);
             ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
             writer.writeValue(byteArrayOutputStream, timeCoupledRaoResult);

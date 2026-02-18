@@ -22,16 +22,16 @@ import java.util.*;
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
 
 /**
- * InterTemporal Ref Prog file contains exchange values for 24 timestamps.
- * updateRefProg imports initial xml intertemporal ref prog file, modifies values according to redispatching volumes
- * per country weighted by becKeys, and exports new intertemporal ref prog file to output path.
+ * TimeCoupled Ref Prog file contains exchange values for 24 timestamps.
+ * updateRefProg imports initial XML time-coupled ref prog file, modifies values according to redispatching volumes
+ * per country weighted by becKeys, and exports new time-coupled ref prog file to output path.
  *
  * @author  Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
-public final class InterTemporalRefProg {
+public final class TimeCoupledRefProg {
 
-    private InterTemporalRefProg() {
+    private TimeCoupledRefProg() {
     }
 
     public static void updateRefProg(InputStream inputStream, TemporalData<Map<String, Double>> netRedispatchingPerCountryTemporalData, Map<String, Map<String, Map<String, Double>>> becValues, String outputPath) {

@@ -16,5 +16,5 @@ import com.powsybl.openrao.searchtreerao.linearoptimisation.inputs.IteratingLine
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
-public record InterTemporalIteratingLinearOptimizerInput(TemporalData<IteratingLinearOptimizerInput> iteratingLinearOptimizerInputs, ObjectiveFunction objectiveFunction, TimeCouplingConstraints timeCouplingConstraints) {
+public record TimeCoupledIteratingLinearOptimizerInput(TemporalData<IteratingLinearOptimizerInput> iteratingLinearOptimizerInputs, ObjectiveFunction objectiveFunction, TimeCouplingConstraints timeCouplingConstraints) {
 }

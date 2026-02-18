@@ -47,12 +47,12 @@ import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRang
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
-public final class InterTemporalIteratingLinearOptimizer {
+public final class TimeCoupledIteratingLinearOptimizer {
 
-    private InterTemporalIteratingLinearOptimizer() {
+    private TimeCoupledIteratingLinearOptimizer() {
     }
 
-    public static GlobalLinearOptimizationResult optimize(InterTemporalIteratingLinearOptimizerInput input, IteratingLinearOptimizerParameters parameters) {
+    public static GlobalLinearOptimizationResult optimize(TimeCoupledIteratingLinearOptimizerInput input, IteratingLinearOptimizerParameters parameters) {
         // 1. Initialize best result using input data
         GlobalLinearOptimizationResult bestResult = createInitialResult(
             input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::preOptimizationFlowResult),
@@ -67,12 +67,12 @@ public final class InterTemporalIteratingLinearOptimizer {
 
         // 2. Initialize linear problem using input data
         TemporalData<List<ProblemFiller>> problemFillers = getProblemFillersPerTimestamp(input, parameters);
-        List<ProblemFiller> interTemporalProblemFillers = getInterTemporalProblemFillers(input);
-        LinearProblem linearProblem = buildLinearProblem(problemFillers, interTemporalProblemFillers, parameters);
+        List<ProblemFiller> timeCoupledProblemFillers = getTimeCoupledProblemFillers(input);
+        LinearProblem linearProblem = buildLinearProblem(problemFillers, timeCoupledProblemFillers, parameters);
         fillLinearProblem(
             linearProblem,
             problemFillers,
-            interTemporalProblemFillers,
+            timeCoupledProblemFillers,
             input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::preOptimizationFlowResult),
             input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::preOptimizationSensitivityResult),
             input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::prePerimeterSetpoints));
@@ -139,7 +139,7 @@ public final class InterTemporalIteratingLinearOptimizer {
             previousResult = newResult;
 
             // f. Update problem fillers with flows, sensitivity coefficients and set-points
-            Pair<GlobalLinearOptimizationResult, Boolean> mipShouldStop = updateBestResultAndCheckStopCondition(parameters.getRaRangeShrinking(), linearProblem, input, iteration, newResult, bestResult, problemFillers, interTemporalProblemFillers);
+            Pair<GlobalLinearOptimizationResult, Boolean> mipShouldStop = updateBestResultAndCheckStopCondition(parameters.getRaRangeShrinking(), linearProblem, input, iteration, newResult, bestResult, problemFillers, timeCoupledProblemFillers);
             if (Boolean.TRUE.equals(mipShouldStop.getRight())) {
                 return bestResult;
             } else {
@@ -153,14 +153,14 @@ public final class InterTemporalIteratingLinearOptimizer {
 
     /* Helper methods */
     // Linear problem management
-    private static TemporalData<List<ProblemFiller>> getProblemFillersPerTimestamp(InterTemporalIteratingLinearOptimizerInput input, IteratingLinearOptimizerParameters parameters) {
+    private static TemporalData<List<ProblemFiller>> getProblemFillersPerTimestamp(TimeCoupledIteratingLinearOptimizerInput input, IteratingLinearOptimizerParameters parameters) {
         Map<OffsetDateTime, List<ProblemFiller>> problemFillers = new HashMap<>();
         input.iteratingLinearOptimizerInputs().getDataPerTimestamp().forEach((timestamp, linearOptimizerInput) -> problemFillers.put(timestamp, ProblemFillerHelper.getProblemFillers(linearOptimizerInput, parameters, timestamp)));
         return new TemporalDataImpl<>(problemFillers);
     }
 
-    private static List<ProblemFiller> getInterTemporalProblemFillers(InterTemporalIteratingLinearOptimizerInput input) {
-        // TODO: add inter-temporal margin filler (min of all min margins)
+    private static List<ProblemFiller> getTimeCoupledProblemFillers(TimeCoupledIteratingLinearOptimizerInput input) {
+        // TODO: add tipe-coupled margin filler (min of all min margins)
         TemporalData<State> preventiveStates = input.iteratingLinearOptimizerInputs().map(linearOptimizerInput -> linearOptimizerInput.optimizationPerimeter().getMainOptimizationState());
         TemporalData<Set<InjectionRangeAction>> preventiveInjectionRangeActions = input.iteratingLinearOptimizerInputs().map(linearOptimizerInput -> filterPreventiveInjectionRangeAction(linearOptimizerInput.optimizationPerimeter().getRangeActions()));
         return List.of(new GeneratorConstraintsFiller(input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::network), preventiveStates, preventiveInjectionRangeActions, input.timeCouplingConstraints().getGeneratorConstraints()));
@@ -170,28 +170,28 @@ public final class InterTemporalIteratingLinearOptimizer {
         return rangeActions.stream().filter(InjectionRangeAction.class::isInstance).map(InjectionRangeAction.class::cast).collect(Collectors.toSet());
     }
 
-    private static LinearProblem buildLinearProblem(TemporalData<List<ProblemFiller>> problemFillers, List<ProblemFiller> interTemporalProblemFillers, IteratingLinearOptimizerParameters parameters) {
+    private static LinearProblem buildLinearProblem(TemporalData<List<ProblemFiller>> problemFillers, List<ProblemFiller> timeCoupledProblemFillers, IteratingLinearOptimizerParameters parameters) {
         LinearProblemBuilder linearProblemBuilder = LinearProblem.create()
             .withSolver(parameters.getSolverParameters().getSolver())
             .withRelativeMipGap(parameters.getSolverParameters().getRelativeMipGap())
             .withSolverSpecificParameters(parameters.getSolverParameters().getSolverSpecificParameters());
 
-        // add problem fillers for each timestamp and inter-temporal timestamps
+        // add problem fillers for each timestamp and time-coupled timestamps
         problemFillers.getDataPerTimestamp().values().forEach(problemFillerOfTimestamp -> problemFillerOfTimestamp.forEach(linearProblemBuilder::withProblemFiller));
-        interTemporalProblemFillers.forEach(linearProblemBuilder::withProblemFiller);
+        timeCoupledProblemFillers.forEach(linearProblemBuilder::withProblemFiller);
 
         return linearProblemBuilder.build();
     }
 
-    private static void fillLinearProblem(LinearProblem linearProblem, TemporalData<List<ProblemFiller>> problemFillers, List<ProblemFiller> interTemporalProblemFillers, TemporalData<FlowResult> flowResults, TemporalData<SensitivityResult> sensitivityResults, TemporalData<RangeActionSetpointResult> setPoints) {
+    private static void fillLinearProblem(LinearProblem linearProblem, TemporalData<List<ProblemFiller>> problemFillers, List<ProblemFiller> timeCoupledProblemFillers, TemporalData<FlowResult> flowResults, TemporalData<SensitivityResult> sensitivityResults, TemporalData<RangeActionSetpointResult> setPoints) {
         List<OffsetDateTime> timestamps = problemFillers.getTimestamps();
         timestamps.forEach(timestamp -> {
             List<ProblemFiller> problemFillersForTimestamp = problemFillers.getData(timestamp).orElseThrow();
             problemFillersForTimestamp.forEach(problemFiller -> problemFiller.fill(linearProblem, flowResults.getData(timestamp).orElseThrow(), sensitivityResults.getData(timestamp).orElseThrow(), new RangeActionActivationResultImpl(setPoints.getData(timestamp).orElseThrow())));
         });
-        // For now, the Power Gradient Constraint filler is the only inter-temporal filler and does not use any input but the linear problem
-        // A global inter-temporal flow/sensitivity/set-point result does not exist anyway
-        interTemporalProblemFillers.forEach(problemFiller -> problemFiller.fill(linearProblem, null, null, null));
+        // For now, the Power Gradient Constraint filler is the only time-coupled filler and does not use any input but the linear problem
+        // A global time-coupled flow/sensitivity/set-point result does not exist anyway
+        timeCoupledProblemFillers.forEach(problemFiller -> problemFiller.fill(linearProblem, null, null, null));
     }
 
     private static void updateLinearProblemBetweenMipIterations(LinearProblem linearProblem, TemporalData<List<ProblemFiller>> problemFillers, TemporalData<RangeActionActivationResult> rangeActionActivationResults) {
@@ -202,14 +202,14 @@ public final class InterTemporalIteratingLinearOptimizer {
         });
     }
 
-    private static void updateLinearProblemBetweenSensiComputations(LinearProblem linearProblem, TemporalData<List<ProblemFiller>> problemFillers, List<ProblemFiller> interTemporalProblemFillers, LinearOptimizationResult optimizationResult) {
+    private static void updateLinearProblemBetweenSensiComputations(LinearProblem linearProblem, TemporalData<List<ProblemFiller>> problemFillers, List<ProblemFiller> timeCoupledProblemFillers, LinearOptimizationResult optimizationResult) {
         linearProblem.reset();
         List<OffsetDateTime> timestamps = problemFillers.getTimestamps();
         timestamps.forEach(timestamp -> {
             List<ProblemFiller> problemFillersForTimestamp = problemFillers.getData(timestamp).orElseThrow();
             problemFillersForTimestamp.forEach(problemFiller -> problemFiller.fill(linearProblem, optimizationResult, optimizationResult, optimizationResult));
         });
-        interTemporalProblemFillers.forEach(problemFiller -> problemFiller.fill(linearProblem, null, null, null));
+        timeCoupledProblemFillers.forEach(problemFiller -> problemFiller.fill(linearProblem, null, null, null));
     }
 
     private static LinearProblemStatus solveLinearProblem(LinearProblem linearProblem, int iteration) {
@@ -284,7 +284,7 @@ public final class InterTemporalIteratingLinearOptimizer {
     }
 
     // Set-point rounding
-    private static TemporalData<RangeActionActivationResult> resolveIfApproximatedPstTaps(GlobalLinearOptimizationResult bestResult, LinearProblem linearProblem, int iteration, TemporalData<RangeActionActivationResult> currentRangeActionActivationResults, InterTemporalIteratingLinearOptimizerInput input, IteratingLinearOptimizerParameters parameters, TemporalData<List<ProblemFiller>> problemFillers) {
+    private static TemporalData<RangeActionActivationResult> resolveIfApproximatedPstTaps(GlobalLinearOptimizationResult bestResult, LinearProblem linearProblem, int iteration, TemporalData<RangeActionActivationResult> currentRangeActionActivationResults, TimeCoupledIteratingLinearOptimizerInput input, IteratingLinearOptimizerParameters parameters, TemporalData<List<ProblemFiller>> problemFillers) {
         if (input.iteratingLinearOptimizerInputs().getDataPerTimestamp().values().stream()
             .map(i -> i.prePerimeterSetpoints().getRangeActions()).flatMap(Collection::stream)
             .noneMatch(PstRangeAction.class::isInstance)) {
@@ -408,10 +408,10 @@ public final class InterTemporalIteratingLinearOptimizer {
         return false;
     }
 
-    private static Pair<GlobalLinearOptimizationResult, Boolean> updateBestResultAndCheckStopCondition(boolean raRangeShrinking, LinearProblem linearProblem, InterTemporalIteratingLinearOptimizerInput input, int iteration, GlobalLinearOptimizationResult currentResult, GlobalLinearOptimizationResult bestResult, TemporalData<List<ProblemFiller>> problemFillers, List<ProblemFiller> interTemporalProblemFillers) {
+    private static Pair<GlobalLinearOptimizationResult, Boolean> updateBestResultAndCheckStopCondition(boolean raRangeShrinking, LinearProblem linearProblem, TimeCoupledIteratingLinearOptimizerInput input, int iteration, GlobalLinearOptimizationResult currentResult, GlobalLinearOptimizationResult bestResult, TemporalData<List<ProblemFiller>> problemFillers, List<ProblemFiller> timeCoupledProblemFillers) {
         if (currentResult.getCost() < bestResult.getCost()) {
             logBetterResult(iteration, currentResult);
-            updateLinearProblemBetweenSensiComputations(linearProblem, problemFillers, interTemporalProblemFillers, currentResult);
+            updateLinearProblemBetweenSensiComputations(linearProblem, problemFillers, timeCoupledProblemFillers, currentResult);
             return Pair.of(currentResult, false);
         }
         logWorseResult(iteration, bestResult, currentResult);
@@ -419,7 +419,7 @@ public final class InterTemporalIteratingLinearOptimizer {
             IteratingLinearOptimizer.applyRangeActions(bestResult, input.iteratingLinearOptimizerInputs().getData(timestamp).orElseThrow());
         }
         if (raRangeShrinking) {
-            updateLinearProblemBetweenSensiComputations(linearProblem, problemFillers, interTemporalProblemFillers, currentResult);
+            updateLinearProblemBetweenSensiComputations(linearProblem, problemFillers, timeCoupledProblemFillers, currentResult);
         }
         return Pair.of(bestResult, !raRangeShrinking);
     }

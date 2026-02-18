@@ -69,7 +69,7 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>open-rao-intertemporal-constraints</artifactId>
+            <artifactId>open-rao-time-coupling-constraints</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

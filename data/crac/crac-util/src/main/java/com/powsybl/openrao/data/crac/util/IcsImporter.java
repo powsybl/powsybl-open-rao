@@ -54,12 +54,12 @@ public final class IcsImporter {
         //should only be used statically
     }
 
-    public static void populateInputWithICS(TimeCoupledRaoInputWithNetworkPaths interTemporalRaoInput, InputStream staticInputStream, InputStream seriesInputStream, InputStream gskInputStream, double icsCostUp, double icsCostDown) throws IOException {
+    public static void populateInputWithICS(TimeCoupledRaoInputWithNetworkPaths timeCoupledRaoInput, InputStream staticInputStream, InputStream seriesInputStream, InputStream gskInputStream, double icsCostUp, double icsCostDown) throws IOException {
         costUp = icsCostUp;
         costDown = icsCostDown;
 
         TemporalData<Network> initialNetworks = new TemporalDataImpl<>();
-        interTemporalRaoInput.getRaoInputs().getDataPerTimestamp().forEach((dateTime, raoInput) -> {
+        timeCoupledRaoInput.getRaoInputs().getDataPerTimestamp().forEach((dateTime, raoInput) -> {
             Network network = Network.read(raoInput.getInitialNetworkPath());
             preProcessNetwork(network);
             initialNetworks.put(dateTime, network);
@@ -95,19 +95,19 @@ public final class IcsImporter {
                     seriesPerType.containsKey("P0") &&
                     seriesPerType.containsKey("RDP-") &&
                     seriesPerType.containsKey("RDP+") &&
-                    rangeIsOkay(seriesPerType, interTemporalRaoInput.getTimestampsToRun().stream().sorted().toList()) &&
-                    p0RespectsGradients(staticRecord, seriesPerType.get("P0"), interTemporalRaoInput.getTimestampsToRun().stream().sorted().toList())) {
+                    rangeIsOkay(seriesPerType, timeCoupledRaoInput.getTimestampsToRun().stream().sorted().toList()) &&
+                    p0RespectsGradients(staticRecord, seriesPerType.get("P0"), timeCoupledRaoInput.getTimestampsToRun().stream().sorted().toList())) {
                     if (staticRecord.get("RD description mode").equalsIgnoreCase("NODE")) {
-                        importNodeRedispatchingAction(interTemporalRaoInput, staticRecord, initialNetworks, seriesPerType, raId);
+                        importNodeRedispatchingAction(timeCoupledRaoInput, staticRecord, initialNetworks, seriesPerType, raId);
                     } else {
-                        importGskRedispatchingAction(interTemporalRaoInput, staticRecord, initialNetworks, seriesPerType, raId, weightPerNodePerGsk.get(staticRecord.get("UCT Node or GSK ID")));
+                        importGskRedispatchingAction(timeCoupledRaoInput, staticRecord, initialNetworks, seriesPerType, raId, weightPerNodePerGsk.get(staticRecord.get("UCT Node or GSK ID")));
                     }
                 }
             }
         });
 
         initialNetworks.getDataPerTimestamp().forEach((dateTime, initialNetwork) ->
-            initialNetwork.write("JIIDM", new Properties(), Path.of(interTemporalRaoInput.getRaoInputs().getData(dateTime).orElseThrow().getPostIcsImportNetworkPath())));
+            initialNetwork.write("JIIDM", new Properties(), Path.of(timeCoupledRaoInput.getRaoInputs().getData(dateTime).orElseThrow().getPostIcsImportNetworkPath())));
     }
 
     private static void preProcessNetwork(Network network) {
@@ -125,7 +125,7 @@ public final class IcsImporter {
         return Math.abs(a - b) < 1e-3;
     }
 
-    private static void importGskRedispatchingAction(TimeCoupledRaoInputWithNetworkPaths interTemporalRaoInput, CSVRecord staticRecord, TemporalData<Network> initialNetworks, Map<String, CSVRecord> seriesPerType, String raId, Map<String, Double> weightPerNode) {
+    private static void importGskRedispatchingAction(TimeCoupledRaoInputWithNetworkPaths timeCoupledRaoInput, CSVRecord staticRecord, TemporalData<Network> initialNetworks, Map<String, CSVRecord> seriesPerType, String raId, Map<String, Double> weightPerNode) {
         Map<String, String> networkElementPerGskElement = new HashMap<>();
         for (String nodeId : weightPerNode.keySet()) {
             String networkElementId = processNetworks(nodeId, initialNetworks, seriesPerType, weightPerNode.get(nodeId));
@@ -135,7 +135,7 @@ public final class IcsImporter {
             networkElementPerGskElement.put(nodeId, networkElementId);
         }
 
-        interTemporalRaoInput.getRaoInputs().getDataPerTimestamp().forEach((dateTime, raoInput) -> {
+        timeCoupledRaoInput.getRaoInputs().getDataPerTimestamp().forEach((dateTime, raoInput) -> {
             Crac crac = raoInput.getCrac();
             double p0 = parseDoubleWithPossibleCommas(seriesPerType.get("P0").get(dateTime.getHour() + OFFSET));
             InjectionRangeActionAdder injectionRangeActionAdder = crac.newInjectionRangeAction()
@@ -176,16 +176,16 @@ public final class IcsImporter {
                 )).withDownwardPowerGradient(-shiftKey * parseDoubleWithPossibleCommas(
                     staticRecord.get("Maximum negative power gradient [MW/h]").isEmpty() ? MAX_GRADIENT : staticRecord.get("Maximum negative power gradient [MW/h]")
                 )).build();
-            interTemporalRaoInput.getIntertemporalConstraints().addGeneratorConstraints(generatorConstraints);
+            timeCoupledRaoInput.getTimeCouplingConstraints().addGeneratorConstraints(generatorConstraints);
         });
     }
 
-    private static void importNodeRedispatchingAction(TimeCoupledRaoInputWithNetworkPaths interTemporalRaoInput, CSVRecord staticRecord, TemporalData<Network> initialNetworks, Map<String, CSVRecord> seriesPerType, String raId) {
+    private static void importNodeRedispatchingAction(TimeCoupledRaoInputWithNetworkPaths timeCoupledRaoInput, CSVRecord staticRecord, TemporalData<Network> initialNetworks, Map<String, CSVRecord> seriesPerType, String raId) {
         String networkElementId = processNetworks(staticRecord.get("UCT Node or GSK ID"), initialNetworks, seriesPerType, 1.);
         if (networkElementId == null) {
             return;
         }
-        interTemporalRaoInput.getRaoInputs().getDataPerTimestamp().forEach((dateTime, raoInput) -> {
+        timeCoupledRaoInput.getRaoInputs().getDataPerTimestamp().forEach((dateTime, raoInput) -> {
             Crac crac = raoInput.getCrac();
             double p0 = parseDoubleWithPossibleCommas(seriesPerType.get("P0").get(dateTime.getHour() + OFFSET));
             InjectionRangeActionAdder injectionRangeActionAdder = crac.newInjectionRangeAction()
@@ -222,7 +222,7 @@ public final class IcsImporter {
             )).withDownwardPowerGradient(-parseDoubleWithPossibleCommas(
                 staticRecord.get("Maximum negative power gradient [MW/h]").isEmpty() ? MAX_GRADIENT : staticRecord.get("Maximum negative power gradient [MW/h]")
             )).build();
-        interTemporalRaoInput.getIntertemporalConstraints().addGeneratorConstraints(generatorConstraints);
+        timeCoupledRaoInput.getTimeCouplingConstraints().addGeneratorConstraints(generatorConstraints);
     }
 
     private static String processNetworks(String nodeId, TemporalData<Network> initialNetworks, Map<String, CSVRecord> seriesPerType, double shiftKey) {

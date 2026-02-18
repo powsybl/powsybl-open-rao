@@ -17,10 +17,10 @@ import java.util.List;
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public class JsonInterTemporalRaoResultSerializerModule extends SimpleModule {
+public class JsonTimeCoupledRaoResultSerializerModule extends SimpleModule {
 
-    public JsonInterTemporalRaoResultSerializerModule(String individualRaoResultFilenameTemplate, List<Instant> instants) {
+    public JsonTimeCoupledRaoResultSerializerModule(String individualRaoResultFilenameTemplate, List<Instant> instants) {
         super();
-        this.addSerializer(TimeCoupledRaoResult.class, new JsonInterTemporalRaoResultSerializer(individualRaoResultFilenameTemplate, instants));
+        this.addSerializer(TimeCoupledRaoResult.class, new JsonTimeCoupledRaoResultSerializer(individualRaoResultFilenameTemplate, instants));
     }
 }

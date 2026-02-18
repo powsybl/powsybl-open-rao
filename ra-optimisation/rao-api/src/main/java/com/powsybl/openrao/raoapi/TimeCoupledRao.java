@@ -34,7 +34,7 @@ public final class TimeCoupledRao {
         = Suppliers.memoize(() -> new ServiceLoaderCache<>(TimeCoupledRaoProvider.class).getServices());
 
     /**
-     * An inter-temporal RA optimisation runner is responsible for providing convenient methods on top of
+     * A time-coupled RA optimization runner is responsible for providing convenient methods on top of
      * {@link TimeCoupledRaoProvider}: several variants of synchronous and asynchronous run with default parameters.
      */
     public static class Runner {
@@ -68,7 +68,7 @@ public final class TimeCoupledRao {
     }
 
     /**
-     * Get a runner for an inter-temporal RAO named {@code name}. In the case of a null {@code name}, default
+     * Get a runner for a time-coupled RAO named {@code name}. In the case of a null {@code name}, default
      * implementation is used.
      *
      * @param name name of the RAO implementation, null if we want to use default one
@@ -79,7 +79,7 @@ public final class TimeCoupledRao {
     }
 
     /**
-     * Get a runner for default inter-temporal RAO implementation.
+     * Get a runner for default time-coupled RAO implementation.
      *
      * @throws OpenRaoException in case we cannot find a default implementation
      * @return a runner for default RAO implementation
@@ -103,7 +103,7 @@ public final class TimeCoupledRao {
         Objects.requireNonNull(platformConfig);
 
         if (providers.isEmpty()) {
-            throw new OpenRaoException("No inter-temporal RAO providers found");
+            throw new OpenRaoException("No time-coupled RAO providers found");
         }
 
         // if no RAO implementation name is provided through the API we look for information

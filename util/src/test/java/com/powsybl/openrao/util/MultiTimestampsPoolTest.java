@@ -27,24 +27,24 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-class InterTemporalPoolTest {
+class MultiTimestampsPoolTest {
     private final OffsetDateTime timestamp1 = OffsetDateTime.of(2024, 12, 13, 15, 17, 0, 0, ZoneOffset.UTC);
     private final OffsetDateTime timestamp2 = OffsetDateTime.of(2024, 12, 14, 15, 17, 0, 0, ZoneOffset.UTC);
     private final OffsetDateTime timestamp3 = OffsetDateTime.of(2024, 12, 15, 15, 17, 0, 0, ZoneOffset.UTC);
 
     @Test
     void initWithNoSpecifiedThreads() {
-        assertEquals(3, new InterTemporalPool(Set.of(timestamp1, timestamp2, timestamp3)).getParallelism());
+        assertEquals(3, new MultiTimestampsPool(Set.of(timestamp1, timestamp2, timestamp3)).getParallelism());
     }
 
     @Test
     void initWithLimitedThreads() {
-        assertEquals(2, new InterTemporalPool(Set.of(timestamp1, timestamp2, timestamp3), 2).getParallelism());
+        assertEquals(2, new MultiTimestampsPool(Set.of(timestamp1, timestamp2, timestamp3), 2).getParallelism());
     }
 
     @Test
     void testRunTemporalTasks() throws InterruptedException, ExecutionException {
-        InterTemporalPool pool = new InterTemporalPool(Set.of(timestamp1, timestamp2, timestamp3));
+        MultiTimestampsPool pool = new MultiTimestampsPool(Set.of(timestamp1, timestamp2, timestamp3));
         assertEquals(3, pool.getParallelism());
 
         TemporalData<String> resultPerTimestamp = pool.runTasks(OffsetDateTime::toString);
@@ -61,7 +61,7 @@ class InterTemporalPoolTest {
         logger.addAppender(listAppender);
         List<ILoggingEvent> logsList = listAppender.list;
 
-        InterTemporalPool pool = new InterTemporalPool(Set.of(timestamp1, timestamp2, timestamp3), 2);
+        MultiTimestampsPool pool = new MultiTimestampsPool(Set.of(timestamp1, timestamp2, timestamp3), 2);
         pool.runTasks(this::addYearOffsets);
 
         assertEquals(30, logsList.size());
@@ -92,7 +92,7 @@ class InterTemporalPoolTest {
         for (int i = 0; i < 10; i++) {
             newDates.add(timestamp.plusYears(i));
         }
-        InterTemporalPool pool = new InterTemporalPool(newDates, 3);
+        MultiTimestampsPool pool = new MultiTimestampsPool(newDates, 3);
         try {
             pool.runTasks(this::printTimestamp);
         } catch (InterruptedException | ExecutionException e) {

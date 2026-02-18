@@ -28,7 +28,7 @@ import com.powsybl.openrao.data.timecouplingconstraints.io.JsonTimeCouplingConst
 import com.powsybl.openrao.data.raoresult.api.TimeCoupledRaoResult;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.io.idcc.core.F711Utils;
-import com.powsybl.openrao.data.refprog.refprogxmlimporter.InterTemporalRefProg;
+import com.powsybl.openrao.data.refprog.refprogxmlimporter.TimeCoupledRefProg;
 import com.powsybl.openrao.raoapi.*;
 import com.powsybl.openrao.tests.utils.CoreCcPreprocessor;
 import io.cucumber.datatable.DataTable;
@@ -287,7 +287,7 @@ public final class TimeCoupledRaoSteps {
 
             if (refProgPath != null) {
                 InputStream refProgInputStream = new FileInputStream(getFile(refProgPath));
-                InterTemporalRefProg.updateRefProg(refProgInputStream, new TemporalDataImpl<>(rdVolumes), becValues, getResourcesPath().concat(outputPath));
+                TimeCoupledRefProg.updateRefProg(refProgInputStream, new TemporalDataImpl<>(rdVolumes), becValues, getResourcesPath().concat(outputPath));
             }
         } finally {
             deleteDirectoryRecursively(tempDir);

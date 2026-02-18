@@ -46,7 +46,7 @@ class TimeCoupledRaoResultImplTest {
     private FlowCnec flowCnecTimestamp3;
     private PstRangeAction pstRangeAction;
     private NetworkAction networkAction;
-    private TimeCoupledRaoResultImpl interTemporalRaoResult;
+    private TimeCoupledRaoResultImpl timeCoupledRaoResult;
 
     @BeforeEach
     void setUp() {
@@ -80,90 +80,90 @@ class TimeCoupledRaoResultImplTest {
         final RaoResult raoResultTimestamp2 = mockRaoResult(true, "RAO 2 succeeded.", 250., 90., flowCnecTimestamp2, 510., 45., stateTimestamp2, 0, 5, 0., 10.2, false);
         final RaoResult raoResultTimestamp3 = mockRaoResult(false, "RAO 3 failed.", 200., 10., flowCnecTimestamp3, 1000., -60., stateTimestamp3, 0, 16, 0., 35.32, true);
 
-        interTemporalRaoResult = new TimeCoupledRaoResultImpl(initialObjectiveFunctionResult, objectiveFunctionResult, new TemporalDataImpl<>(Map.of(TestsUtils.TIMESTAMP_1, raoResultTimestamp1, TestsUtils.TIMESTAMP_2, raoResultTimestamp2, TestsUtils.TIMESTAMP_3, raoResultTimestamp3)));
+        timeCoupledRaoResult = new TimeCoupledRaoResultImpl(initialObjectiveFunctionResult, objectiveFunctionResult, new TemporalDataImpl<>(Map.of(TestsUtils.TIMESTAMP_1, raoResultTimestamp1, TestsUtils.TIMESTAMP_2, raoResultTimestamp2, TestsUtils.TIMESTAMP_3, raoResultTimestamp3)));
     }
 
     @Test
     void testCosts() {
-        assertEquals(Set.of("virtual"), interTemporalRaoResult.getVirtualCostNames());
+        assertEquals(Set.of("virtual"), timeCoupledRaoResult.getVirtualCostNames());
 
-        assertEquals(0., interTemporalRaoResult.getGlobalCost(null));
-        assertEquals(0., interTemporalRaoResult.getGlobalFunctionalCost(null));
-        assertEquals(0., interTemporalRaoResult.getGlobalVirtualCost(null));
-        assertEquals(0., interTemporalRaoResult.getGlobalVirtualCost(null, "virtual"));
+        assertEquals(0., timeCoupledRaoResult.getGlobalCost(null));
+        assertEquals(0., timeCoupledRaoResult.getGlobalFunctionalCost(null));
+        assertEquals(0., timeCoupledRaoResult.getGlobalVirtualCost(null));
+        assertEquals(0., timeCoupledRaoResult.getGlobalVirtualCost(null, "virtual"));
 
-        assertEquals(1000., interTemporalRaoResult.getGlobalCost(instant));
-        assertEquals(900., interTemporalRaoResult.getGlobalFunctionalCost(instant));
-        assertEquals(100., interTemporalRaoResult.getGlobalVirtualCost(instant));
-        assertEquals(100., interTemporalRaoResult.getGlobalVirtualCost(instant, "virtual"));
+        assertEquals(1000., timeCoupledRaoResult.getGlobalCost(instant));
+        assertEquals(900., timeCoupledRaoResult.getGlobalFunctionalCost(instant));
+        assertEquals(100., timeCoupledRaoResult.getGlobalVirtualCost(instant));
+        assertEquals(100., timeCoupledRaoResult.getGlobalVirtualCost(instant, "virtual"));
 
-        assertEquals(450., interTemporalRaoResult.getCost(instant, TestsUtils.TIMESTAMP_1));
-        assertEquals(450., interTemporalRaoResult.getFunctionalCost(instant, TestsUtils.TIMESTAMP_1));
-        assertEquals(0., interTemporalRaoResult.getVirtualCost(instant, TestsUtils.TIMESTAMP_1));
-        assertEquals(0., interTemporalRaoResult.getVirtualCost(instant, "virtual", TestsUtils.TIMESTAMP_1));
+        assertEquals(450., timeCoupledRaoResult.getCost(instant, TestsUtils.TIMESTAMP_1));
+        assertEquals(450., timeCoupledRaoResult.getFunctionalCost(instant, TestsUtils.TIMESTAMP_1));
+        assertEquals(0., timeCoupledRaoResult.getVirtualCost(instant, TestsUtils.TIMESTAMP_1));
+        assertEquals(0., timeCoupledRaoResult.getVirtualCost(instant, "virtual", TestsUtils.TIMESTAMP_1));
 
-        assertEquals(340., interTemporalRaoResult.getCost(instant, TestsUtils.TIMESTAMP_2));
-        assertEquals(250., interTemporalRaoResult.getFunctionalCost(instant, TestsUtils.TIMESTAMP_2));
-        assertEquals(90., interTemporalRaoResult.getVirtualCost(instant, TestsUtils.TIMESTAMP_2));
-        assertEquals(90., interTemporalRaoResult.getVirtualCost(instant, "virtual", TestsUtils.TIMESTAMP_2));
+        assertEquals(340., timeCoupledRaoResult.getCost(instant, TestsUtils.TIMESTAMP_2));
+        assertEquals(250., timeCoupledRaoResult.getFunctionalCost(instant, TestsUtils.TIMESTAMP_2));
+        assertEquals(90., timeCoupledRaoResult.getVirtualCost(instant, TestsUtils.TIMESTAMP_2));
+        assertEquals(90., timeCoupledRaoResult.getVirtualCost(instant, "virtual", TestsUtils.TIMESTAMP_2));
 
-        assertEquals(210., interTemporalRaoResult.getCost(instant, TestsUtils.TIMESTAMP_3));
-        assertEquals(200., interTemporalRaoResult.getFunctionalCost(instant, TestsUtils.TIMESTAMP_3));
-        assertEquals(10., interTemporalRaoResult.getVirtualCost(instant, TestsUtils.TIMESTAMP_3));
-        assertEquals(10., interTemporalRaoResult.getVirtualCost(instant, "virtual", TestsUtils.TIMESTAMP_3));
+        assertEquals(210., timeCoupledRaoResult.getCost(instant, TestsUtils.TIMESTAMP_3));
+        assertEquals(200., timeCoupledRaoResult.getFunctionalCost(instant, TestsUtils.TIMESTAMP_3));
+        assertEquals(10., timeCoupledRaoResult.getVirtualCost(instant, TestsUtils.TIMESTAMP_3));
+        assertEquals(10., timeCoupledRaoResult.getVirtualCost(instant, "virtual", TestsUtils.TIMESTAMP_3));
 
-        OpenRaoException exception1 = assertThrows(OpenRaoException.class, () -> interTemporalRaoResult.getFunctionalCost(instant));
+        OpenRaoException exception1 = assertThrows(OpenRaoException.class, () -> timeCoupledRaoResult.getFunctionalCost(instant));
         assertEquals("Calling getFunctionalCost with an instant alone is ambiguous. For the global functional cost, use getGlobalFunctionalCost. Otherwise, please provide a timestamp.", exception1.getMessage());
 
-        OpenRaoException exception2 = assertThrows(OpenRaoException.class, () -> interTemporalRaoResult.getVirtualCost(instant));
+        OpenRaoException exception2 = assertThrows(OpenRaoException.class, () -> timeCoupledRaoResult.getVirtualCost(instant));
         assertEquals("Calling getVirtualCost with an instant alone is ambiguous. For the global virtual cost, use getGlobalVirtualCost. Otherwise, please provide a timestamp.", exception2.getMessage());
 
-        OpenRaoException exception3 = assertThrows(OpenRaoException.class, () -> interTemporalRaoResult.getVirtualCost(instant, "virtual"));
+        OpenRaoException exception3 = assertThrows(OpenRaoException.class, () -> timeCoupledRaoResult.getVirtualCost(instant, "virtual"));
         assertEquals("Calling getVirtualCost with an instant and a name alone is ambiguous. For the global virtual cost, use getGlobalVirtualCost. Otherwise, please provide a timestamp.", exception3.getMessage());
     }
 
     @Test
     void testTimestamps() {
-        assertEquals(List.of(TestsUtils.TIMESTAMP_1, TestsUtils.TIMESTAMP_2, TestsUtils.TIMESTAMP_3), interTemporalRaoResult.getTimestamps());
+        assertEquals(List.of(TestsUtils.TIMESTAMP_1, TestsUtils.TIMESTAMP_2, TestsUtils.TIMESTAMP_3), timeCoupledRaoResult.getTimestamps());
     }
 
     @Test
     void testIsSecure() {
-        assertFalse(interTemporalRaoResult.isSecure());
-        assertTrue(interTemporalRaoResult.isSecure(TestsUtils.TIMESTAMP_1));
-        assertTrue(interTemporalRaoResult.isSecure(TestsUtils.TIMESTAMP_2));
-        assertFalse(interTemporalRaoResult.isSecure(TestsUtils.TIMESTAMP_3));
+        assertFalse(timeCoupledRaoResult.isSecure());
+        assertTrue(timeCoupledRaoResult.isSecure(TestsUtils.TIMESTAMP_1));
+        assertTrue(timeCoupledRaoResult.isSecure(TestsUtils.TIMESTAMP_2));
+        assertFalse(timeCoupledRaoResult.isSecure(TestsUtils.TIMESTAMP_3));
 
-        assertFalse(interTemporalRaoResult.isSecure(PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
-        assertTrue(interTemporalRaoResult.isSecure(TestsUtils.TIMESTAMP_1, PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
-        assertTrue(interTemporalRaoResult.isSecure(TestsUtils.TIMESTAMP_2, PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
-        assertFalse(interTemporalRaoResult.isSecure(TestsUtils.TIMESTAMP_3, PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
+        assertFalse(timeCoupledRaoResult.isSecure(PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
+        assertTrue(timeCoupledRaoResult.isSecure(TestsUtils.TIMESTAMP_1, PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
+        assertTrue(timeCoupledRaoResult.isSecure(TestsUtils.TIMESTAMP_2, PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
+        assertFalse(timeCoupledRaoResult.isSecure(TestsUtils.TIMESTAMP_3, PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE));
 
-        assertTrue(interTemporalRaoResult.isSecure(instant, TestsUtils.TIMESTAMP_1, PhysicalParameter.FLOW));
-        assertTrue(interTemporalRaoResult.isSecure(instant, TestsUtils.TIMESTAMP_2, PhysicalParameter.FLOW));
-        assertFalse(interTemporalRaoResult.isSecure(instant, TestsUtils.TIMESTAMP_3, PhysicalParameter.FLOW));
+        assertTrue(timeCoupledRaoResult.isSecure(instant, TestsUtils.TIMESTAMP_1, PhysicalParameter.FLOW));
+        assertTrue(timeCoupledRaoResult.isSecure(instant, TestsUtils.TIMESTAMP_2, PhysicalParameter.FLOW));
+        assertFalse(timeCoupledRaoResult.isSecure(instant, TestsUtils.TIMESTAMP_3, PhysicalParameter.FLOW));
 
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> interTemporalRaoResult.isSecure(instant, PhysicalParameter.FLOW));
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> timeCoupledRaoResult.isSecure(instant, PhysicalParameter.FLOW));
         assertEquals("Calling isSecure with an instant and physical parameters alone is ambiguous. Please provide a timestamp.", exception.getMessage());
     }
 
     @Test
     void testExecutionDetails() {
-        assertEquals("2025-02-17T13:33:00Z: RAO 1 succeeded. - 2025-02-18T13:33:00Z: RAO 2 succeeded. - 2025-02-19T13:33:00Z: RAO 3 failed.", interTemporalRaoResult.getExecutionDetails());
+        assertEquals("2025-02-17T13:33:00Z: RAO 1 succeeded. - 2025-02-18T13:33:00Z: RAO 2 succeeded. - 2025-02-19T13:33:00Z: RAO 3 failed.", timeCoupledRaoResult.getExecutionDetails());
     }
 
     @Test
     void testFlow() {
-        assertEquals(850., interTemporalRaoResult.getFlow(instant, flowCnecTimestamp1, TwoSides.ONE, Unit.MEGAWATT));
-        assertEquals(510., interTemporalRaoResult.getFlow(instant, flowCnecTimestamp2, TwoSides.ONE, Unit.MEGAWATT));
-        assertEquals(1000., interTemporalRaoResult.getFlow(instant, flowCnecTimestamp3, TwoSides.ONE, Unit.MEGAWATT));
+        assertEquals(850., timeCoupledRaoResult.getFlow(instant, flowCnecTimestamp1, TwoSides.ONE, Unit.MEGAWATT));
+        assertEquals(510., timeCoupledRaoResult.getFlow(instant, flowCnecTimestamp2, TwoSides.ONE, Unit.MEGAWATT));
+        assertEquals(1000., timeCoupledRaoResult.getFlow(instant, flowCnecTimestamp3, TwoSides.ONE, Unit.MEGAWATT));
     }
 
     @Test
     void testMargin() {
-        assertEquals(10., interTemporalRaoResult.getMargin(instant, flowCnecTimestamp1, Unit.MEGAWATT));
-        assertEquals(45., interTemporalRaoResult.getMargin(instant, flowCnecTimestamp2, Unit.MEGAWATT));
-        assertEquals(-60., interTemporalRaoResult.getMargin(instant, flowCnecTimestamp3, Unit.MEGAWATT));
+        assertEquals(10., timeCoupledRaoResult.getMargin(instant, flowCnecTimestamp1, Unit.MEGAWATT));
+        assertEquals(45., timeCoupledRaoResult.getMargin(instant, flowCnecTimestamp2, Unit.MEGAWATT));
+        assertEquals(-60., timeCoupledRaoResult.getMargin(instant, flowCnecTimestamp3, Unit.MEGAWATT));
     }
 
     private RaoResult mockRaoResult(boolean isSecure, String executionDetails, double functionalCost, double virtualCost, FlowCnec flowCnec, double flow, double margin, State state, int initialTap, int optimizedTap, double initialSetPoint, double optimizedSetPoint, boolean isNetworkActionActivated) {
@@ -190,40 +190,40 @@ class TimeCoupledRaoResultImplTest {
 
     @Test
     void testRangeActionActivation() {
-        assertFalse(interTemporalRaoResult.isActivatedDuringState(stateTimestamp1, pstRangeAction));
-        assertEquals(0, interTemporalRaoResult.getPreOptimizationTapOnState(stateTimestamp1, pstRangeAction));
-        assertEquals(0, interTemporalRaoResult.getOptimizedTapOnState(stateTimestamp1, pstRangeAction));
-        assertEquals(Map.of(pstRangeAction, 0), interTemporalRaoResult.getOptimizedTapsOnState(stateTimestamp1));
-        assertEquals(0., interTemporalRaoResult.getPreOptimizationSetPointOnState(stateTimestamp1, pstRangeAction));
-        assertEquals(0., interTemporalRaoResult.getOptimizedSetPointOnState(stateTimestamp1, pstRangeAction));
-        assertEquals(Map.of(pstRangeAction, 0.), interTemporalRaoResult.getOptimizedSetPointsOnState(stateTimestamp1));
+        assertFalse(timeCoupledRaoResult.isActivatedDuringState(stateTimestamp1, pstRangeAction));
+        assertEquals(0, timeCoupledRaoResult.getPreOptimizationTapOnState(stateTimestamp1, pstRangeAction));
+        assertEquals(0, timeCoupledRaoResult.getOptimizedTapOnState(stateTimestamp1, pstRangeAction));
+        assertEquals(Map.of(pstRangeAction, 0), timeCoupledRaoResult.getOptimizedTapsOnState(stateTimestamp1));
+        assertEquals(0., timeCoupledRaoResult.getPreOptimizationSetPointOnState(stateTimestamp1, pstRangeAction));
+        assertEquals(0., timeCoupledRaoResult.getOptimizedSetPointOnState(stateTimestamp1, pstRangeAction));
+        assertEquals(Map.of(pstRangeAction, 0.), timeCoupledRaoResult.getOptimizedSetPointsOnState(stateTimestamp1));
 
-        assertTrue(interTemporalRaoResult.isActivatedDuringState(stateTimestamp2, pstRangeAction));
-        assertEquals(0, interTemporalRaoResult.getPreOptimizationTapOnState(stateTimestamp2, pstRangeAction));
-        assertEquals(5, interTemporalRaoResult.getOptimizedTapOnState(stateTimestamp2, pstRangeAction));
-        assertEquals(Map.of(pstRangeAction, 5), interTemporalRaoResult.getOptimizedTapsOnState(stateTimestamp2));
-        assertEquals(0., interTemporalRaoResult.getPreOptimizationSetPointOnState(stateTimestamp2, pstRangeAction));
-        assertEquals(10.2, interTemporalRaoResult.getOptimizedSetPointOnState(stateTimestamp2, pstRangeAction));
-        assertEquals(Map.of(pstRangeAction, 10.2), interTemporalRaoResult.getOptimizedSetPointsOnState(stateTimestamp2));
+        assertTrue(timeCoupledRaoResult.isActivatedDuringState(stateTimestamp2, pstRangeAction));
+        assertEquals(0, timeCoupledRaoResult.getPreOptimizationTapOnState(stateTimestamp2, pstRangeAction));
+        assertEquals(5, timeCoupledRaoResult.getOptimizedTapOnState(stateTimestamp2, pstRangeAction));
+        assertEquals(Map.of(pstRangeAction, 5), timeCoupledRaoResult.getOptimizedTapsOnState(stateTimestamp2));
+        assertEquals(0., timeCoupledRaoResult.getPreOptimizationSetPointOnState(stateTimestamp2, pstRangeAction));
+        assertEquals(10.2, timeCoupledRaoResult.getOptimizedSetPointOnState(stateTimestamp2, pstRangeAction));
+        assertEquals(Map.of(pstRangeAction, 10.2), timeCoupledRaoResult.getOptimizedSetPointsOnState(stateTimestamp2));
 
-        assertTrue(interTemporalRaoResult.isActivatedDuringState(stateTimestamp3, pstRangeAction));
-        assertEquals(0, interTemporalRaoResult.getPreOptimizationTapOnState(stateTimestamp3, pstRangeAction));
-        assertEquals(16, interTemporalRaoResult.getOptimizedTapOnState(stateTimestamp3, pstRangeAction));
-        assertEquals(Map.of(pstRangeAction, 16), interTemporalRaoResult.getOptimizedTapsOnState(stateTimestamp3));
-        assertEquals(0., interTemporalRaoResult.getPreOptimizationSetPointOnState(stateTimestamp3, pstRangeAction));
-        assertEquals(35.32, interTemporalRaoResult.getOptimizedSetPointOnState(stateTimestamp3, pstRangeAction));
-        assertEquals(Map.of(pstRangeAction, 35.32), interTemporalRaoResult.getOptimizedSetPointsOnState(stateTimestamp3));
+        assertTrue(timeCoupledRaoResult.isActivatedDuringState(stateTimestamp3, pstRangeAction));
+        assertEquals(0, timeCoupledRaoResult.getPreOptimizationTapOnState(stateTimestamp3, pstRangeAction));
+        assertEquals(16, timeCoupledRaoResult.getOptimizedTapOnState(stateTimestamp3, pstRangeAction));
+        assertEquals(Map.of(pstRangeAction, 16), timeCoupledRaoResult.getOptimizedTapsOnState(stateTimestamp3));
+        assertEquals(0., timeCoupledRaoResult.getPreOptimizationSetPointOnState(stateTimestamp3, pstRangeAction));
+        assertEquals(35.32, timeCoupledRaoResult.getOptimizedSetPointOnState(stateTimestamp3, pstRangeAction));
+        assertEquals(Map.of(pstRangeAction, 35.32), timeCoupledRaoResult.getOptimizedSetPointsOnState(stateTimestamp3));
     }
 
     @Test
     void testNetworkActionActivation() {
-        assertTrue(interTemporalRaoResult.isActivatedDuringState(stateTimestamp1, networkAction));
-        assertEquals(Set.of(networkAction), interTemporalRaoResult.getActivatedNetworkActionsDuringState(stateTimestamp1));
+        assertTrue(timeCoupledRaoResult.isActivatedDuringState(stateTimestamp1, networkAction));
+        assertEquals(Set.of(networkAction), timeCoupledRaoResult.getActivatedNetworkActionsDuringState(stateTimestamp1));
 
-        assertFalse(interTemporalRaoResult.isActivatedDuringState(stateTimestamp2, networkAction));
-        assertTrue(interTemporalRaoResult.getActivatedNetworkActionsDuringState(stateTimestamp2).isEmpty());
+        assertFalse(timeCoupledRaoResult.isActivatedDuringState(stateTimestamp2, networkAction));
+        assertTrue(timeCoupledRaoResult.getActivatedNetworkActionsDuringState(stateTimestamp2).isEmpty());
 
-        assertTrue(interTemporalRaoResult.isActivatedDuringState(stateTimestamp3, networkAction));
-        assertEquals(Set.of(networkAction), interTemporalRaoResult.getActivatedNetworkActionsDuringState(stateTimestamp3));
+        assertTrue(timeCoupledRaoResult.isActivatedDuringState(stateTimestamp3, networkAction));
+        assertEquals(Set.of(networkAction), timeCoupledRaoResult.getActivatedNetworkActionsDuringState(stateTimestamp3));
     }
 }

@@ -53,7 +53,7 @@ class RaoResultArchiveManagerTest {
         assertTrue(archiveContent.contains("raoResult_202502141040.json"));
         assertTrue(archiveContent.contains("raoResult_202502141140.json"));
         assertTrue(archiveContent.contains("raoResult_202502141240.json"));
-        assertTrue(archiveContent.contains("interTemporalRaoSummary.json"));
+        assertTrue(archiveContent.contains("timeCoupledRaoSummary.json"));
     }
 
     @Test
@@ -85,7 +85,7 @@ class RaoResultArchiveManagerTest {
             "raoResult_202502141040.json",
             "raoResult_202502141140.json",
             "raoResult_202502141240.json",
-            "interTemporalRaoSummary.json"
+            "timeCoupledRaoSummary.json"
         );
 
         prepareTestRaoExportSetup();
