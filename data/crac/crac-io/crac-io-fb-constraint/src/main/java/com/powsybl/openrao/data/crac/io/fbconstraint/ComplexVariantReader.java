@@ -31,7 +31,7 @@ class ComplexVariantReader {
     private List<ActionReader> actionReaders;
     private List<String> afterCoList;
     private ElementaryCreationContext complexVariantCreationContext;
-    private ActionType type;
+    private ActionTypeEnum type;
 
     private ImportStatus importStatus;
     private String importStatusDetail;
@@ -58,12 +58,13 @@ class ComplexVariantReader {
     }
 
     void addRemedialAction(Crac crac) {
-        if (type.equals(ActionType.PST)) {
+        if (type.equals(ActionTypeEnum.PST)) {
             addPstRemedialAction(crac);
-        } else if (type.equals(ActionType.TOPO)) {
+        } else if (type.equals(ActionTypeEnum.TOPO)) {
             addTopologicalRemedialAction(crac);
         }
-        // InjectionRemedialAction for HVDC type are created with HvdcLineRemedialActionAdder because one remedial action is composed of two complex variants
+        // InjectionRemedialAction for HVDC type are created in FbConstraintCracCreator with HvdcLineRemedialActionAdder
+        // because one remedial action is composed of two complex variants and can therefore not be built in a single ComplexVariantReader
     }
 
     private void addPstRemedialAction(final Crac crac) {
@@ -94,7 +95,7 @@ class ComplexVariantReader {
         networkActionAdder.add();
     }
 
-    ActionType getType() {
+    ActionTypeEnum getType() {
         return type;
     }
 
@@ -115,7 +116,6 @@ class ComplexVariantReader {
     }
 
     void invalidateOnInvalidGenerator(final ImportStatus status, final String detail) {
-        // It would be a nonsense to invalidate complex variant reader with IMPORTED generator status
         if (!status.equals(ImportStatus.IMPORTED)) {
             this.importStatus = status;
             this.importStatusDetail = detail;
@@ -155,22 +155,22 @@ class ComplexVariantReader {
             return;
         }
 
-        if (actionReaders.stream().anyMatch(actionReader -> actionReader.getType().equals(ActionType.PST))) {
+        if (actionReaders.stream().anyMatch(actionReader -> actionReader.getType().equals(ActionTypeEnum.PST))) {
             if (actionReaders.size() > 1) {
                 this.importStatus = ImportStatus.INCONSISTENCY_IN_DATA;
                 this.importStatusDetail = String.format("complex variant %s was removed as it contains several actions which are not topological actions", complexVariant.getId());
             } else {
-                this.type = ActionType.PST;
+                this.type = ActionTypeEnum.PST;
             }
-        } else if (actionReaders.stream().anyMatch(actionReader -> actionReader.getType().equals(ActionType.HVDC))) {
+        } else if (actionReaders.stream().anyMatch(actionReader -> actionReader.getType().equals(ActionTypeEnum.HVDC))) {
             if (actionReaders.size() > 1) {
                 this.importStatus = ImportStatus.INCONSISTENCY_IN_DATA;
                 this.importStatusDetail = String.format("complex variant %s was removed as it contains several actions", complexVariant.getId());
             } else {
-                this.type = ActionType.HVDC;
+                this.type = ActionTypeEnum.HVDC;
             }
         } else {
-            this.type = ActionType.TOPO;
+            this.type = ActionTypeEnum.TOPO;
         }
     }
 

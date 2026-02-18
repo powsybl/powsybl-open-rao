@@ -10,7 +10,7 @@ package com.powsybl.openrao.data.crac.io.fbconstraint;
 /**
  * @author Vincent Bochet {@literal <vincent.bochet at rte-france.com>}
  */
-enum ActionType {
+enum ActionTypeEnum {
     TOPO,
     PST,
     HVDC
