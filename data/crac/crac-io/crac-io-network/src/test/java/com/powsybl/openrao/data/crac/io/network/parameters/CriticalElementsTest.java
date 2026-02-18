@@ -109,10 +109,7 @@ class CriticalElementsTest extends AbstractTest {
 
     @Test
     void testLimitMultiplierErrors() {
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> parameters.getLimitMultiplierPerInstant(prevInstant, 10.));
-        assertEquals("Limit multiplier per instant is null. Please set it using getLimitMultiplierPerInstant.", exception.getMessage());
-
-        exception = assertThrows(OpenRaoException.class, () -> parameters.setLimitMultiplierPerInstant(null));
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> parameters.setLimitMultiplierPerInstant(null));
         assertEquals("You must define the value for every instant.", exception.getMessage());
 
         exception = assertThrows(OpenRaoException.class, () -> parameters.setLimitMultiplierPerInstantPerNominalV(null));
@@ -129,6 +126,16 @@ class CriticalElementsTest extends AbstractTest {
 
     @Test
     void testLimitMultiplierNominal() {
+        // default value is 1
+        assertEquals(1.0, parameters.getLimitMultiplierPerInstant(prevInstant, 10.));
+        assertEquals(1.0, parameters.getLimitMultiplierPerInstant(prevInstant, 20.));
+        assertEquals(1.0, parameters.getLimitMultiplierPerInstant(outInstant, 20.));
+        assertEquals(1.0, parameters.getLimitMultiplierPerInstant(outInstant, 30.));
+        assertEquals(1.0, parameters.getLimitMultiplierPerInstant(cur1Instant, 30.));
+        assertEquals(1.0, parameters.getLimitMultiplierPerInstant(cur1Instant, 40.));
+        assertEquals(1.0, parameters.getLimitMultiplierPerInstant(cur2Instant, 40.));
+        assertEquals(1.0, parameters.getLimitMultiplierPerInstant(cur2Instant, 50.));
+
         parameters.setLimitMultiplierPerInstant(Map.of("preventive", 1.0, "outage", 1.3, "cur1", 1.2, "cur2", 1.1));
         assertEquals(1.0, parameters.getLimitMultiplierPerInstant(prevInstant, 10.));
         assertEquals(1.0, parameters.getLimitMultiplierPerInstant(prevInstant, 20.));

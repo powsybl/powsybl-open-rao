@@ -106,7 +106,7 @@ public class CriticalElements extends AbstractCountriesFilter {
 
     public Double getLimitMultiplierPerInstant(Instant instant, Double nominalV) {
         if (limitMultiplierPerInstant == null) {
-            throw new OpenRaoException("Limit multiplier per instant is null. Please set it using getLimitMultiplierPerInstant.");
+            return 1.0;
         }
         double defaultValue = limitMultiplierPerInstant.get(instant.getId());
         if (limitMultiplierPerInstantPerNominalV == null) {
