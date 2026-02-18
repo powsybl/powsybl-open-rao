@@ -1,10 +1,12 @@
 {
-  "type": "OpenRAO Intertemporal Constraints",
+  "type": "OpenRAO Time-Coupling Constraints",
   "version": "1.0",
   "generatorConstraints": [
     {
       "generatorId": "BBE1AA1 _generator",
-      "upwardPowerGradient": 1000.0,
+      "leadTime": 2.33,
+      "lagTime": 0.75,
+      "upwardPowerGradient": 1500.0,
       "downwardPowerGradient": -2000.0
     }
   ]

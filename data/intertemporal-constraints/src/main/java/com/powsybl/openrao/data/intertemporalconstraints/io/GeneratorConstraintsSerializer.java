@@ -27,26 +27,26 @@ public class GeneratorConstraintsSerializer extends StdSerializer<GeneratorConst
     @Override
     public void serialize(GeneratorConstraints generatorConstraints, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
-        jsonGenerator.writeStringField(JsonIntertemporalConstraints.GENERATOR_ID, generatorConstraints.getGeneratorId());
+        jsonGenerator.writeStringField(JsonTimeCouplingConstraints.GENERATOR_ID, generatorConstraints.getGeneratorId());
 
         Optional<Double> leadTime = generatorConstraints.getLeadTime();
         if (leadTime.isPresent()) {
-            jsonGenerator.writeNumberField(JsonIntertemporalConstraints.LEAD_TIME, leadTime.get());
+            jsonGenerator.writeNumberField(JsonTimeCouplingConstraints.LEAD_TIME, leadTime.get());
         }
 
         Optional<Double> lagTime = generatorConstraints.getLagTime();
         if (lagTime.isPresent()) {
-            jsonGenerator.writeNumberField(JsonIntertemporalConstraints.LAG_TIME, lagTime.get());
+            jsonGenerator.writeNumberField(JsonTimeCouplingConstraints.LAG_TIME, lagTime.get());
         }
 
         Optional<Double> upwardPowerGradient = generatorConstraints.getUpwardPowerGradient();
         if (upwardPowerGradient.isPresent()) {
-            jsonGenerator.writeNumberField(JsonIntertemporalConstraints.UPWARD_POWER_GRADIENT, upwardPowerGradient.get());
+            jsonGenerator.writeNumberField(JsonTimeCouplingConstraints.UPWARD_POWER_GRADIENT, upwardPowerGradient.get());
         }
 
         Optional<Double> downwardPowerGradient = generatorConstraints.getDownwardPowerGradient();
         if (downwardPowerGradient.isPresent()) {
-            jsonGenerator.writeNumberField(JsonIntertemporalConstraints.DOWNWARD_POWER_GRADIENT, downwardPowerGradient.get());
+            jsonGenerator.writeNumberField(JsonTimeCouplingConstraints.DOWNWARD_POWER_GRADIENT, downwardPowerGradient.get());
         }
 
         jsonGenerator.writeEndObject();

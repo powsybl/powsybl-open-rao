@@ -11,7 +11,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.data.intertemporalconstraints.io.JsonIntertemporalConstraints;
+import com.powsybl.openrao.data.intertemporalconstraints.io.JsonTimeCouplingConstraints;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;
@@ -55,10 +55,10 @@ class JsonTimeCouplingConstraintsTest {
         timeCouplingConstraints.addGeneratorConstraints(generatorConstraints3);
 
         ByteArrayOutputStream expectedOutputStream = new ByteArrayOutputStream();
-        Objects.requireNonNull(getClass().getResourceAsStream("/intertemporal-constraints.json")).transferTo(expectedOutputStream);
+        Objects.requireNonNull(getClass().getResourceAsStream("/time-coupling-constraints.json")).transferTo(expectedOutputStream);
 
         ByteArrayOutputStream actualOutputStream = new ByteArrayOutputStream();
-        JsonIntertemporalConstraints.write(timeCouplingConstraints, actualOutputStream);
+        JsonTimeCouplingConstraints.write(timeCouplingConstraints, actualOutputStream);
 
         assertJsonEquivalence(expectedOutputStream.toString(), actualOutputStream.toString());
     }
@@ -68,17 +68,17 @@ class JsonTimeCouplingConstraintsTest {
         TimeCouplingConstraints timeCouplingConstraints = new TimeCouplingConstraints();
 
         ByteArrayOutputStream expectedOutputStream = new ByteArrayOutputStream();
-        Objects.requireNonNull(getClass().getResourceAsStream("/empty-intertemporal-constraints.json")).transferTo(expectedOutputStream);
+        Objects.requireNonNull(getClass().getResourceAsStream("/empty-time-coupling-constraints.json")).transferTo(expectedOutputStream);
 
         ByteArrayOutputStream actualOutputStream = new ByteArrayOutputStream();
-        JsonIntertemporalConstraints.write(timeCouplingConstraints, actualOutputStream);
+        JsonTimeCouplingConstraints.write(timeCouplingConstraints, actualOutputStream);
 
         assertJsonEquivalence(expectedOutputStream.toString(), actualOutputStream.toString());
     }
 
     @Test
     void testDeserialization() throws IOException {
-        TimeCouplingConstraints timeCouplingConstraints = JsonIntertemporalConstraints.read(getClass().getResourceAsStream("/intertemporal-constraints.json"));
+        TimeCouplingConstraints timeCouplingConstraints = JsonTimeCouplingConstraints.read(getClass().getResourceAsStream("/time-coupling-constraints.json"));
         List<GeneratorConstraints> generatorConstraints = timeCouplingConstraints.getGeneratorConstraints().stream().sorted(Comparator.comparing(GeneratorConstraints::getGeneratorId)).toList();
 
         assertEquals(3, generatorConstraints.size());
@@ -107,14 +107,14 @@ class JsonTimeCouplingConstraintsTest {
 
     @Test
     void testDeserializationWithIllegalField() {
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> JsonIntertemporalConstraints.read(getClass().getResourceAsStream("/invalid-intertemporal-constraints.json")));
-        assertEquals("Unexpected field 'unknownField' in JSON intertemporal constraints.", exception.getMessage());
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> JsonTimeCouplingConstraints.read(getClass().getResourceAsStream("/invalid-time-coupling-constraints.json")));
+        assertEquals("Unexpected field 'unknownField' in JSON time-coupling constraints.", exception.getMessage());
     }
 
     @Test
     void testDeserializationWithIllegalFieldInGeneratorConstraints() {
         // error occurs during automatic deserialization of generator constraints and is reported as a JsonMappingException through a reference chain
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> JsonIntertemporalConstraints.read(getClass().getResourceAsStream("/intertemporal-constraints-with-invalid-generator-constraints.json")));
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> JsonTimeCouplingConstraints.read(getClass().getResourceAsStream("/time-coupling-constraints-with-invalid-generator-constraints.json")));
         assertEquals("Unexpected field 'unknownField' in JSON generator constraints.", exception.getMessage());
     }
 

@@ -25,15 +25,15 @@ import static com.powsybl.commons.json.JsonUtil.createObjectMapper;
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public final class JsonIntertemporalConstraints {
+public final class JsonTimeCouplingConstraints {
 
-    private JsonIntertemporalConstraints() {
+    private JsonTimeCouplingConstraints() {
     }
 
     // General data
 
     public static final String TYPE = "type";
-    public static final String DESCRIPTION = "OpenRAO Intertemporal Constraints";
+    public static final String DESCRIPTION = "OpenRAO Time-Coupling Constraints";
     public static final String VERSION = "version";
     public static final String CURRENT_VERSION = "1.0";
 
@@ -57,7 +57,7 @@ public final class JsonIntertemporalConstraints {
         ObjectMapper objectMapper = createObjectMapper();
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         SimpleModule module = new SimpleModule();
-        module.addSerializer(TimeCouplingConstraints.class, new IntertemporalConstraintsSerializer(TimeCouplingConstraints.class));
+        module.addSerializer(TimeCouplingConstraints.class, new TimeCouplingConstraintsSerializer(TimeCouplingConstraints.class));
         module.addSerializer(GeneratorConstraints.class, new GeneratorConstraintsSerializer(GeneratorConstraints.class));
         objectMapper.registerModule(module);
         ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
@@ -67,7 +67,7 @@ public final class JsonIntertemporalConstraints {
     public static TimeCouplingConstraints read(InputStream inputStream) throws IOException {
         ObjectMapper objectMapper = createObjectMapper();
         SimpleModule module = new SimpleModule();
-        module.addDeserializer(TimeCouplingConstraints.class, new IntertemporalConstraintsDeserializer(TimeCouplingConstraints.class));
+        module.addDeserializer(TimeCouplingConstraints.class, new TimeCouplingConstraintsDeserializer(TimeCouplingConstraints.class));
         module.addDeserializer(GeneratorConstraints.class, new GeneratorConstraintsDeserializer(GeneratorConstraints.class));
         objectMapper.registerModule(module);
         try {

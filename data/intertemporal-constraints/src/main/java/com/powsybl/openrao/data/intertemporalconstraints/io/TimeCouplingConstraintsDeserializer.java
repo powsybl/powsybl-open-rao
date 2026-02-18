@@ -21,9 +21,9 @@ import java.util.List;
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public class IntertemporalConstraintsDeserializer extends StdDeserializer<TimeCouplingConstraints> {
+public class TimeCouplingConstraintsDeserializer extends StdDeserializer<TimeCouplingConstraints> {
 
-    public IntertemporalConstraintsDeserializer(Class<?> vc) {
+    public TimeCouplingConstraintsDeserializer(Class<?> vc) {
         super(vc);
     }
 
@@ -32,13 +32,13 @@ public class IntertemporalConstraintsDeserializer extends StdDeserializer<TimeCo
         TimeCouplingConstraints timeCouplingConstraints = new TimeCouplingConstraints();
         while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
             switch (jsonParser.currentName()) {
-                case JsonIntertemporalConstraints.TYPE, JsonIntertemporalConstraints.VERSION -> jsonParser.nextToken();
-                case JsonIntertemporalConstraints.GENERATOR_CONSTRAINTS -> {
+                case JsonTimeCouplingConstraints.TYPE, JsonTimeCouplingConstraints.VERSION -> jsonParser.nextToken();
+                case JsonTimeCouplingConstraints.GENERATOR_CONSTRAINTS -> {
                     jsonParser.nextToken();
                     List.of(jsonParser.readValueAs(GeneratorConstraints[].class)).forEach(timeCouplingConstraints::addGeneratorConstraints);
                 }
                 default ->
-                    throw new OpenRaoException("Unexpected field '%s' in JSON intertemporal constraints.".formatted(jsonParser.currentName()));
+                    throw new OpenRaoException("Unexpected field '%s' in JSON time-coupling constraints.".formatted(jsonParser.currentName()));
             }
         }
         return timeCouplingConstraints;

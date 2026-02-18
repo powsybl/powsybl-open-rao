@@ -56,7 +56,7 @@ When the topological actions for all timestamps are retrieved, they are applied 
 of all linear actions (PSTs, injections, redispatching, ...) get fine-tuned and and smoothed out over time to respect
 the power gradients.
 
-> If no intertemporal constraints are provided or if they are all respected at the end of the independent RAOs, there is
+> If no time-coupled constraints are provided or if they are all respected at the end of the independent RAOs, there is
 > no need for the global linear RAO.
 
 ## Technical challenges

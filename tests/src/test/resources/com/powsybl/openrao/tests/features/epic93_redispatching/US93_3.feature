@@ -20,7 +20,7 @@ Feature: US 93.3: Intertemporal generator constraints
   Scenario: US 93.3.1: No generator constraints
   No generator constraints hold so the situation corresponds to the ideal case described in the introduction.
     Given configuration file is "epic93/RaoParameters_minCost_megawatt_dc_0_shift.json"
-    Given intertemporal constraints are in file "epic93/empty-intertemporal-constraints.json" and rao inputs are:
+    Given time-coupled constraints are in file "epic93/empty-time-coupling-constraints.json" and rao inputs are:
       | Timestamp        | Network             | CRAC                                 |
       | 2025-11-04 00:30 | epic93/6Nodes.xiidm | epic93/us93_3/crac_202511040030.json |
       | 2025-11-04 01:30 | epic93/6Nodes.xiidm | epic93/us93_3/crac_202511040130.json |
@@ -149,7 +149,7 @@ Feature: US 93.3: Intertemporal generator constraints
   maximum expected power to fully secure the network. The RAO still applied as much redispatching as it can but gets
   overload penalty costs.
     Given configuration file is "epic93/RaoParameters_minCost_megawatt_dc_0_shift.json"
-    Given intertemporal constraints are in file "epic93/intertemporal-constraints-without-constraints.json" and rao inputs are:
+    Given time-coupled constraints are in file "epic93/time-coupling-constraints-without-constraints.json" and rao inputs are:
       | Timestamp        | Network                      | CRAC                                 |
       | 2025-11-04 00:30 | epic93/6Nodes_Pmax2500.xiidm | epic93/us93_3/crac_202511040030.json |
       | 2025-11-04 01:30 | epic93/6Nodes_Pmax2500.xiidm | epic93/us93_3/crac_202511040130.json |
@@ -282,7 +282,7 @@ Feature: US 93.3: Intertemporal generator constraints
   1000 MW/h so the generator must be switched on at 02:00. Similarly, the downward power gradient is -2000 MW/h so the
   generator will be completely shut down at 21:00.
     Given configuration file is "epic93/RaoParameters_minCost_megawatt_dc_0_shift.json"
-    Given intertemporal constraints are in file "epic93/intertemporal-constraints-with-gradients.json" and rao inputs are:
+    Given time-coupled constraints are in file "epic93/time-coupling-constraints-with-gradients.json" and rao inputs are:
       | Timestamp        | Network             | CRAC                                 |
       | 2025-11-04 00:30 | epic93/6Nodes.xiidm | epic93/us93_3/crac_202511040030.json |
       | 2025-11-04 01:30 | epic93/6Nodes.xiidm | epic93/us93_3/crac_202511040130.json |
@@ -412,7 +412,7 @@ Feature: US 93.3: Intertemporal generator constraints
   timestamp - so the generator must be activated sooner than 4:00 and deactivated later than 19:59 in order to produce
   its maximal power in the interval 4:00 to 19:59.
     Given configuration file is "epic93/RaoParameters_minCost_megawatt_dc_0_shift.json"
-    Given intertemporal constraints are in file "epic93/intertemporal-constraints-with-lead-and-lag-times.json" and rao inputs are:
+    Given time-coupled constraints are in file "epic93/time-coupling-constraints-with-lead-and-lag-times.json" and rao inputs are:
       | Timestamp        | Network                               | CRAC                                 |
       | 2025-11-04 00:30 | epic93/6Nodes_Pmin1000_Pmax3000.xiidm | epic93/us93_3/crac_202511040030.json |
       | 2025-11-04 01:30 | epic93/6Nodes_Pmin1000_Pmax3000.xiidm | epic93/us93_3/crac_202511040130.json |
@@ -542,7 +542,7 @@ Feature: US 93.3: Intertemporal generator constraints
   timestamp. However, the maximal power cannot be reached immediately because once the generator is up, it is still
   restricted by power gradients.
     Given configuration file is "epic93/RaoParameters_minCost_megawatt_dc_0_shift.json"
-    Given intertemporal constraints are in file "epic93/intertemporal-constraints-with-lead-and-lag-times-and-gradients.json" and rao inputs are:
+    Given time-coupled constraints are in file "epic93/time-coupling-constraints-with-lead-and-lag-times-and-gradients.json" and rao inputs are:
       | Timestamp        | Network                               | CRAC                                 |
       | 2025-11-04 00:30 | epic93/6Nodes_Pmin1000_Pmax3000.xiidm | epic93/us93_3/crac_202511040030.json |
       | 2025-11-04 01:30 | epic93/6Nodes_Pmin1000_Pmax3000.xiidm | epic93/us93_3/crac_202511040130.json |

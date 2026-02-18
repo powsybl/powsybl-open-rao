@@ -20,17 +20,17 @@ import java.util.Set;
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public class IntertemporalConstraintsSerializer extends StdSerializer<TimeCouplingConstraints> {
+public class TimeCouplingConstraintsSerializer extends StdSerializer<TimeCouplingConstraints> {
 
-    protected IntertemporalConstraintsSerializer(Class<TimeCouplingConstraints> t) {
+    protected TimeCouplingConstraintsSerializer(Class<TimeCouplingConstraints> t) {
         super(t);
     }
 
     @Override
     public void serialize(TimeCouplingConstraints timeCouplingConstraints, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
-        jsonGenerator.writeStringField(JsonIntertemporalConstraints.TYPE, JsonIntertemporalConstraints.DESCRIPTION);
-        jsonGenerator.writeStringField(JsonIntertemporalConstraints.VERSION, JsonIntertemporalConstraints.CURRENT_VERSION);
+        jsonGenerator.writeStringField(JsonTimeCouplingConstraints.TYPE, JsonTimeCouplingConstraints.DESCRIPTION);
+        jsonGenerator.writeStringField(JsonTimeCouplingConstraints.VERSION, JsonTimeCouplingConstraints.CURRENT_VERSION);
         if (!timeCouplingConstraints.getGeneratorConstraints().isEmpty()) {
             serializeGeneratorConstraints(timeCouplingConstraints.getGeneratorConstraints(), jsonGenerator);
         }
@@ -38,7 +38,7 @@ public class IntertemporalConstraintsSerializer extends StdSerializer<TimeCoupli
     }
 
     private static void serializeGeneratorConstraints(Set<GeneratorConstraints> generatorConstraints, JsonGenerator jsonGenerator) throws IOException {
-        jsonGenerator.writeArrayFieldStart(JsonIntertemporalConstraints.GENERATOR_CONSTRAINTS);
+        jsonGenerator.writeArrayFieldStart(JsonTimeCouplingConstraints.GENERATOR_CONSTRAINTS);
         for (GeneratorConstraints individualGeneratorConstraints : generatorConstraints.stream().sorted(Comparator.comparing(GeneratorConstraints::getGeneratorId)).toList()) {
             jsonGenerator.writeObject(individualGeneratorConstraints);
         }

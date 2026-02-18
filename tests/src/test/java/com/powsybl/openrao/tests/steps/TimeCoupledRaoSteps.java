@@ -24,7 +24,7 @@ import com.powsybl.openrao.data.crac.io.fbconstraint.FbConstraintCreationContext
 import com.powsybl.openrao.data.crac.io.fbconstraint.parameters.FbConstraintCracCreationParameters;
 import com.powsybl.openrao.data.crac.util.IcsImporter;
 import com.powsybl.openrao.data.intertemporalconstraints.TimeCouplingConstraints;
-import com.powsybl.openrao.data.intertemporalconstraints.io.JsonIntertemporalConstraints;
+import com.powsybl.openrao.data.intertemporalconstraints.io.JsonTimeCouplingConstraints;
 import com.powsybl.openrao.data.raoresult.api.TimeCoupledRaoResult;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.io.idcc.core.F711Utils;
@@ -64,7 +64,7 @@ import static com.powsybl.openrao.tests.utils.Helpers.getFile;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public final class InterTemporalRaoSteps {
+public final class TimeCoupledRaoSteps {
     private static String networkFolderPath;
     private static String cracFolderPath;
     private static boolean useIndividualCracs = false;
@@ -80,11 +80,11 @@ public final class InterTemporalRaoSteps {
     private static final List<String> DE_TSOS = List.of("D2", "D4", "D7", "D8");
     static final String DEFAULT_CRAC_CREATION_PARAMETERS_PATH = "cracCreationParameters/epic93/CracCreationParameters_93.json";
 
-    public InterTemporalRaoSteps() {
+    public TimeCoupledRaoSteps() {
         // should not be instantiated
     }
 
-    @Given("intertemporal RefProg file is {string}")
+    @Given("time-coupled RefProg file is {string}")
     public static void refProgFileIs(String path) {
         refProgPath = getResourcesPath().concat("refprogs/").concat(path);
     }
@@ -148,17 +148,17 @@ public final class InterTemporalRaoSteps {
         icsGskPath = getResourcesPath().concat("ics/gsk/").concat(path);
     }
 
-    @Given("intertemporal constraints are in file {string} and rao inputs are:")
-    public static void intertemporalRaoInputsAre(String intertemporalConstraintsPath, DataTable arg1) throws IOException {
-        loadDataForInterTemporalRao(intertemporalConstraintsPath, arg1);
+    @Given("time-coupled constraints are in file {string} and rao inputs are:")
+    public static void timeCoupledRaoInputsAre(String timeCoupledConstraintsPath, DataTable arg1) throws IOException {
+        loadDataForTimeCoupledRao(timeCoupledConstraintsPath, arg1);
     }
 
-    public static void loadDataForInterTemporalRao(String intertemporalConstraintsPath, DataTable arg1) throws IOException {
+    public static void loadDataForTimeCoupledRao(String timeCoupledConstraintsPath, DataTable arg1) throws IOException {
         raoParameters = buildConfig(getFile(raoParametersPath));
 
         networkFolderPath = getResourcesPath().concat("cases/");
         cracFolderPath = getResourcesPath().concat("crac/");
-        String intertemporalConstraintsFolderPath = getResourcesPath().concat("timeCouplingConstraints/");
+        String timeCoupledConstraintsFolderPath = getResourcesPath().concat("timeCouplingConstraints/");
 
         TemporalData<RaoInputWithNetworkPaths> raoInputs = new TemporalDataImpl<>();
         List<Map<String, String>> inputs = arg1.asMaps(String.class, String.class);
@@ -169,16 +169,16 @@ public final class InterTemporalRaoSteps {
             raoInputs.put(offsetDateTime, RaoInputWithNetworkPaths.build(networkFolderPath.concat(tsInput.get("Network")), networkFolderPath.concat(tsInput.get("Network")), crac).build());
         }
 
-        TimeCouplingConstraints timeCouplingConstraints = JsonIntertemporalConstraints.read(new FileInputStream(intertemporalConstraintsFolderPath.concat(intertemporalConstraintsPath)));
+        TimeCouplingConstraints timeCouplingConstraints = JsonTimeCouplingConstraints.read(new FileInputStream(timeCoupledConstraintsFolderPath.concat(timeCoupledConstraintsPath)));
         timeCoupledRaoInputWithNetworkPaths = new TimeCoupledRaoInputWithNetworkPaths(raoInputs, timeCouplingConstraints);
     }
 
-    @Given("intertemporal rao inputs for CORE are:")
-    public static void coreIntertemporalRaoInputsAre(DataTable arg1) throws IOException {
-        loadDataForCoreInterTemporalRao(arg1);
+    @Given("time-coupled rao inputs for CORE are:")
+    public static void coreTimeCoupledRaoInputsAre(DataTable arg1) throws IOException {
+        loadDataForCoreTimeCoupledRao(arg1);
     }
 
-    public static void loadDataForCoreInterTemporalRao(DataTable arg1) throws IOException {
+    public static void loadDataForCoreTimeCoupledRao(DataTable arg1) throws IOException {
         cracCreationContexts = new HashMap<>();
         CracCreationParameters cracCreationParameters;
         try {

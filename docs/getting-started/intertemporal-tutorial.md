@@ -569,7 +569,7 @@ import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.intertemporalconstraints.TimeCouplingConstraints;
-import com.powsybl.openrao.data.intertemporalconstraints.io.JsonIntertemporalConstraints;
+import com.powsybl.openrao.data.intertemporalconstraints.io.JsonTimeCouplingConstraints;
 import com.powsybl.openrao.raoapi.TimeCoupledRao;
 import com.powsybl.openrao.raoapi.TimeCoupledRaoInputWithNetworkPaths;
 import com.powsybl.openrao.raoapi.RaoInputWithNetworkPaths;

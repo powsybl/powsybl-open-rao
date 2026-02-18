@@ -30,23 +30,23 @@ public class GeneratorConstraintsDeserializer extends StdDeserializer<GeneratorC
         GeneratorConstraints.GeneratorConstraintsBuilder builder = GeneratorConstraints.create();
         while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
             switch (jsonParser.currentName()) {
-                case JsonIntertemporalConstraints.GENERATOR_ID -> {
+                case JsonTimeCouplingConstraints.GENERATOR_ID -> {
                     jsonParser.nextToken();
                     builder.withGeneratorId(jsonParser.getValueAsString());
                 }
-                case JsonIntertemporalConstraints.LEAD_TIME -> {
+                case JsonTimeCouplingConstraints.LEAD_TIME -> {
                     jsonParser.nextToken();
                     builder.withLeadTime(jsonParser.getValueAsDouble());
                 }
-                case JsonIntertemporalConstraints.LAG_TIME -> {
+                case JsonTimeCouplingConstraints.LAG_TIME -> {
                     jsonParser.nextToken();
                     builder.withLagTime(jsonParser.getValueAsDouble());
                 }
-                case JsonIntertemporalConstraints.UPWARD_POWER_GRADIENT -> {
+                case JsonTimeCouplingConstraints.UPWARD_POWER_GRADIENT -> {
                     jsonParser.nextToken();
                     builder.withUpwardPowerGradient(jsonParser.getValueAsDouble());
                 }
-                case JsonIntertemporalConstraints.DOWNWARD_POWER_GRADIENT -> {
+                case JsonTimeCouplingConstraints.DOWNWARD_POWER_GRADIENT -> {
                     jsonParser.nextToken();
                     builder.withDownwardPowerGradient(jsonParser.getValueAsDouble());
                 }

@@ -1,5 +1,5 @@
 {
-  "type": "OpenRAO Intertemporal Constraints",
+  "type": "OpenRAO Time-Coupling Constraints",
   "version": "1.0",
   "unknownField": "Hello world!"
 }
