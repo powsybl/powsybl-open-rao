@@ -4,8 +4,8 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: US 15.17: Optimize HVDC range actions initially in AC emulation mode
-    # TODO: This feature covers
   These tests are mostly the same as the tests in 15.12.5. But the HVDC in the network are in AC emulation mode and the rao is ran in AC instead of DC.
+# TODO: This feature covers
 
   @fast @rao @ac @preventive-only @hvdc @max-min-margin @ampere
   Scenario: US 15.17.1: HVDC range action with one preventive CNEC
