@@ -1,0 +1,56 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<FlowBasedConstraintDocument DtdRelease="4" DtdVersion="0" xmlns="flowbased" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="flowbasedconstraintdocument-17.xsd">
+    <DocumentIdentification v="17XTSO-CS------W-20190108-F301v1"/>
+    <DocumentVersion v="1"/>
+    <DocumentType v="B06"/>
+    <ProcessType v="A01"/>
+    <SenderIdentification codingScheme="A01" v="17XTSO-CS------W"/>
+    <SenderRole v="A36"/>
+    <ReceiverIdentification codingScheme="A01" v="22XCORESO------S"/>
+    <ReceiverRole v="A44"/>
+    <CreationDateTime v="2019-08-15T14:07:28Z"/>
+    <ConstraintTimeInterval v="2019-01-07T23:00Z/2019-01-08T23:00Z"/>
+    <Domain codingScheme="A01" v="10YDOM-REGION-1V"/>
+    <criticalBranches>
+        <criticalBranch id="BBE2AA1  FFR2AA1  1">
+            <timeInterval v="2019-01-07T23:00Z/2019-01-08T00:00Z"/>
+            <branch eic="1234567890123450" from="BBE2AA1 " name="BBE2AA1  FFR2AA1  1" order="1" to="FFR2AA1 "/>
+            <imaxType>SEASONAL</imaxType>
+            <permanentImaxA>1500</permanentImaxA>
+            <temporaryImaxA>1500</temporaryImaxA>
+            <frmMw>0</frmMw>
+            <minRAMfactor>75</minRAMfactor>
+            <CNEC>true</CNEC>
+            <MNEC>false</MNEC>
+            <direction>DIRECT</direction>
+            <tsoOrigin>FR</tsoOrigin>
+        </criticalBranch>
+        <criticalBranch id="BBE2AA1  FFR2AA1  1">
+            <timeInterval v="2019-01-08T00:00Z/2019-01-08T01:00Z"/>
+            <branch eic="1234567890123450" from="BBE2AA1 " name="BBE2AA1  FFR2AA1  1" order="1" to="FFR2AA1 "/>
+            <imaxType>SEASONAL</imaxType>
+            <permanentImaxA>1500</permanentImaxA>
+            <temporaryImaxA>1500</temporaryImaxA>
+            <frmMw>0</frmMw>
+            <minRAMfactor>75</minRAMfactor>
+            <CNEC>true</CNEC>
+            <MNEC>false</MNEC>
+            <direction>DIRECT</direction>
+            <tsoOrigin>FR</tsoOrigin>
+        </criticalBranch>
+        <criticalBranch id="BBE2AA1  FFR2AA1  1">
+            <timeInterval v="2019-01-08T01:00Z/2019-01-08T02:00Z"/>
+            <branch eic="1234567890123450" from="BBE2AA1 " name="BBE2AA1  FFR2AA1  1" order="1" to="FFR2AA1 "/>
+            <imaxType>SEASONAL</imaxType>
+            <permanentImaxA>0</permanentImaxA>
+            <temporaryImaxA>0</temporaryImaxA>
+            <frmMw>0</frmMw>
+            <minRAMfactor>75</minRAMfactor>
+            <CNEC>true</CNEC>
+            <MNEC>false</MNEC>
+            <direction>DIRECT</direction>
+            <tsoOrigin>FR</tsoOrigin>
+        </criticalBranch>
+    </criticalBranches>
+    <complexVariants />
+</FlowBasedConstraintDocument>

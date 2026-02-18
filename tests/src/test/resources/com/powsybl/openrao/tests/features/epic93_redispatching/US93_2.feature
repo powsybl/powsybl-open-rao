@@ -153,3 +153,19 @@ Feature: US 93.2: power gradient constraints
     And the total cost for timestamp "2019-01-08 00:30" is 1880
     And the total cost for timestamp "2019-01-08 01:30" is 25010.25
     And the total cost for all timestamps is 26890.25
+
+  @fast @rao @dc @redispatching
+  Scenario: US 93.2.6: Test simple lead time with Pmin
+    Given network files are in folder "epic93/TestCases_93_2_6"
+    Given crac file is "epic93/cbcora_93_2_6.xml"
+    Given ics static file is "epic93/static_93_2_6.csv"
+    Given ics series file is "epic93/series_93_2_6.csv"
+    Given ics gsk file is "epic93/gsk_93_2_6.csv"
+    Given configuration file is "epic93/RaoParameters_minCost_megawatt_dc.json"
+    Given intertemporal rao inputs for CORE are:
+      | Timestamp        | Network          |
+      | 2019-01-08 00:30 | 2Nodes_0030.uct |
+      | 2019-01-08 01:30 | 2Nodes_0130.uct |
+      | 2019-01-08 02:30 | 2Nodes_0230.uct |
+    When I launch marmot
+
