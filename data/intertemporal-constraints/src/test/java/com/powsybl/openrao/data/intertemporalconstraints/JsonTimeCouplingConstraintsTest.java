@@ -28,10 +28,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-class JsonIntertemporalConstraintsTest {
+class JsonTimeCouplingConstraintsTest {
     @Test
     void testSerialization() throws IOException {
-        IntertemporalConstraints intertemporalConstraints = new IntertemporalConstraints();
+        TimeCouplingConstraints timeCouplingConstraints = new TimeCouplingConstraints();
 
         GeneratorConstraints generatorConstraints1 = GeneratorConstraints.create()
             .withGeneratorId("generator-1")
@@ -50,36 +50,36 @@ class JsonIntertemporalConstraintsTest {
             .withDownwardPowerGradient(-1000.0)
             .build();
 
-        intertemporalConstraints.addGeneratorConstraints(generatorConstraints1);
-        intertemporalConstraints.addGeneratorConstraints(generatorConstraints2);
-        intertemporalConstraints.addGeneratorConstraints(generatorConstraints3);
+        timeCouplingConstraints.addGeneratorConstraints(generatorConstraints1);
+        timeCouplingConstraints.addGeneratorConstraints(generatorConstraints2);
+        timeCouplingConstraints.addGeneratorConstraints(generatorConstraints3);
 
         ByteArrayOutputStream expectedOutputStream = new ByteArrayOutputStream();
         Objects.requireNonNull(getClass().getResourceAsStream("/intertemporal-constraints.json")).transferTo(expectedOutputStream);
 
         ByteArrayOutputStream actualOutputStream = new ByteArrayOutputStream();
-        JsonIntertemporalConstraints.write(intertemporalConstraints, actualOutputStream);
+        JsonIntertemporalConstraints.write(timeCouplingConstraints, actualOutputStream);
 
         assertJsonEquivalence(expectedOutputStream.toString(), actualOutputStream.toString());
     }
 
     @Test
     void testSerializationEmptyConstraints() throws IOException {
-        IntertemporalConstraints intertemporalConstraints = new IntertemporalConstraints();
+        TimeCouplingConstraints timeCouplingConstraints = new TimeCouplingConstraints();
 
         ByteArrayOutputStream expectedOutputStream = new ByteArrayOutputStream();
         Objects.requireNonNull(getClass().getResourceAsStream("/empty-intertemporal-constraints.json")).transferTo(expectedOutputStream);
 
         ByteArrayOutputStream actualOutputStream = new ByteArrayOutputStream();
-        JsonIntertemporalConstraints.write(intertemporalConstraints, actualOutputStream);
+        JsonIntertemporalConstraints.write(timeCouplingConstraints, actualOutputStream);
 
         assertJsonEquivalence(expectedOutputStream.toString(), actualOutputStream.toString());
     }
 
     @Test
     void testDeserialization() throws IOException {
-        IntertemporalConstraints intertemporalConstraints = JsonIntertemporalConstraints.read(getClass().getResourceAsStream("/intertemporal-constraints.json"));
-        List<GeneratorConstraints> generatorConstraints = intertemporalConstraints.getGeneratorConstraints().stream().sorted(Comparator.comparing(GeneratorConstraints::getGeneratorId)).toList();
+        TimeCouplingConstraints timeCouplingConstraints = JsonIntertemporalConstraints.read(getClass().getResourceAsStream("/intertemporal-constraints.json"));
+        List<GeneratorConstraints> generatorConstraints = timeCouplingConstraints.getGeneratorConstraints().stream().sorted(Comparator.comparing(GeneratorConstraints::getGeneratorId)).toList();
 
         assertEquals(3, generatorConstraints.size());
 

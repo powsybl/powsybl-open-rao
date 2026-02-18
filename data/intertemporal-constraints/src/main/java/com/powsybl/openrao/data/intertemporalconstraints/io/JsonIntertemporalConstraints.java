@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.intertemporalconstraints.GeneratorConstraints;
-import com.powsybl.openrao.data.intertemporalconstraints.IntertemporalConstraints;
+import com.powsybl.openrao.data.intertemporalconstraints.TimeCouplingConstraints;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -53,25 +53,25 @@ public final class JsonIntertemporalConstraints {
 
     // IO
 
-    public static void write(IntertemporalConstraints intertemporalConstraints, OutputStream outputStream) throws IOException {
+    public static void write(TimeCouplingConstraints timeCouplingConstraints, OutputStream outputStream) throws IOException {
         ObjectMapper objectMapper = createObjectMapper();
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         SimpleModule module = new SimpleModule();
-        module.addSerializer(IntertemporalConstraints.class, new IntertemporalConstraintsSerializer(IntertemporalConstraints.class));
+        module.addSerializer(TimeCouplingConstraints.class, new IntertemporalConstraintsSerializer(TimeCouplingConstraints.class));
         module.addSerializer(GeneratorConstraints.class, new GeneratorConstraintsSerializer(GeneratorConstraints.class));
         objectMapper.registerModule(module);
         ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
-        writer.writeValue(outputStream, intertemporalConstraints);
+        writer.writeValue(outputStream, timeCouplingConstraints);
     }
 
-    public static IntertemporalConstraints read(InputStream inputStream) throws IOException {
+    public static TimeCouplingConstraints read(InputStream inputStream) throws IOException {
         ObjectMapper objectMapper = createObjectMapper();
         SimpleModule module = new SimpleModule();
-        module.addDeserializer(IntertemporalConstraints.class, new IntertemporalConstraintsDeserializer(IntertemporalConstraints.class));
+        module.addDeserializer(TimeCouplingConstraints.class, new IntertemporalConstraintsDeserializer(TimeCouplingConstraints.class));
         module.addDeserializer(GeneratorConstraints.class, new GeneratorConstraintsDeserializer(GeneratorConstraints.class));
         objectMapper.registerModule(module);
         try {
-            return objectMapper.readValue(inputStream, IntertemporalConstraints.class);
+            return objectMapper.readValue(inputStream, TimeCouplingConstraints.class);
         } catch (JsonMappingException e) {
             throw new OpenRaoException(extractDeserializationErrorMessage(e.getMessage()));
         }

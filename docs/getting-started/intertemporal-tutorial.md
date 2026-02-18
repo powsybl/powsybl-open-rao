@@ -442,7 +442,7 @@ RaoParameters raoParameters = JsonRaoParameters.read(new FileInputStream("rao-pa
 ### Intertemporal constraints
 
 ```java
-IntertemporalConstraints intertemporalConstraints = JsonIntertemporalConstraints.read(new FileInputStream("intertemporal-constraints.json"));
+IntertemporalConstraints timeCouplingConstraints = JsonIntertemporalConstraints.read(new FileInputStream("intertemporal-constraints.json"));
 ```
 
 ## Prepare inputs
@@ -468,7 +468,7 @@ intertemporal constraints and one without:
 
 ```java
 InterTemporalRaoInputWithNetworkPaths inputNoConstraints = new InterTemporalRaoInputWithNetworkPaths(inputPerTimestamp, new IntertemporalConstraints());
-InterTemporalRaoInputWithNetworkPaths inputWithConstraints = new InterTemporalRaoInputWithNetworkPaths(inputPerTimestamp, intertemporalConstraints);
+InterTemporalRaoInputWithNetworkPaths inputWithConstraints = new InterTemporalRaoInputWithNetworkPaths(inputPerTimestamp, timeCouplingConstraints);
 ```
 
 ## Run the RAO
@@ -568,7 +568,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.data.crac.api.Crac;
-import com.powsybl.openrao.data.intertemporalconstraints.IntertemporalConstraints;
+import com.powsybl.openrao.data.intertemporalconstraints.TimeCouplingConstraints;
 import com.powsybl.openrao.data.intertemporalconstraints.io.JsonIntertemporalConstraints;
 import com.powsybl.openrao.raoapi.TimeCoupledRao;
 import com.powsybl.openrao.raoapi.TimeCoupledRaoInputWithNetworkPaths;
@@ -590,7 +590,7 @@ public class Main {
         Crac crac0030 = Crac.read("crac-202602160030.json", new FileInputStream("crac-202602160030.json"), network);
         Crac crac0130 = Crac.read("crac-202602160130.json", new FileInputStream("crac-202602160130.json"), network);
         RaoParameters raoParameters = JsonRaoParameters.read(new FileInputStream("rao-parameters.json"));
-        IntertemporalConstraints intertemporalConstraints = JsonIntertemporalConstraints.read(new FileInputStream("intertemporal-constraints.json"));
+        IntertemporalConstraints timeCouplingConstraints = JsonIntertemporalConstraints.read(new FileInputStream("intertemporal-constraints.json"));
 
         // create intertemporal inputs
 
@@ -603,7 +603,7 @@ public class Main {
         inputPerTimestamp.put(OffsetDateTime.of(2026, 2, 16, 1, 30, 0, 0, ZoneOffset.UTC), input0130);
         
         InterTemporalRaoInputWithNetworkPaths inputNoConstraints = new InterTemporalRaoInputWithNetworkPaths(inputPerTimestamp, new IntertemporalConstraints());
-        InterTemporalRaoInputWithNetworkPaths inputWithConstraints = new InterTemporalRaoInputWithNetworkPaths(inputPerTimestamp, intertemporalConstraints);
+        InterTemporalRaoInputWithNetworkPaths inputWithConstraints = new InterTemporalRaoInputWithNetworkPaths(inputPerTimestamp, timeCouplingConstraints);
         
         // run intertemporal RAO without time-coupling constraints
 

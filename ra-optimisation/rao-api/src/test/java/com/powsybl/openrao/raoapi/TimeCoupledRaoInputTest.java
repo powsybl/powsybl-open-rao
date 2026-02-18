@@ -11,7 +11,7 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.data.intertemporalconstraints.GeneratorConstraints;
-import com.powsybl.openrao.data.intertemporalconstraints.IntertemporalConstraints;
+import com.powsybl.openrao.data.intertemporalconstraints.TimeCouplingConstraints;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -33,7 +33,7 @@ class TimeCoupledRaoInputTest {
     private OffsetDateTime timestamp2;
     private OffsetDateTime timestamp3;
     private TemporalData<RaoInput> temporalData;
-    private IntertemporalConstraints intertemporalConstraints;
+    private TimeCouplingConstraints timeCouplingConstraints;
 
     @BeforeEach
     void setUp() {
@@ -44,31 +44,31 @@ class TimeCoupledRaoInputTest {
         timestamp2 = OffsetDateTime.of(2024, 12, 10, 17, 21, 0, 0, ZoneOffset.UTC);
         timestamp3 = OffsetDateTime.of(2024, 12, 10, 18, 21, 0, 0, ZoneOffset.UTC);
         temporalData = new TemporalDataImpl<>(Map.of(timestamp1, raoInput1, timestamp2, raoInput2, timestamp3, raoInput3));
-        intertemporalConstraints = new IntertemporalConstraints();
-        intertemporalConstraints.addGeneratorConstraints(GeneratorConstraints.create().withGeneratorId("generator-1").withLeadTime(0.0).withLagTime(0.0).withUpwardPowerGradient(200.0).build());
-        intertemporalConstraints.addGeneratorConstraints(GeneratorConstraints.create().withGeneratorId("generator-2").withLeadTime(0.0).withLagTime(0.0).withDownwardPowerGradient(-50.0).build());
+        timeCouplingConstraints = new TimeCouplingConstraints();
+        timeCouplingConstraints.addGeneratorConstraints(GeneratorConstraints.create().withGeneratorId("generator-1").withLeadTime(0.0).withLagTime(0.0).withUpwardPowerGradient(200.0).build());
+        timeCouplingConstraints.addGeneratorConstraints(GeneratorConstraints.create().withGeneratorId("generator-2").withLeadTime(0.0).withLagTime(0.0).withDownwardPowerGradient(-50.0).build());
     }
 
     @Test
     void testInstantiateInterTemporalRaoInput() {
-        TimeCoupledRaoInput input = new TimeCoupledRaoInput(temporalData, Set.of(timestamp1, timestamp3), intertemporalConstraints);
+        TimeCoupledRaoInput input = new TimeCoupledRaoInput(temporalData, Set.of(timestamp1, timestamp3), timeCouplingConstraints);
         assertEquals(temporalData, input.getRaoInputs());
         assertEquals(Set.of(timestamp1, timestamp3), input.getTimestampsToRun());
-        assertEquals(intertemporalConstraints.getGeneratorConstraints(), input.getIntertemporalConstraints().getGeneratorConstraints());
+        assertEquals(timeCouplingConstraints.getGeneratorConstraints(), input.getTimeCouplingConstraints().getGeneratorConstraints());
     }
 
     @Test
     void testInstantiateInterTemporalRaoInputAllTimestamps() {
-        TimeCoupledRaoInput input = new TimeCoupledRaoInput(temporalData, intertemporalConstraints);
+        TimeCoupledRaoInput input = new TimeCoupledRaoInput(temporalData, timeCouplingConstraints);
         assertEquals(temporalData, input.getRaoInputs());
         assertEquals(Set.of(timestamp1, timestamp2, timestamp3), input.getTimestampsToRun());
-        assertEquals(intertemporalConstraints.getGeneratorConstraints(), input.getIntertemporalConstraints().getGeneratorConstraints());
+        assertEquals(timeCouplingConstraints.getGeneratorConstraints(), input.getTimeCouplingConstraints().getGeneratorConstraints());
     }
 
     @Test
     void testInstantiateWithMissingTimestamp() {
         final Set<OffsetDateTime> timestampsToRun = Set.of(OffsetDateTime.of(2024, 12, 11, 14, 29, 0, 0, ZoneOffset.UTC));
-        final IntertemporalConstraints constraints = new IntertemporalConstraints();
+        final TimeCouplingConstraints constraints = new TimeCouplingConstraints();
         OpenRaoException exception = assertThrows(OpenRaoException.class, () -> new TimeCoupledRaoInput(temporalData, timestampsToRun, constraints));
         assertEquals("Timestamp(s) '2024-12-11T14:29Z' are not defined in the inputs.", exception.getMessage());
     }
@@ -76,7 +76,7 @@ class TimeCoupledRaoInputTest {
     @Test
     void testInstantiateWithMissingTimestamps() {
         final Set<OffsetDateTime> timestampsToRun = Set.of(OffsetDateTime.of(2024, 12, 11, 14, 29, 0, 0, ZoneOffset.UTC), OffsetDateTime.of(2024, 11, 11, 14, 29, 0, 0, ZoneOffset.UTC));
-        final IntertemporalConstraints constraints = new IntertemporalConstraints();
+        final TimeCouplingConstraints constraints = new TimeCouplingConstraints();
         OpenRaoException exception = assertThrows(OpenRaoException.class, () -> new TimeCoupledRaoInput(temporalData, timestampsToRun, constraints));
         assertEquals("Timestamp(s) '2024-11-11T14:29Z', '2024-12-11T14:29Z' are not defined in the inputs.", exception.getMessage());
     }

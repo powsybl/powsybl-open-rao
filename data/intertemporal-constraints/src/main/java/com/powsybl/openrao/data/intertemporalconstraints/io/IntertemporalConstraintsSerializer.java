@@ -11,7 +11,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.openrao.data.intertemporalconstraints.GeneratorConstraints;
-import com.powsybl.openrao.data.intertemporalconstraints.IntertemporalConstraints;
+import com.powsybl.openrao.data.intertemporalconstraints.TimeCouplingConstraints;
 
 import java.io.IOException;
 import java.util.Comparator;
@@ -20,19 +20,19 @@ import java.util.Set;
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public class IntertemporalConstraintsSerializer extends StdSerializer<IntertemporalConstraints> {
+public class IntertemporalConstraintsSerializer extends StdSerializer<TimeCouplingConstraints> {
 
-    protected IntertemporalConstraintsSerializer(Class<IntertemporalConstraints> t) {
+    protected IntertemporalConstraintsSerializer(Class<TimeCouplingConstraints> t) {
         super(t);
     }
 
     @Override
-    public void serialize(IntertemporalConstraints intertemporalConstraints, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(TimeCouplingConstraints timeCouplingConstraints, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
         jsonGenerator.writeStringField(JsonIntertemporalConstraints.TYPE, JsonIntertemporalConstraints.DESCRIPTION);
         jsonGenerator.writeStringField(JsonIntertemporalConstraints.VERSION, JsonIntertemporalConstraints.CURRENT_VERSION);
-        if (!intertemporalConstraints.getGeneratorConstraints().isEmpty()) {
-            serializeGeneratorConstraints(intertemporalConstraints.getGeneratorConstraints(), jsonGenerator);
+        if (!timeCouplingConstraints.getGeneratorConstraints().isEmpty()) {
+            serializeGeneratorConstraints(timeCouplingConstraints.getGeneratorConstraints(), jsonGenerator);
         }
         jsonGenerator.writeEndObject();
     }

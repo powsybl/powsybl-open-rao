@@ -9,7 +9,7 @@ package com.powsybl.openrao.raoapi;
 
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.TemporalData;
-import com.powsybl.openrao.data.intertemporalconstraints.IntertemporalConstraints;
+import com.powsybl.openrao.data.intertemporalconstraints.TimeCouplingConstraints;
 
 import java.time.OffsetDateTime;
 import java.util.HashSet;
@@ -23,17 +23,17 @@ import java.util.stream.Collectors;
 public class TimeCoupledRaoInput {
     private final TemporalData<RaoInput> raoInputs;
     private final Set<OffsetDateTime> timestampsToRun;
-    private final IntertemporalConstraints intertemporalConstraints;
+    private final TimeCouplingConstraints timeCouplingConstraints;
 
-    public TimeCoupledRaoInput(TemporalData<RaoInput> raoInputs, Set<OffsetDateTime> timestampsToRun, IntertemporalConstraints intertemporalConstraints) {
+    public TimeCoupledRaoInput(TemporalData<RaoInput> raoInputs, Set<OffsetDateTime> timestampsToRun, TimeCouplingConstraints timeCouplingConstraints) {
         this.raoInputs = raoInputs;
         this.timestampsToRun = timestampsToRun;
-        this.intertemporalConstraints = intertemporalConstraints;
+        this.timeCouplingConstraints = timeCouplingConstraints;
         checkTimestampsToRun();
     }
 
-    public TimeCoupledRaoInput(TemporalData<RaoInput> raoInputs, IntertemporalConstraints intertemporalConstraints) {
-        this(raoInputs, new HashSet<>(raoInputs.getTimestamps()), intertemporalConstraints);
+    public TimeCoupledRaoInput(TemporalData<RaoInput> raoInputs, TimeCouplingConstraints timeCouplingConstraints) {
+        this(raoInputs, new HashSet<>(raoInputs.getTimestamps()), timeCouplingConstraints);
     }
 
     public TemporalData<RaoInput> getRaoInputs() {
@@ -44,8 +44,8 @@ public class TimeCoupledRaoInput {
         return timestampsToRun;
     }
 
-    public IntertemporalConstraints getIntertemporalConstraints() {
-        return intertemporalConstraints;
+    public TimeCouplingConstraints getTimeCouplingConstraints() {
+        return timeCouplingConstraints;
     }
 
     private void checkTimestampsToRun() {

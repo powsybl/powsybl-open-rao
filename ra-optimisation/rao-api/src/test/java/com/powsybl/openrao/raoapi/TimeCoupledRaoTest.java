@@ -13,7 +13,7 @@ import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.data.crac.api.Crac;
-import com.powsybl.openrao.data.intertemporalconstraints.IntertemporalConstraints;
+import com.powsybl.openrao.data.intertemporalconstraints.TimeCouplingConstraints;
 import com.powsybl.openrao.data.raoresult.api.TimeCoupledRaoResult;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.raomock.AnotherTimeCoupledRaoProviderMock;
@@ -53,7 +53,7 @@ class TimeCoupledRaoTest {
                     OffsetDateTime.of(2024, 12, 13, 16, 17, 0, 0, ZoneOffset.UTC),
                     RaoInputWithNetworkPaths.build("network.uct", crac).build()
                 )),
-            new IntertemporalConstraints()
+            new TimeCouplingConstraints()
         );
     }
 

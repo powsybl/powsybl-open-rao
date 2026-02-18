@@ -64,5 +64,5 @@ power can vary between two consecutive timestamps. These gradients can be define
 ### Import
 
 ```java
-IntertemporalConstraints intertemporalConstraints = JsonIntertemporalConstraints.read(getClass().getResourceAsStream("/intertemporal-constraints.json"));
+IntertemporalConstraints timeCouplingConstraints = JsonIntertemporalConstraints.read(getClass().getResourceAsStream("/intertemporal-constraints.json"));
 ```
