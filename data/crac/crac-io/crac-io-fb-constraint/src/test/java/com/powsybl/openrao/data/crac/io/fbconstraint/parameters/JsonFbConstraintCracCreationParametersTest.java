@@ -23,34 +23,41 @@ import java.time.OffsetDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
  */
 class JsonFbConstraintCracCreationParametersTest {
 
-    @Test
-    void roundTripTest() {
-        // prepare parameters to export
-        CracCreationParameters exportedParameters = new CracCreationParameters();
-        FbConstraintCracCreationParameters exportedFbConstraintParameters = new FbConstraintCracCreationParameters();
+    private static FbConstraintCracCreationParameters getFbConstraintCracCreationParameters() {
+        final FbConstraintCracCreationParameters exportedFbConstraintParameters = new FbConstraintCracCreationParameters();
         exportedFbConstraintParameters.setTimestamp(OffsetDateTime.parse("2025-01-10T05:00:00Z"));
         exportedFbConstraintParameters.setIcsCostUp(30.0);
         exportedFbConstraintParameters.setIcsCostDown(15.0);
         final InternalHvdc internalHvdc1 = new InternalHvdc(List.of(new HvdcConverter("node 1A", "station A"), new HvdcConverter("node 1B", "station B")), List.of(new HvdcLine("node 1A", "node 1B")));
         final InternalHvdc internalHvdc2 = new InternalHvdc(List.of(new HvdcConverter("node 2A", "station A"), new HvdcConverter("node 2B", "station B")), List.of(new HvdcLine("node 2A", "node 2B")));
         exportedFbConstraintParameters.setInternalHvdcs(List.of(internalHvdc1, internalHvdc2));
+        return exportedFbConstraintParameters;
+    }
+
+    @Test
+    void roundTripTest() {
+        // prepare parameters to export
+        final CracCreationParameters exportedParameters = new CracCreationParameters();
+        final FbConstraintCracCreationParameters exportedFbConstraintParameters = getFbConstraintCracCreationParameters();
         exportedParameters.addExtension(FbConstraintCracCreationParameters.class, exportedFbConstraintParameters);
 
         // roundTrip
-        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        final ByteArrayOutputStream os = new ByteArrayOutputStream();
         JsonCracCreationParameters.write(exportedParameters, os);
-        ByteArrayInputStream is = new ByteArrayInputStream(os.toByteArray());
-        CracCreationParameters importedParameters = JsonCracCreationParameters.read(is);
+        final ByteArrayInputStream is = new ByteArrayInputStream(os.toByteArray());
+        final CracCreationParameters importedParameters = JsonCracCreationParameters.read(is);
 
         // test re-imported parameters
-        FbConstraintCracCreationParameters fbConstraintCracCreationParameters = importedParameters.getExtension(FbConstraintCracCreationParameters.class);
+        final FbConstraintCracCreationParameters fbConstraintCracCreationParameters = importedParameters.getExtension(FbConstraintCracCreationParameters.class);
         Assertions.assertThat(fbConstraintCracCreationParameters).isNotNull();
         Assertions.assertThat(fbConstraintCracCreationParameters.getTimestamp()).isEqualTo(OffsetDateTime.parse("2025-01-10T05:00:00Z"));
         Assertions.assertThat(fbConstraintCracCreationParameters.getIcsCostUp()).isEqualTo(30.0);
@@ -88,21 +95,15 @@ class JsonFbConstraintCracCreationParametersTest {
 
     @Test
     void exportTest() {
-        CracCreationParameters exportedParameters = new CracCreationParameters();
-        FbConstraintCracCreationParameters exportedFbConstraintParameters = new FbConstraintCracCreationParameters();
-        exportedFbConstraintParameters.setTimestamp(OffsetDateTime.parse("2025-01-10T05:00:00Z"));
-        exportedFbConstraintParameters.setIcsCostUp(30.0);
-        exportedFbConstraintParameters.setIcsCostDown(15.0);
-        final InternalHvdc internalHvdc1 = new InternalHvdc(List.of(new HvdcConverter("node 1A", "station A"), new HvdcConverter("node 1B", "station B")), List.of(new HvdcLine("node 1A", "node 1B")));
-        final InternalHvdc internalHvdc2 = new InternalHvdc(List.of(new HvdcConverter("node 2A", "station A"), new HvdcConverter("node 2B", "station B")), List.of(new HvdcLine("node 2A", "node 2B")));
-        exportedFbConstraintParameters.setInternalHvdcs(List.of(internalHvdc1, internalHvdc2));
+        final CracCreationParameters exportedParameters = new CracCreationParameters();
+        final FbConstraintCracCreationParameters exportedFbConstraintParameters = getFbConstraintCracCreationParameters();
         exportedParameters.addExtension(FbConstraintCracCreationParameters.class, exportedFbConstraintParameters);
 
         // roundTrip
-        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        final ByteArrayOutputStream os = new ByteArrayOutputStream();
         JsonCracCreationParameters.write(exportedParameters, os);
 
-        Assertions.assertThat(os).hasToString("""
+        Assertions.assertThat(os.toString().replaceAll("\r\n", "\n")).isEqualTo("""
             {
               "crac-factory" : "CracImplFactory",
               "default-monitored-line-side" : "monitor-lines-on-both-sides",
@@ -144,9 +145,9 @@ class JsonFbConstraintCracCreationParametersTest {
 
     @Test
     void importOkTest() {
-        CracCreationParameters importedParameters = JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/fbconstraint-crac-creation-parameters_ok.json"));
+        final CracCreationParameters importedParameters = JsonCracCreationParameters.read(getClass().getResourceAsStream("/parameters/fbconstraint-crac-creation-parameters_ok.json"));
 
-        FbConstraintCracCreationParameters fbConstraintCracCreationParameters = importedParameters.getExtension(FbConstraintCracCreationParameters.class);
+        final FbConstraintCracCreationParameters fbConstraintCracCreationParameters = importedParameters.getExtension(FbConstraintCracCreationParameters.class);
         assertNotNull(fbConstraintCracCreationParameters);
         assertEquals(OffsetDateTime.parse("2025-01-10T05:00:00Z"), fbConstraintCracCreationParameters.getTimestamp());
         assertEquals(50.0, fbConstraintCracCreationParameters.getIcsCostUp());
@@ -155,7 +156,7 @@ class JsonFbConstraintCracCreationParametersTest {
 
     @Test
     void importNokTest() throws IOException {
-        try (InputStream inputStream = getClass().getResourceAsStream("/parameters/fbconstraint-crac-creation-parameters_nok.json")) {
+        try (final InputStream inputStream = getClass().getResourceAsStream("/parameters/fbconstraint-crac-creation-parameters_nok.json")) {
             assertThrows(DateTimeParseException.class, () -> JsonCracCreationParameters.read(inputStream));
         }
     }
