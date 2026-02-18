@@ -8,19 +8,20 @@
 package com.powsybl.openrao.data.crac.io.fbconstraint;
 
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.InstantKind;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
+import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
+import com.powsybl.openrao.data.crac.io.commons.RaUsageLimitsAdder;
 import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
 import com.powsybl.openrao.data.crac.io.commons.api.StandardElementaryCreationContext;
+import com.powsybl.openrao.data.crac.io.commons.ucte.UcteNetworkAnalyzer;
+import com.powsybl.openrao.data.crac.io.commons.ucte.UcteNetworkAnalyzerProperties;
 import com.powsybl.openrao.data.crac.io.fbconstraint.parameters.FbConstraintCracCreationParameters;
 import com.powsybl.openrao.data.crac.io.fbconstraint.xsd.CriticalBranchType;
 import com.powsybl.openrao.data.crac.io.fbconstraint.xsd.FlowBasedConstraintDocument;
 import com.powsybl.openrao.data.crac.io.fbconstraint.xsd.IndependantComplexVariant;
-import com.powsybl.openrao.data.crac.io.commons.RaUsageLimitsAdder;
-import com.powsybl.openrao.data.crac.io.commons.ucte.UcteNetworkAnalyzer;
-import com.powsybl.openrao.data.crac.io.commons.ucte.UcteNetworkAnalyzerProperties;
 import com.powsybl.openrao.virtualhubs.HvdcConverter;
 import com.powsybl.openrao.virtualhubs.HvdcLine;
 import com.powsybl.openrao.virtualhubs.InternalHvdc;
@@ -32,6 +33,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static com.google.common.collect.Iterables.isEmpty;
@@ -219,8 +221,6 @@ class FbConstraintCracCreator {
             .flatMap(List::stream)
             .collect(Collectors.toMap(HvdcConverter::node, HvdcConverter::station));
 
-        // TODO Alignements des stations fait automatiquement si on met le même groupId sur les deux parades ?
-
         final Map<String, ComplexVariantReader> complexVariantReadersMappedByName = complexVariantReaders.stream()
             .collect(Collectors.toMap(
                 cvr -> cvr.getActionReaders().getFirst().getNetworkElementId(),
@@ -230,6 +230,58 @@ class FbConstraintCracCreator {
             final HvdcLineRemedialActionAdder hvdcLineRemedialActionAdder = new HvdcLineRemedialActionAdder(hvdcLine, ucteNetworkAnalyzer, complexVariantReadersMappedByName, nodeToStationMap);
             hvdcLineRemedialActionAdder.add(crac, creationContext);
         }
+        checkInvalidInjectionRangeActionsFromCrac(crac, creationContext);
+    }
+
+    private static void checkInvalidInjectionRangeActionsFromCrac(final Crac crac, final FbConstraintCreationContext creationContext) {
+        final Map<Optional<String>, List<InjectionRangeAction>> injectionRangeActionsByGroupId = crac.getInjectionRangeActions().stream()
+            .collect(Collectors.groupingBy(InjectionRangeAction::getGroupId));
+
+        injectionRangeActionsByGroupId.values().stream()
+            .filter(raList -> raList.size() > 1) // On n'a besoin de regarder que les parades qui ont le même groupId, donc les raList qui contiennent plus d'un élément dans la value
+            .filter(raList -> injectionRangeActionsHaveInconsistentUsageRules(raList, creationContext))
+            .forEach(raList -> {
+                // TODO To remove invalid range actions, use crac.removeInjectionRangeAction for each range action in raList
+            });
+    }
+
+    private static boolean injectionRangeActionHasPreventiveUsageRule(final InjectionRangeAction injectionRangeAction) {
+        return injectionRangeAction.getUsageRules().stream()
+            .anyMatch(usageRule -> usageRule.getInstant().isPreventive());
+    }
+
+    private static boolean injectionRangeActionHasCurativeUsageRule(final InjectionRangeAction injectionRangeAction) {
+        return injectionRangeAction.getUsageRules().stream()
+            .anyMatch(usageRule -> usageRule.getInstant().isCurative());
+    }
+
+    private static boolean injectionRangeActionsHaveInconsistentUsageRules(final List<InjectionRangeAction> injectionRangeActions,
+                                                                           final FbConstraintCreationContext creationContext) {
+
+        return injectionRangeActionsHaveInconsistentUsageRulesForInstant(injectionRangeActions,
+                creationContext,
+                FbConstraintCracCreator::injectionRangeActionHasPreventiveUsageRule,
+                "preventive")
+            && injectionRangeActionsHaveInconsistentUsageRulesForInstant(injectionRangeActions,
+                creationContext,
+                FbConstraintCracCreator::injectionRangeActionHasCurativeUsageRule,
+                "curative");
+        // TODO Should we add a check on afterCoList for curative instant?
+    }
+
+    private static boolean injectionRangeActionsHaveInconsistentUsageRulesForInstant(final List<InjectionRangeAction> injectionRangeActions,
+                                                                                     final FbConstraintCreationContext creationContext,
+                                                                                     final Predicate<InjectionRangeAction> usageRulesPredicate,
+                                                                                     final String instant) {
+        final boolean allInjectionRangeActionsHaveSameUsageRuleForInstant = injectionRangeActions.stream()
+            .allMatch(ira -> usageRulesPredicate.test(ira) == usageRulesPredicate.test(injectionRangeActions.getFirst()));
+
+        if (!allInjectionRangeActionsHaveSameUsageRuleForInstant) {
+            final String injectionRangeActionIds = injectionRangeActions.stream().map(InjectionRangeAction::getId).collect(Collectors.joining(", "));
+            creationContext.getCreationReport().warn("inconsistent " + instant + " usage rules for injection range actions " + injectionRangeActionIds);
+            return true;
+        }
+        return false;
     }
 
     private void createRaTimestampFilteringInformation(FlowBasedConstraintDocument fbConstraintDocument, OffsetDateTime timestamp, FbConstraintCreationContext creationContext) {

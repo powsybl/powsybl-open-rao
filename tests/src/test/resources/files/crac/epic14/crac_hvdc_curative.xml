@@ -1,0 +1,121 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<FlowBasedConstraintDocument DtdRelease="4" DtdVersion="0" xmlns="flowbased" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="flowbasedconstraintdocument-25.xsd">
+  <DocumentIdentification v="fake-hvdc-crac" />
+  <DocumentVersion v="1" />
+  <DocumentType v="B06"/>
+  <ProcessType v="A01"/>
+  <SenderIdentification codingScheme="A01" v="17XTSO-CS------W"/>
+  <SenderRole v="A36"/>
+  <ReceiverIdentification codingScheme="A01" v="22XCORESO------S"/>
+  <ReceiverRole v="A44"/>
+  <CreationDateTime v="2026-01-26T20:07:28Z"/>
+  <ConstraintTimeInterval v="2026-01-26T23:00Z/2026-01-27T23:00Z" />
+  <Domain codingScheme="A01" v="10YDOM-REGION-1V" />
+    <criticalBranches>
+        <criticalBranch id="CB0">
+            <timeInterval v="2026-01-26T23:00Z/2026-01-27T23:00Z" />
+            <branch eic="EIC" from="BBE2AA1 " to="FFR3AA1 " elementName="CB0" name="CB0" />
+            <imaxType>DYNAMIC</imaxType>
+            <frmMw>218</frmMw>
+            <CNEC>true</CNEC>
+            <direction>DIRECT</direction>
+            <tsoOrigin>D0</tsoOrigin>
+        </criticalBranch>
+        <criticalBranch id="CB0">
+            <timeInterval v="2026-01-26T23:00Z/2026-01-27T23:00Z" />
+            <branch eic="EIC" from="BBE2AA1 " to="FFR3AA1 " elementName="CB0" name="CB0" />
+            <imaxType>DYNAMIC</imaxType>
+            <frmMw>218</frmMw>
+            <CNEC>true</CNEC>
+            <direction>DIRECT</direction>
+            <tsoOrigin>D0</tsoOrigin>
+            <outage id="OUTAGE_1">
+                <branch eic="EIC" from="FFR2AA1 " to="DDE3AA1 " elementName="CB1" />
+            </outage>
+        </criticalBranch>
+        <!-- We need critical branches for curative remedial actions -->
+    </criticalBranches>
+    <complexVariants>
+        <complexVariant id="D4_RA_99991" name="CRA_TEST_1">
+            <timeInterval v="2026-01-27T12:00Z/2026-01-27T23:00Z" />
+            <tsoOrigin>D4</tsoOrigin>
+            <actionsSet>
+                <preventive>false</preventive>
+                <curative>true</curative>
+                <enforced>false</enforced>
+                <afterCOList>
+                    <afterCOId>OUTAGE_1</afterCOId>
+                </afterCOList>
+                <action type="HVDCSETPOINT">
+                    <node code="D4AAA11B" />
+                    <range>
+                        <min>-800</min>
+                        <max>1000</max>
+                    </range>
+                    <HVDCGroupId>test</HVDCGroupId>
+                </action>
+            </actionsSet>
+        </complexVariant>
+        <complexVariant id="D4_RA_99992" name="CRA_TEST_2">
+            <timeInterval v="2026-01-27T12:00Z/2026-01-27T23:00Z" />
+            <tsoOrigin>D4</tsoOrigin>
+            <actionsSet>
+                <preventive>false</preventive>
+                <curative>true</curative>
+                <enforced>false</enforced>
+                <afterCOList>
+                    <afterCOId>OUTAGE_1</afterCOId>
+                </afterCOList>
+                <action type="HVDCSETPOINT">
+                    <node code="D4AAA21B" />
+                    <range>
+                        <min>-900</min>
+                        <max>700</max>
+                    </range>
+                    <HVDCGroupId>test</HVDCGroupId>
+                </action>
+            </actionsSet>
+        </complexVariant>
+
+        <complexVariant id="D7_RA_99991" name="CRA_TEST_1A">
+            <timeInterval v="2026-01-27T12:00Z/2026-01-27T23:00Z" />
+            <tsoOrigin>D7</tsoOrigin>
+            <actionsSet>
+                <preventive>false</preventive>
+                <curative>true</curative>
+                <enforced>false</enforced>
+                <afterCOList>
+                    <afterCOId>OUTAGE_1</afterCOId>
+                </afterCOList>
+                <action type="HVDCSETPOINT">
+                    <node code="D7AAA11A" />
+                    <range>
+                        <min>-1000</min>
+                        <max>800</max>
+                    </range>
+                    <HVDCGroupId>D4D7_test</HVDCGroupId>
+                </action>
+            </actionsSet>
+        </complexVariant>
+        <complexVariant id="D7_RA_99992" name="CRA_TEST_2A">
+            <timeInterval v="2026-01-27T12:00Z/2026-01-27T23:00Z" />
+            <tsoOrigin>D7</tsoOrigin>
+            <actionsSet>
+                <preventive>false</preventive>
+                <curative>true</curative>
+                <enforced>false</enforced>
+                <afterCOList>
+                    <afterCOId>OUTAGE_1</afterCOId>
+                </afterCOList>
+                <action type="HVDCSETPOINT">
+                    <node code="D7AAA21A" />
+                    <range>
+                        <min>-700</min>
+                        <max>900</max>
+                    </range>
+                    <HVDCGroupId>D4D7_test</HVDCGroupId>
+                </action>
+            </actionsSet>
+        </complexVariant>
+    </complexVariants>
+</FlowBasedConstraintDocument>
