@@ -9,7 +9,7 @@ package com.powsybl.openrao.searchtreerao.marmot.results;
 
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.powsybl.openrao.data.crac.api.Instant;
-import com.powsybl.openrao.data.raoresult.api.InterTemporalRaoResult;
+import com.powsybl.openrao.data.raoresult.api.TimeCoupledRaoResult;
 
 import java.util.List;
 
@@ -21,6 +21,6 @@ public class JsonInterTemporalRaoResultSerializerModule extends SimpleModule {
 
     public JsonInterTemporalRaoResultSerializerModule(String individualRaoResultFilenameTemplate, List<Instant> instants) {
         super();
-        this.addSerializer(InterTemporalRaoResult.class, new JsonInterTemporalRaoResultSerializer(individualRaoResultFilenameTemplate, instants));
+        this.addSerializer(TimeCoupledRaoResult.class, new JsonInterTemporalRaoResultSerializer(individualRaoResultFilenameTemplate, instants));
     }
 }

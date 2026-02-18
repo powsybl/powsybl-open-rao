@@ -21,7 +21,7 @@ import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.intertemporalconstraints.GeneratorConstraints;
 import com.powsybl.openrao.data.intertemporalconstraints.IntertemporalConstraints;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
-import com.powsybl.openrao.raoapi.InterTemporalRaoInput;
+import com.powsybl.openrao.raoapi.TimeCoupledRaoInput;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
@@ -59,7 +59,7 @@ class GeneratorConstraintsFillerTest {
     private final LinearProblemBuilder linearProblemBuilder = new LinearProblemBuilder().withSolver(SearchTreeRaoRangeActionsOptimizationParameters.Solver.SCIP);
     private LinearProblem linearProblem;
     private static final double DOUBLE_EPSILON = 1e-3;
-    InterTemporalRaoInput input;
+    TimeCoupledRaoInput input;
     RaoParameters parameters;
     List<OffsetDateTime> hourlyTimestamps;
 
@@ -195,7 +195,7 @@ class GeneratorConstraintsFillerTest {
             RaoInput.build(network, createSimpleRedispatchingCrac(OffsetDateTime.of(2026, 1, 9, 4, 0, 0, 0, ZoneOffset.UTC), 0.0)).build()
         );
 
-        input = new InterTemporalRaoInput(new TemporalDataImpl<>(raoInputPerTimestamp), intertemporalConstraints);
+        input = new TimeCoupledRaoInput(new TemporalDataImpl<>(raoInputPerTimestamp), intertemporalConstraints);
         parameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_minCost_megawatt_dc.json"));
         setUpLinearProblem();
     }

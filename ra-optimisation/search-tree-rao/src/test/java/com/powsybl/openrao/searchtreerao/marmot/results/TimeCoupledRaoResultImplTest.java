@@ -36,7 +36,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-class InterTemporalRaoResultImplTest {
+class TimeCoupledRaoResultImplTest {
     private State stateTimestamp1;
     private State stateTimestamp2;
     private State stateTimestamp3;
@@ -46,7 +46,7 @@ class InterTemporalRaoResultImplTest {
     private FlowCnec flowCnecTimestamp3;
     private PstRangeAction pstRangeAction;
     private NetworkAction networkAction;
-    private InterTemporalRaoResultImpl interTemporalRaoResult;
+    private TimeCoupledRaoResultImpl interTemporalRaoResult;
 
     @BeforeEach
     void setUp() {
@@ -80,7 +80,7 @@ class InterTemporalRaoResultImplTest {
         final RaoResult raoResultTimestamp2 = mockRaoResult(true, "RAO 2 succeeded.", 250., 90., flowCnecTimestamp2, 510., 45., stateTimestamp2, 0, 5, 0., 10.2, false);
         final RaoResult raoResultTimestamp3 = mockRaoResult(false, "RAO 3 failed.", 200., 10., flowCnecTimestamp3, 1000., -60., stateTimestamp3, 0, 16, 0., 35.32, true);
 
-        interTemporalRaoResult = new InterTemporalRaoResultImpl(initialObjectiveFunctionResult, objectiveFunctionResult, new TemporalDataImpl<>(Map.of(TestsUtils.TIMESTAMP_1, raoResultTimestamp1, TestsUtils.TIMESTAMP_2, raoResultTimestamp2, TestsUtils.TIMESTAMP_3, raoResultTimestamp3)));
+        interTemporalRaoResult = new TimeCoupledRaoResultImpl(initialObjectiveFunctionResult, objectiveFunctionResult, new TemporalDataImpl<>(Map.of(TestsUtils.TIMESTAMP_1, raoResultTimestamp1, TestsUtils.TIMESTAMP_2, raoResultTimestamp2, TestsUtils.TIMESTAMP_3, raoResultTimestamp3)));
     }
 
     @Test

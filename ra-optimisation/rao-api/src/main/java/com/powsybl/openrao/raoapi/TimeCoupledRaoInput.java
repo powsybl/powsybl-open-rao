@@ -20,19 +20,19 @@ import java.util.stream.Collectors;
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
  */
-public class InterTemporalRaoInput {
+public class TimeCoupledRaoInput {
     private final TemporalData<RaoInput> raoInputs;
     private final Set<OffsetDateTime> timestampsToRun;
     private final IntertemporalConstraints intertemporalConstraints;
 
-    public InterTemporalRaoInput(TemporalData<RaoInput> raoInputs, Set<OffsetDateTime> timestampsToRun, IntertemporalConstraints intertemporalConstraints) {
+    public TimeCoupledRaoInput(TemporalData<RaoInput> raoInputs, Set<OffsetDateTime> timestampsToRun, IntertemporalConstraints intertemporalConstraints) {
         this.raoInputs = raoInputs;
         this.timestampsToRun = timestampsToRun;
         this.intertemporalConstraints = intertemporalConstraints;
         checkTimestampsToRun();
     }
 
-    public InterTemporalRaoInput(TemporalData<RaoInput> raoInputs, IntertemporalConstraints intertemporalConstraints) {
+    public TimeCoupledRaoInput(TemporalData<RaoInput> raoInputs, IntertemporalConstraints intertemporalConstraints) {
         this(raoInputs, new HashSet<>(raoInputs.getTimestamps()), intertemporalConstraints);
     }
 

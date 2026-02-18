@@ -21,19 +21,19 @@ import java.util.stream.Collectors;
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
  */
-public class InterTemporalRaoInputWithNetworkPaths {
+public class TimeCoupledRaoInputWithNetworkPaths {
     private final TemporalData<RaoInputWithNetworkPaths> raoInputs;
     private final Set<OffsetDateTime> timestampsToRun;
     private final IntertemporalConstraints intertemporalConstraints;
 
-    public InterTemporalRaoInputWithNetworkPaths(TemporalData<RaoInputWithNetworkPaths> raoInputs, Set<OffsetDateTime> timestampsToRun, IntertemporalConstraints intertemporalConstraints) {
+    public TimeCoupledRaoInputWithNetworkPaths(TemporalData<RaoInputWithNetworkPaths> raoInputs, Set<OffsetDateTime> timestampsToRun, IntertemporalConstraints intertemporalConstraints) {
         this.raoInputs = raoInputs;
         this.timestampsToRun = new TreeSet<>(timestampsToRun);
         this.intertemporalConstraints = intertemporalConstraints;
         checkTimestampsToRun();
     }
 
-    public InterTemporalRaoInputWithNetworkPaths(TemporalData<RaoInputWithNetworkPaths> raoInputs, IntertemporalConstraints intertemporalConstraints) {
+    public TimeCoupledRaoInputWithNetworkPaths(TemporalData<RaoInputWithNetworkPaths> raoInputs, IntertemporalConstraints intertemporalConstraints) {
         this(raoInputs, new HashSet<>(raoInputs.getTimestamps()), intertemporalConstraints);
     }
 

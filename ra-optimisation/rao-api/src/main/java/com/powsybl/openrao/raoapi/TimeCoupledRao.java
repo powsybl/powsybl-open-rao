@@ -12,7 +12,7 @@ import com.google.common.base.Suppliers;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.data.raoresult.api.InterTemporalRaoResult;
+import com.powsybl.openrao.data.raoresult.api.TimeCoupledRaoResult;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.tools.Version;
 
@@ -25,27 +25,27 @@ import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WA
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public final class InterTemporalRao {
-    private InterTemporalRao() {
+public final class TimeCoupledRao {
+    private TimeCoupledRao() {
         throw new AssertionError("Utility class should not been instantiated");
     }
 
-    private static final Supplier<List<InterTemporalRaoProvider>> RAO_PROVIDERS
-        = Suppliers.memoize(() -> new ServiceLoaderCache<>(InterTemporalRaoProvider.class).getServices());
+    private static final Supplier<List<TimeCoupledRaoProvider>> RAO_PROVIDERS
+        = Suppliers.memoize(() -> new ServiceLoaderCache<>(TimeCoupledRaoProvider.class).getServices());
 
     /**
      * An inter-temporal RA optimisation runner is responsible for providing convenient methods on top of
-     * {@link InterTemporalRaoProvider}: several variants of synchronous and asynchronous run with default parameters.
+     * {@link TimeCoupledRaoProvider}: several variants of synchronous and asynchronous run with default parameters.
      */
     public static class Runner {
 
-        private final InterTemporalRaoProvider provider;
+        private final TimeCoupledRaoProvider provider;
 
-        public Runner(InterTemporalRaoProvider provider) {
+        public Runner(TimeCoupledRaoProvider provider) {
             this.provider = Objects.requireNonNull(provider);
         }
 
-        public InterTemporalRaoResult run(InterTemporalRaoInputWithNetworkPaths raoInput, RaoParameters parameters) {
+        public TimeCoupledRaoResult run(TimeCoupledRaoInputWithNetworkPaths raoInput, RaoParameters parameters) {
             Objects.requireNonNull(raoInput, "RAO input should not be null");
             Objects.requireNonNull(parameters, "parameters should not be null");
 
@@ -58,7 +58,7 @@ public final class InterTemporalRao {
             return provider.run(raoInput, parameters).join();
         }
 
-        public InterTemporalRaoResult run(InterTemporalRaoInputWithNetworkPaths raoInput) {
+        public TimeCoupledRaoResult run(TimeCoupledRaoInputWithNetworkPaths raoInput) {
             return run(raoInput, RaoParameters.load());
         }
 
@@ -74,7 +74,7 @@ public final class InterTemporalRao {
      * @param name name of the RAO implementation, null if we want to use default one
      * @return a runner for RAO implementation named {@code name}
      */
-    public static InterTemporalRao.Runner find(String name) {
+    public static TimeCoupledRao.Runner find(String name) {
         return find(name, RAO_PROVIDERS.get(), PlatformConfig.defaultConfig());
     }
 
@@ -84,7 +84,7 @@ public final class InterTemporalRao {
      * @throws OpenRaoException in case we cannot find a default implementation
      * @return a runner for default RAO implementation
      */
-    public static InterTemporalRao.Runner find() {
+    public static TimeCoupledRao.Runner find() {
         return find(null);
     }
 
@@ -98,7 +98,7 @@ public final class InterTemporalRao {
      * @param platformConfig platform config to look for default flowbased implementation name
      * @return a runner for flowbased implementation named {@code name}
      */
-    public static InterTemporalRao.Runner find(String name, List<InterTemporalRaoProvider> providers, PlatformConfig platformConfig) {
+    public static TimeCoupledRao.Runner find(String name, List<TimeCoupledRaoProvider> providers, PlatformConfig platformConfig) {
         Objects.requireNonNull(providers);
         Objects.requireNonNull(platformConfig);
 
@@ -111,7 +111,7 @@ public final class InterTemporalRao {
         String raOptimizerName = name != null ? name : platformConfig.getOptionalModuleConfig("rao")
             .flatMap(mc -> mc.getOptionalStringProperty("default"))
             .orElse(null);
-        InterTemporalRaoProvider provider;
+        TimeCoupledRaoProvider provider;
         if (providers.size() == 1 && raOptimizerName == null) {
             // no information to select the implementation but only one provider, so we can use it by default
             // (that is the most common use case)
@@ -120,7 +120,7 @@ public final class InterTemporalRao {
             if (providers.size() > 1 && raOptimizerName == null) {
                 // several providers and no information to select which one to choose, we can only throw
                 // an exception
-                List<String> raOptimizerNames = providers.stream().map(InterTemporalRaoProvider::getName).toList();
+                List<String> raOptimizerNames = providers.stream().map(TimeCoupledRaoProvider::getName).toList();
                 throw new OpenRaoException("Several RAO implementations found (" + raOptimizerNames
                     + "), you must add configuration to select the implementation");
             }
@@ -130,14 +130,14 @@ public final class InterTemporalRao {
                 .orElseThrow(() -> new OpenRaoException("RA optimizer provider '" + raOptimizerName + "' not found"));
         }
 
-        return new InterTemporalRao.Runner(provider);
+        return new TimeCoupledRao.Runner(provider);
     }
 
-    public static InterTemporalRaoResult run(InterTemporalRaoInputWithNetworkPaths raoInput, RaoParameters parameters) {
+    public static TimeCoupledRaoResult run(TimeCoupledRaoInputWithNetworkPaths raoInput, RaoParameters parameters) {
         return find().run(raoInput, parameters);
     }
 
-    public static InterTemporalRaoResult run(InterTemporalRaoInputWithNetworkPaths raoInput) {
+    public static TimeCoupledRaoResult run(TimeCoupledRaoInputWithNetworkPaths raoInput) {
         return find().run(raoInput);
     }
 }

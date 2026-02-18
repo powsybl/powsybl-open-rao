@@ -14,10 +14,10 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.intertemporalconstraints.IntertemporalConstraints;
-import com.powsybl.openrao.data.raoresult.api.InterTemporalRaoResult;
+import com.powsybl.openrao.data.raoresult.api.TimeCoupledRaoResult;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
-import com.powsybl.openrao.raoapi.raomock.AnotherInterTemporalRaoProviderMock;
-import com.powsybl.openrao.raoapi.raomock.InterTemporalRaoProviderMock;
+import com.powsybl.openrao.raoapi.raomock.AnotherTimeCoupledRaoProviderMock;
+import com.powsybl.openrao.raoapi.raomock.TimeCoupledRaoProviderMock;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -36,18 +36,18 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-class InterTemporalRaoTest {
+class TimeCoupledRaoTest {
 
     private FileSystem fileSystem;
     private InMemoryPlatformConfig platformConfig;
-    private InterTemporalRaoInputWithNetworkPaths raoInput;
+    private TimeCoupledRaoInputWithNetworkPaths raoInput;
 
     @BeforeEach
     void setUp() {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
         platformConfig = new InMemoryPlatformConfig(fileSystem);
         Crac crac = Mockito.mock(Crac.class);
-        raoInput = new InterTemporalRaoInputWithNetworkPaths(
+        raoInput = new TimeCoupledRaoInputWithNetworkPaths(
             new TemporalDataImpl<>(
                 Map.of(
                     OffsetDateTime.of(2024, 12, 13, 16, 17, 0, 0, ZoneOffset.UTC),
@@ -66,40 +66,40 @@ class InterTemporalRaoTest {
     void testDefaultOneProvider() {
         // case with only one provider, no need for config
         // find rao
-        InterTemporalRao.Runner defaultRao = InterTemporalRao.find(null, List.of(new InterTemporalRaoProviderMock()), platformConfig);
+        TimeCoupledRao.Runner defaultRao = TimeCoupledRao.find(null, List.of(new TimeCoupledRaoProviderMock()), platformConfig);
         assertEquals("RandomInterTemporalRAO", defaultRao.getName());
 
         // run rao
-        InterTemporalRaoResult result = defaultRao.run(raoInput, new RaoParameters());
+        TimeCoupledRaoResult result = defaultRao.run(raoInput, new RaoParameters());
         assertNotNull(result);
     }
 
     @Test
     void testDefaultTwoProviders() {
         // case with two providers : should throw as no config defines which provider must be selected
-        List<InterTemporalRaoProvider> raoProviders = List.of(new InterTemporalRaoProviderMock(), new AnotherInterTemporalRaoProviderMock());
-        assertThrows(OpenRaoException.class, () -> InterTemporalRao.find(null, raoProviders, platformConfig));
+        List<TimeCoupledRaoProvider> raoProviders = List.of(new TimeCoupledRaoProviderMock(), new AnotherTimeCoupledRaoProviderMock());
+        assertThrows(OpenRaoException.class, () -> TimeCoupledRao.find(null, raoProviders, platformConfig));
     }
 
     @Test
     void testDefinedAmongTwoProviders() {
         // case with two providers where one the two RAOs is specifically selected
-        InterTemporalRao.Runner definedRao = InterTemporalRao.find("GlobalRAOptimizer", List.of(new InterTemporalRaoProviderMock(), new AnotherInterTemporalRaoProviderMock()), platformConfig);
+        TimeCoupledRao.Runner definedRao = TimeCoupledRao.find("GlobalRAOptimizer", List.of(new TimeCoupledRaoProviderMock(), new AnotherTimeCoupledRaoProviderMock()), platformConfig);
         assertEquals("GlobalRAOptimizer", definedRao.getName());
     }
 
     @Test
     void testDefaultNoProvider() {
         // case with no provider
-        List<InterTemporalRaoProvider> raoProviders = List.of();
-        assertThrows(OpenRaoException.class, () -> InterTemporalRao.find(null, raoProviders, platformConfig));
+        List<TimeCoupledRaoProvider> raoProviders = List.of();
+        assertThrows(OpenRaoException.class, () -> TimeCoupledRao.find(null, raoProviders, platformConfig));
     }
 
     @Test
     void testDefaultTwoProvidersPlatformConfig() {
         // case with 2 providers without any config but specifying which one to use in platform config
         platformConfig.createModuleConfig("rao").setStringProperty("default", "GlobalRAOptimizer");
-        InterTemporalRao.Runner globalRaOptimizer = InterTemporalRao.find(null, List.of(new InterTemporalRaoProviderMock(), new AnotherInterTemporalRaoProviderMock()), platformConfig);
+        TimeCoupledRao.Runner globalRaOptimizer = TimeCoupledRao.find(null, List.of(new TimeCoupledRaoProviderMock(), new AnotherTimeCoupledRaoProviderMock()), platformConfig);
         assertEquals("GlobalRAOptimizer", globalRaOptimizer.getName());
     }
 
@@ -107,7 +107,7 @@ class InterTemporalRaoTest {
     void testOneProviderAndMistakeInPlatformConfig() {
         // case with 1 provider with config but with a name that is not the one of provider.
         platformConfig.createModuleConfig("rao").setStringProperty("default", "UnknownRao");
-        List<InterTemporalRaoProvider> raoProviders = List.of(new InterTemporalRaoProviderMock());
-        assertThrows(OpenRaoException.class, () -> InterTemporalRao.find(null, raoProviders, platformConfig));
+        List<TimeCoupledRaoProvider> raoProviders = List.of(new TimeCoupledRaoProviderMock());
+        assertThrows(OpenRaoException.class, () -> TimeCoupledRao.find(null, raoProviders, platformConfig));
     }
 }

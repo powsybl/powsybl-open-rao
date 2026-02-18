@@ -13,12 +13,12 @@ import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.intertemporalconstraints.GeneratorConstraints;
 import com.powsybl.openrao.data.intertemporalconstraints.IntertemporalConstraints;
-import com.powsybl.openrao.data.raoresult.api.InterTemporalRaoResult;
-import com.powsybl.openrao.raoapi.InterTemporalRaoInputWithNetworkPaths;
+import com.powsybl.openrao.data.raoresult.api.TimeCoupledRaoResult;
+import com.powsybl.openrao.raoapi.TimeCoupledRaoInputWithNetworkPaths;
 import com.powsybl.openrao.raoapi.RaoInputWithNetworkPaths;
 import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
-import com.powsybl.openrao.searchtreerao.marmot.results.InterTemporalRaoResultImpl;
+import com.powsybl.openrao.searchtreerao.marmot.results.TimeCoupledRaoResultImpl;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -73,11 +73,11 @@ class MarmotTest {
         IntertemporalConstraints intertemporalConstraints = new IntertemporalConstraints();
         intertemporalConstraints.addGeneratorConstraints(GeneratorConstraints.create().withGeneratorId("FFR1AA1 _generator").withLeadTime(0.0).withLagTime(0.0).withUpwardPowerGradient(1000.0).withDownwardPowerGradient(-1000.0).build());
 
-        InterTemporalRaoInputWithNetworkPaths input = new InterTemporalRaoInputWithNetworkPaths(raoInputs, intertemporalConstraints);
+        TimeCoupledRaoInputWithNetworkPaths input = new TimeCoupledRaoInputWithNetworkPaths(raoInputs, intertemporalConstraints);
 
         // first RAOs shift tap to -5 for a cost of 55 each
         // MARMOT should also move the tap to -5 for both timestamps with a total cost of 110
-        InterTemporalRaoResult results = new Marmot().run(input, raoParameters).join();
+        TimeCoupledRaoResult results = new Marmot().run(input, raoParameters).join();
         assertEquals(-5, results.getOptimizedTapOnState(crac1.getPreventiveState(), crac1.getPstRangeAction("pstBeFr2")));
         assertEquals(-5, results.getOptimizedTapOnState(crac2.getPreventiveState(), crac2.getPstRangeAction("pstBeFr2")));
 
@@ -118,12 +118,12 @@ class MarmotTest {
         IntertemporalConstraints intertemporalConstraints = new IntertemporalConstraints();
         intertemporalConstraints.addGeneratorConstraints(GeneratorConstraints.create().withGeneratorId("FFR1AA1 _generator").withLeadTime(0.0).withLagTime(0.0).withUpwardPowerGradient(250.0).withDownwardPowerGradient(-250.0).build());
 
-        InterTemporalRaoInputWithNetworkPaths input = new InterTemporalRaoInputWithNetworkPaths(raoInputs, intertemporalConstraints);
+        TimeCoupledRaoInputWithNetworkPaths input = new TimeCoupledRaoInputWithNetworkPaths(raoInputs, intertemporalConstraints);
 
         // no redispatching required during the first timestamp
         // redispatching of 500 MW in both timestamps 2 & 3 with a cost of 26510 each
         // MARMOT should also activate redispatching at 530 MW for second and third timestamps
-        InterTemporalRaoResult results = new Marmot().run(input, raoParameters).join();
+        TimeCoupledRaoResult results = new Marmot().run(input, raoParameters).join();
 
         assertEquals(-0.0, results.getOptimizedSetPointOnState(crac1.getPreventiveState(), crac1.getRangeAction("redispatchingAction")));
         assertEquals(530.0, results.getOptimizedSetPointOnState(crac2.getPreventiveState(), crac2.getRangeAction("redispatchingAction")));
@@ -163,12 +163,12 @@ class MarmotTest {
                 timestamp2, RaoInputWithNetworkPaths.build(getResourcesPath().concat(networkFilePath), getResourcesPath().concat(networkFilePathPostIcsImport), crac2).build(),
                 timestamp3, RaoInputWithNetworkPaths.build(getResourcesPath().concat(networkFilePath), getResourcesPath().concat(networkFilePathPostIcsImport), crac3).build()
             ));
-        InterTemporalRaoInputWithNetworkPaths input = new InterTemporalRaoInputWithNetworkPaths(raoInputs, new IntertemporalConstraints());
+        TimeCoupledRaoInputWithNetworkPaths input = new TimeCoupledRaoInputWithNetworkPaths(raoInputs, new IntertemporalConstraints());
 
         // no redispatching required during the first timestamp
         // redispatching of 500 MW in both timestamps 2 & 3 with a cost of 26510 each
         // MARMOT should also activate redispatching at 530 MW for second and third timestamps
-        InterTemporalRaoResult results = new Marmot().run(input, raoParameters).join();
+        TimeCoupledRaoResult results = new Marmot().run(input, raoParameters).join();
 
         assertEquals(-0.0, results.getOptimizedSetPointOnState(crac1.getPreventiveState(), crac1.getRangeAction("redispatchingAction")));
         assertEquals(530.0, results.getOptimizedSetPointOnState(crac2.getPreventiveState(), crac2.getRangeAction("redispatchingAction")));
@@ -205,7 +205,7 @@ class MarmotTest {
         IntertemporalConstraints intertemporalConstraints = new IntertemporalConstraints();
         intertemporalConstraints.addGeneratorConstraints(GeneratorConstraints.create().withGeneratorId("FFR3AA1 _generator").withLeadTime(0.0).withLagTime(0.0).withUpwardPowerGradient(200.0).withDownwardPowerGradient(0.0).build());
 
-        InterTemporalRaoInputWithNetworkPaths input = new InterTemporalRaoInputWithNetworkPaths(
+        TimeCoupledRaoInputWithNetworkPaths input = new TimeCoupledRaoInputWithNetworkPaths(
             new TemporalDataImpl<>(Map.of(
                 timestamp1, RaoInputWithNetworkPaths.build(networkAbsolutePath, networkAbsolutePath, crac1).build(),
                 timestamp2, RaoInputWithNetworkPaths.build(networkAbsolutePath, networkAbsolutePath, crac2).build(),
@@ -218,7 +218,7 @@ class MarmotTest {
         // due to the max gradient of 200. Not activating 530 MW in timestamps 2 and 3 will create an overload and be very costly.
         // redispatching of 530 MW in both timestamps 2 & 3 with a cost of 26510 each
         // MARMOT should also activate redispatching at 530 MW for second and third timestamps
-        InterTemporalRaoResult results = new Marmot().run(input, raoParameters).join();
+        TimeCoupledRaoResult results = new Marmot().run(input, raoParameters).join();
         assertEquals(330.0, results.getOptimizedSetPointOnState(crac1.getPreventiveState(), crac1.getRangeAction("redispatchingAction")));
         assertEquals(530.0, results.getOptimizedSetPointOnState(crac2.getPreventiveState(), crac2.getRangeAction("redispatchingAction")));
         assertEquals(530.0, results.getOptimizedSetPointOnState(crac3.getPreventiveState(), crac3.getRangeAction("redispatchingAction")));
@@ -258,9 +258,9 @@ class MarmotTest {
         IntertemporalConstraints intertemporalConstraints = new IntertemporalConstraints();
         intertemporalConstraints.addGeneratorConstraints(GeneratorConstraints.create().withGeneratorId("FFR1AA1 _generator").withLeadTime(0.0).withLagTime(0.0).withUpwardPowerGradient(250.0).withDownwardPowerGradient(-250.0).build());
 
-        InterTemporalRaoInputWithNetworkPaths input = new InterTemporalRaoInputWithNetworkPaths(raoInputs, intertemporalConstraints);
+        TimeCoupledRaoInputWithNetworkPaths input = new TimeCoupledRaoInputWithNetworkPaths(raoInputs, intertemporalConstraints);
 
-        InterTemporalRaoResult results = new Marmot().run(input, raoParameters).join();
+        TimeCoupledRaoResult results = new Marmot().run(input, raoParameters).join();
         assertTrue(results.isActivated(crac1.getPreventiveState(), crac1.getNetworkAction("closeBeFr2")));
         assertTrue(results.isActivated(crac2.getPreventiveState(), crac2.getNetworkAction("closeBeFr2")));
         assertEquals(40.0, results.getGlobalCost(crac1.getPreventiveInstant()));
@@ -317,9 +317,9 @@ class MarmotTest {
         IntertemporalConstraints intertemporalConstraints = new IntertemporalConstraints();
         intertemporalConstraints.addGeneratorConstraints(GeneratorConstraints.create().withGeneratorId("FFR3AA1 _generator").withLeadTime(0.0).withLagTime(0.0).withUpwardPowerGradient(500.0).withDownwardPowerGradient(-500.0).build());
 
-        InterTemporalRaoInputWithNetworkPaths input = new InterTemporalRaoInputWithNetworkPaths(new TemporalDataImpl<>(inputPerTimestamp), intertemporalConstraints);
+        TimeCoupledRaoInputWithNetworkPaths input = new TimeCoupledRaoInputWithNetworkPaths(new TemporalDataImpl<>(inputPerTimestamp), intertemporalConstraints);
 
-        InterTemporalRaoResultImpl interTemporalRaoResult = (InterTemporalRaoResultImpl) new Marmot().run(input, raoParameters).join();
+        TimeCoupledRaoResultImpl interTemporalRaoResult = (TimeCoupledRaoResultImpl) new Marmot().run(input, raoParameters).join();
 
         assertEquals(625070.0, interTemporalRaoResult.getGlobalFunctionalCost(crac1.getPreventiveInstant()));
 
@@ -376,9 +376,9 @@ class MarmotTest {
         inputPerTimestamp.put(timestamp9, RaoInputWithNetworkPaths.build(networkPath, networkPath, crac9).build());
         inputPerTimestamp.put(timestamp10, RaoInputWithNetworkPaths.build(networkPath, networkPath, crac10).build());
 
-        InterTemporalRaoInputWithNetworkPaths input = new InterTemporalRaoInputWithNetworkPaths(new TemporalDataImpl<>(inputPerTimestamp), new IntertemporalConstraints());
+        TimeCoupledRaoInputWithNetworkPaths input = new TimeCoupledRaoInputWithNetworkPaths(new TemporalDataImpl<>(inputPerTimestamp), new IntertemporalConstraints());
 
-        InterTemporalRaoResultImpl interTemporalRaoResult = (InterTemporalRaoResultImpl) new Marmot().run(input, raoParameters).join();
+        TimeCoupledRaoResultImpl interTemporalRaoResult = (TimeCoupledRaoResultImpl) new Marmot().run(input, raoParameters).join();
 
         assertEquals(375030.0, interTemporalRaoResult.getGlobalFunctionalCost(crac1.getPreventiveInstant()));
 
@@ -439,9 +439,9 @@ class MarmotTest {
         IntertemporalConstraints intertemporalConstraints = new IntertemporalConstraints();
         intertemporalConstraints.addGeneratorConstraints(GeneratorConstraints.create().withGeneratorId("FFR3AA1 _generator").withUpwardPowerGradient(500.0).withDownwardPowerGradient(-500.0).build());
 
-        InterTemporalRaoInputWithNetworkPaths input = new InterTemporalRaoInputWithNetworkPaths(new TemporalDataImpl<>(inputPerTimestamp), intertemporalConstraints);
+        TimeCoupledRaoInputWithNetworkPaths input = new TimeCoupledRaoInputWithNetworkPaths(new TemporalDataImpl<>(inputPerTimestamp), intertemporalConstraints);
 
-        InterTemporalRaoResultImpl interTemporalRaoResult = (InterTemporalRaoResultImpl) new Marmot().run(input, raoParameters).join();
+        TimeCoupledRaoResultImpl interTemporalRaoResult = (TimeCoupledRaoResultImpl) new Marmot().run(input, raoParameters).join();
 
         assertEquals(625070.0, interTemporalRaoResult.getGlobalFunctionalCost(crac1.getPreventiveInstant()));
 
@@ -457,9 +457,9 @@ class MarmotTest {
         assertFunctionalCostAndRedispatchingSetPoint(crac10, interTemporalRaoResult, 125010.0, 1250.0);
     }
 
-    private static void assertFunctionalCostAndRedispatchingSetPoint(Crac crac, InterTemporalRaoResult interTemporalRaoResult, double expectedFunctionalCost, double expectedRdSetPoint) {
-        assertEquals(expectedFunctionalCost, interTemporalRaoResult.getFunctionalCost(crac.getPreventiveInstant(), crac.getTimestamp().orElseThrow()));
-        assertEquals(expectedRdSetPoint, interTemporalRaoResult.getOptimizedSetPointOnState(crac.getPreventiveState(), crac.getRangeAction("redispatchingAction")));
+    private static void assertFunctionalCostAndRedispatchingSetPoint(Crac crac, TimeCoupledRaoResult timeCoupledRaoResult, double expectedFunctionalCost, double expectedRdSetPoint) {
+        assertEquals(expectedFunctionalCost, timeCoupledRaoResult.getFunctionalCost(crac.getPreventiveInstant(), crac.getTimestamp().orElseThrow()));
+        assertEquals(expectedRdSetPoint, timeCoupledRaoResult.getOptimizedSetPointOnState(crac.getPreventiveState(), crac.getRangeAction("redispatchingAction")));
     }
 
     private void cleanExistingNetwork(String path) {

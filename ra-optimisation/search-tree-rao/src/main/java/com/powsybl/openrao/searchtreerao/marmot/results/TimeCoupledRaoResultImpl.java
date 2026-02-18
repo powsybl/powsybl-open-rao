@@ -21,7 +21,7 @@ import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
-import com.powsybl.openrao.data.raoresult.api.InterTemporalRaoResult;
+import com.powsybl.openrao.data.raoresult.api.TimeCoupledRaoResult;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.searchtreerao.marmot.MarmotUtils;
 import com.powsybl.openrao.searchtreerao.result.api.ObjectiveFunctionResult;
@@ -39,14 +39,14 @@ import java.util.zip.ZipOutputStream;
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public class InterTemporalRaoResultImpl extends AbstractExtendable<RaoResult> implements InterTemporalRaoResult {
+public class TimeCoupledRaoResultImpl extends AbstractExtendable<RaoResult> implements TimeCoupledRaoResult {
     private final ObjectiveFunctionResult initialGlobalObjectiveFunctionResult;
     private final ObjectiveFunctionResult finalGlobalObjectiveFunctionResult;
     private final TemporalData<? extends RaoResult> raoResultPerTimestamp;
 
     private static final String MISSING_RAO_RESULT_ERROR_MESSAGE = "No RAO Result data found for the provided timestamp.";
 
-    public InterTemporalRaoResultImpl(ObjectiveFunctionResult initialGlobalObjectiveFunctionResult, ObjectiveFunctionResult finalGlobalObjectiveFunctionResult, TemporalData<? extends RaoResult> raoResultPerTimestamp) {
+    public TimeCoupledRaoResultImpl(ObjectiveFunctionResult initialGlobalObjectiveFunctionResult, ObjectiveFunctionResult finalGlobalObjectiveFunctionResult, TemporalData<? extends RaoResult> raoResultPerTimestamp) {
         this.initialGlobalObjectiveFunctionResult = initialGlobalObjectiveFunctionResult;
         this.finalGlobalObjectiveFunctionResult = finalGlobalObjectiveFunctionResult;
         this.raoResultPerTimestamp = raoResultPerTimestamp;

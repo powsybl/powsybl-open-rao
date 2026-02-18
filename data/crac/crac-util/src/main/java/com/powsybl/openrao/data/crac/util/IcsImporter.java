@@ -16,7 +16,7 @@ import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeActionAdder;
 import com.powsybl.openrao.data.crac.api.rangeaction.VariationDirection;
 import com.powsybl.openrao.data.intertemporalconstraints.GeneratorConstraints;
-import com.powsybl.openrao.raoapi.InterTemporalRaoInputWithNetworkPaths;
+import com.powsybl.openrao.raoapi.TimeCoupledRaoInputWithNetworkPaths;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 
@@ -54,7 +54,7 @@ public final class IcsImporter {
         //should only be used statically
     }
 
-    public static void populateInputWithICS(InterTemporalRaoInputWithNetworkPaths interTemporalRaoInput, InputStream staticInputStream, InputStream seriesInputStream, InputStream gskInputStream, double icsCostUp, double icsCostDown) throws IOException {
+    public static void populateInputWithICS(TimeCoupledRaoInputWithNetworkPaths interTemporalRaoInput, InputStream staticInputStream, InputStream seriesInputStream, InputStream gskInputStream, double icsCostUp, double icsCostDown) throws IOException {
         costUp = icsCostUp;
         costDown = icsCostDown;
 
@@ -125,7 +125,7 @@ public final class IcsImporter {
         return Math.abs(a - b) < 1e-3;
     }
 
-    private static void importGskRedispatchingAction(InterTemporalRaoInputWithNetworkPaths interTemporalRaoInput, CSVRecord staticRecord, TemporalData<Network> initialNetworks, Map<String, CSVRecord> seriesPerType, String raId, Map<String, Double> weightPerNode) {
+    private static void importGskRedispatchingAction(TimeCoupledRaoInputWithNetworkPaths interTemporalRaoInput, CSVRecord staticRecord, TemporalData<Network> initialNetworks, Map<String, CSVRecord> seriesPerType, String raId, Map<String, Double> weightPerNode) {
         Map<String, String> networkElementPerGskElement = new HashMap<>();
         for (String nodeId : weightPerNode.keySet()) {
             String networkElementId = processNetworks(nodeId, initialNetworks, seriesPerType, weightPerNode.get(nodeId));
@@ -180,7 +180,7 @@ public final class IcsImporter {
         });
     }
 
-    private static void importNodeRedispatchingAction(InterTemporalRaoInputWithNetworkPaths interTemporalRaoInput, CSVRecord staticRecord, TemporalData<Network> initialNetworks, Map<String, CSVRecord> seriesPerType, String raId) {
+    private static void importNodeRedispatchingAction(TimeCoupledRaoInputWithNetworkPaths interTemporalRaoInput, CSVRecord staticRecord, TemporalData<Network> initialNetworks, Map<String, CSVRecord> seriesPerType, String raId) {
         String networkElementId = processNetworks(staticRecord.get("UCT Node or GSK ID"), initialNetworks, seriesPerType, 1.);
         if (networkElementId == null) {
             return;

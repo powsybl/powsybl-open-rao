@@ -8,9 +8,9 @@
 package com.powsybl.openrao.raoapi.raomock;
 
 import com.google.auto.service.AutoService;
-import com.powsybl.openrao.data.raoresult.api.InterTemporalRaoResult;
-import com.powsybl.openrao.raoapi.InterTemporalRaoInputWithNetworkPaths;
-import com.powsybl.openrao.raoapi.InterTemporalRaoProvider;
+import com.powsybl.openrao.data.raoresult.api.TimeCoupledRaoResult;
+import com.powsybl.openrao.raoapi.TimeCoupledRaoInputWithNetworkPaths;
+import com.powsybl.openrao.raoapi.TimeCoupledRaoProvider;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 
 import java.util.concurrent.CompletableFuture;
@@ -18,12 +18,12 @@ import java.util.concurrent.CompletableFuture;
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-@AutoService(InterTemporalRaoProvider.class)
-public class InterTemporalRaoProviderMock implements InterTemporalRaoProvider {
+@AutoService(TimeCoupledRaoProvider.class)
+public class TimeCoupledRaoProviderMock implements TimeCoupledRaoProvider {
 
     @Override
-    public CompletableFuture<InterTemporalRaoResult> run(InterTemporalRaoInputWithNetworkPaths raoInput, RaoParameters parameters) {
-        return CompletableFuture.completedFuture(new InterTemporalRaoResultMock());
+    public CompletableFuture<TimeCoupledRaoResult> run(TimeCoupledRaoInputWithNetworkPaths raoInput, RaoParameters parameters) {
+        return CompletableFuture.completedFuture(new TimeCoupledRaoResultMock());
     }
 
     @Override

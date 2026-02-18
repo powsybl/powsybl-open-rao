@@ -21,7 +21,7 @@ import java.util.zip.ZipOutputStream;
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public interface InterTemporalRaoResult extends RaoResult {
+public interface TimeCoupledRaoResult extends RaoResult {
     List<OffsetDateTime> getTimestamps();
 
     default double getGlobalCost(Instant instant) {
