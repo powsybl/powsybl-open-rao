@@ -62,7 +62,7 @@ import static com.powsybl.openrao.searchtreerao.marmot.MarmotUtils.*;
 @AutoService(TimeCoupledRaoProvider.class)
 public class Marmot implements TimeCoupledRaoProvider {
 
-    private static final String INTER_TEMPORAL_RAO = "TimeCoupledRao";
+    private static final String TIME_COUPLED_RAO = "TimeCoupledRao";
     private static final String INITIAL_SCENARIO = "InitialScenario";
     private static final String POST_TOPO_SCENARIO = "PostTopoScenario";
     private static final String MIP_SCENARIO = "MipScenario";
@@ -541,6 +541,6 @@ public class Marmot implements TimeCoupledRaoProvider {
 
     @Override
     public String getName() {
-        return INTER_TEMPORAL_RAO;
+        return TIME_COUPLED_RAO;
     }
 }

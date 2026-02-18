@@ -32,7 +32,7 @@ import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
  */
 public class JsonTimeCoupledRaoResultSerializer extends JsonSerializer<TimeCoupledRaoResult> {
-    private static final String GLOBAL_RAO_SUMMARY = "INTER_TEMPORAL_RAO_SUMMARY";
+    private static final String GLOBAL_RAO_SUMMARY = "TIME_COUPLED_RAO_SUMMARY";
     private static final String VERSION = "1.0";
     private static final String RESULT_PER_TIMESTAMP = "resultPerTimestamp";
     private static final String COST_RESULTS = "costResults";
