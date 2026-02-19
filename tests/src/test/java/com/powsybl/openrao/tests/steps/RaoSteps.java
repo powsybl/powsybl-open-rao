@@ -113,6 +113,11 @@ public class RaoSteps {
         launchRao(null, null, timestamp, raoImplementation);
     }
 
+    @When("I launch fast rao at {string}")
+    public void iLaunchFastRao(String timestamp) {
+        launchRao(null, null, timestamp, "FastRao");
+    }
+
     @When("I launch rao at {string} on {string}")
     public void iLaunchRaoAtTimestampOnContingency(String timestamp, String contingencyId) {
         launchRao(contingencyId, null, timestamp, raoImplementation);

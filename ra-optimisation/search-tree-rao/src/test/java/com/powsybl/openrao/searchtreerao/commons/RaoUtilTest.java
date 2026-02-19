@@ -9,6 +9,9 @@ package com.powsybl.openrao.searchtreerao.commons;
 
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
+import com.powsybl.action.Action;
+import com.powsybl.action.PhaseTapChangerTapPositionAction;
+import com.powsybl.action.TerminalsConnectionAction;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
@@ -35,6 +38,7 @@ import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.RelativeMarginsParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.ForcedActions;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoLoopFlowParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
@@ -498,5 +502,25 @@ class RaoUtilTest {
         // Cas AC -> AMPERE
         getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters().setDc(false);
         assertEquals(Unit.AMPERE, RaoUtil.getFlowUnit(raoParameters));
+    }
+
+    @Test
+    void testApplyForcedActions() {
+        ch.qos.logback.classic.Logger logger = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(RaoBusinessWarns.class);
+        ListAppender<ILoggingEvent> listAppender = new ListAppender<>();
+        listAppender.start();
+        logger.addAppender(listAppender);
+        List<ILoggingEvent> logsList = listAppender.list;
+
+        Action action1 = new PhaseTapChangerTapPositionAction("action1", "BBE2AA1  BBE3AA1  1", false, -8);
+        Action action2 = new TerminalsConnectionAction("action2", "FFR1AA1  FFR2AA1  1", true);
+        Action action3 = new TerminalsConnectionAction("wrong_action", "wrong_id", true);
+        ForcedActions forcedActions = new ForcedActions(List.of(action1, action2, action3));
+        raoParameters.addExtension(ForcedActions.class, forcedActions);
+        RaoUtil.initData(raoInput, raoParameters);
+        assertEquals(-8, raoInput.getNetwork().getTwoWindingsTransformer("BBE2AA1  BBE3AA1  1").getPhaseTapChanger().getTapPosition());
+        assertFalse(raoInput.getNetwork().getLine("FFR1AA1  FFR2AA1  1").getTerminal1().isConnected());
+        assertFalse(raoInput.getNetwork().getLine("FFR1AA1  FFR2AA1  1").getTerminal2().isConnected());
+        assertTrue(logsList.stream().anyMatch(e -> e.getMessage().contains("Action 'wrong_action' could not be applied.")));
     }
 }

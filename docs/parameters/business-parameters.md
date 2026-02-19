@@ -173,6 +173,49 @@ See also: [Modelling the maximum minimum relative margin objective function](../
   For CORE, we should use all the CORE region boundaries (all countries seperated by a - sign) plus Alegro's special
   equation: "{BE}-{22Y201903144---9}-{DE}+{22Y201903145---4}"
 
+### Forced Actions
+You can add an optional ForcedActions extension ("forced-actions") to force some preventive actions before running the RAO.  
+While this is equivalent to pre-processing the network file before running the RAO, it can be useful if 
+you want to test different preventive actions in an outside loop, without having to pre-process (and 
+eventually serialize) the network.  
+Note that this is not currently supported in the yaml format.
+
+#### preventive-actions-list
+- **Expected value**: a list of PowSyBl Actions. In JSON, this should be represented by a serialized ActionList.
+- **Default value**: empty array
+- **Usage**: these actions will be applied on the network before running the RAO. In the case of time-coupled RAO,
+  the actions will be applied for all timestamps.  
+  Actions that cannot be applied (for example if the ID of the element is wrong) will be ignored (the issue will be logged in a warning).
+
+#### Example 
+::::{tabs}
+:::{group-tab} JSON
+~~~json
+"forced-actions": {
+  "preventive-actions-list": {
+    "version": "1.2",
+    "actions": [
+      {
+        "type": "PHASE_TAP_CHANGER_TAP_POSITION",
+        "id": "PRA_PST_BE",
+        "transformerId": "BBE2AA1  BBE3AA1  1",
+        "tapPosition": -16,
+        "relativeValue": false,
+        "side": "TWO"
+      },
+      {
+        "type": "TERMINALS_CONNECTION",
+        "id": "Open FR1 FR2",
+        "elementId": "FFR1AA1  FFR2AA1  1",
+        "open": true
+      }
+    ]
+  }
+}
+~~~
+:::
+::::
+
 ## Examples
 > ⚠️  **NOTE**  
 > The following examples in json and yaml are not equivalent

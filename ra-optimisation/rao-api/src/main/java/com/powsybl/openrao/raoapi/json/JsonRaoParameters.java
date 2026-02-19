@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.raoapi.json;
 
+import com.powsybl.action.json.ActionJsonModule;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
@@ -178,6 +179,7 @@ public final class JsonRaoParameters {
     private static ObjectMapper createObjectMapper() {
         return JsonUtil.createObjectMapper()
                 .registerModule(new RaoParametersJsonModule())
-                .registerModule(new SensitivityJsonModule());
+                .registerModule(new SensitivityJsonModule())
+                .registerModule(new ActionJsonModule());
     }
 }

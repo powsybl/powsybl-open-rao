@@ -1,0 +1,23 @@
+{
+  "version" : "3.3",
+  "objective-function" : {
+    "type" : "SECURE_FLOW",
+    "enforce-curative-security" : false
+  },
+  "range-actions-optimization" : {
+    "pst-ra-min-impact-threshold" : 0.01,
+    "hvdc-ra-min-impact-threshold" : 0.001,
+    "injection-ra-min-impact-threshold" : 0.001
+  },
+  "topological-actions-optimization" : {
+    "relative-minimum-impact-threshold" : 0.0,
+    "absolute-minimum-impact-threshold" : 0.0
+  },
+  "not-optimized-cnecs" : {
+    "do-not-optimize-curative-cnecs-for-tsos-without-cras" : false
+  },
+  "extensions" : {
+    "forced-actions" : {
+    }
+  }
+}

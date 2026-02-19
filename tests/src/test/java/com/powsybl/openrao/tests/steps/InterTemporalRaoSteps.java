@@ -483,13 +483,22 @@ public final class InterTemporalRaoSteps {
         }
     }
 
+    @Then("the initial margin on {string} for timestamp {string} is {double} MW")
+    public static void theInitialMarginOnCnecForTimestampIsMW(String cnecId, String timestamp, double margin) {
+        checkMarginInMw(cnecId, timestamp, margin, null);
+    }
+
     @Then("the optimized margin on {string} for timestamp {string} is {double} MW")
     public static void theOptimizedMarginOnCnecForTimestampIsMW(String cnecId, String timestamp, double margin) {
+        Instant afterCra = interTemporalRaoInputWithNetworkPaths.getRaoInputs().getData(getOffsetDateTimeFromBrusselsTimestamp(timestamp)).orElseThrow().getCrac().getLastInstant();
+        checkMarginInMw(cnecId, timestamp, margin, afterCra);
+    }
+
+    private static void checkMarginInMw(String cnecId, String timestamp, double margin, Instant optimizedInstant) {
         OffsetDateTime offsetDateTime = getOffsetDateTimeFromBrusselsTimestamp(timestamp);
         FlowCnec flowCnec = interTemporalRaoInputWithNetworkPaths.getRaoInputs().getData(offsetDateTime).orElseThrow().getCrac().getFlowCnec(cnecId);
-        Instant afterCra = interTemporalRaoInputWithNetworkPaths.getRaoInputs().getData(offsetDateTime).orElseThrow().getCrac().getLastInstant();
         assertEquals(margin,
-            interTemporalRaoResult.getIndividualRaoResult(offsetDateTime).getMargin(afterCra, flowCnec, Unit.MEGAWATT),
+            interTemporalRaoResult.getIndividualRaoResult(offsetDateTime).getMargin(optimizedInstant, flowCnec, Unit.MEGAWATT),
             RaoSteps.TOLERANCE_FLOW_IN_MEGAWATT);
     }
 
