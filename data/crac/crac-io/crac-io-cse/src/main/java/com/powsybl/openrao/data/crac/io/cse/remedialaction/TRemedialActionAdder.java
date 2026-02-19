@@ -14,6 +14,7 @@ import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.RemedialActionAdder;
+import com.powsybl.openrao.data.crac.io.commons.ucte.UcteGeneratorHelper;
 import com.powsybl.openrao.data.crac.io.cse.xsd.TApplication;
 import com.powsybl.openrao.data.crac.io.cse.xsd.THVDCNode;
 import com.powsybl.openrao.data.crac.io.cse.xsd.TRemedialAction;
@@ -155,7 +156,7 @@ public class TRemedialActionAdder {
                 return;
             }
 
-            GeneratorHelper generatorHelper = new GeneratorHelper(tNode.getName().getV(), ucteNetworkAnalyzer);
+            UcteGeneratorHelper generatorHelper = new UcteGeneratorHelper(tNode.getName().getV(), ucteNetworkAnalyzer);
             if (!generatorHelper.isValid()) {
                 cseCracCreationContext.addRemedialActionCreationContext(StandardElementaryCreationContext.notImported(tRemedialAction.getName().getV(), null, generatorHelper.getImportStatus(), generatorHelper.getDetail()));
                 return;
@@ -227,9 +228,9 @@ public class TRemedialActionAdder {
         String raId = tRemedialAction.getName().getV();
 
         // ----  HVDC Nodes
-        THVDCNode hvdcNodes = tRemedialAction.getHVDCRange().getHVDCNode().get(0);
-        GeneratorHelper generatorFromHelper = new GeneratorHelper(hvdcNodes.getFromNode().getV(), ucteNetworkAnalyzer);
-        GeneratorHelper generatorToHelper = new GeneratorHelper(hvdcNodes.getToNode().getV(), ucteNetworkAnalyzer);
+        THVDCNode hvdcNodes = tRemedialAction.getHVDCRange().getHVDCNode().getFirst();
+        UcteGeneratorHelper generatorFromHelper = new UcteGeneratorHelper(hvdcNodes.getFromNode().getV(), ucteNetworkAnalyzer);
+        UcteGeneratorHelper generatorToHelper = new UcteGeneratorHelper(hvdcNodes.getToNode().getV(), ucteNetworkAnalyzer);
 
         // ---- Only handle ABSOLUTE variation type
         if (!tRemedialAction.getHVDCRange().getVariationType().getV().equals(ABSOLUTE_VARIATION_TYPE)) {
@@ -308,10 +309,10 @@ public class TRemedialActionAdder {
                 .filter(rangeActionGroup -> rangeActionGroup.getRangeActionsIds().contains(raId))
                 .toList();
             if (groups.size() == 1) {
-                injectionRangeActionAdder.withGroupId(groups.get(0).toString());
+                injectionRangeActionAdder.withGroupId(groups.getFirst().toString());
             } else if (groups.size() > 1) {
-                injectionRangeActionAdder.withGroupId(groups.get(0).toString());
-                cseCracCreationContext.getCreationReport().warn(String.format("GroupId defined multiple times for HVDC %s, only group %s is used.", raId, groups.get(0)));
+                injectionRangeActionAdder.withGroupId(groups.getFirst().toString());
+                cseCracCreationContext.getCreationReport().warn(String.format("GroupId defined multiple times for HVDC %s, only group %s is used.", raId, groups.getFirst()));
             }
         }
 
@@ -326,12 +327,10 @@ public class TRemedialActionAdder {
     }
 
     private static ActionType convertActionType(TStatusType tStatusType) {
-        switch (tStatusType.getV()) {
-            case "CLOSE":
-                return ActionType.CLOSE;
-            case "OPEN":
-            default:
-                return ActionType.OPEN;
+        if (tStatusType.getV().equals("CLOSE")) {
+            return ActionType.CLOSE;
+        } else {
+            return ActionType.OPEN;
         }
     }
 
@@ -344,16 +343,13 @@ public class TRemedialActionAdder {
     }
 
     private Instant getInstant(TApplication tApplication) {
-        switch (tApplication.getV()) {
-            case "PREVENTIVE":
-                return crac.getPreventiveInstant();
-            case "SPS":
-                return crac.getInstant(InstantKind.AUTO);
-            case "CURATIVE":
-                return crac.getInstant(InstantKind.CURATIVE);
-            default:
+        return switch (tApplication.getV()) {
+            case "PREVENTIVE" -> crac.getPreventiveInstant();
+            case "SPS" -> crac.getInstant(InstantKind.AUTO);
+            case "CURATIVE" -> crac.getInstant(InstantKind.CURATIVE);
+            default ->
                 throw new OpenRaoException(String.format("%s is not a recognized application type for remedial action", tApplication.getV()));
-        }
+        };
     }
 
     void addUsageRules(RemedialActionAdder<?> remedialActionAdder, TRemedialAction tRemedialAction) {

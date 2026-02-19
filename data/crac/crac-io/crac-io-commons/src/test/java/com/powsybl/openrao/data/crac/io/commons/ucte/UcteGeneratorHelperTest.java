@@ -5,11 +5,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.powsybl.openrao.data.crac.io.cse.remedialaction;
+package com.powsybl.openrao.data.crac.io.commons.ucte;
 
 import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
-import com.powsybl.openrao.data.crac.io.commons.ucte.UcteNetworkAnalyzer;
-import com.powsybl.openrao.data.crac.io.commons.ucte.UcteNetworkAnalyzerProperties;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.Test;
@@ -19,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-class GeneratorHelperTest {
+class UcteGeneratorHelperTest {
     private Network network;
     private UcteNetworkAnalyzer ucteNetworkAnalyzer;
 
@@ -30,8 +28,8 @@ class GeneratorHelperTest {
 
     @Test
     void testElementNotInNetwork() {
-        setUp("/networks/TestCase12Nodes_forCSE.uct");
-        GeneratorHelper generatorHelper = new GeneratorHelper("AAAAAAAA", ucteNetworkAnalyzer);
+        setUp("/TestCase12Nodes_forCSE.uct");
+        UcteGeneratorHelper generatorHelper = new UcteGeneratorHelper("AAAAAAAA", ucteNetworkAnalyzer);
         assertEquals(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, generatorHelper.getImportStatus());
         assertNull(generatorHelper.getGeneratorId());
         assertEquals("No bus in the network matches bus id AAAAAAAA", generatorHelper.getDetail());
@@ -41,8 +39,8 @@ class GeneratorHelperTest {
 
     @Test
     void testOneMatch() {
-        setUp("/networks/TestCase12Nodes_forCSE.uct");
-        GeneratorHelper generatorHelper = new GeneratorHelper("BBE1AA11", ucteNetworkAnalyzer);
+        setUp("/TestCase12Nodes_forCSE.uct");
+        UcteGeneratorHelper generatorHelper = new UcteGeneratorHelper("BBE1AA11", ucteNetworkAnalyzer);
         assertEquals(ImportStatus.IMPORTED, generatorHelper.getImportStatus());
         assertEquals("BBE1AA11_generator", generatorHelper.getGeneratorId());
         assertNull(generatorHelper.getDetail());
@@ -55,8 +53,8 @@ class GeneratorHelperTest {
 
     @Test
     void testMultipleBusMatchesButOneGenerator() {
-        setUp("/networks/TestCase12Nodes_forCSE.uct");
-        GeneratorHelper generatorHelper = new GeneratorHelper("BBE1AA1*", ucteNetworkAnalyzer);
+        setUp("/TestCase12Nodes_forCSE.uct");
+        UcteGeneratorHelper generatorHelper = new UcteGeneratorHelper("BBE1AA1*", ucteNetworkAnalyzer);
         assertEquals(ImportStatus.IMPORTED, generatorHelper.getImportStatus());
         assertEquals("BBE1AA11_generator", generatorHelper.getGeneratorId());
         assertNull(generatorHelper.getDetail());
@@ -66,8 +64,8 @@ class GeneratorHelperTest {
 
     @Test
     void testMultipleGeneratorMatches() {
-        setUp("/networks/TestCase12Nodes_forCSE_multipleGenerators.uct");
-        GeneratorHelper generatorHelper = new GeneratorHelper("BBE1AA1*", ucteNetworkAnalyzer);
+        setUp("/TestCase12Nodes_forCSE_multipleGenerators.uct");
+        UcteGeneratorHelper generatorHelper = new UcteGeneratorHelper("BBE1AA1*", ucteNetworkAnalyzer);
         assertEquals(ImportStatus.INCONSISTENCY_IN_DATA, generatorHelper.getImportStatus());
         assertNull(generatorHelper.getGeneratorId());
         assertEquals("Too many generators match node name BBE1AA1*", generatorHelper.getDetail());
@@ -77,8 +75,8 @@ class GeneratorHelperTest {
 
     @Test
     void testBusHasNoGenerator() {
-        setUp("/networks/TestCase12Nodes_forCSE.uct");
-        GeneratorHelper generatorHelper = new GeneratorHelper("BBE1AA12", ucteNetworkAnalyzer);
+        setUp("/TestCase12Nodes_forCSE.uct");
+        UcteGeneratorHelper generatorHelper = new UcteGeneratorHelper("BBE1AA12", ucteNetworkAnalyzer);
         assertEquals(ImportStatus.INCONSISTENCY_IN_DATA, generatorHelper.getImportStatus());
         assertNull(generatorHelper.getGeneratorId());
         assertEquals("Buses matching BBE1AA12 in the network do not hold generators", generatorHelper.getDetail());
@@ -88,7 +86,7 @@ class GeneratorHelperTest {
 
     @Test
     void testTwoGeneratorsOnOneBus() {
-        setUp("/networks/TestCase12Nodes_forCSE.uct");
+        setUp("/TestCase12Nodes_forCSE.uct");
         ((Bus) network.getIdentifiable("BBE1AA11"))
             .getVoltageLevel()
             .newGenerator()
@@ -104,7 +102,7 @@ class GeneratorHelperTest {
             .setConnectableBus("BBE1AA11")
             .setEnsureIdUnicity(true)
             .add();
-        GeneratorHelper generatorHelper = new GeneratorHelper("BBE1AA11", ucteNetworkAnalyzer);
+        UcteGeneratorHelper generatorHelper = new UcteGeneratorHelper("BBE1AA11", ucteNetworkAnalyzer);
         assertEquals(ImportStatus.IMPORTED, generatorHelper.getImportStatus());
         assertEquals("BBE1AA11_generator", generatorHelper.getGeneratorId());
         assertEquals("More than 1 generator associated to BBE1AA11. First generator is selected.", generatorHelper.getDetail());
@@ -114,10 +112,10 @@ class GeneratorHelperTest {
 
     @Test
     void testGeneratorNotConnected() {
-        setUp("/networks/TestCase12Nodes_forCSE.uct");
+        setUp("/TestCase12Nodes_forCSE.uct");
         network.getGenerator("BBE1AA11_generator").getTerminal().disconnect();
 
-        GeneratorHelper generatorHelper = new GeneratorHelper("BBE1AA11", ucteNetworkAnalyzer);
+        UcteGeneratorHelper generatorHelper = new UcteGeneratorHelper("BBE1AA11", ucteNetworkAnalyzer);
         assertEquals(ImportStatus.INCONSISTENCY_IN_DATA, generatorHelper.getImportStatus());
         assertNull(generatorHelper.getGeneratorId());
         assertEquals("Buses matching BBE1AA11 in the network do not hold generators", generatorHelper.getDetail());
@@ -127,11 +125,11 @@ class GeneratorHelperTest {
 
     @Test
     void testGeneratorNotInMainComponent() {
-        setUp("/networks/TestCase12Nodes_forCSE.uct");
+        setUp("/TestCase12Nodes_forCSE.uct");
         network.getBranch("NNL1AA1  NNL2AA1  1").getTerminal1().disconnect();
         network.getBranch("NNL1AA1  NNL3AA1  1").getTerminal1().disconnect();
 
-        GeneratorHelper generatorHelper = new GeneratorHelper("NNL1AA1 ", ucteNetworkAnalyzer);
+        UcteGeneratorHelper generatorHelper = new UcteGeneratorHelper("NNL1AA1 ", ucteNetworkAnalyzer);
         assertEquals(ImportStatus.INCONSISTENCY_IN_DATA, generatorHelper.getImportStatus());
         assertNull(generatorHelper.getGeneratorId());
         assertEquals("Buses matching NNL1AA1  in the network do not hold generators connected to the main grid", generatorHelper.getDetail());

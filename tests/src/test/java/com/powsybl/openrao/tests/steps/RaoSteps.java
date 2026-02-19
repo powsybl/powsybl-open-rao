@@ -320,6 +320,38 @@ public class RaoSteps {
         }
     }
 
+    @Then("the generator {string} should have a targetP of {double} MW at initial state")
+    public void theGeneratorShouldHaveATargetPOfAtInitialState(String generatorId, Double expectedTargetP) {
+        final double targetPAfterPRA = getTargetPFromVariant(generatorId, "InitialState");
+        assertEquals(expectedTargetP, targetPAfterPRA);
+    }
+
+    @Then("the generator {string} should have a targetP of {double} MW after PRA")
+    public void theGeneratorShouldHaveATargetPOfAfterPra(String generatorId, Double expectedTargetP) {
+        final double targetPAfterPRA = getTargetPFromVariant(generatorId, "PreventiveScenario");
+        assertEquals(expectedTargetP, targetPAfterPRA);
+    }
+
+    @Then("the generator {string} should have a targetP of {double} MW after 2PRA")
+    public void theGeneratorShouldHaveATargetPOfAfter2Pra(String generatorId, Double expectedTargetP) {
+        final double targetPAfterPRA = getTargetPFromVariant(generatorId, "SecondPreventiveScenario");
+        assertEquals(expectedTargetP, targetPAfterPRA);
+    }
+
+    @Then("the generator {string} should have a targetP of {double} MW after CRA")
+    public void theGeneratorShouldHaveATargetPOfAfterCra(String generatorId, Double expectedTargetP) {
+        final double targetPAfterCRA = getTargetPFromVariant(generatorId, "SearchTreeWorkingVariantId");
+        assertEquals(expectedTargetP, targetPAfterCRA);
+    }
+
+    private double getTargetPFromVariant(final String generatorId, final String searchTreeWorkingVariantId) {
+        final String previousWorkingVariantId = network.getVariantManager().getWorkingVariantId();
+        network.getVariantManager().setWorkingVariant(searchTreeWorkingVariantId);
+        final double targetPAfterCRA = network.getGenerator(generatorId).getTargetP();
+        network.getVariantManager().setWorkingVariant(previousWorkingVariantId);
+        return targetPAfterCRA;
+    }
+
     /*
     Margins in A
     */

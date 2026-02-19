@@ -31,7 +31,7 @@ class ComplexVariantReader {
     private List<ActionReader> actionReaders;
     private List<String> afterCoList;
     private ElementaryCreationContext complexVariantCreationContext;
-    private ActionReader.Type type;
+    private ActionTypeEnum type;
 
     private ImportStatus importStatus;
     private String importStatusDetail;
@@ -44,6 +44,10 @@ class ComplexVariantReader {
         return complexVariant;
     }
 
+    List<String> getAfterCoList() {
+        return afterCoList;
+    }
+
     ComplexVariantReader(IndependantComplexVariant complexVariant, UcteNetworkAnalyzer ucteNetworkAnalyzer, Set<String> validCoIds) {
         this.complexVariant = complexVariant;
 
@@ -54,33 +58,44 @@ class ComplexVariantReader {
     }
 
     void addRemedialAction(Crac crac) {
-        if (type.equals(ActionReader.Type.PST)) {
-            PstRangeActionAdder pstRangeActionAdder = crac.newPstRangeAction()
-                .withId(complexVariant.getId())
-                .withName(complexVariant.getName())
-                .withOperator(complexVariant.getTsoOrigin());
-            actionReaders.get(0).addAction(pstRangeActionAdder);
-            addUsageRules(pstRangeActionAdder, crac);
-            pstRangeActionAdder.add();
-            complexVariantCreationContext = PstComplexVariantCreationContext.imported(
-                complexVariant.getId(),
-                actionReaders.get(0).getNativeNetworkElementId(),
-                getCreatedRaId(),
-                actionReaders.get(0).isInverted(),
-                actionReaders.get(0).getInversionMessage()
-            );
-        } else {
-            NetworkActionAdder networkActionAdder = crac.newNetworkAction()
-                .withId(complexVariant.getId())
-                .withName(complexVariant.getName())
-                .withOperator(complexVariant.getTsoOrigin());
-            actionReaders.forEach(action -> action.addAction(networkActionAdder, complexVariant.getId()));
-            addUsageRules(networkActionAdder, crac);
-            networkActionAdder.add();
+        if (type.equals(ActionTypeEnum.PST)) {
+            addPstRemedialAction(crac);
+        } else if (type.equals(ActionTypeEnum.TOPO)) {
+            addTopologicalRemedialAction(crac);
         }
+        // InjectionRemedialAction for HVDC type are created in FbConstraintCracCreator with HvdcLineRemedialActionAdder
+        // because one remedial action is composed of two complex variants and can therefore not be built in a single ComplexVariantReader
     }
 
-    ActionReader.Type getType() {
+    private void addPstRemedialAction(final Crac crac) {
+        final PstRangeActionAdder pstRangeActionAdder = crac.newPstRangeAction()
+            .withId(complexVariant.getId())
+            .withName(complexVariant.getName())
+            .withOperator(complexVariant.getTsoOrigin());
+        final ActionReader actionReader = actionReaders.getFirst();
+        actionReader.addAction(pstRangeActionAdder);
+        addUsageRules(pstRangeActionAdder, crac);
+        pstRangeActionAdder.add();
+        complexVariantCreationContext = PstComplexVariantCreationContext.imported(
+            complexVariant.getId(),
+            actionReader.getNativeNetworkElementId(),
+            getCreatedRaId(),
+            actionReader.isInverted(),
+            actionReader.getInversionMessage()
+        );
+    }
+
+    private void addTopologicalRemedialAction(final Crac crac) {
+        final NetworkActionAdder networkActionAdder = crac.newNetworkAction()
+            .withId(complexVariant.getId())
+            .withName(complexVariant.getName())
+            .withOperator(complexVariant.getTsoOrigin());
+        actionReaders.forEach(action -> action.addAction(networkActionAdder, complexVariant.getId()));
+        addUsageRules(networkActionAdder, crac);
+        networkActionAdder.add();
+    }
+
+    ActionTypeEnum getType() {
         return type;
     }
 
@@ -100,6 +115,18 @@ class ComplexVariantReader {
         this.importStatusDetail = "Invalid because other ComplexVariant(s) is(are) defined on same branch and perimeter";
     }
 
+    void invalidateOnInvalidGenerator(final ImportStatus status, final String detail) {
+        if (!status.equals(ImportStatus.IMPORTED)) {
+            this.importStatus = status;
+            this.importStatusDetail = detail;
+        }
+    }
+
+    void invalidateOnInconsistencyOnState(final String state) {
+        this.importStatus = ImportStatus.INCONSISTENCY_IN_DATA;
+        this.importStatusDetail = "Invalid because other ComplexVariant has opposite activation rule on " + state + " state";
+    }
+
     private void interpretWithNetwork(UcteNetworkAnalyzer ucteNetworkAnalyzer) {
         this.importStatus = ImportStatus.IMPORTED;
 
@@ -110,7 +137,7 @@ class ComplexVariantReader {
         }
 
         // interpret actions
-        actionReaders = complexVariant.getActionsSet().get(0).getAction().stream()
+        actionReaders = complexVariant.getActionsSet().getFirst().getAction().stream()
             .map(actionType -> new ActionReader(actionType, ucteNetworkAnalyzer))
             .toList();
 
@@ -128,21 +155,27 @@ class ComplexVariantReader {
             return;
         }
 
-        if (actionReaders.stream().anyMatch(actionReader -> actionReader.getType().equals(ActionReader.Type.PST))) {
+        if (actionReaders.stream().anyMatch(actionReader -> actionReader.getType().equals(ActionTypeEnum.PST))) {
             if (actionReaders.size() > 1) {
                 this.importStatus = ImportStatus.INCONSISTENCY_IN_DATA;
                 this.importStatusDetail = String.format("complex variant %s was removed as it contains several actions which are not topological actions", complexVariant.getId());
             } else {
-                this.type = ActionReader.Type.PST;
+                this.type = ActionTypeEnum.PST;
+            }
+        } else if (actionReaders.stream().anyMatch(actionReader -> actionReader.getType().equals(ActionTypeEnum.HVDC))) {
+            if (actionReaders.size() > 1) {
+                this.importStatus = ImportStatus.INCONSISTENCY_IN_DATA;
+                this.importStatusDetail = String.format("complex variant %s was removed as it contains several actions", complexVariant.getId());
+            } else {
+                this.type = ActionTypeEnum.HVDC;
             }
         } else {
-            this.type = ActionReader.Type.TOPO;
+            this.type = ActionTypeEnum.TOPO;
         }
     }
 
-    private void interpretUsageRules(Set<String> validCoIds) {
-
-        ActionsSetType actionsSet = complexVariant.getActionsSet().get(0);
+    private void interpretUsageRules(final Set<String> validCoIds) {
+        final ActionsSetType actionsSet = complexVariant.getActionsSet().getFirst();
 
         if (actionsSet.isCurative() && actionsSet.isPreventive()) {
             this.importStatus = ImportStatus.INCONSISTENCY_IN_DATA;
@@ -165,8 +198,8 @@ class ComplexVariantReader {
         }
     }
 
-    private void addUsageRules(RemedialActionAdder<?> remedialActionAdder, Crac crac) {
-        ActionsSetType actionsSetType = complexVariant.getActionsSet().get(0);
+    private void addUsageRules(final RemedialActionAdder<?> remedialActionAdder, final Crac crac) {
+        final ActionsSetType actionsSetType = complexVariant.getActionsSet().getFirst();
 
         if (actionsSetType.isPreventive()) {
             remedialActionAdder.newOnInstantUsageRule()

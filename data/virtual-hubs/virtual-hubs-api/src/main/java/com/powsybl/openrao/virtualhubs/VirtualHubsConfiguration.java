@@ -20,6 +20,7 @@ public class VirtualHubsConfiguration {
     private final List<MarketArea> marketAreas = new ArrayList<>();
     private final List<VirtualHub> virtualHubs = new ArrayList<>();
     private final List<BorderDirection> borderDirections = new ArrayList<>();
+    private final List<InternalHvdc> internalHvdcs = new ArrayList<>();
 
     public void addMarketArea(MarketArea marketArea) {
         marketAreas.add(Objects.requireNonNull(marketArea, "Virtual hubs configuration does not allow adding null market area"));
@@ -33,6 +34,10 @@ public class VirtualHubsConfiguration {
         borderDirections.add(Objects.requireNonNull(borderDirection, "Virtual hubs configuration does not allow adding null border direction"));
     }
 
+    public void addInternalHvdc(InternalHvdc internalHvdc) {
+        internalHvdcs.add(Objects.requireNonNull(internalHvdc, "Virtual hubs configuration does not allow adding null internal hvdc"));
+    }
+
     public List<MarketArea> getMarketAreas() {
         return marketAreas;
     }
@@ -43,5 +48,9 @@ public class VirtualHubsConfiguration {
 
     public List<BorderDirection> getBorderDirections() {
         return borderDirections;
+    }
+
+    public List<InternalHvdc> getInternalHvdcs() {
+        return internalHvdcs;
     }
 }

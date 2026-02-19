@@ -47,7 +47,7 @@
 	</simpleType>
 	<simpleType name="tso_code">
 		<restriction base="string">
-			<pattern value="[A-Z0-9]{2}"/>
+			<pattern value="[A-Z0-9]{2,3}"/>
 		</restriction>
 	</simpleType>
 	<simpleType name="perUnitUnlimited">
@@ -101,6 +101,12 @@
 				<complexType>
 					<attribute name="from" type="fb:nodeType" use="required"/>
 					<attribute name="to" type="fb:nodeType" use="required"/>
+					<attribute name="eic" type="fb:nonEmptyString" use="required"/>
+				</complexType>
+			</element>
+			<element maxOccurs="unbounded" minOccurs="0" name="DCCNV"> <!-- added for German HVDC -->
+				<complexType>
+					<attribute name="node" type="fb:nodeType" use="required"/>
 					<attribute name="eic" type="fb:nonEmptyString" use="required"/>
 				</complexType>
 			</element>
@@ -159,6 +165,7 @@
 			<element minOccurs="0" name="IVA" type="float"/>
 			<element minOccurs="0" name="IVAJustification" type="fb:nonEmptyString"/>
 			<element minOccurs="0" name="IVAShare" type="float"/>
+			<element minOccurs="0" name="Fmax" type="float"/>
 			<element minOccurs="0" name="minRAMfactor" type="fb:minRAMfactor_Type"/>
 			<element minOccurs="0" name="minRAMfactorJustification" type="fb:nonEmptyString"/>
 			<element minOccurs="1" name="CNEC" type="boolean"/>
@@ -205,35 +212,46 @@
 		<attribute name="name" type="fb:nonEmptyString" use="optional"/>
 	</complexType>
 	<complexType mixed="true" name="actionType">
-		<all>
-			<element minOccurs="1" name="branch">
-				<complexType>
-					<attribute name="from" type="fb:nodeType" use="required"/>
-					<attribute name="to" type="fb:nodeType" use="required"/>
-					<attribute name="order" use="optional">
-						<simpleType>
-							<restriction base="string">
-								<pattern value="[1-9]|[A-Z]"/>
-							</restriction>
-						</simpleType>
-					</attribute>
-					<attribute name="elementName" type="fb:nonEmptyString" use="optional"/>
-				</complexType>
-				<key name="actionBranch__order_OR_elementName">
-					<selector xpath="."/>
-					<field xpath="@order|@elementName"/>
-				</key>
-			</element>
+		<sequence>
+			<choice minOccurs="1">
+				<element name="branch">
+					<complexType>
+						<attribute name="from" type="fb:nodeType" use="required"/>
+						<attribute name="to" type="fb:nodeType" use="required"/>
+						<attribute name="order" use="optional">
+							<simpleType>
+								<restriction base="string">
+									<pattern value="[1-9]|[A-Z]"/>
+								</restriction>
+							</simpleType>
+						</attribute>
+						<attribute name="elementName" type="fb:nonEmptyString" use="optional"/>
+					</complexType>
+					<key name="actionBranch__order_OR_elementName">
+						<selector xpath="."/>
+						<field xpath="@order|@elementName"/>
+					</key>
+				</element>
+				<element name="node">
+					<complexType>
+						<attribute name="code" type="fb:nodeType" use="required"/>
+					</complexType>
+				</element>
+			</choice>
 			<element minOccurs="0" name="value" type="fb:nonEmptyString"/>
 			<element minOccurs="0" name="range" type="fb:rangeType"/>
 			<element minOccurs="0" name="relativeRange" type="fb:rangeType"/>
-			<element minOccurs="0" name="PSTGroupId" type="fb:nonEmptyString"/>
-		</all>
+			<choice minOccurs="0">
+				<element name="PSTGroupId" type="fb:nonEmptyString"/>
+				<element name="HVDCGroupId" type="fb:nonEmptyString"/>
+			</choice>
+		</sequence>
 		<attribute name="type" use="required">
 			<simpleType>
 				<restriction base="string">
 					<enumeration value="STATUS"/>
 					<enumeration value="PSTTAP"/>
+					<enumeration value="HVDCSETPOINT"/> <!-- added for German HVDC -->
 				</restriction>
 			</simpleType>
 		</attribute>

@@ -3,7 +3,7 @@
               xmlns:jxb="https://jakarta.ee/xml/ns/jaxb"
               xmlns:inheritance="http://jaxb2-commons.dev.java.net/basic/inheritance"
               xmlns:xs="http://www.w3.org/2001/XMLSchema">
-    <jxb:bindings schemaLocation="../xsd/flowbasedconstraintdocument-23.xsd">
+    <jxb:bindings schemaLocation="../xsd/flowbasedconstraintdocument-25.xsd">
         <jxb:schemaBindings>
             <jxb:package name="com.powsybl.openrao.data.crac.io.fbconstraint.xsd" />
         </jxb:schemaBindings>
