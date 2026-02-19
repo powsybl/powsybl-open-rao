@@ -110,7 +110,7 @@ public class JsonOpenRaoSearchTreeParameters implements JsonRaoParameters.Extens
 
     @Override
     public String getCategoryName() {
-        return "rao-parameters";
+        return RAO_PARAMETERS_CATEGORY;
     }
 
     @Override

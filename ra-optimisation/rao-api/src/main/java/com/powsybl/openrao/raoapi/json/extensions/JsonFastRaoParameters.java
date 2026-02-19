@@ -65,7 +65,7 @@ public class JsonFastRaoParameters implements JsonRaoParameters.ExtensionSeriali
 
     @Override
     public String getCategoryName() {
-        return "rao-parameters";
+        return RAO_PARAMETERS_CATEGORY;
     }
 
     @Override

@@ -30,6 +30,7 @@ public final class RaoParametersCommons {
 
     // header
     public static final String VERSION = "version";
+    public static final String RAO_PARAMETERS_CATEGORY = "rao-parameters";
 
     // objective function parameters
     public static final String OBJECTIVE_FUNCTION = "objective-function";
@@ -124,6 +125,10 @@ public final class RaoParametersCommons {
     public static final String PTDF_BOUNDARIES = "ptdf-boundaries";
     public static final String PTDF_SUM_LOWER_BOUND = "ptdf-sum-lower-bound";
     public static final String SEARCH_TREE_PARAMETERS = "open-rao-search-tree-parameters";
+
+    // -- Forced actions parameters
+    public static final String FORCED_ACTIONS_PARAMETERS = "forced-actions";
+    public static final String PREVENTIVE_ACTION_LIST = "preventive-actions-list";
 
     // -- Fast Rao Parameters
     public static final String FAST_RAO_PARAMETERS = "fast-rao-parameters";
