@@ -268,6 +268,20 @@ class JsonRaoParametersTest extends AbstractSerDeTest {
         assertEquals(String.format("RaoParameters version '2.0' cannot be deserialized. The only supported version currently is '%s'.", RAO_PARAMETERS_VERSION), e.getMessage());
     }
 
+    @Test
+    void testWrongForcedActions() {
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> JsonRaoParameters.read(getClass().getResourceAsStream("/RaoParameters_with_wrong_ForcedActions.json")));
+        assertEquals("Unexpected token: wrong-key", exception.getMessage());
+    }
+
+    @Test
+    void testEmptyForcedActions() {
+        RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/RaoParameters_with_empty_ForcedActions.json"));
+        ForcedActions forcedActions = raoParameters.getExtension(ForcedActions.class);
+        assertNotNull(forcedActions);
+        assertTrue(forcedActions.getPreventiveActions().isEmpty());
+    }
+
     @ParameterizedTest
     @ValueSource(strings = {"LoopFlowError", "ObjFuncTypeError", "WrongField"})
     void importNokTest(String source) {
