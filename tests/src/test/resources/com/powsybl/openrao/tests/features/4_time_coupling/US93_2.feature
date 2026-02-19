@@ -13,7 +13,7 @@ Feature: US 93.2: Intertemporal redispatching actions with MARMOT - power gradie
     Given ics static file is "epic93/static_93_2_1.csv"
     Given ics series file is "epic93/series_93_2_1.csv"
     Given configuration file is "epic93/RaoParameters_minCost_megawatt_dc.json"
-    Given intertemporal rao inputs are:
+    Given intertemporal rao inputs for CORE are:
       | Timestamp        | Network          |
       | 2019-01-08 00:30 | 12Nodes_0030.uct |
       | 2019-01-08 01:30 | 12Nodes_0130.uct |
@@ -44,7 +44,7 @@ Feature: US 93.2: Intertemporal redispatching actions with MARMOT - power gradie
     Given ics static file is "epic93/static_93_2_1.csv"
     Given ics series file is "epic93/series_93_2_1.csv"
     Given configuration file is "epic93/RaoParameters_minCost_megawatt_dc.json"
-    Given intertemporal rao inputs are:
+    Given intertemporal rao inputs for CORE are:
       | Timestamp        | Network          |
       | 2019-01-08 00:30 | 12Nodes_0030.uct |
       | 2019-01-08 01:30 | 12Nodes_0130.uct |
@@ -66,7 +66,7 @@ Feature: US 93.2: Intertemporal redispatching actions with MARMOT - power gradie
     Given ics static file is "epic93/static_93_2_1.csv"
     Given ics series file is "epic93/series_93_2_1.csv"
     Given configuration file is "epic93/RaoParameters_minCost_megawatt_dc.json"
-    Given intertemporal rao inputs are:
+    Given intertemporal rao inputs for CORE are:
       | Timestamp        | Network          |
       | 2019-01-08 00:30 | 12Nodes_0030.uct |
       | 2019-01-08 01:30 | 12Nodes_0130.uct |
@@ -89,7 +89,7 @@ Feature: US 93.2: Intertemporal redispatching actions with MARMOT - power gradie
     Given ics static file is "epic93/static_93_2_1.csv"
     Given ics series file is "epic93/series_93_2_1.csv"
     Given configuration file is "epic93/RaoParameters_minCost_megawatt_dc.json"
-    Given intertemporal rao inputs are:
+    Given intertemporal rao inputs for CORE are:
       | Timestamp        | Network          |
       | 2019-01-08 00:30 | 12Nodes_0030.uct |
       | 2019-01-08 01:30 | 12Nodes_0130.uct |
@@ -114,7 +114,7 @@ Feature: US 93.2: Intertemporal redispatching actions with MARMOT - power gradie
     Given ics static file is "epic93/static_93_2_1.csv"
     Given ics series file is "epic93/series_93_2_1.csv"
     Given configuration file is "epic93/RaoParameters_minCost_megawatt_dc.json"
-    Given intertemporal rao inputs are:
+    Given intertemporal rao inputs for CORE are:
       | Timestamp        | Network          |
       | 2019-01-08 00:30 | 12Nodes_0030.uct |
       | 2019-01-08 01:30 | 12Nodes_0130.uct |
@@ -138,7 +138,7 @@ Feature: US 93.2: Intertemporal redispatching actions with MARMOT - power gradie
     Given ics static file is "epic93/static_93_2_5.csv"
     Given ics series file is "epic93/series_93_2_5.csv"
     Given configuration file is "epic93/RaoParameters_minCost_megawatt_dc.json"
-    Given intertemporal rao inputs are:
+    Given intertemporal rao inputs for CORE are:
       | Timestamp        | Network          |
       | 2019-01-08 00:30 | 12Nodes_0030.uct |
       | 2019-01-08 01:30 | 12Nodes_0130.uct |

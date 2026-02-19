@@ -34,14 +34,6 @@ public class GeneratorConstraintsDeserializer extends StdDeserializer<GeneratorC
                     jsonParser.nextToken();
                     builder.withGeneratorId(jsonParser.getValueAsString());
                 }
-                case JsonIntertemporalConstraints.P_MIN -> {
-                    jsonParser.nextToken();
-                    builder.withPMin(jsonParser.getValueAsDouble());
-                }
-                case JsonIntertemporalConstraints.P_MAX -> {
-                    jsonParser.nextToken();
-                    builder.withPMax(jsonParser.getValueAsDouble());
-                }
                 case JsonIntertemporalConstraints.LEAD_TIME -> {
                     jsonParser.nextToken();
                     builder.withLeadTime(jsonParser.getValueAsDouble());
@@ -57,18 +49,6 @@ public class GeneratorConstraintsDeserializer extends StdDeserializer<GeneratorC
                 case JsonIntertemporalConstraints.DOWNWARD_POWER_GRADIENT -> {
                     jsonParser.nextToken();
                     builder.withDownwardPowerGradient(jsonParser.getValueAsDouble());
-                }
-                case JsonIntertemporalConstraints.MIN_UP_TIME -> {
-                    jsonParser.nextToken();
-                    builder.withMinUpTime(jsonParser.getValueAsDouble());
-                }
-                case JsonIntertemporalConstraints.MAX_UP_TIME -> {
-                    jsonParser.nextToken();
-                    builder.withMaxUpTime(jsonParser.getValueAsDouble());
-                }
-                case JsonIntertemporalConstraints.MIN_OFF_TIME -> {
-                    jsonParser.nextToken();
-                    builder.withMinOffTime(jsonParser.getValueAsDouble());
                 }
                 default ->
                     throw new OpenRaoException("Unexpected field '%s' in JSON generator constraints.".formatted(jsonParser.currentName()));

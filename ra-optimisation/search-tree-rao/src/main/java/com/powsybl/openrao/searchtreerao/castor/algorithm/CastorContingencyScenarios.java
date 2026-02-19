@@ -204,19 +204,16 @@ public class CastorContingencyScenarios {
         crac.getStates(state.getContingency().orElseThrow()).stream()
             .filter(s -> s.getInstant().comesAfter(state.getInstant()))
             .forEach(statesToConsider::add);
-        PostPerimeterSensitivityAnalysis postPerimeterSensitivityAnalysis = new PostPerimeterSensitivityAnalysis(crac, statesToConsider, raoParameters, toolProvider);
-        try {
-            return postPerimeterSensitivityAnalysis.runBasedOnInitialPreviousAndOptimizationResults(
-                networkClone,
-                initialSensitivityOutput,
-                CompletableFuture.completedFuture(prePerimeterSensitivityOutput),
-                stateTree.getOperatorsNotSharingCras(),
-                optimizationResult,
-                new AppliedRemedialActions()).get();
-        } catch (InterruptedException | ExecutionException e) {
-            Thread.currentThread().interrupt();
-            throw new OpenRaoException(String.format("Error while running sensi after state %s", state.getId()), e);
-        }
+        PostPerimeterSensitivityAnalysis postPerimeterSensitivityAnalysis = new PostPerimeterSensitivityAnalysis(crac, statesToConsider, raoParameters, toolProvider, false);
+
+        return postPerimeterSensitivityAnalysis.runBasedOnInitialPreviousAndOptimizationResults(
+            networkClone,
+            initialSensitivityOutput,
+            prePerimeterSensitivityOutput,
+            stateTree.getOperatorsNotSharingCras(),
+            optimizationResult,
+            new AppliedRemedialActions());
+
     }
 
     private PrePerimeterSensitivityAnalysis getPreCurativePerimeterSensitivityAnalysis(Perimeter curativePerimeter) {
@@ -225,7 +222,7 @@ public class CastorContingencyScenarios {
         for (State curativeState : curativePerimeter.getAllStates()) {
             flowCnecsInSensi.addAll(crac.getFlowCnecs(curativeState));
         }
-        return new PrePerimeterSensitivityAnalysis(crac, flowCnecsInSensi, rangeActionsInSensi, raoParameters, toolProvider);
+        return new PrePerimeterSensitivityAnalysis(crac, flowCnecsInSensi, rangeActionsInSensi, raoParameters, toolProvider, false);
     }
 
     private OptimizationResult optimizeCurativePerimeter(Perimeter curativePerimeter,

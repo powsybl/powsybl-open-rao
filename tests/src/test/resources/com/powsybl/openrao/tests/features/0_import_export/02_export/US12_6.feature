@@ -22,7 +22,7 @@ Feature: US 12.6: Core CNE export for preventive case
     Given crac file is "epic12/crac_lf_rao_3_cbcora_v2.xml"
     Given loopflow glsk file is "common/glsk_lots_of_lf_12nodes.xml"
     Given RefProg file is "epic7/refProg_12nodes.xml"
-    Given configuration file is "epic7/RaoParameters_maxMargin_mw_ac_lf_false_5_100_BE_NL.json"
+    Given configuration file is "epic7/RaoParameters_maxMargin_mw_dc_lf_false_5_100_BE_NL.json"
     Given RaoResult file is "epic12/RaoResult_12_6_3.json"
     When I export CORE CNE at "2019-01-08 21:30"
     Then the CORE CNE file is xsd-compliant
@@ -32,7 +32,7 @@ Feature: US 12.6: Core CNE export for preventive case
   Scenario: 12.6.4: Test case with a CBCORA file and a MNEC
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic12/MergedCB_12_6_4.xml"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_ac.json"
+    Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
     Given RaoResult file is "epic12/RaoResult_12_6_4.json"
     When I export CORE CNE at "2019-01-08 01:00"
     Then the CORE CNE file is xsd-compliant

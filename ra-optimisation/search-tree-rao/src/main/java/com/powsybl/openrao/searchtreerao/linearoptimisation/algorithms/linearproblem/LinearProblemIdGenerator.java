@@ -9,6 +9,7 @@ package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearpr
 
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
+import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
@@ -19,6 +20,8 @@ import java.util.Optional;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
+ * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
+ * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
 public final class LinearProblemIdGenerator {
     private static final String VARIABLE_SUFFIX = "variable";
@@ -36,7 +39,6 @@ public final class LinearProblemIdGenerator {
     private static final String UP_OR_DOWN_VARIATION = "upordownvariation";
     private static final String VIRTUAL_SET_POINT = "virtualsetpoint";
     private static final String VIRTUAL_TAP = "virtualtap";
-    private static final String ABSOLUTE_VARIATION = "absolutevariation";
     private static final String MIN_MARGIN = "minmargin";
     private static final String MIN_RELATIVE_MARGIN = "minrelmargin";
     private static final String MIN_RELATIVE_MARGIN_SIGN_BINARY = "minrelmarginispositive";
@@ -54,12 +56,21 @@ public final class LinearProblemIdGenerator {
     private static final String MAX_ELEMENTARY_ACTIONS_PER_TSO = "maxelementaryactionspertso";
     private static final String RANGE_ACTION_VARIATION = "rangeactionvariation";
     private static final String RANGE_ACTION_SET_POINT_VARIATION = "rangeactionsetpointvariation";
-    private static final String RANGE_ACTION_ABSOLUTE_VARIATION = "rangeactionabsolutevariation";
     private static final String INJECTION_BALANCE = "injectionbalance";
     private static final String TOTAL_PST_RANGE_ACTION_TAP_VARIATION = "totalpstrangeactiontapvariation";
     private static final String GENERATOR_POWER = "generatorpower";
-    private static final String GENERATOR_POWER_GRADIENT_CONSTRAINT = "generatorpowergradientconstraint";
     private static final String MIN_MARGIN_SHIFTED_VIOLATION = "minmarginshiftedviolation";
+    private static final String GENERATOR_STATE = "generatorstate";
+    private static final String UNIQUE_GENERATOR_STATE = "uniquegeneratorstate";
+    private static final String GENERATOR_STATE_TRANSITION = "generatorstatetransition";
+    private static final String GENERATOR_STATE_FROM = "generatorstatefrom";
+    private static final String GENERATOR_STATE_TO = "generatorstateto";
+    private static final String GENERATOR_POWER_OFF = "generatorpoweroff";
+    private static final String GENERATOR_POWER_ON = "generatorpoweron";
+    private static final String GENERATOR_POWER_VARIATION = "generatorpowervariation";
+    private static final String GENERATOR_TO_INJECTION = "generatortoinjection";
+    private static final String GENERATOR_STARTINGUP = "generatorstartingup";
+    private static final String GENERATOR_SHUTTINGDOWN = "generatorshuttingdown";
     private static final DateTimeFormatter DATE_TIME_FORMATER = DateTimeFormatter.ofPattern("yyyyMMddHHmm");
 
     private LinearProblemIdGenerator() {
@@ -138,10 +149,6 @@ public final class LinearProblemIdGenerator {
 
     public static String pstGroupTapConstraintId(RangeAction<?> rangeAction, State state) {
         return formatName(rangeAction.getId(), state.getId(), rangeAction.getGroupId().orElseThrow(), VIRTUAL_TAP, CONSTRAINT_SUFFIX);
-    }
-
-    public static String absoluteRangeActionVariationVariableId(RangeAction<?> rangeAction, State state) {
-        return formatName(rangeAction.getId(), state.getId(), ABSOLUTE_VARIATION, VARIABLE_SUFFIX);
     }
 
     public static String minimumMarginConstraintId(FlowCnec flowCnec, TwoSides side, LinearProblem.MarginExtension belowOrAboveThreshold, Optional<OffsetDateTime> timestamp) {
@@ -240,10 +247,6 @@ public final class LinearProblemIdGenerator {
         return formatName(RANGE_ACTION_SET_POINT_VARIATION, rangeAction.getId(), state.getId(), CONSTRAINT_SUFFIX);
     }
 
-    public static String rangeActionAbsoluteVariationConstraintId(RangeAction<?> rangeAction, State state) {
-        return formatName(RANGE_ACTION_ABSOLUTE_VARIATION, rangeAction.getId(), state.getId(), CONSTRAINT_SUFFIX);
-    }
-
     public static String injectionBalanceConstraintId(State state) {
         return formatName(INJECTION_BALANCE, state.getId(), CONSTRAINT_SUFFIX);
     }
@@ -268,19 +271,51 @@ public final class LinearProblemIdGenerator {
         return formatName(Optional.ofNullable(timestamp), GENERATOR_POWER, generatorId, VARIABLE_SUFFIX);
     }
 
-    public static String generatorPowerConstraintId(String generatorId, OffsetDateTime timestamp) {
-        return formatName(Optional.ofNullable(timestamp), GENERATOR_POWER, generatorId, CONSTRAINT_SUFFIX);
-    }
-
-    public static String generatorPowerGradientConstraintId(String generatorId, OffsetDateTime currentTimestamp, OffsetDateTime previousTimestamp) {
-        return formatName(Optional.empty(), GENERATOR_POWER_GRADIENT_CONSTRAINT, generatorId, currentTimestamp.format(DATE_TIME_FORMATER), previousTimestamp.format(DATE_TIME_FORMATER), CONSTRAINT_SUFFIX);
-    }
-
     public static String minMarginShiftedViolationVariableId(Optional<OffsetDateTime> timestamp) {
         return formatName(timestamp, MIN_MARGIN_SHIFTED_VIOLATION, VARIABLE_SUFFIX);
     }
 
     public static String minMarginShiftedViolationConstraintId(Optional<OffsetDateTime> timestamp) {
         return formatName(timestamp, MIN_MARGIN_SHIFTED_VIOLATION, CONSTRAINT_SUFFIX);
+    }
+
+    public static String generatorStateVariableId(String generatorId, LinearProblem.GeneratorState generatorState, OffsetDateTime timestamp) {
+        return formatName(Optional.of(timestamp), GENERATOR_STATE, generatorId, generatorState.toString(), VARIABLE_SUFFIX);
+    }
+
+    public static String uniqueGeneratorStateConstraintId(String generatorId, OffsetDateTime timestamp) {
+        return formatName(Optional.of(timestamp), UNIQUE_GENERATOR_STATE, generatorId, CONSTRAINT_SUFFIX);
+    }
+
+    public static String generatorStateTransitionVariableId(String generatorId, LinearProblem.GeneratorState generatorStateFrom, LinearProblem.GeneratorState generatorStateTo, OffsetDateTime timestamp) {
+        return formatName(Optional.of(timestamp), GENERATOR_STATE_TRANSITION, generatorId, generatorStateFrom.toString(), generatorStateTo.toString(), VARIABLE_SUFFIX);
+    }
+
+    public static String generatorStateFromTransitionConstraintId(String generatorId, LinearProblem.GeneratorState generatorStateFrom, OffsetDateTime timestamp) {
+        return formatName(Optional.of(timestamp), GENERATOR_STATE_FROM, generatorId, generatorStateFrom.toString(), CONSTRAINT_SUFFIX);
+    }
+
+    public static String generatorStateToTransitionConstraintId(String generatorId, LinearProblem.GeneratorState generatorStateTo, OffsetDateTime timestamp) {
+        return formatName(Optional.of(timestamp), GENERATOR_STATE_TO, generatorId, generatorStateTo.toString(), CONSTRAINT_SUFFIX);
+    }
+
+    public static String generatorPowerOnOffConstraintId(String generatorId, OffsetDateTime timestamp, LinearProblem.AbsExtension positiveOrNegative) {
+        return formatName(Optional.of(timestamp), GENERATOR_POWER_OFF, generatorId, CONSTRAINT_SUFFIX, positiveOrNegative.toString());
+    }
+
+    public static String generatorPowerTransitionConstraintId(String generatorId, OffsetDateTime timestamp, LinearProblem.AbsExtension positiveOrNegative) {
+        return formatName(Optional.of(timestamp), GENERATOR_POWER_VARIATION, generatorId, CONSTRAINT_SUFFIX, positiveOrNegative.toString());
+    }
+
+    public static String generatorToInjectionConstraintId(String generatorId, InjectionRangeAction injectionRangeAction, OffsetDateTime timestamp) {
+        return formatName(Optional.of(timestamp), GENERATOR_TO_INJECTION, generatorId, injectionRangeAction.getId(), CONSTRAINT_SUFFIX);
+    }
+
+    public static String generatorStartingUpConstraintId(String generatorId, OffsetDateTime rampingExtremeTimestamp, OffsetDateTime otherRampingTimestamp) {
+        return formatName(GENERATOR_STARTINGUP, generatorId, rampingExtremeTimestamp.format(DATE_TIME_FORMATER), otherRampingTimestamp.format(DATE_TIME_FORMATER), CONSTRAINT_SUFFIX);
+    }
+
+    public static String generatorShuttingDownConstraintId(String generatorId, OffsetDateTime rampingExtremeTimestamp, OffsetDateTime otherRampingTimestamp) {
+        return formatName(GENERATOR_SHUTTINGDOWN, generatorId, rampingExtremeTimestamp.format(DATE_TIME_FORMATER), otherRampingTimestamp.format(DATE_TIME_FORMATER), CONSTRAINT_SUFFIX);
     }
 }

@@ -17,6 +17,7 @@ import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.impl.CracImpl;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.ContingencyScenario;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.Perimeter;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
@@ -31,6 +32,7 @@ import org.opentest4j.AssertionFailedError;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 import static com.powsybl.iidm.network.TwoSides.ONE;
@@ -111,6 +113,11 @@ class PreventiveAndCurativesRaoResultImplTest {
                 .add()
                 .add();
         }
+        crac.newContingency()
+            .withId("cneclessContingency")
+            .withName("cneclessContingency")
+            .withContingencyElement("element-" + 5, ContingencyElementType.LINE)
+            .add();
         crac.newPstRangeAction()
             .withId("pst")
             .withNetworkElement("pst-elt")
@@ -128,7 +135,7 @@ class PreventiveAndCurativesRaoResultImplTest {
     }
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         initCrac();
         preventiveInstant = crac.getInstant("preventive");
         autoInstant = crac.getInstant("auto");
@@ -161,8 +168,11 @@ class PreventiveAndCurativesRaoResultImplTest {
         prepareCurativeResult3();
 
         StateTree stateTree = generateStateTree();
+        RaoParameters raoParameters = new RaoParameters();
+        raoParameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters());
+        getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters().setDc(true);
 
-        output = new PreventiveAndCurativesRaoResultImpl(stateTree, initialResult, postPrevResult, postContingencyResults, crac, new RaoParameters());
+        output = new PreventiveAndCurativesRaoResultImpl(stateTree, initialResult, postPrevResult, postContingencyResults, crac, raoParameters);
     }
 
     private void prepareInitialResult() {
@@ -410,5 +420,31 @@ class PreventiveAndCurativesRaoResultImplTest {
     void testGlobalComputationStatusWhenAContingencyFails() {
         when(autoResult4.getComputationStatus()).thenReturn(ComputationStatus.FAILURE);
         assertEquals(ComputationStatus.PARTIAL_FAILURE, output.getComputationStatus());
+    }
+
+    @Test
+    void testGlobalComputationStatusIgnoresCneclessStates() {
+        // set status to DEFAULT for states with cnecs
+        OptimizationResult defaultOptimizationResult = Mockito.mock(OptimizationResult.class);
+        when(defaultOptimizationResult.getSensitivityStatus(Mockito.any())).thenReturn(ComputationStatus.DEFAULT);
+        PostPerimeterResult defaultPostPerimeterResult = Mockito.mock(PostPerimeterResult.class);
+        when(defaultPostPerimeterResult.optimizationResult()).thenReturn(defaultOptimizationResult);
+        crac.getStates().stream()
+            .filter(state -> state.getInstant().isCurative() || state.getInstant().isAuto())
+            .filter(state -> !crac.getCnecs(state).isEmpty())
+            .forEach(state -> postContingencyResults.put(state, defaultPostPerimeterResult));
+
+        // set status to FAILURE for states without cnecs
+        OptimizationResult failureOptimizationResult = Mockito.mock(OptimizationResult.class);
+        when(failureOptimizationResult.getSensitivityStatus(Mockito.any())).thenReturn(ComputationStatus.FAILURE);
+        PostPerimeterResult failurePostPerimeterResult = Mockito.mock(PostPerimeterResult.class);
+        when(failurePostPerimeterResult.optimizationResult()).thenReturn(failureOptimizationResult);
+        crac.getStates().stream()
+            .filter(state -> state.getInstant().isCurative() || state.getInstant().isAuto())
+            .filter(state -> crac.getCnecs(state).isEmpty())
+            .forEach(state -> postContingencyResults.put(state, failurePostPerimeterResult));
+
+        // status should ignore cnecless states and return DEFAULT
+        assertEquals(ComputationStatus.DEFAULT, output.getComputationStatus());
     }
 }

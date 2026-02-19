@@ -12,6 +12,7 @@
 #
 import os
 import sys
+from datetime import datetime
 
 # Path to python sources, for doc generation on readthedocs
 source_path = os.path.abspath('..')
@@ -22,7 +23,7 @@ print(f'appended {source_path}')
 # -- Project information -----------------------------------------------------
 
 project = 'PowSyBl Open RAO'
-copyright = '2024, RTE (http://www.rte-france.com)'
+copyright = f'2024-{datetime.now().year}, RTE (http://www.rte-france.com)'
 
 
 # -- General configuration ---------------------------------------------------
@@ -39,7 +40,8 @@ extensions = ['sphinx.ext.autodoc',
               'sphinx.ext.intersphinx',
               'sphinx_tabs.tabs',
               'myst_parser',
-              'sphinxcontrib.plantuml']
+              'sphinxcontrib.plantuml',
+              'sphinx_copybutton']
 myst_enable_extensions = [
     "amsmath",
     "colon_fence",
@@ -98,3 +100,11 @@ intersphinx_disabled_reftypes = ["*"]
 
 # Generate one file per method
 autosummary_generate = True
+
+# Copy-button configuration
+copybutton_remove_prompts = True
+copybutton_prompt_text = r">>> |\.\.\. |\$ "
+copybutton_prompt_is_regexp = True
+
+copybutton_copy_text = "Copy"
+copybutton_success_text = "Copied!"
