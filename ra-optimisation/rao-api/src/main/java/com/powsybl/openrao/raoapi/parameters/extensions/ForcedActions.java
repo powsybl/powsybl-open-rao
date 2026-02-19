@@ -11,7 +11,7 @@ import com.powsybl.action.Action;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.FORCED_ACTIONS_PARAMETERS;
@@ -24,10 +24,10 @@ import static com.powsybl.openrao.raoapi.RaoParametersCommons.FORCED_ACTIONS_PAR
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public class ForcedActions extends AbstractExtension<RaoParameters> {
-    private List<Action> preventiveActions;
+    private final List<Action> preventiveActions;
 
-    public ForcedActions() {
-        // nothing to do
+    public ForcedActions(List<Action> preventiveActions) {
+        this.preventiveActions = Collections.unmodifiableList(preventiveActions);
     }
 
     @Override
@@ -35,12 +35,8 @@ public class ForcedActions extends AbstractExtension<RaoParameters> {
         return FORCED_ACTIONS_PARAMETERS;
     }
 
-    public void setPreventiveActions(List<Action> preventiveActions) {
-        this.preventiveActions = new ArrayList<>(preventiveActions);
-    }
-
     public List<Action> getPreventiveActions() {
-        return new ArrayList<>(preventiveActions);
+        return preventiveActions;
     }
 
 }

@@ -19,18 +19,19 @@ import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.InterTemporalRaoResult;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.data.raoresult.api.extension.CriticalCnecsResult;
 import com.powsybl.openrao.raoapi.*;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoCostlyMinMarginParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRelativeMarginsParameters;
+import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.PreventiveOptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.commons.parameters.RangeActionLimitationParameters;
-import com.powsybl.openrao.searchtreerao.fastrao.FastRao;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.inputs.IteratingLinearOptimizerInput;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.parameters.IteratingLinearOptimizerParameters;
 import com.powsybl.openrao.searchtreerao.marmot.results.GlobalFlowResult;
@@ -48,6 +49,7 @@ import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
 import static com.powsybl.openrao.searchtreerao.commons.RaoLogger.logCost;
@@ -83,7 +85,7 @@ public class Marmot implements InterTemporalRaoProvider {
         boolean noInterTemporalConstraint = interTemporalRaoInputWithNetworkPaths.getIntertemporalConstraints().getGeneratorConstraints().isEmpty();
 
         // 3. Apply independent topological remedial actions (and preventive range actions if there are no inter-temporal constraints)
-        InterTemporalRaoInput interTemporalRaoInput = importNetworksFromInterTemporalRaoInputWithNetworkPaths(interTemporalRaoInputWithNetworkPaths);
+        InterTemporalRaoInput interTemporalRaoInput = importNetworksFromInterTemporalRaoInputWithNetworkPaths(interTemporalRaoInputWithNetworkPaths, raoParameters);
         TECHNICAL_LOGS.info("[MARMOT] Applying optimal topological actions on networks");
         ObjectiveFunction fullObjectiveFunction = buildGlobalObjectiveFunction(interTemporalRaoInput.getRaoInputs().map(RaoInput::getCrac), new GlobalFlowResult(initialResults), raoParameters);
         LinearOptimizationResult initialObjectiveFunctionResult = getInitialObjectiveFunctionResult(initialResults, fullObjectiveFunction);
@@ -295,7 +297,8 @@ public class Marmot implements InterTemporalRaoProvider {
         TECHNICAL_LOGS.info(logMessage.toString());
     }
 
-    record LoggingAddedCnecs(OffsetDateTime offsetDateTime, String vcName, List<String> addedCnecs, Map<String, Double> margins) {
+    record LoggingAddedCnecs(OffsetDateTime offsetDateTime, String vcName, List<String> addedCnecs,
+                             Map<String, Double> margins) {
         private void addCnec(String cnec) {
             addedCnecs.add(cnec);
         }
@@ -331,10 +334,11 @@ public class Marmot implements InterTemporalRaoProvider {
         topologicalOptimizationResults.getDataPerTimestamp().forEach((timestamp, raoResult) -> topologicalOptimizationResults.put(timestamp, new LightFastRaoResultImpl((FastRaoResultImpl) raoResult)));
     }
 
-    private InterTemporalRaoInput importNetworksFromInterTemporalRaoInputWithNetworkPaths(InterTemporalRaoInputWithNetworkPaths interTemporalRaoInputWithNetworkPaths) {
+    private InterTemporalRaoInput importNetworksFromInterTemporalRaoInputWithNetworkPaths(InterTemporalRaoInputWithNetworkPaths interTemporalRaoInputWithNetworkPaths, RaoParameters raoParameters) {
         return new InterTemporalRaoInput(
             interTemporalRaoInputWithNetworkPaths.getRaoInputs().map(raoInputWithNetworksPath -> {
                 RaoInput raoInput = raoInputWithNetworksPath.toRaoInputWithPostIcsImportNetworkPath();
+                RaoUtil.initData(raoInput, raoParameters);
                 raoInput.getNetwork().getVariantManager().cloneVariant(raoInput.getNetworkVariantId(), INITIAL_SCENARIO);
                 return raoInput;
             }),
@@ -351,12 +355,16 @@ public class Marmot implements InterTemporalRaoProvider {
             RaoInput individualRaoInput = RaoInput
                 .build(Network.read(individualRaoInputWithNetworkPath.getPostIcsImportNetworkPath()), individualRaoInputWithNetworkPath.getCrac())
                 .build();
-            Set<FlowCnec> cnecs = new HashSet<>();
             String logMessage = "[MARMOT] Running RAO for timestamp %s [{}]".formatted(individualRaoInput.getCrac().getTimestamp().orElseThrow());
             TECHNICAL_LOGS.info(logMessage, "start");
-            RaoResult raoResult = FastRao.launchFastRaoOptimization(individualRaoInput, raoParameters, null, cnecs);
+            // TODO the RAO implementation to use should be a parameter
+            RaoResult raoResult = Rao.find("FastRao").run(individualRaoInput, raoParameters, null);
+            CriticalCnecsResult criticalCnecsResult = raoResult.getExtension(CriticalCnecsResult.class);
+            Set<FlowCnec> critcalCnecs = (criticalCnecsResult != null) ?
+                criticalCnecsResult.getCriticalCnecIds().stream().map(id -> individualRaoInput.getCrac().getFlowCnec(id)).collect(Collectors.toSet()) :
+                individualRaoInput.getCrac().getFlowCnecs();
             TECHNICAL_LOGS.info(logMessage, "end");
-            consideredCnecs.put(datetime, cnecs);
+            consideredCnecs.put(datetime, critcalCnecs);
             individualResults.put(datetime, raoResult);
         });
         return individualResults;

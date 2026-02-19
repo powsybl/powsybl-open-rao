@@ -41,7 +41,8 @@ Feature: US 93.1: Redispatching actions
     Given crac file is "epic93/crac-93-1-1.json"
     Given configuration file is "epic93/RaoParameters_minCost_megawatt_dc.json"
     When I launch rao
-    Then 1 remedial actions are used in preventive
+    Then the initial margin on cnec "cnecFr1Fr2Preventive" should be -700 MW
+    And 1 remedial actions are used in preventive
     And the remedial action "redispatchingAction" is used in preventive
     And the setpoint of RangeAction "redispatchingAction" should be 290.0 MW in preventive
     And the margin on cnec "cnecFr1Fr2Preventive" after PRA should be 10.0 MW

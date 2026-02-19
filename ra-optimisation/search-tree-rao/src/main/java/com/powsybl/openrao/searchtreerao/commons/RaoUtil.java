@@ -27,6 +27,7 @@ import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
 import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceProgramBuilder;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.ForcedActions;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.PstModel;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
@@ -34,6 +35,7 @@ import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
 import org.apache.commons.lang3.tuple.Pair;
 
+import javax.annotation.Nullable;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -54,13 +56,20 @@ public final class RaoUtil {
     public static void initData(RaoInput raoInput, RaoParameters raoParameters) {
         checkParameters(raoParameters, raoInput);
         checkCnecsThresholdsUnit(raoParameters, raoInput);
-        initNetwork(raoInput.getNetwork(), raoInput.getNetworkVariantId());
+        initNetwork(raoInput.getNetwork(), raoInput.getNetworkVariantId(), raoParameters.getExtension(ForcedActions.class));
         updateHvdcRangeActionInitialSetpoint(raoInput.getCrac(), raoInput.getNetwork(), raoParameters);
         addNetworkActionAssociatedWithHvdcRangeAction(raoInput.getCrac(), raoInput.getNetwork());
     }
 
-    public static void initNetwork(Network network, String networkVariantId) {
+    private static void initNetwork(Network network, String networkVariantId, @Nullable ForcedActions forcedActions) {
         network.getVariantManager().setWorkingVariant(networkVariantId);
+
+        if (forcedActions != null) {
+            OpenRaoLoggerProvider.BUSINESS_LOGS.info(String.format("Applying %d forced preventive actions before running RAO.", forcedActions.getPreventiveActions().size()));
+            forcedActions.getPreventiveActions().stream().filter(action -> !action.toModification().apply(network, true))
+                .forEach(action -> OpenRaoLoggerProvider.BUSINESS_WARNS.warn(String.format("Action '%s' could not be applied.", action.getId())));
+            forcedActions.getPreventiveActions().forEach(action -> action.toModification().apply(network, false));
+        }
     }
 
     public static void checkParameters(RaoParameters raoParameters, RaoInput raoInput) {

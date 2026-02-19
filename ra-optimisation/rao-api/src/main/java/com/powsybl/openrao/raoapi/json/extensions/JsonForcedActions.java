@@ -19,6 +19,7 @@ import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.ForcedActions;
 
 import java.io.IOException;
+import java.util.List;
 
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.*;
 
@@ -40,17 +41,19 @@ public class JsonForcedActions implements JsonRaoParameters.ExtensionSerializer<
 
     @Override
     public ForcedActions deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
-        ForcedActions forcedActions = new ForcedActions();
+        ActionList actionList = null;
         while (!jsonParser.nextToken().isStructEnd()) {
             if (jsonParser.currentName().equals(PREVENTIVE_ACTION_LIST)) {
                 jsonParser.nextToken();
-                ActionList actionList = JsonUtil.readValue(deserializationContext, jsonParser, ActionList.class);
-                forcedActions.setPreventiveActions(actionList.getActions());
+                actionList = JsonUtil.readValue(deserializationContext, jsonParser, ActionList.class);
             } else {
                 throw new OpenRaoException("Unexpected token: " + jsonParser.currentName());
             }
         }
-        return forcedActions;
+        if (actionList == null) {
+            return new ForcedActions(List.of());
+        }
+        return new ForcedActions(actionList.getActions());
     }
 
     @Override

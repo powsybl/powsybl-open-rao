@@ -233,8 +233,7 @@ class JsonRaoParametersTest extends AbstractSerDeTest {
         actions.add(new AreaInterchangeTargetAction("idDisabledTarget", "AreaA", Double.NaN));
 
         RaoParameters raoParameters = new RaoParameters();
-        ForcedActions forcedActions = new ForcedActions();
-        forcedActions.setPreventiveActions(actions);
+        ForcedActions forcedActions = new ForcedActions(actions);
         raoParameters.addExtension(ForcedActions.class, forcedActions);
 
         roundTripTest(raoParameters, JsonRaoParameters::write, JsonRaoParameters::read, "/RaoParameters_with_ForcedActions.json");
