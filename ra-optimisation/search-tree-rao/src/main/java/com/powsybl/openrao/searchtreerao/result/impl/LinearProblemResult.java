@@ -8,7 +8,7 @@
 package com.powsybl.openrao.searchtreerao.result.impl;
 
 import com.powsybl.openrao.data.crac.api.State;
-import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.*;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
@@ -17,7 +17,8 @@ import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public class LinearProblemResult extends RangeActionActivationResultImpl {
-    private static final double ACTIVATION_THRESHOLD = 1e-6;
+    private static final double PST_ACTIVATION_THRESHOLD = 1e-4;
+    private static final double INJECTION_HVDC_ACTIVATION_THRESHOLD = 1;
 
     public LinearProblemResult(LinearProblem linearProblem, RangeActionSetpointResult prePerimeterSetPoints, OptimizationPerimeter optimizationContext) {
         super(prePerimeterSetPoints);
@@ -32,7 +33,14 @@ public class LinearProblemResult extends RangeActionActivationResultImpl {
     }
 
     private static boolean wasRangeActionActivated(LinearProblem linearProblem, RangeAction<?> rangeAction, State state) {
+
+        // For these range actions a variation <= 1 MW is not significant enough to be considered
+        if (InjectionRangeAction.class.isInstance(rangeAction) || HvdcRangeAction.class.isInstance(rangeAction) || CounterTradeRangeAction.class.isInstance(rangeAction)) {
+            return linearProblem.getRangeActionVariationVariable(rangeAction, state, LinearProblem.VariationDirectionExtension.UPWARD).solutionValue()
+                + linearProblem.getRangeActionVariationVariable(rangeAction, state, LinearProblem.VariationDirectionExtension.DOWNWARD).solutionValue() > INJECTION_HVDC_ACTIVATION_THRESHOLD;
+        }
+
         return linearProblem.getRangeActionVariationVariable(rangeAction, state, LinearProblem.VariationDirectionExtension.UPWARD).solutionValue()
-            + linearProblem.getRangeActionVariationVariable(rangeAction, state, LinearProblem.VariationDirectionExtension.DOWNWARD).solutionValue() > ACTIVATION_THRESHOLD;
+            + linearProblem.getRangeActionVariationVariable(rangeAction, state, LinearProblem.VariationDirectionExtension.DOWNWARD).solutionValue() > PST_ACTIVATION_THRESHOLD;
     }
 }
