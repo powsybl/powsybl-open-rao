@@ -49,15 +49,15 @@ Feature: US 93.1: Basic redispatching actions (free and costly)
   Total cost : 10 for activation + 50 * 700 MW = 35010
     Given network file is "epic93/2Nodes.uct"
     Given crac file is "epic93/crac-93-1-1.json"
-    Given configuration file is "epic93/RaoParameters_minCost_megawatt_dc_violation_0.json"
+    Given configuration file is "epic93/RaoParameters_minCost_megawatt_dc.json"
     When I launch rao
-    Then the worst margin is 0 MW
+    Then the worst margin is 10 MW
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
     Then 1 remedial actions are used in preventive
     Then the remedial action "redispatchingAction" is used in preventive
-    Then the setpoint of RangeAction "redispatchingAction" should be 300.0 MW in preventive
-    Then the margin on cnec "cnecFr1Fr2Preventive" after PRA should be 0.0 MW
+    Then the setpoint of RangeAction "redispatchingAction" should be 290.0 MW in preventive
+    Then the margin on cnec "cnecFr1Fr2Preventive" after PRA should be 10.0 MW
     Then the value of the objective function after PRA should be 35010.0
     # TODO: suspicious result, incoherent with description -> due to shifted-violation-threshold = 10
 

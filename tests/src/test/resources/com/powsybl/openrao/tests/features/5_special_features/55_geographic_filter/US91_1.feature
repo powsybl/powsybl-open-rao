@@ -62,14 +62,14 @@ Feature: US 91.1: Geographic filter
   Same case as 91.1.3, but with positive margin.
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic1/SL_ep1us2_selectionTopoRA_variant1.json"
-    Given configuration file is "epic91/RaoParameters_case_91_1_4.json"
+    Given configuration file is "epic91/RaoParameters_case_91_1_3.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
-    Then the worst margin is 55.92 A
-    Then the margin on cnec "BBE2AA1  FFR3AA1  1 - preventive" after PRA should be 55.92 A
+    Then the worst margin is 83.88 A
+    Then the margin on cnec "FFR2AA1  DDE3AA1  1 - preventive" after PRA should be 83.88 A
     Then 1 remedial actions are used in preventive
-    Then the remedial action "Open tie-line FR DE" is used in preventive
+    Then the remedial action "PST @1" is used in preventive
 
   @fast @rao @ac @preventive-only @secure-flow @ampere
   Scenario: US 91.1.5: Another simple case, no boundary can be passed, positive margin
@@ -88,7 +88,7 @@ Feature: US 91.1: Geographic filter
   Same as 91.1.5, but more permissive: "max-number-of-boundaries-for-skipping-actions" is set to 1 instead of 0.
     Given network file is "common/TestCase12Nodes.uct"
     Given crac file is "epic91/sl_ep91us1case5.json"
-    Given configuration file is "epic91/RaoParameters_case_91_1_4.json"
+    Given configuration file is "epic91/RaoParameters_case_91_1_6.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
