@@ -6,13 +6,13 @@
 Feature: US 7.16: Monitor loopflows on specific countries
   This feature covers the parameter "loop-flow-parameters"/"countries" from the RaoParameters.
 
-  @fast @rao @ac @preventive-only @loopflow @max-min-margin @megawatt
+  @fast @rao @dc @preventive-only @loopflow @max-min-margin @megawatt
   Scenario: 7.16.1 : loopflows monitored on the borders of BE and of NL
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic7/crac_lf_rao_3_cbcora.xml"
     Given loopflow glsk file is "common/glsk_lots_of_lf_12nodes.xml"
     Given RefProg file is "epic7/refProg_12nodes.xml"
-    Given configuration file is "epic7/RaoParameters_maxMargin_mw_ac_lf_false_5_100_BE_NL.json"
+    Given configuration file is "epic7/RaoParameters_maxMargin_mw_dc_lf_false_5_100_BE_NL.json"
     When I launch loopflow rao at "2019-01-08 21:30" with default loopflow limit as 0.0 percent of pmax
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "UNSECURED"
@@ -34,13 +34,13 @@ Feature: US 7.16: Monitor loopflows on specific countries
     Then the initial loopflow on cnec "BBE2AA1  FFR3AA1  1 - preventive" should be -210.0 MW
     Then the loopflow on cnec "BBE2AA1  FFR3AA1  1 - preventive" after PRA should be -533.0 MW
 
-  @fast @rao @ac @preventive-only @loopflow @max-min-margin @megawatt
+  @fast @rao @dc @preventive-only @loopflow @max-min-margin @megawatt
   Scenario: 7.16.2 : loopflows monitored on the borders of NL
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic7/crac_lf_rao_3_with_frm_cbcora.xml"
     Given loopflow glsk file is "common/glsk_lots_of_lf_12nodes.xml"
     Given RefProg file is "epic7/refProg_12nodes.xml"
-    Given configuration file is "epic7/RaoParameters_maxMargin_mw_ac_lf_false_5_100_NL.json"
+    Given configuration file is "epic7/RaoParameters_maxMargin_mw_dc_lf_false_5_100_NL.json"
     When I launch loopflow rao at "2019-01-08 21:30" with default loopflow limit as 0.0 percent of pmax
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "UNSECURED"

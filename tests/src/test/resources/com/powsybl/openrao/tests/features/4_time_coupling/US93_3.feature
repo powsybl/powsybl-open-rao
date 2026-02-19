@@ -49,100 +49,100 @@ Feature: US 93.3: Intertemporal generator constraints
     When I launch marmot
     # Timestamp 00:30
     Then the total cost for timestamp "2025-11-04 00:30" is 0.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 00:30" is 0.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 00:30" is 0.0 MW
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 00:30" is 0.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 00:30" is 0.0 MW
     # Timestamp 01:30
-    And the total cost for timestamp "2025-11-04 01:30" is 0.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 01:30" is 0.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 01:30" is 0.0 MW
+    Then the total cost for timestamp "2025-11-04 01:30" is 0.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 01:30" is 0.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 01:30" is 0.0 MW
     # Timestamp 02:30
-    And the total cost for timestamp "2025-11-04 02:30" is 0.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 02:30" is 0.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 02:30" is 0.0 MW
+    Then the total cost for timestamp "2025-11-04 02:30" is 0.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 02:30" is 0.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 02:30" is 0.0 MW
     # Timestamp 03:30
-    And the total cost for timestamp "2025-11-04 03:30" is 0.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 03:30" is 0.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 03:30" is 0.0 MW
+    Then the total cost for timestamp "2025-11-04 03:30" is 0.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 03:30" is 0.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 03:30" is 0.0 MW
     # Timestamp 04:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
-    And the total cost for timestamp "2025-11-04 04:30" is 150010.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 04:30" is 3000.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 04:30" is 3000.0 MW
+    Then the total cost for timestamp "2025-11-04 04:30" is 150010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 04:30" is 3000.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 04:30" is 3000.0 MW
     # Timestamp 05:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
-    And the total cost for timestamp "2025-11-04 05:30" is 150010.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 05:30" is 3000.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 05:30" is 3000.0 MW
+    Then the total cost for timestamp "2025-11-04 05:30" is 150010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 05:30" is 3000.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 05:30" is 3000.0 MW
     # Timestamp 06:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
-    And the total cost for timestamp "2025-11-04 06:30" is 150010.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 06:30" is 3000.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 06:30" is 3000.0 MW
+    Then the total cost for timestamp "2025-11-04 06:30" is 150010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 06:30" is 3000.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 06:30" is 3000.0 MW
     # Timestamp 07:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
-    And the total cost for timestamp "2025-11-04 07:30" is 150010.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 07:30" is 3000.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 07:30" is 3000.0 MW
+    Then the total cost for timestamp "2025-11-04 07:30" is 150010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 07:30" is 3000.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 07:30" is 3000.0 MW
     # Timestamp 08:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
-    And the total cost for timestamp "2025-11-04 08:30" is 150010.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 08:30" is 3000.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 08:30" is 3000.0 MW
+    Then the total cost for timestamp "2025-11-04 08:30" is 150010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 08:30" is 3000.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 08:30" is 3000.0 MW
     # Timestamp 09:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
-    And the total cost for timestamp "2025-11-04 09:30" is 150010.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 09:30" is 3000.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 09:30" is 3000.0 MW
+    Then the total cost for timestamp "2025-11-04 09:30" is 150010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 09:30" is 3000.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 09:30" is 3000.0 MW
     # Timestamp 10:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
-    And the total cost for timestamp "2025-11-04 10:30" is 150010.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 10:30" is 3000.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 10:30" is 3000.0 MW
+    Then the total cost for timestamp "2025-11-04 10:30" is 150010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 10:30" is 3000.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 10:30" is 3000.0 MW
     # Timestamp 11:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
-    And the total cost for timestamp "2025-11-04 11:30" is 150010.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 11:30" is 3000.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 11:30" is 3000.0 MW
+    Then the total cost for timestamp "2025-11-04 11:30" is 150010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 11:30" is 3000.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 11:30" is 3000.0 MW
     # Timestamp 12:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
-    And the total cost for timestamp "2025-11-04 12:30" is 150010.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 12:30" is 3000.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 12:30" is 3000.0 MW
+    Then the total cost for timestamp "2025-11-04 12:30" is 150010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 12:30" is 3000.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 12:30" is 3000.0 MW
     # Timestamp 13:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
-    And the total cost for timestamp "2025-11-04 13:30" is 150010.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 13:30" is 3000.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 13:30" is 3000.0 MW
+    Then the total cost for timestamp "2025-11-04 13:30" is 150010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 13:30" is 3000.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 13:30" is 3000.0 MW
     # Timestamp 14:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
-    And the total cost for timestamp "2025-11-04 14:30" is 150010.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 14:30" is 3000.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 14:30" is 3000.0 MW
+    Then the total cost for timestamp "2025-11-04 14:30" is 150010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 14:30" is 3000.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 14:30" is 3000.0 MW
     # Timestamp 15:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
-    And the total cost for timestamp "2025-11-04 15:30" is 150010.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 15:30" is 3000.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 15:30" is 3000.0 MW
+    Then the total cost for timestamp "2025-11-04 15:30" is 150010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 15:30" is 3000.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 15:30" is 3000.0 MW
     # Timestamp 16:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
-    And the total cost for timestamp "2025-11-04 16:30" is 150010.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 16:30" is 3000.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 16:30" is 3000.0 MW
+    Then the total cost for timestamp "2025-11-04 16:30" is 150010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 16:30" is 3000.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 16:30" is 3000.0 MW
     # Timestamp 17:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
-    And the total cost for timestamp "2025-11-04 17:30" is 150010.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 17:30" is 3000.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 17:30" is 3000.0 MW
+    Then the total cost for timestamp "2025-11-04 17:30" is 150010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 17:30" is 3000.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 17:30" is 3000.0 MW
     # Timestamp 18:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
-    And the total cost for timestamp "2025-11-04 18:30" is 150010.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 18:30" is 3000.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 18:30" is 3000.0 MW
+    Then the total cost for timestamp "2025-11-04 18:30" is 150010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 18:30" is 3000.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 18:30" is 3000.0 MW
     # Timestamp 19:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
-    And the total cost for timestamp "2025-11-04 19:30" is 150010.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 19:30" is 3000.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 19:30" is 3000.0 MW
+    Then the total cost for timestamp "2025-11-04 19:30" is 150010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 19:30" is 3000.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 19:30" is 3000.0 MW
     # Timestamp 20:30
-    And the total cost for timestamp "2025-11-04 20:30" is 0.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 20:30" is 0.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 20:30" is 0.0 MW
+    Then the total cost for timestamp "2025-11-04 20:30" is 0.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 20:30" is 0.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 20:30" is 0.0 MW
     # Timestamp 21:30
-    And the total cost for timestamp "2025-11-04 21:30" is 0.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 21:30" is 0.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 21:30" is 0.0 MW
+    Then the total cost for timestamp "2025-11-04 21:30" is 0.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 21:30" is 0.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 21:30" is 0.0 MW
     # Timestamp 22:30
-    And the total cost for timestamp "2025-11-04 22:30" is 0.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 22:30" is 0.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 22:30" is 0.0 MW
+    Then the total cost for timestamp "2025-11-04 22:30" is 0.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 22:30" is 0.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 22:30" is 0.0 MW
     # Timestamp 23:30
-    And the total cost for timestamp "2025-11-04 23:30" is 0.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 23:30" is 0.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 23:30" is 0.0 MW
+    Then the total cost for timestamp "2025-11-04 23:30" is 0.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 23:30" is 0.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 23:30" is 0.0 MW
 
   Scenario: US 93.3.2: Generator constrained by its pMax
   The power of the generator is bounded by a maximal value called "pMax" that makes the generator unable to deliver the
@@ -178,100 +178,100 @@ Feature: US 93.3: Intertemporal generator constraints
     When I launch marmot
     # Timestamp 00:30
     Then the total cost for timestamp "2025-11-04 00:30" is 0.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 00:30" is 0.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 00:30" is 0.0 MW
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 00:30" is 0.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 00:30" is 0.0 MW
     # Timestamp 01:30
-    And the total cost for timestamp "2025-11-04 01:30" is 0.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 01:30" is 0.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 01:30" is 0.0 MW
+    Then the total cost for timestamp "2025-11-04 01:30" is 0.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 01:30" is 0.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 01:30" is 0.0 MW
     # Timestamp 02:30
-    And the total cost for timestamp "2025-11-04 02:30" is 0.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 02:30" is 0.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 02:30" is 0.0 MW
+    Then the total cost for timestamp "2025-11-04 02:30" is 0.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 02:30" is 0.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 02:30" is 0.0 MW
     # Timestamp 03:30
-    And the total cost for timestamp "2025-11-04 03:30" is 0.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 03:30" is 0.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 03:30" is 0.0 MW
+    Then the total cost for timestamp "2025-11-04 03:30" is 0.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 03:30" is 0.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 03:30" is 0.0 MW
     # Timestamp 04:30: 10 (activation) + 50 * 2500 MW (variation) = 625010
-    And the total cost for timestamp "2025-11-04 04:30" is 625010.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 04:30" is 2500.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 04:30" is 2500.0 MW
+    Then the total cost for timestamp "2025-11-04 04:30" is 625010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 04:30" is 2500.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 04:30" is 2500.0 MW
     # Timestamp 05:30: 10 (activation) + 50 * 2500 MW (variation) = 625010
-    And the total cost for timestamp "2025-11-04 05:30" is 625010.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 05:30" is 2500.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 05:30" is 2500.0 MW
+    Then the total cost for timestamp "2025-11-04 05:30" is 625010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 05:30" is 2500.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 05:30" is 2500.0 MW
     # Timestamp 06:30: 10 (activation) + 50 * 2500 MW (variation) = 625010
-    And the total cost for timestamp "2025-11-04 06:30" is 625010.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 06:30" is 2500.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 06:30" is 2500.0 MW
+    Then the total cost for timestamp "2025-11-04 06:30" is 625010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 06:30" is 2500.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 06:30" is 2500.0 MW
     # Timestamp 07:30: 10 (activation) + 50 * 2500 MW (variation) = 625010
-    And the total cost for timestamp "2025-11-04 07:30" is 625010.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 07:30" is 2500.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 07:30" is 2500.0 MW
+    Then the total cost for timestamp "2025-11-04 07:30" is 625010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 07:30" is 2500.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 07:30" is 2500.0 MW
     # Timestamp 08:30: 10 (activation) + 50 * 2500 MW (variation) = 625010
-    And the total cost for timestamp "2025-11-04 08:30" is 625010.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 08:30" is 2500.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 08:30" is 2500.0 MW
+    Then the total cost for timestamp "2025-11-04 08:30" is 625010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 08:30" is 2500.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 08:30" is 2500.0 MW
     # Timestamp 09:30: 10 (activation) + 50 * 2500 MW (variation) = 625010
-    And the total cost for timestamp "2025-11-04 09:30" is 625010.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 09:30" is 2500.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 09:30" is 2500.0 MW
+    Then the total cost for timestamp "2025-11-04 09:30" is 625010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 09:30" is 2500.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 09:30" is 2500.0 MW
     # Timestamp 10:30: 10 (activation) + 50 * 2500 MW (variation) = 625010
-    And the total cost for timestamp "2025-11-04 10:30" is 625010.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 10:30" is 2500.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 10:30" is 2500.0 MW
+    Then the total cost for timestamp "2025-11-04 10:30" is 625010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 10:30" is 2500.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 10:30" is 2500.0 MW
     # Timestamp 11:30: 10 (activation) + 50 * 2500 MW (variation) = 625010
-    And the total cost for timestamp "2025-11-04 11:30" is 625010.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 11:30" is 2500.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 11:30" is 2500.0 MW
+    Then the total cost for timestamp "2025-11-04 11:30" is 625010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 11:30" is 2500.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 11:30" is 2500.0 MW
     # Timestamp 12:30: 10 (activation) + 50 * 2500 MW (variation) = 625010
-    And the total cost for timestamp "2025-11-04 12:30" is 625010.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 12:30" is 2500.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 12:30" is 2500.0 MW
+    Then the total cost for timestamp "2025-11-04 12:30" is 625010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 12:30" is 2500.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 12:30" is 2500.0 MW
     # Timestamp 13:30: 10 (activation) + 50 * 2500 MW (variation) = 625010
-    And the total cost for timestamp "2025-11-04 13:30" is 625010.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 13:30" is 2500.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 13:30" is 2500.0 MW
+    Then the total cost for timestamp "2025-11-04 13:30" is 625010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 13:30" is 2500.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 13:30" is 2500.0 MW
     # Timestamp 14:30: 10 (activation) + 50 * 2500 MW (variation) = 625010
-    And the total cost for timestamp "2025-11-04 14:30" is 625010.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 14:30" is 2500.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 14:30" is 2500.0 MW
+    Then the total cost for timestamp "2025-11-04 14:30" is 625010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 14:30" is 2500.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 14:30" is 2500.0 MW
     # Timestamp 15:30: 10 (activation) + 50 * 2500 MW (variation) = 625010
-    And the total cost for timestamp "2025-11-04 15:30" is 625010.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 15:30" is 2500.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 15:30" is 2500.0 MW
+    Then the total cost for timestamp "2025-11-04 15:30" is 625010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 15:30" is 2500.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 15:30" is 2500.0 MW
     # Timestamp 16:30: 10 (activation) + 50 * 2500 MW (variation) = 625010
-    And the total cost for timestamp "2025-11-04 16:30" is 625010.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 16:30" is 2500.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 16:30" is 2500.0 MW
+    Then the total cost for timestamp "2025-11-04 16:30" is 625010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 16:30" is 2500.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 16:30" is 2500.0 MW
     # Timestamp 17:30: 10 (activation) + 50 * 2500 MW (variation) = 625010
-    And the total cost for timestamp "2025-11-04 17:30" is 625010.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 17:30" is 2500.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 17:30" is 2500.0 MW
+    Then the total cost for timestamp "2025-11-04 17:30" is 625010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 17:30" is 2500.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 17:30" is 2500.0 MW
     # Timestamp 18:30: 10 (activation) + 50 * 2500 MW (variation) = 625010
-    And the total cost for timestamp "2025-11-04 18:30" is 625010.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 18:30" is 2500.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 18:30" is 2500.0 MW
+    Then the total cost for timestamp "2025-11-04 18:30" is 625010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 18:30" is 2500.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 18:30" is 2500.0 MW
     # Timestamp 19:30: 10 (activation) + 50 * 2500 MW (variation) = 625010
-    And the total cost for timestamp "2025-11-04 19:30" is 625010.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 19:30" is 2500.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 19:30" is 2500.0 MW
+    Then the total cost for timestamp "2025-11-04 19:30" is 625010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 19:30" is 2500.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 19:30" is 2500.0 MW
     # Timestamp 20:30
-    And the total cost for timestamp "2025-11-04 20:30" is 0.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 20:30" is 0.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 20:30" is 0.0 MW
+    Then the total cost for timestamp "2025-11-04 20:30" is 0.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 20:30" is 0.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 20:30" is 0.0 MW
     # Timestamp 21:30
-    And the total cost for timestamp "2025-11-04 21:30" is 0.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 21:30" is 0.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 21:30" is 0.0 MW
+    Then the total cost for timestamp "2025-11-04 21:30" is 0.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 21:30" is 0.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 21:30" is 0.0 MW
     # Timestamp 22:30
-    And the total cost for timestamp "2025-11-04 22:30" is 0.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 22:30" is 0.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 22:30" is 0.0 MW
+    Then the total cost for timestamp "2025-11-04 22:30" is 0.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 22:30" is 0.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 22:30" is 0.0 MW
     # Timestamp 23:30
-    And the total cost for timestamp "2025-11-04 23:30" is 0.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 23:30" is 0.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 23:30" is 0.0 MW
+    Then the total cost for timestamp "2025-11-04 23:30" is 0.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 23:30" is 0.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 23:30" is 0.0 MW
 
   Scenario: US 93.3.3: Upward and downward power gradients
   The generator is restricted by upward and downward power gradients. When the generator is up, its power variations are
@@ -311,100 +311,100 @@ Feature: US 93.3: Intertemporal generator constraints
     When I launch marmot
     # Timestamp 00:30
     Then the total cost for timestamp "2025-11-04 00:30" is 0.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 00:30" is 0.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 00:30" is 0.0 MW
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 00:30" is 0.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 00:30" is 0.0 MW
     # Timestamp 01:30
-    And the total cost for timestamp "2025-11-04 01:30" is 0.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 01:30" is 0.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 01:30" is 0.0 MW
+    Then the total cost for timestamp "2025-11-04 01:30" is 0.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 01:30" is 0.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 01:30" is 0.0 MW
     # Timestamp 02:30: 10 (activation) + 50 * 1000 MW (variation) = 50010 -> generator at Pmin because of lead time
-    And the total cost for timestamp "2025-11-04 02:30" is 50010.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 02:30" is 1000.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 02:30" is 1000.0 MW
+    Then the total cost for timestamp "2025-11-04 02:30" is 50010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 02:30" is 1000.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 02:30" is 1000.0 MW
     # Timestamp 03:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
-    And the total cost for timestamp "2025-11-04 03:30" is 100010.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 03:30" is 2000.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 03:30" is 2000.0 MW
+    Then the total cost for timestamp "2025-11-04 03:30" is 100010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 03:30" is 2000.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 03:30" is 2000.0 MW
     # Timestamp 04:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
-    And the total cost for timestamp "2025-11-04 04:30" is 150010.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 04:30" is 3000.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 04:30" is 3000.0 MW
+    Then the total cost for timestamp "2025-11-04 04:30" is 150010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 04:30" is 3000.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 04:30" is 3000.0 MW
     # Timestamp 05:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
-    And the total cost for timestamp "2025-11-04 05:30" is 150010.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 05:30" is 3000.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 05:30" is 3000.0 MW
+    Then the total cost for timestamp "2025-11-04 05:30" is 150010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 05:30" is 3000.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 05:30" is 3000.0 MW
     # Timestamp 06:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
-    And the total cost for timestamp "2025-11-04 06:30" is 150010.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 06:30" is 3000.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 06:30" is 3000.0 MW
+    Then the total cost for timestamp "2025-11-04 06:30" is 150010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 06:30" is 3000.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 06:30" is 3000.0 MW
     # Timestamp 07:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
-    And the total cost for timestamp "2025-11-04 07:30" is 150010.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 07:30" is 3000.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 07:30" is 3000.0 MW
+    Then the total cost for timestamp "2025-11-04 07:30" is 150010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 07:30" is 3000.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 07:30" is 3000.0 MW
     # Timestamp 08:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
-    And the total cost for timestamp "2025-11-04 08:30" is 150010.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 08:30" is 3000.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 08:30" is 3000.0 MW
+    Then the total cost for timestamp "2025-11-04 08:30" is 150010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 08:30" is 3000.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 08:30" is 3000.0 MW
     # Timestamp 09:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
-    And the total cost for timestamp "2025-11-04 09:30" is 150010.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 09:30" is 3000.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 09:30" is 3000.0 MW
+    Then the total cost for timestamp "2025-11-04 09:30" is 150010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 09:30" is 3000.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 09:30" is 3000.0 MW
     # Timestamp 10:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
-    And the total cost for timestamp "2025-11-04 10:30" is 150010.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 10:30" is 3000.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 10:30" is 3000.0 MW
+    Then the total cost for timestamp "2025-11-04 10:30" is 150010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 10:30" is 3000.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 10:30" is 3000.0 MW
     # Timestamp 11:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
-    And the total cost for timestamp "2025-11-04 11:30" is 150010.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 11:30" is 3000.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 11:30" is 3000.0 MW
+    Then the total cost for timestamp "2025-11-04 11:30" is 150010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 11:30" is 3000.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 11:30" is 3000.0 MW
     # Timestamp 12:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
-    And the total cost for timestamp "2025-11-04 12:30" is 150010.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 12:30" is 3000.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 12:30" is 3000.0 MW
+    Then the total cost for timestamp "2025-11-04 12:30" is 150010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 12:30" is 3000.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 12:30" is 3000.0 MW
     # Timestamp 13:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
-    And the total cost for timestamp "2025-11-04 13:30" is 150010.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 13:30" is 3000.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 13:30" is 3000.0 MW
+    Then the total cost for timestamp "2025-11-04 13:30" is 150010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 13:30" is 3000.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 13:30" is 3000.0 MW
     # Timestamp 14:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
-    And the total cost for timestamp "2025-11-04 14:30" is 150010.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 14:30" is 3000.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 14:30" is 3000.0 MW
+    Then the total cost for timestamp "2025-11-04 14:30" is 150010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 14:30" is 3000.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 14:30" is 3000.0 MW
     # Timestamp 15:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
-    And the total cost for timestamp "2025-11-04 15:30" is 150010.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 15:30" is 3000.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 15:30" is 3000.0 MW
+    Then the total cost for timestamp "2025-11-04 15:30" is 150010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 15:30" is 3000.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 15:30" is 3000.0 MW
     # Timestamp 16:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
-    And the total cost for timestamp "2025-11-04 16:30" is 150010.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 16:30" is 3000.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 16:30" is 3000.0 MW
+    Then the total cost for timestamp "2025-11-04 16:30" is 150010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 16:30" is 3000.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 16:30" is 3000.0 MW
     # Timestamp 17:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
-    And the total cost for timestamp "2025-11-04 17:30" is 150010.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 17:30" is 3000.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 17:30" is 3000.0 MW
+    Then the total cost for timestamp "2025-11-04 17:30" is 150010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 17:30" is 3000.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 17:30" is 3000.0 MW
     # Timestamp 18:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
-    And the total cost for timestamp "2025-11-04 18:30" is 150010.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 18:30" is 3000.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 18:30" is 3000.0 MW
+    Then the total cost for timestamp "2025-11-04 18:30" is 150010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 18:30" is 3000.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 18:30" is 3000.0 MW
     # Timestamp 19:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
-    And the total cost for timestamp "2025-11-04 19:30" is 150010.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 19:30" is 3000.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 19:30" is 3000.0 MW
+    Then the total cost for timestamp "2025-11-04 19:30" is 150010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 19:30" is 3000.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 19:30" is 3000.0 MW
     # Timestamp 20:30: 10 (activation) + 50 * 1000 MW (variation) = 50010 -> generator at Pmin because of lag time
-    And the total cost for timestamp "2025-11-04 20:30" is 50010.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 20:30" is 1000.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 20:30" is 1000.0 MW
+    Then the total cost for timestamp "2025-11-04 20:30" is 50010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 20:30" is 1000.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 20:30" is 1000.0 MW
     # Timestamp 21:30
-    And the total cost for timestamp "2025-11-04 21:30" is 0.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 21:30" is 0.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 21:30" is 0.0 MW
+    Then the total cost for timestamp "2025-11-04 21:30" is 0.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 21:30" is 0.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 21:30" is 0.0 MW
     # Timestamp 22:30
-    And the total cost for timestamp "2025-11-04 22:30" is 0.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 22:30" is 0.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 22:30" is 0.0 MW
+    Then the total cost for timestamp "2025-11-04 22:30" is 0.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 22:30" is 0.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 22:30" is 0.0 MW
     # Timestamp 23:30
-    And the total cost for timestamp "2025-11-04 23:30" is 0.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 23:30" is 0.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 23:30" is 0.0 MW
+    Then the total cost for timestamp "2025-11-04 23:30" is 0.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 23:30" is 0.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 23:30" is 0.0 MW
 
   Scenario: US 93.3.4: Long lead and lag times
   The generator now takes more time to warm up and cool down so it cannot be operated immediately at its full power just
@@ -441,100 +441,100 @@ Feature: US 93.3: Intertemporal generator constraints
     When I launch marmot
     # Timestamp 00:30
     Then the total cost for timestamp "2025-11-04 00:30" is 0.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 00:30" is 0.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 00:30" is 0.0 MW
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 00:30" is 0.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 00:30" is 0.0 MW
     # Timestamp 01:30
-    And the total cost for timestamp "2025-11-04 01:30" is 0.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 01:30" is 0.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 01:30" is 0.0 MW
+    Then the total cost for timestamp "2025-11-04 01:30" is 0.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 01:30" is 0.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 01:30" is 0.0 MW
     # Timestamp 02:30
-    And the total cost for timestamp "2025-11-04 02:30" is 0.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 02:30" is 0.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 02:30" is 0.0 MW
+    Then the total cost for timestamp "2025-11-04 02:30" is 0.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 02:30" is 0.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 02:30" is 0.0 MW
     # Timestamp 03:30: 10 (activation) + 50 * 1000 MW (variation) = 50010 -> generator at Pmin because of lead time
-    And the total cost for timestamp "2025-11-04 03:30" is 50010.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 03:30" is 1000.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 03:30" is 1000.0 MW
+    Then the total cost for timestamp "2025-11-04 03:30" is 50010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 03:30" is 1000.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 03:30" is 1000.0 MW
     # Timestamp 04:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
-    And the total cost for timestamp "2025-11-04 04:30" is 150010.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 04:30" is 3000.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 04:30" is 3000.0 MW
+    Then the total cost for timestamp "2025-11-04 04:30" is 150010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 04:30" is 3000.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 04:30" is 3000.0 MW
     # Timestamp 05:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
-    And the total cost for timestamp "2025-11-04 05:30" is 150010.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 05:30" is 3000.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 05:30" is 3000.0 MW
+    Then the total cost for timestamp "2025-11-04 05:30" is 150010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 05:30" is 3000.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 05:30" is 3000.0 MW
     # Timestamp 06:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
-    And the total cost for timestamp "2025-11-04 06:30" is 150010.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 06:30" is 3000.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 06:30" is 3000.0 MW
+    Then the total cost for timestamp "2025-11-04 06:30" is 150010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 06:30" is 3000.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 06:30" is 3000.0 MW
     # Timestamp 07:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
-    And the total cost for timestamp "2025-11-04 07:30" is 150010.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 07:30" is 3000.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 07:30" is 3000.0 MW
+    Then the total cost for timestamp "2025-11-04 07:30" is 150010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 07:30" is 3000.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 07:30" is 3000.0 MW
     # Timestamp 08:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
-    And the total cost for timestamp "2025-11-04 08:30" is 150010.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 08:30" is 3000.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 08:30" is 3000.0 MW
+    Then the total cost for timestamp "2025-11-04 08:30" is 150010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 08:30" is 3000.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 08:30" is 3000.0 MW
     # Timestamp 09:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
-    And the total cost for timestamp "2025-11-04 09:30" is 150010.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 09:30" is 3000.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 09:30" is 3000.0 MW
+    Then the total cost for timestamp "2025-11-04 09:30" is 150010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 09:30" is 3000.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 09:30" is 3000.0 MW
     # Timestamp 10:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
-    And the total cost for timestamp "2025-11-04 10:30" is 150010.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 10:30" is 3000.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 10:30" is 3000.0 MW
+    Then the total cost for timestamp "2025-11-04 10:30" is 150010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 10:30" is 3000.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 10:30" is 3000.0 MW
     # Timestamp 11:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
-    And the total cost for timestamp "2025-11-04 11:30" is 150010.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 11:30" is 3000.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 11:30" is 3000.0 MW
+    Then the total cost for timestamp "2025-11-04 11:30" is 150010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 11:30" is 3000.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 11:30" is 3000.0 MW
     # Timestamp 12:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
-    And the total cost for timestamp "2025-11-04 12:30" is 150010.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 12:30" is 3000.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 12:30" is 3000.0 MW
+    Then the total cost for timestamp "2025-11-04 12:30" is 150010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 12:30" is 3000.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 12:30" is 3000.0 MW
     # Timestamp 13:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
-    And the total cost for timestamp "2025-11-04 13:30" is 150010.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 13:30" is 3000.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 13:30" is 3000.0 MW
+    Then the total cost for timestamp "2025-11-04 13:30" is 150010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 13:30" is 3000.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 13:30" is 3000.0 MW
     # Timestamp 14:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
-    And the total cost for timestamp "2025-11-04 14:30" is 150010.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 14:30" is 3000.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 14:30" is 3000.0 MW
+    Then the total cost for timestamp "2025-11-04 14:30" is 150010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 14:30" is 3000.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 14:30" is 3000.0 MW
     # Timestamp 15:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
-    And the total cost for timestamp "2025-11-04 15:30" is 150010.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 15:30" is 3000.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 15:30" is 3000.0 MW
+    Then the total cost for timestamp "2025-11-04 15:30" is 150010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 15:30" is 3000.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 15:30" is 3000.0 MW
     # Timestamp 16:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
-    And the total cost for timestamp "2025-11-04 16:30" is 150010.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 16:30" is 3000.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 16:30" is 3000.0 MW
+    Then the total cost for timestamp "2025-11-04 16:30" is 150010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 16:30" is 3000.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 16:30" is 3000.0 MW
     # Timestamp 17:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
-    And the total cost for timestamp "2025-11-04 17:30" is 150010.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 17:30" is 3000.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 17:30" is 3000.0 MW
+    Then the total cost for timestamp "2025-11-04 17:30" is 150010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 17:30" is 3000.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 17:30" is 3000.0 MW
     # Timestamp 18:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
-    And the total cost for timestamp "2025-11-04 18:30" is 150010.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 18:30" is 3000.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 18:30" is 3000.0 MW
+    Then the total cost for timestamp "2025-11-04 18:30" is 150010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 18:30" is 3000.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 18:30" is 3000.0 MW
     # Timestamp 19:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
-    And the total cost for timestamp "2025-11-04 19:30" is 150010.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 19:30" is 3000.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 19:30" is 3000.0 MW
+    Then the total cost for timestamp "2025-11-04 19:30" is 150010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 19:30" is 3000.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 19:30" is 3000.0 MW
     # Timestamp 20:30: 10 (activation) + 50 * 1000 MW (variation) = 50010 -> generator at Pmin because of lag time
-    And the total cost for timestamp "2025-11-04 20:30" is 50010.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 20:30" is 1000.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 20:30" is 1000.0 MW
+    Then the total cost for timestamp "2025-11-04 20:30" is 50010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 20:30" is 1000.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 20:30" is 1000.0 MW
     # Timestamp 21:30
-    And the total cost for timestamp "2025-11-04 21:30" is 0.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 21:30" is 0.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 21:30" is 0.0 MW
+    Then the total cost for timestamp "2025-11-04 21:30" is 0.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 21:30" is 0.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 21:30" is 0.0 MW
     # Timestamp 22:30
-    And the total cost for timestamp "2025-11-04 22:30" is 0.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 22:30" is 0.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 22:30" is 0.0 MW
+    Then the total cost for timestamp "2025-11-04 22:30" is 0.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 22:30" is 0.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 22:30" is 0.0 MW
     # Timestamp 23:30
-    And the total cost for timestamp "2025-11-04 23:30" is 0.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 23:30" is 0.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 23:30" is 0.0 MW
+    Then the total cost for timestamp "2025-11-04 23:30" is 0.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 23:30" is 0.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 23:30" is 0.0 MW
 
   Scenario: US 93.3.5: Long lead time, short lag time and power gradients
   This situation is a combination of the two previous cases but with lead time lasting less than one hour ang lag time
@@ -571,98 +571,98 @@ Feature: US 93.3: Intertemporal generator constraints
     When I launch marmot
     # Timestamp 00:30
     Then the total cost for timestamp "2025-11-04 00:30" is 0.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 00:30" is 0.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 00:30" is 0.0 MW
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 00:30" is 0.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 00:30" is 0.0 MW
     # Timestamp 01:30
-    And the total cost for timestamp "2025-11-04 01:30" is 0.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 01:30" is 0.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 01:30" is 0.0 MW
+    Then the total cost for timestamp "2025-11-04 01:30" is 0.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 01:30" is 0.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 01:30" is 0.0 MW
     # Timestamp 02:30: 10 (activation) + 50 * 1000 MW (variation) = 50010 -> generator at Pmin because of lead time
-    And the total cost for timestamp "2025-11-04 02:30" is 50010.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 02:30" is 1000.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 02:30" is 1000.0 MW
+    Then the total cost for timestamp "2025-11-04 02:30" is 50010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 02:30" is 1000.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 02:30" is 1000.0 MW
     # Timestamp 03:30: 10 (activation) + 50 * 1500 MW (variation) = 50010 -> power increased at 1500 MW to ensure a step
     # up to 3000 MW at next timestamp without violating the power gradient
-    And the total cost for timestamp "2025-11-04 03:30" is 75010.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 03:30" is 1500.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 03:30" is 1500.0 MW
+    Then the total cost for timestamp "2025-11-04 03:30" is 75010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 03:30" is 1500.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 03:30" is 1500.0 MW
     # Timestamp 04:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
-    And the total cost for timestamp "2025-11-04 04:30" is 150010.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 04:30" is 3000.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 04:30" is 3000.0 MW
+    Then the total cost for timestamp "2025-11-04 04:30" is 150010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 04:30" is 3000.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 04:30" is 3000.0 MW
     # Timestamp 05:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
-    And the total cost for timestamp "2025-11-04 05:30" is 150010.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 05:30" is 3000.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 05:30" is 3000.0 MW
+    Then the total cost for timestamp "2025-11-04 05:30" is 150010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 05:30" is 3000.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 05:30" is 3000.0 MW
     # Timestamp 06:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
-    And the total cost for timestamp "2025-11-04 06:30" is 150010.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 06:30" is 3000.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 06:30" is 3000.0 MW
+    Then the total cost for timestamp "2025-11-04 06:30" is 150010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 06:30" is 3000.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 06:30" is 3000.0 MW
     # Timestamp 07:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
-    And the total cost for timestamp "2025-11-04 07:30" is 150010.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 07:30" is 3000.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 07:30" is 3000.0 MW
+    Then the total cost for timestamp "2025-11-04 07:30" is 150010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 07:30" is 3000.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 07:30" is 3000.0 MW
     # Timestamp 08:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
-    And the total cost for timestamp "2025-11-04 08:30" is 150010.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 08:30" is 3000.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 08:30" is 3000.0 MW
+    Then the total cost for timestamp "2025-11-04 08:30" is 150010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 08:30" is 3000.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 08:30" is 3000.0 MW
     # Timestamp 09:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
-    And the total cost for timestamp "2025-11-04 09:30" is 150010.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 09:30" is 3000.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 09:30" is 3000.0 MW
+    Then the total cost for timestamp "2025-11-04 09:30" is 150010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 09:30" is 3000.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 09:30" is 3000.0 MW
     # Timestamp 10:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
-    And the total cost for timestamp "2025-11-04 10:30" is 150010.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 10:30" is 3000.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 10:30" is 3000.0 MW
+    Then the total cost for timestamp "2025-11-04 10:30" is 150010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 10:30" is 3000.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 10:30" is 3000.0 MW
     # Timestamp 11:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
-    And the total cost for timestamp "2025-11-04 11:30" is 150010.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 11:30" is 3000.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 11:30" is 3000.0 MW
+    Then the total cost for timestamp "2025-11-04 11:30" is 150010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 11:30" is 3000.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 11:30" is 3000.0 MW
     # Timestamp 12:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
-    And the total cost for timestamp "2025-11-04 12:30" is 150010.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 12:30" is 3000.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 12:30" is 3000.0 MW
+    Then the total cost for timestamp "2025-11-04 12:30" is 150010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 12:30" is 3000.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 12:30" is 3000.0 MW
     # Timestamp 13:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
-    And the total cost for timestamp "2025-11-04 13:30" is 150010.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 13:30" is 3000.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 13:30" is 3000.0 MW
+    Then the total cost for timestamp "2025-11-04 13:30" is 150010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 13:30" is 3000.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 13:30" is 3000.0 MW
     # Timestamp 14:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
-    And the total cost for timestamp "2025-11-04 14:30" is 150010.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 14:30" is 3000.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 14:30" is 3000.0 MW
+    Then the total cost for timestamp "2025-11-04 14:30" is 150010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 14:30" is 3000.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 14:30" is 3000.0 MW
     # Timestamp 15:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
-    And the total cost for timestamp "2025-11-04 15:30" is 150010.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 15:30" is 3000.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 15:30" is 3000.0 MW
+    Then the total cost for timestamp "2025-11-04 15:30" is 150010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 15:30" is 3000.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 15:30" is 3000.0 MW
     # Timestamp 16:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
-    And the total cost for timestamp "2025-11-04 16:30" is 150010.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 16:30" is 3000.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 16:30" is 3000.0 MW
+    Then the total cost for timestamp "2025-11-04 16:30" is 150010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 16:30" is 3000.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 16:30" is 3000.0 MW
     # Timestamp 17:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
-    And the total cost for timestamp "2025-11-04 17:30" is 150010.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 17:30" is 3000.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 17:30" is 3000.0 MW
+    Then the total cost for timestamp "2025-11-04 17:30" is 150010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 17:30" is 3000.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 17:30" is 3000.0 MW
     # Timestamp 18:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
-    And the total cost for timestamp "2025-11-04 18:30" is 150010.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 18:30" is 3000.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 18:30" is 3000.0 MW
+    Then the total cost for timestamp "2025-11-04 18:30" is 150010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 18:30" is 3000.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 18:30" is 3000.0 MW
     # Timestamp 19:30: 10 (activation) + 50 * 3000 MW (variation) = 150010
-    And the total cost for timestamp "2025-11-04 19:30" is 150010.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 19:30" is 3000.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 19:30" is 3000.0 MW
+    Then the total cost for timestamp "2025-11-04 19:30" is 150010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 19:30" is 3000.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 19:30" is 3000.0 MW
     # Timestamp 20:30: 10 (activation) + 50 * 1000 MW (variation) = 50010 -> generator at Pmin because of lag time
-    And the total cost for timestamp "2025-11-04 20:30" is 50010.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 20:30" is 1000.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 20:30" is 1000.0 MW
+    Then the total cost for timestamp "2025-11-04 20:30" is 50010.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 20:30" is 1000.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 20:30" is 1000.0 MW
     # Timestamp 21:30
-    And the total cost for timestamp "2025-11-04 21:30" is 0.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 21:30" is 0.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 21:30" is 0.0 MW
+    Then the total cost for timestamp "2025-11-04 21:30" is 0.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 21:30" is 0.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 21:30" is 0.0 MW
     # Timestamp 22:30
-    And the total cost for timestamp "2025-11-04 22:30" is 0.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 22:30" is 0.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 22:30" is 0.0 MW
+    Then the total cost for timestamp "2025-11-04 22:30" is 0.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 22:30" is 0.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 22:30" is 0.0 MW
     # Timestamp 23:30
-    And the total cost for timestamp "2025-11-04 23:30" is 0.0
-    And the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 23:30" is 0.0 MW
-    And the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 23:30" is 0.0 MW
+    Then the total cost for timestamp "2025-11-04 23:30" is 0.0
+    Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 23:30" is 0.0 MW
+    Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 23:30" is 0.0 MW

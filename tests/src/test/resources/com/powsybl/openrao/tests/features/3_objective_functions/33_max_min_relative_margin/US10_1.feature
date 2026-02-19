@@ -15,11 +15,11 @@ Feature: US 10.1: Linear RAO with relative margin
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "UNSECURED"
-    Then the value of the objective function after CRA should be 275.8
+    Then the value of the objective function after CRA should be 281.02
     Then the tap of PstRangeAction "PRA_PST_BE" should be -16 in preventive
-    Then the worst margin is -275.8 MW on cnec "FFR1AA1  FFR2AA1  1 - preventive"
-    Then the relative margin on cnec "NNL2AA1  BBE3AA1  1 - preventive" after PRA should be 2286.2 MW
-    Then the relative margin on cnec "DDE2AA1  NNL3AA1  1 - preventive" after PRA should be 2474.7 MW
+    Then the worst margin is -281.02 MW on cnec "FFR1AA1  FFR2AA1  1 - preventive"
+    Then the relative margin on cnec "NNL2AA1  BBE3AA1  1 - preventive" after PRA should be 2297.1 MW
+    Then the relative margin on cnec "DDE2AA1  NNL3AA1  1 - preventive" after PRA should be 2475.3 MW
 
   @fast @rao @ac @preventive-only @max-min-relative-margin @megawatt
   Scenario: US 10.1.2: Secured case

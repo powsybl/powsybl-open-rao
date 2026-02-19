@@ -6,7 +6,7 @@
 Feature: US 7.14: Use a refProg file to calculate the loop-flows
   This feature covers loopflow_computation with OpenLoadFlow with a RefProg input file.
 
-  @fast @loopflow-computation @ac @loopflow
+  @fast @loopflow-computation @dc @loopflow
   Scenario: 7.14.1 : calculate loop-flows with a refProg file - Megawatt
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic7/crac_lf.json"
@@ -62,7 +62,7 @@ Feature: US 7.14: Use a refProg file to calculate the loop-flows
     Given crac file is "epic7/crac_lf_rao_3_cbcora.xml"
     Given loopflow glsk file is "common/glsk_lots_of_lf_12nodes.xml"
     Given RefProg file is "epic7/refProg_12nodes.xml"
-    Given configuration file is "epic7/RaoParameters_maxMargin_mw_ac_lf_false_5_100.json"
+    Given configuration file is "epic7/RaoParameters_maxMargin_mw_dc_lf_false_5_100_update_ptdf.json"
     When I launch loopflow rao at "2019-01-08 21:30" with default loopflow limit as 0.0 percent of pmax
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "UNSECURED"
@@ -94,7 +94,7 @@ Feature: US 7.14: Use a refProg file to calculate the loop-flows
     Given crac file is "epic7/crac_lf_rao_3_with_frm_cbcora.xml"
     Given loopflow glsk file is "common/glsk_lots_of_lf_12nodes.xml"
     Given RefProg file is "epic7/refProg_12nodes.xml"
-    Given configuration file is "epic7/RaoParameters_maxMargin_mw_ac_lf_false_5_100.json"
+    Given configuration file is "epic7/RaoParameters_maxMargin_mw_dc_lf_false_5_100_update_ptdf.json"
     When I launch loopflow rao at "2019-01-08 21:30" with default loopflow limit as 0.0 percent of pmax
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "UNSECURED"

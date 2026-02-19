@@ -10,7 +10,7 @@ Feature: US 11.4: Handle MNECs in search tree with range actions and network act
   Scenario: US 11.4.1: reference run, no MNEC
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic11/ls_mixed_ref.json"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_ac.json"
+    Given configuration file is "common/RaoParameters_maxMargin_ampere_ac.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "UNSECURED"
@@ -19,16 +19,16 @@ Feature: US 11.4: Handle MNECs in search tree with range actions and network act
     Then the tap of PstRangeAction "PRA_PST_BE" should be -16 in preventive
     Then PST "BBE2AA1  BBE3AA1  1" in network file with PRA is on tap -16
     Then 2 remedial actions are used in preventive
-    Then the worst margin is -72.0 MW
-    Then the flow on cnec "NNL2AA1  NNL3AA1  1 - preventive" after PRA should be 1142.0 MW on side 1
-    Then the flow on cnec "DDE1AA1  DDE2AA1  1 - Contingency FR1 FR3 - curative" after CRA should be -394.0 MW on side 1
-    Then the flow on cnec "NNL2AA1  BBE3AA1  1 - preventive" after PRA should be -1642.0 MW on side 1
+    Then the worst margin is -106.6 A
+    Then the flow on cnec "NNL2AA1  NNL3AA1  1 - preventive" after PRA should be 1648.7 A on side 1
+    Then the flow on cnec "DDE1AA1  DDE2AA1  1 - Contingency FR1 FR3 - curative" after CRA should be -568.2 A on side 1
+    Then the flow on cnec "NNL2AA1  BBE3AA1  1 - preventive" after PRA should be -2372.5 A on side 1
 
   @fast @rao @ac @preventive-only @mnec @max-min-margin @megawatt
   Scenario: US 11.4.2: margin on MNEC should stay positive
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic11/ls_mixed_4_2.json"
-    Given configuration file is "epic11/RaoParameters_maxMargin_megawatt_ac_mnecDimin20.json"
+    Given configuration file is "epic11/RaoParameters_maxMargin_ampere_ac_mnecDimin30.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "UNSECURED"
@@ -37,14 +37,14 @@ Feature: US 11.4: Handle MNECs in search tree with range actions and network act
     Then the tap of PstRangeAction "PRA_PST_BE" should be -12 in preventive
     Then PST "BBE2AA1  BBE3AA1  1" in network file with PRA is on tap -12
     Then 2 remedial actions are used in preventive
-    Then the worst margin is -99.0 MW on cnec "FFR2AA1  FFR3AA1  1 - preventive"
-    Then the flow on cnec "NNL2AA1  NNL3AA1  1 - preventive" after PRA should be 1100.0 MW on side 1
+    Then the worst margin is -146.3 A on cnec "FFR2AA1  FFR3AA1  1 - preventive"
+    Then the flow on cnec "NNL2AA1  NNL3AA1  1 - preventive" after PRA should be 1589.1 A on side 1
 
   @fast @rao @ac @preventive-only @mnec @max-min-margin @megawatt
   Scenario: US 11.4.3: Search Tree RAO - 2 MNECs with one curative
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic11/ls_mixed_4_3.json"
-    Given configuration file is "epic11/RaoParameters_maxMargin_megawatt_ac_mnecDimin20.json"
+    Given configuration file is "epic11/RaoParameters_maxMargin_ampere_ac_mnecDimin30.json"
     When I launch rao
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "UNSECURED"
@@ -53,15 +53,15 @@ Feature: US 11.4: Handle MNECs in search tree with range actions and network act
     Then the tap of PstRangeAction "PRA_PST_BE" should be -9 in preventive
     Then PST "BBE2AA1  BBE3AA1  1" in network file with PRA is on tap -9
     Then 2 remedial actions are used in preventive
-    Then the worst margin is -119.0 MW on cnec "FFR2AA1  FFR3AA1  1 - preventive"
-    Then the flow on cnec "NNL2AA1  NNL3AA1  1 - preventive" after PRA should be 1069.0 MW on side 1
-    Then the flow on cnec "DDE1AA1  DDE2AA1  1 - Contingency FR1 FR3 - curative" after PRA should be -370.0 MW on side 1
+    Then the worst margin is -176.0 A on cnec "FFR2AA1  FFR3AA1  1 - preventive"
+    Then the flow on cnec "NNL2AA1  NNL3AA1  1 - preventive" after PRA should be 1544.0 A on side 1
+    Then the flow on cnec "DDE1AA1  DDE2AA1  1 - Contingency FR1 FR3 - curative" after PRA should be -535.0 A on side 1
 
   @fast @rao @ac @preventive-only @max-min-margin @megawatt
   Scenario: US 11.4.4.a: reference run on CBCORA, no MNEC
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic11/MergedCB_ref.xml"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_ac.json"
+    Given configuration file is "common/RaoParameters_maxMargin_ampere_ac.json"
     When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "UNSECURED"
@@ -70,24 +70,25 @@ Feature: US 11.4: Handle MNECs in search tree with range actions and network act
     Then the tap of PstRangeAction "PRA_PST_BE" should be -16 in preventive
     Then PST "BBE2AA1  BBE3AA1  1" in network file with PRA is on tap -16
     Then 2 remedial actions are used in preventive
-    Then the worst margin is -72.0 MW
-    Then the flow on cnec "NL2-NL3-D - preventive" after PRA should be 1142.0 MW on side 1
-    Then the flow on cnec "DE1-DE2-DO - curative" after PRA should be -394.0 MW on side 1
-    Then the flow on cnec "NL2-BE3-D - preventive" after PRA should be -1642.0 MW on side 1
+    Then the worst margin is -106.6 A
+    Then the flow on cnec "NL2-NL3-D - preventive" after PRA should be 1648.7 A on side 1
+    Then the flow on cnec "DE1-DE2-DO - curative" after PRA should be -568.2 A on side 1
+    Then the flow on cnec "NL2-BE3-D - preventive" after PRA should be -2372.5 A on side 1
 
   @fast @rao @ac @preventive-only @mnec @max-min-margin @megawatt
   Scenario: US 11.4.4.b: margin on MNEC should stay positive
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic11/MergedCB_4_4.xml"
-    Given configuration file is "epic11/RaoParameters_maxMargin_megawatt_ac_mnecDimin20.json"
+    Given configuration file is "epic11/RaoParameters_maxMargin_ampere_ac_mnecDimin30.json"
     When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "UNSECURED"
+    # The mnec is NL2-BE3-D - preventive
     Then the remedial action "Open line NL1-NL2" is used in preventive
     Then line "NNL1AA1  NNL2AA1  1" in network file with PRA has connection status to "false"
     Then the tap of PstRangeAction "PRA_PST_BE" should be -11 in preventive
     Then PST "BBE2AA1  BBE3AA1  1" in network file with PRA is on tap -11
     Then 2 remedial actions are used in preventive
-    Then the worst margin is -106.0 MW on cnec "FR2-FR3-O - preventive"
-    Then the flow on cnec "NL1-NL3-D - preventive" after PRA should be 500.0 MW on side 1
-    Then the flow on cnec "NL2-BE3-D - preventive" after PRA should be -1590.0 MW on side 1
+    Then the worst margin is -156.3 A on cnec "FR2-FR3-O - preventive"
+    Then the flow on cnec "NL1-NL3-D - preventive" after PRA should be 721.8 A on side 1
+    Then the flow on cnec "NL2-BE3-D - preventive" after PRA should be -2297.8 A on side 1

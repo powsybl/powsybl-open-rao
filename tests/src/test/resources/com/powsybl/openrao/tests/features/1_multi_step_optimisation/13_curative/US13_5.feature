@@ -91,69 +91,69 @@ Feature: US 13.5: Dynamic of range actions available in several instants
     Then the tap of PstRangeAction "pst_be" should be -16 after "co1_fr2_fr3_1" at "curative"
     Then the value of the objective function after CRA should be 47
 
-  @fast @rao @ac @contingency-scenarios @max-min-margin @megawatt
+  @fast @rao @ac @contingency-scenarios @max-min-margin @ampere
   Scenario: US 13.5.5: Preventive and curative optimization with absolute limit on curative PST
     Given network file is "epic13/TestCase12NodesForCurative.uct"
     Given crac file is "epic13/12nodes_onePreventiveAndCurativePst_relativeLimit.xml"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_ac.json"
+    Given configuration file is "common/RaoParameters_maxMargin_ampere_ac.json"
     When I launch rao at "2019-01-08 00:30"
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
-    Then the worst margin is 1432 MW
-    Then the margin on cnec "CnecCurativeDir - curative" after CRA should be 1432 MW
+    Then the worst margin is 2192 A
+    Then the margin on cnec "CnecCurativeDir - curative" after CRA should be 2192 A
     Then the tap of PstRangeAction "SelectTapPSTPrev" should be 12 in preventive
     Then the tap of PstRangeAction "SelectTapPSTCur" should be 14 after "Contingency" at "curative"
-    Then the value of the objective function after CRA should be -1432
+    Then the value of the objective function after CRA should be -2192
 
-  @fast @rao @ac @contingency-scenarios @max-min-margin @megawatt
+  @fast @rao @ac @contingency-scenarios @max-min-margin @ampere
   Scenario: US 13.5.6: Preventive and curative optimization with relative limit on curative PST
     Given network file is "epic13/TestCase12NodesForCurative.uct"
     Given crac file is "epic13/12nodes_onePreventiveAndCurativePst_absoluteLimit.xml"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_ac.json"
+    Given configuration file is "common/RaoParameters_maxMargin_ampere_ac.json"
     When I launch rao at "2019-01-08 00:30"
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
-    Then the worst margin is 1432 MW
-    Then the margin on cnec "CnecCurativeDir - curative" after CRA should be 1432 MW
+    Then the worst margin is 2192 A
+    Then the margin on cnec "CnecCurativeDir - curative" after CRA should be 2191 A
     Then the tap of PstRangeAction "SelectTapPSTPrev" should be 12 in preventive
     Then the tap of PstRangeAction "SelectTapPSTCur" should be 14 after "Contingency" at "curative"
 
-  @fast @rao @ac @contingency-scenarios @max-min-margin @megawatt
+  @fast @rao @ac @contingency-scenarios @max-min-margin @ampere
   Scenario: US 13.5.7: Preventive and curative optimization with wrong absolute limit on curative PST
     Given network file is "epic13/TestCase12NodesForCurative.uct"
     Given crac file is "epic13/12nodes_onePreventiveAndCurativePst_absoluteLimitError.xml"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_ac.json"
+    Given configuration file is "common/RaoParameters_maxMargin_ampere_ac.json"
     When I launch rao at "2019-01-08 00:30"
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
-    Then the worst margin is 1422 MW
-    Then the margin on cnec "CnecCurativeDir - curative" after CRA should be 1422 MW
+    Then the worst margin is 2177 A
+    Then the margin on cnec "CnecCurativeDir - curative" after CRA should be 2177 A
     Then the tap of PstRangeAction "SelectTapPSTPrev" should be 12 in preventive
     Then the tap of PstRangeAction "SelectTapPSTCur" should be 12 after "Contingency" at "curative"
-    Then the value of the objective function after CRA should be -1422
+    Then the value of the objective function after CRA should be -2177
 
   @fast @crac
   Scenario: US 13.5.8: PST filtering
     Given network file is "epic13/TestCase12NodesForCurative.uct"
     Given crac file is "epic13/12nodes_oneCorrectPreventivePst.xml"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_ac.json"
+    Given configuration file is "common/RaoParameters_maxMargin_ampere_ac.json"
     When I import crac at "2019-01-08 12:00"
     Then it should have 2 range actions
     Then range action "SelectTapPSTPrev" should have 1 ranges
     Then range action "SelectTapPSTPrevWrongRange" should have 0 ranges
 
-  @fast @rao @ac @preventive-only @max-min-margin @megawatt
+  @fast @rao @ac @preventive-only @max-min-margin @ampere
   Scenario: US 13.5.9: Preventive optimization after PST filtering
     Given network file is "epic13/TestCase12NodesForCurative.uct"
     Given crac file is "epic13/12nodes_oneCorrectPreventivePst.xml"
-    Given configuration file is "common/RaoParameters_maxMargin_megawatt_ac.json"
+    Given configuration file is "common/RaoParameters_maxMargin_ampere_ac.json"
     When I launch rao at "2019-01-08 00:30"
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
-    Then the worst margin is 1637 MW
-    Then the margin on cnec "CnecPreventiveDir - preventive" after PRA should be 1654 MW
+    Then the worst margin is 2487 A
+    Then the margin on cnec "CnecPreventiveDir - preventive" after PRA should be 2487 A
     Then the tap of PstRangeAction "SelectTapPSTPrev" should be 12 in preventive
-    Then the value of the objective function after CRA should be -1637
+    Then the value of the objective function after CRA should be -2487
 
   @fast @rao @ac @contingency-scenarios @max-min-margin @ampere
   Scenario: US 13.5.10: CBCORA, CRA and PRA on same PSTs (as done in CORE CC data)
@@ -208,6 +208,8 @@ Feature: US 13.5: Dynamic of range actions available in several instants
     Given crac file is "epic13/CBCORA_ep13us5case10.xml"
     Given configuration file is "epic13/RaoParameters_maxMargin_ampere_2p_global.json"
     When I launch rao at "2019-01-08 12:00"
+    Then the execution details should be "Second preventive improved first preventive results"
+    Then its security status should be "SECURED"
     Then 2 remedial actions are used in preventive
     Then the tap of PstRangeAction "pra_pst_fr" should be -14 in preventive
     Then the tap of PstRangeAction "pra_pst_be" should be 10 in preventive
@@ -222,5 +224,3 @@ Feature: US 13.5: Dynamic of range actions available in several instants
     # Then the tap of PstRangeAction "pra_pst_be" should be 15 after "CO1_fr2_fr3_1" at "curative"
     # does not work currently: expected behaviour not clear yet in that case
     Then the worst margin is 995 A
-    Then the execution details should be "Second preventive improved first preventive results"
-    Then its security status should be "SECURED"

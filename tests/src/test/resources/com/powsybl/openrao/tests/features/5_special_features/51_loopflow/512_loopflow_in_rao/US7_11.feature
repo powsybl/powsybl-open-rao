@@ -7,12 +7,12 @@ Feature: US 7.11: Additional tests with CBCORA input files and FRM
   This feature covers "loop-flow-parameters"/"constraint-adjustment-coefficient" from the RaoParameters within
   search-tree RAO and with specific inputs (CBCoRA file, FRM).
 
-  @fast @rao @ac @preventive-only @loopflow @max-min-margin @megawatt
+  @fast @rao @dc @preventive-only @loopflow @max-min-margin @megawatt
   Scenario: 7.11.1 : Replication of test case 7.10.3, using a CBCORA file as input instead of a SL
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic7/crac_lf_rao_3_cbcora.xml"
     Given loopflow glsk file is "common/glsk_lots_of_lf_12nodes.xml"
-    Given configuration file is "epic7/RaoParameters_maxMargin_mw_ac_lf_false_5_100.json"
+    Given configuration file is "epic7/RaoParameters_maxMargin_mw_dc_lf_false_5_100_update_ptdf.json"
 
     When I launch loopflow rao at "2019-01-08 00:00" with default loopflow limit as 0.0 percent of pmax
 
@@ -38,12 +38,12 @@ Feature: US 7.11: Additional tests with CBCORA input files and FRM
     Then the initial loopflow on cnec "BBE2AA1  FFR3AA1  1 - preventive" should be -391.0 MW
     Then the loopflow on cnec "BBE2AA1  FFR3AA1  1 - preventive" after PRA should be -384.0 MW
 
-  @fast @rao @ac @preventive-only @loopflow @max-min-margin @megawatt
+  @fast @rao @dc @preventive-only @loopflow @max-min-margin @megawatt
   Scenario: 7.11.2 : Loop-flow limitation with FRM
     Given network file is "common/TestCase12Nodes.uct" for CORE CC
     Given crac file is "epic7/crac_lf_rao_3_with_frm_cbcora.xml"
     Given loopflow glsk file is "common/glsk_lots_of_lf_12nodes.xml"
-    Given configuration file is "epic7/RaoParameters_maxMargin_mw_ac_lf_false_5_100.json"
+    Given configuration file is "epic7/RaoParameters_maxMargin_mw_dc_lf_false_5_100_update_ptdf.json"
 
     When I launch loopflow rao at "2019-01-08 12:00" with default loopflow limit as 0.0 percent of pmax
 

@@ -19,10 +19,10 @@ Feature: US 20.4: Handle MNECs in second preventive optimization
     Then the remedial action "Open line NL1-NL2" is used in preventive
     Then the tap of PstRangeAction "PRA_PST_BE" should be -2 in preventive
     Then 0 remedial actions are used after "Contingency_FR1_FR3" at "curative"
-    Then the worst margin is -168 MW
-    Then the value of the objective function after CRA should be 168
-    Then the margin on cnec "FR2-FR3-O - preventive" after PRA should be -168 MW
-    Then the margin on cnec "NL2-BE3-O - curative" after CRA should be 7 MW
+    Then the worst margin is -246 A
+    Then the value of the objective function after CRA should be 246
+    Then the margin on cnec "FR2-FR3-O - preventive" after PRA should be -246 A
+    Then the margin on cnec "NL2-BE3-O - curative" after CRA should be 7 A
 
   @fast @rao @ac @second-preventive @mnec @max-min-margin @megawatt
   Scenario: US 20.4.2: MNEC constraint in curative is solved by CRA + 2P
@@ -37,10 +37,10 @@ Feature: US 20.4: Handle MNECs in second preventive optimization
     Then the tap of PstRangeAction "PRA_PST_BE" should be -3 in preventive
     Then 1 remedial actions are used after "Contingency_FR1_FR3" at "curative"
     Then the tap of PstRangeAction "CRA_PST_DE" should be 1 after "Contingency_FR1_FR3" at "curative"
-    Then the worst margin is -161 MW
-    Then the value of the objective function after CRA should be 161
-    Then the margin on cnec "FR2-FR3-O - preventive" after PRA should be -161 MW
-    Then the margin on cnec "NL2-BE3-O - curative" after CRA should be 7 MW
+    Then the worst margin is -236 A
+    Then the value of the objective function after CRA should be 236
+    Then the margin on cnec "FR2-FR3-O - preventive" after PRA should be -236 A
+    Then the margin on cnec "NL2-BE3-O - curative" after CRA should be 7 A
 
   @fast @rao @ac @second-preventive @mnec @max-min-margin @megawatt
   Scenario: US 20.4.3: MNEC constraint avoided on preventive MNEC in 2P
@@ -52,8 +52,8 @@ Feature: US 20.4: Handle MNECs in second preventive optimization
     Then its security status should be "UNSECURED"
     Then 0 remedial actions are used in preventive
     Then 0 remedial actions are used after "Contingency_FR1_FR3" at "curative"
-    Then the worst margin is -182 MW
-    Then the value of the objective function after CRA should be 182
-    Then the margin on cnec "NL1-NL3-D - curative" after CRA should be -182 MW
-    Then the margin on cnec "NL2-BE3-O - curative" after CRA should be -145 MW
-    Then the margin on cnec "FR2-FR3-O - preventive" after PRA should be -96 MW
+    Then the worst margin is -264 A
+    Then the value of the objective function after CRA should be 264
+    Then the margin on cnec "NL1-NL3-D - curative" after CRA should be -264 A
+    Then the margin on cnec "NL2-BE3-O - curative" after CRA should be -212 A
+    Then the margin on cnec "FR2-FR3-O - preventive" after PRA should be -143 A

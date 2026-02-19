@@ -36,24 +36,24 @@ Feature: US 13.6: Cross validation curative optimization and MNECs
     When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "UNSECURED"
-    Then the margin on cnec "NL2-BE3-O - outage" after PRA should be 8.0 MW
+    Then the margin on cnec "NL2-BE3-O - outage" after PRA should be 8 A
     Then 2 remedial actions are used in preventive
     Then the remedial action "Open line NL1-NL2" is used in preventive
     Then the tap of PstRangeAction "PRA_PST_BE" should be -6 in preventive
-    Then the margin on cnec "FR2-FR3-O - preventive" after PRA should be -140 MW
+    Then the margin on cnec "FR2-FR3-O - preventive" after PRA should be -206.14 A
    # Note that he chosen CRA does not improve the functional cost (it only improves the virtual cost), so if in the future it changes,
     # it would be OK to change the test as long as the MNEC is properly treated in the curative RAO
-    Then the margin on cnec "NL2-BE3-O - curative" after CRA should be 15.0 MW
+    Then the margin on cnec "NL2-BE3-O - curative" after CRA should be 18.28 A
     Then 1 remedial actions are used after "Contingency_FR1_FR3" at "curative"
     Then the remedial action "Open line DE1-DE2" is used after "Contingency_FR1_FR3" at "curative"
-    Then the margin on cnec "NL1-NL3-D - curative" after CRA should be 0.0 MW
-    Then the value of the objective function after CRA should be 140
+    Then the margin on cnec "NL1-NL3-D - curative" after CRA should be 0.22 A
+    Then the value of the objective function after CRA should be 206.1
 
   @fast @rao @ac @contingency-scenarios @mnec @max-min-margin @megawatt
   Scenario: US 13.6.3: CBCORA - Curative MNECs limited by their initial margin - CRAs only
     Given network file is "epic13/TestCase12NodesDifferentPstTap.uct" for CORE CC
     Given crac file is "epic13/MergedCB_ep13us6case3.xml"
-    Given configuration file is "epic11/RaoParameters_maxMargin_megawatt_ac_mnecDimin20.json"
+    Given configuration file is "epic11/RaoParameters_maxMargin_ampere_ac_mnecDimin30.json"
     When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "UNSECURED"
@@ -68,7 +68,7 @@ Feature: US 13.6: Cross validation curative optimization and MNECs
   Scenario: US 13.6.4: CBCORA - Curative MNECs limited by their initial margin - PRAs and CRAs
     Given network file is "epic13/TestCase12NodesDifferentPstTap.uct" for CORE CC
     Given crac file is "epic13/MergedCB_ep13us6case4.xml"
-    Given configuration file is "epic11/RaoParameters_maxMargin_megawatt_ac_mnecDimin20.json"
+    Given configuration file is "epic11/RaoParameters_maxMargin_ampere_ac_mnecDimin30.json"
     When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "UNSECURED"
@@ -82,7 +82,7 @@ Feature: US 13.6: Cross validation curative optimization and MNECs
     Then 1 remedial actions are used after "Contingency_FR1_FR3" at "curative"
     Then the remedial action "Open line DE1-DE2" is used after "Contingency_FR1_FR3" at "curative"
     Then the margin on cnec "FR2-FR3-OO - curative" after CRA should be -137.0 MW
-    Then the value of the objective function after CRA should be 273
+    Then the value of the objective function after CRA should be 402
 
   @fast @rao @ac @contingency-scenarios @mnec @max-min-margin @ampere
   Scenario: US 13.6.5: Simple case with a mix of preventive and curative remedial actions and a MNEC in preventive limited by threshold
@@ -186,7 +186,10 @@ Feature: US 13.6: Cross validation curative optimization and MNECs
     Given configuration file is "epic13/RaoParameters_13_6_11.json"
     When I launch rao at "2019-01-08 12:00"
     Then the execution details should be "The RAO only went through first preventive"
-    Then its security status should be "UNSECURED"
+    Then its security status should be "SECURED"
+    # The only curative element is a MNEC is NL2-BE3-0 - curative with a temporary threshold of 2298 A and a permanent one at 2237 A
+    # Margin after preventive perimeter optimization -> 1 A OK (2298 A-2297 A). But in curative the margin is -60 A (2237 A - 2297 A).
+    # "CRA_PST_BE" applied to remove MNEC violation.
     Then 1 remedial actions are used in preventive
     Then the tap of PstRangeAction "PRA_PST_BE" should be -4 in preventive
     Then 1 remedial actions are used after "Contingency_FR1_FR3" at "curative"

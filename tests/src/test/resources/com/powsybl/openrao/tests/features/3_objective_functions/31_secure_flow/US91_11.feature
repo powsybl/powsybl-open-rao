@@ -30,11 +30,11 @@ Feature: US 91.11: Optimize computations for SECURE_FLOW objective function
     Then 1 remedial actions are used in preventive
     Then the margin on cnec "be1_fr1_N - preventive" after PRA should be 2340 A
 
-  @fast @rao @ac @contingency-scenarios @secure-flow @megawatt
+  @fast @rao @dc @contingency-scenarios @secure-flow @megawatt
   Scenario: US 91.11.3: Skip curative optimization
     Given network file is "epic13/TestCase12NodesForCurative.uct"
     Given crac file is "epic91/CBCORA_ep91us11case3.xml"
-    Given configuration file is "common/RaoParameters_posMargin_megawatt_ac.json"
+    Given configuration file is "common/RaoParameters_posMargin_megawatt_dc.json"
     When I launch rao at "2019-01-08 00:30"
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "UNSECURED"
