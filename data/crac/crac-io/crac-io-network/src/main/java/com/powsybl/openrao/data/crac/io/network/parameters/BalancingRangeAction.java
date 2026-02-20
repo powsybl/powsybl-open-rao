@@ -51,7 +51,7 @@ public class BalancingRangeAction {
     }
 
     /**
-     * Set the function that indicates the MW range of the balancing RA in a given country.
+     * Set the function that indicates the MW range of the balancing RA.
      * By default, range is reduced to zero.
      */
     public void setRaRangeProvider(Function<Instant, MinAndMax<Double>> raRangeProvider) {
