@@ -267,7 +267,7 @@ class LinearProblemResultTest {
                 pst, 2e-5,
                 injection, 1e-3,
                 hvdc, 1.0,
-                counterTrade,  0.8));
+                counterTrade, 0.8));
 
         Map<State, Map<RangeAction<?>, OpenRaoMPVariable>> setPointVariablePerRangeAction = Map.of(
             preventiveState, Map.of(
@@ -312,7 +312,5 @@ class LinearProblemResultTest {
         linearProblemResult = new LinearProblemResult(linearProblem, prePerimeterRangeActionSetpoints, optimizationPerimeter);
         assertEquals(Set.of(), linearProblemResult.getActivatedRangeActions(preventiveState)); // None of the range actions are activated
     }
-
-
 
 }

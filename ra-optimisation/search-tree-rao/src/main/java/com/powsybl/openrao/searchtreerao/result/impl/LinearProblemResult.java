@@ -35,7 +35,7 @@ public class LinearProblemResult extends RangeActionActivationResultImpl {
     private static boolean wasRangeActionActivated(LinearProblem linearProblem, RangeAction<?> rangeAction, State state) {
 
         // For these range actions a variation <= 1 MW is not significant enough to be considered
-        if (rangeAction instanceof InjectionRangeAction || rangeAction instanceof HvdcRangeAction|| rangeAction instanceof CounterTradeRangeAction) {
+        if (rangeAction instanceof InjectionRangeAction || rangeAction instanceof HvdcRangeAction || rangeAction instanceof CounterTradeRangeAction) {
             return linearProblem.getRangeActionVariationVariable(rangeAction, state, LinearProblem.VariationDirectionExtension.UPWARD).solutionValue()
                 + linearProblem.getRangeActionVariationVariable(rangeAction, state, LinearProblem.VariationDirectionExtension.DOWNWARD).solutionValue() > INJECTION_HVDC_ACTIVATION_THRESHOLD;
         }
