@@ -1,0 +1,13 @@
+{
+  "$id": "https://powsybl.org/rao-result.v2.0.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "RAO_RESULT",
+  "description": "Remedial Action Optimizer Results",
+  "type": "object",
+  "properties": {
+    "version": {
+      "const": "2.0"
+    }
+  },
+  "required": []
+}
