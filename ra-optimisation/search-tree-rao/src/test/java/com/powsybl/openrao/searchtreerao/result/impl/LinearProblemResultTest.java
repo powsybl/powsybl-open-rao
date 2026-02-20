@@ -257,14 +257,14 @@ class LinearProblemResultTest {
 
         Map<State, Map<RangeAction<?>, Double>> setPointPerRangeAction = Map.of(
             preventiveState, Map.of(
-                pst, 0.80002, // variation of 2e-5
+                pst, 0.800001, // variation of 1e-6
                 injection, 5.401, // variation 1e-3
                 hvdc, -601.0, // variation 1
                 counterTrade, -200.8)); // variation 0.8
 
         Map<State, Map<RangeAction<?>, Double>> setPointVariationPerRangeAction = Map.of(
             preventiveState, Map.of(
-                pst, 2e-5,
+                pst, 1e-6,
                 injection, 1e-3,
                 hvdc, 1.0,
                 counterTrade, 0.8));
@@ -303,9 +303,12 @@ class LinearProblemResultTest {
             Mockito.when(downwardSetPointVariationVariable.solutionValue()).thenReturn(0.0);
         });
 
-        Mockito.when(pst.convertAngleToTap(0.80002)).thenReturn(3);
+        Mockito.when(pst.convertAngleToTap(0.800001)).thenReturn(3);
 
-        // Checks that if the range action's variation output by the MIP is smaller than 1 MW, it is not considered as activated in LinearProblemResult.
+        // Checks that if
+        // - the injection, hvdc and counter trading range action's variation output by the MIP is <= 1 MW
+        // - or if pst variation <= 1e-6
+        // it is not considered as activated in LinearProblemResult.
         OptimizationPerimeter optimizationPerimeter = new PreventiveOptimizationPerimeter(
             preventiveState, Collections.emptySet(), Collections.emptySet(), Collections.emptySet(), rangeActionsPerState.get(preventiveState));
 
