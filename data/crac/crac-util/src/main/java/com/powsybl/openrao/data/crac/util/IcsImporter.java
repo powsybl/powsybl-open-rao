@@ -193,18 +193,17 @@ public final class IcsImporter {
         weightPerNode.forEach((nodeId, shiftKey) -> {
             String networkElementId = networkElementPerGskElement.get(nodeId);
             // only create constraints if the network element is a generator
-            if (networkElementId.endsWith(GENERATOR_SUFFIX)) {
+            if (shiftKey >= 0) {
                 GeneratorConstraints.GeneratorConstraintsBuilder builder = GeneratorConstraints.create().withGeneratorId(networkElementId);
-                double absoluteShiftKey = Math.abs(shiftKey);
                 if (!staticRecord.get(MAXIMUM_POSITIVE_POWER_GRADIENT).isEmpty()) {
-                    builder.withUpwardPowerGradient(absoluteShiftKey * parseDoubleWithPossibleCommas(staticRecord.get(MAXIMUM_POSITIVE_POWER_GRADIENT)));
+                    builder.withUpwardPowerGradient(shiftKey * parseDoubleWithPossibleCommas(staticRecord.get(MAXIMUM_POSITIVE_POWER_GRADIENT)));
                 } else {
-                    builder.withUpwardPowerGradient(absoluteShiftKey * MAX_GRADIENT);
+                    builder.withUpwardPowerGradient(shiftKey * MAX_GRADIENT);
                 }
                 if (!staticRecord.get(MAXIMUM_NEGATIVE_POWER_GRADIENT).isEmpty()) {
-                    builder.withDownwardPowerGradient(-absoluteShiftKey * parseDoubleWithPossibleCommas(staticRecord.get(MAXIMUM_NEGATIVE_POWER_GRADIENT)));
+                    builder.withDownwardPowerGradient(-shiftKey * parseDoubleWithPossibleCommas(staticRecord.get(MAXIMUM_NEGATIVE_POWER_GRADIENT)));
                 } else {
-                    builder.withDownwardPowerGradient(-absoluteShiftKey * MAX_GRADIENT);
+                    builder.withDownwardPowerGradient(-shiftKey * MAX_GRADIENT);
                 }
                 if (!staticRecord.get(LEAD_TIME).isEmpty()) {
                     builder.withLeadTime(parseDoubleWithPossibleCommas(staticRecord.get(LEAD_TIME)));
@@ -213,6 +212,8 @@ public final class IcsImporter {
                     builder.withLagTime(parseDoubleWithPossibleCommas(staticRecord.get(LAG_TIME)));
                 }
                 timeCoupledRaoInput.getTimeCoupledConstraints().addGeneratorConstraints(builder.build());
+            } else {
+                BUSINESS_WARNS.warn("Negative shift-key defined for node {}. This is not supported yet.", nodeId);
             }
         });
     }

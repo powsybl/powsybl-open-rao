@@ -171,7 +171,9 @@ Feature: US 93.2: Time-coupled redispatching actions with MARMOT - power gradien
       | 2019-01-08 02:30 | 2Nodes_0230.uct |
     When I launch marmot
     Then the functional cost for timestamp "2019-01-08 00:30" is 0.0
+    # 100 MW variation with a cost of 10 per MW
     Then the functional cost for timestamp "2019-01-08 01:30" is 1000.0
+    # 1000 MW variation with a cost of 10 per MW
     Then the functional cost for timestamp "2019-01-08 02:30" is 10000.0
     Then the functional cost for all timestamps is 11000.0
 

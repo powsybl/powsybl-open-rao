@@ -138,6 +138,53 @@ class IcsImporterTest {
     }
 
     @Test
+    void testIcsImporterOneActionNoPminRd() throws IOException {
+        double cost = 5.;
+        InputStream staticInputStream = IcsImporterTest.class.getResourceAsStream("/ics/static.csv");
+        InputStream seriesInputStream = IcsImporterTest.class.getResourceAsStream("/ics/series_no_pmin_rd.csv");
+        InputStream gskInputStream = IcsImporterTest.class.getResourceAsStream("/glsk/gsk.csv");
+        IcsImporter.populateInputWithICS(timeCoupledRaoInputWithNetworkPaths, staticInputStream, seriesInputStream, gskInputStream, cost, cost);
+
+        assertEquals(1, timeCoupledRaoInputWithNetworkPaths.getTimeCoupledConstraints().getGeneratorConstraints().size());
+        GeneratorConstraints generatorConstraints = timeCoupledRaoInputWithNetworkPaths.getTimeCoupledConstraints().getGeneratorConstraints().iterator().next();
+        assertEquals("Redispatching_RA_BBE1AA1_GENERATOR", generatorConstraints.getGeneratorId());
+        assertTrue(generatorConstraints.getDownwardPowerGradient().isPresent());
+        assertEquals(-10., generatorConstraints.getDownwardPowerGradient().get(), DOUBLE_EPSILON);
+        assertTrue(generatorConstraints.getUpwardPowerGradient().isPresent());
+        assertEquals(10., generatorConstraints.getUpwardPowerGradient().get(), DOUBLE_EPSILON);
+        assertTrue(generatorConstraints.getLeadTime().isPresent());
+        assertEquals(1.0, generatorConstraints.getLeadTime().get(), DOUBLE_EPSILON);
+        assertTrue(generatorConstraints.getLagTime().isPresent());
+        assertEquals(1.0, generatorConstraints.getLagTime().get(), DOUBLE_EPSILON);
+
+        assertEquals(1, crac1.getInjectionRangeActions().size());
+        InjectionRangeAction ra1 = crac1.getInjectionRangeActions().iterator().next();
+        assertEquals("Redispatching_RA_RD", ra1.getId());
+        assertEquals(116., ra1.getInitialSetpoint(), DOUBLE_EPSILON);
+        assertTrue(ra1.getVariationCost(VariationDirection.UP).isPresent());
+        assertEquals(5., ra1.getVariationCost(VariationDirection.UP).get(), DOUBLE_EPSILON);
+        assertTrue(ra1.getVariationCost(VariationDirection.DOWN).isPresent());
+        assertEquals(5., ra1.getVariationCost(VariationDirection.DOWN).get(), DOUBLE_EPSILON);
+        Network network1 = Network.read(networkFilePathPostIcsImport1);
+        Generator generator1 = network1.getGenerator("Redispatching_RA_BBE1AA1_GENERATOR");
+        assertEquals(116., generator1.getTargetP(), DOUBLE_EPSILON);
+        assertEquals(1.0, generator1.getMinP(), DOUBLE_EPSILON);
+
+        assertEquals(1, crac2.getInjectionRangeActions().size());
+        InjectionRangeAction ra2 = crac2.getInjectionRangeActions().iterator().next();
+        assertEquals("Redispatching_RA_RD", ra2.getId());
+        assertEquals(120., ra2.getInitialSetpoint(), DOUBLE_EPSILON);
+        assertTrue(ra2.getVariationCost(VariationDirection.UP).isPresent());
+        assertEquals(5., ra2.getVariationCost(VariationDirection.UP).get(), DOUBLE_EPSILON);
+        assertTrue(ra2.getVariationCost(VariationDirection.DOWN).isPresent());
+        assertEquals(5., ra2.getVariationCost(VariationDirection.DOWN).get(), DOUBLE_EPSILON);
+        Network network2 = Network.read(networkFilePathPostIcsImport2);
+        Generator generator2 = network2.getGenerator("Redispatching_RA_BBE1AA1_GENERATOR");
+        assertEquals(120., generator2.getTargetP(), DOUBLE_EPSILON);
+        assertEquals(1.0, generator2.getMinP(), DOUBLE_EPSILON);
+    }
+
+    @Test
     void testIcsImporterOneActionNoGradientNoLeadNoLag() throws IOException {
         double cost = 5.;
         InputStream staticInputStream = IcsImporterTest.class.getResourceAsStream("/ics/static_no_gradient_no_lead_no_lag.csv");

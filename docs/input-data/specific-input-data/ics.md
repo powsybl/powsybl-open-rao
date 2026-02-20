@@ -31,8 +31,8 @@ Static ICS data defines a remedial action's generator's static constraints:
 
 ### Series
 
-This CSV defines a remedial action's generator's operating program P0, and allowed undershoot/overshoot from P0 (RDP-
-and RDP+, positive values). These values are defined as time series over 24 hours.
+This CSV defines a remedial action's generator's operating program P0, allowed undershoot/overshoot from P0 (RDP- and
+RDP+, positive values), and the Pmin of redispatching (Pmin_RD). These values are defined as time series over 24 hours.
 
 ### GSK
 
