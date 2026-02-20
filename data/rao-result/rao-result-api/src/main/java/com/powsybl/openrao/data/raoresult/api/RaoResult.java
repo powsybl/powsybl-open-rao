@@ -7,24 +7,12 @@
 
 package com.powsybl.openrao.data.raoresult.api;
 
-import com.powsybl.action.Action;
-import com.powsybl.action.GeneratorAction;
-import com.powsybl.action.GeneratorActionBuilder;
-import com.powsybl.action.LoadAction;
-import com.powsybl.action.LoadActionBuilder;
-import com.powsybl.action.PhaseTapChangerTapPositionAction;
 import com.powsybl.commons.extensions.Extendable;
 import com.powsybl.commons.util.ServiceLoaderCache;
-import com.powsybl.contingency.ContingencyContext;
-import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
-import com.powsybl.openrao.commons.logs.TechnicalLogs;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.CracCreationContext;
 import com.powsybl.openrao.data.crac.api.Instant;
@@ -35,30 +23,20 @@ import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
-import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.io.Exporter;
 import com.powsybl.openrao.data.raoresult.api.io.Importer;
-import com.powsybl.security.condition.Condition;
-import com.powsybl.security.condition.TrueCondition;
-import com.powsybl.security.strategy.OperatorStrategy;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * This interface will provide complete results that a user could expect after a RAO. It enables to access physical
@@ -579,54 +557,7 @@ public interface RaoResult extends Extendable<RaoResult> {
         write(new ServiceLoaderCache<>(Exporter.class).getServices(), format, crac, properties, outputStream);
     }
 
-    default StrategyAndActions toOperatorStrategy(State state, Network network) {
-        String strategyId = "OperatorStrategy - %s".formatted(state.getId());
-        ContingencyContext contingencyContext = state.getContingency().map(contingency -> ContingencyContext.specificContingency(contingency.getId())).orElseGet(ContingencyContext::none);
-        Condition condition = new TrueCondition();
-        Set<Action> actions = new HashSet<>();
-        getActivatedNetworkActionsDuringState(state).forEach(networkAction -> actions.addAll(networkAction.getElementaryActions()));
-        for (RangeAction<?> rangeAction : getActivatedRangeActionsDuringState(state)) {
-            if (rangeAction instanceof PstRangeAction pstRangeAction) {
-                PhaseTapChangerTapPositionAction action = new PhaseTapChangerTapPositionAction(
-                    "%s@%s".formatted(pstRangeAction.getId(), getOptimizedTapOnState(state, pstRangeAction)),
-                    pstRangeAction.getNetworkElement().getId(),
-                    false,
-                    getOptimizedTapOnState(state, pstRangeAction)
-                );
-                actions.add(action);
-            } else if (rangeAction instanceof InjectionRangeAction injectionRangeAction) {
-                double setPoint = getOptimizedSetPointOnState(state, injectionRangeAction);
-                injectionRangeAction.getInjectionDistributionKeys().forEach((networkElement, distributionKey) -> {
-                    Identifiable<?> identifiable = network.getIdentifiable(networkElement.getId());
-                    if (identifiable instanceof Generator generator) {
-                        double targetP = distributionKey * setPoint;
-                        GeneratorAction action = new GeneratorActionBuilder()
-                            .withId("%s::%s@%s".formatted(rangeAction.getId(), generator.getId(), targetP))
-                            .withGeneratorId(generator.getId())
-                            .withActivePowerValue(targetP)
-                            .build();
-                        actions.add(action);
-                    } else if (identifiable instanceof Load load) {
-                        double p0 = Math.abs(distributionKey * setPoint);
-                        LoadAction action = new LoadActionBuilder()
-                            .withId("%s::%s@%s".formatted(rangeAction.getId(), load.getId(), p0))
-                            .withLoadId(load.getId())
-                            .withActivePowerValue(p0)
-                            .build();
-                        actions.add(action);
-                    } else {
-                        throw new OpenRaoException("Network element %s is neither a generator nor a load.".formatted(networkElement.getId()));
-                    }
-                });
-            } else {
-                OpenRaoLoggerProvider.TECHNICAL_LOGS.warn(String.format("No equivalent Action existing for remedial action of type: %s. Remedial action %s's result ignored for state %s.", rangeAction.getClass().getSimpleName(), rangeAction.getId(), state.getId()));
-            }
-        }
-        OperatorStrategy operatorStrategy = new OperatorStrategy(strategyId, contingencyContext, condition, actions.stream().map(Action::getId).collect(Collectors.toList()));
-        return new StrategyAndActions(operatorStrategy, actions);
-    }
-
-    default Map<State, StrategyAndActions> toOperatorStrategies(Crac crac, Network network) {
-        return crac.getStates().stream().collect(Collectors.toMap(Function.identity(), state -> toOperatorStrategy(state, network)));
+    default StrategiesAndActions getOperatorStrategies(Crac crac, Network network) {
+        return OperatorStrategyConverter.getOperatorStrategies(this, crac, network);
     }
 }
