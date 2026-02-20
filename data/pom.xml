@@ -20,7 +20,7 @@
         <module>glsk</module>
         <module>rao-result</module>
         <module>refprog</module>
-        <module>time-coupling-constraints</module>
+        <module>time-coupled-constraints</module>
         <module>virtual-hubs</module>
     </modules>
 </project>

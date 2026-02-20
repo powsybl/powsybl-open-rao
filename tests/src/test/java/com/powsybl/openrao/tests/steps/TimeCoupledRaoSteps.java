@@ -23,8 +23,8 @@ import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.io.fbconstraint.FbConstraintCreationContext;
 import com.powsybl.openrao.data.crac.io.fbconstraint.parameters.FbConstraintCracCreationParameters;
 import com.powsybl.openrao.data.crac.util.IcsImporter;
-import com.powsybl.openrao.data.timecouplingconstraints.TimeCouplingConstraints;
-import com.powsybl.openrao.data.timecouplingconstraints.io.JsonTimeCouplingConstraints;
+import com.powsybl.openrao.data.timecoupledconstraints.TimeCoupledConstraints;
+import com.powsybl.openrao.data.timecoupledconstraints.io.JsonTimeCoupledConstraints;
 import com.powsybl.openrao.data.raoresult.api.TimeCoupledRaoResult;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.io.idcc.core.F711Utils;
@@ -158,7 +158,7 @@ public final class TimeCoupledRaoSteps {
 
         networkFolderPath = getResourcesPath().concat("cases/");
         cracFolderPath = getResourcesPath().concat("crac/");
-        String timeCoupledConstraintsFolderPath = getResourcesPath().concat("timeCouplingConstraints/");
+        String timeCoupledConstraintsFolderPath = getResourcesPath().concat("timeCoupledConstraints/");
 
         TemporalData<RaoInputWithNetworkPaths> raoInputs = new TemporalDataImpl<>();
         List<Map<String, String>> inputs = arg1.asMaps(String.class, String.class);
@@ -169,8 +169,8 @@ public final class TimeCoupledRaoSteps {
             raoInputs.put(offsetDateTime, RaoInputWithNetworkPaths.build(networkFolderPath.concat(tsInput.get("Network")), networkFolderPath.concat(tsInput.get("Network")), crac).build());
         }
 
-        TimeCouplingConstraints timeCouplingConstraints = JsonTimeCouplingConstraints.read(new FileInputStream(timeCoupledConstraintsFolderPath.concat(timeCoupledConstraintsPath)));
-        timeCoupledRaoInputWithNetworkPaths = new TimeCoupledRaoInputWithNetworkPaths(raoInputs, timeCouplingConstraints);
+        TimeCoupledConstraints timeCoupledConstraints = JsonTimeCoupledConstraints.read(new FileInputStream(timeCoupledConstraintsFolderPath.concat(timeCoupledConstraintsPath)));
+        timeCoupledRaoInputWithNetworkPaths = new TimeCoupledRaoInputWithNetworkPaths(raoInputs, timeCoupledConstraints);
     }
 
     @Given("time-coupled rao inputs for CORE are:")
@@ -219,7 +219,7 @@ public final class TimeCoupledRaoSteps {
             raoInputs.put(offsetDateTime, raoInput);
             cracCreationContexts.put(offsetDateTime, cracImportResult.getRight());
         }
-        timeCoupledRaoInputWithNetworkPaths = new TimeCoupledRaoInputWithNetworkPaths(raoInputs, new TimeCouplingConstraints());
+        timeCoupledRaoInputWithNetworkPaths = new TimeCoupledRaoInputWithNetworkPaths(raoInputs, new TimeCoupledConstraints());
         InputStream gskInputStream = icsGskPath == null ? null : new FileInputStream(getFile(icsGskPath));
 
         FbConstraintCracCreationParameters fbConstraintParameters = cracCreationParameters.getExtension(FbConstraintCracCreationParameters.class);

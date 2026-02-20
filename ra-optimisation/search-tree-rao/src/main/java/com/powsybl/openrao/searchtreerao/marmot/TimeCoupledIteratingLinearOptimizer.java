@@ -163,7 +163,7 @@ public final class TimeCoupledIteratingLinearOptimizer {
         // TODO: add tipe-coupled margin filler (min of all min margins)
         TemporalData<State> preventiveStates = input.iteratingLinearOptimizerInputs().map(linearOptimizerInput -> linearOptimizerInput.optimizationPerimeter().getMainOptimizationState());
         TemporalData<Set<InjectionRangeAction>> preventiveInjectionRangeActions = input.iteratingLinearOptimizerInputs().map(linearOptimizerInput -> filterPreventiveInjectionRangeAction(linearOptimizerInput.optimizationPerimeter().getRangeActions()));
-        return List.of(new GeneratorConstraintsFiller(input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::network), preventiveStates, preventiveInjectionRangeActions, input.timeCouplingConstraints().getGeneratorConstraints()));
+        return List.of(new GeneratorConstraintsFiller(input.iteratingLinearOptimizerInputs().map(IteratingLinearOptimizerInput::network), preventiveStates, preventiveInjectionRangeActions, input.timeCoupledConstraints().getGeneratorConstraints()));
     }
 
     private static Set<InjectionRangeAction> filterPreventiveInjectionRangeAction(Set<RangeAction<?>> rangeActions) {

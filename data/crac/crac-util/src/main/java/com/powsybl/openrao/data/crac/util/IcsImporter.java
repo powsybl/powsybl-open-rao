@@ -15,7 +15,7 @@ import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeActionAdder;
 import com.powsybl.openrao.data.crac.api.rangeaction.VariationDirection;
-import com.powsybl.openrao.data.timecouplingconstraints.GeneratorConstraints;
+import com.powsybl.openrao.data.timecoupledconstraints.GeneratorConstraints;
 import com.powsybl.openrao.raoapi.TimeCoupledRaoInputWithNetworkPaths;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
@@ -176,7 +176,7 @@ public final class IcsImporter {
                 )).withDownwardPowerGradient(-shiftKey * parseDoubleWithPossibleCommas(
                     staticRecord.get("Maximum negative power gradient [MW/h]").isEmpty() ? MAX_GRADIENT : staticRecord.get("Maximum negative power gradient [MW/h]")
                 )).build();
-            timeCoupledRaoInput.getTimeCouplingConstraints().addGeneratorConstraints(generatorConstraints);
+            timeCoupledRaoInput.getTimeCoupledConstraints().addGeneratorConstraints(generatorConstraints);
         });
     }
 
@@ -222,7 +222,7 @@ public final class IcsImporter {
             )).withDownwardPowerGradient(-parseDoubleWithPossibleCommas(
                 staticRecord.get("Maximum negative power gradient [MW/h]").isEmpty() ? MAX_GRADIENT : staticRecord.get("Maximum negative power gradient [MW/h]")
             )).build();
-        timeCoupledRaoInput.getTimeCouplingConstraints().addGeneratorConstraints(generatorConstraints);
+        timeCoupledRaoInput.getTimeCoupledConstraints().addGeneratorConstraints(generatorConstraints);
     }
 
     private static String processNetworks(String nodeId, TemporalData<Network> initialNetworks, Map<String, CSVRecord> seriesPerType, double shiftKey) {

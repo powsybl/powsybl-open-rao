@@ -9,7 +9,7 @@ package com.powsybl.openrao.raoapi;
 
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.TemporalData;
-import com.powsybl.openrao.data.timecouplingconstraints.TimeCouplingConstraints;
+import com.powsybl.openrao.data.timecoupledconstraints.TimeCoupledConstraints;
 
 import java.time.OffsetDateTime;
 import java.util.HashSet;
@@ -24,17 +24,17 @@ import java.util.stream.Collectors;
 public class TimeCoupledRaoInputWithNetworkPaths {
     private final TemporalData<RaoInputWithNetworkPaths> raoInputs;
     private final Set<OffsetDateTime> timestampsToRun;
-    private final TimeCouplingConstraints timeCouplingConstraints;
+    private final TimeCoupledConstraints timeCoupledConstraints;
 
-    public TimeCoupledRaoInputWithNetworkPaths(TemporalData<RaoInputWithNetworkPaths> raoInputs, Set<OffsetDateTime> timestampsToRun, TimeCouplingConstraints timeCouplingConstraints) {
+    public TimeCoupledRaoInputWithNetworkPaths(TemporalData<RaoInputWithNetworkPaths> raoInputs, Set<OffsetDateTime> timestampsToRun, TimeCoupledConstraints timeCoupledConstraints) {
         this.raoInputs = raoInputs;
         this.timestampsToRun = new TreeSet<>(timestampsToRun);
-        this.timeCouplingConstraints = timeCouplingConstraints;
+        this.timeCoupledConstraints = timeCoupledConstraints;
         checkTimestampsToRun();
     }
 
-    public TimeCoupledRaoInputWithNetworkPaths(TemporalData<RaoInputWithNetworkPaths> raoInputs, TimeCouplingConstraints timeCouplingConstraints) {
-        this(raoInputs, new HashSet<>(raoInputs.getTimestamps()), timeCouplingConstraints);
+    public TimeCoupledRaoInputWithNetworkPaths(TemporalData<RaoInputWithNetworkPaths> raoInputs, TimeCoupledConstraints timeCoupledConstraints) {
+        this(raoInputs, new HashSet<>(raoInputs.getTimestamps()), timeCoupledConstraints);
     }
 
     public TemporalData<RaoInputWithNetworkPaths> getRaoInputs() {
@@ -45,8 +45,8 @@ public class TimeCoupledRaoInputWithNetworkPaths {
         return timestampsToRun;
     }
 
-    public TimeCouplingConstraints getTimeCouplingConstraints() {
-        return timeCouplingConstraints;
+    public TimeCoupledConstraints getTimeCoupledConstraints() {
+        return timeCoupledConstraints;
     }
 
     private void checkTimestampsToRun() {

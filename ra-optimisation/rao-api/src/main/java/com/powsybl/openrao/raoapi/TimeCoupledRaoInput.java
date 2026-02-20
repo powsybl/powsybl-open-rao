@@ -9,7 +9,7 @@ package com.powsybl.openrao.raoapi;
 
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.TemporalData;
-import com.powsybl.openrao.data.timecouplingconstraints.TimeCouplingConstraints;
+import com.powsybl.openrao.data.timecoupledconstraints.TimeCoupledConstraints;
 
 import java.time.OffsetDateTime;
 import java.util.HashSet;
@@ -23,17 +23,17 @@ import java.util.stream.Collectors;
 public class TimeCoupledRaoInput {
     private final TemporalData<RaoInput> raoInputs;
     private final Set<OffsetDateTime> timestampsToRun;
-    private final TimeCouplingConstraints timeCouplingConstraints;
+    private final TimeCoupledConstraints timeCoupledConstraints;
 
-    public TimeCoupledRaoInput(TemporalData<RaoInput> raoInputs, Set<OffsetDateTime> timestampsToRun, TimeCouplingConstraints timeCouplingConstraints) {
+    public TimeCoupledRaoInput(TemporalData<RaoInput> raoInputs, Set<OffsetDateTime> timestampsToRun, TimeCoupledConstraints timeCoupledConstraints) {
         this.raoInputs = raoInputs;
         this.timestampsToRun = timestampsToRun;
-        this.timeCouplingConstraints = timeCouplingConstraints;
+        this.timeCoupledConstraints = timeCoupledConstraints;
         checkTimestampsToRun();
     }
 
-    public TimeCoupledRaoInput(TemporalData<RaoInput> raoInputs, TimeCouplingConstraints timeCouplingConstraints) {
-        this(raoInputs, new HashSet<>(raoInputs.getTimestamps()), timeCouplingConstraints);
+    public TimeCoupledRaoInput(TemporalData<RaoInput> raoInputs, TimeCoupledConstraints timeCoupledConstraints) {
+        this(raoInputs, new HashSet<>(raoInputs.getTimestamps()), timeCoupledConstraints);
     }
 
     public TemporalData<RaoInput> getRaoInputs() {
@@ -44,8 +44,8 @@ public class TimeCoupledRaoInput {
         return timestampsToRun;
     }
 
-    public TimeCouplingConstraints getTimeCouplingConstraints() {
-        return timeCouplingConstraints;
+    public TimeCoupledConstraints getTimeCoupledConstraints() {
+        return timeCoupledConstraints;
     }
 
     private void checkTimestampsToRun() {

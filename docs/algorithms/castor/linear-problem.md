@@ -5,7 +5,7 @@
 linear-problem/core-problem-filler.md
 linear-problem/objective-function-types.md
 linear-problem/special-features.md
-linear-problem/time-coupling-constraints.md
+linear-problem/time-coupled-constraints.md
 linear-problem/continuous-range-action-group-filler.md
 linear-problem/discrete-pst-tap-filler.md
 linear-problem/discrete-pst-group-filler.md

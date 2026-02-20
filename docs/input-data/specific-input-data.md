@@ -4,7 +4,7 @@
 :hidden:
 specific-input-data/reference-program.md
 specific-input-data/virtual-hubs.md
-specific-input-data/time-coupling-constraints.md
+specific-input-data/time-coupled-constraints.md
 specific-input-data/ics.md
 ```
 

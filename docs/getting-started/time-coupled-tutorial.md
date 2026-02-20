@@ -388,23 +388,23 @@ expenses for the remedial actions among all timestamps.
 
 </details>
 
-### Time-coupling constraints
+### Time-coupled constraints
 
-We will also apply simple time-coupling constraints on the French generator by using 500 MW/h _power gradients_. This
+We will also apply simple time-coupled constraints on the French generator by using 500 MW/h _power gradients_. This
 means that the power of the generator cannot vary more than 500 MW upward or downward between the two timestamps.
 
 <details>
 
-<summary>JSON time-coupling constraints file content</summary>
+<summary>JSON time-coupled constraints file content</summary>
 
-> Copy and paste the following snippet to a JSON file. In the following, we will assume that the time-coupling
-> constraints are written in a file named `time-coupling-constraints.json`. For more information on the JSON
-> time-coupling constraints format, see the
-> [dedicated page](../input-data/specific-input-data/time-coupling-constraints.md).
+> Copy and paste the following snippet to a JSON file. In the following, we will assume that the time-coupled
+> constraints are written in a file named `time-coupled-constraints.json`. For more information on the JSON
+> time-coupled constraints format, see the
+> [dedicated page](../input-data/specific-input-data/time-coupled-constraints.md).
 
 ```json
 {
-  "type": "OpenRAO Time-Coupling Constraints",
+  "type": "OpenRAO Time-Coupled Constraints",
   "version": "1.0",
   "generatorConstraints": [
     {
@@ -439,10 +439,10 @@ Crac crac0130 = Crac.read("crac-0130.json", new FileInputStream("crac-0130.json"
 RaoParameters raoParameters = JsonRaoParameters.read(new FileInputStream("rao-parameters.json"));
 ```
 
-### Time-coupling constraints
+### Time-coupled constraints
 
 ```java
-TimeCouplingConstraints timeCouplingConstraints = JsonTimeCouplingConstraints.read(new FileInputStream("time-coupling-constraints.json"));
+TimeCoupledConstraints timeCoupledConstraints = JsonTimeCoupledConstraints.read(new FileInputStream("time-coupled-constraints.json"));
 ```
 
 ## Prepare inputs
@@ -464,18 +464,18 @@ inputPerTimestamp.put(OffsetDateTime.of(2026, 2, 16, 1, 30, 0, 0, ZoneOffset.UTC
 > large cases with too many timestamps, leading to this cumbersome writing. This will be fixed soon.
 
 We can then use this `TemporalData` to create proper time-coupled RAO inputs. We will create two versions: one with
-time-coupling constraints and one without:
+time-coupled constraints and one without:
 
 ```java
-TimeCoupledRaoInputWithNetworkPaths inputNoConstraints = new TimeCoupledRaoInputWithNetworkPaths(inputPerTimestamp, new TimeCouplingConstraints());
-TimeCoupledRaoInputWithNetworkPaths inputWithConstraints = new TimeCoupledRaoInputWithNetworkPaths(inputPerTimestamp, timeCouplingConstraints);
+TimeCoupledRaoInputWithNetworkPaths inputNoConstraints = new TimeCoupledRaoInputWithNetworkPaths(inputPerTimestamp, new TimeCoupledConstraints());
+TimeCoupledRaoInputWithNetworkPaths inputWithConstraints = new TimeCoupledRaoInputWithNetworkPaths(inputPerTimestamp, timeCoupledConstraints);
 ```
 
 ## Run the RAO
 
-### Without time-coupling constraints
+### Without time-coupled constraints
 
-Let's run the RAO. As a first step, we will not include the time-coupling constraints on the generator so the injection
+Let's run the RAO. As a first step, we will not include the time-coupled constraints on the generator so the injection
 remedial action is free to be activated at any set-point between 0 and 1000 MW.
 
 What is expected is that the set-point is kept at 1000 MW at 0:30 because the CNEC's threshold is 1000 MW too so there
@@ -510,9 +510,9 @@ INFO  c.p.o.commons.logs.RaoBusinessLogs - Limiting element #02: margin = 0.0 MW
 We can see that the injection set-point was indeed shifted from 1000 MW to 0 MW at 1:30 but kept constant at 0:30 for a
 global cost of 50010.
 
-### With time-coupling constraints
+### With time-coupled constraints
 
-We will now add the time-coupling constraints to the RAO to apply the power gradient constraints on the generator. When
+We will now add the time-coupled constraints to the RAO to apply the power gradient constraints on the generator. When
 taking them in account, the generator is no longer _free_ and its power cannot vary more than 500 MW between the two
 timestamps.
 
@@ -523,7 +523,7 @@ the following timestamp, even if this means activating the remedial action earli
 this situation we expect a cost of 25010 at 0:30 (10 for activation, 25000 for variation) and 50010 at 1:30 (10 for
 activation, 50000 for variation).
 
-Let's run the RAO with the time-coupling constraints:
+Let's run the RAO with the time-coupled constraints:
 
 ```java
 TimeCoupledRao.find("TimeCoupledRao").run(inputWithConstraints, raoParameters);
@@ -548,7 +548,7 @@ INFO  c.p.o.commons.logs.RaoBusinessLogs - Limiting element #02: margin = 500.0 
 Once again, the expected behavior happened: the redispatching action was first activated at 0:30 at a 500 MW set-point
 and activated once again at 1:30 at a 0 MW set-point.
 
-We can see that before the global linear optimization, the global expense was 50010 because the time-coupling
+We can see that before the global linear optimization, the global expense was 50010 because the time-coupled
 constraints had not been taken in account yet. The goal of the linear optimization is to _smooth out_ the injection
 set-points by forcing the generator to respect their constraints, hence the different cost after the global linear
 optimization that matches the expectations.
@@ -568,8 +568,8 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.data.crac.api.Crac;
-import com.powsybl.openrao.data.timecouplingconstraints.TimeCouplingConstraints;
-import com.powsybl.openrao.data.timecouplingconstraints.io.JsonTimeCouplingConstraints;
+import com.powsybl.openrao.data.timecoupledconstraints.TimeCoupledConstraints;
+import com.powsybl.openrao.data.timecoupledconstraints.io.JsonTimeCoupledConstraints;
 import com.powsybl.openrao.raoapi.TimeCoupledRao;
 import com.powsybl.openrao.raoapi.TimeCoupledRaoInputWithNetworkPaths;
 import com.powsybl.openrao.raoapi.RaoInputWithNetworkPaths;
@@ -583,14 +583,14 @@ import java.time.ZoneOffset;
 
 public class Main {
     public static void main(String[] args) throws IOException {
-        
+
         // import data
-        
+
         Network network = Network.read("2-nodes.xiidm");
         Crac crac0030 = Crac.read("crac-202602160030.json", new FileInputStream("crac-202602160030.json"), network);
         Crac crac0130 = Crac.read("crac-202602160130.json", new FileInputStream("crac-202602160130.json"), network);
         RaoParameters raoParameters = JsonRaoParameters.read(new FileInputStream("rao-parameters.json"));
-        TimeCouplingConstraints timeCouplingConstraints = JsonTimeCouplingConstraints.read(new FileInputStream("time-coupling-constraints.json"));
+        TimeCoupledConstraints timeCoupledConstraints = JsonTimeCoupledConstraints.read(new FileInputStream("time-coupled-constraints.json"));
 
         // create time-coupled inputs
 
@@ -601,15 +601,15 @@ public class Main {
 
         RaoInputWithNetworkPaths input0130 = RaoInputWithNetworkPaths.build("2-nodes.xiidm", "2-nodes.xiidm", crac0130).build();
         inputPerTimestamp.put(OffsetDateTime.of(2026, 2, 16, 1, 30, 0, 0, ZoneOffset.UTC), input0130);
-        
-        TimeCoupledRaoInputWithNetworkPaths inputNoConstraints = new TimeCoupledRaoInputWithNetworkPaths(inputPerTimestamp, new TimeCouplingConstraints());
-        TimeCoupledRaoInputWithNetworkPaths inputWithConstraints = new TimeCoupledRaoInputWithNetworkPaths(inputPerTimestamp, timeCouplingConstraints);
-        
-        // run time-coupled RAO without time-coupling constraints
+
+        TimeCoupledRaoInputWithNetworkPaths inputNoConstraints = new TimeCoupledRaoInputWithNetworkPaths(inputPerTimestamp, new TimeCoupledConstraints());
+        TimeCoupledRaoInputWithNetworkPaths inputWithConstraints = new TimeCoupledRaoInputWithNetworkPaths(inputPerTimestamp, timeCoupledConstraints);
+
+        // run time-coupled RAO without time-coupled constraints
 
         TimeCoupledRao.find("TimeCoupledRao").run(inputNoConstraints, raoParameters);
 
-        // add time-coupling constraints and re-run time-coupled RAO
+        // add time-coupled constraints and re-run time-coupled RAO
 
         TimeCoupledRao.find("TimeCoupledRao").run(inputWithConstraints, raoParameters);
     }
