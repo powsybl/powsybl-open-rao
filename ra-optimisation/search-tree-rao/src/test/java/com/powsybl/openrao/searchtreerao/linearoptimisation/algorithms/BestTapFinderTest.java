@@ -344,7 +344,7 @@ class BestTapFinderTest {
 
     @Test
     void testUpdatedRangeActionResultNoOptimizationOfTheTap() {
-        double startingSetPoint = 0.;
+        double startingSetPoint = 0.75;
         double notRoundedSetpoint = 0.8;
         // Starting point is really close to set point of tap 1 so it will be set to tap 1
         setClosestTapPosition(pstRangeAction, notRoundedSetpoint, 1);
@@ -370,8 +370,12 @@ class BestTapFinderTest {
 
         RangeActionActivationResult updatedRangeActionActivationResult = computeUpdatedRangeActionResult();
 
-        assertEquals(0.75, updatedRangeActionActivationResult.getOptimizedSetpoint(pstRangeAction, optimizedState), DOUBLE_TOLERANCE);
-        assertEquals(200., updatedRangeActionActivationResult.getOptimizedSetpoint(activatedRangeActionOtherThanPst, optimizedState), DOUBLE_TOLERANCE);
+        assertEquals(0.75, updatedRangeActionActivationResult.getOptimizedSetpoint(pstRangeAction, optimizedState));
+        assertEquals(200., updatedRangeActionActivationResult.getOptimizedSetpoint(activatedRangeActionOtherThanPst, optimizedState));
+
+        // Initially the pst was on tap 1 <-> setpoint 0.75. The original optimized PST setpoint was 0.85 => after rounding it the setpoint becomes 0.75
+        // The PST is not considered as activated
+        assertEquals(Set.of(activatedRangeActionOtherThanPst), updatedRangeActionActivationResult.getActivatedRangeActions(optimizedState));
     }
 
     @Test
