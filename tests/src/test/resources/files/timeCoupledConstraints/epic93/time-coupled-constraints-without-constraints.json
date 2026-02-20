@@ -1,0 +1,9 @@
+{
+  "type": "OpenRAO Time-Coupled Constraints",
+  "version": "1.0",
+  "generatorConstraints": [
+    {
+      "generatorId": "BBE1AA1 _generator"
+    }
+  ]
+}

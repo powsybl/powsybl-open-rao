@@ -1267,7 +1267,7 @@ An InjectionRangeAction modifies given generators' & loads' injection set-points
 Each impacted generator or load has an associated "key", which is a coefficient of impact that is applied on its set-point.
 
 This range action has two main applications:
-* to represent redispatching remedial actions for [inter-temporal computations](../../algorithms/castor/linear-problem/inter-temporal-constraints.md)
+* to represent redispatching remedial actions for [time-coupled computations](../../algorithms/castor/linear-problem/time-coupled-constraints.md)
 * to represent an HVDC line in an AC equivalent model (where the line is disconnected and
 replaced by two injections, one on each side of the line, with opposite keys of 1 and -1) see [here](../../algorithms/castor/special-features/hvdc.md#italy-nord-process-cse-crac)
 
