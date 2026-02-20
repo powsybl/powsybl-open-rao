@@ -14,7 +14,7 @@ import java.util.function.BiPredicate;
 import java.util.function.Function;
 
 /**
- * Adds balancing range actions to a given list of countries (one RA per country).
+ * Adds a balancing range action on a set of Injections.
  * This allows ensuring load-generation balance and should be associated to high costs.
  *
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
