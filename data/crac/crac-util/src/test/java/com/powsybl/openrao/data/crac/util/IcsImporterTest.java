@@ -43,8 +43,6 @@ class IcsImporterTest {
     private String networkFilePathPostIcsImport1;
     private String networkFilePathPostIcsImport2;
     private TimeCoupledRaoInputWithNetworkPaths timeCoupledRaoInputWithNetworkPaths;
-    private Network network1;
-    private Network network2;
     private Crac crac1;
     private Crac crac2;
 
@@ -145,10 +143,10 @@ class IcsImporterTest {
         InputStream staticInputStream = IcsImporterTest.class.getResourceAsStream("/ics/static_no_gradient_no_lead_no_lag.csv");
         InputStream seriesInputStream = IcsImporterTest.class.getResourceAsStream("/ics/series.csv");
         InputStream gskInputStream = IcsImporterTest.class.getResourceAsStream("/glsk/gsk.csv");
-        IcsImporter.populateInputWithICS(interTemporalRaoInputWithNetworkPaths, staticInputStream, seriesInputStream, gskInputStream, cost, cost);
+        IcsImporter.populateInputWithICS(timeCoupledRaoInputWithNetworkPaths, staticInputStream, seriesInputStream, gskInputStream, cost, cost);
 
-        assertEquals(1, interTemporalRaoInputWithNetworkPaths.getIntertemporalConstraints().getGeneratorConstraints().size());
-        GeneratorConstraints generatorConstraints = interTemporalRaoInputWithNetworkPaths.getIntertemporalConstraints().getGeneratorConstraints().iterator().next();
+        assertEquals(1, timeCoupledRaoInputWithNetworkPaths.getTimeCoupledConstraints().getGeneratorConstraints().size());
+        GeneratorConstraints generatorConstraints = timeCoupledRaoInputWithNetworkPaths.getTimeCoupledConstraints().getGeneratorConstraints().iterator().next();
         assertEquals("Redispatching_RA_BBE1AA1_GENERATOR", generatorConstraints.getGeneratorId());
         assertTrue(generatorConstraints.getDownwardPowerGradient().isPresent());
         assertEquals(-1000.0, generatorConstraints.getDownwardPowerGradient().get(), DOUBLE_EPSILON);
@@ -247,10 +245,10 @@ class IcsImporterTest {
         InputStream staticInputStream = IcsImporterTest.class.getResourceAsStream("/ics/static_with_gsk.csv");
         InputStream seriesInputStream = IcsImporterTest.class.getResourceAsStream("/ics/series.csv");
         InputStream gskInputStream = IcsImporterTest.class.getResourceAsStream("/glsk/gsk_load_generator.csv");
-        IcsImporter.populateInputWithICS(interTemporalRaoInputWithNetworkPaths, staticInputStream, seriesInputStream, gskInputStream, cost, cost);
+        IcsImporter.populateInputWithICS(timeCoupledRaoInputWithNetworkPaths, staticInputStream, seriesInputStream, gskInputStream, cost, cost);
 
-        assertEquals(1, interTemporalRaoInputWithNetworkPaths.getIntertemporalConstraints().getGeneratorConstraints().size());
-        GeneratorConstraints generatorConstraintsBE = interTemporalRaoInputWithNetworkPaths.getIntertemporalConstraints().getGeneratorConstraints().stream().filter(gc -> gc.getGeneratorId().contains("BE")).findFirst().orElseThrow();
+        assertEquals(1, timeCoupledRaoInputWithNetworkPaths.getTimeCoupledConstraints().getGeneratorConstraints().size());
+        GeneratorConstraints generatorConstraintsBE = timeCoupledRaoInputWithNetworkPaths.getTimeCoupledConstraints().getGeneratorConstraints().stream().filter(gc -> gc.getGeneratorId().contains("BE")).findFirst().orElseThrow();
         assertEquals("Redispatching_RA_BBE1AA1_GENERATOR", generatorConstraintsBE.getGeneratorId());
         assertEquals(-10.0, generatorConstraintsBE.getDownwardPowerGradient().orElseThrow(), DOUBLE_EPSILON);
         assertEquals(10.0, generatorConstraintsBE.getUpwardPowerGradient().orElseThrow(), DOUBLE_EPSILON);

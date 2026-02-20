@@ -164,7 +164,7 @@ Feature: US 93.2: Time-coupled redispatching actions with MARMOT - power gradien
     Given ics series file is "epic93/series_93_2_6.csv"
     Given ics gsk file is "epic93/gsk_93_2_6.csv"
     Given configuration file is "epic93/RaoParameters_minCost_megawatt_dc.json"
-    Given intertemporal rao inputs for CORE are:
+    Given time-coupled rao inputs for CORE are:
       | Timestamp        | Network         |
       | 2019-01-08 00:30 | 2Nodes_0030.uct |
       | 2019-01-08 01:30 | 2Nodes_0130.uct |
