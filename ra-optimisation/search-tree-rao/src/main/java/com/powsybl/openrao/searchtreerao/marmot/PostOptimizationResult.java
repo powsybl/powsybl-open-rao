@@ -47,7 +47,7 @@ import java.util.Set;
  *                 RaoResult: output from initial Rao run, containing activated topological actions
  *             </li>
  *             <li>
- *                 LinearOptimizationResult: output from inter-temporal MIP, containing activated range actions
+ *                 LinearOptimizationResult: output from time-coupled MIP, containing activated range actions
  *             </li>
  *         </ul>
  *     </li>
