@@ -40,7 +40,7 @@ public class BalancingRangeAction {
     }
 
     /**
-     * Set the function that indicates the costs of balancing in a given country.
+     * Set the function that indicates the costs of balancing.
      */
     public void setRaCostsProvider(Function<Instant, InjectionRangeActionCosts> raCostsProvider) {
         this.raCostsProvider = raCostsProvider;
