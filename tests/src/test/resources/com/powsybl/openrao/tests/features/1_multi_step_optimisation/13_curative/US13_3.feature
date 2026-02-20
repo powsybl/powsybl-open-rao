@@ -1,0 +1,229 @@
+# Copyright (c) 2024, RTE (http://www.rte-france.com)
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+Feature: US 13.3 : Solve a RAO for N compounds states
+  This feature covers RAO computation with N states defined in the CRAC.
+
+  @fast @rao @ac @contingency-scenarios @max-min-margin @ampere
+  Scenario: US 13.3.1: Simple case with preventive, outage and curative states
+    Given network file is "common/TestCase16Nodes.uct"
+    Given crac file is "epic13/SL_ep13us3case1.json"
+    Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
+    When I launch rao
+    Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
+    Then 3 remedial actions are used in preventive
+    Then the remedial action "close_de3_de4" is used in preventive
+    Then the remedial action "open_fr1_fr2" is used in preventive
+    Then the tap of PstRangeAction "pst_fr" should be 15 in preventive
+    Then 1 remedial actions are used after "co1_fr2_fr3_1" at "curative"
+    Then the remedial action "open_fr1_fr3" is used after "co1_fr2_fr3_1" at "curative"
+    Then the tap of PstRangeAction "pst_be" should be 0 after "co1_fr2_fr3_1" at "curative"
+    Then the worst margin is 556 A
+    Then the margin on cnec "FFR1AA1  FFR4AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be 556 A
+    Then the margin on cnec "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be 865 A
+    Then the margin on cnec "FFR4AA1  DDE1AA1  1 - preventive" after PRA should be 914 A
+    Then the margin on cnec "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - outage" after PRA should be 921 A
+    Then the value of the objective function after CRA should be -556
+
+  @fast @rao @ac @contingency-scenarios @max-min-margin @ampere
+  Scenario: US 13.3.2: Simple case, with 2 curative states
+    Given network file is "common/TestCase16Nodes.uct"
+    Given crac file is "epic13/SL_ep13us3case2.json"
+    Given configuration file is "epic13/RaoParameters_maxMargin_ampere_absolute_threshold.json"
+    When I launch rao
+    Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
+    Then 2 remedial actions are used in preventive
+    Then the remedial action "open_fr1_fr3" is used in preventive
+    Then the tap of PstRangeAction "pst_fr" should be 15 in preventive
+    Then 1 remedial actions are used after "co1_fr2_fr3_1" at "curative"
+    Then the tap of PstRangeAction "pst_be" should be 9 after "co1_fr2_fr3_1" at "curative"
+    Then 3 remedial actions are used after "co2_be1_be3" at "curative"
+    Then the tap of PstRangeAction "pst_be" should be -16 after "co2_be1_be3" at "curative"
+    Then the remedial action "open_be1_be4" is used after "co2_be1_be3" at "curative"
+    Then the remedial action "open_fr1_fr2" is used after "co2_be1_be3" at "curative"
+    Then the worst margin is 766 A
+    Then the margin on cnec "BBE2AA1  FFR3AA1  1 - co2_be1_be3 - curative" after CRA should be 766 A
+    Then the margin on cnec "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be 992 A
+    Then the margin on cnec "FFR4AA1  DDE1AA1  1 - preventive" after PRA should be 1124 A
+    Then the margin on cnec "FFR4AA1  DDE1AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be 1198 A
+    Then the margin on cnec "FFR4AA1  DDE1AA1  1 - co2_be1_be3 - curative" after CRA should be 1281 A
+    Then the value of the objective function after CRA should be -766
+
+  @fast @rao @ac @contingency-scenarios @max-min-margin @ampere
+  Scenario: US 13.3.3: Simple case, with 2 curative states and on-contingency remedial actions
+    Given network file is "common/TestCase16Nodes.uct"
+    Given crac file is "epic13/SL_ep13us3case3.json"
+    Given configuration file is "epic13/RaoParameters_maxMargin_ampere_absolute_threshold.json"
+    When I launch rao
+    Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
+    Then 2 remedial actions are used in preventive
+    Then the remedial action "open_fr1_fr3" is used in preventive
+    Then the tap of PstRangeAction "pst_fr" should be 15 in preventive
+    Then 1 remedial actions are used after "co1_fr2_fr3_1" at "curative"
+    Then the remedial action "open_fr1_fr2" is used after "co1_fr2_fr3_1" at "curative"
+    Then 2 remedial actions are used after "co2_be1_be3" at "curative"
+    Then the tap of PstRangeAction "pst_be" should be -16 after "co2_be1_be3" at "curative"
+    Then the remedial action "open_be1_be4" is used after "co2_be1_be3" at "curative"
+    Then the worst margin is 753 A
+    Then the margin on cnec "BBE2AA1  FFR3AA1  1 - co2_be1_be3 - curative" after CRA should be 753 A
+    Then the margin on cnec "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be 865 A
+    Then the margin on cnec "FFR4AA1  DDE1AA1  1 - preventive" after PRA should be 1124 A
+    Then the margin on cnec "FFR4AA1  DDE1AA1  1 - co2_be1_be3 - curative" after CRA should be 1229 A
+    Then the margin on cnec "FFR4AA1  DDE1AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be 1279 A
+    Then the value of the objective function after CRA should be -753
+
+  @fast @rao @ac @contingency-scenarios @max-min-margin @ampere
+  Scenario: US 13.3.4: Complex case, with several outage/curative states, and on-contingency remedial actions
+    Given network file is "common/TestCase16Nodes.uct"
+    Given crac file is "epic13/SL_ep13us3case4.json"
+    Given configuration file is "epic13/RaoParameters_maxMargin_ampere_absolute_threshold.json"
+    When I launch rao
+    Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "UNSECURED"
+    Then 1 remedial actions are used in preventive
+    Then the tap of PstRangeAction "pst_fr" should be 15 in preventive
+    Then 1 remedial actions are used after "co1_fr2_fr3_1" at "curative"
+    Then the remedial action "close_fr1_fr5" is used after "co1_fr2_fr3_1" at "curative"
+    Then 1 remedial actions are used after "co2_be1_be3" at "curative"
+    Then the tap of PstRangeAction "pst_be" should be -16 after "co2_be1_be3" at "curative"
+    Then the worst margin is -184 A
+    Then the margin on cnec "FFR2AA1  FFR3AA1  2 - co1_fr2_fr3_1 - outage" after PRA should be -184 A
+    Then the margin on cnec "FFR2AA1  FFR3AA1  2 - co1_fr2_fr3_1 - curative" after CRA should be -141 A
+    Then the margin on cnec "BBE2AA1  FFR3AA1  1 - co2_be1_be3 - outage" after PRA should be 332 A
+    Then the margin on cnec "BBE2AA1  FFR3AA1  1 - co2_be1_be3 - curative" after CRA should be 544 A
+    Then the margin on cnec "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be 782 A
+    Then the value of the objective function after CRA should be 184
+
+  @fast @rao @ac @contingency-scenarios @max-min-margin @ampere
+  Scenario: US 13.3.5: Simple case, with two curative states, including one without CRA
+    Given network file is "common/TestCase16Nodes.uct"
+    Given crac file is "epic13/SL_ep13us3case5.json"
+    Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
+    When I launch rao
+    Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
+    Then 4 remedial actions are used in preventive
+    Then the tap of PstRangeAction "pst_fr" should be 15 in preventive
+    Then the remedial action "close_fr1_fr5" is used in preventive
+    Then the remedial action "open_be1_be4" is used in preventive
+    Then the remedial action "open_fr1_fr3" is used in preventive
+    Then 3 remedial actions are used after "co1_fr2_fr3_1" at "curative"
+    Then the remedial action "close_de3_de4" is used after "co1_fr2_fr3_1" at "curative"
+    Then the remedial action "open_fr1_fr2" is used after "co1_fr2_fr3_1" at "curative"
+    Then the tap of PstRangeAction "pst_be" should be -16 after "co1_fr2_fr3_1" at "curative"
+    Then the worst margin is 469 A
+    Then the margin on cnec "BBE2AA1  FFR3AA1  1 - co2_be1_be3 - curative" after CRA should be 469 A
+    Then the margin on cnec "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be 875 A
+    Then the margin on cnec "FFR4AA1  DDE1AA1  1 - preventive" after PRA should be 1004 A
+    Then the margin on cnec "FFR4AA1  DDE1AA1  1 - co2_be1_be3 - curative" after CRA should be 1031 A
+    Then the margin on cnec "FFR4AA1  DDE1AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be 1049 A
+    Then the value of the objective function after CRA should be -469
+
+  @fast @rao @ac @contingency-scenarios @max-min-margin @ampere
+  Scenario: US 13.3.6: Simple case, with two outage + curative states, including one without CRA
+    Given network file is "common/TestCase16Nodes.uct"
+    Given crac file is "epic13/SL_ep13us3case6.json"
+    Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
+    When I launch rao
+    Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "UNSECURED"
+    Then 1 remedial actions are used in preventive
+    Then the tap of PstRangeAction "pst_fr" should be 15 in preventive
+    Then 2 remedial actions are used after "co2_be1_be3" at "curative"
+    Then the remedial action "open_be1_be4" is used after "co2_be1_be3" at "curative"
+    Then the tap of PstRangeAction "pst_be" should be -16 after "co2_be1_be3" at "curative"
+    Then the worst margin is -484 A
+    Then the margin on cnec "FFR2AA1  FFR3AA1  2 - co1_fr2_fr3_1 - curative" after CRA should be -484 A
+    Then the margin on cnec "FFR2AA1  FFR3AA1  2 - co1_fr2_fr3_1 - outage" after PRA should be -184 A
+    Then the margin on cnec "BBE2AA1  FFR3AA1  1 - co2_be1_be3 - outage" after PRA should be 232 A
+    Then the margin on cnec "FFR4AA1  DDE1AA1  1 - preventive" after PRA should be 525 A
+    Then the margin on cnec "FFR4AA1  DDE1AA1  1 - co1_fr2_fr3_1 - outage" after PRA should be 649 A
+    Then the margin on cnec "FFR4AA1  DDE1AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be 549 A
+    Then the value of the objective function after CRA should be 484
+
+  @fast @rao @ac @contingency-scenarios @max-min-margin @ampere
+  Scenario: US 13.3.7: Simple case, with one outage and one curative state, but on two different contingencies
+    Given network file is "common/TestCase16Nodes.uct"
+    Given crac file is "epic13/SL_ep13us3case7.json"
+    Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
+    When I launch rao
+    Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "UNSECURED"
+    Then 1 remedial actions are used in preventive
+    Then the remedial action "close_fr1_fr5" is used in preventive
+    Then 2 remedial actions are used after "co1_fr2_fr3_1" at "curative"
+    Then the tap of PstRangeAction "pst_fr" should be 15 after "co1_fr2_fr3_1" at "curative"
+    Then the tap of PstRangeAction "pst_be" should be -16 after "co1_fr2_fr3_1" at "curative"
+    Then the worst margin is -115 A
+    Then the margin on cnec "FFR2AA1  FFR3AA1  2 - co1_fr2_fr3_1 - curative" after CRA should be -115 A
+    Then the margin on cnec "FFR4AA1  DDE1AA1  1 - preventive" after PRA should be 306 A
+    Then the margin on cnec "BBE2AA1  FFR3AA1  1 - co2_be1_be3 - outage" after PRA should be 332 A
+    Then the value of the objective function after CRA should be 115
+
+  @fast @rao @ac @contingency-scenarios @max-min-margin @ampere
+  Scenario: US 13.3.8: Complex case, with several curative / outage states, and some curative states without CRA
+    Given network file is "common/TestCase16Nodes.uct"
+    Given crac file is "epic13/SL_ep13us3case8.json"
+    Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
+    When I launch rao
+    Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
+    Then 2 remedial actions are used in preventive
+    Then the tap of PstRangeAction "pst_fr" should be 15 in preventive
+    Then the tap of PstRangeAction "pst_be" should be -16 in preventive
+    Then 1 remedial actions are used after "co1_fr2_fr3_1" at "curative"
+    Then the remedial action "close_fr1_fr5" is used after "co1_fr2_fr3_1" at "curative"
+    Then 1 remedial actions are used after "co3_fr1_fr3" at "curative"
+    Then the remedial action "open_fr1_fr2" is used after "co3_fr1_fr3" at "curative"
+    Then the worst margin is 418 A
+    Then the margin on cnec "FFR2AA1  FFR3AA1  2 - co1_fr2_fr3_1 - outage" after PRA should be 418 A
+    Then the margin on cnec "FFR2AA1  FFR3AA1  2 - co1_fr2_fr3_1 - curative" after CRA should be 485 A
+    Then the margin on cnec "BBE2AA1  FFR3AA1  1 - co2_be1_be3 - curative" after CRA should be 544 A
+    Then the margin on cnec "BBE2AA1  FFR3AA1  1 - co2_be1_be3 - outage" after PRA should be 744 A
+    Then the margin on cnec "FFR1AA1  FFR2AA1  1 - co3_fr1_fr3 - outage" after PRA should be 857 A
+    Then the margin on cnec "BBE1AA1  FFR5AA1  1 - preventive" after PRA should be 886 A
+    Then the value of the objective function after CRA should be -418
+
+  @fast @rao @ac @contingency-scenarios @max-min-margin @ampere
+  Scenario: US 13.3.9: Test case with no RA in the preventive perimeter
+    Given network file is "common/TestCase16Nodes.uct"
+    Given crac file is "epic13/SL_ep13us3case9.json"
+    Given configuration file is "epic13/RaoParameters_maxMargin_ampere_absolute_threshold_12.json"
+    When I launch rao
+    Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
+    Then 2 remedial actions are used after "co1_fr2_fr3_1" at "curative"
+    Then the tap of PstRangeAction "pst_be" should be -8 after "co1_fr2_fr3_1" at "curative"
+    Then the remedial action "open_fr1_fr3" is used after "co1_fr2_fr3_1" at "curative"
+    Then the worst margin is 677 A
+    Then the margin on cnec "FFR3AA1  FFR5AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be 677 A
+    Then the margin on cnec "FFR1AA1  FFR4AA1  1 - co1_fr2_fr3_1 - curative" after CRA should be 678 A
+    Then the margin on cnec "FFR4AA1  DDE1AA1  1 - preventive" after PRA should be 852 A
+    Then the value of the objective function after CRA should be -677
+
+  @fast @rao @ac @contingency-scenarios @max-min-margin @ampere
+  Scenario: US 13.3.10: Test case with a CBCORA file
+    Given network file is "epic13/TestCase16Nodes_with_different_imax.uct"
+    Given crac file is "epic13/CBCORA_ep13us3case10.xml"
+    Given configuration file is "common/RaoParameters_maxMargin_ampere.json"
+    When I launch rao at "2019-01-08 12:00"
+    Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
+    Then 3 remedial actions are used in preventive
+    Then the remedial action "close_de3_de4" is used in preventive
+    Then the remedial action "open_fr1_fr2" is used in preventive
+    Then the tap of PstRangeAction "pst_fr" should be 15 in preventive
+    Then 1 remedial actions are used after "CO1_fr2_fr3_1" at "curative"
+    Then the remedial action "open_fr1_fr3" is used after "CO1_fr2_fr3_1" at "curative"
+    Then the tap of PstRangeAction "pst_be" should be 0 after "CO1_fr2_fr3_1" at "curative"
+    Then the worst margin is 556 A
+    Then the margin on cnec "fr1_fr4_CO1 - curative" after CRA should be 556 A
+    Then the margin on cnec "fr3_fr5_CO1 - OPP - curative" after CRA should be 865 A
+    Then the margin on cnec "fr4_de1_N - preventive" after PRA should be 914 A
+    Then the margin on cnec "fr3_fr5_CO1 - OPP - outage" after PRA should be 921 A
+    Then the value of the objective function after CRA should be -556
