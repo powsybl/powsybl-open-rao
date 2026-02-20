@@ -7,14 +7,16 @@
 
 package com.powsybl.openrao.searchtreerao.commons.parameters;
 
-import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
-import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
-import com.powsybl.openrao.raoapi.parameters.RaoParameters;
-
-import static com.powsybl.openrao.raoapi.parameters.extensions.MultithreadingParameters.*;
+import static com.powsybl.openrao.raoapi.parameters.extensions.MultithreadingParameters.getAvailableCPUs;
 import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoObjectiveFunctionParameters.getCurativeMinObjImprovement;
 import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.getRaRangeShrinking;
-import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoTopoOptimizationParameters.*;
+import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoTopoOptimizationParameters.getMaxCurativeSearchTreeDepth;
+import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoTopoOptimizationParameters.getMaxPreventiveSearchTreeDepth;
+
+import com.powsybl.openrao.commons.opentelemetry.OpenTelemetryReporter;
+import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
+import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
 
 /**
  * This class contains internal Open RAO parameters used in the SearchTree algorithm.
@@ -51,24 +53,32 @@ public record TreeParameters(StopCriterion stopCriterion, double targetObjective
     }
 
     public static TreeParameters buildForCurativePerimeter(RaoParameters parameters, Double preventiveOptimizedCost) {
+        return OpenTelemetryReporter.withSpan("rao.buildCurativePerimeter", cx -> {
         StopCriterion stopCriterion = StopCriterion.AT_TARGET_OBJECTIVE_VALUE;
         double targetObjectiveValue;
-        if (parameters.getObjectiveFunctionParameters().getType() == ObjectiveFunctionParameters.ObjectiveFunctionType.SECURE_FLOW) {
+        if (parameters.getObjectiveFunctionParameters().getType()
+            == ObjectiveFunctionParameters.ObjectiveFunctionType.SECURE_FLOW) {
             targetObjectiveValue = 0.0;
         } else {
-            targetObjectiveValue = preventiveOptimizedCost - getCurativeMinObjImprovement(parameters);
+            targetObjectiveValue =
+                preventiveOptimizedCost - getCurativeMinObjImprovement(parameters);
             if (parameters.getObjectiveFunctionParameters().getEnforceCurativeSecurity()) {
                 targetObjectiveValue = Math.min(targetObjectiveValue, 0);
             }
         }
-        SearchTreeRaoRangeActionsOptimizationParameters.RaRangeShrinking raRangeShrinking = getRaRangeShrinking(parameters);
-        boolean shouldShrinkRaRange = raRangeShrinking.equals(SearchTreeRaoRangeActionsOptimizationParameters.RaRangeShrinking.ENABLED_IN_FIRST_PRAO_AND_CRAO) ||
-            raRangeShrinking.equals(SearchTreeRaoRangeActionsOptimizationParameters.RaRangeShrinking.ENABLED);
+        SearchTreeRaoRangeActionsOptimizationParameters.RaRangeShrinking raRangeShrinking = getRaRangeShrinking(
+            parameters);
+        boolean shouldShrinkRaRange = raRangeShrinking.equals(
+            SearchTreeRaoRangeActionsOptimizationParameters.RaRangeShrinking.ENABLED_IN_FIRST_PRAO_AND_CRAO)
+            ||
+            raRangeShrinking.equals(
+                SearchTreeRaoRangeActionsOptimizationParameters.RaRangeShrinking.ENABLED);
         return new TreeParameters(stopCriterion,
             targetObjectiveValue,
             getMaxCurativeSearchTreeDepth(parameters),
             1,
             shouldShrinkRaRange);
+        });
     }
 
     public static TreeParameters buildForSecondPreventivePerimeter(RaoParameters parameters) {

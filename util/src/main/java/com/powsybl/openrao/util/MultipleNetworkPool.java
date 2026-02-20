@@ -7,19 +7,19 @@
 
 package com.powsybl.openrao.util;
 
+import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
+
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManagerConstants;
 import com.powsybl.iidm.serde.NetworkSerDe;
 import com.powsybl.openrao.commons.OpenRaoException;
-
+import com.powsybl.openrao.commons.opentelemetry.OpenTelemetryReporter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinTask;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
@@ -52,6 +52,7 @@ public class MultipleNetworkPool extends AbstractNetworkPool {
 
     @Override
     public void initClones(int desiredNumberOfClones) {
+        OpenTelemetryReporter.withSpan("rao.multipleNetworkPool.initClones", cx -> {
         int requiredClones = Math.min(getParallelism(), desiredNumberOfClones);
         int clonesToAdd = requiredClones - networkNumberOfClones;
 
@@ -59,7 +60,8 @@ public class MultipleNetworkPool extends AbstractNetworkPool {
             return;
         }
 
-        TECHNICAL_LOGS.debug("Filling network pool with {} new cop{} of network {} on variant {}", clonesToAdd, clonesToAdd == 1 ? "y" : "ies", network.getId(), targetVariant);
+        TECHNICAL_LOGS.debug("Filling network pool with {} new cop{} of network {} on variant {}",
+            clonesToAdd, clonesToAdd == 1 ? "y" : "ies", network.getId(), targetVariant);
 
         String initialVariant = network.getVariantManager().getWorkingVariantId();
         network.getVariantManager().setWorkingVariant(targetVariant);
@@ -75,7 +77,9 @@ public class MultipleNetworkPool extends AbstractNetworkPool {
                 try {
                     boolean isSuccess = networksQueue.offer(task.get());
                     if (!isSuccess) {
-                        throw new OpenRaoException(String.format("Cannot offer copy n°'%d' in pool. Should not happen", networkNumberOfClones + 1));
+                        throw new OpenRaoException(
+                            String.format("Cannot offer copy n°'%d' in pool. Should not happen",
+                                networkNumberOfClones + 1));
                     } else {
                         networkNumberOfClones++;
                     }
@@ -87,6 +91,7 @@ public class MultipleNetworkPool extends AbstractNetworkPool {
             Thread.currentThread().interrupt();
         }
         network.getVariantManager().setWorkingVariant(initialVariant);
+        });
     }
 
     private Network createNetworkCopy(int finalI, AtomicInteger remainingClones) {
