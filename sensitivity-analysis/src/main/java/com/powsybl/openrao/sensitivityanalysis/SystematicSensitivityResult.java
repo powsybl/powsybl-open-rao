@@ -98,6 +98,9 @@ public class SystematicSensitivityResult {
             }
             StateResult contingencyStateResult = new StateResult();
             contingencyStateResult.status = contingencyStatus.getStatus().equals(SensitivityAnalysisResult.Status.FAILURE) ? SensitivityComputationStatus.FAILURE : SensitivityComputationStatus.SUCCESS;
+            if (contingencyStateResult.status.equals(SensitivityComputationStatus.SUCCESS)) {
+                this.status = SensitivityComputationStatus.SUCCESS;
+            }
             results.getValues(contingencyStatus.getContingencyId()).forEach(sensitivityValue ->
                 fillIndividualValue(sensitivityValue, contingencyStateResult, results.getFactors(), contingencyStatus.getStatus())
             );
