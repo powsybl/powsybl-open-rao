@@ -17,7 +17,7 @@ import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public class LinearProblemResult extends RangeActionActivationResultImpl {
-    private static final double PST_ACTIVATION_THRESHOLD = 1e-4;
+    private static final double PST_ACTIVATION_THRESHOLD = 1e-6;
     private static final double INJECTION_HVDC_ACTIVATION_THRESHOLD = 1;
 
     public LinearProblemResult(LinearProblem linearProblem, RangeActionSetpointResult prePerimeterSetPoints, OptimizationPerimeter optimizationContext) {
