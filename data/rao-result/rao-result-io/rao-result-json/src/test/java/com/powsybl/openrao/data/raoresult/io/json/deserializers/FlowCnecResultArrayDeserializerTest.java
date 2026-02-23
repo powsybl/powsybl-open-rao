@@ -130,9 +130,12 @@ class FlowCnecResultArrayDeserializerTest {
     @ParameterizedTest
     @CsvSource({
         "leftSide, 1.5, 1.4, '[{\"flowCnecId\":\"fc1\",\"initial\":{\"megawatt\":{\"leftSide\":{\"flow\":500.0}}}}]'",
-        "rightSide, 1.5, 1.4, '[{\"flowCnecId\":\"fc1\",\"initial\":{\"megawatt\":{\"rightSide\":{\"flow\":490.0}}}}]'"
+        "rightSide, 1.5, 1.4, '[{\"flowCnecId\":\"fc1\",\"initial\":{\"megawatt\":{\"rightSide\":{\"flow\":490.0}}}}]'",
+        "flow, 1.2, 1.1, '[{\"flowCnecId\":\"fc1\",\"initial\":{\"megawatt\":{\"flow\":500.0}}}]'",
+        "commercialFlow, 1.2, 1.1, '[{\"flowCnecId\":\"fc1\",\"initial\":{\"megawatt\":{\"commercialFlow\":50.0}}}]'",
+        "loopFlow, 1.2, 1.1, '[{\"flowCnecId\":\"fc1\",\"initial\":{\"megawatt\":{\"loopFlow\":30.0}}}]'"
     })
-    void deserializeThrowsWithDeprecatedSideAfterVersion13(String fieldName, String currentVersion, String lastSupportedVersion, String json) {
+    void deserializeThrowsWithDeprecatedBehavior(String fieldName, String currentVersion, String lastSupportedVersion, String json) {
         Crac crac = mock(Crac.class);
         when(crac.getFlowCnec("fc1")).thenReturn(mock(FlowCnec.class));
         RaoResultImpl raoResult = new RaoResultImpl(crac);
@@ -163,26 +166,6 @@ class FlowCnecResultArrayDeserializerTest {
         verify(raoResult, atLeastOnce()).getAndCreateIfAbsentFlowCnecResult(flowCnec);
         verifyNoMoreInteractions(raoResult);
         assertEquals(500., raoResult.getFlow(null, flowCnec, TwoSides.ONE, Unit.MEGAWATT));
-    }
-
-    @ParameterizedTest
-    @CsvSource({
-        "flow, 1.2, 1.1, '[{\"flowCnecId\":\"fc1\",\"initial\":{\"megawatt\":{\"flow\":500.0}}}]'",
-        "commercialFlow, 1.2, 1.1, '[{\"flowCnecId\":\"fc1\",\"initial\":{\"megawatt\":{\"commercialFlow\":50.0}}}]'",
-        "loopFlow, 1.2, 1.1, '[{\"flowCnecId\":\"fc1\",\"initial\":{\"megawatt\":{\"loopFlow\":30.0}}}]'"
-    })
-    void deserializeThrowsWithDeprecatedUnitLevelFieldAfterVersion10(String fieldName, String currentVersion, String lastSupportedVersion, String json) {
-        Crac crac = mock(Crac.class);
-        when(crac.getFlowCnec("fc1")).thenReturn(mock(FlowCnec.class));
-        RaoResultImpl raoResult = new RaoResultImpl(crac);
-
-        try (JsonParser parser = parserFrom(json)) {
-            OpenRaoException ex = assertThrows(OpenRaoException.class,
-                () -> FlowCnecResultArrayDeserializer.deserialize(parser, raoResult, crac, currentVersion));
-            assertEquals(String.format("Cannot deserialize RaoResult: field %s in flowCnecResults in not supported in file version %s (last supported in version %s)", fieldName, currentVersion, lastSupportedVersion), ex.getMessage());
-        } catch (IOException e) {
-            throw new AssertionError("Failed to parse JSON content");
-        }
     }
 
     @Test
