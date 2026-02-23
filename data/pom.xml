@@ -18,9 +18,9 @@
     <modules>
         <module>crac</module>
         <module>glsk</module>
-        <module>intertemporal-constraints</module>
         <module>rao-result</module>
         <module>refprog</module>
+        <module>time-coupled-constraints</module>
         <module>virtual-hubs</module>
         <module>crac/crac-io/crac-io-network</module>
     </modules>

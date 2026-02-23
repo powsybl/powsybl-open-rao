@@ -1,0 +1,113 @@
+/*
+ * Copyright (c) 2019, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
+package com.powsybl.openrao.raoapi;
+
+import com.google.common.jimfs.Configuration;
+import com.google.common.jimfs.Jimfs;
+import com.powsybl.commons.config.InMemoryPlatformConfig;
+import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.TemporalDataImpl;
+import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.timecoupledconstraints.TimeCoupledConstraints;
+import com.powsybl.openrao.data.raoresult.api.TimeCoupledRaoResult;
+import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.openrao.raoapi.raomock.AnotherTimeCoupledRaoProviderMock;
+import com.powsybl.openrao.raoapi.raomock.TimeCoupledRaoProviderMock;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+
+import java.nio.file.FileSystem;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.util.List;
+import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+/**
+ * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
+ */
+class TimeCoupledRaoTest {
+
+    private FileSystem fileSystem;
+    private InMemoryPlatformConfig platformConfig;
+    private TimeCoupledRaoInputWithNetworkPaths raoInput;
+
+    @BeforeEach
+    void setUp() {
+        fileSystem = Jimfs.newFileSystem(Configuration.unix());
+        platformConfig = new InMemoryPlatformConfig(fileSystem);
+        Crac crac = Mockito.mock(Crac.class);
+        raoInput = new TimeCoupledRaoInputWithNetworkPaths(
+            new TemporalDataImpl<>(
+                Map.of(
+                    OffsetDateTime.of(2024, 12, 13, 16, 17, 0, 0, ZoneOffset.UTC),
+                    RaoInputWithNetworkPaths.build("network.uct", crac).build()
+                )),
+            new TimeCoupledConstraints()
+        );
+    }
+
+    @AfterEach
+    public void tearDown() throws Exception {
+        fileSystem.close();
+    }
+
+    @Test
+    void testDefaultOneProvider() {
+        // case with only one provider, no need for config
+        // find rao
+        TimeCoupledRao.Runner defaultRao = TimeCoupledRao.find(null, List.of(new TimeCoupledRaoProviderMock()), platformConfig);
+        assertEquals("RandomTimeCoupledRAO", defaultRao.getName());
+
+        // run rao
+        TimeCoupledRaoResult result = defaultRao.run(raoInput, new RaoParameters());
+        assertNotNull(result);
+    }
+
+    @Test
+    void testDefaultTwoProviders() {
+        // case with two providers : should throw as no config defines which provider must be selected
+        List<TimeCoupledRaoProvider> raoProviders = List.of(new TimeCoupledRaoProviderMock(), new AnotherTimeCoupledRaoProviderMock());
+        assertThrows(OpenRaoException.class, () -> TimeCoupledRao.find(null, raoProviders, platformConfig));
+    }
+
+    @Test
+    void testDefinedAmongTwoProviders() {
+        // case with two providers where one the two RAOs is specifically selected
+        TimeCoupledRao.Runner definedRao = TimeCoupledRao.find("GlobalRAOptimizer", List.of(new TimeCoupledRaoProviderMock(), new AnotherTimeCoupledRaoProviderMock()), platformConfig);
+        assertEquals("GlobalRAOptimizer", definedRao.getName());
+    }
+
+    @Test
+    void testDefaultNoProvider() {
+        // case with no provider
+        List<TimeCoupledRaoProvider> raoProviders = List.of();
+        assertThrows(OpenRaoException.class, () -> TimeCoupledRao.find(null, raoProviders, platformConfig));
+    }
+
+    @Test
+    void testDefaultTwoProvidersPlatformConfig() {
+        // case with 2 providers without any config but specifying which one to use in platform config
+        platformConfig.createModuleConfig("rao").setStringProperty("default", "GlobalRAOptimizer");
+        TimeCoupledRao.Runner globalRaOptimizer = TimeCoupledRao.find(null, List.of(new TimeCoupledRaoProviderMock(), new AnotherTimeCoupledRaoProviderMock()), platformConfig);
+        assertEquals("GlobalRAOptimizer", globalRaOptimizer.getName());
+    }
+
+    @Test
+    void testOneProviderAndMistakeInPlatformConfig() {
+        // case with 1 provider with config but with a name that is not the one of provider.
+        platformConfig.createModuleConfig("rao").setStringProperty("default", "UnknownRao");
+        List<TimeCoupledRaoProvider> raoProviders = List.of(new TimeCoupledRaoProviderMock());
+        assertThrows(OpenRaoException.class, () -> TimeCoupledRao.find(null, raoProviders, platformConfig));
+    }
+}

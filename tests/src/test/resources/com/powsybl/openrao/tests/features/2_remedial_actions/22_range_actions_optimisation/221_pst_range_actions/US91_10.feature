@@ -1,0 +1,50 @@
+# Copyright (c) 2024, RTE (http://www.rte-france.com)
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+Feature: US 91.10: MIP test cases
+  # TODO: This feature covers
+
+  @fast @rao @ac @preventive-only @loopflow @max-min-margin @megawatt
+  Scenario: US 91.10.1: Non MIP range action optimization cannot respect loopflows
+    Given network file is "common/TestCase12Nodes.uct"
+    Given crac file is "epic7/crac_lf_rao_1.json"
+    Given loopflow glsk file is "common/glsk_lots_of_lf_12nodes.xml"
+    Given configuration file is "epic91/RaoParameters_maxMargin_mw_dc_lf_false_3_100.json"
+    When I launch loopflow rao with default loopflow limit as 9.0 percent of pmax
+    Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
+    Then 0 remedial actions are used in preventive
+    Then the worst margin is 166.0 MW
+    Then the margin on cnec "FFR1AA1  FFR2AA1  1 - preventive" after PRA should be 166.0 MW
+    Then the tap of PstRangeAction "PRA_PST_BE" should be 0 in preventive
+
+  @fast @rao @ac @preventive-only @loopflow @max-min-margin @megawatt
+  Scenario: US 91.10.2: MIP range action optimization respects loopflows
+    Given network file is "common/TestCase12Nodes.uct"
+    Given crac file is "epic7/crac_lf_rao_1.json"
+    Given loopflow glsk file is "common/glsk_lots_of_lf_12nodes.xml"
+    Given configuration file is "epic91/RaoParameters_maxMargin_mw_dc_lf_false_3_100_mip.json"
+    When I launch loopflow rao with default loopflow limit as 9.0 percent of pmax
+    Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "SECURED"
+    Then 1 remedial actions are used in preventive
+    Then the worst margin is 183.0 MW
+    Then the margin on cnec "FFR1AA1  FFR2AA1  1 - preventive" after PRA should be 183.0 MW
+    Then the tap of PstRangeAction "PRA_PST_BE" should be -5 in preventive
+
+  @fast @rao @ac @preventive-only @search-tree-rao @max-min-margin @ampere
+  Scenario: US 91.10.3: MIP with slightly different aligned PSTs
+    Given network file is "epic91/TestCase16Nodes_alignedPsts.uct"
+    Given crac file is "epic91/CBCORA_alignedPsts.xml"
+    Given configuration file is "common/RaoParameters_maxMargin_ampere_mip.json"
+    When I launch rao at "2019-01-08 12:00" on preventive state
+    Then the execution details should be "The RAO only went through first preventive"
+    Then its security status should be "UNSECURED"
+    Then the worst margin is 1968 A
+    Then the margin on cnec "fr4_de1_N_opp - preventive" after PRA should be 1968 A
+    Then 2 remedial actions are used in preventive
+    Then the tap of PstRangeAction "pst_be" should be 7 in preventive
+    Then the tap of PstRangeAction "pst_fr" should be 7 in preventive
+    Then the margin on cnec "fr4_de1_N - preventive" after PRA should be 2032 A

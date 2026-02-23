@@ -57,6 +57,11 @@
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-ucte-util</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.powsybl</groupId>
+            <artifactId>open-rao-time-coupled-constraints</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <!-- Test dependencies -->
         <dependency>
@@ -105,10 +110,6 @@
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.powsybl</groupId>
-            <artifactId>open-rao-intertemporal-constraints</artifactId>
         </dependency>
     </dependencies>
 </project>
