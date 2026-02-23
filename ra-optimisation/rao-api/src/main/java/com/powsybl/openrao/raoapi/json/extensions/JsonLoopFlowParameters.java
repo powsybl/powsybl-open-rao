@@ -40,7 +40,7 @@ public final class JsonLoopFlowParameters {
     static void deserialize(JsonParser jsonParser, OpenRaoSearchTreeParameters searchTreeParameters) throws IOException {
         SearchTreeRaoLoopFlowParameters loopFlowParameters = new SearchTreeRaoLoopFlowParameters();
         while (!jsonParser.nextToken().isStructEnd()) {
-            switch (jsonParser.getCurrentName()) {
+            switch (jsonParser.currentName()) {
                 case PTDF_APPROXIMATION -> loopFlowParameters.setPtdfApproximation(stringToPtdfApproximation(jsonParser.nextTextValue()));
                 case CONSTRAINT_ADJUSTMENT_COEFFICIENT -> {
                     jsonParser.nextToken();
@@ -50,7 +50,7 @@ public final class JsonLoopFlowParameters {
                     jsonParser.nextToken();
                     loopFlowParameters.setViolationCost(jsonParser.getDoubleValue());
                 }
-                default -> throw new OpenRaoException(String.format("Cannot deserialize loop flow parameters: unexpected field in %s (%s)", LOOP_FLOW_PARAMETERS, jsonParser.getCurrentName()));
+                default -> throw new OpenRaoException(String.format("Cannot deserialize loop flow parameters: unexpected field in %s (%s)", LOOP_FLOW_PARAMETERS, jsonParser.currentName()));
             }
         }
         searchTreeParameters.setLoopFlowParameters(loopFlowParameters);

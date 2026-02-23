@@ -42,7 +42,7 @@ public final class FlowCnecArrayDeserializer {
             String networkElementId = null;
             List<Extension<FlowCnec>> extensions = new ArrayList<>();
             while (!jsonParser.nextToken().isStructEnd()) {
-                switch (jsonParser.getCurrentName()) {
+                switch (jsonParser.currentName()) {
                     case JsonSerializationConstants.ID:
                         flowCnecAdder.withId(jsonParser.nextTextValue());
                         break;

@@ -34,13 +34,13 @@ final class JsonSecondPreventiveRaoParameters {
 
     static void deserialize(JsonParser jsonParser, OpenRaoSearchTreeParameters searchTreeParameters) throws IOException {
         while (!jsonParser.nextToken().isStructEnd()) {
-            switch (jsonParser.getCurrentName()) {
+            switch (jsonParser.currentName()) {
                 case EXECUTION_CONDITION -> searchTreeParameters.getSecondPreventiveRaoParameters().setExecutionCondition(stringToExecutionCondition(jsonParser.nextTextValue()));
                 case HINT_FROM_FIRST_PREVENTIVE_RAO -> {
                     jsonParser.nextToken();
                     searchTreeParameters.getSecondPreventiveRaoParameters().setHintFromFirstPreventiveRao(jsonParser.getBooleanValue());
                 }
-                default -> throw new OpenRaoException(String.format("Cannot deserialize second preventive rao parameters: unexpected field in %s (%s)", SECOND_PREVENTIVE_RAO, jsonParser.getCurrentName()));
+                default -> throw new OpenRaoException(String.format("Cannot deserialize second preventive rao parameters: unexpected field in %s (%s)", SECOND_PREVENTIVE_RAO, jsonParser.currentName()));
             }
         }
     }

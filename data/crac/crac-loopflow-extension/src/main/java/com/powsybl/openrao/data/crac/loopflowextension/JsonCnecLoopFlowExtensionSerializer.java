@@ -45,7 +45,7 @@ public class JsonCnecLoopFlowExtensionSerializer implements ExtensionsHandler.Ex
         Unit unit = null;
 
         while (!jsonParser.nextToken().isStructEnd()) {
-            switch (jsonParser.getCurrentName()) {
+            switch (jsonParser.currentName()) {
                 case THRESHOLD:
                     inputThreshold = jsonParser.getValueAsDouble();
                     break;

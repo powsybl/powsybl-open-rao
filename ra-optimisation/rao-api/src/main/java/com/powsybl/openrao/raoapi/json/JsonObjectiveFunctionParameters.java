@@ -34,13 +34,13 @@ final class JsonObjectiveFunctionParameters {
 
     static void deserialize(JsonParser jsonParser, RaoParameters raoParameters) throws IOException {
         while (!jsonParser.nextToken().isStructEnd()) {
-            switch (jsonParser.getCurrentName()) {
+            switch (jsonParser.currentName()) {
                 case TYPE -> raoParameters.getObjectiveFunctionParameters().setType(stringToObjectiveFunction(jsonParser.nextTextValue()));
                 case ENFORCE_CURATIVE_SECURITY -> {
                     jsonParser.nextToken();
                     raoParameters.getObjectiveFunctionParameters().setEnforceCurativeSecurity(jsonParser.getBooleanValue());
                 }
-                default -> throw new OpenRaoException(String.format("Cannot deserialize objective function parameters: unexpected field in %s (%s)", OBJECTIVE_FUNCTION, jsonParser.getCurrentName()));
+                default -> throw new OpenRaoException(String.format("Cannot deserialize objective function parameters: unexpected field in %s (%s)", OBJECTIVE_FUNCTION, jsonParser.currentName()));
             }
         }
     }
