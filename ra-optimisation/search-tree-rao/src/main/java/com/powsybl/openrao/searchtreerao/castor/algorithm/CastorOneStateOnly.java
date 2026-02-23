@@ -72,7 +72,8 @@ public class CastorOneStateOnly {
             raoInput.getCrac().getFlowCnecs(raoInput.getOptimizedState()),
             raoInput.getCrac().getRangeActions(raoInput.getOptimizedState()),
             raoParameters,
-            toolProvider);
+            toolProvider,
+            true);
 
         PrePerimeterResult initialResults;
         initialResults = prePerimeterSensitivityAnalysis.runInitialSensitivityAnalysis(raoInput.getNetwork(), Set.of(raoInput.getOptimizedState()));

@@ -17,8 +17,6 @@
       <branch eic="1234567890123450" from="FFR2AA1 " name="FFR2AA1  DDE3AA1  1" order="1" to="DDE3AA1 "/>
       <imaxA>6000</imaxA>
       <imaxType>SEASONAL</imaxType>
-      <permanentImaxFactor>1.5</permanentImaxFactor>
-      <temporaryImaxFactor>1.5</temporaryImaxFactor>
       <frmMw>0</frmMw>
       <minRAMfactor>0</minRAMfactor>
       <CNEC>true</CNEC>
@@ -31,8 +29,6 @@
       <branch eic="1234567890123450" from="XNODE_1 " name="NNL3AA1  XNODE_1  1" order="1" to="NNL3AA1 "/>
       <imaxA>2888</imaxA>
       <imaxType>SEASONAL</imaxType>
-      <permanentImaxFactor>1.5</permanentImaxFactor>
-      <temporaryImaxFactor>1.5</temporaryImaxFactor>
       <frmMw>0</frmMw>
       <minRAMfactor>40</minRAMfactor>
       <CNEC>true</CNEC>
