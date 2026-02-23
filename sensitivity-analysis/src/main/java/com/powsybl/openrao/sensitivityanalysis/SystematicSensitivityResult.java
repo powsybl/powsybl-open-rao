@@ -84,8 +84,9 @@ public class SystematicSensitivityResult {
     public SystematicSensitivityResult completeData(SensitivityAnalysisResult results, Integer instantOrder) {
         postContingencyResults.putIfAbsent(instantOrder, new HashMap<>());
         // if a failing perimeter was already run, then the status would be set to PARTIAL_FAILURE
+        // This boolean will be reused to set the global status to PARITAL_FAILURE if required
         boolean anyContingencyFailure = this.status == SensitivityComputationStatus.PARTIAL_FAILURE;
-        // status set to failure initially, and set to success if we find at least one non NaN value
+        // status set to failure initially, and set to success if we find at least one non NaN value, or at least one contingencyStatus is SUCCESS
         this.status = SensitivityComputationStatus.FAILURE;
         if (results == null) {
             return this;
@@ -98,6 +99,9 @@ public class SystematicSensitivityResult {
             }
             StateResult contingencyStateResult = new StateResult();
             contingencyStateResult.status = contingencyStatus.getStatus().equals(SensitivityAnalysisResult.Status.FAILURE) ? SensitivityComputationStatus.FAILURE : SensitivityComputationStatus.SUCCESS;
+            if (contingencyStateResult.status.equals(SensitivityComputationStatus.SUCCESS)) {
+                this.status = SensitivityComputationStatus.SUCCESS;
+            }
             results.getValues(contingencyStatus.getContingencyId()).forEach(sensitivityValue ->
                 fillIndividualValue(sensitivityValue, contingencyStateResult, results.getFactors(), contingencyStatus.getStatus())
             );
