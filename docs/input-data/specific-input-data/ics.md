@@ -4,6 +4,7 @@ ICS data contains necessary data to define redispatching actions' specific const
 [costly computations](../../algorithms/castor/linear-problem/time-coupled-constraints.md).
 
 ### Static
+
 Static ICS data defines a remedial action's generator's static constraints:
 
 | Name                                       | Details                                                                                                        |
@@ -23,16 +24,15 @@ Static ICS data defines a remedial action's generator's static constraints:
 | Minimum down-time [h]                      | Minimum downtime for RA RD in hours.                                                                           |
 | **Maximum positive power gradient [MW/h]** | Maximum positive power gradient for RA RD in MW/h.                                                             |
 | **Maximum negative power gradient [MW/h]** | Maximum negative power gradient for RA RD in MW/h.                                                             |
-| Lead time [h]                              | Lead time for activation of RA RD in h.                                                                        |
-| Lag time [h]                               | Lag time for deactivation of RA RD in h.                                                                       |
+| **Lead time [h]**                          | Lead time for activation of RA RD in h.                                                                        |
+| **Lag time [h]**                           | Lag time for deactivation of RA RD in h.                                                                       |
 | Startup allowed                            | To indicate if RA RD can be started from standstill. One of two values possible: "TRUE", "FALSE".              |
 | Shutdown allowed                           | To indicate if RA RD can be shutdown. One of two values possible: "TRUE", "FALSE".                             |
 
-
 ### Series
 
-This CSV defines a remedial action's generator's operating program P0, and allowed undershoot/overshoot
-from P0 (RDP- and RDP+, positive values). These values are defined as time series over 24 hours.
+This CSV defines a remedial action's generator's operating program P0, allowed undershoot/overshoot from P0 (RDP- and
+RDP+, positive values), and the Pmin of redispatching (Pmin_RD). These values are defined as time series over 24 hours.
 
 ### GSK
 

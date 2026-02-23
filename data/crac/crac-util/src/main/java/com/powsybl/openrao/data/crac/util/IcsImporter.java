@@ -34,7 +34,8 @@ import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WA
  */
 public final class IcsImporter {
     private static final int OFFSET = 2;
-    private static final String MAX_GRADIENT = "1000";
+    private static final double MAX_GRADIENT = 1000.0;
+    private static final double OFF_POWER_THRESHOLD = 1.0; // TODO: mutualize with value from linear problem
 
     // TODO : either parametrize this or set it to true. May have to change the way it works to import for all curative instants instead of only the last one
     public static boolean importCurative = false;
@@ -49,6 +50,27 @@ public final class IcsImporter {
 
     // INFOS
     // Gradient constraints are defined for gsks at the action level and not per group : we translate it to the groups using the shift keys
+
+    public static final String MAXIMUM_POSITIVE_POWER_GRADIENT = "Maximum positive power gradient [MW/h]";
+    public static final String MAXIMUM_NEGATIVE_POWER_GRADIENT = "Maximum negative power gradient [MW/h]";
+    public static final String LEAD_TIME = "Lead time [h]";
+    public static final String LAG_TIME = "Lag time [h]";
+    public static final String P_MIN_RD = "Pmin_RD";
+    public static final String RA_RD_ID = "RA RD ID";
+    public static final String RDP_UP = "RDP+";
+    public static final String RDP_DOWN = "RDP-";
+    public static final String P0 = "P0";
+    public static final String UCT_NODE_OR_GSK_ID = "UCT Node or GSK ID";
+    public static final String GSK_ID = "GSK ID";
+    public static final String PREVENTIVE = "Preventive";
+    public static final String CURATIVE = "Curative";
+    public static final String TRUE = "TRUE";
+    public static final String RD_DESCRIPTION_MODE = "RD description mode";
+    public static final String NODE = "NODE";
+    public static final String GENERATOR_NAME = "Generator Name";
+    public static final String RD_SUFFIX = "_RD";
+    public static final String GENERATOR_SUFFIX = "_GENERATOR";
+    public static final String LOAD_SUFFIX = "_LOAD";
 
     private IcsImporter() {
         //should only be used statically
@@ -74,30 +96,30 @@ public final class IcsImporter {
 
         Map<String, Map<String, CSVRecord>> seriesPerIdAndType = new HashMap<>();
         seriesCsvRecords.forEach(record -> {
-            seriesPerIdAndType.putIfAbsent(record.get("RA RD ID"), new HashMap<>());
-            seriesPerIdAndType.get(record.get("RA RD ID")).put(record.get("Type of timeseries"), record);
+            seriesPerIdAndType.putIfAbsent(record.get(RA_RD_ID), new HashMap<>());
+            seriesPerIdAndType.get(record.get(RA_RD_ID)).put(record.get("Type of timeseries"), record);
         });
 
         Map<String, Map<String, Double>> weightPerNodePerGsk = new HashMap<>();
         if (gskInputStream != null) {
             Iterable<CSVRecord> gskCsvRecords = csvFormat.parse(new InputStreamReader(gskInputStream));
             gskCsvRecords.forEach(record -> {
-                weightPerNodePerGsk.putIfAbsent(record.get("GSK ID"), new HashMap<>());
-                weightPerNodePerGsk.get(record.get("GSK ID")).put(record.get("Node"), parseDoubleWithPossibleCommas(record.get("Weight")));
+                weightPerNodePerGsk.putIfAbsent(record.get(GSK_ID), new HashMap<>());
+                weightPerNodePerGsk.get(record.get(GSK_ID)).put(record.get("Node"), parseDoubleWithPossibleCommas(record.get("Weight")));
             });
         }
 
         staticCsvRecords.forEach(staticRecord -> {
             if (shouldBeImported(staticRecord, weightPerNodePerGsk)) {
-                String raId = staticRecord.get("RA RD ID");
+                String raId = staticRecord.get(RA_RD_ID);
                 Map<String, CSVRecord> seriesPerType = seriesPerIdAndType.get(raId);
                 if (seriesPerType != null &&
-                    seriesPerType.containsKey("P0") &&
-                    seriesPerType.containsKey("RDP-") &&
-                    seriesPerType.containsKey("RDP+") &&
+                    seriesPerType.containsKey(P0) &&
+                    seriesPerType.containsKey(RDP_DOWN) &&
+                    seriesPerType.containsKey(RDP_UP) &&
                     rangeIsOkay(seriesPerType, timeCoupledRaoInput.getTimestampsToRun().stream().sorted().toList()) &&
-                    p0RespectsGradients(staticRecord, seriesPerType.get("P0"), timeCoupledRaoInput.getTimestampsToRun().stream().sorted().toList())) {
-                    if (staticRecord.get("RD description mode").equalsIgnoreCase("NODE")) {
+                    p0RespectsGradients(staticRecord, seriesPerType.get(P0), timeCoupledRaoInput.getTimestampsToRun().stream().sorted().toList())) {
+                    if (staticRecord.get(RD_DESCRIPTION_MODE).equalsIgnoreCase(NODE)) {
                         importNodeRedispatchingAction(timeCoupledRaoInput, staticRecord, initialNetworks, seriesPerType, raId);
                     } else {
                         importGskRedispatchingAction(timeCoupledRaoInput, staticRecord, initialNetworks, seriesPerType, raId, weightPerNodePerGsk.get(staticRecord.get("UCT Node or GSK ID")));
@@ -137,29 +159,29 @@ public final class IcsImporter {
 
         timeCoupledRaoInput.getRaoInputs().getDataPerTimestamp().forEach((dateTime, raoInput) -> {
             Crac crac = raoInput.getCrac();
-            double p0 = parseDoubleWithPossibleCommas(seriesPerType.get("P0").get(dateTime.getHour() + OFFSET));
+            double p0 = parseDoubleWithPossibleCommas(seriesPerType.get(P0).get(dateTime.getHour() + OFFSET));
             InjectionRangeActionAdder injectionRangeActionAdder = crac.newInjectionRangeAction()
-                .withId(raId + "_RD")
-                .withName(staticRecord.get("Generator Name"))
+                .withId(raId + RD_SUFFIX)
+                .withName(staticRecord.get(GENERATOR_NAME))
                 .withInitialSetpoint(p0)
                 .withVariationCost(costUp, VariationDirection.UP)
                 .withVariationCost(costDown, VariationDirection.DOWN)
                 //.withActivationCost(ACTIVATION_COST)
                 .newRange()
-                .withMin(p0 - parseDoubleWithPossibleCommas(seriesPerType.get("RDP-").get(dateTime.getHour() + OFFSET)))
-                .withMax(p0 + parseDoubleWithPossibleCommas(seriesPerType.get("RDP+").get(dateTime.getHour() + OFFSET)))
+                .withMin(p0 - parseDoubleWithPossibleCommas(seriesPerType.get(RDP_DOWN).get(dateTime.getHour() + OFFSET)))
+                .withMax(p0 + parseDoubleWithPossibleCommas(seriesPerType.get(RDP_UP).get(dateTime.getHour() + OFFSET)))
                 .add();
 
             weightPerNode.forEach((nodeId, shiftKey) -> {
                 injectionRangeActionAdder.withNetworkElementAndKey(shiftKey, networkElementPerGskElement.get(nodeId));
             });
 
-            if (staticRecord.get("Preventive").equalsIgnoreCase("TRUE")) {
+            if (staticRecord.get(PREVENTIVE).equalsIgnoreCase(TRUE)) {
                 injectionRangeActionAdder.newOnInstantUsageRule()
                     .withInstant(crac.getPreventiveInstant().getId())
                     .add();
             }
-            if (importCurative && staticRecord.get("Curative").equalsIgnoreCase("TRUE")) {
+            if (importCurative && staticRecord.get(CURATIVE).equalsIgnoreCase(TRUE)) {
                 injectionRangeActionAdder.newOnInstantUsageRule()
                     .withInstant(crac.getLastInstant().getId())
                     .add();
@@ -169,43 +191,55 @@ public final class IcsImporter {
         });
 
         weightPerNode.forEach((nodeId, shiftKey) -> {
-            GeneratorConstraints generatorConstraints = GeneratorConstraints.create()
-                .withGeneratorId(networkElementPerGskElement.get(nodeId))
-                .withUpwardPowerGradient(shiftKey * parseDoubleWithPossibleCommas(
-                    staticRecord.get("Maximum positive power gradient [MW/h]").isEmpty() ? MAX_GRADIENT : staticRecord.get("Maximum positive power gradient [MW/h]")
-                )).withDownwardPowerGradient(-shiftKey * parseDoubleWithPossibleCommas(
-                    staticRecord.get("Maximum negative power gradient [MW/h]").isEmpty() ? MAX_GRADIENT : staticRecord.get("Maximum negative power gradient [MW/h]")
-                )).build();
-            timeCoupledRaoInput.getTimeCoupledConstraints().addGeneratorConstraints(generatorConstraints);
+            String networkElementId = networkElementPerGskElement.get(nodeId);
+            // only create constraints if the network element is a generator
+            GeneratorConstraints.GeneratorConstraintsBuilder builder = GeneratorConstraints.create().withGeneratorId(networkElementId);
+            if (!staticRecord.get(MAXIMUM_POSITIVE_POWER_GRADIENT).isEmpty()) {
+                builder.withUpwardPowerGradient(shiftKey * parseDoubleWithPossibleCommas(staticRecord.get(MAXIMUM_POSITIVE_POWER_GRADIENT)));
+            } else {
+                builder.withUpwardPowerGradient(shiftKey * MAX_GRADIENT);
+            }
+            if (!staticRecord.get(MAXIMUM_NEGATIVE_POWER_GRADIENT).isEmpty()) {
+                builder.withDownwardPowerGradient(-shiftKey * parseDoubleWithPossibleCommas(staticRecord.get(MAXIMUM_NEGATIVE_POWER_GRADIENT)));
+            } else {
+                builder.withDownwardPowerGradient(-shiftKey * MAX_GRADIENT);
+            }
+            if (!staticRecord.get(LEAD_TIME).isEmpty()) {
+                builder.withLeadTime(parseDoubleWithPossibleCommas(staticRecord.get(LEAD_TIME)));
+            }
+            if (!staticRecord.get(LAG_TIME).isEmpty()) {
+                builder.withLagTime(parseDoubleWithPossibleCommas(staticRecord.get(LAG_TIME)));
+            }
+            timeCoupledRaoInput.getTimeCoupledConstraints().addGeneratorConstraints(builder.build());
         });
     }
 
     private static void importNodeRedispatchingAction(TimeCoupledRaoInputWithNetworkPaths timeCoupledRaoInput, CSVRecord staticRecord, TemporalData<Network> initialNetworks, Map<String, CSVRecord> seriesPerType, String raId) {
-        String networkElementId = processNetworks(staticRecord.get("UCT Node or GSK ID"), initialNetworks, seriesPerType, 1.);
+        String networkElementId = processNetworks(staticRecord.get(UCT_NODE_OR_GSK_ID), initialNetworks, seriesPerType, 1.);
         if (networkElementId == null) {
             return;
         }
         timeCoupledRaoInput.getRaoInputs().getDataPerTimestamp().forEach((dateTime, raoInput) -> {
             Crac crac = raoInput.getCrac();
-            double p0 = parseDoubleWithPossibleCommas(seriesPerType.get("P0").get(dateTime.getHour() + OFFSET));
+            double p0 = parseDoubleWithPossibleCommas(seriesPerType.get(P0).get(dateTime.getHour() + OFFSET));
             InjectionRangeActionAdder injectionRangeActionAdder = crac.newInjectionRangeAction()
-                .withId(raId + "_RD")
-                .withName(staticRecord.get("Generator Name"))
+                .withId(raId + RD_SUFFIX)
+                .withName(staticRecord.get(GENERATOR_NAME))
                 .withNetworkElement(networkElementId)
                 .withInitialSetpoint(p0)
                 .withVariationCost(costUp, VariationDirection.UP)
                 .withVariationCost(costDown, VariationDirection.DOWN)
                 //.withActivationCost(ACTIVATION_COST)
                 .newRange()
-                .withMin(p0 - parseDoubleWithPossibleCommas(seriesPerType.get("RDP-").get(dateTime.getHour() + OFFSET)))
-                .withMax(p0 + parseDoubleWithPossibleCommas(seriesPerType.get("RDP+").get(dateTime.getHour() + OFFSET)))
+                .withMin(p0 - parseDoubleWithPossibleCommas(seriesPerType.get(RDP_DOWN).get(dateTime.getHour() + OFFSET)))
+                .withMax(p0 + parseDoubleWithPossibleCommas(seriesPerType.get(RDP_UP).get(dateTime.getHour() + OFFSET)))
                 .add();
-            if (staticRecord.get("Preventive").equalsIgnoreCase("TRUE")) {
+            if (staticRecord.get(PREVENTIVE).equalsIgnoreCase(TRUE)) {
                 injectionRangeActionAdder.newOnInstantUsageRule()
                     .withInstant(crac.getPreventiveInstant().getId())
                     .add();
             }
-            if (importCurative && staticRecord.get("Curative").equalsIgnoreCase("TRUE")) {
+            if (importCurative && staticRecord.get(CURATIVE).equalsIgnoreCase(TRUE)) {
                 injectionRangeActionAdder.newOnInstantUsageRule()
                     .withInstant(crac.getLastInstant().getId())
                     .add();
@@ -215,54 +249,76 @@ public final class IcsImporter {
 
         });
 
-        GeneratorConstraints generatorConstraints = GeneratorConstraints.create()
-            .withGeneratorId(networkElementId)
-            .withUpwardPowerGradient(parseDoubleWithPossibleCommas(
-                staticRecord.get("Maximum positive power gradient [MW/h]").isEmpty() ? MAX_GRADIENT : staticRecord.get("Maximum positive power gradient [MW/h]")
-            )).withDownwardPowerGradient(-parseDoubleWithPossibleCommas(
-                staticRecord.get("Maximum negative power gradient [MW/h]").isEmpty() ? MAX_GRADIENT : staticRecord.get("Maximum negative power gradient [MW/h]")
-            )).build();
-        timeCoupledRaoInput.getTimeCoupledConstraints().addGeneratorConstraints(generatorConstraints);
+        GeneratorConstraints.GeneratorConstraintsBuilder builder = GeneratorConstraints.create().withGeneratorId(networkElementId);
+        if (!staticRecord.get(MAXIMUM_POSITIVE_POWER_GRADIENT).isEmpty()) {
+            builder.withUpwardPowerGradient(parseDoubleWithPossibleCommas(staticRecord.get(MAXIMUM_POSITIVE_POWER_GRADIENT)));
+        } else {
+            builder.withUpwardPowerGradient(MAX_GRADIENT);
+        }
+        if (!staticRecord.get(MAXIMUM_NEGATIVE_POWER_GRADIENT).isEmpty()) {
+            builder.withDownwardPowerGradient(-parseDoubleWithPossibleCommas(staticRecord.get(MAXIMUM_NEGATIVE_POWER_GRADIENT)));
+        } else {
+            builder.withDownwardPowerGradient(-MAX_GRADIENT);
+        }
+        if (!staticRecord.get(LEAD_TIME).isEmpty()) {
+            builder.withLeadTime(parseDoubleWithPossibleCommas(staticRecord.get(LEAD_TIME)));
+        }
+        if (!staticRecord.get(LAG_TIME).isEmpty()) {
+            builder.withLagTime(parseDoubleWithPossibleCommas(staticRecord.get(LAG_TIME)));
+        }
+        timeCoupledRaoInput.getTimeCoupledConstraints().addGeneratorConstraints(builder.build());
     }
 
     private static String processNetworks(String nodeId, TemporalData<Network> initialNetworks, Map<String, CSVRecord> seriesPerType, double shiftKey) {
-        String generatorId = seriesPerType.get("P0").get("RA RD ID") + "_" + nodeId + "_GENERATOR";
+        String generatorId = seriesPerType.get(P0).get(RA_RD_ID) + "_" + nodeId + GENERATOR_SUFFIX;
         for (Map.Entry<OffsetDateTime, Network> entry : initialNetworks.getDataPerTimestamp().entrySet()) {
             Bus bus = findBus(nodeId, entry.getValue());
             if (bus == null) {
-                BUSINESS_WARNS.warn("Redispatching action {} cannot be imported because bus {} could not be found", seriesPerType.get("P0").get("RA RD ID"), nodeId);
+                BUSINESS_WARNS.warn("Redispatching action {} cannot be imported because bus {} could not be found", seriesPerType.get(P0).get("RA RD ID"), nodeId);
                 return null;
             }
-            Double p0 = parseDoubleWithPossibleCommas(seriesPerType.get("P0").get(entry.getKey().getHour() + OFFSET)) * shiftKey;
-            processBus(bus, generatorId, p0);
+            Double p0 = parseDoubleWithPossibleCommas(seriesPerType.get(P0).get(entry.getKey().getHour() + OFFSET)) * shiftKey;
+            Optional<Double> pMinRd = parseValue(seriesPerType, P_MIN_RD, entry.getKey(), shiftKey);
+            processBus(bus, generatorId, p0, pMinRd.orElse(OFF_POWER_THRESHOLD));
         }
         return generatorId;
     }
 
-    //TODO: make this more robust (and less UCTE dependent)
+    private static Optional<Double> parseValue(Map<String, CSVRecord> seriesPerType, String key, OffsetDateTime timestamp, double shiftKey) {
+        if (seriesPerType.containsKey(key)) {
+            CSVRecord series = seriesPerType.get(key);
+            String value = series.get(timestamp.getHour() + OFFSET);
+            if (value != null) {
+                return Optional.of(parseDoubleWithPossibleCommas(value) * shiftKey);
+            }
+        }
+        return Optional.empty();
+    }
+
+    // TODO: make this more robust (and less UCTE dependent)
     private static Bus findBus(String nodeId, Network network) {
-        //First try get the bus in bus breaker view
+        // First try to get the bus in bus breaker view
         Bus bus = network.getBusBreakerView().getBus(nodeId);
         if (bus != null) {
             return bus;
         }
 
-        //Then if last char is *, remove it
+        // Then, if last char is *, remove it
         String modifiedNodeId = nodeId;
         if (nodeId.endsWith("*")) {
             modifiedNodeId = nodeId.substring(0, nodeId.length() - 1);
         }
-        //Try find the bus using bus view
+        // Try to find the bus using bus view
         return network.getBusBreakerView().getBus(modifiedNodeId + " ");
     }
 
-    private static void processBus(Bus bus, String generatorId, Double p0) {
+    private static void processBus(Bus bus, String generatorId, Double p0, double pMinRd) {
         bus.getVoltageLevel().newGenerator()
             .setBus(bus.getId())
             .setEnsureIdUnicity(true)
             .setId(generatorId)
             .setMaxP(999999)
-            .setMinP(0)
+            .setMinP(pMinRd)
             .setTargetP(p0)
             .setTargetQ(0)
             .setTargetV(bus.getVoltageLevel().getNominalV())
@@ -281,15 +337,15 @@ public final class IcsImporter {
     }
 
     private static boolean shouldBeImported(CSVRecord staticRecord, Map<String, Map<String, Double>> weightPerNodePerGsk) {
-        return (staticRecord.get("RD description mode").equalsIgnoreCase("NODE") || weightPerNodePerGsk.containsKey(staticRecord.get("UCT Node or GSK ID"))) &&
-            (staticRecord.get("Preventive").equalsIgnoreCase("TRUE") /*|| staticRecord.get("Curative").equalsIgnoreCase("TRUE")*/);
+        return (staticRecord.get(RD_DESCRIPTION_MODE).equalsIgnoreCase(NODE) || weightPerNodePerGsk.containsKey(staticRecord.get(UCT_NODE_OR_GSK_ID))) &&
+            (staticRecord.get(PREVENTIVE).equalsIgnoreCase(TRUE) /*|| staticRecord.get(CURATIVE).equalsIgnoreCase(TRUE)*/);
     }
 
     private static boolean p0RespectsGradients(CSVRecord staticRecord, CSVRecord p0record, List<OffsetDateTime> dateTimes) {
-        double maxGradient = parseDoubleWithPossibleCommas(staticRecord.get("Maximum positive power gradient [MW/h]").isEmpty() ?
-            MAX_GRADIENT : staticRecord.get("Maximum positive power gradient [MW/h]"));
-        double minGradient = -parseDoubleWithPossibleCommas(staticRecord.get("Maximum negative power gradient [MW/h]").isEmpty() ?
-            MAX_GRADIENT : staticRecord.get("Maximum negative power gradient [MW/h]"));
+        double maxGradient = staticRecord.get(MAXIMUM_POSITIVE_POWER_GRADIENT).isEmpty() ?
+            MAX_GRADIENT : parseDoubleWithPossibleCommas(staticRecord.get(MAXIMUM_POSITIVE_POWER_GRADIENT));
+        double minGradient = staticRecord.get(MAXIMUM_NEGATIVE_POWER_GRADIENT).isEmpty() ?
+            -MAX_GRADIENT : -parseDoubleWithPossibleCommas(staticRecord.get(MAXIMUM_NEGATIVE_POWER_GRADIENT));
 
         Iterator<OffsetDateTime> dateTimeIterator = dateTimes.iterator();
         OffsetDateTime currentDateTime = dateTimeIterator.next();
@@ -308,16 +364,16 @@ public final class IcsImporter {
     private static boolean rangeIsOkay(Map<String, CSVRecord> seriesPerType, List<OffsetDateTime> dateTimes) {
         double maxRange = 0.;
         for (OffsetDateTime dateTime : dateTimes) {
-            double rdpPlus = parseDoubleWithPossibleCommas(seriesPerType.get("RDP+").get(dateTime.getHour() + OFFSET));
-            double rdpMinus = parseDoubleWithPossibleCommas(seriesPerType.get("RDP-").get(dateTime.getHour() + OFFSET));
+            double rdpPlus = parseDoubleWithPossibleCommas(seriesPerType.get(RDP_UP).get(dateTime.getHour() + OFFSET));
+            double rdpMinus = parseDoubleWithPossibleCommas(seriesPerType.get(RDP_DOWN).get(dateTime.getHour() + OFFSET));
             maxRange = Math.max(maxRange, rdpPlus + rdpMinus);
             if (rdpPlus < -1e-6 || rdpMinus < -1e-6) {
-                BUSINESS_WARNS.warn("Redispatching action {} will not be imported because of RDP+ {} or RDP- {} is negative", seriesPerType.get("P0").get("RA RD ID"), rdpPlus, rdpMinus);
+                BUSINESS_WARNS.warn("Redispatching action {} will not be imported because of RDP+ {} or RDP- {} is negative", seriesPerType.get(P0).get(RA_RD_ID), rdpPlus, rdpMinus);
                 return false;
             }
         }
         if (maxRange < 1) {
-            BUSINESS_WARNS.warn("Redispatching action {} will not be imported because max range in the day {} MW is too small", seriesPerType.get("P0").get("RA RD ID"), maxRange);
+            BUSINESS_WARNS.warn("Redispatching action {} will not be imported because max range in the day {} MW is too small", seriesPerType.get(P0).get(RA_RD_ID), maxRange);
             return false;
         }
         return true;
