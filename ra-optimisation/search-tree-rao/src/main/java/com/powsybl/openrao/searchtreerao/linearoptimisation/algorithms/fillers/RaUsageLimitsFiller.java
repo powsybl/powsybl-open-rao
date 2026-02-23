@@ -26,7 +26,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * Handles constraints for maximum number od RAs to activate (ma-ra), maximum number of TSOs that can activate RAs (max-tso),
+ * Handles constraints for maximum number od RAs to activate (max-ra), maximum number of TSOs that can activate RAs (max-tso),
  * maximum number of RAs per TSO (max-ra-per-tso), maximum number of PSTs per TSO (max-pst-per-tso) and
  * maximum number of elementary actions per TSO (max-elementary-actions-per-tso).
  * Beware: this introduces binary variables to define if an RA is used.

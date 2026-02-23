@@ -120,7 +120,7 @@ public class LoadFlowAndSensitivityParameters {
         // OLF will not crash but it will set the "hvdcAcEmulation" parameter to false during dcAnalysis (see OLF's DcSensitivityAnalysis::analyse function).
         // Meaning that the reference flows and sensi computation will be done as if AC emulation was off (ie it will read the active power setpoint set in the network etc).
         if (loadFlowParameters.isDc() && loadFlowParameters.isHvdcAcEmulation()) {
-            BUSINESS_WARNS.warn("The runs are in DC but the HvdcAcEmulation parameter is on: this is not compatible." +
+            BUSINESS_WARNS.warn("The runs are in DC but the HvdcAcEmulation parameter is on: this is not compatible. " +
                 "HvdcAcEmulation parameter set to false.");
             loadFlowParameters.setHvdcAcEmulation(false);
         }
