@@ -8,6 +8,7 @@
 package com.powsybl.openrao.data.raoresult.api;
 
 import com.powsybl.action.Action;
+import com.powsybl.action.ActionList;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.iidm.network.Network;
@@ -18,6 +19,7 @@ import com.powsybl.security.condition.Condition;
 import com.powsybl.security.condition.TrueCondition;
 import com.powsybl.security.strategy.ConditionalActions;
 import com.powsybl.security.strategy.OperatorStrategy;
+import com.powsybl.security.strategy.OperatorStrategyList;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -35,7 +37,7 @@ final class OperatorStrategyConverter {
     }
 
     static StrategiesAndActions getOperatorStrategies(RaoResult raoResult, Crac crac, Network network) {
-        Set<OperatorStrategy> operatorStrategies = new HashSet<>();
+        List<OperatorStrategy> operatorStrategies = new ArrayList<>();
         Set<Action> actions = new HashSet<>();
 
         // preventive strategy
@@ -50,7 +52,7 @@ final class OperatorStrategyConverter {
             operatorStrategies.add(new OperatorStrategy(contingency.getId(), ContingencyContext.specificContingency(contingency.getId()), conditionalActions));
         }
 
-        return new StrategiesAndActions(operatorStrategies, actions);
+        return new StrategiesAndActions(new OperatorStrategyList(operatorStrategies), new ActionList(actions.stream().toList()));
     }
 
     private static ConditionalActions getConditionalActionsForStateAndAddActionsToPool(State state, RaoResult raoResult, Network network, Set<Action> actionsPool) {
