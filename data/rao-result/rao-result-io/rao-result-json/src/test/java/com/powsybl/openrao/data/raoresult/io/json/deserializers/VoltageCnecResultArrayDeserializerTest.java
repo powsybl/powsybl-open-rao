@@ -10,6 +10,7 @@ package com.powsybl.openrao.data.raoresult.io.json.deserializers;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
 import com.powsybl.openrao.data.raoresult.impl.RaoResultImpl;
@@ -48,6 +49,9 @@ class VoltageCnecResultArrayDeserializerTest {
 
         verify(raoResult, atLeastOnce()).getAndCreateIfAbsentVoltageCnecResult(voltageCnec);
         verifyNoMoreInteractions(raoResult);
+        assertEquals(380.5, raoResult.getMinVoltage(null, voltageCnec, Unit.KILOVOLT));
+        assertEquals(400.2, raoResult.getMaxVoltage(null, voltageCnec, Unit.KILOVOLT));
+        assertEquals(10.0, raoResult.getMargin(null, voltageCnec, Unit.KILOVOLT));
     }
 
     @Test
@@ -146,5 +150,7 @@ class VoltageCnecResultArrayDeserializerTest {
 
         verify(raoResult, atLeastOnce()).getAndCreateIfAbsentVoltageCnecResult(voltageCnec);
         verifyNoMoreInteractions(raoResult);
+        assertEquals(390.0, raoResult.getMinVoltage(null, voltageCnec, Unit.KILOVOLT));
+        assertEquals(390.0, raoResult.getMaxVoltage(null, voltageCnec, Unit.KILOVOLT));
     }
 }

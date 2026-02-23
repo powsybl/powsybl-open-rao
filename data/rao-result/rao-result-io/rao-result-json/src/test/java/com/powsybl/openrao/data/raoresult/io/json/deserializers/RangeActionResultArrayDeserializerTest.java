@@ -50,6 +50,7 @@ class RangeActionResultArrayDeserializerTest {
 
         verify(raoResult, atLeastOnce()).getAndCreateIfAbsentRangeActionResult(rangeAction);
         verifyNoMoreInteractions(raoResult);
+        assertEquals(10.5, raoResult.getPreOptimizationSetPointOnState(null, rangeAction));
     }
 
     @Test

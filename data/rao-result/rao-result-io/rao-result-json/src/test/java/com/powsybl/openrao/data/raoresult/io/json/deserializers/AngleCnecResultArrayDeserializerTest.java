@@ -10,6 +10,7 @@ package com.powsybl.openrao.data.raoresult.io.json.deserializers;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
 import com.powsybl.openrao.data.raoresult.impl.RaoResultImpl;
@@ -48,6 +49,8 @@ class AngleCnecResultArrayDeserializerTest {
 
         verify(raoResult, atLeastOnce()).getAndCreateIfAbsentAngleCnecResult(angleCnec);
         verifyNoMoreInteractions(raoResult);
+        assertEquals(12.3, raoResult.getAngle(null, angleCnec, Unit.DEGREE));
+        assertEquals(-1.1, raoResult.getMargin(null, angleCnec, Unit.DEGREE));
     }
 
     @Test
