@@ -285,39 +285,4 @@ class IcsImporterTest {
         assertEquals(116. * 0.4, generatorFR.getTargetP(), DOUBLE_EPSILON);
         assertEquals(10.0 * 0.4, generatorFR.getMinP(), DOUBLE_EPSILON);
     }
-
-    @Test
-    void testImportRedispatchingActionFromGskWithLoadAndGenerator() throws IOException {
-        double cost = 5.;
-        InputStream staticInputStream = IcsImporterTest.class.getResourceAsStream("/ics/static_with_gsk.csv");
-        InputStream seriesInputStream = IcsImporterTest.class.getResourceAsStream("/ics/series.csv");
-        InputStream gskInputStream = IcsImporterTest.class.getResourceAsStream("/glsk/gsk_load_generator.csv");
-        IcsImporter.populateInputWithICS(timeCoupledRaoInputWithNetworkPaths, staticInputStream, seriesInputStream, gskInputStream, cost, cost);
-
-        assertEquals(1, timeCoupledRaoInputWithNetworkPaths.getTimeCoupledConstraints().getGeneratorConstraints().size());
-        GeneratorConstraints generatorConstraintsBE = timeCoupledRaoInputWithNetworkPaths.getTimeCoupledConstraints().getGeneratorConstraints().stream().filter(gc -> gc.getGeneratorId().contains("BE")).findFirst().orElseThrow();
-        assertEquals("Redispatching_RA_BBE1AA1_GENERATOR", generatorConstraintsBE.getGeneratorId());
-        assertEquals(-10.0, generatorConstraintsBE.getDownwardPowerGradient().orElseThrow(), DOUBLE_EPSILON);
-        assertEquals(10.0, generatorConstraintsBE.getUpwardPowerGradient().orElseThrow(), DOUBLE_EPSILON);
-        assertTrue(generatorConstraintsBE.getLeadTime().isPresent());
-        assertEquals(1.0, generatorConstraintsBE.getLeadTime().get(), DOUBLE_EPSILON);
-        assertTrue(generatorConstraintsBE.getLagTime().isPresent());
-        assertEquals(1.0, generatorConstraintsBE.getLagTime().get(), DOUBLE_EPSILON);
-
-        assertEquals(1, crac1.getInjectionRangeActions().size());
-        InjectionRangeAction ra1 = crac1.getInjectionRangeActions().iterator().next();
-        assertEquals("Redispatching_RA_RD", ra1.getId());
-        assertEquals(116., ra1.getInitialSetpoint(), DOUBLE_EPSILON);
-        assertTrue(ra1.getVariationCost(VariationDirection.UP).isPresent());
-        assertEquals(5., ra1.getVariationCost(VariationDirection.UP).get(), DOUBLE_EPSILON);
-        assertTrue(ra1.getVariationCost(VariationDirection.DOWN).isPresent());
-        assertEquals(5., ra1.getVariationCost(VariationDirection.DOWN).get(), DOUBLE_EPSILON);
-
-        Network network1 = Network.read(networkFilePathPostIcsImport1);
-        Generator generatorBE = network1.getGenerator("Redispatching_RA_BBE1AA1_GENERATOR");
-        assertEquals(116.0, generatorBE.getTargetP(), DOUBLE_EPSILON);
-        assertEquals(10.0, generatorBE.getMinP(), DOUBLE_EPSILON);
-        Load loadFR = network1.getLoad("Redispatching_RA_FFR1AA1_LOAD");
-        assertEquals(-116.0, loadFR.getP0(), DOUBLE_EPSILON);
-    }
 }

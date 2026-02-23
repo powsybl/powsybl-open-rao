@@ -155,14 +155,14 @@ Feature: US 93.2: Time-coupled redispatching actions with MARMOT - power gradien
 
   @fast @rao @dc @redispatching @marmot @costly @megawatt
   Scenario: US 93.2.6: Test simple lead time with Pmin
-  The generator involved in the redispaching action has a 15 min lead time and must be operated at 1000 MW at 2:30.
-  Because of its lead time, it must be switched on at 1:30 and operated at its Pmin (100 MW), leading to a supplementary
-  expense of 1000 in remedial actions.
+  The generator involved in the Belgian redispaching action has a 15 min lead time and must be operated at 1000 MW at
+  2:30. Because of its lead time, it must be switched on at 1:30 and operated at its Pmin (100 MW), leading to a
+  supplementary expense of 1000 in remedial actions for this generator. For grid balancing reasons, the French
+  generator must be switched off thus doubling the expenses.
     Given network files are in folder "epic93/TestCases_93_2_6"
     Given crac file is "epic93/cbcora_93_2_6.xml"
     Given ics static file is "epic93/static_93_2_6.csv"
     Given ics series file is "epic93/series_93_2_6.csv"
-    Given ics gsk file is "epic93/gsk_93_2_6.csv"
     Given configuration file is "epic93/RaoParameters_minCost_megawatt_dc.json"
     Given time-coupled rao inputs for CORE are:
       | Timestamp        | Network         |
@@ -171,9 +171,9 @@ Feature: US 93.2: Time-coupled redispatching actions with MARMOT - power gradien
       | 2019-01-08 02:30 | 2Nodes_0230.uct |
     When I launch marmot
     Then the functional cost for timestamp "2019-01-08 00:30" is 0.0
-    # 100 MW variation with a cost of 10 per MW
-    Then the functional cost for timestamp "2019-01-08 01:30" is 1000.0
-    # 1000 MW variation with a cost of 10 per MW
-    Then the functional cost for timestamp "2019-01-08 02:30" is 10000.0
-    Then the functional cost for all timestamps is 11000.0
+    # 100 MW variation with a cost of 10 per MW per generator (2 generators)
+    Then the functional cost for timestamp "2019-01-08 01:30" is 2000.0
+    # 1000 MW variation with a cost of 10 per MW per generator (2 generators)
+    Then the functional cost for timestamp "2019-01-08 02:30" is 20000.0
+    Then the functional cost for all timestamps is 22000.0
 

@@ -193,28 +193,24 @@ public final class IcsImporter {
         weightPerNode.forEach((nodeId, shiftKey) -> {
             String networkElementId = networkElementPerGskElement.get(nodeId);
             // only create constraints if the network element is a generator
-            if (shiftKey >= 0) {
-                GeneratorConstraints.GeneratorConstraintsBuilder builder = GeneratorConstraints.create().withGeneratorId(networkElementId);
-                if (!staticRecord.get(MAXIMUM_POSITIVE_POWER_GRADIENT).isEmpty()) {
-                    builder.withUpwardPowerGradient(shiftKey * parseDoubleWithPossibleCommas(staticRecord.get(MAXIMUM_POSITIVE_POWER_GRADIENT)));
-                } else {
-                    builder.withUpwardPowerGradient(shiftKey * MAX_GRADIENT);
-                }
-                if (!staticRecord.get(MAXIMUM_NEGATIVE_POWER_GRADIENT).isEmpty()) {
-                    builder.withDownwardPowerGradient(-shiftKey * parseDoubleWithPossibleCommas(staticRecord.get(MAXIMUM_NEGATIVE_POWER_GRADIENT)));
-                } else {
-                    builder.withDownwardPowerGradient(-shiftKey * MAX_GRADIENT);
-                }
-                if (!staticRecord.get(LEAD_TIME).isEmpty()) {
-                    builder.withLeadTime(parseDoubleWithPossibleCommas(staticRecord.get(LEAD_TIME)));
-                }
-                if (!staticRecord.get(LAG_TIME).isEmpty()) {
-                    builder.withLagTime(parseDoubleWithPossibleCommas(staticRecord.get(LAG_TIME)));
-                }
-                timeCoupledRaoInput.getTimeCoupledConstraints().addGeneratorConstraints(builder.build());
+            GeneratorConstraints.GeneratorConstraintsBuilder builder = GeneratorConstraints.create().withGeneratorId(networkElementId);
+            if (!staticRecord.get(MAXIMUM_POSITIVE_POWER_GRADIENT).isEmpty()) {
+                builder.withUpwardPowerGradient(shiftKey * parseDoubleWithPossibleCommas(staticRecord.get(MAXIMUM_POSITIVE_POWER_GRADIENT)));
             } else {
-                BUSINESS_WARNS.warn("Negative shift-key defined for node {}. This is not supported yet.", nodeId);
+                builder.withUpwardPowerGradient(shiftKey * MAX_GRADIENT);
             }
+            if (!staticRecord.get(MAXIMUM_NEGATIVE_POWER_GRADIENT).isEmpty()) {
+                builder.withDownwardPowerGradient(-shiftKey * parseDoubleWithPossibleCommas(staticRecord.get(MAXIMUM_NEGATIVE_POWER_GRADIENT)));
+            } else {
+                builder.withDownwardPowerGradient(-shiftKey * MAX_GRADIENT);
+            }
+            if (!staticRecord.get(LEAD_TIME).isEmpty()) {
+                builder.withLeadTime(parseDoubleWithPossibleCommas(staticRecord.get(LEAD_TIME)));
+            }
+            if (!staticRecord.get(LAG_TIME).isEmpty()) {
+                builder.withLagTime(parseDoubleWithPossibleCommas(staticRecord.get(LAG_TIME)));
+            }
+            timeCoupledRaoInput.getTimeCoupledConstraints().addGeneratorConstraints(builder.build());
         });
     }
 
@@ -253,32 +249,28 @@ public final class IcsImporter {
 
         });
 
-        // only create constraints if the network element is a generator
-        if (networkElementId.endsWith(GENERATOR_SUFFIX)) {
-            GeneratorConstraints.GeneratorConstraintsBuilder builder = GeneratorConstraints.create().withGeneratorId(networkElementId);
-            if (!staticRecord.get(MAXIMUM_POSITIVE_POWER_GRADIENT).isEmpty()) {
-                builder.withUpwardPowerGradient(parseDoubleWithPossibleCommas(staticRecord.get(MAXIMUM_POSITIVE_POWER_GRADIENT)));
-            } else {
-                builder.withUpwardPowerGradient(MAX_GRADIENT);
-            }
-            if (!staticRecord.get(MAXIMUM_NEGATIVE_POWER_GRADIENT).isEmpty()) {
-                builder.withDownwardPowerGradient(-parseDoubleWithPossibleCommas(staticRecord.get(MAXIMUM_NEGATIVE_POWER_GRADIENT)));
-            } else {
-                builder.withDownwardPowerGradient(-MAX_GRADIENT);
-            }
-            if (!staticRecord.get(LEAD_TIME).isEmpty()) {
-                builder.withLeadTime(parseDoubleWithPossibleCommas(staticRecord.get(LEAD_TIME)));
-            }
-            if (!staticRecord.get(LAG_TIME).isEmpty()) {
-                builder.withLagTime(parseDoubleWithPossibleCommas(staticRecord.get(LAG_TIME)));
-            }
-            timeCoupledRaoInput.getTimeCoupledConstraints().addGeneratorConstraints(builder.build());
+        GeneratorConstraints.GeneratorConstraintsBuilder builder = GeneratorConstraints.create().withGeneratorId(networkElementId);
+        if (!staticRecord.get(MAXIMUM_POSITIVE_POWER_GRADIENT).isEmpty()) {
+            builder.withUpwardPowerGradient(parseDoubleWithPossibleCommas(staticRecord.get(MAXIMUM_POSITIVE_POWER_GRADIENT)));
+        } else {
+            builder.withUpwardPowerGradient(MAX_GRADIENT);
         }
+        if (!staticRecord.get(MAXIMUM_NEGATIVE_POWER_GRADIENT).isEmpty()) {
+            builder.withDownwardPowerGradient(-parseDoubleWithPossibleCommas(staticRecord.get(MAXIMUM_NEGATIVE_POWER_GRADIENT)));
+        } else {
+            builder.withDownwardPowerGradient(-MAX_GRADIENT);
+        }
+        if (!staticRecord.get(LEAD_TIME).isEmpty()) {
+            builder.withLeadTime(parseDoubleWithPossibleCommas(staticRecord.get(LEAD_TIME)));
+        }
+        if (!staticRecord.get(LAG_TIME).isEmpty()) {
+            builder.withLagTime(parseDoubleWithPossibleCommas(staticRecord.get(LAG_TIME)));
+        }
+        timeCoupledRaoInput.getTimeCoupledConstraints().addGeneratorConstraints(builder.build());
     }
 
     private static String processNetworks(String nodeId, TemporalData<Network> initialNetworks, Map<String, CSVRecord> seriesPerType, double shiftKey) {
         String generatorId = seriesPerType.get(P0).get(RA_RD_ID) + "_" + nodeId + GENERATOR_SUFFIX;
-        String loadId = seriesPerType.get(P0).get(RA_RD_ID) + "_" + nodeId + LOAD_SUFFIX;
         for (Map.Entry<OffsetDateTime, Network> entry : initialNetworks.getDataPerTimestamp().entrySet()) {
             Bus bus = findBus(nodeId, entry.getValue());
             if (bus == null) {
@@ -287,9 +279,9 @@ public final class IcsImporter {
             }
             Double p0 = parseDoubleWithPossibleCommas(seriesPerType.get(P0).get(entry.getKey().getHour() + OFFSET)) * shiftKey;
             Optional<Double> pMinRd = parseValue(seriesPerType, P_MIN_RD, entry.getKey(), shiftKey);
-            processBus(bus, generatorId, loadId, p0, pMinRd.orElse(OFF_POWER_THRESHOLD));
+            processBus(bus, generatorId, p0, pMinRd.orElse(OFF_POWER_THRESHOLD));
         }
-        return shiftKey >= 0 ? generatorId : loadId;
+        return generatorId;
     }
 
     private static Optional<Double> parseValue(Map<String, CSVRecord> seriesPerType, String key, OffsetDateTime timestamp, double shiftKey) {
@@ -320,7 +312,7 @@ public final class IcsImporter {
         return network.getBusBreakerView().getBus(modifiedNodeId + " ");
     }
 
-    private static void processBus(Bus bus, String generatorId, String loadId, Double p0, double pMinRd) {
+    private static void processBus(Bus bus, String generatorId, Double p0, double pMinRd) {
         bus.getVoltageLevel().newGenerator()
             .setBus(bus.getId())
             .setEnsureIdUnicity(true)
@@ -337,7 +329,7 @@ public final class IcsImporter {
         bus.getVoltageLevel().newLoad()
             .setBus(bus.getId())
             .setEnsureIdUnicity(true)
-            .setId(loadId)
+            .setId(bus.getId() + "_LOAD")
             .setP0(p0)
             .setQ0(0)
             .setLoadType(LoadType.FICTITIOUS)
