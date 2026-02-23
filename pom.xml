@@ -16,8 +16,8 @@
     <packaging>pom</packaging>
 
     <name>Open RAO</name>
-    <description>A toolbox based on powsybl framework dedicated to power systems coordinated capacity calculation and security analysis projects</description>
-    <url>http://farao-community.com</url>
+    <description>A toolbox based on the powsybl framework dedicated to power systems coordinated capacity calculation and security analysis projects</description>
+    <url>https://powsybl.readthedocs.io/projects/openrao</url>
 
     <licenses>
         <license>
@@ -37,25 +37,37 @@
             <name>Sebastien MURGEY</name>
             <email>sebastien.murgey@rte-france.com</email>
             <organization>RTE</organization>
-            <organizationUrl>http://www.rte-france.com</organizationUrl>
+            <organizationUrl>https://www.rte-france.com</organizationUrl>
         </developer>
         <developer>
             <name>Philippe EDWARDS</name>
             <email>philippe.edwards@rte-france.com</email>
             <organization>RTE</organization>
-            <organizationUrl>http://www.rte-france.com</organizationUrl>
+            <organizationUrl>https://www.rte-france.com</organizationUrl>
         </developer>
         <developer>
             <name>Peter MITRI</name>
             <email>peter.mitri@rte-france.com</email>
             <organization>RTE</organization>
-            <organizationUrl>http://www.rte-france.com</organizationUrl>
+            <organizationUrl>https://www.rte-france.com</organizationUrl>
         </developer>
         <developer>
-            <name>Godelaine de Montmorillon</name>
+            <name>Godelaine DE MONTMORILLON</name>
             <email>godelaine.demontmorillon@rte-france.com</email>
             <organization>RTE</organization>
-            <organizationUrl>http://www.rte-france.com</organizationUrl>
+            <organizationUrl>https://www.rte-france.com</organizationUrl>
+        </developer>
+        <developer>
+            <name>Thomas BOUQUET</name>
+            <email>thomas.bouquet@rte-france.com</email>
+            <organization>RTE</organization>
+            <organizationUrl>https://www.rte-france.com</organizationUrl>
+        </developer>
+        <developer>
+            <name>Roxane CHEN</name>
+            <email>roxane.chen@rte-france.com</email>
+            <organization>RTE</organization>
+            <organizationUrl>https://www.rte-france.com</organizationUrl>
         </developer>
     </developers>
 
