@@ -16,12 +16,12 @@ import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.raoresult.impl.RaoResultImpl;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 import java.io.IOException;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 /**
@@ -87,9 +87,13 @@ class FlowCnecResultArrayDeserializerTest {
         }
     }
 
-    @Test
-    void deserializeThrowsOnUnexpectedUnitInsideElementary() {
-        String json = "[{\"flowCnecId\":\"fc1\",\"initial\":{\"kilovolt\":{}}}]";
+    @ParameterizedTest
+    @CsvSource({
+        "kilovolt, '[{\"flowCnecId\":\"fc1\",\"initial\":{\"kilovolt\":{}}}]'",
+        "unexpectedField, '[{\"flowCnecId\":\"fc1\",\"initial\":{\"megawatt\":{\"unexpectedField\":1.5}}}]'",
+        "unexpectedField, '[{\"flowCnecId\":\"fc1\",\"initial\":{\"megawatt\":{\"side1\":{\"unexpectedField\":100.0}}}}]'"
+    })
+    void deserializeThrowsOnUnexpectedField(String fieldName, String json) {
         Crac crac = mock(Crac.class);
         when(crac.getFlowCnec("fc1")).thenReturn(mock(FlowCnec.class));
         RaoResultImpl raoResult = new RaoResultImpl(crac);
@@ -97,39 +101,7 @@ class FlowCnecResultArrayDeserializerTest {
         try (JsonParser parser = parserFrom(json)) {
             OpenRaoException ex = assertThrows(OpenRaoException.class,
                 () -> FlowCnecResultArrayDeserializer.deserialize(parser, raoResult, crac, "1.4"));
-            assertEquals("Cannot deserialize RaoResult: unexpected field in flowCnecResults (kilovolt)", ex.getMessage());
-        } catch (IOException e) {
-            throw new AssertionError("Failed to parse JSON content");
-        }
-    }
-
-    @Test
-    void deserializeThrowsOnUnexpectedFieldInsideUnit() {
-        String json = "[{\"flowCnecId\":\"fc1\",\"initial\":{\"megawatt\":{\"unexpectedField\":1.5}}}]";
-        Crac crac = mock(Crac.class);
-        when(crac.getFlowCnec("fc1")).thenReturn(mock(FlowCnec.class));
-        RaoResultImpl raoResult = new RaoResultImpl(crac);
-
-        try (JsonParser parser = parserFrom(json)) {
-            OpenRaoException ex = assertThrows(OpenRaoException.class,
-                () -> FlowCnecResultArrayDeserializer.deserialize(parser, raoResult, crac, "1.4"));
-            assertEquals("Cannot deserialize RaoResult: unexpected field in flowCnecResults (unexpectedField)", ex.getMessage());
-        } catch (IOException e) {
-            throw new AssertionError("Failed to parse JSON content");
-        }
-    }
-
-    @Test
-    void deserializeThrowsOnUnexpectedFieldInsideSide() {
-        String json = "[{\"flowCnecId\":\"fc1\",\"initial\":{\"megawatt\":{\"side1\":{\"unexpectedField\":100.0}}}}]";
-        Crac crac = mock(Crac.class);
-        when(crac.getFlowCnec("fc1")).thenReturn(mock(FlowCnec.class));
-        RaoResultImpl raoResult = new RaoResultImpl(crac);
-
-        try (JsonParser parser = parserFrom(json)) {
-            OpenRaoException ex = assertThrows(OpenRaoException.class,
-                () -> FlowCnecResultArrayDeserializer.deserialize(parser, raoResult, crac, "1.4"));
-            assertEquals("Cannot deserialize RaoResult: unexpected field in flowCnecResults (unexpectedField)", ex.getMessage());
+            assertEquals(String.format("Cannot deserialize RaoResult: unexpected field in flowCnecResults (%s)", fieldName), ex.getMessage());
         } catch (IOException e) {
             throw new AssertionError("Failed to parse JSON content");
         }
@@ -155,35 +127,20 @@ class FlowCnecResultArrayDeserializerTest {
         assertEquals(490., raoResult.getFlow(null, flowCnec, TwoSides.TWO, Unit.MEGAWATT));
     }
 
-    @Test
-    void deserializeThrowsWithDeprecatedLeftSideAfterVersion13() {
-        // Since version 1.4, leftSide is deprecated
-        String json = "[{\"flowCnecId\":\"fc1\",\"initial\":{\"megawatt\":{\"leftSide\":{\"flow\":500.0}}}}]";
+    @ParameterizedTest
+    @CsvSource({
+        "leftSide, 1.5, 1.4, '[{\"flowCnecId\":\"fc1\",\"initial\":{\"megawatt\":{\"leftSide\":{\"flow\":500.0}}}}]'",
+        "rightSide, 1.5, 1.4, '[{\"flowCnecId\":\"fc1\",\"initial\":{\"megawatt\":{\"rightSide\":{\"flow\":490.0}}}}]'"
+    })
+    void deserializeThrowsWithDeprecatedSideAfterVersion13(String fieldName, String currentVersion, String lastSupportedVersion, String json) {
         Crac crac = mock(Crac.class);
         when(crac.getFlowCnec("fc1")).thenReturn(mock(FlowCnec.class));
         RaoResultImpl raoResult = new RaoResultImpl(crac);
 
         try (JsonParser parser = parserFrom(json)) {
             OpenRaoException ex = assertThrows(OpenRaoException.class,
-                () -> FlowCnecResultArrayDeserializer.deserialize(parser, raoResult, crac, "1.5"));
-            assertEquals("Cannot deserialize RaoResult: field leftSide in flowCnecResults in not supported in file version 1.5 (last supported in version 1.4)", ex.getMessage());
-        } catch (IOException e) {
-            throw new AssertionError("Failed to parse JSON content");
-        }
-    }
-
-    @Test
-    void deserializeThrowsWithDeprecatedRightSideAfterVersion13() {
-        // Since version 1.4, rightSide is deprecated
-        String json = "[{\"flowCnecId\":\"fc1\",\"initial\":{\"megawatt\":{\"rightSide\":{\"flow\":490.0}}}}]";
-        Crac crac = mock(Crac.class);
-        when(crac.getFlowCnec("fc1")).thenReturn(mock(FlowCnec.class));
-        RaoResultImpl raoResult = new RaoResultImpl(crac);
-
-        try (JsonParser parser = parserFrom(json)) {
-            OpenRaoException ex = assertThrows(OpenRaoException.class,
-                () -> FlowCnecResultArrayDeserializer.deserialize(parser, raoResult, crac, "1.5"));
-            assertEquals("Cannot deserialize RaoResult: field rightSide in flowCnecResults in not supported in file version 1.5 (last supported in version 1.4)", ex.getMessage());
+                () -> FlowCnecResultArrayDeserializer.deserialize(parser, raoResult, crac, currentVersion));
+            assertEquals(String.format("Cannot deserialize RaoResult: field %s in flowCnecResults in not supported in file version %s (last supported in version %s)", fieldName, currentVersion, lastSupportedVersion), ex.getMessage());
         } catch (IOException e) {
             throw new AssertionError("Failed to parse JSON content");
         }
@@ -208,18 +165,21 @@ class FlowCnecResultArrayDeserializerTest {
         assertEquals(500., raoResult.getFlow(null, flowCnec, TwoSides.ONE, Unit.MEGAWATT));
     }
 
-    @Test
-    void deserializeThrowsWithDeprecatedFlowFieldAfterVersion10() {
-        // Since version 1.1, flow at unit level is deprecated
-        String json = "[{\"flowCnecId\":\"fc1\",\"initial\":{\"megawatt\":{\"flow\":500.0}}}]";
+    @ParameterizedTest
+    @CsvSource({
+        "flow, 1.2, 1.1, '[{\"flowCnecId\":\"fc1\",\"initial\":{\"megawatt\":{\"flow\":500.0}}}]'",
+        "commercialFlow, 1.2, 1.1, '[{\"flowCnecId\":\"fc1\",\"initial\":{\"megawatt\":{\"commercialFlow\":50.0}}}]'",
+        "loopFlow, 1.2, 1.1, '[{\"flowCnecId\":\"fc1\",\"initial\":{\"megawatt\":{\"loopFlow\":30.0}}}]'"
+    })
+    void deserializeThrowsWithDeprecatedUnitLevelFieldAfterVersion10(String fieldName, String currentVersion, String lastSupportedVersion, String json) {
         Crac crac = mock(Crac.class);
         when(crac.getFlowCnec("fc1")).thenReturn(mock(FlowCnec.class));
         RaoResultImpl raoResult = new RaoResultImpl(crac);
 
         try (JsonParser parser = parserFrom(json)) {
             OpenRaoException ex = assertThrows(OpenRaoException.class,
-                () -> FlowCnecResultArrayDeserializer.deserialize(parser, raoResult, crac, "1.2"));
-            assertEquals("Cannot deserialize RaoResult: field flow in flowCnecResults in not supported in file version 1.2 (last supported in version 1.1)", ex.getMessage());
+                () -> FlowCnecResultArrayDeserializer.deserialize(parser, raoResult, crac, currentVersion));
+            assertEquals(String.format("Cannot deserialize RaoResult: field %s in flowCnecResults in not supported in file version %s (last supported in version %s)", fieldName, currentVersion, lastSupportedVersion), ex.getMessage());
         } catch (IOException e) {
             throw new AssertionError("Failed to parse JSON content");
         }
@@ -246,23 +206,6 @@ class FlowCnecResultArrayDeserializerTest {
     }
 
     @Test
-    void deserializeThrowsWithDeprecatedCommercialFlowFieldAfterVersion10() {
-        // Since version 1.1, commercialFlow at unit level is deprecated
-        String json = "[{\"flowCnecId\":\"fc1\",\"initial\":{\"megawatt\":{\"commercialFlow\":50.0}}}]";
-        Crac crac = mock(Crac.class);
-        when(crac.getFlowCnec("fc1")).thenReturn(mock(FlowCnec.class));
-        RaoResultImpl raoResult = new RaoResultImpl(crac);
-
-        try (JsonParser parser = parserFrom(json)) {
-            OpenRaoException ex = assertThrows(OpenRaoException.class,
-                () -> FlowCnecResultArrayDeserializer.deserialize(parser, raoResult, crac, "1.2"));
-            assertEquals("Cannot deserialize RaoResult: field commercialFlow in flowCnecResults in not supported in file version 1.2 (last supported in version 1.1)", ex.getMessage());
-        } catch (IOException e) {
-            throw new AssertionError("Failed to parse JSON content");
-        }
-    }
-
-    @Test
     void deserializeSuccessWithDeprecatedLoopFlowFieldInVersion10() throws Exception {
         // Before version 1.1, loopFlow field was at unit level
         String json = "[{\"flowCnecId\":\"fc1\",\"initial\":{\"megawatt\":{\"loopFlow\":30.0}}}]";
@@ -280,23 +223,6 @@ class FlowCnecResultArrayDeserializerTest {
         verifyNoMoreInteractions(raoResult);
         assertEquals(30., raoResult.getLoopFlow(null, flowCnec, TwoSides.ONE, Unit.MEGAWATT));
         assertEquals(30., raoResult.getLoopFlow(null, flowCnec, TwoSides.TWO, Unit.MEGAWATT));
-    }
-
-    @Test
-    void deserializeThrowsWithDeprecatedLoopFlowFieldAfterVersion10() {
-        // Since version 1.1, loopFlow at unit level is deprecated
-        String json = "[{\"flowCnecId\":\"fc1\",\"initial\":{\"megawatt\":{\"loopFlow\":30.0}}}]";
-        Crac crac = mock(Crac.class);
-        when(crac.getFlowCnec("fc1")).thenReturn(mock(FlowCnec.class));
-        RaoResultImpl raoResult = new RaoResultImpl(crac);
-
-        try (JsonParser parser = parserFrom(json)) {
-            OpenRaoException ex = assertThrows(OpenRaoException.class,
-                () -> FlowCnecResultArrayDeserializer.deserialize(parser, raoResult, crac, "1.2"));
-            assertEquals("Cannot deserialize RaoResult: field loopFlow in flowCnecResults in not supported in file version 1.2 (last supported in version 1.1)", ex.getMessage());
-        } catch (IOException e) {
-            throw new AssertionError("Failed to parse JSON content");
-        }
     }
 
     @Test

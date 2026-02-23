@@ -86,7 +86,7 @@ class NetworkActionResultArrayDeserializerTest {
         try (JsonParser parser = parserFrom(json)) {
             OpenRaoException exception = assertThrows(OpenRaoException.class,
                 () -> NetworkActionResultArrayDeserializer.deserialize(parser, raoResult, crac));
-            assertEquals("Cannot deserialize RaoResult: unexpected field in networkActionResults (unexpectedField)", exception.getMessage());
+            assertEquals(String.format("Cannot deserialize RaoResult: unexpected field in networkActionResults (%s)", "unexpectedField"), exception.getMessage());
         } catch (IOException e) {
             throw new AssertionError("Failed to parse JSON content");
         }

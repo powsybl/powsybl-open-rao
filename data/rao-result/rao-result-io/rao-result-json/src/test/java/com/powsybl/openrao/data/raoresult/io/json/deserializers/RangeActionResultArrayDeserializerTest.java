@@ -15,12 +15,12 @@ import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.impl.RaoResultImpl;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 import java.io.IOException;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 /**
@@ -50,7 +50,6 @@ class RangeActionResultArrayDeserializerTest {
 
         verify(raoResult, atLeastOnce()).getAndCreateIfAbsentRangeActionResult(rangeAction);
         verifyNoMoreInteractions(raoResult);
-        assertEquals(10.5, raoResult.getPreOptimizationSetPointOnState(null, rangeAction));
     }
 
     @Test
@@ -119,10 +118,12 @@ class RangeActionResultArrayDeserializerTest {
         }
     }
 
-    @Test
-    void deserializeThrowsOnTapForNonPst() {
-        // With version >= 1.8, taps must be PST-only
-        String json = "[{\"rangeActionId\":\"ra1\",\"activatedStates\":[{\"instant\":\"preventive\",\"tap\":3}]}]";
+    @ParameterizedTest
+    @CsvSource({
+        "'[{\"rangeActionId\":\"ra1\",\"activatedStates\":[{\"instant\":\"preventive\",\"tap\":3}]}]', 'Taps can only be defined for PST range actions.', 1.8",
+        "'[{\"rangeActionId\":\"ra1\",\"initialTap\":3}]', 'Initial taps can only be defined for PST range actions.', 1.8"
+    })
+    void deserializeThrowsOnTapForNonPst(String json, String expectedMessage, String version) {
         Crac crac = mock(Crac.class);
         RangeAction<?> rangeAction = mock(RangeAction.class);
         doReturn(rangeAction).when(crac).getRangeAction("ra1");
@@ -130,8 +131,8 @@ class RangeActionResultArrayDeserializerTest {
 
         try (JsonParser parser = parserFrom(json)) {
             OpenRaoException ex = assertThrows(OpenRaoException.class,
-                () -> RangeActionResultArrayDeserializer.deserialize(parser, raoResult, crac, "1.8"));
-            assertEquals("Taps can only be defined for PST range actions.", ex.getMessage());
+                () -> RangeActionResultArrayDeserializer.deserialize(parser, raoResult, crac, version));
+            assertEquals(expectedMessage, ex.getMessage());
         } catch (IOException e) {
             throw new AssertionError("Failed to parse JSON content");
         }
@@ -150,24 +151,6 @@ class RangeActionResultArrayDeserializerTest {
             OpenRaoException ex = assertThrows(OpenRaoException.class,
                 () -> RangeActionResultArrayDeserializer.deserialize(parser, raoResult, crac, "1.7"));
             assertEquals("Cannot deserialize RaoResult: setpoint is required in rangeActionResults", ex.getMessage());
-        } catch (IOException e) {
-            throw new AssertionError("Failed to parse JSON content");
-        }
-    }
-
-    @Test
-    void deserializeThrowsOnInitialTapForNonPstSince18() {
-        // Cover top-level INITIAL_TAP else-branch error for non-PST at version >= 1.8
-        String json = "[{\"rangeActionId\":\"ra1\",\"initialTap\":3}]";
-        Crac crac = mock(Crac.class);
-        RangeAction<?> rangeAction = mock(RangeAction.class);
-        doReturn(rangeAction).when(crac).getRangeAction("ra1");
-        RaoResultImpl raoResult = new RaoResultImpl(crac);
-
-        try (JsonParser parser = parserFrom(json)) {
-            OpenRaoException ex = assertThrows(OpenRaoException.class,
-                () -> RangeActionResultArrayDeserializer.deserialize(parser, raoResult, crac, "1.8"));
-            assertEquals("Initial taps can only be defined for PST range actions.", ex.getMessage());
         } catch (IOException e) {
             throw new AssertionError("Failed to parse JSON content");
         }

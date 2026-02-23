@@ -15,12 +15,12 @@ import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
 import com.powsybl.openrao.data.raoresult.impl.RaoResultImpl;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 import java.io.IOException;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 /**
@@ -85,9 +85,12 @@ class VoltageCnecResultArrayDeserializerTest {
         }
     }
 
-    @Test
-    void deserializeThrowsOnUnexpectedUnitInsideElementary() {
-        String json = "[{\"voltageCnecId\":\"vc1\",\"initial\":{\"ampere\":{}}}]";
+    @ParameterizedTest
+    @CsvSource({
+        "ampere, '[{\"voltageCnecId\":\"vc1\",\"initial\":{\"ampere\":{}}}]'",
+        "unexpectedField, '[{\"voltageCnecId\":\"vc1\",\"initial\":{\"kilovolt\":{\"unexpectedField\":1.5}}}]'"
+    })
+    void deserializeThrowsOnUnexpectedField(String fieldName, String json) {
         Crac crac = mock(Crac.class);
         when(crac.getVoltageCnec("vc1")).thenReturn(mock(VoltageCnec.class));
         RaoResultImpl raoResult = new RaoResultImpl(crac);
@@ -95,23 +98,7 @@ class VoltageCnecResultArrayDeserializerTest {
         try (JsonParser parser = parserFrom(json)) {
             OpenRaoException ex = assertThrows(OpenRaoException.class,
                 () -> VoltageCnecResultArrayDeserializer.deserialize(parser, raoResult, crac, "1.6"));
-            assertEquals("Cannot deserialize RaoResult: unexpected field in voltageCnecResults (ampere)", ex.getMessage());
-        } catch (IOException e) {
-            throw new AssertionError("Failed to parse JSON content");
-        }
-    }
-
-    @Test
-    void deserializeThrowsOnUnexpectedFieldInsideKilovolt() {
-        String json = "[{\"voltageCnecId\":\"vc1\",\"initial\":{\"kilovolt\":{\"unexpectedField\":1.5}}}]";
-        Crac crac = mock(Crac.class);
-        when(crac.getVoltageCnec("vc1")).thenReturn(mock(VoltageCnec.class));
-        RaoResultImpl raoResult = new RaoResultImpl(crac);
-
-        try (JsonParser parser = parserFrom(json)) {
-            OpenRaoException ex = assertThrows(OpenRaoException.class,
-                () -> VoltageCnecResultArrayDeserializer.deserialize(parser, raoResult, crac, "1.6"));
-            assertEquals("Cannot deserialize RaoResult: unexpected field in voltageCnecResults (unexpectedField)", ex.getMessage());
+            assertEquals(String.format("Cannot deserialize RaoResult: unexpected field in voltageCnecResults (%s)", fieldName), ex.getMessage());
         } catch (IOException e) {
             throw new AssertionError("Failed to parse JSON content");
         }

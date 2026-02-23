@@ -15,12 +15,12 @@ import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
 import com.powsybl.openrao.data.raoresult.impl.RaoResultImpl;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 import java.io.IOException;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 /**
@@ -84,9 +84,12 @@ class AngleCnecResultArrayDeserializerTest {
         }
     }
 
-    @Test
-    void deserializeThrowsOnUnexpectedUnitInsideElementary() {
-        String json = "[{\"angleCnecId\":\"ac1\",\"initial\":{\"radian\":{}}}]";
+    @ParameterizedTest
+    @CsvSource({
+        "radian, '[{\"angleCnecId\":\"ac1\",\"initial\":{\"radian\":{}}}]'",
+        "foo, '[{\"angleCnecId\":\"ac1\",\"initial\":{\"degree\":{\"foo\":1}}}]'"
+    })
+    void deserializeThrowsOnUnexpectedField(String fieldName, String json) {
         Crac crac = mock(Crac.class);
         when(crac.getAngleCnec("ac1")).thenReturn(mock(AngleCnec.class));
         RaoResultImpl raoResult = new RaoResultImpl(crac);
@@ -94,23 +97,7 @@ class AngleCnecResultArrayDeserializerTest {
         try (JsonParser parser = parserFrom(json)) {
             OpenRaoException ex = assertThrows(OpenRaoException.class,
                 () -> AngleCnecResultArrayDeserializer.deserialize(parser, raoResult, crac, "1.3"));
-            assertEquals("Cannot deserialize RaoResult: unexpected field in angleCnecResults (radian)", ex.getMessage());
-        } catch (IOException e) {
-            throw new AssertionError("Failed to parse JSON content");
-        }
-    }
-
-    @Test
-    void deserializeThrowsOnUnexpectedFieldInsideDegree() {
-        String json = "[{\"angleCnecId\":\"ac1\",\"initial\":{\"degree\":{\"foo\":1}}}]";
-        Crac crac = mock(Crac.class);
-        when(crac.getAngleCnec("ac1")).thenReturn(mock(AngleCnec.class));
-        RaoResultImpl raoResult = new RaoResultImpl(crac);
-
-        try (JsonParser parser = parserFrom(json)) {
-            OpenRaoException ex = assertThrows(OpenRaoException.class,
-                () -> AngleCnecResultArrayDeserializer.deserialize(parser, raoResult, crac, "1.3"));
-            assertEquals("Cannot deserialize RaoResult: unexpected field in angleCnecResults (foo)", ex.getMessage());
+            assertEquals(String.format("Cannot deserialize RaoResult: unexpected field in angleCnecResults (%s)", fieldName), ex.getMessage());
         } catch (IOException e) {
             throw new AssertionError("Failed to parse JSON content");
         }
