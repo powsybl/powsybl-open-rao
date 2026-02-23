@@ -26,6 +26,11 @@
             <artifactId>open-rao-crac-api</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.powsybl</groupId>
+            <artifactId>powsybl-security-analysis-api</artifactId>
+            <version>${powsybl.core.version}</version>
+        </dependency>
 
         <!-- Test dependencies -->
         <dependency>
@@ -37,12 +42,6 @@
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.powsybl</groupId>
-            <artifactId>powsybl-security-analysis-api</artifactId>
-            <version>7.1.1</version>
-            <scope>compile</scope>
         </dependency>
     </dependencies>
 
