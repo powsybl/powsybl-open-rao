@@ -8,7 +8,6 @@
 package com.powsybl.openrao.data.crac.util;
 
 import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
