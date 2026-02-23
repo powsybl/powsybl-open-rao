@@ -7,12 +7,15 @@
 
 package com.powsybl.openrao.data.crac.api.rangeaction;
 
+import com.powsybl.action.Action;
+import com.powsybl.action.PhaseTapChangerTapPositionAction;
 import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.range.TapRange;
 import com.powsybl.iidm.network.Network;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * A range action interface specifying an action on a PST
@@ -72,4 +75,13 @@ public interface PstRangeAction extends RangeAction<PstRangeAction> {
      * Integrity check for angle
      */
     void checkAngle(double angle);
+
+    @Override
+    default Set<Action> toActions(double setPoint, Network network) {
+        return Set.of(toAction(convertAngleToTap(setPoint)));
+    }
+
+    default PhaseTapChangerTapPositionAction toAction(int tapPosition) {
+        return new PhaseTapChangerTapPositionAction("%s@%s".formatted(getId(), tapPosition), getNetworkElement().getId(), false, tapPosition);
+    }
 }
