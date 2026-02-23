@@ -256,12 +256,6 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>open-rao-crac-impl</artifactId>
-                <version>${project.version}</version>
-                <type>test-jar</type>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
                 <artifactId>open-rao-crac-io</artifactId>
                 <version>${project.version}</version>
             </dependency>
