@@ -134,8 +134,11 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
 
         // modify the setUp to mock a multi-curative situation in 2P.
         Instant preventive = Mockito.mock(Instant.class);
+        when(preventive.getOrder()).thenReturn(0);
         Instant curative1 = Mockito.mock(Instant.class);
         Instant curative2 = Mockito.mock(Instant.class);
+        when(curative1.getOrder()).thenReturn(1);
+        when(curative2.getOrder()).thenReturn(2);
         when(curative1.comesBefore(curative2)).thenReturn(true);
         when(curative2.comesBefore(curative1)).thenReturn(false);
         when(curative1.isCurative()).thenReturn(true);
@@ -169,7 +172,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
 
         // add multi-curative states
         OptimizationPerimeter optimizationPerimeter = Mockito.mock(OptimizationPerimeter.class);
-        rangeActionsPerStateMultiCurative = Map.of(co1Curative1, Set.of(pst1, hvdc, injection), co1Curative2, Set.of(pst1, pst2), co2Curative2, Set.of(pst2, pst3), preventiveState, Set.of(injection));
+        rangeActionsPerStateMultiCurative = Map.of(co1Curative1, Set.of(pst1, hvdc, injection), co1Curative2, Set.of(pst1, pst2, pst3), co2Curative2, Set.of(pst2, pst3), preventiveState, Set.of(injection));
         Mockito.when(optimizationPerimeter.getRangeActionsPerState()).thenReturn(rangeActionsPerStateMultiCurative);
         RangeActionsOptimizationParameters rangeActionParameters = (new RaoParameters()).getRangeActionsOptimizationParameters();
 
@@ -441,9 +444,9 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
         assertNotNull(constraint);
         assertEquals(0, constraint.lb(), DOUBLE_TOLERANCE);
         assertEquals(2, constraint.ub(), DOUBLE_TOLERANCE);
-        assertEquals(1, constraint.getCoefficient(linearProblem.getTsoRaUsedVariable("opA", state)), DOUBLE_TOLERANCE);
-        assertEquals(1, constraint.getCoefficient(linearProblem.getTsoRaUsedVariable("opB", state)), DOUBLE_TOLERANCE);
-        assertEquals(1, constraint.getCoefficient(linearProblem.getTsoRaUsedVariable("opC", state)), DOUBLE_TOLERANCE);
+        assertEquals(1, constraint.getCoefficient(linearProblem.getTsoRaUsedCumulativeVariable("opA", state)), DOUBLE_TOLERANCE);
+        assertEquals(1, constraint.getCoefficient(linearProblem.getTsoRaUsedCumulativeVariable("opB", state)), DOUBLE_TOLERANCE);
+        assertEquals(1, constraint.getCoefficient(linearProblem.getTsoRaUsedCumulativeVariable("opC", state)), DOUBLE_TOLERANCE);
 
         checkTsoToRaConstraint("opA", pst1);
         checkTsoToRaConstraint("opA", pst2);
@@ -521,10 +524,10 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
         assertNotNull(constraint);
         assertEquals(0, constraint.lb(), DOUBLE_TOLERANCE);
         assertEquals(1, constraint.ub(), DOUBLE_TOLERANCE);
-        assertEquals(1, constraint.getCoefficient(linearProblem.getTsoRaUsedVariable("opA", state)), DOUBLE_TOLERANCE);
-        assertEquals(1, constraint.getCoefficient(linearProblem.getTsoRaUsedVariable("opB", state)), DOUBLE_TOLERANCE);
-        Exception e = assertThrows(OpenRaoException.class, () -> linearProblem.getTsoRaUsedVariable("opC", state));
-        assertEquals("Variable tsoraused_opC_preventive_variable has not been created yet", e.getMessage());
+        assertEquals(1, constraint.getCoefficient(linearProblem.getTsoRaUsedCumulativeVariable("opA", state)), DOUBLE_TOLERANCE);
+        assertEquals(1, constraint.getCoefficient(linearProblem.getTsoRaUsedCumulativeVariable("opB", state)), DOUBLE_TOLERANCE);
+        Exception e = assertThrows(OpenRaoException.class, () -> linearProblem.getTsoRaUsedCumulativeVariable("opC", state));
+        assertEquals("Variable tsorausedcumulative_opC_preventive_variable has not been created yet", e.getMessage());
     }
 
     @Test
@@ -725,21 +728,25 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             false);
 
         Map<State, Set<RangeAction<?>>> rangeActionsPerStateBeforeCo1Curative1 = raUsageLimitsFiller.getAllRangeActionsAvailableForAllPreviousCurativeStates(co1Curative1);
-        assertEquals(Map.of(), rangeActionsPerStateBeforeCo1Curative1);
+        assertEquals(Map.of(co1Curative1, Set.of(pst1, hvdc, injection)), rangeActionsPerStateBeforeCo1Curative1);
         Map<State, Set<RangeAction<?>>> rangeActionsPerStateBeforeCo2Curative1 = raUsageLimitsFiller.getAllRangeActionsAvailableForAllPreviousCurativeStates(co2Curative2);
-        assertEquals(Map.of(), rangeActionsPerStateBeforeCo2Curative1);
+        assertEquals(Map.of(co2Curative2, Set.of(pst2, pst3)), rangeActionsPerStateBeforeCo2Curative1);
         Map<State, Set<RangeAction<?>>> rangeActionsPerStateBeforePreventive = raUsageLimitsFiller.getAllRangeActionsAvailableForAllPreviousCurativeStates(preventiveState);
-        assertEquals(Map.of(), rangeActionsPerStateBeforePreventive);
+        assertEquals(Map.of(preventiveState, Set.of(injection)), rangeActionsPerStateBeforePreventive);
 
         // look for all the range action available for state co1Curative2 + all the curative state defined on the same contingency that come before.
         // The range actions available for the preventive state should not be included
         // co2curative1 is not included either since it's defined on another contingency != co1Curative2's contingency
         Map<State, Set<RangeAction<?>>> rangeActionsPerStateBeforeCo1Curative2 = raUsageLimitsFiller.getAllRangeActionsAvailableForAllPreviousCurativeStates(co1Curative2);
-        assertEquals(Map.of(co1Curative1, Set.of(pst1, hvdc)), rangeActionsPerStateBeforeCo1Curative2);
+        assertEquals(Map.of(co1Curative1, Set.of(pst1, hvdc, injection), co1Curative2, Set.of(pst1, pst2, pst3)), rangeActionsPerStateBeforeCo1Curative2);
     }
 
     @Test
     void testMaxRaUsageLimitMultiCurativeSecondPreventive() {
+        // Check that the Max RA Usage Limit is correctly defined in multi curative scenarios
+        // ie. take into account in a cumulative way all the range actions from previous and current curative state sharing (same contingencies !)
+        // when defining the max ra usage limit constraint
+
         setUpMultiCurativeIn2P();
 
         RangeActionLimitationParameters raLimitationParameters = new RangeActionLimitationParameters();
@@ -766,34 +773,129 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
         // co1Curative1
         OpenRaoMPConstraint constraint = linearProblem.getMaxRaConstraint(co1Curative1);
         assertNotNull(constraint);
-        assertEquals(0, constraint.lb(), DOUBLE_TOLERANCE);
-        assertEquals(1, constraint.ub(), DOUBLE_TOLERANCE);
-        assertEquals(1, constraint.getCoefficient(linearProblem.getRangeActionVariationBinary(pst1, co1Curative1)), DOUBLE_TOLERANCE);
-        assertEquals(1, constraint.getCoefficient(linearProblem.getRangeActionVariationBinary(hvdc, co1Curative1)), DOUBLE_TOLERANCE);
-        assertEquals(1, constraint.getCoefficient(linearProblem.getRangeActionVariationBinary(injection, co1Curative1)), DOUBLE_TOLERANCE);
+        assertEquals(0, constraint.lb());
+        assertEquals(1, constraint.ub());
+        assertEquals(1, constraint.getCoefficient(linearProblem.getRangeActionVariationBinary(pst1, co1Curative1)));
+        assertEquals(1, constraint.getCoefficient(linearProblem.getRangeActionVariationBinary(hvdc, co1Curative1)));
+        assertEquals(1, constraint.getCoefficient(linearProblem.getRangeActionVariationBinary(injection, co1Curative1)));
         // co1Curative2 should take into account co1Curative1's range action
         constraint = linearProblem.getMaxRaConstraint(co1Curative2);
         assertNotNull(constraint);
-        assertEquals(0, constraint.lb(), DOUBLE_TOLERANCE);
-        assertEquals(2, constraint.ub(), DOUBLE_TOLERANCE);
-        assertEquals(1, constraint.getCoefficient(linearProblem.getRangeActionVariationBinary(pst1, co1Curative1)), DOUBLE_TOLERANCE);
-        assertEquals(1, constraint.getCoefficient(linearProblem.getRangeActionVariationBinary(hvdc, co1Curative1)), DOUBLE_TOLERANCE);
-        assertEquals(1, constraint.getCoefficient(linearProblem.getRangeActionVariationBinary(injection, co1Curative1)), DOUBLE_TOLERANCE);
-        assertEquals(1, constraint.getCoefficient(linearProblem.getRangeActionVariationBinary(pst1, co1Curative2)), DOUBLE_TOLERANCE);
-        assertEquals(1, constraint.getCoefficient(linearProblem.getRangeActionVariationBinary(pst2, co1Curative2)), DOUBLE_TOLERANCE);
+        assertEquals(0, constraint.lb());
+        assertEquals(2, constraint.ub());
+        assertEquals(1, constraint.getCoefficient(linearProblem.getRangeActionVariationBinary(pst1, co1Curative1)));
+        assertEquals(1, constraint.getCoefficient(linearProblem.getRangeActionVariationBinary(hvdc, co1Curative1)));
+        assertEquals(1, constraint.getCoefficient(linearProblem.getRangeActionVariationBinary(injection, co1Curative1)));
+        assertEquals(1, constraint.getCoefficient(linearProblem.getRangeActionVariationBinary(pst1, co1Curative2)));
+        assertEquals(1, constraint.getCoefficient(linearProblem.getRangeActionVariationBinary(pst2, co1Curative2)));
+        assertEquals(1, constraint.getCoefficient(linearProblem.getRangeActionVariationBinary(pst3, co1Curative2)));
         // co2Curative2
         constraint = linearProblem.getMaxRaConstraint(co2Curative2);
         assertNotNull(constraint);
-        assertEquals(0, constraint.lb(), DOUBLE_TOLERANCE);
-        assertEquals(1, constraint.ub(), DOUBLE_TOLERANCE);
-        assertEquals(0, constraint.getCoefficient(linearProblem.getRangeActionVariationBinary(pst1, co1Curative1)), DOUBLE_TOLERANCE);
-        assertEquals(0, constraint.getCoefficient(linearProblem.getRangeActionVariationBinary(hvdc, co1Curative1)), DOUBLE_TOLERANCE);
-        assertEquals(1, constraint.getCoefficient(linearProblem.getRangeActionVariationBinary(pst2, co2Curative2)), DOUBLE_TOLERANCE);
-        assertEquals(1, constraint.getCoefficient(linearProblem.getRangeActionVariationBinary(pst3, co2Curative2)), DOUBLE_TOLERANCE);
+        assertEquals(0, constraint.lb());
+        assertEquals(1, constraint.ub());
+        assertEquals(0, constraint.getCoefficient(linearProblem.getRangeActionVariationBinary(pst1, co1Curative1)));
+        assertEquals(0, constraint.getCoefficient(linearProblem.getRangeActionVariationBinary(hvdc, co1Curative1)));
+        assertEquals(1, constraint.getCoefficient(linearProblem.getRangeActionVariationBinary(pst2, co2Curative2)));
+        assertEquals(1, constraint.getCoefficient(linearProblem.getRangeActionVariationBinary(pst3, co2Curative2)));
         // preventiveState
         Exception exception = assertThrows(OpenRaoException.class, () -> linearProblem.getMaxRaConstraint(preventiveState));
         assertEquals("Constraint maxra_preventiveState_constraint has not been created yet", exception.getMessage());
+    }
 
+    @Test
+    void testMaxTsoUsageLimitMultiCurativeSecondPreventive() {
+        // Test cumulative effect for multi curative 2nd prev
+        // In total we have 3 TSO : opA, opB, opC.
+        // Check that maxTso constraints are correctly created and filled
+        // Check that cumulative binary variables are correctly created and constraint.
+
+        setUpMultiCurativeIn2P();
+
+        RangeActionLimitationParameters raLimitationParameters = new RangeActionLimitationParameters();
+        raLimitationParameters.setMaxTso(co1Curative1, 1);
+        raLimitationParameters.setMaxTso(co1Curative2, 1);
+
+        RaUsageLimitsFiller raUsageLimitsFiller = new RaUsageLimitsFiller(
+            rangeActionsPerStateMultiCurative,
+            prePerimeterRangeActionSetpointResult,
+            raLimitationParameters,
+            false,
+            network,
+            false);
+
+        linearProblem = new LinearProblemBuilder()
+            .withProblemFiller(coreProblemFiller)
+            .withProblemFiller(raUsageLimitsFiller)
+            .withSolver(Solver.SCIP)
+            .build();
+
+        linearProblem.fill(flowResult, sensitivityResult);
+
+        // Check constraint for state co1Curative1
+
+        // 1. Check maxTsoConstraint sum_tso(delta_cumulative_tso_co1Curative1) <= TSOmax
+        OpenRaoMPConstraint constraintCo1Curative1   = linearProblem.getMaxTsoConstraint(co1Curative1);
+        assertNotNull(constraintCo1Curative1);
+        assertEquals(0, constraintCo1Curative1.lb());
+        assertEquals(1, constraintCo1Curative1.ub());
+        assertEquals(1, constraintCo1Curative1.getCoefficient(linearProblem.getTsoRaUsedCumulativeVariable("opA", co1Curative1)));
+        Exception exception = assertThrows(OpenRaoException.class, () -> linearProblem.getTsoRaUsedCumulativeVariable("opB", co1Curative1));
+        assertEquals("Variable tsorausedcumulative_opB_co1Curative1_variable has not been created yet", exception.getMessage());
+        assertEquals(1, constraintCo1Curative1.getCoefficient(linearProblem.getTsoRaUsedCumulativeVariable("opC", co1Curative1)));
+        // check that variable from other state not used
+        assertEquals(0, constraintCo1Curative1.getCoefficient(linearProblem.getTsoRaUsedCumulativeVariable("opA", co1Curative2)));
+        assertEquals(0, constraintCo1Curative1.getCoefficient(linearProblem.getTsoRaUsedCumulativeVariable("opB", co1Curative2)));
+        assertEquals(0, constraintCo1Curative1.getCoefficient(linearProblem.getTsoRaUsedCumulativeVariable("opC", co1Curative2)));
+
+        // 2. check TsoRaUsedCumulativeConstraint
+
+        OpenRaoMPConstraint constraintOpACo1Curative1   = linearProblem.getTsoRaUsedCumulativeConstraint("opA", co1Curative1);
+        assertEquals(0, constraintOpACo1Curative1.lb());
+        assertEquals(linearProblem.infinity(), constraintOpACo1Curative1.ub(), linearProblem.infinity() * 1e-3);
+        assertEquals(1, constraintOpACo1Curative1.getCoefficient(linearProblem.getTsoRaUsedCumulativeVariable("opA", co1Curative1)));
+        assertEquals(-1, constraintOpACo1Curative1.getCoefficient(linearProblem.getTsoRaUsedVariable("opA", co1Curative1)));
+        assertEquals(0, constraintOpACo1Curative1.getCoefficient(linearProblem.getTsoRaUsedVariable("opA", co1Curative2)));
+
+        OpenRaoMPConstraint constraintOpCCo1Curative1   = linearProblem.getTsoRaUsedCumulativeConstraint("opC", co1Curative1);
+        assertEquals(0, constraintOpCCo1Curative1.lb());
+        assertEquals(linearProblem.infinity(), constraintOpCCo1Curative1.ub(), linearProblem.infinity() * 1e-3);
+        assertEquals(1, constraintOpCCo1Curative1.getCoefficient(linearProblem.getTsoRaUsedCumulativeVariable("opC", co1Curative1)));
+        assertEquals(-1, constraintOpCCo1Curative1.getCoefficient(linearProblem.getTsoRaUsedVariable("opC", co1Curative1)));
+
+        // Check constraint for state co1Curative2
+
+        // 1. Check maxTsoConstraint sum_tso(delta_cumulative_tso_co1Curative1) <= TSOmax
+        OpenRaoMPConstraint constraintCo1Curative2 = linearProblem.getMaxTsoConstraint(co1Curative2);
+        assertNotNull(constraintCo1Curative2);
+        assertEquals(0, constraintCo1Curative2.lb());
+        assertEquals(1, constraintCo1Curative2.ub());
+        assertEquals(1, constraintCo1Curative2.getCoefficient(linearProblem.getTsoRaUsedCumulativeVariable("opA", co1Curative2)));
+        assertEquals(1, constraintCo1Curative2.getCoefficient(linearProblem.getTsoRaUsedCumulativeVariable("opB", co1Curative2)));
+        assertEquals(1, constraintCo1Curative2.getCoefficient(linearProblem.getTsoRaUsedCumulativeVariable("opC", co1Curative2)));
+        // check that variable from other state not used
+        assertEquals(0, constraintCo1Curative2.getCoefficient(linearProblem.getTsoRaUsedCumulativeVariable("opA", co1Curative1)));
+        assertEquals(0, constraintCo1Curative2.getCoefficient(linearProblem.getTsoRaUsedCumulativeVariable("opC", co1Curative1)));
+
+        // 2. check TsoRaUsedCumulativeConstraint
+        OpenRaoMPConstraint constraintOpACo1Curative2   = linearProblem.getTsoRaUsedCumulativeConstraint("opA", co1Curative2);
+        assertEquals(0, constraintOpACo1Curative2.lb());
+        assertEquals(linearProblem.infinity(), constraintOpACo1Curative2.ub(), linearProblem.infinity() * 1e-3);
+        assertEquals(1, constraintOpACo1Curative2.getCoefficient(linearProblem.getTsoRaUsedCumulativeVariable("opA", co1Curative2)));
+        assertEquals(-1, constraintOpACo1Curative2.getCoefficient(linearProblem.getTsoRaUsedVariable("opA", co1Curative1)));
+        assertEquals(-1, constraintOpACo1Curative2.getCoefficient(linearProblem.getTsoRaUsedVariable("opA", co1Curative2)));
+
+        OpenRaoMPConstraint constraintOpBCo1Curative2   = linearProblem.getTsoRaUsedCumulativeConstraint("opB", co1Curative2);
+        assertEquals(0, constraintOpBCo1Curative2.lb());
+        assertEquals(linearProblem.infinity(), constraintOpBCo1Curative2.ub(), linearProblem.infinity() * 1e-3);
+        assertEquals(1, constraintOpBCo1Curative2.getCoefficient(linearProblem.getTsoRaUsedCumulativeVariable("opB", co1Curative2)));
+        assertEquals(-1, constraintOpBCo1Curative2.getCoefficient(linearProblem.getTsoRaUsedVariable("opB", co1Curative2))); // co1Curative1 has no range action from opB
+
+        OpenRaoMPConstraint constraintOpCCo1Curative2   = linearProblem.getTsoRaUsedCumulativeConstraint("opC", co1Curative2);
+        assertEquals(0, constraintOpCCo1Curative2.lb());
+        assertEquals(linearProblem.infinity(), constraintOpCCo1Curative2.ub(), linearProblem.infinity() * 1e-3);
+        assertEquals(1, constraintOpCCo1Curative2.getCoefficient(linearProblem.getTsoRaUsedCumulativeVariable("opC", co1Curative2)));
+        assertEquals(-1, constraintOpCCo1Curative2.getCoefficient(linearProblem.getTsoRaUsedVariable("opC", co1Curative1)));  // co1Curative2 has no range action from opC
     }
 
 }

@@ -426,6 +426,14 @@ public final class LinearProblem {
         return solver.getConstraint(tsoRaUsedConstraintId(operator, rangeAction, state));
     }
 
+    public OpenRaoMPConstraint addTsoRaUsedCumulativeConstraint(double lb, double ub, String operator, State state) {
+        return solver.makeConstraint(lb, ub, tsoRaUsedCumulativeConstraintId(operator, state));
+    }
+
+    public OpenRaoMPConstraint getTsoRaUsedCumulativeConstraint(String operator, State state) {
+        return solver.getConstraint(tsoRaUsedCumulativeConstraintId(operator, state));
+    }
+
     public OpenRaoMPVariable addPstAbsoluteVariationFromInitialTapVariable(PstRangeAction pstRangeAction, State state) {
         return solver.makeIntVar(0, infinity(), pstAbsoluteVariationFromInitialTapVariableId(pstRangeAction, state));
     }
