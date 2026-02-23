@@ -72,12 +72,12 @@ public final class Utils {
         if (range.getMin().isPresent()) {
             minP = Math.max(minP, (relativeRange ? initialTotalP : 0) + range.getMin().orElseThrow());
         }
-        minP = Math.min(minP, initialTotalP);
+        minP = Math.round(Math.min(minP, initialTotalP));
         double maxP = Math.round(consideredGenerators.stream().mapToDouble(Generator::getMaxP).sum());
         if (range.getMax().isPresent()) {
             maxP = Math.min(maxP, (relativeRange ? initialTotalP : 0) + range.getMax().orElseThrow());
         }
-        maxP = Math.max(maxP, initialTotalP);
+        maxP = Math.round(Math.max(maxP, initialTotalP));
 
         if (consideredGenerators.size() >= 100) {
             creationContext.getCreationReport().warn(
