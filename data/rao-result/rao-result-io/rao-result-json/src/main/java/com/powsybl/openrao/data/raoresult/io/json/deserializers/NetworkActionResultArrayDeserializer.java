@@ -42,11 +42,11 @@ final class NetworkActionResultArrayDeserializer {
 
             NetworkActionResult networkActionResult = raoResult.getAndCreateIfAbsentNetworkActionResult(networkAction);
             while (!jsonParser.nextToken().isStructEnd()) {
-                if (jsonParser.getCurrentName().equals(RaoResultJsonConstants.STATES_ACTIVATED)) {
+                if (jsonParser.currentName().equals(RaoResultJsonConstants.STATES_ACTIVATED)) {
                     jsonParser.nextToken();
                     deserializeStates(jsonParser, networkActionResult, crac);
                 } else {
-                    throw new OpenRaoException(String.format("Cannot deserialize RaoResult: unexpected field in %s (%s)", RaoResultJsonConstants.NETWORKACTION_RESULTS, jsonParser.getCurrentName()));
+                    throw new OpenRaoException(String.format("Cannot deserialize RaoResult: unexpected field in %s (%s)", RaoResultJsonConstants.NETWORKACTION_RESULTS, jsonParser.currentName()));
                 }
             }
         }
@@ -57,7 +57,7 @@ final class NetworkActionResultArrayDeserializer {
         String contingencyId = null;
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             while (!jsonParser.nextToken().isStructEnd()) {
-                switch (jsonParser.getCurrentName()) {
+                switch (jsonParser.currentName()) {
                     case RaoResultJsonConstants.INSTANT:
                         String stringValue = jsonParser.nextTextValue();
                         instantId = stringValue;
@@ -66,7 +66,7 @@ final class NetworkActionResultArrayDeserializer {
                         contingencyId = jsonParser.nextTextValue();
                         break;
                     default:
-                        throw new OpenRaoException(String.format("Cannot deserialize RaoResult: unexpected field in %s (%s)", RaoResultJsonConstants.NETWORKACTION_RESULTS, jsonParser.getCurrentName()));
+                        throw new OpenRaoException(String.format("Cannot deserialize RaoResult: unexpected field in %s (%s)", RaoResultJsonConstants.NETWORKACTION_RESULTS, jsonParser.currentName()));
                 }
             }
             networkActionResult.addActivationForState(StateDeserializer.getState(instantId, contingencyId, crac, RaoResultJsonConstants.NETWORKACTION_RESULTS));

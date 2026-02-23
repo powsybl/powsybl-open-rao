@@ -56,7 +56,7 @@ public class JsonFbConstraintCracCreationParameters implements JsonCracCreationP
     @Override
     public FbConstraintCracCreationParameters deserializeAndUpdate(JsonParser jsonParser, DeserializationContext deserializationContext, FbConstraintCracCreationParameters parameters) throws IOException {
         while (!jsonParser.nextToken().isStructEnd()) {
-            switch (jsonParser.getCurrentName()) {
+            switch (jsonParser.currentName()) {
                 case TIMESTAMP -> {
                     jsonParser.nextToken();
                     parameters.setTimestamp(OffsetDateTime.parse(jsonParser.readValueAs(String.class)));
@@ -69,7 +69,7 @@ public class JsonFbConstraintCracCreationParameters implements JsonCracCreationP
                     jsonParser.nextToken();
                     parameters.setIcsCostDown(jsonParser.readValueAs(Double.class));
                 }
-                default -> throw new OpenRaoException("Unexpected field: " + jsonParser.getCurrentName());
+                default -> throw new OpenRaoException("Unexpected field: " + jsonParser.currentName());
             }
         }
 

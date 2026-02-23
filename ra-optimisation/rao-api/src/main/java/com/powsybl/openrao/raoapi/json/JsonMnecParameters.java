@@ -38,11 +38,11 @@ public final class JsonMnecParameters {
     static void deserialize(JsonParser jsonParser, RaoParameters raoParameters) throws IOException {
         MnecParameters mnecParameters = new MnecParameters();
         while (!jsonParser.nextToken().isStructEnd()) {
-            if (jsonParser.getCurrentName().equals(ACCEPTABLE_MARGIN_DECREASE)) {
+            if (jsonParser.currentName().equals(ACCEPTABLE_MARGIN_DECREASE)) {
                 jsonParser.nextToken();
                 mnecParameters.setAcceptableMarginDecrease(jsonParser.getDoubleValue());
             } else {
-                throw new OpenRaoException(String.format("Cannot deserialize mnec parameters: unexpected field in %s (%s)", MNEC_PARAMETERS, jsonParser.getCurrentName()));
+                throw new OpenRaoException(String.format("Cannot deserialize mnec parameters: unexpected field in %s (%s)", MNEC_PARAMETERS, jsonParser.currentName()));
             }
         }
         raoParameters.setMnecParameters(mnecParameters);

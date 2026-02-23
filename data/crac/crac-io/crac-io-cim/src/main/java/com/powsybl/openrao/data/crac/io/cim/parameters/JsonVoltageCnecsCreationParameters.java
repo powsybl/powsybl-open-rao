@@ -42,7 +42,7 @@ public final class JsonVoltageCnecsCreationParameters {
         Map<String, VoltageMonitoredContingenciesAndThresholds> voltageMonitoringStatesAndThresholds = new TreeMap<>();
         Set<String> monitoredNetworkElements = new HashSet<>();
         while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
-            switch (jsonParser.getCurrentName()) {
+            switch (jsonParser.currentName()) {
                 case MONITORED_STATES_AND_THRESHOLDS:
                     jsonParser.nextToken();
                     try {
@@ -57,7 +57,7 @@ public final class JsonVoltageCnecsCreationParameters {
                     });
                     break;
                 default:
-                    throw new OpenRaoException("Unexpected field in voltage-cnecs-creation-parameters: " + jsonParser.getCurrentName());
+                    throw new OpenRaoException("Unexpected field in voltage-cnecs-creation-parameters: " + jsonParser.currentName());
             }
         }
         return new VoltageCnecsCreationParameters(voltageMonitoringStatesAndThresholds, monitoredNetworkElements);
@@ -71,7 +71,7 @@ public final class JsonVoltageCnecsCreationParameters {
             Set<String> contingencyNames = null;
             Map<Double, VoltageThreshold> thresholdPerNominalV = new TreeMap<>();
             while (!jsonParser.nextToken().isStructEnd()) {
-                switch (jsonParser.getCurrentName()) {
+                switch (jsonParser.currentName()) {
                     case INSTANT:
                         instantId = jsonParser.nextTextValue();
                         break;
@@ -85,7 +85,7 @@ public final class JsonVoltageCnecsCreationParameters {
                         thresholdPerNominalV = deserializeThresholdsPerNominalV(jsonParser);
                         break;
                     default:
-                        throw new NoSuchFieldException(String.format("Unexpected field in %s: ", MONITORED_STATES_AND_THRESHOLDS) + jsonParser.getCurrentName());
+                        throw new NoSuchFieldException(String.format("Unexpected field in %s: ", MONITORED_STATES_AND_THRESHOLDS) + jsonParser.currentName());
                 }
             }
             Objects.requireNonNull(instantId);
@@ -109,7 +109,7 @@ public final class JsonVoltageCnecsCreationParameters {
             Double min = null;
             Double max = null;
             while (!jsonParser.nextToken().isStructEnd()) {
-                switch (jsonParser.getCurrentName()) {
+                switch (jsonParser.currentName()) {
                     case NOMINAL_V:
                         jsonParser.nextToken();
                         nominalV = jsonParser.getValueAsDouble();
@@ -126,7 +126,7 @@ public final class JsonVoltageCnecsCreationParameters {
                         max = jsonParser.getValueAsDouble();
                         break;
                     default:
-                        throw new NoSuchFieldException(String.format("Unexpected field in %s: ", THRESHOLDS_PER_NOMINAL_V) + jsonParser.getCurrentName());
+                        throw new NoSuchFieldException(String.format("Unexpected field in %s: ", THRESHOLDS_PER_NOMINAL_V) + jsonParser.currentName());
                 }
             }
             if (nominalV == null) {

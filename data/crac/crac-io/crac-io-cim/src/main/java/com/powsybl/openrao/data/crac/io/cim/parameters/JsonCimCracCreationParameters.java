@@ -54,7 +54,7 @@ public class JsonCimCracCreationParameters implements JsonCracCreationParameters
     @Override
     public CimCracCreationParameters deserializeAndUpdate(JsonParser jsonParser, DeserializationContext deserializationContext, CimCracCreationParameters parameters) throws IOException {
         while (!jsonParser.nextToken().isStructEnd()) {
-            switch (jsonParser.getCurrentName()) {
+            switch (jsonParser.currentName()) {
                 case TIMESERIES_MRIDS:
                     jsonParser.nextToken();
                     parameters.setTimeseriesMrids(jsonParser.readValueAs(Set.class));
@@ -76,7 +76,7 @@ public class JsonCimCracCreationParameters implements JsonCracCreationParameters
                     parameters.setTimestamp(OffsetDateTime.parse(jsonParser.readValueAs(String.class)));
                     break;
                 default:
-                    throw new OpenRaoException("Unexpected field: " + jsonParser.getCurrentName());
+                    throw new OpenRaoException("Unexpected field: " + jsonParser.currentName());
             }
         }
 
@@ -152,7 +152,7 @@ public class JsonCimCracCreationParameters implements JsonCracCreationParameters
             String rangeActionId = null;
             Integer speed = null;
             while (!jsonParser.nextToken().isStructEnd()) {
-                switch (jsonParser.getCurrentName()) {
+                switch (jsonParser.currentName()) {
                     case RANGE_ACTION_ID:
                         rangeActionId = jsonParser.nextTextValue();
                         break;
@@ -160,7 +160,7 @@ public class JsonCimCracCreationParameters implements JsonCracCreationParameters
                         speed = jsonParser.nextIntValue(Integer.MAX_VALUE);
                         break;
                     default:
-                        throw new OpenRaoException("Unexpected field: " + jsonParser.getCurrentName());
+                        throw new OpenRaoException("Unexpected field: " + jsonParser.currentName());
                 }
             }
             if (rangeActionId == null) {
