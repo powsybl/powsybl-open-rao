@@ -128,7 +128,7 @@ Feature: US 91.12: Multi-curative
   This should test that the RAO is able to take into account the cumulative effect of the max-ra-usage-limit in multi-curative.
   Since one RA is used in curative2 we reached the limit and since the limit in curative3 is set to 1 no more RAs can be used in curative3.
   Without the curative3 max-ra-usage-limit, we would have been able to secure the case (see 19.12.3).
-    Given network file is "epic91/12Nodes3ParallelLines.uct"
+    Given network file is "epic91/12Nodes3ParallelLines_disconnected.uct"
     Given crac file is "epic91/crac_91_12_2_with_ra_limits_2.json"
     Given configuration file is "epic91/RaoParameters_case_91_12_secure.json"
     When I launch rao
