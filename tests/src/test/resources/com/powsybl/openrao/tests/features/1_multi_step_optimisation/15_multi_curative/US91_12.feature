@@ -851,11 +851,10 @@ Feature: US 91.12: Multi-curative
   The best result with NO max-ra-per-tso limit after 2P:
     - worst margin: margin = 3.52 MW, element NNL2AA1  BBE3AA1  1 at state Contingency DE2 DE3 1 - curative2, CNEC ID = "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative2"
     - network action(s): PRA_CLOSE_NL2_BE3_3, cost: -3.52 (functional: -3.52, virtual: 0.0)
-    - range action(s): CRA_PST_FR@Contingency DE2 DE3 1 - curative1: 15 (var: 15), CRA_PST_BE@Contingency DE2 DE3 1 - curative1: -15 (var: -15), CRA_PST_FR@Contingency DE2 DE3 1 - curative2: 16 (var: 1), CRA_PST_BE@Contingency DE2 DE3 1 - curative2: -16 (var: -1)
-    -> each TSO has activated 1 RA per instant
-    Now we add the limit for BE: 1 in curative1 and 0 in curative2 => means that we cannot use any RA in curative1
+    - range action(s): CRA_PST_BE@Contingency DE2 DE3 1 - curative1: -16 (var: -16), CRA_PST_FR@Contingency DE2 DE3 1 - curative1: 16 (var: 16)
+    Now we add the limit for BE: 1 in curative1 and 0 in curative2 => means that we cannot use any RA in curative1 either
     and for FR: 1 in curative1 and 1 curative2
-    => The most limiting cnec is in NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative1, so the PST is used in curative1 rather than curative2
+    => The most limiting cnec is in NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative1, so the PST_FR is used in curative1 rather than curative2
     Given network file is "epic91/12Nodes3ParallelLines_2PST.uct"
     Given crac file is "epic91/crac_91_12_27_max_ra_per_tso.json"
     Given configuration file is "epic91/RaoParameters_case_91_12_secure_2PRAO.json"
@@ -872,4 +871,13 @@ Feature: US 91.12: Multi-curative
     And the tap of PstRangeAction "CRA_PST_BE" should be 0 after "Contingency DE2 DE3 1" at "curative1"
     And the value of the objective function after CRA should be 76.23
 
+  @fast @rao @ac @multi-curative @second-preventive
+  Scenario: US 91.12.28: Multi-curative - with max-elementary-action-per-tso limits and 2P
+    Same case as 91.12.27, but both PST are from TSO "FR".
+
+    Given network file is "epic91/12Nodes3ParallelLines_2PST.uct"
+    Given crac file is "epic91/crac_91_12_28_max_elementary_actions_per_tso.json"
+    Given configuration file is "epic91/RaoParameters_case_91_12_secure_2PRAO.json"
+    When I launch rao
+    Then the execution details should be "Second preventive improved first preventive results"
 
