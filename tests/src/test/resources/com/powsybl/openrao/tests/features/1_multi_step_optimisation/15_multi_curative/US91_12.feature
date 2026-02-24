@@ -803,8 +803,8 @@ Feature: US 91.12: Multi-curative
     And the value of the objective function after CRA should be -8.65
 
 
-  @fast @rao @ac @multi-curative
-  Scenario: US 91.12.25: Multi-curative CNECs with no CRA for curative1, one PST available for curative 1 and 2 and 2nd PRAO - with ra usage limit
+  @fast @rao @ac @multi-curative @second-preventive
+  Scenario: US 91.12.25: Multi-curative - with max-ra limits and 2P
   Same case as 91.12.24 but with RA usage limitation: 0 curative1 RAs, 1 curative2 RAs, 1 curative3 RAs
   Similarly to test 91.12.5, this should test that the RAO is able to take into account the cumulative effect of the max-ra-usage-limit in multi-curative.
   However the situation is more complex than for 91.12.5, since we want to check that the limitations are also respected in second preventive where all the curative range actions are optimized at once.
@@ -823,3 +823,24 @@ Feature: US 91.12: Multi-curative
     Then 0 remedial actions are used after "Contingency DE2 DE3 1" at "curative3"
     And the tap of PstRangeAction "CRA_PST_BE" should be -16 after "Contingency DE2 DE3 1" at "curative3"
     And the value of the objective function after CRA should be -8.65
+
+  @fast @rao @ac @multi-curative @second-preventive
+  Scenario: US 91.12.26: Multi-curative - with max-tso limits and 2P
+  Case with 1 PST available in curative 1 from TSO "BE" and one PST available in curative 2 from TSO "FR"
+  The best result with NO max-tso limit after 2P:
+    - cost: -3.52 (functional: -3.52, virtual: 0.0)
+    - network action(s): PRA_CLOSE_NL2_BE3_3,
+    - range action(s): CRA_PST_BE@Contingency DE2 DE3 1 - curative1: -16 (var: -16), CRA_PST_FR@Contingency DE2 DE3 1 - curative2: 16 (var: 16)
+    We add a max-tso limit: 1 in curative1 and 1 in curative 2 => only one of the PST can be used
+    The best solution is to use PST_BE in curative 1 (using PST_FR in curative 2 => cost = 66)
+    Given network file is "epic91/12Nodes3ParallelLines_2PST.uct"
+    Given crac file is "epic91/crac_91_12_26_max_tso.json"
+    Given configuration file is "epic91/RaoParameters_case_91_12_secure_2PRAO.json"
+    When I launch rao
+    Then the execution details should be "Second preventive improved first preventive results"
+    Then 1 remedial actions are used in preventive
+    And the remedial action "PRA_CLOSE_NL2_BE3_3" is used in preventive
+    Then 1 remedial actions are used after "Contingency DE2 DE3 1" at "curative1"
+    And the tap of PstRangeAction "CRA_PST_BE" should be -16 after "Contingency DE2 DE3 1" at "curative1"
+    Then 0 remedial actions are used after "Contingency DE2 DE3 1" at "curative2"
+    And the value of the objective function after CRA should be 31.35
