@@ -6,14 +6,11 @@
         <MarketArea Code="FR" Eic="10YFR-RTE------C" MCParticipant="true" AHC="false"/>
     </MarketAreas>
     <VirtualHubs>
-        <VirtualHub Eic="17Y000000930814J" Code="Virtual_Hub_FR_1" RelatedMA="FR"
-                    MCParticipant="true" NodeName="XFR_ES11" OppositeHub="Virtual_Hub_ES_FR"/>
-        <VirtualHub Eic="17Y000000930814E" Code="Virtual_Hub_FR_2" RelatedMA="FR"
-                    MCParticipant="false" NodeName="XFR_BE11" AHC="true"/>
-        <VirtualHub Eic="17Y000000930808E" Code="Virtual_Hub_ES_FR" RelatedMA="ES"
-                    MCParticipant="true" NodeName="EFR_ES11" OppositeHub="Virtual_Hub_FR_1" AHC="false"/>
-        <VirtualHub Eic="17Y0000009308082" Code="Virtual_Hub_ES_MA" RelatedMA="ES"
-                    MCParticipant="false" NodeName="XMA_ES11"/>
+        <VirtualHub Eic="17Y000000930814J" Code="Virtual_Hub_FR_1" RelatedMA="FR" MCParticipant="true" NodeName="XFR_ES11" OppositeHub="Virtual_Hub_ES_FR"/>
+        <VirtualHub Eic="17Y000000930814E" Code="Virtual_Hub_FR_2" RelatedMA="FR" MCParticipant="false" NodeName="XFR_BE11" AHC="true"/>
+        <VirtualHub Eic="17Y000000930808E" Code="Virtual_Hub_ES_FR" RelatedMA="ES" MCParticipant="true" NodeName="EFR_ES11" OppositeHub="Virtual_Hub_FR_1" AHC="false"/>
+        <VirtualHub Eic="17Y0000009308082" Code="Virtual_Hub_ES_MA" RelatedMA="ES" MCParticipant="false" NodeName="XMA_ES11"/>
+        <VirtualHub Eic="17Y0000009542335" Code="Virtual_Hub_BE_FR" RelatedMA="BE" MCParticipant="false"/>
     </VirtualHubs>
     <BorderDirections>
         <BorderDirection From="A1" To="B1"/>
