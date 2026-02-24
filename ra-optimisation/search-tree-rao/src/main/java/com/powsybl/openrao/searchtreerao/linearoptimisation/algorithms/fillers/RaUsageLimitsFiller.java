@@ -329,6 +329,8 @@ public class RaUsageLimitsFiller implements ProblemFiller {
 
     private void addMaxElementaryActionsPerTsoConstraint(LinearProblem linearProblem, State state) {
         Map<String, Integer> maxElementaryActionsPerTso = rangeActionLimitationParameters.getMaxElementaryActionsPerTso(state);
+        Map<State, Set<RangeAction<?>>> stateAndRangeActionsToConsider = getAllRangeActionOfStateToConsider(state);
+
         if (maxElementaryActionsPerTso == null) {
             return;
         }
@@ -344,6 +346,8 @@ public class RaUsageLimitsFiller implements ProblemFiller {
             String tso = maxElementaryActionsForTso.getKey();
             int maxElementaryActions = maxElementaryActionsForTso.getValue();
             OpenRaoMPConstraint maxElementaryActionsConstraint = linearProblem.addTsoMaxElementaryActionsConstraint(0, maxElementaryActions, tso, state);
+
+            // Create the PstAbsoluteVariationFromInitialTapVariable + constraint
             for (PstRangeAction pstRangeAction : pstRangeActionsPerTso.getOrDefault(tso, Set.of())) {
                 // use pre-perimeter tap because PST's tap may be different from the initial tap after previous perimeter
                 int initialTap = prePerimeterRangeActionSetpoints.getTap(pstRangeAction);
@@ -363,8 +367,36 @@ public class RaUsageLimitsFiller implements ProblemFiller {
                 pstAbsoluteVariationFromInitialTapConstraintNegative.setCoefficient(pstTapVariationUpwardVariable, 1d);
                 pstAbsoluteVariationFromInitialTapConstraintNegative.setCoefficient(pstTapVariationDownwardVariable, -1d);
 
-                maxElementaryActionsConstraint.setCoefficient(pstAbsoluteVariationFromInitialTapVariable, 1d);
             }
+
+            // PSTs to consider per state (in particular for multi-curative / 2P, there is only one state to consider): for each PST, count its
+            // PstAbsoluteVariationFromInitialTapVariable only once, using the variable associated with
+            // the latest state/instant where the PST is available.
+            Set<PstRangeAction> pstAlreadyConsidered = new HashSet<>();
+            // Need to read the map in decreasing order
+            stateAndRangeActionsToConsider.entrySet().stream()
+                .sorted(Comparator.comparingInt((Map.Entry<State, Set<RangeAction<?>>> e) -> e.getKey().getInstant().getOrder()).reversed())
+                .forEach(e -> {
+                    State state1 = e.getKey();
+                    Set<RangeAction<?>> raSet = e.getValue();
+
+                    Set<PstRangeAction> pstToCountForThisState = raSet.stream()
+                        .filter(PstRangeAction.class::isInstance)
+                        .map(PstRangeAction.class::cast)
+                        .filter(pst -> tso.equals(pst.getOperator()))
+                        .filter(pst -> maxElementaryActionsPerTso.containsKey(pst.getOperator()))
+                        .filter(pst -> !pstAlreadyConsidered.contains(pst))
+                        .collect(Collectors.toSet());
+
+                    pstToCountForThisState.forEach(pst ->
+                        maxElementaryActionsConstraint.setCoefficient(
+                            linearProblem.getPstAbsoluteVariationFromInitialTapVariable(pst, state1),
+                            1d
+                        )
+                    );
+
+                    pstAlreadyConsidered.addAll(pstToCountForThisState);
+                });
         }
     }
 }

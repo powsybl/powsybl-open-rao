@@ -11,6 +11,7 @@ import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Instant;
+import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
@@ -73,24 +74,29 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
         when(pst1.getId()).thenReturn("pst1");
         when(pst1.getOperator()).thenReturn("opA");
         when(pst1.getTapToAngleConversionMap()).thenReturn(Map.of(-1, -5.0, 0, -2.3, 1, 1.9));
+        when(pst1.getNetworkElements()).thenReturn(Set.of(Mockito.mock(NetworkElement.class)));
 
         pst2 = mock(PstRangeAction.class);
         when(pst2.getId()).thenReturn("pst2");
         when(pst2.getOperator()).thenReturn("opA");
         when(pst2.getTapToAngleConversionMap()).thenReturn(Map.of(0, 5.0, 1, 8.0));
+        when(pst2.getNetworkElements()).thenReturn(Set.of(Mockito.mock(NetworkElement.class)));
 
         pst3 = mock(PstRangeAction.class);
         when(pst3.getId()).thenReturn("pst3");
         when(pst3.getOperator()).thenReturn("opB");
         when(pst3.getTapToAngleConversionMap()).thenReturn(Map.of(-10, -4.0, -7, -8.5));
+        when(pst3.getNetworkElements()).thenReturn(Set.of(Mockito.mock(NetworkElement.class)));
 
         hvdc = mock(HvdcRangeAction.class);
         when(hvdc.getId()).thenReturn("hvdc");
         when(hvdc.getOperator()).thenReturn("opA");
+        when(hvdc.getNetworkElements()).thenReturn(Set.of(Mockito.mock(NetworkElement.class)));
 
         injection = mock(InjectionRangeAction.class);
         when(injection.getId()).thenReturn("injection");
         when(injection.getOperator()).thenReturn("opC");
+        when(injection.getNetworkElements()).thenReturn(Set.of(Mockito.mock(NetworkElement.class)));
 
         rangeActions = Set.of(pst1, pst2, pst3, hvdc, injection);
 
@@ -1038,6 +1044,78 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
         assertEquals(0, constraintOpCCo1Curative2.lb());
         assertEquals(2, constraintOpCCo1Curative2.ub());
         assertEquals(0, constraintOpCCo1Curative2.getCoefficient(linearProblem.getRangeActionVariationBinary(injection, co1Curative1)));
+    }
+
+    @Test
+    void testMaxElementaryActionPerTsoUsageLimitMultiCurativeSecondPreventive() {
+        setUpMultiCurativeIn2P();
+
+        when(prePerimeterRangeActionSetpointResult.getTap(pst1)).thenReturn(1);
+        when(prePerimeterRangeActionSetpointResult.getTap(pst2)).thenReturn(1);
+        when(pst1.getCurrentTapPosition(network)).thenReturn(-1);
+        when(pst2.getCurrentTapPosition(network)).thenReturn(0);
+
+        RangeActionLimitationParameters raLimitationParameters = new RangeActionLimitationParameters();
+        raLimitationParameters.setMaxElementaryActionsPerTso(co1Curative1, Map.of("opA", 14, "opB", 12));
+        raLimitationParameters.setMaxElementaryActionsPerTso(co1Curative2, Map.of("opA", 16, "opB", 16));
+
+        RaUsageLimitsFiller raUsageLimitsFiller = new RaUsageLimitsFiller(
+            rangeActionsPerStateMultiCurative,
+            prePerimeterRangeActionSetpointResult,
+            raLimitationParameters,
+            true,
+            network,
+            false);
+
+        Map<State, Set<PstRangeAction>> pstRangeActionsPerState = Map.of(co1Curative1, Set.of(pst1), co1Curative2, Set.of(pst1, pst2, pst3), co2Curative2, Set.of(pst2, pst3), preventiveState, Set.of());
+
+        OptimizationPerimeter optimizationPerimeter = Mockito.mock(OptimizationPerimeter.class);
+        when(optimizationPerimeter.getMainOptimizationState()).thenReturn(preventiveState);
+        when(optimizationPerimeter.getRangeActionsPerState()).thenReturn(rangeActionsPerStateMultiCurative);
+
+        DiscretePstTapFiller discretePstTapFiller = new DiscretePstTapFiller(optimizationPerimeter, pstRangeActionsPerState, prePerimeterRangeActionSetpointResult, new RangeActionsOptimizationParameters(), false);
+
+        linearProblem = new LinearProblemBuilder()
+            .withProblemFiller(coreProblemFiller)
+            .withProblemFiller(discretePstTapFiller)
+            .withProblemFiller(raUsageLimitsFiller)
+            .withSolver(Solver.SCIP)
+            .withInitialRangeActionActivationResult(prePerimeterRangeActionActivationResult)
+            .build();
+
+        linearProblem.fill(flowResult, sensitivityResult);
+
+        // Check co1Curative1 - opA
+        OpenRaoMPConstraint constraintOpACo1Curative1   = linearProblem.getTsoMaxElementaryActionsConstraint("opA", co1Curative1);
+        assertEquals(0, constraintOpACo1Curative1.lb());
+        assertEquals(14, constraintOpACo1Curative1.ub());
+        assertEquals(1, constraintOpACo1Curative1.getCoefficient(linearProblem.getPstAbsoluteVariationFromInitialTapVariable(pst1, co1Curative1)));
+
+        // Check co1Curative1 - opB, no PST from opB in co1Curative1
+        OpenRaoMPConstraint constraintOpBCo1Curative1   = linearProblem.getTsoMaxElementaryActionsConstraint("opB", co1Curative1);
+        assertEquals(0, constraintOpBCo1Curative1.lb());
+        assertEquals(12, constraintOpBCo1Curative1.ub());
+        assertEquals(0, constraintOpBCo1Curative1.getCoefficient(linearProblem.getPstAbsoluteVariationFromInitialTapVariable(pst1, co1Curative1)));
+        assertEquals(0, constraintOpBCo1Curative1.getCoefficient(linearProblem.getPstAbsoluteVariationFromInitialTapVariable(pst1, co1Curative2)));
+        assertEquals(0, constraintOpBCo1Curative1.getCoefficient(linearProblem.getPstAbsoluteVariationFromInitialTapVariable(pst2, co1Curative2)));
+        assertEquals(0, constraintOpBCo1Curative1.getCoefficient(linearProblem.getPstAbsoluteVariationFromInitialTapVariable(pst3, co1Curative2)));
+
+        // Check co1Curative2 - opA
+        OpenRaoMPConstraint constraintOpACo1Curative2   = linearProblem.getTsoMaxElementaryActionsConstraint("opA", co1Curative2);
+        assertEquals(0, constraintOpACo1Curative2.lb());
+        assertEquals(16, constraintOpACo1Curative2.ub());
+        assertEquals(0, constraintOpACo1Curative2.getCoefficient(linearProblem.getPstAbsoluteVariationFromInitialTapVariable(pst1, co1Curative1))); // Not counted twice !
+        assertEquals(1, constraintOpACo1Curative2.getCoefficient(linearProblem.getPstAbsoluteVariationFromInitialTapVariable(pst1, co1Curative2)));
+        assertEquals(1, constraintOpACo1Curative2.getCoefficient(linearProblem.getPstAbsoluteVariationFromInitialTapVariable(pst2, co1Curative2)));
+        assertEquals(0, constraintOpACo1Curative2.getCoefficient(linearProblem.getPstAbsoluteVariationFromInitialTapVariable(pst3, co1Curative2)));
+
+        // Check co1Curative2 - opB
+        OpenRaoMPConstraint constraintOpBCo1Curative2   = linearProblem.getTsoMaxElementaryActionsConstraint("opB", co1Curative2);
+        assertEquals(0, constraintOpBCo1Curative2.lb());
+        assertEquals(16, constraintOpBCo1Curative2.ub());
+        assertEquals(0, constraintOpBCo1Curative2.getCoefficient(linearProblem.getPstAbsoluteVariationFromInitialTapVariable(pst1, co1Curative2)));
+        assertEquals(0, constraintOpBCo1Curative2.getCoefficient(linearProblem.getPstAbsoluteVariationFromInitialTapVariable(pst2, co1Curative2)));
+        assertEquals(1, constraintOpBCo1Curative2.getCoefficient(linearProblem.getPstAbsoluteVariationFromInitialTapVariable(pst3, co1Curative2)));
     }
 
 }
