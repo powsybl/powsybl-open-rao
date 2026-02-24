@@ -305,15 +305,25 @@ public class RaUsageLimitsFiller implements ProblemFiller {
         });
     }
 
+    /**
+     * Add constraint to limit the number of PSTs per TSO in a state
+     * @param linearProblem
+     * @param state
+     */
     private void addMaxPstPerTsoConstraint(LinearProblem linearProblem, State state) {
         Map<String, Integer> maxPstPerTso = rangeActionLimitationParameters.getMaxPstPerTso(state);
+        Map<State, Set<RangeAction<?>>> stateAndRangeActionsToConsider = getAllRangeActionOfStateToConsider(state);
+
         if (maxPstPerTso == null) {
             return;
         }
         maxPstPerTso.forEach((tso, maxPstForTso) -> {
             OpenRaoMPConstraint maxPstPerTsoConstraint = linearProblem.addMaxPstPerTsoConstraint(0, maxPstForTso, tso, state);
-            rangeActions.get(state).stream().filter(ra -> ra instanceof PstRangeAction && tso.equals(ra.getOperator()))
-                .forEach(ra -> maxPstPerTsoConstraint.setCoefficient(linearProblem.getRangeActionVariationBinary(ra, state), 1));
+            stateAndRangeActionsToConsider
+                .forEach((state1, raSet) ->
+                    raSet.stream().filter(ra -> ra instanceof PstRangeAction && tso.equals(ra.getOperator()))
+                        .forEach(ra -> maxPstPerTsoConstraint.setCoefficient(linearProblem.getRangeActionVariationBinary(ra, state1), 1))
+                );
         });
     }
 
