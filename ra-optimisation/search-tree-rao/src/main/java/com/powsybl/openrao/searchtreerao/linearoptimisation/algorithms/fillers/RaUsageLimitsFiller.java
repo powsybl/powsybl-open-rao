@@ -105,7 +105,7 @@ public class RaUsageLimitsFiller implements ProblemFiller {
      *              contingency and temporal order
      * @return a map of states mapped to their available range actions
      */
-    Map<State, Set<RangeAction<?>>> getAllRangeActionsAvailableForAllPreviousCurativeStates(State state) {
+    Map<State, Set<RangeAction<?>>> getAllRangeActionOfStateToConsider(State state) {
 
         if (state.getInstant().isCurative()) {
             return rangeActions.entrySet().stream()
@@ -200,7 +200,7 @@ public class RaUsageLimitsFiller implements ProblemFiller {
     private void addMaxRaConstraint(LinearProblem linearProblem, State state) {
 
         Integer maxRa = rangeActionLimitationParameters.getMaxRangeActions(state);
-        Map<State, Set<RangeAction<?>>> rangeActionsPerPreviousCurativeState = getAllRangeActionsAvailableForAllPreviousCurativeStates(state);
+        Map<State, Set<RangeAction<?>>> rangeActionsPerPreviousCurativeState = getAllRangeActionOfStateToConsider(state);
 
         int numberOfRas = rangeActionsPerPreviousCurativeState.values().stream().mapToInt(ras -> ras.size()).sum();
 
@@ -229,7 +229,7 @@ public class RaUsageLimitsFiller implements ProblemFiller {
     private void addMaxTsoConstraint(LinearProblem linearProblem, State state) {
         Integer maxTso = rangeActionLimitationParameters.getMaxTso(state);
 
-        Map<State, Set<RangeAction<?>>> stateAndRangeActionsToConsider = getAllRangeActionsAvailableForAllPreviousCurativeStates(state);
+        Map<State, Set<RangeAction<?>>> stateAndRangeActionsToConsider = getAllRangeActionOfStateToConsider(state);
         if (maxTso == null) {
             return;
         }
@@ -252,8 +252,9 @@ public class RaUsageLimitsFiller implements ProblemFiller {
                 )
             );
 
-
-        if (maxTso >= constraintTsos.size()) {
+        // We can skip the variable and constraint definition if we are not in 2P setting
+        // (ie filler only filled on one state at the time)
+        if (maxTso >= constraintTsos.size() && rangeActions.size()==1) {
             return;
         }
         OpenRaoMPConstraint maxTsoConstraint = linearProblem.addMaxTsoConstraint(0, maxTso, state);
@@ -284,15 +285,23 @@ public class RaUsageLimitsFiller implements ProblemFiller {
         });
     }
 
+    /**
+     * Add constraint to limit the number of range actions per TSO in a state
+     * @param linearProblem
+     * @param state
+     */
     private void addMaxRaPerTsoConstraint(LinearProblem linearProblem, State state) {
         Map<String, Integer> maxRaPerTso = rangeActionLimitationParameters.getMaxRangeActionPerTso(state);
+        Map<State, Set<RangeAction<?>>> stateAndRangeActionsToConsider = getAllRangeActionOfStateToConsider(state);
         if (maxRaPerTso.isEmpty()) {
             return;
         }
         maxRaPerTso.forEach((tso, maxRaForTso) -> {
             OpenRaoMPConstraint maxRaPerTsoConstraint = linearProblem.addMaxRaPerTsoConstraint(0, maxRaForTso, tso, state);
-            rangeActions.get(state).stream().filter(ra -> tso.equals(ra.getOperator()))
-                .forEach(ra -> maxRaPerTsoConstraint.setCoefficient(linearProblem.getRangeActionVariationBinary(ra, state), 1));
+            stateAndRangeActionsToConsider
+                .forEach((state1, raSet) ->
+                    raSet.stream().filter(ra -> tso.equals(ra.getOperator()))
+                        .forEach(ra -> maxRaPerTsoConstraint.setCoefficient(linearProblem.getRangeActionVariationBinary(ra, state1), 1)));
         });
     }
 

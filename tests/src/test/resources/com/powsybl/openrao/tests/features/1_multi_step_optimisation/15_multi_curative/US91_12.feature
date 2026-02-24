@@ -844,3 +844,32 @@ Feature: US 91.12: Multi-curative
     And the tap of PstRangeAction "CRA_PST_BE" should be -16 after "Contingency DE2 DE3 1" at "curative1"
     Then 0 remedial actions are used after "Contingency DE2 DE3 1" at "curative2"
     And the value of the objective function after CRA should be 31.35
+
+  @fast @rao @ac @multi-curative @second-preventive
+  Scenario: US 91.12.27: Multi-curative - with max-ra-per-tso limits and 2P
+  Case with 1 PST from TSO "BE" and one PST from TSO "FR" both available in curative 1 and 2
+  The best result with NO max-ra-per-tso limit after 2P:
+    - worst margin: margin = 3.52 MW, element NNL2AA1  BBE3AA1  1 at state Contingency DE2 DE3 1 - curative2, CNEC ID = "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative2"
+    - network action(s): PRA_CLOSE_NL2_BE3_3, cost: -3.52 (functional: -3.52, virtual: 0.0)
+    - range action(s): CRA_PST_FR@Contingency DE2 DE3 1 - curative1: 15 (var: 15), CRA_PST_BE@Contingency DE2 DE3 1 - curative1: -15 (var: -15), CRA_PST_FR@Contingency DE2 DE3 1 - curative2: 16 (var: 1), CRA_PST_BE@Contingency DE2 DE3 1 - curative2: -16 (var: -1)
+    -> each TSO has activated 1 RA per instant
+    Now we add the limit for BE: 1 in curative1 and 0 in curative2 => means that we cannot use any RA in curative1
+    and for FR: 1 in curative1 and 1 curative2
+    => The most limiting cnec is in NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative1, so the PST is used in curative1 rather than curative2
+    Given network file is "epic91/12Nodes3ParallelLines_2PST.uct"
+    Given crac file is "epic91/crac_91_12_27_max_ra_per_tso.json"
+    Given configuration file is "epic91/RaoParameters_case_91_12_secure_2PRAO.json"
+    When I launch rao
+    Then the execution details should be "Second preventive improved first preventive results"
+    And the initial tap of PstRangeAction "CRA_PST_FR" should be 0
+    And the initial tap of PstRangeAction "CRA_PST_BE" should be 0
+    And the remedial action "PRA_CLOSE_NL2_BE3_3" is used in preventive
+    Then 1 remedial actions are used after "Contingency DE2 DE3 1" at "curative1"
+    And the tap of PstRangeAction "CRA_PST_FR" should be 16 after "Contingency DE2 DE3 1" at "curative1"
+    And the tap of PstRangeAction "CRA_PST_BE" should be 0 after "Contingency DE2 DE3 1" at "curative1"
+    Then 0 remedial actions are used after "Contingency DE2 DE3 1" at "curative2"
+    And the tap of PstRangeAction "CRA_PST_FR" should be 16 after "Contingency DE2 DE3 1" at "curative1"
+    And the tap of PstRangeAction "CRA_PST_BE" should be 0 after "Contingency DE2 DE3 1" at "curative1"
+    And the value of the objective function after CRA should be 76.23
+
+
