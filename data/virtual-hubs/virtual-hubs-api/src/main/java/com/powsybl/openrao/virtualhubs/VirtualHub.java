@@ -20,7 +20,7 @@ public record VirtualHub(String code, String eic, boolean isMcParticipant, boole
         this.eic = Objects.requireNonNull(eic, "VirtualHub creation does not allow null eic");
         this.isMcParticipant = isMcParticipant;
         this.isAhc = isAhc;
-        this.nodeName = Objects.requireNonNull(nodeName, "VirtualHub creation does not allow null nodeName");
+        this.nodeName = nodeName;
         this.relatedMa = Objects.requireNonNull(relatedMa, "VirtualHub creation does not allow null relatedMa");
         this.oppositeHub = oppositeHub;
     }
