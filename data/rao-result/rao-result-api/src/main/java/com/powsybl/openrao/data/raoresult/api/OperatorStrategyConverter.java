@@ -58,7 +58,7 @@ final class OperatorStrategyConverter {
     private static ConditionalActions getConditionalActionsForStateAndAddActionsToPool(State state, RaoResult raoResult, Network network, Set<Action> actionsPool) {
         Set<Action> stateActions = getActivatedActionsForState(raoResult, state, network);
         actionsPool.addAll(stateActions);
-        return new ConditionalActions(state.getInstant().getId(), TRUE, getActionsIds(stateActions));
+        return new ConditionalActions(state.getId(), TRUE, getActionsIds(stateActions));
     }
 
     private static Set<Action> getActivatedActionsForState(RaoResult raoResult, State state, Network network) {
