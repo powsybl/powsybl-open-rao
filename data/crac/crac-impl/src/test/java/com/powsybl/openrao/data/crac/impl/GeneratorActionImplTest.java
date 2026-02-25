@@ -10,11 +10,12 @@ package com.powsybl.openrao.data.crac.impl;
 import com.powsybl.action.GeneratorAction;
 import com.powsybl.action.GeneratorActionBuilder;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.openrao.data.crac.impl.utils.CommonCracCreation;
-import com.powsybl.openrao.data.crac.impl.utils.NetworkImportsUtil;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
+import com.powsybl.openrao.data.crac.impl.utils.CommonCracCreation;
+import com.powsybl.openrao.data.crac.impl.utils.NetworkImportsUtil;
 import org.junit.jupiter.api.Test;
+
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;

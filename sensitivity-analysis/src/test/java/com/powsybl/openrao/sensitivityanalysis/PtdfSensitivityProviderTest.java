@@ -7,15 +7,15 @@
 
 package com.powsybl.openrao.sensitivityanalysis;
 
+import com.powsybl.contingency.Contingency;
+import com.powsybl.glsk.commons.ZonalData;
+import com.powsybl.glsk.commons.ZonalDataImpl;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.impl.utils.CommonCracCreation;
 import com.powsybl.openrao.data.crac.impl.utils.NetworkImportsUtil;
-import com.powsybl.contingency.Contingency;
-import com.powsybl.glsk.commons.ZonalData;
-import com.powsybl.glsk.commons.ZonalDataImpl;
-import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityFactor;
 import com.powsybl.sensitivity.SensitivityFunctionType;
 import com.powsybl.sensitivity.SensitivityVariableSet;
@@ -25,7 +25,8 @@ import org.junit.jupiter.api.Test;
 
 import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
@@ -59,7 +60,9 @@ class PtdfSensitivityProviderTest {
         assertEquals(16, sensitivityFactors.size());
         assertTrue(sensitivityFactors.stream().anyMatch(sensitivityFactor -> sensitivityFactor.getFunctionId().contains("FFR2AA1  DDE3AA1  1")
                                                                           && sensitivityFactor.getVariableId().contains("10YCB-GERMANY--8")));
-        assertTrue(sensitivityFactors.stream().allMatch(sensitivityFactor -> sensitivityFactor.getFunctionType().equals(SensitivityFunctionType.BRANCH_ACTIVE_POWER_1) || sensitivityFactor.getFunctionType().equals(SensitivityFunctionType.BRANCH_ACTIVE_POWER_2)));
+        assertTrue(sensitivityFactors.stream().allMatch(sensitivityFactor ->
+            sensitivityFactor.getFunctionType().equals(SensitivityFunctionType.BRANCH_ACTIVE_POWER_1) || sensitivityFactor.getFunctionType().equals(SensitivityFunctionType.BRANCH_ACTIVE_POWER_2)
+        ));
 
         sensitivityFactors = ptdfSensitivityProvider.getContingencyFactors(network, List.of(new Contingency(crac.getContingencies().iterator().next().getId(), new ArrayList<>())));
         assertEquals(12, sensitivityFactors.size()); // 12 and not 16 because in contingency FR1 FR2, monitor just side one of network elemeent "FFR2AA1  DDE3AA1  1".
@@ -74,7 +77,9 @@ class PtdfSensitivityProviderTest {
         assertEquals(16, sensitivityFactors.size());
         assertTrue(sensitivityFactors.stream().anyMatch(sensitivityFactor -> sensitivityFactor.getFunctionId().contains("FFR2AA1  DDE3AA1  1")
             && sensitivityFactor.getVariableId().contains("10YCB-GERMANY--8")));
-        assertTrue(sensitivityFactors.stream().allMatch(sensitivityFactor -> sensitivityFactor.getFunctionType().equals(SensitivityFunctionType.BRANCH_CURRENT_1) || sensitivityFactor.getFunctionType().equals(SensitivityFunctionType.BRANCH_CURRENT_2)));
+        assertTrue(sensitivityFactors.stream().allMatch(sensitivityFactor ->
+            sensitivityFactor.getFunctionType().equals(SensitivityFunctionType.BRANCH_CURRENT_1) || sensitivityFactor.getFunctionType().equals(SensitivityFunctionType.BRANCH_CURRENT_2)
+        ));
 
         sensitivityFactors = ptdfSensitivityProvider.getContingencyFactors(network, List.of(new Contingency(crac.getContingencies().iterator().next().getId(), new ArrayList<>())));
         assertEquals(12, sensitivityFactors.size()); // 12 and not 16 because in contingency FR1 FR2, monitor just side one of network elemeent "FFR2AA1  DDE3AA1  1".

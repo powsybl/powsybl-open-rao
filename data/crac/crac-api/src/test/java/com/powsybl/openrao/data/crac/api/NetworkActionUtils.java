@@ -7,16 +7,19 @@
 
 package com.powsybl.openrao.data.crac.api;
 
-import com.powsybl.action.*;
+import com.powsybl.action.Action;
+import com.powsybl.action.GeneratorActionBuilder;
+import com.powsybl.action.PhaseTapChangerTapPositionActionBuilder;
+import com.powsybl.action.SwitchActionBuilder;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.openrao.data.crac.api.usagerule.OnContingencyStateAdderToRemedialAction;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.ActionType;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.networkaction.SwitchPair;
+import com.powsybl.openrao.data.crac.api.usagerule.OnContingencyStateAdderToRemedialAction;
+import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
 
 import java.util.*;
 

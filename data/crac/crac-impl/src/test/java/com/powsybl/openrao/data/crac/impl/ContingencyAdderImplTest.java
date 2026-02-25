@@ -7,10 +7,10 @@
 
 package com.powsybl.openrao.data.crac.impl;
 
+import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyElement;
 import com.powsybl.contingency.ContingencyElementType;
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.crac.api.ContingencyAdder;
 import com.powsybl.openrao.data.crac.api.Crac;
 import org.junit.jupiter.api.BeforeEach;

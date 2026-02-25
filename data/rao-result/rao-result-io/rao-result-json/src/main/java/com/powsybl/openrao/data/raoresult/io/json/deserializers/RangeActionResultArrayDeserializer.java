@@ -7,14 +7,14 @@
 
 package com.powsybl.openrao.data.raoresult.io.json.deserializers;
 
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.impl.RangeActionResult;
 import com.powsybl.openrao.data.raoresult.impl.RaoResultImpl;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +24,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.*;
-import static com.powsybl.openrao.data.raoresult.io.json.deserializers.Utils.*;
+import static com.powsybl.openrao.data.raoresult.io.json.deserializers.Utils.checkDeprecatedField;
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
@@ -53,14 +53,20 @@ final class RangeActionResultArrayDeserializer {
                     checkDeprecatedField(PSTRANGEACTION_ID, RAO_RESULT_TYPE, jsonFileVersion, "1.2");
                     break;
                 default:
-                    throw new OpenRaoException(String.format("Cannot deserialize RaoResult: each %s must start with an %s field", RANGEACTION_RESULTS, RANGEACTION_ID));
+                    throw new OpenRaoException(String.format(
+                        "Cannot deserialize RaoResult: each %s must start with an %s field",
+                        RANGEACTION_RESULTS, RANGEACTION_ID
+                    ));
             }
 
             String rangeActionId = jsonParser.nextTextValue();
             RangeAction<?> rangeAction = crac.getRangeAction(rangeActionId);
 
             if (rangeAction == null) {
-                throw new OpenRaoException(String.format("Cannot deserialize RaoResult: cannot deserialize RaoResult: RangeAction with id %s does not exist in the Crac", rangeActionId));
+                throw new OpenRaoException(String.format(
+                    "Cannot deserialize RaoResult: cannot deserialize RaoResult: RangeAction with id %s does not exist in the Crac",
+                    rangeActionId
+                ));
             }
 
             RangeActionResult rangeActionResult = raoResult.getAndCreateIfAbsentRangeActionResult(rangeAction);
@@ -116,13 +122,21 @@ final class RangeActionResultArrayDeserializer {
                         }
 
                     default:
-                        throw new OpenRaoException(String.format("Cannot deserialize RaoResult: unexpected field in %s (%s)", RANGEACTION_RESULTS, jsonParser.getCurrentName()));
+                        throw new OpenRaoException(String.format(
+                            "Cannot deserialize RaoResult: unexpected field in %s (%s)",
+                            RANGEACTION_RESULTS,
+                            jsonParser.getCurrentName()
+                        ));
                 }
             }
         }
     }
 
-    private static void deserializeResultsPerStates(JsonParser jsonParser, RangeActionResult rangeActionResult, Crac crac, Pair<Integer, Integer> version, RangeAction<?> rangeAction) throws IOException {
+    private static void deserializeResultsPerStates(JsonParser jsonParser,
+                                                    RangeActionResult rangeActionResult,
+                                                    Crac crac,
+                                                    Pair<Integer, Integer> version,
+                                                    RangeAction<?> rangeAction) throws IOException {
         String instantId = null;
         String contingencyId = null;
         Double setpoint = null;
@@ -163,7 +177,10 @@ final class RangeActionResultArrayDeserializer {
                         }
 
                     default:
-                        throw new OpenRaoException(String.format("Cannot deserialize RaoResult: unexpected field in %s (%s)", RANGEACTION_RESULTS, jsonParser.getCurrentName()));
+                        throw new OpenRaoException(String.format(
+                            "Cannot deserialize RaoResult: unexpected field in %s (%s)",
+                            RANGEACTION_RESULTS, jsonParser.getCurrentName()
+                        ));
                 }
             }
 

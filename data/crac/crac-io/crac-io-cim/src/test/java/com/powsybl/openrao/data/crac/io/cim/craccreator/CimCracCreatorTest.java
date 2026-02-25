@@ -8,42 +8,25 @@
 package com.powsybl.openrao.data.crac.io.cim.craccreator;
 
 import com.google.common.base.Suppliers;
-import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.action.GeneratorAction;
 import com.powsybl.action.PhaseTapChangerTapPositionAction;
 import com.powsybl.action.TerminalsConnectionAction;
+import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.contingency.ContingencyElement;
-import com.powsybl.iidm.network.Country;
-import com.powsybl.iidm.network.HvdcLine;
-import com.powsybl.iidm.network.ImportConfig;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.*;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.crac.api.Crac;
-import com.powsybl.openrao.data.crac.api.Instant;
-import com.powsybl.openrao.data.crac.api.InstantKind;
-import com.powsybl.openrao.data.crac.api.NetworkElement;
-import com.powsybl.openrao.data.crac.api.RaUsageLimits;
-import com.powsybl.openrao.data.crac.api.RemedialAction;
-import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
-import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
-import com.powsybl.openrao.data.crac.api.usagerule.OnConstraint;
-import com.powsybl.openrao.data.crac.api.usagerule.OnContingencyState;
-import com.powsybl.openrao.data.crac.api.usagerule.OnFlowConstraintInCountry;
-import com.powsybl.openrao.data.crac.api.usagerule.OnInstant;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
-import com.powsybl.openrao.data.crac.io.cim.parameters.CimCracCreationParameters;
-import com.powsybl.openrao.data.crac.io.cim.parameters.RangeActionSpeed;
-import com.powsybl.openrao.data.crac.io.cim.parameters.VoltageCnecsCreationParameters;
-import com.powsybl.openrao.data.crac.io.cim.parameters.VoltageMonitoredContingenciesAndThresholds;
-import com.powsybl.openrao.data.crac.io.cim.parameters.VoltageThreshold;
+import com.powsybl.openrao.data.crac.api.*;
 import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
-import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.crac.api.parameters.RangeActionGroup;
 import com.powsybl.openrao.data.crac.api.range.RangeType;
+import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.threshold.BranchThreshold;
+import com.powsybl.openrao.data.crac.api.usagerule.*;
+import com.powsybl.openrao.data.crac.io.cim.parameters.*;
 import com.powsybl.openrao.data.crac.io.commons.api.ElementaryCreationContext;
 import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
 import org.junit.jupiter.api.BeforeAll;
@@ -83,7 +66,12 @@ class CimCracCreatorTest {
     public static void loadNetwork() {
         Properties importParams = new Properties();
         importParams.put("iidm.import.cgmes.source-for-iidm-id", "rdfID");
-        baseNetwork = Network.read(Paths.get(new File(CimCracCreatorTest.class.getResource("/networks/MicroGrid_missingImax.zip").getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
+        baseNetwork = Network.read(
+            Paths.get(new File(CimCracCreatorTest.class.getResource("/networks/MicroGrid_missingImax.zip").getFile()).toString()),
+            LocalComputationManager.getDefault(),
+            Suppliers.memoize(ImportConfig::load).get(),
+            importParams
+        );
     }
 
     @BeforeAll
@@ -94,7 +82,12 @@ class CimCracCreatorTest {
     private static Network loadNetworkWithHvdc() {
         Properties importParams = new Properties();
         importParams.put("iidm.import.cgmes.source-for-iidm-id", "rdfID");
-        return Network.read(Paths.get(new File(CimCracCreatorTest.class.getResource("/networks/TestCase16NodesWith2Hvdc.xiidm").getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
+        return Network.read(
+            Paths.get(new File(CimCracCreatorTest.class.getResource("/networks/TestCase16NodesWith2Hvdc.xiidm").getFile()).toString()),
+            LocalComputationManager.getDefault(),
+            Suppliers.memoize(ImportConfig::load).get(),
+            importParams
+        );
     }
 
     private void setUp(String fileName, Network network, CracCreationParameters cracCreationParameters) throws IOException {
@@ -206,7 +199,9 @@ class CimCracCreatorTest {
         }
         assertEquals(id, context.getCreatedObjectId());
         assertNotNull(importedCrac.getContingency(id));
-        Set<String> actualNetworkElements = importedCrac.getContingency(id).getElements().stream().map(ContingencyElement::getId).collect(Collectors.toSet());
+        Set<String> actualNetworkElements = importedCrac.getContingency(id).getElements().stream()
+            .map(ContingencyElement::getId)
+            .collect(Collectors.toSet());
         assertEquals(networkElements, actualNetworkElements);
     }
 
@@ -301,7 +296,9 @@ class CimCracCreatorTest {
         assertTrue(remedialActionSeriesCreationContext.isImported());
         assertEquals(isAltered, remedialActionSeriesCreationContext.isAltered());
         assertNotNull(importedCrac.getNetworkAction(id));
-        Set<String> actualNetworkElements = importedCrac.getNetworkAction(id).getNetworkElements().stream().map(NetworkElement::getId).collect(Collectors.toSet());
+        Set<String> actualNetworkElements = importedCrac.getNetworkAction(id).getNetworkElements().stream()
+            .map(NetworkElement::getId)
+            .collect(Collectors.toSet());
         assertEquals(networkElements, actualNetworkElements);
     }
 
@@ -387,7 +384,10 @@ class CimCracCreatorTest {
         setUp("/cracs/CIM_21_1_1.xml", baseNetwork, cracCreationParameters);
         assertTrue(cracCreationContext.isCreationSuccessful());
         assertEquals(2, cracCreationContext.getCrac().getRaUsageLimits(preventiveInstant).getMaxRa());
-        assertEquals(OffsetDateTime.of(2021, 2, 9, 19, 30, 0, 0, ZoneOffset.UTC), cracCreationContext.getNetworkCaseDate());
+        assertEquals(
+            OffsetDateTime.of(2021, 2, 9, 19, 30, 0, 0, ZoneOffset.UTC),
+            cracCreationContext.getNetworkCaseDate()
+        );
         assertEquals(14, cracCreationContext.getNetworkBranches().size());
     }
 
@@ -493,7 +493,11 @@ class CimCracCreatorTest {
     @Test
     void testImportNetworkActions() throws IOException {
         setUpWithTimestamp("/cracs/CIM_21_4_1.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"));
-        assertNetworkActionImported("PRA_1", Set.of("_e8a7eaec-51d6-4571-b3d9-c36d52073c33", "_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", "_b94318f6-6d24-4f56-96b9-df2531ad6543", "_2184f365-8cd5-4b5d-8a28-9d68603bb6a4"), false);
+        assertNetworkActionImported(
+            "PRA_1",
+            Set.of("_e8a7eaec-51d6-4571-b3d9-c36d52073c33", "_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", "_b94318f6-6d24-4f56-96b9-df2531ad6543", "_2184f365-8cd5-4b5d-8a28-9d68603bb6a4"),
+            false
+        );
         assertRemedialActionImportedWithOperator("PRA_1", "PRA_1");
         assertRemedialActionImportedWithOperator("REE-PRA_1", "REE");
         assertRemedialActionImportedWithOperator("RTE-PRA_1", "RTE");
@@ -516,7 +520,11 @@ class CimCracCreatorTest {
         assertRemedialActionNotImported("PRA_15", ImportStatus.INCONSISTENCY_IN_DATA);
         assertRemedialActionNotImported("PRA_16", ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK);
         // Topological
-        assertNetworkActionImported("PRA_17", Set.of("_ffbabc27-1ccd-4fdc-b037-e341706c8d29", "_b58bf21a-096a-4dae-9a01-3f03b60c24c7", "_f04ec73d-b94a-4b7e-a3d6-b1234fc37385_SW_fict", "_5a094c9f-0af5-48dc-94e9-89c6c220023c"), false);
+        assertNetworkActionImported(
+            "PRA_17",
+            Set.of("_ffbabc27-1ccd-4fdc-b037-e341706c8d29", "_b58bf21a-096a-4dae-9a01-3f03b60c24c7", "_f04ec73d-b94a-4b7e-a3d6-b1234fc37385_SW_fict", "_5a094c9f-0af5-48dc-94e9-89c6c220023c"),
+            false
+        );
         assertRemedialActionNotImported("PRA_18", ImportStatus.INCONSISTENCY_IN_DATA);
         assertRemedialActionNotImported("PRA_19", ImportStatus.INCONSISTENCY_IN_DATA);
         assertRemedialActionNotImported("PRA_20", ImportStatus.INCONSISTENCY_IN_DATA);
@@ -533,7 +541,12 @@ class CimCracCreatorTest {
 
     @Test
     void testImportHvdcRangeActions() throws IOException {
-        setUpWithSpeed("/cracs/CIM_21_6_1.xml", hvdcNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), Set.of(new RangeActionSpeed("BBE2AA11 FFR3AA11 1", 1), new RangeActionSpeed("BBE2AA12 FFR3AA12 1", 2)));
+        setUpWithSpeed(
+            "/cracs/CIM_21_6_1.xml",
+            hvdcNetwork,
+            OffsetDateTime.parse("2021-04-01T23:00Z"),
+            Set.of(new RangeActionSpeed("BBE2AA11 FFR3AA11 1", 1), new RangeActionSpeed("BBE2AA12 FFR3AA12 1", 2))
+        );
 
         // RA-Series-2
         assertRemedialActionNotImported("HVDC-direction21", ImportStatus.INCONSISTENCY_IN_DATA);
@@ -572,8 +585,14 @@ class CimCracCreatorTest {
         Set<String> createdIds2 = Set.of("HVDC-direction11 + HVDC-direction12 - BBE2AA12 FFR3AA12 1", "HVDC-direction11 + HVDC-direction12 - BBE2AA11 FFR3AA11 1");
         assertHvdcRangeActionImported("HVDC-direction11", createdIds1, Set.of("BBE2AA11 FFR3AA11 1", "BBE2AA12 FFR3AA12 1"), Set.of("HVDC"), false);
         assertHvdcRangeActionImported("HVDC-direction12", createdIds2, Set.of("BBE2AA11 FFR3AA11 1", "BBE2AA12 FFR3AA12 1"), Set.of("HVDC"), true);
-        assertEquals("BBE2AA11 FFR3AA11 1 + BBE2AA12 FFR3AA12 1", importedCrac.getHvdcRangeAction("HVDC-direction11 + HVDC-direction12 - BBE2AA12 FFR3AA12 1").getGroupId().get());
-        assertEquals("BBE2AA11 FFR3AA11 1 + BBE2AA12 FFR3AA12 1", importedCrac.getHvdcRangeAction("HVDC-direction11 + HVDC-direction12 - BBE2AA11 FFR3AA11 1").getGroupId().get());
+        assertEquals(
+            "BBE2AA11 FFR3AA11 1 + BBE2AA12 FFR3AA12 1",
+            importedCrac.getHvdcRangeAction("HVDC-direction11 + HVDC-direction12 - BBE2AA12 FFR3AA12 1").getGroupId().get()
+        );
+        assertEquals(
+            "BBE2AA11 FFR3AA11 1 + BBE2AA12 FFR3AA12 1",
+            importedCrac.getHvdcRangeAction("HVDC-direction11 + HVDC-direction12 - BBE2AA11 FFR3AA11 1").getGroupId().get()
+        );
     }
 
     @Test
@@ -708,7 +727,8 @@ class CimCracCreatorTest {
         assertTrue(ra2.getElementaryActions().stream()
             .filter(PhaseTapChangerTapPositionAction.class::isInstance)
             .map(PhaseTapChangerTapPositionAction.class::cast)
-            .anyMatch(ps -> ps.getTransformerId().equals("_e8a7eaec-51d6-4571-b3d9-c36d52073c33") && ps.getTapPosition() == -19) // before it was the tap position before normalization, now it is after normalization
+            // before it was the tap position before normalization, now it is after normalization
+            .anyMatch(ps -> ps.getTransformerId().equals("_e8a7eaec-51d6-4571-b3d9-c36d52073c33") && ps.getTapPosition() == -19)
         );
         assertTrue(ra2.getElementaryActions().stream()
             .filter(TerminalsConnectionAction.class::isInstance)
@@ -736,7 +756,8 @@ class CimCracCreatorTest {
         assertTrue(ra3.getElementaryActions().stream()
             .filter(PhaseTapChangerTapPositionAction.class::isInstance)
             .map(PhaseTapChangerTapPositionAction.class::cast)
-            .anyMatch(ps -> ps.getTransformerId().equals("_b94318f6-6d24-4f56-96b9-df2531ad6543") && ps.getTapPosition() == 13) // before it was the tap position before normalization, now it is after normalization
+            // before it was the tap position before normalization, now it is after normalization
+            .anyMatch(ps -> ps.getTransformerId().equals("_b94318f6-6d24-4f56-96b9-df2531ad6543") && ps.getTapPosition() == 13)
         );
         assertTrue(ra3.getElementaryActions().stream()
             .filter(GeneratorAction.class::isInstance)
@@ -752,24 +773,29 @@ class CimCracCreatorTest {
             ra4.getUsageRules().stream()
                 .filter(OnFlowConstraintInCountry.class::isInstance)
                 .map(OnFlowConstraintInCountry.class::cast)
-                .anyMatch(ur -> ur.getInstant().isPreventive() && ur.getContingency().isEmpty() && ur.getCountry().equals(Country.FR))
+                .anyMatch(ur ->
+                    ur.getInstant().isPreventive() && ur.getContingency().isEmpty() && ur.getCountry().equals(Country.FR))
         );
         assertTrue(
             ra4.getUsageRules().stream()
                 .filter(OnFlowConstraintInCountry.class::isInstance)
                 .map(OnFlowConstraintInCountry.class::cast)
-                .anyMatch(ur -> ur.getInstant().isCurative() && ur.getContingency().orElseThrow().getId().equals("CO_1") && ur.getCountry().equals(Country.FR))
+                .anyMatch(ur ->
+                    ur.getInstant().isCurative() && ur.getContingency().orElseThrow().getId().equals("CO_1") && ur.getCountry().equals(Country.FR))
         );
         assertEquals(2, ra4.getElementaryActions().size());
         assertTrue(ra4.getElementaryActions().stream()
             .filter(PhaseTapChangerTapPositionAction.class::isInstance)
             .map(PhaseTapChangerTapPositionAction.class::cast)
-            .anyMatch(ps -> ps.getTransformerId().equals("_b94318f6-6d24-4f56-96b9-df2531ad6543") && ps.getTapPosition() == 13) // before it was the tap position before normalization, now it is after normalization
+            // before it was the tap position before normalization, now it is after normalization
+            .anyMatch(ps ->
+                ps.getTransformerId().equals("_b94318f6-6d24-4f56-96b9-df2531ad6543") && ps.getTapPosition() == 13)
         );
         assertTrue(ra4.getElementaryActions().stream()
             .filter(GeneratorAction.class::isInstance)
             .map(GeneratorAction.class::cast)
-            .anyMatch(is -> is.getGeneratorId().equals("_1dc9afba-23b5-41a0-8540-b479ed8baf4b") && is.getActivePowerValue().getAsDouble() == 480)
+            .anyMatch(is ->
+                is.getGeneratorId().equals("_1dc9afba-23b5-41a0-8540-b479ed8baf4b") && is.getActivePowerValue().getAsDouble() == 480)
         );
 
         // RA_5
@@ -780,13 +806,15 @@ class CimCracCreatorTest {
             ra5.getUsageRules().stream()
                 .filter(OnFlowConstraintInCountry.class::isInstance)
                 .map(OnFlowConstraintInCountry.class::cast)
-                .anyMatch(ur -> ur.getInstant().isPreventive() && ur.getContingency().isEmpty() && ur.getCountry().equals(Country.FR))
+                .anyMatch(ur ->
+                    ur.getInstant().isPreventive() && ur.getContingency().isEmpty() && ur.getCountry().equals(Country.FR))
         );
         assertTrue(
             ra5.getUsageRules().stream()
                 .filter(OnFlowConstraintInCountry.class::isInstance)
                 .map(OnFlowConstraintInCountry.class::cast)
-                .anyMatch(ur -> ur.getInstant().isCurative() && ur.getContingency().orElseThrow().getId().equals("CO_1") && ur.getCountry().equals(Country.FR))
+                .anyMatch(ur ->
+                    ur.getInstant().isCurative() && ur.getContingency().orElseThrow().getId().equals("CO_1") && ur.getCountry().equals(Country.FR))
         );
         assertTrue(
             ra5.getUsageRules().stream()
@@ -798,12 +826,15 @@ class CimCracCreatorTest {
         assertTrue(ra5.getElementaryActions().stream()
             .filter(PhaseTapChangerTapPositionAction.class::isInstance)
             .map(PhaseTapChangerTapPositionAction.class::cast)
-            .anyMatch(ps -> ps.getTransformerId().equals("_b94318f6-6d24-4f56-96b9-df2531ad6543") && ps.getTapPosition() == 13) // before it was the tap position before normalization, now it is after normalization
+            // before it was the tap position before normalization, now it is after normalization
+            .anyMatch(ps ->
+                ps.getTransformerId().equals("_b94318f6-6d24-4f56-96b9-df2531ad6543") && ps.getTapPosition() == 13)
         );
         assertTrue(ra5.getElementaryActions().stream()
             .filter(GeneratorAction.class::isInstance)
             .map(GeneratorAction.class::cast)
-            .anyMatch(is -> is.getGeneratorId().equals("_1dc9afba-23b5-41a0-8540-b479ed8baf4b") && is.getActivePowerValue().getAsDouble() == 480)
+            .anyMatch(is ->
+                is.getGeneratorId().equals("_1dc9afba-23b5-41a0-8540-b479ed8baf4b") && is.getActivePowerValue().getAsDouble() == 480)
         );
     }
 
@@ -870,8 +901,14 @@ class CimCracCreatorTest {
         setUpWithTimeseriesMrids("/cracs/CIM_2_timeseries.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), Set.of("TimeSeries1", "TimeSeries2", "TimeSeries3"));
         assertEquals(2, importedCrac.getContingencies().size());
         assertEquals(2, cracCreationContext.getCreationReport().getReport().size());
-        assertEquals("[WARN] Requested TimeSeries mRID \"TimeSeries3\" in CimCracCreationParameters was not found in the CRAC file.", cracCreationContext.getCreationReport().getReport().get(0));
-        assertEquals("CRAC was successfully imported with 2 contingencies, 0 FlowCNECs, 0 AngleCNECs, 0 VoltageCNECs and 0 remedial actions (0 range actions and 0 network actions).", cracCreationContext.getCreationReport().getReport().get(1));
+        assertEquals(
+            "[WARN] Requested TimeSeries mRID \"TimeSeries3\" in CimCracCreationParameters was not found in the CRAC file.",
+            cracCreationContext.getCreationReport().getReport().get(0)
+        );
+        assertEquals(
+            "CRAC was successfully imported with 2 contingencies, 0 FlowCNECs, 0 AngleCNECs, 0 VoltageCNECs and 0 remedial actions (0 range actions and 0 network actions).",
+            cracCreationContext.getCreationReport().getReport().get(1)
+        );
 
         setUpWithTimeseriesMrids("/cracs/CIM_2_timeseries.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"), Set.of("TimeSeries1"));
         assertEquals(1, importedCrac.getContingencies().size());
@@ -932,10 +969,22 @@ class CimCracCreatorTest {
         assertNotNull(importedCrac.getVoltageCnec("[VC] _d77b61ef-61aa-4b22-95f6-b56ca080788d - Co-3 - outage"));
         assertEquals(7, cracCreationContext.getVoltageCnecCreationContexts().size());
         assertEquals(8, cracCreationContext.getCreationReport().getReport().size());
-        assertTrue(cracCreationContext.getCreationReport().getReport().contains("[REMOVED] VoltageCnec with network element \"_2844585c-0d35-488d-a449-685bcd57afbf\", instant \"all\" and contingency \"all\" was not imported: INCONSISTENCY_IN_DATA. Element _2844585c-0d35-488d-a449-685bcd57afbf is not a voltage level."));
-        assertTrue(cracCreationContext.getCreationReport().getReport().contains("[REMOVED] VoltageCnec with network element \"_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0\", instant \"all\" and contingency \"all\" was not imported: INCONSISTENCY_IN_DATA. Element _a708c3bc-465d-4fe7-b6ef-6fa6408a62b0 is not a voltage level."));
-        assertTrue(cracCreationContext.getCreationReport().getReport().contains("[REMOVED] VoltageCnec with network element \"all\", instant \"all\" and contingency \"Co-4-name\" was not imported: OTHER. Contingency does not exist in the CRAC or could not be imported."));
-        assertTrue(cracCreationContext.getCreationReport().getReport().contains("[REMOVED] VoltageCnec with network element \"_d77b61ef-61aa-4b22-95f6-b56ca080788d\", instant \"auto\" and contingency \"Co-2-name\" was not imported: INCONSISTENCY_IN_DATA. Cannot add a threshold without min nor max values. Please use withMin() or withMax().."));
+        assertTrue(cracCreationContext.getCreationReport().getReport().contains(
+            "[REMOVED] VoltageCnec with network element \"_2844585c-0d35-488d-a449-685bcd57afbf\", " +
+                "instant \"all\" and contingency \"all\" was not imported: INCONSISTENCY_IN_DATA. " +
+                "Element _2844585c-0d35-488d-a449-685bcd57afbf is not a voltage level."));
+        assertTrue(cracCreationContext.getCreationReport().getReport().contains(
+            "[REMOVED] VoltageCnec with network element \"_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0\", " +
+                "instant \"all\" and contingency \"all\" was not imported: INCONSISTENCY_IN_DATA. " +
+                "Element _a708c3bc-465d-4fe7-b6ef-6fa6408a62b0 is not a voltage level."));
+        assertTrue(cracCreationContext.getCreationReport().getReport().contains(
+            "[REMOVED] VoltageCnec with network element \"all\", " +
+                "instant \"all\" and contingency \"Co-4-name\" was not imported: OTHER. " +
+                "Contingency does not exist in the CRAC or could not be imported."));
+        assertTrue(cracCreationContext.getCreationReport().getReport().contains(
+            "[REMOVED] VoltageCnec with network element \"_d77b61ef-61aa-4b22-95f6-b56ca080788d\", " +
+                "instant \"auto\" and contingency \"Co-2-name\" was not imported: INCONSISTENCY_IN_DATA. " +
+                "Cannot add a threshold without min nor max values. Please use withMin() or withMax().."));
     }
 
     @Test
@@ -1060,7 +1109,9 @@ class CimCracCreatorTest {
         assertEquals(flowCnec.getNominalVoltage(TwoSides.ONE), duplicate.getNominalVoltage(TwoSides.ONE), 1e-6);
         assertEquals(flowCnec.getNominalVoltage(TwoSides.TWO), duplicate.getNominalVoltage(TwoSides.TWO), 1e-6);
         assertEquals(flowCnec.getThresholds(), duplicate.getThresholds());
-        assertTrue(cracCreationContext.getCreationReport().getReport().contains(String.format("[ADDED] CNEC \"%s\" has no associated automaton. It will be cloned on the OUTAGE instant in order to be secured during preventive RAO.", flowCnecId)));
+        assertTrue(cracCreationContext.getCreationReport().getReport().contains(
+            String.format("[ADDED] CNEC \"%s\" has no associated automaton. It will be cloned on the OUTAGE instant in order to be secured during preventive RAO.", flowCnecId)
+        ));
     }
 
     @Test
@@ -1130,7 +1181,12 @@ class CimCracCreatorTest {
     @Test
     void testImportHvdcAutomatonWithFullyConnectedHvdc() throws IOException {
         Network network = loadNetworkWithHvdc();
-        setUpWithSpeed("/cracs/CIM_with_HVDC.xml", network, OffsetDateTime.parse("2021-04-01T23:00Z"), Set.of(new RangeActionSpeed("BBE2AA11 FFR3AA11 1", 1), new RangeActionSpeed("BBE2AA12 FFR3AA12 1", 2)));
+        setUpWithSpeed(
+            "/cracs/CIM_with_HVDC.xml",
+            network,
+            OffsetDateTime.parse("2021-04-01T23:00Z"),
+            Set.of(new RangeActionSpeed("BBE2AA11 FFR3AA11 1", 1), new RangeActionSpeed("BBE2AA12 FFR3AA12 1", 2))
+        );
         Crac crac = cracCreationContext.getCrac();
 
         assertEquals(2, crac.getHvdcRangeActions().size());
@@ -1157,7 +1213,12 @@ class CimCracCreatorTest {
     void testImportHvdcAutomatonWithPartiallyConnectedHvdc1() throws IOException {
         Network network = loadNetworkWithHvdc();
         disconnectHvdcLine(network.getHvdcLine("BBE2AA11 FFR3AA11 1"));
-        setUpWithSpeed("/cracs/CIM_with_HVDC.xml", network, OffsetDateTime.parse("2021-04-01T23:00Z"), Set.of(new RangeActionSpeed("BBE2AA11 FFR3AA11 1", 1), new RangeActionSpeed("BBE2AA12 FFR3AA12 1", 2)));
+        setUpWithSpeed(
+            "/cracs/CIM_with_HVDC.xml",
+            network,
+            OffsetDateTime.parse("2021-04-01T23:00Z"),
+            Set.of(new RangeActionSpeed("BBE2AA11 FFR3AA11 1", 1), new RangeActionSpeed("BBE2AA12 FFR3AA12 1", 2))
+        );
         Crac crac = cracCreationContext.getCrac();
 
         assertEquals(1, crac.getHvdcRangeActions().size());
@@ -1168,15 +1229,24 @@ class CimCracCreatorTest {
         assertEquals(3500, hvdcRangeAction.getRanges().iterator().next().getMax());
         assertEquals(Optional.of("BBE2AA12 FFR3AA12 1"), hvdcRangeAction.getGroupId());
         assertEquals(3, cracCreationContext.getCreationReport().getReport().size());
-        assert cracCreationContext.getCreationReport().getReport().contains("[ALTERED] RemedialAction_Series \"HVDC-direction11\" was modified: HVDC line BBE2AA11 FFR3AA11 1 has terminals 1 and 2 disconnected. ");
-        assert cracCreationContext.getCreationReport().getReport().contains("[ALTERED] RemedialAction_Series \"HVDC-direction12\" was modified: HVDC line BBE2AA11 FFR3AA11 1 has terminals 1 and 2 disconnected. ");
+        assert cracCreationContext.getCreationReport().getReport().contains(
+            "[ALTERED] RemedialAction_Series \"HVDC-direction11\" was modified: HVDC line BBE2AA11 FFR3AA11 1 has terminals 1 and 2 disconnected. "
+        );
+        assert cracCreationContext.getCreationReport().getReport().contains(
+            "[ALTERED] RemedialAction_Series \"HVDC-direction12\" was modified: HVDC line BBE2AA11 FFR3AA11 1 has terminals 1 and 2 disconnected. "
+        );
     }
 
     @Test
     void testImportHvdcAutomatonWithPartiallyConnectedHvdc2() throws IOException {
         Network network = loadNetworkWithHvdc();
         disconnectHvdcLine(network.getHvdcLine("BBE2AA12 FFR3AA12 1"));
-        setUpWithSpeed("/cracs/CIM_with_HVDC.xml", network, OffsetDateTime.parse("2021-04-01T23:00Z"), Set.of(new RangeActionSpeed("BBE2AA11 FFR3AA11 1", 1), new RangeActionSpeed("BBE2AA12 FFR3AA12 1", 2)));
+        setUpWithSpeed(
+            "/cracs/CIM_with_HVDC.xml",
+            network,
+            OffsetDateTime.parse("2021-04-01T23:00Z"),
+            Set.of(new RangeActionSpeed("BBE2AA11 FFR3AA11 1", 1), new RangeActionSpeed("BBE2AA12 FFR3AA12 1", 2))
+        );
         Crac crac = cracCreationContext.getCrac();
 
         assertEquals(1, crac.getHvdcRangeActions().size());
@@ -1187,8 +1257,12 @@ class CimCracCreatorTest {
         assertEquals(5000, hvdcRangeAction.getRanges().iterator().next().getMax());
         assertEquals(Optional.of("BBE2AA11 FFR3AA11 1"), hvdcRangeAction.getGroupId());
         assertEquals(3, cracCreationContext.getCreationReport().getReport().size());
-        assert cracCreationContext.getCreationReport().getReport().contains("[ALTERED] RemedialAction_Series \"HVDC-direction11\" was modified: HVDC line BBE2AA12 FFR3AA12 1 has terminals 1 and 2 disconnected. ");
-        assert cracCreationContext.getCreationReport().getReport().contains("[ALTERED] RemedialAction_Series \"HVDC-direction12\" was modified: HVDC line BBE2AA12 FFR3AA12 1 has terminals 1 and 2 disconnected. ");
+        assert cracCreationContext.getCreationReport().getReport().contains(
+            "[ALTERED] RemedialAction_Series \"HVDC-direction11\" was modified: HVDC line BBE2AA12 FFR3AA12 1 has terminals 1 and 2 disconnected. "
+        );
+        assert cracCreationContext.getCreationReport().getReport().contains(
+            "[ALTERED] RemedialAction_Series \"HVDC-direction12\" was modified: HVDC line BBE2AA12 FFR3AA12 1 has terminals 1 and 2 disconnected. "
+        );
     }
 
     @Test
@@ -1196,13 +1270,22 @@ class CimCracCreatorTest {
         Network network = loadNetworkWithHvdc();
         disconnectHvdcLine(network.getHvdcLine("BBE2AA11 FFR3AA11 1"));
         disconnectHvdcLine(network.getHvdcLine("BBE2AA12 FFR3AA12 1"));
-        setUpWithSpeed("/cracs/CIM_with_HVDC.xml", network, OffsetDateTime.parse("2021-04-01T23:00Z"), Set.of(new RangeActionSpeed("BBE2AA11 FFR3AA11 1", 1), new RangeActionSpeed("BBE2AA12 FFR3AA12 1", 2)));
+        setUpWithSpeed(
+            "/cracs/CIM_with_HVDC.xml",
+            network,
+            OffsetDateTime.parse("2021-04-01T23:00Z"),
+            Set.of(new RangeActionSpeed("BBE2AA11 FFR3AA11 1", 1), new RangeActionSpeed("BBE2AA12 FFR3AA12 1", 2))
+        );
         Crac crac = cracCreationContext.getCrac();
 
         assertTrue(crac.getHvdcRangeActions().isEmpty());
         assertEquals(3, cracCreationContext.getCreationReport().getReport().size());
-        assert cracCreationContext.getCreationReport().getReport().contains("[REMOVED] RemedialAction_Series \"HVDC-direction11\" was not imported: INCONSISTENCY_IN_DATA. All terminals on HVDC lines are disconnected.");
-        assert cracCreationContext.getCreationReport().getReport().contains("[REMOVED] RemedialAction_Series \"HVDC-direction12\" was not imported: INCONSISTENCY_IN_DATA. All terminals on HVDC lines are disconnected.");
+        assert cracCreationContext.getCreationReport().getReport().contains(
+            "[REMOVED] RemedialAction_Series \"HVDC-direction11\" was not imported: INCONSISTENCY_IN_DATA. All terminals on HVDC lines are disconnected."
+        );
+        assert cracCreationContext.getCreationReport().getReport().contains(
+            "[REMOVED] RemedialAction_Series \"HVDC-direction12\" was not imported: INCONSISTENCY_IN_DATA. All terminals on HVDC lines are disconnected."
+        );
     }
 
     @Test
@@ -1211,20 +1294,35 @@ class CimCracCreatorTest {
         Network network = loadNetworkWithHvdc();
         disconnectHvdcLine(network.getHvdcLine("BBE2AA11 FFR3AA11 1"));
         disconnectHvdcLine(network.getHvdcLine("BBE2AA12 FFR3AA12 1"));
-        setUpWithSpeed("/cracs/CIM_with_HVDC_error.xml", network, OffsetDateTime.parse("2021-04-01T23:00Z"), Set.of(new RangeActionSpeed("BBE2AA11 FFR3AA11 1", 1), new RangeActionSpeed("BBE2AA12 FFR3AA12 1", 2)));
+        setUpWithSpeed(
+            "/cracs/CIM_with_HVDC_error.xml",
+            network,
+            OffsetDateTime.parse("2021-04-01T23:00Z"),
+            Set.of(new RangeActionSpeed("BBE2AA11 FFR3AA11 1", 1), new RangeActionSpeed("BBE2AA12 FFR3AA12 1", 2))
+        );
         Crac crac = cracCreationContext.getCrac();
 
         assertTrue(crac.getHvdcRangeActions().isEmpty());
         assertEquals(3, cracCreationContext.getCreationReport().getReport().size());
-        assert cracCreationContext.getCreationReport().getReport().contains("[REMOVED] RemedialAction_Series \"HVDC-direction12\" was not imported: INCONSISTENCY_IN_DATA. Other RemedialActionSeries in the same HVDC Series failed.");
-        assert cracCreationContext.getCreationReport().getReport().contains("[REMOVED] RemedialAction_Series \"HVDC-direction11\" was not imported: ELEMENT_NOT_FOUND_IN_NETWORK. Not a HVDC line.");
+        assert cracCreationContext.getCreationReport().getReport().contains(
+            "[REMOVED] RemedialAction_Series \"HVDC-direction12\" was not imported: INCONSISTENCY_IN_DATA. " +
+                "Other RemedialActionSeries in the same HVDC Series failed."
+        );
+        assert cracCreationContext.getCreationReport().getReport().contains(
+            "[REMOVED] RemedialAction_Series \"HVDC-direction11\" was not imported: ELEMENT_NOT_FOUND_IN_NETWORK. Not a HVDC line."
+        );
     }
 
     @Test
     void testImportHvdcAutomatonWithPartiallyConnectedHvdc2AndInvalidContingencies() throws IOException {
         Network network = loadNetworkWithHvdc();
         disconnectHvdcLine(network.getHvdcLine("BBE2AA12 FFR3AA12 1"));
-        setUpWithSpeed("/cracs/CIM_with_HVDC_and_invalid_contingencies.xml", network, OffsetDateTime.parse("2021-04-01T23:00Z"), Set.of(new RangeActionSpeed("BBE2AA11 FFR3AA11 1", 1), new RangeActionSpeed("BBE2AA12 FFR3AA12 1", 2)));
+        setUpWithSpeed(
+            "/cracs/CIM_with_HVDC_and_invalid_contingencies.xml",
+            network,
+            OffsetDateTime.parse("2021-04-01T23:00Z"),
+            Set.of(new RangeActionSpeed("BBE2AA11 FFR3AA11 1", 1), new RangeActionSpeed("BBE2AA12 FFR3AA12 1", 2))
+        );
         Crac crac = cracCreationContext.getCrac();
 
         assertEquals(1, crac.getHvdcRangeActions().size());
@@ -1235,14 +1333,23 @@ class CimCracCreatorTest {
         assertEquals(5000, hvdcRangeAction.getRanges().iterator().next().getMax());
         assertEquals(Optional.of("BBE2AA11 FFR3AA11 1"), hvdcRangeAction.getGroupId());
         assertEquals(4, cracCreationContext.getCreationReport().getReport().size());
-        assert cracCreationContext.getCreationReport().getReport().contains("[ALTERED] RemedialAction_Series \"HVDC-direction12\" was modified: HVDC line BBE2AA12 FFR3AA12 1 has terminals 1 and 2 disconnected; Contingencies Co-2 were not imported. ");
-        assert cracCreationContext.getCreationReport().getReport().contains("[ALTERED] RemedialAction_Series \"HVDC-direction11\" was modified: HVDC line BBE2AA12 FFR3AA12 1 has terminals 1 and 2 disconnected; Contingencies Co-2 were not imported. ");
+        assert cracCreationContext.getCreationReport().getReport().contains(
+            "[ALTERED] RemedialAction_Series \"HVDC-direction12\" was modified: HVDC line BBE2AA12 FFR3AA12 1 has terminals 1 and 2 disconnected; " +
+                "Contingencies Co-2 were not imported. ");
+        assert cracCreationContext.getCreationReport().getReport().contains(
+            "[ALTERED] RemedialAction_Series \"HVDC-direction11\" was modified: HVDC line BBE2AA12 FFR3AA12 1 has terminals 1 and 2 disconnected; " +
+                "Contingencies Co-2 were not imported. ");
     }
 
     @Test
     void importCimCracWithPreventiveHvdcRa() throws IOException {
         Network network = loadNetworkWithHvdc();
-        setUpWithSpeed("/cracs/CIM_with_preventive_HVDC.xml", network, OffsetDateTime.parse("2021-04-01T23:00Z"), Set.of(new RangeActionSpeed("BBE2AA11 FFR3AA11 1", 1), new RangeActionSpeed("BBE2AA12 FFR3AA12 1", 2)));
+        setUpWithSpeed(
+            "/cracs/CIM_with_preventive_HVDC.xml",
+            network,
+            OffsetDateTime.parse("2021-04-01T23:00Z"),
+            Set.of(new RangeActionSpeed("BBE2AA11 FFR3AA11 1", 1), new RangeActionSpeed("BBE2AA12 FFR3AA12 1", 2))
+        );
         Crac crac = cracCreationContext.getCrac();
 
         assertEquals(2, crac.getHvdcRangeActions().size());
@@ -1267,7 +1374,12 @@ class CimCracCreatorTest {
     @Test
     void importCimCracWithCurativeHvdcRa() throws IOException {
         Network network = loadNetworkWithHvdc();
-        setUpWithSpeed("/cracs/CIM_with_curative_HVDC.xml", network, OffsetDateTime.parse("2021-04-01T23:00Z"), Set.of(new RangeActionSpeed("BBE2AA11 FFR3AA11 1", 1), new RangeActionSpeed("BBE2AA12 FFR3AA12 1", 2)));
+        setUpWithSpeed(
+            "/cracs/CIM_with_curative_HVDC.xml",
+            network,
+            OffsetDateTime.parse("2021-04-01T23:00Z"),
+            Set.of(new RangeActionSpeed("BBE2AA11 FFR3AA11 1", 1), new RangeActionSpeed("BBE2AA12 FFR3AA12 1", 2))
+        );
         Crac crac = cracCreationContext.getCrac();
 
         assertEquals(2, crac.getHvdcRangeActions().size());
@@ -1292,7 +1404,12 @@ class CimCracCreatorTest {
     @Test
     void importCimCracWithPreventiveAndCurativeHvdcRa() throws IOException {
         Network network = loadNetworkWithHvdc();
-        setUpWithSpeed("/cracs/CIM_with_preventive_and_curative_HVDC.xml", network, OffsetDateTime.parse("2021-04-01T23:00Z"), Set.of(new RangeActionSpeed("BBE2AA11 FFR3AA11 1", 1), new RangeActionSpeed("BBE2AA12 FFR3AA12 1", 2)));
+        setUpWithSpeed(
+            "/cracs/CIM_with_preventive_and_curative_HVDC.xml",
+            network,
+            OffsetDateTime.parse("2021-04-01T23:00Z"),
+            Set.of(new RangeActionSpeed("BBE2AA11 FFR3AA11 1", 1), new RangeActionSpeed("BBE2AA12 FFR3AA12 1", 2))
+        );
         Crac crac = cracCreationContext.getCrac();
 
         assertEquals(2, crac.getHvdcRangeActions().size());

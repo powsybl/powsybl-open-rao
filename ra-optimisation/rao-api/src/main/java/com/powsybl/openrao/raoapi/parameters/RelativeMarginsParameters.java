@@ -15,7 +15,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-import static com.powsybl.openrao.raoapi.RaoParametersCommons.*;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.PTDF_BOUNDARIES;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.RELATIVE_MARGINS_SECTION;
 
 /**
  * Extension : relative margin parameters for RAO

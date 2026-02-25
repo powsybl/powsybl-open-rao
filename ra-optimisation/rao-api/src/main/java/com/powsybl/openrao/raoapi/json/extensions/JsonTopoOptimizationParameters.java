@@ -57,7 +57,8 @@ final class JsonTopoOptimizationParameters {
                     jsonParser.nextToken();
                     searchTreeParameters.getTopoOptimizationParameters().setMaxCurativeSearchTreeDepth(jsonParser.getIntValue());
                 }
-                case PREDEFINED_COMBINATIONS -> searchTreeParameters.getTopoOptimizationParameters().setPredefinedCombinations(readListOfListOfString(jsonParser));
+                case PREDEFINED_COMBINATIONS ->
+                    searchTreeParameters.getTopoOptimizationParameters().setPredefinedCombinations(readListOfListOfString(jsonParser));
                 case SKIP_ACTIONS_FAR_FROM_MOST_LIMITING_ELEMENT -> {
                     jsonParser.nextToken();
                     searchTreeParameters.getTopoOptimizationParameters().setSkipActionsFarFromMostLimitingElement(jsonParser.getBooleanValue());
@@ -66,7 +67,11 @@ final class JsonTopoOptimizationParameters {
                     jsonParser.nextToken();
                     searchTreeParameters.getTopoOptimizationParameters().setMaxNumberOfBoundariesForSkippingActions(jsonParser.getIntValue());
                 }
-                default -> throw new OpenRaoException(String.format("Cannot deserialize topological optimization parameters: unexpected field in %s (%s)", TOPOLOGICAL_ACTIONS_OPTIMIZATION, jsonParser.getCurrentName()));
+                default -> throw new OpenRaoException(String.format(
+                    "Cannot deserialize topological optimization parameters: unexpected field in %s (%s)",
+                    TOPOLOGICAL_ACTIONS_OPTIMIZATION,
+                    jsonParser.getCurrentName())
+                );
             }
         }
     }

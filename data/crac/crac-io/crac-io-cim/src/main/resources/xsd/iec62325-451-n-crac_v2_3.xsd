@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<xs:schema xmlns:ecl="urn:entsoe.eu:wgedi:codelists" xmlns="urn:iec62325.351:tc57wg16:451-n:CRACdocument:2:3" xmlns:sawsdl="http://www.w3.org/ns/sawsdl" xmlns:cimp="http://www.iec.ch/cimprofile" xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="urn:iec62325.351:tc57wg16:451-n:CRACdocument:2:3" elementFormDefault="qualified" attributeFormDefault="unqualified">
+<xs:schema xmlns:ecl="urn:entsoe.eu:wgedi:codelists" xmlns="urn:iec62325.351:tc57wg16:451-n:CRACdocument:2:3"
+           xmlns:sawsdl="http://www.w3.org/ns/sawsdl"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="urn:iec62325.351:tc57wg16:451-n:CRACdocument:2:3" elementFormDefault="qualified"
+           attributeFormDefault="unqualified">
 	<xs:import namespace="urn:entsoe.eu:wgedi:codelists" schemaLocation="urn-entsoe-eu-wgedi-codelists.xsd"/>
 	<xs:element name="CRAC_MarketDocument" type="CRAC_MarketDocument"/>
 	<xs:simpleType name="ResourceID_String-base" sawsdl:modelReference="http://iec.ch/TC57/2013/CIM-schema-cim16#String">

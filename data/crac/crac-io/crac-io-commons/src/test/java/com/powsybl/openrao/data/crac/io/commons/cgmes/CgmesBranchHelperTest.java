@@ -34,7 +34,12 @@ class CgmesBranchHelperTest {
         Properties importParams = new Properties();
         importParams.put("iidm.import.cgmes.source-for-iidm-id", "rdfID");
         importParams.put("iidm.import.cgmes.cgm-with-subnetworks", false);
-        network = Network.read(Paths.get(new File(CgmesBranchHelperTest.class.getResource("/MicroGrid.zip").getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
+        network = Network.read(
+            Paths.get(new File(CgmesBranchHelperTest.class.getResource("/MicroGrid.zip").getFile()).toString()),
+            LocalComputationManager.getDefault(),
+            Suppliers.memoize(ImportConfig::load).get(),
+            importParams
+        );
     }
 
     @Test

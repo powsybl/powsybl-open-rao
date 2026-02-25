@@ -11,20 +11,16 @@ import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.CurrentLimits;
 import com.powsybl.iidm.network.LoadingLimits;
 import com.powsybl.iidm.network.TwoSides;
-import com.powsybl.openrao.data.crac.io.nc.parameters.NcCracCreationParameters;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.crac.impl.CracImplFactory;
+import com.powsybl.openrao.data.crac.io.nc.parameters.NcCracCreationParameters;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -68,154 +64,294 @@ class FlowCnecInstantHelperTest {
 
     @Test
     void mapPostContingencyInstantsAndLimitDurationsAndUsePatlInFinalState() {
-        assertEquals(buildInstantDurationMap(182, 300, 600, 1200, Integer.MAX_VALUE), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, true, true, true, true, true), TwoSides.TWO, "RTE"));
-        assertEquals(buildInstantDurationMap(182, 300, 600, Integer.MAX_VALUE, Integer.MAX_VALUE), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, true, true, true, true, false), TwoSides.TWO, "RTE"));
-        assertEquals(buildInstantDurationMap(182, 300, 600, 1200, Integer.MAX_VALUE), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, true, true, true, false, true), TwoSides.TWO, "RTE"));
-        assertEquals(buildInstantDurationMap(182, 300, 600, Integer.MAX_VALUE, Integer.MAX_VALUE), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, true, true, true, false, false), TwoSides.TWO, "RTE"));
-        assertEquals(buildInstantDurationMap(182, 300, 900, 1200, Integer.MAX_VALUE), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, true, true, false, true, true), TwoSides.TWO, "RTE"));
-        assertEquals(buildInstantDurationMap(182, 300, 900, Integer.MAX_VALUE, Integer.MAX_VALUE), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, true, true, false, true, false), TwoSides.TWO, "RTE"));
-        assertEquals(buildInstantDurationMap(182, 300, 1200, 1200, Integer.MAX_VALUE), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, true, true, false, false, true), TwoSides.TWO, "RTE"));
-        assertEquals(buildInstantDurationMap(182, 300, Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, true, true, false, false, false), TwoSides.TWO, "RTE"));
-        assertEquals(buildInstantDurationMap(182, 600, 600, 1200, Integer.MAX_VALUE), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, true, false, true, true, true), TwoSides.TWO, "RTE"));
-        assertEquals(buildInstantDurationMap(182, 600, 600, Integer.MAX_VALUE, Integer.MAX_VALUE), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, true, false, true, true, false), TwoSides.TWO, "RTE"));
-        assertEquals(buildInstantDurationMap(182, 600, 600, 1200, Integer.MAX_VALUE), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, true, false, true, false, true), TwoSides.TWO, "RTE"));
-        assertEquals(buildInstantDurationMap(182, 600, 600, Integer.MAX_VALUE, Integer.MAX_VALUE), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, true, false, true, false, false), TwoSides.TWO, "RTE"));
-        assertEquals(buildInstantDurationMap(182, 900, 900, 1200, Integer.MAX_VALUE), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, true, false, false, true, true), TwoSides.TWO, "RTE"));
-        assertEquals(buildInstantDurationMap(182, 900, 900, Integer.MAX_VALUE, Integer.MAX_VALUE), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, true, false, false, true, false), TwoSides.TWO, "RTE"));
-        assertEquals(buildInstantDurationMap(182, 1200, 1200, 1200, Integer.MAX_VALUE), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, true, false, false, false, true), TwoSides.TWO, "RTE"));
-        assertEquals(buildInstantDurationMap(182, Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, true, false, false, false, false), TwoSides.TWO, "RTE"));
-        assertEquals(buildInstantDurationMap(0, 300, 600, 1200, Integer.MAX_VALUE), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, false, true, true, true, true), TwoSides.TWO, "RTE"));
-        assertEquals(buildInstantDurationMap(0, 300, 600, Integer.MAX_VALUE, Integer.MAX_VALUE), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, false, true, true, true, false), TwoSides.TWO, "RTE"));
-        assertEquals(buildInstantDurationMap(0, 300, 600, 1200, Integer.MAX_VALUE), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, false, true, true, false, true), TwoSides.TWO, "RTE"));
-        assertEquals(buildInstantDurationMap(0, 300, 600, Integer.MAX_VALUE, Integer.MAX_VALUE), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, false, true, true, false, false), TwoSides.TWO, "RTE"));
-        assertEquals(buildInstantDurationMap(0, 300, 900, 1200, Integer.MAX_VALUE), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, false, true, false, true, true), TwoSides.TWO, "RTE"));
-        assertEquals(buildInstantDurationMap(0, 300, 900, Integer.MAX_VALUE, Integer.MAX_VALUE), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, false, true, false, true, false), TwoSides.TWO, "RTE"));
-        assertEquals(buildInstantDurationMap(0, 300, 1200, 1200, Integer.MAX_VALUE), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, false, true, false, false, true), TwoSides.TWO, "RTE"));
-        assertEquals(buildInstantDurationMap(0, 300, Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, false, true, false, false, false), TwoSides.TWO, "RTE"));
-        assertEquals(buildInstantDurationMap(0, 600, 600, 1200, Integer.MAX_VALUE), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, false, false, true, true, true), TwoSides.TWO, "RTE"));
-        assertEquals(buildInstantDurationMap(0, 600, 600, Integer.MAX_VALUE, Integer.MAX_VALUE), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, false, false, true, true, false), TwoSides.TWO, "RTE"));
-        assertEquals(buildInstantDurationMap(0, 600, 600, 1200, Integer.MAX_VALUE), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, false, false, true, false, true), TwoSides.TWO, "RTE"));
-        assertEquals(buildInstantDurationMap(0, 600, 600, Integer.MAX_VALUE, Integer.MAX_VALUE), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, false, false, true, false, false), TwoSides.TWO, "RTE"));
-        assertEquals(buildInstantDurationMap(0, 900, 900, 1200, Integer.MAX_VALUE), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, false, false, false, true, true), TwoSides.TWO, "RTE"));
-        assertEquals(buildInstantDurationMap(0, 900, 900, Integer.MAX_VALUE, Integer.MAX_VALUE), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, false, false, false, true, false), TwoSides.TWO, "RTE"));
-        assertEquals(buildInstantDurationMap(0, 1200, 1200, 1200, Integer.MAX_VALUE), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, false, false, false, false, true), TwoSides.TWO, "RTE"));
-        assertEquals(buildInstantDurationMap(0, Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, false, false, false, false, false), TwoSides.TWO, "RTE"));
-        assertEquals(buildInstantDurationMap(182, 300, 600, 1200, Integer.MAX_VALUE), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, true, true, true, true, true), TwoSides.TWO, "RTE"));
-        assertEquals(buildInstantDurationMap(182, 300, 600, Integer.MAX_VALUE, Integer.MAX_VALUE), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, true, true, true, true, false), TwoSides.TWO, "RTE"));
-        assertEquals(buildInstantDurationMap(182, 300, 600, 1200, Integer.MAX_VALUE), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, true, true, true, false, true), TwoSides.TWO, "RTE"));
-        assertEquals(buildInstantDurationMap(182, 300, 600, Integer.MAX_VALUE, Integer.MAX_VALUE), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, true, true, true, false, false), TwoSides.TWO, "RTE"));
-        assertEquals(buildInstantDurationMap(182, 300, 900, 1200, Integer.MAX_VALUE), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, true, true, false, true, true), TwoSides.TWO, "RTE"));
-        assertEquals(buildInstantDurationMap(182, 300, 900, Integer.MAX_VALUE, Integer.MAX_VALUE), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, true, true, false, true, false), TwoSides.TWO, "RTE"));
-        assertEquals(buildInstantDurationMap(182, 300, 1200, 1200, Integer.MAX_VALUE), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, true, true, false, false, true), TwoSides.TWO, "RTE"));
-        assertEquals(buildInstantDurationMap(182, 300, Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, true, true, false, false, false), TwoSides.TWO, "RTE"));
-        assertEquals(buildInstantDurationMap(182, 600, 600, 1200, Integer.MAX_VALUE), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, true, false, true, true, true), TwoSides.TWO, "RTE"));
-        assertEquals(buildInstantDurationMap(182, 600, 600, Integer.MAX_VALUE, Integer.MAX_VALUE), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, true, false, true, true, false), TwoSides.TWO, "RTE"));
-        assertEquals(buildInstantDurationMap(182, 600, 600, 1200, Integer.MAX_VALUE), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, true, false, true, false, true), TwoSides.TWO, "RTE"));
-        assertEquals(buildInstantDurationMap(182, 600, 600, Integer.MAX_VALUE, Integer.MAX_VALUE), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, true, false, true, false, false), TwoSides.TWO, "RTE"));
-        assertEquals(buildInstantDurationMap(182, 900, 900, 1200, Integer.MAX_VALUE), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, true, false, false, true, true), TwoSides.TWO, "RTE"));
-        assertEquals(buildInstantDurationMap(182, 900, 900, Integer.MAX_VALUE, Integer.MAX_VALUE), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, true, false, false, true, false), TwoSides.TWO, "RTE"));
-        assertEquals(buildInstantDurationMap(182, 1200, 1200, 1200, Integer.MAX_VALUE), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, true, false, false, false, true), TwoSides.TWO, "RTE"));
-        assertEquals(buildInstantDurationMap(182, Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, true, false, false, false, false), TwoSides.TWO, "RTE"));
-        assertEquals(buildInstantDurationMap(300, 300, 600, 1200, Integer.MAX_VALUE), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, false, true, true, true, true), TwoSides.TWO, "RTE"));
-        assertEquals(buildInstantDurationMap(300, 300, 600, Integer.MAX_VALUE, Integer.MAX_VALUE), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, false, true, true, true, false), TwoSides.TWO, "RTE"));
-        assertEquals(buildInstantDurationMap(300, 300, 600, 1200, Integer.MAX_VALUE), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, false, true, true, false, true), TwoSides.TWO, "RTE"));
-        assertEquals(buildInstantDurationMap(300, 300, 600, Integer.MAX_VALUE, Integer.MAX_VALUE), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, false, true, true, false, false), TwoSides.TWO, "RTE"));
-        assertEquals(buildInstantDurationMap(300, 300, 900, 1200, Integer.MAX_VALUE), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, false, true, false, true, true), TwoSides.TWO, "RTE"));
-        assertEquals(buildInstantDurationMap(300, 300, 900, Integer.MAX_VALUE, Integer.MAX_VALUE), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, false, true, false, true, false), TwoSides.TWO, "RTE"));
-        assertEquals(buildInstantDurationMap(300, 300, 1200, 1200, Integer.MAX_VALUE), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, false, true, false, false, true), TwoSides.TWO, "RTE"));
-        assertEquals(buildInstantDurationMap(300, 300, Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, false, true, false, false, false), TwoSides.TWO, "RTE"));
-        assertEquals(buildInstantDurationMap(600, 600, 600, 1200, Integer.MAX_VALUE), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, false, false, true, true, true), TwoSides.TWO, "RTE"));
-        assertEquals(buildInstantDurationMap(600, 600, 600, Integer.MAX_VALUE, Integer.MAX_VALUE), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, false, false, true, true, false), TwoSides.TWO, "RTE"));
-        assertEquals(buildInstantDurationMap(600, 600, 600, 1200, Integer.MAX_VALUE), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, false, false, true, false, true), TwoSides.TWO, "RTE"));
-        assertEquals(buildInstantDurationMap(600, 600, 600, Integer.MAX_VALUE, Integer.MAX_VALUE), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, false, false, true, false, false), TwoSides.TWO, "RTE"));
-        assertEquals(buildInstantDurationMap(900, 900, 900, 1200, Integer.MAX_VALUE), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, false, false, false, true, true), TwoSides.TWO, "RTE"));
-        assertEquals(buildInstantDurationMap(900, 900, 900, Integer.MAX_VALUE, Integer.MAX_VALUE), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, false, false, false, true, false), TwoSides.TWO, "RTE"));
-        assertEquals(buildInstantDurationMap(1200, 1200, 1200, 1200, Integer.MAX_VALUE), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, false, false, false, false, true), TwoSides.TWO, "RTE"));
-        assertEquals(buildInstantDurationMap(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, false, false, false, false, false), TwoSides.TWO, "RTE"));
+        assertEquals(buildInstantDurationMap(182, 300, 600, 1200, Integer.MAX_VALUE),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, true, true, true, true, true), TwoSides.TWO, "RTE"));
+        assertEquals(buildInstantDurationMap(182, 300, 600, Integer.MAX_VALUE, Integer.MAX_VALUE),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, true, true, true, true, false), TwoSides.TWO, "RTE"));
+        assertEquals(buildInstantDurationMap(182, 300, 600, 1200, Integer.MAX_VALUE),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, true, true, true, false, true), TwoSides.TWO, "RTE"));
+        assertEquals(buildInstantDurationMap(182, 300, 600, Integer.MAX_VALUE, Integer.MAX_VALUE),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, true, true, true, false, false), TwoSides.TWO, "RTE"));
+        assertEquals(buildInstantDurationMap(182, 300, 900, 1200, Integer.MAX_VALUE),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, true, true, false, true, true), TwoSides.TWO, "RTE"));
+        assertEquals(buildInstantDurationMap(182, 300, 900, Integer.MAX_VALUE, Integer.MAX_VALUE),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, true, true, false, true, false), TwoSides.TWO, "RTE"));
+        assertEquals(buildInstantDurationMap(182, 300, 1200, 1200, Integer.MAX_VALUE),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, true, true, false, false, true), TwoSides.TWO, "RTE"));
+        assertEquals(buildInstantDurationMap(182, 300, Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, true, true, false, false, false), TwoSides.TWO, "RTE"));
+        assertEquals(buildInstantDurationMap(182, 600, 600, 1200, Integer.MAX_VALUE),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, true, false, true, true, true), TwoSides.TWO, "RTE"));
+        assertEquals(buildInstantDurationMap(182, 600, 600, Integer.MAX_VALUE, Integer.MAX_VALUE),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, true, false, true, true, false), TwoSides.TWO, "RTE"));
+        assertEquals(buildInstantDurationMap(182, 600, 600, 1200, Integer.MAX_VALUE),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, true, false, true, false, true), TwoSides.TWO, "RTE"));
+        assertEquals(buildInstantDurationMap(182, 600, 600, Integer.MAX_VALUE, Integer.MAX_VALUE),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, true, false, true, false, false), TwoSides.TWO, "RTE"));
+        assertEquals(buildInstantDurationMap(182, 900, 900, 1200, Integer.MAX_VALUE),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, true, false, false, true, true), TwoSides.TWO, "RTE"));
+        assertEquals(buildInstantDurationMap(182, 900, 900, Integer.MAX_VALUE, Integer.MAX_VALUE),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, true, false, false, true, false), TwoSides.TWO, "RTE"));
+        assertEquals(buildInstantDurationMap(182, 1200, 1200, 1200, Integer.MAX_VALUE),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, true, false, false, false, true), TwoSides.TWO, "RTE"));
+        assertEquals(buildInstantDurationMap(182, Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, true, false, false, false, false), TwoSides.TWO, "RTE"));
+        assertEquals(buildInstantDurationMap(0, 300, 600, 1200, Integer.MAX_VALUE),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, false, true, true, true, true), TwoSides.TWO, "RTE"));
+        assertEquals(buildInstantDurationMap(0, 300, 600, Integer.MAX_VALUE, Integer.MAX_VALUE),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, false, true, true, true, false), TwoSides.TWO, "RTE"));
+        assertEquals(buildInstantDurationMap(0, 300, 600, 1200, Integer.MAX_VALUE),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, false, true, true, false, true), TwoSides.TWO, "RTE"));
+        assertEquals(buildInstantDurationMap(0, 300, 600, Integer.MAX_VALUE, Integer.MAX_VALUE),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, false, true, true, false, false), TwoSides.TWO, "RTE"));
+        assertEquals(buildInstantDurationMap(0, 300, 900, 1200, Integer.MAX_VALUE),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, false, true, false, true, true), TwoSides.TWO, "RTE"));
+        assertEquals(buildInstantDurationMap(0, 300, 900, Integer.MAX_VALUE, Integer.MAX_VALUE),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, false, true, false, true, false), TwoSides.TWO, "RTE"));
+        assertEquals(buildInstantDurationMap(0, 300, 1200, 1200, Integer.MAX_VALUE),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, false, true, false, false, true), TwoSides.TWO, "RTE"));
+        assertEquals(buildInstantDurationMap(0, 300, Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, false, true, false, false, false), TwoSides.TWO, "RTE"));
+        assertEquals(buildInstantDurationMap(0, 600, 600, 1200, Integer.MAX_VALUE),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, false, false, true, true, true), TwoSides.TWO, "RTE"));
+        assertEquals(buildInstantDurationMap(0, 600, 600, Integer.MAX_VALUE, Integer.MAX_VALUE),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, false, false, true, true, false), TwoSides.TWO, "RTE"));
+        assertEquals(buildInstantDurationMap(0, 600, 600, 1200, Integer.MAX_VALUE),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, false, false, true, false, true), TwoSides.TWO, "RTE"));
+        assertEquals(buildInstantDurationMap(0, 600, 600, Integer.MAX_VALUE, Integer.MAX_VALUE),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, false, false, true, false, false), TwoSides.TWO, "RTE"));
+        assertEquals(buildInstantDurationMap(0, 900, 900, 1200, Integer.MAX_VALUE),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, false, false, false, true, true), TwoSides.TWO, "RTE"));
+        assertEquals(buildInstantDurationMap(0, 900, 900, Integer.MAX_VALUE, Integer.MAX_VALUE),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, false, false, false, true, false), TwoSides.TWO, "RTE"));
+        assertEquals(buildInstantDurationMap(0, 1200, 1200, 1200, Integer.MAX_VALUE),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, false, false, false, false, true), TwoSides.TWO, "RTE"));
+        assertEquals(buildInstantDurationMap(0, Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, false, false, false, false, false), TwoSides.TWO, "RTE"));
+        assertEquals(buildInstantDurationMap(182, 300, 600, 1200, Integer.MAX_VALUE),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, true, true, true, true, true), TwoSides.TWO, "RTE"));
+        assertEquals(buildInstantDurationMap(182, 300, 600, Integer.MAX_VALUE, Integer.MAX_VALUE),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, true, true, true, true, false), TwoSides.TWO, "RTE"));
+        assertEquals(buildInstantDurationMap(182, 300, 600, 1200, Integer.MAX_VALUE),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, true, true, true, false, true), TwoSides.TWO, "RTE"));
+        assertEquals(buildInstantDurationMap(182, 300, 600, Integer.MAX_VALUE, Integer.MAX_VALUE),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, true, true, true, false, false), TwoSides.TWO, "RTE"));
+        assertEquals(buildInstantDurationMap(182, 300, 900, 1200, Integer.MAX_VALUE),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, true, true, false, true, true), TwoSides.TWO, "RTE"));
+        assertEquals(buildInstantDurationMap(182, 300, 900, Integer.MAX_VALUE, Integer.MAX_VALUE),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, true, true, false, true, false), TwoSides.TWO, "RTE"));
+        assertEquals(buildInstantDurationMap(182, 300, 1200, 1200, Integer.MAX_VALUE),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, true, true, false, false, true), TwoSides.TWO, "RTE"));
+        assertEquals(buildInstantDurationMap(182, 300, Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, true, true, false, false, false), TwoSides.TWO, "RTE"));
+        assertEquals(buildInstantDurationMap(182, 600, 600, 1200, Integer.MAX_VALUE),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, true, false, true, true, true), TwoSides.TWO, "RTE"));
+        assertEquals(buildInstantDurationMap(182, 600, 600, Integer.MAX_VALUE, Integer.MAX_VALUE),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, true, false, true, true, false), TwoSides.TWO, "RTE"));
+        assertEquals(buildInstantDurationMap(182, 600, 600, 1200, Integer.MAX_VALUE),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, true, false, true, false, true), TwoSides.TWO, "RTE"));
+        assertEquals(buildInstantDurationMap(182, 600, 600, Integer.MAX_VALUE, Integer.MAX_VALUE),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, true, false, true, false, false), TwoSides.TWO, "RTE"));
+        assertEquals(buildInstantDurationMap(182, 900, 900, 1200, Integer.MAX_VALUE),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, true, false, false, true, true), TwoSides.TWO, "RTE"));
+        assertEquals(buildInstantDurationMap(182, 900, 900, Integer.MAX_VALUE, Integer.MAX_VALUE),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, true, false, false, true, false), TwoSides.TWO, "RTE"));
+        assertEquals(buildInstantDurationMap(182, 1200, 1200, 1200, Integer.MAX_VALUE),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, true, false, false, false, true), TwoSides.TWO, "RTE"));
+        assertEquals(buildInstantDurationMap(182, Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, true, false, false, false, false), TwoSides.TWO, "RTE"));
+        assertEquals(buildInstantDurationMap(300, 300, 600, 1200, Integer.MAX_VALUE),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, false, true, true, true, true), TwoSides.TWO, "RTE"));
+        assertEquals(buildInstantDurationMap(300, 300, 600, Integer.MAX_VALUE, Integer.MAX_VALUE),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, false, true, true, true, false), TwoSides.TWO, "RTE"));
+        assertEquals(buildInstantDurationMap(300, 300, 600, 1200, Integer.MAX_VALUE),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, false, true, true, false, true), TwoSides.TWO, "RTE"));
+        assertEquals(buildInstantDurationMap(300, 300, 600, Integer.MAX_VALUE, Integer.MAX_VALUE),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, false, true, true, false, false), TwoSides.TWO, "RTE"));
+        assertEquals(buildInstantDurationMap(300, 300, 900, 1200, Integer.MAX_VALUE),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, false, true, false, true, true), TwoSides.TWO, "RTE"));
+        assertEquals(buildInstantDurationMap(300, 300, 900, Integer.MAX_VALUE, Integer.MAX_VALUE),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, false, true, false, true, false), TwoSides.TWO, "RTE"));
+        assertEquals(buildInstantDurationMap(300, 300, 1200, 1200, Integer.MAX_VALUE),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, false, true, false, false, true), TwoSides.TWO, "RTE"));
+        assertEquals(buildInstantDurationMap(300, 300, Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, false, true, false, false, false), TwoSides.TWO, "RTE"));
+        assertEquals(buildInstantDurationMap(600, 600, 600, 1200, Integer.MAX_VALUE),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, false, false, true, true, true), TwoSides.TWO, "RTE"));
+        assertEquals(buildInstantDurationMap(600, 600, 600, Integer.MAX_VALUE, Integer.MAX_VALUE),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, false, false, true, true, false), TwoSides.TWO, "RTE"));
+        assertEquals(buildInstantDurationMap(600, 600, 600, 1200, Integer.MAX_VALUE),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, false, false, true, false, true), TwoSides.TWO, "RTE"));
+        assertEquals(buildInstantDurationMap(600, 600, 600, Integer.MAX_VALUE, Integer.MAX_VALUE),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, false, false, true, false, false), TwoSides.TWO, "RTE"));
+        assertEquals(buildInstantDurationMap(900, 900, 900, 1200, Integer.MAX_VALUE),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, false, false, false, true, true), TwoSides.TWO, "RTE"));
+        assertEquals(buildInstantDurationMap(900, 900, 900, Integer.MAX_VALUE, Integer.MAX_VALUE),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, false, false, false, true, false), TwoSides.TWO, "RTE"));
+        assertEquals(buildInstantDurationMap(1200, 1200, 1200, 1200, Integer.MAX_VALUE),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, false, false, false, false, true), TwoSides.TWO, "RTE"));
+        assertEquals(buildInstantDurationMap(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, false, false, false, false, false), TwoSides.TWO, "RTE"));
     }
 
     @Test
     void mapPostContingencyInstantsAndLimitDurationsAndDoNotUsePatlInFinalState() {
-        assertEquals(buildInstantDurationMap(182, 300, 600, 1200, 1200), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, true, true, true, true, true), TwoSides.TWO, "REE"));
-        assertEquals(buildInstantDurationMap(182, 300, 600, 900, 900), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, true, true, true, true, false), TwoSides.TWO, "REE"));
-        assertEquals(buildInstantDurationMap(182, 300, 600, 1200, 1200), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, true, true, true, false, true), TwoSides.TWO, "REE"));
-        assertEquals(buildInstantDurationMap(182, 300, 600, 600, 600), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, true, true, true, false, false), TwoSides.TWO, "REE"));
-        assertEquals(buildInstantDurationMap(182, 300, 900, 1200, 1200), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, true, true, false, true, true), TwoSides.TWO, "REE"));
-        assertEquals(buildInstantDurationMap(182, 300, 900, 900, 900), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, true, true, false, true, false), TwoSides.TWO, "REE"));
-        assertEquals(buildInstantDurationMap(182, 300, 1200, 1200, 1200), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, true, true, false, false, true), TwoSides.TWO, "REE"));
-        assertEquals(buildInstantDurationMap(182, 300, 300, 300, 300), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, true, true, false, false, false), TwoSides.TWO, "REE"));
-        assertEquals(buildInstantDurationMap(182, 600, 600, 1200, 1200), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, true, false, true, true, true), TwoSides.TWO, "REE"));
-        assertEquals(buildInstantDurationMap(182, 600, 600, 900, 900), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, true, false, true, true, false), TwoSides.TWO, "REE"));
-        assertEquals(buildInstantDurationMap(182, 600, 600, 1200, 1200), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, true, false, true, false, true), TwoSides.TWO, "REE"));
-        assertEquals(buildInstantDurationMap(182, 600, 600, 600, 600), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, true, false, true, false, false), TwoSides.TWO, "REE"));
-        assertEquals(buildInstantDurationMap(182, 900, 900, 1200, 1200), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, true, false, false, true, true), TwoSides.TWO, "REE"));
-        assertEquals(buildInstantDurationMap(182, 900, 900, 900, 900), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, true, false, false, true, false), TwoSides.TWO, "REE"));
-        assertEquals(buildInstantDurationMap(182, 1200, 1200, 1200, 1200), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, true, false, false, false, true), TwoSides.TWO, "REE"));
-        assertEquals(buildInstantDurationMap(182, 182, 182, 182, 182), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, true, false, false, false, false), TwoSides.TWO, "REE"));
-        assertEquals(buildInstantDurationMap(0, 300, 600, 1200, 1200), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, false, true, true, true, true), TwoSides.TWO, "REE"));
-        assertEquals(buildInstantDurationMap(0, 300, 600, 900, 900), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, false, true, true, true, false), TwoSides.TWO, "REE"));
-        assertEquals(buildInstantDurationMap(0, 300, 600, 1200, 1200), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, false, true, true, false, true), TwoSides.TWO, "REE"));
-        assertEquals(buildInstantDurationMap(0, 300, 600, 600, 600), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, false, true, true, false, false), TwoSides.TWO, "REE"));
-        assertEquals(buildInstantDurationMap(0, 300, 900, 1200, 1200), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, false, true, false, true, true), TwoSides.TWO, "REE"));
-        assertEquals(buildInstantDurationMap(0, 300, 900, 900, 900), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, false, true, false, true, false), TwoSides.TWO, "REE"));
-        assertEquals(buildInstantDurationMap(0, 300, 1200, 1200, 1200), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, false, true, false, false, true), TwoSides.TWO, "REE"));
-        assertEquals(buildInstantDurationMap(0, 300, 300, 300, 300), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, false, true, false, false, false), TwoSides.TWO, "REE"));
-        assertEquals(buildInstantDurationMap(0, 600, 600, 1200, 1200), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, false, false, true, true, true), TwoSides.TWO, "REE"));
-        assertEquals(buildInstantDurationMap(0, 600, 600, 900, 900), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, false, false, true, true, false), TwoSides.TWO, "REE"));
-        assertEquals(buildInstantDurationMap(0, 600, 600, 1200, 1200), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, false, false, true, false, true), TwoSides.TWO, "REE"));
-        assertEquals(buildInstantDurationMap(0, 600, 600, 600, 600), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, false, false, true, false, false), TwoSides.TWO, "REE"));
-        assertEquals(buildInstantDurationMap(0, 900, 900, 1200, 1200), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, false, false, false, true, true), TwoSides.TWO, "REE"));
-        assertEquals(buildInstantDurationMap(0, 900, 900, 900, 900), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, false, false, false, true, false), TwoSides.TWO, "REE"));
-        assertEquals(buildInstantDurationMap(0, 1200, 1200, 1200, 1200), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, false, false, false, false, true), TwoSides.TWO, "REE"));
-        assertEquals(buildInstantDurationMap(0, 0, 0, 0, 0), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, false, false, false, false, false), TwoSides.TWO, "REE"));
-        assertEquals(buildInstantDurationMap(182, 300, 600, 1200, 1200), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, true, true, true, true, true), TwoSides.TWO, "REE"));
-        assertEquals(buildInstantDurationMap(182, 300, 600, 900, 900), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, true, true, true, true, false), TwoSides.TWO, "REE"));
-        assertEquals(buildInstantDurationMap(182, 300, 600, 1200, 1200), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, true, true, true, false, true), TwoSides.TWO, "REE"));
-        assertEquals(buildInstantDurationMap(182, 300, 600, 600, 600), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, true, true, true, false, false), TwoSides.TWO, "REE"));
-        assertEquals(buildInstantDurationMap(182, 300, 900, 1200, 1200), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, true, true, false, true, true), TwoSides.TWO, "REE"));
-        assertEquals(buildInstantDurationMap(182, 300, 900, 900, 900), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, true, true, false, true, false), TwoSides.TWO, "REE"));
-        assertEquals(buildInstantDurationMap(182, 300, 1200, 1200, 1200), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, true, true, false, false, true), TwoSides.TWO, "REE"));
-        assertEquals(buildInstantDurationMap(182, 300, 300, 300, 300), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, true, true, false, false, false), TwoSides.TWO, "REE"));
-        assertEquals(buildInstantDurationMap(182, 600, 600, 1200, 1200), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, true, false, true, true, true), TwoSides.TWO, "REE"));
-        assertEquals(buildInstantDurationMap(182, 600, 600, 900, 900), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, true, false, true, true, false), TwoSides.TWO, "REE"));
-        assertEquals(buildInstantDurationMap(182, 600, 600, 1200, 1200), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, true, false, true, false, true), TwoSides.TWO, "REE"));
-        assertEquals(buildInstantDurationMap(182, 600, 600, 600, 600), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, true, false, true, false, false), TwoSides.TWO, "REE"));
-        assertEquals(buildInstantDurationMap(182, 900, 900, 1200, 1200), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, true, false, false, true, true), TwoSides.TWO, "REE"));
-        assertEquals(buildInstantDurationMap(182, 900, 900, 900, 900), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, true, false, false, true, false), TwoSides.TWO, "REE"));
-        assertEquals(buildInstantDurationMap(182, 1200, 1200, 1200, 1200), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, true, false, false, false, true), TwoSides.TWO, "REE"));
-        assertEquals(buildInstantDurationMap(182, 182, 182, 182, 182), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, true, false, false, false, false), TwoSides.TWO, "REE"));
-        assertEquals(buildInstantDurationMap(300, 300, 600, 1200, 1200), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, false, true, true, true, true), TwoSides.TWO, "REE"));
-        assertEquals(buildInstantDurationMap(300, 300, 600, 900, 900), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, false, true, true, true, false), TwoSides.TWO, "REE"));
-        assertEquals(buildInstantDurationMap(300, 300, 600, 1200, 1200), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, false, true, true, false, true), TwoSides.TWO, "REE"));
-        assertEquals(buildInstantDurationMap(300, 300, 600, 600, 600), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, false, true, true, false, false), TwoSides.TWO, "REE"));
-        assertEquals(buildInstantDurationMap(300, 300, 900, 1200, 1200), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, false, true, false, true, true), TwoSides.TWO, "REE"));
-        assertEquals(buildInstantDurationMap(300, 300, 900, 900, 900), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, false, true, false, true, false), TwoSides.TWO, "REE"));
-        assertEquals(buildInstantDurationMap(300, 300, 1200, 1200, 1200), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, false, true, false, false, true), TwoSides.TWO, "REE"));
-        assertEquals(buildInstantDurationMap(300, 300, 300, 300, 300), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, false, true, false, false, false), TwoSides.TWO, "REE"));
-        assertEquals(buildInstantDurationMap(600, 600, 600, 1200, 1200), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, false, false, true, true, true), TwoSides.TWO, "REE"));
-        assertEquals(buildInstantDurationMap(600, 600, 600, 900, 900), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, false, false, true, true, false), TwoSides.TWO, "REE"));
-        assertEquals(buildInstantDurationMap(600, 600, 600, 1200, 1200), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, false, false, true, false, true), TwoSides.TWO, "REE"));
-        assertEquals(buildInstantDurationMap(600, 600, 600, 600, 600), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, false, false, true, false, false), TwoSides.TWO, "REE"));
-        assertEquals(buildInstantDurationMap(900, 900, 900, 1200, 1200), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, false, false, false, true, true), TwoSides.TWO, "REE"));
-        assertEquals(buildInstantDurationMap(900, 900, 900, 900, 900), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, false, false, false, true, false), TwoSides.TWO, "REE"));
-        assertEquals(buildInstantDurationMap(1200, 1200, 1200, 1200, 1200), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, false, false, false, false, true), TwoSides.TWO, "REE"));
-        assertEquals(buildInstantDurationMap(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE), helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, false, false, false, false, false), TwoSides.TWO, "REE"));
+        assertEquals(buildInstantDurationMap(182, 300, 600, 1200, 1200),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, true, true, true, true, true), TwoSides.TWO, "REE"));
+        assertEquals(buildInstantDurationMap(182, 300, 600, 900, 900),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, true, true, true, true, false), TwoSides.TWO, "REE"));
+        assertEquals(buildInstantDurationMap(182, 300, 600, 1200, 1200),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, true, true, true, false, true), TwoSides.TWO, "REE"));
+        assertEquals(buildInstantDurationMap(182, 300, 600, 600, 600),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, true, true, true, false, false), TwoSides.TWO, "REE"));
+        assertEquals(buildInstantDurationMap(182, 300, 900, 1200, 1200),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, true, true, false, true, true), TwoSides.TWO, "REE"));
+        assertEquals(buildInstantDurationMap(182, 300, 900, 900, 900),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, true, true, false, true, false), TwoSides.TWO, "REE"));
+        assertEquals(buildInstantDurationMap(182, 300, 1200, 1200, 1200),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, true, true, false, false, true), TwoSides.TWO, "REE"));
+        assertEquals(buildInstantDurationMap(182, 300, 300, 300, 300),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, true, true, false, false, false), TwoSides.TWO, "REE"));
+        assertEquals(buildInstantDurationMap(182, 600, 600, 1200, 1200),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, true, false, true, true, true), TwoSides.TWO, "REE"));
+        assertEquals(buildInstantDurationMap(182, 600, 600, 900, 900),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, true, false, true, true, false), TwoSides.TWO, "REE"));
+        assertEquals(buildInstantDurationMap(182, 600, 600, 1200, 1200),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, true, false, true, false, true), TwoSides.TWO, "REE"));
+        assertEquals(buildInstantDurationMap(182, 600, 600, 600, 600),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, true, false, true, false, false), TwoSides.TWO, "REE"));
+        assertEquals(buildInstantDurationMap(182, 900, 900, 1200, 1200),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, true, false, false, true, true), TwoSides.TWO, "REE"));
+        assertEquals(buildInstantDurationMap(182, 900, 900, 900, 900),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, true, false, false, true, false), TwoSides.TWO, "REE"));
+        assertEquals(buildInstantDurationMap(182, 1200, 1200, 1200, 1200),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, true, false, false, false, true), TwoSides.TWO, "REE"));
+        assertEquals(buildInstantDurationMap(182, 182, 182, 182, 182),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, true, false, false, false, false), TwoSides.TWO, "REE"));
+        assertEquals(buildInstantDurationMap(0, 300, 600, 1200, 1200),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, false, true, true, true, true), TwoSides.TWO, "REE"));
+        assertEquals(buildInstantDurationMap(0, 300, 600, 900, 900),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, false, true, true, true, false), TwoSides.TWO, "REE"));
+        assertEquals(buildInstantDurationMap(0, 300, 600, 1200, 1200),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, false, true, true, false, true), TwoSides.TWO, "REE"));
+        assertEquals(buildInstantDurationMap(0, 300, 600, 600, 600),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, false, true, true, false, false), TwoSides.TWO, "REE"));
+        assertEquals(buildInstantDurationMap(0, 300, 900, 1200, 1200),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, false, true, false, true, true), TwoSides.TWO, "REE"));
+        assertEquals(buildInstantDurationMap(0, 300, 900, 900, 900),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, false, true, false, true, false), TwoSides.TWO, "REE"));
+        assertEquals(buildInstantDurationMap(0, 300, 1200, 1200, 1200),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, false, true, false, false, true), TwoSides.TWO, "REE"));
+        assertEquals(buildInstantDurationMap(0, 300, 300, 300, 300),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, false, true, false, false, false), TwoSides.TWO, "REE"));
+        assertEquals(buildInstantDurationMap(0, 600, 600, 1200, 1200),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, false, false, true, true, true), TwoSides.TWO, "REE"));
+        assertEquals(buildInstantDurationMap(0, 600, 600, 900, 900),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, false, false, true, true, false), TwoSides.TWO, "REE"));
+        assertEquals(buildInstantDurationMap(0, 600, 600, 1200, 1200),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, false, false, true, false, true), TwoSides.TWO, "REE"));
+        assertEquals(buildInstantDurationMap(0, 600, 600, 600, 600),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, false, false, true, false, false), TwoSides.TWO, "REE"));
+        assertEquals(buildInstantDurationMap(0, 900, 900, 1200, 1200),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, false, false, false, true, true), TwoSides.TWO, "REE"));
+        assertEquals(buildInstantDurationMap(0, 900, 900, 900, 900),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, false, false, false, true, false), TwoSides.TWO, "REE"));
+        assertEquals(buildInstantDurationMap(0, 1200, 1200, 1200, 1200),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, false, false, false, false, true), TwoSides.TWO, "REE"));
+        assertEquals(buildInstantDurationMap(0, 0, 0, 0, 0),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, true, false, false, false, false, false), TwoSides.TWO, "REE"));
+        assertEquals(buildInstantDurationMap(182, 300, 600, 1200, 1200),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, true, true, true, true, true), TwoSides.TWO, "REE"));
+        assertEquals(buildInstantDurationMap(182, 300, 600, 900, 900),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, true, true, true, true, false), TwoSides.TWO, "REE"));
+        assertEquals(buildInstantDurationMap(182, 300, 600, 1200, 1200),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, true, true, true, false, true), TwoSides.TWO, "REE"));
+        assertEquals(buildInstantDurationMap(182, 300, 600, 600, 600),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, true, true, true, false, false), TwoSides.TWO, "REE"));
+        assertEquals(buildInstantDurationMap(182, 300, 900, 1200, 1200),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, true, true, false, true, true), TwoSides.TWO, "REE"));
+        assertEquals(buildInstantDurationMap(182, 300, 900, 900, 900),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, true, true, false, true, false), TwoSides.TWO, "REE"));
+        assertEquals(buildInstantDurationMap(182, 300, 1200, 1200, 1200),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, true, true, false, false, true), TwoSides.TWO, "REE"));
+        assertEquals(buildInstantDurationMap(182, 300, 300, 300, 300),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, true, true, false, false, false), TwoSides.TWO, "REE"));
+        assertEquals(buildInstantDurationMap(182, 600, 600, 1200, 1200),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, true, false, true, true, true), TwoSides.TWO, "REE"));
+        assertEquals(buildInstantDurationMap(182, 600, 600, 900, 900),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, true, false, true, true, false), TwoSides.TWO, "REE"));
+        assertEquals(buildInstantDurationMap(182, 600, 600, 1200, 1200),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, true, false, true, false, true), TwoSides.TWO, "REE"));
+        assertEquals(buildInstantDurationMap(182, 600, 600, 600, 600),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, true, false, true, false, false), TwoSides.TWO, "REE"));
+        assertEquals(buildInstantDurationMap(182, 900, 900, 1200, 1200),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, true, false, false, true, true), TwoSides.TWO, "REE"));
+        assertEquals(buildInstantDurationMap(182, 900, 900, 900, 900),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, true, false, false, true, false), TwoSides.TWO, "REE"));
+        assertEquals(buildInstantDurationMap(182, 1200, 1200, 1200, 1200),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, true, false, false, false, true), TwoSides.TWO, "REE"));
+        assertEquals(buildInstantDurationMap(182, 182, 182, 182, 182),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, true, false, false, false, false), TwoSides.TWO, "REE"));
+        assertEquals(buildInstantDurationMap(300, 300, 600, 1200, 1200),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, false, true, true, true, true), TwoSides.TWO, "REE"));
+        assertEquals(buildInstantDurationMap(300, 300, 600, 900, 900),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, false, true, true, true, false), TwoSides.TWO, "REE"));
+        assertEquals(buildInstantDurationMap(300, 300, 600, 1200, 1200),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, false, true, true, false, true), TwoSides.TWO, "REE"));
+        assertEquals(buildInstantDurationMap(300, 300, 600, 600, 600),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, false, true, true, false, false), TwoSides.TWO, "REE"));
+        assertEquals(buildInstantDurationMap(300, 300, 900, 1200, 1200),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, false, true, false, true, true), TwoSides.TWO, "REE"));
+        assertEquals(buildInstantDurationMap(300, 300, 900, 900, 900),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, false, true, false, true, false), TwoSides.TWO, "REE"));
+        assertEquals(buildInstantDurationMap(300, 300, 1200, 1200, 1200),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, false, true, false, false, true), TwoSides.TWO, "REE"));
+        assertEquals(buildInstantDurationMap(300, 300, 300, 300, 300),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, false, true, false, false, false), TwoSides.TWO, "REE"));
+        assertEquals(buildInstantDurationMap(600, 600, 600, 1200, 1200),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, false, false, true, true, true), TwoSides.TWO, "REE"));
+        assertEquals(buildInstantDurationMap(600, 600, 600, 900, 900),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, false, false, true, true, false), TwoSides.TWO, "REE"));
+        assertEquals(buildInstantDurationMap(600, 600, 600, 1200, 1200),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, false, false, true, false, true), TwoSides.TWO, "REE"));
+        assertEquals(buildInstantDurationMap(600, 600, 600, 600, 600),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, false, false, true, false, false), TwoSides.TWO, "REE"));
+        assertEquals(buildInstantDurationMap(900, 900, 900, 1200, 1200),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, false, false, false, true, true), TwoSides.TWO, "REE"));
+        assertEquals(buildInstantDurationMap(900, 900, 900, 900, 900),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, false, false, false, true, false), TwoSides.TWO, "REE"));
+        assertEquals(buildInstantDurationMap(1200, 1200, 1200, 1200, 1200),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, false, false, false, false, true), TwoSides.TWO, "REE"));
+        assertEquals(buildInstantDurationMap(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE),
+                     helper.mapPostContingencyInstantsAndLimitDurations(createBranchWithTatlsOnSide(TwoSides.TWO, false, false, false, false, false, false), TwoSides.TWO, "REE"));
     }
 
     @Test
     void tatlToInstantMapWithRealData() {
         // REE
         Branch<?> reeBranch = createBranchWithTatlsOnSide(TwoSides.TWO, false, false, false, false, true, false);
-        assertEquals(buildInstantDurationMap(900, 900, 900, 900, 900), helper.mapPostContingencyInstantsAndLimitDurations(reeBranch, TwoSides.TWO, "REE"));
+        assertEquals(
+            buildInstantDurationMap(900, 900, 900, 900, 900),
+            helper.mapPostContingencyInstantsAndLimitDurations(reeBranch, TwoSides.TWO, "REE")
+        );
         // REN
         Branch<?> renBranch = createBranchWithTatlsOnSide(TwoSides.TWO, false, false, false, false, true, false);
-        assertEquals(buildInstantDurationMap(900, 900, 900, Integer.MAX_VALUE, Integer.MAX_VALUE), helper.mapPostContingencyInstantsAndLimitDurations(renBranch, TwoSides.TWO, "REN"));
+        assertEquals(
+            buildInstantDurationMap(900, 900, 900, Integer.MAX_VALUE, Integer.MAX_VALUE),
+            helper.mapPostContingencyInstantsAndLimitDurations(renBranch, TwoSides.TWO, "REN")
+        );
         // RTE Type 1
         Branch<?> rteBranchType1 = createBranchWithTatlsOnSide(TwoSides.TWO, false, true, false, true, false, true);
-        assertEquals(buildInstantDurationMap(182, 600, 600, 1200, Integer.MAX_VALUE), helper.mapPostContingencyInstantsAndLimitDurations(rteBranchType1, TwoSides.TWO, "RTE"));
+        assertEquals(
+            buildInstantDurationMap(182, 600, 600, 1200, Integer.MAX_VALUE),
+            helper.mapPostContingencyInstantsAndLimitDurations(rteBranchType1, TwoSides.TWO, "RTE")
+        );
         // RTE Type 2
         Branch<?> rteBranchType2 = createBranchWithTatlsOnSide(TwoSides.TWO, false, false, true, false, false, true);
-        assertEquals(buildInstantDurationMap(300, 300, 1200, 1200, Integer.MAX_VALUE), helper.mapPostContingencyInstantsAndLimitDurations(rteBranchType2, TwoSides.TWO, "RTE"));
+        assertEquals(
+            buildInstantDurationMap(300, 300, 1200, 1200, Integer.MAX_VALUE),
+            helper.mapPostContingencyInstantsAndLimitDurations(rteBranchType2, TwoSides.TWO, "RTE")
+        );
     }
 
     @Test
@@ -275,7 +411,12 @@ class FlowCnecInstantHelperTest {
         crac.newInstant("curative 3", InstantKind.CURATIVE);
     }
 
-    private Collection<LoadingLimits.TemporaryLimit> mockBranchTatls(boolean useTatl0, boolean useTatl182, boolean useTatl300, boolean useTatl600, boolean useTatl900, boolean useTatl1200) {
+    private Collection<LoadingLimits.TemporaryLimit> mockBranchTatls(boolean useTatl0,
+                                                                     boolean useTatl182,
+                                                                     boolean useTatl300,
+                                                                     boolean useTatl600,
+                                                                     boolean useTatl900,
+                                                                     boolean useTatl1200) {
         Collection<LoadingLimits.TemporaryLimit> tatls = new HashSet<>();
         if (useTatl0) {
             tatls.add(tatl0);
@@ -298,7 +439,13 @@ class FlowCnecInstantHelperTest {
         return tatls;
     }
 
-    private Branch<?> createBranchWithTatlsOnSide(TwoSides side, boolean useTatl0, boolean useTatl182, boolean useTatl300, boolean useTatl600, boolean useTatl900, boolean useTatl1200) {
+    private Branch<?> createBranchWithTatlsOnSide(TwoSides side,
+                                                  boolean useTatl0,
+                                                  boolean useTatl182,
+                                                  boolean useTatl300,
+                                                  boolean useTatl600,
+                                                  boolean useTatl900,
+                                                  boolean useTatl1200) {
         Branch<?> branch = Mockito.mock(Branch.class);
         CurrentLimits currentLimits = Mockito.mock(CurrentLimits.class);
         Mockito.when(currentLimits.getTemporaryLimits()).thenReturn(mockBranchTatls(useTatl0, useTatl182, useTatl300, useTatl600, useTatl900, useTatl1200));
@@ -307,7 +454,17 @@ class FlowCnecInstantHelperTest {
         return branch;
     }
 
-    private Map<String, Integer> buildInstantDurationMap(int outageDuration, int autoDuration, int curative1Duration, int curative2Duration, int curative3Duration) {
-        return Map.of("outage", outageDuration, "auto", autoDuration, "curative 1", curative1Duration, "curative 2", curative2Duration, "curative 3", curative3Duration);
+    private Map<String, Integer> buildInstantDurationMap(int outageDuration,
+                                                         int autoDuration,
+                                                         int curative1Duration,
+                                                         int curative2Duration,
+                                                         int curative3Duration) {
+        return Map.of(
+            "outage", outageDuration,
+            "auto", autoDuration,
+            "curative 1", curative1Duration,
+            "curative 2", curative2Duration,
+            "curative 3", curative3Duration
+        );
     }
 }

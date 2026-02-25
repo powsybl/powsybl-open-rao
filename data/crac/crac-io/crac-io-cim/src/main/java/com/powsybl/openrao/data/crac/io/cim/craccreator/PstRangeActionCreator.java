@@ -7,22 +7,22 @@
 
 package com.powsybl.openrao.data.crac.io.cim.craccreator;
 
-import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.contingency.Contingency;
-import com.powsybl.openrao.data.crac.api.Crac;
-import com.powsybl.openrao.data.crac.api.cnec.Cnec;
-import com.powsybl.openrao.data.crac.api.range.RangeType;
-import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeActionAdder;
-import com.powsybl.openrao.data.crac.io.cim.xsd.RemedialActionSeries;
-import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
-import com.powsybl.openrao.data.crac.api.parameters.RangeActionGroup;
-import com.powsybl.openrao.data.crac.io.commons.OpenRaoImportException;
-import com.powsybl.openrao.data.crac.io.cim.parameters.CimCracCreationParameters;
-import com.powsybl.openrao.data.crac.io.cim.xsd.RemedialActionRegisteredResource;
-import com.powsybl.openrao.data.crac.io.commons.PstHelper;
-import com.powsybl.openrao.data.crac.io.commons.iidm.IidmPstHelper;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.cnec.Cnec;
+import com.powsybl.openrao.data.crac.api.parameters.RangeActionGroup;
+import com.powsybl.openrao.data.crac.api.range.RangeType;
+import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeActionAdder;
+import com.powsybl.openrao.data.crac.io.cim.parameters.CimCracCreationParameters;
+import com.powsybl.openrao.data.crac.io.cim.xsd.RemedialActionRegisteredResource;
+import com.powsybl.openrao.data.crac.io.cim.xsd.RemedialActionSeries;
+import com.powsybl.openrao.data.crac.io.commons.OpenRaoImportException;
+import com.powsybl.openrao.data.crac.io.commons.PstHelper;
+import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
+import com.powsybl.openrao.data.crac.io.commons.iidm.IidmPstHelper;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -59,7 +59,11 @@ public class PstRangeActionCreator {
         // --- Market Object status: define RangeType
         String marketObjectStatusStatus = pstRegisteredResource.getMarketObjectStatusStatus();
         if (Objects.isNull(marketObjectStatusStatus)) {
-            this.pstRangeActionCreationContext = PstRangeActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCOMPLETE_DATA, "Missing marketObjectStatus");
+            this.pstRangeActionCreationContext = PstRangeActionSeriesCreationContext.notImported(
+                createdRemedialActionId,
+                ImportStatus.INCOMPLETE_DATA,
+                "Missing marketObjectStatus"
+            );
             return;
         }
         try {
@@ -72,7 +76,11 @@ public class PstRangeActionCreator {
 
             IidmPstHelper pstHelper = new IidmPstHelper(networkElementId, network);
             if (!pstHelper.isValid()) {
-                this.pstRangeActionCreationContext = PstRangeActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, String.format("%s", pstHelper.getInvalidReason()));
+                this.pstRangeActionCreationContext = PstRangeActionSeriesCreationContext.notImported(
+                    createdRemedialActionId,
+                    ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK,
+                    String.format("%s", pstHelper.getInvalidReason())
+                );
                 return;
             }
 
@@ -91,7 +99,11 @@ public class PstRangeActionCreator {
                     .map(RangeActionGroup::toString)
                     .toList();
                 if (raGroups.size() > 1) {
-                    this.pstRangeActionCreationContext = RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, String.format("Multiple (%s) groups defined for range action %s", raGroups.size(), createdRemedialActionId));
+                    this.pstRangeActionCreationContext = RemedialActionSeriesCreationContext.notImported(
+                        createdRemedialActionId,
+                        ImportStatus.INCONSISTENCY_IN_DATA,
+                        String.format("Multiple (%s) groups defined for range action %s", raGroups.size(), createdRemedialActionId)
+                    );
                     return;
                 }
                 if (!raGroups.isEmpty()) {
@@ -108,11 +120,17 @@ public class PstRangeActionCreator {
 
             // --- Resource capacity
             defineTapRange(pstRangeActionAdder, pstHelper, rangeType);
-            RemedialActionSeriesCreator.addUsageRules(crac, applicationModeMarketObjectStatus, pstRangeActionAdder, contingencies, invalidContingencies, cnecs, sharedDomain);
+            RemedialActionSeriesCreator.addUsageRules(
+                crac, applicationModeMarketObjectStatus, pstRangeActionAdder, contingencies, invalidContingencies, cnecs, sharedDomain
+            );
 
-            this.pstRangeActionCreationContext = RemedialActionSeriesCreator.importPstRaWithContingencies(createdRemedialActionId, pstRegisteredResource.getMRID().getValue(), pstRegisteredResource.getName(), invalidContingencies);
+            this.pstRangeActionCreationContext = RemedialActionSeriesCreator.importPstRaWithContingencies(
+                createdRemedialActionId, pstRegisteredResource.getMRID().getValue(), pstRegisteredResource.getName(), invalidContingencies
+            );
         } catch (OpenRaoImportException e) {
-            this.pstRangeActionCreationContext = RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, e.getImportStatus(), e.getMessage());
+            this.pstRangeActionCreationContext = RemedialActionSeriesCreationContext.notImported(
+                createdRemedialActionId, e.getImportStatus(), e.getMessage()
+            );
         }
     }
 
@@ -121,12 +139,20 @@ public class PstRangeActionCreator {
             return RangeType.ABSOLUTE;
         } else if (marketObjectStatusStatus.equals(CimConstants.MarketObjectStatus.RELATIVE_TO_INITIAL_NETWORK.getStatus())) {
             return RangeType.RELATIVE_TO_INITIAL_NETWORK;
-        } else if (marketObjectStatusStatus.equals(CimConstants.MarketObjectStatus.RELATIVE_TO_PREVIOUS_INSTANT1.getStatus()) || marketObjectStatusStatus.equals(CimConstants.MarketObjectStatus.RELATIVE_TO_PREVIOUS_INSTANT2.getStatus())) {
+        } else if (marketObjectStatusStatus.equals(CimConstants.MarketObjectStatus.RELATIVE_TO_PREVIOUS_INSTANT1.getStatus())
+            || marketObjectStatusStatus.equals(CimConstants.MarketObjectStatus.RELATIVE_TO_PREVIOUS_INSTANT2.getStatus())) {
             return RangeType.RELATIVE_TO_PREVIOUS_INSTANT;
-        } else if (marketObjectStatusStatus.equals(CimConstants.MarketObjectStatus.OPEN.getStatus()) || marketObjectStatusStatus.equals(CimConstants.MarketObjectStatus.CLOSE.getStatus())) {
-            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Wrong marketObjectStatusStatus: %s, PST can no longer be opened/closed (deprecated)", marketObjectStatusStatus));
+        } else if (marketObjectStatusStatus.equals(CimConstants.MarketObjectStatus.OPEN.getStatus())
+            || marketObjectStatusStatus.equals(CimConstants.MarketObjectStatus.CLOSE.getStatus())) {
+            throw new OpenRaoImportException(
+                ImportStatus.INCONSISTENCY_IN_DATA,
+                String.format("Wrong marketObjectStatusStatus: %s, PST can no longer be opened/closed (deprecated)", marketObjectStatusStatus)
+            );
         } else {
-            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Wrong marketObjectStatusStatus: %s", marketObjectStatusStatus));
+            throw new OpenRaoImportException(
+                ImportStatus.INCONSISTENCY_IN_DATA,
+                String.format("Wrong marketObjectStatusStatus: %s", marketObjectStatusStatus)
+            );
         }
     }
 
@@ -173,7 +199,11 @@ public class PstRangeActionCreator {
             .add();
     }
 
-    private void addTapRangeWithMinAndMaxTap(PstRangeActionAdder pstRangeActionAdder, IidmPstHelper pstHelper, int minCapacity, int maxCapacity, RangeType rangeType) {
+    private void addTapRangeWithMinAndMaxTap(PstRangeActionAdder pstRangeActionAdder,
+                                             IidmPstHelper pstHelper,
+                                             int minCapacity,
+                                             int maxCapacity,
+                                             RangeType rangeType) {
         int minTap = minCapacity;
         int maxTap = maxCapacity;
         if (rangeType.equals(RangeType.ABSOLUTE)) {
@@ -192,7 +222,9 @@ public class PstRangeActionCreator {
             try {
                 this.pstRangeActionAdder.add();
             } catch (OpenRaoException e) {
-                this.pstRangeActionCreationContext = RemedialActionSeriesCreationContext.notImported(this.pstRangeActionCreationContext.getNativeObjectId(), ImportStatus.INCONSISTENCY_IN_DATA, e.getMessage());
+                this.pstRangeActionCreationContext = RemedialActionSeriesCreationContext.notImported(
+                    this.pstRangeActionCreationContext.getNativeObjectId(), ImportStatus.INCONSISTENCY_IN_DATA, e.getMessage()
+                );
             }
         }
     }

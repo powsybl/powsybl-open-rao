@@ -9,11 +9,7 @@ package com.powsybl.openrao.data.raoresult.io.cne.swe;
 
 import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.data.crac.api.Crac;
-import com.powsybl.openrao.data.crac.api.Instant;
-import com.powsybl.openrao.data.crac.api.InstantKind;
-import com.powsybl.openrao.data.crac.api.RemedialAction;
-import com.powsybl.openrao.data.crac.api.State;
+import com.powsybl.openrao.data.crac.api.*;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
@@ -127,7 +123,13 @@ class SweRemedialActionSeriesCreatorTest {
 
     }
 
-    private RemedialActionSeriesCreationContext createRascc(String nativeId, boolean isImported, Set<String> createdIds, boolean isPst, String pstElementMrid, String pstElementName, boolean isInverted) {
+    private RemedialActionSeriesCreationContext createRascc(String nativeId,
+                                                            boolean isImported,
+                                                            Set<String> createdIds,
+                                                            boolean isPst,
+                                                            String pstElementMrid,
+                                                            String pstElementName,
+                                                            boolean isInverted) {
         RemedialActionSeriesCreationContext rascc;
         if (isPst) {
             rascc = Mockito.mock(PstRangeActionSeriesCreationContext.class);

@@ -7,14 +7,14 @@
 
 package com.powsybl.openrao.data.crac.io.json.serializers;
 
-import com.powsybl.contingency.Contingency;
-import com.powsybl.openrao.data.crac.io.json.ExtensionsHandler;
-import com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants;
-import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
-import com.powsybl.openrao.data.crac.api.threshold.Threshold;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.contingency.Contingency;
+import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
+import com.powsybl.openrao.data.crac.api.threshold.Threshold;
+import com.powsybl.openrao.data.crac.io.json.ExtensionsHandler;
+import com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants;
 
 import java.io.IOException;
 import java.util.List;

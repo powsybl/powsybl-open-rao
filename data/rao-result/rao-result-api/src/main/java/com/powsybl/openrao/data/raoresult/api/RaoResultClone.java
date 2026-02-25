@@ -8,6 +8,7 @@
 package com.powsybl.openrao.data.raoresult.api;
 
 import com.powsybl.commons.extensions.AbstractExtendable;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
@@ -15,12 +16,12 @@ import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 
-import java.util.*;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Clone that reproduces the results obtained by another RaoResult instance. It can be used to override some methods without rewriting all the implementations

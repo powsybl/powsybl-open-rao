@@ -16,12 +16,9 @@ import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
+import com.powsybl.openrao.data.crac.io.commons.api.stdcreationcontext.BranchCnecCreationContext;
 import com.powsybl.openrao.data.crac.io.fbconstraint.FbConstraintCreationContext;
-import com.powsybl.openrao.data.crac.io.fbconstraint.xsd.ActionType;
-import com.powsybl.openrao.data.crac.io.fbconstraint.xsd.CriticalBranchType;
-import com.powsybl.openrao.data.crac.io.fbconstraint.xsd.FlowBasedConstraintDocument;
-import com.powsybl.openrao.data.crac.io.fbconstraint.xsd.IndependantComplexVariant;
-import com.powsybl.openrao.data.crac.io.fbconstraint.xsd.ObjectFactory;
+import com.powsybl.openrao.data.crac.io.fbconstraint.xsd.*;
 import com.powsybl.openrao.data.crac.io.fbconstraint.xsd.etso.TimeIntervalType;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import org.threeten.extra.Interval;
@@ -29,12 +26,7 @@ import org.threeten.extra.Interval;
 import java.io.Serializable;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -83,18 +75,20 @@ public final class HourlyF711InfoGenerator {
         return new HourlyF711Info(criticalBranches, complexVariants);
     }
 
-    private static List<CriticalBranchType> getCriticalBranchesOfSuccessfulInterval(FlowBasedConstraintDocument flowBasedConstraintDocument, FbConstraintCreationContext cracCreationContext, Map<State, String> statesWithCrac, Interval interval) {
+    private static List<CriticalBranchType> getCriticalBranchesOfSuccessfulInterval(FlowBasedConstraintDocument flowBasedConstraintDocument,
+                                                                                    FbConstraintCreationContext cracCreationContext,
+                                                                                    Map<State, String> statesWithCrac,
+                                                                                    Interval interval) {
         TimeIntervalType ti = new TimeIntervalType();
         ti.setV(IntervalUtil.getCurrentTimeInterval(OffsetDateTime.ofInstant(interval.getStart(), ZoneOffset.UTC)));
         List<String> contingencyWithCra = statesWithCrac.keySet().stream().map(s -> s.getContingency().orElseThrow().getId()).toList();
         Map<String, CriticalBranchType> refCbs = getCriticalBranchesForInstant(cracCreationContext.getTimeStamp(), flowBasedConstraintDocument);
         List<CriticalBranchType> criticalBranches = new ArrayList<>();
 
-        cracCreationContext.getBranchCnecCreationContexts().forEach(bccc -> {
+        for (BranchCnecCreationContext bccc : cracCreationContext.getBranchCnecCreationContexts()) {
             CriticalBranchType refCb = refCbs.get(bccc.getNativeObjectId());
             if (bccc.getImportStatus() != ImportStatus.NOT_FOR_REQUESTED_TIMESTAMP) {
                 if (refCb.getOutage() == null || !contingencyWithCra.contains(refCb.getOutage().getId())) {
-
                     // N critical branch or N-1 critical branch without CRA
                     // -> export one critical branch with permanent limit and no associated variant
                     CriticalBranchType patlCb = (CriticalBranchType) refCb.clone();
@@ -106,7 +100,6 @@ public final class HourlyF711InfoGenerator {
                     // N-1 critical branch with CRA
                     // -> export one critical branch with temporary limit and no associated variant (OUTAGE)
                     // -> export one critical branch with permanent limit and associated variant (CURATIVE)
-
                     CriticalBranchType tatlCb = (CriticalBranchType) refCb.clone();
                     tatlCb.setTimeInterval(ti);
                     tatlCb.setId(refCb.getId() + TATL);
@@ -123,12 +116,16 @@ public final class HourlyF711InfoGenerator {
                     criticalBranches.add(patlCb);
                 }
             }
-        });
+        }
 
         return criticalBranches;
     }
 
-    private static List<IndependantComplexVariant> getComplexVariantsOfSuccesfulInterval(FlowBasedConstraintDocument flowBasedConstraintDocument, FbConstraintCreationContext cracCreationContext, RaoResult raoResult, Map<State, String> statesWithCra, Interval interval) {
+    private static List<IndependantComplexVariant> getComplexVariantsOfSuccesfulInterval(FlowBasedConstraintDocument flowBasedConstraintDocument,
+                                                                                         FbConstraintCreationContext cracCreationContext,
+                                                                                         RaoResult raoResult,
+                                                                                         Map<State, String> statesWithCra,
+                                                                                         Interval interval) {
 
         List<IndependantComplexVariant> complexVariants = new ArrayList<>();
 
@@ -136,22 +133,30 @@ public final class HourlyF711InfoGenerator {
         ti.setV(IntervalUtil.getCurrentTimeInterval(OffsetDateTime.ofInstant(interval.getStart(), ZoneOffset.UTC)));
 
         Map<String, IndependantComplexVariant> nativeVariants = getComplexVariantsForInstant(cracCreationContext.getTimeStamp(), flowBasedConstraintDocument);
-        statesWithCra.forEach((state, variantId) -> {
-
+        for (State state : statesWithCra.keySet()) {
             Set<NetworkAction> activatedNa = raoResult.getActivatedNetworkActionsDuringState(state);
             Set<RangeAction<?>> activatedRa = raoResult.getActivatedRangeActionsDuringState(state);
 
             IndependantComplexVariant complexVariant = new IndependantComplexVariant();
-            complexVariant.setId(variantId);
+            complexVariant.setId(statesWithCra.get(state));
             complexVariant.setName(getMergedName(activatedNa, activatedRa));
             complexVariant.setTimeInterval(ti);
             complexVariant.setTsoOrigin(getTsoOrigin(activatedNa, activatedRa));
 
-            activatedNa.forEach(na -> updateComplexVariantWithNetworkAction(complexVariant, nativeVariants.get(na.getId()), state.getContingency().orElseThrow().getId()));
-            activatedRa.forEach(ra -> updateComplexVariantWithPstAction(complexVariant, nativeVariants.get(ra.getId()), state.getContingency().orElseThrow().getId(), raoResult.getOptimizedTapOnState(state, (PstRangeAction) ra)));
+            activatedNa.forEach(na -> updateComplexVariantWithNetworkAction(
+                complexVariant,
+                nativeVariants.get(na.getId()),
+                state.getContingency().orElseThrow().getId()
+            ));
+            activatedRa.forEach(ra -> updateComplexVariantWithPstAction(
+                complexVariant,
+                nativeVariants.get(ra.getId()),
+                state.getContingency().orElseThrow().getId(),
+                raoResult.getOptimizedTapOnState(state, (PstRangeAction) ra)
+            ));
 
             complexVariants.add(complexVariant);
-        });
+        }
 
         return complexVariants;
     }

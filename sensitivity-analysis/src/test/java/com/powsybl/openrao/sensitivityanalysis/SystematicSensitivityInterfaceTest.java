@@ -7,14 +7,14 @@
 
 package com.powsybl.openrao.sensitivityanalysis;
 
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.impl.utils.CommonCracCreation;
 import com.powsybl.openrao.data.crac.impl.utils.NetworkImportsUtil;
-import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityAnalysisParameters;
 import com.powsybl.sensitivity.json.JsonSensitivityAnalysisParameters;
 import org.junit.jupiter.api.AfterEach;
@@ -57,7 +57,10 @@ class SystematicSensitivityInterfaceTest {
 
         systematicSensitivityAdapterMockedStatic = Mockito.mockStatic(SystematicSensitivityAdapter.class);
         try {
-            defaultParameters = JsonSensitivityAnalysisParameters.createObjectMapper().readValue(getClass().getResourceAsStream("/DefaultSensitivityComputationParameters.json"), SensitivityAnalysisParameters.class);
+            defaultParameters = JsonSensitivityAnalysisParameters.createObjectMapper().readValue(
+                getClass().getResourceAsStream("/DefaultSensitivityComputationParameters.json"),
+                SensitivityAnalysisParameters.class
+            );
         } catch (IOException e) {
             e.printStackTrace();
         }

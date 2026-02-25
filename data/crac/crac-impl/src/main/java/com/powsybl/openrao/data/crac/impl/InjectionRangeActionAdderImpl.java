@@ -72,7 +72,9 @@ public class InjectionRangeActionAdderImpl extends AbstractStandardRangeActionAd
     public InjectionRangeAction add() {
         runCheckBeforeAdding();
         Map<NetworkElement, Double> neAndDk = getDistributionKeyMap();
-        InjectionRangeAction injectionRangeAction = new InjectionRangeActionImpl(this.id, this.name, this.operator, this.groupId, this.usageRules, this.ranges, this.initialSetpoint, neAndDk, speed, activationCost, variationCosts);
+        InjectionRangeAction injectionRangeAction = new InjectionRangeActionImpl(
+            this.id, this.name, this.operator, this.groupId, this.usageRules, this.ranges, this.initialSetpoint, neAndDk, speed, activationCost, variationCosts
+        );
         this.getCrac().addInjectionRangeAction(injectionRangeAction);
         return injectionRangeAction;
     }

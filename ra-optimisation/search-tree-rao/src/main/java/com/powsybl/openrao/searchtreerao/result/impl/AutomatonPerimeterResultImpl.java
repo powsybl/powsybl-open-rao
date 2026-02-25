@@ -7,17 +7,18 @@
 
 package com.powsybl.openrao.searchtreerao.result.impl;
 
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
-import com.powsybl.openrao.searchtreerao.result.api.*;
+import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
+import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 
 import java.util.*;
@@ -37,7 +38,12 @@ public class AutomatonPerimeterResultImpl implements OptimizationResult {
     private final Map<RangeAction<?>, Double> rangeActionsWithSetpoint;
     private final State optimizedState;
 
-    public AutomatonPerimeterResultImpl(PrePerimeterResult preAutomatonSensitivityAnalysisOutput, PrePerimeterResult postAutomatonSensitivityAnalysisOutput, Set<NetworkAction> forcedNetworkActions, Set<RangeAction<?>> activatedRangeActions, Map<RangeAction<?>, Double> rangeActionsWithSetpoint, State optimizedState) {
+    public AutomatonPerimeterResultImpl(PrePerimeterResult preAutomatonSensitivityAnalysisOutput,
+                                        PrePerimeterResult postAutomatonSensitivityAnalysisOutput,
+                                        Set<NetworkAction> forcedNetworkActions,
+                                        Set<RangeAction<?>> activatedRangeActions,
+                                        Map<RangeAction<?>, Double> rangeActionsWithSetpoint,
+                                        State optimizedState) {
         this.preAutomatonSensitivityAnalysisOutput = preAutomatonSensitivityAnalysisOutput;
         this.postAutomatonSensitivityAnalysisOutput = postAutomatonSensitivityAnalysisOutput;
         this.forcedNetworkActions = forcedNetworkActions;

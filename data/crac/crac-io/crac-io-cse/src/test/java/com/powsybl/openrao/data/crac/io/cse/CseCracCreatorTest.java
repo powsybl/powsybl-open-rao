@@ -9,23 +9,23 @@ package com.powsybl.openrao.data.crac.io.cse;
 
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.RaUsageLimits;
 import com.powsybl.openrao.data.crac.api.RemedialAction;
-import com.powsybl.openrao.data.crac.api.usagerule.OnConstraint;
-import com.powsybl.openrao.data.crac.api.usagerule.OnFlowConstraintInCountry;
-import com.powsybl.openrao.data.crac.api.usagerule.OnInstant;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.networkaction.SwitchPair;
 import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.crac.api.parameters.JsonCracCreationParameters;
 import com.powsybl.openrao.data.crac.api.range.RangeType;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
+import com.powsybl.openrao.data.crac.api.usagerule.OnConstraint;
+import com.powsybl.openrao.data.crac.api.usagerule.OnFlowConstraintInCountry;
+import com.powsybl.openrao.data.crac.api.usagerule.OnInstant;
+import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
 import com.powsybl.openrao.data.crac.io.commons.api.ElementaryCreationContext;
 import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
 import com.powsybl.openrao.data.crac.io.commons.api.stdcreationcontext.BranchCnecCreationContext;
@@ -144,8 +144,16 @@ class CseCracCreatorTest {
         assertTrue(cracCreationContext.isCreationSuccessful());
         assertEquals(3, importedCrac.getInjectionRangeActions().size());
 
-        assertHvdcRangeActionImported("PRA_HVDC", Map.of("BBE2AA12", "BBE2AA12_generator", "FFR3AA12", "FFR3AA12_generator"), "PRA_HVDC + CRA_HVDC");
-        assertHvdcRangeActionImported("CRA_HVDC", Map.of("BBE2AA12", "BBE2AA12_generator", "FFR3AA12", "FFR3AA12_generator"), "PRA_HVDC + CRA_HVDC");
+        assertHvdcRangeActionImported(
+            "PRA_HVDC",
+            Map.of("BBE2AA12", "BBE2AA12_generator", "FFR3AA12", "FFR3AA12_generator"),
+            "PRA_HVDC + CRA_HVDC"
+        );
+        assertHvdcRangeActionImported(
+            "CRA_HVDC",
+            Map.of("BBE2AA12", "BBE2AA12_generator", "FFR3AA12", "FFR3AA12_generator"),
+            "PRA_HVDC + CRA_HVDC"
+        );
 
         assertOutageNotImported("fake_contingency_because_we_have_to", ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK);
         assertCriticalBranchNotImported("fake_because_we_have_to - AAAAAA11 - BBBBBB11 - null", ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK);
@@ -170,8 +178,14 @@ class CseCracCreatorTest {
         assertEquals(-500, importedCrac.getInjectionRangeAction("PRA_HVDC").getRanges().get(1).getMin(), 1e-1);
         assertEquals(800, importedCrac.getInjectionRangeAction("PRA_HVDC").getRanges().get(1).getMax(), 1e-1);
         assertEquals(2, importedCrac.getInjectionRangeAction("PRA_HVDC").getInjectionDistributionKeys().size());
-        assertEquals(-1., importedCrac.getInjectionRangeAction("PRA_HVDC").getInjectionDistributionKeys().entrySet().stream().filter(e -> e.getKey().getId().equals("BBE2AA12_generator")).findAny().orElseThrow().getValue(), 1e-3);
-        assertEquals(1., importedCrac.getInjectionRangeAction("PRA_HVDC").getInjectionDistributionKeys().entrySet().stream().filter(e -> e.getKey().getId().equals("FFR3AA12_generator")).findAny().orElseThrow().getValue(), 1e-3);
+        assertEquals(-1., importedCrac.getInjectionRangeAction("PRA_HVDC").getInjectionDistributionKeys().entrySet().stream()
+            .filter(e -> e.getKey().getId().equals("BBE2AA12_generator"))
+            .findAny().orElseThrow()
+            .getValue(), 1e-3);
+        assertEquals(1., importedCrac.getInjectionRangeAction("PRA_HVDC").getInjectionDistributionKeys().entrySet().stream()
+            .filter(e -> e.getKey().getId().equals("FFR3AA12_generator"))
+            .findAny().orElseThrow()
+            .getValue(), 1e-3);
     }
 
     @Test
@@ -181,7 +195,8 @@ class CseCracCreatorTest {
         setUpWithHvdcNetwork("/cracs/cse_crac_with_hvdc.xml");
         assertTrue(cracCreationContext.isCreationSuccessful());
         assertEquals("PRA_HVDC + CRA_HVDC", importedCrac.getInjectionRangeAction("PRA_HVDC").getGroupId().get());
-        assertEquals(importedCrac.getInjectionRangeAction("CRA_HVDC").getGroupId().get(), importedCrac.getInjectionRangeAction("PRA_HVDC").getGroupId().get());
+        assertEquals(importedCrac.getInjectionRangeAction("CRA_HVDC").getGroupId().get(),
+            importedCrac.getInjectionRangeAction("PRA_HVDC").getGroupId().get());
         assertEquals("FR", importedCrac.getInjectionRangeAction("PRA_HVDC").getOperator());
         assertEquals(2000, importedCrac.getInjectionRangeAction("PRA_HVDC").getRanges().get(0).getMax(), 1e-1);
         assertEquals(-100, importedCrac.getInjectionRangeAction("PRA_HVDC").getRanges().get(0).getMin(), 1e-1);
@@ -602,6 +617,9 @@ class CseCracCreatorTest {
         setUp("/cracs/cse_crac_auto.xml");
         assertRemedialActionNotImported("ara_1", ImportStatus.NOT_YET_HANDLED_BY_OPEN_RAO);
         assertEquals(9, importedCrac.getFlowCnecs().size());
-        assertFalse(cracCreationContext.getCreationReport().getReport().contains("[ADDED] CNEC \"French line 1 - FFR1AA1 ->FFR2AA1   - outage_1 - auto\" has no associated automaton. It will be cloned on the OUTAGE instant in order to be secured during preventive RAO."));
+        assertFalse(cracCreationContext.getCreationReport().getReport().contains(
+            "[ADDED] CNEC \"French line 1 - FFR1AA1 ->FFR2AA1   - outage_1 - auto\" has no associated automaton. " +
+                "It will be cloned on the OUTAGE instant in order to be secured during preventive RAO.")
+        );
     }
 }

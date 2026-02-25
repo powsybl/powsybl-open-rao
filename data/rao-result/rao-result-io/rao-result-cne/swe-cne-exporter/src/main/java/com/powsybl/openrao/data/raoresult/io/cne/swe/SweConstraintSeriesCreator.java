@@ -7,12 +7,16 @@
 
 package com.powsybl.openrao.data.raoresult.io.cne.swe;
 
-import com.powsybl.openrao.data.raoresult.io.cne.commons.CneUtil;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.crac.io.cim.craccreator.CimCracCreationContext;
-import com.powsybl.openrao.data.raoresult.io.cne.swe.xsd.*;
+import com.powsybl.openrao.data.raoresult.io.cne.commons.CneUtil;
+import com.powsybl.openrao.data.raoresult.io.cne.swe.xsd.ConstraintSeries;
+import com.powsybl.openrao.data.raoresult.io.cne.swe.xsd.ContingencySeries;
+import com.powsybl.openrao.data.raoresult.io.cne.swe.xsd.Reason;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
 import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.*;
 

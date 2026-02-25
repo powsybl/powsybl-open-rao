@@ -7,8 +7,8 @@
 
 package com.powsybl.openrao.data.crac.io.commons.ucte;
 
-import com.powsybl.openrao.data.crac.io.commons.HvdcElementHelper;
 import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.openrao.data.crac.io.commons.HvdcElementHelper;
 
 import static java.lang.String.format;
 

@@ -9,29 +9,12 @@ package com.powsybl.openrao.data.crac.io.nc;
 
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.data.crac.io.nc.craccreator.NcCracUtils;
-import com.powsybl.openrao.data.crac.io.nc.craccreator.constants.NcKeyword;
-import com.powsybl.openrao.data.crac.io.nc.objects.AssessedElement;
-import com.powsybl.openrao.data.crac.io.nc.objects.AssessedElementWithContingency;
-import com.powsybl.openrao.data.crac.io.nc.objects.AssessedElementWithRemedialAction;
-import com.powsybl.openrao.data.crac.io.nc.objects.Contingency;
-import com.powsybl.openrao.data.crac.io.nc.objects.ContingencyEquipment;
-import com.powsybl.openrao.data.crac.io.nc.objects.ContingencyWithRemedialAction;
-import com.powsybl.openrao.data.crac.io.nc.objects.CurrentLimit;
-import com.powsybl.openrao.data.crac.io.nc.objects.GridStateAlterationRemedialAction;
-import com.powsybl.openrao.data.crac.io.nc.objects.RemedialActionDependency;
-import com.powsybl.openrao.data.crac.io.nc.objects.RemedialActionGroup;
-import com.powsybl.openrao.data.crac.io.nc.objects.RotatingMachineAction;
-import com.powsybl.openrao.data.crac.io.nc.objects.ShuntCompensatorModification;
-import com.powsybl.openrao.data.crac.io.nc.objects.StaticPropertyRange;
-import com.powsybl.openrao.data.crac.io.nc.objects.TapChanger;
-import com.powsybl.openrao.data.crac.io.nc.objects.TapPositionAction;
-import com.powsybl.openrao.data.crac.io.nc.objects.TopologyAction;
-import com.powsybl.openrao.data.crac.io.nc.objects.VoltageAngleLimit;
 import com.powsybl.openrao.data.crac.io.nc.craccreator.NcPropertyBagsConverter;
-import com.powsybl.openrao.data.crac.io.nc.craccreator.constants.NcConstants;
 import com.powsybl.openrao.data.crac.io.nc.craccreator.constants.HeaderType;
+import com.powsybl.openrao.data.crac.io.nc.craccreator.constants.NcConstants;
+import com.powsybl.openrao.data.crac.io.nc.craccreator.constants.NcKeyword;
 import com.powsybl.openrao.data.crac.io.nc.craccreator.constants.OverridingObjectsFields;
-import com.powsybl.openrao.data.crac.io.nc.objects.VoltageLimit;
+import com.powsybl.openrao.data.crac.io.nc.objects.*;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 import com.powsybl.triplestore.api.QueryCatalog;
@@ -98,72 +81,90 @@ public class NcCrac {
     }
 
     public Set<Contingency> getContingencies() {
-        return new NcPropertyBagsConverter<>(Contingency::fromPropertyBag).convert(getPropertyBags(NcKeyword.CONTINGENCY, OverridingObjectsFields.CONTINGENCY, NcConstants.REQUEST_ORDINARY_CONTINGENCY, NcConstants.REQUEST_EXCEPTIONAL_CONTINGENCY, NcConstants.REQUEST_OUT_OF_RANGE_CONTINGENCY));
+        return new NcPropertyBagsConverter<>(Contingency::fromPropertyBag)
+            .convert(getPropertyBags(NcKeyword.CONTINGENCY, OverridingObjectsFields.CONTINGENCY, NcConstants.REQUEST_ORDINARY_CONTINGENCY,
+                                     NcConstants.REQUEST_EXCEPTIONAL_CONTINGENCY, NcConstants.REQUEST_OUT_OF_RANGE_CONTINGENCY));
     }
 
     public Set<ContingencyEquipment> getContingencyEquipments() {
-        return new NcPropertyBagsConverter<>(ContingencyEquipment::fromPropertyBag).convert(getPropertyBags(NcKeyword.CONTINGENCY, NcConstants.REQUEST_CONTINGENCY_EQUIPMENT));
+        return new NcPropertyBagsConverter<>(ContingencyEquipment::fromPropertyBag)
+            .convert(getPropertyBags(NcKeyword.CONTINGENCY, NcConstants.REQUEST_CONTINGENCY_EQUIPMENT));
     }
 
     public Set<AssessedElement> getAssessedElements() {
-        return new NcPropertyBagsConverter<>(AssessedElement::fromPropertyBag).convert(getPropertyBags(NcKeyword.ASSESSED_ELEMENT, OverridingObjectsFields.ASSESSED_ELEMENT, NcConstants.REQUEST_ASSESSED_ELEMENT));
+        return new NcPropertyBagsConverter<>(AssessedElement::fromPropertyBag)
+            .convert(getPropertyBags(NcKeyword.ASSESSED_ELEMENT, OverridingObjectsFields.ASSESSED_ELEMENT, NcConstants.REQUEST_ASSESSED_ELEMENT));
     }
 
     public Set<AssessedElementWithContingency> getAssessedElementWithContingencies() {
-        return new NcPropertyBagsConverter<>(AssessedElementWithContingency::fromPropertyBag).convert(getPropertyBags(NcKeyword.ASSESSED_ELEMENT, OverridingObjectsFields.ASSESSED_ELEMENT_WITH_CONTINGENCY, NcConstants.REQUEST_ASSESSED_ELEMENT_WITH_CONTINGENCY));
+        return new NcPropertyBagsConverter<>(AssessedElementWithContingency::fromPropertyBag)
+            .convert(getPropertyBags(NcKeyword.ASSESSED_ELEMENT, OverridingObjectsFields.ASSESSED_ELEMENT_WITH_CONTINGENCY, NcConstants.REQUEST_ASSESSED_ELEMENT_WITH_CONTINGENCY));
     }
 
     public Set<AssessedElementWithRemedialAction> getAssessedElementWithRemedialActions() {
-        return new NcPropertyBagsConverter<>(AssessedElementWithRemedialAction::fromPropertyBag).convert(getPropertyBags(NcKeyword.ASSESSED_ELEMENT, OverridingObjectsFields.ASSESSED_ELEMENT_WITH_REMEDIAL_ACTION, NcConstants.REQUEST_ASSESSED_ELEMENT_WITH_REMEDIAL_ACTION));
+        return new NcPropertyBagsConverter<>(AssessedElementWithRemedialAction::fromPropertyBag)
+            .convert(getPropertyBags(NcKeyword.ASSESSED_ELEMENT, OverridingObjectsFields.ASSESSED_ELEMENT_WITH_REMEDIAL_ACTION, NcConstants.REQUEST_ASSESSED_ELEMENT_WITH_REMEDIAL_ACTION));
     }
 
     public Set<CurrentLimit> getCurrentLimits() {
-        return new NcPropertyBagsConverter<>(CurrentLimit::fromPropertyBag).convert(getPropertyBags(NcKeyword.CGMES, OverridingObjectsFields.CURRENT_LIMIT, NcConstants.REQUEST_CURRENT_LIMIT));
+        return new NcPropertyBagsConverter<>(CurrentLimit::fromPropertyBag)
+            .convert(getPropertyBags(NcKeyword.CGMES, OverridingObjectsFields.CURRENT_LIMIT, NcConstants.REQUEST_CURRENT_LIMIT));
     }
 
     public Set<VoltageLimit> getVoltageLimits() {
-        return new NcPropertyBagsConverter<>(VoltageLimit::fromPropertyBag).convert(getPropertyBags(NcKeyword.CGMES, OverridingObjectsFields.VOLTAGE_LIMIT, NcConstants.REQUEST_VOLTAGE_LIMIT));
+        return new NcPropertyBagsConverter<>(VoltageLimit::fromPropertyBag)
+            .convert(getPropertyBags(NcKeyword.CGMES, OverridingObjectsFields.VOLTAGE_LIMIT, NcConstants.REQUEST_VOLTAGE_LIMIT));
     }
 
     public Set<VoltageAngleLimit> getVoltageAngleLimits() {
-        return new NcPropertyBagsConverter<>(VoltageAngleLimit::fromPropertyBag).convert(getPropertyBags(NcKeyword.EQUIPMENT_RELIABILITY, OverridingObjectsFields.VOLTAGE_ANGLE_LIMIT, NcConstants.REQUEST_VOLTAGE_ANGLE_LIMIT));
+        return new NcPropertyBagsConverter<>(VoltageAngleLimit::fromPropertyBag)
+            .convert(getPropertyBags(NcKeyword.EQUIPMENT_RELIABILITY, OverridingObjectsFields.VOLTAGE_ANGLE_LIMIT, NcConstants.REQUEST_VOLTAGE_ANGLE_LIMIT));
     }
 
     public Set<GridStateAlterationRemedialAction> getGridStateAlterationRemedialActions() {
-        return new NcPropertyBagsConverter<>(GridStateAlterationRemedialAction::fromPropertyBag).convert(getPropertyBags(NcKeyword.REMEDIAL_ACTION, OverridingObjectsFields.GRID_STATE_ALTERATION_REMEDIAL_ACTION, NcConstants.GRID_STATE_ALTERATION_REMEDIAL_ACTION));
+        return new NcPropertyBagsConverter<>(GridStateAlterationRemedialAction::fromPropertyBag)
+            .convert(getPropertyBags(NcKeyword.REMEDIAL_ACTION, OverridingObjectsFields.GRID_STATE_ALTERATION_REMEDIAL_ACTION, NcConstants.GRID_STATE_ALTERATION_REMEDIAL_ACTION));
     }
 
     public Set<TopologyAction> getTopologyActions() {
-        return new NcPropertyBagsConverter<>(TopologyAction::fromPropertyBag).convert(getPropertyBags(NcKeyword.REMEDIAL_ACTION, OverridingObjectsFields.TOPOLOGY_ACTION, NcConstants.TOPOLOGY_ACTION));
+        return new NcPropertyBagsConverter<>(TopologyAction::fromPropertyBag)
+            .convert(getPropertyBags(NcKeyword.REMEDIAL_ACTION, OverridingObjectsFields.TOPOLOGY_ACTION, NcConstants.TOPOLOGY_ACTION));
     }
 
     public Set<RotatingMachineAction> getRotatingMachineActions() {
-        return new NcPropertyBagsConverter<>(RotatingMachineAction::fromPropertyBag).convert(getPropertyBags(NcKeyword.REMEDIAL_ACTION, OverridingObjectsFields.ROTATING_MACHINE_ACTION, NcConstants.ROTATING_MACHINE_ACTION));
+        return new NcPropertyBagsConverter<>(RotatingMachineAction::fromPropertyBag)
+            .convert(getPropertyBags(NcKeyword.REMEDIAL_ACTION, OverridingObjectsFields.ROTATING_MACHINE_ACTION, NcConstants.ROTATING_MACHINE_ACTION));
     }
 
     public Set<ShuntCompensatorModification> getShuntCompensatorModifications() {
-        return new NcPropertyBagsConverter<>(ShuntCompensatorModification::fromPropertyBag).convert(getPropertyBags(NcKeyword.REMEDIAL_ACTION, OverridingObjectsFields.SHUNT_COMPENSATOR_MODIFICATION, NcConstants.SHUNT_COMPENSATOR_MODIFICATION));
+        return new NcPropertyBagsConverter<>(ShuntCompensatorModification::fromPropertyBag)
+            .convert(getPropertyBags(NcKeyword.REMEDIAL_ACTION, OverridingObjectsFields.SHUNT_COMPENSATOR_MODIFICATION, NcConstants.SHUNT_COMPENSATOR_MODIFICATION));
     }
 
     public Set<TapPositionAction> getTapPositionActions() {
-        return new NcPropertyBagsConverter<>(TapPositionAction::fromPropertyBag).convert(getPropertyBags(NcKeyword.REMEDIAL_ACTION, OverridingObjectsFields.TAP_POSITION_ACTION, NcConstants.TAP_POSITION_ACTION));
+        return new NcPropertyBagsConverter<>(TapPositionAction::fromPropertyBag)
+            .convert(getPropertyBags(NcKeyword.REMEDIAL_ACTION, OverridingObjectsFields.TAP_POSITION_ACTION, NcConstants.TAP_POSITION_ACTION));
     }
 
     public Set<StaticPropertyRange> getStaticPropertyRanges() {
-        return new NcPropertyBagsConverter<>(StaticPropertyRange::fromPropertyBag).convert(getPropertyBags(NcKeyword.REMEDIAL_ACTION, OverridingObjectsFields.STATIC_PROPERTY_RANGE, NcConstants.STATIC_PROPERTY_RANGE));
+        return new NcPropertyBagsConverter<>(StaticPropertyRange::fromPropertyBag)
+            .convert(getPropertyBags(NcKeyword.REMEDIAL_ACTION, OverridingObjectsFields.STATIC_PROPERTY_RANGE, NcConstants.STATIC_PROPERTY_RANGE));
     }
 
     public Set<ContingencyWithRemedialAction> getContingencyWithRemedialActions() {
-        return new NcPropertyBagsConverter<>(ContingencyWithRemedialAction::fromPropertyBag).convert(getPropertyBags(NcKeyword.REMEDIAL_ACTION, OverridingObjectsFields.CONTINGENCY_WITH_REMEDIAL_ACTION, NcConstants.REQUEST_CONTINGENCY_WITH_REMEDIAL_ACTION));
+        return new NcPropertyBagsConverter<>(ContingencyWithRemedialAction::fromPropertyBag)
+            .convert(getPropertyBags(NcKeyword.REMEDIAL_ACTION, OverridingObjectsFields.CONTINGENCY_WITH_REMEDIAL_ACTION, NcConstants.REQUEST_CONTINGENCY_WITH_REMEDIAL_ACTION));
     }
 
     public Set<RemedialActionGroup> getRemedialActionGroups() {
-        return new NcPropertyBagsConverter<>(RemedialActionGroup::fromPropertyBag).convert(getPropertyBags(NcKeyword.REMEDIAL_ACTION, NcConstants.REQUEST_REMEDIAL_ACTION_GROUP));
+        return new NcPropertyBagsConverter<>(RemedialActionGroup::fromPropertyBag)
+            .convert(getPropertyBags(NcKeyword.REMEDIAL_ACTION, NcConstants.REQUEST_REMEDIAL_ACTION_GROUP));
 
     }
 
     public Set<RemedialActionDependency> getRemedialActionDependencies() {
-        return new NcPropertyBagsConverter<>(RemedialActionDependency::fromPropertyBag).convert(getPropertyBags(NcKeyword.REMEDIAL_ACTION, OverridingObjectsFields.SCHEME_REMEDIAL_ACTION_DEPENDENCY, NcConstants.REQUEST_REMEDIAL_ACTION_DEPENDENCY));
+        return new NcPropertyBagsConverter<>(RemedialActionDependency::fromPropertyBag)
+            .convert(getPropertyBags(NcKeyword.REMEDIAL_ACTION, OverridingObjectsFields.SCHEME_REMEDIAL_ACTION_DEPENDENCY, NcConstants.REQUEST_REMEDIAL_ACTION_DEPENDENCY));
     }
 
     public Set<TapChanger> getTapChangers() {
@@ -173,11 +174,23 @@ public class NcCrac {
     private void setOverridingData(OffsetDateTime importTimestamp) {
         overridingData = new HashMap<>();
         for (OverridingObjectsFields overridingObject : OverridingObjectsFields.values()) {
-            addDataFromTripleStoreToMap(overridingData, overridingObject.getRequestName(), overridingObject.getObjectName(), overridingObject.getOverridedFieldName(), overridingObject.getHeaderType(), importTimestamp);
+            addDataFromTripleStoreToMap(
+                overridingData,
+                overridingObject.getRequestName(),
+                overridingObject.getObjectName(),
+                overridingObject.getOverridedFieldName(),
+                overridingObject.getHeaderType(),
+                importTimestamp
+            );
         }
     }
 
-    private void addDataFromTripleStoreToMap(Map<String, String> dataMap, String queryName, String queryObjectName, String queryFieldName, HeaderType headerType, OffsetDateTime importTimestamp) {
+    private void addDataFromTripleStoreToMap(Map<String, String> dataMap,
+                                             String queryName,
+                                             String queryObjectName,
+                                             String queryFieldName,
+                                             HeaderType headerType,
+                                             OffsetDateTime importTimestamp) {
         PropertyBags propertyBagsResult = queryTripleStore(queryName, tripleStoreNcCrac.contextNames());
         for (PropertyBag propertyBag : propertyBagsResult) {
             if (HeaderType.START_END_DATE.equals(headerType)) {
@@ -243,7 +256,10 @@ public class NcCrac {
             if (!properties.isEmpty()) {
                 PropertyBag property = properties.get(0);
                 if (!checkTimeCoherence(property, offsetDateTime)) {
-                    OpenRaoLoggerProvider.BUSINESS_WARNS.warn(String.format("[REMOVED] The file : %s will be ignored. Its dates are not consistent with the import date : %s", contextName, offsetDateTime));
+                    OpenRaoLoggerProvider.BUSINESS_WARNS.warn(String.format(
+                        "[REMOVED] The file : %s will be ignored. Its dates are not consistent with the import date : %s",
+                        contextName, offsetDateTime
+                    ));
                     clearContext(contextName);
                     clearKeywordMap(contextName);
                 }

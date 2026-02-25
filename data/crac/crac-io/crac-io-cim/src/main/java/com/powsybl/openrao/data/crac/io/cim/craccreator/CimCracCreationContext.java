@@ -127,7 +127,10 @@ public class CimCracCreationContext implements CracCreationContext {
                 String neId = context.getNativeNetworkElementId() != null ? context.getNativeNetworkElementId() : "all";
                 String instant = context.getInstantId() != null ? context.getInstantId().toLowerCase() : "all";
                 String coName = context.getNativeContingencyName() != null ? context.getNativeContingencyName() : "all";
-                creationReport.removed(String.format("VoltageCnec with network element \"%s\", instant \"%s\" and contingency \"%s\" was not imported: %s. %s.", neId, instant, coName, context.getImportStatus(), context.getImportStatusDetail()));
+                creationReport.removed(String.format(
+                    "VoltageCnec with network element \"%s\", instant \"%s\" and contingency \"%s\" was not imported: %s. %s.",
+                    neId, instant, coName, context.getImportStatus(), context.getImportStatusDetail()
+                ));
             }
         );
     }
@@ -156,7 +159,9 @@ public class CimCracCreationContext implements CracCreationContext {
     }
 
     public AngleCnecCreationContext getAngleCnecCreationContext(String seriesId) {
-        return angleCnecCreationContexts.stream().filter(creationContext -> creationContext.getNativeObjectId().equals(seriesId)).findAny().orElse(null);
+        return angleCnecCreationContexts.stream()
+            .filter(creationContext -> creationContext.getNativeObjectId().equals(seriesId))
+            .findAny().orElse(null);
     }
 
     void addVoltageCnecCreationContext(VoltageCnecCreationContext voltageCnecCreationContext) {
@@ -168,19 +173,24 @@ public class CimCracCreationContext implements CracCreationContext {
     }
 
     public VoltageCnecCreationContext getVoltageCnecCreationContext(String nativeNetworkElementId, String instantId, String nativeContingencyName) {
-        return voltageCnecCreationContexts.stream().filter(creationContext ->
-            nativeNetworkElementId.equals(creationContext.getNativeNetworkElementId())
-                && instantId.equals(creationContext.getInstantId())
-                && (nativeContingencyName == null && creationContext.getNativeContingencyName() == null || nativeContingencyName != null && nativeContingencyName.equals(creationContext.getNativeContingencyName()))
-        ).findAny().orElse(null);
+        return voltageCnecCreationContexts.stream()
+            .filter(creationContext -> nativeNetworkElementId.equals(creationContext.getNativeNetworkElementId()))
+            .filter(creationContext -> instantId.equals(creationContext.getInstantId()))
+            .filter(creationContext -> nativeContingencyName == null && creationContext.getNativeContingencyName() == null
+                || nativeContingencyName != null && nativeContingencyName.equals(creationContext.getNativeContingencyName()))
+            .findAny().orElse(null);
     }
 
     public Set<VoltageCnecCreationContext> getVoltageCnecCreationContextsForNetworkElement(String nativeNetworkElementId) {
-        return voltageCnecCreationContexts.stream().filter(creationContext -> nativeNetworkElementId.equals(creationContext.getNativeNetworkElementId())).collect(Collectors.toSet());
+        return voltageCnecCreationContexts.stream()
+            .filter(creationContext -> nativeNetworkElementId.equals(creationContext.getNativeNetworkElementId()))
+            .collect(Collectors.toSet());
     }
 
     public Set<VoltageCnecCreationContext> getVoltageCnecCreationContextsForContingency(String nativeContingencyName) {
-        return voltageCnecCreationContexts.stream().filter(creationContext -> nativeContingencyName.equals(creationContext.getNativeContingencyName())).collect(Collectors.toSet());
+        return voltageCnecCreationContexts.stream()
+            .filter(creationContext -> nativeContingencyName.equals(creationContext.getNativeContingencyName()))
+            .collect(Collectors.toSet());
     }
 
     void setContingencyCreationContexts(Set<ElementaryCreationContext> contingencyCreationContexts) {
@@ -212,15 +222,21 @@ public class CimCracCreationContext implements CracCreationContext {
     }
 
     public RemedialActionSeriesCreationContext getRemedialActionSeriesCreationContext(String seriesId) {
-        return remedialActionSeriesCreationContexts.stream().filter(creationContext -> creationContext.getNativeObjectId().equals(seriesId)).findAny().orElse(null);
+        return remedialActionSeriesCreationContexts.stream()
+            .filter(creationContext -> creationContext.getNativeObjectId().equals(seriesId))
+            .findAny().orElse(null);
     }
 
     public ElementaryCreationContext getContingencyCreationContextById(String contingencyId) {
-        return contingencyCreationContexts.stream().filter(contingencyCreationContext -> contingencyCreationContext.getNativeObjectId().equals(contingencyId)).findAny().orElse(null);
+        return contingencyCreationContexts.stream()
+            .filter(contingencyCreationContext -> contingencyCreationContext.getNativeObjectId().equals(contingencyId))
+            .findAny().orElse(null);
     }
 
     public ElementaryCreationContext getContingencyCreationContextByName(String contingencyName) {
-        return contingencyCreationContexts.stream().filter(contingencyCreationContext -> contingencyCreationContext.getNativeObjectName().equals(contingencyName)).findAny().orElse(null);
+        return contingencyCreationContexts.stream()
+            .filter(contingencyCreationContext -> contingencyCreationContext.getNativeObjectName().equals(contingencyName))
+            .findAny().orElse(null);
     }
 
     public OffsetDateTime getNetworkCaseDate() {

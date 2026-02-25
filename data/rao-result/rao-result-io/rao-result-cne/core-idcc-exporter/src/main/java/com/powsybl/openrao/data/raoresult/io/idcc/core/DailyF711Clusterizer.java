@@ -7,30 +7,12 @@
 
 package com.powsybl.openrao.data.raoresult.io.idcc.core;
 
-import com.powsybl.openrao.data.crac.io.fbconstraint.xsd.ComplexVariantsType;
-import com.powsybl.openrao.data.crac.io.fbconstraint.xsd.CriticalBranchType;
-import com.powsybl.openrao.data.crac.io.fbconstraint.xsd.CriticalBranchesType;
-import com.powsybl.openrao.data.crac.io.fbconstraint.xsd.FlowBasedConstraintDocument;
-import com.powsybl.openrao.data.crac.io.fbconstraint.xsd.IndependantComplexVariant;
-import com.powsybl.openrao.data.crac.io.fbconstraint.xsd.etso.IdentificationType;
-import com.powsybl.openrao.data.crac.io.fbconstraint.xsd.etso.MessageDateTimeType;
-import com.powsybl.openrao.data.crac.io.fbconstraint.xsd.etso.MessageType;
-import com.powsybl.openrao.data.crac.io.fbconstraint.xsd.etso.MessageTypeList;
-import com.powsybl.openrao.data.crac.io.fbconstraint.xsd.etso.PartyType;
-import com.powsybl.openrao.data.crac.io.fbconstraint.xsd.etso.ProcessType;
-import com.powsybl.openrao.data.crac.io.fbconstraint.xsd.etso.ProcessTypeList;
-import com.powsybl.openrao.data.crac.io.fbconstraint.xsd.etso.RoleType;
-import com.powsybl.openrao.data.crac.io.fbconstraint.xsd.etso.TimeIntervalType;
-import com.powsybl.openrao.data.crac.io.fbconstraint.xsd.etso.VersionType;
+import com.powsybl.openrao.data.crac.io.fbconstraint.xsd.*;
+import com.powsybl.openrao.data.crac.io.fbconstraint.xsd.etso.*;
 
 import javax.xml.datatype.XMLGregorianCalendar;
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * @author Pengbo Wang {@literal <pengbo.wang at rte-international.com>}
@@ -275,14 +257,17 @@ class DailyF711Clusterizer {
     }
 
     private static boolean areMinRamFactorEqual(CriticalBranchType cb1, CriticalBranchType cb2) {
-        return cb1.getMinRAMfactor() == null && cb2.getMinRAMfactor() == null || cb1.getMinRAMfactor() != null && cb2.getMinRAMfactor() != null && Math.abs(cb1.getMinRAMfactor().doubleValue() - cb2.getMinRAMfactor().doubleValue()) < 1e-6;
+        return cb1.getMinRAMfactor() == null && cb2.getMinRAMfactor() == null
+            || cb1.getMinRAMfactor() != null && cb2.getMinRAMfactor() != null && Math.abs(cb1.getMinRAMfactor().doubleValue() - cb2.getMinRAMfactor().doubleValue()) < 1e-6;
     }
 
     private static boolean areImaxEqual(CriticalBranchType cb1, CriticalBranchType cb2) {
-        return cb1.getImaxA() == null && cb2.getImaxA() == null || cb1.getImaxA() != null && cb2.getImaxA() != null && Math.abs(cb1.getImaxA().doubleValue() - cb2.getImaxA().doubleValue()) < 1e-6;
+        return cb1.getImaxA() == null && cb2.getImaxA() == null
+            || cb1.getImaxA() != null && cb2.getImaxA() != null && Math.abs(cb1.getImaxA().doubleValue() - cb2.getImaxA().doubleValue()) < 1e-6;
     }
 
     private static boolean areImaxFactorsEqual(CriticalBranchType cb1, CriticalBranchType cb2) {
-        return cb1.getImaxFactor() == null && cb2.getImaxFactor() == null || cb1.getImaxFactor() != null && cb2.getImaxFactor() != null && Math.abs(cb1.getImaxFactor().doubleValue() - cb2.getImaxFactor().doubleValue()) < 1e-6;
+        return cb1.getImaxFactor() == null && cb2.getImaxFactor() == null
+            || cb1.getImaxFactor() != null && cb2.getImaxFactor() != null && Math.abs(cb1.getImaxFactor().doubleValue() - cb2.getImaxFactor().doubleValue()) < 1e-6;
     }
 }

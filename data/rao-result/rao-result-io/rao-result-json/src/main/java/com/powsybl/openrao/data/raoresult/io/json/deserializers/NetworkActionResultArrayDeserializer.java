@@ -7,13 +7,13 @@
 
 package com.powsybl.openrao.data.raoresult.io.json.deserializers;
 
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.raoresult.impl.NetworkActionResult;
 import com.powsybl.openrao.data.raoresult.impl.RaoResultImpl;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
 import com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants;
 
 import java.io.IOException;
@@ -30,14 +30,21 @@ final class NetworkActionResultArrayDeserializer {
 
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             if (!jsonParser.nextFieldName().equals(RaoResultJsonConstants.NETWORKACTION_ID)) {
-                throw new OpenRaoException(String.format("Cannot deserialize RaoResult: each %s must start with an %s field", RaoResultJsonConstants.NETWORKACTION_RESULTS, RaoResultJsonConstants.NETWORKACTION_ID));
+                throw new OpenRaoException(String.format(
+                    "Cannot deserialize RaoResult: each %s must start with an %s field",
+                    RaoResultJsonConstants.NETWORKACTION_RESULTS,
+                    RaoResultJsonConstants.NETWORKACTION_ID
+                ));
             }
 
             String networkActionId = jsonParser.nextTextValue();
             NetworkAction networkAction = crac.getNetworkAction(networkActionId);
 
             if (networkAction == null) {
-                throw new OpenRaoException(String.format("Cannot deserialize RaoResult: cannot deserialize RaoResult: networkAction with id %s does not exist in the Crac", networkActionId));
+                throw new OpenRaoException(String.format(
+                    "Cannot deserialize RaoResult: cannot deserialize RaoResult: networkAction with id %s does not exist in the Crac",
+                    networkActionId
+                ));
             }
 
             NetworkActionResult networkActionResult = raoResult.getAndCreateIfAbsentNetworkActionResult(networkAction);
@@ -46,7 +53,11 @@ final class NetworkActionResultArrayDeserializer {
                     jsonParser.nextToken();
                     deserializeStates(jsonParser, networkActionResult, crac);
                 } else {
-                    throw new OpenRaoException(String.format("Cannot deserialize RaoResult: unexpected field in %s (%s)", RaoResultJsonConstants.NETWORKACTION_RESULTS, jsonParser.getCurrentName()));
+                    throw new OpenRaoException(String.format(
+                        "Cannot deserialize RaoResult: unexpected field in %s (%s)",
+                        RaoResultJsonConstants.NETWORKACTION_RESULTS,
+                        jsonParser.getCurrentName()
+                    ));
                 }
             }
         }
@@ -66,7 +77,11 @@ final class NetworkActionResultArrayDeserializer {
                         contingencyId = jsonParser.nextTextValue();
                         break;
                     default:
-                        throw new OpenRaoException(String.format("Cannot deserialize RaoResult: unexpected field in %s (%s)", RaoResultJsonConstants.NETWORKACTION_RESULTS, jsonParser.getCurrentName()));
+                        throw new OpenRaoException(String.format(
+                            "Cannot deserialize RaoResult: unexpected field in %s (%s)",
+                            RaoResultJsonConstants.NETWORKACTION_RESULTS,
+                            jsonParser.getCurrentName()
+                        ));
                 }
             }
             networkActionResult.addActivationForState(StateDeserializer.getState(instantId, contingencyId, crac, RaoResultJsonConstants.NETWORKACTION_RESULTS));

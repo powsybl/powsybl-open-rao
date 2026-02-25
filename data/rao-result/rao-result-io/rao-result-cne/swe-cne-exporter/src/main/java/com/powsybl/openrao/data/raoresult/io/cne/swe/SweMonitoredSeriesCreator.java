@@ -7,10 +7,13 @@
 
 package com.powsybl.openrao.data.raoresult.io.cne.swe;
 
-import com.powsybl.iidm.network.*;
+import com.powsybl.contingency.Contingency;
+import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.TieLine;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
@@ -68,8 +71,10 @@ public class SweMonitoredSeriesCreator {
                                 cnecCreationContext -> {
                                     FlowCnec cnec = crac.getFlowCnec(cnecCreationContext.getCreatedCnecId());
                                     Contingency contingency = cnec.getState().getContingency().orElse(null);
-                                    cnecCreationContextsMap.computeIfAbsent(contingency, c -> new TreeMap<>(Comparator.comparing(MonitoredSeriesCreationContext::getNativeId)));
-                                    cnecCreationContextsMap.get(contingency).computeIfAbsent(monitoredSeriesCreationContext, cc -> new TreeSet<>(Comparator.comparing(CnecCreationContext::getCreatedCnecId)));
+                                    cnecCreationContextsMap.computeIfAbsent(contingency, c ->
+                                        new TreeMap<>(Comparator.comparing(MonitoredSeriesCreationContext::getNativeId)));
+                                    cnecCreationContextsMap.get(contingency).computeIfAbsent(monitoredSeriesCreationContext, cc ->
+                                        new TreeSet<>(Comparator.comparing(CnecCreationContext::getCreatedCnecId)));
                                     cnecCreationContextsMap.get(contingency).get(monitoredSeriesCreationContext).add(cnecCreationContext);
                                 })));
     }
@@ -80,8 +85,8 @@ public class SweMonitoredSeriesCreator {
         }
         List<MonitoredSeries> monitoredSeriesList = new ArrayList<>();
         boolean includeMeasurements = !sweCneHelper.isContingencyDivergent(contingency);
-        cnecCreationContextsMap.get(contingency).forEach(
-            (monitoredSeriesCC, cnecCCSet) -> monitoredSeriesList.addAll(generateMonitoredSeries(monitoredSeriesCC, cnecCCSet, includeMeasurements))
+        cnecCreationContextsMap.get(contingency).forEach((monitoredSeriesCC, cnecCCSet) ->
+            monitoredSeriesList.addAll(generateMonitoredSeries(monitoredSeriesCC, cnecCCSet, includeMeasurements))
         );
         return monitoredSeriesList;
     }
@@ -114,7 +119,9 @@ public class SweMonitoredSeriesCreator {
         );
     }
 
-    private List<MonitoredSeries> generateMonitoredSeries(MonitoredSeriesCreationContext monitoredSeriesCreationContext, Set<CnecCreationContext> cnecCreationContexts, boolean includeMeasurements) {
+    private List<MonitoredSeries> generateMonitoredSeries(MonitoredSeriesCreationContext monitoredSeriesCreationContext,
+                                                          Set<CnecCreationContext> cnecCreationContexts,
+                                                          boolean includeMeasurements) {
         Crac crac = sweCneHelper.getCrac();
         Map<Double, MonitoredSeries> monitoredSeriesPerFlowValue = new LinkedHashMap<>();
         cnecCreationContexts.forEach(cnecCreationContext -> {

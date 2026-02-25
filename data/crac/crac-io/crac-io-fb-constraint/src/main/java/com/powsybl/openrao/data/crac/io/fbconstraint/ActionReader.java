@@ -14,15 +14,15 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkActionAdder;
 import com.powsybl.openrao.data.crac.api.networkaction.SingleNetworkElementActionAdder;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeActionAdder;
-import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
-import com.powsybl.openrao.data.crac.io.fbconstraint.xsd.ActionType;
-import com.powsybl.openrao.data.crac.io.fbconstraint.xsd.RangeType;
 import com.powsybl.openrao.data.crac.io.commons.OpenRaoImportException;
+import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
 import com.powsybl.openrao.data.crac.io.commons.ucte.UcteNetworkAnalyzer;
 import com.powsybl.openrao.data.crac.io.commons.ucte.UctePstHelper;
 import com.powsybl.openrao.data.crac.io.commons.ucte.UcteTopologicalElementHelper;
-
+import com.powsybl.openrao.data.crac.io.fbconstraint.xsd.ActionType;
+import com.powsybl.openrao.data.crac.io.fbconstraint.xsd.RangeType;
 import jakarta.xml.bind.JAXBElement;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -121,7 +121,10 @@ class ActionReader {
         } else if (networkElement instanceof Branch) {
             actionAdder = networkActionAdder.newTerminalsConnectionAction().withActionType(topologicalActionType);
         } else {
-            throw new OpenRaoImportException(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, "FlowBasedConstraint topological action " + remedialActionId + " should be on branch or on switch, not on " + networkElement.getType());
+            throw new OpenRaoImportException(
+                ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK,
+                "FlowBasedConstraint topological action " + remedialActionId + " should be on branch or on switch, not on " + networkElement.getType()
+            );
         }
         actionAdder.withNetworkElement(networkElementId).add();
     }
@@ -153,10 +156,17 @@ class ActionReader {
     private void interpretWithNetwork(UcteNetworkAnalyzer ucteNetworkAnalyzer) {
 
         // check first element of the action, which is assumed to be a branch
-        Iterator<?> actionTypeIterator = action.getContent().stream().filter(serializable -> serializable.getClass() != String.class).iterator();
+        Iterator<?> actionTypeIterator = action.getContent().stream()
+            .filter(serializable -> serializable.getClass() != String.class)
+            .iterator();
         ActionType.Branch branch = (ActionType.Branch) ((JAXBElement<?>) actionTypeIterator.next()).getValue();
 
-        this.nativeNetworkElementId = String.format("%1$-8s %2$-8s %3$s", branch.getFrom(), branch.getTo(), branch.getOrder() != null ? branch.getOrder() : branch.getElementName());
+        this.nativeNetworkElementId = String.format(
+            "%1$-8s %2$-8s %3$s",
+            branch.getFrom(),
+            branch.getTo(),
+            branch.getOrder() != null ? branch.getOrder() : branch.getElementName()
+        );
 
         switch (action.getType()) {
             case PST:
@@ -189,7 +199,13 @@ class ActionReader {
 
     private void interpretAsTopologicalAction(ActionType.Branch branch, Iterator<?> actionTypeIterator, UcteNetworkAnalyzer ucteNetworkAnalyzer) {
         this.type = Type.TOPO;
-        UcteTopologicalElementHelper ucteElementHelper = new UcteTopologicalElementHelper(branch.getFrom(), branch.getTo(), branch.getOrder(), branch.getElementName(), ucteNetworkAnalyzer);
+        UcteTopologicalElementHelper ucteElementHelper = new UcteTopologicalElementHelper(
+            branch.getFrom(),
+            branch.getTo(),
+            branch.getOrder(),
+            branch.getElementName(),
+            ucteNetworkAnalyzer
+        );
 
         if (!ucteElementHelper.isValid()) {
             invalidate(ucteElementHelper.getInvalidReason());
@@ -207,9 +223,9 @@ class ActionReader {
             try {
                 JAXBElement<?> jaxbElement = (JAXBElement<?>) actionTypeIterator.next();
                 String elementCategory = jaxbElement.getName().getLocalPart();
-                if (elementCategory.equals("relativeRange") || elementCategory.equals("range")) {
+                if ("relativeRange".equals(elementCategory) || "range".equals(elementCategory)) {
                     ranges.add(getRangesFromJaxbElement(jaxbElement, shouldInvertRanges));
-                } else if (elementCategory.equals("PSTGroupId")) {
+                } else if ("PSTGroupId".equals(elementCategory)) {
                     groupId = (String) jaxbElement.getValue();
                 }
             } catch (ClassCastException e) {
@@ -225,9 +241,9 @@ class ActionReader {
         RangeType rangeType = (RangeType) jaxbElementRange.getValue();
         range.minTap = shouldInvert ? -rangeType.getMax().intValue() : rangeType.getMin().intValue();
         range.maxTap = shouldInvert ? -rangeType.getMin().intValue() : rangeType.getMax().intValue();
-        if (rangeCategory.equals("relativeRange")) {
+        if ("relativeRange".equals(rangeCategory)) {
             range.relativeOrAbsolute = com.powsybl.openrao.data.crac.api.range.RangeType.RELATIVE_TO_PREVIOUS_INSTANT;
-        } else if (rangeCategory.equals("range")) {
+        } else if ("range".equals(rangeCategory)) {
             range.relativeOrAbsolute = com.powsybl.openrao.data.crac.api.range.RangeType.ABSOLUTE;
         } else {
             invalidate(String.format("unknown type of range category %s", rangeCategory));
@@ -238,7 +254,7 @@ class ActionReader {
     private void getActionType(Iterator<?> actionTypeIterator) {
         String actionAsString = ((JAXBElement<?>) actionTypeIterator.next()).getValue().toString();
 
-        if (!actionAsString.equals("OPEN") && !actionAsString.equals("CLOSE")) {
+        if (!"OPEN".equals(actionAsString) && !"CLOSE".equals(actionAsString)) {
             invalidate(String.format("unknown topological action: %s", actionAsString));
         }
 

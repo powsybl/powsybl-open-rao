@@ -7,11 +7,11 @@
 
 package com.powsybl.openrao.data.crac.io.cse.parameters;
 
-import com.powsybl.openrao.data.crac.api.parameters.AbstractAlignedRaCracCreationParameters;
-import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.openrao.data.crac.api.parameters.AbstractAlignedRaCracCreationParameters;
+import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
 
 import java.util.Optional;
 

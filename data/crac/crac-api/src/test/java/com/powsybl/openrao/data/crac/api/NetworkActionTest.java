@@ -27,7 +27,11 @@ class NetworkActionTest {
     void compatibility() {
         NetworkAction hvdcFrEs200Mw = mockHvdcAction(-200d);
         NetworkAction hvdcEsFr200Mw = mockHvdcAction(200d);
-        NetworkAction alignedPsts = mockNetworkAction(mockPhaseTapChangerTapPositionAction("pst-fr-1", 4), mockPhaseTapChangerTapPositionAction("pst-fr-2", 4), mockPhaseTapChangerTapPositionAction("pst-fr-3", 4));
+        NetworkAction alignedPsts = mockNetworkAction(
+            mockPhaseTapChangerTapPositionAction("pst-fr-1", 4),
+            mockPhaseTapChangerTapPositionAction("pst-fr-2", 4),
+            mockPhaseTapChangerTapPositionAction("pst-fr-3", 4)
+        );
         NetworkAction switchPairAndPst = mockNetworkAction(mockPhaseTapChangerTapPositionAction("pst-fr-2", -2), mockSwitchPair());
 
         assertTrue(hvdcFrEs200Mw.isCompatibleWith(hvdcFrEs200Mw));
@@ -43,7 +47,14 @@ class NetworkActionTest {
     }
 
     private NetworkAction mockHvdcAction(double setpoint) {
-        return new NetworkActionUtils.NetworkActionImplTest(Set.of(mockSwitchActionOpen("switch-fr"), mockSwitchActionOpen("switch-es"), mockGeneratorAction("generator-fr-1", setpoint / 2d), mockGeneratorAction("generator-fr-2", setpoint / 2d), mockGeneratorAction("generator-es-1", -setpoint / 2d), mockGeneratorAction("generator-es-2", -setpoint / 2d)));
+        return new NetworkActionUtils.NetworkActionImplTest(Set.of(
+            mockSwitchActionOpen("switch-fr"),
+            mockSwitchActionOpen("switch-es"),
+            mockGeneratorAction("generator-fr-1", setpoint / 2d),
+            mockGeneratorAction("generator-fr-2", setpoint / 2d),
+            mockGeneratorAction("generator-es-1", -setpoint / 2d),
+            mockGeneratorAction("generator-es-2", -setpoint / 2d))
+        );
     }
 
     private NetworkAction mockNetworkAction(Action... elementaryActions) {

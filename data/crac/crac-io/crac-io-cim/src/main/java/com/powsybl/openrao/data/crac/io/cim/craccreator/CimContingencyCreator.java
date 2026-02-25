@@ -10,21 +10,24 @@ package com.powsybl.openrao.data.crac.io.cim.craccreator;
 import com.powsybl.contingency.ContingencyElementFactory;
 import com.powsybl.contingency.ContingencyElementType;
 import com.powsybl.iidm.network.DanglingLine;
+import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TieLine;
+import com.powsybl.openrao.data.crac.api.ContingencyAdder;
+import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.io.cim.xsd.ContingencyRegisteredResource;
 import com.powsybl.openrao.data.crac.io.cim.xsd.ContingencySeries;
 import com.powsybl.openrao.data.crac.io.cim.xsd.Series;
 import com.powsybl.openrao.data.crac.io.cim.xsd.TimeSeries;
-import com.powsybl.openrao.data.crac.api.ContingencyAdder;
-import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.io.commons.api.ElementaryCreationContext;
 import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
-import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.data.crac.io.commons.api.StandardElementaryCreationContext;
 import com.powsybl.openrao.data.crac.io.commons.cgmes.CgmesBranchHelper;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
@@ -70,7 +73,12 @@ public class CimContingencyCreator {
                 .withName(cimContingency.getName());
 
         if (cimContingency.getRegisteredResource().isEmpty()) {
-            cimContingencyCreationContexts.add(StandardElementaryCreationContext.notImported(createdContingencyId, cimContingency.getName(), ImportStatus.INCOMPLETE_DATA, "No registered resources"));
+            cimContingencyCreationContexts.add(StandardElementaryCreationContext.notImported(
+                createdContingencyId,
+                cimContingency.getName(),
+                ImportStatus.INCOMPLETE_DATA,
+                "No registered resources"
+            ));
             return;
         }
 
@@ -95,10 +103,22 @@ public class CimContingencyCreator {
         }
         if (anyRegisteredResourceOk) {
             contingencyAdder.add();
-            String message = allRegisteredResourcesOk ? null : String.format("Some network elements were not found in the network: %s", missingNetworkElements.toString());
-            cimContingencyCreationContexts.add(StandardElementaryCreationContext.imported(createdContingencyId, cimContingency.getName(), createdContingencyId, !allRegisteredResourcesOk, message));
+            String message = allRegisteredResourcesOk ?
+                null : String.format("Some network elements were not found in the network: %s", missingNetworkElements.toString());
+            cimContingencyCreationContexts.add(StandardElementaryCreationContext.imported(
+                createdContingencyId,
+                cimContingency.getName(),
+                createdContingencyId,
+                !allRegisteredResourcesOk,
+                message
+            ));
         } else {
-            cimContingencyCreationContexts.add(StandardElementaryCreationContext.notImported(createdContingencyId, cimContingency.getName(), ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, "None of the contingency's registered resources was found in network"));
+            cimContingencyCreationContexts.add(StandardElementaryCreationContext.notImported(
+                createdContingencyId,
+                cimContingency.getName(),
+                ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK,
+                "None of the contingency's registered resources was found in network"
+            ));
         }
     }
 

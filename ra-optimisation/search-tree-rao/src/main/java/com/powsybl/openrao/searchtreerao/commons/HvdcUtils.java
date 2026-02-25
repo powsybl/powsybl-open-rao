@@ -26,7 +26,11 @@ import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.api.usagerule.OnConstraint;
 import com.powsybl.openrao.data.crac.api.usagerule.OnContingencyState;
 import com.powsybl.openrao.data.crac.api.usagerule.OnFlowConstraintInCountry;
-import com.powsybl.openrao.data.crac.impl.*;
+import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
+import com.powsybl.openrao.data.crac.impl.OnConstraintImpl;
+import com.powsybl.openrao.data.crac.impl.OnContingencyStateImpl;
+import com.powsybl.openrao.data.crac.impl.OnFlowConstraintInCountryImpl;
+import com.powsybl.openrao.data.crac.impl.OnInstantImpl;
 import com.powsybl.openrao.data.crac.io.commons.iidm.IidmHvdcHelper;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters;
@@ -54,16 +58,14 @@ public final class HvdcUtils {
      */
     public static void addNetworkActionAssociatedWithHvdcRangeAction(Crac crac, Network network) {
         // for each HVDC range action
-        crac.getHvdcRangeActions().forEach(hvdcRangeAction -> {
-            // get associated HVDC line id
+        for (HvdcRangeAction hvdcRangeAction : crac.getHvdcRangeActions()) { // get associated HVDC line id
             String hvdcLineId = hvdcRangeAction.getNetworkElement().getId();
 
             // Check if an AC emulation deactivation network action has already been created
             Set<NetworkAction> acEmulationDeactivationActionOnHvdcLine = crac.getNetworkActions().stream()
                 .filter(ra -> ra.getElementaryActions().stream().allMatch(action -> action instanceof HvdcAction))
-                .filter(ra -> ra.getElementaryActions().stream().allMatch(action ->
-                    ((HvdcAction) action).getHvdcId().equals(hvdcLineId)
-                )).collect(Collectors.toSet());
+                .filter(ra -> ra.getElementaryActions().stream().allMatch(action -> ((HvdcAction) action).getHvdcId().equals(hvdcLineId)))
+                .collect(Collectors.toSet());
 
             // if AC emulation is activated on HVDC line
             if (hvdcRangeAction.isAngleDroopActivePowerControlEnabled(network)) {
@@ -90,7 +92,7 @@ public final class HvdcUtils {
                     );
                 }
             }
-        });
+        }
     }
 
     /***
@@ -100,35 +102,32 @@ public final class HvdcUtils {
      * @param acEmulationDeactivationActionAdder the network action adder that will be used to add the usage rules
      */
     static void addAllUsageRules(HvdcRangeAction hvdcRangeAction, NetworkActionAdder acEmulationDeactivationActionAdder) {
-        hvdcRangeAction.getUsageRules().forEach(
-            usageRule -> {
-                if (usageRule.getClass().equals(OnInstantImpl.class)) {
-                    acEmulationDeactivationActionAdder
-                        .newOnInstantUsageRule()
-                        .withInstant(usageRule.getInstant().getId())
-                        .add();
-                } else if (usageRule.getClass().equals(OnConstraintImpl.class)) {
-                    OnConstraint<?> onConstraint = (OnConstraint<?>) usageRule;
-                    acEmulationDeactivationActionAdder.newOnConstraintUsageRule()
-                        .withInstant(onConstraint.getInstant().getId())
-                        .withCnec(onConstraint.getCnec().getId())
-                        .add();
-                } else if (usageRule.getClass().equals(OnContingencyStateImpl.class)) {
-                    OnContingencyState onContingencyState = (OnContingencyState) usageRule;
-                    acEmulationDeactivationActionAdder.newOnContingencyStateUsageRule()
-                        .withContingency(onContingencyState.getContingency().getId())
-                        .withInstant(onContingencyState.getInstant().getId())
-                        .add();
-                } else if (usageRule.getClass().equals(OnFlowConstraintInCountryImpl.class)) {
-                    OnFlowConstraintInCountry onFlowConstraintInCountry = (OnFlowConstraintInCountry) usageRule;
-                    acEmulationDeactivationActionAdder.newOnFlowConstraintInCountryUsageRule()
-                        .withCountry(onFlowConstraintInCountry.getCountry())
-                        .withInstant(onFlowConstraintInCountry.getInstant().getId())
-                        .withContingency(onFlowConstraintInCountry.getContingency().get().getId())
-                        .add();
-                }
+        for (UsageRule usageRule : hvdcRangeAction.getUsageRules()) {
+            if (usageRule.getClass().equals(OnInstantImpl.class)) {
+                acEmulationDeactivationActionAdder.newOnInstantUsageRule()
+                    .withInstant(usageRule.getInstant().getId())
+                    .add();
+            } else if (usageRule.getClass().equals(OnConstraintImpl.class)) {
+                OnConstraint<?> onConstraint = (OnConstraint<?>) usageRule;
+                acEmulationDeactivationActionAdder.newOnConstraintUsageRule()
+                    .withInstant(onConstraint.getInstant().getId())
+                    .withCnec(onConstraint.getCnec().getId())
+                    .add();
+            } else if (usageRule.getClass().equals(OnContingencyStateImpl.class)) {
+                OnContingencyState onContingencyState = (OnContingencyState) usageRule;
+                acEmulationDeactivationActionAdder.newOnContingencyStateUsageRule()
+                    .withContingency(onContingencyState.getContingency().getId())
+                    .withInstant(onContingencyState.getInstant().getId())
+                    .add();
+            } else if (usageRule.getClass().equals(OnFlowConstraintInCountryImpl.class)) {
+                OnFlowConstraintInCountry onFlowConstraintInCountry = (OnFlowConstraintInCountry) usageRule;
+                acEmulationDeactivationActionAdder.newOnFlowConstraintInCountryUsageRule()
+                    .withCountry(onFlowConstraintInCountry.getCountry())
+                    .withInstant(onFlowConstraintInCountry.getInstant().getId())
+                    .withContingency(onFlowConstraintInCountry.getContingency().get().getId())
+                    .add();
             }
-        );
+        }
     }
 
     /**
@@ -225,33 +224,35 @@ public final class HvdcUtils {
         );
 
         // Set active power set-points
-        hvdcRangeActionsWithHvdcLineInAcEmulation.forEach(hvdcRa -> {
+        for (HvdcRangeAction hvdcRa : hvdcRangeActionsWithHvdcLineInAcEmulation) {
             String hvdcLineId = hvdcRa.getNetworkElement().getId();
             HvdcLine hvdcLine = IidmHvdcHelper.getHvdcLine(network, hvdcLineId);
             double activePowerSetpoint = controls.get(hvdcLineId);
 
             // Valid only if not NaN and within admissible range
             boolean isValid = !Double.isNaN(activePowerSetpoint) // NaN if HVDC line is disconnected
-                    && activePowerSetpoint >= hvdcRa.getMinAdmissibleSetpoint(activePowerSetpoint)
-                    && activePowerSetpoint <= hvdcRa.getMaxAdmissibleSetpoint(activePowerSetpoint);
+                && activePowerSetpoint >= hvdcRa.getMinAdmissibleSetpoint(activePowerSetpoint)
+                && activePowerSetpoint <= hvdcRa.getMaxAdmissibleSetpoint(activePowerSetpoint);
 
             if (isValid) {
-                TECHNICAL_LOGS.debug(String.format("" +
-                    "HVDC line %s active power setpoint is set to abs(%.1f)", hvdcLineId, activePowerSetpoint));
+                TECHNICAL_LOGS.debug(String.format(
+                    "" +
+                        "HVDC line %s active power setpoint is set to abs(%.1f)", hvdcLineId, activePowerSetpoint
+                ));
 
                 activePowerSetpoints.put(hvdcRa, activePowerSetpoint);
                 setActivePowerSetpointOnHvdcLine(hvdcLine, activePowerSetpoint);
             } else {
                 TECHNICAL_LOGS.info(String.format(
                     "HVDC line %s active setpoint could not be updated because its new set-point "
-                            + "(%.1f) does not fall within its allowed range (%.1f - %.1f)",
+                        + "(%.1f) does not fall within its allowed range (%.1f - %.1f)",
                     hvdcLineId,
                     activePowerSetpoint,
                     hvdcRa.getMinAdmissibleSetpoint(activePowerSetpoint),
                     hvdcRa.getMaxAdmissibleSetpoint(activePowerSetpoint)
                 ));
             }
-        });
+        }
 
         return activePowerSetpoints;
     }

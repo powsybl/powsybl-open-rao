@@ -7,14 +7,14 @@
 
 package com.powsybl.openrao.virtualhubs.json;
 
-import com.powsybl.openrao.virtualhubs.VirtualHubsConfiguration;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.powsybl.openrao.virtualhubs.VirtualHubsConfiguration;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
 class VirtualHubsConfigurationJsonModule extends SimpleModule {
-    public VirtualHubsConfigurationJsonModule() {
+    VirtualHubsConfigurationJsonModule() {
         super();
         addSerializer(VirtualHubsConfiguration.class, new VirtualHubsConfigurationSerializer());
         addDeserializer(VirtualHubsConfiguration.class, new VirtualHubsConfigurationDeserializer());

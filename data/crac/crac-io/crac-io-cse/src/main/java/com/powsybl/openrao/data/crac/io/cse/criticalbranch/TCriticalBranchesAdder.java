@@ -7,15 +7,11 @@
 
 package com.powsybl.openrao.data.crac.io.cse.criticalbranch;
 
-import com.powsybl.openrao.data.crac.io.cse.xsd.TCriticalBranches;
-import com.powsybl.openrao.data.crac.io.cse.xsd.TOutage;
-import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.io.commons.ucte.UcteNetworkAnalyzer;
 import com.powsybl.openrao.data.crac.io.cse.CseCracCreationContext;
-import com.powsybl.openrao.data.crac.io.cse.xsd.TBaseCaseBranches;
-import com.powsybl.openrao.data.crac.io.cse.xsd.TBranch;
-import com.powsybl.openrao.data.crac.io.cse.xsd.TCRACSeries;
+import com.powsybl.openrao.data.crac.io.cse.xsd.*;
 
 import java.util.*;
 

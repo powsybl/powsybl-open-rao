@@ -19,8 +19,8 @@ import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceProgram;
 import com.powsybl.openrao.raoapi.Rao;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
-import com.powsybl.sensitivity.SensitivityVariableSet;
 import com.powsybl.openrao.tests.steps.CommonTestData;
+import com.powsybl.sensitivity.SensitivityVariableSet;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -72,7 +72,17 @@ public final class RaoUtils {
             buildLoopFlowExtensions(CommonTestData.getCrac(), CommonTestData.getNetwork(), effectiveLfPercentage);
         }
 
-        return runRaoInMemory(Rao.find(raoType), CommonTestData.getNetwork(), CommonTestData.getCrac(), contingencyId, instantKind, glsks, CommonTestData.getReferenceProgram(), raoParameters, timeLimitInSeconds);
+        return runRaoInMemory(
+            Rao.find(raoType),
+            CommonTestData.getNetwork(),
+            CommonTestData.getCrac(),
+            contingencyId,
+            instantKind,
+            glsks,
+            CommonTestData.getReferenceProgram(),
+            raoParameters,
+            timeLimitInSeconds
+        );
     }
 
     private static RaoResult runRaoInMemory(Rao.Runner raoRunner, Network network, Crac crac, String contingencyId, InstantKind instantKind,

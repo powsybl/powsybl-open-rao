@@ -9,10 +9,10 @@ package com.powsybl.openrao.data.raoresult.io.cne.swe;
 
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
-import com.powsybl.openrao.data.raoresult.io.cne.commons.CneUtil;
 import com.powsybl.openrao.data.crac.io.cim.craccreator.CimCracCreationContext;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.data.raoresult.io.cne.commons.CneUtil;
 import com.powsybl.openrao.data.raoresult.io.cne.swe.xsd.*;
 
 import javax.xml.datatype.DatatypeConfigurationException;
@@ -24,7 +24,7 @@ import java.util.Properties;
 import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.*;
 import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneUtil.createXMLGregorianCalendarNow;
 import static com.powsybl.openrao.data.raoresult.io.cne.swe.SweCneClassCreator.*;
-import static com.powsybl.openrao.data.raoresult.io.cne.swe.SweCneUtil.*;
+import static com.powsybl.openrao.data.raoresult.io.cne.swe.SweCneUtil.createPartyIDString;
 
 /**
  * Fills the classes that constitute the CNE file structure

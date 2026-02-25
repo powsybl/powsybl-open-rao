@@ -7,13 +7,13 @@
 
 package com.powsybl.openrao.data.raoresult.io.json.serializers;
 
-import com.powsybl.openrao.commons.OpenRaoException;
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.powsybl.contingency.Contingency;
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
-import com.fasterxml.jackson.core.JsonGenerator;
 
 import java.io.IOException;
 import java.util.Comparator;

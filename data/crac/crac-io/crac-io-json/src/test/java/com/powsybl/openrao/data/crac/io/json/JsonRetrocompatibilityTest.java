@@ -10,21 +10,10 @@ package com.powsybl.openrao.data.crac.io.json;
 import com.powsybl.action.*;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.crac.api.Crac;
-import com.powsybl.openrao.data.crac.api.Instant;
-import com.powsybl.openrao.data.crac.api.InstantKind;
-import com.powsybl.openrao.data.crac.api.NetworkElement;
-import com.powsybl.openrao.data.crac.api.RaUsageLimits;
-import com.powsybl.openrao.data.crac.api.RemedialAction;
-import com.powsybl.openrao.data.crac.api.rangeaction.VariationDirection;
-import com.powsybl.openrao.data.crac.api.usagerule.OnConstraint;
-import com.powsybl.openrao.data.crac.api.usagerule.OnContingencyState;
-import com.powsybl.openrao.data.crac.api.usagerule.OnFlowConstraintInCountry;
-import com.powsybl.openrao.data.crac.api.usagerule.OnInstant;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
+import com.powsybl.openrao.data.crac.api.*;
 import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
@@ -34,8 +23,10 @@ import com.powsybl.openrao.data.crac.api.range.RangeType;
 import com.powsybl.openrao.data.crac.api.range.StandardRange;
 import com.powsybl.openrao.data.crac.api.range.TapRange;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.VariationDirection;
 import com.powsybl.openrao.data.crac.api.threshold.BranchThreshold;
 import com.powsybl.openrao.data.crac.api.threshold.Threshold;
+import com.powsybl.openrao.data.crac.api.usagerule.*;
 import com.powsybl.openrao.data.crac.impl.utils.NetworkImportsUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -44,11 +35,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -631,8 +618,12 @@ class JsonRetrocompatibilityTest {
         assertEquals(2, crac.getInjectionRangeAction("injectionRange1Id").getRanges().size());
 
         // check usage rules
-        assertEquals(3, (int) crac.getRemedialActions().stream().map(RemedialAction::getUsageRules).flatMap(Set::stream).filter(OnContingencyState.class::isInstance).count());
-        assertEquals(3, (int) crac.getRemedialActions().stream().map(RemedialAction::getUsageRules).flatMap(Set::stream).filter(OnConstraint.class::isInstance).filter(oc -> ((OnConstraint<?>) oc).getCnec() instanceof FlowCnec).count());
+        assertEquals(3, (int) crac.getRemedialActions().stream().map(RemedialAction::getUsageRules).flatMap(Set::stream)
+            .filter(OnContingencyState.class::isInstance).count());
+        assertEquals(3, (int) crac.getRemedialActions().stream().map(RemedialAction::getUsageRules).flatMap(Set::stream)
+            .filter(OnConstraint.class::isInstance)
+            .filter(oc -> ((OnConstraint<?>) oc).getCnec() instanceof FlowCnec)
+            .count());
     }
 
     void testContentOfV1Point3Crac(Crac crac) {
@@ -678,7 +669,12 @@ class JsonRetrocompatibilityTest {
         assertEquals(curativeInstant, onAngleConstraint.getInstant());
 
         // check usage rules
-        assertEquals(1, (int) crac.getRemedialActions().stream().map(RemedialAction::getUsageRules).flatMap(Set::stream).filter(OnConstraint.class::isInstance).filter(oc -> ((OnConstraint<?>) oc).getCnec() instanceof AngleCnec).count());
+        assertEquals(1, (int) crac.getRemedialActions().stream()
+            .map(RemedialAction::getUsageRules)
+            .flatMap(Set::stream)
+            .filter(OnConstraint.class::isInstance)
+            .filter(oc -> ((OnConstraint<?>) oc).getCnec() instanceof AngleCnec)
+            .count());
     }
 
     void testContentOfV1Point5Crac(Crac crac) {
@@ -707,10 +703,28 @@ class JsonRetrocompatibilityTest {
 
         testContentOfV1Point5Crac(crac);
         // test usage rules
-        assertEquals(4, (int) crac.getRemedialActions().stream().map(RemedialAction::getUsageRules).flatMap(Set::stream).filter(OnInstant.class::isInstance).count());
-        assertEquals(3, (int) crac.getRemedialActions().stream().map(RemedialAction::getUsageRules).flatMap(Set::stream).filter(OnContingencyState.class::isInstance).count());
-        assertEquals(3, (int) crac.getRemedialActions().stream().map(RemedialAction::getUsageRules).flatMap(Set::stream).filter(OnConstraint.class::isInstance).filter(oc -> ((OnConstraint<?>) oc).getCnec() instanceof FlowCnec).count());
-        assertEquals(1, (int) crac.getRemedialActions().stream().map(RemedialAction::getUsageRules).flatMap(Set::stream).filter(OnConstraint.class::isInstance).filter(oc -> ((OnConstraint<?>) oc).getCnec() instanceof AngleCnec).count());
+        assertEquals(4, (int) crac.getRemedialActions().stream()
+            .map(RemedialAction::getUsageRules)
+            .flatMap(Set::stream)
+            .filter(OnInstant.class::isInstance) //OnInstant usage rules
+            .count());
+        assertEquals(3, (int) crac.getRemedialActions().stream()
+            .map(RemedialAction::getUsageRules)
+            .flatMap(Set::stream)
+            .filter(OnContingencyState.class::isInstance) //OnContingencyState usage rules
+            .count());
+        assertEquals(3, (int) crac.getRemedialActions().stream()
+            .map(RemedialAction::getUsageRules)
+            .flatMap(Set::stream)
+            .filter(OnConstraint.class::isInstance) //OnConstraint usage rules with a FlowCnec constraint
+            .filter(oc -> ((OnConstraint<?>) oc).getCnec() instanceof FlowCnec)
+            .count());
+        assertEquals(1, (int) crac.getRemedialActions().stream()
+            .map(RemedialAction::getUsageRules)
+            .flatMap(Set::stream)
+            .filter(OnConstraint.class::isInstance) //OnConstraint usage rules with an AngleCnec constraint
+            .filter(oc -> ((OnConstraint<?>) oc).getCnec() instanceof AngleCnec)
+            .count());
         // test speed
         assertEquals(10, crac.getPstRangeAction("pstRange1Id").getSpeed().get().intValue());
         assertEquals(20, crac.getHvdcRangeAction("hvdcRange1Id").getSpeed().get().intValue());
@@ -722,7 +736,12 @@ class JsonRetrocompatibilityTest {
 
         testContentOfV1Point6Crac(crac);
         // test new voltage constraint usage rules
-        assertEquals(1, crac.getRemedialActions().stream().map(RemedialAction::getUsageRules).flatMap(Set::stream).filter(OnConstraint.class::isInstance).filter(oc -> ((OnConstraint<?>) oc).getCnec() instanceof VoltageCnec).count());
+        assertEquals(1, crac.getRemedialActions().stream()
+            .map(RemedialAction::getUsageRules)
+            .flatMap(Set::stream)
+            .filter(OnConstraint.class::isInstance) //OnConstraint usage rules with a VoltageCnec constraint
+            .filter(oc -> ((OnConstraint<?>) oc).getCnec() instanceof VoltageCnec)
+            .count());
     }
 
     void testContentOfV1Point8Crac(Crac crac) {
@@ -743,7 +762,11 @@ class JsonRetrocompatibilityTest {
         assertEquals(Country.FR, crac.getCounterTradeRangeAction("counterTradeRange1Id").getExportingCountry());
         assertEquals(Country.DE, crac.getCounterTradeRangeAction("counterTradeRange1Id").getImportingCountry());
 
-        assertEquals(1, crac.getRemedialActions().stream().filter(ra -> ra.getUsageRules().stream().anyMatch(usageRule -> usageRule instanceof OnConstraint<?> && ((OnConstraint<?>) usageRule).getCnec() instanceof VoltageCnec)).count());
+        // remedial actions defined with at least one OnConstraint usage rule involving a VoltageCnec
+        assertEquals(1, crac.getRemedialActions().stream()
+            .filter(ra -> ra.getUsageRules().stream()
+                .anyMatch(usageRule -> usageRule instanceof OnConstraint<?> && ((OnConstraint<?>) usageRule).getCnec() instanceof VoltageCnec))
+            .count());
     }
 
     private void testContentOfV2Point0Crac(Crac crac) {

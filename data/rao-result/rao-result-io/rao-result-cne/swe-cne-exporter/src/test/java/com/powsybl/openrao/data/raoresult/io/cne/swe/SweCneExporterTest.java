@@ -39,7 +39,19 @@ class SweCneExporterTest {
 
     @Test
     void testProperties() {
-        assertEquals(Set.of("rao-result.export.swe-cne.document-id", "rao-result.export.swe-cne.revision-number", "rao-result.export.swe-cne.domain-id", "rao-result.export.swe-cne.process-type", "rao-result.export.swe-cne.sender-id", "rao-result.export.swe-cne.sender-role", "rao-result.export.swe-cne.receiver-id", "rao-result.export.swe-cne.receiver-role", "rao-result.export.swe-cne.time-interval"), exporter.getRequiredProperties());
+        assertEquals(
+            Set.of(
+                "rao-result.export.swe-cne.document-id",
+                "rao-result.export.swe-cne.revision-number",
+                "rao-result.export.swe-cne.domain-id",
+                "rao-result.export.swe-cne.process-type",
+                "rao-result.export.swe-cne.sender-id",
+                "rao-result.export.swe-cne.sender-role",
+                "rao-result.export.swe-cne.receiver-id",
+                "rao-result.export.swe-cne.receiver-role",
+                "rao-result.export.swe-cne.time-interval"
+            ), exporter.getRequiredProperties()
+        );
     }
 
     @Test

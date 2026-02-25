@@ -7,8 +7,8 @@
 
 package com.powsybl.openrao.data.crac.io.commons.ucte;
 
-import com.powsybl.openrao.data.crac.io.commons.ConnectableType;
 import com.powsybl.iidm.network.*;
+import com.powsybl.openrao.data.crac.io.commons.ConnectableType;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 

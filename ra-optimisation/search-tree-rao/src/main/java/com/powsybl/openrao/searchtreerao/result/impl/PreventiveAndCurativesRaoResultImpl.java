@@ -8,16 +8,16 @@
 package com.powsybl.openrao.searchtreerao.result.impl;
 
 import com.powsybl.contingency.Contingency;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.crac.api.*;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
+import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
@@ -26,9 +26,9 @@ import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.OptimizationStepsExecuted;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.searchtreerao.castor.algorithm.Perimeter;
+import com.powsybl.openrao.searchtreerao.castor.algorithm.StateTree;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
 import com.powsybl.openrao.searchtreerao.result.api.*;
-import com.powsybl.openrao.searchtreerao.castor.algorithm.StateTree;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
@@ -114,10 +114,27 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
         Set<FlowCnec> loopFlowCnecs = flowCnecs.stream()
             .filter(this::initialResultContainsLoopFlowResult)
             .collect(Collectors.toSet());
-        ObjectiveFunction objectiveFunction = ObjectiveFunction.build(flowCnecs, loopFlowCnecs, initialResult, initialResult, Collections.emptySet(), raoParameters, Set.of(crac.getPreventiveState()));
-        RemedialActionActivationResult remedialActionActivationResult = new RemedialActionActivationResultImpl(finalPreventivePerimeterResult.optimizationResult(), finalPreventivePerimeterResult.optimizationResult());
+        ObjectiveFunction objectiveFunction = ObjectiveFunction.build(
+            flowCnecs,
+            loopFlowCnecs,
+            initialResult,
+            initialResult,
+            Collections.emptySet(),
+            raoParameters,
+            Set.of(crac.getPreventiveState())
+        );
+        RemedialActionActivationResult remedialActionActivationResult = new RemedialActionActivationResultImpl(
+            finalPreventivePerimeterResult.optimizationResult(),
+            finalPreventivePerimeterResult.optimizationResult()
+        );
         ObjectiveFunctionResult objectiveFunctionResult = objectiveFunction.evaluate(finalPreventivePerimeterResult.optimizationResult(), remedialActionActivationResult);
-        return new OptimizationResultImpl(objectiveFunctionResult, finalPreventivePerimeterResult.optimizationResult(), finalPreventivePerimeterResult.optimizationResult(), finalPreventivePerimeterResult.optimizationResult(), finalPreventivePerimeterResult.optimizationResult());
+        return new OptimizationResultImpl(
+            objectiveFunctionResult,
+            finalPreventivePerimeterResult.optimizationResult(),
+            finalPreventivePerimeterResult.optimizationResult(),
+            finalPreventivePerimeterResult.optimizationResult(),
+            finalPreventivePerimeterResult.optimizationResult()
+        );
     }
 
     private boolean initialResultContainsLoopFlowResult(FlowCnec flowCnec) {
@@ -477,7 +494,7 @@ public class PreventiveAndCurativesRaoResultImpl extends AbstractFlowRaoResult {
             return finalPreventivePerimeterResult.prePerimeterResultForAllFollowingStates().getVirtualCost(virtualCostName);
         } else {
             BinaryOperator<Double> operator;
-            if (virtualCostName.equals("min-margin-violation-evaluator") || virtualCostName.equals("sensitivity-failure-cost")) {
+            if ("min-margin-violation-evaluator".equals(virtualCostName) || "sensitivity-failure-cost".equals(virtualCostName)) {
                 operator = Math::max;
             } else {
                 operator = Double::sum;

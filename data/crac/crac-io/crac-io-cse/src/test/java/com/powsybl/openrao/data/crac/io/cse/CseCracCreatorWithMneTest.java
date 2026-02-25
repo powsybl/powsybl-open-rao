@@ -8,11 +8,11 @@
 package com.powsybl.openrao.data.crac.io.cse;
 
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
 import com.powsybl.openrao.data.crac.io.cse.criticalbranch.CseCriticalBranchCreationContext;
@@ -103,7 +103,17 @@ class CseCracCreatorWithMneTest {
         assertEquals(inverted, cseCriticalBranchCreationContext.isDirectionInvertedInNetwork());
     }
 
-    public void assertMneWithContingencyInCrac(String name, String fromNode, String toNode, String suffix, String direction, String contingencyId, Instant instant, double expectedIMax, double expectedThreshold, Unit expectedThresholdUnit, double expectedNV) {
+    public void assertMneWithContingencyInCrac(String name,
+                                               String fromNode,
+                                               String toNode,
+                                               String suffix,
+                                               String direction,
+                                               String contingencyId,
+                                               Instant instant,
+                                               double expectedIMax,
+                                               double expectedThreshold,
+                                               Unit expectedThresholdUnit,
+                                               double expectedNV) {
         String createdCnecId = String.format("%s - %s ->%s   - %s - %s", name, fromNode, toNode, contingencyId, instant);
         String nativeId = String.format("%s - %s  - %s  - %s", name, fromNode, toNode, contingencyId);
         Crac crac = cracCreationContext.getCrac();
@@ -129,7 +139,16 @@ class CseCracCreatorWithMneTest {
         assertEquals(expectedNV, flowCnec.getNominalVoltage(TwoSides.ONE), 0.00001);
     }
 
-    public void assertMneBaseCaseInCrac(String name, String fromNode, String toNode, String suffix, String direction, Instant instant, double expectedIMax, double expectedThreshold, Unit expectedThresholdUnit, double expectedNV) {
+    public void assertMneBaseCaseInCrac(String name,
+                                        String fromNode,
+                                        String toNode,
+                                        String suffix,
+                                        String direction,
+                                        Instant instant,
+                                        double expectedIMax,
+                                        double expectedThreshold,
+                                        Unit expectedThresholdUnit,
+                                        double expectedNV) {
         String createdCnecId = String.format("%s - %s ->%s  - %s", name, fromNode, toNode, instant);
         String nativeId = String.format("%s - %s  - %s  - %s", name, fromNode, toNode, "basecase");
         Crac crac = cracCreationContext.getCrac();
@@ -156,16 +175,16 @@ class CseCracCreatorWithMneTest {
 
     private boolean hasThreshold(String nativeId, double expectedThreshold, Unit expectedThresholdUnit, FlowCnec flowCnec, String direction, TwoSides side) {
         boolean directionInvertedInNetwork = cracCreationContext.getBranchCnecCreationContext(nativeId).isDirectionInvertedInNetwork();
-        if (!directionInvertedInNetwork && direction.equals("DIRECT")
-            || directionInvertedInNetwork && direction.equals("OPPOSITE")) {
+        if (!directionInvertedInNetwork && "DIRECT".equals(direction)
+            || directionInvertedInNetwork && "OPPOSITE".equals(direction)) {
             // should have max
             return flowCnec.getThresholds().stream().anyMatch(threshold -> threshold.getSide().equals(side)
                     && threshold.max().isPresent() && threshold.max().get().equals(expectedThreshold)
                     && threshold.getUnit().equals(expectedThresholdUnit)
             );
         }
-        if (directionInvertedInNetwork && direction.equals("DIRECT")
-            || !directionInvertedInNetwork && direction.equals("OPPOSITE")) {
+        if (directionInvertedInNetwork && "DIRECT".equals(direction)
+            || !directionInvertedInNetwork && "OPPOSITE".equals(direction)) {
             // should have min
             return flowCnec.getThresholds().stream().anyMatch(threshold -> threshold.getSide().equals(side)
                     && threshold.min().isPresent() && threshold.min().get().equals(-expectedThreshold)
@@ -182,13 +201,20 @@ class CseCracCreatorWithMneTest {
     }
 
     public void assertAllMneCorrectlyImportedInCrac() {
-        assertMneWithContingencyInCrac("mne_test", "NNL2AA1", "NNL3AA1", "1", "DIRECT", "outage_1", outageInstant, 5000, 1.1, Unit.PERCENT_IMAX, 380);
-        assertMneWithContingencyInCrac("mne_test", "NNL2AA1", "NNL3AA1", "1", "DIRECT", "outage_1", autoInstant, 5000, 6000, Unit.AMPERE, 380);
-        assertMneWithContingencyInCrac("mne_test", "NNL2AA1", "NNL3AA1", "1", "DIRECT", "outage_1", curativeInstant, 5000, 6500, Unit.AMPERE, 380);
-        assertMneWithContingencyInCrac("mne_test", "NNL2AA1", "NNL3AA1", "1", "DIRECT", "outage_2", outageInstant, 5000, 1.1, Unit.PERCENT_IMAX, 380);
-        assertMneWithContingencyInCrac("mne_test", "NNL2AA1", "NNL3AA1", "1", "DIRECT", "outage_2", autoInstant, 5000, 6000, Unit.AMPERE, 380);
-        assertMneWithContingencyInCrac("mne_test", "NNL2AA1", "NNL3AA1", "1", "DIRECT", "outage_2", curativeInstant, 5000, 6500, Unit.AMPERE, 380);
-        assertMneBaseCaseInCrac("mne_test", "NNL2AA1", "NNL3AA1", "1", "DIRECT", preventiveInstant, 5000, 1, Unit.PERCENT_IMAX, 380);
+        assertMneWithContingencyInCrac("mne_test", "NNL2AA1", "NNL3AA1", "1", "DIRECT",
+            "outage_1", outageInstant, 5000, 1.1, Unit.PERCENT_IMAX, 380);
+        assertMneWithContingencyInCrac("mne_test", "NNL2AA1", "NNL3AA1", "1", "DIRECT",
+            "outage_1", autoInstant, 5000, 6000, Unit.AMPERE, 380);
+        assertMneWithContingencyInCrac("mne_test", "NNL2AA1", "NNL3AA1", "1", "DIRECT",
+            "outage_1", curativeInstant, 5000, 6500, Unit.AMPERE, 380);
+        assertMneWithContingencyInCrac("mne_test", "NNL2AA1", "NNL3AA1", "1", "DIRECT",
+            "outage_2", outageInstant, 5000, 1.1, Unit.PERCENT_IMAX, 380);
+        assertMneWithContingencyInCrac("mne_test", "NNL2AA1", "NNL3AA1", "1", "DIRECT",
+            "outage_2", autoInstant, 5000, 6000, Unit.AMPERE, 380);
+        assertMneWithContingencyInCrac("mne_test", "NNL2AA1", "NNL3AA1", "1", "DIRECT",
+            "outage_2", curativeInstant, 5000, 6500, Unit.AMPERE, 380);
+        assertMneBaseCaseInCrac("mne_test", "NNL2AA1", "NNL3AA1", "1", "DIRECT",
+            preventiveInstant, 5000, 1, Unit.PERCENT_IMAX, 380);
     }
 
     public void assertAllMneCorrectlyImportedInCriticalBranchesCreationContext() {
@@ -205,7 +231,15 @@ class CseCracCreatorWithMneTest {
         assertTrue(cracCreationContext.isCreationSuccessful());
         assertAllMneCorrectlyImportedInCriticalBranchesCreationContext();
         assertAllMneCorrectlyImportedInCrac();
-        assertEquals("[REMOVED] Monitored element \"mne_test - NNL2AA1  - NNL3AA1  - outage_3\" was not imported: INCOMPLETE_DATA. CNEC is defined on outage outage_3 which is not defined.", cracCreationContext.getCreationReport().getReport().get(3));
-        assertEquals("[REMOVED] Monitored element \"fake_mne_1 ; fake_mne_2\" was not imported: INCONSISTENCY_IN_DATA. MonitoredElement has more than 1 Branch.", cracCreationContext.getCreationReport().getReport().get(2));
+        assertEquals(
+            "[REMOVED] Monitored element \"mne_test - NNL2AA1  - NNL3AA1  - outage_3\" was not imported: INCOMPLETE_DATA. " +
+                "CNEC is defined on outage outage_3 which is not defined.",
+            cracCreationContext.getCreationReport().getReport().get(3)
+        );
+        assertEquals(
+            "[REMOVED] Monitored element \"fake_mne_1 ; fake_mne_2\" was not imported: INCONSISTENCY_IN_DATA. " +
+                "MonitoredElement has more than 1 Branch.",
+            cracCreationContext.getCreationReport().getReport().get(2)
+        );
     }
 }

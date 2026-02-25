@@ -15,7 +15,8 @@ import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 
 import java.io.IOException;
 
-import static com.powsybl.openrao.raoapi.RaoParametersCommons.*;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.RAO_PARAMETERS_VERSION;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.VERSION;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}

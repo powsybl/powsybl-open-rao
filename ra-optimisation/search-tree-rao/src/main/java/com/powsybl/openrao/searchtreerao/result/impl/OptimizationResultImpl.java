@@ -33,7 +33,11 @@ public class OptimizationResultImpl implements OptimizationResult {
     private final NetworkActionsResult networkActionsResult;
     private final RangeActionActivationResult rangeActionActivationResult;
 
-    public OptimizationResultImpl(ObjectiveFunctionResult objectiveFunctionResult, FlowResult flowResult, SensitivityResult sensitivityResult, NetworkActionsResult networkActionsResult, RangeActionActivationResult rangeActionActivationResult) {
+    public OptimizationResultImpl(ObjectiveFunctionResult objectiveFunctionResult,
+                                  FlowResult flowResult,
+                                  SensitivityResult sensitivityResult,
+                                  NetworkActionsResult networkActionsResult,
+                                  RangeActionActivationResult rangeActionActivationResult) {
         this.objectiveFunctionResult = objectiveFunctionResult;
         this.flowResult = flowResult;
         this.sensitivityResult = sensitivityResult;

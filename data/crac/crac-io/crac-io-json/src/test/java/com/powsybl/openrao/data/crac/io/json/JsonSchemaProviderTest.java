@@ -50,6 +50,10 @@ class JsonSchemaProviderTest {
         String minorVersion = version.substring(3);
         String cracFile = "/retrocompatibility/v%s/crac-v%s.%s.json".formatted(majorVersion, majorVersion, minorVersion);
         Assertions.assertTrue(JsonSchemaProvider.isCracFile(JsonSchemaProviderTest.class.getResourceAsStream(cracFile)));
-        Assertions.assertTrue(JsonSchemaProvider.getValidationErrors(JsonSchemaProvider.getSchema(new Version(Integer.parseInt(majorVersion), Integer.parseInt(minorVersion))), JsonSchemaProviderTest.class.getResourceAsStream(cracFile)).isEmpty());
+        Assertions.assertTrue(
+            JsonSchemaProvider.getValidationErrors(
+                JsonSchemaProvider.getSchema(new Version(Integer.parseInt(majorVersion), Integer.parseInt(minorVersion))),
+                JsonSchemaProviderTest.class.getResourceAsStream(cracFile)
+            ).isEmpty());
     }
 }

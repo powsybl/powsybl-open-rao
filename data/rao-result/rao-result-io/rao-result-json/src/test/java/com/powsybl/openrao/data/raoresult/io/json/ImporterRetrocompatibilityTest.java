@@ -7,14 +7,14 @@
 
 package com.powsybl.openrao.data.raoresult.io.json;
 
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
@@ -29,9 +29,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Set;
 
-import static com.powsybl.openrao.commons.Unit.*;
 import static com.powsybl.iidm.network.TwoSides.ONE;
 import static com.powsybl.iidm.network.TwoSides.TWO;
+import static com.powsybl.openrao.commons.Unit.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -335,11 +335,11 @@ class ImporterRetrocompatibilityTest {
 
         assertEquals(importedRaoResult.getFlow(curativeInstant, cnecO, ONE, MEGAWATT), importedRaoResult.getFlow(autoInstant, cnecO, ONE, MEGAWATT), DOUBLE_TOLERANCE);
 
-         /*
+        /*
         cnec3curId: curative, without loop-flows, pureMNEC
         - contains result in null, PREVENTIVE, and AUTO and in CURATIVE
         - do not contain results for loop-flows, or relative margin
-         */
+        */
 
         FlowCnec cnecC = crac.getFlowCnec("cnec3curId");
         assertEquals(3110., importedRaoResult.getFlow(null, cnecC, ONE, MEGAWATT), DOUBLE_TOLERANCE);
@@ -655,11 +655,11 @@ class ImporterRetrocompatibilityTest {
         assertEquals(importedRaoResult.getFlow(curativeInstant, cnecO, ONE, MEGAWATT), importedRaoResult.getFlow(autoInstant, cnecO, ONE, MEGAWATT), DOUBLE_TOLERANCE);
         assertEquals(importedRaoResult.getFlow(curativeInstant, cnecO, TWO, MEGAWATT), importedRaoResult.getFlow(autoInstant, cnecO, TWO, MEGAWATT), DOUBLE_TOLERANCE);
 
-         /*
+        /*
         cnec3curId: curative, without loop-flows, pureMNEC
         - contains result in null, PREVENTIVE, and AUTO and in CURATIVE
         - do not contain results for loop-flows, or relative margin
-         */
+        */
 
         FlowCnec cnecC = crac.getFlowCnec("cnec3curId");
         assertEquals(3110., importedRaoResult.getFlow(null, cnecC, TwoSides.ONE, MEGAWATT), DOUBLE_TOLERANCE);

@@ -16,6 +16,7 @@ import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeActionAdder;
 import com.powsybl.openrao.data.crac.api.rangeaction.VariationDirection;
 import com.powsybl.openrao.data.timecoupledconstraints.GeneratorConstraints;
+import com.powsybl.openrao.raoapi.RaoInputWithNetworkPaths;
 import com.powsybl.openrao.raoapi.TimeCoupledRaoInputWithNetworkPaths;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
@@ -54,7 +55,12 @@ public final class IcsImporter {
         //should only be used statically
     }
 
-    public static void populateInputWithICS(TimeCoupledRaoInputWithNetworkPaths timeCoupledRaoInput, InputStream staticInputStream, InputStream seriesInputStream, InputStream gskInputStream, double icsCostUp, double icsCostDown) throws IOException {
+    public static void populateInputWithICS(TimeCoupledRaoInputWithNetworkPaths timeCoupledRaoInput,
+                                            InputStream staticInputStream,
+                                            InputStream seriesInputStream,
+                                            InputStream gskInputStream,
+                                            double icsCostUp,
+                                            double icsCostDown) throws IOException {
         costUp = icsCostUp;
         costDown = icsCostDown;
 
@@ -125,7 +131,12 @@ public final class IcsImporter {
         return Math.abs(a - b) < 1e-3;
     }
 
-    private static void importGskRedispatchingAction(TimeCoupledRaoInputWithNetworkPaths timeCoupledRaoInput, CSVRecord staticRecord, TemporalData<Network> initialNetworks, Map<String, CSVRecord> seriesPerType, String raId, Map<String, Double> weightPerNode) {
+    private static void importGskRedispatchingAction(TimeCoupledRaoInputWithNetworkPaths timeCoupledRaoInput,
+                                                     CSVRecord staticRecord,
+                                                     TemporalData<Network> initialNetworks,
+                                                     Map<String, CSVRecord> seriesPerType,
+                                                     String raId,
+                                                     Map<String, Double> weightPerNode) {
         Map<String, String> networkElementPerGskElement = new HashMap<>();
         for (String nodeId : weightPerNode.keySet()) {
             String networkElementId = processNetworks(nodeId, initialNetworks, seriesPerType, weightPerNode.get(nodeId));
@@ -135,94 +146,119 @@ public final class IcsImporter {
             networkElementPerGskElement.put(nodeId, networkElementId);
         }
 
-        timeCoupledRaoInput.getRaoInputs().getDataPerTimestamp().forEach((dateTime, raoInput) -> {
-            Crac crac = raoInput.getCrac();
-            double p0 = parseDoubleWithPossibleCommas(seriesPerType.get("P0").get(dateTime.getHour() + OFFSET));
-            InjectionRangeActionAdder injectionRangeActionAdder = crac.newInjectionRangeAction()
-                .withId(raId + "_RD")
-                .withName(staticRecord.get("Generator Name"))
-                .withInitialSetpoint(p0)
-                .withVariationCost(costUp, VariationDirection.UP)
-                .withVariationCost(costDown, VariationDirection.DOWN)
-                //.withActivationCost(ACTIVATION_COST)
-                .newRange()
-                .withMin(p0 - parseDoubleWithPossibleCommas(seriesPerType.get("RDP-").get(dateTime.getHour() + OFFSET)))
-                .withMax(p0 + parseDoubleWithPossibleCommas(seriesPerType.get("RDP+").get(dateTime.getHour() + OFFSET)))
-                .add();
-
-            weightPerNode.forEach((nodeId, shiftKey) -> {
-                injectionRangeActionAdder.withNetworkElementAndKey(shiftKey, networkElementPerGskElement.get(nodeId));
-            });
-
-            if (staticRecord.get("Preventive").equalsIgnoreCase("TRUE")) {
-                injectionRangeActionAdder.newOnInstantUsageRule()
-                    .withInstant(crac.getPreventiveInstant().getId())
-                    .add();
-            }
-            if (importCurative && staticRecord.get("Curative").equalsIgnoreCase("TRUE")) {
-                injectionRangeActionAdder.newOnInstantUsageRule()
-                    .withInstant(crac.getLastInstant().getId())
-                    .add();
-            }
-
-            injectionRangeActionAdder.add();
-        });
+        timeCoupledRaoInput.getRaoInputs().getDataPerTimestamp().forEach((dateTime, raoInput) ->
+            importGskRedispatchActionForOneTimestamp(staticRecord, seriesPerType, raId, weightPerNode, dateTime, raoInput, networkElementPerGskElement));
 
         weightPerNode.forEach((nodeId, shiftKey) -> {
             GeneratorConstraints generatorConstraints = GeneratorConstraints.create()
                 .withGeneratorId(networkElementPerGskElement.get(nodeId))
                 .withUpwardPowerGradient(shiftKey * parseDoubleWithPossibleCommas(
-                    staticRecord.get("Maximum positive power gradient [MW/h]").isEmpty() ? MAX_GRADIENT : staticRecord.get("Maximum positive power gradient [MW/h]")
+                    staticRecord.get("Maximum positive power gradient [MW/h]").isEmpty() ?
+                        MAX_GRADIENT : staticRecord.get("Maximum positive power gradient [MW/h]")
                 )).withDownwardPowerGradient(-shiftKey * parseDoubleWithPossibleCommas(
-                    staticRecord.get("Maximum negative power gradient [MW/h]").isEmpty() ? MAX_GRADIENT : staticRecord.get("Maximum negative power gradient [MW/h]")
+                    staticRecord.get("Maximum negative power gradient [MW/h]").isEmpty() ?
+                        MAX_GRADIENT : staticRecord.get("Maximum negative power gradient [MW/h]")
                 )).build();
             timeCoupledRaoInput.getTimeCoupledConstraints().addGeneratorConstraints(generatorConstraints);
         });
     }
 
-    private static void importNodeRedispatchingAction(TimeCoupledRaoInputWithNetworkPaths timeCoupledRaoInput, CSVRecord staticRecord, TemporalData<Network> initialNetworks, Map<String, CSVRecord> seriesPerType, String raId) {
+    private static void importGskRedispatchActionForOneTimestamp(CSVRecord staticRecord,
+                                                                 Map<String, CSVRecord> seriesPerType,
+                                                                 String raId,
+                                                                 Map<String, Double> weightPerNode,
+                                                                 OffsetDateTime dateTime,
+                                                                 RaoInputWithNetworkPaths raoInput,
+                                                                 Map<String, String> networkElementPerGskElement) {
+        Crac crac = raoInput.getCrac();
+        double p0 = parseDoubleWithPossibleCommas(seriesPerType.get("P0").get(dateTime.getHour() + OFFSET));
+        InjectionRangeActionAdder injectionRangeActionAdder = crac.newInjectionRangeAction()
+            .withId(raId + "_RD")
+            .withName(staticRecord.get("Generator Name"))
+            .withInitialSetpoint(p0)
+            .withVariationCost(costUp, VariationDirection.UP)
+            .withVariationCost(costDown, VariationDirection.DOWN)
+            //.withActivationCost(ACTIVATION_COST)
+            .newRange()
+            .withMin(p0 - parseDoubleWithPossibleCommas(seriesPerType.get("RDP-").get(dateTime.getHour() + OFFSET)))
+            .withMax(p0 + parseDoubleWithPossibleCommas(seriesPerType.get("RDP+").get(dateTime.getHour() + OFFSET)))
+            .add();
+
+        weightPerNode.forEach((nodeId, shiftKey) -> {
+            injectionRangeActionAdder.withNetworkElementAndKey(shiftKey, networkElementPerGskElement.get(nodeId));
+        });
+
+        if (staticRecord.get("Preventive").equalsIgnoreCase("TRUE")) {
+            injectionRangeActionAdder.newOnInstantUsageRule()
+                .withInstant(crac.getPreventiveInstant().getId())
+                .add();
+        }
+        if (importCurative && staticRecord.get("Curative").equalsIgnoreCase("TRUE")) {
+            injectionRangeActionAdder.newOnInstantUsageRule()
+                .withInstant(crac.getLastInstant().getId())
+                .add();
+        }
+
+        injectionRangeActionAdder.add();
+    }
+
+    private static void importNodeRedispatchingAction(TimeCoupledRaoInputWithNetworkPaths timeCoupledRaoInput,
+                                                      CSVRecord staticRecord,
+                                                      TemporalData<Network> initialNetworks,
+                                                      Map<String, CSVRecord> seriesPerType,
+                                                      String raId) {
         String networkElementId = processNetworks(staticRecord.get("UCT Node or GSK ID"), initialNetworks, seriesPerType, 1.);
         if (networkElementId == null) {
             return;
         }
-        timeCoupledRaoInput.getRaoInputs().getDataPerTimestamp().forEach((dateTime, raoInput) -> {
-            Crac crac = raoInput.getCrac();
-            double p0 = parseDoubleWithPossibleCommas(seriesPerType.get("P0").get(dateTime.getHour() + OFFSET));
-            InjectionRangeActionAdder injectionRangeActionAdder = crac.newInjectionRangeAction()
-                .withId(raId + "_RD")
-                .withName(staticRecord.get("Generator Name"))
-                .withNetworkElement(networkElementId)
-                .withInitialSetpoint(p0)
-                .withVariationCost(costUp, VariationDirection.UP)
-                .withVariationCost(costDown, VariationDirection.DOWN)
-                //.withActivationCost(ACTIVATION_COST)
-                .newRange()
-                .withMin(p0 - parseDoubleWithPossibleCommas(seriesPerType.get("RDP-").get(dateTime.getHour() + OFFSET)))
-                .withMax(p0 + parseDoubleWithPossibleCommas(seriesPerType.get("RDP+").get(dateTime.getHour() + OFFSET)))
-                .add();
-            if (staticRecord.get("Preventive").equalsIgnoreCase("TRUE")) {
-                injectionRangeActionAdder.newOnInstantUsageRule()
-                    .withInstant(crac.getPreventiveInstant().getId())
-                    .add();
-            }
-            if (importCurative && staticRecord.get("Curative").equalsIgnoreCase("TRUE")) {
-                injectionRangeActionAdder.newOnInstantUsageRule()
-                    .withInstant(crac.getLastInstant().getId())
-                    .add();
-            }
-
-            injectionRangeActionAdder.add();
-
-        });
+        timeCoupledRaoInput.getRaoInputs().getDataPerTimestamp().forEach((dateTime, raoInput) ->
+            importNodeRedispatchingActionForOneTimestamp(staticRecord, seriesPerType, raId, dateTime, raoInput, networkElementId)
+        );
 
         GeneratorConstraints generatorConstraints = GeneratorConstraints.create()
             .withGeneratorId(networkElementId)
             .withUpwardPowerGradient(parseDoubleWithPossibleCommas(
-                staticRecord.get("Maximum positive power gradient [MW/h]").isEmpty() ? MAX_GRADIENT : staticRecord.get("Maximum positive power gradient [MW/h]")
+                staticRecord.get("Maximum positive power gradient [MW/h]").isEmpty() ?
+                    MAX_GRADIENT : staticRecord.get("Maximum positive power gradient [MW/h]")
             )).withDownwardPowerGradient(-parseDoubleWithPossibleCommas(
-                staticRecord.get("Maximum negative power gradient [MW/h]").isEmpty() ? MAX_GRADIENT : staticRecord.get("Maximum negative power gradient [MW/h]")
+                staticRecord.get("Maximum negative power gradient [MW/h]").isEmpty() ?
+                    MAX_GRADIENT : staticRecord.get("Maximum negative power gradient [MW/h]")
             )).build();
         timeCoupledRaoInput.getTimeCoupledConstraints().addGeneratorConstraints(generatorConstraints);
+    }
+
+    private static void importNodeRedispatchingActionForOneTimestamp(CSVRecord staticRecord,
+                                                                     Map<String, CSVRecord> seriesPerType,
+                                                                     String raId,
+                                                                     OffsetDateTime dateTime,
+                                                                     RaoInputWithNetworkPaths raoInput,
+                                                                     String networkElementId) {
+        Crac crac = raoInput.getCrac();
+        double p0 = parseDoubleWithPossibleCommas(seriesPerType.get("P0").get(dateTime.getHour() + OFFSET));
+        InjectionRangeActionAdder injectionRangeActionAdder = crac.newInjectionRangeAction()
+            .withId(raId + "_RD")
+            .withName(staticRecord.get("Generator Name"))
+            .withNetworkElement(networkElementId)
+            .withInitialSetpoint(p0)
+            .withVariationCost(costUp, VariationDirection.UP)
+            .withVariationCost(costDown, VariationDirection.DOWN)
+            //.withActivationCost(ACTIVATION_COST)
+            .newRange()
+            .withMin(p0 - parseDoubleWithPossibleCommas(seriesPerType.get("RDP-").get(dateTime.getHour() + OFFSET)))
+            .withMax(p0 + parseDoubleWithPossibleCommas(seriesPerType.get("RDP+").get(dateTime.getHour() + OFFSET)))
+            .add();
+        if (staticRecord.get("Preventive").equalsIgnoreCase("TRUE")) {
+            injectionRangeActionAdder.newOnInstantUsageRule()
+                .withInstant(crac.getPreventiveInstant().getId())
+                .add();
+        }
+        if (importCurative && staticRecord.get("Curative").equalsIgnoreCase("TRUE")) {
+            injectionRangeActionAdder.newOnInstantUsageRule()
+                .withInstant(crac.getLastInstant().getId())
+                .add();
+        }
+
+        injectionRangeActionAdder.add();
     }
 
     private static String processNetworks(String nodeId, TemporalData<Network> initialNetworks, Map<String, CSVRecord> seriesPerType, double shiftKey) {
@@ -230,7 +266,8 @@ public final class IcsImporter {
         for (Map.Entry<OffsetDateTime, Network> entry : initialNetworks.getDataPerTimestamp().entrySet()) {
             Bus bus = findBus(nodeId, entry.getValue());
             if (bus == null) {
-                BUSINESS_WARNS.warn("Redispatching action {} cannot be imported because bus {} could not be found", seriesPerType.get("P0").get("RA RD ID"), nodeId);
+                BUSINESS_WARNS.warn("Redispatching action {} cannot be imported because bus {} could not be found",
+                    seriesPerType.get("P0").get("RA RD ID"), nodeId);
                 return null;
             }
             Double p0 = parseDoubleWithPossibleCommas(seriesPerType.get("P0").get(entry.getKey().getHour() + OFFSET)) * shiftKey;
@@ -281,8 +318,8 @@ public final class IcsImporter {
     }
 
     private static boolean shouldBeImported(CSVRecord staticRecord, Map<String, Map<String, Double>> weightPerNodePerGsk) {
-        return (staticRecord.get("RD description mode").equalsIgnoreCase("NODE") || weightPerNodePerGsk.containsKey(staticRecord.get("UCT Node or GSK ID"))) &&
-            (staticRecord.get("Preventive").equalsIgnoreCase("TRUE") /*|| staticRecord.get("Curative").equalsIgnoreCase("TRUE")*/);
+        return (staticRecord.get("RD description mode").equalsIgnoreCase("NODE") || weightPerNodePerGsk.containsKey(staticRecord.get("UCT Node or GSK ID")))
+            && (staticRecord.get("Preventive").equalsIgnoreCase("TRUE") /*|| staticRecord.get("Curative").equalsIgnoreCase("TRUE")*/);
     }
 
     private static boolean p0RespectsGradients(CSVRecord staticRecord, CSVRecord p0record, List<OffsetDateTime> dateTimes) {
@@ -295,9 +332,11 @@ public final class IcsImporter {
         OffsetDateTime currentDateTime = dateTimeIterator.next();
         while (dateTimeIterator.hasNext()) {
             OffsetDateTime nextDateTime = dateTimeIterator.next();
-            double diff = parseDoubleWithPossibleCommas(p0record.get(nextDateTime.getHour() + OFFSET)) - parseDoubleWithPossibleCommas(p0record.get(currentDateTime.getHour() + OFFSET));
+            double diff = parseDoubleWithPossibleCommas(p0record.get(nextDateTime.getHour() + OFFSET))
+                - parseDoubleWithPossibleCommas(p0record.get(currentDateTime.getHour() + OFFSET));
             if (diff > maxGradient || diff < minGradient) {
-                BUSINESS_WARNS.warn("Redispatching action {} will not be imported because it does not respect power gradients : min/max/diff {} {} {}", staticRecord.get(0), minGradient, maxGradient, diff);
+                BUSINESS_WARNS.warn("Redispatching action {} will not be imported because it does not respect power gradients : min/max/diff {} {} {}",
+                    staticRecord.get(0), minGradient, maxGradient, diff);
                 return false;
             }
             currentDateTime = nextDateTime;
@@ -312,12 +351,14 @@ public final class IcsImporter {
             double rdpMinus = parseDoubleWithPossibleCommas(seriesPerType.get("RDP-").get(dateTime.getHour() + OFFSET));
             maxRange = Math.max(maxRange, rdpPlus + rdpMinus);
             if (rdpPlus < -1e-6 || rdpMinus < -1e-6) {
-                BUSINESS_WARNS.warn("Redispatching action {} will not be imported because of RDP+ {} or RDP- {} is negative", seriesPerType.get("P0").get("RA RD ID"), rdpPlus, rdpMinus);
+                BUSINESS_WARNS.warn("Redispatching action {} will not be imported because of RDP+ {} or RDP- {} is negative",
+                    seriesPerType.get("P0").get("RA RD ID"), rdpPlus, rdpMinus);
                 return false;
             }
         }
         if (maxRange < 1) {
-            BUSINESS_WARNS.warn("Redispatching action {} will not be imported because max range in the day {} MW is too small", seriesPerType.get("P0").get("RA RD ID"), maxRange);
+            BUSINESS_WARNS.warn("Redispatching action {} will not be imported because max range in the day {} MW is too small",
+                seriesPerType.get("P0").get("RA RD ID"), maxRange);
             return false;
         }
         return true;

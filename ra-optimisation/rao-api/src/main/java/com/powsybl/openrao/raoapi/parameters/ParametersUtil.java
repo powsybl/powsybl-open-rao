@@ -7,11 +7,14 @@
 
 package com.powsybl.openrao.raoapi.parameters;
 
-import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.iidm.network.Country;
+import com.powsybl.openrao.commons.OpenRaoException;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  *
@@ -27,7 +30,7 @@ public final class ParametersUtil {
         for (String countryString : countryStringList) {
             try {
                 countryList.add(Country.valueOf(countryString));
-            } catch (Exception e) {
+            } catch (IllegalArgumentException e) {
                 throw new OpenRaoException(String.format("[%s] could not be recognized as a country", countryString));
             }
         }

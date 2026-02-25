@@ -7,9 +7,9 @@
 
 package com.powsybl.openrao.data.crac.impl;
 
-import com.powsybl.contingency.*;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
+import com.powsybl.contingency.*;
 import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

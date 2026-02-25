@@ -9,21 +9,20 @@ package com.powsybl.openrao.data.raoresult.io.cne.core;
 
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyElementType;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.raoresult.io.cne.commons.CneHelper;
-import com.powsybl.openrao.data.raoresult.io.cne.commons.CneUtil;
-import com.powsybl.openrao.data.crac.api.*;
+import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.CracFactory;
+import com.powsybl.openrao.data.crac.api.Instant;
+import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.loopflowextension.LoopFlowThresholdAdder;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
-import com.powsybl.openrao.data.raoresult.io.cne.core.xsd.Analog;
-import com.powsybl.openrao.data.raoresult.io.cne.core.xsd.ConstraintSeries;
-import com.powsybl.openrao.data.raoresult.io.cne.core.xsd.MonitoredRegisteredResource;
-import com.powsybl.openrao.data.raoresult.io.cne.core.xsd.MonitoredSeries;
-import com.powsybl.openrao.data.raoresult.io.cne.core.xsd.PartyMarketParticipant;
+import com.powsybl.openrao.data.raoresult.io.cne.commons.CneHelper;
+import com.powsybl.openrao.data.raoresult.io.cne.commons.CneUtil;
+import com.powsybl.openrao.data.raoresult.io.cne.core.xsd.*;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
@@ -135,7 +134,7 @@ class CoreCneCnecsCreatorTest {
             assertEquals(expectedType, measurement.getMeasurementType());
             assertEquals(expectedUnit, measurement.getUnitSymbol());
             assertEquals(Math.abs(expectedValue), measurement.getAnalogValuesValue(), 1e-6);
-            if (expectedUnit.equals("C62")) {
+            if ("C62".equals(expectedUnit)) {
                 assertNull(measurement.getPositiveFlowIn());
             } else {
                 assertEquals(expectedValue < 0 ? "A02" : "A01", measurement.getPositiveFlowIn());

@@ -9,8 +9,8 @@ package com.powsybl.openrao.data.crac.io.commons.api;
 
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static com.powsybl.openrao.data.crac.io.commons.api.ImportStatus.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}

@@ -7,10 +7,10 @@
 
 package com.powsybl.openrao.data.refprog.refprogxmlimporter;
 
+import com.powsybl.iidm.network.Country;
+import com.powsybl.openrao.commons.EICode;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceProgram;
-import com.powsybl.openrao.commons.EICode;
-import com.powsybl.iidm.network.Country;
 import org.junit.jupiter.api.Test;
 
 import java.io.InputStream;

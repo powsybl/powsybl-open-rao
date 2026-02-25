@@ -36,9 +36,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 /**
@@ -75,14 +73,28 @@ class CostCoreProblemFillerTest extends AbstractFillerTest {
     }
 
     private void initializeForPreventive(double pstSensitivityThreshold, double hvdcSensitivityThreshold, double injectionSensitivityThreshold) {
-        initialize(Set.of(cnec1), pstSensitivityThreshold, hvdcSensitivityThreshold, injectionSensitivityThreshold, crac.getPreventiveState(), false, SearchTreeRaoRangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS);
+        initialize(
+            Set.of(cnec1),
+            pstSensitivityThreshold,
+            hvdcSensitivityThreshold,
+            injectionSensitivityThreshold,
+            crac.getPreventiveState(),
+            false,
+            SearchTreeRaoRangeActionsOptimizationParameters.PstModel.APPROXIMATED_INTEGERS
+        );
     }
 
     private void initializeForGlobal(SearchTreeRaoRangeActionsOptimizationParameters.PstModel pstModel) {
         initialize(Set.of(cnec1, cnec2), 1e-6, 1e-6, 1e-6, crac.getPreventiveState(), false, pstModel);
     }
 
-    private void initialize(Set<FlowCnec> cnecs, double pstSensitivityThreshold, double hvdcSensitivityThreshold, double injectionSensitivityThreshold, State mainState, boolean raRangeShrinking, SearchTreeRaoRangeActionsOptimizationParameters.PstModel pstModel) {
+    private void initialize(Set<FlowCnec> cnecs,
+                            double pstSensitivityThreshold,
+                            double hvdcSensitivityThreshold,
+                            double injectionSensitivityThreshold,
+                            State mainState,
+                            boolean raRangeShrinking,
+                            SearchTreeRaoRangeActionsOptimizationParameters.PstModel pstModel) {
         OptimizationPerimeter optimizationPerimeter = Mockito.mock(OptimizationPerimeter.class);
         Mockito.when(optimizationPerimeter.getFlowCnecs()).thenReturn(cnecs);
         Mockito.when(optimizationPerimeter.getMainOptimizationState()).thenReturn(mainState);

@@ -56,7 +56,9 @@ public class HvdcRangeActionAdderImpl extends AbstractStandardRangeActionAdder<H
     @Override
     public HvdcRangeAction add() {
         runCheckBeforeAdding();
-        HvdcRangeActionImpl hvdcWithRange = new HvdcRangeActionImpl(this.id, this.name, this.operator, this.usageRules, ranges, initialSetpoint, networkElement, groupId, speed, activationCost, variationCosts);
+        HvdcRangeActionImpl hvdcWithRange = new HvdcRangeActionImpl(
+            this.id, this.name, this.operator, this.usageRules, ranges, initialSetpoint, networkElement, groupId, speed, activationCost, variationCosts
+        );
         this.getCrac().addHvdcRangeAction(hvdcWithRange);
         return hvdcWithRange;
     }

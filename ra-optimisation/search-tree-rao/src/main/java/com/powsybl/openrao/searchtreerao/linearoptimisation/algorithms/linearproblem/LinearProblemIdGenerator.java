@@ -7,11 +7,11 @@
 
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem;
 
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 
 import java.time.OffsetDateTime;
@@ -130,8 +130,18 @@ public final class LinearProblemIdGenerator {
         return formatName(rangeAction.getId(), state.getId(), TAP_VARIATION_BINARY, CONSTRAINT_SUFFIX);
     }
 
-    public static String isVariationInDirectionConstraintId(RangeAction<?> rangeAction, State state, LinearProblem.VariationReferenceExtension preperimeterOrPreviousIteration, LinearProblem.VariationDirectionExtension upwardOrDownward) {
-        return formatName(rangeAction.getId(), state.getId(), TAP_VARIATION_BINARY, preperimeterOrPreviousIteration.toString().toLowerCase(), upwardOrDownward.toString().toLowerCase(), CONSTRAINT_SUFFIX);
+    public static String isVariationInDirectionConstraintId(RangeAction<?> rangeAction,
+                                                            State state,
+                                                            LinearProblem.VariationReferenceExtension preperimeterOrPreviousIteration,
+                                                            LinearProblem.VariationDirectionExtension upwardOrDownward) {
+        return formatName(
+            rangeAction.getId(),
+            state.getId(),
+            TAP_VARIATION_BINARY,
+            preperimeterOrPreviousIteration.toString().toLowerCase(),
+            upwardOrDownward.toString().toLowerCase(),
+            CONSTRAINT_SUFFIX
+        );
     }
 
     public static String rangeActionGroupSetpointVariableId(String rangeActionGroupId, State state
@@ -287,7 +297,10 @@ public final class LinearProblemIdGenerator {
         return formatName(Optional.of(timestamp), UNIQUE_GENERATOR_STATE, generatorId, CONSTRAINT_SUFFIX);
     }
 
-    public static String generatorStateTransitionVariableId(String generatorId, LinearProblem.GeneratorState generatorStateFrom, LinearProblem.GeneratorState generatorStateTo, OffsetDateTime timestamp) {
+    public static String generatorStateTransitionVariableId(String generatorId,
+                                                            LinearProblem.GeneratorState generatorStateFrom,
+                                                            LinearProblem.GeneratorState generatorStateTo,
+                                                            OffsetDateTime timestamp) {
         return formatName(Optional.of(timestamp), GENERATOR_STATE_TRANSITION, generatorId, generatorStateFrom.toString(), generatorStateTo.toString(), VARIABLE_SUFFIX);
     }
 

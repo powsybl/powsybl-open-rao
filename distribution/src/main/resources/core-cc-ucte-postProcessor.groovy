@@ -1,8 +1,6 @@
 import com.powsybl.iidm.network.Bus
 import com.powsybl.iidm.network.DanglingLine
-import com.powsybl.iidm.network.EnergySource
 import com.powsybl.iidm.network.LoadType
-import com.powsybl.iidm.network.Network
 import com.powsybl.iidm.network.VoltageLevel
 
 /*

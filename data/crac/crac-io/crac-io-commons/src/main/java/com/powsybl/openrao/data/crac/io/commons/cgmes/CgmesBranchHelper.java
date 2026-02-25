@@ -7,8 +7,11 @@
 
 package com.powsybl.openrao.data.crac.io.commons.cgmes;
 
+import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TieLine;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.io.commons.ElementHelper;
-import com.powsybl.iidm.network.*;
 
 import java.util.Objects;
 

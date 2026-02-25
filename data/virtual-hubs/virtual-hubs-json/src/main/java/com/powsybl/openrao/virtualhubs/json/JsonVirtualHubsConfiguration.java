@@ -7,8 +7,8 @@
 
 package com.powsybl.openrao.virtualhubs.json;
 
-import com.powsybl.openrao.virtualhubs.VirtualHubsConfiguration;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.powsybl.openrao.virtualhubs.VirtualHubsConfiguration;
 
 import java.io.IOException;
 import java.io.InputStream;

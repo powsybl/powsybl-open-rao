@@ -7,9 +7,9 @@
 
 package com.powsybl.openrao.virtualhubs.networkextensionbuilder;
 
+import com.powsybl.iidm.network.*;
 import com.powsybl.openrao.virtualhubs.VirtualHub;
 import com.powsybl.openrao.virtualhubs.networkextension.AssignedVirtualHubAdder;
-import com.powsybl.iidm.network.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

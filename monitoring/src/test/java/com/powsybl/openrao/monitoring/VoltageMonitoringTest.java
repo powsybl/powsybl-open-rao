@@ -14,12 +14,7 @@ import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.crac.api.Crac;
-import com.powsybl.openrao.data.crac.api.CracFactory;
-import com.powsybl.openrao.data.crac.api.Instant;
-import com.powsybl.openrao.data.crac.api.InstantKind;
-import com.powsybl.openrao.data.crac.api.RemedialAction;
-import com.powsybl.openrao.data.crac.api.State;
+import com.powsybl.openrao.data.crac.api.*;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 import com.powsybl.openrao.data.crac.api.cnec.CnecValue;
 import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
@@ -37,19 +32,12 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -138,7 +126,8 @@ class VoltageMonitoringTest {
     }
 
     private void runVoltageMonitoring() {
-        MonitoringInput monitoringInput = new MonitoringInput.MonitoringInputBuilder().withCrac(crac).withNetwork(network).withRaoResult(raoResult).withPhysicalParameter(PhysicalParameter.VOLTAGE).build();
+        MonitoringInput monitoringInput = new MonitoringInput.MonitoringInputBuilder()
+            .withCrac(crac).withNetwork(network).withRaoResult(raoResult).withPhysicalParameter(PhysicalParameter.VOLTAGE).build();
         voltageMonitoringResult = new Monitoring("OpenLoadFlow", loadFlowParameters).runMonitoring(monitoringInput, 1);
     }
 
@@ -146,7 +135,10 @@ class VoltageMonitoringTest {
     void testOneSecurePreventiveCnec() {
         addVoltageCnec("vc", PREVENTIVE_INSTANT_ID, null, "VL1", null, 500.);
         runVoltageMonitoring();
-        VoltageCnecValue voltageCnecValue = (VoltageCnecValue) voltageMonitoringResult.getCnecResults().stream().filter(cnec -> cnec.getId().equals("vc")).map(CnecResult::getValue).findFirst().get();
+        VoltageCnecValue voltageCnecValue = (VoltageCnecValue) voltageMonitoringResult.getCnecResults().stream()
+            .filter(cnec -> cnec.getId().equals("vc"))
+            .map(CnecResult::getValue)
+            .findFirst().get();
         assertEquals(400., voltageCnecValue.minValue(), VOLTAGE_TOLERANCE);
         assertEquals(400., voltageCnecValue.maxValue(), VOLTAGE_TOLERANCE);
         assertEquals(Cnec.SecurityStatus.SECURE, voltageMonitoringResult.getStatus());
@@ -214,8 +206,13 @@ class VoltageMonitoringTest {
         assertEquals(Cnec.SecurityStatus.LOW_CONSTRAINT, voltageMonitoringResult.getStatus());
         assertTrue(voltageMonitoringResult.getCnecResults().stream().filter(cnecResult -> cnecResult.getCnec().getId().equals("vc1")).anyMatch(cr -> cr.getMargin() < 0));
         assertTrue(voltageMonitoringResult.getCnecResults().stream().filter(cnecResult -> cnecResult.getCnec().getId().equals("vc2")).anyMatch(cr -> cr.getMargin() < 0));
-        assertEquals(List.of("Some VOLTAGE Cnecs are not secure:",
-            "Network element VL2 at state preventive has a min voltage of 368.12 kV and a max voltage of 368.12 kV.", "Network element VL3 at state preventive has a min voltage of 383.19 kV and a max voltage of 383.19 kV."), voltageMonitoringResult.printConstraints());
+        assertEquals(
+            List.of(
+                "Some VOLTAGE Cnecs are not secure:",
+                "Network element VL2 at state preventive has a min voltage of 368.12 kV and a max voltage of 368.12 kV.",
+                "Network element VL3 at state preventive has a min voltage of 383.19 kV and a max voltage of 383.19 kV."
+            ), voltageMonitoringResult.printConstraints()
+        );
     }
 
     @Test
@@ -231,8 +228,12 @@ class VoltageMonitoringTest {
         assertEquals(Cnec.SecurityStatus.HIGH_CONSTRAINT, voltageMonitoringResult.getStatus());
         assertTrue(voltageMonitoringResult.getCnecResults().stream().filter(cnecResult -> cnecResult.getCnec().getId().equals("vc1")).noneMatch(cr -> cr.getMargin() < 0));
         assertTrue(voltageMonitoringResult.getCnecResults().stream().filter(cnecResult -> cnecResult.getCnec().getId().equals("vc2")).anyMatch(cr -> cr.getMargin() < 0));
-        assertEquals(List.of("Some VOLTAGE Cnecs are not secure:",
-            "Network element VL3 at state preventive has a min voltage of 400.0 kV and a max voltage of 400.0 kV."), voltageMonitoringResult.printConstraints());
+        assertEquals(
+            List.of(
+                "Some VOLTAGE Cnecs are not secure:",
+                "Network element VL3 at state preventive has a min voltage of 400.0 kV and a max voltage of 400.0 kV."
+            ), voltageMonitoringResult.printConstraints()
+        );
     }
 
     @Test
@@ -248,8 +249,13 @@ class VoltageMonitoringTest {
         assertEquals(Cnec.SecurityStatus.HIGH_AND_LOW_CONSTRAINTS, voltageMonitoringResult.getStatus());
         assertTrue(voltageMonitoringResult.getCnecResults().stream().filter(cnecResult -> cnecResult.getCnec().getId().equals("vc1")).anyMatch(cr -> cr.getMargin() < 0));
         assertTrue(voltageMonitoringResult.getCnecResults().stream().filter(cnecResult -> cnecResult.getCnec().getId().equals("vc2")).anyMatch(cr -> cr.getMargin() < 0));
-        assertEquals(List.of("Some VOLTAGE Cnecs are not secure:",
-            "Network element VL2 at state preventive has a min voltage of 368.12 kV and a max voltage of 368.12 kV.", "Network element VL3 at state preventive has a min voltage of 400.0 kV and a max voltage of 400.0 kV."), voltageMonitoringResult.printConstraints());
+        assertEquals(
+            List.of(
+                "Some VOLTAGE Cnecs are not secure:",
+                "Network element VL2 at state preventive has a min voltage of 368.12 kV and a max voltage of 368.12 kV.",
+                "Network element VL3 at state preventive has a min voltage of 400.0 kV and a max voltage of 400.0 kV."
+            ), voltageMonitoringResult.printConstraints()
+        );
     }
 
     @Test
@@ -266,8 +272,12 @@ class VoltageMonitoringTest {
         assertEquals(Cnec.SecurityStatus.LOW_CONSTRAINT, voltageMonitoringResult.getStatus());
         assertTrue(voltageMonitoringResult.getCnecResults().stream().filter(cnecResult -> cnecResult.getCnec().getId().equals("vc1")).anyMatch(cr -> cr.getMargin() < 0));
         assertTrue(voltageMonitoringResult.getCnecResults().stream().filter(cnecResult -> cnecResult.getCnec().getId().equals("vc2")).noneMatch(cr -> cr.getMargin() < 0));
-        assertEquals(List.of("Some VOLTAGE Cnecs are not secure:",
-            "Network element VL2 at state preventive has a min voltage of 379.35 kV and a max voltage of 379.35 kV."), voltageMonitoringResult.printConstraints());
+        assertEquals(
+            List.of(
+                "Some VOLTAGE Cnecs are not secure:",
+                "Network element VL2 at state preventive has a min voltage of 379.35 kV and a max voltage of 379.35 kV."
+            ), voltageMonitoringResult.printConstraints()
+        );
     }
 
     @Test
@@ -285,7 +295,10 @@ class VoltageMonitoringTest {
         assertTrue(voltageMonitoringResult.getCnecResults().stream().filter(cnecResult -> cnecResult.getCnec().getId().equals("vc2")).allMatch(cr -> cr.getMargin() < 0));
         assertTrue(voltageMonitoringResult.getCnecResults().stream().filter(cnecResult -> cnecResult.getCnec().getId().equals("vc2b")).allMatch(cr -> Double.isNaN(cr.getMargin())));
         assertTrue(voltageMonitoringResult.getCnecResults().stream().filter(cnecResult -> cnecResult.getCnec().getId().equals("vc1b")).allMatch(cr -> Double.isNaN(cr.getMargin())));
-        assertEquals(List.of("VOLTAGE monitoring failed due to a load flow divergence or an inconsistency in the crac or in the parameters."), voltageMonitoringResult.printConstraints());
+        assertEquals(
+            List.of("VOLTAGE monitoring failed due to a load flow divergence or an inconsistency in the crac or in the parameters."),
+            voltageMonitoringResult.printConstraints()
+        );
     }
 
     @Test
@@ -317,8 +330,12 @@ class VoltageMonitoringTest {
         runVoltageMonitoring();
         assertEquals(Cnec.SecurityStatus.LOW_CONSTRAINT, voltageMonitoringResult.getStatus());
         assertTrue(voltageMonitoringResult.getCnecResults().stream().filter(cnecResult -> cnecResult.getCnec().getId().equals("vc")).allMatch(cr -> cr.getMargin() < 0));
-        assertEquals(List.of("Some VOLTAGE Cnecs are not secure:",
-            "Network element VL2 at state co3 - curative has a min voltage of 368.12 kV and a max voltage of 368.12 kV."), voltageMonitoringResult.printConstraints());
+        assertEquals(
+            List.of(
+                "Some VOLTAGE Cnecs are not secure:",
+                "Network element VL2 at state co3 - curative has a min voltage of 368.12 kV and a max voltage of 368.12 kV."
+            ), voltageMonitoringResult.printConstraints()
+        );
     }
 
     @Test
@@ -567,7 +584,8 @@ class VoltageMonitoringTest {
         when(raoResult.getComputationStatus()).thenReturn(ComputationStatus.DEFAULT);
         when(raoResult.isSecure()).thenReturn(true);
 
-        MonitoringInput monitoringInput = new MonitoringInput.MonitoringInputBuilder().withCrac(crac).withNetwork(network).withRaoResult(raoResult).withPhysicalParameter(PhysicalParameter.VOLTAGE).build();
+        MonitoringInput monitoringInput = new MonitoringInput.MonitoringInputBuilder()
+            .withCrac(crac).withNetwork(network).withRaoResult(raoResult).withPhysicalParameter(PhysicalParameter.VOLTAGE).build();
         RaoResult raoResultWithVoltageMonitoring = Monitoring.runVoltageAndUpdateRaoResult("OpenLoadFlow", loadFlowParameters, 1, monitoringInput);
 
         assertFalse(raoResultWithVoltageMonitoring.isSecure(PhysicalParameter.VOLTAGE));
@@ -600,7 +618,8 @@ class VoltageMonitoringTest {
         when(raoResult.getComputationStatus()).thenReturn(ComputationStatus.DEFAULT);
         when(raoResult.isSecure()).thenReturn(true);
 
-        final MonitoringInput monitoringInput = new MonitoringInput.MonitoringInputBuilder().withCrac(crac).withNetwork(network).withRaoResult(raoResult).withPhysicalParameter(PhysicalParameter.VOLTAGE).build();
+        final MonitoringInput monitoringInput = new MonitoringInput.MonitoringInputBuilder()
+            .withCrac(crac).withNetwork(network).withRaoResult(raoResult).withPhysicalParameter(PhysicalParameter.VOLTAGE).build();
         final AtomicInteger referenceValue = new AtomicInteger(2);
         final CountDownLatch latch = new CountDownLatch(3);
         final ComputationManager computationManager = MonitoringTestUtil.getComputationManager(referenceValue, latch);

@@ -13,11 +13,7 @@ import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.crac.api.networkaction.DanglingLineActionAdder;
-import com.powsybl.openrao.data.crac.api.networkaction.GeneratorActionAdder;
-import com.powsybl.openrao.data.crac.api.networkaction.LoadActionAdder;
-import com.powsybl.openrao.data.crac.api.networkaction.NetworkActionAdder;
-import com.powsybl.openrao.data.crac.api.networkaction.ShuntCompensatorPositionActionAdder;
+import com.powsybl.openrao.data.crac.api.networkaction.*;
 import com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants;
 
 import java.io.IOException;
@@ -103,7 +99,9 @@ public final class InjectionSetpointArrayDeserializer {
                     shuntCompensatorPositionActionAdder.add();
                     break;
                 default:
-                    throw new OpenRaoException("InjectionSetpoint actions must be on network element of type generator, load, dangling line or shunt compensator, and here it is " + identifiable.getType());
+                    throw new OpenRaoException(
+                        "InjectionSetpoint actions must be on network element of type generator, load, dangling line or shunt compensator, but here it is " + identifiable.getType()
+                    );
             }
         }
     }

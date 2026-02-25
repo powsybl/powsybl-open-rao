@@ -7,10 +7,10 @@
 
 package com.powsybl.openrao.raoapi.json;
 
-import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
+import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 
 import java.io.IOException;
 
@@ -47,7 +47,11 @@ final class JsonRangeActionsOptimizationParameters {
                     jsonParser.nextToken();
                     raoParameters.getRangeActionsOptimizationParameters().setInjectionRAMinImpactThreshold(jsonParser.getDoubleValue());
                 }
-                default -> throw new OpenRaoException(String.format("Cannot deserialize range action optimization parameters: unexpected field in %s (%s)", RANGE_ACTIONS_OPTIMIZATION, jsonParser.getCurrentName()));
+                default -> throw new OpenRaoException(String.format(
+                    "Cannot deserialize range action optimization parameters: unexpected field in %s (%s)",
+                    RANGE_ACTIONS_OPTIMIZATION,
+                    jsonParser.getCurrentName())
+                );
             }
         }
     }

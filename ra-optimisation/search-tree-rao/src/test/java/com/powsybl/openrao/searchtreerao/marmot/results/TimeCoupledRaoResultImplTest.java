@@ -28,10 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -80,7 +77,15 @@ class TimeCoupledRaoResultImplTest {
         final RaoResult raoResultTimestamp2 = mockRaoResult(true, "RAO 2 succeeded.", 250., 90., flowCnecTimestamp2, 510., 45., stateTimestamp2, 0, 5, 0., 10.2, false);
         final RaoResult raoResultTimestamp3 = mockRaoResult(false, "RAO 3 failed.", 200., 10., flowCnecTimestamp3, 1000., -60., stateTimestamp3, 0, 16, 0., 35.32, true);
 
-        timeCoupledRaoResult = new TimeCoupledRaoResultImpl(initialObjectiveFunctionResult, objectiveFunctionResult, new TemporalDataImpl<>(Map.of(TestsUtils.TIMESTAMP_1, raoResultTimestamp1, TestsUtils.TIMESTAMP_2, raoResultTimestamp2, TestsUtils.TIMESTAMP_3, raoResultTimestamp3)));
+        timeCoupledRaoResult = new TimeCoupledRaoResultImpl(
+            initialObjectiveFunctionResult,
+            objectiveFunctionResult,
+            new TemporalDataImpl<>(Map.of(
+                TestsUtils.TIMESTAMP_1, raoResultTimestamp1,
+                TestsUtils.TIMESTAMP_2, raoResultTimestamp2,
+                TestsUtils.TIMESTAMP_3, raoResultTimestamp3
+            ))
+        );
     }
 
     @Test
@@ -113,13 +118,22 @@ class TimeCoupledRaoResultImplTest {
         assertEquals(10., timeCoupledRaoResult.getVirtualCost(instant, "virtual", TestsUtils.TIMESTAMP_3));
 
         OpenRaoException exception1 = assertThrows(OpenRaoException.class, () -> timeCoupledRaoResult.getFunctionalCost(instant));
-        assertEquals("Calling getFunctionalCost with an instant alone is ambiguous. For the global functional cost, use getGlobalFunctionalCost. Otherwise, please provide a timestamp.", exception1.getMessage());
+        assertEquals(
+            "Calling getFunctionalCost with an instant alone is ambiguous. For the global functional cost, use getGlobalFunctionalCost. Otherwise, please provide a timestamp.",
+            exception1.getMessage()
+        );
 
         OpenRaoException exception2 = assertThrows(OpenRaoException.class, () -> timeCoupledRaoResult.getVirtualCost(instant));
-        assertEquals("Calling getVirtualCost with an instant alone is ambiguous. For the global virtual cost, use getGlobalVirtualCost. Otherwise, please provide a timestamp.", exception2.getMessage());
+        assertEquals(
+            "Calling getVirtualCost with an instant alone is ambiguous. For the global virtual cost, use getGlobalVirtualCost. Otherwise, please provide a timestamp.",
+            exception2.getMessage()
+        );
 
         OpenRaoException exception3 = assertThrows(OpenRaoException.class, () -> timeCoupledRaoResult.getVirtualCost(instant, "virtual"));
-        assertEquals("Calling getVirtualCost with an instant and a name alone is ambiguous. For the global virtual cost, use getGlobalVirtualCost. Otherwise, please provide a timestamp.", exception3.getMessage());
+        assertEquals(
+            "Calling getVirtualCost with an instant and a name alone is ambiguous. For the global virtual cost, use getGlobalVirtualCost. Otherwise, please provide a timestamp.",
+            exception3.getMessage()
+        );
     }
 
     @Test
@@ -166,7 +180,19 @@ class TimeCoupledRaoResultImplTest {
         assertEquals(-60., timeCoupledRaoResult.getMargin(instant, flowCnecTimestamp3, Unit.MEGAWATT));
     }
 
-    private RaoResult mockRaoResult(boolean isSecure, String executionDetails, double functionalCost, double virtualCost, FlowCnec flowCnec, double flow, double margin, State state, int initialTap, int optimizedTap, double initialSetPoint, double optimizedSetPoint, boolean isNetworkActionActivated) {
+    private RaoResult mockRaoResult(boolean isSecure,
+                                    String executionDetails,
+                                    double functionalCost,
+                                    double virtualCost,
+                                    FlowCnec flowCnec,
+                                    double flow,
+                                    double margin,
+                                    State state,
+                                    int initialTap,
+                                    int optimizedTap,
+                                    double initialSetPoint,
+                                    double optimizedSetPoint,
+                                    boolean isNetworkActionActivated) {
         RaoResult raoResult = Mockito.mock(RaoResult.class);
         Mockito.when(raoResult.isSecure(PhysicalParameter.FLOW, PhysicalParameter.ANGLE, PhysicalParameter.VOLTAGE)).thenReturn(isSecure);
         Mockito.when(raoResult.isSecure(instant, PhysicalParameter.FLOW)).thenReturn(isSecure);

@@ -7,32 +7,29 @@
 
 package com.powsybl.openrao.data.crac.io.nc.craccreator.cnec;
 
+import com.powsybl.contingency.Contingency;
+import com.powsybl.iidm.network.*;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.contingency.Contingency;
+import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.cnec.FlowCnecAdder;
+import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
+import com.powsybl.openrao.data.crac.api.threshold.BranchThresholdAdder;
+import com.powsybl.openrao.data.crac.io.commons.OpenRaoImportException;
+import com.powsybl.openrao.data.crac.io.commons.api.ElementaryCreationContext;
+import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
+import com.powsybl.openrao.data.crac.io.commons.api.StandardElementaryCreationContext;
 import com.powsybl.openrao.data.crac.io.nc.craccreator.NcCracUtils;
 import com.powsybl.openrao.data.crac.io.nc.craccreator.constants.LimitTypeKind;
 import com.powsybl.openrao.data.crac.io.nc.craccreator.constants.OperationalLimitDirectionKind;
 import com.powsybl.openrao.data.crac.io.nc.objects.AssessedElement;
 import com.powsybl.openrao.data.crac.io.nc.objects.CurrentLimit;
 import com.powsybl.openrao.data.crac.io.nc.parameters.NcCracCreationParameters;
-import com.powsybl.openrao.data.crac.api.Crac;
-import com.powsybl.openrao.data.crac.api.cnec.FlowCnecAdder;
-import com.powsybl.iidm.network.TwoSides;
-import com.powsybl.openrao.data.crac.api.threshold.BranchThresholdAdder;
-import com.powsybl.openrao.data.crac.io.commons.api.ElementaryCreationContext;
-import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
-import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
-import com.powsybl.openrao.data.crac.io.commons.api.StandardElementaryCreationContext;
-import com.powsybl.iidm.network.*;
-import com.powsybl.openrao.data.crac.io.commons.OpenRaoImportException;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.powsybl.openrao.data.crac.io.nc.craccreator.constants.NcConstants.CURRENT_LIMIT_POSSIBLE_ALIASES_BY_TYPE_LEFT;
-import static com.powsybl.openrao.data.crac.io.nc.craccreator.constants.NcConstants.CURRENT_LIMIT_POSSIBLE_ALIASES_BY_TYPE_RIGHT;
-import static com.powsybl.openrao.data.crac.io.nc.craccreator.constants.NcConstants.CURRENT_LIMIT_POSSIBLE_ALIASES_BY_TYPE_TIE_LINE;
+import static com.powsybl.openrao.data.crac.io.nc.craccreator.constants.NcConstants.*;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -43,7 +40,16 @@ public class FlowCnecCreator extends AbstractCnecCreator {
     private final FlowCnecInstantHelper instantHelper;
     private final CurrentLimit nativeCurrentLimit;
 
-    public FlowCnecCreator(Crac crac, Network network, AssessedElement nativeAssessedElement, CurrentLimit nativeCurrentLimit, Set<Contingency> linkedContingencies, Set<ElementaryCreationContext> ncCnecCreationContexts, String rejectedLinksAssessedElementContingency, CracCreationParameters cracCreationParameters, Map<String, String> borderPerTso, Map<String, String> borderPerEic) {
+    public FlowCnecCreator(Crac crac,
+                           Network network,
+                           AssessedElement nativeAssessedElement,
+                           CurrentLimit nativeCurrentLimit,
+                           Set<Contingency> linkedContingencies,
+                           Set<ElementaryCreationContext> ncCnecCreationContexts,
+                           String rejectedLinksAssessedElementContingency,
+                           CracCreationParameters cracCreationParameters,
+                           Map<String, String> borderPerTso,
+                           Map<String, String> borderPerEic) {
         super(crac, network, nativeAssessedElement, linkedContingencies, ncCnecCreationContexts, rejectedLinksAssessedElementContingency, cracCreationParameters, borderPerTso, borderPerEic);
         this.defaultMonitoredSides = cracCreationParameters.getDefaultMonitoredSides();
         this.nativeCurrentLimit = nativeCurrentLimit;
@@ -57,10 +63,16 @@ public class FlowCnecCreator extends AbstractCnecCreator {
 
     private void checkCnecDefinitionMode() {
         if (nativeAssessedElement.conductingEquipment() == null && nativeCurrentLimit == null) {
-            throw new OpenRaoImportException(ImportStatus.INCOMPLETE_DATA, writeAssessedElementIgnoredReasonMessage("no ConductingEquipment or OperationalLimit was provided"));
+            throw new OpenRaoImportException(
+                ImportStatus.INCOMPLETE_DATA,
+                writeAssessedElementIgnoredReasonMessage("no ConductingEquipment or OperationalLimit was provided")
+            );
         }
         if (nativeAssessedElement.conductingEquipment() != null && nativeCurrentLimit != null) {
-            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, writeAssessedElementIgnoredReasonMessage("an assessed element must be defined using either a ConductingEquipment or an OperationalLimit, not both"));
+            throw new OpenRaoImportException(
+                ImportStatus.INCONSISTENCY_IN_DATA,
+                writeAssessedElementIgnoredReasonMessage("an assessed element must be defined using either a ConductingEquipment or an OperationalLimit, not both")
+            );
         }
     }
 
@@ -70,9 +82,13 @@ public class FlowCnecCreator extends AbstractCnecCreator {
 
         // The thresholds are a map of acceptable durations to thresholds (per branch side)
         // Integer.MAX_VALUE is used for the PATL's acceptable duration
-        Map<Integer, Map<TwoSides, Double>> thresholds = nativeAssessedElement.conductingEquipment() != null ? getPermanentAndTemporaryLimitsOfBranch((Branch<?>) branch) : getPermanentAndTemporaryLimitsOfOperationalLimit(branch, networkElementId);
+        Map<Integer, Map<TwoSides, Double>> thresholds = nativeAssessedElement.conductingEquipment() != null ?
+            getPermanentAndTemporaryLimitsOfBranch((Branch<?>) branch) : getPermanentAndTemporaryLimitsOfOperationalLimit(branch, networkElementId);
         if (thresholds.isEmpty()) {
-            throw new OpenRaoImportException(ImportStatus.INCOMPLETE_DATA, writeAssessedElementIgnoredReasonMessage("no PATL or TATLs could be retrieved for the branch " + branch.getId()));
+            throw new OpenRaoImportException(
+                ImportStatus.INCOMPLETE_DATA,
+                writeAssessedElementIgnoredReasonMessage("no PATL or TATLs could be retrieved for the branch " + branch.getId())
+            );
         }
 
         // If the AssessedElement is defined with a conducting equipment, we use both max and min thresholds.
@@ -81,7 +97,10 @@ public class FlowCnecCreator extends AbstractCnecCreator {
             if (OperationalLimitDirectionKind.HIGH.toString().equals(nativeCurrentLimit.direction())) {
                 useMaxAndMinThresholds = false;
             } else if (!OperationalLimitDirectionKind.ABSOLUTE.toString().equals(nativeCurrentLimit.direction())) {
-                throw new OpenRaoImportException(ImportStatus.NOT_FOR_RAO, writeAssessedElementIgnoredReasonMessage("OperationalLimitType.direction is neither 'absoluteValue' nor 'high'"));
+                throw new OpenRaoImportException(
+                    ImportStatus.NOT_FOR_RAO,
+                    writeAssessedElementIgnoredReasonMessage("OperationalLimitType.direction is neither 'absoluteValue' nor 'high'")
+                );
             }
         }
 
@@ -95,10 +114,16 @@ public class FlowCnecCreator extends AbstractCnecCreator {
     private Identifiable<?> getFlowCnecBranch(String networkElementId) {
         Identifiable<?> networkElement = getNetworkElementInNetwork(networkElementId);
         if (networkElement == null) {
-            throw new OpenRaoImportException(ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK, writeAssessedElementIgnoredReasonMessage("the following network element is missing from the network: " + networkElementId));
+            throw new OpenRaoImportException(
+                ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK,
+                writeAssessedElementIgnoredReasonMessage("the following network element is missing from the network: " + networkElementId)
+            );
         }
         if (!(networkElement instanceof Branch)) {
-            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, writeAssessedElementIgnoredReasonMessage("the network element " + networkElement.getId() + " is not a branch"));
+            throw new OpenRaoImportException(
+                ImportStatus.INCONSISTENCY_IN_DATA,
+                writeAssessedElementIgnoredReasonMessage("the network element " + networkElement.getId() + " is not a branch")
+            );
         }
         return networkElement;
     }
@@ -145,7 +170,10 @@ public class FlowCnecCreator extends AbstractCnecCreator {
 
     private void addFlowCnecThreshold(FlowCnecAdder flowCnecAdder, TwoSides side, double threshold, boolean useMaxAndMinThresholds) {
         if (nativeAssessedElement.flowReliabilityMargin() < 0 || nativeAssessedElement.flowReliabilityMargin() > 100) {
-            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, writeAssessedElementIgnoredReasonMessage("of an invalid flow reliability margin (expected a value between 0 and 100)"));
+            throw new OpenRaoImportException(
+                ImportStatus.INCONSISTENCY_IN_DATA,
+                writeAssessedElementIgnoredReasonMessage("of an invalid flow reliability margin (expected a value between 0 and 100)")
+            );
         }
         double thresholdWithReliabilityMargin = threshold * (1d - nativeAssessedElement.flowReliabilityMargin() / 100d);
         BranchThresholdAdder adder = flowCnecAdder.newThreshold().withSide(side)
@@ -192,22 +220,41 @@ public class FlowCnecCreator extends AbstractCnecCreator {
         // Curative CNECs
         if (!linkedContingencies.isEmpty()) {
             String operatorName = NcCracUtils.getTsoNameFromUrl(nativeAssessedElement.operator());
-            Map<TwoSides, Map<String, Integer>> instantToDurationMaps = Arrays.stream(TwoSides.values()).collect(Collectors.toMap(twoSides -> twoSides, twoSides -> instantHelper.mapPostContingencyInstantsAndLimitDurations(networkElement, twoSides, operatorName)));
+            Map<TwoSides, Map<String, Integer>> instantToDurationMaps = Arrays.stream(TwoSides.values()).collect(Collectors.toMap(
+                twoSides -> twoSides,
+                twoSides -> instantHelper.mapPostContingencyInstantsAndLimitDurations(networkElement, twoSides, operatorName)
+            ));
             boolean operatorDoesNotUsePatlInFinalState = ncCracCreationParameters.getTsosWhichDoNotUsePatlInFinalState().contains(operatorName);
 
             // If an operator does not use the PATL for the final state but has no TATL defined, the use of PATL if forced
             Map<TwoSides, Boolean> forceUseOfPatl = Arrays.stream(TwoSides.values()).collect(Collectors.toMap(
                 twoSides -> twoSides,
-                twoSides -> operatorDoesNotUsePatlInFinalState
-                    && (networkElement.getCurrentLimits(twoSides).isEmpty() || networkElement.getCurrentLimits(twoSides).isPresent() && networkElement.getCurrentLimits(twoSides).get().getTemporaryLimits().isEmpty())));
+                twoSides -> {
+                    if (!operatorDoesNotUsePatlInFinalState) {
+                        return false;
+                    } else if (networkElement.getCurrentLimits(twoSides).isEmpty()) {
+                        return true;
+                    } else {
+                        return networkElement.getCurrentLimits(twoSides).get().getTemporaryLimits().isEmpty();
+                    }
+                }
+            ));
 
-            linkedContingencies.forEach(
-                contingency -> thresholds.forEach(
-                    (acceptableDuration, thresholdPerSide) -> addCurativeFlowCnec(networkElement, useMaxAndMinThresholds, instantToDurationMaps, forceUseOfPatl, contingency, acceptableDuration, thresholdPerSide)));
+            linkedContingencies.forEach(contingency ->
+                thresholds.forEach((acceptableDuration, thresholdPerSide) ->
+                       addCurativeFlowCnec(networkElement, useMaxAndMinThresholds, instantToDurationMaps, forceUseOfPatl, contingency, acceptableDuration, thresholdPerSide)
+                )
+            );
         }
     }
 
-    private void addCurativeFlowCnec(Branch<?> networkElement, boolean useMaxAndMinThresholds, Map<TwoSides, Map<String, Integer>> instantToDurationMaps, Map<TwoSides, Boolean> forceUseOfPatl, Contingency contingency, Integer acceptableDuration, Map<TwoSides, Double> thresholdPerSide) {
+    private void addCurativeFlowCnec(Branch<?> networkElement,
+                                     boolean useMaxAndMinThresholds,
+                                     Map<TwoSides, Map<String, Integer>> instantToDurationMaps,
+                                     Map<TwoSides, Boolean> forceUseOfPatl,
+                                     Contingency contingency,
+                                     Integer acceptableDuration,
+                                     Map<TwoSides, Double> thresholdPerSide) {
         Map<String, Map<TwoSides, Double>> thresholdPerSidePerInstant = new HashMap<>();
         for (TwoSides twoSides : thresholdPerSide.keySet()) {
             double threshold = thresholdPerSide.get(twoSides);
@@ -220,7 +267,10 @@ public class FlowCnecCreator extends AbstractCnecCreator {
             String cnecName = getCnecName(instant, contingency, acceptableDuration);
             addFlowCnec(networkElement, contingency, instant, thresholdsOfInstant, acceptableDuration, useMaxAndMinThresholds);
             if (acceptableDuration == Integer.MAX_VALUE && thresholdPerSide.keySet().stream().anyMatch(twoSides -> Boolean.TRUE.equals(forceUseOfPatl.get(twoSides)))) {
-                ncCnecCreationContexts.add(StandardElementaryCreationContext.imported(nativeAssessedElement.mrid(), cnecName, cnecName, true, "TSO %s does not use PATL in final state but has no TATL defined for branch %s on at least one of its sides, PATL will be used".formatted(NcCracUtils.getTsoNameFromUrl(nativeAssessedElement.operator()), networkElement.getId())));
+                ncCnecCreationContexts.add(StandardElementaryCreationContext.imported(
+                    nativeAssessedElement.mrid(), cnecName, cnecName, true,
+                    "TSO %s does not use PATL in final state but has no TATL defined for branch %s on at least one of its sides, PATL will be used"
+                        .formatted(NcCracUtils.getTsoNameFromUrl(nativeAssessedElement.operator()), networkElement.getId())));
             } else {
                 ncCnecCreationContexts.add(StandardElementaryCreationContext.imported(nativeAssessedElement.mrid(), cnecName, cnecName, false, ""));
             }

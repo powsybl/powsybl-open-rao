@@ -8,12 +8,12 @@
 package com.powsybl.openrao.data.crac.impl;
 
 import com.powsybl.action.SwitchAction;
-import com.powsybl.openrao.data.crac.impl.utils.CommonCracCreation;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.networkaction.SwitchPair;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.data.crac.impl.utils.CommonCracCreation;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;

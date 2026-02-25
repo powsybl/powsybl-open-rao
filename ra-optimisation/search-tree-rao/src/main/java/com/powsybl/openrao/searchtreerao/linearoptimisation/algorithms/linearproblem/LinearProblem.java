@@ -7,9 +7,9 @@
 
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem;
 
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
@@ -91,7 +91,11 @@ public final class LinearProblem {
         return new LinearProblemBuilder();
     }
 
-    LinearProblem(List<ProblemFiller> fillerList, RangeActionActivationResult raActivationFromParentLeaf, SearchTreeRaoRangeActionsOptimizationParameters.Solver solver, double relativeMipGap, String solverSpecificParameters) {
+    LinearProblem(List<ProblemFiller> fillerList,
+                  RangeActionActivationResult raActivationFromParentLeaf,
+                  SearchTreeRaoRangeActionsOptimizationParameters.Solver solver,
+                  double relativeMipGap,
+                  String solverSpecificParameters) {
         this.solver = new OpenRaoMPSolver(OPT_PROBLEM_NAME, solver);
         this.fillerList = fillerList;
         this.raActivationFromParentLeaf = raActivationFromParentLeaf;
@@ -233,7 +237,12 @@ public final class LinearProblem {
         return solver.getConstraint(isVariationConstraintId(rangeAction, state));
     }
 
-    public OpenRaoMPConstraint addIsVariationInDirectionConstraint(double lb, double ub, RangeAction<?> rangeAction, State state, VariationReferenceExtension reference, VariationDirectionExtension direction) {
+    public OpenRaoMPConstraint addIsVariationInDirectionConstraint(double lb,
+                                                                   double ub,
+                                                                   RangeAction<?> rangeAction,
+                                                                   State state,
+                                                                   VariationReferenceExtension reference,
+                                                                   VariationDirectionExtension direction) {
         return solver.makeConstraint(lb, ub, isVariationInDirectionConstraintId(rangeAction, state, reference, direction));
     }
 
@@ -532,11 +541,17 @@ public final class LinearProblem {
         return solver.getVariable(generatorStateVariableId(generatorId, generatorState, timestamp));
     }
 
-    public OpenRaoMPVariable addGeneratorStateTransitionVariable(String generatorId, OffsetDateTime timestamp, LinearProblem.GeneratorState generatorStateFrom, LinearProblem.GeneratorState generatorStateTo) {
+    public OpenRaoMPVariable addGeneratorStateTransitionVariable(String generatorId,
+                                                                 OffsetDateTime timestamp,
+                                                                 LinearProblem.GeneratorState generatorStateFrom,
+                                                                 LinearProblem.GeneratorState generatorStateTo) {
         return solver.makeBoolVar(generatorStateTransitionVariableId(generatorId, generatorStateFrom, generatorStateTo, timestamp));
     }
 
-    public OpenRaoMPVariable getGeneratorStateTransitionVariable(String generatorId, OffsetDateTime timestamp, LinearProblem.GeneratorState generatorStateFrom, LinearProblem.GeneratorState generatorStateTo) {
+    public OpenRaoMPVariable getGeneratorStateTransitionVariable(String generatorId,
+                                                                 OffsetDateTime timestamp,
+                                                                 LinearProblem.GeneratorState generatorStateFrom,
+                                                                 LinearProblem.GeneratorState generatorStateTo) {
         return solver.getVariable(generatorStateTransitionVariableId(generatorId, generatorStateFrom, generatorStateTo, timestamp));
     }
 

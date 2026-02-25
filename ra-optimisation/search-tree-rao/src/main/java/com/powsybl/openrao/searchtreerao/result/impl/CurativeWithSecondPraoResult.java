@@ -7,13 +7,13 @@
 
 package com.powsybl.openrao.searchtreerao.result.impl;
 
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
@@ -41,7 +41,13 @@ public class CurativeWithSecondPraoResult implements OptimizationResult {
     private final SensitivityResult postCraSensitivitySensitivityResult; // contains final flows
     private final boolean costOptimization;
 
-    private CurativeWithSecondPraoResult(State state, OptimizationResult firstCraoResult, OptimizationResult secondPraoResult, FlowResult postCraSensitivityFlowResult, ObjectiveFunctionResult postCraSensitivityObjectiveResult, SensitivityResult postCraSensitivitySensitivityResult, boolean costOptimization) {
+    private CurativeWithSecondPraoResult(State state,
+                                         OptimizationResult firstCraoResult,
+                                         OptimizationResult secondPraoResult,
+                                         FlowResult postCraSensitivityFlowResult,
+                                         ObjectiveFunctionResult postCraSensitivityObjectiveResult,
+                                         SensitivityResult postCraSensitivitySensitivityResult,
+                                         boolean costOptimization) {
         this.state = state;
         this.firstCraoResult = firstCraoResult;
         this.secondPraoResult = secondPraoResult;

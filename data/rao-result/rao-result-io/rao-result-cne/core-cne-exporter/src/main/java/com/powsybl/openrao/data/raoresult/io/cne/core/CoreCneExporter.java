@@ -10,20 +10,20 @@ package com.powsybl.openrao.data.raoresult.io.cne.core;
 import com.google.auto.service.AutoService;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
-import com.powsybl.openrao.data.raoresult.io.cne.core.xsd.CriticalNetworkElementMarketDocument;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.CracCreationContext;
 import com.powsybl.openrao.data.crac.io.commons.api.stdcreationcontext.UcteCracCreationContext;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.io.Exporter;
-import org.apache.commons.lang3.NotImplementedException;
-import org.xml.sax.SAXException;
-
-import javax.xml.XMLConstants;
+import com.powsybl.openrao.data.raoresult.io.cne.core.xsd.CriticalNetworkElementMarketDocument;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBElement;
 import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Marshaller;
+import org.apache.commons.lang3.NotImplementedException;
+import org.xml.sax.SAXException;
+
+import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;

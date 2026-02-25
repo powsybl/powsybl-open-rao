@@ -15,9 +15,11 @@ import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Marshaller;
 import jakarta.xml.bind.Unmarshaller;
 
-import java.io.*;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.Map;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
 
@@ -34,11 +36,14 @@ public final class TimeCoupledRefProg {
     private TimeCoupledRefProg() {
     }
 
-    public static void updateRefProg(InputStream inputStream, TemporalData<Map<String, Double>> netRedispatchingPerCountryTemporalData, Map<String, Map<String, Map<String, Double>>> becValues, String outputPath) {
+    public static void updateRefProg(InputStream inputStream,
+                                     TemporalData<Map<String, Double>> netRedispatchingPerCountryTemporalData,
+                                     Map<String, Map<String, Map<String, Double>>> becValues,
+                                     String outputPath) {
         // Load initial RefProg
         PublicationDocument document = importXmlDocument(inputStream);
 
-        document.getPublicationTimeSeries().forEach(pubTS -> {
+        for (PublicationTimeSeriesType pubTS : document.getPublicationTimeSeries()) {
             String inArea;
             String outArea;
             try {
@@ -62,7 +67,7 @@ public final class TimeCoupledRefProg {
                 interval.getQty().setV(BigDecimal.valueOf(Math.round(qty[0])));
                 i++;
             }
-        });
+        }
 
         exportXmlDocument(document, outputPath);
     }

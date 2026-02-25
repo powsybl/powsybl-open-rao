@@ -7,12 +7,15 @@
 
 package com.powsybl.openrao.raoapi.parameters;
 
-import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.raoapi.parameters.extensions.*;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
-import com.powsybl.commons.config.*;
+import com.powsybl.commons.config.InMemoryPlatformConfig;
+import com.powsybl.commons.config.MapModuleConfig;
+import com.powsybl.commons.config.ModuleConfig;
+import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.iidm.network.Country;
+import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.raoapi.parameters.extensions.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -166,7 +169,8 @@ class RaoParametersConfigTest {
     @Test
     void checkLoopFlowParametersConfigExtension() {
         ModuleConfig loopFlowModuleConfig = Mockito.mock(ModuleConfig.class);
-        Mockito.when(loopFlowModuleConfig.getEnumProperty(eq("ptdf-approximation"), eq(PtdfApproximation.class), any())).thenReturn(PtdfApproximation.UPDATE_PTDF_WITH_TOPO);
+        Mockito.when(loopFlowModuleConfig.getEnumProperty(eq("ptdf-approximation"), eq(PtdfApproximation.class), any()))
+            .thenReturn(PtdfApproximation.UPDATE_PTDF_WITH_TOPO);
         Mockito.when(loopFlowModuleConfig.getDoubleProperty(eq("violation-cost"), anyDouble())).thenReturn(43.);
         Mockito.when(loopFlowModuleConfig.getDoubleProperty(eq("constraint-adjustment-coefficient"), anyDouble())).thenReturn(45.);
         Mockito.when(mockedPlatformConfig.getOptionalModuleConfig("search-tree-loop-flow-parameters")).thenReturn(Optional.of(loopFlowModuleConfig));
@@ -202,7 +206,8 @@ class RaoParametersConfigTest {
     void checkCostlyMinMarginParametersConfig() {
         ModuleConfig minMarginsModuleConfig = Mockito.mock(ModuleConfig.class);
         Mockito.when(minMarginsModuleConfig.getDoubleProperty(eq("shifted-violation-penalty"), anyDouble())).thenReturn(43.);
-        Mockito.when(mockedPlatformConfig.getOptionalModuleConfig("search-tree-costly-min-margin-parameters")).thenReturn(Optional.of(minMarginsModuleConfig));
+        Mockito.when(mockedPlatformConfig.getOptionalModuleConfig("search-tree-costly-min-margin-parameters"))
+            .thenReturn(Optional.of(minMarginsModuleConfig));
         OpenRaoSearchTreeParametersConfigLoader configLoader = new OpenRaoSearchTreeParametersConfigLoader();
         SearchTreeRaoCostlyMinMarginParameters parameters = configLoader.load(mockedPlatformConfig).getMinMarginsParameters().get();
         assertEquals(43, parameters.getShiftedViolationPenalty(), DOUBLE_TOLERANCE);
@@ -211,8 +216,10 @@ class RaoParametersConfigTest {
     @Test
     void checkRelativeMarginsConfig() {
         ModuleConfig relativeMarginsModuleConfig = Mockito.mock(ModuleConfig.class);
-        Mockito.when(relativeMarginsModuleConfig.getStringListProperty(eq("ptdf-boundaries"), anyList())).thenReturn(List.of("{FR}-{BE}", "{FR}-{DE}", "{BE}-{22Y201903144---9}-{DE}+{22Y201903145---4}"));
-        Mockito.when(mockedPlatformConfig.getOptionalModuleConfig("rao-relative-margins-parameters")).thenReturn(Optional.of(relativeMarginsModuleConfig));
+        Mockito.when(relativeMarginsModuleConfig.getStringListProperty(eq("ptdf-boundaries"), anyList()))
+            .thenReturn(List.of("{FR}-{BE}", "{FR}-{DE}", "{BE}-{22Y201903144---9}-{DE}+{22Y201903145---4}"));
+        Mockito.when(mockedPlatformConfig.getOptionalModuleConfig("rao-relative-margins-parameters"))
+            .thenReturn(Optional.of(relativeMarginsModuleConfig));
         RelativeMarginsParameters parameters = RaoParameters.load(mockedPlatformConfig).getRelativeMarginsParameters().get();
         List<String> expectedBoundaries = List.of("{FR}-{BE}", "{FR}-{DE}", "{BE}-{22Y201903144---9}-{DE}+{22Y201903145---4}");
         assertEquals(expectedBoundaries, parameters.getPtdfBoundariesAsString());
@@ -222,7 +229,8 @@ class RaoParametersConfigTest {
     void checkRelativeMarginsConfigExtension() {
         ModuleConfig relativeMarginsModuleConfig = Mockito.mock(ModuleConfig.class);
         Mockito.when(relativeMarginsModuleConfig.getDoubleProperty(eq("ptdf-sum-lower-bound"), anyDouble())).thenReturn(32.);
-        Mockito.when(mockedPlatformConfig.getOptionalModuleConfig("search-tree-relative-margins-parameters")).thenReturn(Optional.of(relativeMarginsModuleConfig));
+        Mockito.when(mockedPlatformConfig.getOptionalModuleConfig("search-tree-relative-margins-parameters"))
+            .thenReturn(Optional.of(relativeMarginsModuleConfig));
         OpenRaoSearchTreeParametersConfigLoader configLoader = new OpenRaoSearchTreeParametersConfigLoader();
         SearchTreeRaoRelativeMarginsParameters parameters = configLoader.load(mockedPlatformConfig).getRelativeMarginsParameters().get();
         assertEquals(32, parameters.getPtdfSumLowerBound(), DOUBLE_TOLERANCE);
@@ -231,8 +239,10 @@ class RaoParametersConfigTest {
     @Test
     void checkPstRegulationConfigExtension() {
         ModuleConfig pstRegulationModuleConfig = Mockito.mock(ModuleConfig.class);
-        Mockito.when(pstRegulationModuleConfig.getStringListProperty(eq("psts-to-regulate"), anyList())).thenReturn(List.of("{pst-1}:{network-element-1}", "{pst-2}:{network-element-2}"));
-        Mockito.when(mockedPlatformConfig.getOptionalModuleConfig("search-tree-pst-regulation-parameters")).thenReturn(Optional.of(pstRegulationModuleConfig));
+        Mockito.when(pstRegulationModuleConfig.getStringListProperty(eq("psts-to-regulate"), anyList()))
+            .thenReturn(List.of("{pst-1}:{network-element-1}", "{pst-2}:{network-element-2}"));
+        Mockito.when(mockedPlatformConfig.getOptionalModuleConfig("search-tree-pst-regulation-parameters"))
+            .thenReturn(Optional.of(pstRegulationModuleConfig));
         OpenRaoSearchTreeParametersConfigLoader configLoader = new OpenRaoSearchTreeParametersConfigLoader();
         SearchTreeRaoPstRegulationParameters pstRegulationParameters = configLoader.load(mockedPlatformConfig).getPstRegulationParameters().get();
         assertEquals(Map.of("pst-1", "network-element-1", "pst-2", "network-element-2"), pstRegulationParameters.getPstsToRegulate());
@@ -285,7 +295,8 @@ class RaoParametersConfigTest {
     void inconsistentRelativeMarginsBoundaries1() {
         ModuleConfig relativeMarginsModuleConfig = Mockito.mock(ModuleConfig.class);
         Mockito.when(relativeMarginsModuleConfig.getStringListProperty(eq("ptdf-boundaries"), anyList())).thenReturn(List.of("{FR}{BE}"));
-        Mockito.when(mockedPlatformConfig.getOptionalModuleConfig("rao-relative-margins-parameters")).thenReturn(Optional.of(relativeMarginsModuleConfig));
+        Mockito.when(mockedPlatformConfig.getOptionalModuleConfig("rao-relative-margins-parameters"))
+            .thenReturn(Optional.of(relativeMarginsModuleConfig));
         assertThrows(OpenRaoException.class, () -> RaoParameters.load(mockedPlatformConfig));
     }
 
@@ -293,7 +304,8 @@ class RaoParametersConfigTest {
     void inconsistentRelativeMarginsBoundaries2() {
         ModuleConfig relativeMarginsModuleConfig = Mockito.mock(ModuleConfig.class);
         Mockito.when(relativeMarginsModuleConfig.getStringListProperty(eq("ptdf-boundaries"), anyList())).thenReturn(List.of("{FR-{BE}"));
-        Mockito.when(mockedPlatformConfig.getOptionalModuleConfig("rao-relative-margins-parameters")).thenReturn(Optional.of(relativeMarginsModuleConfig));
+        Mockito.when(mockedPlatformConfig.getOptionalModuleConfig("rao-relative-margins-parameters"))
+            .thenReturn(Optional.of(relativeMarginsModuleConfig));
         assertThrows(OpenRaoException.class, () -> RaoParameters.load(mockedPlatformConfig));
     }
 

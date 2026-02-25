@@ -7,11 +7,11 @@
 
 package com.powsybl.openrao.data.crac.io.cse.remedialaction;
 
+import com.powsybl.iidm.network.Bus;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
 import com.powsybl.openrao.data.crac.io.commons.ucte.UcteNetworkAnalyzer;
 import com.powsybl.openrao.data.crac.io.commons.ucte.UcteNetworkAnalyzerProperties;
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;

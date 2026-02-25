@@ -7,8 +7,8 @@
 
 package com.powsybl.openrao.data.refprog.referenceprogram;
 
-import com.powsybl.openrao.commons.EICode;
 import com.powsybl.iidm.network.*;
+import com.powsybl.openrao.commons.EICode;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -114,9 +114,14 @@ public class CountryNetPositionComputation {
     }
 
     private double getLeavingFlow(HvdcLine hvdcLine, EICode area) {
-        double flowSide1 = hvdcLine.getConverterStation1().getTerminal().isConnected() && !Double.isNaN(hvdcLine.getConverterStation1().getTerminal().getP()) ? hvdcLine.getConverterStation1().getTerminal().getP() : 0;
-        double flowSide2 = hvdcLine.getConverterStation2().getTerminal().isConnected() && !Double.isNaN(hvdcLine.getConverterStation2().getTerminal().getP()) ? hvdcLine.getConverterStation2().getTerminal().getP() : 0;
+        double flowSide1 = hvdcLine.getConverterStation1().getTerminal().isConnected()
+            && !Double.isNaN(hvdcLine.getConverterStation1().getTerminal().getP()) ?
+                hvdcLine.getConverterStation1().getTerminal().getP() : 0;
+        double flowSide2 = hvdcLine.getConverterStation2().getTerminal().isConnected()
+            && !Double.isNaN(hvdcLine.getConverterStation2().getTerminal().getP()) ?
+                hvdcLine.getConverterStation2().getTerminal().getP() : 0;
         double directFlow = (flowSide1 - flowSide2) / 2;
-        return area.equals(new EICode(getSubstationNullableCountry(hvdcLine.getConverterStation1().getTerminal().getVoltageLevel().getSubstation()))) ? directFlow : -directFlow;
+        return area.equals(new EICode(getSubstationNullableCountry(hvdcLine.getConverterStation1().getTerminal().getVoltageLevel().getSubstation()))) ?
+            directFlow : -directFlow;
     }
 }

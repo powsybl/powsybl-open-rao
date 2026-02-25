@@ -7,9 +7,9 @@
 
 package com.powsybl.openrao.raoapi;
 
+import com.powsybl.iidm.network.Country;
 import com.powsybl.openrao.commons.EICode;
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.iidm.network.Country;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;

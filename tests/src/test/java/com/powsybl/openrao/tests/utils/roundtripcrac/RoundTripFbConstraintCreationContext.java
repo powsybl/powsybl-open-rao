@@ -5,18 +5,18 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.powsybl.openrao.tests.utils.round_trip_crac;
+package com.powsybl.openrao.tests.utils.roundtripcrac;
 
 import com.powsybl.openrao.data.crac.api.Crac;
-import com.powsybl.openrao.data.crac.io.nc.craccreator.NcCracCreationContext;
+import com.powsybl.openrao.data.crac.io.fbconstraint.FbConstraintCreationContext;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class RoundTripNcCracCreationContext extends NcCracCreationContext {
-    private Crac overridingCrac;
+public class RoundTripFbConstraintCreationContext extends FbConstraintCreationContext {
+    private final Crac overridingCrac;
 
-    public RoundTripNcCracCreationContext(NcCracCreationContext cracCreationContext, Crac overridingCrac) {
+    public RoundTripFbConstraintCreationContext(FbConstraintCreationContext cracCreationContext, Crac overridingCrac) {
         super(cracCreationContext);
         this.overridingCrac = overridingCrac;
     }

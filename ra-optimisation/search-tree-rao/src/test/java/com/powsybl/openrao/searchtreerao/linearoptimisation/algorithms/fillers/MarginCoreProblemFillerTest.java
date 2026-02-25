@@ -7,11 +7,11 @@
 
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers;
 
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
@@ -75,14 +75,28 @@ class MarginCoreProblemFillerTest extends AbstractFillerTest {
     }
 
     private void initializeForPreventive(double pstSensitivityThreshold, double hvdcSensitivityThreshold, double injectionSensitivityThreshold) {
-        initialize(Set.of(cnec1), pstSensitivityThreshold, hvdcSensitivityThreshold, injectionSensitivityThreshold, crac.getPreventiveState(), false, SearchTreeRaoRangeActionsOptimizationParameters.PstModel.CONTINUOUS);
+        initialize(
+            Set.of(cnec1),
+            pstSensitivityThreshold,
+            hvdcSensitivityThreshold,
+            injectionSensitivityThreshold,
+            crac.getPreventiveState(),
+            false,
+            SearchTreeRaoRangeActionsOptimizationParameters.PstModel.CONTINUOUS
+        );
     }
 
     private void initializeForGlobal(SearchTreeRaoRangeActionsOptimizationParameters.PstModel pstModel) {
         initialize(Set.of(cnec1, cnec2), 1e-6, 1e-6, 1e-6, crac.getPreventiveState(), false, pstModel);
     }
 
-    private void initialize(Set<FlowCnec> cnecs, double pstSensitivityThreshold, double hvdcSensitivityThreshold, double injectionSensitivityThreshold, State mainState, boolean raRangeShrinking, SearchTreeRaoRangeActionsOptimizationParameters.PstModel pstModel) {
+    private void initialize(Set<FlowCnec> cnecs,
+                            double pstSensitivityThreshold,
+                            double hvdcSensitivityThreshold,
+                            double injectionSensitivityThreshold,
+                            State mainState,
+                            boolean raRangeShrinking,
+                            SearchTreeRaoRangeActionsOptimizationParameters.PstModel pstModel) {
         OptimizationPerimeter optimizationPerimeter = Mockito.mock(OptimizationPerimeter.class);
         Mockito.when(optimizationPerimeter.getFlowCnecs()).thenReturn(cnecs);
         Mockito.when(optimizationPerimeter.getMainOptimizationState()).thenReturn(mainState);

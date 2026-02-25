@@ -12,13 +12,13 @@ import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.ImportConfig;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.Unit;
+import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
+import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.crac.io.cim.parameters.CimCracCreationParameters;
 import com.powsybl.openrao.data.crac.io.cim.parameters.VoltageCnecsCreationParameters;
 import com.powsybl.openrao.data.crac.io.cim.parameters.VoltageMonitoredContingenciesAndThresholds;
 import com.powsybl.openrao.data.crac.io.cim.parameters.VoltageThreshold;
-import com.powsybl.openrao.data.crac.api.Crac;
-import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
-import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -56,7 +56,12 @@ class VoltageCnecsCreatorTest {
     public void setUp() throws IOException {
         Properties importParams = new Properties();
         importParams.put("iidm.import.cgmes.source-for-iidm-id", "rdfID");
-        network = Network.read(Paths.get(new File(CimCracCreatorTest.class.getResource("/networks/MicroGrid.zip").getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
+        network = Network.read(
+            Paths.get(new File(CimCracCreatorTest.class.getResource("/networks/MicroGrid.zip").getFile()).toString()),
+            LocalComputationManager.getDefault(),
+            Suppliers.memoize(ImportConfig::load).get(),
+            importParams
+        );
 
         InputStream is = getClass().getResourceAsStream("/cracs/CIM_21_1_1.xml");
         CracCreationParameters cracCreationParameters = new CracCreationParameters();
@@ -161,11 +166,21 @@ class VoltageCnecsCreatorTest {
 
         assertEquals(1, cracCreationContext.getVoltageCnecCreationContextsForNetworkElement("_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3").size());
         assertFalse(cracCreationContext.getVoltageCnecCreationContextsForNetworkElement("_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3").iterator().next().isImported());
-        assertEquals(ImportStatus.INCOMPLETE_DATA, cracCreationContext.getVoltageCnecCreationContextsForNetworkElement("_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3").iterator().next().getImportStatus());
+        assertEquals(
+            ImportStatus.INCOMPLETE_DATA,
+            cracCreationContext.getVoltageCnecCreationContextsForNetworkElement("_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3")
+                .iterator().next()
+                .getImportStatus()
+        );
 
         assertEquals(1, cracCreationContext.getVoltageCnecCreationContextsForNetworkElement("VL2-alias").size());
         assertFalse(cracCreationContext.getVoltageCnecCreationContextsForNetworkElement("VL2-alias").iterator().next().isImported());
-        assertEquals(ImportStatus.INCOMPLETE_DATA, cracCreationContext.getVoltageCnecCreationContextsForNetworkElement("VL2-alias").iterator().next().getImportStatus());
+        assertEquals(
+            ImportStatus.INCOMPLETE_DATA,
+            cracCreationContext.getVoltageCnecCreationContextsForNetworkElement("VL2-alias")
+                .iterator().next()
+                .getImportStatus()
+        );
     }
 
     @Test
@@ -183,14 +198,30 @@ class VoltageCnecsCreatorTest {
 
         assertEquals(1, cracCreationContext.getVoltageCnecCreationContextsForNetworkElement("_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3").size());
         assertFalse(cracCreationContext.getVoltageCnecCreationContextsForNetworkElement("_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3").iterator().next().isImported());
-        assertEquals(ImportStatus.INCONSISTENCY_IN_DATA, cracCreationContext.getVoltageCnecCreationContextsForNetworkElement("_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3").iterator().next().getImportStatus());
+        assertEquals(
+            ImportStatus.INCONSISTENCY_IN_DATA,
+            cracCreationContext.getVoltageCnecCreationContextsForNetworkElement("_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3")
+                .iterator().next()
+                .getImportStatus()
+        );
 
         assertEquals(1, cracCreationContext.getVoltageCnecCreationContextsForNetworkElement("VL2-alias").size());
         assertFalse(cracCreationContext.getVoltageCnecCreationContextsForNetworkElement("VL2-alias").iterator().next().isImported());
-        assertEquals(ImportStatus.INCONSISTENCY_IN_DATA, cracCreationContext.getVoltageCnecCreationContextsForNetworkElement("VL2-alias").iterator().next().getImportStatus());
+        assertEquals(
+            ImportStatus.INCONSISTENCY_IN_DATA,
+            cracCreationContext.getVoltageCnecCreationContextsForNetworkElement("VL2-alias")
+                .iterator().next()
+                .getImportStatus()
+        );
     }
 
-    private void assertVoltageCnecImported(String nativeNetworkElementId, String networkElementId, String instantId, String nativeContingencyName, String contingencyId, Double thresholdMin, Double thresholdMax) {
+    private void assertVoltageCnecImported(String nativeNetworkElementId,
+                                           String networkElementId,
+                                           String instantId,
+                                           String nativeContingencyName,
+                                           String contingencyId,
+                                           Double thresholdMin,
+                                           Double thresholdMax) {
         VoltageCnecCreationContext context = cracCreationContext.getVoltageCnecCreationContext(nativeNetworkElementId, instantId, nativeContingencyName);
         assertNotNull(context);
 
@@ -219,18 +250,114 @@ class VoltageCnecsCreatorTest {
         assertEquals(12, cracCreationContext.getVoltageCnecCreationContexts().size());
         assertTrue(cracCreationContext.getVoltageCnecCreationContexts().stream().allMatch(VoltageCnecCreationContext::isImported));
 
-        assertVoltageCnecImported("_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3", "_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3", PREVENTIVE_INSTANT_ID, null, null, 390., 410.);
-        assertVoltageCnecImported("_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3", "_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3", CURATIVE_INSTANT_ID, "Co-1-name", "Co-1", null, 450.);
-        assertVoltageCnecImported("_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3", "_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3", CURATIVE_INSTANT_ID, "Co-2-name", "Co-2", null, 450.);
-        assertVoltageCnecImported("_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3", "_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3", CURATIVE_INSTANT_ID, "Co-3-name", "Co-3", null, 450.);
-        assertVoltageCnecImported("_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3", "_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3", OUTAGE_INSTANT_ID, "Co-3-name", "Co-3", 380., 420.);
-        assertVoltageCnecImported("_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3", "_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3", AUTO_INSTANT_ID, "Co-1-name", "Co-1", 370., null);
+        assertVoltageCnecImported(
+            "_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3",
+            "_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3",
+            PREVENTIVE_INSTANT_ID,
+            null,
+            null,
+            390.,
+            410.
+        );
+        assertVoltageCnecImported(
+            "_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3",
+            "_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3",
+            CURATIVE_INSTANT_ID,
+            "Co-1-name",
+            "Co-1",
+            null,
+            450.
+        );
+        assertVoltageCnecImported(
+            "_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3",
+            "_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3",
+            CURATIVE_INSTANT_ID,
+            "Co-2-name",
+            "Co-2",
+            null,
+            450.
+        );
+        assertVoltageCnecImported(
+            "_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3",
+            "_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3",
+            CURATIVE_INSTANT_ID,
+            "Co-3-name",
+            "Co-3",
+            null,
+            450.
+        );
+        assertVoltageCnecImported(
+            "_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3",
+            "_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3",
+            OUTAGE_INSTANT_ID,
+            "Co-3-name",
+            "Co-3",
+            380.,
+            420.
+        );
+        assertVoltageCnecImported(
+            "_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3",
+            "_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3",
+            AUTO_INSTANT_ID,
+            "Co-1-name",
+            "Co-1",
+            370.,
+            null
+        );
 
-        assertVoltageCnecImported("VL2-alias", "_d77b61ef-61aa-4b22-95f6-b56ca080788d", PREVENTIVE_INSTANT_ID, null, null, 215., 225.);
-        assertVoltageCnecImported("VL2-alias", "_d77b61ef-61aa-4b22-95f6-b56ca080788d", CURATIVE_INSTANT_ID, "Co-1-name", "Co-1", 210., 240.);
-        assertVoltageCnecImported("VL2-alias", "_d77b61ef-61aa-4b22-95f6-b56ca080788d", CURATIVE_INSTANT_ID, "Co-2-name", "Co-2", 210., 240.);
-        assertVoltageCnecImported("VL2-alias", "_d77b61ef-61aa-4b22-95f6-b56ca080788d", CURATIVE_INSTANT_ID, "Co-3-name", "Co-3", 210., 240.);
-        assertVoltageCnecImported("VL2-alias", "_d77b61ef-61aa-4b22-95f6-b56ca080788d", OUTAGE_INSTANT_ID, "Co-3-name", "Co-3", 200., null);
-        assertVoltageCnecImported("VL2-alias", "_d77b61ef-61aa-4b22-95f6-b56ca080788d", AUTO_INSTANT_ID, "Co-1-name", "Co-1", null, 250.);
+        assertVoltageCnecImported(
+            "VL2-alias",
+            "_d77b61ef-61aa-4b22-95f6-b56ca080788d",
+            PREVENTIVE_INSTANT_ID,
+            null,
+            null,
+            215.,
+            225.
+        );
+        assertVoltageCnecImported(
+            "VL2-alias",
+            "_d77b61ef-61aa-4b22-95f6-b56ca080788d",
+            CURATIVE_INSTANT_ID,
+            "Co-1-name",
+            "Co-1",
+            210.,
+            240.
+        );
+        assertVoltageCnecImported(
+            "VL2-alias",
+            "_d77b61ef-61aa-4b22-95f6-b56ca080788d",
+            CURATIVE_INSTANT_ID,
+            "Co-2-name",
+            "Co-2",
+            210.,
+            240.
+        );
+        assertVoltageCnecImported(
+            "VL2-alias",
+            "_d77b61ef-61aa-4b22-95f6-b56ca080788d",
+            CURATIVE_INSTANT_ID,
+            "Co-3-name",
+            "Co-3",
+            210.,
+            240.
+        );
+        assertVoltageCnecImported(
+            "VL2-alias",
+            "_d77b61ef-61aa-4b22-95f6-b56ca080788d",
+            OUTAGE_INSTANT_ID,
+            "Co-3-name",
+            "Co-3",
+            200.,
+            null
+        );
+        assertVoltageCnecImported(
+            "VL2-alias",
+            "_d77b61ef-61aa-4b22-95f6-b56ca080788d",
+            AUTO_INSTANT_ID,
+            "Co-1-name",
+            "Co-1",
+            null,
+            250.
+        );
     }
 }

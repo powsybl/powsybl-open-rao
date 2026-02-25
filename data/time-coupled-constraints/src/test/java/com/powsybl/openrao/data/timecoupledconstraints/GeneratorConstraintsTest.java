@@ -12,9 +12,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -52,31 +50,41 @@ class GeneratorConstraintsTest {
 
     @Test
     void testBuildWithMissingId() {
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> GeneratorConstraints.create().withLeadTime(1.).withLagTime(1.).build());
+        OpenRaoException exception = assertThrows(OpenRaoException.class,
+            () -> GeneratorConstraints.create().withLeadTime(1.).withLagTime(1.).build()
+        );
         assertEquals("The id of the generator is mandatory.", exception.getMessage());
     }
 
     @Test
     void testNegativeLeadTime() {
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> GeneratorConstraints.create().withGeneratorId("generator").withLeadTime(-1.).withLagTime(1.).build());
+        OpenRaoException exception = assertThrows(OpenRaoException.class,
+            () -> GeneratorConstraints.create().withGeneratorId("generator").withLeadTime(-1.).withLagTime(1.).build()
+        );
         assertEquals("The lead time of the generator must be positive.", exception.getMessage());
     }
 
     @Test
     void testNegativeLagTime() {
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> GeneratorConstraints.create().withGeneratorId("generator").withLeadTime(1.).withLagTime(-1.).build());
+        OpenRaoException exception = assertThrows(OpenRaoException.class,
+            () -> GeneratorConstraints.create().withGeneratorId("generator").withLeadTime(1.).withLagTime(-1.).build()
+        );
         assertEquals("The lag time of the generator must be positive.", exception.getMessage());
     }
 
     @Test
     void testNegativeUpwardPowerGradient() {
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> GeneratorConstraints.create().withGeneratorId("generator").withLeadTime(1.).withLagTime(1.).withUpwardPowerGradient(-100.).build());
+        OpenRaoException exception = assertThrows(OpenRaoException.class,
+            () -> GeneratorConstraints.create().withGeneratorId("generator").withLeadTime(1.).withLagTime(1.).withUpwardPowerGradient(-100.).build()
+        );
         assertEquals("The upward power gradient of the generator must be positive.", exception.getMessage());
     }
 
     @Test
     void testPositiveUpwardPowerGradient() {
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> GeneratorConstraints.create().withGeneratorId("generator").withLeadTime(1.).withLagTime(1.).withDownwardPowerGradient(100.).build());
+        OpenRaoException exception = assertThrows(OpenRaoException.class,
+            () -> GeneratorConstraints.create().withGeneratorId("generator").withLeadTime(1.).withLagTime(1.).withDownwardPowerGradient(100.).build()
+        );
         assertEquals("The downward power gradient of the generator must be negative.", exception.getMessage());
     }
 }

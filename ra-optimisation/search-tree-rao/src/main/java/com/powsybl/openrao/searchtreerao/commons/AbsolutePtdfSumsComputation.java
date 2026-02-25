@@ -7,9 +7,9 @@
 
 package com.powsybl.openrao.searchtreerao.commons;
 
-import com.powsybl.openrao.commons.EICode;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.glsk.commons.ZonalData;
+import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.openrao.commons.EICode;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.raoapi.ZoneToZonePtdfDefinition;
 import com.powsybl.openrao.sensitivityanalysis.SystematicSensitivityResult;
@@ -47,7 +47,11 @@ public class AbsolutePtdfSumsComputation {
         return ptdfSums;
     }
 
-    private Map<EICode, Double> buildZoneToSlackPtdfMap(FlowCnec flowCnec, TwoSides side, ZonalData<SensitivityVariableSet> glsks, List<EICode> eiCodesInBoundaries, SystematicSensitivityResult sensitivityResult) {
+    private Map<EICode, Double> buildZoneToSlackPtdfMap(FlowCnec flowCnec,
+                                                        TwoSides side,
+                                                        ZonalData<SensitivityVariableSet> glsks,
+                                                        List<EICode> eiCodesInBoundaries,
+                                                        SystematicSensitivityResult sensitivityResult) {
         Map<EICode, Double> ptdfs = new HashMap<>();
         for (EICode eiCode : eiCodesInBoundaries) {
             SensitivityVariableSet linearGlsk = glsks.getData(eiCode.getAreaCode());

@@ -9,7 +9,7 @@ package com.powsybl.openrao.raoapi.parameters;
 
 import com.powsybl.commons.config.PlatformConfig;
 
-import java.util.*;
+import java.util.Objects;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.*;

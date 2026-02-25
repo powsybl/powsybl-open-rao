@@ -7,21 +7,21 @@
 
 package com.powsybl.openrao.data.crac.io.cim.craccreator;
 
-import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.contingency.Contingency;
-import com.powsybl.openrao.data.crac.api.Crac;
-import com.powsybl.openrao.data.crac.api.cnec.Cnec;
-import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeActionAdder;
-import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
-import com.powsybl.openrao.data.crac.io.commons.OpenRaoImportException;
-import com.powsybl.openrao.data.crac.io.cim.parameters.CimCracCreationParameters;
-import com.powsybl.openrao.data.crac.io.cim.parameters.RangeActionSpeed;
-import com.powsybl.openrao.data.crac.io.cim.xsd.RemedialActionRegisteredResource;
-import com.powsybl.openrao.data.crac.io.cim.xsd.RemedialActionSeries;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
+import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.cnec.Cnec;
+import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeActionAdder;
+import com.powsybl.openrao.data.crac.io.cim.parameters.CimCracCreationParameters;
+import com.powsybl.openrao.data.crac.io.cim.parameters.RangeActionSpeed;
+import com.powsybl.openrao.data.crac.io.cim.xsd.RemedialActionRegisteredResource;
+import com.powsybl.openrao.data.crac.io.cim.xsd.RemedialActionSeries;
+import com.powsybl.openrao.data.crac.io.commons.OpenRaoImportException;
+import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
 import com.powsybl.openrao.data.crac.io.commons.iidm.IidmHvdcHelper;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -52,7 +52,13 @@ public class HvdcRangeActionCreator {
     boolean isAltered = false;
     String importStatusDetailifIsAltered = "";
 
-    public HvdcRangeActionCreator(Crac crac, Network network, List<Contingency> contingencies, List<String> invalidContingencies, Set<Cnec<?>> cnecs, Country sharedDomain, CimCracCreationParameters cimCracCreationParameters) {
+    public HvdcRangeActionCreator(Crac crac,
+                                  Network network,
+                                  List<Contingency> contingencies,
+                                  List<String> invalidContingencies,
+                                  Set<Cnec<?>> cnecs,
+                                  Country sharedDomain,
+                                  CimCracCreationParameters cimCracCreationParameters) {
         this.crac = crac;
         this.network = network;
         this.contingencies = contingencies;
@@ -67,7 +73,10 @@ public class HvdcRangeActionCreator {
 
         try {
             if (remedialActionSeries.getRegisteredResource().size() != 4) {
-                throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("%s registered resources were defined in HVDC instead of 4", remedialActionSeries.getRegisteredResource().size()));
+                throw new OpenRaoImportException(
+                    ImportStatus.INCONSISTENCY_IN_DATA,
+                    String.format("%s registered resources were defined in HVDC instead of 4", remedialActionSeries.getRegisteredResource().size())
+                );
             }
 
             Set<String> networkElementIds = new HashSet<>();
@@ -83,7 +92,10 @@ public class HvdcRangeActionCreator {
 
                 String networkElementId = registeredResource.getMRID().getValue();
                 if (networkElementIds.contains(networkElementId)) {
-                    throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "HVDC RemedialAction_Series contains multiple RegisteredResources with the same mRID");
+                    throw new OpenRaoImportException(
+                        ImportStatus.INCONSISTENCY_IN_DATA,
+                        "HVDC RemedialAction_Series contains multiple RegisteredResources with the same mRID"
+                    );
                 }
                 networkElementIds.add(networkElementId);
 
@@ -183,7 +195,11 @@ public class HvdcRangeActionCreator {
 
         if (createdRaIds.isEmpty()) {
             return raSeriesIds.stream().map(id ->
-                RemedialActionSeriesCreationContext.notImported(id, ImportStatus.INCONSISTENCY_IN_DATA, String.format("All terminals on HVDC lines are disconnected"))
+                RemedialActionSeriesCreationContext.notImported(
+                    id,
+                    ImportStatus.INCONSISTENCY_IN_DATA,
+                    String.format("All terminals on HVDC lines are disconnected")
+                )
             ).collect(Collectors.toSet());
         }
 
@@ -194,7 +210,9 @@ public class HvdcRangeActionCreator {
             String contingencyList = StringUtils.join(invalidContingencies, ", ");
             importStatusDetailifIsAltered += String.format("Contingencies %s were not imported", contingencyList);
         }
-        return raSeriesIds.stream().map(id -> RemedialActionSeriesCreationContext.importedHvdcRa(id, createdRaIds, isAltered, isDirectionInverted.get(id), importStatusDetailifIsAltered)).collect(Collectors.toSet());
+        return raSeriesIds.stream()
+            .map(id -> RemedialActionSeriesCreationContext.importedHvdcRa(id, createdRaIds, isAltered, isDirectionInverted.get(id), importStatusDetailifIsAltered))
+            .collect(Collectors.toSet());
     }
 
     private HvdcRangeActionAdder initHvdcRangeActionAdder(RemedialActionRegisteredResource registeredResource, String applicationModeMarketObjectStatus) {

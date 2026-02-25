@@ -7,8 +7,8 @@
 
 package com.powsybl.openrao.data.crac.io.commons.ucte;
 
-import com.powsybl.openrao.data.crac.io.commons.CnecElementHelper;
 import com.powsybl.iidm.network.*;
+import com.powsybl.openrao.data.crac.io.commons.CnecElementHelper;
 
 import java.util.Objects;
 import java.util.Optional;

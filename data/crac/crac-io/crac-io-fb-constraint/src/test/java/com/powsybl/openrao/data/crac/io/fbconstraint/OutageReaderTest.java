@@ -7,16 +7,15 @@
 
 package com.powsybl.openrao.data.crac.io.fbconstraint;
 
+import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.CracFactory;
-import com.powsybl.openrao.data.crac.io.fbconstraint.xsd.OutageType;
 import com.powsybl.openrao.data.crac.io.commons.ucte.UcteNetworkAnalyzer;
 import com.powsybl.openrao.data.crac.io.commons.ucte.UcteNetworkAnalyzerProperties;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.data.crac.io.fbconstraint.xsd.OutageType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**

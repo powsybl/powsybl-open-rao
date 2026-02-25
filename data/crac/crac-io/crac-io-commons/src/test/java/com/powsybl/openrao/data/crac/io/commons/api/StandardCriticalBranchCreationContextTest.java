@@ -7,8 +7,8 @@
 
 package com.powsybl.openrao.data.crac.io.commons.api;
 
-import org.apache.commons.lang3.NotImplementedException;
 import com.powsybl.openrao.data.crac.io.commons.api.stdcreationcontext.NativeBranch;
+import org.apache.commons.lang3.NotImplementedException;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
@@ -16,9 +16,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import static org.ejml.UtilEjml.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -29,7 +27,9 @@ class StandardCriticalBranchCreationContextTest {
 
     @Test
     void testInitWithComprehensiveData() {
-        StandardCriticalBranchCreationContext context = new StandardCriticalBranchCreationContext("criticalBranchId", nativeBranch, false, "contingency", createdCnecsIds, false, ImportStatus.IMPORTED, "Details.");
+        StandardCriticalBranchCreationContext context = new StandardCriticalBranchCreationContext(
+            "criticalBranchId", nativeBranch, false, "contingency", createdCnecsIds, false, ImportStatus.IMPORTED, "Details."
+        );
         assertTrue(context.isImported());
         assertEquals("criticalBranchId", context.getNativeObjectId());
         assertEquals("criticalBranchId", context.getNativeObjectName());
@@ -46,7 +46,9 @@ class StandardCriticalBranchCreationContextTest {
 
     @Test
     void testInitWithComprehensiveDataBaseCase() {
-        StandardCriticalBranchCreationContext context = new StandardCriticalBranchCreationContext("criticalBranchId", nativeBranch, true, "contingency", createdCnecsIds, false, ImportStatus.IMPORTED, "Details.");
+        StandardCriticalBranchCreationContext context = new StandardCriticalBranchCreationContext(
+            "criticalBranchId", nativeBranch, true, "contingency", createdCnecsIds, false, ImportStatus.IMPORTED, "Details."
+        );
         assertTrue(context.isImported());
         assertEquals("criticalBranchId", context.getNativeObjectId());
         assertEquals("criticalBranchId", context.getNativeObjectName());
@@ -63,7 +65,9 @@ class StandardCriticalBranchCreationContextTest {
 
     @Test
     void testInitWithoutContingency() {
-        StandardCriticalBranchCreationContext context = new StandardCriticalBranchCreationContext("criticalBranchId", nativeBranch, false, null, createdCnecsIds, false, ImportStatus.IMPORTED, "Details.");
+        StandardCriticalBranchCreationContext context = new StandardCriticalBranchCreationContext(
+            "criticalBranchId", nativeBranch, false, null, createdCnecsIds, false, ImportStatus.IMPORTED, "Details."
+        );
         assertTrue(context.isImported());
         assertEquals("criticalBranchId", context.getNativeObjectId());
         assertEquals("criticalBranchId", context.getNativeObjectName());

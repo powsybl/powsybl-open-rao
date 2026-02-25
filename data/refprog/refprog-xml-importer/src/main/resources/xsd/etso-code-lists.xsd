@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<xsd:schema xmlns:ecl="etso-code-lists.xsd" attributeFormDefault="unqualified" elementFormDefault="qualified" targetNamespace="etso-code-lists.xsd" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+<xsd:schema attributeFormDefault="unqualified" elementFormDefault="qualified" targetNamespace="etso-code-lists.xsd"
+            xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <xsd:annotation>
     <xsd:documentation>
       <Version>Current version 66</Version>

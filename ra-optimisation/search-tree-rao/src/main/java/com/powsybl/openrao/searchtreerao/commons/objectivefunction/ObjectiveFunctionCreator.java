@@ -36,7 +36,13 @@ public class ObjectiveFunctionCreator extends AbstractObjectiveFunctionCreator {
     private final FlowResult prePerimeterFlowResult;
     private final Set<String> operatorsNotToOptimizeInCurative;
 
-    protected ObjectiveFunctionCreator(Set<FlowCnec> flowCnecs, Set<State> optimizedStates, RaoParameters raoParameters, Set<FlowCnec> loopFlowCnecs, FlowResult initialFlowResult, FlowResult prePerimeterFlowResult, Set<String> operatorsNotToOptimizeInCurative) {
+    protected ObjectiveFunctionCreator(Set<FlowCnec> flowCnecs,
+                                       Set<State> optimizedStates,
+                                       RaoParameters raoParameters,
+                                       Set<FlowCnec> loopFlowCnecs,
+                                       FlowResult initialFlowResult,
+                                       FlowResult prePerimeterFlowResult,
+                                       Set<String> operatorsNotToOptimizeInCurative) {
         super(flowCnecs, optimizedStates, raoParameters);
         this.loopFlowCnecs = loopFlowCnecs;
         this.initialFlowResult = initialFlowResult;
@@ -47,7 +53,9 @@ public class ObjectiveFunctionCreator extends AbstractObjectiveFunctionCreator {
     @Override
     protected MarginEvaluator getMarginEvaluator() {
         // Unoptimized cnecs in operatorsNotToOptimizeInCurative countries
-        return raoParameters.getNotOptimizedCnecsParameters().getDoNotOptimizeCurativeCnecsForTsosWithoutCras() && !operatorsNotToOptimizeInCurative.isEmpty() ? new MarginEvaluatorWithMarginDecreaseUnoptimizedCnecs(super.getMarginEvaluator(), operatorsNotToOptimizeInCurative, prePerimeterFlowResult) : super.getMarginEvaluator();
+        return raoParameters.getNotOptimizedCnecsParameters().getDoNotOptimizeCurativeCnecsForTsosWithoutCras() && !operatorsNotToOptimizeInCurative.isEmpty() ?
+            new MarginEvaluatorWithMarginDecreaseUnoptimizedCnecs(super.getMarginEvaluator(), operatorsNotToOptimizeInCurative, prePerimeterFlowResult) :
+            super.getMarginEvaluator();
     }
 
     @Override

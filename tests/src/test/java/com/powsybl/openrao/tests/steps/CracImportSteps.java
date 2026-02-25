@@ -13,21 +13,8 @@ import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.crac.api.Crac;
-import com.powsybl.openrao.data.crac.api.Identifiable;
-import com.powsybl.openrao.data.crac.api.Instant;
-import com.powsybl.openrao.data.crac.api.InstantKind;
-import com.powsybl.openrao.data.crac.api.NetworkElement;
-import com.powsybl.openrao.data.crac.api.RemedialAction;
-import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
-import com.powsybl.openrao.data.crac.api.cnec.BranchCnec;
-import com.powsybl.openrao.data.crac.api.cnec.Cnec;
-import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
-import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
-import com.powsybl.openrao.data.crac.api.usagerule.OnConstraint;
-import com.powsybl.openrao.data.crac.api.usagerule.OnContingencyState;
-import com.powsybl.openrao.data.crac.api.usagerule.OnFlowConstraintInCountry;
-import com.powsybl.openrao.data.crac.api.usagerule.OnInstant;
+import com.powsybl.openrao.data.crac.api.*;
+import com.powsybl.openrao.data.crac.api.cnec.*;
 import com.powsybl.openrao.data.crac.api.networkaction.ActionType;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.networkaction.SwitchPair;
@@ -38,7 +25,10 @@ import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.api.threshold.BranchThreshold;
-import com.powsybl.openrao.data.crac.api.CracCreationContext;
+import com.powsybl.openrao.data.crac.api.usagerule.OnConstraint;
+import com.powsybl.openrao.data.crac.api.usagerule.OnContingencyState;
+import com.powsybl.openrao.data.crac.api.usagerule.OnFlowConstraintInCountry;
+import com.powsybl.openrao.data.crac.api.usagerule.OnInstant;
 import com.powsybl.openrao.data.crac.io.commons.api.ElementaryCreationContext;
 import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
 import com.powsybl.openrao.data.crac.io.commons.api.stdcreationcontext.BranchCnecCreationContext;
@@ -466,8 +456,10 @@ public class CracImportSteps {
             InjectionRangeAction rangeAction = crac.getInjectionRangeAction(id);
             assertNotNull(rangeAction);
             assertEquals(expectedRA.get("RangeActionName"), rangeAction.getName());
-            String minRange = rangeAction.getRanges().stream().mapToDouble(StandardRange::getMin).max().isPresent() ? String.valueOf(rangeAction.getRanges().stream().mapToDouble(StandardRange::getMin).max().getAsDouble()) : "null";
-            String maxRange = rangeAction.getRanges().stream().mapToDouble(StandardRange::getMax).min().isPresent() ? String.valueOf(rangeAction.getRanges().stream().mapToDouble(StandardRange::getMax).min().getAsDouble()) : "null";
+            String minRange = rangeAction.getRanges().stream().mapToDouble(StandardRange::getMin).max().isPresent() ?
+                String.valueOf(rangeAction.getRanges().stream().mapToDouble(StandardRange::getMin).max().getAsDouble()) : "null";
+            String maxRange = rangeAction.getRanges().stream().mapToDouble(StandardRange::getMax).min().isPresent() ?
+                String.valueOf(rangeAction.getRanges().stream().mapToDouble(StandardRange::getMax).min().getAsDouble()) : "null";
             assertEquals(expectedRA.get("MaxRange"), maxRange);
             assertEquals(expectedRA.get("MinRange"), minRange);
             String groupId = rangeAction.getGroupId().isPresent() ? rangeAction.getGroupId().get() : "null";
@@ -733,7 +725,7 @@ public class CracImportSteps {
     @Then("groupId for range action {string} should be {string}")
     public void rangeActionGroupIdShouldBe(String rangeActionId, String expectedGroupId) {
         assertNotNull(crac.getRangeAction(rangeActionId));
-        if (expectedGroupId.equals("null")) {
+        if ("null".equals(expectedGroupId)) {
             assertTrue(crac.getRangeAction(rangeActionId).getGroupId().isEmpty());
         } else {
             assertTrue(crac.getRangeAction(rangeActionId).getGroupId().isPresent());

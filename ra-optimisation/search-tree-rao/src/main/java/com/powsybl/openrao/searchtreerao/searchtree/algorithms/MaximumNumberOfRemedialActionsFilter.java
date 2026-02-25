@@ -29,8 +29,10 @@ public class MaximumNumberOfRemedialActionsFilter implements NetworkActionCombin
     /**
      * For each network actions combination, two checks are carried out:
      * <ol>
-     *     <li>We ensure that the cumulated number of network actions in the combination and already applied network actions in the root leaf does not exceed the limit number of remedial actions so the applied network actions can be kept</li>
-     *     <li>If so, we also need to ensure that the cumulated number of network actions (combination + root leaf) and range actions (root leaf) does not exceed the limit number of remedial actions, so we know whether keeping the network actions requires unapplying the range actions or not.</li>
+     *     <li>We ensure that the cumulated number of network actions in the combination and already applied network actions in the root leaf
+     *     does not exceed the limit number of remedial actions so the applied network actions can be kept</li>
+     *     <li>If so, we also need to ensure that the cumulated number of network actions (combination + root leaf) and range actions (root leaf)
+     *     does not exceed the limit number of remedial actions, so we know whether keeping the network actions requires unapplying the range actions or not.</li>
      * </ol>
      * If the first condition is not met, the combination is not kept. If the second condition is not met, the combination is kept but the range actions will be unapplied for the next optimization.
      */

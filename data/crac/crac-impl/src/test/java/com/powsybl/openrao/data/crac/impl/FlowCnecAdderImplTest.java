@@ -7,9 +7,9 @@
 
 package com.powsybl.openrao.data.crac.impl;
 
+import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
@@ -367,7 +367,10 @@ class FlowCnecAdderImplTest {
             .withNominalVoltage(220)
             .withIMax(2000.);
         OpenRaoException exception = assertThrows(OpenRaoException.class, flowCnecAdder::add);
-        assertEquals("Contingency absent-from-crac-contingency of Cnec Cnec ID does not exist in the crac. Use crac.newContingency() first.", exception.getMessage());
+        assertEquals(
+            "Contingency absent-from-crac-contingency of Cnec Cnec ID does not exist in the crac. Use crac.newContingency() first.",
+            exception.getMessage()
+        );
     }
 
     @Test
@@ -378,7 +381,10 @@ class FlowCnecAdderImplTest {
             .newThreshold().withUnit(Unit.PERCENT_IMAX).withSide(ONE).withMax(1.).withMin(-1.).add()
             .withNominalVoltage(220.);
         OpenRaoException exception = assertThrows(OpenRaoException.class, flowCnecAdder::add);
-        assertEquals("iMax on left side of FlowCnec Cnec ID must be defined, as one of its threshold is on PERCENT_IMAX on the left side. Please use withIMax()", exception.getMessage());
+        assertEquals(
+            "iMax on left side of FlowCnec Cnec ID must be defined, as one of its threshold is on PERCENT_IMAX on the left side. Please use withIMax()",
+            exception.getMessage()
+        );
     }
 
     @Test
@@ -390,7 +396,10 @@ class FlowCnecAdderImplTest {
             .withNominalVoltage(220.)
             .withIMax(1000., TWO); // threshold on left side cannot be interpreted
         OpenRaoException exception = assertThrows(OpenRaoException.class, flowCnecAdder::add);
-        assertEquals("iMax on left side of FlowCnec Cnec ID must be defined, as one of its threshold is on PERCENT_IMAX on the left side. Please use withIMax()", exception.getMessage());
+        assertEquals(
+            "iMax on left side of FlowCnec Cnec ID must be defined, as one of its threshold is on PERCENT_IMAX on the left side. Please use withIMax()",
+            exception.getMessage()
+        );
     }
 
     @Test
@@ -401,7 +410,10 @@ class FlowCnecAdderImplTest {
             .newThreshold().withUnit(Unit.AMPERE).withSide(ONE).withMax(1000.).add()
             .withIMax(1000.);
         OpenRaoException exception = assertThrows(OpenRaoException.class, flowCnecAdder::add);
-        assertEquals("nominal voltages on both side of FlowCnec Cnec ID must be defined, as one of its threshold is on PERCENT_IMAX or AMPERE. Please use withNominalVoltage()", exception.getMessage());
+        assertEquals(
+            "nominal voltages on both side of FlowCnec Cnec ID must be defined, as one of its threshold is on PERCENT_IMAX or AMPERE. Please use withNominalVoltage()",
+            exception.getMessage()
+        );
     }
 
     @Test
@@ -413,7 +425,10 @@ class FlowCnecAdderImplTest {
             .withNominalVoltage(220., ONE) // should be defined on both side
             .withIMax(1000.);
         OpenRaoException exception = assertThrows(OpenRaoException.class, flowCnecAdder::add);
-        assertEquals("nominal voltages on both side of FlowCnec Cnec ID must be defined, as one of its threshold is on PERCENT_IMAX or AMPERE. Please use withNominalVoltage()", exception.getMessage());
+        assertEquals(
+            "nominal voltages on both side of FlowCnec Cnec ID must be defined, as one of its threshold is on PERCENT_IMAX or AMPERE. Please use withNominalVoltage()",
+            exception.getMessage()
+        );
     }
 
     @Test

@@ -9,17 +9,18 @@ package com.powsybl.openrao.data.crac.io.nc.craccreator;
 
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.TsoEICode;
+import com.powsybl.openrao.data.crac.io.commons.OpenRaoImportException;
 import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
-import com.powsybl.openrao.data.crac.io.nc.craccreator.constants.NcKeyword;
 import com.powsybl.openrao.data.crac.io.nc.craccreator.constants.NcConstants;
+import com.powsybl.openrao.data.crac.io.nc.craccreator.constants.NcKeyword;
 import com.powsybl.openrao.data.crac.io.nc.craccreator.constants.OverridingObjectsFields;
 import com.powsybl.openrao.data.crac.io.nc.craccreator.constants.PropertyReference;
-import com.powsybl.openrao.data.crac.io.commons.OpenRaoImportException;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
 import java.time.DateTimeException;
 import java.time.OffsetDateTime;
+import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -50,11 +51,14 @@ public final class NcCracUtils {
     }
 
     public static boolean isValidInterval(OffsetDateTime dateTime, String startTime, String endTime) {
+        if (Objects.isNull(dateTime) || Objects.isNull(startTime) || Objects.isNull(endTime)) {
+            return false;
+        }
         try {
             OffsetDateTime startDateTime = OffsetDateTime.parse(startTime);
             OffsetDateTime endDateTime = OffsetDateTime.parse(endTime);
             return !dateTime.isBefore(startDateTime) && !dateTime.isAfter(endDateTime);
-        } catch (Exception e) {
+        } catch (DateTimeParseException e) {
             return false;
         }
     }
@@ -78,7 +82,11 @@ public final class NcCracUtils {
 
     public static void checkPropertyReference(String remedialActionId, String gridStateAlterationType, PropertyReference expectedPropertyReference, String actualPropertyReference) {
         if (!expectedPropertyReference.toString().equals(actualPropertyReference)) {
-            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Remedial action %s will not be imported because %s must have a property reference with %s value, but it was: %s", remedialActionId, gridStateAlterationType, expectedPropertyReference, actualPropertyReference));
+            throw new OpenRaoImportException(
+                ImportStatus.INCONSISTENCY_IN_DATA,
+                String.format("Remedial action %s will not be imported because %s must have a property reference with %s value, but it was: %s",
+                              remedialActionId, gridStateAlterationType, expectedPropertyReference, actualPropertyReference)
+            );
         }
     }
 

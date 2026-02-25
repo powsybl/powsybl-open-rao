@@ -25,7 +25,8 @@ import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
 
 import java.util.*;
 
-import static com.powsybl.openrao.data.raoresult.api.ComputationStatus.*;
+import static com.powsybl.openrao.data.raoresult.api.ComputationStatus.DEFAULT;
+import static com.powsybl.openrao.data.raoresult.api.ComputationStatus.FAILURE;
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}

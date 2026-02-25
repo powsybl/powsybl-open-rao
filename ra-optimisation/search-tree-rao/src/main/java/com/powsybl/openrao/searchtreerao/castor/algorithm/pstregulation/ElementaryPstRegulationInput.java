@@ -43,7 +43,9 @@ public record ElementaryPstRegulationInput(PstRangeAction pstRangeAction, TwoSid
         if (pstRangeAction.getNetworkElement().getId().equals(monitoredNetworkElement)) {
             double thresholdOne = getMostLimitingThreshold(curativeFlowCnecs, TwoSides.ONE);
             double thresholdTwo = getMostLimitingThreshold(curativeFlowCnecs, TwoSides.TWO);
-            return thresholdOne <= thresholdTwo ? new ElementaryPstRegulationInput(pstRangeAction, TwoSides.ONE, thresholdOne) : new ElementaryPstRegulationInput(pstRangeAction, TwoSides.TWO, thresholdTwo);
+            return thresholdOne <= thresholdTwo ?
+                new ElementaryPstRegulationInput(pstRangeAction, TwoSides.ONE, thresholdOne) :
+                new ElementaryPstRegulationInput(pstRangeAction, TwoSides.TWO, thresholdTwo);
         }
 
         // otherwise, the terminal in common with the element in series it monitors is used
@@ -101,6 +103,7 @@ public record ElementaryPstRegulationInput(PstRangeAction pstRangeAction, TwoSid
             }
         }
 
-        throw new OpenRaoException("Two-windings transformer '%s' and branch '%s' do not share a common terminal so PST regulation cannot be performed.".formatted(twoWindingsTransformerId, monitoredNetworkElement));
+        throw new OpenRaoException("Two-windings transformer '%s' and branch '%s' do not share a common terminal so PST regulation cannot be performed."
+                                       .formatted(twoWindingsTransformerId, monitoredNetworkElement));
     }
 }

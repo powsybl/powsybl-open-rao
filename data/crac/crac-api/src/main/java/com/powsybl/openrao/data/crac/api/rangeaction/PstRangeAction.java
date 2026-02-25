@@ -7,9 +7,9 @@
 
 package com.powsybl.openrao.data.crac.api.rangeaction;
 
+import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.range.TapRange;
-import com.powsybl.iidm.network.Network;
 
 import java.util.List;
 import java.util.Map;

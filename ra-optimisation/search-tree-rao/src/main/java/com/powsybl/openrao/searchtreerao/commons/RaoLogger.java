@@ -7,25 +7,25 @@
 
 package com.powsybl.openrao.searchtreerao.commons;
 
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.commons.logs.OpenRaoLogger;
 import com.powsybl.openrao.data.crac.api.Identifiable;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.openrao.searchtreerao.castor.algorithm.ContingencyScenario;
+import com.powsybl.openrao.searchtreerao.castor.algorithm.Perimeter;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.GlobalOptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.result.api.*;
-import com.powsybl.openrao.searchtreerao.castor.algorithm.Perimeter;
-import com.powsybl.openrao.searchtreerao.castor.algorithm.ContingencyScenario;
 import com.powsybl.openrao.searchtreerao.result.impl.PostPerimeterResult;
 import com.powsybl.openrao.searchtreerao.searchtree.algorithms.Leaf;
 import org.apache.commons.lang3.StringUtils;
@@ -156,19 +156,36 @@ public final class RaoLogger {
             format("%s: %.0f (var: %.0f, cost %.0f)", rangeAction.getName(), postOptimValue, valueVariation, cost);
     }
 
-    public static void logMostLimitingElementsResults(OpenRaoLogger logger, OptimizationResult optimizationResult, ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction, Unit unit, int numberOfLoggedElements) {
+    public static void logMostLimitingElementsResults(OpenRaoLogger logger,
+                                                      OptimizationResult optimizationResult,
+                                                      ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction,
+                                                      Unit unit,
+                                                      int numberOfLoggedElements) {
         logMostLimitingElementsResults(logger, optimizationResult, optimizationResult, null, objectiveFunction, unit, numberOfLoggedElements);
     }
 
-    public static void logMostLimitingElementsResults(OpenRaoLogger logger, PrePerimeterResult prePerimeterResult, Set<State> states, ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction, Unit unit, int numberOfLoggedElements) {
+    public static void logMostLimitingElementsResults(OpenRaoLogger logger,
+                                                      PrePerimeterResult prePerimeterResult,
+                                                      Set<State> states,
+                                                      ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction,
+                                                      Unit unit,
+                                                      int numberOfLoggedElements) {
         logMostLimitingElementsResults(logger, prePerimeterResult, prePerimeterResult, states, objectiveFunction, unit, numberOfLoggedElements);
     }
 
-    public static void logMostLimitingElementsResults(OpenRaoLogger logger, PrePerimeterResult prePerimeterResult, ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction, Unit unit, int numberOfLoggedElements) {
+    public static void logMostLimitingElementsResults(OpenRaoLogger logger,
+                                                      PrePerimeterResult prePerimeterResult,
+                                                      ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction,
+                                                      Unit unit,
+                                                      int numberOfLoggedElements) {
         logMostLimitingElementsResults(logger, prePerimeterResult, prePerimeterResult, null, objectiveFunction, unit, numberOfLoggedElements);
     }
 
-    public static void logMostLimitingElementsResults(OpenRaoLogger logger, LinearOptimizationResult linearOptimizationResult, ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction, Unit unit, int numberOfLoggedElements) {
+    public static void logMostLimitingElementsResults(OpenRaoLogger logger,
+                                                      LinearOptimizationResult linearOptimizationResult,
+                                                      ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction,
+                                                      Unit unit,
+                                                      int numberOfLoggedElements) {
         logMostLimitingElementsResults(logger, linearOptimizationResult, linearOptimizationResult, null, objectiveFunction, unit, numberOfLoggedElements);
     }
 
@@ -262,7 +279,13 @@ public final class RaoLogger {
             contingencyScenario.getCurativePerimeters()
                 .forEach(
                     curativePerimeter -> mostLimitingElementsAndMargins.putAll(
-                        getMostLimitingElementsAndMargins(contingencyOptimizationResults.get(curativePerimeter.getRaOptimisationState()).optimizationResult(), Set.of(curativePerimeter.getRaOptimisationState()), unit, relativePositiveMargins, numberOfLoggedElements)
+                        getMostLimitingElementsAndMargins(
+                            contingencyOptimizationResults.get(curativePerimeter.getRaOptimisationState()).optimizationResult(),
+                            Set.of(curativePerimeter.getRaOptimisationState()),
+                            unit,
+                            relativePositiveMargins,
+                            numberOfLoggedElements
+                        )
                     )
                 );
         });
@@ -325,7 +348,12 @@ public final class RaoLogger {
         logger.info("Scenario \"{}\": {}", scenarioName, raResult);
     }
 
-    public static void logOptimizationSummary(OpenRaoLogger logger, State optimizedState, Set<NetworkAction> networkActions, Map<RangeAction<?>, java.lang.Double> rangeActions, ObjectiveFunctionResult preOptimObjectiveFunctionResult, ObjectiveFunctionResult finalObjective) {
+    public static void logOptimizationSummary(OpenRaoLogger logger,
+                                              State optimizedState,
+                                              Set<NetworkAction> networkActions,
+                                              Map<RangeAction<?>, java.lang.Double> rangeActions,
+                                              ObjectiveFunctionResult preOptimObjectiveFunctionResult,
+                                              ObjectiveFunctionResult finalObjective) {
         String scenarioName = getScenarioName(optimizedState);
         String raResult = getRaResult(networkActions, rangeActions);
         Map<String, Double> finalVirtualCostDetailed = getVirtualCostDetailed(finalObjective);
@@ -336,13 +364,30 @@ public final class RaoLogger {
             Map<String, Double> initialVirtualCostDetailed = getVirtualCostDetailed(preOptimObjectiveFunctionResult);
             double margin = -(preOptimObjectiveFunctionResult.getFunctionalCost() + preOptimObjectiveFunctionResult.getVirtualCost());
             if (initialVirtualCostDetailed.isEmpty()) {
-                initialCostString = String.format("initial cost = %s (functional: %s, virtual: %s), ", formatDoubleBasedOnMargin(preOptimObjectiveFunctionResult.getFunctionalCost() + preOptimObjectiveFunctionResult.getVirtualCost(), margin), formatDoubleBasedOnMargin(preOptimObjectiveFunctionResult.getFunctionalCost(), margin), formatDoubleBasedOnMargin(preOptimObjectiveFunctionResult.getVirtualCost(), margin));
+                initialCostString = String.format(
+                    "initial cost = %s (functional: %s, virtual: %s), ",
+                    formatDoubleBasedOnMargin(preOptimObjectiveFunctionResult.getFunctionalCost() + preOptimObjectiveFunctionResult.getVirtualCost(), margin),
+                    formatDoubleBasedOnMargin(preOptimObjectiveFunctionResult.getFunctionalCost(), margin),
+                    formatDoubleBasedOnMargin(preOptimObjectiveFunctionResult.getVirtualCost(), margin)
+                );
             } else {
-                initialCostString = String.format("initial cost = %s (functional: %s, virtual: %s %s), ", formatDoubleBasedOnMargin(preOptimObjectiveFunctionResult.getFunctionalCost() + preOptimObjectiveFunctionResult.getVirtualCost(), margin), formatDoubleBasedOnMargin(preOptimObjectiveFunctionResult.getFunctionalCost(), margin), formatDoubleBasedOnMargin(preOptimObjectiveFunctionResult.getVirtualCost(), margin), initialVirtualCostDetailed);
+                initialCostString = String.format(
+                    "initial cost = %s (functional: %s, virtual: %s %s), ",
+                    formatDoubleBasedOnMargin(preOptimObjectiveFunctionResult.getFunctionalCost() + preOptimObjectiveFunctionResult.getVirtualCost(), margin),
+                    formatDoubleBasedOnMargin(preOptimObjectiveFunctionResult.getFunctionalCost(), margin),
+                    formatDoubleBasedOnMargin(preOptimObjectiveFunctionResult.getVirtualCost(), margin),
+                    initialVirtualCostDetailed
+                );
             }
         }
-        logger.info("Scenario \"{}\": {}{}, cost after {} optimization = {} (functional: {}, virtual: {}{})", scenarioName, initialCostString, raResult, optimizedState.getInstant(),
-            formatDoubleBasedOnMargin(finalObjective.getCost(), -finalObjective.getCost()), formatDoubleBasedOnMargin(finalObjective.getFunctionalCost(), -finalObjective.getCost()), formatDoubleBasedOnMargin(finalObjective.getVirtualCost(), -finalObjective.getCost()), finalVirtualCostDetailed.isEmpty() ? "" : " " + finalVirtualCostDetailed);
+        logger.info(
+            "Scenario \"{}\": {}{}, cost after {} optimization = {} (functional: {}, virtual: {}{})",
+            scenarioName, initialCostString, raResult, optimizedState.getInstant(),
+            formatDoubleBasedOnMargin(finalObjective.getCost(), -finalObjective.getCost()),
+            formatDoubleBasedOnMargin(finalObjective.getFunctionalCost(), -finalObjective.getCost()),
+            formatDoubleBasedOnMargin(finalObjective.getVirtualCost(), -finalObjective.getCost()),
+            finalVirtualCostDetailed.isEmpty() ? "" : " " + finalVirtualCostDetailed
+        );
     }
 
     public static String getRaResult(Set<NetworkAction> networkActions, Map<RangeAction<?>, java.lang.Double> rangeActions) {
@@ -422,7 +467,13 @@ public final class RaoLogger {
             contingencyScenario.getCurativePerimeters()
                 .forEach(
                     curativePerimeter -> mostLimitingElementsAndMargins.putAll(
-                        getMostLimitingElementsAndMargins(contingencyOptimizationResults.get(curativePerimeter.getRaOptimisationState()).optimizationResult(), Set.of(curativePerimeter.getRaOptimisationState()), unit, relativePositiveMargins, 1)
+                        getMostLimitingElementsAndMargins(
+                            contingencyOptimizationResults.get(curativePerimeter.getRaOptimisationState()).optimizationResult(),
+                            Set.of(curativePerimeter.getRaOptimisationState()),
+                            unit,
+                            relativePositiveMargins,
+                            1
+                        )
                     )
                 );
         });

@@ -8,6 +8,7 @@
 package com.powsybl.openrao.util;
 
 import org.slf4j.MDC;
+
 import java.util.Map;
 import java.util.concurrent.Callable;
 

@@ -8,19 +8,19 @@
 package com.powsybl.openrao.data.crac.io.fbconstraint;
 
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.InstantKind;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
+import com.powsybl.openrao.data.crac.io.commons.RaUsageLimitsAdder;
 import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
 import com.powsybl.openrao.data.crac.io.commons.api.StandardElementaryCreationContext;
+import com.powsybl.openrao.data.crac.io.commons.ucte.UcteNetworkAnalyzer;
+import com.powsybl.openrao.data.crac.io.commons.ucte.UcteNetworkAnalyzerProperties;
 import com.powsybl.openrao.data.crac.io.fbconstraint.parameters.FbConstraintCracCreationParameters;
 import com.powsybl.openrao.data.crac.io.fbconstraint.xsd.CriticalBranchType;
 import com.powsybl.openrao.data.crac.io.fbconstraint.xsd.FlowBasedConstraintDocument;
 import com.powsybl.openrao.data.crac.io.fbconstraint.xsd.IndependantComplexVariant;
-import com.powsybl.openrao.data.crac.io.commons.RaUsageLimitsAdder;
-import com.powsybl.openrao.data.crac.io.commons.ucte.UcteNetworkAnalyzer;
-import com.powsybl.openrao.data.crac.io.commons.ucte.UcteNetworkAnalyzerProperties;
 
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
@@ -87,7 +87,13 @@ class FbConstraintCracCreator {
         outageReaders.forEach(or -> or.addContingency(crac));
     }
 
-    private void readCriticalBranches(FlowBasedConstraintDocument fbConstraintDocument, OffsetDateTime offsetDateTime, Crac crac, FbConstraintCreationContext creationContext, UcteNetworkAnalyzer ucteNetworkAnalyzer, List<OutageReader> outageReaders, Set<TwoSides> defaultMonitoredSides) {
+    private void readCriticalBranches(FlowBasedConstraintDocument fbConstraintDocument,
+                                      OffsetDateTime offsetDateTime,
+                                      Crac crac,
+                                      FbConstraintCreationContext creationContext,
+                                      UcteNetworkAnalyzer ucteNetworkAnalyzer,
+                                      List<OutageReader> outageReaders,
+                                      Set<TwoSides> defaultMonitoredSides) {
         List<CriticalBranchType> criticalBranchForTimeStamp = selectCriticalBranchesForTimeStamp(fbConstraintDocument, offsetDateTime);
 
         if (!isEmpty(criticalBranchForTimeStamp)) {
@@ -124,11 +130,20 @@ class FbConstraintCracCreator {
             .filter(criticalBranch -> !isInTimeInterval(timestamp, criticalBranch.getTimeInterval().getV()))
             .filter(criticalBranch -> creationContext.getBranchCnecCreationContext(criticalBranch.getId()) == null)
             .forEach(criticalBranch -> creationContext.addCriticalBranchCreationContext(
-                CriticalBranchCreationContext.notImported(criticalBranch.getId(), ImportStatus.NOT_FOR_REQUESTED_TIMESTAMP, "CriticalBranch is not valid for the requested timestamp")
+                CriticalBranchCreationContext.notImported(
+                    criticalBranch.getId(),
+                    ImportStatus.NOT_FOR_REQUESTED_TIMESTAMP,
+                    "CriticalBranch is not valid for the requested timestamp"
+                )
             ));
     }
 
-    private void readComplexVariants(FlowBasedConstraintDocument fbConstraintDocument, OffsetDateTime offsetDateTime, Crac crac, FbConstraintCreationContext creationContext, UcteNetworkAnalyzer ucteNetworkAnalyzer, List<OutageReader> outageReaders) {
+    private void readComplexVariants(FlowBasedConstraintDocument fbConstraintDocument,
+                                     OffsetDateTime offsetDateTime,
+                                     Crac crac,
+                                     FbConstraintCreationContext creationContext,
+                                     UcteNetworkAnalyzer ucteNetworkAnalyzer,
+                                     List<OutageReader> outageReaders) {
         if (Objects.isNull(fbConstraintDocument.getComplexVariants())
             || Objects.isNull(fbConstraintDocument.getComplexVariants().getComplexVariant())
             || fbConstraintDocument.getComplexVariants().getComplexVariant().isEmpty()) {
@@ -144,9 +159,16 @@ class FbConstraintCracCreator {
         }
     }
 
-    private void createRemedialAction(Crac crac, UcteNetworkAnalyzer ucteNetworkAnalyzer, List<IndependantComplexVariant> independantComplexVariants, List<OutageReader> outageReaders, FbConstraintCreationContext creationContext) {
+    private void createRemedialAction(Crac crac,
+                                      UcteNetworkAnalyzer ucteNetworkAnalyzer,
+                                      List<IndependantComplexVariant> independantComplexVariants,
+                                      List<OutageReader> outageReaders,
+                                      FbConstraintCreationContext creationContext) {
 
-        Set<String> coIds = outageReaders.stream().filter(OutageReader::isOutageValid).map(oR -> oR.getOutage().getId()).collect(Collectors.toSet());
+        Set<String> coIds = outageReaders.stream()
+            .filter(OutageReader::isOutageValid)
+            .map(oR -> oR.getOutage().getId())
+            .collect(Collectors.toSet());
 
         List<ComplexVariantReader> complexVariantReaders = independantComplexVariants.stream()
             .map(icv -> new ComplexVariantReader(icv, ucteNetworkAnalyzer, coIds))
@@ -162,12 +184,21 @@ class FbConstraintCracCreator {
         });
     }
 
-    private void createRaTimestampFilteringInformation(FlowBasedConstraintDocument fbConstraintDocument, OffsetDateTime timestamp, FbConstraintCreationContext creationContext) {
+    private void createRaTimestampFilteringInformation(FlowBasedConstraintDocument fbConstraintDocument,
+                                                       OffsetDateTime timestamp,
+                                                       FbConstraintCreationContext creationContext) {
         fbConstraintDocument.getComplexVariants().getComplexVariant().stream()
              .filter(complexVariant -> !isInTimeInterval(timestamp, complexVariant.getTimeInterval().getV()))
             .filter(complexVariant -> creationContext.getRemedialActionCreationContext(complexVariant.getId()) == null)
             .forEach(complexVariant -> creationContext.addComplexVariantCreationContext(
-                new StandardElementaryCreationContext(complexVariant.getId(), null, null, ImportStatus.NOT_FOR_REQUESTED_TIMESTAMP, "ComplexVariant is not valid for the requested timestamp", false)
+                new StandardElementaryCreationContext(
+                    complexVariant.getId(),
+                    null,
+                    null,
+                    ImportStatus.NOT_FOR_REQUESTED_TIMESTAMP,
+                    "ComplexVariant is not valid for the requested timestamp",
+                    false
+                )
             ));
     }
 
@@ -212,7 +243,11 @@ class FbConstraintCracCreator {
         }
 
         if (!isInTimeInterval(offsetDateTime, fbConstraintDocumentTimeInterval)) {
-            creationContext.getCreationReport().error(String.format("timestamp %s is not in the time interval of the flow-based constraint document: %s", offsetDateTime.toString(), fbConstraintDocumentTimeInterval));
+            creationContext.getCreationReport().error(String.format(
+                "timestamp %s is not in the time interval of the flow-based constraint document: %s",
+                offsetDateTime,
+                fbConstraintDocumentTimeInterval)
+            );
             return false;
         }
 

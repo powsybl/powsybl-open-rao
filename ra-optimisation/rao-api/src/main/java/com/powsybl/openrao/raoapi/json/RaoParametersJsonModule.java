@@ -7,8 +7,8 @@
 
 package com.powsybl.openrao.raoapi.json;
 
-import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}

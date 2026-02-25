@@ -24,11 +24,12 @@ import org.mockito.Mockito;
 
 import java.util.Set;
 
+import static com.powsybl.iidm.network.TwoSides.ONE;
+import static com.powsybl.iidm.network.TwoSides.TWO;
+import static com.powsybl.openrao.commons.Unit.AMPERE;
+import static com.powsybl.openrao.commons.Unit.MEGAWATT;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
-import static com.powsybl.iidm.network.TwoSides.TWO;
-import static com.powsybl.iidm.network.TwoSides.ONE;
-import static com.powsybl.openrao.commons.Unit.*;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}

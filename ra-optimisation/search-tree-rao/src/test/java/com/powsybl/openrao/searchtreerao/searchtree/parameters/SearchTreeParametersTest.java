@@ -13,16 +13,14 @@ import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.RaUsageLimits;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
-import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
-import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
-import com.powsybl.openrao.raoapi.parameters.RaoParameters;
-import com.powsybl.openrao.raoapi.parameters.LoopFlowParameters;
-import com.powsybl.openrao.raoapi.parameters.MnecParameters;
+import com.powsybl.openrao.raoapi.parameters.*;
 import com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
-import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRelativeMarginsParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
-import com.powsybl.openrao.searchtreerao.commons.parameters.*;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRelativeMarginsParameters;
+import com.powsybl.openrao.searchtreerao.commons.parameters.NetworkActionParameters;
+import com.powsybl.openrao.searchtreerao.commons.parameters.TreeParameters;
+import com.powsybl.openrao.searchtreerao.commons.parameters.UnoptimizedCnecParameters;
 import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,9 +30,13 @@ import org.mockito.Mockito;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.when;
 
 /**
@@ -238,7 +240,16 @@ class SearchTreeParametersTest {
         PrePerimeterResult preCurative1PerimeterResult = Mockito.mock(PrePerimeterResult.class);
         Mockito.when(preCurative1PerimeterResult.getTap(crac.getPstRangeAction("cur1-pst-be"))).thenReturn(0);
 
-        curative1Parameters.decreaseRemedialActionUsageLimits(Map.of(crac.getState("contingency", crac.getInstant("curative1")), curative1OptimizationResult), Map.of(crac.getState("contingency", crac.getInstant("curative1")), preCurative1PerimeterResult));
+        curative1Parameters.decreaseRemedialActionUsageLimits(
+            Map.of(
+                crac.getState("contingency", crac.getInstant("curative1")),
+                curative1OptimizationResult
+            ),
+            Map.of(
+                crac.getState("contingency", crac.getInstant("curative1")),
+                preCurative1PerimeterResult
+            )
+        );
 
         RaUsageLimits curative1RaUsageLimitsAfterCurative1Opt = curative1Parameters.getRaLimitationParameters().get(crac.getInstant("curative1"));
         assertEquals(0, curative1RaUsageLimitsAfterCurative1Opt.getMaxRa());
@@ -277,7 +288,20 @@ class SearchTreeParametersTest {
 
         PrePerimeterResult preCurative2PerimeterResult = Mockito.mock(PrePerimeterResult.class);
 
-        curative2Parameters.decreaseRemedialActionUsageLimits(Map.of(crac.getState("contingency", crac.getInstant("curative1")), curative1OptimizationResult, crac.getState("contingency", crac.getInstant("curative2")), curative2OptimizationResult), Map.of(crac.getState("contingency", crac.getInstant("curative1")), preCurative1PerimeterResult, crac.getState("contingency", crac.getInstant("curative2")), preCurative2PerimeterResult));
+        curative2Parameters.decreaseRemedialActionUsageLimits(
+            Map.of(
+                crac.getState("contingency", crac.getInstant("curative1")),
+                curative1OptimizationResult,
+                crac.getState("contingency", crac.getInstant("curative2")),
+                curative2OptimizationResult
+            ),
+            Map.of(
+                crac.getState("contingency", crac.getInstant("curative1")),
+                preCurative1PerimeterResult,
+                crac.getState("contingency", crac.getInstant("curative2")),
+                preCurative2PerimeterResult
+            )
+        );
 
         RaUsageLimits curative1RaUsageLimitsAfterCurative2Opt = curative2Parameters.getRaLimitationParameters().get(crac.getInstant("curative1"));
         assertEquals(0, curative1RaUsageLimitsAfterCurative2Opt.getMaxRa());

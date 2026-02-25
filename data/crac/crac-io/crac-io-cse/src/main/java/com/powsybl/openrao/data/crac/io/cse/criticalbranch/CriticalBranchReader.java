@@ -7,20 +7,20 @@
 
 package com.powsybl.openrao.data.crac.io.cse.criticalbranch;
 
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.crac.io.cse.xsd.TImax;
-import com.powsybl.openrao.data.crac.io.cse.xsd.TOutage;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnecAdder;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.threshold.BranchThresholdAdder;
 import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
 import com.powsybl.openrao.data.crac.io.commons.api.stdcreationcontext.NativeBranch;
-import com.powsybl.openrao.data.crac.io.cse.xsd.TBranch;
 import com.powsybl.openrao.data.crac.io.commons.ucte.UcteFlowElementHelper;
 import com.powsybl.openrao.data.crac.io.commons.ucte.UcteNetworkAnalyzer;
+import com.powsybl.openrao.data.crac.io.cse.xsd.TBranch;
+import com.powsybl.openrao.data.crac.io.cse.xsd.TImax;
+import com.powsybl.openrao.data.crac.io.cse.xsd.TOutage;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -194,14 +194,14 @@ public class CriticalBranchReader {
 
     private static void convertMinMax(BranchThresholdAdder branchThresholdAdder, double positiveLimit, String direction, boolean invert, boolean isPercent) {
         double convertedPositiveLimit = positiveLimit * (isPercent ? 0.01 : 1.);
-        if (direction.equals("BIDIR")) {
+        if ("BIDIR".equals(direction)) {
             branchThresholdAdder.withMax(convertedPositiveLimit);
             branchThresholdAdder.withMin(-convertedPositiveLimit);
-        } else if (direction.equals("DIRECT") && !invert
-            || direction.equals("OPPOSITE") && invert) {
+        } else if ("DIRECT".equals(direction) && !invert
+            || "OPPOSITE".equals(direction) && invert) {
             branchThresholdAdder.withMax(convertedPositiveLimit);
-        } else if (direction.equals("DIRECT") && invert
-            || direction.equals("OPPOSITE") && !invert) {
+        } else if ("DIRECT".equals(direction) && invert
+            || "OPPOSITE".equals(direction) && !invert) {
             branchThresholdAdder.withMin(-convertedPositiveLimit);
         } else {
             throw new IllegalArgumentException(String.format("%s is not a recognized direction", direction));

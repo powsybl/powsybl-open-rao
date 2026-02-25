@@ -11,6 +11,7 @@ import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 
 import java.util.Objects;
+
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.*;
 
 /**
@@ -27,9 +28,13 @@ public class SecondPreventiveRaoParameters {
     private boolean hintFromFirstPreventiveRao = DEFAULT_HINT_FROM_FIRST_PREVENTIVE_RAO;
 
     public enum ExecutionCondition {
-        DISABLED, // do not run 2nd preventive RAO
-        POSSIBLE_CURATIVE_IMPROVEMENT, // run 2nd preventive RAO if curative results can be improved, taking into account the curative RAO stop criterion
-        COST_INCREASE // run 2nd preventive RAO if curative results can be improved + only if the overall cost has increased during RAO (ie if preventive RAO degraded a curative CNEC's margin or created a curative virtual cost)
+        // do not run 2nd preventive RAO
+        DISABLED,
+        // run 2nd preventive RAO if curative results can be improved, taking into account the curative RAO stop criterion
+        POSSIBLE_CURATIVE_IMPROVEMENT,
+        // run 2nd preventive RAO if curative results can be improved + only if the overall cost has increased during RAO
+        // (ie if preventive RAO degraded a curative CNEC's margin or created a curative virtual cost)
+        COST_INCREASE
     }
 
     public void setExecutionCondition(ExecutionCondition executionCondition) {

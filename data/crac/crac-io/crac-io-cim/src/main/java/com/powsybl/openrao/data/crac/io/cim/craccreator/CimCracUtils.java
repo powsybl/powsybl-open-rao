@@ -7,14 +7,10 @@
 
 package com.powsybl.openrao.data.crac.io.cim.craccreator;
 
-import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.contingency.Contingency;
-import com.powsybl.openrao.data.crac.io.cim.xsd.ContingencySeries;
-import com.powsybl.openrao.data.crac.io.cim.xsd.MonitoredSeries;
-import com.powsybl.openrao.data.crac.io.cim.xsd.Point;
-import com.powsybl.openrao.data.crac.io.cim.xsd.SeriesPeriod;
-import com.powsybl.openrao.data.crac.io.cim.xsd.TimeSeries;
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
+import com.powsybl.openrao.data.crac.io.cim.xsd.*;
 import com.powsybl.openrao.data.crac.io.commons.api.ElementaryCreationContext;
 import org.apache.commons.lang3.StringUtils;
 

@@ -7,9 +7,9 @@
 
 package com.powsybl.openrao.data.crac.io.cse.parameters;
 
-import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
 import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 

@@ -8,24 +8,19 @@
 package com.powsybl.openrao.data.crac.io.nc.craccreator.cnec;
 
 import com.powsybl.contingency.Contingency;
-import com.powsybl.iidm.network.IdentifiableType;
-import com.powsybl.iidm.network.VoltageLevel;
-import com.powsybl.openrao.data.crac.io.commons.OpenRaoImportException;
-import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
-import com.powsybl.openrao.data.crac.io.nc.craccreator.NcCracUtils;
-import com.powsybl.openrao.data.crac.io.nc.objects.AssessedElement;
-import com.powsybl.openrao.data.crac.io.nc.parameters.NcCracCreationParameters;
+import com.powsybl.iidm.network.*;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.cnec.CnecAdder;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnecAdder;
 import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
+import com.powsybl.openrao.data.crac.io.commons.OpenRaoImportException;
 import com.powsybl.openrao.data.crac.io.commons.api.ElementaryCreationContext;
+import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
 import com.powsybl.openrao.data.crac.io.commons.api.StandardElementaryCreationContext;
 import com.powsybl.openrao.data.crac.io.commons.cgmes.CgmesBranchHelper;
-import com.powsybl.iidm.network.DanglingLine;
-import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.TieLine;
+import com.powsybl.openrao.data.crac.io.nc.craccreator.NcCracUtils;
+import com.powsybl.openrao.data.crac.io.nc.objects.AssessedElement;
+import com.powsybl.openrao.data.crac.io.nc.parameters.NcCracCreationParameters;
 
 import java.util.Map;
 import java.util.Optional;
@@ -45,7 +40,15 @@ public abstract class AbstractCnecCreator {
     protected final boolean aeScannedForRegion;
     protected final String border;
 
-    protected AbstractCnecCreator(Crac crac, Network network, AssessedElement nativeAssessedElement, Set<Contingency> linkedContingencies, Set<ElementaryCreationContext> ncCnecCreationContexts, String rejectedLinksAssessedElementContingency, CracCreationParameters cracCreationParameters, Map<String, String> borderPerTso, Map<String, String> borderPerEic) {
+    protected AbstractCnecCreator(Crac crac,
+                                  Network network,
+                                  AssessedElement nativeAssessedElement,
+                                  Set<Contingency> linkedContingencies,
+                                  Set<ElementaryCreationContext> ncCnecCreationContexts,
+                                  String rejectedLinksAssessedElementContingency,
+                                  CracCreationParameters cracCreationParameters,
+                                  Map<String, String> borderPerTso,
+                                  Map<String, String> borderPerEic) {
         this.crac = crac;
         this.network = network;
         this.nativeAssessedElement = nativeAssessedElement;
@@ -92,7 +95,12 @@ public abstract class AbstractCnecCreator {
 
     protected String getCnecName(String instantId, Contingency contingency) {
         // Need to include the mRID in the name in case the AssessedElement's name is not unique
-        return "%s (%s) - %s%s".formatted(nativeAssessedElement.getUniqueName(), nativeAssessedElement.mrid(), contingency == null ? "" : contingency.getName().orElse(contingency.getId()) + " - ", instantId);
+        return "%s (%s) - %s%s".formatted(
+            nativeAssessedElement.getUniqueName(),
+            nativeAssessedElement.mrid(),
+            contingency == null ? "" : contingency.getName().orElse(contingency.getId()) + " - ",
+            instantId
+        );
     }
 
     protected String getCnecName(String instantId, Contingency contingency, int acceptableDuration) {
@@ -129,7 +137,10 @@ public abstract class AbstractCnecCreator {
         if (rejectedLinksAssessedElementContingency.isEmpty()) {
             ncCnecCreationContexts.add(StandardElementaryCreationContext.imported(nativeAssessedElement.mrid(), cnecName, cnecName, false, ""));
         } else {
-            ncCnecCreationContexts.add(StandardElementaryCreationContext.imported(nativeAssessedElement.mrid(), cnecName, cnecName, true, "some cnec for the same assessed element are not imported because of incorrect data for assessed elements for contingencies : " + rejectedLinksAssessedElementContingency));
+            ncCnecCreationContexts.add(StandardElementaryCreationContext.imported(
+                nativeAssessedElement.mrid(), cnecName, cnecName, true,
+                "some cnec for the same assessed element are not imported because of incorrect data for assessed elements for contingencies : " + rejectedLinksAssessedElementContingency
+            ));
         }
     }
 
@@ -147,6 +158,9 @@ public abstract class AbstractCnecCreator {
         if (networkElement.getType().equals(IdentifiableType.BUSBAR_SECTION)) {
             return network.getBusbarSection(networkElement.getId()).getTerminal().getVoltageLevel();
         }
-        throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, writeAssessedElementIgnoredReasonMessage("the network element " + networkElement.getId() + " is neither a bus nor a bus bar section"));
+        throw new OpenRaoImportException(
+            ImportStatus.INCONSISTENCY_IN_DATA,
+            writeAssessedElementIgnoredReasonMessage("the network element " + networkElement.getId() + " is neither a bus nor a bus bar section")
+        );
     }
 }

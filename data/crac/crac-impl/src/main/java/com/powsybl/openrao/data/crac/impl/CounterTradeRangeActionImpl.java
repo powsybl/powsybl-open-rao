@@ -7,14 +7,14 @@
 
 package com.powsybl.openrao.data.crac.impl;
 
+import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.range.StandardRange;
 import com.powsybl.openrao.data.crac.api.rangeaction.CounterTradeRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.VariationDirection;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
-import com.powsybl.iidm.network.Country;
-import com.powsybl.iidm.network.Network;
 
 import java.util.Collections;
 import java.util.List;
@@ -32,7 +32,9 @@ public class CounterTradeRangeActionImpl extends AbstractRangeAction<CounterTrad
     private final Double initialSetpoint;
 
     CounterTradeRangeActionImpl(String id, String name, String operator, String groupId, Set<UsageRule> usageRules,
-                                List<StandardRange> ranges, Double initialSetpoint, Integer speed, Double activationCost, Map<VariationDirection, Double> variationCosts, Country exportingCountry, Country importingCountry) {
+                                List<StandardRange> ranges, Double initialSetpoint, Integer speed,
+                                Double activationCost, Map<VariationDirection, Double> variationCosts,
+                                Country exportingCountry, Country importingCountry) {
         super(id, name, operator, usageRules, groupId, speed, activationCost, variationCosts);
         this.ranges = ranges;
         this.initialSetpoint = initialSetpoint;

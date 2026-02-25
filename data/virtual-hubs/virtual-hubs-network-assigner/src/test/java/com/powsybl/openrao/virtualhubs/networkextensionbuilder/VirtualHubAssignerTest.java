@@ -7,11 +7,11 @@
 
 package com.powsybl.openrao.virtualhubs.networkextensionbuilder;
 
+import com.powsybl.iidm.network.Load;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.virtualhubs.MarketArea;
 import com.powsybl.openrao.virtualhubs.VirtualHub;
 import com.powsybl.openrao.virtualhubs.networkextension.AssignedVirtualHub;
-import com.powsybl.iidm.network.Load;
-import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

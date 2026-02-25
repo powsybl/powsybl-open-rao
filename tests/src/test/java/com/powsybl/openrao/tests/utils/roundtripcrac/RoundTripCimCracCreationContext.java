@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.powsybl.openrao.tests.utils.round_trip_crac;
+package com.powsybl.openrao.tests.utils.roundtripcrac;
 
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.io.cim.craccreator.CimCracCreationContext;

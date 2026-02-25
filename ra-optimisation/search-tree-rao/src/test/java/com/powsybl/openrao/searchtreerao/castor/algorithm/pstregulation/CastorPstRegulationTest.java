@@ -68,7 +68,11 @@ class CastorPstRegulationTest {
         ListAppender<ILoggingEvent> listAppender = getBusinessLogs();
         List<ILoggingEvent> logsList = listAppender.list;
 
-        Map<String, String> pstsToRegulate = Map.of("FFR1AA1  FFR2AA1  2", "FFR1AA1  FFR2AA1  2", "FFR2AA1  FFR3AA1  2", "FFR2AA1  FFR3AA1  2", "FFR3AA1  FFR4AA1  2", "FFR3AA1  FFR4AA1  2");
+        Map<String, String> pstsToRegulate = Map.of(
+            "FFR1AA1  FFR2AA1  2", "FFR1AA1  FFR2AA1  2",
+            "FFR2AA1  FFR3AA1  2", "FFR2AA1  FFR3AA1  2",
+            "FFR3AA1  FFR4AA1  2", "FFR3AA1  FFR4AA1  2"
+        );
         Set<PstRegulationResult> pstRegulationResults = CastorPstRegulation.regulatePsts(pstsToRegulate, postContingencyResults, network, crac, raoParameters, raoResult);
         List<String> logMessages = logsList.stream().map(ILoggingEvent::getFormattedMessage).sorted().toList();
 
@@ -83,17 +87,29 @@ class CastorPstRegulationTest {
         // Contingency FR1-FR2
         PstRegulationResult pstRegulationResultCoFr12 = getPstRegulationResultForGivenContingency(pstRegulationResults, "Contingency FR 12");
         assertEquals(Map.of(pst12, -15, pst34, -5), pstRegulationResultCoFr12.regulatedTapPerPst());
-        assertEquals("FlowCNEC 'cnecFr34PstCurative - Co12' of contingency scenario 'Contingency FR 12' is overloaded and is the most limiting element, PST regulation has been triggered: pstFr12 (-10 -> -15), pstFr34 (0 -> -5)", logMessages.get(4));
+        assertEquals(
+            "FlowCNEC 'cnecFr34PstCurative - Co12' of contingency scenario 'Contingency FR 12' is overloaded and is the most limiting element, " +
+                "PST regulation has been triggered: pstFr12 (-10 -> -15), pstFr34 (0 -> -5)",
+            logMessages.get(4)
+        );
 
         // Contingency FR2-FR3
         PstRegulationResult pstRegulationResultCoFr23 = getPstRegulationResultForGivenContingency(pstRegulationResults, "Contingency FR 23");
         assertEquals(Map.of(pst12, -5, pst34, -5), pstRegulationResultCoFr23.regulatedTapPerPst());
-        assertEquals("FlowCNEC 'cnecFr23PstCurative - Co23' of contingency scenario 'Contingency FR 23' is overloaded and is the most limiting element, PST regulation has been triggered: pstFr12 (0 -> -5), pstFr34 (0 -> -5)", logMessages.get(3));
+        assertEquals(
+            "FlowCNEC 'cnecFr23PstCurative - Co23' of contingency scenario 'Contingency FR 23' is overloaded and is the most limiting element, " +
+                "PST regulation has been triggered: pstFr12 (0 -> -5), pstFr34 (0 -> -5)",
+            logMessages.get(3)
+        );
 
         // Contingency FR3-FR4
         PstRegulationResult pstRegulationResultCoFr34 = getPstRegulationResultForGivenContingency(pstRegulationResults, "Contingency FR 34");
         assertEquals(Map.of(pst12, -5, pst34, -15), pstRegulationResultCoFr34.regulatedTapPerPst());
-        assertEquals("FlowCNEC 'cnecFr12PstCurative - Co34' of contingency scenario 'Contingency FR 34' is overloaded and is the most limiting element, PST regulation has been triggered: pstFr12 (0 -> -5)", logMessages.get(2));
+        assertEquals(
+            "FlowCNEC 'cnecFr12PstCurative - Co34' of contingency scenario 'Contingency FR 34' is overloaded and is the most limiting element, " +
+                "PST regulation has been triggered: pstFr12 (0 -> -5)",
+            logMessages.get(2)
+        );
     }
 
     private static ListAppender<ILoggingEvent> getBusinessLogs() {

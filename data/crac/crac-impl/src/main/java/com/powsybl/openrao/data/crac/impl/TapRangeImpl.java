@@ -8,8 +8,8 @@
 package com.powsybl.openrao.data.crac.impl;
 
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.crac.api.range.TapRange;
 import com.powsybl.openrao.data.crac.api.range.RangeType;
+import com.powsybl.openrao.data.crac.api.range.TapRange;
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}

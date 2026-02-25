@@ -7,12 +7,12 @@
 
 package com.powsybl.openrao.searchtreerao.commons.marginevaluator;
 
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 
-import java.util.*;
+import java.util.Set;
 
 /**
  * It enables to evaluate the absolute margin of a FlowCnec

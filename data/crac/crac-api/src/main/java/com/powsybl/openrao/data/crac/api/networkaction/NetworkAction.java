@@ -8,8 +8,8 @@
 package com.powsybl.openrao.data.crac.api.networkaction;
 
 import com.powsybl.action.*;
-import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
 import org.apache.commons.lang3.NotImplementedException;
 
@@ -34,7 +34,7 @@ public interface NetworkAction extends RemedialAction<NetworkAction> {
      * @param network Network that serves as reference for the impact.
      * @return True if the remedial action would have an impact on the network.
      */
-    boolean hasImpactOnNetwork(final Network network);
+    boolean hasImpactOnNetwork(Network network);
 
     /**
      * Apply the action on a given network.

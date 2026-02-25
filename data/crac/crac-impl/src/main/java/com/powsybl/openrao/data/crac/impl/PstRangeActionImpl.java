@@ -9,14 +9,16 @@ package com.powsybl.openrao.data.crac.impl;
 
 import com.powsybl.action.PhaseTapChangerTapPositionActionBuilder;
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.PhaseTapChanger;
+import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.NetworkElement;
-import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.range.RangeType;
 import com.powsybl.openrao.data.crac.api.range.TapRange;
+import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.VariationDirection;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
-import com.powsybl.iidm.network.*;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
@@ -40,8 +42,18 @@ public final class PstRangeActionImpl extends AbstractRangeAction<PstRangeAction
     private final int lowTapPosition;
     private final int highTapPosition;
 
-    PstRangeActionImpl(String id, String name, String operator, Set<UsageRule> usageRules, List<TapRange> ranges,
-                              NetworkElement networkElement, String groupId, int initialTap, Map<Integer, Double> tapToAngleConversionMap, Integer speed, Double activationCost, Map<VariationDirection, Double> variationCosts) {
+    PstRangeActionImpl(String id,
+                       String name,
+                       String operator,
+                       Set<UsageRule> usageRules,
+                       List<TapRange> ranges,
+                       NetworkElement networkElement,
+                       String groupId,
+                       int initialTap,
+                       Map<Integer, Double> tapToAngleConversionMap,
+                       Integer speed,
+                       Double activationCost,
+                       Map<VariationDirection, Double> variationCosts) {
         super(id, name, operator, usageRules, groupId, speed, activationCost, variationCosts);
         this.networkElement = networkElement;
         this.ranges = ranges;
@@ -164,7 +176,10 @@ public final class PstRangeActionImpl extends AbstractRangeAction<PstRangeAction
 
         // Modification of the range limitation control allowing the final angle to exceed of an EPSILON value the limitation.
         if (angle < minAngle && Math.abs(angle - minAngle) > EPSILON || angle > maxAngle && Math.abs(angle - maxAngle) > EPSILON) {
-            throw new OpenRaoException(String.format(Locale.ENGLISH, "Angle value %.4f is not in the range of minimum and maximum angle values [%.4f;%.4f] of the phase tap changer %s steps", angle, minAngle, maxAngle, networkElement.getId()));
+            throw new OpenRaoException(String.format(Locale.ENGLISH,
+                "Angle value %.4f is not in the range of minimum and maximum angle values [%.4f;%.4f] of the phase tap changer %s steps",
+                angle, minAngle, maxAngle, networkElement.getId()
+            ));
         }
     }
 

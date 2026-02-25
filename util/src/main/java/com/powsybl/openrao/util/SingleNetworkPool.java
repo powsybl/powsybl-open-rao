@@ -7,8 +7,8 @@
 
 package com.powsybl.openrao.util;
 
-import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;

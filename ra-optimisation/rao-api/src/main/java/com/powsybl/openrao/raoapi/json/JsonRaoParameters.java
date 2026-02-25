@@ -7,7 +7,6 @@
 
 package com.powsybl.openrao.raoapi.json;
 
-import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -20,6 +19,7 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.commons.extensions.ExtensionProviders;
 import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.sensitivity.json.SensitivityJsonModule;
 
 import java.io.IOException;

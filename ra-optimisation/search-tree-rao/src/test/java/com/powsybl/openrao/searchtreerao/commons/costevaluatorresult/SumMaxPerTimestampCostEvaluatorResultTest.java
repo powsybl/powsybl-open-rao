@@ -15,11 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.time.OffsetDateTime;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -117,7 +113,15 @@ class SumMaxPerTimestampCostEvaluatorResultTest {
 
     @Test
     void testEvaluator() {
-        Map<FlowCnec, Double> marginPerCnec = Map.of(flowCnecPreventiveT1, -10.0, flowCnecCurative1T1, -50.0, flowCnecCurative2T1, -120.0, flowCnecPreventiveT2, -34.0, flowCnecCurative1T2, -546.0, flowCnecPreventiveNoTimestamp, 43.0, flowCnecCurative1NoTimestamp, -76.0);
+        Map<FlowCnec, Double> marginPerCnec = Map.of(
+            flowCnecPreventiveT1, -10.0,
+            flowCnecCurative1T1, -50.0,
+            flowCnecCurative2T1, -120.0,
+            flowCnecPreventiveT2, -34.0,
+            flowCnecCurative1T2, -546.0,
+            flowCnecPreventiveNoTimestamp, 43.0,
+            flowCnecCurative1NoTimestamp, -76.0
+        );
         SumMaxPerTimestampCostEvaluatorResult evaluatorResult = new SumMaxPerTimestampCostEvaluatorResult(
             marginPerCnec,
             List.of(),

@@ -7,13 +7,13 @@
 
 package com.powsybl.openrao.sensitivityanalysis;
 
+import com.powsybl.contingency.Contingency;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
-import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
-import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityFactor;
 import com.powsybl.sensitivity.SensitivityFunctionType;
 
@@ -24,7 +24,7 @@ import java.util.*;
  */
 public abstract class AbstractSimpleSensitivityProvider implements CnecSensitivityProvider {
     protected Set<FlowCnec> cnecs;
-    protected Map<String, ArrayList<FlowCnec> > cnecsPerContingencyId = new HashMap<>();
+    protected Map<String, ArrayList<FlowCnec>> cnecsPerContingencyId = new HashMap<>();
     protected boolean factorsInMegawatt = false;
     protected boolean factorsInAmpere = false;
     protected boolean afterContingencyOnly = false;

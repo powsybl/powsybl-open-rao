@@ -29,7 +29,10 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -174,7 +177,11 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
 
             assertEquals(1, constraint.getCoefficient(upwardVariationVariable), DOUBLE_TOLERANCE);
             assertEquals(1, constraint.getCoefficient(downwardVariationVariable), DOUBLE_TOLERANCE);
-            assertEquals(-(ra.getMaxAdmissibleSetpoint(initialSetpoint) + RANGE_ACTION_SETPOINT_EPSILON - ra.getMinAdmissibleSetpoint(initialSetpoint)), constraint.getCoefficient(binary), DOUBLE_TOLERANCE);
+            assertEquals(
+                -(ra.getMaxAdmissibleSetpoint(initialSetpoint) + RANGE_ACTION_SETPOINT_EPSILON - ra.getMinAdmissibleSetpoint(initialSetpoint)),
+                constraint.getCoefficient(binary),
+                DOUBLE_TOLERANCE
+            );
             assertEquals(-linearProblem.infinity(), constraint.lb(), linearProblem.infinity() * 1e-3);
         });
     }
@@ -210,7 +217,11 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
 
             assertEquals(1, constraint.getCoefficient(upwardVariationVariable), DOUBLE_TOLERANCE);
             assertEquals(1, constraint.getCoefficient(downwardVariationVariable), DOUBLE_TOLERANCE);
-            assertEquals(-(ra.getMaxAdmissibleSetpoint(initialSetpoint) + RANGE_ACTION_SETPOINT_EPSILON - ra.getMinAdmissibleSetpoint(initialSetpoint)), constraint.getCoefficient(binary), DOUBLE_TOLERANCE);
+            assertEquals(
+                -(ra.getMaxAdmissibleSetpoint(initialSetpoint) + RANGE_ACTION_SETPOINT_EPSILON - ra.getMinAdmissibleSetpoint(initialSetpoint)),
+                constraint.getCoefficient(binary),
+                DOUBLE_TOLERANCE
+            );
             assertEquals(-linearProblem.infinity(), constraint.lb(), linearProblem.infinity() * 1e-3);
         });
     }
@@ -566,13 +577,24 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             false);
 
         Map<State, Set<PstRangeAction>> pstRangeActionsPerState = new HashMap<>();
-        rangeActionsPerState.forEach((s, rangeActionSet) -> rangeActionSet.stream().filter(PstRangeAction.class::isInstance).map(PstRangeAction.class::cast).forEach(pstRangeAction -> pstRangeActionsPerState.computeIfAbsent(s, e -> new HashSet<>()).add(pstRangeAction)));
+        rangeActionsPerState.forEach((s, rangeActionSet) ->
+            rangeActionSet.stream()
+                .filter(PstRangeAction.class::isInstance)
+                .map(PstRangeAction.class::cast)
+                .forEach(pstRangeAction -> pstRangeActionsPerState.computeIfAbsent(s, e -> new HashSet<>()).add(pstRangeAction))
+        );
 
         OptimizationPerimeter optimizationPerimeter = Mockito.mock(OptimizationPerimeter.class);
         when(optimizationPerimeter.getMainOptimizationState()).thenReturn(state);
         when(optimizationPerimeter.getRangeActionsPerState()).thenReturn(rangeActionsPerState);
 
-        DiscretePstTapFiller discretePstTapFiller = new DiscretePstTapFiller(optimizationPerimeter, pstRangeActionsPerState, prePerimeterRangeActionSetpointResult, new RangeActionsOptimizationParameters(), false);
+        DiscretePstTapFiller discretePstTapFiller = new DiscretePstTapFiller(
+            optimizationPerimeter,
+            pstRangeActionsPerState,
+            prePerimeterRangeActionSetpointResult,
+            new RangeActionsOptimizationParameters(),
+            false
+        );
 
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)

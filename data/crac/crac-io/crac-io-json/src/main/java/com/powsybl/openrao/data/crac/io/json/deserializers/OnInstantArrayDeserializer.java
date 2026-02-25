@@ -7,18 +7,16 @@
 
 package com.powsybl.openrao.data.crac.io.json.deserializers;
 
-import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants;
-import com.powsybl.openrao.data.crac.api.RemedialActionAdder;
-import com.powsybl.openrao.data.crac.api.usagerule.OnInstantAdder;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.data.crac.api.RemedialActionAdder;
+import com.powsybl.openrao.data.crac.api.usagerule.OnInstantAdder;
+import com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants;
 
 import java.io.IOException;
 
-import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.USAGE_METHOD;
-import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.getPrimaryVersionNumber;
-import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.getSubVersionNumber;
+import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.*;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}

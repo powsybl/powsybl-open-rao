@@ -8,24 +8,20 @@
 package com.powsybl.openrao.data.crac.io.cim.craccreator;
 
 import com.powsybl.contingency.Contingency;
+import com.powsybl.glsk.commons.CountryEICode;
+import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.RemedialActionAdder;
-import com.powsybl.openrao.data.crac.io.cim.xsd.MonitoredSeries;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.usagerule.OnFlowConstraintInCountryAdder;
-import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
 import com.powsybl.openrao.data.crac.io.cim.parameters.CimCracCreationParameters;
+import com.powsybl.openrao.data.crac.io.cim.xsd.*;
 import com.powsybl.openrao.data.crac.io.commons.OpenRaoImportException;
-import com.powsybl.glsk.commons.CountryEICode;
-import com.powsybl.iidm.network.Country;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.openrao.data.crac.io.cim.xsd.RemedialActionRegisteredResource;
-import com.powsybl.openrao.data.crac.io.cim.xsd.RemedialActionSeries;
-import com.powsybl.openrao.data.crac.io.cim.xsd.Series;
-import com.powsybl.openrao.data.crac.io.cim.xsd.TimeSeries;
+import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
@@ -125,7 +121,13 @@ public class RemedialActionSeriesCreator {
         // Do not import a series with an ill-defined additional constraint series
         boolean illDefinedAdditionalConstraintSeries = readAdditionalConstraintSeries(cimSerie);
         if (illDefinedContingencies) {
-            cimSerie.getRemedialActionSeries().forEach(remedialActionSeries -> this.remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(remedialActionSeries.getMRID(), ImportStatus.INCONSISTENCY_IN_DATA, String.format("This RA is not imported because it is only associated to invalid contingencies %s", invalidContingencies))));
+            cimSerie.getRemedialActionSeries().forEach(remedialActionSeries ->
+                this.remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(
+                    remedialActionSeries.getMRID(),
+                    ImportStatus.INCONSISTENCY_IN_DATA,
+                    String.format("This RA is not imported because it is only associated to invalid contingencies %s", invalidContingencies)
+                ))
+            );
             return true;
         }
         return !illDefinedAdditionalConstraintSeries;
@@ -138,12 +140,25 @@ public class RemedialActionSeriesCreator {
     private boolean readAdditionalConstraintSeries(Series cimSerie) {
         if (!cimSerie.getAdditionalConstraintSeries().isEmpty()) {
             if (isAValidAngleCnecSeries(cimSerie)) {
-                AdditionalConstraintSeriesCreator additionalConstraintSeriesCreator = new AdditionalConstraintSeriesCreator(crac, network, cimSerie.getAdditionalConstraintSeries().get(0), contingencies.get(0).getId(), cimSerie.getMRID(), cracCreationContext);
+                AdditionalConstraintSeriesCreator additionalConstraintSeriesCreator = new AdditionalConstraintSeriesCreator(
+                    crac,
+                    network,
+                    cimSerie.getAdditionalConstraintSeries().get(0),
+                    contingencies.get(0).getId(),
+                    cimSerie.getMRID(),
+                    cracCreationContext
+                );
                 this.cnecs.add(additionalConstraintSeriesCreator.createAndAddAdditionalConstraintSeries());
                 // If angle cnec import has failed, create failed RemedialActionSeriesCreationContexts for associated remedial actions.
-                if (cracCreationContext.getAngleCnecCreationContexts().stream().anyMatch(context -> context.getSerieId().equals(cimSerie.getMRID()) && !context.isImported())) {
+                boolean angleCnecImportHasFailed = cracCreationContext.getAngleCnecCreationContexts().stream()
+                    .anyMatch(context -> context.getSerieId().equals(cimSerie.getMRID()) && !context.isImported());
+                if (angleCnecImportHasFailed) {
                     for (RemedialActionSeries remedialActionSeries : cimSerie.getRemedialActionSeries()) {
-                        remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(remedialActionSeries.getMRID(), ImportStatus.INCONSISTENCY_IN_DATA, "Associated angle cnec could not be imported"));
+                        remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(
+                            remedialActionSeries.getMRID(),
+                            ImportStatus.INCONSISTENCY_IN_DATA,
+                            "Associated angle cnec could not be imported"
+                        ));
                     }
                     return false;
                 }
@@ -164,10 +179,18 @@ public class RemedialActionSeriesCreator {
             && contingencies.size() == 1 && invalidContingencies.isEmpty()) {
             return true;
         } else if (cimSerie.getAdditionalConstraintSeries().size() > 1) {
-            remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(cimSerie.getMRID(), ImportStatus.INCONSISTENCY_IN_DATA, String.format("Angle cnec series has too many (%s) additional constraint series", cimSerie.getAdditionalConstraintSeries().size())));
+            remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(
+                cimSerie.getMRID(),
+                ImportStatus.INCONSISTENCY_IN_DATA,
+                String.format("Angle cnec series has too many (%s) additional constraint series", cimSerie.getAdditionalConstraintSeries().size())
+            ));
             return false;
         } else {
-            remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(cimSerie.getMRID(), ImportStatus.INCONSISTENCY_IN_DATA, "Angle cnec series has an ill defined contingency series"));
+            remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(
+                cimSerie.getMRID(),
+                ImportStatus.INCONSISTENCY_IN_DATA,
+                "Angle cnec series has an ill defined contingency series"
+            ));
             return false;
         }
     }
@@ -181,10 +204,10 @@ public class RemedialActionSeriesCreator {
         for (MonitoredSeries monitoredSeries : cimSerie.getMonitoredSeries()) {
             Set<FlowCnec> flowCnecsForMs = getFlowCnecsFromCrac(monitoredSeries, cracCreationContext);
             if (!cimSerie.getContingencySeries().isEmpty()) {
-                flowCnecsForMs = flowCnecsForMs.stream().filter(
-                    flowCnec -> flowCnec.getState().getContingency().isPresent()
-                        && contingencies.contains(flowCnec.getState().getContingency().get())
-                ).collect(Collectors.toSet());
+                flowCnecsForMs = flowCnecsForMs.stream()
+                    .filter(flowCnec -> flowCnec.getState().getContingency().isPresent()
+                        && contingencies.contains(flowCnec.getState().getContingency().get()))
+                    .collect(Collectors.toSet());
             }
             flowCnecsFromMsAndCs.addAll(flowCnecsForMs);
         }
@@ -234,7 +257,11 @@ public class RemedialActionSeriesCreator {
         sharedDomain = null;
         if (shouldReadSharedDomain && !remedialActionSeries.getSharedDomain().isEmpty()) {
             if (remedialActionSeries.getSharedDomain().size() > 1) {
-                remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.NOT_YET_HANDLED_BY_OPEN_RAO, "RemedialActionSeries with multiple SharedDomain are not supported"));
+                remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(
+                    createdRemedialActionId,
+                    ImportStatus.NOT_YET_HANDLED_BY_OPEN_RAO,
+                    "RemedialActionSeries with multiple SharedDomain are not supported"
+                ));
                 return;
             }
             sharedDomain = new CountryEICode(remedialActionSeries.getSharedDomain().get(0).getMRID().getValue()).getCountry();
@@ -243,7 +270,11 @@ public class RemedialActionSeriesCreator {
         // --- Registered Resources
         List<RemedialActionRegisteredResource> remedialActionRegisteredResources = remedialActionSeries.getRegisteredResource();
         if (remedialActionRegisteredResources.isEmpty()) {
-            remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCOMPLETE_DATA, "Missing registered resource"));
+            remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(
+                createdRemedialActionId,
+                ImportStatus.INCOMPLETE_DATA,
+                "Missing registered resource"
+            ));
             return;
         }
 
@@ -273,13 +304,21 @@ public class RemedialActionSeriesCreator {
         for (RemedialActionRegisteredResource remedialActionRegisteredResource : remedialActionRegisteredResources) {
             String psrType = remedialActionRegisteredResource.getPSRTypePsrType();
             if (Objects.isNull(psrType)) {
-                remedialActionSeriesCreationContexts.add(PstRangeActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCOMPLETE_DATA, "Missing psrType"));
+                remedialActionSeriesCreationContexts.add(PstRangeActionSeriesCreationContext.notImported(
+                    createdRemedialActionId,
+                    ImportStatus.INCOMPLETE_DATA,
+                    "Missing psrType"
+                ));
                 return true;
             }
             // ------ PST Range Action
             if (psrType.equals(PsrType.PST.getStatus()) && Objects.isNull(remedialActionRegisteredResource.getResourceCapacityDefaultCapacity())) {
                 if (remedialActionRegisteredResources.size() > 1) {
-                    remedialActionSeriesCreationContexts.add(PstRangeActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, String.format("> 1 registered resources (%s) with at least one PST Range Action defined", remedialActionRegisteredResources.size())));
+                    remedialActionSeriesCreationContexts.add(PstRangeActionSeriesCreationContext.notImported(
+                        createdRemedialActionId,
+                        ImportStatus.INCONSISTENCY_IN_DATA,
+                        String.format("> 1 registered resources (%s) with at least one PST Range Action defined", remedialActionRegisteredResources.size())
+                    ));
                     return true;
                 }
                 if (!pstRangeActionCreators.containsKey(createdRemedialActionId)
@@ -290,7 +329,11 @@ public class RemedialActionSeriesCreator {
                 } else {
                     // Some remedial actions can be defined in multiple Series in order to define multiple usage rules (eg on flow constraint on different CNECs)
                     // In this case, only import extra usage rules
-                    addExtraUsageRules(remedialActionSeries.getApplicationModeMarketObjectStatusStatus(), createdRemedialActionId, pstRangeActionCreators.get(createdRemedialActionId).getPstRangeActionAdder());
+                    addExtraUsageRules(
+                        remedialActionSeries.getApplicationModeMarketObjectStatusStatus(),
+                        createdRemedialActionId,
+                        pstRangeActionCreators.get(createdRemedialActionId).getPstRangeActionAdder()
+                    );
                 }
                 return true;
 
@@ -305,7 +348,11 @@ public class RemedialActionSeriesCreator {
                 crac, applicationModeMarketObjectStatus, adder, contingencies, invalidContingencies, cnecs, sharedDomain
             );
         } catch (OpenRaoImportException e) {
-            cracCreationContext.getCreationReport().warn(String.format("Extra usage rules for RA %s could not be imported: %s", remedialActionId, e.getMessage()));
+            cracCreationContext.getCreationReport().warn(String.format(
+                "Extra usage rules for RA %s could not be imported: %s",
+                remedialActionId,
+                e.getMessage()
+            ));
         }
     }
 
@@ -338,7 +385,11 @@ public class RemedialActionSeriesCreator {
         } else {
             // Some remedial actions can be defined in multiple Series in order to define multiple usage rules (eg on flow constraint on different CNECs)
             // In this case, only import extra usage rules
-            addExtraUsageRules(remedialActionSeries.getApplicationModeMarketObjectStatusStatus(), createdRemedialActionId, networkActionCreators.get(createdRemedialActionId).getNetworkActionAdder());
+            addExtraUsageRules(
+                remedialActionSeries.getApplicationModeMarketObjectStatusStatus(),
+                createdRemedialActionId,
+                networkActionCreators.get(createdRemedialActionId).getNetworkActionAdder()
+            );
         }
     }
 
@@ -348,16 +399,35 @@ public class RemedialActionSeriesCreator {
             return RemedialActionSeriesCreationContext.imported(createdRemedialActionId, false, "");
         } else {
             String contingencyList = StringUtils.join(invalidContingencies, ", ");
-            return RemedialActionSeriesCreationContext.imported(createdRemedialActionId, true, String.format("Contingencies %s were not imported", contingencyList));
+            return RemedialActionSeriesCreationContext.imported(
+                createdRemedialActionId,
+                true,
+                String.format("Contingencies %s were not imported", contingencyList)
+            );
         }
     }
 
-    public static RemedialActionSeriesCreationContext importPstRaWithContingencies(String createdRemedialActionId, String networkElementNativeMrid, String networkElementNativeName, List<String> invalidContingencies) {
+    public static RemedialActionSeriesCreationContext importPstRaWithContingencies(String createdRemedialActionId,
+                                                                                   String networkElementNativeMrid,
+                                                                                   String networkElementNativeName,
+                                                                                   List<String> invalidContingencies) {
         if (invalidContingencies.isEmpty()) {
-            return PstRangeActionSeriesCreationContext.imported(createdRemedialActionId, false, "", networkElementNativeMrid, networkElementNativeName);
+            return PstRangeActionSeriesCreationContext.imported(
+                createdRemedialActionId,
+                false,
+                "",
+                networkElementNativeMrid,
+                networkElementNativeName
+            );
         } else {
             String contingencyList = StringUtils.join(invalidContingencies, ", ");
-            return PstRangeActionSeriesCreationContext.imported(createdRemedialActionId, true, String.format("Contingencies %s were not imported", contingencyList), networkElementNativeMrid, networkElementNativeName);
+            return PstRangeActionSeriesCreationContext.imported(
+                createdRemedialActionId,
+                true,
+                String.format("Contingencies %s were not imported", contingencyList),
+                networkElementNativeMrid,
+                networkElementNativeName
+            );
         }
     }
 
@@ -366,7 +436,10 @@ public class RemedialActionSeriesCreator {
             throw new OpenRaoImportException(ImportStatus.INCOMPLETE_DATA, "Missing unit symbol");
         }
         if (!unitSymbol.equals(PST_CAPACITY_UNIT_SYMBOL)) {
-            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Wrong unit symbol in its registered resource: %s", unitSymbol));
+            throw new OpenRaoImportException(
+                ImportStatus.INCONSISTENCY_IN_DATA,
+                String.format("Wrong unit symbol in its registered resource: %s", unitSymbol)
+            );
         }
     }
 
@@ -422,24 +495,39 @@ public class RemedialActionSeriesCreator {
             case PREVENTIVE:
                 if (Objects.nonNull(contingencies) && !contingencies.isEmpty()
                     || Objects.nonNull(invalidContingencies) && !invalidContingencies.isEmpty()) {
-                    throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, "Cannot create a preventive remedial action associated to a contingency");
+                    throw new OpenRaoImportException(
+                        ImportStatus.INCONSISTENCY_IN_DATA,
+                        "Cannot create a preventive remedial action associated to a contingency"
+                    );
                 }
                 break;
             case AUTO:
                 if (contingencies.isEmpty() && invalidContingencies.isEmpty()) {
-                    throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Cannot create a free-to-use remedial action at instant '%s'", instant));
+                    throw new OpenRaoImportException(
+                        ImportStatus.INCONSISTENCY_IN_DATA,
+                        String.format("Cannot create a free-to-use remedial action at instant '%s'", instant)
+                    );
                 }
                 if (contingencies.isEmpty()) {
-                    throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Contingencies are all invalid, and usage rule is on instant '%s'", instant));
+                    throw new OpenRaoImportException(
+                        ImportStatus.INCONSISTENCY_IN_DATA,
+                        String.format("Contingencies are all invalid, and usage rule is on instant '%s'", instant)
+                    );
                 }
                 break;
             case CURATIVE:
                 if (contingencies.isEmpty() && !invalidContingencies.isEmpty()) {
-                    throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Contingencies are all invalid, and usage rule is on instant '%s'", instant));
+                    throw new OpenRaoImportException(
+                        ImportStatus.INCONSISTENCY_IN_DATA,
+                        String.format("Contingencies are all invalid, and usage rule is on instant '%s'", instant)
+                    );
                 }
                 break;
             default:
-                throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, String.format("Cannot add usage rule on instant '%s'", instant));
+                throw new OpenRaoImportException(
+                    ImportStatus.INCONSISTENCY_IN_DATA,
+                    String.format("Cannot add usage rule on instant '%s'", instant)
+                );
         }
     }
 
@@ -471,7 +559,10 @@ public class RemedialActionSeriesCreator {
             .add();
     }
 
-    private static void addOnFlowConstraintInCountryUsageRule(RemedialActionAdder<?> remedialActionAdder, List<Contingency> contingencies, Country sharedDomain, Instant instant) {
+    private static void addOnFlowConstraintInCountryUsageRule(RemedialActionAdder<?> remedialActionAdder,
+                                                              List<Contingency> contingencies,
+                                                              Country sharedDomain,
+                                                              Instant instant) {
         OnFlowConstraintInCountryAdder<?> onFlowConstraintInCountryAdder = remedialActionAdder
             .newOnFlowConstraintInCountryUsageRule()
             .withInstant(instant.getId())
@@ -497,7 +588,11 @@ public class RemedialActionSeriesCreator {
                 }
             }
             if (!statusOk) {
-                remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(cimSerie.getMRID(), ImportStatus.INCONSISTENCY_IN_DATA, String.format("Wrong optimization status: %s", optimizationStatus)));
+                remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(
+                    cimSerie.getMRID(),
+                    ImportStatus.INCONSISTENCY_IN_DATA,
+                    String.format("Wrong optimization status: %s", optimizationStatus)
+                ));
                 return false;
             }
         }
@@ -506,7 +601,11 @@ public class RemedialActionSeriesCreator {
 
     private boolean checkBusinessType(String createdRemedialActionId, String businessType) {
         if (Objects.isNull(businessType) || !businessType.equals(BUSINESS_TYPE_IN_REMEDIALACTION_SERIES)) {
-            remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, String.format("Wrong businessType: %s", businessType)));
+            remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(
+                createdRemedialActionId,
+                ImportStatus.INCONSISTENCY_IN_DATA,
+                String.format("Wrong businessType: %s", businessType)
+            ));
             return false;
         }
         return true;
@@ -514,7 +613,11 @@ public class RemedialActionSeriesCreator {
 
     private boolean checkApplicationModeMarketObjectStatus(String createdRemedialActionId, String applicationModeMarketObjectStatus) {
         if (Objects.isNull(applicationModeMarketObjectStatus)) {
-            remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCOMPLETE_DATA, "Missing applicationMode MarketObjectStatus"));
+            remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(
+                createdRemedialActionId,
+                ImportStatus.INCOMPLETE_DATA,
+                "Missing applicationMode MarketObjectStatus"
+            ));
             return false;
         }
         for (ApplicationModeMarketObjectStatus value : ApplicationModeMarketObjectStatus.values()) {
@@ -522,22 +625,38 @@ public class RemedialActionSeriesCreator {
                 return true;
             }
         }
-        remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, String.format("Wrong applicationMode_MarketObjectStatus: %s", applicationModeMarketObjectStatus)));
+        remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(
+            createdRemedialActionId,
+            ImportStatus.INCONSISTENCY_IN_DATA,
+            String.format("Wrong applicationMode_MarketObjectStatus: %s", applicationModeMarketObjectStatus)
+        ));
         return false;
     }
 
     private boolean checkAvailabilityMarketObjectStatus(String createdRemedialActionId, String availabilityMarketObjectStatus) {
         if (Objects.isNull(availabilityMarketObjectStatus)) {
-            remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCOMPLETE_DATA, "Missing availabilityMarketObjectStatus"));
+            remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(
+                createdRemedialActionId,
+                ImportStatus.INCOMPLETE_DATA,
+                "Missing availabilityMarketObjectStatus"
+            ));
             return false;
         }
         // A38 not handled by Open RAO.
         if (availabilityMarketObjectStatus.equals(AvailabilityMarketObjectStatus.SHALL_BE_USED.getStatus())) {
-            remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.NOT_YET_HANDLED_BY_OPEN_RAO, String.format("Wrong availabilityMarketObjectStatus: %s", availabilityMarketObjectStatus)));
+            remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(
+                createdRemedialActionId,
+                ImportStatus.NOT_YET_HANDLED_BY_OPEN_RAO,
+                String.format("Wrong availabilityMarketObjectStatus: %s", availabilityMarketObjectStatus)
+            ));
             return false;
         }
         if (!availabilityMarketObjectStatus.equals(AvailabilityMarketObjectStatus.MIGHT_BE_USED.getStatus())) {
-            remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(createdRemedialActionId, ImportStatus.INCONSISTENCY_IN_DATA, String.format("Wrong availabilityMarketObjectStatus: %s", availabilityMarketObjectStatus)));
+            remedialActionSeriesCreationContexts.add(RemedialActionSeriesCreationContext.notImported(
+                createdRemedialActionId,
+                ImportStatus.INCONSISTENCY_IN_DATA,
+                String.format("Wrong availabilityMarketObjectStatus: %s", availabilityMarketObjectStatus)
+            ));
             return false;
         }
         return true;

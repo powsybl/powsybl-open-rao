@@ -7,15 +7,15 @@
 
 package com.powsybl.openrao.data.raoresult.io.json.serializers;
 
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
-import com.fasterxml.jackson.core.JsonGenerator;
-import static com.powsybl.openrao.commons.MeasurementRounding.roundValueBasedOnMargin;
 
 import java.io.IOException;
 import java.util.Objects;
 
+import static com.powsybl.openrao.commons.MeasurementRounding.roundValueBasedOnMargin;
 import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.*;
 
 /**

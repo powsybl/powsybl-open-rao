@@ -15,8 +15,8 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
-import com.powsybl.openrao.data.raoresult.api.TimeCoupledRaoResult;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.data.raoresult.api.TimeCoupledRaoResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -70,7 +70,15 @@ class JsonTimeCoupledRaoResultSerializerTest {
         Mockito.when(globalLinearOptimizationResult.getVirtualCost("min-margin-violation-evaluator")).thenReturn(0.0);
         Mockito.when(globalLinearOptimizationResult.getVirtualCost("sensitivity-failure-cost")).thenReturn(0.0);
 
-        timeCoupledRaoResult = new TimeCoupledRaoResultImpl(initialLinearOptimizationResult, globalLinearOptimizationResult, new TemporalDataImpl<>(Map.of(timestamp1, raoResult1, timestamp2, raoResult2, timestamp3, raoResult3)));
+        timeCoupledRaoResult = new TimeCoupledRaoResultImpl(
+            initialLinearOptimizationResult,
+            globalLinearOptimizationResult,
+            new TemporalDataImpl<>(Map.of(
+                timestamp1, raoResult1,
+                timestamp2, raoResult2,
+                timestamp3, raoResult3
+            ))
+        );
 
     }
 

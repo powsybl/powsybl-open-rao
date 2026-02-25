@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.commons.optimizationperimeters;
 
+import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.State;
@@ -17,7 +18,6 @@ import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
-import com.powsybl.iidm.network.Network;
 
 import java.util.Map;
 import java.util.Set;
@@ -63,7 +63,12 @@ public class CurativeOptimizationPerimeter extends AbstractOptimizationPerimeter
             availableRangeActions);
     }
 
-    public static CurativeOptimizationPerimeter buildForStates(State curativeState, Set<State> allMonitoredStates, Crac crac, Network network, RaoParameters raoParameters, PrePerimeterResult prePerimeterResult) {
+    public static CurativeOptimizationPerimeter buildForStates(State curativeState,
+                                                               Set<State> allMonitoredStates,
+                                                               Crac crac,
+                                                               Network network,
+                                                               RaoParameters raoParameters,
+                                                               PrePerimeterResult prePerimeterResult) {
         Set<RangeAction<?>> rangeActions = crac.getRangeActions(curativeState);
 
         Set<State> filteredStates = allMonitoredStates.stream()

@@ -7,21 +7,13 @@
 
 package com.powsybl.openrao.data.crac.util;
 
-import com.powsybl.openrao.data.crac.api.Crac;
-import com.powsybl.openrao.data.crac.api.Instant;
-import com.powsybl.openrao.data.crac.api.InstantKind;
-import com.powsybl.openrao.data.crac.api.RemedialAction;
-import com.powsybl.openrao.data.crac.api.State;
-import com.powsybl.openrao.data.crac.api.usagerule.OnConstraint;
-import com.powsybl.openrao.data.crac.api.usagerule.OnContingencyState;
-import com.powsybl.openrao.data.crac.api.usagerule.OnFlowConstraintInCountry;
-import com.powsybl.openrao.data.crac.api.usagerule.OnInstant;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.openrao.data.crac.api.*;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnecAdder;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.threshold.BranchThresholdAdder;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.data.crac.api.usagerule.*;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -104,7 +96,11 @@ public final class CracValidator {
     }
 
     private static <T extends RemedialAction<?>> boolean hasOnInstantOrOnStateUsageRules(Set<T> remedialActionSet) {
-        return remedialActionSet.stream().anyMatch(rangeAction -> rangeAction.getUsageRules().stream().anyMatch(usageRule -> usageRule instanceof OnInstant || usageRule instanceof OnContingencyState));
+        // returns true if at least one remedial action has at least one OnInstant or OnContingencyState usage rule
+        return remedialActionSet.stream()
+            .anyMatch(rangeAction -> rangeAction.getUsageRules().stream()
+                .anyMatch(usageRule -> usageRule instanceof OnInstant || usageRule instanceof OnContingencyState)
+            );
     }
 
     private static void copyThresholds(FlowCnec cnec, FlowCnecAdder adder) {

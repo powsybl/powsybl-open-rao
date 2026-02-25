@@ -10,24 +10,20 @@ package com.powsybl.openrao.data.crac.io.nc.craccreator.contingency;
 import com.powsybl.contingency.ContingencyElementFactory;
 import com.powsybl.contingency.ContingencyElementType;
 import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.data.crac.api.ContingencyAdder;
 import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.io.commons.OpenRaoImportException;
 import com.powsybl.openrao.data.crac.io.commons.api.ElementaryCreationContext;
 import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
 import com.powsybl.openrao.data.crac.io.commons.api.StandardElementaryCreationContext;
 import com.powsybl.openrao.data.crac.io.nc.NcCrac;
 import com.powsybl.openrao.data.crac.io.nc.craccreator.NcAggregator;
 import com.powsybl.openrao.data.crac.io.nc.craccreator.NcCracCreationContext;
-import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.data.crac.io.nc.objects.Contingency;
 import com.powsybl.openrao.data.crac.io.nc.objects.ContingencyEquipment;
-import com.powsybl.openrao.data.crac.io.commons.OpenRaoImportException;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Jean-Pierre Arnould {@literal <jean-pierre.arnould at rte-france.com>}
@@ -62,7 +58,8 @@ public class NcContingencyCreator {
             try {
                 addContingency(nativeContingency, nativeContingencyEquipments);
             } catch (OpenRaoImportException exception) {
-                ncProfileContingencyCreationContexts.add(StandardElementaryCreationContext.notImported(nativeContingency.mrid(), null, exception.getImportStatus(), exception.getMessage()));
+                ncProfileContingencyCreationContexts.add(StandardElementaryCreationContext.notImported(
+                    nativeContingency.mrid(), null, exception.getImportStatus(), exception.getMessage()));
             }
         }
 
@@ -80,12 +77,16 @@ public class NcContingencyCreator {
         addContingencyEquipments(nativeContingency.mrid(), nativeContingencyEquipments, contingencyAdder, alterations);
         contingencyAdder.add();
 
-        ncProfileContingencyCreationContexts.add(StandardElementaryCreationContext.imported(nativeContingency.mrid(), null, nativeContingency.mrid(), !alterations.isEmpty(), String.join(" ", alterations)));
+        ncProfileContingencyCreationContexts.add(StandardElementaryCreationContext.imported(
+            nativeContingency.mrid(), null, nativeContingency.mrid(), !alterations.isEmpty(), String.join(" ", alterations)));
     }
 
     private void addContingencyEquipments(String contingencyId, Set<ContingencyEquipment> nativeContingencyEquipments, ContingencyAdder contingencyAdder, List<String> alterations) {
         if (nativeContingencyEquipments == null || nativeContingencyEquipments.isEmpty()) {
-            throw new OpenRaoImportException(ImportStatus.INCOMPLETE_DATA, formatNotImportedMessage(contingencyId, "no contingency equipment is linked to that contingency"));
+            throw new OpenRaoImportException(
+                ImportStatus.INCOMPLETE_DATA,
+                formatNotImportedMessage(contingencyId, "no contingency equipment is linked to that contingency")
+            );
         }
 
         List<String> incorrectContingentStatusElements = new ArrayList<>();
@@ -110,11 +111,17 @@ public class NcContingencyCreator {
         missingNetworkElements.sort(String::compareTo);
 
         if (incorrectContingentStatusElements.size() == nativeContingencyEquipments.size()) {
-            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, formatNotImportedMessage(contingencyId, "all contingency equipments have an incorrect contingent status: %s".formatted(String.join(", ", incorrectContingentStatusElements))));
+            throw new OpenRaoImportException(
+                ImportStatus.INCONSISTENCY_IN_DATA,
+                formatNotImportedMessage(contingencyId, "all contingency equipments have an incorrect contingent status: %s".formatted(String.join(", ", incorrectContingentStatusElements)))
+            );
         }
 
         if (missingNetworkElements.size() == nativeContingencyEquipments.size()) {
-            throw new OpenRaoImportException(ImportStatus.INCONSISTENCY_IN_DATA, formatNotImportedMessage(contingencyId, "all contingency equipments are missing in the network: %s".formatted(String.join(", ", missingNetworkElements))));
+            throw new OpenRaoImportException(
+                ImportStatus.INCONSISTENCY_IN_DATA,
+                formatNotImportedMessage(contingencyId, "all contingency equipments are missing in the network: %s".formatted(String.join(", ", missingNetworkElements)))
+            );
         }
 
         if (!incorrectContingentStatusElements.isEmpty()) {

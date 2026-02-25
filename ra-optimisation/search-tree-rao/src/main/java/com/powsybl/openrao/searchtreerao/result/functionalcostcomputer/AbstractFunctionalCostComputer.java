@@ -7,7 +7,8 @@
 
 package com.powsybl.openrao.searchtreerao.result.functionalcostcomputer;
 
-import com.powsybl.openrao.data.crac.api.*;
+import com.powsybl.openrao.data.crac.api.Instant;
+import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.searchtreerao.result.api.ObjectiveFunctionResult;
 
 import java.util.Map;

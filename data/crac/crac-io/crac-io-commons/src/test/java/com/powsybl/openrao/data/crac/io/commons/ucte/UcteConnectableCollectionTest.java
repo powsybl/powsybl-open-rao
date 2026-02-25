@@ -7,8 +7,8 @@
 
 package com.powsybl.openrao.data.crac.io.commons.ucte;
 
-import com.powsybl.openrao.data.crac.io.commons.ConnectableType;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.data.crac.io.commons.ConnectableType;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -400,18 +400,24 @@ class UcteConnectableCollectionTest {
     void testMatchPriority() {
         init("TestCase_severalVoltageLevels_Xnodes_8characters_priority.uct");
 
-        UcteNetworkAnalyzerProperties ucteNetworkAnalyzerProperties = new UcteNetworkAnalyzerProperties(UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WHITESPACES, UcteNetworkAnalyzerProperties.SuffixMatchPriority.ALL);
+        UcteNetworkAnalyzerProperties ucteNetworkAnalyzerProperties = new UcteNetworkAnalyzerProperties(
+            UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WHITESPACES, UcteNetworkAnalyzerProperties.SuffixMatchPriority.ALL
+        );
         UcteMatchingResult result = ucteConnectableCollection.lookForConnectable("DDE1AA12", "DDE2AA11", "1", ucteNetworkAnalyzerProperties, ConnectableType.INTERNAL_LINE);
         assertTrue(result.hasMatched());
         assertEquals(UcteMatchingResult.MatchStatus.SEVERAL_MATCH, result.getStatus());
 
-        ucteNetworkAnalyzerProperties = new UcteNetworkAnalyzerProperties(UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WHITESPACES, UcteNetworkAnalyzerProperties.SuffixMatchPriority.ORDERCODE_BEFORE_NAME);
+        ucteNetworkAnalyzerProperties = new UcteNetworkAnalyzerProperties(
+            UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WHITESPACES, UcteNetworkAnalyzerProperties.SuffixMatchPriority.ORDERCODE_BEFORE_NAME
+        );
         result = ucteConnectableCollection.lookForConnectable("DDE1AA12", "DDE2AA11", "1", ucteNetworkAnalyzerProperties, ConnectableType.INTERNAL_LINE);
         assertTrue(result.hasMatched());
         assertEquals(UcteMatchingResult.MatchStatus.SINGLE_MATCH, result.getStatus());
         assertSame(network.getIdentifiable("DDE1AA12 DDE2AA11 1"), result.getIidmIdentifiable());
 
-        ucteNetworkAnalyzerProperties = new UcteNetworkAnalyzerProperties(UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WHITESPACES, UcteNetworkAnalyzerProperties.SuffixMatchPriority.NAME_BEFORE_ORDERCODE);
+        ucteNetworkAnalyzerProperties = new UcteNetworkAnalyzerProperties(
+            UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WHITESPACES, UcteNetworkAnalyzerProperties.SuffixMatchPriority.NAME_BEFORE_ORDERCODE
+        );
         result = ucteConnectableCollection.lookForConnectable("DDE1AA12", "DDE2AA11", "1", ucteNetworkAnalyzerProperties, ConnectableType.INTERNAL_LINE);
         assertTrue(result.hasMatched());
         assertEquals(UcteMatchingResult.MatchStatus.SINGLE_MATCH, result.getStatus());

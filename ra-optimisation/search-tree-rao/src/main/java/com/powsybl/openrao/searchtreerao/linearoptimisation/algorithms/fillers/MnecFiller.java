@@ -7,12 +7,13 @@
 
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers;
 
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Identifiable;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
+import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPConstraint;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPVariable;
-import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
 import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
@@ -90,29 +91,54 @@ public class MnecFiller implements ProblemFiller {
      * </p>
      */
     private void buildMnecMarginConstraints(LinearProblem linearProblem, Set<FlowCnec> validMonitoredCnecs) {
-        validMonitoredCnecs.forEach(mnec -> mnec.getMonitoredSides().forEach(side -> {
+        for (FlowCnec mnec : validMonitoredCnecs) {
+            for (TwoSides side : mnec.getMonitoredSides()) {
                 double mnecInitialFlow = initialFlowResult.getFlow(mnec, side, unit);
 
                 OpenRaoMPVariable flowVariable = linearProblem.getFlowVariable(mnec, side, Optional.ofNullable(timestamp));
-                OpenRaoMPVariable mnecViolationVariable = linearProblem.getMnecViolationVariable(mnec, side, Optional.ofNullable(timestamp));
+                OpenRaoMPVariable mnecViolationVariable = linearProblem.getMnecViolationVariable(
+                    mnec,
+                    side,
+                    Optional.ofNullable(timestamp)
+                );
 
                 Optional<Double> maxFlow = mnec.getUpperBound(side, unit);
                 if (maxFlow.isPresent()) {
-                    double ub = Math.max(maxFlow.get(), mnecInitialFlow + mnecAcceptableMarginDecrease) - mnecConstraintAdjustmentCoefficient;
-                    OpenRaoMPConstraint maxConstraint = linearProblem.addMnecFlowConstraint(-linearProblem.infinity(), ub, mnec, side, LinearProblem.MarginExtension.BELOW_THRESHOLD, Optional.ofNullable(timestamp));
+                    double ub = Math.max(
+                        maxFlow.get(),
+                        mnecInitialFlow + mnecAcceptableMarginDecrease
+                    ) - mnecConstraintAdjustmentCoefficient;
+                    OpenRaoMPConstraint maxConstraint = linearProblem.addMnecFlowConstraint(
+                        -linearProblem.infinity(),
+                        ub,
+                        mnec,
+                        side,
+                        LinearProblem.MarginExtension.BELOW_THRESHOLD,
+                        Optional.ofNullable(timestamp)
+                    );
                     maxConstraint.setCoefficient(flowVariable, 1);
                     maxConstraint.setCoefficient(mnecViolationVariable, -1);
                 }
 
                 Optional<Double> minFlow = mnec.getLowerBound(side, unit);
                 if (minFlow.isPresent()) {
-                    double lb = Math.min(minFlow.get(), mnecInitialFlow - mnecAcceptableMarginDecrease) + mnecConstraintAdjustmentCoefficient;
-                    OpenRaoMPConstraint maxConstraint = linearProblem.addMnecFlowConstraint(lb, linearProblem.infinity(), mnec, side, LinearProblem.MarginExtension.ABOVE_THRESHOLD, Optional.ofNullable(timestamp));
+                    double lb = Math.min(
+                        minFlow.get(),
+                        mnecInitialFlow - mnecAcceptableMarginDecrease
+                    ) + mnecConstraintAdjustmentCoefficient;
+                    OpenRaoMPConstraint maxConstraint = linearProblem.addMnecFlowConstraint(
+                        lb,
+                        linearProblem.infinity(),
+                        mnec,
+                        side,
+                        LinearProblem.MarginExtension.ABOVE_THRESHOLD,
+                        Optional.ofNullable(timestamp)
+                    );
                     maxConstraint.setCoefficient(flowVariable, 1);
                     maxConstraint.setCoefficient(mnecViolationVariable, 1);
                 }
             }
-        ));
+        }
     }
 
     public void fillObjectiveWithMnecPenaltyCost(LinearProblem linearProblem, Set<FlowCnec> validMonitoredCnecs) {

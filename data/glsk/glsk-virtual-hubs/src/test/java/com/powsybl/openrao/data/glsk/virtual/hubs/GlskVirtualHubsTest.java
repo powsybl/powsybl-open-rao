@@ -7,11 +7,11 @@
 
 package com.powsybl.openrao.data.glsk.virtual.hubs;
 
+import com.powsybl.glsk.commons.ZonalData;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.virtualhubs.MarketArea;
 import com.powsybl.openrao.virtualhubs.VirtualHub;
 import com.powsybl.openrao.virtualhubs.VirtualHubsConfiguration;
-import com.powsybl.glsk.commons.ZonalData;
-import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

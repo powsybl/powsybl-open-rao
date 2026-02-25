@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.raoresult.io.json.serializers;
 
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
@@ -14,7 +15,6 @@ import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
-import com.fasterxml.jackson.core.JsonGenerator;
 import org.apache.commons.lang3.function.TriFunction;
 
 import java.io.IOException;
@@ -70,7 +70,10 @@ final class VoltageCnecResultArraySerializer {
         }
     }
 
-    private static void serializeVoltageCnecResultForOptimizationState(Instant optInstant, VoltageCnec voltageCnec, RaoResult raoResult, JsonGenerator jsonGenerator) throws IOException {
+    private static void serializeVoltageCnecResultForOptimizationState(Instant optInstant,
+                                                                       VoltageCnec voltageCnec,
+                                                                       RaoResult raoResult,
+                                                                       JsonGenerator jsonGenerator) throws IOException {
 
         if (containsAnyResultForOptimizationState(raoResult, voltageCnec, optInstant)) {
             jsonGenerator.writeObjectFieldStart(serializeInstantId(optInstant));
@@ -79,7 +82,11 @@ final class VoltageCnecResultArraySerializer {
         }
     }
 
-    private static void serializeVoltageCnecResultForOptimizationStateAndUnit(Instant optInstant, Unit unit, VoltageCnec voltageCnec, RaoResult raoResult, JsonGenerator jsonGenerator) throws IOException {
+    private static void serializeVoltageCnecResultForOptimizationStateAndUnit(Instant optInstant,
+                                                                              Unit unit,
+                                                                              VoltageCnec voltageCnec,
+                                                                              RaoResult raoResult,
+                                                                              JsonGenerator jsonGenerator) throws IOException {
 
         double minVoltage = safeGetMinVoltage(raoResult, voltageCnec, optInstant, unit);
         double maxVoltage = safeGetMaxVoltage(raoResult, voltageCnec, optInstant, unit);
@@ -107,7 +114,8 @@ final class VoltageCnecResultArraySerializer {
             return containsAnyResultForOptimizationState(raoResult, voltageCnec, null) ||
                 containsAnyResultForOptimizationState(raoResult, voltageCnec, crac.getPreventiveInstant()) ||
                 containsAnyResultForOptimizationState(raoResult, voltageCnec, crac.getInstant(InstantKind.AUTO)) ||
-                crac.getInstants(InstantKind.CURATIVE).stream().anyMatch(curativeInstant -> containsAnyResultForOptimizationState(raoResult, voltageCnec, curativeInstant));
+                crac.getInstants(InstantKind.CURATIVE).stream()
+                    .anyMatch(curativeInstant -> containsAnyResultForOptimizationState(raoResult, voltageCnec, curativeInstant));
         }
     }
 

@@ -16,14 +16,10 @@ import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.range.RangeType;
 import com.powsybl.openrao.data.crac.api.range.StandardRange;
 import com.powsybl.openrao.data.crac.api.range.TapRange;
-import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
-import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
-import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
-import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
-import com.powsybl.openrao.data.crac.api.rangeaction.StandardRangeAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.*;
 import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
-import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.PstModel;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.*;
 import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.LinearProblem;
@@ -36,8 +32,8 @@ import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
 import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.tuple.Pair;
 
-import java.util.*;
 import java.time.OffsetDateTime;
+import java.util.*;
 
 import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters.*;
 
@@ -149,7 +145,11 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
      * on this Cnec.
      * F[c] = f_ref[c] + sum{r in RangeAction} sensitivity[c,r] * (S[r] - currentSetPoint[r])
      */
-    private void buildFlowConstraints(LinearProblem linearProblem, Set<FlowCnec> validFlowCnecs, FlowResult flowResult, SensitivityResult sensitivityResult, RangeActionActivationResult rangeActionActivationResult) {
+    private void buildFlowConstraints(LinearProblem linearProblem,
+                                      Set<FlowCnec> validFlowCnecs,
+                                      FlowResult flowResult,
+                                      SensitivityResult sensitivityResult,
+                                      RangeActionActivationResult rangeActionActivationResult) {
         validFlowCnecs.forEach(cnec -> cnec.getMonitoredSides().forEach(side -> {
             // create constraint
             double referenceFlow = flowResult.getFlow(cnec, side, unit); // get flow in the unit of the objective function
@@ -185,7 +185,14 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
         }
     }
 
-    private void addImpactOfRangeActionOnCnec(LinearProblem linearProblem, SensitivityResult sensitivityResult, RangeAction<?> rangeAction, State state, FlowCnec cnec, TwoSides side, OpenRaoMPConstraint flowConstraint, RangeActionActivationResult rangeActionActivationResult) {
+    private void addImpactOfRangeActionOnCnec(LinearProblem linearProblem,
+                                              SensitivityResult sensitivityResult,
+                                              RangeAction<?> rangeAction,
+                                              State state,
+                                              FlowCnec cnec,
+                                              TwoSides side,
+                                              OpenRaoMPConstraint flowConstraint,
+                                              RangeActionActivationResult rangeActionActivationResult) {
         double sensitivity = sensitivityResult.getSensitivityValue(cnec, side, rangeAction, unit);
 
         if (!isRangeActionSensitivityAboveThreshold(rangeAction, Math.abs(sensitivity))) {
@@ -235,7 +242,9 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
         }
         if (iteration > 0) {
             // don't shrink the range for the first iteration
-            optimizationContext.getRangeActionsPerState().forEach((state, rangeActionSet) -> rangeActionSet.forEach(rangeAction -> updateConstraintsForRangeAction(linearProblem, rangeAction, state, rangeActionActivationResult, iteration)));
+            optimizationContext.getRangeActionsPerState().forEach((state, rangeActionSet) ->
+                rangeActionSet.forEach(rangeAction -> updateConstraintsForRangeAction(linearProblem, rangeAction, state, rangeActionActivationResult, iteration))
+            );
         }
         iteration++;
     }
@@ -311,7 +320,8 @@ public abstract class AbstractCoreProblemFiller implements ProblemFiller {
 
             // relative range
             if (PstModel.CONTINUOUS.equals(pstModel) || !(rangeAction instanceof PstRangeAction)) {
-                OpenRaoMPConstraint relSetpointConstraint = linearProblem.addRangeActionRelativeSetpointConstraint(minRelativeSetpoint, maxRelativeSetpoint, rangeAction, state, LinearProblem.RaRangeShrinking.FALSE);
+                OpenRaoMPConstraint relSetpointConstraint = linearProblem.addRangeActionRelativeSetpointConstraint(
+                    minRelativeSetpoint, maxRelativeSetpoint, rangeAction, state, LinearProblem.RaRangeShrinking.FALSE);
                 relSetpointConstraint.setCoefficient(setPointVariable, 1);
                 relSetpointConstraint.setCoefficient(previousSetpointVariable, -1);
             }

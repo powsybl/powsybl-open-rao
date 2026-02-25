@@ -11,17 +11,6 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.TsoEICode;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.raoresult.io.cne.core.xsd.*;
-import com.powsybl.openrao.data.raoresult.io.cne.core.xsd.Analog;
-import com.powsybl.openrao.data.raoresult.io.cne.core.xsd.ConstraintSeries;
-import com.powsybl.openrao.data.raoresult.io.cne.core.xsd.ContingencySeries;
-import com.powsybl.openrao.data.raoresult.io.cne.core.xsd.MonitoredRegisteredResource;
-import com.powsybl.openrao.data.raoresult.io.cne.core.xsd.MonitoredSeries;
-import com.powsybl.openrao.data.raoresult.io.cne.core.xsd.PartyMarketParticipant;
-import com.powsybl.openrao.data.raoresult.io.cne.core.xsd.Point;
-import com.powsybl.openrao.data.raoresult.io.cne.core.xsd.RemedialActionRegisteredResource;
-import com.powsybl.openrao.data.raoresult.io.cne.core.xsd.RemedialActionSeries;
-import com.powsybl.openrao.data.raoresult.io.cne.core.xsd.SeriesPeriod;
-import com.powsybl.openrao.data.raoresult.io.cne.core.xsd.TimeSeries;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;

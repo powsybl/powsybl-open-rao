@@ -7,8 +7,8 @@
 
 package com.powsybl.openrao.data.crac.io.commons.ucte;
 
+import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.data.crac.io.commons.ConnectableType;
-import com.powsybl.iidm.network.*;
 
 /**
  * A utility class, that stores network information so as to speed up
@@ -42,17 +42,20 @@ public class UcteNetworkAnalyzer {
 
     public UcteMatchingResult findContingencyElement(String from, String to, String suffix) {
         return connectablesInNetwork.lookForConnectable(completeNodeName(from), completeNodeName(to), suffix, properties,
-                ConnectableType.INTERNAL_LINE, ConnectableType.TIE_LINE, ConnectableType.DANGLING_LINE, ConnectableType.VOLTAGE_TRANSFORMER, ConnectableType.PST, ConnectableType.HVDC, ConnectableType.SWITCH);
+            ConnectableType.INTERNAL_LINE, ConnectableType.TIE_LINE, ConnectableType.DANGLING_LINE,
+            ConnectableType.VOLTAGE_TRANSFORMER, ConnectableType.PST, ConnectableType.HVDC, ConnectableType.SWITCH);
     }
 
     public UcteMatchingResult findFlowElement(String from, String to, String suffix) {
         return connectablesInNetwork.lookForConnectable(completeNodeName(from), completeNodeName(to), suffix, properties,
-                ConnectableType.INTERNAL_LINE, ConnectableType.TIE_LINE, ConnectableType.DANGLING_LINE, ConnectableType.VOLTAGE_TRANSFORMER, ConnectableType.PST);
+            ConnectableType.INTERNAL_LINE, ConnectableType.TIE_LINE, ConnectableType.DANGLING_LINE,
+            ConnectableType.VOLTAGE_TRANSFORMER, ConnectableType.PST);
     }
 
     public UcteMatchingResult findTopologicalElement(String from, String to, String suffix) {
         return connectablesInNetwork.lookForConnectable(completeNodeName(from), completeNodeName(to), suffix, properties,
-                ConnectableType.INTERNAL_LINE, ConnectableType.TIE_LINE, ConnectableType.DANGLING_LINE, ConnectableType.VOLTAGE_TRANSFORMER, ConnectableType.PST, ConnectableType.SWITCH);
+            ConnectableType.INTERNAL_LINE, ConnectableType.TIE_LINE, ConnectableType.DANGLING_LINE,
+            ConnectableType.VOLTAGE_TRANSFORMER, ConnectableType.PST, ConnectableType.SWITCH);
     }
 
     public UcteMatchingResult findPstElement(String from, String to, String suffix) {

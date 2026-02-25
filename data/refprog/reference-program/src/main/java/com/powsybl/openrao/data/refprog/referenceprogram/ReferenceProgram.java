@@ -60,11 +60,16 @@ public class ReferenceProgram {
     }
 
     public double getExchange(EICode areaOrigin, EICode areaExtremity) {
-        List<ReferenceExchangeData> entries = referenceExchangeDataList.stream().filter(referenceExchangeData -> referenceExchangeData.isAreaOutToAreaInExchange(areaOrigin, areaExtremity)).toList();
+        List<ReferenceExchangeData> entries = referenceExchangeDataList.stream()
+            .filter(referenceExchangeData -> referenceExchangeData.isAreaOutToAreaInExchange(areaOrigin, areaExtremity))
+            .toList();
         if (!entries.isEmpty()) {
             return entries.stream().mapToDouble(ReferenceExchangeData::getFlow).sum();
         } else {
-            return -referenceExchangeDataList.stream().filter(referenceExchangeData -> referenceExchangeData.isAreaOutToAreaInExchange(areaExtremity, areaOrigin)).mapToDouble(ReferenceExchangeData::getFlow).sum();
+            return -referenceExchangeDataList.stream()
+                .filter(referenceExchangeData -> referenceExchangeData.isAreaOutToAreaInExchange(areaExtremity, areaOrigin))
+                .mapToDouble(ReferenceExchangeData::getFlow)
+                .sum();
         }
     }
 

@@ -9,13 +9,13 @@ package com.powsybl.openrao.data.crac.io.fbconstraint;
 
 import com.powsybl.contingency.ContingencyElementFactory;
 import com.powsybl.contingency.ContingencyElementType;
-import com.powsybl.openrao.data.crac.api.ContingencyAdder;
-import com.powsybl.openrao.data.crac.api.Crac;
-import com.powsybl.openrao.data.crac.io.fbconstraint.xsd.OutageType;
-import com.powsybl.openrao.data.crac.io.commons.ucte.UcteContingencyElementHelper;
-import com.powsybl.openrao.data.crac.io.commons.ucte.UcteNetworkAnalyzer;
 import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.data.crac.api.ContingencyAdder;
+import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.io.commons.ucte.UcteContingencyElementHelper;
+import com.powsybl.openrao.data.crac.io.commons.ucte.UcteNetworkAnalyzer;
+import com.powsybl.openrao.data.crac.io.fbconstraint.xsd.OutageType;
 
 import java.util.*;
 

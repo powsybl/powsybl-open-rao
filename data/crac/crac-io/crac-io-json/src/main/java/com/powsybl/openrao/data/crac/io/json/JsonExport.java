@@ -7,14 +7,14 @@
 
 package com.powsybl.openrao.data.crac.io.json;
 
-import com.powsybl.openrao.data.crac.io.json.serializers.CracJsonSerializerModule;
-import com.powsybl.openrao.data.crac.api.Crac;
-import com.powsybl.openrao.data.crac.api.io.Exporter;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.google.auto.service.AutoService;
+import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.io.Exporter;
+import com.powsybl.openrao.data.crac.io.json.serializers.CracJsonSerializerModule;
 
 import java.io.IOException;
 import java.io.OutputStream;

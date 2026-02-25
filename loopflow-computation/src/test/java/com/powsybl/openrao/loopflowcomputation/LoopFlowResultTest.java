@@ -7,18 +7,19 @@
 
 package com.powsybl.openrao.loopflowcomputation;
 
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.cnec.BranchCnec;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
-import com.powsybl.iidm.network.TwoSides;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -82,7 +83,7 @@ class LoopFlowResultTest {
         loopFlowResult.addCnecResult(cnec2, TwoSides.ONE, 1., 35., 3., Unit.AMPERE);
 
         // get CommercialFlows only consider FlowCnecs ! BranchCnecs that are not FlowCnecs ares filtered out (ie cnec here)
-        Map<FlowCnec, Map<TwoSides, Map<Unit, Double>>>commercialFlowsMap = loopFlowResult.getCommercialFlowsMap();
+        Map<FlowCnec, Map<TwoSides, Map<Unit, Double>>> commercialFlowsMap = loopFlowResult.getCommercialFlowsMap();
         assertEquals(2, commercialFlowsMap.size());
 
         assertEquals(2, commercialFlowsMap.get(cnec1).size());

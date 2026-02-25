@@ -7,12 +7,12 @@
 
 package com.powsybl.openrao.data.raoresult.io.json.deserializers;
 
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.impl.RaoResultImpl;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
 import com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants;
 
 import java.io.IOException;
@@ -30,7 +30,11 @@ final class ComputationStatusMapDeserializer {
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
             // COMPUTATION STATUS
             if (!jsonParser.nextFieldName().equals(RaoResultJsonConstants.COMPUTATION_STATUS)) {
-                throw new OpenRaoException(String.format("Cannot deserialize RaoResult: each %s must start with an %s field", RaoResultJsonConstants.COMPUTATION_STATUS_MAP, RaoResultJsonConstants.COMPUTATION_STATUS));
+                throw new OpenRaoException(String.format(
+                    "Cannot deserialize RaoResult: each %s must start with an %s field",
+                    RaoResultJsonConstants.COMPUTATION_STATUS_MAP,
+                    RaoResultJsonConstants.COMPUTATION_STATUS
+                ));
             }
             String computationStatus = jsonParser.nextTextValue();
             // STATE
@@ -46,10 +50,17 @@ final class ComputationStatusMapDeserializer {
                         contingencyId = jsonParser.nextTextValue();
                         break;
                     default:
-                        throw new OpenRaoException(String.format("Cannot deserialize RaoResult: unexpected field in %s (%s)", RaoResultJsonConstants.COMPUTATION_STATUS_MAP, jsonParser.getCurrentName()));
+                        throw new OpenRaoException(String.format(
+                            "Cannot deserialize RaoResult: unexpected field in %s (%s)",
+                            RaoResultJsonConstants.COMPUTATION_STATUS_MAP,
+                            jsonParser.getCurrentName()
+                        ));
                 }
             }
-            raoResult.setComputationStatus(StateDeserializer.getState(instantId, contingencyId, crac, RaoResultJsonConstants.COMPUTATION_STATUS_MAP), ComputationStatus.valueOf(computationStatus));
+            raoResult.setComputationStatus(
+                StateDeserializer.getState(instantId, contingencyId, crac, RaoResultJsonConstants.COMPUTATION_STATUS_MAP),
+                ComputationStatus.valueOf(computationStatus)
+            );
         }
     }
 }

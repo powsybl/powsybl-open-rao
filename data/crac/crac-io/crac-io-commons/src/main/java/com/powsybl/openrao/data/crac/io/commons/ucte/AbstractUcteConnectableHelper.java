@@ -134,7 +134,8 @@ public abstract class AbstractUcteConnectableHelper {
         if (ucteId.length() < UcteUtils.MIN_BRANCH_ID_LENGTH
                 || ucteId.length() > UcteUtils.MAX_BRANCH_ID_LENGTH) {
 
-            invalidate(format("UCTE branch id should contain %d to %d characters (NODE1ID_ NODE2_ID SUFFIX). This id is not valid: %s", UcteUtils.MIN_BRANCH_ID_LENGTH, UcteUtils.MAX_BRANCH_ID_LENGTH, ucteId));
+            invalidate(format("UCTE branch id should contain %d to %d characters (NODE1ID_ NODE2_ID SUFFIX). This id is not valid: %s",
+                UcteUtils.MIN_BRANCH_ID_LENGTH, UcteUtils.MAX_BRANCH_ID_LENGTH, ucteId));
             return false;
 
         } else if (!Character.isWhitespace(ucteId.charAt(UcteUtils.UCTE_NODE_LENGTH)) ||

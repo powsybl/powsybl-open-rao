@@ -12,10 +12,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Collection;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -26,7 +23,7 @@ class InstantTest {
         private final int order;
         private final InstantKind instantKind;
 
-        public InstantImplTest(int order, InstantKind instantKind) {
+        InstantImplTest(int order, InstantKind instantKind) {
             this.order = order;
             this.instantKind = instantKind;
         }

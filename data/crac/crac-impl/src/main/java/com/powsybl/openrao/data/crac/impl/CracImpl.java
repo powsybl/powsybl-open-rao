@@ -10,35 +10,11 @@ package com.powsybl.openrao.data.crac.impl;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
-import com.powsybl.openrao.data.crac.api.ContingencyAdder;
-import com.powsybl.openrao.data.crac.api.Crac;
-import com.powsybl.openrao.data.crac.api.Identifiable;
-import com.powsybl.openrao.data.crac.api.Instant;
-import com.powsybl.openrao.data.crac.api.InstantKind;
-import com.powsybl.openrao.data.crac.api.NetworkElement;
-import com.powsybl.openrao.data.crac.api.RaUsageLimits;
-import com.powsybl.openrao.data.crac.api.RaUsageLimitsAdder;
-import com.powsybl.openrao.data.crac.api.RemedialAction;
-import com.powsybl.openrao.data.crac.api.State;
-import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
-import com.powsybl.openrao.data.crac.api.cnec.AngleCnecAdder;
-import com.powsybl.openrao.data.crac.api.cnec.BranchCnec;
-import com.powsybl.openrao.data.crac.api.cnec.Cnec;
-import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
-import com.powsybl.openrao.data.crac.api.cnec.FlowCnecAdder;
-import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
-import com.powsybl.openrao.data.crac.api.cnec.VoltageCnecAdder;
-import com.powsybl.openrao.data.crac.api.rangeaction.CounterTradeRangeAction;
-import com.powsybl.openrao.data.crac.api.rangeaction.CounterTradeRangeActionAdder;
-import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
-import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeActionAdder;
-import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
-import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeActionAdder;
-import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
-import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeActionAdder;
-import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
+import com.powsybl.openrao.data.crac.api.*;
+import com.powsybl.openrao.data.crac.api.cnec.*;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkActionAdder;
+import com.powsybl.openrao.data.crac.api.rangeaction.*;
 import com.powsybl.openrao.data.crac.api.usagerule.OnContingencyState;
 
 import java.time.OffsetDateTime;
@@ -232,7 +208,10 @@ public class CracImpl extends AbstractIdentifiable<Crac> implements Crac {
     public Instant getInstant(InstantKind instantKind) {
         Set<Instant> instantsOfKind = getInstants(instantKind);
         if (instantsOfKind.size() != 1) {
-            throw new OpenRaoException(String.format("Crac does not contain exactly one instant of kind '%s'. It contains %d instants of kind '%s'", instantKind.toString(), instantsOfKind.size(), instantKind));
+            throw new OpenRaoException(String.format(
+                "Crac does not contain exactly one instant of kind '%s'. It contains %d instants of kind '%s'",
+                instantKind.toString(), instantsOfKind.size(), instantKind
+            ));
         }
         return instantsOfKind.stream().findAny().orElseThrow(
             () -> new OpenRaoException(String.format("Should not occur as there is only one '%s' instant", instantKind))

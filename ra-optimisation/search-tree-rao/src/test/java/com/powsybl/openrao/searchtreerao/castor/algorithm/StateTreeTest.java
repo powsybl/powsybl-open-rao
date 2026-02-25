@@ -11,11 +11,7 @@ import com.powsybl.contingency.ContingencyElementType;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.crac.api.Crac;
-import com.powsybl.openrao.data.crac.api.Identifiable;
-import com.powsybl.openrao.data.crac.api.Instant;
-import com.powsybl.openrao.data.crac.api.InstantKind;
-import com.powsybl.openrao.data.crac.api.State;
+import com.powsybl.openrao.data.crac.api.*;
 import com.powsybl.openrao.data.crac.api.networkaction.ActionType;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.impl.CracImplFactory;
@@ -23,17 +19,10 @@ import com.powsybl.openrao.data.crac.impl.utils.CommonCracCreation;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -478,7 +467,9 @@ class StateTreeTest {
 
         stateTree = new StateTree(multipleCurativeInstantsCrac);
 
-        List<ContingencyScenario> contingencyScenarios = stateTree.getContingencyScenarios().stream().sorted(Comparator.comparing(contingencyScenario -> contingencyScenario.getContingency().getId())).toList();
+        List<ContingencyScenario> contingencyScenarios = stateTree.getContingencyScenarios().stream()
+            .sorted(Comparator.comparing(contingencyScenario -> contingencyScenario.getContingency().getId()))
+            .toList();
         assertEquals(8, contingencyScenarios.size());
 
         List<Perimeter> curativePerimeters;
@@ -605,7 +596,9 @@ class StateTreeTest {
 
         stateTree = new StateTree(multipleCurativeInstantsCrac);
 
-        List<ContingencyScenario> contingencyScenarios = stateTree.getContingencyScenarios().stream().sorted(Comparator.comparing(contingencyScenario -> contingencyScenario.getContingency().getId())).toList();
+        List<ContingencyScenario> contingencyScenarios = stateTree.getContingencyScenarios().stream()
+            .sorted(Comparator.comparing(contingencyScenario -> contingencyScenario.getContingency().getId()))
+            .toList();
         assertEquals(8, contingencyScenarios.size());
 
         List<Perimeter> curativePerimeters;
@@ -748,7 +741,9 @@ class StateTreeTest {
 
         stateTree = new StateTree(multipleCurativeInstantsCrac);
 
-        List<ContingencyScenario> contingencyScenarios = stateTree.getContingencyScenarios().stream().sorted(Comparator.comparing(contingencyScenario -> contingencyScenario.getContingency().getId())).toList();
+        List<ContingencyScenario> contingencyScenarios = stateTree.getContingencyScenarios().stream()
+            .sorted(Comparator.comparing(contingencyScenario -> contingencyScenario.getContingency().getId()))
+            .toList();
         assertEquals(12, contingencyScenarios.size());
 
         List<Perimeter> curativePerimeters;
@@ -922,7 +917,9 @@ class StateTreeTest {
 
         stateTree = new StateTree(multipleCurativeInstantsCrac);
 
-        List<ContingencyScenario> contingencyScenarios = stateTree.getContingencyScenarios().stream().sorted(Comparator.comparing(contingencyScenario -> contingencyScenario.getContingency().getId())).toList();
+        List<ContingencyScenario> contingencyScenarios = stateTree.getContingencyScenarios().stream()
+            .sorted(Comparator.comparing(contingencyScenario -> contingencyScenario.getContingency().getId()))
+            .toList();
         assertEquals(16, contingencyScenarios.size());
 
         List<Perimeter> curativePerimeters;

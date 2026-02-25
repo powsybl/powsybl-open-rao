@@ -44,7 +44,9 @@ public abstract class AbstractObjectiveFunctionCreator {
     }
 
     protected CostEvaluator getFunctionalCostEvaluator(MarginEvaluator marginEvaluator) {
-        return raoParameters.getObjectiveFunctionParameters().getType().costOptimization() ? new RemedialActionCostEvaluator(optimizedStates) : new MinMarginEvaluator(flowCnecs, unit, marginEvaluator);
+        return raoParameters.getObjectiveFunctionParameters().getType().costOptimization() ?
+            new RemedialActionCostEvaluator(optimizedStates) :
+            new MinMarginEvaluator(flowCnecs, unit, marginEvaluator);
     }
 
     protected abstract List<CostEvaluator> getVirtualCostEvaluators(MarginEvaluator marginEvaluator);

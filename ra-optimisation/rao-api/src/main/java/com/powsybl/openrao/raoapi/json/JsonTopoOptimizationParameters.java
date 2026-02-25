@@ -42,7 +42,11 @@ final class JsonTopoOptimizationParameters {
                     jsonParser.nextToken();
                     raoParameters.getTopoOptimizationParameters().setAbsoluteMinImpactThreshold(jsonParser.getDoubleValue());
                 }
-                default -> throw new OpenRaoException(String.format("Cannot deserialize topological optimization parameters: unexpected field in %s (%s)", TOPOLOGICAL_ACTIONS_OPTIMIZATION, jsonParser.getCurrentName()));
+                default -> throw new OpenRaoException(String.format(
+                    "Cannot deserialize topological optimization parameters: unexpected field in %s (%s)",
+                    TOPOLOGICAL_ACTIONS_OPTIMIZATION,
+                    jsonParser.getCurrentName())
+                );
             }
         }
     }

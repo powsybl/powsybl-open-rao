@@ -1,8 +1,5 @@
 import com.powsybl.iidm.network.Bus
 import com.powsybl.iidm.network.DanglingLine
-import com.powsybl.iidm.network.EnergySource
-import com.powsybl.iidm.network.LoadType
-import com.powsybl.iidm.network.Network
 
 /*
     When importing an UCTE network file, powsybl merges its X-nodes into dangling lines.

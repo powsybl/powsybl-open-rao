@@ -30,7 +30,7 @@ public class RangeActionActivationResultImpl implements RangeActionActivationRes
 
     boolean shouldRecomputeSetpointsPerState;
 
-    private Map<String, Map<State, Double> > setpointPerStatePerPstId;
+    private Map<String, Map<State, Double>> setpointPerStatePerPstId;
     private Map<State, Optional<State>> memoizedPreviousState = new HashMap<>();
 
     private static final class ElementaryResult {

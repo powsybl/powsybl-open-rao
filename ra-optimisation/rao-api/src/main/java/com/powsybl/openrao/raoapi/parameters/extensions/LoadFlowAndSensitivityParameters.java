@@ -63,7 +63,11 @@ public class LoadFlowAndSensitivityParameters {
 
     public void setSensitivityFailureOvercost(double sensitivityFailureOvercost) {
         if (sensitivityFailureOvercost < 0) {
-            BUSINESS_WARNS.warn("The value {} for `sensitivity-failure-overcost` is smaller than 0. This would encourage the optimizer to make the loadflow diverge. Thus, it will be set to + {}", sensitivityFailureOvercost, -sensitivityFailureOvercost);
+            BUSINESS_WARNS.warn(
+                "The value {} for `sensitivity-failure-overcost` is smaller than 0. This would encourage the optimizer to make the loadflow diverge. Thus, it will be set to + {}",
+                sensitivityFailureOvercost,
+                -sensitivityFailureOvercost
+            );
         }
         this.sensitivityFailureOvercost = Math.abs(sensitivityFailureOvercost);
     }

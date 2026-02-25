@@ -7,9 +7,9 @@
 
 package com.powsybl.openrao.data.refprog.referenceprogram;
 
-import com.powsybl.openrao.commons.EICode;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.commons.EICode;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

@@ -82,7 +82,8 @@ class RemedialActionCostEvaluatorImplTest {
 
         remedialActionActivationResult = Mockito.mock(RemedialActionActivationResultImpl.class);
         Mockito.when(remedialActionActivationResult.getActivatedNetworkActionsPerState()).thenReturn(Map.of(state, Set.of(topologyAction)));
-        Mockito.when(remedialActionActivationResult.getActivatedRangeActions(state)).thenReturn(Set.of(pstRangeAction1, pstRangeAction2, injectionRangeAction1, injectionRangeAction2, hvdcRangeAction1, hvdcRangeAction2));
+        Mockito.when(remedialActionActivationResult.getActivatedRangeActions(state))
+            .thenReturn(Set.of(pstRangeAction1, pstRangeAction2, injectionRangeAction1, injectionRangeAction2, hvdcRangeAction1, hvdcRangeAction2));
         Mockito.when(remedialActionActivationResult.getTapVariation(pstRangeAction1, state)).thenReturn(2);
         Mockito.when(pstRangeAction1.getTotalCostForVariation(2.)).thenReturn(pst1ActivationCost + 2 * pst1CostUp);
         Mockito.when(remedialActionActivationResult.getTapVariation(pstRangeAction2, state)).thenReturn(-5);
