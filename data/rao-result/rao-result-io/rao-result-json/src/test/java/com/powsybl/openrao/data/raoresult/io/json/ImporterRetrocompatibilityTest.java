@@ -23,6 +23,7 @@ import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.impl.utils.NetworkImportsUtil;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.data.raoresult.api.extension.AngleExtension;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -205,6 +206,17 @@ class ImporterRetrocompatibilityTest {
         RaoResult raoResult = new RaoResultJsonImporter().importData(raoResultFile, crac);
 
         testBaseContentOfV1Point7RaoResult(raoResult, crac);
+    }
+
+    @Test
+    void importV1Point9Test() throws IOException {
+        InputStream raoResultFile = getClass().getResourceAsStream("/retrocompatibility/v1.9/rao-result-v1.9.json");
+        InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v1.9/crac-for-rao-result-v1.9.json");
+
+        Crac crac = Crac.read("crac-for-rao-result-v1.9.json", cracFile, NETWORK);
+        RaoResult raoResult = new RaoResultJsonImporter().importData(raoResultFile, crac);
+
+        testBaseContentOfV1Point9RaoResult(raoResult, crac);
     }
 
     @Test
@@ -854,5 +866,26 @@ class ImporterRetrocompatibilityTest {
 
     private void testBaseContentOfV1Point8RaoResult(RaoResult importedRaoResult, Crac crac) {
         testBaseContentOfV1Point7RaoResult(importedRaoResult, crac);
+    }
+
+    private void testBaseContentOfV1Point9RaoResult(RaoResult importedRaoResult, Crac crac) {
+        testBaseContentOfV1Point8RaoResult(importedRaoResult, crac);
+
+        AngleExtension angleExtension = importedRaoResult.getExtension(AngleExtension.class);
+        assertNotNull(angleExtension);
+
+        AngleCnec angleCnec = crac.getAngleCnec("angleCnecId");
+
+        assertEquals(3135.0, angleExtension.getAngle(null, angleCnec, DEGREE));
+        assertEquals(-3045.0, angleExtension.getMargin(null, angleCnec, DEGREE));
+
+        assertEquals(3235.0, angleExtension.getAngle(crac.getInstant("preventive"), angleCnec, DEGREE));
+        assertEquals(-3145.0, angleExtension.getMargin(crac.getInstant("preventive"), angleCnec, DEGREE));
+
+        assertEquals(3335.0, angleExtension.getAngle(crac.getInstant("auto"), angleCnec, DEGREE));
+        assertEquals(-3245.0, angleExtension.getMargin(crac.getInstant("auto"), angleCnec, DEGREE));
+
+        assertEquals(3435.0, angleExtension.getAngle(crac.getInstant("curative"), angleCnec, DEGREE));
+        assertEquals(-3345.0, angleExtension.getMargin(crac.getInstant("curative"), angleCnec, DEGREE));
     }
 }

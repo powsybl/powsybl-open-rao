@@ -20,6 +20,7 @@ import com.powsybl.openrao.data.crac.impl.AngleCnecValue;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.RaoResultClone;
+import com.powsybl.openrao.data.raoresult.api.extension.AngleExtension;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -42,6 +43,9 @@ public class RaoResultWithAngleMonitoring extends RaoResultClone {
             throw new OpenRaoException("AngleMonitoringResult must not be null");
         }
         this.angleMonitoringResult = angleMonitoringResult;
+        AngleExtension angleExtension = AngleMonitoringResultAdapter.convertToAngleExtension(angleMonitoringResult);
+        this.raoResult.addExtension(AngleExtension.class, angleExtension);
+        angleExtension.setExtendable(this.raoResult);
     }
 
     @Override

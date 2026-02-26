@@ -124,6 +124,7 @@ public class RaoResultDeserializer extends JsonDeserializer<RaoResult> {
                     break;
                 case "extensions":
                     jsonParser.nextToken();
+                    deserializationContext.setAttribute("crac", crac);
                     extensions = JsonUtil.updateExtensions(jsonParser, deserializationContext, RaoResultJsonUtils.getExtensionSerializers(), raoResult);
                     break;
                 default:
