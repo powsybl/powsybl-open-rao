@@ -42,6 +42,11 @@ public class RaoResultWithVoltageMonitoring extends RaoResultClone {
     }
 
     @Override
+    public String getExecutionDetails() {
+        return raoResult.getExecutionDetails() + " and went through voltage monitoring";
+    }
+
+    @Override
     public ComputationStatus getComputationStatus() {
         if (!voltageMonitoringResult.getStatus().equals(Cnec.SecurityStatus.FAILURE)) {
             return raoResult.getComputationStatus();
@@ -76,9 +81,9 @@ public class RaoResultWithVoltageMonitoring extends RaoResultClone {
         }
     }
 
-    private Optional<CnecResult> getCnecResult(Instant optimizationInstant, VoltageCnec voltageCnec) {
-        if (optimizationInstant == null || !optimizationInstant.isCurative()) {
-            throw new OpenRaoException("Unexpected optimization instant for voltage monitoring result (only curative instant is supported currently) : " + optimizationInstant);
+    Optional<CnecResult> getCnecResult(Instant optimizationInstant, VoltageCnec voltageCnec) {
+        if (voltageCnec.getState().getInstant() != optimizationInstant) {
+            throw new OpenRaoException("Unexpected optimization instant for voltage monitoring result (only optimization instant equal to voltage cnec' state's instant is accepted) : " + optimizationInstant);
         }
         return voltageMonitoringResult.getCnecResults().stream().filter(voltageCnecRes -> voltageCnecRes.getId().equals(voltageCnec.getId())).findFirst();
     }
@@ -86,10 +91,6 @@ public class RaoResultWithVoltageMonitoring extends RaoResultClone {
     @Override
     public double getMargin(Instant optimizationInstant, VoltageCnec voltageCnec, Unit unit) {
         unit.checkPhysicalParameter(PhysicalParameter.VOLTAGE);
-        if (optimizationInstant == null || !optimizationInstant.isCurative()) {
-            throw new OpenRaoException("Unexpected optimization instant for voltage monitoring result (only curative instant is supported currently): " + optimizationInstant);
-        }
-
         Optional<CnecResult> voltageCnecResultOpt = getCnecResult(optimizationInstant, voltageCnec);
         return voltageCnecResultOpt.map(CnecResult::getMargin).orElse(Double.NaN);
     }

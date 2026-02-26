@@ -7,11 +7,9 @@
 
 package com.powsybl.openrao.data.raoresult.io.json.serializers;
 
-import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
-import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -34,37 +32,23 @@ final class AngleCnecResultArraySerializer {
     static void serialize(RaoResult raoResult, Crac crac, JsonGenerator jsonGenerator) throws IOException {
 
         List<AngleCnec> sortedListOfAngleCnecs = crac.getAngleCnecs().stream()
+            .filter(angleCnec -> angleCnec.getState().getInstant() == crac.getPreventiveInstant() || (angleCnec.getState().getInstant() == crac.getLastInstant() & angleCnec.getState().getInstant().isCurative()))
             .sorted(Comparator.comparing(AngleCnec::getId))
             .toList();
 
         jsonGenerator.writeArrayFieldStart(RaoResultJsonConstants.ANGLECNEC_RESULTS);
         for (AngleCnec angleCnec : sortedListOfAngleCnecs) {
-            serializeAngleCnecResult(angleCnec, raoResult, crac, jsonGenerator);
+            serializeAngleCnecResult(angleCnec, raoResult, jsonGenerator);
         }
         jsonGenerator.writeEndArray();
     }
 
-    private static void serializeAngleCnecResult(AngleCnec angleCnec, RaoResult raoResult, Crac crac, JsonGenerator jsonGenerator) throws IOException {
+    private static void serializeAngleCnecResult(AngleCnec angleCnec, RaoResult raoResult, JsonGenerator jsonGenerator) throws IOException {
 
-        if (containsAnyResultForAngleCnec(angleCnec, raoResult, crac)) {
+        if (containsAnyResultForAngleCnec(angleCnec, raoResult)) {
             jsonGenerator.writeStartObject();
             jsonGenerator.writeStringField(RaoResultJsonConstants.ANGLECNEC_ID, angleCnec.getId());
-
-            serializeAngleCnecResultForOptimizationState(null, angleCnec, raoResult, jsonGenerator);
-            serializeAngleCnecResultForOptimizationState(crac.getPreventiveInstant(), angleCnec, raoResult, jsonGenerator);
-
-            if (!angleCnec.getState().isPreventive()) {
-                serializeAngleCnecResultForOptimizationState(crac.getInstant(InstantKind.AUTO), angleCnec, raoResult, jsonGenerator);
-                crac.getInstants(InstantKind.CURATIVE).stream().sorted(Comparator.comparingInt(Instant::getOrder)).forEach(
-                    curativeInstant -> {
-                        try {
-                            serializeAngleCnecResultForOptimizationState(curativeInstant, angleCnec, raoResult, jsonGenerator);
-                        } catch (IOException e) {
-                            throw new OpenRaoException("An error occured when serializing Angle Cnec results", e);
-                        }
-                    }
-                );
-            }
+            serializeAngleCnecResultForOptimizationState(angleCnec.getState().getInstant(), angleCnec, raoResult, jsonGenerator);
             jsonGenerator.writeEndObject();
         }
     }
@@ -80,8 +64,8 @@ final class AngleCnecResultArraySerializer {
 
     private static void serializeAngleCnecResultForOptimizationStateAndUnit(Instant optInstant, Unit unit, AngleCnec angleCnec, RaoResult raoResult, JsonGenerator jsonGenerator) throws IOException {
 
-        double angle = safeGetAngle(raoResult, angleCnec, optInstant, unit);
-        double margin = safeGetMargin(raoResult, angleCnec, optInstant, unit);
+        double angle = raoResult.getAngle(optInstant, angleCnec, Unit.DEGREE);
+        double margin = raoResult.getMargin(optInstant, angleCnec, Unit.DEGREE);
 
         jsonGenerator.writeObjectFieldStart(RaoResultJsonConstants.serializeUnit(unit));
         if (!Double.isNaN(angle)) {
@@ -93,39 +77,12 @@ final class AngleCnecResultArraySerializer {
         jsonGenerator.writeEndObject();
     }
 
-    private static boolean containsAnyResultForAngleCnec(AngleCnec angleCnec, RaoResult raoResult, Crac crac) {
-
-        if (angleCnec.getState().isPreventive()) {
-            return containsAnyResultForOptimizationState(raoResult, angleCnec, null) ||
-                containsAnyResultForOptimizationState(raoResult, angleCnec, angleCnec.getState().getInstant());
-        } else {
-            return containsAnyResultForOptimizationState(raoResult, angleCnec, null) ||
-                containsAnyResultForOptimizationState(raoResult, angleCnec, crac.getPreventiveInstant()) ||
-                containsAnyResultForOptimizationState(raoResult, angleCnec, crac.getInstant(InstantKind.AUTO)) ||
-                crac.getInstants(InstantKind.CURATIVE).stream().anyMatch(curativeInstant -> containsAnyResultForOptimizationState(raoResult, angleCnec, curativeInstant));
-        }
+    private static boolean containsAnyResultForAngleCnec(AngleCnec angleCnec, RaoResult raoResult) {
+        return containsAnyResultForOptimizationState(raoResult, angleCnec, angleCnec.getState().getInstant());
     }
 
     private static boolean containsAnyResultForOptimizationState(RaoResult raoResult, AngleCnec angleCnec, Instant optInstant) {
-        return !Double.isNaN(safeGetAngle(raoResult, angleCnec, optInstant, Unit.DEGREE)) ||
-            !Double.isNaN(safeGetMargin(raoResult, angleCnec, optInstant, Unit.DEGREE));
-    }
-
-    private static double safeGetAngle(RaoResult raoResult, AngleCnec angleCnec, Instant optInstant, Unit unit) {
-        // methods getAngle can return an exception if RAO is executed on one state only
-        try {
-            return raoResult.getAngle(optInstant, angleCnec, unit);
-        } catch (OpenRaoException e) {
-            return Double.NaN;
-        }
-    }
-
-    private static double safeGetMargin(RaoResult raoResult, AngleCnec angleCnec, Instant optInstant, Unit unit) {
-        // methods getMargin can return an exception if RAO is executed on one state only
-        try {
-            return raoResult.getMargin(optInstant, angleCnec, unit);
-        } catch (OpenRaoException e) {
-            return Double.NaN;
-        }
+        return !Double.isNaN(raoResult.getAngle(optInstant, angleCnec, Unit.DEGREE)) ||
+            !Double.isNaN(raoResult.getMargin(optInstant, angleCnec, Unit.DEGREE));
     }
 }
