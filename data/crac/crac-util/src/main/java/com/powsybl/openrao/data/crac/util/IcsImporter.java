@@ -19,6 +19,7 @@ import com.powsybl.openrao.data.timecoupledconstraints.GeneratorConstraints;
 import com.powsybl.openrao.raoapi.TimeCoupledRaoInputWithNetworkPaths;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
+import org.stringtemplate.v4.ST;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -55,6 +56,8 @@ public final class IcsImporter {
     public static final String MAXIMUM_NEGATIVE_POWER_GRADIENT = "Maximum negative power gradient [MW/h]";
     public static final String LEAD_TIME = "Lead time [h]";
     public static final String LAG_TIME = "Lag time [h]";
+    public static final String STARTUP_ALLOWED = "Startup allowed";
+    public static final String SHUTDOWN_ALLOWED = "Shutdown allowed";
     public static final String P_MIN_RD = "Pmin_RD";
     public static final String RA_RD_ID = "RA RD ID";
     public static final String RDP_UP = "RDP+";
@@ -70,7 +73,6 @@ public final class IcsImporter {
     public static final String GENERATOR_NAME = "Generator Name";
     public static final String RD_SUFFIX = "_RD";
     public static final String GENERATOR_SUFFIX = "_GENERATOR";
-    public static final String LOAD_SUFFIX = "_LOAD";
 
     private IcsImporter() {
         //should only be used statically
@@ -210,6 +212,8 @@ public final class IcsImporter {
             if (!staticRecord.get(LAG_TIME).isEmpty()) {
                 builder.withLagTime(parseDoubleWithPossibleCommas(staticRecord.get(LAG_TIME)));
             }
+            builder.withShutDownAllowed(Boolean.parseBoolean(staticRecord.get(SHUTDOWN_ALLOWED)));
+            builder.withStartUpAllowed(Boolean.parseBoolean(staticRecord.get(STARTUP_ALLOWED)));
             timeCoupledRaoInput.getTimeCoupledConstraints().addGeneratorConstraints(builder.build());
         });
     }
@@ -266,6 +270,8 @@ public final class IcsImporter {
         if (!staticRecord.get(LAG_TIME).isEmpty()) {
             builder.withLagTime(parseDoubleWithPossibleCommas(staticRecord.get(LAG_TIME)));
         }
+        builder.withShutDownAllowed(Boolean.parseBoolean(staticRecord.get(SHUTDOWN_ALLOWED)));
+        builder.withStartUpAllowed(Boolean.parseBoolean(staticRecord.get(STARTUP_ALLOWED)));
         timeCoupledRaoInput.getTimeCoupledConstraints().addGeneratorConstraints(builder.build());
     }
 

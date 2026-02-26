@@ -155,7 +155,7 @@ Feature: US 93.2: Time-coupled generator constraints with MARMOT with ICS files
 
   @fast @rao @dc @redispatching @marmot @costly @megawatt
   Scenario: US 93.2.6: Test simple lead time with Pmin
-  The generator involved in the Belgian redispaching action has a 15 min lead time and must be operated at 1000 MW at
+  The generator involved in the Belgian redispatching action has a 15 min lead time and must be operated at 1000 MW at
   2:30. Because of its lead time, it must be switched on at 1:30 and operated at its Pmin (100 MW), leading to a
   supplementary expense of 1000 in remedial actions for this generator. For grid balancing reasons, the French
   generator must be switched off thus doubling the expenses.
@@ -171,9 +171,31 @@ Feature: US 93.2: Time-coupled generator constraints with MARMOT with ICS files
       | 2019-01-08 02:30 | 2Nodes_0230.uct |
     When I launch marmot
     Then the functional cost for timestamp "2019-01-08 00:30" is 0.0
+    Then the preventive power of generator "RD_RA_BE_BBE2AA1_GENERATOR" at state timestamp "2019-01-08 00:30" is 0.0 MW
+    Then the preventive power of generator "RD_RA_FR_FFR1AA1_GENERATOR" at state timestamp "2019-01-08 00:30" is 1000.0 MW
     # 100 MW variation with a cost of 10 per MW per generator (2 generators)
     Then the functional cost for timestamp "2019-01-08 01:30" is 2000.0
+    Then the preventive power of generator "RD_RA_BE_BBE2AA1_GENERATOR" at state timestamp "2019-01-08 01:30" is 100.0 MW
+    Then the preventive power of generator "RD_RA_FR_FFR1AA1_GENERATOR" at state timestamp "2019-01-08 01:30" is 900.0 MW
     # 1000 MW variation with a cost of 10 per MW per generator (2 generators)
     Then the functional cost for timestamp "2019-01-08 02:30" is 20000.0
     Then the functional cost for all timestamps is 22000.0
+    Then the preventive power of generator "RD_RA_BE_BBE2AA1_GENERATOR" at state timestamp "2019-01-08 02:30" is 1000.0 MW
+    Then the preventive power of generator "RD_RA_FR_FFR1AA1_GENERATOR" at state timestamp "2019-01-08 02:30" is 0.0 MW
 
+    # TODO to be modified when check on generator constraint is performed at import
+  @fast @rao @dc @redispatching @marmot @costly @megawatt
+  Scenario: US 93.2.7: Inconsistent data : BE generator's program shuts down even though shutDown is not allowed,
+    FR generator's program starts up even though startUp is not allowed.
+    Given network files are in folder "epic93/TestCases_93_2_6"
+    Given crac file is "epic93/cbcora_93_2_6.xml"
+    Given ics static file is "epic93/static_93_2_6.csv"
+    Given ics series file is "epic93/series_93_2_7.csv"
+    Given configuration file is "epic93/RaoParameters_minCost_megawatt_dc.json"
+    Given time-coupled rao inputs for CORE are:
+      | Timestamp        | Network         |
+      | 2019-01-08 00:30 | 2Nodes_0030.uct |
+      | 2019-01-08 01:30 | 2Nodes_0130.uct |
+      | 2019-01-08 02:30 | 2Nodes_0230.uct |
+    When I launch marmot
+    Then its time coupled security status should be "UNSECURED"

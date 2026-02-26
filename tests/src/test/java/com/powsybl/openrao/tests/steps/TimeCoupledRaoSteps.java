@@ -10,6 +10,7 @@ package com.powsybl.openrao.tests.steps;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.commons.Unit;
@@ -568,6 +569,11 @@ public final class TimeCoupledRaoSteps {
     @Then("the range action {string} at state timestamp {string} is not used")
     public static void rangeActionNotUsed(String rangeActionId, String timestamp) {
         assertFalse(isRangeActionUsed(rangeActionId, timestamp));
+    }
+
+    @Then("its time coupled security status should be {string}")
+    public void statusShouldBe(String status) {
+        assertEquals(status.equalsIgnoreCase("secured"), timeCoupledRaoResult.isSecure(PhysicalParameter.FLOW));
     }
 
     private static void assertPowerValue(String networkElementId, String timestamp, double expectedPower) {

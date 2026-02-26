@@ -30,8 +30,7 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
@@ -108,6 +107,8 @@ class IcsImporterTest {
         assertEquals(1.0, generatorConstraints.getLeadTime().get(), DOUBLE_EPSILON);
         assertTrue(generatorConstraints.getLagTime().isPresent());
         assertEquals(1.0, generatorConstraints.getLagTime().get(), DOUBLE_EPSILON);
+        assertFalse(generatorConstraints.getShutDownAllowed());
+        assertFalse(generatorConstraints.getStartUpAllowed());
 
         assertEquals(1, crac1.getInjectionRangeActions().size());
         InjectionRangeAction ra1 = crac1.getInjectionRangeActions().iterator().next();
@@ -155,6 +156,8 @@ class IcsImporterTest {
         assertEquals(1.0, generatorConstraints.getLeadTime().get(), DOUBLE_EPSILON);
         assertTrue(generatorConstraints.getLagTime().isPresent());
         assertEquals(1.0, generatorConstraints.getLagTime().get(), DOUBLE_EPSILON);
+        assertFalse(generatorConstraints.getShutDownAllowed());
+        assertFalse(generatorConstraints.getStartUpAllowed());
 
         assertEquals(1, crac1.getInjectionRangeActions().size());
         InjectionRangeAction ra1 = crac1.getInjectionRangeActions().iterator().next();
@@ -200,6 +203,8 @@ class IcsImporterTest {
         assertEquals(1000.0, generatorConstraints.getUpwardPowerGradient().get(), DOUBLE_EPSILON);
         assertTrue(generatorConstraints.getLeadTime().isEmpty());
         assertTrue(generatorConstraints.getLagTime().isEmpty());
+        assertFalse(generatorConstraints.getShutDownAllowed());
+        assertFalse(generatorConstraints.getStartUpAllowed());
 
         assertEquals(1, crac1.getInjectionRangeActions().size());
         InjectionRangeAction ra1 = crac1.getInjectionRangeActions().iterator().next();
@@ -258,6 +263,8 @@ class IcsImporterTest {
         assertEquals(1.0, generatorConstraintsBE.getLeadTime().get(), DOUBLE_EPSILON);
         assertTrue(generatorConstraintsBE.getLagTime().isPresent());
         assertEquals(1.0, generatorConstraintsBE.getLagTime().get(), DOUBLE_EPSILON);
+        assertFalse(generatorConstraintsBE.getShutDownAllowed());
+        assertFalse(generatorConstraintsBE.getStartUpAllowed());
         GeneratorConstraints generatorConstraintsFR = timeCoupledRaoInputWithNetworkPaths.getTimeCoupledConstraints().getGeneratorConstraints().stream().filter(gc -> gc.getGeneratorId().contains("FR")).findFirst().orElseThrow();
         assertEquals("Redispatching_RA_FFR1AA1_GENERATOR", generatorConstraintsFR.getGeneratorId());
         assertEquals(-4., generatorConstraintsFR.getDownwardPowerGradient().orElseThrow(), DOUBLE_EPSILON);
@@ -266,6 +273,8 @@ class IcsImporterTest {
         assertEquals(1.0, generatorConstraintsFR.getLeadTime().get(), DOUBLE_EPSILON);
         assertTrue(generatorConstraintsFR.getLagTime().isPresent());
         assertEquals(1.0, generatorConstraintsFR.getLagTime().get(), DOUBLE_EPSILON);
+        assertFalse(generatorConstraintsFR.getShutDownAllowed());
+        assertFalse(generatorConstraintsFR.getStartUpAllowed());
 
         assertEquals(1, crac1.getInjectionRangeActions().size());
         InjectionRangeAction ra1 = crac1.getInjectionRangeActions().iterator().next();

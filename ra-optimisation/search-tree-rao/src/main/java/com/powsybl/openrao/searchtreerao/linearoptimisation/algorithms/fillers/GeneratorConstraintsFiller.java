@@ -405,6 +405,7 @@ public class GeneratorConstraintsFiller implements ProblemFiller {
 
     private static double getMinP(String generatorId, Network network) {
         return Math.max(OFF_POWER_THRESHOLD, getGenerator(generatorId, network).getMinP());
+//        return getGenerator(generatorId, network).getMinP();
     }
 
     private static double getMaxP(String generatorId, Network network) {
