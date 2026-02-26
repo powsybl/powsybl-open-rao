@@ -58,7 +58,7 @@ public class AngleMonitoringSteps {
         RaoResult raoResult = CommonTestData.getRaoResult();
         MonitoringInput angleMonitoringInput = MonitoringInput.buildWithAngle(network, CommonTestData.getCrac(), raoResult, CommonTestData.getMonitoringGlsks()).build();
         MonitoringResult angleMonitoringResult = new Monitoring("OpenLoadFlow", loadFlowParameters).runMonitoring(angleMonitoringInput, numberOfLoadFlowsInParallel);
-        CommonTestData.setMonitoringResult(angleMonitoringResult);
+        CommonTestData.setAngleMonitoringResult(angleMonitoringResult);
     }
 
     @Then("the angle monitoring result is {string}")
