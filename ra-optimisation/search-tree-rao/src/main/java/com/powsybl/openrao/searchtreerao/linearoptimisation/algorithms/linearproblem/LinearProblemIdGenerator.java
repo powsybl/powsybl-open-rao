@@ -66,12 +66,14 @@ public final class LinearProblemIdGenerator {
     private static final String GENERATOR_STATE_FROM = "generatorstatefrom";
     private static final String GENERATOR_STATE_TO = "generatorstateto";
     private static final String GENERATOR_POWER_OFF = "generatorpoweroff";
-    private static final String GENERATOR_POWER_ON = "generatorpoweron";
     private static final String GENERATOR_POWER_VARIATION = "generatorpowervariation";
     private static final String GENERATOR_TO_INJECTION = "generatortoinjection";
     private static final String GENERATOR_STARTINGUP = "generatorstartingup";
     private static final String GENERATOR_SHUTTINGDOWN = "generatorshuttingdown";
+    private static final String PROHIBIT_GENERATOR_SHUTTINGDOWN = "prohibitgeneratorshuttingdown";
+    private static final String PROHIBIT_GENERATOR_STARTINGUP = "prohibitgeneratorstartingup";
     private static final DateTimeFormatter DATE_TIME_FORMATER = DateTimeFormatter.ofPattern("yyyyMMddHHmm");
+    private static final String ON_FIRST_TIMESTAMP = "onfirsttimestamp";
 
     private LinearProblemIdGenerator() {
         // Should not be instantiated
@@ -317,5 +319,21 @@ public final class LinearProblemIdGenerator {
 
     public static String generatorShuttingDownConstraintId(String generatorId, OffsetDateTime rampingExtremeTimestamp, OffsetDateTime otherRampingTimestamp) {
         return formatName(GENERATOR_SHUTTINGDOWN, generatorId, rampingExtremeTimestamp.format(DATE_TIME_FORMATER), otherRampingTimestamp.format(DATE_TIME_FORMATER), CONSTRAINT_SUFFIX);
+    }
+
+    public static String prohibitGeneratorShuttingDownConstraintId(String generatorId, OffsetDateTime timestamp) {
+        return formatName(Optional.of(timestamp), PROHIBIT_GENERATOR_SHUTTINGDOWN, generatorId, CONSTRAINT_SUFFIX);
+    }
+
+    public static String prohibitGeneratorShuttingDownOnFirstConstraintConstraintId(String generatorId, OffsetDateTime timestamp) {
+        return formatName(Optional.of(timestamp), PROHIBIT_GENERATOR_SHUTTINGDOWN, ON_FIRST_TIMESTAMP, generatorId, CONSTRAINT_SUFFIX);
+    }
+
+    public static String prohibitGeneratorStartingUpConstraintId(String generatorId, OffsetDateTime timestamp) {
+        return formatName(Optional.of(timestamp), PROHIBIT_GENERATOR_STARTINGUP, generatorId, CONSTRAINT_SUFFIX);
+    }
+
+    public static String prohibitGeneratorStartingUpOnFirstTimestampConstraintId(String generatorId, OffsetDateTime timestamp) {
+        return formatName(Optional.of(timestamp), PROHIBIT_GENERATOR_STARTINGUP, ON_FIRST_TIMESTAMP, generatorId, CONSTRAINT_SUFFIX);
     }
 }

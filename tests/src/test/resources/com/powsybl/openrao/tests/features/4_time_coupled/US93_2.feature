@@ -3,7 +3,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-Feature: US 93.2: Time-coupled redispatching actions with MARMOT - power gradient constraints
+Feature: US 93.2: Time-coupled generator constraints with MARMOT with ICS files
   # TODO: This feature covers
 
   @fast @rao @dc @redispatching @marmot @costly @megawatt

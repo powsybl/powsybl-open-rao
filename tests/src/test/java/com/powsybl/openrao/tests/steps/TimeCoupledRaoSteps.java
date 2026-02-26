@@ -61,8 +61,7 @@ import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_L
 import static com.powsybl.openrao.tests.steps.CommonTestData.*;
 import static com.powsybl.openrao.tests.utils.Helpers.*;
 import static com.powsybl.openrao.tests.utils.Helpers.getFile;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public final class TimeCoupledRaoSteps {
     private static String networkFolderPath;
@@ -561,6 +560,16 @@ public final class TimeCoupledRaoSteps {
         assertPowerValue(networkElementId, timestamp, -expectedPower);
     }
 
+    @Then("the range action {string} at state timestamp {string} is used")
+    public static void rangeActionUsed(String rangeActionId, String timestamp) {
+        assertTrue(isRangeActionUsed(rangeActionId, timestamp));
+    }
+
+    @Then("the range action {string} at state timestamp {string} is not used")
+    public static void rangeActionNotUsed(String rangeActionId, String timestamp) {
+        assertFalse(isRangeActionUsed(rangeActionId, timestamp));
+    }
+
     private static void assertPowerValue(String networkElementId, String timestamp, double expectedPower) {
         OffsetDateTime offsetDateTime = getOffsetDateTimeFromBrusselsTimestamp(timestamp);
         Crac crac = timeCoupledRaoInputWithNetworkPaths.getRaoInputs().getData(offsetDateTime).orElseThrow().getCrac();
@@ -574,5 +583,11 @@ public final class TimeCoupledRaoSteps {
         assertTrue(injectionRangeAction.isPresent());
         NetworkElement networkElement = injectionRangeAction.get().getNetworkElements().stream().filter(ne -> ne.getId().equals(networkElementId)).findFirst().orElseThrow();
         assertEquals(expectedPower, timeCoupledRaoResult.getOptimizedSetPointOnState(preventiveState, injectionRangeAction.get()) / injectionRangeAction.get().getInjectionDistributionKeys().get(networkElement), 1e-3);
+    }
+
+    private static boolean isRangeActionUsed(String rangeActionId, String timestamp) {
+        OffsetDateTime offsetDateTime = getOffsetDateTimeFromBrusselsTimestamp(timestamp);
+        Crac crac = timeCoupledRaoInputWithNetworkPaths.getRaoInputs().getData(offsetDateTime).orElseThrow().getCrac();
+        return timeCoupledRaoResult.getIndividualRaoResult(offsetDateTime).isActivatedDuringState(crac.getPreventiveState(), crac.getRangeAction(rangeActionId));
     }
 }
