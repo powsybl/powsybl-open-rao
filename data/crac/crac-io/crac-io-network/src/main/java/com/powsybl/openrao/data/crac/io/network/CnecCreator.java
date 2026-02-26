@@ -70,7 +70,7 @@ class CnecCreator {
 
     private CriticalElements.OptimizedMonitored isOptimizedMonitored(Branch<?> branch, Contingency contingency) {
         CriticalElements params = specificParameters.getCriticalElements();
-        CriticalElements.OptimizedMonitored base = params.isOptimizedOrMonitored(branch, contingency);
+        CriticalElements.OptimizedMonitored base = params.isOptimizedOrMonitored(branch, contingency, creationContext);
         return new CriticalElements.OptimizedMonitored(
             base.optimized() && Utils.branchIsInVRange(branch, params.getOptimizedMinV(), params.getOptimizedMaxV()),
             base.monitored() && params.getMonitoredMinMaxV().isPresent() && Utils.branchIsInVRange(branch, params.getMonitoredMinMaxV().orElseThrow().getMin(), params.getMonitoredMinMaxV().orElseThrow().getMax())

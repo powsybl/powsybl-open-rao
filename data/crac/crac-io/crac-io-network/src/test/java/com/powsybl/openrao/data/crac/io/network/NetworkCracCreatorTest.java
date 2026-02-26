@@ -133,7 +133,7 @@ class NetworkCracCreatorTest {
     void testUcteCnecsFiltered() {
         parameters.getCriticalElements().setCountryFilter(Set.of(Country.BE));
         parameters.getContingencies().setCountryFilter(Set.of(Country.NL));
-        parameters.getCriticalElements().setOptimizedMonitoredProvider((b, c) -> new CriticalElements.OptimizedMonitored(!Utils.branchIsInCountries(b, Set.of(Country.FR)), false));
+        parameters.getCriticalElements().setOptimizedMonitoredProvider((b, c, cc) -> new CriticalElements.OptimizedMonitored(!Utils.branchIsInCountries(b, Set.of(Country.FR)), false));
         importCracFrom("TestCase12Nodes.uct");
         assertTrue(creationContext.isCreationSuccessful());
         assertNotNull(crac);
