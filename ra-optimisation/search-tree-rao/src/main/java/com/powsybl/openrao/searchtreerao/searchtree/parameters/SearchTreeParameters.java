@@ -13,7 +13,6 @@ import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.RaUsageLimits;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
-import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.*;
@@ -166,32 +165,6 @@ public class SearchTreeParameters {
 
     public Optional<LoadFlowAndSensitivityParameters> getLoadFlowAndSensitivityParameters() {
         return loadFlowAndSensitivityParameters;
-    }
-
-    public void setRaLimitationsForSecondPreventive(RaUsageLimits raUsageLimits, Set<RangeAction<?>> rangeActionSet, Instant preventiveInstant) {
-        if (rangeActionSet.isEmpty()) {
-            return;
-        }
-        Set<String> tsoCount = new HashSet<>();
-        int raCount = 0;
-        Map<String, Integer> currentPstPerTsoLimits = raUsageLimits.getMaxPstPerTso();
-        Map<String, Integer> currentRaPerTsoLimits = raUsageLimits.getMaxRaPerTso();
-        Map<String, Integer> currentTopoPerTsoLimits = raUsageLimits.getMaxTopoPerTso();
-        for (var rangeAction : rangeActionSet) {
-            String tso = rangeAction.getOperator();
-            tsoCount.add(tso);
-            raCount += 1;
-            currentRaPerTsoLimits.computeIfPresent(tso, (key, currentLimit) -> Math.max(0, currentLimit - 1));
-            currentPstPerTsoLimits.computeIfPresent(tso, (key, currentLimit) -> Math.max(0, currentLimit - 1));
-        }
-        raUsageLimits.setMaxRa(Math.max(0, raUsageLimits.getMaxRa() - raCount));
-        raUsageLimits.setMaxTso(Math.max(0, raUsageLimits.getMaxTso() - tsoCount.size()));
-        currentTopoPerTsoLimits.forEach((tso, raLimits) -> currentTopoPerTsoLimits.put(tso, Math.min(raLimits, currentRaPerTsoLimits.getOrDefault(tso, Integer.MAX_VALUE))));
-        currentPstPerTsoLimits.forEach((tso, raLimits) -> currentPstPerTsoLimits.put(tso, Math.min(raLimits, currentRaPerTsoLimits.getOrDefault(tso, Integer.MAX_VALUE))));
-        raUsageLimits.setMaxPstPerTso(currentPstPerTsoLimits);
-        raUsageLimits.setMaxTopoPerTso(currentTopoPerTsoLimits);
-        raUsageLimits.setMaxRaPerTso(currentRaPerTsoLimits);
-        this.raLimitationParameters.put(preventiveInstant, raUsageLimits);
     }
 
     public void decreaseRemedialActionUsageLimits(Map<State, OptimizationResult> resultsPerOptimizationState, Map<State, PrePerimeterResult> prePerimeterResultPerPerimeter) {
