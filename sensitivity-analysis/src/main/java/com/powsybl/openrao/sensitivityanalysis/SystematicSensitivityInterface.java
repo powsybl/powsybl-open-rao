@@ -7,20 +7,21 @@
 
 package com.powsybl.openrao.sensitivityanalysis;
 
+import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
+import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
+
+import com.powsybl.glsk.commons.ZonalData;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.glsk.commons.ZonalData;
+import com.powsybl.openrao.commons.opentelemetry.OpenTelemetryReporter;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
-import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityAnalysisParameters;
 import com.powsybl.sensitivity.SensitivityVariableSet;
-
 import java.util.Objects;
 import java.util.Set;
-
-import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.*;
 
 /**
  * An interface with the engine that computes sensitivities and flows needed in the RAO.
@@ -146,11 +147,13 @@ public final class SystematicSensitivityInterface {
      * SystematicSensitivityResult to the given network variant.
      */
     public SystematicSensitivityResult run(Network network) {
+        return OpenTelemetryReporter.withSpan("rao.systematicSA.run", cx -> {
         SystematicSensitivityResult result = runWithConfig(network);
         if (!result.isSuccess()) {
             BUSINESS_WARNS.warn("Sensitivity analysis failed.");
         }
         return result;
+        });
     }
 
     /**

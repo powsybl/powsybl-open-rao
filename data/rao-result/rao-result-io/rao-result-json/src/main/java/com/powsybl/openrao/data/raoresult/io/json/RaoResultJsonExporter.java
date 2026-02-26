@@ -7,20 +7,20 @@
 
 package com.powsybl.openrao.data.raoresult.io.json;
 
-import com.google.auto.service.AutoService;
-import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.crac.api.Crac;
-import com.powsybl.openrao.data.crac.api.CracCreationContext;
-import com.powsybl.openrao.data.crac.io.json.JsonCracCreationContext;
-import com.powsybl.openrao.data.raoresult.api.io.Exporter;
-import com.powsybl.openrao.data.raoresult.api.RaoResult;
-import com.powsybl.openrao.data.raoresult.io.json.serializers.RaoResultJsonSerializerModule;
-import com.powsybl.commons.json.JsonUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-
+import com.google.auto.service.AutoService;
+import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.Unit;
+import com.powsybl.openrao.commons.opentelemetry.OpenTelemetryReporter;
+import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.CracCreationContext;
+import com.powsybl.openrao.data.crac.io.json.JsonCracCreationContext;
+import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.data.raoresult.api.io.Exporter;
+import com.powsybl.openrao.data.raoresult.io.json.serializers.RaoResultJsonSerializerModule;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
@@ -72,10 +72,17 @@ public class RaoResultJsonExporter implements Exporter {
 
     @Override
     public void exportData(RaoResult raoResult, Crac crac, Properties properties, OutputStream outputStream) {
-        boolean flowsInAmperes = Boolean.parseBoolean(properties.getProperty(JSON_EXPORT_PROPERTIES_PREFIX + FLOWS_IN_AMPERES, "false"));
-        boolean flowsInMegawatts = Boolean.parseBoolean(properties.getProperty(JSON_EXPORT_PROPERTIES_PREFIX + FLOWS_IN_MEGAWATTS, "false"));
+        OpenTelemetryReporter.withSpan("rao.exportJsonCrac", cx -> {
+        boolean flowsInAmperes = Boolean.parseBoolean(
+            properties.getProperty(JSON_EXPORT_PROPERTIES_PREFIX + FLOWS_IN_AMPERES, "false"));
+        boolean flowsInMegawatts = Boolean.parseBoolean(
+            properties.getProperty(JSON_EXPORT_PROPERTIES_PREFIX + FLOWS_IN_MEGAWATTS,
+                "false"));
         if (!flowsInAmperes && !flowsInMegawatts) {
-            throw new OpenRaoException("At least one flow unit should be used. Please provide %s and/or %s in the properties.".formatted(JSON_EXPORT_PROPERTIES_PREFIX + FLOWS_IN_AMPERES, JSON_EXPORT_PROPERTIES_PREFIX + FLOWS_IN_MEGAWATTS));
+            throw new OpenRaoException(
+                "At least one flow unit should be used. Please provide %s and/or %s in the properties.".formatted(
+                    JSON_EXPORT_PROPERTIES_PREFIX + FLOWS_IN_AMPERES,
+                    JSON_EXPORT_PROPERTIES_PREFIX + FLOWS_IN_MEGAWATTS));
         }
         Set<Unit> flowUnits = new HashSet<>();
         if (flowsInAmperes) {
@@ -93,5 +100,6 @@ public class RaoResultJsonExporter implements Exporter {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+        });
     }
 }

@@ -7,13 +7,28 @@
 
 package com.powsybl.openrao.monitoring;
 
-import com.powsybl.action.*;
+import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_LOGS;
+import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
+import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
+
+import com.powsybl.action.Action;
+import com.powsybl.action.DanglingLineAction;
+import com.powsybl.action.GeneratorAction;
+import com.powsybl.action.LoadAction;
+import com.powsybl.action.ShuntCompensatorPositionAction;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.glsk.commons.CountryEICode;
 import com.powsybl.glsk.commons.ZonalData;
 import com.powsybl.iidm.modification.scalable.Scalable;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.Generator;
+import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.IdentifiableType;
+import com.powsybl.iidm.network.Injection;
+import com.powsybl.iidm.network.Load;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.Substation;
 import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.LoadFlowResult;
@@ -21,6 +36,7 @@ import com.powsybl.loadflow.LoadFlowRunParameters;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
+import com.powsybl.openrao.commons.opentelemetry.OpenTelemetryReporter;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.State;
@@ -32,17 +48,27 @@ import com.powsybl.openrao.data.crac.impl.AngleCnecValue;
 import com.powsybl.openrao.data.crac.impl.VoltageCnecValue;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.monitoring.redispatching.RedispatchAction;
-import com.powsybl.openrao.monitoring.results.*;
+import com.powsybl.openrao.monitoring.results.CnecResult;
+import com.powsybl.openrao.monitoring.results.MonitoringResult;
+import com.powsybl.openrao.monitoring.results.RaoResultWithAngleMonitoring;
+import com.powsybl.openrao.monitoring.results.RaoResultWithVoltageMonitoring;
 import com.powsybl.openrao.util.AbstractNetworkPool;
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinTask;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-
-import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.*;
-import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
 
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
@@ -108,12 +134,14 @@ public class Monitoring {
     }
 
     public MonitoringResult runMonitoring(MonitoringInput monitoringInput, int numberOfLoadFlowsInParallel) {
+        return OpenTelemetryReporter.withSpan("rao.runMonitoring", cx -> {
         PhysicalParameter physicalParameter = monitoringInput.getPhysicalParameter();
         Network inputNetwork = monitoringInput.getNetwork();
         Crac crac = monitoringInput.getCrac();
         RaoResult raoResult = monitoringInput.getRaoResult();
 
-        MonitoringResult monitoringResult = new MonitoringResult(physicalParameter, Collections.emptySet(), Collections.emptyMap(), Cnec.SecurityStatus.SECURE);
+        MonitoringResult monitoringResult = new MonitoringResult(physicalParameter,
+            Collections.emptySet(), Collections.emptyMap(), Cnec.SecurityStatus.SECURE);
 
         BUSINESS_LOGS.info("----- {} monitoring [start]", physicalParameter);
         Set<Cnec> cnecs = crac.getCnecs(physicalParameter);
@@ -128,33 +156,42 @@ public class Monitoring {
         if (Objects.nonNull(preventiveState)) {
             applyOptimalRemedialActions(preventiveState, inputNetwork, raoResult);
             Set<Cnec> preventiveStateCnecs = crac.getCnecs(physicalParameter, preventiveState);
-            MonitoringResult preventiveStateMonitoringResult = monitorCnecs(preventiveState, preventiveStateCnecs, inputNetwork, monitoringInput);
+            MonitoringResult preventiveStateMonitoringResult = monitorCnecs(preventiveState,
+                preventiveStateCnecs, inputNetwork, monitoringInput);
             preventiveStateMonitoringResult.printConstraints().forEach(BUSINESS_LOGS::info);
             monitoringResult.combine(preventiveStateMonitoringResult);
         }
 
         // II) Curative states
-        Set<State> contingencyStates = crac.getCnecs(physicalParameter).stream().map(Cnec::getState).filter(state -> !state.isPreventive()).collect(Collectors.toSet());
+        Set<State> contingencyStates = crac.getCnecs(physicalParameter).stream().map(Cnec::getState)
+            .filter(state -> !state.isPreventive()).collect(Collectors.toSet());
         if (contingencyStates.isEmpty()) {
             BUSINESS_LOGS.info("----- {} monitoring [end]", physicalParameter);
             return monitoringResult;
         }
 
-        try (AbstractNetworkPool networkPool = AbstractNetworkPool.create(inputNetwork, inputNetwork.getVariantManager().getWorkingVariantId(), Math.min(numberOfLoadFlowsInParallel, contingencyStates.size()), true)) {
+        try (AbstractNetworkPool networkPool = AbstractNetworkPool.create(inputNetwork,
+            inputNetwork.getVariantManager().getWorkingVariantId(),
+            Math.min(numberOfLoadFlowsInParallel, contingencyStates.size()), true)) {
             List<ForkJoinTask<Object>> tasks = contingencyStates.stream().map(state ->
                 networkPool.submit(() -> {
                     Network networkClone = networkPool.getAvailableNetwork();
 
                     Contingency contingency = state.getContingency().orElseThrow();
                     if (!contingency.isValid(networkClone)) {
-                        monitoringResult.combine(makeFailedMonitoringResultForStateWithNaNCnecRsults(monitoringInput, physicalParameter, state, "Unable to apply contingency " + contingency.getId()));
+                        monitoringResult.combine(
+                            makeFailedMonitoringResultForStateWithNaNCnecRsults(monitoringInput,
+                                physicalParameter, state,
+                                "Unable to apply contingency " + contingency.getId()));
                         networkPool.releaseUsedNetwork(networkClone);
                         return null;
                     }
                     contingency.toModification().apply(networkClone, (ComputationManager) null);
-                    applyOptimalRemedialActionsOnContingencyState(state, networkClone, crac, raoResult);
+                    applyOptimalRemedialActionsOnContingencyState(state, networkClone, crac,
+                        raoResult);
                     Set<Cnec> currentStateCnecs = crac.getCnecs(physicalParameter, state);
-                    MonitoringResult currentStateMonitoringResult = monitorCnecs(state, currentStateCnecs, networkClone, monitoringInput);
+                    MonitoringResult currentStateMonitoringResult = monitorCnecs(state,
+                        currentStateCnecs, networkClone, monitoringInput);
                     currentStateMonitoringResult.printConstraints().forEach(BUSINESS_LOGS::info);
                     monitoringResult.combine(currentStateMonitoringResult);
                     networkPool.releaseUsedNetwork(networkClone);
@@ -177,6 +214,7 @@ public class Monitoring {
         BUSINESS_LOGS.info("----- {} monitoring [end]", physicalParameter);
         monitoringResult.printConstraints().forEach(BUSINESS_LOGS::info);
         return monitoringResult;
+        });
     }
 
     private MonitoringResult monitorCnecs(State state, Set<Cnec> cnecs, Network network, MonitoringInput monitoringInput) {
