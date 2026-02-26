@@ -7,16 +7,20 @@
 
 package com.powsybl.openrao.data.crac.io.network;
 
-import com.powsybl.contingency.ContingencyElementType;
-import com.powsybl.iidm.network.*;
+import com.powsybl.contingency.ContingencyElementFactory;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.crac.api.parameters.RangeActionGroup;
-import com.powsybl.openrao.data.crac.io.network.parameters.*;
+import com.powsybl.openrao.data.crac.io.network.parameters.Contingencies;
+import com.powsybl.openrao.data.crac.io.network.parameters.NetworkCracCreationParameters;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.SortedMap;
 
 /**
  * Creates a CRAC from a network.
@@ -73,7 +77,7 @@ public final class NetworkCracCreator {
             .forEach(
                 branch -> crac.newContingency()
                     .withId("CO_" + branch.getNameOrId())
-                    .withContingencyElement(branch.getId(), ContingencyElementType.BRANCH)
+                    .withContingencyElement(branch.getId(), ContingencyElementFactory.create(branch).getType())
                     .add());
     }
 }
