@@ -16,7 +16,9 @@ import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoCostlyMinMa
 import java.io.IOException;
 import java.util.Optional;
 
-import static com.powsybl.openrao.raoapi.RaoParametersCommons.*;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.COSTLY_MIN_MARGIN_PARAMETERS;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.SHIFTED_VIOLATION_PENALTY;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.SHIFTED_VIOLATION_THRESHOLD;
 
 /**
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}

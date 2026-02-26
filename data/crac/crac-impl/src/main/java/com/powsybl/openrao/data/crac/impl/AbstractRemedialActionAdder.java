@@ -11,7 +11,11 @@ import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.RemedialActionAdder;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
-import com.powsybl.openrao.data.crac.api.usagerule.*;
+import com.powsybl.openrao.data.crac.api.usagerule.OnConstraintAdder;
+import com.powsybl.openrao.data.crac.api.usagerule.OnContingencyStateAdder;
+import com.powsybl.openrao.data.crac.api.usagerule.OnFlowConstraintInCountryAdder;
+import com.powsybl.openrao.data.crac.api.usagerule.OnInstantAdder;
+import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
 
 import java.util.HashSet;
 import java.util.Objects;

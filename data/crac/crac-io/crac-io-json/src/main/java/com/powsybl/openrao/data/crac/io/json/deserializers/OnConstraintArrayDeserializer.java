@@ -15,7 +15,14 @@ import com.powsybl.openrao.data.crac.api.usagerule.OnConstraintAdder;
 
 import java.io.IOException;
 
-import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.*;
+import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.ANGLE_CNEC_ID;
+import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.CNEC_ID;
+import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.FLOW_CNEC_ID;
+import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.INSTANT;
+import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.USAGE_METHOD;
+import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.VOLTAGE_CNEC_ID;
+import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.getPrimaryVersionNumber;
+import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.getSubVersionNumber;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}

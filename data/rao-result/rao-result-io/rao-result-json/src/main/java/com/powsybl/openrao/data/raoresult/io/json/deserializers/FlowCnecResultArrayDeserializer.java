@@ -21,7 +21,21 @@ import com.powsybl.openrao.data.raoresult.impl.RaoResultImpl;
 
 import java.io.IOException;
 
-import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.*;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.AMPERE_UNIT;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.COMMERCIAL_FLOW;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.FLOW;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.FLOWCNEC_ID;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.FLOWCNEC_RESULTS;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.LEFT_SIDE;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.LOOP_FLOW;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.MARGIN;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.MEGAWATT_UNIT;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.RELATIVE_MARGIN;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.RIGHT_SIDE;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.SIDE_ONE;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.SIDE_TWO;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.ZONAL_PTDF_SUM;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.deserializeOptimizedInstant;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}

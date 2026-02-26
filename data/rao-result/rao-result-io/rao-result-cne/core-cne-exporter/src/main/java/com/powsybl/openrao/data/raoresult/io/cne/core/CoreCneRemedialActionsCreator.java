@@ -29,10 +29,21 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
-import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.*;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.ABSOLUTE_MARKET_OBJECT_STATUS;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.B54_BUSINESS_TYPE;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.B56_BUSINESS_TYPE;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.B57_BUSINESS_TYPE;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.CURATIVE_MARKET_OBJECT_STATUS;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.PREVENTIVE_MARKET_OBJECT_STATUS;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.PST_RANGE_PSR_TYPE;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.WITHOUT_UNIT_SYMBOL;
 import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneUtil.cutString;
 import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneUtil.randomizeString;
-import static com.powsybl.openrao.data.raoresult.io.cne.core.CoreCneClassCreator.*;
+import static com.powsybl.openrao.data.raoresult.io.cne.core.CoreCneClassCreator.newConstraintSeries;
+import static com.powsybl.openrao.data.raoresult.io.cne.core.CoreCneClassCreator.newContingencySeries;
+import static com.powsybl.openrao.data.raoresult.io.cne.core.CoreCneClassCreator.newPartyMarketParticipant;
+import static com.powsybl.openrao.data.raoresult.io.cne.core.CoreCneClassCreator.newRemedialActionRegisteredResource;
+import static com.powsybl.openrao.data.raoresult.io.cne.core.CoreCneClassCreator.newRemedialActionSeries;
 
 /**
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}

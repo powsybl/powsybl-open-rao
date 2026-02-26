@@ -17,16 +17,38 @@ import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnecAdder;
-import com.powsybl.openrao.data.crac.io.cim.xsd.*;
+import com.powsybl.openrao.data.crac.io.cim.xsd.Analog;
+import com.powsybl.openrao.data.crac.io.cim.xsd.ContingencySeries;
+import com.powsybl.openrao.data.crac.io.cim.xsd.MonitoredRegisteredResource;
+import com.powsybl.openrao.data.crac.io.cim.xsd.MonitoredSeries;
+import com.powsybl.openrao.data.crac.io.cim.xsd.Series;
+import com.powsybl.openrao.data.crac.io.cim.xsd.TimeSeries;
 import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
 import com.powsybl.openrao.data.crac.io.commons.cgmes.CgmesBranchHelper;
 import com.powsybl.openrao.data.crac.io.commons.iidm.IidmCnecElementHelper;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.powsybl.openrao.data.crac.io.cim.craccreator.CimConstants.*;
+import static com.powsybl.openrao.data.crac.io.cim.craccreator.CimConstants.AMPERES_UNIT_SYMBOL;
+import static com.powsybl.openrao.data.crac.io.cim.craccreator.CimConstants.CNECS_AUTO_STATE_MEASUREMENT_TYPE;
+import static com.powsybl.openrao.data.crac.io.cim.craccreator.CimConstants.CNECS_CURATIVE_STATE_MEASUREMENT_TYPE;
+import static com.powsybl.openrao.data.crac.io.cim.craccreator.CimConstants.CNECS_DIRECT_DIRECTION_FLOW;
+import static com.powsybl.openrao.data.crac.io.cim.craccreator.CimConstants.CNECS_MNEC_MARKET_OBJECT_STATUS;
+import static com.powsybl.openrao.data.crac.io.cim.craccreator.CimConstants.CNECS_N_STATE_MEASUREMENT_TYPE;
+import static com.powsybl.openrao.data.crac.io.cim.craccreator.CimConstants.CNECS_OPPOSITE_DIRECTION_FLOW;
+import static com.powsybl.openrao.data.crac.io.cim.craccreator.CimConstants.CNECS_OUTAGE_STATE_MEASUREMENT_TYPE;
+import static com.powsybl.openrao.data.crac.io.cim.craccreator.CimConstants.CNECS_PATL_UNIT_SYMBOL;
+import static com.powsybl.openrao.data.crac.io.cim.craccreator.CimConstants.CNECS_SERIES_BUSINESS_TYPE;
+import static com.powsybl.openrao.data.crac.io.cim.craccreator.CimConstants.MEGAWATT_UNIT_SYMBOL;
+import static com.powsybl.openrao.data.crac.io.cim.craccreator.CimConstants.REMEDIAL_ACTIONS_SERIES_BUSINESS_TYPE;
 import static com.powsybl.openrao.data.crac.io.cim.craccreator.CimCracUtils.getContingencyFromCrac;
 
 /**

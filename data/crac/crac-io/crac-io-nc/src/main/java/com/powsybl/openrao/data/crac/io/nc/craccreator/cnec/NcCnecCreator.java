@@ -20,7 +20,11 @@ import com.powsybl.openrao.data.crac.io.nc.NcCrac;
 import com.powsybl.openrao.data.crac.io.nc.craccreator.NcAggregator;
 import com.powsybl.openrao.data.crac.io.nc.craccreator.NcCracCreationContext;
 import com.powsybl.openrao.data.crac.io.nc.craccreator.constants.LimitType;
-import com.powsybl.openrao.data.crac.io.nc.objects.*;
+import com.powsybl.openrao.data.crac.io.nc.objects.AssessedElement;
+import com.powsybl.openrao.data.crac.io.nc.objects.AssessedElementWithContingency;
+import com.powsybl.openrao.data.crac.io.nc.objects.CurrentLimit;
+import com.powsybl.openrao.data.crac.io.nc.objects.VoltageAngleLimit;
+import com.powsybl.openrao.data.crac.io.nc.objects.VoltageLimit;
 import com.powsybl.openrao.data.crac.io.nc.parameters.Border;
 import com.powsybl.openrao.data.crac.io.nc.parameters.NcCracCreationParameters;
 

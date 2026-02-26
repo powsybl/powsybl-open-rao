@@ -7,7 +7,11 @@
 
 package com.powsybl.openrao.data.crac.io.cse.remedialaction;
 
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.IdentifiableType;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
@@ -29,9 +33,21 @@ import com.powsybl.openrao.data.crac.io.commons.ucte.UcteTopologicalElementHelpe
 import com.powsybl.openrao.data.crac.io.cse.CseCracCreationContext;
 import com.powsybl.openrao.data.crac.io.cse.parameters.BusBarChangeSwitches;
 import com.powsybl.openrao.data.crac.io.cse.parameters.CseCracCreationParameters;
-import com.powsybl.openrao.data.crac.io.cse.xsd.*;
+import com.powsybl.openrao.data.crac.io.cse.xsd.TApplication;
+import com.powsybl.openrao.data.crac.io.cse.xsd.TBranch;
+import com.powsybl.openrao.data.crac.io.cse.xsd.TCRACSeries;
+import com.powsybl.openrao.data.crac.io.cse.xsd.THVDCNode;
+import com.powsybl.openrao.data.crac.io.cse.xsd.TNode;
+import com.powsybl.openrao.data.crac.io.cse.xsd.TRemedialAction;
+import com.powsybl.openrao.data.crac.io.cse.xsd.TRemedialActions;
+import com.powsybl.openrao.data.crac.io.cse.xsd.TStatusType;
+import com.powsybl.openrao.data.crac.io.cse.xsd.TVariationType;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  * @author Alexandre Montigny {@literal <alexandre.montigny at rte-france.com>}

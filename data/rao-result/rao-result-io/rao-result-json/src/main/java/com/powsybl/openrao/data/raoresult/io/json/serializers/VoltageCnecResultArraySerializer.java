@@ -22,7 +22,13 @@ import java.util.Comparator;
 import java.util.List;
 
 import static com.powsybl.openrao.commons.MeasurementRounding.roundValueBasedOnMargin;
-import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.*;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.MARGIN;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.MAX_VOLTAGE;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.MIN_VOLTAGE;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.VOLTAGECNEC_ID;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.VOLTAGECNEC_RESULTS;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.serializeInstantId;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.serializeUnit;
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}

@@ -22,7 +22,11 @@ import com.powsybl.openrao.data.crac.loopflowextension.LoopFlowThresholdAdder;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.io.cne.commons.CneHelper;
 import com.powsybl.openrao.data.raoresult.io.cne.commons.CneUtil;
-import com.powsybl.openrao.data.raoresult.io.cne.core.xsd.*;
+import com.powsybl.openrao.data.raoresult.io.cne.core.xsd.Analog;
+import com.powsybl.openrao.data.raoresult.io.cne.core.xsd.ConstraintSeries;
+import com.powsybl.openrao.data.raoresult.io.cne.core.xsd.MonitoredRegisteredResource;
+import com.powsybl.openrao.data.raoresult.io.cne.core.xsd.MonitoredSeries;
+import com.powsybl.openrao.data.raoresult.io.cne.core.xsd.PartyMarketParticipant;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
@@ -37,8 +41,12 @@ import java.util.Set;
 
 import static com.powsybl.openrao.data.raoresult.io.cne.core.CoreCneUtil.CORE_CNE_EXPORT_PROPERTIES_PREFIX;
 import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}

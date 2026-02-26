@@ -13,7 +13,11 @@ import com.powsybl.openrao.data.crac.api.range.StandardRangeAdder;
 import com.powsybl.openrao.data.crac.api.rangeaction.StandardRangeActionAdder;
 import com.powsybl.openrao.data.crac.api.rangeaction.VariationDirection;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}

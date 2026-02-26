@@ -19,15 +19,31 @@ import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.usagerule.OnFlowConstraintInCountryAdder;
 import com.powsybl.openrao.data.crac.io.cim.parameters.CimCracCreationParameters;
-import com.powsybl.openrao.data.crac.io.cim.xsd.*;
+import com.powsybl.openrao.data.crac.io.cim.xsd.MonitoredSeries;
+import com.powsybl.openrao.data.crac.io.cim.xsd.RemedialActionRegisteredResource;
+import com.powsybl.openrao.data.crac.io.cim.xsd.RemedialActionSeries;
+import com.powsybl.openrao.data.crac.io.cim.xsd.Series;
+import com.powsybl.openrao.data.crac.io.cim.xsd.TimeSeries;
 import com.powsybl.openrao.data.crac.io.commons.OpenRaoImportException;
 import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.powsybl.openrao.data.crac.io.cim.craccreator.CimConstants.*;
+import static com.powsybl.openrao.data.crac.io.cim.craccreator.CimConstants.ApplicationModeMarketObjectStatus;
+import static com.powsybl.openrao.data.crac.io.cim.craccreator.CimConstants.AvailabilityMarketObjectStatus;
+import static com.powsybl.openrao.data.crac.io.cim.craccreator.CimConstants.BUSINESS_TYPE_IN_REMEDIALACTION_SERIES;
+import static com.powsybl.openrao.data.crac.io.cim.craccreator.CimConstants.PST_CAPACITY_UNIT_SYMBOL;
+import static com.powsybl.openrao.data.crac.io.cim.craccreator.CimConstants.PsrType;
+import static com.powsybl.openrao.data.crac.io.cim.craccreator.CimConstants.REMEDIAL_ACTIONS_SERIES_BUSINESS_TYPE;
+import static com.powsybl.openrao.data.crac.io.cim.craccreator.CimConstants.REMEDIAL_ACTION_OPTIMIZATION_STATUS;
 import static com.powsybl.openrao.data.crac.io.cim.craccreator.CimCracUtils.getContingencyFromCrac;
 import static com.powsybl.openrao.data.crac.io.cim.craccreator.CimCracUtils.getFlowCnecsFromCrac;
 

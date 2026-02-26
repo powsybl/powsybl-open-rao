@@ -14,14 +14,35 @@ import com.powsybl.openrao.data.crac.io.nc.craccreator.constants.HeaderType;
 import com.powsybl.openrao.data.crac.io.nc.craccreator.constants.NcConstants;
 import com.powsybl.openrao.data.crac.io.nc.craccreator.constants.NcKeyword;
 import com.powsybl.openrao.data.crac.io.nc.craccreator.constants.OverridingObjectsFields;
-import com.powsybl.openrao.data.crac.io.nc.objects.*;
+import com.powsybl.openrao.data.crac.io.nc.objects.AssessedElement;
+import com.powsybl.openrao.data.crac.io.nc.objects.AssessedElementWithContingency;
+import com.powsybl.openrao.data.crac.io.nc.objects.AssessedElementWithRemedialAction;
+import com.powsybl.openrao.data.crac.io.nc.objects.Contingency;
+import com.powsybl.openrao.data.crac.io.nc.objects.ContingencyEquipment;
+import com.powsybl.openrao.data.crac.io.nc.objects.ContingencyWithRemedialAction;
+import com.powsybl.openrao.data.crac.io.nc.objects.CurrentLimit;
+import com.powsybl.openrao.data.crac.io.nc.objects.GridStateAlterationRemedialAction;
+import com.powsybl.openrao.data.crac.io.nc.objects.RemedialActionDependency;
+import com.powsybl.openrao.data.crac.io.nc.objects.RemedialActionGroup;
+import com.powsybl.openrao.data.crac.io.nc.objects.RotatingMachineAction;
+import com.powsybl.openrao.data.crac.io.nc.objects.ShuntCompensatorModification;
+import com.powsybl.openrao.data.crac.io.nc.objects.StaticPropertyRange;
+import com.powsybl.openrao.data.crac.io.nc.objects.TapChanger;
+import com.powsybl.openrao.data.crac.io.nc.objects.TapPositionAction;
+import com.powsybl.openrao.data.crac.io.nc.objects.TopologyAction;
+import com.powsybl.openrao.data.crac.io.nc.objects.VoltageAngleLimit;
+import com.powsybl.openrao.data.crac.io.nc.objects.VoltageLimit;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 import com.powsybl.triplestore.api.QueryCatalog;
 import com.powsybl.triplestore.api.TripleStore;
 
 import java.time.OffsetDateTime;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Jean-Pierre Arnould {@literal <jean-pierre.arnould at rte-france.com>}

@@ -12,7 +12,9 @@ import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 
 import java.util.Objects;
 
-import static com.powsybl.openrao.raoapi.RaoParametersCommons.*;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.EXECUTION_CONDITION;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.HINT_FROM_FIRST_PREVENTIVE_RAO;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.SECOND_PREVENTIVE_RAO_SECTION;
 
 /**
  * Second preventive parameters for RAO

@@ -18,7 +18,11 @@ import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
 import com.powsybl.openrao.data.crac.io.commons.api.stdcreationcontext.BranchCnecCreationContext;
 import com.powsybl.openrao.data.crac.io.fbconstraint.FbConstraintCreationContext;
-import com.powsybl.openrao.data.crac.io.fbconstraint.xsd.*;
+import com.powsybl.openrao.data.crac.io.fbconstraint.xsd.ActionType;
+import com.powsybl.openrao.data.crac.io.fbconstraint.xsd.CriticalBranchType;
+import com.powsybl.openrao.data.crac.io.fbconstraint.xsd.FlowBasedConstraintDocument;
+import com.powsybl.openrao.data.crac.io.fbconstraint.xsd.IndependantComplexVariant;
+import com.powsybl.openrao.data.crac.io.fbconstraint.xsd.ObjectFactory;
 import com.powsybl.openrao.data.crac.io.fbconstraint.xsd.etso.TimeIntervalType;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import org.threeten.extra.Interval;
@@ -26,7 +30,12 @@ import org.threeten.extra.Interval;
 import java.io.Serializable;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**

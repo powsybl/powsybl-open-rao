@@ -23,7 +23,23 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.*;
+import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.BORDER;
+import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.CONTINGENCY_ID;
+import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.EXTENSIONS;
+import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.FRM;
+import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.ID;
+import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.INSTANT;
+import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.MONITORED;
+import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.NAME;
+import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.NETWORK_ELEMENTS_NAME_PER_ID;
+import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.NETWORK_ELEMENT_ID;
+import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.OPERATOR;
+import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.OPTIMIZED;
+import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.RELIABILITY_MARGIN;
+import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.THRESHOLDS;
+import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.VOLTAGE_CNECS;
+import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.getPrimaryVersionNumber;
+import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.getSubVersionNumber;
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}

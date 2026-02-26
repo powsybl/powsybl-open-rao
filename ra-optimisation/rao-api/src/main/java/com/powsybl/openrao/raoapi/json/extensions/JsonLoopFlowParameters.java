@@ -16,7 +16,11 @@ import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoLoopFlowPar
 import java.io.IOException;
 import java.util.Optional;
 
-import static com.powsybl.openrao.raoapi.RaoParametersCommons.*;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.CONSTRAINT_ADJUSTMENT_COEFFICIENT;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.LOOP_FLOW_PARAMETERS;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.PTDF_APPROXIMATION;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.VIOLATION_COST;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.stringToPtdfApproximation;
 
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}

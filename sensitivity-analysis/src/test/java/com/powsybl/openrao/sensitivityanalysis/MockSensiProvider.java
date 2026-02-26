@@ -13,7 +13,13 @@ import com.powsybl.contingency.ContingencyContextType;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.sensitivity.*;
+import com.powsybl.sensitivity.SensitivityAnalysisProvider;
+import com.powsybl.sensitivity.SensitivityAnalysisResult;
+import com.powsybl.sensitivity.SensitivityAnalysisRunParameters;
+import com.powsybl.sensitivity.SensitivityFactorReader;
+import com.powsybl.sensitivity.SensitivityFunctionType;
+import com.powsybl.sensitivity.SensitivityResultWriter;
+import com.powsybl.sensitivity.SensitivityVariableType;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;

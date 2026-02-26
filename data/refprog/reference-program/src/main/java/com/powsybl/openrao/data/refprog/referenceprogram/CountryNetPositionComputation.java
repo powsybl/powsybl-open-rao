@@ -7,7 +7,12 @@
 
 package com.powsybl.openrao.data.refprog.referenceprogram;
 
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.DanglingLine;
+import com.powsybl.iidm.network.HvdcLine;
+import com.powsybl.iidm.network.Line;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.Substation;
 import com.powsybl.openrao.commons.EICode;
 
 import java.util.HashMap;

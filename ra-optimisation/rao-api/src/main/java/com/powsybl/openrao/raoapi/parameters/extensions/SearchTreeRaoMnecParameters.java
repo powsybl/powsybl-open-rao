@@ -12,7 +12,9 @@ import com.powsybl.commons.config.PlatformConfig;
 import java.util.Objects;
 import java.util.Optional;
 
-import static com.powsybl.openrao.raoapi.RaoParametersCommons.*;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.CONSTRAINT_ADJUSTMENT_COEFFICIENT;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.ST_MNEC_PARAMETERS_SECTION;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.VIOLATION_COST;
 
 /**
  * Extension : MNEC parameters for RAO

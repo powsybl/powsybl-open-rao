@@ -15,7 +15,12 @@ import com.powsybl.openrao.data.crac.io.commons.api.stdcreationcontext.UcteCracC
 import com.powsybl.openrao.data.crac.io.cse.criticalbranch.CseCriticalBranchCreationContext;
 
 import java.time.OffsetDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Alexandre Montigny {@literal <alexandre.montigny at rte-france.com>}

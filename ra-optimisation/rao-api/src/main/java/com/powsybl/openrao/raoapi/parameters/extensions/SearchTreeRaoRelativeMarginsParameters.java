@@ -12,7 +12,9 @@ import com.powsybl.commons.config.PlatformConfig;
 import java.util.Objects;
 import java.util.Optional;
 
-import static com.powsybl.openrao.raoapi.RaoParametersCommons.*;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.PTDF_APPROXIMATION;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.PTDF_SUM_LOWER_BOUND;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.ST_RELATIVE_MARGINS_SECTION;
 
 /**
  * Extension : relative margin parameters for RAO

@@ -30,7 +30,9 @@ import java.util.regex.Pattern;
 
 import static com.powsybl.commons.json.JsonUtil.createObjectMapper;
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
-import static com.powsybl.openrao.data.crac.io.json.JsonSchemaProvider.*;
+import static com.powsybl.openrao.data.crac.io.json.JsonSchemaProvider.getSchema;
+import static com.powsybl.openrao.data.crac.io.json.JsonSchemaProvider.getValidationErrors;
+import static com.powsybl.openrao.data.crac.io.json.JsonSchemaProvider.isCracFile;
 
 /**
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}

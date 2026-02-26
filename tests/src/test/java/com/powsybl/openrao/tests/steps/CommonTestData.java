@@ -39,10 +39,23 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.When;
 import org.apache.commons.lang3.tuple.Pair;
 
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.time.OffsetDateTime;
 
-import static com.powsybl.openrao.tests.utils.Helpers.*;
+import static com.powsybl.openrao.tests.utils.Helpers.getFile;
+import static com.powsybl.openrao.tests.utils.Helpers.getOffsetDateTimeFromBrusselsTimestamp;
+import static com.powsybl.openrao.tests.utils.Helpers.importCrac;
+import static com.powsybl.openrao.tests.utils.Helpers.importMonitoringGlskFile;
+import static com.powsybl.openrao.tests.utils.Helpers.importNetwork;
+import static com.powsybl.openrao.tests.utils.Helpers.importRaoResult;
+import static com.powsybl.openrao.tests.utils.Helpers.importRefProg;
+import static com.powsybl.openrao.tests.utils.Helpers.importUcteGlskFile;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}

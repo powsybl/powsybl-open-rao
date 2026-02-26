@@ -15,7 +15,17 @@ import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeAction
 
 import java.io.IOException;
 
-import static com.powsybl.openrao.raoapi.RaoParametersCommons.*;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.HVDC_SENSITIVITY_THRESHOLD;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.INJECTION_RA_SENSITIVITY_THRESHOLD;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.LINEAR_OPTIMIZATION_SOLVER;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.MAX_MIP_ITERATIONS;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.PST_MODEL;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.PST_SENSITIVITY_THRESHOLD;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.RANGE_ACTIONS_OPTIMIZATION;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.RA_RANGE_SHRINKING;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.RELATIVE_MIP_GAP;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.SOLVER;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.SOLVER_SPECIFIC_PARAMETERS;
 
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}

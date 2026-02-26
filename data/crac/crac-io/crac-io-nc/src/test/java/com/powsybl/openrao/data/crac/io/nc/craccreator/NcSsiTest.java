@@ -23,8 +23,23 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
-import static com.powsybl.openrao.data.crac.io.nc.craccreator.NcCracCreationTestUtil.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static com.powsybl.openrao.data.crac.io.nc.craccreator.NcCracCreationTestUtil.CURATIVE_1_INSTANT_ID;
+import static com.powsybl.openrao.data.crac.io.nc.craccreator.NcCracCreationTestUtil.CURATIVE_2_INSTANT_ID;
+import static com.powsybl.openrao.data.crac.io.nc.craccreator.NcCracCreationTestUtil.CURATIVE_3_INSTANT_ID;
+import static com.powsybl.openrao.data.crac.io.nc.craccreator.NcCracCreationTestUtil.NETWORK;
+import static com.powsybl.openrao.data.crac.io.nc.craccreator.NcCracCreationTestUtil.PREVENTIVE_INSTANT_ID;
+import static com.powsybl.openrao.data.crac.io.nc.craccreator.NcCracCreationTestUtil.assertAngleCnecEquality;
+import static com.powsybl.openrao.data.crac.io.nc.craccreator.NcCracCreationTestUtil.assertCnecNotImported;
+import static com.powsybl.openrao.data.crac.io.nc.craccreator.NcCracCreationTestUtil.assertContingencyEquality;
+import static com.powsybl.openrao.data.crac.io.nc.craccreator.NcCracCreationTestUtil.assertContingencyNotImported;
+import static com.powsybl.openrao.data.crac.io.nc.craccreator.NcCracCreationTestUtil.assertHasOnConstraintUsageRule;
+import static com.powsybl.openrao.data.crac.io.nc.craccreator.NcCracCreationTestUtil.assertHasOnContingencyStateUsageRule;
+import static com.powsybl.openrao.data.crac.io.nc.craccreator.NcCracCreationTestUtil.assertNetworkActionImported;
+import static com.powsybl.openrao.data.crac.io.nc.craccreator.NcCracCreationTestUtil.assertRaNotImported;
+import static com.powsybl.openrao.data.crac.io.nc.craccreator.NcCracCreationTestUtil.getNcCracCreationContext;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}

@@ -26,10 +26,27 @@ import com.powsybl.openrao.data.raoresult.io.cne.swe.xsd.MonitoredRegisteredReso
 import com.powsybl.openrao.data.raoresult.io.cne.swe.xsd.MonitoredSeries;
 import org.apache.commons.lang3.tuple.Pair;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 import static com.powsybl.openrao.commons.MeasurementRounding.roundValueBasedOnMargin;
-import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.*;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.A02_CODING_SCHEME;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.AMP_UNIT_SYMBOL;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.AUTO_MEASUREMENT_TYPE;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.CURATIVE_MEASUREMENT_TYPE;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.DIRECT_POSITIVE_FLOW_IN;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.FLOW_MEASUREMENT_TYPE;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.OPPOSITE_POSITIVE_FLOW_IN;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.PATL_MEASUREMENT_TYPE;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.TATL_MEASUREMENT_TYPE;
 import static com.powsybl.openrao.data.raoresult.io.cne.swe.SweCneUtil.DEFAULT_DECIMALS_FOR_ROUNDING_FLOWS;
 import static com.powsybl.openrao.data.raoresult.io.cne.swe.SweCneUtil.DEFAULT_DECIMALS_FOR_ROUNDING_THRESHOLDS;
 

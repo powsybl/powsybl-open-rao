@@ -16,7 +16,11 @@ import com.powsybl.openrao.data.crac.api.networkaction.NetworkActionAdder;
 import java.io.IOException;
 import java.util.Map;
 
-import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.*;
+import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.ACTIVE_POWER_VALUE;
+import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.DANGLINGLINE_ACTIONS;
+import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.NETWORK_ELEMENTS_NAME_PER_ID;
+import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.NETWORK_ELEMENT_ID;
+import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.deserializeNetworkElement;
 
 /**
  * @author Pauline JEAN-MARIE {@literal <pauline.jean-marie at artelys.com>}

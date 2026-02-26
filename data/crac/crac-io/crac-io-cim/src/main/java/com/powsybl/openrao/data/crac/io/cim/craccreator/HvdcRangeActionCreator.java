@@ -26,7 +26,13 @@ import com.powsybl.openrao.data.crac.io.commons.iidm.IidmHvdcHelper;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.data.crac.io.cim.craccreator.CimConstants.MEGAWATT_UNIT_SYMBOL;

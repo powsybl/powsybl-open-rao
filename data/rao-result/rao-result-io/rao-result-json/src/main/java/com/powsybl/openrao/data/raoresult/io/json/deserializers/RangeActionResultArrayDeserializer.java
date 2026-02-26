@@ -23,7 +23,19 @@ import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.*;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.AFTER_PRA_SETPOINT;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.AFTER_PRA_TAP;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.CONTINGENCY_ID;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.INITIAL_SETPOINT;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.INITIAL_TAP;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.INSTANT;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.PSTRANGEACTION_ID;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.RANGEACTION_ID;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.RANGEACTION_RESULTS;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.RAO_RESULT_TYPE;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.SETPOINT;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.STATES_ACTIVATED;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.TAP;
 import static com.powsybl.openrao.data.raoresult.io.json.deserializers.Utils.checkDeprecatedField;
 
 /**

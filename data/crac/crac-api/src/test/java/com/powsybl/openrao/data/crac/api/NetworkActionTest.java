@@ -7,7 +7,13 @@
 
 package com.powsybl.openrao.data.crac.api;
 
-import com.powsybl.action.*;
+import com.powsybl.action.Action;
+import com.powsybl.action.GeneratorAction;
+import com.powsybl.action.GeneratorActionBuilder;
+import com.powsybl.action.PhaseTapChangerTapPositionAction;
+import com.powsybl.action.PhaseTapChangerTapPositionActionBuilder;
+import com.powsybl.action.SwitchAction;
+import com.powsybl.action.SwitchActionBuilder;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.networkaction.SwitchPair;
 import org.junit.jupiter.api.Test;

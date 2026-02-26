@@ -12,7 +12,18 @@ import com.powsybl.openrao.data.raoresult.api.RaoResult;
 
 import java.util.Properties;
 
-import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.*;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.DOCUMENT_ID;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.DOMAIN_ID;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.MNEC_ACCEPTABLE_MARGIN_DIMINUTION;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.PROCESS_TYPE;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.RECEIVER_ID;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.RECEIVER_ROLE;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.RELATIVE_POSITIVE_MARGINS;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.REVISION_NUMBER;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.SENDER_ID;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.SENDER_ROLE;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.TIME_INTERVAL;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.WITH_LOOP_FLOWS;
 
 /**
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}

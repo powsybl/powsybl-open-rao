@@ -17,7 +17,9 @@ import java.io.InputStream;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeParseException;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}

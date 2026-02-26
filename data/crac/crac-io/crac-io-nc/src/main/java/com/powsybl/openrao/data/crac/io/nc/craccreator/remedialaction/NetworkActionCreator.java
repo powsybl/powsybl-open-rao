@@ -7,7 +7,12 @@
 
 package com.powsybl.openrao.data.crac.io.nc.craccreator.remedialaction;
 
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Generator;
+import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.IdentifiableType;
+import com.powsybl.iidm.network.Load;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.ShuntCompensator;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.networkaction.ActionType;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkActionAdder;
@@ -23,7 +28,11 @@ import com.powsybl.openrao.data.crac.io.nc.objects.ShuntCompensatorModification;
 import com.powsybl.openrao.data.crac.io.nc.objects.StaticPropertyRange;
 import com.powsybl.openrao.data.crac.io.nc.objects.TopologyAction;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  * @author Mohamed Ben-rejeb {@literal <mohamed.ben-rejeb at rte-france.com>}

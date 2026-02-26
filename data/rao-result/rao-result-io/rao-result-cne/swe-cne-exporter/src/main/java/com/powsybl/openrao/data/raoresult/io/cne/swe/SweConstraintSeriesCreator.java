@@ -18,7 +18,10 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.*;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.B56_BUSINESS_TYPE;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.B57_BUSINESS_TYPE;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.DIVERGENCE_CODE;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.DIVERGENCE_TEXT;
 
 /**
  * Structures the chaining of RASeriesCreator and MonitoredSeriesCreator for SWE CNE format

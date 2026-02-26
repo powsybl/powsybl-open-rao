@@ -11,7 +11,9 @@ import com.powsybl.commons.config.PlatformConfig;
 
 import java.util.Objects;
 
-import static com.powsybl.openrao.raoapi.RaoParametersCommons.*;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.ENFORCE_CURATIVE_SECURITY;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.OBJECTIVE_FUNCTION_SECTION;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.TYPE;
 
 /**
  * Objective function parameters for RAO

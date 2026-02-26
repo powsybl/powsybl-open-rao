@@ -9,7 +9,14 @@ package com.powsybl.openrao.data.crac.io.commons.api;
 
 import org.junit.jupiter.api.Test;
 
-import static com.powsybl.openrao.data.crac.io.commons.api.ImportStatus.*;
+import static com.powsybl.openrao.data.crac.io.commons.api.ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK;
+import static com.powsybl.openrao.data.crac.io.commons.api.ImportStatus.IMPORTED;
+import static com.powsybl.openrao.data.crac.io.commons.api.ImportStatus.INCOMPLETE_DATA;
+import static com.powsybl.openrao.data.crac.io.commons.api.ImportStatus.INCONSISTENCY_IN_DATA;
+import static com.powsybl.openrao.data.crac.io.commons.api.ImportStatus.NOT_FOR_RAO;
+import static com.powsybl.openrao.data.crac.io.commons.api.ImportStatus.NOT_FOR_REQUESTED_TIMESTAMP;
+import static com.powsybl.openrao.data.crac.io.commons.api.ImportStatus.NOT_YET_HANDLED_BY_OPEN_RAO;
+import static com.powsybl.openrao.data.crac.io.commons.api.ImportStatus.OTHER;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**

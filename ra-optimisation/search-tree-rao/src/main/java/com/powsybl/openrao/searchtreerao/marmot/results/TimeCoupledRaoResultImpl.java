@@ -29,7 +29,11 @@ import com.powsybl.openrao.searchtreerao.result.api.ObjectiveFunctionResult;
 import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 import java.util.zip.ZipOutputStream;
 
 /**

@@ -20,7 +20,13 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
-import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.*;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.CONTINGENCY_ID;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.INSTANT;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.NETWORKACTION_ID;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.NETWORKACTION_RESULTS;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.STATES_ACTIVATED;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.STATE_COMPARATOR;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.serializeInstantId;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}

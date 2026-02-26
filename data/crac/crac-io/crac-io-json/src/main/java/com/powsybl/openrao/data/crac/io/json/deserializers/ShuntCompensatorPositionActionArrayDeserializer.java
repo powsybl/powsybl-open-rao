@@ -16,7 +16,11 @@ import com.powsybl.openrao.data.crac.api.networkaction.ShuntCompensatorPositionA
 import java.io.IOException;
 import java.util.Map;
 
-import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.*;
+import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.NETWORK_ELEMENTS_NAME_PER_ID;
+import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.NETWORK_ELEMENT_ID;
+import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.SECTION_COUNT;
+import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.SHUNTCOMPENSATOR_POSITION_ACTIONS;
+import static com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants.deserializeNetworkElement;
 
 /**
  * @author Pauline JEAN-MARIE {@literal <pauline.jean-marie at artelys.com>}

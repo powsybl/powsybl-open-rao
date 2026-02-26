@@ -16,11 +16,23 @@ import org.mockito.Mockito;
 
 import java.util.Optional;
 
-import static com.powsybl.openrao.commons.Unit.*;
+import static com.powsybl.openrao.commons.Unit.AMPERE;
+import static com.powsybl.openrao.commons.Unit.DEGREE;
+import static com.powsybl.openrao.commons.Unit.KILOVOLT;
+import static com.powsybl.openrao.commons.Unit.MEGAWATT;
+import static com.powsybl.openrao.commons.Unit.PERCENT_IMAX;
 import static com.powsybl.openrao.commons.Unit.TAP;
 import static com.powsybl.openrao.data.raoresult.api.ComputationStatus.DEFAULT;
 import static com.powsybl.openrao.data.raoresult.api.ComputationStatus.FAILURE;
-import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.*;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.INITIAL_INSTANT_ID;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.STATE_COMPARATOR;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.deserializeOptimizedInstant;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.deserializeOptimizedInstantId;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.deserializeStatus;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.deserializeUnit;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.serializeInstantId;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.serializeStatus;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.serializeUnit;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.mock;

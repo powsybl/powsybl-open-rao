@@ -16,7 +16,14 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.InstantKind;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.TreeMap;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}

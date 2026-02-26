@@ -18,11 +18,23 @@ import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
-import com.powsybl.openrao.data.raoresult.impl.*;
+import com.powsybl.openrao.data.raoresult.impl.AngleCnecResult;
+import com.powsybl.openrao.data.raoresult.impl.CostResult;
+import com.powsybl.openrao.data.raoresult.impl.ElementaryAngleCnecResult;
+import com.powsybl.openrao.data.raoresult.impl.ElementaryFlowCnecResult;
+import com.powsybl.openrao.data.raoresult.impl.ElementaryVoltageCnecResult;
+import com.powsybl.openrao.data.raoresult.impl.FlowCnecResult;
+import com.powsybl.openrao.data.raoresult.impl.NetworkActionResult;
+import com.powsybl.openrao.data.raoresult.impl.RangeActionResult;
+import com.powsybl.openrao.data.raoresult.impl.RaoResultImpl;
+import com.powsybl.openrao.data.raoresult.impl.VoltageCnecResult;
 
 import java.util.Set;
 
-import static com.powsybl.openrao.commons.Unit.*;
+import static com.powsybl.openrao.commons.Unit.AMPERE;
+import static com.powsybl.openrao.commons.Unit.DEGREE;
+import static com.powsybl.openrao.commons.Unit.KILOVOLT;
+import static com.powsybl.openrao.commons.Unit.MEGAWATT;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}

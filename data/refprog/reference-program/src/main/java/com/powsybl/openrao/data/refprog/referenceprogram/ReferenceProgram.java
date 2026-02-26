@@ -9,7 +9,11 @@ package com.powsybl.openrao.data.refprog.referenceprogram;
 
 import com.powsybl.openrao.commons.EICode;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}

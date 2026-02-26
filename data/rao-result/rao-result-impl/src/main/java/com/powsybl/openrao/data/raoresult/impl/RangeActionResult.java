@@ -9,7 +9,11 @@ package com.powsybl.openrao.data.raoresult.impl;
 
 import com.powsybl.openrao.data.crac.api.State;
 
-import java.util.*;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}

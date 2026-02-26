@@ -23,7 +23,9 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
-import static com.powsybl.openrao.data.crac.io.nc.craccreator.constants.NcConstants.*;
+import static com.powsybl.openrao.data.crac.io.nc.craccreator.constants.NcConstants.AUTO_INSTANT;
+import static com.powsybl.openrao.data.crac.io.nc.craccreator.constants.NcConstants.OUTAGE_INSTANT;
+import static com.powsybl.openrao.data.crac.io.nc.craccreator.constants.NcConstants.PREVENTIVE_INSTANT;
 
 /**
  * @author Jean-Pierre Arnould {@literal <jean-pierre.arnould at rte-france.com>}

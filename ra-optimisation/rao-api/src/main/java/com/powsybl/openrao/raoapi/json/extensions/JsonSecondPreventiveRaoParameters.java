@@ -15,7 +15,9 @@ import com.powsybl.openrao.raoapi.parameters.extensions.SecondPreventiveRaoParam
 
 import java.io.IOException;
 
-import static com.powsybl.openrao.raoapi.RaoParametersCommons.*;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.EXECUTION_CONDITION;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.HINT_FROM_FIRST_PREVENTIVE_RAO;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.SECOND_PREVENTIVE_RAO;
 
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}

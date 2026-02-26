@@ -39,7 +39,11 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.*;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.CNE_REQUIRED_PROPERTIES;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.CNE_TAG;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.CNE_XSD_2_3;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.CODELISTS_XSD;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.LOCALTYPES_XSD;
 import static com.powsybl.openrao.data.raoresult.io.cne.swe.SweCneUtil.SWE_CNE_EXPORT_PROPERTIES_PREFIX;
 
 /**

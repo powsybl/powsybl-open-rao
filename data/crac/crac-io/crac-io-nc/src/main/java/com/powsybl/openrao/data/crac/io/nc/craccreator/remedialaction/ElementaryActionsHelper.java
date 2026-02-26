@@ -9,7 +9,14 @@ package com.powsybl.openrao.data.crac.io.nc.craccreator.remedialaction;
 
 import com.powsybl.openrao.data.crac.io.nc.NcCrac;
 import com.powsybl.openrao.data.crac.io.nc.craccreator.NcAggregator;
-import com.powsybl.openrao.data.crac.io.nc.objects.*;
+import com.powsybl.openrao.data.crac.io.nc.objects.ContingencyWithRemedialAction;
+import com.powsybl.openrao.data.crac.io.nc.objects.RemedialActionDependency;
+import com.powsybl.openrao.data.crac.io.nc.objects.RemedialActionGroup;
+import com.powsybl.openrao.data.crac.io.nc.objects.RotatingMachineAction;
+import com.powsybl.openrao.data.crac.io.nc.objects.ShuntCompensatorModification;
+import com.powsybl.openrao.data.crac.io.nc.objects.StaticPropertyRange;
+import com.powsybl.openrao.data.crac.io.nc.objects.TapPositionAction;
+import com.powsybl.openrao.data.crac.io.nc.objects.TopologyAction;
 
 import java.util.Map;
 import java.util.Set;

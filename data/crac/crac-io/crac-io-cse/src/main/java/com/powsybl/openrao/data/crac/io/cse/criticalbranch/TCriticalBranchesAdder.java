@@ -11,9 +11,18 @@ import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.io.commons.ucte.UcteNetworkAnalyzer;
 import com.powsybl.openrao.data.crac.io.cse.CseCracCreationContext;
-import com.powsybl.openrao.data.crac.io.cse.xsd.*;
+import com.powsybl.openrao.data.crac.io.cse.xsd.TBaseCaseBranches;
+import com.powsybl.openrao.data.crac.io.cse.xsd.TBranch;
+import com.powsybl.openrao.data.crac.io.cse.xsd.TCRACSeries;
+import com.powsybl.openrao.data.crac.io.cse.xsd.TCriticalBranches;
+import com.powsybl.openrao.data.crac.io.cse.xsd.TOutage;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Alexandre Montigny {@literal <alexandre.montigny at rte-france.com>}

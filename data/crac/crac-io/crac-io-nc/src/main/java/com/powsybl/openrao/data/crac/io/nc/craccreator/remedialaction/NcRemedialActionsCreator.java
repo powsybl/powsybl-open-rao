@@ -7,7 +7,11 @@
 
 package com.powsybl.openrao.data.crac.io.nc.craccreator.remedialaction;
 
-import com.powsybl.action.*;
+import com.powsybl.action.Action;
+import com.powsybl.action.GeneratorAction;
+import com.powsybl.action.LoadAction;
+import com.powsybl.action.ShuntCompensatorPositionAction;
+import com.powsybl.action.SwitchAction;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
@@ -30,10 +34,21 @@ import com.powsybl.openrao.data.crac.io.nc.craccreator.NcAggregator;
 import com.powsybl.openrao.data.crac.io.nc.craccreator.NcCracCreationContext;
 import com.powsybl.openrao.data.crac.io.nc.craccreator.NcCracUtils;
 import com.powsybl.openrao.data.crac.io.nc.craccreator.constants.RemedialActionKind;
-import com.powsybl.openrao.data.crac.io.nc.objects.*;
+import com.powsybl.openrao.data.crac.io.nc.objects.AssessedElementWithRemedialAction;
+import com.powsybl.openrao.data.crac.io.nc.objects.ContingencyWithRemedialAction;
+import com.powsybl.openrao.data.crac.io.nc.objects.GridStateAlterationRemedialAction;
+import com.powsybl.openrao.data.crac.io.nc.objects.RemedialActionDependency;
+import com.powsybl.openrao.data.crac.io.nc.objects.RemedialActionGroup;
+import com.powsybl.openrao.data.crac.io.nc.objects.TapChanger;
+import com.powsybl.openrao.data.crac.io.nc.objects.TapPositionAction;
 import com.powsybl.openrao.data.crac.io.nc.parameters.NcCracCreationParameters;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 /**

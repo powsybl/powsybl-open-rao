@@ -24,7 +24,11 @@ import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.*;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.COMPUTATION_STATUS;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.FUNCTIONAL_COST;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.INITIAL_INSTANT_ID;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.VIRTUAL_COSTS;
+import static com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants.serializeStatus;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
