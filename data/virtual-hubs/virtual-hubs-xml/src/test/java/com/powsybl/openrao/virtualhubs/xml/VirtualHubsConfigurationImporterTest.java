@@ -13,7 +13,9 @@ import org.xml.sax.SAXException;
 
 import java.io.InputStream;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
@@ -25,7 +27,7 @@ class VirtualHubsConfigurationImporterTest {
         VirtualHubsConfiguration configuration = importer.importConfiguration(getClass().getResourceAsStream("/virtualHubsConfigurationFile.xml"));
 
         assertEquals(3, configuration.getMarketAreas().size());
-        assertEquals(4, configuration.getVirtualHubs().size());
+        assertEquals(5, configuration.getVirtualHubs().size());
         assertEquals(4, configuration.getBorderDirections().size());
     }
 

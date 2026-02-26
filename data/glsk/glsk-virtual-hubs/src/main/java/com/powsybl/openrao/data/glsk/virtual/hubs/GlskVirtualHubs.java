@@ -76,9 +76,13 @@ public final class GlskVirtualHubs {
         Map<String, Injection<?>> injections = new HashMap<>();
         virtualHubsConfiguration.getVirtualHubs()
                 .forEach(virtualHub -> {
-                    Injection<?> injection = getInjection(network, virtualHub);
-                    if (injection != null) {
-                        injections.put(virtualHub.eic(), injection);
+                    if (virtualHub.nodeName() == null) {
+                        OpenRaoLoggerProvider.BUSINESS_WARNS.warn("Virtual hub {} will be ignored as it has no nodeName", virtualHub.eic());
+                    } else {
+                        Injection<?> injection = getInjection(network, virtualHub);
+                        if (injection != null) {
+                            injections.put(virtualHub.eic(), injection);
+                        }
                     }
                 });
         return injections;
