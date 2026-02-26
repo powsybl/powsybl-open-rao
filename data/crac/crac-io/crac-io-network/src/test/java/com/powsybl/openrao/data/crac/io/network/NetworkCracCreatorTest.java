@@ -100,6 +100,18 @@ class NetworkCracCreatorTest {
         assertEquals(24, crac.getInjectionRangeActions().size());
     }
 
+    @Test
+    void testImportUcteFullOneSide() {
+        cracCreationParameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_SIDE_TWO);
+        importCracFrom("TestCase12Nodes.uct");
+        assertTrue(creationContext.isCreationSuccessful());
+        assertNotNull(crac);
+        assertEquals(16, crac.getContingencies().size());
+        assertEquals(496, crac.getFlowCnecs().size());
+        assertEquals(2, crac.getPstRangeActions().size());
+        assertEquals(24, crac.getInjectionRangeActions().size());
+    }
+
     private void checkCnec(String id, String neId, InstantKind instantKind, Unit thresholdUnit, double thresholdValue) {
         checkCnec(id, neId, instantKind, thresholdUnit, thresholdValue, thresholdValue);
     }
