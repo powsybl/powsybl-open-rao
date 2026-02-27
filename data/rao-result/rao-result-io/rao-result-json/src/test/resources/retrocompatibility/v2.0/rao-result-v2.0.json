@@ -446,35 +446,6 @@
       }
     }
   ],
-  "angleCnecResults": [
-    {
-      "angleCnecId": "angleCnecId",
-      "initial": {
-        "degree": {
-          "angle": 3135.0,
-          "margin": 3131.0
-        }
-      },
-      "preventive": {
-        "degree": {
-          "angle": 3235.0,
-          "margin": 3231.0
-        }
-      },
-      "auto": {
-        "degree": {
-          "angle": 3335.0,
-          "margin": 3331.0
-        }
-      },
-      "curative": {
-        "degree": {
-          "angle": 3435.0,
-          "margin": 3431.0
-        }
-      }
-    }
-  ],
   "voltageCnecResults": [
     {
       "voltageCnecId": "voltageCnecId",

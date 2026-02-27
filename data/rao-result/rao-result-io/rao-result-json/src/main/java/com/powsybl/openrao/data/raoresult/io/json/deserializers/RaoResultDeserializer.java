@@ -18,6 +18,7 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonUtils;
+import com.powsybl.openrao.data.raoresult.io.json.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,6 +56,7 @@ public class RaoResultDeserializer extends JsonDeserializer<RaoResult> {
         List<Extension<RaoResult>> extensions = Collections.emptyList();
 
         String jsonFileVersion = isValid(jsonParser, raoResult);
+        Version version = Version.parse(jsonFileVersion);
         if (checkHeaderOnly) {
             return null;
         }
@@ -95,9 +97,14 @@ public class RaoResultDeserializer extends JsonDeserializer<RaoResult> {
                     break;
 
                 case ANGLECNEC_RESULTS:
-                    jsonParser.nextToken();
-                    AngleCnecResultArrayDeserializer.deserialize(jsonParser, raoResult, crac, jsonFileVersion);
-                    break;
+                    if (version.major() == 1) {
+                        System.out.println(version);
+                        jsonParser.nextToken();
+                        AngleCnecResultArrayDeserializer.deserialize(jsonParser, raoResult, crac, jsonFileVersion);
+                        break;
+                    } else {
+                        throw new OpenRaoException("From version 2.0 onward, AngleCNEC results are no longer in the RAO Result but in the 'angle-results' extension");
+                    }
 
                 case VOLTAGECNEC_RESULTS:
                     jsonParser.nextToken();
@@ -124,6 +131,7 @@ public class RaoResultDeserializer extends JsonDeserializer<RaoResult> {
                     break;
                 case "extensions":
                     jsonParser.nextToken();
+                    deserializationContext.setAttribute("version", version);
                     deserializationContext.setAttribute("crac", crac);
                     extensions = JsonUtil.updateExtensions(jsonParser, deserializationContext, RaoResultJsonUtils.getExtensionSerializers(), raoResult);
                     break;

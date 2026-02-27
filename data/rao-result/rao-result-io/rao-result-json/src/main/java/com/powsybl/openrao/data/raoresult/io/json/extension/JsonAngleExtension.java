@@ -20,6 +20,7 @@ import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
 import com.powsybl.openrao.data.raoresult.api.extension.AngleExtension;
 import com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonUtils;
+import com.powsybl.openrao.data.raoresult.io.json.Version;
 
 import java.io.IOException;
 
@@ -35,6 +36,10 @@ public class JsonAngleExtension implements RaoResultJsonUtils.ExtensionSerialize
 
     @Override
     public AngleExtension deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
+        Version version = (Version) deserializationContext.getAttribute("version");
+        if (version.major() == 1) {
+            throw new OpenRaoException("Angle results extension is only available for JSON RAO Result versions >= 2.");
+        }
         Crac crac = (Crac) deserializationContext.getAttribute("crac");
         AngleExtension angleExtension = new AngleExtension();
         while (jsonParser.nextToken() != JsonToken.END_ARRAY) {
