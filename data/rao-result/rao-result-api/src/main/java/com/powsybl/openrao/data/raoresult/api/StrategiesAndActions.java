@@ -8,21 +8,10 @@
 package com.powsybl.openrao.data.raoresult.api;
 
 import com.powsybl.action.ActionList;
-import com.powsybl.contingency.Contingency;
-import com.powsybl.security.strategy.OperatorStrategy;
 import com.powsybl.security.strategy.OperatorStrategyList;
-
-import java.util.Optional;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public record StrategiesAndActions(OperatorStrategyList operatorStrategies, ActionList actions) {
-    public Optional<OperatorStrategy> getPreventiveStrategy() {
-        return operatorStrategies.getOperatorStrategies().stream().filter(operatorStrategy -> operatorStrategy.getContingencyContext().getContingencyId() == null).findFirst();
-    }
-
-    public Optional<OperatorStrategy> getStrategy(Contingency contingency) {
-        return operatorStrategies.getOperatorStrategies().stream().filter(operatorStrategy -> contingency.getId().equals(operatorStrategy.getContingencyContext().getContingencyId())).findFirst();
-    }
+public record StrategiesAndActions(OperatorStrategyList operatorStrategyList, ActionList actionList) {
 }
