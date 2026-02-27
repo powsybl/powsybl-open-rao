@@ -7,7 +7,12 @@
 
 package com.powsybl.openrao.data.crac.api.rangeaction;
 
+import com.powsybl.action.Action;
 import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.commons.OpenRaoException;
+
+import java.util.Set;
 
 /**
  * @author Gabriel Plante {@literal <gabriel.plante_externe at rte-france.com>}
@@ -23,4 +28,9 @@ public interface CounterTradeRangeAction extends StandardRangeAction<CounterTrad
      * Get the importing country
      */
     Country getImportingCountry();
+
+    @Override
+    default Set<Action> toActions(double setPoint, Network network) {
+        throw new OpenRaoException("toActions is not implemented for CounterTradeRangeActions.");
+    }
 }

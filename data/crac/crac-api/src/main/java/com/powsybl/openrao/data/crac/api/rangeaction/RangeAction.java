@@ -7,11 +7,13 @@
 
 package com.powsybl.openrao.data.crac.api.rangeaction;
 
+import com.powsybl.action.Action;
 import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.iidm.network.Network;
 
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Remedial action interface specifying an action of type range.
@@ -70,4 +72,6 @@ public interface RangeAction<T extends RangeAction<T>> extends RemedialAction<T>
         double variationCost = getVariationCost(variation > 0 ? VariationDirection.UP : VariationDirection.DOWN).orElse(0.) * Math.abs(variation);
         return activationCost + variationCost;
     }
+
+    Set<Action> toActions(double setPoint, Network network);
 }

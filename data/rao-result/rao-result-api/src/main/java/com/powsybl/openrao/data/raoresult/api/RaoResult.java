@@ -9,6 +9,7 @@ package com.powsybl.openrao.data.raoresult.api;
 
 import com.powsybl.commons.extensions.Extendable;
 import com.powsybl.commons.util.ServiceLoaderCache;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
@@ -554,5 +555,9 @@ public interface RaoResult extends Extendable<RaoResult> {
      */
     default void write(String format, Crac crac, Properties properties, OutputStream outputStream) {
         write(new ServiceLoaderCache<>(Exporter.class).getServices(), format, crac, properties, outputStream);
+    }
+
+    default StrategiesAndActions getOperatorStrategies(Crac crac, Network network) {
+        return OperatorStrategyConverter.getOperatorStrategies(this, crac, network);
     }
 }
