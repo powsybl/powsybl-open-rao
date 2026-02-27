@@ -21,9 +21,10 @@ import com.powsybl.openrao.data.crac.io.fbconstraint.parameters.FbConstraintCrac
 import com.powsybl.openrao.data.crac.io.nc.parameters.NcCracCreationParameters;
 import com.powsybl.openrao.data.glsk.virtual.hubs.GlskVirtualHubs;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.data.raoresult.api.extension.AngleExtension;
 import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceProgram;
+import com.powsybl.openrao.monitoring.results.AngleMonitoringResultAdapter;
 import com.powsybl.openrao.monitoring.results.MonitoringResult;
-import com.powsybl.openrao.monitoring.results.RaoResultWithAngleMonitoring;
 import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.FastRaoParameters;
@@ -93,7 +94,7 @@ public final class CommonTestData {
     public static void setRaoResult(RaoResult raoResult) {
         if (CommonTestData.monitoringResult != null) {
             // update RAO result with angle values
-            CommonTestData.raoResult = new RaoResultWithAngleMonitoring(raoResult, CommonTestData.monitoringResult);
+            CommonTestData.raoResult.addExtension(AngleExtension.class, AngleMonitoringResultAdapter.convertToAngleExtension(CommonTestData.monitoringResult));
         } else {
             CommonTestData.raoResult = raoResult;
         }
@@ -103,7 +104,7 @@ public final class CommonTestData {
         CommonTestData.monitoringResult = result;
         if (CommonTestData.raoResult != null) {
             // update RAO result with angle values
-            CommonTestData.raoResult = new RaoResultWithAngleMonitoring(CommonTestData.raoResult, CommonTestData.monitoringResult);
+            CommonTestData.raoResult.addExtension(AngleExtension.class, AngleMonitoringResultAdapter.convertToAngleExtension(CommonTestData.monitoringResult));
         }
     }
 

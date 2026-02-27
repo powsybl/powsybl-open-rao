@@ -17,7 +17,6 @@ import com.powsybl.iidm.modification.scalable.Scalable;
 import com.powsybl.iidm.network.ImportConfig;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlowParameters;
-import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
@@ -37,6 +36,7 @@ import com.powsybl.openrao.data.crac.io.cim.craccreator.CimCracCreationContext;
 import com.powsybl.openrao.data.crac.io.cim.parameters.CimCracCreationParameters;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.data.raoresult.api.extension.AngleExtension;
 import com.powsybl.openrao.monitoring.results.CnecResult;
 import com.powsybl.openrao.monitoring.results.MonitoringResult;
 import org.junit.jupiter.api.BeforeEach;
@@ -60,7 +60,7 @@ import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -307,9 +307,12 @@ class AngleMonitoringTest {
         assertEquals(1, raoResultWithAngleMonitoring.getActivatedNetworkActionsDuringState(state).size());
         assertTrue(raoResultWithAngleMonitoring.getActivatedNetworkActionsDuringState(state).contains(crac.getNetworkAction("RA-1")));
         assertEquals(0, raoResultWithAngleMonitoring.getActivatedRangeActionsDuringState(crac.getState("Co-2", curativeInstant)).size());
+
         // angle values
-        assertEquals(5.22, raoResultWithAngleMonitoring.getAngle(crac.getLastInstant(), crac.getAngleCnec("AngleCnec1"), Unit.DEGREE), ANGLE_TOLERANCE);
-        assertEquals(-19.33, raoResultWithAngleMonitoring.getAngle(crac.getLastInstant(), crac.getAngleCnec("AngleCnec2"), Unit.DEGREE), ANGLE_TOLERANCE);
+        AngleExtension angleExtension = raoResultWithAngleMonitoring.getExtension(AngleExtension.class);
+        assertNotNull(angleExtension);
+        assertEquals(5.22, angleExtension.getAngle(crac.getLastInstant(), crac.getAngleCnec("AngleCnec1"), Unit.DEGREE), ANGLE_TOLERANCE);
+        assertEquals(-19.33, angleExtension.getAngle(crac.getLastInstant(), crac.getAngleCnec("AngleCnec2"), Unit.DEGREE), ANGLE_TOLERANCE);
     }
 
     @Test
@@ -366,8 +369,12 @@ class AngleMonitoringTest {
         MonitoringInput monitoringInput = new MonitoringInput.MonitoringInputBuilder().withCrac(crac).withNetwork(network).withRaoResult(raoResult).withPhysicalParameter(PhysicalParameter.ANGLE).withScalableZonalData(scalableZonalData).build();
         RaoResult raoResultWithAngleMonitoring = Monitoring.runAngleAndUpdateRaoResult("OpenLoadFlow", loadFlowParameters, 2, monitoringInput);
 
-        assertThrows(OpenRaoException.class, () -> raoResultWithAngleMonitoring.getAngle(crac.getPreventiveState().getInstant(), acCur1, Unit.DEGREE));
-        assertEquals(2.22, raoResultWithAngleMonitoring.getMargin(crac.getInstant(CURATIVE_INSTANT_ID), acCur1, Unit.DEGREE), 0.01);
+        AngleExtension angleExtension = raoResultWithAngleMonitoring.getExtension(AngleExtension.class);
+        assertNotNull(angleExtension);
+
+        assertEquals(Double.NaN, angleExtension.getAngle(crac.getPreventiveState().getInstant(), acCur1, Unit.DEGREE));
+        assertEquals(2.22, angleExtension.getMargin(crac.getInstant(CURATIVE_INSTANT_ID), acCur1, Unit.DEGREE), 0.01);
+
         assertEquals(Set.of(naL1Cur), raoResultWithAngleMonitoring.getActivatedNetworkActionsDuringState(crac.getState("coL1", crac.getInstant(CURATIVE_INSTANT_ID))));
         assertTrue(raoResultWithAngleMonitoring.isActivatedDuringState(crac.getState("coL1", crac.getInstant(CURATIVE_INSTANT_ID)), naL1Cur));
         assertEquals(ComputationStatus.DEFAULT, raoResultWithAngleMonitoring.getComputationStatus());
