@@ -9,20 +9,20 @@ package com.powsybl.openrao.monitoring.results;
 
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
-import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.State;
-import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec.SecurityStatus;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
-import com.powsybl.openrao.data.crac.impl.AngleCnecValue;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.RaoResultClone;
 import com.powsybl.openrao.data.raoresult.api.extension.AngleExtension;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -44,8 +44,7 @@ public class RaoResultWithAngleMonitoring extends RaoResultClone {
         }
         this.angleMonitoringResult = angleMonitoringResult;
         AngleExtension angleExtension = AngleMonitoringResultAdapter.convertToAngleExtension(angleMonitoringResult);
-        this.raoResult.addExtension(AngleExtension.class, angleExtension);
-        angleExtension.setExtendable(this.raoResult);
+        this.addExtension(AngleExtension.class, angleExtension);
     }
 
     @Override
@@ -55,32 +54,6 @@ public class RaoResultWithAngleMonitoring extends RaoResultClone {
         } else {
             return ComputationStatus.FAILURE;
         }
-    }
-
-    public SecurityStatus getSecurityStatus() {
-        return angleMonitoringResult.getStatus();
-    }
-
-    @Override
-    public double getAngle(Instant optimizationInstant, AngleCnec angleCnec, Unit unit) {
-        unit.checkPhysicalParameter(PhysicalParameter.ANGLE);
-        if (optimizationInstant == null || !optimizationInstant.isCurative()) {
-            throw new OpenRaoException("Unexpected optimization instant for angle monitoring result (only curative instant is supported currently) : " + optimizationInstant);
-        }
-        Optional<CnecResult> angleCnecResultOpt = angleMonitoringResult.getCnecResults().stream().filter(angleCnecRes -> angleCnecRes.getId().equals(angleCnec.getId())).findFirst();
-
-        if (angleCnecResultOpt.isPresent()) {
-            return ((AngleCnecValue) angleCnecResultOpt.get().getValue()).value();
-        } else {
-            return Double.NaN;
-        }
-    }
-
-    @Override
-    public double getMargin(Instant optimizationInstant, AngleCnec angleCnec, Unit unit) {
-        unit.checkPhysicalParameter(PhysicalParameter.ANGLE);
-        Optional<CnecResult> angleCnecResultOpt = angleMonitoringResult.getCnecResults().stream().filter(angleCnecRes -> angleCnecRes.getId().equals(angleCnec.getId())).findFirst();
-        return angleCnecResultOpt.map(CnecResult::getMargin).orElse(Double.NaN);
     }
 
     @Override

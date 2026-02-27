@@ -209,14 +209,14 @@ class ImporterRetrocompatibilityTest {
     }
 
     @Test
-    void importV1Point9Test() throws IOException {
-        InputStream raoResultFile = getClass().getResourceAsStream("/retrocompatibility/v1.9/rao-result-v1.9.json");
-        InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v1.9/crac-for-rao-result-v1.9.json");
+    void importV2Point0Test() throws IOException {
+        InputStream raoResultFile = getClass().getResourceAsStream("/retrocompatibility/v2.0/rao-result-v2.0.json");
+        InputStream cracFile = getClass().getResourceAsStream("/retrocompatibility/v2.0/crac-for-rao-result-v2.0.json");
 
-        Crac crac = Crac.read("crac-for-rao-result-v1.9.json", cracFile, NETWORK);
+        Crac crac = Crac.read("crac-for-rao-result-v2.0.json", cracFile, NETWORK);
         RaoResult raoResult = new RaoResultJsonImporter().importData(raoResultFile, crac);
 
-        testBaseContentOfV1Point9RaoResult(raoResult, crac);
+        testBaseContentOfV2Point0RaoResult(raoResult, crac);
     }
 
     @Test
@@ -493,15 +493,18 @@ class ImporterRetrocompatibilityTest {
         assertEquals(100., importedRaoResult.getOptimizedSetPointOnState(crac.getPreventiveState(), rangeAction), DOUBLE_TOLERANCE);
         assertEquals(-300., importedRaoResult.getOptimizedSetPointOnState(crac.getState("contingency1Id", curativeInstant), rangeAction), DOUBLE_TOLERANCE);
 
+        AngleExtension angleExtension = importedRaoResult.getExtension(AngleExtension.class);
+        assertNotNull(angleExtension);
+
         AngleCnec angleCnec = crac.getAngleCnec("angleCnecId");
-        assertEquals(3135., importedRaoResult.getAngle(null, angleCnec, DEGREE), DOUBLE_TOLERANCE);
-        assertEquals(3131., importedRaoResult.getMargin(null, angleCnec, DEGREE), DOUBLE_TOLERANCE);
-        assertEquals(3235., importedRaoResult.getAngle(preventiveInstant, angleCnec, DEGREE), DOUBLE_TOLERANCE);
-        assertEquals(3231., importedRaoResult.getMargin(preventiveInstant, angleCnec, DEGREE), DOUBLE_TOLERANCE);
-        assertEquals(3335., importedRaoResult.getAngle(autoInstant, angleCnec, DEGREE), DOUBLE_TOLERANCE);
-        assertEquals(3331., importedRaoResult.getMargin(autoInstant, angleCnec, DEGREE), DOUBLE_TOLERANCE);
-        assertEquals(3435., importedRaoResult.getAngle(curativeInstant, angleCnec, DEGREE), DOUBLE_TOLERANCE);
-        assertEquals(3431., importedRaoResult.getMargin(curativeInstant, angleCnec, DEGREE), DOUBLE_TOLERANCE);
+        assertEquals(3135.0, angleExtension.getAngle(null, angleCnec, DEGREE), DOUBLE_TOLERANCE);
+        assertEquals(-3045.0, angleExtension.getMargin(null, angleCnec, DEGREE), DOUBLE_TOLERANCE);
+        assertEquals(3235.0, angleExtension.getAngle(preventiveInstant, angleCnec, DEGREE), DOUBLE_TOLERANCE);
+        assertEquals(-3145.0, angleExtension.getMargin(preventiveInstant, angleCnec, DEGREE), DOUBLE_TOLERANCE);
+        assertEquals(3335.0, angleExtension.getAngle(autoInstant, angleCnec, DEGREE), DOUBLE_TOLERANCE);
+        assertEquals(-3245.0, angleExtension.getMargin(autoInstant, angleCnec, DEGREE), DOUBLE_TOLERANCE);
+        assertEquals(3435.0, angleExtension.getAngle(curativeInstant, angleCnec, DEGREE), DOUBLE_TOLERANCE);
+        assertEquals(-3345.0, angleExtension.getMargin(curativeInstant, angleCnec, DEGREE), DOUBLE_TOLERANCE);
 
         checkVoltages(importedRaoResult, crac, 1, 1);
     }
@@ -822,15 +825,18 @@ class ImporterRetrocompatibilityTest {
         /*
         AngleCnec
         */
+        AngleExtension angleExtension = importedRaoResult.getExtension(AngleExtension.class);
+        assertNotNull(angleExtension);
+
         AngleCnec angleCnec = crac.getAngleCnec("angleCnecId");
-        assertEquals(3135., importedRaoResult.getAngle(null, angleCnec, DEGREE), DOUBLE_TOLERANCE);
-        assertEquals(3131., importedRaoResult.getMargin(null, angleCnec, DEGREE), DOUBLE_TOLERANCE);
-        assertEquals(3235., importedRaoResult.getAngle(preventiveInstant, angleCnec, DEGREE), DOUBLE_TOLERANCE);
-        assertEquals(3231., importedRaoResult.getMargin(preventiveInstant, angleCnec, DEGREE), DOUBLE_TOLERANCE);
-        assertEquals(3335., importedRaoResult.getAngle(autoInstant, angleCnec, DEGREE), DOUBLE_TOLERANCE);
-        assertEquals(3331., importedRaoResult.getMargin(autoInstant, angleCnec, DEGREE), DOUBLE_TOLERANCE);
-        assertEquals(3435., importedRaoResult.getAngle(curativeInstant, angleCnec, DEGREE), DOUBLE_TOLERANCE);
-        assertEquals(3431., importedRaoResult.getMargin(curativeInstant, angleCnec, DEGREE), DOUBLE_TOLERANCE);
+        assertEquals(3135.0, angleExtension.getAngle(null, angleCnec, DEGREE), DOUBLE_TOLERANCE);
+        assertEquals(-3045.0, angleExtension.getMargin(null, angleCnec, DEGREE), DOUBLE_TOLERANCE);
+        assertEquals(3235.0, angleExtension.getAngle(preventiveInstant, angleCnec, DEGREE), DOUBLE_TOLERANCE);
+        assertEquals(-3145.0, angleExtension.getMargin(preventiveInstant, angleCnec, DEGREE), DOUBLE_TOLERANCE);
+        assertEquals(3335.0, angleExtension.getAngle(autoInstant, angleCnec, DEGREE), DOUBLE_TOLERANCE);
+        assertEquals(-3245.0, angleExtension.getMargin(autoInstant, angleCnec, DEGREE), DOUBLE_TOLERANCE);
+        assertEquals(3435.0, angleExtension.getAngle(curativeInstant, angleCnec, DEGREE), DOUBLE_TOLERANCE);
+        assertEquals(-3345.0, angleExtension.getMargin(curativeInstant, angleCnec, DEGREE), DOUBLE_TOLERANCE);
     }
 
     private void testBaseContentOfV1Point3RaoResult(RaoResult importedRaoResult, Crac crac) {
@@ -868,24 +874,7 @@ class ImporterRetrocompatibilityTest {
         testBaseContentOfV1Point7RaoResult(importedRaoResult, crac);
     }
 
-    private void testBaseContentOfV1Point9RaoResult(RaoResult importedRaoResult, Crac crac) {
+    private void testBaseContentOfV2Point0RaoResult(RaoResult importedRaoResult, Crac crac) {
         testBaseContentOfV1Point8RaoResult(importedRaoResult, crac);
-
-        AngleExtension angleExtension = importedRaoResult.getExtension(AngleExtension.class);
-        assertNotNull(angleExtension);
-
-        AngleCnec angleCnec = crac.getAngleCnec("angleCnecId");
-
-        assertEquals(3135.0, angleExtension.getAngle(null, angleCnec, DEGREE));
-        assertEquals(-3045.0, angleExtension.getMargin(null, angleCnec, DEGREE));
-
-        assertEquals(3235.0, angleExtension.getAngle(crac.getInstant("preventive"), angleCnec, DEGREE));
-        assertEquals(-3145.0, angleExtension.getMargin(crac.getInstant("preventive"), angleCnec, DEGREE));
-
-        assertEquals(3335.0, angleExtension.getAngle(crac.getInstant("auto"), angleCnec, DEGREE));
-        assertEquals(-3245.0, angleExtension.getMargin(crac.getInstant("auto"), angleCnec, DEGREE));
-
-        assertEquals(3435.0, angleExtension.getAngle(crac.getInstant("curative"), angleCnec, DEGREE));
-        assertEquals(-3345.0, angleExtension.getMargin(crac.getInstant("curative"), angleCnec, DEGREE));
     }
 }

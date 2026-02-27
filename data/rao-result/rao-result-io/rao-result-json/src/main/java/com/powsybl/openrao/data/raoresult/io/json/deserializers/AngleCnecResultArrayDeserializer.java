@@ -49,8 +49,8 @@ final class AngleCnecResultArrayDeserializer {
             deserializeAngleCnecResult(jsonParser, angleCnec, angleCnecResult, angleExtension, jsonFileVersion, crac);
         }
 
-        // raoResult.addExtension(AngleExtension.class, angleExtension);
-        // angleExtension.setExtendable(raoResult);
+        raoResult.addExtension(AngleExtension.class, angleExtension);
+        angleExtension.setExtendable(raoResult);
     }
 
     private static void deserializeAngleCnecResult(JsonParser jsonParser, AngleCnec angleCnec, AngleCnecResult angleCnecResult, AngleExtension angleExtension, String jsonFileVersion, Crac crac) throws IOException {

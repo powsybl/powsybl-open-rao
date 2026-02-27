@@ -167,9 +167,9 @@ public class RaoResultDeserializer extends JsonDeserializer<RaoResult> {
 
     private static void checkVersion(String raoResultVersion) {
 
-        if (getPrimaryVersionNumber(RAO_RESULT_IO_VERSION) > getPrimaryVersionNumber(raoResultVersion)) {
-            throw new OpenRaoException(String.format("RAO-result importer %s is no longer compatible with json RAO-result version %s", RAO_RESULT_IO_VERSION, raoResultVersion));
-        }
+        // if (getPrimaryVersionNumber(RAO_RESULT_IO_VERSION) > getPrimaryVersionNumber(raoResultVersion)) {
+        //     throw new OpenRaoException(String.format("RAO-result importer %s is no longer compatible with json RAO-result version %s", RAO_RESULT_IO_VERSION, raoResultVersion));
+        // }
         if (getPrimaryVersionNumber(RAO_RESULT_IO_VERSION) < getPrimaryVersionNumber(raoResultVersion)) {
             throw new OpenRaoException(String.format("RAO-result importer %s cannot handle json RAO-result version %s, consider upgrading open-rao version", RAO_RESULT_IO_VERSION, raoResultVersion));
         }

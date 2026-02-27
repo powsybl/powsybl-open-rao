@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.raoresult.io.cne.swe;
 
+import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
@@ -21,11 +22,15 @@ import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.monitoring.results.CnecResult;
 import com.powsybl.openrao.monitoring.results.MonitoringResult;
 import com.powsybl.openrao.monitoring.results.RaoResultWithAngleMonitoring;
-import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.Map;
@@ -59,7 +64,7 @@ class SweCneDivergentAngleMonitoringTest {
             Map.of(crac.getState("Co-1", crac.getInstant(InstantKind.CURATIVE)), Set.of(crac.getRemedialAction("na1"))),
             Cnec.SecurityStatus.FAILURE);
 
-        RaoResultWithAngleMonitoring raoResultWithAngleMonitoring = new RaoResultWithAngleMonitoring(raoResult, monitoringResult);
+        raoResult = new RaoResultWithAngleMonitoring(raoResult, monitoringResult);
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         Properties properties = new Properties();
@@ -72,7 +77,7 @@ class SweCneDivergentAngleMonitoringTest {
         properties.setProperty("rao-result.export.swe-cne.receiver-id", "receiverId");
         properties.setProperty("rao-result.export.swe-cne.receiver-role", "A36");
         properties.setProperty("rao-result.export.swe-cne.time-interval", "2021-04-02T12:00:00Z/2021-04-02T13:00:00Z");
-        new SweCneExporter().exportData(raoResultWithAngleMonitoring, cracCreationContext, properties, outputStream);
+        new SweCneExporter().exportData(raoResult, cracCreationContext, properties, outputStream);
         try {
             InputStream expectedCneInputStream = new FileInputStream(SweCneDivergentAngleMonitoringTest.class.getResource("/SweCNEDivergentAngleMonitoring_Z01.xml").getFile());
             SweCneTest.compareCneFiles(expectedCneInputStream, new ByteArrayInputStream(outputStream.toByteArray()));
