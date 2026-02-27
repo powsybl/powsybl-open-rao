@@ -28,6 +28,7 @@ The formats currently supported by OpenRAO are:
 - [CSE CRAC](cse.md) (import only)
 - [CIM CRAC](cim.md) (import only)
 - [CSA PROFILES CRAC](nc.md) (import only)
+- Also, an automatic [CRAC generator](crac-generator.md) from a network file.
 
 ## Versioning of internal JSON CRAC files
 
