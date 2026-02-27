@@ -137,14 +137,14 @@ class HvdcRangeActionImplTest {
     void hvdcWithNoMin() {
         StandardRangeAdder<HvdcRangeActionAdder> standardRangeAdder = hvdcRangeActionAdder.newRange().withMax(10);
         OpenRaoException exception = assertThrows(OpenRaoException.class, standardRangeAdder::add);
-        assertEquals("StandardRange min value was not defined.", exception.getMessage());
+        assertEquals("StandardRange min value was not defined for absolute range.", exception.getMessage());
     }
 
     @Test
     void hvdcWithNoMax() {
         StandardRangeAdder<HvdcRangeActionAdder> standardRangeAdder = hvdcRangeActionAdder.newRange().withMin(10);
         OpenRaoException exception = assertThrows(OpenRaoException.class, standardRangeAdder::add);
-        assertEquals("StandardRange max value was not defined.", exception.getMessage());
+        assertEquals("StandardRange max value was not defined for absolute range.", exception.getMessage());
     }
 
     @Test

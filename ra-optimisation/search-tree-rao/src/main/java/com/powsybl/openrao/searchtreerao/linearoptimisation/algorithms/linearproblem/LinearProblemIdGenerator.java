@@ -34,7 +34,8 @@ public final class LinearProblemIdGenerator {
 
     private static final String TAP = "tap";
     private static final String TAP_VARIATION = "tapvariation";
-    private static final String TAP_VARIATION_BINARY = "isvariation";
+    private static final String RANGE_ACTION_MINIMUM_ADJUSTMENT = "minadjustment";
+    private static final String RANGE_ACTION_VARIATION_BINARY = "isvariation";
     private static final String TAP_TO_ANGLE_CONVERSION = "taptoangleconversion";
     private static final String UP_OR_DOWN_VARIATION = "upordownvariation";
     private static final String VIRTUAL_SET_POINT = "virtualsetpoint";
@@ -111,27 +112,36 @@ public final class LinearProblemIdGenerator {
     }
 
     public static String rangeActionBinaryVariableId(RangeAction<?> rangeAction, State state) {
-        return formatName(rangeAction.getId(), state.getId(), TAP_VARIATION_BINARY, VARIABLE_SUFFIX);
+        return formatName(rangeAction.getId(), state.getId(), RANGE_ACTION_VARIATION_BINARY, VARIABLE_SUFFIX);
     }
 
     public static String pstTapBinaryVariationInDirectionId(RangeAction<?> rangeAction, State state, LinearProblem.VariationDirectionExtension upwardOrDownward) {
-        return formatName(rangeAction.getId(), state.getId(), TAP_VARIATION_BINARY + upwardOrDownward.toString().toLowerCase(), VARIABLE_SUFFIX);
+        return formatName(rangeAction.getId(), state.getId(), RANGE_ACTION_VARIATION_BINARY + upwardOrDownward.toString().toLowerCase(), VARIABLE_SUFFIX);
     }
 
     public static String tapToAngleConversionConstraintId(RangeAction<?> rangeAction, State state) {
         return formatName(rangeAction.getId(), state.getId(), TAP_TO_ANGLE_CONVERSION, CONSTRAINT_SUFFIX);
     }
 
-    public static String upOrDownPstVariationConstraintId(RangeAction<?> rangeAction, State state) {
+    public static String upOrDownVariationConstraintId(RangeAction<?> rangeAction, State state) {
         return formatName(rangeAction.getId(), state.getId(), UP_OR_DOWN_VARIATION, CONSTRAINT_SUFFIX);
     }
 
     public static String isVariationConstraintId(RangeAction<?> rangeAction, State state) {
-        return formatName(rangeAction.getId(), state.getId(), TAP_VARIATION_BINARY, CONSTRAINT_SUFFIX);
+        return formatName(rangeAction.getId(), state.getId(), RANGE_ACTION_VARIATION_BINARY, CONSTRAINT_SUFFIX);
+    }
+
+    public static String isVariationInDirectionVariableId(RangeAction<?> rangeAction, State state, LinearProblem.VariationDirectionExtension upwardOrDownward) {
+        return formatName(rangeAction.getId(), state.getId(), RANGE_ACTION_VARIATION_BINARY + upwardOrDownward.toString().toLowerCase(), VARIABLE_SUFFIX);
     }
 
     public static String isVariationInDirectionConstraintId(RangeAction<?> rangeAction, State state, LinearProblem.VariationReferenceExtension preperimeterOrPreviousIteration, LinearProblem.VariationDirectionExtension upwardOrDownward) {
-        return formatName(rangeAction.getId(), state.getId(), TAP_VARIATION_BINARY, preperimeterOrPreviousIteration.toString().toLowerCase(), upwardOrDownward.toString().toLowerCase(), CONSTRAINT_SUFFIX);
+        return formatName(rangeAction.getId(), state.getId(),
+                          RANGE_ACTION_VARIATION_BINARY, preperimeterOrPreviousIteration.toString().toLowerCase(), upwardOrDownward.toString().toLowerCase(), CONSTRAINT_SUFFIX);
+    }
+
+    public static String minAdjustmentConstraintId(RangeAction<?> rangeAction, State state) {
+        return formatName(rangeAction.getId(), state.getId(), RANGE_ACTION_MINIMUM_ADJUSTMENT, CONSTRAINT_SUFFIX);
     }
 
     public static String rangeActionGroupSetpointVariableId(String rangeActionGroupId, State state

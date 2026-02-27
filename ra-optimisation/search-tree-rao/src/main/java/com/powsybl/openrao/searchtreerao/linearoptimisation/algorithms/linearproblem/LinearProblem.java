@@ -217,12 +217,20 @@ public final class LinearProblem {
         return solver.getConstraint(tapToAngleConversionConstraintId(rangeAction, state));
     }
 
-    public OpenRaoMPConstraint addUpOrDownPstVariationConstraint(PstRangeAction rangeAction, State state) {
-        return solver.makeConstraint(upOrDownPstVariationConstraintId(rangeAction, state));
+    public OpenRaoMPConstraint addUpOrDownVariationConstraint(RangeAction<?> rangeAction, State state) {
+        return solver.makeConstraint(upOrDownVariationConstraintId(rangeAction, state));
     }
 
-    public OpenRaoMPConstraint getUpOrDownPstVariationConstraint(PstRangeAction rangeAction, State state) {
-        return solver.getConstraint(upOrDownPstVariationConstraintId(rangeAction, state));
+    public OpenRaoMPConstraint getUpOrDownVariationConstraint(RangeAction<?> rangeAction, State state) {
+        return solver.getConstraint(upOrDownVariationConstraintId(rangeAction, state));
+    }
+
+    public OpenRaoMPVariable addIsVariationInDirectionVariable(RangeAction<?> rangeAction, State state, VariationDirectionExtension direction) {
+        return solver.makeBoolVar(isVariationInDirectionVariableId(rangeAction, state, direction));
+    }
+
+    public OpenRaoMPConstraint addMinAdjustmentConstraint(double lb, double ub, RangeAction<?> rangeAction, State state) {
+        return solver.makeConstraint(lb, ub, minAdjustmentConstraintId(rangeAction, state));
     }
 
     public OpenRaoMPConstraint addIsVariationConstraint(double lb, double ub, RangeAction<?> rangeAction, State state) {

@@ -146,7 +146,7 @@ public class DiscretePstTapFiller implements ProblemFiller {
         }
 
         // variation can only be upward or downward
-        OpenRaoMPConstraint upOrDownConstraint = linearProblem.addUpOrDownPstVariationConstraint(pstRangeAction, state);
+        OpenRaoMPConstraint upOrDownConstraint = linearProblem.addUpOrDownVariationConstraint(pstRangeAction, state);
         upOrDownConstraint.setCoefficient(pstTapDownwardVariationBinary, 1);
         upOrDownConstraint.setCoefficient(pstTapUpwardVariationBinary, 1);
         upOrDownConstraint.setUb(1);
