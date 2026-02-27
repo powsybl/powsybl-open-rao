@@ -9,6 +9,7 @@ crac/fbconstraint.md
 crac/cse.md
 crac/cim.md
 crac/nc.md
+crac/crac-generator.md
 crac/creation-context.md
 ```
 
