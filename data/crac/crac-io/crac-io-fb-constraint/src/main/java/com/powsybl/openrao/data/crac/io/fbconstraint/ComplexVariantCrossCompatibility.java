@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.crac.io.fbconstraint;
 
+import com.powsybl.openrao.data.crac.api.networkaction.ActionType;
 import com.powsybl.openrao.data.crac.io.fbconstraint.xsd.ActionsSetType;
 
 import java.util.*;
@@ -71,8 +72,8 @@ public final class ComplexVariantCrossCompatibility {
 
             // TOPO actions overlap each others if they both act on the same network elements, with the same actions
 
-            Map<String, com.powsybl.openrao.data.crac.api.networkaction.ActionType> actions1 = new HashMap<>();
-            Map<String, com.powsybl.openrao.data.crac.api.networkaction.ActionType> actions2 = new HashMap<>();
+            Map<String, ActionType> actions1 = new HashMap<>();
+            Map<String, ActionType> actions2 = new HashMap<>();
 
             cvr1.getActionReaders().forEach(ar -> actions1.put(ar.getNetworkElementId(), ar.getActionType()));
             cvr2.getActionReaders().forEach(ar -> actions2.put(ar.getNetworkElementId(), ar.getActionType()));

@@ -1,12 +1,9 @@
 {
   "crac-factory" : "CracImplFactory",
   "default-monitored-line-side" : "monitor-lines-on-both-sides",
-  "ra-usage-limits-per-instant" : [ ],
   "extensions" : {
     "FbConstraintCracCreatorParameters" : {
       "timestamp" : "2026-01-27T17:00:00Z",
-      "ics-cost-up" : 10.0,
-      "ics-cost-down" : 10.0,
       "internal-hvdcs" : [ {
         "converters" : [ {
           "node" : "D7AAA11A",

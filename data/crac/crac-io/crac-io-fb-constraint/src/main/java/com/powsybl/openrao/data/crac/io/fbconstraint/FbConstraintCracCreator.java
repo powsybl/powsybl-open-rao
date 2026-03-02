@@ -29,6 +29,7 @@ import com.powsybl.openrao.virtualhubs.InternalHvdc;
 
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -36,6 +37,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.google.common.collect.Iterables.isEmpty;
 import static com.powsybl.openrao.data.crac.io.commons.ucte.UcteNetworkAnalyzerProperties.BusIdMatchPolicy.COMPLETE_WITH_WILDCARDS;
@@ -105,11 +107,13 @@ class FbConstraintCracCreator {
                 .map(cb -> new CriticalBranchReader(cb, ucteNetworkAnalyzer, defaultMonitoredSides))
                 .toList();
 
-            outageReaders.addAll(criticalBranchReaders.stream()
-                .filter(CriticalBranchReader::isCriticialBranchValid)
-                .filter(cbr -> !cbr.isBaseCase())
-                .map(CriticalBranchReader::getOutageReader)
-                .toList());
+            outageReaders.addAll(
+                criticalBranchReaders.stream()
+                    .filter(CriticalBranchReader::isCriticialBranchValid)
+                    .filter(cbr -> !cbr.isBaseCase())
+                    .map(CriticalBranchReader::getOutageReader)
+                    .toList()
+            );
 
             createContingencies(crac, outageReaders);
             createCnecs(crac, criticalBranchReaders, creationContext);
@@ -177,23 +181,32 @@ class FbConstraintCracCreator {
 
         ComplexVariantCrossCompatibility.checkAndInvalidate(complexVariantReaders);
 
-        final Map<Optional<ActionTypeEnum>, List<ComplexVariantReader>> complexVariantReadersGroupedByType = complexVariantReaders.stream()
-            .collect(Collectors.groupingBy(cvr -> Optional.ofNullable(cvr.getType())));
+        final Map<Optional<ActionTypeEnum>, List<ComplexVariantReader>> complexVariantReadersGroupedByType = new HashMap<>();
+        // Initialise the map with all expected keys and empty lists: null for invalid readers, PST, TOPO and HVDC
+        Stream.of(null, ActionTypeEnum.PST, ActionTypeEnum.TOPO, ActionTypeEnum.HVDC)
+                .forEach(type -> complexVariantReadersGroupedByType.put(Optional.ofNullable(type), List.of()));
+        // Then populate the map with complexVariantReaders content, grouped by action type
+        complexVariantReadersGroupedByType.putAll(
+            complexVariantReaders.stream()
+                .collect(Collectors.groupingBy(cvr -> Optional.ofNullable(cvr.getType())))
+        );
 
-        addPstAndTopoRemedialActionsToCrac(complexVariantReadersGroupedByType.get(Optional.<ActionTypeEnum>empty()), crac, creationContext);
+        addInvalidComplexVariantReadersToCreationContext(complexVariantReadersGroupedByType.get(Optional.<ActionTypeEnum>empty()), creationContext);
         addPstAndTopoRemedialActionsToCrac(complexVariantReadersGroupedByType.get(Optional.of(ActionTypeEnum.PST)), crac, creationContext);
         addPstAndTopoRemedialActionsToCrac(complexVariantReadersGroupedByType.get(Optional.of(ActionTypeEnum.TOPO)), crac, creationContext);
         addHvdcRemedialActionsToCrac(internalHvdcs, complexVariantReadersGroupedByType.get(Optional.of(ActionTypeEnum.HVDC)), crac, ucteNetworkAnalyzer, creationContext);
     }
 
+    private static void addInvalidComplexVariantReadersToCreationContext(final List<ComplexVariantReader> complexVariantReaders,
+                                                                         final FbConstraintCreationContext creationContext) {
+        complexVariantReaders.stream()
+            .map(ComplexVariantReader::getComplexVariantCreationContext)
+            .forEach(creationContext::addComplexVariantCreationContext);
+    }
+
     private static void addPstAndTopoRemedialActionsToCrac(final List<ComplexVariantReader> complexVariantReaders,
                                                            final Crac crac,
                                                            final FbConstraintCreationContext creationContext) {
-        if (null == complexVariantReaders) {
-            // complexVariantReaders can be null when there is no ComplexVariantReader matching the specified ActionType
-            return;
-        }
-
         complexVariantReaders.forEach(cvr -> {
             if (cvr.isComplexVariantValid()) {
                 cvr.addRemedialAction(crac);
@@ -207,11 +220,6 @@ class FbConstraintCracCreator {
                                                      final Crac crac,
                                                      final UcteNetworkAnalyzer ucteNetworkAnalyzer,
                                                      final FbConstraintCreationContext creationContext) {
-        if (null == complexVariantReaders) {
-            // complexVariantReaders can be null when there is no ComplexVariantReader matching the specified ActionType
-            return;
-        }
-
         final List<HvdcLine> hvdcLines = internalHvdcs.stream()
             .map(InternalHvdc::lines)
             .flatMap(List::stream)
@@ -225,7 +233,8 @@ class FbConstraintCracCreator {
         final Map<String, ComplexVariantReader> complexVariantReadersByElementId = complexVariantReaders.stream()
             .collect(Collectors.toMap(
                 cvr -> cvr.getActionReaders().getFirst().getNetworkElementId(),
-                cvr -> cvr));
+                cvr -> cvr
+            ));
 
         for (final HvdcLine hvdcLine : hvdcLines) {
             final HvdcLineRemedialActionAdder hvdcLineRemedialActionAdder = new HvdcLineRemedialActionAdder(hvdcLine, ucteNetworkAnalyzer, complexVariantReadersByElementId, nodeToStationMap);
@@ -248,14 +257,18 @@ class FbConstraintCracCreator {
 
     private static boolean remedialActionsHaveInconsistentUsageRules(final List<? extends RemedialAction<?>> remedialActions,
                                                                      final FbConstraintCreationContext creationContext) {
-        return remedialActionsHaveInconsistentUsageRulesForInstant(remedialActions,
-                creationContext,
-                FbConstraintCracCreator::remedialActionHasPreventiveUsageRule,
-                "preventive")
-            && remedialActionsHaveInconsistentUsageRulesForInstant(remedialActions,
-                creationContext,
-                FbConstraintCracCreator::remedialActionHasCurativeUsageRule,
-                "curative");
+        return remedialActionsHaveInconsistentUsageRulesForInstant(
+            remedialActions,
+            creationContext,
+            FbConstraintCracCreator::remedialActionHasPreventiveUsageRule,
+            "preventive"
+        )
+            && remedialActionsHaveInconsistentUsageRulesForInstant(
+            remedialActions,
+            creationContext,
+            FbConstraintCracCreator::remedialActionHasCurativeUsageRule,
+            "curative"
+        );
         // TODO Should we add a check on afterCoList for curative instant?
     }
 

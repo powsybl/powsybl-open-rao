@@ -40,6 +40,9 @@ Feature: US 14.4: HVDC
 
   @fast @rao @mock @dc @contingency-scenarios @hvdc
   Scenario: US 14.4.3 : German HVDC Preventive (CORE's german HVDC)
+  German HVDC are set as preventive remedial actions and should be used at preventive state.
+  Aligned generators (generators of the same station) should be moved together and have the same value.
+  The two generators involved in one HVDC line should have opposite values.
     Given network file is "epic14/TestCase12NodesUltranet_v2.uct" for CORE CC
     Given crac file is "epic14/crac_hvdc_preventive.xml"
     Given crac creation parameters file is "epic14/ccp.json"
@@ -69,6 +72,9 @@ Feature: US 14.4: HVDC
 
   @fast @rao @mock @dc @contingency-scenarios @hvdc
   Scenario: US 14.4.4 : German HVDC Curative (CORE's german HVDC)
+  German HVDC are set as curative remedial actions and should be used at curative state, but not at preventive state.
+  Aligned generators (generators of the same station) should be moved together and have the same value.
+  The two generators involved in one HVDC line should have opposite values.
     Given network file is "epic14/TestCase12NodesUltranet_v2.uct" for CORE CC
     Given crac file is "epic14/crac_hvdc_curative.xml"
     Given crac creation parameters file is "epic14/ccp.json"
@@ -109,6 +115,11 @@ Feature: US 14.4: HVDC
 
   @fast @rao @mock @dc @contingency-scenarios @hvdc
   Scenario: US 14.4.5 : German HVDC with no alignment of generators (CORE's german HVDC)
+  This case tests an inconsistent situation that should not happen in real life:
+  Two parallel German HVDC lines are defined but one is set as preventive and the other is set as curative.
+  In such a situation, generators alignment should not work and generators can be moved separately.
+  Therefore, generators of the same station will not have the same value.
+  However, the two generators involved in one HVDC line should still have opposite values.
     Given network file is "epic14/TestCase12NodesUltranet_v2.uct" for CORE CC
     Given crac file is "epic14/crac_hvdc_preventive_and_curative.xml"
     Given crac creation parameters file is "epic14/ccp.json"
