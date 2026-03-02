@@ -10,23 +10,18 @@ package com.powsybl.openrao.data.raoresult.api.extension;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 
-import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.util.Optional;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-public class Metadata extends AbstractExtension<RaoResult> {
-    private OffsetDateTime computationStart;
-    private OffsetDateTime computationEnd;
+public abstract class AbstractMetadata extends AbstractExtension<RaoResult> implements RaoMetadata {
+    protected OffsetDateTime computationStart;
+    protected OffsetDateTime computationEnd;
+    protected String executionDetails;
 
-    public Metadata() {
-    }
-
-    @Override
-    public String getName() {
-        return "metadata";
+    protected AbstractMetadata() {
     }
 
     public Optional<OffsetDateTime> getComputationStart() {
@@ -45,10 +40,11 @@ public class Metadata extends AbstractExtension<RaoResult> {
         this.computationEnd = computationEnd;
     }
 
-    public Optional<Duration> getComputationDuration() {
-        if (computationStart != null && computationEnd != null) {
-            return Optional.of(Duration.between(computationStart, computationEnd));
-        }
-        return Optional.empty();
+    public String getExecutionDetails() {
+        return executionDetails;
+    }
+
+    public void setExecutionDetails(String executionDetails) {
+        this.executionDetails = executionDetails;
     }
 }

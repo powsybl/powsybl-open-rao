@@ -536,12 +536,5 @@
   }, {
     "rangeActionId" : "pstRange5Id",
     "initialTap" : -3
-  } ],
-  "extensions" : {
-    "metadata" : {
-      "computation-start" : "2026-01-01T00:00:00Z",
-      "computation-end" : "2026-01-01T23:59:59Z",
-      "computation-duration" : "PT23H59M59S"
-    }
-  }
+  } ]
 }

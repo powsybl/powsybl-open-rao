@@ -12,7 +12,6 @@ import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.impl.utils.ExhaustiveCracCreation;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.extension.CriticalCnecsResult;
-import com.powsybl.openrao.data.raoresult.api.extension.Metadata;
 import com.powsybl.openrao.data.raoresult.impl.utils.ExhaustiveRaoResultCreation;
 import org.junit.jupiter.api.Test;
 
@@ -20,12 +19,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
@@ -37,12 +34,6 @@ class RaoResultSerializerTest {
         // get exhaustive CRAC and RaoResult
         Crac crac = ExhaustiveCracCreation.create();
         RaoResult raoResult = ExhaustiveRaoResultCreation.create(crac);
-
-        // add metadata extension
-        Metadata metadata = new Metadata();
-        metadata.setComputationStart(OffsetDateTime.of(2026, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC));
-        metadata.setComputationEnd(OffsetDateTime.of(2026, 1, 1, 23, 59, 59, 0, ZoneOffset.UTC));
-        raoResult.addExtension(Metadata.class, metadata);
 
         // export RaoResult
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
