@@ -115,6 +115,10 @@ public final class LinearProblemIdGenerator {
         return formatName(rangeAction.getId(), state.getId(), RANGE_ACTION_VARIATION_BINARY, VARIABLE_SUFFIX);
     }
 
+    public static String rangeActionBinaryVariableId(String rangeActionId, State state) {
+        return formatName(rangeActionId, state.getId(), RANGE_ACTION_VARIATION_BINARY, VARIABLE_SUFFIX);
+    }
+
     public static String pstTapBinaryVariationInDirectionId(RangeAction<?> rangeAction, State state, LinearProblem.VariationDirectionExtension upwardOrDownward) {
         return formatName(rangeAction.getId(), state.getId(), RANGE_ACTION_VARIATION_BINARY + upwardOrDownward.toString().toLowerCase(), VARIABLE_SUFFIX);
     }

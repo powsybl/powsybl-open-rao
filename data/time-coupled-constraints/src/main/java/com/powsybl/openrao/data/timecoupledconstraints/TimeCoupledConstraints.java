@@ -15,6 +15,7 @@ import java.util.Set;
  */
 public class TimeCoupledConstraints {
     private final Set<GeneratorConstraints> generatorConstraints;
+    private final Set<AdjustmentConstraints> adjustmentConstraints;
 
     public TimeCoupledConstraints() {
         this.generatorConstraints = new HashSet<>();

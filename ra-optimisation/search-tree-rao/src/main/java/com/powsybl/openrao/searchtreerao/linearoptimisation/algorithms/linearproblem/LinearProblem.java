@@ -193,6 +193,10 @@ public final class LinearProblem {
         return solver.getVariable(rangeActionBinaryVariableId(rangeAction, state));
     }
 
+    public OpenRaoMPVariable getRangeActionVariationBinary(String rangeActionId, State state) {
+        return solver.getVariable(rangeActionBinaryVariableId(rangeActionId, state));
+    }
+
     public OpenRaoMPVariable addPstTapVariationVariable(double lb, double ub, PstRangeAction rangeAction, State state, VariationDirectionExtension variation) {
         return solver.makeIntVar(lb, ub, pstTapVariableVariationId(rangeAction, state, variation));
     }
