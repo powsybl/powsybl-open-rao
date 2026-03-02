@@ -13,11 +13,16 @@ import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.impl.utils.ExhaustiveCracCreation;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.extension.CriticalCnecsResult;
+import com.powsybl.openrao.data.raoresult.api.extension.Metadata;
 import com.powsybl.openrao.data.raoresult.impl.RaoResultImpl;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.Duration;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -58,5 +63,15 @@ class RaoResultDeserializerTest {
         InputStream raoResultStream = getClass().getResourceAsStream("/rao-result.json");
         RaoResultImpl raoResult = (RaoResultImpl) RaoResult.read(raoResultStream, crac);
         assertNull(raoResult.getExtension(CriticalCnecsResult.class));
+
+        // check metadata extension
+        Metadata metadata = raoResult.getExtension(Metadata.class);
+        assertNotNull(metadata);
+        assertTrue(metadata.getComputationStart().isPresent());
+        assertEquals(OffsetDateTime.of(2026, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC), metadata.getComputationStart().get());
+        assertTrue(metadata.getComputationEnd().isPresent());
+        assertEquals(OffsetDateTime.of(2026, 1, 1, 23, 59, 59, 0, ZoneOffset.UTC), metadata.getComputationEnd().get());
+        assertTrue(metadata.getComputationDuration().isPresent());
+        assertEquals(Duration.of(86399, ChronoUnit.SECONDS), metadata.getComputationDuration().get());
     }
 }
