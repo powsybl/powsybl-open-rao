@@ -19,6 +19,7 @@ import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.TimeCoupledRaoResult;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.data.raoresult.api.extension.Metadata;
 import com.powsybl.openrao.raoapi.*;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
@@ -70,6 +71,8 @@ public class Marmot implements TimeCoupledRaoProvider {
 
     @Override
     public CompletableFuture<TimeCoupledRaoResult> run(TimeCoupledRaoInputWithNetworkPaths timeCoupledRaoInputWithNetworkPaths, RaoParameters raoParameters) {
+        OffsetDateTime computationStart = OffsetDateTime.now();
+
         // 1. Run independent RAOs to compute optimal preventive topological remedial actions
         TECHNICAL_LOGS.info("[MARMOT] ----- Topological optimization [start]");
         TemporalData<Set<FlowCnec>> consideredCnecs = new TemporalDataImpl<>();
@@ -165,6 +168,12 @@ public class Marmot implements TimeCoupledRaoProvider {
         logCost("[MARMOT] Before topological optimizations: ", initialObjectiveFunctionResult, raoParameters, 10);
         logCost("[MARMOT] Before global linear optimization: ", postTopologicalOptimizationResult, raoParameters, 10);
         logCost("[MARMOT] After global linear optimization: ", fullResults, raoParameters, 10);
+
+        OffsetDateTime computationEnd = OffsetDateTime.now();
+        Metadata metadata = new Metadata();
+        metadata.setComputationStart(computationStart);
+        metadata.setComputationEnd(computationEnd);
+        timeCoupledRaoResult.addExtension(Metadata.class, metadata);
 
         return CompletableFuture.completedFuture(timeCoupledRaoResult);
     }
