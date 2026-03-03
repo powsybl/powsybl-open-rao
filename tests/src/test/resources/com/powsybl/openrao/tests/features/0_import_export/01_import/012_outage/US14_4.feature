@@ -48,16 +48,16 @@ Feature: US 14.4: HVDC
     Given crac creation parameters file is "epic14/ccp.json"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
     When I launch rao at "2026-01-27 17:00"
-    Then the remedial action "D7_RA_99991_D4_RA_99991" is used in preventive
-    And the remedial action "D7_RA_99992_D4_RA_99992" is used in preventive
+    Then the remedial action "D7_RA_99991 + D4_RA_99991" is used in preventive
+    And the remedial action "D7_RA_99992 + D4_RA_99992" is used in preventive
     And the initial margin on cnec "CB0 - outage" should be 4246.1 MW
     And the initial margin on cnec "CB0 - curative" should be 4246.1 MW
-    And the initial setpoint of RangeAction "D7_RA_99991_D4_RA_99991" should be 0
-    And the initial setpoint of RangeAction "D7_RA_99992_D4_RA_99992" should be 0
+    And the initial setpoint of RangeAction "D7_RA_99991 + D4_RA_99991" should be 0
+    And the initial setpoint of RangeAction "D7_RA_99992 + D4_RA_99992" should be 0
     And the margin on cnec "CB0 - outage" after PRA should be 5646.1 MW
     And the margin on cnec "CB0 - curative" after PRA should be 5646.1 MW
-    And the setpoint of RangeAction "D7_RA_99991_D4_RA_99991" should be 700 MW in preventive
-    And the setpoint of RangeAction "D7_RA_99992_D4_RA_99992" should be 700 MW in preventive
+    And the setpoint of RangeAction "D7_RA_99991 + D4_RA_99991" should be 700 MW in preventive
+    And the setpoint of RangeAction "D7_RA_99992 + D4_RA_99992" should be 700 MW in preventive
     And the generator "D7AAA11A_generator" should have a targetP of 0.0 MW at initial state
     And the generator "D7AAA21A_generator" should have a targetP of 0.0 MW at initial state
     And the generator "D4AAA11B_generator" should have a targetP of 0.0 MW at initial state
@@ -80,22 +80,22 @@ Feature: US 14.4: HVDC
     Given crac creation parameters file is "epic14/ccp.json"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
     When I launch rao at "2026-01-27 17:00"
-    Then the remedial action "D7_RA_99991_D4_RA_99991" is not used in preventive
-    And the remedial action "D7_RA_99992_D4_RA_99992" is not used in preventive
-    And the remedial action "D7_RA_99991_D4_RA_99991" is used after "OUTAGE_1" at "curative"
-    And the remedial action "D7_RA_99992_D4_RA_99992" is used after "OUTAGE_1" at "curative"
+    Then the remedial action "D7_RA_99991 + D4_RA_99991" is not used in preventive
+    And the remedial action "D7_RA_99992 + D4_RA_99992" is not used in preventive
+    And the remedial action "D7_RA_99991 + D4_RA_99991" is used after "OUTAGE_1" at "curative"
+    And the remedial action "D7_RA_99992 + D4_RA_99992" is used after "OUTAGE_1" at "curative"
     And the initial margin on cnec "CB0 - outage" should be 4246.1 MW
     And the initial margin on cnec "CB0 - curative" should be 4246.1 MW
-    And the initial setpoint of RangeAction "D7_RA_99991_D4_RA_99991" should be 0
-    And the initial setpoint of RangeAction "D7_RA_99992_D4_RA_99992" should be 0
+    And the initial setpoint of RangeAction "D7_RA_99991 + D4_RA_99991" should be 0
+    And the initial setpoint of RangeAction "D7_RA_99992 + D4_RA_99992" should be 0
     And the margin on cnec "CB0 - outage" after PRA should be 4246.1 MW
     And the margin on cnec "CB0 - curative" after PRA should be 4246.1 MW
-    And the setpoint of RangeAction "D7_RA_99991_D4_RA_99991" should be 0 MW in preventive
-    And the setpoint of RangeAction "D7_RA_99992_D4_RA_99992" should be 0 MW in preventive
+    And the setpoint of RangeAction "D7_RA_99991 + D4_RA_99991" should be 0 MW in preventive
+    And the setpoint of RangeAction "D7_RA_99992 + D4_RA_99992" should be 0 MW in preventive
     And the margin on cnec "CB0 - outage" after CRA should be 4246.1 MW
     And the margin on cnec "CB0 - curative" after CRA should be 5646.1 MW
-    And the setpoint of RangeAction "D7_RA_99991_D4_RA_99991" should be 700 MW after "OUTAGE_1" at "curative"
-    And the setpoint of RangeAction "D7_RA_99992_D4_RA_99992" should be 700 MW after "OUTAGE_1" at "curative"
+    And the setpoint of RangeAction "D7_RA_99991 + D4_RA_99991" should be 700 MW after "OUTAGE_1" at "curative"
+    And the setpoint of RangeAction "D7_RA_99992 + D4_RA_99992" should be 700 MW after "OUTAGE_1" at "curative"
     # Remedial actions are curative, so there should be no change in generators on preventive state
     And the generator "D7AAA11A_generator" should have a targetP of 0.0 MW at initial state
     And the generator "D7AAA21A_generator" should have a targetP of 0.0 MW at initial state
@@ -125,20 +125,20 @@ Feature: US 14.4: HVDC
     Given crac creation parameters file is "epic14/ccp.json"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
     When I launch rao at "2026-01-27 17:00"
-    Then the remedial action "D7_RA_99991_D4_RA_99991" is used in preventive
-    And the remedial action "D7_RA_99992_D4_RA_99992" is used after "OUTAGE_1" at "curative"
+    Then the remedial action "D7_RA_99991 + D4_RA_99991" is used in preventive
+    And the remedial action "D7_RA_99992 + D4_RA_99992" is used after "OUTAGE_1" at "curative"
     And the initial margin on cnec "CB0 - outage" should be 4246.1 MW
     And the initial margin on cnec "CB0 - curative" should be 4246.1 MW
-    And the initial setpoint of RangeAction "D7_RA_99991_D4_RA_99991" should be 0
-    And the initial setpoint of RangeAction "D7_RA_99992_D4_RA_99992" should be 0
+    And the initial setpoint of RangeAction "D7_RA_99991 + D4_RA_99991" should be 0
+    And the initial setpoint of RangeAction "D7_RA_99992 + D4_RA_99992" should be 0
     And the margin on cnec "CB0 - outage" after PRA should be 5246.1 MW
     And the margin on cnec "CB0 - curative" after PRA should be 5246.1 MW
-    And the setpoint of RangeAction "D7_RA_99991_D4_RA_99991" should be 1000 MW in preventive
-    And the setpoint of RangeAction "D7_RA_99992_D4_RA_99992" should be 0 MW in preventive
+    And the setpoint of RangeAction "D7_RA_99991 + D4_RA_99991" should be 1000 MW in preventive
+    And the setpoint of RangeAction "D7_RA_99992 + D4_RA_99992" should be 0 MW in preventive
     And the margin on cnec "CB0 - outage" after CRA should be 5246.1 MW
     And the margin on cnec "CB0 - curative" after CRA should be 5946.1 MW
-    And the setpoint of RangeAction "D7_RA_99991_D4_RA_99991" should be 1000 MW after "OUTAGE_1" at "curative"
-    And the setpoint of RangeAction "D7_RA_99992_D4_RA_99992" should be 700 MW after "OUTAGE_1" at "curative"
+    And the setpoint of RangeAction "D7_RA_99991 + D4_RA_99991" should be 1000 MW after "OUTAGE_1" at "curative"
+    And the setpoint of RangeAction "D7_RA_99992 + D4_RA_99992" should be 700 MW after "OUTAGE_1" at "curative"
     And the generator "D7AAA11A_generator" should have a targetP of 0.0 MW at initial state
     And the generator "D7AAA21A_generator" should have a targetP of 0.0 MW at initial state
     And the generator "D4AAA11B_generator" should have a targetP of 0.0 MW at initial state

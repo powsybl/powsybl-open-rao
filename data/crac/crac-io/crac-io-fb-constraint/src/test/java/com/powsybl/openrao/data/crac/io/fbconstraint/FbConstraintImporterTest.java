@@ -281,9 +281,9 @@ class FbConstraintImporterTest {
         final InjectionRangeAction secondRA = injectionRangeActions.get(1);
 
         SoftAssertions softAssertions = new SoftAssertions();
-        assertRangeActionContent(softAssertions, firstRA, "D7_RA_99991_D4_RA_99991", "PRA_TEST_1A_PRA_TEST_1", "D7_D4", Optional.of("Esgaroth_Numenor"), 1000.0);
+        assertRangeActionContent(softAssertions, firstRA, "D7_RA_99991 + D4_RA_99991", "PRA_TEST_1A + PRA_TEST_1", "D7 + D4", Optional.of("Esgaroth + Numenor"), 1000.0);
         softAssertions.assertThat(firstRA.getUsageRules()).hasSize(1);
-        final Instant firstRAInstant = firstRA.getUsageRules().stream().findFirst().get().getInstant();
+        final Instant firstRAInstant = firstRA.getUsageRules().stream().findFirst().orElseThrow().getInstant();
         softAssertions.assertThat(firstRAInstant.isPreventive()).isTrue();
         softAssertions.assertThat(firstRAInstant.isCurative()).isFalse();
         softAssertions.assertThat(firstRA.getRanges()).hasSize(1);
@@ -300,9 +300,9 @@ class FbConstraintImporterTest {
         softAssertions.assertAll();
 
         softAssertions = new SoftAssertions();
-        assertRangeActionContent(softAssertions, secondRA, "D7_RA_99992_D4_RA_99992", "PRA_TEST_2A_PRA_TEST_2", "D7_D4", Optional.of("Esgaroth_Numenor"), 1000.0);
+        assertRangeActionContent(softAssertions, secondRA, "D7_RA_99992 + D4_RA_99992", "PRA_TEST_2A + PRA_TEST_2", "D7 + D4", Optional.of("Esgaroth + Numenor"), 1000.0);
         softAssertions.assertThat(secondRA.getUsageRules()).hasSize(1);
-        final Instant secondRAInstant = secondRA.getUsageRules().stream().findFirst().get().getInstant();
+        final Instant secondRAInstant = secondRA.getUsageRules().stream().findFirst().orElseThrow().getInstant();
         softAssertions.assertThat(secondRAInstant.isPreventive()).isTrue();
         softAssertions.assertThat(secondRAInstant.isCurative()).isFalse();
         softAssertions.assertThat(secondRA.getRanges()).hasSize(1);
@@ -337,7 +337,7 @@ class FbConstraintImporterTest {
         final InjectionRangeAction secondRA = injectionRangeActions.get(1);
 
         SoftAssertions softAssertions = new SoftAssertions();
-        assertRangeActionContent(softAssertions, firstRA, "D7_RA_99991_D4_RA_99991", "PRA_TEST_1A_PRA_TEST_1", "D7_D4", Optional.of("Esgaroth_Numenor"), 1000.0);
+        assertRangeActionContent(softAssertions, firstRA, "D7_RA_99991 + D4_RA_99991", "PRA_TEST_1A + PRA_TEST_1", "D7 + D4", Optional.of("Esgaroth + Numenor"), 1000.0);
         softAssertions.assertThat(firstRA.getUsageRules()).hasSize(2);
         final List<OnContingencyState> firstRAUsageRules = firstRA.getUsageRules().stream().map(ur -> (OnContingencyState) ur).toList();
         softAssertions.assertThat(firstRAUsageRules.stream().map(OnContingencyState::getInstant).map(Instant::isPreventive))
@@ -360,9 +360,9 @@ class FbConstraintImporterTest {
         softAssertions.assertAll();
 
         softAssertions = new SoftAssertions();
-        assertRangeActionContent(softAssertions, secondRA, "D7_RA_99992_D4_RA_99992", "PRA_TEST_2A_PRA_TEST_2", "D7_D4", Optional.of("Esgaroth_Numenor"), 1000.0);
+        assertRangeActionContent(softAssertions, secondRA, "D7_RA_99992 + D4_RA_99992", "PRA_TEST_2A + PRA_TEST_2", "D7 + D4", Optional.of("Esgaroth + Numenor"), 1000.0);
         softAssertions.assertThat(secondRA.getUsageRules()).hasSize(1);
-        final OnContingencyState secondRAUsageRule = (OnContingencyState) secondRA.getUsageRules().stream().findFirst().get();
+        final OnContingencyState secondRAUsageRule = (OnContingencyState) secondRA.getUsageRules().stream().findFirst().orElseThrow();
         softAssertions.assertThat(secondRAUsageRule.getInstant().isPreventive()).isFalse();
         softAssertions.assertThat(secondRAUsageRule.getInstant().isCurative()).isTrue();
         softAssertions.assertThat(secondRAUsageRule.getContingency().getId()).isEqualTo("OUTAGE_1");
@@ -398,9 +398,9 @@ class FbConstraintImporterTest {
         final InjectionRangeAction secondRA = injectionRangeActions.get(1);
 
         SoftAssertions softAssertions = new SoftAssertions();
-        assertRangeActionContent(softAssertions, firstRA, "D7_RA_99991_D4_RA_99991", "PRA_TEST_1A_PRA_TEST_1", "D7_D4", Optional.of("Esgaroth_Numenor"), 1000.0);
+        assertRangeActionContent(softAssertions, firstRA, "D7_RA_99991 + D4_RA_99991", "PRA_TEST_1A + PRA_TEST_1", "D7 + D4", Optional.of("Esgaroth + Numenor"), 1000.0);
         softAssertions.assertThat(firstRA.getUsageRules()).hasSize(1);
-        final Instant firstRAInstant = firstRA.getUsageRules().stream().findFirst().get().getInstant();
+        final Instant firstRAInstant = firstRA.getUsageRules().stream().findFirst().orElseThrow().getInstant();
         softAssertions.assertThat(firstRAInstant.isPreventive()).isTrue();
         softAssertions.assertThat(firstRAInstant.isCurative()).isFalse();
         softAssertions.assertThat(firstRA.getRanges()).hasSize(1);
@@ -417,9 +417,9 @@ class FbConstraintImporterTest {
         softAssertions.assertAll();
 
         softAssertions = new SoftAssertions();
-        assertRangeActionContent(softAssertions, secondRA, "D7_RA_99992_D4_RA_99992", "PRA_TEST_2A_PRA_TEST_2", "D7_D4", Optional.of("Esgaroth_Numenor"), 1000.0);
+        assertRangeActionContent(softAssertions, secondRA, "D7_RA_99992 + D4_RA_99992", "PRA_TEST_2A + PRA_TEST_2", "D7 + D4", Optional.of("Esgaroth + Numenor"), 1000.0);
         softAssertions.assertThat(secondRA.getUsageRules()).hasSize(1);
-        final OnContingencyState secondRAUsageRule = (OnContingencyState) secondRA.getUsageRules().stream().findFirst().get();
+        final OnContingencyState secondRAUsageRule = (OnContingencyState) secondRA.getUsageRules().stream().findFirst().orElseThrow();
         softAssertions.assertThat(secondRAUsageRule.getInstant().isPreventive()).isFalse();
         softAssertions.assertThat(secondRAUsageRule.getInstant().isCurative()).isTrue();
         softAssertions.assertThat(secondRAUsageRule.getContingency().getId()).isEqualTo("OUTAGE_1");

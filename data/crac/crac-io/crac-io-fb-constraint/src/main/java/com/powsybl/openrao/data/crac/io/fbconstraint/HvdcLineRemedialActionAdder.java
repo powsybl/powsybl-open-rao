@@ -27,7 +27,7 @@ import java.util.stream.Stream;
  * @author Vincent Bochet {@literal <vincent.bochet at rte-france.com>}
  */
 class HvdcLineRemedialActionAdder {
-    private static final String DELIMITER = "_";
+    private static final String DELIMITER = " + ";
 
     private final Map<String, String> nodeToStationMap;
 
@@ -106,7 +106,6 @@ class HvdcLineRemedialActionAdder {
         if (isValid) {
             final String raId = fromComplexVariantReader.getComplexVariant().getId() + DELIMITER + toComplexVariantReader.getComplexVariant().getId();
             final String raName = fromComplexVariantReader.getComplexVariant().getName() + DELIMITER + toComplexVariantReader.getComplexVariant().getName();
-            // TODO Waiting for confirmation of the concatenated-operator format
             final String raOperator = fromComplexVariantReader.getComplexVariant().getTsoOrigin() + DELIMITER + toComplexVariantReader.getComplexVariant().getTsoOrigin();
             // groupId elements must be sorted for the generators alignment to work
             final String raGroupId = Stream.of(fromNodeName, toNodeName)
