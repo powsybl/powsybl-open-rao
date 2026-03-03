@@ -1,4 +1,4 @@
-# Copyright (c) 2025, RTE (http://www.rte-france.com)
+# Copyright (c) 2026, RTE (http://www.rte-france.com)
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -16,7 +16,7 @@ Feature: US 93.4: Time-coupled generator constraints with MARMOT based on JSON t
   Scenario: US 93.4.1: No constraints, specifically : StartUp allowed
   From 04:30 onwards, redispatching is required.
     Given configuration file is "epic93/RaoParameters_minCost_megawatt_dc_0_shift.json"
-    Given time-coupled constraints are in file "epic93/time-coupled-constraints-startup-prohibited.json" and rao inputs are:
+    Given time-coupled constraints are in file "epic93/time-coupled-constraints-without-constraints.json" and rao inputs are:
       | Timestamp        | Network                      | CRAC                                 |
       | 2025-11-04 03:30 | epic93/6Nodes_Pmax2500.xiidm | epic93/us93_3/crac_202511040330.json |
       | 2025-11-04 04:30 | epic93/6Nodes_Pmax2500.xiidm | epic93/us93_3/crac_202511040430.json |
@@ -73,7 +73,7 @@ Feature: US 93.4: Time-coupled generator constraints with MARMOT based on JSON t
   Scenario: US 93.4.3: No constraints, specifically : ShutDown allowed
   Redispatching action is necessary at 19:30 but not afterwards.
     Given configuration file is "epic93/RaoParameters_minCost_megawatt_dc_0_shift.json"
-    Given time-coupled constraints are in file "epic93/time-coupled-constraints-shutdown-prohibited.json" and rao inputs are:
+    Given time-coupled constraints are in file "epic93/time-coupled-constraints-without-constraints.json" and rao inputs are:
       | Timestamp        | Network                      | CRAC                                 |
       | 2025-11-04 19:30 | epic93/6Nodes_Pmax2500.xiidm | epic93/us93_3/crac_202511041930.json |
       | 2025-11-04 20:30 | epic93/6Nodes_Pmax2500.xiidm | epic93/us93_3/crac_202511042030.json |
