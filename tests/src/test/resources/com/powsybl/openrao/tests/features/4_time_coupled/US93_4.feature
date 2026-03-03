@@ -83,7 +83,7 @@ Feature: US 93.4: Time-coupled generator constraints with MARMOT based on JSON t
     Then the total cost for timestamp "2025-11-04 19:30" is 625010.0
     Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 19:30" is 2500.0 MW
     Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 19:30" is 2500.0 MW
-    Then the range action "redispatchingAction" at state timestamp "2025-11-04 19:30" is used
+    Then the remedial action "redispatchingAction" at state timestamp "2025-11-04 19:30" is used
     # Timestamp 20:30
     Then the total cost for timestamp "2025-11-04 20:30" is 0.0
     Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 20:30" is 0.0 MW
