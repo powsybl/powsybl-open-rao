@@ -10,10 +10,15 @@ Feature: US 93.2: Time-coupled generator constraints with MARMOT with ICS files
   Simple time-coupled situations on a few timestamps illustrating the following generator constraints :
   - gradient
 
+  N.B ICS costs are in FBCracCreationParameters, for default see TimeCoupledRaoSteps.DEFAULT_CRAC_CREATION_PARAMETERS_PATH
+
   ----------------------
 
   @fast @rao @dc @redispatching @marmot @costly @megawatt
   Scenario: US 93.2.1: Test simple gradient
+    Redipatching actions are only necessary at 01:30.
+    They're applied as soon as 00:30 because of upward gradient.
+    // TODO pq pas redescente directe quand pas de downward gradient ? je m'attendais à not used à 3h30
     Given network files are in folder "epic93/TestCases_93_2_1"
     Given crac file is "epic93/cbcora_93_2_1.xml"
     Given ics static file is "epic93/static_93_2_1.csv"
@@ -26,21 +31,38 @@ Feature: US 93.2: Time-coupled generator constraints with MARMOT with ICS files
       | 2019-01-08 02:30 | 12Nodes_0230.uct |
       | 2019-01-08 03:30 | 12Nodes_0330.uct |
     When I launch marmot
-    When I export marmot results to "raoresults/results_93_2_1.zip"
-    When I export networks with PRAs to "raoresults/networkWithPras_93_2_1.zip"
-    Then the optimized margin on "NNL2AA1  BBE3AA1  1 - preventive" for timestamp "2019-01-08 00:30" is 435.18 MW
-    Then the optimized margin on "NNL2AA1  BBE3AA1  1 - preventive" for timestamp "2019-01-08 01:30" is 10.18 MW
-    Then the optimized margin on "NNL2AA1  BBE3AA1  1 - preventive" for timestamp "2019-01-08 02:30" is 435.18 MW
-    Then the optimized margin on "NNL2AA1  BBE3AA1  1 - preventive" for timestamp "2019-01-08 03:30" is 408.18 MW
+    # Timestamp 00:30: 0 (activation) + 10 * 54 MW * 2 (BBE1 and DDE1) (variation) = 108
     Then the functional cost for timestamp "2019-01-08 00:30" is 1080
-    Then the functional cost for timestamp "2019-01-08 01:30" is 4080
-    Then the functional cost for timestamp "2019-01-08 02:30" is 1080
-    Then the functional cost for timestamp "2019-01-08 03:30" is 0
-    Then the functional cost for all timestamps is 6240
     Then the total cost for timestamp "2019-01-08 00:30" is 1080
+    Then the preventive power of generator "RO_RA_00001_BBE1AA1_GENERATOR" at state timestamp "2019-01-08 00:30" is 304.0 MW
+    Then the preventive power of generator "RO_RA_00002_DDE1AA1_GENERATOR" at state timestamp "2019-01-08 00:30" is 196.0 MW
+    Then the range action "RO_RA_00001_RD" at state timestamp "2019-01-08 00:30" is used
+    Then the range action "RO_RA_00002_RD" at state timestamp "2019-01-08 00:30" is used
+    Then the optimized margin on "NNL2AA1  BBE3AA1  1 - preventive" for timestamp "2019-01-08 00:30" is 435.18 MW
+    # Timestamp 01:30: 0 (activation) + 10 * 204 MW * 2 (BBE1 and DDE1) (variation) = 4080
+    Then the functional cost for timestamp "2019-01-08 01:30" is 4080
     Then the total cost for timestamp "2019-01-08 01:30" is 4080
+    Then the preventive power of generator "RO_RA_00001_BBE1AA1_GENERATOR" at state timestamp "2019-01-08 01:30" is 454.0 MW
+    Then the preventive power of generator "RO_RA_00002_DDE1AA1_GENERATOR" at state timestamp "2019-01-08 01:30" is 46.0 MW
+    Then the range action "RO_RA_00001_RD" at state timestamp "2019-01-08 01:30" is used
+    Then the range action "RO_RA_00002_RD" at state timestamp "2019-01-08 01:30" is used
+    Then the optimized margin on "NNL2AA1  BBE3AA1  1 - preventive" for timestamp "2019-01-08 01:30" is 10.18 MW
+    # Timestamp 02:30: 0 (activation) + 10 * 54 MW * 2 (BBE1 and DDE1) (variation) = 1080
+    Then the functional cost for timestamp "2019-01-08 02:30" is 1080
     Then the total cost for timestamp "2019-01-08 02:30" is 1080
+    Then the preventive power of generator "RO_RA_00001_BBE1AA1_GENERATOR" at state timestamp "2019-01-08 02:30" is 304.0 MW
+    Then the preventive power of generator "RO_RA_00002_DDE1AA1_GENERATOR" at state timestamp "2019-01-08 02:30" is 196.0 MW
+    Then the range action "RO_RA_00001_RD" at state timestamp "2019-01-08 02:30" is used
+    Then the range action "RO_RA_00002_RD" at state timestamp "2019-01-08 02:30" is used
+    Then the optimized margin on "NNL2AA1  BBE3AA1  1 - preventive" for timestamp "2019-01-08 02:30" is 435.18 MW
+    # Timestamp 03:30: 0
+    Then the functional cost for timestamp "2019-01-08 03:30" is 0
     Then the total cost for timestamp "2019-01-08 03:30" is 0
+    Then the preventive power of generator "RO_RA_00001_BBE1AA1_GENERATOR" at state timestamp "2019-01-08 03:30" is 250.0 MW
+    Then the preventive power of generator "RO_RA_00002_DDE1AA1_GENERATOR" at state timestamp "2019-01-08 03:30" is 250.0 MW
+    Then the range action "RO_RA_00001_RD" at state timestamp "2019-01-08 03:30" is not used
+    Then the range action "RO_RA_00002_RD" at state timestamp "2019-01-08 03:30" is not used
+    Then the optimized margin on "NNL2AA1  BBE3AA1  1 - preventive" for timestamp "2019-01-08 03:30" is 408.18 MW
     Then the total cost for all timestamps is 6240
 
   @fast @rao @dc @redispatching @marmot @costly @megawatt
