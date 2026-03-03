@@ -26,17 +26,17 @@ Feature: US 93.4: Time-coupled generator constraints with MARMOT based on JSON t
     Then the total cost for timestamp "2025-11-04 03:30" is 0.0
     Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 03:30" is 0.0 MW
     Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 03:30" is 0.0 MW
-    Then the range action "redispatchingAction" at state timestamp "2025-11-04 03:30" is not used
+    Then the remedial action "redispatchingAction" at state timestamp "2025-11-04 03:30" is not used
     # Timestamp 04:30: 10 (activation) + 2500 * 1 (variation) + 500 MW * 1000 (overload of 500 MW, shifted violation penalty of 1000) = 625010
     Then the total cost for timestamp "2025-11-04 04:30" is 625010.0
     Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 04:30" is 2500.0 MW
     Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 04:30" is 2500.0 MW
-    Then the range action "redispatchingAction" at state timestamp "2025-11-04 04:30" is used
+    Then the remedial action "redispatchingAction" at state timestamp "2025-11-04 04:30" is used
     # Timestamp 05:30: 10 (activation) + 2500 * 1 (variation) + 500 MW * 1000 (overload of 500 MW, shifted violation penalty of 1000) = 625010
     Then the total cost for timestamp "2025-11-04 05:30" is 625010.0
     Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 05:30" is 2500.0 MW
     Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 05:30" is 2500.0 MW
-    Then the range action "redispatchingAction" at state timestamp "2025-11-04 05:30" is used
+    Then the remedial action "redispatchingAction" at state timestamp "2025-11-04 05:30" is used
 
   Scenario: US 93.4.2: Same as 93.4.1, but StartUp not allowed
     From 04:30 onwards, redispatching is required. Nevertheless, BBE1AA1_generator is not available
@@ -57,18 +57,18 @@ Feature: US 93.4: Time-coupled generator constraints with MARMOT based on JSON t
     Then the total cost for timestamp "2025-11-04 03:30" is 0.0
     Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 03:30" is 0.0 MW
     Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 03:30" is 0.0 MW
-    Then the range action "redispatchingAction" at state timestamp "2025-11-04 03:30" is not used
+    Then the remedial action "redispatchingAction" at state timestamp "2025-11-04 03:30" is not used
     # For the following timestamps, redispatchingAction is considered activated rao-wise even if MIP-wise generator was not set to ON.
     # Timestamp 04:30: 10 (activation) + 50 * 1 (variation) + 2999 MW * 1000 (overload of 2999 MW, shifted violation penalty of 1000) = 2999060
     Then the total cost for timestamp "2025-11-04 04:30" is 2999060.0
     Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 04:30" is 1.0 MW
     Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 04:30" is 1.0 MW
-    Then the range action "redispatchingAction" at state timestamp "2025-11-04 04:30" is used
+    Then the remedial action "redispatchingAction" at state timestamp "2025-11-04 04:30" is used
     # Timestamp 05:30: 10 (activation) + 50 * 1 (variation) + 2999 MW * 1000 (overload of 2999 MW, shifted violation penalty of 1000) = 2999060
     Then the total cost for timestamp "2025-11-04 05:30" is 2999060.0
     Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 05:30" is 1.0 MW
     Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 05:30" is 1.0 MW
-    Then the range action "redispatchingAction" at state timestamp "2025-11-04 05:30" is used
+    Then the remedial action "redispatchingAction" at state timestamp "2025-11-04 05:30" is used
 
   Scenario: US 93.4.3: No constraints, specifically : ShutDown allowed
   Redispatching action is necessary at 19:30 but not afterwards.
@@ -88,12 +88,12 @@ Feature: US 93.4: Time-coupled generator constraints with MARMOT based on JSON t
     Then the total cost for timestamp "2025-11-04 20:30" is 0.0
     Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 20:30" is 0.0 MW
     Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 20:30" is 0.0 MW
-    Then the range action "redispatchingAction" at state timestamp "2025-11-04 20:30" is not used
+    Then the remedial action "redispatchingAction" at state timestamp "2025-11-04 20:30" is not used
     # Timestamp 21:30
     Then the total cost for timestamp "2025-11-04 21:30" is 0.0
     Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 21:30" is 0.0 MW
     Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 21:30" is 0.0 MW
-    Then the range action "redispatchingAction" at state timestamp "2025-11-04 21:30" is not used
+    Then the remedial action "redispatchingAction" at state timestamp "2025-11-04 21:30" is not used
 
   Scenario: US 93.4.4: ShutDown not allowed
   Redispatching action is necessary at 19:30 but not afterwards. Since shutdown isn't possible, redispatching action
@@ -109,14 +109,14 @@ Feature: US 93.4: Time-coupled generator constraints with MARMOT based on JSON t
     Then the total cost for timestamp "2025-11-04 19:30" is 625010.0
     Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 19:30" is 2500.0 MW
     Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 19:30" is 2500.0 MW
-    Then the range action "redispatchingAction" at state timestamp "2025-11-04 19:30" is used
+    Then the remedial action "redispatchingAction" at state timestamp "2025-11-04 19:30" is used
     # Timestamp 20:30: 10 (activation) + 50 * 1 MW (variation) = 60
     Then the total cost for timestamp "2025-11-04 20:30" is 60.0
     Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 20:30" is 1.0 MW
     Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 20:30" is 1.0 MW
-    Then the range action "redispatchingAction" at state timestamp "2025-11-04 20:30" is used
+    Then the remedial action "redispatchingAction" at state timestamp "2025-11-04 20:30" is used
     # Timestamp 21:30: 10 (activation) + 50 * 1 MW (variation) = 60
     Then the total cost for timestamp "2025-11-04 21:30" is 60.0
     Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 21:30" is 1.0 MW
     Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 21:30" is 1.0 MW
-    Then the range action "redispatchingAction" at state timestamp "2025-11-04 21:30" is used
+    Then the remedial action "redispatchingAction" at state timestamp "2025-11-04 21:30" is used

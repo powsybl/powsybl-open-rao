@@ -7,12 +7,18 @@ Feature: US 93.2: Time-coupled generator constraints with MARMOT with ICS files
   Presentation of the US
   ----------------------
 
-  Simple time-coupled situations on a few timestamps illustrating the following generator constraints :
-  - gradient
+  Simple time-coupled situations on a few timestamps illustrating fundamental concepts:
+  - multiple FastRao iterations
+  - multiple MARMOT iterations
+  - taking into account generator constraints: Pmin, Pmax, lead time, gradients
+  - application of preventive range actions
+  - application of preventive network actions
+  - application of curative range actions
+  - application of curative network actions
 
   Tests 2 -> 4.b : 2-timestamp situation with 00:30 secure network situation, 01:30 overloaded network situation.
 
-  N.B ICS costs are in FBCracCreationParameters, for default see TimeCoupledRaoSteps.DEFAULT_CRAC_CREATION_PARAMETERS_PATH
+  N.B: ICS costs are in FBCracCreationParameters, for default see TimeCoupledRaoSteps.DEFAULT_CRAC_CREATION_PARAMETERS_PATH
 
   ----------------------
 
@@ -221,13 +227,13 @@ Feature: US 93.2: Time-coupled generator constraints with MARMOT with ICS files
     Then the functional cost for all timestamps is 3960
     Then the total cost for all timestamps is 26890.25
 
-    # TODO reprendre ici
   @fast @rao @dc @redispatching @marmot @costly @megawatt
-  Scenario: US 93.2.6: Test simple lead time with Pmin
+  Scenario: US 93.2.6: Lead time and Pmin.
   The generator involved in the Belgian redispatching action has a 15 min lead time and must be operated at 1000 MW at
   2:30. Because of its lead time, it must be switched on at 1:30 and operated at its Pmin (100 MW), leading to a
   supplementary expense of 1000 in remedial actions for this generator. For grid balancing reasons, the French
   generator must be switched off thus doubling the expenses.
+  StartUp is allowed for BBE2, Shutdown is allowed for FFR1.
     Given network files are in folder "epic93/TestCases_93_2_6"
     Given crac file is "epic93/cbcora_93_2_6.xml"
     Given ics static file is "epic93/static_93_2_6.csv"
@@ -239,14 +245,15 @@ Feature: US 93.2: Time-coupled generator constraints with MARMOT with ICS files
       | 2019-01-08 01:30 | 2Nodes_0130.uct |
       | 2019-01-08 02:30 | 2Nodes_0230.uct |
     When I launch marmot
+    # Timestamp 00:30:
     Then the functional cost for timestamp "2019-01-08 00:30" is 0.0
     Then the preventive power of generator "RD_RA_BE_BBE2AA1_GENERATOR" at state timestamp "2019-01-08 00:30" is 0.0 MW
     Then the preventive power of generator "RD_RA_FR_FFR1AA1_GENERATOR" at state timestamp "2019-01-08 00:30" is 1000.0 MW
-    # 100 MW variation with a cost of 10 per MW per generator (2 generators)
+    # Timestamp 01:30: 10 * 1000 MW * 2 generators
     Then the functional cost for timestamp "2019-01-08 01:30" is 2000.0
     Then the preventive power of generator "RD_RA_BE_BBE2AA1_GENERATOR" at state timestamp "2019-01-08 01:30" is 100.0 MW
     Then the preventive power of generator "RD_RA_FR_FFR1AA1_GENERATOR" at state timestamp "2019-01-08 01:30" is 900.0 MW
-    # 1000 MW variation with a cost of 10 per MW per generator (2 generators)
+    # Timestamp 02:30: 10 * 1000 MW * 2 generators
     Then the functional cost for timestamp "2019-01-08 02:30" is 20000.0
     Then the functional cost for all timestamps is 22000.0
     Then the preventive power of generator "RD_RA_BE_BBE2AA1_GENERATOR" at state timestamp "2019-01-08 02:30" is 1000.0 MW
