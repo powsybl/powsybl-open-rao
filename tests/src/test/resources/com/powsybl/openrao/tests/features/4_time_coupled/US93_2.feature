@@ -4,7 +4,13 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 Feature: US 93.2: Time-coupled generator constraints with MARMOT with ICS files
-  # TODO: This feature covers
+  Presentation of the US
+  ----------------------
+
+  Simple time-coupled situations on a few timestamps illustrating the following generator constraints :
+  - gradient
+
+  ----------------------
 
   @fast @rao @dc @redispatching @marmot @costly @megawatt
   Scenario: US 93.2.1: Test simple gradient

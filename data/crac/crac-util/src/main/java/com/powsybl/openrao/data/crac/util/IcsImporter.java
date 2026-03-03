@@ -19,7 +19,6 @@ import com.powsybl.openrao.data.timecoupledconstraints.GeneratorConstraints;
 import com.powsybl.openrao.raoapi.TimeCoupledRaoInputWithNetworkPaths;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
-import org.stringtemplate.v4.ST;
 
 import java.io.IOException;
 import java.io.InputStream;

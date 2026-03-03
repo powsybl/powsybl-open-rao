@@ -398,6 +398,7 @@ public class GeneratorConstraintsFiller implements ProblemFiller {
         }
         return Optional.of(new TemporalDataImpl<>(injectionRangeActionPerTimestamp));
     }
+
     private static Optional<InjectionRangeAction> getInjectionRangeActionOfGenerator(String generatorId, Set<InjectionRangeAction> allInjectionRangeActions) {
         return allInjectionRangeActions.stream().filter(injectionRangeAction -> injectionRangeAction.getNetworkElements().stream().map(NetworkElement::getId).anyMatch(generatorId::equals)).min(Comparator.comparing(Identifiable::getId));
     }
