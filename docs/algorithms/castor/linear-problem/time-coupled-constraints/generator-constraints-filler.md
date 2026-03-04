@@ -196,7 +196,7 @@ For first timestamp, if the generator has its power lower than $P_{\min}$, we ac
 optimization problem will most likely avoid being constrained by start up prohibition by starting up first
 timestamp.
 
-$$\delta_{\textcolor{red}{\text{OFF}}}^{gen}(g,s,t_0) = 1, \ P(g,s, t_0) \l P_{\min}(g, t_0)$$
+$$\delta_{\textcolor{red}{\text{OFF}}}^{gen}(g,s,t_0) = 1, \ P(g,s, t_0) < P_{\min}(g, t_0)$$
 
 
 ### C10 - Injection to generator power constraint
