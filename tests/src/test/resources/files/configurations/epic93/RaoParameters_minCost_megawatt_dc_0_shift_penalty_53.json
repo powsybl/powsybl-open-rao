@@ -28,7 +28,7 @@
         "injection-ra-sensitivity-threshold" : 0.001,
         "ra-range-shrinking" : "DISABLED",
         "linear-optimization-solver" : {
-          "solver" : "CBC",
+          "solver" : "SCIP",
           "relative-mip-gap" : 0.001,
           "solver-specific-parameters" : null
         }
@@ -138,7 +138,7 @@
       },
       "costly-min-margin-parameters" : {
         "shifted-violation-threshold" : 0.0,
-        "shifted-violation-penalty" : 55.0
+        "shifted-violation-penalty" : 53.0
       }
     }
   }
