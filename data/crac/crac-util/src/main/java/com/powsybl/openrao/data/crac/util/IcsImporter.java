@@ -10,6 +10,7 @@ package com.powsybl.openrao.data.crac.util;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.LoadType;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.serde.NetworkSerDe;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.data.crac.api.Crac;
@@ -87,7 +88,7 @@ public final class IcsImporter {
         timeCoupledRaoInput.getRaoInputs().getDataPerTimestamp().forEach((dateTime, raoInput) -> {
             Network network = raoInput.getNetwork();
             preProcessNetwork(network);
-            initialNetworks.put(dateTime, network);
+            initialNetworks.put(dateTime, NetworkSerDe.copy(network)); // use a copy not to modify initial network
         });
         CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
             .setDelimiter(";")
