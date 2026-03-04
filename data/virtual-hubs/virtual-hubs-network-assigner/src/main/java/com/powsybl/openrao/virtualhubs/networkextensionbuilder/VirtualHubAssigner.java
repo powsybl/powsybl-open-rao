@@ -23,14 +23,20 @@ import java.util.Optional;
 public class VirtualHubAssigner {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(VirtualHubAssigner.class);
-    private List<VirtualHub> virtualHubs;
+    private final List<VirtualHub> virtualHubs;
 
     public VirtualHubAssigner(List<VirtualHub> virtualHubs) {
         this.virtualHubs = virtualHubs;
     }
 
     public void addVirtualLoads(Network network) {
-        virtualHubs.forEach(vh -> addVirtualLoad(network, vh));
+        virtualHubs.forEach(vh -> {
+            if (vh.nodeName() == null) {
+                LOGGER.warn("Virtual hub {} will be ignored as it has no nodeName", vh.eic());
+            } else {
+                addVirtualLoad(network, vh);
+            }
+        });
     }
 
     private void addVirtualLoad(Network network, VirtualHub virtualHub) {
