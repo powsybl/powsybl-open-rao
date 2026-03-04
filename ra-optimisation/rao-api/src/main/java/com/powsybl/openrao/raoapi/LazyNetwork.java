@@ -1481,4 +1481,20 @@ public class LazyNetwork implements Network {
         load();
         return network.getPropertyNames();
     }
+
+    @Override
+    public boolean equals(Object o) {
+        load();
+        return network.equals(o);
+    }
+
+    @Override
+    public int hashCode() {
+        load();
+        return network.hashCode();
+    }
+
+    public static Network of(String networkPath) {
+        return new LazyNetwork(networkPath);
+    }
 }

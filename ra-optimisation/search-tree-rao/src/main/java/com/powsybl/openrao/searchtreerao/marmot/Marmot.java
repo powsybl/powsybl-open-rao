@@ -8,7 +8,6 @@
 package com.powsybl.openrao.searchtreerao.marmot;
 
 import com.google.auto.service.AutoService;
-import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.commons.Unit;
@@ -17,9 +16,11 @@ import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
-import com.powsybl.openrao.data.raoresult.api.TimeCoupledRaoResult;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
-import com.powsybl.openrao.raoapi.*;
+import com.powsybl.openrao.data.raoresult.api.TimeCoupledRaoResult;
+import com.powsybl.openrao.raoapi.RaoInput;
+import com.powsybl.openrao.raoapi.TimeCoupledRaoInput;
+import com.powsybl.openrao.raoapi.TimeCoupledRaoProvider;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoCostlyMinMarginParameters;
@@ -36,23 +37,39 @@ import com.powsybl.openrao.searchtreerao.linearoptimisation.parameters.Iterating
 import com.powsybl.openrao.searchtreerao.marmot.results.GlobalFlowResult;
 import com.powsybl.openrao.searchtreerao.marmot.results.GlobalLinearOptimizationResult;
 import com.powsybl.openrao.searchtreerao.marmot.results.TimeCoupledRaoResultImpl;
-import com.powsybl.openrao.searchtreerao.result.api.*;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.LinearOptimizationResult;
+import com.powsybl.openrao.searchtreerao.result.api.LinearProblemStatus;
 import com.powsybl.openrao.searchtreerao.result.api.NetworkActionsResult;
+import com.powsybl.openrao.searchtreerao.result.api.ObjectiveFunctionResult;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
-import com.powsybl.openrao.searchtreerao.result.impl.*;
+import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
+import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
+import com.powsybl.openrao.searchtreerao.result.impl.FastRaoResultImpl;
+import com.powsybl.openrao.searchtreerao.result.impl.LightFastRaoResultImpl;
+import com.powsybl.openrao.searchtreerao.result.impl.NetworkActionsResultImpl;
+import com.powsybl.openrao.searchtreerao.result.impl.RangeActionActivationResultImpl;
+import com.powsybl.openrao.searchtreerao.result.impl.RangeActionSetpointResultImpl;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
 
 import java.time.OffsetDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
 import static com.powsybl.openrao.searchtreerao.commons.RaoLogger.logCost;
 import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.getFlowUnit;
-import static com.powsybl.openrao.searchtreerao.marmot.MarmotUtils.*;
+import static com.powsybl.openrao.searchtreerao.marmot.MarmotUtils.getPostOptimizationResults;
+import static com.powsybl.openrao.searchtreerao.marmot.MarmotUtils.runInitialPrePerimeterSensitivityAnalysisWithoutRangeActions;
+import static com.powsybl.openrao.searchtreerao.marmot.MarmotUtils.runSensitivityAnalysisBasedOnInitialResult;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -69,21 +86,20 @@ public class Marmot implements TimeCoupledRaoProvider {
     private static final String MIN_MARGIN_VIOLATION_EVALUATOR = "min-margin-violation-evaluator";
 
     @Override
-    public CompletableFuture<TimeCoupledRaoResult> run(TimeCoupledRaoInputWithNetworkPaths timeCoupledRaoInputWithNetworkPaths, RaoParameters raoParameters) {
+    public CompletableFuture<TimeCoupledRaoResult> run(TimeCoupledRaoInput timeCoupledRaoInput, RaoParameters raoParameters) {
         // 1. Run independent RAOs to compute optimal preventive topological remedial actions
         TECHNICAL_LOGS.info("[MARMOT] ----- Topological optimization [start]");
         TemporalData<Set<FlowCnec>> consideredCnecs = new TemporalDataImpl<>();
-        TemporalData<RaoResult> topologicalOptimizationResults = runTopologicalOptimization(timeCoupledRaoInputWithNetworkPaths.getRaoInputs(), consideredCnecs, raoParameters);
+        TemporalData<RaoResult> topologicalOptimizationResults = runTopologicalOptimization(timeCoupledRaoInput.getRaoInputs(), consideredCnecs, raoParameters);
         TECHNICAL_LOGS.info("[MARMOT] ----- Topological optimization [end]");
 
         // 2. Get the initial results from the various independent results to avoid recomputing them
         TemporalData<PrePerimeterResult> initialResults = buildInitialResults(topologicalOptimizationResults);
 
         // TODO : Add time-coupled constraint check if none violated then return
-        boolean noTimeCoupledConstraints = timeCoupledRaoInputWithNetworkPaths.getTimeCoupledConstraints().getGeneratorConstraints().isEmpty();
+        boolean noTimeCoupledConstraints = timeCoupledRaoInput.getTimeCoupledConstraints().getGeneratorConstraints().isEmpty();
 
         // 3. Apply independent topological remedial actions (and preventive range actions if there are no time-coupled constraints)
-        TimeCoupledRaoInput timeCoupledRaoInput = importNetworksFromTimeCoupledRaoInputWithNetworkPaths(timeCoupledRaoInputWithNetworkPaths);
         TECHNICAL_LOGS.info("[MARMOT] Applying optimal topological actions on networks");
         ObjectiveFunction fullObjectiveFunction = buildGlobalObjectiveFunction(timeCoupledRaoInput.getRaoInputs().map(RaoInput::getCrac), new GlobalFlowResult(initialResults), raoParameters);
         LinearOptimizationResult initialObjectiveFunctionResult = getInitialObjectiveFunctionResult(initialResults, fullObjectiveFunction);
@@ -109,7 +125,7 @@ public class Marmot implements TimeCoupledRaoProvider {
 //        }
 
         // 5. Get and apply topological actions applied in independent optimizations
-        TemporalData<NetworkActionsResult> preventiveTopologicalActions = getPreventiveTopologicalActions(timeCoupledRaoInputWithNetworkPaths.getRaoInputs().map(RaoInputWithNetworkPaths::getCrac), topologicalOptimizationResults);
+        TemporalData<NetworkActionsResult> preventiveTopologicalActions = getPreventiveTopologicalActions(timeCoupledRaoInput.getRaoInputs().map(RaoInput::getCrac), topologicalOptimizationResults);
         applyPreventiveTopologicalActionsOnNetworks(timeCoupledRaoInput.getRaoInputs(), preventiveTopologicalActions);
 
         // 6. Create and iteratively solve MIP to find optimal range actions' set-points
@@ -331,30 +347,15 @@ public class Marmot implements TimeCoupledRaoProvider {
         topologicalOptimizationResults.getDataPerTimestamp().forEach((timestamp, raoResult) -> topologicalOptimizationResults.put(timestamp, new LightFastRaoResultImpl((FastRaoResultImpl) raoResult)));
     }
 
-    private TimeCoupledRaoInput importNetworksFromTimeCoupledRaoInputWithNetworkPaths(TimeCoupledRaoInputWithNetworkPaths timeCoupledRaoInputWithNetworkPaths) {
-        return new TimeCoupledRaoInput(
-            timeCoupledRaoInputWithNetworkPaths.getRaoInputs().map(raoInputWithNetworksPath -> {
-                RaoInput raoInput = raoInputWithNetworksPath.toRaoInputWithPostIcsImportNetworkPath();
-                raoInput.getNetwork().getVariantManager().cloneVariant(raoInput.getNetworkVariantId(), INITIAL_SCENARIO);
-                return raoInput;
-            }),
-            timeCoupledRaoInputWithNetworkPaths.getTimestampsToRun(),
-            timeCoupledRaoInputWithNetworkPaths.getTimeCoupledConstraints()
-        );
-    }
-
-    private static TemporalData<RaoResult> runTopologicalOptimization(TemporalData<RaoInputWithNetworkPaths> raoInputs, TemporalData<Set<FlowCnec>> consideredCnecs, RaoParameters raoParameters) {
+    private static TemporalData<RaoResult> runTopologicalOptimization(TemporalData<RaoInput> raoInputs, TemporalData<Set<FlowCnec>> consideredCnecs, RaoParameters raoParameters) {
         raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getRangeActionsOptimizationParameters().getLinearOptimizationSolver().setSolverSpecificParameters("MAXTIME 15");
 
         TemporalData<RaoResult> individualResults = new TemporalDataImpl<>();
-        raoInputs.getDataPerTimestamp().forEach((datetime, individualRaoInputWithNetworkPath) -> {
-            RaoInput individualRaoInput = RaoInput
-                .build(Network.read(individualRaoInputWithNetworkPath.getPostIcsImportNetworkPath()), individualRaoInputWithNetworkPath.getCrac())
-                .build();
+        raoInputs.getDataPerTimestamp().forEach((datetime, raoInput) -> {
             Set<FlowCnec> cnecs = new HashSet<>();
-            String logMessage = "[MARMOT] Running RAO for timestamp %s [{}]".formatted(individualRaoInput.getCrac().getTimestamp().orElseThrow());
+            String logMessage = "[MARMOT] Running RAO for timestamp %s [{}]".formatted(raoInput.getCrac().getTimestamp().orElseThrow());
             TECHNICAL_LOGS.info(logMessage, "start");
-            RaoResult raoResult = FastRao.launchFastRaoOptimization(individualRaoInput, raoParameters, null, cnecs);
+            RaoResult raoResult = FastRao.launchFastRaoOptimization(raoInput, raoParameters, null, cnecs);
             TECHNICAL_LOGS.info(logMessage, "end");
             consideredCnecs.put(datetime, cnecs);
             individualResults.put(datetime, raoResult);

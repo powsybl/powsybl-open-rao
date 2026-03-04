@@ -10,6 +10,8 @@ package com.powsybl.openrao.raoapi;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.VariantManager;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.data.crac.api.Crac;
@@ -40,18 +42,22 @@ class TimeCoupledRaoTest {
 
     private FileSystem fileSystem;
     private InMemoryPlatformConfig platformConfig;
-    private TimeCoupledRaoInputWithNetworkPaths raoInput;
+    private TimeCoupledRaoInput raoInput;
 
     @BeforeEach
     void setUp() {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
         platformConfig = new InMemoryPlatformConfig(fileSystem);
         Crac crac = Mockito.mock(Crac.class);
-        raoInput = new TimeCoupledRaoInputWithNetworkPaths(
+        Network network = Mockito.mock(Network.class);
+        VariantManager variantManager = Mockito.mock(VariantManager.class);
+        Mockito.when(variantManager.getWorkingVariantId()).thenReturn("initialVariant");
+        Mockito.when(network.getVariantManager()).thenReturn(variantManager);
+        raoInput = new TimeCoupledRaoInput(
             new TemporalDataImpl<>(
                 Map.of(
                     OffsetDateTime.of(2024, 12, 13, 16, 17, 0, 0, ZoneOffset.UTC),
-                    RaoInputWithNetworkPaths.build("network.uct", crac).build()
+                    RaoInput.build(network, crac).build()
                 )),
             new TimeCoupledConstraints()
         );

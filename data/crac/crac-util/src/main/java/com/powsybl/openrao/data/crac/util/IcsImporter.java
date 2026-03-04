@@ -16,7 +16,9 @@ import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeActionAdder;
 import com.powsybl.openrao.data.crac.api.rangeaction.VariationDirection;
 import com.powsybl.openrao.data.timecoupledconstraints.GeneratorConstraints;
-import com.powsybl.openrao.raoapi.TimeCoupledRaoInputWithNetworkPaths;
+import com.powsybl.openrao.raoapi.LazyNetwork;
+import com.powsybl.openrao.raoapi.RaoInput;
+import com.powsybl.openrao.raoapi.TimeCoupledRaoInput;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 
@@ -25,6 +27,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.file.Path;
 import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
@@ -76,13 +79,13 @@ public final class IcsImporter {
         //should only be used statically
     }
 
-    public static void populateInputWithICS(TimeCoupledRaoInputWithNetworkPaths timeCoupledRaoInput, InputStream staticInputStream, InputStream seriesInputStream, InputStream gskInputStream, double icsCostUp, double icsCostDown) throws IOException {
+    public static TimeCoupledRaoInput populateInputWithICS(TimeCoupledRaoInput timeCoupledRaoInput, InputStream staticInputStream, InputStream seriesInputStream, InputStream gskInputStream, double icsCostUp, double icsCostDown, String exportDirectory) throws IOException {
         costUp = icsCostUp;
         costDown = icsCostDown;
 
         TemporalData<Network> initialNetworks = new TemporalDataImpl<>();
         timeCoupledRaoInput.getRaoInputs().getDataPerTimestamp().forEach((dateTime, raoInput) -> {
-            Network network = Network.read(raoInput.getInitialNetworkPath());
+            Network network = raoInput.getNetwork();
             preProcessNetwork(network);
             initialNetworks.put(dateTime, network);
         });
@@ -128,8 +131,15 @@ public final class IcsImporter {
             }
         });
 
-        initialNetworks.getDataPerTimestamp().forEach((dateTime, initialNetwork) ->
-            initialNetwork.write("JIIDM", new Properties(), Path.of(timeCoupledRaoInput.getRaoInputs().getData(dateTime).orElseThrow().getPostIcsImportNetworkPath())));
+        TemporalData<RaoInput> postIcsRaoInputs = new TemporalDataImpl<>();
+
+        initialNetworks.getDataPerTimestamp().forEach((dateTime, initialNetwork) -> {
+            String exportedNetworkPath = exportDirectory + dateTime.format(DateTimeFormatter.ISO_DATE_TIME) + ".jiidm";
+            initialNetwork.write("JIIDM", new Properties(), Path.of(exportedNetworkPath));
+            postIcsRaoInputs.put(dateTime, RaoInput.build(new LazyNetwork(exportedNetworkPath), timeCoupledRaoInput.getRaoInputs().getData(dateTime).orElseThrow().getCrac()).build());
+        });
+
+        return new TimeCoupledRaoInput(postIcsRaoInputs, timeCoupledRaoInput.getTimestampsToRun(), timeCoupledRaoInput.getTimeCoupledConstraints());
     }
 
     private static void preProcessNetwork(Network network) {
@@ -147,7 +157,7 @@ public final class IcsImporter {
         return Math.abs(a - b) < 1e-3;
     }
 
-    private static void importGskRedispatchingAction(TimeCoupledRaoInputWithNetworkPaths timeCoupledRaoInput, CSVRecord staticRecord, TemporalData<Network> initialNetworks, Map<String, CSVRecord> seriesPerType, String raId, Map<String, Double> weightPerNode) {
+    private static void importGskRedispatchingAction(TimeCoupledRaoInput timeCoupledRaoInput, CSVRecord staticRecord, TemporalData<Network> initialNetworks, Map<String, CSVRecord> seriesPerType, String raId, Map<String, Double> weightPerNode) {
         Map<String, String> networkElementPerGskElement = new HashMap<>();
         for (String nodeId : weightPerNode.keySet()) {
             String networkElementId = processNetworks(nodeId, initialNetworks, seriesPerType, weightPerNode.get(nodeId));
@@ -214,7 +224,7 @@ public final class IcsImporter {
         });
     }
 
-    private static void importNodeRedispatchingAction(TimeCoupledRaoInputWithNetworkPaths timeCoupledRaoInput, CSVRecord staticRecord, TemporalData<Network> initialNetworks, Map<String, CSVRecord> seriesPerType, String raId) {
+    private static void importNodeRedispatchingAction(TimeCoupledRaoInput timeCoupledRaoInput, CSVRecord staticRecord, TemporalData<Network> initialNetworks, Map<String, CSVRecord> seriesPerType, String raId) {
         String networkElementId = processNetworks(staticRecord.get(UCT_NODE_OR_GSK_ID), initialNetworks, seriesPerType, 1.);
         if (networkElementId == null) {
             return;
