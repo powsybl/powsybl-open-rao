@@ -62,7 +62,8 @@ class VirtualHubsConfigurationImporter {
                 String eic = node.getAttributes().getNamedItem("Eic").getNodeValue();
                 boolean isMcParticipant = Boolean.parseBoolean(node.getAttributes().getNamedItem("MCParticipant").getNodeValue());
                 boolean isAhc = getAhc(node);
-                String nodeName = node.getAttributes().getNamedItem("NodeName").getNodeValue();
+                final Node nodeNameItem = node.getAttributes().getNamedItem("NodeName");
+                final String nodeName = nodeNameItem != null ? nodeNameItem.getNodeValue() : null;
                 MarketArea marketArea = marketAreasMap.get(node.getAttributes().getNamedItem("RelatedMA").getNodeValue());
                 String oppositeHub = Optional.ofNullable(node.getAttributes().getNamedItem("OppositeHub")).map(Node::getNodeValue).orElse(null);
                 configuration.addVirtualHub(new VirtualHub(code, eic, isMcParticipant, isAhc, nodeName, marketArea, oppositeHub));
