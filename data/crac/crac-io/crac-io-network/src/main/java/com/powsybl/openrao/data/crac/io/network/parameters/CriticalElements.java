@@ -11,10 +11,11 @@ import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.Instant;
+import com.powsybl.openrao.data.crac.io.network.NetworkCracCreationContext;
+import org.apache.commons.lang3.function.TriFunction;
 
 import javax.annotation.Nullable;
 import java.util.*;
-import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
 /**
@@ -26,7 +27,7 @@ public class CriticalElements extends AbstractCountriesFilter {
     private final Set<String> instants;
     private MinAndMax<Double> optimizedMinMaxV = new MinAndMax<>(null, null);
     private MinAndMax<Double> monitoredMinMaxV; // non-critical branches are declared as MNECs
-    private BiFunction<Branch<?>, Contingency, OptimizedMonitored> optimizedMonitoredProvider = (branch, contingency) -> new OptimizedMonitored(true, true);
+    private TriFunction<Branch<?>, Contingency, NetworkCracCreationContext, OptimizedMonitored> optimizedMonitoredProvider = (branch, contingency, context) -> new OptimizedMonitored(true, true);
     private ThresholdDefinition thresholdDefinition = ThresholdDefinition.FROM_OPERATIONAL_LIMITS;
     private Map<String, Double> limitMultiplierPerInstant; // multiplies temp or perm limit, depending on thresholdDefinition
     private Map<String, Map<Double, Double>> limitMultiplierPerInstantPerNominalV; // multiplies temp or perm limit, depending on thresholdDefinition and voltage level
@@ -77,8 +78,8 @@ public class CriticalElements extends AbstractCountriesFilter {
         return Optional.ofNullable(monitoredMinMaxV);
     }
 
-    public OptimizedMonitored isOptimizedOrMonitored(Branch<?> branch, @Nullable Contingency contingency) {
-        return optimizedMonitoredProvider.apply(branch, contingency);
+    public OptimizedMonitored isOptimizedOrMonitored(Branch<?> branch, @Nullable Contingency contingency, NetworkCracCreationContext context) {
+        return optimizedMonitoredProvider.apply(branch, contingency, context);
     }
 
     /**
@@ -86,7 +87,7 @@ public class CriticalElements extends AbstractCountriesFilter {
      * Basecase is represented by a null Contingency.
      * Not setting this will default to all branches being optimized and monitored.
      */
-    public void setOptimizedMonitoredProvider(BiFunction<Branch<?>, Contingency, OptimizedMonitored> optimizedMonitoredProvider) {
+    public void setOptimizedMonitoredProvider(TriFunction<Branch<?>, Contingency, NetworkCracCreationContext, OptimizedMonitored> optimizedMonitoredProvider) {
         this.optimizedMonitoredProvider = optimizedMonitoredProvider;
     }
 

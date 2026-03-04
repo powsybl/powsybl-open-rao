@@ -100,6 +100,18 @@ class NetworkCracCreatorTest {
         assertEquals(24, crac.getInjectionRangeActions().size());
     }
 
+    @Test
+    void testImportUcteFullOneSide() {
+        cracCreationParameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_SIDE_TWO);
+        importCracFrom("TestCase12Nodes.uct");
+        assertTrue(creationContext.isCreationSuccessful());
+        assertNotNull(crac);
+        assertEquals(16, crac.getContingencies().size());
+        assertEquals(496, crac.getFlowCnecs().size());
+        assertEquals(2, crac.getPstRangeActions().size());
+        assertEquals(24, crac.getInjectionRangeActions().size());
+    }
+
     private void checkCnec(String id, String neId, InstantKind instantKind, Unit thresholdUnit, double thresholdValue) {
         checkCnec(id, neId, instantKind, thresholdUnit, thresholdValue, thresholdValue);
     }
@@ -121,7 +133,7 @@ class NetworkCracCreatorTest {
     void testUcteCnecsFiltered() {
         parameters.getCriticalElements().setCountryFilter(Set.of(Country.BE));
         parameters.getContingencies().setCountryFilter(Set.of(Country.NL));
-        parameters.getCriticalElements().setOptimizedMonitoredProvider((b, c) -> new CriticalElements.OptimizedMonitored(!Utils.branchIsInCountries(b, Set.of(Country.FR)), false));
+        parameters.getCriticalElements().setOptimizedMonitoredProvider((b, c, cc) -> new CriticalElements.OptimizedMonitored(!Utils.branchIsInCountries(b, Set.of(Country.FR)), false));
         importCracFrom("TestCase12Nodes.uct");
         assertTrue(creationContext.isCreationSuccessful());
         assertNotNull(crac);
