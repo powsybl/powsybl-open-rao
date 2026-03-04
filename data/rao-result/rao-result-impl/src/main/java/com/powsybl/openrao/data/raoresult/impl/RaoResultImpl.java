@@ -24,6 +24,7 @@ import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.OptimizationStepsExecuted;
+import com.powsybl.openrao.data.raoresult.api.extension.AngleExtension;
 
 import java.util.*;
 import java.util.function.Function;
@@ -97,11 +98,6 @@ public class RaoResultImpl extends AbstractExtendable<RaoResult> implements RaoR
     }
 
     @Override
-    public double getAngle(Instant optimizedInstant, AngleCnec angleCnec, Unit unit) {
-        return angleCnecResults.getOrDefault(angleCnec, DEFAULT_ANGLECNEC_RESULT).getResult(optimizedInstant).getAngle(unit);
-    }
-
-    @Override
     public double getMinVoltage(Instant optimizedInstant, VoltageCnec voltageCnec, Unit unit) {
         return voltageCnecResults.getOrDefault(voltageCnec, DEFAULT_VOLTAGECNEC_RESULT).getResult(optimizedInstant).getMinVoltage(unit);
     }
@@ -114,11 +110,6 @@ public class RaoResultImpl extends AbstractExtendable<RaoResult> implements RaoR
     @Override
     public double getMargin(Instant optimizedInstant, FlowCnec flowCnec, Unit unit) {
         return flowCnecResults.getOrDefault(flowCnec, DEFAULT_FLOWCNEC_RESULT).getResult(checkOptimizedInstant(optimizedInstant, flowCnec)).getMargin(unit);
-    }
-
-    @Override
-    public double getMargin(Instant optimizedInstant, AngleCnec angleCnec, Unit unit) {
-        return angleCnecResults.getOrDefault(angleCnec, DEFAULT_ANGLECNEC_RESULT).getResult(optimizedInstant).getMargin(unit);
     }
 
     @Override
@@ -339,16 +330,20 @@ public class RaoResultImpl extends AbstractExtendable<RaoResult> implements RaoR
         for (PhysicalParameter physicalParameter : Set.of(u)) {
             switch (physicalParameter) {
                 case ANGLE -> {
-                    if (crac.getAngleCnecs().stream()
-                        .mapToDouble(cnec -> getMargin(Instant.min(optimizedInstant, cnec.getState().getInstant()), cnec, Unit.DEGREE))
-                        .anyMatch(Double::isNaN)) {
-                        throw new OpenRaoException("RaoResult does not contain angle values for all AngleCNECs, security status for physical parameter ANGLE is unknown");
-                    }
-                    if (crac.getAngleCnecs().stream()
-                            .mapToDouble(cnec -> getMargin(optimizedInstant, cnec, Unit.DEGREE))
+                    // TODO: do we want to keep the use of the extension here?
+                    AngleExtension angleExtension = getExtension(AngleExtension.class);
+                    if (angleExtension != null) {
+                        if (crac.getAngleCnecs().stream()
+                            .mapToDouble(cnec -> angleExtension.getMargin(Instant.min(optimizedInstant, cnec.getState().getInstant()), cnec, Unit.DEGREE))
+                            .anyMatch(Double::isNaN)) {
+                            throw new OpenRaoException("RaoResult does not contain angle values for all AngleCNECs, security status for physical parameter ANGLE is unknown");
+                        }
+                        if (crac.getAngleCnecs().stream()
+                            .mapToDouble(cnec -> angleExtension.getMargin(optimizedInstant, cnec, Unit.DEGREE))
                             .filter(margin -> !Double.isNaN(margin))
                             .anyMatch(margin -> margin < 0)) {
-                        return false;
+                            return false;
+                        }
                     }
                 }
                 case FLOW -> {
