@@ -871,13 +871,39 @@ Feature: US 91.12: Multi-curative
     And the tap of PstRangeAction "CRA_PST_BE" should be 0 after "Contingency DE2 DE3 1" at "curative1"
     And the value of the objective function after CRA should be 76.23
 
+    #Add a test where max TSO =1, on choisit d'utiliser deux fois le même TSO (plus secure que juste une action) plutot que 2 diff (plus secure).
+
   @fast @rao @ac @multi-curative @second-preventive
   Scenario: US 91.12.28: Multi-curative - with max-elementary-action-per-tso limits and 2P
-    Same case as 91.12.27, but both PST are from TSO "FR".
-
+    Same case as 91.12.27, but both PST are from TSO "FR" and slightly different threshold.
+    Solution without any limit:
+    - network action(s) activated : PRA_CLOSE_NL2_BE3_3
+    - range action(s): CRA_PST_FR_1@Contingency DE2 DE3 1 - curative1: -16 (var: -16), CRA_PST_FR_2@Contingency DE2 DE3 1 - curative1: 1 (var: 1), CRA_PST_FR_2@Contingency DE2 DE3 1 - curative2: 11 (var: 10)
+    - worst margin = 3.52 MW, element NNL2AA1  BBE3AA1  1 at state Contingency DE2 DE3 1 - curative2, CNEC ID = "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative2"
+  Now we set a max number of elementary actions per TSO for "FR": curative1 = 17 and curative2 = 30.
+  We expect the 2P MIP to:
+  - use the full curative1 budget by moving 17 taps in total to secure "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative1" as much as possible;
+  -  move another 10 taps so that "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative2"'s margin goes slightly below the curative1 cnec's margin.
+  We don't reach the curative2 limit because no need to move more in curative2 since the limiting cnec's is in curative1.
     Given network file is "epic91/12Nodes3ParallelLines_2PST.uct"
     Given crac file is "epic91/crac_91_12_28_max_elementary_actions_per_tso.json"
     Given configuration file is "epic91/RaoParameters_case_91_12_secure_2PRAO.json"
     When I launch rao
     Then the execution details should be "Second preventive improved first preventive results"
+    And the initial tap of PstRangeAction "CRA_PST_FR_1" should be 0
+    And the initial tap of PstRangeAction "CRA_PST_FR_2" should be 0
+    Then 1 remedial actions are used in preventive
+    And the remedial action "PRA_CLOSE_NL2_BE3_3" is used in preventive
+    Then 2 remedial actions are used after "Contingency DE2 DE3 1" at "curative1"
+    And the tap of PstRangeAction "CRA_PST_FR_1" should be -16 after "Contingency DE2 DE3 1" at "curative1"
+    And the tap of PstRangeAction "CRA_PST_FR_2" should be 1 after "Contingency DE2 DE3 1" at "curative1"
+    Then 1 remedial actions are used after "Contingency DE2 DE3 1" at "curative2"
+    And the tap of PstRangeAction "CRA_PST_FR_1" should be -16 after "Contingency DE2 DE3 1" at "curative2"
+    And the tap of PstRangeAction "CRA_PST_FR_2" should be 11 after "Contingency DE2 DE3 1" at "curative2"
+    And the value of the objective function after CRA should be 9.17
+
+    #TODO: add a step that check margin after curative1...
+    #And the margin on cnec "NNL2AA1  BBE3AA1  1 at state Contingency DE2 DE3 1 - curative1" after CRA should be -9.17 MW
+    #And the margin on cnec "NNL2AA1  BBE3AA1  1 at state Contingency DE2 DE3 1 - curative2" after CRA should be -7.36 MW
+
 
