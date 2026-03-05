@@ -27,6 +27,20 @@
         <!-- We need critical branches for curative remedial actions -->
     </criticalBranches>
     <complexVariants>
+        <!-- Need at least one valid complexVariant to avoid RAO failure -->
+        <complexVariant id="D4_RA_10001" name="TOP_TEST">
+            <timeInterval v="2026-01-27T12:00Z/2026-01-27T23:00Z"/>
+            <tsoOrigin>D4</tsoOrigin>
+            <actionsSet>
+                <preventive>true</preventive>
+                <curative>false</curative>
+                <enforced>false</enforced>
+                <action type="STATUS">
+                    <branch from="FFR2AA1 " to="DDE3AA1 " elementName="CB1" />
+                    <value>OPEN</value>
+                </action>
+            </actionsSet>
+        </complexVariant>
         <complexVariant id="D4_RA_99991" name="PRA_TEST_1">
             <timeInterval v="2026-01-27T12:00Z/2026-01-27T23:00Z" />
             <tsoOrigin>D4</tsoOrigin>

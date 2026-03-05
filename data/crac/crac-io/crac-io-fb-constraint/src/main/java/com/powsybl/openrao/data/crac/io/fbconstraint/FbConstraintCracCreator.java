@@ -10,6 +10,7 @@ package com.powsybl.openrao.data.crac.io.fbconstraint;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.Identifiable;
 import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
@@ -29,6 +30,7 @@ import com.powsybl.openrao.virtualhubs.InternalHvdc;
 
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -240,19 +242,19 @@ class FbConstraintCracCreator {
             final HvdcLineRemedialActionAdder hvdcLineRemedialActionAdder = new HvdcLineRemedialActionAdder(hvdcLine, ucteNetworkAnalyzer, complexVariantReadersByElementId, nodeToStationMap);
             hvdcLineRemedialActionAdder.add(crac, creationContext);
         }
-        checkInconsistentInjectionRangeActionsFromCrac(crac, creationContext);
+        removeInvalidInjectionRangeActionsFromCrac(crac, creationContext);
     }
 
-    private static void checkInconsistentInjectionRangeActionsFromCrac(final Crac crac, final FbConstraintCreationContext creationContext) {
+    private static void removeInvalidInjectionRangeActionsFromCrac(final Crac crac, final FbConstraintCreationContext creationContext) {
         final Map<Optional<String>, List<InjectionRangeAction>> injectionRangeActionsByGroupId = crac.getInjectionRangeActions().stream()
             .collect(Collectors.groupingBy(InjectionRangeAction::getGroupId));
 
         injectionRangeActionsByGroupId.values().stream()
             .filter(raList -> raList.size() > 1) // We only want remedial actions that share the same groupId, which means the raList that contain more than one element
             .filter(raList -> remedialActionsHaveInconsistentUsageRules(raList, creationContext))
-            .forEach(raList -> {
-                // TODO To remove invalid range actions, use crac.removeInjectionRangeAction for each range action in raList
-            });
+            .flatMap(Collection::stream)
+            .map(Identifiable::getId)
+            .forEach(crac::removeInjectionRangeAction);
     }
 
     private static boolean remedialActionsHaveInconsistentUsageRules(final List<? extends RemedialAction<?>> remedialActions,

@@ -392,49 +392,7 @@ class FbConstraintImporterTest {
         final List<InjectionRangeAction> injectionRangeActions = context.getCrac().getInjectionRangeActions().stream()
             .sorted(Comparator.comparing(InjectionRangeAction::getId))
             .toList();
-        Assertions.assertThat(injectionRangeActions).hasSize(2); // TODO If we implement removal of inconsistent InjectionRangeActions, the size will be 0
-
-        final InjectionRangeAction firstRA = injectionRangeActions.get(0);
-        final InjectionRangeAction secondRA = injectionRangeActions.get(1);
-
-        SoftAssertions softAssertions = new SoftAssertions();
-        assertRangeActionContent(softAssertions, firstRA, "D7_RA_99991 + D4_RA_99991", "PRA_TEST_1A + PRA_TEST_1", "D7 + D4", Optional.of("Esgaroth + Numenor"), 1000.0);
-        softAssertions.assertThat(firstRA.getUsageRules()).hasSize(1);
-        final Instant firstRAInstant = firstRA.getUsageRules().stream().findFirst().orElseThrow().getInstant();
-        softAssertions.assertThat(firstRAInstant.isPreventive()).isTrue();
-        softAssertions.assertThat(firstRAInstant.isCurative()).isFalse();
-        softAssertions.assertThat(firstRA.getRanges()).hasSize(1);
-        softAssertions.assertThat(firstRA.getRanges().getFirst()).hasFieldOrPropertyWithValue("min", -800.0);
-        softAssertions.assertThat(firstRA.getRanges().getFirst()).hasFieldOrPropertyWithValue("max", 1000.0);
-        softAssertions.assertThat(firstRA.getInjectionDistributionKeys()).hasSize(2);
-        softAssertions.assertThat(
-                firstRA.getInjectionDistributionKeys().entrySet().stream()
-                    .collect(
-                        Collectors.toMap(entry -> entry.getKey().getId(),
-                            Map.Entry::getValue))
-            )
-            .containsExactlyInAnyOrderEntriesOf(Map.of("D4AAA11B_generator", 1.0, "D7AAA11A_generator", -1.0));
-        softAssertions.assertAll();
-
-        softAssertions = new SoftAssertions();
-        assertRangeActionContent(softAssertions, secondRA, "D7_RA_99992 + D4_RA_99992", "PRA_TEST_2A + PRA_TEST_2", "D7 + D4", Optional.of("Esgaroth + Numenor"), 1000.0);
-        softAssertions.assertThat(secondRA.getUsageRules()).hasSize(1);
-        final OnContingencyState secondRAUsageRule = (OnContingencyState) secondRA.getUsageRules().stream().findFirst().orElseThrow();
-        softAssertions.assertThat(secondRAUsageRule.getInstant().isPreventive()).isFalse();
-        softAssertions.assertThat(secondRAUsageRule.getInstant().isCurative()).isTrue();
-        softAssertions.assertThat(secondRAUsageRule.getContingency().getId()).isEqualTo("OUTAGE_1");
-        softAssertions.assertThat(secondRA.getRanges()).hasSize(1);
-        softAssertions.assertThat(secondRA.getRanges().getFirst()).hasFieldOrPropertyWithValue("min", -700.0);
-        softAssertions.assertThat(secondRA.getRanges().getFirst()).hasFieldOrPropertyWithValue("max", -100.0);
-        softAssertions.assertThat(secondRA.getInjectionDistributionKeys()).hasSize(2);
-        softAssertions.assertThat(
-                secondRA.getInjectionDistributionKeys().entrySet().stream()
-                    .collect(
-                        Collectors.toMap(entry -> entry.getKey().getId(),
-                            Map.Entry::getValue))
-            )
-            .containsExactlyInAnyOrderEntriesOf(Map.of("D4AAA21B_generator", 1.0, "D7AAA21A_generator", -1.0));
-        softAssertions.assertAll();
+        Assertions.assertThat(injectionRangeActions).isEmpty();
     }
 
     private static void assertRangeActionContent(final SoftAssertions softAssertions,

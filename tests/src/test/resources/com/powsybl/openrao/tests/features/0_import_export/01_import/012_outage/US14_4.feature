@@ -117,40 +117,14 @@ Feature: US 14.4: HVDC
   Scenario: US 14.4.5 : German HVDC with no alignment of generators (CORE's german HVDC)
   This case tests an inconsistent situation that should not happen in real life:
   Two parallel German HVDC lines are defined but one is set as preventive and the other is set as curative.
-  In such a situation, generators alignment should not work and generators can be moved separately.
-  Therefore, generators of the same station will not have the same value.
-  However, the two generators involved in one HVDC line should still have opposite values.
+  In such a situation, generators alignment would not work and generators could be moved separately.
+  To avoid inconsistent behaviour, inconsistent RAs are removed from Crac before the RAO is launched to avoid using them during the optimisation.
     Given network file is "epic14/TestCase12NodesUltranet_v2.uct" for CORE CC
     Given crac file is "epic14/crac_hvdc_preventive_and_curative.xml"
     Given crac creation parameters file is "epic14/ccp.json"
     Given configuration file is "common/RaoParameters_maxMargin_megawatt_dc.json"
     When I launch rao at "2026-01-27 17:00"
-    Then the remedial action "D7_RA_99991 + D4_RA_99991" is used in preventive
-    And the remedial action "D7_RA_99992 + D4_RA_99992" is used after "OUTAGE_1" at "curative"
-    And the initial margin on cnec "CB0 - outage" should be 4246.1 MW
-    And the initial margin on cnec "CB0 - curative" should be 4246.1 MW
-    And the initial setpoint of RangeAction "D7_RA_99991 + D4_RA_99991" should be 0
-    And the initial setpoint of RangeAction "D7_RA_99992 + D4_RA_99992" should be 0
-    And the margin on cnec "CB0 - outage" after PRA should be 5246.1 MW
-    And the margin on cnec "CB0 - curative" after PRA should be 5246.1 MW
-    And the setpoint of RangeAction "D7_RA_99991 + D4_RA_99991" should be 1000 MW in preventive
-    And the setpoint of RangeAction "D7_RA_99992 + D4_RA_99992" should be 0 MW in preventive
-    And the margin on cnec "CB0 - outage" after CRA should be 5246.1 MW
-    And the margin on cnec "CB0 - curative" after CRA should be 5946.1 MW
-    And the setpoint of RangeAction "D7_RA_99991 + D4_RA_99991" should be 1000 MW after "OUTAGE_1" at "curative"
-    And the setpoint of RangeAction "D7_RA_99992 + D4_RA_99992" should be 700 MW after "OUTAGE_1" at "curative"
-    And the generator "D7AAA11A_generator" should have a targetP of 0.0 MW at initial state
-    And the generator "D7AAA21A_generator" should have a targetP of 0.0 MW at initial state
-    And the generator "D4AAA11B_generator" should have a targetP of 0.0 MW at initial state
-    And the generator "D4AAA21B_generator" should have a targetP of 0.0 MW at initial state
-    # RA have different usage rules => there is no alignment of the generators
-    # Generators of the same RA have opposed targetP: D7AAA11A_generator & D4AAA11B_generator ; D4AAA21B_generator & D7AAA21A_generator
-    And the generator "D7AAA11A_generator" should have a targetP of -1000.0 MW after PRA
-    And the generator "D7AAA21A_generator" should have a targetP of 0.0 MW after PRA
-    And the generator "D4AAA11B_generator" should have a targetP of 1000.0 MW after PRA
-    And the generator "D4AAA21B_generator" should have a targetP of 0.0 MW after PRA
-    And the generator "D7AAA11A_generator" should have a targetP of -1000.0 MW after CRA
-    And the generator "D7AAA21A_generator" should have a targetP of -700.0 MW after CRA
-    And the generator "D4AAA11B_generator" should have a targetP of 1000.0 MW after CRA
-    And the generator "D4AAA21B_generator" should have a targetP of 700.0 MW after CRA
-    And the worst margin is 5246.1 MW
+    # HVDC remedial actions have different usage rules => they should not be used during optimisation
+    Then 0 remedial actions are used in preventive
+    And 0 remedial actions are used after "OUTAGE_1" at "curative"
+    And the worst margin is 4246.1 MW
