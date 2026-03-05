@@ -9,6 +9,7 @@ package com.powsybl.openrao.data.crac.util;
 
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.data.crac.api.Crac;
@@ -33,6 +34,8 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import org.assertj.core.api.Assertions;
+
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
@@ -109,8 +112,8 @@ class IcsImporterTest {
         assertEquals(1.0, generatorConstraints.getLeadTime().get(), DOUBLE_EPSILON);
         assertTrue(generatorConstraints.getLagTime().isPresent());
         assertEquals(1.0, generatorConstraints.getLagTime().get(), DOUBLE_EPSILON);
-        assertFalse(generatorConstraints.getShutDownAllowed());
-        assertFalse(generatorConstraints.getStartUpAllowed());
+        assertFalse(generatorConstraints.isShutDownAllowed());
+        assertFalse(generatorConstraints.isStartUpAllowed());
 
         assertEquals(1, crac1.getInjectionRangeActions().size());
         InjectionRangeAction ra1 = crac1.getInjectionRangeActions().iterator().next();
@@ -140,6 +143,54 @@ class IcsImporterTest {
     }
 
     @Test
+    void testIcsImporterNoShutDown() {
+        double cost = 5.;
+        InputStream staticInputStream = IcsImporterTest.class.getResourceAsStream("/ics/static_no_shutdown.csv");
+        InputStream seriesInputStream = IcsImporterTest.class.getResourceAsStream("/ics/series.csv");
+        InputStream gskInputStream = IcsImporterTest.class.getResourceAsStream("/glsk/gsk.csv");
+
+        Assertions.assertThatExceptionOfType(OpenRaoException.class)
+            .isThrownBy(() -> IcsImporter.populateInputWithICS(timeCoupledRaoInputWithNetworkPaths, staticInputStream, seriesInputStream, gskInputStream, cost, cost))
+            .withMessage("Could not parse shutDownAllowed value  for raId Redispatching_RA");
+    }
+
+    @Test
+    void testIcsImporterWrongShutDown() {
+        double cost = 5.;
+        InputStream staticInputStream = IcsImporterTest.class.getResourceAsStream("/ics/static_wrong_shutdown.csv");
+        InputStream seriesInputStream = IcsImporterTest.class.getResourceAsStream("/ics/series.csv");
+        InputStream gskInputStream = IcsImporterTest.class.getResourceAsStream("/glsk/gsk.csv");
+
+        Assertions.assertThatExceptionOfType(OpenRaoException.class)
+            .isThrownBy(() -> IcsImporter.populateInputWithICS(timeCoupledRaoInputWithNetworkPaths, staticInputStream, seriesInputStream, gskInputStream, cost, cost))
+            .withMessage("Could not parse shutDownAllowed value wrongValue for raId Redispatching_RA");
+    }
+
+    @Test
+    void testIcsImporterNoStartUp() {
+        double cost = 5.;
+        InputStream staticInputStream = IcsImporterTest.class.getResourceAsStream("/ics/static_no_startup.csv");
+        InputStream seriesInputStream = IcsImporterTest.class.getResourceAsStream("/ics/series.csv");
+        InputStream gskInputStream = IcsImporterTest.class.getResourceAsStream("/glsk/gsk.csv");
+
+        Assertions.assertThatExceptionOfType(OpenRaoException.class)
+            .isThrownBy(() -> IcsImporter.populateInputWithICS(timeCoupledRaoInputWithNetworkPaths, staticInputStream, seriesInputStream, gskInputStream, cost, cost))
+            .withMessage("Could not parse startUpAllowed value  for raId Redispatching_RA");
+    }
+
+    @Test
+    void testIcsImporterWrongStartUp() {
+        double cost = 5.;
+        InputStream staticInputStream = IcsImporterTest.class.getResourceAsStream("/ics/static_wrong_startup.csv");
+        InputStream seriesInputStream = IcsImporterTest.class.getResourceAsStream("/ics/series.csv");
+        InputStream gskInputStream = IcsImporterTest.class.getResourceAsStream("/glsk/gsk.csv");
+
+        Assertions.assertThatExceptionOfType(OpenRaoException.class)
+            .isThrownBy(() -> IcsImporter.populateInputWithICS(timeCoupledRaoInputWithNetworkPaths, staticInputStream, seriesInputStream, gskInputStream, cost, cost))
+            .withMessage("Could not parse startUpAllowed value wrongValue for raId Redispatching_RA");
+    }
+
+    @Test
     void testIcsImporterOneActionNoPminRd() throws IOException {
         double cost = 5.;
         InputStream staticInputStream = IcsImporterTest.class.getResourceAsStream("/ics/static.csv");
@@ -158,8 +209,8 @@ class IcsImporterTest {
         assertEquals(1.0, generatorConstraints.getLeadTime().get(), DOUBLE_EPSILON);
         assertTrue(generatorConstraints.getLagTime().isPresent());
         assertEquals(1.0, generatorConstraints.getLagTime().get(), DOUBLE_EPSILON);
-        assertFalse(generatorConstraints.getShutDownAllowed());
-        assertFalse(generatorConstraints.getStartUpAllowed());
+        assertFalse(generatorConstraints.isShutDownAllowed());
+        assertFalse(generatorConstraints.isStartUpAllowed());
 
         assertEquals(1, crac1.getInjectionRangeActions().size());
         InjectionRangeAction ra1 = crac1.getInjectionRangeActions().iterator().next();
@@ -205,8 +256,8 @@ class IcsImporterTest {
         assertEquals(1000.0, generatorConstraints.getUpwardPowerGradient().get(), DOUBLE_EPSILON);
         assertTrue(generatorConstraints.getLeadTime().isEmpty());
         assertTrue(generatorConstraints.getLagTime().isEmpty());
-        assertFalse(generatorConstraints.getShutDownAllowed());
-        assertFalse(generatorConstraints.getStartUpAllowed());
+        assertFalse(generatorConstraints.isShutDownAllowed());
+        assertFalse(generatorConstraints.isStartUpAllowed());
 
         assertEquals(1, crac1.getInjectionRangeActions().size());
         InjectionRangeAction ra1 = crac1.getInjectionRangeActions().iterator().next();
@@ -265,8 +316,8 @@ class IcsImporterTest {
         assertEquals(1.0, generatorConstraintsBE.getLeadTime().get(), DOUBLE_EPSILON);
         assertTrue(generatorConstraintsBE.getLagTime().isPresent());
         assertEquals(1.0, generatorConstraintsBE.getLagTime().get(), DOUBLE_EPSILON);
-        assertFalse(generatorConstraintsBE.getShutDownAllowed());
-        assertFalse(generatorConstraintsBE.getStartUpAllowed());
+        assertFalse(generatorConstraintsBE.isShutDownAllowed());
+        assertFalse(generatorConstraintsBE.isStartUpAllowed());
         GeneratorConstraints generatorConstraintsFR = timeCoupledRaoInputWithNetworkPaths.getTimeCoupledConstraints().getGeneratorConstraints().stream().filter(gc -> gc.getGeneratorId().contains("FR")).findFirst().orElseThrow();
         assertEquals("Redispatching_RA_FFR1AA1_GENERATOR", generatorConstraintsFR.getGeneratorId());
         assertEquals(-4., generatorConstraintsFR.getDownwardPowerGradient().orElseThrow(), DOUBLE_EPSILON);
@@ -275,8 +326,8 @@ class IcsImporterTest {
         assertEquals(1.0, generatorConstraintsFR.getLeadTime().get(), DOUBLE_EPSILON);
         assertTrue(generatorConstraintsFR.getLagTime().isPresent());
         assertEquals(1.0, generatorConstraintsFR.getLagTime().get(), DOUBLE_EPSILON);
-        assertFalse(generatorConstraintsFR.getShutDownAllowed());
-        assertFalse(generatorConstraintsFR.getStartUpAllowed());
+        assertFalse(generatorConstraintsFR.isShutDownAllowed());
+        assertFalse(generatorConstraintsFR.isStartUpAllowed());
 
         assertEquals(1, crac1.getInjectionRangeActions().size());
         InjectionRangeAction ra1 = crac1.getInjectionRangeActions().iterator().next();

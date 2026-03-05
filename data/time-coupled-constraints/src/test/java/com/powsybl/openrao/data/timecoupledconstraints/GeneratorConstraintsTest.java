@@ -33,8 +33,8 @@ class GeneratorConstraintsTest {
         assertEquals(Optional.of(2.), generatorConstraints.getLagTime());
         assertTrue(generatorConstraints.getUpwardPowerGradient().isEmpty());
         assertTrue(generatorConstraints.getDownwardPowerGradient().isEmpty());
-        assertTrue(generatorConstraints.getShutDownAllowed());
-        assertTrue(generatorConstraints.getStartUpAllowed());
+        assertTrue(generatorConstraints.isShutDownAllowed());
+        assertTrue(generatorConstraints.isStartUpAllowed());
     }
 
     @Test
@@ -51,8 +51,8 @@ class GeneratorConstraintsTest {
         assertEquals(Optional.of(2.), generatorConstraints.getLagTime());
         assertEquals(Optional.of(50.), generatorConstraints.getUpwardPowerGradient());
         assertEquals(Optional.of(-100.), generatorConstraints.getDownwardPowerGradient());
-        assertTrue(generatorConstraints.getShutDownAllowed());
-        assertTrue(generatorConstraints.getStartUpAllowed());
+        assertTrue(generatorConstraints.isShutDownAllowed());
+        assertTrue(generatorConstraints.isStartUpAllowed());
     }
 
     @Test
@@ -71,8 +71,8 @@ class GeneratorConstraintsTest {
         assertEquals(Optional.of(2.), generatorConstraints.getLagTime());
         assertEquals(Optional.of(50.), generatorConstraints.getUpwardPowerGradient());
         assertEquals(Optional.of(-100.), generatorConstraints.getDownwardPowerGradient());
-        assertTrue(generatorConstraints.getShutDownAllowed());
-        assertFalse(generatorConstraints.getStartUpAllowed());
+        assertTrue(generatorConstraints.isShutDownAllowed());
+        assertFalse(generatorConstraints.isStartUpAllowed());
     }
 
     @Test

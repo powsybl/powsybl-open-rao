@@ -129,11 +129,11 @@ public class GeneratorConstraintsFiller implements ProblemFiller {
                         }
                         addPowerVariationConstraints(linearProblem, individualGeneratorConstraints, timestamps.get(timestampIndex), timestamps.get(timestampIndex + 1));
 
-                        if (!individualGeneratorConstraints.getShutDownAllowed()) {
+                        if (!individualGeneratorConstraints.isShutDownAllowed()) {
                             addShutDownProhibitedConstraint(linearProblem, individualGeneratorConstraints.getGeneratorId(), timestamps.get(timestampIndex));
                         }
 
-                        if (!individualGeneratorConstraints.getStartUpAllowed()) {
+                        if (!individualGeneratorConstraints.isStartUpAllowed()) {
                             addStartUpProhibitedConstraint(linearProblem, individualGeneratorConstraints.getGeneratorId(), timestamps.get(timestampIndex));
                         }
 
@@ -142,10 +142,10 @@ public class GeneratorConstraintsFiller implements ProblemFiller {
                 }
                 // Specific first timestamp constraints
                 OffsetDateTime firstTimestamp = timestamps.getFirst();
-                if (!individualGeneratorConstraints.getShutDownAllowed()) {
+                if (!individualGeneratorConstraints.isShutDownAllowed()) {
                     addShutDownProhibitedOnFirstTimestampConstraint(linearProblem, generatorId, firstTimestamp, networks.getData(firstTimestamp).orElseThrow());
                 }
-                if (!individualGeneratorConstraints.getStartUpAllowed()) {
+                if (!individualGeneratorConstraints.isStartUpAllowed()) {
                     addStartUpProhibitedOnFirstTimestampConstraint(linearProblem, generatorId, firstTimestamp, networks.getData(firstTimestamp).orElseThrow());
                 }
             }

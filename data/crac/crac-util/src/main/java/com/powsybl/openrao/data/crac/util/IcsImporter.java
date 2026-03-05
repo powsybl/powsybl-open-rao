@@ -10,6 +10,7 @@ package com.powsybl.openrao.data.crac.util;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.LoadType;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.data.crac.api.Crac;
@@ -67,6 +68,7 @@ public final class IcsImporter {
     public static final String PREVENTIVE = "Preventive";
     public static final String CURATIVE = "Curative";
     public static final String TRUE = "TRUE";
+    public static final String FALSE = "FALSE";
     public static final String RD_DESCRIPTION_MODE = "RD description mode";
     public static final String NODE = "NODE";
     public static final String GENERATOR_NAME = "Generator Name";
@@ -211,8 +213,18 @@ public final class IcsImporter {
             if (!staticRecord.get(LAG_TIME).isEmpty()) {
                 builder.withLagTime(parseDoubleWithPossibleCommas(staticRecord.get(LAG_TIME)));
             }
-            builder.withShutDownAllowed(Boolean.parseBoolean(staticRecord.get(SHUTDOWN_ALLOWED)));
-            builder.withStartUpAllowed(Boolean.parseBoolean(staticRecord.get(STARTUP_ALLOWED)));
+            if (staticRecord.get(SHUTDOWN_ALLOWED).isEmpty() ||
+                (!staticRecord.get(SHUTDOWN_ALLOWED).equalsIgnoreCase(TRUE) && !staticRecord.get(SHUTDOWN_ALLOWED).equalsIgnoreCase(FALSE))) {
+                throw new OpenRaoException("Could not parse shutDownAllowed " + staticRecord.get(SHUTDOWN_ALLOWED) + " for nodeId " + nodeId);
+            } else {
+                builder.withShutDownAllowed(Boolean.parseBoolean(staticRecord.get(SHUTDOWN_ALLOWED)));
+            }
+            if (staticRecord.get(STARTUP_ALLOWED).isEmpty() ||
+                (!staticRecord.get(STARTUP_ALLOWED).equalsIgnoreCase(TRUE) && !staticRecord.get(STARTUP_ALLOWED).equalsIgnoreCase(FALSE))) {
+                throw new OpenRaoException("Could not parse startUpAllowed " + staticRecord.get(STARTUP_ALLOWED) + " for nodeId " + nodeId);
+            } else {
+                builder.withStartUpAllowed(Boolean.parseBoolean(staticRecord.get(STARTUP_ALLOWED)));
+            }
             timeCoupledRaoInput.getTimeCoupledConstraints().addGeneratorConstraints(builder.build());
         });
     }
@@ -269,8 +281,18 @@ public final class IcsImporter {
         if (!staticRecord.get(LAG_TIME).isEmpty()) {
             builder.withLagTime(parseDoubleWithPossibleCommas(staticRecord.get(LAG_TIME)));
         }
-        builder.withShutDownAllowed(Boolean.parseBoolean(staticRecord.get(SHUTDOWN_ALLOWED)));
-        builder.withStartUpAllowed(Boolean.parseBoolean(staticRecord.get(STARTUP_ALLOWED)));
+        if (staticRecord.get(SHUTDOWN_ALLOWED).isEmpty() ||
+            (!staticRecord.get(SHUTDOWN_ALLOWED).equalsIgnoreCase(TRUE) && !staticRecord.get(SHUTDOWN_ALLOWED).equalsIgnoreCase(FALSE))) {
+            throw new OpenRaoException("Could not parse shutDownAllowed value " + staticRecord.get(SHUTDOWN_ALLOWED) + " for raId " + raId);
+        } else {
+            builder.withShutDownAllowed(Boolean.parseBoolean(staticRecord.get(SHUTDOWN_ALLOWED)));
+        }
+        if (staticRecord.get(STARTUP_ALLOWED).isEmpty() ||
+            (!staticRecord.get(STARTUP_ALLOWED).equalsIgnoreCase(TRUE) && !staticRecord.get(STARTUP_ALLOWED).equalsIgnoreCase(FALSE))) {
+            throw new OpenRaoException("Could not parse startUpAllowed value " + staticRecord.get(STARTUP_ALLOWED) + " for raId " + raId);
+        } else {
+            builder.withStartUpAllowed(Boolean.parseBoolean(staticRecord.get(STARTUP_ALLOWED)));
+        }
         timeCoupledRaoInput.getTimeCoupledConstraints().addGeneratorConstraints(builder.build());
     }
 

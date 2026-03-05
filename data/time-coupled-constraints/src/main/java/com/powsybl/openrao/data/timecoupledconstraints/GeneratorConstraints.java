@@ -90,7 +90,7 @@ public final class GeneratorConstraints {
      *
      * @return true if generator can be started up
      */
-    public boolean getStartUpAllowed() {
+    public boolean isStartUpAllowed() {
         return isStartUpAllowed;
     }
 
@@ -99,7 +99,7 @@ public final class GeneratorConstraints {
      *
      * @return true if generator can be shut down
      */
-    public boolean getShutDownAllowed() {
+    public boolean isShutDownAllowed() {
         return isShutDownAllowed;
     }
 
