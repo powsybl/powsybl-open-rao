@@ -26,7 +26,7 @@ class XmlVirtualHubsConfigurationImporterTest {
         final VirtualHubsConfiguration configuration = XmlVirtualHubsConfiguration.importConfiguration(getClass().getResourceAsStream("/virtualHubsConfigurationFile.xml"));
 
         Assertions.assertThat(configuration.getMarketAreas()).hasSize(3);
-        Assertions.assertThat(configuration.getVirtualHubs()).hasSize(4);
+        Assertions.assertThat(configuration.getVirtualHubs()).hasSize(5);
         Assertions.assertThat(configuration.getBorderDirections()).hasSize(4);
     }
 
