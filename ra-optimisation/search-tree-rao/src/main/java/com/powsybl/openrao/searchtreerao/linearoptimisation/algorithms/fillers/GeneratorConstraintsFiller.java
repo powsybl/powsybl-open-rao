@@ -48,7 +48,11 @@ public class GeneratorConstraintsFiller implements ProblemFiller {
     private final double timestampDuration;
 
     private static final double DEFAULT_POWER_GRADIENT = 100000.0;
-    private static final double OFF_POWER_THRESHOLD = 1.;
+    // After MIP, result is rounded and injections greater than INJECTION_HVDC_ACTIVATION_THRESHOLD = 1 MW are considered as activated
+    // => OFF_POWER_THRESHOLD needs to be < 0.5
+    // => ON_POWER_THRESHOLD need to be > 1.0
+    private static final double OFF_POWER_THRESHOLD = 0.4;
+    private static final double ON_THRESHOLD = 1.1;
 
     // TODO: check that all temporal data are correctly filled with the same timestamps
     public GeneratorConstraintsFiller(TemporalData<Network> networks, TemporalData<State> preventiveStates, TemporalData<Set<InjectionRangeAction>> injectionRangeActionsPerTimestamp, Set<GeneratorConstraints> generatorConstraints) {
@@ -410,7 +414,7 @@ public class GeneratorConstraintsFiller implements ProblemFiller {
     }
 
     private static double getMinP(String generatorId, Network network) {
-        return Math.max(OFF_POWER_THRESHOLD, getGenerator(generatorId, network).getMinP());
+        return Math.max(ON_THRESHOLD, getGenerator(generatorId, network).getMinP());
     }
 
     private static double getMaxP(String generatorId, Network network) {
