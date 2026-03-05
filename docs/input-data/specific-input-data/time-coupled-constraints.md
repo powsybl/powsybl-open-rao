@@ -22,17 +22,29 @@ The **lag time** corresponds to the time required by the generator to reach comp
 When operated above its $P_{\min}$, a generator can be restricted by **power gradients** that limit the amount of MW its
 power can vary between two consecutive timestamps. These gradients can be defined upward and/or downward.
 
+### Shut Down allowed
+
+This is a boolean to indicate if a generator can be shutdown. If no value is defined, value will be set to true, meaning
+that generator can be shutdown.
+
+### Start Up Allowed
+
+This is a boolean to indicate if a generator can be started up from standstill. If no value is defined, value will be set to true, meaning
+that generator can be started up.
+
 ## JSON API
 
 ### Generator constraints
 
-| Field name              | Type   | Status    | Unit  | Description                                                                             |
-|-------------------------|--------|-----------|-------|-----------------------------------------------------------------------------------------|
-| `generatorId`           | string | Mandatory | -     | Id of the generator on which the constraints apply.                                     |
-| `leadTime`              | number | Optional  | hours | Lead time of the generator, in hours. Must be positive.                                 |
-| `lagTime`               | number | Optional  | hours | Lag time of the generator, in hours. Must be positive.                                  |
-| `upwardPowerGradient`   | number | Optional  | MW/h  | Upward power gradient for the generator's power variation, in MW/h. Must be positive.   |
-| `downwardPowerGradient` | number | Optional  | MW/h  | Downward power gradient for the generator's power variation, in MW/h. Must be negative. |
+| Field name              | Type    | Status    | Unit  | Description                                                                             |
+|-------------------------|---------|-----------|-------|-----------------------------------------------------------------------------------------|
+| `generatorId`           | string  | Mandatory | -     | Id of the generator on which the constraints apply.                                     |
+| `leadTime`              | number  | Optional  | hours | Lead time of the generator, in hours. Must be positive.                                 |
+| `lagTime`               | number  | Optional  | hours | Lag time of the generator, in hours. Must be positive.                                  |
+| `upwardPowerGradient`   | number  | Optional  | MW/h  | Upward power gradient for the generator's power variation, in MW/h. Must be positive.   |
+| `downwardPowerGradient` | number  | Optional  | MW/h  | Downward power gradient for the generator's power variation, in MW/h. Must be negative. |
+| `isShutDownAllowed`     | number  | Optional  | -     | Indicate if RA RD can be shutdown. Default value : true                                 |
+| `isStartUpAllowed`      | boolean | Optional  | -     | Indicates if RA RD can be started from standstill. Default value : true                 |
 
 ### Comprehensive example
 
@@ -46,7 +58,8 @@ power can vary between two consecutive timestamps. These gradients can be define
       "leadTime": 1.15,
       "lagTime": 2.0,
       "upwardPowerGradient": 100.0,
-      "downwardPowerGradient": -50.0
+      "downwardPowerGradient": -50.0,
+      "shutDownAllowed": false
     },
     {
       "generatorId": "generator-2"
@@ -55,7 +68,9 @@ power can vary between two consecutive timestamps. These gradients can be define
       "generatorId": "generator-3",
       "leadTime": 0.5,
       "lagTime": 4.0,
-      "downwardPowerGradient": -1000.0
+      "downwardPowerGradient": -1000.0,
+      "shutDownAllowed": true,
+      "startUpAllowed": false
     }
   ]
 }

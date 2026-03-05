@@ -23,13 +23,17 @@ public final class GeneratorConstraints {
     private final Double lagTime;
     private final Double upwardPowerGradient;
     private final Double downwardPowerGradient;
+    private final boolean isShutDownAllowed;
+    private final boolean isStartUpAllowed;
 
-    private GeneratorConstraints(String generatorId, Double leadTime, Double lagTime, Double upwardPowerGradient, Double downwardPowerGradient) {
+    private GeneratorConstraints(String generatorId, Double leadTime, Double lagTime, Double upwardPowerGradient, Double downwardPowerGradient, Boolean isShutDownAllowed, Boolean isStartUpAllowed) {
         this.generatorId = generatorId;
         this.leadTime = leadTime;
         this.lagTime = lagTime;
         this.upwardPowerGradient = upwardPowerGradient;
         this.downwardPowerGradient = downwardPowerGradient;
+        this.isShutDownAllowed = isShutDownAllowed;
+        this.isStartUpAllowed = isStartUpAllowed;
     }
 
     /**
@@ -81,6 +85,24 @@ public final class GeneratorConstraints {
         return Optional.ofNullable(downwardPowerGradient);
     }
 
+    /**
+     * Get the boolean indicating if the generator can be started up.
+     *
+     * @return true if generator can be started up
+     */
+    public boolean getStartUpAllowed() {
+        return isStartUpAllowed;
+    }
+
+    /**
+     * Get the boolean indicating if the generator can be shut down.
+     *
+     * @return true if generator can be shut down
+     */
+    public boolean getShutDownAllowed() {
+        return isShutDownAllowed;
+    }
+
     public static GeneratorConstraintsBuilder create() {
         return new GeneratorConstraintsBuilder();
     }
@@ -91,6 +113,8 @@ public final class GeneratorConstraints {
         private Double lagTime;
         private Double upwardPowerGradient;
         private Double downwardPowerGradient;
+        private boolean isShutDownAllowed = true;
+        private boolean isStartUpAllowed = true;
 
         private GeneratorConstraintsBuilder() {
         }
@@ -120,6 +144,16 @@ public final class GeneratorConstraints {
             return this;
         }
 
+        public GeneratorConstraintsBuilder withShutDownAllowed(boolean isShutDownAllowed) {
+            this.isShutDownAllowed = isShutDownAllowed;
+            return this;
+        }
+
+        public GeneratorConstraintsBuilder withStartUpAllowed(boolean isStartUpAllowed) {
+            this.isStartUpAllowed = isStartUpAllowed;
+            return this;
+        }
+
         public GeneratorConstraints build() {
             if (generatorId == null) {
                 throw new OpenRaoException("The id of the generator is mandatory.");
@@ -136,7 +170,7 @@ public final class GeneratorConstraints {
             if (downwardPowerGradient != null && downwardPowerGradient > 0) {
                 throw new OpenRaoException("The downward power gradient of the generator must be negative.");
             }
-            return new GeneratorConstraints(generatorId, leadTime, lagTime, upwardPowerGradient, downwardPowerGradient);
+            return new GeneratorConstraints(generatorId, leadTime, lagTime, upwardPowerGradient, downwardPowerGradient, isShutDownAllowed, isStartUpAllowed);
         }
     }
 }

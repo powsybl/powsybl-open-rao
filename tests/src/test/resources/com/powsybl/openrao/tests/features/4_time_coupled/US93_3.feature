@@ -3,13 +3,16 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-Feature: US 93.3: Time-coupled generator constraints
+Feature: US 93.3: Time-coupled generator constraints with MARMOT based on JSON time-coupled constraints - Part 1
 
   Presentation of the US
   ----------------------
 
   All the following scenarios rely on similar network situation. The time-coupled computations simulate a full
-  24-timestamp day of one hour each.
+  24-timestamp day of one hour each, illustrating the following generator constraints :
+  - upward and downward power gradients
+  - lead time
+  - lag time
 
   In an ideal situation, no redispatching is required between 0:00 and 3:59, nor between 20:00 and 23:59. However,
   between 4:00 and 19:59, the redispatched power must be maximal to secure an interconnection line. Depending on the
@@ -192,67 +195,67 @@ Feature: US 93.3: Time-coupled generator constraints
     Then the total cost for timestamp "2025-11-04 03:30" is 0.0
     Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 03:30" is 0.0 MW
     Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 03:30" is 0.0 MW
-    # Timestamp 04:30: 10 (activation) + 50 * 2500 MW (variation) = 625010
+    # Timestamp 04:30: 10 (activation) + 50 * 2500 MW (variation) + 500 MW * 1000 (overload of 500 MW, shifted violation penalty of 1000) = 625010
     Then the total cost for timestamp "2025-11-04 04:30" is 625010.0
     Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 04:30" is 2500.0 MW
     Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 04:30" is 2500.0 MW
-    # Timestamp 05:30: 10 (activation) + 50 * 2500 MW (variation) = 625010
+    # Timestamp 05:30: 10 (activation) + 50 * 2500 MW (variation) + 500 MW * 1000 (overload of 500 MW, shifted violation penalty of 1000)= 625010
     Then the total cost for timestamp "2025-11-04 05:30" is 625010.0
     Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 05:30" is 2500.0 MW
     Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 05:30" is 2500.0 MW
-    # Timestamp 06:30: 10 (activation) + 50 * 2500 MW (variation) = 625010
+    # Timestamp 06:30: 10 (activation) + 50 * 2500 MW (variation) + 500 MW * 1000 (overload of 500 MW, shifted violation penalty of 1000)= 625010
     Then the total cost for timestamp "2025-11-04 06:30" is 625010.0
     Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 06:30" is 2500.0 MW
     Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 06:30" is 2500.0 MW
-    # Timestamp 07:30: 10 (activation) + 50 * 2500 MW (variation) = 625010
+    # Timestamp 07:30: 10 (activation) + 50 * 2500 MW (variation) + 500 MW * 1000 (overload of 500 MW, shifted violation penalty of 1000) = 625010
     Then the total cost for timestamp "2025-11-04 07:30" is 625010.0
     Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 07:30" is 2500.0 MW
     Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 07:30" is 2500.0 MW
-    # Timestamp 08:30: 10 (activation) + 50 * 2500 MW (variation) = 625010
+    # Timestamp 08:30: 10 (activation) + 50 * 2500 MW (variation) + 500 MW * 1000 (overload of 500 MW, shifted violation penalty of 1000) = 625010
     Then the total cost for timestamp "2025-11-04 08:30" is 625010.0
     Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 08:30" is 2500.0 MW
     Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 08:30" is 2500.0 MW
-    # Timestamp 09:30: 10 (activation) + 50 * 2500 MW (variation) = 625010
+    # Timestamp 09:30: 10 (activation) + 50 * 2500 MW (variation) + 500 MW * 1000 (overload of 500 MW, shifted violation penalty of 1000) = 625010
     Then the total cost for timestamp "2025-11-04 09:30" is 625010.0
     Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 09:30" is 2500.0 MW
     Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 09:30" is 2500.0 MW
-    # Timestamp 10:30: 10 (activation) + 50 * 2500 MW (variation) = 625010
+    # Timestamp 10:30: 10 (activation) + 50 * 2500 MW (variation) + 500 MW * 1000 (overload of 500 MW, shifted violation penalty of 1000) = 625010
     Then the total cost for timestamp "2025-11-04 10:30" is 625010.0
     Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 10:30" is 2500.0 MW
     Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 10:30" is 2500.0 MW
-    # Timestamp 11:30: 10 (activation) + 50 * 2500 MW (variation) = 625010
+    # Timestamp 11:30: 10 (activation) + 50 * 2500 MW (variation) + 500 MW * 1000 (overload of 500 MW, shifted violation penalty of 1000) = 625010
     Then the total cost for timestamp "2025-11-04 11:30" is 625010.0
     Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 11:30" is 2500.0 MW
     Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 11:30" is 2500.0 MW
-    # Timestamp 12:30: 10 (activation) + 50 * 2500 MW (variation) = 625010
+    # Timestamp 12:30: 10 (activation) + 50 * 2500 MW (variation) + 500 MW * 1000 (overload of 500 MW, shifted violation penalty of 1000) = 625010
     Then the total cost for timestamp "2025-11-04 12:30" is 625010.0
     Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 12:30" is 2500.0 MW
     Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 12:30" is 2500.0 MW
-    # Timestamp 13:30: 10 (activation) + 50 * 2500 MW (variation) = 625010
+    # Timestamp 13:30: 10 (activation) + 50 * 2500 MW (variation) + 500 MW * 1000 (overload of 500 MW, shifted violation penalty of 1000) = 625010
     Then the total cost for timestamp "2025-11-04 13:30" is 625010.0
     Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 13:30" is 2500.0 MW
     Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 13:30" is 2500.0 MW
-    # Timestamp 14:30: 10 (activation) + 50 * 2500 MW (variation) = 625010
+    # Timestamp 14:30: 10 (activation) + 50 * 2500 MW (variation) + 500 MW * 1000 (overload of 500 MW, shifted violation penalty of 1000) = 625010
     Then the total cost for timestamp "2025-11-04 14:30" is 625010.0
     Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 14:30" is 2500.0 MW
     Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 14:30" is 2500.0 MW
-    # Timestamp 15:30: 10 (activation) + 50 * 2500 MW (variation) = 625010
+    # Timestamp 15:30: 10 (activation) + 50 * 2500 MW (variation) + 500 MW * 1000 (overload of 500 MW, shifted violation penalty of 1000) = 625010
     Then the total cost for timestamp "2025-11-04 15:30" is 625010.0
     Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 15:30" is 2500.0 MW
     Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 15:30" is 2500.0 MW
-    # Timestamp 16:30: 10 (activation) + 50 * 2500 MW (variation) = 625010
+    # Timestamp 16:30: 10 (activation) + 50 * 2500 MW (variation) + 500 MW * 1000 (overload of 500 MW, shifted violation penalty of 1000) = 625010
     Then the total cost for timestamp "2025-11-04 16:30" is 625010.0
     Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 16:30" is 2500.0 MW
     Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 16:30" is 2500.0 MW
-    # Timestamp 17:30: 10 (activation) + 50 * 2500 MW (variation) = 625010
+    # Timestamp 17:30: 10 (activation) + 50 * 2500 MW (variation) + 500 MW * 1000 (overload of 500 MW, shifted violation penalty of 1000) = 625010
     Then the total cost for timestamp "2025-11-04 17:30" is 625010.0
     Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 17:30" is 2500.0 MW
     Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 17:30" is 2500.0 MW
-    # Timestamp 18:30: 10 (activation) + 50 * 2500 MW (variation) = 625010
+    # Timestamp 18:30: 10 (activation) + 50 * 2500 MW (variation) + 500 MW * 1000 (overload of 500 MW, shifted violation penalty of 1000) = 625010
     Then the total cost for timestamp "2025-11-04 18:30" is 625010.0
     Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 18:30" is 2500.0 MW
     Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 18:30" is 2500.0 MW
-    # Timestamp 19:30: 10 (activation) + 50 * 2500 MW (variation) = 625010
+    # Timestamp 19:30: 10 (activation) + 50 * 2500 MW (variation) + 500 MW * 1000 (overload of 500 MW, shifted violation penalty of 1000) = 625010
     Then the total cost for timestamp "2025-11-04 19:30" is 625010.0
     Then the preventive power of generator "BBE1AA1 _generator" at state timestamp "2025-11-04 19:30" is 2500.0 MW
     Then the preventive power of load "FFR1AA1 _load" at state timestamp "2025-11-04 19:30" is 2500.0 MW

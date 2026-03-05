@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -32,6 +33,8 @@ class GeneratorConstraintsTest {
         assertEquals(Optional.of(2.), generatorConstraints.getLagTime());
         assertTrue(generatorConstraints.getUpwardPowerGradient().isEmpty());
         assertTrue(generatorConstraints.getDownwardPowerGradient().isEmpty());
+        assertTrue(generatorConstraints.getShutDownAllowed());
+        assertTrue(generatorConstraints.getStartUpAllowed());
     }
 
     @Test
@@ -48,6 +51,28 @@ class GeneratorConstraintsTest {
         assertEquals(Optional.of(2.), generatorConstraints.getLagTime());
         assertEquals(Optional.of(50.), generatorConstraints.getUpwardPowerGradient());
         assertEquals(Optional.of(-100.), generatorConstraints.getDownwardPowerGradient());
+        assertTrue(generatorConstraints.getShutDownAllowed());
+        assertTrue(generatorConstraints.getStartUpAllowed());
+    }
+
+    @Test
+    void testBuildFullGeneratorConstraints() {
+        GeneratorConstraints generatorConstraints = GeneratorConstraints.create()
+            .withGeneratorId("generator")
+            .withLeadTime(1.)
+            .withLagTime(2.)
+            .withUpwardPowerGradient(50.)
+            .withDownwardPowerGradient(-100.)
+            .withShutDownAllowed(true)
+            .withStartUpAllowed(false)
+            .build();
+        assertEquals("generator", generatorConstraints.getGeneratorId());
+        assertEquals(Optional.of(1.), generatorConstraints.getLeadTime());
+        assertEquals(Optional.of(2.), generatorConstraints.getLagTime());
+        assertEquals(Optional.of(50.), generatorConstraints.getUpwardPowerGradient());
+        assertEquals(Optional.of(-100.), generatorConstraints.getDownwardPowerGradient());
+        assertTrue(generatorConstraints.getShutDownAllowed());
+        assertFalse(generatorConstraints.getStartUpAllowed());
     }
 
     @Test
