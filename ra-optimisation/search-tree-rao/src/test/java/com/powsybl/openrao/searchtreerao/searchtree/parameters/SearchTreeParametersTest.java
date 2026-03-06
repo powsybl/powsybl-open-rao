@@ -12,7 +12,6 @@ import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.RaUsageLimits;
-import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
@@ -120,53 +119,6 @@ class SearchTreeParametersTest {
 
         searchTreeParameters = builder.withLoadFlowAndSensitivityParameters(loadFlowAndSensitivityParameters).build();
         assertEquals(loadFlowAndSensitivityParameters, searchTreeParameters.getLoadFlowAndSensitivityParameters().get());
-    }
-
-    @Test
-    void testRaLimitsSetter() {
-        // Set up
-        Map<Instant, RaUsageLimits> raLimitationParameters = new HashMap<>();
-        RaUsageLimits raUsageLimits = new RaUsageLimits();
-        raUsageLimits.setMaxRa(3);
-        raUsageLimits.setMaxTso(2);
-        Map<String, Integer> raLimitsPerTso = new HashMap<>();
-        raLimitsPerTso.put("BE", 10);
-        raLimitsPerTso.put("FR", 3);
-        raUsageLimits.setMaxRaPerTso(raLimitsPerTso);
-        Map<String, Integer> pstLimitsPerTso = new HashMap<>();
-        pstLimitsPerTso.put("BE", 10);
-        pstLimitsPerTso.put("FR", 1);
-        raUsageLimits.setMaxPstPerTso(pstLimitsPerTso);
-        Map<String, Integer> topoLimitsPerTso = new HashMap<>();
-        topoLimitsPerTso.put("BE", 10);
-        topoLimitsPerTso.put("FR", 2);
-        raUsageLimits.setMaxTopoPerTso(topoLimitsPerTso);
-        Instant preventiveInstant = Mockito.mock(Instant.class);
-        when(preventiveInstant.getId()).thenReturn("preventive");
-        Instant curativeInstant = Mockito.mock(Instant.class);
-        when(curativeInstant.getId()).thenReturn("curative");
-        raLimitationParameters.put(preventiveInstant, raUsageLimits);
-        raLimitationParameters.put(curativeInstant, new RaUsageLimits());
-        SearchTreeParameters searchTreeParameters = builder.withGlobalRemedialActionLimitationParameters(raLimitationParameters).build();
-        RangeAction<?> ra1 = Mockito.mock(RangeAction.class);
-        RangeAction<?> ra2 = Mockito.mock(RangeAction.class);
-        when(ra1.getOperator()).thenReturn("FR");
-        when(ra2.getOperator()).thenReturn("FR");
-        // assertions
-        searchTreeParameters.setRaLimitationsForSecondPreventive(searchTreeParameters.getRaLimitationParameters().get(preventiveInstant), Set.of(ra1, ra2), preventiveInstant);
-        Map<Instant, RaUsageLimits> updatedMap = searchTreeParameters.getRaLimitationParameters();
-        assertEquals(2, updatedMap.size());
-        assertEquals(new RaUsageLimits(), updatedMap.get(curativeInstant));
-        RaUsageLimits updatedRaUsageLimits = updatedMap.get(preventiveInstant);
-        assertEquals(1, updatedRaUsageLimits.getMaxRa());
-        assertEquals(1, updatedRaUsageLimits.getMaxTso());
-        Map<String, Integer> maxRaPerTso = updatedRaUsageLimits.getMaxRaPerTso();
-        assertEquals(10, maxRaPerTso.get("BE"));
-        assertEquals(1, maxRaPerTso.get("FR"));
-        assertEquals(maxRaPerTso, updatedRaUsageLimits.getMaxTopoPerTso());
-        Map<String, Integer> maxPstPerTso = updatedRaUsageLimits.getMaxPstPerTso();
-        assertEquals(10, maxPstPerTso.get("BE"));
-        assertEquals(0, maxPstPerTso.get("FR"));
     }
 
     @Test

@@ -107,6 +107,7 @@ Feature: US 91.12: Multi-curative
     Then 1 remedial actions are used after "Contingency DE2 NL3 1" at "curative3"
     Then the remedial action "CRA_CLOSE_BE3_BE4_1" is used after "Contingency DE2 NL3 1" at "curative3"
     Then the flow on cnec "BBE1AA1  BBE3AA1  1 - Contingency DE2 NL3 1 - curative3" after "curative3" instant remedial actions should be -283.0 MW on side 1
+    And the value of the objective function after CRA should be 0.0
 
   @fast @rao @ac @multi-curative @secure-flow @megawatt
   Scenario: US 91.12.4: Same case as previous one with ra limitations : 0 curative1 RAs, 0 curative2 RAs
@@ -121,8 +122,23 @@ Feature: US 91.12: Multi-curative
     Then 0 remedial actions are used after "Contingency DE2 DE3 1" at "curative2"
     Then 1 remedial actions are used after "Contingency DE2 DE3 1" at "curative3"
 
+  @fast @rao @ac @multi-curative
+  Scenario: US 91.12.5: Same case as previous one with ra limitations : 0 curative1 RAs, 1 curative2 RAs, 1 curative3 RAs
+  Same case as 91.12.3 and 91.12.4, but this time curative3 is also limited to 1 RAs.
+  This should test that the RAO is able to take into account the cumulative effect of the max-ra-usage-limit in multi-curative.
+  Since one RA is used in curative2 we reached the limit and since the limit in curative3 is set to 1 no more RAs can be used in curative3.
+  Without the curative3 max-ra-usage-limit, we would have been able to secure the case (see 19.12.3).
+    Given network file is "epic91/12Nodes3ParallelLines_disconnected.uct"
+    Given crac file is "epic91/crac_91_12_2_with_ra_limits_2.json"
+    Given configuration file is "epic91/RaoParameters_case_91_12_secure.json"
+    When I launch rao
+    Then 0 remedial actions are used after "Contingency DE2 DE3 1" at "curative1"
+    Then 1 remedial actions are used after "Contingency DE2 DE3 1" at "curative2"
+    Then 0 remedial actions are used after "Contingency DE2 DE3 1" at "curative3"
+    And the value of the objective function after CRA should be 83.23
+
   @fast @rao @ac @multi-curative @secure-flow @megawatt
-  Scenario: US 91.12.5: Multi-curative with AUTO + curative instant 2 without CRAs
+  Scenario: US 91.12.6: Multi-curative with AUTO + curative instant 2 without CRAs
     Given network file is "epic91/TestCase16Nodes_multi_curative.uct"
     Given crac file is "epic91/crac_91_12_auto_curative2_noCRA.json"
     Given configuration file is "epic91/RaoParameters_case_91_12_secure.json"
@@ -162,7 +178,7 @@ Feature: US 91.12: Multi-curative
     Then the flow on cnec "BBE1AA1  BBE3AA1  1 - Contingency DE2 NL3 1 - curative3" after "curative3" instant remedial actions should be -283.0 MW on side 1
 
   @fast @rao @ac @multi-curative @secure-flow @megawatt
-  Scenario: US 91.12.6: Multi-curative with AUTO + curative instant 3 without CRAs
+  Scenario: US 91.12.7: Multi-curative with AUTO + curative instant 3 without CRAs
     Given network file is "epic91/TestCase16Nodes_multi_curative.uct"
     Given crac file is "epic91/crac_91_12_auto_curative3_noCRA.json"
     Given configuration file is "epic91/RaoParameters_case_91_12_secure.json"
@@ -202,7 +218,7 @@ Feature: US 91.12: Multi-curative
     Then the flow on cnec "BBE1AA1  BBE3AA1  1 - Contingency DE2 NL3 1 - curative3" after "curative3" instant remedial actions should be -283.0 MW on side 1
 
   @fast @rao @ac @multi-curative @secure-flow @megawatt
-  Scenario: US 91.12.7: Multi-curative with curative instant 1 without CRAs
+  Scenario: US 91.12.8: Multi-curative with curative instant 1 without CRAs
     Given network file is "epic91/TestCase16Nodes_multi_curative.uct"
     Given crac file is "epic91/crac_91_12_curative1_noCRA.json"
     Given configuration file is "epic91/RaoParameters_case_91_12_secure.json"
@@ -236,7 +252,7 @@ Feature: US 91.12: Multi-curative
     Then the flow on cnec "BBE1AA1  BBE3AA1  1 - Contingency DE2 NL3 1 - curative3" after "curative3" instant remedial actions should be -283.0 MW on side 1
 
   @fast @rao @ac @multi-curative @max-min-margin @megawatt
-  Scenario: US 91.12.8: Multi-curative with curative instant 2 without CRAs
+  Scenario: US 91.12.9: Multi-curative with curative instant 2 without CRAs
     Given network file is "epic91/TestCase16Nodes_multi_curative.uct"
     Given crac file is "epic91/crac_91_12_curative2_noCRA.json"
     Given configuration file is "epic91/RaoParameters_case_91_12_search_tree.json"
@@ -270,7 +286,7 @@ Feature: US 91.12: Multi-curative
     Then the flow on cnec "BBE1AA1  BBE3AA1  1 - Contingency DE2 NL3 1 - curative3" after "curative3" instant remedial actions should be -283.0 MW on side 1
 
   @fast @rao @ac @multi-curative @secure-flow @megawatt
-  Scenario: US 91.12.9: Multi-curative with curative instant 3 without CRAs
+  Scenario: US 91.12.10: Multi-curative with curative instant 3 without CRAs
     # CNECs are already secure when entering curative2 perimeter
     # C2RAs must be activated anyway in anticipation of curative3
     Given network file is "epic91/TestCase16Nodes_multi_curative.uct"
@@ -306,7 +322,7 @@ Feature: US 91.12: Multi-curative
     Then the flow on cnec "BBE1AA1  BBE3AA1  1 - Contingency DE2 NL3 1 - curative3" after "curative3" instant remedial actions should be -283.0 MW on side 1
 
   @fast @rao @ac @multi-curative @secure-flow @megawatt
-  Scenario: US 91.12.10: Multi-curative with ARA and no CRAs
+  Scenario: US 91.12.11: Multi-curative with ARA and no CRAs
     Given network file is "epic91/TestCase16Nodes_multi_curative.uct"
     Given crac file is "epic91/crac_91_12_ARA_noCRA.json"
     Given configuration file is "epic91/RaoParameters_case_91_12_secure.json"
@@ -345,7 +361,7 @@ Feature: US 91.12: Multi-curative
     Then the flow on cnec "BBE1AA1  BBE3AA1  1 - Contingency DE2 NL3 1 - curative3" after "curative3" instant remedial actions should be -667.0 MW on side 1
 
   @fast @rao @ac @multi-curative @secure-flow @megawatt
-  Scenario: US 91.12.11: Multi-curative without CRAs
+  Scenario: US 91.12.12: Multi-curative without CRAs
     Given network file is "epic91/TestCase16Nodes_multi_curative.uct"
     Given crac file is "epic91/crac_91_12_noCRA.json"
     Given configuration file is "epic91/RaoParameters_case_91_12_secure.json"
@@ -377,7 +393,7 @@ Feature: US 91.12: Multi-curative
     Then the flow on cnec "BBE1AA1  BBE3AA1  1 - Contingency DE2 NL3 1 - curative3" after "curative3" instant remedial actions should be -667.0 MW on side 1
 
   @fast @rao @ac @multi-curative @max-min-margin @megawatt
-  Scenario: US 91.12.12: Multi-curative with ARA and only C1RA
+  Scenario: US 91.12.13: Multi-curative with ARA and only C1RA
     Given network file is "epic91/TestCase16Nodes_multi_curative.uct"
     Given crac file is "epic91/crac_91_12_auto_C1RA.json"
     Given configuration file is "epic91/RaoParameters_case_91_12_search_tree.json"
@@ -417,7 +433,7 @@ Feature: US 91.12: Multi-curative
     Then the flow on cnec "BBE1AA1  BBE3AA1  1 - Contingency DE2 NL3 1 - curative3" after "curative3" instant remedial actions should be -283.0 MW on side 1
 
   @fast @rao @ac @multi-curative @max-min-margin @megawatt
-  Scenario: US 91.12.13: Multi-curative with ARA and only C2RA
+  Scenario: US 91.12.14: Multi-curative with ARA and only C2RA
     Given network file is "epic91/TestCase16Nodes_multi_curative.uct"
     Given crac file is "epic91/crac_91_12_auto_C2RA.json"
     Given configuration file is "epic91/RaoParameters_case_91_12_search_tree.json"
@@ -457,7 +473,7 @@ Feature: US 91.12: Multi-curative
     Then the flow on cnec "BBE1AA1  BBE3AA1  1 - Contingency DE2 NL3 1 - curative3" after "curative3" instant remedial actions should be -283.0 MW on side 1
 
   @fast @rao @ac @multi-curative @max-min-margin @megawatt
-  Scenario: US 91.12.14: Multi-curative with ARA and only C3RA
+  Scenario: US 91.12.15: Multi-curative with ARA and only C3RA
     Given network file is "epic91/TestCase16Nodes_multi_curative.uct"
     Given crac file is "epic91/crac_91_12_auto_C3RA.json"
     Given configuration file is "epic91/RaoParameters_case_91_12_search_tree.json"
@@ -497,7 +513,7 @@ Feature: US 91.12: Multi-curative
     Then the flow on cnec "BBE1AA1  BBE3AA1  1 - Contingency DE2 NL3 1 - curative3" after "curative3" instant remedial actions should be -283.0 MW on side 1
 
   @fast @rao @ac @multi-curative @max-min-margin @megawatt
-  Scenario: US 91.12.15: Multi-curative with only C1RA
+  Scenario: US 91.12.16: Multi-curative with only C1RA
     Given network file is "epic91/TestCase16Nodes_multi_curative.uct"
     Given crac file is "epic91/crac_91_12_C1RA.json"
     Given configuration file is "epic91/RaoParameters_case_91_12_search_tree.json"
@@ -531,7 +547,7 @@ Feature: US 91.12: Multi-curative
     Then the flow on cnec "BBE1AA1  BBE3AA1  1 - Contingency DE2 NL3 1 - curative3" after "curative3" instant remedial actions should be -283.0 MW on side 1
 
   @fast @rao @ac @multi-curative @max-min-margin @megawatt
-  Scenario: US 91.12.16: Multi-curative with only C2RA
+  Scenario: US 91.12.17: Multi-curative with only C2RA
     Given network file is "epic91/TestCase16Nodes_multi_curative.uct"
     Given crac file is "epic91/crac_91_12_C2RA.json"
     Given configuration file is "epic91/RaoParameters_case_91_12_search_tree.json"
@@ -565,7 +581,7 @@ Feature: US 91.12: Multi-curative
     Then the flow on cnec "BBE1AA1  BBE3AA1  1 - Contingency DE2 NL3 1 - curative3" after "curative3" instant remedial actions should be -283.0 MW on side 1
 
   @fast @rao @ac @multi-curative @max-min-margin @megawatt
-  Scenario: US 91.12.17: Multi-curative with only C3RA
+  Scenario: US 91.12.18: Multi-curative with only C3RA
     Given network file is "epic91/TestCase16Nodes_multi_curative.uct"
     Given crac file is "epic91/crac_91_12_C3RA.json"
     Given configuration file is "epic91/RaoParameters_case_91_12_search_tree.json"
@@ -599,7 +615,7 @@ Feature: US 91.12: Multi-curative
     Then the flow on cnec "BBE1AA1  BBE3AA1  1 - Contingency DE2 NL3 1 - curative3" after "curative3" instant remedial actions should be -283.0 MW on side 1
 
   @fast @rao @ac @multi-curative @secure-flow @megawatt
-  Scenario: US 91.12.18: Multi-curative CNECs with PRAs only
+  Scenario: US 91.12.19: Multi-curative CNECs with PRAs only
     This is a copy of US 91.12.2 but CRAs are transformed into PRAs
     Curative CNECs are now part of the preventive perimeter
     -> Then the 3 RAs should be applied in preventive in order to solve curative constraints
@@ -622,7 +638,7 @@ Feature: US 91.12: Multi-curative
     Then the margin on cnec "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative3" after PRA should be 70.6 MW
 
   @fast @rao @ac @multi-curative @secure-flow @megawatt
-  Scenario: US 91.12.19: Multi-curative CNECs with simple 2nd PRAO
+  Scenario: US 91.12.20: Multi-curative CNECs with simple 2nd PRAO
     This is a copy of previous case, but some useless CRAs are added to keep curative perimeters
     -> Then the same PRAs should be applied in 2nd PRAO
     #
@@ -644,11 +660,10 @@ Feature: US 91.12: Multi-curative
     Then the margin on cnec "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative3" after PRA should be 70.6 MW
 
   @fast @rao @ac @multi-curative @secure-flow @megawatt
-  Scenario: US 91.12.20: Multi-curative CNECs with no CRA for curative1 and 2nd PRAO
+  Scenario: US 91.12.21: Multi-curative CNECs with no CRA for curative1 and 2nd PRAO
     This is a copy of US 91.12.2 but only CRA that was available in curative1 is made a PRA
     (a useless CRA is added to keep all curative perimeters)
     Thus the other 2 CRAs should be applied as before, but the PST should be applied in 2nd PRAO
-    #
     Given network file is "epic91/12Nodes3ParallelLines_disconnected.uct"
     Given crac file is "epic91/crac_91_12_18.json"
     Given configuration file is "epic91/RaoParameters_case_91_12_secure_2PRAO.json"
@@ -686,11 +701,10 @@ Feature: US 91.12: Multi-curative
     Then the flow on cnec "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative3" after "curative3" instant remedial actions should be 179.4 MW on side 1
 
   @fast @rao @ac @multi-curative @secure-flow @megawatt
-  Scenario: US 91.12.21: Multi-curative CNECs with no CRA for curative2 and 2nd PRAO
+  Scenario: US 91.12.22: Multi-curative CNECs with no CRA for curative2 and 2nd PRAO
     This is a copy of US 91.12.2 but only CRA that was available in curative2 is made a PRA
     (a useless CRA is added to keep all curative perimeters)
     Thus the other 2 CRAs should be applied as before, but the RA_CLOSE_NL2_BE3_2 should be applied in 2nd PRAO
-    #
     Given network file is "epic91/12Nodes3ParallelLines_disconnected.uct"
     Given crac file is "epic91/crac_91_12_19.json"
     Given configuration file is "epic91/RaoParameters_case_91_12_secure_2PRAO.json"
@@ -723,11 +737,10 @@ Feature: US 91.12: Multi-curative
     Then the flow on cnec "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative3" after "curative3" instant remedial actions should be 179.4 MW on side 1
 
   @fast @rao @ac @multi-curative @secure-flow @megawatt
-  Scenario: US 91.12.22: Multi-curative CNECs with no CRA for curative3 and 2nd PRAO
+  Scenario: US 91.12.23: Multi-curative CNECs with no CRA for curative3 and 2nd PRAO
     This is a copy of US 91.12.2 but only CRA that was available in curative3 is made a PRA
     (a useless CRA is added to keep all curative perimeters)
     Thus the other 2 CRAs should be applied as before, but the RA_CLOSE_NL2_BE3_3 should be applied in 2nd PRAO
-    #
     Given network file is "epic91/12Nodes3ParallelLines_disconnected.uct"
     Given crac file is "epic91/crac_91_12_20.json"
     Given configuration file is "epic91/RaoParameters_case_91_12_secure_2PRAO.json"
@@ -757,3 +770,114 @@ Feature: US 91.12: Multi-curative
      # Curative3
     Then 0 remedial actions are used after "Contingency DE2 DE3 1" at "curative3"
     Then the flow on cnec "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative3" after "curative3" instant remedial actions should be 179.4 MW on side 1
+
+  @fast @rao @ac @multi-curative @second-preventive
+  Scenario: US 91.12.24: Multi-curative CNECs with no CRA for curative1, one PST available for curative 1 and 2
+    We have one network action "PRA_CLOSE_NL2_BE3_3" available in preventive and one PST available for both curative instant 1 and two.
+    We monitor the line "NNL2AA1  BBE3AA1  1" at each curative instant (the threshold decrease as we move from curative 1 to 3 (500 -> 300 -> 250).
+    During first preventive the network action is not used as the initial preventive perimeter is secure.
+    After optimizing the curative state "Contingency DE2 DE3 1 - curative2", the PST is set to -16 (the min) but it is not enough to secure the perimeter.
+    => During second preventive:
+      - the RA "PRA_CLOSE_NL2_BE3_3" is used
+      - move the PST to -15 in curative2
+      - and then -16 in curative 3 to secure "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative3"
+    Moving the PST to -15 in curative2 and then -16 in curative3 is considered as using two RAs at two different instants.
+    Given network file is "epic91/12Nodes3ParallelLines_disconnected.uct"
+    Given crac file is "epic91/crac_91_12_24.json"
+    Given configuration file is "epic91/RaoParameters_case_91_12_secure_2PRAO.json"
+    When I launch rao
+    Then the execution details should be "Second preventive improved first preventive results"
+    # Preventive
+    And 1 remedial actions are used in preventive
+    And the remedial action "PRA_CLOSE_NL2_BE3_3" is used in preventive
+    # Curative1
+    Then 0 remedial actions are used after "Contingency DE2 DE3 1" at "curative1"
+    # Curative2
+    And 1 remedial actions are used after "Contingency DE2 DE3 1" at "curative2"
+    And the remedial action "CRA_PST_BE" is used after "Contingency DE2 DE3 1" at "curative2"
+    And the tap of PstRangeAction "CRA_PST_BE" should be -15 after "Contingency DE2 DE3 1" at "curative2"
+    # Curative3
+    And 1 remedial actions are used after "Contingency DE2 DE3 1" at "curative3"
+    And the remedial action "CRA_PST_BE" is used after "Contingency DE2 DE3 1" at "curative3"
+    And the tap of PstRangeAction "CRA_PST_BE" should be -16 after "Contingency DE2 DE3 1" at "curative3"
+    And the value of the objective function after CRA should be -8.65
+
+
+  @fast @rao @ac @multi-curative @second-preventive
+  Scenario: US 91.12.25: Multi-curative - with max-ra limits and 2P
+  Same case as 91.12.24 but with RA usage limitation: 0 curative1 RAs, 1 curative2 RAs, 1 curative3 RAs
+  Similarly to test 91.12.5, this should test that the RAO is able to take into account the cumulative effect of the max-ra-usage-limit in multi-curative.
+  However the situation is more complex than for 91.12.5, since we want to check that the limitations are also respected in second preventive where all the curative range actions are optimized at once.
+  The MIP in 2P should be able to move the PST one time to -16 directly in curative2 to secure both the "Contingency DE2 DE3 1 - curative2" and "Contingency DE2 DE3 1 - curative3".
+  The final situation is the same as 91.12.24.
+    Given network file is "epic91/12Nodes3ParallelLines_disconnected.uct"
+    Given crac file is "epic91/crac_91_12_24_with_ra_limitations.json"
+    Given configuration file is "epic91/RaoParameters_case_91_12_secure_2PRAO.json"
+    When I launch rao
+    Then the execution details should be "Second preventive improved first preventive results"
+    Then 1 remedial actions are used in preventive
+    Then 0 remedial actions are used after "Contingency DE2 DE3 1" at "curative1"
+    Then 1 remedial actions are used after "Contingency DE2 DE3 1" at "curative2"
+    And the remedial action "CRA_PST_BE" is used after "Contingency DE2 DE3 1" at "curative2"
+    And the tap of PstRangeAction "CRA_PST_BE" should be -16 after "Contingency DE2 DE3 1" at "curative2"
+    Then 0 remedial actions are used after "Contingency DE2 DE3 1" at "curative3"
+    And the tap of PstRangeAction "CRA_PST_BE" should be -16 after "Contingency DE2 DE3 1" at "curative3"
+    And the value of the objective function after CRA should be -8.65
+
+  @fast @rao @ac @multi-curative @second-preventive
+  Scenario: US 91.12.26: Multi-curative - with max-tso limits and 2P
+  Case with 1 PST available in curative 1 from TSO "BE" and one PST available in curative 2 from TSO "FR"
+  The best result with NO max-tso limit after 2P:
+    - cost: -3.52 (functional: -3.52, virtual: 0.0)
+    - network action(s): PRA_CLOSE_NL2_BE3_3,
+    - range action(s): CRA_PST_BE@Contingency DE2 DE3 1 - curative1: -16 (var: -16), CRA_PST_FR@Contingency DE2 DE3 1 - curative2: 16 (var: 16)
+    We add a max-tso limit: 1 in curative1 and 1 in curative 2 => only one of the PST can be used
+    The best solution is to use PST_BE in curative 1 (using PST_FR in curative 2 => cost = 66)
+    Given network file is "epic91/12Nodes3ParallelLines_2PST.uct"
+    Given crac file is "epic91/crac_91_12_26_max_tso.json"
+    Given configuration file is "epic91/RaoParameters_case_91_12_secure_2PRAO.json"
+    When I launch rao
+    Then the execution details should be "Second preventive improved first preventive results"
+    Then 1 remedial actions are used in preventive
+    And the remedial action "PRA_CLOSE_NL2_BE3_3" is used in preventive
+    Then 1 remedial actions are used after "Contingency DE2 DE3 1" at "curative1"
+    And the tap of PstRangeAction "CRA_PST_BE" should be -16 after "Contingency DE2 DE3 1" at "curative1"
+    Then 0 remedial actions are used after "Contingency DE2 DE3 1" at "curative2"
+    And the value of the objective function after CRA should be 31.35
+
+  @fast @rao @ac @multi-curative @second-preventive
+  Scenario: US 91.12.27: Multi-curative - with max-ra-per-tso limits and 2P
+  Case with 1 PST from TSO "BE" and one PST from TSO "FR" both available in curative 1 and 2
+  The best result with NO max-ra-per-tso limit after 2P:
+    - worst margin: margin = 3.52 MW, element NNL2AA1  BBE3AA1  1 at state Contingency DE2 DE3 1 - curative2, CNEC ID = "NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative2"
+    - network action(s): PRA_CLOSE_NL2_BE3_3, cost: -3.52 (functional: -3.52, virtual: 0.0)
+    - range action(s): CRA_PST_BE@Contingency DE2 DE3 1 - curative1: -16 (var: -16), CRA_PST_FR@Contingency DE2 DE3 1 - curative1: 16 (var: 16)
+    Now we add the limit for BE: 1 in curative1 and 0 in curative2 => means that we cannot use any RA in curative1 either
+    and for FR: 1 in curative1 and 1 curative2
+    => The most limiting cnec is in NNL2AA1  BBE3AA1  1 - Contingency DE2 DE3 1 - curative1, so the PST_FR is used in curative1 rather than curative2
+    Given network file is "epic91/12Nodes3ParallelLines_2PST.uct"
+    Given crac file is "epic91/crac_91_12_27_max_ra_per_tso.json"
+    Given configuration file is "epic91/RaoParameters_case_91_12_secure_2PRAO.json"
+    When I launch rao
+    Then the execution details should be "Second preventive improved first preventive results"
+    And the initial tap of PstRangeAction "CRA_PST_FR" should be 0
+    And the initial tap of PstRangeAction "CRA_PST_BE" should be 0
+    And the remedial action "PRA_CLOSE_NL2_BE3_3" is used in preventive
+    Then 1 remedial actions are used after "Contingency DE2 DE3 1" at "curative1"
+    And the tap of PstRangeAction "CRA_PST_FR" should be 16 after "Contingency DE2 DE3 1" at "curative1"
+    And the tap of PstRangeAction "CRA_PST_BE" should be 0 after "Contingency DE2 DE3 1" at "curative1"
+    Then 0 remedial actions are used after "Contingency DE2 DE3 1" at "curative2"
+    And the tap of PstRangeAction "CRA_PST_FR" should be 16 after "Contingency DE2 DE3 1" at "curative1"
+    And the tap of PstRangeAction "CRA_PST_BE" should be 0 after "Contingency DE2 DE3 1" at "curative1"
+    And the value of the objective function after CRA should be 76.23
+
+  @fast @rao @ac @multi-curative @second-preventive
+  Scenario: US 91.12.28: Multi-curative - with max-elementary-action-per-tso limits and 2P
+    Same case as 91.12.27, but both PST are from TSO "FR".
+
+    Given network file is "epic91/12Nodes3ParallelLines_2PST.uct"
+    Given crac file is "epic91/crac_91_12_28_max_elementary_actions_per_tso.json"
+    Given configuration file is "epic91/RaoParameters_case_91_12_secure_2PRAO.json"
+    When I launch rao
+    Then the execution details should be "Second preventive improved first preventive results"
+

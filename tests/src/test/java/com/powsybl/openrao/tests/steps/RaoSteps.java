@@ -40,9 +40,7 @@ import io.cucumber.java.en.When;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UncheckedIOException;
+import java.io.*;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Objects;
@@ -52,6 +50,7 @@ import java.util.stream.Collectors;
 
 import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters;
 import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.getFlowUnit;
+import static com.powsybl.openrao.tests.utils.Helpers.getFile;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -803,5 +802,14 @@ public class RaoSteps {
     @Then("the execution details should be {string}")
     public void getOptimizationSteps(String string) {
         assertEquals(string, raoResult.getExecutionDetails());
+    }
+
+    @Then("save the rao result {string}")
+    public void saveRaoResult(String path) throws FileNotFoundException {
+        Properties properties = new Properties();
+        FileOutputStream outputStream = new FileOutputStream(getFile(path));
+        properties.setProperty("rao-result.export.json.flows-in-amperes", "true");
+        properties.setProperty("rao-result.export.json.flows-in-megawatts", "true");
+        raoResult.write("JSON", crac, properties, outputStream);
     }
 }

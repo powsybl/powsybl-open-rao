@@ -381,6 +381,7 @@ class RaoUtilTest {
 
     @Test
     void testGetLastAvailableRangeActionOnSameNetworkElementMultiCurative() {
+        // TODO: add a case where Set.of(samePST, another one)
         Contingency contingency = crac.getContingency("Contingency FR1 FR3");
 
         Instant curative1Instant = Mockito.mock(Instant.class);
@@ -412,7 +413,6 @@ class RaoUtilTest {
         Mockito.when(rangeAction2.getId()).thenReturn("range-action-2");
 
         OptimizationPerimeter optimizationContext = Mockito.mock(OptimizationPerimeter.class);
-        Mockito.when(optimizationContext.getMainOptimizationState()).thenReturn(curativeState1);
         Mockito.when(optimizationContext.getRangeActionsPerState()).thenReturn(Map.of(curativeState1, Set.of(rangeAction1)));
 
         assertEquals(Pair.of(rangeAction1, curativeState1), RaoUtil.getLastAvailableRangeActionOnSameNetworkElement(optimizationContext, rangeAction2, curativeState3));
