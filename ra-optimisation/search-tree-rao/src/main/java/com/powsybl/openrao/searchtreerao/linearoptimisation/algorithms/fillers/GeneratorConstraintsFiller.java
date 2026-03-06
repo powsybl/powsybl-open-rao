@@ -49,7 +49,8 @@ public class GeneratorConstraintsFiller implements ProblemFiller {
 
     private static final double DEFAULT_POWER_GRADIENT = 100000.0;
     private static final double DEFAULT_P_MAX = 10000.0;
-    private static final double OFF_POWER_THRESHOLD = 1.0;
+    private static final double OFF_POWER_THRESHOLD = 0.499;
+    private static final double ON_THRESHOLD = 1.001; // TODO: mutualize with value from linear problem
 
     // TODO: check that all temporal data are correctly filled with the same timestamps
     public GeneratorConstraintsFiller(TemporalData<Network> networks, TemporalData<State> preventiveStates, TemporalData<Set<InjectionRangeAction>> injectionRangeActionsPerTimestamp, Set<GeneratorConstraints> generatorConstraints) {
@@ -342,7 +343,7 @@ public class GeneratorConstraintsFiller implements ProblemFiller {
     }
 
     private static double getMinP(String generatorId, Network network) {
-        return Math.max(OFF_POWER_THRESHOLD, getGenerator(generatorId, network).getMinP());
+        return Math.max(ON_THRESHOLD, getGenerator(generatorId, network).getMinP());
     }
 
     private static double getMaxP(String generatorId, Network network) {

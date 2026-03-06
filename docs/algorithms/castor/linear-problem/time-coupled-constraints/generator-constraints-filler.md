@@ -112,7 +112,7 @@ $$\forall t' \in \left [ t + \Delta_{\tau} - \Delta_{\tau} \left \lceil \frac{LE
 Similarly, when the generator is shut off, it has a cool-down time called _lag time_ during which the power remains
 null and the generator cannot be turned on again.
 
-The following equation sums lag time and lead time (if it exists) to take into account the fact that between a shut down and a start up,
+The following equation sums lag time and lead time (if they exist) to take into account the fact that between a shut down and a start up,
 the generator needs to stay OFF at least lag time + lead time.
 
 $$\forall t' \in \left [ t + \Delta_{\tau}, t + \Delta_{\tau} \left \lceil \frac{LAG(g) + LEAD(g)}{\Delta_{\tau}} \right \rceil \right ] \cap \mathcal{T}, \; T_{\textcolor{green}{\text{ON}} \to \textcolor{red}{\text{OFF}}}(g,s,t) \leq \delta_{\textcolor{red}{\text{OFF}}}^{gen}(g,s,t')$$
