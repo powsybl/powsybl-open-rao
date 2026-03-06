@@ -7,8 +7,11 @@
 
 package com.powsybl.openrao.searchtreerao.castor.algorithm;
 
+import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
+
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.commons.opentelemetry.OpenTelemetryReporter;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
@@ -18,16 +21,22 @@ import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.searchtreerao.commons.SensitivityComputer;
 import com.powsybl.openrao.searchtreerao.commons.ToolProvider;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
-import com.powsybl.openrao.searchtreerao.result.api.*;
-import com.powsybl.openrao.searchtreerao.result.impl.*;
+import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
+import com.powsybl.openrao.searchtreerao.result.api.ObjectiveFunctionResult;
+import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
+import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
+import com.powsybl.openrao.searchtreerao.result.api.RemedialActionActivationResult;
+import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
+import com.powsybl.openrao.searchtreerao.result.impl.OptimizationResultImpl;
+import com.powsybl.openrao.searchtreerao.result.impl.PostPerimeterResult;
+import com.powsybl.openrao.searchtreerao.result.impl.PrePerimeterSensitivityResultImpl;
+import com.powsybl.openrao.searchtreerao.result.impl.RangeActionSetpointResultImpl;
+import com.powsybl.openrao.searchtreerao.result.impl.RemedialActionActivationResultImpl;
 import com.powsybl.openrao.sensitivityanalysis.AppliedRemedialActions;
-
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
-
-import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
 
 /**
  * This class aims at performing the sensitivity analysis after the optimization of a perimeter. The result can be used as a
@@ -68,12 +77,14 @@ public class PostPerimeterSensitivityAnalysis extends AbstractMultiPerimeterSens
                                                                                        Set<String> operatorsNotSharingCras,
                                                                                        OptimizationResult optimizationResult,
                                                                                        AppliedRemedialActions appliedCurativeRemedialActions) {
-
+        return OpenTelemetryReporter.withSpan("rao.runBasedOnInitialPreviousAndOptimizationResults", cx -> {
         AtomicReference<FlowResult> flowResult = new AtomicReference<>();
         AtomicReference<SensitivityResult> sensitivityResult = new AtomicReference<>();
-        boolean actionWasTaken = actionWasTaken(optimizationResult.getActivatedNetworkActions(), optimizationResult.getActivatedRangeActionsPerState());
+        boolean actionWasTaken = actionWasTaken(optimizationResult.getActivatedNetworkActions(),
+            optimizationResult.getActivatedRangeActionsPerState());
         if (actionWasTaken) {
-            SensitivityComputer sensitivityComputer = buildSensitivityComputer(initialFlowResult, appliedCurativeRemedialActions);
+            SensitivityComputer sensitivityComputer = buildSensitivityComputer(initialFlowResult,
+                appliedCurativeRemedialActions);
 
             int oldThreadCount = setNewThreadCountAndGetOldValue();
             sensitivityComputer.compute(network);
@@ -106,6 +117,7 @@ public class PostPerimeterSensitivityAnalysis extends AbstractMultiPerimeterSens
             RangeActionSetpointResultImpl.buildWithSetpointsFromNetwork(network, rangeActions),
             objectiveFunctionResult
         ));
+        });
     }
 
     /**

@@ -12,9 +12,9 @@ import com.google.ortools.linearsolver.MPSolver;
 import com.google.ortools.linearsolver.MPSolverParameters;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
+import com.powsybl.openrao.commons.opentelemetry.OpenTelemetryReporter;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
 import com.powsybl.openrao.searchtreerao.result.api.LinearProblemStatus;
-
 import java.util.Map;
 import java.util.Objects;
 import java.util.TreeMap;
@@ -172,10 +172,12 @@ public class OpenRaoMPSolver {
     }
 
     public LinearProblemStatus solve() {
+        return OpenTelemetryReporter.withSpan("rao.mpsolver.solve", cx -> {
         if (OpenRaoLoggerProvider.TECHNICAL_LOGS.isTraceEnabled()) {
             mpSolver.enableOutput();
         }
         return convertResultStatus(mpSolver.solve(solveConfiguration));
+        });
     }
 
     static LinearProblemStatus convertResultStatus(MPSolver.ResultStatus status) {

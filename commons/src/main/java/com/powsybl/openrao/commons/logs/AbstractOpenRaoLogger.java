@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.commons.logs;
 
+import com.powsybl.openrao.commons.opentelemetry.OpenTelemetryReporter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,27 +19,27 @@ public abstract class AbstractOpenRaoLogger implements OpenRaoLogger {
 
     @Override
     public void trace(String format, Object... arguments) {
-        logger.trace(format, arguments);
+        OpenTelemetryReporter.trace(logger, format, arguments);
     }
 
     @Override
     public void info(String format, Object... arguments) {
-        logger.info(format, arguments);
+        OpenTelemetryReporter.info(logger, format, arguments);
     }
 
     @Override
     public void warn(String format, Object... arguments) {
-        logger.warn(format, arguments);
+        OpenTelemetryReporter.warn(logger, format, arguments);
     }
 
     @Override
     public void error(String format, Object... arguments) {
-        logger.error(format, arguments);
+        OpenTelemetryReporter.error(logger, format, arguments);
     }
 
     @Override
     public void debug(String format, Object... arguments) {
-        logger.debug(format, arguments);
+        OpenTelemetryReporter.debug(logger, format, arguments);
     }
 
     @Override
