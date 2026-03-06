@@ -7,29 +7,37 @@
 
 package com.powsybl.openrao.data.crac.io.nc.craccreator;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
-import com.powsybl.cgmes.conversion.CgmesImport;
 import com.google.common.base.Suppliers;
+import com.powsybl.action.Action;
+import com.powsybl.action.GeneratorAction;
+import com.powsybl.action.LoadAction;
+import com.powsybl.action.ShuntCompensatorPositionAction;
+import com.powsybl.action.SwitchAction;
+import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.computation.local.LocalComputationManager;
-import com.powsybl.action.*;
-import com.powsybl.contingency.ContingencyElement;
 import com.powsybl.contingency.Contingency;
+import com.powsybl.contingency.ContingencyElement;
 import com.powsybl.iidm.network.ImportConfig;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoSides;
-import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.NetworkElement;
-import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.ActionType;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
+import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.threshold.BranchThreshold;
 import com.powsybl.openrao.data.crac.api.threshold.Threshold;
@@ -40,22 +48,22 @@ import com.powsybl.openrao.data.crac.io.commons.api.ElementaryCreationContext;
 import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
 import com.powsybl.openrao.data.crac.io.nc.parameters.Border;
 import com.powsybl.openrao.data.crac.io.nc.parameters.NcCracCreationParameters;
-import org.slf4j.LoggerFactory;
-
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Paths;
 import java.time.OffsetDateTime;
-import java.util.*;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Properties;
+import java.util.Set;
 import java.util.stream.Collectors;
-
-import static org.junit.jupiter.api.Assertions.*;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Mohamed Ben Rejeb {@literal <mohamed.ben-rejeb at rte-france.com>}
  */
-public final class NcCracCreationTestUtil {
+public final class NcCracCreationTestUtil extends TestBase {
 
     public static final String PREVENTIVE_INSTANT_ID = "preventive";
     public static final String OUTAGE_INSTANT_ID = "outage";
@@ -296,12 +304,9 @@ public final class NcCracCreationTestUtil {
     }
 
     public static NcCracCreationContext getNcCracCreationContext(String ncArchive, Network network, OffsetDateTime offsetDateTime, CracCreationParameters cracCreationParameters) {
-        try (InputStream inputStream = NcCracCreationTestUtil.class.getResourceAsStream(ncArchive)) {
-            cracCreationParameters.getExtension(NcCracCreationParameters.class).setTimestamp(offsetDateTime);
-            return (NcCracCreationContext) Crac.readWithContext(ncArchive, inputStream, network, cracCreationParameters);
-        } catch (IOException e) {
-            throw new OpenRaoException(e);
-        }
+        var inputStream = new TestBase(){}.getResourceAsFile(ncArchive);
+        cracCreationParameters.getExtension(NcCracCreationParameters.class).setTimestamp(offsetDateTime);
+        return (NcCracCreationContext) Crac.readWithContext(inputStream, network, cracCreationParameters);
     }
 
     public static Network getNetworkFromResource(String filename) {

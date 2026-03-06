@@ -9,9 +9,8 @@ package com.powsybl.openrao.data.raoresult.api;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.io.utils.SafeFileReader;
 import com.powsybl.openrao.data.raoresult.api.io.Importer;
-
-import java.io.InputStream;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -24,12 +23,12 @@ public class MockRaoResultImporter implements Importer {
     }
 
     @Override
-    public boolean exists(InputStream inputStream) {
+    public boolean exists(SafeFileReader inputFile) {
         return true;
     }
 
     @Override
-    public RaoResult importData(InputStream inputStream, Crac crac) {
+    public RaoResult importData(SafeFileReader inputFile, Crac crac) {
         return new MockRaoResult();
     }
 }

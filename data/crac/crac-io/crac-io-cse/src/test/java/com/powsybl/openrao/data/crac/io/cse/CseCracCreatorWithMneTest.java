@@ -7,26 +7,28 @@
 
 package com.powsybl.openrao.data.crac.io.cse;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
 import com.powsybl.openrao.data.crac.io.cse.criticalbranch.CseCriticalBranchCreationContext;
-import org.junit.jupiter.api.Test;
-
 import java.io.IOException;
-import java.io.InputStream;
-
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Martin Belthle {@literal <martin.belthle at rte-france.com>}
  */
-class CseCracCreatorWithMneTest {
+class CseCracCreatorWithMneTest extends TestBase {
     private static final String PREVENTIVE_INSTANT_ID = "preventive";
     private static final String OUTAGE_INSTANT_ID = "outage";
     private static final String AUTO_INSTANT_ID = "auto";
@@ -40,9 +42,8 @@ class CseCracCreatorWithMneTest {
     private Instant curativeInstant;
 
     private void setUp(String cracFileName, String networkFileName) throws IOException {
-        InputStream is = getClass().getResourceAsStream(cracFileName);
-        Network network = Network.read(networkFileName, getClass().getResourceAsStream(networkFileName));
-        cracCreationContext = (CseCracCreationContext) Crac.readWithContext(cracFileName, is, network, parameters);
+        Network network = getResourceAsReader(networkFileName).withReadStream(is -> Network.read(networkFileName, is));
+        cracCreationContext = (CseCracCreationContext) Crac.readWithContext(getResourceAsFile(cracFileName), network, parameters);
         preventiveInstant = cracCreationContext.getCrac().getInstant(PREVENTIVE_INSTANT_ID);
         outageInstant = cracCreationContext.getCrac().getInstant(OUTAGE_INSTANT_ID);
         autoInstant = cracCreationContext.getCrac().getInstant(AUTO_INSTANT_ID);

@@ -7,39 +7,41 @@
 
 package com.powsybl.openrao.data.crac.io.cim.craccreator;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import com.google.common.base.Suppliers;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.ImportConfig;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.Unit;
+import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
+import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
+import com.powsybl.openrao.data.crac.io.cim.TestBase;
 import com.powsybl.openrao.data.crac.io.cim.parameters.CimCracCreationParameters;
 import com.powsybl.openrao.data.crac.io.cim.parameters.VoltageCnecsCreationParameters;
 import com.powsybl.openrao.data.crac.io.cim.parameters.VoltageMonitoredContingenciesAndThresholds;
 import com.powsybl.openrao.data.crac.io.cim.parameters.VoltageThreshold;
-import com.powsybl.openrao.data.crac.api.Crac;
-import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
-import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Paths;
 import java.time.OffsetDateTime;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
-
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-class VoltageCnecsCreatorTest {
+class VoltageCnecsCreatorTest extends TestBase {
     private static final String PREVENTIVE_INSTANT_ID = "preventive";
     private static final String OUTAGE_INSTANT_ID = "outage";
     private static final String AUTO_INSTANT_ID = "auto";
@@ -58,11 +60,11 @@ class VoltageCnecsCreatorTest {
         importParams.put("iidm.import.cgmes.source-for-iidm-id", "rdfID");
         network = Network.read(Paths.get(new File(CimCracCreatorTest.class.getResource("/networks/MicroGrid.zip").getFile()).toString()), LocalComputationManager.getDefault(), Suppliers.memoize(ImportConfig::load).get(), importParams);
 
-        InputStream is = getClass().getResourceAsStream("/cracs/CIM_21_1_1.xml");
+        var is = getResourceAsFile("/cracs/CIM_21_1_1.xml");
         CracCreationParameters cracCreationParameters = new CracCreationParameters();
         cracCreationParameters.addExtension(CimCracCreationParameters.class, new CimCracCreationParameters());
         cracCreationParameters.getExtension(CimCracCreationParameters.class).setTimestamp(OffsetDateTime.parse("2021-04-01T23:00Z"));
-        cracCreationContext = (CimCracCreationContext) Crac.readWithContext("CIM_21_1_1.xml", is, network, cracCreationParameters);
+        cracCreationContext = (CimCracCreationContext) Crac.readWithContext(is, network, cracCreationParameters);
         crac = cracCreationContext.getCrac();
 
         // Imported contingencies (name -> id):

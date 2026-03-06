@@ -7,17 +7,20 @@
 
 package com.powsybl.openrao.data.refprog.refprogxmlimporter;
 
+import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_LOGS;
+import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
+import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
+
 import com.powsybl.openrao.commons.EICode;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceExchangeData;
 import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceProgram;
-
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Unmarshaller;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.time.OffsetDateTime;
@@ -25,14 +28,23 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.*;
-
 /**
  * RefProg xml file importer
  *
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
 public final class RefProgImporter {
+
+    private final static JAXBContext JAXB_CONTEXT;
+
+    static {
+        try {
+            JAXB_CONTEXT = JAXBContext.newInstance(PublicationDocument.class);
+        } catch (Exception e) {
+            throw new ExceptionInInitializerError(e);
+        }
+    }
+
     private RefProgImporter() {
     }
 
@@ -56,7 +68,7 @@ public final class RefProgImporter {
     }
 
     public static ReferenceProgram importRefProg(Path inputPath, OffsetDateTime dateTime) {
-        try (InputStream inputStream = new FileInputStream(inputPath.toFile())) {
+        try (InputStream inputStream = Files.newInputStream(inputPath)) {
             return importRefProg(inputStream, dateTime);
         } catch (IOException e) {
             throw new OpenRaoException(e);
@@ -65,8 +77,7 @@ public final class RefProgImporter {
 
     private static PublicationDocument importXmlDocument(InputStream inputStream) {
         try {
-            JAXBContext jaxbContext = JAXBContext.newInstance(PublicationDocument.class);
-            Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+            Unmarshaller jaxbUnmarshaller = JAXB_CONTEXT.createUnmarshaller();
             return (PublicationDocument) jaxbUnmarshaller.unmarshal(inputStream);
         } catch (JAXBException e) {
             throw new OpenRaoException(e);

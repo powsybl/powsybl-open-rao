@@ -7,10 +7,27 @@
 
 package com.powsybl.openrao.data.crac.io.json;
 
+import static com.powsybl.openrao.data.crac.io.json.RoundTripUtil.implicitJsonRoundTrip;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
-import com.powsybl.action.*;
+import com.powsybl.action.Action;
+import com.powsybl.action.DanglingLineAction;
+import com.powsybl.action.GeneratorAction;
+import com.powsybl.action.HvdcAction;
+import com.powsybl.action.LoadAction;
+import com.powsybl.action.PhaseTapChangerTapPositionAction;
+import com.powsybl.action.ShuntCompensatorPositionAction;
+import com.powsybl.action.SwitchAction;
+import com.powsybl.action.TerminalsConnectionAction;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoSides;
@@ -22,29 +39,27 @@ import com.powsybl.openrao.data.crac.api.CracCreationContext;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.RaUsageLimits;
-import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
-import com.powsybl.openrao.data.crac.api.usagerule.OnConstraint;
-import com.powsybl.openrao.data.crac.api.usagerule.OnContingencyState;
-import com.powsybl.openrao.data.crac.api.usagerule.OnFlowConstraintInCountry;
-import com.powsybl.openrao.data.crac.api.usagerule.OnInstant;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
 import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
+import com.powsybl.openrao.data.crac.api.io.utils.BufferSize;
+import com.powsybl.openrao.data.crac.api.io.utils.SafeFileReader;
 import com.powsybl.openrao.data.crac.api.networkaction.SwitchPair;
 import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.crac.api.range.RangeType;
 import com.powsybl.openrao.data.crac.api.range.StandardRange;
 import com.powsybl.openrao.data.crac.api.range.TapRange;
+import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.threshold.BranchThreshold;
+import com.powsybl.openrao.data.crac.api.usagerule.OnConstraint;
+import com.powsybl.openrao.data.crac.api.usagerule.OnContingencyState;
+import com.powsybl.openrao.data.crac.api.usagerule.OnFlowConstraintInCountry;
+import com.powsybl.openrao.data.crac.api.usagerule.OnInstant;
+import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
 import com.powsybl.openrao.data.crac.impl.utils.ExhaustiveCracCreation;
 import com.powsybl.openrao.data.crac.impl.utils.NetworkImportsUtil;
 import com.powsybl.openrao.data.crac.io.json.deserializers.CracDeserializer;
-import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.OffsetDateTime;
@@ -54,33 +69,33 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import static com.powsybl.openrao.data.crac.io.json.RoundTripUtil.implicitJsonRoundTrip;
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-class CracImportExportTest {
+class CracImportExportTest extends TestBase {
 
     @Test
     void testExists() {
-        assertTrue(new JsonImport().exists("crac-v2.5.json", getClass().getResourceAsStream("/retrocompatibility/v2/crac-v2.5.json")));
-        assertTrue(new JsonImport().exists("cracHeader.json", getClass().getResourceAsStream("/cracHeader.json")));
-        assertFalse(new JsonImport().exists("invalidCrac.json", getClass().getResourceAsStream("/invalidCrac.json")));
-        assertFalse(new JsonImport().exists("invalidCrac.txt", getClass().getResourceAsStream("/invalidCrac.txt")));
+        assertTrue(new JsonImport().exists(getResourceAsReader("/retrocompatibility/v2/crac-v2.5.json")));
+        assertTrue(new JsonImport().exists(getResourceAsReader("/cracHeader.json")));
+        assertFalse(new JsonImport().exists(getResourceAsReader("/invalidCrac.json")));
+        assertFalse(new JsonImport().exists(getResourceAsReader("/invalidCrac.txt")));
     }
 
     @Test
     void testImportCracWithUnknownVersion() {
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> new JsonImport().exists("crac-v100.0.json", getClass().getResourceAsStream("/crac-v100.0.json")));
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> new JsonImport().exists(getResourceAsReader("/crac-v100.0.json")));
         assertEquals("v100.0 is not a valid JSON CRAC version.", exception.getMessage());
     }
 
     @Test
     void testNonNullOffsetDateTime() {
         Network network = NetworkImportsUtil.createNetworkForJsonRetrocompatibilityTest(0.0);
-        CracCreationContext context = new JsonImport().importData(getClass().getResourceAsStream("/retrocompatibility/v2/crac-v2.5.json"), new CracCreationParameters(), network);
+        CracCreationContext context = new JsonImport().importData(getResourceAsReader("/retrocompatibility/v2/crac-v2.5.json"), new CracCreationParameters(), network);
         assertTrue(context.isCreationSuccessful());
         assertNull(context.getTimeStamp());
         assertEquals("test", context.getNetworkName());
@@ -89,7 +104,7 @@ class CracImportExportTest {
     @Test
     void testPstMissingInNetwork() {
         Network network = NetworkImportsUtil.createNetworkForJsonRetrocompatibilityTest(0.0);
-        CracCreationContext context = new JsonImport().importData(getClass().getResourceAsStream("/cracMissingPst.json"), new CracCreationParameters(), network);
+        CracCreationContext context = new JsonImport().importData(getResourceAsReader("/cracMissingPst.json"), new CracCreationParameters(), network);
         assertFalse(context.isCreationSuccessful());
         assertEquals(List.of("[ERROR] PST missing-pst does not exist in the current network"), context.getCreationReport().getReport());
     }
@@ -104,7 +119,7 @@ class CracImportExportTest {
         List<ILoggingEvent> logsList = listAppender.list;
 
         Network network = NetworkImportsUtil.createNetworkForJsonRetrocompatibilityTest(0.0);
-        CracCreationContext context = new JsonImport().importData(getClass().getResourceAsStream("/cracTwoInjectionOneGenerator.json"), new CracCreationParameters(), network);
+        CracCreationContext context = new JsonImport().importData(getResourceAsReader("/cracTwoInjectionOneGenerator.json"), new CracCreationParameters(), network);
         assertTrue(context.isCreationSuccessful());
 
         logsList.sort(Comparator.comparing(ILoggingEvent::getMessage));
@@ -116,7 +131,7 @@ class CracImportExportTest {
 
     @Test
     void testImportFailure() {
-        CracCreationContext context = new JsonImport().importData(getClass().getResourceAsStream("/retrocompatibility/v2/crac-v2.5.json"), new CracCreationParameters(), Mockito.mock(Network.class));
+        CracCreationContext context = new JsonImport().importData(getResourceAsReader("/retrocompatibility/v2/crac-v2.5.json"), new CracCreationParameters(), Mockito.mock(Network.class));
         assertNotNull(context);
         assertFalse(context.isCreationSuccessful());
         assertNull(context.getCrac());
@@ -545,13 +560,13 @@ class CracImportExportTest {
     @Test
     void testImportNotJsonFile() {
         InputStream inputStream = Mockito.mock(InputStream.class);
-        assertFalse(new JsonImport().exists("file.xml", inputStream));
+        assertFalse(new JsonImport().exists(SafeFileReader.create(getResourceAsFile("/invalidCrac.txt"), BufferSize.SMALL)));
     }
 
     @Test
     void testImportEmptyCrac() throws IOException {
         Network network = Mockito.mock(Network.class);
-        Crac crac = Crac.read("emptyCrac.json", CracImportExportTest.class.getResourceAsStream("/emptyCrac.json"), network);
+        Crac crac = Crac.read(getResourceAsFile("/emptyCrac.json"), network);
         assertNotNull(crac);
 
         // round-trip
@@ -564,14 +579,14 @@ class CracImportExportTest {
 
     @Test
     void testImportCracWithErrors() {
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> new JsonImport().exists("cracWithErrors.json", CracImportExportTest.class.getResourceAsStream("/cracWithErrors.json")));
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> new JsonImport().exists(getResourceAsReader("/cracWithErrors.json")));
         assertEquals("JSON file is not a valid CRAC v2.5. Reasons: /instants/3/kind: does not have a value in the enumeration [\"PREVENTIVE\", \"OUTAGE\", \"AUTO\", \"CURATIVE\"]; /contingencies/1/networkElementsIds/0: integer found, string expected; /contingencies/1/networkElementsIds/1: integer found, string expected; /contingencies/2: required property 'networkElementsIds' not found", exception.getMessage());
     }
 
     @Test
     void testImportCracWithInitialSetpoint() {
         // From version 2.8, the initial setpoint of a range action is read from the network
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> new JsonImport().exists("crac2.8-with-initialsetpoint.json", CracImportExportTest.class.getResourceAsStream("/crac2.8-with-initialsetpoint.json")));
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> new JsonImport().exists(getResourceAsReader("/crac2.8-with-initialsetpoint.json")));
         assertEquals("JSON file is not a valid CRAC v2.8. Reasons: " +
             "/hvdcRangeActions/0: property 'initialSetpoint' is not defined in the schema and the schema does not allow additional properties; " +
             "/injectionRangeActions/0: property 'initialSetpoint' is not defined in the schema and the schema does not allow additional properties; " +
@@ -581,7 +596,7 @@ class CracImportExportTest {
     @Test
     void testImportCracWithBadFieldsOrderForFlowCnec() {
         // "networkElementId" must be declared before "thresholds"
-        CracCreationContext cracCreationContext = new JsonImport().importData(CracImportExportTest.class.getResourceAsStream("/crac2.8-with-wrong-order-for-flow-cnec.json"), new CracCreationParameters(), NetworkImportsUtil.createNetworkForJsonRetrocompatibilityTest(0.0));
+        CracCreationContext cracCreationContext = new JsonImport().importData(getResourceAsReader("/crac2.8-with-wrong-order-for-flow-cnec.json"), new CracCreationParameters(), NetworkImportsUtil.createNetworkForJsonRetrocompatibilityTest(0.0));
         assertEquals(1, cracCreationContext.getCreationReport().getReport().size());
         assertEquals("[ERROR] Cannot deserialize thresholds before networkElementId for FlowCNECs.", cracCreationContext.getCreationReport().getReport().get(0));
     }
@@ -596,7 +611,7 @@ class CracImportExportTest {
         List<ILoggingEvent> logsList = listAppender.list;
 
         Network network = Network.read("3Nodes_FFR3AA1_disconnected.xiidm", getClass().getResourceAsStream("/3Nodes_FFR3AA1_disconnected.xiidm"));
-        Crac crac = Crac.read("crac-2-redispatching-actions.json", getClass().getResourceAsStream("/crac-2-redispatching-actions.json"), network);
+        Crac crac = Crac.read(getResourceAsFile("/crac-2-redispatching-actions.json"), network);
 
         assertEquals(1, crac.getInjectionRangeActions().size());
 

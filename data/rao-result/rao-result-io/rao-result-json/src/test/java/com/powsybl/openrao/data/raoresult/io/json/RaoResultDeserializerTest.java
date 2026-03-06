@@ -7,6 +7,10 @@
 
 package com.powsybl.openrao.data.raoresult.io.json;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
@@ -14,23 +18,19 @@ import com.powsybl.openrao.data.crac.impl.utils.ExhaustiveCracCreation;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.extension.CriticalCnecsResult;
 import com.powsybl.openrao.data.raoresult.impl.RaoResultImpl;
-import org.junit.jupiter.api.Test;
-
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-class RaoResultDeserializerTest {
+class RaoResultDeserializerTest extends TestBase {
     @Test
     void testRaoResultWithTapForNonPstRangeAction() {
         Crac crac = ExhaustiveCracCreation.create();
-        InputStream raoResultStream = getClass().getResourceAsStream("/rao-result-with-tap-for-non-pst-range-action.json");
+        var raoResultStream = getResourceAsFile("/rao-result-with-tap-for-non-pst-range-action.json");
         OpenRaoException exception = assertThrows(OpenRaoException.class, () -> RaoResult.read(raoResultStream, crac));
         assertEquals("Taps can only be defined for PST range actions.", exception.getMessage());
     }
@@ -38,7 +38,7 @@ class RaoResultDeserializerTest {
     @Test
     void testRaoResultWithUnnecessaryPstRangeActionSetPoint() {
         Crac crac = ExhaustiveCracCreation.create();
-        InputStream raoResultStream = getClass().getResourceAsStream("/rao-result-with-unnecessary-pst-range-action-set-point.json");
+        var raoResultStream = getResourceAsFile("/rao-result-with-unnecessary-pst-range-action-set-point.json");
         OpenRaoException exception = assertThrows(OpenRaoException.class, () -> RaoResult.read(raoResultStream, crac));
         assertEquals("Since version 1.8, only the taps are reported for PST range actions.", exception.getMessage());
     }
@@ -46,7 +46,7 @@ class RaoResultDeserializerTest {
     @Test
     void testRaoResultWithFastRaoExtension() throws IOException {
         Crac crac = ExhaustiveCracCreation.create();
-        InputStream raoResultStream = getClass().getResourceAsStream("/rao-result-fastrao-extension.json");
+        var raoResultStream = getResourceAsFile("/rao-result-fastrao-extension.json");
         RaoResultImpl raoResult = (RaoResultImpl) RaoResult.read(raoResultStream, crac);
         Set<String> criticalFlowCnecs = raoResult.getExtension(CriticalCnecsResult.class).getCriticalCnecIds();
         assertEquals(criticalFlowCnecs, crac.getFlowCnecs().stream().map(FlowCnec::getId).collect(Collectors.toSet()));
@@ -55,7 +55,7 @@ class RaoResultDeserializerTest {
     @Test
     void testRaoResultWithoutFastRaoExtension() throws IOException {
         Crac crac = ExhaustiveCracCreation.create();
-        InputStream raoResultStream = getClass().getResourceAsStream("/rao-result.json");
+        var raoResultStream = getResourceAsFile("/rao-result.json");
         RaoResultImpl raoResult = (RaoResultImpl) RaoResult.read(raoResultStream, crac);
         assertNull(raoResult.getExtension(CriticalCnecsResult.class));
     }

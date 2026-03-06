@@ -7,16 +7,23 @@
 
 package com.powsybl.openrao.data.crac.io.cim.craccreator;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import com.google.common.base.Suppliers;
-import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.action.GeneratorAction;
 import com.powsybl.action.PhaseTapChangerTapPositionAction;
 import com.powsybl.action.TerminalsConnectionAction;
+import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.contingency.ContingencyElement;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.ImportConfig;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
@@ -24,47 +31,53 @@ import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.openrao.data.crac.api.RaUsageLimits;
 import com.powsybl.openrao.data.crac.api.RemedialAction;
+import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
+import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
+import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
+import com.powsybl.openrao.data.crac.api.parameters.RangeActionGroup;
+import com.powsybl.openrao.data.crac.api.range.RangeType;
 import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
+import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
+import com.powsybl.openrao.data.crac.api.threshold.BranchThreshold;
 import com.powsybl.openrao.data.crac.api.usagerule.OnConstraint;
 import com.powsybl.openrao.data.crac.api.usagerule.OnContingencyState;
 import com.powsybl.openrao.data.crac.api.usagerule.OnFlowConstraintInCountry;
 import com.powsybl.openrao.data.crac.api.usagerule.OnInstant;
 import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
+import com.powsybl.openrao.data.crac.io.cim.TestBase;
 import com.powsybl.openrao.data.crac.io.cim.parameters.CimCracCreationParameters;
 import com.powsybl.openrao.data.crac.io.cim.parameters.RangeActionSpeed;
 import com.powsybl.openrao.data.crac.io.cim.parameters.VoltageCnecsCreationParameters;
 import com.powsybl.openrao.data.crac.io.cim.parameters.VoltageMonitoredContingenciesAndThresholds;
 import com.powsybl.openrao.data.crac.io.cim.parameters.VoltageThreshold;
-import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
-import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
-import com.powsybl.iidm.network.TwoSides;
-import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
-import com.powsybl.openrao.data.crac.api.parameters.RangeActionGroup;
-import com.powsybl.openrao.data.crac.api.range.RangeType;
-import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
-import com.powsybl.openrao.data.crac.api.threshold.BranchThreshold;
 import com.powsybl.openrao.data.crac.io.commons.api.ElementaryCreationContext;
 import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Paths;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Properties;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Paths;
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
-import java.util.*;
-import java.util.stream.Collectors;
-
-import static org.junit.jupiter.api.Assertions.*;
-
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
-class CimCracCreatorTest {
+class CimCracCreatorTest extends TestBase {
     private static final String PREVENTIVE_INSTANT_ID = "preventive";
     private static final String OUTAGE_INSTANT_ID = "outage";
     private static final String AUTO_INSTANT_ID = "auto";
@@ -98,8 +111,8 @@ class CimCracCreatorTest {
     }
 
     private void setUp(String fileName, Network network, CracCreationParameters cracCreationParameters) throws IOException {
-        InputStream is = getClass().getResourceAsStream(fileName);
-        cracCreationContext = (CimCracCreationContext) Crac.readWithContext(fileName, is, network, cracCreationParameters);
+        var is = getResourceAsFile(fileName);
+        cracCreationContext = (CimCracCreationContext) Crac.readWithContext(is, network, cracCreationParameters);
         importedCrac = cracCreationContext.getCrac();
         if (!Objects.isNull(importedCrac)) {
             preventiveInstant = importedCrac.getInstant(PREVENTIVE_INSTANT_ID);
@@ -123,8 +136,8 @@ class CimCracCreatorTest {
         Mockito.when(cimCracCreationParameters.getRangeActionGroups()).thenReturn(rangeActionGroups);
         Mockito.when(cimCracCreationParameters.getTimeseriesMrids()).thenReturn(Collections.emptySet());
         Mockito.when(cimCracCreationParameters.getTimestamp()).thenReturn(timestamp);
-        InputStream is = getClass().getResourceAsStream(fileName);
-        cracCreationContext = (CimCracCreationContext) Crac.readWithContext(fileName, is, network, cracCreationParameters);
+        var is = getResourceAsFile(fileName);
+        cracCreationContext = (CimCracCreationContext) Crac.readWithContext(is, network, cracCreationParameters);
         importedCrac = cracCreationContext.getCrac();
         preventiveInstant = importedCrac.getInstant(PREVENTIVE_INSTANT_ID);
         autoInstant = importedCrac.getInstant(AUTO_INSTANT_ID);
@@ -140,8 +153,8 @@ class CimCracCreatorTest {
         Mockito.when(cimCracCreationParameters.getRangeActionSpeedSet()).thenReturn(rangeActionSpeeds);
         Mockito.when(cimCracCreationParameters.getTimeseriesMrids()).thenReturn(Collections.emptySet());
         Mockito.when(cimCracCreationParameters.getTimestamp()).thenReturn(timestamp);
-        InputStream is = getClass().getResourceAsStream(fileName);
-        cracCreationContext = (CimCracCreationContext) Crac.readWithContext(fileName, is, network, cracCreationParameters);
+        var is = getResourceAsFile(fileName);
+        cracCreationContext = (CimCracCreationContext) Crac.readWithContext(is, network, cracCreationParameters);
         importedCrac = cracCreationContext.getCrac();
         preventiveInstant = importedCrac.getInstant(PREVENTIVE_INSTANT_ID);
         autoInstant = importedCrac.getInstant(AUTO_INSTANT_ID);
@@ -156,8 +169,8 @@ class CimCracCreatorTest {
         Mockito.when(cracCreationParameters.getExtension(CimCracCreationParameters.class)).thenReturn(cimCracCreationParameters);
         Mockito.when(cimCracCreationParameters.getTimeseriesMrids()).thenReturn(timeseriesMrids);
         Mockito.when(cimCracCreationParameters.getTimestamp()).thenReturn(timestamp);
-        InputStream is = getClass().getResourceAsStream(fileName);
-        cracCreationContext = (CimCracCreationContext) Crac.readWithContext(fileName, is, network, cracCreationParameters);
+        var is = getResourceAsFile(fileName);
+        cracCreationContext = (CimCracCreationContext) Crac.readWithContext(is, network, cracCreationParameters);
         importedCrac = cracCreationContext.getCrac();
         preventiveInstant = importedCrac.getInstant(PREVENTIVE_INSTANT_ID);
         autoInstant = importedCrac.getInstant(AUTO_INSTANT_ID);
@@ -171,8 +184,8 @@ class CimCracCreatorTest {
         Mockito.when(cracCreationParameters.getExtension(CimCracCreationParameters.class)).thenReturn(cimCracCreationParameters);
         Mockito.when(cimCracCreationParameters.getTimeseriesMrids()).thenReturn(Collections.emptySet());
         Mockito.when(cimCracCreationParameters.getTimestamp()).thenReturn(timestamp);
-        InputStream is = getClass().getResourceAsStream(fileName);
-        cracCreationContext = (CimCracCreationContext) Crac.readWithContext(fileName, is, network, cracCreationParameters);
+        var is = getResourceAsFile(fileName);
+        cracCreationContext = (CimCracCreationContext) Crac.readWithContext(is, network, cracCreationParameters);
         importedCrac = cracCreationContext.getCrac();
         if (!Objects.isNull(importedCrac)) {
             preventiveInstant = importedCrac.getInstant(PREVENTIVE_INSTANT_ID);

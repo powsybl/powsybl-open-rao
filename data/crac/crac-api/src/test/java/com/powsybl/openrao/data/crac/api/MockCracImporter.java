@@ -10,9 +10,8 @@ package com.powsybl.openrao.data.crac.api;
 import com.google.auto.service.AutoService;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.data.crac.api.io.Importer;
+import com.powsybl.openrao.data.crac.api.io.utils.SafeFileReader;
 import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
-
-import java.io.InputStream;
 import java.time.OffsetDateTime;
 
 /**
@@ -55,12 +54,12 @@ public class MockCracImporter implements Importer {
     }
 
     @Override
-    public boolean exists(String filename, InputStream inputStream) {
+    public boolean exists(SafeFileReader file) {
         return true;
     }
 
     @Override
-    public CracCreationContext importData(InputStream inputStream, CracCreationParameters cracCreationParameters, Network network) {
+    public CracCreationContext importData(SafeFileReader file, CracCreationParameters cracCreationParameters, Network network) {
         return new MockCracCreationContext();
     }
 }

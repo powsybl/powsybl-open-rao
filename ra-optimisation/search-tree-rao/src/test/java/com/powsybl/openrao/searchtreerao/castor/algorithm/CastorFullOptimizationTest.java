@@ -7,12 +7,18 @@
 
 package com.powsybl.openrao.searchtreerao.castor.algorithm;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.Mockito.when;
+
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyElementType;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.commons.logs.RaoBusinessLogs;
@@ -22,12 +28,11 @@ import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.networkaction.ActionType;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
-import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.OptimizationStepsExecuted;
+import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
@@ -37,21 +42,21 @@ import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParamet
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoPstRegulationParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoTopoOptimizationParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SecondPreventiveRaoParameters;
+import com.powsybl.openrao.searchtreerao.TestBase;
 import com.powsybl.openrao.searchtreerao.result.impl.FailedRaoResultImpl;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.util.*;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
-
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-class CastorFullOptimizationTest {
+class CastorFullOptimizationTest extends TestBase {
     private static final double DOUBLE_TOLERANCE = 1e-5;
 
     private Crac crac;
@@ -60,7 +65,7 @@ class CastorFullOptimizationTest {
 
     public void setup(String networkFile, String cracFile) throws IOException {
         network = Network.read(networkFile, getClass().getResourceAsStream("/network/" + networkFile));
-        crac = Crac.read(cracFile, getClass().getResourceAsStream("/crac/" + cracFile), network);
+        crac = Crac.read(getResourceAsFile("/crac/" + cracFile), network);
         raoInput = RaoInput.build(network, crac).build();
     }
 
@@ -530,7 +535,7 @@ class CastorFullOptimizationTest {
     @Test
     void costlyPreventiveRaoNetworkActionsOnly() throws IOException {
         network = Network.read("2Nodes4ParallelLines.uct", getClass().getResourceAsStream("/network/2Nodes4ParallelLines.uct"));
-        crac = Crac.read("small-crac-costly-preventive-only.json", getClass().getResourceAsStream("/crac/small-crac-costly-preventive-only.json"), network);
+        crac = Crac.read(getResourceAsFile("/crac/small-crac-costly-preventive-only.json"), network);
         RaoInput raoInput = RaoInput.build(network, crac).build();
         RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_dc_minObjective.json"));
 
@@ -571,7 +576,7 @@ class CastorFullOptimizationTest {
     @Test
     void testPstRegulationAtTheEndOfRao() throws IOException {
         network = Network.read("2Nodes3ParallelLinesPST.uct", getClass().getResourceAsStream("/network/2Nodes3ParallelLinesPST.uct"));
-        crac = Crac.read("crac-regulation-1-PST.json", getClass().getResourceAsStream("/crac/crac-regulation-1-PST.json"), network);
+        crac = Crac.read(getResourceAsFile("/crac/crac-regulation-1-PST.json"), network);
         RaoInput raoInput = RaoInput.build(network, crac).build();
         RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_minMargin_ac.json"));
 

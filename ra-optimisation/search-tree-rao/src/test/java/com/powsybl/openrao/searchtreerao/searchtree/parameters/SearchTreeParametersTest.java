@@ -7,40 +7,43 @@
 
 package com.powsybl.openrao.searchtreerao.searchtree.parameters;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.Mockito.when;
+
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.RaUsageLimits;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
+import com.powsybl.openrao.raoapi.parameters.LoopFlowParameters;
+import com.powsybl.openrao.raoapi.parameters.MnecParameters;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RangeActionsOptimizationParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
-import com.powsybl.openrao.raoapi.parameters.LoopFlowParameters;
-import com.powsybl.openrao.raoapi.parameters.MnecParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
-import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRelativeMarginsParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRangeActionsOptimizationParameters;
-import com.powsybl.openrao.searchtreerao.commons.parameters.*;
+import com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoRelativeMarginsParameters;
+import com.powsybl.openrao.searchtreerao.TestBase;
+import com.powsybl.openrao.searchtreerao.commons.parameters.NetworkActionParameters;
+import com.powsybl.openrao.searchtreerao.commons.parameters.TreeParameters;
+import com.powsybl.openrao.searchtreerao.commons.parameters.UnoptimizedCnecParameters;
 import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Paths;
-import java.util.*;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
-
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
-class SearchTreeParametersTest {
+class SearchTreeParametersTest extends TestBase {
     SearchTreeParameters.SearchTreeParametersBuilder builder;
 
     @BeforeEach
@@ -172,8 +175,8 @@ class SearchTreeParametersTest {
     @Test
     void testDecreaseRemedialActionUsageLimits() throws IOException {
         Crac crac = Crac.read(
-            "crac.json", SearchTreeParametersTest.class.getResourceAsStream("/crac/small-crac-with-comprehensive-usage-limits-3-curative-instants.json"),
-            Network.read(Paths.get(new File(Objects.requireNonNull(SearchTreeParametersTest.class.getResource("/network/small-network-2P.uct")).getFile()).toString()))
+            getResourceAsFile("/crac/small-crac-with-comprehensive-usage-limits-3-curative-instants.json"),
+            Network.read(getResourceAsFile("/network/small-network-2P.uct").toPath())
         );
 
         // preventive

@@ -7,20 +7,18 @@
 
 package com.powsybl.openrao.data.crac.io.json;
 
-import com.powsybl.openrao.data.crac.io.json.serializers.CracJsonSerializerModule;
-import com.powsybl.openrao.data.crac.api.Crac;
-import com.powsybl.openrao.data.crac.api.io.Exporter;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.google.auto.service.AutoService;
-
+import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.io.Exporter;
+import com.powsybl.openrao.data.crac.io.json.serializers.CracJsonSerializerModule;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
-
-import static com.powsybl.commons.json.JsonUtil.createObjectMapper;
 
 /**
  * CRAC object export in json format
@@ -31,6 +29,15 @@ import static com.powsybl.commons.json.JsonUtil.createObjectMapper;
 public class JsonExport implements Exporter {
 
     private static final String JSON_FORMAT = "JSON";
+    private static final ObjectWriter WRITER = buildWriter();
+
+    private static ObjectWriter buildWriter() {
+        ObjectMapper objectMapper = JsonUtil.createObjectMapper();
+        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        SimpleModule module = new CracJsonSerializerModule();
+        objectMapper.registerModule(module);
+        return objectMapper.writerWithDefaultPrettyPrinter();
+    }
 
     @Override
     public String getFormat() {
@@ -40,12 +47,7 @@ public class JsonExport implements Exporter {
     @Override
     public void exportData(Crac crac, OutputStream outputStream) {
         try {
-            ObjectMapper objectMapper = createObjectMapper();
-            objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-            SimpleModule module = new CracJsonSerializerModule();
-            objectMapper.registerModule(module);
-            ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
-            writer.writeValue(outputStream, crac);
+            WRITER.writeValue(outputStream, crac);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

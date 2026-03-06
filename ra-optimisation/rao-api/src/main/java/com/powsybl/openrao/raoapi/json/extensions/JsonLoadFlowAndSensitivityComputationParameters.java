@@ -7,16 +7,19 @@
 
 package com.powsybl.openrao.raoapi.json.extensions;
 
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.LOAD_FLOW_AND_SENSITIVITY_COMPUTATION;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.LOAD_FLOW_PROVIDER;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.SENSITIVITY_FAILURE_OVERCOST;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.SENSITIVITY_PARAMETERS;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.SENSITIVITY_PROVIDER;
+
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
 import com.powsybl.sensitivity.json.JsonSensitivityAnalysisParameters;
-
 import java.io.IOException;
-
-import static com.powsybl.openrao.raoapi.RaoParametersCommons.*;
 
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}

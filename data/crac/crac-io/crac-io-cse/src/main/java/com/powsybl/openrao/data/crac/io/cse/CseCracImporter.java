@@ -11,25 +11,21 @@ import com.google.auto.service.AutoService;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
-import com.powsybl.openrao.data.crac.io.cse.xsd.CRACDocumentType;
 import com.powsybl.openrao.data.crac.api.CracCreationContext;
 import com.powsybl.openrao.data.crac.api.io.Importer;
+import com.powsybl.openrao.data.crac.api.io.utils.SafeFileReader;
 import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
-import org.apache.commons.io.FilenameUtils;
-import org.xml.sax.SAXException;
-
-import javax.xml.XMLConstants;
+import com.powsybl.openrao.data.crac.io.cse.xsd.CRACDocumentType;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
+import java.io.InputStream;
+import java.util.Objects;
+import javax.xml.XMLConstants;
 import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UncheckedIOException;
-import java.net.MalformedURLException;
-import java.util.Objects;
+import org.xml.sax.SAXException;
 
 /**
  * @author Alexandre Montigny {@literal <alexandre.montigny at rte-france.com>}
@@ -40,55 +36,63 @@ public class CseCracImporter implements Importer {
     private static final String ETSO_CORE_SCHEMA_FILE_LOCATION = "/com/powsybl/openrao/data/crac/io/cse/xsd/etso-core-cmpts.xsd";
     private static final String ETSO_CODES_SCHEMA_FILE_LOCATION = "/com/powsybl/openrao/data/crac/io/cse/xsd/etso-code-lists.xsd";
 
+    private static final JAXBContext JAXB_CONTEXT;
+    private static final Schema SCHEMA;
+
+    static {
+        try {
+            JAXB_CONTEXT = JAXBContext.newInstance(CRACDocumentType.class);
+            SCHEMA = initSchema();
+        } catch (Exception e) {
+            throw new ExceptionInInitializerError(e);
+        }
+    }
+
+    private static Schema initSchema() throws SAXException {
+        // The following line triggers sonar issue java:S2755 which prevents us from accessing XSD schema files
+        var schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI); //NOSONAR
+        return schemaFactory.newSchema(new Source[]{
+            new StreamSource(Objects.requireNonNull(CseCracImporter.class.getResource(ETSO_CODES_SCHEMA_FILE_LOCATION)).toExternalForm()),
+            new StreamSource(Objects.requireNonNull(CseCracImporter.class.getResource(ETSO_CORE_SCHEMA_FILE_LOCATION)).toExternalForm()),
+            new StreamSource(Objects.requireNonNull(CseCracImporter.class.getResource(CRAC_CSE_SCHEMA_FILE_LOCATION)).toExternalForm())
+        });
+    }
+
     @Override
     public String getFormat() {
         return "CseCrac";
     }
 
+    @Override
+    public boolean exists(SafeFileReader inputFile) {
+        if (!inputFile.hasFileExtension("xml")) {
+            return false;
+        }
+        return inputFile.withReadStream(is -> {
+            try {
+                Source xmlFile = new StreamSource(is);
+                SCHEMA.newValidator().validate(xmlFile);
+                OpenRaoLoggerProvider.BUSINESS_LOGS.info("CSE CRAC document is valid");
+                return true;
+            } catch (SAXException e) {
+                OpenRaoLoggerProvider.TECHNICAL_LOGS.debug("CSE CRAC document is NOT valid. Reason: {}", e.getMessage());
+                return false;
+            }
+        });
+    }
+
+    @Override
+    public CracCreationContext importData(SafeFileReader inputFile, CracCreationParameters cracCreationParameters, Network network) {
+        var crac = inputFile.withReadStream(this::importNativeCrac);
+        return new CseCracCreator().createCrac(crac, network, cracCreationParameters);
+    }
+
     private CRACDocumentType importNativeCrac(InputStream inputStream) {
-        CRACDocumentType cracDocumentType;
         try {
-            cracDocumentType = JAXBContext.newInstance(CRACDocumentType.class)
-                .createUnmarshaller()
-                .unmarshal(new StreamSource(inputStream), CRACDocumentType.class)
-                .getValue();
+            return JAXB_CONTEXT.createUnmarshaller().unmarshal(new StreamSource(inputStream), CRACDocumentType.class).getValue();
         } catch (JAXBException e) {
             throw new OpenRaoException(e);
         }
-        return cracDocumentType;
     }
 
-    @Override
-    public boolean exists(String filename, InputStream inputStream) {
-        if (!FilenameUtils.getExtension(filename).equals("xml")) {
-            return false;
-        }
-        Source xmlFile = new StreamSource(inputStream);
-        // The following line triggers sonar issue java:S2755 which prevents us from accessing XSD schema files
-        SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI); //NOSONAR
-
-        try {
-            Schema schema = schemaFactory.newSchema(new Source[]{
-                new StreamSource(Objects.requireNonNull(CseCracImporter.class.getResource(ETSO_CODES_SCHEMA_FILE_LOCATION)).toExternalForm()),
-                new StreamSource(Objects.requireNonNull(CseCracImporter.class.getResource(ETSO_CORE_SCHEMA_FILE_LOCATION)).toExternalForm()),
-                new StreamSource(Objects.requireNonNull(CseCracImporter.class.getResource(CRAC_CSE_SCHEMA_FILE_LOCATION)).toExternalForm())
-            });
-
-            schema.newValidator().validate(xmlFile);
-            OpenRaoLoggerProvider.BUSINESS_LOGS.info("CSE CRAC document is valid");
-            return true;
-        } catch (MalformedURLException e) {
-            throw new OpenRaoException("URL error");
-        } catch (SAXException e) {
-            OpenRaoLoggerProvider.TECHNICAL_LOGS.debug("CSE CRAC document is NOT valid. Reason: {}", e.getMessage());
-            return false;
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
-    @Override
-    public CracCreationContext importData(InputStream inputStream, CracCreationParameters cracCreationParameters, Network network) {
-        return new CseCracCreator().createCrac(importNativeCrac(inputStream), network, cracCreationParameters);
-    }
 }

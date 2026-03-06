@@ -7,6 +7,10 @@
 
 package com.powsybl.openrao.searchtreerao.marmot;
 
+import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters;
+import static com.powsybl.openrao.searchtreerao.marmot.MarmotUtils.runSensitivityAnalysis;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.TemporalData;
@@ -19,27 +23,23 @@ import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
+import com.powsybl.openrao.searchtreerao.TestBase;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionSetpointResult;
 import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
 import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.Map;
-
-import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters;
-import static com.powsybl.openrao.searchtreerao.marmot.MarmotUtils.runSensitivityAnalysis;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
  */
-class MarmotUtilsTest {
+class MarmotUtilsTest extends TestBase {
     private Crac crac1;
     private Crac crac2;
     private Crac crac3;
@@ -57,9 +57,9 @@ class MarmotUtilsTest {
         Network network2 = Network.read("12Nodes_2_pst.uct", MarmotUtilsTest.class.getResourceAsStream("/network/12Nodes_2_pst.uct"));
         Network network3 = Network.read("12Nodes_2_pst.uct", MarmotUtilsTest.class.getResourceAsStream("/network/12Nodes_2_pst.uct"));
 
-        crac1 = Crac.read("small-crac-2pst-1600.json", MarmotUtilsTest.class.getResourceAsStream("/crac/small-crac-2pst-1600.json"), network1);
-        crac2 = Crac.read("small-crac-2pst-1700.json", MarmotUtilsTest.class.getResourceAsStream("/crac/small-crac-2pst-1700.json"), network2);
-        crac3 = Crac.read("small-crac-2pst-1800.json", MarmotUtilsTest.class.getResourceAsStream("/crac/small-crac-2pst-1800.json"), network3);
+        crac1 = Crac.read(getResourceAsFile("/crac/small-crac-2pst-1600.json"), network1);
+        crac2 = Crac.read(getResourceAsFile("/crac/small-crac-2pst-1700.json"), network2);
+        crac3 = Crac.read(getResourceAsFile("/crac/small-crac-2pst-1800.json"), network3);
 
         RaoInput raoInput1 = RaoInput.build(network1, crac1).build();
         RaoInput raoInput2 = RaoInput.build(network2, crac2).build();

@@ -7,13 +7,16 @@
 
 package com.powsybl.openrao.searchtreerao.marmot.results;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.io.utils.BufferSize;
+import com.powsybl.openrao.data.crac.api.io.utils.SafeFileReader;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
-import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-
+import com.powsybl.openrao.searchtreerao.TestBase;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -28,14 +31,13 @@ import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-class RaoResultArchiveManagerTest {
+class RaoResultArchiveManagerTest extends TestBase {
 
     InterTemporalRaoResultImpl globalRaoResultToExport;
     TemporalDataImpl<Crac> cracTemporalData;
@@ -125,12 +127,17 @@ class RaoResultArchiveManagerTest {
 
     private static Set<String> extractZipEntriesFromFile(Path zipFile) throws IOException {
         Set<String> archiveContent = new HashSet<>();
-        try (ZipInputStream zis = new ZipInputStream(Files.newInputStream(zipFile))) {
-            ZipEntry entry;
-            while ((entry = zis.getNextEntry()) != null) {
-                archiveContent.add(entry.getName());
+
+        SafeFileReader.create(zipFile, BufferSize.MEDIUM).withReadStream(is ->  {
+            try (ZipInputStream zis = new ZipInputStream(is)) {
+                ZipEntry entry;
+                while ((entry = zis.getNextEntry()) != null) {
+                    archiveContent.add(entry.getName());
+                }
             }
-        }
+            return null;
+        });
+
         return archiveContent;
     }
 
@@ -138,12 +145,12 @@ class RaoResultArchiveManagerTest {
         Network network1 = Network.read("/network/3Nodes.uct", InterTemporalRaoResultImplTest.class.getResourceAsStream("/network/3Nodes.uct"));
         Network network2 = Network.read("/network/3Nodes.uct", InterTemporalRaoResultImplTest.class.getResourceAsStream("/network/3Nodes.uct"));
         Network network3 = Network.read("/network/3Nodes.uct", InterTemporalRaoResultImplTest.class.getResourceAsStream("/network/3Nodes.uct"));
-        Crac crac1 = Crac.read("/crac/crac-redispatching-202502141040.json", InterTemporalRaoResultImplTest.class.getResourceAsStream("/crac/crac-redispatching-202502141040.json"), network1);
-        Crac crac2 = Crac.read("/crac/crac-redispatching-202502141140.json", InterTemporalRaoResultImplTest.class.getResourceAsStream("/crac/crac-redispatching-202502141140.json"), network2);
-        Crac crac3 = Crac.read("/crac/crac-redispatching-202502141240.json", InterTemporalRaoResultImplTest.class.getResourceAsStream("/crac/crac-redispatching-202502141240.json"), network3);
-        RaoResult raoResult1 = RaoResult.read(InterTemporalRaoResultImplTest.class.getResourceAsStream("/raoResult/raoResult1.json"), crac1);
-        RaoResult raoResult2 = RaoResult.read(InterTemporalRaoResultImplTest.class.getResourceAsStream("/raoResult/raoResult2.json"), crac2);
-        RaoResult raoResult3 = RaoResult.read(InterTemporalRaoResultImplTest.class.getResourceAsStream("/raoResult/raoResult3.json"), crac3);
+        Crac crac1 = Crac.read(getResourceAsFile("/crac/crac-redispatching-202502141040.json"), network1);
+        Crac crac2 = Crac.read(getResourceAsFile("/crac/crac-redispatching-202502141140.json"), network2);
+        Crac crac3 = Crac.read(getResourceAsFile("/crac/crac-redispatching-202502141240.json"), network3);
+        RaoResult raoResult1 = RaoResult.read(getResourceAsFile("/raoResult/raoResult1.json"), crac1);
+        RaoResult raoResult2 = RaoResult.read(getResourceAsFile("/raoResult/raoResult2.json"), crac2);
+        RaoResult raoResult3 = RaoResult.read(getResourceAsFile("/raoResult/raoResult3.json"), crac3);
         OffsetDateTime timestamp1 = OffsetDateTime.of(2025, 2, 14, 10, 40, 0, 0, ZoneOffset.UTC);
         OffsetDateTime timestamp2 = OffsetDateTime.of(2025, 2, 14, 11, 40, 0, 0, ZoneOffset.UTC);
         OffsetDateTime timestamp3 = OffsetDateTime.of(2025, 2, 14, 12, 40, 0, 0, ZoneOffset.UTC);

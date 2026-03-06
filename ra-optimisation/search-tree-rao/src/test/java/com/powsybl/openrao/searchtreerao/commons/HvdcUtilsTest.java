@@ -7,36 +7,40 @@
 
 package com.powsybl.openrao.searchtreerao.commons;
 
+import static com.powsybl.openrao.searchtreerao.commons.HvdcUtils.addNetworkActionAssociatedWithHvdcRangeAction;
+import static com.powsybl.openrao.searchtreerao.commons.HvdcUtils.runLoadFlowAndUpdateHvdcActivePowerSetpoint;
+import static com.powsybl.openrao.searchtreerao.commons.HvdcUtils.updateHvdcRangeActionInitialSetpoint;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.openloadflow.OpenLoadFlowParameters;
-import com.powsybl.openrao.data.crac.api.*;
+import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.InstantKind;
+import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
 import com.powsybl.openrao.data.crac.impl.HvdcRangeActionImpl;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
-import org.junit.jupiter.api.Test;
-
+import com.powsybl.openrao.searchtreerao.TestBase;
 import java.io.IOException;
 import java.util.Map;
 import java.util.stream.Collectors;
-
-import static com.powsybl.openrao.searchtreerao.commons.HvdcUtils.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
  */
-public class HvdcUtilsTest {
+public class HvdcUtilsTest extends TestBase {
 
     @Test
     void checkAddNetworkActionAssociatedWithHvdcRangeAction() throws IOException {
         // Two hvdc range actions both using HVDC line "BBE2AA11 FFR3AA11 1" that is initially in AC emulation mode, so one
         // AC emulation deactivation network action is created but with usage rule of both range actions.
         Network network = Network.read("TestCase16NodesWithHvdc_AC_emulation.xiidm", getClass().getResourceAsStream("/network/TestCase16NodesWithHvdc_AC_emulation.xiidm"));
-        Crac crac = Crac.read("crac_hvdc_allinstants_allusagerules.json", getClass().getResourceAsStream("/crac/crac_hvdc_allinstants_allusagerules.json"), network);
+        Crac crac = Crac.read(getResourceAsFile("/crac/crac_hvdc_allinstants_allusagerules.json"), network);
         addNetworkActionAssociatedWithHvdcRangeAction(crac, network);
         assertEquals(1, crac.getNetworkActions().size());
         assertEquals(8, crac.getNetworkAction("acEmulationDeactivation_BBE2AA11 FFR3AA11 1").getUsageRules().size());
@@ -49,7 +53,7 @@ public class HvdcUtilsTest {
         // Two HVDC range actions both using HVDC line "BBE2AA11 FFR3AA11 1" that is initially in fixed point mode
         // So no AC emulation deactivation network action is created
         Network network = Network.read("TestCase16NodesWithHvdc_fixed_setpoint.xiidm", getClass().getResourceAsStream("/network/TestCase16NodesWithHvdc_fixed_setpoint.xiidm"));
-        Crac crac = Crac.read("crac_hvdc_allinstants_allusagerules.json", getClass().getResourceAsStream("/crac/crac_hvdc_allinstants_allusagerules.json"), network);
+        Crac crac = Crac.read(getResourceAsFile("/crac/crac_hvdc_allinstants_allusagerules.json"), network);
         addNetworkActionAssociatedWithHvdcRangeAction(crac, network);
         assertEquals(0, crac.getNetworkActions().size());
     }
@@ -59,7 +63,7 @@ public class HvdcUtilsTest {
         // Two HVDC range actions both using HVDC line "BBE2AA11 FFR3AA11 1" that is initially in AC emulation mode
         // the initial set point is set to the initial flow passing on the line.
         Network network = Network.read("TestCase16NodesWithHvdc_AC_emulation.xiidm", getClass().getResourceAsStream("/network/TestCase16NodesWithHvdc_AC_emulation.xiidm"));
-        Crac crac = Crac.read("crac_hvdc_allinstants_allusagerules.json", getClass().getResourceAsStream("/crac/crac_hvdc_allinstants_allusagerules.json"), network);
+        Crac crac = Crac.read(getResourceAsFile("/crac/crac_hvdc_allinstants_allusagerules.json"), network);
         // Before
         assertEquals(0.0, crac.getHvdcRangeAction("HVDC_RA1").getInitialSetpoint());
         assertEquals(0.0, crac.getHvdcRangeAction("HVDC_RA2").getInitialSetpoint());
@@ -81,7 +85,7 @@ public class HvdcUtilsTest {
         // - see that it is negative
         // - keep converter mode to SIDE_1_INVERTER_SIDE_2_RECTIFIER + active power setpoint to abs(setpoint)
         Network network = Network.read("TestCase16NodesWithHvdc_AC_emulation_side1_inverter.xiidm", getClass().getResourceAsStream("/network/TestCase16NodesWithHvdc_AC_emulation_side1_inverter.xiidm"));
-        Crac crac = Crac.read("crac_hvdc_allinstants_allusagerules.json", getClass().getResourceAsStream("/crac/crac_hvdc_allinstants_allusagerules.json"), network);
+        Crac crac = Crac.read(getResourceAsFile("/crac/crac_hvdc_allinstants_allusagerules.json"), network);
         // Before
         assertEquals(-0.0, crac.getHvdcRangeAction("HVDC_RA1").getInitialSetpoint());
         assertEquals(-0.0, crac.getHvdcRangeAction("HVDC_RA2").getInitialSetpoint());
@@ -105,7 +109,7 @@ public class HvdcUtilsTest {
         // Plus that the returned values correspond to what was applied in network.
 
         Network network = Network.read("TestCase16NodesWithHvdc_AC_emulation.xiidm", getClass().getResourceAsStream("/network/TestCase16NodesWithHvdc_AC_emulation.xiidm"));
-        Crac crac = Crac.read("crac_hvdc_allinstants_allusagerules.json", getClass().getResourceAsStream("/crac/crac_hvdc_allinstants_allusagerules.json"), network);
+        Crac crac = Crac.read(getResourceAsFile("/crac/crac_hvdc_allinstants_allusagerules.json"), network);
         LoadFlowParameters loadFlowParameters = new LoadFlowParameters();
         OpenLoadFlowParameters openLoadFlowParameters = new OpenLoadFlowParameters();
         loadFlowParameters.addExtension(OpenLoadFlowParameters.class, openLoadFlowParameters);
@@ -146,7 +150,7 @@ public class HvdcUtilsTest {
         // same test as testRunLoadFlowAndUpdateHvdcActiveSetpointAfterContingency but with a disconnected HVDC line
         // The setpoint is not valid, the HVDC active power set point is not updated.
         Network network = Network.read("TestCase16NodesWithHvdc_disconnected.xiidm", getClass().getResourceAsStream("/network/TestCase16NodesWithHvdc_disconnected.xiidm"));
-        Crac crac = Crac.read("crac_hvdc_allinstants_allusagerules.json", getClass().getResourceAsStream("/crac/crac_hvdc_allinstants_allusagerules.json"), network);
+        Crac crac = Crac.read(getResourceAsFile("/crac/crac_hvdc_allinstants_allusagerules.json"), network);
         LoadFlowParameters loadFlowParameters = new LoadFlowParameters();
         OpenLoadFlowParameters openLoadFlowParameters = new OpenLoadFlowParameters();
         loadFlowParameters.addExtension(OpenLoadFlowParameters.class, openLoadFlowParameters);

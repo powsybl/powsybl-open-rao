@@ -7,7 +7,6 @@
 
 package com.powsybl.openrao.raoapi.json;
 
-import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -20,13 +19,14 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.commons.extensions.ExtensionProviders;
 import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.openrao.data.crac.api.io.utils.BufferSize;
+import com.powsybl.openrao.data.crac.api.io.utils.SafeFileReader;
+import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.sensitivity.json.SensitivityJsonModule;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
 
@@ -36,6 +36,9 @@ import java.util.Objects;
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 public final class JsonRaoParameters {
+
+    private final static ObjectMapper MAPPER = createObjectMapper();
+    private final static ObjectWriter WRITER = MAPPER.writerWithDefaultPrettyPrinter();
 
     /**
      * A configuration loader interface for the RaoParameters extensions loaded from the platform configuration
@@ -84,12 +87,7 @@ public final class JsonRaoParameters {
      */
     public static RaoParameters update(RaoParameters parameters, Path jsonFile) {
         Objects.requireNonNull(jsonFile);
-
-        try (InputStream is = Files.newInputStream(jsonFile)) {
-            return update(parameters, is);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        return SafeFileReader.create(jsonFile, BufferSize.MEDIUM).withReadStream(is -> update(parameters, is));
     }
 
     /**
@@ -99,8 +97,7 @@ public final class JsonRaoParameters {
      */
     public static RaoParameters update(RaoParameters parameters, InputStream jsonStream) {
         try {
-            ObjectMapper objectMapper = createObjectMapper();
-            return objectMapper.readerForUpdating(parameters).readValue(jsonStream);
+            return MAPPER.readerForUpdating(parameters).readValue(jsonStream);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -114,12 +111,7 @@ public final class JsonRaoParameters {
      */
     public static void write(RaoParameters parameters, Path jsonFile) {
         Objects.requireNonNull(jsonFile);
-
-        try (OutputStream outputStream = Files.newOutputStream(jsonFile)) {
-            write(parameters, outputStream);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        SafeFileReader.create(jsonFile, BufferSize.MEDIUM).withWriteStream(os -> write(parameters, os));
     }
 
     /**
@@ -130,9 +122,7 @@ public final class JsonRaoParameters {
      */
     public static void write(RaoParameters parameters, OutputStream outputStream) {
         try {
-            ObjectMapper objectMapper = createObjectMapper();
-            ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
-            writer.writeValue(outputStream, parameters);
+            WRITER.writeValue(outputStream, parameters);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

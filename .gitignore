@@ -1,4 +1,7 @@
-# ignore Intellij files 
+
+tests/src/test/resources/files/raoresults/*.zip
+
+# ignore Intellij files
 .idea
 *.iml
 

@@ -7,25 +7,32 @@
 
 package com.powsybl.openrao.data.crac.io.cse;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.RaUsageLimits;
 import com.powsybl.openrao.data.crac.api.RemedialAction;
-import com.powsybl.openrao.data.crac.api.usagerule.OnConstraint;
-import com.powsybl.openrao.data.crac.api.usagerule.OnFlowConstraintInCountry;
-import com.powsybl.openrao.data.crac.api.usagerule.OnInstant;
-import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.networkaction.SwitchPair;
 import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.crac.api.parameters.JsonCracCreationParameters;
 import com.powsybl.openrao.data.crac.api.range.RangeType;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
+import com.powsybl.openrao.data.crac.api.usagerule.OnConstraint;
+import com.powsybl.openrao.data.crac.api.usagerule.OnFlowConstraintInCountry;
+import com.powsybl.openrao.data.crac.api.usagerule.OnInstant;
+import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
 import com.powsybl.openrao.data.crac.io.commons.api.ElementaryCreationContext;
 import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
 import com.powsybl.openrao.data.crac.io.commons.api.stdcreationcontext.BranchCnecCreationContext;
@@ -33,21 +40,17 @@ import com.powsybl.openrao.data.crac.io.commons.api.stdcreationcontext.Injection
 import com.powsybl.openrao.data.crac.io.cse.criticalbranch.CseCriticalBranchCreationContext;
 import com.powsybl.openrao.data.crac.io.cse.parameters.CseCracCreationParameters;
 import com.powsybl.openrao.data.crac.io.cse.remedialaction.CsePstCreationContext;
-import org.junit.jupiter.api.Test;
-
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Alexandre Montigny {@literal <alexandre.montigny at rte-france.com>}
  */
-class CseCracCreatorTest {
+class CseCracCreatorTest extends TestBase {
     private static final double DOUBLE_TOLERANCE = 0.01;
     private static final String PREVENTIVE_INSTANT_ID = "preventive";
     private static final String OUTAGE_INSTANT_ID = "outage";
@@ -60,10 +63,9 @@ class CseCracCreatorTest {
     private Instant outageInstant;
     private Instant curativeInstant;
 
-    private void setUp(String cracFileName, String networkFileName) throws IOException {
-        Network network = Network.read(networkFileName, getClass().getResourceAsStream(networkFileName));
-        InputStream is = getClass().getResourceAsStream(cracFileName);
-        cracCreationContext = (CseCracCreationContext) Crac.readWithContext(cracFileName, is, network, parameters);
+    private void setUp(String cracFileName, String networkFileName) {
+        Network network = getResourceAsReader(networkFileName).withReadStream(is -> Network.read(networkFileName, is));
+        cracCreationContext = (CseCracCreationContext) Crac.readWithContext(getResourceAsFile(cracFileName), network, parameters);
         importedCrac = cracCreationContext.getCrac();
         preventiveInstant = importedCrac.getInstant(PREVENTIVE_INSTANT_ID);
         outageInstant = importedCrac.getInstant(OUTAGE_INSTANT_ID);

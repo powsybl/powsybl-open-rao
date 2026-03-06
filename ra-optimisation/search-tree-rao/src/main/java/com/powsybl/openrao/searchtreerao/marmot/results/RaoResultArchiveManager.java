@@ -16,12 +16,8 @@ import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.raoresult.api.InterTemporalRaoResult;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
-
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.UncheckedIOException;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -63,16 +59,13 @@ public final class RaoResultArchiveManager {
     }
 
     private static void addSummaryToZipArchive(ZipOutputStream zipOutputStream, InterTemporalRaoResult interTemporalRaoResult, String summaryFilename, String jsonFileNameTemplate, List<Instant> instants, boolean preventiveOnly) throws IOException {
+        ObjectMapper objectMapper = JsonUtil.createObjectMapper();
+        SimpleModule module = new JsonInterTemporalRaoResultSerializerModule(jsonFileNameTemplate, preventiveOnly ? List.of(instants.getFirst()) : instants);
+        objectMapper.registerModule(module);
+        ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
+
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        try {
-            ObjectMapper objectMapper = JsonUtil.createObjectMapper();
-            SimpleModule module = new JsonInterTemporalRaoResultSerializerModule(jsonFileNameTemplate, preventiveOnly ? List.of(instants.getFirst()) : instants);
-            objectMapper.registerModule(module);
-            ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
-            writer.writeValue(byteArrayOutputStream, interTemporalRaoResult);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        writer.writeValue(byteArrayOutputStream, interTemporalRaoResult);
         addEntryToZipArchive(summaryFilename, zipOutputStream, byteArrayOutputStream);
         byteArrayOutputStream.close();
     }
@@ -80,19 +73,12 @@ public final class RaoResultArchiveManager {
     private static void addEntryToZipArchive(String entryName, ZipOutputStream zipOutputStream, ByteArrayOutputStream byteArrayOutputStream) throws IOException {
         ZipEntry entry = new ZipEntry(entryName);
         zipOutputStream.putNextEntry(entry);
-        addOutputStreamContentToZipAndClose(zipOutputStream, byteArrayOutputStream);
-        byteArrayOutputStream.close();
+        addOutputStreamContentToZip(zipOutputStream, byteArrayOutputStream);
         zipOutputStream.closeEntry();
     }
 
-    private static void addOutputStreamContentToZipAndClose(ZipOutputStream zipOutputStream, ByteArrayOutputStream byteArrayOutputStream) throws IOException {
-        byte[] bytes = new byte[1024];
-        int length;
-        InputStream is = new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
-        while ((length = is.read(bytes)) >= 0) {
-            zipOutputStream.write(bytes, 0, length);
-        }
-        is.close();
+    private static void addOutputStreamContentToZip(ZipOutputStream zipOutputStream, ByteArrayOutputStream byteArrayOutputStream) throws IOException {
+        byteArrayOutputStream.writeTo(zipOutputStream);
     }
 
     private static String getSummaryFilename(Properties properties) {

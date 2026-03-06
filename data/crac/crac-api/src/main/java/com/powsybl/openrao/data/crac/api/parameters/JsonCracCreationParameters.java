@@ -14,15 +14,16 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.commons.extensions.ExtensionProviders;
 import com.powsybl.commons.json.JsonUtil;
-
+import com.powsybl.openrao.data.crac.api.io.utils.BufferSize;
+import com.powsybl.openrao.data.crac.api.io.utils.SafeFileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.function.Supplier;
 import java.util.Objects;
+import java.util.function.Supplier;
 
 /**
  * Provides methods to read and write CracCreatorParameters from and to JSON.
@@ -37,8 +38,15 @@ public final class JsonCracCreationParameters {
     private static final Supplier<ExtensionProviders<ExtensionSerializer>> SUPPLIER =
             Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionSerializer.class, CracCreationParameters.MODULE_NAME));
 
+    private static final ObjectMapper MAPPER = createObjectMapper();
+
     public static ExtensionProviders<ExtensionSerializer> getExtensionSerializers() {
         return SUPPLIER.get();
+    }
+
+    private static ObjectMapper createObjectMapper() {
+        return JsonUtil.createObjectMapper()
+            .registerModule(new CracCreationParametersJsonModule());
     }
 
     private JsonCracCreationParameters() {
@@ -54,18 +62,12 @@ public final class JsonCracCreationParameters {
 
     public static CracCreationParameters update(CracCreationParameters parameters, Path jsonFile) {
         Objects.requireNonNull(jsonFile);
-
-        try (InputStream is = Files.newInputStream(jsonFile)) {
-            return update(parameters, is);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        return SafeFileReader.create(jsonFile, BufferSize.SMALL).withReadStream(is -> update(parameters, is));
     }
 
     public static CracCreationParameters update(CracCreationParameters parameters, InputStream jsonStream) {
         try {
-            ObjectMapper objectMapper = createObjectMapper();
-            return objectMapper.readerForUpdating(parameters).readValue(jsonStream);
+            return MAPPER.readerForUpdating(parameters).readValue(jsonStream);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -83,16 +85,11 @@ public final class JsonCracCreationParameters {
 
     public static void write(CracCreationParameters parameters, OutputStream outputStream) {
         try {
-            ObjectMapper objectMapper = createObjectMapper();
-            ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
+            ObjectWriter writer = MAPPER.writerWithDefaultPrettyPrinter();
             writer.writeValue(outputStream, parameters);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
-    private static ObjectMapper createObjectMapper() {
-        return JsonUtil.createObjectMapper()
-                .registerModule(new CracCreationParametersJsonModule());
-    }
 }

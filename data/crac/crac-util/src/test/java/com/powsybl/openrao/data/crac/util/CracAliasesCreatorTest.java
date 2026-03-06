@@ -7,24 +7,22 @@
 
 package com.powsybl.openrao.data.crac.util;
 
-import com.powsybl.iidm.network.Network;
-import com.powsybl.openrao.data.crac.api.Crac;
-import com.powsybl.openrao.data.crac.api.CracCreationContext;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.List;
-
 import static com.powsybl.openrao.data.crac.impl.utils.NetworkImportsUtil.addHvdcLine;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
+import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.CracCreationContext;
+import java.io.IOException;
+import java.util.List;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+
 /**
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  */
-class CracAliasesCreatorTest {
+class CracAliasesCreatorTest extends TestBase {
 
     private final Network network = Network.read("case-for-aliases.uct", getClass().getResourceAsStream("/case-for-aliases.uct"));
 
@@ -33,8 +31,7 @@ class CracAliasesCreatorTest {
     void testDeprecatedCracExtensions(String fileName) throws IOException {
         // Extensions have been deprecated
         addHvdcLine(network);
-        InputStream inputStream = getClass().getResourceAsStream("/" + fileName);
-        CracCreationContext cracCreationContext = Crac.readWithContext(fileName, inputStream, network);
+        CracCreationContext cracCreationContext = Crac.readWithContext(getResourceAsFile("/" + fileName), network);
         assertFalse(cracCreationContext.isCreationSuccessful());
         assertEquals(List.of("[ERROR] Extensions are deprecated since CRAC version 1.7"), cracCreationContext.getCreationReport().getReport());
         // TODO : instead of failing import, now that we have CracCreationContext with Json CRAC, ignore extensions and log the issue

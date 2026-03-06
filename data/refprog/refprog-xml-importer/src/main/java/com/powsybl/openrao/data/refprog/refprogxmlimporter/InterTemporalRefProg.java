@@ -7,6 +7,8 @@
 
 package com.powsybl.openrao.data.refprog.refprogxmlimporter;
 
+import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
+
 import com.powsybl.glsk.commons.CountryEICode;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.TemporalData;
@@ -14,12 +16,11 @@ import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Marshaller;
 import jakarta.xml.bind.Unmarshaller;
-
-import java.io.*;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
-import java.util.*;
-
-import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
+import java.util.Map;
 
 /**
  * InterTemporal Ref Prog file contains exchange values for 24 timestamps.
@@ -31,7 +32,17 @@ import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WA
  */
 public final class InterTemporalRefProg {
 
+    private final static JAXBContext JAXB_CONTEXT;
+
     private InterTemporalRefProg() {
+    }
+
+    static {
+        try {
+            JAXB_CONTEXT = JAXBContext.newInstance(PublicationDocument.class);
+        } catch (JAXBException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static void updateRefProg(InputStream inputStream, TemporalData<Map<String, Double>> netRedispatchingPerCountryTemporalData, Map<String, Map<String, Map<String, Double>>> becValues, String outputPath) {
@@ -69,8 +80,7 @@ public final class InterTemporalRefProg {
 
     private static PublicationDocument importXmlDocument(InputStream inputStream) {
         try {
-            JAXBContext jaxbContext = JAXBContext.newInstance(PublicationDocument.class);
-            Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+            Unmarshaller jaxbUnmarshaller = JAXB_CONTEXT.createUnmarshaller();
             return (PublicationDocument) jaxbUnmarshaller.unmarshal(inputStream);
         } catch (JAXBException e) {
             throw new OpenRaoException(e);
@@ -79,11 +89,12 @@ public final class InterTemporalRefProg {
 
     private static void exportXmlDocument(PublicationDocument publicationDocument, String outputPath) {
         try {
-            JAXBContext jaxbContext = JAXBContext.newInstance(PublicationDocument.class);
-            Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
+            Marshaller jaxbMarshaller = JAXB_CONTEXT.createMarshaller();
             jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-            jaxbMarshaller.marshal(publicationDocument, new FileOutputStream(outputPath));
-        } catch (FileNotFoundException e) {
+            try (var os = new FileOutputStream(outputPath)) {
+                jaxbMarshaller.marshal(publicationDocument, os);
+            }
+        } catch (IOException e) {
             throw new OpenRaoException(e);
         } catch (JAXBException e) {
             throw new RuntimeException(e);

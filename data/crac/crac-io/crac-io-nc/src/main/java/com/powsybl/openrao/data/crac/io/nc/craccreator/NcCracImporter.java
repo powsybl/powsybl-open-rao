@@ -10,23 +10,21 @@ package com.powsybl.openrao.data.crac.io.nc.craccreator;
 import com.google.auto.service.AutoService;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
+import com.powsybl.openrao.data.crac.api.CracCreationContext;
+import com.powsybl.openrao.data.crac.api.io.Importer;
+import com.powsybl.openrao.data.crac.api.io.utils.BufferSize;
+import com.powsybl.openrao.data.crac.api.io.utils.SafeFileReader;
+import com.powsybl.openrao.data.crac.api.io.utils.TmpFile;
+import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.crac.io.nc.NcCrac;
 import com.powsybl.openrao.data.crac.io.nc.craccreator.constants.NcConstants;
 import com.powsybl.openrao.data.crac.io.nc.craccreator.constants.NcKeyword;
-import com.powsybl.openrao.data.crac.api.CracCreationContext;
-import com.powsybl.openrao.data.crac.api.io.Importer;
-import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
 import com.powsybl.triplestore.api.TripleStore;
 import com.powsybl.triplestore.api.TripleStoreFactory;
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang3.SystemUtils;
-
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.attribute.FileAttribute;
-import java.nio.file.attribute.PosixFilePermission;
-import java.nio.file.attribute.PosixFilePermissions;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -76,27 +74,16 @@ public class NcCracImporter implements Importer {
 
     private static void importZipEntry(ZipEntry zipEntry, ZipInputStream zipInputStream, int maxSizeEntry, Pattern keywordPattern, Map<String, Set<String>> keywordMap, TripleStore tripleStoreNcProfile) throws IOException {
         OpenRaoLoggerProvider.BUSINESS_LOGS.info("NC crac import : import of file {}", zipEntry.getName());
-        int currentSizeEntry = 0;
-        File tempFile;
-        boolean tempFileOk;
 
-        if (SystemUtils.IS_OS_UNIX) {
-            FileAttribute<Set<PosixFilePermission>> attr = PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwx------"));
-            tempFile = Files.createTempFile("openRaoNc", ".tmp", attr).toFile(); // Compliant
-            tempFileOk = true;
-        } else {
-            tempFile = Files.createTempFile("prefix", "suffix").toFile();  //NOSONAR
-            //sonar wants us to set readable and writable right after creating file
-            //but it counts it as a bug if you don't use the return variable
-            //and doesn't see the calls if you use the return variable...
-            tempFileOk = tempFile.setReadable(true, true) &&
-                tempFile.setWritable(true, true) &&
-                tempFile.setExecutable(true, true);
-        }
-        if (tempFileOk) {
-            boolean isKeywordInFile = false;
-            InputStream in = new BufferedInputStream(zipInputStream);
-            try (OutputStream out = new BufferedOutputStream(new FileOutputStream(tempFile))) {
+        try (var tempFile = TmpFile.create("importZipEntry", BufferSize.SMALL)) {
+
+            tempFile.withWriteStream(out -> {
+
+                boolean isKeywordInFile = false;
+
+                // we cant close in, because we need to keep zipInputStream open
+                InputStream in = new BufferedInputStream(zipInputStream);
+                int currentSizeEntry = 0;
                 int nBytes = -1;
                 byte[] buffer = new byte[2048];
 
@@ -107,40 +94,45 @@ public class NcCracImporter implements Importer {
                     Matcher matcher = keywordPattern.matcher(stringBuffer);
                     if (matcher.find()) {
                         String keyword = matcher.group(1);
-                        Set<String> newFilesSet = NcCracUtils.addFileToSet(keywordMap, "contexts:" + zipEntry.getName(), keyword);
+                        Set<String> newFilesSet = NcCracUtils.addFileToSet(keywordMap,
+                            "contexts:" + zipEntry.getName(), keyword);
                         keywordMap.put(keyword, newFilesSet);
                         isKeywordInFile = true;
                     }
                 }
-            }
-            if (!isKeywordInFile) {
-                String keyword = NcKeyword.CGMES.toString();
-                Set<String> newFilesSet = NcCracUtils.addFileToSet(keywordMap, "contexts:" + zipEntry.getName(), keyword);
-                keywordMap.put(keyword, newFilesSet);
-            }
-            FileInputStream fileInputStream = new FileInputStream(tempFile);
-            tripleStoreNcProfile.read(fileInputStream, NcConstants.RDF_BASE_URL, zipEntry.getName());
-        }
-        try {
-            Files.delete(tempFile.toPath());
-        } catch (IOException ioException) {
-            OpenRaoLoggerProvider.TECHNICAL_LOGS.warn("temporary file for NC crac import can't be deleted");
-            tempFile.deleteOnExit();
+
+                if (!isKeywordInFile) {
+                    String keyword = NcKeyword.CGMES.toString();
+                    Set<String> newFilesSet = NcCracUtils.addFileToSet(keywordMap,
+                        "contexts:" + zipEntry.getName(), keyword);
+                    keywordMap.put(keyword, newFilesSet);
+                }
+
+            });
+
+            tempFile.withReadStream(is -> {
+                tripleStoreNcProfile.read(is, NcConstants.RDF_BASE_URL, zipEntry.getName());
+                return null;
+            });
         }
     }
 
     @Override
-    public boolean exists(String filename, InputStream inputStream) {
-        if (!FilenameUtils.getExtension(filename).equals(NcConstants.EXTENSION_FILE_NC_PROFILE)) {
+    public boolean exists(SafeFileReader inputFile) {
+        if (!inputFile.hasFileExtension(NcConstants.EXTENSION_FILE_NC_PROFILE)) {
             return false;
         }
         TripleStore tripleStoreNcProfile = TripleStoreFactory.create(NcConstants.TRIPLESTORE_RDF4J_NAME);
-        tripleStoreNcProfile.read(inputStream, NcConstants.RDF_BASE_URL, "");
+        inputFile.withReadStream(is -> {
+            tripleStoreNcProfile.read(is, NcConstants.RDF_BASE_URL, "");
+            return null;
+        });
         return true;
     }
 
     @Override
-    public CracCreationContext importData(InputStream inputStream, CracCreationParameters cracCreationParameters, Network network) {
-        return new NcCracCreator().createCrac(importNativeCrac(inputStream), network, cracCreationParameters);
+    public CracCreationContext importData(SafeFileReader inputFile, CracCreationParameters cracCreationParameters, Network network) {
+        var crac = inputFile.withReadStream(this::importNativeCrac);
+        return new NcCracCreator().createCrac(crac, network, cracCreationParameters);
     }
 }

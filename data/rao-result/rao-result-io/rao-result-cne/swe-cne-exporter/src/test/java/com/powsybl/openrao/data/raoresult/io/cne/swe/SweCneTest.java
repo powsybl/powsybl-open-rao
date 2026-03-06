@@ -7,6 +7,9 @@
 
 package com.powsybl.openrao.data.raoresult.io.cne.swe;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
@@ -22,6 +25,17 @@ import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.monitoring.results.CnecResult;
 import com.powsybl.openrao.monitoring.results.MonitoringResult;
 import com.powsybl.openrao.monitoring.results.RaoResultWithAngleMonitoring;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,20 +46,10 @@ import org.xmlunit.diff.DefaultComparisonFormatter;
 import org.xmlunit.diff.Diff;
 import org.xmlunit.diff.Difference;
 
-import java.io.*;
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
-class SweCneTest {
+class SweCneTest extends TestBase {
     private Crac crac;
     private CracCreationContext cracCreationContext;
     private Network network;
@@ -56,7 +60,7 @@ class SweCneTest {
     @BeforeEach
     public void setUp() throws IOException {
         network = Network.read(new File(SweCneTest.class.getResource("/TestCase16NodesWith2Hvdc.xiidm").getFile()).toString());
-        InputStream is = getClass().getResourceAsStream("/CIM_CRAC.xml");
+        var is = getResourceAsFile("/CIM_CRAC.xml");
 
         Set<RangeActionSpeed> rangeActionSpeeds = Set.of(new RangeActionSpeed("BBE2AA11 FFR3AA11 1", 1), new RangeActionSpeed("BBE2AA12 FFR3AA12 1", 2), new RangeActionSpeed("PRA_1", 3));
         CimCracCreationParameters cimCracCreationParameters = new CimCracCreationParameters();
@@ -65,22 +69,12 @@ class SweCneTest {
         cracCreationParameters.setCracFactoryName("CracImplFactory");
         cracCreationParameters.addExtension(CimCracCreationParameters.class, cimCracCreationParameters);
         cracCreationParameters.getExtension(CimCracCreationParameters.class).setTimestamp(OffsetDateTime.of(2021, 4, 2, 12, 30, 0, 0, ZoneOffset.UTC));
-        cracCreationContext = Crac.readWithContext("CIM_CRAC.xml", is, network, cracCreationParameters);
+        cracCreationContext = Crac.readWithContext(is, network, cracCreationParameters);
         crac = cracCreationContext.getCrac();
-        InputStream inputStream = null;
-        try {
-            inputStream = new FileInputStream(SweCneTest.class.getResource("/RaoResult.json").getFile());
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
+        var inputStream = getResourceAsFile("/RaoResult.json");
         RaoResult raoResult = RaoResult.read(inputStream, crac);
 
-        InputStream inputStream3 = null;
-        try {
-            inputStream3 = new FileInputStream(SweCneTest.class.getResource("/RaoResultWithFailure.json").getFile());
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
+        var inputStream3 = getResourceAsFile("/RaoResultWithFailure.json");
         RaoResult raoResultWithFailure = RaoResult.read(inputStream3, crac);
 
         MonitoringResult monitoringResult = new MonitoringResult(PhysicalParameter.ANGLE,

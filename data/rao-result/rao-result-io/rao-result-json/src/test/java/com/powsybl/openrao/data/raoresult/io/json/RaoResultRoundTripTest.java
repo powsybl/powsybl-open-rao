@@ -7,6 +7,17 @@
 
 package com.powsybl.openrao.data.raoresult.io.json;
 
+import static com.powsybl.iidm.network.TwoSides.ONE;
+import static com.powsybl.iidm.network.TwoSides.TWO;
+import static com.powsybl.openrao.commons.Unit.AMPERE;
+import static com.powsybl.openrao.commons.Unit.DEGREE;
+import static com.powsybl.openrao.commons.Unit.KILOVOLT;
+import static com.powsybl.openrao.commons.Unit.MEGAWATT;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import com.powsybl.contingency.ContingencyElementType;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
@@ -19,6 +30,9 @@ import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
+import com.powsybl.openrao.data.crac.api.io.utils.BufferSize;
+import com.powsybl.openrao.data.crac.api.io.utils.SafeFileReader;
+import com.powsybl.openrao.data.crac.api.io.utils.TmpFile;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.HvdcRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
@@ -28,25 +42,18 @@ import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.impl.RaoResultImpl;
 import com.powsybl.openrao.data.raoresult.impl.utils.ExhaustiveRaoResultCreation;
-import org.junit.jupiter.api.Test;
-
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-
-import static com.powsybl.iidm.network.TwoSides.ONE;
-import static com.powsybl.iidm.network.TwoSides.TWO;
-import static com.powsybl.openrao.commons.Unit.*;
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-class RaoResultRoundTripTest {
+class RaoResultRoundTripTest extends TestBase {
 
     private static final double DOUBLE_TOLERANCE = 1e-6;
     private static final String PREVENTIVE_INSTANT_ID = "preventive";
@@ -55,25 +62,21 @@ class RaoResultRoundTripTest {
     private static final String CURATIVE_INSTANT_ID = "curative";
 
     @Test
-    void explicitJsonRoundTripTest() {
+    void explicitJsonRoundTripTest() throws IOException {
         // get exhaustive CRAC and RaoResult
         Crac crac = ExhaustiveCracCreation.create();
         RaoResult raoResult = ExhaustiveRaoResultCreation.create(crac);
 
-        // export RaoResult
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        Properties properties = new Properties();
-        properties.setProperty("rao-result.export.json.flows-in-amperes", "true");
-        properties.setProperty("rao-result.export.json.flows-in-megawatts", "true");
-        new RaoResultJsonExporter().exportData(raoResult, crac, properties, outputStream);
-
-        ByteArrayOutputStream outputStream2 = new ByteArrayOutputStream();
-        crac.write("JSON", outputStream2);
-
-        // import RaoResult
-        ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
-        RaoResult importedRaoResult = new RaoResultJsonImporter().importData(inputStream, crac);
-        checkContent(importedRaoResult, crac);
+        try (var tmp = TmpFile.create("explicitJsonRoundTripTest.json", BufferSize.SMALL)) {
+            // export RaoResult
+            Properties properties = new Properties();
+            properties.setProperty("rao-result.export.json.flows-in-amperes", "true");
+            properties.setProperty("rao-result.export.json.flows-in-megawatts", "true");
+            tmp.withWriteStream(os -> new RaoResultJsonExporter().exportData(raoResult, crac, properties, os));
+            // import RaoResult
+            RaoResult importedRaoResult = new RaoResultJsonImporter().importData(SafeFileReader.create(tmp.getTempFile(), BufferSize.SMALL), crac);
+            checkContent(importedRaoResult, crac);
+        }
     }
 
     @Test
@@ -82,20 +85,16 @@ class RaoResultRoundTripTest {
         Crac crac = ExhaustiveCracCreation.create();
         RaoResult raoResult = ExhaustiveRaoResultCreation.create(crac);
 
-        // export RaoResult
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        Properties properties = new Properties();
-        properties.setProperty("rao-result.export.json.flows-in-amperes", "true");
-        properties.setProperty("rao-result.export.json.flows-in-megawatts", "true");
-        raoResult.write("JSON", crac, properties, outputStream);
-
-        ByteArrayOutputStream outputStream2 = new ByteArrayOutputStream();
-        crac.write("JSON", outputStream2);
-
-        // import RaoResult
-        ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
-        RaoResult importedRaoResult = RaoResult.read(inputStream, crac);
-        checkContent(importedRaoResult, crac);
+        try (var tmp = TmpFile.create("implicitJsonRoundTripTest.json", BufferSize.SMALL)) {
+            // export RaoResult
+            Properties properties = new Properties();
+            properties.setProperty("rao-result.export.json.flows-in-amperes", "true");
+            properties.setProperty("rao-result.export.json.flows-in-megawatts", "true");
+            tmp.withWriteStream(os -> raoResult.write("JSON", crac, properties, os));
+            // import RaoResult
+            RaoResult importedRaoResult = RaoResult.read(tmp.getTempFile().toFile(), crac);
+            checkContent(importedRaoResult, crac);
+        }
     }
 
     private void checkContent(RaoResult raoResult, Crac crac) {
@@ -425,22 +424,20 @@ class RaoResultRoundTripTest {
     }
 
     @Test
-    void testExplicitRoundTripRangeActionsCrossResults() {
+    void testExplicitRoundTripRangeActionsCrossResults() throws IOException {
         Crac crac = initCrac();
         RaoResult raoResult = initRaoResult(crac);
+        try (var tmp = TmpFile.create("testExplicitRoundTripRangeActionsCrossResults.json", BufferSize.SMALL)) {
+            // export RaoResult
+            Properties properties = new Properties();
+            properties.setProperty("rao-result.export.json.flows-in-amperes", "true");
+            properties.setProperty("rao-result.export.json.flows-in-megawatts", "true");
+            tmp.withWriteStream(os -> new RaoResultJsonExporter().exportData(raoResult, crac, properties, os));
+            // import RaoResult
+            RaoResult importedRaoResult = new RaoResultJsonImporter().importData(SafeFileReader.create(tmp.getTempFile(), BufferSize.SMALL), crac);
 
-        // export RaoResult
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        Properties properties = new Properties();
-        properties.setProperty("rao-result.export.json.flows-in-amperes", "true");
-        properties.setProperty("rao-result.export.json.flows-in-megawatts", "true");
-        new RaoResultJsonExporter().exportData(raoResult, crac, properties, outputStream);
-
-        // import RaoResult
-        ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
-        RaoResult importedRaoResult = new RaoResultJsonImporter().importData(inputStream, crac);
-
-        checkContentRangeActionCrossResult(importedRaoResult, crac);
+            checkContentRangeActionCrossResult(importedRaoResult, crac);
+        }
     }
 
     @Test
@@ -448,18 +445,17 @@ class RaoResultRoundTripTest {
         Crac crac = initCrac();
         RaoResult raoResult = initRaoResult(crac);
 
-        // export RaoResult
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        Properties properties = new Properties();
-        properties.setProperty("rao-result.export.json.flows-in-amperes", "true");
-        properties.setProperty("rao-result.export.json.flows-in-megawatts", "true");
-        raoResult.write("JSON", crac, properties, outputStream);
+        try (var tmp = TmpFile.create("testImplicitRoundTripRangeActionsCrossResults.json", BufferSize.SMALL)) {
+            // export RaoResult
+            Properties properties = new Properties();
+            properties.setProperty("rao-result.export.json.flows-in-amperes", "true");
+            properties.setProperty("rao-result.export.json.flows-in-megawatts", "true");
+            tmp.withWriteStream(os -> raoResult.write("JSON", crac, properties, os));
+            // import RaoResult
+            RaoResult importedRaoResult = RaoResult.read(tmp.getTempFile().toFile(), crac);
 
-        // import RaoResult
-        ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
-        RaoResult importedRaoResult = RaoResult.read(inputStream, crac);
-
-        checkContentRangeActionCrossResult(importedRaoResult, crac);
+            checkContentRangeActionCrossResult(importedRaoResult, crac);
+        }
     }
 
     private Crac initCrac() {
@@ -617,27 +613,27 @@ class RaoResultRoundTripTest {
         // get exhaustive CRAC and RaoResult
         Crac crac = ExhaustiveCracCreation.create();
         RaoResult raoResult = ExhaustiveRaoResultCreation.create(crac);
-
-        // RoundTrip with Ampere only
-        ByteArrayOutputStream outputStreamAmpere = new ByteArrayOutputStream();
-        Properties propertiesAmperes = new Properties();
-        propertiesAmperes.setProperty("rao-result.export.json.flows-in-amperes", "true");
-        new RaoResultJsonExporter().exportData(raoResult, crac, propertiesAmperes, outputStreamAmpere);
-        ByteArrayInputStream inputStreamAmpere = new ByteArrayInputStream(outputStreamAmpere.toByteArray());
-        RaoResult importedRaoResultAmpere = new RaoResultJsonImporter().importData(inputStreamAmpere, crac);
-
         FlowCnec cnecP = crac.getFlowCnec("cnec4prevId");
-        checkContentAmpere(importedRaoResultAmpere, cnecP);
 
-        // RoundTrip with MW only
-        ByteArrayOutputStream outputStreamMegawatt = new ByteArrayOutputStream();
-        Properties propertiesMegawatts = new Properties();
-        propertiesMegawatts.setProperty("rao-result.export.json.flows-in-megawatts", "true");
-        raoResult.write("JSON", crac, propertiesMegawatts, outputStreamMegawatt);
-        ByteArrayInputStream inputStreamMegawatt = new ByteArrayInputStream(outputStreamMegawatt.toByteArray());
-        RaoResult importedRaoResultMegawatt = RaoResult.read(inputStreamMegawatt, crac);
+        try (var tmp = TmpFile.create("testExplicitRoundTripWithUnits1.json", BufferSize.SMALL)) {
+            // RoundTrip with Ampere only
+            Properties propertiesAmperes = new Properties();
+            propertiesAmperes.setProperty("rao-result.export.json.flows-in-amperes", "true");
+            tmp.withWriteStream(os -> new RaoResultJsonExporter().exportData(raoResult, crac, propertiesAmperes, os));
+            RaoResult importedRaoResultAmpere = new RaoResultJsonImporter().importData(
+                SafeFileReader.create(tmp.getTempFile(), BufferSize.SMALL), crac);
+            checkContentAmpere(importedRaoResultAmpere, cnecP);
+        }
 
-        checkContentMegawatt(importedRaoResultMegawatt, cnecP);
+        try (var tmp = TmpFile.create("testExplicitRoundTripWithUnits2.json", BufferSize.SMALL)) {
+            // RoundTrip with MW only
+            Properties propertiesMegawatts = new Properties();
+            propertiesMegawatts.setProperty("rao-result.export.json.flows-in-megawatts",
+                "true");
+            tmp.withWriteStream(os -> raoResult.write("JSON", crac, propertiesMegawatts, os));
+            RaoResult importedRaoResultMegawatt = RaoResult.read(tmp.getTempFile().toFile(), crac);
+            checkContentMegawatt(importedRaoResultMegawatt, cnecP);
+        }
     }
 
     @Test
@@ -645,27 +641,27 @@ class RaoResultRoundTripTest {
         // get exhaustive CRAC and RaoResult
         Crac crac = ExhaustiveCracCreation.create();
         RaoResult raoResult = ExhaustiveRaoResultCreation.create(crac);
-
-        // RoundTrip with Ampere only
-        ByteArrayOutputStream outputStreamAmpere = new ByteArrayOutputStream();
-        Properties propertiesAmperes = new Properties();
-        propertiesAmperes.setProperty("rao-result.export.json.flows-in-amperes", "true");
-        raoResult.write("JSON", crac, propertiesAmperes, outputStreamAmpere);
-        ByteArrayInputStream inputStreamAmpere = new ByteArrayInputStream(outputStreamAmpere.toByteArray());
-        RaoResult importedRaoResultAmpere = RaoResult.read(inputStreamAmpere, crac);
-
         FlowCnec cnecP = crac.getFlowCnec("cnec4prevId");
-        checkContentAmpere(importedRaoResultAmpere, cnecP);
 
-        // RoundTrip with MW only
-        ByteArrayOutputStream outputStreamMegawatt = new ByteArrayOutputStream();
-        Properties propertiesMegawatts = new Properties();
-        propertiesMegawatts.setProperty("rao-result.export.json.flows-in-megawatts", "true");
-        raoResult.write("JSON", crac, propertiesMegawatts, outputStreamMegawatt);
-        ByteArrayInputStream inputStreamMegawatt = new ByteArrayInputStream(outputStreamMegawatt.toByteArray());
-        RaoResult importedRaoResultMegawatt = RaoResult.read(inputStreamMegawatt, crac);
+        try (var tmp = TmpFile.create("testImplicitRoundTripWithUnits1.json", BufferSize.SMALL)) {
+            // RoundTrip with Ampere only
+            Properties propertiesAmperes = new Properties();
+            propertiesAmperes.setProperty("rao-result.export.json.flows-in-amperes", "true");
+            tmp.withWriteStream(os -> raoResult.write("JSON", crac, propertiesAmperes, os));
+            RaoResult importedRaoResultAmpere = RaoResult.read(tmp.getTempFile().toFile(), crac);
+            checkContentAmpere(importedRaoResultAmpere, cnecP);
+        }
 
-        checkContentMegawatt(importedRaoResultMegawatt, cnecP);
+        try (var tmp = TmpFile.create("testImplicitRoundTripWithUnits1.json", BufferSize.SMALL)) {
+            // RoundTrip with MW only
+            Properties propertiesMegawatts = new Properties();
+            propertiesMegawatts.setProperty("rao-result.export.json.flows-in-megawatts",
+                "true");
+            tmp.withWriteStream(os -> raoResult.write("JSON", crac, propertiesMegawatts, os));
+            RaoResult importedRaoResultMegawatt = RaoResult.read(tmp.getTempFile().toFile(), crac);
+            checkContentMegawatt(importedRaoResultMegawatt, cnecP);
+        }
+
     }
 
     private void checkContentAmpere(RaoResult raoResult, FlowCnec cnecP) {

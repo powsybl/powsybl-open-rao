@@ -7,32 +7,26 @@
 
 package com.powsybl.openrao.data.crac.io.json;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import static com.powsybl.commons.json.JsonUtil.createObjectMapper;
+import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
+
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.google.auto.service.AutoService;
-import com.networknt.schema.JsonSchema;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.CracCreationContext;
 import com.powsybl.openrao.data.crac.api.io.Importer;
+import com.powsybl.openrao.data.crac.api.io.utils.SafeFileReader;
 import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.crac.io.json.deserializers.CracDeserializer;
-
-import java.io.ByteArrayInputStream;
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UncheckedIOException;
+import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import static com.powsybl.commons.json.JsonUtil.createObjectMapper;
-import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
-import static com.powsybl.openrao.data.crac.io.json.JsonSchemaProvider.getSchema;
-import static com.powsybl.openrao.data.crac.io.json.JsonSchemaProvider.getValidationErrors;
-import static com.powsybl.openrao.data.crac.io.json.JsonSchemaProvider.isCracFile;
 
 /**
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
@@ -40,29 +34,36 @@ import static com.powsybl.openrao.data.crac.io.json.JsonSchemaProvider.isCracFil
  */
 @AutoService(Importer.class)
 public class JsonImport implements Importer {
+
+    private final static Pattern JSON_VERSION_PATTERN = Pattern.compile("\"version\"\\s?:\\s?\"([1-9]\\d*)\\.(\\d+)\"");
+
     @Override
     public String getFormat() {
         return "JSON";
     }
 
     @Override
-    public boolean exists(String filename, InputStream inputStream) {
-        if (!filename.endsWith(".json")) {
+    public boolean exists(SafeFileReader inputFile) {
+        if (!inputFile.hasFileExtension("json")) {
             return false;
         }
         try {
-            ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(inputStream.readAllBytes());
-            if (isCracFile(byteArrayInputStream)) {
-                byteArrayInputStream.reset();
-                Version cracVersion = readVersion(byteArrayInputStream);
-                JsonSchema jsonSchema = getSchema(cracVersion);
-                List<String> validationError = getValidationErrors(jsonSchema, byteArrayInputStream);
-                if (validationError.isEmpty()) {
-                    return true;
-                }
+
+            // // TODO THOMAS: necessary? disable for large files?
+            if (!inputFile.withReadStream(JsonSchemaProvider::isCracFile)) {
+                return false;
+            }
+
+            var cracVersion  = inputFile.withReadStream(this::readVersion);
+            var jsonSchema = JsonSchemaProvider.getSchema(cracVersion);
+
+            var validationError = inputFile.withReadStream(is -> JsonSchemaProvider.getValidationErrors(jsonSchema, is));
+            if (!validationError.isEmpty()) {
                 throw new OpenRaoException("JSON file is not a valid CRAC v%s.%s. Reasons: %s".formatted(cracVersion.majorVersion(), cracVersion.minorVersion(), String.join("; ", validationError)));
             }
-            return false;
+
+            return true;
+
         } catch (IOException e) {
             TECHNICAL_LOGS.debug("JSON file could not be processed as CRAC. Reason: {}", e.getMessage());
             return false;
@@ -70,33 +71,53 @@ public class JsonImport implements Importer {
     }
 
     @Override
-    public CracCreationContext importData(InputStream inputStream, CracCreationParameters cracCreationParameters, Network network) {
+    public CracCreationContext importData(SafeFileReader inputFile,
+        CracCreationParameters cracCreationParameters, Network network) {
         if (network == null) {
             throw new OpenRaoException("Network object is null but it is needed to map contingency's elements");
         }
-        try {
-            ObjectMapper objectMapper = createObjectMapper();
-            SimpleModule module = new SimpleModule();
-            module.addDeserializer(Crac.class, new CracDeserializer(cracCreationParameters.getCracFactory(), network));
-            objectMapper.registerModule(module);
-            Crac crac = objectMapper.readValue(inputStream, Crac.class);
-            CracCreationContext cracCreationContext = new JsonCracCreationContext(true, crac, network.getNameOrId());
-            return cracCreationContext;
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        } catch (OpenRaoException e) {
-            CracCreationContext cracCreationContext = new JsonCracCreationContext(false, null, network.getNameOrId());
-            cracCreationContext.getCreationReport().error(e.getMessage());
-            return cracCreationContext;
-        }
+
+        var objectMapper = createObjectMapper();
+        SimpleModule module = new SimpleModule();
+        //TODO Lui why cracCreationParameters ?
+        module.addDeserializer(Crac.class, new CracDeserializer(cracCreationParameters.getCracFactory(), network));
+        objectMapper.registerModule(module);
+
+        return inputFile.withReadStream(is -> {
+            try {
+                Crac crac = objectMapper.readValue(is, Crac.class);
+                return new JsonCracCreationContext(true, crac, network.getNameOrId());
+            } catch (OpenRaoException e) {
+                CracCreationContext cracCreationContext = new JsonCracCreationContext(false, null, network.getNameOrId());
+                cracCreationContext.getCreationReport().error(e.getMessage());
+                return cracCreationContext;
+            }
+        });
+
     }
 
-    private static Version readVersion(ByteArrayInputStream cracByteArrayInputStream) {
-        String cracContent = new String(cracByteArrayInputStream.readAllBytes(), StandardCharsets.UTF_8);
-        cracByteArrayInputStream.reset();
-        Pattern versionPattern = Pattern.compile("\"version\"\\s?:\\s?\"([1-9]\\d*)\\.(\\d+)\"");
-        Matcher versionMatcher = versionPattern.matcher(cracContent);
-        versionMatcher.find();
-        return new Version(Integer.parseInt(versionMatcher.group(1)), Integer.parseInt(versionMatcher.group(2)));
+    private Version readVersion(InputStream is) {
+        final int maxLines = 10;
+
+        try (var isr = new InputStreamReader(is, StandardCharsets.UTF_8); var br = new BufferedReader(isr)) {
+            String line;
+            int linesRead = 0;
+            while ((line = br.readLine()) != null && linesRead < maxLines) {
+                linesRead++;
+                Matcher matcher = JSON_VERSION_PATTERN.matcher(line);
+                if (matcher.find()) {
+                    return new Version(
+                        Integer.parseInt(matcher.group(1)),
+                        Integer.parseInt(matcher.group(2))
+                    );
+                }
+            }
+        } catch (Exception e) {
+            throw new OpenRaoException("Error reading version", e);
+        }
+
+        throw new OpenRaoException("Unable to get version");
     }
+
+
 }

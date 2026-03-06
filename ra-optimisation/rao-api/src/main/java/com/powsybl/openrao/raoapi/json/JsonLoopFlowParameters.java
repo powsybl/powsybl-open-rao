@@ -7,6 +7,10 @@
 
 package com.powsybl.openrao.raoapi.json;
 
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.ACCEPTABLE_INCREASE;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.COUNTRIES;
+import static com.powsybl.openrao.raoapi.RaoParametersCommons.LOOP_FLOW_PARAMETERS;
+
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -15,18 +19,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.raoapi.parameters.LoopFlowParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static com.powsybl.openrao.raoapi.RaoParametersCommons.*;
-
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 public final class JsonLoopFlowParameters {
+
+    private final static ObjectMapper MAPPER = new ObjectMapper();
 
     private JsonLoopFlowParameters() {
     }
@@ -60,9 +63,8 @@ public final class JsonLoopFlowParameters {
                 }
                 case COUNTRIES -> {
                     jsonParser.nextToken();
-                    ObjectMapper objectMapper = new ObjectMapper();
-                    JsonNode arrayNode = objectMapper.readTree(jsonParser);
-                    List<String> countryStrings = objectMapper.readValue(arrayNode.traverse(), new TypeReference<ArrayList<String>>() { });
+                    JsonNode arrayNode = MAPPER.readTree(jsonParser);
+                    List<String> countryStrings = MAPPER.readValue(arrayNode.traverse(), new TypeReference<ArrayList<String>>() { });
                     loopFlowParameters.setCountries(countryStrings);
                 }
                 default -> throw new OpenRaoException(String.format("Cannot deserialize loop flow parameters: unexpected field in %s (%s)", LOOP_FLOW_PARAMETERS, jsonParser.getCurrentName()));

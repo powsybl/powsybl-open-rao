@@ -15,11 +15,12 @@ import com.networknt.schema.SchemaValidatorsConfig;
 import com.networknt.schema.SpecVersion;
 import com.networknt.schema.ValidationMessage;
 import com.powsybl.openrao.commons.OpenRaoException;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Locale;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -34,21 +35,34 @@ public final class JsonSchemaProvider {
     private static final JsonSchemaFactory SCHEMA_FACTORY = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V202012);
     private static final SchemaValidatorsConfig CONFIG = SchemaValidatorsConfig.builder().locale(Locale.UK).build();
     private static final ObjectMapper MAPPER = new ObjectMapper().configure(JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS.mappedFeature(), true);
+    private static final Logger LOGGER = LoggerFactory.getLogger(JsonSchemaProvider.class);
 
     public static List<String> getValidationErrors(JsonSchema schema, InputStream cracInputStream) throws IOException {
-        return schema.validate(MAPPER.readTree(cracInputStream)).stream().map(ValidationMessage::getMessage).toList();
+        var readStart = System.currentTimeMillis();
+        var json = MAPPER.readTree(cracInputStream);
+        LOGGER.debug("Read tree done. Time={}", System.currentTimeMillis() - readStart);
+
+        var validateStart = System.currentTimeMillis();
+        var res = schema.validate(json);
+        LOGGER.debug("Validation done. Time={}", System.currentTimeMillis() - validateStart);
+
+        return res.stream().map(ValidationMessage::getMessage).toList();
     }
 
     public static boolean isCracFile(InputStream cracInputStream) throws IOException {
-        return getValidationErrors(getSchema(getSchemaAsStream(MINIMUM_VIABLE_CRAC_SCHEMA)), cracInputStream).isEmpty();
+        var schema = getSchema(getSchemaAsStream(MINIMUM_VIABLE_CRAC_SCHEMA));
+        return getValidationErrors(schema, cracInputStream).isEmpty();
     }
 
-    public static JsonSchema getSchema(Version version) {
-        InputStream schemaInputStream = getSchemaAsStream(SCHEMAS_NAME_PATTERN.formatted(version.majorVersion(), version.minorVersion()));
-        if (schemaInputStream == null) {
-            throw new OpenRaoException("v%s.%s is not a valid JSON CRAC version.".formatted(version.majorVersion(), version.minorVersion()));
+    public static JsonSchema getSchema(Version version) throws IOException {
+        try (var schemaInputStream = getSchemaAsStream(SCHEMAS_NAME_PATTERN.formatted(version.majorVersion(), version.minorVersion()))) {
+            if (schemaInputStream == null) {
+                throw new OpenRaoException(
+                    "v%s.%s is not a valid JSON CRAC version.".formatted(version.majorVersion(),
+                        version.minorVersion()));
+            }
+            return getSchema(schemaInputStream);
         }
-        return getSchema(schemaInputStream);
     }
 
     private static InputStream getSchemaAsStream(String schemaName) {

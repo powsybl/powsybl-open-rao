@@ -7,21 +7,21 @@
 
 package com.powsybl.openrao.data.crac.loopflowextension;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.InstantKind;
-import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.openrao.data.crac.api.io.utils.BufferSize;
+import com.powsybl.openrao.data.crac.api.io.utils.TmpFile;
 import com.powsybl.openrao.data.crac.impl.CracImplFactory;
 import com.powsybl.openrao.data.crac.impl.utils.NetworkImportsUtil;
-import org.junit.jupiter.api.Test;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.UncheckedIOException;
-
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
@@ -30,7 +30,7 @@ class JsonLoopFlowThresholdImplImportExportTest {
     private static final String PREVENTIVE_INSTANT_ID = "preventive";
 
     @Test
-    void roundTripTest() {
+    void roundTripTest() throws IOException {
         Crac crac = new CracImplFactory().create("test-crac")
             .newInstant(PREVENTIVE_INSTANT_ID, InstantKind.PREVENTIVE);
 
@@ -61,19 +61,14 @@ class JsonLoopFlowThresholdImplImportExportTest {
                 .add();
 
         // export Crac
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        crac.write("JSON", outputStream);
+        var tmp = TmpFile.create("round.json", BufferSize.SMALL);
+        tmp.withWriteStream(os -> crac.write("JSON", os));
 
         // create network
         Network network = NetworkImportsUtil.createNetworkForJsonRetrocompatibilityTest(0.0);
 
         // import Crac
-        Crac importedCrac;
-        try (ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray())) {
-            importedCrac = Crac.read("crac.json", inputStream, network);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        Crac importedCrac = Crac.read(tmp.getTempFile().toFile(), network);
 
         // test
         assertNotNull(importedCrac.getFlowCnec("cnec1").getExtension(LoopFlowThreshold.class));

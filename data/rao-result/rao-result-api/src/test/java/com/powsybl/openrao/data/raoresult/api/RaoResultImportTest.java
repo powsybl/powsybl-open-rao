@@ -7,11 +7,13 @@
 
 package com.powsybl.openrao.data.raoresult.api;
 
-import org.junit.jupiter.api.Test;
-
-import java.io.IOException;
-
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.nio.file.Path;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -20,6 +22,16 @@ class RaoResultImportTest {
 
     @Test
     void testImportFromInputStream() throws IOException {
-        assertTrue(RaoResult.read(getClass().getResourceAsStream("/raoResult.txt"), null) instanceof MockRaoResult);
+        assertTrue(RaoResult.read(getResourceAsFile("raoResult.txt"), null) instanceof MockRaoResult);
     }
+
+    public File getResourceAsFile(String file) {
+        try {
+            return Path.of(getClass().getClassLoader().getResource(file).toURI()).toFile();
+        } catch (URISyntaxException e) {
+            throw new RuntimeException("Error loading resource: " + file, e);
+        }
+    }
+
+
 }

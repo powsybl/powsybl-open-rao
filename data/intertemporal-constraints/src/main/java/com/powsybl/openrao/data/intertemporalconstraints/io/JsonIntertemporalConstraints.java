@@ -7,6 +7,8 @@
 
 package com.powsybl.openrao.data.intertemporalconstraints.io;
 
+import static com.powsybl.commons.json.JsonUtil.createObjectMapper;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -15,17 +17,36 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.intertemporalconstraints.GeneratorConstraints;
 import com.powsybl.openrao.data.intertemporalconstraints.IntertemporalConstraints;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-
-import static com.powsybl.commons.json.JsonUtil.createObjectMapper;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
 public final class JsonIntertemporalConstraints {
+
+    private final static ObjectMapper READ_MAPPER = buildReadObjectMapper();
+    private final static ObjectWriter WRITER = buildObjectWriter();
+
+    private static ObjectMapper buildReadObjectMapper() {
+        ObjectMapper objectMapper = createObjectMapper();
+        SimpleModule module = new SimpleModule();
+        module.addDeserializer(IntertemporalConstraints.class, new IntertemporalConstraintsDeserializer(IntertemporalConstraints.class));
+        module.addDeserializer(GeneratorConstraints.class, new GeneratorConstraintsDeserializer(GeneratorConstraints.class));
+        objectMapper.registerModule(module);
+        return objectMapper;
+    }
+
+    private static ObjectWriter buildObjectWriter() {
+        ObjectMapper objectMapper = createObjectMapper();
+        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        SimpleModule module = new SimpleModule();
+        module.addSerializer(IntertemporalConstraints.class, new IntertemporalConstraintsSerializer(IntertemporalConstraints.class));
+        module.addSerializer(GeneratorConstraints.class, new GeneratorConstraintsSerializer(GeneratorConstraints.class));
+        objectMapper.registerModule(module);
+        return objectMapper.writerWithDefaultPrettyPrinter();
+    }
 
     private JsonIntertemporalConstraints() {
     }
@@ -54,24 +75,12 @@ public final class JsonIntertemporalConstraints {
     // IO
 
     public static void write(IntertemporalConstraints intertemporalConstraints, OutputStream outputStream) throws IOException {
-        ObjectMapper objectMapper = createObjectMapper();
-        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-        SimpleModule module = new SimpleModule();
-        module.addSerializer(IntertemporalConstraints.class, new IntertemporalConstraintsSerializer(IntertemporalConstraints.class));
-        module.addSerializer(GeneratorConstraints.class, new GeneratorConstraintsSerializer(GeneratorConstraints.class));
-        objectMapper.registerModule(module);
-        ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
-        writer.writeValue(outputStream, intertemporalConstraints);
+        WRITER.writeValue(outputStream, intertemporalConstraints);
     }
 
     public static IntertemporalConstraints read(InputStream inputStream) throws IOException {
-        ObjectMapper objectMapper = createObjectMapper();
-        SimpleModule module = new SimpleModule();
-        module.addDeserializer(IntertemporalConstraints.class, new IntertemporalConstraintsDeserializer(IntertemporalConstraints.class));
-        module.addDeserializer(GeneratorConstraints.class, new GeneratorConstraintsDeserializer(GeneratorConstraints.class));
-        objectMapper.registerModule(module);
         try {
-            return objectMapper.readValue(inputStream, IntertemporalConstraints.class);
+            return READ_MAPPER.readValue(inputStream, IntertemporalConstraints.class);
         } catch (JsonMappingException e) {
             throw new OpenRaoException(extractDeserializationErrorMessage(e.getMessage()));
         }

@@ -7,6 +7,9 @@
 
 package com.powsybl.openrao.searchtreerao.fastrao;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
@@ -19,30 +22,28 @@ import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.FastRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
+import com.powsybl.openrao.searchtreerao.TestBase;
 import com.powsybl.openrao.searchtreerao.result.impl.FailedRaoResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.FastRaoResultImpl;
-import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.concurrent.ExecutionException;
-
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 /**
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
  */
-class FastRaoTest {
+class FastRaoTest extends TestBase {
 
     @Test
     void testRunFilteredRaoOnPreventiveOnlyCase() throws IOException {
         // US 4.3.1 as a UT to test OneStateOnly
         Network network = Network.read("/network/TestCase12Nodes.uct", getClass().getResourceAsStream("/network/TestCase12Nodes.uct"));
-        Crac crac = Crac.read("/crac/SL_ep4us3.json", getClass().getResourceAsStream("/crac/SL_ep4us3.json"), network);
+        Crac crac = Crac.read(getResourceAsFile("/crac/SL_ep4us3.json"), network);
         RaoInput individualRaoInput = RaoInput.build(network, crac).build();
         RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_posMargin_ampere.json"));
         FastRaoParameters fastRaoParameters = new FastRaoParameters();
@@ -58,7 +59,7 @@ class FastRaoTest {
     void testRunFilteredRaoOnComplexCase() throws IOException {
         // US 13.4.3 as a UT but with objective function SECURE_FLOW, case with prev and cur RA
         Network network = Network.read("/network/TestCase16Nodes.uct", getClass().getResourceAsStream("/network/TestCase16Nodes.uct"));
-        Crac crac = Crac.read("/crac/SL_ep13us4case3.json", getClass().getResourceAsStream("/crac/SL_ep13us4case3.json"), network);
+        Crac crac = Crac.read(getResourceAsFile("/crac/SL_ep13us4case3.json"), network);
         RaoInput individualRaoInput = RaoInput.build(network, crac).build();
         RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_secure_ampere.json"));
         FastRaoParameters fastRaoParameters = new FastRaoParameters();
@@ -74,7 +75,7 @@ class FastRaoTest {
     void testRunFilteredRao2() throws IOException {
         // Test with 2 preventive network actions activated
         Network network = Network.read("/network/3Nodes1LineOpen.uct", getClass().getResourceAsStream("/network/3Nodes1LineOpen.uct"));
-        Crac crac = Crac.read("/crac/fast-rao-UT-2prev-network-action.json", getClass().getResourceAsStream("/crac/fast-rao-UT-2prev-network-action.json"), network);
+        Crac crac = Crac.read(getResourceAsFile("/crac/fast-rao-UT-2prev-network-action.json"), network);
         RaoInput individualRaoInput = RaoInput.build(network, crac).build();
         RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_secure.json"));
         FastRaoParameters fastRaoParameters = new FastRaoParameters();
@@ -90,7 +91,7 @@ class FastRaoTest {
     void testInitialSensiFailed() throws IOException {
         // US 2.3.4
         Network network = Network.read("/network/US2-3-case4-networkDiverge.uct", getClass().getResourceAsStream("/network/US2-3-case4-networkDiverge.uct"));
-        Crac crac = Crac.read("/crac/SL_ep2us3case4.json", getClass().getResourceAsStream("/crac/SL_ep2us3case4.json"), network);
+        Crac crac = Crac.read(getResourceAsFile("/crac/SL_ep2us3case4.json"), network);
         RaoInput individualRaoInput = RaoInput.build(network, crac).build();
         RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_posMargin_ampere.json"));
         FastRaoParameters fastRaoParameters = new FastRaoParameters();

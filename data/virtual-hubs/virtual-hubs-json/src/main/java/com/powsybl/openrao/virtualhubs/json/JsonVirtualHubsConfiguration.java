@@ -7,9 +7,8 @@
 
 package com.powsybl.openrao.virtualhubs.json;
 
-import com.powsybl.openrao.virtualhubs.VirtualHubsConfiguration;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
+import com.powsybl.openrao.virtualhubs.VirtualHubsConfiguration;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -20,15 +19,23 @@ import java.util.Objects;
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
 public final class JsonVirtualHubsConfiguration {
+
+    private final static ObjectMapper MAPPER = preparedObjectMapper();
+
     private JsonVirtualHubsConfiguration() {
         throw new AssertionError("Utility class should not be instantiated");
+    }
+
+    private static ObjectMapper preparedObjectMapper() {
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new VirtualHubsConfigurationJsonModule());
+        return objectMapper;
     }
 
     public static VirtualHubsConfiguration importConfiguration(InputStream inputStream) {
         Objects.requireNonNull(inputStream, "Virtual hubs configuration import on null input stream is invalid");
         try {
-            ObjectMapper objectMapper = preparedObjectMapper();
-            return objectMapper.readValue(inputStream, VirtualHubsConfiguration.class);
+            return MAPPER.readValue(inputStream, VirtualHubsConfiguration.class);
         } catch (IOException e) {
             throw new VirtualHubsConfigurationDeserializationException(e);
         }
@@ -38,8 +45,7 @@ public final class JsonVirtualHubsConfiguration {
         Objects.requireNonNull(outputStream, "Virtual hubs configuration export on null output stream is invalid");
         Objects.requireNonNull(configuration, "Virtual hubs configuration export on null configuration is invalid");
         try {
-            ObjectMapper objectMapper = preparedObjectMapper();
-            objectMapper.writeValue(outputStream, configuration);
+            MAPPER.writeValue(outputStream, configuration);
         } catch (IOException e) {
             throw new VirtualHubsConfigurationSerializationException(e);
         }
@@ -49,16 +55,10 @@ public final class JsonVirtualHubsConfiguration {
         Objects.requireNonNull(writer, "Virtual hubs configuration export on null writer is invalid");
         Objects.requireNonNull(configuration, "Virtual hubs configuration export on null configuration is invalid");
         try {
-            ObjectMapper objectMapper = preparedObjectMapper();
-            objectMapper.writeValue(writer, configuration);
+            MAPPER.writeValue(writer, configuration);
         } catch (IOException e) {
             throw new VirtualHubsConfigurationSerializationException(e);
         }
     }
 
-    private static ObjectMapper preparedObjectMapper() {
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new VirtualHubsConfigurationJsonModule());
-        return objectMapper;
-    }
 }

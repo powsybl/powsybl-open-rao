@@ -8,9 +8,8 @@
 package com.powsybl.openrao.data.raoresult.api.io;
 
 import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.io.utils.SafeFileReader;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
-
-import java.io.InputStream;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -21,7 +20,10 @@ public interface Importer {
      */
     String getFormat();
 
-    boolean exists(InputStream inputStream);
+    // @Deprecated
+    //TODO Lui deprecated
+
+    boolean exists(SafeFileReader inputFile);
 
     /**
      * Create a RaoResult.
@@ -30,5 +32,8 @@ public interface Importer {
      * @param crac        the crac on which the RaoResult data is based
      * @return the model
      */
-    RaoResult importData(InputStream inputStream, Crac crac);
+    // @Deprecated
+    //TODO Lui  deprecated
+
+    RaoResult importData(SafeFileReader inputFile, Crac crac);
 }

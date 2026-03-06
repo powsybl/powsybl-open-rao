@@ -7,11 +7,12 @@
 
 package com.powsybl.openrao.data.crac.api.io;
 
+import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.CracCreationContext;
+import com.powsybl.openrao.data.crac.api.io.utils.SafeFileReader;
 import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
-
-import java.io.InputStream;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -23,7 +24,11 @@ public interface Importer {
      */
     String getFormat();
 
-    boolean exists(String filename, InputStream inputStream);
+    // @Deprecated
+    //TODO Lui deprecated
+    // boolean depre_exists(String filename, InputStream inputStream);
+
+    boolean exists(SafeFileReader inputFile);
 
     /**
      * Create a model.
@@ -33,5 +38,19 @@ public interface Importer {
      * @param network     network upon which the CRAC is based
      * @return the model
      */
-    CracCreationContext importData(InputStream inputStream, CracCreationParameters cracCreationParameters, Network network);
+    // @Deprecated
+    //TODO Lui deprecated
+    // CracCreationContext depre_importData(InputStream inputStream, CracCreationParameters cracCreationParameters, Network network);
+
+    CracCreationContext importData(SafeFileReader inputFile, CracCreationParameters cracCreationParameters, Network network);
+
+    static Importer findImporter(SafeFileReader inputFile) {
+        return new ServiceLoaderCache<>(Importer.class).getServices().stream()
+            .filter(importer -> importer.exists(inputFile))
+            .findAny()
+            .orElseThrow(() -> new OpenRaoException("No suitable importer found."));
+    }
+
+
+
 }

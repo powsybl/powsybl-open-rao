@@ -7,14 +7,20 @@
 
 package com.powsybl.openrao.data.crac.io.fbconstraint;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.CracFactory;
 import com.powsybl.openrao.data.crac.api.RaUsageLimits;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.crac.api.range.RangeType;
@@ -22,25 +28,22 @@ import com.powsybl.openrao.data.crac.api.range.TapRange;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.usagerule.OnContingencyState;
 import com.powsybl.openrao.data.crac.api.usagerule.OnInstant;
+import com.powsybl.openrao.data.crac.impl.NetworkActionImpl;
 import com.powsybl.openrao.data.crac.io.commons.api.ElementaryCreationContext;
 import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
 import com.powsybl.openrao.data.crac.io.commons.api.stdcreationcontext.BranchCnecCreationContext;
-import com.powsybl.openrao.data.crac.impl.NetworkActionImpl;
 import com.powsybl.openrao.data.crac.io.fbconstraint.parameters.FbConstraintCracCreationParameters;
 import com.powsybl.openrao.data.crac.loopflowextension.LoopFlowThreshold;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
 import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.util.Set;
-
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-class FbConstraintCracCreatorTest {
+class FbConstraintCracCreatorTest extends TestBase {
     private static final String PREVENTIVE_INSTANT_ID = "preventive";
     private static final String OUTAGE_INSTANT_ID = "outage";
     private static final String CURATIVE_INSTANT_ID = "curative";
@@ -78,7 +81,7 @@ class FbConstraintCracCreatorTest {
         raUsageLimits.setMaxRa(12);
         parameters.addRaUsageLimitsForInstant("preventive", raUsageLimits);
         parameters.getExtension(FbConstraintCracCreationParameters.class).setTimestamp(timestamp);
-        creationContext = (FbConstraintCreationContext) Crac.readWithContext("without_RA.xml", getClass().getResourceAsStream("/merged_cb/without_RA.xml"), network, parameters);
+        creationContext = (FbConstraintCreationContext) Crac.readWithContext(getResourceAsFile("/merged_cb/without_RA.xml"), network, parameters);
         assertTrue(creationContext.isCreationSuccessful());
         assertEquals(12, creationContext.getCrac().getRaUsageLimits(creationContext.getCrac().getInstant("preventive")).getMaxRa());
     }
@@ -88,7 +91,7 @@ class FbConstraintCracCreatorTest {
         Network network = Network.read("TestCase12Nodes_with_Xnodes.uct", getClass().getResourceAsStream("/network/TestCase12Nodes_with_Xnodes.uct"));
         OffsetDateTime timestamp = OffsetDateTime.parse("2019-01-08T00:30Z");
         parameters.getExtension(FbConstraintCracCreationParameters.class).setTimestamp(timestamp);
-        creationContext = (FbConstraintCreationContext) Crac.readWithContext("without_RA.xml", getClass().getResourceAsStream("/merged_cb/without_RA.xml"), network, parameters);
+        creationContext = (FbConstraintCreationContext) Crac.readWithContext(getResourceAsFile("/merged_cb/without_RA.xml"), network, parameters);
         assertTrue(creationContext.isCreationSuccessful());
         assertEquals(2, creationContext.getCrac().getContingencies().size());
         assertEquals(10, creationContext.getCrac().getFlowCnecs().size());
@@ -96,7 +99,7 @@ class FbConstraintCracCreatorTest {
 
         timestamp = OffsetDateTime.parse("2019-01-08T10:30Z");
         parameters.getExtension(FbConstraintCracCreationParameters.class).setTimestamp(timestamp);
-        creationContext = (FbConstraintCreationContext) Crac.readWithContext("without_RA.xml", getClass().getResourceAsStream("/merged_cb/without_RA.xml"), network, parameters);
+        creationContext = (FbConstraintCreationContext) Crac.readWithContext(getResourceAsFile("/merged_cb/without_RA.xml"), network, parameters);
         assertTrue(creationContext.isCreationSuccessful());
         assertEquals(3, creationContext.getCrac().getContingencies().size());
         assertEquals(12, creationContext.getCrac().getFlowCnecs().size());
@@ -104,7 +107,7 @@ class FbConstraintCracCreatorTest {
 
         timestamp = OffsetDateTime.parse("2019-01-10T10:30Z");
         parameters.getExtension(FbConstraintCracCreationParameters.class).setTimestamp(timestamp);
-        creationContext = (FbConstraintCreationContext) Crac.readWithContext("without_RA.xml", getClass().getResourceAsStream("/merged_cb/without_RA.xml"), network, parameters);
+        creationContext = (FbConstraintCreationContext) Crac.readWithContext(getResourceAsFile("/merged_cb/without_RA.xml"), network, parameters);
         assertFalse(creationContext.isCreationSuccessful());
     }
 
@@ -113,7 +116,7 @@ class FbConstraintCracCreatorTest {
         Network network = Network.read("TestCase12Nodes_with_Xnodes.uct", getClass().getResourceAsStream("/network/TestCase12Nodes_with_Xnodes.uct"));
         OffsetDateTime timestamp = OffsetDateTime.parse("2019-01-08T10:30Z");
         parameters.getExtension(FbConstraintCracCreationParameters.class).setTimestamp(timestamp);
-        creationContext = (FbConstraintCreationContext) Crac.readWithContext("without_RA.xml", getClass().getResourceAsStream("/merged_cb/without_RA.xml"), network, parameters);
+        creationContext = (FbConstraintCreationContext) Crac.readWithContext(getResourceAsFile("/merged_cb/without_RA.xml"), network, parameters);
         Crac crac = creationContext.getCrac();
 
         // BE_CBCO_000001
@@ -163,7 +166,7 @@ class FbConstraintCracCreatorTest {
         Network network = Network.read("TestCase12Nodes_with_Xnodes.uct", getClass().getResourceAsStream("/network/TestCase12Nodes_with_Xnodes.uct"));
         OffsetDateTime timestamp = OffsetDateTime.parse("2019-01-08T00:30Z");
         parameters.getExtension(FbConstraintCracCreationParameters.class).setTimestamp(timestamp);
-        creationContext = (FbConstraintCreationContext) Crac.readWithContext("with_RA.xml", getClass().getResourceAsStream("/merged_cb/with_RA.xml"), network, parameters);
+        creationContext = (FbConstraintCreationContext) Crac.readWithContext(getResourceAsFile("/merged_cb/with_RA.xml"), network, parameters);
         Crac crac = creationContext.getCrac();
 
         // CNECs
@@ -241,7 +244,7 @@ class FbConstraintCracCreatorTest {
         Network network = Network.read("TestCase12Nodes_with_Xnodes.uct", getClass().getResourceAsStream("/network/TestCase12Nodes_with_Xnodes.uct"));
         OffsetDateTime timestamp = OffsetDateTime.parse("2019-01-08T00:30Z");
         parameters.getExtension(FbConstraintCracCreationParameters.class).setTimestamp(timestamp);
-        creationContext = (FbConstraintCreationContext) Crac.readWithContext("MNEC_test.xml", getClass().getResourceAsStream("/merged_cb/MNEC_test.xml"), network, parameters);
+        creationContext = (FbConstraintCreationContext) Crac.readWithContext(getResourceAsFile("/merged_cb/MNEC_test.xml"), network, parameters);
         Crac crac = creationContext.getCrac();
 
         assertEquals(3, crac.getFlowCnecs().size());
@@ -260,7 +263,7 @@ class FbConstraintCracCreatorTest {
         Network network = Network.read("TestCase12Nodes_with_Xnodes.uct", getClass().getResourceAsStream("/network/TestCase12Nodes_with_Xnodes.uct"));
         OffsetDateTime timestamp = OffsetDateTime.parse("2019-01-08T00:30Z");
         parameters.getExtension(FbConstraintCracCreationParameters.class).setTimestamp(timestamp);
-        creationContext = (FbConstraintCreationContext) Crac.readWithContext("no_MNEC_test.xml", getClass().getResourceAsStream("/merged_cb/no_MNEC_test.xml"), network, parameters);
+        creationContext = (FbConstraintCreationContext) Crac.readWithContext(getResourceAsFile("/merged_cb/no_MNEC_test.xml"), network, parameters);
         Crac crac = creationContext.getCrac();
 
         assertEquals(1, crac.getFlowCnecs().size());
@@ -286,7 +289,7 @@ class FbConstraintCracCreatorTest {
         Network network = Network.read("TestCase12Nodes_for_thresholds_test.uct", getClass().getResourceAsStream("/network/TestCase12Nodes_for_thresholds_test.uct"));
         OffsetDateTime timestamp = OffsetDateTime.parse("2019-01-08T00:30Z");
         parameters.getExtension(FbConstraintCracCreationParameters.class).setTimestamp(timestamp);
-        creationContext = (FbConstraintCreationContext) Crac.readWithContext("thresholds_test.xml", getClass().getResourceAsStream("/merged_cb/thresholds_test.xml"), network, parameters);
+        creationContext = (FbConstraintCreationContext) Crac.readWithContext(getResourceAsFile("/merged_cb/thresholds_test.xml"), network, parameters);
         Crac crac = creationContext.getCrac();
 
         assertEquals(9, crac.getFlowCnecs().size());
@@ -323,7 +326,7 @@ class FbConstraintCracCreatorTest {
         Network network = Network.read("TestCase12Nodes_for_thresholds_test.uct", getClass().getResourceAsStream("/network/TestCase12Nodes_for_thresholds_test.uct"));
         OffsetDateTime timestamp = OffsetDateTime.parse("2019-01-08T00:30Z");
         parameters.getExtension(FbConstraintCracCreationParameters.class).setTimestamp(timestamp);
-        Crac crac = Crac.read("thresholds_test.xml", getClass().getResourceAsStream("/merged_cb/thresholds_test.xml"), network, parameters);
+        Crac crac = Crac.read(getResourceAsFile("/merged_cb/thresholds_test.xml"), network, parameters);
 
         // No threshold specification will be set to default relative-100
         assertHasThresholds(crac.getFlowCnec("CBCO_000001 - preventive"), Set.of(TwoSides.TWO), Unit.PERCENT_IMAX, null, 1.);
@@ -357,7 +360,7 @@ class FbConstraintCracCreatorTest {
         Network network = Network.read("TestCase12Nodes_for_thresholds_test.uct", getClass().getResourceAsStream("/network/TestCase12Nodes_for_thresholds_test.uct"));
         OffsetDateTime timestamp = OffsetDateTime.parse("2019-01-08T00:30Z");
         parameters.getExtension(FbConstraintCracCreationParameters.class).setTimestamp(timestamp);
-        Crac crac = Crac.read("thresholds_test.xml", getClass().getResourceAsStream("/merged_cb/thresholds_test.xml"), network, parameters);
+        Crac crac = Crac.read(getResourceAsFile("/merged_cb/thresholds_test.xml"), network, parameters);
 
         // No threshold specification will be set to default relative-100
         assertHasThresholds(crac.getFlowCnec("CBCO_000001 - preventive"), Set.of(TwoSides.ONE, TwoSides.TWO), Unit.PERCENT_IMAX, null, 1.);
@@ -391,7 +394,7 @@ class FbConstraintCracCreatorTest {
         Network network = Network.read("TestCase12Nodes_with_Xnodes.uct", getClass().getResourceAsStream("/network/TestCase12Nodes_with_Xnodes.uct"));
         OffsetDateTime timestamp = OffsetDateTime.parse("2019-01-08T00:30Z");
         parameters.getExtension(FbConstraintCracCreationParameters.class).setTimestamp(timestamp);
-        creationContext = (FbConstraintCreationContext) Crac.readWithContext("with_crosszonal_branches.xml", getClass().getResourceAsStream("/merged_cb/with_crosszonal_branches.xml"), network, parameters);
+        creationContext = (FbConstraintCreationContext) Crac.readWithContext(getResourceAsFile("/merged_cb/with_crosszonal_branches.xml"), network, parameters);
         Crac crac = creationContext.getCrac();
 
         assertEquals(6, crac.getFlowCnecs().size());
@@ -417,7 +420,7 @@ class FbConstraintCracCreatorTest {
         Network network = Network.read("TestCase12NodesHvdc.uct", getClass().getResourceAsStream("/network/TestCase12NodesHvdc.uct"));
         OffsetDateTime timestamp = OffsetDateTime.parse("2019-01-08T00:30Z");
         parameters.getExtension(FbConstraintCracCreationParameters.class).setTimestamp(timestamp);
-        creationContext = (FbConstraintCreationContext) Crac.readWithContext("hvdcvh-outage.xml", getClass().getResourceAsStream("/merged_cb/hvdcvh-outage.xml"), network, parameters);
+        creationContext = (FbConstraintCreationContext) Crac.readWithContext(getResourceAsFile("/merged_cb/hvdcvh-outage.xml"), network, parameters);
         Crac crac = creationContext.getCrac();
 
         Contingency contingency = crac.getFlowCnec("Cnec1 - curative").getState().getContingency().orElse(null);
@@ -432,7 +435,7 @@ class FbConstraintCracCreatorTest {
         Network network = Network.read("TestCase_severalVoltageLevels_Xnodes.uct", getClass().getResourceAsStream("/network/TestCase_severalVoltageLevels_Xnodes.uct"));
         OffsetDateTime timestamp = OffsetDateTime.parse("2019-01-08T00:30Z");
         parameters.getExtension(FbConstraintCracCreationParameters.class).setTimestamp(timestamp);
-        creationContext = (FbConstraintCreationContext) Crac.readWithContext("critical_branches.xml", getClass().getResourceAsStream("/merged_cb/critical_branches.xml"), network, parameters);
+        creationContext = (FbConstraintCreationContext) Crac.readWithContext(getResourceAsFile("/merged_cb/critical_branches.xml"), network, parameters);
         Crac crac = creationContext.getCrac();
 
         assertEquals(7, creationContext.getBranchCnecCreationContexts().size());
@@ -459,7 +462,7 @@ class FbConstraintCracCreatorTest {
         Network network = Network.read("TestCase_severalVoltageLevels_Xnodes.uct", getClass().getResourceAsStream("/network/TestCase_severalVoltageLevels_Xnodes.uct"));
         OffsetDateTime timestamp = OffsetDateTime.parse("2019-01-08T00:30Z");
         parameters.getExtension(FbConstraintCracCreationParameters.class).setTimestamp(timestamp);
-        creationContext = (FbConstraintCreationContext) Crac.readWithContext("complex_variants.xml", getClass().getResourceAsStream("/merged_cb/complex_variants.xml"), network, parameters);
+        creationContext = (FbConstraintCreationContext) Crac.readWithContext(getResourceAsFile("/merged_cb/complex_variants.xml"), network, parameters);
         Crac crac = creationContext.getCrac();
 
         assertEquals(13, creationContext.getRemedialActionCreationContexts().size());
@@ -488,7 +491,7 @@ class FbConstraintCracCreatorTest {
         Network network = Network.read("TestCase_severalVoltageLevels_Xnodes.uct", getClass().getResourceAsStream("/network/TestCase_severalVoltageLevels_Xnodes.uct"));
         OffsetDateTime timestamp = OffsetDateTime.parse("2019-01-08T00:30Z");
         parameters.getExtension(FbConstraintCracCreationParameters.class).setTimestamp(timestamp);
-        creationContext = (FbConstraintCreationContext) Crac.readWithContext("complex_variants_invert.xml", getClass().getResourceAsStream("/merged_cb/complex_variants_invert.xml"), network, parameters);
+        creationContext = (FbConstraintCreationContext) Crac.readWithContext(getResourceAsFile("/merged_cb/complex_variants_invert.xml"), network, parameters);
         Crac crac = creationContext.getCrac();
 
         // RA_BE_0001 should not be inverted
@@ -532,7 +535,7 @@ class FbConstraintCracCreatorTest {
         Network network = Network.read("TestCase12Nodes_with_Xnodes.uct", getClass().getResourceAsStream("/network/TestCase12Nodes_with_Xnodes.uct"));
         OffsetDateTime timestamp = OffsetDateTime.parse("2019-01-08T10:30Z");
         parameters.getExtension(FbConstraintCracCreationParameters.class).setTimestamp(timestamp);
-        creationContext = (FbConstraintCreationContext) Crac.readWithContext("wrong_ts.xml", getClass().getResourceAsStream("/merged_cb/wrong_ts.xml"), network, parameters);
+        creationContext = (FbConstraintCreationContext) Crac.readWithContext(getResourceAsFile("/merged_cb/wrong_ts.xml"), network, parameters);
         Crac crac = creationContext.getCrac();
 
         assertEquals(3, creationContext.getCreationReport().getReport().size());
@@ -551,7 +554,7 @@ class FbConstraintCracCreatorTest {
         Network network = Network.read("TestCase_severalVoltageLevels_Xnodes.uct", getClass().getResourceAsStream("/network/TestCase_severalVoltageLevels_Xnodes.uct"));
         OffsetDateTime timestamp = OffsetDateTime.parse("2019-01-08T00:30Z");
         parameters.getExtension(FbConstraintCracCreationParameters.class).setTimestamp(timestamp);
-        creationContext = (FbConstraintCreationContext) Crac.readWithContext("complex_variants_duplicate_psts.xml", getClass().getResourceAsStream("/merged_cb/complex_variants_duplicate_psts.xml"), network, parameters);
+        creationContext = (FbConstraintCreationContext) Crac.readWithContext(getResourceAsFile("/merged_cb/complex_variants_duplicate_psts.xml"), network, parameters);
         Crac crac = creationContext.getCrac();
 
         assertEquals(3, creationContext.getCreationReport().getReport().size());
@@ -585,17 +588,17 @@ class FbConstraintCracCreatorTest {
 
         parameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_BOTH_SIDES);
         parameters.getExtension(FbConstraintCracCreationParameters.class).setTimestamp(timestamp);
-        crac = Crac.read("halflines.xml", getClass().getResourceAsStream("/merged_cb/halflines.xml"), network, parameters);
+        crac = Crac.read(getResourceAsFile("/merged_cb/halflines.xml"), network, parameters);
         assertHasThresholds(crac.getFlowCnec("FR_CBCO_000001 - preventive"), Set.of(TwoSides.TWO), Unit.PERCENT_IMAX, -1., null);
         assertHasThresholds(crac.getFlowCnec("FR_CBCO_000002 - preventive"), Set.of(TwoSides.ONE), Unit.PERCENT_IMAX, null, 1.);
 
         parameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_SIDE_ONE);
-        crac = Crac.read("halflines.xml", getClass().getResourceAsStream("/merged_cb/halflines.xml"), network, parameters);
+        crac = Crac.read(getResourceAsFile("/merged_cb/halflines.xml"), network, parameters);
         assertHasThresholds(crac.getFlowCnec("FR_CBCO_000001 - preventive"), Set.of(TwoSides.TWO), Unit.PERCENT_IMAX, -1., null);
         assertHasThresholds(crac.getFlowCnec("FR_CBCO_000002 - preventive"), Set.of(TwoSides.ONE), Unit.PERCENT_IMAX, null, 1.);
 
         parameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_SIDE_TWO);
-        crac = Crac.read("halflines.xml", getClass().getResourceAsStream("/merged_cb/halflines.xml"), network, parameters);
+        crac = Crac.read(getResourceAsFile("/merged_cb/halflines.xml"), network, parameters);
         assertHasThresholds(crac.getFlowCnec("FR_CBCO_000001 - preventive"), Set.of(TwoSides.TWO), Unit.PERCENT_IMAX, -1., null);
         assertHasThresholds(crac.getFlowCnec("FR_CBCO_000002 - preventive"), Set.of(TwoSides.ONE), Unit.PERCENT_IMAX, null, 1.);
     }
@@ -610,17 +613,17 @@ class FbConstraintCracCreatorTest {
         parameters.getExtension(FbConstraintCracCreationParameters.class).setTimestamp(timestamp);
 
         parameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_BOTH_SIDES);
-        Crac crac = Crac.read("transformers.xml", getClass().getResourceAsStream("/merged_cb/transformers.xml"), network, parameters);
+        Crac crac = Crac.read(getResourceAsFile("/merged_cb/transformers.xml"), network, parameters);
         assertHasThresholds(crac.getFlowCnec("CBCO_1 - preventive"), Set.of(TwoSides.ONE, TwoSides.TWO), Unit.PERCENT_IMAX, -1.0, null);
         assertHasThresholds(crac.getFlowCnec("CBCO_2 - preventive"), Set.of(TwoSides.ONE), Unit.AMPERE, -100., null);
 
         parameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_SIDE_ONE);
-        crac = Crac.read("transformers.xml", getClass().getResourceAsStream("/merged_cb/transformers.xml"), network, parameters);
+        crac = Crac.read(getResourceAsFile("/merged_cb/transformers.xml"), network, parameters);
         assertHasThresholds(crac.getFlowCnec("CBCO_1 - preventive"), Set.of(TwoSides.ONE), Unit.PERCENT_IMAX, -1.0, null);
         assertHasThresholds(crac.getFlowCnec("CBCO_2 - preventive"), Set.of(TwoSides.ONE), Unit.AMPERE, -100., null);
 
         parameters.setDefaultMonitoredLineSide(CracCreationParameters.MonitoredLineSide.MONITOR_LINES_ON_SIDE_TWO);
-        crac = Crac.read("transformers.xml", getClass().getResourceAsStream("/merged_cb/transformers.xml"), network, parameters);
+        crac = Crac.read(getResourceAsFile("/merged_cb/transformers.xml"), network, parameters);
         assertHasThresholds(crac.getFlowCnec("CBCO_1 - preventive"), Set.of(TwoSides.TWO), Unit.PERCENT_IMAX, -1.0, null);
         assertHasThresholds(crac.getFlowCnec("CBCO_2 - preventive"), Set.of(TwoSides.ONE), Unit.AMPERE, -100., null);
     }

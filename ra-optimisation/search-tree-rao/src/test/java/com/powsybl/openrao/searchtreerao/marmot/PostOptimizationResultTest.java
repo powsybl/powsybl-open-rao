@@ -7,6 +7,8 @@
 
 package com.powsybl.openrao.searchtreerao.marmot;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.Unit;
@@ -18,29 +20,27 @@ import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.openrao.searchtreerao.TestBase;
 import com.powsybl.openrao.searchtreerao.marmot.results.GlobalLinearOptimizationResult;
 import com.powsybl.openrao.searchtreerao.result.api.PrePerimeterResult;
+import java.io.IOException;
+import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-
-import java.io.IOException;
-import java.util.Set;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
  */
-class PostOptimizationResultTest {
+class PostOptimizationResultTest extends TestBase {
     private Crac crac;
     private RaoInput raoInput;
 
     @BeforeEach
     void setUp() throws IOException {
         Network network = Network.read("12Nodes_2_pst.uct", PostOptimizationResultTest.class.getResourceAsStream("/network/12Nodes_2_pst.uct"));
-        crac = Crac.read("small-crac-2pst-1600.json", PostOptimizationResultTest.class.getResourceAsStream("/crac/small-crac-2pst-1600.json"), network);
+        crac = Crac.read(getResourceAsFile("/crac/small-crac-2pst-1600.json"), network);
         raoInput = RaoInput.build(network, crac).build();
     }
 

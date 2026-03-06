@@ -7,6 +7,9 @@
 
 package com.powsybl.openrao.data.crac.io.fbconstraint;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
@@ -15,17 +18,14 @@ import com.powsybl.openrao.data.crac.api.CracFactory;
 import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.crac.io.fbconstraint.parameters.FbConstraintCracCreationParameters;
 import com.powsybl.openrao.data.crac.io.fbconstraint.xsd.CriticalBranchType;
-import org.junit.jupiter.api.Test;
-
 import java.io.IOException;
 import java.time.OffsetDateTime;
-
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-class CriticalBranchReaderTest {
+class CriticalBranchReaderTest extends TestBase {
 
     @Test
     void isCrossZonalTest() {
@@ -73,7 +73,7 @@ class CriticalBranchReaderTest {
         Network network = Network.read("TestCase12Nodes_with_Xnodes.uct", getClass().getResourceAsStream("/network/TestCase12Nodes_with_Xnodes.uct"));
         OffsetDateTime timestamp = OffsetDateTime.parse("2019-01-08T10:30Z");
         parameters.getExtension(FbConstraintCracCreationParameters.class).setTimestamp(timestamp);
-        CracCreationContext creationContext = Crac.readWithContext("with_zero_limits.xml", getClass().getResourceAsStream("/merged_cb/with_zero_limits.xml"), network, parameters);
+        CracCreationContext creationContext = Crac.readWithContext(getResourceAsFile("/merged_cb/with_zero_limits.xml"), network, parameters);
         Crac crac = creationContext.getCrac();
 
         // No ImaxFactor value, PermanentImaxA = 0 => use ImaxA = 10

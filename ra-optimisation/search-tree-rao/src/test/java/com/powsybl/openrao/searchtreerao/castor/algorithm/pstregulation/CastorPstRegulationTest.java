@@ -7,6 +7,8 @@
 
 package com.powsybl.openrao.searchtreerao.castor.algorithm.pstregulation;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
@@ -20,29 +22,27 @@ import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.raoapi.json.JsonRaoParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.openrao.searchtreerao.TestBase;
 import com.powsybl.openrao.searchtreerao.result.api.OptimizationResult;
 import com.powsybl.openrao.searchtreerao.result.impl.PostPerimeterResult;
-import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-class CastorPstRegulationTest {
+class CastorPstRegulationTest extends TestBase {
     @Test
     void testPstRegulationWithSeveralContingencyScenarios() throws IOException {
         Network network = Network.read("4NodesSeries.uct", getClass().getResourceAsStream("/network/4NodesSeries.uct"));
-        Crac crac = Crac.read("crac-for-regulation.json", getClass().getResourceAsStream("/crac/crac-for-regulation.json"), network);
-        RaoResult raoResult = RaoResult.read(getClass().getResourceAsStream("/raoResult/raoResultPreRegulation.json"), crac);
+        Crac crac = Crac.read(getResourceAsFile("/crac/crac-for-regulation.json"), network);
+        RaoResult raoResult = RaoResult.read(getResourceAsFile("/raoResult/raoResultPreRegulation.json"), crac);
         RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/parameters/RaoParameters_ac_3pstsRegulation.json"));
         Instant curativeInstant = crac.getLastInstant();
 

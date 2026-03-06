@@ -7,13 +7,31 @@
  */
 package com.powsybl.openrao.tests.steps;
 
+import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
+import static com.powsybl.openrao.tests.steps.CommonTestData.buildConfig;
+import static com.powsybl.openrao.tests.steps.CommonTestData.cracPath;
+import static com.powsybl.openrao.tests.steps.CommonTestData.getRaoParameters;
+import static com.powsybl.openrao.tests.steps.CommonTestData.getResourcesPath;
+import static com.powsybl.openrao.tests.steps.CommonTestData.raoParameters;
+import static com.powsybl.openrao.tests.steps.CommonTestData.raoParametersPath;
+import static com.powsybl.openrao.tests.utils.Helpers.getFile;
+import static com.powsybl.openrao.tests.utils.Helpers.getOffsetDateTimeFromBrusselsTimestamp;
+import static com.powsybl.openrao.tests.utils.Helpers.importCrac;
+import static com.powsybl.openrao.tests.utils.Helpers.importNetwork;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.commons.TemporalDataImpl;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.data.crac.api.*;
+import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.CracCreationContext;
+import com.powsybl.openrao.data.crac.api.Instant;
+import com.powsybl.openrao.data.crac.api.NetworkElement;
+import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
@@ -29,7 +47,9 @@ import com.powsybl.openrao.data.raoresult.api.InterTemporalRaoResult;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.io.idcc.core.F711Utils;
 import com.powsybl.openrao.data.refprog.refprogxmlimporter.InterTemporalRefProg;
-import com.powsybl.openrao.raoapi.*;
+import com.powsybl.openrao.raoapi.InterTemporalRao;
+import com.powsybl.openrao.raoapi.InterTemporalRaoInputWithNetworkPaths;
+import com.powsybl.openrao.raoapi.RaoInputWithNetworkPaths;
 import com.powsybl.openrao.tests.utils.CoreCcPreprocessor;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.After;
@@ -38,31 +58,37 @@ import io.cucumber.java.Scenario;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVRecord;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.tuple.Pair;
-import org.slf4j.MDC;
-
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Properties;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
-
-import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
-import static com.powsybl.openrao.tests.steps.CommonTestData.*;
-import static com.powsybl.openrao.tests.utils.Helpers.*;
-import static com.powsybl.openrao.tests.utils.Helpers.getFile;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVRecord;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.tuple.Pair;
+import org.slf4j.MDC;
 
 public final class InterTemporalRaoSteps {
     private static String networkFolderPath;
@@ -260,7 +286,7 @@ public final class InterTemporalRaoSteps {
             for (OffsetDateTime offsetDateTime : interTemporalRaoInputWithNetworkPaths.getTimestampsToRun()) {
                 rdVolumes.put(offsetDateTime, new HashMap<>());
                 String filename = "RAO_RESULT_" + offsetDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")) + ".json";
-                FileInputStream raoResultInputStream = new FileInputStream(getFile(String.valueOf(tempDir.resolve(filename))));
+                var raoResultInputStream = getFile(String.valueOf(tempDir.resolve(filename)));
                 RaoResult raoResult = RaoResult.read(raoResultInputStream, interTemporalRaoInputWithNetworkPaths.getRaoInputs().getData(offsetDateTime).orElseThrow().getCrac());
 
                 // Load redispatching volumes
@@ -365,7 +391,7 @@ public final class InterTemporalRaoSteps {
             for (OffsetDateTime offsetDateTime : interTemporalRaoInputWithNetworkPaths.getTimestampsToRun()) {
 
                 String filename = "RAO_RESULT_" + offsetDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")) + ".json";
-                FileInputStream raoResultInputStream = new FileInputStream(getFile(String.valueOf(tempDir.resolve(filename))));
+                var raoResultInputStream = getFile(String.valueOf(tempDir.resolve(filename)));
                 RaoResult raoResult = RaoResult.read(raoResultInputStream, interTemporalRaoInputWithNetworkPaths.getRaoInputs().getData(offsetDateTime).orElseThrow().getCrac());
 
                 Set<NetworkAction> preventiveNetworkActions = raoResult.getActivatedNetworkActionsDuringState(interTemporalRaoInputWithNetworkPaths.getRaoInputs().getData(offsetDateTime).get().getCrac().getPreventiveState());
@@ -541,7 +567,7 @@ public final class InterTemporalRaoSteps {
             Map<OffsetDateTime, RaoResult> raoResults = new HashMap<>();
             for (OffsetDateTime timestamp : interTemporalRaoInputWithNetworkPaths.getTimestampsToRun()) {
                 String filename = "RAO_RESULT_" + timestamp.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")) + ".json";
-                FileInputStream raoResultInputStream = new FileInputStream(getFile(String.valueOf(tempDir.resolve(filename))));
+                var raoResultInputStream = getFile(String.valueOf(tempDir.resolve(filename)));
                 RaoResult raoResult = RaoResult.read(raoResultInputStream, interTemporalRaoInputWithNetworkPaths.getRaoInputs().getData(timestamp).orElseThrow().getCrac());
                 raoResults.put(timestamp, raoResult);
             }

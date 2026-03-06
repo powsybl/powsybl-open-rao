@@ -7,20 +7,18 @@
 
 package com.powsybl.openrao.data.raoresult.io.idcc.core;
 
+import static com.powsybl.openrao.data.raoresult.io.idcc.core.CracUtil.importNativeCrac;
+
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.TemporalData;
 import com.powsybl.openrao.data.crac.io.fbconstraint.FbConstraintCreationContext;
 import com.powsybl.openrao.data.crac.io.fbconstraint.xsd.FlowBasedConstraintDocument;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
-import org.threeten.extra.Interval;
-
-import java.io.FileInputStream;
-import java.io.InputStream;
+import java.io.File;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.Optional;
-
-import static com.powsybl.openrao.data.raoresult.io.idcc.core.CracUtil.importNativeCrac;
+import org.threeten.extra.Interval;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -34,13 +32,11 @@ public class DailyF711GeneratorInputs implements DailyF711GeneratorInputsProvide
 
     @Override
     public FlowBasedConstraintDocument referenceConstraintDocument() {
-        FlowBasedConstraintDocument flowBasedConstraintDocument;
-        try (final InputStream cracXmlInputStream = new FileInputStream(input.cracPath())) {
-            flowBasedConstraintDocument = importNativeCrac(cracXmlInputStream);
+        try {
+            return importNativeCrac(new File(input.cracPath()));
         } catch (Exception e) {
             throw new OpenRaoException("Exception occurred during F303 file creation", e);
         }
-        return flowBasedConstraintDocument;
     }
 
     @Override

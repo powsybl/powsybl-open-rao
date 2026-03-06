@@ -7,6 +7,8 @@
 
 package com.powsybl.openrao.searchtreerao.marmot.results;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.module.SimpleModule;
@@ -17,10 +19,7 @@ import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.raoresult.api.InterTemporalRaoResult;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-
+import com.powsybl.openrao.searchtreerao.TestBase;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,14 +30,15 @@ import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  * @author Roxane Chen {@literal <roxane.chen at rte-france.com>}
  */
-class JsonInterTemporalRaoResultSerializerTest {
+class JsonInterTemporalRaoResultSerializerTest extends TestBase {
     private InterTemporalRaoResult interTemporalRaoResult;
     private Instant preventiveInstant;
 
@@ -47,13 +47,13 @@ class JsonInterTemporalRaoResultSerializerTest {
         Network network1 = Network.read("/network/3Nodes.uct", JsonInterTemporalRaoResultSerializerTest.class.getResourceAsStream("/network/3Nodes.uct"));
         Network network2 = Network.read("/network/3Nodes.uct", JsonInterTemporalRaoResultSerializerTest.class.getResourceAsStream("/network/3Nodes.uct"));
         Network network3 = Network.read("/network/3Nodes.uct", JsonInterTemporalRaoResultSerializerTest.class.getResourceAsStream("/network/3Nodes.uct"));
-        Crac crac1 = Crac.read("/crac/crac-redispatching-202502141040.json", JsonInterTemporalRaoResultSerializerTest.class.getResourceAsStream("/crac/crac-redispatching-202502141040.json"), network1);
-        Crac crac2 = Crac.read("/crac/crac-redispatching-202502141140.json", JsonInterTemporalRaoResultSerializerTest.class.getResourceAsStream("/crac/crac-redispatching-202502141140.json"), network2);
-        Crac crac3 = Crac.read("/crac/crac-redispatching-202502141240.json", JsonInterTemporalRaoResultSerializerTest.class.getResourceAsStream("/crac/crac-redispatching-202502141240.json"), network3);
+        Crac crac1 = Crac.read(getResourceAsFile("/crac/crac-redispatching-202502141040.json"), network1);
+        Crac crac2 = Crac.read(getResourceAsFile("/crac/crac-redispatching-202502141140.json"), network2);
+        Crac crac3 = Crac.read(getResourceAsFile("/crac/crac-redispatching-202502141240.json"), network3);
         preventiveInstant = crac1.getPreventiveInstant();
-        RaoResult raoResult1 = RaoResult.read(JsonInterTemporalRaoResultSerializerTest.class.getResourceAsStream("/raoResult/raoResult1.json"), crac1);
-        RaoResult raoResult2 = RaoResult.read(JsonInterTemporalRaoResultSerializerTest.class.getResourceAsStream("/raoResult/raoResult2.json"), crac2);
-        RaoResult raoResult3 = RaoResult.read(JsonInterTemporalRaoResultSerializerTest.class.getResourceAsStream("/raoResult/raoResult3.json"), crac3);
+        RaoResult raoResult1 = RaoResult.read(getResourceAsFile("/raoResult/raoResult1.json"), crac1);
+        RaoResult raoResult2 = RaoResult.read(getResourceAsFile("/raoResult/raoResult2.json"), crac2);
+        RaoResult raoResult3 = RaoResult.read(getResourceAsFile("/raoResult/raoResult3.json"), crac3);
         OffsetDateTime timestamp1 = OffsetDateTime.of(2025, 2, 14, 10, 40, 0, 0, ZoneOffset.UTC);
         OffsetDateTime timestamp2 = OffsetDateTime.of(2025, 2, 14, 11, 40, 0, 0, ZoneOffset.UTC);
         OffsetDateTime timestamp3 = OffsetDateTime.of(2025, 2, 14, 12, 40, 0, 0, ZoneOffset.UTC);

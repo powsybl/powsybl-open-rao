@@ -7,28 +7,31 @@
 
 package com.powsybl.openrao.tests.utils;
 
+import static java.lang.String.format;
+
 import com.powsybl.glsk.commons.ZonalData;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.Line;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.Substation;
+import com.powsybl.iidm.network.Terminal;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
+import com.powsybl.openrao.data.crac.api.io.utils.BufferSize;
+import com.powsybl.openrao.data.crac.api.io.utils.TmpFile;
 import com.powsybl.openrao.data.crac.loopflowextension.LoopFlowThresholdAdder;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceProgram;
 import com.powsybl.openrao.raoapi.Rao;
 import com.powsybl.openrao.raoapi.RaoInput;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
-import com.powsybl.sensitivity.SensitivityVariableSet;
 import com.powsybl.openrao.tests.steps.CommonTestData;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
+import com.powsybl.sensitivity.SensitivityVariableSet;
 import java.io.IOException;
 import java.util.Optional;
 import java.util.Properties;
-
-import static java.lang.String.format;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -115,16 +118,14 @@ public final class RaoUtils {
     }
 
     private static RaoResult roundTripOnRaoResult(RaoResult raoResult, Crac crac) throws IOException {
-
-        // export RaoResult
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        Properties properties = new Properties();
-        properties.setProperty("rao-result.export.json.flows-in-amperes", "true");
-        properties.setProperty("rao-result.export.json.flows-in-megawatts", "true");
-        raoResult.write("JSON", crac, properties, outputStream);
-
-        // import RaoResult
-        ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
-        return RaoResult.read(inputStream, crac);
+        try (var tmp = TmpFile.create("roundTripOnRaoResult.json", BufferSize.SMALL)) {
+            // export RaoResult
+            Properties properties = new Properties();
+            properties.setProperty("rao-result.export.json.flows-in-amperes", "true");
+            properties.setProperty("rao-result.export.json.flows-in-megawatts", "true");
+            tmp.withWriteStream(os -> raoResult.write("JSON", crac, properties, os));
+            // import RaoResult
+            return RaoResult.read(tmp.getTempFile().toFile(), crac);
+        }
     }
 }

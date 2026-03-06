@@ -7,56 +7,69 @@
 
 package com.powsybl.openrao.data.raoresult.io.json;
 
-import com.google.auto.service.AutoService;
-import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.data.crac.api.Crac;
-import com.powsybl.openrao.data.raoresult.api.io.Importer;
-import com.powsybl.openrao.data.raoresult.api.RaoResult;
-import com.powsybl.openrao.data.raoresult.io.json.deserializers.RaoResultDeserializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UncheckedIOException;
-
-import static com.powsybl.commons.json.JsonUtil.createObjectMapper;
+import com.google.auto.service.AutoService;
+import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.openrao.commons.OpenRaoException;
+import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.io.utils.SafeFileReader;
+import com.powsybl.openrao.data.crac.api.io.utils.SafeFileReader.RunException;
+import com.powsybl.openrao.data.raoresult.api.RaoResult;
+import com.powsybl.openrao.data.raoresult.api.io.Importer;
+import com.powsybl.openrao.data.raoresult.io.json.deserializers.RaoResultDeserializer;
 
 /**
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
 @AutoService(Importer.class)
 public class RaoResultJsonImporter implements Importer {
+
+    private final static ObjectMapper JSON_MAPPER_READ = initReader();
+
+    private static ObjectMapper initReader() {
+        ObjectMapper mapper = JsonUtil.createObjectMapper();
+        SimpleModule module = new SimpleModule();
+        module.addDeserializer(RaoResult.class, new RaoResultDeserializer(true));
+        mapper.registerModule(module);
+        return mapper;
+    }
+
     @Override
     public String getFormat() {
         return "JSON";
     }
 
     @Override
-    public boolean exists(InputStream inputStream) {
-        try {
-            ObjectMapper objectMapper = createObjectMapper();
-            SimpleModule module = new SimpleModule();
-            module.addDeserializer(RaoResult.class, new RaoResultDeserializer(true));
-            objectMapper.registerModule(module);
-            // TODO: replace this by a call to RaoResultDeserializer.isValid
-            objectMapper.readValue(inputStream, RaoResult.class);
-            return true;
-        } catch (OpenRaoException | IOException e) {
-            return false;
-        }
+    public boolean exists(SafeFileReader inputFile) {
+        return inputFile.withReadStream(is -> {
+            try {
+                // TODO: replace this by a call to RaoResultDeserializer.isValid
+                JSON_MAPPER_READ.readValue(is, RaoResult.class);
+                return true;
+            } catch (Exception e) {
+                return false;
+            }
+        });
     }
 
     @Override
-    public RaoResult importData(InputStream inputStream, Crac crac) {
+    public RaoResult importData(SafeFileReader inputFile, Crac crac) {
+        ObjectMapper mapper = JsonUtil.createObjectMapper();
+        SimpleModule module = new SimpleModule();
+        //TODO Lui why crac parameter?
+        module.addDeserializer(RaoResult.class, new RaoResultDeserializer(crac));
+        mapper.registerModule(module);
+
         try {
-            ObjectMapper objectMapper = createObjectMapper();
-            SimpleModule module = new SimpleModule();
-            module.addDeserializer(RaoResult.class, new RaoResultDeserializer(crac));
-            objectMapper.registerModule(module);
-            return objectMapper.readValue(inputStream, RaoResult.class);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
+            return inputFile.withReadStream(is -> mapper.readValue(is, RaoResult.class));
+        } catch (RunException e) {
+            if (e.getCause() instanceof OpenRaoException oe) {
+                throw oe;
+            }
+            throw new RuntimeException(e.getCause());
         }
+
     }
+
 }

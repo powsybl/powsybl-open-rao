@@ -7,29 +7,26 @@
 
 package com.powsybl.openrao.data.raoresult.io.cne.swe;
 
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.CNE_REQUIRED_PROPERTIES;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.CNE_TAG;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.CNE_XSD_2_3;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.CODELISTS_XSD;
+import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.LOCALTYPES_XSD;
+import static com.powsybl.openrao.data.raoresult.io.cne.swe.SweCneUtil.SWE_CNE_EXPORT_PROPERTIES_PREFIX;
+
 import com.google.auto.service.AutoService;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
+import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.CracCreationContext;
 import com.powsybl.openrao.data.crac.io.cim.craccreator.CimCracCreationContext;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.api.io.Exporter;
 import com.powsybl.openrao.data.raoresult.io.cne.swe.xsd.CriticalNetworkElementMarketDocument;
-import com.powsybl.openrao.data.crac.api.Crac;
-import org.apache.commons.lang3.NotImplementedException;
-import org.xml.sax.SAXException;
-
-import javax.xml.XMLConstants;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBElement;
 import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Marshaller;
-import javax.xml.namespace.QName;
-import javax.xml.transform.Source;
-import javax.xml.transform.stream.StreamSource;
-import javax.xml.validation.Schema;
-import javax.xml.validation.SchemaFactory;
-import javax.xml.validation.Validator;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.StringReader;
@@ -38,9 +35,15 @@ import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import static com.powsybl.openrao.data.raoresult.io.cne.commons.CneConstants.*;
-import static com.powsybl.openrao.data.raoresult.io.cne.swe.SweCneUtil.SWE_CNE_EXPORT_PROPERTIES_PREFIX;
+import javax.xml.XMLConstants;
+import javax.xml.namespace.QName;
+import javax.xml.transform.Source;
+import javax.xml.transform.stream.StreamSource;
+import javax.xml.validation.Schema;
+import javax.xml.validation.SchemaFactory;
+import javax.xml.validation.Validator;
+import org.apache.commons.lang3.NotImplementedException;
+import org.xml.sax.SAXException;
 
 /**
  * SWE-CNE Rao Result exporter in XML format.
@@ -94,6 +97,28 @@ import static com.powsybl.openrao.data.raoresult.io.cne.swe.SweCneUtil.SWE_CNE_E
  */
 @AutoService(Exporter.class)
 public class SweCneExporter implements Exporter {
+
+    private final static JAXBContext JAXB_CONTEXT;
+    private final static Schema SCHEMA;
+
+    static {
+        try {
+            JAXB_CONTEXT = JAXBContext.newInstance(CriticalNetworkElementMarketDocument.class);
+
+            var factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+            factory.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+
+            Source[] source = {new StreamSource(getSchemaFile(CNE_XSD_2_3)),
+                new StreamSource(getSchemaFile(CODELISTS_XSD)),
+                new StreamSource(getSchemaFile(LOCALTYPES_XSD))};
+            SCHEMA = factory.newSchema(source);
+            factory.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     @Override
     public String getFormat() {
         return "SWE-CNE";
@@ -118,8 +143,7 @@ public class SweCneExporter implements Exporter {
         StringWriter stringWriter = new StringWriter();
 
         try {
-            JAXBContext jaxbContext = JAXBContext.newInstance(CriticalNetworkElementMarketDocument.class);
-            Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
+            Marshaller jaxbMarshaller = JAXB_CONTEXT.createMarshaller();
 
             // format the XML output
             jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
@@ -155,16 +179,7 @@ public class SweCneExporter implements Exporter {
     public static boolean validateCNESchema(String xmlContent) {
 
         try {
-            SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-            factory.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
-
-            Source[] source = {new StreamSource(getSchemaFile(CNE_XSD_2_3)),
-                               new StreamSource(getSchemaFile(CODELISTS_XSD)),
-                               new StreamSource(getSchemaFile(LOCALTYPES_XSD))};
-            Schema schema = factory.newSchema(source);
-            factory.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
-
-            Validator validator = schema.newValidator();
+            Validator validator = SCHEMA.newValidator();
             validator.validate(new StreamSource(new StringReader(xmlContent)));
         } catch (IOException | SAXException e) {
             OpenRaoLoggerProvider.TECHNICAL_LOGS.warn("Exception: {}", e.getMessage());

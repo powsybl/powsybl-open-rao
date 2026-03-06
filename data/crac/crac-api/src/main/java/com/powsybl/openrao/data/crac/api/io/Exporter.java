@@ -8,7 +8,6 @@
 package com.powsybl.openrao.data.crac.api.io;
 
 import com.powsybl.openrao.data.crac.api.Crac;
-
 import java.io.OutputStream;
 
 /**

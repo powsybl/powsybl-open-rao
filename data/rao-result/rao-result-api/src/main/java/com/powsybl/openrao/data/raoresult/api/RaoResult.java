@@ -9,6 +9,7 @@ package com.powsybl.openrao.data.raoresult.api;
 
 import com.powsybl.commons.extensions.Extendable;
 import com.powsybl.commons.util.ServiceLoaderCache;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
@@ -19,18 +20,16 @@ import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.cnec.AngleCnec;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.cnec.VoltageCnec;
+import com.powsybl.openrao.data.crac.api.io.utils.BufferSize;
+import com.powsybl.openrao.data.crac.api.io.utils.SafeFileReader;
 import com.powsybl.openrao.data.crac.api.networkaction.NetworkAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.raoresult.api.io.Exporter;
 import com.powsybl.openrao.data.raoresult.api.io.Importer;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
@@ -468,34 +467,28 @@ public interface RaoResult extends Extendable<RaoResult> {
      * Import RaoResult from a file
      *
      * @param importers   candidates RaoResult importers to process the data
-     * @param inputStream RaoResult data
+     * @param inputFile RaoResult data
      * @param crac        the crac on which the RaoResult data is based
      * @return RaoResult object
      */
-    private static RaoResult read(List<Importer> importers, InputStream inputStream, Crac crac) throws IOException {
-        byte[] bytes = getBytesFromInputStream(inputStream);
-        return importers.stream()
-            .filter(importer -> importer.exists(new ByteArrayInputStream(bytes)))
+    private static RaoResult read(List<Importer> importers, File inputFile, Crac crac) {
+        var reader = SafeFileReader.create(inputFile, BufferSize.MEDIUM);
+        var foundImporter = importers.stream()
+            .filter(importer -> importer.exists(reader))
             .findAny()
-            .orElseThrow(() -> new OpenRaoException("No suitable RaoResult importer found."))
-            .importData(new ByteArrayInputStream(bytes), crac);
+            .orElseThrow(() -> new OpenRaoException("No suitable RaoResult importer found."));
+        return foundImporter.importData(reader, crac);
     }
 
     /**
      * Import RaoResult from a file
      *
-     * @param inputStream RaoResult data
+     * @param inputFile RaoResult data
      * @param crac        the crac on which the RaoResult data is based
      * @return RaoResult object
      */
-    static RaoResult read(InputStream inputStream, Crac crac) throws IOException {
-        return read(new ServiceLoaderCache<>(Importer.class).getServices(), inputStream, crac);
-    }
-
-    private static byte[] getBytesFromInputStream(InputStream inputStream) throws IOException {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        org.apache.commons.io.IOUtils.copy(inputStream, baos);
-        return baos.toByteArray();
+    static RaoResult read(File inputFile, Crac crac) throws IOException {
+        return read(new ServiceLoaderCache<>(Importer.class).getServices(), inputFile, crac);
     }
 
     /**

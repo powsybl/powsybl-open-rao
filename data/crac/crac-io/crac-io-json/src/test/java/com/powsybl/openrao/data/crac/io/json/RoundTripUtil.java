@@ -10,23 +10,32 @@ package com.powsybl.openrao.data.crac.io.json;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.data.crac.api.Crac;
+import com.powsybl.openrao.data.crac.api.io.utils.BufferSize;
+import com.powsybl.openrao.data.crac.api.io.utils.SafeFileReader;
+import com.powsybl.openrao.data.crac.api.io.utils.TmpFile;
 import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.crac.io.json.serializers.CracJsonSerializerModule;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UncheckedIOException;
-
-import static com.powsybl.commons.json.JsonUtil.createObjectMapper;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public final class RoundTripUtil {
+
+    private static final ObjectMapper OBJECT_MAPPER = JsonUtil.createObjectMapper();
+
+    static {
+        OBJECT_MAPPER.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        OBJECT_MAPPER.registerModule(new CracJsonSerializerModule());
+    }
+
+    private static final ObjectWriter WRITER = OBJECT_MAPPER.writerWithDefaultPrettyPrinter();
+
+
     private RoundTripUtil() {
 
     }
@@ -40,31 +49,21 @@ public final class RoundTripUtil {
      * @return the object exported and re-imported
      */
     static Crac implicitJsonRoundTrip(Crac object, Network network) {
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        object.write("JSON", outputStream);
-
-        try (ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray())) {
-            return Crac.read("crac.json", inputStream, network);
+        try (var tmp = TmpFile.create("implicitJsonRoundTrip.json", BufferSize.MEDIUM)) {
+            tmp.withWriteStream(os -> object.write("JSON", os));
+            return Crac.read(tmp.getTempFile().toFile(), network);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
     static Crac explicitJsonRoundTrip(Crac object, Network network) {
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        try {
-            ObjectMapper objectMapper = createObjectMapper();
-            objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-            SimpleModule module = new CracJsonSerializerModule();
-            objectMapper.registerModule(module);
-            ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
-            writer.writeValue(outputStream, object);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-
-        try (ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray())) {
-            return new JsonImport().importData(inputStream, CracCreationParameters.load(), network).getCrac();
+        try (var tmp = TmpFile.create("explicitJsonRoundTrip.json", BufferSize.MEDIUM)) {
+            // export Crac to TmpFile
+            tmp.withWriteStream(os -> WRITER.writeValue(os, object));
+            // import Crac from TmpFile
+            var reader = SafeFileReader.create(tmp.getTempFile(), BufferSize.MEDIUM);
+            return new JsonImport().importData(reader, CracCreationParameters.load(), network).getCrac();
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

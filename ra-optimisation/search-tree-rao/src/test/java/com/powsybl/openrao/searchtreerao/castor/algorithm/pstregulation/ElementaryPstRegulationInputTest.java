@@ -7,28 +7,28 @@
 
 package com.powsybl.openrao.searchtreerao.castor.algorithm.pstregulation;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
-import org.junit.jupiter.api.Test;
-
+import com.powsybl.openrao.searchtreerao.TestBase;
 import java.io.IOException;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
  */
-class ElementaryPstRegulationInputTest {
+class ElementaryPstRegulationInputTest extends TestBase {
     @Test
     void testRetrieveLimitingThresholdInCrac() throws IOException {
         Network network = Network.read("2Nodes4ParallelLines3PSTs.uct", getClass().getResourceAsStream("/network/2Nodes4ParallelLines3PSTs.uct"));
-        Crac crac = Crac.read("crac-3-psts.json", getClass().getResourceAsStream("/crac/crac-3-psts.json"), network);
+        Crac crac = Crac.read(getResourceAsFile("/crac/crac-3-psts.json"), network);
         State state = crac.getState("Contingency BE1 FR1 1", crac.getInstant(InstantKind.CURATIVE));
 
         // thresholds are properly defined on both sides
@@ -53,7 +53,7 @@ class ElementaryPstRegulationInputTest {
     @Test
     void testRetrieveLimitingThresholdInCracForLineInSeries() throws IOException {
         Network network = Network.read("2Nodes4ParallelLines3PSTs.uct", getClass().getResourceAsStream("/network/2Nodes4ParallelLines3PSTs.uct"));
-        Crac crac = Crac.read("crac-3-psts-monitored-line-in-series.json", getClass().getResourceAsStream("/crac/crac-3-psts-monitored-line-in-series.json"), network);
+        Crac crac = Crac.read(getResourceAsFile("/crac/crac-3-psts-monitored-line-in-series.json"), network);
         State state = crac.getState("Contingency BE1 FR1 2", crac.getInstant(InstantKind.CURATIVE));
 
         // common terminal is on side 1 of both the line and the PST so only the thresholds on this side are used

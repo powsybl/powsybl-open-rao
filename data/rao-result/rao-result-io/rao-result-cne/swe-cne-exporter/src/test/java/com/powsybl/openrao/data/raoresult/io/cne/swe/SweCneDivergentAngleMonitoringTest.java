@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.raoresult.io.cne.swe;
 
+import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.PhysicalParameter;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
@@ -21,26 +22,29 @@ import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.monitoring.results.CnecResult;
 import com.powsybl.openrao.monitoring.results.MonitoringResult;
 import com.powsybl.openrao.monitoring.results.RaoResultWithAngleMonitoring;
-import com.powsybl.iidm.network.Network;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
-class SweCneDivergentAngleMonitoringTest {
+class SweCneDivergentAngleMonitoringTest extends TestBase {
 
     @Test
     void testExport() throws IOException {
         Network network = Network.read(new File(SweCneTest.class.getResource("/TestCase16NodesWith2Hvdc.xiidm").getFile()).toString());
-        InputStream is = getClass().getResourceAsStream("/CIM_CRAC.xml");
+        var is = getResourceAsFile("/CIM_CRAC.xml");
 
         Set<RangeActionSpeed> rangeActionSpeeds = Set.of(new RangeActionSpeed("BBE2AA11 FFR3AA11 1", 1), new RangeActionSpeed("BBE2AA12 FFR3AA12 1", 2), new RangeActionSpeed("PRA_1", 3));
         CimCracCreationParameters cimCracCreationParameters = new CimCracCreationParameters();
@@ -49,9 +53,9 @@ class SweCneDivergentAngleMonitoringTest {
         cracCreationParameters.setCracFactoryName("CracImplFactory");
         cracCreationParameters.addExtension(CimCracCreationParameters.class, cimCracCreationParameters);
         cracCreationParameters.getExtension(CimCracCreationParameters.class).setTimestamp(OffsetDateTime.of(2021, 4, 2, 12, 30, 0, 0, ZoneOffset.UTC));
-        CracCreationContext cracCreationContext = Crac.readWithContext("CIM_CRAC.xml", is, network, cracCreationParameters);
+        CracCreationContext cracCreationContext = Crac.readWithContext(is, network, cracCreationParameters);
         Crac crac = cracCreationContext.getCrac();
-        InputStream inputStream = new FileInputStream(SweCneDivergentAngleMonitoringTest.class.getResource("/RaoResult.json").getFile());
+        var inputStream = getResourceAsFile("/RaoResult.json");
         RaoResult raoResult = RaoResult.read(inputStream, crac);
 
         MonitoringResult monitoringResult = new MonitoringResult(PhysicalParameter.ANGLE,

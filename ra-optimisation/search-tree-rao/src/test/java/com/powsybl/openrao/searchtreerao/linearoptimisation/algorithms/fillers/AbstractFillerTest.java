@@ -7,35 +7,35 @@
 
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.range.RangeType;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
 import com.powsybl.openrao.data.crac.impl.utils.NetworkImportsUtil;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
+import com.powsybl.openrao.searchtreerao.TestBase;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.RangeActionActivationResult;
 import com.powsybl.openrao.searchtreerao.result.api.SensitivityResult;
 import com.powsybl.openrao.searchtreerao.result.impl.RangeActionActivationResultImpl;
 import com.powsybl.openrao.searchtreerao.result.impl.RangeActionSetpointResultImpl;
-import org.mockito.Mockito;
-
 import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import org.mockito.Mockito;
 
 /**
  * @author Viktor Terrier {@literal <viktor.terrier at rte-france.com>}
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-abstract class AbstractFillerTest {
+abstract class AbstractFillerTest extends TestBase {
     static final double DOUBLE_TOLERANCE = 1e-4;
 
     static final String PREVENTIVE_INSTANT_ID = "preventive";
@@ -75,7 +75,7 @@ abstract class AbstractFillerTest {
         // arrange some data for all fillers test
         // crac and network
         network = NetworkImportsUtil.import12NodesNetwork();
-        crac = Crac.read("small-crac.json", getClass().getResourceAsStream("/crac/small-crac.json"), network);
+        crac = Crac.read(getResourceAsFile("/crac/small-crac.json"), network);
 
         // get cnec and rangeAction
         cnec1 = crac.getFlowCnec(CNEC_1_ID);

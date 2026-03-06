@@ -7,6 +7,9 @@
 
 package com.powsybl.openrao.data.crac.util;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.TemporalData;
@@ -18,25 +21,21 @@ import com.powsybl.openrao.data.intertemporalconstraints.GeneratorConstraints;
 import com.powsybl.openrao.data.intertemporalconstraints.IntertemporalConstraints;
 import com.powsybl.openrao.raoapi.InterTemporalRaoInputWithNetworkPaths;
 import com.powsybl.openrao.raoapi.RaoInputWithNetworkPaths;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
-import java.util.*;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import java.util.Map;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
  */
-class IcsImporterTest {
+class IcsImporterTest extends TestBase  {
     private static final double DOUBLE_EPSILON = 1e-6;
     private static final String TMP_DIR = System.getProperty("java.io.tmpdir") + File.separator;
     private String networkFilePathPostIcsImport1;
@@ -59,8 +58,8 @@ class IcsImporterTest {
         networkFilePathPostIcsImport1 = TMP_DIR + networkFilePath1.split(".uct")[0].concat("_modified.jiidm");
         networkFilePathPostIcsImport2 = TMP_DIR + networkFilePath2.split(".uct")[0].concat("_modified.jiidm");
 
-        crac1 = Crac.read("/crac/crac-0030.json", IcsImporterTest.class.getResourceAsStream("/crac/crac-0030.json"), network1);
-        crac2 = Crac.read("/crac/crac-0130.json", IcsImporterTest.class.getResourceAsStream("/crac/crac-0130.json"), network2);
+        crac1 = Crac.read(getResourceAsFile("/crac/crac-0030.json"), network1);
+        crac2 = Crac.read(getResourceAsFile("/crac/crac-0130.json"), network2);
 
         OffsetDateTime timestamp1 = OffsetDateTime.of(2025, 2, 13, 0, 30, 0, 0, ZoneOffset.UTC);
         OffsetDateTime timestamp2 = OffsetDateTime.of(2025, 2, 13, 1, 30, 0, 0, ZoneOffset.UTC);

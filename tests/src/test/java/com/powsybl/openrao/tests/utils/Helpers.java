@@ -18,6 +18,9 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.CracCreationContext;
+import com.powsybl.openrao.data.crac.api.io.utils.BufferSize;
+import com.powsybl.openrao.data.crac.api.io.utils.SafeFileReader;
+import com.powsybl.openrao.data.crac.api.io.utils.TmpFile;
 import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.crac.io.cim.craccreator.CimCracCreationContext;
 import com.powsybl.openrao.data.crac.io.cse.CseCracCreationContext;
@@ -28,21 +31,24 @@ import com.powsybl.openrao.data.refprog.referenceprogram.ReferenceProgram;
 import com.powsybl.openrao.data.refprog.refprogxmlimporter.RefProgImporter;
 import com.powsybl.openrao.tests.steps.CommonTestData;
 import com.powsybl.openrao.tests.utils.round_trip_crac.RoundTripCimCracCreationContext;
-import com.powsybl.openrao.tests.utils.round_trip_crac.RoundTripNcCracCreationContext;
 import com.powsybl.openrao.tests.utils.round_trip_crac.RoundTripCseCracCreationContext;
 import com.powsybl.openrao.tests.utils.round_trip_crac.RoundTripFbConstraintCreationContext;
+import com.powsybl.openrao.tests.utils.round_trip_crac.RoundTripNcCracCreationContext;
 import com.powsybl.sensitivity.SensitivityVariableSet;
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang3.NotImplementedException;
-import org.apache.commons.lang3.tuple.Pair;
-
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.Paths;
-import java.time.*;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 import java.util.Properties;
-import java.util.zip.ZipInputStream;
+import org.apache.commons.lang3.NotImplementedException;
+import org.apache.commons.lang3.tuple.Pair;
 
 /**
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
@@ -72,21 +78,14 @@ public final class Helpers {
 
     public static Crac importCracFromInternalFormat(File cracFile, Network network) {
         try {
-            return roundTripOnCrac(Crac.read(cracFile.getName(), new FileInputStream(cracFile), network), network);
+            return roundTripOnCrac(Crac.read(cracFile, network), network);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
     public static CracCreationContext importCracFromNativeCrac(File cracFile, Network network, CracCreationParameters cracCreationParameters) throws IOException {
-        byte[] cracBytes = null;
-        try (InputStream cracInputStream = new BufferedInputStream(new FileInputStream(cracFile))) {
-            cracBytes = getBytesFromInputStream(cracInputStream);
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new OpenRaoException("Could not load CRAC file", e);
-        }
-        CracCreationContext cracCreationContext = Crac.readWithContext(cracFile.getName(), new ByteArrayInputStream(cracBytes), network, cracCreationParameters);
+        CracCreationContext cracCreationContext = Crac.readWithContext(cracFile, network, cracCreationParameters);
         // round-trip CRAC json export/import to test it implicitly
         return roundTripOnCracCreationContext(cracCreationContext, network);
     }
@@ -95,14 +94,7 @@ public final class Helpers {
         if (cracFile.getName().endsWith(".json")) {
             return "JSON";
         }
-        byte[] cracBytes = null;
-        try (InputStream cracInputStream = new BufferedInputStream(new FileInputStream(cracFile))) {
-            cracBytes = getBytesFromInputStream(cracInputStream);
-            return Crac.getCracFormat(cracFile.getName(), new ByteArrayInputStream(cracBytes));
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new OpenRaoException("Could not load CRAC file", e);
-        }
+        return Crac.getCracFormat(cracFile);
     }
 
     private static CracCreationContext roundTripOnCracCreationContext(CracCreationContext cracCreationContext, Network network) throws IOException {
@@ -121,18 +113,18 @@ public final class Helpers {
     }
 
     private static Crac roundTripOnCrac(Crac crac, Network network) throws IOException {
-        // export Crac
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        crac.write("JSON", outputStream);
-
-        // import Crac
-        ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
-        return Crac.read("crac.json", inputStream, network);
+        try (var tmp = TmpFile.create("round.json", BufferSize.MEDIUM)) {
+            // export Crac
+            tmp.withWriteStream(os -> crac.write("JSON", os));
+            // import Crac
+            return Crac.read(tmp.getTempFile().toFile(), network);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
     public static ZonalData<SensitivityVariableSet> importUcteGlskFile(File glskFile, OffsetDateTime timestamp, Network network) throws IOException {
-        InputStream inputStream = new FileInputStream(glskFile);
-        UcteGlskDocument ucteGlskDocument = UcteGlskDocument.importGlsk(inputStream);
+        UcteGlskDocument ucteGlskDocument = SafeFileReader.create(glskFile, BufferSize.MEDIUM).withReadStream(UcteGlskDocument::importGlsk);
 
         Instant instant;
         if (timestamp == null) {
@@ -145,8 +137,7 @@ public final class Helpers {
     }
 
     public static ZonalData<Scalable> importMonitoringGlskFile(File monitoringGlskFile, OffsetDateTime timestamp, Network network) throws IOException {
-        InputStream inputStream = new FileInputStream(monitoringGlskFile);
-        CimGlskDocument cimGlskDocument = CimGlskDocument.importGlsk(inputStream);
+        CimGlskDocument cimGlskDocument = SafeFileReader.create(monitoringGlskFile, BufferSize.MEDIUM).withReadStream(CimGlskDocument::importGlsk);
 
         Instant instant;
         if (timestamp == null) {
@@ -175,17 +166,15 @@ public final class Helpers {
             throw new OpenRaoException("A timestamp should be provided in order to import the refProg file.");
         }
 
-        InputStream refProgInputStream = new FileInputStream(refProgFile);
-        return RefProgImporter.importRefProg(refProgInputStream, offsetDateTime);
+        return SafeFileReader.create(refProgFile, BufferSize.SMALL).withReadStream(is -> RefProgImporter.importRefProg(is, offsetDateTime));
     }
 
     public static RaoResult importRaoResult(File raoResultFile) throws IOException {
-        InputStream inputStream = getStreamFromZippable(raoResultFile);
-        RaoResult raoResult = RaoResult.read(inputStream, CommonTestData.getCrac());
-        inputStream.close();
+        RaoResult raoResult = RaoResult.read(raoResultFile, CommonTestData.getCrac());
         return raoResult;
     }
 
+    /*
     private static InputStream getStreamFromZippable(File file) throws IOException {
         FileInputStream fileInputStream = new FileInputStream(file);
         if (!FilenameUtils.getExtension(file.getAbsolutePath()).equals("zip")) {
@@ -195,6 +184,7 @@ public final class Helpers {
         zipInputStream.getNextEntry();
         return zipInputStream;
     }
+    */
 
     public static File getFile(String path) {
         Objects.requireNonNull(path);
@@ -205,14 +195,4 @@ public final class Helpers {
         }
     }
 
-    private static byte[] getBytesFromInputStream(InputStream inputStream) {
-        try {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            org.apache.commons.io.IOUtils.copy(inputStream, baos);
-            return baos.toByteArray();
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new UncheckedIOException(e);
-        }
-    }
 }

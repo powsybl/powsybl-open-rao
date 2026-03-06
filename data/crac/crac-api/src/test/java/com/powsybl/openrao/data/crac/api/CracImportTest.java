@@ -7,11 +7,18 @@
 
 package com.powsybl.openrao.data.crac.api;
 
-import org.junit.jupiter.api.Test;
-
-import java.io.IOException;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.data.crac.api.io.Importer;
+import com.powsybl.openrao.data.crac.api.io.utils.BufferSize;
+import com.powsybl.openrao.data.crac.api.io.utils.SafeFileReader;
+import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.nio.file.Path;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -19,7 +26,33 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class CracImportTest {
 
     @Test
-    void testImportFromInputStream() throws IOException {
-        assertEquals("crac", Crac.read("crac.json", getClass().getResourceAsStream("/crac.json"), null).getId());
+    void testImportFromInputStream() throws IOException, URISyntaxException {
+        var json = Path.of(getClass().getClassLoader().getResource("crac.json").toURI()).toFile();
+        assertEquals("crac", Crac.read(json, null).getId());
+
+        var importer = new Importer() {
+
+            @Override
+            public String getFormat() {
+                return "";
+            }
+
+            @Override
+            public boolean exists(SafeFileReader inputFile) {
+                return false;
+            }
+
+            @Override
+            public CracCreationContext importData(SafeFileReader inputFile,
+                CracCreationParameters cracCreationParameters, Network network) {
+              var all =  inputFile.withReadStream(is -> new String(is.readAllBytes()));
+              Assertions.assertEquals("Example CRAC file", all);
+              return null;
+            }
+        };
+
+        var reader = SafeFileReader.create(json, BufferSize.MEDIUM);
+        importer.importData(reader, CracCreationParameters.load(), null);
+
     }
 }
