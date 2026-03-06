@@ -11,12 +11,14 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 
+import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.io.json.JsonSerializationConstants;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.TimeCoupledRaoResult;
 import com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonConstants;
+import com.powsybl.openrao.data.raoresult.io.json.RaoResultJsonUtils;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -61,6 +63,8 @@ public class JsonTimeCoupledRaoResultSerializer extends JsonSerializer<TimeCoupl
 
         serializeCostResults(timeCoupledRaoResult, jsonGenerator);
         serializeRaoResultPerTimestamp(timeCoupledRaoResult, jsonGenerator, individualRaoResultFilenameTemplate);
+
+        JsonUtil.writeExtensions(timeCoupledRaoResult, jsonGenerator, serializerProvider, RaoResultJsonUtils.getExtensionSerializers());
 
         jsonGenerator.writeEndObject();
     }
