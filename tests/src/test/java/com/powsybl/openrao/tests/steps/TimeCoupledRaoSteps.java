@@ -514,15 +514,19 @@ public final class TimeCoupledRaoSteps {
 
     @Then("the functional cost for all timestamps is {double}")
     public static void theFunctionalCostForAllTimestampsIs(double functionalCost) {
+        OffsetDateTime firstTimestamp = timeCoupledRaoInputWithNetworkPaths.getRaoInputs().getTimestamps().getFirst();
+        Instant lastInstant = timeCoupledRaoInputWithNetworkPaths.getRaoInputs().getData(firstTimestamp).orElseThrow().getCrac().getLastInstant();
         assertEquals(functionalCost,
-            timeCoupledRaoResult.getGlobalFunctionalCost(cracCreationContexts.values().iterator().next().getCrac().getLastInstant()),
+            timeCoupledRaoResult.getGlobalFunctionalCost(lastInstant),
             RaoSteps.TOLERANCE_FLOW_IN_MEGAWATT);
     }
 
     @Then("the total cost for all timestamps is {double}")
     public static void theTotalCostForAllTimestampsIs(double totalCost) {
+        OffsetDateTime firstTimestamp = timeCoupledRaoInputWithNetworkPaths.getRaoInputs().getTimestamps().getFirst();
+        Instant lastInstant = timeCoupledRaoInputWithNetworkPaths.getRaoInputs().getData(firstTimestamp).orElseThrow().getCrac().getLastInstant();
         assertEquals(totalCost,
-            timeCoupledRaoResult.getGlobalCost(cracCreationContexts.values().iterator().next().getCrac().getLastInstant()),
+            timeCoupledRaoResult.getGlobalCost(lastInstant),
             RaoSteps.TOLERANCE_FLOW_IN_MEGAWATT);
     }
 
