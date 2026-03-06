@@ -53,7 +53,7 @@ import static com.powsybl.openrao.data.crac.io.commons.ucte.UcteNetworkAnalyzerP
  */
 class FbConstraintCracCreator {
 
-    private static void addFbContraintInstants(Crac crac) {
+    private static void addFbContraintInstants(final Crac crac) {
         crac.newInstant("preventive", InstantKind.PREVENTIVE)
             .newInstant("outage", InstantKind.OUTAGE)
             .newInstant("curative", InstantKind.CURATIVE);
