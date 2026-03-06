@@ -298,6 +298,10 @@ class FbConstraintCracCreator {
     }
 
     private static Set<Contingency> getCurativeUsageRulesContingencies(final Set<UsageRule> usageRules) {
+        // During import of the FbConstraintDocument, remedial actions of type InjectionRangeAction are only created to represent HVDC remedial actions.
+        // In the method addUsageRules() of HvdcLineRemedialActionAdder, if the HVDC RA is curative, we create OnContingencyState usage rules for each
+        // contingency listed in the afterCoList property of the ComplexVariant.
+        // As there is no other type of usage rules for curative HVDC remedial actions, we can parse OnContingencyState usage rules only to list contingencies.
         return usageRules.stream()
             .filter(usageRule -> usageRule.getInstant().isCurative())
             .filter(OnContingencyState.class::isInstance)
