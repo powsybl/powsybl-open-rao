@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.data.crac.io.fbconstraint;
 
+import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.data.crac.api.Crac;
@@ -15,6 +16,8 @@ import com.powsybl.openrao.data.crac.api.InstantKind;
 import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.parameters.CracCreationParameters;
 import com.powsybl.openrao.data.crac.api.rangeaction.InjectionRangeAction;
+import com.powsybl.openrao.data.crac.api.usagerule.OnContingencyState;
+import com.powsybl.openrao.data.crac.api.usagerule.UsageRule;
 import com.powsybl.openrao.data.crac.io.commons.RaUsageLimitsAdder;
 import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
 import com.powsybl.openrao.data.crac.io.commons.api.StandardElementaryCreationContext;
@@ -37,7 +40,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -186,7 +188,7 @@ class FbConstraintCracCreator {
         final Map<Optional<ActionTypeEnum>, List<ComplexVariantReader>> complexVariantReadersGroupedByType = new HashMap<>();
         // Initialise the map with all expected keys and empty lists: null for invalid readers, PST, TOPO and HVDC
         Stream.of(null, ActionTypeEnum.PST, ActionTypeEnum.TOPO, ActionTypeEnum.HVDC)
-                .forEach(type -> complexVariantReadersGroupedByType.put(Optional.ofNullable(type), List.of()));
+            .forEach(type -> complexVariantReadersGroupedByType.put(Optional.ofNullable(type), List.of()));
         // Then populate the map with complexVariantReaders content, grouped by action type
         complexVariantReadersGroupedByType.putAll(
             complexVariantReaders.stream()
@@ -259,44 +261,50 @@ class FbConstraintCracCreator {
 
     private static boolean remedialActionsHaveInconsistentUsageRules(final List<? extends RemedialAction<?>> remedialActions,
                                                                      final FbConstraintCreationContext creationContext) {
-        return remedialActionsHaveInconsistentUsageRulesForInstant(
-            remedialActions,
-            creationContext,
-            FbConstraintCracCreator::remedialActionHasPreventiveUsageRule,
-            "preventive"
-        )
-            && remedialActionsHaveInconsistentUsageRulesForInstant(
-            remedialActions,
-            creationContext,
-            FbConstraintCracCreator::remedialActionHasCurativeUsageRule,
-            "curative"
-        );
-        // TODO Should we add a check on afterCoList for curative instant?
-    }
+        // Preventive usage rule
+        final Optional<UsageRule> preventiveUsageRuleReference = getPreventiveUsageRule(remedialActions.getFirst().getUsageRules());
+        final boolean allRemedialActionsHaveSamePreventiveUsageRule = remedialActions.stream()
+            .map(RemedialAction::getUsageRules)
+            .allMatch(usageRules -> getPreventiveUsageRule(usageRules).isPresent() == preventiveUsageRuleReference.isPresent());
 
-    private static boolean remedialActionHasPreventiveUsageRule(final RemedialAction<?> remedialAction) {
-        return remedialAction.getUsageRules().stream()
-            .anyMatch(usageRule -> usageRule.getInstant().isPreventive());
-    }
-
-    private static boolean remedialActionHasCurativeUsageRule(final RemedialAction<?> remedialAction) {
-        return remedialAction.getUsageRules().stream()
-            .anyMatch(usageRule -> usageRule.getInstant().isCurative());
-    }
-
-    private static boolean remedialActionsHaveInconsistentUsageRulesForInstant(final List<? extends RemedialAction<?>> remedialActions,
-                                                                               final FbConstraintCreationContext creationContext,
-                                                                               final Predicate<RemedialAction<?>> usageRulesPredicate,
-                                                                               final String instant) {
-        final boolean allRemedialActionsHaveSameUsageRuleForInstant = remedialActions.stream()
-            .allMatch(ra -> usageRulesPredicate.test(ra) == usageRulesPredicate.test(remedialActions.getFirst()));
-
-        if (!allRemedialActionsHaveSameUsageRuleForInstant) {
+        if (!allRemedialActionsHaveSamePreventiveUsageRule) {
             final String remedialActionIds = remedialActions.stream().map(RemedialAction::getId).collect(Collectors.joining(", "));
-            creationContext.getCreationReport().warn("inconsistent " + instant + " usage rules for remedial actions " + remedialActionIds);
+            creationContext.getCreationReport().warn("inconsistent preventive usage rules for remedial actions " + remedialActionIds);
+            return true;
+        }
+
+        // Curative usage rules
+        final Set<Contingency> curativeContingenciesReference = getCurativeUsageRulesContingencies(remedialActions.getFirst().getUsageRules());
+        final boolean allRemedialActionsHaveSameCurativeUsageRule = remedialActions.stream()
+            .map(RemedialAction::getUsageRules)
+            .map(FbConstraintCracCreator::getCurativeUsageRulesContingencies)
+            .allMatch(contingencies ->
+                          contingencies.size() == curativeContingenciesReference.size()
+                          && curativeContingenciesReference.containsAll(contingencies)
+            );
+
+        if (!allRemedialActionsHaveSameCurativeUsageRule) {
+            final String remedialActionIds = remedialActions.stream().map(RemedialAction::getId).collect(Collectors.joining(", "));
+            creationContext.getCreationReport().warn("inconsistent curative usage rules for remedial actions " + remedialActionIds);
             return true;
         }
         return false;
+    }
+
+    private static Optional<UsageRule> getPreventiveUsageRule(final Set<UsageRule> usageRules) {
+        return usageRules.stream()
+            .filter(usageRule -> usageRule.getInstant().isPreventive())
+            .findFirst();
+    }
+
+    private static Set<Contingency> getCurativeUsageRulesContingencies(final Set<UsageRule> usageRules) {
+        return usageRules.stream()
+            .filter(usageRule -> usageRule.getInstant().isCurative())
+            .filter(OnContingencyState.class::isInstance)
+            .map(OnContingencyState.class::cast)
+            .map(ur -> ur.getState().getContingency().orElse(null))
+            .filter(Objects::nonNull)
+            .collect(Collectors.toSet());
     }
 
     private void createRaTimestampFilteringInformation(FlowBasedConstraintDocument fbConstraintDocument, OffsetDateTime timestamp, FbConstraintCreationContext creationContext) {

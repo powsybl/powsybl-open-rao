@@ -320,6 +320,26 @@ class FbConstraintImporterTest {
     }
 
     @Test
+    void testImportHvdcCurativeOnlyWithInconsistentAfterCoList() {
+        // When
+        final CracCreationContext context = new FbConstraintImporter().importData(
+            getClass().getResourceAsStream("/hvdc/crac_with_curative_complex_variants_but_inconsistent_afterCoList.xml"),
+            cracCreationParameters,
+            network);
+
+        // Then
+        final List<InjectionRangeAction> injectionRangeActions = context.getCrac().getInjectionRangeActions().stream()
+            .sorted(Comparator.comparing(InjectionRangeAction::getId))
+            .toList();
+        Assertions.assertThat(injectionRangeActions).isEmpty();
+        Assertions.assertThat(context.getCreationReport().getReport())
+            .containsAnyOf(
+                "[WARN] inconsistent curative usage rules for remedial actions D7_RA_99991 + D4_RA_99991, D7_RA_99992 + D4_RA_99992",
+                "[WARN] inconsistent curative usage rules for remedial actions D7_RA_99992 + D4_RA_99992, D7_RA_99991 + D4_RA_99991"
+            );
+    }
+
+    @Test
     void testImportHvdcCurativeOnly() {
         // When
         final CracCreationContext context = new FbConstraintImporter().importData(
@@ -361,11 +381,14 @@ class FbConstraintImporterTest {
 
         softAssertions = new SoftAssertions();
         assertRangeActionContent(softAssertions, secondRA, "D7_RA_99992 + D4_RA_99992", "PRA_TEST_2A + PRA_TEST_2", "D7 + D4", Optional.of("Esgaroth + Numenor"), 1000.0);
-        softAssertions.assertThat(secondRA.getUsageRules()).hasSize(1);
-        final OnContingencyState secondRAUsageRule = (OnContingencyState) secondRA.getUsageRules().stream().findFirst().orElseThrow();
-        softAssertions.assertThat(secondRAUsageRule.getInstant().isPreventive()).isFalse();
-        softAssertions.assertThat(secondRAUsageRule.getInstant().isCurative()).isTrue();
-        softAssertions.assertThat(secondRAUsageRule.getContingency().getId()).isEqualTo("OUTAGE_1");
+        softAssertions.assertThat(secondRA.getUsageRules()).hasSize(2);
+        final List<OnContingencyState> secondRAUsageRules = secondRA.getUsageRules().stream().map(ur -> (OnContingencyState) ur).toList();
+        softAssertions.assertThat(secondRAUsageRules.stream().map(OnContingencyState::getInstant).map(Instant::isPreventive))
+            .containsExactly(false, false);
+        softAssertions.assertThat(secondRAUsageRules.stream().map(OnContingencyState::getInstant).map(Instant::isCurative))
+            .containsExactly(true, true);
+        softAssertions.assertThat(secondRAUsageRules.stream().map(OnContingencyState::getContingency).map(Contingency::getId))
+            .containsExactlyInAnyOrder("OUTAGE_1", "OUTAGE_2");
         softAssertions.assertThat(secondRA.getRanges()).hasSize(1);
         softAssertions.assertThat(secondRA.getRanges().getFirst()).hasFieldOrPropertyWithValue("min", -700.0);
         softAssertions.assertThat(secondRA.getRanges().getFirst()).hasFieldOrPropertyWithValue("max", -100.0);
