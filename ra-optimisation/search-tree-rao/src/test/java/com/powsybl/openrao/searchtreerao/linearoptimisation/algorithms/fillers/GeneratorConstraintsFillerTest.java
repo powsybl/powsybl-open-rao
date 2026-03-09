@@ -808,7 +808,7 @@ class GeneratorConstraintsFillerTest {
 
         // For each timestamp:
 
-        // - VARIABLES (66):
+        // - VARIABLES (51):
         //   - flow
         //   - redispatching set-point
         //   - upward set-point variation
@@ -856,7 +856,7 @@ class GeneratorConstraintsFillerTest {
 
         // For each timestamp:
 
-        // - VARIABLES (66):
+        // - VARIABLES (51):
         //   - flow
         //   - redispatching set-point
         //   - upward set-point variation
@@ -869,7 +869,7 @@ class GeneratorConstraintsFillerTest {
         //   - OFF -> OFF transition (except for last timestamp)
         //   - OFF -> ON transition (except for last timestamp)
 
-        // - CONSTRAINTS (70):
+        // - CONSTRAINTS (71):
         //   - flow
         //   - set-point variation
         //   - network balancing
@@ -905,7 +905,7 @@ class GeneratorConstraintsFillerTest {
 
         // For each timestamp:
 
-        // - VARIABLES (66):
+        // - VARIABLES (51):
         //   - flow
         //   - redispatching set-point
         //   - upward set-point variation
@@ -918,7 +918,7 @@ class GeneratorConstraintsFillerTest {
         //   - OFF -> OFF transition (except for last timestamp)
         //   - OFF -> ON transition (except for last timestamp)
 
-        // - CONSTRAINTS (70):
+        // - CONSTRAINTS (75):
         //   - flow
         //   - set-point variation
         //   - network balancing

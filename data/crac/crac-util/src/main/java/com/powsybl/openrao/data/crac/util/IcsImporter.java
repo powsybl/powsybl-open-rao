@@ -214,14 +214,14 @@ public final class IcsImporter {
                 builder.withLagTime(parseDoubleWithPossibleCommas(staticRecord.get(LAG_TIME)));
             }
             if (staticRecord.get(SHUTDOWN_ALLOWED).isEmpty() ||
-                (!staticRecord.get(SHUTDOWN_ALLOWED).equalsIgnoreCase(TRUE) && !staticRecord.get(SHUTDOWN_ALLOWED).equalsIgnoreCase(FALSE))) {
-                throw new OpenRaoException("Could not parse shutDownAllowed " + staticRecord.get(SHUTDOWN_ALLOWED) + " for nodeId " + nodeId);
+                !staticRecord.get(SHUTDOWN_ALLOWED).equalsIgnoreCase(TRUE) && !staticRecord.get(SHUTDOWN_ALLOWED).equalsIgnoreCase(FALSE)) {
+                throw new OpenRaoException("Could not parse shutDownAllowed value " + staticRecord.get(SHUTDOWN_ALLOWED) + " for nodeId " + nodeId);
             } else {
                 builder.withShutDownAllowed(Boolean.parseBoolean(staticRecord.get(SHUTDOWN_ALLOWED)));
             }
             if (staticRecord.get(STARTUP_ALLOWED).isEmpty() ||
-                (!staticRecord.get(STARTUP_ALLOWED).equalsIgnoreCase(TRUE) && !staticRecord.get(STARTUP_ALLOWED).equalsIgnoreCase(FALSE))) {
-                throw new OpenRaoException("Could not parse startUpAllowed " + staticRecord.get(STARTUP_ALLOWED) + " for nodeId " + nodeId);
+                !staticRecord.get(STARTUP_ALLOWED).equalsIgnoreCase(TRUE) && !staticRecord.get(STARTUP_ALLOWED).equalsIgnoreCase(FALSE)) {
+                throw new OpenRaoException("Could not parse startUpAllowed value " + staticRecord.get(STARTUP_ALLOWED) + " for nodeId " + nodeId);
             } else {
                 builder.withStartUpAllowed(Boolean.parseBoolean(staticRecord.get(STARTUP_ALLOWED)));
             }
@@ -282,13 +282,13 @@ public final class IcsImporter {
             builder.withLagTime(parseDoubleWithPossibleCommas(staticRecord.get(LAG_TIME)));
         }
         if (staticRecord.get(SHUTDOWN_ALLOWED).isEmpty() ||
-            (!staticRecord.get(SHUTDOWN_ALLOWED).equalsIgnoreCase(TRUE) && !staticRecord.get(SHUTDOWN_ALLOWED).equalsIgnoreCase(FALSE))) {
+            !staticRecord.get(SHUTDOWN_ALLOWED).equalsIgnoreCase(TRUE) && !staticRecord.get(SHUTDOWN_ALLOWED).equalsIgnoreCase(FALSE)) {
             throw new OpenRaoException("Could not parse shutDownAllowed value " + staticRecord.get(SHUTDOWN_ALLOWED) + " for raId " + raId);
         } else {
             builder.withShutDownAllowed(Boolean.parseBoolean(staticRecord.get(SHUTDOWN_ALLOWED)));
         }
         if (staticRecord.get(STARTUP_ALLOWED).isEmpty() ||
-            (!staticRecord.get(STARTUP_ALLOWED).equalsIgnoreCase(TRUE) && !staticRecord.get(STARTUP_ALLOWED).equalsIgnoreCase(FALSE))) {
+            !staticRecord.get(STARTUP_ALLOWED).equalsIgnoreCase(TRUE) && !staticRecord.get(STARTUP_ALLOWED).equalsIgnoreCase(FALSE)) {
             throw new OpenRaoException("Could not parse startUpAllowed value " + staticRecord.get(STARTUP_ALLOWED) + " for raId " + raId);
         } else {
             builder.withStartUpAllowed(Boolean.parseBoolean(staticRecord.get(STARTUP_ALLOWED)));

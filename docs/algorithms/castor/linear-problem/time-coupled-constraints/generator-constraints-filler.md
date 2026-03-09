@@ -11,7 +11,7 @@ are:
 The generator then operates in two distinct states depending on its current power, based on the aforementioned
 characteristics:
 
-- it is **OFF** whenever its power is null;
+- it is **OFF** whenever its power is null (specifically, below Off-power deadband, see [Parameters](#parameters))
 - it is **ON** whenever its power is greater or equal than $P_{\min}$ (and lower or equal than $P_{\max}$).
 
 ![Generator States](../../../../_static/img/generator-states.png){.forced-white-background}
@@ -34,10 +34,11 @@ the timestamps, and not some time in between two timestamps.
 
 ### Parameters
 
- Name                               | Symbol                      | Details                                                                                                                               |
-|------------------------------------|-----------------------------|---------------------------------------------------------------------------------------------------------------------------------------|
-| Off-power deadband                 | $\epsilon_{P}^{\text{OFF}}$ | Power deadband used to define the OFF state and account for rounding issues. This value must be positive.                             |
-| Time gap                           | $\Delta_{\tau}$             | Time gap between two consecutive timestamps. It is assumed constant for all pairs of consecutive timestamps. It is computed based on  $\mathcal{T}$ |
+ Name               | Symbol                      | Details                                                                                                                                             |
+|--------------------|-----------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------|
+| Off-power deadband | $\epsilon_{P}^{\text{OFF}}$ | Power deadband used to define the OFF state and account for rounding issues. This value must be positive.                                           |
+| On-power deadband  | $\epsilon_{P}^{\text{ON}}$  | Power deadband used to define the ON state and account for rounding issues. This value must be positive.                                             |
+| Time gap           | $\Delta_{\tau}$             | Time gap between two consecutive timestamps. It is assumed constant for all pairs of consecutive timestamps. It is computed based on  $\mathcal{T}$ |
 
 > In the following we define as _grid state_ a network situation for a given instant after a given contingency or the
 > basecase.
@@ -118,8 +119,9 @@ such that if the power of the generator is lower that $\epsilon_{P}^{\text{OFF}}
 
 $$P_{\min}(g, t) \delta_{\textcolor{green}{\text{ON}}}^{gen}(g,s,t) \leq P(g,s,t) \leq P_{\max}(g) \delta_{\textcolor{green}{\text{ON}}}^{gen}(g,s,t) + \epsilon_{P}^{\text{OFF}} \delta_{\textcolor{red}{\text{OFF}}}^{gen}(g,s,t)$$
 
-> $P_{\min}(g, t)$ value has been post-treated: the maximum value between $\epsilon_{P}^{\text{OFF}}$ and input defined $Pmin$ is taken,
-to ensure a correct definition of the OFF state.
+> $P_{\min}(g, t)$ value has been post-treated: to account for
+issues that can stem from number rounding and to ensure a distinct definition of ON and OFF states, we define a _minimal power variation deadband_ $\epsilon_{P}^{\text{ON}}$
+such that if the generator's defined Pmin is lower that $\epsilon_{P}^{\text{ON}}$, Pmin will be redefined as $\epsilon_{P}^{\text{ON}}$.
 
 ### C5 - Lead time
 
@@ -180,8 +182,8 @@ If $isShutDownAllowed$ is false,
 
 $$\forall t \in \mathcal{T_{N-1}}, \; T_{\textcolor{green}{\text{ON}} \to \textcolor{red}{\text{OFF}}}(g,s,t) = 0$$
 
-For first timestamp, if the generator has its power greater than $P_{\min}$, we activate ON state. Otherwise,
-optimization problem will most likely avoid being constrained by shut down prohibition by shutting down first
+For the first timestamp, if the generator has its power greater than $P_{\min}$, we activate the ON state. Otherwise,
+the optimization problem will most likely avoid being constrained by shut down prohibition by shutting down first
 timestamp.
 
 $$\delta_{\textcolor{green}{\text{ON}}}^{gen}(g,s,t_0) = 1, \ P(g,s, t_0) \geq P_{\min}(g, t_0)$$
@@ -192,8 +194,8 @@ If $isStartUpAllowed$ is false,
 
 $$\forall t \in \mathcal{T_{N-1}}, \; T_{\textcolor{red}{\text{OFF}} \to \textcolor{green}{\text{ON}}}(g,s,t) = 0$$
 
-For first timestamp, if the generator has its power lower than $P_{\min}$, we activate OFF state. Otherwise,
-optimization problem will most likely avoid being constrained by start up prohibition by starting up first
+For the first timestamp, if the generator has its power lower than $P_{\min}$, we activate the OFF state. Otherwise,
+the optimization problem will most likely avoid being constrained by start up prohibition by starting up first
 timestamp.
 
 $$\delta_{\textcolor{red}{\text{OFF}}}^{gen}(g,s,t_0) = 1, \ P(g,s, t_0) < P_{\min}(g, t_0)$$

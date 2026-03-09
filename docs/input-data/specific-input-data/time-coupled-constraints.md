@@ -25,7 +25,7 @@ power can vary between two consecutive timestamps. These gradients can be define
 ### Shut Down allowed
 
 This is a boolean to indicate if a generator can be shutdown. If no value is defined, value will be set to true, meaning
-that generator can be shutdown.
+that the generator can be shutdown.
 
 ### Start Up Allowed
 
@@ -43,8 +43,8 @@ that generator can be started up.
 | `lagTime`               | number  | Optional  | hours | Lag time of the generator, in hours. Must be positive.                                  |
 | `upwardPowerGradient`   | number  | Optional  | MW/h  | Upward power gradient for the generator's power variation, in MW/h. Must be positive.   |
 | `downwardPowerGradient` | number  | Optional  | MW/h  | Downward power gradient for the generator's power variation, in MW/h. Must be negative. |
-| `isShutDownAllowed`     | number  | Optional  | -     | Indicate if RA RD can be shutdown. Default value : true                                 |
-| `isStartUpAllowed`      | boolean | Optional  | -     | Indicates if RA RD can be started from standstill. Default value : true                 |
+| `isShutDownAllowed`     | boolean | Optional  | -     | Indicate if RA RD can be shutdown. Default value : true                                 |
+| `isStartUpAllowed`      | boolean | Optional  | -     | Indicates if RA RD can be started up . Default value : true                             |
 
 ### Comprehensive example
 

@@ -552,29 +552,34 @@ public final class TimeCoupledRaoSteps {
         }
     }
 
-    @Then("the preventive power of generator {string} at state timestamp {string} is {double} MW")
+    @Then("the preventive power of generator {string} at timestamp {string} is {double} MW")
     public static void getGeneratorPower(String networkElementId, String timestamp, double expectedPower) {
         assertPowerValue(networkElementId, timestamp, expectedPower);
     }
 
-    @Then("the preventive power of load {string} at state timestamp {string} is {double} MW")
+    @Then("the preventive power of load {string} at timestamp {string} is {double} MW")
     public static void getLoadPower(String networkElementId, String timestamp, double expectedPower) {
         assertPowerValue(networkElementId, timestamp, -expectedPower);
     }
 
-    @Then("the remedial action {string} at state timestamp {string} is used")
-    public static void remedialActionUsed(String remedialActionId, String timestamp) {
-        assertTrue(isRemedialActionUsed(remedialActionId, timestamp));
+    @Then("the remedial action {string} is used at timestamp {string} in preventive")
+    public static void remedialActionUsedInPreventive(String remedialActionId, String timestamp) {
+        assertTrue(isRemedialActionUsed(remedialActionId, timestamp, "", "preventive"));
     }
 
-    @Then("the remedial action {string} at state timestamp {string} is used after {string} at {string}")
+    @Then("the remedial action {string} is used at timestamp {string} after {string} at {string}")
     public void remedialActionUsedPostContingency(String remedialActionId, String timestamp, String contingencyId, String instant) {
-        assertTrue(isRemedialActionUsedPostContingency(remedialActionId, timestamp, contingencyId, instant));
+        assertTrue(isRemedialActionUsed(remedialActionId, timestamp, contingencyId, instant));
     }
 
-    @Then("the remedial action {string} at state timestamp {string} is not used")
-    public static void remedialActionNotUsed(String remedialActionId, String timestamp) {
-        assertFalse(isRemedialActionUsed(remedialActionId, timestamp));
+    @Then("the remedial action {string} is not used at timestamp {string} in preventive")
+    public static void remedialActionNotUsedInPreventive(String remedialActionId, String timestamp) {
+        assertFalse(isRemedialActionUsed(remedialActionId, timestamp, "", "preventive"));
+    }
+
+    @Then("the remedial action {string} is not used at timestamp {string} after {string} at {string}")
+    public void remedialActionNotUsedPostContingency(String remedialActionId, String timestamp, String contingencyId, String instant) {
+        assertFalse(isRemedialActionUsed(remedialActionId, timestamp, contingencyId, instant));
     }
 
     @Then("its time coupled security status should be {string}")
@@ -582,15 +587,15 @@ public final class TimeCoupledRaoSteps {
         assertEquals(status.equalsIgnoreCase("secured"), timeCoupledRaoResult.isSecure(PhysicalParameter.FLOW));
     }
 
-    @Then("the tap of PstRangeAction {string} at state timestamp {string} after {string} at {string} should be {int}")
+    @Then("the tap of PstRangeAction {string} at timestamp {string} after {string} at {string} should be {int}")
     public void theTapOfPstRangeActionPostContingencyShouldBe(String pstRangeActionId, String timestamp, String contingencyId, String instant, int chosenPstTap) {
         OffsetDateTime offsetDateTime = getOffsetDateTimeFromBrusselsTimestamp(timestamp);
         Crac crac = timeCoupledRaoInputWithNetworkPaths.getRaoInputs().getData(offsetDateTime).orElseThrow().getCrac();
         assertEquals(chosenPstTap, timeCoupledRaoResult.getIndividualRaoResult(offsetDateTime).getOptimizedTapOnState(crac.getState(contingencyId, crac.getInstant(instant)), (PstRangeAction) crac.getRangeAction(pstRangeActionId)));
     }
 
-    @Then("the tap of PstRangeAction {string} at state timestamp {string} should be {int}")
-    public void theTapOfPstRangeActionShouldBe(String pstRangeActionId, String timestamp, int chosenPstTap) {
+    @Then("the preventive tap of PstRangeAction {string} at timestamp {string} should be {int}")
+    public void theTapOfPreventivePstRangeActionShouldBe(String pstRangeActionId, String timestamp, int chosenPstTap) {
         OffsetDateTime offsetDateTime = getOffsetDateTimeFromBrusselsTimestamp(timestamp);
         Crac crac = timeCoupledRaoInputWithNetworkPaths.getRaoInputs().getData(offsetDateTime).orElseThrow().getCrac();
         assertEquals(chosenPstTap, timeCoupledRaoResult.getIndividualRaoResult(offsetDateTime).getOptimizedTapOnState(crac.getPreventiveState(), (PstRangeAction) crac.getRangeAction(pstRangeActionId)));
@@ -611,15 +616,18 @@ public final class TimeCoupledRaoSteps {
         assertEquals(expectedPower, timeCoupledRaoResult.getOptimizedSetPointOnState(preventiveState, injectionRangeAction.get()) / injectionRangeAction.get().getInjectionDistributionKeys().get(networkElement), 1e-3);
     }
 
-    private static boolean isRemedialActionUsed(String rangeActionId, String timestamp) {
+    private static boolean isRemedialActionUsed(String rangeActionId, String timestamp, String contingencyId, String instant) {
         OffsetDateTime offsetDateTime = getOffsetDateTimeFromBrusselsTimestamp(timestamp);
         Crac crac = timeCoupledRaoInputWithNetworkPaths.getRaoInputs().getData(offsetDateTime).orElseThrow().getCrac();
-        return timeCoupledRaoResult.getIndividualRaoResult(offsetDateTime).isActivatedDuringState(crac.getPreventiveState(), crac.getRemedialAction(rangeActionId));
+        State state = getState(crac, contingencyId, instant);
+        return timeCoupledRaoResult.getIndividualRaoResult(offsetDateTime).isActivatedDuringState(state, crac.getRemedialAction(rangeActionId));
     }
 
-    private static boolean isRemedialActionUsedPostContingency(String rangeActionId, String timestamp, String contingencyId, String instant) {
-        OffsetDateTime offsetDateTime = getOffsetDateTimeFromBrusselsTimestamp(timestamp);
-        Crac crac = timeCoupledRaoInputWithNetworkPaths.getRaoInputs().getData(offsetDateTime).orElseThrow().getCrac();
-        return timeCoupledRaoResult.getIndividualRaoResult(offsetDateTime).isActivatedDuringState(crac.getState(contingencyId, crac.getInstant(instant)), crac.getRemedialAction(rangeActionId));
+    private static State getState(Crac crac, String contingencyId, String instantId) {
+        if (instantId.equalsIgnoreCase("preventive")) {
+            return crac.getPreventiveState();
+        } else {
+            return crac.getState(contingencyId, crac.getInstant(instantId));
+        }
     }
 }

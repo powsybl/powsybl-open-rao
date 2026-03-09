@@ -329,6 +329,7 @@ public class GeneratorConstraintsFiller implements ProblemFiller {
      */
     private void addShutDownProhibitedConstraint(LinearProblem linearProblem, String generatorId, OffsetDateTime timestamp) {
         OpenRaoMPConstraint shutDownProhibitedConstraint = linearProblem.addGeneratorShutDownProhibitedConstraint(generatorId, timestamp);
+        linearProblem.getGeneratorStateTransitionVariable(generatorId, timestamp, LinearProblem.GeneratorState.ON, LinearProblem.GeneratorState.OFF).setUb(0);
         shutDownProhibitedConstraint.setCoefficient(linearProblem.getGeneratorStateTransitionVariable(generatorId, timestamp, LinearProblem.GeneratorState.ON, LinearProblem.GeneratorState.OFF), 1.0);
     }
 
@@ -370,7 +371,7 @@ public class GeneratorConstraintsFiller implements ProblemFiller {
     }
 
     /**
-     * C10 - The power of the generator is linked to the set-point of the in
+     * C10 - The power of the generator is linked to the set-point of the injection range action
      * <br/>
      * P(g, t) = distribution_key * A(r, t)
      * <br/>
