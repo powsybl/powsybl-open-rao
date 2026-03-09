@@ -75,7 +75,7 @@ class SearchTreeParametersTest {
     @Test
     void testIndividualSetters() {
         ObjectiveFunctionParameters.ObjectiveFunctionType objectiveFunction = Mockito.mock(ObjectiveFunctionParameters.ObjectiveFunctionType.class);
-        Unit objectiveFunctionUnit = Mockito.mock(Unit.class);
+        Unit flowUnit = Mockito.mock(Unit.class);
         TreeParameters treeParameters = Mockito.mock(TreeParameters.class);
         NetworkActionParameters networkActionParameters = Mockito.mock(NetworkActionParameters.class);
         Map<Instant, RaUsageLimits> raLimitationParameters = new HashMap<>();
@@ -91,7 +91,7 @@ class SearchTreeParametersTest {
 
         builder = builder
             .with0bjectiveFunction(objectiveFunction)
-            .with0bjectiveFunctionUnit(objectiveFunctionUnit)
+            .withFlowUnit(flowUnit)
             .withTreeParameters(treeParameters)
             .withNetworkActionParameters(networkActionParameters)
             .withGlobalRemedialActionLimitationParameters(raLimitationParameters)

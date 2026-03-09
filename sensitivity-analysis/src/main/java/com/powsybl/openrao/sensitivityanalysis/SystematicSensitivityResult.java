@@ -84,8 +84,9 @@ public class SystematicSensitivityResult {
     public SystematicSensitivityResult completeData(SensitivityAnalysisResult results, Integer instantOrder) {
         postContingencyResults.putIfAbsent(instantOrder, new HashMap<>());
         // if a failing perimeter was already run, then the status would be set to PARTIAL_FAILURE
+        // This boolean will be reused to set the global status to PARITAL_FAILURE if required
         boolean anyContingencyFailure = this.status == SensitivityComputationStatus.PARTIAL_FAILURE;
-        // status set to failure initially, and set to success if we find at least one non NaN value
+        // status set to failure initially, and set to success if we find at least one non NaN value, or at least one contingencyStatus is SUCCESS
         this.status = SensitivityComputationStatus.FAILURE;
         if (results == null) {
             return this;
@@ -98,6 +99,9 @@ public class SystematicSensitivityResult {
             }
             StateResult contingencyStateResult = new StateResult();
             contingencyStateResult.status = contingencyStatus.getStatus().equals(SensitivityAnalysisResult.Status.FAILURE) ? SensitivityComputationStatus.FAILURE : SensitivityComputationStatus.SUCCESS;
+            if (contingencyStateResult.status.equals(SensitivityComputationStatus.SUCCESS)) {
+                this.status = SensitivityComputationStatus.SUCCESS;
+            }
             results.getValues(contingencyStatus.getContingencyId()).forEach(sensitivityValue ->
                 fillIndividualValue(sensitivityValue, contingencyStateResult, results.getFactors(), contingencyStatus.getStatus())
             );
@@ -210,6 +214,10 @@ public class SystematicSensitivityResult {
             stateResult.getReferenceIntensities()
                 .computeIfAbsent(factor.getFunctionId(), k -> new EnumMap<>(TwoSides.class))
                 .putIfAbsent(side, reference);
+            stateResult.getIntensitySensitivities()
+                .computeIfAbsent(factor.getFunctionId(), k -> new HashMap<>())
+                .computeIfAbsent(factor.getVariableId(), k -> new EnumMap<>(TwoSides.class))
+                .putIfAbsent(side, sensitivity);
         }
     }
 
@@ -293,6 +301,25 @@ public class SystematicSensitivityResult {
 
     public double getSensitivityOnFlow(RangeAction<?> rangeAction, FlowCnec cnec, TwoSides side) {
         return RangeActionSensiHandler.get(rangeAction).getSensitivityOnFlow(cnec, side, this);
+    }
+
+    public double getSensitivityOnIntensity(RangeAction<?> rangeAction, FlowCnec cnec, TwoSides side) {
+        return RangeActionSensiHandler.get(rangeAction).getSensitivityOnIntensity(cnec, side, this);
+    }
+
+    public double getSensitivityOnIntensity(String variableId, FlowCnec cnec, TwoSides side) {
+        StateResult stateResult = getCnecStateResult(cnec);
+        if (stateResult == null ||
+            !stateResult.getIntensitySensitivities().containsKey(cnec.getNetworkElement().getId()) ||
+            !stateResult.getIntensitySensitivities().get(cnec.getNetworkElement().getId()).containsKey(variableId) ||
+            !stateResult.getIntensitySensitivities().get(cnec.getNetworkElement().getId()).get(variableId).containsKey(side)) {
+            return 0.0;
+        }
+        return stateResult.getIntensitySensitivities().get(cnec.getNetworkElement().getId()).get(variableId).get(side);
+    }
+
+    public double getSensitivityOnIntensity(SensitivityVariableSet glsk, FlowCnec cnec, TwoSides side) {
+        return getSensitivityOnIntensity(glsk.getId(), cnec, side);
     }
 
     public double getSensitivityOnFlow(SensitivityVariableSet glsk, FlowCnec cnec, TwoSides side) {

@@ -62,6 +62,43 @@ class PostContingencyStateTest {
     }
 
     @Test
+    void testEqualsDifferentContingencyImplementations() {
+        // using different Crac instances, different contingency implementations (BRANCH instead of LINE)
+        // but with the same content, states must be equal
+        Crac crac2 = new CracImplFactory().create("cracId")
+            .newInstant("preventive", InstantKind.PREVENTIVE)
+            .newInstant("outage", InstantKind.OUTAGE)
+            .newInstant("curative", InstantKind.CURATIVE);
+        Contingency contingency1Clone = crac2.newContingency()
+            .withId("contingency1")
+            .withContingencyElement("anyNetworkElement", ContingencyElementType.BRANCH)
+            .add();
+
+        PostContingencyState state1 = new PostContingencyState(contingency1, outageInstant, null);
+        PostContingencyState state2 = new PostContingencyState(contingency1Clone, outageInstant, null);
+
+        assertEquals(state1, state2);
+    }
+
+    @Test
+    void testNotEqualsDifferentContingencyImplementations() {
+        // the same as the previous test but with different contingency elements
+        Crac crac2 = new CracImplFactory().create("cracId")
+            .newInstant("preventive", InstantKind.PREVENTIVE)
+            .newInstant("outage", InstantKind.OUTAGE)
+            .newInstant("curative", InstantKind.CURATIVE);
+        Contingency contingency1Clone = crac2.newContingency()
+            .withId("contingency1")
+            .withContingencyElement("anotherNetworkElement", ContingencyElementType.BRANCH)
+            .add();
+
+        PostContingencyState state1 = new PostContingencyState(contingency1, outageInstant, null);
+        PostContingencyState state2 = new PostContingencyState(contingency1Clone, outageInstant, null);
+
+        assertNotEquals(state1, state2);
+    }
+
+    @Test
     void testNotEqualsByInstant() {
         PostContingencyState state1 = new PostContingencyState(contingency1, outageInstant, null);
         PostContingencyState state2 = new PostContingencyState(contingency1, curativeInstant, null);

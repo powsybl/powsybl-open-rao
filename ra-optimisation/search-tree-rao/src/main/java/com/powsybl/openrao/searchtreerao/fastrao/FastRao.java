@@ -46,6 +46,8 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
+import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.getFlowUnit;
+
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  * @author Philippe Edwards {@literal <philippe.edwards at rte-france.com>}
@@ -119,7 +121,8 @@ public class FastRao implements RaoProvider {
                 crac.getFlowCnecs(),
                 crac.getRangeActions().isEmpty() ? new HashSet<>() : Set.of(crac.getRangeActions().stream().findFirst().orElseThrow()),
                 parameters,
-                toolProvider);
+                toolProvider,
+                false);
 
             // Run initial sensi (for initial values, and to know which cnecs to put in the first rao)
             PrePerimeterResult initialResult = prePerimeterSensitivityAnalysis.runInitialSensitivityAnalysis(raoInput.getNetwork(), reportNode);
@@ -152,7 +155,7 @@ public class FastRao implements RaoProvider {
                 final ReportNode iterationReportNode = FastRaoReports.reportFastRaoIteration(reportNode, counter);
                 addWorstCnecs(consideredCnecs, parameters.getExtension(FastRaoParameters.class).getNumberOfCnecsToAdd(), stepResult);
                 if (parameters.getExtension(FastRaoParameters.class).getAddUnsecureCnecs()) {
-                    consideredCnecs.addAll(getUnsecureFunctionalCnecs(stepResult, parameters.getObjectiveFunctionParameters().getUnit(), parameters.getExtension(FastRaoParameters.class).getMarginLimit()));
+                    consideredCnecs.addAll(getUnsecureFunctionalCnecs(stepResult, getFlowUnit(parameters), parameters.getExtension(FastRaoParameters.class).getMarginLimit()));
                 }
                 consideredCnecs.addAll(getCostlyVirtualCnecs(stepResult));
                 // Add worst preventive cnec to considered cnecs to ensure preventive state is defined
@@ -387,7 +390,8 @@ public class FastRao implements RaoProvider {
             crac.getFlowCnecs(),
             crac.getRangeActions().isEmpty() ? new HashSet<>() : Set.of(crac.getRangeActions().stream().findFirst().orElseThrow()),
             parameters,
-            toolProvider);
+            toolProvider,
+            false);
 
         // Run asynchronously
         return perimeterSensiAnalysis.runAsyncBasedOnInitialPreviousAndActivatedRa(

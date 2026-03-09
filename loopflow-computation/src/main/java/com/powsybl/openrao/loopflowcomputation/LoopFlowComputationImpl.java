@@ -34,19 +34,26 @@ public class LoopFlowComputationImpl implements LoopFlowComputation {
     protected ZonalData<SensitivityVariableSet> glsk;
     protected ReferenceProgram referenceProgram;
     protected Map<EICode, SensitivityVariableSet> glskMap;
+    protected Unit flowUnit;
 
-    public LoopFlowComputationImpl(ZonalData<SensitivityVariableSet> glsk, ReferenceProgram referenceProgram) {
+    public LoopFlowComputationImpl(ZonalData<SensitivityVariableSet> glsk, ReferenceProgram referenceProgram, Unit flowUnit) {
         this.glsk = requireNonNull(glsk, "glskProvider should not be null");
         this.referenceProgram = requireNonNull(referenceProgram, "referenceProgram should not be null");
         this.glskMap = buildRefProgGlskMap();
+        this.flowUnit = flowUnit;
     }
 
     @Override
     public LoopFlowResult calculateLoopFlows(Network network, String sensitivityProvider, SensitivityAnalysisParameters sensitivityAnalysisParameters, Set<FlowCnec> flowCnecs, Instant outageInstant) {
+        Set<Unit> units =
+            (flowUnit == Unit.MEGAWATT) ?
+                Set.of(Unit.MEGAWATT) :
+                Set.of(Unit.AMPERE, Unit.MEGAWATT); // Still needs to compute sensi on MW flow for post processing sensi
+
         SystematicSensitivityInterface systematicSensitivityInterface = SystematicSensitivityInterface.builder()
                 .withSensitivityProviderName(sensitivityProvider)
                 .withParameters(sensitivityAnalysisParameters)
-                .withPtdfSensitivities(glsk, flowCnecs, Collections.singleton(Unit.MEGAWATT))
+                .withPtdfSensitivities(glsk, flowCnecs, units)
                 .withOutageInstant(outageInstant)
                 .build();
 
@@ -61,11 +68,21 @@ public class LoopFlowComputationImpl implements LoopFlowComputation {
         Map<SensitivityVariableSet, Boolean> isInMainComponentMap = computeIsInMainComponentMap(network);
         for (FlowCnec flowCnec : flowCnecs) {
             flowCnec.getMonitoredSides().forEach(side -> {
-                double refFlow = alreadyCalculatedPtdfAndFlows.getReferenceFlow(flowCnec, side);
-                double commercialFLow = getGlskStream().filter(entry -> isInMainComponentMap.get(entry.getValue()))
-                    .mapToDouble(entry -> alreadyCalculatedPtdfAndFlows.getSensitivityOnFlow(entry.getValue(), flowCnec, side) * referenceProgram.getGlobalNetPosition(entry.getKey()))
-                    .sum();
-                results.addCnecResult(flowCnec, side, refFlow - commercialFLow, commercialFLow, refFlow);
+                double refFlow = 0;
+                double commercialFLow = 0;
+                if (flowUnit == Unit.MEGAWATT) {
+                    refFlow = alreadyCalculatedPtdfAndFlows.getReferenceFlow(flowCnec, side);
+                    commercialFLow = getGlskStream().filter(entry -> isInMainComponentMap.get(entry.getValue()))
+                        .mapToDouble(entry -> alreadyCalculatedPtdfAndFlows.getSensitivityOnFlow(entry.getValue(), flowCnec, side) * referenceProgram.getGlobalNetPosition(entry.getKey()))
+                        .sum();
+                } else if (flowUnit == Unit.AMPERE) {
+                    refFlow = alreadyCalculatedPtdfAndFlows.getReferenceIntensity(flowCnec, side);
+                    commercialFLow = getGlskStream().filter(entry -> isInMainComponentMap.get(entry.getValue()))
+                        .mapToDouble(entry -> alreadyCalculatedPtdfAndFlows.getSensitivityOnIntensity(entry.getValue(), flowCnec, side) * referenceProgram.getGlobalNetPosition(entry.getKey()))
+                        .sum();
+                }
+
+                results.addCnecResult(flowCnec, side, refFlow - commercialFLow, commercialFLow, refFlow, flowUnit);
             });
         }
         return results;

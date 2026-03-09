@@ -16,6 +16,7 @@ import com.powsybl.sensitivity.SensitivityAnalysisParameters;
 
 import java.util.Objects;
 
+import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.LOAD_FLOW_AND_SENSITIVITY_COMPUTATION_SECTION;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.LOAD_FLOW_PROVIDER;
 import static com.powsybl.openrao.raoapi.RaoParametersCommons.SENSITIVITY_FAILURE_OVERCOST;
@@ -129,6 +130,14 @@ public class LoadFlowAndSensitivityParameters {
         // we have to clean load flow parameters.
         // the slack bus must not be written because it could pollute the sensitivity analyses.
         loadFlowParameters.setWriteSlackBus(false);
+        // In DC, as emulation AC is supported for LF but not for sensitivity analyses, it could lead to incoherence.
+        // OLF will not crash but it will set the "hvdcAcEmulation" parameter to false during dcAnalysis (see OLF's DcSensitivityAnalysis::analyse function).
+        // Meaning that the reference flows and sensi computation will be done as if AC emulation was off (ie it will read the active power setpoint set in the network etc).
+        if (loadFlowParameters.isDc() && loadFlowParameters.isHvdcAcEmulation()) {
+            BUSINESS_WARNS.warn("The runs are in DC but the HvdcAcEmulation parameter is on: this is not compatible. " +
+                "HvdcAcEmulation parameter set to false.");
+            loadFlowParameters.setHvdcAcEmulation(false);
+        }
         return sensitivityAnalysisParameters;
     }
 }

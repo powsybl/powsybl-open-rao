@@ -58,12 +58,14 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
+import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
 import static com.powsybl.openrao.data.raoresult.api.ComputationStatus.FAILURE;
 import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getSensitivityFailureOvercost;
 import static com.powsybl.openrao.raoapi.parameters.extensions.SearchTreeRaoObjectiveFunctionParameters.getCurativeMinObjImprovement;
 import static com.powsybl.openrao.raoapi.parameters.extensions.SecondPreventiveRaoParameters.getSecondPreventiveExecutionCondition;
 import static com.powsybl.openrao.raoapi.parameters.extensions.SecondPreventiveRaoParameters.getSecondPreventiveHintFromFirstPreventiveRao;
 import static com.powsybl.openrao.searchtreerao.commons.HvdcUtils.getHvdcRangeActionsOnHvdcLineInAcEmulation;
+import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.getFlowUnit;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -222,7 +224,7 @@ public class CastorSecondPreventive {
                 ));
             }
         }
-        MostLimitingElementsReports.reportBusinessMostLimitingElements(secondPreventiveReportNode, postCraSensitivityAnalysisOutput, postCraSensitivityAnalysisOutput, raoParameters.getObjectiveFunctionParameters().getType(), raoParameters.getObjectiveFunctionParameters().getUnit(), NUMBER_LOGGED_ELEMENTS_END_RAO);
+        MostLimitingElementsReports.reportBusinessMostLimitingElements(secondPreventiveReportNode, postCraSensitivityAnalysisOutput, postCraSensitivityAnalysisOutput, raoParameters.getObjectiveFunctionParameters().getType(), getFlowUnit(raoParameters), NUMBER_LOGGED_ELEMENTS_END_RAO);
         CastorReports.reportIfMostLimitingElementIsFictional(secondPreventiveReportNode, postCraSensitivityAnalysisOutput);
 
         return new SecondPreventiveRaoResultsHolder(secondPreventiveRaoResult, newPostContingencyResults, false, null);
@@ -315,10 +317,10 @@ public class CastorSecondPreventive {
         return appliedNetworkActions;
     }
 
-    private CompletableFuture<OptimizationResult> optimizeSecondPreventivePerimeter(PrePerimeterResult initialOutput,
-                                                                                    PrePerimeterResult prePerimeterResult,
-                                                                                    OptimizationResult firstPreventiveResult,
-                                                                                    AppliedRemedialActions appliedCras) {
+    CompletableFuture<OptimizationResult> optimizeSecondPreventivePerimeter(PrePerimeterResult initialOutput,
+                                                                            PrePerimeterResult prePerimeterResult,
+                                                                            OptimizationResult firstPreventiveResult,
+                                                                            AppliedRemedialActions appliedCras) {
 
         OptimizationPerimeter optPerimeter;
         State preventiveState = crac.getPreventiveState();
@@ -340,8 +342,9 @@ public class CastorSecondPreventive {
 
         SearchTreeParameters searchTreeParameters = searchTreeParametersBuilder.build();
 
-        if (getSecondPreventiveHintFromFirstPreventiveRao(raoParameters)) {
+        if (getSecondPreventiveHintFromFirstPreventiveRao(raoParameters) && !firstPreventiveResult.getActivatedNetworkActions().isEmpty()) {
             // Set the optimal set of network actions decided in 1st preventive RAO as a hint for 2nd preventive RAO
+            TECHNICAL_LOGS.debug("Providing hint for 2nd preventive RAO from 1st preventive: {}", firstPreventiveResult.getActivatedNetworkActions());
             searchTreeParameters.getNetworkActionParameters().addNetworkActionCombination(new NetworkActionCombination(firstPreventiveResult.getActivatedNetworkActions(), true));
         }
 

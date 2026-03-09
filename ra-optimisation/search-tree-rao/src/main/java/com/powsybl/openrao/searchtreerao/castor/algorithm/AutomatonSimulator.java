@@ -56,11 +56,11 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.powsybl.openrao.commons.Unit.MEGAWATT;
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
 import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getLoadFlowProvider;
 import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters;
 import static com.powsybl.openrao.searchtreerao.commons.HvdcUtils.*;
+import static com.powsybl.openrao.searchtreerao.commons.RaoUtil.getFlowUnit;
 
 /**
  * Automaton simulator
@@ -90,7 +90,7 @@ public final class AutomatonSimulator {
     public AutomatonSimulator(Crac crac, RaoParameters raoParameters, ToolProvider toolProvider, FlowResult initialFlowResult, PrePerimeterResult prePerimeterSensitivityOutput, Set<String> operatorsNotSharingCras, int numberLoggedElementsDuringRao, final ReportNode reportNode) {
         this.crac = crac;
         this.raoParameters = raoParameters;
-        this.flowUnit = raoParameters.getObjectiveFunctionParameters().getUnit();
+        this.flowUnit = getFlowUnit(raoParameters);
         this.toolProvider = toolProvider;
         this.initialFlowResult = initialFlowResult;
         this.prePerimeterSensitivityOutput = prePerimeterSensitivityOutput;
@@ -115,7 +115,7 @@ public final class AutomatonSimulator {
         }
 
         AutomatonSimulatorReports.reportInitialSituation(simulationReportNode);
-        MostLimitingElementsReports.reportTechnicalMostLimitingElements(simulationReportNode, prePerimeterSensitivityOutput, prePerimeterSensitivityOutput, Set.of(automatonState), raoParameters.getObjectiveFunctionParameters().getType(), raoParameters.getObjectiveFunctionParameters().getUnit(), numberLoggedElementsDuringRao);
+        MostLimitingElementsReports.reportTechnicalMostLimitingElements(simulationReportNode, prePerimeterSensitivityOutput, prePerimeterSensitivityOutput, Set.of(automatonState), raoParameters.getObjectiveFunctionParameters().getType(), this.flowUnit, numberLoggedElementsDuringRao);
 
         Map<RangeAction<?>, Double> initialSetPoints = new HashMap<>();
         crac.getRangeActions(automatonState).forEach(rangeAction -> initialSetPoints.put(rangeAction, rangeAction.getCurrentSetpoint(network)));
@@ -176,7 +176,7 @@ public final class AutomatonSimulator {
             flowCnecsInSensi.addAll(crac.getFlowCnecs(curativeState));
             rangeActionsInSensi.addAll(crac.getRangeActions(curativeState));
         }
-        return new PrePerimeterSensitivityAnalysis(crac, flowCnecsInSensi, rangeActionsInSensi, raoParameters, toolProvider);
+        return new PrePerimeterSensitivityAnalysis(crac, flowCnecsInSensi, rangeActionsInSensi, raoParameters, toolProvider, false);
     }
 
     public static Map<RangeAction<?>, Double> getRangeActionsAndTheirTapsAppliedOnState(OptimizationResult optimizationResult, State state) {
@@ -271,7 +271,7 @@ public final class AutomatonSimulator {
             if (automatonRangeActionOptimizationSensitivityAnalysisOutput.getSensitivityStatus(automatonState) == ComputationStatus.FAILURE) {
                 return new TopoAutomatonSimulationResult(automatonRangeActionOptimizationSensitivityAnalysisOutput, allAppliedAutomatons);
             }
-            MostLimitingElementsReports.reportTechnicalMostLimitingElements(simulationReportNode, automatonRangeActionOptimizationSensitivityAnalysisOutput, automatonRangeActionOptimizationSensitivityAnalysisOutput, Set.of(automatonState), raoParameters.getObjectiveFunctionParameters().getType(), raoParameters.getObjectiveFunctionParameters().getUnit(), numberLoggedElementsDuringRao);
+            MostLimitingElementsReports.reportTechnicalMostLimitingElements(simulationReportNode, automatonRangeActionOptimizationSensitivityAnalysisOutput, automatonRangeActionOptimizationSensitivityAnalysisOutput, Set.of(automatonState), raoParameters.getObjectiveFunctionParameters().getType(), this.flowUnit, numberLoggedElementsDuringRao);
         }
 
         return new TopoAutomatonSimulationResult(automatonRangeActionOptimizationSensitivityAnalysisOutput, allAppliedAutomatons);
@@ -329,7 +329,7 @@ public final class AutomatonSimulator {
             if (finalPostAutoResult.getSensitivityStatus(automatonState) == ComputationStatus.FAILURE) {
                 return new RangeAutomatonSimulationResult(finalPostAutoResult, allActivatedRangeAutomatons, initialSetPoints, rangeActionsWithSetpoint);
             }
-            MostLimitingElementsReports.reportTechnicalMostLimitingElements(simulationReportNode, finalPostAutoResult, finalPostAutoResult, Set.of(automatonState), raoParameters.getObjectiveFunctionParameters().getType(), raoParameters.getObjectiveFunctionParameters().getUnit(), numberLoggedElementsDuringRao);
+            MostLimitingElementsReports.reportTechnicalMostLimitingElements(simulationReportNode, finalPostAutoResult, finalPostAutoResult, Set.of(automatonState), raoParameters.getObjectiveFunctionParameters().getType(), this.flowUnit, numberLoggedElementsDuringRao);
         }
         return new RangeAutomatonSimulationResult(finalPostAutoResult, allActivatedRangeAutomatons, initialSetPoints, rangeActionsWithSetpoint);
     }
@@ -430,7 +430,8 @@ public final class AutomatonSimulator {
             flowCnecs,
             curativeRangeActions,
             raoParameters,
-            toolProvider);
+            toolProvider,
+            false);
 
         // Run computation
         AutomatonSimulatorReports.reportRunPostRangeSensitivityAnalysisForStateAndSpeed(simulationReportNode, automatonState.getId(), speed);
@@ -480,7 +481,7 @@ public final class AutomatonSimulator {
         // Finally, run a sensitivity analysis to get sensitivity values in DC set-point mode if needed
         AutomatonSimulatorReports.reportRunSensitivityAnalysisAfterDisablingAngleDroopActivePowerControlOnHvdcRa(simulationReportNode);
         PrePerimeterResult result = preAutoPerimeterSensitivityAnalysis.runBasedOnInitialResults(network, initialFlowResult, operatorsNotSharingCras, null, simulationReportNode);
-        MostLimitingElementsReports.reportTechnicalMostLimitingElements(simulationReportNode, result, result, Set.of(automatonState), raoParameters.getObjectiveFunctionParameters().getType(), raoParameters.getObjectiveFunctionParameters().getUnit(), numberLoggedElementsDuringRao);
+        MostLimitingElementsReports.reportTechnicalMostLimitingElements(simulationReportNode, result, result, Set.of(automatonState), raoParameters.getObjectiveFunctionParameters().getType(), this.flowUnit, numberLoggedElementsDuringRao);
 
         return Pair.of(result, activePowerSetpoints);
     }
@@ -593,9 +594,8 @@ public final class AutomatonSimulator {
 
             // Aligned range actions have the same set-point :
             double currentSetpoint = alignedRangeActions.getFirst().getCurrentSetpoint(network);
-            double conversionToMegawatt = RaoUtil.getFlowUnitMultiplier(toBeShiftedCnec, side, flowUnit, MEGAWATT);
-            double cnecFlow = conversionToMegawatt * automatonRangeActionOptimizationSensitivityAnalysisOutput.getFlow(toBeShiftedCnec, side, flowUnit);
-            double cnecMargin = conversionToMegawatt * automatonRangeActionOptimizationSensitivityAnalysisOutput.getMargin(toBeShiftedCnec, side, flowUnit);
+            double cnecFlow = automatonRangeActionOptimizationSensitivityAnalysisOutput.getFlow(toBeShiftedCnec, side, flowUnit);
+            double cnecMargin = automatonRangeActionOptimizationSensitivityAnalysisOutput.getMargin(toBeShiftedCnec, side, flowUnit);
             double optimalSetpoint = computeOptimalSetpoint(currentSetpoint, cnecFlow, cnecMargin, sensitivityValue, alignedRangeActions.getFirst(), minSetpoint, maxSetpoint);
 
             // On first iteration, define direction
@@ -608,13 +608,14 @@ public final class AutomatonSimulator {
                 return new RangeAutomatonSimulationResult(automatonRangeActionOptimizationSensitivityAnalysisOutput, activatedRangeActionsWithSetpoint.keySet(), activatedRangeActionsWithInitialSetpoint, activatedRangeActionsWithSetpoint);
             }
 
-            TECHNICAL_LOGS.debug("Shifting set-point from {} to {} on range action(s) {} to secure CNEC {} on side {} (current margin: {} MW).",
+            TECHNICAL_LOGS.debug("Shifting set-point from {} to {} on range action(s) {} to secure CNEC {} on side {} (current margin: {} {}).",
                 String.format(Locale.ENGLISH, "%.2f", alignedRangeActions.getFirst().getCurrentSetpoint(network)),
                 String.format(Locale.ENGLISH, "%.2f", optimalSetpoint),
                 String.join(", ", alignedRangeActions.stream().map(Identifiable::getId).toList()),
                 toBeShiftedCnec.getId(),
                 side,
-                String.format(Locale.ENGLISH, "%.2f", cnecMargin));
+                String.format(Locale.ENGLISH, "%.2f", cnecMargin),
+                flowUnit.toString());
 
             applyAllRangeActions(alignedRangeActions, network, optimalSetpoint, activatedRangeActionsWithSetpoint);
 
@@ -623,7 +624,7 @@ public final class AutomatonSimulator {
             if (automatonRangeActionOptimizationSensitivityAnalysisOutput.getSensitivityStatus(automatonState) == ComputationStatus.FAILURE) {
                 return new RangeAutomatonSimulationResult(automatonRangeActionOptimizationSensitivityAnalysisOutput, activatedRangeActionsWithSetpoint.keySet(), activatedRangeActionsWithInitialSetpoint, activatedRangeActionsWithSetpoint);
             }
-            MostLimitingElementsReports.reportTechnicalMostLimitingElements(simulationReportNode, automatonRangeActionOptimizationSensitivityAnalysisOutput, automatonRangeActionOptimizationSensitivityAnalysisOutput, Set.of(automatonState), raoParameters.getObjectiveFunctionParameters().getType(), raoParameters.getObjectiveFunctionParameters().getUnit(), numberLoggedElementsDuringRao);
+            MostLimitingElementsReports.reportTechnicalMostLimitingElements(simulationReportNode, automatonRangeActionOptimizationSensitivityAnalysisOutput, automatonRangeActionOptimizationSensitivityAnalysisOutput, Set.of(automatonState), raoParameters.getObjectiveFunctionParameters().getType(), this.flowUnit, numberLoggedElementsDuringRao);
             flowCnecsWithNegativeMargin = getCnecsWithNegativeMarginWithoutExcludedCnecs(flowCnecs, flowCnecsToBeExcluded, automatonRangeActionOptimizationSensitivityAnalysisOutput);
             iteration++;
             previouslyShiftedCnec = toBeShiftedCnec;
@@ -643,7 +644,7 @@ public final class AutomatonSimulator {
         // Under-estimate range action sensitivity if convergence to margin = 0 is slow (ie if multiple passes
         // through this loop have been needed to secure the same CNEC)
         for (RangeAction<?> rangeAction : alignedRangeActions) {
-            sensitivityValue += sensitivityUnderestimator * automatonRangeActionOptimizationSensitivityAnalysisOutput.getSensitivityValue(toBeShiftedCnec, side, rangeAction, MEGAWATT);
+            sensitivityValue += sensitivityUnderestimator * automatonRangeActionOptimizationSensitivityAnalysisOutput.getSensitivityValue(toBeShiftedCnec, side, rangeAction, flowUnit);
         }
         return sensitivityValue;
     }
@@ -678,7 +679,6 @@ public final class AutomatonSimulator {
 
     /**
      * This function builds a list of cnecs with negative margin, except cnecs in cnecsToBeExcluded.
-     * N.B : margin is retrieved in MEGAWATT as only the sign matters.
      * Returns a sorted list of FlowCnecs-TwoSides pairs with negative margins.
      */
     List<Pair<FlowCnec, TwoSides>> getCnecsWithNegativeMarginWithoutExcludedCnecs(Set<FlowCnec> flowCnecs,

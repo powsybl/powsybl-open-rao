@@ -9,7 +9,6 @@ package com.powsybl.openrao.searchtreerao.fastrao;
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.Instant;
 import com.powsybl.openrao.data.crac.api.InstantKind;
@@ -73,7 +72,7 @@ class FastRaoTest {
     }
 
     @Test
-    void testRunFilteredRao2() throws IOException, ExecutionException, InterruptedException {
+    void testRunFilteredRao2() throws IOException {
         // Test with 2 preventive network actions activated
         Network network = Network.read("/network/3Nodes1LineOpen.uct", getClass().getResourceAsStream("/network/3Nodes1LineOpen.uct"));
         Crac crac = Crac.read("/crac/fast-rao-UT-2prev-network-action.json", getClass().getResourceAsStream("/crac/fast-rao-UT-2prev-network-action.json"), network);
@@ -82,7 +81,7 @@ class FastRaoTest {
         FastRaoParameters fastRaoParameters = new FastRaoParameters();
         raoParameters.addExtension(FastRaoParameters.class, fastRaoParameters);
         FastRaoResultImpl raoResult = (FastRaoResultImpl) FastRao.launchFastRaoOptimization(individualRaoInput, raoParameters, null, new HashSet<>(), ReportNode.NO_OP);
-        assertEquals(-33.39, raoResult.getFunctionalCost(crac.getLastInstant()), 1e-1);
+        assertEquals(-101.15, raoResult.getFunctionalCost(crac.getLastInstant()), 1e-1);
         assertEquals(List.of(List.of("Close FR2 FR3", "Close FR1 FR2")), raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getTopoOptimizationParameters().getPredefinedCombinations());
     }
 
@@ -135,7 +134,6 @@ class FastRaoTest {
     void testErrorInitData() throws ExecutionException, InterruptedException {
         RaoInput raoInput = Mockito.mock(RaoInput.class);
         RaoParameters raoParameters = new RaoParameters(ReportNode.NO_OP);
-        raoParameters.getObjectiveFunctionParameters().setUnit(Unit.AMPERE);
         raoParameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters(ReportNode.NO_OP));
         raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters().setDc(true);
         // Run RAO

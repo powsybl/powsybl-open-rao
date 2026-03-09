@@ -42,8 +42,9 @@ public class PrePerimeterSensitivityAnalysis extends AbstractMultiPerimeterSensi
                                            Set<FlowCnec> flowCnecs,
                                            Set<RangeAction<?>> rangeActions,
                                            RaoParameters raoParameters,
-                                           ToolProvider toolProvider) {
-        super(crac, flowCnecs, rangeActions, raoParameters, toolProvider);
+                                           ToolProvider toolProvider,
+                                           boolean multiThreadedSensitivities) {
+        super(crac, flowCnecs, rangeActions, raoParameters, toolProvider, multiThreadedSensitivities);
     }
 
     public PrePerimeterResult runInitialSensitivityAnalysis(final Network network, final ReportNode reportNode) {
@@ -90,7 +91,9 @@ public class PrePerimeterSensitivityAnalysis extends AbstractMultiPerimeterSensi
     }
 
     private PrePerimeterResult runAndGetResult(final Network network, final ObjectiveFunction objectiveFunction, final ReportNode reportNode) {
+        int oldThreadCount = setNewThreadCountAndGetOldValue();
         sensitivityComputer.compute(network);
+        resetThreadCount(oldThreadCount);
         FlowResult flowResult = sensitivityComputer.getBranchResult(network);
         SensitivityResult sensitivityResult = sensitivityComputer.getSensitivityResult();
         RangeActionSetpointResult rangeActionSetpointResult = RangeActionSetpointResultImpl.buildWithSetpointsFromNetwork(network, rangeActions);

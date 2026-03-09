@@ -11,6 +11,8 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.contingency.Contingency;
+import com.powsybl.iidm.network.HvdcLine;
+import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.Crac;
@@ -51,7 +53,9 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.*;
+import java.util.stream.Stream;
 
+import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -120,16 +124,6 @@ class RaoUtilTest {
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_RELATIVE_MARGIN);
         OpenRaoException exception = assertThrows(OpenRaoException.class, () -> RaoUtil.checkParameters(raoParameters, raoInput, ReportNode.NO_OP));
         assertEquals("Objective function MAX_MIN_RELATIVE_MARGIN requires a config with a non empty boundary set", exception.getMessage());
-    }
-
-    @Test
-    void testAmpereWithDc() {
-        raoParameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters(ReportNode.NO_OP));
-        OpenRaoSearchTreeParameters searchTreeParameters = raoParameters.getExtension(OpenRaoSearchTreeParameters.class);
-        searchTreeParameters.getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters().setDc(true);
-        raoParameters.getObjectiveFunctionParameters().setUnit(Unit.AMPERE);
-        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> RaoUtil.checkParameters(raoParameters, raoInput, ReportNode.NO_OP));
-        assertEquals("Objective function unit A cannot be calculated with a DC default sensitivity engine", exception.getMessage());
     }
 
     @Test
@@ -470,5 +464,36 @@ class RaoUtilTest {
         assertEquals(expectedMsg1, logsList.getFirst().getFormattedMessage());
         assertEquals(expectedMsg2, logsList.get(1).getFormattedMessage());
         assertFalse(logsList.stream().anyMatch(e -> e.getMessage().contains(notExpectedMsg)));
+    }
+
+    @Test
+    void testCheckHvdcAcEmulationParameters() {
+        raoParameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters(ReportNode.NO_OP));
+        OpenRaoSearchTreeParameters searchTreeParameters = raoParameters.getExtension(OpenRaoSearchTreeParameters.class);
+        searchTreeParameters.getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters().setHvdcAcEmulation(false);
+
+        RaoInput raoInput = Mockito.mock(RaoInput.class);
+        when(raoInput.getNetwork()).thenReturn(Mockito.mock(Network.class));
+        HvdcLine line1 = Mockito.mock(HvdcLine.class);
+        when(raoInput.getNetwork().getHvdcLineStream()).thenReturn(Stream.of(line1));
+        when(line1.getExtension(HvdcAngleDroopActivePowerControl.class)).thenReturn(Mockito.mock(HvdcAngleDroopActivePowerControl.class));
+        when(line1.getExtension(HvdcAngleDroopActivePowerControl.class).isEnabled()).thenReturn(true);
+        OpenRaoException exception = assertThrows(OpenRaoException.class, () -> RaoUtil.checkHvdcAcEmulationParameters(raoParameters, raoInput, ReportNode.NO_OP));
+        assertEquals("hvdcAcEmulation is not enabled but some HVDC lines are in AC emulation mode which will not be coherent.", exception.getMessage());
+
+    }
+
+    @Test
+    void testGetFlowUnit() {
+        RaoParameters raoParameters = new RaoParameters(ReportNode.NO_OP);
+        raoParameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters(ReportNode.NO_OP));
+
+        // Cas DC -> MEGAWATT
+        getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters().setDc(true);
+        assertEquals(Unit.MEGAWATT, RaoUtil.getFlowUnit(raoParameters));
+
+        // Cas AC -> AMPERE
+        getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters().setDc(false);
+        assertEquals(Unit.AMPERE, RaoUtil.getFlowUnit(raoParameters));
     }
 }

@@ -9,7 +9,6 @@ package com.powsybl.openrao.raoapi.json;
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.OpenRaoException;
-import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.raoapi.parameters.ObjectiveFunctionParameters;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.*;
@@ -60,7 +59,6 @@ class JsonRaoParametersTest extends AbstractSerDeTest {
         OpenRaoSearchTreeParameters searchTreeParameters = parameters.getExtension(OpenRaoSearchTreeParameters.class);
         // Objective Function parameters
         parameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN);
-        parameters.getObjectiveFunctionParameters().setUnit(Unit.AMPERE);
         searchTreeParameters.getObjectiveFunctionParameters().setCurativeMinObjImprovement(983, ReportNode.NO_OP);
         parameters.getObjectiveFunctionParameters().setEnforceCurativeSecurity(true);
         // RangeActionsOptimization parameters

@@ -120,7 +120,7 @@ class SearchTreeTest {
         setSearchTreeParameters();
         searchTree = Mockito.spy(new SearchTree(searchTreeInput, searchTreeParameters, true, reportNode));
         when(searchTreeParameters.getObjectiveFunction()).thenReturn(ObjectiveFunctionParameters.ObjectiveFunctionType.MAX_MIN_MARGIN);
-        when(searchTreeParameters.getObjectiveFunctionUnit()).thenReturn(Unit.MEGAWATT);
+        when(searchTreeParameters.getFlowUnit()).thenReturn(Unit.MEGAWATT);
         mockNetworkPool(network);
 
         // Mock call to runLoadFlowAndUpdateHvdcActivePowerSetpoint(...)

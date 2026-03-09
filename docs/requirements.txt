@@ -3,3 +3,4 @@ sphinx-tabs
 furo==2024.1.29
 myst-parser
 sphinxcontrib-plantuml
+sphinx_copybutton

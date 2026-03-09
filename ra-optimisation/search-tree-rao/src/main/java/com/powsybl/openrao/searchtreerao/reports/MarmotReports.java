@@ -102,13 +102,13 @@ public final class MarmotReports {
         TECHNICAL_LOGS.info("[MARMOT] Evaluating global result after independent optimizations");
     }
 
-    public static void reportMarmotNoInterTemporalConstraintProvided(final ReportNode parentNode) {
+    public static void reportMarmotNoTimeCoupledConstraintProvided(final ReportNode parentNode) {
         parentNode.newReportNode()
-            .withMessageTemplate("openrao.searchtreerao.reportMarmotNoInterTemporalConstraintProvided")
+            .withMessageTemplate("openrao.searchtreerao.reportMarmotNoTimeCoupledConstraintProvided")
             .withSeverity(TRACE_SEVERITY)
             .add();
 
-        TECHNICAL_LOGS.info("[MARMOT] No inter-temporal constraint provided; no need to re-optimize range actions");
+        TECHNICAL_LOGS.info("[MARMOT] No time-coupled constraint provided; no need to re-optimize range actions");
     }
 
     public static ReportNode reportMarmotGlobalRangeActionsOptimization(final ReportNode parentNode) {
@@ -142,19 +142,19 @@ public final class MarmotReports {
         TECHNICAL_LOGS.info("[MARMOT] ----- Global range actions optimization [end] for iteration {}", iterationCounter);
     }
 
-    public static ReportNode reportMarmotSystematicInterTemporalSensitivityAnalysis(final ReportNode parentNode) {
+    public static ReportNode reportMarmotSystematicTimeCoupledSensitivityAnalysis(final ReportNode parentNode) {
         final ReportNode addedNode = parentNode.newReportNode()
-            .withMessageTemplate("openrao.searchtreerao.reportMarmotSystematicInterTemporalSensitivityAnalysis")
+            .withMessageTemplate("openrao.searchtreerao.reportMarmotSystematicTimeCoupledSensitivityAnalysis")
             .withSeverity(INFO_SEVERITY)
             .add();
 
-        TECHNICAL_LOGS.info("[MARMOT] Systematic inter-temporal sensitivity analysis [start]");
+        TECHNICAL_LOGS.info("[MARMOT] Systematic time-coupled sensitivity analysis [start]");
 
         return addedNode;
     }
 
-    public static void reportMarmotSystematicInterTemporalSensitivityAnalysisEnd() {
-        TECHNICAL_LOGS.info("[MARMOT] Systematic inter-temporal sensitivity analysis [end]");
+    public static void reportMarmotSystematicTimeCoupledSensitivityAnalysisEnd() {
+        TECHNICAL_LOGS.info("[MARMOT] Systematic time-coupled sensitivity analysis [end]");
     }
 
     public static ReportNode reportMarmotMergingTopoAndLinearRemedialActionResults(final ReportNode parentNode) {

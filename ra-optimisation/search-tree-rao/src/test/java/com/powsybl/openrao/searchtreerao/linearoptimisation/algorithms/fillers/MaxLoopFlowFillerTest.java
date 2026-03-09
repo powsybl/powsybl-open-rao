@@ -100,7 +100,8 @@ class MaxLoopFlowFillerTest extends AbstractFillerTest {
             initialFlowResult,
             loopFlowParameters,
             loopFlowParametersExtension,
-            null
+            null,
+            Unit.MEGAWATT
         );
     }
 
@@ -227,7 +228,8 @@ class MaxLoopFlowFillerTest extends AbstractFillerTest {
             initialFlowResult,
             loopFlowParameters,
             loopFlowParametersExtension,
-            null
+            null,
+            Unit.MEGAWATT
         );
 
         when(flowResult.getCommercialFlow(cnecOn2sides, TwoSides.ONE, Unit.MEGAWATT)).thenReturn(49.);
@@ -285,7 +287,8 @@ class MaxLoopFlowFillerTest extends AbstractFillerTest {
             initialFlowResult,
             loopFlowParameters,
             loopFlowParametersExtension,
-            null
+            null,
+            Unit.MEGAWATT
         );
         setCommercialFlowValue(49);
         buildLinearProblem();

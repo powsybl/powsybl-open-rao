@@ -33,6 +33,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import static com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
@@ -47,7 +48,7 @@ class ObjectiveFunctionTest {
     private FlowCnec cnec2;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         flowResult = Mockito.mock(FlowResult.class);
         cnec1 = Mockito.mock(FlowCnec.class);
         cnec2 = Mockito.mock(FlowCnec.class);
@@ -71,6 +72,7 @@ class ObjectiveFunctionTest {
         RaoParameters raoParameters = new RaoParameters(ReportNode.NO_OP);
         OpenRaoSearchTreeParameters openRaoSearchTreeParameters = new OpenRaoSearchTreeParameters(ReportNode.NO_OP);
         openRaoSearchTreeParameters.getLoadFlowAndSensitivityParameters().setSensitivityFailureOvercost(0.0);
+        openRaoSearchTreeParameters.getLoadFlowAndSensitivityParameters().getSensitivityWithLoadFlowParameters().getLoadFlowParameters().setDc(true);
         raoParameters.addExtension(OpenRaoSearchTreeParameters.class, openRaoSearchTreeParameters);
         ObjectiveFunction objectiveFunction = ObjectiveFunction.build(Set.of(cnec1, cnec2), Set.of(), null, null, Set.of(), raoParameters, Set.of());
 
@@ -97,6 +99,7 @@ class ObjectiveFunctionTest {
         SearchTreeRaoLoopFlowParameters loopFlowParameters = new SearchTreeRaoLoopFlowParameters();
         loopFlowParameters.setViolationCost(10.);
         openRaoSearchTreeParameters.setLoopFlowParameters(loopFlowParameters);
+        getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters().setDc(true);
 
         FlowResult initialFlowResult = Mockito.mock(FlowResult.class);
 
@@ -153,7 +156,6 @@ class ObjectiveFunctionTest {
     void testBuildForInitialSensitivityComputationCostlyOptimizationAmpere() {
         RaoParameters raoParameters = new RaoParameters(ReportNode.NO_OP);
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MIN_COST);
-        raoParameters.getObjectiveFunctionParameters().setUnit(Unit.AMPERE);
         assertTrue(raoParameters.getObjectiveFunctionParameters().getType().costOptimization());
         raoParameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters(ReportNode.NO_OP));
         raoParameters.getExtension(OpenRaoSearchTreeParameters.class).setMinMarginsParameters(new SearchTreeRaoCostlyMinMarginParameters());
@@ -167,11 +169,10 @@ class ObjectiveFunctionTest {
     void testBuildForInitialSensitivityComputationCostlyOptimizationMegawatt() {
         RaoParameters raoParameters = new RaoParameters(ReportNode.NO_OP);
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MIN_COST);
-        raoParameters.getObjectiveFunctionParameters().setUnit(Unit.MEGAWATT);
-        assertTrue(raoParameters.getObjectiveFunctionParameters().getType().costOptimization());
         assertTrue(raoParameters.getObjectiveFunctionParameters().getType().costOptimization());
         raoParameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters(ReportNode.NO_OP));
         raoParameters.getExtension(OpenRaoSearchTreeParameters.class).setMinMarginsParameters(new SearchTreeRaoCostlyMinMarginParameters());
+        getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters().setDc(true);
 
         ObjectiveFunction objectiveFunction = ObjectiveFunction.buildForInitialSensitivityComputation(Set.of(), raoParameters, Set.of());
         assertNotNull(objectiveFunction);
@@ -182,7 +183,6 @@ class ObjectiveFunctionTest {
     void testBuildCostlyOptimizationAmpere() {
         RaoParameters raoParameters = new RaoParameters(ReportNode.NO_OP);
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MIN_COST);
-        raoParameters.getObjectiveFunctionParameters().setUnit(Unit.AMPERE);
         assertTrue(raoParameters.getObjectiveFunctionParameters().getType().costOptimization());
         assertTrue(raoParameters.getObjectiveFunctionParameters().getType().costOptimization());
         raoParameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters(ReportNode.NO_OP));
@@ -197,11 +197,11 @@ class ObjectiveFunctionTest {
     void testBuildCostlyOptimizationMegawatt() {
         RaoParameters raoParameters = new RaoParameters(ReportNode.NO_OP);
         raoParameters.getObjectiveFunctionParameters().setType(ObjectiveFunctionParameters.ObjectiveFunctionType.MIN_COST);
-        raoParameters.getObjectiveFunctionParameters().setUnit(Unit.MEGAWATT);
         assertTrue(raoParameters.getObjectiveFunctionParameters().getType().costOptimization());
         assertTrue(raoParameters.getObjectiveFunctionParameters().getType().costOptimization());
         raoParameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters(ReportNode.NO_OP));
         raoParameters.getExtension(OpenRaoSearchTreeParameters.class).setMinMarginsParameters(new SearchTreeRaoCostlyMinMarginParameters());
+        getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters().setDc(true);
 
         ObjectiveFunction objectiveFunction = ObjectiveFunction.build(Set.of(), Set.of(), null, null, Set.of(), raoParameters, Set.of());
         assertNotNull(objectiveFunction);

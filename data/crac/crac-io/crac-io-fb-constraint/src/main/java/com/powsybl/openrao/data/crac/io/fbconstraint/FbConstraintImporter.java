@@ -46,8 +46,6 @@ public class FbConstraintImporter implements Importer {
     private static final Logger LOGGER = LoggerFactory.getLogger(FbConstraintImporter.class);
     private static final String XML_EXTENSION = "xml";
     private static final String XML_SCHEMA_VERSION = "flowbasedconstraintdocument-";
-    private static final String FLOWBASED_CONSTRAINT_V11_SCHEMA_FILE = "/xsd/validation/flowbasedconstraintdocument-11.xsd";
-    private static final String FLOWBASED_CONSTRAINT_V18_SCHEMA_FILE = "/xsd/validation/flowbasedconstraintdocument-18.xsd";
     private static final String FLOWBASED_CONSTRAINT_V23_SCHEMA_FILE = "/xsd/flowbasedconstraintdocument-23.xsd";
     private static final String ETSO_CODE_LIST_SCHEMA_FILE = "/xsd/etso-code-lists.xsd";
     private static final String ETSO_CORE_CMPTS_SCHEMA_FILE = "/xsd/etso-core-cmpts.xsd";
@@ -129,12 +127,8 @@ public class FbConstraintImporter implements Importer {
     }
 
     private String schemaVersion(int flowBasedDocumentVersion) {
-        if (flowBasedDocumentVersion >= 23) {
+        if (flowBasedDocumentVersion >= 17) {
             return FLOWBASED_CONSTRAINT_V23_SCHEMA_FILE;
-        } else if (flowBasedDocumentVersion >= 17) {
-            return FLOWBASED_CONSTRAINT_V18_SCHEMA_FILE;
-        } else if (flowBasedDocumentVersion == 11) {
-            return FLOWBASED_CONSTRAINT_V11_SCHEMA_FILE;
         } else {
             LOGGER.debug("Flow-based constraint document with version {} are not handled by the FbConstraintImporter", flowBasedDocumentVersion);
             return null;

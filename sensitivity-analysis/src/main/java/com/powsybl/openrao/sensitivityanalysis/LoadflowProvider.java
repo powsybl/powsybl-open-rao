@@ -130,6 +130,7 @@ public class LoadflowProvider extends AbstractSimpleSensitivityProvider {
 
     List<Pair<String, SensitivityFunctionType>> getSensitivityFunctions(Network network, String contingencyId) {
         Set<FlowCnec> flowCnecs;
+        //function reference is NaN in OLF for disconnected lines, so we remove them
         if (Objects.isNull(contingencyId)) {
             flowCnecs = cnecsPerContingencyId.getOrDefault(null, new ArrayList<>()).stream()
                 .filter(cnec -> cnec.isConnected(network))
@@ -157,23 +158,6 @@ public class LoadflowProvider extends AbstractSimpleSensitivityProvider {
         } else {
             throw new OpenRaoException("Unable to create sensitivity function for " + networkElementId);
         }
-    }
-
-    private Set<SensitivityFunctionType> getSensitivityFunctionTypes(Set<TwoSides> sides) {
-        Set<SensitivityFunctionType> sensitivityFunctionTypes = new HashSet<>();
-        if (factorsInMegawatt && sides.contains(TwoSides.ONE)) {
-            sensitivityFunctionTypes.add(SensitivityFunctionType.BRANCH_ACTIVE_POWER_1);
-        }
-        if (factorsInMegawatt && sides.contains(TwoSides.TWO)) {
-            sensitivityFunctionTypes.add(SensitivityFunctionType.BRANCH_ACTIVE_POWER_2);
-        }
-        if (factorsInAmpere && sides.contains(TwoSides.ONE)) {
-            sensitivityFunctionTypes.add(SensitivityFunctionType.BRANCH_CURRENT_1);
-        }
-        if (factorsInAmpere && sides.contains(TwoSides.TWO)) {
-            sensitivityFunctionTypes.add(SensitivityFunctionType.BRANCH_CURRENT_2);
-        }
-        return sensitivityFunctionTypes;
     }
 
 }

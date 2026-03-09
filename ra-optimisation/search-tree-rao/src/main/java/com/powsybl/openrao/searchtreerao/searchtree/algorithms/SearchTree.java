@@ -528,21 +528,21 @@ public class SearchTree {
     }
 
     private void reportVirtualCostInformation(final ReportNode reportNode, final Leaf rootLeaf, final boolean optimized) {
-        VirtualCostReports.reportVirtualCostInformation(reportNode, verbose, rootLeaf, parameters.getObjectiveFunctionUnit(), previousDepthOptimalLeaf.getFunctionalCost(), parameters, optimized);
+        VirtualCostReports.reportVirtualCostInformation(reportNode, verbose, rootLeaf, parameters.getFlowUnit(), previousDepthOptimalLeaf.getFunctionalCost(), parameters, optimized);
     }
 
     private void reportTechnicalMostLimitingElements(final Leaf rootLeaf, final int numberLoggedElementsDuringTree) {
-        MostLimitingElementsReports.reportTechnicalMostLimitingElements(reportNode, rootLeaf, rootLeaf, parameters.getObjectiveFunction(), parameters.getObjectiveFunctionUnit(), numberLoggedElementsDuringTree);
+        MostLimitingElementsReports.reportTechnicalMostLimitingElements(reportNode, rootLeaf, rootLeaf, parameters.getObjectiveFunction(), parameters.getFlowUnit(), numberLoggedElementsDuringTree);
     }
 
     private void reportOptimizationSummary() {
         OptimizationSummaryReports.reportOptimizationSummary(reportNode, rootLeaf, input, rootLeaf.getPreOptimObjectiveFunctionResult());
-        VirtualCostReports.reportVirtualCostInformation(reportNode, verbose, optimalLeaf, parameters.getObjectiveFunctionUnit(), previousDepthOptimalLeaf.getFunctionalCost(), parameters, false);
+        VirtualCostReports.reportVirtualCostInformation(reportNode, verbose, optimalLeaf, parameters.getFlowUnit(), previousDepthOptimalLeaf.getFunctionalCost(), parameters, false);
     }
 
     private void reportMostLimitingElementsWithVerbose(final Leaf leaf, final int numberLoggedElementsDuringTree) {
         if (verbose) {
-            MostLimitingElementsReports.reportBusinessMostLimitingElements(reportNode, leaf, leaf, parameters.getObjectiveFunction(), parameters.getObjectiveFunctionUnit(), numberLoggedElementsDuringTree);
+            MostLimitingElementsReports.reportBusinessMostLimitingElements(reportNode, leaf, leaf, parameters.getObjectiveFunction(), parameters.getFlowUnit(), numberLoggedElementsDuringTree);
         } else {
             reportTechnicalMostLimitingElements(leaf, numberLoggedElementsDuringTree);
         }

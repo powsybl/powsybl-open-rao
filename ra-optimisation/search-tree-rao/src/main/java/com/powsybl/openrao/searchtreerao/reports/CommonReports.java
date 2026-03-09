@@ -10,6 +10,7 @@ package com.powsybl.openrao.searchtreerao.reports;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.searchtreerao.commons.RaoLogger;
+import com.powsybl.openrao.searchtreerao.commons.RaoUtil;
 import com.powsybl.openrao.searchtreerao.commons.objectivefunction.ObjectiveFunction;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.ObjectiveFunctionResult;
@@ -82,12 +83,14 @@ public final class CommonReports {
 
         BUSINESS_LOGS.info(prefix + "cost = {} (functional: {}, virtual: {}{})", cost, functionalCost, virtualCost, virtualCostDetail);
 
-        MostLimitingElementsReports.reportBusinessMostLimitingElements(parentNode,
+        MostLimitingElementsReports.reportBusinessMostLimitingElements(
+            parentNode,
             sensitivityAnalysisObjectiveFunctionResult,
             sensitivityAnalysisFlowResult,
             raoParameters.getObjectiveFunctionParameters().getType(),
-            raoParameters.getObjectiveFunctionParameters().getUnit(),
-            numberOfLoggedLimitingElements);
+            RaoUtil.getFlowUnit(raoParameters),
+            numberOfLoggedLimitingElements
+        );
     }
 
     public static void reportInitialSensitivityAnalysisFailed(final ReportNode parentNode) {
@@ -223,6 +226,15 @@ public final class CommonReports {
             .add();
 
         BUSINESS_LOGS.error("Loopflow computation cannot be performed on CRAC {} because it lacks a ReferenceProgram or a GlskProvider", cracId);
+    }
+
+    public static void reportHvdcAcEmulationDisabledButNetworkContainsAcHvdcLines(final ReportNode parentNode) {
+        parentNode.newReportNode()
+            .withMessageTemplate("openrao.searchtreerao.reportHvdcAcEmulationDisabledButNetworkContainsAcHvdcLines")
+            .withSeverity(ERROR_SEVERITY)
+            .add();
+
+        BUSINESS_LOGS.error("hvdcAcEmulation is not enabled but some HVDC lines are in AC emulation mode which will not be coherent.");
     }
 
     public static void reportNoReferenceProgramProvided(final ReportNode parentNode) {

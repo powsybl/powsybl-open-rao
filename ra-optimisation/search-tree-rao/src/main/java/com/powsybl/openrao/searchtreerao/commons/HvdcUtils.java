@@ -149,6 +149,11 @@ public final class HvdcUtils {
         Set<HvdcRangeAction> hvdcRasOnHvdcLinesInAcEmulation = getHvdcRangeActionsOnHvdcLineInAcEmulation(crac.getHvdcRangeActions(), network);
         Map<HvdcRangeAction, Double> activePowerSetpoints = new HashMap<>();
         if (!hvdcRasOnHvdcLinesInAcEmulation.isEmpty()) {
+
+            TECHNICAL_LOGS.debug(
+                "Update HVDC range actions initial set-points with load flow computation."
+            );
+
             activePowerSetpoints = runLoadFlowAndUpdateHvdcActivePowerSetpoint(
                 network,
                 crac.getPreventiveState(),
@@ -237,7 +242,7 @@ public final class HvdcUtils {
                     && activePowerSetpoint <= hvdcRa.getMaxAdmissibleSetpoint(activePowerSetpoint);
 
             if (isValid) {
-                TECHNICAL_LOGS.debug(String.format("HVDC line %s active power setpoint is set to (%.1f)", hvdcLineId, activePowerSetpoint));
+                TECHNICAL_LOGS.debug(String.format("HVDC line %s active power setpoint is set to abs(%.1f)", hvdcLineId, activePowerSetpoint));
 
                 activePowerSetpoints.put(hvdcRa, activePowerSetpoint);
                 setActivePowerSetpointOnHvdcLine(hvdcLine, activePowerSetpoint);
@@ -282,7 +287,7 @@ public final class HvdcUtils {
         // Compute HvdcAngleDroopActivePowerControl values of HVDC lines
         Map<String, Double> controls = network.getHvdcLineStream()
             .filter(hvdcLine -> hvdcLine.getExtension(HvdcAngleDroopActivePowerControl.class) != null)
-            .collect(Collectors.toMap(com.powsybl.iidm.network.Identifiable::getId, IidmHvdcHelper::computeActivePowerSetpointOnHvdcLine));
+            .collect(Collectors.toMap(com.powsybl.iidm.network.Identifiable::getId, IidmHvdcHelper::computeHvdcAngleDroopActivePowerControlSetPoint));
 
         // Reset working variant
         network.getVariantManager().setWorkingVariant(initialVariantId);

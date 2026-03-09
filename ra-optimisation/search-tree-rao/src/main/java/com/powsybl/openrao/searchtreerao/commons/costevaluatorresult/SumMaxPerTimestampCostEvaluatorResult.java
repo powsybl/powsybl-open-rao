@@ -7,18 +7,15 @@
 
 package com.powsybl.openrao.searchtreerao.commons.costevaluatorresult;
 
+import com.google.common.util.concurrent.AtomicDouble;
 import com.powsybl.contingency.Contingency;
-import com.powsybl.iidm.network.TwoSides;
-import com.powsybl.openrao.commons.Unit;
 import com.powsybl.openrao.data.crac.api.State;
-import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 
 import java.time.OffsetDateTime;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
-
-import static com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator.CostEvaluatorUtils.groupFlowCnecsPerState;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -27,89 +24,61 @@ import static com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluat
 public class SumMaxPerTimestampCostEvaluatorResult implements CostEvaluatorResult {
     private final List<FlowCnec> costlyElements;
     private final Map<FlowCnec, Double> marginPerCnec;
-    private final Unit unit;
-    private double highestThreshold = Double.NaN;
+    private final boolean capAtZero;
+    private static final double COST_LIMIT = 1e9;
 
-    public SumMaxPerTimestampCostEvaluatorResult(Map<FlowCnec, Double> marginPerCnec, List<FlowCnec> costlyElements, Unit unit) {
+    public SumMaxPerTimestampCostEvaluatorResult(Map<FlowCnec, Double> marginPerCnec, List<FlowCnec> costlyElements, boolean capAtZero) {
         this.marginPerCnec = marginPerCnec;
         this.costlyElements = costlyElements;
-        this.unit = unit;
+        this.capAtZero = capAtZero;
     }
 
+    /*
+     * For virtual costs, capAtZero is set to true. This allows us to ensure that the virtual cost is always positive
+     *  for each timestamp.
+     * When no "real" value can be returned (either because no cnecs are present or they have all been filtered out), we
+     *  need to return a value that is smaller than other costs (in case we take the max of these costs for multiple states).
+     *  However we can not return -inf because we need the other costs to still have an impact on the global objective
+     *  function when we are adding costs together (for instance a functional cost plus a virtual cost).
+     *  In such case we therefore return -1e9, which should be negative enough compared to realistic margins, but won't
+     *  hide a positive virtual cost.
+     */
     @Override
     public double getCost(Set<String> contingenciesToExclude, Set<String> cnecsToExclude) {
-        // exclude cnecs
+        // Exclude cnecs and contingencies
         Map<FlowCnec, Double> filteredCnecs = marginPerCnec.entrySet().stream()
             .filter(entry -> !cnecsToExclude.contains(entry.getKey().getId()))
+            .filter(entry -> statesContingencyMustBeKept(entry.getKey().getState(), contingenciesToExclude))
+            .filter(entry -> entry.getKey().isOptimized())
             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
         if (filteredCnecs.isEmpty()) {
-            return -Double.MAX_VALUE;
+            return capAtZero ? 0. : -COST_LIMIT;
         }
 
-        // Compute state wise cost
-        Map<State, Set<FlowCnec>> flowCnecsPerState = groupFlowCnecsPerState(filteredCnecs.keySet());
-        Map<State, Double> costPerState = flowCnecsPerState.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, entry -> computeCostForState(entry.getValue())));
-
-        Map<OffsetDateTime, Set<State>> statesToEvaluatePerTimestamp = new HashMap<>();
-        Set<State> statesToEvaluateWithoutTimestamp = new HashSet<>();
-
-        costPerState.keySet().forEach(state -> {
-            if (statesContingencyMustBeKept(state, contingenciesToExclude)) {
-                Optional<OffsetDateTime> timestamp = state.getTimestamp();
-                if (timestamp.isPresent()) {
-                    statesToEvaluatePerTimestamp.computeIfAbsent(timestamp.get(), s -> new HashSet<>()).add(state);
-                } else {
-                    statesToEvaluateWithoutTimestamp.add(state);
-                }
+        // Compute max cost (= -margin) per timestamp
+        Map<OffsetDateTime, Double> maxCostPerTimestamp = new HashMap<>();
+        AtomicBoolean stateWithoutTimestampIsPresent = new AtomicBoolean(false);
+        AtomicDouble maxCostWithoutTimestamp = new AtomicDouble(-COST_LIMIT);
+        filteredCnecs.forEach((flowCnec, margin) -> {
+            //FIXME: check why NaN values can be present
+            if (Double.isNaN(margin)) {
+                return;
+            }
+            if (flowCnec.getState().getTimestamp().isPresent()) {
+                maxCostPerTimestamp.merge(flowCnec.getState().getTimestamp().get(), -margin, Math::max);
+            } else {
+                stateWithoutTimestampIsPresent.set(true);
+                maxCostWithoutTimestamp.set(Math.max(maxCostWithoutTimestamp.get(), -margin));
             }
         });
 
-        return statesToEvaluatePerTimestamp.values().stream().mapToDouble(states -> states.stream().mapToDouble(costPerState::get).max().orElse(0)).sum()
-            + statesToEvaluateWithoutTimestamp.stream().mapToDouble(costPerState::get).max().orElse(0);
-
-    }
-
-    private double getHighestThresholdAmongFlowCnecs() {
-        if (Double.isNaN(highestThreshold)) {
-            highestThreshold = marginPerCnec.keySet().stream().map(this::getHighestThreshold).max(Double::compareTo).orElse(0.0);
+        // Compute total cost by summing over timestamps
+        double totalCost = maxCostPerTimestamp.values().stream().mapToDouble(d -> capAtZero ? Math.max(0., d) : d).sum();
+        if (stateWithoutTimestampIsPresent.get()) {
+            totalCost += capAtZero ? Math.max(0., maxCostWithoutTimestamp.get()) : maxCostWithoutTimestamp.get();
         }
-        return highestThreshold;
-    }
-
-    private double getHighestThreshold(FlowCnec flowCnec) {
-        return Math.max(
-            Math.max(
-                flowCnec.getUpperBound(TwoSides.ONE, unit).orElse(0.0),
-                flowCnec.getUpperBound(TwoSides.TWO, unit).orElse(0.0)),
-            Math.max(
-                -flowCnec.getLowerBound(TwoSides.ONE, unit).orElse(0.0),
-                -flowCnec.getLowerBound(TwoSides.TWO, unit).orElse(0.0)));
-    }
-
-    protected double computeCostForState(Set<FlowCnec> flowCnecsOfState) {
-        List<FlowCnec> flowCnecsByMargin = flowCnecsOfState.stream()
-            .filter(Cnec::isOptimized)
-            .sorted(Comparator.comparingDouble(marginPerCnec::get))
-            .toList();
-        FlowCnec limitingElement;
-        if (flowCnecsByMargin.isEmpty()) {
-            limitingElement = null;
-        } else {
-            limitingElement = flowCnecsByMargin.getFirst();
-        }
-        if (limitingElement == null) {
-            // In case there is no limiting element (may happen in perimeters where only MNECs exist),
-            // return a finite value, so that the virtual cost is not hidden by the functional cost
-            // This finite value should only be equal to the highest possible margin, i.e. the highest cnec threshold
-            return -getHighestThresholdAmongFlowCnecs();
-        }
-        double margin = marginPerCnec.get(limitingElement);
-        if (margin >= Double.MAX_VALUE / 2) {
-            // In case margin is infinite (may happen in perimeters where only unoptimized CNECs exist, none of which has seen its margin degraded),
-            // return a finite value, like MNEC case above
-            return -getHighestThresholdAmongFlowCnecs();
-        }
-        return -margin;
+        return totalCost;
     }
 
     @Override

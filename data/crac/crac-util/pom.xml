@@ -26,7 +26,8 @@
         </dependency>
         <dependency>
             <groupId>com.powsybl</groupId>
-            <artifactId>open-rao-intertemporal-constraints</artifactId>
+            <artifactId>open-rao-time-coupled-constraints</artifactId>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
