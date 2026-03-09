@@ -7,13 +7,24 @@
 
 package com.powsybl.openrao.monitoring;
 
-import com.powsybl.action.*;
+import com.powsybl.action.Action;
+import com.powsybl.action.DanglingLineAction;
+import com.powsybl.action.GeneratorAction;
+import com.powsybl.action.LoadAction;
+import com.powsybl.action.ShuntCompensatorPositionAction;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.glsk.commons.CountryEICode;
 import com.powsybl.glsk.commons.ZonalData;
 import com.powsybl.iidm.modification.scalable.Scalable;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.Generator;
+import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.IdentifiableType;
+import com.powsybl.iidm.network.Injection;
+import com.powsybl.iidm.network.Load;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.Substation;
 import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.LoadFlowResult;
@@ -32,16 +43,31 @@ import com.powsybl.openrao.data.crac.impl.AngleCnecValue;
 import com.powsybl.openrao.data.crac.impl.VoltageCnecValue;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.monitoring.redispatching.RedispatchAction;
-import com.powsybl.openrao.monitoring.results.*;
+import com.powsybl.openrao.monitoring.results.CnecResult;
+import com.powsybl.openrao.monitoring.results.MonitoringResult;
+import com.powsybl.openrao.monitoring.results.RaoResultWithAngleMonitoring;
+import com.powsybl.openrao.monitoring.results.RaoResultWithVoltageMonitoring;
 import com.powsybl.openrao.util.AbstractNetworkPool;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinTask;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.*;
+import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_LOGS;
+import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
 import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.TECHNICAL_LOGS;
 
 /**
