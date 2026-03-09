@@ -83,7 +83,12 @@ public class RaoResultWithVoltageMonitoring extends RaoResultClone {
 
     Optional<CnecResult> getCnecResult(Instant optimizationInstant, VoltageCnec voltageCnec) {
         if (voltageCnec.getState().getInstant() != optimizationInstant) {
-            throw new OpenRaoException("Unexpected optimization instant for voltage monitoring result (only optimization instant equal to voltage cnec' state's instant is accepted) : " + optimizationInstant);
+            throw new OpenRaoException(
+                "Unexpected optimization instant for voltage monitoring result: "
+                    + (optimizationInstant == null ? "initial" : optimizationInstant.getId())
+                    + ". Only optimization instant equal to voltage cnec's instant is accepted: "
+                    + voltageCnec.getState().getInstant().getId()
+            );
         }
         return voltageMonitoringResult.getCnecResults().stream().filter(voltageCnecRes -> voltageCnecRes.getId().equals(voltageCnec.getId())).findFirst();
     }

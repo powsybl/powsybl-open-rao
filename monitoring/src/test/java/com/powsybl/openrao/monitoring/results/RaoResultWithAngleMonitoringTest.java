@@ -34,6 +34,7 @@ public class RaoResultWithAngleMonitoringTest {
         AngleCnec angleCnec = Mockito.mock(AngleCnec.class);
         when(angleCnec.getId()).thenReturn("angle");
         Instant cnecInstant = Mockito.mock(Instant.class);
+        when(cnecInstant.getId()).thenReturn("preventive");
         State state = Mockito.mock(State.class);
         when(state.getInstant()).thenReturn(cnecInstant);
         when(angleCnec.getState()).thenReturn(state);
@@ -49,12 +50,13 @@ public class RaoResultWithAngleMonitoringTest {
 
         // if optimizationInstant == null, throw an error
         OpenRaoException exception = assertThrows(OpenRaoException.class, () -> raoResultWithAngleMonitoring.getCnecResult(null, angleCnec).get());
-        assertEquals("Unexpected optimization instant for angle monitoring result (only optimization instant equal to angle cnec' state's instant is accepted) : null", exception.getMessage());
+        assertEquals("Unexpected optimization instant for angle monitoring result: initial. Only optimization instant equal to angle cnec's instant is accepted: preventive", exception.getMessage());
 
-        // if optimizationInstant != cnec's instant, , throw an error
+        // if optimizationInstant != cnec's instant, throw an error
         Instant optimizationInstant = Mockito.mock(Instant.class);
+        when(optimizationInstant.getId()).thenReturn("curative");
         exception = assertThrows(OpenRaoException.class, () -> raoResultWithAngleMonitoring.getCnecResult(optimizationInstant, angleCnec).get());
-        assertTrue(exception.getMessage().startsWith("Unexpected optimization instant for angle monitoring result (only optimization instant equal to angle cnec' state's instant is accepted) :"));
+        assertEquals("Unexpected optimization instant for angle monitoring result: curative. Only optimization instant equal to angle cnec's instant is accepted: preventive", exception.getMessage());
 
         // If we give an angle cnec that was not monitored ex. an outage cnec or if monitoring didn't return a result for the cnec for some reason
         // => should return an empty optional (if optimizationInstant == CNEC instant)

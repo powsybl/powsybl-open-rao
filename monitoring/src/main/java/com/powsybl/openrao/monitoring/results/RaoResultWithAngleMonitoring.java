@@ -63,8 +63,13 @@ public class RaoResultWithAngleMonitoring extends RaoResultClone {
     }
 
     Optional<CnecResult> getCnecResult(Instant optimizationInstant, AngleCnec angleCnec) {
-        if (optimizationInstant == null || angleCnec.getState().getInstant() != optimizationInstant) {
-            throw new OpenRaoException("Unexpected optimization instant for angle monitoring result (only optimization instant equal to angle cnec' state's instant is accepted) : " + optimizationInstant);
+        if (angleCnec.getState().getInstant() != optimizationInstant) {
+            throw new OpenRaoException(
+                "Unexpected optimization instant for angle monitoring result: "
+                    + (optimizationInstant == null ? "initial" : optimizationInstant.getId())
+                    + ". Only optimization instant equal to angle cnec's instant is accepted: "
+                    + angleCnec.getState().getInstant().getId()
+            );
         }
         return angleMonitoringResult.getCnecResults().stream().filter(angleCnecRes -> angleCnecRes.getId().equals(angleCnec.getId())).findFirst();
 

@@ -620,6 +620,9 @@ class VoltageMonitoringTest {
 
     @Test
     void testVoltageMonitoringOfCnecsOnDifferentInstants() throws IOException {
+
+        // Check that if a preventive voltageCnec is present in the crac, we should serialize the result and show the margin of this cnec after PRA.
+        // If we have a curative voltage cnec we should show the margin in the raoResult after CRA.
         network = Network.read("voltage_monitoring.xiidm", getClass().getResourceAsStream("/voltage_monitoring.xiidm"));
         crac = Crac.read("voltage_monitoring_with_preventive_crac.json", getClass().getResourceAsStream("/voltage_monitoring_with_preventive_crac.json"), network);
         RaoParameters raoParameters = JsonRaoParameters.read(getClass().getResourceAsStream("/monitoring_parameters.json"));

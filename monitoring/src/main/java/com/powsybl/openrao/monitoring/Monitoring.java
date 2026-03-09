@@ -150,8 +150,8 @@ public class Monitoring {
                     // For a given contingency, cnec state's intant == last curative instant optimized for contingency.
                     Instant lastCurativeInstant = crac.getLastInstant();
 
-                    if (lastCurativeInstant.getOrder() != state.getInstant().getOrder()) {
-                        TECHNICAL_LOGS.warn(String.format("State %s is not valid. Monitoring is only allowed on preventive states or curative states defined on the last curative instant %s.", state.getId(), lastCurativeInstant));
+                    if (state.getInstant().comesBefore(lastCurativeInstant)) {
+                        TECHNICAL_LOGS.warn(String.format("State %s is not valid. Monitoring is only allowed on preventive state or curative states defined on the last curative instant %s.", state.getId(), lastCurativeInstant));
                         networkPool.releaseUsedNetwork(networkClone);
                         return null;
                     }
