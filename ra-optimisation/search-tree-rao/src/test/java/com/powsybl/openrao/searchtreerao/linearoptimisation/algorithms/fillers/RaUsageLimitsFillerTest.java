@@ -175,7 +175,6 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
         when(preventiveState.getId()).thenReturn("preventiveState");
         when(preventiveState.isPreventive()).thenReturn(true);
 
-
         // add multi-curative states
         OptimizationPerimeter optimizationPerimeter = Mockito.mock(OptimizationPerimeter.class);
         rangeActionsPerStateMultiCurative = Map.of(co1Curative1, Set.of(pst1, hvdc, injection), co1Curative2, Set.of(pst1, pst2, pst3), co2Curative2, Set.of(pst2, pst3), preventiveState, Set.of(injection));
@@ -202,7 +201,8 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             raLimitationParameters,
             false,
             network,
-            false);
+            false,
+            Mockito.mock(OptimizationPerimeter.class));
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(raUsageLimitsFiller)
@@ -226,7 +226,8 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             raLimitationParameters,
             false,
             network,
-            false);
+            false,
+            Mockito.mock(OptimizationPerimeter.class));
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(raUsageLimitsFiller)
@@ -262,7 +263,8 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             raLimitationParameters,
             true,
             network,
-            false);
+            false,
+            Mockito.mock(OptimizationPerimeter.class));
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(raUsageLimitsFiller)
@@ -298,7 +300,8 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             raLimitationParameters,
             false,
             network,
-            false);
+            false,
+            Mockito.mock(OptimizationPerimeter.class));
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(raUsageLimitsFiller)
@@ -332,7 +335,8 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             raLimitationParameters,
             false,
             network,
-            false);
+            false,
+            Mockito.mock(OptimizationPerimeter.class));
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(raUsageLimitsFiller)
@@ -354,7 +358,8 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             raLimitationParameters,
             false,
             network,
-            false);
+            false,
+            Mockito.mock(OptimizationPerimeter.class));
 
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
@@ -382,7 +387,8 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             raLimitationParameters,
             false,
             network,
-            false);
+            false,
+            Mockito.mock(OptimizationPerimeter.class));
 
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
@@ -406,7 +412,8 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             raLimitationParameters,
             false,
             network,
-            false);
+            false,
+            Mockito.mock(OptimizationPerimeter.class));
 
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
@@ -438,7 +445,8 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             raLimitationParameters,
             false,
             network,
-            false);
+            false,
+            Mockito.mock(OptimizationPerimeter.class));
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(raUsageLimitsFiller)
@@ -472,7 +480,8 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             raLimitationParameters,
             false,
             network,
-            false);
+            false,
+            Mockito.mock(OptimizationPerimeter.class));
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(raUsageLimitsFiller)
@@ -495,7 +504,8 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             raLimitationParameters,
             false,
             network,
-            false);
+            false,
+            Mockito.mock(OptimizationPerimeter.class));
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(raUsageLimitsFiller)
@@ -518,7 +528,8 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             raLimitationParameters,
             false,
             network,
-            false);
+            false,
+            Mockito.mock(OptimizationPerimeter.class));
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
             .withProblemFiller(raUsageLimitsFiller)
@@ -546,7 +557,8 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             raLimitationParameters,
             false,
             network,
-            false);
+            false,
+            Mockito.mock(OptimizationPerimeter.class));
 
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
@@ -588,7 +600,8 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             raLimitationParameters,
             false,
             network,
-            false);
+            false,
+            Mockito.mock(OptimizationPerimeter.class));
 
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
@@ -636,7 +649,8 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             raLimitationParameters,
             true,
             network,
-            false);
+            false,
+            Mockito.mock(OptimizationPerimeter.class));
 
         Map<State, Set<PstRangeAction>> pstRangeActionsPerState = new HashMap<>();
         rangeActionsPerState.forEach((s, rangeActionSet) -> rangeActionSet.stream().filter(PstRangeAction.class::isInstance).map(PstRangeAction.class::cast).forEach(pstRangeAction -> pstRangeActionsPerState.computeIfAbsent(s, e -> new HashSet<>()).add(pstRangeAction)));
@@ -645,7 +659,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
         when(optimizationPerimeter.getMainOptimizationState()).thenReturn(state);
         when(optimizationPerimeter.getRangeActionsPerState()).thenReturn(rangeActionsPerState);
 
-        DiscretePstTapFiller discretePstTapFiller = new DiscretePstTapFiller(optimizationPerimeter, pstRangeActionsPerState, prePerimeterRangeActionSetpointResult, new RangeActionsOptimizationParameters(), false);
+        DiscretePstTapFiller discretePstTapFiller = new DiscretePstTapFiller(optimizationPerimeter, pstRangeActionsPerState, prePerimeterRangeActionSetpointResult, new RangeActionsOptimizationParameters(), false, true);
 
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
@@ -656,67 +670,15 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             .build();
 
         linearProblem.fill(flowResult, sensitivityResult);
-
-        // PST 1
-        OpenRaoMPVariable pst1AbsoluteVariationFromInitialTapVariable = linearProblem.getPstAbsoluteVariationFromInitialTapVariable(pst1, state);
-        assertEquals("pstabsolutevariationfrominitialtap_pst1_preventive_variable", pst1AbsoluteVariationFromInitialTapVariable.name());
-        assertEquals(0, pst1AbsoluteVariationFromInitialTapVariable.lb());
-        assertEquals(linearProblem.infinity(), pst1AbsoluteVariationFromInitialTapVariable.ub(), linearProblem.infinity() * 1e-3);
-
-        OpenRaoMPVariable pst1TapVariationUpwardVariable = linearProblem.getPstTapVariationVariable(pst1, state, LinearProblem.VariationDirectionExtension.UPWARD);
-        OpenRaoMPVariable pst1TapVariationDownwardVariable = linearProblem.getPstTapVariationVariable(pst1, state, LinearProblem.VariationDirectionExtension.DOWNWARD);
-
-        OpenRaoMPConstraint pst1AbsoluteVariationFromInitialTapConstraintPositive = linearProblem.getPstAbsoluteVariationFromInitialTapConstraint(pst1, state, LinearProblem.AbsExtension.POSITIVE);
-        assertEquals("pstabsolutevariationfrominitialtap_pst1_preventive_constraint_POSITIVE", pst1AbsoluteVariationFromInitialTapConstraintPositive.name());
-        assertEquals(-2, pst1AbsoluteVariationFromInitialTapConstraintPositive.lb());
-        assertEquals(linearProblem.infinity(), pst1AbsoluteVariationFromInitialTapConstraintPositive.ub(), linearProblem.infinity() * 1e-3);
-        assertEquals(1d, pst1AbsoluteVariationFromInitialTapConstraintPositive.getCoefficient(pst1AbsoluteVariationFromInitialTapVariable));
-        assertEquals(-1d, pst1AbsoluteVariationFromInitialTapConstraintPositive.getCoefficient(pst1TapVariationUpwardVariable));
-        assertEquals(1d, pst1AbsoluteVariationFromInitialTapConstraintPositive.getCoefficient(pst1TapVariationDownwardVariable));
-
-        OpenRaoMPConstraint pst1AbsoluteVariationFromInitialTapConstraintNegative = linearProblem.getPstAbsoluteVariationFromInitialTapConstraint(pst1, state, LinearProblem.AbsExtension.NEGATIVE);
-        assertEquals("pstabsolutevariationfrominitialtap_pst1_preventive_constraint_NEGATIVE", pst1AbsoluteVariationFromInitialTapConstraintNegative.name());
-        assertEquals(2, pst1AbsoluteVariationFromInitialTapConstraintNegative.lb());
-        assertEquals(linearProblem.infinity(), pst1AbsoluteVariationFromInitialTapConstraintNegative.ub(), linearProblem.infinity() * 1e-3);
-        assertEquals(1d, pst1AbsoluteVariationFromInitialTapConstraintNegative.getCoefficient(pst1AbsoluteVariationFromInitialTapVariable));
-        assertEquals(1d, pst1AbsoluteVariationFromInitialTapConstraintNegative.getCoefficient(pst1TapVariationUpwardVariable));
-        assertEquals(-1d, pst1AbsoluteVariationFromInitialTapConstraintNegative.getCoefficient(pst1TapVariationDownwardVariable));
-
-        // PST 2
-        OpenRaoMPVariable pst2AbsoluteVariationFromInitialTapVariable = linearProblem.getPstAbsoluteVariationFromInitialTapVariable(pst2, state);
-        assertEquals("pstabsolutevariationfrominitialtap_pst2_preventive_variable", pst2AbsoluteVariationFromInitialTapVariable.name());
-        assertEquals(0, pst2AbsoluteVariationFromInitialTapVariable.lb());
-        assertEquals(linearProblem.infinity(), pst2AbsoluteVariationFromInitialTapVariable.ub(), linearProblem.infinity() * 1e-3);
-
-        OpenRaoMPVariable pst2TapVariationUpwardVariable = linearProblem.getPstTapVariationVariable(pst2, state, LinearProblem.VariationDirectionExtension.UPWARD);
-        OpenRaoMPVariable pst2TapVariationDownwardVariable = linearProblem.getPstTapVariationVariable(pst2, state, LinearProblem.VariationDirectionExtension.DOWNWARD);
-
-        OpenRaoMPConstraint pst2AbsoluteVariationFromInitialTapConstraintPositive = linearProblem.getPstAbsoluteVariationFromInitialTapConstraint(pst2, state, LinearProblem.AbsExtension.POSITIVE);
-        assertEquals("pstabsolutevariationfrominitialtap_pst2_preventive_constraint_POSITIVE", pst2AbsoluteVariationFromInitialTapConstraintPositive.name());
-        assertEquals(-1, pst2AbsoluteVariationFromInitialTapConstraintPositive.lb());
-        assertEquals(linearProblem.infinity(), pst2AbsoluteVariationFromInitialTapConstraintPositive.ub(), linearProblem.infinity() * 1e-3);
-        assertEquals(1d, pst2AbsoluteVariationFromInitialTapConstraintPositive.getCoefficient(pst2AbsoluteVariationFromInitialTapVariable));
-        assertEquals(-1d, pst2AbsoluteVariationFromInitialTapConstraintPositive.getCoefficient(pst2TapVariationUpwardVariable));
-        assertEquals(1d, pst2AbsoluteVariationFromInitialTapConstraintPositive.getCoefficient(pst2TapVariationDownwardVariable));
-
-        OpenRaoMPConstraint pst2AbsoluteVariationFromInitialTapConstraintNegative = linearProblem.getPstAbsoluteVariationFromInitialTapConstraint(pst2, state, LinearProblem.AbsExtension.NEGATIVE);
-        assertEquals("pstabsolutevariationfrominitialtap_pst2_preventive_constraint_NEGATIVE", pst2AbsoluteVariationFromInitialTapConstraintNegative.name());
-        assertEquals(1, pst2AbsoluteVariationFromInitialTapConstraintNegative.lb());
-        assertEquals(linearProblem.infinity(), pst2AbsoluteVariationFromInitialTapConstraintNegative.ub(), linearProblem.infinity() * 1e-3);
-        assertEquals(1d, pst2AbsoluteVariationFromInitialTapConstraintNegative.getCoefficient(pst2AbsoluteVariationFromInitialTapVariable));
-        assertEquals(1d, pst2AbsoluteVariationFromInitialTapConstraintNegative.getCoefficient(pst2TapVariationUpwardVariable));
-        assertEquals(-1d, pst2AbsoluteVariationFromInitialTapConstraintNegative.getCoefficient(pst2TapVariationDownwardVariable));
-
-        // PST 3 -> no constraint for TSO
-        assertThrows(OpenRaoException.class, () -> linearProblem.getPstAbsoluteVariationFromInitialTapVariable(pst3, state));
-
         // TSO max elementary actions constraint
         OpenRaoMPConstraint maxElementaryActionsConstraint = linearProblem.getTsoMaxElementaryActionsConstraint("opA", state);
         assertEquals("maxelementaryactionspertso_opA_preventive_constraint", maxElementaryActionsConstraint.name());
         assertEquals(0, maxElementaryActionsConstraint.lb());
         assertEquals(14, maxElementaryActionsConstraint.ub());
-        assertEquals(1d, maxElementaryActionsConstraint.getCoefficient(pst1AbsoluteVariationFromInitialTapVariable));
-        assertEquals(1d, maxElementaryActionsConstraint.getCoefficient(pst2AbsoluteVariationFromInitialTapVariable));
+        assertEquals(1d, maxElementaryActionsConstraint.getCoefficient(linearProblem.getTotalPstRangeActionTapVariationVariable(pst1, state, LinearProblem.VariationDirectionExtension.DOWNWARD)));
+        assertEquals(1d, maxElementaryActionsConstraint.getCoefficient(linearProblem.getTotalPstRangeActionTapVariationVariable(pst1, state, LinearProblem.VariationDirectionExtension.UPWARD)));
+        assertEquals(1d, maxElementaryActionsConstraint.getCoefficient(linearProblem.getTotalPstRangeActionTapVariationVariable(pst2, state, LinearProblem.VariationDirectionExtension.DOWNWARD)));
+        assertEquals(1d, maxElementaryActionsConstraint.getCoefficient(linearProblem.getTotalPstRangeActionTapVariationVariable(pst2, state, LinearProblem.VariationDirectionExtension.UPWARD)));
     }
 
     @Test
@@ -731,7 +693,8 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             raLimitationParameters,
             false,
             network,
-            false);
+            false,
+            Mockito.mock(OptimizationPerimeter.class));
 
         Map<State, Set<RangeAction<?>>> rangeActionsPerStateBeforeCo1Curative1 = raUsageLimitsFiller.getAllRangeActionOfStateToConsider(co1Curative1);
         assertEquals(Map.of(co1Curative1, Set.of(pst1, hvdc, injection)), rangeActionsPerStateBeforeCo1Curative1);
@@ -766,7 +729,8 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             raLimitationParameters,
             false,
             network,
-            false);
+            false,
+            Mockito.mock(OptimizationPerimeter.class));
 
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
@@ -828,7 +792,8 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             raLimitationParameters,
             false,
             network,
-            false);
+            false,
+            Mockito.mock(OptimizationPerimeter.class));
 
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
@@ -841,7 +806,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
         // Check constraint for state co1Curative1
 
         // 1. Check maxTsoConstraint sum_tso(delta_cumulative_tso_co1Curative1) <= TSOmax
-        OpenRaoMPConstraint constraintCo1Curative1   = linearProblem.getMaxTsoConstraint(co1Curative1);
+        OpenRaoMPConstraint constraintCo1Curative1 = linearProblem.getMaxTsoConstraint(co1Curative1);
         assertEquals(0, constraintCo1Curative1.lb());
         assertEquals(1, constraintCo1Curative1.ub());
         assertEquals(1, constraintCo1Curative1.getCoefficient(linearProblem.getTsoRaUsedCumulativeVariable("opA", co1Curative1)));
@@ -855,14 +820,14 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
 
         // 2. check TsoRaUsedCumulativeConstraint
 
-        OpenRaoMPConstraint constraintOpACo1Curative1   = linearProblem.getTsoRaUsedCumulativeConstraint("opA", co1Curative1);
+        OpenRaoMPConstraint constraintOpACo1Curative1 = linearProblem.getTsoRaUsedCumulativeConstraint("opA", co1Curative1, co1Curative1);
         assertEquals(0, constraintOpACo1Curative1.lb());
         assertEquals(linearProblem.infinity(), constraintOpACo1Curative1.ub(), linearProblem.infinity() * 1e-3);
         assertEquals(1, constraintOpACo1Curative1.getCoefficient(linearProblem.getTsoRaUsedCumulativeVariable("opA", co1Curative1)));
         assertEquals(-1, constraintOpACo1Curative1.getCoefficient(linearProblem.getTsoRaUsedVariable("opA", co1Curative1)));
         assertEquals(0, constraintOpACo1Curative1.getCoefficient(linearProblem.getTsoRaUsedVariable("opA", co1Curative2)));
 
-        OpenRaoMPConstraint constraintOpCCo1Curative1   = linearProblem.getTsoRaUsedCumulativeConstraint("opC", co1Curative1);
+        OpenRaoMPConstraint constraintOpCCo1Curative1 = linearProblem.getTsoRaUsedCumulativeConstraint("opC", co1Curative1, co1Curative1);
         assertEquals(0, constraintOpCCo1Curative1.lb());
         assertEquals(linearProblem.infinity(), constraintOpCCo1Curative1.ub(), linearProblem.infinity() * 1e-3);
         assertEquals(1, constraintOpCCo1Curative1.getCoefficient(linearProblem.getTsoRaUsedCumulativeVariable("opC", co1Curative1)));
@@ -882,24 +847,31 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
         assertEquals(0, constraintCo1Curative2.getCoefficient(linearProblem.getTsoRaUsedCumulativeVariable("opC", co1Curative1)));
 
         // 2. check TsoRaUsedCumulativeConstraint
-        OpenRaoMPConstraint constraintOpACo1Curative2   = linearProblem.getTsoRaUsedCumulativeConstraint("opA", co1Curative2);
+        OpenRaoMPConstraint constraintOpACo1Curative2 = linearProblem.getTsoRaUsedCumulativeConstraint("opA", co1Curative2, co1Curative1);
         assertEquals(0, constraintOpACo1Curative2.lb());
         assertEquals(linearProblem.infinity(), constraintOpACo1Curative2.ub(), linearProblem.infinity() * 1e-3);
         assertEquals(1, constraintOpACo1Curative2.getCoefficient(linearProblem.getTsoRaUsedCumulativeVariable("opA", co1Curative2)));
         assertEquals(-1, constraintOpACo1Curative2.getCoefficient(linearProblem.getTsoRaUsedVariable("opA", co1Curative1)));
+        assertEquals(0, constraintOpACo1Curative2.getCoefficient(linearProblem.getTsoRaUsedVariable("opA", co1Curative2)));
+        constraintOpACo1Curative2 = linearProblem.getTsoRaUsedCumulativeConstraint("opA", co1Curative2, co1Curative2);
+        assertEquals(1, constraintOpACo1Curative2.getCoefficient(linearProblem.getTsoRaUsedCumulativeVariable("opA", co1Curative2)));
+        assertEquals(0, constraintOpACo1Curative2.getCoefficient(linearProblem.getTsoRaUsedVariable("opA", co1Curative1)));
         assertEquals(-1, constraintOpACo1Curative2.getCoefficient(linearProblem.getTsoRaUsedVariable("opA", co1Curative2)));
 
-        OpenRaoMPConstraint constraintOpBCo1Curative2   = linearProblem.getTsoRaUsedCumulativeConstraint("opB", co1Curative2);
+        OpenRaoMPConstraint constraintOpBCo1Curative2 = linearProblem.getTsoRaUsedCumulativeConstraint("opB", co1Curative2, co1Curative2);
         assertEquals(0, constraintOpBCo1Curative2.lb());
         assertEquals(linearProblem.infinity(), constraintOpBCo1Curative2.ub(), linearProblem.infinity() * 1e-3);
         assertEquals(1, constraintOpBCo1Curative2.getCoefficient(linearProblem.getTsoRaUsedCumulativeVariable("opB", co1Curative2)));
-        assertEquals(-1, constraintOpBCo1Curative2.getCoefficient(linearProblem.getTsoRaUsedVariable("opB", co1Curative2))); // co1Curative1 has no range action from opB
+        assertEquals(-1, constraintOpBCo1Curative2.getCoefficient(linearProblem.getTsoRaUsedVariable("opB", co1Curative2)));
 
-        OpenRaoMPConstraint constraintOpCCo1Curative2   = linearProblem.getTsoRaUsedCumulativeConstraint("opC", co1Curative2);
+        // co1Curative2 has no range action from opC
+        OpenRaoMPConstraint constraintOpCCo1Curative2 = linearProblem.getTsoRaUsedCumulativeConstraint("opC", co1Curative2, co1Curative1);
         assertEquals(0, constraintOpCCo1Curative2.lb());
         assertEquals(linearProblem.infinity(), constraintOpCCo1Curative2.ub(), linearProblem.infinity() * 1e-3);
         assertEquals(1, constraintOpCCo1Curative2.getCoefficient(linearProblem.getTsoRaUsedCumulativeVariable("opC", co1Curative2)));
-        assertEquals(-1, constraintOpCCo1Curative2.getCoefficient(linearProblem.getTsoRaUsedVariable("opC", co1Curative1)));  // co1Curative2 has no range action from opC
+        assertEquals(-1, constraintOpCCo1Curative2.getCoefficient(linearProblem.getTsoRaUsedVariable("opC", co1Curative1)));
+        exception = assertThrows(OpenRaoException.class, () -> linearProblem.getTsoRaUsedCumulativeConstraint("opC", co1Curative2, co1Curative2));
+        assertEquals("Constraint tsorausedcumulative_opC_co1Curative2_co1Curative2_constraint has not been created yet", exception.getMessage());
     }
 
     @Test
@@ -910,7 +882,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
 
         RangeActionLimitationParameters raLimitationParameters = new RangeActionLimitationParameters();
         raLimitationParameters.setMaxRangeActionPerTso(co1Curative1, Map.of("opA", 1, "opB", 2, "opC", 2));
-        raLimitationParameters.setMaxRangeActionPerTso(co1Curative2, Map.of("opA", 2,  "opC", 2));
+        raLimitationParameters.setMaxRangeActionPerTso(co1Curative2, Map.of("opA", 2, "opC", 2));
 
         RaUsageLimitsFiller raUsageLimitsFiller = new RaUsageLimitsFiller(
             rangeActionsPerStateMultiCurative,
@@ -918,7 +890,8 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             raLimitationParameters,
             false,
             network,
-            false);
+            false,
+            Mockito.mock(OptimizationPerimeter.class));
 
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
@@ -933,21 +906,21 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
         assertEquals("Constraint maxrapertso_opA_preventiveState_constraint has not been created yet", exception.getMessage());
 
         // Check state co1Curative1 - opA
-        OpenRaoMPConstraint constraintOpACo1Curative1   = linearProblem.getMaxRaPerTsoConstraint("opA", co1Curative1);
+        OpenRaoMPConstraint constraintOpACo1Curative1 = linearProblem.getMaxRaPerTsoConstraint("opA", co1Curative1);
         assertEquals(0, constraintOpACo1Curative1.lb());
         assertEquals(1, constraintOpACo1Curative1.ub());
         assertEquals(1, constraintOpACo1Curative1.getCoefficient(linearProblem.getRangeActionVariationBinary(pst1, co1Curative1)));
         assertEquals(1, constraintOpACo1Curative1.getCoefficient(linearProblem.getRangeActionVariationBinary(hvdc, co1Curative1)));
         assertEquals(0, constraintOpACo1Curative1.getCoefficient(linearProblem.getRangeActionVariationBinary(injection, co1Curative1))); // not opA but opC
         // Check state co1Curative1 - opB, a limit is defined but no range action is concerned
-        OpenRaoMPConstraint constraintOpBCo1Curative1   = linearProblem.getMaxRaPerTsoConstraint("opB", co1Curative1);
+        OpenRaoMPConstraint constraintOpBCo1Curative1 = linearProblem.getMaxRaPerTsoConstraint("opB", co1Curative1);
         assertEquals(0, constraintOpBCo1Curative1.lb());
         assertEquals(2, constraintOpBCo1Curative1.ub());
         assertEquals(0, constraintOpBCo1Curative1.getCoefficient(linearProblem.getRangeActionVariationBinary(pst1, co1Curative1)));
         assertEquals(0, constraintOpBCo1Curative1.getCoefficient(linearProblem.getRangeActionVariationBinary(hvdc, co1Curative1)));
         assertEquals(0, constraintOpBCo1Curative1.getCoefficient(linearProblem.getRangeActionVariationBinary(injection, co1Curative1)));
         // Check state co1Curative1 - opC
-        OpenRaoMPConstraint constraintOpCCo1Curative1   = linearProblem.getMaxRaPerTsoConstraint("opC", co1Curative1);
+        OpenRaoMPConstraint constraintOpCCo1Curative1 = linearProblem.getMaxRaPerTsoConstraint("opC", co1Curative1);
         assertEquals(0, constraintOpCCo1Curative1.lb());
         assertEquals(2, constraintOpCCo1Curative1.ub());
         assertEquals(1, constraintOpCCo1Curative1.getCoefficient(linearProblem.getRangeActionVariationBinary(injection, co1Curative1)));
@@ -955,7 +928,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
         assertEquals(0, constraintOpCCo1Curative1.getCoefficient(linearProblem.getRangeActionVariationBinary(hvdc, co1Curative1)));
 
         // Check state co1Curative2 - opA, check that we consider both the range action from curative2 AND curative1
-        OpenRaoMPConstraint constraintOpACo1Curative2   = linearProblem.getMaxRaPerTsoConstraint("opA", co1Curative2);
+        OpenRaoMPConstraint constraintOpACo1Curative2 = linearProblem.getMaxRaPerTsoConstraint("opA", co1Curative2);
         assertEquals(0, constraintOpACo1Curative2.lb());
         assertEquals(2, constraintOpACo1Curative2.ub());
         assertEquals(1, constraintOpACo1Curative2.getCoefficient(linearProblem.getRangeActionVariationBinary(pst1, co1Curative1)));
@@ -983,7 +956,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
 
         RangeActionLimitationParameters raLimitationParameters = new RangeActionLimitationParameters();
         raLimitationParameters.setMaxPstPerTso(co1Curative1, Map.of("opA", 1, "opB", 2, "opC", 2));
-        raLimitationParameters.setMaxPstPerTso(co1Curative2, Map.of("opA", 2,  "opC", 2));
+        raLimitationParameters.setMaxPstPerTso(co1Curative2, Map.of("opA", 2, "opC", 2));
 
         RaUsageLimitsFiller raUsageLimitsFiller = new RaUsageLimitsFiller(
             rangeActionsPerStateMultiCurative,
@@ -991,7 +964,8 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             raLimitationParameters,
             false,
             network,
-            false);
+            false,
+            Mockito.mock(OptimizationPerimeter.class));
 
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
@@ -1006,27 +980,27 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
         assertEquals("Constraint maxpstpertso_opA_preventiveState_constraint has not been created yet", exception.getMessage());
 
         // Check state co1Curative1 - opA
-        OpenRaoMPConstraint constraintOpACo1Curative1   = linearProblem.getMaxPstPerTsoConstraint("opA", co1Curative1);
+        OpenRaoMPConstraint constraintOpACo1Curative1 = linearProblem.getMaxPstPerTsoConstraint("opA", co1Curative1);
         assertEquals(0, constraintOpACo1Curative1.lb());
         assertEquals(1, constraintOpACo1Curative1.ub());
         assertEquals(1, constraintOpACo1Curative1.getCoefficient(linearProblem.getRangeActionVariationBinary(pst1, co1Curative1)));
         assertEquals(0, constraintOpACo1Curative1.getCoefficient(linearProblem.getRangeActionVariationBinary(hvdc, co1Curative1))); // even if opA, it is not a PST
         assertEquals(0, constraintOpACo1Curative1.getCoefficient(linearProblem.getRangeActionVariationBinary(injection, co1Curative1))); // not opA but opC
         // Check state co1Curative1 - opB, a limit is defined but no range action is concerned
-        OpenRaoMPConstraint constraintOpBCo1Curative1   = linearProblem.getMaxPstPerTsoConstraint("opB", co1Curative1);
+        OpenRaoMPConstraint constraintOpBCo1Curative1 = linearProblem.getMaxPstPerTsoConstraint("opB", co1Curative1);
         assertEquals(0, constraintOpBCo1Curative1.lb());
         assertEquals(2, constraintOpBCo1Curative1.ub());
         assertEquals(0, constraintOpBCo1Curative1.getCoefficient(linearProblem.getRangeActionVariationBinary(pst1, co1Curative1)));
         assertEquals(0, constraintOpBCo1Curative1.getCoefficient(linearProblem.getRangeActionVariationBinary(hvdc, co1Curative1)));
         assertEquals(0, constraintOpBCo1Curative1.getCoefficient(linearProblem.getRangeActionVariationBinary(injection, co1Curative1)));
         // Check state co1Curative1 - opC
-        OpenRaoMPConstraint constraintOpCCo1Curative1   = linearProblem.getMaxPstPerTsoConstraint("opC", co1Curative1);
+        OpenRaoMPConstraint constraintOpCCo1Curative1 = linearProblem.getMaxPstPerTsoConstraint("opC", co1Curative1);
         assertEquals(0, constraintOpCCo1Curative1.lb());
         assertEquals(2, constraintOpCCo1Curative1.ub());
         assertEquals(0, constraintOpCCo1Curative1.getCoefficient(linearProblem.getRangeActionVariationBinary(injection, co1Curative1)));
 
         // Check state co1Curative2 - opA, check that we consider both the range action from curative2 AND curative1
-        OpenRaoMPConstraint constraintOpACo1Curative2   = linearProblem.getMaxPstPerTsoConstraint("opA", co1Curative2);
+        OpenRaoMPConstraint constraintOpACo1Curative2 = linearProblem.getMaxPstPerTsoConstraint("opA", co1Curative2);
         assertEquals(0, constraintOpACo1Curative2.lb());
         assertEquals(2, constraintOpACo1Curative2.ub());
         assertEquals(1, constraintOpACo1Curative2.getCoefficient(linearProblem.getRangeActionVariationBinary(pst1, co1Curative1)));
@@ -1065,7 +1039,8 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
             raLimitationParameters,
             true,
             network,
-            false);
+            false,
+            Mockito.mock(OptimizationPerimeter.class));
 
         Map<State, Set<PstRangeAction>> pstRangeActionsPerState = Map.of(co1Curative1, Set.of(pst1), co1Curative2, Set.of(pst1, pst2, pst3), co2Curative2, Set.of(pst2, pst3), preventiveState, Set.of());
 
@@ -1073,7 +1048,7 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
         when(optimizationPerimeter.getMainOptimizationState()).thenReturn(preventiveState);
         when(optimizationPerimeter.getRangeActionsPerState()).thenReturn(rangeActionsPerStateMultiCurative);
 
-        DiscretePstTapFiller discretePstTapFiller = new DiscretePstTapFiller(optimizationPerimeter, pstRangeActionsPerState, prePerimeterRangeActionSetpointResult, new RangeActionsOptimizationParameters(), false);
+        DiscretePstTapFiller discretePstTapFiller = new DiscretePstTapFiller(optimizationPerimeter, pstRangeActionsPerState, prePerimeterRangeActionSetpointResult, new RangeActionsOptimizationParameters(), false, true);
 
         linearProblem = new LinearProblemBuilder()
             .withProblemFiller(coreProblemFiller)
@@ -1086,36 +1061,46 @@ class RaUsageLimitsFillerTest extends AbstractFillerTest {
         linearProblem.fill(flowResult, sensitivityResult);
 
         // Check co1Curative1 - opA
-        OpenRaoMPConstraint constraintOpACo1Curative1   = linearProblem.getTsoMaxElementaryActionsConstraint("opA", co1Curative1);
+        OpenRaoMPConstraint constraintOpACo1Curative1 = linearProblem.getTsoMaxElementaryActionsConstraint("opA", co1Curative1);
         assertEquals(0, constraintOpACo1Curative1.lb());
         assertEquals(14, constraintOpACo1Curative1.ub());
-        assertEquals(1, constraintOpACo1Curative1.getCoefficient(linearProblem.getPstAbsoluteVariationFromInitialTapVariable(pst1, co1Curative1)));
+        assertEquals(1, constraintOpACo1Curative1.getCoefficient(linearProblem.getTotalPstRangeActionTapVariationVariable(pst1, co1Curative1, LinearProblem.VariationDirectionExtension.UPWARD)));
+        assertEquals(1, constraintOpACo1Curative1.getCoefficient(linearProblem.getTotalPstRangeActionTapVariationVariable(pst1, co1Curative1, LinearProblem.VariationDirectionExtension.DOWNWARD)));
 
         // Check co1Curative1 - opB, no PST from opB in co1Curative1
-        OpenRaoMPConstraint constraintOpBCo1Curative1   = linearProblem.getTsoMaxElementaryActionsConstraint("opB", co1Curative1);
+        OpenRaoMPConstraint constraintOpBCo1Curative1 = linearProblem.getTsoMaxElementaryActionsConstraint("opB", co1Curative1);
         assertEquals(0, constraintOpBCo1Curative1.lb());
         assertEquals(12, constraintOpBCo1Curative1.ub());
-        assertEquals(0, constraintOpBCo1Curative1.getCoefficient(linearProblem.getPstAbsoluteVariationFromInitialTapVariable(pst1, co1Curative1)));
-        assertEquals(0, constraintOpBCo1Curative1.getCoefficient(linearProblem.getPstAbsoluteVariationFromInitialTapVariable(pst1, co1Curative2)));
-        assertEquals(0, constraintOpBCo1Curative1.getCoefficient(linearProblem.getPstAbsoluteVariationFromInitialTapVariable(pst2, co1Curative2)));
-        assertEquals(0, constraintOpBCo1Curative1.getCoefficient(linearProblem.getPstAbsoluteVariationFromInitialTapVariable(pst3, co1Curative2)));
+        assertEquals(0, constraintOpBCo1Curative1.getCoefficient(linearProblem.getTotalPstRangeActionTapVariationVariable(pst1, co1Curative1, LinearProblem.VariationDirectionExtension.UPWARD)));
+        assertEquals(0, constraintOpBCo1Curative1.getCoefficient(linearProblem.getTotalPstRangeActionTapVariationVariable(pst1, co1Curative1, LinearProblem.VariationDirectionExtension.DOWNWARD)));
+        assertEquals(0, constraintOpBCo1Curative1.getCoefficient(linearProblem.getTotalPstRangeActionTapVariationVariable(pst1, co1Curative2, LinearProblem.VariationDirectionExtension.UPWARD)));
+        assertEquals(0, constraintOpBCo1Curative1.getCoefficient(linearProblem.getTotalPstRangeActionTapVariationVariable(pst1, co1Curative2, LinearProblem.VariationDirectionExtension.DOWNWARD)));
+        assertEquals(0, constraintOpBCo1Curative1.getCoefficient(linearProblem.getTotalPstRangeActionTapVariationVariable(pst2, co1Curative2, LinearProblem.VariationDirectionExtension.UPWARD)));
+        assertEquals(0, constraintOpBCo1Curative1.getCoefficient(linearProblem.getTotalPstRangeActionTapVariationVariable(pst2, co1Curative2, LinearProblem.VariationDirectionExtension.DOWNWARD)));
 
         // Check co1Curative2 - opA
-        OpenRaoMPConstraint constraintOpACo1Curative2   = linearProblem.getTsoMaxElementaryActionsConstraint("opA", co1Curative2);
+        OpenRaoMPConstraint constraintOpACo1Curative2 = linearProblem.getTsoMaxElementaryActionsConstraint("opA", co1Curative2);
         assertEquals(0, constraintOpACo1Curative2.lb());
         assertEquals(16, constraintOpACo1Curative2.ub());
-        assertEquals(0, constraintOpACo1Curative2.getCoefficient(linearProblem.getPstAbsoluteVariationFromInitialTapVariable(pst1, co1Curative1))); // Not counted twice !
-        assertEquals(1, constraintOpACo1Curative2.getCoefficient(linearProblem.getPstAbsoluteVariationFromInitialTapVariable(pst1, co1Curative2)));
-        assertEquals(1, constraintOpACo1Curative2.getCoefficient(linearProblem.getPstAbsoluteVariationFromInitialTapVariable(pst2, co1Curative2)));
-        assertEquals(0, constraintOpACo1Curative2.getCoefficient(linearProblem.getPstAbsoluteVariationFromInitialTapVariable(pst3, co1Curative2)));
+        assertEquals(1, constraintOpACo1Curative2.getCoefficient(linearProblem.getTotalPstRangeActionTapVariationVariable(pst1, co1Curative1, LinearProblem.VariationDirectionExtension.UPWARD)));
+        assertEquals(1, constraintOpACo1Curative2.getCoefficient(linearProblem.getTotalPstRangeActionTapVariationVariable(pst1, co1Curative1, LinearProblem.VariationDirectionExtension.DOWNWARD)));
+        assertEquals(1, constraintOpACo1Curative2.getCoefficient(linearProblem.getTotalPstRangeActionTapVariationVariable(pst1, co1Curative2, LinearProblem.VariationDirectionExtension.UPWARD)));
+        assertEquals(1, constraintOpACo1Curative2.getCoefficient(linearProblem.getTotalPstRangeActionTapVariationVariable(pst1, co1Curative2, LinearProblem.VariationDirectionExtension.DOWNWARD)));
+        assertEquals(1, constraintOpACo1Curative2.getCoefficient(linearProblem.getTotalPstRangeActionTapVariationVariable(pst2, co1Curative2, LinearProblem.VariationDirectionExtension.UPWARD)));
+        assertEquals(1, constraintOpACo1Curative2.getCoefficient(linearProblem.getTotalPstRangeActionTapVariationVariable(pst2, co1Curative2, LinearProblem.VariationDirectionExtension.DOWNWARD)));
+        assertEquals(0, constraintOpACo1Curative2.getCoefficient(linearProblem.getTotalPstRangeActionTapVariationVariable(pst3, co1Curative2, LinearProblem.VariationDirectionExtension.UPWARD))); // PST3 is from opB
+        assertEquals(0, constraintOpACo1Curative2.getCoefficient(linearProblem.getTotalPstRangeActionTapVariationVariable(pst3, co1Curative2, LinearProblem.VariationDirectionExtension.DOWNWARD)));
 
         // Check co1Curative2 - opB
-        OpenRaoMPConstraint constraintOpBCo1Curative2   = linearProblem.getTsoMaxElementaryActionsConstraint("opB", co1Curative2);
+        OpenRaoMPConstraint constraintOpBCo1Curative2 = linearProblem.getTsoMaxElementaryActionsConstraint("opB", co1Curative2);
         assertEquals(0, constraintOpBCo1Curative2.lb());
         assertEquals(16, constraintOpBCo1Curative2.ub());
-        assertEquals(0, constraintOpBCo1Curative2.getCoefficient(linearProblem.getPstAbsoluteVariationFromInitialTapVariable(pst1, co1Curative2)));
-        assertEquals(0, constraintOpBCo1Curative2.getCoefficient(linearProblem.getPstAbsoluteVariationFromInitialTapVariable(pst2, co1Curative2)));
-        assertEquals(1, constraintOpBCo1Curative2.getCoefficient(linearProblem.getPstAbsoluteVariationFromInitialTapVariable(pst3, co1Curative2)));
+        assertEquals(1, constraintOpBCo1Curative2.getCoefficient(linearProblem.getTotalPstRangeActionTapVariationVariable(pst3, co1Curative2, LinearProblem.VariationDirectionExtension.UPWARD)));
+        assertEquals(1, constraintOpBCo1Curative2.getCoefficient(linearProblem.getTotalPstRangeActionTapVariationVariable(pst3, co1Curative2, LinearProblem.VariationDirectionExtension.DOWNWARD)));
+        Exception exception = assertThrows(OpenRaoException.class, () -> linearProblem.getTotalPstRangeActionTapVariationVariable(pst3, co1Curative1, LinearProblem.VariationDirectionExtension.DOWNWARD));
+        assertEquals("Variable totalpstrangeactiontapvariation_pst3_co1Curative1_variable_DOWNWARD has not been created yet", exception.getMessage());
+        exception = assertThrows(OpenRaoException.class, () -> linearProblem.getTotalPstRangeActionTapVariationVariable(pst3, co1Curative1, LinearProblem.VariationDirectionExtension.UPWARD));
+        assertEquals("Variable totalpstrangeactiontapvariation_pst3_co1Curative1_variable_UPWARD has not been created yet", exception.getMessage());
     }
 
 }

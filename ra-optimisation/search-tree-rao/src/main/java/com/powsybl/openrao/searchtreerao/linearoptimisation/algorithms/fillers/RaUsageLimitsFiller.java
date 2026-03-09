@@ -13,6 +13,7 @@ import com.powsybl.openrao.data.crac.api.RemedialAction;
 import com.powsybl.openrao.data.crac.api.State;
 import com.powsybl.openrao.data.crac.api.rangeaction.PstRangeAction;
 import com.powsybl.openrao.data.crac.api.rangeaction.RangeAction;
+import com.powsybl.openrao.searchtreerao.commons.optimizationperimeters.OptimizationPerimeter;
 import com.powsybl.openrao.searchtreerao.commons.parameters.RangeActionLimitationParameters;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPConstraint;
 import com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.linearproblem.OpenRaoMPVariable;
@@ -42,18 +43,21 @@ public class RaUsageLimitsFiller implements ProblemFiller {
     private static final double RANGE_ACTION_SETPOINT_EPSILON = 1e-4;
     private final Network network;
     private final boolean costOptimization;
+    private final OptimizationPerimeter optimizationPerimeter;
 
     public RaUsageLimitsFiller(Map<State, Set<RangeAction<?>>> rangeActions,
                                RangeActionSetpointResult prePerimeterRangeActionSetpoints,
                                RangeActionLimitationParameters rangeActionLimitationParameters,
                                boolean arePstSetpointsApproximated,
-                               Network network, boolean costOptimization) {
+                               Network network, boolean costOptimization,
+                               OptimizationPerimeter optimizationPerimeter) {
         this.rangeActions = rangeActions;
         this.prePerimeterRangeActionSetpoints = prePerimeterRangeActionSetpoints;
         this.rangeActionLimitationParameters = rangeActionLimitationParameters;
         this.arePstSetpointsApproximated = arePstSetpointsApproximated;
         this.network = network;
         this.costOptimization = costOptimization;
+        this.optimizationPerimeter = optimizationPerimeter;
     }
 
     @Override
@@ -73,25 +77,26 @@ public class RaUsageLimitsFiller implements ProblemFiller {
         rangeActionsPerStateWithRaLimitations.keySet().stream()
             .sorted(Comparator.comparingInt(s -> s.getInstant().getOrder()))
             .forEach(state -> {
-            if (!rangeActionLimitationParameters.areRangeActionLimitedForState(state)) {
-                return;
-            }
-            if (rangeActionLimitationParameters.getMaxRangeActions(state) != null) {
-                addMaxRaConstraint(linearProblem, state);
-            }
-            if (rangeActionLimitationParameters.getMaxTso(state) != null) {
-                addMaxTsoConstraint(linearProblem, state);
-            }
-            if (!rangeActionLimitationParameters.getMaxRangeActionPerTso(state).isEmpty()) {
-                addMaxRaPerTsoConstraint(linearProblem, state);
-            }
-            if (!rangeActionLimitationParameters.getMaxPstPerTso(state).isEmpty()) {
-                addMaxPstPerTsoConstraint(linearProblem, state);
-            }
-            if (!rangeActionLimitationParameters.getMaxElementaryActionsPerTso(state).isEmpty()) {
-                addMaxElementaryActionsPerTsoConstraint(linearProblem, state);
-            }
-        });
+                if (!rangeActionLimitationParameters.areRangeActionLimitedForState(state)) {
+                    return;
+                }
+                if (rangeActionLimitationParameters.getMaxRangeActions(state) != null) {
+                    addMaxRaConstraint(linearProblem, state);
+                }
+                if (rangeActionLimitationParameters.getMaxTso(state) != null) {
+                    addMaxTsoConstraint(linearProblem, state);
+                }
+
+                if (!rangeActionLimitationParameters.getMaxRangeActionPerTso(state).isEmpty()) {
+                    addMaxRaPerTsoConstraint(linearProblem, state);
+                }
+                if (!rangeActionLimitationParameters.getMaxPstPerTso(state).isEmpty()) {
+                    addMaxPstPerTsoConstraint(linearProblem, state);
+                }
+                if (!rangeActionLimitationParameters.getMaxElementaryActionsPerTso(state).isEmpty()) {
+                    addMaxElementaryActionsPerTsoConstraint(linearProblem, state);
+                }
+            });
     }
 
     /**
@@ -237,7 +242,7 @@ public class RaUsageLimitsFiller implements ProblemFiller {
         Set<String> maxTsoExclusions = new HashSet<>();
 
         // For multi-curative add all the TSOs to exclude from previous curative states sharing same contingency as state
-        stateAndRangeActionsToConsider.forEach(((state1, rangeActionsSet) -> maxTsoExclusions.addAll(rangeActionLimitationParameters.getMaxTsoExclusion(state1))));
+        stateAndRangeActionsToConsider.forEach((state1, rangeActionsSet) -> maxTsoExclusions.addAll(rangeActionLimitationParameters.getMaxTsoExclusion(state1)));
 
         Set<String> constraintTsos = new HashSet<>();
 
@@ -254,7 +259,7 @@ public class RaUsageLimitsFiller implements ProblemFiller {
 
         // We can skip the variable and constraint definition if we are not in 2P setting
         // (ie filler only filled on one state at the time)
-        if (maxTso >= constraintTsos.size() && rangeActions.size()==1) {
+        if (maxTso >= constraintTsos.size() && rangeActions.size() == 1) {
             return;
         }
         OpenRaoMPConstraint maxTsoConstraint = linearProblem.addMaxTsoConstraint(0, maxTso, state);
@@ -267,7 +272,7 @@ public class RaUsageLimitsFiller implements ProblemFiller {
             // Create TsoRaUsedVariable if state has at least one range action from this tso.
             // + define the constraint: tsoRaUsed >= ra1_used, tsoRaUsed >= ra2_used + ...
             Set<RangeAction> raSet = rangeActions.get(state).stream().filter(ra -> tso.equals(ra.getOperator())).collect(Collectors.toSet());
-            if(!raSet.isEmpty()) {
+            if (!raSet.isEmpty()) {
                 OpenRaoMPVariable tsoRaUsedVariable = linearProblem.addTsoRaUsedVariable(0, 1, tso, state);
                 raSet.forEach(ra -> {
                     OpenRaoMPConstraint tsoRaUsedConstraint = linearProblem.addTsoRaUsedConstraint(0, linearProblem.infinity(), tso, ra, state);
@@ -276,17 +281,20 @@ public class RaUsageLimitsFiller implements ProblemFiller {
                 });
             }
 
-            // add constraint sum(tsoRaUsed)<=tsoRaUsedCumulativeVariable
-            OpenRaoMPConstraint tsoRaUsedCumulativeConstraint = linearProblem.addTsoRaUsedCumulativeConstraint(0, linearProblem.infinity(), tso, state);
-            tsoRaUsedCumulativeConstraint.setCoefficient(tsoRaUsedCumulativeVariable, 1);
+            // add constraint tsoRaUsed<=tsoRaUsedCumulativeVariable
             stateAndRangeActionsToConsider.entrySet().stream()
                 .filter(entry -> entry.getValue().stream().anyMatch(ra -> tso.equals(ra.getOperator())))
-                .forEach(entry -> tsoRaUsedCumulativeConstraint.setCoefficient(linearProblem.getTsoRaUsedVariable(tso, entry.getKey()), -1));
+                .forEach(entry -> {
+                    OpenRaoMPConstraint tsoRaUsedCumulativeConstraint = linearProblem.addTsoRaUsedCumulativeConstraint(0, linearProblem.infinity(), tso, state, entry.getKey());
+                    tsoRaUsedCumulativeConstraint.setCoefficient(tsoRaUsedCumulativeVariable, 1);
+                    tsoRaUsedCumulativeConstraint.setCoefficient(linearProblem.getTsoRaUsedVariable(tso, entry.getKey()), -1);
+                });
         });
     }
 
     /**
      * Add constraint to limit the number of range actions per TSO in a state
+     *
      * @param linearProblem
      * @param state
      */
@@ -307,6 +315,7 @@ public class RaUsageLimitsFiller implements ProblemFiller {
 
     /**
      * Add constraint to limit the number of PSTs per TSO in a state
+     *
      * @param linearProblem
      * @param state
      */
@@ -319,11 +328,9 @@ public class RaUsageLimitsFiller implements ProblemFiller {
         }
         maxPstPerTso.forEach((tso, maxPstForTso) -> {
             OpenRaoMPConstraint maxPstPerTsoConstraint = linearProblem.addMaxPstPerTsoConstraint(0, maxPstForTso, tso, state);
-            stateAndRangeActionsToConsider
-                .forEach((state1, raSet) ->
+            stateAndRangeActionsToConsider.forEach((state1, raSet) ->
                     raSet.stream().filter(ra -> ra instanceof PstRangeAction && tso.equals(ra.getOperator()))
-                        .forEach(ra -> maxPstPerTsoConstraint.setCoefficient(linearProblem.getRangeActionVariationBinary(ra, state1), 1))
-                );
+                        .forEach(ra -> maxPstPerTsoConstraint.setCoefficient(linearProblem.getRangeActionVariationBinary(ra, state1), 1)));
         });
     }
 
@@ -346,57 +353,17 @@ public class RaUsageLimitsFiller implements ProblemFiller {
             String tso = maxElementaryActionsForTso.getKey();
             int maxElementaryActions = maxElementaryActionsForTso.getValue();
             OpenRaoMPConstraint maxElementaryActionsConstraint = linearProblem.addTsoMaxElementaryActionsConstraint(0, maxElementaryActions, tso, state);
-
-            // Create the PstAbsoluteVariationFromInitialTapVariable + constraint
             for (PstRangeAction pstRangeAction : pstRangeActionsPerTso.getOrDefault(tso, Set.of())) {
-                // use pre-perimeter tap because PST's tap may be different from the initial tap after previous perimeter
-                int initialTap = prePerimeterRangeActionSetpoints.getTap(pstRangeAction);
-                int currentTap = pstRangeAction.getCurrentTapPosition(network);
-
-                OpenRaoMPVariable pstAbsoluteVariationFromInitialTapVariable = linearProblem.addPstAbsoluteVariationFromInitialTapVariable(pstRangeAction, state);
-                OpenRaoMPVariable pstTapVariationUpwardVariable = linearProblem.getPstTapVariationVariable(pstRangeAction, state, LinearProblem.VariationDirectionExtension.UPWARD);
-                OpenRaoMPVariable pstTapVariationDownwardVariable = linearProblem.getPstTapVariationVariable(pstRangeAction, state, LinearProblem.VariationDirectionExtension.DOWNWARD);
-
-                OpenRaoMPConstraint pstAbsoluteVariationFromInitialTapConstraintPositive = linearProblem.addPstAbsoluteVariationFromInitialTapConstraint((double) currentTap - initialTap, linearProblem.infinity(), pstRangeAction, state, LinearProblem.AbsExtension.POSITIVE);
-                pstAbsoluteVariationFromInitialTapConstraintPositive.setCoefficient(pstAbsoluteVariationFromInitialTapVariable, 1d);
-                pstAbsoluteVariationFromInitialTapConstraintPositive.setCoefficient(pstTapVariationUpwardVariable, -1d);
-                pstAbsoluteVariationFromInitialTapConstraintPositive.setCoefficient(pstTapVariationDownwardVariable, 1d);
-
-                OpenRaoMPConstraint pstAbsoluteVariationFromInitialTapConstraintNegative = linearProblem.addPstAbsoluteVariationFromInitialTapConstraint((double) initialTap - currentTap, linearProblem.infinity(), pstRangeAction, state, LinearProblem.AbsExtension.NEGATIVE);
-                pstAbsoluteVariationFromInitialTapConstraintNegative.setCoefficient(pstAbsoluteVariationFromInitialTapVariable, 1d);
-                pstAbsoluteVariationFromInitialTapConstraintNegative.setCoefficient(pstTapVariationUpwardVariable, 1d);
-                pstAbsoluteVariationFromInitialTapConstraintNegative.setCoefficient(pstTapVariationDownwardVariable, -1d);
-
+                stateAndRangeActionsToConsider.forEach((state1, raSet) -> {
+                    if (raSet.stream().anyMatch(ra -> ra.equals(pstRangeAction))) {
+                        OpenRaoMPVariable totalPstRangeActionTapUpwardVariationVariable = linearProblem.getTotalPstRangeActionTapVariationVariable(pstRangeAction, state1, LinearProblem.VariationDirectionExtension.UPWARD);
+                        OpenRaoMPVariable totalPstRangeActionTapDownwardVariationVariable = linearProblem.getTotalPstRangeActionTapVariationVariable(pstRangeAction, state1, LinearProblem.VariationDirectionExtension.DOWNWARD);
+                        maxElementaryActionsConstraint.setCoefficient(totalPstRangeActionTapUpwardVariationVariable, 1);
+                        maxElementaryActionsConstraint.setCoefficient(totalPstRangeActionTapDownwardVariationVariable, 1);
+                    }
+                });
             }
 
-            // PSTs to consider per state (in particular for multi-curative / 2P, there is only one state to consider): for each PST, count its
-            // PstAbsoluteVariationFromInitialTapVariable only once, using the variable associated with
-            // the latest state/instant where the PST is available.
-            Set<PstRangeAction> pstAlreadyConsidered = new HashSet<>();
-            // Need to read the map in decreasing order
-            stateAndRangeActionsToConsider.entrySet().stream()
-                .sorted(Comparator.comparingInt((Map.Entry<State, Set<RangeAction<?>>> e) -> e.getKey().getInstant().getOrder()).reversed())
-                .forEach(e -> {
-                    State state1 = e.getKey();
-                    Set<RangeAction<?>> raSet = e.getValue();
-
-                    Set<PstRangeAction> pstToCountForThisState = raSet.stream()
-                        .filter(PstRangeAction.class::isInstance)
-                        .map(PstRangeAction.class::cast)
-                        .filter(pst -> tso.equals(pst.getOperator()))
-                        .filter(pst -> maxElementaryActionsPerTso.containsKey(pst.getOperator()))
-                        .filter(pst -> !pstAlreadyConsidered.contains(pst))
-                        .collect(Collectors.toSet());
-
-                    pstToCountForThisState.forEach(pst ->
-                        maxElementaryActionsConstraint.setCoefficient(
-                            linearProblem.getPstAbsoluteVariationFromInitialTapVariable(pst, state1),
-                            1d
-                        )
-                    );
-
-                    pstAlreadyConsidered.addAll(pstToCountForThisState);
-                });
         }
     }
 }
