@@ -270,7 +270,7 @@ class IcsImporterTest {
         Network network1 = Network.read(networkFilePathPostIcsImport1);
         Generator generator1 = network1.getGenerator("Redispatching_RA_BBE1AA1_GENERATOR");
         assertEquals(116., generator1.getTargetP(), DOUBLE_EPSILON);
-        assertEquals(1.0, generator1.getMinP(), DOUBLE_EPSILON);
+        assertEquals(1.001, generator1.getMinP(), DOUBLE_EPSILON);
 
         assertEquals(1, crac2.getInjectionRangeActions().size());
         InjectionRangeAction ra2 = crac2.getInjectionRangeActions().iterator().next();
@@ -283,7 +283,7 @@ class IcsImporterTest {
         Network network2 = Network.read(networkFilePathPostIcsImport2);
         Generator generator2 = network2.getGenerator("Redispatching_RA_BBE1AA1_GENERATOR");
         assertEquals(120., generator2.getTargetP(), DOUBLE_EPSILON);
-        assertEquals(1.0, generator2.getMinP(), DOUBLE_EPSILON);
+        assertEquals(1.001, generator2.getMinP(), DOUBLE_EPSILON);
     }
 
     @Test

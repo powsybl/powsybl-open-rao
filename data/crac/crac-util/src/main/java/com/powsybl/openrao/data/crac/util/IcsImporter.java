@@ -36,7 +36,7 @@ import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WA
 public final class IcsImporter {
     private static final int OFFSET = 2;
     private static final double MAX_GRADIENT = 1000.0;
-    private static final double ON_POWER_THRESHOLD = 1.0; // TODO: mutualize with value from linear problem
+    private static final double ON_POWER_THRESHOLD = 1.001; // TODO: mutualize with value from linear problem
 
     // TODO : either parametrize this or set it to true. May have to change the way it works to import for all curative instants instead of only the last one
     public static boolean importCurative = false;
