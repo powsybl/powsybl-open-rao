@@ -5,11 +5,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.powsybl.openrao.data.crac.io.cse.remedialaction;
+package com.powsybl.openrao.data.crac.io.commons.ucte;
 
 import com.powsybl.openrao.data.crac.io.commons.api.ImportStatus;
-import com.powsybl.openrao.data.crac.io.commons.ucte.UcteBusHelper;
-import com.powsybl.openrao.data.crac.io.commons.ucte.UcteNetworkAnalyzer;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Identifiable;
@@ -22,7 +20,7 @@ import java.util.Set;
  *
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
  */
-public class GeneratorHelper {
+public class UcteGeneratorHelper {
     private ImportStatus importStatus;
     private boolean isAltered = false;
     private String generatorId = null;
@@ -33,7 +31,7 @@ public class GeneratorHelper {
     private double currentP;
 
     // Find a generator using a bus ID
-    public GeneratorHelper(String busIdInCrac, UcteNetworkAnalyzer ucteNetworkAnalyzer) {
+    public UcteGeneratorHelper(String busIdInCrac, UcteNetworkAnalyzer ucteNetworkAnalyzer) {
         UcteBusHelper busHelper = new UcteBusHelper(busIdInCrac, ucteNetworkAnalyzer);
         if (!busHelper.isValid()) {
             importStatus = ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK;
@@ -44,12 +42,10 @@ public class GeneratorHelper {
     }
 
     private void findBusWithGenerator(Set<Bus> matchedBuses, String busIdInCrac) {
-
         boolean anyNotConnectedGenerator = false;
         Generator generator = null;
 
         for (Bus bus : matchedBuses) {
-
             // if bus is not in main component, just look if there is any generator for logging purposes,
             // and go to next bus
             if (!bus.isInMainConnectedComponent()) {
