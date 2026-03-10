@@ -139,7 +139,7 @@ public class GeneratorConstraintsFiller implements ProblemFiller {
                         }
 
                     }
-                    addPowerToInjectionConstraint(linearProblem, generatorId, timestamp, associatedInjections.get().getData(timestamps.get(timestampIndex)).orElseThrow(), preventiveStates.getData(timestamp).orElseThrow(), networks.getData(timestamp).orElseThrow());
+                    addPowerToInjectionConstraint(linearProblem, generatorId, timestamp, associatedInjections.get().getData(timestamps.get(timestampIndex)).orElseThrow(), preventiveStates.getData(timestamp).orElseThrow());
                 }
                 // Specific first timestamp constraints
                 OffsetDateTime firstTimestamp = timestamps.getFirst();
