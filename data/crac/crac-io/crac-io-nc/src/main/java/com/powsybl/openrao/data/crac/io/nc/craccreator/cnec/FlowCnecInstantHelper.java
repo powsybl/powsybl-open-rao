@@ -81,8 +81,12 @@ class FlowCnecInstantHelper {
 
     public Set<String> getPostContingencyInstantsAssociatedToLimitDuration(Map<String, Integer> mapInstantsAndLimits, int limitDuration) {
         // if limitDuration is not a key of the map, take closest greater duration
-        int durationThreshold = mapInstantsAndLimits.containsValue(limitDuration) ?
-            limitDuration : mapInstantsAndLimits.values().stream().filter(duration -> duration > limitDuration).min(Integer::compareTo).orElse(Integer.MAX_VALUE);
+        int durationThreshold = mapInstantsAndLimits.containsValue(limitDuration)
+            ? limitDuration
+            : mapInstantsAndLimits.values().stream()
+                .filter(duration -> duration > limitDuration)
+                .min(Integer::compareTo)
+                .orElse(Integer.MAX_VALUE);
         return mapInstantsAndLimits.entrySet().stream()
             .filter(entry -> entry.getValue() == durationThreshold)
             .map(Map.Entry::getKey)

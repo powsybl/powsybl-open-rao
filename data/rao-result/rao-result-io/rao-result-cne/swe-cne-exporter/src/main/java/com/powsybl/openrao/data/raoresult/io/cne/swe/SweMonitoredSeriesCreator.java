@@ -88,10 +88,14 @@ public class SweMonitoredSeriesCreator {
                                 cnecCreationContext -> {
                                     FlowCnec cnec = crac.getFlowCnec(cnecCreationContext.getCreatedCnecId());
                                     Contingency contingency = cnec.getState().getContingency().orElse(null);
-                                    cnecCreationContextsMap.computeIfAbsent(contingency, c ->
-                                        new TreeMap<>(Comparator.comparing(MonitoredSeriesCreationContext::getNativeId)));
-                                    cnecCreationContextsMap.get(contingency).computeIfAbsent(monitoredSeriesCreationContext, cc ->
-                                        new TreeSet<>(Comparator.comparing(CnecCreationContext::getCreatedCnecId)));
+                                    cnecCreationContextsMap.computeIfAbsent(
+                                        contingency,
+                                        c -> new TreeMap<>(Comparator.comparing(MonitoredSeriesCreationContext::getNativeId))
+                                    );
+                                    cnecCreationContextsMap.get(contingency).computeIfAbsent(
+                                        monitoredSeriesCreationContext,
+                                        cc -> new TreeSet<>(Comparator.comparing(CnecCreationContext::getCreatedCnecId))
+                                    );
                                     cnecCreationContextsMap.get(contingency).get(monitoredSeriesCreationContext).add(cnecCreationContext);
                                 })));
     }
@@ -102,8 +106,8 @@ public class SweMonitoredSeriesCreator {
         }
         List<MonitoredSeries> monitoredSeriesList = new ArrayList<>();
         boolean includeMeasurements = !sweCneHelper.isContingencyDivergent(contingency);
-        cnecCreationContextsMap.get(contingency).forEach((monitoredSeriesCC, cnecCCSet) ->
-            monitoredSeriesList.addAll(generateMonitoredSeries(monitoredSeriesCC, cnecCCSet, includeMeasurements))
+        cnecCreationContextsMap.get(contingency).forEach(
+            (monitoredSeriesCC, cnecCCSet) -> monitoredSeriesList.addAll(generateMonitoredSeries(monitoredSeriesCC, cnecCCSet, includeMeasurements))
         );
         return monitoredSeriesList;
     }

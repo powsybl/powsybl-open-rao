@@ -205,5 +205,8 @@ class MaxMinMarginFillerTest extends AbstractFillerTest {
         linearProblem.addFlowVariable(0.0, 0.0, cnec1, TwoSides.ONE, Optional.empty());
         linearProblem.addFlowVariable(0.0, 0.0, cnec2, TwoSides.TWO, Optional.empty());
         linearProblem.fill(flowResult, sensitivityResult);
+
+        assertEquals(3, linearProblem.numVariables());
+        assertEquals(2, linearProblem.numConstraints());
     }
 }

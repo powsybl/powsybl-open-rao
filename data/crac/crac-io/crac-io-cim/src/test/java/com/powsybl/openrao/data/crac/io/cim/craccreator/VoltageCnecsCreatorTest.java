@@ -253,114 +253,21 @@ class VoltageCnecsCreatorTest {
         assertEquals(12, cracCreationContext.getVoltageCnecCreationContexts().size());
         assertTrue(cracCreationContext.getVoltageCnecCreationContexts().stream().allMatch(VoltageCnecCreationContext::isImported));
 
-        assertVoltageCnecImported(
-            "_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3",
-            "_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3",
-            PREVENTIVE_INSTANT_ID,
-            null,
-            null,
-            390.,
-            410.
-        );
-        assertVoltageCnecImported(
-            "_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3",
-            "_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3",
-            CURATIVE_INSTANT_ID,
-            "Co-1-name",
-            "Co-1",
-            null,
-            450.
-        );
-        assertVoltageCnecImported(
-            "_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3",
-            "_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3",
-            CURATIVE_INSTANT_ID,
-            "Co-2-name",
-            "Co-2",
-            null,
-            450.
-        );
-        assertVoltageCnecImported(
-            "_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3",
-            "_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3",
-            CURATIVE_INSTANT_ID,
-            "Co-3-name",
-            "Co-3",
-            null,
-            450.
-        );
-        assertVoltageCnecImported(
-            "_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3",
-            "_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3",
-            OUTAGE_INSTANT_ID,
-            "Co-3-name",
-            "Co-3",
-            380.,
-            420.
-        );
-        assertVoltageCnecImported(
-            "_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3",
-            "_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3",
-            AUTO_INSTANT_ID,
-            "Co-1-name",
-            "Co-1",
-            370.,
-            null
-        );
+        String networkElementId1 = "_b7998ae6-0cc6-4dfe-8fec-0b549b07b6c3";
+        assertVoltageCnecImported(networkElementId1, networkElementId1, PREVENTIVE_INSTANT_ID, null, null, 390., 410.);
+        assertVoltageCnecImported(networkElementId1, networkElementId1, CURATIVE_INSTANT_ID, "Co-1-name", "Co-1", null, 450.);
+        assertVoltageCnecImported(networkElementId1, networkElementId1, CURATIVE_INSTANT_ID, "Co-2-name", "Co-2", null, 450.);
+        assertVoltageCnecImported(networkElementId1, networkElementId1, CURATIVE_INSTANT_ID, "Co-3-name", "Co-3", null, 450.);
+        assertVoltageCnecImported(networkElementId1, networkElementId1, OUTAGE_INSTANT_ID, "Co-3-name", "Co-3", 380., 420.);
+        assertVoltageCnecImported(networkElementId1, networkElementId1, AUTO_INSTANT_ID, "Co-1-name", "Co-1", 370., null);
 
-        assertVoltageCnecImported(
-            "VL2-alias",
-            "_d77b61ef-61aa-4b22-95f6-b56ca080788d",
-            PREVENTIVE_INSTANT_ID,
-            null,
-            null,
-            215.,
-            225.
-        );
-        assertVoltageCnecImported(
-            "VL2-alias",
-            "_d77b61ef-61aa-4b22-95f6-b56ca080788d",
-            CURATIVE_INSTANT_ID,
-            "Co-1-name",
-            "Co-1",
-            210.,
-            240.
-        );
-        assertVoltageCnecImported(
-            "VL2-alias",
-            "_d77b61ef-61aa-4b22-95f6-b56ca080788d",
-            CURATIVE_INSTANT_ID,
-            "Co-2-name",
-            "Co-2",
-            210.,
-            240.
-        );
-        assertVoltageCnecImported(
-            "VL2-alias",
-            "_d77b61ef-61aa-4b22-95f6-b56ca080788d",
-            CURATIVE_INSTANT_ID,
-            "Co-3-name",
-            "Co-3",
-            210.,
-            240.
-        );
-        assertVoltageCnecImported(
-            "VL2-alias",
-            "_d77b61ef-61aa-4b22-95f6-b56ca080788d",
-            OUTAGE_INSTANT_ID,
-            "Co-3-name",
-            "Co-3",
-            200.,
-            null
-        );
-        assertVoltageCnecImported(
-            "VL2-alias",
-            "_d77b61ef-61aa-4b22-95f6-b56ca080788d",
-            AUTO_INSTANT_ID,
-            "Co-1-name",
-            "Co-1",
-            null,
-            250.
-        );
+        String networkElementId2 = "_d77b61ef-61aa-4b22-95f6-b56ca080788d";
+        String nativeNetworkElementId2 = "VL2-alias";
+        assertVoltageCnecImported(nativeNetworkElementId2, networkElementId2, PREVENTIVE_INSTANT_ID, null, null, 215., 225.);
+        assertVoltageCnecImported(nativeNetworkElementId2, networkElementId2, CURATIVE_INSTANT_ID, "Co-1-name", "Co-1", 210., 240.);
+        assertVoltageCnecImported(nativeNetworkElementId2, networkElementId2, CURATIVE_INSTANT_ID, "Co-2-name", "Co-2", 210., 240.);
+        assertVoltageCnecImported(nativeNetworkElementId2, networkElementId2, CURATIVE_INSTANT_ID, "Co-3-name", "Co-3", 210., 240.);
+        assertVoltageCnecImported(nativeNetworkElementId2, networkElementId2, OUTAGE_INSTANT_ID, "Co-3-name", "Co-3", 200., null);
+        assertVoltageCnecImported(nativeNetworkElementId2, networkElementId2, AUTO_INSTANT_ID, "Co-1-name", "Co-1", null, 250.);
     }
 }

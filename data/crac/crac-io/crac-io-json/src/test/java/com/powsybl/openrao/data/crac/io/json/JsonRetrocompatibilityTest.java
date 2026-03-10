@@ -644,9 +644,14 @@ class JsonRetrocompatibilityTest {
         assertEquals(2, crac.getInjectionRangeAction("injectionRange1Id").getRanges().size());
 
         // check usage rules
-        assertEquals(3, (int) crac.getRemedialActions().stream().map(RemedialAction::getUsageRules).flatMap(Set::stream)
-            .filter(OnContingencyState.class::isInstance).count());
-        assertEquals(3, (int) crac.getRemedialActions().stream().map(RemedialAction::getUsageRules).flatMap(Set::stream)
+        assertEquals(3, (int) crac.getRemedialActions().stream()
+            .map(RemedialAction::getUsageRules)
+            .flatMap(Set::stream)
+            .filter(OnContingencyState.class::isInstance)
+            .count());
+        assertEquals(3, (int) crac.getRemedialActions().stream()
+            .map(RemedialAction::getUsageRules)
+            .flatMap(Set::stream)
             .filter(OnConstraint.class::isInstance)
             .filter(oc -> ((OnConstraint<?>) oc).getCnec() instanceof FlowCnec)
             .count());

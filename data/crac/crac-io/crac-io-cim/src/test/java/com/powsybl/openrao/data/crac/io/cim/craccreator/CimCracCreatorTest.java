@@ -524,21 +524,26 @@ class CimCracCreatorTest {
     @Test
     void testImportNetworkActions() throws IOException {
         setUpWithTimestamp("/cracs/CIM_21_4_1.xml", baseNetwork, OffsetDateTime.parse("2021-04-01T23:00Z"));
-        assertNetworkActionImported(
-            "PRA_1",
-            Set.of("_e8a7eaec-51d6-4571-b3d9-c36d52073c33", "_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", "_b94318f6-6d24-4f56-96b9-df2531ad6543", "_2184f365-8cd5-4b5d-8a28-9d68603bb6a4"),
-            false
+
+        Set<String> expectedNetworkElementsPra1 = Set.of(
+            "_e8a7eaec-51d6-4571-b3d9-c36d52073c33",
+            "_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0",
+            "_b94318f6-6d24-4f56-96b9-df2531ad6543",
+            "_2184f365-8cd5-4b5d-8a28-9d68603bb6a4"
         );
+        assertNetworkActionImported("PRA_1", expectedNetworkElementsPra1, false);
         assertRemedialActionImportedWithOperator("PRA_1", "PRA_1");
         assertRemedialActionImportedWithOperator("REE-PRA_1", "REE");
         assertRemedialActionImportedWithOperator("RTE-PRA_1", "RTE");
         assertRemedialActionImportedWithOperator("REN-PRA_1", "REN");
+
         // Pst Setpoint
         assertRemedialActionNotImported("PRA_2", ImportStatus.INCONSISTENCY_IN_DATA);
         assertRemedialActionNotImported("PRA_3", ImportStatus.INCONSISTENCY_IN_DATA);
         assertRemedialActionNotImported("PRA_4", ImportStatus.INCOMPLETE_DATA);
         assertRemedialActionNotImported("PRA_5", ImportStatus.INCONSISTENCY_IN_DATA);
         assertRemedialActionNotImported("PRA_6", ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK);
+
         // Injection Setpoint
         assertNetworkActionImported("PRA_7", Set.of("_1dc9afba-23b5-41a0-8540-b479ed8baf4b", "_2844585c-0d35-488d-a449-685bcd57afbf"), false);
         assertRemedialActionNotImported("PRA_8", ImportStatus.INCONSISTENCY_IN_DATA);
@@ -550,12 +555,15 @@ class CimCracCreatorTest {
         assertRemedialActionNotImported("PRA_14", ImportStatus.INCOMPLETE_DATA);
         assertRemedialActionNotImported("PRA_15", ImportStatus.INCONSISTENCY_IN_DATA);
         assertRemedialActionNotImported("PRA_16", ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK);
+
         // Topological
-        assertNetworkActionImported(
-            "PRA_17",
-            Set.of("_ffbabc27-1ccd-4fdc-b037-e341706c8d29", "_b58bf21a-096a-4dae-9a01-3f03b60c24c7", "_f04ec73d-b94a-4b7e-a3d6-b1234fc37385_SW_fict", "_5a094c9f-0af5-48dc-94e9-89c6c220023c"),
-            false
+        Set<String> expectedNetworkElementsPra17 = Set.of(
+            "_ffbabc27-1ccd-4fdc-b037-e341706c8d29",
+            "_b58bf21a-096a-4dae-9a01-3f03b60c24c7",
+            "_f04ec73d-b94a-4b7e-a3d6-b1234fc37385_SW_fict",
+            "_5a094c9f-0af5-48dc-94e9-89c6c220023c"
         );
+        assertNetworkActionImported("PRA_17", expectedNetworkElementsPra17, false);
         assertRemedialActionNotImported("PRA_18", ImportStatus.INCONSISTENCY_IN_DATA);
         assertRemedialActionNotImported("PRA_19", ImportStatus.INCONSISTENCY_IN_DATA);
         assertRemedialActionNotImported("PRA_20", ImportStatus.INCONSISTENCY_IN_DATA);
@@ -565,6 +573,7 @@ class CimCracCreatorTest {
         assertRemedialActionNotImported("PRA_24", ImportStatus.ELEMENT_NOT_FOUND_IN_NETWORK);
         assertRemedialActionNotImported("PRA_25", ImportStatus.NOT_YET_HANDLED_BY_OPEN_RAO);
         assertRemedialActionNotImported("ARA_28", ImportStatus.INCONSISTENCY_IN_DATA);
+
         // Mix
         assertNetworkActionImported("PRA_26", Set.of("_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", "_2844585c-0d35-488d-a449-685bcd57afbf", "_ffbabc27-1ccd-4fdc-b037-e341706c8d29"), false);
         assertRemedialActionNotImported("PRA_27", ImportStatus.INCONSISTENCY_IN_DATA);

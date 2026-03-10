@@ -103,8 +103,9 @@ public class CimContingencyCreator {
         }
         if (anyRegisteredResourceOk) {
             contingencyAdder.add();
-            String message = allRegisteredResourcesOk ?
-                null : String.format("Some network elements were not found in the network: %s", missingNetworkElements.toString());
+            String message = allRegisteredResourcesOk
+                ? null
+                : String.format("Some network elements were not found in the network: %s", missingNetworkElements);
             cimContingencyCreationContexts.add(StandardElementaryCreationContext.imported(
                 createdContingencyId,
                 cimContingency.getName(),

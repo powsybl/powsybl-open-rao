@@ -97,8 +97,9 @@ public class FlowCnecCreator extends AbstractCnecCreator {
 
         // The thresholds are a map of acceptable durations to thresholds (per branch side)
         // Integer.MAX_VALUE is used for the PATL's acceptable duration
-        Map<Integer, Map<TwoSides, Double>> thresholds = nativeAssessedElement.conductingEquipment() != null ?
-            getPermanentAndTemporaryLimitsOfBranch((Branch<?>) branch) : getPermanentAndTemporaryLimitsOfOperationalLimit(branch, networkElementId);
+        Map<Integer, Map<TwoSides, Double>> thresholds = nativeAssessedElement.conductingEquipment() != null
+            ? getPermanentAndTemporaryLimitsOfBranch((Branch<?>) branch)
+            : getPermanentAndTemporaryLimitsOfOperationalLimit(branch, networkElementId);
         if (thresholds.isEmpty()) {
             throw new OpenRaoImportException(
                 ImportStatus.INCOMPLETE_DATA,

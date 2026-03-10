@@ -221,8 +221,9 @@ public class NcRemedialActionsCreator {
         }
 
         InstantKind instantKind = getInstantKind(nativeRemedialAction);
-        Set<Instant> instants = getInstants(instantKind, nativeRemedialAction.operator() == null ?
-            null : NcCracUtils.getTsoNameFromUrl(nativeRemedialAction.operator()));
+        Set<Instant> instants = getInstants(instantKind, nativeRemedialAction.operator() == null
+            ? null
+            : NcCracUtils.getTsoNameFromUrl(nativeRemedialAction.operator()));
         instants.forEach(instant -> addUsageRules(
             nativeRemedialAction.mrid(),
             linkedAeWithRa.getOrDefault(nativeRemedialAction.mrid(), Set.of()),
@@ -422,7 +423,8 @@ public class NcRemedialActionsCreator {
             try {
                 Set<RemedialActionDependency> dependingEnabledRemedialActions = remedialActionDependenciesByGroup
                     .getOrDefault(remedialActionGroup.mrid(), Set.of())
-                    .stream().filter(RemedialActionDependency::normalEnabled)
+                    .stream()
+                    .filter(RemedialActionDependency::normalEnabled)
                     .collect(Collectors.toSet());
                 if (!dependingEnabledRemedialActions.isEmpty()) {
                     RemedialActionDependency refRemedialActionDependency = dependingEnabledRemedialActions.iterator().next();

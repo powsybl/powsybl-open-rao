@@ -53,10 +53,11 @@ public final class OnConstraintUsageRuleHelper {
             .collect(Collectors.toSet());
 
         for (AssessedElementWithRemedialAction nativeAssessedElementWithRemedialAction : linkedAssessedElementWithRemedialActions) {
-            Set<Cnec> cnecs = contingencyStatusMap.isEmpty() ?
-                getImportedCnecFromAssessedElementId(nativeAssessedElementWithRemedialAction.assessedElement(), crac, cnecCreationContexts) :
-                filterCnecsThatHaveGivenContingencies(getImportedCnecFromAssessedElementId(
-                    nativeAssessedElementWithRemedialAction.assessedElement(), crac, cnecCreationContexts), validLinkedContingencies
+            Set<Cnec> cnecs = contingencyStatusMap.isEmpty()
+                ? getImportedCnecFromAssessedElementId(nativeAssessedElementWithRemedialAction.assessedElement(), crac, cnecCreationContexts)
+                : filterCnecsThatHaveGivenContingencies(
+                    getImportedCnecFromAssessedElementId(nativeAssessedElementWithRemedialAction.assessedElement(), crac, cnecCreationContexts),
+                    validLinkedContingencies
                 );
 
             if (isAssociationInvalid(remedialActionId, cnecStatusMap, nativeAssessedElementWithRemedialAction, cnecs)) {

@@ -55,16 +55,9 @@ class OnConstraintUsageRuleHelperTest {
         crac.newContingency().withId("contingency-5").add();
         crac.newContingency().withId("contingency-6").add();
 
-        // Add FlowCNECs
         addFlowCnecs();
-
-        // Add CNEC creation contexts
         addCnecCreationContexts();
-
-        // Add AssessedElementWithRemedialAction property bags
         addAssessedElementWithRemedialActionPropertyBags();
-
-        // Add ContingencyWithRemedialAction property bags
         addContingencyWithRemedialActionPropertyBags();
     }
 

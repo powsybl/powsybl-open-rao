@@ -205,20 +205,13 @@ class CseCracCreatorWithMneTest {
     }
 
     public void assertAllMneCorrectlyImportedInCrac() {
-        assertMneWithContingencyInCrac("mne_test", "NNL2AA1", "NNL3AA1", "1", "DIRECT",
-            "outage_1", outageInstant, 5000, 1.1, Unit.PERCENT_IMAX, 380);
-        assertMneWithContingencyInCrac("mne_test", "NNL2AA1", "NNL3AA1", "1", "DIRECT",
-            "outage_1", autoInstant, 5000, 6000, Unit.AMPERE, 380);
-        assertMneWithContingencyInCrac("mne_test", "NNL2AA1", "NNL3AA1", "1", "DIRECT",
-            "outage_1", curativeInstant, 5000, 6500, Unit.AMPERE, 380);
-        assertMneWithContingencyInCrac("mne_test", "NNL2AA1", "NNL3AA1", "1", "DIRECT",
-            "outage_2", outageInstant, 5000, 1.1, Unit.PERCENT_IMAX, 380);
-        assertMneWithContingencyInCrac("mne_test", "NNL2AA1", "NNL3AA1", "1", "DIRECT",
-            "outage_2", autoInstant, 5000, 6000, Unit.AMPERE, 380);
-        assertMneWithContingencyInCrac("mne_test", "NNL2AA1", "NNL3AA1", "1", "DIRECT",
-            "outage_2", curativeInstant, 5000, 6500, Unit.AMPERE, 380);
-        assertMneBaseCaseInCrac("mne_test", "NNL2AA1", "NNL3AA1", "1", "DIRECT",
-            preventiveInstant, 5000, 1, Unit.PERCENT_IMAX, 380);
+        assertMneWithContingencyInCrac("mne_test", "NNL2AA1", "NNL3AA1", "1", "DIRECT", "outage_1", outageInstant, 5000, 1.1, Unit.PERCENT_IMAX, 380);
+        assertMneWithContingencyInCrac("mne_test", "NNL2AA1", "NNL3AA1", "1", "DIRECT", "outage_1", autoInstant, 5000, 6000, Unit.AMPERE, 380);
+        assertMneWithContingencyInCrac("mne_test", "NNL2AA1", "NNL3AA1", "1", "DIRECT", "outage_1", curativeInstant, 5000, 6500, Unit.AMPERE, 380);
+        assertMneWithContingencyInCrac("mne_test", "NNL2AA1", "NNL3AA1", "1", "DIRECT", "outage_2", outageInstant, 5000, 1.1, Unit.PERCENT_IMAX, 380);
+        assertMneWithContingencyInCrac("mne_test", "NNL2AA1", "NNL3AA1", "1", "DIRECT", "outage_2", autoInstant, 5000, 6000, Unit.AMPERE, 380);
+        assertMneWithContingencyInCrac("mne_test", "NNL2AA1", "NNL3AA1", "1", "DIRECT", "outage_2", curativeInstant, 5000, 6500, Unit.AMPERE, 380);
+        assertMneBaseCaseInCrac("mne_test", "NNL2AA1", "NNL3AA1", "1", "DIRECT", preventiveInstant, 5000, 1, Unit.PERCENT_IMAX, 380);
     }
 
     public void assertAllMneCorrectlyImportedInCriticalBranchesCreationContext() {

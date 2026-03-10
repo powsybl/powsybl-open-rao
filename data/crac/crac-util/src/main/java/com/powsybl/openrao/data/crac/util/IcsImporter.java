@@ -157,11 +157,13 @@ public final class IcsImporter {
             GeneratorConstraints generatorConstraints = GeneratorConstraints.create()
                 .withGeneratorId(networkElementPerGskElement.get(nodeId))
                 .withUpwardPowerGradient(shiftKey * parseDoubleWithPossibleCommas(
-                    staticRecord.get("Maximum positive power gradient [MW/h]").isEmpty() ?
-                        MAX_GRADIENT : staticRecord.get("Maximum positive power gradient [MW/h]")
+                    staticRecord.get("Maximum positive power gradient [MW/h]").isEmpty()
+                        ? MAX_GRADIENT
+                        : staticRecord.get("Maximum positive power gradient [MW/h]")
                 )).withDownwardPowerGradient(-shiftKey * parseDoubleWithPossibleCommas(
-                    staticRecord.get("Maximum negative power gradient [MW/h]").isEmpty() ?
-                        MAX_GRADIENT : staticRecord.get("Maximum negative power gradient [MW/h]")
+                    staticRecord.get("Maximum negative power gradient [MW/h]").isEmpty()
+                        ? MAX_GRADIENT
+                        : staticRecord.get("Maximum negative power gradient [MW/h]")
                 )).build();
             timeCoupledRaoInput.getTimeCoupledConstraints().addGeneratorConstraints(generatorConstraints);
         });
@@ -184,9 +186,9 @@ public final class IcsImporter {
             .withVariationCost(costDown, VariationDirection.DOWN)
             //.withActivationCost(ACTIVATION_COST)
             .newRange()
-            .withMin(p0 - parseDoubleWithPossibleCommas(seriesPerType.get("RDP-").get(dateTime.getHour() + OFFSET)))
-            .withMax(p0 + parseDoubleWithPossibleCommas(seriesPerType.get("RDP+").get(dateTime.getHour() + OFFSET)))
-            .add();
+                .withMin(p0 - parseDoubleWithPossibleCommas(seriesPerType.get("RDP-").get(dateTime.getHour() + OFFSET)))
+                .withMax(p0 + parseDoubleWithPossibleCommas(seriesPerType.get("RDP+").get(dateTime.getHour() + OFFSET)))
+                .add();
 
         weightPerNode.forEach((nodeId, shiftKey) -> {
             injectionRangeActionAdder.withNetworkElementAndKey(shiftKey, networkElementPerGskElement.get(nodeId));
@@ -222,11 +224,13 @@ public final class IcsImporter {
         GeneratorConstraints generatorConstraints = GeneratorConstraints.create()
             .withGeneratorId(networkElementId)
             .withUpwardPowerGradient(parseDoubleWithPossibleCommas(
-                staticRecord.get("Maximum positive power gradient [MW/h]").isEmpty() ?
-                    MAX_GRADIENT : staticRecord.get("Maximum positive power gradient [MW/h]")
+                staticRecord.get("Maximum positive power gradient [MW/h]").isEmpty()
+                    ? MAX_GRADIENT
+                    : staticRecord.get("Maximum positive power gradient [MW/h]")
             )).withDownwardPowerGradient(-parseDoubleWithPossibleCommas(
-                staticRecord.get("Maximum negative power gradient [MW/h]").isEmpty() ?
-                    MAX_GRADIENT : staticRecord.get("Maximum negative power gradient [MW/h]")
+                staticRecord.get("Maximum negative power gradient [MW/h]").isEmpty()
+                    ? MAX_GRADIENT
+                    : staticRecord.get("Maximum negative power gradient [MW/h]")
             )).build();
         timeCoupledRaoInput.getTimeCoupledConstraints().addGeneratorConstraints(generatorConstraints);
     }
@@ -248,9 +252,9 @@ public final class IcsImporter {
             .withVariationCost(costDown, VariationDirection.DOWN)
             //.withActivationCost(ACTIVATION_COST)
             .newRange()
-            .withMin(p0 - parseDoubleWithPossibleCommas(seriesPerType.get("RDP-").get(dateTime.getHour() + OFFSET)))
-            .withMax(p0 + parseDoubleWithPossibleCommas(seriesPerType.get("RDP+").get(dateTime.getHour() + OFFSET)))
-            .add();
+                .withMin(p0 - parseDoubleWithPossibleCommas(seriesPerType.get("RDP-").get(dateTime.getHour() + OFFSET)))
+                .withMax(p0 + parseDoubleWithPossibleCommas(seriesPerType.get("RDP+").get(dateTime.getHour() + OFFSET)))
+                .add();
         if (staticRecord.get("Preventive").equalsIgnoreCase("TRUE")) {
             injectionRangeActionAdder.newOnInstantUsageRule()
                 .withInstant(crac.getPreventiveInstant().getId())
@@ -327,10 +331,16 @@ public final class IcsImporter {
     }
 
     private static boolean p0RespectsGradients(CSVRecord staticRecord, CSVRecord p0record, List<OffsetDateTime> dateTimes) {
-        double maxGradient = parseDoubleWithPossibleCommas(staticRecord.get("Maximum positive power gradient [MW/h]").isEmpty() ?
-            MAX_GRADIENT : staticRecord.get("Maximum positive power gradient [MW/h]"));
-        double minGradient = -parseDoubleWithPossibleCommas(staticRecord.get("Maximum negative power gradient [MW/h]").isEmpty() ?
-            MAX_GRADIENT : staticRecord.get("Maximum negative power gradient [MW/h]"));
+        double maxGradient = parseDoubleWithPossibleCommas(
+            staticRecord.get("Maximum positive power gradient [MW/h]").isEmpty()
+                ? MAX_GRADIENT
+                : staticRecord.get("Maximum positive power gradient [MW/h]")
+        );
+        double minGradient = -parseDoubleWithPossibleCommas(
+            staticRecord.get("Maximum negative power gradient [MW/h]").isEmpty()
+                ? MAX_GRADIENT
+                : staticRecord.get("Maximum negative power gradient [MW/h]")
+        );
 
         Iterator<OffsetDateTime> dateTimeIterator = dateTimes.iterator();
         OffsetDateTime currentDateTime = dateTimeIterator.next();

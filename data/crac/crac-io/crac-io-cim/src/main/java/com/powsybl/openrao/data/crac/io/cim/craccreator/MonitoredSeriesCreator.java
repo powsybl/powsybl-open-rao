@@ -304,7 +304,8 @@ public class MonitoredSeriesCreator {
         } catch (OpenRaoException e) {
             if (instant.isPreventive()) {
                 measurementCreationContext.addCnecCreationContext(
-                    null, instant, CnecCreationContext.notImported(ImportStatus.OTHER, e.getMessage()));
+                    null, instant, CnecCreationContext.notImported(ImportStatus.OTHER, e.getMessage())
+                );
             } else {
                 contingencies.forEach(contingency -> measurementCreationContext.addCnecCreationContext(
                     contingency.getId(), instant, CnecCreationContext.notImported(ImportStatus.OTHER, e.getMessage()))
