@@ -7,6 +7,7 @@
  */
 package com.powsybl.openrao.tests.steps;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
@@ -75,6 +76,7 @@ public final class TimeCoupledRaoSteps {
     private static String refProgPath;
     private static TimeCoupledRaoInputWithNetworkPaths timeCoupledRaoInputWithNetworkPaths;
     private static TimeCoupledRaoResult timeCoupledRaoResult;
+    private static ReportNode reportNode;
     private static Map<OffsetDateTime, CracCreationContext> cracCreationContexts;
 
     private static final List<String> DE_TSOS = List.of("D2", "D4", "D7", "D8");
@@ -233,7 +235,11 @@ public final class TimeCoupledRaoSteps {
 
     @When("I launch marmot")
     public static void iLaunchMarmot() {
-        timeCoupledRaoResult = TimeCoupledRao.run(timeCoupledRaoInputWithNetworkPaths, getRaoParameters());
+        reportNode = ReportNode.newRootReportNode()
+            .withAllResourceBundlesFromClasspath()
+            .withMessageTemplate("test.rootnode")
+            .build();
+        timeCoupledRaoResult = TimeCoupledRao.run(timeCoupledRaoInputWithNetworkPaths, getRaoParameters(), reportNode);
     }
 
     @When("I export marmot results to {string}")
@@ -246,6 +252,11 @@ public final class TimeCoupledRaoSteps {
         try (ZipOutputStream zipOutputStream = new ZipOutputStream(fileOutputStream)) {
             timeCoupledRaoResult.write(zipOutputStream, timeCoupledRaoInputWithNetworkPaths.getRaoInputs().map(RaoInputWithNetworkPaths::getCrac), properties);
         }
+    }
+
+    @When("I export marmot reports to {string}")
+    public static void iExportMarmotReports(String outputPath) throws IOException {
+        reportNode.print(Path.of(getResourcesPath().concat(outputPath)));
     }
 
     @When("I export RefProg after redispatching to {string} based on raoResults zip {string}")

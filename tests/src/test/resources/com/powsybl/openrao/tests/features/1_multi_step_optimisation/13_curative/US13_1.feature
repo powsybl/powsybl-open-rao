@@ -12,6 +12,7 @@ Feature: US 13.1: Solve a RAO for a single preventive or curative state
     Given crac file is "epic13/12nodes_pst_topo_frm_cbcora_curative.xml"
     Given configuration file is "common/RaoParameters_maxMargin_ampere_ac.json"
     When I launch rao at "2019-01-08 00:30" on preventive state
+    Then I export rao reports to "reports/reports_13_1_1.txt"
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "UNSECURED"
     Then the worst margin is 1636 MW
@@ -28,6 +29,7 @@ Feature: US 13.1: Solve a RAO for a single preventive or curative state
     Given crac file is "epic13/12nodes_pst_topo_frm_cbcora_curative.xml"
     Given configuration file is "common/RaoParameters_maxMargin_ampere_ac.json"
     When I launch rao at "2019-01-08 00:30" after "Contingency" at "curative"
+    Then I export rao reports to "reports/reports_13_1_2.txt"
     Then the execution details should be "The RAO only went through first preventive"
     Then its security status should be "SECURED"
     Then the tap of PstRangeAction "SelectTapPSTCur" should be -9 after "Contingency" at "curative"

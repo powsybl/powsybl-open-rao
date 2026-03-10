@@ -7,16 +7,19 @@
 
 package com.powsybl.openrao.searchtreerao.commons.objectivefunctionevaluator;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.Unit;
-import com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider;
 import com.powsybl.openrao.data.crac.api.cnec.Cnec;
 import com.powsybl.openrao.data.crac.api.cnec.FlowCnec;
 import com.powsybl.openrao.searchtreerao.commons.costevaluatorresult.CostEvaluatorResult;
 import com.powsybl.openrao.searchtreerao.commons.costevaluatorresult.SumCnecWiseCostEvaluatorResult;
+import com.powsybl.openrao.searchtreerao.reports.CommonReports;
 import com.powsybl.openrao.searchtreerao.result.api.FlowResult;
 import com.powsybl.openrao.searchtreerao.result.api.RemedialActionActivationResult;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -50,7 +53,9 @@ public class MnecViolationCostEvaluator implements CostEvaluator {
     }
 
     @Override
-    public CostEvaluatorResult evaluate(FlowResult flowResult, RemedialActionActivationResult remedialActionActivationResult) {
+    public CostEvaluatorResult evaluate(final FlowResult flowResult,
+                                        final RemedialActionActivationResult remedialActionActivationResult,
+                                        final ReportNode reportNode) {
         Map<FlowCnec, Double> costPerMnec = flowCnecs.stream().filter(Cnec::isMonitored)
             .collect(Collectors.toMap(Function.identity(), mnec -> computeMnecViolation(flowResult, mnec)))
             .entrySet()
@@ -60,7 +65,7 @@ public class MnecViolationCostEvaluator implements CostEvaluator {
 
         if (costPerMnec.values().stream().anyMatch(violationCost -> violationCost > 0)) {
             // will be logged even if the contingency is filtered out at some point
-            OpenRaoLoggerProvider.TECHNICAL_LOGS.info("Some MNEC constraints are not respected.");
+            CommonReports.reportMnecConstraintsNotRespected(reportNode);
         }
 
         List<FlowCnec> sortedMnecs = sortFlowCnecsByDecreasingCost(costPerMnec);

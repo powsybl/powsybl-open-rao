@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.commons;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlowParameters;
@@ -64,9 +65,9 @@ public class HvdcUtilsTest {
         assertEquals(0.0, crac.getHvdcRangeAction("HVDC_RA1").getInitialSetpoint());
         assertEquals(0.0, crac.getHvdcRangeAction("HVDC_RA2").getInitialSetpoint());
 
-        RaoParameters raoParameters = new RaoParameters();
-        raoParameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters());
-        updateHvdcRangeActionInitialSetpoint(crac, network, raoParameters);
+        RaoParameters raoParameters = new RaoParameters(ReportNode.NO_OP);
+        raoParameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters(ReportNode.NO_OP));
+        updateHvdcRangeActionInitialSetpoint(crac, network, raoParameters, ReportNode.NO_OP);
 
         assertEquals(823.0, crac.getHvdcRangeAction("HVDC_RA1").getInitialSetpoint(), 1);
         assertEquals(823.0, crac.getHvdcRangeAction("HVDC_RA2").getInitialSetpoint(), 1);
@@ -87,9 +88,9 @@ public class HvdcUtilsTest {
         assertEquals(-0.0, crac.getHvdcRangeAction("HVDC_RA2").getInitialSetpoint());
         assertEquals(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER, network.getHvdcLine("BBE2AA11 FFR3AA11 1").getConvertersMode());
 
-        RaoParameters raoParameters = new RaoParameters();
-        raoParameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters());
-        updateHvdcRangeActionInitialSetpoint(crac, network, raoParameters);
+        RaoParameters raoParameters = new RaoParameters(ReportNode.NO_OP);
+        raoParameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters(ReportNode.NO_OP));
+        updateHvdcRangeActionInitialSetpoint(crac, network, raoParameters, ReportNode.NO_OP);
 
         // the flow goes from converter station 2 to converter station 1 on the line => setpoint should be negative.
         assertEquals(-806, crac.getHvdcRangeAction("HVDC_RA1").getInitialSetpoint(), 1);
@@ -115,14 +116,15 @@ public class HvdcUtilsTest {
         assertEquals(0.0, crac.getHvdcRangeAction("HVDC_RA1").getCurrentSetpoint(network));
 
         // Preventive state, no contingency is applied
-        RaoParameters raoParameters = new RaoParameters();
-        raoParameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters());
+        RaoParameters raoParameters = new RaoParameters(ReportNode.NO_OP);
+        raoParameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters(ReportNode.NO_OP));
         Map<HvdcRangeAction, Double> hvdcRangeActionActivePowerSetpoint = runLoadFlowAndUpdateHvdcActivePowerSetpoint(
             network,
             crac.getPreventiveState(),
             "OpenLoadFlow",
             loadFlowParameters,
-            crac.getHvdcRangeActions().stream().map(HvdcRangeActionImpl.class::cast).collect(Collectors.toSet())
+            crac.getHvdcRangeActions().stream().map(HvdcRangeActionImpl.class::cast).collect(Collectors.toSet()),
+            ReportNode.NO_OP
         );
 
         assertEquals(hvdcRangeActionActivePowerSetpoint.get(crac.getHvdcRangeAction("HVDC_RA1")), crac.getHvdcRangeAction("HVDC_RA1").getCurrentSetpoint(network));
@@ -135,7 +137,8 @@ public class HvdcUtilsTest {
             autoState,
             "OpenLoadFlow",
             loadFlowParameters,
-            crac.getHvdcRangeActions().stream().map(HvdcRangeActionImpl.class::cast).collect(Collectors.toSet())
+            crac.getHvdcRangeActions().stream().map(HvdcRangeActionImpl.class::cast).collect(Collectors.toSet()),
+            ReportNode.NO_OP
         );
         assertEquals(hvdcRangeActionActivePowerSetpoint.get(crac.getHvdcRangeAction("HVDC_RA1")), crac.getHvdcRangeAction("HVDC_RA1").getCurrentSetpoint(network));
         assertEquals(864, hvdcRangeActionActivePowerSetpoint.get(crac.getHvdcRangeAction("HVDC_RA1")), 1);
@@ -156,7 +159,8 @@ public class HvdcUtilsTest {
             crac.getPreventiveState(),
             "OpenLoadFlow",
             loadFlowParameters,
-            crac.getHvdcRangeActions().stream().map(HvdcRangeActionImpl.class::cast).collect(Collectors.toSet())
+            crac.getHvdcRangeActions().stream().map(HvdcRangeActionImpl.class::cast).collect(Collectors.toSet()),
+            ReportNode.NO_OP
         );
         assertTrue(hvdcRangeActionActivePowerSetpoint.isEmpty());
         assertEquals(0, crac.getHvdcRangeAction("HVDC_RA1").getCurrentSetpoint(network));

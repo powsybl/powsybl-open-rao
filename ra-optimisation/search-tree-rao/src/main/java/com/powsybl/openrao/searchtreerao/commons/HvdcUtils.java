@@ -8,6 +8,7 @@
 package com.powsybl.openrao.searchtreerao.commons;
 
 import com.powsybl.action.HvdcAction;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.HvdcLine;
@@ -31,6 +32,7 @@ import com.powsybl.openrao.data.crac.io.commons.iidm.IidmHvdcHelper;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.LoadFlowAndSensitivityParameters;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
+import com.powsybl.openrao.searchtreerao.reports.CastorReports;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -134,10 +136,12 @@ public final class HvdcUtils {
     /**
      * Run a load flow to update the initial set-points of the HVDC range actions assiociated to HVDC line in AC emulation mode
      */
-    static void updateHvdcRangeActionInitialSetpoint(Crac crac, Network network, RaoParameters raoParameters) {
-
+    static void updateHvdcRangeActionInitialSetpoint(final Crac crac,
+                                                     final Network network,
+                                                     final RaoParameters raoParameters,
+                                                     final ReportNode reportNode) {
         // Run load flow to update flow on all the lines of the network
-        LoadFlowAndSensitivityParameters loadFlowAndSensitivityParameters = new LoadFlowAndSensitivityParameters();
+        LoadFlowAndSensitivityParameters loadFlowAndSensitivityParameters = new LoadFlowAndSensitivityParameters(reportNode);
         if (raoParameters.hasExtension(OpenRaoSearchTreeParameters.class)) {
             loadFlowAndSensitivityParameters = raoParameters.getExtension(OpenRaoSearchTreeParameters.class).getLoadFlowAndSensitivityParameters();
         }
@@ -155,7 +159,8 @@ public final class HvdcUtils {
                 crac.getPreventiveState(),
                 loadFlowAndSensitivityParameters.getLoadFlowProvider(),
                 loadFlowAndSensitivityParameters.getSensitivityWithLoadFlowParameters().getLoadFlowParameters(),
-                hvdcRasOnHvdcLinesInAcEmulation
+                hvdcRasOnHvdcLinesInAcEmulation,
+                reportNode
             );
         }
 
@@ -204,11 +209,12 @@ public final class HvdcUtils {
      * @return A map of HVDC Range Action to their updated computed active power setpoints
      */
     public static Map<HvdcRangeAction, Double> runLoadFlowAndUpdateHvdcActivePowerSetpoint(
-        Network network,
-        State optimizationState,
-        String loadFlowProvider,
-        LoadFlowParameters loadFlowParameters,
-        Set<HvdcRangeAction> hvdcRangeActionsWithHvdcLineInAcEmulation
+        final Network network,
+        final State optimizationState,
+        final String loadFlowProvider,
+        final LoadFlowParameters loadFlowParameters,
+        final Set<HvdcRangeAction> hvdcRangeActionsWithHvdcLineInAcEmulation,
+        final ReportNode reportNode
     ) {
 
         Map<HvdcRangeAction, Double> activePowerSetpoints = new HashMap<>();
@@ -236,20 +242,17 @@ public final class HvdcUtils {
                     && activePowerSetpoint <= hvdcRa.getMaxAdmissibleSetpoint(activePowerSetpoint);
 
             if (isValid) {
-                TECHNICAL_LOGS.debug(String.format("" +
-                    "HVDC line %s active power setpoint is set to abs(%.1f)", hvdcLineId, activePowerSetpoint));
+                TECHNICAL_LOGS.debug(String.format("HVDC line %s active power setpoint is set to abs(%.1f)", hvdcLineId, activePowerSetpoint));
 
                 activePowerSetpoints.put(hvdcRa, activePowerSetpoint);
                 setActivePowerSetpointOnHvdcLine(hvdcLine, activePowerSetpoint);
             } else {
-                TECHNICAL_LOGS.info(String.format(
-                    "HVDC line %s active setpoint could not be updated because its new set-point "
-                            + "(%.1f) does not fall within its allowed range (%.1f - %.1f)",
+                CastorReports.reportHvdcLineSetpointNotUpdated(
+                    reportNode,
                     hvdcLineId,
                     activePowerSetpoint,
                     hvdcRa.getMinAdmissibleSetpoint(activePowerSetpoint),
-                    hvdcRa.getMaxAdmissibleSetpoint(activePowerSetpoint)
-                ));
+                    hvdcRa.getMaxAdmissibleSetpoint(activePowerSetpoint));
             }
         });
 

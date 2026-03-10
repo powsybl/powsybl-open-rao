@@ -21,6 +21,7 @@ Feature: US 93.2: Time-coupled redispatching actions with MARMOT - power gradien
       | 2019-01-08 03:30 | 12Nodes_0330.uct |
     When I launch marmot
     When I export marmot results to "raoresults/results_93_2_1.zip"
+    When I export marmot reports to "reports/reports_93_2_1.txt"
     When I export networks with PRAs to "raoresults/networkWithPras_93_2_1.zip"
     Then the optimized margin on "NNL2AA1  BBE3AA1  1 - preventive" for timestamp "2019-01-08 00:30" is 435.18 MW
     Then the optimized margin on "NNL2AA1  BBE3AA1  1 - preventive" for timestamp "2019-01-08 01:30" is 10.18 MW
@@ -50,6 +51,7 @@ Feature: US 93.2: Time-coupled redispatching actions with MARMOT - power gradien
       | 2019-01-08 01:30 | 12Nodes_0130.uct |
     When I launch marmot
     When I export marmot results to "raoresults/results_93_2_2.zip"
+    When I export marmot reports to "reports/reports_93_2_2.txt"
     Then the optimized margin on "NNL2AA1  BBE3AA1  1 - preventive" for timestamp "2019-01-08 00:30" is 523.04 MW
     Then the optimized margin on "NNL2AA1  BBE3AA1  1 - preventive" for timestamp "2019-01-08 01:30" is 259.8 MW
     Then the functional cost for timestamp "2019-01-08 00:30" is 0
@@ -72,6 +74,7 @@ Feature: US 93.2: Time-coupled redispatching actions with MARMOT - power gradien
       | 2019-01-08 01:30 | 12Nodes_0130.uct |
     When I launch marmot
     When I export marmot results to "raoresults/results_93_2_3.zip"
+    When I export marmot reports to "reports/reports_93_2_3.txt"
     When I export networks with PRAs to "raoresults/networkWithPras_93_2_3.zip"
     Then the optimized margin on "NNL2AA1  BBE3AA1  1 - preventive" for timestamp "2019-01-08 00:30" is 408.18 MW
     Then the optimized margin on "NNL2AA1  BBE3AA1  1 - preventive" for timestamp "2019-01-08 01:30" is 10.07 MW
@@ -95,6 +98,7 @@ Feature: US 93.2: Time-coupled redispatching actions with MARMOT - power gradien
       | 2019-01-08 01:30 | 12Nodes_0130.uct |
     When I launch marmot
     When I export marmot results to "raoresults/results_93_2_4.zip"
+    When I export marmot reports to "reports/reports_93_2_4.txt"
     Then the optimized margin on "NNL2AA1  BBE3AA1  1 - N-1 BE-FR 1 - curative" for timestamp "2019-01-08 00:30" is 408.18 MW
     Then the optimized margin on "NNL2AA1  BBE3AA1  1 - preventive" for timestamp "2019-01-08 00:30" is 428.45 MW
     Then the optimized margin on "NNL2AA1  BBE3AA1  1 - preventive" for timestamp "2019-01-08 01:30" is 9.88 MW
@@ -120,6 +124,7 @@ Feature: US 93.2: Time-coupled redispatching actions with MARMOT - power gradien
       | 2019-01-08 01:30 | 12Nodes_0130.uct |
     When I launch marmot
     When I export marmot results to "raoresults/results_93_2_4-b.zip"
+    When I export marmot reports to "reports/reports_93_2_4-b.txt"
     Then the optimized margin on "NNL2AA1  BBE3AA1  1 - N-1 BE-FR 1 - curative" for timestamp "2019-01-08 00:30" is 408.18 MW
     Then the optimized margin on "NNL2AA1  BBE3AA1  1 - preventive" for timestamp "2019-01-08 00:30" is 428.45 MW
     Then the optimized margin on "NNL2AA1  BBE3AA1  1 - N-1 BE-FR 1 - curative" for timestamp "2019-01-08 01:30" is 10.07 MW
@@ -144,6 +149,7 @@ Feature: US 93.2: Time-coupled redispatching actions with MARMOT - power gradien
       | 2019-01-08 01:30 | 12Nodes_0130.uct |
     When I launch marmot
     When I export marmot results to "raoresults/results_93_2_5.zip"
+    When I export marmot reports to "reports/reports_93_2_5.txt"
     Then the optimized margin on "NNL2AA1  BBE3AA1  1 - preventive" for timestamp "2019-01-08 00:30" is 166.91 MW
     Then the optimized margin on "NNL2AA1  BBE3AA1  1 - preventive" for timestamp "2019-01-08 01:30" is -22.93 MW
     Then the functional cost for timestamp "2019-01-08 00:30" is 1880

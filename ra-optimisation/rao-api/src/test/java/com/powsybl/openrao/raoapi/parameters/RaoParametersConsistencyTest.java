@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.raoapi.parameters;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.EICode;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.raoapi.ZoneToZonePtdfDefinition;
@@ -24,12 +25,12 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Godelaine de Montmorillon {@literal <godelaine.demontmorillon at rte-france.com>}
  */
 class RaoParametersConsistencyTest {
-    private final RaoParameters parameters = new RaoParameters();
+    private final RaoParameters parameters = new RaoParameters(ReportNode.NO_OP);
     private OpenRaoSearchTreeParameters stParameters;
 
     @BeforeEach
     public void generalSetUp() {
-        parameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters());
+        parameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters(ReportNode.NO_OP));
         stParameters = parameters.getExtension(OpenRaoSearchTreeParameters.class);
     }
 
@@ -99,9 +100,9 @@ class RaoParametersConsistencyTest {
 
     @Test
     void testNegativeCurativeRaoMinObjImprovement() {
-        stParameters.getObjectiveFunctionParameters().setCurativeMinObjImprovement(100);
+        stParameters.getObjectiveFunctionParameters().setCurativeMinObjImprovement(100, ReportNode.NO_OP);
         assertEquals(100, stParameters.getObjectiveFunctionParameters().getCurativeMinObjImprovement(), 1e-6);
-        stParameters.getObjectiveFunctionParameters().setCurativeMinObjImprovement(-100);
+        stParameters.getObjectiveFunctionParameters().setCurativeMinObjImprovement(-100, ReportNode.NO_OP);
         assertEquals(100, stParameters.getObjectiveFunctionParameters().getCurativeMinObjImprovement(), 1e-6);
     }
 

@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.castor.algorithm;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openloadflow.sensi.OpenSensitivityAnalysisParameters;
 import com.powsybl.openrao.data.crac.api.Crac;
 import com.powsybl.openrao.data.crac.api.State;
@@ -102,8 +103,10 @@ public abstract class AbstractMultiPerimeterSensitivityAnalysis {
         openSensitivityAnalysisParameters.setThreadCount(oldThreadCount);
     }
 
-    protected SensitivityComputer buildSensitivityComputer(FlowResult initialFlowResult, AppliedRemedialActions appliedCurativeRemedialActions) {
-        SensitivityComputer.SensitivityComputerBuilder sensitivityComputerBuilder = SensitivityComputer.create()
+    protected SensitivityComputer buildSensitivityComputer(final FlowResult initialFlowResult,
+                                                           final AppliedRemedialActions appliedCurativeRemedialActions,
+                                                           final ReportNode reportNode) {
+        SensitivityComputer.SensitivityComputerBuilder sensitivityComputerBuilder = SensitivityComputer.create(reportNode)
             .withToolProvider(toolProvider)
             .withCnecs(flowCnecs)
             .withRangeActions(rangeActions)

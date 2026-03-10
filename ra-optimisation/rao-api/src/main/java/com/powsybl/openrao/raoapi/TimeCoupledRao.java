@@ -10,17 +10,17 @@ package com.powsybl.openrao.raoapi;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.raoresult.api.TimeCoupledRaoResult;
 import com.powsybl.openrao.raoapi.parameters.RaoParameters;
+import com.powsybl.openrao.raoapi.reports.RaoApiReports;
 import com.powsybl.tools.Version;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.ServiceLoader;
-
-import static com.powsybl.openrao.commons.logs.OpenRaoLoggerProvider.BUSINESS_WARNS;
 
 /**
  * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
@@ -40,9 +40,11 @@ public final class TimeCoupledRao {
     public static class Runner {
 
         private final TimeCoupledRaoProvider provider;
+        private final ReportNode reportNode;
 
-        public Runner(TimeCoupledRaoProvider provider) {
+        public Runner(final TimeCoupledRaoProvider provider, final ReportNode reportNode) {
             this.provider = Objects.requireNonNull(provider);
+            this.reportNode = reportNode;
         }
 
         public TimeCoupledRaoResult run(TimeCoupledRaoInputWithNetworkPaths raoInput, RaoParameters parameters) {
@@ -53,13 +55,13 @@ public final class TimeCoupledRao {
                 .map(ServiceLoader.Provider::get)
                 .filter(version -> version.getRepositoryName().equals("open-rao"))
                 .findFirst().orElseThrow();
-            BUSINESS_WARNS.warn("Running RAO using Open RAO version {} from git commit {}.", openRaoVersion.getMavenProjectVersion(), openRaoVersion.getGitVersion());
+            RaoApiReports.reportRaoVersionAndGitCommit(reportNode, openRaoVersion.getMavenProjectVersion(), openRaoVersion.getGitVersion());
 
-            return provider.run(raoInput, parameters).join();
+            return provider.run(raoInput, parameters, reportNode).join();
         }
 
         public TimeCoupledRaoResult run(TimeCoupledRaoInputWithNetworkPaths raoInput) {
-            return run(raoInput, RaoParameters.load());
+            return run(raoInput, RaoParameters.load(reportNode));
         }
 
         public String getName() {
@@ -74,8 +76,8 @@ public final class TimeCoupledRao {
      * @param name name of the RAO implementation, null if we want to use default one
      * @return a runner for RAO implementation named {@code name}
      */
-    public static TimeCoupledRao.Runner find(String name) {
-        return find(name, RAO_PROVIDERS.get(), PlatformConfig.defaultConfig());
+    public static TimeCoupledRao.Runner find(final String name, final ReportNode reportNode) {
+        return find(name, RAO_PROVIDERS.get(), PlatformConfig.defaultConfig(), reportNode);
     }
 
     /**
@@ -84,8 +86,8 @@ public final class TimeCoupledRao {
      * @throws OpenRaoException in case we cannot find a default implementation
      * @return a runner for default RAO implementation
      */
-    public static TimeCoupledRao.Runner find() {
-        return find(null);
+    public static TimeCoupledRao.Runner find(final ReportNode reportNode) {
+        return find(null, reportNode);
     }
 
     /**
@@ -98,7 +100,10 @@ public final class TimeCoupledRao {
      * @param platformConfig platform config to look for default flowbased implementation name
      * @return a runner for flowbased implementation named {@code name}
      */
-    public static TimeCoupledRao.Runner find(String name, List<TimeCoupledRaoProvider> providers, PlatformConfig platformConfig) {
+    public static TimeCoupledRao.Runner find(final String name,
+                                               final List<TimeCoupledRaoProvider> providers,
+                                               final PlatformConfig platformConfig,
+                                               final ReportNode reportNode) {
         Objects.requireNonNull(providers);
         Objects.requireNonNull(platformConfig);
 
@@ -130,14 +135,14 @@ public final class TimeCoupledRao {
                 .orElseThrow(() -> new OpenRaoException("RA optimizer provider '" + raOptimizerName + "' not found"));
         }
 
-        return new TimeCoupledRao.Runner(provider);
+        return new TimeCoupledRao.Runner(provider, reportNode);
     }
 
-    public static TimeCoupledRaoResult run(TimeCoupledRaoInputWithNetworkPaths raoInput, RaoParameters parameters) {
-        return find().run(raoInput, parameters);
+    public static TimeCoupledRaoResult run(final TimeCoupledRaoInputWithNetworkPaths raoInput, final RaoParameters parameters, final ReportNode reportNode) {
+        return find(reportNode).run(raoInput, parameters);
     }
 
-    public static TimeCoupledRaoResult run(TimeCoupledRaoInputWithNetworkPaths raoInput) {
-        return find().run(raoInput);
+    public static TimeCoupledRaoResult run(final TimeCoupledRaoInputWithNetworkPaths raoInput, final ReportNode reportNode) {
+        return find(reportNode).run(raoInput);
     }
 }

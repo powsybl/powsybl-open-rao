@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.linearoptimisation.algorithms.fillers;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.commons.Unit;
@@ -91,8 +92,8 @@ class CostCoreProblemFillerTest extends AbstractFillerTest {
         cnecs.forEach(cnec -> rangeActions.put(cnec.getState(), Set.of(pstRangeAction)));
         Mockito.when(optimizationPerimeter.getRangeActionsPerState()).thenReturn(rangeActions);
 
-        RaoParameters raoParameters = new RaoParameters();
-        OpenRaoSearchTreeParameters searchTreeParameters = new OpenRaoSearchTreeParameters();
+        RaoParameters raoParameters = new RaoParameters(ReportNode.NO_OP);
+        OpenRaoSearchTreeParameters searchTreeParameters = new OpenRaoSearchTreeParameters(ReportNode.NO_OP);
         raoParameters.addExtension(OpenRaoSearchTreeParameters.class, searchTreeParameters);
         searchTreeParameters.getRangeActionsOptimizationParameters().setPstSensitivityThreshold(pstSensitivityThreshold);
         searchTreeParameters.getRangeActionsOptimizationParameters().setHvdcSensitivityThreshold(hvdcSensitivityThreshold);

@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.raoapi.raomock;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.data.raoresult.api.ComputationStatus;
 import com.powsybl.openrao.data.raoresult.api.RaoResult;
 import com.powsybl.openrao.data.raoresult.impl.RaoResultImpl;
@@ -25,12 +26,17 @@ import java.util.concurrent.CompletableFuture;
 public class AnotherRaoProviderMock implements RaoProvider {
 
     @Override
-    public CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters parameters, Instant targetEndInstant) {
-        return run(raoInput, parameters);
+    public CompletableFuture<RaoResult> run(final RaoInput raoInput,
+                                            final RaoParameters parameters,
+                                            final Instant targetEndInstant,
+                                            final ReportNode reportNode) {
+        return run(raoInput, parameters, reportNode);
     }
 
     @Override
-    public CompletableFuture<RaoResult> run(RaoInput raoInput, RaoParameters parameters) {
+    public CompletableFuture<RaoResult> run(final RaoInput raoInput,
+                                            final RaoParameters parameters,
+                                            final ReportNode reportNode) {
         RaoResultImpl raoResult = new RaoResultImpl(raoInput.getCrac());
         raoResult.setComputationStatus(ComputationStatus.FAILURE);
         return CompletableFuture.completedFuture(raoResult);

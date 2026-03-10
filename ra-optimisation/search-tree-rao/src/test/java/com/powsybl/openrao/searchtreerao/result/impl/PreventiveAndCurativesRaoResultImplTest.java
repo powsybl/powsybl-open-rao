@@ -7,6 +7,7 @@
 
 package com.powsybl.openrao.searchtreerao.result.impl;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.contingency.ContingencyElementType;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.*;
@@ -168,11 +169,11 @@ class PreventiveAndCurativesRaoResultImplTest {
         prepareCurativeResult3();
 
         StateTree stateTree = generateStateTree();
-        RaoParameters raoParameters = new RaoParameters();
-        raoParameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters());
+        RaoParameters raoParameters = new RaoParameters(ReportNode.NO_OP);
+        raoParameters.addExtension(OpenRaoSearchTreeParameters.class, new OpenRaoSearchTreeParameters(ReportNode.NO_OP));
         getSensitivityWithLoadFlowParameters(raoParameters).getLoadFlowParameters().setDc(true);
 
-        output = new PreventiveAndCurativesRaoResultImpl(stateTree, initialResult, postPrevResult, postContingencyResults, crac, raoParameters);
+        output = new PreventiveAndCurativesRaoResultImpl(stateTree, initialResult, postPrevResult, postContingencyResults, crac, raoParameters, ReportNode.NO_OP);
     }
 
     private void prepareInitialResult() {

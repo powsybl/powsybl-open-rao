@@ -13,6 +13,7 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.google.auto.service.AutoService;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.raoapi.json.*;
 import com.powsybl.openrao.raoapi.parameters.extensions.OpenRaoSearchTreeParameters;
@@ -45,16 +46,26 @@ public class JsonOpenRaoSearchTreeParameters implements JsonRaoParameters.Extens
 
     @Override
     public OpenRaoSearchTreeParameters deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
-        return deserializeAndUpdate(jsonParser, deserializationContext, new OpenRaoSearchTreeParameters());
+        return deserialize(jsonParser, deserializationContext, ReportNode.NO_OP);
+    }
+
+    @Override
+    public OpenRaoSearchTreeParameters deserialize(JsonParser jsonParser, DeserializationContext deserializationContext, ReportNode reportNode) throws IOException {
+        return deserializeAndUpdate(jsonParser, deserializationContext, new OpenRaoSearchTreeParameters(reportNode), reportNode);
     }
 
     @Override
     public OpenRaoSearchTreeParameters deserializeAndUpdate(JsonParser parser, DeserializationContext deserializationContext, OpenRaoSearchTreeParameters parameters) throws IOException {
+        return deserializeAndUpdate(parser, deserializationContext, parameters, ReportNode.NO_OP);
+    }
+
+    @Override
+    public OpenRaoSearchTreeParameters deserializeAndUpdate(JsonParser parser, DeserializationContext deserializationContext, OpenRaoSearchTreeParameters parameters, ReportNode reportNode) throws IOException {
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
                 case OBJECTIVE_FUNCTION -> {
                     parser.nextToken();
-                    JsonObjectiveFunctionParameters.deserialize(parser, parameters);
+                    JsonObjectiveFunctionParameters.deserialize(parser, parameters, reportNode);
                 }
                 case RANGE_ACTIONS_OPTIMIZATION -> {
                     parser.nextToken();
