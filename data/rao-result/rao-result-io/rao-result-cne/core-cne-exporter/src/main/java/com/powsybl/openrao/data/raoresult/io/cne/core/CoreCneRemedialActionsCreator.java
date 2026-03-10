@@ -75,6 +75,10 @@ public final class CoreCneRemedialActionsCreator {
 
     }
 
+    private static ConstraintSeries getNewB56RaConstraintSeries() {
+        return newConstraintSeries(randomizeString(RA_SERIES, 20), B56_BUSINESS_TYPE);
+    }
+
     /**
      * Creates RA ConstraintSeries for all RAs (B56) and adds them to the list
      * PS: This also adds the RemedialActionSeries to the CNECs' ConstraintSeries in the list,
@@ -93,20 +97,17 @@ public final class CoreCneRemedialActionsCreator {
         logMissingRangeActions();
 
         // PRE-OPTIM
-        final List<PstRangeAction> usedPstRangeActions = sortedPstRangeActions.stream()
-            .filter(this::isRangeActionUsedInRao)
-            .toList();
-        final List<InjectionRangeAction> usedInjectionRangeActions = sortedInjectionRangeActions.stream()
-            .filter(this::isRangeActionUsedInRao)
-            .toList();
-        if (!usedPstRangeActions.isEmpty() || !usedInjectionRangeActions.isEmpty()) {
-            constraintSeries.add(createPreOptimRaConstraintSeries(usedPstRangeActions, usedInjectionRangeActions));
+        final ConstraintSeries preOptimB56 = createPreOptimRaConstraintSeries(sortedPstRangeActions, sortedInjectionRangeActions);
+        if (!preOptimB56.getRemedialActionSeries().isEmpty()) {
+            constraintSeries.add(preOptimB56);
         }
 
         // POST-PRA
         // TODO Ajouter les InjectionRangeAction dans le traitement de la méthode
-        // TODO Il semble nécessaire d'avoir un objet Network à disposition pour récupérer le setpoint, en passant par injectionRangeAction.getCurrentSetpoint() ou par le targetP du générateur fictif
+        // TODO Il semble nécessaire d'avoir un objet Network à disposition pour récupérer le setpoint, en passant par
+        //  injectionRangeAction.getCurrentSetpoint() ou par le targetP du générateur fictif
         //  injectionRangeAction.getCurrentSetpoint(network) * injectionRangeAction.getInjectionDistributionKeys().get(networkElement)
+        // Post-PRA : une seule ConstraintSeries
         final ConstraintSeries postPraB56 = createPostPraRaConstraintSeries(sortedPstRangeActions, sortedNetworkActions);
         if (!postPraB56.getRemedialActionSeries().isEmpty()) {
             constraintSeries.add(postPraB56);
@@ -114,6 +115,7 @@ public final class CoreCneRemedialActionsCreator {
 
         // POST-CRA
         // TODO Ajouter les InjectionRangeAction dans le traitement de la méthode
+        // Post-CRA : une ConstraintSeries par contingence
         constraintSeries.addAll(createPostCraRaConstraintSeries(sortedPstRangeActions, sortedNetworkActions));
 
         return constraintSeries;
@@ -149,27 +151,29 @@ public final class CoreCneRemedialActionsCreator {
         });
     }
 
-    private boolean isRangeActionUsedInRao(RangeAction<?> rangeAction) {
-        return cneHelper.getCrac().getStates().stream()
-            .anyMatch(state -> cneHelper.getRaoResult().isActivatedDuringState(state, rangeAction));
-    }
-
     private ConstraintSeries createPreOptimRaConstraintSeries(final List<PstRangeAction> pstRangeActions,
                                                               final List<InjectionRangeAction> injectionRangeActions) {
-        final ConstraintSeries preOptimB56 = newConstraintSeries(randomizeString(RA_SERIES, 20), B56_BUSINESS_TYPE);
+        final ConstraintSeries preOptimB56 = getNewB56RaConstraintSeries();
         final List<RemedialActionSeries> remedialActionSeriesList = preOptimB56.getRemedialActionSeries();
 
         pstRangeActions.stream()
+            .filter(this::isRangeActionUsedInRao)
             .map(this::createPreOptimRangeRemedialActionSeries)
             .forEach(remedialActionSeriesList::add);
 
         // For injectionRangeAction representing HVDC lines, we must separate the data from both "from" and "to" complex variants
         // so the createPreOptimRangeRemedialActionSeries() method returns a list of two elements
         injectionRangeActions.stream()
+            .filter(this::isRangeActionUsedInRao)
             .map(this::createPreOptimRangeRemedialActionSeries)
             .forEach(remedialActionSeriesList::addAll);
 
         return preOptimB56;
+    }
+
+    private boolean isRangeActionUsedInRao(RangeAction<?> rangeAction) {
+        return cneHelper.getCrac().getStates().stream()
+            .anyMatch(state -> cneHelper.getRaoResult().isActivatedDuringState(state, rangeAction));
     }
 
     private RemedialActionSeries createPreOptimRangeRemedialActionSeries(PstRangeAction pstRangeAction) {
@@ -240,7 +244,7 @@ public final class CoreCneRemedialActionsCreator {
     }
 
     private ConstraintSeries createPostPraRaConstraintSeries(List<PstRangeAction> sortedRangeActions, List<NetworkAction> sortedNetworkActions) {
-        ConstraintSeries preventiveB56 = newConstraintSeries(randomizeString(RA_SERIES, 20), B56_BUSINESS_TYPE);
+        ConstraintSeries preventiveB56 = getNewB56RaConstraintSeries();
         sortedRangeActions.forEach(rangeAction -> createPostOptimPstRangeActionSeries(rangeAction, InstantKind.PREVENTIVE, cneHelper.getCrac().getPreventiveState(), preventiveB56));
         sortedNetworkActions.forEach(networkAction -> createPostOptimNetworkRemedialActionSeries(networkAction, InstantKind.PREVENTIVE, cneHelper.getCrac().getPreventiveState(), preventiveB56));
 
@@ -259,7 +263,7 @@ public final class CoreCneRemedialActionsCreator {
             if (curativeState == null) {
                 return;
             }
-            ConstraintSeries curativeB56 = newConstraintSeries(randomizeString(RA_SERIES, 20), B56_BUSINESS_TYPE);
+            ConstraintSeries curativeB56 = getNewB56RaConstraintSeries();
             ContingencySeries contingencySeries = newContingencySeries(contingency.getId(), contingency.getName().orElse(contingency.getId()));
             curativeB56.getContingencySeries().add(contingencySeries);
             sortedRangeActions.forEach(rangeAction -> createPostOptimPstRangeActionSeries(rangeAction, InstantKind.CURATIVE, curativeState, curativeB56));
