@@ -34,6 +34,7 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
     private Optional<MnecParameters> mnecParameters;
     private Optional<RelativeMarginsParameters> relativeMarginsParameters;
     private Optional<LoopFlowParameters> loopFlowParameters;
+    private ReportNode reportNode;
 
     public RaoParameters(final ReportNode reportNode) {
         this.objectiveFunctionParameters = new ObjectiveFunctionParameters();
@@ -43,6 +44,7 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
         this.mnecParameters = Optional.empty();
         this.relativeMarginsParameters = Optional.empty();
         this.loopFlowParameters = Optional.empty();
+        this.reportNode = reportNode;
     }
 
     // Getters and setters
@@ -153,7 +155,7 @@ public class RaoParameters extends AbstractExtendable<RaoParameters> {
 
     private void loadExtensions(PlatformConfig platformConfig) {
         for (ExtensionConfigLoader provider : PARAMETERS_EXTENSIONS_SUPPLIER.get().getProviders()) {
-            Extension extension = provider.load(platformConfig);
+            Extension extension = provider.load(platformConfig, reportNode);
             if (extension != null) {
                 addExtension(provider.getExtensionClass(), extension);
             }
