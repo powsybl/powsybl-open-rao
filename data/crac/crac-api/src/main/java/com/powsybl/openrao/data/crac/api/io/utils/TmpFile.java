@@ -84,7 +84,10 @@ public class TmpFile implements AutoCloseable {
             var out = this.buffer.apply(Files.newOutputStream(tempFile))) {
             long start = System.currentTimeMillis();
             cis.transferTo(out);
-            LOGGER.debug("Loaded. Read={}. Time={}", IOUtils.humanReadableBytes(cis.getCount()), System.currentTimeMillis() - start);
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Loaded. Read={}. Time={}", IOUtils.humanReadableBytes(cis.getCount()),
+                    System.currentTimeMillis() - start);
+            }
         }
     }
 

@@ -10,13 +10,13 @@ package com.powsybl.openrao.data.crac.api.io.utils;
 public interface ThrowingFunctions {
 
     @FunctionalInterface
-    public static interface Runner<T, R> {
-        R run(T t) throws Exception;
+    interface Runner<T, R> {
+        R run(T t) throws Exception; //NOSONAR S112
     }
 
     @FunctionalInterface
-    public static interface VoidRunner<T> {
-        void run(T t) throws Exception;
+    interface VoidRunner<T> {
+        void run(T t) throws Exception; //NOSONAR S112
     }
 
 }
