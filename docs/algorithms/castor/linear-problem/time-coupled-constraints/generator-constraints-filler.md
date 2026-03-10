@@ -37,7 +37,7 @@ the timestamps, and not some time in between two timestamps.
  Name               | Symbol                      | Details                                                                                                                                             |
 |--------------------|-----------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------|
 | Off-power deadband | $\epsilon_{P}^{\text{OFF}}$ | Power deadband used to define the OFF state and account for rounding issues. This value must be positive.                                           |
-| On-power deadband  | $\epsilon_{P}^{\text{ON}}$  | Power deadband used to define the ON state and account for rounding issues. This value must be positive.                                             |
+| On-power threshold | $\epsilon_{P}^{\text{ON}}$  | Power threshold used to define the ON state and account for rounding issues. This value must be positive.                                           |
 | Time gap           | $\Delta_{\tau}$             | Time gap between two consecutive timestamps. It is assumed constant for all pairs of consecutive timestamps. It is computed based on  $\mathcal{T}$ |
 
 > In the following we define as _grid state_ a network situation for a given instant after a given contingency or the
@@ -120,7 +120,7 @@ such that if the power of the generator is lower that $\epsilon_{P}^{\text{OFF}}
 $$P_{\min}(g, t) \delta_{\textcolor{green}{\text{ON}}}^{gen}(g,s,t) \leq P(g,s,t) \leq P_{\max}(g) \delta_{\textcolor{green}{\text{ON}}}^{gen}(g,s,t) + \epsilon_{P}^{\text{OFF}} \delta_{\textcolor{red}{\text{OFF}}}^{gen}(g,s,t)$$
 
 > $P_{\min}(g, t)$ value has been post-treated: to account for
-issues that can stem from number rounding and to ensure a distinct definition of ON and OFF states, we define a _minimal power variation deadband_ $\epsilon_{P}^{\text{ON}}$
+issues that can stem from number rounding and to ensure a distinct definition of ON and OFF states, we define an _ON power threshold_ $\epsilon_{P}^{\text{ON}}$
 such that if the generator's defined Pmin is lower that $\epsilon_{P}^{\text{ON}}$, Pmin will be redefined as $\epsilon_{P}^{\text{ON}}$.
 
 ### C5 - Lead time
