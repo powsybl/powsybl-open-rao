@@ -7,8 +7,13 @@
 
 package com.powsybl.openrao.data.crac.api.rangeaction;
 
+import com.powsybl.action.Action;
+import com.powsybl.action.HvdcAction;
+import com.powsybl.action.HvdcActionBuilder;
 import com.powsybl.openrao.data.crac.api.NetworkElement;
 import com.powsybl.iidm.network.Network;
+
+import java.util.Set;
 
 /**
  * A range action interface specifying an action on a HVDC
@@ -26,4 +31,18 @@ public interface HvdcRangeAction extends StandardRangeAction<HvdcRangeAction> {
     boolean isAngleDroopActivePowerControlEnabled(Network network);
 
     void setInitialSetpoint(double initialSetpoint);
+
+    @Override
+    default Set<Action> toActions(double setPoint, Network network) {
+        return Set.of(toAction(setPoint));
+    }
+
+    default HvdcAction toAction(double setPoint) {
+        return new HvdcActionBuilder()
+            .withId("%s@%s".formatted(getId(), setPoint))
+            .withRelativeValue(false)
+            .withHvdcId(getNetworkElement().getId())
+            .withActivePowerSetpoint(setPoint)
+            .build();
+    }
 }

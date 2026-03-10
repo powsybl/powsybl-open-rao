@@ -7,9 +7,19 @@
 
 package com.powsybl.openrao.data.crac.api.rangeaction;
 
+import com.powsybl.action.Action;
+import com.powsybl.action.GeneratorActionBuilder;
+import com.powsybl.action.LoadActionBuilder;
+import com.powsybl.iidm.network.Generator;
+import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.Load;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.openrao.commons.OpenRaoException;
 import com.powsybl.openrao.data.crac.api.NetworkElement;
 
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * A range action interface specifying an action on one or several Injections
@@ -40,4 +50,36 @@ public interface InjectionRangeAction extends StandardRangeAction<InjectionRange
      * is impacted by a change of setpoint of the RangeAction
      */
     Map<NetworkElement, Double> getInjectionDistributionKeys();
+
+    @Override
+    default Set<Action> toActions(double setPoint, Network network) {
+        Set<Action> actions = new HashSet<>();
+        getInjectionDistributionKeys().forEach((networkElement, distributionKey) -> {
+            Identifiable<?> identifiable = network.getIdentifiable(networkElement.getId());
+            if (identifiable instanceof Generator generator) {
+                double injectionSetPoint = setPoint * getInjectionDistributionKeys().get(networkElement);
+                actions.add(
+                    new GeneratorActionBuilder()
+                        .withId("%s::%s@%s".formatted(getId(), identifiable.getId(), injectionSetPoint))
+                        .withActivePowerValue(injectionSetPoint)
+                        .withGeneratorId(generator.getId())
+                        .withActivePowerRelativeValue(false)
+                        .build()
+                );
+            } else if (identifiable instanceof Load load) {
+                double injectionSetPoint = Math.abs(setPoint * getInjectionDistributionKeys().get(networkElement));
+                actions.add(
+                    new LoadActionBuilder()
+                        .withId("%s::%s@%s".formatted(getId(), identifiable.getId(), injectionSetPoint))
+                        .withActivePowerValue(injectionSetPoint)
+                        .withLoadId(load.getId())
+                        .withRelativeValue(false)
+                        .build()
+                );
+            } else {
+                throw new OpenRaoException("Network element '%s' is neither a generator nor a load.".formatted(networkElement.getId()));
+            }
+        });
+        return actions;
+    }
 }
